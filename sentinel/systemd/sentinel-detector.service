@@ -1,0 +1,34 @@
+[Unit]
+Description=Agent Runtime Sentinel realtime anomaly detector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dat
+WorkingDirectory=/home/dat/ml-service
+Environment=SENTINEL_WARMUP_WINDOWS=10
+Environment=SENTINEL_MIN_EVENTS=20
+Environment=SENTINEL_QUEUE_SIZE=100000
+Environment=SENTINEL_CONSUMER_LOG_INTERVAL=100000
+Environment=SENTINEL_METRICS=/home/dat/ml-service/metrics.jsonl
+Environment=SENTINEL_CALIBRATION=/home/dat/ml-service/calibration.json
+ExecStart=/home/dat/ml-venv/bin/python -u /home/dat/ml-service/anomaly_detector2.py --mode kubectl --model-dir /home/dat/ml-service/models --vocab /home/dat/ml-service/models/vocab.pkl --window 30 --threshold 0.80 --dry-run
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/dat/ml-service
+ReadWritePaths=-/home/dat/.kube/cache -/home/dat/.kube/http-cache
+CPUQuota=200%
+MemoryMax=1G
+StandardOutput=append:/home/dat/ml-service/realtime-detector.log
+StandardError=append:/home/dat/ml-service/realtime-detector.log
+
+[Install]
+WantedBy=multi-user.target

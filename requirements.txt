@@ -1,0 +1,7 @@
+numpy>=1.26
+scikit-learn>=1.4
+scipy>=1.12
+torch>=2.2
+kubernetes>=29.0
+redis>=5.0
+pytest>=8.0

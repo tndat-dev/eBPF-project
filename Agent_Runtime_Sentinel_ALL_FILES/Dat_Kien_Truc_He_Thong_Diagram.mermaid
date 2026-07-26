@@ -1,0 +1,49 @@
+flowchart TB
+    AGENT(["🤖 AI Agent thực thi qua MCP<br/>trong Kubernetes Pod"])
+
+    subgraph L1["LỚP 1 — Data Collection (Kernel, eBPF)"]
+        direction TB
+        A1["Custom eBPF/C (libbpf)<br/>hook socket + uprobe SSL_read/write<br/>bóc raw bytes JSON-RPC (MCP)"]
+        A2["Tetragon<br/>TracingPolicy CRD — nền tảng<br/>loading/quản lý, hook syscall chuẩn"]
+        A1 --- A2
+    end
+
+    subgraph L2["LỚP 2 — Graph Construction (Userspace, Go)"]
+        direction TB
+        B1["Go service: đọc BPF ring buffer,<br/>parse JSON-RPC → method/params"]
+        B2["Behavior Graph (sliding window)<br/>node = agent/tool/resource/pod<br/>edge = lời gọi theo thời gian"]
+        B1 --> B2
+    end
+
+    subgraph L3["LỚP 3 — Anomaly Detection (Python)"]
+        direction TB
+        C1["Graph Attention Network<br/>(PyTorch Geometric)<br/>học biểu diễn hành vi 'bình thường'"]
+        C2["EVT-POT<br/>ngưỡng cảnh báo suy từ lý thuyết<br/>giá trị cực trị, không cố định"]
+        C1 --> C2
+    end
+
+    subgraph L4["LỚP 4 — Response"]
+        direction TB
+        D1["MVP: Alert / Webhook / Log"]
+        D2["v2: Tetragon Enforcement<br/>(block/kill) hoặc K8s Admission Webhook"]
+    end
+
+    subgraph L5["LỚP 5 — Product (Enterprise, trả phí)"]
+        direction TB
+        E1["Dashboard tập trung"]
+        E2["Helm chart cài đặt"]
+        E3["Đa cụm / đa cloud + compliance audit"]
+    end
+
+    AGENT --> L1
+    L1 -->|BPF ring buffer| L2
+    L2 -->|graph snapshot| L3
+    L3 -->|anomaly score + threshold| L4
+    L2 -.->|dữ liệu tổng hợp| L5
+    L4 -.->|tích hợp| L5
+
+    style L1 fill:#fee2e2,stroke:#b91c1c,color:#000
+    style L2 fill:#fef3c7,stroke:#b45309,color:#000
+    style L3 fill:#dbeafe,stroke:#1d4ed8,color:#000
+    style L4 fill:#dcfce7,stroke:#15803d,color:#000
+    style L5 fill:#ede9fe,stroke:#6d28d9,color:#000

@@ -1,0 +1,16 @@
+# Apply the upstream metrics-server manifest, then this patch. The cluster's
+# kubelet certificates contain no IP SAN, so InternalIP scraping requires the
+# explicit insecure flag in this research lab (documented limitation).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-server
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+      - name: metrics-server
+        args:
+        - --kubelet-insecure-tls
+        - --kubelet-preferred-address-types=InternalIP,Hostname

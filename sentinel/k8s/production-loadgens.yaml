@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgen
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: loadgen}
+  template:
+    metadata:
+      labels: {app: loadgen}
+    spec:
+      containers:
+      - name: loadgen
+        image: busybox:1.36
+        command: [/bin/sh, -c]
+        args:
+        - while true; do wget -q -O /dev/null http://nginx.production.svc.cluster.local || true; sleep 1; done
+        resources:
+          requests: {cpu: 10m, memory: 8Mi}
+          limits: {cpu: 100m, memory: 32Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-loadgen
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: redis-loadgen}
+  template:
+    metadata:
+      labels: {app: redis-loadgen}
+    spec:
+      containers:
+      - name: loadgen
+        image: redis:8.2.1
+        command: [/bin/sh, -c]
+        args:
+        # Keep a bounded 10k-key working set. The redis-benchmark defaults
+        # otherwise grow a multi-gigabyte database over a long experiment,
+        # turning elapsed time/memory pressure into an uncontrolled variable.
+        - while true; do redis-benchmark -h redis -p 6379 -t set,get -r 10000 -n 5000 -q >/dev/null 2>&1; sleep 5; done
+        resources:
+          requests: {cpu: 25m, memory: 32Mi}
+          limits: {cpu: 500m, memory: 128Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-loadgen
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: postgres-loadgen}
+  template:
+    metadata:
+      labels: {app: postgres-loadgen}
+    spec:
+      containers:
+      - name: loadgen
+        image: postgres:latest
+        env:
+        - {name: PGPASSWORD, value: keycloak}
+        command: [/bin/sh, -c]
+        args:
+        - while true; do psql -h postgres -U keycloak -d keycloak -c 'SELECT count(*) FROM pg_stat_activity;' >/dev/null 2>&1; sleep 2; done
+        resources:
+          requests: {cpu: 10m, memory: 16Mi}
+          limits: {cpu: 200m, memory: 64Mi}

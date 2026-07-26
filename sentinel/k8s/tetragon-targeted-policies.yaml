@@ -1,0 +1,81 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-syscalls
+  namespace: production
+spec:
+  podSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values: [nginx, redis]
+  kprobes: &sentinelKprobes
+  - {call: sys_execve, syscall: true}
+  - {call: sys_connect, syscall: true}
+  # High-frequency context syscalls are sampled in-kernel. Posting every
+  # read/write/close/accept event caused queue loss and >40% HTTP throughput
+  # overhead under c50. Security-sensitive syscalls below remain unsampled.
+  - call: sys_read
+    syscall: true
+    selectors: &sampledContext
+    - matchActions:
+      - {action: Post, rateLimit: 1s, rateLimitScope: process}
+  - call: sys_write
+    syscall: true
+    selectors: *sampledContext
+  # nginx performs an openat for essentially every static-file request.  It is
+  # a high-rate context signal (and is not an independent attack gate), so it
+  # must be sampled as well or c50 traffic still produces ~100k events/30 s.
+  - call: sys_openat
+    syscall: true
+    selectors: *sampledContext
+  - call: sys_close
+    syscall: true
+    selectors: *sampledContext
+  - {call: sys_clone, syscall: true}
+  - call: sys_accept4
+    syscall: true
+    selectors: *sampledContext
+  - {call: sys_setuid, syscall: true}
+  - {call: sys_setgid, syscall: true}
+  - {call: sys_capset, syscall: true}
+  - {call: sys_unshare, syscall: true}
+  - {call: sys_mount, syscall: true}
+  - {call: sys_ptrace, syscall: true}
+---
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-syscalls
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: postgres
+  kprobes:
+  - {call: sys_execve, syscall: true}
+  - {call: sys_connect, syscall: true}
+  - call: sys_read
+    syscall: true
+    selectors: &sampledContextDefault
+    - matchActions:
+      - {action: Post, rateLimit: 1s, rateLimitScope: process}
+  - call: sys_write
+    syscall: true
+    selectors: *sampledContextDefault
+  - call: sys_openat
+    syscall: true
+    selectors: *sampledContextDefault
+  - call: sys_close
+    syscall: true
+    selectors: *sampledContextDefault
+  - {call: sys_clone, syscall: true}
+  - call: sys_accept4
+    syscall: true
+    selectors: *sampledContextDefault
+  - {call: sys_setuid, syscall: true}
+  - {call: sys_setgid, syscall: true}
+  - {call: sys_capset, syscall: true}
+  - {call: sys_unshare, syscall: true}
+  - {call: sys_mount, syscall: true}
+  - {call: sys_ptrace, syscall: true}

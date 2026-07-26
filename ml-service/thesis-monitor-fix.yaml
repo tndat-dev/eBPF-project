@@ -1,0 +1,70 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: thesis-syscall-monitor-fix
+spec:
+  kprobes:
+    - call: "sys_execve"
+      syscall: true
+      args:
+        - index: 0
+          type: "string"
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_connect"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_read"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_write"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_openat"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_close"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_clone"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_accept4"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_setuid"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_setgid"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_unshare"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+    - call: "sys_mount"
+      syscall: true
+      selectors:
+        - matchActions:
+            - action: Post
+  # ĐÃ XÓA POD SELECTOR: Theo dõi toàn cụm, chấp hết mọi loại lỗi nhãn (Metadata Lag)
