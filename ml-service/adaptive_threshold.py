@@ -96,7 +96,16 @@ class POTThreshold:
 class StreamingThreshold:
     """Online calibration from real runtime windows for one workload."""
     def __init__(self, minimum=0.80, warmup=10, capacity=120,
-                 event_floor_quantile=0.10, event_floor_fraction=0.50):
+                 event_floor_quantile=0.10, event_floor_fraction=0.50,
+                 event_ceiling_quantile=0.99, event_ceiling_factor=2.0):
+        if not 0.0 <= event_floor_quantile <= 1.0:
+            raise ValueError("event floor quantile must be within [0, 1]")
+        if not 0.0 < event_floor_fraction <= 1.0:
+            raise ValueError("event floor fraction must be within (0, 1]")
+        if not 0.0 <= event_ceiling_quantile <= 1.0:
+            raise ValueError("event ceiling quantile must be within [0, 1]")
+        if event_ceiling_factor <= 1.0:
+            raise ValueError("event ceiling factor must be greater than 1")
         self.minimum = minimum
         self.warmup = warmup
         self.scores = deque(maxlen=capacity)
@@ -105,6 +114,8 @@ class StreamingThreshold:
         self.current = minimum
         self.event_floor_quantile = event_floor_quantile
         self.event_floor_fraction = event_floor_fraction
+        self.event_ceiling_quantile = event_ceiling_quantile
+        self.event_ceiling_factor = event_ceiling_factor
 
     def observe(self, score, event_count=None):
         if np.isfinite(score):
@@ -132,7 +143,25 @@ class StreamingThreshold:
         ))
         return max(1, int(lower_normal * self.event_floor_fraction))
 
-def load_calibrators(path, minimum=.80, warmup=10):
+    @property
+    def maximum_event_count(self):
+        """Return a conservative upper bound learned only from clean windows.
+
+        This is independent corroborating evidence for attacks that preserve a
+        workload's syscall proportions while multiplying total kernel-event
+        volume.  A high quantile and a 2x safety margin keep ordinary load
+        variation below the bound.  The detector still requires both a full ML
+        threshold crossing and persistence; volume alone is never actionable.
+        """
+        if not self.event_guard_ready:
+            return 0
+        upper_normal = float(np.quantile(
+            self.event_counts, self.event_ceiling_quantile
+        ))
+        return max(1, int(np.ceil(upper_normal * self.event_ceiling_factor)))
+
+def load_calibrators(path, minimum=.80, warmup=10,
+                     event_ceiling_factor=2.0):
     """Restore per-workload clean score history; malformed state is ignored."""
     try:
         with open(path) as f:
@@ -150,7 +179,10 @@ def load_calibrators(path, minimum=.80, warmup=10):
         else:
             scores = state
             event_counts = []
-        cal = StreamingThreshold(minimum=minimum, warmup=warmup)
+        cal = StreamingThreshold(
+            minimum=minimum, warmup=warmup,
+            event_ceiling_factor=event_ceiling_factor,
+        )
         for score in scores:
             cal.observe(score)
         for event_count in event_counts:

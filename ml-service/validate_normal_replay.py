@@ -6,6 +6,7 @@ the same score/persistence/behavior gates as the realtime detector.
 """
 import argparse
 import json
+import os
 import pickle
 from collections import defaultdict
 from datetime import datetime
@@ -13,6 +14,7 @@ from datetime import datetime
 from feature_engineering import extract_ngram_vector
 from ml_models import ModelManager
 from tetragon_consumer import TetragonEventParser
+from workload_identity import get_deployment_key
 
 SUSPICIOUS = {
     "execve", "execveat", "clone", "clone3", "unshare", "mount", "ptrace",
@@ -26,13 +28,13 @@ def epoch(value):
         return None
 
 def deployment_key(namespace, pod):
-    parts = pod.rsplit("-", 2)
-    return f"{namespace}/{parts[0] if len(parts) == 3 else pod}"
+    return get_deployment_key(f"{namespace}/{pod}")
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default="raw_tetragon.jsonl")
-    ap.add_argument("--window", type=int, default=30)
+    ap.add_argument("--window", type=int,
+                    default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")))
     ap.add_argument("--threshold", type=float, default=.80)
     ap.add_argument("--warmup", type=int, default=2)
     args = ap.parse_args()

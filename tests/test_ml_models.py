@@ -8,10 +8,16 @@ np = pytest.importorskip("numpy")
 pytest.importorskip("torch")
 pytest.importorskip("sklearn")
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ml-service"))
+HERE = Path(__file__).resolve()
+SERVICE_ROOT = next(path for path in (
+    HERE.parents[1] / "ml-service",  # repository layout
+    HERE.parents[1],                 # flat VM deployment
+) if (path / "ml_models.py").is_file())
+sys.path.insert(0, str(SERVICE_ROOT))
 
 from ml_models import ModelManager, PodModelBundle
 from build_phase_dataset import allocate_validation, expand_vocabulary
+from train_candidate import holdout_actionable_pairs
 from artifact_integrity import model_release_hashes
 import promote_candidate
 
@@ -53,6 +59,22 @@ def test_phase_holdout_allocation_matches_trainer_rounding():
     allocated = allocate_validation(counts, .20)
     assert sum(allocated) == round(sum(counts) * .20)
     assert all(1 <= value < count for value, count in zip(allocated, counts))
+
+
+def test_offline_behavior_gate_matches_runtime_startup_grace():
+    vocab = {"execve": 0, "read": 1}
+    holdout = np.asarray([
+        [0.30, 0.70],
+        [0.30, 0.70],
+        [0.30, 0.70],
+    ], dtype=np.float32)
+    pairs, _masses, evidence, effective = holdout_actionable_pairs(
+        holdout, [0.9, 0.9, 0.9], 0.8, vocab,
+        {"execve": 0.10}, [True, False, False],
+    )
+    assert all(item["gate"] for item in evidence)
+    assert effective == [False, True, True]
+    assert pairs == 1
 
 
 def test_policy_vocabulary_expansion_preserves_existing_indexes():
@@ -108,15 +130,26 @@ def test_atomic_promotion_includes_release_vocabulary(tmp_path, monkeypatch):
     dataset_manifest = candidate / "dataset_manifest.json"
     dataset_manifest.write_text(json.dumps({
         "phase_order": ["normal", "wrk", "high", "recovery"],
+        "window_seconds": 30,
+        "startup_grace_seconds": 60.0,
         "vocabulary": {"output_sha256": vocab_hash},
         "source_manifests": [
-            {"sensor_health": {"backpressure_events": 0}}
+            {"sensor_health": {
+                "backpressure_events": 0,
+                "membership_failures": 0,
+                "coverage_failures": 0,
+                "stream_failures": 0,
+                "require_full_coverage": True,
+                "coverage_healthy": True,
+            }}
         ],
         "targets": {target: {"shape": [100, 1]} for target in targets},
     }))
     dataset_hash = hashlib.sha256(dataset_manifest.read_bytes()).hexdigest()
     training = {
         "accepted_offline": True,
+        "window_seconds": 30,
+        "startup_grace_seconds": 60.0,
         "vocab_sha256": vocab_hash,
         "bundled_vocab_sha256": vocab_hash,
         "dataset_manifest_sha256": dataset_hash,
@@ -144,11 +177,16 @@ def test_atomic_promotion_includes_release_vocabulary(tmp_path, monkeypatch):
         "vocab_sha256": vocab_hash,
         "calibration": str(calibration.resolve()),
         "calibration_sha256": calibration_hash,
+        "window_seconds": 30,
+        "confirmation_policy": {
+            "pod_startup_grace_seconds": 60.0,
+            "extreme_volume_factor": 2.0,
+        },
         "runtime_code_sha256": runtime_hashes,
         "model_release_sha256": release_hashes,
         "regimes": {
             name: {"passed": True} for name in (
-                "normal-1x", "wrk-c50", "high-mixed", "recovery-1x"
+                "normal-1x", "in-cluster-burst", "high-mixed", "recovery-1x"
             )
         },
     }))
@@ -163,6 +201,11 @@ def test_atomic_promotion_includes_release_vocabulary(tmp_path, monkeypatch):
         "runtime_code_sha256": runtime_hashes,
         "model_release_sha256": release_hashes,
         "runtime_binary_sha256": "safe-runtime-binary",
+        "window_seconds": 30,
+        "confirmation_policy": {
+            "pod_startup_grace_seconds": 60.0,
+            "extreme_volume_factor": 2.0,
+        },
         "workloads": {
             target: {
                 "exit_code": 0,
@@ -200,7 +243,8 @@ def test_atomic_promotion_includes_release_vocabulary(tmp_path, monkeypatch):
         "--production", str(production),
         "--normal-report", str(normal), "--attack-report", str(attack),
         "--calibration", str(calibration),
-        "--expected-version", "7", "--apply",
+        "--expected-version", "7", "--expected-window", "30",
+        "--expected-startup-grace", "60", "--apply",
     ])
     assert promote_candidate.main() == 0
     assert (production / "vocab.pkl").read_bytes() == vocab.read_bytes()

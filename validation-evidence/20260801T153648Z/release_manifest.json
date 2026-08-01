@@ -1,0 +1,66 @@
+{
+  "attack_report": {
+    "path": "/home/dat/ml-service/kernel-regression-window10-20260801T153648Z/20260801T155034Z/report.json",
+    "sha256": "d3c79f755fae4d321ab95f5268db7b1e15a4d883beab14f9c2807b75e2400123"
+  },
+  "backup": "/home/dat/ml-service/models.backup-20260801T161516Z",
+  "calibration_backup": "/home/dat/ml-service/calibration.json.backup-20260801T161516Z",
+  "candidate": "/home/dat/ml-service/models_post_lifecycle_candidate-20260801T130809Z",
+  "evidence_files": {
+    "attack_validation_report.json": "d3c79f755fae4d321ab95f5268db7b1e15a4d883beab14f9c2807b75e2400123",
+    "normal_validation_report.json": "e9b61b3efffdd16d2ce8fa40c94adf205530f2a620de85b651e5c4cd56c9dd59",
+    "validated_calibration.json": "2cff0000a67673892b80d6ea98ec3991141148a9700083d82a1cc287cf41fc1f"
+  },
+  "expected_startup_grace_seconds": 60.0,
+  "expected_version": 7,
+  "expected_window_seconds": 10,
+  "failures": [],
+  "files": {
+    "dataset_manifest.json": "76c88eb61e80d4d7441705a5afc55aee1525bc996bc7d629ec5701d0357db3a1",
+    "default__postgres_bundle.pkl": "a9ddac89d2d9667e6aefbbfd43ef57027517d256f8474b75b81e416fbbb5499b",
+    "default__postgres_lstm.pt": "75e5de055ab92d354b66e29f6bfb0b4e3b1eeb8fd40a962fc519edfb8d4104d3",
+    "production__nginx_bundle.pkl": "abf6d12f7934ae22cac1b2f83071fb714cf4edb35aa3324949f9011779228571",
+    "production__nginx_lstm.pt": "625272654c81aa0f11d936491c4a395d2b63ee6820788ed1de8fe36040a4dede",
+    "production__redis_bundle.pkl": "740768ff88ab497dbd82b00d88aa61e5a8c440c6a7b82512b6432a4659e12b70",
+    "production__redis_lstm.pt": "4bac1f7dcb660455958ec625b4b4957cfeffe310f030842d61b3f0603a5497e0",
+    "training_report.json": "13a8973d3a8cf22393fde38d47ba4015c8d7aa926bd95589bf3e74b01b2f37d5",
+    "vocab.pkl": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  },
+  "model_release_sha256": {
+    "dataset_manifest.json": "76c88eb61e80d4d7441705a5afc55aee1525bc996bc7d629ec5701d0357db3a1",
+    "default__postgres_bundle.pkl": "a9ddac89d2d9667e6aefbbfd43ef57027517d256f8474b75b81e416fbbb5499b",
+    "default__postgres_lstm.pt": "75e5de055ab92d354b66e29f6bfb0b4e3b1eeb8fd40a962fc519edfb8d4104d3",
+    "production__nginx_bundle.pkl": "abf6d12f7934ae22cac1b2f83071fb714cf4edb35aa3324949f9011779228571",
+    "production__nginx_lstm.pt": "625272654c81aa0f11d936491c4a395d2b63ee6820788ed1de8fe36040a4dede",
+    "production__redis_bundle.pkl": "740768ff88ab497dbd82b00d88aa61e5a8c440c6a7b82512b6432a4659e12b70",
+    "production__redis_lstm.pt": "4bac1f7dcb660455958ec625b4b4957cfeffe310f030842d61b3f0603a5497e0",
+    "training_report.json": "13a8973d3a8cf22393fde38d47ba4015c8d7aa926bd95589bf3e74b01b2f37d5",
+    "vocab.pkl": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  },
+  "normal_report": {
+    "path": "/home/dat/ml-service/candidate-window10-normal-report-20260801T153648Z.json",
+    "sha256": "e9b61b3efffdd16d2ce8fa40c94adf205530f2a620de85b651e5c4cd56c9dd59"
+  },
+  "production": "/home/dat/ml-service/models",
+  "promoted_at": "2026-08-01T16:15:16.324913+00:00",
+  "runtime_code_sha256": {
+    "adaptive_threshold.py": "944ac597eeeb6cc7bc8cd498639cfa300c041775f118c20ee8550e7aa84dedc9",
+    "anomaly_detector2.py": "0d0b8636a236bbb44af662771bbd9743d61467d5d3954eb7692d21585f94aecc",
+    "feature_engineering.py": "261c8b0b546d770288e386cf31a327ddd61181657501b2fabffd64749b3b444f",
+    "graph_signals.py": "12573fcc17eb0f19d60168da2fd47d7174aee12537201b7bb0308f0b7a9ecd39",
+    "ml_models.py": "602ae06a06f8701ea3cceaf65cee0b6d86c6919e466cc13954cfa5e17a20cdff",
+    "sentinel/fast_path.py": "0099dcb99ca6f07bd75dac25bebd115edd6c9dcbae53988a70a38296538a8d45",
+    "sentinel/telemetry.py": "ba0c8617812d2bc07d1c16b84d43358af107de6f2196b3b1710c749404d4e131",
+    "tetragon_consumer.py": "8aeec377ad61fed18137fba4a6d51dc7465c3df49f84248f75478b1c120156e3"
+  },
+  "status": "promoted",
+  "training_report": {
+    "path": "/home/dat/ml-service/models_post_lifecycle_candidate-20260801T130809Z/training_report.json",
+    "sha256": "13a8973d3a8cf22393fde38d47ba4015c8d7aa926bd95589bf3e74b01b2f37d5"
+  },
+  "validated_at": "2026-08-01T16:15:16.302338+00:00",
+  "vocab": {
+    "path": "/home/dat/ml-service/models_post_lifecycle_candidate-20260801T130809Z/vocab.pkl",
+    "sha256": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  }
+}

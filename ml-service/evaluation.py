@@ -9,7 +9,7 @@ Chạy 5 attack scenarios và đo metrics theo đồ án:
   - MITRE ATT&CK mapping accuracy
 
 Chạy:
-  python evaluation.py --runs 5 --window 30 --attack-delay 60
+  python evaluation.py --runs 5 --window 10 --attack-delay 60
 """
 
 import argparse
@@ -327,7 +327,7 @@ class Evaluator:
         class FakeEvent:
             def __init__(self, sc):
                 self.pod=FakePod(); self.process=FakeProc()
-                self.syscall_name=sc; self.node_name="k8s-worker2.local"
+                self.syscall_name=sc; self.node_name="synthetic-node"
                 self.event_type="process_kprobe"; self.timestamp=""
 
         for _ in range(n_events):
@@ -351,7 +351,7 @@ class Evaluator:
         class FakeEvent:
             def __init__(self, sc):
                 self.pod=FakePod(); self.process=FakeProc()
-                self.syscall_name=sc; self.node_name="k8s-worker2.local"
+                self.syscall_name=sc; self.node_name="synthetic-node"
                 self.event_type="process_kprobe"; self.timestamp=""
 
         start = time.time()
@@ -372,11 +372,14 @@ class Evaluator:
         import subprocess
         ns, name = self.target_pod_key.split("/", 1)
         try:
-            # Uncordon node
-            subprocess.run(
-                ["kubectl", "uncordon", "k8s-worker2.local"],
-                capture_output=True
-            )
+            # Never uncordon a hard-coded cluster node. A real live-response
+            # evaluation must opt in and record its target explicitly.
+            cleanup_node = os.environ.get("EVALUATION_CLEANUP_NODE", "").strip()
+            if cleanup_node:
+                subprocess.run(
+                    ["kubectl", "uncordon", cleanup_node],
+                    capture_output=True,
+                )
             # Xóa quarantine label
             subprocess.run(
                 ["kubectl", "label", "pod", "-n", ns,
@@ -480,19 +483,25 @@ class Evaluator:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluation — 5 Attack Scenarios")
-    parser.add_argument("--target", default="production/nginx-56fcf95486-r6n7g",
+    parser.add_argument("--target", default="production/nginx",
                         help="Pod key để inject attack")
     parser.add_argument("--runs", type=int, default=5,
                         help="Số lần chạy mỗi scenario (mặc định 5)")
-    parser.add_argument("--window", type=int, default=30)
+    parser.add_argument("--window", type=int,
+                        default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")))
     parser.add_argument("--attack-delay", type=int, default=60,
                         help="Giây normal trước khi inject attack")
     parser.add_argument("--attack-duration", type=int, default=60)
     parser.add_argument("--threshold", type=float, default=0.80)
-    parser.add_argument("--dry-run", action="store_true", default=False)
+    parser.add_argument("--dry-run", action="store_true", default=True)
+    parser.add_argument("--live-response", action="store_true",
+                        help="Explicitly allow response actions; dry-run is the default")
     parser.add_argument("--quick", action="store_true", default=False,
                         help="Chạy nhanh: 1 run/scenario, delay=30s")
     args = parser.parse_args()
+
+    if args.live_response:
+        args.dry_run = False
 
     if args.quick:
         args.runs = 1

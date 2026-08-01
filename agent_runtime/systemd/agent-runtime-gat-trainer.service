@@ -1,0 +1,17 @@
+[Unit]
+Description=Agent Runtime Sentinel GAT candidate trainer (no promotion)
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+ExecStart=/home/dat/ml-venv/bin/python -m agent_runtime.eval.gat_continuous_trainer --input /home/dat/ml-service/models/gat-lab-normal.jsonl --candidate-dir /home/dat/ml-service/models/gat-candidates --state /home/dat/ml-service/models/gat-candidates/state.json --min-snapshots 200 --min-agents 3 --min-workloads 3 --min-span-seconds 86400 --max-holdout-alert-rate 0.0 --epochs 120
+Nice=10
+IOSchedulingClass=best-effort
+CPUQuota=50%
+MemoryMax=2G
+TimeoutStartSec=30min
+NoNewPrivileges=true
+PrivateTmp=true

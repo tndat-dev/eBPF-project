@@ -18,6 +18,7 @@ import argparse
 import signal
 import sys
 import os
+import subprocess
 import numpy as np
 from collections import defaultdict
 from adaptive_threshold import (load_thresholds, StreamingThreshold,
@@ -27,6 +28,7 @@ from sentinel.telemetry import emit, detection_latency
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
 from datetime import datetime, timezone
+from workload_identity import get_deployment_key
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,6 +39,31 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("anomaly_detector")
+
+
+def kubernetes_pod_started_at(pod_key: str) -> Optional[float]:
+    """Return a pod's Kubernetes creation time without trusting reader start.
+
+    A detector restart must not create a fresh grace period for already mature
+    workloads.  This bounded, one-time lookup is deliberately outside the
+    inference timer and is cached by ``AnomalyDetector`` per pod.  Lookup
+    failure returns ``None`` so detection remains fail-closed instead of
+    silently suppressing a potentially real attack.
+    """
+    try:
+        namespace, name = pod_key.split("/", 1)
+        result = subprocess.run(
+            ["kubectl", "get", "pod", name, "-n", namespace,
+             "-o", "jsonpath={.metadata.creationTimestamp}"],
+            check=True, capture_output=True, text=True, timeout=2,
+        )
+        timestamp = result.stdout.strip()
+        if not timestamp:
+            return None
+        return datetime.fromisoformat(timestamp.replace("Z", "+00:00")).timestamp()
+    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        logger.warning("Không lấy được pod creationTimestamp cho %s: %s", pod_key, exc)
+        return None
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -53,29 +80,6 @@ logger = logging.getLogger("anomaly_detector")
 #   deployment name, sau đó resolve_model_key() tìm model tương ứng
 #   trong danh sách models đã load.
 # ─────────────────────────────────────────────────────────────────
-
-def get_deployment_key(pod_key: str) -> str:
-    """
-    Chuyển full pod_key → deployment key bằng cách bỏ 2 suffix cuối.
-
-    Ví dụ:
-      "production/nginx-56fcf95486-29lq9" → "production/nginx"
-      "default/postgres-5cd4775869-sd99s" → "default/postgres"
-      "production/redis-5b999654fc-zkc4w" → "production/redis"
-
-    Kubernetes pod name format:
-      <deployment>-<replicaset-hash (10 hex)>-<pod-hash (5 alphanum)>
-    """
-    try:
-        ns, pod_name = pod_key.split("/", 1)
-        # rsplit từ phải, tối đa 2 lần → bỏ 2 suffix cuối
-        parts = pod_name.rsplit("-", 2)
-        if len(parts) >= 3:
-            return f"{ns}/{parts[0]}"
-        return pod_key  # Không có đủ suffix → giữ nguyên (StatefulSet, DaemonSet)
-    except ValueError:
-        return pod_key
-
 
 def resolve_model_key(pod_key: str, available_models: List[str]) -> Optional[str]:
     """
@@ -122,6 +126,7 @@ class AnomalyAlert:
     window_start:   float
     window_end:     float
     detection_latency: Optional[float] = None
+    early_warning: Optional[dict] = None
 
     @property
     def pod_key(self) -> str:
@@ -139,6 +144,7 @@ class AnomalyAlert:
             "threshold":      self.threshold,
             "top_syscalls":   self.top_syscalls,
             "detection_latency": self.detection_latency,
+            "early_warning": self.early_warning,
         }
 
     def __str__(self) -> str:
@@ -170,20 +176,69 @@ class AnomalyDetector:
         threshold: float = 0.80,
         # Tránh alert lặp lại cho cùng 1 pod trong cooldown_seconds
         cooldown_seconds: int = 300,
+        early_warning_lookup: Optional[Callable[[str], Optional[dict]]] = None,
+        confirmation_floor_ratio: Optional[float] = None,
+        pod_started_at_lookup: Optional[Callable[[str], Optional[float]]] = None,
     ):
         self.model_manager    = model_manager
         self.on_alert         = on_alert or self._default_alert_handler
         self.threshold        = threshold
         self.thresholds       = load_thresholds(model_manager, minimum=threshold)
         warmup_windows = int(os.environ.get("SENTINEL_WARMUP_WINDOWS", "10"))
+        self.extreme_volume_factor = float(os.environ.get(
+            "SENTINEL_EXTREME_VOLUME_FACTOR", "2.0"
+        ))
+        if self.extreme_volume_factor <= 1.0:
+            raise ValueError("extreme volume factor must be greater than 1")
         self.calibration_path = os.environ.get("SENTINEL_CALIBRATION", "calibration.json")
-        restored = load_calibrators(self.calibration_path, threshold, warmup_windows)
-        self.calibrators      = defaultdict(lambda: StreamingThreshold(minimum=threshold, warmup=warmup_windows), restored)
+        restored = load_calibrators(
+            self.calibration_path, threshold, warmup_windows,
+            event_ceiling_factor=self.extreme_volume_factor,
+        )
+        self.calibrators = defaultdict(
+            lambda: StreamingThreshold(
+                minimum=threshold, warmup=warmup_windows,
+                event_ceiling_factor=self.extreme_volume_factor,
+            ),
+            restored,
+        )
         self._consecutive     = defaultdict(int)
         self.cooldown_seconds = cooldown_seconds
+        self.confirmation_floor_ratio = (
+            float(os.environ.get("SENTINEL_CONFIRMATION_FLOOR_RATIO", "1.0"))
+            if confirmation_floor_ratio is None else confirmation_floor_ratio
+        )
+        if not 0.90 <= self.confirmation_floor_ratio <= 1.0:
+            raise ValueError("confirmation floor ratio must be within [0.90, 1.0]")
+        self.behavior_confirmation_floor = float(os.environ.get(
+            "SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR", str(threshold)
+        ))
+        self.fast_path_confirmation_floor = float(os.environ.get(
+            "SENTINEL_FAST_PATH_CONFIRMATION_FLOOR", str(threshold)
+        ))
+        if not 0.0 < self.behavior_confirmation_floor <= threshold:
+            raise ValueError("behavior confirmation floor must be within (0, threshold]")
+        if not 0.0 < self.fast_path_confirmation_floor <= threshold:
+            raise ValueError("fast-path confirmation floor must be within (0, threshold]")
+        self._behavior_consecutive = defaultdict(int)
+        self._volume_consecutive = defaultdict(int)
+        # Container entrypoints legitimately execute, change credentials and
+        # open files/connections in a short burst.  That lifecycle sequence is
+        # not an incident by itself.  Do not let it enter calibration or an ML
+        # confirmation path; the independent fast-path lane still records an
+        # early-warning for observability.  The guard is opt-in so an existing
+        # release keeps its old contract until it is validated with this value.
+        self.startup_grace_seconds = float(os.environ.get(
+            "SENTINEL_POD_STARTUP_GRACE_SECONDS", "0"
+        ))
+        if self.startup_grace_seconds < 0:
+            raise ValueError("pod startup grace must be non-negative")
+        self._pod_started_at: dict[str, Optional[float]] = {}
+        self.pod_started_at_lookup = pod_started_at_lookup or (lambda _pod: None)
 
         self._last_alert: dict = {}   # pod_key → timestamp
         self._lock = threading.Lock()
+        self.early_warning_lookup = early_warning_lookup or (lambda _pod: None)
         # Window completion may arrive from both the log-consumer thread and
         # the idle-window flusher. Serialize mutable calibration state and its
         # atomic file snapshot so concurrent workloads cannot lose/corrupt it.
@@ -205,6 +260,11 @@ class AnomalyDetector:
         """
         pod_key = fv.pod_key
         self._stats["windows_scored"] += 1
+        if (self.startup_grace_seconds > 0
+                and pod_key not in self._pod_started_at):
+            # Do not use detector-start/first-observed time as a fallback: a
+            # service restart must not buy an attacker a new grace period.
+            self._pod_started_at[pod_key] = self.pod_started_at_lookup(pod_key)
 
         # ─────────────────────────────────────────────────────────
         # FIX: Resolve model key theo deployment, không dùng exact
@@ -268,6 +328,9 @@ class AnomalyDetector:
         # Bỏ qua window quá ít events — vector quá sparse, IF sẽ flag nhầm
         MIN_EVENTS = int(os.environ.get("SENTINEL_MIN_EVENTS", "100"))
         if total_events < MIN_EVENTS:
+            self._consecutive[pod_key] = 0
+            self._behavior_consecutive[pod_key] = 0
+            self._volume_consecutive[pod_key] = 0
             emit("decision", pod_key=pod_key, model_key=model_key,
                  decision="low_event_skip", score=score,
                  event_count=total_events,
@@ -290,12 +353,42 @@ class AnomalyDetector:
                 if calibrator.event_guard_ready else 0
             )
         if learned_minimum_events and total_events < learned_minimum_events:
+            self._consecutive[pod_key] = 0
+            self._behavior_consecutive[pod_key] = 0
+            self._volume_consecutive[pod_key] = 0
             emit("decision", pod_key=pod_key, model_key=model_key,
                  decision="collection_quality_skip", score=score,
                  event_count=total_events,
                  learned_minimum_events=learned_minimum_events,
                  behavior_gate=behavior_gate,
                  suspicious_mass=round(suspicious_mass, 6))
+            return
+
+        pod_started_at = self._pod_started_at.get(pod_key)
+        startup_age_seconds = (
+            max(0.0, fv.window_end - pod_started_at)
+            if pod_started_at is not None else None
+        )
+        if (startup_age_seconds is not None
+                and startup_age_seconds < self.startup_grace_seconds):
+            # A suppressed startup window must not create a pending pair that
+            # could combine with a later steady-state window.  It must not be
+            # learned as a clean calibration sample either.
+            self._consecutive[pod_key] = 0
+            self._behavior_consecutive[pod_key] = 0
+            self._volume_consecutive[pod_key] = 0
+            emit("decision", pod_key=pod_key, model_key=model_key,
+                 decision="pod_startup_grace", score=score,
+                 event_count=total_events,
+                 startup_age_seconds=round(startup_age_seconds, 4),
+                 startup_grace_seconds=self.startup_grace_seconds,
+                 behavior_gate=behavior_gate,
+                 suspicious_mass=round(suspicious_mass, 6))
+            logger.info(
+                "[STARTUP GRACE] %s: age=%.1fs < %.1fs; "
+                "ML confirmation suppressed", pod_key,
+                startup_age_seconds, self.startup_grace_seconds,
+            )
             return
 
         # Log score bình thường
@@ -326,6 +419,10 @@ class AnomalyDetector:
                 calibration_state = "calibration_rejected"
             calibration_windows = len(calibrator.scores)
             threshold = max(baseline_threshold, calibrator.current)
+            learned_maximum_events = (
+                calibrator.maximum_event_count
+                if calibrator.event_guard_ready else 0
+            )
         if calibration_state == "calibrating":
             emit("decision", pod_key=pod_key, model_key=model_key,
                  decision="calibrating", score=score,
@@ -345,38 +442,114 @@ class AnomalyDetector:
                  behavior_gate=behavior_gate,
                  suspicious_mass=round(suspicious_mass, 6))
 
-        # Per-workload POT threshold plus an independent behavior gate.
-        if score < threshold:
-            self._consecutive[pod_key] = 0
-            emit("decision", pod_key=pod_key, model_key=model_key,
-                 decision="normal", score=score, threshold=threshold,
-                 behavior_gate=behavior_gate,
-                 suspicious_mass=round(suspicious_mass, 6))
-            return
+        # Per-workload POT threshold plus an independent behavior gate. The
+        # hard path always starts at the full threshold. Candidate-only fusion
+        # floors are disabled by default (equal to ``threshold``), so V1 live
+        # behavior cannot silently change before its own validation.
+        confirmation_floor = threshold * self.confirmation_floor_ratio
+        early_warning = self.early_warning_lookup(pod_key)
+        confirmation_path = None
+        extreme_volume = bool(
+            learned_maximum_events
+            and total_events > learned_maximum_events
+        )
+        volume_confirmed = False
         if not behavior_gate:
-            logger.info(
-                f"[GATED] {pod_key}: score={score:.4f}, "
-                f"behavior={behavior['syscall']} "
-                f"ratio={behavior['max_ratio']:.3f}"
-            )
             self._consecutive[pod_key] = 0
-            emit("decision", pod_key=pod_key, model_key=model_key,
-                 decision="behavior_gated", score=score, threshold=threshold,
-                 behavior_gate=False,
-                 behavior_max_ratio=round(behavior["max_ratio"], 6),
-                 suspicious_mass=round(suspicious_mass, 6))
-            return
-        self._consecutive[pod_key] += 1
-        if self._consecutive[pod_key] < 2:
-            emit("decision", pod_key=pod_key, model_key=model_key,
-                 decision="pending_confirmation", score=score,
-                 threshold=threshold,
-                 behavior_gate=True,
-                 behavior_syscall=behavior["syscall"],
-                 behavior_max_ratio=round(behavior["max_ratio"], 6),
-                 suspicious_mass=round(suspicious_mass, 6), consecutive=1)
-            logger.info(f"[PENDING] {pod_key}: score={score:.4f} threshold={threshold:.4f} suspicious_mass={suspicious_mass:.3f} (1/2 windows)")
-            return
+            self._behavior_consecutive[pod_key] = 0
+            if score >= threshold and extreme_volume:
+                self._volume_consecutive[pod_key] += 1
+                confirmation_path = "extreme_volume_ml"
+                if self._volume_consecutive[pod_key] < 2:
+                    emit(
+                        "decision", pod_key=pod_key, model_key=model_key,
+                        decision="pending_confirmation", score=score,
+                        threshold=threshold, behavior_gate=False,
+                        event_count=total_events,
+                        learned_maximum_events=learned_maximum_events,
+                        extreme_volume=True,
+                        extreme_volume_factor=self.extreme_volume_factor,
+                        confirmation_path=confirmation_path,
+                        consecutive=self._volume_consecutive[pod_key],
+                        behavior_max_ratio=round(behavior["max_ratio"], 6),
+                        suspicious_mass=round(suspicious_mass, 6),
+                    )
+                    logger.info(
+                        "[PENDING VOLUME] %s: score=%.4f events=%d > %d "
+                        "(1/2 windows)", pod_key, score, total_events,
+                        learned_maximum_events,
+                    )
+                    return
+                volume_confirmed = True
+            else:
+                self._volume_consecutive[pod_key] = 0
+            if score >= threshold and not extreme_volume:
+                logger.info(
+                    f"[GATED] {pod_key}: score={score:.4f}, "
+                    f"behavior={behavior['syscall']} "
+                    f"ratio={behavior['max_ratio']:.3f}"
+                )
+            if not volume_confirmed:
+                emit("decision", pod_key=pod_key, model_key=model_key,
+                     decision=("behavior_gated" if score >= threshold else "normal"),
+                     score=score, threshold=threshold, behavior_gate=False,
+                     event_count=total_events,
+                     learned_maximum_events=learned_maximum_events,
+                     extreme_volume=extreme_volume,
+                     behavior_max_ratio=round(behavior["max_ratio"], 6),
+                     suspicious_mass=round(suspicious_mass, 6))
+                return
+        else:
+            self._volume_consecutive[pod_key] = 0
+
+        if not volume_confirmed:
+            if score >= threshold:
+                self._consecutive[pod_key] += 1
+                confirmation_path = "hard_ml"
+            elif (
+                self._consecutive[pod_key] == 1
+                and score >= confirmation_floor
+            ):
+                self._consecutive[pod_key] = 2
+                confirmation_path = "hysteresis_ml"
+            else:
+                self._consecutive[pod_key] = 0
+
+            behavior_fusion_enabled = self.behavior_confirmation_floor < threshold
+            if behavior_fusion_enabled and score >= self.behavior_confirmation_floor:
+                self._behavior_consecutive[pod_key] += 1
+            else:
+                self._behavior_consecutive[pod_key] = 0
+
+            fast_path_fusion_enabled = self.fast_path_confirmation_floor < threshold
+            fast_path_assisted = bool(
+                fast_path_fusion_enabled and early_warning
+                and score >= self.fast_path_confirmation_floor
+            )
+            behavior_persistent = bool(
+                behavior_fusion_enabled
+                and self._behavior_consecutive[pod_key] >= 2
+            )
+            if self._consecutive[pod_key] >= 2:
+                confirmation_path = confirmation_path or "hard_ml"
+            elif fast_path_assisted:
+                confirmation_path = "fast_path_behavior_ml_floor"
+            elif behavior_persistent:
+                confirmation_path = "behavior_persistence_ml_floor"
+            else:
+                emit("decision", pod_key=pod_key, model_key=model_key,
+                     decision="pending_confirmation", score=score,
+                     threshold=threshold,
+                     behavior_gate=True,
+                     behavior_syscall=behavior["syscall"],
+                     behavior_max_ratio=round(behavior["max_ratio"], 6),
+                     confirmation_floor=round(confirmation_floor, 6),
+                     behavior_confirmation_floor=self.behavior_confirmation_floor,
+                     fast_path_confirmation_floor=self.fast_path_confirmation_floor,
+                     confirmation_path=confirmation_path,
+                     suspicious_mass=round(suspicious_mass, 6), consecutive=1)
+                logger.info(f"[PENDING] {pod_key}: score={score:.4f} threshold={threshold:.4f} suspicious_mass={suspicious_mass:.3f} (1/2 windows)")
+                return
 
         # Kiểm tra cooldown
         now = time.time()
@@ -391,7 +564,10 @@ class AnomalyDetector:
                 self._stats["cooldown_skipped"] += 1
                 emit("decision", pod_key=pod_key, model_key=model_key,
                      decision="cooldown", score=score, threshold=threshold,
-                     behavior_gate=True,
+                     behavior_gate=behavior_gate,
+                     event_count=total_events,
+                     learned_maximum_events=learned_maximum_events,
+                     extreme_volume=extreme_volume,
                      suspicious_mass=round(suspicious_mass, 6))
                 return
             self._last_alert[pod_key] = now
@@ -414,13 +590,29 @@ class AnomalyDetector:
             window_start=fv.window_start,
             window_end=fv.window_end,
             detection_latency=detection_latency(pod_key),
+            early_warning=early_warning,
         )
         emit("detection", pod_key=pod_key, model_key=model_key,
              detection_latency=alert.detection_latency, score=score,
-             threshold=threshold, behavior_gate=True,
+             threshold=threshold, behavior_gate=behavior_gate,
+             event_count=total_events,
+             learned_maximum_events=learned_maximum_events,
+             extreme_volume=extreme_volume,
+             extreme_volume_factor=self.extreme_volume_factor,
              behavior_syscall=behavior["syscall"],
              behavior_max_ratio=round(behavior["max_ratio"], 6),
-             suspicious_mass=round(suspicious_mass, 6))
+             confirmation_floor=round(confirmation_floor, 6),
+             behavior_confirmation_floor=self.behavior_confirmation_floor,
+             fast_path_confirmation_floor=self.fast_path_confirmation_floor,
+             confirmation_path=confirmation_path,
+             suspicious_mass=round(suspicious_mass, 6),
+             fast_path_confirmed=bool(early_warning),
+             fast_path_rule=(early_warning or {}).get("rule"))
+        if early_warning:
+            logger.warning(
+                "[FAST-PATH CONFIRMED] %s rule=%s", pod_key,
+                early_warning["rule"],
+            )
 
         logger.warning(str(alert))
         try:
@@ -531,7 +723,7 @@ class AttackSimulator:
         class FakeProcess:
             def __init__(self): self.pid=9999; self.uid=0; self.binary="/bin/sh"; self.arguments=""; self.parent_exec_id=""; self.exec_id=""
         class FakeEvent:
-            def __init__(self, syscall, pod_name, pod_ns, node="k8s-worker2.local"):
+            def __init__(self, syscall, pod_name, pod_ns, node="synthetic-node"):
                 self.pod = FakePod(pod_name, pod_ns)
                 self.process = FakeProcess()
                 self.syscall_name = syscall
@@ -566,8 +758,11 @@ class AttackSimulator:
 def main():
     parser = argparse.ArgumentParser(description="Realtime Anomaly Detector")
     parser.add_argument("--mode", choices=["kubectl", "file"], default="kubectl")
-    parser.add_argument("--window", type=int, default=30,
-                        help="Window size giây (mặc định 30)")
+    parser.add_argument(
+        "--window", type=int,
+        default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")),
+        help="Window size giây (mặc định 10; khớp release V7 hiện hành)",
+    )
     parser.add_argument("--threshold", type=float, default=0.80)
     parser.add_argument("--model-dir", default="models")
     parser.add_argument("--vocab", default="vocab.pkl")
@@ -586,6 +781,11 @@ def main():
                         help="Chỉ log, không thực sự gọi K8s API (mặc định)")
     parser.add_argument("--live-response", action="store_true",
                         help="Cho phép responder cordon/quarantine/evict")
+    parser.add_argument("--disable-fast-path", action="store_true",
+                        help="Tắt early-warning syscall sequence lane")
+    parser.add_argument("--fast-path-window", type=float,
+                        default=float(os.environ.get("SENTINEL_FAST_PATH_WINDOW", "2")),
+                        help="Cửa sổ sequence fast-path, giây (mặc định 2)")
     args = parser.parse_args()
 
     import pickle
@@ -624,12 +824,34 @@ def main():
     from isolation_responder import IsolationResponder
     responder = IsolationResponder(dry_run=(not args.live_response))
 
+    from sentinel.fast_path import FastPathDetector
+
+    model_keys = tuple(models)
+
+    def resolve_event_model(event):
+        pod_key = f"{event.pod.namespace}/{event.pod.name}"
+        return resolve_model_key(pod_key, model_keys)
+
+    def fast_warning_handler(warning):
+        logger.warning(
+            "[EARLY WARNING] %s rule=%s sequence=%.3fs; awaiting ML confirmation",
+            warning.pod_key, warning.rule, warning.sequence_seconds,
+        )
+
+    fast_path = None if args.disable_fast_path else FastPathDetector(
+        lambda pod_key: resolve_model_key(pod_key, model_keys),
+        sequence_seconds=args.fast_path_window,
+        on_warning=fast_warning_handler,
+    )
+
     # Khởi tạo detector
     detector = AnomalyDetector(
         model_manager=manager,
         on_alert=responder.respond,
         threshold=args.threshold,
         cooldown_seconds=120,
+        early_warning_lookup=(fast_path.recent_warning if fast_path else None),
+        pod_started_at_lookup=kubernetes_pod_started_at,
     )
 
     # ─────────────────────────────────────────────────────────────────
@@ -642,8 +864,20 @@ def main():
         vocab=vocab,
     )
 
+    # Tetragon exports ProcessExec records globally on some deployments, even
+    # when the kprobe policy has a pod selector. Drop unmodelled workloads
+    # before WindowManager allocates a buffer; this protects latency and makes
+    # ``no_model`` a real configuration signal rather than background noise.
+    def modelled_event(event) -> bool:
+        return resolve_event_model(event) is not None
+
+    def handle_event(event):
+        if fast_path:
+            fast_path.handle_event(event)
+        window_mgr.handle_event(event)
+
     # Khởi tạo Consumer
-    consumer = TetragonConsumer(mode=args.mode)
+    consumer = TetragonConsumer(mode=args.mode, event_filter=modelled_event)
 
     # Graceful shutdown
     stop_event = threading.Event()
@@ -656,22 +890,30 @@ def main():
     # Start consumer thread
     consumer_thread = threading.Thread(
         target=consumer.run,
-        args=(window_mgr.handle_event,),
+        args=(handle_event,),
         daemon=True,
         name="tetragon-consumer",
     )
     consumer_thread.start()
 
     # Stats thread
+    def emit_runtime_health(reason: str):
+        health = getattr(consumer.reader, "health", lambda: {})()
+        emit("runtime_health", reason=reason, sensor_health=health)
+        return health
+
     def print_stats():
         while not stop_event.is_set():
-            time.sleep(60)
+            if stop_event.wait(60):
+                break
             stats = detector.get_stats()
+            sensor_health = emit_runtime_health("periodic")
             logger.info(
                 f"[STATS] windows={stats['windows_scored']} | "
                 f"anomalies={stats['anomalies_found']} | "
                 f"no_model={stats['pods_no_model']} | "
-                f"cooldown={stats['cooldown_skipped']}"
+                f"cooldown={stats['cooldown_skipped']} | "
+                f"sensor_health={sensor_health}"
             )
     threading.Thread(target=print_stats, daemon=True).start()
 
@@ -680,6 +922,11 @@ def main():
     logger.info(f"   Window:    {args.window}s")
     logger.info(f"   Threshold: {args.threshold}")
     logger.info(f"   Models:    {len(models)} pods")
+    logger.info(
+        "   Fast path: %s",
+        (f"enabled ({args.fast_path_window:.1f}s, early-warning only)"
+         if fast_path else "disabled"),
+    )
     logger.info("=" * 60)
 
     # Inject attack sau delay (nếu có)
@@ -710,8 +957,10 @@ def main():
 
     logger.info("Detector dừng.")
     consumer.stop()
+    consumer_thread.join(timeout=5)
+    sensor_health = emit_runtime_health("shutdown")
     stats = detector.get_stats()
-    logger.info(f"Final stats: {stats}")
+    logger.info(f"Final stats: {stats} | sensor_health={sensor_health}")
 
 
 if __name__ == "__main__":

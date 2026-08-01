@@ -16,8 +16,12 @@ TARGETS = {"default/postgres", "production/nginx", "production/redis"}
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
-    "sentinel/telemetry.py",
+    "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )
+REQUIRED_SENSOR_HEALTH_FIELDS = {
+    "backpressure_events", "membership_failures", "coverage_failures",
+    "stream_failures", "require_full_coverage", "coverage_healthy",
+}
 
 
 def sha256(path: Path) -> str:
@@ -47,8 +51,26 @@ def main() -> int:
     parser.add_argument("--normal-report", required=True)
     parser.add_argument("--attack-report", required=True)
     parser.add_argument("--calibration", default="calibration.json")
-    parser.add_argument("--expected-version", type=int, default=5)
+    parser.add_argument("--expected-version", type=int, default=7)
     parser.add_argument("--expected-attack-trials", type=int, default=15)
+    parser.add_argument(
+        "--expected-window", type=int,
+        default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")),
+        help=("Feature-window duration validated by both normal and attack "
+              "evidence; prevents promoting evidence from another cadence"),
+    )
+    parser.add_argument(
+        "--expected-startup-grace", type=float,
+        default=float(os.environ.get(
+            "SENTINEL_POD_STARTUP_GRACE_SECONDS", "60"
+        )),
+        help="Pod startup grace shared by training and live evidence",
+    )
+    parser.add_argument(
+        "--expected-extreme-volume-factor", type=float,
+        default=float(os.environ.get("SENTINEL_EXTREME_VOLUME_FACTOR", "2.0")),
+        help="Clean upper event-volume multiplier validated by live evidence",
+    )
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
@@ -89,15 +111,73 @@ def main() -> int:
             failures.append("bundled dataset manifest hash mismatch")
         if set(dataset_manifest.get("targets", {})) != TARGETS:
             failures.append("dataset manifest target set is not exact")
-        if any(
-            item.get("sensor_health", {}).get("backpressure_events", 0)
-            for item in dataset_manifest.get("source_manifests", [])
-        ):
-            failures.append("dataset manifest contains backpressured source")
+        if dataset_manifest.get("window_seconds") != args.expected_window:
+            failures.append("dataset manifest window does not match promotion window")
+        if float(dataset_manifest.get("startup_grace_seconds", -1)) != (
+                args.expected_startup_grace):
+            failures.append(
+                "dataset startup grace does not match promotion contract"
+            )
+        for item in dataset_manifest.get("source_manifests", []):
+            health = item.get("sensor_health", {})
+            missing_health = REQUIRED_SENSOR_HEALTH_FIELDS - set(health)
+            if missing_health:
+                failures.append(
+                    "dataset source sensor-health schema incomplete: "
+                    + ",".join(sorted(missing_health))
+                )
+            if health.get("backpressure_events", 0):
+                failures.append("dataset manifest contains backpressured source")
+            if (
+                health.get("membership_failures", 0)
+                or health.get("coverage_failures", 0)
+                or health.get("stream_failures", 0)
+            ):
+                failures.append("dataset manifest contains sensor continuity failure")
+            if (
+                health.get("require_full_coverage")
+                and health.get("coverage_healthy") is not True
+            ):
+                failures.append("dataset manifest contains incomplete sensor coverage")
     if not normal.get("passed"):
         failures.append("normal-control gate failed")
     if not attack.get("all_passed"):
         failures.append("kernel regression gate failed")
+    if normal.get("window_seconds") != args.expected_window:
+        failures.append(
+            "normal report window does not match expected promotion window"
+        )
+    if attack.get("window_seconds") != args.expected_window:
+        failures.append(
+            "attack report window does not match expected promotion window"
+        )
+    if normal.get("confirmation_policy") != attack.get("confirmation_policy"):
+        failures.append("normal/attack confirmation policy mismatch")
+    normal_startup_grace = (normal.get("confirmation_policy") or {}).get(
+        "pod_startup_grace_seconds"
+    )
+    attack_startup_grace = (attack.get("confirmation_policy") or {}).get(
+        "pod_startup_grace_seconds"
+    )
+    normal_volume_factor = (normal.get("confirmation_policy") or {}).get(
+        "extreme_volume_factor"
+    )
+    attack_volume_factor = (attack.get("confirmation_policy") or {}).get(
+        "extreme_volume_factor"
+    )
+    if normal_startup_grace != args.expected_startup_grace:
+        failures.append("normal report startup grace mismatch")
+    if attack_startup_grace != args.expected_startup_grace:
+        failures.append("attack report startup grace mismatch")
+    if normal_volume_factor != args.expected_extreme_volume_factor:
+        failures.append("normal report extreme-volume factor mismatch")
+    if attack_volume_factor != args.expected_extreme_volume_factor:
+        failures.append("attack report extreme-volume factor mismatch")
+    if training.get("window_seconds") != args.expected_window:
+        failures.append("training report window does not match promotion window")
+    if float(training.get("startup_grace_seconds", -1)) != (
+            args.expected_startup_grace):
+        failures.append("training report startup grace mismatch")
     attack_workloads = attack.get("workloads", {})
     if set(attack_workloads) != TARGETS or not all(
         item.get("exit_code") == 0
@@ -111,7 +191,9 @@ def main() -> int:
         )
     if Path(normal.get("candidate", "")).resolve() != candidate:
         failures.append("normal report belongs to a different candidate")
-    expected_regimes = {"normal-1x", "wrk-c50", "high-mixed", "recovery-1x"}
+    expected_regimes = {
+        "normal-1x", "in-cluster-burst", "high-mixed", "recovery-1x",
+    }
     regimes = normal.get("regimes", {})
     if set(regimes) != expected_regimes or not all(
         item.get("passed") for item in regimes.values()
@@ -198,6 +280,8 @@ def main() -> int:
         "candidate": str(candidate),
         "production": str(production),
         "expected_version": args.expected_version,
+        "expected_window_seconds": args.expected_window,
+        "expected_startup_grace_seconds": args.expected_startup_grace,
         "training_report": {"path": str(training_path), "sha256": sha256(training_path)},
         "normal_report": {"path": str(normal_path), "sha256": sha256(normal_path)},
         "attack_report": {"path": str(attack_path), "sha256": sha256(attack_path)},

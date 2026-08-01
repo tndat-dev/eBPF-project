@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -19,8 +20,15 @@ TARGETS = (
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
-    "sentinel/telemetry.py",
+    "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )
+VALIDATION_POLICY_DEFAULTS = {
+    "SENTINEL_CONFIRMATION_FLOOR_RATIO": "0.94",
+    "SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR": "0.45",
+    "SENTINEL_FAST_PATH_CONFIRMATION_FLOOR": "0.20",
+    "SENTINEL_POD_STARTUP_GRACE_SECONDS": "60",
+    "SENTINEL_EXTREME_VOLUME_FACTOR": "2.0",
+}
 
 
 def sha256(path):
@@ -31,16 +39,33 @@ def sha256(path):
     return digest.hexdigest()
 
 
+def percentile(values, fraction):
+    if not values:
+        return None
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * fraction
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * (position - lower)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", required=True)
     parser.add_argument("--normal-calibration", required=True)
     parser.add_argument("--runtime-binary", default="runtime_attack")
+    parser.add_argument("--window", type=int,
+                        default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")),
+                        help="Feature window in seconds; must match candidate training")
     parser.add_argument("--attack-seconds", type=int, default=70)
     parser.add_argument("--rate", type=int, default=20)
     parser.add_argument("--post-attack-wait", type=int, default=45)
     parser.add_argument("--output-root", default="kernel-regression-matrix")
     args = parser.parse_args()
+    if args.window < 5:
+        raise ValueError("--window must be at least 5 seconds")
+    for name, value in VALIDATION_POLICY_DEFAULTS.items():
+        os.environ.setdefault(name, value)
 
     model_dir = Path(args.model_dir).resolve()
     vocab = model_dir / "vocab.pkl"
@@ -65,6 +90,24 @@ def main() -> int:
         "vocab_sha256": sha256(vocab),
         "normal_calibration": str(calibration),
         "normal_calibration_sha256": sha256(calibration),
+        "window_seconds": args.window,
+        "confirmation_policy": {
+            "hysteresis_ratio": float(os.environ.get(
+                "SENTINEL_CONFIRMATION_FLOOR_RATIO", "1.0"
+            )),
+            "behavior_confirmation_floor": float(os.environ.get(
+                "SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR", ".8"
+            )),
+            "fast_path_confirmation_floor": float(os.environ.get(
+                "SENTINEL_FAST_PATH_CONFIRMATION_FLOOR", ".8"
+            )),
+            "pod_startup_grace_seconds": float(os.environ.get(
+                "SENTINEL_POD_STARTUP_GRACE_SECONDS", "0"
+            )),
+            "extreme_volume_factor": float(os.environ.get(
+                "SENTINEL_EXTREME_VOLUME_FACTOR", "2.0"
+            )),
+        },
         "runtime_binary": str(runtime_binary),
         "runtime_binary_sha256": sha256(runtime_binary),
         "runtime_code_sha256": {
@@ -83,6 +126,7 @@ def main() -> int:
             "--model-dir", str(model_dir),
             "--normal-calibration", str(calibration),
             "--runtime-binary", str(runtime_binary),
+            "--window", str(args.window),
             "--namespace", namespace,
             "--selector", selector,
             "--attack-seconds", str(args.attack_seconds),
@@ -125,6 +169,7 @@ def main() -> int:
             and item["report"].get("vocab_sha256") == aggregate["vocab_sha256"]
             and item["report"].get("runtime_binary_sha256")
             == aggregate["runtime_binary_sha256"]
+            and item["report"].get("window_seconds") == args.window
             and item["report"].get("runtime_code_sha256")
             == aggregate["runtime_code_sha256"]
             and item["report"].get("model_release_sha256")
@@ -132,6 +177,39 @@ def main() -> int:
             for item in aggregate["workloads"].values()
         )
     )
+    fast_path_rows = [
+        scenario
+        for workload in aggregate["workloads"].values()
+        for scenario in workload["report"].get("scenarios", {}).values()
+        if scenario.get("fast_path_warning")
+    ]
+    fast_path_latencies = [
+        float(scenario["fast_path_latency_seconds"])
+        for scenario in fast_path_rows
+        if scenario.get("fast_path_latency_seconds") is not None
+    ]
+    fast_path_expected = [
+        scenario
+        for workload in aggregate["workloads"].values()
+        for scenario in workload["report"].get("scenarios", {}).values()
+        if scenario.get("fast_path_expected")
+    ]
+    aggregate["fast_path"] = {
+        "warning_scenarios": len(fast_path_rows),
+        "expected_warning_scenarios": len(fast_path_expected),
+        "expected_warning_matched": sum(
+            bool(scenario.get("fast_path_expected_matched"))
+            for scenario in fast_path_expected
+        ),
+        "total_scenarios": aggregate["total"],
+        "latency_seconds_p50": percentile(fast_path_latencies, 0.50),
+        "latency_seconds_p95": percentile(fast_path_latencies, 0.95),
+        "latency_seconds_max": max(fast_path_latencies) if fast_path_latencies else None,
+        "note": (
+            "observability only: fast path is early-warning and does not "
+            "replace the all-scenario ML confirmation gate"
+        ),
+    }
     final = root / "report.json"
     final.write_text(json.dumps(aggregate, indent=2, sort_keys=True) + "\n")
     print(f"report={final}")

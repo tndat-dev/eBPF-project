@@ -12,11 +12,18 @@ from pathlib import Path
 import numpy as np
 
 
-TARGETS = ("default/postgres", "production/nginx", "production/redis")
+DEFAULT_TARGETS = ("default/postgres", "production/nginx", "production/redis")
+# Compatibility alias for existing artifact tests and downstream scripts. New
+# candidate runs should pass their workload contract explicitly via --targets.
+TARGETS = DEFAULT_TARGETS
 POLICY_SYSCALLS = (
     "accept", "capset", "clone", "close", "connect", "execve", "mount",
     "openat", "ptrace", "read", "setgid", "setuid", "unshare", "write",
 )
+REQUIRED_SENSOR_HEALTH_FIELDS = {
+    "backpressure_events", "membership_failures", "coverage_failures",
+    "stream_failures", "require_full_coverage", "coverage_healthy",
+}
 
 
 def sha256(path):
@@ -86,6 +93,66 @@ def evenly_spaced_validation(count, validation_count):
     return train, selected
 
 
+def startup_grace_eligible(row, grace_seconds):
+    """Validate explicit pod-age evidence and return its fail-closed mask bit."""
+    declared = row.get("startup_grace_eligible", False)
+    age = row.get("startup_age_seconds")
+    created = row.get("pod_creation_timestamp")
+    if age is None and created is None:
+        if declared:
+            raise ValueError("startup grace declared without pod-age evidence")
+        return False
+    pod_key = row.get("pod_key")
+    if not isinstance(pod_key, str) or "/" not in pod_key:
+        raise ValueError("startup provenance missing pod_key")
+    if age is None or created is None:
+        raise ValueError("partial startup provenance is not admissible")
+    age = float(age)
+    created = float(created)
+    window_end = float(row["window_end"])
+    if age < 0 or created <= 0 or abs(age - max(0.0, window_end - created)) > 0.01:
+        raise ValueError("inconsistent startup-age provenance")
+    computed = age < grace_seconds
+    if not isinstance(declared, bool) or declared != computed:
+        raise ValueError("startup grace declaration does not match pod age")
+    return computed
+
+
+def ensure_startup_stratification(train, validation, metadata_rows):
+    """Place proven startup rows in both splits when the phase has enough."""
+    flags = [bool(row["startup_grace_eligible"]) for row in metadata_rows]
+    if sum(flags) < 2:
+        return train, validation, False
+    changed = False
+    if not any(flags[index] for index in validation):
+        incoming = next(index for index in train if flags[index])
+        outgoing = next((index for index in validation if not flags[index]), None)
+        if outgoing is None:
+            raise ValueError("cannot preserve startup validation stratum")
+        train = [index for index in train if index != incoming] + [outgoing]
+        validation = [index for index in validation if index != outgoing] + [incoming]
+        changed = True
+    if not any(flags[index] for index in train):
+        incoming = next(index for index in validation if flags[index])
+        outgoing = next((index for index in train if not flags[index]), None)
+        if outgoing is None:
+            raise ValueError("cannot preserve startup training stratum")
+        validation = [index for index in validation if index != incoming] + [outgoing]
+        train = [index for index in train if index != outgoing] + [incoming]
+        changed = True
+    return sorted(train), sorted(validation), changed
+
+
+def parse_targets(raw: str) -> tuple[str, ...]:
+    """Validate the explicit workload contract for one candidate release."""
+    targets = tuple(item.strip() for item in raw.split(",") if item.strip())
+    if not targets or len(set(targets)) != len(targets):
+        raise ValueError("--targets must contain one or more unique namespace/workload keys")
+    if any("/" not in item for item in targets):
+        raise ValueError("every --targets item must be namespace/workload")
+    return targets
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("phases", nargs="+")
@@ -96,7 +163,12 @@ def main():
     parser.add_argument("--policy", default=None)
     parser.add_argument("--vocab", default=None,
                         help="Input vocabulary; an index-preserving expanded copy is emitted")
+    parser.add_argument("--targets", default=",".join(DEFAULT_TARGETS),
+                        help="Comma-separated deployment keys included in this candidate")
+    parser.add_argument("--startup-grace-seconds", type=float, default=60.0,
+                        help="Runtime startup grace reproduced by the offline gate")
     args = parser.parse_args()
+    targets = parse_targets(args.targets)
 
     phases = [Path(item).resolve() for item in args.phases]
     output = Path(args.output).resolve()
@@ -104,6 +176,8 @@ def main():
         raise ValueError("minimum event/window constraints must be positive")
     if not 0.05 <= args.validation_fraction <= 0.40:
         raise ValueError("validation fraction outside [0.05, 0.40]")
+    if args.startup_grace_seconds < 0:
+        raise ValueError("startup grace must be non-negative")
     if output.exists():
         raise FileExistsError(output)
     staging = output.with_name(f".{output.name}.staging-{os.getpid()}")
@@ -132,6 +206,9 @@ def main():
         "minimum_phase_windows": args.minimum_phase_windows,
         "validation_fraction": args.validation_fraction,
         "phase_order": [str(path) for path in phases],
+        "target_order": list(targets),
+        "window_seconds": None,
+        "startup_grace_seconds": args.startup_grace_seconds,
         "source_manifests": [],
         "policy": None,
         "vocabulary": None,
@@ -160,16 +237,52 @@ def main():
         (staging / "vocab.pkl").write_bytes(expanded_vocab_payload)
 
     validated_manifests = {}
+    capture_windows = set()
     # Reject incomplete or backpressured captures before touching any arrays.
     # A model must never silently train on a phase whose sensor was unhealthy.
     for phase in phases:
         source_manifest_path = phase / "collection_manifest.json"
         source_manifest = json.loads(source_manifest_path.read_text())
         validated_manifests[phase] = source_manifest
+        window_seconds = source_manifest.get("window_seconds")
+        if not isinstance(window_seconds, int) or window_seconds < 5:
+            raise ValueError(
+                f"phase {phase} has invalid feature window: {window_seconds!r}"
+            )
+        capture_windows.add(window_seconds)
+        source_startup = source_manifest.get("startup_provenance")
+        if source_startup is not None:
+            source_grace = source_startup.get("startup_grace_seconds")
+            if float(source_grace) != args.startup_grace_seconds:
+                raise ValueError(
+                    f"phase {phase} startup grace {source_grace!r} does not "
+                    f"match dataset contract {args.startup_grace_seconds}"
+                )
         health = source_manifest.get("sensor_health", {})
+        missing_health = REQUIRED_SENSOR_HEALTH_FIELDS - set(health)
+        if missing_health:
+            raise ValueError(
+                f"sensor health schema incomplete in phase {phase}: "
+                f"{sorted(missing_health)}"
+            )
         if health.get("backpressure_events", 0):
             raise ValueError(f"sensor backpressure in phase {phase}: {health}")
-        missing = set(TARGETS) - set(source_manifest.get("targets", {}))
+        if (
+            health.get("membership_failures", 0)
+            or health.get("coverage_failures", 0)
+            or health.get("stream_failures", 0)
+        ):
+            raise ValueError(
+                f"sensor continuity failure in phase {phase}: {health}"
+            )
+        if (
+            health.get("require_full_coverage")
+            and not health.get("coverage_healthy")
+        ):
+            raise ValueError(
+                f"sensor coverage unhealthy in phase {phase}: {health}"
+            )
+        missing = set(targets) - set(source_manifest.get("targets", {}))
         if missing:
             raise ValueError(f"phase {phase} missing targets: {sorted(missing)}")
         source_vocabulary = source_manifest.get("vocabulary")
@@ -189,17 +302,25 @@ def main():
             "path": str(source_manifest_path),
             "sha256": sha256(source_manifest_path),
             "phase": source_manifest.get("phase"),
+            "window_seconds": window_seconds,
             "sensor_health": health,
             "vocabulary": source_vocabulary,
             "experiment_artifacts": source_manifest.get(
                 "experiment_artifacts", {}
             ),
+            "startup_provenance": source_startup,
         })
 
+    if len(capture_windows) != 1:
+        raise ValueError(
+            f"phase captures use inconsistent feature windows: {sorted(capture_windows)}"
+        )
+    manifest["window_seconds"] = capture_windows.pop()
+
     try:
-        for pod_key in TARGETS:
+        for pod_key in targets:
             stem = pod_key.replace("/", "__")
-            accepted_arrays, phase_rows = [], []
+            accepted_arrays, accepted_metadata, phase_rows = [], [], []
             for phase in phases:
                 array_path = phase / f"{stem}.npy"
                 metadata_path = phase / f"{stem}_metadata.jsonl"
@@ -270,6 +391,16 @@ def main():
                         mode="constant",
                     )
                 accepted_arrays.append(selected)
+                selected_metadata = []
+                for filtered_index, source_index in enumerate(accepted):
+                    item = dict(metadata[source_index])
+                    item["source_index"] = source_index
+                    item["filtered_index"] = filtered_index
+                    item["startup_grace_eligible"] = startup_grace_eligible(
+                        item, args.startup_grace_seconds
+                    )
+                    selected_metadata.append(item)
+                accepted_metadata.append(selected_metadata)
                 event_counts = [int(metadata[index]["event_count"]) for index in accepted]
                 phase_rows.append({
                     "phase": str(phase),
@@ -292,15 +423,39 @@ def main():
                 counts, args.validation_fraction
             )
             train_parts, validation_parts = [], []
+            train_startup_mask, validation_startup_mask = [], []
+            validation_startup_rows = []
             for active_row, row in enumerate(phase_rows):
                 array = accepted_arrays[active_row]
+                metadata_rows = accepted_metadata[active_row]
                 train, validation = evenly_spaced_validation(
                     len(array), validation_counts[active_row]
                 )
+                train, validation, startup_stratified = ensure_startup_stratification(
+                    train, validation, metadata_rows
+                )
                 train_parts.append(array[train])
                 validation_parts.append(array[validation])
+                train_startup_mask.extend(
+                    bool(metadata_rows[index]["startup_grace_eligible"])
+                    for index in train
+                )
+                for index in validation:
+                    item = metadata_rows[index]
+                    eligible = bool(item["startup_grace_eligible"])
+                    validation_startup_mask.append(eligible)
+                    if eligible:
+                        validation_startup_rows.append({
+                            "phase": row["phase"],
+                            "source_index": item["source_index"],
+                            "filtered_index": index,
+                            "pod_key": item["pod_key"],
+                            "pod_creation_timestamp": item["pod_creation_timestamp"],
+                            "startup_age_seconds": item["startup_age_seconds"],
+                        })
                 row["train_indexes_after_filter"] = train
                 row["validation_indexes_after_filter"] = validation
+                row["startup_stratified"] = startup_stratified
             dataset = np.concatenate(train_parts + validation_parts).astype(
                 np.float32, copy=False
             )
@@ -310,6 +465,15 @@ def main():
                 "shape": list(dataset.shape),
                 "train_count": int(sum(len(part) for part in train_parts)),
                 "validation_count": int(sum(len(part) for part in validation_parts)),
+                "startup_grace": {
+                    "seconds": args.startup_grace_seconds,
+                    "fail_closed": True,
+                    "train_mask": train_startup_mask,
+                    "validation_mask": validation_startup_mask,
+                    "train_count": int(sum(train_startup_mask)),
+                    "validation_count": int(sum(validation_startup_mask)),
+                    "validation_rows": validation_startup_rows,
+                },
                 "phases": phase_rows,
                 "sha256": sha256(path),
             }

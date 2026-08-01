@@ -66,3 +66,14 @@ Global_Tech_Entrepreneur_Roadmap (chiến lược tổng)
 
 ## Còn thiếu / gợi ý bổ sung (chưa làm, cần xác nhận nếu muốn)
 - **Literature review** cho phần thesis — đã tìm được danh sách paper cạnh tranh trực tiếp (eBPF+K8s+ML: 5-6 paper 2025-2026; MCP security: 4-5 paper, có cả ACM TOSEM) nhưng chưa đưa vào file nào — đã đề xuất ở lượt trước, chưa làm.
+
+## Paper-readiness artifacts
+
+- `../PROJECT_STATUS_REPORT.md`: trạng thái cluster/runtime đã kiểm chứng; Mục
+  18.21 ghi release V7 production, normal-control và 15/15 kernel trials.
+- `../validation-evidence/20260801T153648Z/`: normal, attack và release manifest
+  immutable của bản production hiện hành.
+- `PAPER_READINESS_PLAN.md`: hypothesis, benchmark, baseline, ablation và gate.
+- `ARTIFACT.md`: inventory source/scripts/expected result/provenance.
+- `ETHICS.md`: safety boundary cho TLS capture, attack simulation và enforcement.
+- `REPRODUCE.md`: các gate tái lập hiện tại; không thay thế evaluation matrix.

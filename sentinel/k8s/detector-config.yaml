@@ -4,11 +4,15 @@ metadata:
   name: sentinel-detector-config
   namespace: sentinel-system
 data:
-  WINDOW_SECONDS: "30"
+  # Match the active V7 dry-run service. This ConfigMap is configuration
+  # provenance; the host systemd unit is the currently deployed runtime.
+  WINDOW_SECONDS: "10"
   MIN_SCORE: "0.80"
   MIN_EVENTS: "20"
   EVENT_QUEUE_SIZE: "100000"
   REQUIRED_WINDOWS: "2"
+  REQUIRE_FULL_TETRAGON_COVERAGE: "true"
+  TETRAGON_DAEMONSET: "tetragon"
   RESPONSE_MODE: "audit"
 ---
 apiVersion: v1
@@ -22,15 +26,13 @@ kind: ClusterRole
 metadata:
   name: sentinel-detector
 rules:
+# The deployed host service is audit-only and does not use this ServiceAccount.
+# Keep the in-cluster identity read-only; live response must be introduced as a
+# separate, explicitly reviewed role instead of silently inheriting patch,
+# eviction, or network-policy mutation permissions.
 - apiGroups: [""]
   resources: ["pods", "nodes"]
-  verbs: ["get", "list", "watch", "patch"]
-- apiGroups: ["policy"]
-  resources: ["pods/eviction"]
-  verbs: ["create"]
-- apiGroups: ["cilium.io"]
-  resources: ["ciliumnetworkpolicies"]
-  verbs: ["get", "list", "create", "patch", "delete"]
+  verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

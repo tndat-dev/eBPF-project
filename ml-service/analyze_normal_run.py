@@ -10,6 +10,24 @@ from pathlib import Path
 TARGETS = ("default/postgres", "production/nginx", "production/redis")
 
 
+def sensor_snapshot_healthy(health):
+    """Return true only for an uninterrupted, fully covered sensor snapshot."""
+    if not isinstance(health, dict):
+        return False
+    active = health.get("active_tetragon_pods", [])
+    expected = health.get("expected_tetragon_pods")
+    return bool(
+        health.get("require_full_coverage")
+        and health.get("coverage_healthy") is True
+        and isinstance(expected, int) and expected > 0
+        and len(active) == expected
+        and int(health.get("backpressure_events", 0)) == 0
+        and int(health.get("membership_failures", 0)) == 0
+        and int(health.get("coverage_failures", 0)) == 0
+        and int(health.get("stream_failures", 0)) == 0
+    )
+
+
 def percentile(values, q):
     values = sorted(values)
     position = (len(values) - 1) * q
@@ -28,6 +46,8 @@ def main() -> int:
                         help="Maximum raw model threshold crossings per workload")
     parser.add_argument("--max-behavior-gates", type=int, default=0,
                         help="Maximum workload-conditioned behavior crossings")
+    parser.add_argument("--require-healthy-sensors", action="store_true",
+                        help="Require at least one clean runtime-health sample")
     parser.add_argument("--since-ts", type=float, default=None,
                         help="Only include telemetry at or after this Unix timestamp")
     parser.add_argument("--until-ts", type=float, default=None,
@@ -48,6 +68,13 @@ def main() -> int:
         except (ValueError, TypeError):
             continue
     detections = [row for row in rows if row.get("kind") == "detection"]
+    health_rows = [
+        row for row in rows if row.get("kind") == "runtime_health"
+    ]
+    sensors_healthy = bool(health_rows) and all(
+        sensor_snapshot_healthy(row.get("sensor_health"))
+        for row in health_rows
+    )
     grouped = defaultdict(list)
     for row in rows:
         if row.get("kind") != "inference":
@@ -72,9 +99,17 @@ def main() -> int:
         "decision_counts": dict(Counter(
             row.get("decision") for row in rows if row.get("kind") == "decision"
         )),
+        "sensor_health": {
+            "required": args.require_healthy_sensors,
+            "samples": len(health_rows),
+            "healthy": sensors_healthy,
+            "latest": health_rows[-1].get("sensor_health") if health_rows else None,
+        },
         "models": {},
     }
-    passed = not detections
+    passed = not detections and (
+        sensors_healthy or not args.require_healthy_sensors
+    )
     for model_key in TARGETS:
         model_rows = grouped[model_key]
         scores = [float(row["score"]) for row in model_rows]
@@ -149,6 +184,7 @@ def main() -> int:
         "max_behavior_gates_per_workload": args.max_behavior_gates,
         "max_actionable_consecutive_pairs": 0,
         "max_detections": 0,
+        "require_healthy_sensors": args.require_healthy_sensors,
     }
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     print(rendered, end="")

@@ -27,7 +27,7 @@ from graph_signals import (BEHAVIOR_SYSCALLS, evaluate_behavior,
 from ml_models import PodModelBundle
 
 
-TARGETS = ("default/postgres", "production/nginx", "production/redis")
+DEFAULT_TARGETS = ("default/postgres", "production/nginx", "production/redis")
 SUSPICIOUS = (
     "execve", "execveat", "clone", "clone3", "unshare", "mount",
     "ptrace", "setuid", "setgid", "capset", "connect",
@@ -57,9 +57,24 @@ def quantiles(values, score_metric: bool = False) -> dict:
     return result
 
 
+def parse_targets(raw: str) -> tuple[str, ...]:
+    """Return the explicit workload contract for this isolated candidate."""
+    targets = tuple(item.strip() for item in raw.split(",") if item.strip())
+    if not targets or len(set(targets)) != len(targets):
+        raise ValueError("--targets must contain one or more unique namespace/workload keys")
+    if any("/" not in item for item in targets):
+        raise ValueError("every --targets item must be namespace/workload")
+    return targets
+
+
 def holdout_actionable_pairs(X: np.ndarray, scores, threshold: float,
-                             vocab: dict, behavior_limits: dict
-                             ) -> tuple[int, list, list]:
+                             vocab: dict, behavior_limits: dict,
+                             startup_grace_mask=None
+                             ) -> tuple[int, list, list, list]:
+    if startup_grace_mask is None:
+        startup_grace_mask = [False] * len(X)
+    if len(startup_grace_mask) != len(X):
+        raise ValueError("startup grace mask must align with holdout rows")
     indexes = [vocab[name] for name in SUSPICIOUS if name in vocab]
     masses = np.sum(X[:, indexes], axis=1) if indexes else np.zeros(len(X))
     evidence = []
@@ -69,12 +84,16 @@ def holdout_actionable_pairs(X: np.ndarray, scores, threshold: float,
             for name in BEHAVIOR_SYSCALLS if name in vocab
         }
         evidence.append(evaluate_behavior(frequencies, 1, behavior_limits))
+    effective_gates = [
+        bool(item["gate"] and not startup)
+        for item, startup in zip(evidence, startup_grace_mask)
+    ]
     candidates = [
-        bool(score >= threshold and item["gate"])
-        for score, item in zip(scores, evidence)
+        bool(score >= threshold and gate)
+        for score, gate in zip(scores, effective_gates)
     ]
     pairs = sum(a and b for a, b in zip(candidates, candidates[1:]))
-    return int(pairs), [float(x) for x in masses], evidence
+    return int(pairs), [float(x) for x in masses], evidence, effective_gates
 
 
 def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
@@ -106,6 +125,20 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
             f"{trainer_validation}"
         )
 
+    startup_spec = dataset_spec.get("startup_grace") or {}
+    startup_grace_seconds = float(startup_spec.get("seconds", 0.0))
+    startup_grace_mask = startup_spec.get(
+        "validation_mask", [False] * expected_validation
+    )
+    if (
+        startup_grace_seconds < 0
+        or len(startup_grace_mask) != expected_validation
+        or any(not isinstance(item, bool) for item in startup_grace_mask)
+        or int(startup_spec.get("validation_count", sum(startup_grace_mask)))
+           != sum(startup_grace_mask)
+    ):
+        raise ValueError(f"{pod_key}: invalid startup-grace holdout contract")
+
     model = PodModelBundle(
         pod_key=pod_key, input_dim=X.shape[1], model_version=model_version,
     )
@@ -121,9 +154,10 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
     threshold = POTThreshold(minimum=model.ANOMALY_THRESHOLD).fit(
         model.baseline_scores
     )
-    actionable_pairs, suspicious_masses, behavior_evidence = holdout_actionable_pairs(
+    (actionable_pairs, suspicious_masses, behavior_evidence,
+     effective_behavior_gates) = holdout_actionable_pairs(
         holdout, model.validation_scores, threshold, vocab,
-        model.behavior_limits,
+        model.behavior_limits, startup_grace_mask,
     )
 
     timings = []
@@ -137,8 +171,18 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
     score_exceedance_fraction = float(
         np.mean(np.asarray(model.validation_scores) >= model.ANOMALY_THRESHOLD)
     )
-    behavior_gate_count = sum(item["gate"] for item in behavior_evidence)
+    raw_behavior_gate_count = sum(item["gate"] for item in behavior_evidence)
+    startup_behavior_gate_count = sum(
+        item["gate"] and startup
+        for item, startup in zip(behavior_evidence, startup_grace_mask)
+    )
+    behavior_gate_count = sum(effective_behavior_gates)
     behavior_max_ratio = max(
+        (float(item["max_ratio"]) for item, startup in zip(
+            behavior_evidence, startup_grace_mask
+        ) if not startup), default=0.0
+    )
+    raw_behavior_max_ratio = max(
         (float(item["max_ratio"]) for item in behavior_evidence), default=0.0
     )
     accepted = bool(
@@ -169,6 +213,13 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
         "behavior_limits": model.behavior_limits,
         "holdout_behavior_gate_count": int(behavior_gate_count),
         "holdout_behavior_max_ratio": behavior_max_ratio,
+        "holdout_behavior_gate_count_raw": int(raw_behavior_gate_count),
+        "holdout_startup_grace_behavior_gate_count": int(
+            startup_behavior_gate_count
+        ),
+        "holdout_behavior_max_ratio_raw": raw_behavior_max_ratio,
+        "holdout_startup_grace_seconds": startup_grace_seconds,
+        "holdout_startup_grace_window_count": int(sum(startup_grace_mask)),
         "holdout_actionable_pairs": actionable_pairs,
         "inference_ms": quantiles(timings),
         "accepted_offline": accepted,
@@ -183,7 +234,10 @@ def main() -> int:
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--model-version", type=int,
                         default=PodModelBundle.MODEL_VERSION)
+    parser.add_argument("--targets", default=",".join(DEFAULT_TARGETS),
+                        help="Comma-separated deployment keys included in this candidate")
     args = parser.parse_args()
+    targets = parse_targets(args.targets)
 
     logging.basicConfig(
         level=logging.INFO,
@@ -208,8 +262,13 @@ def main() -> int:
             "output_sha256"
         ) != file_sha256(vocab_path):
             raise ValueError("training vocabulary does not match dataset manifest")
-        if set(dataset_manifest.get("targets", {})) != set(TARGETS):
+        if set(dataset_manifest.get("targets", {})) != set(targets):
             raise ValueError("dataset manifest target set is not exact")
+        window_seconds = dataset_manifest.get("window_seconds")
+        if not isinstance(window_seconds, int) or window_seconds < 5:
+            raise ValueError("dataset manifest feature window is missing or invalid")
+    else:
+        window_seconds = None
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     staging = model_dir.with_name(f".{model_dir.name}.staging-{stamp}")
@@ -223,6 +282,10 @@ def main() -> int:
         "vocab": str(vocab_path),
         "vocab_sha256": file_sha256(vocab_path),
         "model_version_requested": args.model_version,
+        "window_seconds": window_seconds,
+        "startup_grace_seconds": dataset_manifest.get(
+            "startup_grace_seconds", 0.0
+        ),
         "dataset_manifest": (
             str(dataset_manifest_path) if dataset_manifest_path.is_file() else None
         ),
@@ -241,7 +304,7 @@ def main() -> int:
     }
 
     try:
-        for pod_key in TARGETS:
+        for pod_key in targets:
             path = training_dir / f"{pod_key.replace('/', '__')}.npy"
             if not path.is_file():
                 raise FileNotFoundError(f"missing target baseline: {path}")

@@ -13,7 +13,7 @@
 
 ## 2. V1 — Đã hoàn thành: Runtime Security tổng quát cho Kubernetes
 
-**Hạ tầng:** cụm K8s 3 node (1 master, 2 worker) trên VMware vSphere, kubeadm, Ubuntu 22.04, Cilium 1.19.2 làm CNI eBPF, Tetragon DaemonSet giám sát syscall qua TracingPolicy.
+**Hạ tầng thí nghiệm ban đầu:** cụm K8s 3 node (1 master, 2 worker). **Deployment hiện hành (xác minh 01-08-2026):** Kubernetes v1.34.10 gồm 3 control plane + 3 worker trên Ubuntu 24.04; Tetragon DaemonSet đạt 6/6 và giám sát syscall qua `TracingPolicyNamespaced`. Các kết quả paper cũ trên 3 node vẫn được giữ như evidence lịch sử, không được trình bày như topology hiện tại.
 
 **Pipeline ML (5 giai đoạn):** phân tích syscall profile theo workload → sinh dữ liệu huấn luyện (n-gram unigram+bigram) → **LSTM Autoencoder + Isolation Forest** (per-pod model, ensemble 0.6×LSTM + 0.4×IF) → phát hiện real-time (cửa sổ 30s) → **phản hồi tự động 4 bước: cordon node → gán nhãn quarantine → CiliumNetworkPolicy deny-all → evict pod** → ánh xạ MITRE ATT&CK for Containers (rule-based, 6 kỹ thuật).
 
@@ -26,6 +26,17 @@
 | MITRE Mapping Accuracy | 100% (25/25) |
 | Detection Latency trung bình | 88,46s (phụ thuộc cửa sổ 30s) |
 | Response Latency trung bình | ~0,5s (4 bước cô lập) |
+
+**Addendum runtime hiện hành (xác minh 01-08-2026):** model V7 cadence 10 giây
+đã pass normal-control 216 cửa sổ với zero detection/score crossing/behavior
+crossing và pass 15/15 real-kernel attack trials. Fast path early-warning có
+p50/p95/max `0,285/0,919/0,956 giây`; ML confirmation có min/median/max
+`7,058/17,303/18,593 giây`. Đây là hai metric khác nhau: fast path không tự cô
+lập pod, ML path mới là quyết định xác nhận. Production đã promote nguyên tử
+nhưng vẫn chạy audit `--dry-run`. Evidence nằm tại
+`../validation-evidence/20260801T153648Z/`; chi tiết ở
+`../PROJECT_STATUS_REPORT.md`, Mục 18.21. Bảng phía trên vẫn là kết quả paper V1
+lịch sử, không được trộn với protocol 10 giây hiện hành.
 
 **Bài học kỹ thuật quan trọng nhất (áp dụng thẳng vào V2):** *"Chất lượng và tính nhất quán dữ liệu baseline quan trọng hơn thuật toán"* — training distribution phải khớp runtime distribution; per-pod baseline giảm cả false positive lẫn false negative; thứ tự quarantine-trước-evict ngăn race condition exfiltration.
 

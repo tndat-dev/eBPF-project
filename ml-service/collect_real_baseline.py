@@ -34,6 +34,7 @@ import threading
 import logging
 import json
 import hashlib
+import subprocess
 from datetime import datetime, timezone
 import numpy as np
 from collections import defaultdict
@@ -41,10 +42,12 @@ from collections import defaultdict
 sys.path.insert(0, '.')
 from tetragon_consumer import TetragonConsumer
 from feature_engineering import WindowManager
+from collection_timing import minimum_duration_satisfied, wait_until
+from workload_identity import get_deploy_key
 
 # ── Cấu hình ─────────────────────────────────────────────────
 COLLECT_MINUTES = int(os.environ.get("COLLECT_MINUTES", "40"))
-WINDOW_SECONDS  = int(os.environ.get("WINDOW_SECONDS", "30"))
+WINDOW_SECONDS  = int(os.environ.get("WINDOW_SECONDS", "10"))
 MIN_EVENTS      = int(os.environ.get("MIN_EVENTS", "20"))
 MIN_WINDOWS     = int(os.environ.get("MIN_WINDOWS", "30"))
 MAX_WINDOWS     = int(os.environ.get("MAX_WINDOWS_PER_TARGET", "0"))
@@ -54,6 +57,12 @@ PHASE_NAME      = os.environ.get("BASELINE_PHASE", "unspecified")
 VOCAB_PATH      = os.environ.get("SENTINEL_VOCAB", "vocab.pkl")
 POLICY_PATH     = os.environ.get("SENTINEL_POLICY")
 LOADGEN_PATH    = os.environ.get("SENTINEL_LOADGEN_MANIFEST")
+STARTUP_GRACE_SECONDS = float(os.environ.get(
+    "SENTINEL_POD_STARTUP_GRACE_SECONDS", "60"
+))
+POD_REFRESH_SECONDS = float(os.environ.get(
+    "SENTINEL_POD_PROVENANCE_REFRESH_SECONDS", "5"
+))
 TARGET_NS       = {"production", "default"}
 TARGET_DEPLOYS  = {
     item.strip() for item in os.environ.get(
@@ -95,41 +104,92 @@ vectors   = defaultdict(list)   # deploy_key → [vector, ...]
 metadata  = defaultdict(list)   # deploy_key → row-aligned window metadata
 stats     = defaultdict(lambda: {"windows": 0, "events_total": 0, "skipped_low": 0})
 lock      = threading.Lock()
-targets_ready = threading.Event()
+pod_refresh_stop = threading.Event()
+pod_started_at = {}
+pod_provenance_stats = {
+    "refresh_successes": 0,
+    "refresh_failures": 0,
+    "direct_lookup_failures": 0,
+}
+pod_cache_lock = threading.Lock()
 
 
-# ── Helper: pod_key → deployment key ─────────────────────────
+def is_target_event(event) -> bool:
+    """Discard unmodelled telemetry before it allocates a feature buffer."""
+    pod = getattr(event, "pod", None)
+    namespace = getattr(pod, "namespace", None)
+    name = getattr(pod, "name", None)
+    if not namespace or not name:
+        return False
+    return get_deploy_key(f"{namespace}/{name}") in TARGET_DEPLOYS
 
-def get_deploy_key(pod_key: str) -> str:
-    """
-    'production/nginx-56fcf95486-9t2j9' → 'production/nginx'
 
-    Logic: bỏ 2 suffix cuối nếu đúng format Kubernetes
-      <deploy>-<rs_hash(10)>-<pod_hash(5)>
-    """
+def _parse_kubernetes_timestamp(value):
+    if not value:
+        return None
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+
+
+def refresh_pod_start_cache():
+    """Cache creation times before a lifecycle rollout deletes the old pod."""
     try:
-        ns, name = pod_key.split('/', 1)
-        parts = name.split('-')
+        result = subprocess.run(
+            ["kubectl", "get", "pods", "-A", "-o", "json"],
+            check=True, capture_output=True, text=True, timeout=5,
+        )
+        discovered = {}
+        for item in json.loads(result.stdout).get("items", []):
+            metadata_row = item.get("metadata", {})
+            namespace = metadata_row.get("namespace")
+            name = metadata_row.get("name")
+            if not namespace or not name:
+                continue
+            key = f"{namespace}/{name}"
+            if get_deploy_key(key) not in TARGET_DEPLOYS:
+                continue
+            started = _parse_kubernetes_timestamp(
+                metadata_row.get("creationTimestamp")
+            )
+            if started is not None:
+                discovered[key] = started
+        with pod_cache_lock:
+            pod_started_at.update(discovered)
+            pod_provenance_stats["refresh_successes"] += 1
+    except (OSError, ValueError, json.JSONDecodeError,
+            subprocess.SubprocessError) as exc:
+        with pod_cache_lock:
+            pod_provenance_stats["refresh_failures"] += 1
+        logger.warning("Không refresh được pod creationTimestamp cache: %s", exc)
 
-        # Thử nhận dạng 2 suffix cuối
-        if len(parts) >= 3:
-            pod_hash = parts[-1]
-            rs_hash  = parts[-2]
-            # Pod hash: 5 ký tự alphanum
-            # RS hash:  10 ký tự alphanum
-            if len(pod_hash) == 5 and len(rs_hash) in (9, 10) and \
-               pod_hash.isalnum() and rs_hash.isalnum():
-                deploy = '-'.join(parts[:-2])
-                return f"{ns}/{deploy}"
 
-        # Fallback: bỏ 1 suffix (StatefulSet: postgres-0)
-        if len(parts) >= 2 and parts[-1].isdigit():
-            deploy = '-'.join(parts[:-1])
-            return f"{ns}/{deploy}"
+def pod_cache_refresher():
+    refresh_pod_start_cache()
+    while not pod_refresh_stop.wait(POD_REFRESH_SECONDS):
+        refresh_pod_start_cache()
 
-        return pod_key
-    except Exception:
-        return pod_key
+
+def get_pod_started_at(pod_key):
+    """Return immutable Kubernetes pod age provenance, failing closed."""
+    with pod_cache_lock:
+        if pod_key in pod_started_at:
+            return pod_started_at[pod_key]
+    try:
+        namespace, name = pod_key.split("/", 1)
+        result = subprocess.run(
+            ["kubectl", "get", "pod", name, "-n", namespace,
+             "-o", "jsonpath={.metadata.creationTimestamp}"],
+            check=True, capture_output=True, text=True, timeout=2,
+        )
+        started = _parse_kubernetes_timestamp(result.stdout.strip())
+        if started is not None:
+            with pod_cache_lock:
+                pod_started_at[pod_key] = started
+        return started
+    except (OSError, ValueError, subprocess.SubprocessError) as exc:
+        with pod_cache_lock:
+            pod_provenance_stats["direct_lookup_failures"] += 1
+        logger.warning("Không lấy được creationTimestamp cho %s: %s", pod_key, exc)
+        return None
 
 
 # ── Feature vector callback ───────────────────────────────────
@@ -159,12 +219,26 @@ def on_feature_vector(fv):
         )
         return
 
+    started_at = get_pod_started_at(fv.pod_key)
+    startup_age_seconds = (
+        max(0.0, float(fv.window_end) - started_at)
+        if started_at is not None else None
+    )
+    startup_grace_eligible = bool(
+        startup_age_seconds is not None
+        and startup_age_seconds < STARTUP_GRACE_SECONDS
+    )
+
     with lock:
         if MAX_WINDOWS and dk in TARGET_DEPLOYS and len(vectors[dk]) >= MAX_WINDOWS:
             return
         vectors[dk].append(fv.vector.copy())
         metadata[dk].append({
             "phase": PHASE_NAME,
+            "pod_key": fv.pod_key,
+            "pod_creation_timestamp": started_at,
+            "startup_age_seconds": startup_age_seconds,
+            "startup_grace_eligible": startup_grace_eligible,
             "window_start": fv.window_start,
             "window_end": fv.window_end,
             "event_count": total_events,
@@ -173,11 +247,6 @@ def on_feature_vector(fv):
         stats[dk]["windows"]      += 1
         stats[dk]["events_total"] += total_events
         n = stats[dk]["windows"]
-        if MAX_WINDOWS and all(
-            len(vectors[target]) >= MAX_WINDOWS for target in TARGET_DEPLOYS
-        ):
-            targets_ready.set()
-
     # Log mỗi window để theo dõi tiến trình
     marker = "✅" if dk in TARGET_DEPLOYS else "  "
     logger.info(
@@ -190,13 +259,21 @@ def on_feature_vector(fv):
 # ── Khởi động consumer ────────────────────────────────────────
 
 logger.info("Khởi động WindowManager và TetragonConsumer...")
+if STARTUP_GRACE_SECONDS < 0 or POD_REFRESH_SECONDS <= 0:
+    raise ValueError("startup grace must be >=0 and pod refresh interval must be >0")
+pod_refresh_thread = threading.Thread(
+    target=pod_cache_refresher,
+    daemon=True,
+    name="pod-provenance-refresher",
+)
+pod_refresh_thread.start()
 window_mgr = WindowManager(
     window_seconds=WINDOW_SECONDS,
     vocab=vocab,
     on_feature_vector=on_feature_vector,
 )
 
-consumer = TetragonConsumer(mode='kubectl')
+consumer = TetragonConsumer(mode='kubectl', event_filter=is_target_event)
 
 consumer_thread = threading.Thread(
     target=consumer.run,
@@ -212,6 +289,13 @@ logger.info("Target pods:")
 for t in sorted(TARGET_DEPLOYS):
     logger.info(f"  📌 {t}")
 logger.info("=" * 60)
+if COLLECT_MINUTES < 1 or not 0 <= MIN_COLLECT_MINUTES <= COLLECT_MINUTES:
+    raise ValueError(
+        "collection duration must satisfy 1 <= COLLECT_MINUTES and "
+        "0 <= MIN_COLLECT_MINUTES <= COLLECT_MINUTES"
+    )
+collection_started_at = datetime.now(timezone.utc)
+collection_started_monotonic = time.monotonic()
 
 
 # ── Vòng lặp collect ──────────────────────────────────────────
@@ -262,7 +346,11 @@ def print_summary():
 
 try:
     for minute in range(1, COLLECT_MINUTES + 1):
-        targets_ready.wait(timeout=60)
+        # Wait against a monotonic wall-clock deadline. ``targets_ready`` is
+        # sticky; using Event.wait(60) after it becomes set used to collapse a
+        # requested 72-minute capture into roughly three minutes.
+        minute_deadline = collection_started_monotonic + minute * 60.0
+        wait_until(minute_deadline)
 
         logger.info(f"\n[{minute}/{COLLECT_MINUTES} phút]")
         all_ready = print_summary()
@@ -274,6 +362,20 @@ try:
 
 except KeyboardInterrupt:
     logger.info("\nCtrl+C — dừng collect sớm...")
+
+
+# Freeze sensor and provenance state before snapshotting arrays/manifests.  A
+# late stream failure during artifact serialization must not escape the health
+# contract, and callbacks must not mutate row-aligned data while it is copied.
+consumer.stop()
+consumer_thread.join(timeout=10)
+pod_refresh_stop.set()
+pod_refresh_thread.join(timeout=max(1.0, POD_REFRESH_SECONDS + 1.0))
+if consumer_thread.is_alive() or pod_refresh_thread.is_alive():
+    logger.error("Baseline invalid: collector thread did not stop cleanly")
+    raise SystemExit(5)
+collection_ended_at = datetime.now(timezone.utc)
+actual_duration_seconds = time.monotonic() - collection_started_monotonic
 
 
 # ── Lưu file ──────────────────────────────────────────────────
@@ -293,8 +395,17 @@ with lock:
 
 manifest = {
     "created_at": datetime.now(timezone.utc).isoformat(),
+    "collection_started_at": collection_started_at.isoformat(),
+    "collection_ended_at": collection_ended_at.isoformat(),
+    "requested_duration_seconds": COLLECT_MINUTES * 60,
+    "minimum_duration_seconds": MIN_COLLECT_MINUTES * 60,
+    "actual_duration_seconds": round(actual_duration_seconds, 6),
+    "minimum_duration_satisfied": minimum_duration_satisfied(
+        actual_duration_seconds, MIN_COLLECT_MINUTES * 60
+    ),
     "phase": PHASE_NAME,
     "window_seconds": WINDOW_SECONDS,
+    "consumer_target_filter": True,
     "minimum_events": MIN_EVENTS,
     "minimum_windows": MIN_WINDOWS,
     "maximum_windows_per_target": MAX_WINDOWS or None,
@@ -306,6 +417,13 @@ manifest = {
     "experiment_artifacts": {
         "tetragon_policy": artifact_provenance(POLICY_PATH),
         "loadgen_manifest": artifact_provenance(LOADGEN_PATH),
+    },
+    "startup_provenance": {
+        "method": "kubernetes_metadata_creationTimestamp",
+        "startup_grace_seconds": STARTUP_GRACE_SECONDS,
+        "refresh_seconds": POD_REFRESH_SECONDS,
+        "fail_closed": True,
+        **pod_provenance_stats,
     },
     "sensor_health": getattr(consumer.reader, "health", lambda: {})(),
     "targets": {},
@@ -370,12 +488,38 @@ if missing_targets:
     logger.warning("   Các pod này sẽ không được detect anomaly!")
     logger.warning("   → Cần bắn thêm traffic và collect lại")
 
-consumer.stop()
-if manifest["sensor_health"].get("backpressure_events", 0):
+sensor_health = manifest["sensor_health"]
+continuity_failures = (
+    int(sensor_health.get("membership_failures", 0))
+    + int(sensor_health.get("coverage_failures", 0))
+    + int(sensor_health.get("stream_failures", 0))
+)
+if sensor_health.get("backpressure_events", 0):
     logger.error(
         "Baseline invalid: Tetragon reader experienced %d backpressure events",
         manifest["sensor_health"]["backpressure_events"],
     )
     raise SystemExit(3)
+if continuity_failures:
+    logger.error(
+        "Baseline invalid: sensor continuity failed "
+        "(membership_failures=%d coverage_failures=%d stream_failures=%d)",
+        sensor_health.get("membership_failures", 0),
+        sensor_health.get("coverage_failures", 0),
+        sensor_health.get("stream_failures", 0),
+    )
+    raise SystemExit(4)
+if (
+    sensor_health.get("require_full_coverage")
+    and not sensor_health.get("coverage_healthy")
+):
+    logger.error("Baseline invalid: full Tetragon coverage was not healthy at exit")
+    raise SystemExit(4)
 if missing_targets:
     raise SystemExit(2)
+if not manifest["minimum_duration_satisfied"]:
+    logger.error(
+        "Baseline invalid: actual duration %.3fs is shorter than minimum %ds",
+        actual_duration_seconds, MIN_COLLECT_MINUTES * 60,
+    )
+    raise SystemExit(6)

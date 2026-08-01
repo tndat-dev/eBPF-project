@@ -1,0 +1,42 @@
+{
+  "contract_version": 1,
+  "release_track": "aims-syscall-candidate",
+  "production_release_frozen": "V7",
+  "window_seconds": 10,
+  "minimum_events_per_window": 10,
+  "eligible_targets": [
+    "production/aims-frontend",
+    "production/api-gateway",
+    "production/auth-service",
+    "production/cart-service",
+    "production/catalog-service",
+    "production/inventory-service",
+    "production/order-service",
+    "production/security-telemetry-service"
+  ],
+  "excluded_targets": {
+    "production/payment-service": "RuntimeClass=sandbox: host eBPF cannot observe guest-kernel syscalls and Istio cross-pod probes currently return 503",
+    "production/notification-service": "RuntimeClass=sandbox: host eBPF cannot observe guest-kernel syscalls and Istio cross-pod probes currently return 503",
+    "production/stateful-infrastructure": "Kafka, RabbitMQ, Redis, PostgreSQL and MinIO require separate role-conditioned models"
+  },
+  "normal_protocol": {
+    "regimes": ["steady", "burst", "recovery", "toolmix"],
+    "independent_runs_per_regime": 5,
+    "minimum_total_hours": 24,
+    "promotion_false_positive_alerts": 0,
+    "split": "temporal-and-pod-version"
+  },
+  "attack_protocol": {
+    "blind_set_required": true,
+    "minimum_trials_per_scenario_per_workload": 5,
+    "minimum_distinct_rates": 3,
+    "promotion_recall": 1.0
+  },
+  "promotion": {
+    "automatic": false,
+    "requires_baseline_comparison": true,
+    "requires_ablation": true,
+    "requires_overhead_ab": true,
+    "requires_bootstrap_ci": true
+  }
+}

@@ -451,7 +451,7 @@ if __name__ == "__main__":
     alert = AnomalyAlert(
         pod_name="nginx-56fcf95486-r6n7g",
         pod_namespace="production",
-        node_name="k8s-worker2.local",
+        node_name="synthetic-node",
         detected_at=datetime.now(timezone.utc).isoformat(),
         ensemble_score=1.0,
         lstm_score=1.0,

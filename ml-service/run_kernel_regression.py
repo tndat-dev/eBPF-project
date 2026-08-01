@@ -26,11 +26,51 @@ SCENARIOS = (
     "privilege_escalation",
     "data_exfiltration",
 )
+BLIND_SCENARIOS = (
+    "local_socket_beacon",
+    "namespace_probe",
+    "process_fanout",
+    "identity_transition_probe",
+    "credential_read_burst",
+)
+SUPPORTED_SCENARIOS = SCENARIOS + BLIND_SCENARIOS
+# The static in-container attack binary enters through execve and these two
+# scenarios then make an unsampled privilege/namespace syscall.  They are the
+# only deterministic fast-path coverage cases. Network-only scenarios remain
+# ML-confirmed unless the executed binary itself is a reviewed shell/network
+# utility, which protects the normal service-connect path from false positives.
+FAST_PATH_EXPECTED_SCENARIOS = frozenset({
+    "container_escape", "privilege_escalation",
+})
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
-    "sentinel/telemetry.py",
+    "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )
+VALIDATION_POLICY_DEFAULTS = {
+    "SENTINEL_CONFIRMATION_FLOOR_RATIO": "0.94",
+    "SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR": "0.45",
+    "SENTINEL_FAST_PATH_CONFIRMATION_FLOOR": "0.20",
+    "SENTINEL_POD_STARTUP_GRACE_SECONDS": "60",
+    "SENTINEL_EXTREME_VOLUME_FACTOR": "2.0",
+}
+
+
+def sensor_snapshot_healthy(health: dict) -> bool:
+    if not isinstance(health, dict):
+        return False
+    active = health.get("active_tetragon_pods", [])
+    expected = health.get("expected_tetragon_pods")
+    return bool(
+        health.get("require_full_coverage")
+        and health.get("coverage_healthy") is True
+        and isinstance(expected, int) and expected > 0
+        and len(active) == expected
+        and int(health.get("backpressure_events", 0)) == 0
+        and int(health.get("membership_failures", 0)) == 0
+        and int(health.get("coverage_failures", 0)) == 0
+        and int(health.get("stream_failures", 0)) == 0
+    )
 
 
 def sha256(path):
@@ -182,6 +222,26 @@ def stop_process(process: subprocess.Popen):
         process.wait(timeout=5)
 
 
+def require_tetragon_full_coverage() -> None:
+    """Fail before injecting attacks if the eBPF sensor set is incomplete."""
+    result = subprocess.run(
+        ["kubectl", "-n", "kube-system", "get", "daemonset", "tetragon",
+         "-o", "jsonpath={.status.desiredNumberScheduled},{.status.numberReady},{.status.numberAvailable}"],
+        check=True, capture_output=True, text=True,
+    )
+    try:
+        desired, ready, available = (int(value) for value in result.stdout.strip().split(","))
+    except ValueError as exc:
+        raise RuntimeError(
+            f"cannot parse Tetragon coverage: {result.stdout!r}"
+        ) from exc
+    if desired <= 0 or ready != desired or available != desired:
+        raise RuntimeError(
+            "refusing kernel validation with incomplete Tetragon coverage: "
+            f"desired={desired} ready={ready} available={available}"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", default="models_candidate")
@@ -191,11 +251,50 @@ def main() -> int:
     parser.add_argument("--runtime-binary", default="runtime_attack")
     parser.add_argument("--namespace", default="production")
     parser.add_argument("--selector", default="app=nginx")
+    parser.add_argument("--window", type=int,
+                        default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")),
+                        help="Feature window in seconds; must match candidate training")
     parser.add_argument("--attack-seconds", type=int, default=70)
     parser.add_argument("--rate", type=int, default=20)
     parser.add_argument("--post-attack-wait", type=int, default=45)
     parser.add_argument("--output-dir", default="kernel-regression-results")
+    parser.add_argument(
+        "--scenarios", default=",".join(SCENARIOS),
+        help="Comma-separated subset for diagnosis; release matrix uses all five",
+    )
+    parser.add_argument(
+        "--fast-path-expected",
+        default=",".join(sorted(FAST_PATH_EXPECTED_SCENARIOS)),
+        help="Comma-separated selected scenarios required to emit early-warning",
+    )
+    parser.add_argument("--seed", type=int, default=0,
+                        help="Frozen attack-trial seed passed to the runtime binary")
     args = parser.parse_args()
+    if args.window < 5:
+        raise ValueError("--window must be at least 5 seconds")
+    for name, value in VALIDATION_POLICY_DEFAULTS.items():
+        os.environ.setdefault(name, value)
+    scenarios = tuple(
+        item.strip() for item in args.scenarios.split(",") if item.strip()
+    )
+    unknown_scenarios = sorted(set(scenarios) - set(SUPPORTED_SCENARIOS))
+    if (not scenarios or unknown_scenarios
+            or len(scenarios) != len(set(scenarios))):
+        raise ValueError(
+            "invalid scenario selection: values must be known and unique; "
+            f"unknown={unknown_scenarios}"
+        )
+    fast_path_expected = frozenset(
+        item.strip() for item in args.fast_path_expected.split(",")
+        if item.strip()
+    )
+    if not fast_path_expected.issubset(scenarios):
+        raise ValueError(
+            "--fast-path-expected must be a subset of selected scenarios: "
+            f"unexpected={sorted(fast_path_expected - set(scenarios))}"
+        )
+
+    require_tetragon_full_coverage()
 
     model_dir = Path(args.model_dir).resolve()
     vocab = Path(args.vocab).resolve() if args.vocab else model_dir / "vocab.pkl"
@@ -233,13 +332,33 @@ def main() -> int:
         "validation_harness_sha256": sha256(Path(__file__).resolve()),
         "calibration_source": str(calibration_source),
         "pod_key": pod_key,
+        "window_seconds": args.window,
+        "confirmation_policy": {
+            "hysteresis_ratio": float(os.environ.get(
+                "SENTINEL_CONFIRMATION_FLOOR_RATIO", "1.0"
+            )),
+            "behavior_confirmation_floor": float(os.environ.get(
+                "SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR", ".8"
+            )),
+            "fast_path_confirmation_floor": float(os.environ.get(
+                "SENTINEL_FAST_PATH_CONFIRMATION_FLOOR", ".8"
+            )),
+            "pod_startup_grace_seconds": float(os.environ.get(
+                "SENTINEL_POD_STARTUP_GRACE_SECONDS", "0"
+            )),
+            "extreme_volume_factor": float(os.environ.get(
+                "SENTINEL_EXTREME_VOLUME_FACTOR", "2.0"
+            )),
+        },
         "attack_seconds": args.attack_seconds,
         "rate_per_second": args.rate,
+        "seed": args.seed,
+        "fast_path_expected_scenarios": sorted(fast_path_expected),
         "scenarios": {},
     }
 
     try:
-        for scenario in SCENARIOS:
+        for scenario in scenarios:
             metrics = output_dir / f"{scenario}.jsonl"
             detector_log = output_dir / f"{scenario}.log"
             calibration = output_dir / f"{scenario}-calibration.json"
@@ -256,6 +375,8 @@ def main() -> int:
                 "SENTINEL_MIN_EVENTS": "20",
                 "SENTINEL_QUEUE_SIZE": "100000",
                 "SENTINEL_CONSUMER_LOG_INTERVAL": "100000",
+                "SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE": "true",
+                "SENTINEL_TETRAGON_DAEMONSET": "tetragon",
             })
             with detector_log.open("w") as log_handle:
                 detector = subprocess.Popen(
@@ -263,7 +384,7 @@ def main() -> int:
                         "/home/dat/ml-venv/bin/python", "-u",
                         "anomaly_detector2.py", "--mode", "kubectl",
                         "--model-dir", str(model_dir),
-                        "--vocab", str(vocab), "--window", "30",
+                        "--vocab", str(vocab), "--window", str(args.window),
                         "--threshold", "0.80", "--dry-run",
                     ],
                     stdout=log_handle,
@@ -279,7 +400,7 @@ def main() -> int:
                 command = [
                     "kubectl", "exec", "-n", args.namespace, pod, "--",
                     container_binary, scenario, str(args.attack_seconds),
-                    str(args.rate),
+                    str(args.rate), str(args.seed),
                 ]
                 attack_process = subprocess.Popen(
                     command, text=True, stdout=subprocess.PIPE,
@@ -351,6 +472,20 @@ def main() -> int:
                 and attack_started is not None
                 and row.get("ts", 0) >= attack_started
             ]
+            early_warnings = [
+                row for row in rows
+                if row.get("kind") == "early_warning"
+                and row.get("pod_key") == pod_key
+                and attack_started is not None
+                and row.get("ts", 0) >= attack_started
+            ]
+            health_rows = [
+                row for row in rows if row.get("kind") == "runtime_health"
+            ]
+            sensors_healthy = bool(health_rows) and all(
+                sensor_snapshot_healthy(row.get("sensor_health"))
+                for row in health_rows
+            )
             inference = [
                 float(row["inference_ms"]) for row in rows
                 if row.get("kind") == "inference"
@@ -363,6 +498,16 @@ def main() -> int:
             telemetry_latency = (
                 float(first["detection_latency"])
                 if first and first.get("detection_latency") is not None
+                else None
+            )
+            first_early = early_warnings[0] if early_warnings else None
+            early_latency = (
+                float(first_early["ts"] - attack_started)
+                if first_early else None
+            )
+            early_telemetry_latency = (
+                float(first_early["detection_latency"])
+                if first_early and first_early.get("detection_latency") is not None
                 else None
             )
             result = {
@@ -390,6 +535,35 @@ def main() -> int:
                 "inference_median_ms": statistics.median(inference) if inference else None,
                 "inference_p95_ms": percentile(inference, 0.95),
                 "inference_p99_ms": percentile(inference, 0.99),
+                "sensor_health_samples": len(health_rows),
+                "sensor_health_healthy": sensors_healthy,
+                "sensor_health": (
+                    health_rows[-1].get("sensor_health") if health_rows else None
+                ),
+                # Fast path is measured, but deliberately not part of the
+                # all-scenario ML release gate: it is an early-warning lane
+                # for high-specificity syscall sequences only.
+                "fast_path_warning_count": len(early_warnings),
+                "fast_path_expected": scenario in fast_path_expected,
+                "fast_path_expected_matched": (
+                    bool(first_early)
+                    if scenario in fast_path_expected else None
+                ),
+                "fast_path_latency_seconds": early_latency,
+                "fast_path_telemetry_latency_seconds": early_telemetry_latency,
+                "fast_path_latency_clock_agreement_seconds": (
+                    abs(early_latency - early_telemetry_latency)
+                    if early_latency is not None
+                    and early_telemetry_latency is not None else None
+                ),
+                "fast_path_event_to_warning_seconds": (
+                    first_early.get("event_to_warning_seconds")
+                    if first_early else None
+                ),
+                "fast_path_processing_ms": (
+                    first_early.get("processing_ms") if first_early else None
+                ),
+                "fast_path_warning": first_early,
                 "detection": first,
             }
             report["scenarios"][scenario] = result
@@ -407,7 +581,7 @@ def main() -> int:
     report["detected"] = sum(
         bool(item["detected"]) for item in report["scenarios"].values()
     )
-    report["total"] = len(SCENARIOS)
+    report["total"] = len(scenarios)
     report["all_passed"] = (
         report["detected"] == report["total"]
         and all(
@@ -415,6 +589,7 @@ def main() -> int:
             and item["detector_exit_code"] == 0
             and item["attack_exit_code"] == 0
             and item["attack_acknowledged"]
+            and item["sensor_health_healthy"]
             and item["inference_count"] >= 2
             and item["detection_latency_seconds"] is not None
             and item["telemetry_detection_latency_seconds"] is not None

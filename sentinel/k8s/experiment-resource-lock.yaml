@@ -1,0 +1,38 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicy
+metadata:
+  name: sentinel-experiment-resource-lock
+spec:
+  failurePolicy: Fail
+  matchConstraints:
+    resourceRules:
+    - apiGroups: ["apps"]
+      apiVersions: ["v1"]
+      operations: ["DELETE"]
+      resources: ["deployments"]
+    - apiGroups: [""]
+      apiVersions: ["v1"]
+      operations: ["DELETE"]
+      resources: ["services"]
+    - apiGroups: ["cilium.io"]
+      apiVersions: ["v1alpha1"]
+      operations: ["DELETE"]
+      resources: ["tracingpoliciesnamespaced"]
+  validations:
+  - expression: >-
+      !((oldObject.metadata.namespace == 'production' &&
+          oldObject.metadata.name in ['nginx', 'redis', 'loadgen', 'redis-loadgen', 'sentinel-syscalls']) ||
+        (oldObject.metadata.namespace == 'default' &&
+          oldObject.metadata.name in ['postgres', 'postgres-loadgen', 'sentinel-syscalls']))
+    message: >-
+      Sentinel experiment resources are deletion-locked while an immutable
+      collection or validation run is active. Scale and update remain allowed.
+    reason: Forbidden
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingAdmissionPolicyBinding
+metadata:
+  name: sentinel-experiment-resource-lock
+spec:
+  policyName: sentinel-experiment-resource-lock
+  validationActions: [Deny]

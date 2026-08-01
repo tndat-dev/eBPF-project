@@ -19,7 +19,7 @@ import sys
 import time
 import logging
 from dataclasses import dataclass, field
-from typing import Optional, Generator
+from typing import Callable, Optional, Generator
 import argparse
 import threading
 import os
@@ -84,6 +84,11 @@ class TetragonEventParser:
         "__x64_sys_openat":    "openat",
         "__x64_sys_read":      "read",
         "__x64_sys_write":     "write",
+        # Nginx's event loop commonly emits response buffers through writev
+        # rather than write.  Normalize the vectored variant to the existing
+        # ``write`` feature so a hardened Nginx profile remains compatible
+        # with the versioned vocabulary while still contributing telemetry.
+        "__x64_sys_writev":    "write",
         "__x64_sys_close":     "close",
         "__x64_sys_setuid":    "setuid",
         "__x64_sys_setgid":    "setgid",
@@ -105,6 +110,7 @@ class TetragonEventParser:
         "sys_openat":    "openat",
         "sys_read":      "read",
         "sys_write":     "write",
+        "sys_writev":    "write",
         "sys_close":     "close",
         "sys_setuid":    "setuid",
         "sys_setgid":    "setgid",
@@ -226,7 +232,8 @@ class TetragonLogFileReader:
 
 class TetragonKubectlReader:
     """
-    Đọc Tetragon log từ TẤT CẢ Tetragon pods song song (1 pod/worker node).
+    Đọc Tetragon log từ TẤT CẢ Tetragon pods ready song song (1 pod/node được
+    DaemonSet schedule).
     
     Với 2 worker nodes → 2 Tetragon pods → 2 luồng đọc song song.
     Tất cả events được gộp vào 1 queue chung.
@@ -242,23 +249,185 @@ class TetragonKubectlReader:
             maxsize=int(os.environ.get("SENTINEL_QUEUE_SIZE", "100000"))
         )
         self._stop_event = threading.Event()
-        self._procs = []
+        self._procs: dict[str, set[subprocess.Popen]] = {}
         self._procs_lock = threading.Lock()
+        self._membership_lock = threading.Lock()
+        self._threads: dict[str, threading.Thread] = {}
+        self._active_pods: set[str] = set()
+        self._refresh_seconds = float(
+            os.environ.get("SENTINEL_TETRAGON_REFRESH_SECONDS", "15")
+        )
+        self._last_refresh = 0.0
         self._backpressure_events = 0
+        self._membership_refreshes = 0
+        self._membership_failures = 0
+        self._coverage_failures = 0
+        self._stream_failures = 0
+        self._stale_streams_removed = 0
+        # Production must not make an ML decision from a partial sensor set.
+        # Keep the library default permissive for one-node/file-based tests;
+        # the systemd unit explicitly enables this gate for the live detector.
+        self._require_full_coverage = os.environ.get(
+            "SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE", "false"
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        self._daemonset_name = os.environ.get(
+            "SENTINEL_TETRAGON_DAEMONSET", "tetragon"
+        )
+        self._ready_tetragon_pods: set[str] = set()
+        self._expected_tetragon_pods: Optional[int] = None
+        self._coverage_healthy = not self._require_full_coverage
 
-    def _get_all_tetragon_pods(self) -> list[str]:
-        """Lấy tên TẤT CẢ pod Tetragon đang chạy (1 pod/node)."""
+    def _get_all_tetragon_pods(self, *, announce: bool = True) -> list[str]:
+        """Lấy tên pod Tetragon có container sensor thực sự ready.
+
+        ``status.phase=Running`` không đủ: pod có thể hiện
+        ``ContainerStatusUnknown`` trong khi kubelet/container runtime đang
+        lỗi. Streaming từ pod đó sẽ retry ``kubectl exec`` vô ích và, tệ hơn,
+        khiến detector ngộ nhận telemetry đã phủ đủ node.
+        """
         result = subprocess.run(
             ["kubectl", "get", "pods", "-n", self.namespace,
-             "-l", "app.kubernetes.io/name=tetragon",
-             "-o", "jsonpath={.items[*].metadata.name}"],
+             "-l", "app.kubernetes.io/name=tetragon", "-o", "json"],
             capture_output=True, text=True, check=True
         )
-        pods = result.stdout.strip().split()
+        payload = json.loads(result.stdout)
+        pods = []
+        for item in payload.get("items", []):
+            metadata = item.get("metadata", {})
+            status = item.get("status", {})
+            if (metadata.get("deletionTimestamp")
+                    or status.get("phase") != "Running"):
+                continue
+            container_status = next(
+                (entry for entry in status.get("containerStatuses", [])
+                 if entry.get("name") == self.container),
+                None,
+            )
+            if container_status and container_status.get("ready") is True:
+                pods.append(metadata["name"])
+        pods.sort()
         if not pods:
-            raise RuntimeError("Không tìm thấy pod Tetragon nào đang chạy!")
-        logger.info(f"Tìm thấy {len(pods)} Tetragon pod(s): {pods}")
+            raise RuntimeError("Không tìm thấy pod Tetragon ready nào!")
+        if announce:
+            logger.info("Tìm thấy %d Tetragon pod ready: %s", len(pods), pods)
         return pods
+
+    def _get_expected_tetragon_pod_count(self) -> int:
+        """Read DaemonSet desired scheduling count for the coverage gate."""
+        result = subprocess.run(
+            ["kubectl", "get", "daemonset", self._daemonset_name,
+             "-n", self.namespace,
+             "-o", "jsonpath={.status.desiredNumberScheduled}"],
+            capture_output=True, text=True, check=True,
+        )
+        expected = int(result.stdout.strip())
+        if expected <= 0:
+            raise RuntimeError(
+                f"DaemonSet {self._daemonset_name} has invalid desired count {expected}"
+            )
+        return expected
+
+    def _clear_queued_events(self):
+        """Discard events captured before coverage was lost; never score them."""
+        while True:
+            try:
+                self._queue.get_nowait()
+            except queue.Empty:
+                return
+
+    def _pod_is_active(self, pod_name: str) -> bool:
+        with self._membership_lock:
+            return pod_name in self._active_pods
+
+    def _terminate_pod_processes(self, pod_name: str):
+        """Stop only stale kubectl streams; never interrupt healthy nodes."""
+        with self._procs_lock:
+            procs = list(self._procs.get(pod_name, set()))
+        for proc in procs:
+            if proc.poll() is None:
+                proc.terminate()
+
+    def _start_pod_thread(self, pod_name: str):
+        thread = threading.Thread(
+            target=self._stream_one_pod,
+            args=(pod_name,),
+            daemon=True,
+            name=f"reader-{pod_name}",
+        )
+        self._threads[pod_name] = thread
+        thread.start()
+        logger.info("Thread started cho pod: %s", pod_name)
+
+    def _reconcile_pods(self, *, initial: bool = False) -> bool:
+        """Track DaemonSet rollovers so removed pods cannot retry forever."""
+        try:
+            ready_pods = set(self._get_all_tetragon_pods(announce=initial))
+            expected = (
+                self._get_expected_tetragon_pod_count()
+                if self._require_full_coverage else None
+            )
+        except Exception as exc:
+            self._membership_failures += 1
+            logger.error("Chưa lấy được pod list: %s", exc)
+            if self._require_full_coverage:
+                with self._membership_lock:
+                    previous = set(self._active_pods)
+                    self._active_pods = set()
+                    self._ready_tetragon_pods = set()
+                    self._expected_tetragon_pods = None
+                    self._coverage_healthy = False
+                for pod_name in previous:
+                    self._terminate_pod_processes(pod_name)
+                self._clear_queued_events()
+            return False
+
+        coverage_healthy = (
+            not self._require_full_coverage
+            or (expected is not None and len(ready_pods) == expected)
+        )
+        discovered = ready_pods if coverage_healthy else set()
+        if not coverage_healthy:
+            self._coverage_failures += 1
+            logger.error(
+                "Tetragon coverage incomplete: ready=%d desired=%d; "
+                "pausing ML ingestion and decisions",
+                len(ready_pods), expected,
+            )
+
+        with self._membership_lock:
+            previous = set(self._active_pods)
+            removed = previous - discovered
+            added = discovered - previous
+            self._active_pods = discovered
+            self._membership_refreshes += 1
+            self._last_refresh = time.monotonic()
+            self._ready_tetragon_pods = ready_pods
+            self._expected_tetragon_pods = expected
+            self._coverage_healthy = coverage_healthy
+            for pod_name, thread in list(self._threads.items()):
+                if not thread.is_alive() and pod_name not in discovered:
+                    self._threads.pop(pod_name, None)
+            for pod_name in removed:
+                self._threads.pop(pod_name, None)
+            start = [
+                pod_name for pod_name in sorted(added)
+                if pod_name not in self._threads or not self._threads[pod_name].is_alive()
+            ]
+
+        for pod_name in removed:
+            self._terminate_pod_processes(pod_name)
+        if not coverage_healthy:
+            self._clear_queued_events()
+        if removed:
+            self._stale_streams_removed += len(removed)
+        for pod_name in start:
+            self._start_pod_thread(pod_name)
+        if added or removed:
+            logger.info(
+                "Tetragon membership refreshed: added=%s removed=%s",
+                sorted(added), sorted(removed),
+            )
+        return bool(discovered) and coverage_healthy
 
     def _stream_one_pod(self, pod_name: str):
         """
@@ -270,7 +439,7 @@ class TetragonKubectlReader:
             "kube-system", "kube-public", "kube-node-lease",
             "cilium", "monitoring",
         }
-        while not self._stop_event.is_set():
+        while not self._stop_event.is_set() and self._pod_is_active(pod_name):
             try:
                 cmd = [
                     "kubectl", "exec", "-n", self.namespace,
@@ -285,7 +454,7 @@ class TetragonKubectlReader:
                     stderr=subprocess.DEVNULL, text=True, bufsize=1
                 )
                 with self._procs_lock:
-                    self._procs.append(proc)
+                    self._procs.setdefault(pod_name, set()).add(proc)
                 for line in proc.stdout:
                     if self._stop_event.is_set():
                         break
@@ -312,12 +481,15 @@ class TetragonKubectlReader:
                                 )
                 proc.wait()
                 with self._procs_lock:
-                    if proc in self._procs:
-                        self._procs.remove(proc)
-                if not self._stop_event.is_set():
+                    self._procs.get(pod_name, set()).discard(proc)
+                if (not self._stop_event.is_set()
+                        and self._pod_is_active(pod_name)):
+                    self._stream_failures += 1
                     logger.warning(f"[{pod_name}] kubectl exec kết thúc, retry sau 5s...")
             except Exception as e:
-                if not self._stop_event.is_set():
+                if (not self._stop_event.is_set()
+                        and self._pod_is_active(pod_name)):
+                    self._stream_failures += 1
                     logger.error(f"[{pod_name}] Lỗi: {e}, retry sau 5s...")
             self._stop_event.wait(5)
 
@@ -325,7 +497,7 @@ class TetragonKubectlReader:
         """Stop readers and reap all kubectl-exec child processes."""
         self._stop_event.set()
         with self._procs_lock:
-            procs = list(self._procs)
+            procs = [proc for group in self._procs.values() for proc in group]
         for proc in procs:
             if proc.poll() is None:
                 proc.terminate()
@@ -341,39 +513,38 @@ class TetragonKubectlReader:
             "queue_size": self._queue.qsize(),
             "queue_capacity": self._queue.maxsize,
             "backpressure_events": self._backpressure_events,
+            "membership_refreshes": self._membership_refreshes,
+            "membership_failures": self._membership_failures,
+            "coverage_failures": self._coverage_failures,
+            "stream_failures": self._stream_failures,
+            "stale_streams_removed": self._stale_streams_removed,
+            "active_tetragon_pods": sorted(self._active_pods),
+            "ready_tetragon_pods": sorted(self._ready_tetragon_pods),
+            "expected_tetragon_pods": self._expected_tetragon_pods,
+            "require_full_coverage": self._require_full_coverage,
+            "coverage_healthy": self._coverage_healthy,
         }
 
     def stream(self) -> Generator[str, None, None]:
         """
         Khởi động 1 thread/pod, gộp tất cả vào queue rồi yield ra.
         """
-        # Lấy danh sách tất cả Tetragon pods
-        pods = []
+        # Discover membership first, then refresh it periodically. A DaemonSet
+        # pod can be recreated while the detector stays up; retaining a static
+        # pod list would otherwise create an endless retry on the deleted pod.
         while not self._stop_event.is_set():
-            try:
-                pods = self._get_all_tetragon_pods()
+            if self._reconcile_pods(initial=True):
                 break
-            except Exception as e:
-                logger.error(f"Chưa lấy được pod list: {e}, retry sau 5s...")
-                self._stop_event.wait(5)
-        if not pods:
+            self._stop_event.wait(5)
+        if not self._active_pods:
             return
 
-        # Tạo 1 thread cho mỗi pod (1 thread/worker node)
-        for pod_name in pods:
-            t = threading.Thread(
-                target=self._stream_one_pod,
-                args=(pod_name,),
-                daemon=True,
-                name=f"reader-{pod_name}",
-            )
-            t.start()
-            logger.info(f"Thread started cho pod: {pod_name}")
-
-        logger.info(f"Đang đọc từ {len(pods)} nodes song song...")
+        logger.info("Đang đọc từ %d nodes song song...", len(self._active_pods))
 
         # Yield từ queue chung (blocking)
         while not self._stop_event.is_set():
+            if time.monotonic() - self._last_refresh >= self._refresh_seconds:
+                self._reconcile_pods()
             try:
                 line = self._queue.get(timeout=1)
                 yield line
@@ -398,8 +569,13 @@ class TetragonConsumer:
     """
     def __init__(self, mode: str = "kubectl",
                  log_path: str = "/var/run/cilium/tetragon/tetragon.log",
-                 namespace: str = "kube-system"):
+                 namespace: str = "kube-system",
+                 event_filter: Optional[Callable[[SyscallEvent], bool]] = None):
         self.parser = TetragonEventParser()
+        # Tetragon can export global ProcessExec records in addition to policy
+        # kprobes. Filter after parsing, before any per-pod window allocation,
+        # so unmodelled workloads cannot inflate the detector's queue/state.
+        self.event_filter = event_filter
 
         if mode == "file":
             self.reader = TetragonLogFileReader(log_path)
@@ -415,6 +591,7 @@ class TetragonConsumer:
         """
         event_count = 0
         skip_count = 0
+        filtered_count = 0
         log_interval = int(os.environ.get(
             "SENTINEL_CONSUMER_LOG_INTERVAL", "100000"
         ))
@@ -423,6 +600,9 @@ class TetragonConsumer:
         for raw_line in self.reader.stream():
             event = self.parser.parse_line(raw_line)
             if event:
+                if self.event_filter and not self.event_filter(event):
+                    filtered_count += 1
+                    continue
                 event_count += 1
                 try:
                     on_event_callback(event)
@@ -436,7 +616,8 @@ class TetragonConsumer:
                 health = getattr(self.reader, "health", lambda: {})()
                 logger.info(
                     f"Đã xử lý {total} dòng: "
-                    f"{event_count} events hợp lệ, {skip_count} bỏ qua, "
+                    f"{event_count} events hợp lệ, {filtered_count} filtered, "
+                    f"{skip_count} bỏ qua, "
                     f"sensor_health={health}"
                 )
 

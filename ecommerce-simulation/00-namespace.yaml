@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ecommerce-prod-sim
+  labels:
+    istio-injection: enabled
+    app.kubernetes.io/part-of: ecommerce-production-simulation
+    agent-runtime-sentinel.io/evaluation: "true"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: workload-budget
+  namespace: ecommerce-prod-sim
+spec:
+  hard:
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi
+    pods: "20"
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: defaults
+  namespace: ecommerce-prod-sim
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 50m
+        memory: 64Mi
+      default:
+        cpu: 500m
+        memory: 256Mi

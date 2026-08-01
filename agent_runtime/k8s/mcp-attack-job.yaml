@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mcp-safe-production-delete-simulation
+  namespace: agent-sentinel-lab
+  labels:
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+    agent-runtime-sentinel.io/scenario: production-delete
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: mcp-safe-attack
+        agent-runtime-sentinel.io/agent-id: evaluation-agent
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 102
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: safe-mcp-attack-simulation
+          image: docker.io/curlimages/curl@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              # This is telemetry only. The server is non-executing and no
+              # Kubernetes credential is mounted in this job.
+              payload='{"jsonrpc":"2.0","id":99,"method":"tools/call","params":{"name":"kubectl.delete","arguments":{"namespace":"production","resource":"deployment/payments"}}}'
+              for attempt in 1 2; do
+                curl --silent --show-error --fail --insecure \
+                  --connect-timeout 2 --max-time 5 \
+                  -H 'content-type: application/json' \
+                  --data "$payload" \
+                  https://mcp-tls-server:8443/mcp >/dev/null
+              done
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 101
+            runAsGroup: 102
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true

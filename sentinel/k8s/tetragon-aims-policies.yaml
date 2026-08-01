@@ -1,0 +1,47 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-aims-syscalls
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+    sentinel.openai.dev/release-track: aims-candidate
+spec:
+  # Deliberately exclude Kafka, databases, Redis, RabbitMQ, MinIO and Istio.
+  # Those stateful/control-plane roles need separate role-conditioned models.
+  podSelector:
+    matchLabels:
+      aims.hust.vn/runtime-hardened: "true"
+  kprobes:
+  # process_exec for these pods is already exported by aims-sensitive-exec;
+  # avoid a second execve hook that would duplicate the same event.
+  - {call: sys_execveat, syscall: true}
+  - {call: sys_connect, syscall: true}
+  - call: sys_read
+    syscall: true
+    selectors: &sampledAimsContext
+    - matchActions:
+      - {action: Post, rateLimit: 1s, rateLimitScope: process}
+  - call: sys_write
+    syscall: true
+    selectors: *sampledAimsContext
+  - call: sys_writev
+    syscall: true
+    selectors: *sampledAimsContext
+  - call: sys_openat
+    syscall: true
+    selectors: *sampledAimsContext
+  - call: sys_close
+    syscall: true
+    selectors: *sampledAimsContext
+  - {call: sys_clone, syscall: true}
+  - call: sys_accept4
+    syscall: true
+    selectors: *sampledAimsContext
+  # Security-sensitive transitions remain unsampled for fast-path fidelity.
+  - {call: sys_setuid, syscall: true}
+  - {call: sys_setgid, syscall: true}
+  - {call: sys_capset, syscall: true}
+  - {call: sys_unshare, syscall: true}
+  - {call: sys_mount, syscall: true}
+  - {call: sys_ptrace, syscall: true}

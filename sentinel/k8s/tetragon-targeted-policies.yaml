@@ -8,6 +8,9 @@ spec:
     matchExpressions:
     - key: app
       operator: In
+      # The active V1 release is trained and validated only for these legacy
+      # workloads. Keep unmodelled AIMS telemetry out of its queue until a
+      # separate AIMS candidate has passed its own evidence gates.
       values: [nginx, redis]
   kprobes: &sentinelKprobes
   - {call: sys_execve, syscall: true}
@@ -21,6 +24,12 @@ spec:
     - matchActions:
       - {action: Post, rateLimit: 1s, rateLimitScope: process}
   - call: sys_write
+    syscall: true
+    selectors: *sampledContext
+  # Nginx response buffers use writev on this image/kernel path. Normalize it
+  # to the existing ``write`` ML feature in tetragon_consumer.py so the
+  # vocabulary remains stable while HTTP traffic is observable.
+  - call: sys_writev
     syscall: true
     selectors: *sampledContext
   # nginx performs an openat for essentially every static-file request.  It is

@@ -7,13 +7,30 @@ Wants=network-online.target
 Type=simple
 User=dat
 WorkingDirectory=/home/dat/ml-service
+Environment=KUBECONFIG=/home/dat/.kube/sentinel-ha.conf
 Environment=SENTINEL_WARMUP_WINDOWS=10
 Environment=SENTINEL_MIN_EVENTS=20
 Environment=SENTINEL_QUEUE_SIZE=100000
 Environment=SENTINEL_CONSUMER_LOG_INTERVAL=100000
+Environment=SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE=true
+Environment=SENTINEL_TETRAGON_DAEMONSET=tetragon
 Environment=SENTINEL_METRICS=/home/dat/ml-service/metrics.jsonl
 Environment=SENTINEL_CALIBRATION=/home/dat/ml-service/calibration.json
-ExecStart=/home/dat/ml-venv/bin/python -u /home/dat/ml-service/anomaly_detector2.py --mode kubectl --model-dir /home/dat/ml-service/models --vocab /home/dat/ml-service/models/vocab.pkl --window 30 --threshold 0.80 --dry-run
+# Candidate V7 was validated at this cadence and with this confirmation policy:
+# 0 raw-score crossings in four normal regimes and 15/15 real-kernel attacks.
+# The fast path remains early-warning telemetry; only this ML lane emits a
+# dry-run detection. Keep every value in release evidence and runtime aligned.
+Environment=SENTINEL_CONFIRMATION_FLOOR_RATIO=0.94
+Environment=SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR=0.45
+Environment=SENTINEL_FAST_PATH_CONFIRMATION_FLOOR=0.20
+# Suppress only ML confirmation while a newly observed container executes its
+# entrypoint. Fast-path telemetry remains visible; mature pods are unaffected.
+Environment=SENTINEL_POD_STARTUP_GRACE_SECONDS=60
+# Independent corroboration for high-score attacks that preserve syscall
+# proportions: require event volume above 2x the clean 99th percentile for two
+# consecutive windows. Volume alone never emits a detection.
+Environment=SENTINEL_EXTREME_VOLUME_FACTOR=2.0
+ExecStart=/home/dat/ml-venv/bin/python -u /home/dat/ml-service/anomaly_detector2.py --mode kubectl --model-dir /home/dat/ml-service/models --vocab /home/dat/ml-service/models/vocab.pkl --window 10 --threshold 0.80 --dry-run
 Restart=on-failure
 RestartSec=5
 KillMode=control-group

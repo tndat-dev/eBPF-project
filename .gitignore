@@ -5,4 +5,10 @@ metrics*.jsonl
 .pytest_cache/
 alerts/
 incidents/
-
+agent_runtime/ebpf/vmlinux.h
+agent_runtime/ebpf/*.o
+agent_runtime/ebpf/mcp_probe_loader
+training_data*/
+models_*candidate*/
+aims-normal-matrix*/
+kernel-regression-*/

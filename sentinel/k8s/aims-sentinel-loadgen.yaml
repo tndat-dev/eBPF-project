@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aims-sentinel-loadgen
+  namespace: production
+  labels:
+    app.kubernetes.io/name: aims-sentinel-loadgen
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aims-sentinel-loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aims-sentinel-loadgen
+        app.kubernetes.io/part-of: agent-runtime-sentinel
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: loadgen
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+        command: [/bin/sh, -c]
+        args:
+        - |
+          set -eu
+          ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
+          while true; do
+            # Traverse the real Istio Gateway + waypoint routing path. Error
+            # responses from unauthenticated routes are retained as legitimate
+            # normal Internet traffic, while every backend is exercised.
+            wget -q -O /dev/null -T 3 "$ingress/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/cart/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/inventory/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/orders/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/payments/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/notifications/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/security/" || true
+            sleep "${SLEEP_SECONDS:-1}"
+          done
+        env:
+        - {name: SLEEP_SECONDS, value: "1"}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: [ALL]}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        resources:
+          requests: {cpu: 10m, memory: 8Mi}
+          limits: {cpu: 250m, memory: 32Mi}
+---
+# Read-only traffic with a different request mix. It is kept at zero replicas
+# outside the controlled ``toolmix``/``burst`` regimes so an experiment can
+# reproduce exactly when this distribution shift was introduced.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aims-sentinel-readmix-loadgen
+  namespace: production
+  labels:
+    app.kubernetes.io/name: aims-sentinel-readmix-loadgen
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aims-sentinel-readmix-loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aims-sentinel-readmix-loadgen
+        app.kubernetes.io/part-of: agent-runtime-sentinel
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: loadgen
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+        command: [/bin/sh, -c]
+        args:
+        - |
+          set -eu
+          ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
+          i=0
+          while true; do
+            # Only safe reads/HEADs are used: this generator must never create
+            # orders, capture payments, change inventory, or poison baselines.
+            case $((i % 6)) in
+              0) wget -q -O /dev/null -T 3 "$ingress/" || true ;;
+              1) wget -q -O /dev/null -T 3 "$ingress/api/products/" || true ;;
+              2) wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true ;;
+              3) wget -q --spider -T 3 "$ingress/api/products/" || true ;;
+              4) wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true ;;
+              5) wget -q -O /dev/null -T 3 "$ingress/api/health/" || true ;;
+            esac
+            i=$((i + 1))
+            sleep "${SLEEP_SECONDS:-1}"
+          done
+        env:
+        - {name: SLEEP_SECONDS, value: "1"}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: [ALL]}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        resources:
+          requests: {cpu: 10m, memory: 8Mi}
+          limits: {cpu: 250m, memory: 32Mi}

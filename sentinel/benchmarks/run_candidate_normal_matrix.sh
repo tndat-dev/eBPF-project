@@ -19,8 +19,9 @@ wrk_pid=""
 phase_seconds="${CANDIDATE_PHASE_SECONDS:-300}"
 settle_seconds="${CANDIDATE_SETTLE_SECONDS:-35}"
 minimum_phase_windows="${CANDIDATE_MIN_WINDOWS_PER_PHASE:-8}"
+window_seconds="${CANDIDATE_WINDOW_SECONDS:-10}"
 
-if (( phase_seconds < minimum_phase_windows * 30 )); then
+if (( phase_seconds < minimum_phase_windows * window_seconds )); then
   echo "phase duration is too short for requested minimum windows" >&2
   exit 2
 fi
@@ -28,6 +29,22 @@ fi
   echo "candidate vocabulary not found: $candidate_vocab" >&2
   exit 3
 }
+
+require_tetragon_coverage() {
+  local coverage desired ready available
+  coverage=$(kubectl -n kube-system get daemonset tetragon \
+    -o jsonpath='{.status.desiredNumberScheduled},{.status.numberReady},{.status.numberAvailable}') || {
+    echo "refusing validation: cannot read Tetragon DaemonSet status" >&2
+    exit 8
+  }
+  IFS=',' read -r desired ready available <<<"$coverage"
+  [[ "$desired" =~ ^[0-9]+$ && "$desired" -gt 0 && "$ready" == "$desired" && "$available" == "$desired" ]] || {
+    echo "refusing validation: Tetragon coverage is desired=$desired ready=$ready available=$available" >&2
+    exit 8
+  }
+}
+
+require_tetragon_coverage
 
 scale_load() {
   kubectl scale deployment/loadgen -n production --replicas="$1" >/dev/null
@@ -73,8 +90,10 @@ SENTINEL_CALIBRATION="$PWD/$calibration" \
 SENTINEL_WARMUP_WINDOWS=10 \
 SENTINEL_MIN_EVENTS=20 \
 SENTINEL_QUEUE_SIZE=100000 \
+SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE=true \
+SENTINEL_TETRAGON_DAEMONSET=tetragon \
   /home/dat/ml-venv/bin/python -u anomaly_detector2.py \
-    --mode kubectl --model-dir "$candidate" --window 30 \
+    --mode kubectl --model-dir "$candidate" --window "$window_seconds" \
     --vocab "$candidate_vocab" --threshold 0.80 --dry-run \
     >"$detector_log" 2>&1 &
 detector_pid=$!
