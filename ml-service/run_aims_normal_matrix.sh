@@ -14,6 +14,8 @@ POLICY=${SENTINEL_POLICY:-"$ROOT_DIR/tetragon-aims-policies.yaml"}
 [[ -r "$POLICY" ]] || POLICY="$ROOT_DIR/../sentinel/k8s/tetragon-aims-policies.yaml"
 LOADGEN=${SENTINEL_LOADGEN_MANIFEST:-"$ROOT_DIR/aims-sentinel-loadgen.yaml"}
 [[ -r "$LOADGEN" ]] || LOADGEN="$ROOT_DIR/../sentinel/k8s/aims-sentinel-loadgen.yaml"
+PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
+[[ -x "$PYTHON_BIN" ]] || PYTHON_BIN=${PYTHON_BIN_FALLBACK:-python3}
 
 mkdir -p "$EVIDENCE_ROOT"
 cp "$ROOT_DIR/aims_release_contract.json" "$EVIDENCE_ROOT/"
@@ -44,33 +46,12 @@ done
 restore_steady
 trap - EXIT INT TERM
 kubectl -n production get pods -o wide >"$EVIDENCE_ROOT/pods-after.txt"
-python3 - "$EVIDENCE_ROOT" "$RUNS_PER_REGIME" "$MINUTES_PER_RUN" <<'PY'
-import datetime, hashlib, json, pathlib, sys
-root = pathlib.Path(sys.argv[1]).resolve()
-manifests = sorted(root.glob("aims-*-run-*/collection_manifest.json"))
-rows = []
-for path in manifests:
-    payload = path.read_bytes()
-    doc = json.loads(payload)
-    rows.append({
-        "phase": doc["phase"],
-        "path": str(path.relative_to(root)),
-        "sha256": hashlib.sha256(payload).hexdigest(),
-        "targets": sorted(doc.get("targets", {})),
-        "sensor_health": doc.get("sensor_health", {}),
-    })
-summary = {
-    "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-    "evidence_root": str(root),
-    "runs_per_regime": int(sys.argv[2]),
-    "minutes_per_run": int(sys.argv[3]),
-    "expected_capture_hours": 4 * int(sys.argv[2]) * int(sys.argv[3]) / 60,
-    "completed_phases": len(rows),
-    "captures": rows,
-}
-(root / "matrix_manifest.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
-print(json.dumps(summary, indent=2, sort_keys=True))
-PY
+validation_rc=0
+"$PYTHON_BIN" "$ROOT_DIR/aims_matrix_validation.py" "$EVIDENCE_ROOT" \
+  --contract "$ROOT_DIR/aims_release_contract.json" \
+  --runs-per-regime "$RUNS_PER_REGIME" \
+  --minutes-per-run "$MINUTES_PER_RUN" || validation_rc=$?
 
 find "$EVIDENCE_ROOT" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum \
   >"$EVIDENCE_ROOT/SHA256SUMS"
+exit "$validation_rc"

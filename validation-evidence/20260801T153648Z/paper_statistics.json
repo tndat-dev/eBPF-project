@@ -1,0 +1,300 @@
+{
+  "by_scenario": {
+    "container_escape": {
+      "detection_latency_seconds": {
+        "count": 3,
+        "maximum": 8.958219766616821,
+        "median_bootstrap_95ci": [
+          8.65762186050415,
+          8.958219766616821
+        ],
+        "minimum": 8.65762186050415,
+        "p50": 8.727909803390503,
+        "p90": 8.912157773971558,
+        "p95": 8.93518877029419,
+        "p99": 8.953613567352296
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 3,
+        "trials": 3,
+        "wilson_95ci": [
+          0.4385029682449546,
+          1.0
+        ]
+      }
+    },
+    "cryptomining": {
+      "detection_latency_seconds": {
+        "count": 3,
+        "maximum": 18.593087911605835,
+        "median_bootstrap_95ci": [
+          17.302506923675537,
+          18.593087911605835
+        ],
+        "minimum": 17.302506923675537,
+        "p50": 18.00919246673584,
+        "p90": 18.476308822631836,
+        "p95": 18.534698367118835,
+        "p99": 18.581410002708434
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 3,
+        "trials": 3,
+        "wilson_95ci": [
+          0.4385029682449546,
+          1.0
+        ]
+      }
+    },
+    "data_exfiltration": {
+      "detection_latency_seconds": {
+        "count": 3,
+        "maximum": 18.20771837234497,
+        "median_bootstrap_95ci": [
+          18.013461351394653,
+          18.20771837234497
+        ],
+        "minimum": 18.013461351394653,
+        "p50": 18.02890133857727,
+        "p90": 18.171954965591432,
+        "p95": 18.1898366689682,
+        "p99": 18.204142031669615
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 3,
+        "trials": 3,
+        "wilson_95ci": [
+          0.4385029682449546,
+          1.0
+        ]
+      }
+    },
+    "privilege_escalation": {
+      "detection_latency_seconds": {
+        "count": 3,
+        "maximum": 8.532057523727417,
+        "median_bootstrap_95ci": [
+          7.057739973068237,
+          8.532057523727417
+        ],
+        "minimum": 7.057739973068237,
+        "p50": 8.167319059371948,
+        "p90": 8.459109830856324,
+        "p95": 8.49558367729187,
+        "p99": 8.524762754440308
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 3,
+        "trials": 3,
+        "wilson_95ci": [
+          0.4385029682449546,
+          1.0
+        ]
+      }
+    },
+    "reverse_shell": {
+      "detection_latency_seconds": {
+        "count": 3,
+        "maximum": 18.383092641830444,
+        "median_bootstrap_95ci": [
+          17.25023913383484,
+          18.383092641830444
+        ],
+        "minimum": 17.25023913383484,
+        "p50": 18.29016947746277,
+        "p90": 18.36450800895691,
+        "p95": 18.373800325393677,
+        "p99": 18.381234178543092
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 3,
+        "trials": 3,
+        "wilson_95ci": [
+          0.4385029682449546,
+          1.0
+        ]
+      }
+    }
+  },
+  "by_workload": {
+    "default/postgres": {
+      "detection_latency_seconds": {
+        "count": 5,
+        "maximum": 18.013461351394653,
+        "median_bootstrap_95ci": [
+          7.057739973068237,
+          18.013461351394653
+        ],
+        "minimum": 7.057739973068237,
+        "p50": 17.25023913383484,
+        "p90": 17.72907958030701,
+        "p95": 17.87127046585083,
+        "p99": 17.98502317428589
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 5,
+        "trials": 5,
+        "wilson_95ci": [
+          0.5655175352168251,
+          1.0
+        ]
+      }
+    },
+    "production/nginx": {
+      "detection_latency_seconds": {
+        "count": 5,
+        "maximum": 18.593087911605835,
+        "median_bootstrap_95ci": [
+          8.167319059371948,
+          18.593087911605835
+        ],
+        "minimum": 8.167319059371948,
+        "p50": 18.20771837234497,
+        "p90": 18.50908980369568,
+        "p95": 18.551088857650758,
+        "p99": 18.58468810081482
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 5,
+        "trials": 5,
+        "wilson_95ci": [
+          0.5655175352168251,
+          1.0
+        ]
+      }
+    },
+    "production/redis": {
+      "detection_latency_seconds": {
+        "count": 5,
+        "maximum": 18.29016947746277,
+        "median_bootstrap_95ci": [
+          8.532057523727417,
+          18.29016947746277
+        ],
+        "minimum": 8.532057523727417,
+        "p50": 18.00919246673584,
+        "p90": 18.18566222190857,
+        "p95": 18.23791584968567,
+        "p99": 18.27971875190735
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 5,
+        "trials": 5,
+        "wilson_95ci": [
+          0.5655175352168251,
+          1.0
+        ]
+      }
+    }
+  },
+  "confusion_counts": {
+    "false_negative": 0,
+    "false_positive": 0,
+    "true_negative": 243,
+    "true_positive": 15
+  },
+  "evidence_health": {
+    "all_attack_sensor_samples_healthy": true,
+    "attack_report_passed": true,
+    "normal_report_passed": true,
+    "pre_injection_alerts": 0
+  },
+  "latency_seconds": {
+    "confirmed_ml": {
+      "count": 15,
+      "maximum": 18.593087911605835,
+      "median_bootstrap_95ci": [
+        8.65762186050415,
+        18.02890133857727
+      ],
+      "minimum": 7.057739973068237,
+      "p50": 17.302506923675537,
+      "p90": 18.345923376083373,
+      "p95": 18.446091222763062,
+      "p99": 18.56368857383728
+    },
+    "fast_path_early_warning": {
+      "count": 6,
+      "maximum": 0.9560599327087402,
+      "median_bootstrap_95ci": [
+        0.17606890201568604,
+        0.8827135562896729
+      ],
+      "minimum": 0.17430734634399414,
+      "p50": 0.28529250621795654,
+      "p90": 0.8827135562896729,
+      "p95": 0.9193867444992065,
+      "p99": 0.9487252950668336
+    }
+  },
+  "limitations": [
+    "A zero observed false-alert count is not a mathematical zero-risk guarantee.",
+    "Wilson intervals assume Bernoulli trials; temporally correlated normal windows require run-level block bootstrap once independent soak runs are available.",
+    "Latency bootstrap is trial-level and should be recomputed on the frozen blind matrix before a final paper claim."
+  ],
+  "metrics": {
+    "f1": 1.0,
+    "false_alert_rate_per_window": {
+      "estimate": 0.0,
+      "successes": 0,
+      "trials": 243,
+      "wilson_95ci": [
+        0.0,
+        0.015562453888609386
+      ]
+    },
+    "precision": {
+      "estimate": 1.0,
+      "wilson_95ci": [
+        0.7961166989641515,
+        1.0
+      ]
+    },
+    "recall": {
+      "estimate": 1.0,
+      "successes": 15,
+      "trials": 15,
+      "wilson_95ci": [
+        0.7961166989641515,
+        1.0
+      ]
+    }
+  },
+  "per_trial_inference_median_ms": {
+    "count": 15,
+    "maximum": 57.528,
+    "median_bootstrap_95ci": [
+      33.1771,
+      42.2896
+    ],
+    "minimum": 25.386,
+    "p50": 35.6081,
+    "p90": 52.017739999999996,
+    "p95": 56.42683,
+    "p99": 57.307766
+  },
+  "sample_units": {
+    "attack": "workload-scenario trial",
+    "latency": "detected workload-scenario trial",
+    "normal": "eligible workload window"
+  },
+  "schema": "sentinel-paper-statistics/v1",
+  "sources": {
+    "attack": {
+      "name": "attack_validation_report.json",
+      "sha256": "d3c79f755fae4d321ab95f5268db7b1e15a4d883beab14f9c2807b75e2400123"
+    },
+    "normal": {
+      "name": "normal_validation_report.json",
+      "sha256": "e9b61b3efffdd16d2ce8fa40c94adf205530f2a620de85b651e5c4cd56c9dd59"
+    }
+  }
+}

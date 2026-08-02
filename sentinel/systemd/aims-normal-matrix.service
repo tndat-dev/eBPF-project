@@ -1,0 +1,33 @@
+[Unit]
+Description=AIMS 24-hour multi-regime normal evidence matrix
+Wants=network-online.target
+After=network-online.target sentinel-detector.service
+ConditionPathExists=/home/dat/ml-service/aims_release_contract.json
+
+[Service]
+Type=exec
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+Environment=PYTHONUNBUFFERED=1
+Environment=RUNS_PER_REGIME=5
+Environment=MINUTES_PER_RUN=72
+Environment=SETTLE_SECONDS=30
+ExecStart=/usr/bin/flock -n /home/dat/ml-service/.aims-normal-matrix.lock /home/dat/ml-service/run_aims_normal_matrix.sh
+Restart=no
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/home/dat/ml-service
+TimeoutStartSec=infinity
+TimeoutStopSec=180
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-01
+**Ngày xác minh cluster gần nhất:** 2026-08-02
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
 **Phiên bản đang deploy:** V7 LSTM, release window 10 giây, dry-run/provisional
@@ -29,7 +29,7 @@ DaemonSet Tetragon 6/6 đều khỏe; detector đang nhận đủ ba target vớ
 production-ready**: traffic normal làm Nginx thường xuyên có raw score `1.0`
 và Redis có nhiều score trên `0.9`; behavior gate chặn alert nhưng không biến
 drift này thành normal validation hợp lệ. Pipeline baseline AIMS đa regime đã
-được sửa lỗi đo thời gian nhưng hiện chưa có lượt soak 24 giờ hợp lệ đang chạy;
+được sửa lỗi đo thời gian và một lượt soak 24 giờ mới đang chạy dưới systemd;
 candidate tuyệt đối chưa được train hay auto-promote. Một số stateful/operator
 pod ngoài phạm vi detector vẫn `Init`/`Error` và do người vận hành xử lý riêng.
 
@@ -62,7 +62,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Model production | `/home/dat/ml-service/models` |
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
-| Regression | Full suite trên VM: `105 passed, 2 warnings` trong `14.13s` ngày 01-08-2026; các mốc `41 passed, 5 skipped` và `67 passed` bên dưới là evidence lịch sử của các vòng phát triển trước |
+| Regression | Full suite trên VM trước khi bắt đầu soak: `109 passed, 2 warnings` trong `14.06s` ngày 02-08-2026; các mốc cũ bên dưới là evidence lịch sử của các vòng phát triển trước |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -2130,3 +2130,74 @@ baseline comparison, ablation, A/B overhead và bootstrap CI vẫn là gate bắ
 buộc trước mọi claim “world-class”. Lần chạy kế tiếp chỉ hợp lệ khi đủ 20
 collection manifest, tổng wall-clock tối thiểu 24 giờ, mọi sensor health sạch
 và `SHA256SUMS` cuối được tạo.
+
+### 18.23 Soak AIMS có systemd, matrix gate fail-closed và thống kê paper (02-08-2026)
+
+Cluster được xác minh lại trực tiếp trước khi chạy: 6/6 node Kubernetes
+`v1.34.10` đều Ready, Tetragon DaemonSet 6/6, `sentinel-detector.service`
+`active` với MainPID `1054690`, `NRestarts=0`. Toàn bộ Kafka, PostgreSQL,
+RabbitMQ, Redis/Sentinel và MinIO của AIMS đều Running. Chín backend AIMS dùng
+Argo Rollout đạt `2/2 Available`; frontend Deployment đạt `2/2`. Payment và
+notification vẫn nằm ngoài host-syscall contract do sandbox boundary đã nêu.
+
+Để job dài không phụ thuộc phiên SSH, file
+`sentinel/systemd/aims-normal-matrix.service` được cài thành service systemd,
+chạy user `dat`, `Nice=10`, I/O best-effort, `NoNewPrivileges=true`, dùng
+`flock` để chỉ cho phép một matrix và tự trả traffic về steady khi nhận TERM.
+Full regression trên VM ngay trước khi khởi chạy đạt `109 passed, 2 warnings`
+trong `14.06s`.
+
+Matrix hợp lệ mới bắt đầu lúc `2026-08-02 01:43:54 UTC` (08:43:54 UTC+7):
+
+- unit `aims-normal-matrix.service` đang `active/running`, MainPID `1200233`;
+- collector phase đầu PID `1200596`;
+- evidence root `/home/dat/ml-service/aims-normal-matrix-20260802T014354Z`;
+- protocol `4 regime × 5 run × 72 phút = 24 giờ` capture, chưa tính settle;
+- phase đầu `aims-steady-run-01` đã nhận realtime đủ 8/8 target; journal ghi
+  từng workload đạt ít nhất 8--10 window ngay trong những phút đầu;
+- production V7 vẫn chạy độc lập, không đổi model/threshold/config.
+
+Matrix cuối không còn chỉ đếm số manifest. Module
+`ml-service/aims_matrix_validation.py` fail-closed nếu thiếu bất kỳ phase/target,
+duration bị co, sensor continuity/backpressure không sạch, Tetragon membership
+không đủ, feature shape sai, metadata lệch số dòng, provenance thay đổi giữa
+các phase, hoặc SHA-256 mảng `.npy` không khớp. `matrix_manifest.json` ghi đầy
+đủ lỗi và cờ `valid`; `SHA256SUMS` vẫn được tạo cho audit kể cả khi matrix fail.
+Các regression tương ứng kiểm tra success, timer collapse, missing phase,
+coverage failure và tampered array.
+
+Artifact V7 lịch sử cũng được bổ sung thống kê có interval qua
+`ml-service/paper_statistics.py`. Từ evidence bất biến `20260801T153648Z`:
+
+- confusion count: TP=15, FN=0, FP=0, TN=243 cửa sổ eligible;
+- recall quan sát 100%, nhưng Wilson 95% CI chỉ `[79.61%, 100%]` vì mới có
+  15 trial;
+- false-alert/window quan sát 0/243, Wilson upper 95% vẫn `1.556%`, nên không
+  được diễn giải thành “rủi ro false positive bằng 0”;
+- ML confirmation p50/p95/p99 là `17.303/18.446/18.564s`; bootstrap 95% CI
+  của median là `[8.658s, 18.029s]`;
+- fast early-warning p50/p95/p99 là `0.285/0.919/0.949s`; bootstrap 95% CI
+  của median là `[0.176s, 0.883s]`.
+
+Các file `paper_statistics.json` và `.md` ghi SHA-256 nguồn, sample unit,
+per-workload/per-scenario, latency CDF points và giới hạn thống kê. Window normal
+có tương quan thời gian, nên final paper vẫn phải dùng block bootstrap theo 20
+run độc lập của matrix AIMS; Wilson theo window hiện chỉ là mốc minh bạch cho
+V7 lịch sử, không thay thế evidence sắp thu. Một lỗi reproducibility do JSON
+nhúng absolute path đã được phát hiện bằng `cmp` local/VM; provenance nay dùng
+tên artifact ổn định cộng SHA-256. Kết quả tạo lại trên VM đã byte-for-byte
+giống local (`STATS_BYTE_REPRODUCIBLE`).
+
+Baseline/ablation protocol nay được đóng băng trong
+`ml-service/evaluation_matrix_contract.json` với 20 experiment ID thuộc hai
+track syscall và Agent Runtime. Nó bao gồm Tetragon/Falco rule-only, IF,
+LSTM-only, EVT-POT, Full V7; các ablation fast path, behavior, extreme-volume,
+two-window và shared model; cùng syscall-only, semantic-only, graph-no-GAT,
+GAT-no-EVT và Full GAT+EVT cho MCP. Module
+`evaluation_matrix_validation.py` chỉ chấp nhận kết quả nếu toàn bộ experiment
+dùng cùng dataset, split, blind contract, environment và frozen seeds; blind
+set phải được khai báo không dùng train/tune, mỗi track phải đủ số normal run,
+attack trial, latency sample và confidence method. Gate đã pass unit test cho
+matrix đầy đủ và fail đúng khi thiếu result, đổi dataset hoặc làm rò blind set.
+Hiện **chưa có** 20 result production tương ứng, nên đây là reproducibility
+gate đã sẵn sàng chứ không phải bằng chứng rằng ablation đã hoàn tất.

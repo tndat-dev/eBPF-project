@@ -51,8 +51,12 @@ kubectl apply -f /home/dat/ml-service/aims-sentinel-loadgen.yaml
 /home/dat/ml-service/set_aims_traffic_regime.sh steady
 
 # Default is 4 regimes x 5 independent runs x 72 minutes = 24 hours.
-nohup /home/dat/ml-service/run_aims_normal_matrix.sh \
-  >/home/dat/ml-service/aims-normal-matrix.log 2>&1 </dev/null &
+sudo install -m 0644 sentinel/systemd/aims-normal-matrix.service \
+  /etc/systemd/system/aims-normal-matrix.service
+sudo systemctl daemon-reload
+sudo systemctl start aims-normal-matrix.service
+systemctl status aims-normal-matrix.service --no-pager
+journalctl -u aims-normal-matrix.service -f
 ```
 
 The eligible/excluded workload list and release gates are pinned in
@@ -80,3 +84,31 @@ python run_aims_blind_matrix.py \
 The hashes must equal `aims_blind_attack_contract.json`. Never inspect blind
 results and then retrain/tune the same candidate; a changed model requires a
 new independently frozen blind set.
+
+## Publication statistics
+
+Tạo lại confusion metrics, Wilson 95% interval và latency CDF/bootstrap từ hai
+report bất biến; không dùng file đã tổng hợp làm input vòng hai:
+
+```bash
+python3 ml-service/paper_statistics.py \
+  --normal validation-evidence/20260801T153648Z/normal_validation_report.json \
+  --attack validation-evidence/20260801T153648Z/attack_validation_report.json \
+  --output validation-evidence/20260801T153648Z/paper_statistics.json
+```
+
+Kết quả 0 false alert vẫn phải báo Wilson upper bound. Sau AIMS matrix, thay
+window-level interval bằng block bootstrap theo 20 run độc lập để xử lý tương
+quan thời gian.
+
+Sau khi từng baseline/ablation ghi `result.json` theo contract, kiểm tra toàn
+bộ matrix dùng cùng dataset/split/blind set/environment/seeds:
+
+```bash
+python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
+  --contract ml-service/evaluation_matrix_contract.json
+```
+
+Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
+gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
+không phải generator kết quả.

@@ -19,9 +19,14 @@ MCP payload, secret, PVC data hay private endpoint.
 | MCP manifest validation | `kubectl apply --server-side --dry-run=server -f agent_runtime/k8s/mcp-demo.yaml` | server dry-run pass |
 | AIMS workload contract | `ml-service/aims_release_contract.json` | explicit eligible/excluded targets and non-automatic promotion gates |
 | AIMS normal matrix | `ml-service/run_aims_normal_matrix.sh` | 20 independent phase captures, 24 hours by default, hashes and sensor health |
+| AIMS matrix validator | `ml-service/aims_matrix_validation.py` | fail-closed on missing/time-collapsed/tampered or sensor-degraded evidence |
+| AIMS systemd runner | `sentinel/systemd/aims-normal-matrix.service` | disconnect-safe single matrix with low scheduling priority |
 | AIMS traffic regimes | `ml-service/set_aims_traffic_regime.sh` | deterministic steady/burst/recovery/toolmix/idle traffic |
 | AIMS blind attack contract | `ml-service/aims_blind_attack_contract.json` | frozen source/binary hash, scenarios, seeds, rates and safety boundary |
 | AIMS blind matrix | `ml-service/run_aims_blind_matrix.py` | shuffled 8-workload x 5-trial x 5-scenario kernel evaluation; no promotion |
+| Paper statistics | `ml-service/paper_statistics.py` | confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
+| Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
+| Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
 
 ## Provenance
 
