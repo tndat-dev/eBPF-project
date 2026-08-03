@@ -164,9 +164,19 @@ def test_workload_conditioned_gate_accepts_common_behavior_and_rejects_burst():
     limits = fit_behavior_limits(baseline, vocab)
     normal = evaluate_behavior({"connect": 15, "clone": 10}, 100, limits)
     attack = evaluate_behavior({"connect": 80, "clone": 10}, 100, limits)
-    assert normal["method"] == "workload-conditioned"
+    assert normal["method"] == "workload-conditioned-wilson"
     assert not normal["gate"]
     assert attack["gate"] and attack["syscall"] == "connect"
+
+
+def test_behavior_gate_accounts_for_low_event_sampling_uncertainty():
+    low_count = evaluate_behavior({"connect": 2, "read": 12}, 14, {"connect": .12})
+    sustained = evaluate_behavior({"connect": 20, "read": 80}, 100, {"connect": .12})
+    assert low_count["frequency"] > low_count["limit"]
+    assert low_count["confidence_lower"] < low_count["limit"]
+    assert low_count["gate"] is False
+    assert sustained["confidence_lower"] > sustained["limit"]
+    assert sustained["gate"] is True
 
 def test_injection_clock_is_monotonic(tmp_path, monkeypatch):
     monkeypatch.setenv("SENTINEL_METRICS", str(tmp_path / "metrics.jsonl"))

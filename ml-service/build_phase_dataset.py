@@ -542,6 +542,7 @@ def main():
             )
             train_parts, validation_parts = [], []
             train_startup_mask, validation_startup_mask = [], []
+            validation_event_counts = []
             validation_startup_rows = []
             for active_row, row in enumerate(phase_rows):
                 array = accepted_arrays[active_row]
@@ -560,6 +561,7 @@ def main():
                 )
                 for index in validation:
                     item = metadata_rows[index]
+                    validation_event_counts.append(int(item["event_count"]))
                     eligible = bool(item["startup_grace_eligible"])
                     validation_startup_mask.append(eligible)
                     if eligible:
@@ -583,6 +585,7 @@ def main():
                 "shape": list(dataset.shape),
                 "train_count": int(sum(len(part) for part in train_parts)),
                 "validation_count": int(sum(len(part) for part in validation_parts)),
+                "validation_event_counts": validation_event_counts,
                 "startup_grace": {
                     "seconds": args.startup_grace_seconds,
                     "fail_closed": True,

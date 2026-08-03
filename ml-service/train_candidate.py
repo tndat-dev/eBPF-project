@@ -69,21 +69,28 @@ def parse_targets(raw: str) -> tuple[str, ...]:
 
 def holdout_actionable_pairs(X: np.ndarray, scores, threshold: float,
                              vocab: dict, behavior_limits: dict,
-                             startup_grace_mask=None
+                             startup_grace_mask=None, event_counts=None,
                              ) -> tuple[int, list, list, list]:
     if startup_grace_mask is None:
         startup_grace_mask = [False] * len(X)
     if len(startup_grace_mask) != len(X):
         raise ValueError("startup grace mask must align with holdout rows")
+    if event_counts is None:
+        event_counts = [1] * len(X)
+    if (
+        len(event_counts) != len(X)
+        or any(not isinstance(total, int) or total < 1 for total in event_counts)
+    ):
+        raise ValueError("event counts must align with holdout rows and be positive")
     indexes = [vocab[name] for name in SUSPICIOUS if name in vocab]
     masses = np.sum(X[:, indexes], axis=1) if indexes else np.zeros(len(X))
     evidence = []
-    for row in X:
-        frequencies = {
-            name: float(row[vocab[name]])
+    for row, total in zip(X, event_counts):
+        counts = {
+            name: float(row[vocab[name]]) * total
             for name in BEHAVIOR_SYSCALLS if name in vocab
         }
-        evidence.append(evaluate_behavior(frequencies, 1, behavior_limits))
+        evidence.append(evaluate_behavior(counts, total, behavior_limits))
     effective_gates = [
         bool(item["gate"] and not startup)
         for item, startup in zip(evidence, startup_grace_mask)
@@ -131,6 +138,7 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
     startup_grace_mask = startup_spec.get(
         "validation_mask", [False] * expected_validation
     )
+    validation_event_counts = dataset_spec.get("validation_event_counts")
     if (
         startup_grace_seconds < 0
         or len(startup_grace_mask) != expected_validation
@@ -139,6 +147,13 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
            != sum(startup_grace_mask)
     ):
         raise ValueError(f"{pod_key}: invalid startup-grace holdout contract")
+    if (
+        not isinstance(validation_event_counts, list)
+        or len(validation_event_counts) != expected_validation
+        or any(not isinstance(total, int) or total < 1
+               for total in validation_event_counts)
+    ):
+        raise ValueError(f"{pod_key}: invalid validation event-count contract")
 
     model = PodModelBundle(
         pod_key=pod_key, input_dim=X.shape[1], model_version=model_version,
@@ -158,7 +173,7 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
     (actionable_pairs, suspicious_masses, behavior_evidence,
      effective_behavior_gates) = holdout_actionable_pairs(
         holdout, model.validation_scores, threshold, vocab,
-        model.behavior_limits, startup_grace_mask,
+        model.behavior_limits, startup_grace_mask, validation_event_counts,
     )
 
     timings = []

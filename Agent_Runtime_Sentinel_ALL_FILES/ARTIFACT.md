@@ -31,6 +31,7 @@ MCP payload, secret, PVC data hay private endpoint.
 | AIMS blind attack contract | `ml-service/aims_blind_attack_contract.json` | frozen source/binary hash, scenarios, seeds, rates and safety boundary |
 | AIMS blind matrix | `ml-service/run_aims_blind_matrix.py` | shuffled 8-workload x 5-trial x 5-scenario kernel evaluation; no promotion |
 | AIMS blind attack scheduler | `ml-service/run_aims_blind_attack.sh`, `sentinel/systemd/aims-blind-attack.{service,timer}` | waits for exact blind-normal candidate/calibration/split hashes, resumes valid trials and quarantines failures |
+| Finite-sample behavior gate | `ml-service/graph_signals.py`, `ml-service/build_phase_dataset.py` | one-sided 95% Wilson lower bound and row-aligned validation event counts prevent low-volume rate noise from becoming kernel evidence |
 | Paper statistics | `ml-service/paper_statistics.py` | confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
 | Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |

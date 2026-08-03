@@ -78,6 +78,9 @@ def test_phase_builder_creates_exact_stratified_holdout(tmp_path, monkeypatch):
         assert item["shape"] == [100, 4]
         assert item["train_count"] == 80
         assert item["validation_count"] == 20
+        assert item["validation_event_counts"] == [
+            120, 126, 132, 138, 144,
+        ] * 4
         assert item["startup_grace"]["validation_count"] == 0
 
 

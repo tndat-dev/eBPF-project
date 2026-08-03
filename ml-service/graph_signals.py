@@ -1,5 +1,6 @@
 """Workload-conditioned kernel behavior gates and explainability helpers."""
 from collections import Counter
+from math import sqrt
 
 import numpy as np
 
@@ -20,6 +21,27 @@ DEFAULT_LIMITS = {
     "clone3": 0.05,
     "connect": 0.05,
 }
+BEHAVIOR_CONFIDENCE_Z = 1.6448536269514722  # one-sided 95%
+
+
+def wilson_lower(count, total, z=BEHAVIOR_CONFIDENCE_Z):
+    """One-sided Wilson lower bound for a syscall proportion.
+
+    Runtime windows can contain only a few sampled events. A raw rate such as
+    2/14 must not be treated as stronger evidence than the same rate measured
+    over hundreds of events. Fractional ``count`` is accepted so the offline
+    frequency vectors can be reconstructed with their recorded event totals.
+    """
+    n = max(float(total), 1.0)
+    successes = min(max(float(count), 0.0), n)
+    proportion = successes / n
+    z2 = z * z
+    denominator = 1.0 + z2 / n
+    center = proportion + z2 / (2.0 * n)
+    radius = z * sqrt(
+        max(proportion * (1.0 - proportion) + z2 / (4.0 * n), 0.0) / n
+    )
+    return float(max(0.0, (center - radius) / denominator))
 
 
 def fit_behavior_limits(vectors, vocab, quantile=0.995, margin=0.02):
@@ -58,8 +80,12 @@ def evaluate_behavior(syscall_counts, total, limits=None):
         for name in BEHAVIOR_SYSCALLS
     }
     if limits:
+        confidence_lowers = {
+            name: wilson_lower(syscall_counts.get(name, 0), total)
+            for name in BEHAVIOR_SYSCALLS
+        }
         ratios = {
-            name: frequencies[name] / max(float(limits.get(
+            name: confidence_lowers[name] / max(float(limits.get(
                 name, DEFAULT_LIMITS[name]
             )), 1e-9)
             for name in BEHAVIOR_SYSCALLS
@@ -69,9 +95,11 @@ def evaluate_behavior(syscall_counts, total, limits=None):
             "gate": bool(ratios[syscall] > 1.0),
             "syscall": syscall,
             "frequency": frequencies[syscall],
+            "confidence_lower": confidence_lowers[syscall],
+            "confidence_level": 0.95,
             "limit": float(limits.get(syscall, DEFAULT_LIMITS[syscall])),
             "max_ratio": float(ratios[syscall]),
-            "method": "workload-conditioned",
+            "method": "workload-conditioned-wilson",
             "suspicious_mass": float(sum(frequencies.values())),
         }
 
@@ -94,13 +122,15 @@ def behavior_signals(syscall_counts, total, limits=None):
     rows = []
     for name, count in Counter(syscall_counts).most_common(8):
         frequency = count / total
+        confidence_lower = wilson_lower(count, total)
         limit = (limits or {}).get(name)
         rows.append({
             "name": name,
             "freq": frequency,
+            "confidence_lower": confidence_lower,
             "signal": (
                 "suspicious" if name in SUSPICIOUS and (
-                    limit is None or frequency > limit
+                    limit is None or confidence_lower > limit
                 ) else "normal"
             ),
             "behavior_limit": limit,

@@ -183,6 +183,14 @@ schedule, source/binary, candidate, calibration, split, prerequisite và release
 contract. Service không chạy khi normal matrix/training/split evaluator active,
 giới hạn CPU/RAM, timeout 12 giờ và không có đường promote.
 
+Behavior gate của candidate mới không so tỷ lệ điểm trực tiếp khi cửa sổ chỉ có
+ít event. `evaluate_behavior()` dùng cận dưới Wilson một phía 95%; chỉ khi cận
+dưới này vẫn vượt giới hạn workload-conditioned thì kernel evidence mới được
+xác nhận. `build_phase_dataset.py` vì vậy lưu
+`validation_event_counts` theo đúng thứ tự holdout và `train_candidate.py`
+fail-closed nếu thiếu hoặc lệch số hàng. Mọi dataset cũ không có contract này
+phải được rebuild từ cùng source phase; không được tự thêm count suy đoán.
+
 ## Publication statistics
 
 Tạo lại confusion metrics, Wilson 95% interval và latency CDF/bootstrap từ hai

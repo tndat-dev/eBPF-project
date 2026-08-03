@@ -23,6 +23,14 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def artifact_provenance(path) -> dict | None:
+    """Return the canonical path and digest of an experiment input."""
+    if not path:
+        return None
+    absolute = Path(path).resolve()
+    return {"path": str(absolute), "sha256": sha256(absolute)}
+
+
 def release_files(root: Path) -> tuple[str, ...]:
     """Resolve model files from the candidate's explicit training targets."""
     report_path = root / "training_report.json"

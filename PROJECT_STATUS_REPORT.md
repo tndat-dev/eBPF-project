@@ -2439,3 +2439,51 @@ local và xóa nội dung trên master1 sau transfer.
 Normal matrix có MainPID `1639594`, `NRestarts=0`; 44 pod namespace
 `production` đều ở trạng thái `Running`. Tên `sentinel-v7.service` chỉ là tên
 kiểm tra nhầm và không được dùng làm bằng chứng trạng thái.
+
+### 18.29 Reject fit-v1, sửa finite-sample gate và khởi chạy fit-v2 (03-08-2026)
+
+Training fit-v1 kết thúc lúc `04:06:19 UTC` sau khoảng 51 phút wall-clock và
+trả exit `3` đúng theo offline gate. Bảy trong tám workload pass; riêng
+`production/catalog-service` có ba holdout window behavior-gated nên toàn
+candidate có `accepted_offline=false` và không được calibration, evaluate hay
+promote. Candidate cùng đủ checkpoint được giữ tại
+`rejected-candidates/aims-fit-v1-20260803T022805Z-offline-rejected/` trên
+master1. Training report SHA-256 là
+`b65c8b8ffa517f626901cf77376d36ed630783e3e26be3ca1be3228e8f0b6565`;
+dataset manifest vẫn là
+`3fd898f98219f1497b9535a94e13d1c2f515c875d00ee755522638bb68cf33c3`.
+
+Phân tích row-aligned trên development holdout xác định cả ba trường hợp đều ở
+phase recovery: chỉ 14--15 event/window và đúng hai `connect`. Tỷ lệ điểm
+`13.33--14.29%` vừa cao hơn limit Catalog `12.297%`, tạo `max_ratio`
+`1.084--1.162`; các source index là 206, 231 và 346, thuộc hai pod và không
+liên tiếp. Hai window có ML score cao `0.9912/0.9997`, window còn lại `0.7580`,
+nhưng `holdout_actionable_pairs=0`. Đây là sai số tỷ lệ ở mẫu nhỏ chứ không có
+bằng chứng chuỗi hành vi kéo dài.
+
+Thay vì hardcode ngoại lệ cho Catalog, behavior gate nay dùng cận dưới Wilson
+một phía 95% của từng syscall proportion. Gate chỉ bật nếu cận dưới vẫn vượt
+limit workload-conditioned; raw frequency và confidence lower đều được ghi để
+giải thích. Dataset builder lưu `validation_event_counts` row-aligned và trainer
+fail-closed nếu count thiếu/lệch, nhờ đó offline gate tái tạo đúng bất định cỡ
+mẫu của runtime. Replay chỉ trên development holdout run-01 cho ba window trên
+cho `0` behavior gate; sustained case 20/100 ở limit 0.12 vẫn gate, còn 2/14
+không gate. Run-02--05 chưa được đọc hay dùng để chọn thay đổi này.
+
+Dataset fit-v2 được rebuild từ đúng bốn phase run-01 và cùng deterministic
+phase-stratified split, không thêm source row. Manifest mới SHA-256
+`89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac`,
+8/8 target đều có event-count vector bằng validation count, min/max 10--63.
+Unit `aims-candidate-fit-v2.service` bắt đầu trên master2 lúc `04:38:00 UTC`,
+CPUQuota 400%, MemoryMax 12 GiB, batch 64, tối đa 200 epoch, không có đường
+promotion.
+
+Cùng thời điểm, clean run-02 thu đủ 72 phút nhưng collector lỗi khi materialize
+manifest do `artifact_provenance()` tham chiếu nhầm biến `metadata_name` ngoài
+scope. Phase được chuyển nguyên vẹn vào
+`rejected/aims-steady-run-02-20260803T042907Z`; không dùng cho evaluation.
+Hash `.npy` và metadata nay dùng chung helper đã unit-test. Matrix được restart
+sớm sau deploy để không lãng phí thêm một phase 72 phút; bốn run-01 hợp lệ vẫn
+được giữ. Full VM regression đạt `139 passed, 2 warnings` trong `20.28s`.
+Thư mục test backup 184 KiB từng làm pytest import trùng module đã được chuyển
+recoverably từ runtime root sang `/home/dat/ml-service-archives/`, không xóa.

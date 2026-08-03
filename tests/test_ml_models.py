@@ -1,6 +1,7 @@
 import sys
 import pickle
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -19,7 +20,7 @@ sys.path.insert(0, str(SERVICE_ROOT))
 from ml_models import ModelManager, PodModelBundle
 from build_phase_dataset import allocate_validation, expand_vocabulary
 from train_candidate import holdout_actionable_pairs
-from artifact_integrity import model_release_hashes, release_files
+from artifact_integrity import artifact_provenance, model_release_hashes, release_files
 import promote_candidate
 
 
@@ -71,7 +72,7 @@ def test_offline_behavior_gate_matches_runtime_startup_grace():
     ], dtype=np.float32)
     pairs, _masses, evidence, effective = holdout_actionable_pairs(
         holdout, [0.9, 0.9, 0.9], 0.8, vocab,
-        {"execve": 0.10}, [True, False, False],
+        {"execve": 0.10}, [True, False, False], [100, 100, 100],
     )
     assert all(item["gate"] for item in evidence)
     assert effective == [False, True, True]
@@ -113,6 +114,15 @@ def test_release_file_contract_supports_explicit_aims_targets(tmp_path):
     assert "production__api-gateway_bundle.pkl" in files
     assert "production__cart-service_lstm.pt" in files
     assert "default__postgres_bundle.pkl" not in files
+
+
+def test_artifact_provenance_hashes_the_requested_file(tmp_path):
+    artifact = tmp_path / "policy.yaml"
+    artifact.write_text("kind: TracingPolicy\n")
+    provenance = artifact_provenance(artifact)
+    assert provenance["path"] == str(artifact.resolve())
+    assert provenance["sha256"] == hashlib.sha256(artifact.read_bytes()).hexdigest()
+    assert artifact_provenance(None) is None
 
 
 def test_training_preprocessors_do_not_see_temporal_holdout():

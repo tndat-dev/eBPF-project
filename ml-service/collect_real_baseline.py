@@ -44,6 +44,7 @@ from tetragon_consumer import TetragonConsumer
 from feature_engineering import WindowManager
 from collection_timing import minimum_duration_satisfied, wait_until
 from workload_identity import get_deploy_key
+from artifact_integrity import artifact_provenance, sha256 as file_sha256
 
 # ── Cấu hình ─────────────────────────────────────────────────
 COLLECT_MINUTES = int(os.environ.get("COLLECT_MINUTES", "40"))
@@ -87,21 +88,6 @@ vocab = pickle.loads(vocab_payload)
 VOCAB_SHA256 = hashlib.sha256(vocab_payload).hexdigest()
 logger.info(f"Vocab size: {len(vocab)} features")
 
-
-def artifact_provenance(path):
-    """Return immutable provenance for an experiment-defining artifact."""
-    if not path:
-        return None
-    absolute = os.path.abspath(path)
-    digest = hashlib.sha256()
-    with open(absolute, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    metadata_digest = hashlib.sha256()
-    with open(metadata_name, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            metadata_digest.update(chunk)
-    return {"path": absolute, "sha256": digest.hexdigest()}
 
 # ── State ─────────────────────────────────────────────────────
 vectors   = defaultdict(list)   # deploy_key → [vector, ...]
@@ -449,16 +435,12 @@ for dk, vecs in sorted(final_vectors.items()):
     with open(metadata_name, "w") as handle:
         for row in final_metadata.get(dk, []):
             handle.write(json.dumps(row, sort_keys=True) + "\n")
-    digest = hashlib.sha256()
-    with open(fname, "rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
     event_counts = [row["event_count"] for row in final_metadata.get(dk, [])]
     manifest["targets"][dk] = {
         "shape": list(X.shape),
-        "sha256": digest.hexdigest(),
+        "sha256": file_sha256(fname),
         "metadata": metadata_name,
-        "metadata_sha256": metadata_digest.hexdigest(),
+        "metadata_sha256": file_sha256(metadata_name),
         "event_count_min": min(event_counts),
         "event_count_median": float(np.median(event_counts)),
         "event_count_max": max(event_counts),
