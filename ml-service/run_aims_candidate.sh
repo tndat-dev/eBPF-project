@@ -74,7 +74,9 @@ case "$ACTION" in
     candidate=${2:-"$ROOT_DIR/models_aims_candidate-$(date -u +%Y%m%dT%H%M%SZ)"}
     "$PYTHON_BIN" "$ROOT_DIR/train_candidate.py" \
       --training-dir "$dataset" --model-dir "$candidate" \
-      --vocab "$dataset/vocab.pkl" --targets "$TARGETS"
+      --vocab "$dataset/vocab.pkl" --targets "$TARGETS" \
+      --batch-size "${AIMS_BATCH_SIZE:-64}" \
+      --epochs "${AIMS_EPOCHS:-200}"
     printf 'candidate created but NOT promoted: %s\n' "$candidate"
     ;;
   *)

@@ -1,0 +1,24 @@
+[Unit]
+Description=Frozen AIMS blind kernel attack matrix (no promotion)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+EnvironmentFile=/home/dat/ml-service/aims-evaluation.env
+ExecStart=/usr/bin/flock -w 300 /home/dat/ml-service/.aims-blind-attack.lock /home/dat/ml-service/run_aims_blind_attack.sh
+Nice=10
+CPUQuota=200%
+MemoryMax=8G
+TimeoutStartSec=12h
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/dat/ml-service
+
+[Install]
+WantedBy=multi-user.target

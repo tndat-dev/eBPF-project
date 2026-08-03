@@ -97,7 +97,8 @@ def holdout_actionable_pairs(X: np.ndarray, scores, threshold: float,
 
 
 def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
-              epochs: int, model_version: int, dataset_spec: dict) -> dict:
+              epochs: int, batch_size: int, model_version: int,
+              dataset_spec: dict) -> dict:
     X = np.load(data_path, allow_pickle=False)
     if X.ndim != 2 or X.shape[1] != len(vocab):
         raise ValueError(
@@ -143,7 +144,7 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
         pod_key=pod_key, input_dim=X.shape[1], model_version=model_version,
     )
     started = time.perf_counter()
-    history = model.train(X, epochs=epochs)
+    history = model.train(X, epochs=epochs, batch_size=batch_size)
     train_seconds = time.perf_counter() - started
 
     n_val = len(model.validation_scores)
@@ -202,6 +203,7 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
         "model_version": model.model_version,
         "seed": model.seed,
         "epochs_completed": len(history["val_loss"]),
+        "batch_size": batch_size,
         "best_validation_loss": float(np.min(history["val_loss"])),
         "last_validation_loss": float(history["val_loss"][-1]),
         "training_seconds": train_seconds,
@@ -232,11 +234,14 @@ def main() -> int:
     parser.add_argument("--model-dir", default="models_candidate")
     parser.add_argument("--vocab", default="vocab.pkl")
     parser.add_argument("--epochs", type=int, default=200)
+    parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--model-version", type=int,
                         default=PodModelBundle.MODEL_VERSION)
     parser.add_argument("--targets", default=",".join(DEFAULT_TARGETS),
                         help="Comma-separated deployment keys included in this candidate")
     args = parser.parse_args()
+    if args.epochs < 1 or args.batch_size < 1:
+        raise ValueError("epochs and batch size must be positive")
     targets = parse_targets(args.targets)
 
     logging.basicConfig(
@@ -292,6 +297,8 @@ def main() -> int:
         "vocab": str(vocab_path),
         "vocab_sha256": file_sha256(vocab_path),
         "model_version_requested": args.model_version,
+        "epochs_requested": args.epochs,
+        "batch_size": args.batch_size,
         "window_seconds": window_seconds,
         "startup_grace_seconds": dataset_manifest.get(
             "startup_grace_seconds", 0.0
@@ -324,7 +331,8 @@ def main() -> int:
             if not path.is_file():
                 raise FileNotFoundError(f"missing target baseline: {path}")
             report["models"][pod_key] = train_one(
-                pod_key, path, staging, vocab, args.epochs, args.model_version,
+                pod_key, path, staging, vocab, args.epochs, args.batch_size,
+                args.model_version,
                 dataset_manifest["targets"][pod_key],
             )
 

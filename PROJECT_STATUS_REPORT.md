@@ -1257,9 +1257,10 @@ phải lặp lại toàn bộ normal matrix và kernel matrix; release live vẫ
 **dry-run provisional** cho tới khi đạt đủ zero-exceedance normal và 15/15
 attack với provenance runtime trùng khớp.
 
-### 18.5 Phục hồi runtime cluster trước migration topology (29-07-2026, 14:18 UTC)
+### 18.5 Phục hồi runtime cluster trước migration topology (snapshot lịch sử 29-07-2026, 14:18 UTC)
 
-Tại snapshot `14:18 UTC`, topology thực tế là **2 control plane + 4 worker**: control plane ở
+Đây là snapshot trung gian trước migration, không phải topology hiện tại. Tại
+`14:18 UTC`, topology thực tế khi đó là **2 control plane + 4 worker**: control plane ở
 `10.1.16.234` và `10.1.16.237`; worker ở `.235`, `.236`, `.238`, `.239`.
 Node `.238` từng có hostname trùng `.239`; state kubeadm/CNI clone đã được
 reset và node được join lại thành `k8s-worker4.local`. Mục tiêu cuối cùng vẫn
@@ -2384,3 +2385,57 @@ policy và start V7. Harness chưa được chạy thật vì soak đang active.
 `refusing overhead mutation while aims-normal-matrix.service is active`; sau
 test matrix/V7 vẫn active và `sentinel-aims-syscalls` vẫn tồn tại. Parser và
 resource/hash test pass `6/6` cả local lẫn VM.
+
+### 18.28 Blind matrix resumable và tách training khỏi collector host (03-08-2026)
+
+Blind kernel runner đã được khóa thêm ba lớp trước khi được timer cho phép chạy:
+blind-normal prerequisite phải `complete/passed`; toàn bộ candidate file hash,
+fit-only calibration hash và split-contract hash phải trùng exact. Aggregate
+ghi thêm release/attack/source/binary/prerequisite digest. Resume chỉ giữ trial
+có exit 0, `all_passed=true`, report nằm dưới đúng evidence root và report
+SHA-256 khớp; trial lỗi/orphan được chuyển recoverably vào `rejected/`. Partial
+report được ghi nguyên tử sau từng trial. `aims-blind-attack.timer` đã enable,
+service chạy user `dat`, NoNewPrivileges, CPU 200%, RAM 8G, timeout 12 giờ và
+không có promotion path. Lần trigger đầu trả success với trạng thái chờ vì
+normal matrix đang active. Focused blind/model/kernel suite trên VM đạt
+`23 passed` trong lần chạy đồng bộ cuối `14.01s`.
+
+Sau khi generalize `artifact_integrity.release_files()` từ ba workload cũ sang
+target list trong signed training report và đưa `minimum_events=10` từ AIMS
+release contract vào kernel harness, full canonical VM suite đạt
+`137 passed, 2 warnings` trong `23.59s`.
+
+Audit tiếp theo phát hiện candidate train trên cùng master1 với collector làm
+load average tăng và tạo condition khác run-01. Dù chưa có stream/backpressure
+failure, run-02 này bị loại chủ động thay vì chấp nhận confound. Training cũ
+được pause lúc khoảng `03:13 UTC`, sau đó stop; staging chỉ 4 KiB và không có
+model artifact. Phase collector bị terminate lúc `03:15:25 UTC`, không
+materialize array và không được dùng train/evaluate. Rejection manifest được
+lưu tại
+`rejected/aims-steady-run-02-20260803T031525Z-confounded-host-training/`,
+SHA-256
+`0e7b84de92669ef70fcce9e99c31004ebd80400a4156dde387c23cd7936ee55d`.
+
+Exact venv 5.0 GiB và dataset 24 MiB được truyền trực tiếp LAN sang
+`k8s-master2.local` (10.1.16.235). Dataset manifest vẫn có SHA-256
+`3fd898f98219f1497b9535a94e13d1c2f515c875d00ee755522638bb68cf33c3`;
+environment import là NumPy 2.4.4, SciPy 1.17.1, scikit-learn 1.8.0 và PyTorch
+2.11.0+cu130. Training mới bắt đầu `03:15:20 UTC`, CPUQuota 400%, RAM 12G,
+batch 64/200 epoch được ghi trong report, không auto-promote. Tốc độ cải thiện
+từ khoảng 8 phút/10 epoch trên master1 xuống 16--30 giây/10 epoch; frontend đã
+đạt epoch 180 lúc `03:21:14 UTC`, validation loss `0.004480`, và training vẫn
+tiếp tục tuần tự cho bảy workload còn lại.
+
+Matrix trên master1 restart từ empty collector state lúc `03:15:31 UTC`, giữ
+nguyên bốn run-01 hợp lệ rồi thu lại `aims-steady-run-02`; sáu stream Tetragon
+đã mở và tám target nhận event lại. Việc chuyển node vừa giảm confound vừa rút
+training từ quy mô gần một ngày xuống khoảng vài giờ mà không giảm epoch hay
+đụng external holdout. Credential askpass tạm dùng cho LAN copy đã được xóa ở
+local và xóa nội dung trên master1 sau transfer.
+
+Đối chiếu lại lúc `03:21 UTC`: runtime production đúng tên
+`sentinel-detector.service` vẫn `active/running`, MainPID `1054690`,
+`NRestarts=0`, memory hiện thời khoảng 497 MiB; Tetragon DaemonSet đạt `6/6`.
+Normal matrix có MainPID `1639594`, `NRestarts=0`; 44 pod namespace
+`production` đều ở trạng thái `Running`. Tên `sentinel-v7.service` chỉ là tên
+kiểm tra nhầm và không được dùng làm bằng chứng trạng thái.

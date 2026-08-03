@@ -1,5 +1,6 @@
 import sys
 import pickle
+import json
 from pathlib import Path
 
 import pytest
@@ -18,7 +19,7 @@ sys.path.insert(0, str(SERVICE_ROOT))
 from ml_models import ModelManager, PodModelBundle
 from build_phase_dataset import allocate_validation, expand_vocabulary
 from train_candidate import holdout_actionable_pairs
-from artifact_integrity import model_release_hashes
+from artifact_integrity import model_release_hashes, release_files
 import promote_candidate
 
 
@@ -99,6 +100,19 @@ def test_empty_model_release_fails_closed(tmp_path):
     manager = ModelManager(str(tmp_path / "models"), str(vocab))
     with pytest.raises(RuntimeError, match="No model bundles"):
         manager.load_all()
+
+
+def test_release_file_contract_supports_explicit_aims_targets(tmp_path):
+    (tmp_path / "training_report.json").write_text(json.dumps({
+        "models": {
+            "production/api-gateway": {},
+            "production/cart-service": {},
+        }
+    }))
+    files = release_files(tmp_path)
+    assert "production__api-gateway_bundle.pkl" in files
+    assert "production__cart-service_lstm.pt" in files
+    assert "default__postgres_bundle.pkl" not in files
 
 
 def test_training_preprocessors_do_not_see_temporal_holdout():

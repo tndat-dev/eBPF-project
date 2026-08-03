@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic frozen AIMS blind attack gate
+
+[Timer]
+OnBootSec=15min
+OnUnitInactiveSec=30min
+Persistent=true
+Unit=aims-blind-attack.service
+
+[Install]
+WantedBy=timers.target

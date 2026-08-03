@@ -1,6 +1,7 @@
 """Immutable fingerprints shared by validation and promotion gates."""
 
 import hashlib
+import json
 from pathlib import Path
 
 
@@ -22,12 +23,31 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def release_files(root: Path) -> tuple[str, ...]:
+    """Resolve model files from the candidate's explicit training targets."""
+    report_path = root / "training_report.json"
+    if report_path.is_file():
+        try:
+            targets = json.loads(report_path.read_text()).get("models")
+        except (OSError, ValueError, TypeError):
+            targets = None
+        if isinstance(targets, dict) and targets:
+            stems = sorted(str(target).replace("/", "__") for target in targets)
+            return (
+                "vocab.pkl", "dataset_manifest.json", "training_report.json",
+                *(f"{stem}_bundle.pkl" for stem in stems),
+                *(f"{stem}_lstm.pt" for stem in stems),
+            )
+    return RELEASE_FILES
+
+
 def model_release_hashes(model_dir) -> dict:
     """Hash the exact candidate inputs used by a validation run."""
     root = Path(model_dir).resolve()
-    missing = [name for name in RELEASE_FILES if not (root / name).is_file()]
+    files = release_files(root)
+    missing = [name for name in files if not (root / name).is_file()]
     if missing:
         raise FileNotFoundError(
             f"incomplete model release {root}: missing {missing}"
         )
-    return {name: sha256(root / name) for name in sorted(RELEASE_FILES)}
+    return {name: sha256(root / name) for name in sorted(files)}

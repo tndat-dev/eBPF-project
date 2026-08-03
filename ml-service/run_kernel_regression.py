@@ -254,6 +254,8 @@ def main() -> int:
     parser.add_argument("--window", type=int,
                         default=int(os.environ.get("SENTINEL_WINDOW_SECONDS", "10")),
                         help="Feature window in seconds; must match candidate training")
+    parser.add_argument("--minimum-events", type=int, default=20,
+                        help="Runtime event floor; must match the release contract")
     parser.add_argument("--attack-seconds", type=int, default=70)
     parser.add_argument("--rate", type=int, default=20)
     parser.add_argument("--post-attack-wait", type=int, default=45)
@@ -272,6 +274,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.window < 5:
         raise ValueError("--window must be at least 5 seconds")
+    if args.minimum_events < 1:
+        raise ValueError("--minimum-events must be positive")
     for name, value in VALIDATION_POLICY_DEFAULTS.items():
         os.environ.setdefault(name, value)
     scenarios = tuple(
@@ -333,6 +337,7 @@ def main() -> int:
         "calibration_source": str(calibration_source),
         "pod_key": pod_key,
         "window_seconds": args.window,
+        "minimum_events": args.minimum_events,
         "confirmation_policy": {
             "hysteresis_ratio": float(os.environ.get(
                 "SENTINEL_CONFIRMATION_FLOOR_RATIO", "1.0"
@@ -372,7 +377,7 @@ def main() -> int:
                 # production service.  Falling back to the historical
                 # 100-event floor would silently discard valid nginx windows
                 # after in-kernel rate limiting and invalidate latency/recall.
-                "SENTINEL_MIN_EVENTS": "20",
+                "SENTINEL_MIN_EVENTS": str(args.minimum_events),
                 "SENTINEL_QUEUE_SIZE": "100000",
                 "SENTINEL_CONSUMER_LOG_INTERVAL": "100000",
                 "SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE": "true",

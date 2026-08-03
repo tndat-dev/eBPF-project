@@ -166,6 +166,8 @@ sha256sum runtime_attack_blind.c runtime_attack_blind
 python run_aims_blind_matrix.py \
   --model-dir models_aims_candidate-FROZEN \
   --normal-calibration aims-normal-calibration-FROZEN.json \
+  --normal-prerequisite aims-blind-normal-test-FROZEN.json \
+  --split-contract aims_candidate_split_contract.json \
   --runtime-source runtime_attack_blind.c \
   --runtime-binary runtime_attack_blind
 ```
@@ -173,6 +175,13 @@ python run_aims_blind_matrix.py \
 The hashes must equal `aims_blind_attack_contract.json`. Never inspect blind
 results and then retrain/tune the same candidate; a changed model requires a
 new independently frozen blind set.
+
+Runner dài được timer hóa bằng `aims-blind-attack.timer`. Mỗi trial thành công
+phải có report hash hợp lệ mới được skip khi resume. Trial lỗi/orphan được move
+vào `rejected/` rồi chạy lại; không xóa negative evidence. Header resume khóa
+schedule, source/binary, candidate, calibration, split, prerequisite và release
+contract. Service không chạy khi normal matrix/training/split evaluator active,
+giới hạn CPU/RAM, timeout 12 giờ và không có đường promote.
 
 ## Publication statistics
 
