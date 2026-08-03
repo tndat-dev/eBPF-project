@@ -19,6 +19,14 @@ VALIDATION_REPORT=${AIMS_VALIDATION_REPORT:-"$ROOT_DIR/aims-independent-validati
 BLIND_REPORT=${AIMS_BLIND_REPORT:-"$ROOT_DIR/aims-blind-normal-test.json"}
 CALIBRATION_REPORT=${AIMS_CALIBRATION_REPORT:-"${AIMS_CALIBRATION}.report.json"}
 
+# Scoring thousands of fit rows for calibration or replaying holdout phases on
+# the collector host changes its CPU/I/O condition. Preserve the normal-matrix
+# experiment environment and retry after collection has fully stopped.
+if systemctl is-active --quiet aims-normal-matrix.service; then
+  printf 'WAITING: aims-normal-matrix.service is active\n'
+  exit 0
+fi
+
 if [[ ! -r "$AIMS_CALIBRATION" ]]; then
   if [[ ! -r "$AIMS_CANDIDATE/training_report.json" ]]; then
     printf 'WAITING: frozen candidate training is incomplete\n'

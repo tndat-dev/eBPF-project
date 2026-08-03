@@ -121,8 +121,8 @@ không được dùng để xây/tune artifact này.
 ```bash
 python build_aims_fit_calibration.py \
   --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
-  --output /home/dat/ml-service/aims-fit-v1-calibration.json \
-  --report /home/dat/ml-service/aims-fit-v1-calibration.report.json
+  --output /home/dat/ml-service/aims-fit-v2-calibration.json \
+  --report /home/dat/ml-service/aims-fit-v2-calibration.report.json
 ```
 
 Hai evaluator và blind kernel matrix phải dùng đúng hash calibration này.
@@ -133,7 +133,7 @@ python evaluate_aims_normal_split.py \
   --evidence-root /home/dat/ml-service/aims-normal-matrix-FROZEN \
   --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
   --role independent_validation \
-  --initial-calibration aims-fit-v1-calibration.json \
+  --initial-calibration aims-fit-v2-calibration.json \
   --split-contract aims_candidate_split_contract.json \
   --release-contract aims_release_contract.json \
   --output aims-independent-validation-FROZEN.json
@@ -143,7 +143,7 @@ python evaluate_aims_normal_split.py \
   --evidence-root /home/dat/ml-service/aims-normal-matrix-FROZEN \
   --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
   --role blind_normal_test \
-  --initial-calibration aims-fit-v1-calibration.json \
+  --initial-calibration aims-fit-v2-calibration.json \
   --prerequisite-report aims-independent-validation-FROZEN.json \
   --output aims-blind-normal-test-FROZEN.json
 ```
@@ -190,6 +190,10 @@ xác nhận. `build_phase_dataset.py` vì vậy lưu
 `validation_event_counts` theo đúng thứ tự holdout và `train_candidate.py`
 fail-closed nếu thiếu hoặc lệch số hàng. Mọi dataset cũ không có contract này
 phải được rebuild từ cùng source phase; không được tự thêm count suy đoán.
+Calibration có thể chạy trên node tách biệt nếu candidate và toàn bộ source
+phase fit-only được copy byte-for-byte và vượt kiểm tra hash. Không chạy
+calibration/replay trên collector host khi `aims-normal-matrix.service` active;
+wrapper trả `WAITING` trước khi load model để giữ điều kiện thí nghiệm.
 
 ## Publication statistics
 

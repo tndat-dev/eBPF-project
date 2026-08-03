@@ -1,5 +1,6 @@
 import hashlib
 import json
+import stat
 import sys
 from pathlib import Path
 
@@ -64,7 +65,9 @@ def test_resume_keeps_only_hash_valid_success_and_quarantines_failed(tmp_path):
 def test_blind_runner_and_unit_have_no_promotion_path():
     root = Path(__file__).resolve().parents[1]
     service_root = root / "ml-service" if (root / "ml-service").is_dir() else root
-    wrapper = (service_root / "run_aims_blind_attack.sh").read_text().lower()
+    wrapper_path = service_root / "run_aims_blind_attack.sh"
+    wrapper = wrapper_path.read_text().lower()
+    assert wrapper_path.stat().st_mode & stat.S_IXUSR
     assert "run_aims_blind_matrix.py" in wrapper
     assert "promote_candidate" not in wrapper
     unit_path = root / "sentinel/systemd/aims-blind-attack.service"

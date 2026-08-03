@@ -2487,3 +2487,40 @@ sớm sau deploy để không lãng phí thêm một phase 72 phút; bốn run-0
 được giữ. Full VM regression đạt `139 passed, 2 warnings` trong `20.28s`.
 Thư mục test backup 184 KiB từng làm pytest import trùng module đã được chuyển
 recoverably từ runtime root sang `/home/dat/ml-service-archives/`, không xóa.
+
+### 18.30 Fit-v2 pass, khóa evaluator khỏi collector và calibration off-host (03-08-2026)
+
+Fit-v2 kết thúc `05:28:31 UTC`, systemd exit `0`, `accepted_offline=true` cho
+đủ 8/8 workload. Mọi workload có `holdout_behavior_gate_count=0` và
+`holdout_actionable_pairs=0`; p95 score nằm trong `0.0982--0.1260`, tỷ lệ
+score vượt 0.80 nằm trong `0--0.5891%`. Kết quả này vẫn chỉ là development
+holdout, không được dùng làm claim false-positive production. Offline CPU
+inference p50 theo workload là `14.925--19.741 ms`, p99 `51.061--89.271 ms`;
+đây là model-call latency trên master2, không phải kernel-to-alert latency.
+
+Candidate được copy về
+`/home/dat/ml-service/models_aims_fit-v2-20260803T043100Z` trên master1.
+`artifact_integrity.model_release_hashes()` xác minh đủ dataset/vocab/report,
+tám bundle và tám checkpoint; training report SHA-256
+`93bcd81eaf9f7eb74ed0fbcbf99a3db012ae9141ffc2797a213035f036230b78`,
+dataset manifest SHA-256
+`89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac`.
+Evaluation environment đã chuyển toàn bộ candidate/calibration/validation/blind
+output sang lineage `fit-v2`; model production hiện hành không đổi.
+
+`run_aims_split_evaluation.sh` nay kiểm tra matrix active trước cả calibration.
+Live test khi collector đang chạy trả success với
+`WAITING: aims-normal-matrix.service is active` và xác nhận không tạo file
+calibration. Lần deploy đầu cũng phát hiện executable bit của split/blind
+wrapper chưa được Git lưu; systemd fail `69/UNAVAILABLE` trước khi chạy code.
+Mode `100755` được phục hồi cho hai systemd wrapper và các benchmark runner,
+kèm regression test executable bit. Lần chạy lại pass `5/5` và interlock hoạt
+động đúng.
+
+Để không trì hoãn nhưng vẫn tránh confound, bốn fit-only run-01 (31 MiB) được
+copy byte-for-byte sang master2 theo đúng absolute source layout. Unit
+`aims-fit-v2-calibration.service` bắt đầu `08:00:37 UTC`, CPUQuota 400%, RAM
+8 GiB, không evaluation/promotion. Builder tự kiểm tra array/metadata digest;
+artifact chỉ được chuyển về master1 nếu service exit 0 và report hash hợp lệ.
+Normal matrix trên master1 vẫn active, `NRestarts=0`, production detector PID
+`1054690` và 44 pod production Running.
