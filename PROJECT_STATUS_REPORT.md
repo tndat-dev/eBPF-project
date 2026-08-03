@@ -2524,3 +2524,39 @@ copy byte-for-byte sang master2 theo đúng absolute source layout. Unit
 artifact chỉ được chuyển về master1 nếu service exit 0 và report hash hợp lệ.
 Normal matrix trên master1 vẫn active, `NRestarts=0`, production detector PID
 `1054690` và 44 pod production Running.
+
+### 18.31 Calibration fit-v2 hoàn tất và run-02 có ba phase sạch (03-08-2026)
+
+Off-host calibration kết thúc `08:10:32 UTC`, exit `0`, wall-clock khoảng
+9 phút 55 giây, CPU time `30m54.702s`. Calibration SHA-256 là
+`2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98`;
+report SHA-256
+`c51fe8749ba394cf8bf9baf79975b95640ce5747407f0c38bd3bd49deab45a0c`.
+Report xác nhận `source_role=candidate_fit`, `evaluation_data_used=false`,
+dataset digest trùng fit-v2 và đủ 8 target. Mỗi target có 3.351--3.402 clean
+fit rows, giữ bounded state 120 score/event-count; threshold POT cuối vẫn 0.80.
+Event guard learned min/max theo workload nằm trong `9--15` và `58--88` event;
+runtime floor 10 vẫn được áp trước learned guard.
+
+Hai artifact được copy về master1, hash sau transfer trùng master2.
+`load_calibrators()` load lại đủ 8/8 target, đúng 120 score và đúng threshold/
+event guard. Split evaluator được trigger lại nhưng matrix interlock vẫn trả
+success/WAITING, nên chưa replay holdout và production model không đổi.
+
+Collector fix đồng thời đã được xác nhận qua ba phase run-02 hoàn chỉnh:
+
+- steady: `4320.590023s`;
+- burst: `4321.235678s`;
+- recovery: `4320.964410s`.
+
+Cả ba phase đều đủ 8 target và 8 metadata SHA-256, full Tetragon coverage,
+không backpressure, membership failure hay stream failure. Matrix đã chuyển
+sang `aims-toolmix-run-02` mà không restart. Đây mới là ba trong bốn phase của
+run-02; independent validation vẫn bị khóa cho tới khi toàn normal matrix dừng.
+
+Blind/overhead wrapper đã bỏ interlock hardcode tên unit fit-v1 vì training
+chạy off-host không thể quan sát qua systemd master1. Tính hoàn chỉnh candidate
+được chứng minh bằng report/hash prerequisite; blind experiment ID mặc định
+dẫn xuất từ basename candidate để không resume nhầm lineage. Focused VM suite
+sau sửa đạt `10 passed`; local suite vẫn `69 passed, 7 skipped` do thiếu các ML
+dependency tùy chọn.
