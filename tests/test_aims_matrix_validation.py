@@ -36,6 +36,7 @@ def _write_phase(root, phase, *, actual=60.0, coverage=True):
             "shape": [3, 4],
             "sha256": hashlib.sha256(data.read_bytes()).hexdigest(),
             "metadata": str(metadata),
+            "metadata_sha256": hashlib.sha256(metadata.read_bytes()).hexdigest(),
         }
     manifest = {
         "phase": phase,
@@ -127,3 +128,14 @@ def test_matrix_gate_rejects_tampered_array(tmp_path):
     report = validate_matrix(tmp_path, _contract(), runs_per_regime=1, minutes_per_run=1)
     assert report["valid"] is False
     assert any("data digest mismatch" in error for error in report["errors"])
+
+
+def test_matrix_gate_rejects_tampered_metadata(tmp_path):
+    _matrix(tmp_path)
+    metadata = (
+        tmp_path / "aims-steady-run-01" / "production__api_metadata.jsonl"
+    )
+    metadata.write_text(metadata.read_text().replace("10", "11", 1))
+    report = validate_matrix(tmp_path, _contract(), runs_per_regime=1, minutes_per_run=1)
+    assert report["valid"] is False
+    assert any("metadata digest mismatch" in error for error in report["errors"])

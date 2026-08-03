@@ -105,6 +105,56 @@ limit để không phụ thuộc SSH. Dù offline development gate pass, candida
 không được promote trước khi chạy nguyên vẹn run 02--05, blind attack, baseline,
 ablation và overhead A/B.
 
+Evaluator độc lập không dùng một scoring implementation rút gọn. Nó dựng lại
+`FeatureVector` từ vector/metadata row-aligned rồi gọi chính
+`AnomalyDetector.handle_feature_vector`, gồm per-workload POT, online clean
+calibration, startup grace, event-quality guard, behavior gate và two-window
+confirmation. Fast-path warning không được replay trong normal holdout, nên
+không thể làm giảm false-positive gate. Cooldown đặt 0 để đếm bảo thủ mọi alert.
+
+Trước evaluator, tạo duy nhất một runtime calibration từ `candidate_fit`.
+Builder xác minh lại hash array/metadata run-01, chỉ nhận row không startup,
+đủ event, không behavior gate và score dưới frozen baseline threshold. State
+chỉ giữ 120 mẫu sạch cuối theo đúng `StreamingThreshold`; run-02--05 tuyệt đối
+không được dùng để xây/tune artifact này.
+
+```bash
+python build_aims_fit_calibration.py \
+  --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
+  --output /home/dat/ml-service/aims-fit-v1-calibration.json \
+  --report /home/dat/ml-service/aims-fit-v1-calibration.report.json
+```
+
+Hai evaluator và blind kernel matrix phải dùng đúng hash calibration này.
+Independent report ghi hash; blind report từ chối nếu hash khác prerequisite.
+
+```bash
+python evaluate_aims_normal_split.py \
+  --evidence-root /home/dat/ml-service/aims-normal-matrix-FROZEN \
+  --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
+  --role independent_validation \
+  --initial-calibration aims-fit-v1-calibration.json \
+  --split-contract aims_candidate_split_contract.json \
+  --release-contract aims_release_contract.json \
+  --output aims-independent-validation-FROZEN.json
+
+# Chỉ chạy sau khi report trên complete và passed=true; candidate hash phải khớp.
+python evaluate_aims_normal_split.py \
+  --evidence-root /home/dat/ml-service/aims-normal-matrix-FROZEN \
+  --candidate /home/dat/ml-service/models_aims_fit-v1-FROZEN \
+  --role blind_normal_test \
+  --initial-calibration aims-fit-v1-calibration.json \
+  --prerequisite-report aims-independent-validation-FROZEN.json \
+  --output aims-blind-normal-test-FROZEN.json
+```
+
+Nếu phase chưa đủ, evaluator ghi `status=waiting_for_phases`, trả exit 4 và
+không load/tune model. Timer systemd chuyển trạng thái chờ này thành success để
+thử lại sau 30 phút; lỗi evidence/model thật vẫn làm service fail. Hai role dùng
+chung flock có timeout để không replay chồng nhau. Collection mới ghi thêm
+SHA-256 metadata; phase cũ được evaluator hash metadata trực tiếp trong result,
+và toàn matrix cuối vẫn được khóa bởi `SHA256SUMS`.
+
 After the candidate and threshold are frozen, compile and verify the distinct
 blind binary before running its matrix:
 

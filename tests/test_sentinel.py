@@ -205,6 +205,17 @@ def test_calibration_round_trip(tmp_path):
     assert loaded["production/nginx"].minimum_event_count == 510
 
 
+def test_calibration_restore_matches_incremental_final_threshold(tmp_path):
+    threshold = StreamingThreshold(minimum=.8, warmup=10)
+    for score in [0.10 + index / 1000 for index in range(120)]:
+        threshold.observe(score, 100 + int(score * 10))
+    expected = threshold.current
+    path = tmp_path / "calibration.json"
+    save_calibrators(path, {"production/nginx": threshold})
+    loaded = load_calibrators(path, minimum=.8, warmup=10)
+    assert loaded["production/nginx"].current == pytest.approx(expected)
+
+
 def test_concurrent_calibration_snapshots_remain_atomic(tmp_path):
     from concurrent.futures import ThreadPoolExecutor
 

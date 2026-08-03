@@ -97,6 +97,10 @@ def artifact_provenance(path):
     with open(absolute, "rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
+    metadata_digest = hashlib.sha256()
+    with open(metadata_name, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            metadata_digest.update(chunk)
     return {"path": absolute, "sha256": digest.hexdigest()}
 
 # ── State ─────────────────────────────────────────────────────
@@ -454,6 +458,7 @@ for dk, vecs in sorted(final_vectors.items()):
         "shape": list(X.shape),
         "sha256": digest.hexdigest(),
         "metadata": metadata_name,
+        "metadata_sha256": metadata_digest.hexdigest(),
         "event_count_min": min(event_counts),
         "event_count_median": float(np.median(event_counts)),
         "event_count_max": max(event_counts),

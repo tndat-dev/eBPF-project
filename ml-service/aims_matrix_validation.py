@@ -171,6 +171,10 @@ def validate_matrix(
                 phase_errors.append(f"missing metadata file for {target}")
             elif sum(1 for line in metadata_path.open() if line.strip()) != int(shape[0]):
                 phase_errors.append(f"metadata row mismatch for {target}")
+            elif item.get("metadata_sha256") and _sha256(metadata_path) != item.get(
+                "metadata_sha256"
+            ):
+                phase_errors.append(f"metadata digest mismatch for {target}")
 
         health = doc.get("sensor_health", {})
         for counter in CONTINUITY_COUNTERS:

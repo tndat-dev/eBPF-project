@@ -2290,3 +2290,69 @@ Không có lệnh promotion trong unit hay runner. Đồng thời
 MainPID `1054690`, `NRestarts=0`. Kết quả candidate chỉ được coi là development
 result sau khi `training_report.json` hoàn tất; claim false-positive/production
 vẫn phải chờ run 02--05 và toàn bộ blind/baseline/ablation/overhead gate.
+
+### 18.26 Production evaluator cho independent/blind normal split (03-08-2026)
+
+Candidate fit-v1 vẫn train bình thường, không bị treo: frontend ghi epoch
+10/20/30 lần lượt lúc `02:36:50`, `02:43:25`, `02:51:27 UTC`; train/validation
+loss tiếp tục giảm (`epoch 30: 0.008987/0.007704`). CPU bị giới hạn 150% như
+contract nên quá trình này cố ý chạy nền thay vì chiếm control-plane. Đây là
+thời gian tối ưu model, không phải yêu cầu phải thu thêm traffic train; matrix
+run-02 vẫn chạy song song và chưa bị dùng vào model.
+
+`ml-service/evaluate_aims_normal_split.py` đã được triển khai để loại bỏ sai
+khác giữa offline evaluator và production. Script load exact candidate/vocab,
+xác minh training report, candidate hash, split/release contract hash, phase
+duration/sensor/array provenance và model target set. Sau đó nó dựng
+`FeatureVector` từ từng row capture rồi gọi chính `AnomalyDetector` production,
+bao gồm per-workload EVT-POT, streaming clean calibration, minimum/event-volume
+quality gate, pod startup grace, behavior gate, hysteresis và two-window
+confirmation. Cooldown đặt 0 để false-alert count bảo thủ; fast-path warning
+không replay trong normal gate. Report giữ cả score/inference quantile,
+decision count, eligible window, per-phase/per-workload và hash metadata.
+
+Hai invariant chống leakage được thực thi:
+
+- `independent_validation` chỉ nhận đủ tám phase run-02--03 hợp lệ;
+- `blind_normal_test` chỉ nhận đủ tám phase run-04--05 và bắt buộc một report
+  validation `complete`, `passed=true`, có toàn bộ candidate SHA-256 giống hệt.
+
+Chạy thử lúc `02:48:56 UTC` trả đúng `status=waiting_for_phases`, exit 4 và liệt
+kê đủ tám phase validation còn thiếu; nó không load candidate chưa hoàn tất,
+không đánh giá partial phase và không train/tune. Để quy trình không phụ thuộc
+SSH, hai timer `aims-split-evaluation@independent_validation.timer` và
+`@blind_normal_test.timer` đã được enable, kiểm tra mỗi 30 phút. Service chạy
+user `dat`, `Nice=15`, CPUQuota 100%, MemoryMax 8G, NoNewPrivileges,
+ProtectSystem strict và shared flock chờ tối đa 300 giây. Lần kích hoạt đầu phát
+hiện non-blocking lock có thể làm blind job false-fail khi hai timer cùng nổ;
+unit đã sửa thành bounded wait, chạy lại blind job trả success với trạng thái
+đúng `WAITING: ... requires passed independent validation`.
+
+Collector mới cũng ghi `metadata_sha256` cạnh array SHA-256; matrix validator
+kiểm tra digest này nếu manifest có trường đó. Bốn phase run-01 lịch sử vẫn
+được giữ nguyên, không backfill/sửa manifest; evaluator ghi digest metadata
+quan sát được vào report và `SHA256SUMS` cuối matrix sẽ khóa toàn bộ legacy
+artifact. Regression tập trung trên VM sau thay đổi đạt `33 passed` trong
+`14.17s`; systemd unit qua `systemd-analyze verify`.
+
+Calibration runtime cho candidate cũng được tách khỏi evaluation bằng
+`build_aims_fit_calibration.py`. Script chỉ đọc source index run-01 ghi trong
+immutable dataset manifest, kiểm tra lại SHA-256 array/metadata, rồi bỏ startup,
+low-event, behavior-crossing và score-crossing row. Mỗi workload giữ đúng 120
+clean score/event-count cuối của `StreamingThreshold`; report ghi threshold,
+event floor/ceiling và source digest. Cả independent và blind evaluator nay
+bắt buộc `--initial-calibration`; blind prerequisite kiểm candidate hash **và**
+calibration hash. Timer tự build artifact sau khi candidate hoàn tất; trước đó
+chỉ trả `WAITING`, không đọc evaluation split.
+
+`load_calibrators()` đồng thời được tối ưu từ fit GPD lặp sau từng historical
+score sang khôi phục bounded deque rồi fit đúng một lần. Final POT threshold
+tương đương incremental restore và được khóa bằng regression, nhưng startup và
+replay không còn chi phí gần bậc hai. Focused VM suite cho detector,
+calibration, evaluator và systemd unit đạt `40 passed` trong `6.42s`. Model V7
+đang chạy chưa restart, nên thay đổi source này chỉ áp dụng cho evaluator và
+candidate tương lai, không âm thầm đổi release live.
+
+Sau khi đồng bộ toàn bộ source/test canonical, full VM suite
+`python -m pytest -q tests` đạt `131 passed, 2 warnings` trong `35.99s`; hai
+warning vẫn là deprecation từ `torch.jit.script`, không phải test failure.

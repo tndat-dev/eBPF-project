@@ -20,8 +20,11 @@ MCP payload, secret, PVC data hay private endpoint.
 | AIMS workload contract | `ml-service/aims_release_contract.json` | explicit eligible/excluded targets and non-automatic promotion gates |
 | AIMS frozen split contract | `ml-service/aims_candidate_split_contract.json` | run-01 fit, run-02--03 independent validation, run-04--05 blind normal test; holdout training forbidden |
 | AIMS immutable fit dataset | `ml-service/run_aims_candidate.sh build ...` | exact four run-01 phases, contract/parent/source/array SHA-256 and role in manifest |
+| AIMS fit-only calibration | `ml-service/build_aims_fit_calibration.py` | frozen POT/event-volume state from candidate-fit rows only; shared hash for validation and blind trials |
 | AIMS normal matrix | `ml-service/run_aims_normal_matrix.sh` | 20 independent phase captures, 24 hours by default, hashes and sensor health |
 | AIMS matrix validator | `ml-service/aims_matrix_validation.py` | fail-closed on missing/time-collapsed/tampered or sensor-degraded evidence |
+| AIMS split replay evaluator | `ml-service/evaluate_aims_normal_split.py` | exact production detector replay for frozen validation/blind-normal roles; zero-alert gate |
+| AIMS evaluation scheduler | `sentinel/systemd/aims-split-evaluation@.{service,timer}` | bounded periodic evaluation; waits for complete phase set and never trains/promotes |
 | AIMS systemd runner | `sentinel/systemd/aims-normal-matrix.service` | disconnect-safe single matrix with low scheduling priority |
 | AIMS resume state | `.aims-normal-matrix-active` trên VM, không commit | giữ root qua restart; valid phase được verify, invalid phase chuyển `rejected/` |
 | AIMS traffic regimes | `ml-service/set_aims_traffic_regime.sh` | deterministic steady/burst/recovery/toolmix/idle traffic |

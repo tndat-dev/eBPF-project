@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic AIMS frozen %i evaluation gate
+
+[Timer]
+OnBootSec=10min
+OnUnitInactiveSec=30min
+Persistent=true
+Unit=aims-split-evaluation@%i.service
+
+[Install]
+WantedBy=timers.target

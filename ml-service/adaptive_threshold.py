@@ -183,8 +183,14 @@ def load_calibrators(path, minimum=.80, warmup=10,
             minimum=minimum, warmup=warmup,
             event_ceiling_factor=event_ceiling_factor,
         )
+        # Restoring a bounded state only requires fitting its final score
+        # deque once. Calling observe() for every historical sample repeats
+        # the same increasingly large GPD fit and makes startup/replay scale
+        # quadratically without changing the final threshold.
         for score in scores:
-            cal.observe(score)
+            if np.isfinite(score):
+                cal.scores.append(float(score))
+        cal.current = cal.estimator.fit(list(cal.scores))
         for event_count in event_counts:
             if int(event_count) > 0:
                 cal.event_counts.append(int(event_count))
