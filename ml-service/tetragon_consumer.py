@@ -24,6 +24,7 @@ import argparse
 import threading
 import os
 import queue
+from datetime import datetime, timezone
 
 logging.basicConfig(
     level=logging.INFO,
@@ -263,6 +264,7 @@ class TetragonKubectlReader:
         self._membership_failures = 0
         self._coverage_failures = 0
         self._stream_failures = 0
+        self._stream_failure_details: list[dict] = []
         self._stale_streams_removed = 0
         # Production must not make an ML decision from a partial sensor set.
         # Keep the library default permissive for one-node/file-based tests;
@@ -484,14 +486,31 @@ class TetragonKubectlReader:
                     self._procs.get(pod_name, set()).discard(proc)
                 if (not self._stop_event.is_set()
                         and self._pod_is_active(pod_name)):
-                    self._stream_failures += 1
+                    self._record_stream_failure(
+                        pod_name, "kubectl_exec_exit", returncode=proc.returncode,
+                    )
                     logger.warning(f"[{pod_name}] kubectl exec kết thúc, retry sau 5s...")
             except Exception as e:
                 if (not self._stop_event.is_set()
                         and self._pod_is_active(pod_name)):
-                    self._stream_failures += 1
+                    self._record_stream_failure(
+                        pod_name, "reader_exception", error=repr(e),
+                    )
                     logger.error(f"[{pod_name}] Lỗi: {e}, retry sau 5s...")
             self._stop_event.wait(5)
+
+    def _record_stream_failure(self, pod_name: str, kind: str, **details):
+        """Keep bounded provenance for continuity failures, not only a count."""
+        self._stream_failures += 1
+        self._stream_failure_details.append({
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "pod": pod_name,
+            "kind": kind,
+            "retry_seconds": 5,
+            **details,
+        })
+        # A long-lived detector must remain memory bounded during an outage.
+        del self._stream_failure_details[:-100]
 
     def stop(self):
         """Stop readers and reap all kubectl-exec child processes."""
@@ -517,6 +536,7 @@ class TetragonKubectlReader:
             "membership_failures": self._membership_failures,
             "coverage_failures": self._coverage_failures,
             "stream_failures": self._stream_failures,
+            "stream_failure_details": list(self._stream_failure_details),
             "stale_streams_removed": self._stale_streams_removed,
             "active_tetragon_pods": sorted(self._active_pods),
             "ready_tetragon_pods": sorted(self._ready_tetragon_pods),

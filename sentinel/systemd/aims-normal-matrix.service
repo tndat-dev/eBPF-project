@@ -3,6 +3,8 @@ Description=AIMS 24-hour multi-regime normal evidence matrix
 Wants=network-online.target
 After=network-online.target sentinel-detector.service
 ConditionPathExists=/home/dat/ml-service/aims_release_contract.json
+StartLimitIntervalSec=86400
+StartLimitBurst=10
 
 [Service]
 Type=exec
@@ -14,7 +16,8 @@ Environment=RUNS_PER_REGIME=5
 Environment=MINUTES_PER_RUN=72
 Environment=SETTLE_SECONDS=30
 ExecStart=/usr/bin/flock -n /home/dat/ml-service/.aims-normal-matrix.lock /home/dat/ml-service/run_aims_normal_matrix.sh
-Restart=no
+Restart=on-failure
+RestartSec=60
 Nice=10
 IOSchedulingClass=best-effort
 IOSchedulingPriority=7

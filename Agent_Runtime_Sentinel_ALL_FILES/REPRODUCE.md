@@ -59,6 +59,11 @@ systemctl status aims-normal-matrix.service --no-pager
 journalctl -u aims-normal-matrix.service -f
 ```
 
+Service lưu active evidence root để resume sau disconnect/failure. Phase đã
+pass toàn bộ duration/sensor/digest gate được giữ; phase có stream gap được
+chuyển vào `rejected/` và thu lại. Không xóa thư mục `rejected/` vì đó là
+negative evidence giải thích vì sao một phase không được dùng để train.
+
 The eligible/excluded workload list and release gates are pinned in
 `ml-service/aims_release_contract.json`. Payment and notification currently use
 a sandbox runtime and are intentionally outside the host-syscall candidate.

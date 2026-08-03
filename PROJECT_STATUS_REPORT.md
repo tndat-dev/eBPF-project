@@ -2201,3 +2201,43 @@ attack trial, latency sample và confidence method. Gate đã pass unit test cho
 matrix đầy đủ và fail đúng khi thiếu result, đổi dataset hoặc làm rò blind set.
 Hiện **chưa có** 20 result production tương ứng, nên đây là reproducibility
 gate đã sẵn sàng chứ không phải bằng chứng rằng ablation đã hoàn tất.
+
+### 18.24 Fail-closed stream gap và resume matrix (03-08-2026)
+
+Lượt AIMS matrix không được phép đi tiếp tới training một cách giả tạo. Sau
+năm phase, `aims-steady-run-02` kết thúc đủ 72 phút và đủ 8/8 target nhưng
+manifest ghi `stream_failures=2`; service trả exit code 4 lúc
+`2026-08-02 07:46:49 UTC`. Bốn phase run-01 trước đó đều hợp lệ: duration
+`4320.42--4321.44s`, đủ tám target, full Tetragon coverage, và mọi counter
+backpressure/membership/coverage/stream bằng 0. Không có candidate nào được
+train từ partial matrix này.
+
+Audit journal cho thấy stream `kubectl exec` tới `tetragon-bwnsm` kết thúc hai
+lần lúc 06:51 UTC và tự nối lại sau 5 giây. Sensor pod không restart trong
+khoảng đo, DaemonSet vẫn 6/6; tuy nhiên reconnect bằng `tail -n 0` không chứng
+minh được không mất event trong khoảng gap, nên loại toàn phase là quyết định
+fail-closed đúng. Evidence lỗi được giữ nguyên để audit, không sửa counter về
+0 hay trộn vào training.
+
+Pipeline dài đã được sửa để resume an toàn:
+
+- active evidence root được ghi nguyên tử trong
+  `/home/dat/ml-service/.aims-normal-matrix-active` và giữ qua service restart;
+- mỗi phase hiện hữu được kiểm tra lại duration, target, sensor health,
+  provenance, metadata và SHA-256 bằng matrix validator trước khi skip;
+- phase không hợp lệ được chuyển có thể phục hồi vào `rejected/`, không xóa;
+- contract/policy/loadgen snapshot phải byte-identical khi resume, nếu thay đổi
+  script dừng thay vì ghép hai experiment;
+- systemd dùng `Restart=on-failure`, delay 60 giây và start-limit 10 lần/24h;
+- stream failure mới ghi bounded detail gồm sensor pod, loại lỗi, return code,
+  timestamp và retry interval thay vì chỉ một counter tổng.
+
+Remote regression sau thay đổi đạt `48 passed` trong `2.22s` cho detector,
+kernel harness và matrix validator. Resume thực tế lúc
+`2026-08-03 02:15:15 UTC` giữ bốn phase sạch, chuyển phase lỗi sang
+`rejected/aims-steady-run-02-20260803T021516Z`, rồi khởi động collector mới PID
+`1608916` cho `aims-steady-run-02`. Collector đã mở đủ sáu stream Tetragon và
+nhận realtime đủ tám target; V7 production vẫn active, MainPID `1054690`,
+`NRestarts=0`. Với 16 phase hợp lệ còn thiếu, thời điểm hoàn tất sớm nhất vào
+khoảng sáng 04-08-2026; mọi stream gap tiếp theo sẽ tiếp tục loại riêng phase
+và tự retry, không hạ continuity gate.

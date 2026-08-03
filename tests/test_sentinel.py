@@ -659,6 +659,7 @@ def test_tetragon_queue_capacity_and_health_are_observable(monkeypatch):
         "membership_failures": 0,
         "coverage_failures": 0,
         "stream_failures": 0,
+        "stream_failure_details": [],
         "stale_streams_removed": 0,
         "active_tetragon_pods": [],
         "ready_tetragon_pods": [],
@@ -666,3 +667,16 @@ def test_tetragon_queue_capacity_and_health_are_observable(monkeypatch):
         "require_full_coverage": False,
         "coverage_healthy": True,
     }
+
+
+def test_tetragon_stream_failure_details_are_bounded_and_attributed():
+    reader = TetragonKubectlReader()
+    for index in range(105):
+        reader._record_stream_failure(
+            "tetragon-a", "kubectl_exec_exit", returncode=index,
+        )
+    health = reader.health()
+    assert health["stream_failures"] == 105
+    assert len(health["stream_failure_details"]) == 100
+    assert health["stream_failure_details"][0]["returncode"] == 5
+    assert health["stream_failure_details"][-1]["pod"] == "tetragon-a"
