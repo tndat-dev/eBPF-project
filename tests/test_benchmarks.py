@@ -94,3 +94,13 @@ def test_file_hash_binds_overhead_environment(tmp_path):
     assert compare_overhead.file_sha256(path) == hashlib.sha256(
         b"cluster-state"
     ).hexdigest()
+
+
+def test_aims_overhead_interlock_is_not_bound_to_a_stale_training_unit():
+    root = HERE.parents[1]
+    script = root / "sentinel" / "benchmarks" / "run_aims_overhead_matrix.sh"
+    if not script.is_file():
+        pytest.skip("repository-only orchestration script")
+    text = script.read_text()
+    assert "aims-normal-matrix.service" in text
+    assert "aims-candidate-fit-v1.service" not in text

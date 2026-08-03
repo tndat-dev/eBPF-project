@@ -17,7 +17,7 @@ set +a
 : "${AIMS_VALIDATION_REPORT:?}"
 : "${AIMS_BLIND_REPORT:?}"
 
-for unit in aims-normal-matrix.service aims-candidate-fit-v1.service \
+for unit in aims-normal-matrix.service \
   aims-split-evaluation@independent_validation.service \
   aims-split-evaluation@blind_normal_test.service; do
   if systemctl is-active --quiet "$unit"; then

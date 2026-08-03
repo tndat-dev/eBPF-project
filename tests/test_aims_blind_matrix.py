@@ -70,6 +70,8 @@ def test_blind_runner_and_unit_have_no_promotion_path():
     assert wrapper_path.stat().st_mode & stat.S_IXUSR
     assert "run_aims_blind_matrix.py" in wrapper
     assert "promote_candidate" not in wrapper
+    assert "aims-candidate-fit-v1.service" not in wrapper
+    assert 'basename "$aims_candidate"' in wrapper
     unit_path = root / "sentinel/systemd/aims-blind-attack.service"
     if unit_path.is_file():
         unit = unit_path.read_text()

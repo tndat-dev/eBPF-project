@@ -12,10 +12,10 @@ PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
 : "${AIMS_CANDIDATE:?}"
 : "${AIMS_CALIBRATION:?}"
 : "${AIMS_BLIND_REPORT:?}"
-EXPERIMENT_ID=${AIMS_BLIND_ATTACK_EXPERIMENT_ID:-aims-blind-fit-v1}
+EXPERIMENT_ID=${AIMS_BLIND_ATTACK_EXPERIMENT_ID:-"aims-blind-$(basename "$AIMS_CANDIDATE")"}
 OUTPUT_ROOT=${AIMS_BLIND_ATTACK_OUTPUT_ROOT:-"$ROOT_DIR/aims-blind-matrix"}
 
-for unit in aims-normal-matrix.service aims-candidate-fit-v1.service \
+for unit in aims-normal-matrix.service \
   aims-split-evaluation@independent_validation.service \
   aims-split-evaluation@blind_normal_test.service; do
   if systemctl is-active --quiet "$unit"; then
