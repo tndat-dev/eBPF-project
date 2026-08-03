@@ -201,3 +201,24 @@ python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
 Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
 không phải generator kết quả.
+
+## AIMS overhead A/B
+
+Không chạy overhead trong khi normal matrix, training hoặc split evaluator đang
+active. Harness có interlock và phải trả exit 3 trước mọi mutation trong trường
+hợp đó. Sau khi independent/blind-normal gate pass, chạy đủ sáu permutation của
+ba phase để giảm order/cache/thermal confound:
+
+```bash
+sudo env AIMS_PHASE_ORDER=no_tracing,tetragon_only,full_pipeline \
+  SENTINEL_EXPERIMENT_ID=aims-overhead-order-01 \
+  /home/dat/ml-service/sentinel/benchmarks/run_aims_overhead_matrix.sh
+```
+
+Lặp với năm permutation còn lại và experiment ID riêng. Mỗi phase warm-up rồi
+chạy 10 repetition `wrk -t4 -c50 -d30s --latency` vào ingress AIMS thật qua
+Istio. Ba treatment là no AIMS tracing, Tetragon policy only, và full frozen
+candidate. Script dùng bản sao calibration, không sửa artifact gốc; trap luôn
+khôi phục AIMS policy và V7 service. Report chứa throughput, p99, request error,
+Tetragon/detector CPU-RAM, tổng CPU-RAM tám workload, bootstrap 95% interval,
+phase-order protocol hash và environment hash.

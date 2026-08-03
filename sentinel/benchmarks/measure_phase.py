@@ -74,10 +74,10 @@ def top_snapshot():
     }
 
 
-def systemd_snapshot():
+def systemd_snapshot(unit="sentinel-detector"):
     result = subprocess.run(
         [
-            "systemctl", "show", "sentinel-detector",
+            "systemctl", "show", unit,
             "-p", "MainPID", "-p", "ActiveState", "-p", "MemoryCurrent",
             "-p", "CPUUsageNSec", "--no-pager",
         ],
@@ -88,7 +88,23 @@ def systemd_snapshot():
         if "=" in line:
             key, value = line.split("=", 1)
             values[key] = value
-    return {"ts": time.time(), **values, "error": result.stderr.strip()}
+    return {"ts": time.time(), "unit": unit, **values,
+            "error": result.stderr.strip()}
+
+
+def resource_summaries(snapshots, namespace, prefixes):
+    """Aggregate per-snapshot workload resources without mixing replicas."""
+    cpu, memory = [], []
+    for snapshot in snapshots:
+        rows = [
+            row for row in snapshot.get("rows", [])
+            if row["namespace"] == namespace
+            and any(row["pod"].startswith(prefix) for prefix in prefixes)
+        ]
+        if rows:
+            cpu.append(sum(row["cpu_millicores"] for row in rows))
+            memory.append(sum(row["memory_mib"] for row in rows))
+    return {"cpu_millicores": summarize(cpu), "memory_mib": summarize(memory)}
 
 
 def parse_ab(text):
@@ -152,6 +168,9 @@ def main() -> int:
     parser.add_argument("--output-root", default="overhead-results")
     parser.add_argument("--experiment-id", required=True,
                         help="Binds all phases in one controlled matrix run")
+    parser.add_argument("--detector-unit", default="sentinel-detector")
+    parser.add_argument("--workload-namespace", default="production")
+    parser.add_argument("--workload-prefix", action="append", default=[])
     args = parser.parse_args()
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -170,6 +189,9 @@ def main() -> int:
         "runs": [],
         "top_snapshots": [],
         "systemd_snapshots": [],
+        "detector_unit": args.detector_unit,
+        "workload_namespace": args.workload_namespace,
+        "workload_prefixes": args.workload_prefix or ["nginx-"],
     }
 
     # Unreported warm-up removes connection/cache initialization asymmetry.
@@ -188,7 +210,7 @@ def main() -> int:
     )
     for run_id in range(1, args.repeats + 1):
         report["top_snapshots"].append(top_snapshot())
-        report["systemd_snapshots"].append(systemd_snapshot())
+        report["systemd_snapshots"].append(systemd_snapshot(args.detector_unit))
         started = time.time()
         if args.tool == "wrk":
             command = [
@@ -212,7 +234,7 @@ def main() -> int:
             **(parse_wrk(result.stdout) if args.tool == "wrk" else parse_ab(result.stdout)),
         })
         report["top_snapshots"].append(top_snapshot())
-        report["systemd_snapshots"].append(systemd_snapshot())
+        report["systemd_snapshots"].append(systemd_snapshot(args.detector_unit))
         time.sleep(2)
 
     for field in (
@@ -240,6 +262,10 @@ def main() -> int:
     report["tetragon_memory_mib"] = summarize(tetragon_memory)
     report["nginx_cpu_millicores"] = summarize(nginx_cpu)
     report["nginx_memory_mib"] = summarize(nginx_memory)
+    report["workload_resources"] = resource_summaries(
+        report["top_snapshots"], args.workload_namespace,
+        args.workload_prefix or ["nginx-"],
+    )
     report["completed_at"] = datetime.now(timezone.utc).isoformat()
 
     path = output / "report.json"

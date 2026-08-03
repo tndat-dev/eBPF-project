@@ -33,6 +33,7 @@ MCP payload, secret, PVC data hay private endpoint.
 | Paper statistics | `ml-service/paper_statistics.py` | confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
 | Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
+| AIMS counterbalanced overhead harness | `sentinel/benchmarks/run_aims_overhead_matrix.sh` | 10×30s wrk per no-tracing/Tetragon/full phase, six allowed phase orders, environment/protocol hashes and mutation interlock |
 
 ## Provenance
 

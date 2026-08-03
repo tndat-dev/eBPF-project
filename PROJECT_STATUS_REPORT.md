@@ -2356,3 +2356,31 @@ candidate tương lai, không âm thầm đổi release live.
 Sau khi đồng bộ toàn bộ source/test canonical, full VM suite
 `python -m pytest -q tests` đạt `131 passed, 2 warnings` trong `35.99s`; hai
 warning vẫn là deprecation từ `torch.jit.script`, không phải test failure.
+
+### 18.27 AIMS overhead A/B có interlock và counterbalancing (03-08-2026)
+
+Harness overhead cũ chỉ đo Nginx/V7, dùng một phase order cố định và có thể stop
+detector/xóa policy ngay khi gọi. Điều đó không được phép trong lúc AIMS normal
+matrix đang thu vì sẽ làm thay đổi distribution và phá experiment. Script mới
+`sentinel/benchmarks/run_aims_overhead_matrix.sh` từ chối trước mọi mutation nếu
+matrix, candidate training hoặc split evaluator đang active; đồng thời yêu cầu
+cả independent-validation và blind-normal report `complete/passed`.
+
+Khi đủ gate, harness đo ingress thật
+`http://10.103.205.176/api/products/` qua Istio với ba treatment: no AIMS
+tracing, Tetragon-only và full frozen AIMS candidate. Mỗi phase có warm-up, 10
+repetition `wrk -t4 -c50 -d30s --latency`, 60 giây settle, request error,
+throughput/p99, tổng Tetragon resource, detector systemd resource và aggregate
+CPU/RAM của tám AIMS workload. `measure_phase.py` nay nhận detector unit và
+nhiều workload prefix thay vì hardcode Nginx.
+
+Sáu permutation phase order đều được cho phép qua `AIMS_PHASE_ORDER`; protocol
+file ghi order/experiment ID, còn environment snapshot ghi cluster/Kubernetes,
+policy, candidate, calibration và source SHA-256. `compare_overhead.py` bind
+environment/protocol hash và vẫn tính deterministic bootstrap 95% CI. Runtime
+chỉ dùng bản sao calibration; trap luôn stop benchmark candidate, apply lại AIMS
+policy và start V7. Harness chưa được chạy thật vì soak đang active. Interlock
+đã được test trực tiếp trên cluster: trả exit `3` với thông báo
+`refusing overhead mutation while aims-normal-matrix.service is active`; sau
+test matrix/V7 vẫn active và `sentinel-aims-syscalls` vẫn tồn tại. Parser và
+resource/hash test pass `6/6` cả local lẫn VM.

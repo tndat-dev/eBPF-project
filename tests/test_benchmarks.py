@@ -69,3 +69,28 @@ def test_overhead_effect_direction_is_explicit():
     latency = compare_overhead.effect([2, 2], [1, 1], "latency_increase")
     assert throughput["estimate_percent"] == pytest.approx(20.0)
     assert latency["estimate_percent"] == pytest.approx(100.0)
+
+
+def test_resource_summary_aggregates_selected_workload_replicas():
+    snapshots = [{"rows": [
+        {"namespace": "production", "pod": "api-gateway-a",
+         "cpu_millicores": 10, "memory_mib": 20},
+        {"namespace": "production", "pod": "api-gateway-b",
+         "cpu_millicores": 15, "memory_mib": 25},
+        {"namespace": "production", "pod": "unrelated-a",
+         "cpu_millicores": 100, "memory_mib": 100},
+    ]}]
+    result = measure_phase.resource_summaries(
+        snapshots, "production", ["api-gateway-"]
+    )
+    assert result["cpu_millicores"]["median"] == 25
+    assert result["memory_mib"]["median"] == 45
+
+
+def test_file_hash_binds_overhead_environment(tmp_path):
+    path = tmp_path / "environment.txt"
+    path.write_bytes(b"cluster-state")
+    import hashlib
+    assert compare_overhead.file_sha256(path) == hashlib.sha256(
+        b"cluster-state"
+    ).hexdigest()

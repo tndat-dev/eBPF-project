@@ -1,6 +1,7 @@
 """Compare immutable no-tracing, Tetragon-only and full-pipeline reports."""
 
 import argparse
+import hashlib
 import json
 import random
 import statistics
@@ -8,6 +9,10 @@ from pathlib import Path
 
 
 PHASES = ("no_tracing", "tetragon_only", "full_pipeline")
+
+
+def file_sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def median(values):
@@ -99,6 +104,16 @@ def summarize_report(path):
         "tetragon_total_memory_mib_median": median(tetragon_memory),
         "detector_cpu_percent_one_core": detector_cpu,
         "detector_memory_mib_median": detector_memory,
+        "workload_cpu_millicores_median": (
+            (report.get("workload_resources") or {}).get(
+                "cpu_millicores", {}
+            ).get("median")
+        ),
+        "workload_memory_mib_median": (
+            (report.get("workload_resources") or {}).get(
+                "memory_mib", {}
+            ).get("median")
+        ),
     }
 
 
@@ -164,6 +179,8 @@ def main():
     parser.add_argument("--tool", choices=("ab", "wrk"), default="wrk")
     parser.add_argument("--experiment-id", default=None)
     parser.add_argument("--output", default=None)
+    parser.add_argument("--environment", type=Path, default=None)
+    parser.add_argument("--protocol", type=Path, default=None)
     args = parser.parse_args()
 
     root = Path(args.root)
@@ -197,7 +214,17 @@ def main():
         "experiment_id": experiment_ids.pop(),
         "phases": phases,
         "effects": effects,
+        "environment_sha256": (
+            file_sha256(args.environment) if args.environment else None
+        ),
+        "protocol_sha256": file_sha256(args.protocol) if args.protocol else None,
     }
+    if args.protocol:
+        protocol = json.loads(args.protocol.read_text())
+        if protocol.get("experiment_id") != result["experiment_id"]:
+            raise ValueError("protocol experiment ID mismatch")
+        if sorted(protocol.get("phase_order", [])) != sorted(PHASES):
+            raise ValueError("protocol phase order is not a complete permutation")
 
     output = Path(args.output) if args.output else root / f"comparison-{args.tool}.json"
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
