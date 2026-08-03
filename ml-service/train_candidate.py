@@ -267,6 +267,16 @@ def main() -> int:
         window_seconds = dataset_manifest.get("window_seconds")
         if not isinstance(window_seconds, int) or window_seconds < 5:
             raise ValueError("dataset manifest feature window is missing or invalid")
+        experiment_spec = dataset_manifest.get("experiment_contract")
+        if experiment_spec is not None:
+            if dataset_manifest.get("dataset_role") != "candidate_fit":
+                raise ValueError(
+                    "training is only permitted for dataset_role=candidate_fit"
+                )
+            if experiment_spec.get("holdout_training_forbidden") is not True:
+                raise ValueError(
+                    "experiment contract must explicitly forbid holdout training"
+                )
     else:
         window_seconds = None
 
@@ -285,6 +295,11 @@ def main() -> int:
         "window_seconds": window_seconds,
         "startup_grace_seconds": dataset_manifest.get(
             "startup_grace_seconds", 0.0
+        ),
+        "dataset_role": dataset_manifest.get("dataset_role"),
+        "split_semantics": dataset_manifest.get("split_semantics"),
+        "independent_evaluation_required": bool(
+            dataset_manifest.get("experiment_contract")
         ),
         "dataset_manifest": (
             str(dataset_manifest_path) if dataset_manifest_path.is_file() else None

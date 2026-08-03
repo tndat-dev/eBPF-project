@@ -145,6 +145,77 @@ def test_phase_builder_accepts_explicit_aims_workload_contract():
         phase_dataset.parse_targets("production/aims-backend,production/aims-backend")
 
 
+def _write_split_contract(path, *, overlap=False):
+    contract = {
+        "contract_version": 1,
+        "release_track": "test-split",
+        "normal_protocol": {
+            "regimes": ["steady", "burst", "recovery", "toolmix"],
+            "independent_runs_per_regime": 5,
+            "phase_roles": {
+                "candidate_fit": {"runs": [1]},
+                "independent_validation": {"runs": [1, 2, 3] if overlap else [2, 3]},
+                "blind_normal_test": {"runs": [4, 5]},
+            },
+            "holdout_training_forbidden": True,
+        },
+    }
+    path.write_text(json.dumps(contract))
+
+
+def test_phase_builder_enforces_frozen_run_level_fit_split(tmp_path, monkeypatch):
+    phases = []
+    for regime in ("steady", "burst", "recovery", "toolmix"):
+        name = f"aims-{regime}-run-01"
+        path = tmp_path / name
+        make_phase(path, name)
+        phases.append(path)
+    contract = tmp_path / "split.json"
+    _write_split_contract(contract)
+    output = tmp_path / "dataset"
+    monkeypatch.setattr(sys, "argv", [
+        "build_phase_dataset.py", *(str(path) for path in phases),
+        "--output", str(output), "--minimum-events", "100",
+        "--minimum-phase-windows", "20",
+        "--experiment-contract", str(contract), "--dataset-role", "candidate_fit",
+    ])
+    assert phase_dataset.main() == 0
+    manifest = json.loads((output / "phase_dataset_manifest.json").read_text())
+    assert manifest["dataset_role"] == "candidate_fit"
+    assert manifest["split_semantics"] == (
+        "development_calibration_not_independent_evaluation"
+    )
+    assert manifest["experiment_contract"]["holdout_training_forbidden"] is True
+
+
+def test_phase_builder_rejects_holdout_leakage(tmp_path, monkeypatch):
+    phases = []
+    for regime in ("steady", "burst", "recovery", "toolmix"):
+        run = 2 if regime == "toolmix" else 1
+        name = f"aims-{regime}-run-{run:02d}"
+        path = tmp_path / name
+        make_phase(path, name)
+        phases.append(path)
+    contract = tmp_path / "split.json"
+    _write_split_contract(contract)
+    monkeypatch.setattr(sys, "argv", [
+        "build_phase_dataset.py", *(str(path) for path in phases),
+        "--output", str(tmp_path / "dataset"),
+        "--minimum-events", "100", "--minimum-phase-windows", "20",
+        "--experiment-contract", str(contract), "--dataset-role", "candidate_fit",
+    ])
+    with pytest.raises(ValueError, match="train/holdout leakage"):
+        phase_dataset.main()
+
+
+def test_phase_builder_rejects_overlapping_run_roles(tmp_path):
+    contract = tmp_path / "split.json"
+    _write_split_contract(contract, overlap=True)
+    doc = json.loads(contract.read_text())
+    with pytest.raises(ValueError, match="belongs to both"):
+        phase_dataset.phase_role_contract(doc, "candidate_fit")
+
+
 def test_phase_builder_rejects_sensor_backpressure(tmp_path, monkeypatch):
     phase = tmp_path / "bad"
     make_phase(phase, "bad", backpressure=1)

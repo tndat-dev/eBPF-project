@@ -38,6 +38,37 @@ def _expected_phases(regimes: list[str], runs_per_regime: int) -> list[str]:
     ]
 
 
+def _run_roles(normal: dict[str, Any], runs_per_regime: int) -> tuple[dict[int, str], list[str]]:
+    """Validate that each run belongs to exactly one frozen experiment role."""
+    roles = normal.get("phase_roles")
+    if roles is None:
+        return {}, []
+    errors: list[str] = []
+    mapping: dict[int, str] = {}
+    if not isinstance(roles, dict) or not roles:
+        return {}, ["normal_protocol.phase_roles must be a non-empty object"]
+    for role, spec in roles.items():
+        runs = spec.get("runs") if isinstance(spec, dict) else None
+        if not isinstance(runs, list) or not runs:
+            errors.append(f"phase role {role} has no runs")
+            continue
+        for run in runs:
+            if not isinstance(run, int) or not 1 <= run <= runs_per_regime:
+                errors.append(f"phase role {role} has invalid run {run!r}")
+            elif run in mapping:
+                errors.append(
+                    f"run {run} assigned to both {mapping[run]} and {role}"
+                )
+            else:
+                mapping[run] = role
+    missing = sorted(set(range(1, runs_per_regime + 1)) - set(mapping))
+    if missing:
+        errors.append(f"runs missing phase roles: {missing}")
+    if normal.get("holdout_training_forbidden") is not True:
+        errors.append("holdout_training_forbidden must be true")
+    return mapping, errors
+
+
 def validate_matrix(
     evidence_root: Path,
     contract: dict[str, Any],
@@ -60,6 +91,8 @@ def validate_matrix(
         "tetragon_policy": set(),
         "loadgen_manifest": set(),
     }
+    run_roles, role_errors = _run_roles(normal, runs_per_regime)
+    errors.extend(role_errors)
 
     manifest_paths = sorted(root.glob("aims-*-run-*/collection_manifest.json"))
     by_phase: dict[str, Path] = {}
@@ -177,6 +210,7 @@ def validate_matrix(
                 "actual_duration_seconds": actual,
                 "target_count": len(target_names),
                 "valid": not phase_errors,
+                "dataset_role": run_roles.get(int(phase.rsplit("-", 1)[1])),
             }
         )
 
@@ -205,6 +239,10 @@ def validate_matrix(
         "captures": captures,
         "artifact_digests": {
             name: sorted(digests) for name, digests in artifact_digests.items()
+        },
+        "phase_roles": {
+            role: [run for run, assigned in sorted(run_roles.items()) if assigned == role]
+            for role in sorted(set(run_roles.values()))
         },
         "errors": errors,
         "valid": not errors,

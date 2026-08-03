@@ -1,0 +1,31 @@
+{
+  "contract_version": 1,
+  "release_track": "aims-syscall-candidate-split-v1",
+  "parent_release_contract": "aims_release_contract.json",
+  "parent_release_contract_sha256": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006",
+  "normal_protocol": {
+    "regimes": ["steady", "burst", "recovery", "toolmix"],
+    "independent_runs_per_regime": 5,
+    "split": "frozen-run-level-temporal-and-pod-version",
+    "phase_roles": {
+      "candidate_fit": {
+        "runs": [1],
+        "purpose": "model fitting plus phase-stratified development calibration only"
+      },
+      "independent_validation": {
+        "runs": [2, 3],
+        "purpose": "frozen-candidate validation; forbidden for fitting or threshold tuning"
+      },
+      "blind_normal_test": {
+        "runs": [4, 5],
+        "purpose": "final sealed normal test; inspect only after candidate and decision rules are frozen"
+      }
+    },
+    "candidate_fit_internal_holdout": {
+      "fraction": 0.2,
+      "method": "phase-stratified-evenly-spaced-temporal",
+      "purpose": "early stopping and calibration only; not independent paper evidence"
+    },
+    "holdout_training_forbidden": true
+  }
+}

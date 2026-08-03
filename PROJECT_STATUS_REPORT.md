@@ -2241,3 +2241,52 @@ nhận realtime đủ tám target; V7 production vẫn active, MainPID `1054690`
 `NRestarts=0`. Với 16 phase hợp lệ còn thiếu, thời điểm hoàn tất sớm nhất vào
 khoảng sáng 04-08-2026; mọi stream gap tiếp theo sẽ tiếp tục loại riêng phase
 và tự retry, không hạ continuity gate.
+
+### 18.25 Đóng băng train split sớm và train AIMS candidate cô lập (03-08-2026)
+
+Việc traffic ổn định không có nghĩa phải chờ đủ 24 giờ mới bắt đầu train. Các
+window liên tiếp dưới cùng regime tương quan mạnh, nên kéo dài train set chủ yếu
+tạo thêm bản sao gần nhau và không thay thế được independent holdout. Protocol
+được sửa theo hướng dùng thời gian còn lại để tạo bằng chứng độc lập:
+
+- run 01 của steady/burst/recovery/toolmix: `candidate_fit`;
+- run 02--03: `independent_validation`, cấm fit và tune threshold;
+- run 04--05: `blind_normal_test`, chỉ đánh giá sau khi candidate/rule freeze;
+- 20% temporal holdout bên trong run-01 chỉ là development calibration cho
+  early stopping và POT, không được gọi là paper test set.
+
+Phân vai này đã được đóng băng trong
+`ml-service/aims_candidate_split_contract.json` trước khi train. Contract gắn
+SHA-256 parent `aims_release_contract.json` là
+`340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006`.
+`build_phase_dataset.py` nay kiểm tra mọi run được gán đúng một role, không có
+run thiếu/trùng; yêu cầu đúng bốn phase run-01 theo thứ tự; và từ chối fail-
+closed nếu phase validation/test lọt vào train. `train_candidate.py` cũng chỉ
+nhận `dataset_role=candidate_fit` và yêu cầu contract ghi rõ
+`holdout_training_forbidden=true`. Regression tập trung trên VM cho builder,
+matrix và ML đạt `29 passed` trong `10.30s`; toàn suite canonical
+`python -m pytest -q tests` đạt `124 passed, 2 warnings` trong `42.23s`. Chạy
+pytest từ runtime root không chỉ định `tests/` sẽ thu cả backup audit và gây
+import-name collision, nên không được dùng kết quả đó để kết luận code fail.
+
+Bốn phase sạch đã được đóng băng lúc `2026-08-03 02:28 UTC` thành dataset:
+
+`/home/dat/ml-service/training_data_aims_fit-v1-20260803T022805Z`
+
+Manifest SHA-256 là
+`3fd898f98219f1497b9535a94e13d1c2f515c875d00ee755522638bb68cf33c3`;
+split-contract SHA-256 là
+`e47a575c0d2e918d381198e0396d57e72c0229ccf6aea0ea4d8920caeb098ec0`.
+Dataset có 210 feature và 8 workload; mỗi workload có `3.354--3.407` nghìn
+window, trong đó khoảng 80% train và 20% development calibration. Builder chỉ
+đọc bốn thư mục phase đã hoàn tất, không đọc thư mục run-02 collector đang ghi.
+
+Candidate đang train tại
+`/home/dat/ml-service/models_aims_fit-v1-20260803T022805Z` qua transient unit
+`aims-candidate-fit-v1.service`, bắt đầu `02:28:37 UTC`. Unit chạy user `dat`,
+`Nice=15`, `CPUQuota=150%`, `MemoryMax=12G`; lúc kiểm tra dùng khoảng 281 MiB.
+Không có lệnh promotion trong unit hay runner. Đồng thời
+`aims-normal-matrix.service` vẫn active và tiếp tục thu run-02; detector V7 giữ
+MainPID `1054690`, `NRestarts=0`. Kết quả candidate chỉ được coi là development
+result sau khi `training_report.json` hoàn tất; claim false-positive/production
+vẫn phải chờ run 02--05 và toàn bộ blind/baseline/ablation/overhead gate.

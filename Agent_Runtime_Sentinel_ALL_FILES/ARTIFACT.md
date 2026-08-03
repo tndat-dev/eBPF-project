@@ -18,6 +18,8 @@ MCP payload, secret, PVC data hay private endpoint.
 | eBPF build | `make -C agent_runtime/ebpf all` | object + loader |
 | MCP manifest validation | `kubectl apply --server-side --dry-run=server -f agent_runtime/k8s/mcp-demo.yaml` | server dry-run pass |
 | AIMS workload contract | `ml-service/aims_release_contract.json` | explicit eligible/excluded targets and non-automatic promotion gates |
+| AIMS frozen split contract | `ml-service/aims_candidate_split_contract.json` | run-01 fit, run-02--03 independent validation, run-04--05 blind normal test; holdout training forbidden |
+| AIMS immutable fit dataset | `ml-service/run_aims_candidate.sh build ...` | exact four run-01 phases, contract/parent/source/array SHA-256 and role in manifest |
 | AIMS normal matrix | `ml-service/run_aims_normal_matrix.sh` | 20 independent phase captures, 24 hours by default, hashes and sensor health |
 | AIMS matrix validator | `ml-service/aims_matrix_validation.py` | fail-closed on missing/time-collapsed/tampered or sensor-degraded evidence |
 | AIMS systemd runner | `sentinel/systemd/aims-normal-matrix.service` | disconnect-safe single matrix with low scheduling priority |

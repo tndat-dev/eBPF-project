@@ -77,6 +77,21 @@ def test_matrix_gate_accepts_only_complete_duration_and_evidence(tmp_path):
     assert report["total_actual_seconds"] == 240.0
 
 
+def test_matrix_gate_records_frozen_phase_roles(tmp_path):
+    _matrix(tmp_path)
+    contract = _contract()
+    contract["normal_protocol"].update({
+        "phase_roles": {"candidate_fit": {"runs": [1]}},
+        "holdout_training_forbidden": True,
+    })
+    report = validate_matrix(tmp_path, contract, runs_per_regime=1, minutes_per_run=1)
+    assert report["valid"] is True
+    assert report["phase_roles"] == {"candidate_fit": [1]}
+    assert {item["dataset_role"] for item in report["captures"]} == {
+        "candidate_fit"
+    }
+
+
 def test_matrix_gate_rejects_time_collapse(tmp_path):
     _matrix(tmp_path)
     path = tmp_path / "aims-steady-run-01" / "collection_manifest.json"

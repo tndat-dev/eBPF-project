@@ -8,6 +8,7 @@ shift || true
 PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
 [[ -x "$PYTHON_BIN" ]] || PYTHON_BIN=${PYTHON_BIN_FALLBACK:-python3}
 CONTRACT=${AIMS_CONTRACT:-"$ROOT_DIR/aims_release_contract.json"}
+SPLIT_CONTRACT=${AIMS_SPLIT_CONTRACT:-"$ROOT_DIR/aims_candidate_split_contract.json"}
 DEFAULT_POLICY="$ROOT_DIR/tetragon-aims-policies.yaml"
 [[ -r "$DEFAULT_POLICY" ]] || DEFAULT_POLICY="$ROOT_DIR/../sentinel/k8s/tetragon-aims-policies.yaml"
 DEFAULT_LOADGEN="$ROOT_DIR/aims-sentinel-loadgen.yaml"
@@ -35,7 +36,7 @@ WINDOW_SECONDS=${WINDOW_SECONDS:-$(read_contract window_seconds)}
 
 require_artifacts() {
   local path
-  for path in "$CONTRACT" "$POLICY" "$LOADGEN_MANIFEST" "$VOCAB"; do
+  for path in "$CONTRACT" "$SPLIT_CONTRACT" "$POLICY" "$LOADGEN_MANIFEST" "$VOCAB"; do
     [[ -r "$path" ]] || { printf 'missing experiment artifact: %s\n' "$path" >&2; exit 2; }
   done
 }
@@ -63,7 +64,9 @@ case "$ACTION" in
     "$PYTHON_BIN" "$ROOT_DIR/build_phase_dataset.py" "$@" \
       --output "$output" --minimum-events "$MIN_EVENTS" \
       --minimum-phase-windows ${MIN_PHASE_WINDOWS:-30} \
-      --policy "$POLICY" --vocab "$VOCAB" --targets "$TARGETS"
+      --policy "$POLICY" --vocab "$VOCAB" --targets "$TARGETS" \
+      --experiment-contract "$SPLIT_CONTRACT" --dataset-role candidate_fit \
+      --parent-release-contract "$CONTRACT"
     printf 'immutable AIMS dataset: %s\n' "$output"
     ;;
   train)

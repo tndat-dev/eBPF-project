@@ -153,6 +153,54 @@ def parse_targets(raw: str) -> tuple[str, ...]:
     return targets
 
 
+def phase_role_contract(contract: dict, role: str) -> tuple[list[str], set[int]]:
+    """Return the exact ordered phase set allowed to enter one dataset role."""
+    normal = contract.get("normal_protocol", {})
+    regimes = normal.get("regimes")
+    roles = normal.get("phase_roles", {})
+    role_spec = roles.get(role)
+    if not isinstance(regimes, list) or not regimes or not isinstance(role_spec, dict):
+        raise ValueError(f"experiment contract has no valid phase role {role!r}")
+    runs = role_spec.get("runs")
+    if (
+        not isinstance(runs, list) or not runs
+        or any(not isinstance(run, int) or run < 1 for run in runs)
+        or len(set(runs)) != len(runs)
+    ):
+        raise ValueError(f"experiment contract role {role!r} has invalid runs")
+    total_runs = normal.get("independent_runs_per_regime")
+    if not isinstance(total_runs, int) or total_runs < 1:
+        raise ValueError("experiment contract has invalid independent run count")
+    assigned: dict[int, str] = {}
+    for candidate_role, candidate_spec in roles.items():
+        candidate_runs = (
+            candidate_spec.get("runs") if isinstance(candidate_spec, dict) else None
+        )
+        if not isinstance(candidate_runs, list) or not candidate_runs:
+            raise ValueError(f"experiment contract role {candidate_role!r} has no runs")
+        for run in candidate_runs:
+            if not isinstance(run, int) or not 1 <= run <= total_runs:
+                raise ValueError(
+                    f"experiment contract role {candidate_role!r} has invalid run {run!r}"
+                )
+            if run in assigned:
+                raise ValueError(
+                    f"experiment run {run} belongs to both {assigned[run]!r} "
+                    f"and {candidate_role!r}"
+                )
+            assigned[run] = candidate_role
+    missing = sorted(set(range(1, total_runs + 1)) - set(assigned))
+    if missing:
+        raise ValueError(f"experiment contract leaves runs unassigned: {missing}")
+    if normal.get("holdout_training_forbidden") is not True:
+        raise ValueError("experiment contract must forbid holdout training")
+    expected = [
+        f"aims-{regime}-run-{run:02d}"
+        for run in runs for regime in regimes
+    ]
+    return expected, set(runs)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("phases", nargs="+")
@@ -167,11 +215,45 @@ def main():
                         help="Comma-separated deployment keys included in this candidate")
     parser.add_argument("--startup-grace-seconds", type=float, default=60.0,
                         help="Runtime startup grace reproduced by the offline gate")
+    parser.add_argument("--experiment-contract", default=None,
+                        help="Frozen release contract defining run-level data roles")
+    parser.add_argument("--dataset-role", default=None,
+                        help="Role from normal_protocol.phase_roles")
+    parser.add_argument("--parent-release-contract", default=None,
+                        help="Parent collection contract bound by the split contract")
     args = parser.parse_args()
     targets = parse_targets(args.targets)
 
     phases = [Path(item).resolve() for item in args.phases]
     output = Path(args.output).resolve()
+    experiment_contract = None
+    experiment_contract_path = None
+    parent_release_contract_path = None
+    expected_role_phases = None
+    if bool(args.experiment_contract) != bool(args.dataset_role):
+        raise ValueError(
+            "--experiment-contract and --dataset-role must be supplied together"
+        )
+    if args.experiment_contract:
+        experiment_contract_path = Path(args.experiment_contract).resolve()
+        experiment_contract = json.loads(experiment_contract_path.read_text())
+        expected_role_phases, _ = phase_role_contract(
+            experiment_contract, args.dataset_role
+        )
+        expected_parent_digest = experiment_contract.get(
+            "parent_release_contract_sha256"
+        )
+        if expected_parent_digest:
+            if not args.parent_release_contract:
+                raise ValueError("split contract requires --parent-release-contract")
+            parent_release_contract_path = Path(
+                args.parent_release_contract
+            ).resolve()
+            observed_parent_digest = sha256(parent_release_contract_path)
+            if observed_parent_digest != expected_parent_digest:
+                raise ValueError(
+                    "parent release contract digest does not match split contract"
+                )
     if args.minimum_events < 1 or args.minimum_phase_windows < 2:
         raise ValueError("minimum event/window constraints must be positive")
     if not 0.05 <= args.validation_fraction <= 0.40:
@@ -209,6 +291,31 @@ def main():
         "target_order": list(targets),
         "window_seconds": None,
         "startup_grace_seconds": args.startup_grace_seconds,
+        "dataset_role": args.dataset_role,
+        "split_semantics": (
+            "development_calibration_not_independent_evaluation"
+            if args.dataset_role == "candidate_fit" else args.dataset_role
+        ),
+        "experiment_contract": (
+            {
+                "path": str(experiment_contract_path),
+                "sha256": sha256(experiment_contract_path),
+                "contract_version": experiment_contract.get("contract_version"),
+                "release_track": experiment_contract.get("release_track"),
+                "holdout_training_forbidden": experiment_contract.get(
+                    "normal_protocol", {}
+                ).get("holdout_training_forbidden"),
+                "parent_release_contract": (
+                    str(parent_release_contract_path)
+                    if parent_release_contract_path else None
+                ),
+                "parent_release_contract_sha256": (
+                    sha256(parent_release_contract_path)
+                    if parent_release_contract_path else None
+                ),
+            }
+            if experiment_contract is not None else None
+        ),
         "source_manifests": [],
         "policy": None,
         "vocabulary": None,
@@ -310,6 +417,17 @@ def main():
             ),
             "startup_provenance": source_startup,
         })
+
+    if expected_role_phases is not None:
+        observed = [
+            str(validated_manifests[phase].get("phase")) for phase in phases
+        ]
+        if observed != expected_role_phases:
+            raise ValueError(
+                f"dataset role {args.dataset_role!r} requires exact ordered phases "
+                f"{expected_role_phases}, observed {observed}; refusing possible "
+                "train/holdout leakage"
+            )
 
     if len(capture_windows) != 1:
         raise ValueError(

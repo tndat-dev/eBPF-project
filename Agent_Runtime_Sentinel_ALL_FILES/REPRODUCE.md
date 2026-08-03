@@ -39,6 +39,10 @@ Do not treat these gates as the final paper evaluation. Follow
 `PAPER_READINESS_PLAN.md` for collection, split, baseline, ablation and
 statistical evaluation.
 
+Trên VM có các thư mục backup audit chứa test trùng tên, vì vậy chạy suite
+canonical bằng đường dẫn tường minh `python -m pytest -q tests`; không chạy
+`pytest -q` từ runtime root rồi xóa backup chỉ để tránh import collision.
+
 ## AIMS production syscall candidate
 
 V7 must remain frozen while this candidate is evaluated. On the cluster host,
@@ -70,6 +74,36 @@ a sandbox runtime and are intentionally outside the host-syscall candidate.
 The normal matrix does not authorize promotion; build/train and all blind
 attack, baseline, ablation, overhead and confidence-interval gates remain
 separate.
+
+Không chờ đủ 24 giờ rồi đưa toàn bộ dữ liệu vào train. Trước khi candidate đầu
+tiên được fit, `ml-service/aims_candidate_split_contract.json` đóng băng vai trò
+theo run: run 01 của bốn regime là `candidate_fit`; run 02--03 là
+`independent_validation`; run 04--05 là `blind_normal_test`. Builder kiểm tra
+đúng thứ tự và đúng tập phase, kiểm tra SHA-256 parent release contract, rồi
+fail nếu một phase validation/test bị đưa vào train. Holdout 20% bên trong
+run-01 chỉ dùng early stopping/calibration, không được báo cáo như test độc lập.
+
+Sau khi cả bốn phase run-01 đã pass continuity/duration/hash gate, đóng băng và
+train candidate riêng như sau (đường dẫn stamp phải được giữ trong artifact):
+
+```bash
+root=$(cat /home/dat/ml-service/.aims-normal-matrix-active)
+export AIMS_DATASET_DIR=/home/dat/ml-service/training_data_aims_fit-v1-FROZEN
+/home/dat/ml-service/run_aims_candidate.sh build \
+  "$root/aims-steady-run-01" \
+  "$root/aims-burst-run-01" \
+  "$root/aims-recovery-run-01" \
+  "$root/aims-toolmix-run-01"
+
+/home/dat/ml-service/run_aims_candidate.sh train \
+  "$AIMS_DATASET_DIR" \
+  /home/dat/ml-service/models_aims_fit-v1-FROZEN
+```
+
+Có thể chạy lệnh train bằng systemd transient unit với `Nice=15`, CPU/RAM
+limit để không phụ thuộc SSH. Dù offline development gate pass, candidate vẫn
+không được promote trước khi chạy nguyên vẹn run 02--05, blind attack, baseline,
+ablation và overhead A/B.
 
 After the candidate and threshold are frozen, compile and verify the distinct
 blind binary before running its matrix:

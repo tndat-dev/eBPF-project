@@ -29,6 +29,18 @@ Normal matrix tối thiểu:
 2. 4 traffic regime: steady, burst hợp lệ, idle/recovery, tool mix shift.
 3. 5 run độc lập mỗi regime, kéo dài đủ để quan sát drift.
 
+Split AIMS syscall đã đóng băng trước candidate fit:
+
+- bốn phase run 01: train và development calibration 20% theo thời gian;
+- tám phase run 02--03: independent validation, cấm fit/tune threshold;
+- tám phase run 04--05: blind normal test, chỉ mở sau khi model và rule freeze;
+- mọi candidate mới được tạo sau khi xem holdout phải mang release ID mới và
+  cần evaluation độc lập mới; không được tái dùng kết quả cũ như blind test.
+
+Contract máy đọc được là `ml-service/aims_candidate_split_contract.json`.
+Builder lưu hash contract/phase/array/metadata vào dataset manifest và từ chối
+phase sai role, vì vậy split này là protocol thực thi được chứ không chỉ mô tả.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;
