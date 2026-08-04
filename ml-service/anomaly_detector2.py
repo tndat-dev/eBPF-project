@@ -179,6 +179,7 @@ class AnomalyDetector:
         early_warning_lookup: Optional[Callable[[str], Optional[dict]]] = None,
         confirmation_floor_ratio: Optional[float] = None,
         pod_started_at_lookup: Optional[Callable[[str], Optional[float]]] = None,
+        persist_calibration: bool = True,
     ):
         self.model_manager    = model_manager
         self.on_alert         = on_alert or self._default_alert_handler
@@ -191,6 +192,7 @@ class AnomalyDetector:
         if self.extreme_volume_factor <= 1.0:
             raise ValueError("extreme volume factor must be greater than 1")
         self.calibration_path = os.environ.get("SENTINEL_CALIBRATION", "calibration.json")
+        self.persist_calibration = persist_calibration
         restored = load_calibrators(
             self.calibration_path, threshold, warmup_windows,
             event_ceiling_factor=self.extreme_volume_factor,
@@ -412,7 +414,13 @@ class AnomalyDetector:
         with self._calibration_lock:
             if clean_for_calibration:
                 calibrator.observe(score, total_events)
-                save_calibrators(self.calibration_path, self.calibrators)
+                # Frozen replay must exercise the same adaptive state machine,
+                # but persisting that throw-away state after every clean row
+                # turns an offline evaluation into an I/O benchmark.  Live
+                # runtime keeps the durability default; evaluators opt out
+                # explicitly while retaining identical in-memory decisions.
+                if self.persist_calibration:
+                    save_calibrators(self.calibration_path, self.calibrators)
                 if not calibrator.ready:
                     calibration_state = "calibrating"
             elif not behavior_gate and not calibrator.ready:

@@ -9,8 +9,12 @@ User=dat
 Group=dat
 WorkingDirectory=/home/dat/ml-service
 EnvironmentFile=/home/dat/ml-service/aims-evaluation.env
+Environment=OMP_NUM_THREADS=1
+Environment=MKL_NUM_THREADS=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=NUMEXPR_NUM_THREADS=1
 ExecStart=/usr/bin/flock -w 300 /home/dat/ml-service/.aims-split-evaluation.lock /home/dat/ml-service/run_aims_split_evaluation.sh %i
-TimeoutStartSec=2h
+TimeoutStartSec=6h
 Nice=15
 CPUQuota=100%
 MemoryMax=8G

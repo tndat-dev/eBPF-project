@@ -5,6 +5,7 @@ from pathlib import Path
 pytest = __import__("pytest")
 np = pytest.importorskip("numpy")
 
+import anomaly_detector2
 from adaptive_threshold import (POTThreshold, StreamingThreshold,
                                 load_calibrators, save_calibrators)
 from graph_signals import (behavior_signals, evaluate_behavior,
@@ -224,6 +225,49 @@ def test_calibration_restore_matches_incremental_final_threshold(tmp_path):
     save_calibrators(path, {"production/nginx": threshold})
     loaded = load_calibrators(path, minimum=.8, warmup=10)
     assert loaded["production/nginx"].current == pytest.approx(expected)
+
+
+def test_replay_can_update_calibration_without_persisting_each_window(
+        tmp_path, monkeypatch):
+    class Manager:
+        def list_models(self):
+            return ["production/nginx"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .2, "lstm_score": .2, "if_score": .2,
+                "behavior_limits": {},
+            }
+
+    class Vector:
+        pod_key = "production/nginx-56956b54-abcde"
+        pod_name = "nginx-56956b54-abcde"
+        pod_namespace = "production"
+        node_name = "worker"
+        vector = np.zeros(1)
+        syscall_counts = {"read": 100}
+        window_start = 0.0
+        window_end = time.time()
+
+        def total_events(self):
+            return 100
+
+    calibration = tmp_path / "calibration.json"
+    monkeypatch.setenv("SENTINEL_CALIBRATION", str(calibration))
+    writes = []
+    monkeypatch.setattr(
+        anomaly_detector2, "save_calibrators",
+        lambda *_args, **_kwargs: writes.append(True),
+    )
+    detector = AnomalyDetector(
+        Manager(), persist_calibration=False,
+        pod_started_at_lookup=lambda _pod: None,
+    )
+    detector.handle_feature_vector(Vector())
+
+    assert list(detector.calibrators["production/nginx"].scores) == [.2]
+    assert writes == []
+    assert not calibration.exists()
 
 
 def test_concurrent_calibration_snapshots_remain_atomic(tmp_path):

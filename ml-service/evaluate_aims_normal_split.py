@@ -62,6 +62,13 @@ def quantiles(values: list[float]) -> dict[str, Any]:
     }
 
 
+def write_report(path: Path, report: dict[str, Any]) -> None:
+    """Atomically checkpoint a report so gates never observe partial JSON."""
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    temporary.replace(path)
+
+
 def candidate_hashes(candidate: Path) -> dict[str, str]:
     files = sorted(path for path in candidate.iterdir() if path.is_file())
     if not files:
@@ -165,6 +172,7 @@ def evaluate_phase(
     warmup_windows: int,
     initial_calibration: Path,
 ) -> dict[str, Any]:
+    evaluation_started = time.perf_counter()
     rows, source = load_phase_rows(phase_dir, targets, manager.vocab_size)
     creation_times: dict[str, float] = {}
     for _, _, _, row in rows:
@@ -179,6 +187,8 @@ def evaluate_phase(
     emissions: list[dict[str, Any]] = []
     alerts: list[dict[str, Any]] = []
     old_emit = anomaly_detector2.emit
+    detector_logger = anomaly_detector2.logger
+    old_log_level = detector_logger.level
     with tempfile.TemporaryDirectory(prefix="aims-normal-replay-") as temporary:
         calibration_path = Path(temporary) / "calibration.json"
         shutil.copy2(initial_calibration, calibration_path)
@@ -197,15 +207,20 @@ def evaluate_phase(
         anomaly_detector2.emit = lambda kind, **payload: emissions.append(
             {"kind": kind, **payload}
         )
-        detector = anomaly_detector2.AnomalyDetector(
-            manager,
-            on_alert=lambda alert: alerts.append(alert.to_dict()),
-            threshold=0.80,
-            cooldown_seconds=0,
-            early_warning_lookup=lambda _pod: None,
-            pod_started_at_lookup=lambda pod: creation_times.get(pod),
-        )
+        # Per-window INFO logs are useful online but add no evidence to the
+        # structured replay report and needlessly serialize tens of thousands
+        # of lines through journald and detector.log.
+        detector_logger.setLevel("WARNING")
         try:
+            detector = anomaly_detector2.AnomalyDetector(
+                manager,
+                on_alert=lambda alert: alerts.append(alert.to_dict()),
+                threshold=0.80,
+                cooldown_seconds=0,
+                early_warning_lookup=lambda _pod: None,
+                pod_started_at_lookup=lambda pod: creation_times.get(pod),
+                persist_calibration=False,
+            )
             for _, _, vector, row in rows:
                 event_count = int(row["event_count"])
                 feature = FeatureVector(
@@ -224,6 +239,7 @@ def evaluate_phase(
                 detector.handle_feature_vector(feature)
         finally:
             anomaly_detector2.emit = old_emit
+            detector_logger.setLevel(old_log_level)
             for key, value in previous.items():
                 if value is None:
                     os.environ.pop(key, None)
@@ -262,7 +278,35 @@ def evaluate_phase(
         "inference_ms": quantiles([float(row["inference_ms"]) for row in inference]),
         "by_workload": by_workload,
         "passed": not alerts and not detections,
+        "evaluation_seconds": time.perf_counter() - evaluation_started,
     }
+
+
+def resumable_phase_reports(
+    output: Path,
+    report: dict[str, Any],
+    expected_phases: list[str],
+) -> list[dict[str, Any]]:
+    """Restore only a contiguous, identity-bound evaluator checkpoint."""
+    if not output.is_file():
+        return []
+    previous = json.loads(output.read_text())
+    if previous.get("status") != "evaluating":
+        return []
+    identity_fields = (
+        "role", "evidence_root", "candidate_sha256",
+        "initial_calibration_sha256", "split_contract_sha256",
+        "release_contract_sha256",
+    )
+    if any(previous.get(key) != report.get(key) for key in identity_fields):
+        raise ValueError("existing evaluation checkpoint identity mismatch")
+    phases = previous.get("phases")
+    if not isinstance(phases, list):
+        raise ValueError("existing evaluation checkpoint has invalid phases")
+    names = [item.get("phase") for item in phases if isinstance(item, dict)]
+    if len(names) != len(phases) or names != expected_phases[:len(names)]:
+        raise ValueError("existing evaluation checkpoint is not a phase prefix")
+    return phases
 
 
 def main() -> int:
@@ -361,9 +405,14 @@ def main() -> int:
     if set(manager.list_models()) != set(targets):
         raise ValueError("candidate model set does not match release targets")
 
-    phase_reports = []
+    phase_reports = resumable_phase_reports(
+        output, report, expected_phases,
+    )
+    completed_evaluation_seconds = sum(
+        float(item.get("evaluation_seconds", 0.0)) for item in phase_reports
+    )
     started = time.perf_counter()
-    for phase in expected_phases:
+    for phase in expected_phases[len(phase_reports):]:
         phase_reports.append(evaluate_phase(
             evidence_root / phase, targets, manager,
             minimum_events=int(release_contract["minimum_events_per_window"]),
@@ -373,9 +422,18 @@ def main() -> int:
             warmup_windows=10,
             initial_calibration=initial_calibration,
         ))
+        report.update(
+            status="evaluating",
+            evaluation_seconds=(completed_evaluation_seconds
+                                + time.perf_counter() - started),
+            phases=phase_reports,
+            completed_phases=[item["phase"] for item in phase_reports],
+        )
+        write_report(output, report)
     report.update(
         status="complete",
-        evaluation_seconds=time.perf_counter() - started,
+        evaluation_seconds=(completed_evaluation_seconds
+                            + time.perf_counter() - started),
         phases=phase_reports,
         windows=sum(item["windows"] for item in phase_reports),
         eligible_decision_windows=sum(
@@ -388,14 +446,14 @@ def main() -> int:
         methodology={
             "production_detector_path": True,
             "adaptive_threshold_algorithm_frozen": True,
+            "adaptive_state_replayed_in_memory": True,
+            "calibration_persistence_disabled_for_replay": True,
             "cooldown_seconds": 0,
             "fast_path_warnings_replayed": False,
             "holdout_used_for_training_or_tuning": False,
         },
     )
-    temporary = output.with_suffix(output.suffix + ".tmp")
-    temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
-    temporary.replace(output)
+    write_report(output, report)
     print(json.dumps({
         "status": report["status"], "passed": report["passed"],
         "windows": report["windows"], "alerts": report["alerts"],

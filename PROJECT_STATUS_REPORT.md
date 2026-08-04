@@ -1,9 +1,9 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-02
+**Ngày xác minh cluster gần nhất:** 2026-08-04
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** V7 LSTM, release window 10 giây, dry-run/provisional
+**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đang ở cổng independent validation
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -16,22 +16,22 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 - sau mở rộng, cluster hiện có 6/6 node `Ready` (3 control plane, 3 worker);
 - `sentinel-detector.service` hiện `active`; coverage gate và Tetragon đều đạt 6/6;
 - model V7 từng được load từ `/home/dat/ml-service/models`;
-- full regression test trên VM đạt `105 passed` trong `14.13s`;
+- full canonical regression gần nhất trên VM đạt `139 passed, 2 warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
 - normal validation và post-promotion soak khi đó không có false positive alert.
 
 Điểm quan trọng nhất của benchmark lịch sử: latency end-to-end khoảng 58 giây không phải do model chậm. Inference của model chỉ khoảng 20 ms mỗi cửa sổ. Latency cao chủ yếu do thiết kế cố ý yêu cầu 2 cửa sổ liên tiếp, mỗi cửa sổ 30 giây, để giảm false positive. Cần đo lại sau khi các workload recovery ổn định.
 
-**Kết luận vận hành ở snapshot mới nhất.** Control plane, etcd, 6 node và
-DaemonSet Tetragon 6/6 đều khỏe; detector đang nhận đủ ba target với
-`no_model=0`. Tuy nhiên model hiện hành vẫn **chưa đủ điều kiện để gọi là
-production-ready**: traffic normal làm Nginx thường xuyên có raw score `1.0`
-và Redis có nhiều score trên `0.9`; behavior gate chặn alert nhưng không biến
-drift này thành normal validation hợp lệ. Pipeline baseline AIMS đa regime đã
-được sửa lỗi đo thời gian và một lượt soak 24 giờ mới đang chạy dưới systemd;
-candidate tuyệt đối chưa được train hay auto-promote. Một số stateful/operator
-pod ngoài phạm vi detector vẫn `Init`/`Error` và do người vận hành xử lý riêng.
+**Kết luận vận hành ở snapshot mới nhất.** Sáu node, control plane/etcd và
+DaemonSet Tetragon 6/6 đều khỏe; detector V7 cũ vẫn chạy liên tục, không restart.
+Toàn bộ 44 pod trong namespace `production` đang `Running`. AIMS fit-v2 đã pass
+development gate và có calibration chỉ từ fit split, nhưng chưa được promote.
+Normal matrix độc lập đã đủ 20 phase/24 giờ và pass integrity; independent
+validation đang replay candidate bất biến. Vì chưa mở blind-normal và blind
+attack report nên **chưa được gọi candidate AIMS là production-ready hoặc
+world-class evidence**, cũng chưa được suy diễn “không có false positive” từ
+development holdout.
 
 ## 1. Mục tiêu nghiên cứu
 
@@ -43,7 +43,7 @@ Phạm vi hiện tại là vertical slice ở tầng syscall. Nghĩa là hệ th
 
 ## 2. Trạng thái hạ tầng hiện tại đã xác minh bằng SSH
 
-Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-01.
+Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-04.
 
 | Thành phần | Trạng thái đã xác minh |
 |---|---|
@@ -62,7 +62,8 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Model production | `/home/dat/ml-service/models` |
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
-| Regression | Full suite trên VM trước khi bắt đầu soak: `109 passed, 2 warnings` trong `14.06s` ngày 02-08-2026; các mốc cũ bên dưới là evidence lịch sử của các vòng phát triển trước |
+| Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
+| Regression | Full canonical suite gần nhất: `139 passed, 2 warnings`; các mốc cũ bên dưới là evidence lịch sử của các vòng phát triển trước |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -2560,3 +2561,65 @@ chạy off-host không thể quan sát qua systemd master1. Tính hoàn chỉnh 
 dẫn xuất từ basename candidate để không resume nhầm lineage. Focused VM suite
 sau sửa đạt `10 passed`; local suite vẫn `69 passed, 7 skipped` do thiếu các ML
 dependency tùy chọn.
+
+### 18.32 Normal matrix 24 giờ đóng băng và independent replay resumable (04-08-2026)
+
+`aims-normal-matrix.service` hoàn tất lúc `08:06:02 UTC` (`15:06:02 ICT`),
+exit `0`, `Result=success`, `NRestarts=0`. Validator xác nhận `valid=true`, đủ
+20/20 phase theo bốn traffic regime và năm run/regime, không có error. Tổng
+thời gian capture thực là `86414.760802s`, vượt minimum 24 giờ `14.760802s`.
+Hai mươi phase chứa tổng cộng **135.378 cửa sổ workload** của tám target AIMS;
+mỗi phase dài khoảng 72 phút. Toàn bộ file được liệt kê trong `SHA256SUMS` đã
+được chạy lại bằng `sha256sum -c` và đều pass, kể cả manifest, array `.npy`,
+metadata row-aligned, contract và evidence bị loại được lưu dưới `rejected/`.
+Evidence root bất biến là:
+
+```text
+/home/dat/ml-service/aims-normal-matrix-20260802T014354Z
+```
+
+Independent evaluator lần đầu bắt đầu trước khi matrix kết thúc và sau đó
+replay run-02--03. Nó bị systemd terminate đúng giới hạn 2 giờ lúc
+`08:11:50 UTC`, `Result=timeout`, sau `1h59m` CPU. Log cho thấy model vẫn chấm
+điểm bình thường; nguyên nhân không phải deadlock hay model hỏng. Với khoảng
+54 nghìn cửa sổ independent, production path cũ vừa ghi calibration JSON vừa
+ghi INFO log sau hầu hết cửa sổ sạch. Report chỉ được ghi khi hoàn tất nên lần
+chạy này không tạo claim hay artifact kết quả một phần.
+
+Replay path đã được sửa mà không thay đổi live detector:
+
+- thuật toán adaptive threshold và state transition vẫn chạy đầy đủ trong bộ
+  nhớ, nhưng calibration tạm không persist sau từng cửa sổ;
+- INFO score per-window bị tắt riêng trong evaluator; emission có cấu trúc để
+  tính score, decision, alert và inference latency vẫn được giữ;
+- BLAS/PyTorch của evaluator được pin một thread, phù hợp `CPUQuota=100%` và
+  loại 22 thread context-switch không cần thiết;
+- timeout tăng có giới hạn từ 2 giờ lên 6 giờ;
+- report trạng thái `evaluating` được ghi nguyên tử sau từng phase và chỉ được
+  resume nếu role, evidence root, candidate hashes, calibration hash và hai
+  contract hash khớp tuyệt đối; checkpoint phải là prefix phase hợp lệ;
+- blind-normal vẫn chỉ chấp nhận independent report có
+  `status=complete, passed=true`, nên checkpoint không thể mở blind gate.
+
+Job tối ưu bắt đầu lại lúc khoảng `08:22 UTC`. Checkpoint đầu tiên
+`aims-steady-run-02` hoàn tất sau `262.61s`: **6.850 windows, 0 alert,
+0 detection**. Inference CPU median `14.3495ms`, p95 `19.5628ms`, p99
+`23.8468ms`, max `175.8488ms`. Đây mới là 1/8 independent phase; không được
+dùng riêng để kết luận false-positive rate của candidate. Service tiếp tục
+chạy nền với `NRestarts=0`, memory khoảng 390 MiB; ba timer independent,
+blind-normal và blind-attack đã được enable lại. Nếu independent pass, timer
+mới được phép chạy blind-normal; blind attack tiếp tục chờ report blind-normal
+pass và exact lineage hashes.
+
+Snapshot hạ tầng cùng thời điểm: Kubernetes v1.34.10 có 6/6 node `Ready`, đúng
+3 control plane + 3 worker; Tetragon DaemonSet 6/6; production detector PID
+`1054690`, `NRestarts=0`; 44/44 pod namespace `production` đều `Running` và
+không có pod toàn cluster ngoài `Running/Completed`. Model production V7 cũ
+không bị restart hoặc promote trong quá trình evaluate fit-v2.
+
+Trạng thái paper sau mốc này vẫn là **chưa hoàn tất**. Các cổng còn thiếu theo
+thứ tự bắt buộc là: independent validation đủ 8 phase; blind-normal đủ 8 phase;
+blind attack đa workload/scenario/rate/seed; baseline và ablation; overhead A/B
+có lặp; bootstrap confidence interval, significance và latency CDF. Không được
+tune fit-v2 dựa trên run-02--05 nếu một external gate thất bại; khi đó phải giữ
+report reject, tạo giả thuyết mới và bắt đầu candidate lineage mới.
