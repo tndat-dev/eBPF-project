@@ -30,6 +30,7 @@ def test_split_evaluation_unit_is_bounded_and_non_privileged():
     assert "EnvironmentFile=/home/dat/ml-service/aims-evaluation.env" in unit
     assert "Environment=OMP_NUM_THREADS=1" in unit
     assert "Environment=MKL_NUM_THREADS=1" in unit
-    assert "/usr/bin/flock -w 300" in unit
+    assert "/usr/bin/flock -n -E 75" in unit
+    assert "SuccessExitStatus=75" in unit
     assert "TimeoutStartSec=6h" in unit
     assert "promote" not in unit.lower()

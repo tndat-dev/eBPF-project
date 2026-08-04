@@ -3,7 +3,7 @@
 **Ngày xác minh cluster gần nhất:** 2026-08-04
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đang ở cổng independent validation
+**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã pass independent và đang ở cổng blind-normal
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -28,8 +28,9 @@ DaemonSet Tetragon 6/6 đều khỏe; detector V7 cũ vẫn chạy liên tục, 
 Toàn bộ 44 pod trong namespace `production` đang `Running`. AIMS fit-v2 đã pass
 development gate và có calibration chỉ từ fit split, nhưng chưa được promote.
 Normal matrix độc lập đã đủ 20 phase/24 giờ và pass integrity; independent
-validation đang replay candidate bất biến. Vì chưa mở blind-normal và blind
-attack report nên **chưa được gọi candidate AIMS là production-ready hoặc
+validation run-02--03 đã pass 54.151 windows không alert. Blind-normal
+run-04--05 đang replay candidate bất biến. Vì chưa có blind-normal và blind
+attack report hoàn chỉnh nên **chưa được gọi candidate AIMS là production-ready hoặc
 world-class evidence**, cũng chưa được suy diễn “không có false positive” từ
 development holdout.
 
@@ -2623,3 +2624,59 @@ blind attack đa workload/scenario/rate/seed; baseline và ablation; overhead A/
 có lặp; bootstrap confidence interval, significance và latency CDF. Không được
 tune fit-v2 dựa trên run-02--05 nếu một external gate thất bại; khi đó phải giữ
 report reject, tạo giả thuyết mới và bắt đầu candidate lineage mới.
+
+### 18.33 Independent fit-v2 pass và mở blind-normal (04-08-2026)
+
+Independent evaluator hoàn tất lúc `08:57:39 UTC`, systemd exit `0`,
+`Result=success`, `NRestarts=0`, CPU time `35m02.640s`, peak memory 372,4 MiB.
+Report SHA-256:
+`c08d5bc35c48799d4963a558f6c60c19314f02619cf4f207e41e51b48b2f8fb7`.
+Report bind 19 candidate artifact hash, calibration SHA-256
+`2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98`
+và frozen split/release contract.
+
+Kết quả run-02--03:
+
+| Metric | Independent result |
+|---|---:|
+| Phase hoàn tất | 8/8 |
+| Tổng workload windows | 54.151 |
+| Eligible decision windows | 54.039 |
+| Alert | **0** |
+| Detection trên normal data | **0** |
+| Evaluation CPU time | 2.097,807 giây |
+| Inference median theo phase | 14,024--15,488 ms |
+| Inference p95 theo phase | 18,428--22,601 ms |
+| Inference p99 theo phase | 22,941--26,632 ms |
+
+Tổng decision gồm 209 `behavior_gated` window đơn lẻ, 17
+`collection_quality_skip`, 95 `pod_startup_grace` và 53.830 `normal`. Không có
+chuỗi nào thỏa điều kiện confirmation để phát alert trên normal holdout. Fast
+path không được replay trong normal evaluator; vì vậy kết quả này chỉ đánh giá
+ML confirmation path và không được dùng để claim false-positive của fast path.
+
+Observed false-alert rate trên eligible window là 0/54.039. Wilson hai phía
+95% có cận trên khoảng `7,1082e-5` alert/window (`0,007108%`), nhưng đây chỉ là
+mô tả theo cửa sổ: các cửa sổ liên tiếp có tương quan thời gian. Ở cấp tám
+phase, cận trên Wilson cho 0/8 còn khoảng 32,44%; paper cuối phải dùng run-level
+block bootstrap và ghép thêm sealed blind-normal, không được quảng bá “rủi ro
+false positive bằng 0”.
+
+Sau khi xác minh `status=complete`, `passed=true`, role, candidate hashes và
+calibration hash, `aims-split-evaluation@blind_normal_test.service` được mở lúc
+`09:07 UTC`. Process chạy deterministic một thread, `CPUQuota=100%`, checkpoint
+nguyên tử theo phase và dùng prerequisite report trên. Blind-attack vẫn chờ
+blind-normal `complete/passed` và exact lineage; không có model promotion hoặc
+threshold tuning trong chuỗi này.
+
+Checkpoint blind đầu `aims-steady-run-04` hoàn tất sau `266.82s`: 6.836
+windows, 0 alert, 0 detection; 6.833 decision `normal` và ba window
+`behavior_gated` đơn lẻ. Inference median `14.9905ms`, p95 `20.8148ms`, p99
+`24.7828ms`, max `181.8435ms`. Đây chỉ là 1/8 sealed phase nên report vẫn có
+`status=evaluating` và chưa mở blind-attack gate.
+
+Scheduler cũng được sửa để contention giữa hai role không còn tạo false
+service failure. Unit dùng shared lock non-blocking với exit code riêng `75` và
+khai báo `SuccessExitStatus=75`; một timer gặp evaluator đang active sẽ được ghi
+nhận là busy/success thay vì chờ năm phút rồi thành `Result=exit-code`. Thay đổi
+này chỉ tác động orchestration, không thay đổi report hay detector decision.

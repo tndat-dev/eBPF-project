@@ -13,7 +13,8 @@ Environment=OMP_NUM_THREADS=1
 Environment=MKL_NUM_THREADS=1
 Environment=OPENBLAS_NUM_THREADS=1
 Environment=NUMEXPR_NUM_THREADS=1
-ExecStart=/usr/bin/flock -w 300 /home/dat/ml-service/.aims-split-evaluation.lock /home/dat/ml-service/run_aims_split_evaluation.sh %i
+ExecStart=/usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-split-evaluation.lock /home/dat/ml-service/run_aims_split_evaluation.sh %i
+SuccessExitStatus=75
 TimeoutStartSec=6h
 Nice=15
 CPUQuota=100%

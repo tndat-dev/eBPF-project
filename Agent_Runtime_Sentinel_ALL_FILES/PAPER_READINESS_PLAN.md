@@ -43,10 +43,11 @@ phase sai role, vì vậy split này là protocol thực thi được chứ khô
 
 Trạng thái thực thi ngày 04-08-2026: normal matrix AIMS đã đóng băng đủ 20
 phase, `86414.760802s`, 135.378 workload windows và toàn bộ `SHA256SUMS` pass.
-Fit-v2 chỉ dùng run-01 đã pass development gate; independent run-02--03 đang
-replay, checkpoint đầu có 6.850 windows và 0 alert. Đây chưa phải kết quả cuối:
-blind-normal run-04--05, blind attack, baseline/ablation và overhead vẫn bị khóa
-theo thứ tự gate. Không được dùng run-02--05 để tune lại fit-v2.
+Fit-v2 chỉ dùng run-01 đã pass development gate. Independent run-02--03 đã
+pass 8/8 phase, 54.151 windows, 0 alert/detection; report SHA-256 bắt đầu bằng
+`c08d5bc3`. Blind-normal run-04--05 đang replay. Đây chưa phải kết quả cuối:
+blind attack, baseline/ablation và overhead vẫn bị khóa theo thứ tự gate. Không
+được dùng run-02--05 để tune lại fit-v2.
 
 Attack matrix tối thiểu, 5 run/scenario:
 
