@@ -19,6 +19,8 @@ from pathlib import Path
 
 from evaluate_aims_normal_split import candidate_hashes
 
+TRIAL_TIMEOUT_SECONDS = 30 * 60
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -36,6 +38,17 @@ def atomic_json(path: Path, payload: dict) -> None:
     temporary = path.with_suffix(path.suffix + f".tmp-{os.getpid()}")
     temporary.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     temporary.replace(path)
+
+
+def run_trial(command: list[str], timeout: int = TRIAL_TIMEOUT_SECONDS
+              ) -> tuple[subprocess.CompletedProcess, bool]:
+    """Bound one workload trial so a transport hang cannot consume the unit."""
+    try:
+        return subprocess.run(command, timeout=timeout), False
+    except subprocess.TimeoutExpired as exc:
+        return subprocess.CompletedProcess(
+            command, 124, exc.stdout, exc.stderr,
+        ), True
 
 
 def validate_normal_prerequisite(path: Path, model_hashes: dict,
@@ -58,7 +71,13 @@ def validate_normal_prerequisite(path: Path, model_hashes: dict,
 
 
 def resumable_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple]]:
-    """Keep only complete hash-valid trials; quarantine every other directory."""
+    """Keep every complete hash-valid trial, including a detection failure.
+
+    Re-running a healthy failed blind trial until it passes would cherry-pick
+    environmental variance and inflate recall.  Only infrastructure-incomplete
+    trials (no final report, invalid hash/path, or unexpected process exit) are
+    eligible for quarantine and retry.
+    """
     retained = []
     completed = set()
     for row in aggregate.get("trials", []):
@@ -66,10 +85,24 @@ def resumable_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple
         report_value = row.get("report_path")
         report_path = Path(report_value).resolve() if report_value else None
         safe_path = bool(report_path and report_path.is_relative_to(root.resolve()))
+        report = None
+        if safe_path and report_path.is_file():
+            try:
+                report = load_json(report_path)
+            except (OSError, ValueError):
+                report = None
+        report_total = int(report.get("total", 0)) if report else 0
+        report_detected = int(report.get("detected", -1)) if report else -1
         valid = bool(
-            row.get("exit_code") == 0 and row.get("all_passed") is True
-            and safe_path and report_path.is_file()
+            row.get("exit_code") in (0, 4)
+            and report is not None
             and row.get("report_sha256") == sha256(report_path)
+            and report_total > 0
+            and len(report.get("scenarios", {})) == report_total
+            and int(row.get("total", -1)) == report_total
+            and int(row.get("detected", -1)) == report_detected
+            and bool(row.get("all_passed")) is bool(report.get("all_passed"))
+            and ((row.get("exit_code") == 0) is bool(report.get("all_passed")))
         )
         if valid:
             retained.append(row)
@@ -216,13 +249,15 @@ def main() -> int:
             "--fast-path-expected", ",".join(fast_expected),
             "--output-dir", str(trial_dir),
         ]
-        result = subprocess.run(command)
+        result, timed_out = run_trial(command)
         reports = sorted(trial_dir.glob("*/report.json"))
         report_path = reports[-1] if reports else None
         report = load_json(report_path) if report_path else None
         aggregate["trials"].append({
             **row,
             "exit_code": result.returncode,
+            "timed_out": timed_out,
+            "trial_timeout_seconds": TRIAL_TIMEOUT_SECONDS,
             "report_path": str(report_path) if report_path else None,
             "report_sha256": sha256(report_path) if report_path else None,
             "all_passed": bool(report and report.get("all_passed")),

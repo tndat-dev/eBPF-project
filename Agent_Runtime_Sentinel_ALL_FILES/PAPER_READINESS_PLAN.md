@@ -45,9 +45,16 @@ Trạng thái thực thi ngày 04-08-2026: normal matrix AIMS đã đóng băng 
 phase, `86414.760802s`, 135.378 workload windows và toàn bộ `SHA256SUMS` pass.
 Fit-v2 chỉ dùng run-01 đã pass development gate. Independent run-02--03 đã
 pass 8/8 phase, 54.151 windows, 0 alert/detection; report SHA-256 bắt đầu bằng
-`c08d5bc3`. Blind-normal run-04--05 đang replay. Đây chưa phải kết quả cuối:
-blind attack, baseline/ablation và overhead vẫn bị khóa theo thứ tự gate. Không
+`c08d5bc3`. Blind-normal run-04--05 cũng pass 8/8 phase, 54.166 windows,
+0 alert/detection; report SHA-256 bắt đầu bằng `eb1d8b8b`. Blind attack đã giữ
+8/40 workload-trial, 39/40 scenario detect và đang resume bằng bounded
+transport. Đây chưa phải kết quả cuối: baseline/ablation và overhead vẫn bị khóa theo thứ tự gate. Không
 được dùng run-02--05 để tune lại fit-v2.
+
+Sau bounded fallback, trial thứ 8 có một miss `namespace_probe` khỏe về sensor
+và attack acknowledgement. Fit-v2 vì vậy đã fail frozen promotion recall 1,0.
+Runner được sửa để giữ vĩnh viễn complete detection failure, không rerun đến
+khi pass; matrix vẫn chạy hết cho failure analysis và confidence interval.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

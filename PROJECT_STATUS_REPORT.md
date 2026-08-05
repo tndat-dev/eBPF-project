@@ -1,9 +1,9 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-04
+**Ngày xác minh cluster gần nhất:** 2026-08-05
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã pass independent và đang ở cổng blind-normal
+**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã pass blind-normal và đang chạy blind attack
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -29,8 +29,8 @@ Toàn bộ 44 pod trong namespace `production` đang `Running`. AIMS fit-v2 đã
 development gate và có calibration chỉ từ fit split, nhưng chưa được promote.
 Normal matrix độc lập đã đủ 20 phase/24 giờ và pass integrity; independent
 validation run-02--03 đã pass 54.151 windows không alert. Blind-normal
-run-04--05 đang replay candidate bất biến. Vì chưa có blind-normal và blind
-attack report hoàn chỉnh nên **chưa được gọi candidate AIMS là production-ready hoặc
+run-04--05 cũng pass 54.166 windows không alert. Blind attack đang chạy candidate
+bất biến. Vì chưa có blind attack report hoàn chỉnh nên **chưa được gọi candidate AIMS là production-ready hoặc
 world-class evidence**, cũng chưa được suy diễn “không có false positive” từ
 development holdout.
 
@@ -44,7 +44,7 @@ Phạm vi hiện tại là vertical slice ở tầng syscall. Nghĩa là hệ th
 
 ## 2. Trạng thái hạ tầng hiện tại đã xác minh bằng SSH
 
-Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-04.
+Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-05.
 
 | Thành phần | Trạng thái đã xác minh |
 |---|---|
@@ -2680,3 +2680,103 @@ service failure. Unit dùng shared lock non-blocking với exit code riêng `75`
 khai báo `SuccessExitStatus=75`; một timer gặp evaluator đang active sẽ được ghi
 nhận là busy/success thay vì chờ năm phút rồi thành `Result=exit-code`. Thay đổi
 này chỉ tác động orchestration, không thay đổi report hay detector decision.
+
+### 18.34 Blind-normal pass, blind attack tiến triển và bounded transport (05-08-2026)
+
+Sealed blind-normal run-04--05 hoàn tất và được timer giữ bất biến. Report
+SHA-256 là
+`eb1d8b8b2b4424f140d0cdaf6b0ab91e0f37e3d0dad76e4d61f8d83616f6659a`;
+prerequisite SHA-256 trỏ đúng independent report `c08d5bc3...`. Kết quả:
+
+| Metric | Blind-normal result |
+|---|---:|
+| Phase hoàn tất | 8/8 |
+| Workload windows | 54.166 |
+| Eligible decision windows | 54.143 |
+| Alert/detection trên normal | **0/0** |
+| Evaluation CPU time | 2.123,565 giây |
+| Inference median theo phase | 14,452--15,650 ms |
+| Inference p95 theo phase | 19,646--23,292 ms |
+| Inference p99 theo phase | 24,072--26,677 ms |
+
+Blind split có 170 window `behavior_gated`, 23
+`collection_quality_skip` và 53.973 `normal`; không có confirmation chain tạo
+alert. Gộp hai external split cho 108.182 eligible windows, 0 observed alert;
+cận trên Wilson hai phía 95% mô tả theo window là khoảng `3,5508e-5`
+(`0,003551%`). Cửa sổ có tương quan nên con số này không phải zero-risk: nếu
+lấy 16 phase làm đơn vị Bernoulli, cận trên còn 19,36%; nếu lấy bốn run sealed
+làm block, cận trên còn 48,99%. Paper phải báo cáo cả cấp window và run/block.
+
+Blind attack mở lúc `10:11:57 UTC` ngày 04-08. Bảy workload-trial đầu hoàn tất,
+tương ứng 35/35 scenario detection, không pre-injection alert và toàn bộ sensor
+sample khỏe. Thống kê tạm thời, chưa phải claim cuối:
+
+- confirmed ML latency n=35: min 8,299s; p50 17,667s; p95 20,599s; p99
+  20,945s; max 21,032s;
+- fast-path trên 14/14 scenario được contract kỳ vọng: p50 0,525s; p95 0,763s;
+  max 0,788s;
+- inference median per scenario: p50 39,513ms, p95 69,122ms;
+- recall tạm thời 35/35, nhưng contract cuối yêu cầu 200/200 scenario-trial.
+
+Service không tiến triển sau trial thứ bảy và bị timeout 12 giờ. Resume lúc
+`22:42 UTC` cũng đứng gần bốn giờ. Process audit xác định cả hai lần bị kẹt ở
+`kubectl cp` trước khi inject vào `security-telemetry-service`; không phải model
+inference hay Tetragon. Trial treo không có final report nên không được giữ như
+evidence pass.
+
+Kernel harness đã được harden theo fail-bounded semantics:
+
+- Kubernetes read 15s, copy 30s và mutation/cleanup 15s;
+- nếu tar-over-SPDY `kubectl cp` timeout, truyền cùng frozen binary bytes qua
+  bounded `kubectl exec -i`, rồi ghi `binary_delivery_method` vào report;
+- attack start acknowledgement dùng selector với deadline 20s thay vì
+  `readline()` vô hạn;
+- mỗi workload-trial ở aggregate runner có hard timeout 1.800s; timeout trở
+  thành exit 124 và được checkpoint/quarantine thay vì giữ cả unit đến 12 giờ.
+
+Focused canonical test đạt 14 pass trên VM cho kernel/blind runner sau phần sửa
+transport đầu tiên. Service được stop có kiểm soát, giữ nguyên bảy report hash,
+deploy harness mới và resume lúc `02:36:52 UTC` ngày 05-08. `kubectl cp` tiếp
+tục timeout đúng 30s, fallback thành công và static binary bắt đầu phát syscall
+trong pod đích; đây là bằng chứng bounded fallback hoạt động thật. Orphan trial
+từ hai lần treo được runner chuyển recoverably dưới `rejected/`.
+
+Thay đổi delivery harness không đổi attack source/binary hash, model,
+calibration, split hay decision policy, nhưng tạo hai validation-harness hash
+trong matrix. Báo cáo paper cuối phải công bố và stratify hai harness version;
+không được giả vờ toàn bộ 200 trial chạy cùng một harness byte-for-byte.
+
+Fallback trial hoàn chỉnh đầu tiên trên `security-telemetry-service`, trial 5,
+rate 12/seed 503 tạo một **blind miss thật**: `namespace_probe` không có ML
+detection và cũng không có fast-path warning. Attack exit 0, start ack hợp lệ,
+detector exit 0, 112 inference, full sensor coverage, không stream/backpressure
+failure và không pre-injection alert; vì vậy không thể gán miss cho hạ tầng.
+Bốn scenario còn lại detect. Trial report SHA-256 là
+`2cc7d6f3646fdc25db21d1056c9dc09ef03de05547f4b41e8c7b93a63aecce17`,
+harness SHA-256
+`74834ef723febcb08692c2b7a8bcaa5cfe7355e097a08ad59e56156d6302969f`,
+delivery `kubectl-exec-stdin`.
+
+Audit sau miss phát hiện resume cũ chỉ giữ row `exit_code=0` và
+`all_passed=true`. Nếu để nguyên, trial khỏe nhưng miss sẽ bị quarantine rồi
+rerun đến lúc pass, tạo survivorship bias và recall giả. Matrix được dừng ngay
+sau khi checkpoint 8 trial. Resume nay giữ mọi trial hoàn chỉnh có report nằm
+trong evidence root, hash đúng, đủ scenario và exit code 0 hoặc 4. Detection
+failure exit 4 được đánh dấu completed vĩnh viễn; chỉ trial hỏng hạ tầng, thiếu
+final report, hash/path sai hoặc process exit bất thường mới được retry.
+Workload-trial vẫn có hard timeout 1.800s và ghi `timed_out`.
+
+Focused VM regression sau anti-cherry-pick fix đạt `15 passed`. Resume xác nhận
+giữ đúng 8 row, trong đó bảy row 5/5 và một row 4/5; complete miss report vẫn ở
+nguyên đường dẫn, còn orphan từ process bị stop được chuyển vào `rejected/`.
+Aggregate runner SHA-256 mới là
+`72a9f2d9318edeb48080cf8d9e6e292d73b99bb52a0e07825cb6fa749f2c7a7f`.
+Matrix tiếp tục các trial chưa từng hoàn tất, không rerun khóa
+`production/security-telemetry-service`, trial 5.
+
+Vì attack contract yêu cầu recall 1,0, chỉ một blind miss đã đủ làm fit-v2
+**không đạt promotion gate**, kể cả 192 scenario còn lại đều detect. Vẫn cần
+chạy hết matrix để ước lượng recall/CI và failure distribution. Không được sửa
+threshold/model dựa trên miss này rồi báo lại cùng run-04--05 hoặc blind attack
+set như bằng chứng độc lập; cải tiến phải mang candidate lineage mới và dữ liệu
+external mới.

@@ -221,3 +221,38 @@ def test_kernel_validation_defaults_match_production_confirmation_policy():
         "SENTINEL_POD_STARTUP_GRACE_SECONDS": "60",
         "SENTINEL_EXTREME_VOLUME_FACTOR": "2.0",
     }
+
+
+def test_binary_install_falls_back_after_bounded_kubectl_cp_timeout(
+        tmp_path, monkeypatch):
+    binary = tmp_path / "attack"
+    binary.write_bytes(b"frozen-binary")
+    monkeypatch.setattr(
+        run_kernel_regression, "select_ready_pod",
+        lambda _namespace, _selector: "ready-pod",
+    )
+    calls = []
+
+    class Result:
+        returncode = 0
+        stderr = b""
+
+    def bounded_run(command, **kwargs):
+        calls.append((command, kwargs))
+        if command[1] == "cp":
+            raise run_kernel_regression.subprocess.TimeoutExpired(
+                command, kwargs["timeout"],
+            )
+        return Result()
+
+    monkeypatch.setattr(run_kernel_regression.subprocess, "run", bounded_run)
+    pod, method = run_kernel_regression.install_runtime_binary(
+        "production", "app=security", binary, "/tmp/attack", attempts=1,
+    )
+
+    assert pod == "ready-pod"
+    assert method == "kubectl-exec-stdin"
+    assert calls[0][1]["timeout"] == 30
+    assert calls[1][0][1:3] == ["exec", "-i"]
+    assert calls[1][1]["input"] == b"frozen-binary"
+    assert calls[1][1]["timeout"] == 30

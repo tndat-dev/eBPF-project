@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 import os
+import selectors
 import shutil
 import signal
 import statistics
@@ -54,6 +55,10 @@ VALIDATION_POLICY_DEFAULTS = {
     "SENTINEL_POD_STARTUP_GRACE_SECONDS": "60",
     "SENTINEL_EXTREME_VOLUME_FACTOR": "2.0",
 }
+KUBECTL_READ_TIMEOUT_SECONDS = 15
+KUBECTL_COPY_TIMEOUT_SECONDS = 30
+KUBECTL_MUTATION_TIMEOUT_SECONDS = 15
+ATTACK_ACK_TIMEOUT_SECONDS = 20
 
 
 def sensor_snapshot_healthy(health: dict) -> bool:
@@ -135,6 +140,7 @@ def select_ready_pod(namespace: str, selector: str) -> str:
             "-o", "json",
         ],
         text=True,
+        timeout=KUBECTL_READ_TIMEOUT_SECONDS,
     )
     payload = json.loads(raw)
     pods = ready_pod_names(payload)
@@ -159,42 +165,116 @@ def install_runtime_binary(
     runtime_binary: Path,
     container_binary: str,
     attempts: int = 6,
-) -> str:
+) -> tuple[str, str]:
     """Install into a stable Ready pod, retrying a concurrent rollout."""
     errors = []
     for attempt in range(1, attempts + 1):
         pod = select_ready_pod(namespace, selector)
-        copy_result = subprocess.run(
-            [
-                "kubectl", "cp", str(runtime_binary),
-                f"{namespace}/{pod}:{container_binary}",
-            ],
-            text=True,
-            capture_output=True,
-        )
-        if copy_result.returncode == 0:
-            chmod_result = subprocess.run(
+        try:
+            copy_result = subprocess.run(
                 [
-                    "kubectl", "exec", "-n", namespace, pod, "--",
-                    "chmod", "0755", container_binary,
+                    "kubectl", "cp", str(runtime_binary),
+                    f"{namespace}/{pod}:{container_binary}",
                 ],
                 text=True,
                 capture_output=True,
+                timeout=KUBECTL_COPY_TIMEOUT_SECONDS,
             )
-            if chmod_result.returncode == 0:
-                return pod
+        except subprocess.TimeoutExpired:
+            copy_result = None
             errors.append(
-                f"attempt={attempt} pod={pod} chmod: "
-                f"{chmod_result.stderr.strip()}"
+                f"attempt={attempt} pod={pod} kubectl-cp timed out after "
+                f"{KUBECTL_COPY_TIMEOUT_SECONDS}s"
             )
-        else:
+        if copy_result is not None and copy_result.returncode == 0:
+            try:
+                chmod_result = subprocess.run(
+                    [
+                        "kubectl", "exec", "-n", namespace, pod, "--",
+                        "chmod", "0755", container_binary,
+                    ],
+                    text=True,
+                    capture_output=True,
+                    timeout=KUBECTL_MUTATION_TIMEOUT_SECONDS,
+                )
+            except subprocess.TimeoutExpired:
+                chmod_result = None
+                errors.append(
+                    f"attempt={attempt} pod={pod} chmod timed out after "
+                    f"{KUBECTL_MUTATION_TIMEOUT_SECONDS}s"
+                )
+            if chmod_result is not None and chmod_result.returncode == 0:
+                return pod, "kubectl-cp"
+            if chmod_result is not None:
+                errors.append(
+                    f"attempt={attempt} pod={pod} chmod: "
+                    f"{chmod_result.stderr.strip()}"
+                )
+        elif copy_result is not None:
             errors.append(
-                f"attempt={attempt} pod={pod} copy: "
+                f"attempt={attempt} pod={pod} kubectl-cp: "
                 f"{copy_result.stderr.strip()}"
+            )
+
+        # ``kubectl cp`` is a tar-over-SPDY stream and can hang against an
+        # otherwise healthy pod.  A bounded stdin stream uses the same exec
+        # transport but removes tar negotiation.  The frozen binary bytes are
+        # unchanged and are hash-checked in the report.
+        try:
+            stream_result = subprocess.run(
+                [
+                    "kubectl", "exec", "-i", "-n", namespace, pod, "--",
+                    "sh", "-c", 'cat > "$1" && chmod 0755 "$1"',
+                    "sentinel-copy", container_binary,
+                ],
+                input=runtime_binary.read_bytes(),
+                capture_output=True,
+                timeout=KUBECTL_COPY_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            stream_result = None
+            errors.append(
+                f"attempt={attempt} pod={pod} exec-stdin timed out after "
+                f"{KUBECTL_COPY_TIMEOUT_SECONDS}s"
+            )
+        if stream_result is not None and stream_result.returncode == 0:
+            return pod, "kubectl-exec-stdin"
+        if stream_result is not None:
+            stderr = stream_result.stderr.decode(errors="replace")
+            errors.append(
+                f"attempt={attempt} pod={pod} exec-stdin: {stderr.strip()}"
             )
         if attempt < attempts:
             time.sleep(2)
     raise RuntimeError("could not install runtime binary: " + " | ".join(errors))
+
+
+def read_attack_start_ack(
+    process: subprocess.Popen,
+    timeout: float = ATTACK_ACK_TIMEOUT_SECONDS,
+    max_lines: int = 4,
+) -> tuple[str, bool]:
+    """Read the attack start marker without an unbounded ``readline``."""
+    if process.stderr is None:
+        return "", False
+    selector = selectors.DefaultSelector()
+    selector.register(process.stderr, selectors.EVENT_READ)
+    lines = []
+    deadline = time.monotonic() + timeout
+    try:
+        while len(lines) < max_lines:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or not selector.select(remaining):
+                break
+            line = process.stderr.readline()
+            if not line:
+                break
+            lines.append(line)
+            if "sentinel-runtime-attack start" in line:
+                return "".join(lines), True
+    finally:
+        selector.close()
+    return "".join(lines), False
 
 
 def wait_ready(log_path: Path, process: subprocess.Popen, timeout=30):
@@ -228,6 +308,7 @@ def require_tetragon_full_coverage() -> None:
         ["kubectl", "-n", "kube-system", "get", "daemonset", "tetragon",
          "-o", "jsonpath={.status.desiredNumberScheduled},{.status.numberReady},{.status.numberAvailable}"],
         check=True, capture_output=True, text=True,
+        timeout=KUBECTL_READ_TIMEOUT_SECONDS,
     )
     try:
         desired, ready, available = (int(value) for value in result.stdout.strip().split(","))
@@ -316,7 +397,7 @@ def main() -> int:
         raise FileNotFoundError(calibration_source)
 
     container_binary = f"/tmp/sentinel-runtime-attack-{os.getpid()}"
-    pod = install_runtime_binary(
+    pod, binary_delivery_method = install_runtime_binary(
         args.namespace, args.selector, runtime_binary, container_binary,
     )
     pod_key = f"{args.namespace}/{pod}"
@@ -330,6 +411,7 @@ def main() -> int:
         "vocab_sha256": sha256(vocab),
         "runtime_binary": str(runtime_binary),
         "runtime_binary_sha256": sha256(runtime_binary),
+        "binary_delivery_method": binary_delivery_method,
         "runtime_code_sha256": {
             name: sha256(Path(name).resolve()) for name in RUNTIME_FILES
         },
@@ -415,16 +497,9 @@ def main() -> int:
                 # before issuing its first attack syscall. Timestamp receipt
                 # on the master so injection and detection use the same clock,
                 # excluding kubectl startup time from the latency metric.
-                ack_lines = []
-                for _ in range(4):
-                    line = attack_process.stderr.readline()
-                    if not line:
-                        break
-                    ack_lines.append(line)
-                    if "sentinel-runtime-attack start" in line:
-                        attack_acknowledged = True
-                        break
-                start_ack = "".join(ack_lines)
+                start_ack, attack_acknowledged = read_attack_start_ack(
+                    attack_process,
+                )
                 attack_started = time.time()
                 with metrics.open("a") as metrics_handle:
                     metrics_handle.write(json.dumps({
@@ -577,11 +652,17 @@ def main() -> int:
             )
             print(json.dumps({scenario: result}, sort_keys=True), flush=True)
     finally:
-        subprocess.run(
-            ["kubectl", "exec", "-n", args.namespace, pod, "--",
-             "rm", "-f", container_binary],
-            check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
+        try:
+            subprocess.run(
+                ["kubectl", "exec", "-n", args.namespace, pod, "--",
+                 "rm", "-f", container_binary],
+                check=False, stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=KUBECTL_MUTATION_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired:
+            # Cleanup is best effort and must not erase a completed trial.
+            pass
 
     report["detected"] = sum(
         bool(item["detected"]) for item in report["scenarios"].values()
