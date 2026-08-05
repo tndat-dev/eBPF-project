@@ -47,7 +47,7 @@ Fit-v2 chỉ dùng run-01 đã pass development gate. Independent run-02--03 đ�
 pass 8/8 phase, 54.151 windows, 0 alert/detection; report SHA-256 bắt đầu bằng
 `c08d5bc3`. Blind-normal run-04--05 cũng pass 8/8 phase, 54.166 windows,
 0 alert/detection; report SHA-256 bắt đầu bằng `eb1d8b8b`. Blind attack đã giữ
-8/40 workload-trial, 39/40 scenario detect và đang resume bằng bounded
+9/40 workload-trial, 44/45 scenario detect và đang resume bằng bounded
 transport. Đây chưa phải kết quả cuối: baseline/ablation và overhead vẫn bị khóa theo thứ tự gate. Không
 được dùng run-02--05 để tune lại fit-v2.
 

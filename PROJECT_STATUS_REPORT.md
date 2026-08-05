@@ -2774,6 +2774,13 @@ Aggregate runner SHA-256 mới là
 Matrix tiếp tục các trial chưa từng hoàn tất, không rerun khóa
 `production/security-telemetry-service`, trial 5.
 
+Trial kế tiếp `production/order-service`, trial 1, rate 6/seed 101 hoàn tất
+5/5, `timed_out=false`; report SHA-256
+`6db971f88b515f12605412cfa8948bfa8b02ac00e22b4529aebbe7ccf93e9d3d`.
+Checkpoint mới đạt 9/40 workload-trial và 44/45 scenario detection. Điều này
+xác nhận runner mới vừa giữ miss cũ vừa tiếp tục tiến triển, không còn đứng ở
+transport và không rerun khóa đã fail.
+
 Vì attack contract yêu cầu recall 1,0, chỉ một blind miss đã đủ làm fit-v2
 **không đạt promotion gate**, kể cả 192 scenario còn lại đều detect. Vẫn cần
 chạy hết matrix để ước lượng recall/CI và failure distribution. Không được sửa
