@@ -455,6 +455,28 @@
         3.5507962676948984e-05
       ]
     },
+    "normal_block_sensitivity": {
+      "independent_run_count": 4,
+      "phase_count": 16,
+      "phase_with_alert": {
+        "estimate": 0.0,
+        "successes": 0,
+        "trials": 16,
+        "wilson_95ci": [
+          0.0,
+          0.1936076805344365
+        ]
+      },
+      "run_with_alert": {
+        "estimate": 0.0,
+        "successes": 0,
+        "trials": 4,
+        "wilson_95ci": [
+          0.0,
+          0.4898908364545973
+        ]
+      }
+    },
     "precision": {
       "estimate": 1.0,
       "wilson_95ci": [
@@ -469,6 +491,16 @@
       "wilson_95ci": [
         0.942821659593358,
         0.9892752803482386
+      ]
+    },
+    "recall_block_bootstrap_95ci": {
+      "workload_blocks": [
+        0.925,
+        1.0
+      ],
+      "workload_trial_blocks": [
+        0.955,
+        0.995
       ]
     }
   },

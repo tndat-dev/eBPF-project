@@ -149,3 +149,31 @@ def test_split_normal_reports_use_eligible_windows_and_reject_overlap():
     report = build_report(normals, _attack())
     assert report["metrics"]["false_alert_rate_per_window"]["trials"] == 100
     assert report["evidence_health"]["normal_phase_count"] == 2
+
+
+def test_paper_statistics_reports_trial_and_run_block_sensitivity():
+    normals = [{
+        "passed": True,
+        "detections": 0,
+        "eligible_decision_windows": 100,
+        "completed_phases": ["steady-run-02", "burst-run-02"],
+        "phases": [
+            {"phase": "steady-run-02", "detections": 0},
+            {"phase": "burst-run-02", "detections": 0},
+        ],
+    }]
+    rows = [
+        {"workload": "production/a", "scenario": "escape", "trial": trial,
+         "detected": trial == 1, "detection_latency_seconds": 1.0,
+         "fast_path_latency_seconds": None, "inference_median_ms": 2.0,
+         "sensor_health_healthy": True, "normal_alerts_before_attack": 0}
+        for trial in (1, 2)
+    ]
+    report = build_report(normals, {"all_passed": False}, rows)
+    blocks = report["metrics"]["normal_block_sensitivity"]
+    assert blocks["phase_count"] == 2
+    assert blocks["independent_run_count"] == 1
+    assert 0.79 < blocks["run_with_alert"]["wilson_95ci"][1] < 0.80
+    assert report["metrics"]["recall_block_bootstrap_95ci"][
+        "workload_trial_blocks"
+    ] == [0.0, 1.0]

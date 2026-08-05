@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import random
+import re
 import statistics
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
@@ -56,6 +57,30 @@ def bootstrap_interval(
     for _ in range(iterations):
         resample = [rng.choice(sample) for _ in sample]
         estimates.append(float(statistic(resample)))
+    return [
+        float(percentile(estimates, 0.025)),
+        float(percentile(estimates, 0.975)),
+    ]
+
+
+def block_bootstrap_detection_interval(
+    rows: list[dict], fields: tuple[str, ...], *, iterations: int = 10_000,
+    seed: int = 20260805,
+) -> list[float] | None:
+    """Bootstrap recall by resampling whole trial/workload blocks."""
+    grouped = {}
+    for row in rows:
+        key = tuple(row.get(field) for field in fields)
+        grouped.setdefault(key, []).append(float(bool(row["detected"])))
+    blocks = list(grouped.values())
+    if not blocks:
+        return None
+    rng = random.Random(seed)
+    estimates = []
+    for _ in range(iterations):
+        sample = [rng.choice(blocks) for _ in blocks]
+        flattened = [value for block in sample for value in block]
+        estimates.append(statistics.mean(flattened))
     return [
         float(percentile(estimates, 0.025)),
         float(percentile(estimates, 0.975)),
@@ -224,6 +249,27 @@ def _normal_summary(normal_reports: Sequence[dict]) -> tuple[int, int, bool, lis
     return normal_windows, false_alerts, passed, phases
 
 
+def _normal_block_metrics(normal_reports: Sequence[dict]) -> dict:
+    phases = []
+    runs = {}
+    for report in normal_reports:
+        for phase in report.get("phases", []):
+            alerts = int(phase.get("detections", phase.get("alerts", 0)))
+            name = str(phase.get("phase", ""))
+            phases.append(alerts)
+            match = re.search(r"run-(\d+)$", name)
+            run = match.group(1) if match else name
+            runs[run] = runs.get(run, 0) + alerts
+    phase_failures = sum(value > 0 for value in phases)
+    run_failures = sum(value > 0 for value in runs.values())
+    return {
+        "phase_with_alert": _binary_metrics(phase_failures, len(phases)),
+        "run_with_alert": _binary_metrics(run_failures, len(runs)),
+        "phase_count": len(phases),
+        "independent_run_count": len(runs),
+    }
+
+
 def build_report(normal: dict | Sequence[dict], attack: dict,
                  rows: list[dict] | None = None) -> dict:
     normal_reports = [normal] if isinstance(normal, dict) else list(normal)
@@ -233,6 +279,7 @@ def build_report(normal: dict | Sequence[dict], attack: dict,
     normal_windows, false_alerts, normal_passed, normal_phases = _normal_summary(
         normal_reports
     )
+    normal_blocks = _normal_block_metrics(normal_reports)
     true_positives = sum(row["detected"] for row in rows)
     false_negatives = len(rows) - true_positives
     true_negatives = normal_windows - false_alerts
@@ -275,8 +322,17 @@ def build_report(normal: dict | Sequence[dict], attack: dict,
                 "wilson_95ci": wilson_interval(true_positives, precision_denominator),
             },
             "recall": _binary_metrics(true_positives, len(rows)),
+            "recall_block_bootstrap_95ci": {
+                "workload_trial_blocks": block_bootstrap_detection_interval(
+                    rows, ("workload", "trial")
+                ) if all("trial" in row for row in rows) else None,
+                "workload_blocks": block_bootstrap_detection_interval(
+                    rows, ("workload",), seed=20260806
+                ),
+            },
             "f1": f1,
             "false_alert_rate_per_window": _binary_metrics(false_alerts, normal_windows),
+            "normal_block_sensitivity": normal_blocks,
         },
         "latency_seconds": {
             "confirmed_ml": distribution(detection_latencies),

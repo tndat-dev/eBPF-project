@@ -2820,13 +2820,19 @@ Hai normal split không chồng phase có tổng 108.182 eligible decision windo
 | Confirmed ML | n=195, p50 18,550s | p95 20,587s; p99 20,981s; max 21,085s |
 | Inference median/trial | n=200, p50 40,101ms | p95 69,089ms; p99 79,607ms |
 
-Derived JSON SHA-256 là
-`d88c9984fb1718448bb60d226431fa6e52e77787d3ac899d79303cfe829d1d41`;
+Derived JSON schema v2 mới nhất SHA-256 là
+`1e4eb51ca4db7dda0486da7923c0c9a44100196fe93882c6a379af3dc5f20856`;
 Markdown SHA-256 là
 `2cbe4929df9a3da9093cd0da0cb064f02fa7c5991ae50dac8aa4a0062d51493a`.
 Bootstrap 95% CI của median confirmed latency là 17,667--18,733s; fast path là
 0,419--0,502s. Đây là bootstrap theo scenario trial; paper cuối vẫn cần
 sensitivity theo run/cluster block.
+
+Sensitivity được tính trực tiếp thay vì chỉ ghi limitation: recall bootstrap
+theo 40 workload-trial block là 95,5--99,5%; theo tám workload block là
+92,5--100%. Zero-alert Wilson upper bound là 19,36% nếu đơn vị là 16 phase và
+48,99% nếu đơn vị là bốn independent holdout run. Vì vậy window-level upper
+bound 0,003551% không được trình bày một mình.
 
 Phân tầng cho thấy bảy workload còn lại đều 25/25. Riêng
 `production/security-telemetry-service` đạt 20/25 (80%; Wilson

@@ -207,9 +207,13 @@ python3 ml-service/paper_statistics.py \
   --output validation-evidence/20260801T153648Z/paper_statistics.json
 ```
 
-Kết quả 0 false alert vẫn phải báo Wilson upper bound. Sau AIMS matrix, thay
-window-level interval bằng block bootstrap theo 20 run độc lập để xử lý tương
-quan thời gian.
+Kết quả 0 false alert vẫn phải báo Wilson upper bound. Sau AIMS matrix, bổ sung
+phase/run-level sensitivity hoặc block bootstrap theo các run thực sự độc lập
+để xử lý tương quan thời gian; không gọi 20 traffic phase là 20 run.
+
+Output AIMS báo đồng thời window-level Wilson, phase/run sensitivity và recall
+bootstrap theo workload-trial/workload block. Không chọn riêng interval hẹp
+nhất; fit-v2 hiện chỉ có bốn independent holdout run dù có 16 holdout phase.
 
 Với AIMS fit-v2, truyền hai split normal không chồng phase và aggregate blind
 matrix. Tool kiểm SHA-256 của toàn bộ 40 nested trial trước khi tính:

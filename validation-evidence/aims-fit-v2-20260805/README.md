@@ -31,7 +31,7 @@ python3 ml-service/paper_statistics.py \
 Expected SHA-256:
 
 ```text
-d88c9984fb1718448bb60d226431fa6e52e77787d3ac899d79303cfe829d1d41  aims-fit-v2-paper-statistics.json
+1e4eb51ca4db7dda0486da7923c0c9a44100196fe93882c6a379af3dc5f20856  aims-fit-v2-paper-statistics.json
 2cbe4929df9a3da9093cd0da0cb064f02fa7c5991ae50dac8aa4a0062d51493a  aims-fit-v2-paper-statistics.md
 ```
 
