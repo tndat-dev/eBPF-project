@@ -176,12 +176,16 @@ The hashes must equal `aims_blind_attack_contract.json`. Never inspect blind
 results and then retrain/tune the same candidate; a changed model requires a
 new independently frozen blind set.
 
-Runner dài được timer hóa bằng `aims-blind-attack.timer`. Mỗi trial thành công
-phải có report hash hợp lệ mới được skip khi resume. Trial lỗi/orphan được move
-vào `rejected/` rồi chạy lại; không xóa negative evidence. Header resume khóa
-schedule, source/binary, candidate, calibration, split, prerequisite và release
-contract. Service không chạy khi normal matrix/training/split evaluator active,
-giới hạn CPU/RAM, timeout 12 giờ và không có đường promote.
+Runner dài có thể được timer hóa bằng `aims-blind-attack.timer` trong khi matrix
+chưa đạt terminal state. Mỗi trial hoàn chỉnh phải có report hash hợp lệ mới
+được skip khi resume. Trial infrastructure lỗi/orphan được move vào `rejected/`
+rồi chạy lại; detection miss hợp lệ không được xóa hoặc retry. Header resume
+khóa schedule, source/binary, candidate, calibration, split, prerequisite và
+release contract. Khi đủ expected trial, aggregate trở thành read-only dù
+`all_passed` là true hay false; gọi lại chỉ trả 0 hoặc 8 và không được cập nhật
+`resumed_at`. Disable timer sau terminal state. Service không chạy khi normal
+matrix/training/split evaluator active, giới hạn CPU/RAM, timeout 12 giờ và
+không có đường promote.
 
 Behavior gate của candidate mới không so tỷ lệ điểm trực tiếp khi cửa sổ chỉ có
 ít event. `evaluate_behavior()` dùng cận dưới Wilson một phía 95%; chỉ khi cận

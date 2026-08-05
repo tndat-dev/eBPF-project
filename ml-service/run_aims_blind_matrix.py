@@ -70,14 +70,8 @@ def validate_normal_prerequisite(path: Path, model_hashes: dict,
     return {"path": str(path), "sha256": sha256(path)}
 
 
-def resumable_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple]]:
-    """Keep every complete hash-valid trial, including a detection failure.
-
-    Re-running a healthy failed blind trial until it passes would cherry-pick
-    environmental variance and inflate recall.  Only infrastructure-incomplete
-    trials (no final report, invalid hash/path, or unexpected process exit) are
-    eligible for quarantine and retry.
-    """
+def validated_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple]]:
+    """Return every complete hash-valid trial without mutating evidence."""
     retained = []
     completed = set()
     for row in aggregate.get("trials", []):
@@ -107,6 +101,18 @@ def resumable_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple
         if valid:
             retained.append(row)
             completed.add(key)
+    return retained, completed
+
+
+def resumable_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple]]:
+    """Keep every complete hash-valid trial, including a detection failure.
+
+    Re-running a healthy failed blind trial until it passes would cherry-pick
+    environmental variance and inflate recall.  Only infrastructure-incomplete
+    trials (no final report, invalid hash/path, or unexpected process exit) are
+    eligible for quarantine and retry.
+    """
+    retained, completed = validated_trials(root, aggregate)
     rejected = root / "rejected"
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     retained_dirs = {
@@ -212,9 +218,24 @@ def main() -> int:
     root.mkdir(parents=True, exist_ok=True)
     partial = root / "report.partial.json"
     final = root / "report.json"
-    if final.is_file() and load_json(final).get("all_passed") is True:
-        print(f"report={final}")
-        return 0
+    if final.is_file():
+        completed_report = load_json(final)
+        for key, value in frozen_header.items():
+            if key != "created_at" and completed_report.get(key) != value:
+                raise ValueError(f"completed report header changed: {key}")
+        retained, completed = validated_trials(root, completed_report)
+        expected = int(completed_report.get("expected_trials", -1))
+        if (
+            len(retained) == expected
+            and len(completed) == expected
+            and int(completed_report.get("completed_trials", -1)) == expected
+            and int(completed_report.get("total", -1))
+            == int(completed_report.get("expected_scenario_trials", -2))
+        ):
+            # A complete failed blind matrix is just as immutable as a pass.
+            # Timers must not update resumed_at and silently drift its digest.
+            print(f"report={final}")
+            return 0 if completed_report.get("all_passed") is True else 8
     if partial.is_file():
         aggregate = load_json(partial)
         for key, value in frozen_header.items():

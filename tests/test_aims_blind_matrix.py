@@ -15,7 +15,7 @@ if not SERVICE_ROOT.is_dir():
     SERVICE_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVICE_ROOT))
 
-from run_aims_blind_matrix import (run_trial, resumable_trials,
+from run_aims_blind_matrix import (run_trial, resumable_trials, validated_trials,
                                    validate_normal_prerequisite)
 
 
@@ -77,6 +77,22 @@ def test_resume_keeps_detection_miss_and_quarantines_incomplete_trial(tmp_path):
     assert miss.is_file()
     assert not bad_dir.parent.exists()
     assert list((tmp_path / "rejected").glob("api-trial-02-*"))
+
+
+def test_validation_is_read_only_for_completed_matrix(tmp_path):
+    invalid_dir = tmp_path / "api-trial-02" / "scenario"
+    invalid_dir.mkdir(parents=True)
+    report = invalid_dir / "report.json"
+    report.write_text("{}")
+    aggregate = {"trials": [{
+        "target": "production/api", "trial": 2, "exit_code": 8,
+        "all_passed": False, "detected": 0, "total": 1,
+        "report_path": str(report),
+        "report_sha256": hashlib.sha256(report.read_bytes()).hexdigest(),
+    }]}
+    assert validated_trials(tmp_path, aggregate) == ([], set())
+    assert invalid_dir.is_dir()
+    assert not (tmp_path / "rejected").exists()
 
 
 def test_blind_runner_and_unit_have_no_promotion_path():

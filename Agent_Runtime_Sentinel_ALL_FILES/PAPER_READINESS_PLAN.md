@@ -52,6 +52,11 @@ tất 40/40 workload-trial và detect 195/200 scenario; report aggregate SHA-256
 seccomp/AppArmor. Candidate bị từ chối promotion; không được dùng run-02--05
 hay blind attack này để tune lại fit-v2.
 
+Aggregate terminal được giữ byte-immutable cả khi promotion fail. Timer của
+experiment đã disable; chạy lại runner trả exit 8 nhưng SHA-256 vẫn
+`b14c3abd...`. Bản từng bị thay riêng `resumed_at` được giữ dưới `rejected/` để
+audit, không được dùng làm paper input.
+
 Derived statistics kiểm đủ hash 40 report: recall 0,975 (Wilson 95% CI
 0,9428--0,9893), F1 mô tả 0,9873; gộp 108.182 eligible normal window có 0
 observed alert, Wilson upper bound 3,5508e-5/window. Fast early-warning n=75 có

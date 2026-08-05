@@ -67,7 +67,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite trên VM: `151 passed, 2 warnings`; local source suite: `77 passed, 7 skipped` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `84 passed, 7 skipped` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -2919,10 +2919,13 @@ phase-order và giữ background production traffic. Campaign mới
 `aims-overhead-counterbalanced-v2.service`, timeout 4 giờ. Chỉ kết quả đủ 6/6
 block với 0 failed response mới được kéo vào paper evidence.
 
-Phase đầu của V2, `p01/no_tracing`, đã pass quality gate: warm-up và 10/10
-repetition đều 0 socket error, 0 non-2xx/3xx. RPS nằm 50,23--55,81; p99 nằm
-366,7--484,97ms. Campaign tiếp tục sang `tetragon_only`; đây mới là smoke proof
-cho tải c8, chưa phải overhead effect hay campaign result cuối.
+Block đầu của V2 (`p01`) đã hoàn tất cả ba phase và pass quality gate: warm-up
+cùng 30/30 repetition đều 0 socket error, 0 non-2xx/3xx. Median RPS lần lượt là
+54,575 (`no_tracing`), 53,665 (`tetragon_only`) và 56,135
+(`full_pipeline`); median p99 tương ứng 417,54ms, 437,975ms và 391,805ms.
+Detector ở phase full pipeline dùng khoảng 26,69% một CPU core và median
+431,04MiB RAM. Đây chỉ là một paired block nên khoảng tin cậy còn rộng và chưa
+được dùng làm claim overhead cuối. Campaign đang tiếp tục các order còn lại.
 
 Song song ở code path V8, detector có `SENTINEL_FEATURE_CAPTURE` opt-in với ba
 mode `off|aggregate|sequence`. `aggregate` ghi sparse n-gram vector và syscall
@@ -2947,3 +2950,32 @@ mới `1901,3203,4703,6701,9001` trước V8 capture. Validator giờ yêu cầu
 independent run; syscall/MCP được gate riêng bằng `--track` nhưng không được bỏ
 experiment bên trong track. Canonical suite sau contract V2 đạt `83 passed, 7
 skipped`.
+
+### 18.37 Khóa tính bất biến của blind evidence (05-08-2026)
+
+Audit phát hiện `aims-blind-attack.timer` vẫn gọi lại runner mỗi 30 phút sau khi
+matrix đã hoàn tất nhưng thất bại promotion. Logic cũ chỉ no-op khi
+`all_passed=true`, vì vậy mỗi lần gọi đã thay riêng trường `resumed_at` của
+aggregate thất bại và làm SHA-256 trôi từ canonical
+`b14c3abdab1ac32e8c67f9c359eff3184150bc61c92e6d7b7cf4aac4dc513ea3` sang
+`c97927e782cab6940e29365a12b9493814e52167dd5bb395ef0d6e1911bb85b6`. Nội dung
+40 trial và kết luận 195/200 không đổi, nhưng artifact hash drift là vi phạm
+reproducibility.
+
+Biện pháp đã thực hiện:
+
+1. lưu bản drift vào `rejected/report-post-completion-hash-drift-c97927e7.json`;
+2. khôi phục aggregate canonical byte-for-byte và xác minh lại SHA-256
+   `b14c3abd...`;
+3. disable/stop `aims-blind-attack.timer` sau khi experiment hoàn tất;
+4. sửa runner để một matrix hoàn chỉnh, hash-valid trở thành read-only dù pass
+   hay fail; kết quả fail vẫn trả exit code 8 nhưng không ghi lại report;
+5. test trực tiếp trên VM: hash trước/sau đều là `b14c3abd...`, exit code 8;
+6. tái sinh paper statistics từ canonical evidence trên VM và local đều cho
+   cùng SHA-256
+   `1e4eb51ca4db7dda0486da7923c0c9a44100196fe93882c6a379af3dc5f20856`.
+
+Focused regression trên VM đạt `5 passed`; canonical source suite local sau
+bản vá đạt `84 passed, 7 skipped`. Timer chỉ được bật cho experiment ID mới,
+và phải disable sau terminal state. Việc này không thay metric ML đã công bố;
+nó bảo đảm bằng chứng thất bại cũng bất biến như bằng chứng pass.
