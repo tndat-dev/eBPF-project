@@ -256,3 +256,54 @@ def test_binary_install_falls_back_after_bounded_kubectl_cp_timeout(
     assert calls[1][0][1:3] == ["exec", "-i"]
     assert calls[1][1]["input"] == b"frozen-binary"
     assert calls[1][1]["timeout"] == 30
+
+
+def test_post_injection_observation_distinguishes_sensor_invisible_attempt():
+    rows = [
+        {"kind": "decision", "pod_key": "production/target", "ts": 9,
+         "score": 1.0, "suspicious_mass": 1.0, "behavior_max_ratio": 10.0},
+        {"kind": "decision", "pod_key": "production/target", "ts": 11,
+         "score": 0.33, "suspicious_mass": 0.0, "behavior_max_ratio": 0.0},
+        {"kind": "decision", "pod_key": "production/other", "ts": 12,
+         "score": 1.0, "suspicious_mass": 1.0, "behavior_max_ratio": 20.0},
+    ]
+    observed = run_kernel_regression.post_injection_observation(
+        rows, "production/target", 10,
+    )
+    assert observed == {
+        "target_decision_count": 1,
+        "post_injection_max_score": 0.33,
+        "post_injection_max_suspicious_mass": 0.0,
+        "post_injection_max_behavior_ratio": 0.0,
+        "post_injection_suspicious_signal_observed": False,
+    }
+
+
+def test_pod_security_profile_records_local_preventive_controls(monkeypatch):
+    payload = {
+        "spec": {
+            "nodeName": "worker-3",
+            "securityContext": {
+                "seccompProfile": {
+                    "type": "Localhost", "localhostProfile": "profile.json"
+                },
+                "appArmorProfile": {
+                    "type": "Localhost", "localhostProfile": "restricted"
+                },
+            },
+            "containers": [{
+                "name": "app",
+                "securityContext": {"allowPrivilegeEscalation": False},
+            }],
+        }
+    }
+    monkeypatch.setattr(
+        run_kernel_regression.subprocess, "check_output",
+        lambda *args, **kwargs: json.dumps(payload),
+    )
+    profile = run_kernel_regression.pod_security_profile(
+        "production", "target",
+    )
+    assert profile["seccomp_profile"]["type"] == "Localhost"
+    assert profile["apparmor_profile"]["localhostProfile"] == "restricted"
+    assert profile["node_name"] == "worker-3"

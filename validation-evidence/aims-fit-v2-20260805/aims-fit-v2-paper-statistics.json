@@ -1,0 +1,510 @@
+{
+  "by_rate": {
+    "6": {
+      "detection_latency_seconds": {
+        "count": 78,
+        "maximum": 21.08492112159729,
+        "median_bootstrap_95ci": [
+          14.8604017496109,
+          18.884873390197754
+        ],
+        "minimum": 8.351574182510376,
+        "p50": 18.56951344013214,
+        "p90": 20.385136103630067,
+        "p95": 20.58663626909256,
+        "p99": 21.044205870628357
+      },
+      "recall": {
+        "estimate": 0.975,
+        "successes": 78,
+        "trials": 80,
+        "wilson_95ci": [
+          0.9133556701442198,
+          0.9931171067970292
+        ]
+      }
+    },
+    "12": {
+      "detection_latency_seconds": {
+        "count": 78,
+        "maximum": 20.775070428848267,
+        "median_bootstrap_95ci": [
+          15.623706516623507,
+          18.91258406639099
+        ],
+        "minimum": 8.29898452758789,
+        "p50": 18.63987374305725,
+        "p90": 20.508358502388,
+        "p95": 20.57973072528839,
+        "p99": 20.736862545013427
+      },
+      "recall": {
+        "estimate": 0.975,
+        "successes": 78,
+        "trials": 80,
+        "wilson_95ci": [
+          0.9133556701442198,
+          0.9931171067970292
+        ]
+      }
+    },
+    "24": {
+      "detection_latency_seconds": {
+        "count": 39,
+        "maximum": 20.977293729782104,
+        "median_bootstrap_95ci": [
+          11.062999963760376,
+          18.634642362594604
+        ],
+        "minimum": 8.260969161987305,
+        "p50": 18.264588117599487,
+        "p90": 19.942773389816285,
+        "p95": 20.545073318481446,
+        "p99": 20.915689177513123
+      },
+      "recall": {
+        "estimate": 0.975,
+        "successes": 39,
+        "trials": 40,
+        "wilson_95ci": [
+          0.8711863103652591,
+          0.9955731684973186
+        ]
+      }
+    }
+  },
+  "by_scenario": {
+    "credential_read_burst": {
+      "detection_latency_seconds": {
+        "count": 40,
+        "maximum": 21.032044172286987,
+        "median_bootstrap_95ci": [
+          18.805769562721252,
+          19.739368796348572
+        ],
+        "minimum": 17.18528437614441,
+        "p50": 19.47949242591858,
+        "p90": 20.446646070480348,
+        "p95": 20.52121307849884,
+        "p99": 20.886149275302888
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 40,
+        "trials": 40,
+        "wilson_95ci": [
+          0.9123783988027135,
+          1.0
+        ]
+      }
+    },
+    "identity_transition_probe": {
+      "detection_latency_seconds": {
+        "count": 40,
+        "maximum": 12.71982717514038,
+        "median_bootstrap_95ci": [
+          8.988310933113098,
+          9.939719200134277
+        ],
+        "minimum": 8.42959713935852,
+        "p50": 9.441150546073914,
+        "p90": 11.064452528953552,
+        "p95": 11.31632112264633,
+        "p99": 12.2736163854599
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 40,
+        "trials": 40,
+        "wilson_95ci": [
+          0.9123783988027135,
+          1.0
+        ]
+      }
+    },
+    "local_socket_beacon": {
+      "detection_latency_seconds": {
+        "count": 40,
+        "maximum": 20.977293729782104,
+        "median_bootstrap_95ci": [
+          18.66968858242035,
+          20.080830454826355
+        ],
+        "minimum": 17.26552677154541,
+        "p50": 18.969110369682312,
+        "p90": 20.56167068481445,
+        "p95": 20.650054943561553,
+        "p99": 20.914068005084992
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 40,
+        "trials": 40,
+        "wilson_95ci": [
+          0.9123783988027135,
+          1.0
+        ]
+      }
+    },
+    "namespace_probe": {
+      "detection_latency_seconds": {
+        "count": 35,
+        "maximum": 11.463928937911987,
+        "median_bootstrap_95ci": [
+          8.759953737258911,
+          9.501012325286865
+        ],
+        "minimum": 8.260969161987305,
+        "p50": 9.098073482513428,
+        "p90": 10.824479484558106,
+        "p95": 10.966604733467102,
+        "p99": 11.297759699821471
+      },
+      "recall": {
+        "estimate": 0.875,
+        "successes": 35,
+        "trials": 40,
+        "wilson_95ci": [
+          0.738878801611489,
+          0.945404997490546
+        ]
+      }
+    },
+    "process_fanout": {
+      "detection_latency_seconds": {
+        "count": 40,
+        "maximum": 21.08492112159729,
+        "median_bootstrap_95ci": [
+          18.898728728294373,
+          19.87795913219452
+        ],
+        "minimum": 17.27284073829651,
+        "p50": 19.534106731414795,
+        "p90": 20.589190578460695,
+        "p95": 20.78164154291153,
+        "p99": 21.01533404111862
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 40,
+        "trials": 40,
+        "wilson_95ci": [
+          0.9123783988027135,
+          1.0
+        ]
+      }
+    }
+  },
+  "by_workload": {
+    "production/aims-frontend": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 20.775070428848267,
+        "median_bootstrap_95ci": [
+          10.194272518157959,
+          19.594916105270386
+        ],
+        "minimum": 8.351574182510376,
+        "p50": 18.622709035873413,
+        "p90": 20.47770137786865,
+        "p95": 20.56294298171997,
+        "p99": 20.726550340652466
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/api-gateway": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 20.977293729782104,
+        "median_bootstrap_95ci": [
+          9.638122797012329,
+          19.473297357559204
+        ],
+        "minimum": 8.539246320724487,
+        "p50": 18.524380445480347,
+        "p90": 20.425893354415894,
+        "p95": 20.691432905197143,
+        "p99": 20.916851186752318
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/auth-service": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 21.032044172286987,
+        "median_bootstrap_95ci": [
+          10.735793352127075,
+          19.6202290058136
+        ],
+        "minimum": 8.260969161987305,
+        "p50": 18.264588117599487,
+        "p90": 20.346459341049194,
+        "p95": 20.539483499526977,
+        "p99": 20.921322412490845
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/cart-service": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 20.657954692840576,
+        "median_bootstrap_95ci": [
+          10.086134672164917,
+          18.74284052848816
+        ],
+        "minimum": 8.374102115631104,
+        "p50": 18.61130714416504,
+        "p90": 20.136576700210572,
+        "p95": 20.575650548934934,
+        "p99": 20.648466110229492
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/catalog-service": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 21.08492112159729,
+        "median_bootstrap_95ci": [
+          9.781207799911499,
+          19.86180830001831
+        ],
+        "minimum": 8.29898452758789,
+        "p50": 18.732598304748535,
+        "p90": 20.485429954528808,
+        "p95": 20.755153560638426,
+        "p99": 21.020182409286498
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/inventory-service": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 20.906492710113525,
+        "median_bootstrap_95ci": [
+          10.270114660263062,
+          18.84670925140381
+        ],
+        "minimum": 8.42959713935852,
+        "p50": 18.541706085205078,
+        "p90": 20.342365169525145,
+        "p95": 20.482643604278564,
+        "p99": 20.80942409515381
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/order-service": {
+      "detection_latency_seconds": {
+        "count": 25,
+        "maximum": 20.641364336013794,
+        "median_bootstrap_95ci": [
+          10.821773290634155,
+          18.79934000968933
+        ],
+        "minimum": 8.523965835571289,
+        "p50": 17.666825771331787,
+        "p90": 20.455067205429078,
+        "p95": 20.513206243515015,
+        "p99": 20.610800771713258
+      },
+      "recall": {
+        "estimate": 1.0,
+        "successes": 25,
+        "trials": 25,
+        "wilson_95ci": [
+          0.8668077490609515,
+          1.0
+        ]
+      }
+    },
+    "production/security-telemetry-service": {
+      "detection_latency_seconds": {
+        "count": 20,
+        "maximum": 20.574050664901733,
+        "median_bootstrap_95ci": [
+          17.431986927986145,
+          19.721850872039795
+        ],
+        "minimum": 8.838257312774658,
+        "p50": 18.960180282592773,
+        "p90": 20.40661528110504,
+        "p95": 20.501443219184875,
+        "p99": 20.55952917575836
+      },
+      "recall": {
+        "estimate": 0.8,
+        "successes": 20,
+        "trials": 25,
+        "wilson_95ci": [
+          0.6086904963045967,
+          0.9113941531319742
+        ]
+      }
+    }
+  },
+  "confusion_counts": {
+    "false_negative": 5,
+    "false_positive": 0,
+    "true_negative": 108182,
+    "true_positive": 195
+  },
+  "evidence_health": {
+    "all_attack_sensor_samples_healthy": true,
+    "all_attacks_acknowledged": true,
+    "attack_report_passed": false,
+    "fast_path_expected_matched": 75,
+    "fast_path_expected_trials": 80,
+    "normal_phase_count": 16,
+    "normal_reports_passed": true,
+    "pre_injection_alerts": 0,
+    "validated_trial_report_hashes": 40,
+    "validation_harness_hashes": [
+      "091fd9762eefb53346dd710f5915b95a8affc1d28b49dee0c7f5b0ee3bff68a5",
+      "74834ef723febcb08692c2b7a8bcaa5cfe7355e097a08ad59e56156d6302969f"
+    ]
+  },
+  "latency_seconds": {
+    "confirmed_ml": {
+      "count": 195,
+      "maximum": 21.08492112159729,
+      "median_bootstrap_95ci": [
+        17.666825771331787,
+        18.732598304748535
+      ],
+      "minimum": 8.260969161987305,
+      "p50": 18.549656629562378,
+      "p90": 20.47496590614319,
+      "p95": 20.587361145019532,
+      "p99": 20.9805787563324
+    },
+    "fast_path_early_warning": {
+      "count": 75,
+      "maximum": 0.9072930812835693,
+      "median_bootstrap_95ci": [
+        0.4186134338378906,
+        0.5017054080963135
+      ],
+      "minimum": 0.08797740936279297,
+      "p50": 0.45287394523620605,
+      "p90": 0.6374584197998048,
+      "p95": 0.7607938051223754,
+      "p99": 0.8905396652221681
+    }
+  },
+  "limitations": [
+    "A zero observed false-alert count is not a mathematical zero-risk guarantee.",
+    "Wilson intervals assume Bernoulli trials; temporally correlated normal windows require run-level block bootstrap once independent soak runs are available.",
+    "Latency bootstrap treats scenario trials as independent; report cluster/run-level sensitivity analysis before a final paper claim.",
+    "Precision combines attack-scenario positives with normal-window false alerts and is therefore descriptive across two different sampling units."
+  ],
+  "metrics": {
+    "f1": 0.9873417721518987,
+    "false_alert_rate_per_window": {
+      "estimate": 0.0,
+      "successes": 0,
+      "trials": 108182,
+      "wilson_95ci": [
+        0.0,
+        3.5507962676948984e-05
+      ]
+    },
+    "precision": {
+      "estimate": 1.0,
+      "wilson_95ci": [
+        0.9806807954262788,
+        1.0
+      ]
+    },
+    "recall": {
+      "estimate": 0.975,
+      "successes": 195,
+      "trials": 200,
+      "wilson_95ci": [
+        0.942821659593358,
+        0.9892752803482386
+      ]
+    }
+  },
+  "per_trial_inference_median_ms": {
+    "count": 200,
+    "maximum": 98.11135,
+    "median_bootstrap_95ci": [
+      38.309400000000004,
+      41.484775
+    ],
+    "minimum": 23.85275,
+    "p50": 40.100750000000005,
+    "p90": 63.216629999999995,
+    "p95": 69.08892,
+    "p99": 79.60749899999988
+  },
+  "sample_units": {
+    "attack": "workload-scenario trial",
+    "latency": "detected workload-scenario trial",
+    "normal": "eligible workload window"
+  },
+  "schema": "sentinel-paper-statistics/v2",
+  "sources": {
+    "attack": {
+      "name": "report.json",
+      "sha256": "b14c3abdab1ac32e8c67f9c359eff3184150bc61c92e6d7b7cf4aac4dc513ea3"
+    },
+    "normal": [
+      {
+        "name": "aims-independent-validation-fit-v2.json",
+        "sha256": "c08d5bc35c48799d4963a558f6c60c19314f02619cf4f207e41e51b48b2f8fb7"
+      },
+      {
+        "name": "aims-blind-normal-test-fit-v2.json",
+        "sha256": "eb1d8b8b2b4424f140d0cdaf6b0ab91e0f37e3d0dad76e4d61f8d83616f6659a"
+      }
+    ]
+  }
+}

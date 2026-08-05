@@ -3,7 +3,7 @@
 **Ngày xác minh cluster gần nhất:** 2026-08-05
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã pass blind-normal và đang chạy blind attack
+**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã hoàn tất blind matrix nhưng bị từ chối promotion (195/200)
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -16,7 +16,7 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 - sau mở rộng, cluster hiện có 6/6 node `Ready` (3 control plane, 3 worker);
 - `sentinel-detector.service` hiện `active`; coverage gate và Tetragon đều đạt 6/6;
 - model V7 từng được load từ `/home/dat/ml-service/models`;
-- full canonical regression gần nhất trên VM đạt `139 passed, 2 warnings`;
+- full canonical regression gần nhất trên VM đạt `151 passed, 2 warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
 - normal validation và post-promotion soak khi đó không có false positive alert.
@@ -29,10 +29,13 @@ Toàn bộ 44 pod trong namespace `production` đang `Running`. AIMS fit-v2 đã
 development gate và có calibration chỉ từ fit split, nhưng chưa được promote.
 Normal matrix độc lập đã đủ 20 phase/24 giờ và pass integrity; independent
 validation run-02--03 đã pass 54.151 windows không alert. Blind-normal
-run-04--05 cũng pass 54.166 windows không alert. Blind attack đang chạy candidate
-bất biến. Vì chưa có blind attack report hoàn chỉnh nên **chưa được gọi candidate AIMS là production-ready hoặc
-world-class evidence**, cũng chưa được suy diễn “không có false positive” từ
-development holdout.
+run-04--05 cũng pass 54.166 windows không alert. Frozen blind attack đã hoàn tất
+40/40 workload-trial, phát hiện 195/200 scenario. Cả năm miss đều là
+`namespace_probe` trên `security-telemetry-service`; fit-v2 vì vậy đã bị từ
+chối promotion đúng contract. Candidate **chưa production-ready và bộ evidence
+chưa đủ world-class paper** do baseline/ablation, cross-cluster và overhead
+counterbalanced chưa hoàn tất. Không được suy diễn “không có false positive”
+từ zero observed alert.
 
 ## 1. Mục tiêu nghiên cứu
 
@@ -64,7 +67,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite gần nhất: `139 passed, 2 warnings`; các mốc cũ bên dưới là evidence lịch sử của các vòng phát triển trước |
+| Regression | Full canonical suite trên VM: `151 passed, 2 warnings`; local source suite: `77 passed, 7 skipped` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -2787,3 +2790,87 @@ chạy hết matrix để ước lượng recall/CI và failure distribution. Kh
 threshold/model dựa trên miss này rồi báo lại cùng run-04--05 hoặc blind attack
 set như bằng chứng độc lập; cải tiến phải mang candidate lineage mới và dữ liệu
 external mới.
+
+### 18.35 Kết quả blind cuối, failure analysis và overhead campaign (05-08-2026)
+
+Frozen AIMS blind matrix đã kết thúc lúc `05:47:54 UTC`; systemd trả exit 8 và
+`Result=exit-code` đúng release contract vì candidate không đạt gate. Đây là
+candidate rejection có chủ đích, không phải service crash. Aggregate report:
+
+- đường dẫn:
+  `/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/report.json`;
+- SHA-256: `b14c3abdab1ac32e8c67f9c359eff3184150bc61c92e6d7b7cf4aac4dc513ea3`;
+- 40/40 workload-trial, 200/200 scenario-trial có final report;
+- 195 true positive, 5 false negative; `all_passed=false`;
+- toàn bộ attack được start-acknowledge, toàn bộ sensor sample khỏe, không có
+  pre-injection alert;
+- 40/40 nested report được `paper_statistics.py` kiểm lại SHA-256 và đối chiếu
+  detected/total, runtime binary hash trước khi tổng hợp.
+
+Hai normal split không chồng phase có tổng 108.182 eligible decision window và
+0 observed alert. Ghép với blind attack cho kết quả mô tả:
+
+| Metric | Estimate | 95% interval / ghi chú |
+|---|---:|---:|
+| Recall | 97,500% (195/200) | Wilson 94,282--98,928% |
+| Precision mô tả | 100% | Wilson 98,068--100%; trộn hai sample unit |
+| F1 mô tả | 98,734% | không claim CI |
+| False alert/window | 0/108.182 | Wilson upper 0,003551% |
+| Fast early-warning | n=75, p50 0,453s | p95 0,761s; p99 0,891s; max 0,907s |
+| Confirmed ML | n=195, p50 18,550s | p95 20,587s; p99 20,981s; max 21,085s |
+| Inference median/trial | n=200, p50 40,101ms | p95 69,089ms; p99 79,607ms |
+
+Derived JSON SHA-256 là
+`d88c9984fb1718448bb60d226431fa6e52e77787d3ac899d79303cfe829d1d41`;
+Markdown SHA-256 là
+`2cbe4929df9a3da9093cd0da0cb064f02fa7c5991ae50dac8aa4a0062d51493a`.
+Bootstrap 95% CI của median confirmed latency là 17,667--18,733s; fast path là
+0,419--0,502s. Đây là bootstrap theo scenario trial; paper cuối vẫn cần
+sensitivity theo run/cluster block.
+
+Phân tầng cho thấy bảy workload còn lại đều 25/25. Riêng
+`production/security-telemetry-service` đạt 20/25 (80%; Wilson
+60,869--91,139%). Bốn scenario đạt 40/40; `namespace_probe` đạt 35/40 (87,5%;
+Wilson 73,888--94,540%). Mỗi rate 6, 12 và 24 đều có recall 97,5%, do workload
+này miss đúng một lần ở mỗi trial/seed chứ không phụ thuộc attack rate.
+
+Failure analysis không hạ threshold hay sửa model theo blind set. Cả năm miss
+cùng pod target `security-telemetry-service-787d55897b-qcb6x`; attack binary
+exit 0, 268--1.061 iteration, detector exit 0, 111--112 inference và full
+Tetragon 6/6. Tuy nhiên các post-injection decision của target có
+`suspicious_mass=0`; max score ở ví dụ seed 101 chỉ 0,3367, dưới threshold 0,8.
+Pod này dùng seccomp Localhost `profiles/aims-runtime.json` và AppArmor Localhost
+`aims-restricted`, trong khi workload đối chứng dùng RuntimeDefault. Preventive
+control có thể chặn `unshare/mount/ptrace` trước điểm probe hiện tại. Vì vậy:
+
+1. ở metric detector end-to-end, năm trường hợp vẫn phải giữ là false negative;
+2. về nguyên nhân, evidence phù hợp với sensor-visibility gap hơn là model
+   compute failure;
+3. V7/fit-v2 bị đóng băng và không được promote;
+4. V8 phải ghi security profile, target decision count, max score,
+   suspicious-mass/behavior ratio sau injection và cờ sensor-observed;
+5. V8 chỉ được claim cải thiện trên normal/attack set mới, frozen trước khi fit.
+
+`run_kernel_regression.py` đã được bổ sung provenance trên nhưng không sửa lại
+artifact V7 đã đóng băng. `paper_statistics.py` schema v2 nhận nhiều normal
+report, từ chối phase overlap, kiểm từng nested trial hash, giữ failure và xuất
+phân tầng workload/scenario/rate. Full suite trên VM đạt `151 passed, 2
+warnings`; local suite đạt `77 passed, 7 skipped`.
+
+Overhead protocol mới chạy đủ sáu hoán vị `no_tracing`, `tetragon_only`,
+`full_pipeline`, mỗi phase 10 lần `wrk -t4 -c50 -d30s`. Aggregate dùng mỗi
+phase-order experiment làm paired block thay vì coi 60 repetition là độc lập.
+Campaign `20260805T063700Z` được khởi chạy ngầm dưới
+`aims-overhead-counterbalanced.service` lúc `06:36:59 UTC`, RuntimeMaxSec 4 giờ.
+Script tự resume report hoàn chỉnh và trap khôi phục AIMS tracing policy cùng
+`sentinel-detector.service`. Trong khi phase `no_tracing` chạy, detector tạm
+`inactive` là trạng thái thí nghiệm có chủ đích, không phải production outage;
+sau campaign phải xác minh service/policy được restore và chỉ cập nhật overhead
+claim khi đủ 6/6 comparison cùng aggregate validator pass.
+
+Trạng thái paper sau mốc này: protocol và evidence đã mạnh hơn rõ rệt nhưng
+**chưa world-class complete**. Còn thiếu baseline/ablation chạy thật, campaign
+overhead cuối, independent cluster/unseen version test và một blind set mới cho
+V8. Không được quảng bá “100% không false positive” hoặc “1--2 giây confirmed
+ML”; số đúng hiện tại là fast warning dưới một giây cho 75 case matched và ML
+confirmation khoảng 18,55 giây median.

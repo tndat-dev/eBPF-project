@@ -1,0 +1,1929 @@
+{
+  "alerts": 0,
+  "candidate": "/home/dat/ml-service/models_aims_fit-v2-20260803T043100Z",
+  "candidate_sha256": {
+    "dataset_manifest.json": "89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac",
+    "production__aims-frontend_bundle.pkl": "4b161a9a77f4570fb94fe4fb2f9a900bafdd9e1c6a12c70bca1caae253c366ed",
+    "production__aims-frontend_lstm.pt": "f0bcfcab493997074e7b55c7c1c9f921f00c442d8624a25ea29c46fcf0643029",
+    "production__api-gateway_bundle.pkl": "ae0a828861055e5be0d9b9f366d0b38a9a2a709e07059d7706d0096bd4ebeecc",
+    "production__api-gateway_lstm.pt": "8920e9ca441676bf96697003d72c86e806617f1ff552753b2cd18da9cc0bc2c1",
+    "production__auth-service_bundle.pkl": "ca0ac68ed2d4fa758e106cb75e07b53f2fdcad6187742718fde955bb2c6c6ceb",
+    "production__auth-service_lstm.pt": "4722c2ba50100845d7d3e0964d8c95d9d12b257c3b83f1df4450f600e2fc94e8",
+    "production__cart-service_bundle.pkl": "8aac55ca2d7ffaf3b62a389562748640021298c8f57e33286716cdf75f46f97a",
+    "production__cart-service_lstm.pt": "e6fc55d375d8e1a955d71b7d0133a855ad9bb6c7ce0ac664a984015431d961d5",
+    "production__catalog-service_bundle.pkl": "189cbff0a3d9f40149ab29dd1a162bf875676819c41c5728c4c49adf6ed29da7",
+    "production__catalog-service_lstm.pt": "c403bd6b716a7c1e80a67be22ff26ca1ccb4fd5223df8fafc30aa3b3b3eabf34",
+    "production__inventory-service_bundle.pkl": "986c6f3e539d3a965018d5f83d5219d1f4031cf334baf022f3fdacd3544afdfa",
+    "production__inventory-service_lstm.pt": "4c96d928513a300b857bb12e7d0333ee2b1ee5a8c41991affe114fbd8c8399b5",
+    "production__order-service_bundle.pkl": "11ccfdf1ca60511e252a794be27d4606eea639ce0d4c087ca36f60ff98f46069",
+    "production__order-service_lstm.pt": "98a577972c4f53804a9a276f59c8a07888660c7ef18828d2c1fc443c89be7c02",
+    "production__security-telemetry-service_bundle.pkl": "51d5db1d7c786470394fe31a44a6d9d53e86b98948293490c033d07b939b5569",
+    "production__security-telemetry-service_lstm.pt": "f7547a5c11ee0cb7a47a8b5f1501346e131a5ad92b342471bfdd332132ef73f7",
+    "training_report.json": "93bcd81eaf9f7eb74ed0fbcbf99a3db012ae9141ffc2797a213035f036230b78",
+    "vocab.pkl": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  },
+  "completed_phases": [
+    "aims-steady-run-04",
+    "aims-burst-run-04",
+    "aims-recovery-run-04",
+    "aims-toolmix-run-04",
+    "aims-steady-run-05",
+    "aims-burst-run-05",
+    "aims-recovery-run-05",
+    "aims-toolmix-run-05"
+  ],
+  "created_at": "2026-08-04T09:07:37.996090+00:00",
+  "detections": 0,
+  "eligible_decision_windows": 54143,
+  "evaluation_seconds": 2123.5647191530443,
+  "evidence_root": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z",
+  "expected_phases": [
+    "aims-steady-run-04",
+    "aims-burst-run-04",
+    "aims-recovery-run-04",
+    "aims-toolmix-run-04",
+    "aims-steady-run-05",
+    "aims-burst-run-05",
+    "aims-recovery-run-05",
+    "aims-toolmix-run-05"
+  ],
+  "initial_calibration": "/home/dat/ml-service/aims-fit-v2-calibration.json",
+  "initial_calibration_sha256": "2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98",
+  "methodology": {
+    "adaptive_state_replayed_in_memory": true,
+    "adaptive_threshold_algorithm_frozen": true,
+    "calibration_persistence_disabled_for_replay": true,
+    "cooldown_seconds": 0,
+    "fast_path_warnings_replayed": false,
+    "holdout_used_for_training_or_tuning": false,
+    "production_detector_path": true
+  },
+  "passed": true,
+  "phases": [
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 858,
+            "max": 28.7848,
+            "median": 15.03555,
+            "min": 11.9894,
+            "p95": 20.503905,
+            "p99": 24.116588999999976
+          },
+          "scores": {
+            "count": 858,
+            "max": 0.6188,
+            "median": 0.0858,
+            "min": 0.0797,
+            "p95": 0.11211499999999995,
+            "p99": 0.2644119999999991
+          },
+          "windows": 858
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 850,
+            "max": 181.8435,
+            "median": 15.02075,
+            "min": 12.1178,
+            "p95": 20.818534999999997,
+            "p99": 24.929786999999994
+          },
+          "scores": {
+            "count": 850,
+            "max": 0.9759,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.1091,
+            "p99": 0.17948699999999995
+          },
+          "windows": 850
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 859,
+            "max": 29.5091,
+            "median": 14.8954,
+            "min": 12.1889,
+            "p95": 20.83755999999999,
+            "p99": 24.539709999999992
+          },
+          "scores": {
+            "count": 859,
+            "max": 0.2294,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.0954,
+            "p99": 0.11566199999999996
+          },
+          "windows": 859
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 855,
+            "max": 31.9198,
+            "median": 14.9895,
+            "min": 12.0294,
+            "p95": 20.9624,
+            "p99": 25.280012000000006
+          },
+          "scores": {
+            "count": 855,
+            "max": 0.6119,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0893,
+            "p99": 0.17999200000000018
+          },
+          "windows": 855
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 855,
+            "max": 28.6788,
+            "median": 14.9551,
+            "min": 12.1827,
+            "p95": 21.06012,
+            "p99": 25.009998
+          },
+          "scores": {
+            "count": 855,
+            "max": 0.9834,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.1004,
+            "p99": 0.16041800000000028
+          },
+          "windows": 855
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 854,
+            "max": 32.11,
+            "median": 14.97585,
+            "min": 12.0212,
+            "p95": 20.58749999999999,
+            "p99": 24.411818
+          },
+          "scores": {
+            "count": 854,
+            "max": 0.7993,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0953,
+            "p99": 0.1505850000000004
+          },
+          "windows": 854
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 848,
+            "max": 27.6145,
+            "median": 15.0192,
+            "min": 12.1608,
+            "p95": 20.927834999999998,
+            "p99": 25.019120999999988
+          },
+          "scores": {
+            "count": 848,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0837,
+            "p95": 0.11840499999999995,
+            "p99": 0.23111099999999896
+          },
+          "windows": 848
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 857,
+            "max": 37.0205,
+            "median": 15.0945,
+            "min": 12.0343,
+            "p95": 20.664459999999995,
+            "p99": 24.140136
+          },
+          "scores": {
+            "count": 857,
+            "max": 0.279,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0894,
+            "p99": 0.1095
+          },
+          "windows": 857
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 3,
+        "normal": 6833
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6836,
+      "evaluation_seconds": 266.81916531996103,
+      "inference_ms": {
+        "count": 6836,
+        "max": 181.8435,
+        "median": 14.99045,
+        "min": 11.9894,
+        "p95": 20.81475,
+        "p99": 24.782819999999976
+      },
+      "passed": true,
+      "phase": "aims-steady-run-04",
+      "scores": {
+        "count": 6836,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0797,
+        "p95": 0.1021,
+        "p99": 0.17818499999999968
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-steady-run-04/collection_manifest.json",
+        "manifest_sha256": "86c34a68579cac3e8bb255e72138495217ca5127d0544db5fd668c02161b7ea0",
+        "row_count": 6836,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "8e264b196a1536d81c62b0556c89f1f248428576f55e3c3bcc56994abc876e46",
+            "metadata_sha256": "439af2972f0b4fc919e224b280508660e73786b45a0f74b3b78b01ef114de9c6"
+          },
+          "production/api-gateway": {
+            "array_sha256": "6537eb9df444c233fc918f892e8f83608f9ac4b793806c1bd0e432603eabe8e4",
+            "metadata_sha256": "9e5f7c75c2707d4add9041eef9ecac5174fcddffc0ee12ad332b1f25fe9e89b4"
+          },
+          "production/auth-service": {
+            "array_sha256": "6685a0a44dcb8447cc019cf4d3f44ef6ab16fd4820dc67d616b63641ed7f9ecb",
+            "metadata_sha256": "2a25eb51357dff9216980bbec4d760d7260601d357853fd239fec9dfa662704a"
+          },
+          "production/cart-service": {
+            "array_sha256": "807a9c9ccca9c3adf2e3ba48a2dfd6c3b92fac46957c45a3b8c43631fb4a34a0",
+            "metadata_sha256": "e889fb68c018567b267820bfb6e5b352797b292fc4e667e86071e803275c0bf7"
+          },
+          "production/catalog-service": {
+            "array_sha256": "f6bacee0eaf9f6778e4bd3a876fdb91d478ae72ef89a5d5f0cd89d370891855c",
+            "metadata_sha256": "aff422233f665986860d2fe2ecec29cda8da7608c75e6b417f06cf3c79413e09"
+          },
+          "production/inventory-service": {
+            "array_sha256": "f2330422c5393c803d7b7a8b7dc8776166228393ee844658510d1690a2c80dd5",
+            "metadata_sha256": "25c9df84686fe7edac87a02f97c1ceb8c201460cd83cef2ac6dbd77ebad42348"
+          },
+          "production/order-service": {
+            "array_sha256": "4ef92158c8f20f38342a99af3e4a20e4e1ae8e8bde0cc2eadc8ce7a3783dde46",
+            "metadata_sha256": "be1e3a41109a0df1b6dff8d0433c582cecbbddd2e08c8550f15989d4b4eedc45"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "ad713601dfc288ab80e86feb027c28e05e35a0f1952e04afbadb3bb2e3575989",
+            "metadata_sha256": "de42fb624030d3ebeec11dfa9b975fed86b2acf2632fe1a4290ab81c0b395d2f"
+          }
+        }
+      },
+      "windows": 6836
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.3858,
+            "median": 14.5898,
+            "min": 12.1224,
+            "p95": 19.100685,
+            "p99": 24.210924999999992
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9369,
+            "median": 0.0824,
+            "min": 0.0801,
+            "p95": 0.12098499999999998,
+            "p99": 0.357919
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.1963,
+            "median": 14.52955,
+            "min": 12.1086,
+            "p95": 19.16859,
+            "p99": 22.624575999999994
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9845,
+            "median": 0.0855,
+            "min": 0.084,
+            "p95": 0.20320499999999989,
+            "p99": 0.6607169999999993
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.9821,
+            "median": 14.492049999999999,
+            "min": 12.0614,
+            "p95": 20.084804999999992,
+            "p99": 24.712417
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0855,
+            "min": 0.0841,
+            "p95": 0.23773999999999992,
+            "p99": 0.9220379999999999
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.9356,
+            "median": 14.5259,
+            "min": 12.071,
+            "p95": 19.440325,
+            "p99": 24.061381
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0848,
+            "min": 0.0839,
+            "p95": 0.21024999999999938,
+            "p99": 0.7529159999999997
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.1238,
+            "median": 14.5838,
+            "min": 12.1089,
+            "p95": 20.108289999999997,
+            "p99": 23.777015999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9934,
+            "median": 0.0873,
+            "min": 0.0841,
+            "p95": 0.11088999999999999,
+            "p99": 0.3433329999999992
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 26.8182,
+            "median": 14.6371,
+            "min": 12.0546,
+            "p95": 19.912034999999996,
+            "p99": 24.304852999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9997,
+            "median": 0.0859,
+            "min": 0.0842,
+            "p95": 0.35077999999999915,
+            "p99": 0.9159079999999999
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.1807,
+            "median": 14.4186,
+            "min": 12.0278,
+            "p95": 19.714000000000002,
+            "p99": 24.204525999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9981,
+            "median": 0.0857,
+            "min": 0.0841,
+            "p95": 0.2784849999999989,
+            "p99": 0.7713039999999994
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 25.8188,
+            "median": 14.492899999999999,
+            "min": 12.1593,
+            "p95": 19.831675,
+            "p99": 24.111189
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9881,
+            "median": 0.0848,
+            "min": 0.0842,
+            "p95": 0.1632249999999999,
+            "p99": 0.7635569999999997
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 51,
+        "normal": 6845
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6896,
+      "evaluation_seconds": 262.32211742695654,
+      "inference_ms": {
+        "count": 6896,
+        "max": 29.1238,
+        "median": 14.52695,
+        "min": 12.0278,
+        "p95": 19.687800000000003,
+        "p99": 24.072364999999998
+      },
+      "passed": true,
+      "phase": "aims-burst-run-04",
+      "scores": {
+        "count": 6896,
+        "max": 1.0,
+        "median": 0.0854,
+        "min": 0.0801,
+        "p95": 0.195225,
+        "p99": 0.754325
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-burst-run-04/collection_manifest.json",
+        "manifest_sha256": "796bfc42e451a4f4daac34fc8e406733eabf361f073081f6e281a390c9f80e49",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "2982b31b132e8b4745f398f165e18d9ddcc8627acf63193464d2a87b91360f1b",
+            "metadata_sha256": "e6e88d29025fe69fbb4568bf4cf87b1e412991f99a541a7e2922bd84a86e3f1c"
+          },
+          "production/api-gateway": {
+            "array_sha256": "a8d41f613749ab77010963e46e2fdb823aedd4d1254db0fa5c4137ef2d32e139",
+            "metadata_sha256": "d63e1300e0de1ebf022ecbf43795160b5d248f13728bf1b2e1c3c51d51ba38c5"
+          },
+          "production/auth-service": {
+            "array_sha256": "de0a1704d293b18a1eaec9ac6c51f673751ca6a6b3d5823db213816dd7cc7676",
+            "metadata_sha256": "cf0c763f58c71233bfa5d6bda581cef7365c01b453bfb45d80b118c19938102b"
+          },
+          "production/cart-service": {
+            "array_sha256": "91124834646293ce0e16f8ec51b296773979f774dc1fd0800d4fcbd8c5afb320",
+            "metadata_sha256": "94522ca7eb94b2ac5ebaffe277c00418e2055d3bca3664cd3633b351ea6a5ab7"
+          },
+          "production/catalog-service": {
+            "array_sha256": "5993f2172c26d5866c656e9591e669edf48f52bd20c70870796075f178948eb1",
+            "metadata_sha256": "033f2dcd115768e1af53dfb458e7bbeb0645352ec44b2f24bbfd61c0cfc22029"
+          },
+          "production/inventory-service": {
+            "array_sha256": "e79e25af350fa6e4ed66c2ff8a6ede649370f99559821ac2b7c8aeb66fdf4c43",
+            "metadata_sha256": "8f6d25ed122fa4ec4463ddbda777025d83d9dca3f060e7da45f66f480d01ecb5"
+          },
+          "production/order-service": {
+            "array_sha256": "a3d53f003166df6f38691f24b7c17d9bf156d4379ae9ca2a173bd96cd640982f",
+            "metadata_sha256": "a13c61e94894be2fe6126fbd537e0a0c79ac0c4a8774f776f7e2fb0168742b98"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "c283a73d9e337c9870b16993ec380f9147f2b82a985823bf7019dd48e6a951af",
+            "metadata_sha256": "75e8721b949229a87e4ade32c3f8ab287b53001a264661e212c054e6189ac978"
+          }
+        }
+      },
+      "windows": 6896
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 808,
+            "max": 30.2092,
+            "median": 14.5246,
+            "min": 11.9497,
+            "p95": 20.877879999999998,
+            "p99": 24.36206999999998
+          },
+          "scores": {
+            "count": 808,
+            "max": 0.9208,
+            "median": 0.0833,
+            "min": 0.0797,
+            "p95": 0.1072,
+            "p99": 0.19609699999999786
+          },
+          "windows": 808
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 801,
+            "max": 30.0412,
+            "median": 14.7371,
+            "min": 12.1466,
+            "p95": 21.0612,
+            "p99": 25.2516
+          },
+          "scores": {
+            "count": 801,
+            "max": 0.9823,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.1036,
+            "p99": 0.1499
+          },
+          "windows": 801
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 821,
+            "max": 28.1393,
+            "median": 14.7005,
+            "min": 12.2611,
+            "p95": 20.6864,
+            "p99": 24.55339999999999
+          },
+          "scores": {
+            "count": 821,
+            "max": 0.4329,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.1042,
+            "p99": 0.13817999999999983
+          },
+          "windows": 821
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 812,
+            "max": 29.3821,
+            "median": 14.83575,
+            "min": 12.065,
+            "p95": 21.213225,
+            "p99": 25.463813999999992
+          },
+          "scores": {
+            "count": 812,
+            "max": 0.9727,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0909,
+            "p99": 0.12278099999999996
+          },
+          "windows": 812
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 822,
+            "max": 30.8289,
+            "median": 14.6467,
+            "min": 12.0155,
+            "p95": 20.65408,
+            "p99": 25.481908999999995
+          },
+          "scores": {
+            "count": 822,
+            "max": 1.0,
+            "median": 0.0839,
+            "min": 0.0839,
+            "p95": 0.12008999999999999,
+            "p99": 0.989451999999999
+          },
+          "windows": 822
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 792,
+            "max": 28.8605,
+            "median": 14.7956,
+            "min": 12.1141,
+            "p95": 20.284809999999997,
+            "p99": 24.934015000000002
+          },
+          "scores": {
+            "count": 792,
+            "max": 0.9579,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.10667999999999997,
+            "p99": 0.2105
+          },
+          "windows": 792
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 804,
+            "max": 28.0716,
+            "median": 14.6493,
+            "min": 12.1431,
+            "p95": 20.649044999999997,
+            "p99": 24.654290000000003
+          },
+          "scores": {
+            "count": 804,
+            "max": 0.3292,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.09521999999999989,
+            "p99": 0.1578
+          },
+          "windows": 804
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 801,
+            "max": 30.214,
+            "median": 14.7034,
+            "min": 11.9679,
+            "p95": 21.3916,
+            "p99": 25.142
+          },
+          "scores": {
+            "count": 801,
+            "max": 0.6484,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0947,
+            "p99": 0.1833
+          },
+          "windows": 801
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 17,
+        "collection_quality_skip": 9,
+        "normal": 6435
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6452,
+      "evaluation_seconds": 249.34857879998162,
+      "inference_ms": {
+        "count": 6461,
+        "max": 30.8289,
+        "median": 14.6934,
+        "min": 11.9497,
+        "p95": 20.842,
+        "p99": 25.15343999999999
+      },
+      "passed": true,
+      "phase": "aims-recovery-run-04",
+      "scores": {
+        "count": 6461,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0797,
+        "p95": 0.1025,
+        "p99": 0.1924199999999997
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-recovery-run-04/collection_manifest.json",
+        "manifest_sha256": "54430f9dbda4fa62409b8950fbdda2a8b13a15bc76f17787094f737a5a5f14ba",
+        "row_count": 6461,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "6ca1f537eaf26e9664be8398061495d0e517ddc20ddb0a68f25764bca4406a88",
+            "metadata_sha256": "41d7a3d7b3b13d8177ecc0b020d4b0a93617c22f3aead157547e582890108ee4"
+          },
+          "production/api-gateway": {
+            "array_sha256": "563eabacdf89e3cdcb439238e46b0097d127b38c6a2be5bd7822c6ac317c4e26",
+            "metadata_sha256": "de98995ec423d89ddf87aa619830b13e2a4abea84270f28460aab4584d845c56"
+          },
+          "production/auth-service": {
+            "array_sha256": "8b7362eecdbe9ee1d38459bbc013ba9a9da2e2d3ad2e2628a1c87e81ee637bc3",
+            "metadata_sha256": "fc494026d2337064aaf18741503f5aae8e2992f872ce4195c2eac7b753c943b1"
+          },
+          "production/cart-service": {
+            "array_sha256": "46e44cac547141a58e8efd2c257ed03df7b5dc286146d4262677f4990ca7056f",
+            "metadata_sha256": "97253190e2564530d082c87a10fe3e8fb91e797529dae5c2fbe5c1d48e31f224"
+          },
+          "production/catalog-service": {
+            "array_sha256": "4c21bdf2bae81e0e7a89688fd6b1b84f49f5f13c6e179acb96ad999a5d9985d6",
+            "metadata_sha256": "19802e6663fa2a4eb25876734df4f084993f87b510fb621c4b01d6cd939f29d7"
+          },
+          "production/inventory-service": {
+            "array_sha256": "c158b865f1ebd4b28ff8c5b7e79bb972e1068286da48d47b03783098520231fb",
+            "metadata_sha256": "1df71e8d1d65981ec23ee79dbd13e5d5e00a9c6900d30c74fe6dda47b075c06e"
+          },
+          "production/order-service": {
+            "array_sha256": "8cad286061f2d0a7819316c2394f8da039849a55f4453bd35fc5d673fd8e7ec3",
+            "metadata_sha256": "b9c6a8a51f6d70d07bda37a70095e80c23755064f0c3841251ae0a0784cde8fc"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "138a3caa2bb270f8bb2cbf4be3e520109e92a09cec07b5bfb06ea826cca71453",
+            "metadata_sha256": "269d693b6d0d1482ced05fc3d760583ff4df745ecc6cf4148903e39b2639f154"
+          }
+        }
+      },
+      "windows": 6461
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 26.8563,
+            "median": 14.4362,
+            "min": 11.9315,
+            "p95": 18.86908999999999,
+            "p99": 24.202305
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9946,
+            "median": 0.0855,
+            "min": 0.0799,
+            "p95": 0.14877999999999997,
+            "p99": 0.4598849999999997
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.5721,
+            "median": 14.39485,
+            "min": 12.032,
+            "p95": 20.36884,
+            "p99": 25.343104999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.8231,
+            "median": 0.0843,
+            "min": 0.0836,
+            "p95": 0.09669499999999999,
+            "p99": 0.19328499999999985
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.246,
+            "median": 14.49895,
+            "min": 11.8903,
+            "p95": 19.677844999999994,
+            "p99": 24.655053999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9098,
+            "median": 0.0842,
+            "min": 0.0839,
+            "p95": 0.09047999999999996,
+            "p99": 0.125217
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.408,
+            "median": 14.43735,
+            "min": 11.978,
+            "p95": 19.795575,
+            "p99": 24.289516999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.4419,
+            "median": 0.0843,
+            "min": 0.0838,
+            "p95": 0.08699499999999999,
+            "p99": 0.10426199999999992
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.4461,
+            "median": 14.4345,
+            "min": 11.9925,
+            "p95": 19.63487499999999,
+            "p99": 24.257870999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.7319,
+            "median": 0.0841,
+            "min": 0.0839,
+            "p95": 0.0958,
+            "p99": 0.16940199999999983
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 26.9473,
+            "median": 14.43035,
+            "min": 11.8405,
+            "p95": 19.552325,
+            "p99": 23.649803
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.944,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.09346999999999996,
+            "p99": 0.13983799999999993
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.6338,
+            "median": 14.54795,
+            "min": 12.1013,
+            "p95": 19.63212499999999,
+            "p99": 23.962853
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9979,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.097495,
+            "p99": 0.21438299999999988
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.4244,
+            "median": 14.497499999999999,
+            "min": 12.1671,
+            "p95": 19.337419999999998,
+            "p99": 24.423874999999995
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.4855,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0894,
+            "p99": 0.1282279999999998
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 10,
+        "normal": 6886
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6896,
+      "evaluation_seconds": 251.92740103404503,
+      "inference_ms": {
+        "count": 6896,
+        "max": 31.5721,
+        "median": 14.4524,
+        "min": 11.8405,
+        "p95": 19.6458,
+        "p99": 24.42755
+      },
+      "passed": true,
+      "phase": "aims-toolmix-run-04",
+      "scores": {
+        "count": 6896,
+        "max": 0.9979,
+        "median": 0.0842,
+        "min": 0.0799,
+        "p95": 0.096325,
+        "p99": 0.21749500000000035
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-toolmix-run-04/collection_manifest.json",
+        "manifest_sha256": "38da1f3d34e47a15dad65fde549f975e822dec385ddcfc13a803bc9fd262f716",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "2371af8f29a5b9911c9bf4535f7ee09bfd2830dd89ef43a28e43e23849e31cb1",
+            "metadata_sha256": "4c6e72bd7d123b6fe2df6ce3d0f998be7f50a53286bb5ac4623777f188a1709c"
+          },
+          "production/api-gateway": {
+            "array_sha256": "4e641f943a3bedbfd189d71c00b97436afdd270380b2409bf6f5982a912d1bd1",
+            "metadata_sha256": "43fdacaee885d135676e6a63f6a31b69a981df990f7b53cf023f359a1aa449e0"
+          },
+          "production/auth-service": {
+            "array_sha256": "c710c7048c0bd6b4af2cf662d235ec8f69e654da4417e6ac43af6ed4d6c7a997",
+            "metadata_sha256": "6ab284d557a198a8f62f91c7e3bfc556abad8750edeb95f854a3f903d742d71d"
+          },
+          "production/cart-service": {
+            "array_sha256": "be60623b7d712534e416c125aa6a79a780d00b011ddf361f536b7c67987ff4a5",
+            "metadata_sha256": "19856e38caea1228b9ba1418a82638e8e54f54f4337bfe4edd8e89f2007ba483"
+          },
+          "production/catalog-service": {
+            "array_sha256": "2f0fe73f66db2dccf647e8c5a3a1de3026ec6bc9d934ea59cdb8eab4e7a2b004",
+            "metadata_sha256": "4457f3370f72e5f281899900f00f291ce9d4c7c9bde0268c6a8f07519af93982"
+          },
+          "production/inventory-service": {
+            "array_sha256": "052e22d6b1e3eddcb8932750236cecaaee4fa2494c21677a91d4fbb40df84cfe",
+            "metadata_sha256": "5448d665144355d3d0af91bad4c5e28f2c525307985231b4bebb7b8897c5091b"
+          },
+          "production/order-service": {
+            "array_sha256": "0b10b1a85b05727f76aa291f9a76fb75d8a912ffdbd77381d7a2b48e51bfa885",
+            "metadata_sha256": "db2ed54f246024508b8f2b61c6e2153f861693ef4f59acf9f401eaeac1c91769"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "40d3a814174f4e944f4098d6e508209a6d9d86f61188de7db56f1042b72c55d9",
+            "metadata_sha256": "a9c52c9b1918cd66a07803aff637605bb72d5540e612949a59a82ceb447ae28f"
+          }
+        }
+      },
+      "windows": 6896
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 858,
+            "max": 29.1717,
+            "median": 14.5746,
+            "min": 12.2004,
+            "p95": 19.90124,
+            "p99": 23.54018099999998
+          },
+          "scores": {
+            "count": 858,
+            "max": 0.8885,
+            "median": 0.0877,
+            "min": 0.0798,
+            "p95": 0.12254999999999998,
+            "p99": 0.3443389999999986
+          },
+          "windows": 858
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 27.1504,
+            "median": 14.4413,
+            "min": 12.2263,
+            "p95": 19.17192,
+            "p99": 24.33531600000001
+          },
+          "scores": {
+            "count": 853,
+            "max": 0.2547,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.0946,
+            "p99": 0.13232800000000042
+          },
+          "windows": 853
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 849,
+            "max": 30.3325,
+            "median": 14.4625,
+            "min": 12.2693,
+            "p95": 19.6417,
+            "p99": 23.141668
+          },
+          "scores": {
+            "count": 849,
+            "max": 0.8836,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.09989999999999995,
+            "p99": 0.13946799999999998
+          },
+          "windows": 849
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 855,
+            "max": 30.5842,
+            "median": 14.5131,
+            "min": 12.0977,
+            "p95": 19.65421,
+            "p99": 24.996326000000007
+          },
+          "scores": {
+            "count": 855,
+            "max": 0.9985,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.08761999999999998,
+            "p99": 0.1177020000000003
+          },
+          "windows": 855
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 860,
+            "max": 208.7393,
+            "median": 14.5936,
+            "min": 12.175,
+            "p95": 19.604974999999996,
+            "p99": 24.996503999999977
+          },
+          "scores": {
+            "count": 860,
+            "max": 0.9691,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.09376999999999994,
+            "p99": 0.1451069999999996
+          },
+          "windows": 860
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 855,
+            "max": 27.8174,
+            "median": 14.6291,
+            "min": 12.0814,
+            "p95": 20.232359999999996,
+            "p99": 24.942134000000014
+          },
+          "scores": {
+            "count": 855,
+            "max": 0.8268,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.099,
+            "p99": 0.18713000000000002
+          },
+          "windows": 855
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 852,
+            "max": 30.1203,
+            "median": 14.570450000000001,
+            "min": 12.1451,
+            "p95": 19.717609999999993,
+            "p99": 25.824861
+          },
+          "scores": {
+            "count": 852,
+            "max": 0.8005,
+            "median": 0.0839,
+            "min": 0.0837,
+            "p95": 0.094,
+            "p99": 0.12376400000000003
+          },
+          "windows": 852
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 856,
+            "max": 30.2994,
+            "median": 14.54065,
+            "min": 12.1131,
+            "p95": 19.894875,
+            "p99": 25.763955000000028
+          },
+          "scores": {
+            "count": 856,
+            "max": 0.6306,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.091325,
+            "p99": 0.11645000000000005
+          },
+          "windows": 856
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 9,
+        "collection_quality_skip": 2,
+        "normal": 6827
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6836,
+      "evaluation_seconds": 259.50322724401485,
+      "inference_ms": {
+        "count": 6838,
+        "max": 208.7393,
+        "median": 14.54055,
+        "min": 12.0814,
+        "p95": 19.696505,
+        "p99": 25.120268000000003
+      },
+      "passed": true,
+      "phase": "aims-steady-run-05",
+      "scores": {
+        "count": 6838,
+        "max": 0.9985,
+        "median": 0.0841,
+        "min": 0.0798,
+        "p95": 0.1002,
+        "p99": 0.15082600000000002
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-steady-run-05/collection_manifest.json",
+        "manifest_sha256": "bb7d5a0c4786d8ac18112c69de6cdda258037392cfe5aacf8f243f1338093e84",
+        "row_count": 6838,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "c7dc8acdaf42507fed9ab7b91c8950523ea6f4a7693a881237636716e0a14e91",
+            "metadata_sha256": "219fe1766ac9f8cd2257cc38e1bb224d7fdce76f2e55ab6c9b18e1042bc638ac"
+          },
+          "production/api-gateway": {
+            "array_sha256": "e476d533b18cdf7b5ff6be2345a0f9fac73ff8dc66e78017eb417799146107ab",
+            "metadata_sha256": "35ba7f2a1ae6e0c8f30612822780785a7fc7f1e7943e14443f521b043f30cfa1"
+          },
+          "production/auth-service": {
+            "array_sha256": "5adbea3dbd9639407dac57b31760c8b4433feeba708ac222163400ec10fc6bfe",
+            "metadata_sha256": "e1db738bd45e5e965aefc189b938cd395dfd49f81db914cb2c2ca5d79caf83e2"
+          },
+          "production/cart-service": {
+            "array_sha256": "55d89e732995f1f34c460175cdee35e8964dce37352c7258d3f323345c02069d",
+            "metadata_sha256": "b00f9ec408a18b5db2b96b3d7a29897ac89a645598bb347f3cf10080c800dea4"
+          },
+          "production/catalog-service": {
+            "array_sha256": "8f65b1d499573b79479f085a9c2458295e5acc34db2faa0e33b5bc336cfd16a7",
+            "metadata_sha256": "6ac5f4f094c1e073f1efc21caad0197cb6c01ff7e689c5046d7bcd9718ff0822"
+          },
+          "production/inventory-service": {
+            "array_sha256": "2e78ee10df31bb073e4b00167a341a04f0242bae05399ef484da9ef875b27372",
+            "metadata_sha256": "2e28fafa58b691118e4f7a0dc138b7ea27e82faabd69e4a95be2ec7e6160ba38"
+          },
+          "production/order-service": {
+            "array_sha256": "46f23bb50ef72b6d28b62145f588f38283bf320280f2f5414442654c81d1ea71",
+            "metadata_sha256": "5277c1a9141f07155b595482eab1d972919791301fba823aedd66a811f9b4e50"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "f579fa8ea8a2f024126ddb4c0ce6fed78167c1b0897c492743600ccc2e7e0271",
+            "metadata_sha256": "9a541eb7d449007345dd2fe08a835dd9fd8bb039b8df2880d345a82d4b94bf65"
+          }
+        }
+      },
+      "windows": 6838
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.0219,
+            "median": 15.642949999999999,
+            "min": 12.0053,
+            "p95": 22.867199999999997,
+            "p99": 26.063888
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.5616,
+            "median": 0.083,
+            "min": 0.0801,
+            "p95": 0.11237999999999997,
+            "p99": 0.3953759999999995
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 32.9088,
+            "median": 15.62735,
+            "min": 12.0118,
+            "p95": 22.37664499999999,
+            "p99": 27.138933999999992
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0855,
+            "min": 0.084,
+            "p95": 0.1821649999999998,
+            "p99": 0.46886599999999945
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 55.7688,
+            "median": 15.71575,
+            "min": 12.1665,
+            "p95": 22.862624999999994,
+            "p99": 26.277891
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0854,
+            "min": 0.0841,
+            "p95": 0.2910749999999997,
+            "p99": 0.987308
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.6451,
+            "median": 15.528649999999999,
+            "min": 12.1277,
+            "p95": 22.91969,
+            "p99": 25.887549999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9911,
+            "median": 0.0848,
+            "min": 0.0839,
+            "p95": 0.1895149999999996,
+            "p99": 0.58687
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.4007,
+            "median": 15.66085,
+            "min": 12.2508,
+            "p95": 22.969984999999994,
+            "p99": 26.688619999999993
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.4329,
+            "median": 0.0874,
+            "min": 0.084,
+            "p95": 0.122595,
+            "p99": 0.2805399999999998
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 35.2489,
+            "median": 15.57925,
+            "min": 12.1421,
+            "p95": 23.461109999999987,
+            "p99": 27.512673999999993
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9992,
+            "median": 0.0858,
+            "min": 0.0842,
+            "p95": 0.23358499999999982,
+            "p99": 0.8209979999999996
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.7263,
+            "median": 15.71595,
+            "min": 12.1839,
+            "p95": 23.009794999999997,
+            "p99": 26.793386999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9986,
+            "median": 0.0856,
+            "min": 0.0841,
+            "p95": 0.24628499999999928,
+            "p99": 0.695976999999999
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.8137,
+            "median": 15.674299999999999,
+            "min": 12.1085,
+            "p95": 22.532044999999993,
+            "p99": 26.962353999999994
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9988,
+            "median": 0.0848,
+            "min": 0.0842,
+            "p95": 0.1503099999999999,
+            "p99": 0.7468169999999986
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 56,
+        "normal": 6840
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6896,
+      "evaluation_seconds": 293.0657988450257,
+      "inference_ms": {
+        "count": 6896,
+        "max": 55.7688,
+        "median": 15.6495,
+        "min": 12.0053,
+        "p95": 22.894750000000002,
+        "p99": 26.676745000000004
+      },
+      "passed": true,
+      "phase": "aims-burst-run-05",
+      "scores": {
+        "count": 6896,
+        "max": 1.0,
+        "median": 0.0854,
+        "min": 0.0801,
+        "p95": 0.19972499999999999,
+        "p99": 0.6671600000000006
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-burst-run-05/collection_manifest.json",
+        "manifest_sha256": "ffb8c6b183df57a9d08cdac6fe76da039a7a8f5978f81ca6733b0789e574e302",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "dbfc9c297eb6f3e076b8f78461ed9fda31fecb872db2213016bbf5a76b29fa28",
+            "metadata_sha256": "f8dc2783a83db4c1d5b0b9f4a4448bc963419447620de52196fa5cc7f862ad29"
+          },
+          "production/api-gateway": {
+            "array_sha256": "d8abbb60ad42ed18a40d77527696c3bb689e0c44a95b4386c4370d42f0fbf214",
+            "metadata_sha256": "48235d43d67d53f695445ea76cf978e701f4e88bdced384df22db006431df66f"
+          },
+          "production/auth-service": {
+            "array_sha256": "918c59fadc07b19f5b9270e78ce967956a97b0321f7963b37a86df7d5ab35c3b",
+            "metadata_sha256": "39eb8d2596d20fc292832b03d8b81b4839a6d0079daf154f3ca39cad630fcdd0"
+          },
+          "production/cart-service": {
+            "array_sha256": "4513ce923da80c30dea8358e3fc3edda333dd783f04aa48fc54602d1e9c6ee08",
+            "metadata_sha256": "611ec02f816093178ca39e35ffe22a1506c37ac1002d20320e7b14d4de4e5155"
+          },
+          "production/catalog-service": {
+            "array_sha256": "1bad15685e6da39244d990db6f0b23964858bc673845a0993665fc97f58fcf4e",
+            "metadata_sha256": "6f6664cb8546717dc93431a356884d809c89d58999378de24aff519d27b52f91"
+          },
+          "production/inventory-service": {
+            "array_sha256": "05099e6e513a5e91486a2ff84c0e9254f779982b860ecdef97df05899c496329",
+            "metadata_sha256": "d274f11ce24f0ea727f77ffb3d9dd9b3526112a5e450f17a4624de3c04d0402a"
+          },
+          "production/order-service": {
+            "array_sha256": "62901cd9c3f8b23342acec0d6ad732ea82f0b082d7225241b3eb4db207e631aa",
+            "metadata_sha256": "6ce5171a665e114c1008d41f00d78c9e052293efd4f6418b446e125b910f8de9"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "e97b858cbb28227345afc7b8e96291e11cf9cb4a91a0c2ca184f1b5544395648",
+            "metadata_sha256": "76b3c802e75aa7155b746a87e9d859601abfa6128978a48f2a9e7b78b08c80e4"
+          }
+        }
+      },
+      "windows": 6896
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 814,
+            "max": 29.3822,
+            "median": 15.5873,
+            "min": 12.0171,
+            "p95": 23.643179999999994,
+            "p99": 26.556798
+          },
+          "scores": {
+            "count": 814,
+            "max": 0.787,
+            "median": 0.0895,
+            "min": 0.0797,
+            "p95": 0.13793999999999995,
+            "p99": 0.22186800000000004
+          },
+          "windows": 814
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 790,
+            "max": 29.8037,
+            "median": 15.4941,
+            "min": 12.1444,
+            "p95": 22.681079999999998,
+            "p99": 25.860108
+          },
+          "scores": {
+            "count": 790,
+            "max": 1.0,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.1071,
+            "p99": 0.18177700000000002
+          },
+          "windows": 790
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 824,
+            "max": 29.7891,
+            "median": 15.5351,
+            "min": 12.1221,
+            "p95": 23.263469999999987,
+            "p99": 25.921231
+          },
+          "scores": {
+            "count": 824,
+            "max": 0.9832,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.1103,
+            "p99": 0.1584
+          },
+          "windows": 824
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 816,
+            "max": 32.916,
+            "median": 15.64495,
+            "min": 12.1081,
+            "p95": 23.3191,
+            "p99": 26.516520000000007
+          },
+          "scores": {
+            "count": 816,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.087525,
+            "p99": 0.12378000000000002
+          },
+          "windows": 816
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 815,
+            "max": 38.3145,
+            "median": 15.6547,
+            "min": 11.9282,
+            "p95": 23.266579999999998,
+            "p99": 28.868090000000002
+          },
+          "scores": {
+            "count": 815,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.12433,
+            "p99": 0.5468280000000019
+          },
+          "windows": 815
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 775,
+            "max": 33.8954,
+            "median": 15.6477,
+            "min": 12.1462,
+            "p95": 23.54902,
+            "p99": 26.531299999999998
+          },
+          "scores": {
+            "count": 775,
+            "max": 0.9902,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.11977999999999987,
+            "p99": 0.25896599999999975
+          },
+          "windows": 775
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 803,
+            "max": 32.44,
+            "median": 15.4369,
+            "min": 11.8378,
+            "p95": 23.754619999999996,
+            "p99": 26.394604
+          },
+          "scores": {
+            "count": 803,
+            "max": 0.9997,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.11522999999999996,
+            "p99": 0.22686200000000004
+          },
+          "windows": 803
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 812,
+            "max": 30.7666,
+            "median": 15.696950000000001,
+            "min": 12.1819,
+            "p95": 23.01724999999998,
+            "p99": 26.933439
+          },
+          "scores": {
+            "count": 812,
+            "max": 0.9789,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.091,
+            "p99": 0.107079
+          },
+          "windows": 812
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 14,
+        "collection_quality_skip": 12,
+        "normal": 6423
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6437,
+      "evaluation_seconds": 267.11261399800424,
+      "inference_ms": {
+        "count": 6449,
+        "max": 38.3145,
+        "median": 15.5688,
+        "min": 11.8378,
+        "p95": 23.291799999999995,
+        "p99": 26.517376
+      },
+      "passed": true,
+      "phase": "aims-recovery-run-05",
+      "scores": {
+        "count": 6449,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0797,
+        "p95": 0.11501999999999989,
+        "p99": 0.2270039999999999
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-recovery-run-05/collection_manifest.json",
+        "manifest_sha256": "611780436a6123b37da0f88cfba451cd6b7549f677f04d1e8debc4120ac56112",
+        "row_count": 6449,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "119cda6a0939463a93e51a0452a7117c51a2d3561a34a8459eb36c471d4faf4e",
+            "metadata_sha256": "d2fae745348716c55fcb1b6f690f842231ce3c8643cbd20a35a974d54e4d8e90"
+          },
+          "production/api-gateway": {
+            "array_sha256": "fac9f9d09a5d2aa141a8541cc16830b32ea26f19abe84fff5cc610167bb19c6a",
+            "metadata_sha256": "468c11b30e292d249b27177f70b522c94c735faebc120a56a81be554a1dd805a"
+          },
+          "production/auth-service": {
+            "array_sha256": "f961350d375d2389fa740e354899482dba139243c7708b2764cc52cbdcc8e9d5",
+            "metadata_sha256": "bf1246f912211b6f258705799076e34d0edcfac0e406d0c9739b1e74f7249630"
+          },
+          "production/cart-service": {
+            "array_sha256": "29e3552d49fc714ff087ca2b134a1eb2f780ccf38456738aef18a15a3622ade8",
+            "metadata_sha256": "be445fe273f9dccd5c2e23dd4a5818c5de69434e7cc6d82daa2dc8d77a277283"
+          },
+          "production/catalog-service": {
+            "array_sha256": "59a48422a7f013251eb8377132458254c1819d9cba3fbd88f9dc298790a07a9f",
+            "metadata_sha256": "4b6e5624b93cef9bbf434f782217eb69b1a207e624b914613c18da3f3a005391"
+          },
+          "production/inventory-service": {
+            "array_sha256": "e1aeff8a61c5acaa2cbc9cabc17edb011cd4d00f3d0376c00f02985912cf3b17",
+            "metadata_sha256": "830fb6da7e6d30919b9345cfaa386855324943073f9753b36132d1b6b45c205e"
+          },
+          "production/order-service": {
+            "array_sha256": "6bc23891fc758f7b19aa217e577b4a5e1dd6a85569b5a413249b6d89d1a7441e",
+            "metadata_sha256": "c3bb3d214709acc3f80e1932b1f48dc153509c910d58573941090c6ed9941588"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "9bc9dbcbc538fe8412d9fd10412ec274e3f7802ae2372d7fae6c1ea3f3040653",
+            "metadata_sha256": "270b62c9ef9348a5af4eb04eb3eea387ff5d3c48d12196dc7c1909a7eeb4d1d2"
+          }
+        }
+      },
+      "windows": 6449
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.656,
+            "median": 15.1839,
+            "min": 12.3705,
+            "p95": 22.12786999999999,
+            "p99": 25.542885999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9987,
+            "median": 0.0853,
+            "min": 0.0798,
+            "p95": 0.12652499999999978,
+            "p99": 0.41338499999999984
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.2309,
+            "median": 15.24915,
+            "min": 12.3229,
+            "p95": 21.925905,
+            "p99": 24.730728999999993
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9303,
+            "median": 0.0842,
+            "min": 0.0837,
+            "p95": 0.09439499999999999,
+            "p99": 0.1539959999999999
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.3166,
+            "median": 15.1923,
+            "min": 12.2142,
+            "p95": 21.992779999999993,
+            "p99": 24.969779999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.4423,
+            "median": 0.0842,
+            "min": 0.0839,
+            "p95": 0.0897,
+            "p99": 0.09709199999999996
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 861,
+            "max": 30.8643,
+            "median": 15.2071,
+            "min": 12.1685,
+            "p95": 22.1358,
+            "p99": 26.143459999999997
+          },
+          "scores": {
+            "count": 861,
+            "max": 0.379,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.0876,
+            "p99": 0.10431999999999987
+          },
+          "windows": 861
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 36.4896,
+            "median": 15.08705,
+            "min": 12.0328,
+            "p95": 22.257994999999998,
+            "p99": 26.256552
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.8654,
+            "median": 0.0841,
+            "min": 0.0839,
+            "p95": 0.09298499999999998,
+            "p99": 0.16844999999999952
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.598,
+            "median": 15.2636,
+            "min": 12.2132,
+            "p95": 22.027284999999996,
+            "p99": 25.294676
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.7515,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.09358999999999999,
+            "p99": 0.1219469999999999
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.9594,
+            "median": 15.173,
+            "min": 12.3556,
+            "p95": 21.737279999999988,
+            "p99": 24.959426
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.8649,
+            "median": 0.0842,
+            "min": 0.0837,
+            "p95": 0.09629499999999999,
+            "p99": 0.16705099999999998
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 861,
+            "max": 30.1472,
+            "median": 15.1908,
+            "min": 12.0656,
+            "p95": 22.4606,
+            "p99": 26.435799999999997
+          },
+          "scores": {
+            "count": 861,
+            "max": 0.7608,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0893,
+            "p99": 0.1155199999999999
+          },
+          "windows": 861
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 10,
+        "normal": 6884
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6894,
+      "evaluation_seconds": 273.2533354589832,
+      "inference_ms": {
+        "count": 6894,
+        "max": 36.4896,
+        "median": 15.19215,
+        "min": 12.0328,
+        "p95": 22.066284999999983,
+        "p99": 25.769434999999994
+      },
+      "passed": true,
+      "phase": "aims-toolmix-run-05",
+      "scores": {
+        "count": 6894,
+        "max": 0.9987,
+        "median": 0.0842,
+        "min": 0.0798,
+        "p95": 0.0954,
+        "p99": 0.1676979999999996
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-toolmix-run-05/collection_manifest.json",
+        "manifest_sha256": "b2e307a865e98f3a7726a9a9f065b11d34e592962831c7225994995348aec639",
+        "row_count": 6894,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "06ca1c9acbb37c0a5e38d588be51818c1f6de490d604a1dc9126c6945b412a8a",
+            "metadata_sha256": "188398b9fe246396d55f56bd770e355e49c77e7a3701eb1ff86ab636f51db4d8"
+          },
+          "production/api-gateway": {
+            "array_sha256": "0541c483716488afa940386ea93600d1a765082261a0f7f86e5076189815c6cf",
+            "metadata_sha256": "e9e142f400f03e56e3b710581200065da678077b44638ea14a2d808bc83cb320"
+          },
+          "production/auth-service": {
+            "array_sha256": "5f099e283cdbe34c8c94e96ced8a64220943a30513f3df079b2f10dac3666afe",
+            "metadata_sha256": "78f5d06baeaff061492d54b04d4f0a0991f910c3987cfebe7da7ca6cd9f66f1e"
+          },
+          "production/cart-service": {
+            "array_sha256": "f978e8fea0ae88746f9d395bccc88c9080ed3de2b1d6f9b5ae8868f6208b5459",
+            "metadata_sha256": "2c02451c58b33e778277eaf5b7f7fa088ce3690bc87c9d491a88d5eb149ffa5f"
+          },
+          "production/catalog-service": {
+            "array_sha256": "60521cbb95ff26d43f5b0b9d839cc98c781b9b1d849fee35b2137531d7fee180",
+            "metadata_sha256": "4f0758adbb6d66cdfb5b5d4bcae0883aa78e4272d1b66837846609c591fb8ffc"
+          },
+          "production/inventory-service": {
+            "array_sha256": "607302e7b89b91d4f222aa473608eaad9663b76d5db0989c668cfaf8c5513bdf",
+            "metadata_sha256": "de8e6ccfea99b9517dd7459d7fe82ca4061d170e465208ade8e96d16419daf5a"
+          },
+          "production/order-service": {
+            "array_sha256": "7fdcc0fd03f37263fc346681fe70a0b3c2a7a583069c7a33c3a5d7263af95a79",
+            "metadata_sha256": "9fa015aa0e23a123ff2b5705256ea59cd546e550aa8e8d9471c765418f0be8c0"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "73da6763eec2818475430314fab092ca8a7a41127b477f1c712d7a25bfc9d493",
+            "metadata_sha256": "cd1bb737693b0da4fdee3c8511386406a29685ce0c406e9a80cb51b9de003465"
+          }
+        }
+      },
+      "windows": 6894
+    }
+  ],
+  "prerequisite": {
+    "path": "/home/dat/ml-service/aims-independent-validation-fit-v2.json",
+    "sha256": "c08d5bc35c48799d4963a558f6c60c19314f02619cf4f207e41e51b48b2f8fb7"
+  },
+  "release_contract": "/home/dat/ml-service/aims_release_contract.json",
+  "release_contract_sha256": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006",
+  "role": "blind_normal_test",
+  "runtime_thresholds": {
+    "production/aims-frontend": 0.8,
+    "production/api-gateway": 0.8,
+    "production/auth-service": 0.8,
+    "production/cart-service": 0.8,
+    "production/catalog-service": 0.8,
+    "production/inventory-service": 0.8,
+    "production/order-service": 0.8,
+    "production/security-telemetry-service": 0.8
+  },
+  "schema_version": 1,
+  "split_contract": "/home/dat/ml-service/aims_candidate_split_contract.json",
+  "split_contract_sha256": "e47a575c0d2e918d381198e0396d57e72c0229ccf6aea0ea4d8920caeb098ec0",
+  "status": "complete",
+  "windows": 54166
+}

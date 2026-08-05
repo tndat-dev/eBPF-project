@@ -159,6 +159,63 @@ def select_ready_pod(namespace: str, selector: str) -> str:
     return pods[0]
 
 
+def pod_security_profile(namespace: str, pod: str) -> dict:
+    """Snapshot preventive controls that can suppress sensor-visible syscalls."""
+    raw = subprocess.check_output(
+        ["kubectl", "get", "pod", "-n", namespace, pod, "-o", "json"],
+        text=True,
+        timeout=KUBECTL_READ_TIMEOUT_SECONDS,
+    )
+    spec = json.loads(raw).get("spec", {})
+    pod_context = spec.get("securityContext", {})
+    return {
+        "node_name": spec.get("nodeName"),
+        "seccomp_profile": pod_context.get("seccompProfile"),
+        "apparmor_profile": pod_context.get("appArmorProfile"),
+        "container_security_contexts": {
+            item.get("name", f"container-{index}"): item.get(
+                "securityContext", {}
+            )
+            for index, item in enumerate(spec.get("containers", []))
+        },
+    }
+
+
+def post_injection_observation(rows: list[dict], pod_key: str,
+                               attack_started: float | None) -> dict:
+    """Summarise what the detector actually observed after injection.
+
+    Attack process success only proves that the harness ran. A seccomp filter
+    can reject a syscall before the kprobe used by a sensor policy. Keeping
+    post-injection decision evidence prevents that case being mistaken for an
+    ML false negative with sensor-visible features.
+    """
+    decisions = [
+        row for row in rows
+        if row.get("kind") == "decision"
+        and row.get("pod_key") == pod_key
+        and attack_started is not None
+        and row.get("ts", 0) >= attack_started
+    ]
+
+    def maximum(field: str) -> float | None:
+        values = [
+            float(row[field]) for row in decisions if row.get(field) is not None
+        ]
+        return max(values) if values else None
+
+    suspicious_mass = maximum("suspicious_mass")
+    return {
+        "target_decision_count": len(decisions),
+        "post_injection_max_score": maximum("score"),
+        "post_injection_max_suspicious_mass": suspicious_mass,
+        "post_injection_max_behavior_ratio": maximum("behavior_max_ratio"),
+        "post_injection_suspicious_signal_observed": bool(
+            suspicious_mass is not None and suspicious_mass > 0.0
+        ),
+    }
+
+
 def install_runtime_binary(
     namespace: str,
     selector: str,
@@ -401,6 +458,7 @@ def main() -> int:
         args.namespace, args.selector, runtime_binary, container_binary,
     )
     pod_key = f"{args.namespace}/{pod}"
+    security_profile = pod_security_profile(args.namespace, pod)
 
     report = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -418,6 +476,7 @@ def main() -> int:
         "validation_harness_sha256": sha256(Path(__file__).resolve()),
         "calibration_source": str(calibration_source),
         "pod_key": pod_key,
+        "pod_security_profile": security_profile,
         "window_seconds": args.window,
         "minimum_events": args.minimum_events,
         "confirmation_policy": {
@@ -581,6 +640,9 @@ def main() -> int:
                 else None
             )
             first_early = early_warnings[0] if early_warnings else None
+            observation = post_injection_observation(
+                rows, pod_key, attack_started,
+            )
             early_latency = (
                 float(first_early["ts"] - attack_started)
                 if first_early else None
@@ -645,6 +707,7 @@ def main() -> int:
                 ),
                 "fast_path_warning": first_early,
                 "detection": first,
+                **observation,
             }
             report["scenarios"][scenario] = result
             (output_dir / "report.partial.json").write_text(

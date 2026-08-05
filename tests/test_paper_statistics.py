@@ -3,7 +3,12 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ml-service"))
-from paper_statistics import build_report, main, wilson_interval
+from paper_statistics import (
+    build_report,
+    load_blind_attack_rows,
+    main,
+    wilson_interval,
+)
 
 
 def _normal():
@@ -82,3 +87,65 @@ def test_derived_json_is_location_independent(tmp_path, monkeypatch):
         assert main() == 0
         outputs.append(output.read_bytes())
     assert outputs[0] == outputs[1]
+
+
+def test_blind_matrix_validates_hashes_and_preserves_metadata(tmp_path):
+    trial_dir = tmp_path / "service-trial-01" / "run"
+    trial_dir.mkdir(parents=True)
+    trial_report = {
+        "runtime_binary_sha256": "binary",
+        "runtime_code_sha256": {"detector.py": "source"},
+        "validation_harness_sha256": "harness",
+        "scenarios": {
+            "escape": {
+                "detected": False,
+                "detection_latency_seconds": None,
+                "fast_path_latency_seconds": 0.25,
+                "inference_median_ms": 2.0,
+                "sensor_health_healthy": True,
+                "normal_alerts_before_attack": 0,
+                "fast_path_expected": True,
+                "fast_path_expected_matched": True,
+                "attack_acknowledged": True,
+            }
+        },
+    }
+    trial_path = trial_dir / "report.json"
+    trial_path.write_text(json.dumps(trial_report))
+    import hashlib
+    digest = hashlib.sha256(trial_path.read_bytes()).hexdigest()
+    aggregate = {
+        "completed_trials": 1,
+        "expected_scenario_trials": 1,
+        "detected": 0,
+        "runtime_binary_sha256": "binary",
+        "runtime_source_sha256": "source",
+        "trials": [{
+            "target": "production/service",
+            "trial": 1,
+            "rate": 6,
+            "seed": 101,
+            "total": 1,
+            "detected": 0,
+            "report_path": str(trial_path),
+            "report_sha256": digest,
+        }],
+    }
+    aggregate_path = tmp_path / "report.json"
+    aggregate_path.write_text(json.dumps(aggregate))
+    rows = load_blind_attack_rows(aggregate_path, aggregate)
+    assert rows[0]["workload"] == "production/service"
+    assert rows[0]["rate"] == 6
+    assert rows[0]["attack_acknowledged"] is True
+
+
+def test_split_normal_reports_use_eligible_windows_and_reject_overlap():
+    normals = [
+        {"passed": True, "detections": 0, "eligible_decision_windows": 40,
+         "completed_phases": ["run-02"]},
+        {"passed": True, "detections": 0, "eligible_decision_windows": 60,
+         "completed_phases": ["run-04"]},
+    ]
+    report = build_report(normals, _attack())
+    assert report["metrics"]["false_alert_rate_per_window"]["trials"] == 100
+    assert report["evidence_health"]["normal_phase_count"] == 2

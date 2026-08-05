@@ -1,0 +1,1929 @@
+{
+  "alerts": 0,
+  "candidate": "/home/dat/ml-service/models_aims_fit-v2-20260803T043100Z",
+  "candidate_sha256": {
+    "dataset_manifest.json": "89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac",
+    "production__aims-frontend_bundle.pkl": "4b161a9a77f4570fb94fe4fb2f9a900bafdd9e1c6a12c70bca1caae253c366ed",
+    "production__aims-frontend_lstm.pt": "f0bcfcab493997074e7b55c7c1c9f921f00c442d8624a25ea29c46fcf0643029",
+    "production__api-gateway_bundle.pkl": "ae0a828861055e5be0d9b9f366d0b38a9a2a709e07059d7706d0096bd4ebeecc",
+    "production__api-gateway_lstm.pt": "8920e9ca441676bf96697003d72c86e806617f1ff552753b2cd18da9cc0bc2c1",
+    "production__auth-service_bundle.pkl": "ca0ac68ed2d4fa758e106cb75e07b53f2fdcad6187742718fde955bb2c6c6ceb",
+    "production__auth-service_lstm.pt": "4722c2ba50100845d7d3e0964d8c95d9d12b257c3b83f1df4450f600e2fc94e8",
+    "production__cart-service_bundle.pkl": "8aac55ca2d7ffaf3b62a389562748640021298c8f57e33286716cdf75f46f97a",
+    "production__cart-service_lstm.pt": "e6fc55d375d8e1a955d71b7d0133a855ad9bb6c7ce0ac664a984015431d961d5",
+    "production__catalog-service_bundle.pkl": "189cbff0a3d9f40149ab29dd1a162bf875676819c41c5728c4c49adf6ed29da7",
+    "production__catalog-service_lstm.pt": "c403bd6b716a7c1e80a67be22ff26ca1ccb4fd5223df8fafc30aa3b3b3eabf34",
+    "production__inventory-service_bundle.pkl": "986c6f3e539d3a965018d5f83d5219d1f4031cf334baf022f3fdacd3544afdfa",
+    "production__inventory-service_lstm.pt": "4c96d928513a300b857bb12e7d0333ee2b1ee5a8c41991affe114fbd8c8399b5",
+    "production__order-service_bundle.pkl": "11ccfdf1ca60511e252a794be27d4606eea639ce0d4c087ca36f60ff98f46069",
+    "production__order-service_lstm.pt": "98a577972c4f53804a9a276f59c8a07888660c7ef18828d2c1fc443c89be7c02",
+    "production__security-telemetry-service_bundle.pkl": "51d5db1d7c786470394fe31a44a6d9d53e86b98948293490c033d07b939b5569",
+    "production__security-telemetry-service_lstm.pt": "f7547a5c11ee0cb7a47a8b5f1501346e131a5ad92b342471bfdd332132ef73f7",
+    "training_report.json": "93bcd81eaf9f7eb74ed0fbcbf99a3db012ae9141ffc2797a213035f036230b78",
+    "vocab.pkl": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  },
+  "completed_phases": [
+    "aims-steady-run-02",
+    "aims-burst-run-02",
+    "aims-recovery-run-02",
+    "aims-toolmix-run-02",
+    "aims-steady-run-03",
+    "aims-burst-run-03",
+    "aims-recovery-run-03",
+    "aims-toolmix-run-03"
+  ],
+  "created_at": "2026-08-04T08:22:41.043004+00:00",
+  "detections": 0,
+  "eligible_decision_windows": 54039,
+  "evaluation_seconds": 2097.8065612019855,
+  "evidence_root": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z",
+  "expected_phases": [
+    "aims-steady-run-02",
+    "aims-burst-run-02",
+    "aims-recovery-run-02",
+    "aims-toolmix-run-02",
+    "aims-steady-run-03",
+    "aims-burst-run-03",
+    "aims-recovery-run-03",
+    "aims-toolmix-run-03"
+  ],
+  "initial_calibration": "/home/dat/ml-service/aims-fit-v2-calibration.json",
+  "initial_calibration_sha256": "2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98",
+  "methodology": {
+    "adaptive_state_replayed_in_memory": true,
+    "adaptive_threshold_algorithm_frozen": true,
+    "calibration_persistence_disabled_for_replay": true,
+    "cooldown_seconds": 0,
+    "fast_path_warnings_replayed": false,
+    "holdout_used_for_training_or_tuning": false,
+    "production_detector_path": true
+  },
+  "passed": true,
+  "phases": [
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 860,
+            "max": 26.7771,
+            "median": 14.3292,
+            "min": 11.8387,
+            "p95": 19.37067,
+            "p99": 23.301219999999986
+          },
+          "scores": {
+            "count": 860,
+            "max": 0.9994,
+            "median": 0.0856,
+            "min": 0.0797,
+            "p95": 0.10490499999999998,
+            "p99": 0.3217529999999989
+          },
+          "windows": 860
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 857,
+            "max": 26.0681,
+            "median": 14.3491,
+            "min": 11.9317,
+            "p95": 19.49088,
+            "p99": 23.383943999999996
+          },
+          "scores": {
+            "count": 857,
+            "max": 0.7426,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.0917799999999999,
+            "p99": 0.11582399999999989
+          },
+          "windows": 857
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 857,
+            "max": 32.0006,
+            "median": 14.356,
+            "min": 11.8873,
+            "p95": 19.722279999999994,
+            "p99": 24.054139999999954
+          },
+          "scores": {
+            "count": 857,
+            "max": 0.5147,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.08721999999999999,
+            "p99": 0.09827599999999984
+          },
+          "windows": 857
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 26.9561,
+            "median": 14.3885,
+            "min": 12.0868,
+            "p95": 19.484999999999996,
+            "p99": 23.036164
+          },
+          "scores": {
+            "count": 853,
+            "max": 0.9974,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0889,
+            "p99": 0.12379200000000004
+          },
+          "windows": 853
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 27.9067,
+            "median": 14.2857,
+            "min": 11.9542,
+            "p95": 19.14936,
+            "p99": 23.523248000000006
+          },
+          "scores": {
+            "count": 853,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.1018,
+            "p99": 0.32518800000000364
+          },
+          "windows": 853
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 854,
+            "max": 31.4526,
+            "median": 14.43905,
+            "min": 11.7023,
+            "p95": 19.821979999999993,
+            "p99": 24.929134000000015
+          },
+          "scores": {
+            "count": 854,
+            "max": 0.169,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.097,
+            "p99": 0.115047
+          },
+          "windows": 854
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 856,
+            "max": 30.2751,
+            "median": 14.418849999999999,
+            "min": 12.0523,
+            "p95": 20.133275,
+            "p99": 23.995649999999998
+          },
+          "scores": {
+            "count": 856,
+            "max": 0.9273,
+            "median": 0.084,
+            "min": 0.0837,
+            "p95": 0.0997,
+            "p99": 0.15133000000000033
+          },
+          "windows": 856
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 860,
+            "max": 175.8488,
+            "median": 14.2734,
+            "min": 11.9989,
+            "p95": 19.249004999999997,
+            "p99": 23.747778999999998
+          },
+          "scores": {
+            "count": 860,
+            "max": 0.9784,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.08721,
+            "p99": 0.09446899999999997
+          },
+          "windows": 860
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 14,
+        "collection_quality_skip": 2,
+        "normal": 6834
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6848,
+      "evaluation_seconds": 262.60543449100805,
+      "inference_ms": {
+        "count": 6850,
+        "max": 175.8488,
+        "median": 14.349450000000001,
+        "min": 11.7023,
+        "p95": 19.56279,
+        "p99": 23.84677800000002
+      },
+      "passed": true,
+      "phase": "aims-steady-run-02",
+      "scores": {
+        "count": 6850,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0797,
+        "p95": 0.09535499999999993,
+        "p99": 0.14341300000000137
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-steady-run-02/collection_manifest.json",
+        "manifest_sha256": "52b362d6976b2fa9933b8bd7691de14f7ca9ddffd5a116e03924b2f2884ee7a8",
+        "row_count": 6850,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "8d6b28d708fe9fe34ca4ec5abd67ec56976799bb3443f2a317afaec0ec0085bb",
+            "metadata_sha256": "8d4b87bb134f635f4814dd9685296b909fbdae676419aabd4457548eb393a5f2"
+          },
+          "production/api-gateway": {
+            "array_sha256": "f4469338259d3da91ecd6aea65699368090708bc54606b8d95b72a5ba7ce59f1",
+            "metadata_sha256": "06d29f396605fff887cb9d8725d87200a9993a6ce7aebfcf7db9ddb98e86cc20"
+          },
+          "production/auth-service": {
+            "array_sha256": "d3d608fa7d913eaf5ea57c33c7e4b69570958c22d7e0ce8916f31f388fb07ea2",
+            "metadata_sha256": "79b77ecbf3def8235e21df71aa9588cc84a69cc1149454efa5cef537304e303b"
+          },
+          "production/cart-service": {
+            "array_sha256": "85c99c7f7d35b37cc3b54f604ae6578f79a09cb3d04771d4f46acee583f81609",
+            "metadata_sha256": "3225b89b6599b7f48d4755f9985ab79df47f17b3cffca5112487856da31b4051"
+          },
+          "production/catalog-service": {
+            "array_sha256": "c65d2f502bb10137b17224c9ef3236d1799d6455a03097fe56c29394bde319c6",
+            "metadata_sha256": "e080ae2f9ff12ec87ed7c1b9c0c7e766ace76c925366bf7e62d3be9eefafbd97"
+          },
+          "production/inventory-service": {
+            "array_sha256": "98c39770a640c72b706e89df4b2abbe88909b9a097a56e649bf61e99d41e8923",
+            "metadata_sha256": "01ec33ebf912b7afa800d4f6f3fbb934f99ccc8c3bf9059ccd18529d807ba036"
+          },
+          "production/order-service": {
+            "array_sha256": "f425f8c594f44b8f25bd7bfedc84e617d9fa168521e0efd570e5c94f51551b79",
+            "metadata_sha256": "942771e5b6b25c9fb1d232d1f77953c2e5991f58ba3e50ac08e4e2fa2c6b0c27"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "19dcbcc40794a75f663b478a4b00cb336b85e15c9de674a8109504d078473e2e",
+            "metadata_sha256": "1de95a061cb0f5bf183c65a41fee6ea2314c26609368b680d1bff5abb6e97ea0"
+          }
+        }
+      },
+      "windows": 6850
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.9383,
+            "median": 13.98935,
+            "min": 12.0076,
+            "p95": 18.79466499999999,
+            "p99": 22.718448000000002
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.6615,
+            "median": 0.0814,
+            "min": 0.0801,
+            "p95": 0.10827999999999996,
+            "p99": 0.32561699999999943
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.9021,
+            "median": 14.05085,
+            "min": 11.971,
+            "p95": 18.57996,
+            "p99": 23.008474999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.8575,
+            "median": 0.0855,
+            "min": 0.084,
+            "p95": 0.21085499999999993,
+            "p99": 0.6316469999999997
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.1977,
+            "median": 14.09105,
+            "min": 11.7843,
+            "p95": 18.893089999999994,
+            "p99": 23.388111
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0854,
+            "min": 0.0841,
+            "p95": 0.2200899999999997,
+            "p99": 0.9446680000000001
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.67,
+            "median": 14.07475,
+            "min": 12.0406,
+            "p95": 18.332294999999995,
+            "p99": 23.015649999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0849,
+            "min": 0.0839,
+            "p95": 0.22393999999999967,
+            "p99": 0.6155639999999998
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.0487,
+            "median": 14.07135,
+            "min": 11.9691,
+            "p95": 17.977529999999994,
+            "p99": 21.996738999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.7768,
+            "median": 0.08685000000000001,
+            "min": 0.084,
+            "p95": 0.10348999999999998,
+            "p99": 0.247473
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.5953,
+            "median": 14.0927,
+            "min": 11.8076,
+            "p95": 18.701365,
+            "p99": 22.948297
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9999,
+            "median": 0.0859,
+            "min": 0.0842,
+            "p95": 0.28238999999999836,
+            "p99": 0.8773599999999997
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.5185,
+            "median": 14.0119,
+            "min": 11.9676,
+            "p95": 18.153325000000002,
+            "p99": 21.379582999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9983,
+            "median": 0.0857,
+            "min": 0.0841,
+            "p95": 0.28986999999999996,
+            "p99": 0.9041669999999996
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.7736,
+            "median": 14.0115,
+            "min": 12.0641,
+            "p95": 17.921355000000002,
+            "p99": 23.929911
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0848,
+            "min": 0.0842,
+            "p95": 0.19151999999999977,
+            "p99": 0.8812989999999995
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 56,
+        "normal": 6840
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6896,
+      "evaluation_seconds": 248.4727030589711,
+      "inference_ms": {
+        "count": 6896,
+        "max": 30.0487,
+        "median": 14.0553,
+        "min": 11.7843,
+        "p95": 18.427725,
+        "p99": 22.940715000000004
+      },
+      "passed": true,
+      "phase": "aims-burst-run-02",
+      "scores": {
+        "count": 6896,
+        "max": 1.0,
+        "median": 0.0853,
+        "min": 0.0801,
+        "p95": 0.203875,
+        "p99": 0.7111500000000008
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-burst-run-02/collection_manifest.json",
+        "manifest_sha256": "c389addd29dfe298a74fe438ccefef00dace325c042aa325cbc4719cc29a161e",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "5f03813f3d60f33fd5f39f28a79eb13d48b6d262b16090f7c8df7845ef28106d",
+            "metadata_sha256": "e4ba38a1a159178cf88ab247984430e9b1b1a28051f4541baecd17ea5c1c52e7"
+          },
+          "production/api-gateway": {
+            "array_sha256": "7aca5af1b0108d784c552509a3b36f874f72eceaeeea28f6ae6a6046e35e43f2",
+            "metadata_sha256": "472b601c22f972c31c0128fcd6a045e74929cdaaad48f00389c9d56f1a31731e"
+          },
+          "production/auth-service": {
+            "array_sha256": "9f1ffd83e241093597e99b65c38783a5b7ab46c818ab9992fc133dd825927401",
+            "metadata_sha256": "449f74b4265fc3eab4ace71495b8c12d4978d8e8ff4d0a558f6d0b10bb2777c9"
+          },
+          "production/cart-service": {
+            "array_sha256": "3184a64dce6a30e7391a0a252c4920647dffd77027471c5db28cec4982af2ade",
+            "metadata_sha256": "8ed6e1564899f36a92e3be9b64a908ebf6149b95213ac746743c630906f22216"
+          },
+          "production/catalog-service": {
+            "array_sha256": "3568d30683e50b96456b2aada61513179b1e2fec488ebf9872563d88a506a5f3",
+            "metadata_sha256": "209040d3281c18034f52d28f163512815c03f644881a1d4d706784ccbe5da5a1"
+          },
+          "production/inventory-service": {
+            "array_sha256": "c2ff5b9b956759e55b805ae7f4c47013dbc17379362a7f3ae00759c3bb617a64",
+            "metadata_sha256": "a280d230e198d2fc8c2521d6ac07114e5cc70a1bc8b3611285adbacdf1776f67"
+          },
+          "production/order-service": {
+            "array_sha256": "3c883adbaf5658d8e4bd60198064bc16e3f3f457d9d42bf23d48276147b1656c",
+            "metadata_sha256": "87d7f8f76c7237904e37cffab357aa58e344204e92c705536cfeafb4b53fe0d1"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "63392a7a679d1e63ca08ad45feede95713660d1319c0229db567311d33c7c929",
+            "metadata_sha256": "97a36d866b8d31b345c2c5ce641de6cf90680b2d3bbfe501a987ef9c01c02ed1"
+          }
+        }
+      },
+      "windows": 6896
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 799,
+            "max": 33.5649,
+            "median": 14.6822,
+            "min": 12.1873,
+            "p95": 20.51339999999999,
+            "p99": 24.56487799999999
+          },
+          "scores": {
+            "count": 799,
+            "max": 0.9003,
+            "median": 0.088,
+            "min": 0.0798,
+            "p95": 0.14447999999999986,
+            "p99": 0.216304
+          },
+          "windows": 799
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 820,
+            "max": 30.5839,
+            "median": 14.748149999999999,
+            "min": 11.8552,
+            "p95": 21.244929999999993,
+            "p99": 25.91243199999998
+          },
+          "scores": {
+            "count": 820,
+            "max": 0.9526,
+            "median": 0.0838,
+            "min": 0.0836,
+            "p95": 0.0888,
+            "p99": 0.1543199999999999
+          },
+          "windows": 820
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 822,
+            "max": 26.572,
+            "median": 14.78435,
+            "min": 12.0082,
+            "p95": 21.352709999999995,
+            "p99": 24.247608999999997
+          },
+          "scores": {
+            "count": 822,
+            "max": 0.6748,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.098,
+            "p99": 0.1644829999999997
+          },
+          "windows": 822
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 770,
+            "max": 37.8935,
+            "median": 14.8749,
+            "min": 12.1287,
+            "p95": 22.02622999999999,
+            "p99": 26.03167799999996
+          },
+          "scores": {
+            "count": 770,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.09381499999999994,
+            "p99": 0.1215049999999997
+          },
+          "windows": 770
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 780,
+            "max": 28.0539,
+            "median": 14.713049999999999,
+            "min": 12.2076,
+            "p95": 21.043414999999996,
+            "p99": 25.092650000000006
+          },
+          "scores": {
+            "count": 780,
+            "max": 1.0,
+            "median": 0.0841,
+            "min": 0.0839,
+            "p95": 0.1103,
+            "p99": 0.3522850000000127
+          },
+          "windows": 780
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 793,
+            "max": 30.9013,
+            "median": 14.7003,
+            "min": 12.109,
+            "p95": 20.90528,
+            "p99": 25.476876000000008
+          },
+          "scores": {
+            "count": 793,
+            "max": 0.9999,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.11479999999999999,
+            "p99": 0.4098
+          },
+          "windows": 793
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 785,
+            "max": 31.8854,
+            "median": 14.677,
+            "min": 12.1266,
+            "p95": 21.72402,
+            "p99": 26.431508
+          },
+          "scores": {
+            "count": 785,
+            "max": 0.9731,
+            "median": 0.084,
+            "min": 0.0837,
+            "p95": 0.148,
+            "p99": 0.3222
+          },
+          "windows": 785
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 814,
+            "max": 30.2286,
+            "median": 14.787949999999999,
+            "min": 12.1032,
+            "p95": 21.437269999999998,
+            "p99": 25.513307
+          },
+          "scores": {
+            "count": 814,
+            "max": 0.9479,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.09353999999999996,
+            "p99": 0.116
+          },
+          "windows": 814
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 17,
+        "collection_quality_skip": 5,
+        "normal": 6361
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6378,
+      "evaluation_seconds": 261.4170318059623,
+      "inference_ms": {
+        "count": 6383,
+        "max": 37.8935,
+        "median": 14.7496,
+        "min": 11.8552,
+        "p95": 21.242029999999996,
+        "p99": 25.607286000000002
+      },
+      "passed": true,
+      "phase": "aims-recovery-run-02",
+      "scores": {
+        "count": 6383,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0798,
+        "p95": 0.116,
+        "p99": 0.2245
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-recovery-run-02/collection_manifest.json",
+        "manifest_sha256": "a5e27c4c899b9cc69e3813d6c656d4e0c0c77f6c1a54ad54784be972a65e928d",
+        "row_count": 6383,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "a29823ad5ad30b8cd23a4f53039eb6e3e35ec2233237b2e2e787b3849af099f0",
+            "metadata_sha256": "4dcb13412c1f6d4ce859656bb34d20e5b16c66f95825464671bd0c8d815dedde"
+          },
+          "production/api-gateway": {
+            "array_sha256": "cebf3fe8ae74afc61d3eefe0d4832475d813600963663e46072ca24e71720a94",
+            "metadata_sha256": "686a49d88343a112629627728200ab8b235683e9952dd8cb96ec3d8147d67d6b"
+          },
+          "production/auth-service": {
+            "array_sha256": "98ca87bfd72e58c49f8b10e2c01eefd1d71dfb6be8cc502449e8a63ac249cb83",
+            "metadata_sha256": "0f262667a3bbd96abd2e64d209884ddb5011e2111b580c6c832f30bffd72e56d"
+          },
+          "production/cart-service": {
+            "array_sha256": "fe0fb24f33ef273c22cb41b21830293104a8b4e0bf39fbe6e02a17b98365ccb1",
+            "metadata_sha256": "746511e56d6917af97c5ce28353a4c673be06dfde4a3a36576ce1ff2e6ec60e6"
+          },
+          "production/catalog-service": {
+            "array_sha256": "740bdb413bef4dda55145324090d78d53ce9534d2bb730abdfdc286e82e586b8",
+            "metadata_sha256": "3c1401301681ec8b545f58e659f888036874eedcca0061dfb81d3c3ab6b3e658"
+          },
+          "production/inventory-service": {
+            "array_sha256": "42bbcb7937c9670c084446186ead3d90398a03e3dce76e4bad0462d1c2194a63",
+            "metadata_sha256": "c63bfe0d25dfa679b3327c5bf2ba4623944e2484d520dcdbf61eb5f279367566"
+          },
+          "production/order-service": {
+            "array_sha256": "49e2c659c98c2145ba05e4213c3c2f736e1b397e43690c6fa6b45adb47984d11",
+            "metadata_sha256": "888ee7bbd02edba625f7a15c277971fbfa6652c0bc03f48b74ba5649a7de1a31"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "c4b2bc216208b283050cb0bb3ab8f6f54c2b6de8e538314ca5e52a41c325135a",
+            "metadata_sha256": "42063407d8eeaccab17747045b30cdf0e3dabf1c6193d8523dab9e5ae4198679"
+          }
+        }
+      },
+      "windows": 6383
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 864,
+            "max": 30.1811,
+            "median": 15.174800000000001,
+            "min": 12.2759,
+            "p95": 23.161144999999973,
+            "p99": 26.741375
+          },
+          "scores": {
+            "count": 864,
+            "max": 1.0,
+            "median": 0.0849,
+            "min": 0.0801,
+            "p95": 0.15426499999999993,
+            "p99": 0.6292330000000003
+          },
+          "windows": 864
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 28.4551,
+            "median": 15.1198,
+            "min": 12.2962,
+            "p95": 22.470999999999997,
+            "p99": 25.724287999999994
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.0842,
+            "min": 0.0837,
+            "p95": 0.09993999999999996,
+            "p99": 0.7182519999999867
+          },
+          "windows": 869
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 868,
+            "max": 35.0909,
+            "median": 15.239249999999998,
+            "min": 12.2858,
+            "p95": 22.525259999999996,
+            "p99": 26.246188000000032
+          },
+          "scores": {
+            "count": 868,
+            "max": 1.0,
+            "median": 0.0842,
+            "min": 0.0839,
+            "p95": 0.091,
+            "p99": 0.2883600000000001
+          },
+          "windows": 868
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 28.3674,
+            "median": 15.2181,
+            "min": 12.2873,
+            "p95": 22.09333999999999,
+            "p99": 25.898211999999933
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.08801999999999999,
+            "p99": 0.5942199999999704
+          },
+          "windows": 869
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 31.3263,
+            "median": 15.1416,
+            "min": 11.8591,
+            "p95": 22.389679999999988,
+            "p99": 26.509523999999985
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.09416,
+            "p99": 0.45066399999997386
+          },
+          "windows": 869
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 30.8644,
+            "median": 15.1762,
+            "min": 12.2202,
+            "p95": 22.384479999999996,
+            "p99": 26.198743999999955
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.09471999999999998,
+            "p99": 0.31976399999999333
+          },
+          "windows": 869
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 30.9719,
+            "median": 15.2176,
+            "min": 12.3325,
+            "p95": 22.763339999999992,
+            "p99": 27.238147999999992
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.09751999999999998,
+            "p99": 0.7077119999999808
+          },
+          "windows": 869
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 869,
+            "max": 29.7209,
+            "median": 15.1251,
+            "min": 12.1527,
+            "p95": 21.98943999999998,
+            "p99": 26.992872
+          },
+          "scores": {
+            "count": 869,
+            "max": 1.0,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.09015999999999999,
+            "p99": 0.13359599999999774
+          },
+          "windows": 869
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 30,
+        "collection_quality_skip": 1,
+        "normal": 6820,
+        "pod_startup_grace": 95
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6850,
+      "evaluation_seconds": 281.6899244749802,
+      "inference_ms": {
+        "count": 6946,
+        "max": 35.0909,
+        "median": 15.188,
+        "min": 11.8591,
+        "p95": 22.6005,
+        "p99": 26.631785000000004
+      },
+      "passed": true,
+      "phase": "aims-toolmix-run-02",
+      "scores": {
+        "count": 6946,
+        "max": 1.0,
+        "median": 0.0842,
+        "min": 0.0801,
+        "p95": 0.097175,
+        "p99": 0.5831450000000055
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-toolmix-run-02/collection_manifest.json",
+        "manifest_sha256": "d3fb17efa3528e5487bc50156a7acca899d823029d9cad5b20a3d1d97a0d8375",
+        "row_count": 6946,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "e46e885c58a99d21f3b19a4c7e330b562ed274c733252262251da761ff1e6b76",
+            "metadata_sha256": "2ecd4af2c21b9c999579864c6670ca19cde5d9471b96aa6dc4e064023b2b33d0"
+          },
+          "production/api-gateway": {
+            "array_sha256": "8399752fa7ee5c8b77763ffab8d9a7c0d2f7dbca848a222b4e6798fc9fba4970",
+            "metadata_sha256": "77e34c5cb954d6de095f18c68eb154a902aed1d903d2e8c48f41cf57d0acbc15"
+          },
+          "production/auth-service": {
+            "array_sha256": "a627c7ddb8b7d1735aeaa58469f36916acaa56b085aa8de19df9c41bbb03463a",
+            "metadata_sha256": "02284b4eeb32930b71be0f23ed4db96594f9f10b133af9cc7516719f34183a99"
+          },
+          "production/cart-service": {
+            "array_sha256": "02aca71f6d065c38f9e6215b7d0751056fab3673fcbff38bebb637e7791b421c",
+            "metadata_sha256": "75da112f3d299322d9a1ffd63944c8fe6da87f9ef4213c74e4094b3feb8593ed"
+          },
+          "production/catalog-service": {
+            "array_sha256": "86e4ecd8d0715a7f199b501d77160af24da28c8768216a8da5a7b9efbc54fdb2",
+            "metadata_sha256": "2d1a8cc93912067c66fbb61640ff79324459aa0768a4006e098b3c7c8f1c70b3"
+          },
+          "production/inventory-service": {
+            "array_sha256": "fdbc915b6d37459493b7449362fc2eb09348864ada896c864e5fec60c5f8b07a",
+            "metadata_sha256": "d46d71232cef8e979cfdfd2bb05faff028b1412c5ad989d86da8682d4fcd6174"
+          },
+          "production/order-service": {
+            "array_sha256": "0c4be55d30612787eadd82c340424144a75dc5a58e2a4f463f178f4f919e1462",
+            "metadata_sha256": "86b5c0e17f84a005043b19a98bac4883bb9d77e52e60612d313cb2e7fdd96997"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "07c7cab17db206e65b6b5735200b4b75a5682ca9469e0527b4b334927bc10205",
+            "metadata_sha256": "02f9d655abf5c83fcb9d9051ba3e5368821e9a1e7a0bcbab506cc820bbc0b2f9"
+          }
+        }
+      },
+      "windows": 6946
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 860,
+            "max": 30.7206,
+            "median": 15.482800000000001,
+            "min": 12.2833,
+            "p95": 22.373454999999993,
+            "p99": 26.290395999999987
+          },
+          "scores": {
+            "count": 860,
+            "max": 0.9728,
+            "median": 0.0858,
+            "min": 0.0798,
+            "p95": 0.11153499999999997,
+            "p99": 0.4070899999999997
+          },
+          "windows": 860
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 33.0105,
+            "median": 15.5572,
+            "min": 12.2245,
+            "p95": 22.399899999999995,
+            "p99": 26.86118
+          },
+          "scores": {
+            "count": 853,
+            "max": 0.9998,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.1004,
+            "p99": 0.16617200000000043
+          },
+          "windows": 853
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 849,
+            "max": 31.1774,
+            "median": 15.5668,
+            "min": 12.0808,
+            "p95": 22.60641999999997,
+            "p99": 26.23537199999999
+          },
+          "scores": {
+            "count": 849,
+            "max": 0.5946,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.09777999999999998,
+            "p99": 0.14392399999999989
+          },
+          "windows": 849
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 857,
+            "max": 30.0556,
+            "median": 15.4662,
+            "min": 12.1457,
+            "p95": 22.676159999999992,
+            "p99": 25.602799999999988
+          },
+          "scores": {
+            "count": 857,
+            "max": 0.9364,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0879,
+            "p99": 0.11158799999999999
+          },
+          "windows": 857
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 858,
+            "max": 223.9629,
+            "median": 15.39475,
+            "min": 12.3164,
+            "p95": 22.991854999999997,
+            "p99": 26.531496999999998
+          },
+          "scores": {
+            "count": 858,
+            "max": 0.9976,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.090515,
+            "p99": 0.19013199999999936
+          },
+          "windows": 858
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 28.7925,
+            "median": 15.4582,
+            "min": 12.266,
+            "p95": 21.71416,
+            "p99": 25.814464000000005
+          },
+          "scores": {
+            "count": 853,
+            "max": 0.4439,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.0976,
+            "p99": 0.1334
+          },
+          "windows": 853
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 849,
+            "max": 35.385,
+            "median": 15.5511,
+            "min": 12.1871,
+            "p95": 22.59717999999998,
+            "p99": 25.070695999999995
+          },
+          "scores": {
+            "count": 849,
+            "max": 0.8711,
+            "median": 0.084,
+            "min": 0.0837,
+            "p95": 0.10791999999999999,
+            "p99": 0.17828799999999928
+          },
+          "windows": 849
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 853,
+            "max": 27.1869,
+            "median": 15.4943,
+            "min": 12.3452,
+            "p95": 22.70038,
+            "p99": 25.996316
+          },
+          "scores": {
+            "count": 853,
+            "max": 0.9484,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.09037999999999999,
+            "p99": 0.10182400000000003
+          },
+          "windows": 853
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 12,
+        "collection_quality_skip": 1,
+        "normal": 6819
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6831,
+      "evaluation_seconds": 294.70920968201244,
+      "inference_ms": {
+        "count": 6832,
+        "max": 223.9629,
+        "median": 15.4881,
+        "min": 12.0808,
+        "p95": 22.543805,
+        "p99": 26.17693199999998
+      },
+      "passed": true,
+      "phase": "aims-steady-run-03",
+      "scores": {
+        "count": 6832,
+        "max": 0.9998,
+        "median": 0.0841,
+        "min": 0.0798,
+        "p95": 0.0986,
+        "p99": 0.174174999999997
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-steady-run-03/collection_manifest.json",
+        "manifest_sha256": "d7c1e159d9484d49cf41eb668923482718ae7893521612f76ac5ef090bdfd469",
+        "row_count": 6832,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "264c04665f73da30054407eb298c5cd5754ba1e9a4500378d708f8fabcd49c8f",
+            "metadata_sha256": "a1a96e01a721201ec98f5f149265daaf5894783ca751730801e5c242cac65f03"
+          },
+          "production/api-gateway": {
+            "array_sha256": "b461f6c286bab12c6b9afeacb7bb6b422186f2ce3dee0d4ad348ff5ca61b9dba",
+            "metadata_sha256": "0737f2ad0e328d9df924469a3be3f77722de6e4d40560343f84b26a47ed22a7a"
+          },
+          "production/auth-service": {
+            "array_sha256": "10b95be7299d1f703c5376a17b3ed3cdfb8c2d9ccd9fbc9ea8a0db45985dd543",
+            "metadata_sha256": "8a9d8ca846c43be1f1eda721cdcfb94bd79f075f4384de8cb7bab369218d1bf1"
+          },
+          "production/cart-service": {
+            "array_sha256": "c18846ceeafbf245c160570a92f392542f613b204dc5aa652700a87cf27d314b",
+            "metadata_sha256": "befcd0b00592238e8b4e4758bc95da84a5e316c9ec3b2cf0307dd106874837a8"
+          },
+          "production/catalog-service": {
+            "array_sha256": "75f043284d3bf06cc26eb1ffc4834b183990577b1079a4a5e0689f52f8b151e7",
+            "metadata_sha256": "f9ddd7e3f704faf7104ad7031b752b7611c1d84c5c4606ba6461a86c00854bea"
+          },
+          "production/inventory-service": {
+            "array_sha256": "8b302e4d541f3c72ffda2841acb5e5ce3b32214db2fa847ad35f08e7ffd3579d",
+            "metadata_sha256": "b43e317f8e9f4657c722d1560d5902f7c0068dd3568099ae72ac07b21b526089"
+          },
+          "production/order-service": {
+            "array_sha256": "bedf81c7366b8fabd40b877e8cc6d39352f1f3762a817ad84f7b65f7f277061e",
+            "metadata_sha256": "de9d2ece30043a14a288d82846ceb981631a1e98f7730671b2e2baf39e77fe49"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "80cc43190a5865039dfb78f534bf9857361a2921fa766ed7ed60ab9f41ab50cb",
+            "metadata_sha256": "fad6cadff4b5e5c8f6c98ba2f4ebed3f90d1073362074c2b8a2b33b19029b140"
+          }
+        }
+      },
+      "windows": 6832
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 28.91,
+            "median": 14.014199999999999,
+            "min": 11.8008,
+            "p95": 19.680094999999998,
+            "p99": 25.335188
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.648,
+            "median": 0.0825,
+            "min": 0.0801,
+            "p95": 0.116795,
+            "p99": 0.38718599999999986
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.21,
+            "median": 13.993200000000002,
+            "min": 11.3584,
+            "p95": 20.247405,
+            "p99": 24.107445999999992
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0856,
+            "min": 0.0839,
+            "p95": 0.22416999999999998,
+            "p99": 0.5401579999999992
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.2415,
+            "median": 14.0078,
+            "min": 11.8791,
+            "p95": 20.290349999999993,
+            "p99": 25.615461999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0854,
+            "min": 0.0841,
+            "p95": 0.4087049999999997,
+            "p99": 0.951529
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.4973,
+            "median": 14.07555,
+            "min": 11.9507,
+            "p95": 19.774489999999993,
+            "p99": 25.444485
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9723,
+            "median": 0.0847,
+            "min": 0.0839,
+            "p95": 0.16961499999999977,
+            "p99": 0.5272249999999985
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.5703,
+            "median": 13.987300000000001,
+            "min": 11.8793,
+            "p95": 19.54986499999999,
+            "p99": 24.609086999999995
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9978,
+            "median": 0.0871,
+            "min": 0.0841,
+            "p95": 0.10413499999999991,
+            "p99": 0.23743499999999992
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 30.2524,
+            "median": 14.0709,
+            "min": 12.0503,
+            "p95": 20.968149999999998,
+            "p99": 25.189341
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9992,
+            "median": 0.0859,
+            "min": 0.0842,
+            "p95": 0.22241499999999975,
+            "p99": 0.8922939999999999
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 29.3809,
+            "median": 14.03575,
+            "min": 11.7808,
+            "p95": 20.198365,
+            "p99": 24.999675999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 1.0,
+            "median": 0.0856,
+            "min": 0.0841,
+            "p95": 0.20414999999999991,
+            "p99": 0.8698339999999991
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.3253,
+            "median": 14.0169,
+            "min": 11.939,
+            "p95": 19.60622,
+            "p99": 23.063841
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9977,
+            "median": 0.0848,
+            "min": 0.0842,
+            "p95": 0.1588199999999999,
+            "p99": 0.5578959999999985
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 61,
+        "normal": 6835
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6896,
+      "evaluation_seconds": 246.89604956499534,
+      "inference_ms": {
+        "count": 6896,
+        "max": 30.2524,
+        "median": 14.0238,
+        "min": 11.3584,
+        "p95": 20.012625,
+        "p99": 25.084865
+      },
+      "passed": true,
+      "phase": "aims-burst-run-03",
+      "scores": {
+        "count": 6896,
+        "max": 1.0,
+        "median": 0.0854,
+        "min": 0.0801,
+        "p95": 0.1884,
+        "p99": 0.7305950000000008
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-burst-run-03/collection_manifest.json",
+        "manifest_sha256": "6d127403af45084fb0e5f63efd8bf8862c67bb4371a239d5dea24e229cc2cb13",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "f809c09e91259ef5029452151686b6ce41dd5b6ea1086141ddb556e0e50be4ce",
+            "metadata_sha256": "d4e6cdabb50e512ebf12691ec74556d0b20193420619f260bfb08a9846d8be87"
+          },
+          "production/api-gateway": {
+            "array_sha256": "27a4ec5225737b671611adc688b08d383acbae6c708bfc448adb4b9915afe6e0",
+            "metadata_sha256": "a2ade02bfd5fd6bbc0b4c510628f1579a953b1b3a573a74f8e2f1aa1ad7969ce"
+          },
+          "production/auth-service": {
+            "array_sha256": "e70a5e8c306fa44d9c3e8c89b03b66f643120f11d02bc5a254209fd253749f4c",
+            "metadata_sha256": "fffb90b022fe4e520ee3984db30e558413f1355d4965f3e7f46d556d52062b8f"
+          },
+          "production/cart-service": {
+            "array_sha256": "e58fbdf343c1d5a1c01b3b75e8e0a4a18cc878baadd758698c0d4385b16f39f4",
+            "metadata_sha256": "5ad6cc0f2a77401c4ab11bb068e67d281d293d599887d887070be76a6df317f5"
+          },
+          "production/catalog-service": {
+            "array_sha256": "885d12d42cb58407c5777d64a4e05d58d517be8f2dffd37179099c1199253f0d",
+            "metadata_sha256": "5727ba2023bf1e3a196b902d9dc6b3102b642b5cb8b9aac0103449337c6c48be"
+          },
+          "production/inventory-service": {
+            "array_sha256": "a4af651e177868216516cffcaf351851a9405e33d8038771488b78445311b561",
+            "metadata_sha256": "8d7008dd0696fc0743be061abef611c965a326a5eae311f9e57d1891e6014c77"
+          },
+          "production/order-service": {
+            "array_sha256": "ab23b0c0bba62a6c90fac3ad94474fcb3fc3741bca2624f6750147f11a1d94b2",
+            "metadata_sha256": "ff870a43577beb6303360407994ae510f3651acda45f42793122ddd543824bdc"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "4ad6f84246cbe2f5f2a092156ec76f5ba96eef05a4850e2216df02ba4a2028bc",
+            "metadata_sha256": "99013808c8784f1d0ee6e4ba27c36bab92859c5aebef759129ffd4b7b63c225e"
+          }
+        }
+      },
+      "windows": 6896
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 810,
+            "max": 30.0058,
+            "median": 14.72755,
+            "min": 12.116,
+            "p95": 21.048759999999998,
+            "p99": 25.007896999999996
+          },
+          "scores": {
+            "count": 810,
+            "max": 0.9791,
+            "median": 0.0872,
+            "min": 0.0797,
+            "p95": 0.12050999999999999,
+            "p99": 0.15836499999999995
+          },
+          "windows": 810
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 805,
+            "max": 27.918,
+            "median": 14.6557,
+            "min": 12.3215,
+            "p95": 21.843399999999995,
+            "p99": 25.71220800000001
+          },
+          "scores": {
+            "count": 805,
+            "max": 0.6401,
+            "median": 0.0839,
+            "min": 0.0836,
+            "p95": 0.0886,
+            "p99": 0.1127
+          },
+          "windows": 805
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 805,
+            "max": 27.2842,
+            "median": 14.5769,
+            "min": 12.1377,
+            "p95": 20.9931,
+            "p99": 24.92302000000001
+          },
+          "scores": {
+            "count": 805,
+            "max": 0.6036,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.10647999999999995,
+            "p99": 0.16900800000000016
+          },
+          "windows": 805
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 815,
+            "max": 30.5422,
+            "median": 14.5074,
+            "min": 12.1313,
+            "p95": 21.149559999999994,
+            "p99": 26.280116
+          },
+          "scores": {
+            "count": 815,
+            "max": 0.9986,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.09093,
+            "p99": 0.11511200000000006
+          },
+          "windows": 815
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 819,
+            "max": 26.7004,
+            "median": 14.45,
+            "min": 12.1109,
+            "p95": 21.25158,
+            "p99": 25.537671999999958
+          },
+          "scores": {
+            "count": 819,
+            "max": 1.0,
+            "median": 0.084,
+            "min": 0.0839,
+            "p95": 0.09630999999999981,
+            "p99": 0.4098799999999991
+          },
+          "windows": 819
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 778,
+            "max": 33.2291,
+            "median": 14.588750000000001,
+            "min": 11.7375,
+            "p95": 21.809904999999997,
+            "p99": 27.069119000000008
+          },
+          "scores": {
+            "count": 778,
+            "max": 0.9751,
+            "median": 0.084,
+            "min": 0.0838,
+            "p95": 0.124,
+            "p99": 0.2597330000000001
+          },
+          "windows": 778
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 801,
+            "max": 30.724,
+            "median": 14.6228,
+            "min": 12.1354,
+            "p95": 21.2595,
+            "p99": 25.3473
+          },
+          "scores": {
+            "count": 801,
+            "max": 0.9731,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.0912,
+            "p99": 0.1448
+          },
+          "windows": 801
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 819,
+            "max": 31.0699,
+            "median": 14.5587,
+            "min": 12.1516,
+            "p95": 21.673239999999996,
+            "p99": 25.701973999999996
+          },
+          "scores": {
+            "count": 819,
+            "max": 0.5358,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0938,
+            "p99": 0.1041
+          },
+          "windows": 819
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 13,
+        "collection_quality_skip": 7,
+        "normal": 6432
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6445,
+      "evaluation_seconds": 240.08246267103823,
+      "inference_ms": {
+        "count": 6452,
+        "max": 33.2291,
+        "median": 14.58035,
+        "min": 11.7375,
+        "p95": 21.343735,
+        "p99": 25.761692
+      },
+      "passed": true,
+      "phase": "aims-recovery-run-03",
+      "scores": {
+        "count": 6452,
+        "max": 1.0,
+        "median": 0.0841,
+        "min": 0.0797,
+        "p95": 0.1042,
+        "p99": 0.17278799999999972
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-recovery-run-03/collection_manifest.json",
+        "manifest_sha256": "3ee98c9a32bf341cff0ee1613a64895ede48f91a6b12958e990293b227fc5984",
+        "row_count": 6452,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "8f102ec611514525173175ae64525d40ed0ec49f553e9bc1035028a73dc52e46",
+            "metadata_sha256": "64427289c52c00008d064b421214e32585963aa3b47be9094d709ebe0f98739b"
+          },
+          "production/api-gateway": {
+            "array_sha256": "d5ac3edd3b979191e8500da97c6b09c29c57d76c2cc65d200a24fc482fe23321",
+            "metadata_sha256": "9f927a4d560e9d6e77a3810ce226636b92b7e1aa1af3be6411f0f328043f7681"
+          },
+          "production/auth-service": {
+            "array_sha256": "4b89c9b9bd90e3c9aade6deb793fa84da56d13555891b7c617d047a741f4b061",
+            "metadata_sha256": "47f3abdc8070a86fd6f6e91432a5f3436a044e8f688e50cc495b1e0ac9729acf"
+          },
+          "production/cart-service": {
+            "array_sha256": "61e4c73a905506c3911f42e20b2c8b663f8fb43499a0eaa32a49bba329d1dd7b",
+            "metadata_sha256": "5c977638c46742ee594b2170c594401bb6c9c1415dc00cf1d1a1fd3cb97f6113"
+          },
+          "production/catalog-service": {
+            "array_sha256": "ca5eddefaa684fd03caf7ce283b83220dd8bb69541e179de87f224dabf157cc2",
+            "metadata_sha256": "283b27053029ed70ccb7c8bafafbbeab7cfa6930ad0919b0f7df5dad80cee357"
+          },
+          "production/inventory-service": {
+            "array_sha256": "bc4591a739277199cd15bbd3fa76e9a7fbe5114cbf4f3c553c5cabb4586547cc",
+            "metadata_sha256": "92a53894a52a106edc611872fef85fa647c19b87c10f94211148835312d0ba51"
+          },
+          "production/order-service": {
+            "array_sha256": "edfa4bf2e31c2d53eba3b29b37811977dd18fe577900326be384267fb887b67d",
+            "metadata_sha256": "7f39766083771e5c6f559d45d6e6916d7dda19726a0a27e755abd7aee85a53c8"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "80fff60fec6d1e151fcc35c8149422122afeb1cd5639b0d3457dfb84a8c3f342",
+            "metadata_sha256": "38b5db7ee435f00da40bb668a6513fc644683626e36d9953f220c5efeb3351d1"
+          }
+        }
+      },
+      "windows": 6452
+    },
+    {
+      "alerts": 0,
+      "by_workload": {
+        "production/aims-frontend": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.5651,
+            "median": 14.725100000000001,
+            "min": 12.3119,
+            "p95": 20.28772,
+            "p99": 24.102988
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9847,
+            "median": 0.0852,
+            "min": 0.08,
+            "p95": 0.12639,
+            "p99": 0.4355589999999995
+          },
+          "windows": 862
+        },
+        "production/api-gateway": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.2084,
+            "median": 14.85825,
+            "min": 12.3225,
+            "p95": 20.057834999999997,
+            "p99": 23.53376299999999
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.6919,
+            "median": 0.0842,
+            "min": 0.0836,
+            "p95": 0.0933,
+            "p99": 0.28245599999999943
+          },
+          "windows": 862
+        },
+        "production/auth-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 34.3309,
+            "median": 14.8081,
+            "min": 12.2214,
+            "p95": 21.441304999999993,
+            "p99": 25.087010999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.5632,
+            "median": 0.0842,
+            "min": 0.0839,
+            "p95": 0.0922,
+            "p99": 0.12914399999999987
+          },
+          "windows": 862
+        },
+        "production/cart-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 26.8209,
+            "median": 14.7517,
+            "min": 12.2607,
+            "p95": 20.15308499999999,
+            "p99": 23.92835299999999
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.3868,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.08739,
+            "p99": 0.130017
+          },
+          "windows": 862
+        },
+        "production/catalog-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.6216,
+            "median": 14.8106,
+            "min": 12.2246,
+            "p95": 21.707279999999997,
+            "p99": 24.854224999999996
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.5528,
+            "median": 0.0841,
+            "min": 0.0839,
+            "p95": 0.09457499999999996,
+            "p99": 0.28862799999999994
+          },
+          "windows": 862
+        },
+        "production/inventory-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.2131,
+            "median": 14.918500000000002,
+            "min": 12.1862,
+            "p95": 19.98159,
+            "p99": 23.436456999999994
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.3644,
+            "median": 0.0842,
+            "min": 0.0838,
+            "p95": 0.094,
+            "p99": 0.1185499999999998
+          },
+          "windows": 862
+        },
+        "production/order-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 31.5564,
+            "median": 14.7362,
+            "min": 12.0211,
+            "p95": 20.762924999999985,
+            "p99": 24.930460999999998
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.9455,
+            "median": 0.0841,
+            "min": 0.0837,
+            "p95": 0.09858499999999998,
+            "p99": 0.1469449999999998
+          },
+          "windows": 862
+        },
+        "production/security-telemetry-service": {
+          "detections": 0,
+          "inference_ms": {
+            "count": 862,
+            "max": 27.358,
+            "median": 14.7333,
+            "min": 12.1615,
+            "p95": 20.389059999999986,
+            "p99": 24.776370999999997
+          },
+          "scores": {
+            "count": 862,
+            "max": 0.381,
+            "median": 0.0842,
+            "min": 0.0841,
+            "p95": 0.0882,
+            "p99": 0.10875299999999996
+          },
+          "windows": 862
+        }
+      },
+      "decision_counts": {
+        "behavior_gated": 6,
+        "collection_quality_skip": 1,
+        "normal": 6889
+      },
+      "detections": 0,
+      "eligible_decision_windows": 6895,
+      "evaluation_seconds": 261.73161064303713,
+      "inference_ms": {
+        "count": 6896,
+        "max": 34.3309,
+        "median": 14.7841,
+        "min": 12.0211,
+        "p95": 20.478725,
+        "p99": 24.574860000000005
+      },
+      "passed": true,
+      "phase": "aims-toolmix-run-03",
+      "scores": {
+        "count": 6896,
+        "max": 0.9847,
+        "median": 0.0842,
+        "min": 0.08,
+        "p95": 0.095625,
+        "p99": 0.1954850000000003
+      },
+      "source": {
+        "manifest": "/home/dat/ml-service/aims-normal-matrix-20260802T014354Z/aims-toolmix-run-03/collection_manifest.json",
+        "manifest_sha256": "0c5aa106e40454387d59d08a4fecfe0c72aa82048175c37f7ed18f645527a118",
+        "row_count": 6896,
+        "target_digests": {
+          "production/aims-frontend": {
+            "array_sha256": "efd7c717bfc385b89b75df853a802d52b1708820146933b9cff6a86310d98baf",
+            "metadata_sha256": "b5d56a0abadaf5c2c5cf1b1f74f0ab84af2d29f85c866ec10e928349d69038ba"
+          },
+          "production/api-gateway": {
+            "array_sha256": "2dc4294cc6ac6f753792c23d690460b67c2ddae616bce71f99e436cf95d190f7",
+            "metadata_sha256": "8c99926dfe38fbc696136f385758a6a2fbf4dd6870831b74db80b23a4b77e561"
+          },
+          "production/auth-service": {
+            "array_sha256": "1627eb487a981676c75bb84acaee501188cd3047edcfa0a0e57f0033943fe32b",
+            "metadata_sha256": "ada9541167eb57da4430085825fcbbbd89a9b4e4c8ea81cd33ac11ac98ff777c"
+          },
+          "production/cart-service": {
+            "array_sha256": "26304b570a90e265a96abe5e744f0c0deb41ab09795df8ae45ad03916788c185",
+            "metadata_sha256": "24c2fbf1b912b3605ed4633ab7a13522b9ed42a9b13b800ff625f623b5b8c72e"
+          },
+          "production/catalog-service": {
+            "array_sha256": "026777f3bdd4ed2eef868bb7cd7680292dafa7173c87460aee6286b6e33de40e",
+            "metadata_sha256": "ffe62ce2d029f92e6f50f310338c4012e16176fdbeeb861ae14d23364af8633e"
+          },
+          "production/inventory-service": {
+            "array_sha256": "9d54dd2f878834a18f2f98c53117157b3b6db01914a1469d7b7d51e9746de51f",
+            "metadata_sha256": "dd450ee784127bfb6c0e1b5d887460e51a9cc3a70911053eb22d5e72d59d1e00"
+          },
+          "production/order-service": {
+            "array_sha256": "5fa85d1396ec0ba7b749057ddedd9ed2a6cd9fa11d4807c501f84719ee6473a2",
+            "metadata_sha256": "835f44afb48be3d4e60153ed8db01423f14e25789607da0821c3504d055828f4"
+          },
+          "production/security-telemetry-service": {
+            "array_sha256": "b1ebdc50dd090c166e4d0d41a115eda96af3206697d143385584ba95036ab769",
+            "metadata_sha256": "3bc5d0e0233724515626cd87eecb4e242eb23cc8d1dcc88b937ea48840c785ef"
+          }
+        }
+      },
+      "windows": 6896
+    }
+  ],
+  "release_contract": "/home/dat/ml-service/aims_release_contract.json",
+  "release_contract_sha256": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006",
+  "role": "independent_validation",
+  "runtime_thresholds": {
+    "production/aims-frontend": 0.8,
+    "production/api-gateway": 0.8,
+    "production/auth-service": 0.8,
+    "production/cart-service": 0.8,
+    "production/catalog-service": 0.8,
+    "production/inventory-service": 0.8,
+    "production/order-service": 0.8,
+    "production/security-telemetry-service": 0.8
+  },
+  "schema_version": 1,
+  "split_contract": "/home/dat/ml-service/aims_candidate_split_contract.json",
+  "split_contract_sha256": "e47a575c0d2e918d381198e0396d57e72c0229ccf6aea0ea4d8920caeb098ec0",
+  "status": "complete",
+  "windows": 54151
+}

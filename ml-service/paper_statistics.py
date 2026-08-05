@@ -9,7 +9,7 @@ import math
 import random
 import statistics
 from pathlib import Path
-from typing import Callable, Iterable
+from typing import Callable, Iterable, Sequence
 
 
 def sha256(path: Path) -> str:
@@ -91,8 +91,86 @@ def attack_trials(report: dict) -> list[dict]:
                     "inference_median_ms": item.get("inference_median_ms"),
                     "sensor_health_healthy": item.get("sensor_health_healthy"),
                     "normal_alerts_before_attack": item.get("normal_alerts_before_attack"),
+                    "fast_path_expected": item.get("fast_path_expected"),
+                    "fast_path_expected_matched": item.get("fast_path_expected_matched"),
+                    "attack_acknowledged": item.get("attack_acknowledged"),
                 }
             )
+    return rows
+
+
+def _resolve_trial_report(aggregate_path: Path, item: dict) -> Path:
+    """Resolve a blind-trial report while retaining relocation support."""
+    recorded = Path(str(item.get("report_path", "")))
+    candidates = [recorded]
+    if recorded.name:
+        candidates.extend(
+            aggregate_path.parent.glob(f"**/{recorded.parent.name}/{recorded.name}")
+        )
+    for candidate in candidates:
+        if candidate.is_file() and sha256(candidate) == item.get("report_sha256"):
+            return candidate
+    raise ValueError(
+        f"missing or hash-invalid blind trial report: "
+        f"{item.get('target')} trial {item.get('trial')}"
+    )
+
+
+def load_blind_attack_rows(aggregate_path: Path, aggregate: dict) -> list[dict]:
+    """Load and cryptographically validate every row in a blind matrix."""
+    rows = []
+    trial_items = aggregate.get("trials", [])
+    if len(trial_items) != int(aggregate.get("completed_trials", -1)):
+        raise ValueError("blind aggregate completed-trial count is inconsistent")
+    for trial_item in trial_items:
+        report_path = _resolve_trial_report(aggregate_path, trial_item)
+        report = json.loads(report_path.read_text())
+        scenarios = report.get("scenarios", {})
+        if len(scenarios) != int(trial_item.get("total", -1)):
+            raise ValueError(f"invalid scenario count in {report_path}")
+        detected = sum(bool(item.get("detected")) for item in scenarios.values())
+        if detected != int(trial_item.get("detected", -1)):
+            raise ValueError(f"invalid detected count in {report_path}")
+        if report.get("runtime_binary_sha256") != aggregate.get("runtime_binary_sha256"):
+            raise ValueError(f"runtime binary drift in {report_path}")
+        for scenario, scenario_item in sorted(scenarios.items()):
+            rows.append(
+                {
+                    "workload": trial_item["target"],
+                    "scenario": scenario,
+                    "trial": int(trial_item["trial"]),
+                    "rate": int(trial_item["rate"]),
+                    "seed": int(trial_item["seed"]),
+                    "detected": bool(scenario_item.get("detected")),
+                    "detection_latency_seconds": scenario_item.get(
+                        "detection_latency_seconds"
+                    ),
+                    "fast_path_latency_seconds": scenario_item.get(
+                        "fast_path_latency_seconds"
+                    ),
+                    "inference_median_ms": scenario_item.get("inference_median_ms"),
+                    "sensor_health_healthy": scenario_item.get(
+                        "sensor_health_healthy"
+                    ),
+                    "normal_alerts_before_attack": scenario_item.get(
+                        "normal_alerts_before_attack"
+                    ),
+                    "fast_path_expected": scenario_item.get("fast_path_expected"),
+                    "fast_path_expected_matched": scenario_item.get(
+                        "fast_path_expected_matched"
+                    ),
+                    "attack_acknowledged": scenario_item.get("attack_acknowledged"),
+                    "report_sha256": trial_item["report_sha256"],
+                    "validation_harness_sha256": report.get(
+                        "validation_harness_sha256"
+                    ),
+                }
+            )
+    expected = int(aggregate.get("expected_scenario_trials", -1))
+    if len(rows) != expected or sum(row["detected"] for row in rows) != int(
+        aggregate.get("detected", -1)
+    ):
+        raise ValueError("blind aggregate scenario totals are inconsistent")
     return rows
 
 
@@ -121,16 +199,40 @@ def _group_detection(rows: list[dict], field: str) -> dict:
     return groups
 
 
-def build_report(normal: dict, attack: dict) -> dict:
-    rows = attack_trials(attack)
+def _normal_summary(normal_reports: Sequence[dict]) -> tuple[int, int, bool, list]:
+    normal_windows = 0
+    false_alerts = 0
+    phases = []
+    passed = True
+    for report in normal_reports:
+        if "eligible_decision_windows" in report:
+            windows = int(report.get("eligible_decision_windows", 0))
+        else:
+            windows = sum(
+                int(item.get("windows", 0))
+                for item in report.get("models", {}).values()
+            )
+        alerts = int(report.get("detections", report.get("alerts", 0)))
+        if windows <= 0 or alerts < 0 or alerts > windows:
+            raise ValueError("normal report has an invalid evaluated-window count")
+        normal_windows += windows
+        false_alerts += alerts
+        passed = passed and report.get("passed") is True
+        phases.extend(report.get("completed_phases", []))
+    if len(phases) != len(set(phases)):
+        raise ValueError("normal reports contain overlapping evaluation phases")
+    return normal_windows, false_alerts, passed, phases
+
+
+def build_report(normal: dict | Sequence[dict], attack: dict,
+                 rows: list[dict] | None = None) -> dict:
+    normal_reports = [normal] if isinstance(normal, dict) else list(normal)
+    rows = attack_trials(attack) if rows is None else rows
     if not rows:
         raise ValueError("attack report contains no workload/scenario trials")
-    normal_windows = sum(
-        int(item.get("windows", 0)) for item in normal.get("models", {}).values()
+    normal_windows, false_alerts, normal_passed, normal_phases = _normal_summary(
+        normal_reports
     )
-    false_alerts = int(normal.get("detections", 0))
-    if normal_windows <= 0 or false_alerts > normal_windows:
-        raise ValueError("normal report has an invalid evaluated-window count")
     true_positives = sum(row["detected"] for row in rows)
     false_negatives = len(rows) - true_positives
     true_negatives = normal_windows - false_alerts
@@ -155,7 +257,7 @@ def build_report(normal: dict, attack: dict) -> dict:
         if row["inference_median_ms"] is not None
     ]
     return {
-        "schema": "sentinel-paper-statistics/v1",
+        "schema": "sentinel-paper-statistics/v2",
         "sample_units": {
             "normal": "eligible workload window",
             "attack": "workload-scenario trial",
@@ -183,12 +285,32 @@ def build_report(normal: dict, attack: dict) -> dict:
         "per_trial_inference_median_ms": distribution(inference_medians),
         "by_workload": _group_detection(rows, "workload"),
         "by_scenario": _group_detection(rows, "scenario"),
+        "by_rate": _group_detection(rows, "rate") if all(
+            "rate" in row for row in rows
+        ) else {},
         "evidence_health": {
-            "normal_report_passed": normal.get("passed") is True,
+            "normal_reports_passed": normal_passed,
+            "normal_phase_count": len(normal_phases),
             "attack_report_passed": attack.get("all_passed") is True,
             "all_attack_sensor_samples_healthy": all(
                 row["sensor_health_healthy"] is True for row in rows
             ),
+            "all_attacks_acknowledged": all(
+                row.get("attack_acknowledged") is not False for row in rows
+            ),
+            "fast_path_expected_trials": sum(
+                row.get("fast_path_expected") is True for row in rows
+            ),
+            "fast_path_expected_matched": sum(
+                row.get("fast_path_expected_matched") is True for row in rows
+            ),
+            "validated_trial_report_hashes": len({
+                row["report_sha256"] for row in rows if row.get("report_sha256")
+            }),
+            "validation_harness_hashes": sorted({
+                row["validation_harness_sha256"] for row in rows
+                if row.get("validation_harness_sha256")
+            }),
             "pre_injection_alerts": sum(
                 int(row["normal_alerts_before_attack"] or 0) for row in rows
             ),
@@ -196,7 +318,8 @@ def build_report(normal: dict, attack: dict) -> dict:
         "limitations": [
             "A zero observed false-alert count is not a mathematical zero-risk guarantee.",
             "Wilson intervals assume Bernoulli trials; temporally correlated normal windows require run-level block bootstrap once independent soak runs are available.",
-            "Latency bootstrap is trial-level and should be recomputed on the frozen blind matrix before a final paper claim.",
+            "Latency bootstrap treats scenario trials as independent; report cluster/run-level sensitivity analysis before a final paper claim.",
+            "Precision combines attack-scenario positives with normal-window false alerts and is therefore descriptive across two different sampling units.",
         ],
     }
 
@@ -229,18 +352,23 @@ def markdown(report: dict) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--normal", type=Path, required=True)
+    parser.add_argument("--normal", type=Path, required=True, action="append")
     parser.add_argument("--attack", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    normal = json.loads(args.normal.read_text())
+    normal = [json.loads(path.read_text()) for path in args.normal]
     attack = json.loads(args.attack.read_text())
-    report = build_report(normal, attack)
+    rows = None
+    if "trials" in attack and "expected_scenario_trials" in attack:
+        rows = load_blind_attack_rows(args.attack, attack)
+    report = build_report(normal, attack, rows)
     report["sources"] = {
         # Absolute paths differ between the author VM and an artifact reviewer.
         # Stable names plus content digests retain provenance while making the
         # derived JSON byte-for-byte reproducible across checkout locations.
-        "normal": {"name": args.normal.name, "sha256": sha256(args.normal)},
+        "normal": [
+            {"name": path.name, "sha256": sha256(path)} for path in args.normal
+        ],
         "attack": {"name": args.attack.name, "sha256": sha256(args.attack)},
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

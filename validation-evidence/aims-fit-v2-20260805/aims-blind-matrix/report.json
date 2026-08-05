@@ -1,0 +1,844 @@
+{
+  "aims_contract": {
+    "path": "/home/dat/ml-service/aims_release_contract.json",
+    "sha256": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006"
+  },
+  "all_passed": false,
+  "attack_contract": {
+    "path": "/home/dat/ml-service/aims_blind_attack_contract.json",
+    "sha256": "f4cfbf32bef4316d0d007dc184d4d6da166650625a9f26eb66f93198b94e74c8"
+  },
+  "completed_trials": 40,
+  "created_at": "2026-08-04T10:11:57.313896+00:00",
+  "detected": 195,
+  "expected_scenario_trials": 200,
+  "expected_trials": 40,
+  "experiment_id": "aims-blind-models_aims_fit-v2-20260803T043100Z",
+  "method": "frozen blind binary; shuffled workload/seed/rate trials",
+  "model_dir": "/home/dat/ml-service/models_aims_fit-v2-20260803T043100Z",
+  "model_sha256": {
+    "dataset_manifest.json": "89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac",
+    "production__aims-frontend_bundle.pkl": "4b161a9a77f4570fb94fe4fb2f9a900bafdd9e1c6a12c70bca1caae253c366ed",
+    "production__aims-frontend_lstm.pt": "f0bcfcab493997074e7b55c7c1c9f921f00c442d8624a25ea29c46fcf0643029",
+    "production__api-gateway_bundle.pkl": "ae0a828861055e5be0d9b9f366d0b38a9a2a709e07059d7706d0096bd4ebeecc",
+    "production__api-gateway_lstm.pt": "8920e9ca441676bf96697003d72c86e806617f1ff552753b2cd18da9cc0bc2c1",
+    "production__auth-service_bundle.pkl": "ca0ac68ed2d4fa758e106cb75e07b53f2fdcad6187742718fde955bb2c6c6ceb",
+    "production__auth-service_lstm.pt": "4722c2ba50100845d7d3e0964d8c95d9d12b257c3b83f1df4450f600e2fc94e8",
+    "production__cart-service_bundle.pkl": "8aac55ca2d7ffaf3b62a389562748640021298c8f57e33286716cdf75f46f97a",
+    "production__cart-service_lstm.pt": "e6fc55d375d8e1a955d71b7d0133a855ad9bb6c7ce0ac664a984015431d961d5",
+    "production__catalog-service_bundle.pkl": "189cbff0a3d9f40149ab29dd1a162bf875676819c41c5728c4c49adf6ed29da7",
+    "production__catalog-service_lstm.pt": "c403bd6b716a7c1e80a67be22ff26ca1ccb4fd5223df8fafc30aa3b3b3eabf34",
+    "production__inventory-service_bundle.pkl": "986c6f3e539d3a965018d5f83d5219d1f4031cf334baf022f3fdacd3544afdfa",
+    "production__inventory-service_lstm.pt": "4c96d928513a300b857bb12e7d0333ee2b1ee5a8c41991affe114fbd8c8399b5",
+    "production__order-service_bundle.pkl": "11ccfdf1ca60511e252a794be27d4606eea639ce0d4c087ca36f60ff98f46069",
+    "production__order-service_lstm.pt": "98a577972c4f53804a9a276f59c8a07888660c7ef18828d2c1fc443c89be7c02",
+    "production__security-telemetry-service_bundle.pkl": "51d5db1d7c786470394fe31a44a6d9d53e86b98948293490c033d07b939b5569",
+    "production__security-telemetry-service_lstm.pt": "f7547a5c11ee0cb7a47a8b5f1501346e131a5ad92b342471bfdd332132ef73f7",
+    "training_report.json": "93bcd81eaf9f7eb74ed0fbcbf99a3db012ae9141ffc2797a213035f036230b78",
+    "vocab.pkl": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4"
+  },
+  "normal_calibration": "/home/dat/ml-service/aims-fit-v2-calibration.json",
+  "normal_calibration_sha256": "2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98",
+  "normal_prerequisite": {
+    "path": "/home/dat/ml-service/aims-blind-normal-test-fit-v2.json",
+    "sha256": "eb1d8b8b2b4424f140d0cdaf6b0ab91e0f37e3d0dad76e4d61f8d83616f6659a"
+  },
+  "resumed_at": "2026-08-05T06:18:01.029026+00:00",
+  "runtime_binary_sha256": "a4d68d79b1c1722e7b0a53cc95135ebe8a236116ecf06246c0957e259f77dd0d",
+  "runtime_source_sha256": "eed8ef73168d58d2d5d0b7d44e3b79d4fe259857153cc46d3c805547fe767003",
+  "schedule": [
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/auth-service",
+      "trial": 4
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/order-service",
+      "trial": 2
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/cart-service",
+      "trial": 1
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/auth-service",
+      "trial": 1
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/catalog-service",
+      "trial": 2
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/aims-frontend",
+      "trial": 5
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/order-service",
+      "trial": 3
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/security-telemetry-service",
+      "trial": 5
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/order-service",
+      "trial": 1
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/inventory-service",
+      "trial": 5
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/api-gateway",
+      "trial": 4
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/aims-frontend",
+      "trial": 4
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/catalog-service",
+      "trial": 5
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/aims-frontend",
+      "trial": 2
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/inventory-service",
+      "trial": 3
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/cart-service",
+      "trial": 2
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/api-gateway",
+      "trial": 3
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/auth-service",
+      "trial": 2
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/catalog-service",
+      "trial": 1
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/security-telemetry-service",
+      "trial": 2
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/inventory-service",
+      "trial": 1
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/cart-service",
+      "trial": 5
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/inventory-service",
+      "trial": 2
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/security-telemetry-service",
+      "trial": 3
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/inventory-service",
+      "trial": 4
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/order-service",
+      "trial": 4
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/api-gateway",
+      "trial": 1
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/aims-frontend",
+      "trial": 3
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/catalog-service",
+      "trial": 3
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/cart-service",
+      "trial": 4
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/aims-frontend",
+      "trial": 1
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/catalog-service",
+      "trial": 4
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/auth-service",
+      "trial": 3
+    },
+    {
+      "rate": 6,
+      "seed": 401,
+      "target": "production/security-telemetry-service",
+      "trial": 4
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/auth-service",
+      "trial": 5
+    },
+    {
+      "rate": 12,
+      "seed": 211,
+      "target": "production/api-gateway",
+      "trial": 2
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/api-gateway",
+      "trial": 5
+    },
+    {
+      "rate": 12,
+      "seed": 503,
+      "target": "production/order-service",
+      "trial": 5
+    },
+    {
+      "rate": 24,
+      "seed": 307,
+      "target": "production/cart-service",
+      "trial": 3
+    },
+    {
+      "rate": 6,
+      "seed": 101,
+      "target": "production/security-telemetry-service",
+      "trial": 1
+    }
+  ],
+  "schedule_seed": 20260801,
+  "split_contract": {
+    "path": "/home/dat/ml-service/aims_candidate_split_contract.json",
+    "sha256": "e47a575c0d2e918d381198e0396d57e72c0229ccf6aea0ea4d8920caeb098ec0"
+  },
+  "total": 200,
+  "trials": [
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/auth-service-trial-04/20260804T101157Z/report.json",
+      "report_sha256": "58cf2d702553acbb85d98cf4e81bda925fe676dbfe1fe586696a23b2dab48ba0",
+      "seed": 401,
+      "target": "production/auth-service",
+      "total": 5,
+      "trial": 4
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/order-service-trial-02/20260804T101634Z/report.json",
+      "report_sha256": "0e8696c014af2fbf5e60342e45cf9c7001e06853347490bca25d8d32db7de284",
+      "seed": 211,
+      "target": "production/order-service",
+      "total": 5,
+      "trial": 2
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/cart-service-trial-01/20260804T102112Z/report.json",
+      "report_sha256": "8c5f37ba8ec6bc3afa7dff7b9f7f340170516c0005452f705cc54b43d3c8a121",
+      "seed": 101,
+      "target": "production/cart-service",
+      "total": 5,
+      "trial": 1
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/auth-service-trial-01/20260804T102547Z/report.json",
+      "report_sha256": "9dae744b73ea69ce4a580fa2f8135d939f7cfff6e774536bc576a54be88c85ee",
+      "seed": 101,
+      "target": "production/auth-service",
+      "total": 5,
+      "trial": 1
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/catalog-service-trial-02/20260804T103025Z/report.json",
+      "report_sha256": "1824a8cde8ec8c36d5cfee103594422e3682d3d92e5c5e2f03d92b79097dd6f0",
+      "seed": 211,
+      "target": "production/catalog-service",
+      "total": 5,
+      "trial": 2
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/aims-frontend-trial-05/20260804T103502Z/report.json",
+      "report_sha256": "9aedfb2f72029619122a96812b0dfc9a704ad56ec282b5d717f237bcd64f5d49",
+      "seed": 503,
+      "target": "production/aims-frontend",
+      "total": 5,
+      "trial": 5
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/order-service-trial-03/20260804T103939Z/report.json",
+      "report_sha256": "72f1a01472f3d64aa4bc9140042b71e34ce1e02a1075270cbed34567edb4d068",
+      "seed": 307,
+      "target": "production/order-service",
+      "total": 5,
+      "trial": 3
+    },
+    {
+      "all_passed": false,
+      "detected": 4,
+      "exit_code": 4,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/security-telemetry-service-trial-05/20260805T023657Z/report.json",
+      "report_sha256": "2cc7d6f3646fdc25db21d1056c9dc09ef03de05547f4b41e8c7b93a63aecce17",
+      "seed": 503,
+      "target": "production/security-telemetry-service",
+      "total": 5,
+      "trial": 5
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/order-service-trial-01/20260805T024523Z/report.json",
+      "report_sha256": "6db971f88b515f12605412cfa8948bfa8b02ac00e22b4529aebbe7ccf93e9d3d",
+      "seed": 101,
+      "target": "production/order-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/inventory-service-trial-05/20260805T025001Z/report.json",
+      "report_sha256": "46627a7cfda7480acaec6d8a277e436a175b5a2bfff3a2b5bd76a5e1bb5fc24a",
+      "seed": 503,
+      "target": "production/inventory-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/api-gateway-trial-04/20260805T025440Z/report.json",
+      "report_sha256": "0d7abee74c1274b017956a7678cfb2c99e62e5104cc9ec0c09083ca39cc32f04",
+      "seed": 401,
+      "target": "production/api-gateway",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/aims-frontend-trial-04/20260805T025920Z/report.json",
+      "report_sha256": "0fa2cfbaebf9f6c392cd39a6db85f05d52da6aaa4df16fced0e663cd66744dd6",
+      "seed": 401,
+      "target": "production/aims-frontend",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/catalog-service-trial-05/20260805T030357Z/report.json",
+      "report_sha256": "2ef790786fc9895163cd1d7a3163ec453b93f8ed7e46a1e6798d27afaf6ede39",
+      "seed": 503,
+      "target": "production/catalog-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/aims-frontend-trial-02/20260805T030834Z/report.json",
+      "report_sha256": "1fce819e671a3d94420248a27a84a65ff49f271aff44ead7515e2ccf56e742aa",
+      "seed": 211,
+      "target": "production/aims-frontend",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/inventory-service-trial-03/20260805T031312Z/report.json",
+      "report_sha256": "a0a8aa8da174b4df9b1972033fd2f0f33fd86c17894ca344eefb64b16e23d06c",
+      "seed": 307,
+      "target": "production/inventory-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/cart-service-trial-02/20260805T031751Z/report.json",
+      "report_sha256": "525a08810f286c6a5e7466602a7481c967580ff2b120d6f834824aeb39ea477d",
+      "seed": 211,
+      "target": "production/cart-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/api-gateway-trial-03/20260805T032231Z/report.json",
+      "report_sha256": "b233be8755ca2b1ead369de13653f4fe0ea973288a9d975b3493c51b4ddab3d6",
+      "seed": 307,
+      "target": "production/api-gateway",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/auth-service-trial-02/20260805T032710Z/report.json",
+      "report_sha256": "9b2e0c4c874baadcc1cca8d5405c8575d4fbc9bb9ca85c14ee52207e66c2bd0f",
+      "seed": 211,
+      "target": "production/auth-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/catalog-service-trial-01/20260805T033149Z/report.json",
+      "report_sha256": "a67a2516d31d4fa7a921e0c6144171b71a554a102aa1cde7b56a55a6e2cfc60b",
+      "seed": 101,
+      "target": "production/catalog-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": false,
+      "detected": 4,
+      "exit_code": 4,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/security-telemetry-service-trial-02/20260805T033623Z/report.json",
+      "report_sha256": "d92c5cf8392e7aae2e9458e516984e43baf17b0bbd4d98afee51b89d076d8dd0",
+      "seed": 211,
+      "target": "production/security-telemetry-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/inventory-service-trial-01/20260805T034158Z/report.json",
+      "report_sha256": "3a043cae42a2da0617b4ab3e8e06f518737a551554a4fc5880705b441b9b9bfc",
+      "seed": 101,
+      "target": "production/inventory-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/cart-service-trial-05/20260805T034632Z/report.json",
+      "report_sha256": "0361129e0f40735a2189e8424c7d3b4a88f9b66d4be648d5f5f1cb3dc66b7fc0",
+      "seed": 503,
+      "target": "production/cart-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/inventory-service-trial-02/20260805T035112Z/report.json",
+      "report_sha256": "bc67b08deaecdbdb4379d2af878fc306e1fc5cb11dd60d6e423d673ec9d9d678",
+      "seed": 211,
+      "target": "production/inventory-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": false,
+      "detected": 4,
+      "exit_code": 4,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/security-telemetry-service-trial-03/20260805T035552Z/report.json",
+      "report_sha256": "54d5885a27c891ec2207e08cbf449a06bcfbcfc531990274794d6eafd535c6aa",
+      "seed": 307,
+      "target": "production/security-telemetry-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/inventory-service-trial-04/20260805T040130Z/report.json",
+      "report_sha256": "764564c859785949989904d9e0e4935754933ab6f0875d8c9ade3ed5aeb34d38",
+      "seed": 401,
+      "target": "production/inventory-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/order-service-trial-04/20260805T040607Z/report.json",
+      "report_sha256": "02781c756a7dfd6c5d93090418a01e3d4aa92c6ae2a7a1f7bf583b5eef8535b6",
+      "seed": 401,
+      "target": "production/order-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/api-gateway-trial-01/20260805T041046Z/report.json",
+      "report_sha256": "82265cb9bc3d4520537f2cdf6242dc7a6df18773119946f29ccee453074e1000",
+      "seed": 101,
+      "target": "production/api-gateway",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/aims-frontend-trial-03/20260805T041523Z/report.json",
+      "report_sha256": "0278bf7a84660a28c3a0844db09bf51d01da28b46b6d9005d831f930ce4812c7",
+      "seed": 307,
+      "target": "production/aims-frontend",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/catalog-service-trial-03/20260805T042001Z/report.json",
+      "report_sha256": "379798dd74ccd80de136a0454fccc459301aa7bb05a0f49fed1278f2babb9fa7",
+      "seed": 307,
+      "target": "production/catalog-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/cart-service-trial-04/20260805T042438Z/report.json",
+      "report_sha256": "26e3dc20d1a359086b637b8f980ceca4f4ef40b890393ebe154c570c60ef774d",
+      "seed": 401,
+      "target": "production/cart-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/aims-frontend-trial-01/20260805T042918Z/report.json",
+      "report_sha256": "4f599726f6865a0d06c1e2a605de8ad62f5e5cd4bb29d1925f27438bfeac76ef",
+      "seed": 101,
+      "target": "production/aims-frontend",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/catalog-service-trial-04/20260805T043358Z/report.json",
+      "report_sha256": "5373ef3765427efe1382835ccf0af617517a29e0ab73b2532ef77c544f3116c3",
+      "seed": 401,
+      "target": "production/catalog-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/auth-service-trial-03/20260805T043835Z/report.json",
+      "report_sha256": "0ab29ad1875c1d1a5828f95996c94710efad092cf9cc68ecc511a533de3e7812",
+      "seed": 307,
+      "target": "production/auth-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": false,
+      "detected": 4,
+      "exit_code": 4,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/security-telemetry-service-trial-04/20260805T044315Z/report.json",
+      "report_sha256": "e60135d78bcf57810251a12fd5e9fe5311a22f951e3f253f488712d54c0af8a7",
+      "seed": 401,
+      "target": "production/security-telemetry-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 4,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/auth-service-trial-05/20260805T044854Z/report.json",
+      "report_sha256": "0166dd2f8ea7408f0c79179522112f00e923815dc4a23414fa18633b1ab33697",
+      "seed": 503,
+      "target": "production/auth-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/api-gateway-trial-02/20260805T045332Z/report.json",
+      "report_sha256": "fbe454e34280e554252f3d56ade13a3bada4dac56eb99aad75fdcf091596e79a",
+      "seed": 211,
+      "target": "production/api-gateway",
+      "timed_out": false,
+      "total": 5,
+      "trial": 2,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/api-gateway-trial-05/20260805T045810Z/report.json",
+      "report_sha256": "9eb487bc76b3876070813a94f6b2d989d1c2f140268309af45ee3e8a8c3137e3",
+      "seed": 503,
+      "target": "production/api-gateway",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 12,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/order-service-trial-05/20260805T050246Z/report.json",
+      "report_sha256": "eef44fc3b69dd05ab964cd6ed87bbc08783b6e88bacf3efe0bd13233382c732b",
+      "seed": 503,
+      "target": "production/order-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 5,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": true,
+      "detected": 5,
+      "exit_code": 0,
+      "rate": 24,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/cart-service-trial-03/20260805T050727Z/report.json",
+      "report_sha256": "ca833c56f4a210bd5d1d043cce36d44bfd77e332de7c9ca8fff13c04052cd481",
+      "seed": 307,
+      "target": "production/cart-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 3,
+      "trial_timeout_seconds": 1800
+    },
+    {
+      "all_passed": false,
+      "detected": 4,
+      "exit_code": 4,
+      "rate": 6,
+      "report_path": "/home/dat/ml-service/aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/security-telemetry-service-trial-01/20260805T051207Z/report.json",
+      "report_sha256": "d015752b10aa46e966a6d8eb420fd80562726e0fa6a490b8571130aebdc88e61",
+      "seed": 101,
+      "target": "production/security-telemetry-service",
+      "timed_out": false,
+      "total": 5,
+      "trial": 1,
+      "trial_timeout_seconds": 1800
+    }
+  ],
+  "window_seconds": 10
+}

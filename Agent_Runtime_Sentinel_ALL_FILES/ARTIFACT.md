@@ -30,13 +30,14 @@ MCP payload, secret, PVC data hay private endpoint.
 | AIMS traffic regimes | `ml-service/set_aims_traffic_regime.sh` | deterministic steady/burst/recovery/toolmix/idle traffic |
 | AIMS blind attack contract | `ml-service/aims_blind_attack_contract.json` | frozen source/binary hash, scenarios, seeds, rates and safety boundary |
 | AIMS blind matrix | `ml-service/run_aims_blind_matrix.py` | shuffled 8-workload x 5-trial x 5-scenario kernel evaluation; preserves complete misses against rerun/cherry-picking; no promotion |
-| Bounded kernel harness | `ml-service/run_kernel_regression.py` | bounded Kubernetes transport with exact-binary stdin fallback, bounded attack acknowledgement and delivery-method provenance |
+| Bounded kernel harness | `ml-service/run_kernel_regression.py` | bounded Kubernetes transport, exact-binary fallback, attack acknowledgement, pod preventive-control snapshot và post-injection sensor visibility |
 | AIMS blind attack scheduler | `ml-service/run_aims_blind_attack.sh`, `sentinel/systemd/aims-blind-attack.{service,timer}` | waits for exact blind-normal candidate/calibration/split hashes, resumes valid trials and quarantines failures |
 | Finite-sample behavior gate | `ml-service/graph_signals.py`, `ml-service/build_phase_dataset.py` | one-sided 95% Wilson lower bound and row-aligned validation event counts prevent low-volume rate noise from becoming kernel evidence |
-| Paper statistics | `ml-service/paper_statistics.py` | confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
+| Paper statistics | `ml-service/paper_statistics.py` | validates every blind-trial SHA, merges disjoint normal splits, then emits stratified confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
+| Frozen AIMS fit-v2 evidence | `validation-evidence/aims-fit-v2-20260805/` | two disjoint normal reports, aggregate plus 40 hash-valid nested blind reports, and byte-reproducible statistics JSON/Markdown |
 | Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
-| AIMS counterbalanced overhead harness | `sentinel/benchmarks/run_aims_overhead_matrix.sh` | 10×30s wrk per no-tracing/Tetragon/full phase, six allowed phase orders, environment/protocol hashes and mutation interlock |
+| AIMS counterbalanced overhead harness | `sentinel/benchmarks/run_aims_overhead_{matrix,counterbalanced}.sh`, `aggregate_counterbalanced_overhead.py` | 10×30s wrk per phase, all six phase orders, environment/protocol hashes, resumability and paired experiment-block bootstrap |
 
 ## Provenance
 

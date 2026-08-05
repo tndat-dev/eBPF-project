@@ -41,20 +41,34 @@ Contract máy đọc được là `ml-service/aims_candidate_split_contract.json
 Builder lưu hash contract/phase/array/metadata vào dataset manifest và từ chối
 phase sai role, vì vậy split này là protocol thực thi được chứ không chỉ mô tả.
 
-Trạng thái thực thi ngày 04-08-2026: normal matrix AIMS đã đóng băng đủ 20
+Trạng thái thực thi ngày 05-08-2026: normal matrix AIMS đã đóng băng đủ 20
 phase, `86414.760802s`, 135.378 workload windows và toàn bộ `SHA256SUMS` pass.
 Fit-v2 chỉ dùng run-01 đã pass development gate. Independent run-02--03 đã
 pass 8/8 phase, 54.151 windows, 0 alert/detection; report SHA-256 bắt đầu bằng
 `c08d5bc3`. Blind-normal run-04--05 cũng pass 8/8 phase, 54.166 windows,
-0 alert/detection; report SHA-256 bắt đầu bằng `eb1d8b8b`. Blind attack đã giữ
-9/40 workload-trial, 44/45 scenario detect và đang resume bằng bounded
-transport. Đây chưa phải kết quả cuối: baseline/ablation và overhead vẫn bị khóa theo thứ tự gate. Không
-được dùng run-02--05 để tune lại fit-v2.
+0 alert/detection; report SHA-256 bắt đầu bằng `eb1d8b8b`. Blind attack đã hoàn
+tất 40/40 workload-trial và detect 195/200 scenario; report aggregate SHA-256
+`b14c3abd...`. Năm miss đều là `namespace_probe` trên workload có Localhost
+seccomp/AppArmor. Candidate bị từ chối promotion; không được dùng run-02--05
+hay blind attack này để tune lại fit-v2.
 
-Sau bounded fallback, trial thứ 8 có một miss `namespace_probe` khỏe về sensor
-và attack acknowledgement. Fit-v2 vì vậy đã fail frozen promotion recall 1,0.
-Runner được sửa để giữ vĩnh viễn complete detection failure, không rerun đến
-khi pass; matrix vẫn chạy hết cho failure analysis và confidence interval.
+Derived statistics kiểm đủ hash 40 report: recall 0,975 (Wilson 95% CI
+0,9428--0,9893), F1 mô tả 0,9873; gộp 108.182 eligible normal window có 0
+observed alert, Wilson upper bound 3,5508e-5/window. Fast early-warning n=75 có
+p50 0,453s, p95 0,761s; ML confirmation n=195 có p50 18,550s, p95 20,587s;
+inference riêng p50 40,101ms. Năm miss cũng là năm fast-path expected không
+matched, trong khi attack ack và sensor health đều pass.
+
+Failure analysis cho thấy workload miss dùng `Localhost` seccomp
+`profiles/aims-runtime.json` và AppArmor `aims-restricted`; post-injection ML
+window không có suspicious syscall mass. Đây vẫn là end-to-end false negative,
+đồng thời chỉ ra observability gap khi preventive control chặn syscall trước
+điểm probe. Harness V8 ghi pod security profile và post-injection sensor signal
+để không đánh đồng attack process chạy với attack feature đã tới detector.
+
+Counterbalanced overhead sáu phase-order x 10 repetition/phase được khởi chạy
+ngầm với campaign `20260805T063700Z`; kết quả chỉ được claim khi đủ cả sáu block
+và aggregate validator pass.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

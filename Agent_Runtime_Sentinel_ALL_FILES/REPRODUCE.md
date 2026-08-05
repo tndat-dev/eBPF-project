@@ -211,6 +211,17 @@ Kết quả 0 false alert vẫn phải báo Wilson upper bound. Sau AIMS matrix,
 window-level interval bằng block bootstrap theo 20 run độc lập để xử lý tương
 quan thời gian.
 
+Với AIMS fit-v2, truyền hai split normal không chồng phase và aggregate blind
+matrix. Tool kiểm SHA-256 của toàn bộ 40 nested trial trước khi tính:
+
+```bash
+python3 ml-service/paper_statistics.py \
+  --normal aims-independent-validation-fit-v2.json \
+  --normal aims-blind-normal-test-fit-v2.json \
+  --attack aims-blind-matrix/aims-blind-models_aims_fit-v2-20260803T043100Z/report.json \
+  --output aims-fit-v2-paper-statistics.json
+```
+
 Sau khi từng baseline/ablation ghi `result.json` theo contract, kiểm tra toàn
 bộ matrix dùng cùng dataset/split/blind set/environment/seeds:
 
@@ -236,10 +247,18 @@ sudo env AIMS_PHASE_ORDER=no_tracing,tetragon_only,full_pipeline \
   /home/dat/ml-service/sentinel/benchmarks/run_aims_overhead_matrix.sh
 ```
 
-Lặp với năm permutation còn lại và experiment ID riêng. Mỗi phase warm-up rồi
+Hoặc chạy/resume tự động đủ sáu permutation và aggregate theo paired block:
+
+```bash
+sudo env AIMS_OVERHEAD_CAMPAIGN_ID=paper-overhead-01 \
+  /home/dat/ml-service/sentinel/benchmarks/run_aims_overhead_counterbalanced.sh
+```
+
+Mỗi phase warm-up rồi
 chạy 10 repetition `wrk -t4 -c50 -d30s --latency` vào ingress AIMS thật qua
 Istio. Ba treatment là no AIMS tracing, Tetragon policy only, và full frozen
 candidate. Script dùng bản sao calibration, không sửa artifact gốc; trap luôn
 khôi phục AIMS policy và V7 service. Report chứa throughput, p99, request error,
 Tetragon/detector CPU-RAM, tổng CPU-RAM tám workload, bootstrap 95% interval,
-phase-order protocol hash và environment hash.
+phase-order protocol hash và environment hash. Aggregate cuối chỉ được tạo khi
+đủ sáu order; CI bootstrap dùng phase-order experiment làm block ghép cặp.
