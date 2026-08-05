@@ -20,15 +20,33 @@ def _write_campaign(root: Path, count: int = 6):
             ("tetragon_only", 980, 11),
             ("full_pipeline", 950, 12),
         ):
+            phase_root = root / f"{name}-{experiment}"
+            phase_root.mkdir()
+            phase_report = {
+                "experiment_id": experiment,
+                "phase": name,
+                "runs": [{"exit_code": 0}] * 10,
+                "failed_requests_total": 0,
+                "quality_gate": {"passed": True},
+            }
+            phase_path = phase_root / "report.json"
+            phase_path.write_text(json.dumps(phase_report))
+            import hashlib
             phases[name] = {
                 "rps_median": rps,
                 "latency_p99_ms_median": latency,
+                "path": str(phase_path),
+                "report_sha256": hashlib.sha256(
+                    phase_path.read_bytes()
+                ).hexdigest(),
             }
         (root / f"comparison-wrk-{experiment}.json").write_text(json.dumps({
             "experiment_id": experiment, "phases": phases,
         }))
         (root / f"protocol-{experiment}.json").write_text(json.dumps({
-            "experiment_id": experiment, "phase_order": order,
+            "experiment_id": experiment,
+            "phase_order": order,
+            "repetitions_per_phase": 10,
         }))
 
 

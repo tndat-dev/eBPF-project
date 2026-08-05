@@ -74,15 +74,44 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
         if order not in EXPECTED_ORDERS or order in orders:
             raise ValueError(f"invalid or duplicate phase order: {order}")
         orders.add(order)
+        expected_repetitions = int(protocol.get("repetitions_per_phase", 0))
+        if expected_repetitions <= 0:
+            raise ValueError(f"invalid repetition contract for {experiment_id}")
         phases = comparison.get("phases", {})
         if set(phases) != set(PHASES):
             raise ValueError(f"incomplete phases for {experiment_id}")
+        phase_reports = {}
+        for phase, summary in phases.items():
+            report_path = Path(summary.get("path", ""))
+            if not report_path.is_file():
+                raise ValueError(f"missing phase report for {experiment_id}/{phase}")
+            phase_report = json.loads(report_path.read_text())
+            if (
+                phase_report.get("experiment_id") != experiment_id
+                or phase_report.get("phase") != phase
+                or phase_report.get("quality_gate", {}).get("passed") is not True
+                or len(phase_report.get("runs", [])) != expected_repetitions
+                or int(phase_report.get("failed_requests_total", -1)) != 0
+            ):
+                raise ValueError(
+                    f"phase quality/integrity gate failed: {experiment_id}/{phase}"
+                )
+            report_digest = sha256(report_path)
+            if summary.get("report_sha256") != report_digest:
+                raise ValueError(f"phase digest mismatch: {experiment_id}/{phase}")
+            phase_reports[phase] = {
+                "name": report_path.parent.name + "/report.json",
+                "sha256": report_digest,
+                "repetitions": len(phase_report["runs"]),
+                "failed_requests": phase_report["failed_requests_total"],
+            }
         records.append({
             "experiment_id": experiment_id,
             "phase_order": list(order),
             "comparison_sha256": sha256(comparison_path),
             "protocol_sha256": sha256(protocol_path),
             "phases": phases,
+            "phase_reports": phase_reports,
         })
     if orders != EXPECTED_ORDERS:
         raise ValueError(

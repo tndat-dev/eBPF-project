@@ -60,8 +60,27 @@ Non-2xx or 3xx responses: 4
         "requests_per_second": 32100.25,
         "time_per_request_concurrent_ms": 0.23755,
         "failed_requests": 7.0,
+        "socket_errors": 3,
+        "non_2xx_or_3xx": 4,
         "latency_p99_ms": 1.22,
     }
+
+
+def test_quality_gate_rejects_http_errors_even_when_wrk_exits_zero():
+    report = {
+        "warmup": {"exit_code": 0, "failed_requests": 0},
+        "runs": [{
+            "run": 1,
+            "exit_code": 0,
+            "requests_per_second": 100,
+            "time_per_request_concurrent_ms": 10,
+            "latency_p99_ms": 20,
+            "failed_requests": 1,
+        }],
+    }
+    gate = measure_phase.quality_gate(report)
+    assert gate["passed"] is False
+    assert "failed/non-success" in gate["reasons"][0]
 
 
 def test_overhead_effect_direction_is_explicit():

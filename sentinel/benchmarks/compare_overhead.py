@@ -56,6 +56,8 @@ def effect(treatment, control, kind):
 
 def summarize_report(path):
     report = json.loads(path.read_text())
+    if report.get("quality_gate", {}).get("passed") is not True:
+        raise ValueError(f"phase report failed quality gate: {path}")
     tetragon_cpu, tetragon_memory = [], []
     for snapshot in report.get("top_snapshots", []):
         rows = [
@@ -93,6 +95,7 @@ def summarize_report(path):
         "tool": report.get("tool", "ab"),
         "runs": len(report["runs"]),
         "failed_requests_total": report["failed_requests_total"],
+        "report_sha256": file_sha256(path),
         "rps": [row["requests_per_second"] for row in report["runs"]],
         "latency_p99_ms": [row["latency_p99_ms"] for row in report["runs"]],
         "rps_median": report["requests_per_second"]["median"],

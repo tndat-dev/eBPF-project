@@ -234,6 +234,27 @@ Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result gi�
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
 không phải generator kết quả.
 
+Để tạo paired replay dataset mới, bật capture có chủ đích trên collector/eval
+runtime, không bật mặc định trên production detector:
+
+```bash
+export SENTINEL_FEATURE_CAPTURE=sequence   # aggregate nếu không cần rule order
+export SENTINEL_METRICS=/path/to/frozen-capture.jsonl
+```
+
+Row `sentinel-feature-window/v1` chỉ chứa pod/node identity, timestamp window,
+sparse n-gram vector, syscall counts và tùy chọn syscall-name sequence; không
+chứa argument/payload/content. Hash toàn bộ JSONL và vocab trước khi replay cùng
+một row order qua B1--B6/ablation.
+
+```bash
+python3 ml-service/validate_feature_capture.py frozen-capture.jsonl \
+  --output frozen-capture.validation.json
+```
+
+Chỉ freeze dataset khi `valid=true`; gate từ chối key ngoài schema, count/sequence
+lệch, sparse index sai, window trùng/chồng hoặc privacy exclusion không rõ.
+
 ## AIMS overhead A/B
 
 Không chạy overhead trong khi normal matrix, training hoặc split evaluator đang
@@ -254,11 +275,14 @@ sudo env AIMS_OVERHEAD_CAMPAIGN_ID=paper-overhead-01 \
   /home/dat/ml-service/sentinel/benchmarks/run_aims_overhead_counterbalanced.sh
 ```
 
-Mỗi phase warm-up rồi
-chạy 10 repetition `wrk -t4 -c50 -d30s --latency` vào ingress AIMS thật qua
+Mỗi phase warm-up rồi chạy mặc định 10 repetition
+`wrk -t2 -c8 -d30s --latency` vào ingress AIMS thật qua
 Istio. Ba treatment là no AIMS tracing, Tetragon policy only, và full frozen
 candidate. Script dùng bản sao calibration, không sửa artifact gốc; trap luôn
 khôi phục AIMS policy và V7 service. Report chứa throughput, p99, request error,
 Tetragon/detector CPU-RAM, tổng CPU-RAM tám workload, bootstrap 95% interval,
 phase-order protocol hash và environment hash. Aggregate cuối chỉ được tạo khi
 đủ sáu order; CI bootstrap dùng phase-order experiment làm block ghép cặp.
+Warm-up và mọi repetition phải có zero socket error và zero non-2xx/3xx;
+`wrk` exit 0 không đủ để pass. Concurrency phải được load-probe trước campaign;
+không dùng phase overload vì response lỗi nhanh tạo throughput giả.

@@ -40,6 +40,10 @@ output_root="$ROOT_DIR/aims-overhead-final"
 runtime_unit=aims-candidate-runtime-benchmark.service
 policy="$ROOT_DIR/tetragon-aims-policies.yaml"
 url=${AIMS_BENCHMARK_URL:-http://10.103.205.176/api/products/}
+wrk_threads=${AIMS_WRK_THREADS:-2}
+wrk_concurrency=${AIMS_WRK_CONCURRENCY:-8}
+wrk_duration=${AIMS_WRK_DURATION_SECONDS:-30}
+wrk_repeats=${AIMS_WRK_REPEATS:-10}
 phase_order_raw=${AIMS_PHASE_ORDER:-no_tracing,tetragon_only,full_pipeline}
 case "$phase_order_raw" in
   no_tracing,tetragon_only,full_pipeline|no_tracing,full_pipeline,tetragon_only|\
@@ -63,7 +67,8 @@ systemctl stop sentinel-detector.service
 "$ROOT_DIR/sentinel/benchmarks/capture_environment.sh" \
   "$output_root/environment-$experiment_id.txt"
 "$PYTHON_BIN" - "$output_root/protocol-$experiment_id.json" \
-  "$experiment_id" "$phase_order_raw" "$url" <<'PY'
+  "$experiment_id" "$phase_order_raw" "$url" "$wrk_threads" \
+  "$wrk_concurrency" "$wrk_duration" "$wrk_repeats" <<'PY'
 import json, sys
 from pathlib import Path
 Path(sys.argv[1]).write_text(json.dumps({
@@ -71,15 +76,20 @@ Path(sys.argv[1]).write_text(json.dumps({
     "experiment_id": sys.argv[2],
     "phase_order": sys.argv[3].split(","),
     "url": sys.argv[4],
+    "wrk_threads": int(sys.argv[5]),
+    "wrk_concurrency": int(sys.argv[6]),
+    "duration_seconds_per_repetition": int(sys.argv[7]),
+    "repetitions_per_phase": int(sys.argv[8]),
     "counterbalancing": "run all six permutations with distinct experiment IDs",
-    "repetitions_per_phase": 10,
-    "duration_seconds_per_repetition": 30,
+    "quality_gate": "zero socket errors and zero non-2xx/3xx responses",
 }, indent=2, sort_keys=True) + "\n")
 PY
 
 common=(
-  --url "$url" --tool wrk --threads 4 --concurrency 50 --duration 30
-  --repeats 10 --output-root "$output_root" --experiment-id "$experiment_id"
+  --url "$url" --tool wrk --threads "$wrk_threads"
+  --concurrency "$wrk_concurrency" --duration "$wrk_duration"
+  --repeats "$wrk_repeats" --max-failed-requests 0
+  --output-root "$output_root" --experiment-id "$experiment_id"
   --detector-unit "$runtime_unit" --workload-namespace production
 )
 for prefix in aims-frontend- api-gateway- auth-service- cart-service- \

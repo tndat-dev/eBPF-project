@@ -37,7 +37,9 @@ MCP payload, secret, PVC data hay private endpoint.
 | Frozen AIMS fit-v2 evidence | `validation-evidence/aims-fit-v2-20260805/` | two disjoint normal reports, aggregate plus 40 hash-valid nested blind reports, and byte-reproducible statistics JSON/Markdown |
 | Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
-| AIMS counterbalanced overhead harness | `sentinel/benchmarks/run_aims_overhead_{matrix,counterbalanced}.sh`, `aggregate_counterbalanced_overhead.py` | 10×30s wrk per phase, all six phase orders, environment/protocol hashes, resumability and paired experiment-block bootstrap |
+| Paired feature-window capture | `SENTINEL_FEATURE_CAPTURE=aggregate|sequence` in `ml-service/anomaly_detector2.py` | opt-in sparse vectors/counts or syscall-name sequence for replaying every baseline on identical windows; never stores arguments/payloads |
+| Feature-capture integrity gate | `ml-service/validate_feature_capture.py` | validates schema/privacy, sparse-vector bounds, counts/sequence consistency, duplicate/overlapping windows and source SHA-256 |
+| AIMS counterbalanced overhead harness | `sentinel/benchmarks/{measure_phase,compare_overhead,aggregate_counterbalanced_overhead}.py`, `run_aims_overhead_{matrix,counterbalanced}.sh` | 10×30s wrk per phase, six phase orders, zero socket/HTTP-error gate, 18 phase-report hashes, resumability and paired experiment-block bootstrap |
 
 ## Provenance
 

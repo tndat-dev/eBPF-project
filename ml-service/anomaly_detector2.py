@@ -40,6 +40,43 @@ logging.basicConfig(
 )
 logger = logging.getLogger("anomaly_detector")
 
+FEATURE_CAPTURE_MODES = frozenset({"off", "aggregate", "sequence"})
+
+
+def feature_window_evidence(fv, mode: str) -> dict:
+    """Build privacy-minimised evidence for exact paired replay.
+
+    Only syscall names and derived features are retained. Process arguments,
+    payloads, file contents and network data are never included. ``sequence``
+    supports ordered-rule/fast-path ablations; ``aggregate`` supports ML and
+    frequency-rule baselines with a smaller artifact.
+    """
+    if mode not in FEATURE_CAPTURE_MODES - {"off"}:
+        raise ValueError(f"invalid feature capture mode: {mode}")
+    payload = {
+        "schema": "sentinel-feature-window/v1",
+        "pod_key": fv.pod_key,
+        "node_name": fv.node_name,
+        "window_start": float(fv.window_start),
+        "window_end": float(fv.window_end),
+        "event_count": fv.total_events(),
+        "vector_size": len(fv.vector),
+        "sparse_vector": [
+            [index, round(float(value), 8)]
+            for index, value in enumerate(fv.vector)
+            if float(value) != 0.0
+        ],
+        "syscall_counts": {
+            name: int(count)
+            for name, count in sorted(fv.syscall_counts.items())
+        },
+        "contains_arguments_or_payloads": False,
+        "capture_mode": mode,
+    }
+    if mode == "sequence":
+        payload["syscall_sequence"] = list(fv.raw_syscalls)
+    return payload
+
 
 def kubernetes_pod_started_at(pod_key: str) -> Optional[float]:
     """Return a pod's Kubernetes creation time without trusting reader start.
@@ -193,6 +230,13 @@ class AnomalyDetector:
             raise ValueError("extreme volume factor must be greater than 1")
         self.calibration_path = os.environ.get("SENTINEL_CALIBRATION", "calibration.json")
         self.persist_calibration = persist_calibration
+        self.feature_capture_mode = os.environ.get(
+            "SENTINEL_FEATURE_CAPTURE", "off"
+        ).strip().lower()
+        if self.feature_capture_mode not in FEATURE_CAPTURE_MODES:
+            raise ValueError(
+                "SENTINEL_FEATURE_CAPTURE must be off, aggregate, or sequence"
+            )
         restored = load_calibrators(
             self.calibration_path, threshold, warmup_windows,
             event_ceiling_factor=self.extreme_volume_factor,
@@ -292,6 +336,13 @@ class AnomalyDetector:
         if model_key != pod_key:
             logger.debug(
                 f"[MODEL FALLBACK] {pod_key} → dùng model '{model_key}'"
+            )
+
+        if self.feature_capture_mode != "off":
+            emit(
+                "feature_window",
+                model_key=model_key,
+                **feature_window_evidence(fv, self.feature_capture_mode),
             )
 
         infer_start = time.perf_counter()

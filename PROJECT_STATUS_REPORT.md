@@ -2874,3 +2874,55 @@ overhead cuối, independent cluster/unseen version test và một blind set m�
 V8. Không được quảng bá “100% không false positive” hoặc “1--2 giây confirmed
 ML”; số đúng hiện tại là fast warning dưới một giây cho 75 case matched và ML
 confirmation khoảng 18,55 giây median.
+
+### 18.36 Overhead campaign đầu bị reject và fail-closed V2 (05-08-2026)
+
+Campaign `20260805T063700Z` hoàn tất đủ sáu phase-order lúc `08:35:15 UTC` và
+restore thành công `sentinel-aims-syscalls` cùng `sentinel-detector.service`.
+Tuy nhiên audit chất lượng không chấp nhận aggregate ban đầu. `wrk` exit 0 ở cả
+180 repetition nhưng nhiều phase có socket timeout/non-2xx rất lớn:
+
+- một số phase đầu có từ vài trăm đến hàng trăm nghìn failed response;
+- block 6 có 2,53--3,52 triệu failed response/phase;
+- response lỗi trả nhanh làm throughput biểu kiến nhảy từ khoảng 30--60 RPS lên
+  hàng nghìn hoặc hàng chục nghìn RPS;
+- vì vậy CI cũ rất rộng và có “negative overhead” phi vật lý; đây là closed-loop
+  coordinated-omission/error-response artifact, không phải hiệu năng tốt hơn.
+
+Campaign này được giữ làm rejected evidence nhưng mọi overhead claim từ file
+`counterbalanced-20260805T063700Z.json` bị vô hiệu. Nguyên nhân trực tiếp là
+harness cũ chỉ kiểm exit code của `wrk`; `wrk` vẫn trả 0 khi server trả non-2xx.
+
+Harness đã được harden:
+
+1. parser tách `socket_errors` và `non_2xx_or_3xx`;
+2. warm-up và từng repetition phải parse đủ RPS/mean/p99/error;
+3. quality gate mặc định yêu cầu tổng failed response bằng 0; vi phạm trả exit
+   8, shell dừng campaign và trap restore runtime;
+4. comparison từ chối phase report không có `quality_gate.passed=true`;
+5. counterbalanced aggregate tự mở 18 phase report, kiểm experiment/phase,
+   đúng 10 repetition, zero error và SHA-256 khớp summary;
+6. chạy validator mới trên campaign cũ fail đúng tại
+   `20260805T063700Z-p01/full_pipeline`, chứng minh fail-closed hoạt động.
+
+Load probing độc lập với concurrency 1, 2, 4 và 8 cho endpoint AIMS cho thấy c8
+không có HTTP/socket error trong probe 10 giây, còn c50 gây overload/circuit
+breaking. Protocol V2 dùng `wrk -t2 -c8 -d30s`, 10 repetition/phase, vẫn đủ sáu
+phase-order và giữ background production traffic. Campaign mới
+`20260805T093000Z` bắt đầu lúc `09:30:17 UTC` dưới unit
+`aims-overhead-counterbalanced-v2.service`, timeout 4 giờ. Chỉ kết quả đủ 6/6
+block với 0 failed response mới được kéo vào paper evidence.
+
+Phase đầu của V2, `p01/no_tracing`, đã pass quality gate: warm-up và 10/10
+repetition đều 0 socket error, 0 non-2xx/3xx. RPS nằm 50,23--55,81; p99 nằm
+366,7--484,97ms. Campaign tiếp tục sang `tetragon_only`; đây mới là smoke proof
+cho tải c8, chưa phải overhead effect hay campaign result cuối.
+
+Song song ở code path V8, detector có `SENTINEL_FEATURE_CAPTURE` opt-in với ba
+mode `off|aggregate|sequence`. `aggregate` ghi sparse n-gram vector và syscall
+counts; `sequence` thêm ordered syscall names để replay fast-path/rule-only.
+Không mode nào ghi process argument, payload, file content hoặc network data;
+mặc định `off` nên production runtime/overhead campaign không bị thay đổi. Mục
+đích là chạy tất cả baseline/ablation trên đúng cùng feature windows và labels,
+tránh confound do inject lại trên traffic khác nhau. Evidence V7 hiện chỉ có
+decision summary nên không được dùng để tạo baseline giả hồi tố.

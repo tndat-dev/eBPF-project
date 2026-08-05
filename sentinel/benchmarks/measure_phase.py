@@ -144,13 +144,50 @@ def parse_wrk(text):
         text,
     )
     non_success = re.search(r"Non-2xx or 3xx responses:\s+(\d+)", text)
-    errors = sum(int(value) for value in socket_errors.groups()) if socket_errors else 0
-    errors += int(non_success.group(1)) if non_success else 0
+    socket_error_count = (
+        sum(int(value) for value in socket_errors.groups())
+        if socket_errors else 0
+    )
+    non_success_count = int(non_success.group(1)) if non_success else 0
     return {
         "requests_per_second": float(rps.group(1)) if rps else None,
         "time_per_request_concurrent_ms": duration_ms(mean.group(1)) if mean else None,
-        "failed_requests": float(errors),
+        "failed_requests": float(socket_error_count + non_success_count),
+        "socket_errors": socket_error_count,
+        "non_2xx_or_3xx": non_success_count,
         "latency_p99_ms": duration_ms(p99.group(1)) if p99 else None,
+    }
+
+
+def quality_gate(report, max_failed_requests=0):
+    """Fail closed on process, parser, socket, or HTTP response errors."""
+    required = (
+        "requests_per_second", "time_per_request_concurrent_ms",
+        "latency_p99_ms", "failed_requests",
+    )
+    reasons = []
+    warmup = report.get("warmup", {})
+    if warmup.get("exit_code") != 0:
+        reasons.append("warmup process failed")
+    if warmup.get("failed_requests", 0) > max_failed_requests:
+        reasons.append("warmup returned failed/non-success responses")
+    runs = report.get("runs", [])
+    if not runs:
+        reasons.append("no benchmark repetitions")
+    for run in runs:
+        if run.get("exit_code") != 0:
+            reasons.append(f"run {run.get('run')} process failed")
+        missing = [field for field in required if run.get(field) is None]
+        if missing:
+            reasons.append(f"run {run.get('run')} missing {','.join(missing)}")
+        if (run.get("failed_requests") or 0) > max_failed_requests:
+            reasons.append(
+                f"run {run.get('run')} returned failed/non-success responses"
+            )
+    return {
+        "passed": not reasons,
+        "reasons": reasons,
+        "max_failed_requests": max_failed_requests,
     }
 
 
@@ -171,6 +208,7 @@ def main() -> int:
     parser.add_argument("--detector-unit", default="sentinel-detector")
     parser.add_argument("--workload-namespace", default="production")
     parser.add_argument("--workload-prefix", action="append", default=[])
+    parser.add_argument("--max-failed-requests", type=int, default=0)
     args = parser.parse_args()
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
@@ -204,10 +242,12 @@ def main() -> int:
         warmup_command = [
             "ab", "-n", "1000", "-c", str(args.concurrency), "-k", args.url,
         ]
-    subprocess.run(
-        warmup_command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        check=True,
-    )
+    warmup = subprocess.run(warmup_command, text=True, capture_output=True)
+    report["warmup"] = {
+        "exit_code": warmup.returncode,
+        **(parse_wrk(warmup.stdout) if args.tool == "wrk"
+           else parse_ab(warmup.stdout)),
+    }
     for run_id in range(1, args.repeats + 1):
         report["top_snapshots"].append(top_snapshot())
         report["systemd_snapshots"].append(systemd_snapshot(args.detector_unit))
@@ -267,11 +307,12 @@ def main() -> int:
         args.workload_prefix or ["nginx-"],
     )
     report["completed_at"] = datetime.now(timezone.utc).isoformat()
+    report["quality_gate"] = quality_gate(report, args.max_failed_requests)
 
     path = output / "report.json"
     path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(path)
-    return 0 if all(run["exit_code"] == 0 for run in report["runs"]) else 7
+    return 0 if report["quality_gate"]["passed"] else 8
 
 
 if __name__ == "__main__":

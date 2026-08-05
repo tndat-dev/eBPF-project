@@ -66,9 +66,19 @@ window không có suspicious syscall mass. Đây vẫn là end-to-end false nega
 điểm probe. Harness V8 ghi pod security profile và post-injection sensor signal
 để không đánh đồng attack process chạy với attack feature đã tới detector.
 
-Counterbalanced overhead sáu phase-order x 10 repetition/phase được khởi chạy
-ngầm với campaign `20260805T063700Z`; kết quả chỉ được claim khi đủ cả sáu block
-và aggregate validator pass.
+Counterbalanced overhead campaign `20260805T063700Z` đã chạy đủ sáu phase-order
+nhưng bị quality audit reject vì non-2xx/socket error làm throughput biểu kiến
+nhảy sai. Harness mới fail-closed trên từng warm-up/repetition, kiểm hash 18
+phase report và dùng tải bền vững `wrk -t2 -c8`; campaign V2
+`20260805T093000Z` đang chạy. Kết quả chỉ được claim khi đủ sáu block, zero
+failed response và aggregate validator pass.
+
+Baseline/ablation V8 phải dùng paired replay thay vì inject lại riêng cho từng
+method. Runtime có capture opt-in `aggregate` (sparse vector + syscall counts)
+hoặc `sequence` (thêm ordered syscall names cho fast-path/rule ablation), mặc
+định `off`. Artifact cấm process arguments, payload, file content và network
+data. Capture mới phải được freeze/hash trước evaluation; evidence V7 cũ không
+đủ feature windows nên không được bịa baseline result từ decision summary.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

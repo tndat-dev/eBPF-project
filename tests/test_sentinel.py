@@ -10,7 +10,11 @@ from adaptive_threshold import (POTThreshold, StreamingThreshold,
                                 load_calibrators, save_calibrators)
 from graph_signals import (behavior_signals, evaluate_behavior,
                            fit_behavior_limits)
-from anomaly_detector2 import AnomalyDetector, get_deployment_key
+from anomaly_detector2 import (
+    AnomalyDetector,
+    feature_window_evidence,
+    get_deployment_key,
+)
 from feature_engineering import PodWindowBuffer, parse_event_time
 from tetragon_consumer import (PodInfo, ProcessInfo, SyscallEvent,
                                TetragonConsumer, TetragonKubectlReader)
@@ -26,6 +30,32 @@ def isolate_test_telemetry(tmp_path, monkeypatch):
 def test_threshold_has_floor_and_ignores_small_sample():
     assert POTThreshold(minimum=.8).fit([.1, .2]) == .8
     assert .8 <= POTThreshold(minimum=.8).fit(np.linspace(.1, .3, 100)) <= .995
+
+
+def test_feature_window_evidence_is_sparse_replayable_and_privacy_minimised():
+    class Vector:
+        pod_key = "production/service-pod"
+        node_name = "worker-1"
+        window_start = 10.0
+        window_end = 20.0
+        vector = np.array([0.0, 0.25, 0.0, 0.75], dtype=np.float32)
+        syscall_counts = {"connect": 1, "execve": 3}
+        raw_syscalls = ["execve", "execve", "connect", "execve"]
+
+        def total_events(self):
+            return len(self.raw_syscalls)
+
+    aggregate = feature_window_evidence(Vector(), "aggregate")
+    assert aggregate["schema"] == "sentinel-feature-window/v1"
+    assert aggregate["sparse_vector"] == [[1, 0.25], [3, 0.75]]
+    assert aggregate["syscall_counts"] == {"connect": 1, "execve": 3}
+    assert aggregate["contains_arguments_or_payloads"] is False
+    assert "syscall_sequence" not in aggregate
+
+    sequence = feature_window_evidence(Vector(), "sequence")
+    assert sequence["syscall_sequence"] == Vector.raw_syscalls
+    with pytest.raises(ValueError, match="invalid feature capture mode"):
+        feature_window_evidence(Vector(), "off")
 
 
 def test_statefulset_workload_key_resolves_stable_ordinal():
