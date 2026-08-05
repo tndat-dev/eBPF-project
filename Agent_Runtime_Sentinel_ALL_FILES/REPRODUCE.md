@@ -227,12 +227,17 @@ bộ matrix dùng cùng dataset/split/blind set/environment/seeds:
 
 ```bash
 python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
-  --contract ml-service/evaluation_matrix_contract.json
+  --contract ml-service/evaluation_matrix_contract.json --track syscall
 ```
 
 Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
 không phải generator kết quả.
+
+Contract V8 phân biệt `normal.phases>=20` với
+`normal.independent_runs>=5`, yêu cầu `paired_replay=true` và cùng
+`capture_sha256` cho mọi method. Dùng `--track agent_runtime` riêng khi MCP
+dataset thật đã đủ; không để track chưa chạy làm mờ trạng thái syscall paper.
 
 Để tạo paired replay dataset mới, bật capture có chủ đích trên collector/eval
 runtime, không bật mặc định trên production detector:

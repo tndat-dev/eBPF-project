@@ -80,6 +80,12 @@ hoặc `sequence` (thêm ordered syscall names cho fast-path/rule ablation), m�
 data. Capture mới phải được freeze/hash trước evaluation; evidence V7 cũ không
 đủ feature windows nên không được bịa baseline result từ decision summary.
 
+Contract V8 `v8-paired-replay-20260805` được freeze trước capture với seed mới
+`1901,3203,4703,6701,9001`. Normal gate tách đúng 20 traffic phase và 5
+independent run; không gọi 20 phase là 20 run. Syscall và agent-runtime có thể
+validate độc lập bằng `--track`, nhưng mỗi track vẫn fail nếu thiếu bất kỳ
+baseline/ablation nào hoặc capture/dataset/split/environment hash khác nhau.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

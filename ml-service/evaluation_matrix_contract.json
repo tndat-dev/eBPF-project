@@ -1,11 +1,15 @@
 {
-  "schema": "sentinel-evaluation-matrix-contract/v1",
+  "schema": "sentinel-evaluation-matrix-contract/v2",
   "result_schema": "sentinel-evaluation-result/v1",
+  "release_id": "v8-paired-replay-20260805",
+  "frozen_before_v8_capture": true,
+  "paired_replay_required": true,
   "confidence_level": 0.95,
-  "trial_seeds": [1701, 2903, 4111, 6421, 8111],
+  "trial_seeds": [1901, 3203, 4703, 6701, 9001],
   "tracks": {
     "syscall": {
-      "minimum_normal_runs": 20,
+      "minimum_normal_phases": 20,
+      "minimum_independent_normal_runs": 5,
       "minimum_attack_trials": 200,
       "baselines": [
         "tetragon_rule_only",
@@ -24,7 +28,8 @@
       ]
     },
     "agent_runtime": {
-      "minimum_normal_runs": 20,
+      "minimum_normal_phases": 20,
+      "minimum_independent_normal_runs": 5,
       "minimum_attack_trials": 75,
       "baselines": [
         "syscall_only",

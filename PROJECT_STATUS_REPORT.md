@@ -2934,3 +2934,10 @@ injection trên đúng pod; start/end thiếu cặp, attack exit khác 0 hoặc 
 giao nhiều injection đều fail. Output có source/dataset SHA-256 và
 `labels_used_for_training=false`. Local canonical suite sau các thay đổi đạt
 `82 passed, 7 skipped`.
+
+Evaluation contract được nâng thành `v8-paired-replay-20260805` và freeze seed
+mới `1901,3203,4703,6701,9001` trước V8 capture. Validator giờ yêu cầu
+`paired_replay=true`, shared `capture_sha256`, 20 normal traffic phase và 5
+independent run; syscall/MCP được gate riêng bằng `--track` nhưng không được bỏ
+experiment bên trong track. Canonical suite sau contract V2 đạt `83 passed, 7
+skipped`.

@@ -10,7 +10,7 @@ from typing import Any
 
 
 SHARED_DIGESTS = (
-    "dataset_sha256",
+    "dataset_sha256", "capture_sha256",
     "split_sha256",
     "blind_attack_contract_sha256",
     "environment_sha256",
@@ -31,9 +31,12 @@ def _is_digest(value: Any) -> bool:
     return True
 
 
-def expected_experiments(contract: dict) -> dict[str, str]:
+def expected_experiments(contract: dict, tracks: set[str] | None = None
+                         ) -> dict[str, str]:
     expected = {}
     for track, track_contract in contract["tracks"].items():
+        if tracks is not None and track not in tracks:
+            continue
         for category in ("baselines", "ablations"):
             for name in track_contract[category]:
                 experiment_id = f"{track}__{name}"
@@ -43,14 +46,18 @@ def expected_experiments(contract: dict) -> dict[str, str]:
     return expected
 
 
-def validate_evaluation_matrix(root: Path, contract: dict) -> dict:
+def validate_evaluation_matrix(root: Path, contract: dict,
+                               tracks: set[str] | None = None) -> dict:
     root = root.resolve()
-    expected = expected_experiments(contract)
+    unknown_tracks = sorted((tracks or set()) - set(contract["tracks"]))
+    if unknown_tracks:
+        raise ValueError(f"unknown evaluation tracks: {unknown_tracks}")
+    expected = expected_experiments(contract, tracks)
     errors: list[str] = []
     results = []
     shared_by_track: dict[str, dict[str, set[str]]] = {
         track: {field: set() for field in SHARED_DIGESTS}
-        for track in contract["tracks"]
+        for track in contract["tracks"] if tracks is None or track in tracks
     }
     expected_seeds = list(contract["trial_seeds"])
 
@@ -85,6 +92,10 @@ def validate_evaluation_matrix(root: Path, contract: dict) -> dict:
             item_errors.append("experiment is incomplete")
         if result.get("blind_set_used_for_training") is not False:
             item_errors.append("blind-set training/tuning exclusion is not proven")
+        if contract.get("paired_replay_required") and result.get(
+            "paired_replay"
+        ) is not True:
+            item_errors.append("paired replay is not proven")
         if result.get("trial_seeds") != expected_seeds:
             item_errors.append("trial seeds differ from frozen contract")
         for field in (*SHARED_DIGESTS, "code_sha256"):
@@ -96,8 +107,14 @@ def validate_evaluation_matrix(root: Path, contract: dict) -> dict:
 
         normal = result.get("normal", {})
         attack = result.get("attack", {})
-        if int(normal.get("runs", 0)) < int(track_contract["minimum_normal_runs"]):
+        if int(normal.get("independent_runs", 0)) < int(
+            track_contract["minimum_independent_normal_runs"]
+        ):
             item_errors.append("insufficient independent normal runs")
+        if int(normal.get("phases", 0)) < int(
+            track_contract["minimum_normal_phases"]
+        ):
+            item_errors.append("insufficient normal traffic phases")
         if int(normal.get("windows", 0)) <= 0:
             item_errors.append("normal window count is missing")
         if int(normal.get("false_alerts", -1)) < 0:
@@ -140,6 +157,8 @@ def validate_evaluation_matrix(root: Path, contract: dict) -> dict:
     return {
         "schema": "sentinel-evaluation-matrix-validation/v1",
         "contract_schema": contract.get("schema"),
+        "release_id": contract.get("release_id"),
+        "selected_tracks": sorted(tracks or contract["tracks"]),
         "root": str(root),
         "expected_experiments": sorted(expected),
         "completed_experiments": len(results),
@@ -158,9 +177,12 @@ def main() -> int:
     parser.add_argument("root", type=Path)
     parser.add_argument("--contract", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--track", action="append", default=None)
     args = parser.parse_args()
     contract = json.loads(args.contract.read_text())
-    report = validate_evaluation_matrix(args.root, contract)
+    report = validate_evaluation_matrix(
+        args.root, contract, set(args.track) if args.track else None,
+    )
     output = args.output or args.root / "evaluation_matrix_manifest.json"
     output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
     print(json.dumps(report, indent=2, sort_keys=True))

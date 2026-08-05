@@ -13,11 +13,14 @@ def _contract():
     return {
         "schema": "contract/v1",
         "result_schema": "result/v1",
+        "release_id": "test-paired",
+        "paired_replay_required": True,
         "confidence_level": 0.95,
         "trial_seeds": [1, 2],
         "tracks": {
             "syscall": {
-                "minimum_normal_runs": 2,
+                "minimum_normal_phases": 4,
+                "minimum_independent_normal_runs": 2,
                 "minimum_attack_trials": 4,
                 "baselines": ["rules", "full"],
                 "ablations": ["no_gate"],
@@ -36,13 +39,18 @@ def _write_matrix(root, contract):
             "track": track,
             "completed": True,
             "blind_set_used_for_training": False,
+            "paired_replay": True,
             "trial_seeds": contract["trial_seeds"],
             "dataset_sha256": DIGEST,
+            "capture_sha256": DIGEST,
             "split_sha256": DIGEST,
             "blind_attack_contract_sha256": DIGEST,
             "environment_sha256": DIGEST,
             "code_sha256": DIGEST,
-            "normal": {"runs": 2, "windows": 50, "false_alerts": 0},
+            "normal": {
+                "independent_runs": 2, "phases": 4,
+                "windows": 50, "false_alerts": 0,
+            },
             "attack": {"trials": 4, "detected": 3},
             "latency_seconds": {"sample_count": 3},
             "statistics": {"confidence_level": 0.95, "method": "block bootstrap"},
@@ -80,3 +88,21 @@ def test_evaluation_matrix_rejects_dataset_switch_and_blind_tuning(tmp_path):
     assert report["valid"] is False
     assert any("blind-set" in error for error in report["errors"])
     assert any("incomparable dataset_sha256" in error for error in report["errors"])
+
+
+def test_evaluation_matrix_can_gate_one_track_independently(tmp_path):
+    contract = _contract()
+    contract["tracks"]["agent"] = {
+        "minimum_normal_phases": 4,
+        "minimum_independent_normal_runs": 2,
+        "minimum_attack_trials": 4,
+        "baselines": ["semantic"],
+        "ablations": [],
+    }
+    _write_matrix(tmp_path, contract)
+    agent_result = tmp_path / "agent__semantic" / "result.json"
+    agent_result.unlink()
+    agent_result.parent.rmdir()
+    report = validate_evaluation_matrix(tmp_path, contract, {"syscall"})
+    assert report["valid"] is True
+    assert report["selected_tracks"] == ["syscall"]

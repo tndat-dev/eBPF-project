@@ -35,8 +35,8 @@ MCP payload, secret, PVC data hay private endpoint.
 | Finite-sample behavior gate | `ml-service/graph_signals.py`, `ml-service/build_phase_dataset.py` | one-sided 95% Wilson lower bound and row-aligned validation event counts prevent low-volume rate noise from becoming kernel evidence |
 | Paper statistics | `ml-service/paper_statistics.py` | validates every blind-trial SHA, merges disjoint normal splits, then emits stratified confusion metrics, Wilson interval, latency CDF and deterministic bootstrap CI |
 | Frozen AIMS fit-v2 evidence | `validation-evidence/aims-fit-v2-20260805/` | two disjoint normal reports, aggregate plus 40 hash-valid nested blind reports, and byte-reproducible statistics JSON/Markdown |
-| Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | frozen experiment IDs, seeds and minimum independent trials |
-| Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
+| Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | V8 paired-replay release, new frozen seeds, 20 normal phases/5 independent runs and minimum attack trials |
+| Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | independently gates syscall or agent track; refuses missing capture hash, unpaired/incomparable results and blind-set leakage |
 | Paired feature-window capture | `SENTINEL_FEATURE_CAPTURE=aggregate|sequence` in `ml-service/anomaly_detector2.py` | opt-in sparse vectors/counts or syscall-name sequence for replaying every baseline on identical windows; never stores arguments/payloads |
 | Feature-capture integrity gate | `ml-service/validate_feature_capture.py` | validates schema/privacy, sparse-vector bounds, counts/sequence consistency, duplicate/overlapping windows and source SHA-256 |
 | Paired replay dataset builder | `ml-service/build_feature_replay_dataset.py` | joins feature windows only to explicit same-pod injection start/end intervals, rejects incomplete/failed injections and writes dataset SHA-256 manifest |
