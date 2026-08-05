@@ -255,6 +255,18 @@ python3 ml-service/validate_feature_capture.py frozen-capture.jsonl \
 Chỉ freeze dataset khi `valid=true`; gate từ chối key ngoài schema, count/sequence
 lệch, sparse index sai, window trùng/chồng hoặc privacy exclusion không rõ.
 
+Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
+scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
+
+```bash
+python3 ml-service/build_feature_replay_dataset.py frozen-capture.jsonl \
+  --require-injections --output frozen-replay.jsonl
+```
+
+Builder từ chối start/end thiếu cặp, metadata lệch, attack exit khác 0 hoặc một
+window chồng nhiều injection. Manifest ghi hash capture và output dataset;
+labels chỉ dành evaluation, `labels_used_for_training=false`.
+
 ## AIMS overhead A/B
 
 Không chạy overhead trong khi normal matrix, training hoặc split evaluator đang

@@ -538,6 +538,7 @@ def main() -> int:
                     env=env,
                 )
             attack_started = None
+            attack_finished = None
             attack_acknowledged = False
             command_result = None
             try:
@@ -560,12 +561,16 @@ def main() -> int:
                     attack_process,
                 )
                 attack_started = time.time()
+                injection_id = f"{stamp}:{scenario}"
                 with metrics.open("a") as metrics_handle:
                     metrics_handle.write(json.dumps({
                         "kind": "injection",
                         "ts": attack_started,
+                        "injection_id": injection_id,
                         "pod_key": pod_key,
                         "attack_type": scenario,
+                        "rate": args.rate,
+                        "seed": args.seed,
                         "source": "in-container-static-binary-start-ack",
                         "ack": start_ack.strip(),
                     }, sort_keys=True) + "\n")
@@ -580,6 +585,19 @@ def main() -> int:
                     command, attack_process.returncode, attack_stdout,
                     start_ack + attack_stderr,
                 )
+                attack_finished = time.time()
+                with metrics.open("a") as metrics_handle:
+                    metrics_handle.write(json.dumps({
+                        "kind": "injection_end",
+                        "ts": attack_finished,
+                        "injection_id": injection_id,
+                        "pod_key": pod_key,
+                        "attack_type": scenario,
+                        "rate": args.rate,
+                        "seed": args.seed,
+                        "attack_exit_code": attack_process.returncode,
+                        "source": "in-container-static-binary-exit",
+                    }, sort_keys=True) + "\n")
 
                 deadline = time.time() + args.post_attack_wait
                 while time.time() < deadline:
@@ -671,6 +689,13 @@ def main() -> int:
                     if command_result and command_result.stderr else ""
                 ),
                 "attack_acknowledged": attack_acknowledged,
+                "attack_started_at": attack_started,
+                "attack_finished_at": attack_finished,
+                "attack_observation_interval_seconds": (
+                    attack_finished - attack_started
+                    if attack_started is not None and attack_finished is not None
+                    else None
+                ),
                 "attack_stdout": command_result.stdout[-1000:] if command_result else "",
                 "attack_stderr": command_result.stderr[-1000:] if command_result else "",
                 "inference_count": len(inference),

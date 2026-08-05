@@ -39,6 +39,7 @@ MCP payload, secret, PVC data hay private endpoint.
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | refuses incomplete or incomparable result matrices and blind-set leakage |
 | Paired feature-window capture | `SENTINEL_FEATURE_CAPTURE=aggregate|sequence` in `ml-service/anomaly_detector2.py` | opt-in sparse vectors/counts or syscall-name sequence for replaying every baseline on identical windows; never stores arguments/payloads |
 | Feature-capture integrity gate | `ml-service/validate_feature_capture.py` | validates schema/privacy, sparse-vector bounds, counts/sequence consistency, duplicate/overlapping windows and source SHA-256 |
+| Paired replay dataset builder | `ml-service/build_feature_replay_dataset.py` | joins feature windows only to explicit same-pod injection start/end intervals, rejects incomplete/failed injections and writes dataset SHA-256 manifest |
 | AIMS counterbalanced overhead harness | `sentinel/benchmarks/{measure_phase,compare_overhead,aggregate_counterbalanced_overhead}.py`, `run_aims_overhead_{matrix,counterbalanced}.sh` | 10×30s wrk per phase, six phase orders, zero socket/HTTP-error gate, 18 phase-report hashes, resumability and paired experiment-block bootstrap |
 
 ## Provenance

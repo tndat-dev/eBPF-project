@@ -2926,3 +2926,11 @@ mặc định `off` nên production runtime/overhead campaign không bị thay �
 đích là chạy tất cả baseline/ablation trên đúng cùng feature windows và labels,
 tránh confound do inject lại trên traffic khác nhau. Evidence V7 hiện chỉ có
 decision summary nên không được dùng để tạo baseline giả hồi tố.
+
+Kernel harness V8 cũng ghi explicit `injection` và `injection_end` dùng chung
+`injection_id`, kèm pod/scenario/rate/seed và attack exit code. Dataset builder
+chỉ label một feature window là attack khi interval của window giao interval
+injection trên đúng pod; start/end thiếu cặp, attack exit khác 0 hoặc window
+giao nhiều injection đều fail. Output có source/dataset SHA-256 và
+`labels_used_for_training=false`. Local canonical suite sau các thay đổi đạt
+`82 passed, 7 skipped`.
