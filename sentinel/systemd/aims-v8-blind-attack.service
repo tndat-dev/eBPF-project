@@ -3,7 +3,7 @@ Description=AIMS V8 frozen blind attack and paired feature capture
 After=network-online.target aims-v8-post-capture.service
 Wants=network-online.target
 ConditionPathExists=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/POST_CAPTURE_COMPLETE
-ConditionPathExists=!/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/report.json
+ConditionPathExists=!/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/FALCO_ATTACK_EVIDENCE_COMPLETE
 
 [Service]
 Type=oneshot

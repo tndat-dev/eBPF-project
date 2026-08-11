@@ -39,7 +39,8 @@ if not binary.is_file() or digest(binary) != contract["binary"]["sha256"]:
 PY
 
 for name in build_feature_replay_dataset.py build_phase_dataset.py \
-  evaluate_aims_normal_split.py falco_evidence_finalizer.py \
+  evaluate_aims_normal_split.py falco_attack_evidence_finalizer.py \
+  falco_evidence_finalizer.py \
   merge_feature_captures.py run_aims_blind_matrix.py \
   run_aims_split_evaluation.sh run_v8_blind_attack.sh \
   run_v8_post_capture.sh v8_blind_attack_contract.json; do
@@ -57,6 +58,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_phase_dataset.py \
   tests/test_aims_normal_split_evaluator.py \
   tests/test_falco_evidence_finalizer.py \
+  tests/test_falco_attack_evidence_finalizer.py \
   tests/test_aims_blind_matrix.py \
   tests/test_v8_blind_attack.py \
   tests/test_v8_capture_contract.py \

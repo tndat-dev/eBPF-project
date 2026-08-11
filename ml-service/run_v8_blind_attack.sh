@@ -57,7 +57,8 @@ if (datetime.now(timezone.utc) - updated).total_seconds() > 120:
     raise SystemExit("Falco paired baseline collector state is stale")
 PY
 
-exec "$PYTHON_BIN" "$ROOT_DIR/run_aims_blind_matrix.py" \
+set +e
+"$PYTHON_BIN" "$ROOT_DIR/run_aims_blind_matrix.py" \
   --model-dir "$CANDIDATE" \
   --normal-calibration "$CALIBRATION" \
   --normal-prerequisite "$PREREQUISITE" \
@@ -70,3 +71,18 @@ exec "$PYTHON_BIN" "$ROOT_DIR/run_aims_blind_matrix.py" \
   --feature-capture-mode sequence \
   --capture-release-id v8-paired-replay-20260811 \
   --output-root "$ATTACK_ROOT" --experiment-id "$EXPERIMENT_ID"
+matrix_rc=$?
+set -e
+if [[ $matrix_rc != 0 && $matrix_rc != 8 ]]; then
+  exit "$matrix_rc"
+fi
+
+EXPERIMENT_ROOT=$ATTACK_ROOT/$EXPERIMENT_ID
+"$PYTHON_BIN" "$ROOT_DIR/falco_attack_evidence_finalizer.py" \
+  --attack-capture "$EXPERIMENT_ROOT/frozen-attack-feature-capture.jsonl" \
+  --falco-root "$FALCO_ROOT" \
+  --collection-contract "$FALCO_ROOT/collection-contract.json" \
+  --output-root "$EXPERIMENT_ROOT/falco-rule-only-attack" \
+  --expected-trials 200 --post-attack-horizon 30
+touch "$EXPERIMENT_ROOT/FALCO_ATTACK_EVIDENCE_COMPLETE"
+exit "$matrix_rc"

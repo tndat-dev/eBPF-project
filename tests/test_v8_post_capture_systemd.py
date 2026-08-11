@@ -22,6 +22,8 @@ def test_v8_post_capture_deployer_is_hash_gated_and_atomic():
     assert "run_v8_blind_attack.sh" in script
     assert "aims-v8-blind-attack.service" in script
     assert "tests/test_v8_blind_attack.py" in script
+    assert "falco_attack_evidence_finalizer.py" in script
+    assert "tests/test_falco_attack_evidence_finalizer.py" in script
     assert "V8 blind attack binary digest mismatch" in script
     assert "run_v8_post_capture.sh" in script
     assert "promote_candidate.py" not in script

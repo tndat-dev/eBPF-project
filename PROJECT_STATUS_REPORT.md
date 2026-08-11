@@ -69,7 +69,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload/cluster pod | 225/225 pod toàn cụm ở trạng thái `Running` hoặc `Completed`; không có pod lỗi tại snapshot 12:40Z |
 | Falco | DaemonSet `6 desired/6 ready`, image `falcosecurity/falco:0.44.1`; collector evidence riêng đang đọc đủ sáu stream |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `110 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31`; staging V8 hậu kỳ + blind attack đạt `48 passed` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `115 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31`; staging V8 hậu kỳ + blind attack đạt `53 passed` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 11-08-2026.
@@ -3270,8 +3270,32 @@ partial 50 phút không thể lọt vào terminal matrix; ETA campaign trễ th�
 một giờ. Falco collector không bị restart và tiếp tục coverage qua cả khoảng
 gián đoạn.
 
-Staging mới có 27/27 checksum, focused ML-venv suite trên VM `48 passed`; local
-suite `110 passed, 7 skipped`. Falco tại checkpoint trước restart có 6 active
+Staging mới có 29/29 checksum, focused ML-venv suite trên VM `53 passed`; local
+suite `115 passed, 7 skipped`. Falco tại checkpoint trước restart có 6 active
 reader, zero stream failure, 1.073 dòng nguồn và 0 AIMS alert row. Đây là
 automation/protocol readiness, chưa phải kết quả recall/FPR mới và chưa đủ
 claim world-class.
+
+### 18.45 Falco rule-only attack recall được nối vào terminal gate (11-08-2026)
+
+Baseline Falco trước đây chỉ có normal alert-rate. Module
+`falco_attack_evidence_finalizer.py` nay đọc canonical V8 attack capture, kiểm
+đúng 200 cặp injection start/end thành công, rồi ánh xạ privacy-safe Falco alert
+vào cùng pod và khoảng `[attack_start, attack_end + 30s]`. Horizon cùng pod
+không được overlap; source row phải pass schema/privacy/event-ID digest. Report
+ghi detected trial, rule, first-alert latency, recall và Wilson 95% CI; raw
+Falco output, argument, path và payload vẫn không được lưu.
+
+Finalizer chỉ publish atomic bundle sau khi sáu Falco reader còn active, state
+không stale, zero stream failure và đã đi qua horizon + settle 30 giây. Zero
+Falco alert vẫn tạo empty JSONL có checksum và recall 0 với upper confidence
+bound hữu hạn, thay vì coi file thiếu là bằng chứng. Output đã publish là
+idempotent và checksum-gated.
+
+Blind wrapper không còn `exec` thẳng matrix. Nó giữ mã terminal 0/8 của ML,
+chạy Falco finalizer, rồi mới tạo `FALCO_ATTACK_EVIDENCE_COMPLETE`; service
+condition nay chặn theo marker này thay vì chỉ thấy `report.json`. Do đó trường
+hợp matrix xong nhưng Falco stream chưa settle trả 75 và timer có thể hoàn tất
+baseline ở lần sau, còn complete ML miss vẫn giữ exit 8 sau khi evidence Falco
+được khóa. Staging 29/29 checksum và 53 VM focused test pass; capture vẫn active
+trong suốt lần cài unit sửa. Chưa có attack metric thật ở thời điểm viết.

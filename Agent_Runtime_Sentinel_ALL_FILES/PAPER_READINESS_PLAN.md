@@ -134,7 +134,7 @@ trước candidate training, và provenance ghi rõ giới hạn này. Timer ch�
 `POST_CAPTURE_COMPLETE`, yêu cầu Falco state active/healthy/non-stale, rồi chạy
 8 workload × 5 trial × 5 scenario. Toàn bộ 200 sequence capture phải merge
 thành một immutable attack replay; complete miss được giữ, không retry. Bundle
-27/27 checksum và 48 VM focused test pass. Đây mới là protocol readiness;
+29/29 checksum và 53 VM focused test pass. Đây mới là protocol readiness;
 recall/latency chỉ được báo sau campaign thật.
 
 Lần enable timer đầu làm lộ một systemd ordering bug: `Conflicts` dừng capture
@@ -142,6 +142,12 @@ trước khi condition marker được xét. Run-02 partial phút 50/72 đã b�
 unit được sửa để chỉ dùng wrapper interlock và capture thu lại run-02 từ đầu lúc
 13:02Z. Test khóa regression cấm `Conflicts=aims-v8-capture.service`; không metric
 nào từ partial bị giữ lại và ETA lùi khoảng một giờ.
+
+Falco attack finalizer đã được nối sau canonical 200-injection merge. Nó dùng
+same-pod interval + 30 giây horizon, đợi stream settle, báo recall với Wilson
+95% CI và first-alert latency, kể cả zero-alert artifact. Timer chỉ terminal khi
+`FALCO_ATTACK_EVIDENCE_COMPLETE` tồn tại; ML report một mình không đủ. Chưa có
+Falco recall thật cho tới khi blind campaign hoàn tất.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

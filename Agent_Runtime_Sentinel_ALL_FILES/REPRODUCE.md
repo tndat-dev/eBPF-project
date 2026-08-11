@@ -414,6 +414,20 @@ capture/dataset SHA-256 phải khớp và `labels_used_for_training=false`. Exit
 là matrix hạ tầng-complete nhưng có miss; giữ nguyên để báo failure analysis,
 không xóa/rerun. Exit 4 hoặc 75 chưa phải metric terminal.
 
+Terminal attack chỉ hoàn tất khi có thêm
+`FALCO_ATTACK_EVIDENCE_COMPLETE`. Kiểm bundle rule-only:
+
+```bash
+ATTACK=/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811
+cd "$ATTACK/falco-rule-only-attack" && sha256sum -c SHA256SUMS
+python3 -m json.tool "$ATTACK/falco-rule-only-attack/falco-attack-evidence.report.json"
+test -f "$ATTACK/FALCO_ATTACK_EVIDENCE_COMPLETE"
+```
+
+Report phải có 200 trial, coverage sáu reader/zero stream failure, Wilson 95%
+CI và latency chỉ cho detected trial. Marker không tồn tại nghĩa là Falco
+attribution chưa terminal, dù ML `report.json` đã có.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

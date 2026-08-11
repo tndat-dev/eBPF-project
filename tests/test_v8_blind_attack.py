@@ -52,6 +52,8 @@ def test_v8_attack_wrapper_is_gated_and_has_no_train_or_promotion_path():
     assert "--feature-capture-mode sequence" in script
     assert "--evaluation-contract" in script
     assert "v8_blind_attack_contract.json" in script
+    assert "falco_attack_evidence_finalizer.py" in script
+    assert "FALCO_ATTACK_EVIDENCE_COMPLETE" in script
     assert "train_candidate.py" not in script
     assert "promote_candidate.py" not in script
 
@@ -60,6 +62,7 @@ def test_v8_attack_service_is_bounded_delayed_and_non_promoting():
     service = (SYSTEMD_ROOT / "aims-v8-blind-attack.service").read_text()
     timer = (SYSTEMD_ROOT / "aims-v8-blind-attack.timer").read_text()
     assert "ConditionPathExists=" in service and "POST_CAPTURE_COMPLETE" in service
+    assert "FALCO_ATTACK_EVIDENCE_COMPLETE" in service
     assert "User=dat" in service
     assert "NoNewPrivileges=true" in service
     assert "CPUQuota=150%" in service
