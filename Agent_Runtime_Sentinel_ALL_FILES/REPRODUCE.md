@@ -302,12 +302,13 @@ phase run-01. Không đưa run-02--06 vào builder:
 
 ```bash
 ROOT=/home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811
+DERIVED=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811
 TARGETS=production/aims-frontend,production/api-gateway,production/auth-service,production/cart-service,production/catalog-service,production/inventory-service,production/order-service,production/security-telemetry-service
 cd "$ROOT" && sha256sum -c SHA256SUMS
 cd /home/dat/ml-service
 /home/dat/ml-venv/bin/python build_phase_dataset.py \
   "$ROOT"/aims-{steady,burst,recovery,toolmix}-run-01 \
-  --output "$ROOT/fit-dataset" --minimum-events 10 \
+  --output "$DERIVED/fit-dataset" --minimum-events 10 \
   --minimum-phase-windows 30 --vocab "$ROOT/vocab.pkl" \
   --policy "$ROOT/tetragon-aims-policies.yaml" --targets "$TARGETS" \
   --experiment-contract "$ROOT/v8_capture_split_contract.json" \
@@ -320,24 +321,37 @@ Freeze candidate/calibration trước khi mở terminal evaluation. Evaluator V8
 
 ```bash
 /home/dat/ml-venv/bin/python train_candidate.py \
-  --training-dir "$ROOT/fit-dataset" --model-dir "$ROOT/models-v8-candidate" \
-  --vocab "$ROOT/fit-dataset/vocab.pkl" --targets "$TARGETS"
+  --training-dir "$DERIVED/fit-dataset" \
+  --model-dir "$DERIVED/models-v8-candidate" \
+  --vocab "$DERIVED/fit-dataset/vocab.pkl" --targets "$TARGETS"
 /home/dat/ml-venv/bin/python build_aims_fit_calibration.py \
-  --candidate "$ROOT/models-v8-candidate" \
-  --output "$ROOT/v8-fit-calibration.json" \
-  --report "$ROOT/v8-fit-calibration.report.json"
+  --candidate "$DERIVED/models-v8-candidate" \
+  --output "$DERIVED/v8-fit-calibration.json" \
+  --report "$DERIVED/v8-fit-calibration.report.json"
 /home/dat/ml-venv/bin/python evaluate_aims_normal_split.py \
-  --evidence-root "$ROOT" --candidate "$ROOT/models-v8-candidate" \
+  --evidence-root "$ROOT" --candidate "$DERIVED/models-v8-candidate" \
   --role independent_evaluation \
   --split-contract "$ROOT/v8_capture_split_contract.json" \
   --release-contract "$ROOT/aims_release_contract.json" \
-  --initial-calibration "$ROOT/v8-fit-calibration.json" \
-  --output "$ROOT/v8-independent-evaluation.json"
+  --initial-calibration "$DERIVED/v8-fit-calibration.json" \
+  --initial-calibration-report "$DERIVED/v8-fit-calibration.report.json" \
+  --output "$DERIVED/v8-independent-evaluation.json"
 ```
 
 Nếu bất kỳ phase nào bị quarantine, checksum fail, candidate offline gate fail
 hoặc evaluation sinh alert trên normal data thì dừng; không tune theo năm run
 evaluation và không ghi đè model production.
+
+Chuỗi lệnh trên được đóng gói fail-closed, resumable và không promote bằng:
+
+```bash
+/home/dat/ml-service/run_v8_post_capture.sh \
+  /home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811
+```
+
+Script trả 75 khi capture còn chạy, chỉ nhận service `Result=success`, matrix 24
+phase, canonical merge 24 source và checksum sạch. Derived artifact được ghi
+ngoài evidence root để evidence collection giữ bất biến.
 
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:

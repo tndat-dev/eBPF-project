@@ -68,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `92 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `29` test đều pass |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `93 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `31` test đều pass |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -3115,7 +3115,15 @@ run-02--06 chỉ được replay một lần dưới role terminal
 evaluator lấy đúng 6 run từ split V8 thay vì âm thầm bỏ run-06; timer runner từ
 chối chạy khi `aims-v8-capture.service` active. Patch chưa deploy vào runtime
 đang capture để bảo toàn snapshot. Test isolated bằng ML venv trên VM đạt
-`29 passed`; full local regression vẫn `92 passed, 7 skipped`.
+`31 passed`; full local regression đạt `93 passed, 7 skipped`.
+
+`run_v8_post_capture.sh` đóng gói cùng gate thành một pipeline resumable không
+promote: chỉ chạy khi capture service `Result=success`, `SHA256SUMS` sạch,
+matrix đủ 24 phase và canonical merge đủ 24 source; derived dataset/model/report
+được ghi ngoài evidence root. Script từ chối candidate/calibration partial và
+dừng nếu offline gate hoặc terminal normal evaluation fail. Cùng experiment
+lock ngăn capture restart trong khi hậu kỳ; calibration report phải hash-bind
+đúng candidate training report, fit dataset và calibration bytes.
 
 Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
 được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được

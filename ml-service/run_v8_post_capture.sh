@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+# Fail-closed V8 fit and one-shot terminal normal evaluation. Never promotes.
+set -euo pipefail
+
+ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+EVIDENCE_ROOT=${1:-/home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811}
+PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
+DERIVED_ROOT=${V8_DERIVED_ROOT:-/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811}
+FIT_DATASET=$DERIVED_ROOT/fit-dataset
+CANDIDATE=$DERIVED_ROOT/models-v8-candidate
+CALIBRATION=$DERIVED_ROOT/v8-fit-calibration.json
+CALIBRATION_REPORT=$DERIVED_ROOT/v8-fit-calibration.report.json
+EVALUATION_REPORT=$DERIVED_ROOT/v8-independent-evaluation.json
+
+if [[ ${SENTINEL_V8_POST_CAPTURE_LOCK_HELD:-0} != 1 ]]; then
+  exec /usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-normal-matrix.lock \
+    env SENTINEL_V8_POST_CAPTURE_LOCK_HELD=1 \
+    "$ROOT_DIR/run_v8_post_capture.sh" "$EVIDENCE_ROOT"
+fi
+
+if systemctl is-active --quiet aims-v8-capture.service; then
+  printf 'WAITING: aims-v8-capture.service is active\n'
+  exit 75
+fi
+if [[ $(systemctl show aims-v8-capture.service -p Result --value) != success ]]; then
+  printf 'REFUSING: capture service did not reach Result=success\n' >&2
+  exit 4
+fi
+for required in \
+  SHA256SUMS matrix_manifest.json frozen-normal-feature-capture.jsonl \
+  frozen-normal-feature-capture.manifest.json v8_capture_split_contract.json \
+  evaluation_matrix_contract.json aims_release_contract.json vocab.pkl; do
+  [[ -r "$EVIDENCE_ROOT/$required" ]] || {
+    printf 'REFUSING: missing terminal capture artifact %s\n' "$required" >&2
+    exit 4
+  }
+done
+
+(cd "$EVIDENCE_ROOT" && sha256sum -c SHA256SUMS)
+"$PYTHON_BIN" "$ROOT_DIR/validate_v8_capture_contract.py" \
+  --contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+  --evaluation-contract "$EVIDENCE_ROOT/evaluation_matrix_contract.json" \
+  --vocab "$EVIDENCE_ROOT/vocab.pkl"
+"$PYTHON_BIN" - "$EVIDENCE_ROOT" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+matrix = json.loads((root / "matrix_manifest.json").read_text())
+merged = json.loads(
+    (root / "frozen-normal-feature-capture.manifest.json").read_text()
+)
+if not matrix.get("valid") or matrix.get("completed_phases") != 24:
+    raise SystemExit("terminal matrix is not valid and complete")
+if matrix.get("errors"):
+    raise SystemExit("terminal matrix contains validation errors")
+if (
+    merged.get("source_count") != 24
+    or not merged.get("validation", {}).get("valid")
+    or merged.get("labels_used_for_training") is not False
+):
+    raise SystemExit("canonical normal merge is invalid")
+PY
+
+mkdir -p "$DERIVED_ROOT"
+TARGETS=$("$PYTHON_BIN" - "$EVIDENCE_ROOT/aims_release_contract.json" <<'PY'
+import json, sys
+print(",".join(json.load(open(sys.argv[1]))["eligible_targets"]))
+PY
+)
+
+if [[ ! -e "$FIT_DATASET" ]]; then
+  "$PYTHON_BIN" "$ROOT_DIR/build_phase_dataset.py" \
+    "$EVIDENCE_ROOT"/aims-{steady,burst,recovery,toolmix}-run-01 \
+    --output "$FIT_DATASET" --minimum-events 10 \
+    --minimum-phase-windows 30 --vocab "$EVIDENCE_ROOT/vocab.pkl" \
+    --policy "$EVIDENCE_ROOT/tetragon-aims-policies.yaml" --targets "$TARGETS" \
+    --experiment-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --dataset-role candidate_fit \
+    --parent-release-contract "$EVIDENCE_ROOT/aims_release_contract.json"
+fi
+"$PYTHON_BIN" - "$FIT_DATASET/phase_dataset_manifest.json" \
+  "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+  "$EVIDENCE_ROOT/aims_release_contract.json" <<'PY'
+import hashlib, json, pathlib, sys
+manifest_path, split_path, release_path = map(pathlib.Path, sys.argv[1:])
+doc = json.loads(manifest_path.read_text())
+experiment = doc.get("experiment_contract") or {}
+digest = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+if doc.get("dataset_role") != "candidate_fit":
+    raise SystemExit("fit dataset has the wrong role")
+if experiment.get("sha256") != digest(split_path):
+    raise SystemExit("fit dataset split digest mismatch")
+if experiment.get("parent_release_contract_sha256") != digest(release_path):
+    raise SystemExit("fit dataset release digest mismatch")
+if experiment.get("holdout_training_forbidden") is not True:
+    raise SystemExit("fit dataset does not forbid evaluation leakage")
+PY
+
+if [[ -d "$CANDIDATE" && ! -r "$CANDIDATE/training_report.json" ]]; then
+  printf 'REFUSING: incomplete candidate directory exists: %s\n' "$CANDIDATE" >&2
+  exit 4
+fi
+if [[ ! -r "$CANDIDATE/training_report.json" ]]; then
+  "$PYTHON_BIN" "$ROOT_DIR/train_candidate.py" \
+    --training-dir "$FIT_DATASET" --model-dir "$CANDIDATE" \
+    --vocab "$FIT_DATASET/vocab.pkl" --targets "$TARGETS"
+fi
+"$PYTHON_BIN" - "$CANDIDATE/training_report.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+if doc.get("accepted_offline") is not True or doc.get("dataset_role") != "candidate_fit":
+    raise SystemExit("candidate did not pass the frozen fit-only gate")
+PY
+
+if [[ -e "$CALIBRATION" && ! -r "$CALIBRATION_REPORT" ]]; then
+  printf 'REFUSING: calibration exists without its report\n' >&2
+  exit 4
+fi
+if [[ -r "$CALIBRATION_REPORT" && ! -r "$CALIBRATION" ]]; then
+  printf 'REFUSING: calibration report exists without calibration\n' >&2
+  exit 4
+fi
+if [[ ! -r "$CALIBRATION_REPORT" ]]; then
+  "$PYTHON_BIN" "$ROOT_DIR/build_aims_fit_calibration.py" \
+    --candidate "$CANDIDATE" --output "$CALIBRATION" \
+    --report "$CALIBRATION_REPORT"
+fi
+
+if [[ -r "$EVALUATION_REPORT" ]] && "$PYTHON_BIN" - "$EVALUATION_REPORT" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+raise SystemExit(0 if doc.get("status") == "complete" else 1)
+PY
+then
+  "$PYTHON_BIN" - "$EVALUATION_REPORT" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+raise SystemExit(0 if doc.get("passed") is True else 3)
+PY
+else
+  "$PYTHON_BIN" "$ROOT_DIR/evaluate_aims_normal_split.py" \
+    --evidence-root "$EVIDENCE_ROOT" --candidate "$CANDIDATE" \
+    --role independent_evaluation \
+    --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
+    --initial-calibration "$CALIBRATION" \
+    --initial-calibration-report "$CALIBRATION_REPORT" \
+    --output "$EVALUATION_REPORT"
+fi
+
+find "$DERIVED_ROOT" -type f ! -name SHA256SUMS -print0 \
+  | sort -z | xargs -0 sha256sum >"$DERIVED_ROOT/SHA256SUMS"
+printf 'COMPLETE: V8 candidate and terminal normal evaluation are frozen at %s\n' \
+  "$DERIVED_ROOT"

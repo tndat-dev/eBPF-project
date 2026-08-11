@@ -18,6 +18,7 @@ from evaluate_aims_normal_split import (candidate_hashes,
                                         matrix_dimensions,
                                         resumable_phase_reports,
                                         validate_blind_prerequisite,
+                                        validate_calibration_provenance,
                                         write_report)
 
 
@@ -32,6 +33,33 @@ def test_v8_matrix_dimensions_include_all_six_runs():
     }
     release = {"normal_protocol": {"independent_runs_per_regime": 5}}
     assert matrix_dimensions(split, release) == (6, 72)
+
+
+def test_terminal_calibration_is_bound_to_fit_candidate(tmp_path):
+    candidate = tmp_path / "candidate"
+    candidate.mkdir()
+    training = candidate / "training_report.json"
+    dataset = candidate / "dataset_manifest.json"
+    calibration = tmp_path / "calibration.json"
+    training.write_text("training")
+    dataset.write_text("dataset")
+    calibration.write_text("calibration")
+    digest = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+    report = tmp_path / "calibration.report.json"
+    report.write_text(json.dumps({
+        "source_role": "candidate_fit",
+        "evaluation_data_used": False,
+        "training_report_sha256": digest(training),
+        "dataset_manifest_sha256": digest(dataset),
+        "calibration_sha256": digest(calibration),
+    }))
+    result = validate_calibration_provenance(
+        report, calibration, candidate
+    )
+    assert result["sha256"] == digest(report)
+    calibration.write_text("tampered")
+    with pytest.raises(ValueError, match="calibration_sha256"):
+        validate_calibration_provenance(report, calibration, candidate)
 
 
 def test_candidate_hashes_are_name_sorted_and_content_bound(tmp_path):

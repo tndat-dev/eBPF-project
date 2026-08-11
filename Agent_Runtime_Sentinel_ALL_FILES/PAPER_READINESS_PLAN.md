@@ -106,7 +106,9 @@ fail-closed, quarantine toàn phase và systemd retry từ `07:14:35Z`. Hai phas
 thu lại đầu tiên pass continuity; ETA mới khoảng `2026-08-12T12:05Z`. Pipeline
 hậu kỳ đã có native role V8: chỉ run-01 được fit, toàn bộ run-02--06 là một
 terminal independent evaluation, không chia/tune hậu nghiệm. Patch này chỉ
-deploy sau capture; isolated VM tests đạt `29 passed`.
+deploy sau capture; isolated VM tests đạt `31 passed`.
+Post-capture runner còn giữ cùng experiment lock và bắt buộc calibration
+provenance hash-bind fit dataset/candidate trước terminal replay.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

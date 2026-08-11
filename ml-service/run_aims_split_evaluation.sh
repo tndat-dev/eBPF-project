@@ -75,6 +75,7 @@ command=(
   --split-contract "$SPLIT_CONTRACT"
   --release-contract "$RELEASE_CONTRACT"
   --initial-calibration "$AIMS_CALIBRATION"
+  --initial-calibration-report "$CALIBRATION_REPORT"
   --output "$output"
 )
 if [[ "$ROLE" == blind_normal_test ]]; then

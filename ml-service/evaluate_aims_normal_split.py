@@ -134,6 +134,30 @@ def validate_blind_prerequisite(
     return {"path": str(report_path.resolve()), "sha256": sha256(report_path)}
 
 
+def validate_calibration_provenance(
+    report_path: Path,
+    calibration_path: Path,
+    candidate: Path,
+) -> dict[str, Any]:
+    """Bind clean-fit calibration to the exact candidate and fit dataset."""
+    report = json.loads(report_path.read_text())
+    training = candidate / "training_report.json"
+    dataset = candidate / "dataset_manifest.json"
+    if report.get("source_role") != "candidate_fit":
+        raise ValueError("calibration was not built from candidate_fit")
+    if report.get("evaluation_data_used") is not False:
+        raise ValueError("calibration report does not exclude evaluation data")
+    expected = {
+        "calibration_sha256": sha256(calibration_path),
+        "training_report_sha256": sha256(training),
+        "dataset_manifest_sha256": sha256(dataset),
+    }
+    for field, value in expected.items():
+        if report.get(field) != value:
+            raise ValueError(f"calibration provenance mismatch for {field}")
+    return {"path": str(report_path.resolve()), "sha256": sha256(report_path)}
+
+
 def load_phase_rows(
     phase_dir: Path,
     targets: list[str],
@@ -317,7 +341,7 @@ def resumable_phase_reports(
     identity_fields = (
         "role", "evidence_root", "candidate_sha256",
         "initial_calibration_sha256", "split_contract_sha256",
-        "release_contract_sha256",
+        "release_contract_sha256", "initial_calibration_report_sha256",
     )
     if any(previous.get(key) != report.get(key) for key in identity_fields):
         raise ValueError("existing evaluation checkpoint identity mismatch")
@@ -341,6 +365,7 @@ def main() -> int:
                         default=Path("aims_release_contract.json"))
     parser.add_argument("--prerequisite-report", type=Path)
     parser.add_argument("--initial-calibration", type=Path, required=True)
+    parser.add_argument("--initial-calibration-report", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -350,6 +375,10 @@ def main() -> int:
     release_path = args.release_contract.resolve()
     output = args.output.resolve()
     initial_calibration = args.initial_calibration.resolve()
+    calibration_report = (
+        args.initial_calibration_report.resolve()
+        if args.initial_calibration_report else None
+    )
     split_contract = json.loads(split_path.read_text())
     release_contract = json.loads(release_path.read_text())
     expected_phases, _ = phase_role_contract(split_contract, args.role)
@@ -398,6 +427,15 @@ def main() -> int:
         raise ValueError("candidate did not pass its development gate")
     if training_report.get("dataset_role") != "candidate_fit":
         raise ValueError("candidate was not fitted from candidate_fit data")
+    dataset_digest = sha256(dataset_manifest_path)
+    if (
+        training_report.get("dataset_manifest_sha256") != dataset_digest
+        or training_report.get("bundled_dataset_manifest_sha256")
+        != dataset_digest
+        or training_report.get("bundled_vocab_sha256")
+        != sha256(candidate / "vocab.pkl")
+    ):
+        raise ValueError("candidate bundled training provenance mismatch")
     experiment = dataset_manifest.get("experiment_contract") or {}
     if experiment.get("sha256") != sha256(split_path):
         raise ValueError("candidate split contract digest mismatch")
@@ -408,6 +446,17 @@ def main() -> int:
     report["candidate_sha256"] = hashes
     calibration_sha256 = sha256(initial_calibration)
     report["initial_calibration_sha256"] = calibration_sha256
+    if args.role == "independent_evaluation" and calibration_report is None:
+        raise ValueError(
+            "terminal V8 evaluation requires --initial-calibration-report"
+        )
+    if calibration_report is not None:
+        report["initial_calibration_report"] = validate_calibration_provenance(
+            calibration_report, initial_calibration, candidate
+        )
+        report["initial_calibration_report_sha256"] = report[
+            "initial_calibration_report"
+        ]["sha256"]
     if args.role == "blind_normal_test":
         report["prerequisite"] = validate_blind_prerequisite(
             args.prerequisite_report, hashes, calibration_sha256

@@ -17,6 +17,7 @@ def test_split_evaluation_runner_has_no_train_or_promotion_path():
     assert "train_candidate.py" not in script
     assert "promote_candidate.py" not in script
     assert "--prerequisite-report" in script
+    assert "--initial-calibration-report" in script
     assert "aims-normal-matrix.service aims-v8-capture.service" in script
     assert "systemctl is-active --quiet \"$active_capture\"" in script
     assert "WAITING: %s is active" in script
