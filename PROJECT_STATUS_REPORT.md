@@ -3151,6 +3151,14 @@ trước terminal release của collector. Timer sẽ tự thử lại sau disco
 derived output nằm ngoài immutable capture root và model production không bị
 thay đổi.
 
+Checkpoint `12:06Z`: run-01 đã khóa đủ steady/burst/recovery/toolmix. Manifest
+toolmix có 6.896 window, full coverage, capture valid, `stream_failures=0` và
+`backpressure_events=0`. `aims-steady-run-02` bắt đầu lúc `12:05:59Z`; live
+validator đọc 32 window đầu và xác nhận đúng `normal-run-02`, phase steady,
+release V8, vector 210 chiều, privacy exclusions đầy đủ, không lỗi. Như vậy
+ranh giới fit-only/evaluation đã được thực thi đúng trên dữ liệu thật; restart
+count vẫn bằng 1 và production không có pod lỗi.
+
 Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
 được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được
 xem score run-02--06 rồi quay lại chỉnh candidate.

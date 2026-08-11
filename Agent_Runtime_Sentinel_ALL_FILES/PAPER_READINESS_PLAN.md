@@ -112,6 +112,9 @@ provenance hash-bind fit dataset/candidate trước terminal replay.
 Timer handoff đã được cài thực tế lúc `12:01:12Z`; staging checksum 12/12 và
 focused VM suite `30 passed`. Integration start trong khi collector active trả
 75, không tạo completion marker và không sửa runtime source.
+Run-01 đã hoàn tất đủ bốn phase sạch lúc `12:05Z`; run-02 evaluation bắt đầu
+với live capture context/hash/schema đúng contract. Không train candidate khi
+20 evaluation phase còn đang được thu.
 
 Attack matrix tối thiểu, 5 run/scenario:
 
