@@ -133,6 +133,26 @@ def evaluate_rule_replay(normal_capture: Path, attack_capture: Path,
         alert for row in normal_rows
         if (alert := first_sensitive_event(row, sensitive)) is not None
     ]
+    phase_outcomes = []
+    for run_id, phase_id in phases:
+        phase_rows = [
+            row for row in normal_rows
+            if row["run_id"] == run_id and row["phase_id"] == phase_id
+        ]
+        phase_alerts = [
+            row for row in normal_alerts
+            if row["run_id"] == run_id and row["phase_id"] == phase_id
+        ]
+        phase_outcomes.append({
+            "phase": phase_id,
+            "run_id": run_id,
+            "windows": len(phase_rows),
+            "false_alerts": len(phase_alerts),
+            "exposure_seconds": (
+                max(float(row["window_end"]) for row in phase_rows)
+                - min(float(row["window_start"]) for row in phase_rows)
+            ),
+        })
 
     attack_source_rows = load_rows(attack_capture)
     intervals = injection_intervals(attack_source_rows)
@@ -195,6 +215,7 @@ def evaluate_rule_replay(normal_capture: Path, attack_capture: Path,
             "windows": len(normal_rows),
             "false_alerts": len(normal_alerts),
             "exposure_hours": exposure_hours,
+            "phase_outcomes": phase_outcomes,
             "alerts_per_hour": (
                 len(normal_alerts) / exposure_hours if exposure_hours else None
             ),

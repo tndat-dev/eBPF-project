@@ -509,6 +509,13 @@ CDF detected-only không được dùng để che detection miss: restricted
 time-to-detection giữ miss tại censor horizon và report nêu rõ selection bias
 của latency trên tập cùng detect.
 
+False-alert comparison phải dùng `normal.phase_outcomes`: đúng 20 phase thuộc
+năm independent run và cùng exposure ở mọi method. Report dùng run-block
+bootstrap cùng exact sign-flip theo run, sau đó Holm--Bonferroni cho 55 cặp;
+không được đổi unit sang window. Với năm run, exact two-sided sign-flip có
+p-value nhỏ nhất 0,0625, nên kết quả không thể tự tạo claim significance 0,05;
+paper cuối phải công khai low-power limitation hoặc bổ sung campaign độc lập.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

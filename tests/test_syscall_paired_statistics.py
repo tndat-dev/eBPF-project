@@ -8,7 +8,7 @@ SERVICE_ROOT = Path(__file__).resolve().parents[1] / "ml-service"
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from analyze_syscall_evaluation_matrix import (
-    analyze_matrix, exact_mcnemar_p, holm_adjust,
+    analyze_matrix, exact_mcnemar_p, exact_sign_flip_p, holm_adjust,
 )
 
 
@@ -29,7 +29,18 @@ def result(experiment_id, detections, latency_offset=0.0):
         "capture_sha256": "b" * 64, "split_sha256": "c" * 64,
         "evaluation_protocol_sha256": "d" * 64,
         "environment_sha256": "e" * 64,
-        "normal": {"false_alerts": 0, "exposure_hours": 20.0},
+        "normal": {
+            "false_alerts": 0, "exposure_hours": 2.0, "phases": 2,
+            "phase_outcomes": [
+                {
+                    "phase": f"aims-steady-run-{run:02d}",
+                    "run_id": f"normal-run-{run:02d}",
+                    "traffic_regime": "steady", "windows": 100,
+                    "false_alerts": 0, "exposure_seconds": 3600,
+                }
+                for run in (2, 3)
+            ],
+        },
         "attack": {
             "trials": len(outcomes), "detected": sum(detections),
             "recall_point": sum(detections) / len(outcomes),
@@ -48,6 +59,7 @@ def write_result(root, experiment_id, document):
 def test_exact_mcnemar_and_holm_correction():
     assert exact_mcnemar_p(0, 0) == 1.0
     assert exact_mcnemar_p(10, 0) == pytest.approx(2 / 1024)
+    assert exact_sign_flip_p([1.0, 1.0]) == 0.5
     pairs = [{"mcnemar_p": 0.01}, {"mcnemar_p": 0.04}, {"mcnemar_p": 0.5}]
     holm_adjust(pairs)
     assert pairs[0]["mcnemar_holm_p"] == pytest.approx(0.03)
@@ -74,6 +86,8 @@ def test_paired_analysis_uses_trial_identity_and_workload_blocks(tmp_path):
     assert comparison["both_detected"] == 1
     assert comparison["neither_detected"] == 1
     assert comparison["recall_difference_a_minus_b"]["blocks"] == 2
+    assert comparison["normal_false_alert_rate_difference_a_minus_b"]["blocks"] == 2
+    assert comparison["normal_run_sign_flip_p"] == 1.0
     assert report["method_summaries"][left]["detected_latency_cdf"]["1.0"] == 1.0
 
 

@@ -49,6 +49,7 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
             phases.append({
                 "phase": f"aims-{regime}-run-{run:02d}",
                 "source": {"manifest": str(manifest)},
+                "alerts": int(run == 2 and regime in ("steady", "burst")),
             })
     policy = {
         "require_behavior_gate": True,
@@ -106,11 +107,20 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
         "blind_attack_contract_sha256": "4" * 64,
         "evaluation_protocol_sha256": "d" * 64,
         "environment_sha256": "5" * 64,
+        "normal_phase_contract": {
+            phase["phase"]: {
+                "run_id": f"normal-run-{phase['phase'].rsplit('-', 1)[-1]}",
+                "traffic_regime": phase["phase"].split("-")[1],
+                "exposure_seconds": 3600,
+            }
+            for phase in phases
+        },
     }
     result = build_ml_result("full_v7", normal, attack, common)
     assert result["normal"]["independent_runs"] == 5
     assert result["normal"]["phases"] == 20
     assert result["normal"]["exposure_hours"] == 20
+    assert len(result["normal"]["phase_outcomes"]) == 20
     assert result["attack"]["recall"]["estimate"] == 0.9
     assert result["attack"]["recall_point"] == 0.9
     assert result["latency_seconds"]["sample_count"] == 180

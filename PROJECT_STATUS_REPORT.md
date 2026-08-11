@@ -3593,3 +3593,32 @@ tính mô tả do selection bias. Runner chỉ đóng marker terminal khi có 11
 55 comparison và toàn bundle checksum sạch. Local canonical suite sau thay đổi
 đạt `133 passed, 9 skipped`. Việc này hoàn thiện statistical automation; số
 liệu thật vẫn phải chờ chiến dịch V8 kết thúc và không được dùng để tune V8.
+
+Bundle thống kê đã được kiểm lại trực tiếp trong ML venv trên master: 55/55
+checksum pass, `129 passed`, sau đó atomic-swap vào staging active. Capture
+không restart. Checkpoint `2026-08-11T18:47:20Z` có 8/24 phase hoàn chỉnh;
+`aims-steady-run-03` đã đạt 5.213 row và tiếp tục tăng. Falco vẫn 6/6 reader,
+zero stream failure/reconnect; Kubernetes 6/6 node Ready và zero bad pod.
+
+### 18.55 False-alert inference theo run độc lập (12-08-2026)
+
+So sánh false alert trước đây mới dựa trên aggregate count/rate. Cách đó không
+đủ cho kiểm định vì các window trong cùng traffic run tương quan mạnh. Tetragon
+rule replay nay xuất false-alert outcome cho từng phase; assembler chuẩn hóa
+cùng outcome từ Falco và chín ML method theo một contract 20 phase/5 run. Mọi
+method phải có đúng phase ID, run ID, regime và exposure lấy từ frozen
+collection manifest; tổng phase alert phải bằng aggregate alert, nếu không
+matrix fail-closed.
+
+Paired statistics hiện bổ sung chênh false-alert/hour với bootstrap lấy mẫu lại
+toàn bộ independent run, cùng exact two-sided sign-flip test trên năm run và
+Holm--Bonferroni cho 55 cặp. Không coi 20 phase hay hàng chục nghìn window là
+independent replicate. Giới hạn thống kê được công khai: với chỉ năm block,
+p-value hai phía nhỏ nhất của sign-flip test là 0,0625, nên campaign V8 hiện
+không đủ power để khẳng định khác biệt false-alert ở mức 0,05. Đây là lý do cần
+thêm independent campaign/cross-cluster run cho paper cuối, không phải lý do để
+tune hoặc lặp lại V8 theo kết quả.
+
+Local suite vẫn `133 passed, 9 skipped`; bundle 55 file đạt `129 passed` trên
+VM và đã atomic-swap. Capture source vẫn `active/running`, `NRestarts=0` trong
+suốt thay đổi.

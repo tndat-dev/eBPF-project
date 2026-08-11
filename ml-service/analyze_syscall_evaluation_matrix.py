@@ -52,14 +52,18 @@ def exact_mcnemar_p(a_only: int, b_only: int) -> float:
     return min(1.0, 2.0 * tail / (2 ** discordant))
 
 
-def holm_adjust(pairs: list[dict[str, Any]]) -> None:
-    ordered = sorted(enumerate(pairs), key=lambda item: item[1]["mcnemar_p"])
+def holm_adjust(
+    pairs: list[dict[str, Any]], *, p_field: str = "mcnemar_p",
+    adjusted_field: str = "mcnemar_holm_p",
+    significant_field: str = "significant_at_0_05",
+) -> None:
+    ordered = sorted(enumerate(pairs), key=lambda item: item[1][p_field])
     running = 0.0
     total = len(ordered)
     for rank, (index, item) in enumerate(ordered):
-        running = max(running, min(1.0, (total - rank) * item["mcnemar_p"]))
-        pairs[index]["mcnemar_holm_p"] = running
-        pairs[index]["significant_at_0_05"] = running < 0.05
+        running = max(running, min(1.0, (total - rank) * item[p_field]))
+        pairs[index][adjusted_field] = running
+        pairs[index][significant_field] = running < 0.05
 
 
 def block_bootstrap_interval(
@@ -92,6 +96,49 @@ def block_bootstrap_interval(
     }
 
 
+def rate_block_bootstrap_interval(
+    counts_by_run: dict[str, tuple[int, float]], *, iterations: int, seed: int,
+) -> dict[str, Any]:
+    runs = sorted(counts_by_run)
+    if not runs or iterations < 1:
+        raise ValueError("rate bootstrap requires independent runs")
+    generator = random.Random(seed)
+    estimates = []
+    for _ in range(iterations):
+        sampled = [generator.choice(runs) for _ in runs]
+        count = sum(counts_by_run[run][0] for run in sampled)
+        exposure = sum(counts_by_run[run][1] for run in sampled)
+        estimates.append(count / exposure)
+    count = sum(value[0] for value in counts_by_run.values())
+    exposure = sum(value[1] for value in counts_by_run.values())
+    return {
+        "estimate_per_hour": count / exposure,
+        "lower_per_hour": quantile(estimates, 0.025),
+        "upper_per_hour": quantile(estimates, 0.975),
+        "confidence_level": 0.95,
+        "iterations": iterations,
+        "blocks": len(runs),
+        "block_unit": "independent normal run",
+        "seed": seed,
+    }
+
+
+def exact_sign_flip_p(run_differences: list[float]) -> float:
+    if not run_differences:
+        raise ValueError("sign-flip test requires run differences")
+    observed = abs(sum(run_differences) / len(run_differences))
+    tolerance = 1e-15
+    extreme = 0
+    total = 2 ** len(run_differences)
+    for mask in range(total):
+        estimate = sum(
+            value if mask & (1 << index) else -value
+            for index, value in enumerate(run_differences)
+        ) / len(run_differences)
+        extreme += abs(estimate) + tolerance >= observed
+    return extreme / total
+
+
 def read_results(root: Path, expected_ids: set[str] | None = None) -> dict[str, dict]:
     results = {}
     for path in sorted(root.glob("syscall__*/result.json")):
@@ -120,6 +167,18 @@ def indexed_outcomes(result: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return indexed
 
 
+def indexed_normal_phases(result: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    indexed = {}
+    for row in result["normal"].get("phase_outcomes", []):
+        phase = str(row["phase"])
+        if phase in indexed:
+            raise ValueError("duplicate normal phase identity")
+        indexed[phase] = row
+    if len(indexed) != int(result["normal"]["phases"]):
+        raise ValueError("normal phase outcomes are incomplete")
+    return indexed
+
+
 def validate_pairing(indexed: dict[str, dict[str, dict]]) -> list[str]:
     methods = sorted(indexed)
     reference = indexed[methods[0]]
@@ -130,6 +189,19 @@ def validate_pairing(indexed: dict[str, dict[str, dict]]) -> list[str]:
         for injection_id, row in indexed[method].items():
             if any(row.get(field) != reference[injection_id].get(field) for field in fields):
                 raise ValueError(f"{method}: trial metadata mismatch for {injection_id}")
+    return sorted(reference)
+
+
+def validate_normal_pairing(indexed: dict[str, dict[str, dict]]) -> list[str]:
+    methods = sorted(indexed)
+    reference = indexed[methods[0]]
+    fields = ("run_id", "traffic_regime", "exposure_seconds")
+    for method in methods[1:]:
+        if set(indexed[method]) != set(reference):
+            raise ValueError(f"{method}: normal phase set is not paired")
+        for phase, row in indexed[method].items():
+            if any(row.get(field) != reference[phase].get(field) for field in fields):
+                raise ValueError(f"{method}: normal phase metadata mismatch for {phase}")
     return sorted(reference)
 
 
@@ -152,6 +224,16 @@ def method_summary(result: dict[str, Any]) -> dict[str, Any]:
         "recall_wilson_95": result["attack"]["recall"],
         "normal_false_alerts": result["normal"]["false_alerts"],
         "normal_exposure_hours": result["normal"]["exposure_hours"],
+        "normal_run_alerts": {
+            run_id: sum(
+                int(row["false_alerts"])
+                for row in result["normal"]["phase_outcomes"]
+                if row["run_id"] == run_id
+            )
+            for run_id in sorted({
+                row["run_id"] for row in result["normal"]["phase_outcomes"]
+            })
+        },
         "detected_latency_seconds": distribution(detected_latencies),
         "detected_latency_cdf": {
             str(threshold): (
@@ -168,7 +250,9 @@ def method_summary(result: dict[str, Any]) -> dict[str, Any]:
 
 def pairwise_comparison(
     method_a: str, method_b: str, outcomes_a: dict[str, dict],
-    outcomes_b: dict[str, dict], injection_ids: list[str], *,
+    outcomes_b: dict[str, dict], injection_ids: list[str],
+    normal_a: dict[str, dict], normal_b: dict[str, dict],
+    normal_phases: list[str], *,
     iterations: int, seed: int,
 ) -> dict[str, Any]:
     a_only = sum(
@@ -207,6 +291,24 @@ def pairwise_comparison(
             codetected_differences.append(
                 float(left["latency_seconds"]) - float(right["latency_seconds"])
             )
+    normal_counts_by_run: dict[str, tuple[int, float]] = {}
+    normal_run_differences = []
+    run_ids = sorted({normal_a[phase]["run_id"] for phase in normal_phases})
+    for run_id in run_ids:
+        phases = [
+            phase for phase in normal_phases
+            if normal_a[phase]["run_id"] == run_id
+        ]
+        count_difference = sum(
+            int(normal_a[phase]["false_alerts"])
+            - int(normal_b[phase]["false_alerts"])
+            for phase in phases
+        )
+        exposure_hours = sum(
+            float(normal_a[phase]["exposure_seconds"]) for phase in phases
+        ) / 3600.0
+        normal_counts_by_run[run_id] = (count_difference, exposure_hours)
+        normal_run_differences.append(count_difference / exposure_hours)
     return {
         "method_a": method_a,
         "method_b": method_b,
@@ -221,6 +323,10 @@ def pairwise_comparison(
             for key in injection_ids
         ),
         "mcnemar_p": exact_mcnemar_p(a_only, b_only),
+        "normal_false_alert_rate_difference_a_minus_b": rate_block_bootstrap_interval(
+            normal_counts_by_run, iterations=iterations, seed=seed + 2,
+        ),
+        "normal_run_sign_flip_p": exact_sign_flip_p(normal_run_differences),
         "recall_difference_a_minus_b": block_bootstrap_interval(
             recall_by_workload, iterations=iterations, seed=seed,
         ),
@@ -241,14 +347,24 @@ def analyze_matrix(
     results = read_results(root, expected_ids)
     indexed = {method: indexed_outcomes(result) for method, result in results.items()}
     injection_ids = validate_pairing(indexed)
+    normal_indexed = {
+        method: indexed_normal_phases(result) for method, result in results.items()
+    }
+    normal_phases = validate_normal_pairing(normal_indexed)
     comparisons = []
     for index, (left, right) in enumerate(itertools.combinations(sorted(results), 2)):
         pair_seed = seed + index * 2
         comparisons.append(pairwise_comparison(
             left, right, indexed[left], indexed[right], injection_ids,
+            normal_indexed[left], normal_indexed[right], normal_phases,
             iterations=bootstrap_iterations, seed=pair_seed,
         ))
     holm_adjust(comparisons)
+    holm_adjust(
+        comparisons, p_field="normal_run_sign_flip_p",
+        adjusted_field="normal_run_sign_flip_holm_p",
+        significant_field="normal_significant_at_0_05",
+    )
     identity = {
         field: sorted({result[field] for result in results.values()})
         for field in (
@@ -273,6 +389,7 @@ def analyze_matrix(
         "comparisons": comparisons,
         "limitations": [
             "McNemar tests detection discordance only and does not test false-alert rates.",
+            "Normal false-alert inference uses five run blocks, so exact sign-flip power is limited.",
             "Workload-block bootstrap has eight workload blocks; report this finite-block limitation.",
             "Detected-only latency is descriptive because conditioning on co-detection can bias it.",
             "Restricted time-to-detection assigns each miss its frozen attribution censor time.",

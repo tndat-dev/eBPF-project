@@ -88,6 +88,10 @@ def test_rule_replay_counts_normal_alerts_and_attack_trial_recall(tmp_path):
     assert report["normal"]["independent_runs"] == 5
     assert report["normal"]["phases"] == 20
     assert report["normal"]["false_alerts"] == 1
+    assert len(report["normal"]["phase_outcomes"]) == 20
+    assert sum(
+        item["false_alerts"] for item in report["normal"]["phase_outcomes"]
+    ) == 1
     assert report["attack"]["trials"] == 2
     assert report["attack"]["detected"] == 1
     assert report["attack"]["recall"]["estimate"] == .5

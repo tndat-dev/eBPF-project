@@ -97,6 +97,40 @@ def normalized_outcomes(
     return outcomes
 
 
+def normalized_normal_phases(
+    items: list[dict[str, Any]], common: dict[str, Any], *,
+    expected_false_alerts: int,
+) -> list[dict[str, Any]]:
+    indexed = {str(item["phase"]): item for item in items}
+    expected = common["normal_phase_contract"]
+    if set(indexed) != set(expected):
+        raise ValueError("normal phase outcome set mismatch")
+    outcomes = []
+    for phase, identity in expected.items():
+        source = indexed[phase]
+        observed_run = source.get("run_id")
+        if observed_run is not None and observed_run != identity["run_id"]:
+            raise ValueError(f"normal phase run mismatch: {phase}")
+        alerts = int(source.get(
+            "false_alerts", source.get("alert_count", source.get("alerts", -1))
+        ))
+        if alerts < 0:
+            raise ValueError(f"normal phase alert count is missing: {phase}")
+        outcomes.append({
+            "phase": phase,
+            "run_id": identity["run_id"],
+            "traffic_regime": identity["traffic_regime"],
+            "windows": (
+                int(source["windows"]) if source.get("windows") is not None else None
+            ),
+            "false_alerts": alerts,
+            "exposure_seconds": identity["exposure_seconds"],
+        })
+    if sum(item["false_alerts"] for item in outcomes) != expected_false_alerts:
+        raise ValueError("normal phase alerts do not equal aggregate false alerts")
+    return outcomes
+
+
 def classification_metrics(detected: int, trials: int, false_alerts: int) -> dict:
     if trials < 1 or not 0 <= detected <= trials or false_alerts < 0:
         raise ValueError("invalid classification counts")
@@ -113,15 +147,6 @@ def classification_metrics(detected: int, trials: int, false_alerts: int) -> dic
             "FP=alerts during independent normal windows"
         ),
     }
-
-
-def phase_exposure_hours(normal: dict[str, Any]) -> float:
-    seconds = 0.0
-    for phase in normal.get("phases", []):
-        manifest = Path(phase["source"]["manifest"])
-        source = read_json(manifest)
-        seconds += float(source["actual_duration_seconds"])
-    return seconds / 3600.0
 
 
 def common_result_fields(common: dict[str, Any], experiment_id: str,
@@ -195,7 +220,12 @@ def build_ml_result(
         raise ValueError(f"{method}: normal alert accounting mismatch")
     trials = int(attack["completed_trials"])
     detected = int(attack["detected_trials"])
-    exposure = phase_exposure_hours(normal)
+    normal_phase_outcomes = normalized_normal_phases(
+        phases, common, expected_false_alerts=false_alerts,
+    )
+    exposure = sum(
+        item["exposure_seconds"] for item in normal_phase_outcomes
+    ) / 3600.0
     horizon = float(attack["post_attack_horizon_seconds"])
     outcomes = normalized_outcomes(
         list(attack.get("trials", [])), horizon_seconds=horizon,
@@ -221,6 +251,7 @@ def build_ml_result(
             "false_alerts": false_alerts,
             "exposure_hours": exposure,
             "false_alerts_per_hour": false_alerts / exposure if exposure else None,
+            "phase_outcomes": normal_phase_outcomes,
         },
         "attack": {
             "trials": trials, "detected": detected,
@@ -256,6 +287,10 @@ def build_rule_result(
 ) -> dict[str, Any]:
     trials, detected = int(attack["trials"]), int(attack["detected"])
     false_alerts = int(normal["false_alerts"])
+    normal["phase_outcomes"] = normalized_normal_phases(
+        list(normal.get("phase_outcomes", [])), common,
+        expected_false_alerts=false_alerts,
+    )
     horizon = float(attack["post_attack_horizon_seconds"])
     outcomes = normalized_outcomes(
         list(attack.get("outcomes", [])), horizon_seconds=horizon,
@@ -390,6 +425,23 @@ def main() -> int:
     normal_manifest = read_json(normal_capture_manifest)
     normal_windows = int(normal_manifest["validation"]["feature_windows"])
     split = read_json(evidence / "v8_capture_split_contract.json")
+    normal_phase_contract = {}
+    for run in split["normal"]["runs"]:
+        if run.get("role") != "independent_evaluation":
+            continue
+        run_id = str(run["run_id"])
+        run_number = int(run_id.rsplit("-", 1)[1])
+        for regime in split["normal"]["regimes"]:
+            phase = f"aims-{regime}-run-{run_number:02d}"
+            manifest = read_json(evidence / phase / "collection_manifest.json")
+            normal_phase_contract[phase] = {
+                "run_id": run_id,
+                "traffic_regime": regime,
+                "exposure_seconds": float(manifest["actual_duration_seconds"]),
+            }
+    if len(normal_phase_contract) != 20:
+        raise ValueError("normal phase contract does not contain 20 holdout phases")
+    common["normal_phase_contract"] = normal_phase_contract
     independent_runs = sum(
         item.get("role") == "independent_evaluation"
         for item in split["normal"]["runs"]
@@ -459,6 +511,7 @@ def main() -> int:
             "false_alerts": int(falco_normal["normal_alert_count"]),
             "exposure_hours": float(falco_normal["normal_duration_seconds"]) / 3600.0,
             "false_alerts_per_hour": falco_normal["normal_alerts_per_hour"],
+            "phase_outcomes": falco_normal["phases"],
         }
         falco_attack_summary = {
             "trials": int(falco_attack["trial_count"]),
