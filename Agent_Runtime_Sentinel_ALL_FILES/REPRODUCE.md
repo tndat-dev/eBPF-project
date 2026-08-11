@@ -353,6 +353,19 @@ Script trả 75 khi capture còn chạy, chỉ nhận service `Result=success`, 
 phase, canonical merge 24 source và checksum sạch. Derived artifact được ghi
 ngoài evidence root để evidence collection giữ bất biến.
 
+Để handoff qua phiên SSH, staging checksum được deploy bằng timer. Unit giữ
+cùng experiment lock, giới hạn một CPU/8 GiB và không có lệnh promotion:
+
+```bash
+sudo systemctl enable --now aims-v8-post-capture.timer
+systemctl list-timers aims-v8-post-capture.timer
+journalctl -u aims-v8-post-capture.service -f
+```
+
+Khi terminal evaluation pass, `POST_CAPTURE_COMPLETE` được tạo và condition của
+service chặn các lần chạy sau. Nếu candidate/evaluation fail, timer không sửa
+model production và evidence lỗi được giữ để phân tích.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

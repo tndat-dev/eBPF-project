@@ -68,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `93 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `31` test đều pass |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `95 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `31` test đều pass |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -3127,6 +3127,13 @@ matrix đủ 24 phase và canonical merge đủ 24 source; derived dataset/model
 dừng nếu offline gate hoặc terminal normal evaluation fail. Cùng experiment
 lock ngăn capture restart trong khi hậu kỳ; calibration report phải hash-bind
 đúng candidate training report, fit dataset và calibration bytes.
+
+Handoff chạy dài được chuẩn bị bằng `aims-v8-post-capture.timer`. Deployer chỉ
+atomic-copy staging sau khi checksum pass, capture inactive và
+`Result=success`; sau đó chạy focused regression trước pipeline. Service chạy
+bằng user `dat`, giữ experiment lock, `CPUQuota=100%`, `MemoryMax=8G`, nice 15,
+timeout 36 giờ và không chứa promotion path. Marker `POST_CAPTURE_COMPLETE` chỉ
+được systemd tạo khi toàn bộ ExecStart trả thành công.
 
 Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
 được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được

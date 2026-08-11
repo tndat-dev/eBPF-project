@@ -149,5 +149,6 @@ fi
 
 find "$DERIVED_ROOT" -type f ! -name SHA256SUMS -print0 \
   | sort -z | xargs -0 sha256sum >"$DERIVED_ROOT/SHA256SUMS"
+touch "$DERIVED_ROOT/POST_CAPTURE_COMPLETE"
 printf 'COMPLETE: V8 candidate and terminal normal evaluation are frozen at %s\n' \
   "$DERIVED_ROOT"

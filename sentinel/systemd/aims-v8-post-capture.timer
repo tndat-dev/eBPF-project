@@ -1,0 +1,12 @@
+[Unit]
+Description=Retry guarded AIMS V8 post-capture processing
+
+[Timer]
+OnBootSec=5min
+OnUnitInactiveSec=15min
+AccuracySec=30s
+Persistent=true
+Unit=aims-v8-post-capture.service
+
+[Install]
+WantedBy=timers.target
