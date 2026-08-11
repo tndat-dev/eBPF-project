@@ -116,6 +116,17 @@ Run-01 đã hoàn tất đủ bốn phase sạch lúc `12:05Z`; run-02 evaluatio
 với live capture context/hash/schema đúng contract. Không train candidate khi
 20 evaluation phase còn đang được thu.
 
+Baseline Falco rule-only hiện đã có đường thu dữ liệu thật thay vì placeholder.
+Collector privacy-safe backfill từ đúng boundary run-02, giữ sáu stream của
+Falco DaemonSet 0.44.1 và fail evidence khi membership/stream hỏng. Snapshot
+12:37Z đọc 660 dòng Falco nguồn, không lưu raw body và quan sát 0 alert thuộc
+pod AIMS; số này chưa được gọi là FPR. Finalizer mới chỉ chạy sau terminal
+capture, ánh xạ alert vào đúng 20 independent phase, tạo cả empty JSONL có hash,
+ghi alert/hour thay vì bịa mẫu số FPR, và atomic-freeze provenance. Blind attack
+set vẫn phải chạy cùng collector để có recall của baseline Falco.
+Bundle hậu kỳ mới đã được stage nguyên tử: 14/14 checksum và 35 focused test
+trên VM pass; source runtime capture không bị thay đổi giữa campaign.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

@@ -27,6 +27,7 @@ if [[ $(systemctl show aims-v8-capture.service -p Result --value) != success ]];
 fi
 
 for name in build_phase_dataset.py evaluate_aims_normal_split.py \
+  falco_evidence_finalizer.py \
   run_aims_split_evaluation.sh run_v8_post_capture.sh; do
   source=$STAGING_ROOT/ml-service/$name
   temporary=$RUNTIME_ROOT/.$name.v8-staging
@@ -41,6 +42,7 @@ cd "$STAGING_ROOT"
 PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_phase_dataset.py \
   tests/test_aims_normal_split_evaluator.py \
+  tests/test_falco_evidence_finalizer.py \
   tests/test_v8_capture_contract.py \
   tests/test_v8_post_capture_runner.py
 

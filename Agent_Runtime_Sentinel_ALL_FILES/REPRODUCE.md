@@ -366,6 +366,32 @@ Khi terminal evaluation pass, `POST_CAPTURE_COMPLETE` được tạo và conditi
 service chặn các lần chạy sau. Nếu candidate/evaluation fail, timer không sửa
 model production và evidence lỗi được giữ để phân tích.
 
+Falco rule-only evidence được thu song song từ sáu DaemonSet pod. Chỉ kiểm state
+privacy-safe; không redirect `kubectl logs` raw vào artifact:
+
+```bash
+systemctl status aims-v8-falco-evidence.service
+FALCO=/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811
+python3 -m json.tool "$FALCO/collector-state.json"
+```
+
+Post-capture runner tự gọi finalizer dưới đây trước khi fit model. Có thể chạy
+độc lập để audit sau khi 20 holdout phase kết thúc và state đã settle:
+
+```bash
+/home/dat/ml-venv/bin/python /home/dat/ml-service/falco_evidence_finalizer.py \
+  --capture-root "$ROOT" --falco-root "$FALCO" \
+  --split-contract "$ROOT/v8_capture_split_contract.json" \
+  --output-root "$DERIVED/falco-rule-only-normal"
+cd "$DERIVED/falco-rule-only-normal" && sha256sum -c SHA256SUMS
+```
+
+Exit 75 nghĩa là stream chưa qua terminal settle và timer phải thử lại; exit 4
+là evidence invalid, không được bỏ gate. Empty `falco-normal-alerts.jsonl` hợp
+lệ chỉ khi report chứng minh đủ sáu reader, zero stream failure và source state
+báo zero privacy-safe row. Report `normal_alert_count`/`normal_alerts_per_hour`,
+không gọi chúng là statistical FPR và chưa suy ra attack recall.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

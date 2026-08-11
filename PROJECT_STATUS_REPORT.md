@@ -48,7 +48,7 @@ Phạm vi hiện tại là vertical slice ở tầng syscall. Nghĩa là hệ th
 
 ## 2. Trạng thái hạ tầng hiện tại đã xác minh bằng SSH
 
-Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-05.
+Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-11.
 
 | Thành phần | Trạng thái đã xác minh |
 |---|---|
@@ -67,11 +67,12 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Model production | `/home/dat/ml-service/models` |
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
-| Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `95 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31` và staging handoff `30` test đều pass |
+| Workload/cluster pod | 225/225 pod toàn cụm ở trạng thái `Running` hoặc `Completed`; không có pod lỗi tại snapshot 12:40Z |
+| Falco | DaemonSet `6 desired/6 ready`, image `falcosecurity/falco:0.44.1`; collector evidence riêng đang đọc đủ sáu stream |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `105 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31`; staging handoff mới có finalizer đạt `35 passed` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
-policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
+policy, workload và service ở trên là snapshot kiểm tra mới ngày 11-08-2026.
 Các số liệu latency, throughput, normal/attack và false positive ở phần còn lại
 là artifact thí nghiệm có timestamp riêng; chúng không tự động trở thành health
 check hoặc coverage proof sau migration. Trước khi dùng số liệu cho paper hoặc
@@ -3163,3 +3164,53 @@ count vẫn bằng 1 và production không có pod lỗi.
 Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
 được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được
 xem score run-02--06 rồi quay lại chỉnh candidate.
+
+### 18.43 Baseline Falco thật và finalizer fail-closed (11-08-2026)
+
+Để baseline `falco_rule_only` không còn chỉ là tên trong contract, một collector
+riêng đã được gắn vào DaemonSet Falco thật của cụm (`6 desired/6 ready`, image
+`falcosecurity/falco:0.44.1`). Collector backfill từ đúng ranh giới run-02
+`2026-08-11T12:05:59Z`, theo dõi cả sáu pod Falco và chỉ giữ decision metadata
+cho pod AIMS trong namespace `production`: timestamp, rule, priority, pod/node
+nguồn, pod đích, release và event ID. Raw output, command argument, file path,
+payload và content không được ghi xuống artifact.
+
+Preflight V1 thiếu khoảng timestamp theo từng reader đã bị stop và chuyển vào
+`/home/dat/ml-service/rejected/aims-v8-falco-evidence-preflight-20260811T123342Z`;
+thư mục này bị cấm dùng làm evidence. V2 hiện chạy tại
+`/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811` bằng
+unit không đặc quyền, giới hạn 25% CPU/256 MiB. Snapshot 12:37Z có sáu reader
+active, `coverage_healthy=true`, `stream_failures=0`, 660 raw Falco decision đã
+được đọc và 0 privacy-safe AIMS alert được ghi. Bốn reader có log-range bắt đầu
+sau boundary khoảng 4,4--78,8 giây; hai reader còn lại giữ stream active nhưng
+không phát sinh log. Việc file alert chưa tồn tại ở thời điểm này biểu diễn
+đúng zero row, không được tự suy diễn thành collector chết vì state vẫn chứng
+minh sáu connection và 660 dòng nguồn đã được xử lý.
+
+Provenance đã kiểm lại trực tiếp: collector snapshot
+`df5671bea2e995151cf0eeb47d0f62fe246f8db7d17955f4c31afa32285231b1`,
+Falco DaemonSet
+`56690ac8e01c567876e977ffa06b52cfcff1da91e52302d6bd6effc7cf8ce874`,
+Falco ConfigMap
+`dad066521ec03f5675d9ce22b8f165ad2780a1d5476f1497108aa4c96c2b812b`
+và collection contract
+`c515649bebd31c836af372b09144c554665a894805e0d06051149ca0201f1237`.
+
+`falco_evidence_finalizer.py` đã được nối vào post-capture runner. Sau terminal
+capture, nó bắt buộc đủ đúng 20 phase independent run-02--06, phase không
+overlap, Falco backfill không muộn hơn phase đầu, state đã qua settle 30 giây,
+sáu reader ready/active, state không stale và không stream failure. Mọi alert
+được kiểm schema/privacy/event digest rồi mới gán vào đúng phase; output được
+atomic-publish với `SHA256SUMS` và cấm ghi đè. Trường hợp zero alert vẫn tạo một
+JSONL rỗng có hash để phân biệt với file bị thiếu. Post-capture trả 75 để timer
+thử lại nếu stream chưa settle và tuyệt đối không train/promote trong lần đó.
+
+Artifact cố ý để `false_positive_rate=null`: Falco phát event alert chứ không
+cung cấp mẫu số scored-opportunity tương đương ML window. Paper chỉ được báo
+`normal_alert_count` và `normal_alerts_per_hour`; attack recall cần blind attack
+campaign riêng chạy khi collector này còn active. Vì vậy 0 AIMS alert quan sát
+hiện tại **chưa phải** claim zero false positive. Full local regression sau
+thay đổi đạt `105 passed, 7 skipped`; checksum staging mới bao gồm finalizer và
+test của nó. Staging 14/14 checksum đã được thay nguyên tử lúc 12:45Z và focused
+VM suite đạt `35 passed`; runtime source đang capture vẫn không bị sửa. Collector
+tiếp tục healthy với sáu reader, 815 dòng nguồn, 0 AIMS row tại checkpoint này.

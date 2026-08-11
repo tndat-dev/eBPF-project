@@ -19,6 +19,9 @@ def test_v8_post_capture_runner_is_fit_only_and_never_promotes():
     assert "--dataset-role candidate_fit" in script
     assert "--role independent_evaluation" in script
     assert "--initial-calibration-report" in script
+    assert "falco_evidence_finalizer.py" in script
+    assert "falco-rule-only-normal" in script
+    assert 'doc.get("phase_count") != 20' in script
     assert "POST_CAPTURE_COMPLETE" in script
     assert "run-02" not in script
     assert "train_candidate.py" in script

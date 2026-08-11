@@ -17,6 +17,8 @@ def test_v8_post_capture_deployer_is_hash_gated_and_atomic():
     assert "Result=success" in script
     assert ".$name.v8-staging" in script
     assert "pytest -q" in script
+    assert "falco_evidence_finalizer.py" in script
+    assert "tests/test_falco_evidence_finalizer.py" in script
     assert "run_v8_post_capture.sh" in script
     assert "promote_candidate.py" not in script
 

@@ -11,6 +11,8 @@ CANDIDATE=$DERIVED_ROOT/models-v8-candidate
 CALIBRATION=$DERIVED_ROOT/v8-fit-calibration.json
 CALIBRATION_REPORT=$DERIVED_ROOT/v8-fit-calibration.report.json
 EVALUATION_REPORT=$DERIVED_ROOT/v8-independent-evaluation.json
+FALCO_EVIDENCE_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
+FALCO_DERIVED=$DERIVED_ROOT/falco-rule-only-normal
 
 if [[ ${SENTINEL_V8_POST_CAPTURE_LOCK_HELD:-0} != 1 ]]; then
   exec /usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-normal-matrix.lock \
@@ -61,6 +63,21 @@ if (
 PY
 
 mkdir -p "$DERIVED_ROOT"
+if [[ -d "$FALCO_DERIVED" ]]; then
+  (cd "$FALCO_DERIVED" && sha256sum -c SHA256SUMS)
+  "$PYTHON_BIN" - "$FALCO_DERIVED/falco-normal-evidence.report.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+if doc.get("valid") is not True or doc.get("phase_count") != 20:
+    raise SystemExit("existing Falco normal derivative is invalid")
+PY
+else
+  "$PYTHON_BIN" "$ROOT_DIR/falco_evidence_finalizer.py" \
+    --capture-root "$EVIDENCE_ROOT" \
+    --falco-root "$FALCO_EVIDENCE_ROOT" \
+    --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --output-root "$FALCO_DERIVED"
+fi
 TARGETS=$("$PYTHON_BIN" - "$EVIDENCE_ROOT/aims_release_contract.json" <<'PY'
 import json, sys
 print(",".join(json.load(open(sys.argv[1]))["eligible_targets"]))
