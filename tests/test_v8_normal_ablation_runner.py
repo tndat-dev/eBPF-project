@@ -12,6 +12,9 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert path.stat().st_mode & stat.S_IXUSR
     assert "POST_CAPTURE_COMPLETE" in script
     assert "syscall_evaluation_protocol.json" in script
+    assert "evaluate_tetragon_rule_replay.py" in script
+    assert "frozen-normal-feature-capture.jsonl" in script
+    assert "frozen-attack-feature-capture.jsonl" in script
     assert "independent_evaluation" in script
     assert "--initial-calibration-report" in script
     assert "syscall__isolation_forest" in script

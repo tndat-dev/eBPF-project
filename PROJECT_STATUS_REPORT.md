@@ -3374,3 +3374,27 @@ capture có syscall name nhưng không có privacy-safe exec binary token, nên
 không thể replay trung thực nhánh `exec -> network` của fast path. Không được
 suy diễn normal fast-path FPR từ replay thiếu trường này; cần evidence live hoặc
 schema V9 bổ sung binary class đã allowlist trước khi claim.
+
+### 18.48 Tetragon rule-only trở thành paired baseline thực thi được (11-08-2026)
+
+`evaluate_tetragon_rule_replay.py` đã nối baseline `tetragon_rule_only` vào cùng
+canonical normal/attack sequence thay vì tạo số liệu từ policy YAML. Evaluator
+chỉ dùng năm syscall nhạy cảm đã freeze trong protocol (`capset`, `mount`,
+`ptrace`, `setuid`, `unshare`), lọc đúng run-02--06 thành 5 independent run/20
+phase, và bắt buộc đúng 200 injection thành công. Normal report ghi số window,
+false alert, wall-clock exposure và alert/hour; attack report giữ đủ mọi trial,
+recall Wilson 95% CI cùng first-rule latency. Không có train, tune hay promote.
+
+Vì sequence V8 chỉ giữ thứ tự syscall trong window, timestamp event rule-only
+được ước lượng theo vị trí đều trong window. Giới hạn này được ghi trong report;
+không được trình bày latency đó như timestamp kernel chính xác. Matching attack
+vẫn yêu cầu cùng pod và nằm trong injection interval cộng horizon 30 giây.
+Output được publish nguyên tử, idempotent, hash cả JSONL/report và từ chối
+artifact bị sửa hoặc protocol digest khác.
+
+Runner hậu attack nay chạy Tetragon baseline trước sáu ML normal replay; thiếu
+normal/attack canonical capture sẽ fail-closed. Hai test synthetic kiểm cả
+detect/miss và tamper rejection. Bundle staging tăng thành 41/41 checksum,
+focused VM suite `108 passed`; atomic swap không làm capture restart. Checkpoint
+15:15Z vẫn có 5 phase hoàn chỉnh, `burst-run-02` tăng lên 5.760 row, Falco sáu
+reader healthy/zero stream failure và toàn cụm 6/6 node Ready, zero bad pod.

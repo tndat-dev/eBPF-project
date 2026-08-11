@@ -12,6 +12,9 @@ CANDIDATE=$DERIVED_ROOT/models-v8-candidate
 CALIBRATION=$DERIVED_ROOT/v8-fit-calibration.json
 CALIBRATION_REPORT=$DERIVED_ROOT/v8-fit-calibration.report.json
 OUTPUT_ROOT=${V8_NORMAL_ABLATION_ROOT:-$DERIVED_ROOT/normal-ablation-replay}
+ATTACK_CAPTURE=${V8_ATTACK_CAPTURE:-/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/frozen-attack-feature-capture.jsonl}
+NORMAL_CAPTURE=$EVIDENCE_ROOT/frozen-normal-feature-capture.jsonl
+TETRAGON_OUTPUT=$DERIVED_ROOT/tetragon-rule-only-replay
 
 [[ -r "$DERIVED_ROOT/POST_CAPTURE_COMPLETE" ]] || {
   printf 'WAITING: terminal V8 normal candidate is incomplete\n'
@@ -20,11 +23,18 @@ OUTPUT_ROOT=${V8_NORMAL_ABLATION_ROOT:-$DERIVED_ROOT/normal-ablation-replay}
 for path in "$CANDIDATE/training_report.json" "$CALIBRATION" \
   "$CALIBRATION_REPORT" "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
   "$EVIDENCE_ROOT/aims_release_contract.json" \
+  "$NORMAL_CAPTURE" "$ATTACK_CAPTURE" \
   "$ROOT_DIR/syscall_evaluation_protocol.json"; do
   [[ -r "$path" ]] || { printf 'REFUSING: missing %s\n' "$path" >&2; exit 4; }
 done
 
 mkdir -p "$OUTPUT_ROOT"
+
+"$PYTHON_BIN" "$ROOT_DIR/evaluate_tetragon_rule_replay.py" \
+  --normal-capture "$NORMAL_CAPTURE" --attack-capture "$ATTACK_CAPTURE" \
+  --protocol "$ROOT_DIR/syscall_evaluation_protocol.json" \
+  --output-root "$TETRAGON_OUTPUT" --expected-trials 200 \
+  --post-attack-horizon 30
 
 run_experiment() {
   local experiment_id=$1
@@ -90,4 +100,5 @@ run_experiment syscall__without_two_window_confirmation \
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
   | sort -z | xargs -0 sha256sum >"$OUTPUT_ROOT/SHA256SUMS"
 touch "$DERIVED_ROOT/NORMAL_ABLATION_REPLAY_COMPLETE"
-printf 'COMPLETE: six normal baseline/ablation replays at %s\n' "$OUTPUT_ROOT"
+printf 'COMPLETE: Tetragon rule baseline and six normal replays at %s\n' \
+  "$OUTPUT_ROOT"

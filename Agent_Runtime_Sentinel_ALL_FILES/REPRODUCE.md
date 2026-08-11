@@ -260,6 +260,19 @@ provenance mới retry. Không dùng các report này để sửa release V8. Pr
 phương pháp là `ml-service/syscall_evaluation_protocol.json`; mọi result matrix
 phải có cùng SHA-256 của file này.
 
+Tetragon rule-only dùng chính hai canonical capture và được normal-ablation
+runner gọi tự động. Có thể verify bundle sau terminal run:
+
+```bash
+cd /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/tetragon-rule-only-replay
+sha256sum -c SHA256SUMS
+python3 -m json.tool tetragon-rule-replay.report.json
+```
+
+Trường `timestamp_method=uniform position within captured window` là ước lượng
+do V8 chỉ giữ sequence; không dùng metric này thay cho kernel timestamp chính
+xác trong live attack harness.
+
 Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
 không phải generator kết quả.

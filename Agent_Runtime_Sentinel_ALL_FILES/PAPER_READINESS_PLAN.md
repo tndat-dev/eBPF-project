@@ -164,6 +164,12 @@ không lưu exec binary class nên chưa thể replay trung thực rule `exec->n
 fast-path normal FPR đầy đủ cần live evidence hoặc capture schema kế tiếp, không
 được nội suy từ syscall-name-only replay.
 
+Tetragon rule-only đã có paired evaluator thật trên canonical sequence: đúng 20
+normal phase/5 run và 200 injection, output normal alert/hour, recall Wilson CI
+và latency. Do V8 không lưu timestamp từng syscall, rule latency chỉ là ước
+lượng vị trí trong window và phải được ghi như limitation, không thay thế
+kernel-event timestamp của live harness.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;
