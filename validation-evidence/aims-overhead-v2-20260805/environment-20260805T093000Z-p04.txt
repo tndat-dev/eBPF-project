@@ -1,0 +1,579 @@
+2026-08-05T10:29:18+00:00
+Linux k8s-master.local 6.8.0-136-generic #136-Ubuntu SMP PREEMPT_DYNAMIC Wed Jul  1 21:53:05 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+clientVersion:
+  buildDate: "2026-07-22T17:49:24Z"
+  compiler: gc
+  gitCommit: bd6c4ad159ac77a879838b8f14f23a49bf97de5f
+  gitTreeState: clean
+  gitVersion: v1.34.10
+  goVersion: go1.25.12
+  major: "1"
+  minor: "34"
+  platform: linux/amd64
+kustomizeVersion: v5.7.1
+serverVersion:
+  buildDate: "2026-07-22T17:46:31Z"
+  compiler: gc
+  emulationMajor: "1"
+  emulationMinor: "34"
+  gitCommit: bd6c4ad159ac77a879838b8f14f23a49bf97de5f
+  gitTreeState: clean
+  gitVersion: v1.34.10
+  goVersion: go1.25.12
+  major: "1"
+  minCompatibilityMajor: "1"
+  minCompatibilityMinor: "33"
+  minor: "34"
+  platform: linux/amd64
+
+NAME                STATUS   ROLES           AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+k8s-master.local    Ready    control-plane   121d    v1.34.10   10.1.16.234   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.4
+k8s-master2.local   Ready    control-plane   6d18h   v1.34.10   10.1.16.235   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.2
+k8s-master3.local   Ready    control-plane   6d18h   v1.34.10   10.1.16.236   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.2
+k8s-worker1.local   Ready    <none>          6d18h   v1.34.10   10.1.16.237   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.4
+k8s-worker3.local   Ready    <none>          7d1h    v1.34.10   10.1.16.239   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.2
+k8s-worker4.local   Ready    <none>          6d20h   v1.34.10   10.1.16.238   <none>        Ubuntu 24.04.4 LTS   6.8.0-136-generic   containerd://2.2.2
+NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE    CONTAINERS               IMAGES                                                                                                  SELECTOR
+cilium     6         6         6       6            6           kubernetes.io/os=linux   104d   cilium-agent             quay.io/cilium/cilium:v1.19.6@sha256:0df5b2750b64c49843aba1d649e9eaf61467cb0645ad3171db6f6962c095ac92   k8s-app=cilium
+tetragon   6         6         6       6            6           <none>                   121d   export-stdout,tetragon   quay.io/cilium/hubble-export-stdout:v1.1.0,quay.io/cilium/tetragon:v1.6.1                               app.kubernetes.io/instance=tetragon,app.kubernetes.io/name=tetragon
+NAMESPACE                NAME                                         READY   UP-TO-DATE   AVAILABLE   AGE     CONTAINERS                                            IMAGES                                                                                                                                                                                                                      SELECTOR
+agent-sentinel-lab       mcp-normal-loadgen                           1/1     1            1           9d      loadgen                                               docker.io/curlimages/curl@sha256:463eaf6072688fe96ac64fa623fe73e1dbe25d8ad6c34404a669ad3ce1f104b6                                                                                                                           app=mcp-normal-loadgen
+agent-sentinel-lab       mcp-tls-server                               1/1     1            1           9d      mcp-tls-server                                        docker.io/library/nginx@sha256:5a88c9c45479443d7be2eadc894b4ed0a9801bae03d97a5760ae13b5c2005942                                                                                                                             app=mcp-tls-server
+argo-rollouts            argo-rollouts                                2/2     2            2           7d1h    argo-rollouts                                         quay.io/argoproj/argo-rollouts:v1.9.1                                                                                                                                                                                       app.kubernetes.io/component=rollouts-controller,app.kubernetes.io/instance=argo-rollouts,app.kubernetes.io/name=argo-rollouts
+argo-rollouts            argo-rollouts-dashboard                      1/1     1            1           7d1h    argo-rollouts-dashboard                               quay.io/argoproj/kubectl-argo-rollouts:v1.9.1                                                                                                                                                                               app.kubernetes.io/component=rollouts-dashboard,app.kubernetes.io/instance=argo-rollouts,app.kubernetes.io/name=argo-rollouts
+argocd                   argocd-applicationset-controller             1/1     1            1           7d1h    applicationset-controller                             quay.io/argoproj/argocd:v3.4.5                                                                                                                                                                                              app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-applicationset-controller
+argocd                   argocd-dex-server                            1/1     1            1           7d1h    dex-server                                            ghcr.io/dexidp/dex:v2.45.1                                                                                                                                                                                                  app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-dex-server
+argocd                   argocd-notifications-controller              1/1     1            1           7d1h    notifications-controller                              quay.io/argoproj/argocd:v3.4.5                                                                                                                                                                                              app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-notifications-controller
+argocd                   argocd-redis                                 1/1     1            1           7d1h    redis                                                 ecr-public.aws.com/docker/library/redis:8.2.3-alpine                                                                                                                                                                        app.kubernetes.io/name=argocd-redis
+argocd                   argocd-repo-server                           1/1     1            1           7d1h    repo-server                                           quay.io/argoproj/argocd:v3.4.5                                                                                                                                                                                              app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-repo-server
+argocd                   argocd-server                                1/1     1            1           7d1h    server                                                quay.io/argoproj/argocd:v3.4.5                                                                                                                                                                                              app.kubernetes.io/instance=argocd,app.kubernetes.io/name=argocd-server
+cert-manager             cert-manager                                 1/1     1            1           121d    cert-manager-controller                               quay.io/jetstack/cert-manager-controller:v1.17.2                                                                                                                                                                            app.kubernetes.io/component=controller,app.kubernetes.io/instance=cert-manager,app.kubernetes.io/name=cert-manager
+cert-manager             cert-manager-cainjector                      1/1     1            1           121d    cert-manager-cainjector                               quay.io/jetstack/cert-manager-cainjector:v1.17.2                                                                                                                                                                            app.kubernetes.io/component=cainjector,app.kubernetes.io/instance=cert-manager,app.kubernetes.io/name=cainjector
+cert-manager             cert-manager-webhook                         1/1     1            1           121d    cert-manager-webhook                                  quay.io/jetstack/cert-manager-webhook:v1.17.2                                                                                                                                                                               app.kubernetes.io/component=webhook,app.kubernetes.io/instance=cert-manager,app.kubernetes.io/name=webhook
+cilium-demo              deathstar                                    0/0     0            0           121d    deathstar                                             quay.io/cilium/starwars@sha256:896dc536ec505778c03efedb73c3b7b83c8de11e74264c8c35291ff6d5fe8ada                                                                                                                             class=deathstar,org=empire
+cilium-demo              nginx                                        0/0     0            0           113d    nginx                                                 nginx                                                                                                                                                                                                                       app=nginx
+cnpg-system              cloudnative-pg                               1/1     1            1           7d2h    manager                                               ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0                                                                                                                                                                                app.kubernetes.io/instance=cloudnative-pg,app.kubernetes.io/name=cloudnative-pg
+default                  curl                                         0/0     0            0           104d    curl                                                  docker.io/curlimages/curl:8.16.0                                                                                                                                                                                            app=curl
+default                  details-v1                                   0/0     0            0           104d    details                                               docker.io/istio/examples-bookinfo-details-v1:1.20.3                                                                                                                                                                         app=details,version=v1
+default                  postgres                                     1/1     1            1           4d1h    postgres                                              mirror.gcr.io/postgres@sha256:a426e44bac0b759c95894d68e1a0ac03ecc20b619f498a91aae373bf06d8508d                                                                                                                              app=postgres
+default                  postgres-loadgen                             1/1     1            1           4d1h    loadgen                                               postgres@sha256:3a82e1f56c8f0f5616a11103ac3d47e632c3938698946a7ad26da0df1334744a                                                                                                                                            app=postgres-loadgen
+default                  productpage-v1                               0/0     0            0           104d    productpage                                           docker.io/istio/examples-bookinfo-productpage-v1:1.20.3                                                                                                                                                                     app=productpage,version=v1
+default                  ratings-v1                                   0/0     0            0           104d    ratings                                               docker.io/istio/examples-bookinfo-ratings-v1:1.20.3                                                                                                                                                                         app=ratings,version=v1
+default                  reviews-v1                                   0/0     0            0           104d    reviews                                               docker.io/istio/examples-bookinfo-reviews-v1:1.20.3                                                                                                                                                                         app=reviews,version=v1
+default                  reviews-v2                                   0/0     0            0           104d    reviews                                               docker.io/istio/examples-bookinfo-reviews-v2:1.20.3                                                                                                                                                                         app=reviews,version=v2
+default                  reviews-v3                                   0/0     0            0           104d    reviews                                               docker.io/istio/examples-bookinfo-reviews-v3:1.20.3                                                                                                                                                                         app=reviews,version=v3
+external-secrets         external-secrets                             1/1     1            1           7d1h    external-secrets                                      ghcr.io/external-secrets/external-secrets:v2.8.0                                                                                                                                                                            app.kubernetes.io/instance=external-secrets,app.kubernetes.io/name=external-secrets
+external-secrets         external-secrets-cert-controller             1/1     1            1           7d1h    cert-controller                                       ghcr.io/external-secrets/external-secrets:v2.8.0                                                                                                                                                                            app.kubernetes.io/instance=external-secrets,app.kubernetes.io/name=external-secrets-cert-controller
+external-secrets         external-secrets-webhook                     1/1     1            1           7d1h    webhook                                               ghcr.io/external-secrets/external-secrets:v2.8.0                                                                                                                                                                            app.kubernetes.io/instance=external-secrets,app.kubernetes.io/name=external-secrets-webhook
+gatekeeper-system        gatekeeper-audit                             1/1     1            1           7d1h    manager                                               openpolicyagent/gatekeeper:v3.23.0                                                                                                                                                                                          app=gatekeeper,chart=gatekeeper,control-plane=audit-controller,gatekeeper.sh/operation=audit,gatekeeper.sh/system=yes,heritage=Helm,release=gatekeeper
+gatekeeper-system        gatekeeper-controller-manager                2/2     2            2           7d1h    manager                                               openpolicyagent/gatekeeper:v3.23.0                                                                                                                                                                                          app=gatekeeper,chart=gatekeeper,control-plane=controller-manager,gatekeeper.sh/operation=webhook,gatekeeper.sh/system=yes,heritage=Helm,release=gatekeeper
+istio-ingress            aims-ingress-istio                           4/4     4            4           4d1h    istio-proxy                                           docker.io/istio/proxyv2:1.29.2-distroless                                                                                                                                                                                   gateway.networking.k8s.io/gateway-name=aims-ingress
+istio-ingress            istio-ingressgateway                         1/1     1            1           104d    istio-proxy                                           docker.io/istio/proxyv2:1.29.2                                                                                                                                                                                              app=istio-ingressgateway,istio=ingressgateway
+istio-system             istio-ingressgateway                         1/1     1            1           104d    istio-proxy                                           docker.io/istio/proxyv2:1.29.2                                                                                                                                                                                              app=istio-ingressgateway,istio=ingressgateway
+istio-system             istiod                                       1/1     1            1           106d    discovery                                             docker.io/istio/pilot:1.29.2-distroless                                                                                                                                                                                     istio=pilot
+kube-system              cilium-operator                              2/2     2            2           121d    cilium-operator                                       quay.io/cilium/operator-generic:v1.19.6@sha256:0db4ca4e06969d8904ee036617795d0e9c3228cf7b8d902ba74fc2bb98d2d665                                                                                                             io.cilium/app=operator,name=cilium-operator
+kube-system              coredns                                      2/2     2            2           121d    coredns                                               registry.k8s.io/coredns/coredns:v1.12.1                                                                                                                                                                                     k8s-app=kube-dns
+kube-system              hubble-relay                                 1/1     1            1           121d    hubble-relay                                          quay.io/cilium/hubble-relay:v1.19.6@sha256:6782a49e3f28eba015701c4410a5ec7fa096fe9a562f879b4372dbecd827ea44                                                                                                                 k8s-app=hubble-relay
+kube-system              hubble-ui                                    1/1     1            1           106d    frontend,backend                                      quay.io/cilium/hubble-ui:v0.13.3@sha256:661d5de7050182d495c6497ff0b007a7a1e379648e60830dd68c4d78ae21761d,quay.io/cilium/hubble-ui-backend:v0.13.3@sha256:db1454e45dc39ca41fbf7cad31eec95d99e5b9949c39daaad0fa81ef29d56953   k8s-app=hubble-ui
+kube-system              metrics-server                               1/1     1            1           14d     metrics-server                                        registry.k8s.io/metrics-server/metrics-server:v0.9.0                                                                                                                                                                        k8s-app=metrics-server
+kube-system              tetragon-operator                            1/1     1            1           121d    tetragon-operator                                     quay.io/cilium/tetragon-operator:v1.6.1                                                                                                                                                                                     app.kubernetes.io/instance=tetragon,app.kubernetes.io/name=tetragon-operator
+kyverno                  kyverno-admission-controller                 2/2     2            2           7d1h    kyverno                                               reg.kyverno.io/kyverno/kyverno:v1.18.2                                                                                                                                                                                      app.kubernetes.io/component=admission-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno                  kyverno-background-controller                2/2     2            2           7d1h    controller                                            reg.kyverno.io/kyverno/background-controller:v1.18.2                                                                                                                                                                        app.kubernetes.io/component=background-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno                  kyverno-cleanup-controller                   2/2     2            2           7d1h    controller                                            reg.kyverno.io/kyverno/cleanup-controller:v1.18.2                                                                                                                                                                           app.kubernetes.io/component=cleanup-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno                  kyverno-reports-controller                   2/2     2            2           7d1h    controller                                            reg.kyverno.io/kyverno/reports-controller:v1.18.2                                                                                                                                                                           app.kubernetes.io/component=reports-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+longhorn-system          csi-attacher                                 3/3     3            3           7d2h    csi-attacher                                          docker.io/longhornio/csi-attacher:v4.12.0                                                                                                                                                                                   app=csi-attacher
+longhorn-system          csi-provisioner                              3/3     3            3           7d2h    csi-provisioner                                       docker.io/longhornio/csi-provisioner:v5.3.0-20260514                                                                                                                                                                        app=csi-provisioner
+longhorn-system          csi-resizer                                  3/3     3            3           7d2h    csi-resizer                                           docker.io/longhornio/csi-resizer:v2.1.0-20260514                                                                                                                                                                            app=csi-resizer
+longhorn-system          csi-snapshotter                              3/3     3            3           7d2h    csi-snapshotter                                       docker.io/longhornio/csi-snapshotter:v8.5.0-20260514                                                                                                                                                                        app=csi-snapshotter
+longhorn-system          longhorn-driver-deployer                     1/1     1            1           7d2h    longhorn-driver-deployer                              docker.io/longhornio/longhorn-manager:v1.12.0                                                                                                                                                                               app=longhorn-driver-deployer
+longhorn-system          longhorn-ui                                  1/1     1            1           7d2h    longhorn-ui                                           docker.io/longhornio/longhorn-ui:v1.12.0                                                                                                                                                                                    app=longhorn-ui
+minio-operator           minio-operator                               2/2     2            2           7d1h    operator                                              quay.io/minio/operator:v7.1.1                                                                                                                                                                                               app.kubernetes.io/instance=minio-operator,app.kubernetes.io/name=operator
+monitoring               monitoring-grafana                           1/1     1            1           21d     grafana-sc-dashboard,grafana-sc-datasources,grafana   quay.io/kiwigrid/k8s-sidecar:2.8.1,quay.io/kiwigrid/k8s-sidecar:2.8.1,docker.io/grafana/grafana:13.1.0                                                                                                                      app.kubernetes.io/instance=monitoring,app.kubernetes.io/name=grafana
+monitoring               monitoring-kube-prometheus-operator          1/1     1            1           21d     kube-prometheus-stack                                 quay.io/prometheus-operator/prometheus-operator:v0.92.1                                                                                                                                                                     app=kube-prometheus-stack-operator,release=monitoring
+monitoring               monitoring-kube-state-metrics                1/1     1            1           21d     kube-state-metrics                                    registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.19.1                                                                                                                                                               app.kubernetes.io/instance=monitoring,app.kubernetes.io/name=kube-state-metrics
+nfs-provisioner          nfs-client-nfs-subdir-external-provisioner   1/1     1            1           7d5h    nfs-subdir-external-provisioner                       registry.k8s.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2                                                                                                                                                          app=nfs-subdir-external-provisioner,release=nfs-client
+observability            loki-gateway                                 1/1     1            1           7d      nginx                                                 docker.io/nginxinc/nginx-unprivileged:1.29-alpine                                                                                                                                                                           app.kubernetes.io/component=gateway,app.kubernetes.io/instance=loki,app.kubernetes.io/name=loki
+observability            otel-collector-collector                     2/2     2            2           7d      otc-container                                         otel/opentelemetry-collector-contrib:0.156.0                                                                                                                                                                                app.kubernetes.io/component=opentelemetry-collector,app.kubernetes.io/instance=observability.otel-collector,app.kubernetes.io/managed-by=opentelemetry-operator,app.kubernetes.io/part-of=opentelemetry
+opentelemetry-operator   opentelemetry-operator                       1/1     1            1           7d1h    manager                                               ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator:0.156.0                                                                                                                                                app.kubernetes.io/component=controller-manager,app.kubernetes.io/name=opentelemetry-operator
+production               aims-frontend                                2/2     2            2           7d3h    web                                                   aims-frontend:prod-sim                                                                                                                                                                                                      app=aims-frontend
+production               aims-kafka-entity-operator                   1/1     1            1           7d      topic-operator,user-operator                          quay.io/strimzi/operator:1.1.0,quay.io/strimzi/operator:1.1.0                                                                                                                                                               strimzi.io/cluster=aims-kafka,strimzi.io/kind=Kafka,strimzi.io/name=aims-kafka-entity-operator
+production               aims-sentinel-loadgen                        1/1     1            1           3d17h   loadgen                                               busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662                                                                                                                                             app.kubernetes.io/name=aims-sentinel-loadgen
+production               aims-sentinel-readmix-loadgen                0/0     0            0           3d17h   loadgen                                               busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662                                                                                                                                             app.kubernetes.io/name=aims-sentinel-readmix-loadgen
+production               aims-waypoint                                1/1     1            1           7d1h    istio-proxy                                           docker.io/istio/proxyv2:1.29.2-distroless                                                                                                                                                                                   gateway.networking.k8s.io/gateway-name=aims-waypoint
+production               loadgen                                      1/1     1            1           3d22h   loadgen                                               busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662                                                                                                                                             app=loadgen
+production               nginx                                        1/1     1            1           3d22h   nginx                                                 nginx@sha256:5a88c9c45479443d7be2eadc894b4ed0a9801bae03d97a5760ae13b5c2005942                                                                                                                                               app=nginx
+production               redis                                        1/1     1            1           3d22h   redis                                                 redis@sha256:c88d347edef6249a6d2293f926f1eeb48bd40c57cbcd02c07f52e7f1fd2cb46b                                                                                                                                               app=redis
+production               redis-loadgen                                1/1     1            1           3d22h   loadgen                                               redis@sha256:5fa2edb1e408fa8235e6db8fab01d1afaaae96c9403ba67b70feceb8661e8621                                                                                                                                               app=redis-loadgen
+rabbitmq-system          messaging-topology-operator                  1/1     1            1           7d1h    manager                                               ghcr.io/rabbitmq/messaging-topology-operator:1.20.0                                                                                                                                                                         app.kubernetes.io/name=messaging-topology-operator
+rabbitmq-system          rabbitmq-cluster-operator                    1/1     1            1           7d1h    operator                                              ghcr.io/rabbitmq/cluster-operator:2.22.3                                                                                                                                                                                    app.kubernetes.io/name=rabbitmq-cluster-operator
+redis-operator           redis-operator                               1/1     1            1           7d1h    redis-operator                                        quay.io/opstree/redis-operator:v0.25.0                                                                                                                                                                                      name=redis-operator
+strimzi-system           strimzi-cluster-operator                     1/1     1            1           7d1h    strimzi-cluster-operator                              quay.io/strimzi/operator:1.1.0                                                                                                                                                                                              name=strimzi-cluster-operator,strimzi.io/kind=cluster-operator
+trivy-system             trivy-operator                               1/1     1            1           7d1h    trivy-operator                                        mirror.gcr.io/aquasec/trivy-operator:0.32.0                                                                                                                                                                                 app.kubernetes.io/instance=trivy-operator,app.kubernetes.io/name=trivy-operator
+vault                    vault-agent-injector                         2/2     2            2           7d1h    sidecar-injector                                      hashicorp/vault-k8s:1.7.5                                                                                                                                                                                                   app.kubernetes.io/instance=vault,app.kubernetes.io/name=vault-agent-injector,component=webhook
+velero                   velero                                       1/1     1            1           7d      velero                                                docker.io/velero/velero:v1.18.1                                                                                                                                                                                             app.kubernetes.io/instance=velero,app.kubernetes.io/name=velero
+apiVersion: v1
+items:
+- apiVersion: cilium.io/v1alpha1
+  kind: TracingPolicyNamespaced
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cilium.io/v1alpha1","kind":"TracingPolicyNamespaced","metadata":{"annotations":{},"name":"sentinel-syscalls","namespace":"default"},"spec":{"kprobes":[{"call":"sys_execve","syscall":true},{"call":"sys_connect","syscall":true},{"call":"sys_read","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_write","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_openat","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_close","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_clone","syscall":true},{"call":"sys_accept4","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_setuid","syscall":true},{"call":"sys_setgid","syscall":true},{"call":"sys_capset","syscall":true},{"call":"sys_unshare","syscall":true},{"call":"sys_mount","syscall":true},{"call":"sys_ptrace","syscall":true}],"podSelector":{"matchLabels":{"app":"postgres"}}}}
+    creationTimestamp: "2026-07-22T10:45:24Z"
+    generation: 1
+    name: sentinel-syscalls
+    namespace: default
+    resourceVersion: "25160054"
+    uid: fae5e6c9-20b9-412f-b280-c1cc58161930
+  spec:
+    kprobes:
+    - call: sys_execve
+      return: false
+      syscall: true
+    - call: sys_connect
+      return: false
+      syscall: true
+    - call: sys_read
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_write
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_openat
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_close
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_clone
+      return: false
+      syscall: true
+    - call: sys_accept4
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_setuid
+      return: false
+      syscall: true
+    - call: sys_setgid
+      return: false
+      syscall: true
+    - call: sys_capset
+      return: false
+      syscall: true
+    - call: sys_unshare
+      return: false
+      syscall: true
+    - call: sys_mount
+      return: false
+      syscall: true
+    - call: sys_ptrace
+      return: false
+      syscall: true
+    podSelector:
+      matchLabels:
+        app: postgres
+- apiVersion: cilium.io/v1alpha1
+  kind: TracingPolicyNamespaced
+  metadata:
+    creationTimestamp: "2026-07-29T10:28:29Z"
+    generation: 1
+    name: aims-sensitive-exec
+    namespace: production
+    resourceVersion: "27129291"
+    uid: 84571ee8-c496-468c-8d53-0acdf70713a7
+  spec:
+    kprobes:
+    - args:
+      - index: 0
+        maxData: false
+        resolve: ""
+        returnCopy: false
+        type: file
+      call: security_file_open
+      return: false
+      selectors:
+      - matchArgs:
+        - index: 0
+          operator: Prefix
+          values:
+          - /etc/shadow
+          - /etc/kubernetes
+      syscall: false
+    - args:
+      - index: 0
+        maxData: false
+        resolve: ""
+        returnCopy: false
+        type: string
+      call: __x64_sys_execve
+      return: true
+      syscall: true
+- apiVersion: cilium.io/v1alpha1
+  kind: TracingPolicyNamespaced
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cilium.io/v1alpha1","kind":"TracingPolicyNamespaced","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"agent-runtime-sentinel","sentinel.openai.dev/release-track":"aims-candidate"},"name":"sentinel-aims-syscalls","namespace":"production"},"spec":{"kprobes":[{"call":"sys_execveat","syscall":true},{"call":"sys_connect","syscall":true},{"call":"sys_read","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_write","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_writev","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_openat","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_close","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_clone","syscall":true},{"call":"sys_accept4","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_setuid","syscall":true},{"call":"sys_setgid","syscall":true},{"call":"sys_capset","syscall":true},{"call":"sys_unshare","syscall":true},{"call":"sys_mount","syscall":true},{"call":"sys_ptrace","syscall":true}],"podSelector":{"matchLabels":{"aims.hust.vn/runtime-hardened":"true"}}}}
+    creationTimestamp: "2026-08-05T10:22:44Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: agent-runtime-sentinel
+      sentinel.openai.dev/release-track: aims-candidate
+    name: sentinel-aims-syscalls
+    namespace: production
+    resourceVersion: "63891523"
+    uid: cf1237fb-375e-42c7-91d1-f92803c237d3
+  spec:
+    kprobes:
+    - call: sys_execveat
+      return: false
+      syscall: true
+    - call: sys_connect
+      return: false
+      syscall: true
+    - call: sys_read
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_write
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_writev
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_openat
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_close
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_clone
+      return: false
+      syscall: true
+    - call: sys_accept4
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_setuid
+      return: false
+      syscall: true
+    - call: sys_setgid
+      return: false
+      syscall: true
+    - call: sys_capset
+      return: false
+      syscall: true
+    - call: sys_unshare
+      return: false
+      syscall: true
+    - call: sys_mount
+      return: false
+      syscall: true
+    - call: sys_ptrace
+      return: false
+      syscall: true
+    podSelector:
+      matchLabels:
+        aims.hust.vn/runtime-hardened: "true"
+- apiVersion: cilium.io/v1alpha1
+  kind: TracingPolicyNamespaced
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"cilium.io/v1alpha1","kind":"TracingPolicyNamespaced","metadata":{"annotations":{},"name":"sentinel-syscalls","namespace":"production"},"spec":{"kprobes":[{"call":"sys_execve","syscall":true},{"call":"sys_connect","syscall":true},{"call":"sys_read","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_write","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_writev","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_openat","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_close","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_clone","syscall":true},{"call":"sys_accept4","selectors":[{"matchActions":[{"action":"Post","rateLimit":"1s","rateLimitScope":"process"}]}],"syscall":true},{"call":"sys_setuid","syscall":true},{"call":"sys_setgid","syscall":true},{"call":"sys_capset","syscall":true},{"call":"sys_unshare","syscall":true},{"call":"sys_mount","syscall":true},{"call":"sys_ptrace","syscall":true}],"podSelector":{"matchExpressions":[{"key":"app","operator":"In","values":["nginx","redis"]}]}}}
+    creationTimestamp: "2026-07-29T07:33:04Z"
+    generation: 2
+    name: sentinel-syscalls
+    namespace: production
+    resourceVersion: "27472987"
+    uid: 508af318-97ef-4ee0-a281-fb942a52455d
+  spec:
+    kprobes:
+    - call: sys_execve
+      return: false
+      syscall: true
+    - call: sys_connect
+      return: false
+      syscall: true
+    - call: sys_read
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_write
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_writev
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_openat
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_close
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_clone
+      return: false
+      syscall: true
+    - call: sys_accept4
+      return: false
+      selectors:
+      - matchActions:
+        - action: Post
+          rateLimit: 1s
+          rateLimitScope: process
+      syscall: true
+    - call: sys_setuid
+      return: false
+      syscall: true
+    - call: sys_setgid
+      return: false
+      syscall: true
+    - call: sys_capset
+      return: false
+      syscall: true
+    - call: sys_unshare
+      return: false
+      syscall: true
+    - call: sys_mount
+      return: false
+      syscall: true
+    - call: sys_ptrace
+      return: false
+      syscall: true
+    podSelector:
+      matchExpressions:
+      - key: app
+        operator: In
+        values:
+        - nginx
+        - redis
+kind: List
+metadata:
+  resourceVersion: ""
+# /etc/systemd/system/sentinel-detector.service
+[Unit]
+Description=Agent Runtime Sentinel realtime anomaly detector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dat
+WorkingDirectory=/home/dat/ml-service
+Environment=KUBECONFIG=/home/dat/.kube/sentinel-ha.conf
+Environment=SENTINEL_WARMUP_WINDOWS=10
+Environment=SENTINEL_MIN_EVENTS=20
+Environment=SENTINEL_QUEUE_SIZE=100000
+Environment=SENTINEL_CONSUMER_LOG_INTERVAL=100000
+Environment=SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE=true
+Environment=SENTINEL_TETRAGON_DAEMONSET=tetragon
+Environment=SENTINEL_METRICS=/home/dat/ml-service/metrics.jsonl
+Environment=SENTINEL_CALIBRATION=/home/dat/ml-service/calibration.json
+# Candidate V7 was validated at this cadence and with this confirmation policy:
+# 0 raw-score crossings in four normal regimes and 15/15 real-kernel attacks.
+# The fast path remains early-warning telemetry; only this ML lane emits a
+# dry-run detection. Keep every value in release evidence and runtime aligned.
+Environment=SENTINEL_CONFIRMATION_FLOOR_RATIO=0.94
+Environment=SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR=0.45
+Environment=SENTINEL_FAST_PATH_CONFIRMATION_FLOOR=0.20
+# Suppress only ML confirmation while a newly observed container executes its
+# entrypoint. Fast-path telemetry remains visible; mature pods are unaffected.
+Environment=SENTINEL_POD_STARTUP_GRACE_SECONDS=60
+# Independent corroboration for high-score attacks that preserve syscall
+# proportions: require event volume above 2x the clean 99th percentile for two
+# consecutive windows. Volume alone never emits a detection.
+Environment=SENTINEL_EXTREME_VOLUME_FACTOR=2.0
+ExecStart=/home/dat/ml-venv/bin/python -u /home/dat/ml-service/anomaly_detector2.py --mode kubectl --model-dir /home/dat/ml-service/models --vocab /home/dat/ml-service/models/vocab.pkl --window 10 --threshold 0.80 --dry-run
+Restart=on-failure
+RestartSec=5
+KillMode=control-group
+TimeoutStopSec=20
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/dat/ml-service
+ReadWritePaths=-/home/dat/.kube/cache -/home/dat/.kube/http-cache
+CPUQuota=200%
+MemoryMax=1G
+StandardOutput=append:/home/dat/ml-service/realtime-detector.log
+StandardError=append:/home/dat/ml-service/realtime-detector.log
+
+[Install]
+WantedBy=multi-user.target
+e78234f5f9eaf1dfa54069d0fc8281bc4ebbd2c3064995ac21c52b52006f0f11  anomaly_detector2.py
+0addc6602035ae3b93dd5b9eaf26b50b42dd2f8b07956fc69ef26260e11f5dc9  adaptive_threshold.py
+261c8b0b546d770288e386cf31a327ddd61181657501b2fabffd64749b3b444f  feature_engineering.py
+38ae5408e44bac4497f8c8ad3c2f918072b68a68fe11bec4f67d3e3fa4185719  graph_signals.py
+602ae06a06f8701ea3cceaf65cee0b6d86c6919e466cc13954cfa5e17a20cdff  ml_models.py
+3cd8e5ee570ab5bdcae7bc0556374667dbae750708dc5464dabd0fc31ab2f991  tetragon_consumer.py
+f97af596b54a906b6890705023f97e7ad06d090fc5a5756920071c5c4dd15088  tetragon-targeted-policies.yaml
+c1fe0b3efe7589bdbb44ea7d6d8237a5514f80c83a9cea67d3c131c49bfc436c  /etc/systemd/system/sentinel-detector.service
+AIMS_CANDIDATE=/home/dat/ml-service/models_aims_fit-v2-20260803T043100Z
+89c4776b284923de5628dcdacbd32b598494f95d72885d22371aa5563d3bfeac  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/dataset_manifest.json
+4b161a9a77f4570fb94fe4fb2f9a900bafdd9e1c6a12c70bca1caae253c366ed  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__aims-frontend_bundle.pkl
+f0bcfcab493997074e7b55c7c1c9f921f00c442d8624a25ea29c46fcf0643029  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__aims-frontend_lstm.pt
+ae0a828861055e5be0d9b9f366d0b38a9a2a709e07059d7706d0096bd4ebeecc  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__api-gateway_bundle.pkl
+8920e9ca441676bf96697003d72c86e806617f1ff552753b2cd18da9cc0bc2c1  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__api-gateway_lstm.pt
+ca0ac68ed2d4fa758e106cb75e07b53f2fdcad6187742718fde955bb2c6c6ceb  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__auth-service_bundle.pkl
+4722c2ba50100845d7d3e0964d8c95d9d12b257c3b83f1df4450f600e2fc94e8  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__auth-service_lstm.pt
+8aac55ca2d7ffaf3b62a389562748640021298c8f57e33286716cdf75f46f97a  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__cart-service_bundle.pkl
+e6fc55d375d8e1a955d71b7d0133a855ad9bb6c7ce0ac664a984015431d961d5  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__cart-service_lstm.pt
+189cbff0a3d9f40149ab29dd1a162bf875676819c41c5728c4c49adf6ed29da7  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__catalog-service_bundle.pkl
+c403bd6b716a7c1e80a67be22ff26ca1ccb4fd5223df8fafc30aa3b3b3eabf34  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__catalog-service_lstm.pt
+986c6f3e539d3a965018d5f83d5219d1f4031cf334baf022f3fdacd3544afdfa  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__inventory-service_bundle.pkl
+4c96d928513a300b857bb12e7d0333ee2b1ee5a8c41991affe114fbd8c8399b5  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__inventory-service_lstm.pt
+11ccfdf1ca60511e252a794be27d4606eea639ce0d4c087ca36f60ff98f46069  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__order-service_bundle.pkl
+98a577972c4f53804a9a276f59c8a07888660c7ef18828d2c1fc443c89be7c02  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__order-service_lstm.pt
+51d5db1d7c786470394fe31a44a6d9d53e86b98948293490c033d07b939b5569  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__security-telemetry-service_bundle.pkl
+f7547a5c11ee0cb7a47a8b5f1501346e131a5ad92b342471bfdd332132ef73f7  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/production__security-telemetry-service_lstm.pt
+93bcd81eaf9f7eb74ed0fbcbf99a3db012ae9141ffc2797a213035f036230b78  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/training_report.json
+62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4  /home/dat/ml-service/models_aims_fit-v2-20260803T043100Z/vocab.pkl
+2fe8fabc99b1362841648bd15e0b9e475a65de6369cfa44732c015f982690c98  /home/dat/ml-service/aims-fit-v2-calibration.json
+e47a575c0d2e918d381198e0396d57e72c0229ccf6aea0ea4d8920caeb098ec0  /home/dat/ml-service/aims_candidate_split_contract.json
+340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006  /home/dat/ml-service/aims_release_contract.json
+a5f5bde035cb6f764aefa8bea3eb155d0ee32524908b2d6c865a3b7bc63cfdfb  tetragon-aims-policies.yaml
+b7d28386d03a0e0add2e074e59762c53fbe589ab0d64b7e14393b5016947220d  sentinel/benchmarks/run_aims_overhead_matrix.sh
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    argocd.argoproj.io/tracking-id: aims-production:gateway.networking.k8s.io/Gateway:istio-ingress/aims-ingress
+    meta.helm.sh/release-name: aims
+    meta.helm.sh/release-namespace: production
+    networking.istio.io/service-type: NodePort
+  creationTimestamp: "2026-08-01T09:02:58Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: aims-ingress
+    app.kubernetes.io/part-of: aims
+    gateway.istio.io/managed: istio.io-gateway-controller
+    gateway.networking.k8s.io/gateway-class-name: istio
+    gateway.networking.k8s.io/gateway-name: aims-ingress
+    istio.io/dataplane-mode: none
+  name: aims-ingress-istio
+  namespace: istio-ingress
+  ownerReferences:
+  - apiVersion: gateway.networking.k8s.io/v1
+    kind: Gateway
+    name: aims-ingress
+    uid: 9d90bf0c-a2aa-47ad-b756-2d57903523b9
+  resourceVersion: "52977191"
+  uid: dbd9195e-b49d-4b5a-b05f-3df2ba104ea7
+spec:
+  clusterIP: 10.103.205.176
+  clusterIPs:
+  - 10.103.205.176
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: PreferDualStack
+  ports:
+  - appProtocol: tcp
+    name: status-port
+    nodePort: 32484
+    port: 15021
+    protocol: TCP
+    targetPort: 15021
+  - appProtocol: http
+    name: http
+    nodePort: 31088
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  - appProtocol: https
+    name: https
+    nodePort: 32725
+    port: 443
+    protocol: TCP
+    targetPort: 443
+  selector:
+    gateway.networking.k8s.io/gateway-name: aims-ingress
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+python 3.12.3
+numpy 2.4.4
+scipy 1.17.1
+sklearn 1.8.0
+torch 2.11.0+cu130

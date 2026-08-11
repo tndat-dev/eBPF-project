@@ -33,8 +33,9 @@ run-04--05 cũng pass 54.166 windows không alert. Frozen blind attack đã hoà
 40/40 workload-trial, phát hiện 195/200 scenario. Cả năm miss đều là
 `namespace_probe` trên `security-telemetry-service`; fit-v2 vì vậy đã bị từ
 chối promotion đúng contract. Candidate **chưa production-ready và bộ evidence
-chưa đủ world-class paper** do baseline/ablation, cross-cluster và overhead
-counterbalanced chưa hoàn tất. Không được suy diễn “không có false positive”
+chưa đủ world-class paper** do baseline/ablation, V8 blind set và cross-cluster
+chưa hoàn tất. Counterbalanced overhead V2 đã hoàn tất hợp lệ. Không được suy
+diễn “không có false positive”
 từ zero observed alert.
 
 ## 1. Mục tiêu nghiên cứu
@@ -67,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `84 passed, 7 skipped` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `91 passed, 7 skipped` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -2944,7 +2945,9 @@ giao nhiều injection đều fail. Output có source/dataset SHA-256 và
 `labels_used_for_training=false`. Local canonical suite sau các thay đổi đạt
 `82 passed, 7 skipped`.
 
-Evaluation contract được nâng thành `v8-paired-replay-20260805` và freeze seed
+Evaluation contract draft được nâng thành `v8-paired-replay-20260805`; trước
+capture, schema hardening làm release cuối đổi thành
+`v8-paired-replay-20260811` và freeze seed
 mới `1901,3203,4703,6701,9001` trước V8 capture. Validator giờ yêu cầu
 `paired_replay=true`, shared `capture_sha256`, 20 normal traffic phase và 5
 independent run; syscall/MCP được gate riêng bằng `--track` nhưng không được bỏ
@@ -2979,3 +2982,67 @@ Focused regression trên VM đạt `5 passed`; canonical source suite local sau
 bản vá đạt `84 passed, 7 skipped`. Timer chỉ được bật cho experiment ID mới,
 và phải disable sau terminal state. Việc này không thay metric ML đã công bố;
 nó bảo đảm bằng chứng thất bại cũng bất biến như bằng chứng pass.
+
+### 18.38 Capture V8 tách biệt telemetry và có provenance theo run (05-08-2026)
+
+Review trước khi thu V8 phát hiện thiết kế ban đầu dùng chung
+`SENTINEL_METRICS` cho feature capture. Từng `feature_window` không chứa payload,
+nhưng cùng file còn có decision, runtime health và attack acknowledgement; vì
+vậy không thể claim toàn artifact privacy-minimised. Thiết kế đã được sửa trước
+khi tạo dataset V8:
+
+- `SENTINEL_FEATURE_CAPTURE_PATH` là append-only JSONL riêng, bắt buộc khác
+  general metrics;
+- schema `sentinel-feature-window/v2` khóa `release_id`, `run_id`, `phase_id`
+  và `traffic_regime` trên từng window để temporal/block split có thể audit;
+- injection interval v2 chỉ giữ ID, pod, scenario, rate, seed, start/end và exit
+  code; không chép acknowledgement/stderr;
+- validator fail-closed khi gặp telemetry kind, key lạ, payload, schema cũ,
+  context thiếu, injection không thành cặp, vector/count/sequence lệch hoặc
+  window chồng nhau;
+- kernel/AIMS harness hỗ trợ `--feature-capture-mode sequence` và khóa capture
+  release ID vào immutable experiment header;
+- `merge_feature_captures.py` mở và xác minh từng source, sắp thứ tự canonical,
+  kiểm overlap xuyên file rồi mới atomic-freeze output cùng source hash manifest.
+
+Tại thời điểm code được viết, các file runtime mới chưa được deploy nhằm giữ
+nguyên treatment của overhead V2. Campaign sau đó đã đạt terminal success; xem
+Mục 18.39 trước khi deploy capture V8.
+
+### 18.39 Overhead V2 hoàn tất và được tái lập độc lập (11-08-2026)
+
+Campaign `20260805T093000Z` kết thúc thành công lúc `11:28:16 UTC` ngày
+05-08-2026. Sáu block bao phủ đủ sáu phase order, mỗi phase 10 repetition
+`wrk -t2 -c8 -d30s`: tổng 180 repetition đều 0 socket error và 0 non-2xx/3xx.
+Ngày 11-08, toàn bộ sáu protocol, sáu comparison và 18 raw phase report được
+kéo về `validation-evidence/aims-overhead-v2-20260805/`. Aggregator local mở lại
+từng report, kiểm quality gate/repetition/hash rồi tạo output giống
+byte-for-byte output collector, SHA-256
+`323bd5815ceee7a0bba5e2a9006c92cd8077930314ca0266e0f549648857b69a`.
+
+Kết quả paired theo sáu block:
+
+| Effect | Median throughput loss (95% CI) | Median p99 increase (95% CI) |
+|---|---:|---:|
+| Tetragon policy vs no tracing | -1,698% [-3,955%; 1,909%] | 1,321% [-4,002%; 8,674%] |
+| Full pipeline vs no tracing | -1,545% [-3,930%; 1,376%] | 2,702% [-2,249%; 4,767%] |
+| Detector increment vs Tetragon | 0,245% [-4,293%; 3,521%] | 0,573% [-8,286%; 7,901%] |
+
+Mọi CI đều cắt 0, nên kết luận đúng là campaign này không phát hiện overhead
+throughput/p99 khác 0; không được gọi loss âm là Sentinel làm hệ thống nhanh
+hơn. Full detector dùng median 24,589% một CPU core (range 23,043--26,691%) và
+431,019MiB RAM (429,303--431,977MiB). Đây là Metrics Server snapshot và vẫn chỉ
+là một campaign trên một cluster.
+
+Post-campaign SSH xác minh 6/6 node Ready, Tetragon đầy đủ,
+`sentinel-detector.service` active và `sentinel-aims-syscalls` đã restore.
+Bundle có 228 checksum entries và `SHA256SUMS` pass. Aggregator được sửa để
+resolve phase report bên trong copied bundle thay vì phụ thuộc absolute path của
+collector, đồng thời vẫn từ chối path escape/hash mismatch.
+
+V8 capture contract cuối mang release ID `v8-paired-replay-20260811`, schema
+feature/injection v2 và vocabulary hash cố định. Split được khóa trước capture:
+`normal-run-01` chỉ dùng fit; `normal-run-02` đến `normal-run-06` là năm run
+evaluation độc lập, mỗi run có bốn regime/phase 72 phút. Validator từ chối
+release/schema/vocab hash lệch hoặc bất kỳ leakage giữa fit/evaluation.
+Canonical local suite ở mốc này đạt `91 passed, 7 skipped`.

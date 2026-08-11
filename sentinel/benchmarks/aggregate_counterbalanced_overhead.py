@@ -25,6 +25,18 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def portable_phase_report(root: Path, recorded_path: str) -> Path:
+    """Resolve a report inside a copied artifact bundle, never outside it."""
+    reported = Path(recorded_path)
+    directory = reported.parent.name
+    if not directory or directory in (".", ".."):
+        raise ValueError(f"unsafe phase report path: {recorded_path!r}")
+    candidate = (root / directory / "report.json").resolve()
+    if not candidate.is_relative_to(root.resolve()):
+        raise ValueError(f"phase report escapes artifact root: {recorded_path!r}")
+    return candidate
+
+
 def percentile(values: list[float], fraction: float) -> float:
     ordered = sorted(values)
     position = (len(ordered) - 1) * fraction
@@ -82,7 +94,9 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
             raise ValueError(f"incomplete phases for {experiment_id}")
         phase_reports = {}
         for phase, summary in phases.items():
-            report_path = Path(summary.get("path", ""))
+            report_path = portable_phase_report(
+                root, str(summary.get("path", "")),
+            )
             if not report_path.is_file():
                 raise ValueError(f"missing phase report for {experiment_id}/{phase}")
             phase_report = json.loads(report_path.read_text())

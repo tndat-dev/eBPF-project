@@ -19,6 +19,7 @@ TARGETS = (
 )
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
+    "feature_capture_io.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
     "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )
@@ -61,6 +62,11 @@ def main() -> int:
     parser.add_argument("--rate", type=int, default=20)
     parser.add_argument("--post-attack-wait", type=int, default=45)
     parser.add_argument("--output-root", default="kernel-regression-matrix")
+    parser.add_argument(
+        "--feature-capture-mode", choices=("off", "aggregate", "sequence"),
+        default=os.environ.get("SENTINEL_FEATURE_CAPTURE", "off"),
+    )
+    parser.add_argument("--capture-release-id", default=None)
     args = parser.parse_args()
     if args.window < 5:
         raise ValueError("--window must be at least 5 seconds")
@@ -133,7 +139,17 @@ def main() -> int:
             "--rate", str(args.rate),
             "--post-attack-wait", str(args.post_attack_wait),
             "--output-dir", str(output),
+            "--feature-capture-mode", args.feature_capture_mode,
         ]
+        if args.feature_capture_mode != "off":
+            if not args.capture_release_id:
+                raise ValueError(
+                    "--capture-release-id is required when capture is enabled"
+                )
+            command.extend([
+                "--capture-release-id", args.capture_release_id,
+                "--capture-run-id", f"{stamp}:{label}",
+            ])
         result = subprocess.run(command)
         reports = sorted(output.glob("*/report.json"))
         report = json.loads(reports[-1].read_text()) if reports else {

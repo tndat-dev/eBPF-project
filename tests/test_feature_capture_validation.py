@@ -10,7 +10,7 @@ def _row(start=10.0):
     return {
         "kind": "feature_window",
         "ts": start + 10,
-        "schema": "sentinel-feature-window/v1",
+        "schema": "sentinel-feature-window/v2",
         "pod_key": "production/service-pod",
         "model_key": "production/service",
         "node_name": "worker-1",
@@ -23,6 +23,8 @@ def _row(start=10.0):
         "contains_arguments_or_payloads": False,
         "capture_mode": "sequence",
         "syscall_sequence": ["execve", "connect", "execve"],
+        "release_id": "v8-test", "run_id": "run-01",
+        "phase_id": "steady-01", "traffic_regime": "steady",
     }
 
 
@@ -45,3 +47,47 @@ def test_feature_capture_validator_rejects_payload_key_and_count_drift(tmp_path)
     assert report["valid"] is False
     assert any("privacy-unsafe" in error for error in report["errors"])
     assert any("do not sum" in error for error in report["errors"])
+
+
+def test_capture_accepts_minimal_paired_injection_rows(tmp_path):
+    rows = [
+        _row(10),
+        {"kind": "injection", "ts": 12.0,
+         "schema": "sentinel-injection-interval/v2",
+         "injection_id": "run:escape", "pod_key": "production/service-pod",
+         "attack_type": "escape", "rate": 6, "seed": 1901,
+         "release_id": "v8-test", "run_id": "run-01",
+         "phase_id": "steady-01", "traffic_regime": "steady"},
+        _row(20),
+        {"kind": "injection_end", "ts": 22.0,
+         "schema": "sentinel-injection-interval/v2",
+         "injection_id": "run:escape", "pod_key": "production/service-pod",
+         "attack_type": "escape", "attack_exit_code": 0,
+         "release_id": "v8-test", "run_id": "run-01",
+         "phase_id": "steady-01", "traffic_regime": "steady"},
+    ]
+    path = tmp_path / "capture.jsonl"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    report = validate_capture(path)
+    assert report["valid"] is True
+    assert report["injection_intervals"] == 1
+
+
+def test_capture_rejects_telemetry_or_injection_payload(tmp_path):
+    rows = [
+        _row(),
+        {"kind": "decision", "ts": 20.0, "payload": "must-not-leak"},
+        {"kind": "injection", "ts": 21.0,
+         "schema": "sentinel-injection-interval/v2",
+         "injection_id": "run:x", "pod_key": "production/service-pod",
+         "attack_type": "x", "rate": 1, "seed": 1,
+         "release_id": "v8-test", "run_id": "run-01",
+         "phase_id": "steady-01", "traffic_regime": "steady",
+         "ack": "raw stderr is forbidden"},
+    ]
+    path = tmp_path / "capture.jsonl"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    report = validate_capture(path)
+    assert report["valid"] is False
+    assert any("unsupported/privacy-unsafe" in error for error in report["errors"])
+    assert any("unexpected/privacy-unsafe" in error for error in report["errors"])

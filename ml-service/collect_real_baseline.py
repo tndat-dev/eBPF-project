@@ -36,6 +36,7 @@ import json
 import hashlib
 import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
 import numpy as np
 from collections import defaultdict
 
@@ -45,6 +46,8 @@ from feature_engineering import WindowManager
 from collection_timing import minimum_duration_satisfied, wait_until
 from workload_identity import get_deploy_key
 from artifact_integrity import artifact_provenance, sha256 as file_sha256
+from feature_capture_io import append_capture_row, feature_window_evidence
+from validate_feature_capture import validate_capture
 
 # ── Cấu hình ─────────────────────────────────────────────────
 COLLECT_MINUTES = int(os.environ.get("COLLECT_MINUTES", "40"))
@@ -71,6 +74,28 @@ TARGET_DEPLOYS  = {
         "production/nginx,production/redis,default/postgres",
     ).split(",") if item.strip()
 }
+FEATURE_CAPTURE_MODE = os.environ.get("SENTINEL_FEATURE_CAPTURE", "off").strip().lower()
+FEATURE_CAPTURE_PATH = os.environ.get("SENTINEL_FEATURE_CAPTURE_PATH", "").strip()
+FEATURE_CAPTURE_CONTEXT = {
+    "release_id": os.environ.get("SENTINEL_CAPTURE_RELEASE_ID", "").strip(),
+    "run_id": os.environ.get("SENTINEL_CAPTURE_RUN_ID", "").strip(),
+    "phase_id": os.environ.get("SENTINEL_CAPTURE_PHASE_ID", "").strip(),
+    "traffic_regime": os.environ.get(
+        "SENTINEL_CAPTURE_TRAFFIC_REGIME", ""
+    ).strip(),
+}
+if FEATURE_CAPTURE_MODE not in ("off", "aggregate", "sequence"):
+    raise ValueError("SENTINEL_FEATURE_CAPTURE must be off, aggregate, or sequence")
+if FEATURE_CAPTURE_MODE != "off":
+    if not FEATURE_CAPTURE_PATH:
+        raise ValueError("SENTINEL_FEATURE_CAPTURE_PATH is required")
+    missing_capture_context = sorted(
+        key for key, value in FEATURE_CAPTURE_CONTEXT.items() if not value
+    )
+    if missing_capture_context:
+        raise ValueError(
+            f"feature capture context is incomplete: {missing_capture_context}"
+        )
 
 # ── Logging ───────────────────────────────────────────────────
 logging.basicConfig(
@@ -102,6 +127,7 @@ pod_provenance_stats = {
     "direct_lookup_failures": 0,
 }
 pod_cache_lock = threading.Lock()
+capture_failures = []
 
 
 def is_target_event(event) -> bool:
@@ -197,6 +223,18 @@ def on_feature_vector(fv):
         return
     if dk not in TARGET_DEPLOYS:
         return
+
+    if FEATURE_CAPTURE_MODE != "off":
+        try:
+            append_capture_row(
+                FEATURE_CAPTURE_PATH, "feature_window", model_key=dk,
+                **FEATURE_CAPTURE_CONTEXT,
+                **feature_window_evidence(fv, FEATURE_CAPTURE_MODE),
+            )
+        except Exception as exc:
+            with lock:
+                capture_failures.append(str(exc))
+            logger.exception("Feature capture append failed")
 
     total_events = fv.total_events()
 
@@ -418,6 +456,27 @@ manifest = {
     "sensor_health": getattr(consumer.reader, "health", lambda: {})(),
     "targets": {},
 }
+capture_validation = None
+if FEATURE_CAPTURE_MODE != "off":
+    capture_path = os.path.abspath(FEATURE_CAPTURE_PATH)
+    if Path(capture_path).is_file():
+        capture_validation = validate_capture(Path(capture_path))
+    else:
+        capture_validation = {
+            "valid": False,
+            "errors": ["capture file was not created"],
+            "feature_windows": 0,
+        }
+    manifest["paired_feature_capture"] = {
+        "path": capture_path,
+        "sha256": (
+            file_sha256(capture_path) if Path(capture_path).is_file() else None
+        ),
+        "mode": FEATURE_CAPTURE_MODE,
+        "context": FEATURE_CAPTURE_CONTEXT,
+        "append_failures": list(capture_failures),
+        "validation": capture_validation,
+    }
 
 for dk, vecs in sorted(final_vectors.items()):
     n = len(vecs)
@@ -504,6 +563,14 @@ if (
     raise SystemExit(4)
 if missing_targets:
     raise SystemExit(2)
+if capture_validation is not None and (
+    capture_failures or not capture_validation["valid"]
+):
+    logger.error(
+        "Baseline invalid: paired feature capture failed: append=%s validation=%s",
+        capture_failures, capture_validation["errors"],
+    )
+    raise SystemExit(7)
 if not manifest["minimum_duration_satisfied"]:
     logger.error(
         "Baseline invalid: actual duration %.3fs is shorter than minimum %ds",

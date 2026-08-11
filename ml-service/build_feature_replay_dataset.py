@@ -100,14 +100,28 @@ def build_dataset(capture: Path, *, require_injections: bool = False
     rows = label_windows(source_rows, intervals)
     normal = sum(row["label"] == "normal" for row in rows)
     attack = len(rows) - normal
+    run_ids = sorted({row["run_id"] for row in rows})
+    phases = sorted({(row["run_id"], row["phase_id"]) for row in rows})
+    regimes = sorted({row["traffic_regime"] for row in rows})
+    release_ids = sorted({row["release_id"] for row in rows})
+    if len(release_ids) != 1:
+        raise ValueError(f"capture must contain exactly one release ID: {release_ids}")
     manifest = {
         "schema": "sentinel-feature-replay-dataset/v1",
+        "feature_schema": "sentinel-feature-window/v2",
+        "injection_schema": "sentinel-injection-interval/v2",
+        "release_id": release_ids[0],
         "source": {"name": capture.name, "sha256": sha256(capture)},
         "capture_validation": validation,
         "feature_windows": len(rows),
         "normal_windows": normal,
         "attack_windows": attack,
         "injection_intervals": len(intervals),
+        "independent_runs": len(run_ids),
+        "run_ids": run_ids,
+        "traffic_phases": len(phases),
+        "run_phase_ids": [list(item) for item in phases],
+        "traffic_regimes": regimes,
         "scenarios": sorted({
             interval["scenario"] for interval in intervals
         }),

@@ -10,7 +10,8 @@ from typing import Any
 
 
 SHARED_DIGESTS = (
-    "dataset_sha256", "capture_sha256",
+    "dataset_sha256", "dataset_manifest_sha256", "capture_sha256",
+    "capture_manifest_sha256", "vocab_sha256",
     "split_sha256",
     "blind_attack_contract_sha256",
     "environment_sha256",
@@ -88,6 +89,14 @@ def validate_evaluation_matrix(root: Path, contract: dict,
             item_errors.append("experiment ID mismatch")
         if result.get("track") != track:
             item_errors.append("track mismatch")
+        if result.get("release_id") != contract.get("release_id"):
+            item_errors.append("release ID mismatch")
+        if result.get("feature_capture_schema") != contract.get(
+            "feature_capture_schema"
+        ):
+            item_errors.append("feature capture schema mismatch")
+        if result.get("injection_schema") != contract.get("injection_schema"):
+            item_errors.append("injection schema mismatch")
         if result.get("completed") is not True:
             item_errors.append("experiment is incomplete")
         if result.get("blind_set_used_for_training") is not False:

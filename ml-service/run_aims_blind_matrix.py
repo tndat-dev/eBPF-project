@@ -144,6 +144,12 @@ def main() -> int:
     parser.add_argument("--output-root", default="aims-blind-matrix")
     parser.add_argument("--schedule-seed", type=int, default=20260801)
     parser.add_argument("--experiment-id", default=None)
+    parser.add_argument(
+        "--feature-capture-mode", choices=("off", "aggregate", "sequence"),
+        default="off",
+        help="Enable dedicated paired-replay evidence for a new frozen release",
+    )
+    parser.add_argument("--capture-release-id", default=None)
     args = parser.parse_args()
 
     aims_contract_path = Path(args.aims_contract).resolve()
@@ -215,6 +221,15 @@ def main() -> int:
         "expected_scenario_trials": len(schedule) * len(scenarios),
         "schedule": schedule,
     }
+    # Keep completed pre-V8 reports load-compatible. New capture campaigns bind
+    # the mode into their immutable header and child command.
+    if args.feature_capture_mode != "off":
+        if not args.capture_release_id:
+            raise ValueError(
+                "--capture-release-id is required when capture is enabled"
+            )
+        frozen_header["feature_capture_mode"] = args.feature_capture_mode
+        frozen_header["capture_release_id"] = args.capture_release_id
     root.mkdir(parents=True, exist_ok=True)
     partial = root / "report.partial.json"
     final = root / "report.json"
@@ -270,6 +285,13 @@ def main() -> int:
             "--fast-path-expected", ",".join(fast_expected),
             "--output-dir", str(trial_dir),
         ]
+        if args.feature_capture_mode != "off":
+            command.extend([
+                "--feature-capture-mode", args.feature_capture_mode,
+                "--capture-release-id", args.capture_release_id,
+                "--capture-run-id",
+                f"{experiment_id}:{workload}:trial-{row['trial']:02d}",
+            ])
         result, timed_out = run_trial(command)
         reports = sorted(trial_dir.glob("*/report.json"))
         report_path = reports[-1] if reports else None

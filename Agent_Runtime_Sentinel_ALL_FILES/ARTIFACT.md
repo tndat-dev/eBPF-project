@@ -36,11 +36,14 @@ MCP payload, secret, PVC data hay private endpoint.
 | Paper statistics | `ml-service/paper_statistics.py` | validates every blind-trial SHA, merges disjoint normal splits, emits stratified metrics plus trial/workload block bootstrap and phase/run false-alert sensitivity |
 | Frozen AIMS fit-v2 evidence | `validation-evidence/aims-fit-v2-20260805/` | two disjoint normal reports, aggregate plus 40 hash-valid nested blind reports, and byte-reproducible statistics JSON/Markdown |
 | Baseline/ablation contract | `ml-service/evaluation_matrix_contract.json` | V8 paired-replay release, new frozen seeds, 20 normal phases/5 independent runs and minimum attack trials |
+| V8 capture split | `ml-service/v8_capture_split_contract.json`, `validate_v8_capture_contract.py` | one whole fit run plus five whole independent evaluation runs; binds release/schema/vocabulary before collection |
 | Baseline/ablation validator | `ml-service/evaluation_matrix_validation.py` | independently gates syscall or agent track; refuses missing capture hash, unpaired/incomparable results and blind-set leakage |
-| Paired feature-window capture | `SENTINEL_FEATURE_CAPTURE=aggregate|sequence` in `ml-service/anomaly_detector2.py` | opt-in sparse vectors/counts or syscall-name sequence for replaying every baseline on identical windows; never stores arguments/payloads |
+| Paired feature-window capture | `SENTINEL_FEATURE_CAPTURE=aggregate|sequence` plus dedicated `SENTINEL_FEATURE_CAPTURE_PATH` | v2 rows bind release/run/phase/regime and keep sparse vectors/counts or syscall-name sequence separate from general telemetry; never stores acknowledgements/arguments/payloads |
+| Canonical capture freeze | `ml-service/merge_feature_captures.py` | validates and hash-binds every source, deterministic ordering, rejects cross-file overlap/duplicate injection evidence before atomic output |
 | Feature-capture integrity gate | `ml-service/validate_feature_capture.py` | validates schema/privacy, sparse-vector bounds, counts/sequence consistency, duplicate/overlapping windows and source SHA-256 |
 | Paired replay dataset builder | `ml-service/build_feature_replay_dataset.py` | joins feature windows only to explicit same-pod injection start/end intervals, rejects incomplete/failed injections and writes dataset SHA-256 manifest |
 | AIMS counterbalanced overhead harness | `sentinel/benchmarks/{measure_phase,compare_overhead,aggregate_counterbalanced_overhead}.py`, `run_aims_overhead_{matrix,counterbalanced}.sh` | 10×30s wrk per phase, six phase orders, zero socket/HTTP-error gate, 18 phase-report hashes, resumability and paired experiment-block bootstrap |
+| Frozen AIMS overhead V2 | `validation-evidence/aims-overhead-v2-20260805/` | 6 order blocks, 18 phase reports/180 zero-error repetitions, copied-bundle local regeneration identical to collector aggregate |
 
 ## Provenance
 

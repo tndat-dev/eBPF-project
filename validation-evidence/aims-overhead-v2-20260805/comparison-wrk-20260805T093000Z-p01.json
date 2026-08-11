@@ -1,0 +1,184 @@
+{
+  "effects": {
+    "detector_increment_vs_tetragon": {
+      "p99_latency_increase": {
+        "bootstrap_95ci_percent": [
+          -18.020421400623533,
+          3.086390919494586
+        ],
+        "estimate_percent": -10.541697585478637
+      },
+      "throughput_loss": {
+        "bootstrap_95ci_percent": [
+          -10.279286268425135,
+          5.508398049485274
+        ],
+        "estimate_percent": -4.602627410789162
+      }
+    },
+    "full_pipeline_vs_no_tracing": {
+      "p99_latency_increase": {
+        "bootstrap_95ci_percent": [
+          -13.679170354233328,
+          11.776385565942338
+        ],
+        "estimate_percent": -6.163481343104859
+      },
+      "throughput_loss": {
+        "bootstrap_95ci_percent": [
+          -6.505576208178443,
+          2.704437110377711
+        ],
+        "estimate_percent": -2.8584516720109976
+      }
+    },
+    "tetragon_vs_no_tracing": {
+      "p99_latency_increase": {
+        "bootstrap_95ci_percent": [
+          -3.1092303862777393,
+          19.23601110882536
+        ],
+        "estimate_percent": 4.894141878622427
+      },
+      "throughput_loss": {
+        "bootstrap_95ci_percent": [
+          -7.451989341174303,
+          6.27180899908174
+        ],
+        "estimate_percent": 1.6674301420064208
+      }
+    }
+  },
+  "environment_sha256": "e6f127530c53e8fb59767343471bb61739ef5a40464febc48d3513eed0677c67",
+  "experiment_id": "20260805T093000Z-p01",
+  "phases": {
+    "full_pipeline": {
+      "detector_cpu_percent_one_core": 26.69122263210726,
+      "detector_memory_mib_median": 431.03515625,
+      "experiment_id": "20260805T093000Z-p01",
+      "failed_requests_total": 0,
+      "latency_mean_ms_median": 146.53,
+      "latency_p99_ms": [
+        463.36,
+        390.96,
+        374.45,
+        353.56,
+        467.39,
+        386.33,
+        366.22,
+        392.65,
+        439.78,
+        442.99
+      ],
+      "latency_p99_ms_median": 391.80499999999995,
+      "path": "/home/dat/ml-service/aims-overhead-final/full_pipeline-20260805T094426Z/report.json",
+      "phase": "full_pipeline",
+      "report_sha256": "67c8400ac8780a32ddf7a284a63d4326b093d289778d9cbda7e30894d6bb84d3",
+      "rps": [
+        49.55,
+        52.32,
+        57.38,
+        63.9,
+        54.36,
+        55.85,
+        57.95,
+        53.81,
+        56.42,
+        57.3
+      ],
+      "rps_median": 56.135000000000005,
+      "runs": 10,
+      "tetragon_total_cpu_millicores_median": 275.5,
+      "tetragon_total_memory_mib_median": 9577.0,
+      "tool": "wrk",
+      "workload_cpu_millicores_median": 3011.0,
+      "workload_memory_mib_median": 1917.0
+    },
+    "no_tracing": {
+      "detector_cpu_percent_one_core": null,
+      "detector_memory_mib_median": null,
+      "experiment_id": "20260805T093000Z-p01",
+      "failed_requests_total": 0,
+      "latency_mean_ms_median": 150.81,
+      "latency_p99_ms": [
+        366.7,
+        372.1,
+        484.97,
+        460.99,
+        443.15,
+        399.18,
+        378.58,
+        440.67,
+        423.4,
+        411.68
+      ],
+      "latency_p99_ms_median": 417.53999999999996,
+      "path": "/home/dat/ml-service/aims-overhead-final/no_tracing-20260805T093125Z/report.json",
+      "phase": "no_tracing",
+      "report_sha256": "a42a281f1a7173eda3b651116624e4e9b01be58281bc45f0491e284f21e390f5",
+      "rps": [
+        55.68,
+        55.38,
+        54.61,
+        50.23,
+        54.54,
+        53.07,
+        54.29,
+        55.64,
+        53.31,
+        55.81
+      ],
+      "rps_median": 54.575,
+      "runs": 10,
+      "tetragon_total_cpu_millicores_median": 233.0,
+      "tetragon_total_memory_mib_median": 9438.5,
+      "tool": "wrk",
+      "workload_cpu_millicores_median": 3133.5,
+      "workload_memory_mib_median": 1917.0
+    },
+    "tetragon_only": {
+      "detector_cpu_percent_one_core": null,
+      "detector_memory_mib_median": null,
+      "experiment_id": "20260805T093000Z-p01",
+      "failed_requests_total": 0,
+      "latency_mean_ms_median": 153.52499999999998,
+      "latency_p99_ms": [
+        442.86,
+        462.39,
+        428.17,
+        464.98,
+        428.76,
+        433.09,
+        490.88,
+        666.03,
+        337.55,
+        420.87
+      ],
+      "latency_p99_ms_median": 437.975,
+      "path": "/home/dat/ml-service/aims-overhead-final/tetragon_only-20260805T093755Z/report.json",
+      "phase": "tetragon_only",
+      "report_sha256": "7414cbfe9766dc0975f0bd1613a8ce12d18b204bedecb651bd6a6f391ea55c5d",
+      "rps": [
+        53.72,
+        61.13,
+        55.37,
+        59.86,
+        51.56,
+        52.37,
+        48.02,
+        50.51,
+        58.47,
+        53.61
+      ],
+      "rps_median": 53.665,
+      "runs": 10,
+      "tetragon_total_cpu_millicores_median": 264.0,
+      "tetragon_total_memory_mib_median": 9571.0,
+      "tool": "wrk",
+      "workload_cpu_millicores_median": 3082.0,
+      "workload_memory_mib_median": 1903.0
+    }
+  },
+  "protocol_sha256": "04a87203064914cafbbf47ab295b57584a74c5465e90276cfd3badd2baa1f242",
+  "tool": "wrk"
+}

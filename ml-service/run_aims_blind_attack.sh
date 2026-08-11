@@ -14,6 +14,15 @@ PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
 : "${AIMS_BLIND_REPORT:?}"
 EXPERIMENT_ID=${AIMS_BLIND_ATTACK_EXPERIMENT_ID:-"aims-blind-$(basename "$AIMS_CANDIDATE")"}
 OUTPUT_ROOT=${AIMS_BLIND_ATTACK_OUTPUT_ROOT:-"$ROOT_DIR/aims-blind-matrix"}
+FEATURE_CAPTURE_MODE=${AIMS_FEATURE_CAPTURE_MODE:-off}
+CAPTURE_ARGS=()
+if [[ "$FEATURE_CAPTURE_MODE" != "off" ]]; then
+  : "${AIMS_CAPTURE_RELEASE_ID:?required when AIMS_FEATURE_CAPTURE_MODE is enabled}"
+  CAPTURE_ARGS=(
+    --feature-capture-mode "$FEATURE_CAPTURE_MODE"
+    --capture-release-id "$AIMS_CAPTURE_RELEASE_ID"
+  )
+fi
 
 for unit in aims-normal-matrix.service \
   aims-split-evaluation@independent_validation.service \
@@ -43,4 +52,5 @@ exec "$PYTHON_BIN" "$ROOT_DIR/run_aims_blind_matrix.py" \
   --attack-contract "$ROOT_DIR/aims_blind_attack_contract.json" \
   --runtime-source "$ROOT_DIR/runtime_attack_blind.c" \
   --runtime-binary "$ROOT_DIR/runtime_attack_blind" \
+  "${CAPTURE_ARGS[@]}" \
   --output-root "$OUTPUT_ROOT" --experiment-id "$EXPERIMENT_ID"

@@ -1,0 +1,16 @@
+{
+  "counterbalancing": "run all six permutations with distinct experiment IDs",
+  "duration_seconds_per_repetition": 30,
+  "experiment_id": "20260805T093000Z-p05",
+  "phase_order": [
+    "full_pipeline",
+    "no_tracing",
+    "tetragon_only"
+  ],
+  "quality_gate": "zero socket errors and zero non-2xx/3xx responses",
+  "repetitions_per_phase": 10,
+  "schema": "sentinel-aims-overhead/v1",
+  "url": "http://10.103.205.176/api/products/",
+  "wrk_concurrency": 8,
+  "wrk_threads": 2
+}

@@ -75,8 +75,11 @@ Counterbalanced overhead campaign `20260805T063700Z` đã chạy đủ sáu phas
 nhưng bị quality audit reject vì non-2xx/socket error làm throughput biểu kiến
 nhảy sai. Harness mới fail-closed trên từng warm-up/repetition, kiểm hash 18
 phase report và dùng tải bền vững `wrk -t2 -c8`; campaign V2
-`20260805T093000Z` đang chạy. Kết quả chỉ được claim khi đủ sáu block, zero
-failed response và aggregate validator pass.
+`20260805T093000Z` đã hoàn tất đủ sáu block/180 repetition, zero failed response
+và aggregate validator pass. Local regeneration giống byte-for-byte collector
+output (`323bd581...`). Full-vs-no-tracing median p99 effect là 2,702%, block
+bootstrap CI [-2,249%; 4,767%]; chưa phát hiện effect khác 0 và vẫn chỉ là một
+cluster campaign.
 
 Baseline/ablation V8 phải dùng paired replay thay vì inject lại riêng cho từng
 method. Runtime có capture opt-in `aggregate` (sparse vector + syscall counts)
@@ -85,7 +88,8 @@ hoặc `sequence` (thêm ordered syscall names cho fast-path/rule ablation), m�
 data. Capture mới phải được freeze/hash trước evaluation; evidence V7 cũ không
 đủ feature windows nên không được bịa baseline result từ decision summary.
 
-Contract V8 `v8-paired-replay-20260805` được freeze trước capture với seed mới
+Contract V8 draft ngày 05-08 được thay trước khi capture bởi
+`v8-paired-replay-20260811` sau khi tách telemetry và khóa schema v2, với seed mới
 `1901,3203,4703,6701,9001`. Normal gate tách đúng 20 traffic phase và 5
 independent run; không gọi 20 phase là 20 run. Syscall và agent-runtime có thể
 validate độc lập bằng `--track`, nhưng mỗi track vẫn fail nếu thiếu bất kỳ

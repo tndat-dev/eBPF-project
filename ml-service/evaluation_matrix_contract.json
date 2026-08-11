@@ -1,7 +1,9 @@
 {
   "schema": "sentinel-evaluation-matrix-contract/v2",
   "result_schema": "sentinel-evaluation-result/v1",
-  "release_id": "v8-paired-replay-20260805",
+  "release_id": "v8-paired-replay-20260811",
+  "feature_capture_schema": "sentinel-feature-window/v2",
+  "injection_schema": "sentinel-injection-interval/v2",
   "frozen_before_v8_capture": true,
   "paired_replay_required": true,
   "confidence_level": 0.95,

@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from artifact_integrity import model_release_hashes
+from feature_capture_io import INJECTION_SCHEMA, append_capture_row
+from validate_feature_capture import validate_capture
 
 SCENARIOS = (
     "reverse_shell",
@@ -45,6 +47,7 @@ FAST_PATH_EXPECTED_SCENARIOS = frozenset({
 })
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
+    "feature_capture_io.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
     "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )
@@ -409,6 +412,13 @@ def main() -> int:
     )
     parser.add_argument("--seed", type=int, default=0,
                         help="Frozen attack-trial seed passed to the runtime binary")
+    parser.add_argument(
+        "--feature-capture-mode", choices=("off", "aggregate", "sequence"),
+        default=os.environ.get("SENTINEL_FEATURE_CAPTURE", "off"),
+        help="Write a dedicated privacy-minimised paired-replay capture",
+    )
+    parser.add_argument("--capture-release-id", default=None)
+    parser.add_argument("--capture-run-id", default=None)
     args = parser.parse_args()
     if args.window < 5:
         raise ValueError("--window must be at least 5 seconds")
@@ -447,6 +457,9 @@ def main() -> int:
         raise FileNotFoundError(runtime_binary)
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    if args.feature_capture_mode != "off" and not args.capture_release_id:
+        raise ValueError("--capture-release-id is required when capture is enabled")
+    capture_run_id = args.capture_run_id or stamp
     output_dir = Path(args.output_dir) / stamp
     output_dir.mkdir(parents=True, exist_ok=False)
     calibration_source = Path(args.normal_calibration).resolve()
@@ -506,6 +519,7 @@ def main() -> int:
     try:
         for scenario in scenarios:
             metrics = output_dir / f"{scenario}.jsonl"
+            feature_capture = output_dir / f"{scenario}-feature-capture.jsonl"
             detector_log = output_dir / f"{scenario}.log"
             calibration = output_dir / f"{scenario}-calibration.json"
             shutil.copy2(calibration_source, calibration)
@@ -523,7 +537,18 @@ def main() -> int:
                 "SENTINEL_CONSUMER_LOG_INTERVAL": "100000",
                 "SENTINEL_REQUIRE_FULL_TETRAGON_COVERAGE": "true",
                 "SENTINEL_TETRAGON_DAEMONSET": "tetragon",
+                "SENTINEL_FEATURE_CAPTURE": args.feature_capture_mode,
             })
+            if args.feature_capture_mode != "off":
+                env["SENTINEL_FEATURE_CAPTURE_PATH"] = str(
+                    feature_capture.resolve()
+                )
+                env.update({
+                    "SENTINEL_CAPTURE_RELEASE_ID": args.capture_release_id,
+                    "SENTINEL_CAPTURE_RUN_ID": capture_run_id,
+                    "SENTINEL_CAPTURE_PHASE_ID": scenario,
+                    "SENTINEL_CAPTURE_TRAFFIC_REGIME": "attack",
+                })
             with detector_log.open("w") as log_handle:
                 detector = subprocess.Popen(
                     [
@@ -574,6 +599,21 @@ def main() -> int:
                         "source": "in-container-static-binary-start-ack",
                         "ack": start_ack.strip(),
                     }, sort_keys=True) + "\n")
+                if args.feature_capture_mode != "off":
+                    append_capture_row(
+                        feature_capture, "injection",
+                        schema=INJECTION_SCHEMA,
+                        ts=attack_started,
+                        injection_id=injection_id,
+                        pod_key=pod_key,
+                        attack_type=scenario,
+                        rate=args.rate,
+                        seed=args.seed,
+                        release_id=args.capture_release_id,
+                        run_id=capture_run_id,
+                        phase_id=scenario,
+                        traffic_regime="attack",
+                    )
                 try:
                     attack_stdout, attack_stderr = attack_process.communicate(
                         timeout=args.attack_seconds + 30,
@@ -598,6 +638,20 @@ def main() -> int:
                         "attack_exit_code": attack_process.returncode,
                         "source": "in-container-static-binary-exit",
                     }, sort_keys=True) + "\n")
+                if args.feature_capture_mode != "off":
+                    append_capture_row(
+                        feature_capture, "injection_end",
+                        schema=INJECTION_SCHEMA,
+                        ts=attack_finished,
+                        injection_id=injection_id,
+                        pod_key=pod_key,
+                        attack_type=scenario,
+                        attack_exit_code=attack_process.returncode,
+                        release_id=args.capture_release_id,
+                        run_id=capture_run_id,
+                        phase_id=scenario,
+                        traffic_regime="attack",
+                    )
 
                 deadline = time.time() + args.post_attack_wait
                 while time.time() < deadline:
@@ -660,6 +714,10 @@ def main() -> int:
             first_early = early_warnings[0] if early_warnings else None
             observation = post_injection_observation(
                 rows, pod_key, attack_started,
+            )
+            capture_validation = (
+                validate_capture(feature_capture)
+                if args.feature_capture_mode != "off" else None
             )
             early_latency = (
                 float(first_early["ts"] - attack_started)
@@ -731,6 +789,14 @@ def main() -> int:
                     first_early.get("processing_ms") if first_early else None
                 ),
                 "fast_path_warning": first_early,
+                "feature_capture": (
+                    {
+                        "path": str(feature_capture),
+                        "sha256": sha256(feature_capture),
+                        "validation": capture_validation,
+                    }
+                    if capture_validation is not None else None
+                ),
                 "detection": first,
                 **observation,
             }
@@ -765,6 +831,10 @@ def main() -> int:
             and item["attack_acknowledged"]
             and item["sensor_health_healthy"]
             and item["inference_count"] >= 2
+            and (
+                item["feature_capture"] is None
+                or item["feature_capture"]["validation"]["valid"] is True
+            )
             and item["detection_latency_seconds"] is not None
             and item["telemetry_detection_latency_seconds"] is not None
             and item["latency_clock_agreement_seconds"] <= 0.25

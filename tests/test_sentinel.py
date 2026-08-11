@@ -46,7 +46,7 @@ def test_feature_window_evidence_is_sparse_replayable_and_privacy_minimised():
             return len(self.raw_syscalls)
 
     aggregate = feature_window_evidence(Vector(), "aggregate")
-    assert aggregate["schema"] == "sentinel-feature-window/v1"
+    assert aggregate["schema"] == "sentinel-feature-window/v2"
     assert aggregate["sparse_vector"] == [[1, 0.25], [3, 0.75]]
     assert aggregate["syscall_counts"] == {"connect": 1, "execve": 3}
     assert aggregate["contains_arguments_or_payloads"] is False

@@ -252,13 +252,20 @@ runtime, không bật mặc định trên production detector:
 
 ```bash
 export SENTINEL_FEATURE_CAPTURE=sequence   # aggregate nếu không cần rule order
-export SENTINEL_METRICS=/path/to/frozen-capture.jsonl
+export SENTINEL_FEATURE_CAPTURE_PATH=/path/to/frozen-capture.jsonl
+export SENTINEL_CAPTURE_RELEASE_ID=v8-paired-replay-20260811
+export SENTINEL_CAPTURE_RUN_ID=run-01
+export SENTINEL_CAPTURE_PHASE_ID=steady-01
+export SENTINEL_CAPTURE_TRAFFIC_REGIME=steady
 ```
 
-Row `sentinel-feature-window/v1` chỉ chứa pod/node identity, timestamp window,
-sparse n-gram vector, syscall counts và tùy chọn syscall-name sequence; không
-chứa argument/payload/content. Hash toàn bộ JSONL và vocab trước khi replay cùng
-một row order qua B1--B6/ablation.
+Capture path bắt buộc khác `SENTINEL_METRICS`: general telemetry có decision,
+health và attack acknowledgement nên không đủ privacy contract. Row
+`sentinel-feature-window/v2` chỉ chứa pod/node identity, release/run/phase/
+traffic regime, timestamp window, sparse n-gram vector, syscall counts và tùy
+chọn syscall-name sequence. Injection row chỉ chứa interval/label metadata tối
+thiểu; không chứa acknowledgement, argument, payload hoặc content. Hash toàn bộ
+JSONL và vocab trước khi replay cùng một row order qua B1--B6/ablation.
 
 ```bash
 python3 ml-service/validate_feature_capture.py frozen-capture.jsonl \
@@ -267,6 +274,13 @@ python3 ml-service/validate_feature_capture.py frozen-capture.jsonl \
 
 Chỉ freeze dataset khi `valid=true`; gate từ chối key ngoài schema, count/sequence
 lệch, sparse index sai, window trùng/chồng hoặc privacy exclusion không rõ.
+Nhiều capture độc lập phải merge bằng tool canonical; tool kiểm từng source và
+overlap xuyên file trước khi tạo output/hash manifest:
+
+```bash
+python3 ml-service/merge_feature_captures.py capture-run-*.jsonl \
+  --output frozen-v8-capture.jsonl --require-injections
+```
 
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:

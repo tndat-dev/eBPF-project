@@ -24,6 +24,7 @@ from collections import defaultdict
 from adaptive_threshold import (load_thresholds, StreamingThreshold,
                                 load_calibrators, save_calibrators)
 from graph_signals import behavior_signals, evaluate_behavior
+from feature_capture_io import append_capture_row, feature_window_evidence
 from sentinel.telemetry import emit, detection_latency
 from dataclasses import dataclass, field
 from typing import Callable, List, Optional
@@ -41,41 +42,6 @@ logging.basicConfig(
 logger = logging.getLogger("anomaly_detector")
 
 FEATURE_CAPTURE_MODES = frozenset({"off", "aggregate", "sequence"})
-
-
-def feature_window_evidence(fv, mode: str) -> dict:
-    """Build privacy-minimised evidence for exact paired replay.
-
-    Only syscall names and derived features are retained. Process arguments,
-    payloads, file contents and network data are never included. ``sequence``
-    supports ordered-rule/fast-path ablations; ``aggregate`` supports ML and
-    frequency-rule baselines with a smaller artifact.
-    """
-    if mode not in FEATURE_CAPTURE_MODES - {"off"}:
-        raise ValueError(f"invalid feature capture mode: {mode}")
-    payload = {
-        "schema": "sentinel-feature-window/v1",
-        "pod_key": fv.pod_key,
-        "node_name": fv.node_name,
-        "window_start": float(fv.window_start),
-        "window_end": float(fv.window_end),
-        "event_count": fv.total_events(),
-        "vector_size": len(fv.vector),
-        "sparse_vector": [
-            [index, round(float(value), 8)]
-            for index, value in enumerate(fv.vector)
-            if float(value) != 0.0
-        ],
-        "syscall_counts": {
-            name: int(count)
-            for name, count in sorted(fv.syscall_counts.items())
-        },
-        "contains_arguments_or_payloads": False,
-        "capture_mode": mode,
-    }
-    if mode == "sequence":
-        payload["syscall_sequence"] = list(fv.raw_syscalls)
-    return payload
 
 
 def kubernetes_pod_started_at(pod_key: str) -> Optional[float]:
@@ -237,6 +203,42 @@ class AnomalyDetector:
             raise ValueError(
                 "SENTINEL_FEATURE_CAPTURE must be off, aggregate, or sequence"
             )
+        self.feature_capture_path = os.environ.get(
+            "SENTINEL_FEATURE_CAPTURE_PATH", ""
+        ).strip()
+        if self.feature_capture_mode != "off":
+            if not self.feature_capture_path:
+                raise ValueError(
+                    "SENTINEL_FEATURE_CAPTURE_PATH is required when capture is enabled"
+                )
+            metrics_path = os.environ.get("SENTINEL_METRICS", "metrics.jsonl")
+            if os.path.abspath(self.feature_capture_path) == os.path.abspath(
+                metrics_path
+            ):
+                raise ValueError(
+                    "feature capture must be separate from general metrics telemetry"
+                )
+            self.feature_capture_context = {
+                key.removeprefix("SENTINEL_CAPTURE_").lower(): os.environ.get(
+                    key, ""
+                ).strip()
+                for key in (
+                    "SENTINEL_CAPTURE_RELEASE_ID",
+                    "SENTINEL_CAPTURE_RUN_ID",
+                    "SENTINEL_CAPTURE_PHASE_ID",
+                    "SENTINEL_CAPTURE_TRAFFIC_REGIME",
+                )
+            }
+            missing_context = sorted(
+                key for key, value in self.feature_capture_context.items()
+                if not value
+            )
+            if missing_context:
+                raise ValueError(
+                    f"feature capture context is incomplete: {missing_context}"
+                )
+        else:
+            self.feature_capture_context = {}
         restored = load_calibrators(
             self.calibration_path, threshold, warmup_windows,
             event_ceiling_factor=self.extreme_volume_factor,
@@ -339,9 +341,11 @@ class AnomalyDetector:
             )
 
         if self.feature_capture_mode != "off":
-            emit(
+            append_capture_row(
+                self.feature_capture_path,
                 "feature_window",
                 model_key=model_key,
+                **self.feature_capture_context,
                 **feature_window_evidence(fv, self.feature_capture_mode),
             )
 

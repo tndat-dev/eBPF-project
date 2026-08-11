@@ -9,12 +9,25 @@ import json
 import math
 from pathlib import Path
 
+from feature_capture_io import FEATURE_SCHEMA, INJECTION_SCHEMA
 
-ALLOWED_KEYS = {
+
+FEATURE_KEYS = {
     "kind", "ts", "schema", "pod_key", "model_key", "node_name",
     "window_start", "window_end", "event_count", "vector_size",
     "sparse_vector", "syscall_counts", "contains_arguments_or_payloads",
     "capture_mode", "syscall_sequence",
+    "release_id", "run_id", "phase_id", "traffic_regime",
+}
+INJECTION_START_KEYS = {
+    "kind", "ts", "schema", "injection_id", "pod_key", "attack_type",
+    "rate", "seed",
+    "release_id", "run_id", "phase_id", "traffic_regime",
+}
+INJECTION_END_KEYS = {
+    "kind", "ts", "schema", "injection_id", "pod_key", "attack_type",
+    "attack_exit_code",
+    "release_id", "run_id", "phase_id", "traffic_regime",
 }
 
 
@@ -25,16 +38,19 @@ def sha256(path: Path) -> str:
 def validate_feature_row(row: dict, line_number: int) -> list[str]:
     prefix = f"line {line_number}"
     errors = []
-    unknown = sorted(set(row) - ALLOWED_KEYS)
+    unknown = sorted(set(row) - FEATURE_KEYS)
     if unknown:
         errors.append(f"{prefix}: unexpected/privacy-unsafe keys: {unknown}")
-    if row.get("schema") != "sentinel-feature-window/v1":
+    if row.get("schema") != FEATURE_SCHEMA:
         errors.append(f"{prefix}: schema mismatch")
     if row.get("capture_mode") not in ("aggregate", "sequence"):
         errors.append(f"{prefix}: invalid capture mode")
     if row.get("contains_arguments_or_payloads") is not False:
         errors.append(f"{prefix}: privacy exclusion is not explicit")
-    for key in ("pod_key", "model_key", "node_name"):
+    for key in (
+        "pod_key", "model_key", "node_name", "release_id", "run_id",
+        "phase_id", "traffic_regime",
+    ):
         if not isinstance(row.get(key), str) or not row[key]:
             errors.append(f"{prefix}: invalid {key}")
     try:
@@ -93,15 +109,59 @@ def validate_feature_row(row: dict, line_number: int) -> list[str]:
     return errors
 
 
+def validate_injection_row(row: dict, line_number: int) -> list[str]:
+    prefix = f"line {line_number}"
+    kind = row.get("kind")
+    allowed = (
+        INJECTION_START_KEYS if kind == "injection" else INJECTION_END_KEYS
+    )
+    errors = []
+    unknown = sorted(set(row) - allowed)
+    missing = sorted(allowed - set(row))
+    if unknown:
+        errors.append(f"{prefix}: unexpected/privacy-unsafe keys: {unknown}")
+    if missing:
+        errors.append(f"{prefix}: missing injection keys: {missing}")
+    if row.get("schema") != INJECTION_SCHEMA:
+        errors.append(f"{prefix}: injection schema mismatch")
+    for key in (
+        "injection_id", "pod_key", "attack_type", "release_id", "run_id",
+        "phase_id", "traffic_regime",
+    ):
+        if not isinstance(row.get(key), str) or not row[key]:
+            errors.append(f"{prefix}: invalid {key}")
+    try:
+        timestamp = float(row["ts"])
+        if not math.isfinite(timestamp) or timestamp <= 0:
+            raise ValueError
+    except (KeyError, TypeError, ValueError):
+        errors.append(f"{prefix}: invalid injection timestamp")
+    if kind == "injection":
+        if not isinstance(row.get("rate"), int) or row["rate"] <= 0:
+            errors.append(f"{prefix}: invalid injection rate")
+        if not isinstance(row.get("seed"), int):
+            errors.append(f"{prefix}: invalid injection seed")
+    elif not isinstance(row.get("attack_exit_code"), int):
+        errors.append(f"{prefix}: invalid attack exit code")
+    return errors
+
+
 def validate_capture(path: Path) -> dict:
     errors = []
     rows = 0
     non_feature_rows = 0
+    injection_rows = 0
+    injection_intervals = 0
     modes = Counter()
     vector_sizes = Counter()
     pods = Counter()
+    releases = Counter()
+    runs = Counter()
+    phases = Counter()
+    regimes = Counter()
     windows_by_pod = defaultdict(list)
     seen = set()
+    injection_starts = {}
     minimum_start = None
     maximum_end = None
     for line_number, line in enumerate(path.read_text().splitlines(), 1):
@@ -110,8 +170,56 @@ def validate_capture(path: Path) -> dict:
         except (TypeError, ValueError):
             errors.append(f"line {line_number}: invalid JSON")
             continue
-        if row.get("kind") != "feature_window":
+        if not isinstance(row, dict):
+            errors.append(f"line {line_number}: JSON row must be an object")
+            continue
+        kind = row.get("kind")
+        if kind in ("injection", "injection_end"):
+            injection_rows += 1
             non_feature_rows += 1
+            errors.extend(validate_injection_row(row, line_number))
+            injection_id = row.get("injection_id")
+            if kind == "injection" and isinstance(injection_id, str):
+                if injection_id in injection_starts:
+                    errors.append(
+                        f"line {line_number}: duplicate injection start: {injection_id}"
+                    )
+                else:
+                    injection_starts[injection_id] = (row, line_number)
+            elif kind == "injection_end" and isinstance(injection_id, str):
+                start_item = injection_starts.pop(injection_id, None)
+                if start_item is None:
+                    errors.append(
+                        f"line {line_number}: injection end without start: {injection_id}"
+                    )
+                else:
+                    start, _ = start_item
+                    try:
+                        consistent = (
+                            row.get("pod_key") == start.get("pod_key")
+                            and row.get("attack_type") == start.get("attack_type")
+                            and row.get("release_id") == start.get("release_id")
+                            and row.get("run_id") == start.get("run_id")
+                            and row.get("phase_id") == start.get("phase_id")
+                            and row.get("traffic_regime")
+                            == start.get("traffic_regime")
+                            and float(row["ts"]) > float(start["ts"])
+                        )
+                    except (KeyError, TypeError, ValueError):
+                        consistent = False
+                    if not consistent:
+                        errors.append(
+                            f"line {line_number}: inconsistent injection interval: "
+                            f"{injection_id}"
+                        )
+                    else:
+                        injection_intervals += 1
+            continue
+        if kind != "feature_window":
+            non_feature_rows += 1
+            errors.append(
+                f"line {line_number}: unsupported/privacy-unsafe row kind: {kind!r}"
+            )
             continue
         rows += 1
         errors.extend(validate_feature_row(row, line_number))
@@ -119,6 +227,10 @@ def validate_capture(path: Path) -> dict:
         vector_sizes[str(row.get("vector_size"))] += 1
         pod = str(row.get("pod_key"))
         pods[pod] += 1
+        releases[str(row.get("release_id"))] += 1
+        runs[str(row.get("run_id"))] += 1
+        phases[str(row.get("phase_id"))] += 1
+        regimes[str(row.get("traffic_regime"))] += 1
         try:
             start, end = float(row["window_start"]), float(row["window_end"])
         except (KeyError, TypeError, ValueError):
@@ -132,8 +244,14 @@ def validate_capture(path: Path) -> dict:
         maximum_end = end if maximum_end is None else max(maximum_end, end)
     if rows == 0:
         errors.append("capture contains no feature-window rows")
+    if injection_starts:
+        errors.append(
+            f"injection starts without end: {sorted(injection_starts)}"
+        )
     if len(vector_sizes) > 1:
         errors.append(f"capture mixes vector sizes: {dict(vector_sizes)}")
+    if len(releases) > 1:
+        errors.append(f"capture mixes release IDs: {dict(releases)}")
     for pod, windows in windows_by_pod.items():
         ordered = sorted(windows)
         for previous, current in zip(ordered, ordered[1:]):
@@ -146,9 +264,15 @@ def validate_capture(path: Path) -> dict:
         "source": {"name": path.name, "sha256": sha256(path)},
         "feature_windows": rows,
         "non_feature_rows": non_feature_rows,
+        "injection_rows": injection_rows,
+        "injection_intervals": injection_intervals,
         "capture_modes": dict(sorted(modes.items())),
         "vector_sizes": dict(sorted(vector_sizes.items())),
         "pods": dict(sorted(pods.items())),
+        "release_ids": dict(sorted(releases.items())),
+        "run_ids": dict(sorted(runs.items())),
+        "phase_ids": dict(sorted(phases.items())),
+        "traffic_regimes": dict(sorted(regimes.items())),
         "minimum_window_start": minimum_start,
         "maximum_window_end": maximum_end,
         "privacy_contract": {

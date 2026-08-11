@@ -1,0 +1,40 @@
+[Unit]
+Description=AIMS V8 six-run paired normal feature capture
+Wants=network-online.target
+After=network-online.target sentinel-detector.service
+ConditionPathExists=/home/dat/ml-service/evaluation_matrix_contract.json
+ConditionPathExists=/home/dat/ml-service/v8-capture.env
+ConditionPathExists=/home/dat/ml-service/v8_capture_split_contract.json
+Conflicts=aims-overhead-counterbalanced-v2.service aims-normal-matrix.service
+
+[Service]
+Type=exec
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+EnvironmentFile=/home/dat/ml-service/v8-capture.env
+Environment=PYTHONUNBUFFERED=1
+Environment=RUNS_PER_REGIME=6
+Environment=MINUTES_PER_RUN=72
+Environment=SETTLE_SECONDS=30
+Environment=AIMS_FEATURE_CAPTURE_MODE=sequence
+Environment=AIMS_ACTIVE_ROOT_FILE=/home/dat/ml-service/.aims-v8-capture-active
+ExecStart=/usr/bin/flock -n /home/dat/ml-service/.aims-normal-matrix.lock /home/dat/ml-service/run_aims_normal_matrix.sh
+Restart=on-failure
+RestartSec=60
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/home/dat/ml-service
+TimeoutStartSec=infinity
+TimeoutStopSec=180
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

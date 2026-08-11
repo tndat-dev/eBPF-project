@@ -63,3 +63,15 @@ def test_aggregate_rejects_incomplete_campaign(tmp_path):
     _write_campaign(tmp_path, count=5)
     with pytest.raises(ValueError, match="incomplete"):
         module.aggregate(tmp_path, "campaign")
+
+
+def test_aggregate_resolves_remote_paths_inside_copied_bundle(tmp_path):
+    _write_campaign(tmp_path)
+    for comparison in tmp_path.glob("comparison-*.json"):
+        payload = json.loads(comparison.read_text())
+        for phase in payload["phases"].values():
+            directory = Path(phase["path"]).parent.name
+            phase["path"] = f"/remote/collector/evidence/{directory}/report.json"
+        comparison.write_text(json.dumps(payload))
+    report = module.aggregate(tmp_path, "campaign")
+    assert len(report["experiments"]) == 6

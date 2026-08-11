@@ -15,6 +15,7 @@ from ml_models import ModelManager
 TARGETS = {"default/postgres", "production/nginx", "production/redis"}
 RUNTIME_FILES = (
     "adaptive_threshold.py", "anomaly_detector2.py", "feature_engineering.py",
+    "feature_capture_io.py",
     "graph_signals.py", "ml_models.py", "tetragon_consumer.py",
     "workload_identity.py", "sentinel/fast_path.py", "sentinel/telemetry.py",
 )

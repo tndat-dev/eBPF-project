@@ -1,0 +1,36 @@
+2026-08-11T05:48:09+00:00
+Result=success
+ExecMainStartTimestamp=
+ExecMainExitTimestamp=
+ExecMainStatus=0
+ActiveState=inactive
+SubState=dead
+● sentinel-detector.service - Agent Runtime Sentinel realtime anomaly detector
+     Loaded: loaded (/etc/systemd/system/sentinel-detector.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-08-11 04:30:47 UTC; 1h 17min ago
+   Main PID: 1369 (python)
+      Tasks: 98 (limit: 77066)
+     Memory: 867.3M (max: 1.0G available: 156.6M peak: 887.2M)
+        CPU: 3min 49.604s
+     CGroup: /system.slice/sentinel-detector.service
+             ├─ 1369 /home/dat/ml-venv/bin/python -u /home/dat/ml-service/anomaly_detector2.py --mode kubectl --model-dir /home/dat/ml-service/models --vocab /home/dat/ml-service/models/vocab.pkl --window 10 --threshold 0.80 --dry-run
+             ├─14031 kubectl exec -n kube-system tetragon-622tj -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+             ├─14034 kubectl exec -n kube-system tetragon-67ngn -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+             ├─14051 kubectl exec -n kube-system tetragon-7sjqf -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+             ├─14054 kubectl exec -n kube-system tetragon-lvgjf -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+             ├─35118 kubectl exec -n kube-system tetragon-9g8tt -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+             └─35166 kubectl exec -n kube-system tetragon-6mzj8 -c tetragon -- tail -n 0 -F /var/run/cilium/tetragon/tetragon.log
+
+Aug 11 04:30:47 k8s-master.local systemd[1]: Started sentinel-detector.service - Agent Runtime Sentinel realtime anomaly detector.
+NAME                STATUS   ROLES           AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+k8s-master.local    Ready    control-plane   127d   v1.34.10   10.1.16.234   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.4
+k8s-master2.local   Ready    control-plane   12d    v1.34.10   10.1.16.235   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-master3.local   Ready    control-plane   12d    v1.34.10   10.1.16.236   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-worker1.local   Ready    <none>          12d    v1.34.10   10.1.16.237   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.4
+k8s-worker3.local   Ready    <none>          12d    v1.34.10   10.1.16.239   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-worker4.local   Ready    <none>          12d    v1.34.10   10.1.16.238   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+NAME       DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+tetragon   6         6         6       6            6           <none>          126d
+NAME                     AGE
+sentinel-aims-syscalls   5d18h
+Running 39

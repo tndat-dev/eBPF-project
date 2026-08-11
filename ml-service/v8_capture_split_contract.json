@@ -1,0 +1,27 @@
+{
+  "schema": "sentinel-v8-capture-split/v1",
+  "release_id": "v8-paired-replay-20260811",
+  "frozen_before_capture": true,
+  "capture_mode": "sequence",
+  "feature_schema": "sentinel-feature-window/v2",
+  "injection_schema": "sentinel-injection-interval/v2",
+  "vocab_sha256": "62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4",
+  "normal": {
+    "minutes_per_phase": 72,
+    "regimes": ["steady", "burst", "recovery", "toolmix"],
+    "runs": [
+      {"run_id": "normal-run-01", "role": "candidate_fit"},
+      {"run_id": "normal-run-02", "role": "independent_evaluation"},
+      {"run_id": "normal-run-03", "role": "independent_evaluation"},
+      {"run_id": "normal-run-04", "role": "independent_evaluation"},
+      {"run_id": "normal-run-05", "role": "independent_evaluation"},
+      {"run_id": "normal-run-06", "role": "independent_evaluation"}
+    ]
+  },
+  "separation": {
+    "fit_runs_may_train": true,
+    "evaluation_runs_may_train_or_tune": false,
+    "attack_windows_may_train_or_tune": false,
+    "split_unit": "whole run before feature-window construction"
+  }
+}
