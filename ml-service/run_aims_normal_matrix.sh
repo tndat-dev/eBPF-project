@@ -8,6 +8,8 @@ RUNS_PER_REGIME=${RUNS_PER_REGIME:-5}
 MINUTES_PER_RUN=${MINUTES_PER_RUN:-72}
 SETTLE_SECONDS=${SETTLE_SECONDS:-30}
 STAMP=${STAMP:-$(date -u +%Y%m%dT%H%M%SZ)}
+FEATURE_CAPTURE_MODE=${AIMS_FEATURE_CAPTURE_MODE:-off}
+CAPTURE_RELEASE_ID=${AIMS_CAPTURE_RELEASE_ID:-}
 ACTIVE_ROOT_FILE=${AIMS_ACTIVE_ROOT_FILE:-"$ROOT_DIR/.aims-normal-matrix-active"}
 if [[ -n "${EVIDENCE_ROOT:-}" ]]; then
   EVIDENCE_ROOT=$EVIDENCE_ROOT
@@ -19,10 +21,15 @@ else
   printf '%s\n' "$EVIDENCE_ROOT" >"$temporary_active"
   mv "$temporary_active" "$ACTIVE_ROOT_FILE"
 fi
-case "$EVIDENCE_ROOT" in
-  "$ROOT_DIR"/aims-normal-matrix-*) ;;
-  *) printf 'unsafe AIMS evidence root: %s\n' "$EVIDENCE_ROOT" >&2; exit 2 ;;
-esac
+if [[ "$FEATURE_CAPTURE_MODE" == "off" ]]; then
+  case "$EVIDENCE_ROOT" in
+    "$ROOT_DIR"/aims-normal-matrix-*) ;;
+    *) printf 'unsafe AIMS evidence root: %s\n' "$EVIDENCE_ROOT" >&2; exit 2 ;;
+  esac
+elif [[ "$EVIDENCE_ROOT" != "$ROOT_DIR/aims-v8-capture-$CAPTURE_RELEASE_ID" ]]; then
+  printf 'V8 evidence root must bind the release ID: %s\n' "$EVIDENCE_ROOT" >&2
+  exit 2
+fi
 REGIMES=(steady burst recovery toolmix)
 POLICY=${SENTINEL_POLICY:-"$ROOT_DIR/tetragon-aims-policies.yaml"}
 [[ -r "$POLICY" ]] || POLICY="$ROOT_DIR/../sentinel/k8s/tetragon-aims-policies.yaml"
@@ -30,8 +37,6 @@ LOADGEN=${SENTINEL_LOADGEN_MANIFEST:-"$ROOT_DIR/aims-sentinel-loadgen.yaml"}
 [[ -r "$LOADGEN" ]] || LOADGEN="$ROOT_DIR/../sentinel/k8s/aims-sentinel-loadgen.yaml"
 PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
 [[ -x "$PYTHON_BIN" ]] || PYTHON_BIN=${PYTHON_BIN_FALLBACK:-python3}
-FEATURE_CAPTURE_MODE=${AIMS_FEATURE_CAPTURE_MODE:-off}
-CAPTURE_RELEASE_ID=${AIMS_CAPTURE_RELEASE_ID:-}
 CAPTURE_SPLIT_CONTRACT=${AIMS_CAPTURE_SPLIT_CONTRACT:-"$ROOT_DIR/v8_capture_split_contract.json"}
 EVALUATION_CONTRACT=${AIMS_EVALUATION_CONTRACT:-"$ROOT_DIR/evaluation_matrix_contract.json"}
 VOCAB=${SENTINEL_VOCAB:-"$ROOT_DIR/models/vocab.pkl"}
