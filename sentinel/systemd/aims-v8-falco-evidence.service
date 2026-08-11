@@ -1,0 +1,29 @@
+[Unit]
+Description=AIMS V8 privacy-minimised Falco baseline evidence collector
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/home/dat/ml-service/falco_evidence_collector.py
+
+[Service]
+Type=exec
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/dat/ml-service/falco_evidence_collector.py --output-root /home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811 --since-time 2026-08-11T12:05:59Z --release-id v8-paired-replay-20260811 --expected-readers 6
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+Nice=15
+CPUQuota=25%
+MemoryMax=256M
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811
+
+[Install]
+WantedBy=multi-user.target
