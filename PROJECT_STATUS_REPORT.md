@@ -3398,3 +3398,20 @@ detect/miss và tamper rejection. Bundle staging tăng thành 41/41 checksum,
 focused VM suite `108 passed`; atomic swap không làm capture restart. Checkpoint
 15:15Z vẫn có 5 phase hoàn chỉnh, `burst-run-02` tăng lên 5.760 row, Falco sáu
 reader healthy/zero stream failure và toàn cụm 6/6 node Ready, zero bad pod.
+
+### 18.49 Boundary burst → recovery của run-02 pass (11-08-2026)
+
+Lúc `15:26:57Z`, `aims-burst-run-02` đóng đủ 4.321,59 giây và 6.896 sequence
+window; embedded validation `valid=true`, zero error, context duy nhất
+`v8-paired-replay-20260811/normal-run-02/aims-burst-run-02/burst`, vector 210 và
+privacy exclusion explicit. SHA-256 feature capture là
+`558c5c90e3f2f2de40fe3f92ed517af563623cffdd96fc3ca1a260d66f16ab22`;
+validator độc lập trên runtime cũng trả `True, 6896, []`. Phase directory không
+có `SHA256SUMS` riêng theo thiết kế hiện tại; hash nằm trong collection manifest
+và terminal matrix mới tạo checksum toàn campaign, vì vậy không được ghi nhầm
+là phase checksum đã tồn tại.
+
+Runner chuyển sang `aims-recovery-run-02` ngay sau boundary và đã ghi 476 row
+tại checkpoint 15:32Z. Capture vẫn active, `NRestarts=0`; Falco đủ sáu reader,
+zero stream failure, 4.196 dòng nguồn và 0 privacy-safe AIMS alert row. Đây là
+continuity evidence giữa phase, chưa phải metric FPR terminal.
