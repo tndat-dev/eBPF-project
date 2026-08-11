@@ -489,6 +489,7 @@ DERIVED=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811
 MATRIX="$DERIVED/paper-evaluation-results"
 cd "$MATRIX" && sha256sum -c SHA256SUMS
 python3 -m json.tool "$MATRIX/evaluation_matrix_manifest.json"
+python3 -m json.tool "$MATRIX/paired_statistics.json"
 find "$MATRIX" -mindepth 2 -maxdepth 2 -name result.json | sort
 ```
 
@@ -500,6 +501,13 @@ confirmation nhưng lấy fast-path từ live 200-scenario report; trường
 replay early warning trung thực. Không chạy lại validator theo cách ghi đè
 manifest sau assembler; `evaluation_matrix_manifest.json` đã nằm trong
 `SHA256SUMS`, nên thay đổi hậu kỳ phải bị xem là tamper.
+
+`paired_statistics.json` phải ghi 11 method và 55 pairwise comparison. Exact
+McNemar dùng outcome trên cùng `injection_id`, p-value được hiệu chỉnh
+Holm--Bonferroni; recall/restricted-time interval bootstrap theo workload block.
+CDF detected-only không được dùng để che detection miss: restricted
+time-to-detection giữ miss tại censor horizon và report nêu rõ selection bias
+của latency trên tập cùng detect.
 
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:

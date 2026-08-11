@@ -12,6 +12,7 @@ import shutil
 import tempfile
 from typing import Any
 
+from analyze_syscall_evaluation_matrix import analyze_matrix
 from evaluation_matrix_validation import validate_evaluation_matrix
 
 
@@ -68,6 +69,32 @@ def normalized_latency(document: dict[str, Any]) -> dict[str, Any]:
         "p99": document.get("p99"),
         "maximum": document.get("maximum", document.get("max")),
     }
+
+
+def normalized_outcomes(
+    items: list[dict[str, Any]], *, horizon_seconds: float,
+) -> list[dict[str, Any]]:
+    outcomes = []
+    for item in items:
+        latency = item.get(
+            "first_confirmation_latency_seconds",
+            item.get("first_alert_latency_seconds", item.get("latency_seconds")),
+        )
+        start, end = float(item["start"]), float(item["end"])
+        outcomes.append({
+            "injection_id": str(item["injection_id"]),
+            "pod_key": str(item["pod_key"]),
+            "scenario": str(item["scenario"]),
+            "seed": int(item["seed"]),
+            "rate": int(item["rate"]),
+            "detected": bool(item["detected"]),
+            "latency_seconds": float(latency) if latency is not None else None,
+            "censor_seconds": end - start + horizon_seconds,
+        })
+    outcomes.sort(key=lambda row: row["injection_id"])
+    if len(outcomes) != len({row["injection_id"] for row in outcomes}):
+        raise ValueError("duplicate injection ID in method outcomes")
+    return outcomes
 
 
 def classification_metrics(detected: int, trials: int, false_alerts: int) -> dict:
@@ -169,6 +196,12 @@ def build_ml_result(
     trials = int(attack["completed_trials"])
     detected = int(attack["detected_trials"])
     exposure = phase_exposure_hours(normal)
+    horizon = float(attack["post_attack_horizon_seconds"])
+    outcomes = normalized_outcomes(
+        list(attack.get("trials", [])), horizon_seconds=horizon,
+    )
+    if len(outcomes) != trials:
+        raise ValueError(f"{method}: attack outcomes are incomplete")
     result = {
         **common_result_fields(
             common, experiment_id,
@@ -195,6 +228,8 @@ def build_ml_result(
             **classification_metrics(detected, trials, false_alerts),
             "by_scenario": attack.get("by_scenario", {}),
             "by_workload": attack.get("by_workload", {}),
+            "post_attack_horizon_seconds": horizon,
+            "outcomes": outcomes,
         },
         "latency_seconds": normalized_latency(attack.get("latency_seconds", {})),
         "inference_ms": attack.get("trial_median_inference_ms", {}),
@@ -221,11 +256,18 @@ def build_rule_result(
 ) -> dict[str, Any]:
     trials, detected = int(attack["trials"]), int(attack["detected"])
     false_alerts = int(normal["false_alerts"])
+    horizon = float(attack["post_attack_horizon_seconds"])
+    outcomes = normalized_outcomes(
+        list(attack.get("outcomes", [])), horizon_seconds=horizon,
+    )
+    if len(outcomes) != trials:
+        raise ValueError(f"{method}: attack outcomes are incomplete")
     return {
         **common_result_fields(common, f"syscall__{method}", code_digest),
         "normal": normal,
         "attack": {
-            **attack, **classification_metrics(detected, trials, false_alerts),
+            **attack, "outcomes": outcomes,
+            **classification_metrics(detected, trials, false_alerts),
         },
         "latency_seconds": normalized_latency(latency),
         "statistics": {
@@ -422,6 +464,10 @@ def main() -> int:
             "trials": int(falco_attack["trial_count"]),
             "detected": int(falco_attack["detected_trials"]),
             "recall": falco_attack["recall"],
+            "post_attack_horizon_seconds": float(
+                falco_attack["post_attack_horizon_seconds"]
+            ),
+            "outcomes": falco_attack["trials"],
         }
         falco_result = build_rule_result(
             "falco_rule_only", falco_normal_summary, falco_attack_summary,
@@ -438,6 +484,13 @@ def main() -> int:
             json.dumps(falco_result, indent=2, sort_keys=True) + "\n"
         )
 
+        paired_statistics = analyze_matrix(
+            staging,
+            {f"syscall__{method}" for method in expected},
+        )
+        (staging / "paired_statistics.json").write_text(
+            json.dumps(paired_statistics, indent=2, sort_keys=True) + "\n"
+        )
         validation = validate_evaluation_matrix(staging, contract, {"syscall"})
         if not validation["valid"]:
             raise ValueError(f"assembled matrix is invalid: {validation['errors']}")

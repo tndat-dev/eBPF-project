@@ -70,12 +70,25 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
         "candidate_sha256": candidate,
         "initial_calibration_sha256": "b" * 64,
         "completed_trials": 200, "detected_trials": 180,
+        "post_attack_horizon_seconds": 30,
         "labels_used_for_training_or_tuning": False,
         "attack_capture_sha256": "c" * 64,
         "evaluation_protocol_sha256": "d" * 64,
         "recall": {"estimate": 0.9},
         "latency_seconds": {"count": 180, "median": 10},
         "trial_median_inference_ms": {"count": 200, "median": 1},
+        "trials": [
+            {
+                "injection_id": f"trial-{index:03d}",
+                "pod_key": "production/catalog", "scenario": "exec",
+                "seed": index % 5, "rate": 2, "start": index * 40,
+                "end": index * 40 + 5, "detected": index < 180,
+                "first_confirmation_latency_seconds": (
+                    2.0 if index < 180 else None
+                ),
+            }
+            for index in range(200)
+        ],
     }
     common = {
         "contract": {
@@ -101,6 +114,8 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
     assert result["attack"]["recall"]["estimate"] == 0.9
     assert result["attack"]["recall_point"] == 0.9
     assert result["latency_seconds"]["sample_count"] == 180
+    assert len(result["attack"]["outcomes"]) == 200
+    assert result["attack"]["outcomes"][0]["censor_seconds"] == 35
     assert result["normal_capture_sha256"] == "6" * 64
     assert len(result["code_sha256"]) == 64
 

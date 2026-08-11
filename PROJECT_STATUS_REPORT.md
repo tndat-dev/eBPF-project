@@ -3570,3 +3570,26 @@ Checkpoint trực tiếp `2026-08-11T18:36:29Z`: 8/24 phase hoàn chỉnh,
 7.658 dòng. Ba marker terminal vẫn chưa tồn tại. Do đó phần này hoàn thiện
 automation/provenance, chưa tạo ra latency, recall hay false-positive metric V8
 terminal và chưa đủ cơ sở tuyên bố hệ thống đạt chuẩn world-class paper.
+
+### 18.54 Paired significance và latency CDF không làm rò blind set (12-08-2026)
+
+Ma trận 11 phương pháp nay giữ outcome chuẩn hóa cho từng `injection_id`, gồm
+pod/workload, scenario, seed, rate, detection, latency và censor time. Assembler
+fail nếu thiếu outcome, trùng ID hoặc không đủ đúng số trial đã khai báo. Đây là
+điều kiện cần để so sánh paired; chỉ dùng recall aggregate của từng model sẽ bỏ
+mất tương quan do các phương pháp cùng nhìn một attack trial.
+
+`analyze_syscall_evaluation_matrix.py` kiểm tập injection và metadata phải giống
+nhau byte-level về ngữ nghĩa giữa cả 11 method trước khi tính. Output
+`paired_statistics.json` gồm 55 cặp so sánh: exact McNemar cho detection
+discordance, hiệu chỉnh đa kiểm định Holm--Bonferroni, chênh recall với bootstrap
+theo block workload, detected-latency CDF tại 1/2/5/10/20/30 giây và chênh
+restricted time-to-detection. Với trial bị miss, restricted metric dùng đúng
+censor horizon đã freeze thay vì âm thầm loại miss để làm latency đẹp hơn.
+
+Report vẫn công khai giới hạn: bootstrap chỉ có tám workload block; McNemar
+không kiểm false-alert rate; latency trên tập hai method cùng detect chỉ mang
+tính mô tả do selection bias. Runner chỉ đóng marker terminal khi có 11 method,
+55 comparison và toàn bundle checksum sạch. Local canonical suite sau thay đổi
+đạt `133 passed, 9 skipped`. Việc này hoàn thiện statistical automation; số
+liệu thật vẫn phải chờ chiến dịch V8 kết thúc và không được dùng để tune V8.

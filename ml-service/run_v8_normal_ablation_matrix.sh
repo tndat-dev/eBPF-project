@@ -196,11 +196,15 @@ run_attack_experiment syscall__shared_workload_model \
   --protocol "$EVALUATION_PROTOCOL" --attack-contract "$ATTACK_CONTRACT" \
   --output-root "$PAPER_MATRIX_ROOT"
 (cd "$PAPER_MATRIX_ROOT" && sha256sum -c SHA256SUMS)
-"$PYTHON_BIN" - "$PAPER_MATRIX_ROOT/evaluation_matrix_manifest.json" <<'PY'
+"$PYTHON_BIN" - "$PAPER_MATRIX_ROOT/evaluation_matrix_manifest.json" \
+  "$PAPER_MATRIX_ROOT/paired_statistics.json" <<'PY'
 import json, sys
 doc = json.load(open(sys.argv[1]))
 if doc.get("valid") is not True or doc.get("completed_experiments") != 11:
     raise SystemExit("terminal syscall evaluation matrix is incomplete")
+statistics = json.load(open(sys.argv[2]))
+if statistics.get("methods") != 11 or statistics.get("pairwise_comparisons") != 55:
+    raise SystemExit("terminal paired statistics are incomplete")
 PY
 
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
