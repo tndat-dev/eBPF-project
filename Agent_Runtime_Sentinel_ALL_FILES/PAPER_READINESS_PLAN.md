@@ -109,6 +109,9 @@ terminal independent evaluation, không chia/tune hậu nghiệm. Patch này ch�
 deploy sau capture; isolated VM tests đạt `31 passed`.
 Post-capture runner còn giữ cùng experiment lock và bắt buộc calibration
 provenance hash-bind fit dataset/candidate trước terminal replay.
+Timer handoff đã được cài thực tế lúc `12:01:12Z`; staging checksum 12/12 và
+focused VM suite `30 passed`. Integration start trong khi collector active trả
+75, không tạo completion marker và không sửa runtime source.
 
 Attack matrix tối thiểu, 5 run/scenario:
 

@@ -68,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `95 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `31` test đều pass |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `95 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31` và staging handoff `30` test đều pass |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -3134,6 +3134,22 @@ atomic-copy staging sau khi checksum pass, capture inactive và
 bằng user `dat`, giữ experiment lock, `CPUQuota=100%`, `MemoryMax=8G`, nice 15,
 timeout 36 giờ và không chứa promotion path. Marker `POST_CAPTURE_COMPLETE` chỉ
 được systemd tạo khi toàn bộ ExecStart trả thành công.
+
+### 18.42 Background handoff đã cài và kiểm interlock (11-08-2026)
+
+Staging release
+`/home/dat/v8-post-capture-staging/v8-paired-replay-20260811` chứa bốn file
+post-capture, deployer, năm test và hai systemd unit. `STAGING_SHA256SUMS` kiểm
+đủ 12/12 file; focused suite chạy bằng ML venv trên VM đạt `30 passed`.
+`aims-v8-post-capture.timer` đã enabled/active từ `12:01:12Z`, chu kỳ 15 phút.
+
+Lần start integration khi capture còn active trả đúng exit 75 nhưng systemd
+coi là waiting-success; `POST_CAPTURE_COMPLETE` không tồn tại và
+`aims-v8-capture.service` vẫn active. Vì cả hai giữ
+`.aims-normal-matrix.lock`, post-capture không thể copy source, train hay replay
+trước terminal release của collector. Timer sẽ tự thử lại sau disconnect; mọi
+derived output nằm ngoài immutable capture root và model production không bị
+thay đổi.
 
 Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
 được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được
