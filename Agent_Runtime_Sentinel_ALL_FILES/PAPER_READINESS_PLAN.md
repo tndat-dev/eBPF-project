@@ -95,6 +95,12 @@ independent run; không gọi 20 phase là 20 run. Syscall và agent-runtime có
 validate độc lập bằng `--track`, nhưng mỗi track vẫn fail nếu thiếu bất kỳ
 baseline/ablation nào hoặc capture/dataset/split/environment hash khác nhau.
 
+Normal capture V8 bắt đầu sạch lúc `2026-08-11T06:00:57Z` bằng systemd. Root
+snapshot code/unit/vocab, endpoint probe và traffic error logs theo phase; một
+partial preflight trước đó đã quarantine và cấm sử dụng. Run-01 là fit-only,
+run-02--06 mới là năm independent evaluation run. Campaign cần khoảng 28,8 giờ
+và chưa tạo metric model mới khi còn active.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

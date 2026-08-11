@@ -68,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `91 passed, 7 skipped` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `92 passed, 7 skipped`; focused V8 VM suites: `68 passed` và `11 passed` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -3046,3 +3046,46 @@ feature/injection v2 và vocabulary hash cố định. Split được khóa trư
 evaluation độc lập, mỗi run có bốn regime/phase 72 phút. Validator từ chối
 release/schema/vocab hash lệch hoặc bất kỳ leakage giữa fit/evaluation.
 Canonical local suite ở mốc này đạt `91 passed, 7 skipped`.
+
+### 18.40 V8 paired normal capture đã chạy nền (11-08-2026)
+
+Code V8 được deploy sau khi overhead đạt terminal state. Validator chạy trên VM
+với đúng candidate vocabulary trả `valid=true`; ba digest frozen là:
+
+- capture split: `c7e1e679974a0a842a0c657862c81f33fdd9caa7abea068bdf7142fb4aa87c30`;
+- evaluation contract: `76d9db55cd00f5512d0e0081b70bdd21fea16732032f22673aba12586e1dc21e`;
+- vocabulary: `62c492b4881e66d602b33eeb83e1774bd88f077434de402edfe73b4d266e92c4`.
+
+Lần start đầu fail trước collection vì hai Sentinel-owned AIMS loadgen không
+còn trên cluster. Manifest image-digest-pinned đã được apply lại. Preflight sau
+đó phát hiện root chưa snapshot source code và traffic outcome provenance, nên
+unit được dừng chủ động; partial 313KB chưa có collection manifest được chuyển
+nguyên vẹn vào
+`rejected/aims-v8-capture-v8-paired-replay-20260811-preflight-20260811T060000Z`.
+Không row nào từ partial này được dùng cho fit/evaluation.
+
+Harness cuối bổ sung:
+
+1. snapshot 15 runtime/harness/unit source file và copy frozen `vocab.pkl`;
+2. so sánh byte-for-byte mọi snapshot khi resume;
+3. endpoint probe trước/sau từng phase;
+4. error log của base/readmix loadgen theo phase;
+5. phase resume chỉ pass khi capture/hash/context, hai probe và traffic log đều
+   tồn tại; invalid phase bị quarantine;
+6. output root bắt buộc bằng release-bound path, không nhận đường dẫn tùy ý;
+7. cuối campaign canonical merge xác minh toàn bộ 24 source capture và atomic
+   freeze output.
+
+Campaign sạch được restart lúc `2026-08-11T06:00:57Z` dưới
+`aims-v8-capture.service`, enabled và active. Live validation sau collector start
+đạt `valid=true`: schema sequence v2, vector size 210, đúng release
+`v8-paired-replay-20260811`, `normal-run-01`, phase `aims-steady-run-01`, không
+lỗi. Snapshot source script và vocab đều trùng SHA với file đang chạy; 6/6
+Tetragon reader active và tám AIMS target deployment đã phát sinh window.
+
+Lịch tối thiểu là 6 run × 4 regime × 72 phút = 28,8 giờ, dự kiến xong khoảng
+`2026-08-12T10:50Z` nếu không có retry. Run-01 chỉ là fit data; 20 phase của
+run-02--06 mới là independent normal evaluation. Đây mới là collection đang
+chạy, chưa phải kết quả model/false-positive mới và chưa được dùng để claim
+world-class complete. Local suite hiện đạt `92 passed, 7 skipped`; focused V8
+suite trên VM đạt `68 passed` rồi `11 passed` sau hardening.

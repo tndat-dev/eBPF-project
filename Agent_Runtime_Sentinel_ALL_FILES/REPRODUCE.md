@@ -282,6 +282,21 @@ python3 ml-service/merge_feature_captures.py capture-run-*.jsonl \
   --output frozen-v8-capture.jsonl --require-injections
 ```
 
+Normal matrix V8 chạy disconnect-safe và tự resume phase hash-valid:
+
+```bash
+sudo systemctl status aims-v8-capture.service
+journalctl -u aims-v8-capture.service -f
+python3 ml-service/validate_feature_capture.py \
+  /home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811/\
+aims-steady-run-01/feature-capture.jsonl --output /tmp/live-validation.json
+```
+
+Không sửa source/unit/vocab trong khi campaign active: runner đã snapshot các
+file này và resume sẽ fail nếu byte thay đổi. Chỉ `frozen-normal-feature-
+capture.jsonl` sau đủ 24 phase và `SHA256SUMS` pass mới là canonical normal
+input; mọi root dưới `rejected/` bị cấm dùng.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 
