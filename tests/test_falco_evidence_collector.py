@@ -70,6 +70,13 @@ def test_log_timestamp_parser_is_timezone_safe():
     assert collector.line_timestamp("not-a-timestamp body") is None
 
 
+def test_clean_log_follow_eof_is_a_reconnect_not_a_failure():
+    assert collector.stream_exit_is_failure(0, "") is False
+    assert collector.stream_exit_is_failure(0, "\n") is False
+    assert collector.stream_exit_is_failure(1, "") is True
+    assert collector.stream_exit_is_failure(0, "transport warning") is True
+
+
 def test_systemd_collector_is_non_privileged_and_bounded():
     unit = (ROOT / "sentinel/systemd/aims-v8-falco-evidence.service").read_text()
     assert "User=dat" in unit

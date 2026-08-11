@@ -3415,3 +3415,75 @@ Runner chuyển sang `aims-recovery-run-02` ngay sau boundary và đã ghi 476 r
 tại checkpoint 15:32Z. Capture vẫn active, `NRestarts=0`; Falco đủ sáu reader,
 zero stream failure, 4.196 dòng nguồn và 0 privacy-safe AIMS alert row. Đây là
 continuity evidence giữa phase, chưa phải metric FPR terminal.
+
+### 18.50 Run-02 hoàn tất và shared-workload ablation đã thực thi được (12-08-2026)
+
+Checkpoint trực tiếp lúc `2026-08-11T18:06:17Z` xác nhận cả bốn phase run-02
+đã đóng manifest, nâng tổng số phase hoàn chỉnh lên 8/24; runner đang thu phase
+thứ 9 `aims-steady-run-03` và capture service vẫn `active/running`,
+`NRestarts=0`. `aims-recovery-run-02` có 6.895 window trong 4.320,93 giây,
+SHA-256
+`14f1744066163d118841ee1bc8473fdb3ae7c2f46f5281e30d18337d7beb990f`;
+`aims-toolmix-run-02` có 6.896 window trong 4.320,76 giây, SHA-256
+`cd67e24be6a6f0135dd42d47a63c75980d55f32ee568545885f51ca656db5ef9`.
+Validator chạy độc lập bằng ML venv trả `valid=true`, zero error, đúng release,
+run, phase, regime, vector 210 và privacy contract không lưu argument/file/
+network payload cho cả hai capture. Sáu node Kubernetes v1.34.10 đều Ready và
+không có pod ngoài Running/Completed ở snapshot đầu checkpoint.
+
+Protocol trước đó đã khai báo `shared_workload_model` nhưng chưa có trainer hay
+router thực tế. Khoảng trống này đã được đóng bằng
+`train_shared_workload_candidate.py` và `SharedWorkloadModelManager`. Trainer
+chỉ mở fit dataset run-01 đã frozen, ghép toàn bộ partition train trước toàn bộ
+partition development validation, rồi fit đúng một bundle `shared/workload`.
+Nó hash-bind từng source array, reference per-workload candidate, vocabulary và
+dataset manifest; report ghi rõ không dùng independent-evaluation/attack row
+hay label. Router ánh xạ tám workload vào cùng một object model, nhưng lấy
+behavior limit đã frozen theo từng workload từ reference candidate. Như vậy
+ablation chỉ thay đổi model routing, không vô tình loại bỏ behavior gate.
+
+Shared candidate có calibration riêng, cũng chỉ được tạo từ fit rows, và dùng
+chung production detector evaluator trên 20 phase run-02--06 với policy
+`model_routing=shared_workload`. Resume identity bind model-routing nên không
+thể nối checkpoint pooled với per-workload. Normal-ablation runner hiện chạy
+thêm experiment `syscall__shared_workload_model`; không train/promote từ
+holdout hay blind attack. Bundle hậu kỳ tăng lên 49 file hash-valid; focused
+suite trên VM với staging ưu tiên trước runtime dependency đạt `116 passed`.
+Staging được swap nguyên tử, giữ hai bản cũ làm rollback; active capture source
+không bị copy, restart hay thay đổi.
+
+### 18.51 Sửa phân loại Falco reconnect và backfill lại evidence (12-08-2026)
+
+Audit cùng checkpoint phát hiện collector state cũ tăng đồng loạt
+`stream_failures=6` lúc khoảng `16:35:43Z`, dù sáu reader đã active trở lại và
+coverage hiện tại healthy. Sáu child `kubectl logs --follow` đều kết thúc với
+return code 0, stderr rỗng, đúng khoảng bốn giờ sau khi collector bắt đầu. Đây
+là clean EOF của long-lived API stream và collector tự reconnect từ cùng
+`since_time`; implementation cũ đã ghi nhầm mọi process exit thành failure.
+Nếu giữ nguyên, Falco normal/attack finalizer sẽ fail-closed dù không có bằng
+chứng transport error.
+
+Collector nay tách `stream_reconnects` khỏi `stream_failures`: chỉ exit khác 0
+hoặc stderr khác rỗng mới là failure; clean EOF được ghi thành reconnect có
+timestamp/pod/return code/hash stderr. Event ID vẫn de-duplicate khi backfill.
+Normal và attack report công khai cả số reconnect, trong khi terminal gate vẫn
+bắt buộc `stream_failures=0`. Regression test bao phủ bốn trường hợp exit; toàn
+bộ staged suite đạt 116/116.
+
+Evidence root cũ đã được giữ nguyên tại hậu tố
+`rejected-stream-classification-20260811T1818Z`, không sửa state để làm đẹp số.
+Collector mới được khởi động với source SHA-256
+`58a749542f1619a099e1ee83c27a9fa8235af53568262a8be78bbda1519d10e9`
+và backfill từ mốc frozen `2026-08-11T12:05:59Z`. Lúc `18:10:29Z`, source
+runtime trùng hash với source snapshot trong evidence; 6/6 reader active,
+`coverage_healthy=true`, `stream_failures=0`, 7.189 raw line đã đọc lại và 0
+privacy-safe AIMS alert row.
+
+Ba lần systemd start đầu trả `226/NAMESPACE` vì `ReadWritePaths` chưa tồn tại
+sau khi archive root; thư mục rỗng được tạo rồi collector thật bắt đầu lúc
+`18:10:08Z`. Vì vậy service manager đang ghi `NRestarts=3`; sự cố orchestration
+này được giữ trong báo cáo, còn collector state mới bắt đầu sau sự cố và
+backfill từ mốc cũ. Zero alert tại đây vẫn chỉ là số giữa campaign, không phải
+FPR terminal. `POST_CAPTURE_COMPLETE`, `FALCO_ATTACK_EVIDENCE_COMPLETE` và
+`NORMAL_ABLATION_REPLAY_COMPLETE` vẫn chưa tồn tại; chưa có V8 latency/recall/
+false-positive result để công bố.

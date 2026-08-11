@@ -241,7 +241,10 @@ python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
 Normal replay dùng cùng detector path có ba tùy chọn ablation explicit:
 `--disable-behavior-gate`, `--disable-extreme-volume-gate` và
 `--disable-adaptive-threshold`, `--confirmation-windows 1`, cùng
-`--score-component ensemble|lstm|isolation_forest`. Không ghi đè cùng output
+`--score-component ensemble|lstm|isolation_forest`. Shared-workload ablation
+dùng thêm `--model-routing shared_workload`; candidate này phải do
+`train_shared_workload_candidate.py` fit từ đúng run-01 và có calibration
+fit-only riêng. Không ghi đè cùng output
 giữa các policy; checkpoint bind policy/component và sẽ fail nếu cố resume chéo
 cấu hình. Không truyền tùy chọn nào là production default: adaptive/behavior/
 extreme-volume bật, ensemble score và hai window.
@@ -409,6 +412,12 @@ systemctl status aims-v8-falco-evidence.service
 FALCO=/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811
 python3 -m json.tool "$FALCO/collector-state.json"
 ```
+
+State terminal phải có đủ sáu `active_readers`, `coverage_healthy=true` và
+`stream_failures=0`. `stream_reconnects` có thể khác 0 khi API kết thúc clean
+`kubectl logs -f` với return code 0/stderr rỗng; reconnect được công khai nhưng
+không bị đánh đồng với transport failure. Exit khác 0 hoặc stderr khác rỗng vẫn
+làm gate fail-closed.
 
 Post-capture runner tự gọi finalizer dưới đây trước khi fit model. Có thể chạy
 độc lập để audit sau khi 20 holdout phase kết thúc và state đã settle:

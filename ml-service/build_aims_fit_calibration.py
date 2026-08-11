@@ -17,7 +17,7 @@ import numpy as np
 
 from adaptive_threshold import StreamingThreshold, load_thresholds, save_calibrators
 from graph_signals import evaluate_behavior
-from ml_models import ModelManager
+from ml_models import ModelManager, SharedWorkloadModelManager
 
 
 def sha256(path: Path) -> str:
@@ -58,7 +58,12 @@ def main() -> int:
     if dataset.get("dataset_role") != "candidate_fit":
         raise ValueError("dataset manifest role mismatch")
 
-    manager = ModelManager(str(candidate), str(candidate / "vocab.pkl"))
+    manager_class = (
+        SharedWorkloadModelManager
+        if training.get("model_routing") == "shared_workload"
+        else ModelManager
+    )
+    manager = manager_class(str(candidate), str(candidate / "vocab.pkl"))
     manager.load_all()
     thresholds = load_thresholds(manager, minimum=0.80)
     calibrators = {

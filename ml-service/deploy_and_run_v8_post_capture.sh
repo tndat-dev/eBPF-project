@@ -12,7 +12,8 @@ EVIDENCE_ROOT=${V8_EVIDENCE_ROOT:-$RUNTIME_ROOT/aims-v8-capture-v8-paired-replay
 (cd "$STAGING_ROOT" && sha256sum -c STAGING_SHA256SUMS)
 for unit in aims-v8-post-capture.service aims-v8-post-capture.timer \
   aims-v8-blind-attack.service aims-v8-blind-attack.timer \
-  aims-v8-normal-ablation.service aims-v8-normal-ablation.timer; do
+  aims-v8-normal-ablation.service aims-v8-normal-ablation.timer \
+  aims-v8-falco-evidence.service; do
   cmp -s "$STAGING_ROOT/sentinel/systemd/$unit" "/etc/systemd/system/$unit" || {
     printf 'REFUSING: installed systemd unit differs from staging: %s\n' \
       "$unit" >&2
@@ -39,15 +40,18 @@ if not binary.is_file() or digest(binary) != contract["binary"]["sha256"]:
     raise SystemExit("V8 blind attack binary digest mismatch")
 PY
 
-for name in anomaly_detector2.py build_feature_replay_dataset.py \
-  build_phase_dataset.py evaluate_aims_normal_split.py \
+for name in anomaly_detector2.py build_aims_fit_calibration.py \
+  build_feature_replay_dataset.py build_phase_dataset.py \
+  evaluate_aims_normal_split.py \
   evaluate_tetragon_rule_replay.py \
   evaluation_matrix_validation.py \
+  falco_evidence_collector.py \
   falco_attack_evidence_finalizer.py \
   falco_evidence_finalizer.py \
   merge_feature_captures.py run_aims_blind_matrix.py \
   run_aims_split_evaluation.sh run_v8_blind_attack.sh \
-  run_v8_normal_ablation_matrix.sh \
+  run_v8_normal_ablation_matrix.sh train_candidate.py \
+  train_shared_workload_candidate.py ml_models.py \
   run_v8_post_capture.sh syscall_evaluation_protocol.json \
   v8_blind_attack_contract.json; do
   source=$STAGING_ROOT/ml-service/$name
@@ -67,6 +71,8 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_tetragon_rule_replay.py \
   tests/test_phase_dataset.py \
   tests/test_aims_normal_split_evaluator.py \
+  tests/test_shared_workload_model.py \
+  tests/test_falco_evidence_collector.py \
   tests/test_falco_evidence_finalizer.py \
   tests/test_falco_attack_evidence_finalizer.py \
   tests/test_aims_blind_matrix.py \

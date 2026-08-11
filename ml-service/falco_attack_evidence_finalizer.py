@@ -234,6 +234,7 @@ def finalize(
             "expected_readers": state["expected_readers"],
             "active_readers": state["active_readers"],
             "stream_failures": state["stream_failures"],
+            "stream_reconnects": int(state.get("stream_reconnects", 0)),
             "raw_lines_observed": state["lines_seen"],
             "healthy_at_finalization": True,
         },

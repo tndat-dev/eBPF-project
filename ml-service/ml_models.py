@@ -595,6 +595,87 @@ class ModelManager:
         return list(self._models.keys())
 
 
+class SharedWorkloadModelManager:
+    """Route every declared workload through one genuinely pooled model.
+
+    The shared-model ablation must not accidentally remove the production
+    behavior gate.  The pooled checkpoint therefore supplies only ML scores;
+    workload-specific behavior limits are frozen beside the checkpoint and
+    returned for the original deployment key.
+    """
+
+    SHARED_MODEL_KEY = "shared/workload"
+    ROUTING_SCHEMA = "sentinel-shared-workload-behavior/v1"
+
+    def __init__(self, model_dir: str, vocab_path: str):
+        self.model_dir = model_dir
+        self.vocab_path = vocab_path
+        self._models: Dict[str, PodModelBundle] = {}
+        self._shared_model: Optional[PodModelBundle] = None
+        self._behavior_limits: Dict[str, dict] = {}
+        with open(vocab_path, "rb") as handle:
+            self.vocab = pickle.load(handle)
+        self.vocab_size = len(self.vocab)
+
+    def load_all(self):
+        report_path = Path(self.model_dir) / "training_report.json"
+        behavior_path = Path(self.model_dir) / "workload_behavior_limits.json"
+        if not report_path.is_file() or not behavior_path.is_file():
+            raise RuntimeError("shared workload candidate provenance is incomplete")
+        import json
+        report = json.loads(report_path.read_text())
+        behavior = json.loads(behavior_path.read_text())
+        if report.get("model_routing") != "shared_workload":
+            raise RuntimeError("candidate is not a shared-workload model")
+        if report.get("shared_model_key") != self.SHARED_MODEL_KEY:
+            raise RuntimeError("shared workload model key mismatch")
+        targets = report.get("targets")
+        if (
+            not isinstance(targets, list) or not targets
+            or len(set(targets)) != len(targets)
+        ):
+            raise RuntimeError("shared workload target contract is invalid")
+        if (
+            behavior.get("schema") != self.ROUTING_SCHEMA
+            or set(behavior.get("workloads", {})) != set(targets)
+        ):
+            raise RuntimeError("shared workload behavior contract mismatch")
+        shared = PodModelBundle.load(self.SHARED_MODEL_KEY, self.model_dir)
+        if shared.input_dim != self.vocab_size:
+            raise RuntimeError(
+                f"shared model input_dim={shared.input_dim}, "
+                f"vocab_size={self.vocab_size}"
+            )
+        self._shared_model = shared
+        self._behavior_limits = {
+            key: dict(value) for key, value in behavior["workloads"].items()
+        }
+        # AdaptiveThreshold deliberately sees the same pooled fit-score tail
+        # for every route. Runtime state remains isolated by workload key.
+        self._models = {key: shared for key in targets}
+
+    def score(self, pod_key: str, feature_vector: np.ndarray) -> Optional[dict]:
+        if pod_key not in self._models or self._shared_model is None:
+            return None
+        ensemble, lstm, iso = self._shared_model.predict(feature_vector)
+        return {
+            "pod_key": pod_key,
+            "ensemble_score": round(ensemble, 4),
+            "lstm_score": round(lstm, 4),
+            "if_score": round(iso, 4),
+            "is_anomaly": ensemble >= PodModelBundle.ANOMALY_THRESHOLD,
+            "threshold": PodModelBundle.ANOMALY_THRESHOLD,
+            "behavior_limits": dict(self._behavior_limits[pod_key]),
+            "shared_model_key": self.SHARED_MODEL_KEY,
+        }
+
+    def get_model(self, pod_key: str) -> Optional[PodModelBundle]:
+        return self._models.get(pod_key)
+
+    def list_models(self) -> list:
+        return list(self._models.keys())
+
+
 # ─────────────────────────────────────────────
 # Train script — chạy trực tiếp
 # ─────────────────────────────────────────────

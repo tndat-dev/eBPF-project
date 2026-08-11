@@ -27,7 +27,7 @@ from adaptive_threshold import load_thresholds
 from aims_matrix_validation import validate_matrix
 from build_phase_dataset import phase_role_contract
 from feature_engineering import FeatureVector
-from ml_models import ModelManager
+from ml_models import ModelManager, SharedWorkloadModelManager
 
 
 EVALUATION_ROLES = (
@@ -423,6 +423,9 @@ def main() -> int:
                         default=2)
     parser.add_argument("--score-component", choices=SCORE_COMPONENTS,
                         default="ensemble")
+    parser.add_argument("--model-routing",
+                        choices=("per_workload", "shared_workload"),
+                        default="per_workload")
     args = parser.parse_args()
 
     evidence_root = args.evidence_root.resolve()
@@ -461,6 +464,7 @@ def main() -> int:
             "enable_adaptive_threshold": not args.disable_adaptive_threshold,
             "confirmation_windows": args.confirmation_windows,
             "score_component": args.score_component,
+            "model_routing": args.model_routing,
         },
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -533,7 +537,14 @@ def main() -> int:
         if len(values) != 1 or not values.issubset(completed_provenance[name]):
             raise ValueError(f"evaluation provenance drift for {name}")
 
-    candidate_manager = ModelManager(
+    declared_routing = training_report.get("model_routing", "per_workload")
+    if declared_routing != args.model_routing:
+        raise ValueError("candidate model-routing contract mismatch")
+    manager_class = (
+        SharedWorkloadModelManager
+        if args.model_routing == "shared_workload" else ModelManager
+    )
+    candidate_manager = manager_class(
         str(candidate), str(candidate / "vocab.pkl")
     )
     candidate_manager.load_all()
@@ -603,6 +614,7 @@ def main() -> int:
             "enable_adaptive_threshold": not args.disable_adaptive_threshold,
             "confirmation_windows": args.confirmation_windows,
             "score_component": args.score_component,
+            "model_routing": args.model_routing,
         },
     )
     write_report(output, report)

@@ -120,7 +120,8 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
         raise ValueError(f"{pod_key}: dataset hash does not match manifest")
     expected_train = int(dataset_spec.get("train_count", -1))
     expected_validation = int(dataset_spec.get("validation_count", -1))
-    trainer_validation = max(3, int(round(len(X) * 0.20)))
+    validation_ratio = expected_validation / len(X)
+    trainer_validation = max(3, int(round(len(X) * validation_ratio)))
     trainer_validation = min(trainer_validation, len(X) - 2)
     if (
         expected_train + expected_validation != len(X)
@@ -159,7 +160,10 @@ def train_one(pod_key: str, data_path: Path, output_dir: Path, vocab: dict,
         pod_key=pod_key, input_dim=X.shape[1], model_version=model_version,
     )
     started = time.perf_counter()
-    history = model.train(X, epochs=epochs, batch_size=batch_size)
+    history = model.train(
+        X, epochs=epochs, batch_size=batch_size,
+        val_ratio=validation_ratio,
+    )
     train_seconds = time.perf_counter() - started
 
     n_val = len(model.validation_scores)

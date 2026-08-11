@@ -45,6 +45,17 @@ def line_timestamp(line: str) -> float | None:
         return None
 
 
+def stream_exit_is_failure(returncode: int, stderr: str) -> bool:
+    """Distinguish an expected log-follow EOF from a broken reader.
+
+    Kubernetes/API proxies may close a healthy long-lived ``kubectl logs -f``
+    request with exit code zero and no diagnostic.  The collector immediately
+    reconnects from the frozen ``since_time`` and de-duplicates event IDs, so
+    that boundary is auditable but is not a continuity failure.
+    """
+    return int(returncode) != 0 or bool(stderr.strip())
+
+
 def parse_falco_line(
     line: str, *, source_pod: str, source_node: str, release_id: str,
 ) -> dict[str, Any] | None:
@@ -104,6 +115,7 @@ class Collector:
         self.readers: dict[str, threading.Thread] = {}
         self.active: set[str] = set()
         self.failures: list[dict[str, Any]] = []
+        self.reconnects: list[dict[str, Any]] = []
         self.reader_ranges: dict[str, dict[str, Any]] = {}
         self.lines_seen = 0
         self.rows_written = 0
@@ -246,14 +258,19 @@ class Collector:
                     self.append(row)
             stderr = process.stderr.read() if process.stderr else ""
             returncode = process.wait()
+            detail = {
+                "observed_at": utc_now(), "pod": pod,
+                "returncode": returncode,
+                "stderr_sha256": sha256_bytes(stderr.encode()),
+            }
             with self.lock:
                 self.active.discard(pod)
-                self.failures.append({
-                    "observed_at": utc_now(), "pod": pod,
-                    "returncode": returncode,
-                    "stderr_sha256": sha256_bytes(stderr.encode()),
-                })
-                self.failures = self.failures[-100:]
+                if stream_exit_is_failure(returncode, stderr):
+                    self.failures.append(detail)
+                    self.failures = self.failures[-100:]
+                else:
+                    self.reconnects.append(detail)
+                    self.reconnects = self.reconnects[-100:]
             if self.stop.wait(5):
                 break
 
@@ -275,6 +292,8 @@ class Collector:
                 ),
                 "stream_failures": len(self.failures),
                 "stream_failure_details": list(self.failures),
+                "stream_reconnects": len(self.reconnects),
+                "stream_reconnect_details": list(self.reconnects),
                 "reader_ranges": {
                     pod: dict(item)
                     for pod, item in sorted(self.reader_ranges.items())

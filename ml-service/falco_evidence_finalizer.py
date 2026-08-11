@@ -315,6 +315,7 @@ def finalize(
             "ready_falco_pods": ready,
             "active_readers": list(state["active_readers"]),
             "stream_failures": state["stream_failures"],
+            "stream_reconnects": int(state.get("stream_reconnects", 0)),
             "raw_lines_observed": state["lines_seen"],
             "reader_ranges": ranges,
             "active_readers_with_zero_log_output": zero_output,

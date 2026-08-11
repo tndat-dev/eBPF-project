@@ -25,6 +25,10 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "syscall__without_behavior_gate" in script
     assert "syscall__without_extreme_volume_gate" in script
     assert "syscall__without_two_window_confirmation" in script
+    assert "train_shared_workload_candidate.py" in script
+    assert "syscall__shared_workload_model" in script
+    assert "--model-routing shared_workload" in script
+    assert "v8-shared-workload-calibration" in script
     assert "rc != 0 && $rc != 3" in script
     assert "SHA256SUMS" in script
     assert "NORMAL_ABLATION_REPLAY_COMPLETE" in script

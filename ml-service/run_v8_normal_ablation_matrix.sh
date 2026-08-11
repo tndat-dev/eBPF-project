@@ -15,6 +15,9 @@ OUTPUT_ROOT=${V8_NORMAL_ABLATION_ROOT:-$DERIVED_ROOT/normal-ablation-replay}
 ATTACK_CAPTURE=${V8_ATTACK_CAPTURE:-/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/frozen-attack-feature-capture.jsonl}
 NORMAL_CAPTURE=$EVIDENCE_ROOT/frozen-normal-feature-capture.jsonl
 TETRAGON_OUTPUT=$DERIVED_ROOT/tetragon-rule-only-replay
+SHARED_CANDIDATE=$DERIVED_ROOT/models-v8-shared-workload
+SHARED_CALIBRATION=$DERIVED_ROOT/v8-shared-workload-calibration.json
+SHARED_CALIBRATION_REPORT=$DERIVED_ROOT/v8-shared-workload-calibration.report.json
 
 [[ -r "$DERIVED_ROOT/POST_CAPTURE_COMPLETE" ]] || {
   printf 'WAITING: terminal V8 normal candidate is incomplete\n'
@@ -29,6 +32,33 @@ for path in "$CANDIDATE/training_report.json" "$CALIBRATION" \
 done
 
 mkdir -p "$OUTPUT_ROOT"
+
+if [[ ! -r "$SHARED_CANDIDATE/training_report.json" ]]; then
+  set +e
+  "$PYTHON_BIN" "$ROOT_DIR/train_shared_workload_candidate.py" \
+    --fit-dataset "$DERIVED_ROOT/fit-dataset" \
+    --reference-candidate "$CANDIDATE" --output "$SHARED_CANDIDATE"
+  shared_rc=$?
+  set -e
+  [[ $shared_rc == 0 || $shared_rc == 3 ]] || exit "$shared_rc"
+fi
+"$PYTHON_BIN" - "$SHARED_CANDIDATE/training_report.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+if doc.get("model_routing") != "shared_workload":
+    raise SystemExit("shared-workload training provenance mismatch")
+if doc.get("labels_used_for_training_or_tuning") is not False:
+    raise SystemExit("shared-workload model does not exclude labels")
+PY
+if [[ ! -r "$SHARED_CALIBRATION_REPORT" ]]; then
+  [[ ! -e "$SHARED_CALIBRATION" ]] || {
+    printf 'REFUSING: shared calibration exists without report\n' >&2
+    exit 4
+  }
+  "$PYTHON_BIN" "$ROOT_DIR/build_aims_fit_calibration.py" \
+    --candidate "$SHARED_CANDIDATE" --output "$SHARED_CALIBRATION" \
+    --report "$SHARED_CALIBRATION_REPORT"
+fi
 
 "$PYTHON_BIN" "$ROOT_DIR/evaluate_tetragon_rule_replay.py" \
   --normal-capture "$NORMAL_CAPTURE" --attack-capture "$ATTACK_CAPTURE" \
@@ -96,6 +126,13 @@ run_experiment syscall__without_extreme_volume_gate \
   --disable-extreme-volume-gate
 run_experiment syscall__without_two_window_confirmation \
   --confirmation-windows 1
+
+# This method has a separately fitted pooled model and fit-only calibration.
+# It still reuses the exact evaluator and immutable run-02--06 holdouts.
+CANDIDATE=$SHARED_CANDIDATE
+CALIBRATION=$SHARED_CALIBRATION
+CALIBRATION_REPORT=$SHARED_CALIBRATION_REPORT
+run_experiment syscall__shared_workload_model --model-routing shared_workload
 
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
   | sort -z | xargs -0 sha256sum >"$OUTPUT_ROOT/SHA256SUMS"
