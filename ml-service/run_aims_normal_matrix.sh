@@ -66,6 +66,7 @@ mkdir -p "$EVIDENCE_ROOT"
 
 snapshot_file() {
   local source=$1 destination=$2
+  mkdir -p "$(dirname "$destination")"
   if [[ -e "$destination" ]]; then
     cmp -s "$source" "$destination" || {
       printf 'experiment artifact changed during resume: %s\n' "$destination" >&2
@@ -74,6 +75,56 @@ snapshot_file() {
   else
     cp "$source" "$destination"
   fi
+}
+
+snapshot_runtime() {
+  local name
+  for name in \
+    run_aims_normal_matrix.sh run_aims_candidate.sh set_aims_traffic_regime.sh \
+    collect_real_baseline.py feature_capture_io.py validate_feature_capture.py \
+    merge_feature_captures.py validate_v8_capture_contract.py \
+    aims_matrix_validation.py artifact_integrity.py collection_timing.py \
+    feature_engineering.py tetragon_consumer.py workload_identity.py; do
+    snapshot_file "$ROOT_DIR/$name" "$EVIDENCE_ROOT/code/$name"
+  done
+  snapshot_file "$VOCAB" "$EVIDENCE_ROOT/vocab.pkl"
+  if [[ -r /etc/systemd/system/aims-v8-capture.service ]]; then
+    snapshot_file /etc/systemd/system/aims-v8-capture.service \
+      "$EVIDENCE_ROOT/code/aims-v8-capture.service"
+  fi
+}
+
+probe_aims_endpoints() {
+  local destination=$1 pod path
+  pod=$(kubectl -n production get pod \
+    -l app.kubernetes.io/name=aims-sentinel-loadgen \
+    -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' \
+    | awk '{print $1}')
+  [[ -n "$pod" ]] || { printf 'no running AIMS loadgen pod\n' >&2; return 1; }
+  : >"$destination"
+  for path in / /api/health/ /api/auth/me/ /api/products/ /api/cart/ \
+    /api/inventory/ /api/orders/ /api/payments/ /api/notifications/ \
+    /api/security/; do
+    printf 'endpoint=%s\n' "$path" >>"$destination"
+    kubectl -n production exec "$pod" -- wget -S -O /dev/null -T 5 \
+      "http://aims-ingress-istio.istio-ingress.svc.cluster.local$path" \
+      >>"$destination" 2>&1 || true
+  done
+}
+
+capture_traffic_logs() {
+  local output=$1 deployment replicas
+  for deployment in aims-sentinel-loadgen aims-sentinel-readmix-loadgen; do
+    replicas=$(kubectl -n production get deployment "$deployment" \
+      -o jsonpath='{.spec.replicas}')
+    if (( replicas > 0 )); then
+      kubectl -n production logs \
+        -l "app.kubernetes.io/name=$deployment" --all-containers --prefix \
+        >"$output/traffic-errors-$deployment.log"
+    else
+      : >"$output/traffic-errors-$deployment.log"
+    fi
+  done
 }
 
 snapshot_file "$ROOT_DIR/aims_release_contract.json" \
@@ -85,6 +136,7 @@ if [[ "$FEATURE_CAPTURE_MODE" != "off" ]]; then
     "$EVIDENCE_ROOT/v8_capture_split_contract.json"
   snapshot_file "$EVALUATION_CONTRACT" \
     "$EVIDENCE_ROOT/evaluation_matrix_contract.json"
+  snapshot_runtime
 fi
 [[ -e "$EVIDENCE_ROOT/nodes-before.txt" ]] || \
   kubectl get nodes -o wide >"$EVIDENCE_ROOT/nodes-before.txt"
@@ -127,6 +179,12 @@ if capture_mode != "off":
         match = re.fullmatch(r"aims-([a-z]+)-run-([0-9]+)", phase)
         context = feature["context"]
         validation = validate_capture(capture_path)
+        auxiliary = [
+            phase_root / "endpoint-probe-before.txt",
+            phase_root / "endpoint-probe-after.txt",
+            phase_root / "traffic-errors-aims-sentinel-loadgen.log",
+            phase_root / "traffic-errors-aims-sentinel-readmix-loadgen.log",
+        ]
         capture_valid = bool(
             match
             and capture_path.is_relative_to(phase_root)
@@ -135,6 +193,9 @@ if capture_mode != "off":
             and feature["sha256"] == hashlib.sha256(capture_path.read_bytes()).hexdigest()
             and feature["validation"].get("valid") is True
             and validation["valid"]
+            and all(path.is_file() for path in auxiliary)
+            and auxiliary[0].stat().st_size > 0
+            and auxiliary[1].stat().st_size > 0
             and context == {
                 "release_id": release_id,
                 "run_id": f"normal-run-{int(match.group(2)):02d}",
@@ -171,6 +232,8 @@ for run in $(seq 1 "$RUNS_PER_REGIME"); do
     fi
     "$ROOT_DIR/set_aims_traffic_regime.sh" "$regime"
     sleep "$SETTLE_SECONDS"
+    mkdir -p "$output"
+    probe_aims_endpoints "$output/endpoint-probe-before.txt"
     capture_environment=(
       "SENTINEL_FEATURE_CAPTURE=$FEATURE_CAPTURE_MODE"
     )
@@ -186,6 +249,8 @@ for run in $(seq 1 "$RUNS_PER_REGIME"); do
     env "${capture_environment[@]}" MIN_WINDOWS=30 MAX_WINDOWS_PER_TARGET=0 \
       "$ROOT_DIR/run_aims_candidate.sh" collect "$phase" \
       "$MINUTES_PER_RUN" "$output"
+    probe_aims_endpoints "$output/endpoint-probe-after.txt"
+    capture_traffic_logs "$output"
   done
 done
 

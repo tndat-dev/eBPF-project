@@ -34,3 +34,21 @@ def test_split_evaluation_unit_is_bounded_and_non_privileged():
     assert "SuccessExitStatus=75" in unit
     assert "TimeoutStartSec=6h" in unit
     assert "promote" not in unit.lower()
+
+
+def test_v8_capture_is_release_bound_and_snapshots_runtime_and_traffic():
+    unit = (SYSTEMD_ROOT / "aims-v8-capture.service").read_text()
+    script = (SERVICE_ROOT / "run_aims_normal_matrix.sh").read_text()
+    assert "User=dat" in unit
+    assert "NoNewPrivileges=true" in unit
+    assert "EnvironmentFile=/home/dat/ml-service/v8-capture.env" in unit
+    assert "RUNS_PER_REGIME=6" in unit
+    assert "MINUTES_PER_RUN=72" in unit
+    assert "Conflicts=aims-overhead-counterbalanced-v2.service" in unit
+    assert 'aims-v8-capture-$CAPTURE_RELEASE_ID' in script
+    assert "snapshot_runtime" in script
+    assert 'snapshot_file "$VOCAB"' in script
+    assert "endpoint-probe-before.txt" in script
+    assert "endpoint-probe-after.txt" in script
+    assert "traffic-errors-$deployment.log" in script
+    assert "merge_feature_captures.py" in script
