@@ -1,0 +1,91 @@
+{
+  "schema": "sentinel-generalization-evaluation-contract/v1",
+  "protocol_id": "v9-generalization-preregistered-20260812",
+  "materialized_at": "2026-08-11T18:55:00Z",
+  "registration_boundary": {
+    "v8_normal_capture_active": true,
+    "v8_blind_attack_started": false,
+    "v8_holdout_or_attack_results_inspected": false,
+    "claim": "protocol frozen before V8 blind attack and before any V9/generalization collection"
+  },
+  "parent_release_id": "v8-paired-replay-20260811",
+  "parent_contracts": {
+    "aims_release_contract.json": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006",
+    "evaluation_matrix_contract.json": "76d9db55cd00f5512d0e0081b70bdd21fea16732032f22673aba12586e1dc21e",
+    "syscall_evaluation_protocol.json": "7df71b5ac8835bb6a56ca9a0532f5692ee775feaee7ba1454ac53efbc4314f90",
+    "v8_blind_attack_contract.json": "a42b81b0bbaf3ccee439cf9e2e1d5b555f1f7ef606a1eaf346e9690755c654cf",
+    "v8_capture_split_contract.json": "c7e1e679974a0a842a0c657862c81f33fdd9caa7abea068bdf7142fb4aa87c30"
+  },
+  "eligible_targets": [
+    "production/aims-frontend",
+    "production/api-gateway",
+    "production/auth-service",
+    "production/cart-service",
+    "production/catalog-service",
+    "production/inventory-service",
+    "production/order-service",
+    "production/security-telemetry-service"
+  ],
+  "capture_schema": {
+    "schema": "sentinel-feature-window/v3",
+    "required_identity_fields": [
+      "cluster_id",
+      "workload_image_digest",
+      "workload_version_id"
+    ],
+    "image_digest_must_be_immutable": true,
+    "raw_arguments_or_payloads_forbidden": true
+  },
+  "traffic_regimes": ["steady", "burst", "recovery", "toolmix"],
+  "generalization_tracks": {
+    "leave_one_workload_out": {
+      "folds": [
+        {"fold": "lowo-01", "held_out": "production/aims-frontend"},
+        {"fold": "lowo-02", "held_out": "production/api-gateway"},
+        {"fold": "lowo-03", "held_out": "production/auth-service"},
+        {"fold": "lowo-04", "held_out": "production/cart-service"},
+        {"fold": "lowo-05", "held_out": "production/catalog-service"},
+        {"fold": "lowo-06", "held_out": "production/inventory-service"},
+        {"fold": "lowo-07", "held_out": "production/order-service"},
+        {"fold": "lowo-08", "held_out": "production/security-telemetry-service"}
+      ],
+      "fit_source": "V8 candidate_fit run-01 from the seven non-held workloads only",
+      "model_routing": "one pooled shared model per fold",
+      "held_out_rows_used_for_fit_or_calibration": false,
+      "held_out_behavior_limits_used": false,
+      "adaptive_threshold_on_held_out_data": false,
+      "global_threshold_source": "seven-workload fit-only calibration",
+      "normal_test_runs": 5,
+      "normal_test_regimes": 4,
+      "attack_trials_per_fold": 25
+    },
+    "workload_version_shift": {
+      "source": "frozen V8 model and source environment",
+      "target": "same logical eight services rebuilt as immutable new image digests",
+      "minimum_independent_normal_runs": 5,
+      "normal_regimes_per_run": 4,
+      "minimum_attack_trials_per_workload": 25,
+      "source_and_target_image_digests_must_differ": true,
+      "model_or_threshold_refit_on_target": false
+    },
+    "cross_cluster": {
+      "source": "frozen V8 model, vocabulary and calibration",
+      "minimum_distinct_target_clusters": 1,
+      "cluster_id_must_not_equal_source": true,
+      "minimum_independent_normal_runs_per_cluster": 5,
+      "normal_regimes_per_run": 4,
+      "minimum_attack_trials_per_workload_per_cluster": 25,
+      "model_or_threshold_refit_on_target": false
+    }
+  },
+  "generalization_attack_seeds": [11027, 17011, 25013, 33013, 47017],
+  "statistics": {
+    "confidence_level": 0.95,
+    "normal_resampling_unit": "independent run nested in cluster",
+    "attack_resampling_unit": "workload nested in cluster",
+    "paired_version_comparison": true,
+    "multiple_comparison_correction": "Holm-Bonferroni"
+  },
+  "automatic_promotion": false,
+  "status": "protocol_only_no_generalization_evidence_yet"
+}

@@ -516,6 +516,29 @@ không được đổi unit sang window. Với năm run, exact two-sided sign-fl
 p-value nhỏ nhất 0,0625, nên kết quả không thể tự tạo claim significance 0,05;
 paper cuối phải công khai low-power limitation hoặc bổ sung campaign độc lập.
 
+V8 không chứa image digest/cluster identity trong từng feature row, nên không
+được dùng V8 để claim unseen-version hoặc cross-cluster. Kiểm protocol V9 đã
+freeze trước blind attack:
+
+```bash
+python3 ml-service/validate_generalization_contract.py \
+  ml-service/generalization_evaluation_contract.json \
+  --parent-root ml-service
+
+cd /home/dat/generalization-protocol-v9-preregistered-20260812
+sha256sum -c SHA256SUMS
+/home/dat/ml-venv/bin/python \
+  ml-service/validate_generalization_contract.py \
+  ml-service/generalization_evaluation_contract.json \
+  --parent-root ml-service
+```
+
+`valid=true` chỉ chứng minh protocol/hash/leakage gate hợp lệ, không chứng minh
+generalization. Collection V9 phải dùng feature schema v3 có `cluster_id`,
+immutable `workload_image_digest` và `workload_version_id`; LOWO tuyệt đối
+không dùng held-out workload để fit model, threshold, behavior limit hay online
+adaptation.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

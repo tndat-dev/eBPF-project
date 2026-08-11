@@ -3622,3 +3622,33 @@ tune hoặc lặp lại V8 theo kết quả.
 Local suite vẫn `133 passed, 9 skipped`; bundle 55 file đạt `129 passed` trên
 VM và đã atomic-swap. Capture source vẫn `active/running`, `NRestarts=0` trong
 suốt thay đổi.
+
+### 18.56 Freeze protocol generalization V9 trước blind attack (12-08-2026)
+
+Kiểm tra trực tiếp một row V8 cho thấy schema hiện chỉ có release/run/phase,
+pod/model key, node, vector/count/sequence và traffic regime; không có
+`cluster_id`, immutable image digest hay workload version. Snapshot Kubernetes
+có image hiện tại nhưng không đủ để gắn từng feature window vào version. Vì
+vậy V8 chỉ chứng minh same-version/same-cluster evaluation; báo cáo không được
+đổi tên kết quả đó thành unseen-version hay cross-cluster generalization.
+
+`generalization_evaluation_contract.json` đã được materialize khi V8 normal
+capture còn active, blind attack chưa bắt đầu và chưa mở holdout/attack result.
+Contract hash-bind năm parent contract V8 và khóa ba track tương lai:
+
+- tám leave-one-workload-out fold; mỗi fold fit pooled model từ đúng bảy
+  workload, cấm held-out row, calibration, behavior limit và adaptive threshold;
+- same-cluster workload-version shift với immutable source/target image digest
+  phải khác nhau, frozen V8 model/threshold không refit;
+- cross-cluster transfer với cluster ID khác source, tối thiểu năm independent
+  normal run và 25 attack trial/workload/cluster, không target refit.
+
+Schema V9 bắt buộc ba identity field privacy-safe: `cluster_id`,
+`workload_image_digest`, `workload_version_id`; arguments/payload vẫn bị cấm.
+Năm attack seed mới không chồng V8. Validator kiểm target/fold coverage, parent
+SHA-256, leakage guard, run/trial minimum, seed separation và no-promotion.
+Local contract validation pass, ba negative/positive test pass. Bundle độc lập
+đã được checksum và validate lại trên master tại
+`/home/dat/generalization-protocol-v9-preregistered-20260812`; nó không sửa
+active V8 capture source. Đây mới là preregistered protocol, chưa phải evidence
+generalization.
