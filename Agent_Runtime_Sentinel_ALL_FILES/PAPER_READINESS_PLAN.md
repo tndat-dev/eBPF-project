@@ -103,7 +103,7 @@ và chưa tạo metric model mới khi còn active.
 
 Một reader Tetragon exit giữa phase đầu làm `stream_failures=1`; collector đã
 fail-closed, quarantine toàn phase và systemd retry từ `07:14:35Z`. Hai phase
-thu lại đầu tiên pass continuity; ETA mới khoảng `2026-08-12T12:05Z`. Pipeline
+thu lại đầu tiên pass continuity; ETA mới khoảng `2026-08-12T12:20Z`. Pipeline
 hậu kỳ đã có native role V8: chỉ run-01 được fit, toàn bộ run-02--06 là một
 terminal independent evaluation, không chia/tune hậu nghiệm. Patch này chỉ
 deploy sau capture; isolated VM tests đạt `31 passed`.
