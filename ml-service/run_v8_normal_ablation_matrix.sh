@@ -20,6 +20,9 @@ EVALUATION_PROTOCOL=$ROOT_DIR/syscall_evaluation_protocol.json
 SHARED_CANDIDATE=$DERIVED_ROOT/models-v8-shared-workload
 SHARED_CALIBRATION=$DERIVED_ROOT/v8-shared-workload-calibration.json
 SHARED_CALIBRATION_REPORT=$DERIVED_ROOT/v8-shared-workload-calibration.report.json
+ATTACK_EXPERIMENT_ROOT=$(dirname "$ATTACK_CAPTURE")
+FALCO_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
+PAPER_MATRIX_ROOT=${V8_PAPER_MATRIX_ROOT:-$DERIVED_ROOT/paper-evaluation-results}
 
 [[ -r "$DERIVED_ROOT/POST_CAPTURE_COMPLETE" ]] || {
   printf 'WAITING: terminal V8 normal candidate is incomplete\n'
@@ -186,8 +189,22 @@ run_experiment syscall__shared_workload_model --model-routing shared_workload
 run_attack_experiment syscall__shared_workload_model \
   --model-routing shared_workload
 
+"$PYTHON_BIN" "$ROOT_DIR/assemble_syscall_evaluation_matrix.py" \
+  --evidence-root "$EVIDENCE_ROOT" --derived-root "$DERIVED_ROOT" \
+  --attack-root "$ATTACK_EXPERIMENT_ROOT" --falco-root "$FALCO_ROOT" \
+  --contract "$EVIDENCE_ROOT/evaluation_matrix_contract.json" \
+  --protocol "$EVALUATION_PROTOCOL" --attack-contract "$ATTACK_CONTRACT" \
+  --output-root "$PAPER_MATRIX_ROOT"
+(cd "$PAPER_MATRIX_ROOT" && sha256sum -c SHA256SUMS)
+"$PYTHON_BIN" - "$PAPER_MATRIX_ROOT/evaluation_matrix_manifest.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+if doc.get("valid") is not True or doc.get("completed_experiments") != 11:
+    raise SystemExit("terminal syscall evaluation matrix is incomplete")
+PY
+
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
   | sort -z | xargs -0 sha256sum >"$OUTPUT_ROOT/SHA256SUMS"
 touch "$DERIVED_ROOT/NORMAL_ABLATION_REPLAY_COMPLETE"
-printf 'COMPLETE: Tetragon rule baseline and six normal replays at %s\n' \
+printf 'COMPLETE: 11-method paired syscall matrix assembled from %s\n' \
   "$OUTPUT_ROOT"

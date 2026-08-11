@@ -3528,3 +3528,45 @@ VM staging gồm 51 file hash-valid và đạt `120 passed`. Checkpoint lúc
 `18:18:29Z` vẫn có 8/24 phase hoàn chỉnh, `aims-steady-run-03` đang tăng dữ
 liệu; capture `NRestarts=0`, Falco 6/6 reader, zero stream failure và cluster
 không có bad pod. Đây là automation readiness, chưa phải attack metric thật.
+
+### 18.53 Ghép và khóa ma trận terminal 11 phương pháp (12-08-2026)
+
+Các evaluator riêng lẻ trước đây có thể tạo report hợp lệ nhưng chưa có một
+bước duy nhất chứng minh cả 11 phương pháp cùng dùng đúng normal capture,
+attack capture, split, vocabulary, seed, protocol và environment. Module mới
+`assemble_syscall_evaluation_matrix.py` chỉ chạy sau khi toàn bộ normal replay,
+paired attack replay, Tetragon và Falco finalizer đã terminal. Nó ghép đúng hai
+rule baseline và chín ML baseline/ablation thành 11 thư mục `result.json`, gọi
+validator độc lập trước khi publish và dùng atomic rename; artifact đích đã tồn
+tại chỉ được reuse nếu toàn bộ `SHA256SUMS` và contract validation còn sạch.
+
+Mỗi result khóa SHA-256 của hai canonical capture cùng manifest, attack replay
+dataset, vocabulary, split contract, blind-attack contract, evaluation
+protocol và snapshot environment. `code_sha256` của ML nay được tạo từ source
+hash của cả normal evaluator, attack evaluator và policy cụ thể, thay vì nhầm
+model hash là code provenance. `environment.json` cũng được tự hash-check ngay
+sau serialization. Precision/F1 được định nghĩa minh bạch với TP/FN từ 200
+blind trial và FP từ independent normal windows; recall Wilson 95% vẫn được
+giữ riêng, không bị point estimate ghi đè.
+
+Full V7 confirmation lấy paired ML replay, còn early-warning fast path được
+gắn từ đúng 200 scenario của live blind harness. Fast path được ghi rõ
+`replayed=false`; ablation `without_fast_path` khóa hash report live tương ứng.
+Thiết kế này không giả lập binary identity mà schema V8 không thu. Vì vậy ma
+trận có thể so sánh decision path công bằng, đồng thời không biến fast-path
+latency live thành một replay claim giả.
+
+`run_v8_normal_ablation_matrix.sh` nay chỉ tạo
+`NORMAL_ABLATION_REPLAY_COMPLETE` sau khi assembler sinh đủ 11 experiment,
+validator báo `valid=true` và `sha256sum -c` pass. Local canonical suite đạt
+`129 passed, 9 skipped`; bundle staging 53 file đạt `125 passed` trong ML venv
+trên master và đã được atomic-swap, trong khi active V8 capture giữ
+`NRestarts=0`.
+
+Checkpoint trực tiếp `2026-08-11T18:36:29Z`: 8/24 phase hoàn chỉnh,
+`aims-steady-run-03` có 4.175 row và vẫn tăng; capture `active/running`, cluster
+6/6 node Ready, không có pod ngoài Running/Completed. Falco có 6/6 reader,
+`coverage_healthy=true`, `stream_failures=0`, `stream_reconnects=0` và đã đọc
+7.658 dòng. Ba marker terminal vẫn chưa tồn tại. Do đó phần này hoàn thiện
+automation/provenance, chưa tạo ra latency, recall hay false-positive metric V8
+terminal và chưa đủ cơ sở tuyên bố hệ thống đạt chuẩn world-class paper.

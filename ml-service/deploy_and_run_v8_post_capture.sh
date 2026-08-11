@@ -40,7 +40,8 @@ if not binary.is_file() or digest(binary) != contract["binary"]["sha256"]:
     raise SystemExit("V8 blind attack binary digest mismatch")
 PY
 
-for name in anomaly_detector2.py build_aims_fit_calibration.py \
+for name in anomaly_detector2.py assemble_syscall_evaluation_matrix.py \
+  build_aims_fit_calibration.py \
   build_feature_replay_dataset.py build_phase_dataset.py \
   evaluate_aims_attack_replay.py evaluate_aims_normal_split.py \
   evaluate_tetragon_rule_replay.py \
@@ -71,6 +72,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_tetragon_rule_replay.py \
   tests/test_phase_dataset.py \
   tests/test_aims_attack_replay.py \
+  tests/test_syscall_matrix_assembler.py \
   tests/test_aims_normal_split_evaluator.py \
   tests/test_shared_workload_model.py \
   tests/test_falco_evidence_collector.py \

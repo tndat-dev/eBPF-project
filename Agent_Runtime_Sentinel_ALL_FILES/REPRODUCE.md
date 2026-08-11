@@ -481,6 +481,26 @@ Report phải có 200 trial, coverage sáu reader/zero stream failure, Wilson 95
 CI và latency chỉ cho detected trial. Marker không tồn tại nghĩa là Falco
 attribution chưa terminal, dù ML `report.json` đã có.
 
+Sau khi chín ML normal/attack replay và hai rule baseline đều terminal,
+normal-ablation runner tự ghép ma trận paper. Có thể audit độc lập như sau:
+
+```bash
+DERIVED=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811
+MATRIX="$DERIVED/paper-evaluation-results"
+cd "$MATRIX" && sha256sum -c SHA256SUMS
+python3 -m json.tool "$MATRIX/evaluation_matrix_manifest.json"
+find "$MATRIX" -mindepth 2 -maxdepth 2 -name result.json | sort
+```
+
+Manifest chỉ hợp lệ khi có đúng 11 experiment và validator báo `valid=true`.
+Mọi result phải cùng hash normal/attack canonical capture, split, vocabulary,
+blind contract, evaluation protocol và environment. Full V7 dùng ML replay cho
+confirmation nhưng lấy fast-path từ live 200-scenario report; trường
+`fast_path.replayed=false` phải được giữ vì V8 không có binary identity để
+replay early warning trung thực. Không chạy lại validator theo cách ghi đè
+manifest sau assembler; `evaluation_matrix_manifest.json` đã nằm trong
+`SHA256SUMS`, nên thay đổi hậu kỳ phải bị xem là tamper.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 
