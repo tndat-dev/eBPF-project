@@ -263,6 +263,15 @@ provenance mới retry. Không dùng các report này để sửa release V8. Pr
 phương pháp là `ml-service/syscall_evaluation_protocol.json`; mọi result matrix
 phải có cùng SHA-256 của file này.
 
+Sau khi canonical attack capture đủ 200 interval, cùng runner replay attack cho
+chín ML method bằng `evaluate_aims_attack_replay.py`. Mỗi `run_id/phase_id` chỉ
+được có đúng một injection pair; detector và calibration fit-only được reset
+cho từng group để tái hiện cách live harness khởi động detector mới ở mỗi
+scenario. Checkpoint được ghi sau từng injection và bind candidate,
+calibration, capture, protocol cùng toàn bộ policy knob. Confirmation latency
+là `feature_window_end - injection_ack`; đây là độ trễ quyết định theo cửa sổ,
+không phải timestamp syscall kernel chính xác.
+
 Tetragon rule-only dùng chính hai canonical capture và được normal-ablation
 runner gọi tự động. Có thể verify bundle sau terminal run:
 

@@ -3487,3 +3487,44 @@ backfill từ mốc cũ. Zero alert tại đây vẫn chỉ là số giữa camp
 FPR terminal. `POST_CAPTURE_COMPLETE`, `FALCO_ATTACK_EVIDENCE_COMPLETE` và
 `NORMAL_ABLATION_REPLAY_COMPLETE` vẫn chưa tồn tại; chưa có V8 latency/recall/
 false-positive result để công bố.
+
+### 18.52 Paired attack replay cho toàn bộ ML baseline/ablation (12-08-2026)
+
+Matrix trước checkpoint này đã có 200 live blind injection và canonical attack
+capture trong kế hoạch, nhưng sáu baseline/ablation normal replay chưa có đường
+chạy lại chính model policy trên cùng attack window. Vì vậy chỉ Tetragon/Falco
+rule-only và Full V7 live path có thể sinh attack recall; IF/LSTM/EVT, ba gate
+ablation và shared-workload chưa thể tạo kết quả paired hoàn chỉnh.
+
+`evaluate_aims_attack_replay.py` đã đóng khoảng trống đó. Nó validate canonical
+sequence capture trước khi đọc, bắt buộc đúng 200 injection hoàn tất, đúng năm
+seed-rate đã freeze và đúng 8 workload × 5 scenario × 5 lần lặp. Mỗi group
+`run_id/phase_id` phải có duy nhất một start/end pair; thiếu, trùng, sai pod,
+failed injection hoặc workload/scenario count lệch đều fail-closed. Sparse
+vector được kiểm dimension/index/duplicate/finite trước khi đưa vào production
+detector path.
+
+Live harness khởi động detector mới cho từng scenario, nên replay cũng reset
+detector và copy lại cùng calibration fit-only cho từng injection group. Không
+có adaptive state từ trial trước chảy sang trial sau. Evaluator bind candidate
+hash, calibration/report hash, split/release/blind contract, protocol digest và
+mọi policy knob vào checkpoint; resume chỉ chấp nhận đúng prefix trial. Labels
+chỉ được dùng sau khi decision đã đóng để tính metric, không đi vào threshold,
+training hay promotion.
+
+Mỗi method xuất đủ 200 trial outcome, recall với Wilson 95% CI, phân tầng theo
+scenario/workload, false alert ngoài attribution horizon, inference time và
+confirmation latency. Latency được tính bằng captured feature-window end trừ
+injection ACK cùng clock của harness; metric này phản ánh độ trễ quyết định theo
+cửa sổ nhưng không được gọi là exact kernel-event latency. Fast path không thể
+được replay trung thực từ schema V8 và report ghi `fast_path_replayed=false`;
+Full V7 early-warning phải lấy từ live blind report riêng.
+
+Normal-ablation runner hiện gọi attack replay cho chín ML method: IF, LSTM,
+EVT-POT, Full V7 confirmation, without-fast-path, ba gate/confirmation ablation
+và shared-workload. Frozen protocol policy được resolve và so với CLI trước khi
+chạy, nên không thể gắn nhãn `without_behavior_gate` cho một run vẫn bật gate.
+VM staging gồm 51 file hash-valid và đạt `120 passed`. Checkpoint lúc
+`18:18:29Z` vẫn có 8/24 phase hoàn chỉnh, `aims-steady-run-03` đang tăng dữ
+liệu; capture `NRestarts=0`, Falco 6/6 reader, zero stream failure và cluster
+không có bad pod. Đây là automation readiness, chưa phải attack metric thật.

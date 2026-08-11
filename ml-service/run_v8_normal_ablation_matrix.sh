@@ -15,6 +15,8 @@ OUTPUT_ROOT=${V8_NORMAL_ABLATION_ROOT:-$DERIVED_ROOT/normal-ablation-replay}
 ATTACK_CAPTURE=${V8_ATTACK_CAPTURE:-/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/frozen-attack-feature-capture.jsonl}
 NORMAL_CAPTURE=$EVIDENCE_ROOT/frozen-normal-feature-capture.jsonl
 TETRAGON_OUTPUT=$DERIVED_ROOT/tetragon-rule-only-replay
+ATTACK_CONTRACT=$ROOT_DIR/v8_blind_attack_contract.json
+EVALUATION_PROTOCOL=$ROOT_DIR/syscall_evaluation_protocol.json
 SHARED_CANDIDATE=$DERIVED_ROOT/models-v8-shared-workload
 SHARED_CALIBRATION=$DERIVED_ROOT/v8-shared-workload-calibration.json
 SHARED_CALIBRATION_REPORT=$DERIVED_ROOT/v8-shared-workload-calibration.report.json
@@ -27,7 +29,7 @@ for path in "$CANDIDATE/training_report.json" "$CALIBRATION" \
   "$CALIBRATION_REPORT" "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
   "$EVIDENCE_ROOT/aims_release_contract.json" \
   "$NORMAL_CAPTURE" "$ATTACK_CAPTURE" \
-  "$ROOT_DIR/syscall_evaluation_protocol.json"; do
+  "$EVALUATION_PROTOCOL" "$ATTACK_CONTRACT"; do
   [[ -r "$path" ]] || { printf 'REFUSING: missing %s\n' "$path" >&2; exit 4; }
 done
 
@@ -110,7 +112,39 @@ temporary.replace(path)
 PY
 }
 
+run_attack_experiment() {
+  local experiment_id=$1
+  shift
+  local output=$OUTPUT_ROOT/$experiment_id.attack.json
+  if [[ -r "$output" ]] && "$PYTHON_BIN" - "$output" "$experiment_id" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+raise SystemExit(0 if (
+    doc.get("status") == "complete"
+    and doc.get("experiment_id") == sys.argv[2]
+    and doc.get("completed_trials") == 200
+) else 1)
+PY
+  then
+    printf 'VERIFIED: %s attack replay already complete\n' "$experiment_id"
+    return
+  fi
+  "$PYTHON_BIN" "$ROOT_DIR/evaluate_aims_attack_replay.py" \
+    --attack-capture "$ATTACK_CAPTURE" --candidate "$CANDIDATE" \
+    --initial-calibration "$CALIBRATION" \
+    --initial-calibration-report "$CALIBRATION_REPORT" \
+    --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
+    --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --attack-contract "$ATTACK_CONTRACT" --protocol "$EVALUATION_PROTOCOL" \
+    --experiment-id "$experiment_id" --expected-trials 200 \
+    --post-attack-horizon 30 --output "$output" "$@"
+}
+
 run_experiment syscall__isolation_forest \
+  --score-component isolation_forest --disable-adaptive-threshold \
+  --disable-behavior-gate --disable-extreme-volume-gate \
+  --confirmation-windows 1
+run_attack_experiment syscall__isolation_forest \
   --score-component isolation_forest --disable-adaptive-threshold \
   --disable-behavior-gate --disable-extreme-volume-gate \
   --confirmation-windows 1
@@ -118,13 +152,29 @@ run_experiment syscall__lstm_only \
   --score-component lstm --disable-adaptive-threshold \
   --disable-behavior-gate --disable-extreme-volume-gate \
   --confirmation-windows 1
+run_attack_experiment syscall__lstm_only \
+  --score-component lstm --disable-adaptive-threshold \
+  --disable-behavior-gate --disable-extreme-volume-gate \
+  --confirmation-windows 1
 run_experiment syscall__evt_pot \
   --score-component lstm --disable-behavior-gate \
   --disable-extreme-volume-gate --confirmation-windows 1
+run_attack_experiment syscall__evt_pot \
+  --score-component lstm --disable-behavior-gate \
+  --disable-extreme-volume-gate --confirmation-windows 1
+run_experiment syscall__full_v7
+run_attack_experiment syscall__full_v7
+run_experiment syscall__without_fast_path
+run_attack_experiment syscall__without_fast_path
 run_experiment syscall__without_behavior_gate --disable-behavior-gate
+run_attack_experiment syscall__without_behavior_gate --disable-behavior-gate
 run_experiment syscall__without_extreme_volume_gate \
   --disable-extreme-volume-gate
+run_attack_experiment syscall__without_extreme_volume_gate \
+  --disable-extreme-volume-gate
 run_experiment syscall__without_two_window_confirmation \
+  --confirmation-windows 1
+run_attack_experiment syscall__without_two_window_confirmation \
   --confirmation-windows 1
 
 # This method has a separately fitted pooled model and fit-only calibration.
@@ -133,6 +183,8 @@ CANDIDATE=$SHARED_CANDIDATE
 CALIBRATION=$SHARED_CALIBRATION
 CALIBRATION_REPORT=$SHARED_CALIBRATION_REPORT
 run_experiment syscall__shared_workload_model --model-routing shared_workload
+run_attack_experiment syscall__shared_workload_model \
+  --model-routing shared_workload
 
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
   | sort -z | xargs -0 sha256sum >"$OUTPUT_ROOT/SHA256SUMS"

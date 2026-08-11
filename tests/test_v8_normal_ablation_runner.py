@@ -13,6 +13,7 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "POST_CAPTURE_COMPLETE" in script
     assert "syscall_evaluation_protocol.json" in script
     assert "evaluate_tetragon_rule_replay.py" in script
+    assert "evaluate_aims_attack_replay.py" in script
     assert "frozen-normal-feature-capture.jsonl" in script
     assert "frozen-attack-feature-capture.jsonl" in script
     assert "independent_evaluation" in script
@@ -28,6 +29,9 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "train_shared_workload_candidate.py" in script
     assert "syscall__shared_workload_model" in script
     assert "--model-routing shared_workload" in script
+    assert "syscall__full_v7" in script
+    assert "syscall__without_fast_path" in script
+    assert "completed_trials\") == 200" in script
     assert "v8-shared-workload-calibration" in script
     assert "rc != 0 && $rc != 3" in script
     assert "SHA256SUMS" in script
