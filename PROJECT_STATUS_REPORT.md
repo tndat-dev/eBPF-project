@@ -3106,6 +3106,9 @@ capture validation `valid=true`, full coverage 6/6, `stream_failures=0`,
 khoảng 6.895--6.896 feature window. Tại snapshot `10:42Z`, recovery run-01 đang
 tiếp tục ghi dữ liệu, namespace production không có pod lỗi. Do retry, ETA thực
 tế dịch sang khoảng `2026-08-12T12:05Z` (`19:05` ICT), chưa tính retry mới.
+Checkpoint `10:55Z`: recovery cũng kết thúc với 6.896 window,
+`stream_failures=0`, `backpressure_events=0`, full coverage và capture valid;
+toolmix run-01 đã bắt đầu lúc `10:53:23Z`, restart count vẫn bằng 1.
 
 Audit post-capture phát hiện builder/evaluator V7 chỉ hiểu split năm run cũ.
 Source local đã được refactor để hiểu trực tiếp schema
