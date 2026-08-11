@@ -156,6 +156,14 @@ cả policy nên cấm resume chéo ablation. Bundle hậu kỳ 31/31 checksum v
 VM suite 94 test pass; active capture không bị thay source. Đây chỉ là runner
 readiness, chưa thay thế việc chạy kết quả trên cùng frozen normal/attack replay.
 
+Protocol syscall 11 method được hash-freeze trước candidate fit/blind attack,
+nhưng sau khi normal capture đã bắt đầu; artifact phải công khai giới hạn này.
+IF/LSTM fixed 0,80 đã tách khỏi EVT, và sáu normal replay được timer hóa chỉ sau
+terminal blind attack. Matrix result bắt buộc cùng protocol digest. Sequence V8
+không lưu exec binary class nên chưa thể replay trung thực rule `exec->network`;
+fast-path normal FPR đầy đủ cần live evidence hoặc capture schema kế tiếp, không
+được nội suy từ syscall-name-only replay.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

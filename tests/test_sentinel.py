@@ -545,6 +545,42 @@ def test_research_ablation_can_use_one_window_confirmation(
         AnomalyDetector(Manager(), confirmation_windows=3)
 
 
+def test_fixed_threshold_baseline_does_not_learn_online_calibration(
+        tmp_path, monkeypatch):
+    class Manager:
+        def list_models(self):
+            return ["default/postgres"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .2, "lstm_score": .2, "if_score": .2,
+                "behavior_limits": {},
+            }
+
+    class Vector:
+        pod_key = "default/postgres-5cd4775869-abcde"
+        pod_name = "postgres-5cd4775869-abcde"
+        pod_namespace = "default"
+        node_name = "worker"
+        vector = np.zeros(1)
+        syscall_counts = {"read": 100}
+        window_start = 0.0
+        window_end = time.time()
+
+        def total_events(self):
+            return 100
+
+    monkeypatch.setenv("SENTINEL_CALIBRATION", str(tmp_path / "calibration.json"))
+    detector = AnomalyDetector(
+        Manager(), enable_adaptive_threshold=False,
+        persist_calibration=False,
+    )
+    detector.handle_feature_vector(Vector())
+    calibrator = detector.calibrators["default/postgres"]
+    assert list(calibrator.scores) == []
+    assert not (tmp_path / "calibration.json").exists()
+
+
 def test_legacy_calibration_format_is_backward_compatible(tmp_path):
     path = tmp_path / "legacy.json"
     path.write_text('{"production/nginx": [0.2, 0.3]}')

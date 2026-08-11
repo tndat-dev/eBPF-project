@@ -1,0 +1,109 @@
+{
+  "schema": "sentinel-syscall-evaluation-protocol/v1",
+  "release_id": "v8-paired-replay-20260811",
+  "materialized_at": "2026-08-11T15:00:00Z",
+  "registration_boundary": {
+    "normal_capture_had_started": true,
+    "candidate_training_had_started": false,
+    "blind_attack_had_started": false,
+    "holdout_scores_or_alerts_inspected": false,
+    "claim_limit": "implementation protocol frozen before candidate fitting and blind attack, not before normal capture"
+  },
+  "shared_replay": {
+    "normal_roles": ["independent_evaluation"],
+    "normal_run_ids": [
+      "normal-run-02",
+      "normal-run-03",
+      "normal-run-04",
+      "normal-run-05",
+      "normal-run-06"
+    ],
+    "attack_intervals": 200,
+    "minimum_events": 10,
+    "threshold": 0.8,
+    "cooldown_seconds": 0,
+    "labels_used_for_training_or_tuning": false
+  },
+  "methods": {
+    "tetragon_rule_only": {
+      "score": "binary sensitive-syscall rule",
+      "sensitive_syscalls": ["capset", "mount", "ptrace", "setuid", "unshare"],
+      "confirmation_windows": 1,
+      "adaptive_threshold": false,
+      "behavior_gate": false,
+      "extreme_volume_gate": false,
+      "fast_path": false
+    },
+    "falco_rule_only": {
+      "score": "real Falco 0.44.1 rule decision matched to same-pod interval",
+      "source": "six-reader privacy-safe paired Falco collector",
+      "post_attack_horizon_seconds": 30,
+      "replayable_from_feature_vectors": false
+    },
+    "isolation_forest": {
+      "score": "bundled per-workload Isolation Forest component",
+      "threshold": 0.8,
+      "confirmation_windows": 1,
+      "adaptive_threshold": false,
+      "behavior_gate": false,
+      "extreme_volume_gate": false,
+      "fast_path": false
+    },
+    "lstm_only": {
+      "score": "bundled per-workload robust-tail LSTM component",
+      "threshold": 0.8,
+      "confirmation_windows": 1,
+      "adaptive_threshold": false,
+      "behavior_gate": false,
+      "extreme_volume_gate": false,
+      "fast_path": false
+    },
+    "evt_pot": {
+      "score": "bundled per-workload robust-tail LSTM component",
+      "threshold": "per-workload EVT-POT plus clean streaming adaptation",
+      "confirmation_windows": 1,
+      "adaptive_threshold": true,
+      "behavior_gate": false,
+      "extreme_volume_gate": false,
+      "fast_path": false
+    },
+    "full_v7": {
+      "score": "bundled per-workload robust-tail LSTM component",
+      "confirmation_windows": 2,
+      "adaptive_threshold": true,
+      "behavior_gate": true,
+      "extreme_volume_gate": true,
+      "fast_path": true,
+      "fast_path_role": "early warning only; ML path remains confirmation"
+    },
+    "without_fast_path": {
+      "inherits": "full_v7",
+      "fast_path": false
+    },
+    "without_behavior_gate": {
+      "inherits": "full_v7",
+      "behavior_gate": false
+    },
+    "without_extreme_volume_gate": {
+      "inherits": "full_v7",
+      "extreme_volume_gate": false
+    },
+    "without_two_window_confirmation": {
+      "inherits": "full_v7",
+      "confirmation_windows": 1
+    },
+    "shared_workload_model": {
+      "inherits": "full_v7",
+      "model_routing": "one separately fitted pooled model for all eight workloads",
+      "fit_rows": "candidate_fit run-01 only",
+      "holdout_or_attack_fit": false
+    }
+  },
+  "metrics": {
+    "normal": ["false_alerts", "alert_rate_per_hour", "windows"],
+    "attack": ["detected_trials", "recall", "precision", "f1"],
+    "latency": ["first_early_warning_seconds", "first_confirmation_seconds", "inference_ms"],
+    "uncertainty": "Wilson 95% interval plus workload/trial block bootstrap where applicable"
+  },
+  "automatic_promotion": false
+}

@@ -185,6 +185,7 @@ class AnomalyDetector:
         persist_calibration: bool = True,
         require_behavior_gate: bool = True,
         enable_extreme_volume_gate: bool = True,
+        enable_adaptive_threshold: bool = True,
         confirmation_windows: int = 2,
     ):
         self.model_manager    = model_manager
@@ -201,6 +202,7 @@ class AnomalyDetector:
         self.persist_calibration = persist_calibration
         self.require_behavior_gate = bool(require_behavior_gate)
         self.enable_extreme_volume_gate = bool(enable_extreme_volume_gate)
+        self.enable_adaptive_threshold = bool(enable_adaptive_threshold)
         self.confirmation_windows = int(confirmation_windows)
         if self.confirmation_windows not in (1, 2):
             raise ValueError("confirmation_windows must be 1 or 2")
@@ -483,21 +485,24 @@ class AnomalyDetector:
         )
         calibration_state = None
         with self._calibration_lock:
-            if clean_for_calibration:
-                calibrator.observe(score, total_events)
-                # Frozen replay must exercise the same adaptive state machine,
-                # but persisting that throw-away state after every clean row
-                # turns an offline evaluation into an I/O benchmark.  Live
-                # runtime keeps the durability default; evaluators opt out
-                # explicitly while retaining identical in-memory decisions.
-                if self.persist_calibration:
-                    save_calibrators(self.calibration_path, self.calibrators)
-                if not calibrator.ready:
-                    calibration_state = "calibrating"
-            elif not behavior_gate and not calibrator.ready:
-                calibration_state = "calibration_rejected"
+            if self.enable_adaptive_threshold:
+                if clean_for_calibration:
+                    calibrator.observe(score, total_events)
+                    # Frozen replay must exercise the same adaptive state
+                    # machine, but persisting throw-away state after every
+                    # clean row turns evaluation into an I/O benchmark.
+                    if self.persist_calibration:
+                        save_calibrators(self.calibration_path, self.calibrators)
+                    if not calibrator.ready:
+                        calibration_state = "calibrating"
+                elif not behavior_gate and not calibrator.ready:
+                    calibration_state = "calibration_rejected"
+                threshold = max(baseline_threshold, calibrator.current)
+            else:
+                # Fixed-threshold baselines must not silently inherit EVT/POT
+                # or online adaptation from the production detector.
+                threshold = baseline_threshold
             calibration_windows = len(calibrator.scores)
-            threshold = max(baseline_threshold, calibrator.current)
             learned_maximum_events = (
                 calibrator.maximum_event_count
                 if calibrator.event_guard_ready else 0

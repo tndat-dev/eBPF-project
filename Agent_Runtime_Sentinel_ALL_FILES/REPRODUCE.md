@@ -240,9 +240,25 @@ python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
 
 Normal replay dùng cùng detector path có ba tùy chọn ablation explicit:
 `--disable-behavior-gate`, `--disable-extreme-volume-gate` và
-`--confirmation-windows 1`. Không ghi đè cùng output giữa các policy; checkpoint
-bind policy và sẽ fail nếu cố resume chéo cấu hình. Không truyền tùy chọn nào là
-production default `behavior=true`, `extreme-volume=true`, hai window.
+`--disable-adaptive-threshold`, `--confirmation-windows 1`, cùng
+`--score-component ensemble|lstm|isolation_forest`. Không ghi đè cùng output
+giữa các policy; checkpoint bind policy/component và sẽ fail nếu cố resume chéo
+cấu hình. Không truyền tùy chọn nào là production default: adaptive/behavior/
+extreme-volume bật, ensemble score và hai window.
+
+Sáu normal baseline/ablation đã được schedule sau terminal blind attack:
+
+```bash
+systemctl status aims-v8-normal-ablation.timer
+journalctl -u aims-v8-normal-ablation.service --no-pager
+python3 -m json.tool \
+  /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/normal-ablation-replay/syscall__evt_pot.json
+```
+
+Runner giữ exit 3 (có false alert) như evidence hoàn chỉnh; chỉ lỗi hạ tầng/
+provenance mới retry. Không dùng các report này để sửa release V8. Protocol
+phương pháp là `ml-service/syscall_evaluation_protocol.json`; mọi result matrix
+phải có cùng SHA-256 của file này.
 
 Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,

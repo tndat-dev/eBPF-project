@@ -53,6 +53,7 @@ def _write_matrix(root, contract):
             "vocab_sha256": DIGEST,
             "split_sha256": DIGEST,
             "blind_attack_contract_sha256": DIGEST,
+            "evaluation_protocol_sha256": DIGEST,
             "environment_sha256": DIGEST,
             "code_sha256": DIGEST,
             "normal": {
@@ -96,6 +97,21 @@ def test_evaluation_matrix_rejects_dataset_switch_and_blind_tuning(tmp_path):
     assert report["valid"] is False
     assert any("blind-set" in error for error in report["errors"])
     assert any("incomparable dataset_sha256" in error for error in report["errors"])
+
+
+def test_evaluation_matrix_requires_shared_frozen_protocol_digest(tmp_path):
+    contract = _contract()
+    _write_matrix(tmp_path, contract)
+    path = tmp_path / "syscall__rules" / "result.json"
+    result = json.loads(path.read_text())
+    result.pop("evaluation_protocol_sha256")
+    path.write_text(json.dumps(result))
+    report = validate_evaluation_matrix(tmp_path, contract)
+    assert report["valid"] is False
+    assert any(
+        "invalid evaluation_protocol_sha256" in error
+        for error in report["errors"]
+    )
 
 
 def test_evaluation_matrix_can_gate_one_track_independently(tmp_path):

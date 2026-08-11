@@ -17,6 +17,7 @@ sys.path.insert(0, str(SERVICE_ROOT))
 from evaluate_aims_normal_split import (candidate_hashes,
                                         matrix_dimensions,
                                         resumable_phase_reports,
+                                        ScoreComponentManager,
                                         validate_blind_prerequisite,
                                         validate_calibration_provenance,
                                         write_report)
@@ -114,7 +115,9 @@ def test_evaluation_checkpoint_is_atomic_and_identity_bound(tmp_path):
         "evaluation_policy": {
             "require_behavior_gate": True,
             "enable_extreme_volume_gate": True,
+            "enable_adaptive_threshold": True,
             "confirmation_windows": 2,
+            "score_component": "ensemble",
         },
         "phases": [{"phase": "steady-02", "passed": True}],
     }
@@ -149,3 +152,34 @@ def test_evaluation_checkpoint_rejects_non_prefix_phases(tmp_path):
     write_report(output, report)
     with pytest.raises(ValueError, match="not a phase prefix"):
         resumable_phase_reports(output, report, ["steady-02", "burst-02"])
+
+
+def test_score_component_manager_keeps_fixed_baseline_at_literal_threshold():
+    class Manager:
+        vocab_size = 2
+        _models = {"production/api": type(
+            "Bundle", (), {"baseline_scores": [.95]}
+        )()}
+
+        def list_models(self):
+            return ["production/api"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .7,
+                "lstm_score": .6,
+                "if_score": .9,
+                "behavior_limits": {},
+            }
+
+    fixed = ScoreComponentManager(
+        Manager(), "isolation_forest", adaptive_threshold=False,
+    )
+    assert fixed.score("production/api", None)["ensemble_score"] == .9
+    assert fixed._models["production/api"].baseline_scores == []
+
+    adaptive = ScoreComponentManager(
+        Manager(), "lstm", adaptive_threshold=True,
+    )
+    assert adaptive.score("production/api", None)["ensemble_score"] == .6
+    assert adaptive._models is Manager._models

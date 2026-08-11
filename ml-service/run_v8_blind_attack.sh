@@ -30,6 +30,7 @@ systemctl is-active --quiet aims-v8-falco-evidence.service || {
 for path in "$CANDIDATE/training_report.json" "$CALIBRATION" "$PREREQUISITE" \
   "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
   "$EVIDENCE_ROOT/evaluation_matrix_contract.json" \
+  "$ROOT_DIR/syscall_evaluation_protocol.json" \
   "$ROOT_DIR/v8_blind_attack_contract.json" \
   "$ROOT_DIR/runtime_attack_blind.c" "$ROOT_DIR/runtime_attack_blind"; do
   [[ -r "$path" ]] || { printf 'REFUSING: missing %s\n' "$path" >&2; exit 4; }

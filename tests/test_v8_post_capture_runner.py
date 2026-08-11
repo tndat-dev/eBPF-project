@@ -23,6 +23,8 @@ def test_v8_post_capture_runner_is_fit_only_and_never_promotes():
     assert "falco-rule-only-normal" in script
     assert 'doc.get("phase_count") != 20' in script
     assert "POST_CAPTURE_COMPLETE" in script
+    assert "syscall_evaluation_protocol.json" in script
+    assert "protocol method mismatch" in script
     assert "run-02" not in script
     assert "train_candidate.py" in script
     assert "promote_candidate.py" not in script

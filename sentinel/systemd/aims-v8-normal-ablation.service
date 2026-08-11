@@ -1,0 +1,28 @@
+[Unit]
+Description=Sentinel V8 frozen normal baseline and ablation replay
+After=network-online.target aims-v8-blind-attack.service
+Wants=network-online.target
+ConditionPathExists=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/POST_CAPTURE_COMPLETE
+ConditionPathExists=/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/FALCO_ATTACK_EVIDENCE_COMPLETE
+ConditionPathExists=!/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/NORMAL_ABLATION_REPLAY_COMPLETE
+
+[Service]
+Type=oneshot
+User=dat
+Group=dat
+WorkingDirectory=/home/dat/ml-service
+Environment=PYTHON_BIN=/home/dat/ml-venv/bin/python
+ExecStart=/usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-v8-normal-ablation.lock /home/dat/ml-service/run_v8_normal_ablation_matrix.sh
+SuccessExitStatus=75
+Nice=10
+IOSchedulingClass=idle
+CPUQuota=100%
+MemoryMax=8G
+TimeoutStartSec=36h
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target

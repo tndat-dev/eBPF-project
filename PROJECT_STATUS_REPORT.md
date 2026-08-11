@@ -3333,3 +3333,44 @@ và resume guard đạt `48 passed`. Post-capture deployer chỉ copy detector m
 sau khi capture service kết thúc thành công, chạy lại test, và vẫn không có
 đường promote. Đây là năng lực thực thi ablation, chưa phải kết quả
 baseline/ablation hay bằng chứng world-class hoàn tất.
+
+### 18.47 Freeze protocol và tự động hóa sáu normal replay (11-08-2026)
+
+`syscall_evaluation_protocol.json` được materialize lúc 15:00Z, trước khi V8
+candidate được fit và trước blind attack. Protocol khóa đúng 11 experiment ID
+của matrix: Tetragon/Falco rule-only, IF, LSTM-only, EVT-POT, Full V7 và năm
+ablation. Provenance công khai giới hạn registration: normal capture đã bắt đầu
+trước khi file này tồn tại; không holdout score/alert nào đã được mở để chọn
+cấu hình. Vì vậy paper chỉ được claim implementation protocol freeze trước
+training/blind attack, không được gọi là pre-registration trước normal capture.
+
+Detector/evaluator tách thêm `enable_adaptive_threshold`. IF-only và LSTM-only
+dùng score component trong candidate nhưng cutoff cố định 0,80, một window,
+không behavior/extreme-volume/fast path; chúng không còn vô tình kế thừa EVT.
+EVT-POT dùng LSTM score cùng adaptive threshold nhưng bỏ các corroboration
+gate. Adapter fixed-threshold cố ý cung cấp empty threshold-fit history, trong
+khi EVT giữ nguyên fit-only baseline history. Evaluation checkpoint bind cả
+`score_component` và bốn policy knob, nên không thể resume chéo phương pháp.
+
+`run_v8_normal_ablation_matrix.sh` đã chuẩn bị sáu replay trên đúng 20 phase:
+IF, LSTM-only, EVT-POT, bỏ behavior gate, bỏ extreme-volume gate và bỏ
+two-window confirmation. Exit 3 do baseline sinh false alert được giữ như kết
+quả hoàn chỉnh thay vì rerun cho tới khi đẹp; mọi report được resume/hash và
+không có promote. Preflight thật trên cluster khi marker chưa có trả đúng 75 và
+không tạo output.
+
+Timer `aims-v8-normal-ablation.timer` đã cài/enabled nhưng chỉ mở sau cả
+`POST_CAPTURE_COMPLETE` và `FALCO_ATTACK_EVIDENCE_COMPLETE`; giới hạn một CPU,
+8 GiB, 36 giờ và chạy nice/idle. Như vậy replay không tranh tài nguyên với
+normal capture hoặc 200 blind injection. Marker riêng
+`NORMAL_ABLATION_REPLAY_COMPLETE` chỉ được tạo sau sáu report và `SHA256SUMS`.
+
+Matrix validator nay bắt buộc cùng `evaluation_protocol_sha256` ở mọi method,
+ngoài dataset/capture/split/environment/blind-contract hash. Staging hậu kỳ đã
+được mở rộng lên 39 file, 39/39 checksum và focused VM suite `106 passed`;
+timer condition hiện vẫn chưa thỏa và active capture không bị sửa/restart.
+Fast-path normal ablation đầy đủ vẫn là gap: sequence
+capture có syscall name nhưng không có privacy-safe exec binary token, nên
+không thể replay trung thực nhánh `exec -> network` của fast path. Không được
+suy diễn normal fast-path FPR từ replay thiếu trường này; cần evidence live hoặc
+schema V9 bổ sung binary class đã allowlist trước khi claim.

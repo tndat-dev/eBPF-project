@@ -14,6 +14,7 @@ SHARED_DIGESTS = (
     "capture_manifest_sha256", "vocab_sha256",
     "split_sha256",
     "blind_attack_contract_sha256",
+    "evaluation_protocol_sha256",
     "environment_sha256",
 )
 

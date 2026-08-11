@@ -18,6 +18,7 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -36,6 +37,45 @@ NON_ELIGIBLE_DECISIONS = {
     "calibrating", "low_event_skip", "collection_quality_skip",
     "pod_startup_grace",
 }
+SCORE_COMPONENTS = ("ensemble", "lstm", "isolation_forest")
+
+
+class ScoreComponentManager:
+    """Expose one frozen candidate component through the detector interface.
+
+    Fixed-threshold baselines receive empty threshold-fit samples so they stay
+    at the protocol's literal 0.80 cutoff. EVT-POT experiments retain the
+    candidate's fit-only baseline score history.
+    """
+
+    def __init__(self, manager: ModelManager, component: str, *,
+                 adaptive_threshold: bool):
+        if component not in SCORE_COMPONENTS:
+            raise ValueError(f"unsupported score component: {component}")
+        self.manager = manager
+        self.component = component
+        self.vocab_size = manager.vocab_size
+        if adaptive_threshold:
+            self._models = manager._models
+        else:
+            self._models = {
+                key: SimpleNamespace(baseline_scores=[])
+                for key in manager.list_models()
+            }
+
+    def list_models(self) -> list[str]:
+        return self.manager.list_models()
+
+    def score(self, pod_key: str, vector: np.ndarray) -> dict[str, Any] | None:
+        result = self.manager.score(pod_key, vector)
+        if result is None:
+            return None
+        selected = {
+            "ensemble": result["ensemble_score"],
+            "lstm": result["lstm_score"],
+            "isolation_forest": result["if_score"],
+        }[self.component]
+        return {**result, "ensemble_score": float(selected)}
 
 
 def sha256(path: Path) -> str:
@@ -218,6 +258,7 @@ def evaluate_phase(
     initial_calibration: Path,
     require_behavior_gate: bool = True,
     enable_extreme_volume_gate: bool = True,
+    enable_adaptive_threshold: bool = True,
     confirmation_windows: int = 2,
 ) -> dict[str, Any]:
     evaluation_started = time.perf_counter()
@@ -270,6 +311,7 @@ def evaluate_phase(
                 persist_calibration=False,
                 require_behavior_gate=require_behavior_gate,
                 enable_extreme_volume_gate=enable_extreme_volume_gate,
+                enable_adaptive_threshold=enable_adaptive_threshold,
                 confirmation_windows=confirmation_windows,
             )
             for _, _, vector, row in rows:
@@ -376,8 +418,11 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--disable-behavior-gate", action="store_true")
     parser.add_argument("--disable-extreme-volume-gate", action="store_true")
+    parser.add_argument("--disable-adaptive-threshold", action="store_true")
     parser.add_argument("--confirmation-windows", type=int, choices=(1, 2),
                         default=2)
+    parser.add_argument("--score-component", choices=SCORE_COMPONENTS,
+                        default="ensemble")
     args = parser.parse_args()
 
     evidence_root = args.evidence_root.resolve()
@@ -413,7 +458,9 @@ def main() -> int:
         "evaluation_policy": {
             "require_behavior_gate": not args.disable_behavior_gate,
             "enable_extreme_volume_gate": not args.disable_extreme_volume_gate,
+            "enable_adaptive_threshold": not args.disable_adaptive_threshold,
             "confirmation_windows": args.confirmation_windows,
+            "score_component": args.score_component,
         },
     }
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -486,11 +533,17 @@ def main() -> int:
         if len(values) != 1 or not values.issubset(completed_provenance[name]):
             raise ValueError(f"evaluation provenance drift for {name}")
 
-    manager = ModelManager(str(candidate), str(candidate / "vocab.pkl"))
-    manager.load_all()
+    candidate_manager = ModelManager(
+        str(candidate), str(candidate / "vocab.pkl")
+    )
+    candidate_manager.load_all()
     targets = list(release_contract["eligible_targets"])
-    if set(manager.list_models()) != set(targets):
+    if set(candidate_manager.list_models()) != set(targets):
         raise ValueError("candidate model set does not match release targets")
+    manager = ScoreComponentManager(
+        candidate_manager, args.score_component,
+        adaptive_threshold=not args.disable_adaptive_threshold,
+    )
 
     phase_reports = resumable_phase_reports(
         output, report, expected_phases,
@@ -510,6 +563,7 @@ def main() -> int:
             initial_calibration=initial_calibration,
             require_behavior_gate=not args.disable_behavior_gate,
             enable_extreme_volume_gate=not args.disable_extreme_volume_gate,
+            enable_adaptive_threshold=not args.disable_adaptive_threshold,
             confirmation_windows=args.confirmation_windows,
         ))
         report.update(
@@ -546,7 +600,9 @@ def main() -> int:
             ),
             "require_behavior_gate": not args.disable_behavior_gate,
             "enable_extreme_volume_gate": not args.disable_extreme_volume_gate,
+            "enable_adaptive_threshold": not args.disable_adaptive_threshold,
             "confirmation_windows": args.confirmation_windows,
+            "score_component": args.score_component,
         },
     )
     write_report(output, report)

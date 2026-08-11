@@ -52,6 +52,7 @@ def test_v8_attack_wrapper_is_gated_and_has_no_train_or_promotion_path():
     assert "--feature-capture-mode sequence" in script
     assert "--evaluation-contract" in script
     assert "v8_blind_attack_contract.json" in script
+    assert "syscall_evaluation_protocol.json" in script
     assert "falco_attack_evidence_finalizer.py" in script
     assert "FALCO_ATTACK_EVIDENCE_COMPLETE" in script
     assert "train_candidate.py" not in script

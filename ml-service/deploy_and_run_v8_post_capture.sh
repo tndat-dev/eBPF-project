@@ -11,7 +11,8 @@ EVIDENCE_ROOT=${V8_EVIDENCE_ROOT:-$RUNTIME_ROOT/aims-v8-capture-v8-paired-replay
 [[ -r "$MANIFEST" ]] || { printf 'missing staging checksum manifest\n' >&2; exit 4; }
 (cd "$STAGING_ROOT" && sha256sum -c STAGING_SHA256SUMS)
 for unit in aims-v8-post-capture.service aims-v8-post-capture.timer \
-  aims-v8-blind-attack.service aims-v8-blind-attack.timer; do
+  aims-v8-blind-attack.service aims-v8-blind-attack.timer \
+  aims-v8-normal-ablation.service aims-v8-normal-ablation.timer; do
   cmp -s "$STAGING_ROOT/sentinel/systemd/$unit" "/etc/systemd/system/$unit" || {
     printf 'REFUSING: installed systemd unit differs from staging: %s\n' \
       "$unit" >&2
@@ -40,11 +41,14 @@ PY
 
 for name in anomaly_detector2.py build_feature_replay_dataset.py \
   build_phase_dataset.py evaluate_aims_normal_split.py \
+  evaluation_matrix_validation.py \
   falco_attack_evidence_finalizer.py \
   falco_evidence_finalizer.py \
   merge_feature_captures.py run_aims_blind_matrix.py \
   run_aims_split_evaluation.sh run_v8_blind_attack.sh \
-  run_v8_post_capture.sh v8_blind_attack_contract.json; do
+  run_v8_normal_ablation_matrix.sh \
+  run_v8_post_capture.sh syscall_evaluation_protocol.json \
+  v8_blind_attack_contract.json; do
   source=$STAGING_ROOT/ml-service/$name
   temporary=$RUNTIME_ROOT/.$name.v8-staging
   cp "$source" "$temporary"
@@ -57,12 +61,15 @@ bash -n "$RUNTIME_ROOT/run_aims_split_evaluation.sh" \
 cd "$STAGING_ROOT"
 PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_sentinel.py \
+  tests/test_evaluation_matrix_validation.py \
+  tests/test_syscall_evaluation_protocol.py \
   tests/test_phase_dataset.py \
   tests/test_aims_normal_split_evaluator.py \
   tests/test_falco_evidence_finalizer.py \
   tests/test_falco_attack_evidence_finalizer.py \
   tests/test_aims_blind_matrix.py \
   tests/test_v8_blind_attack.py \
+  tests/test_v8_normal_ablation_runner.py \
   tests/test_v8_capture_contract.py \
   tests/test_v8_post_capture_runner.py
 

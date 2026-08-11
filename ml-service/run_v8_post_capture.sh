@@ -13,6 +13,7 @@ CALIBRATION_REPORT=$DERIVED_ROOT/v8-fit-calibration.report.json
 EVALUATION_REPORT=$DERIVED_ROOT/v8-independent-evaluation.json
 FALCO_EVIDENCE_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
 FALCO_DERIVED=$DERIVED_ROOT/falco-rule-only-normal
+EVALUATION_PROTOCOL=$ROOT_DIR/syscall_evaluation_protocol.json
 
 if [[ ${SENTINEL_V8_POST_CAPTURE_LOCK_HELD:-0} != 1 ]]; then
   exec /usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-normal-matrix.lock \
@@ -37,6 +38,10 @@ for required in \
     exit 4
   }
 done
+[[ -r "$EVALUATION_PROTOCOL" ]] || {
+  printf 'REFUSING: missing syscall evaluation protocol\n' >&2
+  exit 4
+}
 
 (cd "$EVIDENCE_ROOT" && sha256sum -c SHA256SUMS)
 "$PYTHON_BIN" "$ROOT_DIR/validate_v8_capture_contract.py" \
@@ -63,6 +68,29 @@ if (
 PY
 
 mkdir -p "$DERIVED_ROOT"
+"$PYTHON_BIN" - "$EVALUATION_PROTOCOL" \
+  "$EVIDENCE_ROOT/evaluation_matrix_contract.json" <<'PY'
+import json, sys
+protocol = json.load(open(sys.argv[1]))
+matrix = json.load(open(sys.argv[2]))
+expected = set(matrix["tracks"]["syscall"]["baselines"])
+expected.update(matrix["tracks"]["syscall"]["ablations"])
+if protocol.get("release_id") != matrix.get("release_id"):
+    raise SystemExit("syscall evaluation protocol release mismatch")
+if set(protocol.get("methods", {})) != expected:
+    raise SystemExit("syscall evaluation protocol method mismatch")
+if protocol.get("automatic_promotion") is not False:
+    raise SystemExit("syscall evaluation protocol permits promotion")
+PY
+if [[ -e "$DERIVED_ROOT/syscall_evaluation_protocol.json" ]]; then
+  cmp -s "$EVALUATION_PROTOCOL" \
+    "$DERIVED_ROOT/syscall_evaluation_protocol.json" || {
+      printf 'REFUSING: derived evaluation protocol drift\n' >&2
+      exit 4
+    }
+else
+  cp "$EVALUATION_PROTOCOL" "$DERIVED_ROOT/syscall_evaluation_protocol.json"
+fi
 if [[ -d "$FALCO_DERIVED" ]]; then
   (cd "$FALCO_DERIVED" && sha256sum -c SHA256SUMS)
   "$PYTHON_BIN" - "$FALCO_DERIVED/falco-normal-evidence.report.json" <<'PY'
