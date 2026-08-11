@@ -23,7 +23,7 @@ MCP payload, secret, PVC data hay private endpoint.
 | AIMS fit-only calibration | `ml-service/build_aims_fit_calibration.py` | frozen POT/event-volume state from candidate-fit rows only; shared hash for validation and blind trials |
 | AIMS normal matrix | `ml-service/run_aims_normal_matrix.sh` | 20 independent phase captures, 24 hours by default, hashes and sensor health |
 | AIMS matrix validator | `ml-service/aims_matrix_validation.py` | fail-closed on missing/time-collapsed/tampered or sensor-degraded evidence |
-| AIMS split replay evaluator | `ml-service/evaluate_aims_normal_split.py` | exact production detector replay for frozen validation/blind-normal roles; identity-bound atomic phase checkpoints; zero-alert gate |
+| AIMS split replay evaluator | `ml-service/evaluate_aims_normal_split.py` | exact production detector replay for frozen validation/blind-normal roles; identity-bound atomic phase checkpoints include behavior/extreme-volume/confirmation policy; zero-alert gate |
 | AIMS evaluation scheduler | `sentinel/systemd/aims-split-evaluation@.{service,timer}` | deterministic one-thread replay, 6h bound; waits for complete phase set and never trains/promotes |
 | AIMS systemd runner | `sentinel/systemd/aims-normal-matrix.service` | disconnect-safe single matrix with low scheduling priority |
 | AIMS resume state | `.aims-normal-matrix-active` trên VM, không commit | giữ root qua restart; valid phase được verify, invalid phase chuyển `rejected/` |

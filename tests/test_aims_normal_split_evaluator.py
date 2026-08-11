@@ -111,6 +111,11 @@ def test_evaluation_checkpoint_is_atomic_and_identity_bound(tmp_path):
         "initial_calibration_sha256": "b",
         "split_contract_sha256": "c",
         "release_contract_sha256": "d",
+        "evaluation_policy": {
+            "require_behavior_gate": True,
+            "enable_extreme_volume_gate": True,
+            "confirmation_windows": 2,
+        },
         "phases": [{"phase": "steady-02", "passed": True}],
     }
     write_report(output, identity)
@@ -122,6 +127,14 @@ def test_evaluation_checkpoint_is_atomic_and_identity_bound(tmp_path):
     changed = dict(identity, initial_calibration_sha256="changed")
     with pytest.raises(ValueError, match="identity mismatch"):
         resumable_phase_reports(output, changed, ["steady-02"])
+
+    changed_policy = dict(
+        identity,
+        evaluation_policy={**identity["evaluation_policy"],
+                           "confirmation_windows": 1},
+    )
+    with pytest.raises(ValueError, match="identity mismatch"):
+        resumable_phase_reports(output, changed_policy, ["steady-02"])
 
 
 def test_evaluation_checkpoint_rejects_non_prefix_phases(tmp_path):

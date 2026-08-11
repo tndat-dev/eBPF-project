@@ -183,6 +183,9 @@ class AnomalyDetector:
         confirmation_floor_ratio: Optional[float] = None,
         pod_started_at_lookup: Optional[Callable[[str], Optional[float]]] = None,
         persist_calibration: bool = True,
+        require_behavior_gate: bool = True,
+        enable_extreme_volume_gate: bool = True,
+        confirmation_windows: int = 2,
     ):
         self.model_manager    = model_manager
         self.on_alert         = on_alert or self._default_alert_handler
@@ -196,6 +199,11 @@ class AnomalyDetector:
             raise ValueError("extreme volume factor must be greater than 1")
         self.calibration_path = os.environ.get("SENTINEL_CALIBRATION", "calibration.json")
         self.persist_calibration = persist_calibration
+        self.require_behavior_gate = bool(require_behavior_gate)
+        self.enable_extreme_volume_gate = bool(enable_extreme_volume_gate)
+        self.confirmation_windows = int(confirmation_windows)
+        if self.confirmation_windows not in (1, 2):
+            raise ValueError("confirmation_windows must be 1 or 2")
         self.feature_capture_mode = os.environ.get(
             "SENTINEL_FEATURE_CAPTURE", "off"
         ).strip().lower()
@@ -365,7 +373,13 @@ class AnomalyDetector:
             fv.syscall_counts, total_events, behavior_limits
         )
         suspicious_mass = behavior["suspicious_mass"]
-        behavior_gate = behavior["gate"]
+        observed_behavior_gate = behavior["gate"]
+        # Research ablation only: disabling the corroboration requirement must
+        # still preserve the observed signal in telemetry.  The production
+        # default remains fail-closed and requires independent kernel behavior.
+        behavior_gate = bool(
+            observed_behavior_gate or not self.require_behavior_gate
+        )
         ingest_lag = max(0.0, time.time() - fv.window_end)
         emit("inference", pod_key=pod_key, model_key=model_key,
              inference_ms=round(inference_ms, 4), score=score,
@@ -374,6 +388,8 @@ class AnomalyDetector:
              ingest_lag_seconds=round(ingest_lag, 4),
              suspicious_mass=round(suspicious_mass, 6),
              behavior_gate=behavior_gate,
+             observed_behavior_gate=observed_behavior_gate,
+             behavior_gate_required=self.require_behavior_gate,
              behavior_method=behavior["method"],
              behavior_syscall=behavior["syscall"],
              behavior_frequency=round(behavior["frequency"], 6),
@@ -513,7 +529,8 @@ class AnomalyDetector:
         early_warning = self.early_warning_lookup(pod_key)
         confirmation_path = None
         extreme_volume = bool(
-            learned_maximum_events
+            self.enable_extreme_volume_gate
+            and learned_maximum_events
             and total_events > learned_maximum_events
         )
         volume_confirmed = False
@@ -523,7 +540,7 @@ class AnomalyDetector:
             if score >= threshold and extreme_volume:
                 self._volume_consecutive[pod_key] += 1
                 confirmation_path = "extreme_volume_ml"
-                if self._volume_consecutive[pod_key] < 2:
+                if self._volume_consecutive[pod_key] < self.confirmation_windows:
                     emit(
                         "decision", pod_key=pod_key, model_key=model_key,
                         decision="pending_confirmation", score=score,
@@ -534,13 +551,16 @@ class AnomalyDetector:
                         extreme_volume_factor=self.extreme_volume_factor,
                         confirmation_path=confirmation_path,
                         consecutive=self._volume_consecutive[pod_key],
+                        required_consecutive=self.confirmation_windows,
                         behavior_max_ratio=round(behavior["max_ratio"], 6),
                         suspicious_mass=round(suspicious_mass, 6),
                     )
                     logger.info(
                         "[PENDING VOLUME] %s: score=%.4f events=%d > %d "
-                        "(1/2 windows)", pod_key, score, total_events,
+                        "(%d/%d windows)", pod_key, score, total_events,
                         learned_maximum_events,
+                        self._volume_consecutive[pod_key],
+                        self.confirmation_windows,
                     )
                     return
                 volume_confirmed = True
@@ -573,7 +593,7 @@ class AnomalyDetector:
                 self._consecutive[pod_key] == 1
                 and score >= confirmation_floor
             ):
-                self._consecutive[pod_key] = 2
+                self._consecutive[pod_key] = self.confirmation_windows
                 confirmation_path = "hysteresis_ml"
             else:
                 self._consecutive[pod_key] = 0
@@ -591,9 +611,9 @@ class AnomalyDetector:
             )
             behavior_persistent = bool(
                 behavior_fusion_enabled
-                and self._behavior_consecutive[pod_key] >= 2
+                and self._behavior_consecutive[pod_key] >= self.confirmation_windows
             )
-            if self._consecutive[pod_key] >= 2:
+            if self._consecutive[pod_key] >= self.confirmation_windows:
                 confirmation_path = confirmation_path or "hard_ml"
             elif fast_path_assisted:
                 confirmation_path = "fast_path_behavior_ml_floor"
@@ -610,8 +630,22 @@ class AnomalyDetector:
                      behavior_confirmation_floor=self.behavior_confirmation_floor,
                      fast_path_confirmation_floor=self.fast_path_confirmation_floor,
                      confirmation_path=confirmation_path,
-                     suspicious_mass=round(suspicious_mass, 6), consecutive=1)
-                logger.info(f"[PENDING] {pod_key}: score={score:.4f} threshold={threshold:.4f} suspicious_mass={suspicious_mass:.3f} (1/2 windows)")
+                     suspicious_mass=round(suspicious_mass, 6),
+                     consecutive=max(
+                         self._consecutive[pod_key],
+                         self._behavior_consecutive[pod_key],
+                     ),
+                     required_consecutive=self.confirmation_windows)
+                logger.info(
+                    "[PENDING] %s: score=%.4f threshold=%.4f "
+                    "suspicious_mass=%.3f (%d/%d windows)",
+                    pod_key, score, threshold, suspicious_mass,
+                    max(
+                        self._consecutive[pod_key],
+                        self._behavior_consecutive[pod_key],
+                    ),
+                    self.confirmation_windows,
+                )
                 return
 
         # Kiểm tra cooldown

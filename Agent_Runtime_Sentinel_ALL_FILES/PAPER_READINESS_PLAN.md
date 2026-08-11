@@ -149,6 +149,13 @@ same-pod interval + 30 giây horizon, đợi stream settle, báo recall với Wi
 `FALCO_ATTACK_EVIDENCE_COMPLETE` tồn tại; ML report một mình không đủ. Chưa có
 Falco recall thật cho tới khi blind campaign hoàn tất.
 
+Ba ablation detector-path không còn yêu cầu sửa source giữa các lượt chạy:
+behavior corroboration, extreme-volume route và số window xác nhận là tham số
+explicit với production default lần lượt `true/true/2`. Atomic checkpoint bind
+cả policy nên cấm resume chéo ablation. Bundle hậu kỳ 31/31 checksum và focused
+VM suite 94 test pass; active capture không bị thay source. Đây chỉ là runner
+readiness, chưa thay thế việc chạy kết quả trên cùng frozen normal/attack replay.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

@@ -424,6 +424,127 @@ def test_high_ml_score_without_extreme_volume_remains_behavior_gated(
     assert detector._volume_consecutive[Vector.pod_key] == 0
 
 
+def test_research_ablation_can_remove_behavior_requirement_without_changing_default(
+        tmp_path, monkeypatch):
+    class Manager:
+        def list_models(self):
+            return ["default/postgres"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .95, "lstm_score": .95, "if_score": .4,
+                "behavior_limits": {},
+            }
+
+    class Vector:
+        pod_key = "default/postgres-5cd4775869-abcde"
+        pod_name = "postgres-5cd4775869-abcde"
+        pod_namespace = "default"
+        node_name = "worker"
+        vector = np.zeros(1)
+        syscall_counts = {"read": 100}
+        window_start = 0.0
+        window_end = time.time()
+
+        def total_events(self):
+            return 100
+
+    monkeypatch.setenv("SENTINEL_CALIBRATION", str(tmp_path / "calibration.json"))
+    alerts = []
+    detector = AnomalyDetector(
+        Manager(), on_alert=alerts.append, threshold=.8,
+        require_behavior_gate=False,
+    )
+    detector.handle_feature_vector(Vector())
+    assert alerts == []
+    detector.handle_feature_vector(Vector())
+    assert len(alerts) == 1
+    rows = [
+        json.loads(line) for line in
+        Path(os.environ["SENTINEL_METRICS"]).read_text().splitlines()
+    ]
+    inference = next(row for row in rows if row["kind"] == "inference")
+    assert inference["observed_behavior_gate"] is False
+    assert inference["behavior_gate_required"] is False
+
+
+def test_research_ablation_can_disable_extreme_volume_route(
+        tmp_path, monkeypatch):
+    class Manager:
+        def list_models(self):
+            return ["default/postgres"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .95, "lstm_score": .95, "if_score": .4,
+                "behavior_limits": {},
+            }
+
+    class Vector:
+        pod_key = "default/postgres-5cd4775869-abcde"
+        pod_name = "postgres-5cd4775869-abcde"
+        pod_namespace = "default"
+        node_name = "worker"
+        vector = np.zeros(1)
+        syscall_counts = {"read": 1000}
+        window_start = 0.0
+        window_end = time.time()
+
+        def total_events(self):
+            return 1000
+
+    monkeypatch.setenv("SENTINEL_CALIBRATION", str(tmp_path / "calibration.json"))
+    alerts = []
+    detector = AnomalyDetector(
+        Manager(), on_alert=alerts.append, threshold=.8,
+        enable_extreme_volume_gate=False,
+    )
+    calibrator = detector.calibrators["default/postgres"]
+    for count in range(100, 150, 5):
+        calibrator.observe(.2, count)
+    detector.handle_feature_vector(Vector())
+    detector.handle_feature_vector(Vector())
+    assert alerts == []
+
+
+def test_research_ablation_can_use_one_window_confirmation(
+        tmp_path, monkeypatch):
+    class Manager:
+        def list_models(self):
+            return ["default/postgres"]
+
+        def score(self, _key, _vector):
+            return {
+                "ensemble_score": .95, "lstm_score": .95, "if_score": .4,
+                "behavior_limits": {"unshare": .1},
+            }
+
+    class Vector:
+        pod_key = "default/postgres-5cd4775869-abcde"
+        pod_name = "postgres-5cd4775869-abcde"
+        pod_namespace = "default"
+        node_name = "worker"
+        vector = np.zeros(1)
+        syscall_counts = {"unshare": 90, "read": 10}
+        window_start = 0.0
+        window_end = time.time()
+
+        def total_events(self):
+            return 100
+
+    monkeypatch.setenv("SENTINEL_CALIBRATION", str(tmp_path / "calibration.json"))
+    alerts = []
+    detector = AnomalyDetector(
+        Manager(), on_alert=alerts.append, threshold=.8,
+        confirmation_windows=1,
+    )
+    detector.handle_feature_vector(Vector())
+    assert len(alerts) == 1
+
+    with pytest.raises(ValueError, match="confirmation_windows"):
+        AnomalyDetector(Manager(), confirmation_windows=3)
+
+
 def test_legacy_calibration_format_is_backward_compatible(tmp_path):
     path = tmp_path / "legacy.json"
     path.write_text('{"production/nginx": [0.2, 0.3]}')

@@ -238,6 +238,12 @@ python3 ml-service/evaluation_matrix_validation.py paper-evaluation-results \
   --contract ml-service/evaluation_matrix_contract.json --track syscall
 ```
 
+Normal replay dùng cùng detector path có ba tùy chọn ablation explicit:
+`--disable-behavior-gate`, `--disable-extreme-volume-gate` và
+`--confirmation-windows 1`. Không ghi đè cùng output giữa các policy; checkpoint
+bind policy và sẽ fail nếu cố resume chéo cấu hình. Không truyền tùy chọn nào là
+production default `behavior=true`, `extreme-volume=true`, hai window.
+
 Gate phải fail khi thiếu bất kỳ experiment nào. Không tạo result giả chỉ để
 gate xanh; `evaluation_matrix_manifest.json` là index của evidence đã chạy,
 không phải generator kết quả.

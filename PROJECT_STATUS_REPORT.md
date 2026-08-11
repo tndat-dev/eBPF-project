@@ -3299,3 +3299,37 @@ hợp matrix xong nhưng Falco stream chưa settle trả 75 và timer có thể 
 baseline ở lần sau, còn complete ML miss vẫn giữ exit 8 sau khi evidence Falco
 được khóa. Staging 29/29 checksum và 53 VM focused test pass; capture vẫn active
 trong suốt lần cài unit sửa. Chưa có attack metric thật ở thời điểm viết.
+
+### 18.46 Checkpoint V8 và ablation chạy đúng detector path (11-08-2026)
+
+Checkpoint trực tiếp lúc `2026-08-11T14:57:40Z` xác nhận capture sau lần thu
+lại vẫn `active/running`, `NRestarts=0`. Năm phase đã có
+`collection_manifest.json` hoàn chỉnh: bốn phase run-01 và `steady-run-02`;
+`burst-run-02` đang tăng dữ liệu với 4.093 feature window. `steady-run-02` sạch
+có 6.896 window; partial 4.821 row do lỗi orchestration trước đó vẫn chỉ nằm
+trong `rejected/` và không được tính. Sáu node K8s v1.34.10 đều Ready, snapshot
+toàn cụm không có pod ngoài Running/Completed.
+
+Falco collector cùng thời điểm vẫn có đủ sáu active reader,
+`coverage_healthy=true`, `stream_failures=0`, state không stale; 3.448 dòng
+nguồn đã được xử lý và 0 privacy-safe alert row thuộc AIMS được ghi. Con số này
+chỉ là quan sát giữa campaign, chưa phải normal alert-rate/FPR terminal.
+`POST_CAPTURE_COMPLETE`, Falco normal marker và Falco attack marker đều chưa
+tồn tại, vì vậy không model V8 nào đã được train và blind attack chưa chạy.
+
+Để ablation không còn là thay code thủ công, `AnomalyDetector` nay nhận ba
+policy knob có default giữ nguyên production: `require_behavior_gate=true`,
+`enable_extreme_volume_gate=true`, `confirmation_windows=2`. Evaluator có thể
+đổi độc lập sang bỏ behavior gate, bỏ extreme-volume route hoặc one-window
+confirmation. Telemetry vẫn ghi cả behavior quan sát thật và behavior gate hiệu
+lực, tránh ablation làm mất dấu tín hiệu gốc. Checkpoint resume đã bind thêm
+toàn bộ evaluation policy; một report đang dở không thể bị nối tiếp bằng policy
+khác.
+
+Các thay đổi này chưa được nạp vào process capture. Chúng được đưa vào bundle
+hậu kỳ bằng atomic staging swap, giữ staging cũ làm rollback. Bundle mới pass
+31/31 SHA-256 và full focused suite trên clone VM đạt `94 passed`; riêng policy
+và resume guard đạt `48 passed`. Post-capture deployer chỉ copy detector mới
+sau khi capture service kết thúc thành công, chạy lại test, và vẫn không có
+đường promote. Đây là năng lực thực thi ablation, chưa phải kết quả
+baseline/ablation hay bằng chứng world-class hoàn tất.

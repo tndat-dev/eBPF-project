@@ -216,6 +216,9 @@ def evaluate_phase(
     startup_grace_seconds: float,
     warmup_windows: int,
     initial_calibration: Path,
+    require_behavior_gate: bool = True,
+    enable_extreme_volume_gate: bool = True,
+    confirmation_windows: int = 2,
 ) -> dict[str, Any]:
     evaluation_started = time.perf_counter()
     rows, source = load_phase_rows(phase_dir, targets, manager.vocab_size)
@@ -265,6 +268,9 @@ def evaluate_phase(
                 early_warning_lookup=lambda _pod: None,
                 pod_started_at_lookup=lambda pod: creation_times.get(pod),
                 persist_calibration=False,
+                require_behavior_gate=require_behavior_gate,
+                enable_extreme_volume_gate=enable_extreme_volume_gate,
+                confirmation_windows=confirmation_windows,
             )
             for _, _, vector, row in rows:
                 event_count = int(row["event_count"])
@@ -342,6 +348,7 @@ def resumable_phase_reports(
         "role", "evidence_root", "candidate_sha256",
         "initial_calibration_sha256", "split_contract_sha256",
         "release_contract_sha256", "initial_calibration_report_sha256",
+        "evaluation_policy",
     )
     if any(previous.get(key) != report.get(key) for key in identity_fields):
         raise ValueError("existing evaluation checkpoint identity mismatch")
@@ -367,6 +374,10 @@ def main() -> int:
     parser.add_argument("--initial-calibration", type=Path, required=True)
     parser.add_argument("--initial-calibration-report", type=Path)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--disable-behavior-gate", action="store_true")
+    parser.add_argument("--disable-extreme-volume-gate", action="store_true")
+    parser.add_argument("--confirmation-windows", type=int, choices=(1, 2),
+                        default=2)
     args = parser.parse_args()
 
     evidence_root = args.evidence_root.resolve()
@@ -399,6 +410,11 @@ def main() -> int:
         "release_contract": str(release_path),
         "release_contract_sha256": sha256(release_path),
         "initial_calibration": str(initial_calibration),
+        "evaluation_policy": {
+            "require_behavior_gate": not args.disable_behavior_gate,
+            "enable_extreme_volume_gate": not args.disable_extreme_volume_gate,
+            "confirmation_windows": args.confirmation_windows,
+        },
     }
     output.parent.mkdir(parents=True, exist_ok=True)
 
@@ -492,6 +508,9 @@ def main() -> int:
             ),
             warmup_windows=10,
             initial_calibration=initial_calibration,
+            require_behavior_gate=not args.disable_behavior_gate,
+            enable_extreme_volume_gate=not args.disable_extreme_volume_gate,
+            confirmation_windows=args.confirmation_windows,
         ))
         report.update(
             status="evaluating",
@@ -525,6 +544,9 @@ def main() -> int:
             "terminal_independent_evaluation": (
                 args.role == "independent_evaluation"
             ),
+            "require_behavior_gate": not args.disable_behavior_gate,
+            "enable_extreme_volume_gate": not args.disable_extreme_volume_gate,
+            "confirmation_windows": args.confirmation_windows,
         },
     )
     write_report(output, report)
