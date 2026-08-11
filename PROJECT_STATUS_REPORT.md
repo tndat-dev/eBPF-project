@@ -69,7 +69,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload/cluster pod | 225/225 pod toàn cụm ở trạng thái `Running` hoặc `Completed`; không có pod lỗi tại snapshot 12:40Z |
 | Falco | DaemonSet `6 desired/6 ready`, image `falcosecurity/falco:0.44.1`; collector evidence riêng đang đọc đủ sáu stream |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `105 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31`; staging handoff mới có finalizer đạt `35 passed` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `110 passed, 7 skipped`; focused V8 VM suites: `68`, `11`, `31`; staging V8 hậu kỳ + blind attack đạt `48 passed` |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 11-08-2026.
@@ -3214,3 +3214,64 @@ thay đổi đạt `105 passed, 7 skipped`; checksum staging mới bao gồm fin
 test của nó. Staging 14/14 checksum đã được thay nguyên tử lúc 12:45Z và focused
 VM suite đạt `35 passed`; runtime source đang capture vẫn không bị sửa. Collector
 tiếp tục healthy với sáu reader, 815 dòng nguồn, 0 AIMS row tại checkpoint này.
+
+### 18.44 Handoff blind attack V8 và canonical paired replay (11-08-2026)
+
+Audit runner cho thấy đường blind attack cũ chỉ chấp nhận prerequisite role
+`blind_normal_test` của split V7, trong khi V8 kết thúc bằng một terminal
+`independent_evaluation`. Nếu không sửa, capture 28,8 giờ có thể hoàn tất nhưng
+200 trial attack không thể tự khởi động. Đường V8 riêng đã được thêm mà không
+sửa source runtime đang capture.
+
+`v8_blind_attack_contract.json` khóa 5 seed
+`1901,3203,4703,6701,9001` từ `evaluation_matrix_contract.json` hash
+`76d9db55cd00f5512d0e0081b70bdd21fea16732032f22673aba12586e1dc21e`,
+vốn đã freeze trước V8 capture. Contract attack được materialize khi normal
+capture đã active nên báo rõ trường này; claim hợp lệ chỉ là seed đã
+pre-register trước capture và full contract hoàn tất trước candidate training,
+không được viết ngược thành toàn bộ attack contract đã tồn tại trước normal
+capture. Nó cũng bind split hash
+`c7e1e679974a0a842a0c657862c81f33fdd9caa7abea068bdf7142fb4aa87c30`,
+source hash `eed8ef73...` và binary hash `a4d68d79...`, cấm dùng attack để
+train/tune và cấm automatic promotion.
+
+Runner V8 chỉ nhận terminal normal report có role `independent_evaluation`,
+đúng candidate/calibration/split; bắt buộc sequence capture và cùng release ID.
+Schedule vẫn shuffled, gồm 8 workload × 5 seed/rate × 5 scenario = 200
+injection interval. Complete miss được giữ như kết quả, không rerun; chỉ trial
+hỏng hạ tầng/incomplete mới được quarantine. Sau terminal matrix, toàn bộ 200
+child capture phải hash-valid và nằm trong evidence root, rồi mới canonical-
+merge thành `frozen-attack-feature-capture.jsonl` và label theo same-pod
+injection interval thành `frozen-attack-replay.jsonl`. Dataset ghi
+`labels_used_for_training=false`; merge thiếu/duplicate source hoặc injection
+count khác 200 sẽ fail-closed.
+
+`aims-v8-blind-attack.timer` đã được cài/enabled lúc 12:56Z. Service có
+condition `POST_CAPTURE_COMPLETE`, giữ lock riêng, giới hạn 150% CPU/8 GiB,
+timeout 72 giờ, và kiểm Falco collector active/healthy/non-stale trước attack.
+Exit 8 biểu diễn matrix complete nhưng có detection miss và được systemd coi là
+terminal evidence, tránh timer chạy lại đến khi pass.
+
+Trigger đầu lúc 12:56Z không chạy attack vì marker chưa tồn tại, nhưng audit
+ngay sau đó phát hiện systemd đã áp dụng `Conflicts=aims-v8-capture.service`
+trước khi xét `ConditionPathExists`, làm TERM capture đang ở phút 50/72 của
+`aims-steady-run-02`. Đây là lỗi orchestration của unit blind-attack mới. Partial
+phase lập tức bị loại khỏi evidence; không post-capture marker/model/report nào
+được tạo. `Conflicts` đã bị xóa hoàn toàn vì wrapper vốn có active-service
+interlock trả 75; regression test mới cấm đưa dependency phá hủy này trở lại.
+Unit sửa đã cài và daemon-reload trước khi restart capture.
+
+Capture resume lúc 13:01:32Z giữ nguyên bốn phase run-01 đã hash-valid, chuyển
+partial run-02 vào
+`rejected/aims-steady-run-02-20260811T130135Z`, rồi bắt đầu thu lại phase này từ
+đầu lúc 13:02:10Z. Checkpoint mới có 23 feature row, context đúng V8/run-02/
+steady, vector 210, privacy exclusion rõ và sáu Tetragon reader active. Như vậy
+partial 50 phút không thể lọt vào terminal matrix; ETA campaign trễ thêm khoảng
+một giờ. Falco collector không bị restart và tiếp tục coverage qua cả khoảng
+gián đoạn.
+
+Staging mới có 27/27 checksum, focused ML-venv suite trên VM `48 passed`; local
+suite `110 passed, 7 skipped`. Falco tại checkpoint trước restart có 6 active
+reader, zero stream failure, 1.073 dòng nguồn và 0 AIMS alert row. Đây là
+automation/protocol readiness, chưa phải kết quả recall/FPR mới và chưa đủ
+claim world-class.

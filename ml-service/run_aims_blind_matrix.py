@@ -17,7 +17,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from build_feature_replay_dataset import build_dataset
 from evaluate_aims_normal_split import candidate_hashes
+from merge_feature_captures import merge_captures
 
 TRIAL_TIMEOUT_SECONDS = 30 * 60
 
@@ -53,10 +55,13 @@ def run_trial(command: list[str], timeout: int = TRIAL_TIMEOUT_SECONDS
 
 def validate_normal_prerequisite(path: Path, model_hashes: dict,
                                  calibration_sha256: str,
-                                 split_contract_sha256: str) -> dict:
+                                 split_contract_sha256: str,
+                                 allowed_roles: tuple[str, ...] = (
+                                     "blind_normal_test",
+                                 )) -> dict:
     report = load_json(path)
     if (
-        report.get("role") != "blind_normal_test"
+        report.get("role") not in allowed_roles
         or report.get("status") != "complete"
         or report.get("passed") is not True
     ):
@@ -68,6 +73,125 @@ def validate_normal_prerequisite(path: Path, model_hashes: dict,
     if report.get("split_contract_sha256") != split_contract_sha256:
         raise ValueError("blind-normal report used a different split contract")
     return {"path": str(path), "sha256": sha256(path)}
+
+
+def validate_v8_contracts(
+    attack: dict, split: dict, evaluation: dict, *,
+    attack_split_sha256: str, evaluation_sha256: str,
+    capture_release_id: str | None,
+) -> None:
+    """Bind a post-normal attack plan to seeds frozen before V8 capture."""
+    if attack.get("schema") != "sentinel-v8-blind-attack-contract/v1":
+        raise ValueError("V8 blind attack contract schema mismatch")
+    release_id = attack.get("release_id")
+    if release_id != split.get("release_id") or release_id != evaluation.get("release_id"):
+        raise ValueError("V8 attack/split/evaluation release mismatch")
+    registered = attack.get("seed_pre_registration", {})
+    if registered.get("source_sha256") != evaluation_sha256:
+        raise ValueError("V8 evaluation contract digest mismatch")
+    if attack.get("split_contract_sha256") != attack_split_sha256:
+        raise ValueError("V8 split contract digest mismatch")
+    if attack.get("trial_seeds") != evaluation.get("trial_seeds"):
+        raise ValueError("V8 attack seeds differ from the pre-registered evaluation seeds")
+    if registered.get("frozen_before_v8_capture") is not True:
+        raise ValueError("V8 seed pre-registration is not proven")
+    if (
+        evaluation.get("frozen_before_v8_capture") is not True
+        or evaluation.get("paired_replay_required") is not True
+    ):
+        raise ValueError("V8 evaluation contract was not pre-frozen for paired replay")
+    if attack.get("capture_mode") != "sequence":
+        raise ValueError("V8 blind attack capture must retain syscall order")
+    if capture_release_id is not None and capture_release_id != release_id:
+        raise ValueError("V8 feature capture release mismatch")
+
+
+def quarantine_incomplete_pair(first: Path, second: Path) -> None:
+    """Preserve a crash-partial derivative so a retry can rebuild from raw sources."""
+    if first.exists() == second.exists():
+        return
+    rejected = first.parent / "rejected-derived"
+    rejected.mkdir(exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    existing = first if first.exists() else second
+    destination = rejected / f"{existing.name}.incomplete-{stamp}"
+    suffix = 1
+    while destination.exists():
+        destination = rejected / f"{existing.name}.incomplete-{stamp}-{suffix}"
+        suffix += 1
+    existing.replace(destination)
+def freeze_paired_attack_evidence(
+    root: Path, aggregate: dict, *, expected_sources: int,
+) -> dict:
+    """Canonicalize every complete child capture without using its labels to tune."""
+    sources: list[Path] = []
+    root = root.resolve()
+    for trial in aggregate.get("trials", []):
+        report_path = Path(str(trial.get("report_path", ""))).resolve()
+        if not report_path.is_file() or not report_path.is_relative_to(root):
+            raise ValueError("paired attack trial report escaped the evidence root")
+        report = load_json(report_path)
+        for scenario in report.get("scenarios", {}).values():
+            feature = scenario.get("feature_capture")
+            path = Path(str((feature or {}).get("path", ""))).resolve()
+            if (
+                not feature or not path.is_file() or not path.is_relative_to(root)
+                or feature.get("sha256") != sha256(path)
+                or (feature.get("validation") or {}).get("valid") is not True
+            ):
+                raise ValueError("paired attack child capture is missing or invalid")
+            sources.append(path)
+    if len(sources) != expected_sources or len(set(sources)) != expected_sources:
+        raise ValueError(
+            f"paired attack source count mismatch: {len(sources)}/{expected_sources}"
+        )
+
+    capture = root / "frozen-attack-feature-capture.jsonl"
+    quarantine_incomplete_pair(capture, capture.with_suffix(".manifest.json"))
+    capture_manifest = merge_captures(sources, capture, require_injections=True)
+    dataset = root / "frozen-attack-replay.jsonl"
+    dataset_manifest_path = dataset.with_suffix(".manifest.json")
+    quarantine_incomplete_pair(dataset, dataset_manifest_path)
+    if dataset.exists() or dataset_manifest_path.exists():
+        if not dataset.is_file() or not dataset_manifest_path.is_file():
+            raise ValueError("incomplete paired attack replay derivative exists")
+        dataset_manifest = load_json(dataset_manifest_path)
+        if (
+            dataset_manifest.get("source", {}).get("sha256") != sha256(capture)
+            or dataset_manifest.get("dataset", {}).get("sha256") != sha256(dataset)
+            or dataset_manifest.get("labels_used_for_training") is not False
+        ):
+            raise ValueError("existing paired attack replay derivative is invalid")
+    else:
+        rows, dataset_manifest = build_dataset(capture, require_injections=True)
+        temporary = dataset.with_suffix(dataset.suffix + f".tmp-{os.getpid()}")
+        temporary.write_text("".join(
+            json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n"
+            for row in rows
+        ))
+        temporary.replace(dataset)
+        dataset_manifest["dataset"] = {
+            "name": dataset.name,
+            "sha256": sha256(dataset),
+        }
+        atomic_json(dataset_manifest_path, dataset_manifest)
+    if int(dataset_manifest.get("injection_intervals", 0)) != expected_sources:
+        raise ValueError("paired replay injection count is incomplete")
+    return {
+        "capture": str(capture),
+        "capture_sha256": sha256(capture),
+        "capture_manifest": str(capture.with_suffix(".manifest.json")),
+        "capture_manifest_sha256": sha256(capture.with_suffix(".manifest.json")),
+        "source_count": capture_manifest["source_count"],
+        "dataset": str(dataset),
+        "dataset_sha256": sha256(dataset),
+        "dataset_manifest": str(dataset_manifest_path),
+        "dataset_manifest_sha256": sha256(dataset_manifest_path),
+        "feature_windows": dataset_manifest["feature_windows"],
+        "attack_windows": dataset_manifest["attack_windows"],
+        "injection_intervals": dataset_manifest["injection_intervals"],
+        "labels_used_for_training": False,
+    }
 
 
 def validated_trials(root: Path, aggregate: dict) -> tuple[list[dict], set[tuple]]:
@@ -136,6 +260,7 @@ def main() -> int:
     parser.add_argument("--normal-calibration", required=True)
     parser.add_argument("--normal-prerequisite", required=True)
     parser.add_argument("--split-contract", default="aims_candidate_split_contract.json")
+    parser.add_argument("--evaluation-contract", default=None)
     parser.add_argument("--aims-contract", default="aims_release_contract.json")
     parser.add_argument("--attack-contract", default="aims_blind_attack_contract.json")
     parser.add_argument("--runtime-source", default="runtime_attack_blind.c")
@@ -160,13 +285,20 @@ def main() -> int:
     calibration = Path(args.normal_calibration).resolve()
     prerequisite = Path(args.normal_prerequisite).resolve()
     split_contract = Path(args.split_contract).resolve()
+    evaluation_contract = (
+        Path(args.evaluation_contract).resolve()
+        if args.evaluation_contract else None
+    )
     for path in (aims_contract_path, attack_contract_path, source, binary,
                  model_dir, calibration, prerequisite, split_contract):
         if not path.exists():
             raise FileNotFoundError(path)
+    if evaluation_contract is not None and not evaluation_contract.is_file():
+        raise FileNotFoundError(evaluation_contract)
 
     aims = load_json(aims_contract_path)
     attack = load_json(attack_contract_path)
+    split = load_json(split_contract)
     if not attack.get("frozen_before_candidate_training"):
         raise ValueError("blind attack contract is not frozen")
     if attack.get("use_for_training_or_threshold_tuning") is not False:
@@ -177,6 +309,19 @@ def main() -> int:
         raise ValueError("blind attack binary hash mismatch")
     if args.window != int(aims["window_seconds"]):
         raise ValueError("window does not match AIMS release contract")
+    v8 = attack.get("schema") == "sentinel-v8-blind-attack-contract/v1"
+    evaluation = load_json(evaluation_contract) if evaluation_contract else None
+    if v8:
+        if evaluation_contract is None or evaluation is None:
+            raise ValueError("V8 attack requires --evaluation-contract")
+        if args.feature_capture_mode != attack.get("capture_mode"):
+            raise ValueError("V8 attack must enable the frozen sequence capture mode")
+        validate_v8_contracts(
+            attack, split, evaluation,
+            attack_split_sha256=sha256(split_contract),
+            evaluation_sha256=sha256(evaluation_contract),
+            capture_release_id=args.capture_release_id,
+        )
 
     targets = list(aims["eligible_targets"])
     scenarios = list(attack["scenarios"])
@@ -199,7 +344,8 @@ def main() -> int:
     calibration_digest = sha256(calibration)
     split_digest = sha256(split_contract)
     prerequisite_spec = validate_normal_prerequisite(
-        prerequisite, model_hashes, calibration_digest, split_digest
+        prerequisite, model_hashes, calibration_digest, split_digest,
+        allowed_roles=("independent_evaluation",) if v8 else ("blind_normal_test",),
     )
     frozen_header = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -221,6 +367,11 @@ def main() -> int:
         "expected_scenario_trials": len(schedule) * len(scenarios),
         "schedule": schedule,
     }
+    if evaluation_contract is not None:
+        frozen_header["evaluation_contract"] = {
+            "path": str(evaluation_contract),
+            "sha256": sha256(evaluation_contract),
+        }
     # Keep completed pre-V8 reports load-compatible. New capture campaigns bind
     # the mode into their immutable header and child command.
     if args.feature_capture_mode != "off":
@@ -319,6 +470,11 @@ def main() -> int:
         and all(row["exit_code"] == 0 and row["all_passed"]
                 for row in aggregate["trials"])
     )
+    if args.feature_capture_mode != "off":
+        aggregate["paired_attack_evidence"] = freeze_paired_attack_evidence(
+            root, aggregate,
+            expected_sources=int(aggregate["expected_scenario_trials"]),
+        )
     atomic_json(final, aggregate)
     print(f"report={final}")
     return 0 if aggregate["all_passed"] else 8

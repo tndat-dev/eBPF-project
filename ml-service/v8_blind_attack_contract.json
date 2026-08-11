@@ -1,0 +1,50 @@
+{
+  "schema": "sentinel-v8-blind-attack-contract/v1",
+  "release_id": "v8-paired-replay-20260811",
+  "frozen_at": "2026-08-11T12:50:00Z",
+  "frozen_before_candidate_training": true,
+  "normal_capture_already_active_when_materialized": true,
+  "seed_pre_registration": {
+    "source": "evaluation_matrix_contract.json",
+    "source_sha256": "76d9db55cd00f5512d0e0081b70bdd21fea16732032f22673aba12586e1dc21e",
+    "field": "trial_seeds",
+    "frozen_before_v8_capture": true
+  },
+  "split_contract_sha256": "c7e1e679974a0a842a0c657862c81f33fdd9caa7abea068bdf7142fb4aa87c30",
+  "source": {
+    "path": "sentinel/benchmarks/runtime_attack_blind.c",
+    "sha256": "eed8ef73168d58d2d5d0b7d44e3b79d4fe259857153cc46d3c805547fe767003"
+  },
+  "binary": {
+    "platform": "linux-x86_64",
+    "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "flags": ["-O2", "-Wall", "-Wextra", "-Werror", "-static"],
+    "sha256": "a4d68d79b1c1722e7b0a53cc95135ebe8a236116ecf06246c0957e259f77dd0d"
+  },
+  "scenarios": [
+    "local_socket_beacon",
+    "namespace_probe",
+    "process_fanout",
+    "identity_transition_probe",
+    "credential_read_burst"
+  ],
+  "fast_path_expected": [
+    "namespace_probe",
+    "identity_transition_probe"
+  ],
+  "trial_seeds": [1901, 3203, 4703, 6701, 9001],
+  "trial_rates_per_second": [6, 12, 24, 6, 12],
+  "attack_seconds": 45,
+  "post_attack_wait_seconds": 30,
+  "minimum_trials_per_scenario_per_workload": 5,
+  "capture_mode": "sequence",
+  "safety": {
+    "external_network": false,
+    "persistent_writes": false,
+    "successful_mount": false,
+    "privilege_change": false,
+    "raw_sensitive_payload_persisted": false
+  },
+  "use_for_training_or_threshold_tuning": false,
+  "automatic_promotion": false
+}

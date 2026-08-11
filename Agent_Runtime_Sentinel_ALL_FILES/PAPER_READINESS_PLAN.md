@@ -127,6 +127,22 @@ set vẫn phải chạy cùng collector để có recall của baseline Falco.
 Bundle hậu kỳ mới đã được stage nguyên tử: 14/14 checksum và 35 focused test
 trên VM pass; source runtime capture không bị thay đổi giữa campaign.
 
+Blind-attack handoff V8 nay nhận đúng terminal `independent_evaluation` thay vì
+role V7. Năm seed lấy nguyên trạng từ evaluation contract đã freeze trước
+capture; attack contract được materialize sau khi normal capture bắt đầu nhưng
+trước candidate training, và provenance ghi rõ giới hạn này. Timer chỉ mở sau
+`POST_CAPTURE_COMPLETE`, yêu cầu Falco state active/healthy/non-stale, rồi chạy
+8 workload × 5 trial × 5 scenario. Toàn bộ 200 sequence capture phải merge
+thành một immutable attack replay; complete miss được giữ, không retry. Bundle
+27/27 checksum và 48 VM focused test pass. Đây mới là protocol readiness;
+recall/latency chỉ được báo sau campaign thật.
+
+Lần enable timer đầu làm lộ một systemd ordering bug: `Conflicts` dừng capture
+trước khi condition marker được xét. Run-02 partial phút 50/72 đã bị quarantine,
+unit được sửa để chỉ dùng wrapper interlock và capture thu lại run-02 từ đầu lúc
+13:02Z. Test khóa regression cấm `Conflicts=aims-v8-capture.service`; không metric
+nào từ partial bị giữ lại và ETA lùi khoảng một giờ.
+
 Attack matrix tối thiểu, 5 run/scenario:
 
 1. secret exfiltration;

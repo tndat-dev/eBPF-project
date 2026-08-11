@@ -392,6 +392,28 @@ lệ chỉ khi report chứng minh đủ sáu reader, zero stream failure và so
 báo zero privacy-safe row. Report `normal_alert_count`/`normal_alerts_per_hour`,
 không gọi chúng là statistical FPR và chưa suy ra attack recall.
 
+Sau khi `POST_CAPTURE_COMPLETE` xuất hiện, blind-attack timer tự kiểm terminal
+normal report và Falco coverage trước khi chạy 200 injection:
+
+```bash
+systemctl status aims-v8-blind-attack.timer
+journalctl -u aims-v8-blind-attack.service -f
+```
+
+Không start thủ công trước marker. Wrapper tương đương là:
+
+```bash
+/home/dat/ml-service/run_v8_blind_attack.sh
+```
+
+Kết quả terminal nằm dưới
+`aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811/`.
+Xác minh `report.json`, `frozen-attack-feature-capture.manifest.json` và
+`frozen-attack-replay.manifest.json`: source/injection count phải bằng 200,
+capture/dataset SHA-256 phải khớp và `labels_used_for_training=false`. Exit 8
+là matrix hạ tầng-complete nhưng có miss; giữ nguyên để báo failure analysis,
+không xóa/rerun. Exit 4 hoặc 75 chưa phải metric terminal.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 
