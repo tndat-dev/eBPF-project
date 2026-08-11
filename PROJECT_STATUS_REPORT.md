@@ -68,7 +68,7 @@ Các thông tin nền tảng dưới đây được kiểm tra trực tiếp tr�
 | Vocabulary production | `/home/dat/ml-service/models/vocab.pkl`, 210 features |
 | Release manifest | `/home/dat/ml-service/models/release_manifest.json` |
 | Workload production | 44/44 pod `Running`; không có pod ngoài `Running/Completed` trên toàn cluster tại snapshot |
-| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `92 passed, 7 skipped`; focused V8 VM suites: `68 passed` và `11 passed` |
+| Regression | Full canonical suite đã deploy trên VM: `151 passed, 2 warnings`; local source suite hiện tại: `92 passed, 7 skipped`; focused V8 VM suites: `68`, `11` và `29` test đều pass |
 
 **Quy ước bằng chứng.** Node list, phiên bản Kubernetes, `/readyz`, Tetragon,
 policy, workload và service ở trên là snapshot kiểm tra mới ngày 01-08-2026.
@@ -3089,3 +3089,34 @@ run-02--06 mới là independent normal evaluation. Đây mới là collection �
 chạy, chưa phải kết quả model/false-positive mới và chưa được dùng để claim
 world-class complete. Local suite hiện đạt `92 passed, 7 skipped`; focused V8
 suite trên VM đạt `68 passed` rồi `11 passed` sau hardening.
+
+### 18.41 V8 fail-closed retry và đường evaluation native (11-08-2026)
+
+Lúc `06:44:53Z`, một reader Tetragon `kubectl exec` thoát với return code 0.
+Return code thành công không được dùng để che mất continuity: collector giữ
+`stream_failures=1`, kết thúc đủ 72 phút rồi trả exit 4. Systemd restart đúng
+một lần lúc `07:14:35Z`; runner chuyển toàn bộ phase cũ vào
+`rejected/aims-steady-run-01-20260811T071436Z` và thu lại steady từ đầu. Phase
+bị loại có 6.896 window hợp lệ về schema nhưng không hợp lệ về sensor
+continuity, do đó tuyệt đối không được ghép vào dataset.
+
+Sau retry, `aims-steady-run-01` và `aims-burst-run-01` đều có đủ 72 phút,
+capture validation `valid=true`, full coverage 6/6, `stream_failures=0`,
+`backpressure_events=0`, cùng endpoint probe và hai traffic log. Mỗi phase có
+khoảng 6.895--6.896 feature window. Tại snapshot `10:42Z`, recovery run-01 đang
+tiếp tục ghi dữ liệu, namespace production không có pod lỗi. Do retry, ETA thực
+tế dịch sang khoảng `2026-08-12T12:05Z` (`19:05` ICT), chưa tính retry mới.
+
+Audit post-capture phát hiện builder/evaluator V7 chỉ hiểu split năm run cũ.
+Source local đã được refactor để hiểu trực tiếp schema
+`sentinel-v8-capture-split/v1`: run-01 chỉ được build với role `candidate_fit`,
+run-02--06 chỉ được replay một lần dưới role terminal
+`independent_evaluation`. Builder bắt buộc bind parent release contract;
+evaluator lấy đúng 6 run từ split V8 thay vì âm thầm bỏ run-06; timer runner từ
+chối chạy khi `aims-v8-capture.service` active. Patch chưa deploy vào runtime
+đang capture để bảo toàn snapshot. Test isolated bằng ML venv trên VM đạt
+`29 passed`; full local regression vẫn `92 passed, 7 skipped`.
+
+Đây là sửa đường thực thi hậu kỳ, không phải metric model mới. Candidate chỉ
+được fit sau khi 24 phase, canonical merge và `SHA256SUMS` cùng pass; không được
+xem score run-02--06 rồi quay lại chỉnh candidate.

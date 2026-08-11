@@ -219,6 +219,81 @@ def test_phase_builder_rejects_overlapping_run_roles(tmp_path):
         phase_dataset.phase_role_contract(doc, "candidate_fit")
 
 
+def test_phase_builder_understands_frozen_v8_fit_and_terminal_evaluation():
+    doc = {
+        "schema": "sentinel-v8-capture-split/v1",
+        "normal": {
+            "regimes": ["steady", "burst", "recovery", "toolmix"],
+            "runs": [
+                {"run_id": f"normal-run-{run:02d}",
+                 "role": "candidate_fit" if run == 1
+                 else "independent_evaluation"}
+                for run in range(1, 7)
+            ],
+        },
+        "separation": {
+            "evaluation_runs_may_train_or_tune": False,
+            "attack_windows_may_train_or_tune": False,
+            "split_unit": "whole run before feature-window construction",
+        },
+    }
+    fit, fit_runs = phase_dataset.phase_role_contract(doc, "candidate_fit")
+    evaluation, evaluation_runs = phase_dataset.phase_role_contract(
+        doc, "independent_evaluation"
+    )
+    assert fit == [
+        "aims-steady-run-01", "aims-burst-run-01",
+        "aims-recovery-run-01", "aims-toolmix-run-01",
+    ]
+    assert fit_runs == {1}
+    assert len(evaluation) == 20
+    assert evaluation_runs == {2, 3, 4, 5, 6}
+    assert phase_dataset.holdout_training_forbidden(doc) is True
+
+
+def test_phase_builder_rejects_v8_evaluation_leakage():
+    doc = {
+        "schema": "sentinel-v8-capture-split/v1",
+        "normal": {
+            "regimes": ["steady"],
+            "runs": [{"run_id": "normal-run-01", "role": "candidate_fit"}],
+        },
+        "separation": {
+            "evaluation_runs_may_train_or_tune": True,
+            "attack_windows_may_train_or_tune": False,
+            "split_unit": "whole run before feature-window construction",
+        },
+    }
+    with pytest.raises(ValueError, match="fail closed"):
+        phase_dataset.phase_role_contract(doc, "candidate_fit")
+
+
+def test_phase_builder_requires_parent_release_provenance_for_v8(
+    tmp_path, monkeypatch,
+):
+    contract = tmp_path / "v8-split.json"
+    contract.write_text(json.dumps({
+        "schema": "sentinel-v8-capture-split/v1",
+        "normal": {
+            "regimes": ["steady"],
+            "runs": [{"run_id": "normal-run-01", "role": "candidate_fit"}],
+        },
+        "separation": {
+            "evaluation_runs_may_train_or_tune": False,
+            "attack_windows_may_train_or_tune": False,
+            "split_unit": "whole run before feature-window construction",
+        },
+    }))
+    monkeypatch.setattr(sys, "argv", [
+        "build_phase_dataset.py", str(tmp_path / "unused-phase"),
+        "--output", str(tmp_path / "output"),
+        "--experiment-contract", str(contract),
+        "--dataset-role", "candidate_fit",
+    ])
+    with pytest.raises(ValueError, match="parent-release-contract provenance"):
+        phase_dataset.main()
+
+
 def test_phase_builder_rejects_sensor_backpressure(tmp_path, monkeypatch):
     phase = tmp_path / "bad"
     make_phase(phase, "bad", backpressure=1)

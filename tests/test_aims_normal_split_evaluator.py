@@ -15,9 +15,23 @@ if not SERVICE_ROOT.is_dir():
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from evaluate_aims_normal_split import (candidate_hashes,
+                                        matrix_dimensions,
                                         resumable_phase_reports,
                                         validate_blind_prerequisite,
                                         write_report)
+
+
+def test_v8_matrix_dimensions_include_all_six_runs():
+    split = {
+        "schema": "sentinel-v8-capture-split/v1",
+        "normal": {
+            "minutes_per_phase": 72,
+            "runs": [{"run_id": f"normal-run-{run:02d}"}
+                     for run in range(1, 7)],
+        },
+    }
+    release = {"normal_protocol": {"independent_runs_per_regime": 5}}
+    assert matrix_dimensions(split, release) == (6, 72)
 
 
 def test_candidate_hashes_are_name_sorted_and_content_bound(tmp_path):

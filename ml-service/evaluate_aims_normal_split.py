@@ -29,7 +29,9 @@ from feature_engineering import FeatureVector
 from ml_models import ModelManager
 
 
-EVALUATION_ROLES = ("independent_validation", "blind_normal_test")
+EVALUATION_ROLES = (
+    "independent_validation", "blind_normal_test", "independent_evaluation",
+)
 NON_ELIGIBLE_DECISIONS = {
     "calibrating", "low_event_skip", "collection_quality_skip",
     "pod_startup_grace",
@@ -94,6 +96,25 @@ def provenance_sets(dataset_manifest: dict[str, Any]) -> dict[str, set[str]]:
             if value:
                 result[name].add(str(value))
     return result
+
+
+def matrix_dimensions(
+    split_contract: dict[str, Any], release_contract: dict[str, Any]
+) -> tuple[int, int]:
+    """Return collection dimensions without silently dropping V8 run-06."""
+    if split_contract.get("schema") == "sentinel-v8-capture-split/v1":
+        runs = len(split_contract.get("normal", {}).get("runs", []))
+        minutes = int(
+            split_contract.get("normal", {}).get("minutes_per_phase", 0)
+        )
+    else:
+        runs = int(
+            release_contract["normal_protocol"]["independent_runs_per_regime"]
+        )
+        minutes = 72
+    if runs < 1 or minutes < 1:
+        raise ValueError("evaluation matrix dimensions must be positive")
+    return runs, minutes
 
 
 def validate_blind_prerequisite(
@@ -332,6 +353,9 @@ def main() -> int:
     split_contract = json.loads(split_path.read_text())
     release_contract = json.loads(release_path.read_text())
     expected_phases, _ = phase_role_contract(split_contract, args.role)
+    matrix_runs, matrix_minutes = matrix_dimensions(
+        split_contract, release_contract
+    )
 
     report: dict[str, Any] = {
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -351,10 +375,8 @@ def main() -> int:
 
     matrix = validate_matrix(
         evidence_root, release_contract,
-        runs_per_regime=int(
-            release_contract["normal_protocol"]["independent_runs_per_regime"]
-        ),
-        minutes_per_run=72,
+        runs_per_regime=matrix_runs,
+        minutes_per_run=matrix_minutes,
     )
     captures = {item["phase"]: item for item in matrix["captures"]}
     unavailable = [
@@ -451,6 +473,9 @@ def main() -> int:
             "cooldown_seconds": 0,
             "fast_path_warnings_replayed": False,
             "holdout_used_for_training_or_tuning": False,
+            "terminal_independent_evaluation": (
+                args.role == "independent_evaluation"
+            ),
         },
     )
     write_report(output, report)

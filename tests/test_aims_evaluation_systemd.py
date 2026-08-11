@@ -17,8 +17,11 @@ def test_split_evaluation_runner_has_no_train_or_promotion_path():
     assert "train_candidate.py" not in script
     assert "promote_candidate.py" not in script
     assert "--prerequisite-report" in script
-    assert "systemctl is-active --quiet aims-normal-matrix.service" in script
-    assert "WAITING: aims-normal-matrix.service is active" in script
+    assert "aims-normal-matrix.service aims-v8-capture.service" in script
+    assert "systemctl is-active --quiet \"$active_capture\"" in script
+    assert "WAITING: %s is active" in script
+    assert "aims-v8-capture.service" in script
+    assert "independent_evaluation" in script
 
 
 def test_split_evaluation_unit_is_bounded_and_non_privileged():

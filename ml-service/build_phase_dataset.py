@@ -155,6 +155,47 @@ def parse_targets(raw: str) -> tuple[str, ...]:
 
 def phase_role_contract(contract: dict, role: str) -> tuple[list[str], set[int]]:
     """Return the exact ordered phase set allowed to enter one dataset role."""
+    if contract.get("schema") == "sentinel-v8-capture-split/v1":
+        normal = contract.get("normal", {})
+        regimes = normal.get("regimes")
+        run_specs = normal.get("runs")
+        if not isinstance(regimes, list) or not regimes:
+            raise ValueError("V8 split contract has no traffic regimes")
+        if not isinstance(run_specs, list) or not run_specs:
+            raise ValueError("V8 split contract has no runs")
+        assigned: dict[int, str] = {}
+        selected: list[int] = []
+        for index, spec in enumerate(run_specs, start=1):
+            if not isinstance(spec, dict):
+                raise ValueError("V8 split contract contains a non-object run")
+            run_id = spec.get("run_id")
+            expected_id = f"normal-run-{index:02d}"
+            run_role = spec.get("role")
+            if run_id != expected_id:
+                raise ValueError(
+                    f"V8 split run order mismatch: expected {expected_id}, found {run_id!r}"
+                )
+            if not isinstance(run_role, str) or not run_role:
+                raise ValueError(f"V8 split run {run_id} has no role")
+            assigned[index] = run_role
+            if run_role == role:
+                selected.append(index)
+        if not selected:
+            raise ValueError(f"V8 split contract has no run role {role!r}")
+        separation = contract.get("separation", {})
+        if (
+            separation.get("evaluation_runs_may_train_or_tune") is not False
+            or separation.get("attack_windows_may_train_or_tune") is not False
+            or separation.get("split_unit")
+            != "whole run before feature-window construction"
+        ):
+            raise ValueError("V8 split contract does not fail closed against leakage")
+        expected = [
+            f"aims-{regime}-run-{run:02d}"
+            for run in selected for regime in regimes
+        ]
+        return expected, set(selected)
+
     normal = contract.get("normal_protocol", {})
     regimes = normal.get("regimes")
     roles = normal.get("phase_roles", {})
@@ -201,6 +242,21 @@ def phase_role_contract(contract: dict, role: str) -> tuple[list[str], set[int]]
     return expected, set(runs)
 
 
+def holdout_training_forbidden(contract: dict) -> bool:
+    """Normalize the legacy and V8 split contracts to one leakage gate."""
+    if contract.get("schema") == "sentinel-v8-capture-split/v1":
+        separation = contract.get("separation", {})
+        return bool(
+            separation.get("evaluation_runs_may_train_or_tune") is False
+            and separation.get("attack_windows_may_train_or_tune") is False
+            and separation.get("split_unit")
+            == "whole run before feature-window construction"
+        )
+    return contract.get("normal_protocol", {}).get(
+        "holdout_training_forbidden"
+    ) is True
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("phases", nargs="+")
@@ -243,6 +299,14 @@ def main():
         expected_parent_digest = experiment_contract.get(
             "parent_release_contract_sha256"
         )
+        if (
+            experiment_contract.get("schema")
+            == "sentinel-v8-capture-split/v1"
+            and not args.parent_release_contract
+        ):
+            raise ValueError(
+                "V8 dataset build requires --parent-release-contract provenance"
+            )
         if expected_parent_digest:
             if not args.parent_release_contract:
                 raise ValueError("split contract requires --parent-release-contract")
@@ -301,10 +365,12 @@ def main():
                 "path": str(experiment_contract_path),
                 "sha256": sha256(experiment_contract_path),
                 "contract_version": experiment_contract.get("contract_version"),
+                "schema": experiment_contract.get("schema"),
+                "release_id": experiment_contract.get("release_id"),
                 "release_track": experiment_contract.get("release_track"),
-                "holdout_training_forbidden": experiment_contract.get(
-                    "normal_protocol", {}
-                ).get("holdout_training_forbidden"),
+                "holdout_training_forbidden": holdout_training_forbidden(
+                    experiment_contract
+                ),
                 "parent_release_contract": (
                     str(parent_release_contract_path)
                     if parent_release_contract_path else None
