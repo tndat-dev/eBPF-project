@@ -37,6 +37,14 @@ def sha256_bytes(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def line_timestamp(line: str) -> float | None:
+    try:
+        token = line.split(maxsplit=1)[0]
+        return datetime.fromisoformat(token.replace("Z", "+00:00")).timestamp()
+    except (IndexError, ValueError):
+        return None
+
+
 def parse_falco_line(
     line: str, *, source_pod: str, source_node: str, release_id: str,
 ) -> dict[str, Any] | None:
@@ -96,6 +104,7 @@ class Collector:
         self.readers: dict[str, threading.Thread] = {}
         self.active: set[str] = set()
         self.failures: list[dict[str, Any]] = []
+        self.reader_ranges: dict[str, dict[str, Any]] = {}
         self.lines_seen = 0
         self.rows_written = 0
         self.duplicates = 0
@@ -211,7 +220,24 @@ class Collector:
                 self.active.add(pod)
             assert process.stdout is not None
             for line in process.stdout:
-                self.lines_seen += 1
+                timestamp = line_timestamp(line)
+                with self.lock:
+                    self.lines_seen += 1
+                    item = self.reader_ranges.setdefault(pod, {
+                        "node": node, "lines_seen": 0,
+                        "minimum_log_timestamp": None,
+                        "maximum_log_timestamp": None,
+                    })
+                    item["lines_seen"] += 1
+                    if timestamp is not None:
+                        minimum = item["minimum_log_timestamp"]
+                        maximum = item["maximum_log_timestamp"]
+                        item["minimum_log_timestamp"] = (
+                            timestamp if minimum is None else min(minimum, timestamp)
+                        )
+                        item["maximum_log_timestamp"] = (
+                            timestamp if maximum is None else max(maximum, timestamp)
+                        )
                 row = parse_falco_line(
                     line, source_pod=pod, source_node=node,
                     release_id=self.args.release_id,
@@ -249,6 +275,10 @@ class Collector:
                 ),
                 "stream_failures": len(self.failures),
                 "stream_failure_details": list(self.failures),
+                "reader_ranges": {
+                    pod: dict(item)
+                    for pod, item in sorted(self.reader_ranges.items())
+                },
                 "lines_seen": self.lines_seen,
                 "privacy_safe_rows_written": self.rows_written,
                 "duplicate_rows_dropped": self.duplicates,

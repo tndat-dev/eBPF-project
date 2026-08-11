@@ -62,6 +62,14 @@ def test_event_identity_is_deterministic():
     assert first["event_id"] == second["event_id"]
 
 
+def test_log_timestamp_parser_is_timezone_safe():
+    value = collector.line_timestamp(
+        "2026-08-11T12:08:00.500000Z privacy-unsafe-body-is-not-retained"
+    )
+    assert value == 1786450080.5
+    assert collector.line_timestamp("not-a-timestamp body") is None
+
+
 def test_systemd_collector_is_non_privileged_and_bounded():
     unit = (ROOT / "sentinel/systemd/aims-v8-falco-evidence.service").read_text()
     assert "User=dat" in unit
