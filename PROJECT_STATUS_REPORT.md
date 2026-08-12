@@ -4306,3 +4306,28 @@ zero bad pod, không traceback/coverage/stream failure. Với tốc độ quan s
 khoảng 4,5 phút/group, 37 group còn lại dự kiến thêm khoảng 2,5--3 giờ; đây chỉ
 là ETA vận hành, timeout contract vẫn cho phép tối đa 72 giờ. Không có lỗi cần
 sửa và không được thay model/threshold trong blind campaign.
+
+### 18.78 Blind campaign checkpoint 28/200, fast-path dưới một giây (12-08-2026)
+
+Audit trực tiếp lúc `16:40Z` cho thấy năm trial-group đã đóng và group thứ sáu
+đang chạy: tổng cộng 28 unique scenario injection sau khi ưu tiên report final
+so với report partial để không đếm trùng. Cả 28/28 đều `detected=true`; attack
+và detector exit code đều 0, không có miss, sensor-health failure, coverage
+failure hay backpressure. Năm child report đã đóng đều khớp SHA-256 được bind
+trong top-level partial report; candidate vẫn đủ 19 digest file và schedule giữ
+nguyên 40 group.
+
+Confirmed ML latency tạm thời có min 8,488 giây, median 18,391 giây, p95 xấp xỉ
+20,669 giây và max 20,852 giây. Fast-path early-warning xuất hiện đúng trên 11
+mẫu đã có tín hiệu phù hợp, với min 0,199 giây, median 0,577 giây và max 0,663
+giây. Hai đại lượng phải được công bố tách biệt: fast path là cảnh báo sớm dưới
+một giây, còn ML path là quyết định xác nhận theo cửa sổ 10 giây; số liệu tại
+checkpoint này chưa phải CDF/recall cuối.
+
+`aims-v8-blind-attack.service` vẫn `activating`, `NRestarts=0`; sáu Tetragon
+reader và sáu Falco reader đều active. Falco collector có ba restart lịch sử
+nhưng instance hiện tại chạy liên tục từ `2026-08-11T18:10:08Z`, và không có
+warning/error mới trong khoảng blind campaign. Sáu node đều Ready, không có pod
+ngoài `Running/Completed`. Không thực hiện tuning hoặc sửa threshold từ dữ liệu
+blind; mọi miss nếu xuất hiện về sau vẫn phải được giữ nguyên trong bằng chứng
+terminal.
