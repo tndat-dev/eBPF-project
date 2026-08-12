@@ -4050,3 +4050,23 @@ Checkpoint hạ tầng: capture `NRestarts=1` (retry đã công bố), detector
 terminal marker. Bốn phase run-06 còn lại cần tối thiểu 4 giờ 48 phút cộng
 settle/handoff, nên dự kiến capture terminal khoảng
 `2026-08-12T21:30+07:00` nếu không có retry mới.
+
+### 18.70 Run-06 steady hoàn tất, còn ba blind-normal phase (12-08-2026)
+
+`aims-steady-run-06` hoàn tất lúc `10:51:00Z` sau 4.320,831 giây với 6.896
+feature window và đủ tám target. Manifest ghi 6/6 Tetragon active/ready, mọi
+continuity counter bằng 0. Runner tự chuyển sang `aims-burst-run-06`; tại
+checkpoint phase này đã tăng 2.367 window mà không có capture failure.
+
+Audit lại 21/24 accepted phase bằng source snapshot và SHA-256 cho toàn bộ
+feature/NumPy/metadata cho kết quả 21/21 hợp lệ: tổng 144.811 feature window,
+90.737,773 giây capture thực, 6.895--6.896 window/phase, không có
+integrity/privacy/sensor error. Vocab, policy và loadgen mỗi loại vẫn đúng một
+digest. Falco có 27 clean reconnect nhưng lifetime failure không tăng; scope
+theo accepted intervals vẫn `lifetime=4`, `in_scope=0`, `out_of_scope=4`.
+
+Post-capture staging tiếp tục pass 60/60 checksum và deployer trả đúng exit 75
+vì capture active. Capture/detector/Falco đều active, không restart mới; zero
+bad pod. Ba phase run-06 còn lại vẫn là independent evidence và chưa được dùng
+để train, tune hoặc tạo claim model. Nếu không phát sinh retry mới, capture
+terminal dự kiến khoảng `2026-08-12T21:30+07:00`.
