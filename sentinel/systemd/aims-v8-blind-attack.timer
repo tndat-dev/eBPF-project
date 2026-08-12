@@ -3,7 +3,8 @@ Description=Retry AIMS V8 blind attack after terminal normal evaluation
 
 [Timer]
 OnBootSec=10min
-OnUnitInactiveSec=30min
+OnCalendar=*:0/5
+AccuracySec=30s
 Persistent=true
 Unit=aims-v8-blind-attack.service
 

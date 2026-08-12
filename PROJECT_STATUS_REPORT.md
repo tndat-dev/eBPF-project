@@ -4331,3 +4331,28 @@ warning/error mới trong khoảng blind campaign. Sáu node đều Ready, khôn
 ngoài `Running/Completed`. Không thực hiện tuning hoặc sửa threshold từ dữ liệu
 blind; mọi miss nếu xuất hiện về sau vẫn phải được giữ nguyên trong bằng chứng
 terminal.
+
+### 18.79 Hardening handoff timer trong khi blind matrix chạy nền (12-08-2026)
+
+Audit timer cho thấy `normal-ablation` và `overhead` đã có start job ở trạng
+thái `waiting` phía sau blind oneshot; vì vậy `NEXT=-` trong `list-timers` tại
+thời điểm đó là do target job đã được queue, không phải service bị chết. Để cơ
+chế retry vẫn xác định sau reboot hoặc sau một lần condition-skip không tạo
+activation timestamp, bốn timer V8 được chuyển từ lịch tương đối
+`OnUnitInactiveSec` sang lịch wall-clock `OnCalendar`: post-capture, blind và
+normal-ablation mỗi 5 phút; overhead mỗi 10 phút; cùng `AccuracySec=30s` và
+`Persistent=true`.
+
+Thay đổi chỉ tác động orchestration, không đổi candidate, calibration, detector,
+attack contract hay threshold. Bốn runtime timer và `/etc/systemd/system` đã
+được cài atomically trên master; restart **timer unit** không restart blind
+service: MainPID `1054674`, `NRestarts=0` được giữ nguyên. Hai staging tree và
+hai `STAGING_SHA256SUMS` cũng được đồng bộ; post-capture focused suite đạt 9/9,
+overhead suite đạt 20/20, local regression đạt `159 passed, 9 skipped`. Handoff
+queue hiện có đúng ba job: blind `running`, normal-ablation `waiting` và overhead
+`waiting`.
+
+Sau deploy timer, blind evidence tiếp tục tăng lên 33 unique injection, 33/33
+detected, zero miss và zero unhealthy sensor tại `16:45Z`; điều này xác nhận
+thay đổi orchestration không làm gián đoạn campaign. Đây vẫn là checkpoint,
+không phải kết quả blind terminal.

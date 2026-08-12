@@ -3,7 +3,8 @@ Description=Retry Sentinel V8 frozen normal baseline and ablation replay
 
 [Timer]
 OnBootSec=10min
-OnUnitInactiveSec=30min
+OnCalendar=*:0/5
+AccuracySec=30s
 Persistent=true
 Unit=aims-v8-normal-ablation.service
 

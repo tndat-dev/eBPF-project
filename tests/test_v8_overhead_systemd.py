@@ -29,7 +29,8 @@ def test_v8_overhead_unit_cannot_start_before_terminal_marker():
     assert "User=root" in service
     assert ".aims-normal-matrix.lock" in service
     assert "TimeoutStartSec=12h" in service
-    assert "OnUnitInactiveSec=60min" in timer
+    assert "OnCalendar=*:0/10" in timer
+    assert "OnUnitInactiveSec" not in timer
     assert "Persistent=true" in timer
 
 

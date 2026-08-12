@@ -61,6 +61,7 @@ def test_v8_normal_ablation_systemd_waits_for_attack_and_is_bounded():
     assert "MemoryMax=8G" in service
     assert "TimeoutStartSec=36h" in service
     assert "SuccessExitStatus=75" in service
-    assert "OnUnitInactiveSec=30min" in timer
+    assert "OnCalendar=*:0/5" in timer
+    assert "OnUnitInactiveSec" not in timer
     assert "Persistent=true" in timer
     assert "promote" not in service.lower()

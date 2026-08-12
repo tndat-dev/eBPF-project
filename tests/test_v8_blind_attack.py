@@ -73,7 +73,8 @@ def test_v8_attack_service_is_bounded_delayed_and_non_promoting():
     assert "TimeoutStartSec=72h" in service
     assert "SuccessExitStatus=75 8" in service
     assert "Conflicts=aims-v8-capture.service" not in service
-    assert "OnUnitInactiveSec=30min" in timer
+    assert "OnCalendar=*:0/5" in timer
+    assert "OnUnitInactiveSec" not in timer
     assert "Persistent=true" in timer
     assert "promote" not in service.lower()
 

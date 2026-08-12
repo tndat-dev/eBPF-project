@@ -52,6 +52,7 @@ def test_v8_post_capture_service_is_bounded_and_timer_driven():
     assert "POST_CAPTURE_COMPLETE" in service
     assert "ExecStartPost" not in service
     assert "SuccessExitStatus=75" in service
-    assert "OnUnitInactiveSec=15min" in timer
+    assert "OnCalendar=*:0/5" in timer
+    assert "OnUnitInactiveSec" not in timer
     assert "Persistent=true" in timer
     assert "promote" not in service.lower()

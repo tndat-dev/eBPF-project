@@ -3,7 +3,8 @@ Description=Retry Sentinel V8 post-terminal overhead campaign
 
 [Timer]
 OnBootSec=20min
-OnUnitInactiveSec=60min
+OnCalendar=*:0/10
+AccuracySec=30s
 Persistent=true
 Unit=aims-v8-overhead.service
 
