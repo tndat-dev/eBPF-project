@@ -10,20 +10,49 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import re
 import time
+from typing import Mapping
 
 
 FEATURE_SCHEMA = "sentinel-feature-window/v2"
+FEATURE_SCHEMA_V3 = "sentinel-feature-window/v3"
 INJECTION_SCHEMA = "sentinel-injection-interval/v2"
 CAPTURE_KINDS = frozenset({"feature_window", "injection", "injection_end"})
+IDENTITY_FIELDS = frozenset({
+    "cluster_id", "workload_image_digest", "workload_version_id",
+})
 
 
-def feature_window_evidence(fv, mode: str) -> dict:
+def validate_v3_identity(identity: Mapping[str, str]) -> dict[str, str]:
+    """Return a normalized, privacy-safe immutable workload identity."""
+    if set(identity) != IDENTITY_FIELDS:
+        raise ValueError("V3 feature identity fields are incomplete")
+    cluster_id = str(identity["cluster_id"]).strip()
+    image_digest = str(identity["workload_image_digest"]).strip().lower()
+    version_id = str(identity["workload_version_id"]).strip()
+    safe_identifier = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{1,127}")
+    if not safe_identifier.fullmatch(cluster_id):
+        raise ValueError("invalid privacy-safe cluster_id")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image_digest):
+        raise ValueError("workload image identity must be an immutable sha256 digest")
+    if not safe_identifier.fullmatch(version_id):
+        raise ValueError("invalid privacy-safe workload_version_id")
+    return {
+        "cluster_id": cluster_id,
+        "workload_image_digest": image_digest,
+        "workload_version_id": version_id,
+    }
+
+
+def feature_window_evidence(
+    fv, mode: str, identity: Mapping[str, str] | None = None,
+) -> dict:
     """Convert a feature vector to a privacy-minimised replay row."""
     if mode not in ("aggregate", "sequence"):
         raise ValueError(f"invalid feature capture mode: {mode}")
     payload = {
-        "schema": FEATURE_SCHEMA,
+        "schema": FEATURE_SCHEMA_V3 if identity is not None else FEATURE_SCHEMA,
         "pod_key": fv.pod_key,
         "node_name": fv.node_name,
         "window_start": float(fv.window_start),
@@ -44,6 +73,8 @@ def feature_window_evidence(fv, mode: str) -> dict:
     }
     if mode == "sequence":
         payload["syscall_sequence"] = list(fv.raw_syscalls)
+    if identity is not None:
+        payload.update(validate_v3_identity(identity))
     return payload
 
 

@@ -91,3 +91,44 @@ def test_capture_rejects_telemetry_or_injection_payload(tmp_path):
     assert report["valid"] is False
     assert any("unsupported/privacy-unsafe" in error for error in report["errors"])
     assert any("unexpected/privacy-unsafe" in error for error in report["errors"])
+
+
+def test_feature_capture_validator_accepts_v3_immutable_identity(tmp_path):
+    row = _row()
+    row.update({
+        "schema": "sentinel-feature-window/v3",
+        "cluster_id": "cluster-target-01",
+        "workload_image_digest": "sha256:" + "a" * 64,
+        "workload_version_id": "git-0123456789ab",
+    })
+    path = tmp_path / "capture-v3.jsonl"
+    path.write_text(json.dumps(row) + "\n")
+    report = validate_capture(path)
+    assert report["valid"] is True
+    assert report["cluster_ids"] == {"cluster-target-01": 1}
+    assert report["workload_image_digests"] == {"sha256:" + "a" * 64: 1}
+
+
+def test_feature_capture_validator_rejects_v3_mutable_image_tag(tmp_path):
+    row = _row()
+    row.update({
+        "schema": "sentinel-feature-window/v3",
+        "cluster_id": "cluster-target-01",
+        "workload_image_digest": "registry/private/service:latest",
+        "workload_version_id": "v2",
+    })
+    path = tmp_path / "capture-v3.jsonl"
+    path.write_text(json.dumps(row) + "\n")
+    report = validate_capture(path)
+    assert report["valid"] is False
+    assert any("immutable sha256" in error for error in report["errors"])
+
+
+def test_feature_capture_validator_rejects_identity_on_v2_row(tmp_path):
+    row = _row()
+    row["cluster_id"] = "cluster-target-01"
+    path = tmp_path / "capture-v2.jsonl"
+    path.write_text(json.dumps(row) + "\n")
+    report = validate_capture(path)
+    assert report["valid"] is False
+    assert any("V2 row unexpectedly" in error for error in report["errors"])

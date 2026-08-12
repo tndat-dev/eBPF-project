@@ -9,7 +9,10 @@ import json
 import math
 from pathlib import Path
 
-from feature_capture_io import FEATURE_SCHEMA, INJECTION_SCHEMA
+from feature_capture_io import (
+    FEATURE_SCHEMA, FEATURE_SCHEMA_V3, IDENTITY_FIELDS, INJECTION_SCHEMA,
+    validate_v3_identity,
+)
 
 
 FEATURE_KEYS = {
@@ -18,6 +21,7 @@ FEATURE_KEYS = {
     "sparse_vector", "syscall_counts", "contains_arguments_or_payloads",
     "capture_mode", "syscall_sequence",
     "release_id", "run_id", "phase_id", "traffic_regime",
+    "cluster_id", "workload_image_digest", "workload_version_id",
 }
 INJECTION_START_KEYS = {
     "kind", "ts", "schema", "injection_id", "pod_key", "attack_type",
@@ -41,8 +45,17 @@ def validate_feature_row(row: dict, line_number: int) -> list[str]:
     unknown = sorted(set(row) - FEATURE_KEYS)
     if unknown:
         errors.append(f"{prefix}: unexpected/privacy-unsafe keys: {unknown}")
-    if row.get("schema") != FEATURE_SCHEMA:
+    schema = row.get("schema")
+    if schema not in (FEATURE_SCHEMA, FEATURE_SCHEMA_V3):
         errors.append(f"{prefix}: schema mismatch")
+    identity_keys = IDENTITY_FIELDS & set(row)
+    if schema == FEATURE_SCHEMA_V3:
+        try:
+            validate_v3_identity({key: row.get(key) for key in IDENTITY_FIELDS})
+        except ValueError as exc:
+            errors.append(f"{prefix}: {exc}")
+    elif identity_keys:
+        errors.append(f"{prefix}: V2 row unexpectedly carries V3 identity")
     if row.get("capture_mode") not in ("aggregate", "sequence"):
         errors.append(f"{prefix}: invalid capture mode")
     if row.get("contains_arguments_or_payloads") is not False:
@@ -159,6 +172,10 @@ def validate_capture(path: Path) -> dict:
     runs = Counter()
     phases = Counter()
     regimes = Counter()
+    schemas = Counter()
+    clusters = Counter()
+    image_digests = Counter()
+    workload_versions = Counter()
     windows_by_pod = defaultdict(list)
     seen = set()
     injection_starts = {}
@@ -231,6 +248,11 @@ def validate_capture(path: Path) -> dict:
         runs[str(row.get("run_id"))] += 1
         phases[str(row.get("phase_id"))] += 1
         regimes[str(row.get("traffic_regime"))] += 1
+        schemas[str(row.get("schema"))] += 1
+        if row.get("schema") == FEATURE_SCHEMA_V3:
+            clusters[str(row.get("cluster_id"))] += 1
+            image_digests[str(row.get("workload_image_digest"))] += 1
+            workload_versions[str(row.get("workload_version_id"))] += 1
         try:
             start, end = float(row["window_start"]), float(row["window_end"])
         except (KeyError, TypeError, ValueError):
@@ -273,6 +295,10 @@ def validate_capture(path: Path) -> dict:
         "run_ids": dict(sorted(runs.items())),
         "phase_ids": dict(sorted(phases.items())),
         "traffic_regimes": dict(sorted(regimes.items())),
+        "feature_schemas": dict(sorted(schemas.items())),
+        "cluster_ids": dict(sorted(clusters.items())),
+        "workload_image_digests": dict(sorted(image_digests.items())),
+        "workload_version_ids": dict(sorted(workload_versions.items())),
         "minimum_window_start": minimum_start,
         "maximum_window_end": maximum_end,
         "privacy_contract": {

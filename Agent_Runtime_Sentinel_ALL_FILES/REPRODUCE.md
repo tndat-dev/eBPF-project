@@ -539,6 +539,30 @@ immutable `workload_image_digest` và `workload_version_id`; LOWO tuyệt đối
 không dùng held-out workload để fit model, threshold, behavior limit hay online
 adaptation.
 
+Trước collection V9, mỗi app container phải có version immutable được
+preregister bằng annotation `runtime-sentinel.io/workload-version-id` hoặc
+label `app.kubernetes.io/version`; `status.containerStatuses[].imageID` phải kết
+thúc bằng digest SHA-256. Resolver chỉ giữ digest, không giữ registry/tag:
+
+```bash
+kubectl get pods -n production -o json > /tmp/v9-pods.json
+PYTHONPATH=ml-service python3 - <<'PY'
+import json
+from workload_version_identity import identity_map
+pods = json.load(open("/tmp/v9-pods.json"))
+identities = identity_map(pods, "target-cluster-01")
+assert len(identities) >= 8
+assert all(row["workload_image_digest"].startswith("sha256:")
+           for row in identities.values())
+PY
+```
+
+Writer v3 chỉ được bật với identity đã resolve; validator từ chối mutable tag,
+thiếu identity hoặc trộn field v3 vào row v2. Resolver phải `start()` trước
+capture và refresh nền; `resolve()` không gọi Kubernetes API trên inference
+path, cache stale sẽ fail-closed. Code này chưa được deploy vào active V8
+collector vì thay source giữa campaign sẽ phá provenance.
+
 Fast path không được replay từ V8 vì schema không có binary identity. Sau khi
 đủ 24 capture phase, post-capture deployer tự freeze live normal evidence trước
 khi thay runtime source. Audit bundle:
