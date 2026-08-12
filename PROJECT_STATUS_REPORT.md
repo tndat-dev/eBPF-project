@@ -27,9 +27,10 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 **Kết luận vận hành ở snapshot mới nhất.** Sáu node và Tetragon 6/6 khỏe,
 detector production V7 vẫn `active/running`, `NRestarts=0`, dry-run. Campaign
 AIMS V8 đã hoàn tất capture 24/24 phase (165.499 window, khoảng 28,81 giờ),
-train 8/8 model và calibration fit-only. Independent normal evaluation hiện
-pass 10/20 phase với 60.799 window và zero observed alert; report vẫn mang
-`status=evaluating`, chưa có `POST_CAPTURE_COMPLETE`. Blind attack V8,
+train 8/8 model và calibration fit-only. Independent normal evaluation đã pass
+đủ 20/20 phase với 122.639 window và zero observed alert; report
+`status=complete`, `passed=true` và
+`POST_CAPTURE_COMPLETE` đã được tạo. Blind attack V8 hiện đang chạy nền;
 ablation, overhead và promotion chưa chạy. Vì vậy candidate **chưa
 production-ready** và không được suy diễn “không có false positive” từ
 checkpoint giữa chừng. Kết quả fit-v2 195/200 là campaign lịch sử khác, không
@@ -4251,3 +4252,32 @@ release, V8 là AIMS syscall evaluation campaign, còn “V2” chỉ là tên l
 của Agent Runtime MCP/GAT prototype trong lab. Báo cáo nay ghi rõ không tồn tại
 chuỗi release đầy đủ V1--V8, không có release V3--V5, và prototype Agent Runtime
 không có AI Agent/tool executor thật cũng không tham gia V8 production path.
+
+### 18.76 Independent normal terminal pass, blind attack V8 bắt đầu (12-08-2026)
+
+Independent evaluator kết thúc lúc khoảng `16:14:39Z` với `status=complete`,
+`passed=true`: đủ 20/20 phase run-02--06, tổng 122.639 feature window, 122.603
+eligible decision window và **zero observed alert/detection**. Cả 20 phase đều
+pass; tổng CPU-bound replay mất 4.437,933 giây. Đây là zero observed alert trên
+frozen holdout, không phải tuyên bố xác suất false positive bằng 0.
+
+Post-capture service kết thúc `Result=success`, `NRestarts=0`; derived bundle
+đạt 36/36 SHA-256 và marker `POST_CAPTURE_COMPLETE` được tạo. Candidate,
+calibration và independent report vì vậy đã bất biến trước khi blind attack.
+Production V7 không bị promote/thay thế; detector chính vẫn active dry-run.
+
+Preflight blind campaign xác minh Falco normal derivative checksum hợp lệ,
+Falco live 6/6 reader khỏe, sáu node Ready và zero bad pod. Service
+`aims-v8-blind-attack.service` được mở lúc `16:14:39Z`, chạy contract đã đóng
+băng trước training: tám workload × năm seed/rate trial × năm scenario = 200
+injection; mỗi scenario attack 45 giây và post-wait 30 giây, cấm train/tune và
+không automatic promotion. Thời gian tối thiểu lý thuyết khoảng 4 giờ 10 phút,
+chưa tính startup/finalization.
+
+Scenario đầu tiên đã hoàn tất trên `auth-service`, trial-04/seed 6701/rate 6:
+`local_socket_beacon` được binary acknowledge, exit 0 và phát hiện qua
+`hard_ml` sau 18,388 giây. Paired sequence capture có 64 feature window, đúng
+hai injection boundary, privacy contract hợp lệ; sensor health 6/6 và mọi
+continuity counter bằng 0. Đây chỉ là 1/200 checkpoint, chưa được dùng để claim
+blind recall hoặc latency distribution. Campaign tiếp tục chạy nền và giữ
+nguyên mọi miss nếu phát sinh.
