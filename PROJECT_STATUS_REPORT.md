@@ -3844,3 +3844,33 @@ redis và postgres. Thư mục `models-v8-candidate` chưa tồn tại đúng th
 Do đó không công bố bất kỳ inference latency/FPR AIMS nào trước post-capture
 fit và independent replay. Sự ổn định hiện tại chỉ là collection/platform
 stability; model stability phải chờ terminal normal report và blind matrix.
+
+### 18.63 Sửa blocker provenance trước fit V8 (12-08-2026)
+
+Dry-run chỉ bước dựng `candidate_fit` từ bốn phase run-01 đã phát hiện một
+blocker trước khi nó làm timer hậu kỳ fail. CLI có truyền
+`--parent-release-contract`, nhưng `build_phase_dataset.py` trước đây chỉ gán
+đường dẫn parent nếu split contract tự nhúng `parent_release_contract_sha256`.
+Split V8 bắt buộc argument nhưng không nhúng field đó, khiến manifest sinh
+`parent_release_contract_sha256=null`; `run_v8_post_capture.sh` sau đó chủ động
+từ chối training vì yêu cầu hash parent thật.
+
+Builder nay luôn resolve/hash parent được truyền, bắt buộc target order và
+feature-window contract của parent khớp dataset V8, đồng thời vẫn kiểm expected
+digest nếu split tương lai có nhúng hash. Hai regression mới chứng minh đường
+thành công không-embedded-hash và fail-closed khi target parent lệch. Focused
+suite trong ML venv trên master đạt `20 passed`.
+
+Dry-run lại trên dữ liệu run-01 thật tạo đủ tám target, 2.160–3.390 window mỗi
+target, vocab 210 chiều không đổi và ghi parent hash
+`340ad5...e006`, khớp byte-for-byte `aims_release_contract.json`; role vẫn là
+`candidate_fit`, `holdout_training_forbidden=true`, window 10 giây. Thư mục tạm
+được xóa ngay, không model/calibration nào được tạo và không đọc holdout score.
+Chỉ hai file post-capture staging được cập nhật checksum; source active capture
+không thay đổi.
+
+Bundle mới được kiểm đủ 60/60 SHA-256 và chạy với module staging ưu tiên,
+runtime chỉ bổ sung dependency: `137 passed` trong ML venv trên master. Sau đó
+toàn thư mục staging được atomic-swap; bản cũ giữ tại
+`v8-paired-replay-20260811-before-parent-fix` để rollback. Capture và detector
+vẫn `active/running`, `NRestarts=0`; không file runtime active nào bị thay.

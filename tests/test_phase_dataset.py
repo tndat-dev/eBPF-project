@@ -294,6 +294,84 @@ def test_phase_builder_requires_parent_release_provenance_for_v8(
         phase_dataset.main()
 
 
+def test_v8_phase_builder_records_parent_release_provenance_without_embedded_hash(
+    tmp_path, monkeypatch,
+):
+    phases = []
+    for regime in ("steady", "burst"):
+        phase = tmp_path / f"aims-{regime}-run-01"
+        make_phase(phase, phase.name)
+        phases.append(phase)
+    contract = tmp_path / "v8-split.json"
+    contract.write_text(json.dumps({
+        "schema": "sentinel-v8-capture-split/v1",
+        "release_id": "v8-test",
+        "normal": {
+            "regimes": ["steady", "burst"],
+            "runs": [{"run_id": "normal-run-01", "role": "candidate_fit"}],
+        },
+        "separation": {
+            "evaluation_runs_may_train_or_tune": False,
+            "attack_windows_may_train_or_tune": False,
+            "split_unit": "whole run before feature-window construction",
+        },
+    }))
+    parent = tmp_path / "release.json"
+    parent.write_text(json.dumps({
+        "release_track": "aims-test", "window_seconds": 30,
+        "eligible_targets": list(phase_dataset.DEFAULT_TARGETS),
+    }))
+    output = tmp_path / "dataset"
+    monkeypatch.setattr(sys, "argv", [
+        "build_phase_dataset.py", *(str(phase) for phase in phases),
+        "--output", str(output), "--minimum-events", "100",
+        "--minimum-phase-windows", "20",
+        "--experiment-contract", str(contract),
+        "--dataset-role", "candidate_fit",
+        "--parent-release-contract", str(parent),
+    ])
+    assert phase_dataset.main() == 0
+    manifest = json.loads((output / "phase_dataset_manifest.json").read_text())
+    provenance = manifest["experiment_contract"]
+    assert provenance["parent_release_contract"] == str(parent.resolve())
+    assert provenance["parent_release_contract_sha256"] == hashlib.sha256(
+        parent.read_bytes()
+    ).hexdigest()
+
+
+def test_v8_phase_builder_rejects_parent_release_target_mismatch(
+    tmp_path, monkeypatch,
+):
+    contract = tmp_path / "v8-split.json"
+    contract.write_text(json.dumps({
+        "schema": "sentinel-v8-capture-split/v1",
+        "release_id": "v8-test",
+        "normal": {
+            "regimes": ["steady"],
+            "runs": [{"run_id": "normal-run-01", "role": "candidate_fit"}],
+        },
+        "separation": {
+            "evaluation_runs_may_train_or_tune": False,
+            "attack_windows_may_train_or_tune": False,
+            "split_unit": "whole run before feature-window construction",
+        },
+    }))
+    parent = tmp_path / "release.json"
+    parent.write_text(json.dumps({
+        "release_track": "aims-test", "window_seconds": 30,
+        "eligible_targets": ["production/different-workload"],
+    }))
+    monkeypatch.setattr(sys, "argv", [
+        "build_phase_dataset.py", str(tmp_path / "unused-phase"),
+        "--output", str(tmp_path / "dataset"),
+        "--experiment-contract", str(contract),
+        "--dataset-role", "candidate_fit",
+        "--parent-release-contract", str(parent),
+    ])
+    with pytest.raises(ValueError, match="parent release target"):
+        phase_dataset.main()
+
+
 def test_phase_builder_rejects_sensor_backpressure(tmp_path, monkeypatch):
     phase = tmp_path / "bad"
     make_phase(phase, "bad", backpressure=1)

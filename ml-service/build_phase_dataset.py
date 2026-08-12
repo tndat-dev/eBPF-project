@@ -299,20 +299,36 @@ def main():
         expected_parent_digest = experiment_contract.get(
             "parent_release_contract_sha256"
         )
-        if (
+        is_v8_split = (
             experiment_contract.get("schema")
             == "sentinel-v8-capture-split/v1"
-            and not args.parent_release_contract
-        ):
+        )
+        if is_v8_split and not args.parent_release_contract:
             raise ValueError(
                 "V8 dataset build requires --parent-release-contract provenance"
             )
-        if expected_parent_digest:
-            if not args.parent_release_contract:
-                raise ValueError("split contract requires --parent-release-contract")
+        if args.parent_release_contract:
             parent_release_contract_path = Path(
                 args.parent_release_contract
             ).resolve()
+            parent_release_contract = json.loads(
+                parent_release_contract_path.read_text()
+            )
+            if not isinstance(parent_release_contract, dict):
+                raise ValueError("parent release contract must be a JSON object")
+            if is_v8_split:
+                if parent_release_contract.get("eligible_targets") != list(targets):
+                    raise ValueError(
+                        "parent release target order does not match the V8 dataset"
+                    )
+                parent_window = parent_release_contract.get("window_seconds")
+                if not isinstance(parent_window, int) or parent_window < 5:
+                    raise ValueError(
+                        "parent release feature-window contract is invalid"
+                    )
+        if expected_parent_digest:
+            if parent_release_contract_path is None:
+                raise ValueError("split contract requires --parent-release-contract")
             observed_parent_digest = sha256(parent_release_contract_path)
             if observed_parent_digest != expected_parent_digest:
                 raise ValueError(
@@ -500,6 +516,14 @@ def main():
             f"phase captures use inconsistent feature windows: {sorted(capture_windows)}"
         )
     manifest["window_seconds"] = capture_windows.pop()
+    if (
+        parent_release_contract_path is not None
+        and int(parent_release_contract["window_seconds"])
+        != manifest["window_seconds"]
+    ):
+        raise ValueError(
+            "parent release feature window does not match phase captures"
+        )
 
     try:
         for pod_key in targets:
