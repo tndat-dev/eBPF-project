@@ -4089,3 +4089,36 @@ Capture/detector/Falco vẫn active và không restart mới; cluster zero bad p
 Hai phase cuối vẫn bị khóa khỏi fit/tuning. Nếu cả hai phase không retry,
 capture terminal dự kiến khoảng `2026-08-12T21:30+07:00`, sau đó post-capture
 timer mới được phép fit candidate từ duy nhất run-01 và replay run-02--06.
+
+### 18.72 Run-06 recovery hoàn tất, phase capture cuối đang chạy (12-08-2026)
+
+`aims-recovery-run-06` kết thúc lúc `13:16:23Z` sau 4.321,035 giây và tạo
+6.896 feature window cho đủ tám target. Manifest ghi 6/6 Tetragon reader
+active/ready, `coverage_healthy=true`; toàn bộ counter `backpressure`,
+`membership`, `coverage` và `stream failure` bằng 0. Runner tự chuyển sang
+`aims-toolmix-run-06`; consumer của phase cuối bắt đầu thu lúc khoảng
+`13:17:03Z`, đúng context bất biến `normal-run-06`/`toolmix` và chưa ghi nhận
+error trong checkpoint đầu.
+
+Audit lại bằng source snapshot của campaign, validator feature capture và
+SHA-256 thực tế cho kết quả **23/23 phase đã hoàn tất đều hợp lệ**: tổng
+158.603 feature window, 99.379,583 giây capture thực, 6.895--6.896
+window/phase, đủ tám target × vector 210 chiều và không có
+integrity/privacy/sensor error. Vocabulary, Tetragon policy và loadgen
+manifest tiếp tục mỗi loại đúng một digest. Lỗi duy nhất của matrix validator
+là phase thứ 24 chưa hoàn tất, đúng với trạng thái đang chạy.
+
+Falco collector vẫn 6/6 reader active/ready, `coverage_healthy=true`, 27 clean
+reconnect; bốn lifetime failure đã công bố vẫn được giữ nguyên nhưng đều ngoài
+23 accepted interval: `in_scope=0`, `out_of_scope=4`. Capture có
+`NRestarts=1` do lần retry fail-closed ở mục 18.66; detector `NRestarts=0`,
+Falco `NRestarts=3` do startup staging lịch sử. Cả ba service đều
+`active/running`, 6/6 node Ready, zero bad pod và bundle post-capture vẫn đạt
+60/60 checksum.
+
+Chưa có terminal marker, matrix terminal hay candidate V8; vì vậy chưa phát
+sinh claim mới về false positive hoặc latency. Nếu `aims-toolmix-run-06`
+không phải retry, capture 24/24 dự kiến đóng khoảng
+`2026-08-12T21:29--21:30+07:00`. Sau đó các timer mới được phép lần lượt
+finalize evidence, fit candidate từ run-01, đánh giá độc lập run-02--06, chạy
+blind attack, ablation và overhead gate.
