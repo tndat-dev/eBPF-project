@@ -1,9 +1,10 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-05
+**Ngày xác minh cluster gần nhất:** 2026-08-12
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** V7 LSTM, window 10 giây, dry-run; AIMS fit-v2 đã hoàn tất blind matrix nhưng bị từ chối promotion (195/200)
+**Phiên bản đang deploy:** Syscall Runtime Release V7, window 10 giây,
+dry-run; AIMS V8 là campaign candidate riêng, chưa được promote
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -23,20 +24,35 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 
 Điểm quan trọng nhất của benchmark lịch sử: latency end-to-end khoảng 58 giây không phải do model chậm. Inference của model chỉ khoảng 20 ms mỗi cửa sổ. Latency cao chủ yếu do thiết kế cố ý yêu cầu 2 cửa sổ liên tiếp, mỗi cửa sổ 30 giây, để giảm false positive. Cần đo lại sau khi các workload recovery ổn định.
 
-**Kết luận vận hành ở snapshot mới nhất.** Sáu node, control plane/etcd và
-DaemonSet Tetragon 6/6 đều khỏe; detector V7 cũ vẫn chạy liên tục, không restart.
-Toàn bộ 44 pod trong namespace `production` đang `Running`. AIMS fit-v2 đã pass
-development gate và có calibration chỉ từ fit split, nhưng chưa được promote.
-Normal matrix độc lập đã đủ 20 phase/24 giờ và pass integrity; independent
-validation run-02--03 đã pass 54.151 windows không alert. Blind-normal
-run-04--05 cũng pass 54.166 windows không alert. Frozen blind attack đã hoàn tất
-40/40 workload-trial, phát hiện 195/200 scenario. Cả năm miss đều là
-`namespace_probe` trên `security-telemetry-service`; fit-v2 vì vậy đã bị từ
-chối promotion đúng contract. Candidate **chưa production-ready và bộ evidence
-chưa đủ world-class paper** do baseline/ablation, V8 blind set và cross-cluster
-chưa hoàn tất. Counterbalanced overhead V2 đã hoàn tất hợp lệ. Không được suy
-diễn “không có false positive”
-từ zero observed alert.
+**Kết luận vận hành ở snapshot mới nhất.** Sáu node và Tetragon 6/6 khỏe,
+detector production V7 vẫn `active/running`, `NRestarts=0`, dry-run. Campaign
+AIMS V8 đã hoàn tất capture 24/24 phase (165.499 window, khoảng 28,81 giờ),
+train 8/8 model và calibration fit-only. Independent normal evaluation hiện
+pass 10/20 phase với 60.799 window và zero observed alert; report vẫn mang
+`status=evaluating`, chưa có `POST_CAPTURE_COMPLETE`. Blind attack V8,
+ablation, overhead và promotion chưa chạy. Vì vậy candidate **chưa
+production-ready** và không được suy diễn “không có false positive” từ
+checkpoint giữa chừng. Kết quả fit-v2 195/200 là campaign lịch sử khác, không
+phải kết quả V8 hiện tại.
+
+## Quy ước tên phiên bản và research track
+
+Tài liệu lịch sử từng dùng cùng ký hiệu `Vx` cho release runtime, thử nghiệm
+model và hướng kiến trúc; cách gọi đó không tạo thành chuỗi release đầy đủ
+V1--V8. Báo cáo này dùng quy ước sau:
+
+- **V7**: syscall runtime release đang chạy production dry-run;
+- **V8**: AIMS syscall candidate/evaluation campaign, không bao gồm MCP/GAT;
+- **Agent Runtime research track**: prototype MCP/behavior-graph/GAT trong
+  namespace `agent-sentinel-lab`; tên cũ trong artifact là “V2”;
+- **V9 generalization protocol**: contract nghiên cứu tương lai, chưa phải
+  release đã deploy.
+
+Không có artifact release hoàn chỉnh cho V3, V4 hay V5. V6 chỉ là thử nghiệm
+ensemble LSTM/Isolation Forest đã bị loại. Cụm từ “đã triển khai Agent Runtime”
+trong lịch sử chỉ có nghĩa **đã deploy prototype lab**: MCP server chỉ
+acknowledge, không có AI Agent/executor thực thi SSH hoặc Kubernetes tool thật,
+GAT không tham gia quyết định production và không thuộc campaign V8.
 
 ## 1. Mục tiêu nghiên cứu
 
@@ -44,7 +60,13 @@ Câu hỏi nghiên cứu chính của dự án là:
 
 > Có thể xây dựng một runtime sentinel cho Kubernetes học hành vi bình thường từ dữ liệu eBPF/Tetragon thật, phát hiện hành vi tấn công ở tầng kernel theo thời gian thực, và kích hoạt luồng cô lập pod với rủi ro false positive thấp hay không?
 
-Phạm vi hiện tại là vertical slice ở tầng syscall. Nghĩa là hệ thống đã hoàn thiện tương đối tốt cho bài toán quan sát syscall của workload phổ biến như Nginx, Redis và Postgres. Sau khi đọc bộ `Agent_Runtime_Sentinel_ALL_FILES`, đồ án đã được mở thêm nhánh V2 theo hướng **Agent Runtime Sentinel**: quan sát AI agent qua MCP, mô hình hoá hành vi thành graph `agent -> tool -> resource`, rồi tiến tới GAT + EVT-POT. Nhánh V2 đã có parser MCP, sliding-window graph, vector hoá graph, scenario attack và TLS uprobe kiểm chứng trong lab; GAT chưa được bật quyền quyết định hay action trên production.
+Phạm vi chính hiện tại là vertical slice ở tầng syscall. Sau khi đọc bộ
+`Agent_Runtime_Sentinel_ALL_FILES`, đồ án mở thêm **Agent Runtime research
+track** (tên lịch sử: V2): quan sát MCP trong lab, mô hình hoá graph
+`agent -> tool -> resource`, rồi thử nghiệm GAT + EVT-POT. Track này mới có
+prototype parser, graph, scenario replay và TLS uprobe; chưa có AI Agent thực
+thi tool thật, chưa được bật quyền quyết định/action production và không thuộc
+V8.
 
 ## 2. Trạng thái hạ tầng hiện tại đã xác minh bằng SSH
 
@@ -100,9 +122,11 @@ Log detector lịch sử mới nhất trong artifact cho thấy detector từng 
 
 ## 3. Những gì đã cải thiện
 
-### 3.0 Mở hướng V2: Agent Runtime Sentinel cho AI Agent/MCP
+### 3.0 Agent Runtime research track (prototype MCP/GAT trong lab)
 
-Bộ tài liệu `Agent_Runtime_Sentinel_ALL_FILES` định nghĩa rõ V2 không phải viết lại V1, mà là nâng cấp đúng ba điểm còn thiếu:
+Bộ tài liệu `Agent_Runtime_Sentinel_ALL_FILES` gọi hướng này là V2. Đây là tên
+lịch sử của một research track, không phải successor production của V7/V8 và
+không chứng minh đã có AI Agent thật. Prototype nghiên cứu ba điểm:
 
 - V1 chỉ hiểu syscall thô; V2 cần hiểu MCP tool call ở tầng ứng dụng.
 - V1 dùng LSTM/IF trên vector syscall; V2 tiến tới behavior graph và GAT + EVT-POT.
@@ -415,10 +439,11 @@ So sánh overhead:
 
 Kết luận: phần lớn overhead đến từ tracing bằng Tetragon. ML detector thêm overhead nhỏ so với Tetragon-only trong run hợp lệ này.
 
-### 7.7 Kết quả V2 trong MCP HTTPS lab
+### 7.7 Kết quả Agent Runtime prototype trong MCP HTTPS lab
 
-Đây là kết quả của nhánh V2 trong namespace cô lập `agent-sentinel-lab`; nó
-không được gộp với bảng V1 và không được dùng để claim production readiness.
+Đây là kết quả prototype (tên lịch sử: V2) trong namespace cô lập
+`agent-sentinel-lab`; nó không có AI Agent/executor tool thật, không được gộp
+với syscall release và không được dùng để claim production readiness.
 
 | Kiểm tra | Kết quả đã ghi nhận | Ý nghĩa |
 |---|---:|---|
@@ -428,9 +453,10 @@ không được gộp với bảng V1 và không được dùng để claim prod
 | GAT inference CPU | p50 1.769 ms; p95 2.263 ms; p99 2.766 ms | Dưới budget 50 ms mỗi graph window |
 | Dataset GAT thật đã review | Chưa đủ | Chỉ có 8 snapshot lab, không đủ để promote |
 
-Hai đường đánh giá có mục tiêu khác nhau: V1 đo kernel-to-alert của detector
-đang chạy; V2 đo đường TLS-uprobe/graph trong lab và inference GAT. Không cộng,
-so sánh trực tiếp hoặc dùng con số V2 để thay thế latency 58 giây của policy V1.
+Hai đường đánh giá có mục tiêu khác nhau: syscall track đo kernel-to-alert của
+detector đang chạy; Agent Runtime prototype đo TLS-uprobe/graph trong lab và
+inference GAT. Không cộng, so sánh trực tiếp hoặc dùng số lab để thay thế
+latency của syscall release.
 
 ## 8. Phân tích latency
 
@@ -879,7 +905,7 @@ duy nhất là migration annotation `last-applied-configuration` của resource 
 đã từng apply client-side; đó là non-fatal metadata conflict, không phải lỗi
 schema/admission và dry-run không thay đổi tài nguyên.
 
-## 16. Kế hoạch nâng V2 lên paper-ready
+## 16. Kế hoạch đưa Agent Runtime research track lên paper-ready
 
 Tài liệu thực thi tại `Agent_Runtime_Sentinel_ALL_FILES/PAPER_READINESS_PLAN.md`
 đã đóng hypothesis chính: evidence graph kết hợp MCP semantic action với kernel
@@ -888,7 +914,8 @@ semantic-only. Kế hoạch quy định threat model, normal/attack matrix, tác
 train-validation-test theo agent/thời gian, năm baseline B1–B4–Full, ablation,
 latency CDF, overhead/scalability và confidence interval.
 
-Tại thời điểm này, V2 đã có code, MCP lab, replay gate, eBPF build và test;
+Tại thời điểm này, research track đã có code, MCP lab, replay gate, eBPF build
+và test;
 nhưng chưa có dataset MCP thật đa-agent đã review đủ lớn để claim superiority
 hoặc production robustness. Artifact bundle cuối phải gồm manifests/image
 digest, scripts deploy/collect/train/replay/benchmark, seeds, environment
@@ -4203,3 +4230,24 @@ sửa. Với tốc độ phase đầu, 19 phase còn lại dự kiến khoảng 
 tự checkpoint và tiếp tục nền. Chỉ khi report chuyển `status=complete`, gate
 `passed=true` và marker `POST_CAPTURE_COMPLETE` xuất hiện mới được mở blind
 attack.
+
+### 18.75 Independent evaluation đạt 10/20 phase, không cần sửa model (12-08-2026)
+
+Checkpoint trực tiếp lúc `15:39:16Z` xác nhận evaluator đã pass liên tiếp 10/20
+phase run-02--04, xử lý tổng 60.799 window với zero observed alert/detection.
+Phase mới nhất `aims-burst-run-04` pass 6.121 window, gồm 6.062 decision
+`normal` và 59 `behavior_gated`; inference median 11,783 ms, p95 15,013 ms,
+p99 21,631 ms. Mười phase đầu tiêu tốn 2.174,670 giây replay.
+
+Report vẫn đúng trạng thái trung gian `status=evaluating`, `passed=null`; không
+có terminal marker. Process evaluator dùng khoảng 100% một CPU, service
+`NRestarts=0`, không có traceback/OOM/NaN và cluster zero bad pod. Không có
+bằng chứng kỹ thuật để sửa model hay threshold; làm vậy ở thời điểm đã nhìn
+holdout còn vi phạm frozen protocol. Pipeline tiếp tục nền cho 10 phase còn
+lại, dự kiến khoảng 35--40 phút theo throughput quan sát.
+
+Cùng checkpoint, phần đầu báo cáo được chuẩn hoá naming: V7 là syscall runtime
+release, V8 là AIMS syscall evaluation campaign, còn “V2” chỉ là tên lịch sử
+của Agent Runtime MCP/GAT prototype trong lab. Báo cáo nay ghi rõ không tồn tại
+chuỗi release đầy đủ V1--V8, không có release V3--V5, và prototype Agent Runtime
+không có AI Agent/tool executor thật cũng không tham gia V8 production path.
