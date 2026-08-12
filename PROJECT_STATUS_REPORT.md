@@ -3910,3 +3910,26 @@ Do production V7 chưa có model AIMS và candidate V8 chưa được fit, số 
 normal bằng 0 ở giai đoạn này **không phải zero-false-positive claim**. V8 chỉ
 được xem là model ổn định sau khi đủ 24 phase và lần lượt qua independent
 normal, blind attack, baseline/ablation và overhead gate đã preregister.
+
+### 18.65 Bắt đầu independent run-05, chưa mở model gate (12-08-2026)
+
+Checkpoint trực tiếp lúc `2026-08-12T04:49Z` xác nhận phase thứ 17
+`aims-steady-run-05` đã hoàn tất 4.320,914 giây với 6.896 feature window và đủ
+tám target. `aims-burst-run-05` được runner tự mở ngay sau đó; capture service
+vẫn `active/running`, `NRestarts=0` và cluster không có bad pod.
+
+Audit lại từ đầu 17 manifest bằng validator đã snapshot trong evidence root,
+kèm tính lại SHA-256 cho feature capture, NumPy và metadata, cho kết quả
+17/17 hợp lệ: tổng 117.228 feature window, 73.455,300 giây capture thực,
+6.895--6.896 window/phase và không có integrity/privacy error. Mọi phase giữ
+một digest duy nhất cho vocab, Tetragon policy và loadgen manifest; các counter
+`backpressure`, `membership`, `coverage` và `stream failure` đều bằng 0.
+
+Falco tiếp tục 6/6 reader active/ready, `coverage_healthy=true`,
+`stream_failures=0`; 12 reconnect vẫn là clean reconnect đã công bố, không tăng
+thành failure. Local regression đạt `153 passed, 9 skipped`.
+
+Run-05 thuộc role `independent_evaluation`. Dữ liệu của phase vừa đóng chỉ được
+niêm phong, chưa được score, train hoặc dùng để chỉnh threshold. Chưa có bất kỳ
+terminal marker hay thư mục candidate V8 nào; vì vậy checkpoint này chỉ chứng
+minh collection continuity, không phải kết quả false-positive hoặc latency.
