@@ -85,6 +85,7 @@ def make_evidence(tmp_path, *, with_alert=True):
         "ready_falco_pods": ["falco-a", "falco-b"],
         "active_readers": ["falco-a", "falco-b"],
         "coverage_healthy": True, "stream_failures": 0, "lines_seen": 20,
+        "stream_failure_details": [],
         "privacy_safe_rows_written": 1 if with_alert else 0,
         "reader_ranges": {},
     }
@@ -127,6 +128,40 @@ def test_attack_finalizer_accepts_explicit_zero_alert_source(tmp_path):
     assert report["detected_trials"] == 0
     assert report["recall"]["upper"] > 0
     assert (output / "falco-attack-alerts.jsonl").read_bytes() == b""
+
+
+def test_attack_finalizer_rejects_only_failures_near_attack_intervals(tmp_path):
+    capture, falco, contract, output = make_evidence(tmp_path / "outside")
+    state_path = falco / "collector-state.json"
+    state = json.loads(state_path.read_text())
+    state["stream_failures"] = 1
+    state["stream_failure_details"] = [{
+        "observed_at": "1970-01-01T00:00:30+00:00",
+        "kind": "membership",
+        "pod": None,
+    }]
+    state_path.write_text(json.dumps(state))
+    report = finalizer.finalize(
+        capture, falco, contract, output, expected_trials=2, now=500.0,
+    )
+    assert report["coverage"]["stream_failures"] == 0
+    assert report["coverage"]["out_of_scope_stream_failures"] == 1
+
+    capture2, falco2, contract2, output2 = make_evidence(tmp_path / "overlap")
+    state_path2 = falco2 / "collector-state.json"
+    state2 = json.loads(state_path2.read_text())
+    state2["stream_failures"] = 1
+    state2["stream_failure_details"] = [{
+        "observed_at": "1970-01-01T00:01:45+00:00",
+        "kind": "membership",
+        "pod": None,
+    }]
+    state_path2.write_text(json.dumps(state2))
+    with pytest.raises(finalizer.EvidenceError, match="overlapping evidence"):
+        finalizer.finalize(
+            capture2, falco2, contract2, output2,
+            expected_trials=2, now=500.0,
+        )
 
 
 def test_attack_finalizer_is_idempotent_after_immutable_publish(tmp_path):

@@ -155,10 +155,15 @@ def finalize(
 
     contract, _ = read_json(collection_contract)
     release_id = str(contract.get("release_id", ""))
-    state, provenance = validate_collector(
+    evidence_intervals = [
+        (float(item["start"]), float(item["end"]) + post_attack_horizon)
+        for item in intervals
+    ]
+    state, provenance, failure_scope = validate_collector(
         falco_root.resolve(), release_id=release_id,
         first_phase_start=float(intervals[0]["start"]),
         last_phase_end=float(intervals[-1]["end"]) + post_attack_horizon,
+        evidence_intervals=evidence_intervals,
         now=now, max_state_age=max_state_age,
         minimum_settle_seconds=minimum_settle_seconds,
     )
@@ -233,7 +238,10 @@ def finalize(
         "coverage": {
             "expected_readers": state["expected_readers"],
             "active_readers": state["active_readers"],
-            "stream_failures": state["stream_failures"],
+            "stream_failures": failure_scope["in_scope_count"],
+            "lifetime_stream_failures": failure_scope["lifetime_count"],
+            "out_of_scope_stream_failures": failure_scope["out_of_scope_count"],
+            "stream_failure_scope": failure_scope,
             "stream_reconnects": int(state.get("stream_reconnects", 0)),
             "raw_lines_observed": state["lines_seen"],
             "healthy_at_finalization": True,

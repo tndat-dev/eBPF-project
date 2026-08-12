@@ -87,6 +87,7 @@ def make_evidence(tmp_path, *, with_alert=True):
         "active_readers": ["falco-a", "falco-b"],
         "coverage_healthy": True,
         "stream_failures": 0,
+        "stream_failure_details": [],
         "lines_seen": 10,
         "privacy_safe_rows_written": 1 if with_alert else 0,
         "reader_ranges": {
@@ -162,6 +163,46 @@ def test_finalizer_rejects_incomplete_or_failed_reader_coverage(tmp_path):
     state["stream_failures"] = 1
     (falco / "collector-state.json").write_text(json.dumps(state))
     with pytest.raises(finalizer.EvidenceError, match="membership is incomplete"):
+        finalizer.finalize(capture, falco, split, output, now=1600.0)
+
+
+def test_finalizer_scopes_stream_failures_to_accepted_phases(tmp_path):
+    capture, falco, split, output = make_evidence(tmp_path / "outside")
+    state_path = falco / "collector-state.json"
+    state = json.loads(state_path.read_text())
+    state["stream_failures"] = 1
+    state["stream_failure_details"] = [{
+        "observed_at": "1970-01-01T00:16:00+00:00",
+        "kind": "membership",
+        "pod": None,
+    }]
+    state_path.write_text(json.dumps(state))
+    report = finalizer.finalize(capture, falco, split, output, now=1600.0)
+    assert report["coverage"]["stream_failures"] == 0
+    assert report["coverage"]["lifetime_stream_failures"] == 1
+    assert report["coverage"]["out_of_scope_stream_failures"] == 1
+
+    capture2, falco2, split2, output2 = make_evidence(tmp_path / "overlap")
+    state_path2 = falco2 / "collector-state.json"
+    state2 = json.loads(state_path2.read_text())
+    state2["stream_failures"] = 1
+    state2["stream_failure_details"] = [{
+        "observed_at": "1970-01-01T00:16:50+00:00",
+        "kind": "membership",
+        "pod": None,
+    }]
+    state_path2.write_text(json.dumps(state2))
+    with pytest.raises(finalizer.EvidenceError, match="overlapping evidence"):
+        finalizer.finalize(capture2, falco2, split2, output2, now=1600.0)
+
+
+def test_finalizer_rejects_unauditable_failure_counter(tmp_path):
+    capture, falco, split, output = make_evidence(tmp_path)
+    state_path = falco / "collector-state.json"
+    state = json.loads(state_path.read_text())
+    state["stream_failures"] = 1
+    state_path.write_text(json.dumps(state))
+    with pytest.raises(finalizer.EvidenceError, match="details do not match"):
         finalizer.finalize(capture, falco, split, output, now=1600.0)
 
 

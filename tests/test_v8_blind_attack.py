@@ -46,7 +46,9 @@ def test_v8_attack_wrapper_is_gated_and_has_no_train_or_promotion_path():
     assert "independent_evaluation" in script
     assert "aims-v8-falco-evidence" in script
     assert "Falco paired evidence collector is inactive" in script
-    assert 'falco.get("stream_failures") == 0' in script
+    assert "falco-normal-evidence.report.json" in script
+    assert 'coverage.get("stream_failures") == 0' in script
+    assert "Falco lifetime failure counter is not auditable" in script
     assert 'falco.get("release_id") == "v8-paired-replay-20260811"' in script
     assert ").total_seconds() > 120" in script
     assert "--feature-capture-mode sequence" in script

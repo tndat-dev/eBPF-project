@@ -8,6 +8,7 @@ PYTHON_BIN=${PYTHON_BIN:-/home/dat/ml-venv/bin/python}
 EVIDENCE_ROOT=${V8_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811}
 DERIVED_ROOT=${V8_DERIVED_ROOT:-/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811}
 FALCO_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
+FALCO_NORMAL=$DERIVED_ROOT/falco-rule-only-normal
 ATTACK_ROOT=${V8_ATTACK_ROOT:-/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811}
 EXPERIMENT_ID=${V8_ATTACK_EXPERIMENT_ID:-v8-blind-attack-20260811}
 CANDIDATE=$DERIVED_ROOT/models-v8-candidate
@@ -28,6 +29,8 @@ systemctl is-active --quiet aims-v8-falco-evidence.service || {
   exit 4
 }
 for path in "$CANDIDATE/training_report.json" "$CALIBRATION" "$PREREQUISITE" \
+  "$FALCO_NORMAL/falco-normal-evidence.report.json" \
+  "$FALCO_NORMAL/SHA256SUMS" \
   "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
   "$EVIDENCE_ROOT/evaluation_matrix_contract.json" \
   "$ROOT_DIR/syscall_evaluation_protocol.json" \
@@ -35,11 +38,14 @@ for path in "$CANDIDATE/training_report.json" "$CALIBRATION" "$PREREQUISITE" \
   "$ROOT_DIR/runtime_attack_blind.c" "$ROOT_DIR/runtime_attack_blind"; do
   [[ -r "$path" ]] || { printf 'REFUSING: missing %s\n' "$path" >&2; exit 4; }
 done
-"$PYTHON_BIN" - "$PREREQUISITE" "$FALCO_ROOT/collector-state.json" <<'PY'
+(cd "$FALCO_NORMAL" && sha256sum -c SHA256SUMS)
+"$PYTHON_BIN" - "$PREREQUISITE" "$FALCO_ROOT/collector-state.json" \
+  "$FALCO_NORMAL/falco-normal-evidence.report.json" <<'PY'
 from datetime import datetime, timezone
 import json, sys
 normal = json.load(open(sys.argv[1]))
 falco = json.load(open(sys.argv[2]))
+falco_normal = json.load(open(sys.argv[3]))
 if not (
     normal.get("role") == "independent_evaluation"
     and normal.get("status") == "complete"
@@ -49,10 +55,20 @@ if not (
 if not (
     falco.get("coverage_healthy") is True
     and falco.get("release_id") == "v8-paired-replay-20260811"
-    and falco.get("stream_failures") == 0
     and len(falco.get("active_readers", [])) == falco.get("expected_readers") == 6
 ):
     raise SystemExit("Falco paired baseline collector is not healthy")
+failures = falco.get("stream_failure_details")
+if not isinstance(failures, list) or len(failures) != falco.get("stream_failures"):
+    raise SystemExit("Falco lifetime failure counter is not auditable")
+coverage = falco_normal.get("coverage", {})
+if not (
+    falco_normal.get("valid") is True
+    and coverage.get("stream_failures") == 0
+    and coverage.get("lifetime_stream_failures")
+        == coverage.get("out_of_scope_stream_failures")
+):
+    raise SystemExit("Falco accepted-normal continuity gate did not pass")
 updated = datetime.fromisoformat(falco["updated_at"].replace("Z", "+00:00"))
 if (datetime.now(timezone.utc) - updated).total_seconds() > 120:
     raise SystemExit("Falco paired baseline collector state is stale")

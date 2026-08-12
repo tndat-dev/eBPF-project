@@ -3963,3 +3963,39 @@ Capture service hiện `active/running`, `NRestarts=1`; detector vẫn
 `153 passed, 9 skipped`. Retry nghiêm ngặt làm lịch terminal lùi khoảng 73 phút,
 dự kiến capture đủ 24 phase khoảng `2026-08-12T21:25+07:00`. Chưa có candidate
 hay terminal marker; phase bị loại tuyệt đối không được dùng để train/evaluate.
+
+### 18.67 Scope continuity Falco theo interval evidence bất biến (12-08-2026)
+
+Audit tiếp phát hiện Falco lifetime state đã tăng từ 0 lên bốn failure trong
+chính interval recovery bị loại: hai membership query failure lúc
+`06:05:22Z`, `06:55:35Z` và hai reader exit code 1 lúc `06:08:21Z`,
+`06:08:26Z`. Collector vẫn lưu nguyên bốn record và hash lỗi; counter không bị
+reset. Vì finalizer cũ yêu cầu lifetime counter tuyệt đối bằng 0, mọi evidence
+sau đó sẽ bị chặn vĩnh viễn dù phase chứa failure đã được loại và thu lại từ
+đầu. Đây là lỗi scope của terminal gate, không phải lý do hợp lệ để bỏ qua
+continuity.
+
+Amendment hậu kỳ bổ sung phép phân loại deterministic theo timestamp: mỗi
+failure được mở rộng guard đối xứng 15 giây để bao phủ reconnect loop 5 giây và
+membership loop 10 giây, rồi kiểm giao với **chính xác các interval evidence
+được chấp nhận**. Failure có guard chồng bất kỳ normal/attack interval nào vẫn
+fail-closed. Chỉ failure nằm hoàn toàn ngoài mọi accepted interval mới được ghi
+`out_of_scope`; lifetime count và toàn bộ detail vẫn xuất hiện trong report.
+Counter thiếu detail, timestamp không parse được hoặc count/detail lệch nhau
+đều bị từ chối.
+
+Áp dụng amendment lên 18 manifest hiện được chấp nhận cho kết quả bốn failure
+đều `out_of_scope`, `in_scope_count=0`: chúng chỉ chồng phase recovery đã nằm
+trong `rejected/`; bản retry bắt đầu sau đó lúc `07:13Z`. Blind-attack wrapper
+không còn nhìn một lifetime scalar đơn lẻ mà bắt buộc checksum report Falco
+normal, `in_scope=0` và `lifetime=out_of_scope` trước khi inject attack. Attack
+finalizer áp cùng thuật toán lên từng injection interval cộng attribution
+horizon 30 giây, nên failure mới trong blind campaign vẫn chặn kết quả.
+
+Thay đổi chỉ nằm trong post-capture staging, không sửa active collector,
+capture hay detector. Focused suite đạt `18 passed`; full local suite đạt
+`156 passed, 9 skipped`; exact 20-file staging suite trên master đạt
+`140 passed`, và 60/60 staging checksum hợp lệ. Staging được atomic-swap, bản
+trước amendment giữ tại `v8-paired-replay-20260811-before-falco-scope` để
+rollback. Deployer thật vẫn trả đúng exit 75 vì capture đang active; ba service
+active không bị restart bởi lần deploy staging này.

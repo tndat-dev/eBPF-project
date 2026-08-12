@@ -68,16 +68,62 @@ def read_json(path: Path) -> tuple[dict[str, Any], bytes]:
     return document, payload
 
 
+def classify_stream_failures(
+    state: dict[str, Any],
+    evidence_intervals: list[tuple[float, float]],
+    *,
+    guard_seconds: float,
+) -> dict[str, Any]:
+    """Classify lifetime collector failures against accepted evidence only.
+
+    A discarded/retried phase must not poison a later, disjoint phase forever,
+    but an uncertain reader boundary may never overlap accepted evidence.  The
+    symmetric guard conservatively covers the collector's 5-second reconnect
+    and 10-second membership loops.
+    """
+    if guard_seconds < 0:
+        raise EvidenceError("Falco stream-failure guard must be non-negative")
+    intervals = sorted((float(start), float(end)) for start, end in evidence_intervals)
+    if not intervals or any(start >= end for start, end in intervals):
+        raise EvidenceError("Falco continuity scope has invalid evidence intervals")
+    declared = int(state.get("stream_failures", -1))
+    details = state.get("stream_failure_details")
+    if declared < 0 or not isinstance(details, list) or declared != len(details):
+        raise EvidenceError("Falco stream-failure details do not match the counter")
+
+    in_scope, out_of_scope = [], []
+    for detail in details:
+        if not isinstance(detail, dict) or not detail.get("observed_at"):
+            raise EvidenceError("Falco stream failure lacks an auditable timestamp")
+        observed = parse_time(str(detail["observed_at"]))
+        overlaps = any(
+            observed + guard_seconds >= start
+            and observed - guard_seconds <= end
+            for start, end in intervals
+        )
+        (in_scope if overlaps else out_of_scope).append(dict(detail))
+    return {
+        "guard_seconds": guard_seconds,
+        "lifetime_count": declared,
+        "in_scope_count": len(in_scope),
+        "out_of_scope_count": len(out_of_scope),
+        "in_scope_details": in_scope,
+        "out_of_scope_details": out_of_scope,
+    }
+
+
 def validate_collector(
     falco_root: Path,
     *,
     release_id: str,
     first_phase_start: float,
     last_phase_end: float,
+    evidence_intervals: list[tuple[float, float]],
     now: float,
     max_state_age: float,
     minimum_settle_seconds: float,
-) -> tuple[dict[str, Any], dict[str, str]]:
+    failure_guard_seconds: float = 15.0,
+) -> tuple[dict[str, Any], dict[str, str], dict[str, Any]]:
     state, state_bytes = read_json(falco_root / "collector-state.json")
     contract, contract_bytes = read_json(falco_root / "collection-contract.json")
     if state.get("schema") != STATE_SCHEMA:
@@ -103,8 +149,13 @@ def validate_collector(
         raise EvidenceError("Falco reader membership is incomplete")
     if state.get("coverage_healthy") is not True:
         raise EvidenceError("Falco collector coverage is unhealthy")
-    if int(state.get("stream_failures", -1)) != 0:
-        raise EvidenceError("Falco collector recorded stream failures")
+    failure_scope = classify_stream_failures(
+        state, evidence_intervals, guard_seconds=failure_guard_seconds,
+    )
+    if failure_scope["in_scope_count"]:
+        raise EvidenceError(
+            "Falco collector recorded stream failures overlapping evidence"
+        )
 
     code_path = falco_root / "code" / "falco_evidence_collector.py"
     if not code_path.is_file() or sha256(code_path) != contract.get("collector_sha256"):
@@ -119,7 +170,7 @@ def validate_collector(
         if not path.is_file():
             raise EvidenceError(f"missing Falco provenance snapshot: {name}")
         provenance[name] = sha256(path)
-    return state, provenance
+    return state, provenance, failure_scope
 
 
 def load_phases(
@@ -269,9 +320,11 @@ def finalize(
     split, split_bytes = read_json(split_path)
     phases, capture_provenance = load_phases(capture_root.resolve(), split)
     release_id = str(split["release_id"])
-    state, falco_provenance = validate_collector(
+    intervals = [(item["start"], item["end"]) for item in phases]
+    state, falco_provenance, failure_scope = validate_collector(
         falco_root.resolve(), release_id=release_id,
         first_phase_start=phases[0]["start"], last_phase_end=phases[-1]["end"],
+        evidence_intervals=intervals,
         now=now, max_state_age=max_state_age,
         minimum_settle_seconds=minimum_settle_seconds,
     )
@@ -314,7 +367,10 @@ def finalize(
             "expected_readers": state["expected_readers"],
             "ready_falco_pods": ready,
             "active_readers": list(state["active_readers"]),
-            "stream_failures": state["stream_failures"],
+            "stream_failures": failure_scope["in_scope_count"],
+            "lifetime_stream_failures": failure_scope["lifetime_count"],
+            "out_of_scope_stream_failures": failure_scope["out_of_scope_count"],
+            "stream_failure_scope": failure_scope,
             "stream_reconnects": int(state.get("stream_reconnects", 0)),
             "raw_lines_observed": state["lines_seen"],
             "reader_ranges": ranges,
