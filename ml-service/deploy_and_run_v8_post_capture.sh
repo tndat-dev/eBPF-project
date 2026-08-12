@@ -121,28 +121,28 @@ done
 
 bash -n "$RUNTIME_ROOT/run_aims_split_evaluation.sh" \
   "$RUNTIME_ROOT/run_v8_post_capture.sh"
-cd "$STAGING_ROOT"
-PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
-  tests/test_sentinel.py \
-  tests/test_evaluation_matrix_validation.py \
-  tests/test_syscall_evaluation_protocol.py \
-  tests/test_tetragon_rule_replay.py \
-  tests/test_phase_dataset.py \
-  tests/test_render_syscall_paper_results.py \
-  tests/test_aims_attack_replay.py \
-  tests/test_syscall_matrix_assembler.py \
-  tests/test_syscall_paired_statistics.py \
-  tests/test_aims_normal_split_evaluator.py \
-  tests/test_shared_workload_model.py \
-  tests/test_falco_evidence_collector.py \
-  tests/test_falco_evidence_finalizer.py \
-  tests/test_fast_path_normal_evidence_finalizer.py \
-  tests/test_falco_attack_evidence_finalizer.py \
-  tests/test_aims_blind_matrix.py \
-  tests/test_v8_blind_attack.py \
-  tests/test_v8_normal_ablation_runner.py \
-  tests/test_v8_capture_contract.py \
-  tests/test_v8_post_capture_runner.py
+cd "$RUNTIME_ROOT"
+PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q -p no:cacheprovider \
+  "$STAGING_ROOT/tests/test_sentinel.py" \
+  "$STAGING_ROOT/tests/test_evaluation_matrix_validation.py" \
+  "$STAGING_ROOT/tests/test_syscall_evaluation_protocol.py" \
+  "$STAGING_ROOT/tests/test_tetragon_rule_replay.py" \
+  "$STAGING_ROOT/tests/test_phase_dataset.py" \
+  "$STAGING_ROOT/tests/test_render_syscall_paper_results.py" \
+  "$STAGING_ROOT/tests/test_aims_attack_replay.py" \
+  "$STAGING_ROOT/tests/test_syscall_matrix_assembler.py" \
+  "$STAGING_ROOT/tests/test_syscall_paired_statistics.py" \
+  "$STAGING_ROOT/tests/test_aims_normal_split_evaluator.py" \
+  "$STAGING_ROOT/tests/test_shared_workload_model.py" \
+  "$STAGING_ROOT/tests/test_falco_evidence_collector.py" \
+  "$STAGING_ROOT/tests/test_falco_evidence_finalizer.py" \
+  "$STAGING_ROOT/tests/test_fast_path_normal_evidence_finalizer.py" \
+  "$STAGING_ROOT/tests/test_falco_attack_evidence_finalizer.py" \
+  "$STAGING_ROOT/tests/test_aims_blind_matrix.py" \
+  "$STAGING_ROOT/tests/test_v8_blind_attack.py" \
+  "$STAGING_ROOT/tests/test_v8_normal_ablation_runner.py" \
+  "$STAGING_ROOT/tests/test_v8_capture_contract.py" \
+  "$STAGING_ROOT/tests/test_v8_post_capture_runner.py"
 
 exec env SENTINEL_V8_POST_CAPTURE_LOCK_HELD=1 \
   "$RUNTIME_ROOT/run_v8_post_capture.sh" "$EVIDENCE_ROOT"
