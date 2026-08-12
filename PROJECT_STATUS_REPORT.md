@@ -3781,3 +3781,38 @@ Checkpoint trực tiếp `2026-08-12T02:38:16Z`: 15/24 phase có
 1.568 feature row. Cluster 6/6 node Ready, zero bad pod. Ba marker post-capture,
 Falco attack và normal-ablation vẫn vắng mặt, nên chưa có latency/recall/
 false-alert V8 terminal để công bố và overhead timer sẽ tiếp tục chỉ chờ.
+
+### 18.61 Giữ `main` ở V8 cho đến khi stable terminal (12-08-2026)
+
+Sau review thứ tự release, phần identity schema V9 chưa được phép đi vào nhánh
+runtime chính. Commit chuẩn bị V9 `6014681` đã được giữ nguyên trên nhánh riêng
+`research/v9-workload-identity`; `main` tạo revert commit `163b7b6`. Không file
+V9 nào được deploy lên VM, collector V8 không đổi source và toàn test trên
+`main` trở lại `153 passed, 9 skipped`. Chỉ xem xét merge V9 sau khi V8 hoàn tất
+normal, blind attack, ablation, overhead và các gate terminal đều pass.
+
+Audit trực tiếp lúc `2026-08-12T02:50Z` xác nhận V8 đang chạy ổn định ở mức
+collection nhưng **chưa phải stable release**:
+
+- 15/24 phase đã có manifest; toàn bộ 15 manifest không có phase-integrity
+  error, đủ 103.436 feature window, mỗi capture đều pass privacy/integrity;
+- vocabulary, Tetragon policy và loadgen manifest mỗi loại chỉ có đúng một
+  digest xuyên suốt 15 phase; capture và production detector đều
+  `active/running`, `NRestarts=0`;
+- phase thứ 16 `aims-toolmix-run-04` tiếp tục tăng từ 1.568 lên 2.736 row;
+- trong 11 completed holdout phase thuộc run-02 trở đi, telemetry operational
+  của detector V7 đang chạy song song có 0 detection và 0 early-warning trên
+  tám AIMS target. Số này chưa phải FPR của candidate V8 vì candidate chỉ được
+  fit sau khi đủ 24 phase;
+- Falco hiện 6/6 active reader, `coverage_healthy=true`, zero stream failure và
+  zero privacy-safe alert. Ba failed service start trong 16 giây lúc
+  `18:09:52--18:10:08Z` là lỗi mount namespace khi atomic staging chưa tạo xong
+  output directory; collector khởi động lại với `since_time=12:05:59Z`, trước
+  toàn bộ holdout boundary, để backfill log. Sự kiện này vẫn phải qua terminal
+  Falco finalizer; không được bỏ qua hoặc tự tuyên bố coverage hoàn chỉnh.
+
+Do chưa có `POST_CAPTURE_COMPLETE`, `FALCO_ATTACK_EVIDENCE_COMPLETE` và
+`NORMAL_ABLATION_REPLAY_COMPLETE`, hiện chưa tồn tại model V8 terminal để kết
+luận false-positive, recall hay latency. Chính sách release là giữ nguyên V8,
+không tune theo holdout và không nâng V9 cho đến khi các artifact đó xuất hiện
+và checksum/validator đều pass.
