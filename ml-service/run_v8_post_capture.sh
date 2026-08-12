@@ -13,6 +13,8 @@ CALIBRATION_REPORT=$DERIVED_ROOT/v8-fit-calibration.report.json
 EVALUATION_REPORT=$DERIVED_ROOT/v8-independent-evaluation.json
 FALCO_EVIDENCE_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
 FALCO_DERIVED=$DERIVED_ROOT/falco-rule-only-normal
+FAST_PATH_DERIVED=$DERIVED_ROOT/fast-path-live-normal
+FAST_PATH_CONTRACT=$ROOT_DIR/v8_fast_path_normal_contract.json
 EVALUATION_PROTOCOL=$ROOT_DIR/syscall_evaluation_protocol.json
 
 if [[ ${SENTINEL_V8_POST_CAPTURE_LOCK_HELD:-0} != 1 ]]; then
@@ -40,6 +42,10 @@ for required in \
 done
 [[ -r "$EVALUATION_PROTOCOL" ]] || {
   printf 'REFUSING: missing syscall evaluation protocol\n' >&2
+  exit 4
+}
+[[ -r "$FAST_PATH_CONTRACT" ]] || {
+  printf 'REFUSING: missing retrospective fast-path normal contract\n' >&2
   exit 4
 }
 
@@ -90,6 +96,28 @@ if [[ -e "$DERIVED_ROOT/syscall_evaluation_protocol.json" ]]; then
     }
 else
   cp "$EVALUATION_PROTOCOL" "$DERIVED_ROOT/syscall_evaluation_protocol.json"
+fi
+if [[ -d "$FAST_PATH_DERIVED" ]]; then
+  (cd "$FAST_PATH_DERIVED" && sha256sum -c SHA256SUMS)
+  "$PYTHON_BIN" - "$FAST_PATH_DERIVED/fast-path-normal-evidence.report.json" <<'PY'
+import json, sys
+doc = json.load(open(sys.argv[1]))
+if doc.get("valid") is not True or doc.get("phase_count") != 20:
+    raise SystemExit("existing live fast-path normal derivative is invalid")
+if doc.get("evidence_class") != "retrospective_operational_normal_evidence":
+    raise SystemExit("live fast-path claim scope is missing")
+PY
+else
+  "$PYTHON_BIN" "$ROOT_DIR/fast_path_normal_evidence_finalizer.py" \
+    --capture-root "$EVIDENCE_ROOT" \
+    --metrics /home/dat/ml-service/metrics.jsonl \
+    --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
+    --contract "$FAST_PATH_CONTRACT" \
+    --detector-source /home/dat/ml-service/anomaly_detector2.py \
+    --fast-path-source /home/dat/ml-service/sentinel/fast_path.py \
+    --service-unit /etc/systemd/system/sentinel-detector.service \
+    --output-root "$FAST_PATH_DERIVED"
 fi
 if [[ -d "$FALCO_DERIVED" ]]; then
   (cd "$FALCO_DERIVED" && sha256sum -c SHA256SUMS)

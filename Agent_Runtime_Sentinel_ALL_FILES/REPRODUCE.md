@@ -539,6 +539,25 @@ immutable `workload_image_digest` và `workload_version_id`; LOWO tuyệt đối
 không dùng held-out workload để fit model, threshold, behavior limit hay online
 adaptation.
 
+Fast path không được replay từ V8 vì schema không có binary identity. Sau khi
+đủ 24 capture phase, post-capture deployer tự freeze live normal evidence trước
+khi thay runtime source. Audit bundle:
+
+```bash
+DERIVED=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811
+FAST="$DERIVED/fast-path-live-normal"
+cd "$FAST" && sha256sum -c SHA256SUMS
+python3 -m json.tool "$FAST/fast-path-normal-evidence.report.json"
+```
+
+Report phải có `evidence_class=retrospective_operational_normal_evidence`, đúng
+5 run/20 phase, service `NRestarts=0`, source/unit hash frozen và health gap
+không quá 120 giây. Dữ liệu này chỉ cho normal early-warning count/rate; không
+được gọi là preregistered FPR. Contract công khai count đã được nhìn giữa
+campaign. Telemetry corruption chỉ được giữ nếu timestamp kề chứng minh nằm
+ngoài evaluation interval; corruption có thể chồng phase phải làm finalizer
+fail-closed.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

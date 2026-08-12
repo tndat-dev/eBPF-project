@@ -40,6 +40,18 @@ if not binary.is_file() or digest(binary) != contract["binary"]["sha256"]:
     raise SystemExit("V8 blind attack binary digest mismatch")
 PY
 
+FAST_PATH_DERIVED=${V8_DERIVED_ROOT:-$RUNTIME_ROOT/aims-v8-derived-v8-paired-replay-20260811}/fast-path-live-normal
+"$PYTHON_BIN" "$STAGING_ROOT/ml-service/fast_path_normal_evidence_finalizer.py" \
+  --capture-root "$EVIDENCE_ROOT" \
+  --metrics "$RUNTIME_ROOT/metrics.jsonl" \
+  --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+  --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
+  --contract "$STAGING_ROOT/ml-service/v8_fast_path_normal_contract.json" \
+  --detector-source "$RUNTIME_ROOT/anomaly_detector2.py" \
+  --fast-path-source "$RUNTIME_ROOT/sentinel/fast_path.py" \
+  --service-unit /etc/systemd/system/sentinel-detector.service \
+  --output-root "$FAST_PATH_DERIVED"
+
 for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
   assemble_syscall_evaluation_matrix.py \
   build_aims_fit_calibration.py \
@@ -47,6 +59,7 @@ for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
   evaluate_aims_attack_replay.py evaluate_aims_normal_split.py \
   evaluate_tetragon_rule_replay.py \
   evaluation_matrix_validation.py \
+  fast_path_normal_evidence_finalizer.py \
   falco_evidence_collector.py \
   falco_attack_evidence_finalizer.py \
   falco_evidence_finalizer.py \
@@ -55,7 +68,7 @@ for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
   run_v8_normal_ablation_matrix.sh train_candidate.py \
   train_shared_workload_candidate.py ml_models.py \
   run_v8_post_capture.sh syscall_evaluation_protocol.json \
-  v8_blind_attack_contract.json; do
+  v8_blind_attack_contract.json v8_fast_path_normal_contract.json; do
   source=$STAGING_ROOT/ml-service/$name
   temporary=$RUNTIME_ROOT/.$name.v8-staging
   cp "$source" "$temporary"
@@ -79,6 +92,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_shared_workload_model.py \
   tests/test_falco_evidence_collector.py \
   tests/test_falco_evidence_finalizer.py \
+  tests/test_fast_path_normal_evidence_finalizer.py \
   tests/test_falco_attack_evidence_finalizer.py \
   tests/test_aims_blind_matrix.py \
   tests/test_v8_blind_attack.py \

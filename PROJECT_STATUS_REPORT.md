@@ -3652,3 +3652,51 @@ Local contract validation pass, ba negative/positive test pass. Bundle độc l�
 `/home/dat/generalization-protocol-v9-preregistered-20260812`; nó không sửa
 active V8 capture source. Đây mới là preregistered protocol, chưa phải evidence
 generalization.
+
+### 18.57 Live fast-path normal evidence không giả replay binary (12-08-2026)
+
+Fast path `exec -> privilege/network` cần process binary identity mà sequence
+schema V8 cố ý không lưu. Vì vậy nhánh này không còn bị đánh giá bằng replay
+thiếu trường. `fast_path_normal_evidence_finalizer.py` thay vào đó ánh xạ
+telemetry `early_warning` của detector V7 live vào đúng 20 phase independent
+run-02--06 sau khi capture terminal. Derivative chỉ giữ structured warning
+privacy-safe, không giữ binary path, argument hay payload.
+
+Đây là retrospective operational evidence, không phải preregistration. Tại mốc
+materialize contract, 14 phase và count early-warning hiện tại bằng 0 đã được
+nhìn thấy; việc này được ghi thẳng trong
+`v8_fast_path_normal_contract.json`. Artifact chỉ được dùng báo normal warning
+count/rate và alert burden, không được gọi là statistical FPR, không dùng để
+tune model/threshold và không thay paired ML confirmation result.
+
+Finalizer fail-closed theo các điều kiện sau:
+
+- source detector, source fast path và systemd unit phải khớp SHA-256 runtime
+  đã chạy từ trước run-02; các hash liên kết tới commit lịch sử tương ứng;
+- `sentinel-detector.service` phải active/running, start identity không đổi và
+  `NRestarts=0`;
+- mỗi phase phải có runtime-health coverage, khoảng snapshot tối đa 120 giây,
+  đủ Tetragon active/ready reader và không tăng stream/coverage/backpressure
+  counter trong phase;
+- telemetry corruption chỉ được chấp nhận nếu hai timestamp kề chứng minh nó
+  nằm ngoài mọi evaluation interval. Dòng NUL-corrupt duy nhất hiện có nằm giữa
+  `2026-07-29T13:29:58Z` và `13:45:59Z`, trước campaign; vị trí và byte count
+  vẫn được công khai trong report. Corruption có thể chồng phase sẽ làm fail.
+
+Deployer chạy finalizer trước khi chép `anomaly_detector2.py` hậu kỳ vào runtime,
+do đó không làm mất hash source V7 thực sự đã sinh telemetry. Assembler sau này
+gắn normal live evidence vào `full_v7.fast_path.normal_operational_evidence`,
+trong khi attack early-warning vẫn lấy từ đúng 200 live scenario; cả hai đều
+ghi `replayed=false`.
+
+Local suite đạt `141 passed, 9 skipped`; staging 58 file đạt `134 passed` trong
+ML venv trên master rồi được atomic-swap. Hash runtime sau swap vẫn là
+`1ce6b1...` cho detector, `0099dc...` cho fast path và `c1fe0b...` cho unit;
+cả capture lẫn detector đều `NRestarts=0`. Preflight trả đúng exit 75 tại phase
+thiếu `aims-recovery-run-04` và không tạo output sớm.
+
+Checkpoint `2026-08-12T02:02:47Z`: 14/24 phase hoàn chỉnh,
+`aims-recovery-run-04` có 5.137 row; Falco 6/6 reader,
+`stream_failures=0`, sáu clean reconnect và zero privacy-safe AIMS alert.
+Kubernetes 6/6 node Ready, zero bad pod. Ba marker terminal chưa tồn tại nên
+vẫn chưa có V8 latency/recall/false-alert result cuối.

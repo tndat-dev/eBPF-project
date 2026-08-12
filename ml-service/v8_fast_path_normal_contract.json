@@ -1,0 +1,40 @@
+{
+  "schema": "sentinel-fast-path-normal-contract/v1",
+  "release_id": "v8-paired-replay-20260811",
+  "materialized_at": "2026-08-12T02:05:49Z",
+  "evidence_class": "retrospective_operational_normal_evidence",
+  "registration_boundary": {
+    "normal_capture_active": true,
+    "completed_phases_inspected": 14,
+    "early_warning_count_inspected": 0,
+    "blind_attack_started": false,
+    "model_or_threshold_change_authorized": false,
+    "claim_limit": "not preregistered; may support operational fast-path normal alert rate only"
+  },
+  "parent_contracts": {
+    "aims_release_contract.json": "340ad5fff6c83416c5afc971222651f256383c2b674f26650c8805d98065e006",
+    "v8_capture_split_contract.json": "c7e1e679974a0a842a0c657862c81f33fdd9caa7abea068bdf7142fb4aa87c30"
+  },
+  "runtime": {
+    "detector_source_sha256": "1ce6b1e68dbe8b0ff200860c37d51351e149139817a3e858152852b0c70573d3",
+    "detector_source_git_commit": "e14f2b3e9f99c736ba57e8165a0ae01b004798fe",
+    "fast_path_source_sha256": "0099dcb99ca6f07bd75dac25bebd115edd6c9dcbae53988a70a38296538a8d45",
+    "fast_path_source_git_commit": "bdae44d8d69f3fe1d1e0c5ac5331c90226e81669",
+    "service_unit_sha256": "c1fe0b3efe7589bdbb44ea7d6d8237a5514f80c83a9cea67d3c131c49bfc436c",
+    "service_unit_git_commit": "bdae44d8d69f3fe1d1e0c5ac5331c90226e81669",
+    "service_name": "sentinel-detector.service",
+    "service_started_at": "Tue 2026-08-11 06:44:55 UTC",
+    "metrics_path": "/home/dat/ml-service/metrics.jsonl",
+    "maximum_health_gap_seconds": 120
+  },
+  "normal_role": "independent_evaluation",
+  "expected_runs": 5,
+  "expected_phases": 20,
+  "allowed_rules": ["exec_to_network", "exec_to_privilege_transition"],
+  "privacy": {
+    "raw_arguments_or_payloads_forbidden": true,
+    "binary_path_forbidden_in_derivative": true,
+    "only_structured_early_warning_rows_retained": true
+  },
+  "automatic_promotion": false
+}
