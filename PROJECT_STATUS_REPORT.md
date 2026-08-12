@@ -4385,7 +4385,7 @@ kết quả V8 đã công bố và phải dùng blind set mới độc lập.
 
 ### 18.81 Bổ sung post-hoc attack-observability audit, không relabel miss (12-08-2026)
 
-Đọc trực tiếp capture của miss cho thấy bảy target-pod window giao injection
+Đọc trực tiếp capture của miss cho thấy năm target-pod window giao injection
 interval có `execve=1` nhưng **không có** `unshare`, `mount` hay `ptrace`, dù
 binary đã thử ba syscall đó 527 lần. Pod dùng local seccomp profile
 `profiles/aims-runtime.json`; kết quả phù hợp với khả năng syscall bị chặn trước
