@@ -3781,29 +3781,3 @@ Checkpoint trực tiếp `2026-08-12T02:38:16Z`: 15/24 phase có
 1.568 feature row. Cluster 6/6 node Ready, zero bad pod. Ba marker post-capture,
 Falco attack và normal-ablation vẫn vắng mặt, nên chưa có latency/recall/
 false-alert V8 terminal để công bố và overhead timer sẽ tiếp tục chỉ chờ.
-
-### 18.61 Hiện thực identity schema V9 không chặn inference (12-08-2026)
-
-Protocol V9 trước đây mới yêu cầu schema, chưa có writer/resolver thực thi.
-`feature_capture_io.py` nay có đường phát `sentinel-feature-window/v3` khi và
-chỉ khi caller cung cấp đủ `cluster_id`, `workload_image_digest` và
-`workload_version_id`; mặc định V8 vẫn phát v2 nên không làm drift campaign
-đang chạy. Image identity chỉ chấp nhận `sha256:<64 hex>`, không lưu registry,
-tag mutable hay tên image riêng tư. Identifier cluster/version bị giới hạn vào
-chuỗi privacy-safe; v2 row lẫn field v3 và v3 row thiếu identity đều bị
-validator từ chối.
-
-`workload_version_identity.py` chọn đúng app container theo
-`app.kubernetes.io/name`, không nhầm digest của Istio sidecar; version phải đến
-từ annotation preregistered `runtime-sentinel.io/workload-version-id` hoặc
-label chuẩn `app.kubernetes.io/version`. Resolver lấy một snapshot Pod JSON,
-atomic-swap cache và refresh bằng background thread. Lookup trên inference path
-không bao giờ tự gọi `kubectl`; cache quá hai chu kỳ hoặc pod rollout chưa có
-identity sẽ fail-closed thay vì tạo spike latency hay ghi provenance đoán.
-
-Validator tổng hợp distribution schema/cluster/digest/version để evaluator sau
-này kiểm separation. Regression bao phủ digest registry privacy, sidecar
-selection, mutable tag, missing version, v2/v3 contamination và stale cache.
-Full local suite đạt `165 passed, 9 skipped`. Đây là code readiness cho V9,
-chưa được đưa vào source V8 đang capture và chưa phải generalization evidence;
-chỉ triển khai collector V9 sau khi V8 đóng terminal để bảo toàn source hash.

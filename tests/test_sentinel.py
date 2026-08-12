@@ -54,13 +54,6 @@ def test_feature_window_evidence_is_sparse_replayable_and_privacy_minimised():
 
     sequence = feature_window_evidence(Vector(), "sequence")
     assert sequence["syscall_sequence"] == Vector.raw_syscalls
-    v3 = feature_window_evidence(Vector(), "aggregate", identity={
-        "cluster_id": "target-cluster-01",
-        "workload_image_digest": "sha256:" + "a" * 64,
-        "workload_version_id": "git-0123456789ab",
-    })
-    assert v3["schema"] == "sentinel-feature-window/v3"
-    assert v3["workload_image_digest"] == "sha256:" + "a" * 64
     with pytest.raises(ValueError, match="invalid feature capture mode"):
         feature_window_evidence(Vector(), "off")
 
