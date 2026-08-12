@@ -3874,3 +3874,39 @@ runtime chỉ bổ sung dependency: `137 passed` trong ML venv trên master. Sau
 toàn thư mục staging được atomic-swap; bản cũ giữ tại
 `v8-paired-replay-20260811-before-parent-fix` để rollback. Capture và detector
 vẫn `active/running`, `NRestarts=0`; không file runtime active nào bị thay.
+
+### 18.64 Hoàn tất run-04 và tự chuyển sang run-05 (12-08-2026)
+
+Checkpoint trực tiếp lúc `2026-08-12T03:34Z` xác nhận phase thứ 16
+`aims-toolmix-run-04` đã đóng `collection_manifest.json` với 6.896 feature
+window. Runner sau đó tự mở `aims-steady-run-05`; không cần restart service và
+`aims-v8-capture.service` vẫn `active/running`, `NRestarts=0`.
+
+Audit lại **toàn bộ 16/24 phase đã hoàn tất** bằng
+`validate_feature_capture.py` từ source snapshot bất biến của chính campaign,
+đồng thời tự tính lại SHA-256 cho feature capture, tám file NumPy và tám file
+metadata của từng phase. Kết quả:
+
+- 16/16 phase hợp lệ, không có integrity/privacy error;
+- tổng 110.332 feature window, 6.895--6.896 window mỗi phase;
+- tổng thời gian capture thực 69.134,386 giây (khoảng 19,20 giờ);
+- đủ đúng tám AIMS target trong mọi phase, vector 210 chiều;
+- `backpressure_events=0`, `membership_failures=0`,
+  `coverage_failures=0`, `stream_failures=0` trong mọi manifest;
+- vocabulary, Tetragon policy và loadgen manifest mỗi loại giữ đúng một digest
+  xuyên suốt 16 phase.
+
+Đối chứng Falco phải dùng đúng unit `aims-v8-falco-evidence.service`. Unit này
+đang `active/running`, 6/6 reader active/ready, `coverage_healthy=true`,
+`stream_failures=0`, 12 reconnect sạch với return code 0 và không ghi payload
+hay argument. `NRestarts=3` vẫn là ba lần lỗi namespace lúc khởi tạo staging đã
+công bố ở mục 18.61, không phải restart mới trong run-04. Tại checkpoint chưa
+có privacy-safe Falco alert được ghi.
+
+Local regression sau checkpoint vẫn đạt `153 passed, 9 skipped`. Các marker
+`POST_CAPTURE_COMPLETE`, `FALCO_ATTACK_EVIDENCE_COMPLETE`,
+`NORMAL_ABLATION_REPLAY_COMPLETE` và `V8_OVERHEAD_COMPLETE` đều chưa tồn tại.
+Do production V7 chưa có model AIMS và candidate V8 chưa được fit, số alert
+normal bằng 0 ở giai đoạn này **không phải zero-false-positive claim**. V8 chỉ
+được xem là model ổn định sau khi đủ 24 phase và lần lượt qua independent
+normal, blind attack, baseline/ablation và overhead gate đã preregister.
