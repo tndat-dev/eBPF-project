@@ -16,27 +16,53 @@ set +a
 : "${AIMS_CALIBRATION:?}"
 : "${AIMS_VALIDATION_REPORT:?}"
 : "${AIMS_BLIND_REPORT:?}"
+: "${AIMS_EVIDENCE_RELEASE:=v7}"
+: "${AIMS_OVERHEAD_OUTPUT_ROOT:=$ROOT_DIR/aims-overhead-final}"
+: "${SENTINEL_CONFIRMATION_FLOOR_RATIO:=0.94}"
+: "${SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR:=0.45}"
+: "${SENTINEL_FAST_PATH_CONFIRMATION_FLOOR:=0.20}"
+: "${SENTINEL_EXTREME_VOLUME_FACTOR:=2.0}"
+export AIMS_OVERHEAD_OUTPUT_ROOT SENTINEL_CONFIRMATION_FLOOR_RATIO \
+  SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR \
+  SENTINEL_FAST_PATH_CONFIRMATION_FLOOR SENTINEL_EXTREME_VOLUME_FACTOR
+experiment_id=${SENTINEL_EXPERIMENT_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
+output_root=$AIMS_OVERHEAD_OUTPUT_ROOT
 
 for unit in aims-normal-matrix.service \
   aims-split-evaluation@independent_validation.service \
-  aims-split-evaluation@blind_normal_test.service; do
+  aims-split-evaluation@blind_normal_test.service \
+  aims-v8-capture.service aims-v8-post-capture.service \
+  aims-v8-blind-attack.service aims-v8-normal-ablation.service; do
   if systemctl is-active --quiet "$unit"; then
     printf 'refusing overhead mutation while %s is active\n' "$unit" >&2
     exit 3
   fi
 done
 
-"$PYTHON_BIN" - "$AIMS_VALIDATION_REPORT" "$AIMS_BLIND_REPORT" <<'PY'
+if [[ "$AIMS_EVIDENCE_RELEASE" == v8 ]]; then
+  : "${AIMS_COMPLETION_MARKER:?}"
+  mkdir -p "$output_root"
+  prerequisite="$output_root/prerequisite-$experiment_id.json"
+  "$PYTHON_BIN" "$ROOT_DIR/validate_v8_overhead_prerequisites.py" \
+    --candidate "$AIMS_CANDIDATE" --calibration "$AIMS_CALIBRATION" \
+    --normal-report "$AIMS_VALIDATION_REPORT" \
+    --blind-report "$AIMS_BLIND_REPORT" \
+    --completion-marker "$AIMS_COMPLETION_MARKER" --output "$prerequisite"
+elif [[ "$AIMS_EVIDENCE_RELEASE" == v7 ]]; then
+  "$PYTHON_BIN" - "$AIMS_VALIDATION_REPORT" "$AIMS_BLIND_REPORT" <<'PY'
 import json, sys
 for path, role in zip(sys.argv[1:], ("independent_validation", "blind_normal_test")):
     doc = json.load(open(path))
     if doc.get("role") != role or doc.get("status") != "complete" or doc.get("passed") is not True:
         raise SystemExit(f"required AIMS gate did not pass: {path}")
 PY
+  prerequisite=""
+else
+  printf 'unsupported AIMS_EVIDENCE_RELEASE=%s\n' "$AIMS_EVIDENCE_RELEASE" >&2
+  exit 4
+fi
 
 cd "$ROOT_DIR"
-experiment_id=${SENTINEL_EXPERIMENT_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
-output_root="$ROOT_DIR/aims-overhead-final"
 runtime_unit=aims-candidate-runtime-benchmark.service
 policy="$ROOT_DIR/tetragon-aims-policies.yaml"
 url=${AIMS_BENCHMARK_URL:-http://10.103.205.176/api/products/}
@@ -68,9 +94,21 @@ systemctl stop sentinel-detector.service
   "$output_root/environment-$experiment_id.txt"
 "$PYTHON_BIN" - "$output_root/protocol-$experiment_id.json" \
   "$experiment_id" "$phase_order_raw" "$url" "$wrk_threads" \
-  "$wrk_concurrency" "$wrk_duration" "$wrk_repeats" <<'PY'
-import json, sys
+  "$wrk_concurrency" "$wrk_duration" "$wrk_repeats" \
+  "$prerequisite" "$AIMS_EVIDENCE_RELEASE" <<'PY'
+import hashlib, json, os, sys
 from pathlib import Path
+prerequisite = Path(sys.argv[9]) if sys.argv[9] else None
+candidate = Path(os.environ["AIMS_CANDIDATE"])
+runtime_calibration = Path(
+    os.environ["AIMS_OVERHEAD_OUTPUT_ROOT"]
+) / f"calibration-{sys.argv[2]}.json"
+candidate_hashes = {
+    path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+    for path in sorted(candidate.iterdir()) if path.is_file()
+}
+if not candidate_hashes:
+    raise SystemExit("empty overhead candidate")
 Path(sys.argv[1]).write_text(json.dumps({
     "schema": "sentinel-aims-overhead/v1",
     "experiment_id": sys.argv[2],
@@ -82,6 +120,36 @@ Path(sys.argv[1]).write_text(json.dumps({
     "repetitions_per_phase": int(sys.argv[8]),
     "counterbalancing": "run all six permutations with distinct experiment IDs",
     "quality_gate": "zero socket errors and zero non-2xx/3xx responses",
+    "evidence_release": sys.argv[10],
+    "candidate": {
+        "path": str(candidate.resolve()),
+        "sha256": candidate_hashes,
+    },
+    "runtime_calibration": {
+        "path": str(runtime_calibration.resolve()),
+        "sha256": hashlib.sha256(runtime_calibration.read_bytes()).hexdigest(),
+    },
+    "detector_source_sha256": hashlib.sha256(
+        Path("anomaly_detector2.py").read_bytes()
+    ).hexdigest(),
+    "confirmation_policy": {
+        "confirmation_floor_ratio": float(
+            os.environ["SENTINEL_CONFIRMATION_FLOOR_RATIO"]
+        ),
+        "behavior_confirmation_floor": float(
+            os.environ["SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR"]
+        ),
+        "fast_path_confirmation_floor": float(
+            os.environ["SENTINEL_FAST_PATH_CONFIRMATION_FLOOR"]
+        ),
+        "extreme_volume_factor": float(
+            os.environ["SENTINEL_EXTREME_VOLUME_FACTOR"]
+        ),
+    },
+    "prerequisite": ({
+        "path": str(prerequisite.resolve()),
+        "sha256": hashlib.sha256(prerequisite.read_bytes()).hexdigest(),
+    } if prerequisite else None),
 }, indent=2, sort_keys=True) + "\n")
 PY
 
@@ -118,6 +186,10 @@ configure_phase() {
         --setenv=SENTINEL_CALIBRATION="$runtime_calibration" \
         --setenv=SENTINEL_MIN_EVENTS=10 --setenv=SENTINEL_WINDOW_SECONDS=10 \
         --setenv=SENTINEL_POD_STARTUP_GRACE_SECONDS=60 \
+        --setenv=SENTINEL_CONFIRMATION_FLOOR_RATIO="$SENTINEL_CONFIRMATION_FLOOR_RATIO" \
+        --setenv=SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR="$SENTINEL_BEHAVIOR_CONFIRMATION_FLOOR" \
+        --setenv=SENTINEL_FAST_PATH_CONFIRMATION_FLOOR="$SENTINEL_FAST_PATH_CONFIRMATION_FLOOR" \
+        --setenv=SENTINEL_EXTREME_VOLUME_FACTOR="$SENTINEL_EXTREME_VOLUME_FACTOR" \
         "$PYTHON_BIN" -u anomaly_detector2.py --mode kubectl \
         --model-dir "$AIMS_CANDIDATE" --vocab "$AIMS_CANDIDATE/vocab.pkl" \
         --window 10 --threshold 0.80 --dry-run

@@ -37,6 +37,17 @@ def portable_phase_report(root: Path, recorded_path: str) -> Path:
     return candidate
 
 
+def portable_root_file(root: Path, recorded_path: str) -> Path:
+    """Resolve a recorded top-level artifact inside a copied bundle."""
+    name = Path(recorded_path).name
+    if not name or name in (".", ".."):
+        raise ValueError(f"unsafe artifact path: {recorded_path!r}")
+    candidate = (root / name).resolve()
+    if not candidate.is_relative_to(root.resolve()):
+        raise ValueError(f"artifact escapes artifact root: {recorded_path!r}")
+    return candidate
+
+
 def percentile(values: list[float], fraction: float) -> float:
     ordered = sorted(values)
     position = (len(ordered) - 1) * fraction
@@ -73,6 +84,8 @@ def block_summary(values: list[float], seed: int = 20260805) -> dict:
 def aggregate(root: Path, campaign_prefix: str) -> dict:
     records = []
     orders = set()
+    evidence_releases = set()
+    prerequisite_hashes = set()
     for comparison_path in sorted(
         root.glob(f"comparison-wrk-{campaign_prefix}-p*.json")
     ):
@@ -82,6 +95,43 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
         if not protocol_path.is_file():
             raise ValueError(f"missing protocol for {experiment_id}")
         protocol = json.loads(protocol_path.read_text())
+        protocol_digest = sha256(protocol_path)
+        if comparison.get("protocol_sha256") != protocol_digest:
+            raise ValueError(f"protocol digest mismatch: {experiment_id}")
+        environment_path = root / f"environment-{experiment_id}.txt"
+        if (
+            not environment_path.is_file()
+            or comparison.get("environment_sha256") != sha256(environment_path)
+        ):
+            raise ValueError(f"environment digest mismatch: {experiment_id}")
+        evidence_release = str(protocol.get("evidence_release", "v7"))
+        if evidence_release not in ("v7", "v8"):
+            raise ValueError(f"unsupported evidence release: {evidence_release}")
+        evidence_releases.add(evidence_release)
+        prerequisite_record = None
+        if evidence_release == "v8":
+            prerequisite = protocol.get("prerequisite") or {}
+            prerequisite_path = portable_root_file(
+                root, str(prerequisite.get("path", "")),
+            )
+            if (
+                not prerequisite_path.is_file()
+                or prerequisite.get("sha256") != sha256(prerequisite_path)
+            ):
+                raise ValueError(f"V8 prerequisite digest mismatch: {experiment_id}")
+            prerequisite_document = json.loads(prerequisite_path.read_text())
+            if (
+                prerequisite_document.get("valid") is not True
+                or prerequisite_document.get("release_id")
+                != "v8-paired-replay-20260811"
+                or prerequisite_document.get("automatic_promotion") is not False
+            ):
+                raise ValueError(f"invalid V8 prerequisite: {experiment_id}")
+            prerequisite_hashes.add(sha256(prerequisite_path))
+            prerequisite_record = {
+                "name": prerequisite_path.name,
+                "sha256": sha256(prerequisite_path),
+            }
         order = tuple(protocol.get("phase_order", []))
         if order not in EXPECTED_ORDERS or order in orders:
             raise ValueError(f"invalid or duplicate phase order: {order}")
@@ -123,7 +173,10 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
             "experiment_id": experiment_id,
             "phase_order": list(order),
             "comparison_sha256": sha256(comparison_path),
-            "protocol_sha256": sha256(protocol_path),
+            "protocol_sha256": protocol_digest,
+            "environment_sha256": sha256(environment_path),
+            "evidence_release": evidence_release,
+            "prerequisite": prerequisite_record,
             "phases": phases,
             "phase_reports": phase_reports,
         })
@@ -131,6 +184,11 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
         raise ValueError(
             f"counterbalanced campaign incomplete: {len(orders)}/6 orders"
         )
+    if len(evidence_releases) != 1:
+        raise ValueError("mixed evidence releases in one overhead campaign")
+    evidence_release = evidence_releases.pop()
+    if evidence_release == "v8" and len(prerequisite_hashes) != 1:
+        raise ValueError("V8 experiment blocks do not share one prerequisite")
 
     effects = {}
     for name, treatment in (
@@ -162,6 +220,7 @@ def aggregate(root: Path, campaign_prefix: str) -> dict:
     return {
         "schema": "sentinel-aims-overhead-counterbalanced/v1",
         "campaign_prefix": campaign_prefix,
+        "evidence_release": evidence_release,
         "design": {
             "phase_orders": 6,
             "repetitions_per_phase_per_order": 10,

@@ -63,6 +63,8 @@ MCP payload, secret, PVC data hay private endpoint.
 | Paired replay dataset builder | `ml-service/build_feature_replay_dataset.py` | joins feature windows only to explicit same-pod injection start/end intervals, rejects incomplete/failed injections and writes dataset SHA-256 manifest |
 | AIMS counterbalanced overhead harness | `sentinel/benchmarks/{measure_phase,compare_overhead,aggregate_counterbalanced_overhead}.py`, `run_aims_overhead_{matrix,counterbalanced}.sh` | 10×30s wrk per phase, six phase orders, zero socket/HTTP-error gate, 18 phase-report hashes, resumability and paired experiment-block bootstrap |
 | Frozen AIMS overhead V2 | `validation-evidence/aims-overhead-v2-20260805/` | 6 order blocks, 18 phase reports/180 zero-error repetitions, copied-bundle local regeneration identical to collector aggregate |
+| V8 post-terminal overhead gate | `validate_v8_overhead_prerequisites.py`, `run_v8_overhead_counterbalanced.sh`, `sentinel/systemd/aims-v8-overhead.{service,timer,env}` | waits for terminal normal/blind/ablation evidence, binds V8 candidate/calibration/policy hashes, runs six counterbalanced production blocks without tuning/promotion and publishes checksums only after all quality gates pass |
+| V8 overhead deploy bundle | `deploy_v8_overhead.sh`, `v8_overhead_STAGING_SHA256SUMS` | verifies an immutable staging bundle, runs focused tests, atomically installs runtime files and arms only the marker-gated timer |
 
 ## Provenance
 

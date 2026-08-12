@@ -591,10 +591,39 @@ labels chỉ dành evaluation, `labels_used_for_training=false`.
 
 ## AIMS overhead A/B
 
-Không chạy overhead trong khi normal matrix, training hoặc split evaluator đang
-active. Harness có interlock và phải trả exit 3 trước mọi mutation trong trường
-hợp đó. Sau khi independent/blind-normal gate pass, chạy đủ sáu permutation của
-ba phase để giảm order/cache/thermal confound:
+Không chạy overhead trong khi normal capture, post-capture evaluation, blind
+attack hoặc ablation đang active. Harness có interlock và phải trả exit 3 trước
+mọi mutation trong trường hợp đó. Với V8, timer được cài sẵn nhưng
+condition-gated; trạng thái timer `active` chỉ có nghĩa đang chờ, không có nghĩa
+benchmark đang chạy:
+
+```bash
+systemctl status aims-v8-overhead.timer
+systemctl status aims-v8-overhead.service
+test -f /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/NORMAL_ABLATION_REPLAY_COMPLETE
+```
+
+Sau marker terminal, timer gọi wrapper cố định release/candidate/calibration và
+đủ sáu phase order. Có thể audit hoặc resume bằng đúng entrypoint sau:
+
+```bash
+sudo /home/dat/ml-service/sentinel/benchmarks/run_v8_overhead_counterbalanced.sh
+cd /home/dat/ml-service/aims-overhead-v8-final
+sha256sum -c SHA256SUMS
+python3 -m json.tool counterbalanced-v8-paired-replay-20260811.json
+test -f V8_OVERHEAD_COMPLETE
+```
+
+`validate_v8_overhead_prerequisites.py` yêu cầu terminal independent-normal
+pass, đủ 40 blind workload trial/200 injection, paired capture 200 interval và
+`labels_used_for_training=false`. Blind recall miss không bị rerun: report
+infrastructure-complete vẫn được giữ để benchmark overhead mà không tune V8.
+Mỗi block khóa hash candidate, calibration, detector source, environment,
+terminal prerequisite và confirmation policy `1.0/0.80/0.80/2.0`.
+
+Đường generic dưới đây chỉ dành release cũ hoặc campaign được chỉ định rõ. Sau
+khi prerequisite tương ứng pass, chạy đủ sáu permutation của ba phase để giảm
+order/cache/thermal confound:
 
 ```bash
 sudo env AIMS_PHASE_ORDER=no_tracing,tetragon_only,full_pipeline \
@@ -613,7 +642,7 @@ Mỗi phase warm-up rồi chạy mặc định 10 repetition
 `wrk -t2 -c8 -d30s --latency` vào ingress AIMS thật qua
 Istio. Ba treatment là no AIMS tracing, Tetragon policy only, và full frozen
 candidate. Script dùng bản sao calibration, không sửa artifact gốc; trap luôn
-khôi phục AIMS policy và V7 service. Report chứa throughput, p99, request error,
+khôi phục AIMS policy và production detector. Report chứa throughput, p99, request error,
 Tetragon/detector CPU-RAM, tổng CPU-RAM tám workload, bootstrap 95% interval,
 phase-order protocol hash và environment hash. Aggregate cuối chỉ được tạo khi
 đủ sáu order; CI bootstrap dùng phase-order experiment làm block ghép cặp.

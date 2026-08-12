@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry Sentinel V8 post-terminal overhead campaign
+
+[Timer]
+OnBootSec=20min
+OnUnitInactiveSec=60min
+Persistent=true
+Unit=aims-v8-overhead.service
+
+[Install]
+WantedBy=timers.target

@@ -40,13 +40,23 @@ def _write_campaign(root: Path, count: int = 6):
                     phase_path.read_bytes()
                 ).hexdigest(),
             }
-        (root / f"comparison-wrk-{experiment}.json").write_text(json.dumps({
-            "experiment_id": experiment, "phases": phases,
-        }))
-        (root / f"protocol-{experiment}.json").write_text(json.dumps({
+        protocol_path = root / f"protocol-{experiment}.json"
+        protocol_path.write_text(json.dumps({
             "experiment_id": experiment,
             "phase_order": order,
             "repetitions_per_phase": 10,
+        }))
+        environment_path = root / f"environment-{experiment}.txt"
+        environment_path.write_text("frozen cluster\n")
+        import hashlib
+        (root / f"comparison-wrk-{experiment}.json").write_text(json.dumps({
+            "experiment_id": experiment, "phases": phases,
+            "protocol_sha256": hashlib.sha256(
+                protocol_path.read_bytes()
+            ).hexdigest(),
+            "environment_sha256": hashlib.sha256(
+                environment_path.read_bytes()
+            ).hexdigest(),
         }))
 
 
@@ -75,3 +85,40 @@ def test_aggregate_resolves_remote_paths_inside_copied_bundle(tmp_path):
         comparison.write_text(json.dumps(payload))
     report = module.aggregate(tmp_path, "campaign")
     assert len(report["experiments"]) == 6
+
+
+def test_v8_aggregate_binds_one_portable_terminal_prerequisite(tmp_path):
+    _write_campaign(tmp_path)
+    prerequisite = tmp_path / "prerequisite.json"
+    prerequisite.write_text(json.dumps({
+        "valid": True, "release_id": "v8-paired-replay-20260811",
+        "automatic_promotion": False,
+    }))
+    import hashlib
+    digest = hashlib.sha256(prerequisite.read_bytes()).hexdigest()
+    for protocol_path in tmp_path.glob("protocol-*.json"):
+        protocol = json.loads(protocol_path.read_text())
+        protocol["evidence_release"] = "v8"
+        protocol["prerequisite"] = {
+            "path": "/remote/artifacts/prerequisite.json", "sha256": digest,
+        }
+        protocol_path.write_text(json.dumps(protocol))
+        experiment = protocol["experiment_id"]
+        comparison_path = tmp_path / f"comparison-wrk-{experiment}.json"
+        comparison = json.loads(comparison_path.read_text())
+        comparison["protocol_sha256"] = hashlib.sha256(
+            protocol_path.read_bytes()
+        ).hexdigest()
+        comparison_path.write_text(json.dumps(comparison))
+    report = module.aggregate(tmp_path, "campaign")
+    assert report["evidence_release"] == "v8"
+    assert all(row["prerequisite"]["sha256"] == digest
+               for row in report["experiments"])
+
+
+def test_aggregate_rejects_protocol_digest_drift(tmp_path):
+    _write_campaign(tmp_path)
+    path = next(tmp_path.glob("protocol-*.json"))
+    path.write_text(path.read_text() + "\n")
+    with pytest.raises(ValueError, match="protocol digest mismatch"):
+        module.aggregate(tmp_path, "campaign")

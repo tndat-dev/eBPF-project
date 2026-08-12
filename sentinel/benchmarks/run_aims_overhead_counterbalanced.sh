@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 ROOT_DIR=/home/dat/ml-service
 CAMPAIGN_ID=${AIMS_OVERHEAD_CAMPAIGN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
-OUTPUT_ROOT=$ROOT_DIR/aims-overhead-final
+OUTPUT_ROOT=${AIMS_OVERHEAD_OUTPUT_ROOT:-$ROOT_DIR/aims-overhead-final}
 orders=(
   no_tracing,tetragon_only,full_pipeline
   no_tracing,full_pipeline,tetragon_only

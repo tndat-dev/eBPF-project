@@ -122,4 +122,10 @@ def test_aims_overhead_interlock_is_not_bound_to_a_stale_training_unit():
         pytest.skip("repository-only orchestration script")
     text = script.read_text()
     assert "aims-normal-matrix.service" in text
+    assert "aims-v8-capture.service" in text
+    assert "aims-v8-post-capture.service" in text
+    assert "aims-v8-blind-attack.service" in text
+    assert "aims-v8-normal-ablation.service" in text
+    assert "validate_v8_overhead_prerequisites.py" in text
+    assert "SENTINEL_CONFIRMATION_FLOOR_RATIO" in text
     assert "aims-candidate-fit-v1.service" not in text

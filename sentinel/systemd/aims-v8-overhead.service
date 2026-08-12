@@ -1,0 +1,24 @@
+[Unit]
+Description=Sentinel V8 post-terminal counterbalanced production overhead
+After=network-online.target aims-v8-normal-ablation.service
+Wants=network-online.target
+ConditionPathExists=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/NORMAL_ABLATION_REPLAY_COMPLETE
+ConditionPathExists=!/home/dat/ml-service/aims-overhead-v8-final/V8_OVERHEAD_COMPLETE
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/home/dat/ml-service
+ExecStart=/usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-normal-matrix.lock /home/dat/ml-service/sentinel/benchmarks/run_v8_overhead_counterbalanced.sh
+SuccessExitStatus=75
+TimeoutStartSec=12h
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+ProtectHome=false
+ProtectSystem=full
+ReadWritePaths=/home/dat/ml-service
+
+[Install]
+WantedBy=multi-user.target

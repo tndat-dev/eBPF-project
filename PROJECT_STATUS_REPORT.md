@@ -3745,3 +3745,39 @@ thầm xuất bản.
 Local suite đạt `143 passed, 9 skipped`; staging 60 file đạt `136 passed` trong
 ML venv trên master và đã atomic-swap. Capture và detector vẫn active/running,
 `NRestarts=0`.
+
+### 18.60 Overhead V8 chỉ chạy sau evidence terminal (12-08-2026)
+
+Campaign overhead cũ V2/V7 không chứng minh chi phí của candidate và policy V8.
+Đường chạy mới vì vậy được tách thành một post-terminal campaign riêng, gồm đủ
+sáu hoán vị `no_tracing`, `tetragon_only`, `full_pipeline`; mỗi phase có 10 lần
+`wrk --latency`, zero socket/HTTP error gate và bootstrap theo phase-order block.
+Nó không được chạy song song với normal capture, post-capture fit/evaluation,
+blind attack hoặc normal ablation.
+
+`validate_v8_overhead_prerequisites.py` chỉ mở gate khi candidate/calibration
+khớp terminal independent-normal report, blind matrix có đủ 40 workload trial
+và 200 scenario injection, paired capture đủ 200 interval, không dùng label để
+train và đã có `NORMAL_ABLATION_REPLAY_COMPLETE`. Blind miss được giữ như một
+kết quả terminal hợp lệ thay vì buộc pass rồi tạo động cơ rerun/cherry-pick;
+overhead không có quyền tune hoặc promote model.
+
+Mỗi protocol block khóa hash candidate, calibration runtime, detector source,
+cluster environment, prerequisite và policy V8 chính xác
+`1.0/0.80/0.80/2.0`. Aggregator kiểm lại protocol/environment/18 phase report,
+đòi sáu block dùng cùng một prerequisite hash và chỉ publish marker sau khi
+toàn bundle có `SHA256SUMS`. Trap của phase runner luôn khôi phục Tetragon policy
+và production detector kể cả khi benchmark fail.
+
+Bundle staging 17 file đã pass toàn bộ SHA-256; test cục bộ hiện là
+`153 passed, 9 skipped`, còn pre-deploy suite trong ML venv trên master đạt
+`19 passed`. `aims-v8-overhead.timer` đã enabled/active nhưng service bị systemd
+skip đúng thiết kế lúc `2026-08-12T02:38:00Z` vì marker terminal chưa tồn tại;
+không có benchmark process nào chạy và policy `sentinel-aims-syscalls` vẫn còn.
+Capture và detector tiếp tục `active/running`, cả hai `NRestarts=0`.
+
+Checkpoint trực tiếp `2026-08-12T02:38:16Z`: 15/24 phase có
+`collection_manifest.json`; phase thứ 16 `aims-toolmix-run-04` đang chạy với
+1.568 feature row. Cluster 6/6 node Ready, zero bad pod. Ba marker post-capture,
+Falco attack và normal-ablation vẫn vắng mặt, nên chưa có latency/recall/
+false-alert V8 terminal để công bố và overhead timer sẽ tiếp tục chỉ chờ.
