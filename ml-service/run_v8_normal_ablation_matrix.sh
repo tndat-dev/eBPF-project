@@ -206,6 +206,8 @@ statistics = json.load(open(sys.argv[2]))
 if statistics.get("methods") != 11 or statistics.get("pairwise_comparisons") != 55:
     raise SystemExit("terminal paired statistics are incomplete")
 PY
+test -s "$PAPER_MATRIX_ROOT/syscall_results.md"
+test -s "$PAPER_MATRIX_ROOT/syscall_results.csv"
 
 find "$OUTPUT_ROOT" -maxdepth 1 -type f -name 'syscall__*.json' -print0 \
   | sort -z | xargs -0 sha256sum >"$OUTPUT_ROOT/SHA256SUMS"

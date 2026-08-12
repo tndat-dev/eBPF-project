@@ -558,6 +558,25 @@ campaign. Telemetry corruption chỉ được giữ nếu timestamp kề chứng
 ngoài evaluation interval; corruption có thể chồng phase phải làm finalizer
 fail-closed.
 
+Terminal matrix tự sinh bảng Markdown/CSV; không copy số từ log hoặc sửa bảng
+bằng tay:
+
+```bash
+MATRIX=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/paper-evaluation-results
+cd "$MATRIX" && sha256sum -c SHA256SUMS
+sed -n '1,220p' "$MATRIX/syscall_results.md"
+python3 - <<'PY'
+import csv, os
+root = os.environ.get("MATRIX", "/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/paper-evaluation-results")
+rows = list(csv.DictReader(open(root + "/syscall_results.csv")))
+assert len(rows) == 11
+PY
+```
+
+Bảng phải giữ nguyên phần limitation: alert/hour khác statistical FPR,
+confirmation clock khác kernel-event latency, detected-only latency có
+selection bias và fast path là live/non-replayed lane.
+
 Kernel harness V8 ghi cặp `injection`/`injection_end` cùng `injection_id`, pod,
 scenario, rate và seed. Tạo label bằng interval intersection trên đúng pod:
 

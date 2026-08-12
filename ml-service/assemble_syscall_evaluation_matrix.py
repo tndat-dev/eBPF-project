@@ -14,6 +14,7 @@ from typing import Any
 
 from analyze_syscall_evaluation_matrix import analyze_matrix
 from evaluation_matrix_validation import validate_evaluation_matrix
+from render_syscall_paper_results import render
 
 
 ML_METHODS = (
@@ -566,6 +567,9 @@ def main() -> int:
         )
         (staging / "paired_statistics.json").write_text(
             json.dumps(paired_statistics, indent=2, sort_keys=True) + "\n"
+        )
+        render(
+            staging, staging / "syscall_results.md", staging / "syscall_results.csv",
         )
         validation = validate_evaluation_matrix(staging, contract, {"syscall"})
         if not validation["valid"]:

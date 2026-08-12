@@ -64,6 +64,7 @@ for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
   falco_attack_evidence_finalizer.py \
   falco_evidence_finalizer.py \
   merge_feature_captures.py run_aims_blind_matrix.py \
+  render_syscall_paper_results.py \
   run_aims_split_evaluation.sh run_v8_blind_attack.sh \
   run_v8_normal_ablation_matrix.sh train_candidate.py \
   train_shared_workload_candidate.py ml_models.py \
@@ -85,6 +86,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q \
   tests/test_syscall_evaluation_protocol.py \
   tests/test_tetragon_rule_replay.py \
   tests/test_phase_dataset.py \
+  tests/test_render_syscall_paper_results.py \
   tests/test_aims_attack_replay.py \
   tests/test_syscall_matrix_assembler.py \
   tests/test_syscall_paired_statistics.py \

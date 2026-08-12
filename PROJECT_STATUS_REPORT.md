@@ -3700,3 +3700,29 @@ Checkpoint `2026-08-12T02:02:47Z`: 14/24 phase hoàn chỉnh,
 `stream_failures=0`, sáu clean reconnect và zero privacy-safe AIMS alert.
 Kubernetes 6/6 node Ready, zero bad pod. Ba marker terminal chưa tồn tại nên
 vẫn chưa có V8 latency/recall/false-alert result cuối.
+
+### 18.58 Render bảng kết quả paper trực tiếp từ matrix (12-08-2026)
+
+`render_syscall_paper_results.py` đã loại bỏ bước chép số thủ công sau campaign.
+Assembler chỉ sau khi có đủ 11 result và paired statistics mới sinh đồng thời
+`syscall_results.md` và `syscall_results.csv`; hai file nằm trong cùng
+`SHA256SUMS`. Runner không đóng terminal marker nếu một trong hai file rỗng.
+
+Bảng cố định các trường normal exposure/window, false alert và alert/hour,
+200-trial detected count, recall Wilson 95% CI, precision/F1, confirmation
+latency p50/p95/p99 và inference p50. Phần paired inference đếm số cặp còn ý
+nghĩa sau Holm cho cả recall và run-level false-alert test. Fast path được trình
+bày thành lane live riêng: normal warning/hour từ retrospective operational
+evidence và attack early-warning latency từ blind harness, không trộn vào ML
+confirmation latency.
+
+Renderer luôn chèn claim limitation ngay trong output: alert/hour không phải
+statistical FPR, confirmation timestamp không phải exact kernel timestamp,
+detected-only latency có selection bias, five-run sign-flip low power và fast
+path không replay. Mỗi bảng cũng liệt kê hash của 11 source result cùng paired
+statistics, do đó số bị sửa hoặc thiếu method sẽ fail test/checksum thay vì âm
+thầm xuất bản.
+
+Local suite đạt `143 passed, 9 skipped`; staging 60 file đạt `136 passed` trong
+ML venv trên master và đã atomic-swap. Capture và detector vẫn active/running,
+`NRestarts=0`.

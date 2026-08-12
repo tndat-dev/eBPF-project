@@ -17,6 +17,8 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "assemble_syscall_evaluation_matrix.py" in script
     assert "evaluation_matrix_manifest.json" in script
     assert "paired_statistics.json" in script
+    assert "syscall_results.md" in script
+    assert "syscall_results.csv" in script
     assert "completed_experiments\") != 11" in script
     assert "pairwise_comparisons\") != 55" in script
     assert "paper-evaluation-results" in script
