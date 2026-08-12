@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -8,7 +9,7 @@ sys.path.insert(0, str(SERVICE_ROOT))
 
 from assemble_syscall_evaluation_matrix import (
     build_ml_result, build_rule_result, classification_metrics, normalized_latency,
-    verify_checksums,
+    live_fast_path, verify_checksums,
 )
 
 
@@ -188,3 +189,38 @@ def test_rule_result_normalizes_tetragon_alert_rate_name():
     )
     assert result["normal"]["false_alerts_per_hour"] == 2
     assert "alerts_per_hour" not in result["normal"]
+
+
+def test_live_fast_path_keeps_attack_evidence_when_normal_track_is_excluded(tmp_path):
+    child = tmp_path / "trial.json"
+    child.write_text(json.dumps({
+        "scenarios": {
+            f"scenario-{index:03d}": {
+                "fast_path_expected": index < 20,
+                "fast_path_expected_matched": index < 19,
+                "fast_path_warning_count": int(index < 19),
+                "fast_path_latency_seconds": 0.5 if index < 19 else None,
+            }
+            for index in range(200)
+        },
+    }))
+    aggregate = tmp_path / "aggregate.json"
+    aggregate.write_text(json.dumps({
+        "trials": [{"report_path": str(child)}],
+    }))
+    exclusion = tmp_path / "normal.exclusion.json"
+    exclusion.write_text(json.dumps({
+        "schema": "sentinel-fast-path-normal-exclusion/v1",
+        "valid": False, "status": "excluded", "claim_available": False,
+        "automatic_promotion": False,
+        "evidence_class": "retrospective_operational_normal_evidence",
+        "claim_limit": "no normal claim", "reason": "counter changed",
+    }))
+    result = live_fast_path(
+        aggregate, tmp_path / "missing-normal.json", exclusion,
+    )
+    assert result["scenario_trials"] == 200
+    assert result["expected_matched"] == 19
+    assert result["normal_operational_evidence"]["status"] == "excluded"
+    assert result["normal_operational_evidence"]["early_warning_count"] is None
+    assert result["normal_operational_evidence"]["reason"] == "counter changed"

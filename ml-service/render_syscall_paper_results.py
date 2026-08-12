@@ -125,6 +125,17 @@ def markdown_document(
     full = results["syscall__full_v7"].get("fast_path", {})
     normal_fast = full.get("normal_operational_evidence", {})
     attack_fast = full.get("latency_seconds", {})
+    if normal_fast.get("status") == "excluded":
+        normal_fast_line = (
+            "- Normal: track retrospective bị loại khỏi claim; lý do: "
+            f"{normal_fast.get('reason', 'evidence không hợp lệ')}."
+        )
+    else:
+        normal_fast_line = (
+            f"- Normal: {normal_fast.get('early_warning_count', '—')} warning trong "
+            f"{number(normal_fast.get('exposure_hours'), 2)} giờ "
+            f"({number(normal_fast.get('early_warnings_per_hour'), 4)} warning/giờ)."
+        )
     lines.extend([
         "",
         "## Paired inference",
@@ -138,9 +149,7 @@ def markdown_document(
         "",
         "## Fast path early warning (live, không replay)",
         "",
-        f"- Normal: {normal_fast.get('early_warning_count', '—')} warning trong "
-        f"{number(normal_fast.get('exposure_hours'), 2)} giờ "
-        f"({number(normal_fast.get('early_warnings_per_hour'), 4)} warning/giờ).",
+        normal_fast_line,
         f"- Blind attack latency p50/p95/p99: "
         f"{number(attack_fast.get('median'))}/"
         f"{number(attack_fast.get('p95'))}/"

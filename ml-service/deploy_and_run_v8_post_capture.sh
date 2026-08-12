@@ -40,17 +40,59 @@ if not binary.is_file() or digest(binary) != contract["binary"]["sha256"]:
     raise SystemExit("V8 blind attack binary digest mismatch")
 PY
 
-FAST_PATH_DERIVED=${V8_DERIVED_ROOT:-$RUNTIME_ROOT/aims-v8-derived-v8-paired-replay-20260811}/fast-path-live-normal
-"$PYTHON_BIN" "$STAGING_ROOT/ml-service/fast_path_normal_evidence_finalizer.py" \
-  --capture-root "$EVIDENCE_ROOT" \
-  --metrics "$RUNTIME_ROOT/metrics.jsonl" \
-  --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
-  --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
-  --contract "$STAGING_ROOT/ml-service/v8_fast_path_normal_contract.json" \
-  --detector-source "$RUNTIME_ROOT/anomaly_detector2.py" \
-  --fast-path-source "$RUNTIME_ROOT/sentinel/fast_path.py" \
-  --service-unit /etc/systemd/system/sentinel-detector.service \
-  --output-root "$FAST_PATH_DERIVED"
+DERIVED_ROOT=${V8_DERIVED_ROOT:-$RUNTIME_ROOT/aims-v8-derived-v8-paired-replay-20260811}
+FAST_PATH_DERIVED=$DERIVED_ROOT/fast-path-live-normal
+FAST_PATH_EXCLUSION=$DERIVED_ROOT/fast-path-live-normal.exclusion.json
+if [[ -d "$FAST_PATH_DERIVED" && -e "$FAST_PATH_EXCLUSION" ]]; then
+  printf 'REFUSING: both accepted and excluded fast-path evidence exist\n' >&2
+  exit 4
+elif [[ -e "$FAST_PATH_EXCLUSION" ]]; then
+  fast_path_status=4
+else
+  set +e
+  "$PYTHON_BIN" "$STAGING_ROOT/ml-service/fast_path_normal_evidence_finalizer.py" \
+    --capture-root "$EVIDENCE_ROOT" \
+    --metrics "$RUNTIME_ROOT/metrics.jsonl" \
+    --split-contract "$EVIDENCE_ROOT/v8_capture_split_contract.json" \
+    --release-contract "$EVIDENCE_ROOT/aims_release_contract.json" \
+    --contract "$STAGING_ROOT/ml-service/v8_fast_path_normal_contract.json" \
+    --detector-source "$RUNTIME_ROOT/anomaly_detector2.py" \
+    --fast-path-source "$RUNTIME_ROOT/sentinel/fast_path.py" \
+    --service-unit /etc/systemd/system/sentinel-detector.service \
+    --output-root "$FAST_PATH_DERIVED" \
+    --exclusion-report "$FAST_PATH_EXCLUSION"
+  fast_path_status=$?
+  set -e
+fi
+case $fast_path_status in
+  0)
+    [[ -d "$FAST_PATH_DERIVED" && ! -e "$FAST_PATH_EXCLUSION" ]] || {
+      printf 'REFUSING: ambiguous fast-path normal evidence state\n' >&2
+      exit 4
+    }
+    ;;
+  4)
+    "$PYTHON_BIN" - "$FAST_PATH_EXCLUSION" \
+      "$STAGING_ROOT/ml-service/v8_fast_path_normal_contract.json" <<'PY'
+import hashlib, json, pathlib, sys
+path, contract_path = map(pathlib.Path, sys.argv[1:])
+doc = json.loads(path.read_text()) if path.is_file() else {}
+digest = hashlib.sha256(contract_path.read_bytes()).hexdigest()
+if not (
+    doc.get("schema") == "sentinel-fast-path-normal-exclusion/v1"
+    and doc.get("valid") is False
+    and doc.get("status") == "excluded"
+    and doc.get("claim_available") is False
+    and doc.get("automatic_promotion") is False
+    and doc.get("provenance_sha256", {}).get("contract") == digest
+):
+    raise SystemExit("fast-path exclusion report is missing or invalid")
+print(f"EXCLUDED: retrospective fast-path normal track: {doc.get('reason')}")
+PY
+    ;;
+  75) exit 75 ;;
+  *) exit "$fast_path_status" ;;
+esac
 
 for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
   assemble_syscall_evaluation_matrix.py \

@@ -23,6 +23,8 @@ def test_v8_post_capture_runner_is_fit_only_and_never_promotes():
     assert "falco-rule-only-normal" in script
     assert "fast_path_normal_evidence_finalizer.py" in script
     assert "fast-path-live-normal" in script
+    assert "fast-path-live-normal.exclusion.json" in script
+    assert "sentinel-fast-path-normal-exclusion/v1" in script
     assert "retrospective_operational_normal_evidence" in script
     assert 'doc.get("phase_count") != 20' in script
     assert "POST_CAPTURE_COMPLETE" in script
@@ -41,3 +43,5 @@ def test_deployer_freezes_live_fast_path_before_overwriting_runtime_source():
     assert finalizer < runtime_copy
     assert "v8_fast_path_normal_contract.json" in script
     assert "tests/test_fast_path_normal_evidence_finalizer.py" in script
+    assert "--exclusion-report" in script
+    assert "fast_path_status" in script

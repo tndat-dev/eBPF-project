@@ -14,6 +14,7 @@ EVALUATION_REPORT=$DERIVED_ROOT/v8-independent-evaluation.json
 FALCO_EVIDENCE_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
 FALCO_DERIVED=$DERIVED_ROOT/falco-rule-only-normal
 FAST_PATH_DERIVED=$DERIVED_ROOT/fast-path-live-normal
+FAST_PATH_EXCLUSION=$DERIVED_ROOT/fast-path-live-normal.exclusion.json
 FAST_PATH_CONTRACT=$ROOT_DIR/v8_fast_path_normal_contract.json
 EVALUATION_PROTOCOL=$ROOT_DIR/syscall_evaluation_protocol.json
 
@@ -97,7 +98,10 @@ if [[ -e "$DERIVED_ROOT/syscall_evaluation_protocol.json" ]]; then
 else
   cp "$EVALUATION_PROTOCOL" "$DERIVED_ROOT/syscall_evaluation_protocol.json"
 fi
-if [[ -d "$FAST_PATH_DERIVED" ]]; then
+if [[ -d "$FAST_PATH_DERIVED" && -e "$FAST_PATH_EXCLUSION" ]]; then
+  printf 'REFUSING: both accepted and excluded fast-path evidence exist\n' >&2
+  exit 4
+elif [[ -d "$FAST_PATH_DERIVED" ]]; then
   (cd "$FAST_PATH_DERIVED" && sha256sum -c SHA256SUMS)
   "$PYTHON_BIN" - "$FAST_PATH_DERIVED/fast-path-normal-evidence.report.json" <<'PY'
 import json, sys
@@ -107,7 +111,24 @@ if doc.get("valid") is not True or doc.get("phase_count") != 20:
 if doc.get("evidence_class") != "retrospective_operational_normal_evidence":
     raise SystemExit("live fast-path claim scope is missing")
 PY
+elif [[ -e "$FAST_PATH_EXCLUSION" ]]; then
+  "$PYTHON_BIN" - "$FAST_PATH_EXCLUSION" "$FAST_PATH_CONTRACT" <<'PY'
+import hashlib, json, sys
+doc = json.load(open(sys.argv[1]))
+digest = hashlib.sha256(open(sys.argv[2], "rb").read()).hexdigest()
+if not (
+    doc.get("schema") == "sentinel-fast-path-normal-exclusion/v1"
+    and doc.get("valid") is False
+    and doc.get("status") == "excluded"
+    and doc.get("claim_available") is False
+    and doc.get("automatic_promotion") is False
+    and doc.get("provenance_sha256", {}).get("contract") == digest
+):
+    raise SystemExit("existing fast-path exclusion report is invalid")
+print(f"EXCLUDED: retrospective fast-path normal track: {doc.get('reason')}")
+PY
 else
+  set +e
   "$PYTHON_BIN" "$ROOT_DIR/fast_path_normal_evidence_finalizer.py" \
     --capture-root "$EVIDENCE_ROOT" \
     --metrics /home/dat/ml-service/metrics.jsonl \
@@ -117,7 +138,31 @@ else
     --detector-source /home/dat/ml-service/anomaly_detector2.py \
     --fast-path-source /home/dat/ml-service/sentinel/fast_path.py \
     --service-unit /etc/systemd/system/sentinel-detector.service \
-    --output-root "$FAST_PATH_DERIVED"
+    --output-root "$FAST_PATH_DERIVED" \
+    --exclusion-report "$FAST_PATH_EXCLUSION"
+  fast_path_status=$?
+  set -e
+  case $fast_path_status in
+    0) ;;
+    4)
+      "$PYTHON_BIN" - "$FAST_PATH_EXCLUSION" "$FAST_PATH_CONTRACT" <<'PY'
+import hashlib, json, sys
+doc = json.load(open(sys.argv[1]))
+digest = hashlib.sha256(open(sys.argv[2], "rb").read()).hexdigest()
+if not (
+    doc.get("schema") == "sentinel-fast-path-normal-exclusion/v1"
+    and doc.get("valid") is False
+    and doc.get("status") == "excluded"
+    and doc.get("claim_available") is False
+    and doc.get("provenance_sha256", {}).get("contract") == digest
+):
+    raise SystemExit("fast-path exclusion report is missing or invalid")
+print(f"EXCLUDED: retrospective fast-path normal track: {doc.get('reason')}")
+PY
+      ;;
+    75) exit 75 ;;
+    *) exit "$fast_path_status" ;;
+  esac
 fi
 if [[ -d "$FALCO_DERIVED" ]]; then
   (cd "$FALCO_DERIVED" && sha256sum -c SHA256SUMS)

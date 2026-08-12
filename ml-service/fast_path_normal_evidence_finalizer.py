@@ -16,6 +16,7 @@ from typing import Any
 
 
 REPORT_SCHEMA = "sentinel-fast-path-normal-evidence/v1"
+EXCLUSION_SCHEMA = "sentinel-fast-path-normal-exclusion/v1"
 WARNING_KEYS = {
     "kind", "ts", "pod_key", "model_key", "rule", "first_syscall",
     "second_syscall", "sequence_seconds", "severity", "detection_latency",
@@ -33,6 +34,58 @@ class EvidenceError(ValueError):
 
 class EvidenceNotReady(EvidenceError):
     pass
+
+
+def write_exclusion_report(
+    path: Path, error: EvidenceError, *, contract_path: Path,
+    metrics_path: Path, split_path: Path, release_path: Path,
+) -> dict[str, Any]:
+    """Publish an immutable negative result without weakening the finalizer.
+
+    A failed retrospective fast-path track must remain excluded, but it must
+    not silently erase otherwise valid ML evidence.  The caller still gets
+    exit code 4; this artifact only makes the exclusion auditable.
+    """
+    contract = read_json(contract_path)
+    report = {
+        "schema": EXCLUSION_SCHEMA,
+        "valid": False,
+        "status": "excluded",
+        "claim_available": False,
+        "release_id": contract.get("release_id"),
+        "evidence_class": contract.get("evidence_class"),
+        "reason_type": type(error).__name__,
+        "reason": str(error),
+        "claim_limit": (
+            "No normal fast-path alert-rate or false-positive claim is permitted "
+            "for this release; the independent ML track remains separate."
+        ),
+        "automatic_promotion": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "provenance_sha256": {
+            "contract": sha256(contract_path),
+            "metrics_snapshot": sha256(metrics_path),
+            "split": sha256(split_path),
+            "release": sha256(release_path),
+        },
+    }
+    path = path.resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        existing = read_json(path)
+        stable_fields = (
+            "schema", "valid", "status", "claim_available", "release_id",
+            "evidence_class", "reason_type", "reason", "claim_limit",
+            "automatic_promotion", "provenance_sha256",
+        )
+        if any(existing.get(key) != report.get(key) for key in stable_fields):
+            raise EvidenceError("existing fast-path exclusion report drift")
+        return existing
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    os.chmod(temporary, 0o600)
+    os.replace(temporary, path)
+    return report
 
 
 def sha256(path: Path) -> str:
@@ -409,6 +462,7 @@ def main() -> int:
     parser.add_argument("--fast-path-source", type=Path, required=True)
     parser.add_argument("--service-unit", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--exclusion-report", type=Path)
     args = parser.parse_args()
     try:
         report = finalize(
@@ -420,6 +474,12 @@ def main() -> int:
         print(f"WAITING: {exc}")
         return 75
     except EvidenceError as exc:
+        if args.exclusion_report is not None:
+            write_exclusion_report(
+                args.exclusion_report, exc, contract_path=args.contract,
+                metrics_path=args.metrics, split_path=args.split_contract,
+                release_path=args.release_contract,
+            )
         print(f"REFUSING: {exc}")
         return 4
     print(json.dumps({

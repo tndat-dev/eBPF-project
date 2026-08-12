@@ -11,7 +11,7 @@ SERVICE_ROOT = ROOT / "ml-service"
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from fast_path_normal_evidence_finalizer import (
-    EvidenceError, EvidenceNotReady, finalize,
+    EvidenceError, EvidenceNotReady, finalize, write_exclusion_report,
 )
 
 
@@ -173,3 +173,37 @@ def test_finalizer_rejects_sensor_counter_change(tmp_path):
     paths = fixture(tmp_path, counter_change=True)
     with pytest.raises(EvidenceError, match="backpressure_events changed"):
         run(paths)
+
+
+def test_exclusion_report_preserves_failed_track_without_claim(tmp_path):
+    paths = fixture(tmp_path, counter_change=True)
+    exclusion = tmp_path / "fast-path.exclusion.json"
+    error = EvidenceError("stream_failures changed during aims-burst-run-02")
+    report = write_exclusion_report(
+        exclusion, error, contract_path=paths["contract"],
+        metrics_path=paths["metrics"], split_path=paths["split"],
+        release_path=paths["release"],
+    )
+    assert report["status"] == "excluded"
+    assert report["valid"] is False
+    assert report["claim_available"] is False
+    assert report["automatic_promotion"] is False
+    assert report["reason"] == str(error)
+    assert report["provenance_sha256"]["metrics_snapshot"] == digest(paths["metrics"])
+    assert write_exclusion_report(
+        exclusion, error, contract_path=paths["contract"],
+        metrics_path=paths["metrics"], split_path=paths["split"],
+        release_path=paths["release"],
+    ) == report
+
+
+def test_exclusion_report_rejects_reason_drift(tmp_path):
+    paths = fixture(tmp_path)
+    exclusion = tmp_path / "fast-path.exclusion.json"
+    arguments = {
+        "contract_path": paths["contract"], "metrics_path": paths["metrics"],
+        "split_path": paths["split"], "release_path": paths["release"],
+    }
+    write_exclusion_report(exclusion, EvidenceError("first"), **arguments)
+    with pytest.raises(EvidenceError, match="exclusion report drift"):
+        write_exclusion_report(exclusion, EvidenceError("second"), **arguments)

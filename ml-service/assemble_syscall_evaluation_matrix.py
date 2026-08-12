@@ -326,18 +326,57 @@ def build_rule_result(
     }
 
 
-def live_fast_path(report_path: Path, normal_report_path: Path) -> dict[str, Any]:
+def live_fast_path(
+    report_path: Path, normal_report_path: Path, exclusion_report_path: Path,
+) -> dict[str, Any]:
     aggregate = read_json(report_path)
-    normal = read_json(normal_report_path)
-    if (
-        normal.get("schema") != "sentinel-fast-path-normal-evidence/v1"
-        or normal.get("valid") is not True
-        or normal.get("phase_count") != 20
-        or normal.get("independent_runs") != 5
-        or normal.get("evidence_class")
-        != "retrospective_operational_normal_evidence"
-    ):
-        raise ValueError("live fast-path normal evidence is invalid")
+    if normal_report_path.is_file() and exclusion_report_path.exists():
+        raise ValueError("fast-path normal track is both accepted and excluded")
+    if normal_report_path.is_file():
+        normal = read_json(normal_report_path)
+        if (
+            normal.get("schema") != "sentinel-fast-path-normal-evidence/v1"
+            or normal.get("valid") is not True
+            or normal.get("phase_count") != 20
+            or normal.get("independent_runs") != 5
+            or normal.get("evidence_class")
+            != "retrospective_operational_normal_evidence"
+        ):
+            raise ValueError("live fast-path normal evidence is invalid")
+        normal_summary = {
+            "status": "accepted",
+            "evidence_class": normal["evidence_class"],
+            "claim_limit": normal["claim_limit"],
+            "independent_runs": normal["independent_runs"],
+            "phases": normal["phase_count"],
+            "exposure_hours": normal["normal_duration_seconds"] / 3600.0,
+            "early_warning_count": normal["early_warning_count"],
+            "early_warnings_per_hour": normal["early_warnings_per_hour"],
+            "report_sha256": sha256(normal_report_path),
+        }
+    else:
+        exclusion = read_json(exclusion_report_path)
+        if not (
+            exclusion.get("schema")
+            == "sentinel-fast-path-normal-exclusion/v1"
+            and exclusion.get("valid") is False
+            and exclusion.get("status") == "excluded"
+            and exclusion.get("claim_available") is False
+            and exclusion.get("automatic_promotion") is False
+        ):
+            raise ValueError("live fast-path exclusion evidence is invalid")
+        normal_summary = {
+            "status": "excluded",
+            "evidence_class": exclusion.get("evidence_class"),
+            "claim_limit": exclusion.get("claim_limit"),
+            "reason": exclusion.get("reason"),
+            "independent_runs": None,
+            "phases": None,
+            "exposure_hours": None,
+            "early_warning_count": None,
+            "early_warnings_per_hour": None,
+            "report_sha256": sha256(exclusion_report_path),
+        }
     rows = []
     for trial in aggregate.get("trials", []):
         child_path = Path(str(trial.get("report_path", "")))
@@ -371,16 +410,7 @@ def live_fast_path(report_path: Path, normal_report_path: Path) -> dict[str, Any
             "p99": percentile(0.99), "maximum": latencies[-1] if latencies else None,
         },
         "report_sha256": sha256(report_path),
-        "normal_operational_evidence": {
-            "evidence_class": normal["evidence_class"],
-            "claim_limit": normal["claim_limit"],
-            "independent_runs": normal["independent_runs"],
-            "phases": normal["phase_count"],
-            "exposure_hours": normal["normal_duration_seconds"] / 3600.0,
-            "early_warning_count": normal["early_warning_count"],
-            "early_warnings_per_hour": normal["early_warnings_per_hour"],
-            "report_sha256": sha256(normal_report_path),
-        },
+        "normal_operational_evidence": normal_summary,
     }
 
 
@@ -500,6 +530,7 @@ def main() -> int:
         fast = live_fast_path(
             attack_root / "report.json",
             derived / "fast-path-live-normal" / "fast-path-normal-evidence.report.json",
+            derived / "fast-path-live-normal.exclusion.json",
         )
         ablation_root = derived / "normal-ablation-replay"
         for method in ML_METHODS:
