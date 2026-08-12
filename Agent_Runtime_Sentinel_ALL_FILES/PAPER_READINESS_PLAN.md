@@ -149,6 +149,14 @@ same-pod interval + 30 giây horizon, đợi stream settle, báo recall với Wi
 `FALCO_ATTACK_EVIDENCE_COMPLETE` tồn tại; ML report một mình không đủ. Chưa có
 Falco recall thật cho tới khi blind campaign hoàn tất.
 
+Failure analysis V8 có thêm audit observability hậu nghiệm, hash-bind từng child
+report/capture và chỉ đọc syscall count của target-pod window giao injection
+interval. Audit tách primary outcome khỏi construct validity: miss vẫn là miss,
+nhưng paper đồng thời công khai trường hợp semantic syscall bị seccomp chặn
+trước điểm quan sát. Audit không được relabel mẫu, không dùng train/tune và được
+matrix terminal bind bằng SHA-256; V9 phải ghi syscall return/errno aggregate
+ngay trong preregistered harness để loại giới hạn window-overlap này.
+
 Ba ablation detector-path không còn yêu cầu sửa source giữa các lượt chạy:
 behavior corroboration, extreme-volume route và số window xác nhận là tham số
 explicit với production default lần lượt `true/true/2`. Atomic checkpoint bind

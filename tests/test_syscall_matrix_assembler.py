@@ -108,6 +108,7 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
         "blind_attack_contract_sha256": "4" * 64,
         "evaluation_protocol_sha256": "d" * 64,
         "environment_sha256": "5" * 64,
+        "attack_observability_audit_sha256": "8" * 64,
         "normal_phase_contract": {
             phase["phase"]: {
                 "run_id": f"normal-run-{phase['phase'].rsplit('-', 1)[-1]}",
@@ -128,6 +129,7 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
     assert len(result["attack"]["outcomes"]) == 200
     assert result["attack"]["outcomes"][0]["censor_seconds"] == 35
     assert result["normal_capture_sha256"] == "6" * 64
+    assert result["attack_observability_audit_sha256"] == "8" * 64
     assert len(result["code_sha256"]) == 64
 
 
@@ -158,6 +160,7 @@ def test_rule_result_normalizes_tetragon_alert_rate_name():
         "blind_attack_contract_sha256": "3" * 64,
         "evaluation_protocol_sha256": "4" * 64,
         "environment_sha256": "5" * 64,
+        "attack_observability_audit_sha256": "8" * 64,
         "normal_phase_contract": {
             "aims-steady-run-02": {
                 "run_id": "normal-run-02", "traffic_regime": "steady",

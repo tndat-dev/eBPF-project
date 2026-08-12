@@ -95,6 +95,7 @@ PY
 esac
 
 for name in anomaly_detector2.py analyze_syscall_evaluation_matrix.py \
+  audit_attack_observability.py \
   assemble_syscall_evaluation_matrix.py \
   build_aims_fit_calibration.py \
   build_feature_replay_dataset.py build_phase_dataset.py \
@@ -130,6 +131,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q -p no:cacheprovider \
   "$STAGING_ROOT/tests/test_phase_dataset.py" \
   "$STAGING_ROOT/tests/test_render_syscall_paper_results.py" \
   "$STAGING_ROOT/tests/test_aims_attack_replay.py" \
+  "$STAGING_ROOT/tests/test_attack_observability_audit.py" \
   "$STAGING_ROOT/tests/test_syscall_matrix_assembler.py" \
   "$STAGING_ROOT/tests/test_syscall_paired_statistics.py" \
   "$STAGING_ROOT/tests/test_aims_normal_split_evaluator.py" \

@@ -20,6 +20,8 @@ def test_v8_post_capture_deployer_is_hash_gated_and_atomic():
     assert "anomaly_detector2.py" in script
     assert "evaluation_matrix_validation.py" in script
     assert "evaluate_tetragon_rule_replay.py" in script
+    assert "audit_attack_observability.py" in script
+    assert "tests/test_attack_observability_audit.py" in script
     assert "tests/test_evaluation_matrix_validation.py" in script
     assert "tests/test_tetragon_rule_replay.py" in script
     assert "tests/test_sentinel.py" in script

@@ -175,6 +175,9 @@ def common_result_fields(common: dict[str, Any], experiment_id: str,
         "vocab_sha256": common["vocab_sha256"],
         "split_sha256": common["split_sha256"],
         "blind_attack_contract_sha256": common["blind_attack_contract_sha256"],
+        "attack_observability_audit_sha256": common[
+            "attack_observability_audit_sha256"
+        ],
         "evaluation_protocol_sha256": common["evaluation_protocol_sha256"],
         "environment_sha256": common["environment_sha256"],
         "code_sha256": code_digest,
@@ -444,8 +447,11 @@ def main() -> int:
     normal_capture_manifest = evidence / "frozen-normal-feature-capture.manifest.json"
     dataset = attack_root / "frozen-attack-replay.jsonl"
     dataset_manifest = attack_root / "frozen-attack-replay.manifest.json"
+    attack_report = attack_root / "report.json"
+    observability_audit = attack_root / "attack-observability-audit.json"
     required = [
         attack_capture, attack_capture_manifest, dataset, dataset_manifest,
+        attack_report, observability_audit,
         evidence / "vocab.pkl", evidence / "v8_capture_split_contract.json",
         normal_capture, normal_capture_manifest,
         evidence / "nodes-before.txt", evidence / "pods-before.txt",
@@ -457,6 +463,17 @@ def main() -> int:
     for path in required:
         if not path.is_file():
             raise FileNotFoundError(path)
+
+    observability = read_json(observability_audit)
+    if not (
+        observability.get("schema") == "sentinel-attack-observability-audit/v1"
+        and observability.get("status") == "complete"
+        and observability.get("valid") is True
+        and observability.get("primary_outcomes_redefined") is False
+        and int(observability.get("completed_trials", -1)) == 200
+        and observability.get("source_report_sha256") == sha256(attack_report)
+    ):
+        raise ValueError("attack observability audit is incomplete or invalid")
 
     environment = {
         "schema": "sentinel-syscall-environment/v1",
@@ -482,6 +499,7 @@ def main() -> int:
         "vocab_sha256": sha256(evidence / "vocab.pkl"),
         "split_sha256": sha256(evidence / "v8_capture_split_contract.json"),
         "blind_attack_contract_sha256": sha256(attack_contract_path),
+        "attack_observability_audit_sha256": sha256(observability_audit),
         "evaluation_protocol_sha256": sha256(protocol_path),
         "environment_sha256": digest_json(environment),
     }
@@ -527,6 +545,9 @@ def main() -> int:
         )
         if sha256(environment_path) != common["environment_sha256"]:
             raise ValueError("serialized environment digest mismatch")
+        shutil.copy2(
+            observability_audit, staging / "attack_observability_audit.json"
+        )
         fast = live_fast_path(
             attack_root / "report.json",
             derived / "fast-path-live-normal" / "fast-path-normal-evidence.report.json",

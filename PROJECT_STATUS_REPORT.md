@@ -4382,3 +4382,29 @@ scenario pass, candidate hiện không còn đủ điều kiện tuyên bố 100
 hoặc tự promote; campaign vẫn phải chạy đủ 200 injection, sau đó ablation sẽ
 phân tích nguyên nhân trên evidence đã đóng. Một V9 sau này chỉ được thiết kế từ
 kết quả V8 đã công bố và phải dùng blind set mới độc lập.
+
+### 18.81 Bổ sung post-hoc attack-observability audit, không relabel miss (12-08-2026)
+
+Đọc trực tiếp capture của miss cho thấy bảy target-pod window giao injection
+interval có `execve=1` nhưng **không có** `unshare`, `mount` hay `ptrace`, dù
+binary đã thử ba syscall đó 527 lần. Pod dùng local seccomp profile
+`profiles/aims-runtime.json`; kết quả phù hợp với khả năng syscall bị chặn trước
+điểm quan sát Tetragon. Đây là giới hạn construct validity của attack harness,
+không đủ căn cứ để sửa primary outcome: report V8 vẫn giữ nguyên một miss.
+
+Project được bổ sung `audit_attack_observability.py`: sau khi đủ 200 injection,
+tool hash-check top report, mọi child report và feature capture; kiểm privacy,
+boundary/exit code và scenario-specific syscall family trong target-pod window.
+Output tách `primary_detected/miss` khỏi `semantic_signal_observable` và bắt buộc
+`primary_outcomes_redefined=false`, `labels_used_for_training_or_threshold_tuning=false`.
+Đây là phân tích hậu nghiệm nên chỉ dùng failure analysis; V9 phải preregister
+generator có aggregate return/errno để đo injection fidelity trực tiếp.
+
+Normal-ablation runner đã được nối để tạo audit trước replay; terminal matrix
+assembler fail-closed nếu audit không đủ 200 trial hoặc không bind đúng SHA-256
+của blind `report.json`, sau đó sao chép audit vào checksum bundle và bind digest
+trong cả 11 result. Runtime/staging trên master đã đồng bộ mà không đổi process
+blind; focused staging suite 14/14 và full local suite `162 passed, 9 skipped`.
+Checkpoint sau thay đổi đạt 48 unique injection, 47 detected, vẫn đúng một miss,
+zero unhealthy sensor; blind MainPID `1054674`, `NRestarts=0`, còn ablation và
+overhead giữ nguyên queued `waiting`.

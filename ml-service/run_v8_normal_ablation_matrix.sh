@@ -21,6 +21,7 @@ SHARED_CANDIDATE=$DERIVED_ROOT/models-v8-shared-workload
 SHARED_CALIBRATION=$DERIVED_ROOT/v8-shared-workload-calibration.json
 SHARED_CALIBRATION_REPORT=$DERIVED_ROOT/v8-shared-workload-calibration.report.json
 ATTACK_EXPERIMENT_ROOT=$(dirname "$ATTACK_CAPTURE")
+OBSERVABILITY_AUDIT=$ATTACK_EXPERIMENT_ROOT/attack-observability-audit.json
 FALCO_ROOT=${V8_FALCO_EVIDENCE_ROOT:-/home/dat/ml-service/aims-v8-falco-evidence-v8-paired-replay-20260811}
 PAPER_MATRIX_ROOT=${V8_PAPER_MATRIX_ROOT:-$DERIVED_ROOT/paper-evaluation-results}
 
@@ -37,6 +38,10 @@ for path in "$CANDIDATE/training_report.json" "$CALIBRATION" \
 done
 
 mkdir -p "$OUTPUT_ROOT"
+
+"$PYTHON_BIN" "$ROOT_DIR/audit_attack_observability.py" \
+  --attack-root "$ATTACK_EXPERIMENT_ROOT" \
+  --output "$OBSERVABILITY_AUDIT" --expected-trials 200
 
 if [[ ! -r "$SHARED_CANDIDATE/training_report.json" ]]; then
   set +e

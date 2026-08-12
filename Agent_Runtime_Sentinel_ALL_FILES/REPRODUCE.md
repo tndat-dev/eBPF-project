@@ -467,6 +467,25 @@ capture/dataset SHA-256 phải khớp và `labels_used_for_training=false`. Exit
 là matrix hạ tầng-complete nhưng có miss; giữ nguyên để báo failure analysis,
 không xóa/rerun. Exit 4 hoặc 75 chưa phải metric terminal.
 
+Sau report terminal, normal-ablation runner tự tạo audit construct validity:
+
+```bash
+ATTACK=/home/dat/ml-service/aims-v8-blind-attack-v8-paired-replay-20260811/v8-blind-attack-20260811
+python3 /home/dat/ml-service/audit_attack_observability.py \
+  --attack-root "$ATTACK" \
+  --output "$ATTACK/attack-observability-audit.json" \
+  --expected-trials 200
+python3 -m json.tool "$ATTACK/attack-observability-audit.json"
+```
+
+Audit phải `valid=true`, `completed_trials=200` và
+`primary_outcomes_redefined=false`. Trường `semantic_signal_unobservable` chỉ
+cho biết syscall family đích không xuất hiện trong target-pod feature window,
+ví dụ bị seccomp chặn trước điểm quan sát; nó không được dùng để xóa hoặc đổi
+nhãn primary miss. Phân tích này là post-hoc, phải báo riêng và tuyệt đối không
+được đưa vào train/tune V8. Matrix paper bind SHA-256 và sao chép nguyên audit
+vào bundle terminal.
+
 Terminal attack chỉ hoàn tất khi có thêm
 `FALCO_ATTACK_EVIDENCE_COMPLETE`. Kiểm bundle rule-only:
 

@@ -13,6 +13,8 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "POST_CAPTURE_COMPLETE" in script
     assert "syscall_evaluation_protocol.json" in script
     assert "evaluate_tetragon_rule_replay.py" in script
+    assert "audit_attack_observability.py" in script
+    assert "attack-observability-audit.json" in script
     assert "evaluate_aims_attack_replay.py" in script
     assert "assemble_syscall_evaluation_matrix.py" in script
     assert "evaluation_matrix_manifest.json" in script
