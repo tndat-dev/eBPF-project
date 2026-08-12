@@ -4281,3 +4281,28 @@ hai injection boundary, privacy contract hợp lệ; sensor health 6/6 và mọi
 continuity counter bằng 0. Đây chỉ là 1/200 checkpoint, chưa được dùng để claim
 blind recall hoặc latency distribution. Campaign tiếp tục chạy nền và giữ
 nguyên mọi miss nếu phát sinh.
+
+### 18.77 Blind campaign checkpoint 15/200, resume state hợp lệ (12-08-2026)
+
+Checkpoint trực tiếp lúc `16:28Z` xác nhận ba trial-group đầu đã đóng hoàn toàn:
+`auth-service` trial-04, `order-service` trial-02 và `cart-service` trial-01.
+Cả 15/15 scenario injection đều được binary acknowledge, exit code attack và
+detector bằng 0, detected=true, không normal alert trước injection và sensor
+health sạch. Phân bố đã có đủ năm scenario; confirmed latency tạm thời có
+median 18,391 giây, min 9,084 giây và max 20,852 giây. Đây là checkpoint nhỏ,
+không phải recall/latency estimate cuối.
+
+Top-level `report.partial.json` ghi đúng 3/40 group hoàn tất và schedule bất biến
+40 group. Mỗi child report có SHA-256 được top-level bind; audit lại 15 unique
+scenario capture cho thấy đúng một injection interval, hai boundary row,
+validation `valid=true`, vector 210 chiều và privacy contract không lưu
+argument/payload. Candidate gồm 19 digest file; calibration SHA-256
+`1f5a5727...`, source attack `eed8ef73...` và binary `a4d68d79...` vẫn đúng
+contract. Cơ chế checkpoint/resume vì vậy có đủ provenance để tiếp tục sau
+gián đoạn mà không chạy lại group đã đóng.
+
+Service vẫn `activating`, `NRestarts=0`; Falco và detector production active,
+zero bad pod, không traceback/coverage/stream failure. Với tốc độ quan sát
+khoảng 4,5 phút/group, 37 group còn lại dự kiến thêm khoảng 2,5--3 giờ; đây chỉ
+là ETA vận hành, timeout contract vẫn cho phép tối đa 72 giờ. Không có lỗi cần
+sửa và không được thay model/threshold trong blind campaign.
