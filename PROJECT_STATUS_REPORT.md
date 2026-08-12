@@ -3800,10 +3800,12 @@ collection nhưng **chưa phải stable release**:
   digest xuyên suốt 15 phase; capture và production detector đều
   `active/running`, `NRestarts=0`;
 - phase thứ 16 `aims-toolmix-run-04` tiếp tục tăng từ 1.568 lên 2.736 row;
-- trong 11 completed holdout phase thuộc run-02 trở đi, telemetry operational
-  của detector V7 đang chạy song song có 0 detection và 0 early-warning trên
-  tám AIMS target. Số này chưa phải FPR của candidate V8 vì candidate chỉ được
-  fit sau khi đủ 24 phase;
+- trong 11 completed holdout phase thuộc run-02 trở đi có 0 detection và 0
+  early-warning gắn tám AIMS target, nhưng đồng thời cũng có **0 inference
+  sample** cho các model key đó. Production V7 chỉ chứa model nginx, redis và
+  postgres; vì vậy count bằng 0 là “chưa có AIMS model để score”, tuyệt đối
+  không phải bằng chứng zero false positive. Candidate V8 chỉ được fit sau khi
+  đủ 24 phase;
 - Falco hiện 6/6 active reader, `coverage_healthy=true`, zero stream failure và
   zero privacy-safe alert. Ba failed service start trong 16 giây lúc
   `18:09:52--18:10:08Z` là lỗi mount namespace khi atomic staging chưa tạo xong
@@ -3816,3 +3818,29 @@ Do chưa có `POST_CAPTURE_COMPLETE`, `FALCO_ATTACK_EVIDENCE_COMPLETE` và
 luận false-positive, recall hay latency. Chính sách release là giữ nguyên V8,
 không tune theo holdout và không nâng V9 cho đến khi các artifact đó xuất hiện
 và checksum/validator đều pass.
+
+### 18.62 Preflight terminal V8 và diễn giải traffic đúng phạm vi (12-08-2026)
+
+Preflight lúc `2026-08-12T03:00Z` không thay đổi active experiment. Toàn bộ 14
+file source mà phase runner còn gọi khớp byte-for-byte bản đã snapshot ở đầu
+campaign (`active_code_drift=0`). Bundle post-capture có 60/60 checksum pass;
+bảy unit post-capture/blind/ablation/Falco khớp staging. Blind source và binary
+đều khớp contract. Master còn 247 GiB disk, 54 GiB RAM available; 6/6 node
+Ready và zero bad pod. Như vậy chuỗi tự động đủ tài nguyên và không có drift đã
+biết trước khi handoff.
+
+Phase 16 `aims-toolmix-run-04` tiếp tục tăng lên 3.681 row. Sáu loadgen pod đều
+Ready và zero restart. Route `/`, `/api/health/`, `/api/products/` trả 200;
+các GET không credential hoặc method không hỗ trợ trả 400/401/404, còn ba route
+chưa expose qua gateway trả 503. Đây là traffic-error mix được manifest freeze
+cố ý để đi qua response/error path, không phải zero-error benchmark. Tất cả
+18 backend pod của chín Argo Rollout vẫn Running/Ready, EndpointSlice Ready và
+Rollout Healthy; hai catalog pod có restart lịch sử nhưng lần cuối trước V8
+boundary và count không tăng trong campaign. Benchmark overhead sau terminal
+chỉ bắn `/api/products/` và fail nếu có bất kỳ socket/non-2xx/3xx response.
+
+Production detector hiện vẫn load `/home/dat/ml-service/models`, chỉ có nginx,
+redis và postgres. Thư mục `models-v8-candidate` chưa tồn tại đúng thiết kế.
+Do đó không công bố bất kỳ inference latency/FPR AIMS nào trước post-capture
+fit và independent replay. Sự ổn định hiện tại chỉ là collection/platform
+stability; model stability phải chờ terminal normal report và blind matrix.
