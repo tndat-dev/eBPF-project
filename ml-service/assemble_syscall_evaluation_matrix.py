@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -288,6 +289,17 @@ def build_rule_result(
 ) -> dict[str, Any]:
     trials, detected = int(attack["trials"]), int(attack["detected"])
     false_alerts = int(normal["false_alerts"])
+    exposure_hours = float(normal["exposure_hours"])
+    observed_rate = normal.get(
+        "false_alerts_per_hour", normal.get("alerts_per_hour")
+    )
+    expected_rate = false_alerts / exposure_hours if exposure_hours else None
+    if observed_rate is not None and expected_rate is not None and not math.isclose(
+        float(observed_rate), expected_rate, rel_tol=1e-9, abs_tol=1e-12,
+    ):
+        raise ValueError(f"{method}: normal alert-rate accounting mismatch")
+    normal["false_alerts_per_hour"] = expected_rate
+    normal.pop("alerts_per_hour", None)
     normal["phase_outcomes"] = normalized_normal_phases(
         list(normal.get("phase_outcomes", [])), common,
         expected_false_alerts=false_alerts,

@@ -7,7 +7,7 @@ SERVICE_ROOT = Path(__file__).resolve().parents[1] / "ml-service"
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from assemble_syscall_evaluation_matrix import (
-    build_ml_result, classification_metrics, normalized_latency,
+    build_ml_result, build_rule_result, classification_metrics, normalized_latency,
     verify_checksums,
 )
 
@@ -140,3 +140,51 @@ def test_checksum_verifier_rejects_tamper(tmp_path):
     artifact.write_text("tampered")
     with pytest.raises(ValueError, match="checksum mismatch"):
         verify_checksums(tmp_path)
+
+
+def test_rule_result_normalizes_tetragon_alert_rate_name():
+    common = {
+        "contract": {
+            "result_schema": "result/v1", "release_id": "v8",
+            "feature_capture_schema": "feature/v2",
+            "injection_schema": "injection/v2", "trial_seeds": [1],
+        },
+        "dataset_sha256": "a" * 64, "dataset_manifest_sha256": "b" * 64,
+        "capture_sha256": "c" * 64, "capture_manifest_sha256": "d" * 64,
+        "normal_capture_sha256": "e" * 64,
+        "normal_capture_manifest_sha256": "f" * 64,
+        "vocab_sha256": "1" * 64, "split_sha256": "2" * 64,
+        "blind_attack_contract_sha256": "3" * 64,
+        "evaluation_protocol_sha256": "4" * 64,
+        "environment_sha256": "5" * 64,
+        "normal_phase_contract": {
+            "aims-steady-run-02": {
+                "run_id": "normal-run-02", "traffic_regime": "steady",
+                "exposure_seconds": 3600,
+            },
+        },
+    }
+    normal = {
+        "independent_runs": 1, "phases": 1, "windows": 100,
+        "false_alerts": 2, "exposure_hours": 1, "alerts_per_hour": 2,
+        "phase_outcomes": [{
+            "phase": "aims-steady-run-02", "run_id": "normal-run-02",
+            "windows": 100, "false_alerts": 2,
+        }],
+    }
+    attack = {
+        "trials": 1, "detected": 1, "recall": {"estimate": 1},
+        "post_attack_horizon_seconds": 30,
+        "outcomes": [{
+            "injection_id": "trial-1", "pod_key": "production/api",
+            "scenario": "exec", "seed": 1, "rate": 2,
+            "start": 10, "end": 15, "detected": True,
+            "latency_seconds": 1,
+        }],
+    }
+    result = build_rule_result(
+        "tetragon_rule_only", normal, attack, {"count": 1, "median": 1},
+        common, "6" * 64,
+    )
+    assert result["normal"]["false_alerts_per_hour"] == 2
+    assert "alerts_per_hour" not in result["normal"]

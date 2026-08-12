@@ -194,8 +194,19 @@ def load_metrics(
     previous_timestamp: float | None = None
     digest = hashlib.sha256()
     lines = 0
+    snapshot_size = 0
+    snapshot_bytes = 0
+    last_payload = b""
     with metrics_path.open("rb") as handle:
-        for line_number, payload in enumerate(handle, 1):
+        snapshot_size = os.fstat(handle.fileno()).st_size
+        line_number = 0
+        while snapshot_bytes < snapshot_size:
+            payload = handle.readline(snapshot_size - snapshot_bytes)
+            if not payload:
+                break
+            line_number += 1
+            snapshot_bytes += len(payload)
+            last_payload = payload
             digest.update(payload)
             lines = line_number
             try:
@@ -231,6 +242,10 @@ def load_metrics(
                         "run_id": phase["run_id"],
                         "traffic_regime": phase["traffic_regime"],
                     })
+    if snapshot_bytes != snapshot_size:
+        raise EvidenceNotReady("metrics snapshot changed during bounded read")
+    if snapshot_size and not last_payload.endswith(b"\n"):
+        raise EvidenceNotReady("metrics snapshot ends with a partial JSONL row")
     for item in pending:
         item["after"] = None
         if corruption_overlaps_phases(item["before"], None, phases):
@@ -239,7 +254,7 @@ def load_metrics(
             )
         corruptions.append(item)
     return warnings, health, {
-        "sha256": digest.hexdigest(), "bytes": metrics_path.stat().st_size,
+        "sha256": digest.hexdigest(), "bytes": snapshot_size,
         "lines": lines, "kind_counts": dict(sorted(source_counts.items())),
         "corruptions_outside_evaluation_intervals": corruptions,
     }

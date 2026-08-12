@@ -3563,6 +3563,25 @@ validator báo `valid=true` và `sha256sum -c` pass. Local canonical suite đạ
 trên master và đã được atomic-swap, trong khi active V8 capture giữ
 `NRestarts=0`.
 
+### 18.59 Khóa compatibility trước terminal assembler (12-08-2026)
+
+Dry review sau khi thêm renderer phát hiện Tetragon normal report dùng tên
+`alerts_per_hour`, trong khi schema matrix thống nhất là
+`false_alerts_per_hour`. Nếu không sửa, toàn campaign có thể hoàn tất nhưng vỡ
+ở bước xuất bảng. `build_rule_result()` nay chuẩn hóa field, tự tính lại rate từ
+count/exposure và fail nếu rate nguồn lệch; regression test bao phủ đúng shape
+Tetragon thật.
+
+Fast-path telemetry finalizer cũng chuyển sang bounded snapshot. Nó lấy file
+size ngay khi mở, chỉ hash/parse đúng số byte đó dù detector tiếp tục append,
+và trả waiting nếu snapshot kết thúc bằng partial JSONL. Như vậy report không
+thể ghi source byte count sau thời điểm hash hoặc trộn hai thời điểm quan sát.
+
+Local suite đạt `144 passed, 9 skipped`; staging 60 file đạt `137 passed` trên
+VM rồi atomic-swap. Capture/detector đều zero restart. Checkpoint trực tiếp
+`2026-08-12T02:22:48Z` đã có 15/24 phase; `aims-recovery-run-04` vừa terminal và
+`aims-toolmix-run-04` bắt đầu với 93 row. Capture vẫn active/running.
+
 Checkpoint trực tiếp `2026-08-11T18:36:29Z`: 8/24 phase hoàn chỉnh,
 `aims-steady-run-03` có 4.175 row và vẫn tăng; capture `active/running`, cluster
 6/6 node Ready, không có pod ngoài Running/Completed. Falco có 6/6 reader,
