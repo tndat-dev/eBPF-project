@@ -4174,3 +4174,32 @@ checkpoint `14:41:17Z`, process dùng khoảng 99% một CPU/734 MB RSS và serv
 vẫn `activating`; chưa có `training_report.json`, calibration, independent
 evaluation hay `POST_CAPTURE_COMPLETE`, nên chưa có claim mới về ML
 false-positive, recall hoặc latency.
+
+### 18.74 Fit/calibration pass, independent evaluation đang chạy nền (12-08-2026)
+
+Candidate fit hoàn tất 8/8 workload lúc khoảng `14:54:50Z`; top-level và từng
+model đều có `accepted_offline=true`, đúng role `candidate_fit`. Tổng thời gian
+train khoảng 14,5 phút dưới quota một CPU; không có restart, OOM hay NaN.
+Kết quả này chỉ là fit-only gate, chưa phải bằng chứng false-positive trên
+holdout.
+
+Calibration kết thúc lúc `15:00:35Z`, hash
+`1f5a5727857c86621f95d186607b947136f25927259d49a2a450de6a7095a3a7`.
+Report ghi `source_role=candidate_fit`, `evaluation_data_used=false`; tám target
+giữ frozen threshold 0,8, warmup 10 và mỗi target giữ 120 score/event-count
+calibration. Không dữ liệu run-02--06 nào được dùng để chỉnh model hoặc
+threshold.
+
+Independent evaluator sau đó tự mở 20 phase run-02--06. Checkpoint đầu tiên
+`aims-steady-run-02` pass: 0 alert/detection trên 6.147 window, trong đó 6.146
+eligible decision window, 17 `behavior_gated`, một `collection_quality_skip`.
+Inference trên phase này có median 13,941 ms, p95 20,155 ms, p99 23,390 ms;
+phase mất 222,422 giây để replay. File report vẫn ghi `status=evaluating`, mới
+1/20 phase nên chưa được gọi là terminal result hay zero-false-positive claim.
+
+Service `aims-v8-post-capture.service` vẫn `activating`, `NRestarts=0`, process
+evaluator dùng khoảng 100% một CPU và cluster zero bad pod. Không thấy lỗi cần
+sửa. Với tốc độ phase đầu, 19 phase còn lại dự kiến khoảng 70 phút; systemd sẽ
+tự checkpoint và tiếp tục nền. Chỉ khi report chuyển `status=complete`, gate
+`passed=true` và marker `POST_CAPTURE_COMPLETE` xuất hiện mới được mở blind
+attack.
