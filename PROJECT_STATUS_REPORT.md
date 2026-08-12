@@ -3999,3 +3999,31 @@ capture hay detector. Focused suite đạt `18 passed`; full local suite đạt
 trước amendment giữ tại `v8-paired-replay-20260811-before-falco-scope` để
 rollback. Deployer thật vẫn trả đúng exit 75 vì capture đang active; ba service
 active không bị restart bởi lần deploy staging này.
+
+### 18.68 Recovery run-05 retry hợp lệ và handoff sang toolmix (12-08-2026)
+
+Lần retry `aims-recovery-run-05` đã kết thúc lúc `08:25:42Z` sau
+4.320,303 giây, tạo 6.896 feature window cho đủ tám target. Manifest ghi 6/6
+Tetragon active/ready và toàn bộ `backpressure`, `membership`, `coverage`,
+`stream failure` bằng 0. Runner tự mở `aims-toolmix-run-05`; capture service
+tiếp tục `active/running`, `NRestarts=1`, tức không có restart bổ sung sau lần
+retry fail-closed.
+
+Audit lại toàn bộ 19/24 accepted phase bằng source snapshot và SHA-256 thực tế
+cho kết quả hợp lệ: tổng 131.019 feature window, 82.096,070 giây capture,
+6.895--6.896 window/phase, đủ tám target và không có integrity/privacy/sensor
+error. Vocab, Tetragon policy và loadgen manifest vẫn mỗi loại đúng một digest.
+Ba thư mục retry lịch sử chỉ tồn tại dưới `rejected/` và không được glob vào
+matrix accepted.
+
+Continuity amendment cũng được chạy lại sau khi interval recovery mới trở
+thành accepted evidence. Kết quả bốn Falco lifetime failure đều vẫn nằm ngoài
+accepted interval kể cả guard 15 giây: `in_scope=0`, `out_of_scope=4`. Điều này
+chứng minh phép phân loại không chỉ pass trên 18 phase trước retry mà còn pass
+với interval replacement cuối cùng; detail lifetime không bị xóa.
+
+Cluster tại checkpoint có 6/6 node Ready, zero bad pod; detector
+`NRestarts=0`, Falco collector vẫn active. Chưa có terminal marker/candidate vì
+còn năm phase. Với một lần retry 72 phút đã được tính vào timeline, capture dự
+kiến hoàn tất khoảng `2026-08-12T21:30+07:00`; model gate vẫn đóng cho đến lúc
+matrix đủ 24/24.
