@@ -4070,3 +4070,22 @@ vì capture active. Capture/detector/Falco đều active, không restart mới; 
 bad pod. Ba phase run-06 còn lại vẫn là independent evidence và chưa được dùng
 để train, tune hoặc tạo claim model. Nếu không phát sinh retry mới, capture
 terminal dự kiến khoảng `2026-08-12T21:30+07:00`.
+
+### 18.71 Run-06 burst hoàn tất, còn recovery và toolmix (12-08-2026)
+
+`aims-burst-run-06` hoàn tất sau 4.320,775 giây với 6.896 feature window, đủ
+tám target và mọi sensor continuity counter bằng 0. Burst traffic trong phase
+là 6 loadgen + 2 readmix pod Ready. Runner tự chuyển sang
+`aims-recovery-run-06`; phase mới đã bắt đầu tăng dữ liệu và chưa có failure.
+
+Audit 22/24 accepted manifest cùng hash feature/NumPy/metadata đạt 22/22 hợp
+lệ: tổng 151.707 feature window, 95.058,548 giây capture thực,
+6.895--6.896 window/phase, không integrity/privacy/sensor error. Vocab, policy
+và loadgen tiếp tục mỗi loại một digest. Falco không tăng failure/reconnect từ
+checkpoint trước; continuity scope vẫn `lifetime=4`, `in_scope=0`,
+`out_of_scope=4`.
+
+Capture/detector/Falco vẫn active và không restart mới; cluster zero bad pod.
+Hai phase cuối vẫn bị khóa khỏi fit/tuning. Nếu cả hai phase không retry,
+capture terminal dự kiến khoảng `2026-08-12T21:30+07:00`, sau đó post-capture
+timer mới được phép fit candidate từ duy nhất run-01 và replay run-02--06.
