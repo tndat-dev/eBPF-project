@@ -4122,3 +4122,55 @@ không phải retry, capture 24/24 dự kiến đóng khoảng
 `2026-08-12T21:29--21:30+07:00`. Sau đó các timer mới được phép lần lượt
 finalize evidence, fit candidate từ run-01, đánh giá độc lập run-02--06, chạy
 blind attack, ablation và overhead gate.
+
+### 18.73 Capture V8 đủ 24/24, candidate fit đã bắt đầu (12-08-2026)
+
+Phase cuối `aims-toolmix-run-06` đóng lúc `14:29:04Z` sau 4.320,750 giây với
+6.896 feature window, đủ tám target và 6/6 Tetragon reader active/ready. Mọi
+counter continuity của phase bằng 0. Capture service kết thúc `Result=success`,
+không phát sinh restart mới; terminal merge, matrix manifest và SHA-256 được
+tạo tự động.
+
+Audit độc lập toàn bộ terminal artifact cho kết quả 24/24 phase hợp lệ, tổng
+165.499 feature window và 103.700,333 giây capture thực (khoảng 28,81 giờ),
+6.895--6.896 window/phase, vector 210 chiều. Matrix không còn error;
+vocabulary, Tetragon policy và loadgen manifest mỗi loại đúng một digest.
+Falco giữ nguyên bốn lifetime failure đã công bố nhưng scope trên accepted
+interval vẫn `in_scope=0`, `out_of_scope=4`; collector có 30 clean reconnect.
+Post-capture staging đạt 60/60 checksum.
+
+Lần mở gate đầu tiên dừng fail-closed **trước train** tại retrospective live
+fast-path finalizer: lifetime `stream_failures` trong telemetry của detector V7
+tăng từ 3 lên 6 giữa `aims-burst-run-02`. Ba failure mới có timestamp khoảng
+`14:45:06Z`, nằm trong phase đó. Điều này làm bằng chứng normal fast path không
+đủ continuity, dù collector paired của phase độc lập ghi zero failure. Không
+counter nào bị sửa/xóa và không được phép diễn giải track này thành pass.
+
+Pipeline được refactor để tách claim đúng experimental track. Finalizer vẫn
+trả exit 4, nhưng đồng thời niêm phong artifact
+`fast-path-live-normal.exclusion.json` với `valid=false`, `status=excluded`,
+`claim_available=false`, reason và SHA-256 của contract/metrics/split/release.
+Pipeline downstream chỉ được tiếp tục nếu artifact exclusion hợp lệ và không
+đồng thời tồn tại accepted fast-path derivative. Paper renderer bắt buộc công
+bố track normal fast path bị loại; không hiển thị warning rate/FPR giả. Attack
+fast path sau này vẫn có thể được báo tách biệt từ blind harness nếu chính
+evidence attack hợp lệ. Thay đổi ở commit `2411bb5`; local regression đạt
+`159 passed, 9 skipped`, staging đạt `145 passed`.
+
+Retry thứ hai phát hiện regression trong systemd chạy pytest từ staging
+read-only, khiến logger test không mở được `detector.log`. Đây là lỗi deployer,
+không phải ML/evidence failure. Commit `50ae255` chuyển test cwd sang runtime
+được `ReadWritePaths` cho phép, dùng test path tuyệt đối và tắt pytest cache;
+không nới `ProtectSystem=strict`. Retry tiếp theo đạt `143 passed` ngay trong
+oneshot.
+
+Sau các gate trên, Falco normal derivative được đóng hợp lệ: 20 independent
+phase, 86.417,087 giây exposure, 0 privacy-safe alert (0 alert/giờ), 6/6 reader
+khỏe và `in_scope stream failure=0`. Fit dataset chỉ lấy bốn phase run-01 đúng
+role `candidate_fit`, gồm 24.152 window × 210 feature trên tám workload; không
+dùng run-02--06. `train_candidate.py` bắt đầu lúc khoảng `14:40:35Z`, chạy nền
+dưới `aims-v8-post-capture.service`, quota 1 CPU và giới hạn 8 GB. Tại
+checkpoint `14:41:17Z`, process dùng khoảng 99% một CPU/734 MB RSS và service
+vẫn `activating`; chưa có `training_report.json`, calibration, independent
+evaluation hay `POST_CAPTURE_COMPLETE`, nên chưa có claim mới về ML
+false-positive, recall hoặc latency.
