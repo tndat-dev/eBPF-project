@@ -4388,9 +4388,11 @@ kết quả V8 đã công bố và phải dùng blind set mới độc lập.
 Đọc trực tiếp capture của miss cho thấy năm target-pod window giao injection
 interval có `execve=1` nhưng **không có** `unshare`, `mount` hay `ptrace`, dù
 binary đã thử ba syscall đó 527 lần. Pod dùng local seccomp profile
-`profiles/aims-runtime.json`; kết quả phù hợp với khả năng syscall bị chặn trước
-điểm quan sát Tetragon. Đây là giới hạn construct validity của attack harness,
-không đủ căn cứ để sửa primary outcome: report V8 vẫn giữ nguyên một miss.
+`profiles/aims-runtime.json`; đối chiếu trực tiếp cả ba worker xác nhận profile
+cùng SHA-256 `b634ec9a...`, trong đó `unshare`, `mount`, `ptrace` đều bị
+`SCMP_ACT_ERRNO` với `errnoRet=1`, trước điểm quan sát Tetragon. Đây là giới hạn
+construct validity của attack harness, không đủ căn cứ để sửa primary outcome:
+report V8 vẫn giữ nguyên một miss.
 
 Project được bổ sung `audit_attack_observability.py`: sau khi đủ 200 injection,
 tool hash-check top report, mọi child report và feature capture; kiểm privacy,
