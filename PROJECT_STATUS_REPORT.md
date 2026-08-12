@@ -4356,3 +4356,29 @@ Sau deploy timer, blind evidence tiếp tục tăng lên 33 unique injection, 33
 detected, zero miss và zero unhealthy sensor tại `16:45Z`; điều này xác nhận
 thay đổi orchestration không làm gián đoạn campaign. Đây vẫn là checkpoint,
 không phải kết quả blind terminal.
+
+### 18.80 Blind set ghi nhận false negative đầu tiên, không tuning V8 (12-08-2026)
+
+Checkpoint lúc `16:51Z` đạt 8/40 trial-group đóng và 39 unique scenario đã
+quan sát: 38 detected, **một miss**, zero unhealthy sensor, zero attack/detector
+non-zero exit. Miss thuộc `production/security-telemetry-service`, trial-05,
+`namespace_probe`, seed 9001, rate 12/s. Binary xác nhận đã chạy đủ 45 giây với
+527 iteration; paired capture hợp lệ gồm 110 feature window, đúng một injection
+interval, hai boundary row, vector 210 chiều và SHA-256
+`6a2c3c39d8155d1f7c74b6dfefecd8e869b250813bbe5c24ddb09831ebd854d9`.
+
+Đây là model miss thật theo preregistered decision rule, không phải lỗi sensor
+hay harness: sáu Tetragon stream đều healthy, không coverage/backpressure/
+membership failure; detector exit 0 và có 110 inference. Điểm hậu injection cao
+nhất chỉ 0,7177, suspicious mass 0,037037 và behavior ratio 0,415326, nên không
+đạt ML threshold/gate; fast-path expected nhưng không phát cảnh báo. Child
+report đã đóng với `detected=4/5`, `all_passed=false`, exit 4 và SHA-256
+`2c2c60b5...`; top-level resume report bind đúng digest này và sẽ giữ nguyên
+group miss thay vì chạy lại.
+
+Theo nguyên tắc blind evaluation, V8 không được thay model, threshold, feature
+hay fast-path rule sau khi thấy trường hợp này. Vì contract yêu cầu toàn bộ
+scenario pass, candidate hiện không còn đủ điều kiện tuyên bố 100% blind recall
+hoặc tự promote; campaign vẫn phải chạy đủ 200 injection, sau đó ablation sẽ
+phân tích nguyên nhân trên evidence đã đóng. Một V9 sau này chỉ được thiết kế từ
+kết quả V8 đã công bố và phải dùng blind set mới độc lập.
