@@ -3933,3 +3933,33 @@ Run-05 thuộc role `independent_evaluation`. Dữ liệu của phase vừa đó
 niêm phong, chưa được score, train hoặc dùng để chỉnh threshold. Chưa có bất kỳ
 terminal marker hay thư mục candidate V8 nào; vì vậy checkpoint này chỉ chứng
 minh collection continuity, không phải kết quả false-positive hoặc latency.
+
+### 18.66 Fail-closed retry khi mất continuity ở recovery run-05 (12-08-2026)
+
+Checkpoint `2026-08-12T07:51Z` có 18/24 phase hợp lệ. Phase thứ 18
+`aims-burst-run-05` đã đóng sau 4.320,467 giây với 6.895 feature window, đủ tám
+target và toàn bộ sensor counter bằng 0. Audit lại cả 18 manifest cùng SHA-256
+feature/NumPy/metadata cho kết quả 18/18 hợp lệ, tổng 124.123 feature window và
+77.775,767 giây evidence; vocab, policy và loadgen vẫn mỗi loại một digest.
+
+Lần thu đầu tiên của `aims-recovery-run-05` không được chấp nhận dù đủ 72 phút
+và 6.896 window. Trong interval này có bảy lần kênh `kubectl exec` đọc Tetragon
+kết thúc: năm return code 0 và hai return code 1. Collector ghi
+`stream_failures=7`, tạo manifest để audit rồi trả exit code 4. Dòng systemd
+`status=4/NOPERMISSION` chỉ là tên symbolic của exit code 4, không phải lỗi
+quyền filesystem.
+
+`Restart=on-failure` chờ đúng 60 giây rồi chạy lại. Resume validator giữ nguyên
+18 phase hợp lệ, chuyển trọn phase lỗi sang
+`rejected/aims-recovery-run-05-20260812T071307Z` và bắt đầu thu recovery từ đầu;
+không nối hai interval và không đưa phase lỗi vào matrix. Bản retry đang tăng
+dữ liệu với 6/6 Tetragon reader, `coverage_healthy=true`,
+`stream_failures=0`. Các Tetragon container không có restart mới trong
+campaign, nên evidence chỉ cho phép kết luận có gián đoạn transport của reader,
+không suy diễn thành sensor pod crash.
+
+Capture service hiện `active/running`, `NRestarts=1`; detector vẫn
+`NRestarts=0`, 6/6 node Ready và zero bad pod. Local regression đạt
+`153 passed, 9 skipped`. Retry nghiêm ngặt làm lịch terminal lùi khoảng 73 phút,
+dự kiến capture đủ 24 phase khoảng `2026-08-12T21:25+07:00`. Chưa có candidate
+hay terminal marker; phase bị loại tuyệt đối không được dùng để train/evaluate.
