@@ -4410,3 +4410,29 @@ blind; focused staging suite 14/14 và full local suite `162 passed, 9 skipped`.
 Checkpoint sau thay đổi đạt 48 unique injection, 47 detected, vẫn đúng một miss,
 zero unhealthy sensor; blind MainPID `1054674`, `NRestarts=0`, còn ablation và
 overhead giữ nguyên queued `waiting`.
+
+### 18.82 Làm rõ deep-learning scope và không đổi V8 giữa blind run (12-08-2026)
+
+Syscall runtime không phải hệ chỉ có classical ML. Candidate V8 chứa LSTM
+Autoencoder PyTorch hai tầng (`hidden_dim=32`, `latent_dim=16`) và robust-tail
+calibration; Isolation Forest được giữ cho diagnostic/baseline ablation, không
+phải production score mặc định. EVT-POT là lớp hiệu chỉnh tail thống kê, còn
+fast path là rule-based early warning. GAT Autoencoder thuộc Agent Runtime lab
+prototype, không tham gia AIMS V8 production path.
+
+Giới hạn phải công khai là trainer hiện biến mỗi feature vector thành tensor
+`(batch, seq_len=1, input_dim)`. LSTM vì vậy là deep nonlinear autoencoder thật,
+nhưng chưa học dependency giữa nhiều cửa sổ thời gian. Tăng kích thước model
+không tự giảm detection latency: inference chỉ khoảng vài chục millisecond,
+trong khi cửa sổ 10 giây và confirmation policy chi phối latency 8--21 giây.
+
+Không thay kiến trúc trong V8 sau khi blind set đã mở. Temporal TCN/GRU nhỏ với
+6--12 cửa sổ, shared encoder và workload embedding chỉ là hướng V9; phải
+preregister, fit từ normal set mới và đánh giá trên blind campaign mới. Không
+đưa Transformer/MoE lớn vào production trước khi có ablation chứng minh lợi ích
+so với compute/false-alert cost.
+
+Checkpoint vận hành lúc `17:05Z` đạt 54/200 injection, 53 detected, vẫn chỉ một
+miss đã đóng và zero unhealthy sensor. Confirmed-ML median tạm thời 18,426 giây;
+21 fast-path sample có median 0,396 giây. Service giữ MainPID `1054674`,
+`NRestarts=0`; số liệu vẫn là partial checkpoint, không phải terminal estimate.
