@@ -4027,3 +4027,26 @@ Cluster tại checkpoint có 6/6 node Ready, zero bad pod; detector
 còn năm phase. Với một lần retry 72 phút đã được tính vào timeline, capture dự
 kiến hoàn tất khoảng `2026-08-12T21:30+07:00`; model gate vẫn đóng cho đến lúc
 matrix đủ 24/24.
+
+### 18.69 Hoàn tất run-05, bắt đầu blind-normal run-06 (12-08-2026)
+
+`aims-toolmix-run-05` đóng manifest lúc khoảng `09:38:49Z` sau 4.320,872 giây
+với 6.896 feature window và đủ tám target. Toàn bộ sensor continuity counter
+bằng 0; runner tự chuyển sang `aims-steady-run-06` mà không restart service.
+Run-06 là phần independent evaluation cuối cùng đã preregister, không được dùng
+cho fit/calibration/tuning.
+
+Audit toàn bộ 20/24 accepted phase bằng source snapshot và hash lại
+feature/NumPy/metadata cho kết quả 20/20 hợp lệ: tổng 137.915 feature window,
+86.416,942 giây capture thực, 6.895--6.896 window/phase, không có
+integrity/privacy/sensor error. Vocab, Tetragon policy và loadgen manifest mỗi
+loại vẫn chỉ có một digest. Falco continuity scope sau khi thêm interval
+toolmix mới vẫn cho `lifetime=4`, `in_scope=0`, `out_of_scope=4`; không failure
+nào bị xóa hay chuyển loại do phase mới.
+
+Checkpoint hạ tầng: capture `NRestarts=1` (retry đã công bố), detector
+`NRestarts=0`, Falco collector `NRestarts=3` (startup staging lịch sử), cả ba
+đều `active/running`; 6/6 node Ready và zero bad pod. Chưa có candidate hoặc
+terminal marker. Bốn phase run-06 còn lại cần tối thiểu 4 giờ 48 phút cộng
+settle/handoff, nên dự kiến capture terminal khoảng
+`2026-08-12T21:30+07:00` nếu không có retry mới.
