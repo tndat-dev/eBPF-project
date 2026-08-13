@@ -500,6 +500,19 @@ Report phải có 200 trial, coverage sáu reader/zero stream failure, Wilson 95
 CI và latency chỉ cho detected trial. Marker không tồn tại nghĩa là Falco
 attribution chưa terminal, dù ML `report.json` đã có.
 
+Falco attack report terminal dùng schema `sentinel-falco-attack-evidence/v2`.
+Vì scenario kế tiếp trên cùng pod có thể bắt đầu trước khi host đọc được dòng
+acknowledgement, attribution dùng interval nửa mở và cắt tại
+`next_same_pod_start - 1s`, nhưng không bao giờ cắt trước injection end. Phải
+kiểm `next_injection_boundary_guard_seconds=1.0`, số trial right-censored và
+phân bố effective horizon. Không được dùng horizon cố định chồng lấn vì sẽ gán
+`ptrace` của `namespace_probe` kế tiếp cho scenario trước.
+
+Tetragon replay có timestamp nội cửa sổ chỉ là ước lượng đều. Vì vậy attack
+alert ngoài điều kiện thời gian còn phải khớp exact `release_id/run_id/phase_id/
+traffic_regime` của injection. Canonical dataset builder dùng cùng identity
+gate; nếu chỉ match pod + timestamp thì derivative không hợp lệ.
+
 Sau khi chín ML normal/attack replay và hai rule baseline đều terminal,
 normal-ablation runner tự ghép ma trận paper. Có thể audit độc lập như sau:
 

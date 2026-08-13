@@ -183,11 +183,55 @@ def test_attack_finalizer_waits_for_horizon_and_settle(tmp_path):
         )
 
 
-def test_attack_finalizer_rejects_overlapping_attribution_horizons(tmp_path):
+def test_attack_finalizer_right_censors_horizon_at_next_same_pod_injection(tmp_path):
     capture, falco, contract, output = make_evidence(tmp_path)
     rows = _attack_rows(100.0, "inj-1") + _attack_rows(120.0, "inj-2")
     capture.write_text("".join(json.dumps(row) + "\n" for row in rows))
-    with pytest.raises(finalizer.EvidenceError, match="horizons overlap"):
+    report = finalizer.finalize(
+        capture, falco, contract, output, expected_trials=2, now=500.0,
+    )
+    assert report["right_censored_trial_count"] == 1
+    first, second = report["trials"]
+    assert report["next_injection_boundary_guard_seconds"] == 1.0
+    assert first["attribution_end"] == 119.0
+    assert first["effective_post_attack_horizon_seconds"] == 10.0
+    assert first["horizon_right_censored_by_next_injection"] is True
+    assert second["horizon_right_censored_by_next_injection"] is False
+
+
+def test_attack_finalizer_boundary_guard_excludes_next_attack_pre_ack_event(tmp_path):
+    capture, falco, contract, output = make_evidence(tmp_path, with_alert=False)
+    rows = _attack_rows(100.0, "inj-1") + _attack_rows(120.0, "inj-2")
+    capture.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    alert = {
+        "schema": "sentinel-falco-alert/v1", "kind": "falco_alert",
+        "event_ts": 119.97, "priority": "Warning",
+        "rule": "Detected ptrace PTRACE_ATTACH attempt",
+        "source_falco_pod": "falco-a", "source_node": "worker",
+        "target_namespace": "production", "target_pod": "api-gateway-abc",
+        "release_id": "v8-test", "contains_arguments_or_payloads": False,
+        "raw_output_stored": False,
+    }
+    alert["event_id"] = hashlib.sha256(
+        json.dumps(alert, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    (falco / "falco-alerts.jsonl").write_text(json.dumps(alert) + "\n")
+    state_path = falco / "collector-state.json"
+    state = json.loads(state_path.read_text())
+    state["privacy_safe_rows_written"] = 1
+    state_path.write_text(json.dumps(state))
+    report = finalizer.finalize(
+        capture, falco, contract, output, expected_trials=2, now=500.0,
+    )
+    assert report["matched_alert_count"] == 0
+    assert report["detected_trials"] == 0
+
+
+def test_attack_finalizer_rejects_actual_overlapping_attacks(tmp_path):
+    capture, falco, contract, output = make_evidence(tmp_path)
+    rows = _attack_rows(100.0, "inj-1") + _attack_rows(108.0, "inj-2")
+    capture.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    with pytest.raises(finalizer.EvidenceError, match="overlapping"):
         finalizer.finalize(
             capture, falco, contract, output, expected_trials=2, now=500.0,
         )

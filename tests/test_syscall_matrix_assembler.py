@@ -34,6 +34,19 @@ def test_latency_normalizer_accepts_both_report_shapes():
     })["sample_count"] == 1
 
 
+def test_rule_outcomes_preserve_per_trial_right_censoring():
+    from assemble_syscall_evaluation_matrix import normalized_outcomes
+    rows = normalized_outcomes([{
+        "injection_id": "trial-1", "pod_key": "production/api",
+        "scenario": "probe", "seed": 1, "rate": 6,
+        "start": 100, "end": 145, "attribution_end": 154,
+        "detected": False,
+        "horizon_right_censored_by_next_injection": True,
+    }], horizon_seconds=30)
+    assert rows[0]["censor_seconds"] == 54
+    assert rows[0]["horizon_right_censored"] is True
+
+
 def test_classification_metrics_reject_invalid_counts():
     with pytest.raises(ValueError):
         classification_metrics(201, 200, 0)

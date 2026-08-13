@@ -83,6 +83,11 @@ def normalized_outcomes(
             item.get("first_alert_latency_seconds", item.get("latency_seconds")),
         )
         start, end = float(item["start"]), float(item["end"])
+        attribution_end = float(item.get(
+            "attribution_end", end + horizon_seconds,
+        ))
+        if attribution_end < end or attribution_end <= start:
+            raise ValueError("invalid attack attribution/censor boundary")
         outcomes.append({
             "injection_id": str(item["injection_id"]),
             "pod_key": str(item["pod_key"]),
@@ -91,7 +96,10 @@ def normalized_outcomes(
             "rate": int(item["rate"]),
             "detected": bool(item["detected"]),
             "latency_seconds": float(latency) if latency is not None else None,
-            "censor_seconds": end - start + horizon_seconds,
+            "censor_seconds": attribution_end - start,
+            "horizon_right_censored": bool(
+                item.get("horizon_right_censored_by_next_injection", False)
+            ),
         })
     outcomes.sort(key=lambda row: row["injection_id"])
     if len(outcomes) != len({row["injection_id"] for row in outcomes}):

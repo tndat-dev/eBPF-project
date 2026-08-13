@@ -174,6 +174,8 @@ def evaluate_rule_replay(normal_capture: Path, attack_capture: Path,
         matches = [
             alert for alert in attack_alerts
             if alert["pod_key"] == interval["pod_key"]
+            and alert["run_id"] == interval["run_id"]
+            and alert["phase_id"] == interval["phase_id"]
             and interval["start"] <= alert["estimated_event_ts"]
             <= interval["end"] + horizon_seconds
         ]
@@ -240,6 +242,7 @@ def evaluate_rule_replay(normal_capture: Path, attack_capture: Path,
         "evaluation_protocol_sha256": None,
         "limitations": [
             "syscall event timestamps are estimated from sequence position within each window",
+            "attack attribution is restricted to exact capture run/phase identity",
             "rule-only baseline cannot use process arguments or binary identity because V8 excludes them",
         ],
     }

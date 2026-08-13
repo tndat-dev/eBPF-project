@@ -132,6 +132,7 @@ PYTHONPATH="$RUNTIME_ROOT" "$PYTHON_BIN" -m pytest -q -p no:cacheprovider \
   "$STAGING_ROOT/tests/test_render_syscall_paper_results.py" \
   "$STAGING_ROOT/tests/test_aims_attack_replay.py" \
   "$STAGING_ROOT/tests/test_attack_observability_audit.py" \
+  "$STAGING_ROOT/tests/test_feature_replay_dataset.py" \
   "$STAGING_ROOT/tests/test_syscall_matrix_assembler.py" \
   "$STAGING_ROOT/tests/test_syscall_paired_statistics.py" \
   "$STAGING_ROOT/tests/test_aims_normal_split_evaluator.py" \

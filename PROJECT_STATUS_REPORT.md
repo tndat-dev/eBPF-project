@@ -4436,3 +4436,51 @@ Checkpoint vận hành lúc `17:05Z` đạt 54/200 injection, 53 detected, vẫn
 miss đã đóng và zero unhealthy sensor. Confirmed-ML median tạm thời 18,426 giây;
 21 fast-path sample có median 0,396 giây. Service giữ MainPID `1054674`,
 `NRestarts=0`; số liệu vẫn là partial checkpoint, không phải terminal estimate.
+
+### 18.83 Blind attack V8 terminal: 195/200 primary detection (13-08-2026)
+
+Blind matrix đóng report lúc `2026-08-12T19:20:48Z`: đủ 40/40 trial-group và
+200/200 scenario, 40/40 child report SHA-256 khớp, zero unhealthy sensor và
+zero attack/detector non-zero exit. Primary result là 195 detected, 5 miss,
+recall point 0,975; cả năm miss đều là `namespace_probe` trên
+`production/security-telemetry-service`, mỗi seed/rate trial đúng một lần. Bốn
+scenario còn lại và bảy workload còn lại đều 40/40 hoặc 25/25.
+
+Confirmed-ML latency trên 195 detection: min 7,395 giây, median 18,435 giây,
+p95 20,506 giây, p99 20,814 giây, max 20,852 giây. Fast-path có 75 warning:
+min 0,015 giây, median 0,398 giây, p95 0,690 giây, p99 0,725 giây, max 0,734
+giây. Median inference theo 200 trial là 17,074 ms, p95 18,729 ms, max 19,273
+ms; do đó latency quyết định chủ yếu thuộc window/confirmation, không phải
+model compute.
+
+Canonical attack bundle gồm 200 source capture, 12.930 feature window, 200
+injection interval và 805 same-pod attack window; capture SHA-256
+`f306536f...`, dataset SHA-256 `128d15cc...`, labels không dùng train. Post-hoc
+observability audit bind terminal report cho 195 semantic-observable trial và
+5 unobservable trial; cả 5 primary miss nằm trong nhóm unobservable do seccomp.
+Kết quả chính vẫn là 195/200, không relabel thành 195/195.
+
+### 18.84 Sửa rule-baseline attribution và mở ablation (13-08-2026)
+
+Falco finalizer ban đầu từ chối vì horizon `end+30s` overlap injection kế tiếp.
+Right-censor đúng tại next start đã tạo report 70/200 nhưng audit rule cho thấy
+30 `local_socket_beacon` bị gán `ptrace`: tất cả event nằm 0,002--0,046 giây
+**trước** next `namespace_probe` host acknowledgement. Đây là boundary race,
+không phải detection của beacon. Ablation được dừng trước matrix assembly;
+derivative sai được chuyển recoverably vào
+`rejected/falco-rule-only-attack-20260813T000507Z-boundary-race/`.
+
+Falco schema v2 hiện dùng interval nửa mở, right-censor tại next same-pod start
+trừ pre-ack guard 1 giây và không cắt trước attack end. Final report hợp lệ có
+40/200 detection, recall 0,20, Wilson 95% [0,150; 0,261], toàn bộ thuộc đúng
+`namespace_probe`; latency median 0,050 giây, max 0,166 giây. Có 156/200 trial
+right-censored; effective post horizon median 8,716 giây. Coverage 6/6 reader,
+zero in-scope failure; bốn lifetime failure đều ngoài phạm vi. Marker
+`FALCO_ATTACK_EVIDENCE_COMPLETE` được tạo lúc `00:08:53Z`.
+
+Audit downstream phát hiện Tetragon timestamp nội window là ước lượng, nên
+builder và Tetragon replay nay bắt buộc exact same-pod/release/run/phase/regime
+identity ngoài điều kiện thời gian. Focused VM suite đạt 20/20, local suite đạt
+`167 passed, 9 skipped`; chưa có Tetragon derivative nào trước fix. Normal
+ablation được restart nền lúc `00:12:51Z`, đang fit shared-workload candidate;
+không train/tune lại V8 per-workload model và overhead vẫn chờ marker terminal.

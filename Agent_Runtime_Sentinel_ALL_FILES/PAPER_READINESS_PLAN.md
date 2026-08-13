@@ -157,6 +157,14 @@ trước điểm quan sát. Audit không được relabel mẫu, không dùng tr
 matrix terminal bind bằng SHA-256; V9 phải ghi syscall return/errno aggregate
 ngay trong preregistered harness để loại giới hạn window-overlap này.
 
+Falco/Tetragon rule-baseline attribution được harden sau terminal capture nhưng
+trước paper matrix. Falco dùng right-censor ở next same-pod injection cộng 1 s
+guard cho race event-before-host-ack; Tetragon và canonical labels bắt buộc exact
+run/phase identity vì timestamp trong window là ước lượng. Derivative Falco đầu
+tiên không có guard được giữ trong `rejected/` và không được trích dẫn. Paper
+phải công khai đây là correction hậu nghiệm về measurement validity, không phải
+tuning model hay thay nhãn ML.
+
 Ba ablation detector-path không còn yêu cầu sửa source giữa các lượt chạy:
 behavior corroboration, extreme-volume route và số window xác nhận là tham số
 explicit với production default lần lượt `true/true/2`. Atomic checkpoint bind

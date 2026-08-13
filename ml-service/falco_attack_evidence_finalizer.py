@@ -21,7 +21,7 @@ from falco_evidence_finalizer import (
 from validate_feature_capture import validate_capture
 
 
-REPORT_SCHEMA = "sentinel-falco-attack-evidence/v1"
+REPORT_SCHEMA = "sentinel-falco-attack-evidence/v2"
 
 
 def distribution(values: list[float]) -> dict[str, Any]:
@@ -121,10 +121,13 @@ def finalize(
     *,
     expected_trials: int = 200,
     post_attack_horizon: float = 30.0,
+    next_injection_guard: float = 1.0,
     minimum_settle_seconds: float = 30.0,
     max_state_age: float = 120.0,
     now: float | None = None,
 ) -> dict[str, Any]:
+    if post_attack_horizon < 0 or next_injection_guard < 0:
+        raise EvidenceError("Falco attribution horizons/guard must be non-negative")
     output_root = output_root.resolve()
     prior = existing_report(output_root)
     if prior is not None:
@@ -146,23 +149,50 @@ def finalize(
     if any(item.get("attack_exit_code") != 0 for item in intervals):
         raise EvidenceError("Falco attack evidence contains a failed injection")
     intervals.sort(key=lambda item: (item["start"], item["injection_id"]))
-    for previous, current in zip(intervals, intervals[1:]):
-        if (
-            previous["pod_key"] == current["pod_key"]
-            and previous["end"] + post_attack_horizon > current["start"]
-        ):
-            raise EvidenceError("Falco attribution horizons overlap on one pod")
+    by_pod: dict[str, list[dict[str, Any]]] = {}
+    for interval in intervals:
+        by_pod.setdefault(str(interval["pod_key"]), []).append(interval)
+    for pod_intervals in by_pod.values():
+        for index, interval in enumerate(pod_intervals):
+            next_start = (
+                float(pod_intervals[index + 1]["start"])
+                if index + 1 < len(pod_intervals) else None
+            )
+            if next_start is not None and float(interval["end"]) > next_start:
+                raise EvidenceError("Falco attack intervals overlap on one pod")
+            requested_end = float(interval["end"]) + post_attack_horizon
+            guarded_next_start = (
+                max(float(interval["end"]), next_start - next_injection_guard)
+                if next_start is not None else None
+            )
+            attribution_end = (
+                min(requested_end, guarded_next_start)
+                if guarded_next_start is not None else requested_end
+            )
+            if attribution_end <= float(interval["start"]):
+                raise EvidenceError("Falco attribution interval is empty")
+            interval["attribution_end"] = attribution_end
+            interval["requested_attribution_end"] = requested_end
+            interval["effective_post_attack_horizon_seconds"] = max(
+                0.0, attribution_end - float(interval["end"])
+            )
+            interval["horizon_right_censored_by_next_injection"] = bool(
+                attribution_end < requested_end
+            )
+            interval["next_injection_guard_applied"] = bool(
+                next_start is not None and attribution_end < requested_end
+            )
 
     contract, _ = read_json(collection_contract)
     release_id = str(contract.get("release_id", ""))
     evidence_intervals = [
-        (float(item["start"]), float(item["end"]) + post_attack_horizon)
+        (float(item["start"]), float(item["attribution_end"]))
         for item in intervals
     ]
     state, provenance, failure_scope = validate_collector(
         falco_root.resolve(), release_id=release_id,
         first_phase_start=float(intervals[0]["start"]),
-        last_phase_end=float(intervals[-1]["end"]) + post_attack_horizon,
+        last_phase_end=max(float(item["attribution_end"]) for item in intervals),
         evidence_intervals=evidence_intervals,
         now=now, max_state_age=max_state_age,
         minimum_settle_seconds=minimum_settle_seconds,
@@ -182,9 +212,7 @@ def finalize(
         matches = [
             interval for interval in intervals
             if interval["pod_key"] == pod_key
-            and interval["start"] <= timestamp <= (
-                interval["end"] + post_attack_horizon
-            )
+            and interval["start"] <= timestamp < interval["attribution_end"]
         ]
         if len(matches) > 1:
             raise EvidenceError("Falco alert maps to multiple blind trials")
@@ -226,7 +254,10 @@ def finalize(
         "valid": True,
         "created_at": datetime.fromtimestamp(now, timezone.utc).isoformat(),
         "release_id": release_id,
-        "method": "Falco rule-only; first privacy-safe alert per injection horizon",
+        "method": (
+            "Falco rule-only; first privacy-safe alert per non-overlapping "
+            "same-pod injection horizon"
+        ),
         "trial_count": len(trials),
         "detected_trials": detected,
         "recall": wilson_interval(detected, len(trials)),
@@ -234,6 +265,20 @@ def finalize(
         "matched_alert_count": len(matched_rows),
         "source_falco_alert_count": len(falco_rows),
         "post_attack_horizon_seconds": post_attack_horizon,
+        "next_injection_boundary_guard_seconds": next_injection_guard,
+        "horizon_attribution_policy": (
+            "[injection_start, min(injection_end + requested_horizon, "
+            "next_same_pod_injection_start - boundary_guard)); never censor "
+            "before injection_end; right-censor before a later injection"
+        ),
+        "right_censored_trial_count": sum(
+            bool(item["horizon_right_censored_by_next_injection"])
+            for item in trials
+        ),
+        "effective_post_attack_horizon_seconds": distribution([
+            float(item["effective_post_attack_horizon_seconds"])
+            for item in trials
+        ]),
         "trials": trials,
         "coverage": {
             "expected_readers": state["expected_readers"],
@@ -260,7 +305,9 @@ def finalize(
         },
         "claim_scope": (
             "Falco rule-only recall on the frozen V8 blind attack intervals; "
-            "normal alert rate is reported by the separate normal finalizer."
+            "same-pod post-attack horizons are right-censored at the next "
+            "injection to prevent ambiguous attribution; normal alert rate is "
+            "reported by the separate normal finalizer."
         ),
     }
 
@@ -295,12 +342,14 @@ def main() -> int:
     parser.add_argument("--output-root", required=True, type=Path)
     parser.add_argument("--expected-trials", type=int, default=200)
     parser.add_argument("--post-attack-horizon", type=float, default=30.0)
+    parser.add_argument("--next-injection-guard", type=float, default=1.0)
     args = parser.parse_args()
     try:
         report = finalize(
             args.attack_capture, args.falco_root, args.collection_contract,
             args.output_root, expected_trials=args.expected_trials,
             post_attack_horizon=args.post_attack_horizon,
+            next_injection_guard=args.next_injection_guard,
         )
     except EvidenceNotSettled as exc:
         print(f"WAITING: {exc}")

@@ -114,3 +114,29 @@ def test_rule_replay_publishes_idempotent_hash_checked_bundle(tmp_path):
         assert "checksum mismatch" in str(exc)
     else:
         raise AssertionError("tampered output was accepted")
+
+
+def test_rule_replay_does_not_cross_attribute_next_phase_window(tmp_path):
+    normal_rows = []
+    start = 10.0
+    for run in range(2, 7):
+        for phase in range(4):
+            normal_rows.append(feature(
+                start, f"normal-run-{run:02d}", f"phase-{phase}", ["read"],
+            ))
+            start += 10
+    normal = tmp_path / "normal.jsonl"
+    write_rows(normal, normal_rows)
+    attack = tmp_path / "attack.jsonl"
+    write_rows(attack, [
+        injection("injection", 1002, "trial-1"),
+        feature(1000, "attack-run", "trial-1", ["read"]),
+        injection("injection_end", 1008, "trial-1"),
+        injection("injection", 1019.99, "trial-2"),
+        feature(1010, "attack-run", "trial-2", ["unshare", "read"]),
+        injection("injection_end", 1028, "trial-2"),
+    ])
+    report, _ = evaluate_rule_replay(
+        normal, attack, protocol(), expected_trials=2,
+    )
+    assert report["attack"]["detected"] == 0

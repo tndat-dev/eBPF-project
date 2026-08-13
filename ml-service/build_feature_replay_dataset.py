@@ -10,6 +10,9 @@ from pathlib import Path
 from validate_feature_capture import validate_capture
 
 
+IDENTITY_FIELDS = ("release_id", "run_id", "phase_id", "traffic_regime")
+
+
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -36,6 +39,8 @@ def injection_intervals(rows: list[dict]) -> list[dict]:
                 row.get("pod_key") != start.get("pod_key")
                 or row.get("attack_type") != start.get("attack_type")
                 or float(row.get("ts", 0)) <= float(start.get("ts", 0))
+                or any(row.get(field) != start.get(field)
+                       for field in IDENTITY_FIELDS)
             ):
                 raise ValueError(f"inconsistent injection interval: {injection_id}")
             intervals.append({
@@ -47,6 +52,7 @@ def injection_intervals(rows: list[dict]) -> list[dict]:
                 "rate": start.get("rate"),
                 "seed": start.get("seed"),
                 "attack_exit_code": row.get("attack_exit_code"),
+                **{field: start.get(field) for field in IDENTITY_FIELDS},
             })
     if starts:
         raise ValueError(f"injection starts without end: {sorted(starts)}")
@@ -62,6 +68,8 @@ def label_windows(rows: list[dict], intervals: list[dict]) -> list[dict]:
         overlaps = [
             interval for interval in intervals
             if interval["pod_key"] == row.get("pod_key")
+            and all(row.get(field) == interval.get(field)
+                    for field in IDENTITY_FIELDS)
             and float(row["window_end"]) > interval["start"]
             and float(row["window_start"]) < interval["end"]
         ]
@@ -125,7 +133,10 @@ def build_dataset(capture: Path, *, require_injections: bool = False
         "scenarios": sorted({
             interval["scenario"] for interval in intervals
         }),
-        "labelling_rule": "window interval intersects same-pod injection interval",
+        "labelling_rule": (
+            "window interval intersects injection interval with exact same-pod, "
+            "release, run, phase and traffic-regime identity"
+        ),
         "labels_used_for_training": False,
     }
     return rows, manifest

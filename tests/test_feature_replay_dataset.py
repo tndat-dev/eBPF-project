@@ -86,3 +86,28 @@ def test_replay_builder_rejects_unclosed_or_failed_injection(tmp_path):
     path.write_text("".join(json.dumps(row) + "\n" for row in rows))
     with pytest.raises(ValueError, match="failed injection"):
         build_dataset(path, require_injections=True)
+
+
+def test_replay_builder_does_not_label_cross_phase_window(tmp_path):
+    rows = [
+        {"kind": "injection", "ts": 12,
+         "schema": "sentinel-injection-interval/v2",
+         "injection_id": "trial:escape",
+         "pod_key": "production/service-pod", "attack_type": "escape",
+         "rate": 6, "seed": 101, "release_id": "v8-test",
+         "run_id": "run-01", "phase_id": "attack-01",
+         "traffic_regime": "attack"},
+        {**feature(10), "phase_id": "attack-02"},
+        {"kind": "injection_end", "ts": 22,
+         "schema": "sentinel-injection-interval/v2",
+         "injection_id": "trial:escape",
+         "pod_key": "production/service-pod", "attack_type": "escape",
+         "attack_exit_code": 0, "release_id": "v8-test",
+         "run_id": "run-01", "phase_id": "attack-01",
+         "traffic_regime": "attack"},
+    ]
+    path = tmp_path / "capture.jsonl"
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    dataset, manifest = build_dataset(path, require_injections=True)
+    assert dataset[0]["label"] == "normal"
+    assert "exact same-pod" in manifest["labelling_rule"]
