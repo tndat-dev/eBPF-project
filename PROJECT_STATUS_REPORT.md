@@ -4668,3 +4668,29 @@ terminal. Lúc `06:30Z`, runner đã chuyển sang
 `syscall__without_fast_path`: checkpoint 7/20 phase, 42.316 eligible window và
 zero alert. Normal-ablation marker, paired statistics 11 phương pháp và overhead
 campaign vẫn chưa terminal.
+
+### 18.93 No-fast-path terminal và khóa quyết định stable theo contract (13-08-2026)
+
+`syscall__without_fast_path` đã đóng đủ 20/20 normal phase với 122.603 eligible
+decision window, zero alert; normal report SHA-256 `79528bcc...`. Paired attack
+replay đóng 200/200 trial, phát hiện 195, recall 0,975, Wilson 95% CI
+[0,943; 0,989]; attack report SHA-256 `b891494b...`. Confirmation latency
+median 18,255 giây, p95 19,991 giây, p99 19,995 giây; trial-median inference
+median 11,947 ms. Outcome detection/latency giống full V7 confirmed path đúng
+theo frozen protocol: fast path là lane early warning live riêng, không tham gia
+quyết định confirmed-ML.
+
+Runner đã tự chuyển sang `syscall__without_behavior_gate` normal replay;
+normal-ablation service và production detector đều không restart. V9
+full-coverage mới chỉ được kiểm kê read-only rồi tạm hoãn; không có policy,
+traffic hay model V9 nào được deploy, do đó không gây nhiễu V8.
+
+Đường đóng stable mới `finalize_v8_stable_release.py` đã được thêm và deploy
+cùng `aims-v8-release-finalize.path`, hiện `active/waiting` tới marker
+`V8_OVERHEAD_COMPLETE`. Finalizer xác minh checksum, 11 phương pháp, 55 paired
+comparison và sáu overhead order nhưng tuyệt đối không auto-promote. Contract
+đã preregister yêu cầu attack recall 1,0; kết quả frozen 0,975 hiện không đạt.
+Nếu các evidence còn lại terminal sạch, V8 vì vậy chỉ được đóng trạng thái
+`research_stable_dry_run_only`, không đủ điều kiện production promotion; không
+hạ gate hậu nghiệm hoặc tune bằng năm blind miss. Focused local/VM đều 4/4
+pass; full local regression đạt `171 passed, 9 skipped`.
