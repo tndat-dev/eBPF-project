@@ -12,8 +12,26 @@ SERVICE_ROOT = Path(__file__).resolve().parents[1] / "ml-service"
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from evaluate_aims_attack_replay import (
-    capture_groups, dense_vector, validate_protocol_policy, wilson,
+    capture_groups, dense_vector, validate_protocol_policy,
+    validate_release_identity, wilson,
 )
+
+
+def test_release_identity_keeps_production_and_experiment_contracts_distinct():
+    release = {
+        "production_release_frozen": "V7",
+        "release_track": "aims-syscall-candidate",
+    }
+    split = {"release_id": "v8-paired-replay-20260811"}
+    attack = {"release_id": "v8-paired-replay-20260811"}
+    protocol = {"release_id": "v8-paired-replay-20260811"}
+    assert validate_release_identity(
+        release, split, attack, protocol,
+    ) == "v8-paired-replay-20260811"
+    with pytest.raises(ValueError, match="release contract mismatch"):
+        validate_release_identity(
+            release, split, {"release_id": "different"}, protocol,
+        )
 
 
 def row(kind, ts, injection_id="i-1"):

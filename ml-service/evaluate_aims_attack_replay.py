@@ -37,6 +37,33 @@ from workload_identity import get_deployment_key
 REPORT_SCHEMA = "sentinel-aims-attack-replay/v1"
 
 
+def validate_release_identity(
+    release: dict[str, Any], split: dict[str, Any],
+    attack_contract: dict[str, Any], protocol: dict[str, Any],
+) -> str:
+    """Return the experiment release ID without conflating two contracts.
+
+    The AIMS release contract predates V8 and identifies the frozen production
+    model through ``production_release_frozen``/``release_track``.  The V8
+    split, attack and evaluation protocol identify the paper experiment with
+    ``release_id``.  Requiring the production contract to grow that later
+    field would mutate a frozen parent artifact.
+    """
+    release_id = split.get("release_id")
+    if not isinstance(release_id, str) or not release_id:
+        raise ValueError("attack replay release contract mismatch")
+    if any(
+        document.get("release_id") != release_id
+        for document in (attack_contract, protocol)
+    ):
+        raise ValueError("attack replay release contract mismatch")
+    if not release.get("production_release_frozen") or not release.get(
+        "release_track"
+    ):
+        raise ValueError("frozen production release identity is missing")
+    return release_id
+
+
 def wilson(successes: int, total: int, z: float = 1.959963984540054) -> dict:
     if total < 1 or not 0 <= successes <= total:
         raise ValueError("invalid Wilson counts")
@@ -329,12 +356,9 @@ def main() -> int:
         raise ValueError("experiment ID is not canonical")
     if not args.experiment_id.startswith("syscall__"):
         raise ValueError("attack replay only supports the syscall track")
-    release_id = str(release.get("release_id"))
-    if not release_id or any(
-        document.get("release_id") != release_id
-        for document in (split, attack_contract, protocol)
-    ):
-        raise ValueError("attack replay release contract mismatch")
+    release_id = validate_release_identity(
+        release, split, attack_contract, protocol,
+    )
     gate = development_gate(
         training, args.model_routing,
         args.allow_rejected_shared_ablation,

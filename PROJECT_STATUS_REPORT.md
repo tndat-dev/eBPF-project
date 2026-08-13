@@ -4555,3 +4555,29 @@ CPU, cgroup chỉ bị throttle tổng 0,195 giây sau 11.610 period. Production
 `NRestarts=0`; audit journal từ `03:00Z` không có anomaly, early warning, error
 hay traceback. Cluster zero bad pod. Normal IF còn 12 phase rồi runner sẽ tự
 chạy paired attack; kết quả checkpoint không phải terminal estimate.
+
+### 18.88 Isolation Forest terminal và sửa contract identity cho attack replay (13-08-2026)
+
+IF-only normal replay đóng đủ 20/20 phase, 122.639 eligible window trong
+1.968,686 giây evaluator time với 69.855 false alert. Trên 23,964 giờ normal
+exposure, observed rate xấp xỉ 2.915 alert/giờ; baseline vì vậy không dùng được
+độc lập dù attack sensitivity cao. Đây là empirical ablation outcome, không
+được dùng hậu nghiệm để đổi fixed threshold 0,80.
+
+Attack replay lần đầu fail trước khi đọc trial vì validator nhầm production
+release contract với experiment release contract. Frozen
+`aims_release_contract.json` thuộc schema cũ, định danh model bằng
+`production_release_frozen=V7` và `release_track=aims-syscall-candidate`; chỉ
+V8 split/attack/protocol dùng `release_id=v8-paired-replay-20260811`. Validator
+nay kiểm hai cấp identity riêng, vẫn yêu cầu split/attack/protocol đồng nhất và
+không sửa frozen parent artifact. Full local suite đạt `167 passed, 9 skipped`,
+focused VM suite 7/7; runner resume và xác minh normal IF terminal thay vì chạy
+lại.
+
+IF attack replay sau fix đóng 200/200 detection, Wilson 95% CI [0,981; 1,000],
+tất cả năm scenario 40/40 và tám workload 25/25. Confirmation latency median
+8,269 giây, p95 9,992 giây, p99 38,785 giây, max 48,518 giây; trial-median
+inference median 14,292 ms. Kết quả 100% attack recall **không bù được** 69.855
+normal false alert, nên không thể claim IF là detector tốt. Lúc `03:42Z`, runner
+đã tự chuyển sang normal replay `syscall__lstm_only`; service `NRestarts=0`,
+terminal matrix và overhead vẫn đang chờ.
