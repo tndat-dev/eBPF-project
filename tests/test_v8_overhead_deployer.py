@@ -14,6 +14,7 @@ def test_v8_overhead_deployer_is_hash_gated_atomic_and_timer_only():
     assert "pytest -q" in script
     assert "install_atomic" in script
     assert ".v8-overhead-staging" in script
-    assert "systemctl enable --now aims-v8-overhead.timer" in script
+    assert "aims-v8-overhead.path" in script
+    assert "systemctl enable --now aims-v8-overhead.timer aims-v8-overhead.path" in script
     assert "systemctl start aims-v8-overhead.service" not in script
     assert "NORMAL_ABLATION_REPLAY_COMPLETE" in script

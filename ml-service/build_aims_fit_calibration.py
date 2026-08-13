@@ -40,6 +40,7 @@ def main() -> int:
     parser.add_argument("--minimum-events", type=int, default=10)
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--extreme-volume-factor", type=float, default=2.0)
+    parser.add_argument("--allow-rejected-shared-ablation", action="store_true")
     args = parser.parse_args()
     candidate = args.candidate.resolve()
     output = args.output.resolve()
@@ -51,7 +52,16 @@ def main() -> int:
     dataset_path = candidate / "dataset_manifest.json"
     training = json.loads(training_path.read_text())
     dataset = json.loads(dataset_path.read_text())
-    if training.get("accepted_offline") is not True:
+    development_accepted = training.get("accepted_offline") is True
+    rejected_shared_ablation = bool(
+        args.allow_rejected_shared_ablation
+        and not development_accepted
+        and training.get("model_routing") == "shared_workload"
+        and training.get("labels_used_for_training_or_tuning") is False
+        and training.get("independent_evaluation_rows_used") is False
+        and training.get("attack_rows_used") is False
+    )
+    if not development_accepted and not rejected_shared_ablation:
         raise ValueError("candidate did not pass development gate")
     if training.get("dataset_role") != "candidate_fit":
         raise ValueError("calibration source is not candidate_fit")
@@ -140,6 +150,9 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "source_role": "candidate_fit",
         "evaluation_data_used": False,
+        "development_gate_accepted": development_accepted,
+        "rejected_shared_ablation_evaluation_only": rejected_shared_ablation,
+        "automatic_promotion": False if rejected_shared_ablation else None,
         "candidate": str(candidate),
         "training_report_sha256": sha256(training_path),
         "dataset_manifest_sha256": sha256(dataset_path),

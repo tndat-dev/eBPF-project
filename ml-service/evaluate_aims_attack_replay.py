@@ -27,7 +27,7 @@ import anomaly_detector2
 from build_feature_replay_dataset import build_dataset, injection_intervals, load_rows
 from evaluate_aims_normal_split import (
     SCORE_COMPONENTS, ScoreComponentManager, candidate_hashes, quantiles,
-    sha256, validate_calibration_provenance, write_report,
+    development_gate, sha256, validate_calibration_provenance, write_report,
 )
 from feature_engineering import FeatureVector
 from ml_models import ModelManager, SharedWorkloadModelManager
@@ -306,6 +306,7 @@ def main() -> int:
     parser.add_argument("--score-component", choices=SCORE_COMPONENTS, default="ensemble")
     parser.add_argument("--model-routing", choices=("per_workload", "shared_workload"),
                         default="per_workload")
+    parser.add_argument("--allow-rejected-shared-ablation", action="store_true")
     args = parser.parse_args()
 
     paths = {
@@ -334,8 +335,12 @@ def main() -> int:
         for document in (split, attack_contract, protocol)
     ):
         raise ValueError("attack replay release contract mismatch")
-    if training.get("accepted_offline") is not True or training.get("dataset_role") != "candidate_fit":
-        raise ValueError("candidate did not pass its fit-only development gate")
+    gate = development_gate(
+        training, args.model_routing,
+        args.allow_rejected_shared_ablation,
+    )
+    if training.get("dataset_role") != "candidate_fit":
+        raise ValueError("candidate was not fitted from candidate_fit data")
     if training.get("dataset_manifest_sha256") != sha256(dataset_path):
         raise ValueError("candidate dataset provenance mismatch")
     if (dataset.get("experiment_contract") or {}).get("sha256") != sha256(paths["split_contract"]):
@@ -418,6 +423,7 @@ def main() -> int:
         "split_contract_sha256": sha256(paths["split_contract"]),
         "blind_attack_contract_sha256": sha256(paths["attack_contract"]),
         "evaluation_protocol_sha256": sha256(paths["protocol"]),
+        "development_gate": gate,
         "evaluation_policy": policy,
         "resolved_protocol_method": resolved_method,
         "expected_trials": args.expected_trials,

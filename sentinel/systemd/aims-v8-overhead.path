@@ -1,0 +1,9 @@
+[Unit]
+Description=Start Sentinel V8 overhead when terminal ablation evidence appears
+
+[Path]
+PathExists=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/NORMAL_ABLATION_REPLAY_COMPLETE
+Unit=aims-v8-overhead.service
+
+[Install]
+WantedBy=multi-user.target

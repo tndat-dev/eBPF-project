@@ -15,12 +15,36 @@ if not SERVICE_ROOT.is_dir():
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from evaluate_aims_normal_split import (candidate_hashes,
+                                        development_gate,
                                         matrix_dimensions,
                                         resumable_phase_reports,
                                         ScoreComponentManager,
                                         validate_blind_prerequisite,
                                         validate_calibration_provenance,
                                         write_report)
+
+
+def test_rejected_candidate_override_is_shared_ablation_only():
+    training = {
+        "accepted_offline": False,
+        "model_routing": "shared_workload",
+        "labels_used_for_training_or_tuning": False,
+        "independent_evaluation_rows_used": False,
+        "attack_rows_used": False,
+    }
+    with pytest.raises(ValueError, match="development gate"):
+        development_gate(training, "shared_workload", False)
+    gate = development_gate(training, "shared_workload", True)
+    assert gate == {
+        "accepted": False,
+        "rejected_shared_ablation_evaluation_only": True,
+        "automatic_promotion": False,
+    }
+    with pytest.raises(ValueError, match="development gate"):
+        development_gate(training, "per_workload", True)
+    with pytest.raises(ValueError, match="development gate"):
+        development_gate({**training, "attack_rows_used": True},
+                         "shared_workload", True)
 
 
 def test_v8_matrix_dimensions_include_all_six_runs():

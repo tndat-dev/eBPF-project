@@ -78,6 +78,12 @@ def result_row(experiment_id: str, result: dict[str, Any]) -> dict[str, Any]:
         "confirmation_latency_p95_seconds": latency.get("p95"),
         "confirmation_latency_p99_seconds": latency.get("p99"),
         "inference_median_ms": inference.get("median"),
+        "development_gate_accepted": result.get(
+            "development_gate", {}
+        ).get("accepted", True),
+        "rejected_shared_ablation_evaluation_only": result.get(
+            "development_gate", {}
+        ).get("rejected_shared_ablation_evaluation_only", False),
     }
 
 
@@ -123,6 +129,9 @@ def markdown_document(
     attack_significant = sum(row["significant_at_0_05"] for row in comparisons)
     normal_significant = sum(row["normal_significant_at_0_05"] for row in comparisons)
     full = results["syscall__full_v7"].get("fast_path", {})
+    shared_gate = results["syscall__shared_workload_model"].get(
+        "development_gate", {}
+    )
     normal_fast = full.get("normal_operational_evidence", {})
     attack_fast = full.get("latency_seconds", {})
     if normal_fast.get("status") == "excluded":
@@ -158,6 +167,10 @@ def markdown_document(
         "",
         "## Giới hạn bắt buộc khi trích dẫn",
         "",
+        "- Shared-workload candidate không qua development gate nhưng vẫn được "
+        "replay như ablation evaluation-only; không đủ điều kiện promotion."
+        if shared_gate.get("rejected_shared_ablation_evaluation_only") else
+        "- Shared-workload candidate đã qua development gate trước replay.",
         "- `false alerts/hour` không phải statistical FPR; rule/early-warning lane "
         "không có scored Bernoulli opportunity thống nhất.",
         "- Confirmation latency là feature-window end trừ injection acknowledgement, "

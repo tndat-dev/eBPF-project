@@ -12,6 +12,7 @@ User=dat
 Group=dat
 WorkingDirectory=/home/dat/ml-service
 Environment=PYTHON_BIN=/home/dat/ml-venv/bin/python
+Environment=OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
 ExecStart=/usr/bin/flock -n -E 75 /home/dat/ml-service/.aims-v8-normal-ablation.lock /home/dat/ml-service/run_v8_normal_ablation_matrix.sh
 SuccessExitStatus=75
 Nice=10

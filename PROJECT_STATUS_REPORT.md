@@ -4484,3 +4484,39 @@ identity ngoài điều kiện thời gian. Focused VM suite đạt 20/20, local
 `167 passed, 9 skipped`; chưa có Tetragon derivative nào trước fix. Normal
 ablation được restart nền lúc `00:12:51Z`, đang fit shared-workload candidate;
 không train/tune lại V8 per-workload model và overhead vẫn chờ marker terminal.
+
+### 18.85 Shared-workload bị development gate từ chối, vẫn giữ làm ablation (13-08-2026)
+
+Shared-workload candidate đóng artifact lúc `02:32:05Z`, dùng đúng 24.152
+candidate-fit row (19.322 train, 4.830 validation), 200 epoch và không dùng
+independent-normal/attack row hay label. Model có validation loss tốt nhất
+`0,001095`, score median `0,0842`, p95 `0,1170`, score exceedance `0,00290`
+và zero actionable pair, nhưng **không qua development gate** vì một validation
+window ngoài startup grace kích hoạt behavior gate (`max_ratio=1,542`). Đây là
+kết quả fit-only đã đóng; không retrain, đổi threshold hay loại row sau khi thấy
+kết quả.
+
+Lượt train đầu bị chậm do PyTorch tạo nhiều compute thread trong systemd cgroup
+`CPUQuota=100%`: 72.282/72.345 quota period bị throttle, tổng throttled-time
+26.876 giây trong khoảng 7.160 giây wall-clock. Trainer và unit nay pin
+PyTorch/OMP/MKL/OpenBLAS/NumExpr một thread; artifact terminal ghi
+`torch_num_threads=1`, `torch_num_interop_threads=1`, training time 862,304
+giây và inference validation median 13,655 ms. Partial trước restart được giữ
+recoverably trong `rejected-partials/`, không ghi đè evidence.
+
+Pipeline trước đây fail khi calibration thấy `accepted_offline=false`. Semantics
+được sửa fail-closed: chỉ shared-workload candidate có provenance xác nhận
+`labels_used_for_training_or_tuning=false`, `independent_evaluation_rows_used=false`
+và `attack_rows_used=false` mới được replay dưới cờ
+`--allow-rejected-shared-ablation`. Report calibration/evaluation bắt buộc ghi
+`rejected_shared_ablation_evaluation_only=true` và `automatic_promotion=false`.
+Như vậy paper vẫn đo được shared-vs-per-workload trên cùng paired holdout, nhưng
+không được diễn giải shared model là deployable candidate.
+
+Overhead handoff cũng được harden bằng systemd path unit theo dõi trực tiếp
+`NORMAL_ABLATION_REPLAY_COMPLETE`, song song retry timer. Điều này sửa trạng thái
+timer calendar đã hết `NextElapse` sau nhiều lần condition-skip. Staging overhead
+đạt 19/19 test; focused post-capture đạt 28/28 và full local regression đạt
+`167 passed, 9 skipped`. Lúc `02:58Z`, shared fit-calibration đang chạy nền,
+ablation service `activating`, `NRestarts=0`; chưa có terminal marker nên chưa
+công bố bảng 11 phương pháp hay overhead V8.

@@ -41,9 +41,17 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--epochs", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=64)
+    parser.add_argument("--torch-threads", type=int, default=1)
     args = parser.parse_args()
-    if args.epochs < 1 or args.batch_size < 1:
-        raise ValueError("epochs and batch size must be positive")
+    if args.epochs < 1 or args.batch_size < 1 or args.torch_threads < 1:
+        raise ValueError("epochs, batch size and torch threads must be positive")
+
+    # The systemd ablation unit is capped at one CPU.  Letting PyTorch create
+    # one worker per host CPU exhausts the cgroup quota at the start of almost
+    # every period and spends most wall time throttled.  Pinning the numerical
+    # runtime is also part of the reproducibility contract for this ablation.
+    torch.set_num_threads(args.torch_threads)
+    torch.set_num_interop_threads(1)
 
     fit_dataset = args.fit_dataset.resolve()
     reference = args.reference_candidate.resolve()
@@ -155,6 +163,8 @@ def main() -> int:
             "python": platform.python_version(),
             "numpy": np.__version__, "torch": torch.__version__,
             "sklearn": sklearn.__version__,
+            "torch_num_threads": torch.get_num_threads(),
+            "torch_num_interop_threads": torch.get_num_interop_threads(),
             "model_routing": "shared_workload",
             "shared_model_key": SharedWorkloadModelManager.SHARED_MODEL_KEY,
             "targets": targets,

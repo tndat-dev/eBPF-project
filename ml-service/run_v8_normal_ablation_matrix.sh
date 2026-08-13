@@ -67,7 +67,8 @@ if [[ ! -r "$SHARED_CALIBRATION_REPORT" ]]; then
   }
   "$PYTHON_BIN" "$ROOT_DIR/build_aims_fit_calibration.py" \
     --candidate "$SHARED_CANDIDATE" --output "$SHARED_CALIBRATION" \
-    --report "$SHARED_CALIBRATION_REPORT"
+    --report "$SHARED_CALIBRATION_REPORT" \
+    --allow-rejected-shared-ablation
 fi
 
 "$PYTHON_BIN" "$ROOT_DIR/evaluate_tetragon_rule_replay.py" \
@@ -190,9 +191,10 @@ run_attack_experiment syscall__without_two_window_confirmation \
 CANDIDATE=$SHARED_CANDIDATE
 CALIBRATION=$SHARED_CALIBRATION
 CALIBRATION_REPORT=$SHARED_CALIBRATION_REPORT
-run_experiment syscall__shared_workload_model --model-routing shared_workload
+run_experiment syscall__shared_workload_model --model-routing shared_workload \
+  --allow-rejected-shared-ablation
 run_attack_experiment syscall__shared_workload_model \
-  --model-routing shared_workload
+  --model-routing shared_workload --allow-rejected-shared-ablation
 
 "$PYTHON_BIN" "$ROOT_DIR/assemble_syscall_evaluation_matrix.py" \
   --evidence-root "$EVIDENCE_ROOT" --derived-root "$DERIVED_ROOT" \

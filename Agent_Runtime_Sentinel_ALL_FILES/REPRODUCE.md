@@ -244,7 +244,12 @@ Normal replay dùng cùng detector path có ba tùy chọn ablation explicit:
 `--score-component ensemble|lstm|isolation_forest`. Shared-workload ablation
 dùng thêm `--model-routing shared_workload`; candidate này phải do
 `train_shared_workload_candidate.py` fit từ đúng run-01 và có calibration
-fit-only riêng. Không ghi đè cùng output
+fit-only riêng. Nếu shared candidate không qua development gate thì không được
+retrain theo holdout; paper ablation chỉ được thêm
+`--allow-rejected-shared-ablation` khi provenance chứng minh không dùng
+independent/attack row hoặc label, và downstream phải giữ
+`rejected_shared_ablation_evaluation_only=true`, `automatic_promotion=false`.
+Không ghi đè cùng output
 giữa các policy; checkpoint bind policy/component và sẽ fail nếu cố resume chéo
 cấu hình. Không truyền tùy chọn nào là production default: adaptive/behavior/
 extreme-volume bật, ensemble score và hai window.

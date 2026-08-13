@@ -39,6 +39,7 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "train_shared_workload_candidate.py" in script
     assert "syscall__shared_workload_model" in script
     assert "--model-routing shared_workload" in script
+    assert "--allow-rejected-shared-ablation" in script
     assert "syscall__full_v7" in script
     assert "syscall__without_fast_path" in script
     assert "completed_trials\") == 200" in script
@@ -60,6 +61,8 @@ def test_v8_normal_ablation_systemd_waits_for_attack_and_is_bounded():
     assert "User=dat" in service
     assert "NoNewPrivileges=true" in service
     assert "CPUQuota=100%" in service
+    assert "OMP_NUM_THREADS=1" in service
+    assert "MKL_NUM_THREADS=1" in service
     assert "MemoryMax=8G" in service
     assert "TimeoutStartSec=36h" in service
     assert "SuccessExitStatus=75" in service

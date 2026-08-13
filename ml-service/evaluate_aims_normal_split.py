@@ -40,6 +40,27 @@ NON_ELIGIBLE_DECISIONS = {
 SCORE_COMPONENTS = ("ensemble", "lstm", "isolation_forest")
 
 
+def development_gate(training: dict[str, Any], model_routing: str,
+                     allow_rejected_shared_ablation: bool) -> dict[str, bool]:
+    accepted = training.get("accepted_offline") is True
+    override = bool(
+        allow_rejected_shared_ablation
+        and not accepted
+        and model_routing == "shared_workload"
+        and training.get("model_routing") == "shared_workload"
+        and training.get("labels_used_for_training_or_tuning") is False
+        and training.get("independent_evaluation_rows_used") is False
+        and training.get("attack_rows_used") is False
+    )
+    if not accepted and not override:
+        raise ValueError("candidate did not pass its development gate")
+    return {
+        "accepted": accepted,
+        "rejected_shared_ablation_evaluation_only": override,
+        "automatic_promotion": False if override else accepted,
+    }
+
+
 class ScoreComponentManager:
     """Expose one frozen candidate component through the detector interface.
 
@@ -426,6 +447,7 @@ def main() -> int:
     parser.add_argument("--model-routing",
                         choices=("per_workload", "shared_workload"),
                         default="per_workload")
+    parser.add_argument("--allow-rejected-shared-ablation", action="store_true")
     args = parser.parse_args()
 
     evidence_root = args.evidence_root.resolve()
@@ -490,8 +512,11 @@ def main() -> int:
     dataset_manifest_path = candidate / "dataset_manifest.json"
     training_report = json.loads(training_report_path.read_text())
     dataset_manifest = json.loads(dataset_manifest_path.read_text())
-    if training_report.get("accepted_offline") is not True:
-        raise ValueError("candidate did not pass its development gate")
+    gate = development_gate(
+        training_report, args.model_routing,
+        args.allow_rejected_shared_ablation,
+    )
+    report["development_gate"] = gate
     if training_report.get("dataset_role") != "candidate_fit":
         raise ValueError("candidate was not fitted from candidate_fit data")
     dataset_digest = sha256(dataset_manifest_path)

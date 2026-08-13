@@ -22,6 +22,7 @@ def test_v8_overhead_runner_is_terminal_gated_and_immutable():
 def test_v8_overhead_unit_cannot_start_before_terminal_marker():
     service = (SYSTEMD_ROOT / "aims-v8-overhead.service").read_text()
     timer = (SYSTEMD_ROOT / "aims-v8-overhead.timer").read_text()
+    path = (SYSTEMD_ROOT / "aims-v8-overhead.path").read_text()
     assert "ConditionPathExists=/home/dat/ml-service/aims-v8-derived" in service
     assert "NORMAL_ABLATION_REPLAY_COMPLETE" in service
     assert "ConditionPathExists=!" in service
@@ -32,6 +33,9 @@ def test_v8_overhead_unit_cannot_start_before_terminal_marker():
     assert "OnCalendar=*:0/10" in timer
     assert "OnUnitInactiveSec" not in timer
     assert "Persistent=true" in timer
+    assert "PathExists=/home/dat/ml-service/aims-v8-derived" in path
+    assert "NORMAL_ABLATION_REPLAY_COMPLETE" in path
+    assert "Unit=aims-v8-overhead.service" in path
 
 
 def test_v8_overhead_environment_matches_frozen_evaluator_policy():

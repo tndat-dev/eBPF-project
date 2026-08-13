@@ -41,12 +41,14 @@ for name in aggregate_counterbalanced_overhead.py capture_environment.sh \
 done
 install_atomic "$STAGING_ROOT/sentinel/systemd/aims-v8-overhead.env" \
   "$RUNTIME_ROOT/sentinel/systemd/aims-v8-overhead.env" 0644
-for name in aims-v8-overhead.service aims-v8-overhead.timer; do
+for name in aims-v8-overhead.service aims-v8-overhead.timer \
+  aims-v8-overhead.path; do
   install_atomic "$STAGING_ROOT/sentinel/systemd/$name" \
     "/etc/systemd/system/$name" 0644
 done
 
 systemctl daemon-reload
-systemctl enable --now aims-v8-overhead.timer
+systemctl enable --now aims-v8-overhead.timer aims-v8-overhead.path
 systemctl is-active --quiet aims-v8-overhead.timer
-printf 'ARMED: V8 overhead waits for NORMAL_ABLATION_REPLAY_COMPLETE\n'
+systemctl is-active --quiet aims-v8-overhead.path
+printf 'ARMED: V8 overhead path trigger and retry timer wait for NORMAL_ABLATION_REPLAY_COMPLETE\n'

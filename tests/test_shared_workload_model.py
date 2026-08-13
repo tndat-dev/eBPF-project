@@ -77,3 +77,11 @@ def test_shared_manager_rejects_behavior_target_drift(tmp_path):
     )
     with pytest.raises(RuntimeError, match="behavior contract"):
         manager.load_all()
+
+
+def test_shared_trainer_declares_single_thread_reproducibility_contract():
+    source = (SERVICE_ROOT / "train_shared_workload_candidate.py").read_text()
+    assert '--torch-threads", type=int, default=1' in source
+    assert "torch.set_num_threads(args.torch_threads)" in source
+    assert "torch.set_num_interop_threads(1)" in source
+    assert '"torch_num_threads"' in source

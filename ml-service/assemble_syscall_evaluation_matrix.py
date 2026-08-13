@@ -219,6 +219,8 @@ def build_ml_result(
         != attack.get("initial_calibration_sha256")
     ):
         raise ValueError(f"{method}: normal/attack calibration mismatch")
+    if normal.get("development_gate") != attack.get("development_gate"):
+        raise ValueError(f"{method}: development-gate provenance mismatch")
     if attack.get("attack_capture_sha256") != common["capture_sha256"]:
         raise ValueError(f"{method}: attack capture mismatch")
     if attack.get("evaluation_protocol_sha256") != common["evaluation_protocol_sha256"]:
@@ -282,6 +284,11 @@ def build_ml_result(
             "method": "Wilson score interval for recall; paired descriptive metrics",
         },
         "policy": normal_policy,
+        "development_gate": normal.get("development_gate", {
+            "accepted": True,
+            "rejected_shared_ablation_evaluation_only": False,
+            "automatic_promotion": True,
+        }),
         "fast_path": fast_path or {
             "enabled": False, "replayed": False,
             "reason": "method does not include the early-warning lane",
