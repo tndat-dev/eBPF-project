@@ -4520,3 +4520,22 @@ timer calendar đã hết `NextElapse` sau nhiều lần condition-skip. Staging
 `167 passed, 9 skipped`. Lúc `02:58Z`, shared fit-calibration đang chạy nền,
 ablation service `activating`, `NRestarts=0`; chưa có terminal marker nên chưa
 công bố bảng 11 phương pháp hay overhead V8.
+
+### 18.86 Calibration shared và Tetragon paired replay đã đóng (13-08-2026)
+
+Fit-only calibration của shared ablation hoàn tất lúc `03:02:07Z`, bind
+training-report SHA-256 `d72f3623...` và calibration SHA-256 `026728d7...` cho
+đủ tám workload. Report xác nhận `evaluation_data_used=false`,
+`development_gate_accepted=false`,
+`rejected_shared_ablation_evaluation_only=true` và
+`automatic_promotion=false`. Ngay sau đó runner tự chuyển sang Tetragon replay,
+chứng minh handoff sau rejection không còn fail.
+
+Tetragon rule-only paired report SHA-256 `37b52460...` dùng cùng 20 normal phase,
+137.916 window và 23,964 giờ exposure: zero normal false alert. Trên 200 blind
+trial, rule phát hiện 75, recall 0,375, Wilson 95% CI [0,311; 0,444]:
+`identity_transition_probe` 40/40, `namespace_probe` 35/40, ba scenario còn lại
+0/40. Latency trên 75 detection có median 7,972 giây, p95 9,192 giây, p99
+9,422 giây; đây là timestamp ước lượng theo feature window, không phải exact
+kernel-event latency. Sau report này pipeline đã vào normal replay đầu tiên
+`syscall__isolation_forest`; marker terminal và overhead vẫn chưa có.
