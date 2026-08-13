@@ -1,0 +1,9 @@
+[Unit]
+Description=Finalize V8 release decision after terminal overhead evidence
+
+[Path]
+PathExists=/home/dat/ml-service/aims-overhead-v8-final/V8_OVERHEAD_COMPLETE
+Unit=aims-v8-release-finalize.service
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Build immutable Sentinel V8 stable release decision
+After=aims-v8-overhead.service
+ConditionPathExists=/home/dat/ml-service/aims-overhead-v8-final/V8_OVERHEAD_COMPLETE
+
+[Service]
+Type=oneshot
+User=dat
+WorkingDirectory=/home/dat/ml-service
+ExecStart=/home/dat/ml-venv/bin/python /home/dat/ml-service/finalize_v8_stable_release.py --contract /home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811/aims_release_contract.json --matrix-root /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/paper-evaluation-results --overhead-root /home/dat/ml-service/aims-overhead-v8-final --output /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/v8-stable-release-decision.json
+Nice=10
+PrivateTmp=true
+ProtectHome=false
+ProtectSystem=full
+ReadWritePaths=/home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811

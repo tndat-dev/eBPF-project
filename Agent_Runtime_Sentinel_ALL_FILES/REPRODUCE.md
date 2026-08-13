@@ -686,3 +686,25 @@ phase-order protocol hash và environment hash. Aggregate cuối chỉ được 
 Warm-up và mọi repetition phải có zero socket error và zero non-2xx/3xx;
 `wrk` exit 0 không đủ để pass. Concurrency phải được load-probe trước campaign;
 không dùng phase overload vì response lỗi nhanh tạo throughput giả.
+
+## Quyết định stable V8
+
+Sau khi cả `NORMAL_ABLATION_REPLAY_COMPLETE` và `V8_OVERHEAD_COMPLETE` tồn tại,
+không chạy `promote_candidate.py` legacy của V7. Finalizer V8 kiểm checksum,
+đủ 11 phương pháp/55 so sánh ghép cặp/6 overhead order và đối chiếu lại gate
+đã preregister trong release contract:
+
+```bash
+python3 /home/dat/ml-service/finalize_v8_stable_release.py \
+  --contract /home/dat/ml-service/aims-v8-capture-v8-paired-replay-20260811/aims_release_contract.json \
+  --matrix-root /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/paper-evaluation-results \
+  --overhead-root /home/dat/ml-service/aims-overhead-v8-final \
+  --output /home/dat/ml-service/aims-v8-derived-v8-paired-replay-20260811/v8-stable-release-decision.json
+```
+
+Nếu recall blind thấp hơn `promotion_recall` hoặc normal alert vượt gate,
+artifact vẫn đóng terminal dưới trạng thái `research_stable_dry_run_only`,
+`manual_production_promotion_eligible=false`; không sửa contract hậu nghiệm,
+không rerun/cherry-pick trial và không tự động promote. Chỉ khi mọi gate pass,
+trạng thái mới là `eligible_for_manual_promotion`; trường
+`automatic_promotion` luôn bằng `false`.
