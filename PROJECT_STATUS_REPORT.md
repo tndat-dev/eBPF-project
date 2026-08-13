@@ -4559,8 +4559,9 @@ chạy paired attack; kết quả checkpoint không phải terminal estimate.
 ### 18.88 Isolation Forest terminal và sửa contract identity cho attack replay (13-08-2026)
 
 IF-only normal replay đóng đủ 20/20 phase, 122.639 eligible window trong
-1.968,686 giây evaluator time với 69.855 false alert. Trên 23,964 giờ normal
-exposure, observed rate xấp xỉ 2.915 alert/giờ; baseline vì vậy không dùng được
+1.968,686 giây evaluator time với 69.855 false alert. Trên 24,005 giờ normal
+exposure của ML evaluator, observed rate xấp xỉ 2.910,05 alert/giờ; baseline
+vì vậy không dùng được
 độc lập dù attack sensitivity cao. Đây là empirical ablation outcome, không
 được dùng hậu nghiệm để đổi fixed threshold 0,80.
 
@@ -4581,3 +4582,25 @@ inference median 14,292 ms. Kết quả 100% attack recall **không bù được
 normal false alert, nên không thể claim IF là detector tốt. Lúc `03:42Z`, runner
 đã tự chuyển sang normal replay `syscall__lstm_only`; service `NRestarts=0`,
 terminal matrix và overhead vẫn đang chờ.
+
+### 18.89 LSTM-only terminal, EVT-POT bắt đầu (13-08-2026)
+
+LSTM-only fixed-threshold replay đóng đủ 20/20 normal phase, 122.639 eligible
+window và 24,005 giờ exposure với 513 false alert, tương đương 21,371 alert/giờ.
+So với IF-only, LSTM giảm false alert khoảng 136 lần nhưng vẫn cách rất xa
+release requirement. Hai normal/attack report có cùng candidate/calibration
+digest và policy: LSTM component, fixed threshold 0,80, tắt adaptive/behavior/
+extreme-volume gate, một-window confirmation.
+
+Trên blind attack, LSTM-only phát hiện 195/200, recall 0,975, Wilson 95% CI
+[0,943; 0,989]. Năm miss đều là `namespace_probe` trên
+`production/security-telemetry-service`; bốn scenario còn lại 40/40 và bảy
+workload còn lại 25/25. Confirmation latency n=195 có median 8,255 giây, p95
+9,991 giây, p99 9,995 giây, max 10,013 giây; trial-median inference median
+14,317 ms. Latency giảm so với full V8 chủ yếu do bỏ two-window confirmation,
+nhưng đổi lại normal false alert tăng lên 513.
+
+Attack report SHA-256 `eeba4346...`, normal report SHA-256 `3f657a95...`.
+Production detector vẫn `active/running`, `NRestarts=0`, không có matched
+anomaly/early-warning/error/traceback từ `04:00Z`. Lúc `04:16Z`, runner đã tự
+chuyển sang normal replay `syscall__evt_pot`; matrix/overhead chưa terminal.
