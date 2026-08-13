@@ -4641,3 +4641,30 @@ không có dấu hiệu treo. `aims-v8-normal-ablation.service` tiếp tục
 không có pod ngoài `Running/Completed`. `aims-v8-overhead.path` đang
 `active/waiting` và chỉ kích hoạt overhead campaign sau marker terminal của
 normal-ablation.
+
+### 18.92 Full V7 paired replay terminal: zero normal alert và 195/200 attack (13-08-2026)
+
+`syscall__full_v7` đã đóng đủ 20/20 independent-normal phase: 122.639 feature
+window, 122.603 cửa sổ đủ điều kiện quyết định và **zero false alert** trên cùng
+24,005 giờ exposure đã dùng cho các component baseline. Trong toàn campaign,
+507 score excursion bị behavior gate chặn, 36 cửa sổ bị collection-quality
+gate loại và 122.096 cửa sổ được phân loại normal. Normal report SHA-256 là
+`c5659d97...`; evaluator dùng 4.241,972 giây CPU-bound wall time.
+
+Paired blind-attack replay cũng terminal đủ 200/200 trial, phát hiện 195,
+recall 0,975, Wilson 95% CI [0,943; 0,989]. Năm miss vẫn chính xác là
+`namespace_probe` trên `production/security-telemetry-service`; không có thay
+đổi model, threshold hay label sau blind result. Confirmation latency n=195 có
+median 18,255 giây, p95 19,991 giây, p99 19,995 giây và max 20,013 giây.
+Trial-median inference n=200 có median 12,769 ms, p95 15,908 ms; attack report
+SHA-256 `4f484791...`. Chênh lệch nhỏ với live median 18,435 giây là timing
+variation giữa replay và live execution, không phải accuracy change.
+
+Kết quả này chứng minh full confirmed-ML policy loại được false alert quan sát
+thấy trên independent normal holdout, trong khi IF-only và LSTM/EVT-POT lần
+lượt tạo 69.855 và 513 alert. Tuy nhiên zero observed alert không đồng nghĩa
+xác suất false positive bằng 0 và chưa thay thế confidence interval/matrix
+terminal. Lúc `06:30Z`, runner đã chuyển sang
+`syscall__without_fast_path`: checkpoint 7/20 phase, 42.316 eligible window và
+zero alert. Normal-ablation marker, paired statistics 11 phương pháp và overhead
+campaign vẫn chưa terminal.
