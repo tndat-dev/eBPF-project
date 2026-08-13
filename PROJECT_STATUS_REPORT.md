@@ -4539,3 +4539,19 @@ trial, rule phát hiện 75, recall 0,375, Wilson 95% CI [0,311; 0,444]:
 9,422 giây; đây là timestamp ước lượng theo feature window, không phải exact
 kernel-event latency. Sau report này pipeline đã vào normal replay đầu tiên
 `syscall__isolation_forest`; marker terminal và overhead vẫn chưa có.
+
+### 18.87 Isolation Forest baseline đang replay, production detector không regression (13-08-2026)
+
+Lúc `03:15Z`, IF-only normal replay đã đóng checkpoint 8/20 phase, 49.540
+eligible window trong 783,251 giây evaluator time. Baseline cố định 0,80, một
+window confirmation và tắt adaptive/behavior/extreme-volume gate ghi nhận
+27.987 alert trên tám phase đầu; từng phase có 2.752--5.461 alert. Đây là
+baseline yếu được preregister để so sánh, không phải false alert của full V8 và
+không được dùng để chỉnh IF/model sau khi mở holdout.
+
+Sau pin một thread, mỗi phase chạy khoảng 94--105 giây; process dùng 99,8% một
+CPU, cgroup chỉ bị throttle tổng 0,195 giây sau 11.610 period. Production
+`sentinel-detector.service` vẫn độc lập `active/running` từ `11-08 06:44:55Z`,
+`NRestarts=0`; audit journal từ `03:00Z` không có anomaly, early warning, error
+hay traceback. Cluster zero bad pod. Normal IF còn 12 phase rồi runner sẽ tự
+chạy paired attack; kết quả checkpoint không phải terminal estimate.
