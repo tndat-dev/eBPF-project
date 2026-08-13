@@ -4694,3 +4694,26 @@ Nếu các evidence còn lại terminal sạch, V8 vì vậy chỉ được đó
 `research_stable_dry_run_only`, không đủ điều kiện production promotion; không
 hạ gate hậu nghiệm hoặc tune bằng năm blind miss. Focused local/VM đều 4/4
 pass; full local regression đạt `171 passed, 9 skipped`.
+
+### 18.94 Loại ablation behavior-gate bị confound và replay lại một biến (13-08-2026)
+
+Lượt `syscall__without_behavior_gate` đầu đóng normal 20/20 với 41 alert nhưng
+audit trước matrix assembly phát hiện denominator chỉ còn 119.265 eligible
+window, thấp hơn 122.603 của full policy. Nguyên nhân là cờ bypass behavior
+được dùng cả ở decision lane lẫn điều kiện nhận clean window của adaptive
+calibrator. Vì vậy online event-volume guard không cập nhật giống full policy;
+lượt này đã vô tình thay hai thành phần, không phải ablation một biến và **41
+alert không được dùng làm kết quả paper**.
+
+Source được sửa để calibration luôn dùng `observed_behavior_gate`; cờ
+`require_behavior_gate=false` chỉ bypass corroboration ở decision lane. Không
+thay model, score, threshold, blind label hay attack contract. Normal terminal
+và attack partial cũ được chuyển recoverably vào
+`rejected-partials/without-behavior-gate-confounded-calibration-20260813T074500Z/`,
+không xóa che dấu. Focused VM regression đạt 43/43; full local suite vẫn
+`171 passed, 9 skipped`.
+
+Normal-ablation timer/service đã được resume từ đầu cho đúng phương pháp này;
+production `sentinel-detector.service` giữ `active/running`, `NRestarts=0`.
+Matrix, overhead và stable finalizer vẫn chờ terminal evidence mới nên chưa có
+artifact downstream nào bị nhiễm lượt rejected.

@@ -257,8 +257,9 @@ def test_calibration_restore_matches_incremental_final_threshold(tmp_path):
     assert loaded["production/nginx"].current == pytest.approx(expected)
 
 
+@pytest.mark.parametrize("require_behavior_gate", [True, False])
 def test_replay_can_update_calibration_without_persisting_each_window(
-        tmp_path, monkeypatch):
+        tmp_path, monkeypatch, require_behavior_gate):
     class Manager:
         def list_models(self):
             return ["production/nginx"]
@@ -292,6 +293,7 @@ def test_replay_can_update_calibration_without_persisting_each_window(
     detector = AnomalyDetector(
         Manager(), persist_calibration=False,
         pod_started_at_lookup=lambda _pod: None,
+        require_behavior_gate=require_behavior_gate,
     )
     detector.handle_feature_vector(Vector())
 

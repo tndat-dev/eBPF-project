@@ -480,8 +480,13 @@ class AnomalyDetector:
         # score-only outlier must never raise the online threshold and hide a
         # later attack (calibration poisoning).
         baseline_threshold = self.thresholds.get(model_key, self.threshold)
+        # The research ablation may bypass behavior corroboration for the
+        # *decision* lane, but it must not also disable or poison the adaptive
+        # state machine.  Calibration always uses the actually observed
+        # kernel behavior signal so ``without_behavior_gate`` differs from the
+        # full policy by one component only.
         clean_for_calibration = (
-            not behavior_gate and score < baseline_threshold
+            not observed_behavior_gate and score < baseline_threshold
         )
         calibration_state = None
         with self._calibration_lock:
