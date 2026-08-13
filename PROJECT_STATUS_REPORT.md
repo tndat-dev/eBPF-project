@@ -4623,3 +4623,21 @@ threshold và mọi outcome đều giống nhau, không được claim là accur
 Normal/attack report SHA-256 lần lượt `98601efc...` và `d5619dc2...`. Lúc
 `04:47Z`, runner đã chuyển sang `syscall__full_v7` normal replay; service
 `activating`, `NRestarts=0`, matrix và overhead chưa terminal.
+
+### 18.91 Full V7 normal replay qua checkpoint đầu, không có regression vận hành (13-08-2026)
+
+`syscall__full_v7` đã đóng phase đầu `aims-steady-run-02`: 6.146 cửa sổ đủ
+điều kiện quyết định, zero alert, 17 cửa sổ được behavior gate chặn và một cửa
+sổ bị loại bởi collection-quality gate. Inference trên 6.147 cửa sổ có median
+11,824 ms, p95 16,985 ms và max 163,608 ms; evaluator dùng 190,793 giây. Policy
+đúng với preregistration: ensemble per-workload, adaptive threshold, behavior
+gate, extreme-volume gate và xác nhận hai cửa sổ.
+
+Đây mới là 1/20 phase normal, **không phải kết quả terminal hay zero-FP claim**.
+Runner vẫn dùng gần 100% một CPU, RSS khoảng 636 MiB, trạng thái process `RN`;
+không có dấu hiệu treo. `aims-v8-normal-ablation.service` tiếp tục
+`activating/start`, `NRestarts=0`; `sentinel-detector.service` độc lập vẫn
+`active/running`, `NRestarts=0`. Cả sáu node Kubernetes v1.34.10 đều `Ready`,
+không có pod ngoài `Running/Completed`. `aims-v8-overhead.path` đang
+`active/waiting` và chỉ kích hoạt overhead campaign sau marker terminal của
+normal-ablation.
