@@ -4604,3 +4604,22 @@ Attack report SHA-256 `eeba4346...`, normal report SHA-256 `3f657a95...`.
 Production detector vẫn `active/running`, `NRestarts=0`, không có matched
 anomaly/early-warning/error/traceback từ `04:00Z`. Lúc `04:16Z`, runner đã tự
 chuyển sang normal replay `syscall__evt_pot`; matrix/overhead chưa terminal.
+
+### 18.90 EVT-POT terminal: floor 0,80 làm outcome trùng LSTM-only (13-08-2026)
+
+EVT-POT replay đóng đủ 20/20 normal phase, 122.639 eligible window với 513
+false alert; trên cùng 24,005 giờ exposure là 21,371 alert/giờ. Paired audit
+từng phase cho thấy alert count trùng LSTM-only ở cả 20 phase. Fit-only EVT
+estimator không nâng effective threshold vượt minimum floor 0,80 trong campaign
+này, nên adaptive tail không thay đổi quyết định.
+
+Attack replay cũng trùng LSTM-only: 195/200 detection, recall 0,975, Wilson 95%
+CI [0,943; 0,989], với đúng năm `namespace_probe` miss trên
+`production/security-telemetry-service`. Confirmation latency median 8,255
+giây, p95 9,991 giây, p99 9,995 giây. Trial-median inference median 11,255 ms
+so với 14,317 ms của LSTM-only; đây là runtime timing variation vì score,
+threshold và mọi outcome đều giống nhau, không được claim là accuracy gain.
+
+Normal/attack report SHA-256 lần lượt `98601efc...` và `d5619dc2...`. Lúc
+`04:47Z`, runner đã chuyển sang `syscall__full_v7` normal replay; service
+`activating`, `NRestarts=0`, matrix và overhead chưa terminal.
