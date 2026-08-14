@@ -20,6 +20,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "normal",
+                    "model_manifest_sha256": "a" * 64,
                     "workload_key": "production/catalog:app",
                     "window_end": float(index),
                 }
@@ -43,6 +44,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "normal",
+                    "model_manifest_sha256": "a" * 64,
                     "workload_key": "production/catalog:app",
                     "window_end": float(index % 100),
                 }
@@ -53,6 +55,29 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 path, maximum_alerts=0, minimum_scored_windows=1000, minimum_duration_hours=24.0
             )
             self.assertFalse(report["duration_gate"])
+            self.assertFalse(report["normal_gate"])
+
+    def test_mixed_model_identities_fail_normal_gate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "mixed.jsonl"
+            records = [
+                {
+                    "schema": "sentinel-pulse-decision-v1",
+                    "status": "normal",
+                    "model_manifest_sha256": identity * 64,
+                    "workload_key": "production/catalog:app",
+                    "window_end": float(index),
+                }
+                for index, identity in enumerate(("a", "b"))
+            ]
+            path.write_text(
+                "".join(json.dumps(record) + "\n" for record in records),
+                encoding="utf-8",
+            )
+            report = evaluate(
+                path, minimum_scored_windows=2, minimum_duration_hours=1.0 / 3600.0
+            )
+            self.assertFalse(report["model_identity_gate"])
             self.assertFalse(report["normal_gate"])
 
 

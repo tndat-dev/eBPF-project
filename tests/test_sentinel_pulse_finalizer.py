@@ -34,11 +34,14 @@ class PulseFinalizerTests(unittest.TestCase):
         (model_dir / "manifest.sha256").write_text(
             f"{sha256_file(manifest_path)}  manifest.json\n", encoding="ascii"
         )
+        model_manifest_sha256 = sha256_file(manifest_path)
         normal_path = root / "normal.json"
         normal_path.write_text(
             json.dumps(
                 {
                     "schema": "sentinel-pulse-normal-soak-report-v1",
+                    "model_manifest_sha256": model_manifest_sha256,
+                    "model_identity_gate": True,
                     "normal_gate": True,
                     "scored_windows": 86400,
                     "alerts": 0,
@@ -52,6 +55,8 @@ class PulseFinalizerTests(unittest.TestCase):
             json.dumps(
                 {
                     "schema": "sentinel-pulse-latency-report-v1",
+                    "model_manifest_sha256": model_manifest_sha256,
+                    "model_identity_gate": True,
                     "expected_injections": 200,
                     "detected_injections": 200,
                     "recall": 1.0,
@@ -86,6 +91,15 @@ class PulseFinalizerTests(unittest.TestCase):
             )
             decision = build_decision(model_dir, normal, attack)
             self.assertIn("all_workloads_have_candidate", decision["failed_gates"])
+
+    def test_report_from_another_model_fails_identity_gate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            model_dir, normal, attack = self._fixture(Path(temporary))
+            report = json.loads(attack.read_text())
+            report["model_manifest_sha256"] = "0" * 64
+            attack.write_text(json.dumps(report), encoding="utf-8")
+            decision = build_decision(model_dir, normal, attack)
+            self.assertIn("blind_model_identity", decision["failed_gates"])
 
 
 if __name__ == "__main__":

@@ -35,6 +35,7 @@ def evaluate(
     workload_scored = Counter()
     workload_alerts = Counter()
     workload_bounds: dict[str, list[float]] = {}
+    model_identities = set()
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             try:
@@ -45,6 +46,7 @@ def evaluate(
             statuses[status] += 1
             if record.get("schema") != "sentinel-pulse-decision-v1":
                 continue
+            model_identities.add(str(record.get("model_manifest_sha256", "")))
             workload = str(record.get("workload_key", "unknown"))
             workload_scored[workload] += 1
             if "window_end" in record:
@@ -75,6 +77,12 @@ def evaluate(
     duration_gate = bool(workload_reports) and all(
         item["duration_gate"] for item in workload_reports.values()
     )
+    model_identity_gate = (
+        len(model_identities) == 1
+        and len(next(iter(model_identities))) == 64
+        and all(character in "0123456789abcdef" for character in next(iter(model_identities)))
+    )
+    model_manifest_sha256 = next(iter(model_identities)) if model_identity_gate else None
     return {
         "schema": "sentinel-pulse-normal-soak-report-v1",
         "path": str(path),
@@ -86,12 +94,15 @@ def evaluate(
         "observed_false_alert_rate": alerts / scored if scored else None,
         "false_alert_rate_wilson_95": [lower, upper],
         "statuses": dict(sorted(statuses.items())),
+        "model_manifest_sha256": model_manifest_sha256,
+        "model_identity_gate": model_identity_gate,
         "workloads": workload_reports,
         "duration_gate": duration_gate,
         "normal_gate": (
             scored >= minimum_scored_windows
             and alerts <= maximum_alerts
             and duration_gate
+            and model_identity_gate
         ),
     }
 

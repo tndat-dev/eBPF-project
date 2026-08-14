@@ -5034,3 +5034,16 @@ contract hợp lệ. Điều này ngăn artifact hợp lệ về checksum nhưng
 quy tắc ghép history khác quy tắc tạo dataset. Fixture integrity/finalizer đã
 được cập nhật và có negative test cho gap bằng 0. Focused test 6/6, full
 regression vẫn **293 passed, 7 skipped**, compile và diff check pass.
+
+### 18.109 Khóa model identity xuyên suốt evidence chain (15-08-2026)
+
+Mỗi `sentinel-pulse-decision-v1` nay mang SHA-256 của manifest model đã được
+runtime xác minh trước khi load artifact. Normal-soak và blind-attack evaluator
+chỉ chấp nhận một identity SHA-256 hợp lệ trong toàn bộ decision stream; thiếu
+identity hoặc trộn decision từ nhiều model làm gate fail. Candidate finalizer
+tiếp tục đối chiếu identity của cả hai report với hash thật của bundle đang
+review. Vì vậy normal evidence của model A không thể ghép với attack evidence
+của model B để vượt release gate. Negative test khóa mixed-model normal stream
+và report thuộc model khác; focused 15/15 và full regression đạt **295 passed,
+7 skipped**. Đây là hardening provenance trước khi fit candidate, không tác
+động collector/campaign đang chạy.

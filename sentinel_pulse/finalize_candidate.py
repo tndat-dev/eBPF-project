@@ -62,6 +62,7 @@ def build_decision(
     maximum_processing_p99_seconds: float = 0.75,
 ) -> dict:
     manifest, candidates, collect_only = verify_model_bundle(model_dir)
+    model_manifest_sha256 = sha256_file(model_dir / "manifest.json")
     normal = read_json(normal_report_path)
     attack = read_json(attack_report_path)
     if normal.get("schema") != "sentinel-pulse-normal-soak-report-v1":
@@ -77,8 +78,16 @@ def build_decision(
         "all_workloads_have_candidate": not collect_only,
         "all_candidates_in_normal_soak": not missing_normal,
         "independent_normal_soak": normal.get("normal_gate") is True,
+        "normal_model_identity": (
+            normal.get("model_identity_gate") is True
+            and normal.get("model_manifest_sha256") == model_manifest_sha256
+        ),
         "expected_blind_injections": int(attack.get("expected_injections", -1)) == expected_injections,
         "blind_injection_identity": attack.get("injection_identity_gate") is True,
+        "blind_model_identity": (
+            attack.get("model_identity_gate") is True
+            and attack.get("model_manifest_sha256") == model_manifest_sha256
+        ),
         "blind_recall": float(attack.get("recall", 0.0)) >= minimum_recall,
         "kernel_to_alert_p99": attack.get("latency_gate_p99_le_2s") is True,
         "inference_p99": inference_p99 is not None and float(inference_p99) <= maximum_inference_p99_ms,

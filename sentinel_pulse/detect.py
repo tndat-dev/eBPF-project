@@ -90,6 +90,7 @@ class PulseRuntime:
         if len(checksum_fields) != 2 or checksum_fields[1] != "manifest.json":
             raise ValueError("invalid detached manifest checksum")
         verify_sha256(manifest_path, checksum_fields[0])
+        self.model_manifest_sha256 = checksum_fields[0]
         with manifest_path.open(encoding="utf-8") as handle:
             self.manifest = json.load(handle)
         if self.manifest.get("schema") != "sentinel-pulse-model-manifest-v2":
@@ -160,7 +161,12 @@ class PulseRuntime:
         )
         model = self.models.get(workload)
         if model is None:
-            return {"status": "collect-only", "workload_key": workload, "cgroup_id": cgroup_id}
+            return {
+                "status": "collect-only",
+                "model_manifest_sha256": self.model_manifest_sha256,
+                "workload_key": workload,
+                "cgroup_id": cgroup_id,
+            }
         row = decode_vector(record)
         history = self.histories.setdefault(
             source_identity, deque(maxlen=self.history_size)
@@ -192,6 +198,7 @@ class PulseRuntime:
             return {
                 "status": "warming",
                 "warming_reason": reset_reason or "history_fill",
+                "model_manifest_sha256": self.model_manifest_sha256,
                 "workload_key": workload,
                 "cgroup_id": cgroup_id,
             }
@@ -201,6 +208,7 @@ class PulseRuntime:
         return {
             "schema": "sentinel-pulse-decision-v1",
             "status": "alert" if decision.anomalous else "normal",
+            "model_manifest_sha256": self.model_manifest_sha256,
             "workload_key": workload,
             "cgroup_id": cgroup_id,
             "pod_name": record.get("pod_name"),

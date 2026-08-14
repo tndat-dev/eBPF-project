@@ -40,7 +40,7 @@ class PulseLatencyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "decisions.jsonl"
             records = [
-                {"schema": "sentinel-pulse-decision-v1", "injection_id": f"i{i}", "true_detection_latency_seconds": value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0}
+                {"schema": "sentinel-pulse-decision-v1", "model_manifest_sha256": "a" * 64, "injection_id": f"i{i}", "true_detection_latency_seconds": value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0}
                 for i, value in enumerate((0.8, 1.0, 1.2))
             ]
             path.write_text("".join(json.dumps(item) + "\n" for item in records), encoding="utf-8")
@@ -70,6 +70,7 @@ class PulseLatencyTests(unittest.TestCase):
                 json.dumps(
                     {
                         "schema": "sentinel-pulse-decision-v1",
+                        "model_manifest_sha256": "a" * 64,
                         "injection_id": "not-in-contract",
                         "true_detection_latency_seconds": 0.5,
                     }

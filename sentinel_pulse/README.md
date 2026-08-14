@@ -24,6 +24,9 @@ the frozen V8 models, policy evidence, or production detector.
    temporal gaps trigger warm-up and non-monotonic source windows fail closed.
    The boundary is checksum-bound in the model manifest and validated again by
    both the live runtime and terminal candidate finalizer.
+   Every scored decision carries that manifest SHA-256. Normal and blind-attack
+   evaluators reject missing/mixed model identities, and finalization requires
+   both reports to match the exact bundle being reviewed.
 
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.

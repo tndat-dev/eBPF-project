@@ -35,11 +35,13 @@ def evaluate(
     by_injection = {}
     processing = []
     inference = []
+    model_identities = set()
     with path.open(encoding="utf-8") as handle:
         for line in handle:
             record = json.loads(line)
             if record.get("schema") != "sentinel-pulse-decision-v1":
                 continue
+            model_identities.add(str(record.get("model_manifest_sha256", "")))
             if "post_window_processing_seconds" in record:
                 processing.append(float(record["post_window_processing_seconds"]))
             if "inference_ms" in record:
@@ -74,6 +76,11 @@ def evaluate(
         if expected_ids is not None
         else detected if expected_injections is None else expected_injections
     )
+    model_identity_gate = (
+        len(model_identities) == 1
+        and len(next(iter(model_identities))) == 64
+        and all(character in "0123456789abcdef" for character in next(iter(model_identities)))
+    )
     report = {
         "schema": "sentinel-pulse-latency-report-v1",
         "decisions_sha256": sha256_file(path),
@@ -83,6 +90,10 @@ def evaluate(
         "missing_injection_ids": missing_ids,
         "unknown_detection_ids": unknown_ids,
         "injection_identity_gate": not unknown_ids,
+        "model_manifest_sha256": (
+            next(iter(model_identities)) if model_identity_gate else None
+        ),
+        "model_identity_gate": model_identity_gate,
         "recall": detected / expected if expected else 0.0,
         "true_detection_latency_seconds": summary(true_latency),
         "post_window_processing_seconds": summary(processing),
@@ -91,7 +102,9 @@ def evaluate(
     p99 = report["true_detection_latency_seconds"].get("p99")
     report["latency_gate_p99_le_2s"] = p99 is not None and p99 <= 2.0
     report["blind_evidence_valid"] = (
-        report["injection_identity_gate"] and report["latency_gate_p99_le_2s"]
+        report["injection_identity_gate"]
+        and report["model_identity_gate"]
+        and report["latency_gate_p99_le_2s"]
     )
     return report
 

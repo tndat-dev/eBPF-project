@@ -316,3 +316,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   detached SHA-256. Runtime dùng đúng contract của artifact và runtime/finalizer
   đều từ chối giá trị thiếu, không hữu hạn hoặc không dương. Regression giữ
   nguyên **293 passed, 7 skipped**.
+- 15-08-2026: thêm model-identity chain: mỗi decision mang manifest SHA-256;
+  normal/blind evaluator fail với identity thiếu hoặc bị trộn; finalizer bắt
+  cả hai report khớp đúng bundle đang review. Negative tests khóa mixed model
+  và cross-model report; full regression đạt **295 passed, 7 skipped**.

@@ -65,6 +65,7 @@ class PulseIntegrityTests(unittest.TestCase):
             runtime = PulseRuntime(root)
             self.assertIn("production/catalog:app", runtime.models)
             self.assertEqual(runtime.max_contiguous_gap_seconds, 1.5)
+            self.assertEqual(runtime.model_manifest_sha256, sha256_file(manifest_path))
 
             manifest["max_contiguous_gap_seconds"] = 0
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
