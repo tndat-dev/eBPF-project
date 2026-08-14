@@ -42,7 +42,7 @@ def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
 def load_sequences(
     path: Path,
     maximum_gap_seconds: float = MAX_CONTIGUOUS_GAP_SECONDS,
-) -> tuple[dict[str, list[list[list[float]]]], list[str]]:
+) -> tuple[dict[str, list[np.ndarray]], list[str]]:
     if maximum_gap_seconds <= 0:
         raise ValueError("maximum sequence gap must be positive")
     rows = defaultdict(lambda: defaultdict(list))
@@ -67,7 +67,7 @@ def load_sequences(
                 raise ValueError(f"line {line_number}: feature row precedes schema")
             if record.get("feature_schema_sha256") not in (None, schema_digest(columns)):
                 raise ValueError(f"line {line_number}: feature schema hash mismatch")
-            record["vector"] = decode_vector(record).tolist()
+            vector = decode_vector(record)
             source_identity = "|".join(
                 (
                     str(record.get("node_name", "unknown-node")),
@@ -76,18 +76,18 @@ def load_sequences(
                     str(record["cgroup_id"]),
                 )
             )
-            rows[record["workload_key"]][source_identity].append(record)
+            rows[record["workload_key"]][source_identity].append(
+                (float(record["window_end"]), record.get("traffic_regime"), vector)
+            )
     sequences = {}
     for workload, cgroups in rows.items():
         sequences[workload] = []
         for records in cgroups.values():
-            records.sort(key=lambda value: value["window_end"])
+            records.sort(key=lambda value: value[0])
             current_sequence = []
             previous_end = None
             previous_regime = None
-            for record in records:
-                window_end = float(record["window_end"])
-                regime = record.get("traffic_regime")
+            for window_end, regime, vector in records:
                 gap_boundary = (
                     previous_end is not None
                     and window_end - previous_end > maximum_gap_seconds
@@ -98,13 +98,17 @@ def load_sequences(
                     and regime != previous_regime
                 )
                 if current_sequence and (gap_boundary or regime_boundary):
-                    sequences[workload].append(current_sequence)
+                    sequences[workload].append(
+                        np.stack(current_sequence).astype(np.float32, copy=False)
+                    )
                     current_sequence = []
-                current_sequence.append(record["vector"])
+                current_sequence.append(vector)
                 previous_end = window_end
                 previous_regime = regime
             if current_sequence:
-                sequences[workload].append(current_sequence)
+                sequences[workload].append(
+                    np.stack(current_sequence).astype(np.float32, copy=False)
+                )
     return sequences, columns or []
 
 

@@ -40,6 +40,8 @@ class PulseDatasetTests(unittest.TestCase):
             self.assertEqual(columns, ["f0", "f1"])
             self.assertEqual(len(workload_sequences), 2)
             self.assertEqual({sequence[0][0] for sequence in workload_sequences}, {1.0, 2.0})
+            self.assertTrue(all(sequence.dtype == np.float32 for sequence in workload_sequences))
+            self.assertTrue(all(sequence.flags.c_contiguous for sequence in workload_sequences))
 
     def test_gap_and_traffic_regime_boundaries_split_temporal_sequences(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -70,7 +72,7 @@ class PulseDatasetTests(unittest.TestCase):
             )
             sequences, _columns = load_sequences(path)
             self.assertEqual(
-                sequences["production/catalog:app"],
+                [sequence.tolist() for sequence in sequences["production/catalog:app"]],
                 [[[1.0], [2.0]], [[10.0]], [[11.0]]],
             )
 

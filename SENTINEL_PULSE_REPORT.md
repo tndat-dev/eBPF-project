@@ -285,3 +285,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   transition gap ba phút. Checkpoint campaign 17:08 +07 đạt 8,78%, vẫn steady,
   6/6 node Ready, zero bad pod/warning/restart. Full regression đạt **287
   passed, 7 skipped**.
+- 14-08-2026: refactor đường nạp dataset nhiều triệu row: không giữ toàn bộ
+  JSON record và Python-float list trong RAM; mỗi source chỉ giữ timestamp,
+  regime và vector rồi compact thành contiguous NumPy `float32` theo sequence.
+  Model input/temporal split không đổi; full regression vẫn **287 passed, 7
+  skipped**.

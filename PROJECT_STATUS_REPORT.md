@@ -4914,3 +4914,20 @@ train/calibration vì vậy không còn học adjacency không tồn tại; khô
 collector, contract, feature, model hyperparameter hay dữ liệu đang thu. Test
 mới khóa cả gap boundary và regime boundary; full regression đạt **287 passed,
 7 skipped**, compile và diff check pass.
+
+### 18.102 Giảm memory amplification của train loader (14-08-2026)
+
+Checkpoint 17:47 +07 xác nhận campaign đạt 11,47%, vẫn steady, 6/6 node Ready,
+zero bad pod/health warning/restart. Với tốc độ feature đã quan sát, terminal
+capture sẽ có quy mô hàng triệu row. Loader cũ decode mỗi vector bằng
+`.tolist()` và giữ cả JSON dictionary, khiến 249 giá trị `float32` bị mở rộng
+thành hàng trăm Python object/row; memory thực tế có thể lớn hơn payload nhiều
+lần trước khi ExtraTrees bắt đầu fit.
+
+`load_sequences()` nay chỉ giữ tuple tối thiểu `(window_end, regime, vector)`;
+sau khi sort và cắt boundary, từng sequence được compact thành C-contiguous
+NumPy `float32`. Cách này giữ payload ở bốn byte/feature và giải phóng JSON
+metadata khỏi training set, trong khi vẫn giữ nguyên node/pod/container/cgroup
+identity, gap/regime boundary, thứ tự thời gian và model semantics. Test khóa
+dtype/contiguity cùng boundary behavior; focused và full regression đều pass,
+full suite **287 passed, 7 skipped**.

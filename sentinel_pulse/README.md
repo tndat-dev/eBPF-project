@@ -12,7 +12,10 @@ the frozen V8 models, policy evidence, or production detector.
 5. `train.py` creates one normal-only ExtraTrees temporal model per workload
    and container using a temporal train/calibration split. A sequence is cut
    whenever its cgroup has a gap greater than 1.5 seconds or the preregistered
-   traffic regime changes, so history never bridges a transition gap.
+   traffic regime changes, so history never bridges a transition gap. Decoded
+   rows are compacted into contiguous `float32` arrays per sequence instead of
+   retaining JSON dictionaries/Python-float lists for the multi-million-row
+   campaign.
 6. `detect.py` performs one-window decisions and records inference plus
    kernel-window-to-decision latency.
 
