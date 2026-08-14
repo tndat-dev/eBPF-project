@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from collections import deque
 import json
+import os
 import platform
 from pathlib import Path
 import time
@@ -15,6 +16,67 @@ from .model import PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import contained_artifact, verify_sha256
 from .latency import InjectionTracker
+
+
+class RotatingJsonlFollower:
+    """Follow an append-only JSONL path across atomic rotation/truncation."""
+
+    def __init__(self, path: Path, from_start: bool = False, poll_seconds: float = 0.05):
+        if poll_seconds < 0:
+            raise ValueError("tail poll interval cannot be negative")
+        self.path = path
+        self.from_start = from_start
+        self.poll_seconds = poll_seconds
+        self.source = None
+        self.identity = None
+        self._initial_open = True
+
+    def _open(self) -> bool:
+        try:
+            source = self.path.open(encoding="utf-8")
+        except FileNotFoundError:
+            return False
+        if self._initial_open and not self.from_start:
+            source.seek(0, os.SEEK_END)
+        descriptor = os.fstat(source.fileno())
+        self.source = source
+        self.identity = (descriptor.st_dev, descriptor.st_ino)
+        self._initial_open = False
+        return True
+
+    def _path_replaced_or_truncated(self) -> bool:
+        if self.source is None:
+            return False
+        try:
+            current = self.path.stat()
+        except FileNotFoundError:
+            return False
+        return (
+            (current.st_dev, current.st_ino) != self.identity
+            or current.st_size < self.source.tell()
+        )
+
+    def readline(self) -> str:
+        while True:
+            if self.source is None:
+                if not self._open():
+                    time.sleep(self.poll_seconds)
+                    continue
+            line = self.source.readline()
+            if line:
+                return line
+            if self._path_replaced_or_truncated():
+                self.source.close()
+                self.source = None
+                self.identity = None
+                continue
+            time.sleep(self.poll_seconds)
+
+    def close(self) -> None:
+        if self.source is not None:
+            self.source.close()
+            self.source = None
+            self.identity = None
 
 
 class PulseRuntime:
@@ -129,30 +191,28 @@ def main() -> None:
     injection_tracker = InjectionTracker(args.injections) if args.injections else None
     args.decisions.parent.mkdir(parents=True, exist_ok=True)
     args.alerts.parent.mkdir(parents=True, exist_ok=True)
-    with args.features.open(encoding="utf-8") as source, \
-            args.decisions.open("a", encoding="utf-8") as decisions, \
+    source = RotatingJsonlFollower(args.features, from_start=args.from_start)
+    try:
+        with args.decisions.open("a", encoding="utf-8") as decisions, \
             args.alerts.open("a", encoding="utf-8") as alerts:
-        if not args.from_start:
-            source.seek(0, 2)
-        while True:
-            line = source.readline()
-            if not line:
-                time.sleep(0.05)
-                continue
-            record = json.loads(line)
-            if record.get("schema") == "sentinel-pulse-feature-schema-v1":
-                continue
-            result = runtime.score(record)
-            if result.get("status") == "alert" and injection_tracker is not None:
-                marker = injection_tracker.match(result)
-                if marker is not None:
-                    result["injection_id"] = marker["injection_id"]
-                    result["injected_at"] = marker["injected_at"]
-                    result["true_detection_latency_seconds"] = max(
-                        0.0, float(result["alerted_at"]) - float(marker["injected_at"])
-                    )
-            decisions.write(json.dumps(result, separators=(",", ":")) + "\n")
-            decisions.flush()
-            if result.get("status") == "alert":
-                alerts.write(json.dumps(result, separators=(",", ":")) + "\n")
-                alerts.flush()
+            while True:
+                line = source.readline()
+                record = json.loads(line)
+                if record.get("schema") == "sentinel-pulse-feature-schema-v1":
+                    continue
+                result = runtime.score(record)
+                if result.get("status") == "alert" and injection_tracker is not None:
+                    marker = injection_tracker.match(result)
+                    if marker is not None:
+                        result["injection_id"] = marker["injection_id"]
+                        result["injected_at"] = marker["injected_at"]
+                        result["true_detection_latency_seconds"] = max(
+                            0.0, float(result["alerted_at"]) - float(marker["injected_at"])
+                        )
+                decisions.write(json.dumps(result, separators=(",", ":")) + "\n")
+                decisions.flush()
+                if result.get("status") == "alert":
+                    alerts.write(json.dumps(result, separators=(",", ":")) + "\n")
+                    alerts.flush()
+    finally:
+        source.close()

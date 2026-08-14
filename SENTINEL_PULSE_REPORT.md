@@ -298,3 +298,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   Ready và zero bad pod/warning/restart. Ba collector/resolver/finalizer đều
   active; record cuối integrity 0, emit lag 15–34 ms. Capture hiện khoảng
   456/407/302 MB và worker ít trống nhất còn 57 GiB.
+- 14-08-2026: detector JSONL follower nhận biết atomic inode replacement và
+  truncation, tự mở capture mới từ đầu thay vì đứng vĩnh viễn ở EOF inode cũ.
+  Checkpoint 20:33 +07 đạt 22,89%; steady replica đúng contract `1/0/1`, zero
+  bad pod/warning/restart. Full regression đạt **291 passed, 7 skipped**.

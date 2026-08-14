@@ -4963,3 +4963,20 @@ bằng 0; emit lag tức thời khoảng 15–34 ms. Capture đang có kích th�
 455,7 MB (`worker1`), 407,4 MB (`worker4`) và 302,4 MB (`worker3`). Worker3 dùng
 81% filesystem nhưng vẫn còn khoảng 57 GiB, lớn hơn nhiều so với mức tăng dự
 kiến vài GiB tới cuối contract; chưa có disk-pressure risk tức thời.
+
+### 18.105 Detector theo được capture sau atomic rotation (14-08-2026)
+
+Checkpoint 20:33 +07 xác nhận campaign đạt 22,89%, vẫn steady; ba traffic
+Deployment có desired/ready đúng contract: base 1, readmix 0, dependency 1.
+Campaign không restart, zero health warning/failure marker, 6/6 node Ready và
+zero bad pod. Transition toolmix chưa tới nên không can thiệp scheduler.
+
+Audit runtime path phát hiện detector cũ mở `features.jsonl` một lần và giữ file
+descriptor mãi mãi. Sau khi finalizer atomic-move capture, descriptor vẫn trỏ
+inode frozen và loop chỉ đọc EOF, còn collector ghi inode mới; một detector dài
+hạn vì vậy có thể âm thầm ngừng quyết định. `RotatingJsonlFollower` mới đối
+chiếu device/inode và file size tại EOF, tự mở lại path từ byte đầu khi file bị
+replace/truncate; lần mở ban đầu vẫn tôn trọng `--from-start`, còn mọi inode mới
+luôn được đọc từ đầu để không mất schema/feature đầu tiên. Hai test tái hiện
+rotation với cả initial replay và tail mode. Full regression đạt **291 passed,
+7 skipped**; thay đổi chưa deploy detector candidate và không tác động campaign.
