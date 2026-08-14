@@ -280,3 +280,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   tổng row, row trong contract và zero integrity; capture còn quyền ghi bị từ
   chối. Bản contract cùng snapshot Deployment pha steady đã được kéo về local,
   chmod chỉ đọc và đối chiếu hash `28eb9a0f...` thành công.
+- 14-08-2026: temporal loader tách sequence khi khoảng cách hai window lớn hơn
+  1,5 giây hoặc khi đổi traffic regime. Vì vậy lịch sử không thể nối giả qua
+  transition gap ba phút. Checkpoint campaign 17:08 +07 đạt 8,78%, vẫn steady,
+  6/6 node Ready, zero bad pod/warning/restart. Full regression đạt **287
+  passed, 7 skipped**.

@@ -10,7 +10,9 @@ the frozen V8 models, policy evidence, or production detector.
 3. `pulse_counter_loader` snapshots cumulative maps every second.
 4. `capture.py` computes exact deltas and emits 249-dimensional JSONL features.
 5. `train.py` creates one normal-only ExtraTrees temporal model per workload
-   and container using a temporal train/calibration split.
+   and container using a temporal train/calibration split. A sequence is cut
+   whenever its cgroup has a gap greater than 1.5 seconds or the preregistered
+   traffic regime changes, so history never bridges a transition gap.
 6. `detect.py` performs one-window decisions and records inference plus
    kernel-window-to-decision latency.
 

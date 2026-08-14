@@ -16,6 +16,9 @@ from .integrity import sha256_file
 from .validate_capture import validate
 
 
+MAX_CONTIGUOUS_GAP_SECONDS = 1.5
+
+
 def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
     manifest_path = dataset.with_suffix(dataset.suffix + ".manifest.json")
     if not manifest_path.is_file():
@@ -36,7 +39,12 @@ def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
     return manifest_path, manifest
 
 
-def load_sequences(path: Path) -> tuple[dict[str, list[list[list[float]]]], list[str]]:
+def load_sequences(
+    path: Path,
+    maximum_gap_seconds: float = MAX_CONTIGUOUS_GAP_SECONDS,
+) -> tuple[dict[str, list[list[list[float]]]], list[str]]:
+    if maximum_gap_seconds <= 0:
+        raise ValueError("maximum sequence gap must be positive")
     rows = defaultdict(lambda: defaultdict(list))
     columns = None
     with path.open(encoding="utf-8") as handle:
@@ -74,7 +82,29 @@ def load_sequences(path: Path) -> tuple[dict[str, list[list[list[float]]]], list
         sequences[workload] = []
         for records in cgroups.values():
             records.sort(key=lambda value: value["window_end"])
-            sequences[workload].append([value["vector"] for value in records])
+            current_sequence = []
+            previous_end = None
+            previous_regime = None
+            for record in records:
+                window_end = float(record["window_end"])
+                regime = record.get("traffic_regime")
+                gap_boundary = (
+                    previous_end is not None
+                    and window_end - previous_end > maximum_gap_seconds
+                )
+                regime_boundary = (
+                    previous_regime is not None
+                    and regime is not None
+                    and regime != previous_regime
+                )
+                if current_sequence and (gap_boundary or regime_boundary):
+                    sequences[workload].append(current_sequence)
+                    current_sequence = []
+                current_sequence.append(record["vector"])
+                previous_end = window_end
+                previous_regime = regime
+            if current_sequence:
+                sequences[workload].append(current_sequence)
     return sequences, columns or []
 
 

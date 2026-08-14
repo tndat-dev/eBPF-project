@@ -4894,3 +4894,23 @@ Dataset manifest mới khóa thêm SHA-256 của ba node manifest; trainer từ 
 provenance cũ thiếu trường này. Contract và snapshot Deployment pha steady đã
 được kéo về `validation-evidence/sentinel-pulse-campaign/`, chmod `0444`; hash
 local khớp contract đã đăng ký `28eb9a0f...`.
+
+### 18.101 Chặn temporal adjacency giả qua transition gap (14-08-2026)
+
+Audit SSH lúc 17:08 +07 xác nhận campaign đạt 8,78%, còn khoảng 22,03 giờ và
+vẫn ở regime steady. Unit campaign `active/running`, `NRestarts=0`; 6/6 node
+Ready, zero bad pod, zero health warning và không có `CAMPAIGN_FAILED`.
+Collector/resolver/finalizer trên ba worker đều active không restart; feature
+files tiếp tục tăng và record cuối có mọi integrity counter bằng 0. Worker còn
+ít dung lượng nhất là `k8s-worker3.local` với khoảng 57 GiB trống, vẫn lớn hơn
+nhiều so với capture dự kiến vài GiB.
+
+Audit train path phát hiện `load_sequences()` trước đây nhóm theo
+node/pod/container/cgroup rồi sort timestamp nhưng không cắt tại transition gap.
+Điều đó có thể biến window cuối steady và window đầu toolmix cách nhau ba phút
+thành hai phần tử liền nhau của temporal context. Loader mới cắt sequence khi
+`window_end` cách nhau hơn 1,5 giây hoặc `traffic_regime` thay đổi. Split
+train/calibration vì vậy không còn học adjacency không tồn tại; không đổi
+collector, contract, feature, model hyperparameter hay dữ liệu đang thu. Test
+mới khóa cả gap boundary và regime boundary; full regression đạt **287 passed,
+7 skipped**, compile và diff check pass.
