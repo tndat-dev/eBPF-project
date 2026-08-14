@@ -5064,3 +5064,8 @@ yếu hơn không thể tạo candidate đủ điều kiện. Negative tests ch�
 endpoint cách nhau 24 giờ không đạt coverage và report hạ duration xuống một
 giờ bị finalizer từ chối. Focused 9/9 và full regression đạt **297 passed, 7
 skipped**; campaign hiện tại không bị thay đổi.
+
+Checkpoint chốt lúc 00:16 +07: campaign đạt **38,27%**, còn khoảng 14,91 giờ;
+unit vẫn active/running, `NRestarts=0`, chỉ có marker `CAMPAIGN_ACTIVE`. 6/6
+node Ready, zero bad pod và traffic base/readmix/dependency vẫn ready đúng
+`2/4/2`. Host, GitHub và VM sạch, cùng commit `98f7bcf72071`.

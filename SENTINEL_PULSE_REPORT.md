@@ -324,4 +324,5 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   yêu cầu span 24 giờ và coverage ≥95%, nên replica count hay vài timestamp
   endpoint không thể giả đủ wall-clock. Finalizer khóa protocol 86.400 window,
   24 giờ/workload, 95% coverage, 0 alert và từ chối report dùng threshold yếu
-  hơn. Full regression đạt **297 passed, 7 skipped**.
+  hơn. Full regression đạt **297 passed, 7 skipped**. Checkpoint 00:16 +07 đạt
+  38,27%; campaign/toolmix và traffic `2/4/2` vẫn khỏe.
