@@ -17,6 +17,7 @@ class PulseFinalizerTests(unittest.TestCase):
         manifest = {
             "schema": "sentinel-pulse-model-manifest-v2",
             "capture_validation": {"valid": True},
+            "max_contiguous_gap_seconds": 1.5,
             "software": {"python": "test", "numpy": "test", "scikit_learn": "test"},
             "workloads": {
                 workload: {

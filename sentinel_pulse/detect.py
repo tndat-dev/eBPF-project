@@ -12,7 +12,7 @@ import time
 
 import numpy as np
 
-from .model import MAX_CONTIGUOUS_GAP_SECONDS, PulseExtraTrees
+from .model import PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import contained_artifact, verify_sha256
 from .latency import InjectionTracker
@@ -108,6 +108,14 @@ class PulseRuntime:
                     f"expected={expected_software}, observed={observed_software}"
                 )
         self.history_size = int(self.manifest["history_windows"])
+        self.max_contiguous_gap_seconds = float(
+            self.manifest.get("max_contiguous_gap_seconds", 0.0)
+        )
+        if (
+            not np.isfinite(self.max_contiguous_gap_seconds)
+            or self.max_contiguous_gap_seconds <= 0.0
+        ):
+            raise ValueError("invalid temporal gap contract in model manifest")
         self.feature_schema_sha256 = self.manifest.get(
             "feature_schema_sha256", schema_digest(self.manifest["feature_columns"])
         )
@@ -168,7 +176,7 @@ class PulseRuntime:
                     f"non-monotonic live feature window for {workload}: "
                     f"previous={previous_end}, current={window_end}"
                 )
-            if window_end - previous_end > MAX_CONTIGUOUS_GAP_SECONDS:
+            if window_end - previous_end > self.max_contiguous_gap_seconds:
                 history.clear()
                 reset_reason = "temporal_gap"
             elif (

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 
@@ -29,6 +30,9 @@ def verify_model_bundle(model_dir: Path) -> tuple[dict, list[str], list[str]]:
         raise ValueError("unsupported model manifest")
     if manifest.get("capture_validation", {}).get("valid") is not True:
         raise ValueError("model manifest is not bound to a valid capture")
+    temporal_gap = float(manifest.get("max_contiguous_gap_seconds", 0.0))
+    if not math.isfinite(temporal_gap) or temporal_gap <= 0.0:
+        raise ValueError("model manifest has invalid temporal gap contract")
     if set(manifest.get("software", {})) != {"python", "numpy", "scikit_learn"}:
         raise ValueError("model manifest has incomplete training software provenance")
     candidates, collect_only = [], []

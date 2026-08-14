@@ -5023,3 +5023,14 @@ nếu cùng source phát window timestamp không tăng. Kết quả warming côn
 gap reset, regime reset, normal decision và non-monotonic rejection; compile,
 `git diff --check` và full regression đạt **293 passed, 7 skipped**. Thay đổi
 chỉ sửa parity của detector candidate, không can thiệp campaign đang thu.
+
+### 18.108 Khóa temporal contract vào model bundle (15-08-2026)
+
+Ngưỡng `max_contiguous_gap_seconds=1.5` nay được trainer ghi vào
+`manifest.json`, vì vậy nằm dưới detached SHA-256 cùng toàn bộ model bundle.
+Live runtime đọc chính giá trị đã dùng khi train, từ chối bundle thiếu/sai/không
+hữu hạn; terminal candidate finalizer cũng chặn bundle không có temporal
+contract hợp lệ. Điều này ngăn artifact hợp lệ về checksum nhưng bị chạy với
+quy tắc ghép history khác quy tắc tạo dataset. Fixture integrity/finalizer đã
+được cập nhật và có negative test cho gap bằng 0. Focused test 6/6, full
+regression vẫn **293 passed, 7 skipped**, compile và diff check pass.

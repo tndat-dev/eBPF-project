@@ -22,6 +22,8 @@ the frozen V8 models, policy evidence, or production detector.
    collector rotation does not strand the detector on an old inode.
    Runtime history uses the same 1.5-second/regime boundary as training;
    temporal gaps trigger warm-up and non-monotonic source windows fail closed.
+   The boundary is checksum-bound in the model manifest and validated again by
+   both the live runtime and terminal candidate finalizer.
 
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.

@@ -21,6 +21,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         model.feature_dim = 2
         runtime = PulseRuntime.__new__(PulseRuntime)
         runtime.history_size = 2
+        runtime.max_contiguous_gap_seconds = 1.5
         runtime.feature_schema_sha256 = schema_digest(columns)
         runtime.models = {"production/catalog:app": model}
         runtime.histories = {}

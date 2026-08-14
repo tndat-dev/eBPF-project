@@ -312,3 +312,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   transition không tồn tại trong training. Full regression đạt **293 passed,
   7 skipped**. Checkpoint 00:07 +07 đạt 37,66%, toolmix vẫn khỏe; 6/6 node
   Ready, zero bad pod/restart/integrity error, traffic giữ đúng `2/4/2`.
+- 15-08-2026: khóa `max_contiguous_gap_seconds=1.5` trong model manifest dưới
+  detached SHA-256. Runtime dùng đúng contract của artifact và runtime/finalizer
+  đều từ chối giá trị thiếu, không hữu hạn hoặc không dương. Regression giữ
+  nguyên **293 passed, 7 skipped**.

@@ -54,6 +54,7 @@ class PulseIntegrityTests(unittest.TestCase):
                 "feature_columns": columns,
                 "feature_schema_sha256": schema_digest(columns),
                 "history_windows": 1,
+                "max_contiguous_gap_seconds": 1.5,
                 "workloads": {"production/catalog:app": item},
             }
             manifest_path = root / "manifest.json"
@@ -63,7 +64,21 @@ class PulseIntegrityTests(unittest.TestCase):
             )
             runtime = PulseRuntime(root)
             self.assertIn("production/catalog:app", runtime.models)
+            self.assertEqual(runtime.max_contiguous_gap_seconds, 1.5)
 
+            manifest["max_contiguous_gap_seconds"] = 0
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            (root / "manifest.sha256").write_text(
+                f"{sha256_file(manifest_path)}  manifest.json\n", encoding="ascii"
+            )
+            with self.assertRaisesRegex(ValueError, "temporal gap contract"):
+                PulseRuntime(root)
+
+            manifest["max_contiguous_gap_seconds"] = 1.5
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            (root / "manifest.sha256").write_text(
+                f"{sha256_file(manifest_path)}  manifest.json\n", encoding="ascii"
+            )
             artifact.write_bytes(artifact.read_bytes() + b"corruption")
             with self.assertRaisesRegex(ValueError, "size mismatch"):
                 PulseRuntime(root)

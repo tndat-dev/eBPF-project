@@ -169,6 +169,7 @@ def main() -> None:
         "feature_schema_sha256": schema_digest(columns),
         "history_windows": args.history,
         "window_seconds": 1,
+        "max_contiguous_gap_seconds": MAX_CONTIGUOUS_GAP_SECONDS,
         "alpha": args.alpha,
         "software": {
             "python": platform.python_version(),
