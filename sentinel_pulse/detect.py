@@ -12,7 +12,7 @@ import time
 
 import numpy as np
 
-from .model import PulseExtraTrees
+from .model import MAX_CONTIGUOUS_GAP_SECONDS, PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import contained_artifact, verify_sha256
 from .latency import InjectionTracker
@@ -133,6 +133,7 @@ class PulseRuntime:
                     raise ValueError(f"model metadata mismatch for {artifact.name}")
                 self.models[workload] = model
         self.histories = {}
+        self.history_metadata = {}
 
     def score(self, record: dict) -> dict:
         observed_schema = record.get("feature_schema_sha256")
@@ -156,9 +157,36 @@ class PulseRuntime:
         history = self.histories.setdefault(
             source_identity, deque(maxlen=self.history_size)
         )
+        window_end = float(record["window_end"])
+        regime = record.get("traffic_regime")
+        reset_reason = None
+        previous = self.history_metadata.get(source_identity)
+        if previous is not None:
+            previous_end, previous_regime = previous
+            if window_end <= previous_end:
+                raise ValueError(
+                    f"non-monotonic live feature window for {workload}: "
+                    f"previous={previous_end}, current={window_end}"
+                )
+            if window_end - previous_end > MAX_CONTIGUOUS_GAP_SECONDS:
+                history.clear()
+                reset_reason = "temporal_gap"
+            elif (
+                previous_regime is not None
+                and regime is not None
+                and regime != previous_regime
+            ):
+                history.clear()
+                reset_reason = "traffic_regime_change"
+        self.history_metadata[source_identity] = (window_end, regime)
         if len(history) < self.history_size:
             history.append(row)
-            return {"status": "warming", "workload_key": workload, "cgroup_id": cgroup_id}
+            return {
+                "status": "warming",
+                "warming_reason": reset_reason or "history_fill",
+                "workload_key": workload,
+                "cgroup_id": cgroup_id,
+            }
         decision = model.predict(list(history), row)
         history.append(row)
         alerted_at = time.time()
@@ -169,7 +197,7 @@ class PulseRuntime:
             "cgroup_id": cgroup_id,
             "pod_name": record.get("pod_name"),
             "window_start": record["window_start"],
-            "window_end": record["window_end"],
+            "window_end": window_end,
             "alerted_at": alerted_at,
             "post_window_processing_seconds": max(0.0, alerted_at - float(record["window_end"])),
             "score": decision.score,

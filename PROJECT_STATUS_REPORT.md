@@ -4999,3 +4999,27 @@ mọi integrity counter bằng 0 và emit lag khoảng 18–29 ms. Syscall volum
 theo toolmix (ví dụ PostgreSQL 1.858 và order-service 1.383 syscall/window), cho
 thấy feature stream phản ánh traffic mới thay vì bị đứng ở steady. Worker3 vẫn
 còn khoảng 57 GiB, không có disk pressure tức thời.
+
+### 18.107 Đồng nhất temporal boundary giữa train và realtime (15-08-2026)
+
+Audit lúc 00:07 +07 xác nhận normal-only campaign đạt **37,66%**, còn khoảng
+15,06 giờ và đang ở pha toolmix. System unit thực tế
+`sentinel-pulse-capture-campaign-v3.service` vẫn `active/running`, main process
+không restart; marker failure/completion chưa xuất hiện. Cả 6/6 node Ready,
+zero bad pod; ba Deployment traffic base/readmix/dependency giữ đúng
+desired/ready/available `2/2/2`, `4/4/4`, `2/2/2` và observed generation khớp
+generation. Collector, resolver và immutable finalizer trên 3/3 worker đều
+active, `NRestarts=0`. Capture tiếp tục tăng lên khoảng 807/728/543 MB; record
+cuối có ba integrity counter bằng 0, snapshot read 0,83–2,21 ms và
+window-to-emit 15,86–27,25 ms. Worker ít dung lượng nhất vẫn còn 57 GiB.
+
+Audit code phát hiện training đã cắt temporal sequence khi gap lớn hơn 1,5
+giây hoặc đổi traffic regime, nhưng detector realtime trước đó vẫn giữ history
+cũ. Điều này có thể ghép hai trạng thái không liên tục và tạo score không tương
+ứng với phân phối đã train. `PulseRuntime` nay dùng chung một hằng số boundary,
+xóa history và warm-up lại khi gặp gap/regime transition, đồng thời fail-closed
+nếu cùng source phát window timestamp không tăng. Kết quả warming công bố rõ
+`history_fill`, `temporal_gap` hoặc `traffic_regime_change`. Hai test mới khóa
+gap reset, regime reset, normal decision và non-monotonic rejection; compile,
+`git diff --check` và full regression đạt **293 passed, 7 skipped**. Thay đổi
+chỉ sửa parity của detector candidate, không can thiệp campaign đang thu.

@@ -14,6 +14,9 @@ import time
 import numpy as np
 
 
+MAX_CONTIGUOUS_GAP_SECONDS = 1.5
+
+
 @dataclass(frozen=True)
 class PulseDecision:
     score: float

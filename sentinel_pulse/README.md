@@ -20,6 +20,8 @@ the frozen V8 models, policy evidence, or production detector.
    kernel-window-to-decision latency. Its JSONL follower detects atomic file
    replacement/truncation and resumes at the beginning of the new capture, so
    collector rotation does not strand the detector on an old inode.
+   Runtime history uses the same 1.5-second/regime boundary as training;
+   temporal gaps trigger warm-up and non-monotonic source windows fail closed.
 
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.

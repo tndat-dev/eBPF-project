@@ -306,3 +306,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   +07 sau đúng gap ba phút. Replica base/readmix/dependency đạt `2/4/2`, mọi
   observed generation khớp, 6/6 node Ready và integrity ba worker bằng 0.
   Snapshot read-only SHA-256 `b9590c1a...`; campaign đạt 35,94% lúc 23:42 +07.
+- 15-08-2026: đồng nhất temporal boundary giữa train và live detector. Runtime
+  xóa history/warm-up khi gap lớn hơn 1,5 giây hoặc đổi traffic regime, và
+  fail-closed với window timestamp không tăng; do đó không ghép score qua
+  transition không tồn tại trong training. Full regression đạt **293 passed,
+  7 skipped**. Checkpoint 00:07 +07 đạt 37,66%, toolmix vẫn khỏe; 6/6 node
+  Ready, zero bad pod/restart/integrity error, traffic giữ đúng `2/4/2`.

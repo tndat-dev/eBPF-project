@@ -10,13 +10,10 @@ from pathlib import Path
 
 import numpy as np
 
-from .model import PulseExtraTrees
+from .model import MAX_CONTIGUOUS_GAP_SECONDS, PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import sha256_file
 from .validate_capture import validate
-
-
-MAX_CONTIGUOUS_GAP_SECONDS = 1.5
 
 
 def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
