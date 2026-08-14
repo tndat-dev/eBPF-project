@@ -51,7 +51,12 @@ class PulseExtraTrees:
         rows = np.asarray(rows, dtype=np.float32)
         if rows.ndim != 2 or len(rows) <= self.history:
             raise ValueError("not enough ordered windows for temporal examples")
-        x = np.stack([rows[index - self.history:index].reshape(-1) for index in range(self.history, len(rows))])
+        examples = len(rows) - self.history
+        feature_dim = rows.shape[1]
+        x = np.empty((examples, self.history * feature_dim), dtype=np.float32)
+        for offset in range(self.history):
+            left = offset * feature_dim
+            x[:, left:left + feature_dim] = rows[offset:offset + examples]
         y = rows[self.history:]
         return x, y
 
@@ -79,9 +84,12 @@ class PulseExtraTrees:
             total_rows += len(rows)
         if total_rows < 100 or not train_x or not calibration_x:
             raise ValueError("at least 100 usable ordered normal windows are required")
+        def combine(parts: list[np.ndarray]) -> np.ndarray:
+            return parts[0] if len(parts) == 1 else np.concatenate(parts)
+
         return (
-            np.concatenate(train_x), np.concatenate(train_y),
-            np.concatenate(calibration_x), np.concatenate(calibration_y),
+            combine(train_x), combine(train_y),
+            combine(calibration_x), combine(calibration_y),
             int(feature_dim),
         )
 
@@ -89,19 +97,41 @@ class PulseExtraTrees:
     def _contexts(history: np.ndarray, current: np.ndarray) -> np.ndarray:
         return np.concatenate((history, current), axis=1)
 
-    def _corrupt(self, current: np.ndarray) -> np.ndarray:
+    def _corrupt(self, current: np.ndarray, chunk_rows: int = 8192) -> np.ndarray:
+        if chunk_rows <= 0:
+            raise ValueError("corruption chunk size must be positive")
         rng = np.random.default_rng(self.random_state)
         corrupted = current.copy()
-        donor = current[rng.permutation(len(current))]
-        swap_mask = rng.random(corrupted.shape) < 0.15
-        corrupted[swap_mask] = donor[swap_mask]
-        scale_mask = rng.random(corrupted.shape) < 0.08
-        factors = np.exp(rng.uniform(np.log(0.25), np.log(4.0), size=corrupted.shape))
-        corrupted[scale_mask] *= factors[scale_mask]
+        donor_indices = rng.permutation(len(current))
+        for start in range(0, len(current), chunk_rows):
+            stop = min(len(current), start + chunk_rows)
+            target = corrupted[start:stop]
+            donor = current[donor_indices[start:stop]]
+            swap_mask = rng.random(target.shape, dtype=np.float32) < 0.15
+            target[swap_mask] = donor[swap_mask]
+            scale_mask = rng.random(target.shape, dtype=np.float32) < 0.08
+            factor_count = int(np.count_nonzero(scale_mask))
+            if factor_count:
+                factors = np.exp(
+                    rng.uniform(np.log(0.25), np.log(4.0), size=factor_count)
+                ).astype(np.float32)
+                target[scale_mask] *= factors
         return corrupted.astype(np.float32)
 
-    def _raw_scores(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        return self.estimator.predict_proba(self._contexts(x, y))[:, 1]
+    def _raw_scores(
+        self, x: np.ndarray, y: np.ndarray, batch_rows: int = 8192
+    ) -> np.ndarray:
+        if batch_rows <= 0:
+            raise ValueError("prediction batch size must be positive")
+        if len(x) != len(y):
+            raise ValueError("history/current batch length mismatch")
+        scores = np.empty(len(x), dtype=np.float64)
+        for start in range(0, len(x), batch_rows):
+            stop = min(len(x), start + batch_rows)
+            scores[start:stop] = self.estimator.predict_proba(
+                self._contexts(x[start:stop], y[start:stop])
+            )[:, 1]
+        return scores
 
     def fit(self, ordered_normal_rows: Sequence[Sequence[float]], train_fraction: float = 0.7) -> dict:
         return self.fit_sequences([ordered_normal_rows], train_fraction=train_fraction)
@@ -124,11 +154,21 @@ class PulseExtraTrees:
                 f"alpha={self.alpha:g} requires at least "
                 f"{self.minimum_calibration_examples} calibration examples; got {len(calibration_x)}"
             )
-        normal_context = self._contexts(train_x, train_y)
-        corrupted_context = self._contexts(train_x, self._corrupt(train_y))
-        fit_x = np.concatenate((normal_context, corrupted_context))
+        examples = len(train_x)
+        history_dim = train_x.shape[1]
+        current_dim = train_y.shape[1]
+        fit_x = np.empty(
+            (examples * 2, history_dim + current_dim), dtype=np.float32
+        )
+        fit_x[:examples, :history_dim] = train_x
+        fit_x[:examples, history_dim:] = train_y
+        fit_x[examples:, :history_dim] = train_x
+        corrupted_current = self._corrupt(train_y)
+        fit_x[examples:, history_dim:] = corrupted_current
+        fit_matrix_bytes = int(fit_x.nbytes)
+        del corrupted_current
         fit_y = np.concatenate(
-            (np.zeros(len(normal_context), dtype=np.uint8), np.ones(len(corrupted_context), dtype=np.uint8))
+            (np.zeros(examples, dtype=np.uint8), np.ones(examples, dtype=np.uint8))
         )
         self.estimator = ExtraTreesClassifier(
             n_estimators=192,
@@ -142,6 +182,7 @@ class PulseExtraTrees:
         started = time.perf_counter()
         self.estimator.fit(fit_x, fit_y)
         train_seconds = time.perf_counter() - started
+        del fit_x, fit_y
         self.calibration_scores = np.sort(self._raw_scores(calibration_x, calibration_y))
         # A single live window should not fan out a prediction thread pool.
         self.estimator.n_jobs = 1
@@ -151,6 +192,7 @@ class PulseExtraTrees:
             "minimum_calibration_examples": self.minimum_calibration_examples,
             "minimum_conformal_p": 1.0 / (len(calibration_x) + 1.0),
             "feature_dim": int(self.feature_dim),
+            "fit_matrix_bytes": fit_matrix_bytes,
             "train_seconds": train_seconds,
             "calibration_score_p99": float(np.quantile(self.calibration_scores, 0.99)),
         }

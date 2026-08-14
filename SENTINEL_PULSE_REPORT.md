@@ -290,3 +290,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   regime và vector rồi compact thành contiguous NumPy `float32` theo sequence.
   Model input/temporal split không đổi; full regression vẫn **287 passed, 7
   skipped**.
+- 14-08-2026: giới hạn peak RAM trong model fit: temporal context được
+  preallocate, corruption và calibration prediction chia batch 8.192 row,
+  scale factor chỉ sinh cho phần tử được chọn và giữ `float32`. Report model ghi
+  `fit_matrix_bytes`; full regression đạt **289 passed, 7 skipped**.

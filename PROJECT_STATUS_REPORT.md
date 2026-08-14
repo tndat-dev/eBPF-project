@@ -4931,3 +4931,20 @@ metadata khỏi training set, trong khi vẫn giữ nguyên node/pod/container/c
 identity, gap/regime boundary, thứ tự thời gian và model semantics. Test khóa
 dtype/contiguity cùng boundary behavior; focused và full regression đều pass,
 full suite **287 passed, 7 skipped**.
+
+### 18.103 Giới hạn peak RAM khi fit và calibrate ExtraTrees (14-08-2026)
+
+Sau khi compact dataset loader, audit tiếp model path phát hiện ba allocation
+không cần thiết ở quy mô lớn: list hàng trăm nghìn history view trước
+`np.stack`, hai ma trận normal/corrupted context rồi lại concatenate lần nữa,
+và ma trận scale factor `float64` phủ toàn bộ current-row tensor. Calibration
+cũng dựng context của mọi held-out row trong một lần gọi.
+
+Implementation mới preallocate history matrix theo đúng shape; cấp phát duy
+nhất fit matrix `float32` gồm normal và corrupted half; corruption chạy chunk
+8.192 row, sinh factor chỉ cho phần tử có scale mask; calibration/prediction
+chấm batch tối đa 8.192 row. Artifact report ghi `fit_matrix_bytes` để benchmark
+memory có denominator tái lập. Thuật toán, random seed, corruption probability,
+feature và threshold contract không đổi; chưa dùng attack/test label để tune.
+Hai test mới khóa layout context, batch bound, determinism và dtype. Full
+regression đạt **289 passed, 7 skipped**, compile và diff check pass.

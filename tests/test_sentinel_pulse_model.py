@@ -6,7 +6,11 @@ from sentinel_pulse.model import PulseExtraTrees
 
 
 class _FakeEstimator:
+    def __init__(self):
+        self.maximum_batch_rows = 0
+
     def predict_proba(self, rows):
+        self.maximum_batch_rows = max(self.maximum_batch_rows, len(rows))
         score = np.clip(np.mean(rows[:, -4:], axis=1), 0.0, 1.0)
         return np.column_stack((1.0 - score, score))
 
@@ -38,6 +42,27 @@ class PulseModelTests(unittest.TestCase):
         self.assertEqual(result.conformal_p, 0.2)
         self.assertTrue(result.anomalous)
         self.assertGreaterEqual(result.inference_ms, 0.0)
+
+    def test_example_layout_and_scoring_are_memory_bounded(self):
+        model = PulseExtraTrees(history=2)
+        rows = np.arange(48, dtype=np.float32).reshape(12, 4)
+        history, current = model._examples(rows)
+        self.assertEqual(history.shape, (10, 8))
+        np.testing.assert_array_equal(history[0], rows[:2].reshape(-1))
+        np.testing.assert_array_equal(current[0], rows[2])
+
+        model.estimator = _FakeEstimator()
+        scores = model._raw_scores(history, current, batch_rows=3)
+        self.assertEqual(len(scores), 10)
+        self.assertEqual(model.estimator.maximum_batch_rows, 3)
+
+    def test_corruption_is_chunked_deterministic_float32(self):
+        rows = np.ones((25, 12), dtype=np.float32)
+        left = PulseExtraTrees(random_state=7)._corrupt(rows, chunk_rows=4)
+        right = PulseExtraTrees(random_state=7)._corrupt(rows, chunk_rows=4)
+        self.assertEqual(left.dtype, np.float32)
+        np.testing.assert_array_equal(left, right)
+        self.assertFalse(np.array_equal(left, rows))
 
 
 if __name__ == "__main__":
