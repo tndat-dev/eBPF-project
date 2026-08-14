@@ -1,0 +1,22 @@
+[Unit]
+Description=Sentinel Pulse production cgroup resolver
+After=containerd.service
+Requires=containerd.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sentinel-pulse
+ExecStart=/opt/sentinel-pulse/venv/bin/python -m sentinel_pulse.cgroup_resolver --namespace production --allow-file /run/sentinel-pulse/allowed-cgroups --metadata-file /run/sentinel-pulse/cgroups.json --interval 15
+Restart=always
+RestartSec=2
+RuntimeDirectory=sentinel-pulse
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/run/sentinel-pulse
+
+[Install]
+WantedBy=multi-user.target

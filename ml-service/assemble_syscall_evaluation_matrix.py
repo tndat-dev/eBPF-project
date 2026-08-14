@@ -75,21 +75,33 @@ def normalized_latency(document: dict[str, Any]) -> dict[str, Any]:
 
 def normalized_outcomes(
     items: list[dict[str, Any]], *, horizon_seconds: float,
+    interval_metadata: dict[str, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
     outcomes = []
     for item in items:
+        injection_id = str(item["injection_id"])
+        interval = (
+            interval_metadata.get(injection_id)
+            if interval_metadata is not None else None
+        )
+        if interval is None:
+            if "start" not in item or "end" not in item:
+                raise ValueError(
+                    f"attack interval metadata is missing: {injection_id}"
+                )
+            interval = item
         latency = item.get(
             "first_confirmation_latency_seconds",
             item.get("first_alert_latency_seconds", item.get("latency_seconds")),
         )
-        start, end = float(item["start"]), float(item["end"])
-        attribution_end = float(item.get(
+        start, end = float(interval["start"]), float(interval["end"])
+        attribution_end = float(interval.get(
             "attribution_end", end + horizon_seconds,
         ))
         if attribution_end < end or attribution_end <= start:
             raise ValueError("invalid attack attribution/censor boundary")
         outcomes.append({
-            "injection_id": str(item["injection_id"]),
+            "injection_id": injection_id,
             "pod_key": str(item["pod_key"]),
             "scenario": str(item["scenario"]),
             "seed": int(item["seed"]),
@@ -98,7 +110,7 @@ def normalized_outcomes(
             "latency_seconds": float(latency) if latency is not None else None,
             "censor_seconds": attribution_end - start,
             "horizon_right_censored": bool(
-                item.get("horizon_right_censored_by_next_injection", False)
+                interval.get("horizon_right_censored_by_next_injection", False)
             ),
         })
     outcomes.sort(key=lambda row: row["injection_id"])
@@ -110,6 +122,7 @@ def normalized_outcomes(
 def normalized_normal_phases(
     items: list[dict[str, Any]], common: dict[str, Any], *,
     expected_false_alerts: int,
+    expected_eligible_windows: int | None = None,
 ) -> list[dict[str, Any]]:
     indexed = {str(item["phase"]): item for item in items}
     expected = common["normal_phase_contract"]
@@ -126,7 +139,7 @@ def normalized_normal_phases(
         ))
         if alerts < 0:
             raise ValueError(f"normal phase alert count is missing: {phase}")
-        outcomes.append({
+        outcome = {
             "phase": phase,
             "run_id": identity["run_id"],
             "traffic_regime": identity["traffic_regime"],
@@ -135,9 +148,28 @@ def normalized_normal_phases(
             ),
             "false_alerts": alerts,
             "exposure_seconds": identity["exposure_seconds"],
-        })
+        }
+        eligible = source.get("eligible_decision_windows")
+        if expected_eligible_windows is not None and eligible is None:
+            raise ValueError(
+                f"normal phase eligible-window count is missing: {phase}"
+            )
+        if eligible is not None:
+            eligible = int(eligible)
+            if eligible < alerts:
+                raise ValueError(
+                    f"normal phase alerts exceed eligible windows: {phase}"
+                )
+            outcome["eligible_windows"] = eligible
+        outcomes.append(outcome)
     if sum(item["false_alerts"] for item in outcomes) != expected_false_alerts:
         raise ValueError("normal phase alerts do not equal aggregate false alerts")
+    if expected_eligible_windows is not None and sum(
+        int(item["eligible_windows"]) for item in outcomes
+    ) != expected_eligible_windows:
+        raise ValueError(
+            "normal phase eligible windows do not equal aggregate eligible windows"
+        )
     return outcomes
 
 
@@ -156,6 +188,11 @@ def classification_metrics(detected: int, trials: int, false_alerts: int) -> dic
             "TP=detected blind trials; FN=missed blind trials; "
             "FP=alerts during independent normal windows"
         ),
+        "precision_f1_scope": (
+            "protocol-mixed descriptive only: attack intervals and normal "
+            "windows have different sampling units and exposure"
+        ),
+        "deployment_precision_claim_valid": False,
     }
 
 
@@ -195,6 +232,7 @@ def common_result_fields(common: dict[str, Any], experiment_id: str,
 def build_ml_result(
     method: str, normal: dict[str, Any], attack: dict[str, Any],
     common: dict[str, Any], *, fast_path: dict[str, Any] | None = None,
+    interval_metadata: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     experiment_id = f"syscall__{method}"
     if normal.get("experiment_id") != experiment_id:
@@ -225,6 +263,16 @@ def build_ml_result(
         raise ValueError(f"{method}: attack capture mismatch")
     if attack.get("evaluation_protocol_sha256") != common["evaluation_protocol_sha256"]:
         raise ValueError(f"{method}: evaluation protocol mismatch")
+    normal_evaluator_sha = sha256(
+        Path(__file__).with_name("evaluate_aims_normal_split.py")
+    )
+    attack_evaluator_sha = sha256(
+        Path(__file__).with_name("evaluate_aims_attack_replay.py")
+    )
+    if normal.get("evaluator_source_sha256") != normal_evaluator_sha:
+        raise ValueError(f"{method}: normal evaluator provenance mismatch")
+    if attack.get("evaluator_source_sha256") != attack_evaluator_sha:
+        raise ValueError(f"{method}: attack evaluator provenance mismatch")
 
     phases = list(normal.get("phases", []))
     run_ids = {
@@ -233,10 +281,17 @@ def build_ml_result(
     false_alerts = int(normal.get("alerts", -1))
     if false_alerts < 0 or false_alerts != int(normal.get("detections", -2)):
         raise ValueError(f"{method}: normal alert accounting mismatch")
+    windows = int(normal.get("windows", 0))
+    eligible_windows = int(normal.get("eligible_decision_windows", -1))
+    if not 0 < eligible_windows <= windows:
+        raise ValueError(f"{method}: normal eligible-window accounting is invalid")
+    if false_alerts > eligible_windows:
+        raise ValueError(f"{method}: false alerts exceed eligible normal windows")
     trials = int(attack["completed_trials"])
     detected = int(attack["detected_trials"])
     normal_phase_outcomes = normalized_normal_phases(
         phases, common, expected_false_alerts=false_alerts,
+        expected_eligible_windows=eligible_windows,
     )
     exposure = sum(
         item["exposure_seconds"] for item in normal_phase_outcomes
@@ -244,6 +299,7 @@ def build_ml_result(
     horizon = float(attack["post_attack_horizon_seconds"])
     outcomes = normalized_outcomes(
         list(attack.get("trials", [])), horizon_seconds=horizon,
+        interval_metadata=interval_metadata,
     )
     if len(outcomes) != trials:
         raise ValueError(f"{method}: attack outcomes are incomplete")
@@ -262,10 +318,14 @@ def build_ml_result(
         ),
         "normal": {
             "independent_runs": len(run_ids), "phases": len(phases),
-            "windows": int(normal.get("windows", 0)),
+            "windows": windows,
+            "eligible_windows": eligible_windows,
             "false_alerts": false_alerts,
             "exposure_hours": exposure,
             "false_alerts_per_hour": false_alerts / exposure if exposure else None,
+            "false_alert_rate_per_eligible_window": (
+                false_alerts / eligible_windows
+            ),
             "phase_outcomes": normal_phase_outcomes,
         },
         "attack": {
@@ -304,6 +364,7 @@ def build_ml_result(
 def build_rule_result(
     method: str, normal: dict[str, Any], attack: dict[str, Any],
     latency: dict[str, Any], common: dict[str, Any], code_digest: str,
+    *, interval_metadata: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     trials, detected = int(attack["trials"]), int(attack["detected"])
     false_alerts = int(normal["false_alerts"])
@@ -325,6 +386,7 @@ def build_rule_result(
     horizon = float(attack["post_attack_horizon_seconds"])
     outcomes = normalized_outcomes(
         list(attack.get("outcomes", [])), horizon_seconds=horizon,
+        interval_metadata=interval_metadata,
     )
     if len(outcomes) != trials:
         raise ValueError(f"{method}: attack outcomes are incomplete")
@@ -569,6 +631,17 @@ def main() -> int:
             derived / "fast-path-live-normal.exclusion.json",
         )
         ablation_root = derived / "normal-ablation-replay"
+        falco_attack_path = (
+            attack_root / "falco-rule-only-attack"
+            / "falco-attack-evidence.report.json"
+        )
+        falco_attack = read_json(falco_attack_path)
+        attack_interval_metadata = {
+            str(item["injection_id"]): item
+            for item in falco_attack.get("trials", [])
+        }
+        if len(attack_interval_metadata) != 200:
+            raise ValueError("canonical attack interval metadata is incomplete")
         for method in ML_METHODS:
             normal_path = ablation_root / f"syscall__{method}.json"
             attack_path = ablation_root / f"syscall__{method}.attack.json"
@@ -583,6 +656,7 @@ def main() -> int:
                 }
             result = build_ml_result(
                 method, normal, attack, common, fast_path=fast_path,
+                interval_metadata=attack_interval_metadata,
             )
             directory = staging / f"syscall__{method}"
             directory.mkdir()
@@ -598,6 +672,7 @@ def main() -> int:
             "tetragon_rule_only", tetragon["normal"], tetragon["attack"],
             tetragon["latency_seconds"], common,
             sha256(Path(__file__).with_name("evaluate_tetragon_rule_replay.py")),
+            interval_metadata=attack_interval_metadata,
         )
         directory = staging / "syscall__tetragon_rule_only"
         directory.mkdir()
@@ -606,8 +681,7 @@ def main() -> int:
         )
 
         falco_normal_path = derived / "falco-rule-only-normal" / "falco-normal-evidence.report.json"
-        falco_attack_path = attack_root / "falco-rule-only-attack" / "falco-attack-evidence.report.json"
-        falco_normal, falco_attack = read_json(falco_normal_path), read_json(falco_attack_path)
+        falco_normal = read_json(falco_normal_path)
         falco_normal_summary = {
             "independent_runs": independent_runs, "phases": independent_phases,
             "windows": normal_windows,
@@ -633,6 +707,7 @@ def main() -> int:
                 "normal": sha256(Path(__file__).with_name("falco_evidence_finalizer.py")),
                 "attack": sha256(Path(__file__).with_name("falco_attack_evidence_finalizer.py")),
             }),
+            interval_metadata=attack_interval_metadata,
         )
         directory = staging / "syscall__falco_rule_only"
         directory.mkdir()

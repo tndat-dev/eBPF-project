@@ -1,0 +1,15 @@
+[Unit]
+Description=Sentinel Pulse immutable capture finalizer for %i
+After=sentinel-pulse-collector.service
+Wants=sentinel-pulse-collector.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/sentinel-pulse/campaigns/%i.env
+ExecStart=/opt/sentinel-pulse/sentinel_pulse/finalize_capture_node.sh
+Restart=on-failure
+RestartSec=60
+TimeoutStartSec=infinity
+
+[Install]
+WantedBy=multi-user.target

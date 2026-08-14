@@ -28,8 +28,10 @@ def result(experiment_id, *, full=False):
         "experiment_id": experiment_id,
         "normal": {
             "independent_runs": 5, "phases": 20, "windows": 1000,
+            "eligible_windows": 900,
             "exposure_hours": 24, "false_alerts": 1,
             "false_alerts_per_hour": 1 / 24,
+            "false_alert_rate_per_eligible_window": 1 / 900,
         },
         "attack": {
             "trials": 200, "detected": 190, "recall_point": .95,
@@ -68,6 +70,9 @@ def test_renderer_writes_complete_non_overclaiming_markdown_and_csv(tmp_path):
     text = markdown.read_text()
     assert "1/55" in text
     assert "false alerts/hour` không phải statistical FPR" in text
+    assert "eligible-window⁻¹" in text
+    assert "Protocol-mixed precision / F1*" in text
+    assert "deployment precision/F1" in text
     assert "retrospective operational evidence only" in text
     assert "exact kernel-event latency" in text
     assert len(csv_path.read_text().splitlines()) == 12

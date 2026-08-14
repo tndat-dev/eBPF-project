@@ -1,0 +1,32 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-pulse-detail-500ms
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: sentinel-pulse
+    sentinel.openai.dev/experimental: "true"
+spec:
+  podSelector:
+    matchLabels:
+      aims.hust.vn/runtime-hardened: "true"
+  kprobes:
+  - {call: sys_execveat, syscall: true}
+  - {call: sys_connect, syscall: true}
+  - call: sys_read
+    syscall: true
+    selectors: &sampledPulseContext
+    - matchActions:
+      - {action: Post, rateLimit: 500ms, rateLimitScope: process}
+  - {call: sys_write, syscall: true, selectors: *sampledPulseContext}
+  - {call: sys_writev, syscall: true, selectors: *sampledPulseContext}
+  - {call: sys_openat, syscall: true, selectors: *sampledPulseContext}
+  - {call: sys_close, syscall: true, selectors: *sampledPulseContext}
+  - {call: sys_accept4, syscall: true, selectors: *sampledPulseContext}
+  - {call: sys_clone, syscall: true}
+  - {call: sys_setuid, syscall: true}
+  - {call: sys_setgid, syscall: true}
+  - {call: sys_capset, syscall: true}
+  - {call: sys_unshare, syscall: true}
+  - {call: sys_mount, syscall: true}
+  - {call: sys_ptrace, syscall: true}

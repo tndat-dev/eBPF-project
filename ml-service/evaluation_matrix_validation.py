@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -129,12 +130,38 @@ def validate_evaluation_matrix(root: Path, contract: dict,
             item_errors.append("normal window count is missing")
         if int(normal.get("false_alerts", -1)) < 0:
             item_errors.append("normal false-alert count is missing")
+        eligible = normal.get("eligible_windows")
+        if result.get("policy") is not None and eligible is None:
+            item_errors.append("ML normal eligible-window count is missing")
+        if eligible is not None:
+            windows = int(normal.get("windows", 0))
+            eligible = int(eligible)
+            false_alerts = int(normal.get("false_alerts", -1))
+            if not 0 < eligible <= windows or false_alerts > eligible:
+                item_errors.append("invalid ML normal eligible-window accounting")
+            observed_fpr = normal.get("false_alert_rate_per_eligible_window")
+            expected_fpr = false_alerts / eligible if eligible else None
+            if observed_fpr is None or not math.isclose(
+                float(observed_fpr), float(expected_fpr),
+                rel_tol=1e-9, abs_tol=1e-12,
+            ):
+                item_errors.append("ML normal per-window FPR mismatch")
         attack_trials = int(attack.get("trials", 0))
         detected = int(attack.get("detected", -1))
         if attack_trials < int(track_contract["minimum_attack_trials"]):
             item_errors.append("insufficient blind attack trials")
         if detected < 0 or detected > attack_trials:
             item_errors.append("invalid attack detection count")
+        if "precision" in attack or "f1" in attack:
+            if attack.get("deployment_precision_claim_valid") is not False:
+                item_errors.append(
+                    "protocol-mixed precision/F1 lacks deployment-claim guard"
+                )
+            scope = str(attack.get("precision_f1_scope", ""))
+            if "different sampling units" not in scope:
+                item_errors.append(
+                    "protocol-mixed precision/F1 scope is missing"
+                )
         statistics = result.get("statistics", {})
         if float(statistics.get("confidence_level", 0)) != float(
             contract["confidence_level"]

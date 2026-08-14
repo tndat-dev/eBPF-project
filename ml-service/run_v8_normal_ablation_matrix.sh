@@ -125,18 +125,40 @@ run_attack_experiment() {
   local experiment_id=$1
   shift
   local output=$OUTPUT_ROOT/$experiment_id.attack.json
-  if [[ -r "$output" ]] && "$PYTHON_BIN" - "$output" "$experiment_id" <<'PY'
+  local evaluator_sha
+  evaluator_sha=$(sha256sum "$ROOT_DIR/evaluate_aims_attack_replay.py" | awk '{print $1}')
+  if [[ -r "$output" ]] && "$PYTHON_BIN" - "$output" "$experiment_id" \
+    "$evaluator_sha" <<'PY'
 import json, sys
 doc = json.load(open(sys.argv[1]))
 raise SystemExit(0 if (
     doc.get("status") == "complete"
     and doc.get("experiment_id") == sys.argv[2]
     and doc.get("completed_trials") == 200
+    and doc.get("evaluator_source_sha256") == sys.argv[3]
 ) else 1)
 PY
   then
     printf 'VERIFIED: %s attack replay already complete\n' "$experiment_id"
     return
+  fi
+  if [[ -r "$output" ]]; then
+    local rejected_root destination digest
+    rejected_root=$DERIVED_ROOT/rejected-partials/attack-evaluator-unbound-v1
+    mkdir -p "$rejected_root"
+    digest=$(sha256sum "$output" | awk '{print $1}')
+    destination=$rejected_root/$experiment_id.$digest.attack.json
+    if [[ -e "$destination" ]]; then
+      cmp -s "$output" "$destination" || {
+        printf 'REFUSING: rejected attack provenance archive collision\n' >&2
+        exit 4
+      }
+      rm "$output"
+    else
+      mv "$output" "$destination"
+    fi
+    printf 'ARCHIVED: %s attack replay lacks current evaluator provenance\n' \
+      "$experiment_id"
   fi
   "$PYTHON_BIN" "$ROOT_DIR/evaluate_aims_attack_replay.py" \
     --attack-capture "$ATTACK_CAPTURE" --candidate "$CANDIDATE" \

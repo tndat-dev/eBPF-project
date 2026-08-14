@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-12
+**Ngày xác minh cluster gần nhất:** 2026-08-14
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
 **Phiên bản đang deploy:** Syscall Runtime Release V7, window 10 giây,
@@ -24,17 +24,17 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 
 Điểm quan trọng nhất của benchmark lịch sử: latency end-to-end khoảng 58 giây không phải do model chậm. Inference của model chỉ khoảng 20 ms mỗi cửa sổ. Latency cao chủ yếu do thiết kế cố ý yêu cầu 2 cửa sổ liên tiếp, mỗi cửa sổ 30 giây, để giảm false positive. Cần đo lại sau khi các workload recovery ổn định.
 
-**Kết luận vận hành ở snapshot mới nhất.** Sáu node và Tetragon 6/6 khỏe,
-detector production V7 vẫn `active/running`, `NRestarts=0`, dry-run. Campaign
-AIMS V8 đã hoàn tất capture 24/24 phase (165.499 window, khoảng 28,81 giờ),
-train 8/8 model và calibration fit-only. Independent normal evaluation đã pass
-đủ 20/20 phase với 122.639 window và zero observed alert; report
-`status=complete`, `passed=true` và
-`POST_CAPTURE_COMPLETE` đã được tạo. Blind attack V8 hiện đang chạy nền;
-ablation, overhead và promotion chưa chạy. Vì vậy candidate **chưa
-production-ready** và không được suy diễn “không có false positive” từ
-checkpoint giữa chừng. Kết quả fit-v2 195/200 là campaign lịch sử khác, không
-phải kết quả V8 hiện tại.
+**Kết luận vận hành ở snapshot mới nhất.** Sáu node và Tetragon 6/6 khỏe;
+detector production V7 đã được phục hồi `active/running`, `NRestarts=0`,
+dry-run sau benchmark. Campaign AIMS V8 đã terminal: capture 24/24 phase
+(165.499 window, khoảng 28,81 giờ), train 8/8 model, independent normal 20/20
+phase với 122.639 feature window/24,005 giờ và 0 alert, blind attack 195/200,
+matrix 11 phương pháp/55 paired comparison, cùng overhead A/B 6 order/18 phase/
+180 lượt không có failed request. Stable finalizer đã tạo quyết định
+checksum-bound `research_stable_dry_run_only`, `evidence_complete=true`.
+Candidate **không đủ điều kiện production promotion** vì frozen recall gate
+yêu cầu 1,0 trong khi quan sát đạt 0,975; automatic và manual promotion đều bị
+khóa. Đây là kết quả terminal V8, không còn là checkpoint giữa chừng.
 
 ## Quy ước tên phiên bản và research track
 
@@ -71,7 +71,8 @@ V8.
 
 ## 2. Trạng thái hạ tầng hiện tại đã xác minh bằng SSH
 
-Các thông tin nền tảng dưới đây được kiểm tra trực tiếp trên `dat@10.1.16.234` ngày 2026-08-11.
+Các thông tin nền tảng dưới đây được kiểm tra lại trực tiếp trên
+`dat@10.1.16.234` ngày 2026-08-14.
 
 | Thành phần | Trạng thái đã xác minh |
 |---|---|
@@ -4717,3 +4718,179 @@ Normal-ablation timer/service đã được resume từ đầu cho đúng phươ
 production `sentinel-detector.service` giữ `active/running`, `NRestarts=0`.
 Matrix, overhead và stable finalizer vẫn chờ terminal evidence mới nên chưa có
 artifact downstream nào bị nhiễm lượt rejected.
+
+### 18.95 V8 đóng terminal matrix 11 phương pháp và bắt đầu overhead A/B (14-08-2026)
+
+Corrected ablation campaign đã hoàn tất toàn bộ normal/attack replay. Kết quả
+đáng chú ý: bỏ behavior gate tạo 41 false alert nhưng vẫn chỉ phát hiện
+195/200; bỏ extreme-volume gate là null result; one-window confirmation giữ
+zero observed normal alert và 195/200 detection, đồng thời giảm paired
+confirmation latency đúng 10 giây từ median 18,255 xuống 8,255 giây. Shared
+workload model cũng quan sát 0 alert và 195/200 nhưng vẫn bị khóa
+`evaluation-only`, `automatic_promotion=false` vì không qua offline development
+gate.
+
+Assembler fail-closed ở hai bất nhất adapter trước khi phát hành matrix:
+Tetragon outcome không lặp `start/end`, và Falco có next-injection-safe censor
+boundary ngắn hơn 30-second horizon ở 156/200 trial. Source mới join interval
+theo frozen `injection_id` và dùng cùng canonical Falco censor boundary cho cả
+11 method; không sửa detection hoặc latency riêng của method. Tetragon,
+Falco và full replay có cùng đủ 200 ID. Full regression đạt
+`177 passed, 9 skipped`; runtime/staging checksum pass.
+
+Matrix hiện terminal `valid=true`, đủ 11 experiment và 55 paired comparison;
+toàn bộ `SHA256SUMS` pass. Marker `NORMAL_ABLATION_REPLAY_COMPLETE` đã kích
+hoạt counterbalanced overhead campaign. Tại 07:19 ICT, permutation p01 đang
+chạy pha `no_tracing` bằng `wrk` 10 lần × 30 giây. Stable finalizer tiếp tục
+chờ `V8_OVERHEAD_COMPLETE`; V8 chưa production-promote và vẫn dự kiến kết luận
+`research_stable_dry_run_only` vì frozen recall gate 1,0 không đạt.
+
+### 18.96 Overhead V8 đạt 4/6 permutation và 131/180 lượt đo (14-08-2026)
+
+Checkpoint SSH lúc 08:45 ICT xác nhận `aims-v8-overhead.service` vẫn
+`activating/start`, `NRestarts=0`, không có lỗi trong journal. Bốn comparison
+`p01`–`p04` đã được đóng; phase `full_pipeline` của `p05` cũng hoàn tất. Tổng
+cộng có 13 phase report terminal và 131/180 file `wrk`; runner đang ở phase
+`no_tracing` của `p05`. Tất cả phase report đã đóng đều qua quality gate với
+0 failed request. Cụm có 6/6 node Kubernetes v1.34.10 `Ready` và namespace
+`production` có 40/40 pod `Running`.
+
+Kết quả giữa các permutation còn dao động và confidence interval phần lớn cắt
+qua 0, vì vậy không lấy một permutation đơn lẻ làm overhead claim. Chỉ aggregate
+counterbalanced sau đủ sáu thứ tự mới được finalizer sử dụng. Marker
+`V8_OVERHEAD_COMPLETE` và stable-decision artifact vẫn chưa tồn tại tại
+checkpoint; ETA không lỗi khoảng 09:25–09:40 ICT. Campaign vẫn chạy ngầm và
+chủ động bật/tắt detector cùng tracing policy theo phase; không can thiệp thủ
+công trong khoảng đo.
+
+### 18.97 V8 đóng research-stable sau 180/180 overhead lượt đo (14-08-2026)
+
+Counterbalanced overhead đã terminal đủ sáu phase-order block, 18 phase và
+180/180 lượt `wrk`; mọi phase có 0 failed request. Aggregate point estimate
+full pipeline so với no tracing là throughput loss median 2,576% (block-bootstrap
+95% CI -7,493% đến 4,345%) và p99 latency increase median 3,116% (95% CI
+-1,789% đến 8,755%). Phần tăng riêng của ML detector so với Tetragon là 1,172%
+throughput loss (95% CI -5,026% đến 4,610%) và 1,036% p99 increase (95% CI
+-3,448% đến 1,613%). Median detector resource qua sáu full-pipeline block là
+24,952% một CPU core và 431,495 MiB RAM. Tất cả CI hiệu năng cắt qua 0, nên đây
+là point estimate overhead nhỏ trên một cluster campaign, không phải bằng chứng
+overhead bằng 0.
+
+Lượt finalizer tự động đầu tiên fail-closed do sáu calibration copy do root tạo
+có mode `0600`; audit còn phát hiện manifest liệt kê nhầm `.SHA256SUMS.tmp` của
+chính nó. Không có benchmark data nào bị sửa hoặc chạy lại. Runner được
+refactor dùng `install -m 0644` và loại manifest tạm khỏi `find`; regression
+local đạt `177 passed, 9 skipped`, staging checksum đạt, focused deploy test
+trên VM đạt 19/19. Sáu artifact cũ chỉ được sửa permission metadata; SHA256SUMS
+được tái tạo từ toàn bộ 180 evidence file bất biến và kiểm `sha256sum -c` pass.
+
+Finalizer sau đó chạy thành công và chạy lặp lại idempotent cũng success. Stable
+decision SHA-256 là
+`1ce95f916e7ead1c505c45a1bbdf98992b0c15563936dd22814bc120da85abb4`:
+`evidence_complete=true`, status `research_stable_dry_run_only`, normal 0 alert
+trên 122.639 feature windows/24,005 giờ, blind attack 195/200, chỉ gate
+`blind_attack=false`, manual promotion eligibility false và automatic promotion
+false. Exit trap đã phục hồi `sentinel-detector.service` active/running,
+candidate benchmark inactive và Tetragon policy hiện diện. Cluster hậu campaign
+có 6/6 node Ready, 40/40 pod production Running.
+
+### 18.98 Khởi tạo V9 Sentinel Pulse cho ML path 1–2 giây (14-08-2026)
+
+V8 được giữ nguyên ở trạng thái `research_stable_dry_run_only`; không sửa model,
+dataset hoặc terminal evidence V8. Nhánh kiến trúc mới có tên **V9 Sentinel Pulse**
+được tạo để kiểm nghiệm ML decision một giây: raw-tracepoint eBPF đếm chính xác
+mọi syscall theo container leaf cgroup, đếm cặp syscall liên tiếp theo task,
+snapshot mỗi một giây và dùng ExtraTrees self-supervised chấm temporal context
+ba giây cùng cửa sổ hiện tại. Negative chỉ là corruption từ normal training;
+attack thật không được dùng để fit hoặc calibration.
+
+Audit trực tiếp đầu lượt xác nhận 10/10 workload ứng dụng AIMS có đủ replica;
+PostgreSQL CNPG 3/3 healthy, Kafka 3 broker/controller và hai topic RF=3,
+RabbitMQ 3/3, Redis 3/3 cùng Sentinel 3/3, MinIO 2/2, Istio Gateway/waypoint
+Programmed và PVC Bound. Manifest traffic mới bổ sung health request hợp lệ tới
+toàn bộ backend và safe handshake/read tới năm stateful dependency. Tetragon
+policy 500 ms mới chỉ staging local; chưa apply khi chưa đo backpressure/overhead.
+
+Implementation local hiện gồm BPF program/loader, CRI+cgroup resolver, feature
+249 chiều, per-workload/container normal-only ExtraTrees, conformal decision,
+capture validator và systemd units. Per-CPU fixed sketch tránh atomic contention;
+syscall/transition được hash-bin trong kernel để output có kích thước bị chặn.
+Task-state và snapshot-integrity counter phải bằng 0. Model manifest v2 khóa
+SHA-256, byte-size và metadata từng artifact; runtime verify fail-closed trước
+unpickle. `alpha=1e-4` bắt buộc tối thiểu 9.999 calibration example/candidate.
+Temporal sequence dùng node/pod UID/container/cgroup nên không nối nhầm cùng
+cgroup ID giữa worker hoặc sau rollout. Normal-soak gate đo đủ 24 giờ wall-clock
+theo workload và ghi Wilson 95% CI, không cộng replica để giả thời lượng.
+
+Tại checkpoint khởi tạo này, ba mươi lăm unit test local đạt 35/35; Python
+compile, C loader syntax và diff check pass. Loader dừng khi allow-list rỗng và xuất snapshot-read timing để đo
+p99; trainer tự chạy capture integrity gate trước khi fit. Terminal finalizer
+chỉ có thể mở bước counterbalanced overhead, không tự promote production. Chưa có claim
+latency/recall/FPR Pulse: build/verifier,
+capture 24 giờ, blind attack và A/B overhead còn phải chạy trên cluster. Báo
+cáo riêng được cập nhật tại `SENTINEL_PULSE_REPORT.md`.
+
+### 18.99 Sentinel Pulse chạy collect-only trên 3 worker và mở capture normal (14-08-2026)
+
+SSH live đã hoạt động lại. Audit xác nhận 6/6 node Ready v1.34.10, Tetragon
+DaemonSet 6/6 và zero bad pod. Pulse được build bằng BTF từng node, kernel 6.8
+verifier chấp nhận và hai systemd service resolver/collector active trên
+`k8s-worker1.local`, `k8s-worker4.local`, `k8s-worker3.local`. V8 detector vẫn
+active; model/evidence V8 không bị sửa.
+
+Canary đã phát hiện và sửa ba lỗi production: verifier không chứng minh bound
+cho tracked-slot, hai unit cùng sở hữu runtime directory gây restart race, và
+một torn per-CPU snapshot làm `total` lệch syscall-bin. Loader hiện dùng offset
+constant, runtime directory có một owner, installer restart đúng generation và
+snapshot được retry hữu hạn rồi fail-closed. Focused suite tăng lên **43/43**.
+
+Ba smoke 120 giây đều pass, tổng 5.005 feature rows; zero target gap, task-state
+failure, total mismatch và consistency-retry exhaustion. Ingest p99 lần lượt
+34,08/35,67/25,04 ms; snapshot-read p99 8,74/5,73/4,46 ms. Union validator xác
+nhận đúng ba worker và đủ 18/18 workload production. Đây là collector latency,
+không phải kernel-to-alert ML.
+
+Traffic manifest đã apply; HTTP health/ingress, Redis `AUTH+PING`, MinIO health
+và TCP handshake PostgreSQL/Kafka/RabbitMQ đều được live-check. Contract
+normal-only `sentinel-pulse-normal-20260814T075831Z`, SHA-256
+`28eb9a0f1cb945a5ebd86e1f18a6c5916cd7233c63a8ba8ef94280919f3650b8`,
+đang chạy nền bốn regime steady/toolmix/burst/recovery, sáu giờ/regime và dự
+kiến kết thúc `15-08-2026 15:10:31 +07`. Scheduler kiểm cluster mỗi 30 giây,
+chỉ fail sau ba health check lỗi liên tiếp và trap phục hồi steady. Chưa train
+ExtraTrees; recall, FPR và latency ML Pulse vẫn
+chưa được claim.
+
+### 18.100 Arm finalizer capture bất biến trên ba worker (14-08-2026)
+
+Campaign v3 tiếp tục `active/running` ở pha steady. Audit SSH lúc 15:20 +07 xác
+nhận 6/6 node Kubernetes v1.34.10 Ready, zero pod ngoài Running/Completed và
+feature mới vẫn được sinh trên `k8s-worker1.local`, `k8s-worker4.local`,
+`k8s-worker3.local`. Ba collector/resolver đều active; các counter
+`task_state_update_fail`, `target_snapshot_gap` và
+`snapshot_consistency_retry_exhausted` đều bằng 0 tại checkpoint.
+
+Cơ chế kết thúc mới đã được test và arm bằng persistent systemd unit
+`sentinel-pulse-freeze@sentinel-pulse-normal-20260814T075831Z.service` trên
+3/3 worker. Service đang `active/running`, `NRestarts=0`, tự chờ đến contract
+end + 10 giây (`15-08-2026 15:10:41 +07`). Khi tới hạn, nó dừng collector trong
+đoạn rotate ngắn, atomic-move capture theo node vào thư mục campaign, chmod chỉ
+đọc, restart collector ngay rồi mới scan/hash. Manifest chỉ được tạo nếu node
+identity đúng, có row trong contract, capture phủ hết contract và mọi integrity
+counter trong khoảng chấm bằng 0. Vì vậy mất SSH hoặc reboot phiên điều khiển
+không làm mất bước đóng băng evidence; unit được enable qua reboot và restart
+on-failure. Ba node có cùng checksum config/unit/finalizer. Không reinstall BPF,
+không restart collector trong lúc arm và không thay V8.
+
+Focused Sentinel Pulse suite hiện đạt **46/46**; shell syntax, Python compile và
+`git diff --check` đều pass. Chưa được train/tune trong lúc normal campaign đang
+chạy. Bước tiếp theo sau marker đóng băng là kéo ba capture theo checksum,
+assemble bằng contract, temporal split rồi fit/calibrate ExtraTrees trước khi
+mở independent normal soak và blind attack.
+
+Assembler hậu capture cũng đã được siết fail-closed: mọi capture phải ở mode
+read-only và đi kèm node-finalizer manifest khớp campaign ID, contract SHA-256,
+node identity, capture SHA-256/size, tổng row, in-contract row và zero integrity.
+Dataset manifest mới khóa thêm SHA-256 của ba node manifest; trainer từ chối
+provenance cũ thiếu trường này. Contract và snapshot Deployment pha steady đã
+được kéo về `validation-evidence/sentinel-pulse-campaign/`, chmod `0444`; hash
+local khớp contract đã đăng ký `28eb9a0f...`.

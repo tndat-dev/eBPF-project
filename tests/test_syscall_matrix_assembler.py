@@ -4,12 +4,17 @@ from pathlib import Path
 
 import pytest
 
-SERVICE_ROOT = Path(__file__).resolve().parents[1] / "ml-service"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+SERVICE_ROOT = (
+    REPOSITORY_ROOT / "ml-service"
+    if (REPOSITORY_ROOT / "ml-service").is_dir()
+    else REPOSITORY_ROOT
+)
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from assemble_syscall_evaluation_matrix import (
     build_ml_result, build_rule_result, classification_metrics, normalized_latency,
-    live_fast_path, verify_checksums,
+    live_fast_path, sha256, verify_checksums,
 )
 
 
@@ -19,6 +24,8 @@ def test_classification_metrics_preserve_normal_false_alerts():
     assert metrics["precision"] == 0.9
     assert metrics["f1"] == pytest.approx(0.9)
     assert "independent normal" in metrics["definition"]
+    assert metrics["deployment_precision_claim_valid"] is False
+    assert "different sampling units" in metrics["precision_f1_scope"]
 
 
 def test_latency_normalizer_accepts_both_report_shapes():
@@ -47,6 +54,49 @@ def test_rule_outcomes_preserve_per_trial_right_censoring():
     assert rows[0]["horizon_right_censored"] is True
 
 
+def test_rule_outcomes_join_frozen_interval_metadata_when_adapter_omits_it():
+    from assemble_syscall_evaluation_matrix import normalized_outcomes
+    rows = normalized_outcomes([{
+        "injection_id": "trial-1", "pod_key": "production/api",
+        "scenario": "probe", "seed": 1, "rate": 6,
+        "detected": True, "latency_seconds": 2.5,
+    }], horizon_seconds=30, interval_metadata={
+        "trial-1": {
+            "start": 100, "end": 145, "attribution_end": 154,
+            "horizon_right_censored_by_next_injection": True,
+        },
+    })
+    assert rows[0]["latency_seconds"] == 2.5
+    assert rows[0]["censor_seconds"] == 54
+    assert rows[0]["horizon_right_censored"] is True
+
+
+def test_rule_outcomes_use_canonical_censor_boundary_for_present_intervals():
+    from assemble_syscall_evaluation_matrix import normalized_outcomes
+    rows = normalized_outcomes([{
+        "injection_id": "trial-1", "pod_key": "production/api",
+        "scenario": "probe", "seed": 1, "rate": 6,
+        "start": 100, "end": 145, "detected": False,
+    }], horizon_seconds=30, interval_metadata={
+        "trial-1": {
+            "start": 100, "end": 145, "attribution_end": 154,
+            "horizon_right_censored_by_next_injection": True,
+        },
+    })
+    assert rows[0]["censor_seconds"] == 54
+    assert rows[0]["horizon_right_censored"] is True
+
+
+def test_rule_outcomes_reject_missing_interval_join():
+    from assemble_syscall_evaluation_matrix import normalized_outcomes
+    with pytest.raises(ValueError, match="interval metadata is missing"):
+        normalized_outcomes([{
+            "injection_id": "trial-1", "pod_key": "production/api",
+            "scenario": "probe", "seed": 1, "rate": 6,
+            "detected": False, "latency_seconds": None,
+        }], horizon_seconds=30, interval_metadata={})
+
+
 def test_classification_metrics_reject_invalid_counts():
     with pytest.raises(ValueError):
         classification_metrics(201, 200, 0)
@@ -64,6 +114,7 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
                 "phase": f"aims-{regime}-run-{run:02d}",
                 "source": {"manifest": str(manifest)},
                 "alerts": int(run == 2 and regime in ("steady", "burst")),
+                "eligible_decision_windows": 50,
             })
     policy = {
         "require_behavior_gate": True,
@@ -75,12 +126,19 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
     candidate = {"model": "a" * 64}
     normal = {
         "experiment_id": "syscall__full_v7", "status": "complete",
+        "evaluator_source_sha256": sha256(
+            SERVICE_ROOT / "evaluate_aims_normal_split.py"
+        ),
         "evaluation_policy": policy, "candidate_sha256": candidate,
         "initial_calibration_sha256": "b" * 64,
-        "phases": phases, "alerts": 2, "detections": 2, "windows": 1000,
+        "phases": phases, "alerts": 2, "detections": 2, "windows": 1100,
+        "eligible_decision_windows": 1000,
     }
     attack = {
         "experiment_id": "syscall__full_v7", "status": "complete",
+        "evaluator_source_sha256": sha256(
+            SERVICE_ROOT / "evaluate_aims_attack_replay.py"
+        ),
         "evaluation_policy": {**policy, "fast_path_replayed": False},
         "candidate_sha256": candidate,
         "initial_calibration_sha256": "b" * 64,
@@ -135,6 +193,8 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
     assert result["normal"]["independent_runs"] == 5
     assert result["normal"]["phases"] == 20
     assert result["normal"]["exposure_hours"] == 20
+    assert result["normal"]["eligible_windows"] == 1000
+    assert result["normal"]["false_alert_rate_per_eligible_window"] == 0.002
     assert len(result["normal"]["phase_outcomes"]) == 20
     assert result["attack"]["recall"]["estimate"] == 0.9
     assert result["attack"]["recall_point"] == 0.9
@@ -144,6 +204,43 @@ def test_ml_result_binds_normal_and_attack_policy(tmp_path):
     assert result["normal_capture_sha256"] == "6" * 64
     assert result["attack_observability_audit_sha256"] == "8" * 64
     assert len(result["code_sha256"]) == 64
+
+    attack["evaluator_source_sha256"] = "0" * 64
+    with pytest.raises(ValueError, match="attack evaluator provenance"):
+        build_ml_result("full_v7", normal, attack, common)
+
+
+def test_ml_result_rejects_missing_eligible_window_accounting(tmp_path):
+    # The full integration fixture above proves the accepted shape. This
+    # focused mutation guards against reintroducing alert-dependent FPR
+    # denominators in future assemblers.
+    phases = [{
+        "phase": "aims-steady-run-02", "alerts": 0,
+        "eligible_decision_windows": 1,
+    }]
+    with pytest.raises(ValueError, match="eligible-window accounting"):
+        # Validation happens before attack trial materialization.
+        build_ml_result("full_v7", {
+            "experiment_id": "syscall__full_v7", "status": "complete",
+            "evaluator_source_sha256": sha256(
+                SERVICE_ROOT / "evaluate_aims_normal_split.py"
+            ),
+            "evaluation_policy": {}, "candidate_sha256": {},
+            "initial_calibration_sha256": "x", "development_gate": {},
+            "phases": phases, "alerts": 0, "detections": 0, "windows": 1,
+        }, {
+            "experiment_id": "syscall__full_v7", "status": "complete",
+            "evaluator_source_sha256": sha256(
+                SERVICE_ROOT / "evaluate_aims_attack_replay.py"
+            ),
+            "evaluation_policy": {"fast_path_replayed": False},
+            "candidate_sha256": {}, "initial_calibration_sha256": "x",
+            "development_gate": {}, "completed_trials": 200,
+            "labels_used_for_training_or_tuning": False,
+            "attack_capture_sha256": "c", "evaluation_protocol_sha256": "p",
+        }, {
+            "capture_sha256": "c", "evaluation_protocol_sha256": "p",
+        })
 
 
 def test_checksum_verifier_rejects_tamper(tmp_path):

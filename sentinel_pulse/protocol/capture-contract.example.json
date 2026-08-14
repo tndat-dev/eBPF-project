@@ -1,0 +1,17 @@
+{
+  "schema": "sentinel-pulse-capture-contract-v1",
+  "campaign_id": "replace-before-capture",
+  "normal_only": true,
+  "expected_nodes": [
+    "k8s-worker1.local",
+    "k8s-worker3.local",
+    "k8s-worker4.local"
+  ],
+  "intervals": [
+    {"regime": "steady", "start": 0, "end": 21600},
+    {"regime": "toolmix", "start": 21600, "end": 43200},
+    {"regime": "burst", "start": 43200, "end": 64800},
+    {"regime": "recovery", "start": 64800, "end": 86400}
+  ],
+  "notes": "Replace relative example timestamps with immutable Unix timestamps before the campaign. Never edit after capture starts."
+}

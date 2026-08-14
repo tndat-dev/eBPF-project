@@ -60,7 +60,14 @@ def _write_matrix(root, contract):
                 "independent_runs": 2, "phases": 4,
                 "windows": 50, "false_alerts": 0,
             },
-            "attack": {"trials": 4, "detected": 3},
+            "attack": {
+                "trials": 4, "detected": 3,
+                "precision": 0.75, "f1": 0.75,
+                "deployment_precision_claim_valid": False,
+                "precision_f1_scope": (
+                    "protocol-mixed descriptive only: different sampling units"
+                ),
+            },
             "latency_seconds": {"sample_count": 3},
             "statistics": {"confidence_level": 0.95, "method": "block bootstrap"},
         }
@@ -73,6 +80,40 @@ def test_evaluation_matrix_accepts_only_complete_comparable_results(tmp_path):
     report = validate_evaluation_matrix(tmp_path, contract)
     assert report["valid"] is True
     assert report["completed_experiments"] == 3
+
+
+def test_evaluation_matrix_validates_ml_eligible_window_fpr(tmp_path):
+    contract = _contract()
+    _write_matrix(tmp_path, contract)
+    path = tmp_path / "syscall__full" / "result.json"
+    result = json.loads(path.read_text())
+    result["policy"] = {"score_component": "ensemble"}
+    result["normal"].update(
+        eligible_windows=40,
+        false_alert_rate_per_eligible_window=0.0,
+    )
+    path.write_text(json.dumps(result))
+    assert validate_evaluation_matrix(tmp_path, contract)["valid"] is True
+
+    result["normal"]["false_alert_rate_per_eligible_window"] = 0.1
+    path.write_text(json.dumps(result))
+    report = validate_evaluation_matrix(tmp_path, contract)
+    assert report["valid"] is False
+    assert any("per-window FPR mismatch" in error for error in report["errors"])
+
+
+def test_evaluation_matrix_rejects_deployment_precision_overclaim(tmp_path):
+    contract = _contract()
+    _write_matrix(tmp_path, contract)
+    path = tmp_path / "syscall__full" / "result.json"
+    result = json.loads(path.read_text())
+    result["attack"].pop("deployment_precision_claim_valid")
+    result["attack"].pop("precision_f1_scope")
+    path.write_text(json.dumps(result))
+    report = validate_evaluation_matrix(tmp_path, contract)
+    assert report["valid"] is False
+    assert any("deployment-claim guard" in error for error in report["errors"])
+    assert any("precision/F1 scope" in error for error in report["errors"])
 
 
 def test_evaluation_matrix_rejects_missing_result(tmp_path):

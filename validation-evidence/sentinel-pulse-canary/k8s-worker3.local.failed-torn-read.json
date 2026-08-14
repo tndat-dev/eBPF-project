@@ -1,0 +1,51 @@
+{
+  "age_seconds": 0.6800508499145508,
+  "capture": "/var/lib/sentinel-pulse/features.jsonl",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_total_mismatch": 1,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [
+    "collector loss: snapshot_total_mismatch=1"
+  ],
+  "gates": {
+    "capture_integrity": false,
+    "duration": true,
+    "fresh": true,
+    "ingest_p99": true,
+    "snapshot_read_p99": true
+  },
+  "ingest_lag_seconds": {
+    "max": 0.028881549835205078,
+    "p50": 0.009854555130004883,
+    "p95": 0.018730258941650393,
+    "p99": 0.022608432769775352
+  },
+  "latest_window_end": 1786693000.485125,
+  "observed_span_seconds": 119.28280210494995,
+  "rows": 1292,
+  "schema": "sentinel-pulse-collect-smoke-v1",
+  "snapshot_read_seconds": {
+    "max": 0.006805182,
+    "p50": 0.001340151,
+    "p95": 0.00345397,
+    "p99": 0.005802631
+  },
+  "valid": false,
+  "workloads": {
+    "production/aims-frontend:web": 92,
+    "production/aims-kafka-dual-role:kafka": 120,
+    "production/aims-postgres-cnpg:postgres": 120,
+    "production/aims-rabbitmq-server:rabbitmq": 120,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 120,
+    "production/api-gateway:app": 120,
+    "production/auth-service:app": 120,
+    "production/cart-service:app": 120,
+    "production/order-service:app": 120,
+    "production/payment-service:pod-slice": 120,
+    "production/security-telemetry-service:app": 120
+  }
+}

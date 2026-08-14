@@ -1,0 +1,42 @@
+{
+  "campaign_id": "sentinel-pulse-normal-20260814T075831Z",
+  "expected_nodes": [
+    "k8s-worker1.local",
+    "k8s-worker3.local",
+    "k8s-worker4.local"
+  ],
+  "intervals": [
+    {
+      "end": 1786716091.0,
+      "regime": "steady",
+      "start": 1786694491.0
+    },
+    {
+      "end": 1786737871.0,
+      "regime": "toolmix",
+      "start": 1786716271.0
+    },
+    {
+      "end": 1786759651.0,
+      "regime": "burst",
+      "start": 1786738051.0
+    },
+    {
+      "end": 1786781431.0,
+      "regime": "recovery",
+      "start": 1786759831.0
+    }
+  ],
+  "normal_only": true,
+  "schedule": {
+    "duration_seconds_per_regime": 21600,
+    "regime_order": [
+      "steady",
+      "toolmix",
+      "burst",
+      "recovery"
+    ],
+    "transition_gap_seconds": 180
+  },
+  "schema": "sentinel-pulse-capture-contract-v1"
+}

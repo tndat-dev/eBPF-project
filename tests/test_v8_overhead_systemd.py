@@ -15,6 +15,7 @@ def test_v8_overhead_runner_is_terminal_gated_and_immutable():
     assert "V8_OVERHEAD_COMPLETE" in script
     assert "v8-paired-replay-20260811" in script
     assert "evidence_release" in script
+    assert "! -name .SHA256SUMS.tmp" in script
     assert "train_" not in script
     assert "promote" not in script
 

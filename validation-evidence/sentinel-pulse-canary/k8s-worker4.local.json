@@ -1,0 +1,58 @@
+{
+  "age_seconds": 0.3037276268005371,
+  "capture": "/var/lib/sentinel-pulse/features.jsonl",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "gates": {
+    "capture_integrity": true,
+    "duration": true,
+    "fresh": true,
+    "ingest_p99": true,
+    "single_node_identity": true,
+    "snapshot_read_p99": true
+  },
+  "ingest_lag_seconds": {
+    "max": 0.04657340049743652,
+    "p50": 0.014454364776611328,
+    "p95": 0.028098320960998527,
+    "p99": 0.035666389465332
+  },
+  "latest_window_end": 1786693637.8446763,
+  "node_names": [
+    "k8s-worker4.local"
+  ],
+  "observed_span_seconds": 119.33655023574829,
+  "rows": 1790,
+  "schema": "sentinel-pulse-collect-smoke-v1",
+  "snapshot_read_seconds": {
+    "max": 0.006314754,
+    "p50": 0.0017386675,
+    "p95": 0.003972292,
+    "p99": 0.005733967
+  },
+  "valid": true,
+  "workloads": {
+    "production/aims-frontend:web": 110,
+    "production/aims-kafka-dual-role:kafka": 120,
+    "production/aims-kafka-entity-operator:topic-operator": 120,
+    "production/aims-kafka-entity-operator:user-operator": 120,
+    "production/aims-minio-pool-0:minio": 120,
+    "production/aims-minio-pool-0:sidecar": 120,
+    "production/aims-postgres-cnpg:postgres": 120,
+    "production/aims-rabbitmq-server:rabbitmq": 120,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 120,
+    "production/api-gateway:app": 120,
+    "production/catalog-service:app": 120,
+    "production/inventory-service:app": 120,
+    "production/notification-service:pod-slice": 120,
+    "production/order-service:app": 120,
+    "production/security-telemetry-service:app": 120
+  }
+}

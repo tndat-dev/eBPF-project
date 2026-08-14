@@ -16,7 +16,7 @@ METHOD_LABELS = {
     "syscall__falco_rule_only": "Falco rule-only",
     "syscall__isolation_forest": "Isolation Forest",
     "syscall__lstm_only": "LSTM-only",
-    "syscall__evt_pot": "LSTM + EVT-POT",
+    "syscall__evt_pot": "LSTM + EVT-POT/adaptive calibration",
     "syscall__full_v7": "Full V7 confirmation",
     "syscall__without_fast_path": "Ablation: no fast path",
     "syscall__without_behavior_gate": "Ablation: no behavior gate",
@@ -64,9 +64,13 @@ def result_row(experiment_id: str, result: dict[str, Any]) -> dict[str, Any]:
         "normal_runs": int(normal["independent_runs"]),
         "normal_phases": int(normal["phases"]),
         "normal_windows": int(normal["windows"]),
+        "normal_eligible_windows": normal.get("eligible_windows"),
         "normal_exposure_hours": float(normal["exposure_hours"]),
         "normal_false_alerts": int(normal["false_alerts"]),
         "normal_false_alerts_per_hour": float(normal["false_alerts_per_hour"]),
+        "normal_false_alert_rate_per_eligible_window": normal.get(
+            "false_alert_rate_per_eligible_window"
+        ),
         "attack_trials": int(attack["trials"]),
         "attack_detected": int(attack["detected"]),
         "recall": float(attack["recall_point"]),
@@ -105,16 +109,20 @@ def markdown_document(
         "> Bảng được sinh tự động từ 11 `result.json` đã paired và checksum; "
         "không sửa số thủ công.",
         "",
-        "| Phương pháp | Normal h / window | False alert (giờ⁻¹) | "
-        "Attack detected | Recall 95% CI | Precision / F1 | "
+        "| Phương pháp | Normal h / feature / eligible window | "
+        "False alert (giờ⁻¹ / eligible-window⁻¹) | "
+        "Attack detected | Recall 95% CI | Protocol-mixed precision / F1* | "
         "Confirmation p50 / p95 / p99 (s) | Inference p50 (ms) |",
         "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in rows:
         lines.append(
             f"| {row['method']} | {number(row['normal_exposure_hours'], 2)} / "
-            f"{row['normal_windows']} | {row['normal_false_alerts']} "
-            f"({number(row['normal_false_alerts_per_hour'], 4)}) | "
+            f"{row['normal_windows']} / "
+            f"{row['normal_eligible_windows'] or '—'} | "
+            f"{row['normal_false_alerts']} "
+            f"({number(row['normal_false_alerts_per_hour'], 4)} / "
+            f"{number(row['normal_false_alert_rate_per_eligible_window'], 6)}) | "
             f"{row['attack_detected']}/{row['attack_trials']} | "
             f"{number(row['recall'])} "
             f"[{number(row['recall_ci_lower'])}, {number(row['recall_ci_upper'])}] | "
@@ -173,6 +181,9 @@ def markdown_document(
         "- Shared-workload candidate đã qua development gate trước replay.",
         "- `false alerts/hour` không phải statistical FPR; rule/early-warning lane "
         "không có scored Bernoulli opportunity thống nhất.",
+        "- `Precision/F1*` chỉ là số mô tả theo protocol frozen: TP là attack "
+        "interval còn FP là normal window. Hai sampling unit và exposure khác "
+        "nhau, nên không được trích dẫn như deployment precision/F1.",
         "- Confirmation latency là feature-window end trừ injection acknowledgement, "
         "không phải exact kernel-event latency.",
         "- Detected-only latency có selection bias; dùng restricted time-to-detection "

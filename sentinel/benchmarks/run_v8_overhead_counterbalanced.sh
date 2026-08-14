@@ -32,7 +32,8 @@ if (
     raise SystemExit("V8 counterbalanced aggregate is incomplete")
 PY
 temporary=$OUTPUT_ROOT/.SHA256SUMS.tmp
-find "$OUTPUT_ROOT" -type f ! -name SHA256SUMS ! -name V8_OVERHEAD_COMPLETE \
+find "$OUTPUT_ROOT" -type f ! -name SHA256SUMS \
+  ! -name .SHA256SUMS.tmp ! -name V8_OVERHEAD_COMPLETE \
   -print0 | sort -z | xargs -0 sha256sum >"$temporary"
 mv "$temporary" "$OUTPUT_ROOT/SHA256SUMS"
 touch "$MARKER"

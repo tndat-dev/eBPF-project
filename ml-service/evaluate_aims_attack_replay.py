@@ -439,6 +439,7 @@ def main() -> int:
     identity = {
         "schema": REPORT_SCHEMA, "experiment_id": args.experiment_id,
         "release_id": release_id,
+        "evaluator_source_sha256": sha256(Path(__file__).resolve()),
         "attack_capture_sha256": sha256(paths["attack_capture"]),
         "candidate_sha256": candidate_hashes(paths["candidate"]),
         "initial_calibration_sha256": sha256(paths["initial_calibration"]),

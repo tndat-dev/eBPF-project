@@ -16,12 +16,29 @@ sys.path.insert(0, str(SERVICE_ROOT))
 
 from evaluate_aims_normal_split import (candidate_hashes,
                                         development_gate,
+                                        eligible_window_count,
                                         matrix_dimensions,
                                         resumable_phase_reports,
                                         ScoreComponentManager,
                                         validate_blind_prerequisite,
                                         validate_calibration_provenance,
                                         write_report)
+
+
+def test_eligible_window_count_includes_confirmed_detection_windows():
+    decisions = {
+        "normal": 10,
+        "pending_confirmation": 3,
+        "cooldown": 1,
+        "collection_quality_skip": 2,
+        "pod_startup_grace": 4,
+    }
+    assert eligible_window_count(decisions, detection_count=2) == 16
+
+
+def test_eligible_window_count_rejects_negative_detections():
+    with pytest.raises(ValueError, match="cannot be negative"):
+        eligible_window_count({"normal": 1}, detection_count=-1)
 
 
 def test_rejected_candidate_override_is_shared_ablation_only():

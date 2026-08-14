@@ -43,6 +43,8 @@ def test_v8_normal_ablation_runner_is_frozen_resumable_and_non_promoting():
     assert "syscall__full_v7" in script
     assert "syscall__without_fast_path" in script
     assert "completed_trials\") == 200" in script
+    assert "evaluator_source_sha256" in script
+    assert "attack-evaluator-unbound-v1" in script
     assert "v8-shared-workload-calibration" in script
     assert "rc != 0 && $rc != 3" in script
     assert "SHA256SUMS" in script

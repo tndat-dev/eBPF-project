@@ -1,0 +1,110 @@
+{
+  "errors": [],
+  "nodes": [
+    "k8s-worker1.local",
+    "k8s-worker3.local",
+    "k8s-worker4.local"
+  ],
+  "observed_workloads": [
+    "aims-frontend",
+    "aims-kafka-dual-role",
+    "aims-kafka-entity-operator",
+    "aims-minio-pool-0",
+    "aims-postgres-cnpg",
+    "aims-rabbitmq-server",
+    "aims-redis",
+    "aims-redis-sentinel-sentinel",
+    "aims-waypoint",
+    "api-gateway",
+    "auth-service",
+    "cart-service",
+    "catalog-service",
+    "inventory-service",
+    "notification-service",
+    "order-service",
+    "payment-service",
+    "security-telemetry-service"
+  ],
+  "reports": [
+    {
+      "node": "k8s-worker1.local",
+      "path": "validation-evidence/sentinel-pulse-canary/k8s-worker1.local.json",
+      "rows": 1920,
+      "workloads": [
+        "aims-kafka-dual-role",
+        "aims-minio-pool-0",
+        "aims-postgres-cnpg",
+        "aims-rabbitmq-server",
+        "aims-redis",
+        "aims-redis-sentinel-sentinel",
+        "aims-waypoint",
+        "auth-service",
+        "cart-service",
+        "catalog-service",
+        "inventory-service",
+        "notification-service",
+        "payment-service"
+      ]
+    },
+    {
+      "node": "k8s-worker4.local",
+      "path": "validation-evidence/sentinel-pulse-canary/k8s-worker4.local.json",
+      "rows": 1790,
+      "workloads": [
+        "aims-frontend",
+        "aims-kafka-dual-role",
+        "aims-kafka-entity-operator",
+        "aims-minio-pool-0",
+        "aims-postgres-cnpg",
+        "aims-rabbitmq-server",
+        "aims-redis-sentinel-sentinel",
+        "api-gateway",
+        "catalog-service",
+        "inventory-service",
+        "notification-service",
+        "order-service",
+        "security-telemetry-service"
+      ]
+    },
+    {
+      "node": "k8s-worker3.local",
+      "path": "validation-evidence/sentinel-pulse-canary/k8s-worker3.local.json",
+      "rows": 1295,
+      "workloads": [
+        "aims-frontend",
+        "aims-kafka-dual-role",
+        "aims-postgres-cnpg",
+        "aims-rabbitmq-server",
+        "aims-redis-sentinel-sentinel",
+        "api-gateway",
+        "auth-service",
+        "cart-service",
+        "order-service",
+        "payment-service",
+        "security-telemetry-service"
+      ]
+    }
+  ],
+  "required_workloads": [
+    "aims-frontend",
+    "aims-kafka-dual-role",
+    "aims-kafka-entity-operator",
+    "aims-minio-pool-0",
+    "aims-postgres-cnpg",
+    "aims-rabbitmq-server",
+    "aims-redis",
+    "aims-redis-sentinel-sentinel",
+    "aims-waypoint",
+    "api-gateway",
+    "auth-service",
+    "cart-service",
+    "catalog-service",
+    "inventory-service",
+    "notification-service",
+    "order-service",
+    "payment-service",
+    "security-telemetry-service"
+  ],
+  "schema": "sentinel-pulse-rollout-validation-v1",
+  "valid": true
+}

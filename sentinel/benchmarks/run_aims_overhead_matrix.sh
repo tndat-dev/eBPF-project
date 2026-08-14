@@ -80,7 +80,7 @@ esac
 IFS=',' read -r -a phase_order <<<"$phase_order_raw"
 runtime_calibration="$output_root/calibration-$experiment_id.json"
 mkdir -p "$output_root"
-cp "$AIMS_CALIBRATION" "$runtime_calibration"
+install -m 0644 "$AIMS_CALIBRATION" "$runtime_calibration"
 
 restore_runtime() {
   systemctl stop "$runtime_unit" >/dev/null 2>&1 || true
@@ -178,7 +178,7 @@ configure_phase() {
       ;;
     full_pipeline)
       kubectl apply -f "$policy"
-      cp "$AIMS_CALIBRATION" "$runtime_calibration"
+      install -m 0644 "$AIMS_CALIBRATION" "$runtime_calibration"
       systemd-run --unit="$runtime_unit" --property=User=dat \
         --property=WorkingDirectory="$ROOT_DIR" --property=Nice=10 \
         --property=CPUQuota=200% --property=MemoryMax=8G \

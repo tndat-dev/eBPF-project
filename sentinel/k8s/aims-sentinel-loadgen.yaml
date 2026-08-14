@@ -31,20 +31,27 @@ spec:
         - |
           set -eu
           ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
+          services="api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service security-telemetry-service"
+          i=0
           while true; do
-            # Traverse the real Istio Gateway + waypoint routing path. Error
-            # responses from unauthenticated routes are retained as legitimate
-            # normal Internet traffic, while every backend is exercised.
+            # Valid read traffic through the real Istio Gateway + waypoint.
             wget -q -O /dev/null -T 3 "$ingress/" || true
             wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true
             wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/cart/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/inventory/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/orders/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/payments/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/notifications/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/security/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
+            # Every backend exposes /api/health/. Direct service health calls
+            # diversify server-side syscall telemetry without fabricating a
+            # login token or mutating orders/payments.
+            for service in $services; do
+              wget -q -O /dev/null -T 3 "http://$service:8000/api/health/" || true
+            done
+            # A smaller, explicitly normal Internet error mix is retained.
+            # It runs once per five cycles instead of dominating every cycle.
+            if [ $((i % 5)) -eq 0 ]; then
+              wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true
+              wget -q -O /dev/null -T 3 "$ingress/api/cart/" || true
+            fi
+            i=$((i + 1))
             sleep "${SLEEP_SECONDS:-1}"
           done
         env:
@@ -57,6 +64,69 @@ spec:
         resources:
           requests: {cpu: 10m, memory: 8Mi}
           limits: {cpu: 250m, memory: 32Mi}
+---
+# Safe protocol/readiness traffic for stateful AIMS dependencies.  It performs
+# no database write, message publish, object upload, or external network call.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aims-sentinel-dependency-loadgen
+  namespace: production
+  labels:
+    app.kubernetes.io/name: aims-sentinel-dependency-loadgen
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aims-sentinel-dependency-loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aims-sentinel-dependency-loadgen
+        app.kubernetes.io/part-of: agent-runtime-sentinel
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: dependency-loadgen
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+        command: [/bin/sh, -c]
+        args:
+        - |
+          set -eu
+          while true; do
+            # Redis PING (RESP), read-only MinIO root, and bounded protocol/TCP
+            # handshakes. Server processes execute accept/read/write paths,
+            # while no persistent business state is changed.
+            printf '*2\r\n$4\r\nAUTH\r\n$%s\r\n%s\r\n*1\r\n$4\r\nPING\r\n' \
+              "${#REDIS_PASSWORD}" "$REDIS_PASSWORD" | \
+              nc -w 2 aims-redis 6379 >/dev/null 2>&1 || true
+            wget -q -O /dev/null -T 3 http://minio/minio/health/live || true
+            printf '' | nc -w 2 aims-postgres-cnpg-rw 5432 >/dev/null 2>&1 || true
+            printf '' | nc -w 2 aims-kafka-kafka-bootstrap 9092 >/dev/null 2>&1 || true
+            printf '' | nc -w 2 aims-rabbitmq 5672 >/dev/null 2>&1 || true
+            sleep "${SLEEP_SECONDS:-2}"
+          done
+        env:
+        - {name: SLEEP_SECONDS, value: "2"}
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: aims-redis-auth
+              key: password
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: [ALL]}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        resources:
+          requests: {cpu: 10m, memory: 8Mi}
+          limits: {cpu: 200m, memory: 32Mi}
 ---
 # Read-only traffic with a different request mix. It is kept at zero replicas
 # outside the controlled ``toolmix``/``burst`` regimes so an experiment can

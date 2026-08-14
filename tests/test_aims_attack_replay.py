@@ -8,13 +8,25 @@ np = pytest.importorskip("numpy")
 pytest.importorskip("torch")
 pytest.importorskip("sklearn")
 
-SERVICE_ROOT = Path(__file__).resolve().parents[1] / "ml-service"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+SERVICE_ROOT = (
+    REPOSITORY_ROOT / "ml-service"
+    if (REPOSITORY_ROOT / "ml-service").is_dir()
+    else REPOSITORY_ROOT
+)
 sys.path.insert(0, str(SERVICE_ROOT))
 
 from evaluate_aims_attack_replay import (
     capture_groups, dense_vector, validate_protocol_policy,
     validate_release_identity, wilson,
 )
+
+
+def test_attack_evaluator_source_is_hashable_for_report_identity():
+    from evaluate_aims_normal_split import sha256
+    digest = sha256(SERVICE_ROOT / "evaluate_aims_attack_replay.py")
+    assert len(digest) == 64
+    assert all(character in "0123456789abcdef" for character in digest)
 
 
 def test_release_identity_keeps_production_and_experiment_contracts_distinct():

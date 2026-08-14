@@ -3,6 +3,7 @@ __pycache__/
 *.log
 metrics*.jsonl
 .pytest_cache/
+.vscode/
 alerts/
 incidents/
 agent_runtime/ebpf/vmlinux.h

@@ -1,0 +1,18 @@
+[Unit]
+Description=Sentinel Pulse exact syscall collector
+After=sentinel-pulse-resolver.service
+Requires=sentinel-pulse-resolver.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sentinel-pulse
+ExecStartPre=/usr/bin/test -s /run/sentinel-pulse/allowed-cgroups
+ExecStart=/bin/bash -o pipefail -c '/opt/sentinel-pulse/bin/pulse_counter_loader --object /opt/sentinel-pulse/bin/pulse_counter.bpf.o --allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 1000 | /opt/sentinel-pulse/venv/bin/python -m sentinel_pulse.capture --metadata-file /run/sentinel-pulse/cgroups.json --output /var/lib/sentinel-pulse/features.jsonl'
+Restart=always
+RestartSec=2
+StateDirectory=sentinel-pulse
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target

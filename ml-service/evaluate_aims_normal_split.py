@@ -40,6 +40,26 @@ NON_ELIGIBLE_DECISIONS = {
 SCORE_COMPONENTS = ("ensemble", "lstm", "isolation_forest")
 
 
+def eligible_window_count(
+    decision_counts: Counter, detection_count: int,
+) -> int:
+    """Count every window that reached a terminal policy opportunity.
+
+    Confirmed alerts emit a ``detection`` telemetry row instead of a
+    ``decision`` row.  Counting only eligible decisions therefore makes the
+    denominator shrink by exactly the number of false alerts, biasing
+    cross-method false-alert rates.  Detection rows are mutually exclusive
+    with decision rows in ``AnomalyDetector.handle_feature_vector`` and must
+    be added back once.
+    """
+    if detection_count < 0:
+        raise ValueError("detection count cannot be negative")
+    return detection_count + sum(
+        count for decision, count in decision_counts.items()
+        if decision not in NON_ELIGIBLE_DECISIONS
+    )
+
+
 def development_gate(training: dict[str, Any], model_routing: str,
                      allow_rejected_shared_ablation: bool) -> dict[str, bool]:
     accepted = training.get("accepted_offline") is True
@@ -376,10 +396,9 @@ def evaluate_phase(
                 float(row["inference_ms"]) for row in target_inference
             ]),
         }
-    eligible = sum(
-        count for decision, count in decision_counts.items()
-        if decision not in NON_ELIGIBLE_DECISIONS
-    )
+    if len(alerts) != len(detections):
+        raise RuntimeError("normal alert and detection telemetry diverged")
+    eligible = eligible_window_count(decision_counts, len(detections))
     return {
         "phase": phase_dir.name,
         "source": source,
@@ -411,7 +430,7 @@ def resumable_phase_reports(
         "role", "evidence_root", "candidate_sha256",
         "initial_calibration_sha256", "split_contract_sha256",
         "release_contract_sha256", "initial_calibration_report_sha256",
-        "evaluation_policy",
+        "evaluation_policy", "evaluator_source_sha256",
     )
     if any(previous.get(key) != report.get(key) for key in identity_fields):
         raise ValueError("existing evaluation checkpoint identity mismatch")
@@ -480,6 +499,7 @@ def main() -> int:
         "release_contract": str(release_path),
         "release_contract_sha256": sha256(release_path),
         "initial_calibration": str(initial_calibration),
+        "evaluator_source_sha256": sha256(Path(__file__).resolve()),
         "evaluation_policy": {
             "require_behavior_gate": not args.disable_behavior_gate,
             "enable_extreme_volume_gate": not args.disable_extreme_volume_gate,
@@ -628,6 +648,7 @@ def main() -> int:
             "adaptive_threshold_algorithm_frozen": True,
             "adaptive_state_replayed_in_memory": True,
             "calibration_persistence_disabled_for_replay": True,
+            "confirmed_detection_windows_included_in_eligible_count": True,
             "cooldown_seconds": 0,
             "fast_path_warnings_replayed": False,
             "holdout_used_for_training_or_tuning": False,

@@ -128,4 +128,6 @@ def test_aims_overhead_interlock_is_not_bound_to_a_stale_training_unit():
     assert "aims-v8-normal-ablation.service" in text
     assert "validate_v8_overhead_prerequisites.py" in text
     assert "SENTINEL_CONFIRMATION_FLOOR_RATIO" in text
+    assert 'install -m 0644 "$AIMS_CALIBRATION" "$runtime_calibration"' in text
+    assert 'cp "$AIMS_CALIBRATION" "$runtime_calibration"' not in text
     assert "aims-candidate-fit-v1.service" not in text
