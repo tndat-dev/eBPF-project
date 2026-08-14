@@ -4948,3 +4948,18 @@ memory có denominator tái lập. Thuật toán, random seed, corruption probab
 feature và threshold contract không đổi; chưa dùng attack/test label để tune.
 Hai test mới khóa layout context, batch bound, determinism và dtype. Full
 regression đạt **289 passed, 7 skipped**, compile và diff check pass.
+
+### 18.104 Đồng bộ VM và checkpoint campaign 20,33% (14-08-2026)
+
+VPN/SSH hoạt động lại lúc 19:56 +07. Control-plane audit xác nhận campaign đạt
+20,33%, còn khoảng 19,24 giờ và vẫn ở steady; 6/6 node Ready, zero bad pod,
+zero health warning, không có marker failure và campaign `NRestarts=0`. VM đã
+được fast-forward từ `c611a59` lên commit memory-bounded `d784b14`; host, GitHub
+và VM có cùng HEAD, working tree VM sạch.
+
+Audit trực tiếp ba worker xác nhận collector, resolver và immutable finalizer
+đều `active/running`, `NRestarts=0`. Feature record cuối có mọi integrity counter
+bằng 0; emit lag tức thời khoảng 15–34 ms. Capture đang có kích thước lần lượt
+455,7 MB (`worker1`), 407,4 MB (`worker4`) và 302,4 MB (`worker3`). Worker3 dùng
+81% filesystem nhưng vẫn còn khoảng 57 GiB, lớn hơn nhiều so với mức tăng dự
+kiến vài GiB tới cuối contract; chưa có disk-pressure risk tức thời.

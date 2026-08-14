@@ -294,3 +294,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   preallocate, corruption và calibration prediction chia batch 8.192 row,
   scale factor chỉ sinh cho phần tử được chọn và giữ `float32`. Report model ghi
   `fit_matrix_bytes`; full regression đạt **289 passed, 7 skipped**.
+- 14-08-2026: checkpoint 19:56 +07 đạt 20,33% campaign, vẫn steady; 6/6 node
+  Ready và zero bad pod/warning/restart. Ba collector/resolver/finalizer đều
+  active; record cuối integrity 0, emit lag 15–34 ms. Capture hiện khoảng
+  456/407/302 MB và worker ít trống nhất còn 57 GiB.
