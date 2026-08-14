@@ -4980,3 +4980,22 @@ replace/truncate; lần mở ban đầu vẫn tôn trọng `--from-start`, còn 
 luôn được đọc từ đầu để không mất schema/feature đầu tiên. Hai test tái hiện
 rotation với cả initial replay và tail mode. Full regression đạt **291 passed,
 7 skipped**; thay đổi chưa deploy detector candidate và không tác động campaign.
+
+### 18.106 Transition toolmix hợp lệ và feature stream liên tục (14-08-2026)
+
+Audit SSH lúc 23:42 +07 xác nhận campaign đạt 35,94%, còn khoảng 15,47 giờ;
+steady đã hoàn tất và toolmix đang active. Scheduler scale traffic lúc
+21:01:32 +07, toàn bộ rollout đóng lúc 21:01:34, rồi bắt đầu measured toolmix đúng
+21:04:31 sau transition gap ba phút. Desired/ready/available của ba Deployment
+base, readmix và dependency đều lần lượt `2/2/2`, `4/4/4`, `2/2/2`; observed
+generation khớp generation `75/74/7`. Snapshot
+`toolmix-deployments.json` đã được kéo về evidence local, chmod `0444`, SHA-256
+`b9590c1a6b009b4d67f88302db53740d77de2a6a31a0ccd2c762d8a2f1944809`.
+
+Campaign `active/running`, `NRestarts=0`, zero health warning/failure marker;
+6/6 node Ready và zero bad pod. Collector/resolver/finalizer trên cả ba worker
+đều active không restart. Capture hiện khoảng 773/697/520 MB; record cuối có
+mọi integrity counter bằng 0 và emit lag khoảng 18–29 ms. Syscall volume tăng
+theo toolmix (ví dụ PostgreSQL 1.858 và order-service 1.383 syscall/window), cho
+thấy feature stream phản ánh traffic mới thay vì bị đứng ở steady. Worker3 vẫn
+còn khoảng 57 GiB, không có disk pressure tức thời.

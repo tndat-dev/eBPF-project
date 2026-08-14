@@ -302,3 +302,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   truncation, tự mở capture mới từ đầu thay vì đứng vĩnh viễn ở EOF inode cũ.
   Checkpoint 20:33 +07 đạt 22,89%; steady replica đúng contract `1/0/1`, zero
   bad pod/warning/restart. Full regression đạt **291 passed, 7 skipped**.
+- 14-08-2026: transition toolmix thành công; measured interval bắt đầu 21:04:31
+  +07 sau đúng gap ba phút. Replica base/readmix/dependency đạt `2/4/2`, mọi
+  observed generation khớp, 6/6 node Ready và integrity ba worker bằng 0.
+  Snapshot read-only SHA-256 `b9590c1a...`; campaign đạt 35,94% lúc 23:42 +07.
