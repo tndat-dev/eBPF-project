@@ -78,6 +78,14 @@ def build_decision(
         "all_workloads_have_candidate": not collect_only,
         "all_candidates_in_normal_soak": not missing_normal,
         "independent_normal_soak": normal.get("normal_gate") is True,
+        "normal_protocol": (
+            int(normal.get("minimum_scored_windows", 0)) >= 86400
+            and float(normal.get("minimum_duration_hours_per_workload", 0.0)) >= 24.0
+            and float(normal.get("minimum_coverage_ratio_per_workload", 0.0)) >= 0.95
+            and int(normal.get("maximum_alerts", -1)) == 0
+            and normal.get("duration_gate") is True
+            and normal.get("coverage_gate") is True
+        ),
         "normal_model_identity": (
             normal.get("model_identity_gate") is True
             and normal.get("model_manifest_sha256") == model_manifest_sha256
@@ -117,6 +125,7 @@ def build_decision(
             "maximum_inference_p99_ms": maximum_inference_p99_ms,
             "maximum_post_window_processing_p99_seconds": maximum_processing_p99_seconds,
             "normal_soak_gate": "24 wall-clock hours per workload, zero observed alerts",
+            "minimum_normal_second_bucket_coverage": 0.95,
         },
         "observed": {
             "normal_scored_windows": normal.get("scored_windows"),

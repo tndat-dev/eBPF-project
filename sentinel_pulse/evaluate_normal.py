@@ -30,11 +30,15 @@ def evaluate(
     maximum_alerts: int = 0,
     minimum_scored_windows: int = 86400,
     minimum_duration_hours: float = 24.0,
+    minimum_coverage_ratio: float = 0.95,
 ) -> dict:
+    if not 0.0 < minimum_coverage_ratio <= 1.0:
+        raise ValueError("minimum coverage ratio must be in (0, 1]")
     statuses = Counter()
     workload_scored = Counter()
     workload_alerts = Counter()
     workload_bounds: dict[str, list[float]] = {}
+    workload_second_buckets: dict[str, set[int]] = {}
     model_identities = set()
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
@@ -54,6 +58,7 @@ def evaluate(
                 bounds = workload_bounds.setdefault(workload, [end, end])
                 bounds[0] = min(bounds[0], end)
                 bounds[1] = max(bounds[1], end)
+                workload_second_buckets.setdefault(workload, set()).add(math.floor(end))
             if status == "alert":
                 workload_alerts[workload] += 1
 
@@ -66,6 +71,12 @@ def evaluate(
         workload_lower, workload_upper = wilson_interval(workload_count_alerts, count)
         bounds = workload_bounds.get(workload)
         duration_hours = (bounds[1] - bounds[0]) / 3600.0 if bounds else 0.0
+        buckets = workload_second_buckets.get(workload, set())
+        span_seconds = (
+            math.floor(bounds[1]) - math.floor(bounds[0]) + 1 if bounds else 0
+        )
+        coverage_seconds = len(buckets)
+        coverage_ratio = coverage_seconds / span_seconds if span_seconds else 0.0
         workload_reports[workload] = {
             "scored_windows": count,
             "alerts": workload_count_alerts,
@@ -73,9 +84,19 @@ def evaluate(
             "false_alert_rate_wilson_95": [workload_lower, workload_upper],
             "observed_duration_hours": duration_hours,
             "duration_gate": duration_hours >= minimum_duration_hours,
+            "observed_second_buckets": coverage_seconds,
+            "span_seconds": span_seconds,
+            "coverage_ratio": coverage_ratio,
+            "coverage_gate": (
+                coverage_seconds >= minimum_duration_hours * 3600.0 * minimum_coverage_ratio
+                and coverage_ratio >= minimum_coverage_ratio
+            ),
         }
     duration_gate = bool(workload_reports) and all(
         item["duration_gate"] for item in workload_reports.values()
+    )
+    coverage_gate = bool(workload_reports) and all(
+        item["coverage_gate"] for item in workload_reports.values()
     )
     model_identity_gate = (
         len(model_identities) == 1
@@ -89,6 +110,8 @@ def evaluate(
         "decisions_sha256": sha256_file(path),
         "minimum_scored_windows": minimum_scored_windows,
         "minimum_duration_hours_per_workload": minimum_duration_hours,
+        "minimum_coverage_ratio_per_workload": minimum_coverage_ratio,
+        "maximum_alerts": maximum_alerts,
         "scored_windows": scored,
         "alerts": alerts,
         "observed_false_alert_rate": alerts / scored if scored else None,
@@ -98,10 +121,12 @@ def evaluate(
         "model_identity_gate": model_identity_gate,
         "workloads": workload_reports,
         "duration_gate": duration_gate,
+        "coverage_gate": coverage_gate,
         "normal_gate": (
             scored >= minimum_scored_windows
             and alerts <= maximum_alerts
             and duration_gate
+            and coverage_gate
             and model_identity_gate
         ),
     }
@@ -114,12 +139,14 @@ def main() -> None:
     parser.add_argument("--maximum-alerts", type=int, default=0)
     parser.add_argument("--minimum-scored-windows", type=int, default=86400)
     parser.add_argument("--minimum-duration-hours", type=float, default=24.0)
+    parser.add_argument("--minimum-coverage-ratio", type=float, default=0.95)
     args = parser.parse_args()
     report = evaluate(
         args.decisions,
         args.maximum_alerts,
         args.minimum_scored_windows,
         args.minimum_duration_hours,
+        args.minimum_coverage_ratio,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["normal_gate"] else 1)

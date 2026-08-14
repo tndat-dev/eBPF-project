@@ -5047,3 +5047,20 @@ của model B để vượt release gate. Negative test khóa mixed-model normal
 và report thuộc model khác; focused 15/15 và full regression đạt **295 passed,
 7 skipped**. Đây là hardening provenance trước khi fit candidate, không tác
 động collector/campaign đang chạy.
+
+### 18.110 Sửa normal-soak wall-clock coverage gate (15-08-2026)
+
+Evaluator cũ đo duration bằng timestamp đầu/cuối nên một stream rất thưa vẫn có
+thể biểu diễn span 24 giờ. Evaluator mới khử trùng lặp replica theo bucket một
+giây cho từng workload, yêu cầu đồng thời span ≥ 24 giờ và ít nhất 95% bucket
+trong span có decision. Raw window count vẫn được báo cáo nhưng không thể dùng
+replica song song để giả wall-clock coverage. Report khóa luôn các tham số
+`minimum_scored_windows`, `minimum_duration_hours_per_workload`,
+`minimum_coverage_ratio_per_workload` và `maximum_alerts`.
+
+Finalizer nay bắt protocol tối thiểu **86.400 scored windows, 24 giờ/workload,
+95% second-bucket coverage và 0 alert**. Vì vậy chạy evaluator với CLI threshold
+yếu hơn không thể tạo candidate đủ điều kiện. Negative tests chứng minh hai
+endpoint cách nhau 24 giờ không đạt coverage và report hạ duration xuống một
+giờ bị finalizer từ chối. Focused 9/9 và full regression đạt **297 passed, 7
+skipped**; campaign hiện tại không bị thay đổi.

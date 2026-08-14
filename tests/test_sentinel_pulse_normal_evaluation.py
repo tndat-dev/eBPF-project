@@ -80,6 +80,30 @@ class PulseNormalEvaluationTests(unittest.TestCase):
             self.assertFalse(report["model_identity_gate"])
             self.assertFalse(report["normal_gate"])
 
+    def test_sparse_endpoints_do_not_fake_wall_clock_coverage(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "sparse.jsonl"
+            records = [
+                {
+                    "schema": "sentinel-pulse-decision-v1",
+                    "status": "normal",
+                    "model_manifest_sha256": "a" * 64,
+                    "workload_key": "production/catalog:app",
+                    "window_end": end,
+                }
+                for end in (0.0, 24.0 * 3600.0)
+            ]
+            path.write_text(
+                "".join(json.dumps(record) + "\n" for record in records),
+                encoding="utf-8",
+            )
+            report = evaluate(
+                path, minimum_scored_windows=2, minimum_duration_hours=24.0
+            )
+            self.assertTrue(report["duration_gate"])
+            self.assertFalse(report["coverage_gate"])
+            self.assertFalse(report["normal_gate"])
+
 
 if __name__ == "__main__":
     unittest.main()

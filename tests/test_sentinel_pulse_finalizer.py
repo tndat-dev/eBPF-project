@@ -43,6 +43,12 @@ class PulseFinalizerTests(unittest.TestCase):
                     "model_manifest_sha256": model_manifest_sha256,
                     "model_identity_gate": True,
                     "normal_gate": True,
+                    "minimum_scored_windows": 86400,
+                    "minimum_duration_hours_per_workload": 24.0,
+                    "minimum_coverage_ratio_per_workload": 0.95,
+                    "maximum_alerts": 0,
+                    "duration_gate": True,
+                    "coverage_gate": True,
                     "scored_windows": 86400,
                     "alerts": 0,
                     "false_alert_rate_wilson_95": [0.0, 0.00005],
@@ -100,6 +106,15 @@ class PulseFinalizerTests(unittest.TestCase):
             attack.write_text(json.dumps(report), encoding="utf-8")
             decision = build_decision(model_dir, normal, attack)
             self.assertIn("blind_model_identity", decision["failed_gates"])
+
+    def test_weakened_normal_protocol_cannot_pass_finalizer(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            model_dir, normal, attack = self._fixture(Path(temporary))
+            report = json.loads(normal.read_text())
+            report["minimum_duration_hours_per_workload"] = 1.0
+            normal.write_text(json.dumps(report), encoding="utf-8")
+            decision = build_decision(model_dir, normal, attack)
+            self.assertIn("normal_protocol", decision["failed_gates"])
 
 
 if __name__ == "__main__":

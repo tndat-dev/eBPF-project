@@ -320,3 +320,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   normal/blind evaluator fail với identity thiếu hoặc bị trộn; finalizer bắt
   cả hai report khớp đúng bundle đang review. Negative tests khóa mixed model
   và cross-model report; full regression đạt **295 passed, 7 skipped**.
+- 15-08-2026: normal-soak gate chuyển sang unique one-second bucket/workload,
+  yêu cầu span 24 giờ và coverage ≥95%, nên replica count hay vài timestamp
+  endpoint không thể giả đủ wall-clock. Finalizer khóa protocol 86.400 window,
+  24 giờ/workload, 95% coverage, 0 alert và từ chối report dùng threshold yếu
+  hơn. Full regression đạt **297 passed, 7 skipped**.

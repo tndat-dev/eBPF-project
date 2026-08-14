@@ -27,6 +27,9 @@ the frozen V8 models, policy evidence, or production detector.
    Every scored decision carries that manifest SHA-256. Normal and blind-attack
    evaluators reject missing/mixed model identities, and finalization requires
    both reports to match the exact bundle being reviewed.
+   Normal-soak duration is measured with unique one-second wall-clock buckets,
+   not raw replica window count; every workload must cover at least 95% of its
+   24-hour span with zero alerts.
 
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.
