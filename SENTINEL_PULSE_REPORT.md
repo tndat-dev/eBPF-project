@@ -363,3 +363,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   warning lúc 09:09:35 nhưng pod đã biến mất trước detail query; không lặp,
   hiện age-aware health trả zero unhealthy. Recovery snapshot SHA-256
   `9a124272...`, warning SHA-256 `f83ad598...`.
+- 15-08-2026: schedule/finalizer terminal success; ba frozen capture read-only
+  tổng 5,39 GB, SHA-256 đích khớp manifest và integrity 0. Assemble đầu tiên
+  fail-closed do node-manifest v1 đếm full campaign span nhưng assembler đếm
+  disjoint measured intervals. Sửa compatibility không đổi evidence: v1 field
+  được verify như `campaign_span_rows`; finalizer tương lai phát manifest v2.
+  Regression đạt **304 passed, 7 skipped**.

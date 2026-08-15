@@ -78,7 +78,11 @@ def verify_source_manifests(
             raise ValueError(f"capture source is not immutable/read-only: {source}")
         manifest_path = manifest_paths[node]
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest.get("schema") != "sentinel-pulse-node-capture-manifest-v1":
+        manifest_schema = manifest.get("schema")
+        if manifest_schema not in {
+            "sentinel-pulse-node-capture-manifest-v1",
+            "sentinel-pulse-node-capture-manifest-v2",
+        }:
             raise ValueError(f"unsupported node capture manifest for {node}")
         expected = {
             "campaign_id": contract["campaign_id"],
@@ -97,8 +101,16 @@ def verify_source_manifests(
             raise ValueError(f"node capture manifest start differs from contract for {node}")
         if float(manifest.get("campaign_end", -1)) != campaign_end:
             raise ValueError(f"node capture manifest end differs from contract for {node}")
-        if int(manifest.get("in_contract_rows", 0)) <= 0:
-            raise ValueError(f"node capture manifest has no in-contract row for {node}")
+        # V1 called the full first-to-last interval span "in_contract_rows",
+        # including preregistered transition gaps. V2 names that value
+        # campaign_span_rows. The assembler itself is the authority for rows
+        # inside the disjoint measured intervals.
+        if manifest_schema == "sentinel-pulse-node-capture-manifest-v1":
+            campaign_span_rows = int(manifest.get("in_contract_rows", 0))
+        else:
+            campaign_span_rows = int(manifest.get("campaign_span_rows", 0))
+        if campaign_span_rows <= 0:
+            raise ValueError(f"node capture manifest has no campaign-span row for {node}")
         bad_integrity = {
             name: value
             for name, value in manifest.get("collector_max_integrity", {}).items()
@@ -109,6 +121,7 @@ def verify_source_manifests(
                 f"node capture manifest has non-zero integrity counters for {node}: "
                 f"{bad_integrity}"
             )
+        manifest["_campaign_span_rows"] = campaign_span_rows
         manifests[node] = manifest
     return manifests
 
@@ -138,6 +151,8 @@ def assemble(
     source_manifests = verify_source_manifests(
         contract_path, contract, sources, source_manifest_paths
     )
+    campaign_start = min(float(item["start"]) for item in contract["intervals"])
+    campaign_end = max(float(item["end"]) for item in contract["intervals"])
     if output.exists():
         raise ValueError(f"refusing to overwrite immutable dataset: {output}")
     manifest_path = output.with_suffix(output.suffix + ".manifest.json")
@@ -149,12 +164,13 @@ def assemble(
     excluded = 0
     by_node = Counter()
     by_regime = Counter()
+    span_by_node = Counter()
     schema_hash = None
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as destination:
             for source_node, source_path in sorted(sources.items()):
                 source_rows = 0
-                source_in_contract_rows = 0
+                source_span_rows = 0
                 with source_path.open(encoding="utf-8") as source:
                     for line_number, line in enumerate(source, 1):
                         record = json.loads(line)
@@ -175,6 +191,11 @@ def assemble(
                             raise ValueError(
                                 f"{source_path}:{line_number}: node identity does not match source"
                             )
+                        window_start = float(record["window_start"])
+                        window_end = float(record["window_end"])
+                        if window_start >= campaign_start and window_end <= campaign_end:
+                            source_span_rows += 1
+                            span_by_node[source_node] += 1
                         interval = interval_for(record, contract["intervals"])
                         if interval is None:
                             excluded += 1
@@ -187,7 +208,6 @@ def assemble(
                         record["traffic_regime"] = interval["regime"]
                         destination.write(json.dumps(record, separators=(",", ":")) + "\n")
                         rows += 1
-                        source_in_contract_rows += 1
                         by_node[source_node] += 1
                         by_regime[str(interval["regime"])] += 1
                 node_manifest = source_manifests[source_node]
@@ -195,9 +215,9 @@ def assemble(
                     raise ValueError(
                         f"capture row count differs from node manifest for {source_node}"
                     )
-                if source_in_contract_rows != int(node_manifest["in_contract_rows"]):
+                if source_span_rows != int(node_manifest["_campaign_span_rows"]):
                     raise ValueError(
-                        f"in-contract row count differs from node manifest for {source_node}"
+                        f"campaign-span row count differs from node manifest for {source_node}"
                     )
             destination.flush()
             os.fsync(destination.fileno())
@@ -221,6 +241,10 @@ def assemble(
         "rows": rows,
         "excluded_outside_contract": excluded,
         "rows_by_node": dict(sorted(by_node.items())),
+        "campaign_span_rows_by_node": dict(sorted(span_by_node.items())),
+        "source_manifest_schema": {
+            node: source_manifests[node]["schema"] for node in sorted(source_manifests)
+        },
         "rows_by_regime": dict(sorted(by_regime.items())),
         "source_sha256": {
             node: {"path": str(path), "sha256": sha256_file(path)}

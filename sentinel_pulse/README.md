@@ -9,6 +9,11 @@ the frozen V8 models, policy evidence, or production detector.
 2. `pulse_counter.bpf.c` counts every syscall and per-task adjacent transition.
 3. `pulse_counter_loader` snapshots cumulative maps every second.
 4. `capture.py` computes exact deltas and emits 249-dimensional JSONL features.
+   `assemble_dataset.py` then admits only rows fully contained in the four
+   measured traffic intervals. Legacy node-manifest v1 called the full
+   first-to-last campaign span `in_contract_rows`, including transition gaps;
+   the assembler verifies that value as `campaign_span_rows` while deriving
+   measured rows independently. Node-manifest v2 uses the corrected field name.
 5. `train.py` creates one normal-only ExtraTrees temporal model per workload
    and container using a temporal train/calibration split. A sequence is cut
    whenever its cgroup has a gap greater than 1.5 seconds or the preregistered

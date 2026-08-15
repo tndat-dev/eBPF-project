@@ -82,7 +82,7 @@ contract_sha256 = sys.argv[6]
 
 digest = hashlib.sha256()
 rows = 0
-in_contract_rows = 0
+campaign_span_rows = 0
 first_end = None
 last_end = None
 nodes = set()
@@ -104,15 +104,15 @@ with capture.open(encoding="utf-8") as handle:
         last_end = window_end if last_end is None else max(last_end, window_end)
         nodes.add(str(record.get("node_name", "")))
         if window_start >= start and window_end <= end:
-            in_contract_rows += 1
+            campaign_span_rows += 1
             for name, value in record.get("collector_stats", {}).items():
                 max_integrity[name] = max(max_integrity.get(name, 0), int(value))
 
 hostname = socket.gethostname()
 if nodes != {hostname}:
     raise SystemExit(f"capture node identity mismatch: hostname={hostname} rows={nodes}")
-if not in_contract_rows:
-    raise SystemExit("frozen capture has no in-contract feature row")
+if not campaign_span_rows:
+    raise SystemExit("frozen capture has no campaign-span feature row")
 if last_end is None or last_end < end:
     raise SystemExit(f"capture ended before contract: last={last_end} end={end}")
 bad_integrity = {name: value for name, value in max_integrity.items() if value != 0}
@@ -120,7 +120,7 @@ if bad_integrity:
     raise SystemExit(f"non-zero in-contract integrity counters: {bad_integrity}")
 
 manifest = {
-    "schema": "sentinel-pulse-node-capture-manifest-v1",
+    "schema": "sentinel-pulse-node-capture-manifest-v2",
     "campaign_id": campaign_id,
     "contract_sha256": contract_sha256,
     "node_name": hostname,
@@ -128,7 +128,7 @@ manifest = {
     "capture_sha256": digest.hexdigest(),
     "capture_bytes": capture.stat().st_size,
     "rows": rows,
-    "in_contract_rows": in_contract_rows,
+    "campaign_span_rows": campaign_span_rows,
     "first_window_end": first_end,
     "last_window_end": last_end,
     "campaign_start": start,

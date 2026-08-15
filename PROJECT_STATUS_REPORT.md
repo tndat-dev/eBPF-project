@@ -5174,3 +5174,23 @@ gán nguyên nhân cụ thể khi file không có pod identity.
 Collector/resolver/finalizer 3/3 worker active, zero restart; capture khoảng
 1.622/1.473/1.101 MB. Ba integrity counter đều 0, snapshot read 1,30–3,70 ms,
 window-to-emit 16,02–28,42 ms; worker ít trống nhất còn 56 GiB.
+
+### 18.118 Capture terminal và sửa manifest span semantics (15-08-2026)
+
+Campaign schedule hoàn tất thành công lúc 15:10:34 +07, systemd result success,
+zero restart và traffic được trả về steady `1/0/1`. Ba immutable finalizer exit
+success trong 15:11:16–15:11:39. Frozen captures read-only có kích thước
+2.083.633.628, 1.891.218.147 và 1.415.294.184 byte; checksum SHA-256 đích khớp
+chính xác ba node manifest. Collector realtime tiếp tục ghi inode mới, không bị
+dừng sau freeze. Tổng node manifest báo 3.617.131 row trong full campaign span,
+mọi integrity counter bằng 0.
+
+Lần assemble đầu fail-closed và tự xóa temp dataset vì manifest v1 gọi row nằm
+trong toàn span đầu-cuối là `in_contract_rows`, trong khi assembler chỉ đếm row
+thuộc bốn measured interval và loại ba transition gap. Capture không hỏng; đây
+là semantic mismatch giữa producer/consumer manifest. Compatibility fix giữ
+nguyên evidence v1 và checksum: assembler kiểm field v1 theo đúng nghĩa
+`campaign_span_rows`, sau đó tự tính measured rows theo disjoint contract.
+Finalizer tương lai phát manifest v2 với tên `campaign_span_rows`, không còn tên
+gây hiểu nhầm. Test mới tái hiện row trong transition gap; focused 6/6 và full
+regression đạt **304 passed, 7 skipped**, shell syntax pass.

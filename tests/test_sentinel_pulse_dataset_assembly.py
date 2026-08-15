@@ -142,6 +142,47 @@ class PulseDatasetAssemblyTests(unittest.TestCase):
                     root / "dataset.jsonl",
                 )
 
+    def test_v1_manifest_span_count_may_include_transition_gap(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            contract = root / "contract.json"
+            contract.write_text(
+                json.dumps(
+                    {
+                        "schema": "sentinel-pulse-capture-contract-v1",
+                        "campaign_id": "pulse-c1",
+                        "normal_only": True,
+                        "expected_nodes": ["worker-a"],
+                        "intervals": [
+                            {"regime": "steady", "start": 10.0, "end": 20.0},
+                            {"regime": "burst", "start": 30.0, "end": 40.0},
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            source = root / "source.jsonl"
+            self._source(source, "worker-a", (11.0, 25.0, 31.0))
+            source_manifest = root / "source-manifest.json"
+            # V1 finalizers counted all three rows in the broad 10..40 span.
+            self._manifest(
+                source_manifest, source, contract, "worker-a", 3, 3, start=10.0, end=40.0
+            )
+            output = root / "dataset.jsonl"
+            manifest = assemble(
+                contract,
+                {"worker-a": source},
+                {"worker-a": source_manifest},
+                output,
+            )
+            self.assertEqual(manifest["rows"], 2)
+            self.assertEqual(manifest["excluded_outside_contract"], 1)
+            self.assertEqual(manifest["campaign_span_rows_by_node"], {"worker-a": 3})
+            self.assertEqual(
+                manifest["source_manifest_schema"]["worker-a"],
+                "sentinel-pulse-node-capture-manifest-v1",
+            )
+
     def test_capture_manifest_hash_mismatch_is_rejected(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
