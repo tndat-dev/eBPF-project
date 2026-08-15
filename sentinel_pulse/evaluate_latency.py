@@ -42,12 +42,16 @@ def evaluate(
     processing = []
     inference = []
     model_identities = set()
+    decision_policy_identities = set()
     with path.open(encoding="utf-8") as handle:
         for line in handle:
             record = json.loads(line)
             if record.get("schema") != "sentinel-pulse-decision-v1":
                 continue
             model_identities.add(str(record.get("model_manifest_sha256", "")))
+            policy_identity = record.get("decision_policy_sha256")
+            if policy_identity is not None:
+                decision_policy_identities.add(str(policy_identity))
             if "post_window_processing_seconds" in record:
                 processing.append(float(record["post_window_processing_seconds"]))
             if "inference_ms" in record:
@@ -106,6 +110,14 @@ def evaluate(
         and len(next(iter(model_identities))) == 64
         and all(character in "0123456789abcdef" for character in next(iter(model_identities)))
     )
+    decision_policy_identity_gate = (
+        len(decision_policy_identities) == 1
+        and len(next(iter(decision_policy_identities))) == 64
+        and all(
+            character in "0123456789abcdef"
+            for character in next(iter(decision_policy_identities))
+        )
+    )
     report = {
         "schema": "sentinel-pulse-latency-report-v1",
         "decisions_sha256": sha256_file(path),
@@ -129,6 +141,12 @@ def evaluate(
             next(iter(model_identities)) if model_identity_gate else None
         ),
         "model_identity_gate": model_identity_gate,
+        "decision_policy_sha256": (
+            next(iter(decision_policy_identities))
+            if decision_policy_identity_gate
+            else None
+        ),
+        "decision_policy_identity_gate": decision_policy_identity_gate,
         "recall": detected / expected if expected else 0.0,
         "true_detection_latency_seconds": summary(true_latency),
         "post_window_processing_seconds": summary(processing),

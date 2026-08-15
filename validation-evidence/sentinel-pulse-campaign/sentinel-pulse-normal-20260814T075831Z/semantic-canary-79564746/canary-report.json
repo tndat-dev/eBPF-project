@@ -1,0 +1,100 @@
+{
+  "alert_file_rows": 0,
+  "alerts_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "claim_scope": "bounded post-policy canary; not 24-hour soak",
+  "created_at": 1786805017.8161669,
+  "decision_policy_identities": [
+    "795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a"
+  ],
+  "decisions_sha256": "814f6eaba17b57368a4a1bea47d8bb5c606553f215a18a239fb911db0603cdb2",
+  "inference_ms": {
+    "max": 84.80548794614151,
+    "mean": 20.941265948056106,
+    "min": 13.156047032680362,
+    "p50": 19.59463595994748,
+    "p95": 31.513434121734463,
+    "p99": 38.94043670967231
+  },
+  "model_manifest_identities": [
+    "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc"
+  ],
+  "node": "k8s-worker1.local",
+  "post_window_processing_seconds": {
+    "max": 0.592010498046875,
+    "mean": 0.2162330597639084,
+    "min": 0.02254772186279297,
+    "p50": 0.21493995189666748,
+    "p95": 0.3778706908226014,
+    "p99": 0.43122617483139053
+  },
+  "rows": 4768,
+  "run_id": "semantic-canary-20260815T144000Z",
+  "schema": "sentinel-pulse-semantic-live-canary-v1",
+  "status_counts": {
+    "normal": 4719,
+    "suppressed": 1,
+    "warming": 48
+  },
+  "valid": true,
+  "window_span_seconds": 294.87002205848694,
+  "workload_count": 14,
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/aims-minio-pool-0:minio": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "normal": 294,
+      "suppressed": 1,
+      "warming": 3
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/aims-redis:aims-redis": {
+      "normal": 885,
+      "warming": 9
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/auth-service:app": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/cart-service:app": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/catalog-service:app": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/inventory-service:app": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/notification-service:pod-slice": {
+      "normal": 295,
+      "warming": 3
+    },
+    "production/payment-service:pod-slice": {
+      "normal": 295,
+      "warming": 3
+    }
+  }
+}

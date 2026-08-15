@@ -1,0 +1,43 @@
+[Unit]
+Description=Sentinel Pulse checksum-bound candidate detector (audit only)
+After=sentinel-pulse-collector.service
+Requires=sentinel-pulse-collector.service
+
+[Service]
+Type=simple
+User=sentinel-pulse-detector
+Group=sentinel-pulse-detector
+WorkingDirectory=/opt/sentinel-pulse
+StateDirectory=sentinel-pulse-detector
+StateDirectoryMode=0750
+EnvironmentFile=/etc/sentinel-pulse-detector-candidate.env
+ExecStartPre=/usr/bin/test -s ${PULSE_FEATURES}
+ExecStartPre=/usr/bin/test -r ${PULSE_MODEL_DIR}/manifest.json
+ExecStartPre=/usr/bin/test -r ${PULSE_MODEL_DIR}/manifest.sha256
+ExecStartPre=/usr/bin/test -r ${PULSE_DECISION_POLICY}
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -u -m sentinel_pulse.detect --model-dir ${PULSE_MODEL_DIR} --decision-policy ${PULSE_DECISION_POLICY} --run-id ${PULSE_RUN_ID} --features ${PULSE_FEATURES} --decisions ${PULSE_DECISIONS} --alerts ${PULSE_ALERTS}
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=20
+Nice=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=yes
+RestrictRealtime=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_UNIX
+ReadOnlyPaths=/var/lib/sentinel-pulse
+ReadWritePaths=/var/lib/sentinel-pulse-detector
+
+[Install]
+WantedBy=multi-user.target

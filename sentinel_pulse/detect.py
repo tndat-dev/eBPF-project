@@ -13,6 +13,7 @@ import time
 import numpy as np
 
 from .model import PulseExtraTrees
+from .decision_policy import corroborate, load_decision_policy
 from .encoding import decode_vector, schema_digest
 from .integrity import contained_artifact, verify_sha256
 from .latency import InjectionTracker
@@ -80,7 +81,7 @@ class RotatingJsonlFollower:
 
 
 class PulseRuntime:
-    def __init__(self, model_dir: Path):
+    def __init__(self, model_dir: Path, decision_policy: Path | None = None):
         checksum_path = model_dir / "manifest.sha256"
         manifest_path = model_dir / "manifest.json"
         try:
@@ -151,6 +152,12 @@ class PulseRuntime:
                 self.models[workload] = model
         self.histories = {}
         self.history_metadata = {}
+        self.decision_policy = None
+        self.decision_policy_sha256 = None
+        if decision_policy is not None:
+            self.decision_policy, self.decision_policy_sha256 = load_decision_policy(
+                decision_policy
+            )
 
     def score(self, record: dict) -> dict:
         observed_schema = record.get("feature_schema_sha256")
@@ -172,6 +179,7 @@ class PulseRuntime:
             return {
                 "status": "collect-only",
                 "model_manifest_sha256": self.model_manifest_sha256,
+                "decision_policy_sha256": self.decision_policy_sha256,
                 "workload_key": workload,
                 "cgroup_id": cgroup_id,
             }
@@ -207,16 +215,33 @@ class PulseRuntime:
                 "status": "warming",
                 "warming_reason": reset_reason or "history_fill",
                 "model_manifest_sha256": self.model_manifest_sha256,
+                "decision_policy_sha256": self.decision_policy_sha256,
                 "workload_key": workload,
                 "cgroup_id": cgroup_id,
             }
         decision = model.predict(list(history), row)
         history.append(row)
         alerted_at = time.time()
+        corroborated = True
+        security_mass = None
+        security_fields = None
+        if self.decision_policy is not None:
+            corroborated, security_mass, security_fields = corroborate(
+                self.decision_policy, record.get("exact_counts")
+            )
+        alerted = decision.anomalous and corroborated
+        status = (
+            "alert"
+            if alerted
+            else "suppressed"
+            if decision.anomalous
+            else "normal"
+        )
         return {
             "schema": "sentinel-pulse-decision-v1",
-            "status": "alert" if decision.anomalous else "normal",
+            "status": status,
             "model_manifest_sha256": self.model_manifest_sha256,
+            "decision_policy_sha256": self.decision_policy_sha256,
             "workload_key": workload,
             "cgroup_id": cgroup_id,
             "pod_name": record.get("pod_name"),
@@ -226,6 +251,10 @@ class PulseRuntime:
             "post_window_processing_seconds": max(0.0, alerted_at - float(record["window_end"])),
             "score": decision.score,
             "conformal_p": decision.conformal_p,
+            "raw_model_anomalous": decision.anomalous,
+            "same_window_corroborated": corroborated,
+            "security_activity_mass": security_mass,
+            "security_activity_fields": security_fields,
             "inference_ms": decision.inference_ms,
         }
 
@@ -233,13 +262,15 @@ class PulseRuntime:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model-dir", type=Path, required=True)
+    parser.add_argument("--decision-policy", type=Path)
+    parser.add_argument("--run-id", default="manual")
     parser.add_argument("--features", type=Path, required=True)
     parser.add_argument("--decisions", type=Path, required=True)
     parser.add_argument("--alerts", type=Path, required=True)
     parser.add_argument("--from-start", action="store_true")
     parser.add_argument("--injections", type=Path)
     args = parser.parse_args()
-    runtime = PulseRuntime(args.model_dir)
+    runtime = PulseRuntime(args.model_dir, args.decision_policy)
     injection_tracker = InjectionTracker(args.injections) if args.injections else None
     args.decisions.parent.mkdir(parents=True, exist_ok=True)
     args.alerts.parent.mkdir(parents=True, exist_ok=True)
@@ -253,6 +284,7 @@ def main() -> None:
                 if record.get("schema") == "sentinel-pulse-feature-schema-v1":
                     continue
                 result = runtime.score(record)
+                result["run_id"] = args.run_id
                 if result.get("status") == "alert" and injection_tracker is not None:
                     marker = injection_tracker.match(result)
                     if marker is not None:
@@ -268,3 +300,7 @@ def main() -> None:
                     alerts.flush()
     finally:
         source.close()
+
+
+if __name__ == "__main__":
+    main()

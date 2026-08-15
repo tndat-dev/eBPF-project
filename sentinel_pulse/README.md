@@ -1,6 +1,6 @@
-# V9 Sentinel Pulse
+# Sentinel Pulse
 
-V9 Sentinel Pulse is the isolated one-second ML candidate. It does not overwrite
+Sentinel Pulse is the isolated one-second ML candidate. It does not overwrite
 the frozen V8 models, policy evidence, or production detector.
 
 ## Data path
@@ -135,8 +135,16 @@ python -m sentinel_pulse.train \
   --blind-attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
   --output models-pulse-candidate
 
+# After terminal bundle verification, install only as an audit-only canary.
+# This creates a separate unprivileged service and never replaces V8.
+sudo SOURCE_ROOT=/home/dat/eBPF-project \
+  MODEL_SOURCE=/path/to/models-pulse-candidate \
+  /home/dat/eBPF-project/sentinel_pulse/install_detector_candidate.sh
+
 python -m sentinel_pulse.detect \
   --model-dir models-pulse-candidate \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v1.json \
+  --run-id sentinel-pulse-normal-soak-001 \
   --features pulse-live.jsonl \
   --decisions pulse-decisions.jsonl \
   --alerts pulse-alerts.jsonl
@@ -157,6 +165,7 @@ python -m sentinel_pulse.evaluate_latency \
 
 python -m sentinel_pulse.finalize_candidate \
   --model-dir models-pulse-candidate \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v1.json \
   --normal-report pulse-normal-soak-report.json \
   --attack-report pulse-blind-latency-report.json \
   --output pulse-candidate-decision.json

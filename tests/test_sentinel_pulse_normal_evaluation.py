@@ -104,6 +104,36 @@ class PulseNormalEvaluationTests(unittest.TestCase):
             self.assertFalse(report["coverage_gate"])
             self.assertFalse(report["normal_gate"])
 
+    def test_suppressed_raw_anomaly_is_scored_but_not_hidden_or_counted_as_alert(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "suppressed.jsonl"
+            records = [
+                {
+                    "schema": "sentinel-pulse-decision-v1",
+                    "status": "suppressed" if index == 5 else "normal",
+                    "model_manifest_sha256": "a" * 64,
+                    "decision_policy_sha256": "b" * 64,
+                    "workload_key": "production/catalog:app",
+                    "window_end": float(index),
+                }
+                for index in range(10)
+            ]
+            path.write_text(
+                "".join(json.dumps(record) + "\n" for record in records),
+                encoding="utf-8",
+            )
+            report = evaluate(
+                path,
+                maximum_alerts=0,
+                minimum_scored_windows=10,
+                minimum_duration_hours=9.0 / 3600.0,
+            )
+            self.assertTrue(report["normal_gate"])
+            self.assertEqual(report["scored_windows"], 10)
+            self.assertEqual(report["alerts"], 0)
+            self.assertEqual(report["suppressed_raw_anomalies"], 1)
+            self.assertTrue(report["decision_policy_identity_gate"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,12 @@
+{
+  "blind_evaluation_started": false,
+  "decision_policy_sha256": "795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a",
+  "eligible_finalize_after": "2026-08-16T14:50:19.839636+00:00",
+  "maximum_alerts": 0,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "run_id": "semantic-soak-a1",
+  "schema": "sentinel-pulse-semantic-soak-start-v1",
+  "started_not_before": "2026-08-15T14:50:19.839636+00:00"
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "sentinel-pulse-decision-policy-v1",
+  "name": "semantic-corroborated-one-window-v1",
+  "frozen_before_blind_evaluation": true,
+  "same_window_corroboration": {
+    "requires_raw_model_anomaly": true,
+    "additional_window_wait": 0,
+    "minimum_security_activity_mass": 1,
+    "security_activity_fields": [
+      "connect",
+      "clone",
+      "clone3",
+      "execve",
+      "execveat",
+      "mprotect",
+      "ptrace",
+      "setuid",
+      "setgid",
+      "capset",
+      "pivot_root",
+      "mount",
+      "unshare",
+      "setns",
+      "seccomp"
+    ]
+  },
+  "suppressed_decision_status": "suppressed",
+  "development_normal_evidence": {
+    "failed_model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+    "canary_report_sha256": "e200e283bf16d151075083265315e67d0c6afddc6631193f626f4cf89ab1b3d9",
+    "alert_context_sha256": "691a7f3b6d248dfde26cf602b5a8e48fa4baba7864958e37d971af853b59e426"
+  },
+  "claim_scope": "ML anomaly plus generic same-window security activity; no second-window wait and no blind outcome used"
+}

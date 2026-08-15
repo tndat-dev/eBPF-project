@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 
 from .integrity import contained_artifact, sha256_file, verify_sha256
+from .decision_policy import load_decision_policy
 
 
 def read_json(path: Path) -> dict:
@@ -68,11 +69,15 @@ def build_decision(
     expected_injections: int = 450,
     maximum_inference_p99_ms: float = 50.0,
     maximum_processing_p99_seconds: float = 0.75,
+    decision_policy_path: Path | None = None,
 ) -> dict:
     manifest, candidates, collect_only = verify_model_bundle(model_dir)
     model_manifest_sha256 = sha256_file(model_dir / "manifest.json")
     normal = read_json(normal_report_path)
     attack = read_json(attack_report_path)
+    decision_policy_sha256 = None
+    if decision_policy_path is not None:
+        _policy, decision_policy_sha256 = load_decision_policy(decision_policy_path)
     if normal.get("schema") != "sentinel-pulse-normal-soak-report-v1":
         raise ValueError("unsupported normal-soak report")
     if attack.get("schema") != "sentinel-pulse-latency-report-v1":
@@ -110,6 +115,20 @@ def build_decision(
             attack.get("model_identity_gate") is True
             and attack.get("model_manifest_sha256") == model_manifest_sha256
         ),
+        "normal_decision_policy_identity": (
+            decision_policy_sha256 is None
+            or (
+                normal.get("decision_policy_identity_gate") is True
+                and normal.get("decision_policy_sha256") == decision_policy_sha256
+            )
+        ),
+        "blind_decision_policy_identity": (
+            decision_policy_sha256 is None
+            or (
+                attack.get("decision_policy_identity_gate") is True
+                and attack.get("decision_policy_sha256") == decision_policy_sha256
+            )
+        ),
         "blind_recall": float(attack.get("recall", 0.0)) >= minimum_recall,
         "kernel_to_alert_p99": attack.get("latency_gate_p99_le_2s") is True,
         "inference_p99": inference_p99 is not None and float(inference_p99) <= maximum_inference_p99_ms,
@@ -140,6 +159,7 @@ def build_decision(
             "maximum_post_window_processing_p99_seconds": maximum_processing_p99_seconds,
             "normal_soak_gate": "24 wall-clock hours per workload, zero observed alerts",
             "minimum_normal_second_bucket_coverage": 0.95,
+            "decision_policy_sha256": decision_policy_sha256,
         },
         "observed": {
             "normal_scored_windows": normal.get("scored_windows"),
@@ -155,6 +175,11 @@ def build_decision(
         "source_sha256": {
             "model_manifest": sha256_file(model_dir / "manifest.json"),
             "model_manifest_checksum": sha256_file(model_dir / "manifest.sha256"),
+            "decision_policy": (
+                sha256_file(decision_policy_path)
+                if decision_policy_path is not None
+                else None
+            ),
             "normal_soak_report": sha256_file(normal_report_path),
             "blind_attack_report": sha256_file(attack_report_path),
         },
@@ -175,6 +200,7 @@ def main() -> None:
     parser.add_argument("--expected-injections", type=int, default=450)
     parser.add_argument("--maximum-inference-p99-ms", type=float, default=50.0)
     parser.add_argument("--maximum-processing-p99-seconds", type=float, default=0.75)
+    parser.add_argument("--decision-policy", type=Path)
     args = parser.parse_args()
     decision = build_decision(
         args.model_dir,
@@ -184,6 +210,7 @@ def main() -> None:
         args.expected_injections,
         args.maximum_inference_p99_ms,
         args.maximum_processing_p99_seconds,
+        args.decision_policy,
     )
     if args.output.exists():
         existing = read_json(args.output)

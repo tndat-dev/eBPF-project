@@ -128,6 +128,35 @@ class PulseFinalizerTests(unittest.TestCase):
             decision = build_decision(model_dir, normal, attack)
             self.assertIn("normal_protocol", decision["failed_gates"])
 
+    def test_checksum_bound_decision_policy_must_match_both_evaluations(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            model_dir, normal, attack = self._fixture(Path(temporary))
+            policy = (
+                Path(__file__).resolve().parents[1]
+                / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v1.json"
+            )
+            policy_sha = sha256_file(policy)
+            for report_path in (normal, attack):
+                report = json.loads(report_path.read_text())
+                report["decision_policy_identity_gate"] = True
+                report["decision_policy_sha256"] = policy_sha
+                report_path.write_text(json.dumps(report), encoding="utf-8")
+            decision = build_decision(
+                model_dir, normal, attack, decision_policy_path=policy
+            )
+            self.assertTrue(decision["gates"]["normal_decision_policy_identity"])
+            self.assertTrue(decision["gates"]["blind_decision_policy_identity"])
+
+            report = json.loads(attack.read_text())
+            report["decision_policy_sha256"] = "0" * 64
+            attack.write_text(json.dumps(report), encoding="utf-8")
+            rejected = build_decision(
+                model_dir, normal, attack, decision_policy_path=policy
+            )
+            self.assertIn(
+                "blind_decision_policy_identity", rejected["failed_gates"]
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

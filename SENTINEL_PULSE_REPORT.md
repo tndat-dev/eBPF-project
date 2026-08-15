@@ -1,18 +1,26 @@
-# V9 Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
+# Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 14-08-2026
+**Snapshot cluster:** 15-08-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
-**Checkpoint live mới nhất:** collect-only Pulse đã được build bằng BTF của từng
-worker, verifier chấp nhận và chạy trên cả ba worker. Gate smoke 120 giây cùng
-gate union workload đều pass. Campaign normal-only bốn chế độ traffic đã được
-đăng ký trước và chạy nền; chưa train model và chưa có claim latency ML.
+**Checkpoint live mới nhất:** campaign normal-only bốn chế độ traffic đã
+terminal thành công. Dataset 5,55 GB gồm 3.594.513 window hợp lệ đã
+khóa SHA-256; 20/20 ExtraTrees candidate đã train, verify checksum và
+load lại thành công, không có workload collect-only. Replay normal tươi ngay
+sau training có 1.631 decision, 0 alert; inference p99 30,83 ms. Đây là
+bounded smoke. Raw one-window candidate sau đó **fail live canary** do 1 alert
+normal Redis trong 2.175 scored decision và đã bị dừng, không rollout. Candidate
+composite mới giữ nguyên model nhưng khóa same-window semantic policy
+`79564746...`; development replay 5.000 row có 2 raw anomaly được ghi
+`suppressed`, 0 alert. Canary độc lập mới pass 4.719 normal, 1 suppressed,
+0 alert; soak `semantic-soak-a1` đã active trên 3/3 worker và đủ 20
+workload. Chưa đủ 24 giờ/blind 450 trial, nên chưa công bố đạt gate.
 
 ## 1. Động cơ và phạm vi
 
-V9 Sentinel Pulse là nhánh kiến trúc mới, độc lập với evidence V8 đã đóng băng. V8
+Sentinel Pulse là nhánh kiến trúc mới, độc lập với evidence V8 đã đóng băng. V8
 đạt recall 195/200 với false alert quan sát bằng 0 nhưng ML path sử dụng cửa sổ
 10 giây, vì vậy p99 xấp xỉ 10 giây. Pulse thay đổi telemetry và mô hình để giảm
 thời gian chờ dữ liệu xuống một giây, không diễn giải lại kết quả V8 thành kết
@@ -33,7 +41,7 @@ cho quyết định ML.
 | 10.1.16.238 | k8s-worker4.local | worker | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
 | 10.1.16.239 | k8s-worker3.local | worker | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
 
-Ngày 14-08-2026, 6/6 node Ready. Namespace `production` có đủ 10 workload AIMS
+Ngày 15-08-2026, 6/6 node Ready. Namespace `production` có đủ 10 workload AIMS
 ứng dụng (frontend và chín backend), mỗi workload hai replica. PostgreSQL CNPG
 3/3 healthy; Kafka ba broker/controller và hai topic replication factor 3;
 RabbitMQ 3/3; Redis 3/3 cùng Sentinel 3/3; MinIO 2/2; Istio ingress và waypoint
@@ -122,20 +130,20 @@ workload khác.
 
 ## 7. Tiến độ implementation
 
-| Hạng mục | Trạng thái 14-08-2026 |
+| Hạng mục | Trạng thái 15-08-2026 |
 |---|---|
 | Audit AIMS và dependency | Hoàn thành; application/dependency healthy |
 | Xác minh traffic | Đã apply và live-check: HTTP health/ingress, Redis AUTH+PING, MinIO health, PostgreSQL/Kafka/RabbitMQ TCP |
 | Feature schema exact counter + transition | Đã implement local, 249 chiều |
-| ExtraTrees normal-only + conformal score | Đã implement, chưa fit; chờ campaign normal-only hoàn tất |
+| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; raw decision policy fail canary, semantic-policy candidate đang canary lại |
 | eBPF collector theo cgroup | Đã build/verifier và active trên 3/3 worker |
 | Tetragon high-volume rate limit 500 ms | Policy Pulse tên riêng đã staging; V8 vẫn 1 giây; chưa apply, chờ A/B |
-| Dataset 1 giây đa workload | Campaign `sentinel-pulse-normal-20260814T075831Z` đang chạy nền |
+| Dataset 1 giây đa workload | Terminal: 3.594.513 row, 20 workload/container, 4 traffic regime, integrity 0 |
 | Đóng băng capture bất biến | Finalizer đã arm trên 3/3 worker; tự rotate sau contract + 10 giây |
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement Wilson 95% CI và wall-clock gate theo workload |
+| Independent normal-soak evaluator | Đã implement; run `semantic-soak-a1` active 3/3 worker từ 15-08 21:50:19 +07 |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
 | Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
@@ -163,7 +171,7 @@ Evidence local nằm tại `validation-evidence/sentinel-pulse-canary/`; rollout
 manifest SHA-256 là
 `4a6de27f20e93767d1bb3c6dd654b4b08346b75fab691a7a598cf203ac1ec961`.
 
-### 7.2 Campaign normal-only đang chạy
+### 7.2 Campaign normal-only và dataset terminal
 
 Contract `sentinel-pulse-normal-20260814T075831Z` có SHA-256
 `28eb9a0f1cb945a5ebd86e1f18a6c5916cd7233c63a8ba8ef94280919f3650b8`.
@@ -176,11 +184,12 @@ Mỗi regime kéo dài sáu giờ, transition gap ba phút:
 | burst | 15-08 03:07:31 | 15-08 09:07:31 |
 | recovery | 15-08 09:10:31 | 15-08 15:10:31 |
 
-Scheduler chạy bằng transient systemd service
+Scheduler đã chạy bằng transient systemd service
 `sentinel-pulse-capture-campaign-v3.service`, kiểm 6/6 node Ready và zero bad
 pod mỗi 30 giây, debounce ba lần liên tiếp để không reject một pod rollout thoáng
 qua, lưu Deployment JSON từng regime, phục hồi steady bằng exit trap và ghi
-`CAMPAIGN_FAILED` nếu dừng bất thường. Hai attempt trước được giữ làm audit
+`CAMPAIGN_FAILED` nếu dừng bất thường. V3 terminal `success` lúc
+15:10:34 +07 và trả traffic về steady `1/0/1`. Hai attempt trước được giữ làm audit
 trail: attempt đầu fail trước contract do eager NumPy import; attempt v2 fail
 trước interval vì health gate một mẫu bắt đúng một pod transient. Package đã
 lazy import và v3 mới là contract được dùng cho training.
@@ -192,9 +201,18 @@ và arm trên cả ba worker. Unit xác minh resolver/collector mỗi phút, đ�
 rotate ngắn, chuyển capture sang thư mục campaign rồi khởi động collector mới
 ngay. Capture đóng băng có mode chỉ đọc, SHA-256 và manifest riêng theo node;
 finalizer từ chối node identity sai, không có row trong contract, capture kết
-thúc sớm hoặc bất kỳ integrity counter trong contract khác 0. Tại checkpoint
-`14-08-2026 15:20 +07`, cả ba finalizer `active/running`, `NRestarts=0`; ba
-collector/resolver đều active và feature mới nhất đều có integrity counter 0.
+thúc sớm hoặc bất kỳ integrity counter trong contract khác 0. Cả ba
+finalizer terminal `success`, khóa capture mode `0444`; checksum đích khớp
+manifest và mọi integrity counter bằng 0. Collector sau rotate khởi động lại
+trên inode live mới và hiện vẫn active.
+
+Assembler chỉ nhận row nằm hoàn toàn trong bốn measured interval, loại
+93.702 row thuộc transition gap/ngoài contract. Dataset terminal có
+3.594.513 row: steady 896.469, toolmix 902.522, burst 904.702 và recovery
+890.820. File 5.548.144.482 byte có SHA-256
+`40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16`.
+Full validator trả `valid=true`, 249 feature, 20 workload/container, zero
+loss/integrity; ingest lag p99 38,55 ms và snapshot-read p99 6,01 ms.
 
 Capture ghi feature schema và SHA-256 một lần, sau đó dùng vector float32 little
 endian nén zlib level 1 và base64. Cách này bỏ việc lặp 249 tên cột/số float
@@ -235,6 +253,67 @@ Feature `seccomp_denied` hiện là cột dự phòng và chưa được dùng �
 Candidate đầu tiên chỉ được đánh giá trên exact syscall/transition và sparse
 Tetragon; seccomp chỉ được bật sau khi có source được kiểm chứng và test loss.
 
+### 7.3 Candidate model terminal và live-normal smoke
+
+Training unit terminal `success`, exit code 0 và không restart. Bundle có
+20/20 `PulseExtraTrees` candidate, 0 collect-only, 2.472.376 train example và
+1.064.315 calibration example. Workload ít nhất có 25.845 calibration
+example, vượt gate 9.999 của `alpha=10^-4`. Tổng artifact là
+181.555.755 byte. Manifest SHA-256 là
+`b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc`;
+detached checksum, hash/size từng artifact, software provenance và runtime load
+20/20 đều pass. Tất cả file bundle đã đổi sang mode `0444`.
+
+Một bounded replay dùng 1.800 feature row live thu sau khi training hoàn tất,
+không nằm trong dataset fit. Kết quả bao phủ 20 workload: 1.631 normal,
+169 warm-up, **0 alert và 0 parsing/runtime error**. Inference p50/p95/p99/max
+là 17,72/26,04/30,83/35,24 ms. Kết quả này chỉ chứng minh bundle có thể
+load và score live data trong budget 50 ms; nó không được gọi là soak 24
+giờ, bằng chứng zero false-positive, recall hay kernel-to-alert terminal.
+Evidence checksum-bound nằm trong
+`validation-evidence/sentinel-pulse-campaign/sentinel-pulse-normal-20260814T075831Z/model-candidate/`.
+
+### 7.4 Raw candidate fail và same-window semantic candidate
+
+Canary realtime đầu tiên trên `k8s-worker1.local` không được rollout sang
+worker khác. Trong span 135,41 giây, detector ghi 2.175 normal, 48 warm-up
+và **1 alert normal** trên `production/aims-redis:aims-redis`; vì vậy report
+`valid=false` và service được disable/stop. Raw alert có score 0,60958,
+conformal p-value 1,2897e-5, inference 13,99 ms và processing lag 289,70 ms.
+Toàn canary có inference p99 39,78 ms, processing p99 426,87 ms, nhưng
+latency tốt không bù được false alert.
+
+Context ±8 window cho thấy alert là spike đơn lẻ không có syscall bảo mật;
+window kế tiếp có health/probe process burst lớn hơn nhưng model chấm normal.
+Ba integrity counter của collector vẫn 0, nên không được reject như
+infrastructure failure. Evidence này được giữ nguyên tại
+`.../canary-failed-b7e603fd/`; raw candidate được xem là failed.
+
+Trước khi chạy bất kỳ blind outcome nào, decision policy mới được
+khóa SHA-256
+`795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a`.
+Nó chỉ alert khi cùng một window thỏa `raw ML anomaly` và có generic
+security activity như connect, clone, exec, identity/capability, namespace hay
+seccomp. Không đợi window thứ hai; raw anomaly không corroborated được ghi
+rõ là `suppressed` cùng score/p-value, không bị xóa. Development replay
+5.000 normal row ghi 4.950 normal, 48 warm-up, 2 suppressed, 0 alert/0 error;
+inference p99 31,20 ms. Kết quả này chỉ dùng để tạo candidate policy;
+normal canary/soak sau thời điểm freeze phải là evidence độc lập mới.
+
+Bounded live canary mới trên worker1 sau policy freeze chạy 294,87 giây:
+4.719 normal, 48 warm-up, 1 raw anomaly suppressed, 0 alert. Inference p99
+38,94 ms, processing p99 431,23 ms, model/policy identity đều pass; report
+`valid=true`. Sau gate này, candidate được rollout audit-only trên cả ba
+worker. Union preflight có 4.066 decision, 0 alert, 3/3 service active,
+`NRestarts=0`, cùng model/policy/run identity và đủ 20/20 workload.
+
+Soak chính thức dùng run ID thời gian-trung-lập `semantic-soak-a1`, mốc
+bắt đầu bảo thủ `15-08-2026 21:50:19 +07`; sớm nhất được finalize
+là `16-08-2026 21:50:19 +07`. Marker khóa model SHA, policy SHA, duration
+24 giờ/workload, coverage 95%, alert budget 0 và xác nhận blind evaluation
+chưa khởi động. Slice staging mang nhãn timestamp trước đó chỉ được
+giữ là rollout audit, không tính vào 24 giờ.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -251,7 +330,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 
 ## 9. Nhật ký thay đổi
 
-- 14-08-2026: đặt tên V9 Sentinel Pulse; audit cụm và AIMS; chốt exact counters,
+- 14-08-2026: khởi tạo nhánh Sentinel Pulse; audit cụm và AIMS; chốt exact counters,
   transition bins, cửa sổ một giây và ExtraTrees temporal predictor; tạo code
   feature/model và tài liệu này.
 - 14-08-2026: thêm resolver theo pod/container leaf, đồng bộ allow-list khi pod
@@ -374,3 +453,18 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   loại. Full validation pass: 0 error/loss, 249 feature, 20 workload/container,
   ingest-lag p99 38,55 ms và snapshot-read p99 6,01 ms. Candidate training đã
   chạy nền với quota 16 core/48 GiB; chưa có model/latency claim.
+- 15-08-2026: candidate training terminal `success`: 20/20 model, 0 collect-only,
+  manifest `b7e603fd...`, bundle read-only và runtime load gate pass. Fresh
+  live-normal smoke 1.800 row bao phủ 20 workload có 0 alert/0 error;
+  inference p99 30,83 ms. Soak 24 giờ, blind 450 trial, true kernel-to-alert
+  và overhead A/B vẫn pending, nên chưa promote/claim terminal.
+- 15-08-2026: raw one-window model fail canary do 1 normal Redis alert/2.175
+  scored decision; evidence được giữ và service dừng trước rollout. Khóa
+  same-window semantic policy `79564746...` trước blind evaluation;
+  development replay 5.000 row có 2 suppressed raw anomaly và 0 alert. Full
+  regression sau policy/provenance hardening đạt 353 passed, 2 warning.
+- 15-08-2026: semantic live canary 294,87 giây pass với 4.719 normal,
+  1 suppressed, 0 alert; inference/processing p99 38,94 ms/431,23 ms. Rollout
+  3/3 worker union đủ 20 workload. Soak `semantic-soak-a1` bắt đầu bảo
+  thủ 21:50:19 +07, finalize sớm nhất sau 21:50:19 +07 ngày 16-08;
+  blind evaluation vẫn chưa chạy.

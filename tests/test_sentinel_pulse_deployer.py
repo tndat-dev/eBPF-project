@@ -30,6 +30,30 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("systemctl restart sentinel-pulse-resolver.service", installer)
         self.assertIn("systemctl restart sentinel-pulse-collector.service", installer)
 
+    def test_candidate_detector_is_checksum_gated_unprivileged_and_audit_only(self):
+        installer = (
+            ROOT / "sentinel_pulse" / "install_detector_candidate.sh"
+        ).read_text()
+        unit = (
+            ROOT / "sentinel_pulse" / "systemd"
+            / "sentinel-pulse-detector-candidate.service"
+        ).read_text()
+        self.assertIn("verify_model_bundle", installer)
+        self.assertIn("PulseRuntime", installer)
+        self.assertIn("mv -Tf", installer)
+        self.assertIn("live decision model identity mismatch", installer)
+        self.assertIn("live decision policy identity mismatch", installer)
+        self.assertNotIn("sentinel-detector.service", installer)
+        self.assertIn("User=sentinel-pulse-detector", unit)
+        self.assertIn("NoNewPrivileges=yes", unit)
+        self.assertIn("ProtectSystem=strict", unit)
+        self.assertIn("--alerts ${PULSE_ALERTS}", unit)
+        self.assertIn("--decision-policy ${PULSE_DECISION_POLICY}", unit)
+        self.assertIn("--run-id ${PULSE_RUN_ID}", unit)
+        self.assertNotIn("responder", unit.lower())
+        detector = (ROOT / "sentinel_pulse" / "detect.py").read_text()
+        self.assertIn('if __name__ == "__main__":\n    main()', detector)
+
     def test_resolver_owns_and_preserves_shared_runtime_directory(self):
         resolver = (
             ROOT / "sentinel_pulse" / "systemd" / "sentinel-pulse-resolver.service"

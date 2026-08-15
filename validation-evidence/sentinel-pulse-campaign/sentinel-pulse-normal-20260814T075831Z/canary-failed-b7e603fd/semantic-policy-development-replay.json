@@ -1,0 +1,86 @@
+{
+  "claim_scope": "normal development evidence only; not independent soak and not blind evaluation",
+  "created_at": 1786804471.8712537,
+  "decision_policy_sha256": "795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a",
+  "errors": [],
+  "inference_ms": {
+    "max": 38.80691895028576,
+    "p50": 17.538282496389,
+    "p95": 26.384510303614658,
+    "p99": 31.199582510744218
+  },
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "raw_anomaly_outcomes": {
+    "suppressed": 2
+  },
+  "replay_wall_seconds": 91.63326454797061,
+  "rows": 5000,
+  "schema": "sentinel-pulse-semantic-policy-development-replay-v1",
+  "source_sha256": "7136dc6ab78ff13e4277d0405cb8f606ccfe09a0f9d1e2bc1b084d3d7eb7cd29",
+  "status_counts": {
+    "normal": 4950,
+    "suppressed": 2,
+    "warming": 48
+  },
+  "valid": true,
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/aims-minio-pool-0:minio": {
+      "normal": 310,
+      "warming": 3
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "normal": 310,
+      "warming": 3
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/aims-redis:aims-redis": {
+      "normal": 928,
+      "suppressed": 1,
+      "warming": 9
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "normal": 310,
+      "warming": 3
+    },
+    "production/auth-service:app": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/cart-service:app": {
+      "normal": 310,
+      "warming": 3
+    },
+    "production/catalog-service:app": {
+      "normal": 308,
+      "suppressed": 1,
+      "warming": 3
+    },
+    "production/inventory-service:app": {
+      "normal": 310,
+      "warming": 3
+    },
+    "production/notification-service:pod-slice": {
+      "normal": 309,
+      "warming": 3
+    },
+    "production/payment-service:pod-slice": {
+      "normal": 310,
+      "warming": 3
+    }
+  }
+}

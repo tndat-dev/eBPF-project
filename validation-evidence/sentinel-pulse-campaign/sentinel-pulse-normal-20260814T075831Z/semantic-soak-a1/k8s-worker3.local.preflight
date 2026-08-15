@@ -1,0 +1,7 @@
+MainPID=513017
+NRestarts=0
+MemoryCurrent=277377024
+ActiveState=active
+SubState=running
+{"schema":"sentinel-pulse-decision-v1","status":"normal","model_manifest_sha256":"b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc","decision_policy_sha256":"795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a","workload_key":"production/security-telemetry-service:app","cgroup_id":"20836","pod_name":"security-telemetry-service-787d55897b-7lwms","window_start":1786805444.7676065,"window_end":1786805445.769444,"alerted_at":1786805445.9711196,"post_window_processing_seconds":0.2016756534576416,"score":0.45338387427916177,"conformal_p":0.06777530697089819,"raw_model_anomalous":false,"same_window_corroborated":false,"security_activity_mass":0,"security_activity_fields":{},"inference_ms":24.963189964182675,"run_id":"semantic-soak-a1"}
+0 /var/lib/sentinel-pulse-detector/runs/b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc-795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a-semantic-soak-a1/alerts.jsonl

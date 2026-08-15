@@ -1,0 +1,7 @@
+MainPID=3631879
+NRestarts=0
+MemoryCurrent=277831680
+ActiveState=active
+SubState=running
+{"schema":"sentinel-pulse-decision-v1","status":"normal","model_manifest_sha256":"b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc","decision_policy_sha256":"795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a","workload_key":"production/inventory-service:app","cgroup_id":"17449","pod_name":"inventory-service-54db978cc8-9sl49","window_start":1786805441.9258962,"window_end":1786805442.9332166,"alerted_at":1786805443.2427332,"post_window_processing_seconds":0.30951666831970215,"score":0.44660311760050986,"conformal_p":0.6860165967077393,"raw_model_anomalous":false,"same_window_corroborated":false,"security_activity_mass":0,"security_activity_fields":{},"inference_ms":16.142659005708992,"run_id":"semantic-soak-a1"}
+0 /var/lib/sentinel-pulse-detector/runs/b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc-795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a-semantic-soak-a1/alerts.jsonl

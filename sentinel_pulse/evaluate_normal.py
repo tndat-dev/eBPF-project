@@ -40,6 +40,7 @@ def evaluate(
     workload_bounds: dict[str, list[float]] = {}
     workload_second_buckets: dict[str, set[int]] = {}
     model_identities = set()
+    decision_policy_identities = set()
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             try:
@@ -51,6 +52,9 @@ def evaluate(
             if record.get("schema") != "sentinel-pulse-decision-v1":
                 continue
             model_identities.add(str(record.get("model_manifest_sha256", "")))
+            policy_identity = record.get("decision_policy_sha256")
+            if policy_identity is not None:
+                decision_policy_identities.add(str(policy_identity))
             workload = str(record.get("workload_key", "unknown"))
             workload_scored[workload] += 1
             if "window_end" in record:
@@ -62,7 +66,7 @@ def evaluate(
             if status == "alert":
                 workload_alerts[workload] += 1
 
-    scored = statuses["normal"] + statuses["alert"]
+    scored = statuses["normal"] + statuses["alert"] + statuses["suppressed"]
     alerts = statuses["alert"]
     lower, upper = wilson_interval(alerts, scored)
     workload_reports = {}
@@ -104,6 +108,19 @@ def evaluate(
         and all(character in "0123456789abcdef" for character in next(iter(model_identities)))
     )
     model_manifest_sha256 = next(iter(model_identities)) if model_identity_gate else None
+    decision_policy_identity_gate = (
+        len(decision_policy_identities) == 1
+        and len(next(iter(decision_policy_identities))) == 64
+        and all(
+            character in "0123456789abcdef"
+            for character in next(iter(decision_policy_identities))
+        )
+    )
+    decision_policy_sha256 = (
+        next(iter(decision_policy_identities))
+        if decision_policy_identity_gate
+        else None
+    )
     return {
         "schema": "sentinel-pulse-normal-soak-report-v1",
         "path": str(path),
@@ -119,6 +136,9 @@ def evaluate(
         "statuses": dict(sorted(statuses.items())),
         "model_manifest_sha256": model_manifest_sha256,
         "model_identity_gate": model_identity_gate,
+        "decision_policy_sha256": decision_policy_sha256,
+        "decision_policy_identity_gate": decision_policy_identity_gate,
+        "suppressed_raw_anomalies": statuses["suppressed"],
         "workloads": workload_reports,
         "duration_gate": duration_gate,
         "coverage_gate": coverage_gate,

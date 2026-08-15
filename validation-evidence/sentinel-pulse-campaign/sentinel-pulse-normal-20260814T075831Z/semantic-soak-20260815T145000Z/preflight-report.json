@@ -1,0 +1,81 @@
+{
+  "alert_file_rows": 0,
+  "created_at": 1786805269.9918218,
+  "model_identities": [
+    "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc"
+  ],
+  "policy_identities": [
+    "795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a"
+  ],
+  "rows": 4066,
+  "run_id": "semantic-soak-20260815T145000Z",
+  "run_identities": [
+    "semantic-soak-20260815T145000Z"
+  ],
+  "schema": "sentinel-pulse-semantic-soak-preflight-v1",
+  "services": {
+    "k8s-worker1.local.service": {
+      "ActiveState": "active",
+      "MainPID": "3977980",
+      "MemoryCurrent": "277217280",
+      "NRestarts": "0",
+      "SubState": "running"
+    },
+    "k8s-worker3.local.service": {
+      "ActiveState": "active",
+      "MainPID": "494953",
+      "MemoryCurrent": "277397504",
+      "NRestarts": "0",
+      "SubState": "running"
+    },
+    "k8s-worker4.local.service": {
+      "ActiveState": "active",
+      "MainPID": "3606388",
+      "MemoryCurrent": "278405120",
+      "NRestarts": "0",
+      "SubState": "running"
+    }
+  },
+  "sources": {
+    "k8s-worker1.local.decisions.jsonl": {
+      "rows": 848,
+      "sha256": "3f0c9a7e26caacd3fee8b979b4be4c5229c6eb3af468d4148cdd6e71c9bad502"
+    },
+    "k8s-worker3.local.decisions.jsonl": {
+      "rows": 978,
+      "sha256": "b18c1c56d0665fcfd71ce666a3a180e0a33275484d24f7ba1217b6726e598563"
+    },
+    "k8s-worker4.local.decisions.jsonl": {
+      "rows": 2240,
+      "sha256": "09618785337581ce1a259e7cea3894bb7e1f082ea97c8ed135b916dfc593839c"
+    }
+  },
+  "statuses": {
+    "normal": 3841,
+    "warming": 225
+  },
+  "valid": true,
+  "workload_count": 20,
+  "workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:pod-slice",
+    "production/order-service:app",
+    "production/payment-service:pod-slice",
+    "production/security-telemetry-service:app"
+  ]
+}
