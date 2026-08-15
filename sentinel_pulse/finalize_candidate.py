@@ -33,7 +33,15 @@ def verify_model_bundle(model_dir: Path) -> tuple[dict, list[str], list[str]]:
     temporal_gap = float(manifest.get("max_contiguous_gap_seconds", 0.0))
     if not math.isfinite(temporal_gap) or temporal_gap <= 0.0:
         raise ValueError("model manifest has invalid temporal gap contract")
-    if set(manifest.get("software", {})) != {"python", "numpy", "scikit_learn"}:
+    if set(manifest.get("software", {})) != {
+        "python",
+        "numpy",
+        "scikit_learn",
+        "scipy",
+        "joblib",
+        "threadpoolctl",
+        "narwhals",
+    }:
         raise ValueError("model manifest has incomplete training software provenance")
     candidates, collect_only = [], []
     for workload, item in sorted(manifest.get("workloads", {}).items()):

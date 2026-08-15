@@ -349,3 +349,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   Cách này loại warning giả từ Job vừa tạo và bắt được CrashLoop/unready mà
   phase-only filter cũ bỏ sót. Campaign hiện tại không hot reload thay đổi.
   Full regression đạt **303 passed, 7 skipped**.
+- 15-08-2026: chuẩn bị venv train riêng trên control plane; khóa Python 3.12.3,
+  NumPy 2.5.2, scikit-learn 1.9.0, SciPy 1.18.0, joblib 1.5.3,
+  threadpoolctl 3.6.0 và narwhals 2.24.0. Manifest/runtime/finalizer đối chiếu
+  đầy đủ software provenance; chưa fit trước khi normal capture đóng băng.

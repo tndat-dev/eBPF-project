@@ -126,6 +126,10 @@ def main() -> None:
         raise ValueError(f"capture integrity validation failed: {first_errors}")
     sequences, columns = load_sequences(args.dataset)
     import sklearn
+    import scipy
+    import joblib
+    import narwhals
+    import threadpoolctl
     args.output.mkdir(parents=True, exist_ok=False)
     reports = {}
     for workload, workload_sequences in sorted(sequences.items()):
@@ -180,6 +184,10 @@ def main() -> None:
             "python": platform.python_version(),
             "numpy": np.__version__,
             "scikit_learn": sklearn.__version__,
+            "scipy": scipy.__version__,
+            "joblib": joblib.__version__,
+            "threadpoolctl": threadpoolctl.__version__,
+            "narwhals": narwhals.__version__,
         },
         "workloads": reports,
     }

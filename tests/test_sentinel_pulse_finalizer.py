@@ -20,7 +20,15 @@ class PulseFinalizerTests(unittest.TestCase):
             "max_contiguous_gap_seconds": 1.5,
             "blind_attack_contract_sha256": "c" * 64,
             "expected_blind_injections": 450,
-            "software": {"python": "test", "numpy": "test", "scikit_learn": "test"},
+            "software": {
+                "python": "test",
+                "numpy": "test",
+                "scikit_learn": "test",
+                "scipy": "test",
+                "joblib": "test",
+                "threadpoolctl": "test",
+                "narwhals": "test",
+            },
             "workloads": {
                 workload: {
                     "status": "candidate",

@@ -97,11 +97,19 @@ class PulseRuntime:
             raise ValueError("unsupported Pulse model manifest")
         expected_software = self.manifest.get("software")
         if expected_software is not None:
+            import joblib
+            import narwhals
+            import scipy
             import sklearn
+            import threadpoolctl
             observed_software = {
                 "python": platform.python_version(),
                 "numpy": np.__version__,
                 "scikit_learn": sklearn.__version__,
+                "scipy": scipy.__version__,
+                "joblib": joblib.__version__,
+                "threadpoolctl": threadpoolctl.__version__,
+                "narwhals": narwhals.__version__,
             }
             if observed_software != expected_software:
                 raise ValueError(

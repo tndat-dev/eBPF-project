@@ -5131,3 +5131,14 @@ phase, age và reason. Thay đổi chỉ áp dụng campaign khởi động sau 
 process của campaign đang chạy không bị hot reload. Ba unit test khóa transient
 Pending, stale Pending, Running-unready, healthy và completed/failed behavior;
 full regression đạt **303 passed, 7 skipped**, shell syntax pass.
+
+### 18.115 Chuẩn bị môi trường candidate training tái lập (15-08-2026)
+
+Control plane đã có venv riêng `/home/dat/.venvs/sentinel-pulse`, Python 3.12.3,
+NumPy 2.5.2 và scikit-learn 1.9.0; không cài package vào system Python và không
+động collector. `requirements-lock.txt` khóa thêm toàn bộ dependency thực tế:
+SciPy 1.18.0, joblib 1.5.3, threadpoolctl 3.6.0 và narwhals 2.24.0. Model
+manifest ghi đủ bảy phiên bản Python/package; runtime đối chiếu toàn bộ trước
+unpickle và finalizer từ chối provenance thiếu. Full regression trong đúng
+locked environment đạt **303 passed, 7 skipped**. Venv chỉ chuẩn bị train; chưa
+fit model trước khi capture được finalizer đóng băng.
