@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sentinel_pulse.blind_contract import expected_matrix, load_contract
+from sentinel_pulse.blind_contract import expected_matrix, load_contract, marker_matrix_key
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +33,19 @@ class PulseBlindContractTests(unittest.TestCase):
             path.write_text(json.dumps(contract), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unique"):
                 load_contract(path)
+
+    def test_marker_controller_must_match_target_workload_and_cgroup(self):
+        marker = {
+            "workload_controller": "catalog-service",
+            "workload_key": "production/order-service:app",
+            "cgroup_id": 42,
+            "injected_at": 10.0,
+            "scenario": "namespace_probe",
+            "seed": 11003,
+            "rate_per_second": 6,
+        }
+        with self.assertRaisesRegex(ValueError, "target identity"):
+            marker_matrix_key(marker)
 
 
 if __name__ == "__main__":

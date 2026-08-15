@@ -5086,3 +5086,13 @@ Latency evaluator đối chiếu từng marker theo tuple
 contract; finalizer yêu cầu matrix gate và contract hash khớp chính xác model
 bundle. Hai test contract khóa đủ 450 Cartesian row và unsafe/duplicate
 configuration. Focused 10/10, full regression đạt **299 passed, 7 skipped**.
+
+### 18.112 Khóa target identity của từng blind marker (15-08-2026)
+
+Matrix row không còn chỉ tin trường `workload_controller` do harness khai báo.
+Evaluator bắt buộc marker có `workload_key` dạng
+`production/<controller>:<container>`, controller phải đúng row contract,
+container không rỗng, cgroup ID dương và injection timestamp hữu hạn. Nhờ vậy
+attack chạy trên cgroup workload B không thể được ghi nhãn thành workload A để
+làm đầy Cartesian matrix. Negative test khóa controller/workload mismatch;
+focused 7/7 và full regression đạt **300 passed, 7 skipped**.

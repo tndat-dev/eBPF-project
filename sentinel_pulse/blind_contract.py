@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 
@@ -67,11 +68,30 @@ def expected_matrix(contract: dict) -> set[tuple[str, str, int, int]]:
 
 def marker_matrix_key(marker: dict) -> tuple[str, str, int, int]:
     try:
-        return (
-            str(marker["workload_controller"]),
-            str(marker["scenario"]),
-            int(marker["seed"]),
-            int(marker["rate_per_second"]),
-        )
+        workload_controller = str(marker["workload_controller"])
+        workload_key = str(marker["workload_key"])
+        cgroup_id = int(marker["cgroup_id"])
+        injected_at = float(marker["injected_at"])
+        scenario = str(marker["scenario"])
+        seed = int(marker["seed"])
+        rate = int(marker["rate_per_second"])
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError("blind injection marker has incomplete matrix identity") from error
+    namespace_controller, separator, container = workload_key.partition(":")
+    namespace, slash, observed_controller = namespace_controller.partition("/")
+    if (
+        separator != ":"
+        or slash != "/"
+        or namespace != "production"
+        or observed_controller != workload_controller
+        or not container
+        or cgroup_id <= 0
+        or not math.isfinite(injected_at)
+    ):
+        raise ValueError("blind injection marker target identity is inconsistent")
+    return (
+        workload_controller,
+        scenario,
+        seed,
+        rate,
+    )

@@ -334,3 +334,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   model manifest; latency evaluator và finalizer yêu cầu đủ đúng Cartesian
   matrix, safety contract và test-set selection policy. Full regression đạt
   **299 passed, 7 skipped**.
+- 15-08-2026: blind marker phải khóa đồng thời controller, full workload key,
+  container và cgroup ID; evaluator đối chiếu `production/controller:container`
+  trước khi chấp nhận matrix row. Cross-workload relabel bị fail-closed. Full
+  regression đạt **300 passed, 7 skipped**.

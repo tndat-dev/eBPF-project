@@ -87,6 +87,8 @@ class PulseLatencyTests(unittest.TestCase):
                             "injection_id": f"i{i}",
                             "injected_at": 0.0,
                             "workload_controller": "catalog",
+                            "workload_key": "production/catalog:app",
+                            "cgroup_id": 7,
                             "scenario": "probe",
                             "seed": i + 1,
                             "rate_per_second": 6,
