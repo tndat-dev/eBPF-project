@@ -107,6 +107,13 @@ python -m sentinel_pulse.validate_capture \
 
 ## Train and dry-run
 
+Create the frozen candidate environment before training:
+
+```bash
+python3 -m venv ~/.venvs/sentinel-pulse
+~/.venvs/sentinel-pulse/bin/pip install -r sentinel_pulse/requirements-lock.txt
+```
+
 ```bash
 python -m sentinel_pulse.assemble_dataset \
   --contract pulse-capture-contract.json \

@@ -1,0 +1,4 @@
+# Candidate-training environment validated on 2026-08-15.
+# The generated model manifest records and enforces these exact versions.
+numpy==2.5.2
+scikit-learn==1.9.0
