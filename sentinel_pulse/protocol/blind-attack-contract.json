@@ -1,0 +1,55 @@
+{
+  "schema": "sentinel-pulse-blind-attack-contract-v1",
+  "release": "sentinel-pulse",
+  "frozen_before_candidate_training": true,
+  "matrix": {
+    "scenarios": [
+      "local_socket_beacon",
+      "namespace_probe",
+      "process_fanout",
+      "identity_transition_probe",
+      "credential_read_burst"
+    ],
+    "workload_controllers": [
+      "aims-frontend",
+      "aims-kafka-dual-role",
+      "aims-kafka-entity-operator",
+      "aims-minio-pool-0",
+      "aims-postgres-cnpg",
+      "aims-rabbitmq-server",
+      "aims-redis",
+      "aims-redis-sentinel-sentinel",
+      "aims-waypoint",
+      "api-gateway",
+      "auth-service",
+      "cart-service",
+      "catalog-service",
+      "inventory-service",
+      "notification-service",
+      "order-service",
+      "payment-service",
+      "security-telemetry-service"
+    ],
+    "trials": [
+      {"rate_per_second": 6, "seed": 11003},
+      {"rate_per_second": 12, "seed": 13001},
+      {"rate_per_second": 24, "seed": 17011},
+      {"rate_per_second": 12, "seed": 19001},
+      {"rate_per_second": 6, "seed": 23003}
+    ]
+  },
+  "expected_injections": 450,
+  "safety_contract": {
+    "external_network": false,
+    "persistent_write": false,
+    "successful_mount": false,
+    "successful_privilege_change": false,
+    "target_namespace": "production"
+  },
+  "selection_policy": {
+    "attack_outcomes_used_for_training_or_tuning": false,
+    "infrastructure_failure_must_have_machine_readable_evidence": true,
+    "misses_are_retained": true,
+    "rerun_detection_misses": false
+  }
+}

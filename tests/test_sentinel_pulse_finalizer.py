@@ -18,6 +18,8 @@ class PulseFinalizerTests(unittest.TestCase):
             "schema": "sentinel-pulse-model-manifest-v2",
             "capture_validation": {"valid": True},
             "max_contiguous_gap_seconds": 1.5,
+            "blind_attack_contract_sha256": "c" * 64,
+            "expected_blind_injections": 450,
             "software": {"python": "test", "numpy": "test", "scikit_learn": "test"},
             "workloads": {
                 workload: {
@@ -63,8 +65,10 @@ class PulseFinalizerTests(unittest.TestCase):
                     "schema": "sentinel-pulse-latency-report-v1",
                     "model_manifest_sha256": model_manifest_sha256,
                     "model_identity_gate": True,
-                    "expected_injections": 200,
-                    "detected_injections": 200,
+                    "blind_attack_contract_sha256": "c" * 64,
+                    "attack_matrix_gate": True,
+                    "expected_injections": 450,
+                    "detected_injections": 450,
                     "recall": 1.0,
                     "latency_gate_p99_le_2s": True,
                     "injection_identity_gate": True,

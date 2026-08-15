@@ -242,7 +242,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 1. normal soak độc lập tối thiểu 24 giờ wall-clock cho từng workload có 0 alert
    quan sát và báo cáo Wilson 95% CI; cộng nhiều replica không được dùng để giả
    đủ thời lượng;
-2. recall blind attack không thấp hơn V8 (≥ 0,975), mục tiêu 200/200;
+2. recall blind attack không thấp hơn V8 (≥ 0,975), mục tiêu 450/450 trên ma
+   trận Pulse 18 workload × 5 scenario × 5 trial;
 3. median kernel-to-alert ≤ 1 giây và p99 ≤ 2 giây;
 4. không có telemetry loss/backpressure trong interval được chấm;
 5. đo A/B CPU, RAM, throughput và response-time p50/p95/p99;
@@ -326,3 +327,10 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   24 giờ/workload, 95% coverage, 0 alert và từ chối report dùng threshold yếu
   hơn. Full regression đạt **297 passed, 7 skipped**. Checkpoint 00:16 +07 đạt
   38,27%; campaign/toolmix và traffic `2/4/2` vẫn khỏe.
+- 15-08-2026: preregister blind contract riêng cho Pulse, SHA-256
+  `b47cb7f91fc4b1e83475917e700d9c0adc41b596af0f624ba52c92fc77bc5751`.
+  Ma trận đầy đủ gồm 18 workload × 5 scenario × 5 seed/rate = 450 injection;
+  đây không phải diễn giải lại 200 trial V8. Trainer khóa contract hash vào
+  model manifest; latency evaluator và finalizer yêu cầu đủ đúng Cartesian
+  matrix, safety contract và test-set selection policy. Full regression đạt
+  **299 passed, 7 skipped**.

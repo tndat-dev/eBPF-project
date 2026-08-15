@@ -5068,4 +5068,21 @@ skipped**; campaign hiện tại không bị thay đổi.
 Checkpoint chốt lúc 00:16 +07: campaign đạt **38,27%**, còn khoảng 14,91 giờ;
 unit vẫn active/running, `NRestarts=0`, chỉ có marker `CAMPAIGN_ACTIVE`. 6/6
 node Ready, zero bad pod và traffic base/readmix/dependency vẫn ready đúng
-`2/4/2`. Host, GitHub và VM sạch, cùng commit `98f7bcf72071`.
+`2/4/2`. Host, GitHub và VM sạch, cùng một HEAD tại thời điểm checkpoint.
+
+### 18.111 Preregister blind matrix toàn bộ 18 workload Pulse (15-08-2026)
+
+Blind evaluator trước đây chỉ kiểm expected ID count nên chưa chứng minh các ID
+bao phủ đúng scenario/workload/trial. Contract Pulse mới có SHA-256
+`b47cb7f91fc4b1e83475917e700d9c0adc41b596af0f624ba52c92fc77bc5751`, khóa
+trước candidate training: 18 controller production × 5 safe scenario × 5 cặp
+seed/rate = **450 injection**. Con số này tách khỏi matrix 200 trial của V8.
+Safety contract cấm external network, persistent write, successful mount và
+successful privilege change; detection miss phải được giữ, không được rerun.
+
+Trainer bắt buộc nhận contract và ghi hash/expected count vào model manifest.
+Latency evaluator đối chiếu từng marker theo tuple
+`(workload_controller, scenario, seed, rate)`, từ chối row trùng/thiếu/ngoài
+contract; finalizer yêu cầu matrix gate và contract hash khớp chính xác model
+bundle. Hai test contract khóa đủ 450 Cartesian row và unsafe/duplicate
+configuration. Focused 10/10, full regression đạt **299 passed, 7 skipped**.

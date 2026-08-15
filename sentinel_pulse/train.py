@@ -10,6 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
+from .blind_contract import load_contract
 from .model import MAX_CONTIGUOUS_GAP_SECONDS, PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import sha256_file
@@ -115,7 +116,9 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--history", type=int, default=3)
     parser.add_argument("--alpha", type=float, default=1e-4)
+    parser.add_argument("--blind-attack-contract", type=Path, required=True)
     args = parser.parse_args()
+    blind_attack_contract = load_contract(args.blind_attack_contract)
     dataset_manifest_path, dataset_manifest = load_dataset_manifest(args.dataset)
     capture_validation = validate(args.dataset, minimum_rows_per_workload=100)
     if not capture_validation["valid"]:
@@ -154,6 +157,8 @@ def main() -> None:
         "dataset_manifest_sha256": sha256_file(dataset_manifest_path),
         "capture_contract_sha256": dataset_manifest["contract_sha256"],
         "campaign_id": dataset_manifest["campaign_id"],
+        "blind_attack_contract_sha256": sha256_file(args.blind_attack_contract),
+        "expected_blind_injections": blind_attack_contract["expected_injections"],
         "capture_validation": {
             "schema": capture_validation["schema"],
             "valid": capture_validation["valid"],

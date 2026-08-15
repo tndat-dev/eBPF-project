@@ -8,6 +8,40 @@ from sentinel_pulse.latency import InjectionTracker
 
 
 class PulseLatencyTests(unittest.TestCase):
+    def _contract(self, path: Path) -> None:
+        path.write_text(
+            json.dumps(
+                {
+                    "schema": "sentinel-pulse-blind-attack-contract-v1",
+                    "release": "test",
+                    "frozen_before_candidate_training": True,
+                    "matrix": {
+                        "scenarios": ["probe"],
+                        "workload_controllers": ["catalog"],
+                        "trials": [
+                            {"seed": index + 1, "rate_per_second": 6}
+                            for index in range(3)
+                        ],
+                    },
+                    "expected_injections": 3,
+                    "safety_contract": {
+                        "external_network": False,
+                        "persistent_write": False,
+                        "successful_mount": False,
+                        "successful_privilege_change": False,
+                        "target_namespace": "production",
+                    },
+                    "selection_policy": {
+                        "attack_outcomes_used_for_training_or_tuning": False,
+                        "infrastructure_failure_must_have_machine_readable_evidence": True,
+                        "misses_are_retained": True,
+                        "rerun_detection_misses": False,
+                    },
+                }
+            ),
+            encoding="utf-8",
+        )
+
     def test_marker_attribution_is_workload_scoped_and_single_use(self):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "injections.jsonl"
@@ -52,15 +86,28 @@ class PulseLatencyTests(unittest.TestCase):
                             "schema": "sentinel-pulse-injection-v1",
                             "injection_id": f"i{i}",
                             "injected_at": 0.0,
+                            "workload_controller": "catalog",
+                            "scenario": "probe",
+                            "seed": i + 1,
+                            "rate_per_second": 6,
                         }
                     ) + "\n"
                     for i in range(3)
                 ), encoding="utf-8"
             )
-            report = evaluate(path, expected_injections=3, injection_path=injections)
+            contract = Path(temporary) / "contract.json"
+            self._contract(contract)
+            report = evaluate(
+                path,
+                expected_injections=3,
+                injection_path=injections,
+                attack_contract_path=contract,
+            )
         self.assertTrue(report["latency_gate_p99_le_2s"])
         self.assertEqual(report["recall"], 1.0)
         self.assertTrue(report["injection_identity_gate"])
+        self.assertTrue(report["attack_matrix_gate"])
+        self.assertTrue(report["blind_evidence_valid"])
 
     def test_unknown_detection_id_does_not_inflate_recall(self):
         with tempfile.TemporaryDirectory() as temporary:

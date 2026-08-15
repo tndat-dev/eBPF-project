@@ -57,7 +57,7 @@ def build_decision(
     normal_report_path: Path,
     attack_report_path: Path,
     minimum_recall: float = 0.975,
-    expected_injections: int = 200,
+    expected_injections: int = 450,
     maximum_inference_p99_ms: float = 50.0,
     maximum_processing_p99_seconds: float = 0.75,
 ) -> dict:
@@ -92,6 +92,12 @@ def build_decision(
         ),
         "expected_blind_injections": int(attack.get("expected_injections", -1)) == expected_injections,
         "blind_injection_identity": attack.get("injection_identity_gate") is True,
+        "blind_attack_matrix": attack.get("attack_matrix_gate") is True,
+        "blind_attack_contract": (
+            attack.get("blind_attack_contract_sha256")
+            == manifest.get("blind_attack_contract_sha256")
+            and int(manifest.get("expected_blind_injections", -1)) == expected_injections
+        ),
         "blind_model_identity": (
             attack.get("model_identity_gate") is True
             and attack.get("model_manifest_sha256") == model_manifest_sha256
@@ -158,7 +164,7 @@ def main() -> None:
     parser.add_argument("--attack-report", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--minimum-recall", type=float, default=0.975)
-    parser.add_argument("--expected-injections", type=int, default=200)
+    parser.add_argument("--expected-injections", type=int, default=450)
     parser.add_argument("--maximum-inference-p99-ms", type=float, default=50.0)
     parser.add_argument("--maximum-processing-p99-seconds", type=float, default=0.75)
     args = parser.parse_args()

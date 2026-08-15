@@ -120,6 +120,7 @@ python -m sentinel_pulse.assemble_dataset \
 
 python -m sentinel_pulse.train \
   --dataset pulse-normal.jsonl \
+  --blind-attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
   --output models-pulse-candidate
 
 python -m sentinel_pulse.detect \
@@ -135,6 +136,13 @@ python -m sentinel_pulse.evaluate_normal \
   --maximum-alerts 0 \
   --output pulse-normal-soak-report.json
 
+python -m sentinel_pulse.evaluate_latency \
+  --decisions pulse-blind-decisions.jsonl \
+  --injections pulse-blind-injections.jsonl \
+  --attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
+  --expected-injections 450 \
+  --output pulse-blind-latency-report.json
+
 python -m sentinel_pulse.finalize_candidate \
   --model-dir models-pulse-candidate \
   --normal-report pulse-normal-soak-report.json \
@@ -144,7 +152,9 @@ python -m sentinel_pulse.finalize_candidate \
 
 Blind latency evaluation must use `--injections` in the paper run. The
 immutable marker set defines the denominator and prevents an unknown or
-duplicated ID from inflating recall.
+duplicated ID from inflating recall. The frozen Pulse contract requires the
+complete 18-workload x 5-scenario x 5-trial matrix (450 injections); merely
+producing 450 unrelated IDs does not pass.
 
 The default `alpha=1e-4` requires at least 9,999 independent calibration
 examples per workload candidate. Training fails closed when the temporal split

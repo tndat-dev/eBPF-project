@@ -8,11 +8,12 @@ from pathlib import Path
 
 import numpy as np
 
+from .blind_contract import expected_matrix, load_contract, marker_matrix_key
 from .integrity import sha256_file
 
 
-def injection_ids(path: Path) -> set[str]:
-    result = set()
+def injection_markers(path: Path) -> dict[str, dict]:
+    result = {}
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             record = json.loads(line)
@@ -21,16 +22,21 @@ def injection_ids(path: Path) -> set[str]:
             injection_id = str(record["injection_id"])
             if injection_id in result:
                 raise ValueError(f"duplicate injection ID at line {line_number}: {injection_id}")
-            result.add(injection_id)
+            result[injection_id] = record
     if not result:
         raise ValueError("injection marker file has no valid ID")
     return result
+
+
+def injection_ids(path: Path) -> set[str]:
+    return set(injection_markers(path))
 
 
 def evaluate(
     path: Path,
     expected_injections: int | None = None,
     injection_path: Path | None = None,
+    attack_contract_path: Path | None = None,
 ) -> dict:
     by_injection = {}
     processing = []
@@ -62,7 +68,26 @@ def evaluate(
             "max": float(np.max(values)),
         }
 
-    expected_ids = injection_ids(injection_path) if injection_path is not None else None
+    markers = injection_markers(injection_path) if injection_path is not None else None
+    expected_ids = set(markers) if markers is not None else None
+    contract = load_contract(attack_contract_path) if attack_contract_path is not None else None
+    contract_matrix = expected_matrix(contract) if contract is not None else None
+    observed_matrix = None
+    missing_matrix = []
+    unknown_matrix = []
+    if contract_matrix is not None:
+        if markers is None:
+            raise ValueError("blind-attack contract requires an immutable marker file")
+        marker_keys = [marker_matrix_key(marker) for marker in markers.values()]
+        if len(marker_keys) != len(set(marker_keys)):
+            raise ValueError("duplicate blind-attack matrix row in marker file")
+        observed_matrix = set(marker_keys)
+        missing_matrix = sorted(contract_matrix - observed_matrix)
+        unknown_matrix = sorted(observed_matrix - contract_matrix)
+        contract_expected = int(contract["expected_injections"])
+        if expected_injections is not None and expected_injections != contract_expected:
+            raise ValueError("CLI expected injection count differs from blind-attack contract")
+        expected_injections = contract_expected
     if expected_ids is not None and expected_injections is not None and len(expected_ids) != expected_injections:
         raise ValueError("expected injection count does not match immutable marker set")
     observed_ids = set(by_injection)
@@ -85,11 +110,21 @@ def evaluate(
         "schema": "sentinel-pulse-latency-report-v1",
         "decisions_sha256": sha256_file(path),
         "injections_sha256": sha256_file(injection_path) if injection_path is not None else None,
+        "blind_attack_contract_sha256": (
+            sha256_file(attack_contract_path) if attack_contract_path is not None else None
+        ),
         "expected_injections": expected,
         "detected_injections": detected,
         "missing_injection_ids": missing_ids,
         "unknown_detection_ids": unknown_ids,
         "injection_identity_gate": not unknown_ids,
+        "attack_matrix_gate": (
+            contract_matrix is not None and not missing_matrix and not unknown_matrix
+        ),
+        "attack_matrix_expected_rows": len(contract_matrix) if contract_matrix is not None else None,
+        "attack_matrix_observed_rows": len(observed_matrix) if observed_matrix is not None else None,
+        "missing_attack_matrix_rows": [list(item) for item in missing_matrix],
+        "unknown_attack_matrix_rows": [list(item) for item in unknown_matrix],
         "model_manifest_sha256": (
             next(iter(model_identities)) if model_identity_gate else None
         ),
@@ -103,6 +138,7 @@ def evaluate(
     report["latency_gate_p99_le_2s"] = p99 is not None and p99 <= 2.0
     report["blind_evidence_valid"] = (
         report["injection_identity_gate"]
+        and report["attack_matrix_gate"]
         and report["model_identity_gate"]
         and report["latency_gate_p99_le_2s"]
     )
@@ -114,9 +150,12 @@ def main() -> None:
     parser.add_argument("--decisions", type=Path, required=True)
     parser.add_argument("--expected-injections", type=int)
     parser.add_argument("--injections", type=Path)
+    parser.add_argument("--attack-contract", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    report = evaluate(args.decisions, args.expected_injections, args.injections)
+    report = evaluate(
+        args.decisions, args.expected_injections, args.injections, args.attack_contract
+    )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["blind_evidence_valid"] else 1)
 
