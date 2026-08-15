@@ -369,3 +369,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   disjoint measured intervals. Sửa compatibility không đổi evidence: v1 field
   được verify như `campaign_span_rows`; finalizer tương lai phát manifest v2.
   Regression đạt **304 passed, 7 skipped**.
+- 15-08-2026: dataset terminal 5,55 GB, SHA-256 `40a97f55...`, gồm 3.594.513
+  measured row gần cân bằng bốn regime; 93.702 row ngoài measured intervals bị
+  loại. Full validation pass: 0 error/loss, 249 feature, 20 workload/container,
+  ingest-lag p99 38,55 ms và snapshot-read p99 6,01 ms. Candidate training đã
+  chạy nền với quota 16 core/48 GiB; chưa có model/latency claim.

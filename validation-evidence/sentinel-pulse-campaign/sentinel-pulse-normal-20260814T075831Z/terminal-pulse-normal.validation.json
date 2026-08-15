@@ -1,0 +1,57 @@
+{
+  "capture_sha256": "40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.10954594612121582,
+    "p50": 0.014237642288208008,
+    "p95": 0.02954578399658203,
+    "p99": 0.03855156898498535
+  },
+  "interval_seconds": {
+    "max": 1.0238268375396729,
+    "p50": 1.0023322105407715,
+    "p95": 1.0052316188812256,
+    "p99": 1.007308006286621
+  },
+  "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/pulse-normal.jsonl",
+  "rows": 3594513,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.01941967,
+    "p50": 0.001628876,
+    "p95": 0.004137754,
+    "p99": 0.006006241
+  },
+  "valid": true,
+  "workloads": {
+    "production/aims-frontend:web": 147929,
+    "production/aims-kafka-dual-role:kafka": 258509,
+    "production/aims-kafka-entity-operator:topic-operator": 86157,
+    "production/aims-kafka-entity-operator:user-operator": 86157,
+    "production/aims-minio-pool-0:minio": 172302,
+    "production/aims-minio-pool-0:sidecar": 172302,
+    "production/aims-postgres-cnpg:postgres": 258509,
+    "production/aims-rabbitmq-server:rabbitmq": 258509,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 258509,
+    "production/aims-redis:aims-redis": 258435,
+    "production/aims-waypoint:istio-proxy": 86145,
+    "production/api-gateway:app": 172364,
+    "production/auth-service:app": 172352,
+    "production/cart-service:app": 172352,
+    "production/catalog-service:app": 172301,
+    "production/inventory-service:app": 172301,
+    "production/notification-service:pod-slice": 172302,
+    "production/order-service:app": 172363,
+    "production/payment-service:pod-slice": 172352,
+    "production/security-telemetry-service:app": 172363
+  }
+}

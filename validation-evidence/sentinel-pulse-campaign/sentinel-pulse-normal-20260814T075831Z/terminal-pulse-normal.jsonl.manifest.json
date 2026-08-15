@@ -1,0 +1,61 @@
+{
+  "campaign_id": "sentinel-pulse-normal-20260814T075831Z",
+  "campaign_span_rows_by_node": {
+    "k8s-worker1.local": 1386974,
+    "k8s-worker3.local": 941530,
+    "k8s-worker4.local": 1288627
+  },
+  "contract": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/capture-contract.json",
+  "contract_sha256": "28eb9a0f1cb945a5ebd86e1f18a6c5916cd7233c63a8ba8ef94280919f3650b8",
+  "dataset": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/pulse-normal.jsonl",
+  "dataset_sha256": "40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16",
+  "excluded_outside_contract": 93702,
+  "feature_schema_sha256": "879e33f8c33774c50d848524b78c0fa2398b9855971982e5a41a12f9259f5ae2",
+  "normal_only": true,
+  "rows": 3594513,
+  "rows_by_node": {
+    "k8s-worker1.local": 1378318,
+    "k8s-worker3.local": 935646,
+    "k8s-worker4.local": 1280549
+  },
+  "rows_by_regime": {
+    "burst": 904702,
+    "recovery": 890820,
+    "steady": 896469,
+    "toolmix": 902522
+  },
+  "schema": "sentinel-pulse-dataset-manifest-v1",
+  "source_manifest_schema": {
+    "k8s-worker1.local": "sentinel-pulse-node-capture-manifest-v1",
+    "k8s-worker3.local": "sentinel-pulse-node-capture-manifest-v1",
+    "k8s-worker4.local": "sentinel-pulse-node-capture-manifest-v1"
+  },
+  "source_manifest_sha256": {
+    "k8s-worker1.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker1.local/capture-manifest.json",
+      "sha256": "77f8afb364d598a9b0303edc5933af9fe6ac7c09c4c62bfee6bb478f0a2a8e9f"
+    },
+    "k8s-worker3.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker3.local/capture-manifest.json",
+      "sha256": "bf678b7a2f5f0db356f1b1fa2bb18bbb3ca8cf88438a27777efd96d1d0e1828f"
+    },
+    "k8s-worker4.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker4.local/capture-manifest.json",
+      "sha256": "0216a3691dc3785bf4ee9e8c72329b1999e75ce9b9e40e68f63b74cd990ab30f"
+    }
+  },
+  "source_sha256": {
+    "k8s-worker1.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker1.local/features.jsonl",
+      "sha256": "7195c40ac89fd1c91cb2ff5ff689d8b3e6fe7b8b8795ffe9e0a2535796e6e73c"
+    },
+    "k8s-worker3.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker3.local/features.jsonl",
+      "sha256": "fd9efb4c383e47e27ac08ac6730b12f43b9a4f5b249e770c4334f855362d279f"
+    },
+    "k8s-worker4.local": {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/k8s-worker4.local/features.jsonl",
+      "sha256": "4b946ccf82c828adfddfb65b807a272a5c10e8413894b65ae791323e9b5235f0"
+    }
+  }
+}

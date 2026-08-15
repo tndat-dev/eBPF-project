@@ -5194,3 +5194,30 @@ nguyên evidence v1 và checksum: assembler kiểm field v1 theo đúng nghĩa
 Finalizer tương lai phát manifest v2 với tên `campaign_span_rows`, không còn tên
 gây hiểu nhầm. Test mới tái hiện row trong transition gap; focused 6/6 và full
 regression đạt **304 passed, 7 skipped**, shell syntax pass.
+
+### 18.119 Dataset terminal hợp lệ và candidate training đã chạy nền (15-08-2026)
+
+Assembler v2 hoàn tất atomically với dataset read-only 5.548.144.482 byte,
+SHA-256 `40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16`.
+Dataset chứa **3.594.513 measured row**: steady 896.469, toolmix 902.522,
+burst 904.702 và recovery 890.820; 93.702 row trước/sau contract hoặc trong ba
+transition gap bị loại. Node measured rows là 1.378.318/1.280.549/935.646,
+trong khi campaign-span counts 1.386.974/1.288.627/941.530 vẫn khớp nguyên vẹn
+manifest v1.
+
+Full validator quét toàn bộ dataset và trả `valid=true`, zero error, 249
+feature, 20 workload/container key và cả sáu loss/integrity counter bằng 0.
+Window p99 1,007308 s; ingest lag p50/p95/p99/max lần lượt
+14,24/29,55/38,55/109,55 ms; snapshot-read p99 6,01 ms. Workload ít row nhất
+có 86.145 row, vượt xa yêu cầu 10.000 của validation và đủ minimum conformal
+resolution 9.999. Dataset manifest và validation evidence có SHA-256 lần lượt
+`09d0040bf2e981f6593f06e1fd948ab448c0fa8fda49e4b9263fe67d9f1fac2f` và
+`8152a42380e42050d9a4ef7a9430a22e72433526c7b38a3bbf30698f2d5087a3`.
+
+Candidate training đã khởi chạy nền bằng
+`sentinel-pulse-train-v1.service`, Nice 10, CPU quota 16 core, memory cap 48 GiB
+và locked environment. Trainer tự chạy lại validation/hash trước khi tạo output
+directory; chưa có model result hoặc latency claim tại checkpoint này. Bốn
+warning recovery bổ sung đều là một sample không liên tiếp: ba file nhận diện
+Trivy scan mới `ContainerCreating` 1–2 giây, một file race không còn pod detail;
+không có campaign failure và mọi file warning được giữ trong evidence.
