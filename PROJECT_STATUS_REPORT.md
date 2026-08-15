@@ -5096,3 +5096,25 @@ container không rỗng, cgroup ID dương và injection timestamp hữu hạn. 
 attack chạy trên cgroup workload B không thể được ghi nhãn thành workload A để
 làm đầy Cartesian matrix. Negative test khóa controller/workload mismatch;
 focused 7/7 và full regression đạt **300 passed, 7 skipped**.
+
+### 18.113 Transition burst và transient health warning (15-08-2026)
+
+Audit SSH lúc 08:04 +07 xác nhận campaign đạt **70,61%**, còn khoảng 7,10 giờ
+và đang ở measured burst. Traffic base/readmix/dependency đạt đúng
+desired/ready/available `6/6/6`, `2/2/2`, `3/3/3`; generation/observed
+generation khớp `78/77/10`. Snapshot `burst-deployments.json` đã được kéo về
+evidence local, chmod `0444`, SHA-256
+`b42c06903a7a63b24589f8534585ec82c1060e157e4c1cd1d220b0a165002ae8`.
+
+Campaign vẫn active/running, `NRestarts=0`, 6/6 node Ready và hiện tại zero bad
+pod. Có một warning đơn lẻ lúc 02:16 +07: Trivy vulnerability scan và Velero
+Kopia maintenance Job vừa schedule cùng ở trạng thái `ContainerCreating` tại
+một health sample. Cả hai sau đó Completed; warning không lặp ba lần liên tiếp,
+không tạo `CAMPAIGN_FAILED`. File warning được giữ nguyên read-only với SHA-256
+`b55cf49badd6aad250f808dd56beba4b4f65fcb08f9b6228480a229726fc1125`, không
+bị xóa khỏi evidence.
+
+Collector/resolver/finalizer trên 3/3 worker active, zero restart. Capture tăng
+lên khoảng 1.492/1.355/1.013 MB; mọi integrity counter vẫn bằng 0, snapshot read
+1,19–2,11 ms và window-to-emit 19,52–25,62 ms. Worker ít trống nhất còn khoảng
+56 GiB, chưa có disk pressure tức thời.

@@ -338,3 +338,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   container và cgroup ID; evaluator đối chiếu `production/controller:container`
   trước khi chấp nhận matrix row. Cross-workload relabel bị fail-closed. Full
   regression đạt **300 passed, 7 skipped**.
+- 15-08-2026: campaign chuyển sang burst đúng profile `6/2/3`; checkpoint 08:04
+  +07 đạt 70,61%. Ba collector/resolver/finalizer active, integrity 0,
+  window-to-emit 19,52–25,62 ms. Giữ nguyên một transient warning do Trivy và
+  Velero Job cùng `ContainerCreating` tại một sample; hai Job sau đó Completed,
+  warning không lặp đủ failure threshold và campaign vẫn active. Burst snapshot
+  SHA-256 `b42c0690...`, warning SHA-256 `b55cf49b...`.
