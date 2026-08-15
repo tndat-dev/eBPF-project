@@ -357,3 +357,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   zero unhealthy pod, control plane còn 245 GiB disk/54 GiB RAM available và
   ba CLI assemble/validate/train chạy được trong locked venv. Campaign vẫn ở
   burst `6/2/3`; chưa assemble/train trước final freeze.
+- 15-08-2026: recovery bắt đầu đúng 09:10:31 +07 sau rollout đóng 09:07:34;
+  traffic đạt `1/0/1`, checkpoint 09:35 đạt 76,87%. Ba collector/resolver/
+  finalizer active, integrity 0, emit 16,02–28,42 ms. Giữ một legacy transient
+  warning lúc 09:09:35 nhưng pod đã biến mất trước detail query; không lặp,
+  hiện age-aware health trả zero unhealthy. Recovery snapshot SHA-256
+  `9a124272...`, warning SHA-256 `f83ad598...`.

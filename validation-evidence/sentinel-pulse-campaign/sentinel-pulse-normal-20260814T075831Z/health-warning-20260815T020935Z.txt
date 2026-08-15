@@ -1,0 +1,8 @@
+ready_nodes=6 expected=6 non_running_pods=1 consecutive=1
+NAME                STATUS   ROLES           AGE    VERSION
+k8s-master.local    Ready    control-plane   130d   v1.34.10
+k8s-master2.local   Ready    control-plane   16d    v1.34.10
+k8s-master3.local   Ready    control-plane   16d    v1.34.10
+k8s-worker1.local   Ready    <none>          16d    v1.34.10
+k8s-worker3.local   Ready    <none>          16d    v1.34.10
+k8s-worker4.local   Ready    <none>          16d    v1.34.10

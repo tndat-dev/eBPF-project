@@ -5153,3 +5153,24 @@ trực tiếp trên toàn bộ pod JSON và trả zero unhealthy pod. Control pl
 `assemble_dataset`, `validate_capture` và `train` đều import/parse pass. Đây là
 preflight, chưa phải dataset validation hay training result; pipeline vẫn chờ
 immutable finalizer hoàn tất.
+
+### 18.117 Transition recovery hợp lệ (15-08-2026)
+
+Audit SSH lúc 09:35 +07 xác nhận campaign đạt **76,87%**, còn khoảng 5,59 giờ.
+Scheduler hoàn tất rollout lúc 09:07:34 và measured recovery bắt đầu đúng
+09:10:31 theo contract. Traffic base/readmix/dependency đạt
+desired/ready/available `1/1/1`, `0/0/0`, `1/1/1`; generation/observed
+generation khớp `81/80/13`. Snapshot recovery được lưu read-only, SHA-256
+`9a1242727e67acf9d1716b9493905b796371c665c2dc6528e257e78c6c056638`.
+
+Campaign active/running, `NRestarts=0`, 6/6 node Ready; age-aware checker hiện
+trả zero unhealthy pod. Legacy checker của process đang chạy ghi một transient
+warning lúc 09:09:35: một non-running pod xuất hiện ở lần đếm nhưng đã biến mất
+trước lệnh detail (`No resources found`), warning không lặp và không tạo failure
+marker. Evidence warning được giữ read-only, SHA-256
+`f83ad598b3f5c2a8247ada2e837ff0aefcfa9529f4edd126f4ac23dac15dff58`; không
+gán nguyên nhân cụ thể khi file không có pod identity.
+
+Collector/resolver/finalizer 3/3 worker active, zero restart; capture khoảng
+1.622/1.473/1.101 MB. Ba integrity counter đều 0, snapshot read 1,30–3,70 ms,
+window-to-emit 16,02–28,42 ms; worker ít trống nhất còn 56 GiB.
