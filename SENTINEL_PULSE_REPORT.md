@@ -344,3 +344,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   Velero Job cùng `ContainerCreating` tại một sample; hai Job sau đó Completed,
   warning không lặp đủ failure threshold và campaign vẫn active. Burst snapshot
   SHA-256 `b42c0690...`, warning SHA-256 `b55cf49b...`.
+- 15-08-2026: refactor health gate cho campaign sau: pod mới có grace 300 giây,
+  Failed/Unknown bị chặn ngay, Pending hoặc Running-unready quá grace bị chặn.
+  Cách này loại warning giả từ Job vừa tạo và bắt được CrashLoop/unready mà
+  phase-only filter cũ bỏ sót. Campaign hiện tại không hot reload thay đổi.
+  Full regression đạt **303 passed, 7 skipped**.

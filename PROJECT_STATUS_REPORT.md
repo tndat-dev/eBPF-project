@@ -5118,3 +5118,16 @@ Collector/resolver/finalizer trên 3/3 worker active, zero restart. Capture tăn
 lên khoảng 1.492/1.355/1.013 MB; mọi integrity counter vẫn bằng 0, snapshot read
 1,19–2,11 ms và window-to-emit 19,52–25,62 ms. Worker ít trống nhất còn khoảng
 56 GiB, chưa có disk pressure tức thời.
+
+### 18.114 Health gate phân biệt transient Job và pod hỏng (15-08-2026)
+
+`run_capture_campaign.sh` trước đây đếm mọi pod phase khác Running/Succeeded là
+bad ngay lập tức, nên Job mới `ContainerCreating` gây warning giả; đồng thời
+pod phase Running nhưng container CrashLoop/unready lại không bị đếm. Module
+`cluster_health.py` mới cho pod mới Pending/Running grace 300 giây, nhưng đánh
+dấu ngay Failed/Unknown và đánh dấu Pending hoặc container unready khi vượt
+grace. Warning evidence nay in JSONL machine-readable với namespace, pod,
+phase, age và reason. Thay đổi chỉ áp dụng campaign khởi động sau này; shell
+process của campaign đang chạy không bị hot reload. Ba unit test khóa transient
+Pending, stale Pending, Running-unready, healthy và completed/failed behavior;
+full regression đạt **303 passed, 7 skipped**, shell syntax pass.

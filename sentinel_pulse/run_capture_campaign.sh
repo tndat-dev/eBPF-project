@@ -31,8 +31,8 @@ trap restore_steady EXIT
 check_cluster_health() {
   local ready bad timestamp
   ready=$(kubectl get nodes --no-headers | awk '$2 == "Ready" {count++} END {print count+0}')
-  bad=$(kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded \
-    --no-headers 2>/dev/null | wc -l)
+  bad=$(kubectl get pods -A -o json | \
+    python3 -m sentinel_pulse.cluster_health --grace-seconds 300 --count)
   if [[ "$ready" == 6 && "$bad" == 0 ]]; then
     health_failures=0
     return 0
@@ -43,8 +43,8 @@ check_cluster_health() {
     printf 'ready_nodes=%s expected=6 non_running_pods=%s consecutive=%s\n' \
       "$ready" "$bad" "$health_failures"
     kubectl get nodes
-    kubectl get pods -A \
-      --field-selector=status.phase!=Running,status.phase!=Succeeded -o wide
+    kubectl get pods -A -o json | \
+      python3 -m sentinel_pulse.cluster_health --grace-seconds 300
   } >"$CAMPAIGN_DIR/health-warning-$timestamp.txt"
   if (( health_failures >= HEALTH_FAILURE_LIMIT )); then
     printf 'cluster health gate failed persistently: ready_nodes=%s non_running_pods=%s checks=%s\n' \
