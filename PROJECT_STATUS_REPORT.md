@@ -5142,3 +5142,14 @@ manifest ghi đủ bảy phiên bản Python/package; runtime đối chiếu to�
 unpickle và finalizer từ chối provenance thiếu. Full regression trong đúng
 locked environment đạt **303 passed, 7 skipped**. Venv chỉ chuẩn bị train; chưa
 fit model trước khi capture được finalizer đóng băng.
+
+### 18.116 Post-capture preflight trước recovery (15-08-2026)
+
+Checkpoint 08:10 +07 vẫn nằm trong burst, campaign active/running và
+`NRestarts=0`; traffic giữ đúng `6/2/3`. Health classifier age-aware mới chạy
+trực tiếp trên toàn bộ pod JSON và trả zero unhealthy pod. Control plane còn
+245 GiB disk, 54 GiB RAM available; đủ headroom để nhận capture hiện khoảng
+3,9 GiB và chạy assembler/model theo batch đã giới hạn. Trong locked venv, CLI
+`assemble_dataset`, `validate_capture` và `train` đều import/parse pass. Đây là
+preflight, chưa phải dataset validation hay training result; pipeline vẫn chờ
+immutable finalizer hoàn tất.

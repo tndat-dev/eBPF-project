@@ -353,3 +353,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   NumPy 2.5.2, scikit-learn 1.9.0, SciPy 1.18.0, joblib 1.5.3,
   threadpoolctl 3.6.0 và narwhals 2.24.0. Manifest/runtime/finalizer đối chiếu
   đầy đủ software provenance; chưa fit trước khi normal capture đóng băng.
+- 15-08-2026: post-capture preflight lúc 08:10 +07 pass: health classifier trả
+  zero unhealthy pod, control plane còn 245 GiB disk/54 GiB RAM available và
+  ba CLI assemble/validate/train chạy được trong locked venv. Campaign vẫn ở
+  burst `6/2/3`; chưa assemble/train trước final freeze.
