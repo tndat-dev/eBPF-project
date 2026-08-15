@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 from .integrity import sha256_file
@@ -51,6 +52,14 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
         raise ValueError("decision policy can alert without an ML anomaly")
     if confirmation.get("additional_window_wait") != 0:
         raise ValueError("decision policy violates the one-window latency contract")
+    score_confirmation = policy.get("score_corroboration", {})
+    minimum_score_excess = float(
+        score_confirmation.get("minimum_excess_over_calibration_max", 0.0)
+    )
+    if not math.isfinite(minimum_score_excess) or minimum_score_excess < 0.0:
+        raise ValueError("decision policy score excess must be finite and non-negative")
+    if score_confirmation and score_confirmation.get("reference") != "per_workload_calibration_max":
+        raise ValueError("decision policy score reference is unsupported")
     development = policy.get("development_normal_evidence", {})
     if not all(
         isinstance(development.get(field), str)

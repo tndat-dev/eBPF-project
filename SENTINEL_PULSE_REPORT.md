@@ -5,18 +5,19 @@
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
-**Checkpoint live mới nhất:** campaign normal-only bốn chế độ traffic đã
-terminal thành công. Dataset 5,55 GB gồm 3.594.513 window hợp lệ đã
-khóa SHA-256; 20/20 ExtraTrees candidate đã train, verify checksum và
-load lại thành công, không có workload collect-only. Replay normal tươi ngay
-sau training có 1.631 decision, 0 alert; inference p99 30,83 ms. Đây là
-bounded smoke. Raw one-window candidate sau đó **fail live canary** do 1 alert
-normal Redis trong 2.175 scored decision và đã bị dừng, không rollout. Candidate
-composite mới giữ nguyên model nhưng khóa same-window semantic policy
-`79564746...`; development replay 5.000 row có 2 raw anomaly được ghi
-`suppressed`, 0 alert. Canary độc lập mới pass 4.719 normal, 1 suppressed,
-0 alert; soak `semantic-soak-a1` đã active trên 3/3 worker và đủ 20
-workload. Chưa đủ 24 giờ/blind 450 trial, nên chưa công bố đạt gate.
+**Checkpoint live mới nhất:** dataset normal-only 5,55 GB gồm 3.594.513
+window hợp lệ và 20/20 ExtraTrees candidate vẫn giữ nguyên checksum. Policy
+semantic v1 `79564746...` đã **fail normal soak sớm**: 2 alert trên traffic
+normal (catalog và PostgreSQL), đồng thời detector worker4 restart một lần do
+đọc phải JSONL chưa có newline khi collector đang ghi. Run `semantic-soak-a1`
+đã dừng, đóng băng 85.849 decision và không mở blind test. Bản sửa không dùng
+blind outcome: follower chỉ parse record hoàn chỉnh; policy v2
+`71c6ed92...` yêu cầu thêm score vượt calibration max theo workload ít nhất
+0,01, vẫn cùng một window. Replay hai FP cũ cho 0 alert/2 suppressed. Canary
+v2 độc lập 327,92 giây có 5.248 scored decision, 0 alert, `NRestarts=0`,
+inference p99 39,26 ms và post-window processing p99 421,17 ms. Soak mới
+`semantic-margin-soak-b1` active 3/3 worker từ 15-08-2026 22:39:55 +07;
+chưa đủ 24 giờ/blind 450 trial nên chưa công bố đạt gate.
 
 ## 1. Động cơ và phạm vi
 
@@ -135,7 +136,7 @@ workload khác.
 | Audit AIMS và dependency | Hoàn thành; application/dependency healthy |
 | Xác minh traffic | Đã apply và live-check: HTTP health/ingress, Redis AUTH+PING, MinIO health, PostgreSQL/Kafka/RabbitMQ TCP |
 | Feature schema exact counter + transition | Đã implement local, 249 chiều |
-| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; raw decision policy fail canary, semantic-policy candidate đang canary lại |
+| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic v1 fail soak, calibration-margin v2 pass canary và đang soak lại |
 | eBPF collector theo cgroup | Đã build/verifier và active trên 3/3 worker |
 | Tetragon high-volume rate limit 500 ms | Policy Pulse tên riêng đã staging; V8 vẫn 1 giây; chưa apply, chờ A/B |
 | Dataset 1 giây đa workload | Terminal: 3.594.513 row, 20 workload/container, 4 traffic regime, integrity 0 |
@@ -143,7 +144,7 @@ workload khác.
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement; run `semantic-soak-a1` active 3/3 worker từ 15-08 21:50:19 +07 |
+| Independent normal-soak evaluator | Đã implement; `semantic-soak-a1` fail/frozen; run mới `semantic-margin-soak-b1` active 3/3 worker từ 15-08 22:39:55 +07 |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
 | Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
@@ -307,12 +308,41 @@ Bounded live canary mới trên worker1 sau policy freeze chạy 294,87 giây:
 worker. Union preflight có 4.066 decision, 0 alert, 3/3 service active,
 `NRestarts=0`, cùng model/policy/run identity và đủ 20/20 workload.
 
-Soak chính thức dùng run ID thời gian-trung-lập `semantic-soak-a1`, mốc
-bắt đầu bảo thủ `15-08-2026 21:50:19 +07`; sớm nhất được finalize
-là `16-08-2026 21:50:19 +07`. Marker khóa model SHA, policy SHA, duration
+Run tiếp theo dùng ID thời gian-trung-lập `semantic-soak-a1`, bắt đầu bảo thủ
+`15-08-2026 21:50:19 +07`. Marker đã khóa model SHA, policy SHA, duration
 24 giờ/workload, coverage 95%, alert budget 0 và xác nhận blind evaluation
-chưa khởi động. Slice staging mang nhãn timestamp trước đó chỉ được
-giữ là rollout audit, không tính vào 24 giờ.
+chưa khởi động. Tuy nhiên run này fail trước terminal gate; evidence và bản
+sửa kế tiếp được mô tả tại Mục 7.8. Slice staging mang nhãn timestamp trước đó
+chỉ được giữ là rollout audit, không tính vào bất kỳ soak terminal nào.
+
+### 7.8 Soak v1 thất bại và candidate calibration-margin v2
+
+Run `semantic-soak-a1` không được để chạy đủ 24 giờ sau khi điều kiện
+`maximum_alerts=0` đã bị phá. Snapshot bất biến trên control plane giữ 31.744,
+31.344 và 22.761 record tương ứng worker1/worker4/worker3; tổng cộng 2 alert,
+6 suppressed và không có dòng decision JSON hỏng. Hai alert normal là
+`production/catalog-service:app` (score 0,622303) và
+`production/aims-postgres-cnpg:postgres` (score 0,555267). Journal worker4
+chứng minh crash tại `json.loads` trên một fragment JSON chưa kết thúc; systemd
+tự phục hồi sau khoảng 5 giây. Đây là lỗi reader concurrency, không phải lỗi
+collector integrity, nên run bị đánh dấu failed thay vì loại evidence.
+
+Policy v2 không sửa model, alpha, dataset hay blind contract. Với mỗi workload,
+runtime lấy score lớn nhất đã nằm sẵn trong normal calibration artifact và chỉ
+cho semantic gate tạo alert khi score hiện tại còn vượt mức đó ít nhất 0,01.
+Hai FP phát triển có excess lần lượt 0,001955 và -0,052929, vì vậy replay dưới
+policy mới ghi `suppressed`; report replay SHA-256 là `2a9587ea...`. Mọi raw
+anomaly, score, p-value, calibration max và excess vẫn được ghi để không che
+giấu lỗi model. Không có second-window wait nên ngân sách latency 1–2 giây
+không đổi.
+
+Canary v2 dùng PID duy nhất, `NRestarts=0`, span 327,92 giây, 5.296 record gồm
+5.248 decision có schema và 48 warm-up; 0 alert/0 raw anomaly. Inference
+p50/p95/p99 là 18,89/31,31/39,26 ms; `window_end → decision` p50/p95/p99 là
+212,42/372,58/421,17 ms. Full regression sau sửa đạt **357 passed, 2 warning**.
+Soak mới khóa model SHA `b7e603fd...`, policy SHA `71c6ed92...`, run ID
+`semantic-margin-soak-b1`, bắt đầu bảo thủ `2026-08-15 22:39:55 +07` và không
+được finalize trước `2026-08-16 22:39:55 +07`. Blind marker vẫn false.
 
 ## 8. Protocol đánh giá và release gate
 
@@ -468,3 +498,11 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   3/3 worker union đủ 20 workload. Soak `semantic-soak-a1` bắt đầu bảo
   thủ 21:50:19 +07, finalize sớm nhất sau 21:50:19 +07 ngày 16-08;
   blind evaluation vẫn chưa chạy.
+- 15-08-2026: `semantic-soak-a1` fail-fast sau 85.849 decision vì 2 normal
+  alert (catalog/PostgreSQL); worker4 còn restart một lần do follower đọc
+  fragment JSON chưa kết thúc. Evidence fail được đóng băng, blind vẫn chưa
+  chạy. Follower nay chờ newline; policy v2 `71c6ed92...` thêm operational
+  margin 0,01 trên per-workload calibration max. Replay 2 FP trả 2 suppressed;
+  canary 327,92 giây đạt 5.248 scored/0 alert/0 restart, inference p99 39,26 ms,
+  processing p99 421,17 ms. Run `semantic-margin-soak-b1` mở lúc 22:39:55 +07,
+  đủ điều kiện finalize sớm nhất 22:39:55 +07 ngày 16-08.

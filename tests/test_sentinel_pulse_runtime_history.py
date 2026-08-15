@@ -18,8 +18,14 @@ class _AnomalousEstimator:
         return np.column_stack((np.zeros(len(rows)), np.ones(len(rows))))
 
 
+class _MarginalAnomalousEstimator:
+    def predict_proba(self, rows):
+        probability = np.full(len(rows), 0.205)
+        return np.column_stack((1.0 - probability, probability))
+
+
 class PulseRuntimeHistoryTests(unittest.TestCase):
-    def _runtime(self, anomalous=False, with_policy=False):
+    def _runtime(self, anomalous=False, with_policy=False, score_policy=False):
         columns = ["f0", "f1"]
         model = PulseExtraTrees(history=2, alpha=0.1)
         model.estimator = _AnomalousEstimator() if anomalous else _NormalEstimator()
@@ -42,12 +48,34 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
 
             policy_path = (
                 Path(__file__).resolve().parents[1]
-                / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v1.json"
+                / "sentinel_pulse"
+                / "protocol"
+                / (
+                    "decision-policy-semantic-v2.json"
+                    if score_policy
+                    else "decision-policy-semantic-v1.json"
+                )
             )
             runtime.decision_policy, runtime.decision_policy_sha256 = (
                 load_decision_policy(policy_path)
             )
         return runtime, columns
+
+    def test_v2_policy_suppresses_raw_tail_inside_operational_score_margin(self):
+        runtime, columns = self._runtime(
+            anomalous=True, with_policy=True, score_policy=True
+        )
+        runtime.models["production/catalog:app"].estimator = _MarginalAnomalousEstimator()
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        decision = runtime.score(
+            self._record(columns, 3.0, exact_counts={"connect": 6})
+        )
+        self.assertTrue(decision["raw_model_anomalous"])
+        self.assertTrue(decision["semantic_corroborated"])
+        self.assertFalse(decision["score_corroborated"])
+        self.assertEqual(decision["status"], "suppressed")
+        self.assertAlmostEqual(decision["score_excess_over_calibration_max"], 0.005)
 
     def _record(self, columns, window_end, regime="steady", exact_counts=None):
         compact, _schema = compact_record(

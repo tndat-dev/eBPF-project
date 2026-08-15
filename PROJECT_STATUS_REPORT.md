@@ -43,10 +43,13 @@ candidate, 0 collect-only, bundle SHA-256 `b7e603fd...` và runtime load gate
 pass. Fresh live-normal smoke sau train có 1.631 decision, 0 alert, inference
 p99 30,83 ms. Raw one-window policy sau đó fail live canary do 1 Redis normal
 alert/2.175 scored decision và đã dừng trước rollout. Same-window semantic
-policy `79564746...` đã khóa trước blind test; live canary pass và normal
-soak `semantic-soak-a1` đang active 3/3 worker. Soak 24 giờ, blind 450 trial,
-true kernel-to-alert và overhead A/B chưa hoàn
-tất, vì vậy chưa có claim production cho Sentinel Pulse.
+policy `79564746...` đã pass canary nhưng fail soak do 2 normal alert; run được
+đóng băng trước blind. Follower cũng được sửa để không parse fragment JSONL
+chưa có newline. Policy v2 `71c6ed92...` thêm margin 0,01 trên calibration max
+theo workload, pass canary 327,92 giây với 5.248 scored/0 alert/0 restart.
+Normal soak mới `semantic-margin-soak-b1` đang active 3/3 worker từ
+15-08-2026 22:39:55 +07. Soak 24 giờ, blind 450 trial, true kernel-to-alert và
+overhead A/B chưa hoàn tất, vì vậy chưa có claim production cho Sentinel Pulse.
 
 ## Quy ước tên phiên bản và research track
 
@@ -5318,3 +5321,31 @@ Run soak chính thức là `semantic-soak-a1`, dùng nhãn thời gian-trung-l�
 đúng run/model/policy, `NRestarts=0`, alert file 0, cluster 6/6 Ready và
 không có pod ngoài Running/Completed. Blind evaluation vẫn `started=false`;
 không được chạy trước normal terminal gate.
+
+### 18.122 Fail-fast semantic soak và mở calibration-margin soak (15-08-2026)
+
+Audit live phát hiện `semantic-soak-a1` đã vi phạm normal gate trước mốc 24
+giờ. Evidence bất biến gồm 85.849 decision trên ba worker, 2 alert normal
+(`catalog-service:app`, `aims-postgres-cnpg:postgres`) và 6 raw anomaly
+suppressed. Worker4 có `NRestarts=1`; journal xác định `JSONDecodeError` do
+reader lấy một dòng append-only trước khi newline được ghi xong. Run đã dừng
+fail-fast, ba output được snapshot/checksum và blind evaluation vẫn chưa bắt
+đầu. Failure summary SHA-256 là `3bfdc43b...`; evidence manifest SHA-256 là
+`23026256...`.
+
+Sửa lỗi reader làm `RotatingJsonlFollower` rewind và chờ newline thay vì đưa
+fragment vào decoder. Policy `semantic-calibration-margin-one-window-v2` giữ
+nguyên model `b7e603fd...`, alpha, feature và blind contract; ngoài semantic
+cùng cửa sổ, score phải vượt per-workload calibration max ít nhất 0,01. Hai FP
+cũ được replay thành 2 suppressed/0 alert, report SHA-256 `2a9587ea...`; không
+có blind outcome dùng để tune. Mỗi decision mới ghi rõ semantic gate, score
+gate, calibration max và score excess.
+
+Full regression đạt **357 passed, 2 warning**. Canary mới trên worker1 chạy
+327,92 giây với cùng PID, `NRestarts=0`: 5.248 scored, 0 raw anomaly, 0 alert;
+inference p99 39,26 ms và post-window processing p99 421,17 ms. Candidate được
+rollout audit-only lên 3/3 worker với policy SHA `71c6ed92...`; run chính thức
+`semantic-margin-soak-b1` bắt đầu bảo thủ lúc `2026-08-15 22:39:55 +07` và
+chỉ được finalize từ `2026-08-16 22:39:55 +07` nếu mỗi workload đủ 24 giờ,
+coverage ≥95%, 0 alert và không có lỗi identity/integrity. Blind 450 trial tiếp
+tục bị interlock cho tới khi normal gate terminal pass.

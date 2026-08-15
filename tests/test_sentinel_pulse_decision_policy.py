@@ -8,6 +8,7 @@ from sentinel_pulse.decision_policy import corroborate, load_decision_policy
 
 ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v1.json"
+SCORE_POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v2.json"
 
 
 def test_frozen_policy_is_checksum_bound_one_window_and_uses_no_blind_outcome():
@@ -36,3 +37,21 @@ def test_policy_rejects_missing_exact_counts_and_negative_values():
         corroborate(policy, None)
     with pytest.raises(ValueError, match="cannot be negative"):
         corroborate(policy, {"connect": -1})
+
+
+def test_v2_policy_binds_non_negative_per_workload_calibration_margin():
+    policy, digest = load_decision_policy(SCORE_POLICY)
+    assert len(digest) == 64
+    assert policy["score_corroboration"] == {
+        "reference": "per_workload_calibration_max",
+        "minimum_excess_over_calibration_max": 0.01,
+    }
+
+
+def test_policy_rejects_negative_score_margin(tmp_path):
+    policy = json.loads(SCORE_POLICY.read_text())
+    policy["score_corroboration"]["minimum_excess_over_calibration_max"] = -0.01
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(policy))
+    with pytest.raises(ValueError, match="score excess"):
+        load_decision_policy(path)

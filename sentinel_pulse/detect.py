@@ -63,9 +63,22 @@ class RotatingJsonlFollower:
                 if not self._open():
                     time.sleep(self.poll_seconds)
                     continue
+            line_start = self.source.tell()
             line = self.source.readline()
-            if line:
+            if line.endswith("\n"):
                 return line
+            if line:
+                # A reader can observe an append-only file between the writer's
+                # data write and terminating newline.  Rewind and wait instead
+                # of handing a torn JSON object to the decoder.  If rotation
+                # replaced the file while a fragment was pending, discard only
+                # that unterminated fragment and reopen the new inode.
+                if self._path_replaced_or_truncated():
+                    self.source.close()
+                    self.source = None
+                    self.identity = None
+                    continue
+                self.source.seek(line_start)
             if self._path_replaced_or_truncated():
                 self.source.close()
                 self.source = None
@@ -226,9 +239,23 @@ class PulseRuntime:
         security_mass = None
         security_fields = None
         if self.decision_policy is not None:
-            corroborated, security_mass, security_fields = corroborate(
+            semantic_corroborated, security_mass, security_fields = corroborate(
                 self.decision_policy, record.get("exact_counts")
             )
+            score_gate = self.decision_policy.get("score_corroboration", {})
+            minimum_score_excess = float(
+                score_gate.get("minimum_excess_over_calibration_max", 0.0)
+            )
+            calibration_max = float(model.calibration_scores[-1])
+            score_excess = decision.score - calibration_max
+            score_corroborated = score_excess >= minimum_score_excess
+            corroborated = semantic_corroborated and score_corroborated
+        else:
+            semantic_corroborated = True
+            score_corroborated = True
+            calibration_max = None
+            score_excess = None
+            minimum_score_excess = None
         alerted = decision.anomalous and corroborated
         status = (
             "alert"
@@ -253,6 +280,11 @@ class PulseRuntime:
             "conformal_p": decision.conformal_p,
             "raw_model_anomalous": decision.anomalous,
             "same_window_corroborated": corroborated,
+            "semantic_corroborated": semantic_corroborated,
+            "score_corroborated": score_corroborated,
+            "calibration_score_max": calibration_max,
+            "score_excess_over_calibration_max": score_excess,
+            "minimum_score_excess": minimum_score_excess,
             "security_activity_mass": security_mass,
             "security_activity_fields": security_fields,
             "inference_ms": decision.inference_ms,
