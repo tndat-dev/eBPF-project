@@ -1,0 +1,36 @@
+{
+  "decision_file": "/var/lib/sentinel-pulse-detector/runs/b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc-272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e-semantic-envelope-v4-canary-d1/decisions.jsonl",
+  "decision_file_sha256": "76dca20074526a450463912fb6d001e844cef64954d58f843d85c818b5cc938b",
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "detector_restarts": 0,
+  "inference_ms": {
+    "p50": 19.53390199923888,
+    "p95": 31.81879298062995,
+    "p99": 39.681008958723396
+  },
+  "invalid_json": 0,
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "node": "k8s-worker1.local",
+  "post_window_processing_seconds": {
+    "p50": 0.21624469757080078,
+    "p95": 0.37790799140930176,
+    "p99": 0.4292640686035156
+  },
+  "rows": 5647,
+  "run_id": "semantic-envelope-v4-canary-d1",
+  "schema": "sentinel-pulse-live-canary-report-v4",
+  "scored_rows": 5599,
+  "span_seconds": 351.04618883132935,
+  "status_counts": {
+    "normal": 5598,
+    "suppressed": 1,
+    "warming": 48
+  },
+  "valid": true,
+  "window_start_to_decision_seconds": {
+    "p50": 1.2191498279571533,
+    "p95": 1.3811094760894775,
+    "p99": 1.4333691596984863
+  },
+  "workload_count": 14
+}

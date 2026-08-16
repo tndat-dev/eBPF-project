@@ -1,0 +1,454 @@
+{
+  "base_policy": "sentinel_pulse/protocol/decision-policy-semantic-v3.json",
+  "base_policy_sha256": "382e45628544f9a93b0adb11a900b5496fdd82c6fa847913cf29aacbba06d5d1",
+  "base_workload_group_maxima": {
+    "production/aims-frontend:web": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "credential_open": 105,
+      "identity_transition": 17,
+      "local_socket_beacon": 18,
+      "namespace_probe": 0,
+      "process_fanout": 11
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "credential_open": 6,
+      "identity_transition": 0,
+      "local_socket_beacon": 10,
+      "namespace_probe": 0,
+      "process_fanout": 5
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "credential_open": 6,
+      "identity_transition": 0,
+      "local_socket_beacon": 6,
+      "namespace_probe": 0,
+      "process_fanout": 8
+    },
+    "production/aims-minio-pool-0:minio": {
+      "credential_open": 1901,
+      "identity_transition": 0,
+      "local_socket_beacon": 22,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "credential_open": 2,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "credential_open": 271,
+      "identity_transition": 0,
+      "local_socket_beacon": 100,
+      "namespace_probe": 0,
+      "process_fanout": 16
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "credential_open": 39,
+      "identity_transition": 0,
+      "local_socket_beacon": 11,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "credential_open": 12,
+      "identity_transition": 21,
+      "local_socket_beacon": 15,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/aims-redis:aims-redis": {
+      "credential_open": 12,
+      "identity_transition": 21,
+      "local_socket_beacon": 3,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "credential_open": 2,
+      "identity_transition": 0,
+      "local_socket_beacon": 278,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/api-gateway:app": {
+      "credential_open": 313,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 11
+    },
+    "production/auth-service:app": {
+      "credential_open": 327,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 6
+    },
+    "production/cart-service:app": {
+      "credential_open": 392,
+      "identity_transition": 32,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/catalog-service:app": {
+      "credential_open": 202,
+      "identity_transition": 17,
+      "local_socket_beacon": 8,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/inventory-service:app": {
+      "credential_open": 393,
+      "identity_transition": 32,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 10
+    },
+    "production/notification-service:pod-slice": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/order-service:app": {
+      "credential_open": 386,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 9
+    },
+    "production/payment-service:pod-slice": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 1
+    },
+    "production/security-telemetry-service:app": {
+      "credential_open": 202,
+      "identity_transition": 17,
+      "local_socket_beacon": 2,
+      "namespace_probe": 0,
+      "process_fanout": 6
+    }
+  },
+  "blind_outcome_used": false,
+  "changed_maxima": {
+    "production/aims-kafka-dual-role:kafka": {
+      "credential_open": {
+        "base_max": 105,
+        "extended_max": 189
+      },
+      "identity_transition": {
+        "base_max": 17,
+        "extended_max": 26
+      },
+      "local_socket_beacon": {
+        "base_max": 18,
+        "extended_max": 30
+      },
+      "process_fanout": {
+        "base_max": 11,
+        "extended_max": 14
+      }
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "credential_open": {
+        "base_max": 6,
+        "extended_max": 8
+      }
+    },
+    "production/aims-minio-pool-0:minio": {
+      "credential_open": {
+        "base_max": 1901,
+        "extended_max": 3906
+      },
+      "local_socket_beacon": {
+        "base_max": 22,
+        "extended_max": 24
+      }
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "credential_open": {
+        "base_max": 271,
+        "extended_max": 283
+      }
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "credential_open": {
+        "base_max": 12,
+        "extended_max": 23
+      },
+      "identity_transition": {
+        "base_max": 21,
+        "extended_max": 49
+      }
+    },
+    "production/aims-redis:aims-redis": {
+      "credential_open": {
+        "base_max": 12,
+        "extended_max": 23
+      },
+      "identity_transition": {
+        "base_max": 21,
+        "extended_max": 51
+      },
+      "local_socket_beacon": {
+        "base_max": 3,
+        "extended_max": 9
+      },
+      "process_fanout": {
+        "base_max": 7,
+        "extended_max": 10
+      }
+    },
+    "production/api-gateway:app": {
+      "credential_open": {
+        "base_max": 313,
+        "extended_max": 315
+      }
+    },
+    "production/cart-service:app": {
+      "process_fanout": {
+        "base_max": 7,
+        "extended_max": 8
+      }
+    },
+    "production/catalog-service:app": {
+      "credential_open": {
+        "base_max": 202,
+        "extended_max": 280
+      },
+      "identity_transition": {
+        "base_max": 17,
+        "extended_max": 26
+      }
+    },
+    "production/order-service:app": {
+      "process_fanout": {
+        "base_max": 9,
+        "extended_max": 10
+      }
+    }
+  },
+  "decision_sources": [
+    {
+      "alerts": 7,
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-c1/failed-evidence/worker1/decisions.jsonl",
+      "rows": 763661,
+      "sha256": "b194d83d57e2ab66b3011ad2120e62faa8d29a422918a42ecd1722f36ac5ca23",
+      "worker": "worker1"
+    },
+    {
+      "alerts": 1,
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-c1/failed-evidence/worker4/decisions.jsonl",
+      "rows": 706171,
+      "sha256": "bbe8be11f07533cf9f9397de352f34f782e0366b4f448eef397599d7f025d4cf",
+      "worker": "worker4"
+    },
+    {
+      "alerts": 0,
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-c1/failed-evidence/worker3/decisions.jsonl",
+      "rows": 515485,
+      "sha256": "e9d42e95f702365e486699e969efafe67d6dfaeb2cb5f76713712c940efcc6ad",
+      "worker": "worker3"
+    }
+  ],
+  "elapsed_seconds": 77.67548260302283,
+  "evidence_checksums": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-c1/failed-evidence/SHA256SUMS",
+  "evidence_checksums_sha256": "9d226a22e43457cd2caf9a799a046b0c38bfbae73505c6c2201e303550c3eedb",
+  "failed_run_id": "semantic-envelope-soak-c1",
+  "failure_summary": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-c1/failed-evidence/FAILURE_SUMMARY.json",
+  "failure_summary_sha256": "8bfc68bc0362b03f44b097cccf4e19a7ee0f09e2c2b7f81a7a7a92692a866ccb",
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "normal_only": true,
+  "rows": 1985317,
+  "schema": "sentinel-pulse-semantic-envelope-extension-v1",
+  "signal_groups": {
+    "credential_open": [
+      "openat"
+    ],
+    "identity_transition": [
+      "setuid",
+      "setgid",
+      "capset"
+    ],
+    "local_socket_beacon": [
+      "socket",
+      "connect"
+    ],
+    "namespace_probe": [
+      "ptrace",
+      "pivot_root",
+      "mount",
+      "unshare",
+      "setns",
+      "execveat"
+    ],
+    "process_fanout": [
+      "clone",
+      "clone3"
+    ]
+  },
+  "source_role": "failed_independent_normal_reclassified_as_development_after_candidate_failure",
+  "status_counts": {
+    "alert": 8,
+    "normal": 1948138,
+    "suppressed": 317,
+    "warming": 36854
+  },
+  "usable_semantic_rows": 1948463,
+  "workload_group_maxima": {
+    "production/aims-frontend:web": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "credential_open": 189,
+      "identity_transition": 26,
+      "local_socket_beacon": 30,
+      "namespace_probe": 0,
+      "process_fanout": 14
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "credential_open": 6,
+      "identity_transition": 0,
+      "local_socket_beacon": 10,
+      "namespace_probe": 0,
+      "process_fanout": 5
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "credential_open": 8,
+      "identity_transition": 0,
+      "local_socket_beacon": 6,
+      "namespace_probe": 0,
+      "process_fanout": 8
+    },
+    "production/aims-minio-pool-0:minio": {
+      "credential_open": 3906,
+      "identity_transition": 0,
+      "local_socket_beacon": 24,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "credential_open": 2,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "credential_open": 283,
+      "identity_transition": 0,
+      "local_socket_beacon": 100,
+      "namespace_probe": 0,
+      "process_fanout": 16
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "credential_open": 39,
+      "identity_transition": 0,
+      "local_socket_beacon": 11,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "credential_open": 23,
+      "identity_transition": 49,
+      "local_socket_beacon": 15,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/aims-redis:aims-redis": {
+      "credential_open": 23,
+      "identity_transition": 51,
+      "local_socket_beacon": 9,
+      "namespace_probe": 0,
+      "process_fanout": 10
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "credential_open": 2,
+      "identity_transition": 0,
+      "local_socket_beacon": 278,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/api-gateway:app": {
+      "credential_open": 315,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 11
+    },
+    "production/auth-service:app": {
+      "credential_open": 327,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 6
+    },
+    "production/cart-service:app": {
+      "credential_open": 392,
+      "identity_transition": 32,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 8
+    },
+    "production/catalog-service:app": {
+      "credential_open": 280,
+      "identity_transition": 26,
+      "local_socket_beacon": 8,
+      "namespace_probe": 0,
+      "process_fanout": 7
+    },
+    "production/inventory-service:app": {
+      "credential_open": 393,
+      "identity_transition": 32,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 10
+    },
+    "production/notification-service:pod-slice": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 0
+    },
+    "production/order-service:app": {
+      "credential_open": 386,
+      "identity_transition": 30,
+      "local_socket_beacon": 4,
+      "namespace_probe": 0,
+      "process_fanout": 10
+    },
+    "production/payment-service:pod-slice": {
+      "credential_open": 0,
+      "identity_transition": 0,
+      "local_socket_beacon": 0,
+      "namespace_probe": 0,
+      "process_fanout": 1
+    },
+    "production/security-telemetry-service:app": {
+      "credential_open": 202,
+      "identity_transition": 17,
+      "local_socket_beacon": 2,
+      "namespace_probe": 0,
+      "process_fanout": 6
+    }
+  }
+}

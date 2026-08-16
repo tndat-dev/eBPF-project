@@ -1,0 +1,130 @@
+{
+  "alert_span_seconds": 5.949908018112183,
+  "alert_window_end": 1786893737.165231,
+  "alert_window_start": 1786893731.215323,
+  "alerts_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 2,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+    "production/aims-redis:aims-redis": 3,
+    "production/catalog-service:app": 2
+  },
+  "blind_evaluation_started": false,
+  "decision_policy_sha256": "382e45628544f9a93b0adb11a900b5496fdd82c6fa847913cf29aacbba06d5d1",
+  "detector_restarts": 0,
+  "failure_detected_at": "2026-08-16T15:43:28.541414+00:00",
+  "failure_reason": "normal_alert_budget_exceeded",
+  "first_window_start": 1786846799.5976362,
+  "incident_correlated_cluster_events": [
+    {
+      "message": "Readiness probe failed: Get \"http://10.0.2.186:9000/auth/health/ready\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "namespace": "keycloak",
+      "object": "keycloak-keycloakx-0",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:30Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Readiness probe failed: Get \"https://10.0.2.44:9502/v1/healthz\": context deadline exceeded",
+      "namespace": "longhorn-system",
+      "object": "longhorn-manager-mvjf2",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:13Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Liveness probe failed: Get \"http://10.1.16.237:9100/\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "namespace": "monitoring",
+      "object": "monitoring-prometheus-node-exporter-p7sxh",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:08Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Readiness probe failed: Get \"http://10.0.2.219:3500/metrics\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "namespace": "observability",
+      "object": "loki-canary-k68ds",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:13Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Readiness probe failed: Get \"http://10.0.2.165:4444/ready\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "namespace": "production",
+      "object": "aims-minio-pool-0-1",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:13Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Readiness probe failed: Get \"http://10.0.2.157:15021/healthz/ready\": context deadline exceeded (Client.Timeout exceeded while awaiting headers)",
+      "namespace": "production",
+      "object": "aims-waypoint-6d558c5d7c-n879w",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:08Z",
+      "type": "Warning"
+    },
+    {
+      "message": "Readiness probe failed: command timed out: \"python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/', timeout=3)\" timed out after 3s",
+      "namespace": "production",
+      "object": "catalog-service-74cf5f59b9-h944d",
+      "reason": "Unhealthy",
+      "timestamp": "2026-08-16T15:22:13Z",
+      "type": "Warning"
+    }
+  ],
+  "interpretation": "Candidate is failed and frozen. Correlated infrastructure evidence is retained for diagnosis only; it does not erase or relabel the observed normal alerts.",
+  "last_window_end": 1786894673.0831957,
+  "maximum_alerts_allowed": 0,
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "observed_alerts": 8,
+  "observed_span_seconds": 47873.4855594635,
+  "run_id": "semantic-envelope-soak-c1",
+  "schema": "sentinel-pulse-normal-soak-failure-v3",
+  "status": "failed",
+  "total_decisions": 1985317,
+  "total_invalid_json": 0,
+  "workers": {
+    "worker1": {
+      "alert_rows": 7,
+      "decision_rows": 763661,
+      "first_window_start": 1786846799.5976362,
+      "invalid_json": 0,
+      "last_window_end": 1786894673.0831957,
+      "status_counts": {
+        "alert": 7,
+        "normal": 763347,
+        "suppressed": 146,
+        "warming": 161
+      },
+      "workload_count": 14
+    },
+    "worker3": {
+      "alert_rows": 0,
+      "decision_rows": 515485,
+      "first_window_start": 1786846842.6289477,
+      "invalid_json": 0,
+      "last_window_end": 1786894672.8484018,
+      "status_counts": {
+        "normal": 497251,
+        "suppressed": 74,
+        "warming": 18160
+      },
+      "workload_count": 11
+    },
+    "worker4": {
+      "alert_rows": 1,
+      "decision_rows": 706171,
+      "first_window_start": 1786846822.1194816,
+      "invalid_json": 0,
+      "last_window_end": 1786894671.7445083,
+      "status_counts": {
+        "alert": 1,
+        "normal": 687540,
+        "suppressed": 97,
+        "warming": 18533
+      },
+      "workload_count": 15
+    }
+  },
+  "workload_union_count": 20
+}

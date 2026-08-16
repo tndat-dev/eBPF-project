@@ -14,6 +14,17 @@ ROOT = Path(__file__).resolve().parents[1]
 POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v1.json"
 SCORE_POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v2.json"
 ENVELOPE_POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v3.json"
+EXTENDED_ENVELOPE_POLICY = (
+    ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v4.json"
+)
+FAILED_V3_ALERTS = (
+    ROOT
+    / "validation-evidence"
+    / "sentinel-pulse-campaign"
+    / "sentinel-pulse-normal-20260814T075831Z"
+    / "semantic-envelope-soak-c1"
+    / "alerts"
+)
 
 
 def test_frozen_policy_is_checksum_bound_one_window_and_uses_no_blind_outcome():
@@ -147,3 +158,36 @@ def test_v3_envelope_keeps_zero_baseline_namespace_primitive_detectable():
     )
     assert decision["confirmed"] is True
     assert decision["signal_groups"]["namespace_probe"]["triggered"] is True
+
+
+def test_v4_envelope_suppresses_every_frozen_v3_normal_alert():
+    policy, digest = load_decision_policy(EXTENDED_ENVELOPE_POLICY)
+    replayed = 0
+    for path in sorted(FAILED_V3_ALERTS.glob("*.jsonl")):
+        for line in path.read_text().splitlines():
+            if not line:
+                continue
+            record = json.loads(line)
+            result = corroboration_details(
+                policy,
+                record["security_activity_fields"],
+                record["workload_key"],
+            )
+            assert result["confirmed"] is False
+            replayed += 1
+    assert len(digest) == 64
+    assert replayed == 8
+
+
+def test_v4_envelope_preserves_single_namespace_primitive_detection():
+    policy, _ = load_decision_policy(EXTENDED_ENVELOPE_POLICY)
+    decision = corroboration_details(
+        policy,
+        {"mount": 1},
+        "production/aims-minio-pool-0:minio",
+    )
+    assert decision["confirmed"] is True
+    assert decision["signal_groups"]["namespace_probe"]["triggered"] is True
+    assert policy["development_normal_evidence"][
+        "semantic_envelope_extension_v4_sha256"
+    ] == "80d8a008b15bbb7b63d33452443ae50a5b676085e791c7d75e3e99b4d7fa619c"

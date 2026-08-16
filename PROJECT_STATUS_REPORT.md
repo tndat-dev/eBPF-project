@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-15
+**Ngày xác minh cluster gần nhất:** 2026-08-16
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
 **Phiên bản đang deploy:** Syscall Runtime Release V7, window 10 giây,
@@ -46,11 +46,16 @@ alert/2.175 scored decision và đã dừng trước rollout. Same-window semant
 policy `79564746...` đã pass canary nhưng fail soak do 2 normal alert. Policy v2
 `71c6ed92...` thêm score margin nhưng tiếp tục fail sau 10 giờ 23 phút với 5
 normal alert/1.560.418 decision; cả hai run được freeze trước blind. Policy v3
-`382e4562...` dùng workload-normal envelope của năm threat-signal group, replay
-5/5 FP thành suppressed và pass canary 331,93 giây với 5.298 scored/0 alert/0
-restart. Normal soak `semantic-envelope-soak-c1` đang active 3/3 worker từ
-16-08-2026 09:21:12 +07. Soak 24 giờ, blind 450 trial, true kernel-to-alert và
-overhead A/B chưa hoàn tất, vì vậy chưa có claim production cho Sentinel Pulse.
+`382e4562...` dùng workload-normal envelope của năm threat-signal group và pass
+canary, nhưng tiếp tục fail độc lập sau 1.985.317 decision vì 8 normal alert
+tập trung trong một incident 5,95 giây. Evidence 2,7 GB đã đóng băng và blind
+chưa chạy. Policy V4 `272e9119...` mở rộng envelope chỉ bằng failed-normal
+evidence checksum-bound, replay toàn bộ V3 thành 0 alert và pass canary 351,05
+giây với 5.599 scored/0 alert/0 restart; p99 window-to-decision 1,433 giây.
+Normal soak mới `semantic-envelope-soak-d1` active 3/3 worker từ 16-08-2026
+23:04:35 +07 và chỉ đủ điều kiện finalize sau 23:04:35 ngày 17-08. Blind 450
+trial, true attack kernel-to-alert và overhead A/B chưa hoàn tất, vì vậy chưa
+có claim production cho Sentinel Pulse.
 
 ## Quy ước tên phiên bản và research track
 
@@ -5378,3 +5383,51 @@ anomaly suppressed, 0 alert/0 restart; inference p99 39,04 ms, processing p99
 `semantic-envelope-soak-c1` active 3/3 worker từ `2026-08-16 09:21:12 +07`;
 terminal gate sớm nhất `2026-08-17 09:21:12 +07`, yêu cầu 24 giờ/workload,
 coverage ≥95%, 0 alert và identity/integrity pass trước khi mở blind 450 trial.
+
+### 18.124 Policy v3 fail trong probe-storm và mở independent soak V4 (16-08-2026)
+
+Audit fail-fast lúc 22:37 +07 phát hiện V3 đã vượt normal-alert budget. Ba
+detector được dừng trước khi sao chép evidence; collector và workload production
+không bị restart. Run có **1.985.317 decision** trong 47.873,49 giây: 1.948.138
+normal, 317 suppressed, 36.854 warming, **8 alert**, 0 JSON hỏng và
+`NRestarts=0`. Bảy alert nằm trên worker1 và một trên worker4; cả tám tập trung
+trong 5,95 giây từ 22:22:11 đến 22:22:17 +07. Phân bố là Kafka 2, Redis 3,
+Redis Sentinel 1 và catalog 2.
+
+Đúng incident window, Kubernetes ghi bảy probe timeout trên worker1, gồm
+node-exporter, Longhorn, Loki canary, Keycloak, MinIO, Istio waypoint và catalog.
+Redis chạy đồng thời readiness/liveness exec probe chu kỳ 10 giây; Kafka
+worker4 tăng socket/connect khi broker worker1 chậm. Dù có tương quan hạ tầng,
+alert vẫn được giữ nguyên là candidate failure, không bị xóa hoặc đổi nhãn.
+Bundle 2,7 GB chứa toàn bộ decision/alert/journal, cluster event, pod/node
+snapshot và Prometheus time-series; mọi file chuyển `0444`. Failure summary
+SHA-256 là `8bfc68bc...`, bundle-index SHA-256 `9d226a22...`; blind vẫn
+`started=false`.
+
+CLI mới `extend_semantic_envelope.py` chỉ chấp nhận bundle có checksum khớp,
+summary terminal `failed`, đúng model/policy/run identity, tổng row/alert khớp
+và không có marker attack. Nó chuyển failed-normal run thành development-only
+cho **policy mới**, không diễn giải V3 thành pass. Extension quét 1.948.463
+scored normal row của 20 workload, tăng normal maxima tại 10 workload và ghi
+report SHA-256 `80d8a008...`. Policy V4
+`extended-normal-envelope-one-window-v4` có SHA-256 `272e9119...`; model,
+dataset, alpha, score margin 0,01 và one-window contract không đổi. Full replay
+1.985.317 decision trả 1.948.138 normal, 325 suppressed, 36.854 warming và
+**0 projected alert**, report SHA-256 `635ceb09...`. Namespace primitive vẫn
+được xác nhận từ một event khi normal max bằng 0. Regression đạt **367 passed,
+2 warning**.
+
+Canary V4 riêng worker1 chạy 351,05 giây: 5.647 decision, 5.599 scored,
+1 raw anomaly suppressed, 0 alert, 0 restart và 14 workload local. Inference
+p50/p95/p99 là 19,53/31,82/39,68 ms; post-window processing p99 429,26 ms;
+window-start-to-decision p50/p95/p99 là 1,219/1,381/**1,433 giây**. Canary
+report `valid=true`, SHA-256 `a3ee8fbd...`. Preflight worker4/worker3 sau đó
+có 1.071/817 decision, 0 alert/restart.
+
+Independent run mới `semantic-envelope-soak-d1` dùng model `b7e603fd...` và
+policy `272e9119...`, active 3/3 worker từ marker bảo thủ
+`2026-08-16 23:04:35 +07`. Preflight phút đầu ghi 4.714 decision, 0 alert,
+0 restart; 6/6 node Ready và zero unhealthy pod. Gate chỉ được finalize từ
+`2026-08-17 23:04:35 +07` nếu từng workload đủ 24 giờ, coverage ≥95%, 0 alert
+và integrity/identity pass. Ma trận blind 450 injection tiếp tục bị interlock;
+không có attack outcome nào được dùng để tạo V4.

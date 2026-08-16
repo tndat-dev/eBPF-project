@@ -190,6 +190,7 @@ class PulseRuntime:
         model = self.models.get(workload)
         if model is None:
             return {
+                "schema": "sentinel-pulse-decision-v1",
                 "status": "collect-only",
                 "model_manifest_sha256": self.model_manifest_sha256,
                 "decision_policy_sha256": self.decision_policy_sha256,
@@ -225,6 +226,7 @@ class PulseRuntime:
         if len(history) < self.history_size:
             history.append(row)
             return {
+                "schema": "sentinel-pulse-decision-v1",
                 "status": "warming",
                 "warming_reason": reset_reason or "history_fill",
                 "model_manifest_sha256": self.model_manifest_sha256,

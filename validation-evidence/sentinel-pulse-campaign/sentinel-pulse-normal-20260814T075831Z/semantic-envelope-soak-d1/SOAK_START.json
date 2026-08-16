@@ -1,0 +1,36 @@
+{
+  "blind_evaluation_started": false,
+  "canary_alerts": 0,
+  "canary_nrestarts": 0,
+  "canary_report_sha256": "a3ee8fbd9b06dd9f46c966eba85bb9e51b864d4404732df98bca3a0acc075d87",
+  "canary_scored_windows": 5599,
+  "canary_span_seconds": 351.04618883132935,
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "development_replay_sha256": "635ceb095525614e92dfff9fd940d49cacdb17b0bdac6dace041889e85712e13",
+  "eligible_finalize_after": "2026-08-17T16:04:35.295445+00:00",
+  "failed_v3_bundle_index_sha256": "9d226a22e43457cd2caf9a799a046b0c38bfbae73505c6c2201e303550c3eedb",
+  "failed_v3_summary_sha256": "8bfc68bc0362b03f44b097cccf4e19a7ee0f09e2c2b7f81a7a7a92692a866ccb",
+  "maximum_alerts": 0,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "run_id": "semantic-envelope-soak-d1",
+  "schema": "sentinel-pulse-semantic-soak-start-v4",
+  "semantic_envelope_extension_sha256": "80d8a008b15bbb7b63d33452443ae50a5b676085e791c7d75e3e99b4d7fa619c",
+  "started_not_before": "2026-08-16T16:04:35.295445+00:00",
+  "supersedes_failed_normal_run": "semantic-envelope-soak-c1",
+  "workers": {
+    "10.1.16.237": {
+      "node": "k8s-worker1.local",
+      "service_started_at": "2026-08-16T16:03:55+00:00"
+    },
+    "10.1.16.238": {
+      "node": "k8s-worker4.local",
+      "service_started_at": "2026-08-16T16:03:57+00:00"
+    },
+    "10.1.16.239": {
+      "node": "k8s-worker3.local",
+      "service_started_at": "2026-08-16T16:03:55+00:00"
+    }
+  }
+}

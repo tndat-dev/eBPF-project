@@ -1,0 +1,65 @@
+{
+  "schema": "sentinel-pulse-decision-policy-v1",
+  "name": "extended-normal-envelope-one-window-v4",
+  "frozen_before_blind_evaluation": true,
+  "same_window_corroboration": {
+    "requires_raw_model_anomaly": true,
+    "additional_window_wait": 0,
+    "minimum_security_activity_mass": 1,
+    "security_activity_fields": [
+      "socket", "connect", "clone", "clone3", "setuid", "setgid", "capset",
+      "openat", "ptrace", "pivot_root", "mount", "unshare", "setns", "execveat"
+    ],
+    "workload_normal_envelope": {
+      "signal_groups": [
+        {"name": "local_socket_beacon", "fields": ["socket", "connect"], "minimum_excess": 4},
+        {"name": "process_fanout", "fields": ["clone", "clone3"], "minimum_excess": 4},
+        {"name": "identity_transition", "fields": ["setuid", "setgid", "capset"], "minimum_excess": 4},
+        {"name": "credential_open", "fields": ["openat"], "minimum_excess": 4},
+        {"name": "namespace_probe", "fields": ["ptrace", "pivot_root", "mount", "unshare", "setns", "execveat"], "minimum_excess": 1}
+      ],
+      "workload_group_maxima": {
+        "production/aims-frontend:web": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-kafka-dual-role:kafka": {"credential_open": 189, "identity_transition": 26, "local_socket_beacon": 30, "namespace_probe": 0, "process_fanout": 14},
+        "production/aims-kafka-entity-operator:topic-operator": {"credential_open": 6, "identity_transition": 0, "local_socket_beacon": 10, "namespace_probe": 0, "process_fanout": 5},
+        "production/aims-kafka-entity-operator:user-operator": {"credential_open": 8, "identity_transition": 0, "local_socket_beacon": 6, "namespace_probe": 0, "process_fanout": 8},
+        "production/aims-minio-pool-0:minio": {"credential_open": 3906, "identity_transition": 0, "local_socket_beacon": 24, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-minio-pool-0:sidecar": {"credential_open": 2, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-postgres-cnpg:postgres": {"credential_open": 283, "identity_transition": 0, "local_socket_beacon": 100, "namespace_probe": 0, "process_fanout": 16},
+        "production/aims-rabbitmq-server:rabbitmq": {"credential_open": 39, "identity_transition": 0, "local_socket_beacon": 11, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {"credential_open": 23, "identity_transition": 49, "local_socket_beacon": 15, "namespace_probe": 0, "process_fanout": 7},
+        "production/aims-redis:aims-redis": {"credential_open": 23, "identity_transition": 51, "local_socket_beacon": 9, "namespace_probe": 0, "process_fanout": 10},
+        "production/aims-waypoint:istio-proxy": {"credential_open": 2, "identity_transition": 0, "local_socket_beacon": 278, "namespace_probe": 0, "process_fanout": 0},
+        "production/api-gateway:app": {"credential_open": 315, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 11},
+        "production/auth-service:app": {"credential_open": 327, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 6},
+        "production/cart-service:app": {"credential_open": 392, "identity_transition": 32, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 8},
+        "production/catalog-service:app": {"credential_open": 280, "identity_transition": 26, "local_socket_beacon": 8, "namespace_probe": 0, "process_fanout": 7},
+        "production/inventory-service:app": {"credential_open": 393, "identity_transition": 32, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 10},
+        "production/notification-service:pod-slice": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/order-service:app": {"credential_open": 386, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 10},
+        "production/payment-service:pod-slice": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 1},
+        "production/security-telemetry-service:app": {"credential_open": 202, "identity_transition": 17, "local_socket_beacon": 2, "namespace_probe": 0, "process_fanout": 6}
+      }
+    }
+  },
+  "score_corroboration": {
+    "reference": "per_workload_calibration_max",
+    "minimum_excess_over_calibration_max": 0.01
+  },
+  "suppressed_decision_status": "suppressed",
+  "development_normal_evidence": {
+    "failed_model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+    "canary_report_sha256": "7d9ff24c75be414a659c18bbd363620a43415532deed10900bd30dcf0811931b",
+    "alert_context_sha256": "8bfc68bc0362b03f44b097cccf4e19a7ee0f09e2c2b7f81a7a7a92692a866ccb",
+    "normal_dataset_sha256": "40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16",
+    "semantic_envelope_calibration_sha256": "0ef723301dba560b8ed11ea698dba66362aa8c66de60cd98756c982bbe4ffb66",
+    "failed_soak_v1_summary_sha256": "3bfdc43b28381d73a8a02a5ff423c9d31bc6c4fa4b010a52e412b68e98ba6b66",
+    "failed_soak_v2_summary_sha256": "099b1a70d9400d57c45303c33a9e6cfbd7a5434e123088106d81dfc4f780f2d2",
+    "failed_soak_v3_summary_sha256": "8bfc68bc0362b03f44b097cccf4e19a7ee0f09e2c2b7f81a7a7a92692a866ccb",
+    "failed_soak_v3_bundle_index_sha256": "9d226a22e43457cd2caf9a799a046b0c38bfbae73505c6c2201e303550c3eedb",
+    "semantic_envelope_extension_v4_sha256": "80d8a008b15bbb7b63d33452443ae50a5b676085e791c7d75e3e99b4d7fa619c",
+    "incident_cluster_events_sha256": "4d4fb2dc662b630594e3e55b095b05c731e72351984bdee754e68a987d30c6e3",
+    "incident_prometheus_sha256": "a266111a98bf15054e0ffc4a8e5a0cb929f2962722e23e3eaed433153fa11185"
+  },
+  "claim_scope": "Raw ML anomaly exceeding the per-workload calibration maximum by 0.01 plus a threat-signal group exceeding an envelope built only from checksum-bound normal development evidence in the same one-second window; the failed V3 normal run is development-only, no blind outcome is used, and there is no second-window wait"
+}

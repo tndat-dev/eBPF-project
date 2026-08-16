@@ -1,0 +1,21 @@
+{
+  "blind_evaluation_started": false,
+  "canary_alerts": 0,
+  "canary_nrestarts": 0,
+  "canary_report_sha256": "7d9ff24c75be414a659c18bbd363620a43415532deed10900bd30dcf0811931b",
+  "canary_scored_windows": 5298,
+  "canary_span_seconds": 331.93123745918274,
+  "decision_policy_sha256": "382e45628544f9a93b0adb11a900b5496fdd82c6fa847913cf29aacbba06d5d1",
+  "development_replay_sha256": "cfac018d12181cbc2f84b0c654631f888cf483776d856d281426d50272b24ea8",
+  "eligible_finalize_after": "2026-08-17T02:21:12.568834+00:00",
+  "failed_normal_evidence_sha256": "099b1a70d9400d57c45303c33a9e6cfbd7a5434e123088106d81dfc4f780f2d2",
+  "maximum_alerts": 0,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "run_id": "semantic-envelope-soak-c1",
+  "schema": "sentinel-pulse-semantic-soak-start-v3",
+  "semantic_envelope_calibration_sha256": "0ef723301dba560b8ed11ea698dba66362aa8c66de60cd98756c982bbe4ffb66",
+  "started_not_before": "2026-08-16T02:21:12.568834+00:00",
+  "supersedes_failed_normal_run": "semantic-margin-soak-b1"
+}

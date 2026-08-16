@@ -6,16 +6,15 @@
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
 **Checkpoint live mới nhất:** model ExtraTrees và dataset normal-only
-3.594.513 window vẫn giữ nguyên checksum. Policy v2 `71c6ed92...` đã fail-fast
-sau 10 giờ 23 phút: 1.560.418 decision có 5 normal alert, chủ yếu do Redis
-Sentinel `connect=7–8` và một Kafka operator `clone=1,mprotect=1`; 171 raw
-anomaly khác được suppressed, 0 restart/JSON error. Blind chưa chạy. Policy v3
-`382e4562...` thay generic mass gate bằng normal envelope của năm threat-signal
-group theo 20 workload, dựng từ toàn bộ dataset SHA `40a97f...`; 5 FP replay
-thành suppressed. Canary v3 331,93 giây pass với 5.298 scored, 1 suppressed,
-0 alert/0 restart; inference p99 39,04 ms, processing p99 425,78 ms. Soak mới
-`semantic-envelope-soak-c1` active 3/3 worker từ 16-08-2026 09:21:12 +07;
-chưa đủ 24 giờ/blind 450 trial nên chưa công bố đạt gate.
+3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
+soak sau 1.985.317 decision với 8 alert tập trung trong probe-storm 5,95 giây;
+evidence 2,7 GB đã freeze, blind chưa chạy. Policy V4 `272e9119...` được dựng
+chỉ từ normal development evidence có checksum. Full replay V3 cho 0 projected
+alert; regression 367 test pass. Canary V4 351,05 giây có 5.599 scored,
+1 suppressed, 0 alert/restart; inference p99 39,68 ms và
+window-start-to-decision p99 1,433 giây. Independent soak
+`semantic-envelope-soak-d1` active 3/3 worker từ 16-08-2026 23:04:35 +07,
+không được finalize trước 23:04:35 ngày 17-08. Blind 450 trial vẫn interlock.
 
 ## 1. Động cơ và phạm vi
 
@@ -134,7 +133,7 @@ workload khác.
 | Audit AIMS và dependency | Hoàn thành; application/dependency healthy |
 | Xác minh traffic | Đã apply và live-check: HTTP health/ingress, Redis AUTH+PING, MinIO health, PostgreSQL/Kafka/RabbitMQ TCP |
 | Feature schema exact counter + transition | Đã implement local, 249 chiều |
-| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic v1/v2 fail soak, workload-envelope v3 pass canary và đang soak lại |
+| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic V1/V2/V3 fail normal gate; extended-envelope V4 pass canary và đang soak độc lập |
 | eBPF collector theo cgroup | Đã build/verifier và active trên 3/3 worker |
 | Tetragon high-volume rate limit 500 ms | Policy Pulse tên riêng đã staging; V8 vẫn 1 giây; chưa apply, chờ A/B |
 | Dataset 1 giây đa workload | Terminal: 3.594.513 row, 20 workload/container, 4 traffic regime, integrity 0 |
@@ -142,7 +141,7 @@ workload khác.
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement; hai run cũ fail/frozen; `semantic-envelope-soak-c1` active 3/3 worker từ 16-08 09:21:12 +07 |
+| Independent normal-soak evaluator | Đã implement; V1/V2/V3 fail và frozen; `semantic-envelope-soak-d1` active 3/3 worker từ 16-08 23:04:35 +07 |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
 | Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
@@ -369,6 +368,47 @@ test calibrator/provenance. Run
 đầu `2026-08-16 09:21:12 +07`, chỉ được finalize từ
 `2026-08-17 09:21:12 +07`. Blind 450 trial tiếp tục bị interlock.
 
+### 7.10 Probe-storm failure V3 và extended-normal envelope V4
+
+V3 không đạt normal gate. Fail-fast checkpoint giữ nguyên 1.985.317 decision
+trong 47.873,49 giây: 1.948.138 normal, 317 suppressed, 36.854 warming,
+8 alert, 0 JSON lỗi và 0 restart. Tám alert nằm trong một span 5,95 giây trên
+Kafka, Redis, Redis Sentinel và catalog. Cùng thời điểm đó, Kubernetes ghi bảy
+probe timeout trên worker1; Kafka worker4 tăng reconnect khi broker worker1
+chậm. Đây là evidence giải thích tương quan, không phải lý do xóa alert. Run V3
+vẫn terminal `failed`; blind marker vẫn false.
+
+Full evidence 2,7 GB được sao chép trước khi phân tích, checksum và chuyển mode
+`0444`. Failure summary SHA-256 `8bfc68bc...`, bundle index `9d226a22...`;
+bundle còn giữ cluster events, pod/node snapshot, Redis probe spec và
+Prometheus incident window. Bản local chỉ giữ summary, marker, tám alert và
+extension report nhỏ; decision log đầy đủ nằm trên control plane để tránh đưa
+2,7 GB vào Git.
+
+`extend_semantic_envelope.py` kiểm checksum từng source, summary `failed`,
+model/policy/run identity, row/alert totals và cấm mọi attack marker. Nó dùng
+1.948.463 scored normal row làm development evidence cho policy mới, không tái
+gán V3 thành pass. Extension thay maxima tại 10/20 workload, report SHA-256
+`80d8a008...`. V4 giữ model `b7e603fd...`, score margin 0,01, năm semantic
+group và quyết định một cửa sổ; policy SHA-256 `272e9119...`. Full development
+replay cho 1.948.138 normal, 325 suppressed, 36.854 warming, 0 alert; report
+SHA-256 `635ceb09...`. Primitive namespace (`mount`, `unshare`, `setns`,
+`ptrace`, `pivot_root`, `execveat`) vẫn trigger từ một event trên workload có
+normal max bằng 0. Full suite đạt 367 pass, 2 cảnh báo deprecation Torch.
+
+Canary V4 worker1 span 351,05 giây ghi 5.647 row, 5.599 scored, 1 suppressed,
+0 alert/restart. Inference p50/p95/p99 là 19,53/31,82/39,68 ms;
+post-window processing p99 429,26 ms; window-start-to-decision p50/p95/p99 là
+1,219/1,381/1,433 giây. Report `valid=true`, SHA-256 `a3ee8fbd...`.
+Worker4/worker3 preflight tiếp theo có 1.071/817 decision và 0 alert/restart.
+
+Independent soak `semantic-envelope-soak-d1` bắt đầu bảo thủ lúc
+`2026-08-16 23:04:35 +07`, model/policy được khóa trong marker SHA-256
+`c7a065c7...`. Preflight phút đầu trên ba worker có 4.714 decision, 0 alert,
+0 restart; cluster 6/6 Ready và zero unhealthy pod. Gate sớm nhất là
+`2026-08-17 23:04:35 +07`, yêu cầu 24 giờ/workload, coverage ≥95%, alert budget
+0 và identity/integrity pass. Không được chạy blind 450 trial trước gate này.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -536,3 +576,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   calibrate từ 3.594.513 window, replay 5/5 FP thành suppressed và pass canary
   331,93 giây với 0 alert/0 restart. Soak `semantic-envelope-soak-c1` mở
   09:21:12 +07, sớm nhất finalize 09:21:12 +07 ngày 17-08.
+- 16-08-2026: V3 fail-fast sau 1.985.317 decision với 8 normal alert trong
+  probe-storm 5,95 giây; bundle 2,7 GB được freeze, blind chưa chạy. V4 mở rộng
+  envelope từ checksum-bound failed-normal evidence, full replay 0 alert và
+  regression 367 pass. Canary 351,05 giây đạt 5.599 scored/0 alert/0 restart,
+  p99 window-to-decision 1,433 giây. Soak `semantic-envelope-soak-d1` mở
+  23:04:35 +07, finalize sớm nhất 23:04:35 +07 ngày 17-08.

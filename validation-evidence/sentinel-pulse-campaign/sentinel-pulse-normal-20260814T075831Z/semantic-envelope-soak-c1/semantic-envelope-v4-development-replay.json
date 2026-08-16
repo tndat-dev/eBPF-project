@@ -1,0 +1,22 @@
+{
+  "base_failed_run_id": "semantic-envelope-soak-c1",
+  "blind_outcome_used": false,
+  "elapsed_seconds": 65.38918346399441,
+  "new_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "projected_alerts_by_workload": {},
+  "projected_status_counts": {
+    "normal": 1948138,
+    "suppressed": 325,
+    "warming": 36854
+  },
+  "rows": 1985317,
+  "schema": "sentinel-pulse-policy-development-replay-v1",
+  "scored_rows": 1948463,
+  "source_role": "failed_normal_development_only",
+  "source_status_counts": {
+    "alert": 8,
+    "normal": 1948138,
+    "suppressed": 317,
+    "warming": 36854
+  }
+}

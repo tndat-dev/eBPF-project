@@ -9,7 +9,7 @@ fi
 
 SOURCE_ROOT=${SOURCE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 MODEL_SOURCE=${MODEL_SOURCE:?MODEL_SOURCE must point to a complete candidate bundle}
-DECISION_POLICY_SOURCE=${DECISION_POLICY_SOURCE:-$SOURCE_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v3.json}
+DECISION_POLICY_SOURCE=${DECISION_POLICY_SOURCE:-$SOURCE_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
 INSTALL_ROOT=${INSTALL_ROOT:-/opt/sentinel-pulse}
 SERVICE=sentinel-pulse-detector-candidate.service
 RUNTIME_USER=sentinel-pulse-detector

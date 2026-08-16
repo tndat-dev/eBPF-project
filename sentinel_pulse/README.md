@@ -39,6 +39,27 @@ the frozen V8 models, policy evidence, or production detector.
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.
 
+If an independent normal soak produces an alert, that candidate is terminally
+failed and its complete evidence bundle is frozen. The normal observations may
+then become development data for a new semantic policy, but they can never be
+counted as a passing evaluation. `extend_semantic_envelope.py` verifies the
+bundle index, policy/model/run identities, row totals, alert totals and the
+absence of blind markers before extending workload maxima:
+
+```bash
+python -m sentinel_pulse.extend_semantic_envelope \
+  --base-policy sentinel_pulse/protocol/decision-policy-semantic-v3.json \
+  --failure-summary failed-evidence/FAILURE_SUMMARY.json \
+  --evidence-checksums failed-evidence/SHA256SUMS \
+  --decisions failed-evidence/worker1/decisions.jsonl \
+  --decisions failed-evidence/worker4/decisions.jsonl \
+  --decisions failed-evidence/worker3/decisions.jsonl \
+  --output semantic-envelope-extension-v4.json
+```
+
+V4 uses that normal-only extension. It still requires a fresh canary and a new
+24-hour independent normal soak before the blind attack interlock can open.
+
 ## Node build
 
 ```bash
@@ -143,7 +164,7 @@ sudo SOURCE_ROOT=/home/dat/eBPF-project \
 
 python -m sentinel_pulse.detect \
   --model-dir models-pulse-candidate \
-  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v3.json \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v4.json \
   --run-id sentinel-pulse-normal-soak-001 \
   --features pulse-live.jsonl \
   --decisions pulse-decisions.jsonl \
@@ -165,7 +186,7 @@ python -m sentinel_pulse.evaluate_latency \
 
 python -m sentinel_pulse.finalize_candidate \
   --model-dir models-pulse-candidate \
-  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v3.json \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v4.json \
   --normal-report pulse-normal-soak-report.json \
   --attack-report pulse-blind-latency-report.json \
   --output pulse-candidate-decision.json

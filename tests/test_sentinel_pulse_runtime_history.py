@@ -105,6 +105,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
 
         gap = runtime.score(self._record(columns, 10.0))
         self.assertEqual(gap["status"], "warming")
+        self.assertEqual(gap["schema"], "sentinel-pulse-decision-v1")
         self.assertEqual(gap["warming_reason"], "temporal_gap")
         runtime.score(self._record(columns, 11.0))
         changed = runtime.score(self._record(columns, 12.0, regime="toolmix"))
