@@ -43,12 +43,13 @@ candidate, 0 collect-only, bundle SHA-256 `b7e603fd...` và runtime load gate
 pass. Fresh live-normal smoke sau train có 1.631 decision, 0 alert, inference
 p99 30,83 ms. Raw one-window policy sau đó fail live canary do 1 Redis normal
 alert/2.175 scored decision và đã dừng trước rollout. Same-window semantic
-policy `79564746...` đã pass canary nhưng fail soak do 2 normal alert; run được
-đóng băng trước blind. Follower cũng được sửa để không parse fragment JSONL
-chưa có newline. Policy v2 `71c6ed92...` thêm margin 0,01 trên calibration max
-theo workload, pass canary 327,92 giây với 5.248 scored/0 alert/0 restart.
-Normal soak mới `semantic-margin-soak-b1` đang active 3/3 worker từ
-15-08-2026 22:39:55 +07. Soak 24 giờ, blind 450 trial, true kernel-to-alert và
+policy `79564746...` đã pass canary nhưng fail soak do 2 normal alert. Policy v2
+`71c6ed92...` thêm score margin nhưng tiếp tục fail sau 10 giờ 23 phút với 5
+normal alert/1.560.418 decision; cả hai run được freeze trước blind. Policy v3
+`382e4562...` dùng workload-normal envelope của năm threat-signal group, replay
+5/5 FP thành suppressed và pass canary 331,93 giây với 5.298 scored/0 alert/0
+restart. Normal soak `semantic-envelope-soak-c1` đang active 3/3 worker từ
+16-08-2026 09:21:12 +07. Soak 24 giờ, blind 450 trial, true kernel-to-alert và
 overhead A/B chưa hoàn tất, vì vậy chưa có claim production cho Sentinel Pulse.
 
 ## Quy ước tên phiên bản và research track
@@ -5349,3 +5350,31 @@ rollout audit-only lên 3/3 worker với policy SHA `71c6ed92...`; run chính th
 chỉ được finalize từ `2026-08-16 22:39:55 +07` nếu mỗi workload đủ 24 giờ,
 coverage ≥95%, 0 alert và không có lỗi identity/integrity. Blind 450 trial tiếp
 tục bị interlock cho tới khi normal gate terminal pass.
+
+### 18.123 Policy v2 fail và workload-normal envelope v3 (16-08-2026)
+
+Audit lúc 09:03 +07 phát hiện `semantic-margin-soak-b1` đã có 5 normal alert
+sau 10 giờ 23 phút. Run được dừng fail-fast và snapshot bất biến gồm 600.096,
+555.124, 405.198 record trên worker1/worker4/worker3: tổng 1.560.418 decision,
+5 alert, 171 suppressed, 0 JSON hỏng. Detector giữ nguyên PID, `NRestarts=0`;
+cluster 6/6 Ready và không có pod unhealthy. Bốn FP thuộc Redis Sentinel với
+7–8 connect và 3–4 socket; FP Kafka Topic Operator có clone=1, mprotect=1.
+Failure summary SHA-256 `099b1a70...`; blind evaluation chưa từng bắt đầu.
+
+Thay vì tiếp tục nâng score threshold, policy v3 thay generic security mass
+bằng normal envelope theo workload. CLI mới quét 3.594.513 normal window trong
+107,84 giây và tính max cho năm nhóm: local socket beacon, process fanout,
+identity transition, credential open, namespace probe. Calibration report
+SHA-256 `0ef72330...`; 20/20 workload có profile. Với bốn nhóm có activity
+bình thường, semantic gate yêu cầu vượt max ít nhất 4 operation; namespace
+primitive dùng excess 1 vì normal max bằng 0. Model/alpha/dataset/blind contract
+không đổi, score margin 0,01 và one-window contract được giữ nguyên.
+
+Exact-feature replay của 5 FP trả 5 suppressed/0 alert, SHA-256 `cfac018d...`.
+Full regression đạt **362 passed, 2 warning**, gồm test calibrator/provenance.
+Canary v3 chạy 331,93 giây trên worker1 với cùng PID: 5.298 scored, 1 raw
+anomaly suppressed, 0 alert/0 restart; inference p99 39,04 ms, processing p99
+425,78 ms. Policy SHA mới là `382e4562...`. Run audit-only
+`semantic-envelope-soak-c1` active 3/3 worker từ `2026-08-16 09:21:12 +07`;
+terminal gate sớm nhất `2026-08-17 09:21:12 +07`, yêu cầu 24 giờ/workload,
+coverage ≥95%, 0 alert và identity/integrity pass trước khi mở blind 450 trial.

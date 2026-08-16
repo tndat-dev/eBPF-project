@@ -1,22 +1,20 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 15-08-2026
+**Snapshot cluster:** 16-08-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
-**Checkpoint live mới nhất:** dataset normal-only 5,55 GB gồm 3.594.513
-window hợp lệ và 20/20 ExtraTrees candidate vẫn giữ nguyên checksum. Policy
-semantic v1 `79564746...` đã **fail normal soak sớm**: 2 alert trên traffic
-normal (catalog và PostgreSQL), đồng thời detector worker4 restart một lần do
-đọc phải JSONL chưa có newline khi collector đang ghi. Run `semantic-soak-a1`
-đã dừng, đóng băng 85.849 decision và không mở blind test. Bản sửa không dùng
-blind outcome: follower chỉ parse record hoàn chỉnh; policy v2
-`71c6ed92...` yêu cầu thêm score vượt calibration max theo workload ít nhất
-0,01, vẫn cùng một window. Replay hai FP cũ cho 0 alert/2 suppressed. Canary
-v2 độc lập 327,92 giây có 5.248 scored decision, 0 alert, `NRestarts=0`,
-inference p99 39,26 ms và post-window processing p99 421,17 ms. Soak mới
-`semantic-margin-soak-b1` active 3/3 worker từ 15-08-2026 22:39:55 +07;
+**Checkpoint live mới nhất:** model ExtraTrees và dataset normal-only
+3.594.513 window vẫn giữ nguyên checksum. Policy v2 `71c6ed92...` đã fail-fast
+sau 10 giờ 23 phút: 1.560.418 decision có 5 normal alert, chủ yếu do Redis
+Sentinel `connect=7–8` và một Kafka operator `clone=1,mprotect=1`; 171 raw
+anomaly khác được suppressed, 0 restart/JSON error. Blind chưa chạy. Policy v3
+`382e4562...` thay generic mass gate bằng normal envelope của năm threat-signal
+group theo 20 workload, dựng từ toàn bộ dataset SHA `40a97f...`; 5 FP replay
+thành suppressed. Canary v3 331,93 giây pass với 5.298 scored, 1 suppressed,
+0 alert/0 restart; inference p99 39,04 ms, processing p99 425,78 ms. Soak mới
+`semantic-envelope-soak-c1` active 3/3 worker từ 16-08-2026 09:21:12 +07;
 chưa đủ 24 giờ/blind 450 trial nên chưa công bố đạt gate.
 
 ## 1. Động cơ và phạm vi
@@ -131,12 +129,12 @@ workload khác.
 
 ## 7. Tiến độ implementation
 
-| Hạng mục | Trạng thái 15-08-2026 |
+| Hạng mục | Trạng thái 16-08-2026 |
 |---|---|
 | Audit AIMS và dependency | Hoàn thành; application/dependency healthy |
 | Xác minh traffic | Đã apply và live-check: HTTP health/ingress, Redis AUTH+PING, MinIO health, PostgreSQL/Kafka/RabbitMQ TCP |
 | Feature schema exact counter + transition | Đã implement local, 249 chiều |
-| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic v1 fail soak, calibration-margin v2 pass canary và đang soak lại |
+| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic v1/v2 fail soak, workload-envelope v3 pass canary và đang soak lại |
 | eBPF collector theo cgroup | Đã build/verifier và active trên 3/3 worker |
 | Tetragon high-volume rate limit 500 ms | Policy Pulse tên riêng đã staging; V8 vẫn 1 giây; chưa apply, chờ A/B |
 | Dataset 1 giây đa workload | Terminal: 3.594.513 row, 20 workload/container, 4 traffic regime, integrity 0 |
@@ -144,7 +142,7 @@ workload khác.
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement; `semantic-soak-a1` fail/frozen; run mới `semantic-margin-soak-b1` active 3/3 worker từ 15-08 22:39:55 +07 |
+| Independent normal-soak evaluator | Đã implement; hai run cũ fail/frozen; `semantic-envelope-soak-c1` active 3/3 worker từ 16-08 09:21:12 +07 |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
 | Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
@@ -344,6 +342,33 @@ Soak mới khóa model SHA `b7e603fd...`, policy SHA `71c6ed92...`, run ID
 `semantic-margin-soak-b1`, bắt đầu bảo thủ `2026-08-15 22:39:55 +07` và không
 được finalize trước `2026-08-16 22:39:55 +07`. Blind marker vẫn false.
 
+### 7.9 Workload-normal semantic envelope v3
+
+Run `semantic-margin-soak-b1` fail-fast ở 10 giờ 23 phút với 1.560.418
+decision: 5 alert, 171 suppressed, 0 JSON hỏng và 0 detector restart. Bốn alert
+là Redis Sentinel có 10–12 socket/connect mỗi giây; alert còn lại là Kafka
+Topic Operator có một clone cùng một mprotect. Đây đều nằm trong normal
+behavior của dependency, không phải infrastructure failure. Failure summary
+SHA-256 là `099b1a70...`; blind marker vẫn false.
+
+CLI `calibrate_semantic_envelope` quét toàn bộ 3.594.513 normal window và dựng
+normal maximum cho năm nhóm đã ánh xạ từ threat contract: socket beacon,
+process fanout, identity transition, credential open và namespace probe. Scan
+107,84 giây cho 20/20 workload; report SHA-256 `0ef72330...`. Policy v3 chỉ
+corroborate raw ML anomaly nếu nhóm hiện tại vượt workload normal max ít nhất
+4 operation; namespace primitive có normal max 0 nên dùng excess 1. Score vẫn
+phải vượt calibration max 0,01 và không chờ window thứ hai. Replay bằng exact
+feature của 5 FP cho 0 alert/5 suppressed, report SHA-256 `cfac018d...`.
+
+Canary v3 span 331,93 giây có 5.346 record, 5.298 scored, một raw anomaly
+suppressed, 0 alert và `NRestarts=0`. Inference p50/p95/p99 là
+18,84/31,46/39,04 ms; processing p50/p95/p99 là
+210,25/372,52/425,78 ms. Full regression đạt **362 passed, 2 warning**, gồm cả
+test calibrator/provenance. Run
+`semantic-envelope-soak-c1` khóa model `b7e603fd...`, policy `382e4562...`, bắt
+đầu `2026-08-16 09:21:12 +07`, chỉ được finalize từ
+`2026-08-17 09:21:12 +07`. Blind 450 trial tiếp tục bị interlock.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -506,3 +531,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   canary 327,92 giây đạt 5.248 scored/0 alert/0 restart, inference p99 39,26 ms,
   processing p99 421,17 ms. Run `semantic-margin-soak-b1` mở lúc 22:39:55 +07,
   đủ điều kiện finalize sớm nhất 22:39:55 +07 ngày 16-08.
+- 16-08-2026: policy v2 fail soak sau 10 giờ 23 phút với 5 normal alert trên
+  1.560.418 decision; evidence được freeze, blind chưa chạy. Normal-envelope v3
+  calibrate từ 3.594.513 window, replay 5/5 FP thành suppressed và pass canary
+  331,93 giây với 0 alert/0 restart. Soak `semantic-envelope-soak-c1` mở
+  09:21:12 +07, sớm nhất finalize 09:21:12 +07 ngày 17-08.

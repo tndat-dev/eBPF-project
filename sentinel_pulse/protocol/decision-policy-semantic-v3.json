@@ -1,0 +1,60 @@
+{
+  "schema": "sentinel-pulse-decision-policy-v1",
+  "name": "workload-normal-envelope-one-window-v3",
+  "frozen_before_blind_evaluation": true,
+  "same_window_corroboration": {
+    "requires_raw_model_anomaly": true,
+    "additional_window_wait": 0,
+    "minimum_security_activity_mass": 1,
+    "security_activity_fields": [
+      "socket", "connect", "clone", "clone3", "setuid", "setgid", "capset",
+      "openat", "ptrace", "pivot_root", "mount", "unshare", "setns", "execveat"
+    ],
+    "workload_normal_envelope": {
+      "signal_groups": [
+        {"name": "local_socket_beacon", "fields": ["socket", "connect"], "minimum_excess": 4},
+        {"name": "process_fanout", "fields": ["clone", "clone3"], "minimum_excess": 4},
+        {"name": "identity_transition", "fields": ["setuid", "setgid", "capset"], "minimum_excess": 4},
+        {"name": "credential_open", "fields": ["openat"], "minimum_excess": 4},
+        {"name": "namespace_probe", "fields": ["ptrace", "pivot_root", "mount", "unshare", "setns", "execveat"], "minimum_excess": 1}
+      ],
+      "workload_group_maxima": {
+        "production/aims-frontend:web": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-kafka-dual-role:kafka": {"credential_open": 105, "identity_transition": 17, "local_socket_beacon": 18, "namespace_probe": 0, "process_fanout": 11},
+        "production/aims-kafka-entity-operator:topic-operator": {"credential_open": 6, "identity_transition": 0, "local_socket_beacon": 10, "namespace_probe": 0, "process_fanout": 5},
+        "production/aims-kafka-entity-operator:user-operator": {"credential_open": 6, "identity_transition": 0, "local_socket_beacon": 6, "namespace_probe": 0, "process_fanout": 8},
+        "production/aims-minio-pool-0:minio": {"credential_open": 1901, "identity_transition": 0, "local_socket_beacon": 22, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-minio-pool-0:sidecar": {"credential_open": 2, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-postgres-cnpg:postgres": {"credential_open": 271, "identity_transition": 0, "local_socket_beacon": 100, "namespace_probe": 0, "process_fanout": 16},
+        "production/aims-rabbitmq-server:rabbitmq": {"credential_open": 39, "identity_transition": 0, "local_socket_beacon": 11, "namespace_probe": 0, "process_fanout": 0},
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {"credential_open": 12, "identity_transition": 21, "local_socket_beacon": 15, "namespace_probe": 0, "process_fanout": 7},
+        "production/aims-redis:aims-redis": {"credential_open": 12, "identity_transition": 21, "local_socket_beacon": 3, "namespace_probe": 0, "process_fanout": 7},
+        "production/aims-waypoint:istio-proxy": {"credential_open": 2, "identity_transition": 0, "local_socket_beacon": 278, "namespace_probe": 0, "process_fanout": 0},
+        "production/api-gateway:app": {"credential_open": 313, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 11},
+        "production/auth-service:app": {"credential_open": 327, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 6},
+        "production/cart-service:app": {"credential_open": 392, "identity_transition": 32, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 7},
+        "production/catalog-service:app": {"credential_open": 202, "identity_transition": 17, "local_socket_beacon": 8, "namespace_probe": 0, "process_fanout": 7},
+        "production/inventory-service:app": {"credential_open": 393, "identity_transition": 32, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 10},
+        "production/notification-service:pod-slice": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 0},
+        "production/order-service:app": {"credential_open": 386, "identity_transition": 30, "local_socket_beacon": 4, "namespace_probe": 0, "process_fanout": 9},
+        "production/payment-service:pod-slice": {"credential_open": 0, "identity_transition": 0, "local_socket_beacon": 0, "namespace_probe": 0, "process_fanout": 1},
+        "production/security-telemetry-service:app": {"credential_open": 202, "identity_transition": 17, "local_socket_beacon": 2, "namespace_probe": 0, "process_fanout": 6}
+      }
+    }
+  },
+  "score_corroboration": {
+    "reference": "per_workload_calibration_max",
+    "minimum_excess_over_calibration_max": 0.01
+  },
+  "suppressed_decision_status": "suppressed",
+  "development_normal_evidence": {
+    "failed_model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+    "canary_report_sha256": "e200e283bf16d151075083265315e67d0c6afddc6631193f626f4cf89ab1b3d9",
+    "alert_context_sha256": "691a7f3b6d248dfde26cf602b5a8e48fa4baba7864958e37d971af853b59e426",
+    "normal_dataset_sha256": "40a97f55338e64c50ab929247ded386a9afcd83c795c4c20cdfdb9138f93dd16",
+    "semantic_envelope_calibration_sha256": "0ef723301dba560b8ed11ea698dba66362aa8c66de60cd98756c982bbe4ffb66",
+    "failed_soak_v1_summary_sha256": "3bfdc43b28381d73a8a02a5ff423c9d31bc6c4fa4b010a52e412b68e98ba6b66",
+    "failed_soak_v2_summary_sha256": "099b1a70d9400d57c45303c33a9e6cfbd7a5434e123088106d81dfc4f780f2d2"
+  },
+  "claim_scope": "Raw ML anomaly exceeding per-workload calibration maximum by 0.01 plus a preregistered threat-signal group exceeding its immutable workload normal maximum in the same one-second window; no blind outcome and no second-window wait"
+}

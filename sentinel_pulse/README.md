@@ -143,7 +143,7 @@ sudo SOURCE_ROOT=/home/dat/eBPF-project \
 
 python -m sentinel_pulse.detect \
   --model-dir models-pulse-candidate \
-  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v2.json \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v3.json \
   --run-id sentinel-pulse-normal-soak-001 \
   --features pulse-live.jsonl \
   --decisions pulse-decisions.jsonl \
@@ -165,7 +165,7 @@ python -m sentinel_pulse.evaluate_latency \
 
 python -m sentinel_pulse.finalize_candidate \
   --model-dir models-pulse-candidate \
-  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v2.json \
+  --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v3.json \
   --normal-report pulse-normal-soak-report.json \
   --attack-report pulse-blind-latency-report.json \
   --output pulse-candidate-decision.json

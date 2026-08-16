@@ -13,7 +13,7 @@ import time
 import numpy as np
 
 from .model import PulseExtraTrees
-from .decision_policy import corroborate, load_decision_policy
+from .decision_policy import corroboration_details, load_decision_policy
 from .encoding import decode_vector, schema_digest
 from .integrity import contained_artifact, verify_sha256
 from .latency import InjectionTracker
@@ -239,9 +239,13 @@ class PulseRuntime:
         security_mass = None
         security_fields = None
         if self.decision_policy is not None:
-            semantic_corroborated, security_mass, security_fields = corroborate(
-                self.decision_policy, record.get("exact_counts")
+            semantic = corroboration_details(
+                self.decision_policy, record.get("exact_counts"), workload
             )
+            semantic_corroborated = semantic["confirmed"]
+            security_mass = semantic["mass"]
+            security_fields = semantic["observed_fields"]
+            semantic_signal_groups = semantic["signal_groups"]
             score_gate = self.decision_policy.get("score_corroboration", {})
             minimum_score_excess = float(
                 score_gate.get("minimum_excess_over_calibration_max", 0.0)
@@ -256,6 +260,7 @@ class PulseRuntime:
             calibration_max = None
             score_excess = None
             minimum_score_excess = None
+            semantic_signal_groups = {}
         alerted = decision.anomalous and corroborated
         status = (
             "alert"
@@ -287,6 +292,7 @@ class PulseRuntime:
             "minimum_score_excess": minimum_score_excess,
             "security_activity_mass": security_mass,
             "security_activity_fields": security_fields,
+            "semantic_signal_groups": semantic_signal_groups,
             "inference_ms": decision.inference_ms,
         }
 

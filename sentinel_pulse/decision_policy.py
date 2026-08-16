@@ -13,11 +13,13 @@ SCHEMA = "sentinel-pulse-decision-policy-v1"
 ALLOWED_SECURITY_FIELDS = frozenset(
     {
         "connect",
+        "socket",
         "clone",
         "clone3",
         "execve",
         "execveat",
         "mprotect",
+        "openat",
         "ptrace",
         "setuid",
         "setgid",
@@ -60,6 +62,37 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
         raise ValueError("decision policy score excess must be finite and non-negative")
     if score_confirmation and score_confirmation.get("reference") != "per_workload_calibration_max":
         raise ValueError("decision policy score reference is unsupported")
+    envelope = confirmation.get("workload_normal_envelope")
+    if envelope is not None:
+        groups = envelope.get("signal_groups", [])
+        maxima = envelope.get("workload_group_maxima", {})
+        names = [group.get("name") for group in groups if isinstance(group, dict)]
+        if not groups or len(names) != len(groups) or len(names) != len(set(names)):
+            raise ValueError("decision policy semantic signal groups are invalid")
+        for group in groups:
+            group_fields = group.get("fields", [])
+            minimum_excess = group.get("minimum_excess")
+            if (
+                not group_fields
+                or len(group_fields) != len(set(group_fields))
+                or not set(group_fields).issubset(fields)
+                or isinstance(minimum_excess, bool)
+                or not isinstance(minimum_excess, int)
+                or minimum_excess < 1
+            ):
+                raise ValueError("decision policy semantic signal group is invalid")
+        if not isinstance(maxima, dict) or not maxima:
+            raise ValueError("decision policy workload semantic maxima are missing")
+        for workload, workload_maxima in maxima.items():
+            if not isinstance(workload, str) or not workload or not isinstance(workload_maxima, dict):
+                raise ValueError("decision policy workload semantic maximum is invalid")
+            if set(workload_maxima) != set(names):
+                raise ValueError("decision policy workload semantic groups are incomplete")
+            if any(
+                isinstance(value, bool) or not isinstance(value, int) or value < 0
+                for value in workload_maxima.values()
+            ):
+                raise ValueError("decision policy workload semantic maximum is invalid")
     development = policy.get("development_normal_evidence", {})
     if not all(
         isinstance(development.get(field), str)
@@ -71,7 +104,9 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
     return policy, sha256_file(path)
 
 
-def corroborate(policy: dict, exact_counts: object) -> tuple[bool, int, dict[str, int]]:
+def corroboration_details(
+    policy: dict, exact_counts: object, workload_key: str | None = None
+) -> dict:
     if not isinstance(exact_counts, dict):
         raise ValueError("same-window decision policy requires exact syscall counts")
     confirmation = policy["same_window_corroboration"]
@@ -84,4 +119,45 @@ def corroborate(policy: dict, exact_counts: object) -> tuple[bool, int, dict[str
         if value:
             observed[field] = value
             mass += value
-    return mass >= int(confirmation["minimum_security_activity_mass"]), mass, observed
+    envelope = confirmation.get("workload_normal_envelope")
+    if envelope is None:
+        return {
+            "confirmed": mass >= int(confirmation["minimum_security_activity_mass"]),
+            "mass": mass,
+            "observed_fields": observed,
+            "signal_groups": {},
+        }
+    if workload_key is None:
+        raise ValueError("workload semantic envelope requires a workload key")
+    workload_maxima = envelope["workload_group_maxima"].get(workload_key)
+    if workload_maxima is None:
+        raise ValueError(f"workload semantic envelope is missing for {workload_key}")
+    group_details = {}
+    confirmed = False
+    for group in envelope["signal_groups"]:
+        name = group["name"]
+        observed_mass = sum(int(exact_counts.get(field, 0)) for field in group["fields"])
+        baseline_max = int(workload_maxima[name])
+        excess = observed_mass - baseline_max
+        triggered = excess >= int(group["minimum_excess"])
+        confirmed = confirmed or triggered
+        group_details[name] = {
+            "observed": observed_mass,
+            "normal_max": baseline_max,
+            "excess": excess,
+            "minimum_excess": int(group["minimum_excess"]),
+            "triggered": triggered,
+        }
+    return {
+        "confirmed": confirmed,
+        "mass": mass,
+        "observed_fields": observed,
+        "signal_groups": group_details,
+    }
+
+
+def corroborate(
+    policy: dict, exact_counts: object, workload_key: str | None = None
+) -> tuple[bool, int, dict[str, int]]:
+    details = corroboration_details(policy, exact_counts, workload_key)
+    return details["confirmed"], details["mass"], details["observed_fields"]
