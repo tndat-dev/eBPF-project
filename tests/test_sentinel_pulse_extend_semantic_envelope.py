@@ -102,6 +102,14 @@ def test_extension_rejects_tampered_evidence(tmp_path):
         extend_envelope(POLICY, summary, checksums, [decisions])
 
 
+def test_extension_rejects_checksum_index_with_missing_target(tmp_path):
+    summary, checksums, decisions = _frozen_failed_evidence(tmp_path)
+    dangling_entry = f"{'0' * 64}  ./SHA256SUMS.tmp\n"
+    checksums.write_text(checksums.read_text() + dangling_entry)
+    with pytest.raises(ValueError, match="checksum target is missing"):
+        extend_envelope(POLICY, summary, checksums, [decisions])
+
+
 def test_extension_rejects_any_run_that_started_blind_evaluation(tmp_path):
     summary, checksums, decisions = _frozen_failed_evidence(
         tmp_path, blind_started=True

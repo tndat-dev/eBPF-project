@@ -5397,14 +5397,28 @@ Redis Sentinel 1 và catalog 2.
 Đúng incident window, Kubernetes ghi bảy probe timeout trên worker1, gồm
 node-exporter, Longhorn, Loki canary, Keycloak, MinIO, Istio waypoint và catalog.
 Redis chạy đồng thời readiness/liveness exec probe chu kỳ 10 giây; Kafka
-worker4 tăng socket/connect khi broker worker1 chậm. Dù có tương quan hạ tầng,
-alert vẫn được giữ nguyên là candidate failure, không bị xóa hoặc đổi nhãn.
-Bundle 2,7 GB chứa toàn bộ decision/alert/journal, cluster event, pod/node
-snapshot và Prometheus time-series; mọi file chuyển `0444`. Failure summary
-SHA-256 là `8bfc68bc...`, bundle-index SHA-256 `9d226a22...`; blind vẫn
-`started=false`.
+worker4 tăng socket/connect khi broker worker1 chậm. Marker bắt đầu run là
+`2026-08-16 09:21:12,568834 +07`; cửa sổ alert đầu tiên là
+`2026-08-16 22:22:11,215323 +07`, tức sau 13 giờ 00 phút 58,646 giây. Đây là
+tương quan thời gian, không đủ để kết luận probe timeout hoặc reconnect gây ra
+alert. Điều evidence trực tiếp chứng minh là canary 331,93 giây không bao phủ
+được sự cố muộn này. Alert vẫn được giữ nguyên là candidate failure, không bị
+xóa hoặc đổi nhãn.
 
-CLI mới `extend_semantic_envelope.py` chỉ chấp nhận bundle có checksum khớp,
+Bundle 2,7 GB chứa toàn bộ decision/alert/journal, cluster event, pod/node
+snapshot và Prometheus time-series; mọi evidence data chuyển `0444`. Failure
+summary SHA-256 là `8bfc68bc...`. Audit độc lập phát hiện bundle-index gốc
+SHA-256 `9d226a22...` có một dangling entry `./SHA256SUMS.tmp`, do temp output
+đã được atomic rename thành `SHA256SUMS`. Đây là lỗi đóng gói index, không phải
+data mismatch: 18/18 evidence file thật xác minh `OK` bằng index sửa bất biến
+`SHA256SUMS.v2`, SHA-256 `3e9b8fb9...`. Correction record SHA-256
+`ca797d15...` giữ nguyên hash/index gốc và xác nhận không sửa evidence data.
+V4 tiếp tục tham chiếu index gốc để giữ audit trail; correction bổ sung không
+đổi model, policy threshold hoặc decision semantics nên không reset soak.
+Blind vẫn `started=false`.
+
+CLI mới `extend_semantic_envelope.py` chỉ chấp nhận index không có target thiếu
+hoặc vượt bundle, rồi mới kiểm checksum từng evidence source,
 summary terminal `failed`, đúng model/policy/run identity, tổng row/alert khớp
 và không có marker attack. Nó chuyển failed-normal run thành development-only
 cho **policy mới**, không diễn giải V3 thành pass. Extension quét 1.948.463
@@ -5431,3 +5445,9 @@ policy `272e9119...`, active 3/3 worker từ marker bảo thủ
 `2026-08-17 23:04:35 +07` nếu từng workload đủ 24 giờ, coverage ≥95%, 0 alert
 và integrity/identity pass. Ma trận blind 450 injection tiếp tục bị interlock;
 không có attack outcome nào được dùng để tạo V4.
+
+Checkpoint audit khoảng `2026-08-16 23:21 +07` đọc trực tiếp decision log trên
+ba worker: 16.434 + 15.192 + 11.153 = **42.779 decision**, 0 alert; cả ba
+detector còn chạy đúng run-id. Cụm có 6/6 node Ready và 0 pod ngoài
+`Running/Succeeded`. Số này chỉ là checkpoint đang chạy, không được trình bày
+như kết quả pass 24 giờ.

@@ -25,6 +25,7 @@ ALLOWED_STATUSES = frozenset({"normal", "suppressed", "alert", "warming"})
 
 def _load_checksums(path: Path) -> dict[str, str]:
     checksums: dict[str, str] = {}
+    evidence_root = path.parent.resolve()
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         fields = line.split(maxsplit=1)
         if (
@@ -36,7 +37,20 @@ def _load_checksums(path: Path) -> dict[str, str]:
         relative = fields[1].removeprefix("*").removeprefix("./")
         if relative in checksums:
             raise ValueError(f"duplicate evidence checksum for {relative}")
+        candidate = (evidence_root / relative).resolve()
+        try:
+            candidate.relative_to(evidence_root)
+        except ValueError as error:
+            raise ValueError(
+                f"line {line_number}: evidence checksum target is outside the bundle"
+            ) from error
+        if not candidate.is_file():
+            raise ValueError(
+                f"line {line_number}: evidence checksum target is missing: {relative}"
+            )
         checksums[relative] = fields[0]
+    if not checksums:
+        raise ValueError("evidence checksum index is empty")
     return checksums
 
 

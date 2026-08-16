@@ -375,17 +375,28 @@ trong 47.873,49 giây: 1.948.138 normal, 317 suppressed, 36.854 warming,
 8 alert, 0 JSON lỗi và 0 restart. Tám alert nằm trong một span 5,95 giây trên
 Kafka, Redis, Redis Sentinel và catalog. Cùng thời điểm đó, Kubernetes ghi bảy
 probe timeout trên worker1; Kafka worker4 tăng reconnect khi broker worker1
-chậm. Đây là evidence giải thích tương quan, không phải lý do xóa alert. Run V3
-vẫn terminal `failed`; blind marker vẫn false.
+chậm. Marker bắt đầu là `2026-08-16 09:21:12,568834 +07`; cửa sổ alert đầu
+tiên là `2026-08-16 22:22:11,215323 +07`, chênh chính xác 13 giờ 00 phút
+58,646 giây. Đây chỉ là tương quan thời gian, chưa chứng minh probe timeout hay
+reconnect là nguyên nhân của alert. Kết luận được phép là canary 331,93 giây đã
+không quan sát thấy sự cố xuất hiện muộn này. Run V3 vẫn terminal `failed`;
+blind marker vẫn false.
 
-Full evidence 2,7 GB được sao chép trước khi phân tích, checksum và chuyển mode
-`0444`. Failure summary SHA-256 `8bfc68bc...`, bundle index `9d226a22...`;
-bundle còn giữ cluster events, pod/node snapshot, Redis probe spec và
-Prometheus incident window. Bản local chỉ giữ summary, marker, tám alert và
-extension report nhỏ; decision log đầy đủ nằm trên control plane để tránh đưa
-2,7 GB vào Git.
+Full evidence 2,7 GB được sao chép trước khi phân tích và chuyển mode `0444`.
+Failure summary SHA-256 `8bfc68bc...`. Audit độc lập ngày 16-08 phát hiện
+index gốc SHA-256 `9d226a22...` có một dòng thừa `./SHA256SUMS.tmp`: file tạm
+đang được ghi đã bị atomic rename thành `SHA256SUMS`. Không có evidence data
+nào đổi hoặc sai hash. Index sửa bất biến `SHA256SUMS.v2` kiểm đủ 18/18 file,
+SHA-256 `3e9b8fb9...`; correction record SHA-256 `ca797d15...` giữ lại cả hash
+index gốc và mô tả lỗi. V4 vẫn tham chiếu hash index gốc để không viết lại lịch
+sử; correction là provenance bổ sung, không đổi model, threshold hay decision
+semantics nên independent soak không bị khởi động lại. Bundle còn giữ cluster
+events, pod/node snapshot, Redis probe spec và Prometheus incident window. Bản
+local giữ summary, marker, tám alert, extension report và correction index;
+decision log đầy đủ nằm trên control plane để tránh đưa 2,7 GB vào Git.
 
-`extend_semantic_envelope.py` kiểm checksum từng source, summary `failed`,
+`extend_semantic_envelope.py` kiểm toàn bộ target trong checksum index tồn tại,
+kiểm checksum từng source, summary `failed`,
 model/policy/run identity, row/alert totals và cấm mọi attack marker. Nó dùng
 1.948.463 scored normal row làm development evidence cho policy mới, không tái
 gán V3 thành pass. Extension thay maxima tại 10/20 workload, report SHA-256
@@ -408,6 +419,12 @@ Independent soak `semantic-envelope-soak-d1` bắt đầu bảo thủ lúc
 0 restart; cluster 6/6 Ready và zero unhealthy pod. Gate sớm nhất là
 `2026-08-17 23:04:35 +07`, yêu cầu 24 giờ/workload, coverage ≥95%, alert budget
 0 và identity/integrity pass. Không được chạy blind 450 trial trước gate này.
+
+Checkpoint audit khoảng `2026-08-16 23:21 +07` đọc trực tiếp ba decision log:
+worker1 16.434, worker4 15.192 và worker3 11.153, tổng 42.779 decision; 0/3
+alert log có record, detector cùng run-id còn sống, 6/6 node Ready và 0 pod
+ngoài `Running/Succeeded`. Đây là trạng thái trung gian, chưa phải kết quả 24
+giờ.
 
 ## 8. Protocol đánh giá và release gate
 

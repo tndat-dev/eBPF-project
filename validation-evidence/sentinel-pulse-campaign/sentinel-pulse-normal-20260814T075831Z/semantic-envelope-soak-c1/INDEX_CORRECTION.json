@@ -1,0 +1,19 @@
+{
+  "actual_evidence_files_modified": false,
+  "actual_original_entries_verified": true,
+  "corrected_entry_count": 18,
+  "corrected_index": "SHA256SUMS.v2",
+  "corrected_index_excludes": [
+    "SHA256SUMS",
+    "SHA256SUMS.v2",
+    "INDEX_CORRECTION.json"
+  ],
+  "corrected_index_sha256": "3e9b8fb96cd7284cfa0c07d9749430f3363f2e7d5aa94ce41c0b3c9116add83a",
+  "created_at": "2026-08-16T16:17:05.355758+00:00",
+  "dangling_original_entry": "./SHA256SUMS.tmp",
+  "issue": "The original index included its in-progress SHA256SUMS.tmp output. Atomic rename removed that temporary pathname, leaving one dangling self-index entry.",
+  "original_index": "SHA256SUMS",
+  "original_index_preserved": true,
+  "original_index_sha256": "9d226a22e43457cd2caf9a799a046b0c38bfbae73505c6c2201e303550c3eedb",
+  "schema": "sentinel-pulse-evidence-index-correction-v1"
+}
