@@ -479,6 +479,23 @@ hoặc semantic telemetry giàu ngữ cảnh rồi mới khóa policy trước b
 Full regression gồm evaluator mới đạt **376 passed, 2 warning** deprecation
 Torch.
 
+### 7.13 Operational-latency tail trên toàn bộ V4 normal evidence
+
+Evaluator marker-bound mới quét 1.359.007 scored row hợp lệ của ba worker và
+không gọi normal timing là attack latency. Inference p50/p95/p99/p99.9 là
+17,79/29,77/36,83/47,39 ms, nhưng max 4.069,98 ms. Post-window processing
+p50/p95/p99/p99.9 là 0,178/0,329/0,390/0,468 giây, max 8,531 giây.
+Window-start-to-decision p50/p95/p99/p99.9 là
+1,181/1,332/1,393/1,471 giây, max 9,533 giây; 366 window vượt 2 giây, tỷ lệ
+0,0269%.
+
+Report SHA-256 `2da2e5a3...`, index `c03f9780...`. Số liệu xác nhận đường đi
+thông thường đạt p99 dưới 2 giây nhưng rare node-pressure tail chưa được kiểm
+soát. Cộng thẳng một window cho temporal confirmation sẽ đưa p99 ước tính lên
+khoảng 2,39 giây, nên phương án đó không được rollout nguyên trạng. Đây vẫn
+không phải true injection-to-alert latency; blind markers là bắt buộc.
+Full regression hiện tại đạt **377 passed, 2 warning** deprecation Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -660,3 +677,6 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   scored row, chuyển 2/2 alert V4 thành suppressed và 0 projected alert;
   artifact `fb069997...`. Chưa deploy vì normal replay không cho biết blind
   recall và thêm một window có thể vi phạm p99 2 giây.
+- 17-08-2026: operational-latency report trên 1.359.007 row có p99/p99.9
+  window-start-to-decision 1,393/1,471 giây, 366 row vượt 2 giây và max 9,533
+  giây. Artifact `2da2e5a3...`; full regression 377 pass.

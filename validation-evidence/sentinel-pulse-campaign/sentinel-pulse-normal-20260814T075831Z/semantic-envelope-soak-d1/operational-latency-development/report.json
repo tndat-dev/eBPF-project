@@ -1,0 +1,402 @@
+{
+  "excluded_scored_windows_before_marker": 1344,
+  "interpretation": "Operational normal-path timing is not injection-to-alert latency. Blind live attack markers remain required for the paper latency claim.",
+  "latency": {
+    "inference_ms": {
+      "count": 1359007,
+      "max": 4069.983596971724,
+      "mean": 19.300147130241683,
+      "p50": 17.78932096203789,
+      "p95": 29.76989041198976,
+      "p99": 36.830211844062404,
+      "p99_9": 47.389957973034875
+    },
+    "post_window_processing_seconds": {
+      "count": 1359007,
+      "max": 8.530574321746826,
+      "mean": 0.1838657959843831,
+      "p50": 0.1784353256225586,
+      "p95": 0.3294321775436401,
+      "p99": 0.3896276092529296,
+      "p99_9": 0.46794209051132074
+    },
+    "window_end_to_decision_seconds": {
+      "count": 1359007,
+      "max": 8.530574321746826,
+      "mean": 0.1838657959843831,
+      "p50": 0.1784353256225586,
+      "p95": 0.3294321775436401,
+      "p99": 0.3896276092529296,
+      "p99_9": 0.46794209051132074
+    },
+    "window_start_to_decision_seconds": {
+      "count": 1359007,
+      "max": 9.532961130142212,
+      "mean": 1.1866515942215135,
+      "p50": 1.1811740398406982,
+      "p95": 1.3323957204818726,
+      "p99": 1.3925582790374755,
+      "p99_9": 1.4710084204673757
+    }
+  },
+  "normal_only_evidence": true,
+  "schema": "sentinel-pulse-operational-latency-report-v1",
+  "scored_rows": 1359007,
+  "soak_marker_sha256": "c7a065c7f1004e76bb59e6bf7c9fdd0a9a2fbe08706c966b074c30de3f7b262c",
+  "sources": [
+    {
+      "latency": {
+        "inference_ms": {
+          "count": 532126,
+          "max": 4069.983596971724,
+          "mean": 18.457979181840287,
+          "p50": 16.712939483113587,
+          "p95": 28.847774243331514,
+          "p99": 36.5501662454335,
+          "p99_9": 49.656097136903554
+        },
+        "post_window_processing_seconds": {
+          "count": 532126,
+          "max": 8.530574321746826,
+          "mean": 0.19893905750142724,
+          "p50": 0.19488942623138428,
+          "p95": 0.3495784401893616,
+          "p99": 0.41245728731155396,
+          "p99_9": 0.5330374836921692
+        },
+        "window_end_to_decision_seconds": {
+          "count": 532126,
+          "max": 8.530574321746826,
+          "mean": 0.19893905750142724,
+          "p50": 0.19488942623138428,
+          "p95": 0.3495784401893616,
+          "p99": 0.41245728731155396,
+          "p99_9": 0.5330374836921692
+        },
+        "window_start_to_decision_seconds": {
+          "count": 532126,
+          "max": 9.532961130142212,
+          "mean": 1.2020767931381462,
+          "p50": 1.1980329751968384,
+          "p95": 1.3525289297103882,
+          "p99": 1.4156503677368164,
+          "p99_9": 1.5359492003917694
+        }
+      },
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "scored_rows": 532126,
+      "sha256": "5ab2fe480a67fa70875b1a63870b051f7ba9ae52aebb0b1ab408daffb57198e2"
+    },
+    {
+      "latency": {
+        "inference_ms": {
+          "count": 480196,
+          "max": 81.60727802896872,
+          "mean": 19.808840030430378,
+          "p50": 18.42331647640094,
+          "p95": 30.23303727968596,
+          "p99": 37.11259243718814,
+          "p99_9": 46.69668311573323
+        },
+        "post_window_processing_seconds": {
+          "count": 480196,
+          "max": 0.56058669090271,
+          "mean": 0.1916074616155197,
+          "p50": 0.19032752513885498,
+          "p95": 0.33279949426651,
+          "p99": 0.3817041873931884,
+          "p99_9": 0.44061567664146395
+        },
+        "window_end_to_decision_seconds": {
+          "count": 480196,
+          "max": 0.56058669090271,
+          "mean": 0.1916074616155197,
+          "p50": 0.19032752513885498,
+          "p95": 0.33279949426651,
+          "p99": 0.3817041873931884,
+          "p99_9": 0.44061567664146395
+        },
+        "window_start_to_decision_seconds": {
+          "count": 480196,
+          "max": 1.5637800693511963,
+          "mean": 1.194387501961342,
+          "p50": 1.1930819749832153,
+          "p95": 1.3355542421340942,
+          "p99": 1.3844450473785401,
+          "p99_9": 1.443738219738006
+        }
+      },
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker4.local/decisions.jsonl",
+      "scored_rows": 480196,
+      "sha256": "e775d272ea412bc86ddb746674151b1ed805fed941691164521b0996ba21bac3"
+    },
+    {
+      "latency": {
+        "inference_ms": {
+          "count": 346685,
+          "max": 104.69482897315174,
+          "mean": 19.888194394507604,
+          "p50": 18.512732989620417,
+          "p95": 30.242261034436524,
+          "p99": 36.74289215588941,
+          "p99_9": 45.512430976610545
+        },
+        "post_window_processing_seconds": {
+          "count": 346685,
+          "max": 0.4380073547363281,
+          "mean": 0.15000684267683334,
+          "p50": 0.14888286590576172,
+          "p95": 0.25482983589172364,
+          "p99": 0.2921720123291015,
+          "p99_9": 0.3381556549072257
+        },
+        "window_end_to_decision_seconds": {
+          "count": 346685,
+          "max": 0.4380073547363281,
+          "mean": 0.15000684267683334,
+          "p50": 0.14888286590576172,
+          "p95": 0.25482983589172364,
+          "p99": 0.2921720123291015,
+          "p99_9": 0.3381556549072257
+        },
+        "window_start_to_decision_seconds": {
+          "count": 346685,
+          "max": 1.4391202926635742,
+          "mean": 1.1522604283165945,
+          "p50": 1.1510751247406006,
+          "p95": 1.2570274353027344,
+          "p99": 1.2944611644744872,
+          "p99_9": 1.34044518661499
+        }
+      },
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker3.local/decisions.jsonl",
+      "scored_rows": 346685,
+      "sha256": "96863b2ce0cbe0f338f12f34e7edf1efff6d2106a5c80c1ac89e7aaa2d24073d"
+    }
+  ],
+  "top_20_window_start_to_decision": [
+    {
+      "inference_ms": 2535.5433730292134,
+      "line": 322905,
+      "post_window_processing_seconds": 8.530574321746826,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786916486.597889,
+      "window_end_to_decision_seconds": 8.530574321746826,
+      "window_start_to_decision_seconds": 9.532961130142212,
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "inference_ms": 40.573403995949775,
+      "line": 127904,
+      "post_window_processing_seconds": 6.347836256027222,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.347836256027222,
+      "window_start_to_decision_seconds": 7.536203145980835,
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "inference_ms": 61.492123000789434,
+      "line": 127903,
+      "post_window_processing_seconds": 6.3066182136535645,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.3066182136535645,
+      "window_start_to_decision_seconds": 7.494985103607178,
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "inference_ms": 46.17074195994064,
+      "line": 127902,
+      "post_window_processing_seconds": 6.243906736373901,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "suppressed",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.243906736373901,
+      "window_start_to_decision_seconds": 7.432273626327515,
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "inference_ms": 23.261477996129543,
+      "line": 127901,
+      "post_window_processing_seconds": 6.197067737579346,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.197067737579346,
+      "window_start_to_decision_seconds": 7.385434627532959,
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "inference_ms": 22.176184982527047,
+      "line": 127900,
+      "post_window_processing_seconds": 6.173399209976196,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.173399209976196,
+      "window_start_to_decision_seconds": 7.36176609992981,
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "inference_ms": 48.2577650109306,
+      "line": 127899,
+      "post_window_processing_seconds": 6.150787591934204,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.150787591934204,
+      "window_start_to_decision_seconds": 7.339154481887817,
+      "workload_key": "production/payment-service:pod-slice"
+    },
+    {
+      "inference_ms": 32.02784695895389,
+      "line": 127898,
+      "post_window_processing_seconds": 6.101691961288452,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.101691961288452,
+      "window_start_to_decision_seconds": 7.290058851242065,
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "inference_ms": 23.307327996008098,
+      "line": 127897,
+      "post_window_processing_seconds": 6.068992853164673,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.068992853164673,
+      "window_start_to_decision_seconds": 7.257359743118286,
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "inference_ms": 45.11559696402401,
+      "line": 127896,
+      "post_window_processing_seconds": 6.044749021530151,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "suppressed",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 6.044749021530151,
+      "window_start_to_decision_seconds": 7.233115911483765,
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "inference_ms": 33.86122500523925,
+      "line": 127895,
+      "post_window_processing_seconds": 5.999171495437622,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.999171495437622,
+      "window_start_to_decision_seconds": 7.187538385391235,
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "inference_ms": 74.03950800653547,
+      "line": 127894,
+      "post_window_processing_seconds": 5.964772939682007,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.964772939682007,
+      "window_start_to_decision_seconds": 7.15313982963562,
+      "workload_key": "production/notification-service:pod-slice"
+    },
+    {
+      "inference_ms": 80.55748901097104,
+      "line": 127893,
+      "post_window_processing_seconds": 5.890267610549927,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.890267610549927,
+      "window_start_to_decision_seconds": 7.07863450050354,
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "inference_ms": 69.22075897455215,
+      "line": 127892,
+      "post_window_processing_seconds": 5.804957628250122,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.804957628250122,
+      "window_start_to_decision_seconds": 6.993324518203735,
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "inference_ms": 104.23784103477374,
+      "line": 127891,
+      "post_window_processing_seconds": 5.7344512939453125,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.7344512939453125,
+      "window_start_to_decision_seconds": 6.922818183898926,
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "inference_ms": 1423.304060997907,
+      "line": 127890,
+      "post_window_processing_seconds": 5.627145290374756,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904256.7312973,
+      "window_end_to_decision_seconds": 5.627145290374756,
+      "window_start_to_decision_seconds": 6.815512180328369,
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "inference_ms": 732.3907670215704,
+      "line": 322904,
+      "post_window_processing_seconds": 5.746581077575684,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786916486.597889,
+      "window_end_to_decision_seconds": 5.746581077575684,
+      "window_start_to_decision_seconds": 6.748967885971069,
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "inference_ms": 18.230518035124987,
+      "line": 127915,
+      "post_window_processing_seconds": 5.466205835342407,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "suppressed",
+      "window_end": 1786904257.8962865,
+      "window_end_to_decision_seconds": 5.466205835342407,
+      "window_start_to_decision_seconds": 6.631195068359375,
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "inference_ms": 35.570003965403885,
+      "line": 323006,
+      "post_window_processing_seconds": 5.536931276321411,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786916497.3719182,
+      "window_end_to_decision_seconds": 5.536931276321411,
+      "window_start_to_decision_seconds": 6.619370460510254,
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "inference_ms": 26.867612032219768,
+      "line": 127914,
+      "post_window_processing_seconds": 5.447589635848999,
+      "source": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "status": "normal",
+      "window_end": 1786904257.8962865,
+      "window_end_to_decision_seconds": 5.447589635848999,
+      "window_start_to_decision_seconds": 6.612578868865967,
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    }
+  ],
+  "true_attack_kernel_to_alert_claim": false,
+  "window_start_to_decision_over_2s": 366,
+  "window_start_to_decision_over_2s_ratio": 0.00026931428609271326
+}

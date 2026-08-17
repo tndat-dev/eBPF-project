@@ -5501,3 +5501,18 @@ làm p99 kernel-to-alert vượt 2 giây. Vì vậy chưa rollout. Hướng ti�
 benchmark confirmation trên rolling/overlap window hoặc bổ sung semantic
 context ít mơ hồ hơn, sau đó mới freeze policy và mở normal soak độc lập.
 Full regression hiện tại đạt **376 passed, 2 warning** deprecation Torch.
+
+### 18.127 Đo operational-latency tail toàn bộ V4 (17-08-2026)
+
+Marker-bound evaluator quét 1.359.007 scored row trên ba worker. Inference
+p99/p99.9 là 36,83/47,39 ms nhưng max 4.069,98 ms. Post-window processing
+p99/p99.9 là 0,390/0,468 giây, max 8,531 giây. Window-start-to-decision
+p50/p95/p99/p99.9 là 1,181/1,332/1,393/1,471 giây, max 9,533 giây. Có 366
+window vượt 2 giây, tương đương 0,0269%.
+
+Report SHA-256 `2da2e5a3...`, index `c03f9780...`. Kết quả chỉ là operational
+normal timing, không phải kernel-to-alert của attack. Nó cho thấy p99 hiện dưới
+2 giây nhưng rare pressure tail còn lớn; đồng thời chứng minh thêm nguyên một
+window cho temporal confirmation sẽ có nguy cơ đưa p99 lên khoảng 2,39 giây.
+Do đó temporal ablation chưa được rollout. Full regression đạt **377 passed,
+2 warning** deprecation Torch.
