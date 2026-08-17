@@ -1,0 +1,67 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "cfb1901f6980136ab6ab3f95025fc54c4f2ab9bf0a892357e4ab4ae1e486a280",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [
+    "line 8515: invalid interval 0.165190s",
+    "line 8516: invalid interval 0.165190s",
+    "line 8517: invalid interval 0.165190s",
+    "line 8518: invalid interval 0.165190s",
+    "line 8519: invalid interval 0.165190s",
+    "line 8520: invalid interval 0.165190s",
+    "line 8521: invalid interval 0.165190s",
+    "line 8522: invalid interval 0.165190s",
+    "line 8523: invalid interval 0.165190s",
+    "line 8524: invalid interval 0.165190s",
+    "line 8525: invalid interval 0.165190s"
+  ],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.047544002532958984,
+    "p50": 0.014383912086486816,
+    "p95": 0.026933348178863517,
+    "p99": 0.03344973564147952
+  },
+  "interval_seconds": {
+    "max": 0.5108726024627686,
+    "p50": 0.5026614665985107,
+    "p95": 0.5054478645324707,
+    "p99": 0.5075745582580566
+  },
+  "path": "/var/lib/sentinel-pulse-500ms/runs/pulse500-canary-20260817T022721Z/features.jsonl",
+  "rows": 8524,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.009940863,
+    "p50": 0.001828194,
+    "p95": 0.004303932,
+    "p99": 0.00644803
+  },
+  "valid": false,
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": 596,
+    "production/aims-minio-pool-0:minio": 476,
+    "production/aims-minio-pool-0:sidecar": 478,
+    "production/aims-postgres-cnpg:postgres": 596,
+    "production/aims-rabbitmq-server:rabbitmq": 596,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 596,
+    "production/aims-redis:aims-redis": 1788,
+    "production/aims-waypoint:istio-proxy": 596,
+    "production/auth-service:app": 434,
+    "production/cart-service:app": 432,
+    "production/catalog-service:app": 477,
+    "production/inventory-service:app": 417,
+    "production/notification-service:pod-slice": 502,
+    "production/payment-service:pod-slice": 540
+  }
+}

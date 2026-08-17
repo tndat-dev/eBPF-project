@@ -1,4 +1,4 @@
-"""Convert the Pulse loader JSON stream into one-second feature JSONL."""
+"""Convert the Pulse loader JSON stream into fixed-interval feature JSONL."""
 
 from __future__ import annotations
 

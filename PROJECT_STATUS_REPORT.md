@@ -5521,3 +5521,40 @@ Systemd source cho candidate sau được chuẩn bị với `Nice=0`, `CPUWeigh
 `CPUQuota=200%`, `MemoryHigh=768M`, `MemoryMax=1G`, thay cho lowered-priority
 profile đã trùng với incident tail. Cấu hình chưa deploy; cần A/B để đo tác
 động lên workload trước khi chấp nhận.
+
+### 18.128 Sentinel Pulse collect-only 500 ms lifecycle canary (17-08-2026)
+
+Một unit thử nghiệm riêng được triển khai duy nhất trên worker1 để đo khả năng
+giảm telemetry wait: exact counter interval 500 ms, `rolling_windows=10` giữ
+context năm giây, output theo run ID, thời lượng hữu hạn, không enable boot,
+không detector và không alert. Collector một giây production tiếp tục chạy
+song song, V4 vẫn terminal failed/inactive.
+
+Hai run hạ tầng đầu không bị xóa. Run khoảng ba giây bị abort vì guard nhầm
+systemd `static` với `enabled`. Run 300 giây tiếp theo có 8.524 row nhưng fail
+do cohort cuối dài 165 ms khi SIGTERM ngắt `usleep`; metrics CPU/memory cũng bị
+đọc quá muộn. Installer đã phân loại đúng enablement state; loader nay bỏ
+snapshot nếu nhận cờ thoát sau sleep; `ExecStopPost` ghi cgroup metrics và
+control-collector CPU tại đúng biên kết thúc.
+
+Run xác nhận `pulse500-lifecycle-20260817T023631Z` pass trong 120 giây:
+
+- 3.449 row, 249 feature, 14 workload/container trên worker1;
+- zero `count_insert_fail`, `task_state_update_fail`,
+  `snapshot_consistency_retry_exhausted`, `snapshot_total_mismatch` và
+  `target_snapshot_gap`;
+- interval p99/max 507,85/509,35 ms;
+- ingest lag p99/max 29,26/39,08 ms;
+- window-start-to-feature p50/p95/p99/max
+  515,35/526,56/532,88/543,02 ms;
+- snapshot read p99 5,75 ms;
+- experiment 6,329 CPU-second/120 giây = 0,0527 core trung bình, memory peak
+  38,43 MB; control collector một giây dùng 2,746 CPU-second cùng interval.
+
+Analysis SHA-256 `58ea38a7...`; immutable bundle index SHA-256
+`23604e7f...`. Số CPU chỉ bao phủ service cgroup, không được trình bày như
+application overhead hoàn chỉnh. Canary chưa dùng model/attack nên chưa tạo
+claim recall, precision hoặc true kernel-to-alert. Bước kế tiếp là
+counterbalanced overhead A/B, capture 500 ms đủ bốn traffic regime trên ba
+worker, rồi train/calibrate model riêng trước blind attack. Regression tách
+nhóm đạt tổng **380 passed, 2 warning** deprecation Torch.

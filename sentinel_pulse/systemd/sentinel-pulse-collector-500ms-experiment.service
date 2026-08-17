@@ -1,0 +1,30 @@
+[Unit]
+Description=Sentinel Pulse isolated 500ms collect-only experiment
+After=sentinel-pulse-resolver.service sentinel-pulse-collector.service
+Requires=sentinel-pulse-resolver.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/sentinel-pulse
+EnvironmentFile=/etc/sentinel-pulse/500ms-experiment.env
+ExecStartPre=/usr/bin/test -s /run/sentinel-pulse/allowed-cgroups
+ExecStartPre=/usr/bin/test -f /opt/sentinel-pulse/bin/pulse_counter.bpf.o
+ExecStartPre=/usr/bin/test ! -e ${PULSE_500MS_OUTPUT}
+ExecStart=/bin/bash -o pipefail -c '( timeout --signal=TERM --kill-after=10s "${PULSE_500MS_DURATION_SECONDS}s" /opt/sentinel-pulse/bin/pulse_counter_loader --object /opt/sentinel-pulse/bin/pulse_counter.bpf.o --allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 500; rc=$?; test "$rc" -eq 0 -o "$rc" -eq 124 ) | /opt/sentinel-pulse/venv/bin/python -m sentinel_pulse.capture --rolling-windows 10 --metadata-file /run/sentinel-pulse/cgroups.json --output "${PULSE_500MS_OUTPUT}"'
+ExecStopPost=/opt/sentinel-pulse/bin/record_500ms_metrics
+Restart=no
+StateDirectory=sentinel-pulse-500ms
+UMask=0027
+Nice=0
+CPUWeight=200
+CPUQuota=200%
+MemoryHigh=512M
+MemoryMax=1G
+TasksMax=64
+LimitMEMLOCK=infinity
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/run/sentinel-pulse /opt/sentinel-pulse
+ReadWritePaths=/var/lib/sentinel-pulse-500ms

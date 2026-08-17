@@ -502,6 +502,43 @@ và `TasksMax=128`. Mục tiêu là giảm scheduler starvation nhưng vẫn ch�
 resource runaway. Profile này **chưa deploy** và phải qua counterbalanced A/B
 overhead/latency trước khi được dùng cho claim.
 
+### 7.14 Canary telemetry 500 ms cô lập
+
+Để kiểm tra khả năng giảm phần chờ telemetry mà không sửa hoặc hồi sinh V4,
+nhánh Pulse bổ sung một collector **collect-only** chạy song song trên worker1.
+Unit dùng exact eBPF counters với interval 500 ms, giữ context năm giây bằng
+10 rolling window, ghi vào run directory riêng, có thời lượng hữu hạn, không
+`enable` lúc boot, không nạp model và không phát alert.
+
+Hai lỗi lifecycle được giữ lại thay vì xóa evidence. Run đầu dừng sau khoảng
+ba giây vì installer hiểu nhầm trạng thái systemd `static` là `enabled`. Run
+300 giây tiếp theo bị finalizer đánh trượt vì SIGTERM làm loader xuất cohort
+cuối dài 165 ms; đồng thời CPU/memory counter đã bị systemd thu hồi trước lúc
+đọc. Guard sau đó phân biệt rõ `static` với `enabled`; loader kiểm cờ thoát ngay
+sau `usleep` để không snapshot cửa sổ shutdown; `ExecStopPost` đóng băng cgroup
+metrics trước khi unit biến mất.
+
+Lifecycle canary cuối `pulse500-lifecycle-20260817T023631Z` chạy đúng 120 giây
+và pass fail-closed validation: 3.449 feature row, 249 chiều, 14 workload trên
+worker1, không JSON/integrity/drop error. Interval p50/p95/p99/max là
+502,78/505,53/507,85/509,35 ms; ingest lag là
+12,34/23,10/29,26/39,08 ms; window-start-to-feature là
+515,35/526,56/532,88/543,02 ms. Snapshot read p99 5,75 ms.
+
+Tiến trình thử nghiệm dùng 6,329 CPU-second trong 120 giây, tương đương
+0,0527 CPU core trung bình, và memory peak 38,43 MB. Collector một giây đang
+chạy song song dùng 2,746 CPU-second trong cùng interval. Đây chỉ là accounting
+của service collector, chưa bao gồm toàn bộ chi phí eBPF có thể được hạch toán
+cho workload và chưa phải counterbalanced application-overhead A/B.
+
+Analysis report SHA-256 `58ea38a7...`; bundle index SHA-256 `23604e7f...`.
+Kết quả chứng minh telemetry 500 ms khả thi trên một worker và đưa p99 từ đầu
+window tới feature xuống 0,533 giây. Nó **không** chứng minh ML recall,
+precision hay kernel-to-alert 1–2 giây: model hiện tại được train trên window
+một giây, vì vậy phải thu dataset 500 ms độc lập, train/calibrate candidate mới,
+chạy normal soak, blind attack và A/B overhead trước khi rollout ba worker.
+Full regression sau thay đổi đạt **380 passed, 2 warning** deprecation Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -686,3 +723,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 - 17-08-2026: operational-latency report trên 1.359.007 row có p99/p99.9
   window-start-to-decision 1,393/1,471 giây, 366 row vượt 2 giây và max 9,533
   giây. Artifact `2da2e5a3...`; full regression 377 pass.
+- 17-08-2026: hoàn tất lifecycle canary collect-only 500 ms trên worker1.
+  Run hợp lệ 120 giây có 3.449 row/14 workload, zero telemetry loss,
+  window-start-to-feature p99 0,533 giây, 0,0527 CPU core và 38,43 MB peak.
+  Hai run hạ tầng trước đó được giữ failed/aborted; bundle index
+  `23604e7f...`. Chưa chạy model hoặc attack trên dữ liệu 500 ms.

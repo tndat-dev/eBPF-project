@@ -25,13 +25,21 @@ DROP_COUNTERS = (
 )
 
 
-def validate(path: Path, minimum_rows_per_workload: int = 100) -> dict:
+def validate(
+    path: Path,
+    minimum_rows_per_workload: int = 100,
+    interval_min_seconds: float = 0.80,
+    interval_max_seconds: float = 1.50,
+) -> dict:
+    if interval_min_seconds <= 0 or interval_max_seconds <= interval_min_seconds:
+        raise ValueError("invalid capture interval bounds")
     errors = []
     rows = 0
     workloads = Counter()
     cgroup_last_end = {}
     intervals = []
     lags = []
+    window_to_emit = []
     snapshot_reads = []
     columns = None
     max_drops = defaultdict(int)
@@ -78,7 +86,7 @@ def validate(path: Path, minimum_rows_per_workload: int = 100) -> dict:
             start, end = float(record["window_start"]), float(record["window_end"])
             interval = end - start
             intervals.append(interval)
-            if not 0.80 <= interval <= 1.50:
+            if not interval_min_seconds <= interval <= interval_max_seconds:
                 errors.append(f"line {line_number}: invalid interval {interval:.6f}s")
             source_identity = "|".join(
                 (
@@ -97,6 +105,7 @@ def validate(path: Path, minimum_rows_per_workload: int = 100) -> dict:
                 errors.append(f"line {line_number}: exact count total mismatch")
             emitted_at = float(record.get("emitted_at", end))
             lags.append(max(0.0, emitted_at - end))
+            window_to_emit.append(max(0.0, emitted_at - start))
             snapshot_reads.append(max(0.0, float(record.get("snapshot_read_seconds", 0.0))))
             stats = record.get("collector_stats", {})
             for name in DROP_COUNTERS:
@@ -127,9 +136,14 @@ def validate(path: Path, minimum_rows_per_workload: int = 100) -> dict:
         "capture_sha256": sha256_file(path),
         "rows": rows,
         "feature_dim": len(columns or []),
+        "accepted_interval_seconds": {
+            "minimum": interval_min_seconds,
+            "maximum": interval_max_seconds,
+        },
         "workloads": dict(sorted(workloads.items())),
         "interval_seconds": percentiles(intervals),
         "ingest_lag_seconds": percentiles(lags),
+        "window_start_to_emit_seconds": percentiles(window_to_emit),
         "snapshot_read_seconds": percentiles(snapshot_reads),
         "collector_max_drops": dict(max_drops),
         "errors": errors[:200],
@@ -140,9 +154,16 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", type=Path, required=True)
     parser.add_argument("--minimum-rows-per-workload", type=int, default=100)
+    parser.add_argument("--interval-min-seconds", type=float, default=0.80)
+    parser.add_argument("--interval-max-seconds", type=float, default=1.50)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    report = validate(args.capture, args.minimum_rows_per_workload)
+    report = validate(
+        args.capture,
+        args.minimum_rows_per_workload,
+        args.interval_min_seconds,
+        args.interval_max_seconds,
+    )
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.write_text(rendered, encoding="utf-8")

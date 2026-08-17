@@ -203,6 +203,10 @@ int main(int argc, char **argv)
     uint64_t consistency_retry_exhausted = 0;
     while (!exiting) {
         usleep(interval_ms * 1000U);
+        /* SIGTERM can interrupt usleep. Do not turn that shortened sleep into
+         * a final partial feature window; detach cleanly at the boundary. */
+        if (exiting)
+            break;
         targets = refresh_targets(cgroups_fd, allow_file, cpu_count);
         if (targets < 0) { fprintf(stderr, "target refresh failed: %s\n", strerror(-targets)); break; }
         if (targets == 0) { fprintf(stderr, "target allow-list became empty; stopping fail-closed\n"); break; }

@@ -93,6 +93,57 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("per_cpu_snapshot_consistent", source)
         self.assertIn("snapshot_consistency_retry_exhausted", source)
 
+    def test_500ms_experiment_is_isolated_collect_only_and_not_enabled(self):
+        unit = (
+            ROOT
+            / "sentinel_pulse"
+            / "systemd"
+            / "sentinel-pulse-collector-500ms-experiment.service"
+        ).read_text()
+        installer = (
+            ROOT / "sentinel_pulse" / "install_500ms_experiment.sh"
+        ).read_text()
+        finalizer = (
+            ROOT / "sentinel_pulse" / "finalize_500ms_experiment.sh"
+        ).read_text()
+        metrics = (
+            ROOT / "sentinel_pulse" / "record_500ms_metrics.sh"
+        ).read_text()
+        self.assertIn("--interval-ms 500", unit)
+        self.assertIn("--rolling-windows 10", unit)
+        self.assertIn("${PULSE_500MS_OUTPUT}", unit)
+        self.assertIn("${PULSE_500MS_DURATION_SECONDS}s", unit)
+        self.assertIn("Restart=no", unit)
+        self.assertIn("ExecStopPost=/opt/sentinel-pulse/bin/record_500ms_metrics", unit)
+        self.assertIn("Nice=0", unit)
+        self.assertNotIn("sentinel_pulse.detect", unit)
+        self.assertNotIn("systemctl enable", installer)
+        self.assertIn('systemctl is-enabled "$SERVICE"', installer)
+        self.assertIn("static|disabled|indirect|generated|transient", installer)
+        self.assertIn("enabled|enabled-runtime|linked|linked-runtime|alias", installer)
+        self.assertIn('"$RUN_DIR/START.json"', installer)
+        self.assertIn("sentinel-pulse-500ms-start-v1", installer)
+        self.assertIn("control-collector-start.systemd", installer)
+        self.assertIn("record_500ms_metrics", installer)
+        self.assertIn("--interval-min-seconds 0.35", finalizer)
+        self.assertIn("--interval-max-seconds 0.80", finalizer)
+        self.assertIn("cd /opt/sentinel-pulse", finalizer)
+        self.assertIn("sentinel-pulse-500ms-final-v1", finalizer)
+        self.assertIn('chmod 0444 "$RUN_DIR"/*', finalizer)
+        self.assertIn("experiment-cgroup-final.txt", finalizer)
+        self.assertIn("control-collector-at-experiment-end.systemd", metrics)
+        self.assertIn("stopped_at_unix", metrics)
+
+    def test_loader_drops_sigterm_short_window_before_snapshot(self):
+        source = (
+            ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"
+        ).read_text()
+        sleep = source.index("usleep(interval_ms * 1000U);")
+        exit_check = source.index("if (exiting)", sleep)
+        refresh = source.index("refresh_targets(cgroups_fd", exit_check)
+        self.assertLess(sleep, exit_check)
+        self.assertLess(exit_check, refresh)
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)
