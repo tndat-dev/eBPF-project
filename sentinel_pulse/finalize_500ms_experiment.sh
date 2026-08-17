@@ -96,8 +96,8 @@ registered_duration = int(
         "PULSE_500MS_DURATION_SECONDS", "0"
     )
 )
-duration = float(registered_duration)
 stopped_at = float(experiment_cgroup.get("stopped_at_unix", ended_at))
+duration = max(0.0, stopped_at - float(start["started_at_unix"]))
 control_cpu_ns = max(
     0,
     integer(control_final, "CPUUsageNSec") - integer(control_start, "CPUUsageNSec"),
@@ -113,6 +113,7 @@ payload = {
     "started_at_unix": start["started_at_unix"],
     "ended_at_unix": stopped_at,
     "duration_seconds": duration,
+    "registered_max_duration_seconds": registered_duration,
     "finalized_at_unix": ended_at,
     "valid": validation_rc == 0 and validation.get("valid") is True and service_ok,
     "service_ok": service_ok,

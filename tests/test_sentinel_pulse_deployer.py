@@ -144,6 +144,18 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertLess(sleep, exit_check)
         self.assertLess(exit_check, refresh)
 
+    def test_500ms_overhead_runner_is_counterbalanced_and_never_promotes(self):
+        runner = (
+            ROOT / "sentinel_pulse" / "run_500ms_overhead_ab.sh"
+        ).read_text()
+        self.assertIn("phases=(off on on off on off off on)", runner)
+        self.assertIn("automatic_promotion", runner)
+        self.assertIn("--max-failed-requests 0", runner)
+        self.assertIn("endpoint_uid|$endpoint_ip|Running", runner)
+        self.assertIn("sentinel-pulse-detector-candidate.service", runner)
+        self.assertIn("aggregate_500ms_overhead", runner)
+        self.assertNotIn("systemctl enable", runner)
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)
