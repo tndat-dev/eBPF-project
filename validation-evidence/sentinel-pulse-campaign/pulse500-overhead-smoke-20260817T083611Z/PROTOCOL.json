@@ -1,0 +1,57 @@
+{
+  "automatic_promotion": false,
+  "benchmark": {
+    "concurrency": 20,
+    "duration_seconds": 10,
+    "threads": 2,
+    "tool": "wrk"
+  },
+  "campaign_id": "pulse500-overhead-smoke-20260817T083611Z",
+  "endpoint": {
+    "image_id": "docker.io/istio/proxyv2@sha256:76a2d37889220940767aa578926ba590185ace83993c5aaa491eb3150c20aff7",
+    "node": "k8s-worker1.local",
+    "pod": "aims-ingress-istio-5d4db857f-vhdmt",
+    "pod_ip": "10.0.2.142",
+    "pod_uid": "a303be1b-aed7-4dfd-8eb9-a1303a97f758",
+    "url": "http://10.0.2.142/api/products/"
+  },
+  "environment_sha256": {
+    "endpoint-pod.yaml": "f56d7592b329276b7a047e9c9e7aa9ed2a60f2fb1b8ae84692579f381ad9788e",
+    "nodes-start.txt": "88a11f76f5494007c007d75d36914cce01df3b4a59e24c28b8545b10ad079bcc",
+    "production-pods-start.txt": "24b84cc6d201a40f54cecd0b182e77bf37c1687113d5c69172c81a012451243d",
+    "traffic-generators.yaml": "67b5b0d4412831fd9c55df0879e4360b8ccdbe2a53d7fafe3112a213b8592631"
+  },
+  "fixed_background": {
+    "candidate_detector": "inactive",
+    "normal_load_generators": "unchanged",
+    "one_second_collector": "active"
+  },
+  "git_commit": "5944b9700315941579e7566a1182e96ef08a7654",
+  "mode": "smoke",
+  "phases": [
+    {
+      "condition": "off",
+      "index": 1,
+      "name": "p01-off",
+      "treatment_run_id": null
+    },
+    {
+      "condition": "on",
+      "index": 2,
+      "name": "p02-on",
+      "treatment_run_id": "pulse500-overhead-smoke-20260817T083611Z-p02-on"
+    }
+  ],
+  "quality_gate": "zero process/socket/non-2xx errors; endpoint UID/IP immutable",
+  "registered_at": "2026-08-17T08:36:14Z",
+  "repetitions_per_phase": 1,
+  "schema": "sentinel-pulse-500ms-overhead-protocol-v1",
+  "source_sha256": {
+    "sentinel/benchmarks/measure_phase.py": "107343ea0aa81426576f0d7906648fadcbbd1eba916e86653d2976e52308a2b5",
+    "sentinel_pulse/aggregate_500ms_overhead.py": "44e60730769216d46309a69eafd0a6de5d33bd9c326b2988dd08e4d500f3455b",
+    "sentinel_pulse/finalize_500ms_experiment.sh": "e07d1d8bd0363ef7367ca15c6fe8ae154104a20ea957f8014c03e9346d92bc56",
+    "sentinel_pulse/install_500ms_experiment.sh": "dffde9bfd01c849b80d6f849d3c16f06d2fde959c7c16b233c494c151835de6a",
+    "sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service": "e6717b90f6e8852a6e41aaf5832190941969fb293da161058ab53e2ccc5109fd"
+  },
+  "stabilization_seconds": 5
+}

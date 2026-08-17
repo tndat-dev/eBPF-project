@@ -1,0 +1,68 @@
+{
+  "campaign_id": "pulse500-overhead-smoke-20260817T083611Z",
+  "effects": {
+    "p99_latency_increase": {
+      "bootstrap_95ci_percent": [
+        -15.747513864983741,
+        -15.747513864983741
+      ],
+      "median_percent": -15.747513864983741,
+      "pairs": 1,
+      "values_percent": [
+        -15.747513864983741
+      ]
+    },
+    "throughput_loss": {
+      "bootstrap_95ci_percent": [
+        5.083892617449671,
+        5.083892617449671
+      ],
+      "median_percent": 5.083892617449671,
+      "pairs": 1,
+      "values_percent": [
+        5.083892617449671
+      ]
+    }
+  },
+  "inferential": false,
+  "limitations": [
+    "Treatment runs on one worker and targets its ingress pod directly.",
+    "Smoke mode validates machinery only and is not inferential evidence.",
+    "Service cgroup accounting does not capture all eBPF CPU charged to workloads."
+  ],
+  "mode": "smoke",
+  "pairs": [
+    {
+      "order": [
+        "off",
+        "on"
+      ],
+      "p99_latency_increase_percent": -15.747513864983741,
+      "pair": 1,
+      "throughput_loss_percent": 5.083892617449671
+    }
+  ],
+  "protocol_sha256": "c8b3c37e5e609b57f1af96895055bf927e7f3a4be12a7942a3552750fb9aea7d",
+  "records": [
+    {
+      "condition": "off",
+      "index": 1,
+      "latency_p99_ms_median": 836.64,
+      "name": "p01-off",
+      "report": "p01-off-20260817T083620Z/report.json",
+      "report_sha256": "ebe7403308c9d4fca6ecaddf66833dc1bf966308fe7dad78bc6e65a169cfcf7a",
+      "rps_median": 59.6
+    },
+    {
+      "condition": "on",
+      "index": 2,
+      "latency_p99_ms_median": 704.89,
+      "name": "p02-on",
+      "report": "p02-on-20260817T083648Z/report.json",
+      "report_sha256": "53fefc849a0db581d4e6a693368fc42919b85c99c443d08fc1f4ef12eeeb3caa",
+      "rps_median": 56.57
+    }
+  ],
+  "schema": "sentinel-pulse-500ms-overhead-result-v1",
+  "valid": true
+}

@@ -1,0 +1,464 @@
+{
+  "cgroup_count": 44,
+  "cgroups": {
+    "10208": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod7da57864_ad30_401c_8c08_a63eb9cb9a8f.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "cart-service-84d6894b46-n2tps",
+      "pod_uid": "7da57864-ad30-401c-8c08-a63eb9cb9a8f",
+      "role": "stateless-http",
+      "workload_name": "cart-service"
+    },
+    "10347": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podf2924b80_2343_49c3_8b93_b345b60ae967.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "catalog-service-74cf5f59b9-h944d",
+      "pod_uid": "f2924b80-2343-49c3-8b93-b345b60ae967",
+      "role": "stateless-http",
+      "workload_name": "catalog-service"
+    },
+    "10599": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pode01f37fc_76ea_4706_96ab_b34ee8b76a33.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "auth-service-5d5c867d78-mxv7z",
+      "pod_uid": "e01f37fc-76ea-4706-96ab-b34ee8b76a33",
+      "role": "stateless-http",
+      "workload_name": "auth-service"
+    },
+    "12759": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod62b19ea1_27ac_4bbf_880d_f9a357b5f005.slice/cri-containerd-a4a5301d4d2b1b2ca41f56646f7f1cab4944d5652637e0183b245a7ad978934f.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-waypoint-6d558c5d7c-n879w",
+      "pod_uid": "62b19ea1-27ac-4bbf-880d-f9a357b5f005",
+      "role": "istio-proxy",
+      "workload_name": "aims-waypoint"
+    },
+    "12917": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod62b19ea1_27ac_4bbf_880d_f9a357b5f005.slice/cri-containerd-eb244c77a44fe68ca696619d7c6a104d05e7da1272f400e2a6aaefa8ff2ed46c.scope",
+      "container_id": "eb244c77a44fe68ca696619d7c6a104d05e7da1272f400e2a6aaefa8ff2ed46c",
+      "container_name": "istio-proxy",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-waypoint-6d558c5d7c-n879w",
+      "pod_uid": "62b19ea1-27ac-4bbf-880d-f9a357b5f005",
+      "role": "istio-proxy",
+      "workload_name": "aims-waypoint"
+    },
+    "15840": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod64701766_8c76_4c7c_8047_5c5b4674510f.slice/cri-containerd-38a04b7893e6be1d58df6a79c402962c601382b16351cdbc70d84e043eda5fae.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "inventory-service-54db978cc8-jcfqj",
+      "pod_uid": "64701766-8c76-4c7c-8047-5c5b4674510f",
+      "role": "stateless-http",
+      "workload_name": "inventory-service"
+    },
+    "15998": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod64701766_8c76_4c7c_8047_5c5b4674510f.slice/cri-containerd-02953b81c41a561bb7df8bd12895a33892cd480fbe06f7f43ee1267103efdefc.scope",
+      "container_id": "02953b81c41a561bb7df8bd12895a33892cd480fbe06f7f43ee1267103efdefc",
+      "container_name": "app",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "inventory-service-54db978cc8-jcfqj",
+      "pod_uid": "64701766-8c76-4c7c-8047-5c5b4674510f",
+      "role": "stateless-http",
+      "workload_name": "inventory-service"
+    },
+    "16156": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pode01f37fc_76ea_4706_96ab_b34ee8b76a33.slice/cri-containerd-da274c7f846a85fed83980e0c9f651ccf5face374bb37024c4e619478b08cc94.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "auth-service-5d5c867d78-mxv7z",
+      "pod_uid": "e01f37fc-76ea-4706-96ab-b34ee8b76a33",
+      "role": "stateless-http",
+      "workload_name": "auth-service"
+    },
+    "16314": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pode01f37fc_76ea_4706_96ab_b34ee8b76a33.slice/cri-containerd-490052db1c2134ae6a3bc81b8b91dd2a2ca8bb7482c6e3e04f8e06454e168a51.scope",
+      "container_id": "490052db1c2134ae6a3bc81b8b91dd2a2ca8bb7482c6e3e04f8e06454e168a51",
+      "container_name": "app",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "auth-service-5d5c867d78-mxv7z",
+      "pod_uid": "e01f37fc-76ea-4706-96ab-b34ee8b76a33",
+      "role": "stateless-http",
+      "workload_name": "auth-service"
+    },
+    "16472": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podf2924b80_2343_49c3_8b93_b345b60ae967.slice/cri-containerd-1cf438fb369b6019b5cd7f3897ce91e7fa06a76c803b70afd7f3108753fd9713.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "catalog-service-74cf5f59b9-h944d",
+      "pod_uid": "f2924b80-2343-49c3-8b93-b345b60ae967",
+      "role": "stateless-http",
+      "workload_name": "catalog-service"
+    },
+    "16551": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod7da57864_ad30_401c_8c08_a63eb9cb9a8f.slice/cri-containerd-0dda5bbcd85d7fb5ab072ad8294cc7e4fc9e89b2ca82f2d04b0c5b7018b2fd0f.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "cart-service-84d6894b46-n2tps",
+      "pod_uid": "7da57864-ad30-401c-8c08-a63eb9cb9a8f",
+      "role": "stateless-http",
+      "workload_name": "cart-service"
+    },
+    "16630": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podf2924b80_2343_49c3_8b93_b345b60ae967.slice/cri-containerd-d3deaf5931b366345c01c85ea0503992a1c3e09cf7d83c8f3f33a3f7a275ab88.scope",
+      "container_id": "d3deaf5931b366345c01c85ea0503992a1c3e09cf7d83c8f3f33a3f7a275ab88",
+      "container_name": "app",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "catalog-service-74cf5f59b9-h944d",
+      "pod_uid": "f2924b80-2343-49c3-8b93-b345b60ae967",
+      "role": "stateless-http",
+      "workload_name": "catalog-service"
+    },
+    "16709": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod7da57864_ad30_401c_8c08_a63eb9cb9a8f.slice/cri-containerd-57040def9c4980a353163fc8281bfae83db0127151afb737f37d61d8cb57e432.scope",
+      "container_id": "57040def9c4980a353163fc8281bfae83db0127151afb737f37d61d8cb57e432",
+      "container_name": "app",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "cart-service-84d6894b46-n2tps",
+      "pod_uid": "7da57864-ad30-401c-8c08-a63eb9cb9a8f",
+      "role": "stateless-http",
+      "workload_name": "cart-service"
+    },
+    "16788": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod5d74e19a_8bb5_437f_84d8_b13541f42c95.slice/cri-containerd-8879a7772438a6daa6db3b72504c4ba3b8532c830f1455219f29c6af0ee8029f.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "notification-service-85955489ff-v5tmq",
+      "pod_uid": "5d74e19a-8bb5-437f-84d8-b13541f42c95",
+      "role": "stateless-http",
+      "workload_name": "notification-service"
+    },
+    "18665": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod86dd79e6_74b9_4802_b1ad_7287a19bcb88.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-postgres-cnpg-1",
+      "pod_uid": "86dd79e6-74b9-4802-b1ad-7287a19bcb88",
+      "role": "postgresql",
+      "workload_name": "aims-postgres-cnpg"
+    },
+    "18744": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod68e0a5e3_7d27_4cb9_a40b_77e5310076c1.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-0",
+      "pod_uid": "68e0a5e3-7d27-4cb9-a40b-77e5310076c1",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "18981": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod95a72c99_44d0_4a9c_a2e0_2cbacb919389.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-minio-pool-0-1",
+      "pod_uid": "95a72c99-44d0-4a9c-a2e0-2cbacb919389",
+      "role": "minio",
+      "workload_name": "aims-minio-pool-0"
+    },
+    "19060": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod95a72c99_44d0_4a9c_a2e0_2cbacb919389.slice/cri-containerd-4cb296b90dffa91dfaa92aa489d5569a00085debdbf787f4ead2ee3c67fab406.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-minio-pool-0-1",
+      "pod_uid": "95a72c99-44d0-4a9c-a2e0-2cbacb919389",
+      "role": "minio",
+      "workload_name": "aims-minio-pool-0"
+    },
+    "19376": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod86dd79e6_74b9_4802_b1ad_7287a19bcb88.slice/cri-containerd-9fade5837363cdd68513aa80f5a3e11a61ac67b677de2d468aad46a44b8e74de.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-postgres-cnpg-1",
+      "pod_uid": "86dd79e6-74b9-4802-b1ad-7287a19bcb88",
+      "role": "postgresql",
+      "workload_name": "aims-postgres-cnpg"
+    },
+    "19613": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod95a72c99_44d0_4a9c_a2e0_2cbacb919389.slice/cri-containerd-b6257ae9274c1d4b6ab2088fdf190499bbe1538cf2d3564e6f7a9a6accbcd9b9.scope",
+      "container_id": "b6257ae9274c1d4b6ab2088fdf190499bbe1538cf2d3564e6f7a9a6accbcd9b9",
+      "container_name": "minio",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-minio-pool-0-1",
+      "pod_uid": "95a72c99-44d0-4a9c-a2e0-2cbacb919389",
+      "role": "minio",
+      "workload_name": "aims-minio-pool-0"
+    },
+    "19692": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod95a72c99_44d0_4a9c_a2e0_2cbacb919389.slice/cri-containerd-f7fac3094b2450a9edf6d1bd0c5a7a6945fff72a6c2076b2ce46790aa797dd50.scope",
+      "container_id": "f7fac3094b2450a9edf6d1bd0c5a7a6945fff72a6c2076b2ce46790aa797dd50",
+      "container_name": "sidecar",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-minio-pool-0-1",
+      "pod_uid": "95a72c99-44d0-4a9c-a2e0-2cbacb919389",
+      "role": "minio",
+      "workload_name": "aims-minio-pool-0"
+    },
+    "19771": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod86dd79e6_74b9_4802_b1ad_7287a19bcb88.slice/cri-containerd-60b0e1a20f3baadbc3b757d85e68bad15ca2e7178f9387394d673550bd549bb8.scope",
+      "container_id": "60b0e1a20f3baadbc3b757d85e68bad15ca2e7178f9387394d673550bd549bb8",
+      "container_name": "postgres",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-postgres-cnpg-1",
+      "pod_uid": "86dd79e6-74b9-4802-b1ad-7287a19bcb88",
+      "role": "postgresql",
+      "workload_name": "aims-postgres-cnpg"
+    },
+    "19929": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod6272201c_8581_46fe_bf27_94c8ee5dae8c.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-kafka-dual-role-2",
+      "pod_uid": "6272201c-8581-46fe-bf27-94c8ee5dae8c",
+      "role": "kafka-broker",
+      "workload_name": "aims-kafka-dual-role"
+    },
+    "20166": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod6272201c_8581_46fe_bf27_94c8ee5dae8c.slice/cri-containerd-9e1776fabe5f3dffe297f13b09e824abb901ea352ea16533d377a1cc1bc54da3.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-kafka-dual-role-2",
+      "pod_uid": "6272201c-8581-46fe-bf27-94c8ee5dae8c",
+      "role": "kafka-broker",
+      "workload_name": "aims-kafka-dual-role"
+    },
+    "20482": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod0cd39cfc_fffa_4fd5_8f7b_6b1b84d0a2cb.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-sentinel-sentinel-0",
+      "pod_uid": "0cd39cfc-fffa-4fd5-8f7b-6b1b84d0a2cb",
+      "role": "redis-sentinel",
+      "workload_name": "aims-redis-sentinel-sentinel"
+    },
+    "20561": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod0cd39cfc_fffa_4fd5_8f7b_6b1b84d0a2cb.slice/cri-containerd-6d17d94edb4d42505a9c0e1e6c0e3d573196c710488f59ac336da2fd5173aec2.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-sentinel-sentinel-0",
+      "pod_uid": "0cd39cfc-fffa-4fd5-8f7b-6b1b84d0a2cb",
+      "role": "redis-sentinel",
+      "workload_name": "aims-redis-sentinel-sentinel"
+    },
+    "20719": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod0cd39cfc_fffa_4fd5_8f7b_6b1b84d0a2cb.slice/cri-containerd-9948b5ac4834b3ce91f1884129b979ac071c72b0bf73f2e083f7dd8ae844504b.scope",
+      "container_id": "9948b5ac4834b3ce91f1884129b979ac071c72b0bf73f2e083f7dd8ae844504b",
+      "container_name": "aims-redis-sentinel-sentinel",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-sentinel-sentinel-0",
+      "pod_uid": "0cd39cfc-fffa-4fd5-8f7b-6b1b84d0a2cb",
+      "role": "redis-sentinel",
+      "workload_name": "aims-redis-sentinel-sentinel"
+    },
+    "22220": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod68e0a5e3_7d27_4cb9_a40b_77e5310076c1.slice/cri-containerd-f58214b2a85eba98370b56d3d523ec54ea0293d88fe1a64d70800666576c10ca.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-0",
+      "pod_uid": "68e0a5e3-7d27-4cb9-a40b-77e5310076c1",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "23288": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod68e0a5e3_7d27_4cb9_a40b_77e5310076c1.slice/cri-containerd-9c576ddfb55eea35075435737871e476257410ee5a30ad1c824c969a8a9e577c.scope",
+      "container_id": "9c576ddfb55eea35075435737871e476257410ee5a30ad1c824c969a8a9e577c",
+      "container_name": "aims-redis",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-0",
+      "pod_uid": "68e0a5e3-7d27-4cb9-a40b-77e5310076c1",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "23367": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podadc6a468_ddab_4c38_91a2_f90c12da5fd0.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-1",
+      "pod_uid": "adc6a468-ddab-4c38-91a2-f90c12da5fd0",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "23446": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podadc6a468_ddab_4c38_91a2_f90c12da5fd0.slice/cri-containerd-36f43195d26416e4a3094d085995c3ede5896e0c1bbb694a05a627bea90148a2.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-1",
+      "pod_uid": "adc6a468-ddab-4c38-91a2-f90c12da5fd0",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "23525": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podadc6a468_ddab_4c38_91a2_f90c12da5fd0.slice/cri-containerd-56d0cd36b606ce6cd931fd282e684b8c1dd6bfc8c7b017e4bbbaebd62139ce9a.scope",
+      "container_id": "56d0cd36b606ce6cd931fd282e684b8c1dd6bfc8c7b017e4bbbaebd62139ce9a",
+      "container_name": "aims-redis",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-1",
+      "pod_uid": "adc6a468-ddab-4c38-91a2-f90c12da5fd0",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "23604": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podbebb9617_3a61_4a7e_a44c_01eabced8c09.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-2",
+      "pod_uid": "bebb9617-3a61-4a7e-a44c-01eabced8c09",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "25168": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod6272201c_8581_46fe_bf27_94c8ee5dae8c.slice/cri-containerd-bc94f167a75c44d6b280b83af312e40e3dc1a17f4e8cdd1c9fbc8bfc0923f0a8.scope",
+      "container_id": "bc94f167a75c44d6b280b83af312e40e3dc1a17f4e8cdd1c9fbc8bfc0923f0a8",
+      "container_name": "kafka",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-kafka-dual-role-2",
+      "pod_uid": "6272201c-8581-46fe-bf27-94c8ee5dae8c",
+      "role": "kafka-broker",
+      "workload_name": "aims-kafka-dual-role"
+    },
+    "26918": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podbebb9617_3a61_4a7e_a44c_01eabced8c09.slice/cri-containerd-e2f9b33e1b2a6bcf6091c1853975277c98ce617eaee65c3c6cbcd8977105df19.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-2",
+      "pod_uid": "bebb9617-3a61-4a7e-a44c-01eabced8c09",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "26997": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-podbebb9617_3a61_4a7e_a44c_01eabced8c09.slice/cri-containerd-a5238b5ad928f94d18243f84b24f94cbb12b7caabec3846fe48c3dff40697521.scope",
+      "container_id": "a5238b5ad928f94d18243f84b24f94cbb12b7caabec3846fe48c3dff40697521",
+      "container_name": "aims-redis",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-redis-2",
+      "pod_uid": "bebb9617-3a61-4a7e-a44c-01eabced8c09",
+      "role": "redis",
+      "workload_name": "aims-redis"
+    },
+    "30740": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod3827a9ee_41d8_4531_9382_1f1d5fe45b83.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "payment-service-7b4674b9cd-5j58n",
+      "pod_uid": "3827a9ee-41d8-4531-9382-1f1d5fe45b83",
+      "role": "stateless-http",
+      "workload_name": "payment-service"
+    },
+    "30819": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod3827a9ee_41d8_4531_9382_1f1d5fe45b83.slice/cri-containerd-257aaae1e508e0f163f0e810c314b1d03c7fde9167dbe0d15e2c49486cb54eac.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "payment-service-7b4674b9cd-5j58n",
+      "pod_uid": "3827a9ee-41d8-4531-9382-1f1d5fe45b83",
+      "role": "stateless-http",
+      "workload_name": "payment-service"
+    },
+    "32732": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod4e0a9aad_ff02_450c_a65f_cc5389870047.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-rabbitmq-server-2",
+      "pod_uid": "4e0a9aad-ff02-450c-a65f-cc5389870047",
+      "role": "rabbitmq",
+      "workload_name": "aims-rabbitmq-server"
+    },
+    "32811": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod4e0a9aad_ff02_450c_a65f_cc5389870047.slice/cri-containerd-c6449a8cacda183b31a49dcd9ad637d28a35f3e36822429106c06a87c6a5454d.scope",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-rabbitmq-server-2",
+      "pod_uid": "4e0a9aad-ff02-450c-a65f-cc5389870047",
+      "role": "rabbitmq",
+      "workload_name": "aims-rabbitmq-server"
+    },
+    "32969": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod4e0a9aad_ff02_450c_a65f_cc5389870047.slice/cri-containerd-de528eba893bab9b3025b2ed075a39dc8e0024d43765f9c412a07be924d1b87a.scope",
+      "container_id": "de528eba893bab9b3025b2ed075a39dc8e0024d43765f9c412a07be924d1b87a",
+      "container_name": "rabbitmq",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-rabbitmq-server-2",
+      "pod_uid": "4e0a9aad-ff02-450c-a65f-cc5389870047",
+      "role": "rabbitmq",
+      "workload_name": "aims-rabbitmq-server"
+    },
+    "8543": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod62b19ea1_27ac_4bbf_880d_f9a357b5f005.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "aims-waypoint-6d558c5d7c-n879w",
+      "pod_uid": "62b19ea1-27ac-4bbf-880d-f9a357b5f005",
+      "role": "istio-proxy",
+      "workload_name": "aims-waypoint"
+    },
+    "9910": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod64701766_8c76_4c7c_8047_5c5b4674510f.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "inventory-service-54db978cc8-jcfqj",
+      "pod_uid": "64701766-8c76-4c7c-8047-5c5b4674510f",
+      "role": "stateless-http",
+      "workload_name": "inventory-service"
+    },
+    "9989": {
+      "cgroup_path": "/sys/fs/cgroup/kubepods.slice/kubepods-burstable.slice/kubepods-burstable-pod5d74e19a_8bb5_437f_84d8_b13541f42c95.slice",
+      "container_name": "pod-slice",
+      "namespace": "production",
+      "node_name": "k8s-worker1.local",
+      "pod_name": "notification-service-85955489ff-v5tmq",
+      "pod_uid": "5d74e19a-8bb5-437f-84d8-b13541f42c95",
+      "role": "stateless-http",
+      "workload_name": "notification-service"
+    }
+  },
+  "generated_at": 1786955785.1840458,
+  "namespace": "production",
+  "node_name": "k8s-worker1.local",
+  "pod_count": 15,
+  "schema": "sentinel-pulse-cgroups-v1"
+}

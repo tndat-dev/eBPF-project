@@ -539,6 +539,23 @@ một giây, vì vậy phải thu dataset 500 ms độc lập, train/calibrate c
 chạy normal soak, blind attack và A/B overhead trước khi rollout ba worker.
 Full regression sau thay đổi đạt **380 passed, 2 warning** deprecation Torch.
 
+### 7.15 Smoke protocol counterbalanced overhead 500 ms
+
+Runner A/B mới giữ collector một giây và normal load generator cố định, chỉ
+bật/tắt collector 500 ms trên worker1. Endpoint được khóa theo UID/IP của
+ingress pod cùng node; mỗi phase fail nếu pod drift, cluster không còn 6 node
+Ready hoặc wrk có socket/non-2xx error. Full protocol đăng ký trước chuỗi bốn
+cặp `OFF-ON, ON-OFF, ON-OFF, OFF-ON`; không có automatic promotion.
+
+Smoke một cặp ngày 17-08 bind commit `5944b97...` và pass machinery với zero
+request error. OFF đạt 59,60 RPS, p99 836,64 ms; ON đạt 56,57 RPS, p99
+704,89 ms. Phép tính thô tương ứng throughput loss 5,08% và p99 change
+-15,75%, nhưng report bắt buộc `inferential=false`: một cặp ngắn không tách
+được treatment effect khỏi traffic/scheduler noise và không được dùng làm
+overhead claim. Smoke SHA256SUMS `3ab10e24...`. Sentinel Pulse suite đạt
+**102 passed**; full regression tương ứng **383 passed, 2 warning** legacy
+Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

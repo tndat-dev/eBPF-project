@@ -5558,3 +5558,20 @@ claim recall, precision hoặc true kernel-to-alert. Bước kế tiếp là
 counterbalanced overhead A/B, capture 500 ms đủ bốn traffic regime trên ba
 worker, rồi train/calibrate model riêng trước blind attack. Regression tách
 nhóm đạt tổng **380 passed, 2 warning** deprecation Torch.
+
+### 18.129 Preregister và smoke A/B overhead 500 ms (17-08-2026)
+
+Đã bổ sung protocol A/B chuyên biệt cho Sentinel Pulse: collector một giây,
+Tetragon, production loadgen và endpoint giữ cố định; treatment duy nhất là
+collector 500 ms trên worker1. Benchmark nhắm trực tiếp ingress pod trên cùng
+node và khóa pod UID/IP/image. Full sequence được đăng ký trước thành bốn cặp
+`OFF-ON, ON-OFF, ON-OFF, OFF-ON`, năm wrk repetition/phase, zero HTTP/socket
+error gate và không automatic promotion.
+
+Smoke `pulse500-overhead-smoke-20260817T083611Z` hoàn tất hai phase, zero failed
+request: OFF 59,60 RPS/p99 836,64 ms; ON 56,57 RPS/p99 704,89 ms. Một cặp cho
+ra throughput loss 5,08% và p99 change -15,75%, nhưng artifact ghi rõ
+`inferential=false`; đây chỉ là validation orchestration, không phải bằng chứng
+collector cải thiện hay làm xấu latency. SHA256SUMS `3ab10e24...`; protocol
+bind commit `5944b97...`. Sentinel Pulse suite 102 pass; tổng regression
+**383 passed, 2 warning** legacy Torch.
