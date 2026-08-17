@@ -5381,9 +5381,8 @@ Full regression đạt **362 passed, 2 warning**, gồm test calibrator/provenan
 Canary v3 chạy 331,93 giây trên worker1 với cùng PID: 5.298 scored, 1 raw
 anomaly suppressed, 0 alert/0 restart; inference p99 39,04 ms, processing p99
 425,78 ms. Policy SHA mới là `382e4562...`. Run audit-only
-`semantic-envelope-soak-c1` active 3/3 worker từ `2026-08-16 09:21:12 +07`;
-terminal gate sớm nhất `2026-08-17 09:21:12 +07`, yêu cầu 24 giờ/workload,
-coverage ≥95%, 0 alert và identity/integrity pass trước khi mở blind 450 trial.
+`semantic-envelope-soak-c1` đã mở 3/3 worker từ `2026-08-16 09:21:12 +07`;
+run này sau đó terminal fail như ghi tại 18.124 và không mở blind 450 trial.
 
 ### 18.124 Policy v3 fail trong probe-storm và mở independent soak V4 (16-08-2026)
 
@@ -5440,12 +5439,13 @@ report `valid=true`, SHA-256 `a3ee8fbd...`. Preflight worker4/worker3 sau đó
 có 1.071/817 decision, 0 alert/restart.
 
 Independent run mới `semantic-envelope-soak-d1` dùng model `b7e603fd...` và
-policy `272e9119...`, active 3/3 worker từ marker bảo thủ
+policy `272e9119...`, đã mở 3/3 worker từ marker bảo thủ
 `2026-08-16 23:04:35 +07`. Preflight phút đầu ghi 4.714 decision, 0 alert,
 0 restart; 6/6 node Ready và zero unhealthy pod. Gate chỉ được finalize từ
 `2026-08-17 23:04:35 +07` nếu từng workload đủ 24 giờ, coverage ≥95%, 0 alert
 và integrity/identity pass. Ma trận blind 450 injection tiếp tục bị interlock;
-không có attack outcome nào được dùng để tạo V4.
+không có attack outcome nào được dùng để tạo V4. Run này sau đó terminal fail
+như ghi tại 18.125.
 
 Checkpoint audit khoảng `2026-08-16 23:21 +07` đọc trực tiếp decision log trên
 ba worker: 16.434 + 15.192 + 11.153 = **42.779 decision**, 0 alert; cả ba
@@ -5485,3 +5485,19 @@ lọc record trước `started_not_before`, kiểm `eligible_finalize_after`,
 run/model/policy identity và từ chối terminal decision nếu thiếu marker. Đây là
 sửa provenance cho các candidate sau; không được dùng để chạy lại hay đổi kết
 quả V4. Full regression đạt **370 passed, 2 warning** deprecation Torch.
+
+### 18.126 Temporal-confirmation ablation, chưa deploy candidate mới (17-08-2026)
+
+Evaluator development-only mới thử quy tắc: hai cửa sổ ML+semantic liên tiếp
+cùng signal group trong tối đa 1,75 giây mới alert; `namespace_probe` vẫn alert
+ngay. Replay được bind marker/model/policy/run, loại đúng 1.344 scored record
+trước marker và quét 1.359.007 scored row hợp lệ. Hai alert V4 đều cô lập nên
+projected thành suppressed, còn **0 projected alert**. Report SHA-256
+`fb069997...`, index `e5f1e1e8...`.
+
+Đây không phải attack result và chưa phải candidate runtime. Normal evidence
+không cho phép suy ra recall/precision; thêm một window một giây cũng có thể
+làm p99 kernel-to-alert vượt 2 giây. Vì vậy chưa rollout. Hướng tiếp theo là
+benchmark confirmation trên rolling/overlap window hoặc bổ sung semantic
+context ít mơ hồ hơn, sau đó mới freeze policy và mở normal soak độc lập.
+Full regression hiện tại đạt **376 passed, 2 warning** deprecation Torch.

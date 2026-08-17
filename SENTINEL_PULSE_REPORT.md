@@ -142,7 +142,7 @@ workload khác.
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement; V1/V2/V3 fail và frozen; `semantic-envelope-soak-d1` active 3/3 worker từ 16-08 23:04:35 +07 |
+| Independent normal-soak evaluator | Đã implement; V1/V2/V3/V4 đều terminal fail và frozen; không có soak active |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
 | Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
@@ -458,6 +458,27 @@ finalizer fail-closed nếu thiếu marker bất biến. Việc hardening proven
 không thay đổi hoặc hồi sinh V4 đã fail. Full regression sau sửa đạt **370
 passed, 2 warning** deprecation Torch.
 
+### 7.12 Temporal-confirmation development ablation
+
+`evaluate_temporal_confirmation.py` là evaluator development-only, không phải
+runtime policy và không có quyền mở blind. Cấu hình ablation yêu cầu hai cửa
+sổ ML+semantic liên tiếp cùng signal group trong tối đa 1,75 giây; nhóm
+`namespace_probe` bypass ngay vì normal maximum bằng 0. Source được bind với
+marker/model/policy/run identity và record trước marker bị loại.
+
+Replay toàn bộ ba frozen V4 log có 1.359.007 scored row hợp lệ, loại đúng 1.344
+row trước marker. Hai alert V4 đều là candidate semantic cô lập nên projected
+thành suppressed và còn 0 projected alert. Report SHA-256 `fb069997...`, index
+`e5f1e1e8...`.
+
+Kết quả này chỉ chứng minh temporal rule xử lý được development-normal evidence
+đã biết. Nó không chứng minh recall, precision hay latency trên attack. Với
+window một giây, confirmation thêm một window có nguy cơ đẩy p99 vượt 2 giây;
+vì vậy chưa deploy candidate mới. Bước kế tiếp phải benchmark rolling/overlap
+hoặc semantic telemetry giàu ngữ cảnh rồi mới khóa policy trước blind.
+Full regression gồm evaluator mới đạt **376 passed, 2 warning** deprecation
+Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -635,3 +656,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   alert trên worker1. Bundle 2,1 GB và incident analysis được hash/freeze;
   blind vẫn chưa chạy. Normal evaluator/finalizer được harden để bắt buộc bind
   marker, loại 1.344 scored record trước marker và chặn finalize sớm.
+- 17-08-2026: temporal-confirmation ablation marker-bound replay 1.359.007
+  scored row, chuyển 2/2 alert V4 thành suppressed và 0 projected alert;
+  artifact `fb069997...`. Chưa deploy vì normal replay không cho biết blind
+  recall và thêm một window có thể vi phạm p99 2 giây.

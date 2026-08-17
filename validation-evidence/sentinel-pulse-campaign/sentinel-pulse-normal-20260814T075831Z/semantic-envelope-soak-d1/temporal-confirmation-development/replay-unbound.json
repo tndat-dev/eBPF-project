@@ -1,0 +1,48 @@
+{
+  "attack_outcomes_used": false,
+  "bypass_groups": [
+    "namespace_probe"
+  ],
+  "latency_cost_contract": {
+    "additional_windows_for_non_bypass_groups": 1,
+    "attack_latency_not_estimated_from_normal_evidence": true,
+    "blind_live_latency_gate_still_required": true
+  },
+  "maximum_gap_seconds": 1.75,
+  "normal_only_development_evidence": true,
+  "original_alerts": 2,
+  "original_alerts_suppressed": 2,
+  "projected_alerts": 0,
+  "projected_alerts_by_workload": {},
+  "projected_status_counts": {
+    "normal": 1359677,
+    "suppressed": 674,
+    "warming": 25909
+  },
+  "required_consecutive_windows": 2,
+  "schema": "sentinel-pulse-temporal-confirmation-development-replay-v1",
+  "scored_rows": 1360351,
+  "sources": [
+    {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker1.local/decisions.jsonl",
+      "rows": 532894,
+      "sha256": "5ab2fe480a67fa70875b1a63870b051f7ba9ae52aebb0b1ab408daffb57198e2"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker4.local/decisions.jsonl",
+      "rows": 493345,
+      "sha256": "e775d272ea412bc86ddb746674151b1ed805fed941691164521b0996ba21bac3"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-terminal/sentinel-pulse-normal-20260814T075831Z/semantic-envelope-soak-d1/failed-evidence/k8s-worker3.local/decisions.jsonl",
+      "rows": 360021,
+      "sha256": "96863b2ce0cbe0f338f12f34e7edf1efff6d2106a5c80c1ac89e7aaa2d24073d"
+    }
+  ],
+  "status_counts": {
+    "alert": 2,
+    "normal": 1359677,
+    "suppressed": 672,
+    "warming": 25909
+  }
+}
