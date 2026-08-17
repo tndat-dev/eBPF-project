@@ -172,6 +172,7 @@ python -m sentinel_pulse.detect \
 
 python -m sentinel_pulse.evaluate_normal \
   --decisions pulse-normal-decisions.jsonl \
+  --soak-marker SOAK_START.json \
   --minimum-scored-windows 86400 \
   --minimum-duration-hours 24 \
   --maximum-alerts 0 \
@@ -187,6 +188,7 @@ python -m sentinel_pulse.evaluate_latency \
 python -m sentinel_pulse.finalize_candidate \
   --model-dir models-pulse-candidate \
   --decision-policy sentinel_pulse/protocol/decision-policy-semantic-v4.json \
+  --soak-marker SOAK_START.json \
   --normal-report pulse-normal-soak-report.json \
   --attack-report pulse-blind-latency-report.json \
   --output pulse-candidate-decision.json

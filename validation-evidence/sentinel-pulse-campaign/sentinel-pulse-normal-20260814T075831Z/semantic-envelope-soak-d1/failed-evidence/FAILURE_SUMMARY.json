@@ -1,0 +1,107 @@
+{
+  "alert_span_seconds": 4.227713346481323,
+  "alert_window_end": 1786916501.5996315,
+  "alert_window_start": 1786916497.3719182,
+  "alerts_by_workload": {
+    "production/aims-minio-pool-0:sidecar": 1,
+    "production/auth-service:app": 1
+  },
+  "blind_evaluation_started": false,
+  "decision_policy_identities": [
+    "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e"
+  ],
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "detector_restarts": 0,
+  "eligible_finalize_after": "2026-08-17T16:04:35.295445+00:00",
+  "excluded_scored_windows_before_marker": 1344,
+  "failure_detected_at": "2026-08-17T01:23:31.380941+00:00",
+  "failure_reason": "observed alerts exceed preregistered zero-alert budget",
+  "first_window_end": 1786896241.409621,
+  "interpretation": "Candidate is terminally failed and frozen. Alerts are retained; no blind evaluation is authorized.",
+  "last_window_end": 1786929660.5461733,
+  "maximum_alerts_allowed": 0,
+  "model_identities": [
+    "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc"
+  ],
+  "model_manifest_sha256": "b7e603fdd23bb61b71ba09e171116ac6f05bf74699c2a62e51f5e719d50718cc",
+  "observed_alerts": 2,
+  "observed_span_seconds": 33385.25072836876,
+  "run_id": "semantic-envelope-soak-d1",
+  "run_identities": [
+    "semantic-envelope-soak-d1"
+  ],
+  "schema": "sentinel-pulse-normal-soak-failure-v4",
+  "soak_marker_sha256": "c7a065c7f1004e76bb59e6bf7c9fdd0a9a2fbe08706c966b074c30de3f7b262c",
+  "started_not_before": "2026-08-16T16:04:35.295445+00:00",
+  "status": "failed",
+  "statuses": {
+    "alert": 2,
+    "normal": 1359677,
+    "suppressed": 672,
+    "warming": 25909
+  },
+  "total_decisions": 1386260,
+  "total_invalid_json": 0,
+  "workers": {
+    "k8s-worker1.local": {
+      "alert_rows": 2,
+      "decision_rows": 532894,
+      "first_window_end": 1786896242.751152,
+      "invalid_json": 0,
+      "last_window_end": 1786929657.8899808,
+      "statuses": {
+        "alert": 2,
+        "normal": 532241,
+        "suppressed": 411,
+        "warming": 240
+      }
+    },
+    "k8s-worker3.local": {
+      "alert_rows": 0,
+      "decision_rows": 360021,
+      "first_window_end": 1786896241.409621,
+      "invalid_json": 0,
+      "last_window_end": 1786929660.5461733,
+      "statuses": {
+        "normal": 346881,
+        "suppressed": 152,
+        "warming": 12988
+      }
+    },
+    "k8s-worker4.local": {
+      "alert_rows": 0,
+      "decision_rows": 493345,
+      "first_window_end": 1786896243.978961,
+      "invalid_json": 0,
+      "last_window_end": 1786929659.6454828,
+      "statuses": {
+        "normal": 480555,
+        "suppressed": 109,
+        "warming": 12681
+      }
+    }
+  },
+  "workload_union_count": 20,
+  "workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:pod-slice",
+    "production/order-service:app",
+    "production/payment-service:pod-slice",
+    "production/security-telemetry-service:app"
+  ]
+}

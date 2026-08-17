@@ -4,11 +4,83 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from datetime import datetime, timezone
 import json
 import math
 from pathlib import Path
 
 from .integrity import sha256_file
+
+
+SCORED_STATUSES = frozenset({"normal", "alert", "suppressed"})
+
+
+def _sha256_identity(value: object) -> str | None:
+    identity = str(value or "")
+    if len(identity) != 64 or any(
+        character not in "0123456789abcdef" for character in identity
+    ):
+        return None
+    return identity
+
+
+def _timestamp(value: object, field: str) -> float:
+    try:
+        parsed = datetime.fromisoformat(str(value))
+    except ValueError as error:
+        raise ValueError(f"soak marker has invalid {field}") from error
+    if parsed.tzinfo is None:
+        raise ValueError(f"soak marker {field} must include a timezone")
+    return parsed.timestamp()
+
+
+def load_soak_marker(
+    path: Path,
+    minimum_duration_hours: float,
+    minimum_coverage_ratio: float,
+    maximum_alerts: int,
+) -> dict:
+    marker = json.loads(path.read_text(encoding="utf-8"))
+    if not str(marker.get("schema", "")).startswith(
+        "sentinel-pulse-semantic-soak-start-"
+    ):
+        raise ValueError("unsupported Sentinel Pulse soak marker")
+    if marker.get("blind_evaluation_started") is not False:
+        raise ValueError("soak marker indicates blind evaluation already started")
+    model_sha256 = _sha256_identity(marker.get("model_manifest_sha256"))
+    policy_sha256 = _sha256_identity(marker.get("decision_policy_sha256"))
+    run_id = str(marker.get("run_id", ""))
+    if model_sha256 is None or policy_sha256 is None or not run_id:
+        raise ValueError("soak marker has invalid candidate identity")
+    started_at = _timestamp(marker.get("started_not_before"), "started_not_before")
+    eligible_at = _timestamp(
+        marker.get("eligible_finalize_after"), "eligible_finalize_after"
+    )
+    marker_duration = float(marker.get("minimum_duration_hours_per_workload", 0.0))
+    marker_coverage = float(marker.get("minimum_coverage_ratio_per_workload", 0.0))
+    marker_alerts = int(marker.get("maximum_alerts", -1))
+    if (
+        not math.isfinite(marker_duration)
+        or not math.isfinite(marker_coverage)
+        or marker_duration <= 0.0
+        or not 0.0 < marker_coverage <= 1.0
+        or marker_alerts < 0
+        or marker_duration < minimum_duration_hours
+        or marker_coverage < minimum_coverage_ratio
+        or marker_alerts > maximum_alerts
+        or eligible_at - started_at < marker_duration * 3600.0
+    ):
+        raise ValueError("soak marker weakens the requested normal protocol")
+    return {
+        "sha256": sha256_file(path),
+        "model_manifest_sha256": model_sha256,
+        "decision_policy_sha256": policy_sha256,
+        "run_id": run_id,
+        "started_at": started_at,
+        "eligible_at": eligible_at,
+        "started_not_before": marker["started_not_before"],
+        "eligible_finalize_after": marker["eligible_finalize_after"],
+    }
 
 
 def wilson_interval(successes: int, trials: int, z: float = 1.959963984540054) -> tuple[float, float]:
@@ -31,7 +103,15 @@ def evaluate(
     minimum_scored_windows: int = 86400,
     minimum_duration_hours: float = 24.0,
     minimum_coverage_ratio: float = 0.95,
+    soak_marker_path: Path | None = None,
+    now: float | None = None,
 ) -> dict:
+    if maximum_alerts < 0:
+        raise ValueError("maximum alerts must be non-negative")
+    if minimum_scored_windows <= 0:
+        raise ValueError("minimum scored windows must be positive")
+    if not math.isfinite(minimum_duration_hours) or minimum_duration_hours <= 0.0:
+        raise ValueError("minimum duration hours must be finite and positive")
     if not 0.0 < minimum_coverage_ratio <= 1.0:
         raise ValueError("minimum coverage ratio must be in (0, 1]")
     statuses = Counter()
@@ -41,6 +121,18 @@ def evaluate(
     workload_second_buckets: dict[str, set[int]] = {}
     model_identities = set()
     decision_policy_identities = set()
+    run_identities = set()
+    excluded_before_marker = 0
+    marker = (
+        load_soak_marker(
+            soak_marker_path,
+            minimum_duration_hours,
+            minimum_coverage_ratio,
+            maximum_alerts,
+        )
+        if soak_marker_path is not None
+        else None
+    )
     with path.open(encoding="utf-8") as handle:
         for line_number, line in enumerate(handle, 1):
             try:
@@ -48,13 +140,36 @@ def evaluate(
             except json.JSONDecodeError as error:
                 raise ValueError(f"line {line_number}: invalid JSON: {error}") from error
             status = str(record.get("status", "unknown"))
+            is_decision = record.get("schema") == "sentinel-pulse-decision-v1"
+            if is_decision and status not in SCORED_STATUSES | {"warming"}:
+                raise ValueError(
+                    f"line {line_number}: unsupported decision status: {status}"
+                )
+            is_scored = (
+                is_decision and status in SCORED_STATUSES
+            )
+            if is_scored:
+                try:
+                    end = float(record["window_end"])
+                except (KeyError, TypeError, ValueError) as error:
+                    raise ValueError(
+                        f"line {line_number}: scored decision has invalid window_end"
+                    ) from error
+                if not math.isfinite(end):
+                    raise ValueError(
+                        f"line {line_number}: scored decision has invalid window_end"
+                    )
+                if marker is not None and end < marker["started_at"]:
+                    excluded_before_marker += 1
+                    continue
             statuses[status] += 1
-            if record.get("schema") != "sentinel-pulse-decision-v1":
+            if not is_scored:
                 continue
             model_identities.add(str(record.get("model_manifest_sha256", "")))
             policy_identity = record.get("decision_policy_sha256")
             if policy_identity is not None:
                 decision_policy_identities.add(str(policy_identity))
+            run_identities.add(str(record.get("run_id", "")))
             workload = str(record.get("workload_key", "unknown"))
             workload_scored[workload] += 1
             if "window_end" in record:
@@ -121,10 +236,40 @@ def evaluate(
         if decision_policy_identity_gate
         else None
     )
+    run_identity_gate = len(run_identities) == 1 and bool(next(iter(run_identities), ""))
+    run_id = next(iter(run_identities)) if run_identity_gate else None
+    marker_time_gate = marker is not None and (
+        datetime.now(timezone.utc).timestamp() if now is None else now
+    ) >= marker["eligible_at"]
+    soak_marker_gate = bool(
+        marker is not None
+        and marker_time_gate
+        and model_identity_gate
+        and model_manifest_sha256 == marker["model_manifest_sha256"]
+        and decision_policy_identity_gate
+        and decision_policy_sha256 == marker["decision_policy_sha256"]
+        and run_identity_gate
+        and run_id == marker["run_id"]
+    )
+    core_gate = (
+        scored >= minimum_scored_windows
+        and alerts <= maximum_alerts
+        and duration_gate
+        and coverage_gate
+        and model_identity_gate
+    )
     return {
         "schema": "sentinel-pulse-normal-soak-report-v1",
         "path": str(path),
         "decisions_sha256": sha256_file(path),
+        "soak_marker_sha256": marker["sha256"] if marker is not None else None,
+        "soak_started_not_before": (
+            marker["started_not_before"] if marker is not None else None
+        ),
+        "soak_eligible_finalize_after": (
+            marker["eligible_finalize_after"] if marker is not None else None
+        ),
+        "excluded_scored_windows_before_marker": excluded_before_marker,
         "minimum_scored_windows": minimum_scored_windows,
         "minimum_duration_hours_per_workload": minimum_duration_hours,
         "minimum_coverage_ratio_per_workload": minimum_coverage_ratio,
@@ -138,17 +283,15 @@ def evaluate(
         "model_identity_gate": model_identity_gate,
         "decision_policy_sha256": decision_policy_sha256,
         "decision_policy_identity_gate": decision_policy_identity_gate,
+        "run_id": run_id,
+        "run_identity_gate": run_identity_gate,
+        "marker_time_gate": marker_time_gate,
+        "soak_marker_gate": soak_marker_gate,
         "suppressed_raw_anomalies": statuses["suppressed"],
         "workloads": workload_reports,
         "duration_gate": duration_gate,
         "coverage_gate": coverage_gate,
-        "normal_gate": (
-            scored >= minimum_scored_windows
-            and alerts <= maximum_alerts
-            and duration_gate
-            and coverage_gate
-            and model_identity_gate
-        ),
+        "normal_gate": core_gate and (soak_marker_gate if marker is not None else True),
     }
 
 
@@ -160,6 +303,7 @@ def main() -> None:
     parser.add_argument("--minimum-scored-windows", type=int, default=86400)
     parser.add_argument("--minimum-duration-hours", type=float, default=24.0)
     parser.add_argument("--minimum-coverage-ratio", type=float, default=0.95)
+    parser.add_argument("--soak-marker", type=Path)
     args = parser.parse_args()
     report = evaluate(
         args.decisions,
@@ -167,6 +311,7 @@ def main() -> None:
         args.minimum_scored_windows,
         args.minimum_duration_hours,
         args.minimum_coverage_ratio,
+        args.soak_marker,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["normal_gate"] else 1)

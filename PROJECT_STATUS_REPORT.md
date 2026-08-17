@@ -52,10 +52,11 @@ tập trung trong một incident 5,95 giây. Evidence 2,7 GB đã đóng băng v
 chưa chạy. Policy V4 `272e9119...` mở rộng envelope chỉ bằng failed-normal
 evidence checksum-bound, replay toàn bộ V3 thành 0 alert và pass canary 351,05
 giây với 5.599 scored/0 alert/0 restart; p99 window-to-decision 1,433 giây.
-Normal soak mới `semantic-envelope-soak-d1` active 3/3 worker từ 16-08-2026
-23:04:35 +07 và chỉ đủ điều kiện finalize sau 23:04:35 ngày 17-08. Blind 450
-trial, true attack kernel-to-alert và overhead A/B chưa hoàn tất, vì vậy chưa
-có claim production cho Sentinel Pulse.
+Normal soak `semantic-envelope-soak-d1` đã terminal fail sau 1.386.260 decision
+và 9,27 giờ vì 2 normal alert trên MinIO sidecar/auth-service. Detector
+candidate đã dừng, bundle 2,1 GB được hash/freeze và blind 450 trial chưa mở.
+True attack kernel-to-alert và overhead A/B chưa hoàn tất, vì vậy chưa có claim
+production cho Sentinel Pulse.
 
 ## Quy ước tên phiên bản và research track
 
@@ -5451,3 +5452,36 @@ ba worker: 16.434 + 15.192 + 11.153 = **42.779 decision**, 0 alert; cả ba
 detector còn chạy đúng run-id. Cụm có 6/6 node Ready và 0 pod ngoài
 `Running/Succeeded`. Số này chỉ là checkpoint đang chạy, không được trình bày
 như kết quả pass 24 giờ.
+
+### 18.125 V4 terminal fail, đóng băng evidence và harden marker gate (17-08-2026)
+
+Kiểm tra trực tiếp 6 node xác nhận tất cả Ready, không có pod ngoài
+`Running/Succeeded`, nhưng worker1 đã ghi **2 alert** trong run
+`semantic-envelope-soak-d1`. Alert đầu kết thúc lúc `2026-08-17 04:41:38 +07`,
+sau marker 5 giờ 37 phút 03,080 giây; alert thứ hai trên auth-service xuất hiện
+sau đó 3,224 giây. Do alert budget đăng ký trước bằng 0, V4 bị đánh dấu terminal
+`failed` và ba `sentinel-pulse-detector-candidate` được dừng ngay. Collector,
+resolver và workload production không bị dừng.
+
+Failure summary giữ **1.386.260 decision**: 1.359.677 normal, 672 suppressed,
+25.909 warming, 2 alert, 0 JSON lỗi, 20 workload; span hợp lệ từ marker tới
+record cuối là 33.385,25 giây (9,27 giờ). 1.344 scored record phát sinh trước
+marker bảo thủ được ghi nhận riêng và không tính vào gate. Hai alert thuộc
+`production/aims-minio-pool-0:sidecar` với `socket=3/connect=3` và
+`production/auth-service:app` với `clone3=11`.
+
+Trong ±30 giây quanh incident có 809 decision, 93 raw anomaly, 91 suppressed,
+2 alert; post-window processing max 8,531 giây. Prometheus ghi load1 worker1
+tăng từ 3,63 tới 25,10 và CPU đạt 78,87%. Đây chỉ là tương quan thời gian, chưa
+phải bằng chứng nhân quả và không làm thay đổi kết luận fail.
+
+Evidence 2,1 GB gồm đủ ba decision/alert log, journal, cluster snapshot, model
+artifacts và policy; 36/36 file trả checksum `OK` rồi chuyển read-only. Failure
+summary SHA-256 `c7ce30eb...`, bundle index `c45c3cdc...`; incident analysis
+SHA-256 `6da74326...`, analysis index `51dc99d0...`. Blind marker vẫn false.
+
+Code evaluator/finalizer được harden fail-closed: bắt buộc bind marker hash,
+lọc record trước `started_not_before`, kiểm `eligible_finalize_after`,
+run/model/policy identity và từ chối terminal decision nếu thiếu marker. Đây là
+sửa provenance cho các candidate sau; không được dùng để chạy lại hay đổi kết
+quả V4. Full regression đạt **370 passed, 2 warning** deprecation Torch.

@@ -1,7 +1,7 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 16-08-2026
+**Snapshot cluster:** 17-08-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
@@ -13,8 +13,9 @@ chỉ từ normal development evidence có checksum. Full replay V3 cho 0 projec
 alert; regression 367 test pass. Canary V4 351,05 giây có 5.599 scored,
 1 suppressed, 0 alert/restart; inference p99 39,68 ms và
 window-start-to-decision p99 1,433 giây. Independent soak
-`semantic-envelope-soak-d1` active 3/3 worker từ 16-08-2026 23:04:35 +07,
-không được finalize trước 23:04:35 ngày 17-08. Blind 450 trial vẫn interlock.
+`semantic-envelope-soak-d1` đã terminal fail sau 1.386.260 decision vì 2 normal
+alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
+2,1 GB đã freeze và blind 450 trial chưa được mở.
 
 ## 1. Động cơ và phạm vi
 
@@ -426,6 +427,37 @@ alert log có record, detector cùng run-id còn sống, 6/6 node Ready và 0 po
 ngoài `Running/Succeeded`. Đây là trạng thái trung gian, chưa phải kết quả 24
 giờ.
 
+### 7.11 V4 terminal fail và hardening normal-soak provenance
+
+Audit trực tiếp ngày 17-08 phát hiện worker1 đã ghi hai alert vào
+`semantic-envelope-soak-d1`. Alert đầu ở `2026-08-17 04:41:38 +07`, sau marker
+5 giờ 37 phút 03,080 giây; alert thứ hai sau đó 3,224 giây. Candidate bị dừng
+fail-fast trên cả ba worker, trong khi collector, resolver và workload
+production tiếp tục chạy. Run có 1.386.260 decision: 1.359.677 normal, 672
+suppressed, 25.909 warming, 2 alert, 0 JSON lỗi và 20 workload. Khoảng quan sát
+từ marker tới record cuối là 33.385,25 giây, chỉ 9,27 giờ; 1.344 scored record
+trước marker bảo thủ bị ghi riêng và không được tính vào protocol.
+
+Hai alert thuộc `aims-minio-pool-0:sidecar` (`socket=3`, `connect=3`) và
+`auth-service:app` (`clone3=11`). Trong cửa sổ incident 60 giây có 809 decision,
+93 raw anomaly, 91 suppressed và 2 alert; post-window processing max tăng tới
+8,531 giây. Prometheus cùng khoảng thời gian ghi worker1 load1 từ 3,63 tới
+25,10 và CPU từ 46,52% tới 78,87%. Đây là tương quan, không chứng minh node
+pressure gây alert và không được dùng để xóa/relabel failure.
+
+Bundle thất bại 2,1 GB giữ đầy đủ ba decision/alert log, journal, cluster
+snapshot, model artifacts và policy runtime. Tất cả 36/36 file xác minh hash
+trước khi chuyển read-only. Failure summary SHA-256 `c7ce30eb...`, bundle index
+`c45c3cdc...`; incident analysis SHA-256 `6da74326...`, analysis index
+`51dc99d0...`. Marker tiếp tục `blind_evaluation_started=false`.
+
+Audit code đồng thời phát hiện evaluator cũ chưa bắt buộc bind
+`SOAK_START.json`. Evaluator mới loại record trước `started_not_before`, kiểm
+`eligible_finalize_after`, run/model/policy identity và marker hash. Candidate
+finalizer fail-closed nếu thiếu marker bất biến. Việc hardening provenance này
+không thay đổi hoặc hồi sinh V4 đã fail. Full regression sau sửa đạt **370
+passed, 2 warning** deprecation Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -599,3 +631,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   regression 367 pass. Canary 351,05 giây đạt 5.599 scored/0 alert/0 restart,
   p99 window-to-decision 1,433 giây. Soak `semantic-envelope-soak-d1` mở
   23:04:35 +07, finalize sớm nhất 23:04:35 +07 ngày 17-08.
+- 17-08-2026: V4 terminal fail sau 1.386.260 decision/9,27 giờ vì 2 normal
+  alert trên worker1. Bundle 2,1 GB và incident analysis được hash/freeze;
+  blind vẫn chưa chạy. Normal evaluator/finalizer được harden để bắt buộc bind
+  marker, loại 1.344 scored record trước marker và chặn finalize sớm.

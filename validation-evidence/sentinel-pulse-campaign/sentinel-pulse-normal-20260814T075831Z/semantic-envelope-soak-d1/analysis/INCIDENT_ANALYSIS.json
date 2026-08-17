@@ -1,0 +1,65 @@
+{
+  "alert_records": [
+    {
+      "alerted_at": 1786916503.0010762,
+      "calibration_score_max": 0.6019006910691915,
+      "post_window_processing_seconds": 4.625820159912109,
+      "score": 0.655623218700918,
+      "security_activity_fields": {
+        "connect": 3,
+        "socket": 3
+      },
+      "triggered_groups": [
+        "local_socket_beacon"
+      ],
+      "window_end": 1786916498.375256,
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "alerted_at": 1786916505.078277,
+      "calibration_score_max": 0.6520788994423509,
+      "post_window_processing_seconds": 3.4786455631256104,
+      "score": 0.8148731003129429,
+      "security_activity_fields": {
+        "capset": 2,
+        "clone3": 11,
+        "openat": 20,
+        "setgid": 13,
+        "setuid": 13
+      },
+      "triggered_groups": [
+        "process_fanout"
+      ],
+      "window_end": 1786916501.5996315,
+      "workload_key": "production/auth-service:app"
+    }
+  ],
+  "alerts": 2,
+  "alerts_retained": true,
+  "candidate_status": "failed",
+  "created_at": "2026-08-17T01:32:10.724798+00:00",
+  "decision_rows": 809,
+  "incident_window_utc": [
+    "2026-08-16T21:41:10Z",
+    "2026-08-16T21:42:10Z"
+  ],
+  "interpretation": "Prometheus node pressure and a broad raw-anomaly burst are temporally correlated with the two alerts. They do not prove causation and do not erase or relabel the candidate failure.",
+  "maximum_post_window_processing_seconds": 8.530574321746826,
+  "node_cpu_percent": {
+    "max": 78.87164124909641,
+    "max_at": "2026-08-16T21:42:10+00:00",
+    "mean": 51.42721574799268,
+    "min": 46.51666666666037,
+    "samples": 41
+  },
+  "node_load1": {
+    "max": 25.1,
+    "max_at": "2026-08-16T21:41:40+00:00",
+    "mean": 9.377073170731707,
+    "min": 3.63,
+    "samples": 41
+  },
+  "raw_anomalies": 93,
+  "schema": "sentinel-pulse-normal-incident-analysis-v1",
+  "suppressed": 91
+}

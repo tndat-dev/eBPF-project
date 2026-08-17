@@ -70,11 +70,16 @@ def build_decision(
     maximum_inference_p99_ms: float = 50.0,
     maximum_processing_p99_seconds: float = 0.75,
     decision_policy_path: Path | None = None,
+    soak_marker_path: Path | None = None,
 ) -> dict:
     manifest, candidates, collect_only = verify_model_bundle(model_dir)
     model_manifest_sha256 = sha256_file(model_dir / "manifest.json")
     normal = read_json(normal_report_path)
     attack = read_json(attack_report_path)
+    soak_marker = read_json(soak_marker_path) if soak_marker_path is not None else None
+    soak_marker_sha256 = (
+        sha256_file(soak_marker_path) if soak_marker_path is not None else None
+    )
     decision_policy_sha256 = None
     if decision_policy_path is not None:
         _policy, decision_policy_sha256 = load_decision_policy(decision_policy_path)
@@ -98,6 +103,23 @@ def build_decision(
             and int(normal.get("maximum_alerts", -1)) == 0
             and normal.get("duration_gate") is True
             and normal.get("coverage_gate") is True
+            and normal.get("marker_time_gate") is True
+            and normal.get("soak_marker_gate") is True
+        ),
+        "normal_soak_marker": bool(
+            soak_marker is not None
+            and str(soak_marker.get("schema", "")).startswith(
+                "sentinel-pulse-semantic-soak-start-"
+            )
+            and soak_marker.get("blind_evaluation_started") is False
+            and soak_marker.get("model_manifest_sha256") == model_manifest_sha256
+            and (
+                decision_policy_sha256 is None
+                or soak_marker.get("decision_policy_sha256")
+                == decision_policy_sha256
+            )
+            and normal.get("soak_marker_sha256") == soak_marker_sha256
+            and normal.get("run_id") == soak_marker.get("run_id")
         ),
         "normal_model_identity": (
             normal.get("model_identity_gate") is True
@@ -160,6 +182,7 @@ def build_decision(
             "normal_soak_gate": "24 wall-clock hours per workload, zero observed alerts",
             "minimum_normal_second_bucket_coverage": 0.95,
             "decision_policy_sha256": decision_policy_sha256,
+            "soak_marker_sha256": soak_marker_sha256,
         },
         "observed": {
             "normal_scored_windows": normal.get("scored_windows"),
@@ -181,6 +204,7 @@ def build_decision(
                 else None
             ),
             "normal_soak_report": sha256_file(normal_report_path),
+            "normal_soak_marker": soak_marker_sha256,
             "blind_attack_report": sha256_file(attack_report_path),
         },
         "next_gate": (
@@ -201,6 +225,7 @@ def main() -> None:
     parser.add_argument("--maximum-inference-p99-ms", type=float, default=50.0)
     parser.add_argument("--maximum-processing-p99-seconds", type=float, default=0.75)
     parser.add_argument("--decision-policy", type=Path)
+    parser.add_argument("--soak-marker", type=Path, required=True)
     args = parser.parse_args()
     decision = build_decision(
         args.model_dir,
@@ -211,6 +236,7 @@ def main() -> None:
         args.maximum_inference_p99_ms,
         args.maximum_processing_p99_seconds,
         args.decision_policy,
+        args.soak_marker,
     )
     if args.output.exists():
         existing = read_json(args.output)

@@ -134,6 +134,66 @@ class PulseNormalEvaluationTests(unittest.TestCase):
             self.assertEqual(report["suppressed_raw_anomalies"], 1)
             self.assertTrue(report["decision_policy_identity_gate"])
 
+    def test_soak_marker_filters_early_rows_and_enforces_finalize_time(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            marker = root / "SOAK_START.json"
+            marker.write_text(
+                json.dumps(
+                    {
+                        "schema": "sentinel-pulse-semantic-soak-start-v4",
+                        "blind_evaluation_started": False,
+                        "model_manifest_sha256": "a" * 64,
+                        "decision_policy_sha256": "b" * 64,
+                        "run_id": "soak-test",
+                        "started_not_before": "1970-01-01T00:01:40+00:00",
+                        "eligible_finalize_after": "1970-01-01T00:01:42+00:00",
+                        "minimum_duration_hours_per_workload": 2.0 / 3600.0,
+                        "minimum_coverage_ratio_per_workload": 0.95,
+                        "maximum_alerts": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            decisions = root / "normal.jsonl"
+            decisions.write_text(
+                "".join(
+                    json.dumps(
+                        {
+                            "schema": "sentinel-pulse-decision-v1",
+                            "status": "normal",
+                            "model_manifest_sha256": "a" * 64,
+                            "decision_policy_sha256": "b" * 64,
+                            "run_id": "soak-test",
+                            "workload_key": "production/catalog:app",
+                            "window_end": float(second),
+                        }
+                    )
+                    + "\n"
+                    for second in (99, 100, 101, 102)
+                ),
+                encoding="utf-8",
+            )
+            early = evaluate(
+                decisions,
+                minimum_scored_windows=3,
+                minimum_duration_hours=2.0 / 3600.0,
+                soak_marker_path=marker,
+                now=101.9,
+            )
+            final = evaluate(
+                decisions,
+                minimum_scored_windows=3,
+                minimum_duration_hours=2.0 / 3600.0,
+                soak_marker_path=marker,
+                now=102.0,
+            )
+            self.assertEqual(final["excluded_scored_windows_before_marker"], 1)
+            self.assertFalse(early["marker_time_gate"])
+            self.assertFalse(early["normal_gate"])
+            self.assertTrue(final["soak_marker_gate"])
+            self.assertTrue(final["normal_gate"])
+
 
 if __name__ == "__main__":
     unittest.main()
