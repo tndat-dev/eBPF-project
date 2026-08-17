@@ -496,6 +496,12 @@ khoảng 2,39 giây, nên phương án đó không được rollout nguyên tr�
 không phải true injection-to-alert latency; blind markers là bắt buộc.
 Full regression hiện tại đạt **377 passed, 2 warning** deprecation Torch.
 
+Source unit cho candidate kế tiếp đổi profile từ lowered-priority sang
+`Nice=0`, `CPUWeight=200`, `CPUQuota=200%`, `MemoryHigh=768M`, `MemoryMax=1G`
+và `TasksMax=128`. Mục tiêu là giảm scheduler starvation nhưng vẫn chặn
+resource runaway. Profile này **chưa deploy** và phải qua counterbalanced A/B
+overhead/latency trước khi được dùng cho claim.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

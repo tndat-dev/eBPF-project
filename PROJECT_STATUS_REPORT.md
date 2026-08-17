@@ -5516,3 +5516,8 @@ normal timing, không phải kernel-to-alert của attack. Nó cho thấy p99 hi
 window cho temporal confirmation sẽ có nguy cơ đưa p99 lên khoảng 2,39 giây.
 Do đó temporal ablation chưa được rollout. Full regression đạt **377 passed,
 2 warning** deprecation Torch.
+
+Systemd source cho candidate sau được chuẩn bị với `Nice=0`, `CPUWeight=200`,
+`CPUQuota=200%`, `MemoryHigh=768M`, `MemoryMax=1G`, thay cho lowered-priority
+profile đã trùng với incident tail. Cấu hình chưa deploy; cần A/B để đo tác
+động lên workload trước khi chấp nhận.

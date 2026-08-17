@@ -19,7 +19,15 @@ ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -u -m sentinel_pulse.detec
 Restart=on-failure
 RestartSec=2
 TimeoutStopSec=20
-Nice=5
+# Keep a security decision service schedulable during node contention while
+# bounding its impact on production workloads.  The previous lowered-priority
+# profile coincided with multi-second inference tails in the frozen V4 incident.
+Nice=0
+CPUWeight=200
+CPUQuota=200%
+MemoryHigh=768M
+MemoryMax=1G
+TasksMax=128
 NoNewPrivileges=yes
 PrivateTmp=yes
 PrivateDevices=yes
