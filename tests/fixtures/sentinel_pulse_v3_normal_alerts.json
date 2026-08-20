@@ -1,0 +1,43 @@
+{
+  "schema": "sentinel-pulse-v3-normal-alert-fixture-v1",
+  "source_run_id": "semantic-envelope-soak-c1",
+  "source_alert_sha256": {
+    "worker1.jsonl": "94127408f6def61f776039a77b6fdd86c85b8bb48cc5a1da69bfb00b7e07a5de",
+    "worker3.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "worker4.jsonl": "7809ced229536d21fe9adb5d0f4bf30993d9636f25339f3e0439f10d37440ecf"
+  },
+  "records": [
+    {
+      "workload_key": "production/catalog-service:app",
+      "security_activity_fields": {"setuid": 12, "setgid": 12, "capset": 2, "openat": 104}
+    },
+    {
+      "workload_key": "production/aims-redis:aims-redis",
+      "security_activity_fields": {"socket": 3, "connect": 6, "clone3": 10, "setuid": 24, "setgid": 24, "capset": 3, "openat": 23}
+    },
+    {
+      "workload_key": "production/aims-kafka-dual-role:kafka",
+      "security_activity_fields": {"socket": 13, "connect": 11, "clone": 8, "clone3": 6, "setuid": 12, "setgid": 12, "capset": 2, "openat": 189}
+    },
+    {
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+      "security_activity_fields": {"socket": 5, "connect": 10, "clone3": 5, "setuid": 23, "setgid": 23, "capset": 3, "openat": 23}
+    },
+    {
+      "workload_key": "production/aims-redis:aims-redis",
+      "security_activity_fields": {"socket": 2, "connect": 4, "clone3": 10, "setuid": 16, "setgid": 16, "capset": 2, "openat": 17}
+    },
+    {
+      "workload_key": "production/aims-redis:aims-redis",
+      "security_activity_fields": {"socket": 2, "connect": 4, "clone3": 4, "setuid": 16, "setgid": 16, "capset": 2, "openat": 14}
+    },
+    {
+      "workload_key": "production/catalog-service:app",
+      "security_activity_fields": {"openat": 280}
+    },
+    {
+      "workload_key": "production/aims-kafka-dual-role:kafka",
+      "security_activity_fields": {"socket": 15, "connect": 15, "openat": 1}
+    }
+  ]
+}

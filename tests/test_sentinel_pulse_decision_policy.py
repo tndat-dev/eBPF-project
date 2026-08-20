@@ -17,14 +17,7 @@ ENVELOPE_POLICY = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semant
 EXTENDED_ENVELOPE_POLICY = (
     ROOT / "sentinel_pulse" / "protocol" / "decision-policy-semantic-v4.json"
 )
-FAILED_V3_ALERTS = (
-    ROOT
-    / "validation-evidence"
-    / "sentinel-pulse-campaign"
-    / "sentinel-pulse-normal-20260814T075831Z"
-    / "semantic-envelope-soak-c1"
-    / "alerts"
-)
+FAILED_V3_ALERTS = ROOT / "tests" / "fixtures" / "sentinel_pulse_v3_normal_alerts.json"
 
 
 def test_frozen_policy_is_checksum_bound_one_window_and_uses_no_blind_outcome():
@@ -162,21 +155,23 @@ def test_v3_envelope_keeps_zero_baseline_namespace_primitive_detectable():
 
 def test_v4_envelope_suppresses_every_frozen_v3_normal_alert():
     policy, digest = load_decision_policy(EXTENDED_ENVELOPE_POLICY)
-    replayed = 0
-    for path in sorted(FAILED_V3_ALERTS.glob("*.jsonl")):
-        for line in path.read_text().splitlines():
-            if not line:
-                continue
-            record = json.loads(line)
-            result = corroboration_details(
-                policy,
-                record["security_activity_fields"],
-                record["workload_key"],
-            )
-            assert result["confirmed"] is False
-            replayed += 1
+    fixture = json.loads(FAILED_V3_ALERTS.read_text())
+    assert fixture["schema"] == "sentinel-pulse-v3-normal-alert-fixture-v1"
+    assert fixture["source_run_id"] == "semantic-envelope-soak-c1"
+    assert fixture["source_alert_sha256"] == {
+        "worker1.jsonl": "94127408f6def61f776039a77b6fdd86c85b8bb48cc5a1da69bfb00b7e07a5de",
+        "worker3.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "worker4.jsonl": "7809ced229536d21fe9adb5d0f4bf30993d9636f25339f3e0439f10d37440ecf",
+    }
+    for record in fixture["records"]:
+        result = corroboration_details(
+            policy,
+            record["security_activity_fields"],
+            record["workload_key"],
+        )
+        assert result["confirmed"] is False
     assert len(digest) == 64
-    assert replayed == 8
+    assert len(fixture["records"]) == 8
 
 
 def test_v4_envelope_preserves_single_namespace_primitive_detection():
