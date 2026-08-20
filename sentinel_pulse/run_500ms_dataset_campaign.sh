@@ -7,7 +7,7 @@ PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
 SSH_USER=${SSH_USER:-dat}
 OUTPUT_PARENT=${PULSE_500MS_DATA_OUTPUT_PARENT:-$ROOT/validation-evidence/sentinel-pulse-campaign}
 REGIME_SECONDS=${PULSE_500MS_REGIME_SECONDS:-600}
-TRANSITION_GAP_SECONDS=${PULSE_500MS_TRANSITION_GAP_SECONDS:-60}
+TRANSITION_GAP_SECONDS=${PULSE_500MS_TRANSITION_GAP_SECONDS:-180}
 PREPARE_SECONDS=${PULSE_500MS_PREPARE_SECONDS:-180}
 FINAL_GRACE_SECONDS=${PULSE_500MS_FINAL_GRACE_SECONDS:-15}
 : "${SSHPASS:?export SSHPASS for SSH and remote sudo authentication}"
@@ -31,6 +31,10 @@ contract="$output_root/capture-contract.json"
 protocol="$output_root/PROTOCOL.json"
 failure_marker="$output_root/FAILED.txt"
 campaign_complete=false
+current_stage=initializing
+collectors_started=false
+health_failures=0
+HEALTH_FAILURE_LIMIT=${PULSE_500MS_HEALTH_FAILURE_LIMIT:-3}
 mkdir -p "$output_root/nodes" "$output_root/dataset"
 
 remote() {
@@ -58,7 +62,8 @@ restore() {
     fi
   done
   if [[ $campaign_complete != true ]]; then
-    printf 'failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" \
+    printf 'failed_at=%s\nexit_code=%s\nstage=%s\n' \
+      "$(date -u +%FT%TZ)" "$rc" "$current_stage" \
       >"$failure_marker"
   fi
   return "$rc"
@@ -66,18 +71,44 @@ restore() {
 trap restore EXIT INT TERM
 
 check_cluster_health() {
-  local ready bad
+  local ready bad timestamp host status ssh_rc healthy=true
+  local -a statuses=()
   ready=$(kubectl get nodes --no-headers | \
     awk '$2 == "Ready" {count++} END {print count+0}')
   bad=$(kubectl get pods -A -o json | \
     "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300 --count)
-  [[ $ready -eq 6 && $bad -eq 0 ]]
+  [[ $ready -eq 6 && $bad -eq 0 ]] || healthy=false
   for host in "${worker_hosts[@]}"; do
-    remote "$host" "systemctl is-active --quiet sentinel-pulse-resolver.service"
-    remote "$host" "systemctl is-active --quiet sentinel-pulse-collector.service"
-    ! remote "$host" \
-      "systemctl is-active --quiet sentinel-pulse-detector-candidate.service"
+    set +e
+    status=$(remote "$host" \
+      "for unit in sentinel-pulse-resolver.service sentinel-pulse-collector.service sentinel-pulse-detector-candidate.service sentinel-pulse-collector-500ms-experiment.service; do printf '%s=' \"\$unit\"; systemctl is-active \"\$unit\" || true; done" 2>&1)
+    ssh_rc=$?
+    set -e
+    statuses+=("host=$host ssh_rc=$ssh_rc $status")
+    [[ $ssh_rc -eq 0 ]] || healthy=false
+    [[ $status == *"sentinel-pulse-resolver.service=active"* ]] || healthy=false
+    [[ $status == *"sentinel-pulse-collector.service=active"* ]] || healthy=false
+    [[ $status == *"sentinel-pulse-detector-candidate.service=inactive"* ]] || healthy=false
+    if [[ $collectors_started == true ]]; then
+      [[ $status == *"sentinel-pulse-collector-500ms-experiment.service=active"* ]] \
+        || healthy=false
+    fi
   done
+  if [[ $healthy == true ]]; then
+    health_failures=0
+    return 0
+  fi
+  health_failures=$((health_failures + 1))
+  timestamp=$(date -u +%Y%m%dT%H%M%SZ)
+  {
+    printf 'ready_nodes=%s expected=6 non_running_pods=%s consecutive=%s limit=%s stage=%s\n' \
+      "$ready" "$bad" "$health_failures" "$HEALTH_FAILURE_LIMIT" "$current_stage"
+    printf '%s\n' "${statuses[@]}"
+    kubectl get nodes -o wide
+    kubectl get pods -A -o json | \
+      "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300
+  } >"$output_root/health-warning-$timestamp.txt"
+  ((health_failures < HEALTH_FAILURE_LIMIT))
 }
 
 wait_until() {
@@ -98,6 +129,7 @@ wait_until() {
 [[ -z $(git -C "$ROOT" status --short) ]]
 [[ $(git -C "$ROOT" rev-parse HEAD) == $(git -C "$ROOT" rev-parse origin/main) ]]
 check_cluster_health
+current_stage=registering-contract
 kubectl get nodes -o wide >"$output_root/nodes-start.txt"
 kubectl -n production get pods -o wide >"$output_root/production-pods-start.txt"
 kubectl -n production get deploy aims-sentinel-loadgen \
@@ -167,6 +199,7 @@ chmod 0444 "$contract" "$protocol"
 
 # Keep worker-side lifecycle scripts byte-identical to the protocol-bound source.
 for host in "${worker_hosts[@]}"; do
+  current_stage="syncing-worker-$host"
   (
     cd "$ROOT"
     sshpass -e rsync -aR --checksum \
@@ -183,6 +216,7 @@ for index in "${!worker_hosts[@]}"; do
   host=${worker_hosts[$index]}
   node=${worker_nodes[$index]}
   run_id="$campaign_id-$node"
+  current_stage="starting-collector-$node"
   remote_sudo "$host" \
     "env SOURCE_ROOT=$ROOT DURATION_SECONDS=$experiment_duration RUN_ID=$run_id $ROOT/sentinel_pulse/install_500ms_experiment.sh"
 done
@@ -190,6 +224,7 @@ for host in "${worker_hosts[@]}"; do
   remote "$host" \
     "systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment.service"
 done
+collectors_started=true
 
 for regime in "${regimes[@]}"; do
   regime_start=$("$PYTHON" - "$contract" "$regime" <<'PY'
@@ -199,11 +234,25 @@ print(int(next(item["start"] for item in contract["intervals"]
                if item["regime"] == sys.argv[2])))
 PY
 )
-  "$ROOT/ml-service/set_aims_traffic_regime.sh" "$regime"
+  current_stage="rollout-$regime"
+  rollout_ok=false
+  : >"$output_root/$regime-rollout.log"
+  for attempt in 1 2; do
+    printf 'attempt=%s started_at=%s\n' "$attempt" "$(date -u +%FT%TZ)" \
+      >>"$output_root/$regime-rollout.log"
+    if "$ROOT/ml-service/set_aims_traffic_regime.sh" "$regime" \
+      >>"$output_root/$regime-rollout.log" 2>&1; then
+      rollout_ok=true
+      break
+    fi
+    sleep 5
+  done
+  [[ $rollout_ok == true ]]
   kubectl -n production get deployment aims-sentinel-loadgen \
     aims-sentinel-readmix-loadgen aims-sentinel-dependency-loadgen -o json \
     >"$output_root/$regime-deployments.json"
   (( $(date +%s) <= regime_start ))
+  current_stage="measuring-$regime"
   wait_until "$regime_start"
   printf 'campaign=%s regime=%s started_at=%s\n' \
     "$campaign_id" "$regime" "$(date -u +%FT%TZ)"
@@ -211,6 +260,7 @@ PY
 done
 
 wait_until "$((campaign_end + FINAL_GRACE_SECONDS))"
+current_stage=restoring-steady
 "$ROOT/ml-service/set_aims_traffic_regime.sh" steady
 
 capture_args=()
@@ -219,6 +269,7 @@ for index in "${!worker_hosts[@]}"; do
   host=${worker_hosts[$index]}
   node=${worker_nodes[$index]}
   run_id="$campaign_id-$node"
+  current_stage="finalizing-$node"
   remote_sudo "$host" \
     "systemctl stop sentinel-pulse-collector-500ms-experiment.service"
   remote_sudo "$host" \
@@ -239,6 +290,7 @@ for index in "${!worker_hosts[@]}"; do
 done
 
 dataset="$output_root/dataset/features.jsonl"
+current_stage=assembling-dataset
 "$PYTHON" -m sentinel_pulse.assemble_dataset --contract "$contract" \
   "${capture_args[@]}" "${manifest_args[@]}" --output "$dataset" \
   >"$output_root/dataset/ASSEMBLY.json"
@@ -255,5 +307,6 @@ find "$output_root" -type f ! -name SHA256SUMS ! -name COMPLETE \
 touch "$output_root/COMPLETE"
 chmod -R a-w "$output_root"
 campaign_complete=true
+current_stage=complete
 trap - EXIT INT TERM
 printf 'PULSE_500MS_DATASET_COMPLETE root=%s dataset=%s\n' "$output_root" "$dataset"

@@ -1,0 +1,19 @@
+{
+  "campaign_id": "pulse500-data-20260820T043610Z",
+  "disposition": "reject-entire-campaign-and-rerun-after-health-evidence-hardening",
+  "evidence_interpretation": "Recovery deployment snapshot was written before the registered start, but no recovery measurement marker was emitted. The old runner did not persist the failing health predicate, so a narrower root-cause claim is not supported.",
+  "failed_at": "2026-08-20T05:12:03Z",
+  "last_completed_measured_regime": "burst",
+  "postfailure_reproduction": {
+    "recovery_regime_return_code": 0,
+    "traffic_restored_to": "steady"
+  },
+  "recovery_deployment_snapshot_mtime": 1787202683.9607353,
+  "recovery_measurement_started": false,
+  "recovery_registered_start": 1787202739.0,
+  "recovery_snapshot_seconds_before_start": 55.03926467895508,
+  "root_cause": "undetermined-health-check-predicate",
+  "schema": "sentinel-pulse-500ms-dataset-failure-analysis-v1",
+  "terminal_status": "failed",
+  "training_eligible": false
+}

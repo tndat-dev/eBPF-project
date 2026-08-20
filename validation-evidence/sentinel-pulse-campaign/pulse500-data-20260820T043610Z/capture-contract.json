@@ -1,0 +1,42 @@
+{
+  "campaign_id": "pulse500-data-20260820T043610Z",
+  "expected_nodes": [
+    "k8s-worker1.local",
+    "k8s-worker3.local",
+    "k8s-worker4.local"
+  ],
+  "intervals": [
+    {
+      "end": 1787201359.0,
+      "regime": "steady",
+      "start": 1787200759.0
+    },
+    {
+      "end": 1787202019.0,
+      "regime": "toolmix",
+      "start": 1787201419.0
+    },
+    {
+      "end": 1787202679.0,
+      "regime": "burst",
+      "start": 1787202079.0
+    },
+    {
+      "end": 1787203339.0,
+      "regime": "recovery",
+      "start": 1787202739.0
+    }
+  ],
+  "normal_only": true,
+  "schedule": {
+    "duration_seconds_per_regime": 600,
+    "regime_order": [
+      "steady",
+      "toolmix",
+      "burst",
+      "recovery"
+    ],
+    "transition_gap_seconds": 60
+  },
+  "schema": "sentinel-pulse-capture-contract-v1"
+}

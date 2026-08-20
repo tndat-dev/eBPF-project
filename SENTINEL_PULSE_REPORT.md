@@ -632,6 +632,28 @@ train và không tự promote. Code gate đạt **391 passed, 2 warning**; tại
 điểm khóa mục này dataset campaign chưa chạy nên chưa có model/accuracy/latency
 claim mới.
 
+### 7.19 Dataset campaign đầu tiên fail-closed
+
+Run `pulse500-data-20260820T043610Z` thu đủ `steady`, `toolmix`, `burst` nhưng
+không phát marker bắt đầu measured interval `recovery`; runner dừng lúc
+05:12:03 UTC, trả traffic về steady và dừng cả ba collector thử nghiệm. Dataset
+này bị loại toàn bộ (`training_eligible=false`), không assemble và không train.
+Cluster sau cleanup có 6/6 node Ready, zero pod lỗi và ba collector một giây vẫn
+active.
+
+Evidence cho thấy snapshot deployment recovery được ghi lúc 05:11:23 UTC, sớm
+hơn mốc recovery đã khóa 55,04 giây; chạy lại riêng traffic setter sau failure
+trả `rc=0`. Runner phiên bản cũ không lưu health predicate trả mã 1, vì vậy
+không đủ bằng chứng gán nguyên nhân hẹp hơn
+`undetermined-health-check-predicate`. Failed bundle/index SHA-256 là
+`68d5cd63...`/`ba45d577...`.
+
+Runner được harden trước rerun: transition gap 180 giây, tối đa hai lần rollout
+idempotent có log riêng, stage marker và health-warning lưu node/pod/service;
+chỉ fail sau ba health check liên tiếp. Đây là infrastructure failure có
+evidence, nên được phép rerun theo protocol; dữ liệu failed run tuyệt đối không
+được tái sử dụng để tune model.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -834,3 +856,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   contract-bound node finalizer và trainer profile `window_seconds=0.5`;
   regression 391 pass. Pipeline không auto-train/promote và đang chờ campaign
   normal-only đầu tiên.
+- 20-08-2026: dataset campaign đầu fail trước measured recovery; toàn bộ run bị
+  reject và đóng băng (`training_eligible=false`). Root cause hẹp không xác định
+  vì runner cũ thiếu failing-predicate log. Bổ sung stage/health evidence,
+  3-check tolerance, rollout log/retry và transition gap 180 giây trước rerun.

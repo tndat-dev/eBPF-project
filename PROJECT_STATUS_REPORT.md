@@ -5644,3 +5644,22 @@ Full regression đạt **391 passed, 2 warning**. Runner cố ý đặt
 `automatic_model_training=false`, `automatic_promotion=false`; đây mới là code
 readiness, chưa phải dataset/model evidence cho đến khi campaign đầu tiên đóng
 `COMPLETE` và toàn bộ checksum/validation pass.
+
+### 18.133 Dataset campaign 500 ms đầu tiên bị reject (20-08-2026)
+
+Campaign `pulse500-data-20260820T043610Z` hoàn tất ba measured regime đầu nhưng
+không phát marker bắt đầu recovery và fail lúc 05:12:03 UTC. Cleanup đã trả
+traffic về steady, dừng ba experiment; cluster hậu kiểm 6/6 Ready, zero pod lỗi,
+resolver/collector một giây active và detector inactive. Run bị khóa
+`training_eligible=false`; không assemble/train từ dữ liệu thiếu regime.
+
+`recovery-deployments.json` có mtime 05:11:23 UTC, trước registered recovery
+start 55,04 giây; post-failure reproduction của traffic setter trả rc=0. Vì
+runner cũ không ghi health predicate lỗi, báo cáo chỉ cho phép kết luận
+`undetermined-health-check-predicate`, không gán lỗi cho workload hoặc model.
+Failure analysis/index SHA-256 `68d5cd63...`/`ba45d577...`.
+
+Trước rerun, runner được sửa để dùng transition gap 180 giây, ghi stage và từng
+health-warning (node/pod/bốn systemd unit), chịu tối đa hai transient health
+check rồi mới fail ở lần thứ ba, đồng thời lưu tối đa hai rollout attempt. Đây
+là infrastructure rerun hợp lệ; failed capture không được dùng train/tune.

@@ -1,0 +1,8 @@
+host=k8s-worker1.local
+Result=success
+ExecMainStatus=0
+ActiveState=inactive
+run=/var/lib/sentinel-pulse-500ms/runs/pulse500-data-20260820T043610Z-k8s-worker1.local
+63814 /var/lib/sentinel-pulse-500ms/runs/pulse500-data-20260820T043610Z-k8s-worker1.local/features.jsonl
+bytes=90603527
+46018e0568a3a5d6f77e4dd01c43d075db801354478d1413bc5e95374fad76bf  /var/lib/sentinel-pulse-500ms/runs/pulse500-data-20260820T043610Z-k8s-worker1.local/features.jsonl

@@ -170,6 +170,13 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("--interval-min-seconds 0.35", runner)
         self.assertIn("--interval-max-seconds 0.80", runner)
         self.assertIn("finalize_500ms_dataset", runner)
+        self.assertIn("TRANSITION_GAP_SECONDS:-180", runner)
+        self.assertIn('stage=%s\\n', runner)
+        self.assertIn('$regime-rollout.log', runner)
+        self.assertIn("for attempt in 1 2", runner)
+        self.assertIn("HEALTH_FAILURE_LIMIT", runner)
+        self.assertIn("health-warning-$timestamp.txt", runner)
+        self.assertIn("collectors_started=true", runner)
         self.assertNotIn("systemctl enable", runner)
 
     def test_capture_campaign_monitors_cluster_and_records_failure(self):

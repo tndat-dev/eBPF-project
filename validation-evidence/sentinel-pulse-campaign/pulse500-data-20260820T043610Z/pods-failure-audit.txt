@@ -1,0 +1,227 @@
+NAMESPACE                NAME                                                          READY   STATUS      RESTARTS        AGE     IP            NODE                NOMINATED NODE   READINESS GATES
+agent-sentinel-lab       mcp-normal-loadgen-84ff6bcd86-lt899                           1/1     Running     18 (21h ago)    19d     10.0.4.151    k8s-worker4.local   <none>           <none>
+agent-sentinel-lab       mcp-tls-server-57dbb987d4-gff2x                               1/1     Running     1 (9d ago)      19d     10.0.4.245    k8s-worker4.local   <none>           <none>
+argo-rollouts            argo-rollouts-58949d7f4f-lq6t5                                1/1     Running     1 (9d ago)      16d     10.0.5.160    k8s-worker3.local   <none>           <none>
+argo-rollouts            argo-rollouts-58949d7f4f-nj2tp                                1/1     Running     1 (9d ago)      16d     10.0.0.43     k8s-master.local    <none>           <none>
+argo-rollouts            argo-rollouts-dashboard-768985f745-tnx6v                      1/1     Running     1 (9d ago)      16d     10.0.0.81     k8s-master.local    <none>           <none>
+argocd                   argocd-application-controller-0                               1/1     Running     0               9d      10.0.0.105    k8s-master.local    <none>           <none>
+argocd                   argocd-applicationset-controller-579c596b4d-zv288             1/1     Running     4 (9d ago)      21d     10.0.5.69     k8s-worker3.local   <none>           <none>
+argocd                   argocd-dex-server-6557647c66-ww4l4                            1/1     Running     0               9d      10.0.0.119    k8s-master.local    <none>           <none>
+argocd                   argocd-notifications-controller-dc54cd74d-drp5f               1/1     Running     1 (9d ago)      21d     10.0.5.186    k8s-worker3.local   <none>           <none>
+argocd                   argocd-redis-58b659dbb9-bfcxt                                 1/1     Running     0               9d      10.0.0.147    k8s-master.local    <none>           <none>
+argocd                   argocd-repo-server-7cc7dcfccf-mqnhw                           1/1     Running     0               9d      10.0.0.219    k8s-master.local    <none>           <none>
+argocd                   argocd-server-5c7d584ddf-q977l                                1/1     Running     4 (9d ago)      21d     10.0.5.126    k8s-worker3.local   <none>           <none>
+cert-manager             cert-manager-cainjector-dbb6586f5-hjk2x                       1/1     Running     1 (9d ago)      21d     10.0.0.246    k8s-master.local    <none>           <none>
+cert-manager             cert-manager-d965b5464-26lwb                                  1/1     Running     1 (9d ago)      21d     10.0.5.53     k8s-worker3.local   <none>           <none>
+cert-manager             cert-manager-webhook-7b5b46cc86-fff4z                         1/1     Running     1 (9d ago)      21d     10.0.0.146    k8s-master.local    <none>           <none>
+cnpg-system              cloudnative-pg-6449745d5f-9p95n                               1/1     Running     1 (9d ago)      21d     10.0.5.124    k8s-worker3.local   <none>           <none>
+default                  keycloak-0                                                    2/2     Running     0               9d      10.0.2.154    k8s-worker1.local   <none>           <none>
+default                  keycloak-1                                                    2/2     Running     0               9d      10.0.2.95     k8s-worker1.local   <none>           <none>
+default                  postgres-78b67d84f-shgdt                                      2/2     Running     1 (9d ago)      18d     10.0.2.253    k8s-worker1.local   <none>           <none>
+default                  postgres-loadgen-bcc58b786-tj8bb                              2/2     Running     1 (9d ago)      18d     10.0.2.133    k8s-worker1.local   <none>           <none>
+external-secrets         external-secrets-6845dd947-8r6nf                              1/1     Running     5 (9d ago)      21d     10.0.5.172    k8s-worker3.local   <none>           <none>
+external-secrets         external-secrets-cert-controller-666bd67767-b4c2v             1/1     Running     4 (9d ago)      21d     10.0.5.210    k8s-worker3.local   <none>           <none>
+external-secrets         external-secrets-webhook-7bf8595767-p5fnb                     1/1     Running     4 (9d ago)      21d     10.0.5.159    k8s-worker3.local   <none>           <none>
+falco                    falco-csx48                                                   2/2     Running     2 (9d ago)      19d     10.0.0.213    k8s-master.local    <none>           <none>
+falco                    falco-d2h2x                                                   2/2     Running     2 (9d ago)      21d     10.0.7.39     k8s-master3.local   <none>           <none>
+falco                    falco-hlrx6                                                   2/2     Running     2 (9d ago)      21d     10.0.4.64     k8s-worker4.local   <none>           <none>
+falco                    falco-hsqhn                                                   2/2     Running     2 (9d ago)      19d     10.0.2.80     k8s-worker1.local   <none>           <none>
+falco                    falco-pthbw                                                   2/2     Running     0               9d      10.0.5.113    k8s-worker3.local   <none>           <none>
+falco                    falco-sschh                                                   2/2     Running     2 (9d ago)      21d     10.0.1.239    k8s-master2.local   <none>           <none>
+gatekeeper-system        gatekeeper-audit-779b6f676c-jbwn8                             1/1     Running     1 (9d ago)      19d     10.0.0.225    k8s-master.local    <none>           <none>
+gatekeeper-system        gatekeeper-controller-manager-bf8bbb9d5-rmqf4                 1/1     Running     1 (9d ago)      21d     10.0.0.89     k8s-master.local    <none>           <none>
+gatekeeper-system        gatekeeper-controller-manager-bf8bbb9d5-w9cd7                 1/1     Running     5 (9d ago)      21d     10.0.5.80     k8s-worker3.local   <none>           <none>
+istio-ingress            aims-ingress-istio-5d4db857f-6twv7                            1/1     Running     2 (9d ago)      16d     10.0.4.220    k8s-worker4.local   <none>           <none>
+istio-ingress            aims-ingress-istio-5d4db857f-vhdmt                            1/1     Running     0               9d      10.0.2.142    k8s-worker1.local   <none>           <none>
+istio-ingress            istio-ingressgateway-d87f7d675-jf5gr                          1/1     Running     0               9d      10.0.2.107    k8s-worker1.local   <none>           <none>
+istio-system             istio-cni-node-5fvp8                                          1/1     Running     2 (9d ago)      21d     10.0.0.140    k8s-master.local    <none>           <none>
+istio-system             istio-cni-node-7d8pk                                          1/1     Running     1 (9d ago)      21d     10.0.7.161    k8s-master3.local   <none>           <none>
+istio-system             istio-cni-node-7g2wj                                          1/1     Running     1 (9d ago)      21d     10.0.4.162    k8s-worker4.local   <none>           <none>
+istio-system             istio-cni-node-86847                                          1/1     Running     1 (9d ago)      21d     10.0.2.63     k8s-worker1.local   <none>           <none>
+istio-system             istio-cni-node-ff486                                          1/1     Running     4 (9d ago)      21d     10.0.5.253    k8s-worker3.local   <none>           <none>
+istio-system             istio-cni-node-nz8hk                                          1/1     Running     1 (9d ago)      21d     10.0.1.96     k8s-master2.local   <none>           <none>
+istio-system             istio-ingressgateway-57ff89c64c-mlhzj                         1/1     Running     1 (9d ago)      21d     10.0.4.228    k8s-worker4.local   <none>           <none>
+istio-system             istiod-5f97d6b499-gdd28                                       1/1     Running     1 (9d ago)      21d     10.0.4.246    k8s-worker4.local   <none>           <none>
+istio-system             ztunnel-8zlkp                                                 1/1     Running     0               9d      10.0.4.243    k8s-worker4.local   <none>           <none>
+istio-system             ztunnel-cgbpz                                                 1/1     Running     1 (9d ago)      21d     10.0.1.187    k8s-master2.local   <none>           <none>
+istio-system             ztunnel-dv9zq                                                 1/1     Running     1 (9d ago)      19d     10.0.5.211    k8s-worker3.local   <none>           <none>
+istio-system             ztunnel-fvb5c                                                 1/1     Running     1 (9d ago)      21d     10.0.2.164    k8s-worker1.local   <none>           <none>
+istio-system             ztunnel-rl59t                                                 1/1     Running     2 (9d ago)      21d     10.0.0.248    k8s-master.local    <none>           <none>
+istio-system             ztunnel-tgzc6                                                 1/1     Running     1 (9d ago)      21d     10.0.7.128    k8s-master3.local   <none>           <none>
+kafka-ha                 kafka-ha-controller-0                                         1/1     Running     1 (9d ago)      21d     10.0.4.168    k8s-worker4.local   <none>           <none>
+kafka-ha                 kafka-ha-controller-1                                         1/1     Running     1 (9d ago)      21d     10.0.4.175    k8s-worker4.local   <none>           <none>
+kafka-ha                 kafka-ha-controller-2                                         1/1     Running     1 (9d ago)      21d     10.0.5.142    k8s-worker3.local   <none>           <none>
+keycloak                 keycloak-keycloakx-0                                          1/1     Running     0               9d      10.0.2.186    k8s-worker1.local   <none>           <none>
+kube-system              cilium-5wdll                                                  1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              cilium-6wd7p                                                  1/1     Running     4 (9d ago)      21d     10.1.16.239   k8s-worker3.local   <none>           <none>
+kube-system              cilium-7wtrg                                                  1/1     Running     2 (9d ago)      21d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              cilium-envoy-4dxlm                                            1/1     Running     1 (9d ago)      21d     10.1.16.237   k8s-worker1.local   <none>           <none>
+kube-system              cilium-envoy-6zvdc                                            1/1     Running     1 (9d ago)      21d     10.1.16.239   k8s-worker3.local   <none>           <none>
+kube-system              cilium-envoy-7bs7s                                            1/1     Running     1 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              cilium-envoy-hdj5f                                            1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              cilium-envoy-j9tvq                                            1/1     Running     1 (9d ago)      21d     10.1.16.238   k8s-worker4.local   <none>           <none>
+kube-system              cilium-envoy-tsd9f                                            1/1     Running     1 (9d ago)      21d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              cilium-operator-ff445f769-2lw7m                               1/1     Running     7 (9d ago)      22d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              cilium-operator-ff445f769-q6mv5                               1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              cilium-s54qw                                                  1/1     Running     1 (9d ago)      21d     10.1.16.237   k8s-worker1.local   <none>           <none>
+kube-system              cilium-s5m99                                                  1/1     Running     1 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              cilium-xrtkf                                                  1/1     Running     1 (9d ago)      21d     10.1.16.238   k8s-worker4.local   <none>           <none>
+kube-system              coredns-66bc5c9577-qpcv2                                      1/1     Running     1 (9d ago)      21d     10.0.7.232    k8s-master3.local   <none>           <none>
+kube-system              coredns-66bc5c9577-xpj9v                                      1/1     Running     0               9d      10.0.1.156    k8s-master2.local   <none>           <none>
+kube-system              etcd-k8s-master.local                                         1/1     Running     3 (9d ago)      21d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              etcd-k8s-master2.local                                        1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              etcd-k8s-master3.local                                        1/1     Running     1 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              hubble-relay-566f67f888-mncwm                                 1/1     Running     2 (9d ago)      21d     10.0.4.9      k8s-worker4.local   <none>           <none>
+kube-system              hubble-ui-695dbfd65f-lm4ql                                    2/2     Running     2 (9d ago)      21d     10.0.4.247    k8s-worker4.local   <none>           <none>
+kube-system              kube-apiserver-k8s-master.local                               1/1     Running     1 (9d ago)      18d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              kube-apiserver-k8s-master2.local                              1/1     Running     1 (9d ago)      18d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              kube-apiserver-k8s-master3.local                              1/1     Running     1 (9d ago)      18d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              kube-controller-manager-k8s-master.local                      1/1     Running     2 (9d ago)      18d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              kube-controller-manager-k8s-master2.local                     1/1     Running     2 (9d ago)      18d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              kube-controller-manager-k8s-master3.local                     1/1     Running     1 (9d ago)      18d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              kube-proxy-7zxbz                                              1/1     Running     4 (9d ago)      21d     10.1.16.239   k8s-worker3.local   <none>           <none>
+kube-system              kube-proxy-fwhg4                                              1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              kube-proxy-h79tp                                              1/1     Running     2 (9d ago)      21d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              kube-proxy-jlxtz                                              1/1     Running     1 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              kube-proxy-rj6vw                                              1/1     Running     1 (9d ago)      21d     10.1.16.237   k8s-worker1.local   <none>           <none>
+kube-system              kube-proxy-shs88                                              1/1     Running     1 (9d ago)      21d     10.1.16.238   k8s-worker4.local   <none>           <none>
+kube-system              kube-scheduler-k8s-master.local                               1/1     Running     1 (9d ago)      18d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              kube-scheduler-k8s-master2.local                              1/1     Running     2 (9d ago)      18d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              kube-scheduler-k8s-master3.local                              1/1     Running     2 (9d ago)      18d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              metrics-server-65c868b46c-jtthh                               1/1     Running     1 (9d ago)      21d     10.0.4.204    k8s-worker4.local   <none>           <none>
+kube-system              tetragon-622tj                                                2/2     Running     2 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+kube-system              tetragon-67ngn                                                2/2     Running     2 (9d ago)      21d     10.1.16.234   k8s-master.local    <none>           <none>
+kube-system              tetragon-6mzj8                                                2/2     Running     2 (9d ago)      19d     10.1.16.237   k8s-worker1.local   <none>           <none>
+kube-system              tetragon-7sjqf                                                2/2     Running     2 (9d ago)      21d     10.1.16.238   k8s-worker4.local   <none>           <none>
+kube-system              tetragon-9g8tt                                                2/2     Running     0               9d      10.1.16.239   k8s-worker3.local   <none>           <none>
+kube-system              tetragon-lvgjf                                                2/2     Running     2 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+kube-system              tetragon-operator-786bb65579-qhln7                            1/1     Running     1 (9d ago)      21d     10.0.4.58     k8s-worker4.local   <none>           <none>
+kyverno                  kyverno-admission-controller-6f67bf8d9d-j2mt9                 1/1     Running     1 (9d ago)      21d     10.0.5.214    k8s-worker3.local   <none>           <none>
+kyverno                  kyverno-admission-controller-6f67bf8d9d-jf9vq                 1/1     Running     3 (9d ago)      21d     10.0.5.151    k8s-worker3.local   <none>           <none>
+kyverno                  kyverno-background-controller-589c7dcfcb-5rtx6                1/1     Running     1 (9d ago)      21d     10.0.0.223    k8s-master.local    <none>           <none>
+kyverno                  kyverno-background-controller-589c7dcfcb-p488d                1/1     Running     4 (9d ago)      21d     10.0.5.155    k8s-worker3.local   <none>           <none>
+kyverno                  kyverno-cleanup-controller-659f4b9879-qxrkx                   1/1     Running     1 (9d ago)      21d     10.0.0.118    k8s-master.local    <none>           <none>
+kyverno                  kyverno-cleanup-controller-659f4b9879-rh8hq                   1/1     Running     5 (9d ago)      21d     10.0.5.144    k8s-worker3.local   <none>           <none>
+kyverno                  kyverno-reports-controller-7577b784b8-bc7l7                   1/1     Running     1 (9d ago)      21d     10.0.0.97     k8s-master.local    <none>           <none>
+kyverno                  kyverno-reports-controller-7577b784b8-bnfvd                   1/1     Running     5 (9d ago)      21d     10.0.5.64     k8s-worker3.local   <none>           <none>
+longhorn-system          csi-attacher-6fbf76ff66-4qrhw                                 1/1     Running     2 (9d ago)      21d     10.0.5.115    k8s-worker3.local   <none>           <none>
+longhorn-system          csi-attacher-6fbf76ff66-cdll4                                 1/1     Running     2 (9d ago)      21d     10.0.4.18     k8s-worker4.local   <none>           <none>
+longhorn-system          csi-attacher-6fbf76ff66-mbst6                                 1/1     Running     3 (9d ago)      21d     10.0.4.214    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-provisioner-6c69d9d64c-6p6bl                              1/1     Running     3 (9d ago)      21d     10.0.4.240    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-provisioner-6c69d9d64c-c2gzp                              1/1     Running     2 (9d ago)      21d     10.0.5.106    k8s-worker3.local   <none>           <none>
+longhorn-system          csi-provisioner-6c69d9d64c-jwtpd                              1/1     Running     2 (9d ago)      21d     10.0.4.188    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-resizer-85c7d8fdfc-9nwsw                                  1/1     Running     2 (9d ago)      21d     10.0.4.232    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-resizer-85c7d8fdfc-j8pzz                                  1/1     Running     2 (9d ago)      21d     10.0.5.49     k8s-worker3.local   <none>           <none>
+longhorn-system          csi-resizer-85c7d8fdfc-mkdxj                                  1/1     Running     2 (9d ago)      21d     10.0.4.241    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-snapshotter-5cd4fd4568-8v2vx                              1/1     Running     3 (9d ago)      21d     10.0.4.54     k8s-worker4.local   <none>           <none>
+longhorn-system          csi-snapshotter-5cd4fd4568-cnjfh                              1/1     Running     2 (9d ago)      21d     10.0.4.189    k8s-worker4.local   <none>           <none>
+longhorn-system          csi-snapshotter-5cd4fd4568-qsww7                              1/1     Running     2 (9d ago)      21d     10.0.5.204    k8s-worker3.local   <none>           <none>
+longhorn-system          engine-image-ei-a4d05f02-cd7ng                                1/1     Running     4 (9d ago)      21d     10.0.5.14     k8s-worker3.local   <none>           <none>
+longhorn-system          engine-image-ei-a4d05f02-m5vhb                                1/1     Running     1 (9d ago)      21d     10.0.4.249    k8s-worker4.local   <none>           <none>
+longhorn-system          engine-image-ei-a4d05f02-n9r5n                                1/1     Running     1 (9d ago)      21d     10.0.2.187    k8s-worker1.local   <none>           <none>
+longhorn-system          instance-manager-1b0e97eff7c0c24b052a44050b9bf8f5             1/1     Running     0               9d      10.0.5.213    k8s-worker3.local   <none>           <none>
+longhorn-system          instance-manager-68394771960b3f996546f93318382c5f             1/1     Running     0               9d      10.0.4.233    k8s-worker4.local   <none>           <none>
+longhorn-system          instance-manager-ce78a02ffed28be43271f6f6f3dc8f25             1/1     Running     0               9d      10.0.2.82     k8s-worker1.local   <none>           <none>
+longhorn-system          longhorn-csi-plugin-mngjq                                     3/3     Running     5 (9d ago)      21d     10.0.2.84     k8s-worker1.local   <none>           <none>
+longhorn-system          longhorn-csi-plugin-nb95b                                     3/3     Running     19 (9d ago)     21d     10.0.5.87     k8s-worker3.local   <none>           <none>
+longhorn-system          longhorn-csi-plugin-z8c4w                                     3/3     Running     5 (9d ago)      21d     10.0.4.186    k8s-worker4.local   <none>           <none>
+longhorn-system          longhorn-driver-deployer-5968f4966b-pttkq                     1/1     Running     1 (9d ago)      21d     10.0.4.213    k8s-worker4.local   <none>           <none>
+longhorn-system          longhorn-manager-mvjf2                                        2/2     Running     2 (9d ago)      21d     10.0.2.44     k8s-worker1.local   <none>           <none>
+longhorn-system          longhorn-manager-rmft6                                        2/2     Running     10 (9d ago)     21d     10.0.5.60     k8s-worker3.local   <none>           <none>
+longhorn-system          longhorn-manager-sh8qq                                        2/2     Running     3 (9d ago)      21d     10.0.4.193    k8s-worker4.local   <none>           <none>
+longhorn-system          longhorn-ui-64855c6958-mm9jr                                  1/1     Running     3 (9d ago)      21d     10.0.4.244    k8s-worker4.local   <none>           <none>
+minio-operator           minio-operator-86b4758b89-g278k                               1/1     Running     1 (9d ago)      16d     10.0.5.88     k8s-worker3.local   <none>           <none>
+minio-operator           minio-operator-86b4758b89-xgw8f                               1/1     Running     1 (9d ago)      16d     10.0.0.130    k8s-master.local    <none>           <none>
+monitoring               alertmanager-monitoring-kube-prometheus-alertmanager-0        2/2     Running     2 (9d ago)      21d     10.0.4.61     k8s-worker4.local   <none>           <none>
+monitoring               monitoring-grafana-774fdc6675-hb24b                           3/3     Running     3 (9d ago)      21d     10.0.4.248    k8s-worker4.local   <none>           <none>
+monitoring               monitoring-kube-prometheus-operator-759fb464d-fhjqg           1/1     Running     2 (9d ago)      21d     10.0.4.73     k8s-worker4.local   <none>           <none>
+monitoring               monitoring-kube-state-metrics-5564fb74bb-jpbtc                1/1     Running     2 (9d ago)      21d     10.0.4.1      k8s-worker4.local   <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-2pfq6                     1/1     Running     4 (9d ago)      21d     10.1.16.239   k8s-worker3.local   <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-5t4tl                     1/1     Running     1 (9d ago)      21d     10.1.16.238   k8s-worker4.local   <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-jqttf                     1/1     Running     1 (9d ago)      21d     10.1.16.236   k8s-master3.local   <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-p5q56                     1/1     Running     3 (9d ago)      36d     10.1.16.234   k8s-master.local    <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-p7sxh                     1/1     Running     1 (9d ago)      21d     10.1.16.237   k8s-worker1.local   <none>           <none>
+monitoring               monitoring-prometheus-node-exporter-t9xzk                     1/1     Running     1 (9d ago)      21d     10.1.16.235   k8s-master2.local   <none>           <none>
+monitoring               prometheus-monitoring-kube-prometheus-prometheus-0            2/2     Running     2 (9d ago)      10d     10.0.2.132    k8s-worker1.local   <none>           <none>
+nfs-provisioner          nfs-client-nfs-subdir-external-provisioner-775d957d7d-bmbcr   1/1     Running     1 (9d ago)      21d     10.0.4.52     k8s-worker4.local   <none>           <none>
+observability            loki-0                                                        2/2     Running     0               9d      10.0.2.118    k8s-worker1.local   <none>           <none>
+observability            loki-canary-brb89                                             1/1     Running     1 (9d ago)      21d     10.0.4.80     k8s-worker4.local   <none>           <none>
+observability            loki-canary-k68ds                                             1/1     Running     1 (9d ago)      19d     10.0.2.219    k8s-worker1.local   <none>           <none>
+observability            loki-canary-sqdms                                             1/1     Running     0               9d      10.0.5.31     k8s-worker3.local   <none>           <none>
+observability            loki-gateway-cd9cb58c-cc6sm                                   1/1     Running     9 (9d ago)      21d     10.0.5.192    k8s-worker3.local   <none>           <none>
+observability            otel-collector-collector-b48cf5c57-cmz5v                      1/1     Running     1 (9d ago)      21d     10.0.5.249    k8s-worker3.local   <none>           <none>
+observability            otel-collector-collector-b48cf5c57-n4ddh                      1/1     Running     1 (9d ago)      21d     10.0.4.153    k8s-worker4.local   <none>           <none>
+observability            tempo-0                                                       1/1     Running     0               9d      10.0.2.247    k8s-worker1.local   <none>           <none>
+opensearch               aims-security-master-0                                        1/1     Running     0               39m     10.0.5.50     k8s-worker3.local   <none>           <none>
+opensearch               aims-security-master-1                                        1/1     Running     0               9d      10.0.4.39     k8s-worker4.local   <none>           <none>
+opensearch               aims-security-master-2                                        1/1     Running     0               9d      10.0.2.8      k8s-worker1.local   <none>           <none>
+opentelemetry-operator   opentelemetry-operator-7c4447f9f9-hf7nf                       1/1     Running     4 (9d ago)      21d     10.0.5.125    k8s-worker3.local   <none>           <none>
+production               aims-frontend-6647dcdb8f-5zlq7                                1/1     Running     0               8d      10.0.4.250    k8s-worker4.local   <none>           <none>
+production               aims-frontend-6647dcdb8f-ckknb                                1/1     Running     0               8d      10.0.5.248    k8s-worker3.local   <none>           <none>
+production               aims-kafka-dual-role-0                                        1/1     Running     0               9d      10.0.5.215    k8s-worker3.local   <none>           <none>
+production               aims-kafka-dual-role-1                                        1/1     Running     1 (9d ago)      9d      10.0.4.48     k8s-worker4.local   <none>           <none>
+production               aims-kafka-dual-role-2                                        1/1     Running     4 (9d ago)      9d      10.0.2.138    k8s-worker1.local   <none>           <none>
+production               aims-kafka-entity-operator-5455dcf447-8cgn9                   2/2     Running     14 (9d ago)     21d     10.0.4.93     k8s-worker4.local   <none>           <none>
+production               aims-minio-pool-0-0                                           2/2     Running     0               9d      10.0.4.121    k8s-worker4.local   <none>           <none>
+production               aims-minio-pool-0-1                                           2/2     Running     0               9d      10.0.2.165    k8s-worker1.local   <none>           <none>
+production               aims-postgres-cnpg-1                                          1/1     Running     0               9d      10.0.2.203    k8s-worker1.local   <none>           <none>
+production               aims-postgres-cnpg-2                                          1/1     Running     0               9d      10.0.5.57     k8s-worker3.local   <none>           <none>
+production               aims-postgres-cnpg-3                                          1/1     Running     0               9d      10.0.4.30     k8s-worker4.local   <none>           <none>
+production               aims-rabbitmq-server-0                                        1/1     Running     0               9d      10.0.5.170    k8s-worker3.local   <none>           <none>
+production               aims-rabbitmq-server-1                                        1/1     Running     0               9d      10.0.4.35     k8s-worker4.local   <none>           <none>
+production               aims-rabbitmq-server-2                                        1/1     Running     0               9d      10.0.2.213    k8s-worker1.local   <none>           <none>
+production               aims-redis-0                                                  1/1     Running     0               9d      10.0.2.34     k8s-worker1.local   <none>           <none>
+production               aims-redis-1                                                  1/1     Running     0               9d      10.0.2.197    k8s-worker1.local   <none>           <none>
+production               aims-redis-2                                                  1/1     Running     0               9d      10.0.2.226    k8s-worker1.local   <none>           <none>
+production               aims-redis-sentinel-sentinel-0                                1/1     Running     0               9d      10.0.2.79     k8s-worker1.local   <none>           <none>
+production               aims-redis-sentinel-sentinel-1                                1/1     Running     0               9d      10.0.5.117    k8s-worker3.local   <none>           <none>
+production               aims-redis-sentinel-sentinel-2                                1/1     Running     0               9d      10.0.4.185    k8s-worker4.local   <none>           <none>
+production               aims-sentinel-dependency-loadgen-7bfbfcc86-ccrvf              1/1     Running     0               3m16s   10.0.5.119    k8s-worker3.local   <none>           <none>
+production               aims-sentinel-loadgen-67b469878-d2rqp                         1/1     Running     0               3m16s   10.0.5.27     k8s-worker3.local   <none>           <none>
+production               aims-waypoint-6d558c5d7c-n879w                                1/1     Running     1 (9d ago)      18d     10.0.2.157    k8s-worker1.local   <none>           <none>
+production               api-gateway-76f697d7f-4l9wb                                   1/1     Running     0               9d      10.0.5.207    k8s-worker3.local   <none>           <none>
+production               api-gateway-76f697d7f-f52cg                                   1/1     Running     0               9d      10.0.4.147    k8s-worker4.local   <none>           <none>
+production               auth-service-5d5c867d78-m5m7d                                 1/1     Running     0               9d      10.0.5.216    k8s-worker3.local   <none>           <none>
+production               auth-service-5d5c867d78-mxv7z                                 1/1     Running     1 (9d ago)      16d     10.0.2.86     k8s-worker1.local   <none>           <none>
+production               cart-service-84d6894b46-c7gwq                                 1/1     Running     1 (9d ago)      16d     10.0.5.47     k8s-worker3.local   <none>           <none>
+production               cart-service-84d6894b46-n2tps                                 1/1     Running     1 (9d ago)      16d     10.0.2.120    k8s-worker1.local   <none>           <none>
+production               catalog-service-74cf5f59b9-fs86b                              1/1     Running     21 (9d ago)     16d     10.0.4.211    k8s-worker4.local   <none>           <none>
+production               catalog-service-74cf5f59b9-h944d                              1/1     Running     27 (9d ago)     16d     10.0.2.85     k8s-worker1.local   <none>           <none>
+production               inventory-service-54db978cc8-9sl49                            1/1     Running     1 (9d ago)      16d     10.0.4.76     k8s-worker4.local   <none>           <none>
+production               inventory-service-54db978cc8-jcfqj                            1/1     Running     1 (9d ago)      16d     10.0.2.77     k8s-worker1.local   <none>           <none>
+production               notification-service-85955489ff-smqxl                         1/1     Running     1 (9d ago)      16d     10.0.4.89     k8s-worker4.local   <none>           <none>
+production               notification-service-85955489ff-v5tmq                         1/1     Running     2 (7d23h ago)   16d     10.0.2.240    k8s-worker1.local   <none>           <none>
+production               order-service-7ccdcf888b-924qs                                1/1     Running     1 (9d ago)      16d     10.0.4.152    k8s-worker4.local   <none>           <none>
+production               order-service-7ccdcf888b-jq6g7                                1/1     Running     1 (9d ago)      16d     10.0.5.212    k8s-worker3.local   <none>           <none>
+production               payment-service-7b4674b9cd-5j58n                              1/1     Running     0               9d      10.0.2.244    k8s-worker1.local   <none>           <none>
+production               payment-service-7b4674b9cd-x4rh8                              1/1     Running     1 (9d ago)      16d     10.0.5.61     k8s-worker3.local   <none>           <none>
+production               security-telemetry-service-787d55897b-7lwms                   1/1     Running     1 (9d ago)      16d     10.0.5.183    k8s-worker3.local   <none>           <none>
+production               security-telemetry-service-787d55897b-qcb6x                   1/1     Running     1 (9d ago)      16d     10.0.4.178    k8s-worker4.local   <none>           <none>
+rabbitmq-system          messaging-topology-operator-5c5ccb666f-xwvbk                  1/1     Running     1 (9d ago)      21d     10.0.5.59     k8s-worker3.local   <none>           <none>
+rabbitmq-system          rabbitmq-cluster-operator-7cc5756598-5p7f9                    1/1     Running     1 (9d ago)      19d     10.0.0.215    k8s-master.local    <none>           <none>
+rabbitmq                 rabbitmq-0                                                    1/1     Running     1 (9d ago)      21d     10.0.4.145    k8s-worker4.local   <none>           <none>
+redis-ha                 redis-ha-node-0                                               2/2     Running     2 (9d ago)      21d     10.0.5.181    k8s-worker3.local   <none>           <none>
+redis-ha                 redis-ha-node-1                                               2/2     Running     2 (9d ago)      21d     10.0.4.115    k8s-worker4.local   <none>           <none>
+redis-ha                 redis-ha-node-2                                               2/2     Running     2 (9d ago)      21d     10.0.4.231    k8s-worker4.local   <none>           <none>
+redis-operator           redis-operator-bcb9c6b99-nzdnq                                1/1     Running     1 (9d ago)      21d     10.0.0.54     k8s-master.local    <none>           <none>
+security-system          kube-bench-control-plane-4br4v                                1/1     Running     1 (9d ago)      18d     10.0.0.188    k8s-master.local    <none>           <none>
+security-system          kube-bench-control-plane-8nh9x                                1/1     Running     1 (9d ago)      18d     10.0.7.180    k8s-master3.local   <none>           <none>
+security-system          kube-bench-control-plane-hl5s4                                1/1     Running     1 (9d ago)      18d     10.0.1.210    k8s-master2.local   <none>           <none>
+security-system          kube-bench-worker-jdwqf                                       1/1     Running     1 (9d ago)      18d     10.0.5.219    k8s-worker3.local   <none>           <none>
+security-system          kube-bench-worker-sj6f6                                       1/1     Running     1 (9d ago)      18d     10.0.2.76     k8s-worker1.local   <none>           <none>
+security-system          kube-bench-worker-xxhvz                                       1/1     Running     1 (9d ago)      18d     10.0.4.68     k8s-worker4.local   <none>           <none>
+strimzi-system           strimzi-cluster-operator-7ccdf9cb44-sr86l                     1/1     Running     2 (9d ago)      19d     10.0.0.195    k8s-master.local    <none>           <none>
+trivy-system             trivy-operator-57db496747-rg8xp                               1/1     Running     0               9d      10.0.0.80     k8s-master.local    <none>           <none>
+trivy-system             trivy-server-0                                                1/1     Running     0               9d      10.0.2.254    k8s-worker1.local   <none>           <none>
+vault                    vault-0                                                       1/1     Running     0               9d      10.0.2.98     k8s-worker1.local   <none>           <none>
+vault                    vault-1                                                       1/1     Running     0               9d      10.0.5.189    k8s-worker3.local   <none>           <none>
+vault                    vault-2                                                       1/1     Running     0               9d      10.0.4.216    k8s-worker4.local   <none>           <none>
+vault                    vault-agent-injector-7b9f497d4c-l55n8                         1/1     Running     1 (9d ago)      18d     10.0.5.84     k8s-worker3.local   <none>           <none>
+vault                    vault-agent-injector-7b9f497d4c-mb9bv                         1/1     Running     1 (9d ago)      21d     10.0.0.235    k8s-master.local    <none>           <none>
+velero                   node-agent-7nd52                                              1/1     Running     1 (9d ago)      21d     10.0.4.86     k8s-worker4.local   <none>           <none>
+velero                   node-agent-lz959                                              1/1     Running     1 (9d ago)      21d     10.0.2.87     k8s-worker1.local   <none>           <none>
+velero                   node-agent-zlglj                                              1/1     Running     4 (9d ago)      21d     10.0.5.30     k8s-worker3.local   <none>           <none>
+velero                   production-default-kopia-maintain-job-1787195167414-t2nmn     0/1     Completed   0               160m    10.0.5.50     k8s-worker3.local   <none>           <none>
+velero                   production-default-kopia-maintain-job-1787199067427-qtd68     0/1     Completed   0               95m     10.0.5.239    k8s-worker3.local   <none>           <none>
+velero                   production-default-kopia-maintain-job-1787202967436-sq8w2     0/1     Completed   0               30m     10.0.5.231    k8s-worker3.local   <none>           <none>
+velero                   velero-846bbd7474-w5svs                                       1/1     Running     0               9d      10.0.2.123    k8s-worker1.local   <none>           <none>

@@ -1,0 +1,402 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "25",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"},\"name\":\"aims-sentinel-loadgen\",\"namespace\":\"production\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"aims-sentinel-loadgen\"}},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"args\":[\"set -eu\\ningress=http://aims-ingress-istio.istio-ingress.svc.cluster.local\\nservices=\\\"api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service security-telemetry-service\\\"\\ni=0\\nwhile true; do\\n  # Valid read traffic through the real Istio Gateway + waypoint.\\n  wget -q -O /dev/null -T 3 \\\"$ingress/\\\" || true\\n  wget -q -O /dev/null -T 3 \\\"$ingress/api/health/\\\" || true\\n  wget -q -O /dev/null -T 3 \\\"$ingress/api/products/\\\" || true\\n  wget -q -O /dev/null -T 3 \\\"$ingress/api/products/1/\\\" || true\\n  # Every backend exposes /api/health/. Direct service health calls\\n  # diversify server-side syscall telemetry without fabricating a\\n  # login token or mutating orders/payments.\\n  for service in $services; do\\n    wget -q -O /dev/null -T 3 \\\"http://$service:8000/api/health/\\\" || true\\n  done\\n  # A smaller, explicitly normal Internet error mix is retained.\\n  # It runs once per five cycles instead of dominating every cycle.\\n  if [ $((i % 5)) -eq 0 ]; then\\n    wget -q -O /dev/null -T 3 \\\"$ingress/api/auth/me/\\\" || true\\n    wget -q -O /dev/null -T 3 \\\"$ingress/api/cart/\\\" || true\\n  fi\\n  i=$((i + 1))\\n  sleep \\\"${SLEEP_SECONDS:-1}\\\"\\ndone\\n\"],\"command\":[\"/bin/sh\",\"-c\"],\"env\":[{\"name\":\"SLEEP_SECONDS\",\"value\":\"1\"}],\"image\":\"busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662\",\"name\":\"loadgen\",\"resources\":{\"limits\":{\"cpu\":\"250m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"10m\",\"memory\":\"8Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true}}],\"securityContext\":{\"runAsGroup\":65534,\"runAsNonRoot\":true,\"runAsUser\":65534,\"seccompProfile\":{\"type\":\"RuntimeDefault\"}}}}}}\n",
+                    "sentinel.openai.dev/traffic-regime": "toolmix"
+                },
+                "creationTimestamp": "2026-08-11T05:55:46Z",
+                "generation": 85,
+                "labels": {
+                    "app.kubernetes.io/name": "aims-sentinel-loadgen",
+                    "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                },
+                "name": "aims-sentinel-loadgen",
+                "namespace": "production",
+                "resourceVersion": "139542825",
+                "uid": "00b47d29-c6bc-42de-9e8b-c673b663d0c6"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 2,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/name": "aims-sentinel-loadgen"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app.kubernetes.io/name": "aims-sentinel-loadgen",
+                            "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "args": [
+                                    "set -eu\ningress=http://aims-ingress-istio.istio-ingress.svc.cluster.local\nservices=\"api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service security-telemetry-service\"\ni=0\nwhile true; do\n  # Valid read traffic through the real Istio Gateway + waypoint.\n  wget -q -O /dev/null -T 3 \"$ingress/\" || true\n  wget -q -O /dev/null -T 3 \"$ingress/api/health/\" || true\n  wget -q -O /dev/null -T 3 \"$ingress/api/products/\" || true\n  wget -q -O /dev/null -T 3 \"$ingress/api/products/1/\" || true\n  # Every backend exposes /api/health/. Direct service health calls\n  # diversify server-side syscall telemetry without fabricating a\n  # login token or mutating orders/payments.\n  for service in $services; do\n    wget -q -O /dev/null -T 3 \"http://$service:8000/api/health/\" || true\n  done\n  # A smaller, explicitly normal Internet error mix is retained.\n  # It runs once per five cycles instead of dominating every cycle.\n  if [ $((i % 5)) -eq 0 ]; then\n    wget -q -O /dev/null -T 3 \"$ingress/api/auth/me/\" || true\n    wget -q -O /dev/null -T 3 \"$ingress/api/cart/\" || true\n  fi\n  i=$((i + 1))\n  sleep \"${SLEEP_SECONDS:-1}\"\ndone\n"
+                                ],
+                                "command": [
+                                    "/bin/sh",
+                                    "-c"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "SLEEP_SECONDS",
+                                        "value": "1"
+                                    }
+                                ],
+                                "image": "busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "loadgen",
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "250m",
+                                        "memory": "32Mi"
+                                    },
+                                    "requests": {
+                                        "cpu": "10m",
+                                        "memory": "8Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    },
+                                    "readOnlyRootFilesystem": true,
+                                    "runAsNonRoot": true
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsGroup": 65534,
+                            "runAsNonRoot": true,
+                            "runAsUser": 65534,
+                            "seccompProfile": {
+                                "type": "RuntimeDefault"
+                            }
+                        },
+                        "terminationGracePeriodSeconds": 30
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 2,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-11T05:55:46Z",
+                        "lastUpdateTime": "2026-08-15T08:10:33Z",
+                        "message": "ReplicaSet \"aims-sentinel-loadgen-67b469878\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-20T04:49:21Z",
+                        "lastUpdateTime": "2026-08-20T04:49:21Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    }
+                ],
+                "observedGeneration": 85,
+                "readyReplicas": 2,
+                "replicas": 2,
+                "updatedReplicas": 2
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "24",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-readmix-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"},\"name\":\"aims-sentinel-readmix-loadgen\",\"namespace\":\"production\"},\"spec\":{\"replicas\":0,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"aims-sentinel-readmix-loadgen\"}},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-readmix-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"args\":[\"set -eu\\ningress=http://aims-ingress-istio.istio-ingress.svc.cluster.local\\ni=0\\nwhile true; do\\n  # Only safe reads/HEADs are used: this generator must never create\\n  # orders, capture payments, change inventory, or poison baselines.\\n  case $((i % 6)) in\\n    0) wget -q -O /dev/null -T 3 \\\"$ingress/\\\" || true ;;\\n    1) wget -q -O /dev/null -T 3 \\\"$ingress/api/products/\\\" || true ;;\\n    2) wget -q -O /dev/null -T 3 \\\"$ingress/api/products/1/\\\" || true ;;\\n    3) wget -q --spider -T 3 \\\"$ingress/api/products/\\\" || true ;;\\n    4) wget -q -O /dev/null -T 3 \\\"$ingress/api/auth/me/\\\" || true ;;\\n    5) wget -q -O /dev/null -T 3 \\\"$ingress/api/health/\\\" || true ;;\\n  esac\\n  i=$((i + 1))\\n  sleep \\\"${SLEEP_SECONDS:-1}\\\"\\ndone\\n\"],\"command\":[\"/bin/sh\",\"-c\"],\"env\":[{\"name\":\"SLEEP_SECONDS\",\"value\":\"1\"}],\"image\":\"busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662\",\"name\":\"loadgen\",\"resources\":{\"limits\":{\"cpu\":\"250m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"10m\",\"memory\":\"8Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true}}],\"securityContext\":{\"runAsGroup\":65534,\"runAsNonRoot\":true,\"runAsUser\":65534,\"seccompProfile\":{\"type\":\"RuntimeDefault\"}}}}}}\n",
+                    "sentinel.openai.dev/traffic-regime": "toolmix"
+                },
+                "creationTimestamp": "2026-08-11T05:55:46Z",
+                "generation": 84,
+                "labels": {
+                    "app.kubernetes.io/name": "aims-sentinel-readmix-loadgen",
+                    "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                },
+                "name": "aims-sentinel-readmix-loadgen",
+                "namespace": "production",
+                "resourceVersion": "139542865",
+                "uid": "c29399c4-e8c2-4f17-9e2d-260cf6e35327"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 4,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/name": "aims-sentinel-readmix-loadgen"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app.kubernetes.io/name": "aims-sentinel-readmix-loadgen",
+                            "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "args": [
+                                    "set -eu\ningress=http://aims-ingress-istio.istio-ingress.svc.cluster.local\ni=0\nwhile true; do\n  # Only safe reads/HEADs are used: this generator must never create\n  # orders, capture payments, change inventory, or poison baselines.\n  case $((i % 6)) in\n    0) wget -q -O /dev/null -T 3 \"$ingress/\" || true ;;\n    1) wget -q -O /dev/null -T 3 \"$ingress/api/products/\" || true ;;\n    2) wget -q -O /dev/null -T 3 \"$ingress/api/products/1/\" || true ;;\n    3) wget -q --spider -T 3 \"$ingress/api/products/\" || true ;;\n    4) wget -q -O /dev/null -T 3 \"$ingress/api/auth/me/\" || true ;;\n    5) wget -q -O /dev/null -T 3 \"$ingress/api/health/\" || true ;;\n  esac\n  i=$((i + 1))\n  sleep \"${SLEEP_SECONDS:-1}\"\ndone\n"
+                                ],
+                                "command": [
+                                    "/bin/sh",
+                                    "-c"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "SLEEP_SECONDS",
+                                        "value": "1"
+                                    }
+                                ],
+                                "image": "busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "loadgen",
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "250m",
+                                        "memory": "32Mi"
+                                    },
+                                    "requests": {
+                                        "cpu": "10m",
+                                        "memory": "8Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    },
+                                    "readOnlyRootFilesystem": true,
+                                    "runAsNonRoot": true
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsGroup": 65534,
+                            "runAsNonRoot": true,
+                            "runAsUser": 65534,
+                            "seccompProfile": {
+                                "type": "RuntimeDefault"
+                            }
+                        },
+                        "terminationGracePeriodSeconds": 30
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 4,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-11T05:55:46Z",
+                        "lastUpdateTime": "2026-08-15T02:07:33Z",
+                        "message": "ReplicaSet \"aims-sentinel-readmix-loadgen-d4d9468f4\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-20T04:49:21Z",
+                        "lastUpdateTime": "2026-08-20T04:49:21Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    }
+                ],
+                "observedGeneration": 84,
+                "readyReplicas": 4,
+                "replicas": 4,
+                "updatedReplicas": 4
+            }
+        },
+        {
+            "apiVersion": "apps/v1",
+            "kind": "Deployment",
+            "metadata": {
+                "annotations": {
+                    "deployment.kubernetes.io/revision": "7",
+                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-dependency-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"},\"name\":\"aims-sentinel-dependency-loadgen\",\"namespace\":\"production\"},\"spec\":{\"replicas\":1,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"aims-sentinel-dependency-loadgen\"}},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"aims-sentinel-dependency-loadgen\",\"app.kubernetes.io/part-of\":\"agent-runtime-sentinel\"}},\"spec\":{\"automountServiceAccountToken\":false,\"containers\":[{\"args\":[\"set -eu\\nwhile true; do\\n  # Redis PING (RESP), read-only MinIO root, and bounded protocol/TCP\\n  # handshakes. Server processes execute accept/read/write paths,\\n  # while no persistent business state is changed.\\n  printf '*2\\\\r\\\\n$4\\\\r\\\\nAUTH\\\\r\\\\n$%s\\\\r\\\\n%s\\\\r\\\\n*1\\\\r\\\\n$4\\\\r\\\\nPING\\\\r\\\\n' \\\\\\n    \\\"${#REDIS_PASSWORD}\\\" \\\"$REDIS_PASSWORD\\\" | \\\\\\n    nc -w 2 aims-redis 6379 \\u003e/dev/null 2\\u003e\\u00261 || true\\n  wget -q -O /dev/null -T 3 http://minio/minio/health/live || true\\n  printf '' | nc -w 2 aims-postgres-cnpg-rw 5432 \\u003e/dev/null 2\\u003e\\u00261 || true\\n  printf '' | nc -w 2 aims-kafka-kafka-bootstrap 9092 \\u003e/dev/null 2\\u003e\\u00261 || true\\n  printf '' | nc -w 2 aims-rabbitmq 5672 \\u003e/dev/null 2\\u003e\\u00261 || true\\n  sleep \\\"${SLEEP_SECONDS:-2}\\\"\\ndone\\n\"],\"command\":[\"/bin/sh\",\"-c\"],\"env\":[{\"name\":\"SLEEP_SECONDS\",\"value\":\"2\"},{\"name\":\"REDIS_PASSWORD\",\"valueFrom\":{\"secretKeyRef\":{\"key\":\"password\",\"name\":\"aims-redis-auth\"}}}],\"image\":\"busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662\",\"name\":\"dependency-loadgen\",\"resources\":{\"limits\":{\"cpu\":\"200m\",\"memory\":\"32Mi\"},\"requests\":{\"cpu\":\"10m\",\"memory\":\"8Mi\"}},\"securityContext\":{\"allowPrivilegeEscalation\":false,\"capabilities\":{\"drop\":[\"ALL\"]},\"readOnlyRootFilesystem\":true,\"runAsNonRoot\":true}}],\"securityContext\":{\"runAsGroup\":65534,\"runAsNonRoot\":true,\"runAsUser\":65534,\"seccompProfile\":{\"type\":\"RuntimeDefault\"}}}}}}\n",
+                    "sentinel.openai.dev/traffic-regime": "toolmix"
+                },
+                "creationTimestamp": "2026-08-14T07:49:02Z",
+                "generation": 17,
+                "labels": {
+                    "app.kubernetes.io/name": "aims-sentinel-dependency-loadgen",
+                    "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                },
+                "name": "aims-sentinel-dependency-loadgen",
+                "namespace": "production",
+                "resourceVersion": "139542898",
+                "uid": "eea262e2-579a-4332-bbf6-b9d1f742bd90"
+            },
+            "spec": {
+                "progressDeadlineSeconds": 600,
+                "replicas": 2,
+                "revisionHistoryLimit": 10,
+                "selector": {
+                    "matchLabels": {
+                        "app.kubernetes.io/name": "aims-sentinel-dependency-loadgen"
+                    }
+                },
+                "strategy": {
+                    "rollingUpdate": {
+                        "maxSurge": "25%",
+                        "maxUnavailable": "25%"
+                    },
+                    "type": "RollingUpdate"
+                },
+                "template": {
+                    "metadata": {
+                        "labels": {
+                            "app.kubernetes.io/name": "aims-sentinel-dependency-loadgen",
+                            "app.kubernetes.io/part-of": "agent-runtime-sentinel"
+                        }
+                    },
+                    "spec": {
+                        "automountServiceAccountToken": false,
+                        "containers": [
+                            {
+                                "args": [
+                                    "set -eu\nwhile true; do\n  # Redis PING (RESP), read-only MinIO root, and bounded protocol/TCP\n  # handshakes. Server processes execute accept/read/write paths,\n  # while no persistent business state is changed.\n  printf '*2\\r\\n$4\\r\\nAUTH\\r\\n$%s\\r\\n%s\\r\\n*1\\r\\n$4\\r\\nPING\\r\\n' \\\n    \"${#REDIS_PASSWORD}\" \"$REDIS_PASSWORD\" | \\\n    nc -w 2 aims-redis 6379 \u003e/dev/null 2\u003e\u00261 || true\n  wget -q -O /dev/null -T 3 http://minio/minio/health/live || true\n  printf '' | nc -w 2 aims-postgres-cnpg-rw 5432 \u003e/dev/null 2\u003e\u00261 || true\n  printf '' | nc -w 2 aims-kafka-kafka-bootstrap 9092 \u003e/dev/null 2\u003e\u00261 || true\n  printf '' | nc -w 2 aims-rabbitmq 5672 \u003e/dev/null 2\u003e\u00261 || true\n  sleep \"${SLEEP_SECONDS:-2}\"\ndone\n"
+                                ],
+                                "command": [
+                                    "/bin/sh",
+                                    "-c"
+                                ],
+                                "env": [
+                                    {
+                                        "name": "SLEEP_SECONDS",
+                                        "value": "1"
+                                    },
+                                    {
+                                        "name": "REDIS_PASSWORD",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "key": "password",
+                                                "name": "aims-redis-auth"
+                                            }
+                                        }
+                                    }
+                                ],
+                                "image": "busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662",
+                                "imagePullPolicy": "IfNotPresent",
+                                "name": "dependency-loadgen",
+                                "resources": {
+                                    "limits": {
+                                        "cpu": "200m",
+                                        "memory": "32Mi"
+                                    },
+                                    "requests": {
+                                        "cpu": "10m",
+                                        "memory": "8Mi"
+                                    }
+                                },
+                                "securityContext": {
+                                    "allowPrivilegeEscalation": false,
+                                    "capabilities": {
+                                        "drop": [
+                                            "ALL"
+                                        ]
+                                    },
+                                    "readOnlyRootFilesystem": true,
+                                    "runAsNonRoot": true
+                                },
+                                "terminationMessagePath": "/dev/termination-log",
+                                "terminationMessagePolicy": "File"
+                            }
+                        ],
+                        "dnsPolicy": "ClusterFirst",
+                        "restartPolicy": "Always",
+                        "schedulerName": "default-scheduler",
+                        "securityContext": {
+                            "runAsGroup": 65534,
+                            "runAsNonRoot": true,
+                            "runAsUser": 65534,
+                            "seccompProfile": {
+                                "type": "RuntimeDefault"
+                            }
+                        },
+                        "terminationGracePeriodSeconds": 30
+                    }
+                }
+            },
+            "status": {
+                "availableReplicas": 2,
+                "conditions": [
+                    {
+                        "lastTransitionTime": "2026-08-14T07:49:02Z",
+                        "lastUpdateTime": "2026-08-15T08:10:34Z",
+                        "message": "ReplicaSet \"aims-sentinel-dependency-loadgen-7bfbfcc86\" has successfully progressed.",
+                        "reason": "NewReplicaSetAvailable",
+                        "status": "True",
+                        "type": "Progressing"
+                    },
+                    {
+                        "lastTransitionTime": "2026-08-20T04:49:22Z",
+                        "lastUpdateTime": "2026-08-20T04:49:22Z",
+                        "message": "Deployment has minimum availability.",
+                        "reason": "MinimumReplicasAvailable",
+                        "status": "True",
+                        "type": "Available"
+                    }
+                ],
+                "observedGeneration": 17,
+                "readyReplicas": 2,
+                "replicas": 2,
+                "updatedReplicas": 2
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
