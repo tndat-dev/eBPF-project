@@ -45,6 +45,7 @@ RestrictRealtime=yes
 LockPersonality=yes
 RestrictAddressFamilies=AF_UNIX
 ReadOnlyPaths=/var/lib/sentinel-pulse
+ReadOnlyPaths=-/var/lib/sentinel-pulse-500ms
 ReadWritePaths=/var/lib/sentinel-pulse-detector
 
 [Install]

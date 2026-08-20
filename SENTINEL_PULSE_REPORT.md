@@ -685,6 +685,24 @@ không đủ calibration sample để biểu diễn alpha `1e-4`. Contract bind 
 blind-attack matrix, tham số và cấm auto-promotion. Đây chưa phải model stable;
 normal soak, blind recall và kernel-to-alert vẫn phải được đo độc lập.
 
+### 7.21 Candidate A1 và benchmark inference
+
+Trainer chạy từ commit `dba5858...` trong môi trường đã khóa version, hoàn tất
+20/20 workload, không có workload `collect-only`. Tổng số temporal example train
+là 122.697 và calibration là 53.102; calibration nhỏ nhất/lớn nhất
+1.376/4.298, đều vượt ngưỡng 999 của alpha 0,001. Tổng thời gian fit do từng
+model báo cáo là 83,80 giây. Model manifest SHA-256 là `c4683505...`; 20/20
+artifact đã được kiểm tra lại kích thước và checksum.
+
+Benchmark tái lập cân bằng 500 scored window cho mỗi workload (10.000 inference)
+đạt p50 16,83 ms, p95 26,52 ms, p99 **32,09 ms**, max 41,75 ms; throughput replay
+53,90 scored window/giây trên một inference thread, max RSS 202.100 KiB. Báo cáo
+benchmark SHA-256 `66dec375...`. Đây là replay **in-sample**, chỉ chứng minh
+runtime inference nằm dưới budget 50 ms; `accuracy_evidence=false`, không được
+dùng để claim precision, recall hoặc false-positive rate. Ba raw anomaly trong
+replay đều bị semantic policy suppress; normal soak độc lập mới là evidence
+hợp lệ cho false positive.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

@@ -10,6 +10,7 @@ fi
 SOURCE_ROOT=${SOURCE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 MODEL_SOURCE=${MODEL_SOURCE:?MODEL_SOURCE must point to a complete candidate bundle}
 DECISION_POLICY_SOURCE=${DECISION_POLICY_SOURCE:-$SOURCE_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
+FEATURE_SOURCE=${FEATURE_SOURCE:-/var/lib/sentinel-pulse/features.jsonl}
 INSTALL_ROOT=${INSTALL_ROOT:-/opt/sentinel-pulse}
 SERVICE=sentinel-pulse-detector-candidate.service
 RUNTIME_USER=sentinel-pulse-detector
@@ -26,7 +27,16 @@ test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$DECISION_POLICY_SOURCE"
 systemctl is-active --quiet sentinel-pulse-collector.service
-test -s /var/lib/sentinel-pulse/features.jsonl
+if [[ $FEATURE_SOURCE != /* ]] || [[ $FEATURE_SOURCE == *$'\n'* ]]; then
+  echo "FEATURE_SOURCE must be an absolute single-line path" >&2
+  exit 2
+fi
+FEATURE_SOURCE=$(realpath -e -- "$FEATURE_SOURCE")
+case "$FEATURE_SOURCE" in
+  /var/lib/sentinel-pulse/features.jsonl|/var/lib/sentinel-pulse-500ms/runs/*/features.jsonl) ;;
+  *) echo "FEATURE_SOURCE is outside an approved telemetry root" >&2; exit 2 ;;
+esac
+test -s "$FEATURE_SOURCE"
 
 if ! id "$RUNTIME_USER" >/dev/null 2>&1; then
   useradd --system --no-create-home --home-dir /nonexistent \
@@ -36,6 +46,21 @@ fi
 install -d -m 0755 "$INSTALL_ROOT" "$INSTALL_ROOT/models" "$INSTALL_ROOT/policies"
 if [[ ! -x "$INSTALL_ROOT/runtime-venv/bin/python" ]]; then
   python3 -m venv "$INSTALL_ROOT/runtime-venv"
+fi
+
+# Finite 500 ms canaries use a private reader group. Preserve the experiment's
+# non-world-readable telemetry while allowing only the unprivileged detector to
+# traverse and read the selected immutable run path.
+if [[ $FEATURE_SOURCE == /var/lib/sentinel-pulse-500ms/runs/*/features.jsonl ]]; then
+  READER_GROUP=sentinel-pulse-readers
+  getent group "$READER_GROUP" >/dev/null || groupadd --system "$READER_GROUP"
+  usermod -a -G "$READER_GROUP" "$RUNTIME_USER"
+  run_dir=$(dirname "$FEATURE_SOURCE")
+  chgrp "$READER_GROUP" /var/lib/sentinel-pulse-500ms \
+    /var/lib/sentinel-pulse-500ms/runs "$run_dir" "$FEATURE_SOURCE"
+  chmod 0750 /var/lib/sentinel-pulse-500ms \
+    /var/lib/sentinel-pulse-500ms/runs "$run_dir"
+  chmod 0640 "$FEATURE_SOURCE"
 fi
 "$INSTALL_ROOT/runtime-venv/bin/pip" install --disable-pip-version-check \
   -r "$SOURCE_ROOT/sentinel_pulse/requirements-lock.txt"
@@ -172,7 +197,7 @@ env_stage=$(mktemp /etc/.sentinel-pulse-detector-candidate.XXXXXX)
 {
   printf 'PULSE_MODEL_DIR=%s\n' "$INSTALL_ROOT/models/current"
   printf 'PULSE_DECISION_POLICY=%s\n' "$INSTALL_ROOT/policies/current.json"
-  printf 'PULSE_FEATURES=%s\n' /var/lib/sentinel-pulse/features.jsonl
+  printf 'PULSE_FEATURES=%s\n' "$FEATURE_SOURCE"
   printf 'PULSE_DECISIONS=%s\n' "$decision_path"
   printf 'PULSE_ALERTS=%s\n' "$alert_path"
   printf 'PULSE_RUN_ID=%s\n' "$DEPLOYMENT_ID"

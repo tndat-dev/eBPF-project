@@ -1,0 +1,195 @@
+{
+  "accuracy_evidence": false,
+  "created_at": "2026-08-20T09:46:06.542472+00:00",
+  "dataset_sha256": "5ee30ee49c1b0fc75c23878a2eeb7a640c8579702df484e03e69ff25804b5cc7",
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "in_sample": true,
+  "inference_ms": {
+    "count": 10000,
+    "max": 41.74982395488769,
+    "mean": 18.007260835706255,
+    "p50": 16.831326531246305,
+    "p95": 26.519618369638906,
+    "p99": 32.087805230403326
+  },
+  "inference_ms_by_workload": {
+    "production/aims-frontend:web": {
+      "count": 500,
+      "max": 36.52083792258054,
+      "mean": 20.70091467164457,
+      "p50": 19.92789952782914,
+      "p95": 29.11064488580449,
+      "p99": 33.726938382023945
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "count": 500,
+      "max": 35.279540927149355,
+      "mean": 16.73386008734815,
+      "p50": 15.565687033813447,
+      "p95": 24.346694373525672,
+      "p99": 29.627963525708758
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "count": 500,
+      "max": 35.86083394475281,
+      "mean": 19.43420734652318,
+      "p50": 18.58235406689346,
+      "p95": 27.265891566639766,
+      "p99": 32.28973197285085
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "count": 500,
+      "max": 35.44302796944976,
+      "mean": 19.347114814212546,
+      "p50": 18.6752145527862,
+      "p95": 27.329395263222978,
+      "p99": 31.634610652690753
+    },
+    "production/aims-minio-pool-0:minio": {
+      "count": 500,
+      "max": 34.72709795460105,
+      "mean": 17.1838159004692,
+      "p50": 15.929715998936445,
+      "p95": 25.491860869806256,
+      "p99": 30.275863443966948
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "count": 500,
+      "max": 35.94094002619386,
+      "mean": 17.295779559062794,
+      "p50": 16.02238800842315,
+      "p95": 24.729826638940715,
+      "p99": 29.28840143722481
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "count": 500,
+      "max": 40.091851959005,
+      "mean": 16.695552884601057,
+      "p50": 15.51280403509736,
+      "p95": 23.585848102811724,
+      "p99": 29.674591122893602
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "count": 500,
+      "max": 38.09975297190249,
+      "mean": 16.860601163934916,
+      "p50": 15.751324011944234,
+      "p95": 24.614187603583552,
+      "p99": 29.277904325863343
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "count": 500,
+      "max": 36.78729699458927,
+      "mean": 16.846364826429635,
+      "p50": 15.646823972929269,
+      "p95": 24.505105277057726,
+      "p99": 30.616184177342795
+    },
+    "production/aims-redis:aims-redis": {
+      "count": 500,
+      "max": 37.840682081878185,
+      "mean": 17.196995198028162,
+      "p50": 16.19387703249231,
+      "p95": 23.905036470387127,
+      "p99": 29.46095364633945
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "count": 500,
+      "max": 32.11228607688099,
+      "mean": 16.895221017766744,
+      "p50": 15.816233993973583,
+      "p95": 23.941932490561157,
+      "p99": 27.06426774384454
+    },
+    "production/api-gateway:app": {
+      "count": 500,
+      "max": 38.804325042292476,
+      "mean": 19.947642563842237,
+      "p50": 19.018498540390283,
+      "p95": 28.74833511305041,
+      "p99": 33.82042910321615
+    },
+    "production/auth-service:app": {
+      "count": 500,
+      "max": 34.426916972734034,
+      "mean": 17.699760641204193,
+      "p50": 16.500480007380247,
+      "p95": 26.816171366954222,
+      "p99": 30.747130316449322
+    },
+    "production/cart-service:app": {
+      "count": 500,
+      "max": 38.45412307418883,
+      "mean": 17.84073177538812,
+      "p50": 16.742623527534306,
+      "p95": 26.5188386896625,
+      "p99": 33.62973204115406
+    },
+    "production/catalog-service:app": {
+      "count": 500,
+      "max": 33.51601003669202,
+      "mean": 17.3386391941458,
+      "p50": 16.16135297808796,
+      "p95": 24.76811534143053,
+      "p99": 29.300849469145756
+    },
+    "production/inventory-service:app": {
+      "count": 500,
+      "max": 37.56216401234269,
+      "mean": 18.083872029557824,
+      "p50": 16.91130903782323,
+      "p95": 26.849595166277105,
+      "p99": 30.921239700401195
+    },
+    "production/notification-service:pod-slice": {
+      "count": 500,
+      "max": 37.92541497386992,
+      "mean": 17.64976780838333,
+      "p50": 16.285201534628868,
+      "p95": 27.07252369727939,
+      "p99": 32.82713326159865
+    },
+    "production/order-service:app": {
+      "count": 500,
+      "max": 38.678281009197235,
+      "mean": 19.681259471690282,
+      "p50": 19.05553397955373,
+      "p95": 27.34841509955004,
+      "p99": 32.38334912573919
+    },
+    "production/payment-service:pod-slice": {
+      "count": 500,
+      "max": 36.41084406990558,
+      "mean": 16.911982188466936,
+      "p50": 15.54268947802484,
+      "p95": 25.25185091071761,
+      "p99": 30.12628626544027
+    },
+    "production/security-telemetry-service:app": {
+      "count": 500,
+      "max": 41.74982395488769,
+      "mean": 19.801133571425453,
+      "p50": 18.82369304075837,
+      "p95": 29.40222199540585,
+      "p99": 34.596233064075925
+    }
+  },
+  "latency_scope": "model inference only; excludes telemetry window and ingest lag",
+  "max_rss_kib": 202100,
+  "method": "bounded in-sample replay with equal per-workload scored-window cap",
+  "missing_workloads": [],
+  "model_load_seconds": 2.129762830096297,
+  "model_manifest_sha256": "c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7",
+  "per_workload_target": 500,
+  "replay_seconds": 185.51302127703093,
+  "schema": "sentinel-pulse-inference-benchmark-v1",
+  "scored_windows_per_second": 53.90457193334567,
+  "short_workloads": {},
+  "source_rows_read": 121075,
+  "status_counts": {
+    "normal": 9997,
+    "suppressed": 3,
+    "warming": 372
+  },
+  "target_workloads": 20
+}

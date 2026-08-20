@@ -5688,3 +5688,18 @@ window 0,5 giây, history 3, `alpha=0,001`, không auto-promote và bind checksu
 của dataset lẫn blind-attack contract. A1 chỉ là development candidate; chưa có
 claim accuracy hay kernel-to-alert cho đến khi train, normal soak và blind test
 độc lập hoàn tất.
+
+### 18.135 Candidate A1 đã train và inference benchmark (20-08-2026)
+
+Candidate A1 được train bằng commit `dba5858...` và software lock đã đăng ký.
+Kết quả có 20/20 workload candidate, zero `collect-only`, 122.697 train example
+và 53.102 calibration example. Calibration mỗi workload từ 1.376 đến 4.298,
+đủ biểu diễn alpha 0,001. Tổng model-fit time 83,80 giây; manifest SHA-256
+`c4683505...`; toàn bộ 20 artifact khớp checksum.
+
+Inference benchmark cân bằng 10.000 scored window cho p50/p95/p99/max lần lượt
+16,83/26,52/**32,09**/41,75 ms, dưới code gate p99 50 ms; max RSS 202.100 KiB.
+Benchmark SHA-256 `66dec375...`. Vì replay dùng chính normal dataset đã train và
+calibrate, báo cáo ghi rõ `in_sample=true`, `accuracy_evidence=false`: chưa được
+coi 9.997 normal, 3 suppressed là false-positive test. Bước đang mở là canary
+500 ms trên live-normal độc lập, sau đó mới chạy blind attack matrix đã khóa.
