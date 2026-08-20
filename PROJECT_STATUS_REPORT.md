@@ -5946,3 +5946,16 @@ snapshot qua SSH, ghi host identity vào từng sample và runner truyền đún
 `WORKER_HOST`. Focused test đạt 30 pass; clean full regression trên control
 plane tăng thành **421 passed, 2 warning**. Sửa này dành cho A/B replication sau
 accuracy/latency gate; không thay đổi hay khởi động service trong A2.
+
+Full-pipeline overhead study cũng đã được preregister **trước blind outcome** ở
+`pipeline-overhead-contract-v1.json`, SHA-256
+`80de96a2f966ee0690ea4f205e30f347d633fe8c04ac14a18002f8bbd17b90b6`.
+Control giữ Tetragon, legacy collector và production traffic; treatment chỉ
+thêm Pulse collector 500 ms cùng ExtraTrees detector. Mỗi campaign có sáu cặp
+OFF/ON liền kề với ba cặp mỗi order, 5 repetition × 60 giây/phase; replication
+phải phủ ba worker và ít nhất hai ngày. Equivalence margin được khóa trước ở 3%
+throughput loss và 5% p99 latency increase; confidence interval 95%, paired
+randomization, bootstrap 10.000 lần và Holm correction. Bất kỳ HTTP/socket
+error, restart, normal alert hay cluster-health failure nào đều reject campaign;
+pass cũng chỉ mở manual review. Full regression sau preregistration đạt **423
+passed, 2 warning**.

@@ -1107,3 +1107,11 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   `CPUUsageNSec`/`MemoryCurrent` đúng node treatment và ghi host vào evidence.
   Throughput/HTTP latency cũ không bị thay đổi nhưng systemd CPU/RAM cũ không
   được dùng làm claim. Full regression đạt 421 pass; A2 không bị can thiệp.
+- 20-08-2026: preregister full-pipeline overhead contract SHA-256
+  `80de96a2f966ee0690ea4f205e30f347d633fe8c04ac14a18002f8bbd17b90b6`
+  trước blind outcome. Thiết kế đo phần tăng thêm của collector 500 ms +
+  ExtraTrees trên cùng nền Tetragon/traffic, 6 cặp counterbalanced/campaign,
+  ba worker, tối thiểu hai ngày; khóa equivalence margin 3% throughput và 5%
+  p99 latency, CI 95%, bootstrap/randomization và Holm correction. Chỉ được
+  chạy khi terminal candidate là `eligible_for_overhead_evaluation`; không có
+  auto-promotion. Full regression đạt 423 pass.
