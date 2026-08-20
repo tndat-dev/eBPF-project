@@ -743,6 +743,11 @@ lũy 14 từ lỗi canary EOF trước formal start; baseline và PID trước/s
 Run hiện chỉ là **ACTIVE**; chưa có false-positive claim 24 giờ và blind attack
 chỉ được mở sau khi normal gate terminal pass.
 
+Monitor read-only commit `3f36c9d...` kiểm tra ba worker mỗi 60 giây và
+fail-closed nếu service dừng, restart delta khác 0, feature path lệch hoặc xuất
+hiện alert. Poll nền đầu tiên sau commit ghi tổng 46.993 decision/0 alert,
+không có `FAILED`; monitor không restart/stop workload hay promote candidate.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

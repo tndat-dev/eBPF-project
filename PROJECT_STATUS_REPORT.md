@@ -5738,3 +5738,8 @@ worker active, restart delta formal bằng 0, tổng 17.498 decision/0 alert. Co
 14 cũ của worker1 đã được bind vào baseline canary rồi reset mà PID/active time
 formal không đổi. Marker SHA-256 `68341bba...`. Trạng thái hiện tại là ACTIVE,
 không được diễn giải thành normal gate đã pass.
+
+Monitor read-only commit `3f36c9d...` chạy nền mỗi 60 giây, fail-closed theo
+service state, restart delta, feature identity và alert count. Poll đầu sau
+commit có tổng 46.993 decision/0 alert, không có failure marker. Monitor không
+tự sửa service và không promote model.
