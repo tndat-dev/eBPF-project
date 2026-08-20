@@ -95,10 +95,20 @@ def test_gvisor_pod_slice_resolves_deepest_sentry_scope_without_attack_labels():
 def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     starter = (ROOT / "sentinel_pulse" / "start_500ms_blind_matrix.sh").read_text()
     runner = (ROOT / "sentinel_pulse" / "run_500ms_blind_matrix.py").read_text()
+    finalizer = (ROOT / "sentinel_pulse" / "finalize_500ms_blind_matrix.sh").read_text()
+    lifecycle = (ROOT / "sentinel_pulse" / "run_500ms_blind_campaign.sh").read_text()
     assert 'test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"' in starter
     assert ".normal_gate == true and .expected_workload_gate == true" in starter
     assert "ENABLE_INJECTION_TRACKING=true" in starter
+    assert 'MODEL_STAGED="$EVIDENCE_ROOT/model"' in starter
+    assert "sha256sum -c manifest.sha256" in starter
     assert "runtime_attack_blind" in starter
     assert "automatic_promotion" in runner
     assert "automatic_rerun" in runner
     assert "promote" not in runner.lower().replace("promotion", "")
+    assert "MATRIX_COMPLETE" in runner
+    assert "sentinel_pulse.evaluate_latency" in finalizer
+    assert "--kernel-events" in finalizer
+    assert "automatic_promotion" in finalizer
+    assert "start_500ms_blind_matrix.sh" in lifecycle
+    assert "finalize_500ms_blind_matrix.sh" in lifecycle

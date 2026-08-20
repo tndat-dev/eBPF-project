@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# Freeze three worker streams and evaluate one completed Pulse blind matrix.
+set -euo pipefail
+
+EVIDENCE_ROOT=${1:?usage: finalize_500ms_blind_matrix.sh EVIDENCE_ROOT}
+LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project-pulse-blind}
+ATTACK_CONTRACT=${ATTACK_CONTRACT:-$LOCAL_ROOT/sentinel_pulse/protocol/blind-attack-contract.json}
+PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
+SSH_USER=${SSH_USER:-dat}
+: "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
+for command in sshpass tar jq sha256sum; do command -v "$command" >/dev/null; done
+test -f "$EVIDENCE_ROOT/ACTIVE"
+test -f "$EVIDENCE_ROOT/MATRIX_COMPLETE"
+test -f "$EVIDENCE_ROOT/REPORT.json"
+test -f "$EVIDENCE_ROOT/injections.jsonl"
+test -f "$EVIDENCE_ROOT/kernel-events.jsonl"
+test -f "$EVIDENCE_ROOT/workers.txt"
+test ! -e "$EVIDENCE_ROOT/INFRA_FAILURE.json"
+test ! -e "$EVIDENCE_ROOT/BLIND_RESULT.json"
+jq -e '.matrix_complete == true and .completed_injections == .expected_injections' "$EVIDENCE_ROOT/REPORT.json" >/dev/null
+
+remote_sudo() {
+  local host=$1; shift
+  printf '%s\n' "$SSHPASS" | sshpass -e ssh -o StrictHostKeyChecking=no \
+    -o ConnectTimeout=8 "$SSH_USER@$host" "sudo -S -p '' $*"
+}
+
+mkdir -p "$EVIDENCE_ROOT/workers"
+declare -a hosts decision_paths
+while read -r host node feature injections; do
+  [[ $feature == /var/lib/sentinel-pulse-500ms/runs/*/features.jsonl ]]
+  [[ $injections == /var/lib/sentinel-pulse-detector/runs/*/injections.jsonl ]]
+  detector_dir=$(dirname "$injections")
+  snapshot=$(remote_sudo "$host" bash -c \
+    "'printf \"collector=%s\\ndetector=%s\\nrestarts=%s\\nfeature=%s\\ninjections=%s\\n\" \"\$(systemctl is-active sentinel-pulse-collector-500ms-experiment)\" \"\$(systemctl is-active sentinel-pulse-detector-candidate)\" \"\$(systemctl show sentinel-pulse-detector-candidate -p NRestarts --value)\" \"\$(sed -n s/^PULSE_FEATURES=//p /etc/sentinel-pulse-detector-candidate.env)\" \"\$(sed -n s/^PULSE_INJECTIONS=//p /etc/sentinel-pulse-detector-candidate.env)\"'" )
+  printf '%s\n' "$snapshot" >"$EVIDENCE_ROOT/workers/$host-pre-finalize.txt"
+  [[ $(sed -n 's/^collector=//p' <<<"$snapshot") == active ]]
+  [[ $(sed -n 's/^detector=//p' <<<"$snapshot") == active ]]
+  [[ $(sed -n 's/^restarts=//p' <<<"$snapshot") == 0 ]]
+  [[ $(sed -n 's/^feature=//p' <<<"$snapshot") == "$feature" ]]
+  [[ $(sed -n 's/^injections=//p' <<<"$snapshot") == "$injections" ]]
+  hosts+=("$host")
+done <"$EVIDENCE_ROOT/workers.txt"
+[[ ${#hosts[@]} -eq 3 ]]
+
+# Freeze every decision stream before stopping any telemetry source.
+for host in "${hosts[@]}"; do remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service; done
+for host in "${hosts[@]}"; do remote_sudo "$host" systemctl stop sentinel-pulse-collector-500ms-experiment.service; done
+
+while read -r host node feature injections; do
+  capture_dir=$(dirname "$feature")
+  detector_dir=$(dirname "$injections")
+  remote_sudo "$host" env MINIMUM_ROWS_PER_WORKLOAD=100 \
+    "$REMOTE_ROOT/sentinel_pulse/finalize_500ms_experiment.sh" \
+    >"$EVIDENCE_ROOT/workers/$host-node-finalize.json"
+  destination="$EVIDENCE_ROOT/workers/$host/raw"
+  mkdir -p "$destination"
+  printf '%s\n' "$SSHPASS" | sshpass -e ssh -o StrictHostKeyChecking=no \
+    -o ConnectTimeout=8 "$SSH_USER@$host" \
+    "sudo -S -p '' tar -C / -cf - '${capture_dir#/}' '${detector_dir#/}'" | \
+    tar -C "$destination" -xf -
+  decisions="$destination/${detector_dir#/}/decisions.jsonl"
+  test -s "$decisions"
+  test -f "$destination/${detector_dir#/}/alerts.jsonl"
+  test -s "$destination/${capture_dir#/}/features.jsonl"
+  decision_paths+=("$decisions")
+done <"$EVIDENCE_ROOT/workers.txt"
+
+(
+  cd "$EVIDENCE_ROOT"
+  find workers -type f \( -name decisions.jsonl -o -name alerts.jsonl \
+    -o -name features.jsonl -o -name FINAL.json \) -print0 | sort -z | \
+    xargs -0 sha256sum
+) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
+(cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
+
+evaluation_args=()
+for path in "${decision_paths[@]}"; do evaluation_args+=(--decisions "$path"); done
+set +e
+PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.evaluate_latency \
+  "${evaluation_args[@]}" \
+  --injections "$EVIDENCE_ROOT/injections.jsonl" \
+  --kernel-events "$EVIDENCE_ROOT/kernel-events.jsonl" \
+  --attack-contract "$ATTACK_CONTRACT" \
+  --expected-injections 450 \
+  --output "$EVIDENCE_ROOT/LATENCY_REPORT.json"
+evaluation_rc=$?
+set -e
+
+"$PYTHON" - "$EVIDENCE_ROOT" "$evaluation_rc" <<'PY'
+from datetime import datetime, timezone
+import hashlib, json, pathlib, sys
+root, rc = pathlib.Path(sys.argv[1]), int(sys.argv[2])
+report = json.loads((root / "LATENCY_REPORT.json").read_text())
+result = {
+    "schema": "sentinel-pulse-blind-result-v1",
+    "completed_at": datetime.now(timezone.utc).isoformat(),
+    "evaluation_exit_code": rc,
+    "blind_evidence_valid": report.get("blind_evidence_valid") is True,
+    "expected_injections": report.get("expected_injections"),
+    "detected_injections": report.get("detected_injections"),
+    "recall": report.get("recall"),
+    "kernel_to_alert_seconds": report.get("kernel_to_alert_seconds"),
+    "automatic_promotion": False,
+    "latency_report_sha256": hashlib.sha256((root / "LATENCY_REPORT.json").read_bytes()).hexdigest(),
+}
+(root / "BLIND_RESULT.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+PY
+sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$EVIDENCE_ROOT/PLAN.json" \
+  "$EVIDENCE_ROOT/REPORT.json" "$EVIDENCE_ROOT/injections.jsonl" \
+  "$EVIDENCE_ROOT/kernel-events.jsonl" "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
+  "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
+rm -f "$EVIDENCE_ROOT/ACTIVE"
+printf 'Pulse blind matrix finalized: evidence=%s evaluation_rc=%s\n' "$EVIDENCE_ROOT" "$evaluation_rc"

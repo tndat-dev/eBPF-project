@@ -386,7 +386,10 @@ def main() -> int:
     report["matrix_complete"] = len(report["trials"]) == len(schedule)
     report["recall"] = report["detected_injections"] / len(schedule)
     atomic_json(root / "REPORT.json", report)
-    active.unlink()
+    (root / "MATRIX_COMPLETE").write_text(
+        f"completed_at={report['completed_at']}\nreport_sha256={sha256_file(root / 'REPORT.json')}\n",
+        encoding="utf-8",
+    )
     return 0
 
 

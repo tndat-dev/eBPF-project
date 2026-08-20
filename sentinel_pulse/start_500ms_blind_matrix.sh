@@ -3,7 +3,7 @@
 set -euo pipefail
 
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
-REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project}
+REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project-pulse-blind}
 NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:?point to the passed formal normal soak}
 MODEL_SOURCE=${MODEL_SOURCE:?point to the exact candidate used by the normal soak}
 POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
@@ -22,8 +22,6 @@ for command in sshpass rsync kubectl jq gcc sha256sum; do command -v "$command" 
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $DURATION_SECONDS =~ ^[0-9]+$ ]] && ((DURATION_SECONDS >= 21600 && DURATION_SECONDS <= 90000))
 [[ $SCHEDULE_SEED =~ ^[0-9]+$ ]]
-[[ $MODEL_SOURCE == "$LOCAL_ROOT"/* ]]
-[[ $NORMAL_EVIDENCE_ROOT == "$LOCAL_ROOT"/* ]]
 test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"
 test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json"
 test -f "$NORMAL_EVIDENCE_ROOT/SOAK_START.json"
@@ -51,6 +49,13 @@ source_sha=$(sha256sum "$RUNTIME_SOURCE" | awk '{print $1}')
 [[ -z $(git -C "$LOCAL_ROOT" status --porcelain --untracked-files=no) ]]
 
 mkdir -p "$EVIDENCE_ROOT"
+MODEL_STAGED="$EVIDENCE_ROOT/model"
+mkdir -p "$MODEL_STAGED"
+rsync -a --checksum "$MODEL_SOURCE/" "$MODEL_STAGED/"
+[[ $(sha256sum "$MODEL_STAGED/manifest.json" | awk '{print $1}') == "$model_sha" ]]
+(cd "$MODEL_STAGED" && sha256sum -c manifest.sha256)
+model_rel=${MODEL_STAGED#"$LOCAL_ROOT/"}
+[[ $model_rel != "$MODEL_STAGED" ]]
 binary="$EVIDENCE_ROOT/runtime_attack_blind"
 gcc -O2 -Wall -Wextra -Werror -static "$RUNTIME_SOURCE" -o "$binary"
 binary_sha=$(sha256sum "$binary" | awk '{print $1}')
@@ -107,10 +112,9 @@ for target in "${WORKERS[@]}"; do
   IFS='|' read -r host node <<<"$target"
   [[ $(remote "$host" hostname -f) == "$node" ]]
   remote "$host" "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate"
-  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "${MODEL_SOURCE#"$LOCAL_ROOT/"}")'"
+  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")'"
   rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" "$LOCAL_ROOT/sentinel_pulse/" "$SSH_USER@$host:$REMOTE_ROOT/sentinel_pulse/"
-  model_rel=${MODEL_SOURCE#"$LOCAL_ROOT/"}
-  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" "$MODEL_SOURCE/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
+  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" "$MODEL_STAGED/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
   started+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" DURATION_SECONDS="$DURATION_SECONDS" "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
   feature="/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/features.jsonl"
@@ -122,7 +126,7 @@ for target in "${WORKERS[@]}"; do
 done
 
 sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$binary" "$ATTACK_CONTRACT" \
-  "$IMPLEMENTATION_CONTRACT" "$MODEL_SOURCE/manifest.json" "$POLICY_SOURCE" \
+  "$IMPLEMENTATION_CONTRACT" "$MODEL_STAGED/manifest.json" "$POLICY_SOURCE" \
   >"$EVIDENCE_ROOT/START_SHA256SUMS"
 touch "$EVIDENCE_ROOT/ACTIVE"
 complete=true
