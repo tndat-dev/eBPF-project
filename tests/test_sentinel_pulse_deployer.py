@@ -152,6 +152,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("10.1.16.239|k8s-worker3.local", script)
         self.assertIn("10.1.16.238|k8s-worker4.local", script)
         self.assertIn("PULSE_FEATURES=$feature", script)
+        self.assertIn("trap cleanup EXIT", script)
+        self.assertIn("launch_failed_at", script)
+        self.assertIn("systemctl stop sentinel-pulse-detector-candidate.service", script)
         self.assertNotIn("systemctl enable", script)
 
     def test_loader_drops_sigterm_short_window_before_snapshot(self):

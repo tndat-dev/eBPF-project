@@ -69,7 +69,7 @@ for target in "${WORKERS[@]}"; do
     echo "hostname mismatch for $host: $observed" >&2; exit 3;
   }
   remote "$host" \
-    "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment sentinel-pulse-detector-candidate"
+    "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate"
 done
 
 # The marker exists before any experimental collector or detector starts.
@@ -96,6 +96,21 @@ payload = {
 pathlib.Path(out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 PY
 
+started_hosts=()
+launch_complete=false
+cleanup() {
+  local rc=$?
+  if [[ $launch_complete != true ]]; then
+    for host in "${started_hosts[@]}"; do
+      remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service \
+        sentinel-pulse-collector-500ms-experiment.service >/dev/null 2>&1 || true
+    done
+    printf 'launch_failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" \
+      >"$EVIDENCE_ROOT/FAILED"
+  fi
+}
+trap cleanup EXIT
+
 for target in "${WORKERS[@]}"; do
   IFS='|' read -r host node <<<"$target"
   remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")'"
@@ -105,6 +120,7 @@ for target in "${WORKERS[@]}"; do
     "$MODEL_SOURCE/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
   remote "$host" \
     "cd '$REMOTE_ROOT/$model_rel' && sha256sum -c manifest.sha256"
+  started_hosts+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \
     "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
@@ -121,5 +137,6 @@ done
 sha256sum "$EVIDENCE_ROOT/SOAK_START.json" "$MODEL_SOURCE/manifest.json" \
   "$POLICY_SOURCE" >"$EVIDENCE_ROOT/START_SHA256SUMS"
 touch "$EVIDENCE_ROOT/ACTIVE"
+launch_complete=true
 printf 'formal normal soak active: run=%s duration=%ss evidence=%s\n' \
   "$RUN_ID" "$DURATION_SECONDS" "$EVIDENCE_ROOT"
