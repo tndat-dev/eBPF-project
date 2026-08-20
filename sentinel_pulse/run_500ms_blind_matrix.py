@@ -172,18 +172,62 @@ def cluster_gate(runtime: Runtime) -> None:
         raise RuntimeError("blind matrix requires all six registered nodes")
     for node in nodes["items"]:
         conditions = {item["type"]: item["status"] for item in node["status"]["conditions"]}
+        bad_taints = {
+            item.get("key") for item in node.get("spec", {}).get("taints", [])
+        } & {
+            "node.kubernetes.io/disk-pressure",
+            "node.kubernetes.io/memory-pressure",
+            "node.kubernetes.io/pid-pressure",
+            "node.kubernetes.io/not-ready",
+            "node.kubernetes.io/unreachable",
+        }
         if conditions.get("Ready") != "True" or any(
             conditions.get(name) != "False"
             for name in ("DiskPressure", "MemoryPressure", "PIDPressure")
-        ):
+        ) or bad_taints:
             raise RuntimeError(f"unhealthy node before blind trial: {node['metadata']['name']}")
     pods = runtime.kubectl_json("get", "pods", "-n", "production", "-o", "json")
-    bad = [
-        pod["metadata"]["name"] for pod in pods.get("items", [])
-        if pod.get("status", {}).get("phase") not in {"Running", "Succeeded"}
-    ]
+    bad = []
+    for pod in pods.get("items", []):
+        phase = pod.get("status", {}).get("phase")
+        if phase == "Succeeded":
+            continue
+        statuses = pod.get("status", {}).get("containerStatuses", [])
+        if phase != "Running" or not statuses or not all(
+            item.get("ready") is True for item in statuses
+        ):
+            bad.append(pod["metadata"]["name"])
     if bad:
         raise RuntimeError(f"unhealthy production pods before blind trial: {bad}")
+    sensors = runtime.kubectl_json(
+        "get", "pods", "-n", "kube-system", "-l",
+        "app.kubernetes.io/name=tetragon", "-o", "json",
+    )
+    ready_sensors = {
+        item.get("spec", {}).get("nodeName")
+        for item in sensors.get("items", [])
+        if item.get("status", {}).get("phase") == "Running"
+        and item.get("status", {}).get("containerStatuses")
+        and all(
+            status.get("ready") is True
+            for status in item["status"]["containerStatuses"]
+        )
+    }
+    if ready_sensors != {item["metadata"]["name"] for item in nodes["items"]}:
+        raise RuntimeError("Tetragon is not Ready on every cluster node")
+    volumes = runtime.kubectl_json(
+        "get", "volumes.longhorn.io", "-n", "longhorn-system", "-o", "json"
+    )
+    if any(item.get("status", {}).get("robustness") != "healthy" for item in volumes.get("items", [])):
+        raise RuntimeError("Longhorn has a degraded volume before blind trial")
+    clusters = runtime.kubectl_json(
+        "get", "clusters.postgresql.cnpg.io", "-n", "production", "-o", "json"
+    )
+    for cluster in clusters.get("items", []):
+        status, spec = cluster.get("status", {}), cluster.get("spec", {})
+        expected = status.get("instances", spec.get("instances", 0))
+        if status.get("phase") != "Cluster in healthy state" or status.get("readyInstances", 0) != expected:
+            raise RuntimeError("CloudNativePG is not fully healthy before blind trial")
 
 
 def main() -> int:
@@ -271,6 +315,7 @@ def main() -> int:
     if marker_keys != completed:
         raise ValueError("marker/report mismatch indicates an interrupted infrastructure trial")
 
+    active_target = None
     try:
         for index, row in enumerate(schedule, 1):
             key = tuple(row[part] for part in ("workload_controller", "scenario", "seed", "rate_per_second"))
@@ -299,6 +344,7 @@ def main() -> int:
                  'cat > "$1" && chmod 0755 "$1"', "pulse-copy", BINARY_IN_CONTAINER],
                 input_bytes=binary.read_bytes(), timeout=45,
             )
+            active_target = (pod["name"], target_container)
             injected_at = time.time()
             injection_id = f"{start['run_id']}:{index:04d}"
             injection = {
@@ -355,6 +401,14 @@ def main() -> int:
             decisions = runtime.remote_sudo(
                 worker["host"], f"grep -F -- '\"injection_id\":\"{injection_id}\"' {detector_dir}/decisions.jsonl || true"
             ).stdout.decode(errors="replace").splitlines()
+            cleanup = runtime.run(
+                ["kubectl", "exec", "-n", args.namespace, pod["name"],
+                 "-c", target_container, "--", "rm", "-f", "--", BINARY_IN_CONTAINER],
+                timeout=30,
+            )
+            if cleanup.returncode != 0:
+                raise RuntimeError("could not remove temporary blind binary")
+            active_target = None
             report["trials"].append({
                 **row,
                 "injection_id": injection_id,
@@ -370,6 +424,16 @@ def main() -> int:
             atomic_json(partial_path, report)
             time.sleep(args.post_trial_seconds)
     except Exception as error:
+        cleanup_returncode = None
+        if active_target is not None:
+            pod_name, container_name = active_target
+            cleanup = runtime.run(
+                ["kubectl", "exec", "-n", args.namespace, pod_name,
+                 "-c", container_name, "--", "rm", "-f", "--", BINARY_IN_CONTAINER],
+                timeout=30,
+                check=False,
+            )
+            cleanup_returncode = cleanup.returncode
         failure = {
             "schema": "sentinel-pulse-blind-infrastructure-failure-v1",
             "failed_at": datetime.now(timezone.utc).isoformat(),
@@ -377,6 +441,7 @@ def main() -> int:
             "error": str(error),
             "completed_injections": len(report["trials"]),
             "automatic_rerun": False,
+            "temporary_binary_cleanup_returncode": cleanup_returncode,
         }
         atomic_json(root / "INFRA_FAILURE.json", failure)
         raise

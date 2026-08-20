@@ -106,6 +106,9 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert "runtime_attack_blind" in starter
     assert "automatic_promotion" in runner
     assert "automatic_rerun" in runner
+    assert "CloudNativePG is not fully healthy" in runner
+    assert "Tetragon is not Ready on every cluster node" in runner
+    assert '"rm", "-f", "--", BINARY_IN_CONTAINER' in runner
     assert "promote" not in runner.lower().replace("promotion", "")
     assert "MATRIX_COMPLETE" in runner
     assert "sentinel_pulse.evaluate_latency" in finalizer

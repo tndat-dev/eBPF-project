@@ -48,6 +48,20 @@ source_sha=$(sha256sum "$RUNTIME_SOURCE" | awk '{print $1}')
 [[ $(jq -er '.expected_injections' "$ATTACK_CONTRACT") -eq 450 ]]
 [[ -z $(git -C "$LOCAL_ROOT" status --porcelain --untracked-files=no) ]]
 
+node_total=$(kubectl get nodes -o json | jq '.items | length')
+node_bad=$(kubectl get nodes -o json | PYTHONPATH="$LOCAL_ROOT" python3 \
+  -m sentinel_pulse.cluster_health --resource nodes --count)
+pod_bad=$(kubectl -n production get pods -o json | PYTHONPATH="$LOCAL_ROOT" python3 \
+  -m sentinel_pulse.cluster_health --resource pods --grace-seconds 0 --count)
+longhorn_bad=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | \
+  jq '[.items[] | select(.status.robustness != "healthy")] | length')
+cnpg_bad=$(kubectl -n production get clusters.postgresql.cnpg.io -o json | \
+  jq '[.items[] | select((.status.readyInstances // 0) != (.status.instances // .spec.instances // 0) or (.status.phase // "") != "Cluster in healthy state")] | length')
+tetragon_ready=$(kubectl -n kube-system get pods -l app.kubernetes.io/name=tetragon -o json | \
+  jq '[.items[] | select(.status.phase == "Running" and ([.status.containerStatuses[]?.ready] | all))] | length')
+[[ $node_total -eq 6 && $node_bad -eq 0 && $pod_bad -eq 0 && \
+   $longhorn_bad -eq 0 && $cnpg_bad -eq 0 && $tetragon_ready -eq 6 ]]
+
 mkdir -p "$EVIDENCE_ROOT"
 MODEL_STAGED="$EVIDENCE_ROOT/model"
 mkdir -p "$MODEL_STAGED"
@@ -87,6 +101,7 @@ payload = {
     "blind_evaluation_started": True,
     "attack_outcomes_used_for_training_or_tuning": False,
     "automatic_promotion": False,
+    "cluster_preflight": "6 nodes and Tetragon pods ready; zero node pressure, production pod, Longhorn or CNPG failure",
     "source_git_commit": commit,
 }
 pathlib.Path(out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
