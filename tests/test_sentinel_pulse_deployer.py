@@ -158,6 +158,19 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("systemctl stop sentinel-pulse-detector-candidate.service", script)
         self.assertNotIn("systemctl enable", script)
 
+    def test_formal_soak_monitor_is_read_only_and_fail_closed(self):
+        script = (
+            ROOT / "sentinel_pulse" / "monitor_500ms_normal_soak.sh"
+        ).read_text()
+        self.assertIn("normal_alert_observed", script)
+        self.assertIn("detector_restarted", script)
+        self.assertIn("feature_source_mismatch", script)
+        self.assertIn("READY_TO_FINALIZE", script)
+        self.assertIn("eligible_finalize_after", script)
+        self.assertNotIn("systemctl restart", script)
+        self.assertNotIn("systemctl stop", script)
+        self.assertNotIn("kubectl apply", script)
+
     def test_loader_drops_sigterm_short_window_before_snapshot(self):
         source = (
             ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"

@@ -20,3 +20,4 @@ validation-evidence/**/features.jsonl
 validation-evidence/**/*.pkl
 validation-evidence/**/decisions.jsonl
 validation-evidence/**/alerts.jsonl
+validation-evidence/**/MONITOR.jsonl
