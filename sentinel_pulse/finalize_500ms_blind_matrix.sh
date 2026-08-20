@@ -105,7 +105,8 @@ done <"$EVIDENCE_ROOT/workers.txt"
   cd "$EVIDENCE_ROOT"
   find workers -type f \( -name decisions.jsonl -o -name alerts.jsonl \
     -o -name features.jsonl -o -name injections.jsonl \
-    -o -name FINAL.json \) -print0 | sort -z | \
+    -o -name FINAL.json -o -name '*-node-finalize.json' \
+    -o -name '*-pre-finalize.txt' \) -print0 | sort -z | \
     xargs -0 sha256sum
 ) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
@@ -167,18 +168,17 @@ result = {
 }
 (root / "BLIND_RESULT.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
 PY
-sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$EVIDENCE_ROOT/PLAN.json" \
-  "$EVIDENCE_ROOT/REPORT.json" "$EVIDENCE_ROOT/injections.jsonl" \
-  "$EVIDENCE_ROOT/kernel-events.jsonl" "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
-  "$EVIDENCE_ROOT/DISTRIBUTED_INJECTIONS.json" \
-  "$EVIDENCE_ROOT/CANDIDATE_DECISION.json" \
-  "$EVIDENCE_ROOT/START_SHA256SUMS" \
-  "$EVIDENCE_ROOT/protocol/decision-policy.json" \
-  "$EVIDENCE_ROOT/protocol/blind-attack-contract.json" \
-  "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json" \
-  "$EVIDENCE_ROOT/protocol/runtime_attack_blind.c" \
-  "$EVIDENCE_ROOT/runtime_attack_blind" \
-  "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
+(
+  cd "$EVIDENCE_ROOT"
+  sha256sum BLIND_START.json PLAN.json REPORT.json MATRIX_COMPLETE \
+    injections.jsonl kernel-events.jsonl LATENCY_REPORT.json \
+    DISTRIBUTED_INJECTIONS.json CANDIDATE_DECISION.json BLIND_RESULT.json \
+    workers.txt START_SHA256SUMS RAW_SHA256SUMS \
+    protocol/decision-policy.json protocol/blind-attack-contract.json \
+    protocol/attack-implementation-contract.json \
+    protocol/runtime_attack_blind.c runtime_attack_blind
+) >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
+(cd "$EVIDENCE_ROOT" && sha256sum -c FINAL_SHA256SUMS)
 rm -f "$EVIDENCE_ROOT/ACTIVE"
 rm -f "$EVIDENCE_ROOT/FINALIZE_FAILED"
 complete=true

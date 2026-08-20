@@ -122,6 +122,9 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert "sha256sum -c START_SHA256SUMS" in finalizer
     assert "sentinel_pulse.finalize_candidate" in finalizer
     assert "CANDIDATE_DECISION.json" in finalizer
+    assert "BLIND_RESULT.json" in finalizer
+    assert "sha256sum -c FINAL_SHA256SUMS" in finalizer
+    assert "*-pre-finalize.txt" in finalizer
     assert "FINALIZE_FAILED" in finalizer
     assert "automatic_promotion" in finalizer
     assert "start_500ms_blind_matrix.sh" in lifecycle
