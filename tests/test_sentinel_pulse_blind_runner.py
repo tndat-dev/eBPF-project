@@ -97,6 +97,7 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     runner = (ROOT / "sentinel_pulse" / "run_500ms_blind_matrix.py").read_text()
     finalizer = (ROOT / "sentinel_pulse" / "finalize_500ms_blind_matrix.sh").read_text()
     lifecycle = (ROOT / "sentinel_pulse" / "run_500ms_blind_campaign.sh").read_text()
+    waiter = (ROOT / "sentinel_pulse" / "wait_and_run_500ms_blind_campaign.sh").read_text()
     assert 'test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"' in starter
     assert ".normal_gate == true and .expected_workload_gate == true" in starter
     assert "ENABLE_INJECTION_TRACKING=true" in starter
@@ -112,3 +113,6 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert "automatic_promotion" in finalizer
     assert "start_500ms_blind_matrix.sh" in lifecycle
     assert "finalize_500ms_blind_matrix.sh" in lifecycle
+    assert 'NORMAL_EVIDENCE_ROOT/NORMAL_PASS' in waiter
+    assert 'NORMAL_EVIDENCE_ROOT/FINALIZE_FAILED' in waiter
+    assert "run_500ms_blind_campaign.sh" in waiter
