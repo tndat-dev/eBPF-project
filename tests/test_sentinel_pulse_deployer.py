@@ -171,6 +171,25 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertNotIn("systemctl stop", script)
         self.assertNotIn("kubectl apply", script)
 
+    def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
+        script = (
+            ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
+        ).read_text()
+        detector_stop = script.index(
+            "systemctl stop sentinel-pulse-detector-candidate.service"
+        )
+        collector_stop = script.index(
+            "systemctl stop sentinel-pulse-collector-500ms-experiment.service"
+        )
+        evaluation = script.index("sentinel_pulse.evaluate_normal")
+        self.assertLess(detector_stop, collector_stop)
+        self.assertLess(collector_stop, evaluation)
+        self.assertIn("FINALIZE_MARGIN_SECONDS", script)
+        self.assertIn("--model-manifest", script)
+        self.assertIn("expected_workload_gate", script)
+        self.assertIn("automatic_promotion=false", script)
+        self.assertNotIn("kubectl apply", script)
+
     def test_loader_drops_sigterm_short_window_before_snapshot(self):
         source = (
             ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"

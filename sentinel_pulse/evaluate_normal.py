@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from collections.abc import Sequence
 from datetime import datetime, timezone
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -112,7 +114,7 @@ def wilson_interval(successes: int, trials: int, z: float = 1.959963984540054) -
 
 
 def evaluate(
-    path: Path,
+    path: Path | Sequence[Path],
     maximum_alerts: int = 0,
     minimum_scored_windows: int = 86400,
     minimum_duration_hours: float = 24.0,
@@ -153,53 +155,68 @@ def evaluate(
         if model_manifest_path is not None
         else None
     )
-    with path.open(encoding="utf-8") as handle:
-        for line_number, line in enumerate(handle, 1):
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError as error:
-                raise ValueError(f"line {line_number}: invalid JSON: {error}") from error
-            status = str(record.get("status", "unknown"))
-            is_decision = record.get("schema") == "sentinel-pulse-decision-v1"
-            if is_decision and status not in SCORED_STATUSES | {"warming"}:
-                raise ValueError(
-                    f"line {line_number}: unsupported decision status: {status}"
-                )
-            is_scored = (
-                is_decision and status in SCORED_STATUSES
-            )
-            if is_scored:
+    decision_paths = [path] if isinstance(path, Path) else list(path)
+    if not decision_paths or any(not isinstance(item, Path) for item in decision_paths):
+        raise ValueError("at least one decision path is required")
+    decision_files = []
+    for decision_path in decision_paths:
+        decision_files.append(
+            {"path": str(decision_path), "sha256": sha256_file(decision_path)}
+        )
+        with decision_path.open(encoding="utf-8") as handle:
+            for line_number, line in enumerate(handle, 1):
                 try:
-                    end = float(record["window_end"])
-                except (KeyError, TypeError, ValueError) as error:
+                    record = json.loads(line)
+                except json.JSONDecodeError as error:
                     raise ValueError(
-                        f"line {line_number}: scored decision has invalid window_end"
+                        f"{decision_path}:{line_number}: invalid JSON: {error}"
                     ) from error
-                if not math.isfinite(end):
+                status = str(record.get("status", "unknown"))
+                is_decision = record.get("schema") == "sentinel-pulse-decision-v1"
+                if is_decision and status not in SCORED_STATUSES | {"warming"}:
                     raise ValueError(
-                        f"line {line_number}: scored decision has invalid window_end"
+                        f"{decision_path}:{line_number}: unsupported decision status: "
+                        f"{status}"
                     )
-                if marker is not None and end < marker["started_at"]:
-                    excluded_before_marker += 1
+                is_scored = is_decision and status in SCORED_STATUSES
+                if is_scored:
+                    try:
+                        end = float(record["window_end"])
+                    except (KeyError, TypeError, ValueError) as error:
+                        raise ValueError(
+                            f"{decision_path}:{line_number}: scored decision has "
+                            "invalid window_end"
+                        ) from error
+                    if not math.isfinite(end):
+                        raise ValueError(
+                            f"{decision_path}:{line_number}: scored decision has "
+                            "invalid window_end"
+                        )
+                    if marker is not None and end < marker["started_at"]:
+                        excluded_before_marker += 1
+                        continue
+                statuses[status] += 1
+                if not is_scored:
                     continue
-            statuses[status] += 1
-            if not is_scored:
-                continue
-            model_identities.add(str(record.get("model_manifest_sha256", "")))
-            policy_identity = record.get("decision_policy_sha256")
-            if policy_identity is not None:
-                decision_policy_identities.add(str(policy_identity))
-            run_identities.add(str(record.get("run_id", "")))
-            workload = str(record.get("workload_key", "unknown"))
-            workload_scored[workload] += 1
-            if "window_end" in record:
-                end = float(record["window_end"])
+                model_identities.add(str(record.get("model_manifest_sha256", "")))
+                policy_identity = record.get("decision_policy_sha256")
+                if policy_identity is not None:
+                    decision_policy_identities.add(str(policy_identity))
+                run_identities.add(str(record.get("run_id", "")))
+                workload = str(record.get("workload_key", "unknown"))
+                workload_scored[workload] += 1
                 bounds = workload_bounds.setdefault(workload, [end, end])
                 bounds[0] = min(bounds[0], end)
                 bounds[1] = max(bounds[1], end)
-                workload_second_buckets.setdefault(workload, set()).add(math.floor(end))
-            if status == "alert":
-                workload_alerts[workload] += 1
+                workload_second_buckets.setdefault(workload, set()).add(
+                    math.floor(end)
+                )
+                if status == "alert":
+                    workload_alerts[workload] += 1
+
+    bundle_sha256 = hashlib.sha256(
+        "\n".join(item["sha256"] for item in decision_files).encode("ascii")
+    ).hexdigest()
 
     scored = statuses["normal"] + statuses["alert"] + statuses["suppressed"]
     alerts = statuses["alert"]
@@ -305,8 +322,13 @@ def evaluate(
     )
     return {
         "schema": "sentinel-pulse-normal-soak-report-v1",
-        "path": str(path),
-        "decisions_sha256": sha256_file(path),
+        "path": str(decision_paths[0]) if len(decision_paths) == 1 else None,
+        "decision_files": decision_files,
+        "decisions_sha256": (
+            decision_files[0]["sha256"]
+            if len(decision_files) == 1
+            else bundle_sha256
+        ),
         "soak_marker_sha256": marker["sha256"] if marker is not None else None,
         "soak_started_not_before": (
             marker["started_not_before"] if marker is not None else None
@@ -351,7 +373,7 @@ def evaluate(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--decisions", type=Path, required=True)
+    parser.add_argument("--decisions", type=Path, action="append", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--maximum-alerts", type=int, default=0)
     parser.add_argument("--minimum-scored-windows", type=int, default=86400)

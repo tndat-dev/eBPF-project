@@ -324,6 +324,43 @@ class PulseNormalEvaluationTests(unittest.TestCase):
             self.assertFalse(report["expected_workload_gate"])
             self.assertFalse(report["normal_gate"])
 
+    def test_multiple_node_files_are_aggregated_before_workload_gate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app", "production/order:app"
+            )
+            decisions = []
+            for workload in ("production/catalog:app", "production/order:app"):
+                path = root / f"{workload.split('/')[1].split(':')[0]}.jsonl"
+                path.write_text(
+                    "".join(
+                        json.dumps(
+                            {
+                                "schema": "sentinel-pulse-decision-v1",
+                                "status": "normal",
+                                "model_manifest_sha256": manifest_sha256,
+                                "workload_key": workload,
+                                "window_end": float(index),
+                            }
+                        )
+                        + "\n"
+                        for index in range(3)
+                    ),
+                    encoding="utf-8",
+                )
+                decisions.append(path)
+            report = evaluate(
+                decisions,
+                minimum_scored_windows=6,
+                minimum_duration_hours=2.0 / 3600.0,
+                model_manifest_path=manifest,
+            )
+            self.assertTrue(report["expected_workload_gate"])
+            self.assertTrue(report["normal_gate"])
+            self.assertIsNone(report["path"])
+            self.assertEqual(len(report["decision_files"]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
