@@ -802,6 +802,30 @@ Nó fail-closed nếu run/health không hợp lệ và không auto-promote. Vì 
 trong `/run/systemd/transient`, control-plane reboot trước trigger thì phải arm
 lại; provenance nằm trong `SCHEDULED_FINALIZER.json`.
 
+### 7.26 Blind matrix fail-closed và phép đo kernel-to-alert đúng nghĩa
+
+Audit measurement xác nhận detector trước đây gắn alert với marker userspace
+trước lệnh inject. Đây là injection-command-to-alert upper bound, không phải
+timestamp kernel. Evaluator v2 không còn cho field này mở latency gate. Mỗi
+trial paper phải có thêm đúng một Tetragon `process_exec` kernel event khớp
+injection ID, static binary, argument, pod UID, node và workload; evaluator tự
+tính `alerted_at - kernel_event_at`. Thiếu, trùng, sai identity hoặc thứ tự thời
+gian đều làm `kernel_timestamp_gate=false`.
+
+Runner mới chỉ được start khi exact normal evidence đã có `NORMAL_PASS`, rồi
+khóa model/policy/contract/source/binary/commit trước trial đầu. Static blind
+binary tái lập đúng SHA-256 `a4d68d79...`. Matrix có 450 row bất biến; miss hợp
+lệ không rerun, còn infrastructure failure được ghi machine-readable và dừng
+toàn campaign. Runner không có promotion path và không đưa attack outcome vào
+train/tune.
+
+Audit read-only trên cluster resolve 18/18 controller tới pod Ready và cgroup
+được model theo dõi. Với hai sandbox gVisor, resolver chọn leaf sentry scope
+theo độ sâu cgroup thay cho parent pod slice cùng nhãn; lựa chọn không dùng
+attack label. Full clean regression tại commit `cbcdd66` đạt **417 passed, 2
+warning**. Snapshot A2 lúc 12:12:52 UTC có 220.509 decision, 0 alert, 0 restart
+và mới đạt khoảng 3,62% clock 24 giờ; blind injection vẫn chưa chạy.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -828,7 +852,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   cho PostgreSQL, Kafka, RabbitMQ, Redis, MinIO; traffic generator bị loại khỏi
   tập cgroup ML để không học hành vi của chính công cụ benchmark.
 - 14-08-2026: chuyển collector sang per-CPU fixed sketch và compact snapshot;
-  thêm true injection-to-alert evaluator.
+  thêm evaluator injection-marker-to-alert ban đầu; phép đo này về sau được
+  phân loại đúng là userspace upper bound, không phải kernel timestamp.
 - 14-08-2026: thêm manifest model v2 với checksum fail-closed, calibration
   resolution gate, Wilson normal-soak evaluator, identity đa node/pod và
   snapshot read timing. Trainer tự chặn capture có telemetry loss; manifest
@@ -1033,3 +1058,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   pass.
 - 20-08-2026: arm transient finalizer timer cho A2 tại 21-08-2026 11:25:46 UTC;
   schedule bind commit/model/policy/run và giữ fail-closed.
+- 20-08-2026: thêm blind lifecycle 450-row interlock bởi `NORMAL_PASS`, static
+  binary checksum gate và evaluator v2 dùng Tetragon `process_exec` làm kernel
+  timestamp. Production target/cgroup audit đạt 18/18; clean regression 417
+  pass. A2 snapshot 220.509 decision/0 alert/0 restart, chưa đủ 24 giờ.

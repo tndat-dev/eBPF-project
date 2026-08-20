@@ -5829,3 +5829,41 @@ finalizer commit `745a80e`; nếu A2 mất `ACTIVE`, có `FAILED`, chưa đủ t
 hoặc health gate lỗi thì thoát fail-closed. Schedule provenance được lưu tại
 `SCHEDULED_FINALIZER.json`; reboot control-plane trước trigger cần arm lại timer
 vì unit transient nằm trong `/run/systemd/transient`.
+
+### 18.140 Blind runner và kernel timestamp gate của Sentinel Pulse (20-08-2026)
+
+Kiểm tra code trước blind test phát hiện trường
+`true_detection_latency_seconds` cũ thực chất lấy timestamp userspace ngay
+trước `kubectl exec`, không phải timestamp kernel. Vì vậy chưa có số
+kernel-to-alert thật nào được công bố từ field này. Evaluator v2 nay tách rõ
+`injection_command_to_alert_seconds` và `kernel_to_alert_seconds`. Gate p99 ≤2
+giây chỉ có thể mở khi mỗi injection ID có đúng một Tetragon `process_exec`
+record độc lập, khớp binary, argument scenario/duration/rate/seed, pod UID,
+node, workload và thời gian. Alert timestamp được join lại với kernel timestamp
+trong evaluator; detector không dùng marker hoặc nhãn attack để ra quyết định.
+
+Lifecycle blind mới bị interlock bởi `NORMAL_PASS` và exact normal report. Nó
+bind model manifest, policy, blind contract, implementation contract, source,
+static binary và source commit; không có đường auto-promote. Binary
+`runtime_attack_blind.c` compile trên control plane bằng GCC 13.3.0 với
+`-O2 -Wall -Wextra -Werror -static` cho đúng SHA-256
+`a4d68d79b1c1722e7b0a53cc95135ebe8a236116ecf06246c0957e259f77dd0d`.
+Schedule được shuffle từ contract đã freeze, đủ chính xác 18 controller × 5
+scenario × 5 seed/rate = 450 injection. Detection miss được giữ; transport,
+pod identity hoặc kernel-event provenance lỗi sẽ đóng campaign thành
+infrastructure failure và không tự rerun.
+
+Audit read-only trên production resolve **18/18 controller** tới pod Ready,
+worker node, model workload/container và cgroup. Hai workload gVisor
+`notification-service` và `payment-service` có cả parent pod slice lẫn sentry
+scope cùng bị CRI gắn nhãn `pod-slice`; normal decision thực tế đến từ leaf
+scope. Resolver blind nay chọn deepest cgroup path theo topology, không nhìn
+attack outcome. Audit sau sửa đạt 18/18, gồm đúng leaf cgroup đang sinh normal
+decision cho hai sandbox. Clean worktree trên control plane đạt **417 passed,
+2 warning** ở commit `cbcdd66`.
+
+Tại snapshot 12:12:52 UTC, A2 vẫn active với 88.834 + 54.002 + 77.673 =
+**220.509 decision, 0 alert, 0 restart**; tương đương khoảng **3,62%** thời gian
+24 giờ kể từ marker. Đây là interim operational evidence, không thay thế
+`NORMAL_PASS`. Blind service và 450 attack chưa được khởi động trong lúc A2
+đang thu normal.
