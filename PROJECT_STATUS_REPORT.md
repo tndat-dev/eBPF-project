@@ -5759,7 +5759,7 @@ Ready/DiskPressure/MemoryPressure/PIDPressure cùng pressure taint, production
 pod, CloudNativePG và Longhorn volume. Tất cả predicate phải khỏe liên tục tối
 thiểu 300 giây trước khi marker bất biến được tạo. Monitor chạy cùng các gate
 trong soak và tự snapshot node/pod/CNPG/Longhorn vào failure evidence trước khi
-dừng; full regression trong locked environment đạt **404 passed, 2 warning**.
+dừng; full regression trong locked environment ban đầu đạt **404 passed, 2 warning**.
 
 Audit storage tìm thấy control collector một giây append vô hạn vào
 `/var/lib/sentinel-pulse/features.jsonl`; riêng worker3 đã khoảng 7,0 GB và
@@ -5809,4 +5809,6 @@ phát hiện gate cũ chỉ duyệt workload đã xuất hiện; code mới bắ
 model manifest thật khớp marker/decision và tập workload quan sát phải bằng
 chính xác 20 key trong manifest. Thiếu hoặc thừa dù chỉ một workload đều làm
 `expected_workload_gate=false`; thay đổi này chỉ dùng lúc finalize, không sửa
-detector/model đang chạy.
+detector/model đang chạy. Sau khi đóng gói 8 semantic replay record thành fixture
+tracked có provenance SHA-256, clean-checkout regression đạt **406 passed, 2
+warning**; không còn phụ thuộc raw ignored trên VM.

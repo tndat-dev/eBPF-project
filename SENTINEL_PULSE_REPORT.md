@@ -754,7 +754,7 @@ trước đây append không giới hạn. Daily rotation mới atomic-move, res
 checksum và nén archive, đồng thời tự skip nếu experiment/detector active. Timer
 đã enable trên ba worker. Ba rotation terminal success, nén 26,56 GB raw còn
 7,01 GB; worker3 còn 53,91 GB trống. A2 chỉ mở sau khi preflight không còn
-DiskPressure flapping. Full regression đạt **404 passed, 2 warning**.
+DiskPressure flapping. Full regression tại mốc này đạt **404 passed, 2 warning**.
 
 PVC replica PostgreSQL `aims-postgres-cnpg-2` sau eviction bị rỗng và thiếu
 `PGDATA`. Sau khi khóa YAML/UID evidence, chỉ pod/PVC replica này được thay;
@@ -784,7 +784,9 @@ normal error-mix đã freeze, trong khi ingress, health và product route chính
 trả 200. Finalizer được harden thêm: nó bind file model manifest thật bằng
 SHA-256 và yêu cầu tập workload quan sát bằng chính xác tập 20 workload trong
 manifest; thiếu/thừa workload đều fail-closed thay vì chỉ duyệt những workload
-tình cờ xuất hiện.
+tình cờ xuất hiện. Tám semantic replay record cũng được chuyển thành fixture
+tracked, bind SHA-256 của ba source alert file; clean-checkout regression đạt
+**406 passed, 2 warning**.
 
 ## 8. Protocol đánh giá và release gate
 
