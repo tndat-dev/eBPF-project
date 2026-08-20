@@ -5,7 +5,7 @@
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
-**Checkpoint live mới nhất:** model ExtraTrees và dataset normal-only
+**Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
 soak sau 1.985.317 decision với 8 alert tập trung trong probe-storm 5,95 giây;
 evidence 2,7 GB đã freeze, blind chưa chạy. Policy V4 `272e9119...` được dựng

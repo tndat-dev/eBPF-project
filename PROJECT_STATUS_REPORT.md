@@ -2,22 +2,28 @@
 
 **Ngày xác minh cluster gần nhất:** 2026-08-20
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
-**Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
-**Phiên bản đang deploy:** Syscall Runtime Release V7, window 10 giây,
-dry-run; AIMS V8 là campaign candidate riêng, chưa được promote
+**Máy cluster:** `dat@10.1.16.234`; active evidence tại
+`/home/dat/eBPF-project`, runtime lịch sử tại `/home/dat/ml-service`
+**Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
+Sentinel Pulse 500 ms đang formal normal soak A2, chưa được promote
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
 
-Dự án này xây dựng một hệ thống phát hiện bất thường runtime cho Kubernetes bằng eBPF/Tetragon kết hợp machine learning. Thay vì chỉ nhìn log ứng dụng, hệ thống quan sát hành vi thật ở tầng kernel, cụ thể là syscall của container. Runtime hiện gom event Tetragon thành cửa sổ 10 giây theo từng workload, đưa vào mô hình V7 LSTM Autoencoder để chấm điểm bất thường, sau đó kiểm tra thêm bằng behavior gate theo từng workload trước khi tạo cảnh báo.
+Dự án xây dựng hệ thống phát hiện bất thường runtime Kubernetes bằng
+eBPF/Tetragon kết hợp machine learning. V8 là baseline LSTM/ensemble cửa sổ 10
+giây đã đóng băng; nhánh kế nhiệm Sentinel Pulse dùng exact counter và rolling
+feature 500 ms, ExtraTrees theo workload cùng same-window semantic gate để
+nhắm p99 kernel-to-alert không quá 2 giây. Pulse hiện chỉ ở giai đoạn đánh giá
+formal: model không được sửa theo normal A2 hoặc blind outcome.
 
 Kết quả ML dưới đây là bằng chứng validation lịch sử của release V7, được thu thập trước đợt mở rộng topology. Trạng thái hạ tầng được xác minh lại sau cùng ở Mục 2 và Mục 18.7:
 
 - validation ban đầu thực hiện trên cluster 3 node;
 - sau mở rộng, cluster hiện có 6/6 node `Ready` (3 control plane, 3 worker);
-- `sentinel-detector.service` hiện `active`; coverage gate và Tetragon đều đạt 6/6;
-- model V7 từng được load từ `/home/dat/ml-service/models`;
-- full canonical regression gần nhất trên VM đạt `151 passed, 2 warnings`;
+- Tetragon đạt 6/6 và Sentinel Pulse A2 có collector/detector active trên ba worker;
+- V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
+- full canonical regression của blind source gần nhất đạt `420 passed, 2 warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
 - normal validation và post-promotion soak khi đó không có false positive alert.
