@@ -112,11 +112,29 @@ def select_cgroup(metadata: dict, pod_uid: str, model_container: str) -> tuple[i
         if value.get("pod_uid") == pod_uid
         and value.get("container_name") == model_container
     ]
-    if len(matches) != 1:
+    if not matches:
         raise ValueError(
-            f"expected one {model_container} cgroup for pod {pod_uid}, observed {len(matches)}"
+            f"expected a {model_container} cgroup for pod {pod_uid}, observed 0"
         )
-    return matches[0]
+    # A gVisor pod can expose both the parent pod slice and its deeper sentry
+    # scope as ``pod-slice`` because CRI does not report a normal leaf container
+    # ID.  The eBPF current-cgroup counter observes the deepest scope.  Resolve
+    # by cgroup topology only; attack outcomes are never consulted.
+    depths = [
+        (str(item.get("cgroup_path", "")).count("/"), cgroup_id, item)
+        for cgroup_id, item in matches
+    ]
+    maximum = max(depth for depth, _cgroup_id, _item in depths)
+    leaves = [
+        (cgroup_id, item)
+        for depth, cgroup_id, item in depths
+        if depth == maximum
+    ]
+    if len(leaves) != 1:
+        raise ValueError(
+            f"ambiguous deepest {model_container} cgroup for pod {pod_uid}: {len(leaves)}"
+        )
+    return leaves[0]
 
 
 class Runtime:

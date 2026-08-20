@@ -70,6 +70,28 @@ def test_target_resolution_requires_ready_pod_and_exact_cgroup():
         select_cgroup({"cgroups": {}}, "uid", "app")
 
 
+def test_gvisor_pod_slice_resolves_deepest_sentry_scope_without_attack_labels():
+    cgroup_id, _item = select_cgroup(
+        {
+            "cgroups": {
+                "9989": {
+                    "pod_uid": "uid",
+                    "container_name": "pod-slice",
+                    "cgroup_path": "/sys/fs/cgroup/kubepods/pod.slice",
+                },
+                "16788": {
+                    "pod_uid": "uid",
+                    "container_name": "pod-slice",
+                    "cgroup_path": "/sys/fs/cgroup/kubepods/pod.slice/sentry.scope",
+                },
+            }
+        },
+        "uid",
+        "pod-slice",
+    )
+    assert cgroup_id == 16788
+
+
 def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     starter = (ROOT / "sentinel_pulse" / "start_500ms_blind_matrix.sh").read_text()
     runner = (ROOT / "sentinel_pulse" / "run_500ms_blind_matrix.py").read_text()
