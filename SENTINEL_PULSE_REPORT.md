@@ -556,6 +556,34 @@ overhead claim. Smoke SHA256SUMS `3ab10e24...`. Sentinel Pulse suite đạt
 **102 passed**; full regression tương ứng **383 passed, 2 warning** legacy
 Torch.
 
+### 7.16 Pilot A/B overhead 500 ms đầy đủ
+
+Campaign `pulse500-overhead-full-20260817T083911Z` hoàn tất đủ tám phase và
+40 lần chạy wrk theo bốn cặp counterbalanced đã đăng ký trước. Cả 40 lần đều
+không có request lỗi; UID/IP/image của ingress pod, topology 6/6 node Ready và
+trạng thái collector điều khiển đều qua fail-closed gate. Toàn bộ 124 artifact
+khớp checksum; SHA-256 của frozen index là `f3cdc5b3...`.
+
+Hiệu ứng ghép cặp có median throughput loss **-0,61%** (treatment đạt throughput
+cao hơn nhẹ) và median p99 response-time increase **+2,26%**. Exact two-sided
+sign-flip test hậu nghiệm cho throughput có `p=0,125`, cho p99 có `p=0,625`;
+không khác biệt nào đạt mức ý nghĩa 0,05. Kết quả này không được diễn giải là
+"zero overhead" hoặc equivalence: chỉ có bốn cặp trên một worker, một endpoint,
+một cluster-day, nên statistical power còn thấp và kiểm định được thêm sau
+campaign.
+
+Bốn treatment phase sinh tổng 21.324 feature row. Collector dùng median
+0,0532 CPU core và memory peak median 41.146.368 byte (39,24 MiB); interval p99
+nằm trong 507,22–507,97 ms, ingest-lag p99 trong 35,81–40,21 ms. Tất cả gate
+integrity/drop đều bằng 0. Evidence phân tích được lưu ngoài frozen campaign để
+không sửa dữ liệu gốc và đánh dấu `exploratory_posthoc=true`; analysis/index
+SHA-256 lần lượt là `9869c4fd...`/`a78019cc...`. Bước tiếp theo là
+replication đăng ký trước trên ngày/worker/endpoint độc lập và chốt equivalence
+margin; chưa rollout 500 ms, chưa train model 500 ms và chưa có claim
+kernel-to-alert hoặc attack recall. Sau khi thêm validator/phân tích pilot,
+Sentinel Pulse suite đạt **104 passed** và full regression đạt **385 passed,
+2 warning** deprecation Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -745,3 +773,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   window-start-to-feature p99 0,533 giây, 0,0527 CPU core và 38,43 MB peak.
   Hai run hạ tầng trước đó được giữ failed/aborted; bundle index
   `23604e7f...`. Chưa chạy model hoặc attack trên dữ liệu 500 ms.
+- 20-08-2026: audit lại pilot A/B 500 ms đầy đủ: 8/8 phase, 40/40 wrk run,
+  zero request error và 124/124 checksum hợp lệ. Median paired throughput loss
+  -0,61%, p99 increase +2,26%; exact sign-flip `p=0,125/0,625`. Đây là pilot
+  low-power, không phải bằng chứng equivalence; replication độc lập vẫn là gate.

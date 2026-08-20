@@ -5575,3 +5575,27 @@ ra throughput loss 5,08% và p99 change -15,75%, nhưng artifact ghi rõ
 collector cải thiện hay làm xấu latency. SHA256SUMS `3ab10e24...`; protocol
 bind commit `5944b97...`. Sentinel Pulse suite 102 pass; tổng regression
 **383 passed, 2 warning** legacy Torch.
+
+### 18.130 Pilot A/B overhead 500 ms hoàn tất và audit lại (20-08-2026)
+
+Full campaign `pulse500-overhead-full-20260817T083911Z` đã đóng đủ tám phase,
+40 wrk repetition và bốn cặp counterbalanced. Không có HTTP/socket error;
+pod identity, image, node topology và treatment-state không drift. Kiểm tra lại
+124/124 file đều khớp frozen index SHA-256 `f3cdc5b3...`.
+
+Paired median throughput loss là **-0,61%**, paired median p99 latency increase
+là **+2,26%**. Exact two-sided sign-flip test hậu nghiệm lần lượt cho
+`p=0,125` và `p=0,625`; không đủ bằng chứng bác bỏ zero-effect ở alpha 0,05,
+nhưng cũng tuyệt đối chưa chứng minh equivalence/no-overhead vì mẫu chỉ có bốn
+cặp, trên một worker, một ingress endpoint và một cluster-day.
+
+Bốn treatment run tạo tổng 21.324 row; collector median 0,0532 CPU core,
+memory peak median 41.146.368 byte (39,24 MiB), interval p99
+507,22–507,97 ms và ingest-lag p99 35,81–40,21 ms. Mọi integrity/drop gate bằng
+0. Phân tích post-hoc nằm ở bundle riêng, không sửa frozen evidence và tự khai
+`exploratory_posthoc=true`, `equivalence_established=false`. Analysis/index
+SHA-256 là `9869c4fd...`/`a78019cc...`. Gate tiếp theo là
+replication preregistered khác ngày/worker/endpoint với equivalence margin; vẫn
+chưa được rollout 500 ms hoặc dùng pilot để claim ML recall/kernel-to-alert.
+Regression đã xác nhận **104 Sentinel Pulse passed** và **385 passed, 2 warning**
+trên toàn repository.
