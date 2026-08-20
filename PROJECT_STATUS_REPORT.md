@@ -5769,7 +5769,7 @@ collector, atomic-move stream, khởi động stream mới, checksum rồi gzip 
 với I/O priority thấp. Không xóa frozen evidence hoặc PVC. Ba rotation đều
 terminal success, nén 26.560.151.936 byte còn 7.010.459.460 byte; control
 collector và timer đều active 3/3. Worker3 còn 53.905.530.880 byte trống sau
-rotation. A2 chưa được mở cho tới khi worker3 vượt preflight ổn định.
+rotation. A2 chỉ được mở sau khi worker3 vượt preflight ổn định.
 
 Sau khi DiskPressure lặp lại, audit mount xác nhận PVC replica
 `aims-postgres-cnpg-2` chỉ còn `lost+found` 20 KiB và thiếu `PGDATA`. Primary
@@ -5781,3 +5781,22 @@ thái `streaming/async`, CNPG 3/3 healthy, Longhorn volume mới
 `healthy/attached`, worker3 `DiskPressure=False`. Recovery bundle có detached
 `SHA256SUMS`; PVC cũ đã bị xóa và được phục hồi từ primary, không thể undelete
 trực tiếp.
+
+### 18.139 Formal soak A2 đang chạy với candidate đóng băng (20-08-2026)
+
+Sau recovery, launcher xác minh lại 6/6 node Ready, không có node pressure hay
+pressure taint, 0 production pod lỗi, 0 Longhorn volume suy giảm và CloudNativePG
+3/3 Ready. Bốn gate giữ khỏe liên tục 306 giây, vượt ngưỡng preregistered 300
+giây, rồi marker mới được tạo lúc **11:20:46 UTC**. Run
+`pulse500-normal-soak-a2-20260820T111533Z` dùng nguyên model manifest
+`c4683505...`, policy `272e9119...` và source commit `9911d8e...`; không train,
+tune hoặc thay threshold.
+
+Poll fail-closed đầu tiên lúc 11:22:19--11:22:22 UTC xác nhận collector và
+detector active trên cả ba worker, tổng 3.301 decision, **0 alert**, **0 restart**
+và ba detector đều trỏ đúng feature stream 500 ms của A2. Monitor tiếp tục kiểm
+tra health cluster, service, restart counter, feature source và alert mỗi 60
+giây. Mốc sớm nhất được phép finalize là **11:20:46 UTC ngày 21-08-2026**
+(18:20:46 ICT), sau tối thiểu 24 giờ/workload; thời lượng dịch vụ đặt 90.000
+giây để có biên đóng gói. Các số đầu run chỉ là quan sát vận hành, **không phải
+kết luận normal-pass hoặc tuyên bố không false positive**.

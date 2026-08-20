@@ -1,0 +1,14 @@
+{
+  "automatic_promotion": false,
+  "blind_evaluation_started": false,
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "eligible_finalize_after": "2026-08-21T11:20:46.011374+00:00",
+  "maximum_alerts": 0,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "model_manifest_sha256": "c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7",
+  "run_id": "pulse500-normal-soak-a2-20260820T111533Z",
+  "schema": "sentinel-pulse-semantic-soak-start-v5",
+  "source_git_commit": "9911d8edff52cc26ba2031cbc47421d5fb324e5d",
+  "started_not_before": "2026-08-20T11:20:46.011374+00:00"
+}

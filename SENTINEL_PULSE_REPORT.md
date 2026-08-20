@@ -760,9 +760,23 @@ PVC replica PostgreSQL `aims-postgres-cnpg-2` sau eviction bị rỗng và thi�
 `PGDATA`. Sau khi khóa YAML/UID evidence, chỉ pod/PVC replica này được thay;
 primary và replica thứ ba giữ nguyên. CloudNativePG bootstrap PVC mới từ
 primary và hoàn tất lúc 11:10:50 UTC: 3/3 `pg_isready`, hai replication session
-`streaming/async`, Longhorn `healthy/attached`, DiskPressure false. A2 vẫn phải
-chờ đủ continuous preflight; recovery thành công không được tính vào normal
-soak.
+`streaming/async`, Longhorn `healthy/attached`, DiskPressure false. Recovery
+thành công không được tính vào normal soak.
+
+### 7.25 Formal normal soak A2 đang chạy
+
+Launcher A2 quan sát 6/6 node, node pressure/taint, production pod, Longhorn và
+CloudNativePG cùng khỏe liên tục 306 giây trước marker. Run
+`pulse500-normal-soak-a2-20260820T111533Z` bắt đầu lúc 11:20:46 UTC với đúng
+model `c4683505...`, policy `272e9119...` và source commit `9911d8e...`; không
+có bước train/tune giữa A1 và A2. Poll đầu lúc 11:22:19--11:22:22 UTC ghi nhận
+3.301 decision, 0 alert, 0 restart, collector/detector active 3/3 và feature
+source 500 ms đúng 3/3.
+
+Monitor fail-closed chạy mỗi 60 giây và sẽ dừng run nếu service, restart,
+feature source, alert hoặc cluster-health gate vi phạm. Mốc finalize sớm nhất là
+11:20:46 UTC ngày 21-08-2026 (18:20:46 ICT); vì vậy số liệu đầu run chỉ chứng
+minh launch đúng, chưa phải normal-pass hay bằng chứng không false positive.
 
 ## 8. Protocol đánh giá và release gate
 
@@ -984,3 +998,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 - 20-08-2026: rotate 26,56 GB control stream còn 7,01 GB trên ba worker.
   Replica CNPG số 2 có PVC rỗng sau eviction, được recreate có evidence từ
   primary; hậu kiểm 3/3 `pg_isready`, replication streaming và Longhorn healthy.
+- 20-08-2026: formal A2 mở sau 306 giây continuous healthy preflight, khóa model
+  `c4683505...`/policy `272e9119...`/commit `9911d8e...`. Poll đầu 3.301
+  decision, 0 alert, 0 restart; chưa được finalize trước 21-08-2026 11:20:46
+  UTC.
