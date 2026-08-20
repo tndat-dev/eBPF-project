@@ -1,0 +1,48 @@
+{
+  "capture_bytes": 7441185,
+  "capture_sha256": "80f138a59bb8bdacb4058debe098ee7e700aea3954df25433cb1d3ba17d8efa8",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 4.446516,
+  "duration_seconds": 188.5145959854126,
+  "ended_at_unix": 1786956326.9335313,
+  "experiment_average_cpu_cores": 0.05231926444975753,
+  "experiment_cpu_seconds": 9.862945,
+  "experiment_memory_peak_bytes": 41136128,
+  "finalized_at_unix": 1786956326.9335313,
+  "ingest_lag_seconds": {
+    "max": 0.05234956741333008,
+    "p50": 0.015352725982666016,
+    "p95": 0.03058657646179199,
+    "p99": 0.03811071395874027
+  },
+  "interval_seconds": {
+    "max": 0.5109524726867676,
+    "p50": 0.5025825500488281,
+    "p95": 0.5060629844665527,
+    "p99": 0.5079660415649414
+  },
+  "registered_max_duration_seconds": 3600,
+  "rows": 5317,
+  "run_id": "pulse500-overhead-full-20260817T083911Z-p02-on",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 0.007904053,
+    "p50": 0.001788139,
+    "p95": 0.004879236,
+    "p99": 0.006911993
+  },
+  "started_at_unix": 1786956138.4189353,
+  "valid": true,
+  "validation_errors": [],
+  "window_start_to_emit_seconds": {},
+  "workload_count": 14
+}

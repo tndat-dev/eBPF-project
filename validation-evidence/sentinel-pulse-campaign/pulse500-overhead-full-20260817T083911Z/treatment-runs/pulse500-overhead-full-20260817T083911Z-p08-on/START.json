@@ -1,0 +1,12 @@
+{
+  "kernel": "6.8.0-137-generic",
+  "schema": "sentinel-pulse-500ms-start-v1",
+  "sha256": {
+    "allowlist": "91aa9e6d60e16909efc1df298e67a7187fc306ab74613df1655a0044709ce408",
+    "bpf_object": "6d656d8d17d2d39785f57fdca3b63e465988d6a8d9614f7f207aa44612e1ee2f",
+    "loader": "12a225fb9b6127a4db0598c9832cfe7af9fc09348aa8f1ff00b70d0b86eb0fcc",
+    "metadata": "6238abe124512e2d7bf77dff563c5d84e2780cb381323dddb04c0dd446ee0162",
+    "unit": "e6717b90f6e8852a6e41aaf5832190941969fb293da161058ab53e2ccc5109fd"
+  },
+  "started_at_unix": 1786957258.667573
+}

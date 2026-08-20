@@ -1,0 +1,12 @@
+usage_usec 9862945
+user_usec 8453393
+system_usec 1409552
+core_sched.force_idle_usec 0
+nr_periods 834
+nr_throttled 2
+throttled_usec 409927
+nr_bursts 0
+burst_usec 0
+memory_current_bytes 9015296
+memory_peak_bytes 41136128
+pids_current 2

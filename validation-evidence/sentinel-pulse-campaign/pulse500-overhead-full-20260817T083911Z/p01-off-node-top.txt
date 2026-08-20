@@ -1,0 +1,2 @@
+NAME                CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+k8s-worker1.local   3838m        47%      15138Mi         23%         

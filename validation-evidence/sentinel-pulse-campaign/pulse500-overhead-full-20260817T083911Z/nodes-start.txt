@@ -1,0 +1,7 @@
+NAME                STATUS   ROLES           AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+k8s-master.local    Ready    control-plane   133d   v1.34.10   10.1.16.234   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.4
+k8s-master2.local   Ready    control-plane   18d    v1.34.10   10.1.16.235   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-master3.local   Ready    control-plane   18d    v1.34.10   10.1.16.236   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-worker1.local   Ready    <none>          18d    v1.34.10   10.1.16.237   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.4
+k8s-worker3.local   Ready    <none>          18d    v1.34.10   10.1.16.239   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
+k8s-worker4.local   Ready    <none>          18d    v1.34.10   10.1.16.238   <none>        Ubuntu 24.04.4 LTS   6.8.0-137-generic   containerd://2.2.2
