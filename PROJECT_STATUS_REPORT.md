@@ -5923,3 +5923,13 @@ namespace `production` không có pod ở phase bất thường. Hai transient t
 finalizer/blind vẫn active, lần lượt trigger 11:25:46 và 11:26:30 UTC ngày
 21-08-2026. Đây vẫn là snapshot giữa kỳ, không phải `NORMAL_PASS` hoặc kết luận
 false-positive terminal.
+
+Blind packaging sau đó được làm self-contained tại commit `3cdff28`: decision
+policy, blind contract, implementation contract, C source và static binary đều
+được copy read-only vào evidence trước injection, kiểm checksum ngay khi stage
+và kiểm lại khi finalize. Runner/evaluator chỉ đọc bản staged, nên một checkout
+Git bên ngoài không thể âm thầm thay protocol giữa campaign. `FINAL_SHA256SUMS`
+bind toàn bộ protocol, source, binary, model/normal/blind result. Clean
+regression trên control plane tiếp tục đạt **420 passed, 2 warning**; blind
+worktree sạch và đã chuyển sang commit này. Snapshot sau deploy source có
+**1.132.488 normal decision, 0 alert, 0 restart**; A2 active repo vẫn không đổi.
