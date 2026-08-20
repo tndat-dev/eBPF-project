@@ -1,7 +1,7 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 17-08-2026
+**Snapshot cluster:** 20-08-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
 
@@ -16,6 +16,13 @@ window-start-to-decision p99 1,433 giây. Independent soak
 `semantic-envelope-soak-d1` đã terminal fail sau 1.386.260 decision vì 2 normal
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
+
+**Checkpoint formal hiện tại:** candidate A1 500 ms đã được đóng băng và formal
+normal soak A2 bắt đầu 11:20:46 UTC ngày 20-08-2026. Snapshot 15:31:38 UTC có
+1.080.654 decision trên ba worker, 0 alert, 0 restart và đạt 17,42% thời lượng
+24 giờ. Đây là số giữa kỳ, chưa phải bằng chứng không false positive. Finalizer
+và blind timer đã được arm fail-closed cho ngày 21-08-2026; blind source commit
+`51f214e` đạt 420 test pass và không tự promote.
 
 ## 1. Động cơ và phạm vi
 
@@ -1080,3 +1087,10 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   normal finalizer; service chỉ
   mở khi có `NORMAL_PASS`, chờ tối đa bốn giờ và dừng trên normal failure.
   Snapshot A2 mới nhất 253.458 decision/0 alert/0 restart, đạt 4,15% thời gian.
+- 20-08-2026: harden blind source lên commit `51f214e`: exact union của marker
+  controller và ba detector, checksum raw stream, ràng buộc run/model/policy/
+  workload/pod/cgroup/container cho alert, raw Tetragon identity và terminal
+  candidate gate. Detached regression trên control plane đạt 420 pass. Timer
+  blind đã trỏ đúng commit mới; active A2 repo/model/policy không thay đổi.
+  Snapshot 15:31:38 UTC đạt 1.080.654 decision/0 alert/0 restart, tương đương
+  4,181 giờ hay 17,42% formal soak 24 giờ; chưa được diễn giải là normal-pass.

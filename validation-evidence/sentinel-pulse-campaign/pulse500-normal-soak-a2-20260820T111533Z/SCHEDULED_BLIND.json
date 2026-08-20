@@ -15,9 +15,9 @@
   "normal_wait_timeout_seconds": 14400,
   "normal_evidence_run": "pulse500-normal-soak-a2-20260820T111533Z",
   "blind_run": "pulse500-blind-a1-20260821T112630Z",
-  "source_git_commit": "d50a84727afa30c324578312f8040d43c31eb8f7",
+  "source_git_commit": "51f214e6fe911a89da2aaaf23fc5658b01b878dd",
   "working_directory": "/home/dat/eBPF-project-blind-881ddff",
   "remote_runtime_root": "/home/dat/eBPF-project-pulse-blind",
   "automatic_promotion": false,
-  "notes": "The service waits for terminal NORMAL_PASS and cannot inject while the normal gate is closed. A control-plane reboot before trigger requires re-arming because the timer is transient."
+  "notes": "The service waits for terminal NORMAL_PASS and cannot inject while the normal gate is closed. The scheduled source verifies the exact distributed injection-marker union, model/policy/run/workload/pod/cgroup decision identity, raw Tetragon provenance and emits a non-promoting terminal candidate decision. A control-plane reboot before trigger requires re-arming because the timer is transient."
 }

@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-16
+**Ngày xác minh cluster gần nhất:** 2026-08-20
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234:/home/dat/ml-service`  
 **Phiên bản đang deploy:** Syscall Runtime Release V7, window 10 giây,
@@ -5890,3 +5890,30 @@ cuối cùng đạt **417 passed, 2 warning**.
 
 Snapshot kế tiếp lúc 12:20:33 UTC ghi **253.458 decision, 0 alert, 0 restart**
 và khoảng **4,15%** clock 24 giờ. Con số này tiếp tục chỉ là quan sát giữa kỳ.
+
+### 18.141 Khóa marker phân tán và terminal decision cho blind A2 (20-08-2026)
+
+Blind lifecycle được harden tại commit `51f214e`: mỗi decision nay mang cả
+`run_id`, workload key, cgroup ID, pod name/UID, node và container. Evaluator
+không chấp nhận chỉ trùng injection ID; toàn bộ danh tính decision phải khớp
+marker controller, model manifest và decision-policy checksum. Ba bản
+`injections.jsonl` phía detector được snapshot, checksum và kiểm tra để union
+phải bằng chính xác marker log phía controller, không thiếu, thừa, trùng hoặc
+thay đổi record. Candidate finalizer cũng fail-closed nếu run identity hoặc
+blind evidence-integrity gate không đạt. Lỗi lifecycle dừng collector/detector,
+xóa `ACTIVE` và ghi `LIFECYCLE_FAILED`; lỗi đóng gói ghi `FINALIZE_FAILED`.
+Không có đường tự động promote.
+
+Clean detached worktree trên control plane chạy **420 passed, 2 warning** trong
+21,12 giây. Worktree mà blind timer sẽ thực thi đã chuyển sang đúng commit
+`51f214e6fe911a89da2aaaf23fc5658b01b878dd`; repo đang phục vụ A2 vẫn giữ
+commit đóng băng `9911d8e` và raw evidence, không bị hot-update.
+
+Snapshot trực tiếp lúc **15:31:38 UTC**: worker1/worker3/worker4 lần lượt có
+432.271/264.675/383.708 decision, tổng **1.080.654 decision, 0 alert, 0
+restart**; cả sáu collector/detector đều active. A2 đã đi qua **4,181 giờ**, hay
+**17,42%** clock 24 giờ. Cluster có 6/6 node Ready, Kubernetes v1.34.10 và
+namespace `production` không có pod ở phase bất thường. Hai transient timer
+finalizer/blind vẫn active, lần lượt trigger 11:25:46 và 11:26:30 UTC ngày
+21-08-2026. Đây vẫn là snapshot giữa kỳ, không phải `NORMAL_PASS` hoặc kết luận
+false-positive terminal.
