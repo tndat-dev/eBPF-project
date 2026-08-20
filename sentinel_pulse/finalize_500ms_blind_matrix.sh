@@ -6,6 +6,8 @@ EVIDENCE_ROOT=${1:?usage: finalize_500ms_blind_matrix.sh EVIDENCE_ROOT}
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project-pulse-blind}
 ATTACK_CONTRACT=${ATTACK_CONTRACT:-$LOCAL_ROOT/sentinel_pulse/protocol/blind-attack-contract.json}
+POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
+NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:?point to the passed formal normal soak}
 PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
 SSH_USER=${SSH_USER:-dat}
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
@@ -18,7 +20,22 @@ test -f "$EVIDENCE_ROOT/kernel-events.jsonl"
 test -f "$EVIDENCE_ROOT/workers.txt"
 test ! -e "$EVIDENCE_ROOT/INFRA_FAILURE.json"
 test ! -e "$EVIDENCE_ROOT/BLIND_RESULT.json"
+test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"
+test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json"
+test -f "$NORMAL_EVIDENCE_ROOT/SOAK_START.json"
+test -f "$EVIDENCE_ROOT/model/manifest.json"
+test -f "$POLICY_SOURCE"
 jq -e '.matrix_complete == true and .completed_injections == .expected_injections' "$EVIDENCE_ROOT/REPORT.json" >/dev/null
+
+complete=false
+on_exit() {
+  local rc=$?
+  if [[ $complete != true ]]; then
+    printf 'failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" \
+      >"$EVIDENCE_ROOT/FINALIZE_FAILED"
+  fi
+}
+trap on_exit EXIT
 
 remote_sudo() {
   local host=$1; shift
@@ -27,7 +44,7 @@ remote_sudo() {
 }
 
 mkdir -p "$EVIDENCE_ROOT/workers"
-declare -a hosts decision_paths
+declare -a hosts decision_paths remote_injection_paths
 while read -r host node feature injections; do
   [[ $feature == /var/lib/sentinel-pulse-500ms/runs/*/features.jsonl ]]
   [[ $injections == /var/lib/sentinel-pulse-detector/runs/*/injections.jsonl ]]
@@ -61,19 +78,30 @@ while read -r host node feature injections; do
     "sudo -S -p '' tar -C / -cf - '${capture_dir#/}' '${detector_dir#/}'" | \
     tar -C "$destination" -xf -
   decisions="$destination/${detector_dir#/}/decisions.jsonl"
+  remote_injections="$destination/${detector_dir#/}/injections.jsonl"
   test -s "$decisions"
+  test -s "$remote_injections"
   test -f "$destination/${detector_dir#/}/alerts.jsonl"
   test -s "$destination/${capture_dir#/}/features.jsonl"
   decision_paths+=("$decisions")
+  remote_injection_paths+=("$remote_injections")
 done <"$EVIDENCE_ROOT/workers.txt"
 
 (
   cd "$EVIDENCE_ROOT"
   find workers -type f \( -name decisions.jsonl -o -name alerts.jsonl \
-    -o -name features.jsonl -o -name FINAL.json \) -print0 | sort -z | \
+    -o -name features.jsonl -o -name injections.jsonl \
+    -o -name FINAL.json \) -print0 | sort -z | \
     xargs -0 sha256sum
 ) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
+
+marker_args=()
+for path in "${remote_injection_paths[@]}"; do marker_args+=(--detector "$path"); done
+PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.verify_distributed_injections \
+  --controller "$EVIDENCE_ROOT/injections.jsonl" \
+  "${marker_args[@]}" \
+  --output "$EVIDENCE_ROOT/DISTRIBUTED_INJECTIONS.json"
 
 evaluation_args=()
 for path in "${decision_paths[@]}"; do evaluation_args+=(--decisions "$path"); done
@@ -84,15 +112,29 @@ PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.evaluate_latency \
   --kernel-events "$EVIDENCE_ROOT/kernel-events.jsonl" \
   --attack-contract "$ATTACK_CONTRACT" \
   --expected-injections 450 \
+  --run-id "$(jq -er '.run_id' "$EVIDENCE_ROOT/BLIND_START.json")" \
   --output "$EVIDENCE_ROOT/LATENCY_REPORT.json"
 evaluation_rc=$?
 set -e
 
-"$PYTHON" - "$EVIDENCE_ROOT" "$evaluation_rc" <<'PY'
+set +e
+PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.finalize_candidate \
+  --model-dir "$EVIDENCE_ROOT/model" \
+  --decision-policy "$POLICY_SOURCE" \
+  --soak-marker "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" \
+  --normal-report "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json" \
+  --attack-report "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
+  --expected-injections 450 \
+  --output "$EVIDENCE_ROOT/CANDIDATE_DECISION.json"
+candidate_rc=$?
+set -e
+
+"$PYTHON" - "$EVIDENCE_ROOT" "$evaluation_rc" "$candidate_rc" <<'PY'
 from datetime import datetime, timezone
 import hashlib, json, pathlib, sys
-root, rc = pathlib.Path(sys.argv[1]), int(sys.argv[2])
+root, rc, candidate_rc = pathlib.Path(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3])
 report = json.loads((root / "LATENCY_REPORT.json").read_text())
+candidate = json.loads((root / "CANDIDATE_DECISION.json").read_text())
 result = {
     "schema": "sentinel-pulse-blind-result-v1",
     "completed_at": datetime.now(timezone.utc).isoformat(),
@@ -102,6 +144,10 @@ result = {
     "detected_injections": report.get("detected_injections"),
     "recall": report.get("recall"),
     "kernel_to_alert_seconds": report.get("kernel_to_alert_seconds"),
+    "candidate_decision_exit_code": candidate_rc,
+    "candidate_status": candidate.get("status"),
+    "candidate_failed_gates": candidate.get("failed_gates"),
+    "eligible_for_overhead_evaluation": candidate.get("evidence_complete_for_accuracy_latency") is True,
     "automatic_promotion": False,
     "latency_report_sha256": hashlib.sha256((root / "LATENCY_REPORT.json").read_bytes()).hexdigest(),
 }
@@ -110,6 +156,10 @@ PY
 sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$EVIDENCE_ROOT/PLAN.json" \
   "$EVIDENCE_ROOT/REPORT.json" "$EVIDENCE_ROOT/injections.jsonl" \
   "$EVIDENCE_ROOT/kernel-events.jsonl" "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
+  "$EVIDENCE_ROOT/DISTRIBUTED_INJECTIONS.json" \
+  "$EVIDENCE_ROOT/CANDIDATE_DECISION.json" \
   "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
 rm -f "$EVIDENCE_ROOT/ACTIVE"
+rm -f "$EVIDENCE_ROOT/FINALIZE_FAILED"
+complete=true
 printf 'Pulse blind matrix finalized: evidence=%s evaluation_rc=%s\n' "$EVIDENCE_ROOT" "$evaluation_rc"

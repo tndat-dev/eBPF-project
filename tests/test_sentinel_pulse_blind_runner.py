@@ -113,9 +113,14 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert "MATRIX_COMPLETE" in runner
     assert "sentinel_pulse.evaluate_latency" in finalizer
     assert "--kernel-events" in finalizer
+    assert "verify_distributed_injections" in finalizer
+    assert "sentinel_pulse.finalize_candidate" in finalizer
+    assert "CANDIDATE_DECISION.json" in finalizer
+    assert "FINALIZE_FAILED" in finalizer
     assert "automatic_promotion" in finalizer
     assert "start_500ms_blind_matrix.sh" in lifecycle
     assert "finalize_500ms_blind_matrix.sh" in lifecycle
+    assert "LIFECYCLE_FAILED" in lifecycle
     assert 'NORMAL_EVIDENCE_ROOT/NORMAL_PASS' in waiter
     assert 'NORMAL_EVIDENCE_ROOT/FINALIZE_FAILED' in waiter
     assert "run_500ms_blind_campaign.sh" in waiter

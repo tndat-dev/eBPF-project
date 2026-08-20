@@ -116,12 +116,14 @@ def evaluate(
     injection_path: Path | None = None,
     attack_contract_path: Path | None = None,
     kernel_event_path: Path | None = None,
+    expected_run_id: str | None = None,
 ) -> dict:
     by_injection = {}
     processing = []
     inference = []
     model_identities = set()
     decision_policy_identities = set()
+    run_identities = set()
     paths = _decision_paths(path)
     for decision_path in paths:
         with decision_path.open(encoding="utf-8") as handle:
@@ -133,6 +135,7 @@ def evaluate(
                 policy_identity = record.get("decision_policy_sha256")
                 if policy_identity is not None:
                     decision_policy_identities.add(str(policy_identity))
+                run_identities.add(str(record.get("run_id", "")))
                 if "post_window_processing_seconds" in record:
                     processing.append(float(record["post_window_processing_seconds"]))
                 if "inference_ms" in record:
@@ -143,8 +146,8 @@ def evaluate(
                     injection_id = str(injection_id)
                     timestamp = float(alerted_at)
                     previous = by_injection.get(injection_id)
-                    if previous is None or timestamp < previous:
-                        by_injection[injection_id] = timestamp
+                    if previous is None or timestamp < float(previous["alerted_at"]):
+                        by_injection[injection_id] = record
 
     def summary(values):
         if not values:
@@ -188,11 +191,25 @@ def evaluate(
     missing_kernel_ids = sorted(expected_ids - event_ids) if expected_ids is not None else []
     unknown_kernel_ids = sorted(event_ids - expected_ids) if expected_ids is not None else []
     invalid_kernel_order = []
+    invalid_detection_identity = []
     injection_latency = []
     kernel_latency = []
     for injection_id in sorted(valid_ids):
-        alert_time = by_injection[injection_id]
+        detection = by_injection[injection_id]
+        alert_time = float(detection["alerted_at"])
         marker_time = float(markers[injection_id]["injected_at"]) if markers else None
+        if markers is not None and "workload_key" in markers[injection_id]:
+            marker = markers[injection_id]
+            expected_container = str(marker["workload_key"]).split(":", 1)[1]
+            if not (
+                str(detection.get("workload_key")) == str(marker.get("workload_key"))
+                and str(detection.get("cgroup_id")) == str(marker.get("cgroup_id"))
+                and str(detection.get("pod_name")) == str(marker.get("pod_name"))
+                and str(detection.get("pod_uid")) == str(marker.get("pod_uid"))
+                and str(detection.get("node_name")) == str(marker.get("node_name"))
+                and str(detection.get("container_name")) == expected_container
+            ):
+                invalid_detection_identity.append(injection_id)
         if marker_time is not None and alert_time >= marker_time:
             injection_latency.append(alert_time - marker_time)
         if events is not None and injection_id in events:
@@ -257,7 +274,8 @@ def evaluate(
         "detected_injections": detected,
         "missing_injection_ids": missing_ids,
         "unknown_detection_ids": unknown_ids,
-        "injection_identity_gate": not unknown_ids,
+        "invalid_detection_identity_ids": invalid_detection_identity,
+        "injection_identity_gate": not unknown_ids and not invalid_detection_identity,
         "missing_kernel_event_ids": missing_kernel_ids,
         "unknown_kernel_event_ids": unknown_kernel_ids,
         "invalid_kernel_event_order_ids": invalid_kernel_order,
@@ -284,6 +302,14 @@ def evaluate(
             else None
         ),
         "decision_policy_identity_gate": decision_policy_identity_gate,
+        "run_id": (
+            next(iter(run_identities)) if len(run_identities) == 1 else None
+        ),
+        "run_identity_gate": bool(
+            len(run_identities) == 1
+            and "" not in run_identities
+            and (expected_run_id is None or run_identities == {expected_run_id})
+        ),
         "recall": detected / expected if expected else 0.0,
         "injection_command_to_alert_seconds": summary(injection_latency),
         "kernel_to_alert_seconds": summary(kernel_latency),
@@ -300,6 +326,8 @@ def evaluate(
         and report["kernel_timestamp_gate"]
         and report["attack_matrix_gate"]
         and report["model_identity_gate"]
+        and report["decision_policy_identity_gate"]
+        and report["run_identity_gate"]
         and report["latency_gate_p99_le_2s"]
     )
     return report
@@ -312,6 +340,7 @@ def main() -> None:
     parser.add_argument("--injections", type=Path)
     parser.add_argument("--attack-contract", type=Path)
     parser.add_argument("--kernel-events", type=Path, required=True)
+    parser.add_argument("--run-id")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     report = evaluate(
@@ -320,6 +349,7 @@ def main() -> None:
         args.injections,
         args.attack_contract,
         args.kernel_events,
+        args.run_id,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["blind_evidence_valid"] else 1)

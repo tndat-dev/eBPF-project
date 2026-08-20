@@ -75,7 +75,7 @@ class PulseLatencyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "decisions.jsonl"
             records = [
-                {"schema": "sentinel-pulse-decision-v1", "model_manifest_sha256": "a" * 64, "decision_policy_sha256": "b" * 64, "injection_id": f"i{i}", "alerted_at": 10.0 + value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0}
+                {"schema": "sentinel-pulse-decision-v1", "model_manifest_sha256": "a" * 64, "decision_policy_sha256": "b" * 64, "run_id": "blind-test", "injection_id": f"i{i}", "alerted_at": 10.0 + value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0, "workload_key": "production/catalog:app", "cgroup_id": "7", "pod_name": "catalog-pod", "pod_uid": "pod-uid", "node_name": "worker", "container_name": "app"}
                 for i, value in enumerate((0.8, 1.0, 1.2))
             ]
             path.write_text("".join(json.dumps(item) + "\n" for item in records), encoding="utf-8")
@@ -153,6 +153,21 @@ class PulseLatencyTests(unittest.TestCase):
                 injection_path=injections,
                 attack_contract_path=contract,
                 kernel_event_path=kernel,
+                expected_run_id="blind-test",
+            )
+            mismatched = list(records)
+            mismatched[0] = {**mismatched[0], "pod_uid": "wrong-pod-uid"}
+            path.write_text(
+                "".join(json.dumps(item) + "\n" for item in mismatched),
+                encoding="utf-8",
+            )
+            invalid_identity_report = evaluate(
+                path,
+                expected_injections=3,
+                injection_path=injections,
+                attack_contract_path=contract,
+                kernel_event_path=kernel,
+                expected_run_id="blind-test",
             )
         self.assertTrue(report["latency_gate_p99_le_2s"])
         self.assertEqual(report["recall"], 1.0)
@@ -160,7 +175,12 @@ class PulseLatencyTests(unittest.TestCase):
         self.assertTrue(report["attack_matrix_gate"])
         self.assertTrue(report["blind_evidence_valid"])
         self.assertTrue(report["kernel_timestamp_gate"])
+        self.assertTrue(report["decision_policy_identity_gate"])
+        self.assertTrue(report["run_identity_gate"])
         self.assertEqual(report["kernel_to_alert_seconds"]["p50"], 1.0)
+        self.assertFalse(invalid_identity_report["injection_identity_gate"])
+        self.assertEqual(invalid_identity_report["invalid_detection_identity_ids"], ["i0"])
+        self.assertFalse(invalid_identity_report["blind_evidence_valid"])
 
     def test_unknown_detection_id_does_not_inflate_recall(self):
         with tempfile.TemporaryDirectory() as temporary:

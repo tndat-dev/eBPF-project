@@ -126,7 +126,9 @@ def build_decision(
             and normal.get("model_manifest_sha256") == model_manifest_sha256
         ),
         "expected_blind_injections": int(attack.get("expected_injections", -1)) == expected_injections,
+        "blind_evidence_integrity": attack.get("blind_evidence_valid") is True,
         "blind_injection_identity": attack.get("injection_identity_gate") is True,
+        "blind_run_identity": attack.get("run_identity_gate") is True,
         "blind_kernel_timestamp_identity": attack.get("kernel_timestamp_gate") is True,
         "blind_attack_matrix": attack.get("attack_matrix_gate") is True,
         "blind_attack_contract": (

@@ -95,6 +95,8 @@ class PulseFinalizerTests(unittest.TestCase):
                     "expected_injections": 450,
                     "detected_injections": 450,
                     "recall": 1.0,
+                    "blind_evidence_valid": True,
+                    "run_identity_gate": True,
                     "latency_gate_p99_le_2s": True,
                     "injection_identity_gate": True,
                     "kernel_timestamp_gate": True,
@@ -137,6 +139,17 @@ class PulseFinalizerTests(unittest.TestCase):
             attack.write_text(json.dumps(report), encoding="utf-8")
             decision = build_decision(model_dir, normal, attack, soak_marker_path=marker)
             self.assertIn("blind_model_identity", decision["failed_gates"])
+
+    def test_blind_run_identity_is_a_terminal_gate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            model_dir, normal, attack, marker = self._fixture(Path(temporary))
+            report = json.loads(attack.read_text())
+            report["run_identity_gate"] = False
+            report["blind_evidence_valid"] = False
+            attack.write_text(json.dumps(report), encoding="utf-8")
+            decision = build_decision(model_dir, normal, attack, soak_marker_path=marker)
+            self.assertIn("blind_run_identity", decision["failed_gates"])
+            self.assertIn("blind_evidence_integrity", decision["failed_gates"])
 
     def test_weakened_normal_protocol_cannot_pass_finalizer(self):
         with tempfile.TemporaryDirectory() as temporary:
