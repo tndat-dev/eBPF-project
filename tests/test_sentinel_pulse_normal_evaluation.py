@@ -1,4 +1,5 @@
 import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,6 +8,15 @@ from sentinel_pulse.evaluate_normal import evaluate, wilson_interval
 
 
 class PulseNormalEvaluationTests(unittest.TestCase):
+    @staticmethod
+    def _manifest(root: Path, *workloads: str) -> tuple[Path, str]:
+        path = root / "manifest.json"
+        path.write_text(
+            json.dumps({"workloads": {workload: {} for workload in workloads}}),
+            encoding="utf-8",
+        )
+        return path, hashlib.sha256(path.read_bytes()).hexdigest()
+
     def test_zero_alerts_still_reports_nonzero_confidence_upper_bound(self):
         lower, upper = wilson_interval(0, 1000)
         self.assertEqual(lower, 0.0)
@@ -15,12 +25,16 @@ class PulseNormalEvaluationTests(unittest.TestCase):
 
     def test_normal_gate_requires_duration_and_alert_budget(self):
         with tempfile.TemporaryDirectory() as temporary:
-            path = Path(temporary) / "normal.jsonl"
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app"
+            )
+            path = root / "normal.jsonl"
             records = [
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "normal",
-                    "model_manifest_sha256": "a" * 64,
+                    "model_manifest_sha256": manifest_sha256,
                     "workload_key": "production/catalog:app",
                     "window_end": float(index),
                 }
@@ -32,6 +46,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 maximum_alerts=0,
                 minimum_scored_windows=10,
                 minimum_duration_hours=9.0 / 3600.0,
+                model_manifest_path=manifest,
             )
             self.assertTrue(report["normal_gate"])
             self.assertEqual(report["alerts"], 0)
@@ -39,12 +54,16 @@ class PulseNormalEvaluationTests(unittest.TestCase):
 
     def test_many_parallel_windows_do_not_fake_wall_clock_duration(self):
         with tempfile.TemporaryDirectory() as temporary:
-            path = Path(temporary) / "short.jsonl"
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app"
+            )
+            path = root / "short.jsonl"
             records = [
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "normal",
-                    "model_manifest_sha256": "a" * 64,
+                    "model_manifest_sha256": manifest_sha256,
                     "workload_key": "production/catalog:app",
                     "window_end": float(index % 100),
                 }
@@ -52,7 +71,11 @@ class PulseNormalEvaluationTests(unittest.TestCase):
             ]
             path.write_text("".join(json.dumps(record) + "\n" for record in records), encoding="utf-8")
             report = evaluate(
-                path, maximum_alerts=0, minimum_scored_windows=1000, minimum_duration_hours=24.0
+                path,
+                maximum_alerts=0,
+                minimum_scored_windows=1000,
+                minimum_duration_hours=24.0,
+                model_manifest_path=manifest,
             )
             self.assertFalse(report["duration_gate"])
             self.assertFalse(report["normal_gate"])
@@ -75,19 +98,28 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             report = evaluate(
-                path, minimum_scored_windows=2, minimum_duration_hours=1.0 / 3600.0
+                path,
+                minimum_scored_windows=2,
+                minimum_duration_hours=1.0 / 3600.0,
+                model_manifest_path=self._manifest(
+                    Path(temporary), "production/catalog:app"
+                )[0],
             )
             self.assertFalse(report["model_identity_gate"])
             self.assertFalse(report["normal_gate"])
 
     def test_sparse_endpoints_do_not_fake_wall_clock_coverage(self):
         with tempfile.TemporaryDirectory() as temporary:
-            path = Path(temporary) / "sparse.jsonl"
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app"
+            )
+            path = root / "sparse.jsonl"
             records = [
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "normal",
-                    "model_manifest_sha256": "a" * 64,
+                    "model_manifest_sha256": manifest_sha256,
                     "workload_key": "production/catalog:app",
                     "window_end": end,
                 }
@@ -98,7 +130,10 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 encoding="utf-8",
             )
             report = evaluate(
-                path, minimum_scored_windows=2, minimum_duration_hours=24.0
+                path,
+                minimum_scored_windows=2,
+                minimum_duration_hours=24.0,
+                model_manifest_path=manifest,
             )
             self.assertTrue(report["duration_gate"])
             self.assertFalse(report["coverage_gate"])
@@ -106,12 +141,16 @@ class PulseNormalEvaluationTests(unittest.TestCase):
 
     def test_suppressed_raw_anomaly_is_scored_but_not_hidden_or_counted_as_alert(self):
         with tempfile.TemporaryDirectory() as temporary:
-            path = Path(temporary) / "suppressed.jsonl"
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app"
+            )
+            path = root / "suppressed.jsonl"
             records = [
                 {
                     "schema": "sentinel-pulse-decision-v1",
                     "status": "suppressed" if index == 5 else "normal",
-                    "model_manifest_sha256": "a" * 64,
+                    "model_manifest_sha256": manifest_sha256,
                     "decision_policy_sha256": "b" * 64,
                     "workload_key": "production/catalog:app",
                     "window_end": float(index),
@@ -127,6 +166,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 maximum_alerts=0,
                 minimum_scored_windows=10,
                 minimum_duration_hours=9.0 / 3600.0,
+                model_manifest_path=manifest,
             )
             self.assertTrue(report["normal_gate"])
             self.assertEqual(report["scored_windows"], 10)
@@ -137,13 +177,16 @@ class PulseNormalEvaluationTests(unittest.TestCase):
     def test_soak_marker_filters_early_rows_and_enforces_finalize_time(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app"
+            )
             marker = root / "SOAK_START.json"
             marker.write_text(
                 json.dumps(
                     {
                         "schema": "sentinel-pulse-semantic-soak-start-v4",
                         "blind_evaluation_started": False,
-                        "model_manifest_sha256": "a" * 64,
+                        "model_manifest_sha256": manifest_sha256,
                         "decision_policy_sha256": "b" * 64,
                         "run_id": "soak-test",
                         "started_not_before": "1970-01-01T00:01:40+00:00",
@@ -162,7 +205,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                         {
                             "schema": "sentinel-pulse-decision-v1",
                             "status": "normal",
-                            "model_manifest_sha256": "a" * 64,
+                            "model_manifest_sha256": manifest_sha256,
                             "decision_policy_sha256": "b" * 64,
                             "run_id": "soak-test",
                             "workload_key": "production/catalog:app",
@@ -180,6 +223,7 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 minimum_duration_hours=2.0 / 3600.0,
                 soak_marker_path=marker,
                 now=101.9,
+                model_manifest_path=manifest,
             )
             final = evaluate(
                 decisions,
@@ -187,12 +231,98 @@ class PulseNormalEvaluationTests(unittest.TestCase):
                 minimum_duration_hours=2.0 / 3600.0,
                 soak_marker_path=marker,
                 now=102.0,
+                model_manifest_path=manifest,
             )
             self.assertEqual(final["excluded_scored_windows_before_marker"], 1)
             self.assertFalse(early["marker_time_gate"])
             self.assertFalse(early["normal_gate"])
             self.assertTrue(final["soak_marker_gate"])
             self.assertTrue(final["normal_gate"])
+
+    def test_manifest_workload_set_is_mandatory_and_exact(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            manifest, manifest_sha256 = self._manifest(
+                root, "production/catalog:app", "production/order:app"
+            )
+            decisions = root / "normal.jsonl"
+            decisions.write_text(
+                "".join(
+                    json.dumps(
+                        {
+                            "schema": "sentinel-pulse-decision-v1",
+                            "status": "normal",
+                            "model_manifest_sha256": manifest_sha256,
+                            "workload_key": "production/catalog:app",
+                            "window_end": float(index),
+                        }
+                    )
+                    + "\n"
+                    for index in range(3)
+                ),
+                encoding="utf-8",
+            )
+            report = evaluate(
+                decisions,
+                minimum_scored_windows=3,
+                minimum_duration_hours=2.0 / 3600.0,
+                model_manifest_path=manifest,
+            )
+            self.assertFalse(report["expected_workload_gate"])
+            self.assertEqual(report["missing_workloads"], ["production/order:app"])
+            self.assertEqual(report["unexpected_workloads"], [])
+            self.assertFalse(report["normal_gate"])
+
+    def test_marker_cannot_pass_without_the_bound_model_manifest(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            marker = root / "SOAK_START.json"
+            marker.write_text(
+                json.dumps(
+                    {
+                        "schema": "sentinel-pulse-semantic-soak-start-v5",
+                        "blind_evaluation_started": False,
+                        "model_manifest_sha256": "a" * 64,
+                        "decision_policy_sha256": "b" * 64,
+                        "run_id": "soak-test",
+                        "started_not_before": "1970-01-01T00:00:00+00:00",
+                        "eligible_finalize_after": "1970-01-01T00:00:02+00:00",
+                        "minimum_duration_hours_per_workload": 2.0 / 3600.0,
+                        "minimum_coverage_ratio_per_workload": 0.95,
+                        "maximum_alerts": 0,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            decisions = root / "normal.jsonl"
+            decisions.write_text(
+                "".join(
+                    json.dumps(
+                        {
+                            "schema": "sentinel-pulse-decision-v1",
+                            "status": "normal",
+                            "model_manifest_sha256": "a" * 64,
+                            "decision_policy_sha256": "b" * 64,
+                            "run_id": "soak-test",
+                            "workload_key": "production/catalog:app",
+                            "window_end": float(index),
+                        }
+                    )
+                    + "\n"
+                    for index in range(3)
+                ),
+                encoding="utf-8",
+            )
+            report = evaluate(
+                decisions,
+                minimum_scored_windows=3,
+                minimum_duration_hours=2.0 / 3600.0,
+                soak_marker_path=marker,
+                now=2.0,
+            )
+            self.assertFalse(report["model_manifest_gate"])
+            self.assertFalse(report["expected_workload_gate"])
+            self.assertFalse(report["normal_gate"])
 
 
 if __name__ == "__main__":

@@ -83,6 +83,20 @@ def load_soak_marker(
     }
 
 
+def load_model_manifest(path: Path) -> dict:
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    workloads = manifest.get("workloads")
+    if not isinstance(workloads, dict) or not workloads:
+        raise ValueError("model manifest has no workload mapping")
+    expected = sorted(str(workload) for workload in workloads)
+    if any(not workload or workload == "unknown" for workload in expected):
+        raise ValueError("model manifest contains an invalid workload key")
+    return {
+        "sha256": sha256_file(path),
+        "expected_workloads": expected,
+    }
+
+
 def wilson_interval(successes: int, trials: int, z: float = 1.959963984540054) -> tuple[float, float]:
     if trials <= 0:
         return 0.0, 1.0
@@ -105,6 +119,7 @@ def evaluate(
     minimum_coverage_ratio: float = 0.95,
     soak_marker_path: Path | None = None,
     now: float | None = None,
+    model_manifest_path: Path | None = None,
 ) -> dict:
     if maximum_alerts < 0:
         raise ValueError("maximum alerts must be non-negative")
@@ -131,6 +146,11 @@ def evaluate(
             maximum_alerts,
         )
         if soak_marker_path is not None
+        else None
+    )
+    model_manifest = (
+        load_model_manifest(model_manifest_path)
+        if model_manifest_path is not None
         else None
     )
     with path.open(encoding="utf-8") as handle:
@@ -238,6 +258,28 @@ def evaluate(
     )
     run_identity_gate = len(run_identities) == 1 and bool(next(iter(run_identities), ""))
     run_id = next(iter(run_identities)) if run_identity_gate else None
+    observed_workloads = set(workload_reports)
+    expected_workloads = (
+        set(model_manifest["expected_workloads"])
+        if model_manifest is not None
+        else set()
+    )
+    missing_workloads = sorted(expected_workloads - observed_workloads)
+    unexpected_workloads = sorted(observed_workloads - expected_workloads)
+    expected_workload_gate = bool(
+        model_manifest is not None
+        and not missing_workloads
+        and not unexpected_workloads
+    )
+    model_manifest_gate = bool(
+        model_manifest is not None
+        and model_identity_gate
+        and model_manifest["sha256"] == model_manifest_sha256
+        and (
+            marker is None
+            or model_manifest["sha256"] == marker["model_manifest_sha256"]
+        )
+    )
     marker_time_gate = marker is not None and (
         datetime.now(timezone.utc).timestamp() if now is None else now
     ) >= marker["eligible_at"]
@@ -250,6 +292,7 @@ def evaluate(
         and decision_policy_sha256 == marker["decision_policy_sha256"]
         and run_identity_gate
         and run_id == marker["run_id"]
+        and model_manifest_gate
     )
     core_gate = (
         scored >= minimum_scored_windows
@@ -257,6 +300,8 @@ def evaluate(
         and duration_gate
         and coverage_gate
         and model_identity_gate
+        and model_manifest_gate
+        and expected_workload_gate
     )
     return {
         "schema": "sentinel-pulse-normal-soak-report-v1",
@@ -281,6 +326,15 @@ def evaluate(
         "statuses": dict(sorted(statuses.items())),
         "model_manifest_sha256": model_manifest_sha256,
         "model_identity_gate": model_identity_gate,
+        "model_manifest_input_sha256": (
+            model_manifest["sha256"] if model_manifest is not None else None
+        ),
+        "model_manifest_gate": model_manifest_gate,
+        "expected_workloads": sorted(expected_workloads),
+        "observed_workloads": sorted(observed_workloads),
+        "missing_workloads": missing_workloads,
+        "unexpected_workloads": unexpected_workloads,
+        "expected_workload_gate": expected_workload_gate,
         "decision_policy_sha256": decision_policy_sha256,
         "decision_policy_identity_gate": decision_policy_identity_gate,
         "run_id": run_id,
@@ -304,6 +358,7 @@ def main() -> None:
     parser.add_argument("--minimum-duration-hours", type=float, default=24.0)
     parser.add_argument("--minimum-coverage-ratio", type=float, default=0.95)
     parser.add_argument("--soak-marker", type=Path)
+    parser.add_argument("--model-manifest", type=Path)
     args = parser.parse_args()
     report = evaluate(
         args.decisions,
@@ -312,6 +367,7 @@ def main() -> None:
         args.minimum_duration_hours,
         args.minimum_coverage_ratio,
         args.soak_marker,
+        model_manifest_path=args.model_manifest,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["normal_gate"] else 1)

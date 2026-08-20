@@ -5800,3 +5800,13 @@ giây. Mốc sớm nhất được phép finalize là **11:20:46 UTC ngày 21-08
 (18:20:46 ICT), sau tối thiểu 24 giờ/workload; thời lượng dịch vụ đặt 90.000
 giây để có biên đóng gói. Các số đầu run chỉ là quan sát vận hành, **không phải
 kết luận normal-pass hoặc tuyên bố không false positive**.
+
+Audit activity sau launch xác nhận hai loadgen Ready/0 restart, ingress cùng
+các route health/product chính trả 200 và decision đã phủ **20/20 workload**.
+Các 400/401/404 và 503 của route chưa expose hoặc workload sandbox là error-mix
+đã freeze trong manifest/dataset, không phải sự cố mới. Audit finalizer cũng
+phát hiện gate cũ chỉ duyệt workload đã xuất hiện; code mới bắt buộc SHA của
+model manifest thật khớp marker/decision và tập workload quan sát phải bằng
+chính xác 20 key trong manifest. Thiếu hoặc thừa dù chỉ một workload đều làm
+`expected_workload_gate=false`; thay đổi này chỉ dùng lúc finalize, không sửa
+detector/model đang chạy.

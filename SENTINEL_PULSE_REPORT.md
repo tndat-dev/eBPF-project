@@ -778,6 +778,14 @@ feature source, alert hoặc cluster-health gate vi phạm. Mốc finalize sớm
 11:20:46 UTC ngày 21-08-2026 (18:20:46 ICT); vì vậy số liệu đầu run chỉ chứng
 minh launch đúng, chưa phải normal-pass hay bằng chứng không false positive.
 
+Activity audit sau launch ghi nhận hai loadgen Ready/0 restart và 20/20 workload
+đã có decision. HTTP 400/401/404 và 503 từ route chưa expose/workload sandbox là
+normal error-mix đã freeze, trong khi ingress, health và product route chính vẫn
+trả 200. Finalizer được harden thêm: nó bind file model manifest thật bằng
+SHA-256 và yêu cầu tập workload quan sát bằng chính xác tập 20 workload trong
+manifest; thiếu/thừa workload đều fail-closed thay vì chỉ duyệt những workload
+tình cờ xuất hiện.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -1002,3 +1010,5 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   `c4683505...`/policy `272e9119...`/commit `9911d8e...`. Poll đầu 3.301
   decision, 0 alert, 0 restart; chưa được finalize trước 21-08-2026 11:20:46
   UTC.
+- 20-08-2026: activity audit A2 đạt 20/20 workload. Normal finalizer bind model
+  manifest thật và fail nếu tập workload quan sát thiếu/thừa bất kỳ key nào.
