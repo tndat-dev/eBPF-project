@@ -154,6 +154,8 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("endpoint_uid|$endpoint_ip|Running", runner)
         self.assertIn("sentinel-pulse-detector-candidate.service", runner)
         self.assertIn("aggregate_500ms_overhead", runner)
+        self.assertIn('"node": sys.argv[12]', runner)
+        self.assertNotIn('"node": "k8s-worker1.local"', runner)
         self.assertNotIn("systemctl enable", runner)
 
     def test_capture_campaign_monitors_cluster_and_records_failure(self):

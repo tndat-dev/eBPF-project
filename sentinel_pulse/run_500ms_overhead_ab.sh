@@ -124,7 +124,7 @@ print(json.dumps(items))
 
 "$PYTHON" - "$protocol" "$campaign_id" "$MODE" "$url" \
   "$endpoint_pod" "$endpoint_uid" "$endpoint_ip" "$endpoint_image_id" \
-  "$repeats" "$duration" "$stabilization" "$phase_json" <<'PY'
+  "$repeats" "$duration" "$stabilization" "$WORKER_NODE" "$phase_json" <<'PY'
 import hashlib
 import json
 from pathlib import Path
@@ -160,13 +160,13 @@ payload = {
     "endpoint": {
         "url": sys.argv[4], "pod": sys.argv[5], "pod_uid": sys.argv[6],
         "pod_ip": sys.argv[7], "image_id": sys.argv[8],
-        "node": "k8s-worker1.local",
+        "node": sys.argv[12],
     },
     "benchmark": {"tool": "wrk", "threads": 2, "concurrency": 20,
                   "duration_seconds": int(sys.argv[10])},
     "repetitions_per_phase": int(sys.argv[9]),
     "stabilization_seconds": int(sys.argv[11]),
-    "phases": json.loads(sys.argv[12]),
+    "phases": json.loads(sys.argv[13]),
     "fixed_background": {
         "one_second_collector": "active",
         "candidate_detector": "inactive",
