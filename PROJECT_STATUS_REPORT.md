@@ -5812,3 +5812,13 @@ chính xác 20 key trong manifest. Thiếu hoặc thừa dù chỉ một workloa
 detector/model đang chạy. Sau khi đóng gói 8 semantic replay record thành fixture
 tracked có provenance SHA-256, clean-checkout regression đạt **406 passed, 2
 warning**; không còn phụ thuộc raw ignored trên VM.
+
+Finalizer formal mới hỗ trợ chấm trực tiếp ba decision file theo stream thay vì
+ghép một file nhiều GB. Sau mốc 24 giờ cộng biên 300 giây, nó kiểm lại health,
+alert, restart và candidate identity; dừng toàn bộ detector trước collector;
+finalize capture từng node; stream-copy raw không tạo archive trung gian; kiểm
+checksum; rồi mới chạy exact-workload/duration/coverage gate. Chỉ report có
+`normal_gate=true` và `expected_workload_gate=true` mới tạo `NORMAL_PASS`;
+`automatic_promotion=false`. Clean-checkout full regression sau thay đổi đạt
+**408 passed, 2 warning**. Với A2, thời điểm sớm nhất nên chạy finalizer là
+**11:25:46 UTC ngày 21-08-2026** (18:25:46 ICT).

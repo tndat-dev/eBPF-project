@@ -788,6 +788,14 @@ tình cờ xuất hiện. Tám semantic replay record cũng được chuyển th
 tracked, bind SHA-256 của ba source alert file; clean-checkout regression đạt
 **406 passed, 2 warning**.
 
+Finalizer formal nhận nhiều decision file và chấm chung ba worker theo stream,
+giữ SHA-256 riêng từng file cùng bundle digest. Sau mốc eligible cộng biên 300
+giây, nó đóng băng mọi detector trước collector, finalizes capture node, chuyển
+raw không tạo tar tạm và chỉ phát hành `NORMAL_PASS` nếu manifest/workload,
+duration, coverage, alert và identity gate cùng pass; không auto-promote. Full
+clean-checkout regression đạt **408 passed, 2 warning**. Mốc chạy sớm nhất cho
+A2 là 21-08-2026 11:25:46 UTC (18:25:46 ICT).
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -1014,3 +1022,6 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   UTC.
 - 20-08-2026: activity audit A2 đạt 20/20 workload. Normal finalizer bind model
   manifest thật và fail nếu tập workload quan sát thiếu/thừa bất kỳ key nào.
+- 20-08-2026: thêm multi-file formal finalizer ba worker, detector-first freeze,
+  streamed raw export, checksum và no-auto-promotion gate; clean regression 408
+  pass.
