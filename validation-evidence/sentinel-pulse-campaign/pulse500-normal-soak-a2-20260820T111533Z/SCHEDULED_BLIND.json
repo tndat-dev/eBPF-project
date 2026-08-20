@@ -1,0 +1,23 @@
+{
+  "schema": "sentinel-pulse-scheduled-blind-v1",
+  "armed_at": "2026-08-20T12:20:16Z",
+  "timer": "sentinel-pulse-a2-blind.timer",
+  "service": "sentinel-pulse-a2-blind.service",
+  "timer_state": "active",
+  "timer_persistent": true,
+  "timer_storage": "/run/systemd/transient",
+  "trigger_at": "2026-08-21T11:26:30Z",
+  "normal_interlock": "NORMAL_PASS",
+  "normal_failure_interlocks": [
+    "FAILED",
+    "FINALIZE_FAILED"
+  ],
+  "normal_wait_timeout_seconds": 14400,
+  "normal_evidence_run": "pulse500-normal-soak-a2-20260820T111533Z",
+  "blind_run": "pulse500-blind-a1-20260821T112630Z",
+  "source_git_commit": "881ddff",
+  "working_directory": "/home/dat/eBPF-project-blind-881ddff",
+  "remote_runtime_root": "/home/dat/eBPF-project-pulse-blind",
+  "automatic_promotion": false,
+  "notes": "The service waits for terminal NORMAL_PASS and cannot inject while the normal gate is closed. A control-plane reboot before trigger requires re-arming because the timer is transient."
+}

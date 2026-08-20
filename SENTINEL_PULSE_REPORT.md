@@ -826,6 +826,14 @@ attack label. Full clean regression tại commit `cbcdd66` đạt **417 passed, 
 warning**. Snapshot A2 lúc 12:12:52 UTC có 220.509 decision, 0 alert, 0 restart
 và mới đạt khoảng 3,62% clock 24 giờ; blind injection vẫn chưa chạy.
 
+Timer `sentinel-pulse-a2-blind.timer` đã được arm cho 11:26:30 UTC ngày
+21-08-2026 bằng detached source commit `881ddff`. Nó chờ `NORMAL_PASS` tối đa
+14.400 giây, dừng nếu normal finalizer ghi failure, và chỉ sau pass mới chạy
+trọn lifecycle start → 450-row matrix → three-worker freeze → evaluator v2.
+Schedule được lưu trong `SCHEDULED_BLIND.json`, không auto-promote. Vì timer
+transient, control-plane reboot trước trigger cần arm lại. Snapshot 12:20:33
+UTC: 253.458 decision, 0 alert, 0 restart, khoảng 4,15% clock 24 giờ.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -1062,3 +1070,6 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   binary checksum gate và evaluator v2 dùng Tetragon `process_exec` làm kernel
   timestamp. Production target/cgroup audit đạt 18/18; clean regression 417
   pass. A2 snapshot 220.509 decision/0 alert/0 restart, chưa đủ 24 giờ.
+- 20-08-2026: arm blind timer commit `881ddff` sau normal finalizer; service chỉ
+  mở khi có `NORMAL_PASS`, chờ tối đa bốn giờ và dừng trên normal failure.
+  Snapshot A2 mới nhất 253.458 decision/0 alert/0 restart, đạt 4,15% thời gian.
