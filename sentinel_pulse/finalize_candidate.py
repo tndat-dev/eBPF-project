@@ -85,7 +85,7 @@ def build_decision(
         _policy, decision_policy_sha256 = load_decision_policy(decision_policy_path)
     if normal.get("schema") != "sentinel-pulse-normal-soak-report-v1":
         raise ValueError("unsupported normal-soak report")
-    if attack.get("schema") != "sentinel-pulse-latency-report-v1":
+    if attack.get("schema") != "sentinel-pulse-latency-report-v2":
         raise ValueError("unsupported blind-attack report")
     normal_workloads = set(normal.get("workloads", {}))
     missing_normal = sorted(set(candidates) - normal_workloads)
@@ -127,6 +127,7 @@ def build_decision(
         ),
         "expected_blind_injections": int(attack.get("expected_injections", -1)) == expected_injections,
         "blind_injection_identity": attack.get("injection_identity_gate") is True,
+        "blind_kernel_timestamp_identity": attack.get("kernel_timestamp_gate") is True,
         "blind_attack_matrix": attack.get("attack_matrix_gate") is True,
         "blind_attack_contract": (
             attack.get("blind_attack_contract_sha256")
@@ -191,7 +192,10 @@ def build_decision(
             "blind_expected": attack.get("expected_injections"),
             "blind_detected": attack.get("detected_injections"),
             "blind_recall": attack.get("recall"),
-            "true_detection_latency_seconds": attack.get("true_detection_latency_seconds"),
+            "kernel_to_alert_seconds": attack.get("kernel_to_alert_seconds"),
+            "injection_command_to_alert_seconds": attack.get(
+                "injection_command_to_alert_seconds"
+            ),
             "inference_ms": attack.get("inference_ms"),
             "post_window_processing_seconds": attack.get("post_window_processing_seconds"),
         },

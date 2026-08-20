@@ -74,7 +74,7 @@ class PulseLatencyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary) / "decisions.jsonl"
             records = [
-                {"schema": "sentinel-pulse-decision-v1", "model_manifest_sha256": "a" * 64, "injection_id": f"i{i}", "true_detection_latency_seconds": value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0}
+                {"schema": "sentinel-pulse-decision-v1", "model_manifest_sha256": "a" * 64, "decision_policy_sha256": "b" * 64, "injection_id": f"i{i}", "alerted_at": 10.0 + value, "post_window_processing_seconds": 0.1, "inference_ms": 2.0}
                 for i, value in enumerate((0.8, 1.0, 1.2))
             ]
             path.write_text("".join(json.dumps(item) + "\n" for item in records), encoding="utf-8")
@@ -85,10 +85,13 @@ class PulseLatencyTests(unittest.TestCase):
                         {
                             "schema": "sentinel-pulse-injection-v1",
                             "injection_id": f"i{i}",
-                            "injected_at": 0.0,
+                            "injected_at": 9.9,
                             "workload_controller": "catalog",
                             "workload_key": "production/catalog:app",
                             "cgroup_id": 7,
+                            "node_name": "worker",
+                            "pod_name": "catalog-pod",
+                            "pod_uid": "pod-uid",
                             "scenario": "probe",
                             "seed": i + 1,
                             "rate_per_second": 6,
@@ -99,17 +102,43 @@ class PulseLatencyTests(unittest.TestCase):
             )
             contract = Path(temporary) / "contract.json"
             self._contract(contract)
+            kernel = Path(temporary) / "kernel.jsonl"
+            kernel.write_text(
+                "".join(
+                    json.dumps(
+                        {
+                            "schema": "sentinel-pulse-kernel-event-v1",
+                            "injection_id": f"i{i}",
+                            "kernel_event_at": 10.0,
+                            "source": "tetragon_process_exec",
+                            "exec_id": f"exec-{i}",
+                            "node_name": "worker",
+                            "pod_name": "catalog-pod",
+                            "pod_uid": "pod-uid",
+                            "workload_key": "production/catalog:app",
+                            "workload_controller": "catalog",
+                            "scenario": "probe",
+                            "seed": i + 1,
+                            "rate_per_second": 6,
+                        }
+                    ) + "\n"
+                    for i in range(3)
+                ), encoding="utf-8"
+            )
             report = evaluate(
                 path,
                 expected_injections=3,
                 injection_path=injections,
                 attack_contract_path=contract,
+                kernel_event_path=kernel,
             )
         self.assertTrue(report["latency_gate_p99_le_2s"])
         self.assertEqual(report["recall"], 1.0)
         self.assertTrue(report["injection_identity_gate"])
         self.assertTrue(report["attack_matrix_gate"])
         self.assertTrue(report["blind_evidence_valid"])
+        self.assertTrue(report["kernel_timestamp_gate"])
+        self.assertEqual(report["kernel_to_alert_seconds"]["p50"], 1.0)
 
     def test_unknown_detection_id_does_not_inflate_recall(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -121,7 +150,7 @@ class PulseLatencyTests(unittest.TestCase):
                         "schema": "sentinel-pulse-decision-v1",
                         "model_manifest_sha256": "a" * 64,
                         "injection_id": "not-in-contract",
-                        "true_detection_latency_seconds": 0.5,
+                        "alerted_at": 0.5,
                     }
                 ) + "\n", encoding="utf-8"
             )
@@ -139,6 +168,38 @@ class PulseLatencyTests(unittest.TestCase):
             self.assertEqual(report["recall"], 0.0)
             self.assertFalse(report["injection_identity_gate"])
             self.assertEqual(report["missing_injection_ids"], ["expected-1"])
+
+    def test_userspace_marker_alone_cannot_open_kernel_latency_gate(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            decisions = root / "decisions.jsonl"
+            decisions.write_text(
+                json.dumps(
+                    {
+                        "schema": "sentinel-pulse-decision-v1",
+                        "model_manifest_sha256": "a" * 64,
+                        "decision_policy_sha256": "b" * 64,
+                        "injection_id": "i0",
+                        "alerted_at": 11.0,
+                    }
+                ) + "\n",
+                encoding="utf-8",
+            )
+            injections = root / "injections.jsonl"
+            injections.write_text(
+                json.dumps(
+                    {
+                        "schema": "sentinel-pulse-injection-v1",
+                        "injection_id": "i0",
+                        "injected_at": 10.0,
+                    }
+                ) + "\n",
+                encoding="utf-8",
+            )
+            report = evaluate(decisions, injection_path=injections)
+            self.assertFalse(report["kernel_timestamp_gate"])
+            self.assertFalse(report["latency_gate_p99_le_2s"])
+            self.assertEqual(report["injection_command_to_alert_seconds"]["p50"], 1.0)
 
 
 if __name__ == "__main__":

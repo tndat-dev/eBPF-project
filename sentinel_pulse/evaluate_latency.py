@@ -1,9 +1,17 @@
-"""Summarize true injection-to-alert latency and fail the preregistered gate."""
+"""Summarize blind detection and independently timestamped kernel-to-alert latency.
+
+The live detector uses a pre-exec injection marker only to associate an alert
+with a frozen blind trial.  Paper latency is recomputed here from a separate
+Tetragon kernel event record; a userspace launch timestamp is never promoted
+to a kernel-to-alert claim.
+"""
 
 from __future__ import annotations
 
 import argparse
+from collections.abc import Iterable
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -32,34 +40,85 @@ def injection_ids(path: Path) -> set[str]:
     return set(injection_markers(path))
 
 
+def kernel_events(path: Path) -> dict[str, dict]:
+    """Load one immutable Tetragon event identity for every injection."""
+    result = {}
+    with path.open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, 1):
+            record = json.loads(line)
+            if record.get("schema") != "sentinel-pulse-kernel-event-v1":
+                continue
+            injection_id = str(record.get("injection_id", ""))
+            if not injection_id or injection_id in result:
+                raise ValueError(
+                    f"missing or duplicate kernel event identity at line {line_number}"
+                )
+            try:
+                timestamp = float(record["kernel_event_at"])
+            except (KeyError, TypeError, ValueError) as error:
+                raise ValueError(
+                    f"invalid kernel event timestamp at line {line_number}"
+                ) from error
+            if (
+                not math.isfinite(timestamp)
+                or record.get("source") != "tetragon_process_exec"
+                or not record.get("exec_id")
+                or not record.get("node_name")
+                or not record.get("pod_uid")
+            ):
+                raise ValueError(
+                    f"incomplete kernel event provenance at line {line_number}"
+                )
+            result[injection_id] = record
+    if not result:
+        raise ValueError("kernel event file has no valid Tetragon event")
+    return result
+
+
+def _decision_paths(path: Path | Iterable[Path]) -> list[Path]:
+    if isinstance(path, Path):
+        return [path]
+    paths = list(path)
+    if not paths:
+        raise ValueError("at least one blind decision source is required")
+    return paths
+
+
 def evaluate(
-    path: Path,
+    path: Path | Iterable[Path],
     expected_injections: int | None = None,
     injection_path: Path | None = None,
     attack_contract_path: Path | None = None,
+    kernel_event_path: Path | None = None,
 ) -> dict:
     by_injection = {}
     processing = []
     inference = []
     model_identities = set()
     decision_policy_identities = set()
-    with path.open(encoding="utf-8") as handle:
-        for line in handle:
-            record = json.loads(line)
-            if record.get("schema") != "sentinel-pulse-decision-v1":
-                continue
-            model_identities.add(str(record.get("model_manifest_sha256", "")))
-            policy_identity = record.get("decision_policy_sha256")
-            if policy_identity is not None:
-                decision_policy_identities.add(str(policy_identity))
-            if "post_window_processing_seconds" in record:
-                processing.append(float(record["post_window_processing_seconds"]))
-            if "inference_ms" in record:
-                inference.append(float(record["inference_ms"]))
-            if "injection_id" in record and "true_detection_latency_seconds" in record:
-                by_injection.setdefault(
-                    str(record["injection_id"]), float(record["true_detection_latency_seconds"])
-                )
+    paths = _decision_paths(path)
+    for decision_path in paths:
+        with decision_path.open(encoding="utf-8") as handle:
+            for line in handle:
+                record = json.loads(line)
+                if record.get("schema") != "sentinel-pulse-decision-v1":
+                    continue
+                model_identities.add(str(record.get("model_manifest_sha256", "")))
+                policy_identity = record.get("decision_policy_sha256")
+                if policy_identity is not None:
+                    decision_policy_identities.add(str(policy_identity))
+                if "post_window_processing_seconds" in record:
+                    processing.append(float(record["post_window_processing_seconds"]))
+                if "inference_ms" in record:
+                    inference.append(float(record["inference_ms"]))
+                injection_id = record.get("injection_id")
+                alerted_at = record.get("alerted_at")
+                if injection_id is not None and alerted_at is not None:
+                    injection_id = str(injection_id)
+                    timestamp = float(alerted_at)
+                    previous = by_injection.get(injection_id)
+                    if previous is None or timestamp < previous:
+                        by_injection[injection_id] = timestamp
 
     def summary(values):
         if not values:
@@ -73,6 +132,7 @@ def evaluate(
         }
 
     markers = injection_markers(injection_path) if injection_path is not None else None
+    events = kernel_events(kernel_event_path) if kernel_event_path is not None else None
     expected_ids = set(markers) if markers is not None else None
     contract = load_contract(attack_contract_path) if attack_contract_path is not None else None
     contract_matrix = expected_matrix(contract) if contract is not None else None
@@ -98,7 +158,43 @@ def evaluate(
     unknown_ids = sorted(observed_ids - expected_ids) if expected_ids is not None else []
     valid_ids = observed_ids & expected_ids if expected_ids is not None else observed_ids
     missing_ids = sorted(expected_ids - observed_ids) if expected_ids is not None else []
-    true_latency = [by_injection[injection_id] for injection_id in sorted(valid_ids)]
+    event_ids = set(events) if events is not None else set()
+    missing_kernel_ids = sorted(expected_ids - event_ids) if expected_ids is not None else []
+    unknown_kernel_ids = sorted(event_ids - expected_ids) if expected_ids is not None else []
+    invalid_kernel_order = []
+    injection_latency = []
+    kernel_latency = []
+    for injection_id in sorted(valid_ids):
+        alert_time = by_injection[injection_id]
+        marker_time = float(markers[injection_id]["injected_at"]) if markers else None
+        if marker_time is not None and alert_time >= marker_time:
+            injection_latency.append(alert_time - marker_time)
+        if events is not None and injection_id in events:
+            event = events[injection_id]
+            marker = markers[injection_id] if markers else {}
+            identity_fields = (
+                "node_name",
+                "pod_name",
+                "pod_uid",
+                "workload_key",
+                "workload_controller",
+                "scenario",
+                "seed",
+                "rate_per_second",
+            )
+            identity_matches = all(
+                str(event.get(field)) == str(marker.get(field))
+                for field in identity_fields
+            )
+            kernel_time = float(event["kernel_event_at"])
+            if (
+                not identity_matches
+                or alert_time < kernel_time
+                or (marker_time is not None and kernel_time < marker_time - 0.050)
+            ):
+                invalid_kernel_order.append(injection_id)
+            else:
+                kernel_latency.append(alert_time - kernel_time)
     detected = len(valid_ids)
     expected = (
         len(expected_ids)
@@ -119,9 +215,15 @@ def evaluate(
         )
     )
     report = {
-        "schema": "sentinel-pulse-latency-report-v1",
-        "decisions_sha256": sha256_file(path),
+        "schema": "sentinel-pulse-latency-report-v2",
+        "decision_sources": [
+            {"path": str(item), "sha256": sha256_file(item)} for item in paths
+        ],
+        "decisions_sha256": sha256_file(paths[0]) if len(paths) == 1 else None,
         "injections_sha256": sha256_file(injection_path) if injection_path is not None else None,
+        "kernel_events_sha256": (
+            sha256_file(kernel_event_path) if kernel_event_path is not None else None
+        ),
         "blind_attack_contract_sha256": (
             sha256_file(attack_contract_path) if attack_contract_path is not None else None
         ),
@@ -130,6 +232,15 @@ def evaluate(
         "missing_injection_ids": missing_ids,
         "unknown_detection_ids": unknown_ids,
         "injection_identity_gate": not unknown_ids,
+        "missing_kernel_event_ids": missing_kernel_ids,
+        "unknown_kernel_event_ids": unknown_kernel_ids,
+        "invalid_kernel_event_order_ids": invalid_kernel_order,
+        "kernel_timestamp_gate": bool(
+            expected_ids is not None
+            and events is not None
+            and event_ids == expected_ids
+            and not invalid_kernel_order
+        ),
         "attack_matrix_gate": (
             contract_matrix is not None and not missing_matrix and not unknown_matrix
         ),
@@ -148,14 +259,19 @@ def evaluate(
         ),
         "decision_policy_identity_gate": decision_policy_identity_gate,
         "recall": detected / expected if expected else 0.0,
-        "true_detection_latency_seconds": summary(true_latency),
+        "injection_command_to_alert_seconds": summary(injection_latency),
+        "kernel_to_alert_seconds": summary(kernel_latency),
+        # Compatibility field: in v2 this is present only when it is derived
+        # from independently recorded Tetragon kernel timestamps.
+        "true_detection_latency_seconds": summary(kernel_latency),
         "post_window_processing_seconds": summary(processing),
         "inference_ms": summary(inference),
     }
-    p99 = report["true_detection_latency_seconds"].get("p99")
+    p99 = report["kernel_to_alert_seconds"].get("p99")
     report["latency_gate_p99_le_2s"] = p99 is not None and p99 <= 2.0
     report["blind_evidence_valid"] = (
         report["injection_identity_gate"]
+        and report["kernel_timestamp_gate"]
         and report["attack_matrix_gate"]
         and report["model_identity_gate"]
         and report["latency_gate_p99_le_2s"]
@@ -165,14 +281,19 @@ def evaluate(
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--decisions", type=Path, required=True)
+    parser.add_argument("--decisions", type=Path, action="append", required=True)
     parser.add_argument("--expected-injections", type=int)
     parser.add_argument("--injections", type=Path)
     parser.add_argument("--attack-contract", type=Path)
+    parser.add_argument("--kernel-events", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     report = evaluate(
-        args.decisions, args.expected_injections, args.injections, args.attack_contract
+        args.decisions,
+        args.expected_injections,
+        args.injections,
+        args.attack_contract,
+        args.kernel_events,
     )
     args.output.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     raise SystemExit(0 if report["blind_evidence_valid"] else 1)

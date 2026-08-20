@@ -16,10 +16,15 @@ SERVICE=sentinel-pulse-detector-candidate.service
 RUNTIME_USER=sentinel-pulse-detector
 ENV_FILE=/etc/sentinel-pulse-detector-candidate.env
 DEPLOYMENT_ID=${DEPLOYMENT_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
+ENABLE_INJECTION_TRACKING=${ENABLE_INJECTION_TRACKING:-false}
 if [[ ! $DEPLOYMENT_ID =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "DEPLOYMENT_ID contains unsafe characters" >&2
   exit 2
 fi
+case "$ENABLE_INJECTION_TRACKING" in
+  true|false) ;;
+  *) echo "ENABLE_INJECTION_TRACKING must be true or false" >&2; exit 2 ;;
+esac
 
 test -f "$SOURCE_ROOT/sentinel_pulse/requirements-lock.txt"
 test -f "$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE"
@@ -120,6 +125,11 @@ install -d -o "$RUNTIME_USER" -g "$RUNTIME_USER" -m 0750 \
   "$run_dir"
 decision_path="$run_dir/decisions.jsonl"
 alert_path="$run_dir/alerts.jsonl"
+injection_path=/dev/null
+if [[ $ENABLE_INJECTION_TRACKING == true ]]; then
+  injection_path="$run_dir/injections.jsonl"
+  install -o root -g "$RUNTIME_USER" -m 0640 /dev/null "$injection_path"
+fi
 candidate_dir="$INSTALL_ROOT/models/$manifest_sha"
 if [[ ! -d "$candidate_dir" ]]; then
   stage=$(mktemp -d "$INSTALL_ROOT/models/.candidate-${manifest_sha}.XXXXXX")
@@ -200,6 +210,7 @@ env_stage=$(mktemp /etc/.sentinel-pulse-detector-candidate.XXXXXX)
   printf 'PULSE_FEATURES=%s\n' "$FEATURE_SOURCE"
   printf 'PULSE_DECISIONS=%s\n' "$decision_path"
   printf 'PULSE_ALERTS=%s\n' "$alert_path"
+  printf 'PULSE_INJECTIONS=%s\n' "$injection_path"
   printf 'PULSE_RUN_ID=%s\n' "$DEPLOYMENT_ID"
 } >"$env_stage"
 chmod 0644 "$env_stage"
@@ -242,7 +253,7 @@ if [[ "$observed_policy_sha" != "$policy_sha" ]]; then
   rollback_candidate
   exit 6
 fi
-printf 'candidate detector active: manifest=%s policy=%s run=%s decisions=%s alerts=%s\n' \
+printf 'candidate detector active: manifest=%s policy=%s run=%s decisions=%s alerts=%s injections=%s\n' \
   "$manifest_sha" "$policy_sha" "$DEPLOYMENT_ID" \
   "$(wc -l <"$decision_path")" \
-  "$(wc -l <"$alert_path" 2>/dev/null || printf 0)"
+  "$(wc -l <"$alert_path" 2>/dev/null || printf 0)" "$injection_path"

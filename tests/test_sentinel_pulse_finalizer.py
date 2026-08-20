@@ -87,7 +87,7 @@ class PulseFinalizerTests(unittest.TestCase):
         attack_path.write_text(
             json.dumps(
                 {
-                    "schema": "sentinel-pulse-latency-report-v1",
+                    "schema": "sentinel-pulse-latency-report-v2",
                     "model_manifest_sha256": model_manifest_sha256,
                     "model_identity_gate": True,
                     "blind_attack_contract_sha256": "c" * 64,
@@ -97,7 +97,9 @@ class PulseFinalizerTests(unittest.TestCase):
                     "recall": 1.0,
                     "latency_gate_p99_le_2s": True,
                     "injection_identity_gate": True,
-                    "true_detection_latency_seconds": {"p99": 1.6},
+                    "kernel_timestamp_gate": True,
+                    "kernel_to_alert_seconds": {"p99": 1.6},
+                    "injection_command_to_alert_seconds": {"p99": 1.7},
                     "inference_ms": {"p99": 4.0},
                     "post_window_processing_seconds": {"p99": 0.2},
                 }

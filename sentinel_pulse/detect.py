@@ -336,7 +336,7 @@ def main() -> None:
                     if marker is not None:
                         result["injection_id"] = marker["injection_id"]
                         result["injected_at"] = marker["injected_at"]
-                        result["true_detection_latency_seconds"] = max(
+                        result["injection_command_to_alert_seconds"] = max(
                             0.0, float(result["alerted_at"]) - float(marker["injected_at"])
                         )
                 decisions.write(json.dumps(result, separators=(",", ":")) + "\n")
