@@ -9,7 +9,7 @@ def marker():
     return {
         "schema": "sentinel-pulse-injection-v1",
         "injection_id": "blind-001",
-        "injected_at": 1787227200.0,
+        "injected_at": 1787224800.0,
         "duration_seconds": 8,
         "workload_controller": "catalog-service",
         "workload_key": "production/catalog-service:app",
