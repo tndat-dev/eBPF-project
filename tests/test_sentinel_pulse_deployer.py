@@ -138,6 +138,22 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("control-collector-at-experiment-end.systemd", metrics)
         self.assertIn("stopped_at_unix", metrics)
 
+    def test_formal_500ms_soak_is_preregistered_and_never_promotes(self):
+        script = (
+            ROOT / "sentinel_pulse" / "start_500ms_normal_soak.sh"
+        ).read_text()
+        marker = script.index('SOAK_START.json')
+        collector = script.index('install_500ms_experiment.sh')
+        self.assertLess(marker, collector)
+        self.assertIn('"automatic_promotion": False', script)
+        self.assertIn('"blind_evaluation_started": False', script)
+        self.assertIn("DURATION_SECONDS >= 86400", script)
+        self.assertIn("10.1.16.237|k8s-worker1.local", script)
+        self.assertIn("10.1.16.239|k8s-worker3.local", script)
+        self.assertIn("10.1.16.238|k8s-worker4.local", script)
+        self.assertIn("PULSE_FEATURES=$feature", script)
+        self.assertNotIn("systemctl enable", script)
+
     def test_loader_drops_sigterm_short_window_before_snapshot(self):
         source = (
             ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"

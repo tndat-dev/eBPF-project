@@ -20,8 +20,8 @@ ENV_DIR=/etc/sentinel-pulse
 ENV_FILE="$ENV_DIR/500ms-experiment.env"
 
 if [[ ! $DURATION_SECONDS =~ ^[0-9]+$ ]] ||
-   ((DURATION_SECONDS < 60 || DURATION_SECONDS > 3600)); then
-  echo "DURATION_SECONDS must be an integer from 60 through 3600" >&2
+   ((DURATION_SECONDS < 60 || DURATION_SECONDS > 90000)); then
+  echo "DURATION_SECONDS must be an integer from 60 through 90000" >&2
   exit 2
 fi
 if [[ ! $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]; then
