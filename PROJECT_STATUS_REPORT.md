@@ -5935,3 +5935,14 @@ regression trên control plane tiếp tục đạt **420 passed, 2 warning**. Co
 `BLIND_RESULT`, worker health/finalize snapshots và tự verify manifest cuối;
 blind worktree sạch hiện trỏ commit này. Snapshot sau deploy source có
 **1.132.488 normal decision, 0 alert, 0 restart**; A2 active repo vẫn không đổi.
+
+### 18.142 Sửa nguồn đo resource cho overhead production (20-08-2026)
+
+Audit harness A/B phát hiện `measure_phase.py` lấy `systemctl show` tại control
+plane dù Pulse collector/detector thực tế chạy trên worker. Throughput và HTTP
+latency cũ vẫn được đo từ đúng endpoint, nhưng systemd CPU/RAM snapshot cũ không
+được dùng làm claim resource của Pulse. Commit `594d051` bổ sung remote worker
+snapshot qua SSH, ghi host identity vào từng sample và runner truyền đúng
+`WORKER_HOST`. Focused test đạt 30 pass; clean full regression trên control
+plane tăng thành **421 passed, 2 warning**. Sửa này dành cho A/B replication sau
+accuracy/latency gate; không thay đổi hay khởi động service trong A2.

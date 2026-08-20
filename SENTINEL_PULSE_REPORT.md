@@ -1102,3 +1102,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   420 pass. A2 tiếp tục
   active với snapshot 1.132.488 decision/0 alert/0 restart; không hot-update
   candidate đang formal soak.
+- 20-08-2026: audit overhead xác định systemd resource snapshot cũ lấy nhầm
+  control plane thay vì worker. Commit `594d051` thêm `--systemd-host`, lấy
+  `CPUUsageNSec`/`MemoryCurrent` đúng node treatment và ghi host vào evidence.
+  Throughput/HTTP latency cũ không bị thay đổi nhưng systemd CPU/RAM cũ không
+  được dùng làm claim. Full regression đạt 421 pass; A2 không bị can thiệp.
