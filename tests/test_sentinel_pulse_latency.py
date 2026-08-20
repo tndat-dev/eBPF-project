@@ -1,4 +1,5 @@
 import json
+import hashlib
 import tempfile
 import unittest
 from pathlib import Path
@@ -103,25 +104,46 @@ class PulseLatencyTests(unittest.TestCase):
             contract = Path(temporary) / "contract.json"
             self._contract(contract)
             kernel = Path(temporary) / "kernel.jsonl"
+            def kernel_record(index):
+                raw = {
+                    "process_exec": {
+                        "process": {
+                            "exec_id": f"exec-{index}",
+                            "binary": "/tmp/sentinel-runtime-attack-blind",
+                            "pod": {
+                                "namespace": "production",
+                                "name": "catalog-pod",
+                                "uid": "pod-uid",
+                            },
+                        }
+                    },
+                    "node_name": "worker",
+                    "time": "1970-01-01T00:00:10.000000000Z",
+                }
+                canonical = json.dumps(
+                    raw, sort_keys=True, separators=(",", ":")
+                ).encode()
+                return {
+                    "schema": "sentinel-pulse-kernel-event-v1",
+                    "injection_id": f"i{index}",
+                    "kernel_event_at": 10.0,
+                    "source": "tetragon_process_exec",
+                    "exec_id": f"exec-{index}",
+                    "node_name": "worker",
+                    "pod_name": "catalog-pod",
+                    "pod_uid": "pod-uid",
+                    "workload_key": "production/catalog:app",
+                    "workload_controller": "catalog",
+                    "scenario": "probe",
+                    "seed": index + 1,
+                    "rate_per_second": 6,
+                    "binary": "/tmp/sentinel-runtime-attack-blind",
+                    "raw_event_sha256": hashlib.sha256(canonical).hexdigest(),
+                    "raw_event": raw,
+                }
             kernel.write_text(
                 "".join(
-                    json.dumps(
-                        {
-                            "schema": "sentinel-pulse-kernel-event-v1",
-                            "injection_id": f"i{i}",
-                            "kernel_event_at": 10.0,
-                            "source": "tetragon_process_exec",
-                            "exec_id": f"exec-{i}",
-                            "node_name": "worker",
-                            "pod_name": "catalog-pod",
-                            "pod_uid": "pod-uid",
-                            "workload_key": "production/catalog:app",
-                            "workload_controller": "catalog",
-                            "scenario": "probe",
-                            "seed": i + 1,
-                            "rate_per_second": 6,
-                        }
-                    ) + "\n"
+                    json.dumps(kernel_record(i)) + "\n"
                     for i in range(3)
                 ), encoding="utf-8"
             )

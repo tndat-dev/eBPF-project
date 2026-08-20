@@ -94,6 +94,7 @@ def _candidate(
         "raw_event_sha256": hashlib.sha256(
             json.dumps(record, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
+        "raw_event": record,
     }
 
 

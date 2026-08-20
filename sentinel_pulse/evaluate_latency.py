@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 from collections.abc import Iterable
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -18,6 +19,7 @@ import numpy as np
 
 from .blind_contract import expected_matrix, load_contract, marker_matrix_key
 from .integrity import sha256_file
+from .tetragon_evidence import timestamp as tetragon_timestamp
 
 
 def injection_markers(path: Path) -> dict[str, dict]:
@@ -69,6 +71,30 @@ def kernel_events(path: Path) -> dict[str, dict]:
                 raise ValueError(
                     f"incomplete kernel event provenance at line {line_number}"
                 )
+            raw = record.get("raw_event")
+            if not isinstance(raw, dict):
+                raise ValueError(f"missing raw Tetragon event at line {line_number}")
+            canonical = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+            if hashlib.sha256(canonical).hexdigest() != record.get("raw_event_sha256"):
+                raise ValueError(f"raw Tetragon event checksum mismatch at line {line_number}")
+            event = raw.get("process_exec")
+            process = event.get("process") if isinstance(event, dict) else None
+            pod = process.get("pod") if isinstance(process, dict) else None
+            if (
+                not isinstance(pod, dict)
+                or process.get("exec_id") != record.get("exec_id")
+                or process.get("binary") != record.get("binary")
+                or raw.get("node_name") != record.get("node_name")
+                or pod.get("name") != record.get("pod_name")
+                or pod.get("uid") != record.get("pod_uid")
+                or pod.get("namespace") != "production"
+            ):
+                raise ValueError(f"raw Tetragon event identity mismatch at line {line_number}")
+            raw_timestamp = tetragon_timestamp(
+                str(raw.get("time") or process.get("start_time"))
+            )
+            if abs(raw_timestamp - timestamp) > 1e-6:
+                raise ValueError(f"raw Tetragon event timestamp mismatch at line {line_number}")
             result[injection_id] = record
     if not result:
         raise ValueError("kernel event file has no valid Tetragon event")

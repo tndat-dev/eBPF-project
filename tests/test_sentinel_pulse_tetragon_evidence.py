@@ -55,6 +55,7 @@ def test_exact_tetragon_exec_becomes_kernel_latency_origin():
     assert result["source"] == "tetragon_process_exec"
     assert result["exec_id"] == "node:clock:pid"
     assert result["raw_event_sha256"]
+    assert result["raw_event"]["process_exec"]["process"]["pid"] == 4321
 
 
 def test_wrong_pod_or_arguments_cannot_be_used_as_latency_origin():
