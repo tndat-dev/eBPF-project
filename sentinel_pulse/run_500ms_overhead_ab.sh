@@ -213,6 +213,7 @@ for index in "${!phases[@]}"; do
     --max-failed-requests 0 --output-root "$output_root" \
     --experiment-id "$campaign_id" \
     --detector-unit sentinel-pulse-collector-500ms-experiment.service \
+    --systemd-host "$WORKER_HOST" --ssh-user "$SSH_USER" \
     --workload-namespace production \
     --workload-prefix aims-frontend- --workload-prefix api-gateway- \
     --workload-prefix auth-service- --workload-prefix cart-service- \

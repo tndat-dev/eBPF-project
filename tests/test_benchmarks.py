@@ -1,5 +1,6 @@
 import importlib.util
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -104,6 +105,24 @@ def test_resource_summary_aggregates_selected_workload_replicas():
     )
     assert result["cpu_millicores"]["median"] == 25
     assert result["memory_mib"]["median"] == 45
+
+
+def test_systemd_snapshot_can_target_the_worker_that_runs_the_unit():
+    completed = type(
+        "Completed", (),
+        {"stdout": "ActiveState=active\nMemoryCurrent=42\n", "stderr": ""},
+    )()
+    with patch.object(measure_phase.subprocess, "run", return_value=completed) as run:
+        result = measure_phase.systemd_snapshot(
+            "sentinel-pulse-collector-500ms-experiment.service",
+            "10.1.16.237",
+            "dat",
+        )
+    command = run.call_args.args[0]
+    assert command[:3] == ["sshpass", "-e", "ssh"]
+    assert "dat@10.1.16.237" in command
+    assert result["host"] == "10.1.16.237"
+    assert result["ActiveState"] == "active"
 
 
 def test_file_hash_binds_overhead_environment(tmp_path):

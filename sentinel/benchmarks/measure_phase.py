@@ -74,13 +74,19 @@ def top_snapshot():
     }
 
 
-def systemd_snapshot(unit="sentinel-detector"):
+def systemd_snapshot(unit="sentinel-detector", host=None, ssh_user="dat"):
+    command = [
+        "systemctl", "show", unit,
+        "-p", "MainPID", "-p", "ActiveState", "-p", "MemoryCurrent",
+        "-p", "CPUUsageNSec", "--no-pager",
+    ]
+    if host is not None:
+        command = [
+            "sshpass", "-e", "ssh", "-o", "StrictHostKeyChecking=no",
+            "-o", "ConnectTimeout=8", f"{ssh_user}@{host}", *command,
+        ]
     result = subprocess.run(
-        [
-            "systemctl", "show", unit,
-            "-p", "MainPID", "-p", "ActiveState", "-p", "MemoryCurrent",
-            "-p", "CPUUsageNSec", "--no-pager",
-        ],
+        command,
         text=True, capture_output=True,
     )
     values = {}
@@ -88,7 +94,7 @@ def systemd_snapshot(unit="sentinel-detector"):
         if "=" in line:
             key, value = line.split("=", 1)
             values[key] = value
-    return {"ts": time.time(), "unit": unit, **values,
+    return {"ts": time.time(), "unit": unit, "host": host, **values,
             "error": result.stderr.strip()}
 
 
@@ -206,6 +212,8 @@ def main() -> int:
     parser.add_argument("--experiment-id", required=True,
                         help="Binds all phases in one controlled matrix run")
     parser.add_argument("--detector-unit", default="sentinel-detector")
+    parser.add_argument("--systemd-host")
+    parser.add_argument("--ssh-user", default="dat")
     parser.add_argument("--workload-namespace", default="production")
     parser.add_argument("--workload-prefix", action="append", default=[])
     parser.add_argument("--max-failed-requests", type=int, default=0)
@@ -228,6 +236,7 @@ def main() -> int:
         "top_snapshots": [],
         "systemd_snapshots": [],
         "detector_unit": args.detector_unit,
+        "systemd_host": args.systemd_host,
         "workload_namespace": args.workload_namespace,
         "workload_prefixes": args.workload_prefix or ["nginx-"],
     }
@@ -250,7 +259,9 @@ def main() -> int:
     }
     for run_id in range(1, args.repeats + 1):
         report["top_snapshots"].append(top_snapshot())
-        report["systemd_snapshots"].append(systemd_snapshot(args.detector_unit))
+        report["systemd_snapshots"].append(
+            systemd_snapshot(args.detector_unit, args.systemd_host, args.ssh_user)
+        )
         started = time.time()
         if args.tool == "wrk":
             command = [
@@ -274,7 +285,9 @@ def main() -> int:
             **(parse_wrk(result.stdout) if args.tool == "wrk" else parse_ab(result.stdout)),
         })
         report["top_snapshots"].append(top_snapshot())
-        report["systemd_snapshots"].append(systemd_snapshot(args.detector_unit))
+        report["systemd_snapshots"].append(
+            systemd_snapshot(args.detector_unit, args.systemd_host, args.ssh_user)
+        )
         time.sleep(2)
 
     for field in (
