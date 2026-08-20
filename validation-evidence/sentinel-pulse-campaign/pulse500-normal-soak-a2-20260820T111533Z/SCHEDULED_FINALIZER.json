@@ -1,0 +1,12 @@
+{
+  "automatic_promotion": false,
+  "finalizer_source_git_commit": "745a80e",
+  "model_manifest_sha256": "c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7",
+  "normal_soak_source_git_commit": "9911d8edff52cc26ba2031cbc47421d5fb324e5d",
+  "policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "run_id": "pulse500-normal-soak-a2-20260820T111533Z",
+  "scheduled_at": "2026-08-20T11:44:17Z",
+  "schema": "sentinel-pulse-normal-finalizer-schedule-v1",
+  "systemd_timer": "sentinel-pulse-a2-finalize.timer",
+  "trigger_at": "2026-08-21T11:25:46Z"
+}

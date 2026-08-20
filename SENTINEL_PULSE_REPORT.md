@@ -796,6 +796,12 @@ duration, coverage, alert và identity gate cùng pass; không auto-promote. Ful
 clean-checkout regression đạt **408 passed, 2 warning**. Mốc chạy sớm nhất cho
 A2 là 21-08-2026 11:25:46 UTC (18:25:46 ICT).
 
+Timer transient `sentinel-pulse-a2-finalize.timer` đã active/waiting trên
+control-plane, trigger đúng mốc 11:25:46 UTC và bind finalizer commit `745a80e`.
+Nó fail-closed nếu run/health không hợp lệ và không auto-promote. Vì unit nằm
+trong `/run/systemd/transient`, control-plane reboot trước trigger thì phải arm
+lại; provenance nằm trong `SCHEDULED_FINALIZER.json`.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -1025,3 +1031,5 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 - 20-08-2026: thêm multi-file formal finalizer ba worker, detector-first freeze,
   streamed raw export, checksum và no-auto-promotion gate; clean regression 408
   pass.
+- 20-08-2026: arm transient finalizer timer cho A2 tại 21-08-2026 11:25:46 UTC;
+  schedule bind commit/model/policy/run và giữ fail-closed.

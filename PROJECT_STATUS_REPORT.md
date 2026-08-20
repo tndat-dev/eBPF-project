@@ -5822,3 +5822,10 @@ checksum; rồi mới chạy exact-workload/duration/coverage gate. Chỉ report
 `automatic_promotion=false`. Clean-checkout full regression sau thay đổi đạt
 **408 passed, 2 warning**. Với A2, thời điểm sớm nhất nên chạy finalizer là
 **11:25:46 UTC ngày 21-08-2026** (18:25:46 ICT).
+
+Control-plane đã tạo transient timer `sentinel-pulse-a2-finalize.timer` lúc
+11:44:17 UTC, trạng thái `active (waiting)` và trigger đúng mốc trên. Timer chạy
+finalizer commit `745a80e`; nếu A2 mất `ACTIVE`, có `FAILED`, chưa đủ thời gian
+hoặc health gate lỗi thì thoát fail-closed. Schedule provenance được lưu tại
+`SCHEDULED_FINALIZER.json`; reboot control-plane trước trigger cần arm lại timer
+vì unit transient nằm trong `/run/systemd/transient`.
