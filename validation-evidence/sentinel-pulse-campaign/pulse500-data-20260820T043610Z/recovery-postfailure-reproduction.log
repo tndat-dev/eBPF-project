@@ -1,0 +1,29 @@
++ set -euo pipefail
++ REGIME=recovery
++ NAMESPACE=production
++ case "$REGIME" in
++ base_replicas=1
++ mix_replicas=0
++ dependency_replicas=1
++ sleep_seconds=2
++ kubectl -n production set env deployment/aims-sentinel-loadgen SLEEP_SECONDS=2
++ kubectl -n production set env deployment/aims-sentinel-readmix-loadgen SLEEP_SECONDS=2
++ kubectl -n production set env deployment/aims-sentinel-dependency-loadgen SLEEP_SECONDS=2
++ kubectl -n production scale deployment/aims-sentinel-loadgen --replicas=1
++ kubectl -n production scale deployment/aims-sentinel-readmix-loadgen --replicas=0
++ kubectl -n production scale deployment/aims-sentinel-dependency-loadgen --replicas=1
++ kubectl -n production annotate deployment aims-sentinel-loadgen sentinel.openai.dev/traffic-regime=recovery --overwrite
++ kubectl -n production annotate deployment aims-sentinel-readmix-loadgen sentinel.openai.dev/traffic-regime=recovery --overwrite
++ kubectl -n production annotate deployment aims-sentinel-dependency-loadgen sentinel.openai.dev/traffic-regime=recovery --overwrite
++ kubectl -n production rollout status deployment/aims-sentinel-loadgen --timeout=120s
+Waiting for deployment "aims-sentinel-loadgen" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aims-sentinel-loadgen" rollout to finish: 1 old replicas are pending termination...
+deployment "aims-sentinel-loadgen" successfully rolled out
++ ((  mix_replicas > 0  ))
++ ((  dependency_replicas > 0  ))
++ kubectl -n production rollout status deployment/aims-sentinel-dependency-loadgen --timeout=120s
+Waiting for deployment "aims-sentinel-dependency-loadgen" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "aims-sentinel-dependency-loadgen" rollout to finish: 1 old replicas are pending termination...
+deployment "aims-sentinel-dependency-loadgen" successfully rolled out
++ printf 'AIMS traffic regime=%s base_replicas=%d readmix_replicas=%d dependency_replicas=%d sleep=%ss\n' recovery 1 0 1 2
+AIMS traffic regime=recovery base_replicas=1 readmix_replicas=0 dependency_replicas=1 sleep=2s
