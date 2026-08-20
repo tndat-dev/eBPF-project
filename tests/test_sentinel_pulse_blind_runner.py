@@ -102,7 +102,11 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert ".normal_gate == true and .expected_workload_gate == true" in starter
     assert "ENABLE_INJECTION_TRACKING=true" in starter
     assert 'MODEL_STAGED="$EVIDENCE_ROOT/model"' in starter
+    assert 'PROTOCOL_STAGED="$EVIDENCE_ROOT/protocol"' in starter
+    assert "protocol/decision-policy.json" in starter
+    assert "protocol/runtime_attack_blind.c" in starter
     assert "sha256sum -c manifest.sha256" in starter
+    assert "sha256sum -c START_SHA256SUMS" in starter
     assert "runtime_attack_blind" in starter
     assert "automatic_promotion" in runner
     assert "automatic_rerun" in runner
@@ -114,12 +118,15 @@ def test_blind_lifecycle_is_interlocked_and_has_no_promotion_path():
     assert "sentinel_pulse.evaluate_latency" in finalizer
     assert "--kernel-events" in finalizer
     assert "verify_distributed_injections" in finalizer
+    assert 'EVIDENCE_ROOT/protocol/decision-policy.json' in finalizer
+    assert "sha256sum -c START_SHA256SUMS" in finalizer
     assert "sentinel_pulse.finalize_candidate" in finalizer
     assert "CANDIDATE_DECISION.json" in finalizer
     assert "FINALIZE_FAILED" in finalizer
     assert "automatic_promotion" in finalizer
     assert "start_500ms_blind_matrix.sh" in lifecycle
     assert "finalize_500ms_blind_matrix.sh" in lifecycle
+    assert 'EVIDENCE_ROOT/protocol/blind-attack-contract.json' in lifecycle
     assert "LIFECYCLE_FAILED" in lifecycle
     assert 'NORMAL_EVIDENCE_ROOT/NORMAL_PASS' in waiter
     assert 'NORMAL_EVIDENCE_ROOT/FINALIZE_FAILED' in waiter

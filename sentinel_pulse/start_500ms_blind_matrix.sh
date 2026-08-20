@@ -63,6 +63,17 @@ tetragon_ready=$(kubectl -n kube-system get pods -l app.kubernetes.io/name=tetra
    $longhorn_bad -eq 0 && $cnpg_bad -eq 0 && $tetragon_ready -eq 6 ]]
 
 mkdir -p "$EVIDENCE_ROOT"
+PROTOCOL_STAGED="$EVIDENCE_ROOT/protocol"
+mkdir -p "$PROTOCOL_STAGED"
+install -m 0444 "$POLICY_SOURCE" "$PROTOCOL_STAGED/decision-policy.json"
+install -m 0444 "$ATTACK_CONTRACT" "$PROTOCOL_STAGED/blind-attack-contract.json"
+install -m 0444 "$IMPLEMENTATION_CONTRACT" \
+  "$PROTOCOL_STAGED/attack-implementation-contract.json"
+install -m 0444 "$RUNTIME_SOURCE" "$PROTOCOL_STAGED/runtime_attack_blind.c"
+[[ $(sha256sum "$PROTOCOL_STAGED/decision-policy.json" | awk '{print $1}') == "$policy_sha" ]]
+[[ $(sha256sum "$PROTOCOL_STAGED/blind-attack-contract.json" | awk '{print $1}') == "$contract_sha" ]]
+[[ $(sha256sum "$PROTOCOL_STAGED/attack-implementation-contract.json" | awk '{print $1}') == "$implementation_sha" ]]
+[[ $(sha256sum "$PROTOCOL_STAGED/runtime_attack_blind.c" | awk '{print $1}') == "$source_sha" ]]
 MODEL_STAGED="$EVIDENCE_ROOT/model"
 mkdir -p "$MODEL_STAGED"
 rsync -a --checksum "$MODEL_SOURCE/" "$MODEL_STAGED/"
@@ -71,7 +82,8 @@ rsync -a --checksum "$MODEL_SOURCE/" "$MODEL_STAGED/"
 model_rel=${MODEL_STAGED#"$LOCAL_ROOT/"}
 [[ $model_rel != "$MODEL_STAGED" ]]
 binary="$EVIDENCE_ROOT/runtime_attack_blind"
-gcc -O2 -Wall -Wextra -Werror -static "$RUNTIME_SOURCE" -o "$binary"
+gcc -O2 -Wall -Wextra -Werror -static \
+  "$PROTOCOL_STAGED/runtime_attack_blind.c" -o "$binary"
 binary_sha=$(sha256sum "$binary" | awk '{print $1}')
 [[ $binary_sha == $(jq -er '.binary.sha256' "$IMPLEMENTATION_CONTRACT") ]]
 chmod 0444 "$binary"
@@ -140,9 +152,14 @@ for target in "${WORKERS[@]}"; do
   printf '%s %s %s %s\n' "$host" "$node" "$feature" "$injection_path" >>"$EVIDENCE_ROOT/workers.txt"
 done
 
-sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$binary" "$ATTACK_CONTRACT" \
-  "$IMPLEMENTATION_CONTRACT" "$MODEL_STAGED/manifest.json" "$POLICY_SOURCE" \
-  >"$EVIDENCE_ROOT/START_SHA256SUMS"
+(
+  cd "$EVIDENCE_ROOT"
+  sha256sum BLIND_START.json runtime_attack_blind model/manifest.json \
+    protocol/decision-policy.json protocol/blind-attack-contract.json \
+    protocol/attack-implementation-contract.json \
+    protocol/runtime_attack_blind.c
+) >"$EVIDENCE_ROOT/START_SHA256SUMS"
+(cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS)
 touch "$EVIDENCE_ROOT/ACTIVE"
 complete=true
 printf 'Pulse blind services active: run=%s evidence=%s\n' "$RUN_ID" "$EVIDENCE_ROOT"

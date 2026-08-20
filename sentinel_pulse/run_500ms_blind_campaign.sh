@@ -32,7 +32,7 @@ PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python \
   -m sentinel_pulse.run_500ms_blind_matrix \
   --evidence-root "$EVIDENCE_ROOT" \
   --model-dir "$EVIDENCE_ROOT/model" \
-  --attack-contract "$LOCAL_ROOT/sentinel_pulse/protocol/blind-attack-contract.json" \
-  --implementation-contract "$LOCAL_ROOT/ml-service/aims_blind_attack_contract.json"
+  --attack-contract "$EVIDENCE_ROOT/protocol/blind-attack-contract.json" \
+  --implementation-contract "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json"
 "$LOCAL_ROOT/sentinel_pulse/finalize_500ms_blind_matrix.sh" "$EVIDENCE_ROOT"
 complete=true

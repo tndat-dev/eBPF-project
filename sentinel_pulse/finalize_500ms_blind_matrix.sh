@@ -5,8 +5,8 @@ set -euo pipefail
 EVIDENCE_ROOT=${1:?usage: finalize_500ms_blind_matrix.sh EVIDENCE_ROOT}
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project-pulse-blind}
-ATTACK_CONTRACT=${ATTACK_CONTRACT:-$LOCAL_ROOT/sentinel_pulse/protocol/blind-attack-contract.json}
-POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
+ATTACK_CONTRACT=${ATTACK_CONTRACT:-$EVIDENCE_ROOT/protocol/blind-attack-contract.json}
+POLICY_SOURCE=${POLICY_SOURCE:-$EVIDENCE_ROOT/protocol/decision-policy.json}
 NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:?point to the passed formal normal soak}
 PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
 SSH_USER=${SSH_USER:-dat}
@@ -25,6 +25,20 @@ test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json"
 test -f "$NORMAL_EVIDENCE_ROOT/SOAK_START.json"
 test -f "$EVIDENCE_ROOT/model/manifest.json"
 test -f "$POLICY_SOURCE"
+test -f "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json"
+test -f "$EVIDENCE_ROOT/protocol/runtime_attack_blind.c"
+test -f "$EVIDENCE_ROOT/runtime_attack_blind"
+(cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS)
+[[ $(sha256sum "$ATTACK_CONTRACT" | awk '{print $1}') == \
+   $(jq -er '.blind_attack_contract_sha256' "$EVIDENCE_ROOT/BLIND_START.json") ]]
+[[ $(sha256sum "$POLICY_SOURCE" | awk '{print $1}') == \
+   $(jq -er '.decision_policy_sha256' "$EVIDENCE_ROOT/BLIND_START.json") ]]
+[[ $(sha256sum "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json" | awk '{print $1}') == \
+   $(jq -er '.attack_implementation_contract_sha256' "$EVIDENCE_ROOT/BLIND_START.json") ]]
+[[ $(sha256sum "$EVIDENCE_ROOT/protocol/runtime_attack_blind.c" | awk '{print $1}') == \
+   $(jq -er '.runtime_source_sha256' "$EVIDENCE_ROOT/BLIND_START.json") ]]
+[[ $(sha256sum "$EVIDENCE_ROOT/runtime_attack_blind" | awk '{print $1}') == \
+   $(jq -er '.runtime_binary_sha256' "$EVIDENCE_ROOT/BLIND_START.json") ]]
 jq -e '.matrix_complete == true and .completed_injections == .expected_injections' "$EVIDENCE_ROOT/REPORT.json" >/dev/null
 
 complete=false
@@ -158,6 +172,12 @@ sha256sum "$EVIDENCE_ROOT/BLIND_START.json" "$EVIDENCE_ROOT/PLAN.json" \
   "$EVIDENCE_ROOT/kernel-events.jsonl" "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
   "$EVIDENCE_ROOT/DISTRIBUTED_INJECTIONS.json" \
   "$EVIDENCE_ROOT/CANDIDATE_DECISION.json" \
+  "$EVIDENCE_ROOT/START_SHA256SUMS" \
+  "$EVIDENCE_ROOT/protocol/decision-policy.json" \
+  "$EVIDENCE_ROOT/protocol/blind-attack-contract.json" \
+  "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json" \
+  "$EVIDENCE_ROOT/protocol/runtime_attack_blind.c" \
+  "$EVIDENCE_ROOT/runtime_attack_blind" \
   "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
 rm -f "$EVIDENCE_ROOT/ACTIVE"
 rm -f "$EVIDENCE_ROOT/FINALIZE_FAILED"
