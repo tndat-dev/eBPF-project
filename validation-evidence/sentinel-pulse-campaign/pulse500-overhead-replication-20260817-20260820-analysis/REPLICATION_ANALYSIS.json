@@ -1,0 +1,151 @@
+{
+  "campaigns": [
+    {
+      "campaign_id": "pulse500-overhead-full-20260817T083911Z",
+      "endpoint_pod_uid": "a303be1b-aed7-4dfd-8eb9-a1303a97f758",
+      "frozen_index_files": 124,
+      "frozen_index_sha256": "f3cdc5b31f6f5d116dcba2d13eca286d705ac1745c80202f77423429484ca5e3",
+      "git_commit": "1bace7bf63a26a09713872e64e46de2dea65ec06",
+      "node": "k8s-worker1.local",
+      "paired_effects": {
+        "p99_latency_increase_percent": {
+          "count": 4,
+          "exact_two_sided_sign_flip_pvalue": 0.625,
+          "maximum": 5.6646775344038724,
+          "mean": 1.404853863134689,
+          "median": 2.256768862277636,
+          "minimum": -4.558799806420389
+        },
+        "throughput_loss_percent": {
+          "count": 4,
+          "exact_two_sided_sign_flip_pvalue": 0.125,
+          "maximum": -0.4675157182008727,
+          "mean": -1.9657312523971682,
+          "median": -0.6143579297793411,
+          "minimum": -6.166693431829118
+        }
+      },
+      "protocol_sha256": "3da2e7e7d4d942dde911d4e4d92a5b2158a36396e12a01aff38e0cfced8f9c5f",
+      "registered_date": "2026-08-17",
+      "result_sha256": "76626e252e274c4b091c91c2c24df8d793c4956314a9215fa262d36815345db9"
+    },
+    {
+      "campaign_id": "pulse500-overhead-full-20260820T035802Z",
+      "endpoint_pod_uid": "21be77b6-92b7-4bef-bc06-9fba092ce73e",
+      "frozen_index_files": 124,
+      "frozen_index_sha256": "9d307107f9e9eda8fedcf99540c946acf7b75ef69eb5dcbd859aa737434d3842",
+      "git_commit": "bf8a540169bc19a9c918c8d8beeb90fcb997d8c6",
+      "node": "k8s-worker4.local",
+      "paired_effects": {
+        "p99_latency_increase_percent": {
+          "count": 4,
+          "exact_two_sided_sign_flip_pvalue": 0.875,
+          "maximum": 7.764978275783219,
+          "mean": 0.8654858709223724,
+          "median": -0.0958154129322375,
+          "minimum": -4.111403966229254
+        },
+        "throughput_loss_percent": {
+          "count": 4,
+          "exact_two_sided_sign_flip_pvalue": 0.25,
+          "maximum": 0.442687747035575,
+          "mean": -2.94437852244776,
+          "median": -2.729287463805452,
+          "minimum": -6.761626909215712
+        }
+      },
+      "protocol_sha256": "ff05bbba316e4249dab4dc0cfcaf31adff14a059d3576c0dfa23e7dfde5f1576",
+      "registered_date": "2026-08-20",
+      "result_sha256": "bbbc3a7f21489236732f6669d1c37ae81742dacb3dfa05c3fccff8f08ae3501b"
+    }
+  ],
+  "exploratory_posthoc": true,
+  "independence": {
+    "campaigns": 2,
+    "cross_day": true,
+    "cross_endpoint_pod": true,
+    "cross_worker": true,
+    "dates": [
+      "2026-08-17",
+      "2026-08-20"
+    ],
+    "endpoint_pod_uids": [
+      "21be77b6-92b7-4bef-bc06-9fba092ce73e",
+      "a303be1b-aed7-4dfd-8eb9-a1303a97f758"
+    ],
+    "nodes": [
+      "k8s-worker1.local",
+      "k8s-worker4.local"
+    ]
+  },
+  "interpretation": {
+    "alpha": 0.05,
+    "equivalence_established": false,
+    "p99_latency_difference_significant": false,
+    "reason": "Cross-day/worker replication improves external validity, but no equivalence margin or power calculation was preregistered.",
+    "throughput_difference_significant": true
+  },
+  "limitations": [
+    "The synthesis code was finalized while the second campaign was running.",
+    "Both campaigns still use one cluster and one application endpoint class.",
+    "Failure to reject zero effect is not evidence of equivalence."
+  ],
+  "paired_effects": {
+    "p99_latency_increase_percent": {
+      "count": 8,
+      "exact_two_sided_sign_flip_pvalue": 0.4921875,
+      "maximum": 7.764978275783219,
+      "mean": 1.1351698670285306,
+      "median": 1.7804007783757791,
+      "minimum": -4.558799806420389
+    },
+    "throughput_loss_percent": {
+      "count": 8,
+      "exact_two_sided_sign_flip_pvalue": 0.015625,
+      "maximum": 0.442687747035575,
+      "mean": -2.455054887422464,
+      "median": -1.5819490685500814,
+      "minimum": -6.761626909215712
+    }
+  },
+  "schema": "sentinel-pulse-500ms-overhead-replication-analysis-v1",
+  "treatment_telemetry": {
+    "all_integrity_gates_passed": true,
+    "collector_cpu_cores": {
+      "count": 8,
+      "maximum": 0.055247329248083024,
+      "mean": 0.05254772390497301,
+      "median": 0.05283453490350286,
+      "minimum": 0.04903347905145559
+    },
+    "collector_memory_peak_bytes": {
+      "count": 8,
+      "maximum": 41168896.0,
+      "mean": 40602624.0,
+      "median": 40675328.0,
+      "minimum": 39849984.0
+    },
+    "ingest_lag_p99_seconds": {
+      "count": 8,
+      "maximum": 0.043297743797302245,
+      "mean": 0.037584412097930904,
+      "median": 0.03750430822372435,
+      "minimum": 0.032744121551513676
+    },
+    "interval_p99_seconds": {
+      "count": 8,
+      "maximum": 0.5094447135925293,
+      "mean": 0.5077943801879883,
+      "median": 0.5076900720596313,
+      "minimum": 0.5069334506988525
+    },
+    "rows": {
+      "count": 8,
+      "maximum": 5354.0,
+      "mean": 5034.5,
+      "median": 5042.5,
+      "minimum": 4711.0
+    },
+    "runs": 8
+  }
+}

@@ -5599,3 +5599,29 @@ replication preregistered khác ngày/worker/endpoint với equivalence margin; 
 chưa được rollout 500 ms hoặc dùng pilot để claim ML recall/kernel-to-alert.
 Regression đã xác nhận **104 Sentinel Pulse passed** và **385 passed, 2 warning**
 trên toàn repository.
+
+### 18.131 Replication overhead 500 ms cross-day/cross-worker (20-08-2026)
+
+Campaign thứ hai `pulse500-overhead-full-20260820T035802Z` chạy trên
+`k8s-worker4.local`/`10.1.16.238`, dùng ingress pod UID mới và bind commit
+`bf8a540...`. Nó hoàn tất 8/8 phase, 40/40 wrk repetition, zero request error,
+không có failure marker; 124/124 file khớp frozen index `9d307107...`. Median
+paired throughput loss ngày hai là -2,73% (`p=0,25`), median p99 change -0,10%
+(`p=0,875`).
+
+Synthesis hai ngày kiểm tra fail-closed cả hai frozen index, node và endpoint
+identity rồi gộp tám paired block. Throughput loss median **-1,58%**, mean
+-2,46%, exact sign-flip `p=0,015625`; dấu âm nghĩa là treatment đạt RPS cao hơn
+trong mẫu. P99 latency increase median **+1,78%**, mean +1,14%, `p=0,4921875`.
+Không được claim collector cải thiện performance hoặc zero overhead vì phương
+pháp synthesis được hoàn thiện trong lúc run thứ hai đang chạy, chưa có
+equivalence margin/power calculation và cả hai ngày vẫn thuộc một cluster.
+
+Tám treatment run có tổng 40.276 row; median CPU 0,0528 core, memory peak
+40.675.328 byte (38,79 MiB), interval p99 507,69 ms, ingest-lag p99 37,50 ms
+và zero integrity/drop error. Day-two analysis/index SHA-256
+`31e79b61...`/`963df205...`; replication analysis/index
+`4a82ea02...`/`129bb84e...`. Overhead gate được **pass có điều kiện chỉ để mở
+capture dataset 500 ms**; detector 500 ms, normal soak, blind recall và true
+kernel-to-alert vẫn chưa được xác nhận. Full regression đạt **387 passed,
+2 warning** deprecation Torch.

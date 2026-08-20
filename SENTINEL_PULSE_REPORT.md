@@ -584,6 +584,37 @@ kernel-to-alert hoặc attack recall. Sau khi thêm validator/phân tích pilot,
 Sentinel Pulse suite đạt **104 passed** và full regression đạt **385 passed,
 2 warning** deprecation Torch.
 
+### 7.17 Replication A/B cross-day và cross-worker
+
+Replication `pulse500-overhead-full-20260820T035802Z` chạy trên
+`k8s-worker4.local` (`10.1.16.238`) và ingress pod UID khác pilot ngày 17-08.
+Campaign hoàn tất 8/8 phase, 40/40 wrk run, zero request error, không có
+`FAILED.txt`; 124/124 artifact khớp frozen index SHA-256 `9d307107...`.
+Riêng ngày hai, median throughput loss là **-2,73%**, median p99 change
+**-0,10%**; exact sign-flip lần lượt `p=0,25` và `p=0,875`.
+
+Phân tích gộp hai ngày gồm tám cặp trên hai worker và hai ingress pod UID. Median
+throughput loss là **-1,58%** (mean -2,46%, `p=0,015625`), tức treatment 500 ms
+có RPS cao hơn trong mẫu. Median p99 latency increase là **+1,78%**
+(mean +1,14%, `p=0,4921875`). Kết quả throughput có ý nghĩa theo exact
+sign-flip test nhưng không được diễn giải thành collector làm ứng dụng nhanh
+hơn: statistical synthesis được hoàn thiện khi replication thứ hai đang chạy,
+cả hai run vẫn thuộc cùng một cluster và chưa có equivalence margin/power
+calculation đăng ký trước. `equivalence_established` vì vậy vẫn là `false`.
+
+Tám treatment phase sinh tổng **40.276 row**, median collector CPU 0,0528 core,
+memory peak median 40.675.328 byte (38,79 MiB), interval p99 median 507,69 ms
+và ingest-lag p99 median 37,50 ms; mọi integrity/drop gate bằng 0. Day-two
+analysis/index SHA-256 là `31e79b61...`/`963df205...`; cross-day
+analysis/index là `4a82ea02...`/`129bb84e...`.
+
+Hai replication đủ để **pass có điều kiện gate an toàn cho thu dataset 500 ms**,
+không đủ để rollout detector production hoặc claim overhead equivalence. Bước
+kế tiếp là capture bốn traffic regime trên ba worker, train/calibrate model
+500 ms riêng, normal soak và blind attack có marker để đo true
+kernel-to-alert. Full regression sau replication đạt **387 passed, 2 warning**
+deprecation Torch.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -777,3 +808,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   zero request error và 124/124 checksum hợp lệ. Median paired throughput loss
   -0,61%, p99 increase +2,26%; exact sign-flip `p=0,125/0,625`. Đây là pilot
   low-power, không phải bằng chứng equivalence; replication độc lập vẫn là gate.
+- 20-08-2026: replication trên worker4/ingress UID mới hoàn tất 8/8 phase,
+  40/40 wrk và 124/124 checksum. Gộp hai ngày/tám cặp cho throughput loss
+  median -1,58% (`p=0,015625`) và p99 increase +1,78% (`p=0,4921875`);
+  40.276 treatment row không có telemetry drop. Cho phép chuyển sang capture
+  dataset 500 ms, chưa cho phép rollout/model latency claim.

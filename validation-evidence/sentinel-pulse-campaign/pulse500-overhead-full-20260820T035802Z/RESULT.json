@@ -1,0 +1,155 @@
+{
+  "campaign_id": "pulse500-overhead-full-20260820T035802Z",
+  "effects": {
+    "p99_latency_increase": {
+      "bootstrap_95ci_percent": [
+        -4.111403966229254,
+        7.764978275783219
+      ],
+      "median_percent": -0.0958154129322375,
+      "pairs": 4,
+      "values_percent": [
+        7.764978275783219,
+        -4.111403966229254,
+        2.358902423314202,
+        -2.550533249178677
+      ]
+    },
+    "throughput_loss": {
+      "bootstrap_95ci_percent": [
+        -6.761626909215712,
+        0.442687747035575
+      ],
+      "median_percent": -2.729287463805452,
+      "pairs": 4,
+      "values_percent": [
+        -2.478660538411037,
+        -6.761626909215712,
+        -2.979914389199867,
+        0.442687747035575
+      ]
+    }
+  },
+  "inferential": true,
+  "limitations": [
+    "Treatment runs on one worker and targets its ingress pod directly.",
+    "Smoke mode validates machinery only and is not inferential evidence.",
+    "Service cgroup accounting does not capture all eBPF CPU charged to workloads."
+  ],
+  "mode": "full",
+  "pairs": [
+    {
+      "order": [
+        "off",
+        "on"
+      ],
+      "p99_latency_increase_percent": 7.764978275783219,
+      "pair": 1,
+      "throughput_loss_percent": -2.478660538411037
+    },
+    {
+      "order": [
+        "on",
+        "off"
+      ],
+      "p99_latency_increase_percent": -4.111403966229254,
+      "pair": 2,
+      "throughput_loss_percent": -6.761626909215712
+    },
+    {
+      "order": [
+        "on",
+        "off"
+      ],
+      "p99_latency_increase_percent": 2.358902423314202,
+      "pair": 3,
+      "throughput_loss_percent": -2.979914389199867
+    },
+    {
+      "order": [
+        "off",
+        "on"
+      ],
+      "p99_latency_increase_percent": -2.550533249178677,
+      "pair": 4,
+      "throughput_loss_percent": 0.442687747035575
+    }
+  ],
+  "protocol_sha256": "ff05bbba316e4249dab4dc0cfcaf31adff14a059d3576c0dfa23e7dfde5f1576",
+  "records": [
+    {
+      "condition": "off",
+      "index": 1,
+      "latency_p99_ms_median": 699.68,
+      "name": "p01-off",
+      "report": "p01-off-20260820T035822Z/report.json",
+      "report_sha256": "e2cf8dd90f54a97005588bcccdb66dedf6c0a23de88f79299c08bd9413a73b17",
+      "rps_median": 60.92
+    },
+    {
+      "condition": "on",
+      "index": 2,
+      "latency_p99_ms_median": 754.01,
+      "name": "p02-on",
+      "report": "p02-on-20260820T040133Z/report.json",
+      "report_sha256": "7bc04a484b795cdc10f900325d5aa8c78178d95ec93fbb75466e2ee9a34f7b95",
+      "rps_median": 62.43
+    },
+    {
+      "condition": "on",
+      "index": 3,
+      "latency_p99_ms_median": 680.32,
+      "name": "p03-on",
+      "report": "p03-on-20260820T040447Z/report.json",
+      "report_sha256": "412198fd0e402f14325e2c87b866513338df350f7b66abd4e371c1b89254ab7e",
+      "rps_median": 62.21
+    },
+    {
+      "condition": "off",
+      "index": 4,
+      "latency_p99_ms_median": 709.49,
+      "name": "p04-off",
+      "report": "p04-off-20260820T040755Z/report.json",
+      "report_sha256": "92370da1978e85c2ad79a542795fa4d65b5f78a025cf3e3076b90cc35eac90bf",
+      "rps_median": 58.27
+    },
+    {
+      "condition": "on",
+      "index": 5,
+      "latency_p99_ms_median": 715.11,
+      "name": "p05-on",
+      "report": "p05-on-20260820T041106Z/report.json",
+      "report_sha256": "2a75fc37bff5a79a6932f2b6ceb259c908fbf3349dab3269b07818ab8a0d555c",
+      "rps_median": 62.55
+    },
+    {
+      "condition": "off",
+      "index": 6,
+      "latency_p99_ms_median": 698.63,
+      "name": "p06-off",
+      "report": "p06-off-20260820T041414Z/report.json",
+      "report_sha256": "769519ec124f6c58fe5f426e7187c5907ecd224d43188feb76f0e890d18be8c8",
+      "rps_median": 60.74
+    },
+    {
+      "condition": "off",
+      "index": 7,
+      "latency_p99_ms_median": 617.91,
+      "name": "p07-off",
+      "report": "p07-off-20260820T041718Z/report.json",
+      "report_sha256": "f2cd6de14f44c189cfee70aff1cb7607f02f451a95710822d5827b20866d2c7a",
+      "rps_median": 63.25
+    },
+    {
+      "condition": "on",
+      "index": 8,
+      "latency_p99_ms_median": 602.15,
+      "name": "p08-on",
+      "report": "p08-on-20260820T042029Z/report.json",
+      "report_sha256": "a9198d02dcec2cb180916bdcab258ee1cfefd5a1cf36670031a978131058eeaf",
+      "rps_median": 62.97
+    }
+  ],
+  "schema": "sentinel-pulse-500ms-overhead-result-v1",
+  "valid": true
+}

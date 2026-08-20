@@ -1,0 +1,93 @@
+{
+  "automatic_promotion": false,
+  "benchmark": {
+    "concurrency": 20,
+    "duration_seconds": 30,
+    "threads": 2,
+    "tool": "wrk"
+  },
+  "campaign_id": "pulse500-overhead-full-20260820T035802Z",
+  "endpoint": {
+    "image_id": "docker.io/istio/proxyv2@sha256:76a2d37889220940767aa578926ba590185ace83993c5aaa491eb3150c20aff7",
+    "node": "k8s-worker4.local",
+    "pod": "aims-ingress-istio-5d4db857f-6twv7",
+    "pod_ip": "10.0.4.220",
+    "pod_uid": "21be77b6-92b7-4bef-bc06-9fba092ce73e",
+    "url": "http://10.0.4.220/api/products/"
+  },
+  "environment_sha256": {
+    "endpoint-pod.yaml": "bd28849b3756d070fe88e02a6caf5ea9e2e85bd89df7a3a96dcf1d0c0035d733",
+    "nodes-start.txt": "30570ba153a814ce3747d01d18fdcb14bb1c9dd2488d1b25cccc888dd9b5c9a4",
+    "production-pods-start.txt": "b7738ddd90ba52a225108ae174300e9489c35e9b64adc7075a3629665122edd5",
+    "traffic-generators.yaml": "67b5b0d4412831fd9c55df0879e4360b8ccdbe2a53d7fafe3112a213b8592631"
+  },
+  "fixed_background": {
+    "candidate_detector": "inactive",
+    "normal_load_generators": "unchanged",
+    "one_second_collector": "active"
+  },
+  "git_commit": "bf8a540169bc19a9c918c8d8beeb90fcb997d8c6",
+  "mode": "full",
+  "phases": [
+    {
+      "condition": "off",
+      "index": 1,
+      "name": "p01-off",
+      "treatment_run_id": null
+    },
+    {
+      "condition": "on",
+      "index": 2,
+      "name": "p02-on",
+      "treatment_run_id": "pulse500-overhead-full-20260820T035802Z-p02-on"
+    },
+    {
+      "condition": "on",
+      "index": 3,
+      "name": "p03-on",
+      "treatment_run_id": "pulse500-overhead-full-20260820T035802Z-p03-on"
+    },
+    {
+      "condition": "off",
+      "index": 4,
+      "name": "p04-off",
+      "treatment_run_id": null
+    },
+    {
+      "condition": "on",
+      "index": 5,
+      "name": "p05-on",
+      "treatment_run_id": "pulse500-overhead-full-20260820T035802Z-p05-on"
+    },
+    {
+      "condition": "off",
+      "index": 6,
+      "name": "p06-off",
+      "treatment_run_id": null
+    },
+    {
+      "condition": "off",
+      "index": 7,
+      "name": "p07-off",
+      "treatment_run_id": null
+    },
+    {
+      "condition": "on",
+      "index": 8,
+      "name": "p08-on",
+      "treatment_run_id": "pulse500-overhead-full-20260820T035802Z-p08-on"
+    }
+  ],
+  "quality_gate": "zero process/socket/non-2xx errors; endpoint UID/IP immutable",
+  "registered_at": "2026-08-20T03:58:06Z",
+  "repetitions_per_phase": 5,
+  "schema": "sentinel-pulse-500ms-overhead-protocol-v1",
+  "source_sha256": {
+    "sentinel/benchmarks/measure_phase.py": "107343ea0aa81426576f0d7906648fadcbbd1eba916e86653d2976e52308a2b5",
+    "sentinel_pulse/aggregate_500ms_overhead.py": "44e60730769216d46309a69eafd0a6de5d33bd9c326b2988dd08e4d500f3455b",
+    "sentinel_pulse/finalize_500ms_experiment.sh": "e07d1d8bd0363ef7367ca15c6fe8ae154104a20ea957f8014c03e9346d92bc56",
+    "sentinel_pulse/install_500ms_experiment.sh": "dffde9bfd01c849b80d6f849d3c16f06d2fde959c7c16b233c494c151835de6a",
+    "sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service": "e6717b90f6e8852a6e41aaf5832190941969fb293da161058ab53e2ccc5109fd"
+  },
+  "stabilization_seconds": 15
+}

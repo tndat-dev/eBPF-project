@@ -1,0 +1,62 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "50bdb9c7ed05342765caaffd5dc6bac96e2a6140557d53e9081785e34c385952",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.060363054275512695,
+    "p50": 0.013635635375976562,
+    "p95": 0.027358818054199204,
+    "p99": 0.03549049139022825
+  },
+  "interval_seconds": {
+    "max": 0.5089089870452881,
+    "p50": 0.5026183128356934,
+    "p95": 0.5055160522460938,
+    "p99": 0.5069334506988525
+  },
+  "path": "/var/lib/sentinel-pulse-500ms/runs/pulse500-overhead-full-20260820T035802Z-p08-on/features.jsonl",
+  "rows": 4722,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.00670743,
+    "p50": 0.001680851,
+    "p95": 0.004281282,
+    "p99": 0.005591869
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5654659271240234,
+    "p50": 0.5165544748306274,
+    "p95": 0.5307214379310607,
+    "p99": 0.5390935420989991
+  },
+  "workloads": {
+    "production/aims-frontend:web": 179,
+    "production/aims-kafka-dual-role:kafka": 369,
+    "production/aims-kafka-entity-operator:topic-operator": 369,
+    "production/aims-kafka-entity-operator:user-operator": 369,
+    "production/aims-minio-pool-0:minio": 321,
+    "production/aims-minio-pool-0:sidecar": 307,
+    "production/aims-postgres-cnpg:postgres": 369,
+    "production/aims-rabbitmq-server:rabbitmq": 369,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 369,
+    "production/api-gateway:app": 268,
+    "production/catalog-service:app": 358,
+    "production/inventory-service:app": 248,
+    "production/notification-service:pod-slice": 320,
+    "production/order-service:app": 253,
+    "production/security-telemetry-service:app": 254
+  }
+}

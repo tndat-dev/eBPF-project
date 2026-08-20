@@ -1,0 +1,15 @@
+Running 30s test @ http://10.0.4.220/api/products/
+  2 threads and 20 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   307.66ms  103.97ms 692.56ms   71.77%
+    Req/Sec    32.54     13.14    80.00     72.25%
+  Latency Distribution
+     50%  281.66ms
+     75%  395.22ms
+     90%  478.04ms
+     99%  578.02ms
+  1942 requests in 30.06s, 91.57MB read
+Requests/sec:     64.60
+Transfer/sec:      3.05MB
+
+STDERR

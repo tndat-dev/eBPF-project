@@ -1,0 +1,106 @@
+{
+  "campaign_id": "pulse500-overhead-full-20260820T035802Z",
+  "exploratory_posthoc": true,
+  "frozen_result_sha256": "bbbc3a7f21489236732f6669d1c37ae81742dacb3dfa05c3fccff8f08ae3501b",
+  "frozen_sha256sums_sha256": "9d307107f9e9eda8fedcf99540c946acf7b75ef69eb5dcbd859aa737434d3842",
+  "interpretation": {
+    "alpha": 0.05,
+    "equivalence_established": false,
+    "p99_latency_difference_significant": false,
+    "reason": "Four paired blocks from one cluster-day have low power; failure to reject zero effect is not evidence of equivalence.",
+    "throughput_difference_significant": false
+  },
+  "limitations": [
+    "The exact sign-flip tests were added post-campaign and are exploratory.",
+    "All four pairs came from one cluster, one worker, one endpoint and one day.",
+    "A preregistered multi-day replication and an equivalence margin are required."
+  ],
+  "paired_effects": {
+    "p99_latency_increase_percent": {
+      "count": 4,
+      "exact_two_sided_sign_flip_pvalue": 0.875,
+      "maximum": 7.764978275783219,
+      "mean": 0.8654858709223724,
+      "median": -0.0958154129322375,
+      "minimum": -4.111403966229254
+    },
+    "throughput_loss_percent": {
+      "count": 4,
+      "exact_two_sided_sign_flip_pvalue": 0.25,
+      "maximum": 0.442687747035575,
+      "mean": -2.94437852244776,
+      "median": -2.729287463805452,
+      "minimum": -6.761626909215712
+    }
+  },
+  "phase_block_metrics": {
+    "off_p99_latency_ms": {
+      "count": 4,
+      "maximum": 709.49,
+      "mean": 681.4275,
+      "median": 699.155,
+      "minimum": 617.91
+    },
+    "off_rps": {
+      "count": 4,
+      "maximum": 63.25,
+      "mean": 60.795,
+      "median": 60.83,
+      "minimum": 58.27
+    },
+    "on_p99_latency_ms": {
+      "count": 4,
+      "maximum": 754.01,
+      "mean": 687.8975,
+      "median": 697.715,
+      "minimum": 602.15
+    },
+    "on_rps": {
+      "count": 4,
+      "maximum": 62.97,
+      "mean": 62.54,
+      "median": 62.489999999999995,
+      "minimum": 62.21
+    }
+  },
+  "schema": "sentinel-pulse-500ms-overhead-pilot-analysis-v1",
+  "treatment_telemetry": {
+    "all_integrity_gates_passed": true,
+    "collector_cpu_cores": {
+      "count": 4,
+      "maximum": 0.05391928369944158,
+      "mean": 0.05168033702626066,
+      "median": 0.051884292677072744,
+      "minimum": 0.04903347905145559
+    },
+    "collector_memory_peak_bytes": {
+      "count": 4,
+      "maximum": 40214528.0,
+      "mean": 40055808.0,
+      "median": 40079360.0,
+      "minimum": 39849984.0
+    },
+    "ingest_lag_p99_seconds": {
+      "count": 4,
+      "maximum": 0.043297743797302245,
+      "mean": 0.03723584413528441,
+      "median": 0.036450755596160865,
+      "minimum": 0.032744121551513676
+    },
+    "interval_p99_seconds": {
+      "count": 4,
+      "maximum": 0.5094447135925293,
+      "mean": 0.5079469680786133,
+      "median": 0.5077048540115356,
+      "minimum": 0.5069334506988525
+    },
+    "rows": {
+      "count": 4,
+      "maximum": 4771.0,
+      "mean": 4738.0,
+      "median": 4735.0,
+      "minimum": 4711.0
+    },
+    "runs": 4
+  }
+}
