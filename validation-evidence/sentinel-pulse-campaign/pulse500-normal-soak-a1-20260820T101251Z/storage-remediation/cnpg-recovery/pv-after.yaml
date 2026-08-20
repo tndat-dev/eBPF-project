@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    longhorn.io/volume-scheduling-error: ""
+    pv.kubernetes.io/provisioned-by: driver.longhorn.io
+    volume.kubernetes.io/provisioner-deletion-secret-name: ""
+    volume.kubernetes.io/provisioner-deletion-secret-namespace: ""
+  creationTimestamp: "2026-08-20T11:09:18Z"
+  finalizers:
+  - external-provisioner.volume.kubernetes.io/finalizer
+  - kubernetes.io/pv-protection
+  - external-attacher/driver-longhorn-io
+  name: pvc-368a1a38-5236-4984-9d7e-9a35ea80b176
+  resourceVersion: "140969189"
+  uid: 2528e540-2c0c-4812-9283-800a6ec22499
+spec:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 10Gi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: aims-postgres-cnpg-2
+    namespace: production
+    resourceVersion: "140968955"
+    uid: 368a1a38-5236-4984-9d7e-9a35ea80b176
+  csi:
+    driver: driver.longhorn.io
+    fsType: ext4
+    volumeAttributes:
+      backupTargetName: default
+      dataEngine: v1
+      dataLocality: disabled
+      disableRevisionCounter: "true"
+      fromBackup: ""
+      fsType: ext4
+      numberOfReplicas: "2"
+      staleReplicaTimeout: "30"
+      storage.kubernetes.io/csiProvisionerIdentity: 1786422759067-1294-driver.longhorn.io
+      unmapMarkSnapChainRemoved: ignored
+    volumeHandle: pvc-368a1a38-5236-4984-9d7e-9a35ea80b176
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: longhorn
+  volumeMode: Filesystem
+status:
+  lastPhaseTransitionTime: "2026-08-20T11:09:18Z"
+  phase: Bound

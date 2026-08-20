@@ -1,0 +1,214 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"postgresql.cnpg.io/v1","kind":"Cluster","metadata":{"labels":{"app.kubernetes.io/part-of":"aims"},"name":"aims-postgres-cnpg","namespace":"production"},"spec":{"affinity":{"enablePodAntiAffinity":true,"podAntiAffinityType":"required","topologyKey":"kubernetes.io/hostname"},"bootstrap":{"initdb":{"database":"aims","owner":"aims"}},"imageName":"ghcr.io/cloudnative-pg/postgresql:17","instances":3,"monitoring":{"enablePodMonitor":false},"resources":{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"200m","memory":"512Mi"}},"storage":{"size":"10Gi","storageClass":"longhorn"}}}
+  creationTimestamp: "2026-07-29T09:33:22Z"
+  generation: 3
+  labels:
+    app.kubernetes.io/part-of: aims
+  name: aims-postgres-cnpg
+  namespace: production
+  resourceVersion: "140971907"
+  uid: 52b12eb6-e786-4c6c-bb3e-cd3d6a0219e6
+spec:
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
+    topologyKey: kubernetes.io/hostname
+  bootstrap:
+    initdb:
+      database: aims
+      encoding: UTF8
+      localeCType: C
+      localeCollate: C
+      owner: aims
+  enablePDB: true
+  enableSuperuserAccess: false
+  failoverDelay: 0
+  imageName: ghcr.io/cloudnative-pg/postgresql:17
+  instances: 3
+  logLevel: info
+  maxSyncReplicas: 0
+  minSyncReplicas: 0
+  monitoring:
+    customQueriesConfigMap:
+    - key: queries
+      name: cnpg-default-monitoring
+    disableDefaultQueries: false
+    enablePodMonitor: false
+  postgresGID: 26
+  postgresUID: 26
+  postgresql:
+    parameters:
+      archive_mode: "on"
+      archive_timeout: 5min
+      dynamic_shared_memory_type: posix
+      full_page_writes: "on"
+      log_destination: csvlog
+      log_directory: /controller/log
+      log_filename: postgres
+      log_rotation_age: "0"
+      log_rotation_size: "0"
+      log_truncate_on_rotation: "false"
+      logging_collector: "on"
+      max_parallel_workers: "32"
+      max_replication_slots: "32"
+      max_worker_processes: "32"
+      shared_memory_type: mmap
+      shared_preload_libraries: ""
+      ssl_max_protocol_version: TLSv1.3
+      ssl_min_protocol_version: TLSv1.3
+      wal_keep_size: 512MB
+      wal_level: logical
+      wal_log_hints: "on"
+      wal_receiver_timeout: 5s
+      wal_sender_timeout: 5s
+    syncReplicaElectionConstraint:
+      enabled: false
+  primaryUpdateMethod: restart
+  primaryUpdateStrategy: unsupervised
+  probes:
+    liveness:
+      isolationCheck:
+        connectionTimeout: 1000
+        enabled: true
+        requestTimeout: 1000
+  replicationSlots:
+    highAvailability:
+      enabled: true
+      slotPrefix: _cnpg_
+    synchronizeReplicas:
+      enabled: true
+    updateInterval: 30
+  resources:
+    limits:
+      cpu: "1"
+      memory: 2Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  smartShutdownTimeout: 180
+  startDelay: 3600
+  stopDelay: 1800
+  storage:
+    resizeInUseVolumes: true
+    size: 10Gi
+    storageClass: longhorn
+  switchoverDelay: 3600
+status:
+  availableArchitectures:
+  - goArch: amd64
+    hash: 582a4e35fb052c39d3402794de5f6602a56cdc8cc4b92ce7abbe41a51a0bbc13
+  - goArch: arm64
+    hash: e61cf87bb9c89f1bca69d41367fd9a5c5c02e3eb7491922560984d03f85ecff0
+  certificates:
+    clientCASecret: aims-postgres-cnpg-ca
+    expirations:
+      aims-postgres-cnpg-ca: 2026-10-27 09:28:22 +0000 UTC
+      aims-postgres-cnpg-replication: 2026-10-27 09:28:22 +0000 UTC
+      aims-postgres-cnpg-server: 2026-10-27 09:28:22 +0000 UTC
+    replicationTLSSecret: aims-postgres-cnpg-replication
+    serverAltDNSNames:
+    - aims-postgres-cnpg-rw
+    - aims-postgres-cnpg-rw.production
+    - aims-postgres-cnpg-rw.production.svc
+    - aims-postgres-cnpg-rw.production.svc.cluster.local
+    - aims-postgres-cnpg-r
+    - aims-postgres-cnpg-r.production
+    - aims-postgres-cnpg-r.production.svc
+    - aims-postgres-cnpg-r.production.svc.cluster.local
+    - aims-postgres-cnpg-ro
+    - aims-postgres-cnpg-ro.production
+    - aims-postgres-cnpg-ro.production.svc
+    - aims-postgres-cnpg-ro.production.svc.cluster.local
+    serverCASecret: aims-postgres-cnpg-ca
+    serverTLSSecret: aims-postgres-cnpg-server
+  cloudNativePGCommitHash: 4b5e244a7
+  cloudNativePGOperatorHash: 582a4e35fb052c39d3402794de5f6602a56cdc8cc4b92ce7abbe41a51a0bbc13
+  conditions:
+  - lastTransitionTime: "2026-07-29T09:33:22Z"
+    message: Cluster has been bootstrapped
+    reason: BootstrapCompleted
+    status: "True"
+    type: Initialized
+  - lastTransitionTime: "2026-08-11T05:03:00Z"
+    message: A single, unique system ID was found across reporting instances.
+    reason: Unique
+    status: "True"
+    type: ConsistentSystemID
+  - lastTransitionTime: "2026-08-20T11:10:00Z"
+    message: Cluster is Ready
+    reason: ClusterIsReady
+    status: "True"
+    type: Ready
+  - lastTransitionTime: "2026-08-03T08:39:44Z"
+    message: Continuous archiving is working
+    reason: ContinuousArchivingSuccess
+    status: "True"
+    type: ContinuousArchiving
+  configMapResourceVersion:
+    metrics:
+      cnpg-default-monitoring: "27019821"
+  currentPrimary: aims-postgres-cnpg-1
+  currentPrimaryTimestamp: "2026-08-03T08:39:42.974800Z"
+  healthyPVC:
+  - aims-postgres-cnpg-1
+  - aims-postgres-cnpg-2
+  - aims-postgres-cnpg-3
+  image: ghcr.io/cloudnative-pg/postgresql:17
+  instanceNames:
+  - aims-postgres-cnpg-1
+  - aims-postgres-cnpg-2
+  - aims-postgres-cnpg-3
+  instances: 3
+  instancesReportedState:
+    aims-postgres-cnpg-1:
+      ip: 10.0.2.203
+      isPrimary: true
+      timeLineID: 5
+    aims-postgres-cnpg-2:
+      ip: 10.0.5.20
+      isPrimary: false
+      timeLineID: 5
+    aims-postgres-cnpg-3:
+      ip: 10.0.4.30
+      isPrimary: false
+      timeLineID: 5
+  instancesStatus:
+    healthy:
+    - aims-postgres-cnpg-1
+    - aims-postgres-cnpg-2
+    - aims-postgres-cnpg-3
+  managedRolesStatus: {}
+  operatorCertificateFingerprint: 53b80a37dc88db277473252ff56cb91757af67250032c4a3eb3e98e6a0e6331c
+  pgDataImageInfo:
+    image: ghcr.io/cloudnative-pg/postgresql:17
+    majorVersion: 17
+  phase: Cluster in healthy state
+  poolerIntegrations:
+    pgBouncerIntegration: {}
+  pvcCount: 3
+  readService: aims-postgres-cnpg-r
+  readyInstances: 3
+  secretsResourceVersion:
+    applicationSecretVersion: "27019783"
+    clientCaSecretVersion: "27019780"
+    replicationSecretVersion: "27019782"
+    serverCaSecretVersion: "27019780"
+    serverSecretVersion: "27019781"
+  selector: cnpg.io/cluster=aims-postgres-cnpg,cnpg.io/podRole=instance
+  switchReplicaClusterStatus: {}
+  systemID: "7667880949270597652"
+  targetPrimary: aims-postgres-cnpg-1
+  targetPrimaryTimestamp: "2026-08-03T08:39:39.697100Z"
+  timelineID: 5
+  topology:
+    instances:
+      aims-postgres-cnpg-1: {}
+      aims-postgres-cnpg-2: {}
+      aims-postgres-cnpg-3: {}
+    nodesUsed: 3
+    successfullyExtracted: true
+  writeService: aims-postgres-cnpg-rw

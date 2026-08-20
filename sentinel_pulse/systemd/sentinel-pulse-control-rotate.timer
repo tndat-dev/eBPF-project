@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily bounded rotation for Sentinel Pulse control telemetry
+
+[Timer]
+OnCalendar=*-*-* 00:30:00 UTC
+RandomizedDelaySec=15m
+Persistent=true
+Unit=sentinel-pulse-control-rotate.service
+
+[Install]
+WantedBy=timers.target

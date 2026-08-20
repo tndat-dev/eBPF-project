@@ -1,0 +1,1629 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:41:37Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "90339046",
+                "uid": "1280c9db-52a7-4d3e-92f9-338ae9b99ab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:41:37Z",
+            "message": "The node was low on resource: ephemeral-storage. Threshold quantity: 47509751852, available: 46295968Ki. Container postgres was using 108Ki, request is 0, has larger consumption of ephemeral-storage. ",
+            "metadata": {
+                "annotations": {
+                    "offending_containers": "postgres",
+                    "offending_containers_usage": "108Ki",
+                    "starved_resource": "ephemeral-storage"
+                },
+                "creationTimestamp": "2026-08-20T10:41:37Z",
+                "name": "aims-postgres-cnpg-2.18cd7d646bfc1dd1",
+                "namespace": "production",
+                "resourceVersion": "140862965",
+                "uid": "0cedde6f-9a2a-4032-bdaa-49075ab38c0d"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:41:37Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "90339046",
+                "uid": "1280c9db-52a7-4d3e-92f9-338ae9b99ab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:41:37Z",
+            "message": "Stopping container postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:41:37Z",
+                "name": "aims-postgres-cnpg-2.18cd7d646c00a823",
+                "namespace": "production",
+                "resourceVersion": "140862967",
+                "uid": "21cd8b9a-0f19-43f4-bfed-4ed1085ec84f"
+            },
+            "reason": "Killing",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:41:38Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140863160",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:41:38Z",
+            "message": "0/6 nodes are available: 2 node(s) didn't match pod anti-affinity rules, 4 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/6 nodes are available: 2 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:41:38Z",
+                "name": "aims-postgres-cnpg-2.18cd7d64c7468a48",
+                "namespace": "production",
+                "resourceVersion": "140863164",
+                "uid": "90c979aa-9159-4b3c-ab68-07490b73a425"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:46:57Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140863165",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:46:57Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:46:57Z",
+                "name": "aims-postgres-cnpg-2.18cd7daf04461232",
+                "namespace": "production",
+                "resourceVersion": "140883823",
+                "uid": "1c16d38b-ef4a-4cfa-b41c-42443aa15188"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:47:08Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:47:08Z",
+            "message": "AttachVolume.Attach succeeded for volume \"pvc-36637468-a12f-4318-884e-7bbdd28b4f9f\" ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:47:08Z",
+                "name": "aims-postgres-cnpg-2.18cd7db19fb074d5",
+                "namespace": "production",
+                "resourceVersion": "140884576",
+                "uid": "58c0b433-8469-4c17-adca-972598290e10"
+            },
+            "reason": "SuccessfulAttachVolume",
+            "reportingComponent": "attachdetach-controller",
+            "reportingInstance": "",
+            "source": {
+                "component": "attachdetach-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:47:10Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:47:10Z",
+            "message": "Container image \"ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:47:10Z",
+                "name": "aims-postgres-cnpg-2.18cd7db208a1ed78",
+                "namespace": "production",
+                "resourceVersion": "140884683",
+                "uid": "a7e53c52-8600-45a7-a683-83d8c86025bf"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:47:10Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:47:10Z",
+            "message": "Created container: bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:47:10Z",
+                "name": "aims-postgres-cnpg-2.18cd7db20a051974",
+                "namespace": "production",
+                "resourceVersion": "140884684",
+                "uid": "c369cf85-f2e1-444d-8c1d-095ac7c7280f"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:47:10Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:47:10Z",
+            "message": "Started container bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:47:10Z",
+                "name": "aims-postgres-cnpg-2.18cd7db2143e7ca8",
+                "namespace": "production",
+                "resourceVersion": "140884696",
+                "uid": "fd8957ab-d456-4e6e-ad4e-6b372717b20b"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:47:12Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:47:12Z",
+            "message": "Pulling image \"ghcr.io/cloudnative-pg/postgresql:17\"",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:47:12Z",
+                "name": "aims-postgres-cnpg-2.18cd7db267b6afb6",
+                "namespace": "production",
+                "resourceVersion": "140884792",
+                "uid": "80ca6843-efef-4737-b154-ab7833875396"
+            },
+            "reason": "Pulling",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:48:19Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:48:19Z",
+            "message": "Successfully pulled image \"ghcr.io/cloudnative-pg/postgresql:17\" in 1m3.279s (1m6.674s including waiting). Image size: 254439230 bytes.",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:48:19Z",
+                "name": "aims-postgres-cnpg-2.18cd7dc1edd8dc7c",
+                "namespace": "production",
+                "resourceVersion": "140889002",
+                "uid": "4541341c-7dcf-488e-a0c2-38f8354444ec"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:48:19Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:48:19Z",
+            "message": "Created container: postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:48:19Z",
+                "name": "aims-postgres-cnpg-2.18cd7dc1ef6b5a84",
+                "namespace": "production",
+                "resourceVersion": "140889003",
+                "uid": "3a784b05-869b-4fa5-a8d5-b528d0eebe35"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:48:19Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:48:19Z",
+            "message": "Started container postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:48:19Z",
+                "name": "aims-postgres-cnpg-2.18cd7dc1f8dca2cc",
+                "namespace": "production",
+                "resourceVersion": "140889013",
+                "uid": "40f6e524-ac7f-4b1e-a0f9-0ce6f6ddfdcc"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:48:20Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:48:20Z",
+            "message": "Startup probe failed: HTTP probe failed with statuscode: 500",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:48:20Z",
+                "name": "aims-postgres-cnpg-2.18cd7dc23642498e",
+                "namespace": "production",
+                "resourceVersion": "140889076",
+                "uid": "fa0d9c7c-0e03-43b8-aed3-69b2b826f5dc"
+            },
+            "reason": "Unhealthy",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:08Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:08Z",
+            "message": "The node was low on resource: ephemeral-storage. Threshold quantity: 47509751852, available: 46346228Ki. Container postgres was using 68Ki, request is 0, has larger consumption of ephemeral-storage. ",
+            "metadata": {
+                "annotations": {
+                    "offending_containers": "postgres",
+                    "offending_containers_usage": "68Ki",
+                    "starved_resource": "ephemeral-storage"
+                },
+                "creationTimestamp": "2026-08-20T10:59:08Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5925ebd8c8",
+                "namespace": "production",
+                "resourceVersion": "140930162",
+                "uid": "db8f36ed-2fde-4754-817b-259314d10036"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:08Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140883821",
+                "uid": "53f1a851-1e2c-484c-a665-0b9be063e5e0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:08Z",
+            "message": "Stopping container postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:08Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5925f08b37",
+                "namespace": "production",
+                "resourceVersion": "140930164",
+                "uid": "75b70bf4-c057-4f91-82dc-02f9d7e330f1"
+            },
+            "reason": "Killing",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:10Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930294",
+                "uid": "8c3e509c-ba8d-48d8-9c0c-ee4d52f741f0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:10Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:10Z",
+                "name": "aims-postgres-cnpg-2.18cd7e59901cbecb",
+                "namespace": "production",
+                "resourceVersion": "140930299",
+                "uid": "714675f0-63ba-4cb1-a7ed-102345151777"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:10Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930297",
+                "uid": "8c3e509c-ba8d-48d8-9c0c-ee4d52f741f0"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:10Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:10Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5991c66966",
+                "namespace": "production",
+                "resourceVersion": "140930300",
+                "uid": "8c804189-10a2-45e9-a189-42b62abdbfb0"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:11Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930366",
+                "uid": "2276456a-2c0f-400b-a2d1-4d38d95aee57"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:11Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:11Z",
+                "name": "aims-postgres-cnpg-2.18cd7e59bddacce4",
+                "namespace": "production",
+                "resourceVersion": "140930372",
+                "uid": "cae61301-b599-4904-9688-8a0cd740e9d3"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:11Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930370",
+                "uid": "2276456a-2c0f-400b-a2d1-4d38d95aee57"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:11Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:11Z",
+                "name": "aims-postgres-cnpg-2.18cd7e59bf84a0d4",
+                "namespace": "production",
+                "resourceVersion": "140930374",
+                "uid": "657e5866-5c5f-4e26-8a5a-cf01878affe7"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:11Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930447",
+                "uid": "09a52545-c6de-4e3e-9221-966b6322414c"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:11Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:11Z",
+                "name": "aims-postgres-cnpg-2.18cd7e59ed3c9b57",
+                "namespace": "production",
+                "resourceVersion": "140930452",
+                "uid": "62a94d24-3964-44bf-9c9e-dfe16dada94a"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:11Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930450",
+                "uid": "09a52545-c6de-4e3e-9221-966b6322414c"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:11Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:11Z",
+                "name": "aims-postgres-cnpg-2.18cd7e59ef3169d6",
+                "namespace": "production",
+                "resourceVersion": "140930453",
+                "uid": "19f32a3e-d7f2-4d7b-9c24-a116b51aa17b"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:12Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930503",
+                "uid": "f3aff760-8cf0-4460-8e70-c5b6204d8b57"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:12Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:12Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a1a562f73",
+                "namespace": "production",
+                "resourceVersion": "140930507",
+                "uid": "7466743e-4477-454e-ad80-269f04582f62"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:12Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930505",
+                "uid": "f3aff760-8cf0-4460-8e70-c5b6204d8b57"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:12Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:12Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a1c9b8e15",
+                "namespace": "production",
+                "resourceVersion": "140930509",
+                "uid": "84771b06-31c7-4eb6-b000-b1c86d423a40"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:13Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930569",
+                "uid": "87db13fc-dbfb-43a3-8ef0-d2dfdeb7ae36"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:13Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:13Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a4b75d485",
+                "namespace": "production",
+                "resourceVersion": "140930572",
+                "uid": "2f166d37-e835-44db-9aa5-0be7951f3a15"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:13Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930571",
+                "uid": "87db13fc-dbfb-43a3-8ef0-d2dfdeb7ae36"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:13Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:13Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a4dae0a7e",
+                "namespace": "production",
+                "resourceVersion": "140930574",
+                "uid": "52699034-a7a2-4f64-9d88-a23c12e69040"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:14Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930633",
+                "uid": "c9bdd20b-4164-4651-b895-6783aea8dde3"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:14Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:14Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a7bae8ad6",
+                "namespace": "production",
+                "resourceVersion": "140930639",
+                "uid": "4d45111c-2167-4d75-8b0d-89705a2c75c1"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:14Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930636",
+                "uid": "c9bdd20b-4164-4651-b895-6783aea8dde3"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T10:59:14Z",
+            "message": "The node had condition: [DiskPressure]. ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:14Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5a7d92b698",
+                "namespace": "production",
+                "resourceVersion": "140930641",
+                "uid": "caf5ed75-db72-41f1-9374-b273534f5736"
+            },
+            "reason": "Evicted",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 2,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T10:59:15Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930733",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:04:33Z",
+            "message": "0/6 nodes are available: 2 node(s) didn't match pod anti-affinity rules, 4 node(s) had untolerated taint(s). no new claims to deallocate, preemption: 0/6 nodes are available: 2 No preemption victims found for incoming pod, 4 Preemption is not helpful for scheduling.",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T10:59:15Z",
+                "name": "aims-postgres-cnpg-2.18cd7e5aadeb17d7",
+                "namespace": "production",
+                "resourceVersion": "140951131",
+                "uid": "159a9940-5588-41a4-b18c-c2a70ac31768"
+            },
+            "reason": "FailedScheduling",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:05:54Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140930735",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:05:54Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:05:54Z",
+                "name": "aims-postgres-cnpg-2.18cd7eb7a8b20957",
+                "namespace": "production",
+                "resourceVersion": "140956234",
+                "uid": "07f489b3-f407-45cd-b5d8-c09e5f8060e1"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:06:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:06:04Z",
+            "message": "AttachVolume.Attach succeeded for volume \"pvc-36637468-a12f-4318-884e-7bbdd28b4f9f\" ",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:06:04Z",
+                "name": "aims-postgres-cnpg-2.18cd7eba1687107c",
+                "namespace": "production",
+                "resourceVersion": "140956974",
+                "uid": "170192b7-ba1c-4517-84d4-9655793c2f90"
+            },
+            "reason": "SuccessfulAttachVolume",
+            "reportingComponent": "attachdetach-controller",
+            "reportingInstance": "",
+            "source": {
+                "component": "attachdetach-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:06:06Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:06:06Z",
+            "message": "Container image \"ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:06:06Z",
+                "name": "aims-postgres-cnpg-2.18cd7eba79e15d2b",
+                "namespace": "production",
+                "resourceVersion": "140957064",
+                "uid": "054696c3-d493-4b5a-8ffb-9b5d1d6e83d7"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:06:06Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:06:06Z",
+            "message": "Created container: bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:06:06Z",
+                "name": "aims-postgres-cnpg-2.18cd7eba7b72a9ca",
+                "namespace": "production",
+                "resourceVersion": "140957065",
+                "uid": "f6c621b6-fa51-4ea9-9829-bf1a90cff939"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:06:06Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:06:06Z",
+            "message": "Started container bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:06:06Z",
+                "name": "aims-postgres-cnpg-2.18cd7eba84cd3677",
+                "namespace": "production",
+                "resourceVersion": "140957075",
+                "uid": "4b8decd0-565e-4a9f-adcf-335e8ba9eaac"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:06:07Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:06:07Z",
+            "message": "Pulling image \"ghcr.io/cloudnative-pg/postgresql:17\"",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:06:07Z",
+                "name": "aims-postgres-cnpg-2.18cd7ebaba4c4665",
+                "namespace": "production",
+                "resourceVersion": "140957140",
+                "uid": "036ccc01-3a77-431a-8c51-84ab77b5a45a"
+            },
+            "reason": "Pulling",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:07:04Z",
+            "message": "Successfully pulled image \"ghcr.io/cloudnative-pg/postgresql:17\" in 57.144s (57.144s including waiting). Image size: 254439230 bytes.",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:04Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec80859e46d",
+                "namespace": "production",
+                "resourceVersion": "140960658",
+                "uid": "edd2e2bb-c339-4400-9e1e-83798786db5d"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 5,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:08:53Z",
+            "message": "Created container: postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:04Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec80a865ccb",
+                "namespace": "production",
+                "resourceVersion": "140967435",
+                "uid": "05ba53f3-4994-4769-a050-3912fb7da79d"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 5,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:04Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:08:53Z",
+            "message": "Started container postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:04Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec8137d75b5",
+                "namespace": "production",
+                "resourceVersion": "140967446",
+                "uid": "a8ca9c97-e89c-4a30-a3be-3d10feaba8af"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:05Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:07:05Z",
+            "message": "Startup probe failed: Get \"https://10.0.5.149:8000/startupz\": dial tcp 10.0.5.149:8000: connect: connection refused",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:05Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec84bba9190",
+                "namespace": "production",
+                "resourceVersion": "140960737",
+                "uid": "d21b7b9c-e84f-4dfe-bd2e-bbe5dd6fb0a5"
+            },
+            "reason": "Unhealthy",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 4,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:06Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:08:53Z",
+            "message": "Container image \"ghcr.io/cloudnative-pg/postgresql:17\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:06Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec86cc4c4c9",
+                "namespace": "production",
+                "resourceVersion": "140967432",
+                "uid": "2222d457-5882-4664-b1c0-01d2ea809513"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 14,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:07:07Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140956233",
+                "uid": "feaa798c-93a1-422b-b97c-4995aab6fab7"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:10Z",
+            "message": "Back-off restarting failed container postgres in pod aims-postgres-cnpg-2_production(feaa798c-93a1-422b-b97c-4995aab6fab7)",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:07:07Z",
+                "name": "aims-postgres-cnpg-2.18cd7ec8aa0b3ffe",
+                "namespace": "production",
+                "resourceVersion": "140968515",
+                "uid": "00ccb394-a467-45f8-97ea-3cf36060141c"
+            },
+            "reason": "BackOff",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Warning"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 3,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:16Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "PersistentVolumeClaim",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140968955",
+                "uid": "368a1a38-5236-4984-9d7e-9a35ea80b176"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:17Z",
+            "message": "Waiting for a volume to be created either by the external provisioner 'driver.longhorn.io' or manually by the system administrator. If volume creation is delayed, please verify that the provisioner is running and correctly registered.",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:16Z",
+                "name": "aims-postgres-cnpg-2.18cd7ee6c3c3c700",
+                "namespace": "production",
+                "resourceVersion": "140969037",
+                "uid": "85dc669a-f63f-47c7-bb86-4c191eda6dd9"
+            },
+            "reason": "ExternalProvisioning",
+            "reportingComponent": "persistentvolume-controller",
+            "reportingInstance": "",
+            "source": {
+                "component": "persistentvolume-controller"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:16Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "PersistentVolumeClaim",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140968955",
+                "uid": "368a1a38-5236-4984-9d7e-9a35ea80b176"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:16Z",
+            "message": "External provisioner is provisioning volume for claim \"production/aims-postgres-cnpg-2\"",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:16Z",
+                "name": "aims-postgres-cnpg-2.18cd7ee6c623bd90",
+                "namespace": "production",
+                "resourceVersion": "140968961",
+                "uid": "fb47db4b-c7c0-44a1-9b80-953834d3adae"
+            },
+            "reason": "Provisioning",
+            "reportingComponent": "driver.longhorn.io_csi-provisioner-6c69d9d64c-6p6bl_344f8595-953b-4b2b-a84a-ed3fdd86addc",
+            "reportingInstance": "",
+            "source": {
+                "component": "driver.longhorn.io_csi-provisioner-6c69d9d64c-6p6bl_344f8595-953b-4b2b-a84a-ed3fdd86addc"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:18Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "PersistentVolumeClaim",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140969010",
+                "uid": "368a1a38-5236-4984-9d7e-9a35ea80b176"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:18Z",
+            "message": "Successfully provisioned volume pvc-368a1a38-5236-4984-9d7e-9a35ea80b176",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:18Z",
+                "name": "aims-postgres-cnpg-2.18cd7ee7426ad98a",
+                "namespace": "production",
+                "resourceVersion": "140969160",
+                "uid": "fbab3475-822b-4a0e-a657-7c488bbb2a8e"
+            },
+            "reason": "ProvisioningSucceeded",
+            "reportingComponent": "driver.longhorn.io_csi-provisioner-6c69d9d64c-6p6bl_344f8595-953b-4b2b-a84a-ed3fdd86addc",
+            "reportingInstance": "",
+            "source": {
+                "component": "driver.longhorn.io_csi-provisioner-6c69d9d64c-6p6bl_344f8595-953b-4b2b-a84a-ed3fdd86addc"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:41Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970675",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:41Z",
+            "message": "Successfully assigned production/aims-postgres-cnpg-2 to k8s-worker3.local",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:41Z",
+                "name": "aims-postgres-cnpg-2.18cd7eec6ab05f6e",
+                "namespace": "production",
+                "resourceVersion": "140970679",
+                "uid": "64faeb76-de60-49c0-bb1f-0187fb9afc59"
+            },
+            "reason": "Scheduled",
+            "reportingComponent": "default-scheduler",
+            "reportingInstance": "",
+            "source": {
+                "component": "default-scheduler"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:50Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:50Z",
+            "message": "Container image \"ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:50Z",
+                "name": "aims-postgres-cnpg-2.18cd7eee9e374120",
+                "namespace": "production",
+                "resourceVersion": "140971227",
+                "uid": "5edaac56-79f0-43b2-9599-042a1f02527f"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:50Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:50Z",
+            "message": "Created container: bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:50Z",
+                "name": "aims-postgres-cnpg-2.18cd7eeea0aa5564",
+                "namespace": "production",
+                "resourceVersion": "140971231",
+                "uid": "a5766173-b05e-4f81-b3a8-5fcbde176dfd"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:50Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.initContainers{bootstrap-controller}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:50Z",
+            "message": "Started container bootstrap-controller",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:50Z",
+                "name": "aims-postgres-cnpg-2.18cd7eeea9d5972e",
+                "namespace": "production",
+                "resourceVersion": "140971235",
+                "uid": "7cf3c922-ca2b-4518-841b-86944741b856"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:51Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:51Z",
+            "message": "Container image \"ghcr.io/cloudnative-pg/postgresql:17\" already present on machine",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:51Z",
+                "name": "aims-postgres-cnpg-2.18cd7eeeeb513891",
+                "namespace": "production",
+                "resourceVersion": "140971303",
+                "uid": "0f5c542d-58aa-44a2-8b9e-4025c58fb002"
+            },
+            "reason": "Pulled",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:51Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:51Z",
+            "message": "Created container: postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:51Z",
+                "name": "aims-postgres-cnpg-2.18cd7eeeedebb025",
+                "namespace": "production",
+                "resourceVersion": "140971306",
+                "uid": "5439e40a-887c-4b20-b44d-adc2d193075f"
+            },
+            "reason": "Created",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        },
+        {
+            "apiVersion": "v1",
+            "count": 1,
+            "eventTime": null,
+            "firstTimestamp": "2026-08-20T11:09:51Z",
+            "involvedObject": {
+                "apiVersion": "v1",
+                "fieldPath": "spec.containers{postgres}",
+                "kind": "Pod",
+                "name": "aims-postgres-cnpg-2",
+                "namespace": "production",
+                "resourceVersion": "140970677",
+                "uid": "4caeaaa5-8889-43b3-8518-20a127218a01"
+            },
+            "kind": "Event",
+            "lastTimestamp": "2026-08-20T11:09:51Z",
+            "message": "Started container postgres",
+            "metadata": {
+                "creationTimestamp": "2026-08-20T11:09:51Z",
+                "name": "aims-postgres-cnpg-2.18cd7eeef81af244",
+                "namespace": "production",
+                "resourceVersion": "140971313",
+                "uid": "390f99c5-6a62-4b70-92f4-1207bfebff32"
+            },
+            "reason": "Started",
+            "reportingComponent": "kubelet",
+            "reportingInstance": "k8s-worker3.local",
+            "source": {
+                "component": "kubelet",
+                "host": "k8s-worker3.local"
+            },
+            "type": "Normal"
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

@@ -5725,21 +5725,59 @@ canary hợp lệ nhưng vẫn được lưu. Follower đã được sửa để
 path-stat mất quyền tại EOF, installer reset stale counter. Summary/report/index
 SHA-256 `11b26e2b...`/`178b3ff7...`/`b2611351...`.
 
-### 18.137 Formal soak 25 giờ đã khởi chạy (20-08-2026)
+### 18.137 Formal soak A1 bị reject vì sự cố hạ tầng (20-08-2026)
 
-Formal run `pulse500-normal-soak-a1-20260820T101251Z` đang active trên worker1,
-worker3, worker4, cùng model `c4683505...` và policy `272e9119...`. Marker khóa
-trước launch từ commit `4d2a992...`, yêu cầu 0 alert, ≥24 giờ/workload và
-coverage ≥95%; `eligible_finalize_after` là **21-08-2026 10:12:56 UTC**. Không
-auto-promote và chưa mở blind test.
+Formal run `pulse500-normal-soak-a1-20260820T101251Z` được preregister với model
+`c4683505...`, policy `272e9119...`, yêu cầu 0 alert, ≥24 giờ/workload và
+coverage ≥95%. Run không đạt tới normal gate. Lúc 10:41:37 UTC, Kubernetes
+evict `aims-postgres-cnpg-2` trên `k8s-worker3.local` vì thiếu
+ephemeral-storage; node đồng thời có `DiskPressure=True`. Bốn alert PostgreSQL
+trên hai instance còn sống xuất hiện từ 10:41:39.075 đến 10:41:39.678 UTC,
+tức 2,075–2,678 giây sau eviction. Monitor phát hiện alert ở poll kế tiếp lúc
+10:41:58 UTC, ghi `FAILED`, bỏ `ACTIVE` và dừng fail-closed.
 
-Snapshot 10:17:47 UTC: 6/6 node Ready, cả sáu collector/detector unit trên ba
-worker active, restart delta formal bằng 0, tổng 17.498 decision/0 alert. Counter
-14 cũ của worker1 đã được bind vào baseline canary rồi reset mà PID/active time
-formal không đổi. Marker SHA-256 `68341bba...`. Trạng thái hiện tại là ACTIVE,
-không được diễn giải thành normal gate đã pass.
+Ba detector được dừng trước collector. Raw bundle giữ 135.033 decision gồm
+132.016 normal, 960 suppressed, 2.053 warming và 4 alert; ba capture giữ
+136.360 row, zero integrity/drop error. Toàn bộ 12 feature/decision/alert/
+FINAL artifact đã được kéo về host và đối chiếu SHA-256. Validator độc lập đọc
+trực tiếp raw JSONL, marker và Kubernetes event, xác nhận 12/12 checksum,
+4/4 alert và đúng một eviction trong interval; report `VALIDATION.json` có
+`valid=true`, SHA-256 `3fe8591a...`.
 
-Monitor read-only commit `3f36c9d...` chạy nền mỗi 60 giây, fail-closed theo
-service state, restart delta, feature identity và alert count. Poll đầu sau
-commit có tổng 46.993 decision/0 alert, không có failure marker. Monitor không
-tự sửa service và không promote model.
+Disposition là `rejected_infrastructure_failure`, không phải normal pass và
+cũng không được dùng để kết luận candidate false-positive fail. Candidate A1
+giữ trạng thái chưa được đánh giá bởi run này. Dữ liệu A1 bị cấm train, tune,
+normal gate và blind attack; chỉ được dùng chẩn đoán. Rerun A2 chỉ hợp lệ sau
+khi node pressure không flapping, PostgreSQL 3/3 healthy, Longhorn healthy và
+6/6 node khỏe liên tục.
+
+### 18.138 Harden health gate và chặn telemetry làm đầy đĩa (20-08-2026)
+
+Gate cũ chỉ đếm node `Ready`, trong khi Kubernetes có thể đồng thời báo
+`Ready=True` và `DiskPressure=True`. Launcher formal mới phân loại đầy đủ
+Ready/DiskPressure/MemoryPressure/PIDPressure cùng pressure taint, production
+pod, CloudNativePG và Longhorn volume. Tất cả predicate phải khỏe liên tục tối
+thiểu 300 giây trước khi marker bất biến được tạo. Monitor chạy cùng các gate
+trong soak và tự snapshot node/pod/CNPG/Longhorn vào failure evidence trước khi
+dừng; full regression trong locked environment đạt **404 passed, 2 warning**.
+
+Audit storage tìm thấy control collector một giây append vô hạn vào
+`/var/lib/sentinel-pulse/features.jsonl`; riêng worker3 đã khoảng 7,0 GB và
+Longhorn khoảng 204 GB trên root disk thực tế 300 GiB. Project bổ sung daily
+rotation fail-closed: không chạy khi experiment/detector active, dừng control
+collector, atomic-move stream, khởi động stream mới, checksum rồi gzip archive
+với I/O priority thấp. Không xóa frozen evidence hoặc PVC. Ba rotation đều
+terminal success, nén 26.560.151.936 byte còn 7.010.459.460 byte; control
+collector và timer đều active 3/3. Worker3 còn 53.905.530.880 byte trống sau
+rotation. A2 chưa được mở cho tới khi worker3 vượt preflight ổn định.
+
+Sau khi DiskPressure lặp lại, audit mount xác nhận PVC replica
+`aims-postgres-cnpg-2` chỉ còn `lost+found` 20 KiB và thiếu `PGDATA`. Primary
+`aims-postgres-cnpg-1`, replica `-3` và continuous archiving đều khỏe trước
+recovery. Đồ án lưu toàn bộ YAML/UID rồi xóa đúng pod/PVC replica hỏng; không
+đụng primary. CloudNativePG tạo PVC/PV UID mới và bootstrap lại replica. Lúc
+11:10:50 UTC, cả ba endpoint `pg_isready` pass, primary báo hai replica ở trạng
+thái `streaming/async`, CNPG 3/3 healthy, Longhorn volume mới
+`healthy/attached`, worker3 `DiskPressure=False`. Recovery bundle có detached
+`SHA256SUMS`; PVC cũ đã bị xóa và được phục hồi từ primary, không thể undelete
+trực tiếp.

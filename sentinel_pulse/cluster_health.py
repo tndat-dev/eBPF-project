@@ -1,4 +1,4 @@
-"""Age-aware Kubernetes pod health classification for capture campaigns."""
+"""Kubernetes pod and node health classification for capture campaigns."""
 
 from __future__ import annotations
 
@@ -48,15 +48,68 @@ def unhealthy_pods(payload: dict, now: float, grace_seconds: float = 300.0) -> l
     return unhealthy
 
 
+PRESSURE_CONDITIONS = frozenset(
+    {"DiskPressure", "MemoryPressure", "PIDPressure"}
+)
+UNHEALTHY_TAINTS = frozenset(
+    {
+        "node.kubernetes.io/disk-pressure",
+        "node.kubernetes.io/memory-pressure",
+        "node.kubernetes.io/pid-pressure",
+        "node.kubernetes.io/not-ready",
+        "node.kubernetes.io/unreachable",
+    }
+)
+
+
+def unhealthy_nodes(payload: dict) -> list[dict]:
+    """Return one deterministic record for each unhealthy Kubernetes node."""
+
+    unhealthy = []
+    for node in payload.get("items", []):
+        metadata = node.get("metadata", {})
+        status = node.get("status", {})
+        spec = node.get("spec", {})
+        name = str(metadata.get("name", "unknown"))
+        conditions = {
+            str(item.get("type")): str(item.get("status"))
+            for item in status.get("conditions", [])
+        }
+        reasons = []
+        if conditions.get("Ready") != "True":
+            reasons.append(f"Ready={conditions.get('Ready', 'missing')}")
+        for condition in sorted(PRESSURE_CONDITIONS):
+            if conditions.get(condition) != "False":
+                reasons.append(f"{condition}={conditions.get(condition, 'missing')}")
+        bad_taints = sorted(
+            str(taint.get("key"))
+            for taint in spec.get("taints", [])
+            if str(taint.get("key")) in UNHEALTHY_TAINTS
+        )
+        reasons.extend(f"taint:{taint}" for taint in bad_taints)
+        if reasons:
+            unhealthy.append({"node": name, "reasons": reasons})
+    return unhealthy
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--grace-seconds", type=float, default=300.0)
+    parser.add_argument("--resource", choices=("pods", "nodes"), default="pods")
     parser.add_argument("--count", action="store_true")
     args = parser.parse_args()
     if args.grace_seconds < 0:
         raise ValueError("pod health grace cannot be negative")
     payload = json.load(sys.stdin)
-    bad = unhealthy_pods(payload, datetime.now(timezone.utc).timestamp(), args.grace_seconds)
+    bad = (
+        unhealthy_nodes(payload)
+        if args.resource == "nodes"
+        else unhealthy_pods(
+            payload,
+            datetime.now(timezone.utc).timestamp(),
+            args.grace_seconds,
+        )
+    )
     if args.count:
         print(len(bad))
     else:

@@ -1,0 +1,361 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    ambient.istio.io/redirection: enabled
+    cnpg.io/nodeSerial: "2"
+    cnpg.io/operatorVersion: 1.30.0
+    cnpg.io/podEnvHash: 5874d967bb
+    cnpg.io/podSpec: '{"volumes":[{"name":"pgdata","persistentVolumeClaim":{"claimName":"aims-postgres-cnpg-2"}},{"name":"scratch-data","emptyDir":{}},{"name":"shm","emptyDir":{"medium":"Memory"}}],"initContainers":[{"name":"bootstrap-controller","image":"ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0","command":["/manager","bootstrap","/controller/manager","--log-level=info"],"resources":{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"200m","memory":"512Mi"}},"volumeMounts":[{"name":"pgdata","mountPath":"/var/lib/postgresql/data"},{"name":"scratch-data","mountPath":"/run"},{"name":"scratch-data","mountPath":"/controller"},{"name":"shm","mountPath":"/dev/shm"}],"securityContext":{"capabilities":{"drop":["ALL"]},"privileged":false,"runAsNonRoot":true,"readOnlyRootFilesystem":true,"allowPrivilegeEscalation":false,"seccompProfile":{"type":"RuntimeDefault"}}}],"containers":[{"name":"postgres","image":"ghcr.io/cloudnative-pg/postgresql:17","command":["/controller/manager","instance","run","--status-port-tls","--log-level=info"],"ports":[{"name":"postgresql","containerPort":5432,"protocol":"TCP"},{"name":"metrics","containerPort":9187,"protocol":"TCP"},{"name":"status","containerPort":8000,"protocol":"TCP"}],"env":[{"name":"PGDATA","value":"/var/lib/postgresql/data/pgdata"},{"name":"POD_NAME","value":"aims-postgres-cnpg-2"},{"name":"NAMESPACE","value":"production"},{"name":"CLUSTER_NAME","value":"aims-postgres-cnpg"},{"name":"PSQL_HISTORY","value":"/controller/tmp/.psql_history"},{"name":"PGPORT","value":"5432"},{"name":"PGHOST","value":"/controller/run"},{"name":"TMPDIR","value":"/controller/tmp"}],"resources":{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"200m","memory":"512Mi"}},"volumeMounts":[{"name":"pgdata","mountPath":"/var/lib/postgresql/data"},{"name":"scratch-data","mountPath":"/run"},{"name":"scratch-data","mountPath":"/controller"},{"name":"shm","mountPath":"/dev/shm"}],"livenessProbe":{"httpGet":{"path":"/healthz","port":8000,"scheme":"HTTPS"},"timeoutSeconds":5,"periodSeconds":10},"readinessProbe":{"httpGet":{"path":"/readyz","port":8000,"scheme":"HTTPS"},"timeoutSeconds":5,"periodSeconds":10},"startupProbe":{"httpGet":{"path":"/startupz","port":8000,"scheme":"HTTPS"},"timeoutSeconds":5,"periodSeconds":10,"failureThreshold":360},"securityContext":{"capabilities":{"drop":["ALL"]},"privileged":false,"runAsNonRoot":true,"readOnlyRootFilesystem":true,"allowPrivilegeEscalation":false,"seccompProfile":{"type":"RuntimeDefault"}}}],"terminationGracePeriodSeconds":1800,"serviceAccountName":"aims-postgres-cnpg","securityContext":{"runAsUser":26,"runAsGroup":26,"runAsNonRoot":true,"fsGroup":26,"seccompProfile":{"type":"RuntimeDefault"}},"hostname":"aims-postgres-cnpg-2","affinity":{"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"cnpg.io/cluster","operator":"In","values":["aims-postgres-cnpg"]},{"key":"cnpg.io/podRole","operator":"In","values":["instance"]}]},"topologyKey":"kubernetes.io/hostname"}]}}}'
+  creationTimestamp: "2026-08-20T11:09:40Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/instance: aims-postgres-cnpg
+    app.kubernetes.io/managed-by: cloudnative-pg
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: "17"
+    cnpg.io/cluster: aims-postgres-cnpg
+    cnpg.io/instanceName: aims-postgres-cnpg-2
+    cnpg.io/instanceRole: replica
+    cnpg.io/podRole: instance
+    role: replica
+  name: aims-postgres-cnpg-2
+  namespace: production
+  ownerReferences:
+  - apiVersion: postgresql.cnpg.io/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Cluster
+    name: aims-postgres-cnpg
+    uid: 52b12eb6-e786-4c6c-bb3e-cd3d6a0219e6
+  resourceVersion: "140971805"
+  uid: 4caeaaa5-8889-43b3-8518-20a127218a01
+spec:
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: cnpg.io/cluster
+            operator: In
+            values:
+            - aims-postgres-cnpg
+          - key: cnpg.io/podRole
+            operator: In
+            values:
+            - instance
+        topologyKey: kubernetes.io/hostname
+  containers:
+  - command:
+    - /controller/manager
+    - instance
+    - run
+    - --status-port-tls
+    - --log-level=info
+    env:
+    - name: PGDATA
+      value: /var/lib/postgresql/data/pgdata
+    - name: POD_NAME
+      value: aims-postgres-cnpg-2
+    - name: NAMESPACE
+      value: production
+    - name: CLUSTER_NAME
+      value: aims-postgres-cnpg
+    - name: PSQL_HISTORY
+      value: /controller/tmp/.psql_history
+    - name: PGPORT
+      value: "5432"
+    - name: PGHOST
+      value: /controller/run
+    - name: TMPDIR
+      value: /controller/tmp
+    image: ghcr.io/cloudnative-pg/postgresql:17
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /healthz
+        port: 8000
+        scheme: HTTPS
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    name: postgres
+    ports:
+    - containerPort: 5432
+      name: postgresql
+      protocol: TCP
+    - containerPort: 9187
+      name: metrics
+      protocol: TCP
+    - containerPort: 8000
+      name: status
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /readyz
+        port: 8000
+        scheme: HTTPS
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    startupProbe:
+      failureThreshold: 360
+      httpGet:
+        path: /startupz
+        port: 8000
+        scheme: HTTPS
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 5
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: pgdata
+    - mountPath: /run
+      name: scratch-data
+    - mountPath: /controller
+      name: scratch-data
+    - mountPath: /dev/shm
+      name: shm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mx2qr
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  hostname: aims-postgres-cnpg-2
+  initContainers:
+  - command:
+    - /manager
+    - bootstrap
+    - /controller/manager
+    - --log-level=info
+    image: ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0
+    imagePullPolicy: IfNotPresent
+    name: bootstrap-controller
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+      privileged: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: pgdata
+    - mountPath: /run
+      name: scratch-data
+    - mountPath: /controller
+      name: scratch-data
+    - mountPath: /dev/shm
+      name: shm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mx2qr
+      readOnly: true
+  nodeName: k8s-worker3.local
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext:
+    fsGroup: 26
+    runAsGroup: 26
+    runAsNonRoot: true
+    runAsUser: 26
+    seccompProfile:
+      type: RuntimeDefault
+  serviceAccount: aims-postgres-cnpg
+  serviceAccountName: aims-postgres-cnpg
+  terminationGracePeriodSeconds: 1800
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: pgdata
+    persistentVolumeClaim:
+      claimName: aims-postgres-cnpg-2
+  - emptyDir: {}
+    name: scratch-data
+  - emptyDir:
+      medium: Memory
+    name: shm
+  - name: kube-api-access-mx2qr
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-20T11:09:50Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-20T11:09:51Z"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-20T11:10:00Z"
+    observedGeneration: 1
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-20T11:10:00Z"
+    observedGeneration: 1
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-20T11:09:40Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - allocatedResources:
+      cpu: 200m
+      memory: 512Mi
+    containerID: containerd://680cea7efa1279cc144443403224c1cc6f3cc3c5b22833de2013c4cf3126e4e5
+    image: ghcr.io/cloudnative-pg/postgresql:17
+    imageID: ghcr.io/cloudnative-pg/postgresql@sha256:03cacc5491ebdabf58eeecec2ae401076f1062f14f84af9956fd6ec235082188
+    lastState: {}
+    name: postgres
+    ready: true
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2026-08-20T11:09:51Z"
+    user:
+      linux:
+        gid: 26
+        supplementalGroups:
+        - 26
+        - 101
+        uid: 26
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: pgdata
+    - mountPath: /run
+      name: scratch-data
+    - mountPath: /controller
+      name: scratch-data
+    - mountPath: /dev/shm
+      name: shm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mx2qr
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.1.16.239
+  hostIPs:
+  - ip: 10.1.16.239
+  initContainerStatuses:
+  - allocatedResources:
+      cpu: 200m
+      memory: 512Mi
+    containerID: containerd://7ba4d104125eb6588f8532979a7e4044bcb38915a85a190751a3a0c65b190d01
+    image: ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0
+    imageID: ghcr.io/cloudnative-pg/cloudnative-pg@sha256:a2701eb97cdd2a34b1fdb2cb51987f544b706e40bec72ae7146cd8580efefebb
+    lastState: {}
+    name: bootstrap-controller
+    ready: true
+    resources:
+      limits:
+        cpu: "1"
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    restartCount: 0
+    started: false
+    state:
+      terminated:
+        containerID: containerd://7ba4d104125eb6588f8532979a7e4044bcb38915a85a190751a3a0c65b190d01
+        exitCode: 0
+        finishedAt: "2026-08-20T11:09:50Z"
+        reason: Completed
+        startedAt: "2026-08-20T11:09:50Z"
+    user:
+      linux:
+        gid: 26
+        supplementalGroups:
+        - 26
+        uid: 26
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: pgdata
+    - mountPath: /run
+      name: scratch-data
+    - mountPath: /controller
+      name: scratch-data
+    - mountPath: /dev/shm
+      name: shm
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-mx2qr
+      readOnly: true
+      recursiveReadOnly: Disabled
+  observedGeneration: 1
+  phase: Running
+  podIP: 10.0.5.20
+  podIPs:
+  - ip: 10.0.5.20
+  qosClass: Burstable
+  startTime: "2026-08-20T11:09:41Z"

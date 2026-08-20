@@ -1,0 +1,7 @@
+schema=sentinel-pulse-control-archive-v1
+rotated_at=2026-08-20T10:59:15Z
+source=/var/lib/sentinel-pulse/features.jsonl
+uncompressed_bytes=9313530644
+uncompressed_sha256=fab334d84ff384abda404b84af69bcf3a0d959f7953e03bef2b3a3ab08d68aba
+gzip_bytes=2381574301
+gzip_sha256=c2faa71367ee62d82696af43d40f57d38f3d4f2a0d74261740987c2ade27a3e4

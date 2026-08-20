@@ -30,8 +30,15 @@ install -m 0644 "$PULSE_SOURCE/systemd/sentinel-pulse-resolver.service" \
   /etc/systemd/system/sentinel-pulse-resolver.service
 install -m 0644 "$PULSE_SOURCE/systemd/sentinel-pulse-collector.service" \
   /etc/systemd/system/sentinel-pulse-collector.service
+install -m 0755 "$PULSE_SOURCE/rotate_control_capture.sh" \
+  "$INSTALL_ROOT/bin/rotate_control_capture"
+install -m 0644 "$PULSE_SOURCE/systemd/sentinel-pulse-control-rotate.service" \
+  /etc/systemd/system/sentinel-pulse-control-rotate.service
+install -m 0644 "$PULSE_SOURCE/systemd/sentinel-pulse-control-rotate.timer" \
+  /etc/systemd/system/sentinel-pulse-control-rotate.timer
 systemctl daemon-reload
-systemctl enable sentinel-pulse-resolver.service sentinel-pulse-collector.service
+systemctl enable sentinel-pulse-resolver.service sentinel-pulse-collector.service \
+  sentinel-pulse-control-rotate.timer
 # Deploy is an explicit generation boundary.  Stop the old collector before
 # replacing its allow-list, force a fresh CRI/cgroup resolution, then start the
 # newly installed binary.  `enable --now` alone would leave an already-running
@@ -49,6 +56,7 @@ for _attempt in $(seq 1 30); do
 done
 test -s /run/sentinel-pulse/allowed-cgroups
 systemctl restart sentinel-pulse-collector.service
+systemctl start sentinel-pulse-control-rotate.timer
 # A successful systemctl start only proves that the pipeline forked.  Require
 # an actual feature row so verifier errors and a short allow-list refresh race
 # cannot be reported as a successful installation.
@@ -64,4 +72,4 @@ systemctl is-active --quiet sentinel-pulse-resolver.service
 systemctl is-active --quiet sentinel-pulse-collector.service
 test -s /var/lib/sentinel-pulse/features.jsonl
 systemctl --no-pager --full status sentinel-pulse-resolver.service \
-  sentinel-pulse-collector.service
+  sentinel-pulse-collector.service sentinel-pulse-control-rotate.timer

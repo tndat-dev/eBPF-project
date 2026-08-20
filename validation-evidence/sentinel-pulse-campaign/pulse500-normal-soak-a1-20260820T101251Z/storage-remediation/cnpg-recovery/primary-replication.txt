@@ -1,0 +1,2 @@
+aims-postgres-cnpg-2|streaming|async
+aims-postgres-cnpg-3|streaming|async

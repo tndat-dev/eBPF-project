@@ -1,0 +1,128 @@
+apiVersion: longhorn.io/v1beta2
+kind: Volume
+metadata:
+  creationTimestamp: "2026-08-11T05:03:00Z"
+  finalizers:
+  - longhorn.io
+  generation: 6
+  labels:
+    backup-target: default
+    longhornvolume: pvc-36637468-a12f-4318-884e-7bbdd28b4f9f
+    recurring-job-group.longhorn.io/default: enabled
+    setting.longhorn.io/remove-snapshots-during-filesystem-trim: ignored
+    setting.longhorn.io/replica-auto-balance: ignored
+    setting.longhorn.io/snapshot-data-integrity: ignored
+  name: pvc-36637468-a12f-4318-884e-7bbdd28b4f9f
+  namespace: longhorn-system
+  resourceVersion: "140960706"
+  uid: 432d5678-b467-4e7a-8d77-613421140245
+spec:
+  Standby: false
+  accessMode: rwo
+  backingImage: ""
+  backupBlockSize: "2097152"
+  backupCompressionMethod: lz4
+  backupTargetName: default
+  dataEngine: v1
+  dataLocality: disabled
+  dataSource: ""
+  disableFrontend: false
+  diskSelector: []
+  encrypted: false
+  engineNodeID: ""
+  freezeFilesystemForSnapshot: ignored
+  fromBackup: ""
+  frontend: blockdev
+  image: docker.io/longhornio/longhorn-engine:v1.12.0
+  lastAttachedBy: ""
+  migratable: false
+  migrationNodeID: ""
+  nodeID: k8s-worker3.local
+  nodeSelector: []
+  numberOfReplicas: 2
+  offlineRebuilding: ignored
+  rebuildConcurrentSyncLimit: 0
+  replicaAutoBalance: ignored
+  replicaDiskSoftAntiAffinity: ignored
+  replicaRebuildingBandwidthLimit: 0
+  replicaSoftAntiAffinity: ignored
+  replicaZoneSoftAntiAffinity: ignored
+  restoreVolumeRecurringJob: ignored
+  revisionCounterDisabled: true
+  size: "10737418240"
+  snapshotDataIntegrity: ignored
+  snapshotMaxCount: 250
+  snapshotMaxSize: "0"
+  staleReplicaTimeout: 30
+  unmapMarkSnapChainRemoved: ignored
+status:
+  actualSize: 239321088
+  cloneStatus:
+    attemptCount: 0
+    nextAllowedAttemptAt: ""
+    snapshot: ""
+    sourceVolume: ""
+    state: ""
+  conditions:
+  - lastProbeTime: ""
+    lastTransitionTime: "2026-08-11T05:03:01Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: WaitForBackingImage
+  - lastProbeTime: ""
+    lastTransitionTime: "2026-08-11T05:03:01Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: TooManySnapshots
+  - lastProbeTime: ""
+    lastTransitionTime: "2026-08-11T05:03:01Z"
+    message: ""
+    reason: ""
+    status: "True"
+    type: Scheduled
+  - lastProbeTime: ""
+    lastTransitionTime: "2026-08-11T05:03:01Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: OfflineRebuilding
+  - lastProbeTime: ""
+    lastTransitionTime: "2026-08-11T05:03:01Z"
+    message: ""
+    reason: ""
+    status: "False"
+    type: Restore
+  currentEngineNodeID: ""
+  currentImage: docker.io/longhornio/longhorn-engine:v1.12.0
+  currentMigrationNodeID: ""
+  currentNodeID: k8s-worker3.local
+  expansionRequired: false
+  frontendDisabled: false
+  isStandby: false
+  kubernetesStatus:
+    lastPVCRefAt: ""
+    lastPodRefAt: ""
+    namespace: production
+    pvName: pvc-36637468-a12f-4318-884e-7bbdd28b4f9f
+    pvStatus: Bound
+    pvcName: aims-postgres-cnpg-2
+    workloadsStatus:
+    - podName: aims-postgres-cnpg-2
+      podStatus: Running
+      workloadName: aims-postgres-cnpg
+      workloadType: Cluster
+  lastAutoSalvagedAt: ""
+  lastBackup: ""
+  lastBackupAt: ""
+  lastDegradedAt: ""
+  ownerID: k8s-worker3.local
+  remountRequestedAt: ""
+  restoreInitiated: false
+  restoreRequired: false
+  robustness: healthy
+  shareEndpoint: ""
+  shareState: ""
+  state: attached
+  switchoverState: ""

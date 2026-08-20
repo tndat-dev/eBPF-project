@@ -5,6 +5,8 @@ set -u
 EVIDENCE_ROOT=${1:?usage: monitor_500ms_normal_soak.sh EVIDENCE_ROOT}
 SSH_USER=${SSH_USER:-dat}
 POLL_SECONDS=${POLL_SECONDS:-60}
+LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+PYTHON=${PYTHON:-python3}
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
 MARKER="$EVIDENCE_ROOT/SOAK_START.json"
 WORKERS_FILE="$EVIDENCE_ROOT/workers.txt"
@@ -39,13 +41,44 @@ PY
 
 fail() {
   local reason=$1 host=${2:-unknown}
+  kubectl get nodes -o json >"$EVIDENCE_ROOT/FAILURE_NODES.json" 2>/dev/null || true
+  kubectl -n production get pods -o json \
+    >"$EVIDENCE_ROOT/FAILURE_PRODUCTION_PODS.json" 2>/dev/null || true
+  kubectl -n longhorn-system get volumes.longhorn.io -o json \
+    >"$EVIDENCE_ROOT/FAILURE_LONGHORN_VOLUMES.json" 2>/dev/null || true
+  kubectl -n production get clusters.postgresql.cnpg.io -o json \
+    >"$EVIDENCE_ROOT/FAILURE_CNPG_CLUSTERS.json" 2>/dev/null || true
   printf 'failed_at=%s\nreason=%s\nhost=%s\n' \
     "$(date -u +%FT%TZ)" "$reason" "$host" >"$EVIDENCE_ROOT/FAILED"
   rm -f "$EVIDENCE_ROOT/ACTIVE"
   exit 1
 }
 
+check_cluster_health() {
+  local nodes pods longhorn cnpg
+  nodes=$(kubectl get nodes -o json 2>/dev/null | PYTHONPATH="$LOCAL_ROOT" \
+    "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count) ||
+    fail cluster_health_unavailable
+  pods=$(kubectl -n production get pods -o json 2>/dev/null | \
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.cluster_health \
+      --resource pods --grace-seconds 300 --count) ||
+    fail production_health_unavailable
+  longhorn=$(kubectl -n longhorn-system get volumes.longhorn.io -o json \
+    2>/dev/null | jq '[.items[] | select(.status.robustness != "healthy")] | length') ||
+    fail longhorn_health_unavailable
+  cnpg=$(kubectl -n production get clusters.postgresql.cnpg.io -o json \
+    2>/dev/null | jq '[.items[] | select(
+      (.status.readyInstances // 0) != (.status.instances // .spec.instances // 0)
+      or (.status.phase // "") != "Cluster in healthy state"
+    )] | length') || fail cnpg_health_unavailable
+  ((nodes == 0)) || fail unhealthy_kubernetes_node
+  ((pods == 0)) || fail unhealthy_production_pod
+  ((longhorn == 0)) || fail unhealthy_longhorn_volume
+  ((cnpg == 0)) || fail unhealthy_cnpg_cluster
+}
+
 while true; do
+  check_cluster_health
   while read -r host _node expected_feature; do
     snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \

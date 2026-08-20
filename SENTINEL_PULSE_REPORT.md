@@ -727,26 +727,42 @@ collector dừng, systemd trả group của run directory về root làm followe
 restart counter trước run mới. Canary summary/normal report/bundle-index SHA-256
 là `11b26e2b...`/`178b3ff7...`/`b2611351...`.
 
-### 7.23 Formal normal soak A1 đang chạy
+### 7.23 Formal normal soak A1: infrastructure-rejected
 
 Run `pulse500-normal-soak-a1-20260820T101251Z` được preregister trước launch,
 bind model `c4683505...`, policy `272e9119...`, source commit `4d2a992...`, cấm
-blind evaluation và auto-promotion. Ba worker đọc đúng ba stream 500 ms riêng;
-collector và detector đều active. Marker yêu cầu 0 alert, tối thiểu 24 giờ cho
-mỗi workload và coverage ≥95%; mốc sớm nhất được finalize là
-**21-08-2026 10:12:56 UTC**. Collector chạy 25 giờ để có một giờ safety margin.
+blind evaluation và auto-promotion. Nó bị loại khỏi normal gate lúc 10:41:58
+UTC vì Kubernetes đã evict `aims-postgres-cnpg-2` trên worker3 do thiếu
+ephemeral-storage lúc 10:41:37 UTC. Bốn alert trên PostgreSQL primary/replica
+còn sống xuất hiện 2,075–2,678 giây sau event này.
 
-Health snapshot lúc 10:17:47 UTC có 6/6 node Ready, ba detector giữ nguyên PID,
-restart delta bằng 0 và tổng 17.498 decision/0 alert. Worker1 có counter tích
-lũy 14 từ lỗi canary EOF trước formal start; baseline và PID trước/sau
-`reset-failed` đã được lưu, không restart process. Marker SHA-256 `68341bba...`.
-Run hiện chỉ là **ACTIVE**; chưa có false-positive claim 24 giờ và blind attack
-chỉ được mở sau khi normal gate terminal pass.
+Raw evidence có 135.033 decision và 136.360 feature row trên ba worker, zero
+collector integrity error. Validator độc lập xác nhận 12/12 checksum, 4/4 raw
+alert và đúng một eviction event trong marker interval; `VALIDATION.json`
+`valid=true`, SHA-256 `3fe8591a...`. Run được khóa
+`rejected_infrastructure_failure`; candidate không pass/fail bởi run này và dữ
+liệu tuyệt đối không dùng train/tune hay blind test.
 
-Monitor read-only commit `3f36c9d...` kiểm tra ba worker mỗi 60 giây và
-fail-closed nếu service dừng, restart delta khác 0, feature path lệch hoặc xuất
-hiện alert. Poll nền đầu tiên sau commit ghi tổng 46.993 decision/0 alert,
-không có `FAILED`; monitor không restart/stop workload hay promote candidate.
+### 7.24 Health provenance và bounded control telemetry
+
+Launcher formal nay không chỉ đếm `Ready`: nó yêu cầu node pressure/taint bằng
+0, production pod khỏe, CloudNativePG đủ replica và mọi Longhorn volume healthy
+liên tục 300 giây trước marker. Monitor áp cùng predicate trong run và lưu
+machine-readable failure snapshot. Worker3 có root disk thực tế 300 GiB,
+Longhorn khoảng 204 GB và control stream một giây khoảng 7,0 GB; stream này
+trước đây append không giới hạn. Daily rotation mới atomic-move, restart stream,
+checksum và nén archive, đồng thời tự skip nếu experiment/detector active. Timer
+đã enable trên ba worker. Ba rotation terminal success, nén 26,56 GB raw còn
+7,01 GB; worker3 còn 53,91 GB trống. A2 chỉ mở sau khi preflight không còn
+DiskPressure flapping. Full regression đạt **404 passed, 2 warning**.
+
+PVC replica PostgreSQL `aims-postgres-cnpg-2` sau eviction bị rỗng và thiếu
+`PGDATA`. Sau khi khóa YAML/UID evidence, chỉ pod/PVC replica này được thay;
+primary và replica thứ ba giữ nguyên. CloudNativePG bootstrap PVC mới từ
+primary và hoàn tất lúc 11:10:50 UTC: 3/3 `pg_isready`, hai replication session
+`streaming/async`, Longhorn `healthy/attached`, DiskPressure false. A2 vẫn phải
+chờ đủ continuous preflight; recovery thành công không được tính vào normal
+soak.
 
 ## 8. Protocol đánh giá và release gate
 
@@ -954,3 +970,17 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   reject và đóng băng (`training_eligible=false`). Root cause hẹp không xác định
   vì runner cũ thiếu failing-predicate log. Bổ sung stage/health evidence,
   3-check tolerance, rollout log/retry và transition gap 180 giây trước rerun.
+- 20-08-2026: rerun dataset 500 ms hợp lệ có 178.636 row, 249 feature, 20
+  workload và đủ bốn traffic regime. Candidate A1 train 20/20 workload; live
+  inference p99 39,18 ms và canary 902 giây có 0 alert. Đây chưa phải accuracy
+  hoặc true attack-latency evidence.
+- 20-08-2026: formal A1 bị infrastructure-reject sau khi worker3 DiskPressure
+  evict PostgreSQL replica. Bốn raw alert khớp 2,075–2,678 giây sau eviction;
+  validator xác nhận 12 checksum, 4 alert và một event. Dữ liệu run bị cấm
+  train/tune; candidate chưa được normal gate đánh giá.
+- 20-08-2026: formal launcher/monitor thêm pressure, production pod, CNPG và
+  Longhorn gate cùng preflight ổn định 300 giây. Daily checksum+gzip rotation
+  chặn control telemetry append vô hạn; full regression đạt 404 pass.
+- 20-08-2026: rotate 26,56 GB control stream còn 7,01 GB trên ba worker.
+  Replica CNPG số 2 có PVC rỗng sau eviction, được recreate có evidence từ
+  primary; hậu kiểm 3/3 `pg_isready`, replication streaming và Longhorn healthy.

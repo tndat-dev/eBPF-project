@@ -1,0 +1,4 @@
+5458d01eb442bdb365f1ccaefaa0ffebb95961d2a3a168b520526133efd8dd6f  SUMMARY.json
+e37da998ff5a61a30cf56a422d889a07d8e3b6d6f9d762c0fb15f0a5a5be3d38  k8s-worker1.local.manifest
+ca27d168c1eeafb6a90c80445ff80df6aa249a2ff5f180854e9fe121d3234996  k8s-worker3.local.manifest
+abbc5c3a0801c084952cc9da1c5177323ab3d5124d25ac25c77bd104ad7229b8  k8s-worker4.local.manifest

@@ -1,0 +1,9 @@
+[Unit]
+Description=Rotate and compress the Sentinel Pulse one-second control stream
+After=sentinel-pulse-collector.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/sentinel-pulse/bin/rotate_control_capture
+Nice=10
+IOSchedulingClass=idle

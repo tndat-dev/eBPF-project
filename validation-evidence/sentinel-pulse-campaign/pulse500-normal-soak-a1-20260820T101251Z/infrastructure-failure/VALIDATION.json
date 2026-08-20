@@ -1,0 +1,10 @@
+{
+  "ephemeral_storage_evictions": 1,
+  "errors": [],
+  "maximum_correlation_seconds": 10.0,
+  "raw_alerts": 4,
+  "run_id": "pulse500-normal-soak-a1-20260820T101251Z",
+  "schema": "sentinel-pulse-infrastructure-rejection-validation-v1",
+  "valid": true,
+  "verified_raw_files": 12
+}

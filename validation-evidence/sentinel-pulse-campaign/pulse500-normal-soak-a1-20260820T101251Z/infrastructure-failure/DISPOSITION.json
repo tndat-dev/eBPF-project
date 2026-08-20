@@ -1,0 +1,61 @@
+{
+  "affected_workload": "production/aims-postgres-cnpg:postgres",
+  "alert_evidence": [
+    {
+      "alerted_at": 1787222499.075225,
+      "alerted_at_utc": "2026-08-20T10:41:39.075225Z",
+      "node": "k8s-worker1.local",
+      "pod_name": "aims-postgres-cnpg-1"
+    },
+    {
+      "alerted_at": 1787222499.1284606,
+      "alerted_at_utc": "2026-08-20T10:41:39.128461Z",
+      "node": "k8s-worker4.local",
+      "pod_name": "aims-postgres-cnpg-3"
+    },
+    {
+      "alerted_at": 1787222499.5885468,
+      "alerted_at_utc": "2026-08-20T10:41:39.588547Z",
+      "node": "k8s-worker1.local",
+      "pod_name": "aims-postgres-cnpg-1"
+    },
+    {
+      "alerted_at": 1787222499.6783946,
+      "alerted_at_utc": "2026-08-20T10:41:39.678395Z",
+      "node": "k8s-worker4.local",
+      "pod_name": "aims-postgres-cnpg-3"
+    }
+  ],
+  "automatic_promotion": false,
+  "candidate_status": "not_evaluated_by_this_run",
+  "data_use": {
+    "blind_attack": false,
+    "development_diagnostics_only": true,
+    "normal_gate": false,
+    "training": false,
+    "tuning": false
+  },
+  "eviction_evidence": [
+    {
+      "creation_timestamp": "2026-08-20T10:41:37Z",
+      "involved_object": "aims-postgres-cnpg-2",
+      "last_timestamp": "2026-08-20T10:41:37Z",
+      "message": "The node was low on resource: ephemeral-storage. Threshold quantity: 47509751852, available: 46295968Ki. Container postgres was using 108Ki, request is 0, has larger consumption of ephemeral-storage. ",
+      "node": "k8s-worker3.local",
+      "reason": "Evicted"
+    }
+  ],
+  "monitor_failure_reason": "normal_alert_observed",
+  "observed_alerts": 4,
+  "reason": "Kubernetes evicted PostgreSQL replica for ephemeral-storage pressure during the soak; alerts on both surviving PostgreSQL instances occurred 2.075-2.678 seconds later.",
+  "recorded_at_unix": 1787223065.9621353,
+  "rerun_authorized_after": [
+    "DiskPressure=False without flapping",
+    "PostgreSQL 3/3 healthy",
+    "6/6 Kubernetes nodes Ready",
+    "no unhealthy production pods"
+  ],
+  "run_id": "pulse500-normal-soak-a1-20260820T101251Z",
+  "schema": "sentinel-pulse-normal-soak-disposition-v1",
+  "terminal_run_status": "rejected_infrastructure_failure"
+}

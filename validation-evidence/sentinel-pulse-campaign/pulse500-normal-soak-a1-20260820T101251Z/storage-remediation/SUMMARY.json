@@ -1,0 +1,16 @@
+{
+  "automatic_data_deletion": false,
+  "control_collectors_active_after_rotation": 3,
+  "daily_timers_active": 3,
+  "disk_bytes_available_after": {
+    "k8s-worker1.local": 198081388544,
+    "k8s-worker3.local": 53905530880,
+    "k8s-worker4.local": 104692633600
+  },
+  "experiments_active_during_rotation": 0,
+  "gzip_bytes": 7010459460,
+  "longhorn_or_pvc_files_modified": false,
+  "schema": "sentinel-pulse-storage-remediation-v1",
+  "terminal_successful_rotations": 3,
+  "uncompressed_bytes": 26560151936
+}

@@ -9,6 +9,9 @@ POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-poli
 RUN_ID=${RUN_ID:-pulse500-normal-soak-$(date -u +%Y%m%dT%H%M%SZ)}
 DURATION_SECONDS=${DURATION_SECONDS:-90000}
 MINIMUM_DURATION_HOURS=${MINIMUM_DURATION_HOURS:-24}
+PREFLIGHT_STABILITY_SECONDS=${PREFLIGHT_STABILITY_SECONDS:-300}
+PREFLIGHT_TIMEOUT_SECONDS=${PREFLIGHT_TIMEOUT_SECONDS:-1800}
+PYTHON=${PYTHON:-python3}
 SSH_USER=${SSH_USER:-dat}
 EVIDENCE_ROOT=${EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$RUN_ID}
 WORKERS=(
@@ -21,6 +24,7 @@ WORKERS=(
 command -v sshpass >/dev/null
 command -v rsync >/dev/null
 command -v kubectl >/dev/null
+command -v jq >/dev/null
 [[ $MODEL_SOURCE == "$LOCAL_ROOT"/* ]] || {
   echo "MODEL_SOURCE must be contained by LOCAL_ROOT" >&2; exit 2;
 }
@@ -30,6 +34,14 @@ command -v kubectl >/dev/null
 [[ $DURATION_SECONDS =~ ^[0-9]+$ ]] && ((DURATION_SECONDS >= 86400 && DURATION_SECONDS <= 90000)) || {
   echo "formal soak duration must be 86400..90000 seconds" >&2; exit 2;
 }
+[[ $PREFLIGHT_STABILITY_SECONDS =~ ^[0-9]+$ ]] &&
+  ((PREFLIGHT_STABILITY_SECONDS >= 60)) || {
+    echo "preflight stability must be at least 60 seconds" >&2; exit 2;
+  }
+[[ $PREFLIGHT_TIMEOUT_SECONDS =~ ^[0-9]+$ ]] &&
+  ((PREFLIGHT_TIMEOUT_SECONDS >= PREFLIGHT_STABILITY_SECONDS)) || {
+    echo "preflight timeout must cover the stability interval" >&2; exit 2;
+  }
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$POLICY_SOURCE"
@@ -49,10 +61,49 @@ remote_sudo() {
     "sudo -S $*"
 }
 
-ready=$(kubectl get nodes --no-headers | awk '$2 ~ /^Ready/ {n++} END {print n+0}')
-total=$(kubectl get nodes --no-headers | wc -l)
-[[ $ready -eq 6 && $total -eq 6 ]] || {
-  echo "cluster is not 6/6 Ready" >&2; exit 3;
+cluster_health_snapshot() {
+  local node_bad pod_bad longhorn_bad cnpg_bad total
+  total=$(kubectl get nodes -o json | jq '.items | length')
+  node_bad=$(kubectl get nodes -o json | PYTHONPATH="$LOCAL_ROOT" \
+    "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count)
+  pod_bad=$(kubectl -n production get pods -o json | PYTHONPATH="$LOCAL_ROOT" \
+    "$PYTHON" -m sentinel_pulse.cluster_health --resource pods \
+      --grace-seconds 0 --count)
+  longhorn_bad=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | \
+    jq '[.items[] | select(.status.robustness != "healthy")] | length')
+  cnpg_bad=$(kubectl -n production get clusters.postgresql.cnpg.io -o json | \
+    jq '[.items[] | select(
+      (.status.readyInstances // 0) != (.status.instances // .spec.instances // 0)
+      or (.status.phase // "") != "Cluster in healthy state"
+    )] | length')
+  printf 'nodes=%s node_bad=%s production_pod_bad=%s longhorn_bad=%s cnpg_bad=%s\n' \
+    "$total" "$node_bad" "$pod_bad" "$longhorn_bad" "$cnpg_bad"
+  [[ $total -eq 6 && $node_bad -eq 0 && $pod_bad -eq 0 &&
+     $longhorn_bad -eq 0 && $cnpg_bad -eq 0 ]]
+}
+
+wait_for_stable_cluster() {
+  local deadline stable_since=0 now snapshot
+  deadline=$(( $(date +%s) + PREFLIGHT_TIMEOUT_SECONDS ))
+  while :; do
+    now=$(date +%s)
+    if snapshot=$(cluster_health_snapshot); then
+      if ((stable_since == 0)); then
+        stable_since=$now
+      fi
+      printf 'normal-soak preflight healthy: %s stable=%ss/%ss\n' \
+        "$snapshot" "$((now - stable_since))" "$PREFLIGHT_STABILITY_SECONDS"
+      ((now - stable_since >= PREFLIGHT_STABILITY_SECONDS)) && return 0
+    else
+      stable_since=0
+      printf 'normal-soak preflight unhealthy: %s\n' "$snapshot" >&2
+    fi
+    ((now < deadline)) || {
+      echo "cluster did not remain healthy for the preregistered stability interval" >&2
+      return 1
+    }
+    sleep 15
+  done
 }
 
 model_rel=${MODEL_SOURCE#"$LOCAL_ROOT/"}
@@ -71,6 +122,11 @@ for target in "${WORKERS[@]}"; do
   remote "$host" \
     "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate"
 done
+
+# A Ready node may still have DiskPressure=True. Require all node pressure,
+# production workload, Longhorn and CloudNativePG gates to remain healthy
+# continuously before creating the immutable experiment marker.
+wait_for_stable_cluster
 
 # The marker exists before any experimental collector or detector starts.
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \

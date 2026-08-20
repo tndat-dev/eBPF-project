@@ -216,6 +216,22 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("collectors_started=true", runner)
         self.assertNotIn("systemctl enable", runner)
 
+    def test_formal_soak_requires_pressure_free_stable_cluster(self):
+        starter = (
+            ROOT / "sentinel_pulse" / "start_500ms_normal_soak.sh"
+        ).read_text()
+        monitor = (
+            ROOT / "sentinel_pulse" / "monitor_500ms_normal_soak.sh"
+        ).read_text()
+        self.assertIn("wait_for_stable_cluster", starter)
+        self.assertIn("--resource nodes", starter)
+        self.assertIn("PREFLIGHT_STABILITY_SECONDS", starter)
+        self.assertIn("longhorn_bad", starter)
+        self.assertIn("cnpg_bad", starter)
+        self.assertIn("check_cluster_health", monitor)
+        self.assertIn("unhealthy_kubernetes_node", monitor)
+        self.assertIn("FAILURE_NODES.json", monitor)
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)
@@ -234,6 +250,25 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('systemctl start sentinel-pulse-collector.service', script)
         self.assertIn('"capture_sha256": digest.hexdigest()', script)
         self.assertIn('date -u +%FT%TZ >"$MARKER"', script)
+
+    def test_control_capture_rotation_is_bounded_and_experiment_safe(self):
+        script = (
+            ROOT / "sentinel_pulse" / "rotate_control_capture.sh"
+        ).read_text()
+        installer = (ROOT / "sentinel_pulse" / "install_node.sh").read_text()
+        timer = (
+            ROOT
+            / "sentinel_pulse"
+            / "systemd"
+            / "sentinel-pulse-control-rotate.timer"
+        ).read_text()
+        self.assertIn("sentinel-pulse-collector-500ms-experiment.service", script)
+        self.assertIn("sentinel-pulse-detector-candidate.service", script)
+        self.assertIn('mv "$CAPTURE" "$archive"', script)
+        self.assertIn('gzip -1 "$archive"', script)
+        self.assertIn("uncompressed_sha256", script)
+        self.assertIn("sentinel-pulse-control-rotate.timer", installer)
+        self.assertIn("OnCalendar=", timer)
 
     def test_finalizer_is_persistent_and_config_is_immutable(self):
         arm = (ROOT / "sentinel_pulse" / "arm_capture_finalizer.sh").read_text()

@@ -1,0 +1,58 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "620a1c32f6dd40134370d17fe213955de069f99ad85434ab97899a74a5e41c5d",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.05968427658081055,
+    "p50": 0.010757684707641602,
+    "p95": 0.02132455110549926,
+    "p99": 0.027239196300506592
+  },
+  "interval_seconds": {
+    "max": 0.5144214630126953,
+    "p50": 0.502058744430542,
+    "p95": 0.5045042037963867,
+    "p99": 0.5063588619232178
+  },
+  "path": "/var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl",
+  "rows": 32994,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.012957811,
+    "p50": 0.001357079,
+    "p95": 0.003277063,
+    "p99": 0.004990101
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5741057395935059,
+    "p50": 0.5130594968795776,
+    "p95": 0.524043333530426,
+    "p99": 0.5302349257469178
+  },
+  "workloads": {
+    "production/aims-frontend:web": 2001,
+    "production/aims-kafka-dual-role:kafka": 3779,
+    "production/aims-postgres-cnpg:postgres": 3367,
+    "production/aims-rabbitmq-server:rabbitmq": 3779,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 3779,
+    "production/api-gateway:app": 2887,
+    "production/auth-service:app": 2728,
+    "production/cart-service:app": 2449,
+    "production/order-service:app": 2419,
+    "production/payment-service:pod-slice": 3371,
+    "production/security-telemetry-service:app": 2435
+  }
+}
