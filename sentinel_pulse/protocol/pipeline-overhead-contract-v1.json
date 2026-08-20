@@ -1,0 +1,103 @@
+{
+  "schema": "sentinel-pulse-pipeline-overhead-contract-v1",
+  "registered_before_blind_outcomes": true,
+  "automatic_promotion": false,
+  "candidate_interlock": {
+    "required_status": "eligible_for_overhead_evaluation",
+    "required_accuracy_latency_evidence": true,
+    "model_policy_identity_must_match_blind": true
+  },
+  "scope": {
+    "namespace": "production",
+    "workers": [
+      "k8s-worker1.local",
+      "k8s-worker3.local",
+      "k8s-worker4.local"
+    ],
+    "minimum_independent_dates": 2,
+    "endpoint_path": "/api/products/",
+    "traffic_generators_unchanged": true
+  },
+  "conditions": {
+    "off": [
+      "tetragon",
+      "legacy_one_second_collector",
+      "production_background_traffic"
+    ],
+    "on": [
+      "tetragon",
+      "legacy_one_second_collector",
+      "production_background_traffic",
+      "sentinel_pulse_500ms_collector",
+      "sentinel_pulse_extratrees_detector"
+    ]
+  },
+  "design": {
+    "phase_order": [
+      "off",
+      "on",
+      "on",
+      "off",
+      "off",
+      "on",
+      "on",
+      "off",
+      "off",
+      "on",
+      "on",
+      "off"
+    ],
+    "adjacent_pairs": 6,
+    "repetitions_per_phase": 5,
+    "warmup_seconds": 10,
+    "stabilization_seconds": 20,
+    "measurement_seconds_per_repetition": 60,
+    "wrk_threads": 4,
+    "wrk_connections": 50
+  },
+  "primary_outcomes": {
+    "throughput_loss_percent": {
+      "direction": "100 * (1 - on_rps / off_rps)",
+      "maximum_equivalence_margin_percent": 3.0
+    },
+    "p99_latency_increase_percent": {
+      "direction": "100 * (on_p99 / off_p99 - 1)",
+      "maximum_equivalence_margin_percent": 5.0
+    }
+  },
+  "secondary_outcomes": [
+    "pulse_collector_cpu_cores",
+    "pulse_collector_memory_bytes",
+    "pulse_detector_cpu_cores",
+    "pulse_detector_memory_bytes",
+    "tetragon_cpu_millicores",
+    "tetragon_memory_mib",
+    "production_workload_cpu_millicores",
+    "production_workload_memory_mib"
+  ],
+  "quality_gates": {
+    "maximum_failed_requests": 0,
+    "maximum_socket_errors": 0,
+    "maximum_non_success_responses": 0,
+    "maximum_pulse_service_restarts": 0,
+    "maximum_normal_alerts": 0,
+    "endpoint_uid_and_ip_immutable_within_campaign": true,
+    "all_cluster_health_gates_required": true,
+    "all_raw_artifacts_checksum_bound": true
+  },
+  "statistics": {
+    "unit": "adjacent_off_on_pair",
+    "aggregate_across_campaigns": "hierarchical_by_worker_and_date",
+    "confidence_level": 0.95,
+    "bootstrap_resamples": 10000,
+    "paired_randomization_test": true,
+    "equivalence_claim_requires_confidence_interval_inside_margin": true,
+    "multiple_primary_outcomes": 2,
+    "holm_correction": true
+  },
+  "interpretation": {
+    "failed_quality_gate": "reject campaign as infrastructure evidence; do not rerun a detection miss",
+    "failed_equivalence": "report measured overhead and confidence interval; do not claim equivalence",
+    "passed_equivalence": "eligible for manual production review only"
+  }
+}
