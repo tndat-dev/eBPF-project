@@ -5930,6 +5930,8 @@ policy, blind contract, implementation contract, C source và static binary đ�
 và kiểm lại khi finalize. Runner/evaluator chỉ đọc bản staged, nên một checkout
 Git bên ngoài không thể âm thầm thay protocol giữa campaign. `FINAL_SHA256SUMS`
 bind toàn bộ protocol, source, binary, model/normal/blind result. Clean
-regression trên control plane tiếp tục đạt **420 passed, 2 warning**; blind
-worktree sạch và đã chuyển sang commit này. Snapshot sau deploy source có
+regression trên control plane tiếp tục đạt **420 passed, 2 warning**. Commit
+`9540a00` bổ sung checksum manifest tương đối, portable, bind cả terminal
+`BLIND_RESULT`, worker health/finalize snapshots và tự verify manifest cuối;
+blind worktree sạch hiện trỏ commit này. Snapshot sau deploy source có
 **1.132.488 normal decision, 0 alert, 0 restart**; A2 active repo vẫn không đổi.

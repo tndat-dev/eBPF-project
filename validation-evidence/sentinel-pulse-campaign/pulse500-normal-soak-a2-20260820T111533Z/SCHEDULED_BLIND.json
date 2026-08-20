@@ -15,7 +15,7 @@
   "normal_wait_timeout_seconds": 14400,
   "normal_evidence_run": "pulse500-normal-soak-a2-20260820T111533Z",
   "blind_run": "pulse500-blind-a1-20260821T112630Z",
-  "source_git_commit": "3cdff282b6c540b96bbf4fcf116f1e36f5757a58",
+  "source_git_commit": "9540a00c380af17606ee7ec6355e85ca1cffd3a7",
   "working_directory": "/home/dat/eBPF-project-blind-881ddff",
   "remote_runtime_root": "/home/dat/eBPF-project-pulse-blind",
   "automatic_promotion": false,

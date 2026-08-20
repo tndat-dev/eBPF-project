@@ -1096,7 +1096,9 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   4,181 giờ hay 17,42% formal soak 24 giờ; chưa được diễn giải là normal-pass.
 - 20-08-2026: blind bundle tại commit `3cdff28` trở thành self-contained:
   policy, attack/implementation contract, C source, static binary và model đều
-  được stage read-only, hash trước run và verify lại khi finalize. Scheduled
-  worktree sạch đã cập nhật đúng commit; regression vẫn 420 pass. A2 tiếp tục
+  được stage read-only, hash trước run và verify lại khi finalize. Commit
+  `9540a00` làm final checksum portable và bind cả terminal result cùng worker
+  snapshot. Scheduled worktree sạch đã cập nhật đúng commit; regression vẫn
+  420 pass. A2 tiếp tục
   active với snapshot 1.132.488 decision/0 alert/0 restart; không hot-update
   candidate đang formal soak.
