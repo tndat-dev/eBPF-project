@@ -43,6 +43,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("mv -Tf", installer)
         self.assertIn("live decision model identity mismatch", installer)
         self.assertIn("live decision policy identity mismatch", installer)
+        self.assertIn('systemctl reset-failed "$SERVICE"', installer)
         self.assertIn("FEATURE_SOURCE", installer)
         self.assertIn("sentinel-pulse-readers", installer)
         self.assertIn("/var/lib/sentinel-pulse-500ms/runs/*/features.jsonl", installer)

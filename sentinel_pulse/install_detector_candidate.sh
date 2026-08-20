@@ -209,6 +209,7 @@ install -m 0644 "$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE" \
   "/etc/systemd/system/$SERVICE"
 systemctl daemon-reload
 systemctl enable "$SERVICE"
+systemctl reset-failed "$SERVICE" 2>/dev/null || true
 if ! systemctl restart "$SERVICE"; then
   rollback_candidate
   exit 5

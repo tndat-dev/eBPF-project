@@ -1,0 +1,3 @@
+10.1.16.237 k8s-worker1.local /var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl
+10.1.16.239 k8s-worker3.local /var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl
+10.1.16.238 k8s-worker4.local /var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl

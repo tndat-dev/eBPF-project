@@ -1,0 +1,1 @@
+{"schema":"sentinel-pulse-invalid-run-v1","valid":false,"reason":"feature_source_mismatch_expected_500ms_observed_1s","decision_rows":1040,"alert_rows":0}

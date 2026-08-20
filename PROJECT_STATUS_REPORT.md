@@ -5703,3 +5703,38 @@ Benchmark SHA-256 `66dec375...`. Vì replay dùng chính normal dataset đã tra
 calibrate, báo cáo ghi rõ `in_sample=true`, `accuracy_evidence=false`: chưa được
 coi 9.997 normal, 3 suppressed là false-positive test. Bước đang mở là canary
 500 ms trên live-normal độc lập, sau đó mới chạy blind attack matrix đã khóa.
+
+### 18.136 Live-normal canary Sentinel Pulse A1 (20-08-2026)
+
+Canary 500 ms worker1 hoàn tất 902,43 giây với 25.863 telemetry row/14 workload,
+zero drop và capture valid. Collector interval p99 508,28 ms,
+window-start-to-emit p99 545,06 ms, trung bình 0,0484 core, memory peak
+70.598.656 byte. Detector hợp lệ sinh 20.387 decision: 20.306 normal, 33
+suppressed, 48 warming và **0 alert**; mỗi workload phủ khoảng 11,8 phút,
+coverage thấp nhất 99,4%.
+
+Live inference p99 **39,18 ms**, post-window processing p99 404,94 ms. Nominal
+0,5 giây + processing p99 = 0,905 giây; tổng component max quan sát 1,218 giây.
+Đây là latency-budget evidence, chưa phải true kernel-to-alert của attack và
+chưa đủ thay normal soak 24 giờ.
+
+Một rollout trước đó đọc nhầm file một giây được giữ `valid=false` với 1.040
+decision/0 alert và loại khỏi evidence. Sau measured interval, finite collector
+trả quyền directory về root làm follower cũ restart 14 lần; lỗi nằm sau dữ liệu
+canary hợp lệ nhưng vẫn được lưu. Follower đã được sửa để không crash khi
+path-stat mất quyền tại EOF, installer reset stale counter. Summary/report/index
+SHA-256 `11b26e2b...`/`178b3ff7...`/`b2611351...`.
+
+### 18.137 Formal soak 25 giờ đã khởi chạy (20-08-2026)
+
+Formal run `pulse500-normal-soak-a1-20260820T101251Z` đang active trên worker1,
+worker3, worker4, cùng model `c4683505...` và policy `272e9119...`. Marker khóa
+trước launch từ commit `4d2a992...`, yêu cầu 0 alert, ≥24 giờ/workload và
+coverage ≥95%; `eligible_finalize_after` là **21-08-2026 10:12:56 UTC**. Không
+auto-promote và chưa mở blind test.
+
+Snapshot 10:17:47 UTC: 6/6 node Ready, cả sáu collector/detector unit trên ba
+worker active, restart delta formal bằng 0, tổng 17.498 decision/0 alert. Counter
+14 cũ của worker1 đã được bind vào baseline canary rồi reset mà PID/active time
+formal không đổi. Marker SHA-256 `68341bba...`. Trạng thái hiện tại là ACTIVE,
+không được diễn giải thành normal gate đã pass.

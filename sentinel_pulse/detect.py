@@ -52,6 +52,12 @@ class RotatingJsonlFollower:
             current = self.path.stat()
         except FileNotFoundError:
             return False
+        except PermissionError:
+            # A finite collector can restore root ownership while shutting
+            # down after this process has already opened the stream. At EOF,
+            # keep the valid descriptor and wait for an explicit detector stop
+            # instead of entering a systemd restart storm on a path stat.
+            return False
         return (
             (current.st_dev, current.st_ino) != self.identity
             or current.st_size < self.source.tell()

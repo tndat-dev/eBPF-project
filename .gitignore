@@ -18,3 +18,5 @@ kernel-regression-*/
 # because individual campaign feature streams can exceed GitHub's size limit.
 validation-evidence/**/features.jsonl
 validation-evidence/**/*.pkl
+validation-evidence/**/decisions.jsonl
+validation-evidence/**/alerts.jsonl

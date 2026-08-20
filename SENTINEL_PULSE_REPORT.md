@@ -703,6 +703,46 @@ dùng để claim precision, recall hoặc false-positive rate. Ba raw anomaly t
 replay đều bị semantic policy suppress; normal soak độc lập mới là evidence
 hợp lệ cho false positive.
 
+### 7.22 Live-normal canary 500 ms trên worker1
+
+Canary `pulse500-live-normal-a1-20260820T095437Z` chạy collector 500 ms trong
+902,43 giây trên worker1. Capture gồm 25.863 row/14 workload, `valid=true`, mọi
+drop counter bằng 0; interval p99 508,28 ms, window-start-to-emit p99 545,06 ms,
+collector trung bình 0,0484 core và memory peak 70.598.656 byte.
+
+Run detector hợp lệ có 20.387 decision, gồm 48 warming, 20.306 normal, 33
+suppressed và **0 alert**; 20.339 scored window phủ khoảng 11,8 phút/workload,
+coverage thấp nhất 99,4%. Live inference p50/p95/p99/max là
+17,66/30,74/**39,18**/77,57 ms; post-window processing p99 404,94 ms, max
+703,67 ms. Nominal window 0,5 giây cộng processing p99 là 0,905 giây; tổng hai
+component max quan sát là 1,218 giây. Đây không phải true attack latency và
+canary ngắn không thay thế normal soak 24 giờ.
+
+Lần rollout đầu của canary bị env trỏ nhầm stream một giây do source chưa sync;
+1.040 decision đó được khóa `valid=false` trong
+`REJECTED_WRONG_SOURCE_RUN.json`, tuyệt đối không nhập vào kết quả. Khi finite
+collector dừng, systemd trả group của run directory về root làm follower cũ
+`PermissionError` và phát sinh 14 restart sau measured interval. Code follower
+đã được harden để chờ ở EOF khi path-stat mất quyền; installer cũng reset stale
+restart counter trước run mới. Canary summary/normal report/bundle-index SHA-256
+là `11b26e2b...`/`178b3ff7...`/`b2611351...`.
+
+### 7.23 Formal normal soak A1 đang chạy
+
+Run `pulse500-normal-soak-a1-20260820T101251Z` được preregister trước launch,
+bind model `c4683505...`, policy `272e9119...`, source commit `4d2a992...`, cấm
+blind evaluation và auto-promotion. Ba worker đọc đúng ba stream 500 ms riêng;
+collector và detector đều active. Marker yêu cầu 0 alert, tối thiểu 24 giờ cho
+mỗi workload và coverage ≥95%; mốc sớm nhất được finalize là
+**21-08-2026 10:12:56 UTC**. Collector chạy 25 giờ để có một giờ safety margin.
+
+Health snapshot lúc 10:17:47 UTC có 6/6 node Ready, ba detector giữ nguyên PID,
+restart delta bằng 0 và tổng 17.498 decision/0 alert. Worker1 có counter tích
+lũy 14 từ lỗi canary EOF trước formal start; baseline và PID trước/sau
+`reset-failed` đã được lưu, không restart process. Marker SHA-256 `68341bba...`.
+Run hiện chỉ là **ACTIVE**; chưa có false-positive claim 24 giờ và blind attack
+chỉ được mở sau khi normal gate terminal pass.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

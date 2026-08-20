@@ -2,6 +2,7 @@ import tempfile
 import threading
 import time
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 from sentinel_pulse.detect import RotatingJsonlFollower
@@ -51,6 +52,17 @@ class PulseFollowerTests(unittest.TestCase):
                 '{"schema":"sentinel-pulse-feature-v1"}\n',
             )
             writer.join(timeout=1)
+            follower.close()
+
+    def test_open_follower_tolerates_path_permission_change_at_eof(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "features.jsonl"
+            path.write_text("row\n", encoding="utf-8")
+            follower = RotatingJsonlFollower(path, from_start=True, poll_seconds=0)
+            self.assertTrue(follower._open())
+            follower.source.seek(0, 2)
+            with patch.object(Path, "stat", side_effect=PermissionError):
+                self.assertFalse(follower._path_replaced_or_truncated())
             follower.close()
 
 

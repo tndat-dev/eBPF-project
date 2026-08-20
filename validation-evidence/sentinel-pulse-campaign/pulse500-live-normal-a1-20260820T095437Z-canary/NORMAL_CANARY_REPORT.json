@@ -1,0 +1,249 @@
+{
+  "alerts": 0,
+  "coverage_gate": true,
+  "decision_policy_identity_gate": true,
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "decisions_sha256": "0706167d650bf390f1709e17bbd3721e58df7ee25425fcdbbf91fddf9d2372d5",
+  "duration_gate": true,
+  "excluded_scored_windows_before_marker": 0,
+  "false_alert_rate_wilson_95": [
+    0.0,
+    0.00018883590222488125
+  ],
+  "marker_time_gate": false,
+  "maximum_alerts": 0,
+  "minimum_coverage_ratio_per_workload": 0.9,
+  "minimum_duration_hours_per_workload": 0.15,
+  "minimum_scored_windows": 10000,
+  "model_identity_gate": true,
+  "model_manifest_sha256": "c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7",
+  "normal_gate": true,
+  "observed_false_alert_rate": 0.0,
+  "path": "/var/lib/sentinel-pulse-detector/runs/c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7-272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e-pulse500-live-normal-a1-20260820T095437Z-r2/decisions.jsonl",
+  "run_id": "pulse500-live-normal-a1-20260820T095437Z-r2",
+  "run_identity_gate": true,
+  "schema": "sentinel-pulse-normal-soak-report-v1",
+  "scored_windows": 20339,
+  "soak_eligible_finalize_after": null,
+  "soak_marker_gate": false,
+  "soak_marker_sha256": null,
+  "soak_started_not_before": null,
+  "statuses": {
+    "normal": 20306,
+    "suppressed": 33,
+    "warming": 48
+  },
+  "suppressed_raw_anomalies": 33,
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002720885405860571
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1408,
+      "span_seconds": 709
+    },
+    "production/aims-minio-pool-0:minio": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.003118468527899486
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1228,
+      "span_seconds": 709
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0032504011363142923
+      ],
+      "observed_duration_hours": 0.19633622301949394,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 708,
+      "scored_windows": 1178,
+      "span_seconds": 708
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002720885405860571
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1408,
+      "span_seconds": 709
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002720885405860571
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1408,
+      "span_seconds": 709
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002720885405860571
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1408,
+      "span_seconds": 709
+    },
+    "production/aims-redis:aims-redis": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0009086099509903699
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 4224,
+      "span_seconds": 709
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002720885405860571
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 709,
+      "scored_windows": 1408,
+      "span_seconds": 709
+    },
+    "production/auth-service:app": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.995768688293371,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0037593491510195215
+      ],
+      "observed_duration_hours": 0.19647611207432217,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 706,
+      "scored_windows": 1018,
+      "span_seconds": 709
+    },
+    "production/cart-service:app": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.998589562764457,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0037965026904228285
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 708,
+      "scored_windows": 1008,
+      "span_seconds": 709
+    },
+    "production/catalog-service:app": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.9943502824858758,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.003436497000877751
+      ],
+      "observed_duration_hours": 0.19619668132729,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 704,
+      "scored_windows": 1114,
+      "span_seconds": 708
+    },
+    "production/inventory-service:app": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.9971711456859972,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0037965026904228285
+      ],
+      "observed_duration_hours": 0.1961962463458379,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 705,
+      "scored_windows": 1008,
+      "span_seconds": 707
+    },
+    "production/notification-service:pod-slice": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.997179125528914,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.0031936534881832385
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 707,
+      "scored_windows": 1199,
+      "span_seconds": 709
+    },
+    "production/payment-service:pod-slice": {
+      "alerts": 0,
+      "coverage_gate": true,
+      "coverage_ratio": 0.997179125528914,
+      "duration_gate": true,
+      "false_alert_rate_wilson_95": [
+        0.0,
+        0.002897374188397318
+      ],
+      "observed_duration_hours": 0.19661573906739552,
+      "observed_false_alert_rate": 0.0,
+      "observed_second_buckets": 707,
+      "scored_windows": 1322,
+      "span_seconds": 709
+    }
+  }
+}

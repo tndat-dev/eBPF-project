@@ -1,0 +1,77 @@
+{
+  "accuracy_evidence": false,
+  "capture": {
+    "collector_max_drops": {
+      "count_insert_fail": 0,
+      "snapshot_consistency_retry_exhausted": 0,
+      "snapshot_total_mismatch": 0,
+      "target_snapshot_gap": 0,
+      "task_state_update_fail": 0,
+      "transition_insert_fail": 0
+    },
+    "duration_seconds": 902.426751613617,
+    "interval_seconds": {
+      "max": 0.5141308307647705,
+      "p50": 0.502673864364624,
+      "p95": 0.5060014724731445,
+      "p99": 0.5082838535308838
+    },
+    "rows": 25863,
+    "window_start_to_emit_seconds": {
+      "max": 0.5828933715820312,
+      "p50": 0.5177943706512451,
+      "p95": 0.5341828823089599,
+      "p99": 0.5450560808181762
+    },
+    "workloads": 14
+  },
+  "claim_scope": "bounded live-normal smoke; not 24-hour soak and not attack latency evidence",
+  "composed_latency_note": "nominal window plus post-window p99; not a true attack latency percentile",
+  "composed_window_plus_processing_p99_seconds": 0.904942512512207,
+  "conservative_observed_component_max_sum_seconds": 1.2178049087524414,
+  "decision_policy_sha256": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+  "decisions": 20387,
+  "decisions_sha256": "0706167d650bf390f1709e17bbd3721e58df7ee25425fcdbbf91fddf9d2372d5",
+  "feature_source": "/var/lib/sentinel-pulse-500ms/runs/pulse500-live-normal-a1-20260820T095437Z/features.jsonl",
+  "inference_ms": {
+    "count": 20339,
+    "max": 77.56970706395805,
+    "p50": 17.663842998445034,
+    "p95": 30.74207401368767,
+    "p99": 39.18090101797134
+  },
+  "model_manifest_sha256": "c4683505626f059b251bf954ed7921bbc07f3936bd4ae1207db346d33e3f51d7",
+  "normal_report_sha256": "178b3ff70dd78d268bd494579ea7eba74f7d045c22c079fef758843a123c38ce",
+  "post_window_processing_seconds": {
+    "count": 20339,
+    "max": 0.7036740779876709,
+    "p50": 0.18782567977905273,
+    "p95": 0.34038281440734863,
+    "p99": 0.40494251251220703
+  },
+  "run_id": "pulse500-live-normal-a1-20260820T095437Z-r2",
+  "schema": "sentinel-pulse-500ms-live-canary-v1",
+  "statuses": {
+    "normal": 20306,
+    "suppressed": 33,
+    "warming": 48
+  },
+  "true_attack_latency_evidence": false,
+  "valid": true,
+  "workloads": [
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:pod-slice",
+    "production/payment-service:pod-slice"
+  ]
+}

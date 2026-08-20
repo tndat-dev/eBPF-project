@@ -1,0 +1,31 @@
+checked_at=2026-08-20T10:17:47Z
+node k8s-master.local Ready control-plane v1.34.10
+node k8s-master2.local Ready control-plane v1.34.10
+node k8s-master3.local Ready control-plane v1.34.10
+node k8s-worker1.local Ready <none> v1.34.10
+node k8s-worker3.local Ready <none> v1.34.10
+node k8s-worker4.local Ready <none> v1.34.10
+host=10.1.16.237
+active
+active
+MainPID=1370686
+NRestarts=0
+ActiveEnterTimestamp=Thu 2026-08-20 10:13:15 UTC
+features=/var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl
+decisions=7781 alerts=0
+host=10.1.16.239
+active
+active
+MainPID=3908707
+NRestarts=0
+ActiveEnterTimestamp=Thu 2026-08-20 10:13:44 UTC
+features=/var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl
+decisions=4241 alerts=0
+host=10.1.16.238
+active
+active
+MainPID=89634
+NRestarts=0
+ActiveEnterTimestamp=Thu 2026-08-20 10:14:15 UTC
+features=/var/lib/sentinel-pulse-500ms/runs/pulse500-normal-soak-a1-20260820T101251Z/features.jsonl
+decisions=5476 alerts=0
