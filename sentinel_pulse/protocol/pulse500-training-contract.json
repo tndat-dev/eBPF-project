@@ -1,0 +1,12 @@
+{
+  "alpha": 0.001,
+  "automatic_promotion": false,
+  "blind_attack_contract_sha256": "b47cb7f91fc4b1e83475917e700d9c0adc41b596af0f624ba52c92fc77bc5751",
+  "candidate_id": "sentinel-pulse-500ms-candidate-a1",
+  "dataset_sha256": "5ee30ee49c1b0fc75c23878a2eeb7a640c8579702df484e03e69ff25804b5cc7",
+  "frozen_before_training": true,
+  "history_windows": 3,
+  "notes": "Development candidate. Alpha 1e-4 is not representable for the least-populated workload in this bounded capture.",
+  "schema": "sentinel-pulse-training-contract-v1",
+  "window_seconds": 0.5
+}

@@ -1,0 +1,61 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "155b363768264c929c475e6dcd224b210682089cb6d776a82593e67c10059fd6",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.08687043190002441,
+    "p50": 0.016705036163330078,
+    "p95": 0.03263986110687256,
+    "p99": 0.0413881778717041
+  },
+  "interval_seconds": {
+    "max": 0.516068696975708,
+    "p50": 0.5027923583984375,
+    "p95": 0.5061371326446533,
+    "p99": 0.5086855888366699
+  },
+  "path": "validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker1.local/features.jsonl",
+  "rows": 92571,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.015142679,
+    "p50": 0.001860619,
+    "p95": 0.004708767,
+    "p99": 0.006881237
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5906960964202881,
+    "p50": 0.5198662281036377,
+    "p95": 0.5362613201141357,
+    "p99": 0.5455405473709106
+  },
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": 6223,
+    "production/aims-minio-pool-0:minio": 5646,
+    "production/aims-minio-pool-0:sidecar": 5140,
+    "production/aims-postgres-cnpg:postgres": 6223,
+    "production/aims-rabbitmq-server:rabbitmq": 6223,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6223,
+    "production/aims-redis:aims-redis": 18669,
+    "production/aims-waypoint:istio-proxy": 6223,
+    "production/auth-service:app": 5064,
+    "production/cart-service:app": 5008,
+    "production/catalog-service:app": 5386,
+    "production/inventory-service:app": 4946,
+    "production/notification-service:pod-slice": 5740,
+    "production/payment-service:pod-slice": 5857
+  }
+}

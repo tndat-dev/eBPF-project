@@ -1,0 +1,58 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "bb92c91fccf83fb9163f7aa7228a42fabd0141b272798e91b399a2920ce80ccf",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.06106209754943848,
+    "p50": 0.011575460433959961,
+    "p95": 0.023324108123779295,
+    "p99": 0.030016975402832023
+  },
+  "interval_seconds": {
+    "max": 0.5175740718841553,
+    "p50": 0.5020828247070312,
+    "p95": 0.5045161247253418,
+    "p99": 0.5062577724456787
+  },
+  "path": "validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker3.local/features.jsonl",
+  "rows": 57413,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.010045767,
+    "p50": 0.001367807,
+    "p95": 0.003378868,
+    "p99": 0.004912385839999979
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5636413097381592,
+    "p50": 0.5138940811157227,
+    "p95": 0.5260575771331787,
+    "p99": 0.5330411243438721
+  },
+  "workloads": {
+    "production/aims-frontend:web": 4230,
+    "production/aims-kafka-dual-role:kafka": 6247,
+    "production/aims-postgres-cnpg:postgres": 6247,
+    "production/aims-rabbitmq-server:rabbitmq": 6247,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6247,
+    "production/api-gateway:app": 5237,
+    "production/auth-service:app": 5040,
+    "production/cart-service:app": 4059,
+    "production/order-service:app": 4041,
+    "production/payment-service:pod-slice": 5791,
+    "production/security-telemetry-service:app": 4027
+  }
+}

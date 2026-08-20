@@ -1,0 +1,67 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "5ee30ee49c1b0fc75c23878a2eeb7a640c8579702df484e03e69ff25804b5cc7",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.08687043190002441,
+    "p50": 0.014822006225585938,
+    "p95": 0.030731022357940674,
+    "p99": 0.03943156003952026
+  },
+  "interval_seconds": {
+    "max": 0.5207579135894775,
+    "p50": 0.502598762512207,
+    "p95": 0.5056836605072021,
+    "p99": 0.5079233646392822
+  },
+  "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/dataset/features.jsonl",
+  "rows": 178636,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.015142679,
+    "p50": 0.0017155410000000001,
+    "p95": 0.004328728,
+    "p99": 0.006301165
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5906960964202881,
+    "p50": 0.5177404880523682,
+    "p95": 0.5341448187828064,
+    "p99": 0.5432608723640442
+  },
+  "workloads": {
+    "production/aims-frontend:web": 6473,
+    "production/aims-kafka-dual-role:kafka": 14306,
+    "production/aims-kafka-entity-operator:topic-operator": 4766,
+    "production/aims-kafka-entity-operator:user-operator": 4766,
+    "production/aims-minio-pool-0:minio": 8639,
+    "production/aims-minio-pool-0:sidecar": 7839,
+    "production/aims-postgres-cnpg:postgres": 14306,
+    "production/aims-rabbitmq-server:rabbitmq": 14306,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 14306,
+    "production/aims-redis:aims-redis": 14298,
+    "production/aims-waypoint:istio-proxy": 4766,
+    "production/api-gateway:app": 7976,
+    "production/auth-service:app": 7707,
+    "production/cart-service:app": 6935,
+    "production/catalog-service:app": 8225,
+    "production/inventory-service:app": 7517,
+    "production/notification-service:pod-slice": 8808,
+    "production/order-service:app": 6886,
+    "production/payment-service:pod-slice": 8946,
+    "production/security-telemetry-service:app": 6865
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "automatic_model_training": false,
+  "automatic_promotion": false,
+  "campaign_id": "pulse500-data-20260820T055150Z",
+  "collector_profile": {
+    "detector_active": false,
+    "interval_ms": 500,
+    "one_second_control_collector": true,
+    "registered_duration_seconds": 3195,
+    "rolling_windows": 10
+  },
+  "contract": "validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/capture-contract.json",
+  "contract_sha256": "e92cbefe161febec0148db3d8d7d19f7280597e66b03c8c9c0a11b6eee3c20e9",
+  "git_commit": "fc732981becb14f308aede014783e922a3316afb",
+  "normal_only": true,
+  "registered_at": "2026-08-20T05:51:56Z",
+  "schema": "sentinel-pulse-500ms-dataset-protocol-v1",
+  "source_sha256": {
+    "ml-service/set_aims_traffic_regime.sh": "69191c842ad23bb77db1a1a4260c8a800a8ab487ebfa37a3d5595cc2ca7fa6ce",
+    "sentinel_pulse/assemble_dataset.py": "55148bee0b8d0636e70ed18376771abbf368dfcff5add3f7a57d7eeb04246a58",
+    "sentinel_pulse/finalize_500ms_dataset.py": "dfb7386188a18b33469734b5e42c38c5748bbbc0a793486cd979c9221c90c492",
+    "sentinel_pulse/finalize_500ms_experiment.sh": "e07d1d8bd0363ef7367ca15c6fe8ae154104a20ea957f8014c03e9346d92bc56",
+    "sentinel_pulse/install_500ms_experiment.sh": "dffde9bfd01c849b80d6f849d3c16f06d2fde959c7c16b233c494c151835de6a",
+    "sentinel_pulse/run_500ms_dataset_campaign.sh": "03a39fde4aac28c0f7224faacd498cfff19f7f398e5eb78229d2cdd1b208145d",
+    "sentinel_pulse/train.py": "1e963269efcaebe4403c82ef184ce0e8f6746ad5c3659b374128fd00195b5ead"
+  },
+  "workers": [
+    {
+      "host": "10.1.16.237",
+      "node": "k8s-worker1.local"
+    },
+    {
+      "host": "10.1.16.239",
+      "node": "k8s-worker3.local"
+    },
+    {
+      "host": "10.1.16.238",
+      "node": "k8s-worker4.local"
+    }
+  ]
+}

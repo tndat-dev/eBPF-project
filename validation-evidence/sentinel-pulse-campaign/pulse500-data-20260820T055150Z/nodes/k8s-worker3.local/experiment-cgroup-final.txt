@@ -1,0 +1,13 @@
+stopped_at_unix 1787208266.165432043
+usage_usec 110312586
+user_usec 98119993
+system_usec 12192593
+core_sched.force_idle_usec 0
+nr_periods 13562
+nr_throttled 1
+throttled_usec 374437
+nr_bursts 0
+burst_usec 0
+memory_current_bytes 86061056
+memory_peak_bytes 117907456
+pids_current 2

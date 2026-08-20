@@ -7,6 +7,7 @@ from collections import defaultdict
 import json
 import platform
 from pathlib import Path
+import subprocess
 
 import numpy as np
 
@@ -118,6 +119,35 @@ def interval_bounds(window_seconds: float) -> tuple[float, float]:
     raise ValueError("window_seconds must be 0.5 or 1.0")
 
 
+def validate_training_contract(
+    path: Path,
+    dataset: Path,
+    blind_contract_path: Path,
+    history: int,
+    alpha: float,
+    window_seconds: float,
+) -> dict:
+    contract = json.loads(path.read_text(encoding="utf-8"))
+    expected = {
+        "dataset_sha256": sha256_file(dataset),
+        "blind_attack_contract_sha256": sha256_file(blind_contract_path),
+        "history_windows": history,
+        "alpha": alpha,
+        "window_seconds": window_seconds,
+    }
+    observed = {name: contract.get(name) for name in expected}
+    if (
+        contract.get("schema") != "sentinel-pulse-training-contract-v1"
+        or contract.get("frozen_before_training") is not True
+        or contract.get("automatic_promotion") is not False
+        or observed != expected
+    ):
+        raise ValueError(
+            f"training contract mismatch: expected={expected}, observed={observed}"
+        )
+    return contract
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=Path, required=True)
@@ -126,8 +156,17 @@ def main() -> None:
     parser.add_argument("--alpha", type=float, default=1e-4)
     parser.add_argument("--window-seconds", type=float, choices=(0.5, 1.0), default=1.0)
     parser.add_argument("--blind-attack-contract", type=Path, required=True)
+    parser.add_argument("--training-contract", type=Path, required=True)
     args = parser.parse_args()
     blind_attack_contract = load_contract(args.blind_attack_contract)
+    training_contract = validate_training_contract(
+        args.training_contract,
+        args.dataset,
+        args.blind_attack_contract,
+        args.history,
+        args.alpha,
+        args.window_seconds,
+    )
     dataset_manifest_path, dataset_manifest = load_dataset_manifest(args.dataset)
     interval_min, interval_max = interval_bounds(args.window_seconds)
     capture_validation = validate(
@@ -180,6 +219,12 @@ def main() -> None:
         "capture_contract_sha256": dataset_manifest["contract_sha256"],
         "campaign_id": dataset_manifest["campaign_id"],
         "blind_attack_contract_sha256": sha256_file(args.blind_attack_contract),
+        "training_contract": str(args.training_contract),
+        "training_contract_sha256": sha256_file(args.training_contract),
+        "training_contract_id": training_contract.get("candidate_id"),
+        "source_git_commit": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], text=True
+        ).strip(),
         "expected_blind_injections": blind_attack_contract["expected_injections"],
         "capture_validation": {
             "schema": capture_validation["schema"],

@@ -1,0 +1,42 @@
+NAME                                               READY   STATUS    RESTARTS        AGE     IP           NODE                NOMINATED NODE   READINESS GATES
+aims-frontend-6647dcdb8f-5zlq7                     1/1     Running   0               9d      10.0.4.250   k8s-worker4.local   <none>           <none>
+aims-frontend-6647dcdb8f-ckknb                     1/1     Running   0               9d      10.0.5.248   k8s-worker3.local   <none>           <none>
+aims-kafka-dual-role-0                             1/1     Running   0               9d      10.0.5.215   k8s-worker3.local   <none>           <none>
+aims-kafka-dual-role-1                             1/1     Running   1 (9d ago)      9d      10.0.4.48    k8s-worker4.local   <none>           <none>
+aims-kafka-dual-role-2                             1/1     Running   4 (9d ago)      9d      10.0.2.138   k8s-worker1.local   <none>           <none>
+aims-kafka-entity-operator-5455dcf447-8cgn9        2/2     Running   14 (9d ago)     21d     10.0.4.93    k8s-worker4.local   <none>           <none>
+aims-minio-pool-0-0                                2/2     Running   0               9d      10.0.4.121   k8s-worker4.local   <none>           <none>
+aims-minio-pool-0-1                                2/2     Running   0               9d      10.0.2.165   k8s-worker1.local   <none>           <none>
+aims-postgres-cnpg-1                               1/1     Running   0               9d      10.0.2.203   k8s-worker1.local   <none>           <none>
+aims-postgres-cnpg-2                               1/1     Running   0               9d      10.0.5.57    k8s-worker3.local   <none>           <none>
+aims-postgres-cnpg-3                               1/1     Running   0               9d      10.0.4.30    k8s-worker4.local   <none>           <none>
+aims-rabbitmq-server-0                             1/1     Running   0               9d      10.0.5.170   k8s-worker3.local   <none>           <none>
+aims-rabbitmq-server-1                             1/1     Running   0               9d      10.0.4.35    k8s-worker4.local   <none>           <none>
+aims-rabbitmq-server-2                             1/1     Running   0               9d      10.0.2.213   k8s-worker1.local   <none>           <none>
+aims-redis-0                                       1/1     Running   0               9d      10.0.2.34    k8s-worker1.local   <none>           <none>
+aims-redis-1                                       1/1     Running   0               9d      10.0.2.197   k8s-worker1.local   <none>           <none>
+aims-redis-2                                       1/1     Running   0               9d      10.0.2.226   k8s-worker1.local   <none>           <none>
+aims-redis-sentinel-sentinel-0                     1/1     Running   0               9d      10.0.2.79    k8s-worker1.local   <none>           <none>
+aims-redis-sentinel-sentinel-1                     1/1     Running   0               9d      10.0.5.117   k8s-worker3.local   <none>           <none>
+aims-redis-sentinel-sentinel-2                     1/1     Running   0               9d      10.0.4.185   k8s-worker4.local   <none>           <none>
+aims-sentinel-dependency-loadgen-7bfbfcc86-ccrvf   1/1     Running   0               8m33s   10.0.5.119   k8s-worker3.local   <none>           <none>
+aims-sentinel-loadgen-67b469878-d2rqp              1/1     Running   0               8m33s   10.0.5.27    k8s-worker3.local   <none>           <none>
+aims-waypoint-6d558c5d7c-n879w                     1/1     Running   1 (9d ago)      18d     10.0.2.157   k8s-worker1.local   <none>           <none>
+api-gateway-76f697d7f-4l9wb                        1/1     Running   0               9d      10.0.5.207   k8s-worker3.local   <none>           <none>
+api-gateway-76f697d7f-f52cg                        1/1     Running   0               9d      10.0.4.147   k8s-worker4.local   <none>           <none>
+auth-service-5d5c867d78-m5m7d                      1/1     Running   0               9d      10.0.5.216   k8s-worker3.local   <none>           <none>
+auth-service-5d5c867d78-mxv7z                      1/1     Running   1 (9d ago)      16d     10.0.2.86    k8s-worker1.local   <none>           <none>
+cart-service-84d6894b46-c7gwq                      1/1     Running   1 (9d ago)      16d     10.0.5.47    k8s-worker3.local   <none>           <none>
+cart-service-84d6894b46-n2tps                      1/1     Running   1 (9d ago)      16d     10.0.2.120   k8s-worker1.local   <none>           <none>
+catalog-service-74cf5f59b9-fs86b                   1/1     Running   21 (9d ago)     16d     10.0.4.211   k8s-worker4.local   <none>           <none>
+catalog-service-74cf5f59b9-h944d                   1/1     Running   27 (9d ago)     16d     10.0.2.85    k8s-worker1.local   <none>           <none>
+inventory-service-54db978cc8-9sl49                 1/1     Running   1 (9d ago)      16d     10.0.4.76    k8s-worker4.local   <none>           <none>
+inventory-service-54db978cc8-jcfqj                 1/1     Running   1 (9d ago)      16d     10.0.2.77    k8s-worker1.local   <none>           <none>
+notification-service-85955489ff-smqxl              1/1     Running   1 (9d ago)      16d     10.0.4.89    k8s-worker4.local   <none>           <none>
+notification-service-85955489ff-v5tmq              1/1     Running   2 (7d23h ago)   16d     10.0.2.240   k8s-worker1.local   <none>           <none>
+order-service-7ccdcf888b-924qs                     1/1     Running   1 (9d ago)      16d     10.0.4.152   k8s-worker4.local   <none>           <none>
+order-service-7ccdcf888b-jq6g7                     1/1     Running   1 (9d ago)      16d     10.0.5.212   k8s-worker3.local   <none>           <none>
+payment-service-7b4674b9cd-5j58n                   1/1     Running   0               9d      10.0.2.244   k8s-worker1.local   <none>           <none>
+payment-service-7b4674b9cd-x4rh8                   1/1     Running   1 (9d ago)      16d     10.0.5.61    k8s-worker3.local   <none>           <none>
+security-telemetry-service-787d55897b-7lwms        1/1     Running   1 (9d ago)      16d     10.0.5.183   k8s-worker3.local   <none>           <none>
+security-telemetry-service-787d55897b-qcb6x        1/1     Running   1 (9d ago)      16d     10.0.4.178   k8s-worker4.local   <none>           <none>

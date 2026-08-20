@@ -5663,3 +5663,28 @@ Trước rerun, runner được sửa để dùng transition gap 180 giây, ghi 
 health-warning (node/pod/bốn systemd unit), chịu tối đa hai transient health
 check rồi mới fail ở lần thứ ba, đồng thời lưu tối đa hai rollout attempt. Đây
 là infrastructure rerun hợp lệ; failed capture không được dùng train/tune.
+
+### 18.134 Dataset Sentinel Pulse 500 ms hợp lệ (20-08-2026)
+
+Rerun `pulse500-data-20260820T055150Z` hoàn tất đủ bốn regime, không có failure
+marker hay health warning; **67/67** frozen checksum khớp. Dataset assembler giữ
+**178.636 row**, 249 feature, 20 workload trên ba worker và loại 55.248 row ngoài
+measured interval. Row theo regime: steady 43.065, toolmix 44.864, burst 48.290,
+recovery 42.417. Cluster hậu kiểm 6/6 node Ready và zero bad pod.
+
+Validation đạt `valid=true`, tất cả integrity/drop counter bằng 0. Interval
+p99 507,923 ms, ingest-lag p99 39,432 ms và window-start-to-emit p99
+543,261 ms (max 590,696 ms). Dataset/manifest/validation/frozen-index SHA-256
+lần lượt là `5ee30ee4...`, `a101e6fa...`, `c520ace9...`, `61801dd3...`.
+
+Worker1 còn validator cũ sau capture; capture.py, loader và BPF object vẫn đồng
+nhất trên ba node. Audit ngoài frozen bundle đã chạy lại cả ba raw stream bằng
+validator hiện hành, đều pass zero-drop, rồi đồng bộ validator worker1 mà không
+restart collector production. Audit kết luận dataset đủ điều kiện training;
+software-audit/index SHA-256 `69862b77...`/`df6167ec...`.
+
+Training contract `sentinel-pulse-500ms-candidate-a1` đã được khóa trước train:
+window 0,5 giây, history 3, `alpha=0,001`, không auto-promote và bind checksum
+của dataset lẫn blind-attack contract. A1 chỉ là development candidate; chưa có
+claim accuracy hay kernel-to-alert cho đến khi train, normal soak và blind test
+độc lập hoàn tất.

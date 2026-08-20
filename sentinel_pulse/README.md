@@ -154,6 +154,7 @@ python -m sentinel_pulse.assemble_dataset \
 python -m sentinel_pulse.train \
   --dataset pulse-normal.jsonl \
   --blind-attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
+  --training-contract sentinel_pulse/protocol/pulse500-training-contract.json \
   --output models-pulse-candidate
 
 # After terminal bundle verification, install only as an audit-only canary.

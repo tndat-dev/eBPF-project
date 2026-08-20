@@ -1,0 +1,61 @@
+{
+  "campaign_id": "pulse500-data-20260820T055150Z",
+  "campaign_span_rows_by_node": {
+    "k8s-worker1.local": 87078,
+    "k8s-worker3.local": 53918,
+    "k8s-worker4.local": 78734
+  },
+  "contract": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/capture-contract.json",
+  "contract_sha256": "e92cbefe161febec0148db3d8d7d19f7280597e66b03c8c9c0a11b6eee3c20e9",
+  "dataset": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/dataset/features.jsonl",
+  "dataset_sha256": "5ee30ee49c1b0fc75c23878a2eeb7a640c8579702df484e03e69ff25804b5cc7",
+  "excluded_outside_contract": 55248,
+  "feature_schema_sha256": "879e33f8c33774c50d848524b78c0fa2398b9855971982e5a41a12f9259f5ae2",
+  "normal_only": true,
+  "rows": 178636,
+  "rows_by_node": {
+    "k8s-worker1.local": 70847,
+    "k8s-worker3.local": 43800,
+    "k8s-worker4.local": 63989
+  },
+  "rows_by_regime": {
+    "burst": 48290,
+    "recovery": 42417,
+    "steady": 43065,
+    "toolmix": 44864
+  },
+  "schema": "sentinel-pulse-dataset-manifest-v1",
+  "source_manifest_schema": {
+    "k8s-worker1.local": "sentinel-pulse-node-capture-manifest-v2",
+    "k8s-worker3.local": "sentinel-pulse-node-capture-manifest-v2",
+    "k8s-worker4.local": "sentinel-pulse-node-capture-manifest-v2"
+  },
+  "source_manifest_sha256": {
+    "k8s-worker1.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker1.local/capture-manifest.json",
+      "sha256": "195a64a2240e812caf25d6ae3c291134da1023883202415e406b2f8126a057ed"
+    },
+    "k8s-worker3.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker3.local/capture-manifest.json",
+      "sha256": "c98a3d848d745b0db49ba5bc4d8c756e3a4a51919a7fed060fe2290ab9f02b75"
+    },
+    "k8s-worker4.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker4.local/capture-manifest.json",
+      "sha256": "a24933d8ce37b5d06254a63275db19120e1dc0481fea59d76e0c6e0f74d28169"
+    }
+  },
+  "source_sha256": {
+    "k8s-worker1.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker1.local/features.jsonl",
+      "sha256": "155b363768264c929c475e6dcd224b210682089cb6d776a82593e67c10059fd6"
+    },
+    "k8s-worker3.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker3.local/features.jsonl",
+      "sha256": "bb92c91fccf83fb9163f7aa7228a42fabd0141b272798e91b399a2920ce80ccf"
+    },
+    "k8s-worker4.local": {
+      "path": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker4.local/features.jsonl",
+      "sha256": "da059b7c5621dbfc3fcf04902895a8b93ff8aead1d6d8361589f173ae2cea21d"
+    }
+  }
+}

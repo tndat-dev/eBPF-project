@@ -4,7 +4,7 @@ import json
 import pytest
 
 from sentinel_pulse.finalize_500ms_dataset import finalize
-from sentinel_pulse.train import interval_bounds
+from sentinel_pulse.train import interval_bounds, validate_training_contract
 
 
 def write_capture(path, node, ends):
@@ -71,3 +71,25 @@ def test_training_interval_bounds_are_profile_specific():
     assert interval_bounds(1.0) == (0.80, 1.50)
     with pytest.raises(ValueError, match="0.5 or 1.0"):
         interval_bounds(0.25)
+
+
+def test_training_contract_binds_dataset_blind_matrix_and_parameters(tmp_path):
+    dataset = tmp_path / "dataset.jsonl"
+    blind = tmp_path / "blind.json"
+    dataset.write_text("dataset")
+    blind.write_text("blind")
+    contract = tmp_path / "training.json"
+    contract.write_text(json.dumps({
+        "schema": "sentinel-pulse-training-contract-v1",
+        "frozen_before_training": True,
+        "automatic_promotion": False,
+        "dataset_sha256": hashlib.sha256(dataset.read_bytes()).hexdigest(),
+        "blind_attack_contract_sha256": hashlib.sha256(blind.read_bytes()).hexdigest(),
+        "history_windows": 3,
+        "alpha": 0.001,
+        "window_seconds": 0.5,
+    }))
+    report = validate_training_contract(contract, dataset, blind, 3, 0.001, 0.5)
+    assert report["frozen_before_training"] is True
+    with pytest.raises(ValueError, match="training contract mismatch"):
+        validate_training_contract(contract, dataset, blind, 4, 0.001, 0.5)

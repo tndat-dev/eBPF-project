@@ -654,6 +654,37 @@ chỉ fail sau ba health check liên tiếp. Đây là infrastructure failure c�
 evidence, nên được phép rerun theo protocol; dữ liệu failed run tuyệt đối không
 được tái sử dụng để tune model.
 
+### 7.20 Dataset 500 ms hợp lệ và candidate contract A1
+
+Campaign rerun `pulse500-data-20260820T055150Z` đã đóng `COMPLETE`, không có
+`FAILED` hay health warning. Toàn bộ **67/67** checksum trong frozen index khớp;
+cụm hậu kiểm có **6/6 node Ready**, không có pod lỗi. Dataset sau khi lọc đúng
+measured interval gồm **178.636 cửa sổ**, **249 feature**, **20 workload** và
+bốn chế độ traffic: steady 43.065, toolmix 44.864, burst 48.290, recovery
+42.417. Phân bố theo node là worker1 70.847, worker3 43.800 và worker4 63.989;
+55.248 row ngoài interval đã đăng ký bị loại.
+
+Validation thống nhất bằng source hiện hành đạt `valid=true`, mọi drop/integrity
+counter bằng 0. Interval p50/p95/p99/max lần lượt là
+0,502599/0,505684/0,507923/0,520758 giây; ingest-lag p99 0,039432 giây và
+window-start-to-emit p99 0,543261 giây, max 0,590696 giây. Dataset SHA-256 là
+`5ee30ee49c1b0fc75c23878a2eeb7a640c8579702df484e03e69ff25804b5cc7`,
+manifest `a101e6fa...`, validation `c520ace9...`, frozen index `61801dd3...`.
+
+Audit phát hiện validator cũ trên worker1 khác source hiện hành, nhưng capture,
+loader và BPF object trên cả ba worker có checksum giống nhau. Raw capture được
+revalidate bằng cùng validator hiện hành và cả ba đều pass zero-drop; audit
+đánh dấu `training_eligible_after_uniform_revalidation=true`. Validator worker1
+đã được đồng bộ mà không restart collector production. Software-audit/index
+SHA-256 là `69862b77...`/`df6167ec...`.
+
+Candidate phát triển A1 được preregister trước training bằng contract bất biến:
+cửa sổ 0,5 giây, history 3, ExtraTrees per-workload và calibration
+`alpha=0,001`. Mức alpha này được chọn vì workload ít nhất chỉ có 4.766 cửa sổ,
+không đủ calibration sample để biểu diễn alpha `1e-4`. Contract bind dataset,
+blind-attack matrix, tham số và cấm auto-promotion. Đây chưa phải model stable;
+normal soak, blind recall và kernel-to-alert vẫn phải được đo độc lập.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:

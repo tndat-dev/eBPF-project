@@ -1,0 +1,69 @@
+{
+  "bpf_object_sha256": "6d656d8d17d2d39785f57fdca3b63e465988d6a8d9614f7f207aa44612e1ee2f",
+  "campaign_id": "pulse500-data-20260820T055150Z",
+  "capture_generation_consistent": true,
+  "capture_module_sha256": "666856242eb792a3c358531debf95e808216122756e65f21c35dd74efafc6c1f",
+  "interpretation": "Worker1 validator drift affected only the post-capture latency report field. Identical capture-generation binaries and uniform current-validator revalidation support use of the immutable dataset.",
+  "loader_sha256": "12a225fb9b6127a4db0598c9832cfe7af9fc09348aa8f1ff00b70d0b86eb0fcc",
+  "schema": "sentinel-pulse-500ms-software-audit-v1",
+  "training_eligible_after_uniform_revalidation": true,
+  "uniform_revalidation": {
+    "k8s-worker1.local": {
+      "collector_max_drops": {
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "errors": [],
+      "interval_p99_seconds": 0.5086855888366699,
+      "report_sha256": "eb1bc9c9326d392fc50ed25a0c16e387ef6d97b8dcb7065dfa07fb58016d2920",
+      "rows": 92571,
+      "valid": true,
+      "window_start_to_emit_p99_seconds": 0.5455405473709106
+    },
+    "k8s-worker3.local": {
+      "collector_max_drops": {
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "errors": [],
+      "interval_p99_seconds": 0.5062577724456787,
+      "report_sha256": "352f8ff1eda2c45e6c454fb356c97c76e246e7a110db54b87e821999ee2b8d09",
+      "rows": 57413,
+      "valid": true,
+      "window_start_to_emit_p99_seconds": 0.5330411243438721
+    },
+    "k8s-worker4.local": {
+      "collector_max_drops": {
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "errors": [],
+      "interval_p99_seconds": 0.5081391334533691,
+      "report_sha256": "2801f3e76163d53af4b80644cb7b77ae759e0c6d94e699ef7cd8bf0257cbeee6",
+      "rows": 83900,
+      "valid": true,
+      "window_start_to_emit_p99_seconds": 0.5434970855712891
+    }
+  },
+  "validator_drift_nodes": [
+    "k8s-worker1.local"
+  ],
+  "validator_observed_at_capture_finalize": {
+    "k8s-worker1.local": "a969faa2f924fd6c177e65c3538149e3021cd6696b39d5ae7d6b0acb9dd8bcdd",
+    "k8s-worker3.local": "e06570cb7f6673feb84b754364d1a0e1254561363b24352ea9993daad5d2b8c7",
+    "k8s-worker4.local": "e06570cb7f6673feb84b754364d1a0e1254561363b24352ea9993daad5d2b8c7"
+  },
+  "validator_source_sha256": "e06570cb7f6673feb84b754364d1a0e1254561363b24352ea9993daad5d2b8c7"
+}

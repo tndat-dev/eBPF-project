@@ -1,0 +1,30 @@
+{
+  "campaign_end": 1787208236.0,
+  "campaign_id": "pulse500-data-20260820T055150Z",
+  "campaign_span_rows": 87078,
+  "campaign_start": 1787205296.0,
+  "capture": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker1.local/features.jsonl",
+  "capture_bytes": 130788395,
+  "capture_profile": "exact-ebpf-500ms-rolling-10",
+  "capture_sha256": "155b363768264c929c475e6dcd224b210682089cb6d776a82593e67c10059fd6",
+  "collector_max_integrity": {
+    "snapshot_consistency_retry_exhausted": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0
+  },
+  "contract_sha256": "e92cbefe161febec0148db3d8d7d19f7280597e66b03c8c9c0a11b6eee3c20e9",
+  "first_window_end": 1787205122.6365325,
+  "frozen_at": 1787208265.4010632,
+  "last_window_end": 1787208253.5629323,
+  "node_name": "k8s-worker1.local",
+  "rows": 92571,
+  "rows_by_regime": {
+    "burst": 18828,
+    "recovery": 16987,
+    "steady": 17274,
+    "toolmix": 17758
+  },
+  "schema": "sentinel-pulse-node-capture-manifest-v2",
+  "source_final_report": "/home/dat/eBPF-project/validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker1.local/FINAL.json",
+  "source_final_report_sha256": "f435f618cdaa2e71da26e539fa784fb3b593f6dd2224fbf70faa9388261951a9"
+}

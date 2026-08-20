@@ -1,0 +1,62 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "da059b7c5621dbfc3fcf04902895a8b93ff8aead1d6d8361589f173ae2cea21d",
+  "collector_max_drops": {
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.07985949516296387,
+    "p50": 0.015583395957946777,
+    "p95": 0.031207871437072758,
+    "p99": 0.039535548686981184
+  },
+  "interval_seconds": {
+    "max": 0.5207579135894775,
+    "p50": 0.5027689933776855,
+    "p95": 0.5058953046798706,
+    "p99": 0.5081391334533691
+  },
+  "path": "validation-evidence/sentinel-pulse-campaign/pulse500-data-20260820T055150Z/nodes/k8s-worker4.local/features.jsonl",
+  "rows": 83900,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.016984224,
+    "p50": 0.001875639,
+    "p95": 0.004496813,
+    "p99": 0.006402493
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.582960844039917,
+    "p50": 0.5186543464660645,
+    "p95": 0.5347092509269714,
+    "p99": 0.5434970855712891
+  },
+  "workloads": {
+    "production/aims-frontend:web": 4318,
+    "production/aims-kafka-dual-role:kafka": 6244,
+    "production/aims-kafka-entity-operator:topic-operator": 6244,
+    "production/aims-kafka-entity-operator:user-operator": 6244,
+    "production/aims-minio-pool-0:minio": 5685,
+    "production/aims-minio-pool-0:sidecar": 5131,
+    "production/aims-postgres-cnpg:postgres": 6244,
+    "production/aims-rabbitmq-server:rabbitmq": 6244,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6244,
+    "production/api-gateway:app": 5220,
+    "production/catalog-service:app": 5387,
+    "production/inventory-service:app": 4924,
+    "production/notification-service:pod-slice": 5795,
+    "production/order-service:app": 4988,
+    "production/security-telemetry-service:app": 4988
+  }
+}
