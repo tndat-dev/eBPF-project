@@ -1,4 +1,4 @@
-"""Train per-workload Pulse candidates from immutable one-second JSONL."""
+"""Train per-workload Pulse candidates from immutable fixed-window JSONL."""
 
 from __future__ import annotations
 
@@ -110,21 +110,39 @@ def load_sequences(
     return sequences, columns or []
 
 
+def interval_bounds(window_seconds: float) -> tuple[float, float]:
+    if window_seconds == 1.0:
+        return 0.80, 1.50
+    if window_seconds == 0.5:
+        return 0.35, 0.80
+    raise ValueError("window_seconds must be 0.5 or 1.0")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--history", type=int, default=3)
     parser.add_argument("--alpha", type=float, default=1e-4)
+    parser.add_argument("--window-seconds", type=float, choices=(0.5, 1.0), default=1.0)
     parser.add_argument("--blind-attack-contract", type=Path, required=True)
     args = parser.parse_args()
     blind_attack_contract = load_contract(args.blind_attack_contract)
     dataset_manifest_path, dataset_manifest = load_dataset_manifest(args.dataset)
-    capture_validation = validate(args.dataset, minimum_rows_per_workload=100)
+    interval_min, interval_max = interval_bounds(args.window_seconds)
+    capture_validation = validate(
+        args.dataset,
+        minimum_rows_per_workload=100,
+        interval_min_seconds=interval_min,
+        interval_max_seconds=interval_max,
+    )
     if not capture_validation["valid"]:
         first_errors = "; ".join(capture_validation["errors"][:5])
         raise ValueError(f"capture integrity validation failed: {first_errors}")
-    sequences, columns = load_sequences(args.dataset)
+    maximum_gap_seconds = args.window_seconds * 2.5
+    sequences, columns = load_sequences(
+        args.dataset, maximum_gap_seconds=maximum_gap_seconds
+    )
     import sklearn
     import scipy
     import joblib
@@ -177,8 +195,8 @@ def main() -> None:
         "feature_columns": columns,
         "feature_schema_sha256": schema_digest(columns),
         "history_windows": args.history,
-        "window_seconds": 1,
-        "max_contiguous_gap_seconds": MAX_CONTIGUOUS_GAP_SECONDS,
+        "window_seconds": args.window_seconds,
+        "max_contiguous_gap_seconds": maximum_gap_seconds,
         "alpha": args.alpha,
         "software": {
             "python": platform.python_version(),

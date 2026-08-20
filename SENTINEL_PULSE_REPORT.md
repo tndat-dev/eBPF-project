@@ -615,6 +615,23 @@ kế tiếp là capture bốn traffic regime trên ba worker, train/calibrate mo
 kernel-to-alert. Full regression sau replication đạt **387 passed, 2 warning**
 deprecation Torch.
 
+### 7.18 Pipeline capture và train profile 500 ms
+
+Đã bổ sung campaign runner normal-only cho ba worker và bốn regime `steady`,
+`toolmix`, `burst`, `recovery`. Runner khóa contract/commit/source checksum trước
+khi thu, giữ collector một giây làm control, chạy collector 500 ms song song,
+bắt buộc detector inactive, kiểm tra 6/6 node Ready và tự trả traffic về steady
+khi lỗi. Mỗi node được finalizer cũ kiểm tra interval/zero-drop rồi được node
+manifest mới bind với contract, node identity, capture hash, campaign span và
+row theo regime trước khi assembler tạo dataset bất biến.
+
+Trainer nay nhận `--window-seconds 0.5`: validation interval đổi thành
+0,35–0,80 giây, sequence-gap thành 1,25 giây và model manifest ghi đúng window
+0,5 giây; profile một giây giữ nguyên 0,80–1,50/2,50 giây. Campaign không tự
+train và không tự promote. Code gate đạt **391 passed, 2 warning**; tại thời
+điểm khóa mục này dataset campaign chưa chạy nên chưa có model/accuracy/latency
+claim mới.
+
 ## 8. Protocol đánh giá và release gate
 
 Candidate chỉ được xem là đạt nếu đồng thời thỏa:
@@ -813,3 +830,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   median -1,58% (`p=0,015625`) và p99 increase +1,78% (`p=0,4921875`);
   40.276 treatment row không có telemetry drop. Cho phép chuyển sang capture
   dataset 500 ms, chưa cho phép rollout/model latency claim.
+- 20-08-2026: hoàn thành runner capture 500 ms ba worker/bốn regime,
+  contract-bound node finalizer và trainer profile `window_seconds=0.5`;
+  regression 391 pass. Pipeline không auto-train/promote và đang chờ campaign
+  normal-only đầu tiên.

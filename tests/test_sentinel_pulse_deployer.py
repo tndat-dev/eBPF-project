@@ -158,6 +158,20 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertNotIn('"node": "k8s-worker1.local"', runner)
         self.assertNotIn("systemctl enable", runner)
 
+    def test_500ms_dataset_campaign_is_multinode_normal_only_and_never_promotes(self):
+        runner = (
+            ROOT / "sentinel_pulse" / "run_500ms_dataset_campaign.sh"
+        ).read_text()
+        self.assertIn("k8s-worker1.local k8s-worker3.local k8s-worker4.local", runner)
+        self.assertIn("regimes=(steady toolmix burst recovery)", runner)
+        self.assertIn('"normal_only": True', runner)
+        self.assertIn('"automatic_model_training": False', runner)
+        self.assertIn('"automatic_promotion": False', runner)
+        self.assertIn("--interval-min-seconds 0.35", runner)
+        self.assertIn("--interval-max-seconds 0.80", runner)
+        self.assertIn("finalize_500ms_dataset", runner)
+        self.assertNotIn("systemctl enable", runner)
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)

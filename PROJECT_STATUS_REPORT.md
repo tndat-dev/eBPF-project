@@ -5625,3 +5625,22 @@ và zero integrity/drop error. Day-two analysis/index SHA-256
 capture dataset 500 ms**; detector 500 ms, normal soak, blind recall và true
 kernel-to-alert vẫn chưa được xác nhận. Full regression đạt **387 passed,
 2 warning** deprecation Torch.
+
+### 18.132 Sẵn sàng capture dataset Sentinel Pulse 500 ms (20-08-2026)
+
+Đã triển khai code orchestration cho capture bounded trên ba worker thực tế
+`k8s-worker1.local`, `k8s-worker3.local`, `k8s-worker4.local` với bốn traffic
+regime. Contract, commit và source checksum được khóa trước start; collector một
+giây/Tetragon/loadgen là control cố định, detector candidate bị bắt buộc inactive.
+Failure cleanup dừng mọi experiment, trả traffic về steady và giữ failure marker.
+
+Node finalizer mới chỉ chấp nhận capture read-only có FINAL hash hợp lệ, đúng
+node, phủ đủ campaign, có row ở mọi regime và zero integrity counter. Assembler
+cũ tiếp tục là authority lọc disjoint measured interval. Trainer được
+parameterize cho 500 ms: interval validation 0,35–0,80 giây, temporal gap
+1,25 giây và manifest `window_seconds=0.5`; đường một giây không đổi.
+
+Full regression đạt **391 passed, 2 warning**. Runner cố ý đặt
+`automatic_model_training=false`, `automatic_promotion=false`; đây mới là code
+readiness, chưa phải dataset/model evidence cho đến khi campaign đầu tiên đóng
+`COMPLETE` và toàn bộ checksum/validation pass.
