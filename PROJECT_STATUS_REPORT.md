@@ -5870,7 +5870,7 @@ Tại snapshot 12:12:52 UTC, A2 vẫn active với 88.834 + 54.002 + 77.673 =
 
 Control plane đã arm thêm `sentinel-pulse-a2-blind.timer`, trigger
 **11:26:30 UTC ngày 21-08-2026**, ngay sau timer finalizer. Service chạy source
-detached commit `f61c47a`, chờ tối đa 14.400 giây nhưng chỉ `exec` blind
+detached commit `d50a847`, chờ tối đa 14.400 giây nhưng chỉ `exec` blind
 campaign khi thấy exact `NORMAL_PASS`; gặp `FAILED` hoặc `FINALIZE_FAILED` thì
 dừng và không inject. Nếu interlock mở, lifecycle tự chạy nền đủ 450 row, đóng
 băng ba decision/capture stream, verify checksum và sinh latency report v2.
@@ -5883,7 +5883,10 @@ active. Blind start/runner nay còn bắt buộc 6 node và 6 Tetragon pod Ready
 không node pressure/taint, không production pod lỗi, mọi Longhorn volume healthy
 và CNPG đủ replica; các gate được kiểm lại trước từng trial. Static binary tạm
 trong container được xóa sau mỗi injection, kể cả nhánh infrastructure failure.
-Full clean regression của source timer cuối cùng đạt **417 passed, 2 warning**.
+Kernel evidence còn giữ nguyên raw Tetragon JSON cho từng injection; evaluator
+tự canonicalize, kiểm SHA-256 rồi đối chiếu lại timestamp, exec ID, binary,
+node và pod UID trước khi tin derivative. Full clean regression của source timer
+cuối cùng đạt **417 passed, 2 warning**.
 
 Snapshot kế tiếp lúc 12:20:33 UTC ghi **253.458 decision, 0 alert, 0 restart**
 và khoảng **4,15%** clock 24 giờ. Con số này tiếp tục chỉ là quan sát giữa kỳ.
