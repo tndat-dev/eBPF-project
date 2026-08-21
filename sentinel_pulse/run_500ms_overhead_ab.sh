@@ -127,9 +127,39 @@ if [[ $TREATMENT == pipeline ]]; then
      $(jq -er '.source_sha256.decision_policy' "$CANDIDATE_DECISION") ]]
 fi
 
-ready_nodes=$(kubectl get nodes --no-headers | awk '$2 == "Ready" {count++} END {print count+0}')
-[[ $ready_nodes -eq 6 ]]
-[[ -z $(kubectl get pods -A --field-selector=status.phase!=Running,status.phase!=Succeeded -o name) ]]
+verify_cluster() {
+  local label=$1
+  [[ $label =~ ^[A-Za-z0-9._-]+$ ]]
+  local node_total node_bad pod_bad tetragon_ready longhorn_bad cnpg_bad
+  node_total=$(kubectl get nodes -o json | jq '.items | length')
+  node_bad=$(kubectl get nodes -o json | PYTHONPATH="$ROOT" "$PYTHON" \
+    -m sentinel_pulse.cluster_health --resource nodes --count)
+  pod_bad=$(kubectl -n production get pods -o json | PYTHONPATH="$ROOT" "$PYTHON" \
+    -m sentinel_pulse.cluster_health --resource pods --grace-seconds 0 --count)
+  tetragon_ready=$(kubectl -n kube-system get pods \
+    -l app.kubernetes.io/name=tetragon -o json | jq \
+    '[.items[] | select(.status.phase == "Running" and
+      ([.status.containerStatuses[]?.ready] | all))] | length')
+  longhorn_bad=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | jq \
+    '[.items[] | select(.status.robustness != "healthy")] | length')
+  cnpg_bad=$(kubectl -n production get clusters.postgresql.cnpg.io -o json | jq \
+    '[.items[] | select((.status.readyInstances // 0) !=
+      (.status.instances // .spec.instances // 0) or
+      (.status.phase // "") != "Cluster in healthy state")] | length')
+  jq -n --arg checked_at "$(date -u +%FT%TZ)" \
+    --argjson node_total "$node_total" --argjson node_bad "$node_bad" \
+    --argjson production_pod_bad "$pod_bad" \
+    --argjson tetragon_ready "$tetragon_ready" \
+    --argjson longhorn_bad "$longhorn_bad" --argjson cnpg_bad "$cnpg_bad" \
+    '{checked_at: $checked_at, node_total: $node_total, node_bad: $node_bad,
+      production_pod_bad: $production_pod_bad,
+      tetragon_ready: $tetragon_ready, longhorn_bad: $longhorn_bad,
+      cnpg_bad: $cnpg_bad}' >"$output_root/$label-cluster-health.json"
+  [[ $node_total -eq 6 && $node_bad -eq 0 && $pod_bad -eq 0 && \
+     $tetragon_ready -eq 6 && $longhorn_bad -eq 0 && $cnpg_bad -eq 0 ]]
+}
+
+verify_cluster campaign-start
 remote "systemctl is-active --quiet sentinel-pulse-resolver.service"
 remote "systemctl is-active --quiet sentinel-pulse-collector.service"
 ! remote "systemctl is-active --quiet sentinel-pulse-detector-candidate.service"
@@ -318,6 +348,7 @@ for index in "${!phases[@]}"; do
   condition=${phases[$index]}
   phase_name=$(printf 'p%02d-%s' "$ordinal" "$condition")
   active_run_id=""
+  verify_cluster "$phase_name-before"
   verify_endpoint
   if [[ $condition == on ]]; then
     active_run_id="$campaign_id-$phase_name"
@@ -353,6 +384,7 @@ for index in "${!phases[@]}"; do
     --workload-prefix order-service- --workload-prefix payment-service-
 
   verify_endpoint
+  verify_cluster "$phase_name-after"
   kubectl top node "$WORKER_NODE" >"$output_root/$phase_name-node-top.txt"
   if [[ $condition == on ]]; then
     if [[ $TREATMENT == pipeline ]]; then
@@ -388,6 +420,7 @@ done
   --root "$output_root" --protocol "$protocol" \
   --output "$output_root/RESULT.json"
 verify_endpoint
+verify_cluster campaign-final
 kubectl get nodes -o wide >"$output_root/nodes-final.txt"
 kubectl -n production get pods -o wide >"$output_root/production-pods-final.txt"
 find "$output_root" -type f ! -name SHA256SUMS ! -name COMPLETE \
