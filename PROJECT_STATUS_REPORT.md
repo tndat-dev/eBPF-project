@@ -6028,5 +6028,40 @@ cho failed soak: đóng service, lưu journal/package log/systemd state, finaliz
 capture dưới trạng thái rejected, nén raw stream, checksum toàn bundle và khóa
 `data_use` của A2 thành false cho normal gate, training, tuning và blind attack.
 Clean detached regression trên control plane đạt **428 passed, 2 warning**.
-Archive A2 đang chạy nền dưới `sentinel-pulse-a2-archive.service`; A3 chỉ được
-mở sau khi archive hoàn tất và cluster vượt lại preflight.
+Archive A2 hoàn tất lúc **08:05:09 UTC**: ba raw bundle nén, journal, systemd
+state, package log và failure snapshot đều nằm trong manifest đã verify. Marker
+khóa `automatic_promotion=false`; raw A2 trên worker không bị xóa.
+
+### 18.145 Dependency-restart canary và formal A3 (21-08-2026)
+
+Canary đầu `pulse500-containerd-restart-a2fix-20260821T080600Z` bị giữ ở trạng
+thái failed dù collector đã chạy đủ 180 giây, vì harness truyền sai chuỗi thời
+gian có khoảng trắng cho `journalctl` ở bước hậu kiểm. Lỗi được sửa tại commit
+`f4c31df` thành `--since=-10min`; run cũ không được nâng trạng thái hoặc tái sử
+dụng.
+
+Canary độc lập r2 sau sửa đã **pass** và tái hiện đúng trigger A2 trên worker1.
+Trong khi capture 500 ms đang chạy, containerd dừng lúc 08:15:27 và active lại
+lúc 08:15:29. Collector vẫn active, số row tăng từ **480 lên 1.005** sau
+restart. Capture kết thúc tự nhiên sau **183,016 giây**, có **5.154 row/14
+workload**, 0 telemetry drop; ingest-lag p99 **36,01 ms** và
+window-start-to-emit p99 **539,89 ms**. `FINAL.valid=true`, cluster trước/sau
+đều healthy và toàn bộ bảy evidence file verify checksum. Kết quả này chỉ xác
+nhận resilience của telemetry lifecycle, không phải accuracy/recall claim.
+
+Commit `cb96b35` bổ sung supervisor fail-closed có thể tiếp tục qua các phase
+normal preflight → monitor → finalizer → blind, chỉ mở blind khi exact
+`NORMAL_PASS` tồn tại; failed normal được archive và blind evidence dở dang
+không được tự rerun. Commit `3051c5b` làm archive có resume checkpoint. Clean
+full regression của source cuối đạt **430 passed, 2 Torch deprecation
+warning**.
+
+Formal run mới `pulse500-normal-soak-a3-20260821T081900Z` vượt **306 giây**
+cluster healthy liên tục rồi tạo marker lúc **08:25:24 UTC**. A3 giữ nguyên
+frozen model manifest `c4683505...`, policy `272e9119...`; chỉ source lifecycle
+đổi sang commit `f4c31df`. Ba collector/detector đều active, đúng feature path,
+0 restart và audit đầu khoảng 08:27 UTC có **6.877 decision, 0 alert**. Thời
+điểm đủ 24 giờ sớm nhất là **08:25:24 UTC ngày 22-08-2026**; sau margin 300
+giây supervisor mới finalize và chỉ chạy 450 blind trial nếu normal gate pass.
+Các số hiện tại là interim evidence, chưa chứng minh no-FP, recall hay
+kernel-to-alert terminal và không có auto-promotion.

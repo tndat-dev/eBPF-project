@@ -1144,6 +1144,17 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   `Wants`, giới hạn detector tối đa ba restart/60 giây, bắt launcher stage và
   verify dependency graph trước preflight/marker, đồng thời thêm failed-soak
   freezer self-contained. A2 bị cấm dùng cho normal gate/train/tune/blind;
-  archive raw+journal+package log đang chạy nền. Clean regression đạt 428 pass,
-  2 Torch deprecation warning. A3 sẽ giữ nguyên frozen model/policy và chỉ mở
-  sau archive cùng preflight ổn định, vì vậy A2 không được rerun chọn lọc.
+  archive raw+journal+package log hoàn tất và verify lúc 08:05:09 UTC. Raw trên
+  worker không bị xóa; không rerun chọn lọc A2.
+- 21-08-2026: dependency canary đầu bị reject do lỗi quote `journalctl` ở bước
+  hậu kiểm dù collector đã kết thúc success; giữ nguyên FAILED. Canary r2 tại
+  commit `f4c31df` pass: restart containerd 08:15:27–08:15:29, collector vẫn
+  active và row tăng 480→1.005; terminal capture 183,016 giây có 5.154 row/14
+  workload, 0 drop, ingest p99 36,01 ms, emit p99 539,89 ms, cluster trước/sau
+  healthy và checksum pass. Đây là resilience evidence, không phải accuracy.
+- 21-08-2026: thêm resumable fail-closed supervisor normal→finalize→blind và
+  archive checkpoint; clean regression đạt 430 pass, 2 warning. Formal A3 dùng
+  nguyên model `c4683505...`/policy `272e9119...`, source `f4c31df`, mở sau 306
+  giây preflight tại 08:25:24 UTC. Snapshot đầu 3/3 collector/detector active,
+  6.877 decision, 0 alert/restart. Finalize sớm nhất sau 08:30:24 UTC ngày
+  22-08; blind 450 trial vẫn đóng cho tới exact `NORMAL_PASS`, không auto-promote.
