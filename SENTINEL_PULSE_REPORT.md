@@ -1115,3 +1115,12 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   p99 latency, CI 95%, bootstrap/randomization và Holm correction. Chỉ được
   chạy khi terminal candidate là `eligible_for_overhead_evaluation`; không có
   auto-promotion. Full regression đạt 423 pass.
+- 21-08-2026: triển khai runner/evaluator full-pipeline overhead commit
+  `5e0099f`. Runner chỉ mở bằng terminal candidate eligible, treatment bật cả
+  collector 500 ms và ExtraTrees detector, bắt buộc 0 alert/restart; aggregator
+  verify lại frozen candidate/model/policy/contract cùng từng decision stream.
+  Worker resource, source và raw artifact đều checksum-bound. Worktree overhead
+  sạch đã staging nhưng chưa chạy; full regression đạt 426 pass.
+- 21-08-2026 05:27:09 UTC: A2 đạt 18,106/24 giờ (75,444%), tổng
+  4.686.880 decision trên ba worker, 0 alert/restart/bad monitor row. 6/6 node
+  Ready và production health count 0. Đây chưa phải terminal normal-pass.

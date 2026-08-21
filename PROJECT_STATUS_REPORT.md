@@ -5959,3 +5959,25 @@ randomization, bootstrap 10.000 lần và Holm correction. Bất kỳ HTTP/socke
 error, restart, normal alert hay cluster-health failure nào đều reject campaign;
 pass cũng chỉ mở manual review. Full regression sau preregistration đạt **423
 passed, 2 warning**.
+
+### 18.143 Full-pipeline overhead runner và A2 75% (21-08-2026)
+
+Preregistered contract nay có runner thật tại commit `5e0099f`. Chế độ
+`pipeline:full` bị interlock bởi terminal `CANDIDATE_DECISION.json` có status
+`eligible_for_overhead_evaluation`; nó so sánh OFF với ON gồm đồng thời
+collector 500 ms + exact ExtraTrees detector. Mỗi treatment phase stage đúng
+model/policy, thu decision/alert stream, bắt buộc 0 restart và 0 normal alert,
+rồi dừng/disable detector. Aggregator độc lập mở lại frozen candidate,
+model/policy/contract và toàn bộ treatment stream, kiểm run/model/policy identity
+trước khi chấp nhận effect estimate. Worker-side `CPUUsageNSec`/`MemoryCurrent`,
+raw wrk, cluster state, source manifest và frozen inputs đều được checksum.
+Clean full regression trên control plane đạt **426 passed, 2 warning**. Detached
+worktree `/home/dat/eBPF-project-overhead-5e0099f` đã được chuẩn bị sạch nhưng
+không chạy trước accuracy/latency gate.
+
+Snapshot trực tiếp **05:27:09 UTC ngày 21-08-2026**: formal A2 đã chạy 18,106
+giờ, đạt **75,444%**, còn 5,894 giờ đến 24 giờ. Ba worker có tổng **4.686.880
+decision**, 2.904 monitor row và **0 alert, 0 restart, 0 bad monitor row**. Sáu
+node Kubernetes v1.34.10 đều Ready và production pod health count bằng 0.
+Finalizer/blind timer vẫn active tại 11:25:46/11:26:30 UTC; đây tiếp tục là
+interim observation, chưa phải terminal no-false-positive claim.
