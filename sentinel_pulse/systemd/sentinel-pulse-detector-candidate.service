@@ -1,7 +1,11 @@
 [Unit]
 Description=Sentinel Pulse checksum-bound candidate detector (audit only)
 After=sentinel-pulse-collector.service
-Requires=sentinel-pulse-collector.service
+Wants=sentinel-pulse-collector.service
+# Bound a pathological restart loop.  The formal monitor rejects any restart,
+# but systemd must also protect the node before the next monitor poll.
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 Type=simple

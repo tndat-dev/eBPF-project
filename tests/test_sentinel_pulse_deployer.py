@@ -159,7 +159,28 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("trap cleanup EXIT", script)
         self.assertIn("launch_failed_at", script)
         self.assertIn("systemctl stop sentinel-pulse-detector-candidate.service", script)
+        self.assertIn("systemctl daemon-reload", script)
+        self.assertIn("systemctl show sentinel-pulse-resolver -p Requires", script)
         self.assertNotIn("systemctl enable", script)
+
+    def test_runtime_units_do_not_propagate_transient_dependency_restarts(self):
+        unit_root = ROOT / "sentinel_pulse" / "systemd"
+        resolver = (unit_root / "sentinel-pulse-resolver.service").read_text()
+        collector = (unit_root / "sentinel-pulse-collector.service").read_text()
+        experiment = (
+            unit_root / "sentinel-pulse-collector-500ms-experiment.service"
+        ).read_text()
+        detector = (
+            unit_root / "sentinel-pulse-detector-candidate.service"
+        ).read_text()
+        self.assertIn("Wants=containerd.service", resolver)
+        self.assertNotIn("Requires=containerd.service", resolver)
+        self.assertIn("Wants=sentinel-pulse-resolver.service", collector)
+        self.assertNotIn("Requires=sentinel-pulse-resolver.service", collector)
+        self.assertIn("Wants=sentinel-pulse-resolver.service", experiment)
+        self.assertNotIn("Requires=sentinel-pulse-resolver.service", experiment)
+        self.assertIn("StartLimitBurst=3", detector)
+        self.assertIn("StartLimitIntervalSec=60", detector)
 
     def test_formal_soak_monitor_is_read_only_and_fail_closed(self):
         script = (
@@ -173,6 +194,20 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertNotIn("systemctl restart", script)
         self.assertNotIn("systemctl stop", script)
         self.assertNotIn("kubectl apply", script)
+
+    def test_failed_soak_freezer_is_fail_closed_and_self_contained(self):
+        script = (
+            ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
+        ).read_text()
+        self.assertIn("rejected_infrastructure_failure", script)
+        self.assertIn('"normal_gate": False', script)
+        self.assertIn('"training": False', script)
+        self.assertIn('"tuning": False', script)
+        self.assertIn('"blind_attack": False', script)
+        self.assertIn("raw.tar.gz", script)
+        self.assertIn("RAW_SHA256SUMS", script)
+        self.assertIn("ARCHIVE_COMPLETE", script)
+        self.assertNotIn("evaluate_normal", script)
 
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
         script = (

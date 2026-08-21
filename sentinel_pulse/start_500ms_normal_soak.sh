@@ -113,14 +113,31 @@ source_commit=$(git -C "$LOCAL_ROOT" rev-parse HEAD)
 source_dirty=$(git -C "$LOCAL_ROOT" status --porcelain --untracked-files=no)
 [[ -z $source_dirty ]] || { echo "tracked source worktree is dirty" >&2; exit 3; }
 
+# Stage the exact source/model and install only the dependency-hardened base
+# units before the stability interval and before creating the immutable marker.
+# daemon-reload updates the dependency graph without interrupting active units.
 for target in "${WORKERS[@]}"; do
   IFS='|' read -r host expected_name <<<"$target"
   observed=$(remote "$host" hostname -f)
   [[ $observed == "$expected_name" ]] || {
     echo "hostname mismatch for $host: $observed" >&2; exit 3;
   }
+  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")'"
+  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
+    "$LOCAL_ROOT/sentinel_pulse/" "$SSH_USER@$host:$REMOTE_ROOT/sentinel_pulse/"
+  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
+    "$MODEL_SOURCE/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
   remote "$host" \
-    "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate"
+    "cd '$REMOTE_ROOT/$model_rel' && sha256sum -c manifest.sha256"
+  remote_sudo "$host" install -m 0644 \
+    "$REMOTE_ROOT/sentinel_pulse/systemd/sentinel-pulse-resolver.service" \
+    /etc/systemd/system/sentinel-pulse-resolver.service
+  remote_sudo "$host" install -m 0644 \
+    "$REMOTE_ROOT/sentinel_pulse/systemd/sentinel-pulse-collector.service" \
+    /etc/systemd/system/sentinel-pulse-collector.service
+  remote_sudo "$host" systemctl daemon-reload
+  remote "$host" \
+    "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate && ! systemctl show sentinel-pulse-resolver -p Requires --value | grep -qw containerd.service && ! systemctl show sentinel-pulse-collector -p Requires --value | grep -qw sentinel-pulse-resolver.service"
 done
 
 # A Ready node may still have DiskPressure=True. Require all node pressure,
@@ -169,13 +186,6 @@ trap cleanup EXIT
 
 for target in "${WORKERS[@]}"; do
   IFS='|' read -r host node <<<"$target"
-  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")'"
-  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
-    "$LOCAL_ROOT/sentinel_pulse/" "$SSH_USER@$host:$REMOTE_ROOT/sentinel_pulse/"
-  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
-    "$MODEL_SOURCE/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
-  remote "$host" \
-    "cd '$REMOTE_ROOT/$model_rel' && sha256sum -c manifest.sha256"
   started_hosts+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \

@@ -1,7 +1,9 @@
 [Unit]
 Description=Sentinel Pulse production cgroup resolver
 After=containerd.service
-Requires=containerd.service
+# A containerd package restart must not tear down an in-flight evidence run.
+# The resolver retries CRI discovery itself and can tolerate a short outage.
+Wants=containerd.service
 
 [Service]
 Type=simple

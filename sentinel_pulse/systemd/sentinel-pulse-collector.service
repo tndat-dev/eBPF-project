@@ -1,7 +1,9 @@
 [Unit]
 Description=Sentinel Pulse exact syscall collector
 After=sentinel-pulse-resolver.service
-Requires=sentinel-pulse-resolver.service
+# Keep the already-attached eBPF program alive while the resolver refreshes.
+# A hard requirement would propagate every resolver/containerd restart.
+Wants=sentinel-pulse-resolver.service
 
 [Service]
 Type=simple

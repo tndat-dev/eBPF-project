@@ -1,7 +1,9 @@
 [Unit]
 Description=Sentinel Pulse isolated 500ms collect-only experiment
 After=sentinel-pulse-resolver.service sentinel-pulse-collector.service
-Requires=sentinel-pulse-resolver.service
+# The allowlist is atomically refreshed by the resolver.  A transient CRI or
+# resolver restart must not terminate this finite, immutable capture.
+Wants=sentinel-pulse-resolver.service
 
 [Service]
 Type=simple
