@@ -241,6 +241,18 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("SHA256SUMS", script)
         self.assertIn('"automatic_promotion": False', script)
 
+    def test_lifecycle_service_is_reboot_resumable_and_secret_is_root_only(self):
+        script = (
+            ROOT / "sentinel_pulse" / "install_candidate_lifecycle_service.sh"
+        ).read_text()
+        self.assertIn("WantedBy=multi-user.target", script)
+        self.assertIn("systemctl enable --now", script)
+        self.assertIn("EnvironmentFile=", script)
+        self.assertIn("chmod 0600", script)
+        self.assertIn("Restart=no", script)
+        self.assertIn("remote", script)
+        self.assertNotIn("SSHPASS=1", script)
+
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
         script = (
             ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
