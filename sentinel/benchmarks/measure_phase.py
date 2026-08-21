@@ -208,6 +208,8 @@ def main() -> int:
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--duration", type=int, default=30,
                         help="Seconds per wrk repetition")
+    parser.add_argument("--warmup-duration", type=int, default=5,
+                        help="Seconds for the unreported wrk warm-up")
     parser.add_argument("--output-root", default="overhead-results")
     parser.add_argument("--experiment-id", required=True,
                         help="Binds all phases in one controlled matrix run")
@@ -232,6 +234,9 @@ def main() -> int:
         "tool": args.tool,
         "threads": args.threads if args.tool == "wrk" else None,
         "duration_seconds": args.duration if args.tool == "wrk" else None,
+        "warmup_duration_seconds": (
+            args.warmup_duration if args.tool == "wrk" else None
+        ),
         "runs": [],
         "top_snapshots": [],
         "systemd_snapshots": [],
@@ -245,7 +250,7 @@ def main() -> int:
     if args.tool == "wrk":
         warmup_command = [
             "wrk", "-t", str(args.threads), "-c", str(args.concurrency),
-            "-d", "5s", "--latency", args.url,
+            "-d", f"{args.warmup_duration}s", "--latency", args.url,
         ]
     else:
         warmup_command = [

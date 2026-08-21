@@ -125,6 +125,12 @@ def test_systemd_snapshot_can_target_the_worker_that_runs_the_unit():
     assert result["ActiveState"] == "active"
 
 
+def test_wrk_warmup_duration_is_configurable_in_cli_source():
+    source = MODULE_PATH.read_text()
+    assert 'parser.add_argument("--warmup-duration"' in source
+    assert 'f"{args.warmup_duration}s"' in source
+
+
 def test_file_hash_binds_overhead_environment(tmp_path):
     path = tmp_path / "environment.txt"
     path.write_bytes(b"cluster-state")

@@ -42,6 +42,110 @@ def bootstrap_median(values: list[float], seed: int) -> dict:
     }
 
 
+def verify_pipeline_inputs(root: Path, protocol: dict) -> dict:
+    binding = protocol.get("candidate_binding", {})
+    required = {
+        "candidate_decision_sha256": root / "frozen-inputs/CANDIDATE_DECISION.json",
+        "model_manifest_sha256": root / "frozen-inputs/model-manifest.json",
+        "decision_policy_sha256": root / "frozen-inputs/decision-policy.json",
+        "overhead_contract_sha256": root / "frozen-inputs/pipeline-overhead-contract.json",
+    }
+    for field, path in required.items():
+        digest = str(binding.get(field, ""))
+        if len(digest) != 64 or not path.is_file() or sha256(path) != digest:
+            raise ValueError(f"pipeline frozen input mismatch: {field}")
+    candidate = json.loads(required["candidate_decision_sha256"].read_text())
+    if (
+        candidate.get("status") != "eligible_for_overhead_evaluation"
+        or candidate.get("evidence_complete_for_accuracy_latency") is not True
+        or candidate.get("automatic_production_promotion") is not False
+        or candidate.get("source_sha256", {}).get("model_manifest")
+        != binding["model_manifest_sha256"]
+        or candidate.get("source_sha256", {}).get("decision_policy")
+        != binding["decision_policy_sha256"]
+    ):
+        raise ValueError("pipeline candidate decision is not terminal eligible")
+    contract = json.loads(required["overhead_contract_sha256"].read_text())
+    if (
+        contract.get("registered_before_blind_outcomes") is not True
+        or contract.get("automatic_promotion") is not False
+        or [item.get("condition") for item in protocol.get("phases", [])]
+        != contract.get("design", {}).get("phase_order")
+    ):
+        raise ValueError("pipeline protocol differs from preregistered contract")
+    return binding
+
+
+def verify_pipeline_phase(root: Path, phase: dict, binding: dict) -> dict:
+    name = str(phase["name"])
+    snapshot = root / f"{name}-detector-final.txt"
+    if not snapshot.is_file():
+        raise ValueError(f"missing detector snapshot for {name}")
+    fields = dict(
+        line.split("=", 1)
+        for line in snapshot.read_text(encoding="utf-8").splitlines()
+        if "=" in line
+    )
+    if fields.get("ActiveState") != "active" or fields.get("NRestarts") != "0":
+        raise ValueError(f"detector health failed for {name}")
+    expected_run = str(phase.get("treatment_run_id", ""))
+    candidates = []
+    for decision_path in root.glob(
+        "detector-runs/var/lib/sentinel-pulse-detector/runs/*/decisions.jsonl"
+    ):
+        alert_path = decision_path.with_name("alerts.jsonl")
+        if not alert_path.is_file() or alert_path.stat().st_size != 0:
+            continue
+        with decision_path.open(encoding="utf-8") as handle:
+            first = json.loads(handle.readline())
+            if first.get("run_id") != expected_run:
+                continue
+            rows = 1
+            alert_decisions = int(first.get("status") == "alert")
+            identities = {
+                (
+                    first.get("model_manifest_sha256"),
+                    first.get("decision_policy_sha256"),
+                    first.get("run_id"),
+                )
+            }
+            for line in handle:
+                record = json.loads(line)
+                rows += 1
+                alert_decisions += int(record.get("status") == "alert")
+                identities.add(
+                    (
+                        record.get("model_manifest_sha256"),
+                        record.get("decision_policy_sha256"),
+                        record.get("run_id"),
+                    )
+                )
+            expected_identity = {
+                (
+                    binding["model_manifest_sha256"],
+                    binding["decision_policy_sha256"],
+                    expected_run,
+                )
+            }
+            if identities != expected_identity:
+                raise ValueError(f"detector identity changed during {name}")
+            if alert_decisions:
+                raise ValueError(f"normal alert observed during {name}")
+            candidates.append((decision_path, alert_path, rows))
+    if len(candidates) != 1:
+        raise ValueError(f"expected one detector stream for {name}, got {len(candidates)}")
+    decision_path, alert_path, rows = candidates[0]
+    return {
+        "phase": name,
+        "run_id": expected_run,
+        "decisions": rows,
+        "alerts": 0,
+        "decision_sha256": sha256(decision_path),
+        "alert_sha256": sha256(alert_path),
+        "health_snapshot_sha256": sha256(snapshot),
+    }
+
+
 def aggregate(root: Path, protocol_path: Path) -> dict:
     protocol = json.loads(protocol_path.read_text(encoding="utf-8"))
     if protocol.get("schema") != "sentinel-pulse-500ms-overhead-protocol-v1":
@@ -49,6 +153,11 @@ def aggregate(root: Path, protocol_path: Path) -> dict:
     phases = protocol.get("phases", [])
     if not phases or len(phases) % 2:
         raise ValueError("overhead protocol requires complete adjacent pairs")
+    treatment = protocol.get("treatment", "collector")
+    pipeline_binding = (
+        verify_pipeline_inputs(root, protocol) if treatment == "pipeline" else None
+    )
+    pipeline_evidence = []
 
     records = []
     for expected_index, phase in enumerate(phases, 1):
@@ -88,6 +197,10 @@ def aggregate(root: Path, protocol_path: Path) -> dict:
                 "latency_p99_ms_median": float(report["latency_p99_ms"]["median"]),
             }
         )
+        if treatment == "pipeline" and condition == "on":
+            pipeline_evidence.append(
+                verify_pipeline_phase(root, phase, pipeline_binding)
+            )
 
     throughput, latency, pairs = [], [], []
     for offset in range(0, len(records), 2):
@@ -118,10 +231,13 @@ def aggregate(root: Path, protocol_path: Path) -> dict:
         "schema": "sentinel-pulse-500ms-overhead-result-v1",
         "campaign_id": protocol["campaign_id"],
         "mode": protocol.get("mode"),
+        "treatment": treatment,
         "valid": True,
         "inferential": inferential,
         "protocol_sha256": sha256(protocol_path),
         "records": records,
+        "pipeline_candidate_binding": pipeline_binding,
+        "pipeline_treatment_evidence": pipeline_evidence,
         "pairs": pairs,
         "effects": {
             "throughput_loss": bootstrap_median(throughput, 20260817),
