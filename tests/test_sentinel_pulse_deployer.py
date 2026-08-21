@@ -227,6 +227,20 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('"automatic_promotion": False', script)
         self.assertNotIn("kubectl apply", script)
 
+    def test_dependency_restart_canary_reproduces_a2_trigger(self):
+        script = (
+            ROOT / "sentinel_pulse" / "run_dependency_restart_canary.sh"
+        ).read_text()
+        restart = script.index("systemctl restart containerd.service")
+        active_after = script.index(
+            "sentinel-pulse-collector-500ms-experiment", restart
+        )
+        self.assertLess(restart, active_after)
+        self.assertIn("rows_after > rows_before", script)
+        self.assertIn("cluster_healthy_after_restart", script)
+        self.assertIn("SHA256SUMS", script)
+        self.assertIn('"automatic_promotion": False', script)
+
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
         script = (
             ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
