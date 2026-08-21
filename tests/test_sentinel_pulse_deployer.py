@@ -207,6 +207,8 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("raw.tar.gz", script)
         self.assertIn("RAW_SHA256SUMS", script)
         self.assertIn("ARCHIVE_COMPLETE", script)
+        self.assertIn("! -name archive.log", script)
+        self.assertIn("! -name '*.tmp'", script)
         self.assertNotIn("evaluate_normal", script)
 
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):

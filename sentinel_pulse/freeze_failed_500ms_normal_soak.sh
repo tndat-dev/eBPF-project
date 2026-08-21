@@ -130,7 +130,11 @@ PY
 
 (
   cd "$EVIDENCE_ROOT"
+  # Runtime log is intentionally outside the immutable evidence index because
+  # stdout keeps appending until after this script exits. Temporary streams are
+  # likewise never evidence.
   find . -type f ! -name RAW_SHA256SUMS ! -name ARCHIVE_COMPLETE \
+    ! -name archive.log ! -name '*.tmp' \
     -print0 | sort -z | xargs -0 sha256sum
 ) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
