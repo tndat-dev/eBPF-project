@@ -211,6 +211,21 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("! -name '*.tmp'", script)
         self.assertNotIn("evaluate_normal", script)
 
+    def test_candidate_lifecycle_is_resumable_fail_closed_and_non_promoting(self):
+        script = (
+            ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        monitor = script.index("monitor_500ms_normal_soak.sh")
+        finalizer = script.index("finalize_500ms_normal_soak.sh")
+        blind = script.index("run_500ms_blind_campaign.sh")
+        self.assertLess(monitor, finalizer)
+        self.assertLess(finalizer, blind)
+        self.assertIn("freeze_failed_500ms_normal_soak.sh", script)
+        self.assertIn("NORMAL_PASS", script)
+        self.assertIn("refusing automatic rerun", script)
+        self.assertIn('"automatic_promotion": False', script)
+        self.assertNotIn("kubectl apply", script)
+
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
         script = (
             ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
