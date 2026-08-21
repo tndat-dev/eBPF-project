@@ -1158,3 +1158,8 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   giây preflight tại 08:25:24 UTC. Snapshot đầu 3/3 collector/detector active,
   6.877 decision, 0 alert/restart. Finalize sớm nhất sau 08:30:24 UTC ngày
   22-08; blind 450 trial vẫn đóng cho tới exact `NORMAL_PASS`, không auto-promote.
+- 21-08-2026 08:31:04 UTC: chuyển A3 supervisor sang persistent enabled unit
+  `sentinel-pulse-a3-lifecycle.service` mà không dừng sáu worker service.
+  Credential environment mode 0600 root-only; source candidate vẫn frozen ở
+  `f4c31df`. Monitor resume đủ ba worker, 0 alert/restart. Installer commit
+  `839e6c2`; clean full regression tăng thành 431 pass, 2 warning.

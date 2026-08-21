@@ -6053,8 +6053,8 @@ Commit `cb96b35` bổ sung supervisor fail-closed có thể tiếp tục qua cá
 normal preflight → monitor → finalizer → blind, chỉ mở blind khi exact
 `NORMAL_PASS` tồn tại; failed normal được archive và blind evidence dở dang
 không được tự rerun. Commit `3051c5b` làm archive có resume checkpoint. Clean
-full regression của source cuối đạt **430 passed, 2 Torch deprecation
-warning**.
+full regression trước persistent installer đạt **430 passed, 2 Torch
+deprecation warning**.
 
 Formal run mới `pulse500-normal-soak-a3-20260821T081900Z` vượt **306 giây**
 cluster healthy liên tục rồi tạo marker lúc **08:25:24 UTC**. A3 giữ nguyên
@@ -6065,3 +6065,12 @@ frozen model manifest `c4683505...`, policy `272e9119...`; chỉ source lifecycl
 giây supervisor mới finalize và chỉ chạy 450 blind trial nếu normal gate pass.
 Các số hiện tại là interim evidence, chưa chứng minh no-FP, recall hay
 kernel-to-alert terminal và không có auto-promotion.
+
+Supervisor A3 ban đầu chạy bằng transient unit để mở campaign, sau đó được
+chuyển sang unit persistent `sentinel-pulse-a3-lifecycle.service` tại 08:31:04
+UTC mà không dừng collector/detector. Unit được enable cho boot, đọc credential
+từ environment file mode `0600 root:root` và resume phase từ marker hiện có;
+worktree candidate vẫn đóng băng ở `f4c31df`. Sau chuyển đổi, monitor đủ ba
+worker vẫn ghi active/0 restart/0 alert. Commit installer `839e6c2` đạt clean
+full regression **431 passed, 2 warning**. Việc persistent chỉ bảo vệ orchestration
+qua mất SSH/reboot control plane, không thay đổi model hay kết quả thống kê.
