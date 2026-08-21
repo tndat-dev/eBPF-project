@@ -1128,3 +1128,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   trước/sau từng overhead phase: node pressure, production pods, Tetragon 6/6,
   Longhorn và CNPG đều phải healthy. Regression giữ 426 pass; overhead worktree
   sạch đã cập nhật nhưng interlock vẫn đóng.
+- 21-08-2026: capacity pre-finalize pass. Raw A2 khoảng 12,8 GB; control plane
+  còn 227 GB và ba worker còn 177/46/92 GB. Monitor sẽ thoát ở mốc 24 giờ trước
+  khi finalizer freeze service; finalizer không có hard timeout. Không reboot
+  control plane vì hai schedule hiện là transient systemd timer.

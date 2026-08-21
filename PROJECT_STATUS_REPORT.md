@@ -5987,3 +5987,12 @@ decision**, 2.904 monitor row và **0 alert, 0 restart, 0 bad monitor row**. Sá
 node Kubernetes v1.34.10 đều Ready và production pod health count bằng 0.
 Finalizer/blind timer vẫn active tại 11:25:46/11:26:30 UTC; đây tiếp tục là
 interim observation, chưa phải terminal no-false-positive claim.
+
+Capacity audit cùng ngày đo raw A2 hiện khoảng **12,8 GB** trên ba worker.
+Control plane còn 227 GB; worker1/worker3/worker4 còn lần lượt 177/46/92 GB,
+đủ headroom để đóng capture và chạy blind matrix. Finalizer không có hard
+runtime timeout. Monitor được thiết kế tự tạo `READY_TO_FINALIZE` rồi thoát ở
+mốc 24 giờ, trước khi timer dừng detector/collector năm phút sau, nên không có
+race tạo false `detector_inactive`. Ubuntu báo cần reboot nhưng **không reboot
+control plane trong campaign** vì finalizer/blind timer là transient trong
+`/run/systemd/transient`.
