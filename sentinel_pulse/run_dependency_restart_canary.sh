@@ -85,7 +85,7 @@ remote_sudo env MINIMUM_ROWS_PER_WORKLOAD=20 \
 remote_sudo journalctl -u containerd.service \
   -u sentinel-pulse-resolver.service -u sentinel-pulse-collector.service \
   -u sentinel-pulse-collector-500ms-experiment.service \
-  --since "-10 minutes" --no-pager -o short-iso \
+  --since=-10min --no-pager -o short-iso \
   >"$EVIDENCE_ROOT/journal.txt"
 kubectl get nodes -o json >"$EVIDENCE_ROOT/nodes-after.json"
 kubectl -n production get pods -o json >"$EVIDENCE_ROOT/pods-after.json"
