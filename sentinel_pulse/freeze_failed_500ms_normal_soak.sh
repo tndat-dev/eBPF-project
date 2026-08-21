@@ -75,11 +75,16 @@ while read -r host node expected_feature; do
     "$detector_dir"
 
   # Stream a compressed, self-contained copy; do not delete remote originals.
-  printf '%s\n' "$SSHPASS" | sshpass -e ssh \
-    -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
-    "sudo -S -p '' tar -C / -czf - '${capture_dir#/}' '${detector_dir#/}'" \
-    >"$node_root/raw.tar.gz.tmp"
-  mv "$node_root/raw.tar.gz.tmp" "$node_root/raw.tar.gz"
+  # A validated archive is a resume checkpoint after a control-plane process
+  # interruption, while a partial .tmp is always overwritten.
+  if [[ ! -s "$node_root/raw.tar.gz" ]] || \
+     ! tar -tzf "$node_root/raw.tar.gz" >/dev/null 2>&1; then
+    printf '%s\n' "$SSHPASS" | sshpass -e ssh \
+      -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
+      "sudo -S -p '' tar -C / -czf - '${capture_dir#/}' '${detector_dir#/}'" \
+      >"$node_root/raw.tar.gz.tmp"
+    mv "$node_root/raw.tar.gz.tmp" "$node_root/raw.tar.gz"
+  fi
   tar -tzf "$node_root/raw.tar.gz" >/dev/null
   remote_sudo "$host" systemctl reset-failed \
     sentinel-pulse-collector-500ms-experiment.service \

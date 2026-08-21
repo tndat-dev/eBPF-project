@@ -205,6 +205,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('"tuning": False', script)
         self.assertIn('"blind_attack": False', script)
         self.assertIn("raw.tar.gz", script)
+        self.assertIn("resume checkpoint", script)
         self.assertIn("RAW_SHA256SUMS", script)
         self.assertIn("ARCHIVE_COMPLETE", script)
         self.assertIn("! -name archive.log", script)
