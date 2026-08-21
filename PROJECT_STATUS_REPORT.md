@@ -5975,6 +5975,12 @@ Clean full regression trên control plane đạt **426 passed, 2 warning**. Deta
 worktree `/home/dat/eBPF-project-overhead-5e0099f` đã được chuẩn bị sạch nhưng
 không chạy trước accuracy/latency gate.
 
+Commit `5ffb837` tiếp tục khóa health trước/sau **mọi** overhead phase thay vì
+chỉ preflight một lần: 6 node/pressure, production pod, 6 Tetragon sensor,
+Longhorn volume và CNPG replica phải đều healthy; mỗi lần kiểm tạo JSON evidence
+để đưa vào checksum bundle. Full regression vẫn **426 passed, 2 warning** và
+overhead worktree đã chuyển sạch sang commit này.
+
 Snapshot trực tiếp **05:27:09 UTC ngày 21-08-2026**: formal A2 đã chạy 18,106
 giờ, đạt **75,444%**, còn 5,894 giờ đến 24 giờ. Ba worker có tổng **4.686.880
 decision**, 2.904 monitor row và **0 alert, 0 restart, 0 bad monitor row**. Sáu

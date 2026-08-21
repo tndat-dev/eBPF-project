@@ -1124,3 +1124,7 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 - 21-08-2026 05:27:09 UTC: A2 đạt 18,106/24 giờ (75,444%), tổng
   4.686.880 decision trên ba worker, 0 alert/restart/bad monitor row. 6/6 node
   Ready và production health count 0. Đây chưa phải terminal normal-pass.
+- 21-08-2026: commit `5ffb837` bổ sung cluster-health gate và JSON snapshot
+  trước/sau từng overhead phase: node pressure, production pods, Tetragon 6/6,
+  Longhorn và CNPG đều phải healthy. Regression giữ 426 pass; overhead worktree
+  sạch đã cập nhật nhưng interlock vẫn đóng.
