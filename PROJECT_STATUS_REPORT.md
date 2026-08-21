@@ -5996,3 +5996,37 @@ mốc 24 giờ, trước khi timer dừng detector/collector năm phút sau, nê
 race tạo false `detector_inactive`. Ubuntu báo cần reboot nhưng **không reboot
 control plane trong campaign** vì finalizer/blind timer là transient trong
 `/run/systemd/transient`.
+
+### 18.144 A2 infrastructure-reject và harden dependency lifecycle (21-08-2026)
+
+Formal A2 **không đạt terminal normal gate**. Monitor ghi `FAILED` lúc
+**06:04:29 UTC** với `reason=collector_inactive`, host `10.1.16.237`. Snapshot
+hợp lệ cuối ngay trước sự cố có worker1/worker3/worker4 lần lượt
+**1.937.022/1.186.574/1.722.671 decision, tổng 4.846.267, 0 alert và 0
+restart**. Đây chỉ là quan sát trước lỗi hạ tầng; không được diễn giải thành
+false-positive rate bằng 0 hay candidate stable.
+
+Root cause có log hệ thống đối chiếu được. `unattended-upgrades` trên worker1
+bắt đầu cập nhật package lúc 06:03 UTC và `needrestart` thực thi
+`systemctl restart containerd.service` lúc 06:03:26, sau đó lặp lại trong các
+transaction kế tiếp. Unit resolver cũ dùng `Requires=containerd.service`; quan
+hệ hard dependency kéo resolver, collector control và collector hữu hạn 500 ms
+cùng dừng. Systemd cố khởi động lại collector 500 ms lúc 06:03:27, nhưng
+`ExecStartPre` chủ động từ chối vì immutable `features.jsonl` đã tồn tại. Đây
+là cơ chế chống ghi đè hoạt động đúng, nhưng làm campaign kết thúc. Cluster tại
+failure snapshot vẫn có 6/6 node Ready, production pod/CNPG/Longhorn không có
+health failure. Blind timer và finalizer timer A2 đã bị hủy; **không có blind
+attack nào được inject**.
+
+Commit `d6bfa33` sửa lifecycle mà không đổi model, threshold hoặc decision
+policy: resolver chuyển dependency containerd từ `Requires` sang `Wants`; hai
+collector chuyển dependency resolver sang `Wants`; detector cũng bỏ hard stop
+propagation và có `StartLimitBurst=3/60s` để chặn restart storm. Formal launcher
+stage các unit này, `daemon-reload` và xác minh dependency graph **trước** 300
+giây stability preflight và trước khi tạo marker bất biến. Thêm freezer riêng
+cho failed soak: đóng service, lưu journal/package log/systemd state, finalize
+capture dưới trạng thái rejected, nén raw stream, checksum toàn bundle và khóa
+`data_use` của A2 thành false cho normal gate, training, tuning và blind attack.
+Clean detached regression trên control plane đạt **428 passed, 2 warning**.
+Archive A2 đang chạy nền dưới `sentinel-pulse-a2-archive.service`; A3 chỉ được
+mở sau khi archive hoàn tất và cluster vượt lại preflight.

@@ -1132,3 +1132,18 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   còn 227 GB và ba worker còn 177/46/92 GB. Monitor sẽ thoát ở mốc 24 giờ trước
   khi finalizer freeze service; finalizer không có hard timeout. Không reboot
   control plane vì hai schedule hiện là transient systemd timer.
+- 21-08-2026 06:04:29 UTC: A2 terminal infrastructure-reject tại worker1 do
+  collector 500 ms inactive. Snapshot hợp lệ cuối có 4.846.267 decision trên
+  ba worker, 0 alert và 0 restart, nhưng run chưa đủ 24 giờ nên **không** tạo
+  no-FP/stable claim. Log unattended-upgrades chứng minh `needrestart` restart
+  containerd lúc 06:03:26; hard dependency cũ truyền stop qua resolver tới
+  collector hữu hạn. Immutable-output guard từ chối lần start lại và bảo vệ raw
+  dataset khỏi ghi đè. Cluster failure snapshot vẫn 6/6 node Ready, production,
+  CNPG và Longhorn healthy; finalizer/blind timer bị hủy, không inject attack.
+- 21-08-2026: commit `d6bfa33` chuyển dependency runtime từ `Requires` sang
+  `Wants`, giới hạn detector tối đa ba restart/60 giây, bắt launcher stage và
+  verify dependency graph trước preflight/marker, đồng thời thêm failed-soak
+  freezer self-contained. A2 bị cấm dùng cho normal gate/train/tune/blind;
+  archive raw+journal+package log đang chạy nền. Clean regression đạt 428 pass,
+  2 Torch deprecation warning. A3 sẽ giữ nguyên frozen model/policy và chỉ mở
+  sau archive cùng preflight ổn định, vì vậy A2 không được rerun chọn lọc.
