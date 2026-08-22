@@ -6074,3 +6074,40 @@ worktree candidate vẫn đóng băng ở `f4c31df`. Sau chuyển đổi, monito
 worker vẫn ghi active/0 restart/0 alert. Commit installer `839e6c2` đạt clean
 full regression **431 passed, 2 warning**. Việc persistent chỉ bảo vệ orchestration
 qua mất SSH/reboot control plane, không thay đổi model hay kết quả thống kê.
+
+### 18.146 A3 infrastructure-reject, recovery CNPG và capacity interlock (22-08-2026)
+
+A3 dừng lúc **10:32:33 UTC ngày 21-08-2026** với
+`reason=unhealthy_kubernetes_node`: `k8s-worker3.local` có
+`DiskPressure=True`. Vì vậy A3 là **infrastructure-reject**, không được dùng
+cho normal gate, training, tuning, blind evaluation hoặc bất kỳ claim
+no-false-positive nào. Snapshot monitor hợp lệ cuối trước failure là
+worker1/worker3/worker4 **217.018/132.437/192.112 decision** (tổng
+**541.567**), **0 alert, 0 detector restart**. Archive fail-closed đã hoàn tất
+lúc **10:34:15 UTC**, có `ARCHIVE_COMPLETE`, raw nén và checksum xác minh.
+Blind attack không hề được inject.
+
+Nguyên nhân nền là worker3 chỉ còn khoảng **48,5 GB** trống trên root filesystem
+(84%), trong khi Longhorn, image cache và evidence telemetry cùng dùng dung
+lượng node. Không hạ kubelet eviction threshold để làm đẹp health. Longhorn
+worker3 được chuyển `allowScheduling=false`: không tạo replica mới tại node
+thiếu headroom nhưng volume hiện hữu vẫn attach bình thường.
+
+Trong quá trình recovery, replica PostgreSQL `aims-postgres-cnpg-2` cũ có
+`PGDATA` mất sau áp lực storage. Evidence trước/sau được khóa tại
+`validation-evidence/infrastructure-recovery/cnpg-worker3-20260822T060000Z`.
+Chỉ pod/PVC replica lỗi được thay; primary `-1` và replica `-3` không bị xóa.
+PVC Longhorn mới 10 GiB được provision; một Job restricted-PodSecurity chỉ tạo
+thư mục rỗng `pgdata` sở hữu `26:26`. `pg_basebackup` dùng mTLS certificate
+`streaming_replica` từ primary để tái tạo replica. Hậu kiểm ghi 3/3 CNPG healthy
+và hai session replication `streaming/async`. Recovery hạ tầng này không được
+tính là bằng chứng normal soak hay model accuracy.
+
+Source kế tiếp thêm capacity gate fail-closed vào launcher và monitor: cả ba
+worker phải còn tối thiểu **64 GiB** root free và dùng không quá **80%**, ngoài
+6 node pressure-free, production pod, Longhorn và CNPG healthy. Nếu có node
+không đạt, marker mới không được tạo; nếu giảm trong run, monitor viết
+`FAILURE_CAPACITY.txt` và reject run. `bash -n` cùng 24 unit test deployer đã
+pass trên host; full regression từ worktree sạch vẫn là bước bắt buộc trước A4.
+Do worker3 chưa đạt ngưỡng, **không mở A4** và không tái sử dụng bất kỳ raw A3
+nào.

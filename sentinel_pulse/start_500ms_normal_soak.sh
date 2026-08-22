@@ -11,6 +11,12 @@ DURATION_SECONDS=${DURATION_SECONDS:-90000}
 MINIMUM_DURATION_HOURS=${MINIMUM_DURATION_HOURS:-24}
 PREFLIGHT_STABILITY_SECONDS=${PREFLIGHT_STABILITY_SECONDS:-300}
 PREFLIGHT_TIMEOUT_SECONDS=${PREFLIGHT_TIMEOUT_SECONDS:-1800}
+# Do not start a multi-hour capture simply because kubelet has not yet set
+# DiskPressure.  A3 showed that the eviction signal can arrive after the
+# experiment has started; keep enough root filesystem headroom for Longhorn,
+# container image GC and immutable raw evidence.
+MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-68719476736}
+MAXIMUM_ROOT_USED_PERCENT=${MAXIMUM_ROOT_USED_PERCENT:-80}
 PYTHON=${PYTHON:-python3}
 SSH_USER=${SSH_USER:-dat}
 EVIDENCE_ROOT=${EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$RUN_ID}
@@ -41,6 +47,14 @@ command -v jq >/dev/null
 [[ $PREFLIGHT_TIMEOUT_SECONDS =~ ^[0-9]+$ ]] &&
   ((PREFLIGHT_TIMEOUT_SECONDS >= PREFLIGHT_STABILITY_SECONDS)) || {
     echo "preflight timeout must cover the stability interval" >&2; exit 2;
+  }
+[[ $MINIMUM_ROOT_AVAILABLE_BYTES =~ ^[0-9]+$ ]] &&
+  ((MINIMUM_ROOT_AVAILABLE_BYTES >= 34359738368)) || {
+    echo "minimum root availability must be at least 32 GiB" >&2; exit 2;
+  }
+[[ $MAXIMUM_ROOT_USED_PERCENT =~ ^[0-9]+$ ]] &&
+  ((MAXIMUM_ROOT_USED_PERCENT >= 1 && MAXIMUM_ROOT_USED_PERCENT <= 99)) || {
+    echo "maximum root usage must be a percentage in 1..99" >&2; exit 2;
   }
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
@@ -82,21 +96,37 @@ cluster_health_snapshot() {
      $longhorn_bad -eq 0 && $cnpg_bad -eq 0 ]]
 }
 
+worker_capacity_snapshot() {
+  local target host expected_name row available used_percent bad=0
+  for target in "${WORKERS[@]}"; do
+    IFS='|' read -r host expected_name <<<"$target"
+    row=$(remote "$host" "df -B1 --output=avail,pcent / | tail -n 1") || return 1
+    read -r available used_percent <<<"$row"
+    used_percent=${used_percent%%%}
+    [[ $available =~ ^[0-9]+$ && $used_percent =~ ^[0-9]+$ ]] || return 1
+    printf 'root_capacity host=%s available_bytes=%s used_percent=%s threshold_available_bytes=%s threshold_used_percent=%s\n' \
+      "$host" "$available" "$used_percent" "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT"
+    ((available >= MINIMUM_ROOT_AVAILABLE_BYTES && used_percent <= MAXIMUM_ROOT_USED_PERCENT)) || bad=1
+  done
+  ((bad == 0))
+}
+
 wait_for_stable_cluster() {
   local deadline stable_since=0 now snapshot
   deadline=$(( $(date +%s) + PREFLIGHT_TIMEOUT_SECONDS ))
   while :; do
     now=$(date +%s)
-    if snapshot=$(cluster_health_snapshot); then
+    if snapshot=$(cluster_health_snapshot) && capacity=$(worker_capacity_snapshot); then
       if ((stable_since == 0)); then
         stable_since=$now
       fi
-      printf 'normal-soak preflight healthy: %s stable=%ss/%ss\n' \
-        "$snapshot" "$((now - stable_since))" "$PREFLIGHT_STABILITY_SECONDS"
+      printf 'normal-soak preflight healthy: %s %s stable=%ss/%ss\n' \
+        "$snapshot" "$capacity" "$((now - stable_since))" "$PREFLIGHT_STABILITY_SECONDS"
       ((now - stable_since >= PREFLIGHT_STABILITY_SECONDS)) && return 0
     else
       stable_since=0
-      printf 'normal-soak preflight unhealthy: %s\n' "$snapshot" >&2
+      printf 'normal-soak preflight unhealthy: %s %s\n' \
+        "${snapshot:-cluster_snapshot_unavailable}" "${capacity:-capacity_snapshot_unavailable}" >&2
     fi
     ((now < deadline)) || {
       echo "cluster did not remain healthy for the preregistered stability interval" >&2
@@ -147,13 +177,14 @@ wait_for_stable_cluster
 
 # The marker exists before any experimental collector or detector starts.
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
-  "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" <<'PY'
+  "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" \
+  "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" <<'PY'
 from datetime import datetime, timedelta, timezone
 import json, pathlib, sys
-out, run_id, model, policy, commit, hours = sys.argv[1:]
+out, run_id, model, policy, commit, hours, min_root, max_root = sys.argv[1:]
 started = datetime.now(timezone.utc)
 payload = {
-    "schema": "sentinel-pulse-semantic-soak-start-v5",
+    "schema": "sentinel-pulse-semantic-soak-start-v6",
     "run_id": run_id,
     "model_manifest_sha256": model,
     "decision_policy_sha256": policy,
@@ -163,6 +194,8 @@ payload = {
     "maximum_alerts": 0,
     "minimum_duration_hours_per_workload": float(hours),
     "minimum_coverage_ratio_per_workload": 0.95,
+    "minimum_root_available_bytes": int(min_root),
+    "maximum_root_used_percent": int(max_root),
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }

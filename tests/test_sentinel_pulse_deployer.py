@@ -342,7 +342,11 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("PREFLIGHT_STABILITY_SECONDS", starter)
         self.assertIn("longhorn_bad", starter)
         self.assertIn("cnpg_bad", starter)
+        self.assertIn("MINIMUM_ROOT_AVAILABLE_BYTES", starter)
+        self.assertIn("worker_capacity_snapshot", starter)
         self.assertIn("check_cluster_health", monitor)
+        self.assertIn("check_worker_capacity", monitor)
+        self.assertIn("insufficient_worker_capacity", monitor)
         self.assertIn("unhealthy_kubernetes_node", monitor)
         self.assertIn("FAILURE_NODES.json", monitor)
 

@@ -5,6 +5,8 @@ set -u
 EVIDENCE_ROOT=${1:?usage: monitor_500ms_normal_soak.sh EVIDENCE_ROOT}
 SSH_USER=${SSH_USER:-dat}
 POLL_SECONDS=${POLL_SECONDS:-60}
+MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-68719476736}
+MAXIMUM_ROOT_USED_PERCENT=${MAXIMUM_ROOT_USED_PERCENT:-80}
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 PYTHON=${PYTHON:-python3}
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
@@ -77,8 +79,28 @@ check_cluster_health() {
   ((cnpg == 0)) || fail unhealthy_cnpg_cluster
 }
 
+check_worker_capacity() {
+  local host node expected_feature row available used_percent
+  while read -r host node expected_feature; do
+    row=$(sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 \
+      "$SSH_USER@$host" "df -B1 --output=avail,pcent / | tail -n 1" 2>/dev/null) ||
+      fail capacity_snapshot_unavailable "$host"
+    read -r available used_percent <<<"$row"
+    used_percent=${used_percent%%%}
+    [[ $available =~ ^[0-9]+$ && $used_percent =~ ^[0-9]+$ ]] ||
+      fail invalid_capacity_snapshot "$host"
+    if ((available < MINIMUM_ROOT_AVAILABLE_BYTES || used_percent > MAXIMUM_ROOT_USED_PERCENT)); then
+      printf 'checked_at=%s\nhost=%s\navailable_bytes=%s\nused_percent=%s\nminimum_available_bytes=%s\nmaximum_used_percent=%s\n' \
+        "$(date -u +%FT%TZ)" "$host" "$available" "$used_percent" \
+        "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" >"$EVIDENCE_ROOT/FAILURE_CAPACITY.txt"
+      fail insufficient_worker_capacity "$host"
+    fi
+  done <"$WORKERS_FILE"
+}
+
 while true; do
   check_cluster_health
+  check_worker_capacity
   while read -r host _node expected_feature; do
     snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \

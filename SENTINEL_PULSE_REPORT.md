@@ -1163,3 +1163,21 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   Credential environment mode 0600 root-only; source candidate vẫn frozen ở
   `f4c31df`. Monitor resume đủ ba worker, 0 alert/restart. Installer commit
   `839e6c2`; clean full regression tăng thành 431 pass, 2 warning.
+- 21-08-2026 10:32:33 UTC: A3 bị **infrastructure-reject** vì
+  `k8s-worker3.local DiskPressure=True`, không phải model outcome. Snapshot
+  cuối hợp lệ là 217.018/132.437/192.112 decision trên worker1/3/4 (541.567
+  tổng), 0 alert và 0 detector restart. Archive failed-soak hoàn tất 10:34:15
+  UTC, checksum pass; raw A3 bị cấm normal gate/train/tune/blind và blind chưa
+  hề inject.
+- 22-08-2026: worker3 có 48,5 GB root free (84% used), nên Longhorn node bị
+  đặt `allowScheduling=false` để chặn replica mới, không đổi eviction threshold.
+  CNPG replica `aims-postgres-cnpg-2` mất PGDATA được rebuild có evidence: thay
+  đúng pod/PVC lỗi, tạo volume Longhorn mới, khởi tạo directory rỗng UID:GID
+  26:26 theo restricted PodSecurity rồi `pg_basebackup` mTLS từ primary. Hậu
+  kiểm 3/3 CNPG healthy và hai replica `streaming/async`.
+- 22-08-2026: launcher/monitor formal thêm capacity interlock: mọi worker phải
+  có ≥64 GiB root available và ≤80% used, ngoài cluster-health gate hiện hữu.
+  Preflight không tạo marker khi thiếu headroom; monitor tạo
+  `FAILURE_CAPACITY.txt` và reject nếu capacity giảm trong run. Bash syntax và
+  24 deployer test pass; full regression sạch cần chạy trước formal A4. A4 chưa
+  được mở vì worker3 vẫn dưới ngưỡng.
