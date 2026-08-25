@@ -1181,3 +1181,14 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   `FAILURE_CAPACITY.txt` và reject nếu capacity giảm trong run. Bash syntax và
   24 deployer test pass; full regression sạch cần chạy trước formal A4. A4 chưa
   được mở vì worker3 vẫn dưới ngưỡng.
+- 25-08-2026: kiểm tra recovery mới xác nhận 6/6 node `Ready`,
+  `DiskPressure=False`, CNPG `3/3` healthy với hai replication stream và 0
+  Longhorn managed volume non-healthy. worker3 gặp eviction ephemeral-storage
+  và replica CNPG lỗi filesystem; chỉ replica/PVC lỗi được rebuild qua mTLS
+  `pg_basebackup`, primary/replica lành giữ nguyên. Sau archive checksum-verify
+  rồi dọn đúng scope duplicate A2/A3, 12 orphan `DataCleanable` và journal,
+  worker3 còn **70.655.328.256 byte / 77%**. Một `features.jsonl` đang mở báo
+  `file size changed` khi gzip nên đã quarantine, không được dùng làm data;
+  collector restart có kiểm soát và active. Capacity chỉ vừa đạt tại snapshot,
+  nên **A4 vẫn khóa** cho tới khi health/capacity liên tục 300 giây và regression
+  worktree sạch pass. Không có claim accuracy/no-FP/latency mới.

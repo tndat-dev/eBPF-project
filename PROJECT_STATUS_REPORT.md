@@ -6111,3 +6111,37 @@ không đạt, marker mới không được tạo; nếu giảm trong run, monit
 pass trên host; full regression từ worktree sạch vẫn là bước bắt buộc trước A4.
 Do worker3 chưa đạt ngưỡng, **không mở A4** và không tái sử dụng bất kỳ raw A3
 nào.
+
+### 18.147 Xác minh và khôi phục lại ngày 25-08-2026: A4 vẫn khóa
+
+Lần xác minh độc lập ngày **25-08-2026** xác nhận nguyên nhân capacity vẫn là
+hạ tầng, không phải tín hiệu mô hình. Kubelet trên `k8s-worker3.local` từng
+evict pod do ephemeral-storage và volume cũ của `aims-postgres-cnpg-2` có lỗi
+filesystem không thể fsck tự sửa. Recovery được ghi tại
+`validation-evidence/infrastructure-recovery/cnpg-worker3-20260825T145500Z`:
+chỉ replica lỗi/PVC lỗi được thay, primary `aims-postgres-cnpg-1` và replica
+`-3` được giữ nguyên. Replica mới bootstrap bằng `pg_basebackup` mTLS. Hậu
+kiểm tại thời điểm recovery: CNPG **3/3**, hai replication session
+`streaming/async`, 6/6 node `Ready` và `DiskPressure=False`, toàn bộ Longhorn
+managed volume có `robustness=healthy`.
+
+Không giảm kubelet eviction threshold và không xóa thô dữ liệu Longhorn. Sau
+khi archive A2/A3 đã checksum-verify, chỉ raw duplicate của các run
+infrastructure-reject, 12 Longhorn Orphan CR `DataCleanable=True`, và journal
+đã hết giá trị vận hành mới được dọn theo receipt. Một archive lịch sử
+`features-20260820T105814Z.jsonl.gz` được `gzip -t` và SHA-256 xác minh giống
+nhau ở worker3/control-plane trước khi bản trùng worker3 bị xóa. Headroom
+worker3 sau cùng là **70.655.328.256 byte (77% used)**; vượt ngưỡng gate 64
+GiB/80% tại thời điểm đo, nhưng chưa phải bằng chứng ổn định 300 giây.
+
+Trong dọn dẹp, `features.jsonl` của collector legacy vẫn đang được ghi nên một
+lần gzip báo *file size changed*. Artifact đó đã được đánh dấu
+`QUARANTINE_*`, không dùng cho evidence, training hay evaluation; collector
+được restart có kiểm soát và active trở lại. Sự cố này khẳng định không được
+archive file đang mở bằng copy trực tiếp; không làm phát sinh kết quả ML nào.
+
+Vì vậy **A4/Sentinel Pulse normal soak vẫn chưa khởi động**. Điều kiện trước
+khi khởi động là: toàn bộ cluster-health/capacity gate liên tục đạt tối thiểu
+300 giây, full regression tại worktree sạch của commit capacity-gate pass, và
+không có campaign cũ được tái phân loại thành normal-pass. Chưa có claim mới
+về false positive, recall, precision hay kernel-to-alert end-to-end.
