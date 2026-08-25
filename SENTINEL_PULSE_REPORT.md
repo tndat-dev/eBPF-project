@@ -1192,3 +1192,12 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   collector restart có kiểm soát và active. Capacity chỉ vừa đạt tại snapshot,
   nên **A4 vẫn khóa** cho tới khi health/capacity liên tục 300 giây và regression
   worktree sạch pass. Không có claim accuracy/no-FP/latency mới.
+- 25-08-2026 15:45:01 UTC: sau khi snapshot rồi xóa một loadgen pod `Error`
+  stale (replacement Running), A4 qua 307 giây preflight liên tục và tạo marker
+  bất biến `pulse500-normal-soak-a4-20260825T154500Z`. Source `1b33a77...`,
+  model `c4683505...`, policy `272e9119...`; lifecycle persistent
+  `sentinel-pulse-a4-lifecycle.service` đang monitor 25 giờ. Vòng monitor đầu:
+  cả ba collector/detector active, 0 restart/0 alert; counter decision lần lượt
+  6.453/1.867/4.317 tại các timestamp poll khác nhau. Đây chỉ là startup health,
+  không phải no-FP result. Finalize không sớm hơn 26-08 15:50 UTC (24 giờ + 300s)
+  và blind set vẫn khóa tới normal-pass terminal.

@@ -6145,3 +6145,23 @@ khi khởi động là: toàn bộ cluster-health/capacity gate liên tục đ�
 300 giây, full regression tại worktree sạch của commit capacity-gate pass, và
 không có campaign cũ được tái phân loại thành normal-pass. Chưa có claim mới
 về false positive, recall, precision hay kernel-to-alert end-to-end.
+
+### 18.148 A4 đã bắt đầu sau preflight capacity (25-08-2026)
+
+Sau recovery, pod `aims-sentinel-loadgen-67b469878-vphcr` ở trạng thái `Error`
+đã tồn tại 5 ngày được snapshot rồi xóa; replacement của workload vẫn `Running`.
+Production health parser trở về 0 bad pod. Preflight A4 sau đó giữ liên tục
+**307 giây** với 6 node healthy, CNPG/Longhorn healthy và root capacity của ba
+worker đạt gate. `SOAK_START.json` bất biến được tạo lúc
+**2026-08-25 15:45:01 UTC**, với source commit
+`1b33a77bbbbcffb0be6a63b3efd90f39858c668b`, model manifest
+`c4683505...`, policy `272e9119...`, duration 25 giờ và auto-promotion=false.
+
+Run `pulse500-normal-soak-a4-20260825T154500Z` đang do persistent unit
+`sentinel-pulse-a4-lifecycle.service` giám sát. Snapshot monitor đầu có ba
+collector 500 ms và ba candidate detector đều `active`, `NRestarts=0`,
+`alerts=0`; các decision counter quan sát được là worker1 6.453, worker3
+1.867 và worker4 4.317 (khác thời điểm trong cùng vòng poll). Chúng chỉ chứng
+minh ingest/decision đang tiến triển, **không** chứng minh no-false-positive.
+Finalization sớm nhất là 15:45:01 UTC ngày 26-08-2026, cộng margin 300 giây;
+blind campaign vẫn bị khóa cho tới khi normal gate terminal pass.
