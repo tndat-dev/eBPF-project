@@ -17,12 +17,8 @@ window-start-to-decision p99 1,433 giây. Independent soak
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
 
-**Checkpoint formal hiện tại:** candidate A1 500 ms đã được đóng băng và formal
-normal soak A2 bắt đầu 11:20:46 UTC ngày 20-08-2026. Snapshot 15:31:38 UTC có
-1.080.654 decision trên ba worker, 0 alert, 0 restart và đạt 17,42% thời lượng
-24 giờ. Đây là số giữa kỳ, chưa phải bằng chứng không false positive. Finalizer
-và blind timer đã được arm fail-closed cho ngày 21-08-2026; blind source commit
-`51f214e` đạt 420 test pass và không tự promote.
+**Checkpoint formal hiện tại:** Run A4 (`pulse500-normal-soak-a4-20260825T154500Z`) bị infrastructure-reject tại 2026-08-26 06:54 UTC do unattended-upgrades restart containerd trên worker1 (evidence đã archive fail-closed). Unattended-upgrades và apt-daily timers đã được mask trên 3/3 worker. Formal normal soak A5 (`pulse500-normal-soak-a5-20260827T070900Z`) được khởi chạy lúc 08:08:26 UTC ngày 27-08-2026 với model `c4683505...`, policy `272e9119...`, source `1b33a77...`. Snapshot sau 4 giờ 23 phút đạt >1.116.000 decision trên 3 worker, 0 alert, 0 restart; eligible finalize sớm nhất sau 2026-08-28 08:08:26 UTC.
+
 
 ## 1. Động cơ và phạm vi
 
@@ -1201,3 +1197,19 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   6.453/1.867/4.317 tại các timestamp poll khác nhau. Đây chỉ là startup health,
   không phải no-FP result. Finalize không sớm hơn 26-08 15:50 UTC (24 giờ + 300s)
   và blind set vẫn khóa tới normal-pass terminal.
+- 26-08-2026 06:54:35 UTC: Run A4 bị **infrastructure-reject** tại worker1 do
+  `unattended-upgrades` tự động restart `containerd.service`. Toàn bộ dữ liệu raw
+  và journal đã được nén và lưu trữ fail-closed tại `pulse500-normal-soak-a4-20260825T154500Z/infrastructure-failure/`
+  với đầy đủ SHA-256 checksums (`ARCHIVE_COMPLETE`). Run A4 bị cấm dùng cho normal gate/train/tune.
+- 27-08-2026 07:30:00 UTC: Đã can thiệp triệt để nguy cơ restart hạ tầng: thực hiện
+  stop và mask `unattended-upgrades.service`, `apt-daily.timer`, `apt-daily-upgrade.timer`
+  trên cả 3 worker (`k8s-worker1.local`, `k8s-worker4.local`, `k8s-worker3.local`).
+- 27-08-2026 08:08:26 UTC: Khởi chạy chính thức formal normal soak **A5** với marker
+  `pulse500-normal-soak-a5-20260827T070900Z`. Khóa model `c4683505...`, policy `272e9119...`,
+  source commit `1b33a77...`. Tiến trình persistent lifecycle `sentinel-pulse-a5-lifecycle.service`
+  đang tự động giám sát 24 giờ.
+- 27-08-2026 12:30:00 UTC: Snapshot A5 sau 4 giờ 23 phút hoạt động liên tục:
+  tất cả 3 collector và candidate detector đều `active`, 0 restart (`nrestarts=0`),
+  0 alert (`alerts=0`), tổng cộng **1.116.584 decisions** được xử lý (worker1: 511.306,
+  worker4: 442.696, worker3: 162.582). Thời gian finalize sớm nhất là **2026-08-28 08:08:26 UTC**.
+
