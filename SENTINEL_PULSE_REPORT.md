@@ -17,7 +17,8 @@ window-start-to-decision p99 1,433 giây. Independent soak
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
 
-**Checkpoint formal hiện tại:** Run A4 (`pulse500-normal-soak-a4-20260825T154500Z`) bị infrastructure-reject tại 2026-08-26 06:54 UTC do unattended-upgrades restart containerd trên worker1 (evidence đã archive fail-closed). Unattended-upgrades và apt-daily timers đã được mask trên 3/3 worker. Formal normal soak A5 (`pulse500-normal-soak-a5-20260827T070900Z`) được khởi chạy lúc 08:08:26 UTC ngày 27-08-2026 với model `c4683505...`, policy `272e9119...`, source `1b33a77...`. Snapshot sau 4 giờ 23 phút đạt >1.116.000 decision trên 3 worker, 0 alert, 0 restart; eligible finalize sớm nhất sau 2026-08-28 08:08:26 UTC.
+**Checkpoint formal hiện tại:** Run A4 (`pulse500-normal-soak-a4-20260825T154500Z`) bị infrastructure-reject tại 2026-08-26 06:54 UTC do unattended-upgrades restart containerd trên worker1 (evidence đã archive fail-closed). Unattended-upgrades và apt-daily timers đã được mask trên 3/3 worker. Formal normal soak A5 (`pulse500-normal-soak-a5-20260827T070900Z`) được khởi chạy lúc 08:08:26 UTC ngày 27-08-2026 với model `c4683505...`, policy `272e9119...`, source `1b33a77...`. Snapshot sau 19 giờ 03 phút (79,4% chặng đường 24h) đạt **4.963.086 decisions** trên 3 worker, **0 alert**, **0 restart**; 3/3 worker healthy. Eligible finalize dự kiến vào lúc **2026-08-28 08:08:26 UTC** (~5 giờ tới).
+
 
 
 ## 1. Động cơ và phạm vi
@@ -1212,4 +1213,10 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   tất cả 3 collector và candidate detector đều `active`, 0 restart (`nrestarts=0`),
   0 alert (`alerts=0`), tổng cộng **1.116.584 decisions** được xử lý (worker1: 511.306,
   worker4: 442.696, worker3: 162.582). Thời gian finalize sớm nhất là **2026-08-28 08:08:26 UTC**.
+- 28-08-2026 03:11:09 UTC: Snapshot A5 sau 19 giờ 03 phút hoạt động liên tục (79,4% chặng đường):
+  tất cả 3 worker collector và candidate detector giữ nguyên trạng thái `active`,
+  0 restart (`nrestarts=0`), 0 alert (`alerts=0`), tổng cộng **4.963.086 decisions** được xử lý
+  (worker1: 2.268.118, worker4: 1.971.716, worker3: 723.252). Tiến trình lifecycle `sentinel-pulse-a5-lifecycle.service`
+  chạy ổn định 19 giờ liên tục; eligible finalize dự kiến vào lúc **2026-08-28 08:08:26 UTC** (~5 giờ tới).
+
 
