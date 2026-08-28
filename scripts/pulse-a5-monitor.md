@@ -52,3 +52,5 @@ Duration: 90000s (25h) · expected finalize ≥ `2026-08-28T08:08:26Z`
 - **2026-08-28T02:39:45Z** (18.52h / 77.2% soak) — Total decisions: 4,824,502, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
 - **2026-08-28T03:09:45Z** (19.02h / 79.3% soak) — Total decisions: 4,953,076, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
 - **2026-08-28T03:11:09Z** (19.05h / 79.4% soak) — Total decisions: 4,963,086, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
+- **2026-08-28T03:31:21Z** (19.38h / 80.8% soak) — Total decisions: 5,049,093, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
+- **2026-08-28T03:31:29Z** (19.38h / 80.8% soak) — Total decisions: 5,049,093, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
