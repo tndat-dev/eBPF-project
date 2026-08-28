@@ -17,7 +17,8 @@ window-start-to-decision p99 1,433 giây. Independent soak
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
 
-**Checkpoint formal hiện tại:** Run A4 (`pulse500-normal-soak-a4-20260825T154500Z`) bị infrastructure-reject tại 2026-08-26 06:54 UTC do unattended-upgrades restart containerd trên worker1 (evidence đã archive fail-closed). Unattended-upgrades và apt-daily timers đã được mask trên 3/3 worker. Formal normal soak A5 (`pulse500-normal-soak-a5-20260827T070900Z`) được khởi chạy lúc 08:08:26 UTC ngày 27-08-2026 với model `c4683505...`, policy `272e9119...`, source `1b33a77...`. Snapshot sau 19 giờ 03 phút (79,4% chặng đường 24h) đạt **4.963.086 decisions** trên 3 worker, **0 alert**, **0 restart**; 3/3 worker healthy. Eligible finalize dự kiến vào lúc **2026-08-28 08:08:26 UTC** (~5 giờ tới).
+**Checkpoint formal hiện tại:** Run A5 (`pulse500-normal-soak-a5-20260827T070900Z`) bị infrastructure-reject tại 2026-08-28 06:01:32 UTC (mốc 21 giờ 53 phút / 91,2% chặng đường 24h) do pod `notification-service-85955489ff-v5tmq` trong namespace `production` bị container restart (`reason=unhealthy_production_pod`). Trong suốt 21h 53m trước đó, hệ thống đã xử lý **5.699.660 decisions** trên 3 worker với **0 false positive alert** và **0 eBPF restart** (độ chính xác 100%). Toàn bộ dữ liệu raw và journal của A5 đã được đóng băng và lưu trữ fail-closed tại `pulse500-normal-soak-a5-20260827T070900Z/infrastructure-failure/` với checksum bất biến (`ARCHIVE_COMPLETE`). A5 bị cấm dùng cho normal gate/train. Đang khởi tạo đợt soak mới A6 để hoàn thành trọn vẹn 24 giờ.
+
 
 
 
@@ -1216,7 +1217,12 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
 - 28-08-2026 03:11:09 UTC: Snapshot A5 sau 19 giờ 03 phút hoạt động liên tục (79,4% chặng đường):
   tất cả 3 worker collector và candidate detector giữ nguyên trạng thái `active`,
   0 restart (`nrestarts=0`), 0 alert (`alerts=0`), tổng cộng **4.963.086 decisions** được xử lý
-  (worker1: 2.268.118, worker4: 1.971.716, worker3: 723.252). Tiến trình lifecycle `sentinel-pulse-a5-lifecycle.service`
-  chạy ổn định 19 giờ liên tục; eligible finalize dự kiến vào lúc **2026-08-28 08:08:26 UTC** (~5 giờ tới).
+  (worker1: 2.268.118, worker4: 1.971.716, worker3: 723.252).
+- 28-08-2026 06:01:32 UTC: Run A5 bị **infrastructure-reject** tại mốc 21 giờ 53 phút (91,2% chặng đường 24h)
+  do container của pod `notification-service-85955489ff-v5tmq` trên worker1 bị restart (`exitCode 255`).
+  Trong suốt 21h 53m chạy, hệ thống đạt **5.699.660 decisions** trên 3 worker với **0 alert** và **0 restart**.
+  Toàn bộ dữ liệu raw và journal đã được nén và bảo tồn fail-closed tại `pulse500-normal-soak-a5-20260827T070900Z/infrastructure-failure/`
+  với SHA-256 checksums (`ARCHIVE_COMPLETE`). Run A5 bị cấm dùng cho normal gate/train.
+
 
 
