@@ -98,9 +98,35 @@ check_worker_capacity() {
   done <"$WORKERS_FILE"
 }
 
+check_worker_maintenance() {
+  local host node expected_feature states
+  local units=(
+    unattended-upgrades.service
+    apt-daily.timer
+    apt-daily-upgrade.timer
+  )
+  while read -r host node expected_feature; do
+    states=$(sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 \
+      "$SSH_USER@$host" "systemctl is-enabled ${units[*]} 2>/dev/null" 2>/dev/null) ||
+      fail maintenance_snapshot_unavailable "$host"
+    [[ $(wc -l <<<"$states") -eq ${#units[@]} ]] ||
+      fail invalid_maintenance_snapshot "$host"
+    while read -r state; do
+      if [[ $state != masked && $state != masked-runtime ]]; then
+        printf 'checked_at=%s\nhost=%s\nunits=%s\nstates=%s\n' \
+          "$(date -u +%FT%TZ)" "$host" "${units[*]}" \
+          "$(tr '\n' ',' <<<"$states" | sed 's/,$//')" \
+          >"$EVIDENCE_ROOT/FAILURE_MAINTENANCE.txt"
+        fail package_maintenance_guard_lost "$host"
+      fi
+    done <<<"$states"
+  done <"$WORKERS_FILE"
+}
+
 while true; do
   check_cluster_health
   check_worker_capacity
+  check_worker_maintenance
   while read -r host _node expected_feature; do
     snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
