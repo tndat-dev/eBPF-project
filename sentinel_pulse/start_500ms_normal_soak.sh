@@ -111,22 +111,47 @@ worker_capacity_snapshot() {
   ((bad == 0))
 }
 
+worker_maintenance_snapshot() {
+  local target host expected_name states bad=0
+  local units=(
+    unattended-upgrades.service
+    apt-daily.timer
+    apt-daily-upgrade.timer
+  )
+  for target in "${WORKERS[@]}"; do
+    IFS='|' read -r host expected_name <<<"$target"
+    states=$(remote "$host" "systemctl is-enabled ${units[*]} 2>/dev/null" || true)
+    [[ $(wc -l <<<"$states") -eq ${#units[@]} ]] || return 1
+    while read -r state; do
+      [[ $state == masked || $state == masked-runtime ]] || bad=1
+    done <<<"$states"
+    printf 'maintenance_guard host=%s states=%s\n' \
+      "$host" "$(tr '\n' ',' <<<"$states" | sed 's/,$//')"
+  done
+  ((bad == 0))
+}
+
 wait_for_stable_cluster() {
-  local deadline stable_since=0 now snapshot
+  local deadline stable_since=0 now snapshot capacity maintenance
   deadline=$(( $(date +%s) + PREFLIGHT_TIMEOUT_SECONDS ))
   while :; do
     now=$(date +%s)
-    if snapshot=$(cluster_health_snapshot) && capacity=$(worker_capacity_snapshot); then
+    snapshot= capacity= maintenance=
+    if snapshot=$(cluster_health_snapshot) && \
+       capacity=$(worker_capacity_snapshot) && \
+       maintenance=$(worker_maintenance_snapshot); then
       if ((stable_since == 0)); then
         stable_since=$now
       fi
       printf 'normal-soak preflight healthy: %s %s stable=%ss/%ss\n' \
-        "$snapshot" "$capacity" "$((now - stable_since))" "$PREFLIGHT_STABILITY_SECONDS"
+        "$snapshot" "$capacity $maintenance" "$((now - stable_since))" "$PREFLIGHT_STABILITY_SECONDS"
       ((now - stable_since >= PREFLIGHT_STABILITY_SECONDS)) && return 0
     else
       stable_since=0
-      printf 'normal-soak preflight unhealthy: %s %s\n' \
-        "${snapshot:-cluster_snapshot_unavailable}" "${capacity:-capacity_snapshot_unavailable}" >&2
+      printf 'normal-soak preflight unhealthy: %s %s %s\n' \
+        "${snapshot:-cluster_snapshot_unavailable}" \
+        "${capacity:-capacity_snapshot_unavailable}" \
+        "${maintenance:-maintenance_snapshot_unavailable}" >&2
     fi
     ((now < deadline)) || {
       echo "cluster did not remain healthy for the preregistered stability interval" >&2
@@ -189,7 +214,7 @@ import json, pathlib, sys
 out, run_id, model, policy, commit, hours, min_root, max_root = sys.argv[1:]
 started = datetime.now(timezone.utc)
 payload = {
-    "schema": "sentinel-pulse-semantic-soak-start-v6",
+    "schema": "sentinel-pulse-semantic-soak-start-v7",
     "run_id": run_id,
     "model_manifest_sha256": model,
     "decision_policy_sha256": policy,
@@ -201,6 +226,14 @@ payload = {
     "minimum_coverage_ratio_per_workload": 0.95,
     "minimum_root_available_bytes": int(min_root),
     "maximum_root_used_percent": int(max_root),
+    "maintenance_window_guard": {
+        "required_state": "masked",
+        "units": [
+            "unattended-upgrades.service",
+            "apt-daily.timer",
+            "apt-daily-upgrade.timer",
+        ],
+    },
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }
