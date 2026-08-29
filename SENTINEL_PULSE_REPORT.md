@@ -1242,5 +1242,15 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   GiB (68.719.476.736 byte); supervisor bị dừng rồi retry vấp thư mục dở dang.
   A6 không được tính là formal soak. Launcher kế tiếp chỉ tạo evidence directory
   sau khi preflight pass để interruption không chặn retry.
-
+- 29-08-2026: audit xác nhận package update units trên cả ba worker thực tế đã
+  trở lại `enabled`; dòng lịch sử “masked từ 27-08” không còn đúng tại thời
+  điểm kiểm tra. Các unit đã được disable/mask lại, có restore timer 40 giờ.
+  Source schema v7 yêu cầu trạng thái masked xuyên suốt preflight và monitor
+  fail-closed nếu guard mất. Regression sạch đạt **436 pass, 2 warning**.
+- 29-08-2026: tạo
+  `INTEGRITY_INCIDENT_20260829T140500Z.json` cho A5. Original manifest có 28
+  entry pass và một mismatch ở log checker phụ; ba worker `raw.tar.gz` đều được
+  verify lại thành công. Dọn worker3 chỉ xóa duplicate A4/A5 có archive phục
+  hồi; không xóa Longhorn managed data. Archive lịch sử tiếp tục được offload
+  và hash-verify trước khi xóa bản worker.
 

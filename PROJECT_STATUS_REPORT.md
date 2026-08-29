@@ -6190,3 +6190,21 @@ directory do checker cũ tạo; vì vậy A6 không phải formal run. Launcher 
 sửa để chỉ tạo run directory sau khi preflight pass. Checker mới chỉ đọc đúng
 một run có `ACTIVE` + `SOAK_START.json`, từ chối ambiguity/terminal run, không
 ghi evidence/report và luôn đặt `accuracy_claim_allowed=false`.
+
+Hậu kiểm ngày 29-08 cho thấy ba package-maintenance unit thực tế đã trở lại
+`enabled`, trái với dòng lịch sử nói chúng vẫn masked từ 27-08. Trạng thái thực
+tế được ưu tiên: cả ba worker đã được `disable --now` rồi `mask` lại trước run
+kế tiếp, đồng thời đặt restore timer 40 giờ để không tắt cập nhật vô thời hạn.
+Launcher schema v7 bắt buộc ba unit ở trạng thái masked trong toàn bộ 300 giây
+preflight; monitor cũng fail-closed với `FAILURE_MAINTENANCE.txt` nếu guard bị
+mất giữa run. Clean regression của source monitor/preflight đạt **436 passed,
+2 Torch deprecation warnings** trên control plane.
+
+Để phục hồi capacity worker3, chỉ duplicate A4/A5 đã có `raw.tar.gz` xác minh
+trên control plane được xóa: detector A4 897.336.880 byte, collector A5
+1.170.977.922 byte và detector A5 1.293.411.586 byte. Một image Trivy không còn
+được container dùng và 94,5 MB archived journal cũng được prune. Không xóa
+Longhorn managed replica. Receipt trên worker ghi headroom tăng từ
+65.071.140.864 lên 68.432.908.288 byte trước image/journal maintenance; các
+archive lịch sử còn lại đang được offload có checksum sang control plane để
+tạo margin an toàn trước formal run mới.
