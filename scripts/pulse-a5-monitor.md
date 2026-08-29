@@ -6,6 +6,11 @@ Model: `pulse500-model-a1-20260820T093721Z` (manifest sha `c4683505...`)
 Policy (semantic-v4): `272e9119...`
 Duration: 90000s (25h) · expected finalize ≥ `2026-08-28T08:08:26Z`
 
+> Tài liệu này là snapshot lịch sử, không phải evidence source. Checker cũ từng
+> append tự động; cơ chế đó đã bị loại bỏ vì có thể làm bẩn worktree và sửa
+> artifact sau archive. Số liệu terminal phải lấy từ marker/checksum trên
+> control plane.
+
 ## Checkpoints
 
 - **2026-08-27T08:12Z (post-launch)** — lifecycle `active`/`normal_monitor`; 6/6 nodes
@@ -54,3 +59,15 @@ Duration: 90000s (25h) · expected finalize ≥ `2026-08-28T08:08:26Z`
 - **2026-08-28T03:11:09Z** (19.05h / 79.4% soak) — Total decisions: 4,963,086, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
 - **2026-08-28T03:31:21Z** (19.38h / 80.8% soak) — Total decisions: 5,049,093, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
 - **2026-08-28T03:31:29Z** (19.38h / 80.8% soak) — Total decisions: 5,049,093, Alerts: 0, Restarts: 0. Workers: 3/3 healthy.
+
+## Terminal disposition
+
+- **2026-08-28T06:01:32Z** — A5 bị `infrastructure-reject` do production pod
+  `notification-service-85955489ff-v5tmq` tạm thời unready sau container exit
+  255. Snapshot monitor cuối: 5.699.660 decision, 0 emitted alert và 0
+  candidate-detector restart. Vì chưa đủ 24 giờ và không có attack labels,
+  không được diễn giải thành normal-pass, 0% FPR hay 100% accuracy.
+- Periodic checker cũ ghi tiếp `SOAK_PERIODIC_CHECKS.log` sau archive, làm
+  top-level `RAW_SHA256SUMS` mismatch đúng file phụ này; ba raw worker archive
+  vẫn checksum pass. Timer đã bị disable ngày 29-08-2026 và checker mới là
+  read-only.

@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-"""
-Agent Soak Watcher:
-Polls every 30 minutes (1800s), runs check_a5_soak.py on master node,
-updates SENTINEL_PULSE_REPORT.md and console output.
-"""
-import os
-import sys
+"""Read-only console watcher for the current normal-soak campaign."""
+
 import time
 import subprocess
 import datetime
@@ -18,14 +13,22 @@ def log(msg):
 
 def run_ssh_check():
     try:
-        cmd = "python3 scripts/ssh_lab.py 'python3 /home/dat/eBPF-project/scripts/check_a5_soak.py'"
-        res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
-        return res.stdout.strip()
+        command = [
+            "python3", "scripts/ssh_lab.py", "--host", "10.1.16.234",
+            "python3", "/home/dat/eBPF-project/scripts/check_a5_soak.py",
+        ]
+        result = subprocess.run(
+            command, check=False, capture_output=True, text=True, timeout=30
+        )
+        output = result.stdout.strip()
+        if result.stderr:
+            output += f"\nstderr: {result.stderr.strip()}"
+        return f"exit={result.returncode} {output}".strip()
     except Exception as e:
         return f"ERROR running check: {e}"
 
 def main():
-    log("Starting 30-minute agent soak monitor loop...")
+    log("Starting 30-minute read-only soak monitor loop...")
     check_count = 0
 
     while True:

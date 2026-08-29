@@ -6165,3 +6165,28 @@ collector 500 ms và ba candidate detector đều `active`, `NRestarts=0`,
 minh ingest/decision đang tiến triển, **không** chứng minh no-false-positive.
 Finalization sớm nhất là 15:45:01 UTC ngày 26-08-2026, cộng margin 300 giây;
 blind campaign vẫn bị khóa cho tới khi normal gate terminal pass.
+
+### 18.149 A4/A5 reject, A6 chưa thành formal run và hardening monitor (29-08-2026)
+
+A4 bị infrastructure-reject lúc 06:55:38 UTC ngày 26-08 do collector worker1
+inactive sau restart hạ tầng. A5 sau đó chạy hợp lệ đến 06:01:32 UTC ngày
+28-08 rồi bị `unhealthy_production_pod`: snapshot failure cho thấy container
+`notification-service-85955489ff-v5tmq` vừa exit 255 và chưa ready trở lại.
+Snapshot monitor cuối của A5 có **5.699.660 decision, 0 alert, 0 detector
+restart**, nhưng chỉ đạt 21 giờ 53 phút. Vì A5 là infrastructure-reject và
+không có attack labels, các số này không phải accuracy, FPR hay no-FP claim.
+
+Audit integrity phát hiện periodic checker tự động vẫn ghi
+`SOAK_PERIODIC_CHECKS.log` sau `ARCHIVE_COMPLETE`. Do đó top-level
+`RAW_SHA256SUMS` A5 mismatch đúng file phụ này; các raw archive của ba worker
+vẫn checksum pass. Timer `sentinel-pulse-a5-checker.timer` đã được disable. A5
+giữ nguyên disposition rejected và phải kèm integrity amendment; không được
+im lặng tái sinh manifest cũ hoặc gọi toàn bundle bất biến.
+
+A6 chưa tạo `SOAK_START.json`, `ACTIVE`, worker list hoặc experimental stream.
+Nó chỉ chạy preflight khi worker3 còn khoảng 65,3 GB, thấp hơn hard gate 64 GiB
+(68.719.476.736 byte), sau đó supervisor bị dừng. Lần retry vấp evidence
+directory do checker cũ tạo; vì vậy A6 không phải formal run. Launcher đã được
+sửa để chỉ tạo run directory sau khi preflight pass. Checker mới chỉ đọc đúng
+một run có `ACTIVE` + `SOAK_START.json`, từ chối ambiguity/terminal run, không
+ghi evidence/report và luôn đặt `accuracy_claim_allowed=false`.

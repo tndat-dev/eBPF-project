@@ -60,7 +60,7 @@ test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$POLICY_SOURCE"
 test ! -e "$EVIDENCE_ROOT"
-mkdir -p "$EVIDENCE_ROOT"
+mkdir -p "$(dirname "$EVIDENCE_ROOT")"
 
 remote() {
   local host=$1; shift
@@ -174,6 +174,11 @@ done
 # production workload, Longhorn and CloudNativePG gates to remain healthy
 # continuously before creating the immutable experiment marker.
 wait_for_stable_cluster
+
+# Create the evidence directory only after preflight. An interrupted preflight
+# therefore cannot leave a run directory that blocks a safe lifecycle retry.
+# mkdir is the final atomic ownership check immediately before preregistration.
+mkdir "$EVIDENCE_ROOT"
 
 # The marker exists before any experimental collector or detector starts.
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \

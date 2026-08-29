@@ -8,6 +8,9 @@ Cách dùng:
 
 CHỈ dùng trong môi trường lab tin cậy nơi mật khẩu yếu được chủ sở hữu cung cấp.
 """
+import argparse
+import os
+import shlex
 import sys
 import paramiko
 
@@ -19,8 +22,8 @@ HOSTS = {
     "10.1.16.238": "k8s-worker4.local",
     "10.1.16.239": "k8s-worker3.local",
 }
-USER = "dat"
-PASSWORD = "1"
+USER = os.environ.get("LAB_SSH_USER", "dat")
+PASSWORD = os.environ.get("LAB_SSH_PASSWORD")
 PORT = 22
 TIMEOUT = 30
 
@@ -35,8 +38,8 @@ def run(host, cmd, timeout=TIMEOUT * 10):
             username=USER,
             password=PASSWORD,
             timeout=TIMEOUT,
-            look_for_keys=False,
-            allow_agent=False,
+            look_for_keys=PASSWORD is None,
+            allow_agent=PASSWORD is None,
         )
     except Exception as exc:  # noqa: BLE001
         print(f"SSH connect failed to {host}: {exc}", file=sys.stderr)
@@ -54,18 +57,19 @@ def run(host, cmd, timeout=TIMEOUT * 10):
 
 
 def main():
-    args = sys.argv[1:]
-    if args and args[0] == "--list":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--host", choices=tuple(HOSTS), default="10.1.16.234")
+    parser.add_argument("--list", action="store_true")
+    parser.add_argument("command", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    if args.list:
         for host, name in HOSTS.items():
             code, out = run(host, "hostname; echo ok")
             status = "OK" if code == 0 else "FAIL"
             print(f"{name} ({host}): {status}")
         return 0
-    host = "10.1.16.234"
-    if args and args[0] in HOSTS:
-        host = args.pop(0)
-    cmd = " ".join(args) or "hostname; whoami; pwd; uname -a"
-    code, _ = run(host, cmd)
+    command = shlex.join(args.command) if args.command else "hostname; whoami; pwd; uname -a"
+    code, _ = run(args.host, command)
     return code
 
 

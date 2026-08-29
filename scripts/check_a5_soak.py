@@ -1,128 +1,189 @@
 #!/usr/bin/env python3
+"""Read-only status checker for an active Sentinel Pulse normal soak.
+
+The historical filename is retained because the control-plane unit references
+it, but the checker is run-agnostic. It never creates or modifies campaign
+evidence and never appends to a tracked report: stdout/systemd-journal is the
+monitoring sink.
 """
-Sentinel Pulse A5 Periodic Soak Checker.
-Runs every 30 minutes on k8s-master (or via lab script).
-Logs structured status to SOAK_PERIODIC_CHECKS.log and appends to pulse-a5-monitor.md.
-"""
-import os
-import sys
+
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
 import json
-import time
+from pathlib import Path
 import subprocess
-import datetime
+import sys
+import time
 
-RUN_ID = "pulse500-normal-soak-a5-20260827T070900Z"
-EVIDENCE_DIR = f"/home/dat/sentinel-pulse-evidence/{RUN_ID}"
-MONITOR_FILE = os.path.join(EVIDENCE_DIR, "MONITOR.jsonl")
-LOG_FILE = os.path.join(EVIDENCE_DIR, "SOAK_PERIODIC_CHECKS.log")
-REPORT_MD = "/home/dat/eBPF-project/scripts/pulse-a5-monitor.md"
 
-WORKERS = ["10.1.16.237", "10.1.16.238", "10.1.16.239"]
-WORKER_NAMES = {
-    "10.1.16.237": "k8s-worker1",
-    "10.1.16.238": "k8s-worker4",
-    "10.1.16.239": "k8s-worker3"
-}
+DEFAULT_EVIDENCE_ROOT = Path("/home/dat/sentinel-pulse-evidence")
+EXPECTED_WORKERS = ("10.1.16.237", "10.1.16.239", "10.1.16.238")
+TERMINAL_MARKERS = ("FAILED", "NORMAL_PASS", "ARCHIVE_COMPLETE")
+MAX_MONITOR_AGE_SECONDS = 180.0
 
-def run_cmd(cmd):
+
+def parse_timestamp(value: str) -> float:
+    return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+
+
+def active_runs(root: Path) -> list[Path]:
+    if not root.is_dir():
+        return []
+    candidates = []
+    for path in root.glob("pulse500-normal-soak-*"):
+        if not path.is_dir() or not (path / "ACTIVE").is_file():
+            continue
+        if any((path / marker).exists() for marker in TERMINAL_MARKERS):
+            continue
+        if not (path / "SOAK_START.json").is_file():
+            continue
+        candidates.append(path)
+    return sorted(candidates, key=lambda item: item.name)
+
+
+def resolve_run(root: Path, run_id: str | None) -> Path:
+    if run_id:
+        if not run_id.startswith("pulse500-normal-soak-") or "/" in run_id:
+            raise ValueError("unsafe normal-soak run ID")
+        candidate = root / run_id
+        if not candidate.is_dir():
+            raise FileNotFoundError(f"run does not exist: {candidate}")
+        return candidate
+    runs = active_runs(root)
+    if len(runs) != 1:
+        raise RuntimeError(f"expected exactly one active normal soak, found {len(runs)}")
+    return runs[0]
+
+
+def latest_worker_rows(path: Path) -> dict[str, dict]:
+    latest: dict[str, dict] = {}
+    with path.open(encoding="utf-8") as source:
+        for number, line in enumerate(source, 1):
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"invalid monitor JSON at line {number}") from exc
+            host = str(row.get("host", ""))
+            if host in EXPECTED_WORKERS:
+                latest[host] = row
+    return latest
+
+
+def kubernetes_summary() -> dict:
+    command = ["kubectl", "-n", "production", "get", "pods", "-o", "json"]
     try:
-        res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=15)
-        return res.stdout.strip()
-    except Exception as e:
-        return f"ERROR: {e}"
-
-def check_soak():
-    now_utc = datetime.datetime.now(datetime.timezone.utc)
-    ts_str = now_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-    # Start info
-    start_ts = 1787818106.0  # 2026-08-27T08:08:26Z
-    try:
-        if os.path.exists(os.path.join(EVIDENCE_DIR, "SOAK_START.json")):
-            with open(os.path.join(EVIDENCE_DIR, "SOAK_START.json")) as f:
-                sdata = json.load(f)
-                sb = sdata.get("started_not_before", "")
-                if sb:
-                    dt = datetime.datetime.fromisoformat(sb)
-                    start_ts = dt.timestamp()
-    except Exception:
-        pass
-
-    elapsed_s = time.time() - start_ts
-    elapsed_h = elapsed_s / 3600.0
-    pct = min(100.0, (elapsed_h / 24.0) * 100.0)
-
-    # Monitor log check
-    worker_stats = {}
-    total_decisions = 0
-    total_alerts = 0
-    total_restarts = 0
-
-    if os.path.exists(MONITOR_FILE):
-        try:
-            with open(MONITOR_FILE) as f:
-                for line in f:
-                    try:
-                        d = json.loads(line)
-                        host = d.get("host", "")
-                        worker_stats[host] = d
-                    except Exception:
-                        pass
-        except Exception as e:
-            print(f"Error reading MONITOR.jsonl: {e}")
-
-    summary_lines = []
-    summary_lines.append(f"=== SOAK CHECK AT {ts_str} (Elapsed: {elapsed_h:.2f}h / {pct:.1f}%) ===")
-
-    for w in WORKERS:
-        wname = WORKER_NAMES.get(w, w)
-        st = worker_stats.get(w, {})
-        col = st.get("collector", "unknown")
-        det = st.get("detector", "unknown")
-        dec = st.get("decisions", 0)
-        al = st.get("alerts", 0)
-        nr = st.get("nrestarts", 0)
-
-        total_decisions += dec
-        total_alerts += al
-        total_restarts += nr
-
-        summary_lines.append(
-            f"  - {wname} ({w}): collector={col}, detector={det}, decisions={dec:,}, alerts={al}, restarts={nr}"
+        result = subprocess.run(
+            command, check=True, capture_output=True, text=True, timeout=15
         )
+        payload = json.loads(result.stdout)
+    except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as exc:
+        return {"available": False, "error": type(exc).__name__}
+    phases: dict[str, int] = {}
+    unready = 0
+    for pod in payload.get("items", []):
+        status = pod.get("status", {})
+        phase = str(status.get("phase", "Unknown"))
+        phases[phase] = phases.get(phase, 0) + 1
+        if phase == "Running" and any(
+            item.get("ready") is not True
+            for item in status.get("containerStatuses", [])
+        ):
+            unready += 1
+    return {"available": True, "phases": phases, "running_unready": unready}
 
-    summary_lines.append(f"  TOTAL: decisions={total_decisions:,}, alerts={total_alerts}, restarts={total_restarts}")
 
-    # Check k8s pods
-    pods_out = run_cmd("kubectl get pods -n production --no-headers 2>/dev/null | awk '{print $3}' | sort | uniq -c")
-    summary_lines.append(f"  PRODUCTION PODS: {pods_out.replace('\n', '; ')}")
+def build_status(run: Path, now: float | None = None) -> tuple[dict, bool]:
+    now = time.time() if now is None else now
+    marker = json.loads((run / "SOAK_START.json").read_text(encoding="utf-8"))
+    rows = latest_worker_rows(run / "MONITOR.jsonl")
+    started = parse_timestamp(marker["started_not_before"])
+    eligible = parse_timestamp(marker["eligible_finalize_after"])
+    duration = eligible - started
+    if duration <= 0:
+        raise ValueError("invalid soak duration in marker")
+    elapsed = max(0.0, now - started)
+    worker_status = {}
+    healthy = len(rows) == len(EXPECTED_WORKERS)
+    for host in EXPECTED_WORKERS:
+        row = rows.get(host)
+        if row is None:
+            worker_status[host] = {"status": "missing"}
+            healthy = False
+            continue
+        row_healthy = (
+            row.get("collector") == "active"
+            and row.get("detector") == "active"
+            and int(row.get("nrestarts", -1)) == 0
+            and int(row.get("alerts", -1)) == 0
+            and 0.0 <= now - float(row.get("checked_at_unix", 0.0))
+            <= MAX_MONITOR_AGE_SECONDS
+        )
+        healthy = healthy and row_healthy
+        worker_status[host] = {
+            "status": "healthy" if row_healthy else "unhealthy",
+            "checked_at_unix": row.get("checked_at_unix"),
+            "age_seconds": max(
+                0.0, now - float(row.get("checked_at_unix", 0.0))
+            ),
+            "collector": row.get("collector"),
+            "detector": row.get("detector"),
+            "decisions": int(row.get("decisions", 0)),
+            "alerts": int(row.get("alerts", 0)),
+            "nrestarts": int(row.get("nrestarts", 0)),
+        }
+    terminal = [name for name in TERMINAL_MARKERS if (run / name).exists()]
+    active = (run / "ACTIVE").is_file() and not terminal
+    healthy = healthy and active
+    kubernetes = kubernetes_summary()
+    kubernetes_healthy = (
+        kubernetes.get("available") is True
+        and int(kubernetes.get("running_unready", 0)) == 0
+        and int(kubernetes.get("phases", {}).get("Failed", 0)) == 0
+        and int(kubernetes.get("phases", {}).get("Unknown", 0)) == 0
+        and int(kubernetes.get("phases", {}).get("Pending", 0)) == 0
+    )
+    healthy = healthy and kubernetes_healthy
+    status = {
+        "schema": "sentinel-pulse-read-only-check-v1",
+        "checked_at": datetime.fromtimestamp(now, timezone.utc).isoformat(),
+        "run_id": run.name,
+        "active": active,
+        "terminal_markers": terminal,
+        "elapsed_hours": elapsed / 3600.0,
+        "duration_progress_percent": min(100.0, elapsed / duration * 100.0),
+        "workers": worker_status,
+        "worker_decisions_total": sum(
+            item.get("decisions", 0) for item in worker_status.values()
+        ),
+        "worker_alerts_total": sum(
+            item.get("alerts", 0) for item in worker_status.values()
+        ),
+        "worker_restarts_total": sum(
+            item.get("nrestarts", 0) for item in worker_status.values()
+        ),
+        "kubernetes": kubernetes,
+        "healthy_snapshot": healthy,
+        "accuracy_claim_allowed": False,
+    }
+    return status, healthy
 
-    # Check disk
-    disk_out = run_cmd("df -h / | awk 'NR==2{print $4\" avail (\"$5\" used)\"}'")
-    summary_lines.append(f"  MASTER DISK: {disk_out}")
 
-    log_entry = "\n".join(summary_lines) + "\n"
-    print(log_entry)
-
-    # Write to SOAK_PERIODIC_CHECKS.log
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--evidence-root", type=Path, default=DEFAULT_EVIDENCE_ROOT)
+    parser.add_argument("--run-id")
+    args = parser.parse_args(argv)
     try:
-        os.makedirs(EVIDENCE_DIR, exist_ok=True)
-        with open(LOG_FILE, "a") as f:
-            f.write(log_entry + "\n")
-    except Exception as e:
-        print(f"Failed writing to {LOG_FILE}: {e}")
+        run = resolve_run(args.evidence_root, args.run_id)
+        status, healthy = build_status(run)
+    except (FileNotFoundError, RuntimeError, ValueError, KeyError) as exc:
+        print(json.dumps({"status": "not_checked", "error": str(exc)}, sort_keys=True))
+        return 3
+    print(json.dumps(status, sort_keys=True, separators=(",", ":")))
+    return 0 if healthy else 4
 
-    # Append markdown entry if REPORT_MD exists
-    try:
-        if os.path.exists(REPORT_MD):
-            md_entry = (
-                f"- **{ts_str}** ({elapsed_h:.2f}h / {pct:.1f}% soak) — Total decisions: {total_decisions:,}, "
-                f"Alerts: {total_alerts}, Restarts: {total_restarts}. Workers: 3/3 healthy.\n"
-            )
-            with open(REPORT_MD, "a") as f:
-                f.write(md_entry)
-    except Exception as e:
-        print(f"Failed updating {REPORT_MD}: {e}")
 
 if __name__ == "__main__":
-    check_soak()
+    sys.exit(main())

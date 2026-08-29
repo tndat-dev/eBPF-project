@@ -17,7 +17,18 @@ window-start-to-decision p99 1,433 giây. Independent soak
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
 
-**Checkpoint formal hiện tại:** Run A5 (`pulse500-normal-soak-a5-20260827T070900Z`) bị infrastructure-reject tại 2026-08-28 06:01:32 UTC (mốc 21 giờ 53 phút / 91,2% chặng đường 24h) do pod `notification-service-85955489ff-v5tmq` trong namespace `production` bị container restart (`reason=unhealthy_production_pod`). Trong suốt 21h 53m trước đó, hệ thống đã xử lý **5.699.660 decisions** trên 3 worker với **0 false positive alert** và **0 eBPF restart** (độ chính xác 100%). Toàn bộ dữ liệu raw và journal của A5 đã được đóng băng và lưu trữ fail-closed tại `pulse500-normal-soak-a5-20260827T070900Z/infrastructure-failure/` với checksum bất biến (`ARCHIVE_COMPLETE`). A5 bị cấm dùng cho normal gate/train. Đang khởi tạo đợt soak mới A6 để hoàn thành trọn vẹn 24 giờ.
+**Checkpoint formal hiện tại:** Run A5 (`pulse500-normal-soak-a5-20260827T070900Z`)
+bị infrastructure-reject lúc 2026-08-28 06:01:32 UTC (21 giờ 53 phút, 91,2%
+của gate 24 giờ), khi pod `notification-service-85955489ff-v5tmq` tạm thời
+unready sau container exit 255. Snapshot cuối hợp lệ có **5.699.660 decision**,
+0 alert và 0 candidate-detector restart. Đây không phải normal-pass, không cho
+phép claim accuracy/false-positive rate và A5 bị cấm dùng train/tune. Ba raw
+worker archive vẫn kiểm tra SHA-256 thành công, nhưng periodic checker cũ đã
+ghi thêm vào `SOAK_PERIODIC_CHECKS.log` sau khi archive, khiến top-level
+`RAW_SHA256SUMS` lệch đúng file phụ này. Timer gây ghi đã bị disable; sự cố
+integrity phải được lưu amendment, không được mô tả là bundle bất biến hoàn
+toàn. A6 chưa tạo `SOAK_START.json`: preflight thiếu capacity trên worker3 rồi
+bị dừng, do đó không phải một formal run.
 
 
 
@@ -1220,9 +1231,16 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   (worker1: 2.268.118, worker4: 1.971.716, worker3: 723.252).
 - 28-08-2026 06:01:32 UTC: Run A5 bị **infrastructure-reject** tại mốc 21 giờ 53 phút (91,2% chặng đường 24h)
   do container của pod `notification-service-85955489ff-v5tmq` trên worker1 bị restart (`exitCode 255`).
-  Trong suốt 21h 53m chạy, hệ thống đạt **5.699.660 decisions** trên 3 worker với **0 alert** và **0 restart**.
-  Toàn bộ dữ liệu raw và journal đã được nén và bảo tồn fail-closed tại `pulse500-normal-soak-a5-20260827T070900Z/infrastructure-failure/`
-  với SHA-256 checksums (`ARCHIVE_COMPLETE`). Run A5 bị cấm dùng cho normal gate/train.
-
+  Snapshot cuối hợp lệ có **5.699.660 decisions** trên 3 worker với **0 alert**
+  và **0 candidate-detector restart**. Đây không phải accuracy/no-FP claim.
+  Raw worker archive đã nén và checksum pass; tuy nhiên checker cũ tiếp tục sửa
+  `SOAK_PERIODIC_CHECKS.log` sau `ARCHIVE_COMPLETE`, làm top-level
+  `RAW_SHA256SUMS` mismatch đúng file phụ đó. Timer đã bị disable ngày
+  29-08-2026; A5 vẫn bị cấm dùng cho normal gate/train/tune.
+- 28-08-2026 07:20 UTC: A6 chỉ vào preflight, chưa tạo `SOAK_START.json` hay
+  khởi động collector candidate. worker3 còn khoảng 65,3 GB, thấp hơn gate 64
+  GiB (68.719.476.736 byte); supervisor bị dừng rồi retry vấp thư mục dở dang.
+  A6 không được tính là formal soak. Launcher kế tiếp chỉ tạo evidence directory
+  sau khi preflight pass để interruption không chặn retry.
 
 
