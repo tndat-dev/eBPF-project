@@ -13,6 +13,7 @@ UNIT_SOURCE="$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE"
 METRICS_SOURCE="$SOURCE_ROOT/sentinel_pulse/record_500ms_metrics.sh"
 DURATION_SECONDS=${DURATION_SECONDS:-900}
 RUN_ID=${RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
+REQUIRE_CONTROL_COLLECTOR=${REQUIRE_CONTROL_COLLECTOR:-true}
 STATE_ROOT=/var/lib/sentinel-pulse-500ms/runs
 RUN_DIR="$STATE_ROOT/$RUN_ID"
 OUTPUT="$RUN_DIR/features.jsonl"
@@ -28,11 +29,19 @@ if [[ ! $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "RUN_ID contains unsafe characters" >&2
   exit 2
 fi
+case "$REQUIRE_CONTROL_COLLECTOR" in
+  true|false) ;;
+  *) echo "REQUIRE_CONTROL_COLLECTOR must be true or false" >&2; exit 2 ;;
+esac
 
 test -f "$UNIT_SOURCE"
 test -x "$METRICS_SOURCE"
 systemctl is-active --quiet sentinel-pulse-resolver.service
-systemctl is-active --quiet sentinel-pulse-collector.service
+if [[ $REQUIRE_CONTROL_COLLECTOR == true ]]; then
+  systemctl is-active --quiet sentinel-pulse-collector.service
+else
+  ! systemctl is-active --quiet sentinel-pulse-collector.service
+fi
 test -s /run/sentinel-pulse/allowed-cgroups
 test -x /opt/sentinel-pulse/bin/pulse_counter_loader
 test -f /opt/sentinel-pulse/bin/pulse_counter.bpf.o

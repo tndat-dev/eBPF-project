@@ -161,6 +161,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("systemctl stop sentinel-pulse-detector-candidate.service", script)
         self.assertIn("systemctl daemon-reload", script)
         self.assertIn("systemctl show sentinel-pulse-resolver -p Requires", script)
+        self.assertIn("sentinel_pulse.storage_health", script)
+        self.assertIn("REQUIRE_CONTROL_COLLECTOR=false", script)
+        self.assertIn("! systemctl is-active --quiet sentinel-pulse-collector", script)
         self.assertNotIn("systemctl enable", script)
 
     def test_runtime_units_do_not_propagate_transient_dependency_restarts(self):
@@ -189,6 +192,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("normal_alert_observed", script)
         self.assertIn("detector_restarted", script)
         self.assertIn("feature_source_mismatch", script)
+        self.assertIn("duplicate_longhorn_disk_uuid", script)
+        self.assertIn("colocated_longhorn_replicas", script)
+        self.assertIn("legacy_control_collector_active", script)
         self.assertIn("READY_TO_FINALIZE", script)
         self.assertIn("eligible_finalize_after", script)
         self.assertNotIn("systemctl restart", script)

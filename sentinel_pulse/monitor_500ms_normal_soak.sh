@@ -28,10 +28,11 @@ write_row() {
   python3 - "$LOG" "$@" <<'PY'
 import json, pathlib, sys, time
 path=pathlib.Path(sys.argv[1])
-host, collector, detector, restarts, decisions, alerts, feature, expected = sys.argv[2:]
+host, collector, legacy, detector, restarts, decisions, alerts, feature, expected = sys.argv[2:]
 row={
     "checked_at_unix": time.time(), "host": host,
-    "collector": collector, "detector": detector,
+    "collector": collector, "legacy_control_collector": legacy,
+    "detector": detector,
     "nrestarts": int(restarts), "decisions": int(decisions),
     "alerts": int(alerts), "feature_source": feature,
     "expected_feature_source": expected,
@@ -48,6 +49,10 @@ fail() {
     >"$EVIDENCE_ROOT/FAILURE_PRODUCTION_PODS.json" 2>/dev/null || true
   kubectl -n longhorn-system get volumes.longhorn.io -o json \
     >"$EVIDENCE_ROOT/FAILURE_LONGHORN_VOLUMES.json" 2>/dev/null || true
+  kubectl -n longhorn-system get nodes.longhorn.io -o json \
+    >"$EVIDENCE_ROOT/FAILURE_LONGHORN_NODES.json" 2>/dev/null || true
+  kubectl -n longhorn-system get replicas.longhorn.io -o json \
+    >"$EVIDENCE_ROOT/FAILURE_LONGHORN_REPLICAS.json" 2>/dev/null || true
   kubectl -n production get clusters.postgresql.cnpg.io -o json \
     >"$EVIDENCE_ROOT/FAILURE_CNPG_CLUSTERS.json" 2>/dev/null || true
   printf 'failed_at=%s\nreason=%s\nhost=%s\n' \
@@ -57,7 +62,7 @@ fail() {
 }
 
 check_cluster_health() {
-  local nodes pods longhorn cnpg
+  local nodes pods longhorn longhorn_disks longhorn_replicas cnpg
   nodes=$(kubectl get nodes -o json 2>/dev/null | PYTHONPATH="$LOCAL_ROOT" \
     "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count) ||
     fail cluster_health_unavailable
@@ -68,6 +73,14 @@ check_cluster_health() {
   longhorn=$(kubectl -n longhorn-system get volumes.longhorn.io -o json \
     2>/dev/null | jq '[.items[] | select(.status.robustness != "healthy")] | length') ||
     fail longhorn_health_unavailable
+  longhorn_disks=$(kubectl -n longhorn-system get nodes.longhorn.io -o json \
+    2>/dev/null | PYTHONPATH="$LOCAL_ROOT" "$PYTHON" \
+      -m sentinel_pulse.storage_health --resource nodes --count) ||
+    fail longhorn_disk_topology_unavailable
+  longhorn_replicas=$(kubectl -n longhorn-system get replicas.longhorn.io -o json \
+    2>/dev/null | PYTHONPATH="$LOCAL_ROOT" "$PYTHON" \
+      -m sentinel_pulse.storage_health --resource replicas --count) ||
+    fail longhorn_replica_topology_unavailable
   cnpg=$(kubectl -n production get clusters.postgresql.cnpg.io -o json \
     2>/dev/null | jq '[.items[] | select(
       (.status.readyInstances // 0) != (.status.instances // .spec.instances // 0)
@@ -76,6 +89,8 @@ check_cluster_health() {
   ((nodes == 0)) || fail unhealthy_kubernetes_node
   ((pods == 0)) || fail unhealthy_production_pod
   ((longhorn == 0)) || fail unhealthy_longhorn_volume
+  ((longhorn_disks == 0)) || fail duplicate_longhorn_disk_uuid
+  ((longhorn_replicas == 0)) || fail colocated_longhorn_replicas
   ((cnpg == 0)) || fail unhealthy_cnpg_cluster
 }
 
@@ -130,14 +145,15 @@ while true; do
   while read -r host _node expected_feature; do
     snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
-      "sudo -S bash -c 'source /etc/sentinel-pulse-detector-candidate.env; printf \"collector=%s\\ndetector=%s\\nrestarts=%s\\ndecisions=%s\\nalerts=%s\\nfeature=%s\\n\" \"\$(systemctl is-active sentinel-pulse-collector-500ms-experiment)\" \"\$(systemctl is-active sentinel-pulse-detector-candidate)\" \"\$(systemctl show sentinel-pulse-detector-candidate -p NRestarts --value)\" \"\$(wc -l < \"\$PULSE_DECISIONS\")\" \"\$(wc -l < \"\$PULSE_ALERTS\")\" \"\$PULSE_FEATURES\"'" 2>/dev/null) || fail ssh_unreachable "$host"
+      "sudo -S bash -c 'source /etc/sentinel-pulse-detector-candidate.env; printf \"collector=%s\\nlegacy=%s\\ndetector=%s\\nrestarts=%s\\ndecisions=%s\\nalerts=%s\\nfeature=%s\\n\" \"\$(systemctl is-active sentinel-pulse-collector-500ms-experiment)\" \"\$(systemctl is-active sentinel-pulse-collector)\" \"\$(systemctl is-active sentinel-pulse-detector-candidate)\" \"\$(systemctl show sentinel-pulse-detector-candidate -p NRestarts --value)\" \"\$(wc -l < \"\$PULSE_DECISIONS\")\" \"\$(wc -l < \"\$PULSE_ALERTS\")\" \"\$PULSE_FEATURES\"'" 2>/dev/null) || fail ssh_unreachable "$host"
     value() { sed -n "s/^$1=//p" <<<"$snapshot"; }
-    collector=$(value collector); detector=$(value detector)
+    collector=$(value collector); legacy=$(value legacy); detector=$(value detector)
     restarts=$(value restarts); decisions=$(value decisions)
     alerts=$(value alerts); feature=$(value feature)
     [[ $restarts =~ ^[0-9]+$ && $decisions =~ ^[0-9]+$ && $alerts =~ ^[0-9]+$ ]] || fail invalid_snapshot "$host"
-    write_row "$host" "$collector" "$detector" "$restarts" "$decisions" "$alerts" "$feature" "$expected_feature"
+    write_row "$host" "$collector" "$legacy" "$detector" "$restarts" "$decisions" "$alerts" "$feature" "$expected_feature"
     [[ $collector == active ]] || fail collector_inactive "$host"
+    [[ $legacy == inactive ]] || fail legacy_control_collector_active "$host"
     [[ $detector == active ]] || fail detector_inactive "$host"
     ((restarts == 0)) || fail detector_restarted "$host"
     ((alerts == 0)) || fail normal_alert_observed "$host"

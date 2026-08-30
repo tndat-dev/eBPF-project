@@ -76,7 +76,8 @@ remote_sudo() {
 }
 
 cluster_health_snapshot() {
-  local node_bad pod_bad longhorn_bad cnpg_bad total
+  local node_bad pod_bad longhorn_bad longhorn_disk_bad
+  local longhorn_replica_bad cnpg_bad total
   total=$(kubectl get nodes -o json | jq '.items | length')
   node_bad=$(kubectl get nodes -o json | PYTHONPATH="$LOCAL_ROOT" \
     "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count)
@@ -85,15 +86,23 @@ cluster_health_snapshot() {
       --grace-seconds 0 --count)
   longhorn_bad=$(kubectl -n longhorn-system get volumes.longhorn.io -o json | \
     jq '[.items[] | select(.status.robustness != "healthy")] | length')
+  longhorn_disk_bad=$(kubectl -n longhorn-system get nodes.longhorn.io -o json | \
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.storage_health \
+      --resource nodes --count)
+  longhorn_replica_bad=$(kubectl -n longhorn-system get replicas.longhorn.io -o json | \
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.storage_health \
+      --resource replicas --count)
   cnpg_bad=$(kubectl -n production get clusters.postgresql.cnpg.io -o json | \
     jq '[.items[] | select(
       (.status.readyInstances // 0) != (.status.instances // .spec.instances // 0)
       or (.status.phase // "") != "Cluster in healthy state"
     )] | length')
-  printf 'nodes=%s node_bad=%s production_pod_bad=%s longhorn_bad=%s cnpg_bad=%s\n' \
-    "$total" "$node_bad" "$pod_bad" "$longhorn_bad" "$cnpg_bad"
+  printf 'nodes=%s node_bad=%s production_pod_bad=%s longhorn_bad=%s longhorn_disk_topology_bad=%s longhorn_replica_topology_bad=%s cnpg_bad=%s\n' \
+    "$total" "$node_bad" "$pod_bad" "$longhorn_bad" \
+    "$longhorn_disk_bad" "$longhorn_replica_bad" "$cnpg_bad"
   [[ $total -eq 6 && $node_bad -eq 0 && $pod_bad -eq 0 &&
-     $longhorn_bad -eq 0 && $cnpg_bad -eq 0 ]]
+     $longhorn_bad -eq 0 && $longhorn_disk_bad -eq 0 &&
+     $longhorn_replica_bad -eq 0 && $cnpg_bad -eq 0 ]]
 }
 
 worker_capacity_snapshot() {
@@ -192,7 +201,7 @@ for target in "${WORKERS[@]}"; do
     /etc/systemd/system/sentinel-pulse-collector.service
   remote_sudo "$host" systemctl daemon-reload
   remote "$host" \
-    "systemctl is-active --quiet sentinel-pulse-resolver sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate && ! systemctl show sentinel-pulse-resolver -p Requires --value | grep -qw containerd.service && ! systemctl show sentinel-pulse-collector -p Requires --value | grep -qw sentinel-pulse-resolver.service"
+    "systemctl is-active --quiet sentinel-pulse-resolver && ! systemctl is-active --quiet sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate && ! systemctl show sentinel-pulse-resolver -p Requires --value | grep -qw containerd.service && ! systemctl show sentinel-pulse-collector -p Requires --value | grep -qw sentinel-pulse-resolver.service"
 done
 
 # A Ready node may still have DiskPressure=True. Require all node pressure,
@@ -234,6 +243,11 @@ payload = {
             "apt-daily-upgrade.timer",
         ],
     },
+    "storage_topology_guard": {
+        "duplicate_longhorn_disk_uuids": 0,
+        "colocated_running_replicas": 0,
+    },
+    "legacy_control_collector_required_state": "inactive",
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }
@@ -260,11 +274,13 @@ for target in "${WORKERS[@]}"; do
   started_hosts+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \
+    REQUIRE_CONTROL_COLLECTOR=false \
     "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
   feature="/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/features.jsonl"
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" \
     MODEL_SOURCE="$REMOTE_ROOT/$model_rel" FEATURE_SOURCE="$feature" \
     DEPLOYMENT_ID="$RUN_ID" \
+    REQUIRE_CONTROL_COLLECTOR=false \
     "$REMOTE_ROOT/sentinel_pulse/install_detector_candidate.sh"
   remote "$host" \
     "grep -Fx 'PULSE_FEATURES=$feature' /etc/sentinel-pulse-detector-candidate.env && systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment sentinel-pulse-detector-candidate"

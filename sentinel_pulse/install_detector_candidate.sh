@@ -17,6 +17,7 @@ RUNTIME_USER=sentinel-pulse-detector
 ENV_FILE=/etc/sentinel-pulse-detector-candidate.env
 DEPLOYMENT_ID=${DEPLOYMENT_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
 ENABLE_INJECTION_TRACKING=${ENABLE_INJECTION_TRACKING:-false}
+REQUIRE_CONTROL_COLLECTOR=${REQUIRE_CONTROL_COLLECTOR:-true}
 if [[ ! $DEPLOYMENT_ID =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "DEPLOYMENT_ID contains unsafe characters" >&2
   exit 2
@@ -25,13 +26,21 @@ case "$ENABLE_INJECTION_TRACKING" in
   true|false) ;;
   *) echo "ENABLE_INJECTION_TRACKING must be true or false" >&2; exit 2 ;;
 esac
+case "$REQUIRE_CONTROL_COLLECTOR" in
+  true|false) ;;
+  *) echo "REQUIRE_CONTROL_COLLECTOR must be true or false" >&2; exit 2 ;;
+esac
 
 test -f "$SOURCE_ROOT/sentinel_pulse/requirements-lock.txt"
 test -f "$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE"
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$DECISION_POLICY_SOURCE"
-systemctl is-active --quiet sentinel-pulse-collector.service
+if [[ $REQUIRE_CONTROL_COLLECTOR == true ]]; then
+  systemctl is-active --quiet sentinel-pulse-collector.service
+else
+  ! systemctl is-active --quiet sentinel-pulse-collector.service
+fi
 if [[ $FEATURE_SOURCE != /* ]] || [[ $FEATURE_SOURCE == *$'\n'* ]]; then
   echo "FEATURE_SOURCE must be an absolute single-line path" >&2
   exit 2
