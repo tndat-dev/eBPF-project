@@ -132,9 +132,12 @@ failed = dict(
     if "=" in line
 )
 last = {}
-for line in (root / "MONITOR.jsonl").read_text(encoding="utf-8").splitlines():
-    row = json.loads(line)
-    last[row["host"]] = row
+monitor_path = root / "MONITOR.jsonl"
+if monitor_path.is_file():
+    for line in monitor_path.read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        last[row["host"]] = row
+failure_reason = failed.get("reason", "unknown_monitor_failure")
 payload = {
     "schema": "sentinel-pulse-failed-soak-disposition-v1",
     "run_id": marker["run_id"],
@@ -144,9 +147,12 @@ payload = {
     "last_monitor_snapshot_by_host": last,
     "observed_alerts_before_failure": sum(row["alerts"] for row in last.values()),
     "root_cause": {
-        "class": "dependency_restart_propagation",
-        "trigger": "unattended-upgrades restarted containerd.service",
-        "mechanism": "hard systemd dependencies stopped the finite collector",
+        "class": failure_reason,
+        "trigger": "formal normal monitor fail-closed gate",
+        "mechanism": (
+            "the run is infrastructure/evidence-rejected before candidate "
+            "evaluation; detailed snapshots are retained when available"
+        ),
     },
     "data_use": {
         "normal_gate": False,

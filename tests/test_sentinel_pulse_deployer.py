@@ -432,6 +432,10 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("check_cluster_health", monitor)
         self.assertIn("check_worker_capacity", monitor)
         self.assertIn("check_worker_maintenance", monitor)
+        self.assertIn(
+            '"systemctl is-enabled ${units[*]} 2>/dev/null || true"',
+            monitor,
+        )
         self.assertIn("FAILURE_MAINTENANCE.txt", monitor)
         self.assertIn("package_maintenance_guard_lost", monitor)
         self.assertIn("insufficient_worker_capacity", monitor)
@@ -450,6 +454,8 @@ class PulseDeployerTests(unittest.TestCase):
                 "systemctl start sentinel-pulse-collector.service",
                 lifecycle_terminal,
             )
+        self.assertIn("if monitor_path.is_file()", failure_archive)
+        self.assertIn('"class": failure_reason', failure_archive)
 
     def test_candidate_lifecycle_can_stop_before_opening_blind_evaluation(self):
         lifecycle = (

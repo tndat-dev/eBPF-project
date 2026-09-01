@@ -122,7 +122,8 @@ check_worker_maintenance() {
   )
   while read -r host node expected_feature; do
     states=$(sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 \
-      "$SSH_USER@$host" "systemctl is-enabled ${units[*]} 2>/dev/null" 2>/dev/null) ||
+      "$SSH_USER@$host" \
+      "systemctl is-enabled ${units[*]} 2>/dev/null || true" 2>/dev/null) ||
       fail maintenance_snapshot_unavailable "$host"
     [[ $(wc -l <<<"$states") -eq ${#units[@]} ]] ||
       fail invalid_maintenance_snapshot "$host"
