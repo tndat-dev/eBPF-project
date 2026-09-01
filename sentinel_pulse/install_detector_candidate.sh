@@ -225,8 +225,26 @@ env_stage=$(mktemp /etc/.sentinel-pulse-detector-candidate.XXXXXX)
 chmod 0644 "$env_stage"
 mv -f "$env_stage" "$ENV_FILE"
 
-install -m 0644 "$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE" \
-  "/etc/systemd/system/$SERVICE"
+unit_source="$SOURCE_ROOT/sentinel_pulse/systemd/$SERVICE"
+unit_stage=$(mktemp "/etc/systemd/system/.${SERVICE}.XXXXXX")
+cleanup_unit_stage() { rm -f -- "$unit_stage"; }
+trap cleanup_unit_stage EXIT
+if [[ $REQUIRE_CONTROL_COLLECTOR == true ]]; then
+  cp "$unit_source" "$unit_stage"
+else
+  # The formal 500 ms experiment owns its telemetry source. The base candidate
+  # unit is also used by bounded canaries that require the one-second control
+  # collector, so render an isolated variant instead of letting Wants= restart
+  # that collector behind the formal monitor's back.
+  sed \
+    -e '/^After=sentinel-pulse-collector\.service$/d' \
+    -e '/^Wants=sentinel-pulse-collector\.service$/d' \
+    "$unit_source" >"$unit_stage"
+  ! grep -Eq '^(After|Wants)=sentinel-pulse-collector\.service$' "$unit_stage"
+fi
+install -m 0644 "$unit_stage" "/etc/systemd/system/$SERVICE"
+rm -f -- "$unit_stage"
+trap - EXIT
 systemctl daemon-reload
 systemctl enable "$SERVICE"
 systemctl reset-failed "$SERVICE" 2>/dev/null || true
