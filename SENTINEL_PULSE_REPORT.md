@@ -1673,6 +1673,23 @@ projected alert B3 bằng 0. Replay SHA-256
 `83d049bad9955cee00ce9e946914e9276f62c3dc334b601b8b285a968424fb8e`.
 Policy `sentinel-pulse-risk-tiered-consecutive-b3` source-clean có SHA-256
 `02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
-Full regression sau implementation đạt **487 passed, 2 Torch warnings**. B3
-chưa có live canary nên chưa được claim FPR/recall/latency; C2 vẫn không mở và
-không còn bind đúng policy B3.
+Full regression sau implementation đạt **487 passed, 2 Torch warnings**.
+
+Live-normal canary B3
+`sentinel-pulse-consecutive-canary-b3-20260901T000957Z` đã terminal hợp lệ trên
+ba worker sau tối thiểu 902,03 giây. Aggregate có **63.056 decision/20
+workload-container**: 62.058 normal, 66 suppressed, 932 warming, **0 alert** và
+**0 detector restart**. Trong 62.124 scored decision, inference
+p50/p95/p99/max là 16,75/23,91/**29,00**/51,00 ms;
+window-start-to-decision p50/p95/p99/max là
+0,650/0,790/**0,842**/0,970 giây. Aggregate SHA-256 là
+`a68b3ea3281681b1b931b122426f109bdf9788fcee4e59f4f716fd020d2422c2`;
+`FINAL_SHA256SUMS` SHA-256 là
+`551529c03e9d1b367b76ed86330222f70485167ad059451c051e94a9d4e0cec7` và toàn
+bộ checksum đã pass.
+
+Ranh giới claim không đổi: đây là live-normal canary non-formal 0,25 giờ,
+không chứng minh FPR=0, recall, formal kernel-to-alert hay production
+readiness. C2 chưa mở nhưng bind policy B2 nên không còn hợp lệ cho B3. Trước
+khi cân nhắc promotion, B3 phải qua long normal soak và một blind contract mới
+được freeze sau policy B3 mà không dùng kết quả attack để tune.

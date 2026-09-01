@@ -1,15 +1,16 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-08-31
+**Ngày xác minh cluster gần nhất:** 2026-09-01
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
 `/home/dat/eBPF-project-runtime-5568683-a7`, pilot hiện tại tại
 `/home/dat/eBPF-project-runtime-pulse-a2-pilot`
 **Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
-Sentinel Pulse A2 500 ms đã hoàn tất compatibility dataset, train 20/20 model,
-canary normal 15 phút và pilot attack-latency non-formal. Pilot fail coverage
-và p99; chưa promote và chưa có formal accuracy claim
+Sentinel Pulse A2/B3 500 ms đã hoàn tất compatibility dataset, train 20/20
+model và live-normal canary B3 15 phút. B3 đạt 63.056 decision/0 alert nhưng
+chưa có long soak hoặc blind attack bind đúng policy, vì vậy chưa promote và
+chưa có formal accuracy claim
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -6571,5 +6572,17 @@ toàn bộ confirmation state. Replay R2 checksum-bound trên 51.869 scored
 decision chiếu 2 alert B2 xuống 0; replay SHA-256 `83d049bad9955cee…`, source
 checksum SHA-256 `ff438b3c25deb…`. Policy B3 source-clean SHA-256
 `02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
-Regression đạt **487 passed, 2 warnings**. Chưa chạy live canary B3, vì vậy
-chưa có claim latency/FPR và chưa mở blind attack.
+Regression đạt **487 passed, 2 warnings**. Live-normal canary B3
+`sentinel-pulse-consecutive-canary-b3-20260901T000957Z` đã terminal hợp lệ trên
+ba worker sau tối thiểu 902,03 giây: **63.056 decision**, gồm 62.058 normal,
+66 suppressed, 932 warming, **0 alert** và **0 detector restart** trên 20
+workload/container. Trong 62.124 scored decision, inference p50/p95/p99/max là
+16,75/23,91/**29,00**/51,00 ms; window-start-to-decision p50/p95/p99/max là
+0,650/0,790/**0,842**/0,970 giây. Aggregate SHA-256
+`a68b3ea3281681b1b931b122426f109bdf9788fcee4e59f4f716fd020d2422c2` và
+checksum index SHA-256
+`551529c03e9d1b367b76ed86330222f70485167ad059451c051e94a9d4e0cec7` đều
+được xác minh thành công. Đây chỉ là live-normal canary 0,25 giờ: không được
+suy diễn thành FPR=0, recall, formal kernel-to-alert hoặc production readiness.
+C2 chưa mở nhưng bind policy B2 nên không còn hợp lệ cho B3; B3 cần long soak
+normal và blind contract mới được đóng băng sau policy.
