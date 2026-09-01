@@ -28,6 +28,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
     def _runtime(
         self, anomalous=False, with_policy=False, score_policy=False,
         temporal_policy=False, eligible_temporal_groups=None,
+        confirmation_policy=False,
     ):
         columns = ["f0", "f1"]
         model = PulseExtraTrees(history=2, alpha=0.1)
@@ -45,6 +46,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         runtime.histories = {}
         runtime.history_metadata = {}
         runtime.temporal_evidence = {}
+        runtime.confirmation_evidence = {}
         runtime.decision_policy = None
         runtime.decision_policy_sha256 = None
         if with_policy:
@@ -77,6 +79,37 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
                     runtime.decision_policy["bounded_event_time_corroboration"][
                         "eligible_semantic_signal_groups"
                     ] = eligible_temporal_groups
+            if confirmation_policy:
+                runtime.decision_policy["same_window_corroboration"][
+                    "workload_normal_envelope"
+                ] = {
+                    "signal_groups": [
+                        {
+                            "name": "common",
+                            "fields": ["connect"],
+                            "minimum_excess": 1,
+                        },
+                        {
+                            "name": "namespace_probe",
+                            "fields": ["ptrace"],
+                            "minimum_excess": 1,
+                        },
+                    ],
+                    "workload_group_maxima": {
+                        "production/catalog:app": {
+                            "common": 0,
+                            "namespace_probe": 0,
+                        }
+                    },
+                }
+                runtime.decision_policy["temporal_confirmation"] = {
+                    "mode": "consecutive_same_group",
+                    "required_consecutive_windows": 2,
+                    "maximum_gap_seconds": 1.25,
+                    "immediate_bypass_signal_groups": ["namespace_probe"],
+                    "normal_only_calibration": True,
+                    "consume_on_alert": True,
+                }
         return runtime, columns
 
     def test_v2_policy_suppresses_raw_tail_inside_operational_score_margin(self):
@@ -240,6 +273,45 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         self.assertEqual(reset["status"], "warming")
         self.assertEqual(reset["warming_reason"], "temporal_gap")
         self.assertEqual(runtime.temporal_evidence, {})
+
+    def test_common_group_requires_two_consecutive_candidates(self):
+        runtime, columns = self._runtime(
+            anomalous=True,
+            with_policy=True,
+            score_policy=True,
+            confirmation_policy=True,
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        first = runtime.score(
+            self._record(columns, 3.0, exact_counts={"connect": 6})
+        )
+        second = runtime.score(
+            self._record(columns, 3.5, exact_counts={"connect": 6})
+        )
+        self.assertEqual(first["status"], "suppressed")
+        self.assertEqual(first["temporal_confirmation_count"], 1)
+        self.assertEqual(second["status"], "alert")
+        self.assertEqual(second["temporal_confirmation_count"], 2)
+        self.assertTrue(second["temporal_confirmation_corroborated"])
+        self.assertFalse(second["temporal_confirmation_bypassed"])
+        self.assertEqual(runtime.confirmation_evidence, {})
+
+    def test_namespace_group_bypasses_confirmation_wait(self):
+        runtime, columns = self._runtime(
+            anomalous=True,
+            with_policy=True,
+            score_policy=True,
+            confirmation_policy=True,
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        decision = runtime.score(
+            self._record(columns, 3.0, exact_counts={"ptrace": 1})
+        )
+        self.assertEqual(decision["status"], "alert")
+        self.assertTrue(decision["temporal_confirmation_bypassed"])
+        self.assertEqual(decision["temporal_confirmation_count"], 1)
 
 
 if __name__ == "__main__":

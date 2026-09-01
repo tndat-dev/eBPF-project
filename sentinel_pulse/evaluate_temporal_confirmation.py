@@ -36,6 +36,9 @@ def evaluate(
     maximum_gap_seconds: float = 1.75,
     bypass_groups: frozenset[str] = DEFAULT_BYPASS_GROUPS,
     soak_marker_path: Path | None = None,
+    evidence_checksums_path: Path | None = None,
+    expected_model_sha256: str | None = None,
+    expected_policy_sha256: str | None = None,
 ) -> dict:
     if not paths:
         raise ValueError("at least one decision source is required")
@@ -45,6 +48,33 @@ def evaluate(
         raise ValueError("maximum temporal confirmation gap must be positive")
     if not bypass_groups:
         raise ValueError("at least one immediate bypass group is required")
+    if (expected_model_sha256 is None) != (expected_policy_sha256 is None):
+        raise ValueError("expected model and policy identities must be supplied together")
+
+    evidence_checksums_sha256 = None
+    if evidence_checksums_path is not None:
+        evidence_root = evidence_checksums_path.parent.resolve()
+        expected_files = {}
+        for line in evidence_checksums_path.read_text(encoding="ascii").splitlines():
+            digest, separator, relative = line.partition("  ")
+            relative = relative.removeprefix("./")
+            if (
+                not separator
+                or len(digest) != 64
+                or any(character not in "0123456789abcdef" for character in digest)
+                or not relative
+                or relative in expected_files
+            ):
+                raise ValueError("normal evidence checksum index is malformed")
+            expected_files[relative] = digest
+        for path in paths:
+            try:
+                relative = path.resolve().relative_to(evidence_root).as_posix()
+            except ValueError as error:
+                raise ValueError("normal decision is outside evidence bundle") from error
+            if expected_files.get(relative) != sha256_file(path):
+                raise ValueError("normal decision checksum is missing or mismatched")
+        evidence_checksums_sha256 = sha256_file(evidence_checksums_path)
 
     marker = None
     if soak_marker_path is not None:
@@ -74,6 +104,9 @@ def evaluate(
     scored_rows = 0
     excluded_before_marker = 0
     sources = []
+    model_ids: set[str] = set()
+    policy_ids: set[str] = set()
+    run_ids: set[str] = set()
 
     for path in paths:
         pending: dict[tuple[str, str], dict] = {}
@@ -86,6 +119,11 @@ def evaluate(
                     raise ValueError(f"{path}:{line_number}: invalid JSON") from error
                 rows += 1
                 status = str(record.get("status", "unknown"))
+                if any(
+                    key in record
+                    for key in ("injection_id", "attack_injected_at", "scenario_id")
+                ):
+                    raise ValueError("attack-attributed decision in normal evidence")
                 if record.get("schema") != "sentinel-pulse-decision-v1":
                     status_counts[status] += 1
                     projected_status_counts[status] += 1
@@ -118,7 +156,22 @@ def evaluate(
                 status_counts[status] += 1
                 scored_rows += 1
                 workload = str(record.get("workload_key", "unknown"))
-                source_key = (workload, str(record.get("cgroup_id", "unknown")))
+                model_ids.add(str(record.get("model_manifest_sha256", "")))
+                policy_ids.add(str(record.get("decision_policy_sha256", "")))
+                run_ids.add(str(record.get("run_id", "")))
+                if expected_model_sha256 is not None:
+                    identity_fields = (
+                        workload,
+                        str(record.get("node_name", "")),
+                        str(record.get("pod_uid", "")),
+                        str(record.get("container_name", "")),
+                        str(record.get("cgroup_id", "")),
+                    )
+                    if any(not value for value in identity_fields):
+                        raise ValueError("normal decision is missing source identity")
+                    source_key = identity_fields
+                else:
+                    source_key = (workload, str(record.get("cgroup_id", "unknown")))
 
                 instant_candidate = bool(
                     record.get("raw_model_anomalous") is True
@@ -170,10 +223,31 @@ def evaluate(
             }
         )
 
+    model_sha256 = policy_sha256 = run_id = None
+    if expected_model_sha256 is not None:
+        if len(model_ids) != 1 or "" in model_ids:
+            raise ValueError("normal confirmation model identity is ambiguous")
+        if len(policy_ids) != 1 or "" in policy_ids:
+            raise ValueError("normal confirmation policy identity is ambiguous")
+        if len(run_ids) != 1 or "" in run_ids:
+            raise ValueError("normal confirmation run identity is ambiguous")
+        model_sha256 = next(iter(model_ids))
+        policy_sha256 = next(iter(policy_ids))
+        run_id = next(iter(run_ids))
+        if model_sha256 != expected_model_sha256:
+            raise ValueError("normal confirmation model identity differs from expected")
+        if policy_sha256 != expected_policy_sha256:
+            raise ValueError("normal confirmation policy identity differs from expected")
+
     return {
         "schema": "sentinel-pulse-temporal-confirmation-development-replay-v1",
         "normal_only_development_evidence": True,
         "attack_outcomes_used": False,
+        "automatic_promotion": False,
+        "evidence_checksums_sha256": evidence_checksums_sha256,
+        "model_manifest_sha256": model_sha256,
+        "decision_policy_sha256": policy_sha256,
+        "run_id": run_id,
         "soak_marker_sha256": (
             sha256_file(soak_marker_path) if soak_marker_path is not None else None
         ),
@@ -209,6 +283,9 @@ def main() -> None:
     parser.add_argument("--required-consecutive-windows", type=int, default=2)
     parser.add_argument("--maximum-gap-seconds", type=float, default=1.75)
     parser.add_argument("--soak-marker", type=Path)
+    parser.add_argument("--evidence-checksums", type=Path)
+    parser.add_argument("--expected-model-sha256")
+    parser.add_argument("--expected-policy-sha256")
     parser.add_argument(
         "--bypass-group", action="append", default=["namespace_probe"]
     )
@@ -219,6 +296,9 @@ def main() -> None:
         args.maximum_gap_seconds,
         frozenset(args.bypass_group),
         args.soak_marker,
+        args.evidence_checksums,
+        args.expected_model_sha256,
+        args.expected_policy_sha256,
     )
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"

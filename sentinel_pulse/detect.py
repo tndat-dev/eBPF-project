@@ -172,6 +172,7 @@ class PulseRuntime:
         self.histories = {}
         self.history_metadata = {}
         self.temporal_evidence = {}
+        self.confirmation_evidence = {}
         self.decision_policy = None
         self.decision_policy_sha256 = None
         if decision_policy is not None:
@@ -228,6 +229,7 @@ class PulseRuntime:
             if window_end - previous_end > self.max_contiguous_gap_seconds:
                 history.clear()
                 self.temporal_evidence.pop(source_identity, None)
+                self.confirmation_evidence.pop(source_identity, None)
                 reset_reason = "temporal_gap"
             elif (
                 previous_regime is not None
@@ -236,6 +238,7 @@ class PulseRuntime:
             ):
                 history.clear()
                 self.temporal_evidence.pop(source_identity, None)
+                self.confirmation_evidence.pop(source_identity, None)
                 reset_reason = "traffic_regime_change"
         self.history_metadata[source_identity] = (window_end, regime)
         if len(history) < self.history_size:
@@ -291,6 +294,54 @@ class PulseRuntime:
             if self.decision_policy is not None
             else None
         )
+        triggered_groups = sorted(
+            name for name, details in semantic_signal_groups.items()
+            if details.get("triggered") is True
+        )
+        confirmation = (
+            self.decision_policy.get("temporal_confirmation")
+            if self.decision_policy is not None
+            else None
+        )
+        instant_candidate = bool(decision.anomalous and same_window_corroborated)
+        confirmation_corroborated = instant_candidate
+        confirmation_count = 1 if instant_candidate else 0
+        confirmation_groups = triggered_groups
+        confirmation_bypassed = False
+        if confirmation is not None:
+            bypass_groups = set(confirmation["immediate_bypass_signal_groups"])
+            required_windows = int(confirmation["required_consecutive_windows"])
+            maximum_confirmation_gap = float(confirmation["maximum_gap_seconds"])
+            confirmation_corroborated = False
+            if instant_candidate and set(triggered_groups) & bypass_groups:
+                confirmation_bypassed = True
+                confirmation_corroborated = True
+                self.confirmation_evidence.pop(source_identity, None)
+            elif instant_candidate and triggered_groups:
+                previous_confirmation = self.confirmation_evidence.get(source_identity)
+                if (
+                    previous_confirmation is not None
+                    and 0.0 < window_end - float(previous_confirmation["window_end"])
+                    <= maximum_confirmation_gap
+                    and set(triggered_groups) & set(previous_confirmation["groups"])
+                ):
+                    confirmation_count = int(previous_confirmation["count"]) + 1
+                else:
+                    confirmation_count = 1
+                self.confirmation_evidence[source_identity] = {
+                    "window_end": window_end,
+                    "groups": triggered_groups,
+                    "count": confirmation_count,
+                }
+                confirmation_corroborated = confirmation_count >= required_windows
+                if (
+                    confirmation_corroborated
+                    and confirmation.get("consume_on_alert") is True
+                ):
+                    self.confirmation_evidence.pop(source_identity, None)
+            else:
+                confirmation_count = 0
+                self.confirmation_evidence.pop(source_identity, None)
         temporal_corroborated = False
         model_evidence_window_end = None
         semantic_evidence_window_end = None
@@ -304,10 +355,6 @@ class PulseRuntime:
         eligible_temporal_semantic_groups = None
         if temporal is not None:
             maximum_age = float(temporal["maximum_evidence_age_seconds"])
-            triggered_groups = sorted(
-                name for name, details in semantic_signal_groups.items()
-                if details.get("triggered") is True
-            )
             configured_eligible = temporal.get("eligible_semantic_signal_groups")
             eligible_temporal_semantic_groups = (
                 sorted(configured_eligible)
@@ -365,15 +412,12 @@ class PulseRuntime:
                     model_evidence_window_end - semantic_evidence_window_end
                 )
                 temporal_corroborated = evidence_span_seconds <= maximum_age
-            alerted = bool(
-                decision.anomalous and same_window_corroborated
-                or temporal_corroborated
-            )
+            alerted = bool(confirmation_corroborated or temporal_corroborated)
             if alerted and temporal.get("consume_on_alert") is True:
                 self.temporal_evidence.pop(source_identity, None)
         else:
             maximum_age = None
-            alerted = decision.anomalous and same_window_corroborated
+            alerted = confirmation_corroborated
         status = (
             "alert"
             if alerted
@@ -400,6 +444,14 @@ class PulseRuntime:
             "conformal_p": decision.conformal_p,
             "raw_model_anomalous": decision.anomalous,
             "same_window_corroborated": same_window_corroborated,
+            "temporal_confirmation_corroborated": confirmation_corroborated,
+            "temporal_confirmation_count": confirmation_count,
+            "temporal_confirmation_groups": confirmation_groups,
+            "temporal_confirmation_bypassed": confirmation_bypassed,
+            "temporal_confirmation_required_consecutive_windows": (
+                int(confirmation["required_consecutive_windows"])
+                if confirmation is not None else 1
+            ),
             "corroboration_mode": (
                 "bounded_model_semantic_join" if temporal is not None else "same_window"
             ),

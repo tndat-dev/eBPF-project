@@ -156,6 +156,31 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
             or not set(eligible_groups).issubset(set(names))
         ):
             raise ValueError("bounded event-time eligible semantic groups are invalid")
+    confirmation = policy.get("temporal_confirmation")
+    if confirmation is not None:
+        required_windows = confirmation.get("required_consecutive_windows")
+        maximum_gap = float(confirmation.get("maximum_gap_seconds", 0.0))
+        bypass_groups = confirmation.get("immediate_bypass_signal_groups")
+        if (
+            schema != SCHEMA_V3
+            or confirmation.get("mode") != "consecutive_same_group"
+            or isinstance(required_windows, bool)
+            or not isinstance(required_windows, int)
+            or required_windows < 2
+            or required_windows > 4
+            or not math.isfinite(maximum_gap)
+            or maximum_gap <= 0.0
+            or maximum_gap > 2.0
+            or confirmation.get("normal_only_calibration") is not True
+            or confirmation.get("consume_on_alert") is not True
+            or not isinstance(bypass_groups, list)
+            or not bypass_groups
+            or len(bypass_groups) != len(set(bypass_groups))
+            or envelope is None
+            or not set(bypass_groups).issubset(set(names))
+        ):
+            raise ValueError("temporal confirmation contract is invalid")
+        required_hashes += ("temporal_confirmation_calibration_sha256",)
     if not all(
         isinstance(development.get(field), str)
         and len(development[field]) == 64

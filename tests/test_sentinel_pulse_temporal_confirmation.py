@@ -1,5 +1,8 @@
 import json
+import hashlib
 from pathlib import Path
+
+import pytest
 
 from sentinel_pulse.evaluate_temporal_confirmation import evaluate
 
@@ -108,3 +111,46 @@ def test_frozen_v4_incident_alerts_are_isolated_candidates():
     assert report["original_alerts"] == 2
     assert report["projected_alerts"] == 0
     assert report["attack_outcomes_used"] is False
+
+
+def test_confirmation_replay_binds_checksum_and_candidate_identity(tmp_path):
+    root = tmp_path / "evidence"
+    path = root / "nodes" / "worker-a" / "decisions.jsonl"
+    path.parent.mkdir(parents=True)
+    record = _record(1.0)
+    record.update(
+        {
+            "model_manifest_sha256": "a" * 64,
+            "decision_policy_sha256": "b" * 64,
+            "run_id": "normal-b2",
+            "node_name": "worker-a",
+            "pod_uid": "pod-a",
+            "container_name": "app",
+        }
+    )
+    _write(path, [record])
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    checksums = root / "FAILED_FINAL_SHA256SUMS"
+    checksums.write_text(f"{digest}  nodes/worker-a/decisions.jsonl\n")
+    report = evaluate(
+        [path],
+        maximum_gap_seconds=1.25,
+        evidence_checksums_path=checksums,
+        expected_model_sha256="a" * 64,
+        expected_policy_sha256="b" * 64,
+    )
+    assert report["model_manifest_sha256"] == "a" * 64
+    assert report["decision_policy_sha256"] == "b" * 64
+    assert report["run_id"] == "normal-b2"
+    assert report["evidence_checksums_sha256"] == hashlib.sha256(
+        checksums.read_bytes()
+    ).hexdigest()
+
+    path.write_text(json.dumps({**record, "window_end": 2.0}) + "\n")
+    with pytest.raises(ValueError, match="checksum"):
+        evaluate(
+            [path],
+            evidence_checksums_path=checksums,
+            expected_model_sha256="a" * 64,
+            expected_policy_sha256="b" * 64,
+        )
