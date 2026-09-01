@@ -16,6 +16,19 @@ def test_bounded_canary_starts_all_finalizers_without_serial_wait():
     assert "--exclude='*.pyc'" in script
 
 
+def test_bounded_canary_supervisor_reaches_a_checksum_bound_terminal_state():
+    script = (ROOT / "sentinel_pulse" / "run_bounded_live_canary.sh").read_text()
+    assert "start_bounded_live_canary.sh" in script
+    assert "collect_bounded_live_canary.sh" in script
+    assert "freeze_failed_bounded_live_canary.sh" in script
+    assert "CANARY_COMPLETE" in script
+    assert "CANARY_FAILED.txt" in script
+    assert "observed_alerts > 0" in script
+    assert "SUPERVISOR_TIMEOUT" in script
+    assert "automatic_promotion" not in script
+    assert "install_production" not in script
+
+
 def test_bounded_canary_collection_is_checksum_gated_and_never_promotes():
     script = (ROOT / "sentinel_pulse" / "collect_bounded_live_canary.sh").read_text()
     assert "sha256sum -c START_SHA256SUMS" in script
@@ -34,5 +47,7 @@ def test_failed_bounded_canary_is_stopped_and_checksum_archived():
     assert "CANARY_FAILED.txt" in script
     assert "FAILED_FINAL_SHA256SUMS" in script
     assert "valid_zero_alert_gate" in script
+    assert "infrastructure_or_evidence_failure" in script
+    assert "not_evaluated_by_this_run" in script
     assert "automatic_promotion" in script
     assert "install_production" not in script

@@ -287,11 +287,18 @@ python -m sentinel_pulse.build_temporal_policy \
   --output decision-policy-temporal-b2.json
 
 SSHPASS=... MODEL_SOURCE=/evidence/model \
-POLICY_SOURCE=/evidence/decision-policy-temporal-b2.json \
+POLICY_SOURCE=/evidence/decision-policy-temporal-b3.json \
 EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/pilot-a2/CANARY_ID \
 RUN_ID=CANARY_ID DURATION_SECONDS=900 \
-./sentinel_pulse/start_bounded_live_canary.sh
+./sentinel_pulse/run_bounded_live_canary.sh
+```
 
+The runner starts all worker finalizers, monitors alert and terminal state, and
+automatically performs checksum-bound collection on success. The lower-level
+collector remains available only for recovery of an older run that was started
+without the supervisor:
+
+```bash
 SSHPASS=... ./sentinel_pulse/collect_bounded_live_canary.sh \
   /home/dat/sentinel-pulse-evidence/pilot-a2/CANARY_ID
 

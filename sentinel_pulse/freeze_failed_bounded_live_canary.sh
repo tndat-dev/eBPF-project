@@ -76,8 +76,17 @@ for node_root in sorted((root / "nodes").iterdir()):
     }
     total_decisions += decisions
     total_alerts += alerts
-if total_alerts < 1:
-    raise ValueError("failed normal archive has no observed alert")
+if total_alerts:
+    failure_class = "normal_alert_observed"
+    candidate_status = "rejected_normal_gate"
+    disposition = "development normal failure; candidate must not be promoted"
+else:
+    failure_class = "infrastructure_or_evidence_failure"
+    candidate_status = "not_evaluated_by_this_run"
+    disposition = (
+        "terminal infrastructure/evidence failure without an observed alert; "
+        "candidate must not be evaluated or promoted from this run"
+    )
 report = {
     "schema": "sentinel-pulse-bounded-normal-failure-v1",
     "created_at": datetime.now(timezone.utc).isoformat(),
@@ -85,13 +94,15 @@ report = {
     "model_manifest_sha256": start["model_manifest_sha256"],
     "decision_policy_sha256": start["decision_policy_sha256"],
     "normal_only": True,
-    "valid_zero_alert_gate": False,
+    "failure_class": failure_class,
+    "candidate_status": candidate_status,
+    "valid_zero_alert_gate": False if total_alerts else None,
     "accuracy_claim_allowed": False,
     "automatic_promotion": False,
     "decisions": total_decisions,
     "alerts": total_alerts,
     "nodes": nodes,
-    "disposition": "development normal failure; candidate must not be promoted",
+    "disposition": disposition,
 }
 (root / "FAILED_SUMMARY.json").write_text(
     json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
