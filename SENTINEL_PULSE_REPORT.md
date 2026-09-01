@@ -1656,3 +1656,23 @@ gap tối đa 1,25 giây và bypass `namespace_probe` chiếu 2 alert xuống 0 
 51.869 scored decision; report SHA-256 `90e96068665679f8a5405ce750cdd04ff05e96756c02a176e5fa4992647423cb`.
 Đây chỉ là hướng B3 từ normal evidence, chưa phải kết quả candidate. C2 vẫn
 đóng và không được dùng để tune.
+
+B3 hiện đã được implement thành policy/runtime riêng, không sửa model A2.
+Nhóm phổ biến `local_socket_beacon`, `process_fanout`, `credential_open` phải
+có model+semantic+score gate ở **hai window liên tiếp cùng signal group**,
+gap tối đa 1,25 giây. `identity_transition` và `namespace_probe` vẫn bypass
+ngay; bounded cross-window join của B2 chỉ áp dụng cho hai nhóm này. Khi
+telemetry gap hoặc traffic regime đổi, cả history model, bounded evidence và
+confirmation state đều reset. Với window 500 ms, nhánh phổ biến thêm tối đa
+một window xác nhận, còn nhánh high-risk không thêm wait.
+
+Replay B3 R2 dùng trực tiếp ba decision stream trong failed B2 và xác minh qua
+`FAILED_FINAL_SHA256SUMS` SHA-256 `ff438b3c…`; model, policy và run identity đều
+được fail-closed. Trên 51.869 scored decision, 2/2 alert B2 bị suppress và
+projected alert B3 bằng 0. Replay SHA-256
+`83d049bad9955cee00ce9e946914e9276f62c3dc334b601b8b285a968424fb8e`.
+Policy `sentinel-pulse-risk-tiered-consecutive-b3` source-clean có SHA-256
+`02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
+Full regression sau implementation đạt **487 passed, 2 Torch warnings**. B3
+chưa có live canary nên chưa được claim FPR/recall/latency; C2 vẫn không mở và
+không còn bind đúng policy B3.

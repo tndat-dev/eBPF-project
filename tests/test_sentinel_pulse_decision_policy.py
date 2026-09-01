@@ -287,3 +287,18 @@ def test_b2_policy_limits_cross_window_join_to_rare_groups():
     assert policy["bounded_event_time_corroboration"][
         "eligible_semantic_signal_groups"
     ] == ["identity_transition", "namespace_probe"]
+
+
+def test_b3_policy_requires_persistence_only_for_common_groups():
+    policy, digest = load_decision_policy(
+        ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b3.json"
+    )
+    confirmation = policy["temporal_confirmation"]
+    assert len(digest) == 64
+    assert confirmation["required_consecutive_windows"] == 2
+    assert confirmation["maximum_gap_seconds"] == 1.25
+    assert confirmation["immediate_bypass_signal_groups"] == [
+        "identity_transition",
+        "namespace_probe",
+    ]
+    assert policy["blind_outcome_used"] is False

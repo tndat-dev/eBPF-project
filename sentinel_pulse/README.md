@@ -331,6 +331,18 @@ B2 is rejected. C2 remains unopened; consecutive-window confirmation is only
 a normal-evidence development direction until implemented and independently
 evaluated as a new candidate.
 
+B3 implements that direction as a checksum-bound policy. Common-volume groups
+must pass the model, score, and semantic gates in two consecutive 500 ms
+windows with the same signal group and at most a 1.25 s gap. The
+`identity_transition` and `namespace_probe` groups bypass the extra wait, and
+all confirmation state resets on telemetry gaps or traffic-regime changes.
+The bound B2-failure replay projected zero alerts over 51,869 scored normal
+decisions; replay SHA-256 is
+`83d049bad9955cee00ce9e946914e9276f62c3dc334b601b8b285a968424fb8e` and B3
+policy SHA-256 is
+`02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
+This is development calibration, not a live-normal, recall, or latency result.
+
 Before a clean-source 24-hour formal soak exists, attack-path integration may
 be checked only with the explicitly non-formal pilot lifecycle:
 

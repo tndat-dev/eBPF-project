@@ -6563,3 +6563,13 @@ Hai alert cùng-window trên hai replica, cùng burst vận hành
 socket/connect/openat/clone; vì vậy B2 bị reject. Replay normal-only sơ bộ với
 xác nhận hai window liên tiếp và gap 1,25 giây suppress cả hai alert, nhưng đây
 mới là development projection, không phải candidate pass. C2 vẫn chưa mở.
+
+B3 đã được implement theo risk tier: nhóm common-volume phải lặp cùng nhóm qua
+hai window liên tiếp; `identity_transition`/`namespace_probe` được alert ngay và
+vẫn dùng bounded join tối đa 1 giây. Gap telemetry hoặc đổi traffic regime xóa
+toàn bộ confirmation state. Replay R2 checksum-bound trên 51.869 scored
+decision chiếu 2 alert B2 xuống 0; replay SHA-256 `83d049bad9955cee…`, source
+checksum SHA-256 `ff438b3c25deb…`. Policy B3 source-clean SHA-256
+`02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
+Regression đạt **487 passed, 2 warnings**. Chưa chạy live canary B3, vì vậy
+chưa có claim latency/FPR và chưa mở blind attack.
