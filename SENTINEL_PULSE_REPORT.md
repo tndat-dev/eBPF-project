@@ -1713,7 +1713,26 @@ R3/R4 quan sát 0 alert trước khi archive.
 
 R5 `sentinel-pulse-formal-normal-b3-r5-20260901T122000Z` hiện active, bind
 source `3c3be6c…`, model `2e37ffd1…`, policy B3 `02e0f02a…`. Start marker là
-`2026-09-01T12:16:28.224154Z`, eligible finalize sau đúng 24 giờ. Hai monitor
-tick đầu trên ba worker tăng từ 2.085 lên 6.899 decision, 0 alert, 0 restart;
-control collector inactive và feature source đúng. Đây mới là trạng thái
-`ACTIVE`, chưa phải normal pass, FPR claim hay production promotion.
+`2026-09-01T12:16:28.224154Z`, eligible finalize sau đúng 24 giờ. Snapshot
+`2026-09-01T12:57:07Z` có 105 monitor row, tương đương 35 vòng đầy đủ trên ba
+worker và **168.940 decision hiện hữu, 0 alert, 0 restart**; control collector
+inactive, experimental collector/detector active và feature source đúng trên
+cả ba worker. Đây mới là trạng thái `ACTIVE`, chưa phải normal pass, FPR claim
+hay production promotion.
+
+### Blind contract C3 đóng băng nhưng chưa mở
+
+C3 được preregister tại `blind-attack-contract-b3.json`, SHA-256
+`85ead02bae2e7f79744523d14332faac1f3e8e51d623ddf6d23adcb53d81b328`.
+Contract bind model `2e37ffd1…`, policy B3 `02e0f02a…` và đúng runtime commit
+R5 `3c3be6c…`. Ma trận giữ nguyên bộ chưa mở của C2: 18 controller × 5
+scenario × 5 seed/rate = **450 injection**; năm scenario A2 bị loại trừ và
+không có attack outcome nào được dùng để chọn lại scenario hoặc tune policy.
+Attack implementation vẫn bind static binary/source B1 đã khóa checksum.
+
+Validator hiện fail-closed cả predecessor-contract digest/trạng thái unopened
+và runtime commit. Wrapper `open_b3_blind_after_normal.sh` chỉ chuyển phase khi
+R5 có `NORMAL_PASS`, không còn `ACTIVE`, không có `INFRA_FAILURE.json`, runtime
+worktree sạch và HEAD đúng `3c3be6c…`. Tại snapshot trên, C3 **chưa được mở**,
+không có attack injection và `blind_evaluation_started=false`; vì vậy chưa có
+recall hay kernel-to-alert blind result để công bố.

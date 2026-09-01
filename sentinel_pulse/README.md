@@ -364,6 +364,26 @@ policy SHA-256 is
 `02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10`.
 This is development calibration, not a live-normal, recall, or latency result.
 
+The B3 successor blind contract is frozen at
+`protocol/blind-attack-contract-b3.json`. It binds model manifest
+`2e37ffd1...`, B3 policy `02e0f02a...`, and the exact normal-soak runtime
+commit `3c3be6c...`. Its 450-trial matrix (18 controllers, five scenarios,
+five frozen seed/rate pairs) is reused only from unopened C2; it excludes the
+A2 development scenarios and records that no predecessor attack outcome was
+used. Freezing the file does not open the set. While the formal normal soak is
+active, do not run the attack generator or either blind launcher.
+
+After the exact normal evidence has a checksum-valid `NORMAL_PASS`, use the
+guarded opener from the control checkout. It refuses an active/failed normal
+run, a dirty runtime worktree, or a runtime commit different from the one that
+was soaked:
+
+```bash
+SSHPASS=... \
+NORMAL_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b1/FORMAL_B3_RUN \
+./sentinel_pulse/open_b3_blind_after_normal.sh
+```
+
 Before a clean-source 24-hour formal soak exists, attack-path integration may
 be checked only with the explicitly non-formal pilot lifecycle:
 

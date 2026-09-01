@@ -81,6 +81,68 @@ class PulseBlindContractTests(unittest.TestCase):
             ]
         )
 
+    def test_b3_contract_is_frozen_unopened_for_the_consecutive_policy(self):
+        contract_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b3.json"
+        )
+        predecessor_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b2.json"
+        )
+        policy_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b3.json"
+        )
+        implementation_path = (
+            ROOT
+            / "sentinel_pulse"
+            / "protocol"
+            / "attack-implementation-contract-b1.json"
+        )
+        contract = load_contract(contract_path)
+        predecessor = load_contract(predecessor_path)
+        implementation = json.loads(implementation_path.read_text())
+
+        self.assertEqual(
+            contract["candidate_binding"]["decision_policy_sha256"],
+            hashlib.sha256(policy_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            contract["independence"]["derived_from_unused_contract_sha256"],
+            hashlib.sha256(predecessor_path.read_bytes()).hexdigest(),
+        )
+        self.assertFalse(
+            contract["independence"][
+                "predecessor_contract_candidate_evaluation_started"
+            ]
+        )
+        self.assertTrue(
+            contract["independence"][
+                "scenario_set_reused_only_from_unopened_predecessor_contract"
+            ]
+        )
+        self.assertEqual(contract["matrix"], predecessor["matrix"])
+        self.assertEqual(
+            set(contract["matrix"]["scenarios"]),
+            set(implementation["scenarios"]),
+        )
+
+    def test_successor_predecessor_binding_fails_closed(self):
+        contract = json.loads(
+            (
+                ROOT
+                / "sentinel_pulse"
+                / "protocol"
+                / "blind-attack-contract-b3.json"
+            ).read_text()
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "contract.json"
+            contract["independence"][
+                "predecessor_contract_candidate_evaluation_started"
+            ] = True
+            path.write_text(json.dumps(contract), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "predecessor binding"):
+                load_contract(path)
+
 
 if __name__ == "__main__":
     unittest.main()

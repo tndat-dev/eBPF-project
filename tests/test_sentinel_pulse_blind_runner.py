@@ -251,9 +251,21 @@ def test_successor_lifecycle_binds_frozen_candidate_directly():
         assert "sentinel-pulse-blind-attack-contract-v2" in lifecycle
         assert ".candidate_binding.model_manifest_sha256 == $model" in lifecycle
         assert ".candidate_binding.decision_policy_sha256 == $policy" in lifecycle
+        assert "successor blind contract belongs to another runtime commit" in lifecycle
     assert "successor blind contract belongs to another candidate" in runner
+    assert "successor blind contract belongs to another runtime commit" in runner
     assert '--attack-contract "$ATTACK_CONTRACT"' in finalizer
     assert '--expected-injections "$expected_injections"' in finalizer
+
+
+def test_b3_blind_opener_requires_terminal_normal_pass_and_exact_runtime_commit():
+    opener = (ROOT / "sentinel_pulse" / "open_b3_blind_after_normal.sh").read_text()
+    assert 'test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"' in opener
+    assert 'test ! -e "$NORMAL_EVIDENCE_ROOT/ACTIVE"' in opener
+    assert 'test ! -e "$NORMAL_EVIDENCE_ROOT/INFRA_FAILURE.json"' in opener
+    assert ".candidate_binding.runtime_source_git_commit" in opener
+    assert 'git -C "$RUNTIME_ROOT" status --porcelain' in opener
+    assert "blind-attack-contract-b3.json" in opener
 
 
 def test_binary_staging_path_preserves_tetragon_visibility_for_cnpg():

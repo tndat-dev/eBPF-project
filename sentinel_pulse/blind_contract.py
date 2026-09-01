@@ -42,6 +42,13 @@ def load_contract(path: Path) -> dict:
                 or any(character not in "0123456789abcdef" for character in digest)
             ):
                 raise ValueError("successor blind contract candidate binding is invalid")
+        runtime_commit = binding.get("runtime_source_git_commit")
+        if runtime_commit is not None and (
+            not isinstance(runtime_commit, str)
+            or len(runtime_commit) != 40
+            or any(character not in "0123456789abcdef" for character in runtime_commit)
+        ):
+            raise ValueError("successor blind contract runtime binding is invalid")
         independence = contract.get("independence", {})
         excluded = independence.get("excluded_predecessor_scenarios", [])
         if (
@@ -50,6 +57,25 @@ def load_contract(path: Path) -> dict:
             or len(excluded) != len(set(excluded))
         ):
             raise ValueError("successor blind contract independence controls are invalid")
+        predecessor_digest = independence.get(
+            "derived_from_unused_contract_sha256"
+        )
+        predecessor_started = independence.get(
+            "predecessor_contract_candidate_evaluation_started"
+        )
+        if predecessor_digest is not None or predecessor_started is not None:
+            if (
+                not isinstance(predecessor_digest, str)
+                or len(predecessor_digest) != 64
+                or any(
+                    character not in "0123456789abcdef"
+                    for character in predecessor_digest
+                )
+                or predecessor_started is not False
+            ):
+                raise ValueError(
+                    "successor blind contract predecessor binding is invalid"
+                )
     matrix = contract.get("matrix", {})
     scenarios = matrix.get("scenarios", [])
     workloads = matrix.get("workload_controllers", [])

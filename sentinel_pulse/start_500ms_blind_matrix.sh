@@ -44,6 +44,7 @@ contract_sha=$(sha256sum "$ATTACK_CONTRACT" | awk '{print $1}')
 implementation_sha=$(sha256sum "$IMPLEMENTATION_CONTRACT" | awk '{print $1}')
 source_sha=$(sha256sum "$RUNTIME_SOURCE" | awk '{print $1}')
 exec_provenance_policy_sha=$(sha256sum "$EXEC_PROVENANCE_POLICY" | awk '{print $1}')
+runtime_commit=$(git -C "$LOCAL_ROOT" rev-parse HEAD)
 [[ $(jq -er '.model_manifest_sha256' "$NORMAL_EVIDENCE_ROOT/SOAK_START.json") == "$model_sha" ]]
 [[ $(jq -er '.decision_policy_sha256' "$NORMAL_EVIDENCE_ROOT/SOAK_START.json") == "$policy_sha" ]]
 contract_schema=$(jq -er '.schema' "$ATTACK_CONTRACT")
@@ -56,6 +57,11 @@ elif [[ $contract_schema == sentinel-pulse-blind-attack-contract-v2 ]]; then
     .candidate_binding.model_manifest_sha256 == $model and
     .candidate_binding.decision_policy_sha256 == $policy
   ' "$ATTACK_CONTRACT" >/dev/null
+  contract_runtime_commit=$(jq -er '.candidate_binding.runtime_source_git_commit // empty' "$ATTACK_CONTRACT")
+  if [[ -n $contract_runtime_commit && $contract_runtime_commit != "$runtime_commit" ]]; then
+    echo "successor blind contract belongs to another runtime commit" >&2
+    exit 1
+  fi
 else
   echo "unsupported blind attack contract schema: $contract_schema" >&2
   exit 1
@@ -110,7 +116,7 @@ chmod 0444 "$binary"
 python3 - "$EVIDENCE_ROOT/BLIND_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$contract_sha" "$implementation_sha" "$source_sha" \
   "$binary_sha" "$normal_sha" "$exec_provenance_policy_sha" "$SCHEDULE_SEED" "$DURATION_SECONDS" \
-  "$expected_injections" "$(git -C "$LOCAL_ROOT" rev-parse HEAD)" <<'PY'
+  "$expected_injections" "$runtime_commit" <<'PY'
 from datetime import datetime, timezone
 import json, pathlib, sys
 (out, run_id, model, policy, contract, implementation, source, binary,

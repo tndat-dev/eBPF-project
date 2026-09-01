@@ -6617,10 +6617,36 @@ Formal normal-only R5
 và 300 giây preflight ổn định. Marker bind source commit `3c3be6c…`, model
 `2e37ffd1…`, policy B3 `02e0f02a…`; start lúc
 `2026-09-01T12:16:28.224154Z`, đủ điều kiện finalize từ
-`2026-09-02T12:16:28.224154Z`. Hai monitor tick đầu trên ba worker ghi decision
-tăng từ 2.085 lên 6.899, **0 alert, 0 restart**; experimental collector và
-candidate detector active, control collector inactive, feature source đúng.
+`2026-09-02T12:16:28.224154Z`. Snapshot `2026-09-01T12:57:07Z` có 105 monitor
+row = 35 vòng đầy đủ trên ba worker, tổng **168.940 decision, 0 alert, 0
+restart**; experimental collector và candidate detector active, control
+collector inactive, feature source đúng.
 `SOAK_START.json` SHA-256 là
 `99171b7b83df4b94cfa34e7fc10222ad2da09f09c6c7a37d8ad11f6f9482570a`.
 Run đang chạy nền, audit-only, `blind_evaluation_started=false` và
 `automatic_promotion=false`; chưa được gọi pass cho tới terminal normal report.
+
+### 18.156 Đóng băng blind contract C3 cho B3, chưa inject (01-09-2026)
+
+Blind contract C2 chưa từng mở nhưng bind policy B2 đã reject, nên một successor
+contract mới được khóa cho đúng candidate B3. File
+`sentinel_pulse/protocol/blind-attack-contract-b3.json` có SHA-256
+`85ead02bae2e7f79744523d14332faac1f3e8e51d623ddf6d23adcb53d81b328`, bind
+model manifest `2e37ffd1…`, policy B3 `02e0f02a…` và runtime source commit
+`3c3be6c…` đang chạy R5. C3 kế thừa duy nhất ma trận **chưa mở** của C2, bind
+predecessor SHA-256 `12099bcf…`, ghi rõ predecessor chưa candidate-evaluate và
+không dùng attack outcome để chọn scenario. Ma trận vẫn là 18 controller × 5
+scenario độc lập A2 × 5 seed/rate = **450 injection**.
+
+Code validation được harden để reject digest predecessor sai, predecessor đã
+mở, runtime commit sai, model/policy sai hoặc runtime binary khác implementation
+contract. Wrapper `open_b3_blind_after_normal.sh` bắt buộc `NORMAL_PASS`, cấm
+normal evidence còn `ACTIVE`/có infrastructure failure, yêu cầu runtime
+worktree sạch và đúng commit đã soak. Focused regression đạt **22 passed**.
+Không có attack nào được inject trong khi normal soak chạy.
+
+Snapshot trực tiếp R5 lúc `2026-09-01T12:57:07Z`: 105 monitor row = 35 vòng
+đầy đủ × 3 worker, tổng **168.940 decision, 0 alert, 0 restart**; collector
+500 ms và detector active, control collector inactive, feature binding đúng.
+R5 vẫn `ACTIVE`, C3 vẫn unopened; các số này chỉ là quan sát giữa soak, không
+phải FPR=0, normal pass, recall hay production-ready claim.

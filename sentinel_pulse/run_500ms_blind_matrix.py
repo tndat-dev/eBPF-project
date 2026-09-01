@@ -333,6 +333,11 @@ def main() -> int:
             != start.get("decision_policy_sha256")
         ):
             raise ValueError("successor blind contract belongs to another candidate")
+        runtime_commit = candidate_binding.get("runtime_source_git_commit")
+        if runtime_commit is not None and runtime_commit != start.get(
+            "source_git_commit"
+        ):
+            raise ValueError("successor blind contract belongs to another runtime commit")
     if implementation.get("binary", {}).get("sha256") != bindings["runtime_binary_sha256"]:
         raise ValueError("runtime binary differs from frozen implementation contract")
     if set(implementation.get("scenarios", [])) != set(contract["matrix"]["scenarios"]):
