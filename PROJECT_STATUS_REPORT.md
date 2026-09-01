@@ -6586,3 +6586,41 @@ checksum index SHA-256
 suy diễn thành FPR=0, recall, formal kernel-to-alert hoặc production readiness.
 C2 chưa mở nhưng bind policy B2 nên không còn hợp lệ cho B3; B3 cần long soak
 normal và blind contract mới được đóng băng sau policy.
+
+### 18.155 Formal normal-only soak B3 và hardening lifecycle (01-09-2026)
+
+Sau canary B3, lifecycle bounded được bổ sung supervisor control-plane để tự
+collect aggregate checksum-bound khi pass hoặc archive fail-closed khi có alert,
+worker failure hay timeout. Formal lifecycle có thêm `STOP_AFTER_NORMAL=true`,
+không thể tự mở blind phase; control collector một giây được suspend có receipt
+và tự restore ở cả nhánh pass lẫn failure archive.
+
+Ba attempt đầu của formal soak được giữ lại nhưng **không dùng cho normal gate,
+training, tuning hoặc blind evaluation**. R2 phát hiện launcher quên truyền
+`DECISION_POLICY_SOURCE`, khiến runtime nhận policy V4 `272e9119…` thay vì B3
+`02e0f02a…`; run được đóng bằng `REJECTED_BINDING.json`. R3 bind policy đúng
+nhưng monitor hiểu exit code `systemctl is-enabled=1` của trạng thái `masked`
+là maintenance unavailable. R4 tiếp tục phát hiện unit candidate có
+`Wants=sentinel-pulse-collector.service`, tự bật lại control collector trái với
+formal isolation. R3/R4 đều archive như infrastructure/evidence rejection với
+0 alert và `candidate_status=not_evaluated_by_this_run`.
+
+Các lỗi trên đã được sửa fail-closed: policy/model được rsync và kiểm tra hash
+sau cài trên từng worker; signal cleanup chờ foreground mutation; maintenance
+monitor chấp nhận output `masked` nhưng vẫn reject SSH lỗi; failure archive hỗ
+trợ fail trước monitor row; unit detector được render bỏ dependency control
+collector khi `REQUIRE_CONTROL_COLLECTOR=false`. Full regression đạt **490
+passed, 2 Torch warnings**.
+
+Formal normal-only R5
+`sentinel-pulse-formal-normal-b3-r5-20260901T122000Z` đã active sau traffic gate
+và 300 giây preflight ổn định. Marker bind source commit `3c3be6c…`, model
+`2e37ffd1…`, policy B3 `02e0f02a…`; start lúc
+`2026-09-01T12:16:28.224154Z`, đủ điều kiện finalize từ
+`2026-09-02T12:16:28.224154Z`. Hai monitor tick đầu trên ba worker ghi decision
+tăng từ 2.085 lên 6.899, **0 alert, 0 restart**; experimental collector và
+candidate detector active, control collector inactive, feature source đúng.
+`SOAK_START.json` SHA-256 là
+`99171b7b83df4b94cfa34e7fc10222ad2da09f09c6c7a37d8ad11f6f9482570a`.
+Run đang chạy nền, audit-only, `blind_evaluation_started=false` và
+`automatic_promotion=false`; chưa được gọi pass cho tới terminal normal report.

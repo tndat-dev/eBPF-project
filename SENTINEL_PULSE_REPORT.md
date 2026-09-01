@@ -1693,3 +1693,27 @@ không chứng minh FPR=0, recall, formal kernel-to-alert hay production
 readiness. C2 chưa mở nhưng bind policy B2 nên không còn hợp lệ cho B3. Trước
 khi cân nhắc promotion, B3 phải qua long normal soak và một blind contract mới
 được freeze sau policy B3 mà không dùng kết quả attack để tune.
+
+### Formal normal-only soak B3
+
+Lifecycle sau canary đã được harden trước khi mở soak: bounded supervisor tự
+terminalize control-plane evidence; formal runner hỗ trợ
+`STOP_AFTER_NORMAL=true`; control collector được suspend/restore có receipt;
+model và policy được bind bằng hash sau cài; isolated detector unit không còn
+`Wants=` control collector trong formal mode. Maintenance monitor cũng được sửa
+để phân biệt trạng thái hợp lệ `masked` với lỗi SSH, và failure archive hoạt
+động cả khi fail trước monitor row. Regression sau cùng đạt **490 passed, 2
+warnings**.
+
+R2, R3 và R4 là development infrastructure/evidence rejection, không phải
+model result: R2 load nhầm policy V4 do thiếu explicit binding; R3 hiểu sai exit
+code của `systemctl is-enabled`; R4 phát hiện systemd `Wants=` tự bật control
+collector. Cả ba bị cấm dùng cho training/tuning/normal gate/blind evaluation;
+R3/R4 quan sát 0 alert trước khi archive.
+
+R5 `sentinel-pulse-formal-normal-b3-r5-20260901T122000Z` hiện active, bind
+source `3c3be6c…`, model `2e37ffd1…`, policy B3 `02e0f02a…`. Start marker là
+`2026-09-01T12:16:28.224154Z`, eligible finalize sau đúng 24 giờ. Hai monitor
+tick đầu trên ba worker tăng từ 2.085 lên 6.899 decision, 0 alert, 0 restart;
+control collector inactive và feature source đúng. Đây mới là trạng thái
+`ACTIVE`, chưa phải normal pass, FPR claim hay production promotion.
