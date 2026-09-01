@@ -17,6 +17,7 @@ PREFLIGHT_TIMEOUT_SECONDS=${PREFLIGHT_TIMEOUT_SECONDS:-1800}
 # container image GC and immutable raw evidence.
 MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-68719476736}
 MAXIMUM_ROOT_USED_PERCENT=${MAXIMUM_ROOT_USED_PERCENT:-80}
+SUSPEND_CONTROL_COLLECTOR=${SUSPEND_CONTROL_COLLECTOR:-false}
 PYTHON=${PYTHON:-python3}
 SSH_USER=${SSH_USER:-dat}
 EVIDENCE_ROOT=${EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$RUN_ID}
@@ -54,8 +55,11 @@ command -v jq >/dev/null
   }
 [[ $MAXIMUM_ROOT_USED_PERCENT =~ ^[0-9]+$ ]] &&
   ((MAXIMUM_ROOT_USED_PERCENT >= 1 && MAXIMUM_ROOT_USED_PERCENT <= 99)) || {
-    echo "maximum root usage must be a percentage in 1..99" >&2; exit 2;
-  }
+  echo "maximum root usage must be a percentage in 1..99" >&2; exit 2;
+}
+[[ $SUSPEND_CONTROL_COLLECTOR == true || $SUSPEND_CONTROL_COLLECTOR == false ]] || {
+  echo "SUSPEND_CONTROL_COLLECTOR must be true or false" >&2; exit 2;
+}
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$POLICY_SOURCE"
@@ -74,6 +78,28 @@ remote_sudo() {
     -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
     "sudo -S $*"
 }
+
+started_hosts=()
+suspended_control_hosts=()
+launch_complete=false
+cleanup() {
+  local rc=$?
+  if [[ $launch_complete != true ]]; then
+    for host in "${started_hosts[@]}"; do
+      remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service \
+        sentinel-pulse-collector-500ms-experiment.service >/dev/null 2>&1 || true
+    done
+    for host in "${suspended_control_hosts[@]}"; do
+      remote_sudo "$host" systemctl start sentinel-pulse-collector.service \
+        >/dev/null 2>&1 || true
+    done
+    if [[ -d $EVIDENCE_ROOT ]]; then
+      printf 'launch_failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" \
+        >"$EVIDENCE_ROOT/FAILED"
+    fi
+  fi
+}
+trap cleanup EXIT
 
 cluster_health_snapshot() {
   local node_bad pod_bad longhorn_bad longhorn_disk_bad
@@ -200,6 +226,16 @@ for target in "${WORKERS[@]}"; do
     "$REMOTE_ROOT/sentinel_pulse/systemd/sentinel-pulse-collector.service" \
     /etc/systemd/system/sentinel-pulse-collector.service
   remote_sudo "$host" systemctl daemon-reload
+  control_state=$(remote "$host" \
+    "systemctl is-active sentinel-pulse-collector.service 2>/dev/null || true")
+  if [[ $control_state == active ]]; then
+    [[ $SUSPEND_CONTROL_COLLECTOR == true ]] || {
+      echo "legacy control collector is active on $host; set SUSPEND_CONTROL_COLLECTOR=true for an isolated formal soak" >&2
+      exit 3
+    }
+    remote_sudo "$host" systemctl stop sentinel-pulse-collector.service
+    suspended_control_hosts+=("$host")
+  fi
   remote "$host" \
     "systemctl is-active --quiet sentinel-pulse-resolver && ! systemctl is-active --quiet sentinel-pulse-collector && ! systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment && ! systemctl is-active --quiet sentinel-pulse-detector-candidate && ! systemctl show sentinel-pulse-resolver -p Requires --value | grep -qw containerd.service && ! systemctl show sentinel-pulse-collector -p Requires --value | grep -qw sentinel-pulse-resolver.service"
 done
@@ -217,10 +253,11 @@ mkdir "$EVIDENCE_ROOT"
 # The marker exists before any experimental collector or detector starts.
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" \
-  "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" <<'PY'
+  "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" \
+  "$(IFS=,; echo "${suspended_control_hosts[*]}")" <<'PY'
 from datetime import datetime, timedelta, timezone
 import json, pathlib, sys
-out, run_id, model, policy, commit, hours, min_root, max_root = sys.argv[1:]
+out, run_id, model, policy, commit, hours, min_root, max_root, suspended = sys.argv[1:]
 started = datetime.now(timezone.utc)
 payload = {
     "schema": "sentinel-pulse-semantic-soak-start-v7",
@@ -248,26 +285,14 @@ payload = {
         "colocated_running_replicas": 0,
     },
     "legacy_control_collector_required_state": "inactive",
+    "control_collector_suspended_hosts": [
+        item for item in suspended.split(",") if item
+    ],
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }
 pathlib.Path(out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 PY
-
-started_hosts=()
-launch_complete=false
-cleanup() {
-  local rc=$?
-  if [[ $launch_complete != true ]]; then
-    for host in "${started_hosts[@]}"; do
-      remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service \
-        sentinel-pulse-collector-500ms-experiment.service >/dev/null 2>&1 || true
-    done
-    printf 'launch_failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" \
-      >"$EVIDENCE_ROOT/FAILED"
-  fi
-}
-trap cleanup EXIT
 
 for target in "${WORKERS[@]}"; do
   IFS='|' read -r host node <<<"$target"

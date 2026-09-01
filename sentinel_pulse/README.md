@@ -266,7 +266,7 @@ cluster, storage, maintenance, detector-restart and zero-alert gates active,
 then freezes normal evidence and exits before `normal_pass_blind_interlock_open`:
 
 ```bash
-SSHPASS=... STOP_AFTER_NORMAL=true \
+SSHPASS=... STOP_AFTER_NORMAL=true SUSPEND_CONTROL_COLLECTOR=true \
 MODEL_SOURCE=/absolute/path/inside/the/worktree/to/frozen-model \
 POLICY_SOURCE=$PWD/sentinel_pulse/protocol/decision-policy-temporal-b3.json \
 NORMAL_RUN_ID=SENTINEL_PULSE_B3_SOAK_ID \

@@ -91,6 +91,32 @@ while read -r host node expected_feature; do
     sentinel-pulse-detector-candidate.service || true
 done <"$WORKERS_FILE"
 
+restored_control_hosts=()
+while read -r host _node _expected_feature; do
+  if jq -e --arg host "$host" \
+    '(.control_collector_suspended_hosts // []) | index($host) != null' \
+    "$MARKER" >/dev/null; then
+    remote_sudo "$host" systemctl start sentinel-pulse-collector.service
+    remote_sudo "$host" systemctl is-active --quiet \
+      sentinel-pulse-collector.service
+    restored_control_hosts+=("$host")
+  fi
+done <"$WORKERS_FILE"
+RESTORED_HOSTS="$(IFS=,; echo "${restored_control_hosts[*]}")" \
+python3 - "$EVIDENCE_ROOT/CONTROL_COLLECTOR_RESTORED.json" <<'PY'
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+import sys
+
+Path(sys.argv[1]).write_text(json.dumps({
+    "schema": "sentinel-pulse-control-collector-restore-v1",
+    "restored_at": datetime.now(timezone.utc).isoformat(),
+    "hosts": [item for item in os.environ["RESTORED_HOSTS"].split(",") if item],
+}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+
 python3 - "$EVIDENCE_ROOT" "$FAILURE_ROOT/DISPOSITION.json" <<'PY'
 import json
 from pathlib import Path

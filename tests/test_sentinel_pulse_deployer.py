@@ -422,6 +422,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("apt-daily-upgrade.timer", starter)
         self.assertIn("sentinel-pulse-semantic-soak-start-v7", starter)
         self.assertIn('"maintenance_window_guard"', starter)
+        self.assertIn("SUSPEND_CONTROL_COLLECTOR", starter)
+        self.assertIn('"control_collector_suspended_hosts"', starter)
+        self.assertIn("systemctl start sentinel-pulse-collector.service", starter)
         self.assertIn("check_cluster_health", monitor)
         self.assertIn("check_worker_capacity", monitor)
         self.assertIn("check_worker_maintenance", monitor)
@@ -430,6 +433,19 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("insufficient_worker_capacity", monitor)
         self.assertIn("unhealthy_kubernetes_node", monitor)
         self.assertIn("FAILURE_NODES.json", monitor)
+
+        finalizer = (
+            ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
+        ).read_text()
+        failure_archive = (
+            ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
+        ).read_text()
+        for lifecycle_terminal in (finalizer, failure_archive):
+            self.assertIn("CONTROL_COLLECTOR_RESTORED.json", lifecycle_terminal)
+            self.assertIn(
+                "systemctl start sentinel-pulse-collector.service",
+                lifecycle_terminal,
+            )
 
     def test_candidate_lifecycle_can_stop_before_opening_blind_evaluation(self):
         lifecycle = (

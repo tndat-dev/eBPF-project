@@ -158,6 +158,31 @@ PYTHONPATH="$LOCAL_ROOT" python3 -m sentinel_pulse.evaluate_normal \
 jq -e '.normal_gate == true and .expected_workload_gate == true' \
   "$EVIDENCE_ROOT/NORMAL_REPORT.json" >/dev/null
 
+restored_control_hosts=()
+while read -r host _node _expected_feature; do
+  if jq -e --arg host "$host" \
+    '(.control_collector_suspended_hosts // []) | index($host) != null' \
+    "$MARKER" >/dev/null; then
+    remote_sudo "$host" systemctl start sentinel-pulse-collector.service
+    remote "$host" systemctl is-active --quiet sentinel-pulse-collector.service
+    restored_control_hosts+=("$host")
+  fi
+done <"$WORKERS_FILE"
+RESTORED_HOSTS="$(IFS=,; echo "${restored_control_hosts[*]}")" \
+python3 - "$EVIDENCE_ROOT/CONTROL_COLLECTOR_RESTORED.json" <<'PY'
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+import sys
+
+Path(sys.argv[1]).write_text(json.dumps({
+    "schema": "sentinel-pulse-control-collector-restore-v1",
+    "restored_at": datetime.now(timezone.utc).isoformat(),
+    "hosts": [item for item in os.environ["RESTORED_HOSTS"].split(",") if item],
+}, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+
 kubectl get nodes -o json >"$EVIDENCE_ROOT/finalize-nodes-after.json"
 kubectl -n production get pods -o json \
   >"$EVIDENCE_ROOT/finalize-production-pods-after.json"
@@ -166,6 +191,7 @@ printf 'passed_at=%s\nnormal_report_sha256=%s\nautomatic_promotion=false\n' \
   "$(date -u +%FT%TZ)" "$report_sha" >"$EVIDENCE_ROOT/NORMAL_PASS"
 sha256sum "$MARKER" "$MODEL_SOURCE/manifest.json" "$POLICY_SOURCE" \
   "$EVIDENCE_ROOT/NORMAL_REPORT.json" "$EVIDENCE_ROOT/RAW_SHA256SUMS" \
+  "$EVIDENCE_ROOT/CONTROL_COLLECTOR_RESTORED.json" \
   >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
 rm -f "$EVIDENCE_ROOT/ACTIVE" "$EVIDENCE_ROOT/FINALIZE_FAILED" "$finalizing"
 complete=true
