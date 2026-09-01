@@ -19,7 +19,10 @@ import numpy as np
 
 from .blind_contract import expected_matrix, load_contract, marker_matrix_key
 from .integrity import sha256_file
-from .tetragon_evidence import timestamp as tetragon_timestamp
+from .tetragon_evidence import (
+    EXEC_PROVENANCE_POLICY,
+    timestamp as tetragon_timestamp,
+)
 
 
 def injection_markers(path: Path) -> dict[str, dict]:
@@ -61,9 +64,13 @@ def kernel_events(path: Path) -> dict[str, dict]:
                 raise ValueError(
                     f"invalid kernel event timestamp at line {line_number}"
                 ) from error
+            source = record.get("source")
             if (
                 not math.isfinite(timestamp)
-                or record.get("source") != "tetragon_process_exec"
+                or source not in {
+                    "tetragon_process_exec",
+                    "tetragon_execve_kprobe_grpc",
+                }
                 or not record.get("exec_id")
                 or not record.get("node_name")
                 or not record.get("pod_uid")
@@ -77,22 +84,49 @@ def kernel_events(path: Path) -> dict[str, dict]:
             canonical = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
             if hashlib.sha256(canonical).hexdigest() != record.get("raw_event_sha256"):
                 raise ValueError(f"raw Tetragon event checksum mismatch at line {line_number}")
-            event = raw.get("process_exec")
-            process = event.get("process") if isinstance(event, dict) else None
-            pod = process.get("pod") if isinstance(process, dict) else None
-            if (
-                not isinstance(pod, dict)
-                or process.get("exec_id") != record.get("exec_id")
-                or process.get("binary") != record.get("binary")
-                or raw.get("node_name") != record.get("node_name")
-                or pod.get("name") != record.get("pod_name")
-                or pod.get("uid") != record.get("pod_uid")
-                or pod.get("namespace") != "production"
-            ):
-                raise ValueError(f"raw Tetragon event identity mismatch at line {line_number}")
-            raw_timestamp = tetragon_timestamp(
-                str(raw.get("time") or process.get("start_time"))
-            )
+            if source == "tetragon_process_exec":
+                event = raw.get("process_exec")
+                process = event.get("process") if isinstance(event, dict) else None
+                pod = process.get("pod") if isinstance(process, dict) else None
+                if (
+                    not isinstance(pod, dict)
+                    or process.get("exec_id") != record.get("exec_id")
+                    or process.get("binary") != record.get("binary")
+                    or raw.get("node_name") != record.get("node_name")
+                    or pod.get("name") != record.get("pod_name")
+                    or pod.get("uid") != record.get("pod_uid")
+                    or pod.get("namespace") != "production"
+                ):
+                    raise ValueError(
+                        f"raw Tetragon event identity mismatch at line {line_number}"
+                    )
+                raw_time = raw.get("time") or process.get("start_time")
+            else:
+                event = raw.get("process_kprobe")
+                process = event.get("process") if isinstance(event, dict) else None
+                arguments = event.get("args") if isinstance(event, dict) else None
+                paths = [
+                    str(item.get("string_arg"))
+                    for item in arguments or []
+                    if isinstance(item, dict) and item.get("string_arg") is not None
+                ]
+                function = str(event.get("function_name", "")) if isinstance(event, dict) else ""
+                if (
+                    not isinstance(process, dict)
+                    or record.get("identity_scope") != "serialized_node_exact_binary"
+                    or record.get("policy_name") != EXEC_PROVENANCE_POLICY
+                    or event.get("policy_name") != EXEC_PROVENANCE_POLICY
+                    or function.split("__x64_")[-1] != "sys_execve"
+                    or paths != [record.get("binary")]
+                    or process.get("exec_id") != record.get("exec_id")
+                    or process.get("pid") != record.get("pid")
+                    or raw.get("node_name") != record.get("node_name")
+                ):
+                    raise ValueError(
+                        f"raw Tetragon execve provenance mismatch at line {line_number}"
+                    )
+                raw_time = raw.get("time")
+            raw_timestamp = tetragon_timestamp(str(raw_time))
             if abs(raw_timestamp - timestamp) > 1e-6:
                 raise ValueError(f"raw Tetragon event timestamp mismatch at line {line_number}")
             result[injection_id] = record
@@ -267,6 +301,9 @@ def evaluate(
         "kernel_events_sha256": (
             sha256_file(kernel_event_path) if kernel_event_path is not None else None
         ),
+        "kernel_event_sources": sorted(
+            {str(item.get("source")) for item in events.values()}
+        ) if events is not None else [],
         "blind_attack_contract_sha256": (
             sha256_file(attack_contract_path) if attack_contract_path is not None else None
         ),

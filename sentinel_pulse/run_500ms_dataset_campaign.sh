@@ -10,7 +10,22 @@ REGIME_SECONDS=${PULSE_500MS_REGIME_SECONDS:-600}
 TRANSITION_GAP_SECONDS=${PULSE_500MS_TRANSITION_GAP_SECONDS:-180}
 PREPARE_SECONDS=${PULSE_500MS_PREPARE_SECONDS:-180}
 FINAL_GRACE_SECONDS=${PULSE_500MS_FINAL_GRACE_SECONDS:-15}
+CAMPAIGN_MODE=${PULSE_500MS_CAMPAIGN_MODE:-formal}
 : "${SSHPASS:?export SSHPASS for SSH and remote sudo authentication}"
+
+case "$CAMPAIGN_MODE" in
+  formal) ;;
+  pilot)
+    [[ ${PULSE_500MS_PILOT_ACK:-} == nonformal ]] || {
+      echo "pilot mode requires PULSE_500MS_PILOT_ACK=nonformal" >&2
+      exit 2
+    }
+    ;;
+  *) echo "PULSE_500MS_CAMPAIGN_MODE must be formal or pilot" >&2; exit 2 ;;
+esac
+
+test -d "$ROOT/sentinel_pulse"
+cd "$ROOT"
 
 worker_hosts=(10.1.16.237 10.1.16.239 10.1.16.238)
 worker_nodes=(k8s-worker1.local k8s-worker3.local k8s-worker4.local)
@@ -25,7 +40,9 @@ experiment_duration=$((
 ))
 ((experiment_duration <= 3600))
 
-campaign_id="pulse500-data-$(date -u +%Y%m%dT%H%M%SZ)"
+campaign_prefix=pulse500-data
+[[ $CAMPAIGN_MODE == pilot ]] && campaign_prefix=pulse500-data-pilot
+campaign_id="$campaign_prefix-$(date -u +%Y%m%dT%H%M%SZ)"
 output_root="$OUTPUT_PARENT/$campaign_id"
 contract="$output_root/capture-contract.json"
 protocol="$output_root/PROTOCOL.json"
@@ -126,14 +143,18 @@ wait_until() {
   done
 }
 
-[[ -z $(git -C "$ROOT" status --short) ]]
-[[ $(git -C "$ROOT" rev-parse HEAD) == $(git -C "$ROOT" rev-parse origin/main) ]]
+if [[ $CAMPAIGN_MODE == formal ]]; then
+  [[ -z $(git -C "$ROOT" status --short) ]]
+  [[ $(git -C "$ROOT" rev-parse HEAD) == \
+     $(git -C "$ROOT" rev-parse origin/main) ]]
+fi
 check_cluster_health
 current_stage=registering-contract
 kubectl get nodes -o wide >"$output_root/nodes-start.txt"
 kubectl -n production get pods -o wide >"$output_root/production-pods-start.txt"
 kubectl -n production get deploy aims-sentinel-loadgen \
-  aims-sentinel-readmix-loadgen aims-sentinel-dependency-loadgen -o yaml \
+  aims-sentinel-ingress-loadgen aims-sentinel-readmix-loadgen \
+  aims-sentinel-dependency-loadgen -o yaml \
   >"$output_root/traffic-generators-start.yaml"
 
 campaign_start=$(( $(date +%s) + PREPARE_SECONDS ))
@@ -151,11 +172,12 @@ PY
 )
 
 "$PYTHON" - "$protocol" "$campaign_id" "$contract" \
-  "$experiment_duration" "${worker_hosts[*]}" "${worker_nodes[*]}" <<'PY'
+  "$experiment_duration" "${worker_hosts[*]}" "${worker_nodes[*]}" \
+  "$ROOT" "$CAMPAIGN_MODE" <<'PY'
 import hashlib, json, subprocess, sys
 from pathlib import Path
 output, campaign, contract = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
-root = Path("/home/dat/eBPF-project")
+root, campaign_mode = Path(sys.argv[7]), sys.argv[8]
 sources = [
     root / "sentinel_pulse/run_500ms_dataset_campaign.sh",
     root / "sentinel_pulse/install_500ms_experiment.sh",
@@ -163,17 +185,48 @@ sources = [
     root / "sentinel_pulse/finalize_500ms_dataset.py",
     root / "sentinel_pulse/assemble_dataset.py",
     root / "sentinel_pulse/train.py",
+    root / "sentinel_pulse/capture.py",
+    root / "sentinel_pulse/features.py",
+    root / "sentinel_pulse/ebpf/pulse_counter.bpf.c",
+    root / "sentinel_pulse/ebpf/pulse_counter_loader.c",
+    root / "sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service",
     root / "ml-service/set_aims_traffic_regime.sh",
 ]
+git_status = subprocess.check_output(
+    ["git", "-C", str(root), "status", "--porcelain=v1", "--untracked-files=all"],
+    text=True,
+).splitlines()
+head = subprocess.check_output(
+    ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+).strip()
+origin_main = subprocess.check_output(
+    ["git", "-C", str(root), "rev-parse", "origin/main"], text=True
+).strip()
+git_diff = subprocess.check_output(
+    ["git", "-C", str(root), "diff", "--binary", "HEAD"],
+)
+try:
+    contract_reference = str(contract.relative_to(root))
+except ValueError:
+    contract_reference = str(contract)
 payload = {
     "schema": "sentinel-pulse-500ms-dataset-protocol-v1",
     "campaign_id": campaign,
     "registered_at": subprocess.check_output(
         ["date", "-u", "+%FT%TZ"], text=True
     ).strip(),
-    "git_commit": subprocess.check_output(
-        ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
-    ).strip(),
+    "campaign_mode": campaign_mode,
+    "evidence_class": (
+        "formal_candidate_training_dataset"
+        if campaign_mode == "formal"
+        else "nonformal_runtime_compatibility_pilot"
+    ),
+    "git_commit": head,
+    "origin_main_commit": origin_main,
+    "source_clean": not git_status,
+    "head_matches_origin_main": head == origin_main,
+    "git_status": git_status,
+    "git_diff_sha256": hashlib.sha256(git_diff).hexdigest(),
     "normal_only": True,
     "collector_profile": {
         "interval_ms": 500, "rolling_windows": 10,
@@ -184,7 +237,7 @@ payload = {
         {"host": host, "node": node}
         for host, node in zip(sys.argv[5].split(), sys.argv[6].split())
     ],
-    "contract": str(contract.relative_to(root)),
+    "contract": contract_reference,
     "contract_sha256": hashlib.sha256(contract.read_bytes()).hexdigest(),
     "source_sha256": {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -249,7 +302,8 @@ PY
   done
   [[ $rollout_ok == true ]]
   kubectl -n production get deployment aims-sentinel-loadgen \
-    aims-sentinel-readmix-loadgen aims-sentinel-dependency-loadgen -o json \
+    aims-sentinel-ingress-loadgen aims-sentinel-readmix-loadgen \
+    aims-sentinel-dependency-loadgen -o json \
     >"$output_root/$regime-deployments.json"
   (( $(date +%s) <= regime_start ))
   current_stage="measuring-$regime"

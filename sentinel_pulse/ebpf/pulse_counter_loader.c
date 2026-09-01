@@ -14,6 +14,7 @@
 #define PULSE_TRANSITION_BINS 64
 #define PULSE_TRACKED 29
 #define PULSE_SNAPSHOT_RETRIES 8
+#define PULSE_TARGET_REFRESH_RETRIES 5
 
 struct pulse_counters {
     uint64_t syscall_bins[PULSE_SYSCALL_BINS];
@@ -96,6 +97,26 @@ static int refresh_targets(int map_fd, const char *path, int cpu_count)
             bpf_map_delete_elem(map_fd, &existing[index]);
     free(existing); free(desired); free(per_cpu);
     return (int)count;
+}
+
+static int refresh_targets_bounded(int map_fd, const char *path, int cpu_count)
+{
+    int result = 0;
+    for (int attempt = 0; attempt < PULSE_TARGET_REFRESH_RETRIES; attempt++) {
+        result = refresh_targets(map_fd, path, cpu_count);
+        if (result >= 0)
+            return result;
+        if (result != -ENOMEM && result != -EAGAIN)
+            return result;
+        if (attempt + 1 < PULSE_TARGET_REFRESH_RETRIES) {
+            unsigned delay_us = 50000U << attempt;
+            fprintf(stderr,
+                    "target refresh attempt %d failed: %s; retrying in %uus\n",
+                    attempt + 1, strerror(-result), delay_us);
+            usleep(delay_us);
+        }
+    }
+    return result;
 }
 
 static int per_cpu_snapshot_consistent(
@@ -193,8 +214,19 @@ int main(int argc, char **argv)
     int cgroups_fd = bpf_object__find_map_fd_by_name(object, "pulse_cgroups");
     int stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_stats");
     if (cgroups_fd < 0 || stats_fd < 0) { fprintf(stderr, "required BPF map missing\n"); bpf_object__close(object); return 1; }
-    int targets = refresh_targets(cgroups_fd, allow_file, cpu_count);
-    if (targets <= 0) { fprintf(stderr, "no valid target cgroup in %s; refusing host-wide collection\n", allow_file); bpf_object__close(object); return 1; }
+    int targets = refresh_targets_bounded(cgroups_fd, allow_file, cpu_count);
+    if (targets < 0) {
+        fprintf(stderr, "failed to populate target cgroups from %s: %s\n",
+                allow_file, strerror(-targets));
+        bpf_object__close(object);
+        return 1;
+    }
+    if (targets == 0) {
+        fprintf(stderr, "no valid target cgroup in %s; refusing host-wide collection\n",
+                allow_file);
+        bpf_object__close(object);
+        return 1;
+    }
     struct bpf_program *program = bpf_object__find_program_by_name(object, "pulse_sys_enter");
     struct bpf_link *link = program ? bpf_program__attach_raw_tracepoint(program, "sys_enter") : NULL;
     error = libbpf_get_error(link);
@@ -207,7 +239,7 @@ int main(int argc, char **argv)
          * a final partial feature window; detach cleanly at the boundary. */
         if (exiting)
             break;
-        targets = refresh_targets(cgroups_fd, allow_file, cpu_count);
+        targets = refresh_targets_bounded(cgroups_fd, allow_file, cpu_count);
         if (targets < 0) { fprintf(stderr, "target refresh failed: %s\n", strerror(-targets)); break; }
         if (targets == 0) { fprintf(stderr, "target allow-list became empty; stopping fail-closed\n"); break; }
         double snapshot_started_at = wall_time();

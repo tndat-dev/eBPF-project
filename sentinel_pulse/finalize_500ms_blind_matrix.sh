@@ -121,12 +121,13 @@ PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.verify_distributed_injectio
 evaluation_args=()
 for path in "${decision_paths[@]}"; do evaluation_args+=(--decisions "$path"); done
 set +e
+expected_injections=$(jq -er '.expected_injections' "$ATTACK_CONTRACT")
 PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.evaluate_latency \
   "${evaluation_args[@]}" \
   --injections "$EVIDENCE_ROOT/injections.jsonl" \
   --kernel-events "$EVIDENCE_ROOT/kernel-events.jsonl" \
   --attack-contract "$ATTACK_CONTRACT" \
-  --expected-injections 450 \
+  --expected-injections "$expected_injections" \
   --run-id "$(jq -er '.run_id' "$EVIDENCE_ROOT/BLIND_START.json")" \
   --output "$EVIDENCE_ROOT/LATENCY_REPORT.json"
 evaluation_rc=$?
@@ -139,7 +140,8 @@ PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.finalize_candidate \
   --soak-marker "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" \
   --normal-report "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json" \
   --attack-report "$EVIDENCE_ROOT/LATENCY_REPORT.json" \
-  --expected-injections 450 \
+  --attack-contract "$ATTACK_CONTRACT" \
+  --expected-injections "$expected_injections" \
   --output "$EVIDENCE_ROOT/CANDIDATE_DECISION.json"
 candidate_rc=$?
 set -e

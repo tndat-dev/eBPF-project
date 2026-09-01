@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 SCHEMA = "sentinel-pulse-blind-attack-contract-v1"
+SCHEMA_V2 = "sentinel-pulse-blind-attack-contract-v2"
 REQUIRED_SAFETY = {
     "external_network": False,
     "persistent_write": False,
@@ -19,16 +20,44 @@ REQUIRED_SAFETY = {
 
 def load_contract(path: Path) -> dict:
     contract = json.loads(path.read_text(encoding="utf-8"))
-    if contract.get("schema") != SCHEMA:
+    schema = contract.get("schema")
+    if schema not in {SCHEMA, SCHEMA_V2}:
         raise ValueError("unsupported Pulse blind-attack contract")
-    if contract.get("frozen_before_candidate_training") is not True:
-        raise ValueError("blind-attack contract was not frozen before candidate training")
+    excluded: list[str] = []
+    if schema == SCHEMA:
+        if contract.get("frozen_before_candidate_training") is not True:
+            raise ValueError("blind-attack contract was not frozen before candidate training")
+    else:
+        if (
+            contract.get("frozen_before_candidate_evaluation") is not True
+            or contract.get("candidate_parameters_locked_before_contract_authoring") is not True
+        ):
+            raise ValueError("successor blind contract was not frozen before evaluation")
+        binding = contract.get("candidate_binding", {})
+        for field in ("model_manifest_sha256", "decision_policy_sha256"):
+            digest = binding.get(field)
+            if (
+                not isinstance(digest, str)
+                or len(digest) != 64
+                or any(character not in "0123456789abcdef" for character in digest)
+            ):
+                raise ValueError("successor blind contract candidate binding is invalid")
+        independence = contract.get("independence", {})
+        excluded = independence.get("excluded_predecessor_scenarios", [])
+        if (
+            independence.get("predecessor_outcomes_used_to_select_these_scenarios") is not False
+            or not excluded
+            or len(excluded) != len(set(excluded))
+        ):
+            raise ValueError("successor blind contract independence controls are invalid")
     matrix = contract.get("matrix", {})
     scenarios = matrix.get("scenarios", [])
     workloads = matrix.get("workload_controllers", [])
     trials = matrix.get("trials", [])
     if not scenarios or len(scenarios) != len(set(scenarios)):
         raise ValueError("blind-attack scenarios must be non-empty and unique")
+    if schema == SCHEMA_V2 and set(scenarios) & set(excluded):
+        raise ValueError("successor blind contract reuses a predecessor scenario")
     if not workloads or len(workloads) != len(set(workloads)):
         raise ValueError("blind-attack workloads must be non-empty and unique")
     trial_keys = []

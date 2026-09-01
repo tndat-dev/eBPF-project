@@ -10,6 +10,8 @@ from .integrity import sha256_file
 
 
 SCHEMA = "sentinel-pulse-decision-policy-v1"
+SCHEMA_V2 = "sentinel-pulse-decision-policy-v2"
+SCHEMA_V3 = "sentinel-pulse-decision-policy-v3"
 ALLOWED_SECURITY_FIELDS = frozenset(
     {
         "connect",
@@ -35,7 +37,8 @@ ALLOWED_SECURITY_FIELDS = frozenset(
 
 def load_decision_policy(path: Path) -> tuple[dict, str]:
     policy = json.loads(path.read_text(encoding="utf-8"))
-    if policy.get("schema") != SCHEMA:
+    schema = policy.get("schema")
+    if schema not in {SCHEMA, SCHEMA_V2, SCHEMA_V3}:
         raise ValueError("unsupported Sentinel Pulse decision policy")
     if policy.get("frozen_before_blind_evaluation") is not True:
         raise ValueError("decision policy was not frozen before blind evaluation")
@@ -94,11 +97,70 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
             ):
                 raise ValueError("decision policy workload semantic maximum is invalid")
     development = policy.get("development_normal_evidence", {})
+    if schema == SCHEMA:
+        required_hashes = (
+            "failed_model_manifest_sha256",
+            "canary_report_sha256",
+            "alert_context_sha256",
+        )
+    else:
+        required_hashes = (
+            "dataset_sha256",
+            "dataset_manifest_sha256",
+            "semantic_envelope_calibration_sha256",
+            "model_manifest_sha256",
+            "training_contract_sha256",
+            "base_policy_sha256",
+        )
+        if schema == SCHEMA_V3:
+            required_hashes += ("temporal_calibration_sha256",)
+        if (
+            policy.get("blind_outcome_used") is not False
+            or policy.get("automatic_promotion") is not False
+            or not isinstance(policy.get("evidence_class"), str)
+            or not policy["evidence_class"]
+        ):
+            raise ValueError("decision policy v2 evidence controls are incomplete")
+        source_commit = policy.get("source_git_commit")
+        source_diff = policy.get("source_git_diff_sha256")
+        if (
+            not isinstance(source_commit, str)
+            or len(source_commit) not in (40, 64)
+            or any(character not in "0123456789abcdef" for character in source_commit)
+            or not isinstance(source_diff, str)
+            or len(source_diff) != 64
+            or any(character not in "0123456789abcdef" for character in source_diff)
+        ):
+            raise ValueError("decision policy v2 source provenance is incomplete")
+    if schema == SCHEMA_V3:
+        temporal = policy.get("bounded_event_time_corroboration", {})
+        maximum_age = float(temporal.get("maximum_evidence_age_seconds", 0.0))
+        if (
+            temporal.get("mode") != "bounded_model_semantic_join"
+            or not math.isfinite(maximum_age)
+            or maximum_age <= 0.0
+            or maximum_age > 2.0
+            or temporal.get("requires_raw_model_anomaly") is not True
+            or temporal.get("requires_score_corroboration") is not True
+            or temporal.get("requires_semantic_corroboration") is not True
+            or temporal.get("consume_on_alert") is not True
+            or temporal.get("normal_only_calibration") is not True
+        ):
+            raise ValueError("bounded event-time corroboration contract is invalid")
+        eligible_groups = temporal.get("eligible_semantic_signal_groups")
+        if eligible_groups is not None and (
+            not isinstance(eligible_groups, list)
+            or not eligible_groups
+            or len(eligible_groups) != len(set(eligible_groups))
+            or envelope is None
+            or not set(eligible_groups).issubset(set(names))
+        ):
+            raise ValueError("bounded event-time eligible semantic groups are invalid")
     if not all(
         isinstance(development.get(field), str)
         and len(development[field]) == 64
         and all(character in "0123456789abcdef" for character in development[field])
-        for field in ("failed_model_manifest_sha256", "canary_report_sha256", "alert_context_sha256")
+        for field in required_hashes
     ):
         raise ValueError("decision policy development evidence is incomplete")
     return policy, sha256_file(path)

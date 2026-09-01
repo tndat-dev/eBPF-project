@@ -151,11 +151,52 @@ python -m sentinel_pulse.assemble_dataset \
   --capture-manifest k8s-worker4.local=worker4-capture-manifest.json \
   --output pulse-normal.jsonl
 
+# Fail closed before fitting if alpha cannot be represented for every workload.
+python -m sentinel_pulse.audit_calibration_coverage \
+  --dataset pulse-normal.jsonl \
+  --history 3 \
+  --alpha 0.001 \
+  --window-seconds 0.5 \
+  --output pulse-calibration-coverage.json
+
+python -m sentinel_pulse.freeze_training_contract \
+  --dataset pulse-normal.jsonl \
+  --blind-attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
+  --candidate-id sentinel-pulse-500ms-candidate-a2-pilot \
+  --evidence-class nonformal_runtime_compatibility_pilot \
+  --history 3 \
+  --alpha 0.001 \
+  --window-seconds 0.5 \
+  --output pulse-training-contract.json
+
 python -m sentinel_pulse.train \
   --dataset pulse-normal.jsonl \
   --blind-attack-contract sentinel_pulse/protocol/blind-attack-contract.json \
-  --training-contract sentinel_pulse/protocol/pulse500-training-contract.json \
+  --training-contract pulse-training-contract.json \
   --output models-pulse-candidate
+
+python -m sentinel_pulse.calibrate_semantic_envelope \
+  --dataset pulse-normal.jsonl \
+  --output semantic-envelope-calibration.json
+
+python -m sentinel_pulse.build_semantic_policy \
+  --calibration semantic-envelope-calibration.json \
+  --model-manifest models-pulse-candidate/manifest.json \
+  --training-contract pulse-training-contract.json \
+  --base-policy sentinel_pulse/protocol/decision-policy-semantic-v4.json \
+  --policy-name pulse-normal-envelope-one-window \
+  --evidence-class nonformal_runtime_compatibility_pilot \
+  --output decision-policy-pulse.json
+
+# manifest.json records source_clean, the porcelain status, and a SHA-256 over
+# the complete tracked diff plus every untracked source file. A dirty pilot is
+# therefore explicit and reproducible; it must never be described as a clean
+# release candidate merely because source_git_commit matches a tagged commit.
+# Contract v2 additionally refuses training if that source fingerprint changes
+# after the read-only contract is frozen.
+# Decision-policy schema v2 binds the normal dataset, semantic calibration,
+# model, training contract and base-policy checksums directly. It rejects an
+# incomplete workload envelope and records that blind outcomes were not used.
 
 # After terminal bundle verification, install only as an audit-only canary.
 # This creates a separate unprivileged service and never replaces V8.
@@ -198,11 +239,134 @@ python -m sentinel_pulse.finalize_candidate \
   --output pulse-candidate-decision.json
 ```
 
+For a bounded non-formal live-normal canary, finalize each worker only after
+the finite 500 ms collector exits, then archive each immutable run directory
+under its Kubernetes node name. Aggregate the archived raw decisions with:
+
+```bash
+python -m sentinel_pulse.aggregate_live_canary \
+  --node-root k8s-worker1.local=/evidence/nodes/k8s-worker1.local \
+  --node-root k8s-worker3.local=/evidence/nodes/k8s-worker3.local \
+  --node-root k8s-worker4.local=/evidence/nodes/k8s-worker4.local \
+  --expected-model "$MODEL_MANIFEST_SHA256" \
+  --expected-policy "$DECISION_POLICY_SHA256" \
+  --output /evidence/AGGREGATE.v2.json
+```
+
+The v2 aggregator verifies every per-node checksum manifest, model/policy
+identity, decision count, zero detector restarts, and `node_name` on every
+scored decision. Legacy warming rows may lack provenance; current runtime code
+now emits node/pod/container identity for warming and collect-only rows too.
+This aggregate is still a short non-formal normal observation and explicitly
+does not create an FPR, recall, or promotion claim.
+
+When same-window model and semantic signals are phase-shifted, calibrate a
+bounded event-time join strictly on checksum-bound normal decisions. Do not use
+the attack pilot to select the horizon:
+
+```bash
+python -m sentinel_pulse.calibrate_temporal_join \
+  --decisions /normal/nodes/k8s-worker1.local/decisions.jsonl \
+  --decisions /normal/nodes/k8s-worker3.local/decisions.jsonl \
+  --decisions /normal/nodes/k8s-worker4.local/decisions.jsonl \
+  --horizon 0.5 --horizon 1.0 --horizon 1.5 --horizon 2.0 \
+  --evidence-checksums /normal/FAILED_FINAL_SHA256SUMS \
+  --expected-model-sha256 "$MODEL_MANIFEST_SHA256" \
+  --expected-policy-sha256 "$BASE_POLICY_SHA256" \
+  --eligible-semantic-group identity_transition \
+  --eligible-semantic-group namespace_probe \
+  --output TEMPORAL_CALIBRATION.json
+
+python -m sentinel_pulse.build_temporal_policy \
+  --base-policy decision-policy-semantic-a2.json \
+  --calibration TEMPORAL_CALIBRATION.json \
+  --maximum-evidence-age-seconds 1.0 \
+  --eligible-semantic-group identity_transition \
+  --eligible-semantic-group namespace_probe \
+  --policy-name sentinel-pulse-risk-tiered-bounded-join-b2 \
+  --output decision-policy-temporal-b2.json
+
+SSHPASS=... MODEL_SOURCE=/evidence/model \
+POLICY_SOURCE=/evidence/decision-policy-temporal-b2.json \
+EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/pilot-a2/CANARY_ID \
+RUN_ID=CANARY_ID DURATION_SECONDS=900 \
+./sentinel_pulse/start_bounded_live_canary.sh
+
+SSHPASS=... ./sentinel_pulse/collect_bounded_live_canary.sh \
+  /home/dat/sentinel-pulse-evidence/pilot-a2/CANARY_ID
+
+# If a normal alert already violates the zero-alert gate, stop and preserve
+# the failed run instead of waiting or deleting it.
+SSHPASS=... ./sentinel_pulse/freeze_failed_bounded_live_canary.sh \
+  /home/dat/sentinel-pulse-evidence/pilot-a2/CANARY_ID
+```
+
+Policy schema v3 requires model anomaly, score excess and semantic evidence,
+but lets their event-time timestamps differ by at most the frozen horizon. The
+state is source-scoped, expires on time, resets on telemetry gap/regime change,
+and is consumed after alert. The horizon is hard-capped at two seconds. A v3
+policy is rejected unless its selected horizon has zero projected alerts in
+the bound normal calibration. A risk-tiered policy carries only the explicitly
+listed rare/high-risk groups across windows; every other group still requires
+same-window model and semantic corroboration. The B2 live-normal canary
+`sentinel-pulse-risk-tiered-canary-b2-20260831T175000Z` completed on three
+workers with 63,315 decisions across 20 workloads, zero observed normal alerts,
+zero detector restarts, 29.28 ms inference p99, and 0.837 s
+window-start-to-decision p99. Its aggregate SHA-256 is
+`861090772045a495c10e07340f7a620e1d74061321690c5db5ea68ff57b207d5`.
+This is still only a 0.25-hour non-formal candidate observation: it does not
+establish FPR=0, recall, blind accuracy, or production readiness. A long normal
+soak and the separately frozen C2 blind set remain required.
+
+The intended 24-hour normal-only run
+`sentinel-pulse-risk-tiered-soak-b2-20260831T175408Z` started at
+`2026-08-31T17:54:14.278261Z` with the same model and policy identities, but
+was stopped after about 13 minutes when two normal PostgreSQL alerts violated
+the zero-alert gate. The frozen failure has 52,660 decisions, two alerts, zero
+restarts, summary SHA-256
+`194c1541e21df3120690d84a103dacaac138aba886b131d9cb8baa2fec887cae`, and
+checksum-index SHA-256
+`ff438b3c25deb681fafe366fd50c01b826edb794bf6085c7282709afaeeaaf5f`.
+B2 is rejected. C2 remains unopened; consecutive-window confirmation is only
+a normal-evidence development direction until implemented and independently
+evaluated as a new candidate.
+
+Before a clean-source 24-hour formal soak exists, attack-path integration may
+be checked only with the explicitly non-formal pilot lifecycle:
+
+```bash
+SSHPASS=... MODEL_SOURCE=/evidence/model \
+POLICY_SOURCE=/evidence/decision-policy.json \
+NORMAL_CANARY_AGGREGATE=/evidence/AGGREGATE.v2.json \
+./sentinel_pulse/start_attack_latency_pilot.sh
+
+python -m sentinel_pulse.run_500ms_blind_matrix \
+  --evidence-root /evidence/pulse500-attack-latency-pilot-ID \
+  --model-dir /evidence/pulse500-attack-latency-pilot-ID/model \
+  --attack-contract /evidence/pulse500-attack-latency-pilot-ID/protocol/blind-attack-contract.json \
+  --implementation-contract /evidence/pulse500-attack-latency-pilot-ID/protocol/attack-implementation-contract.json \
+  --exec-provenance-policy /evidence/pulse500-attack-latency-pilot-ID/protocol/tetragon-exec-provenance.yaml \
+  --pilot-plan /evidence/pulse500-attack-latency-pilot-ID/PILOT_PLAN.json
+
+SSHPASS=... ./sentinel_pulse/finalize_attack_latency_pilot.sh \
+  /evidence/pulse500-attack-latency-pilot-ID
+```
+
+The pilot defaults to 15 preselected trials: all five frozen scenarios on one
+stateless, one database, and one streaming workload at one frozen mid-rate
+trial. It cannot create `MATRIX_COMPLETE`, cannot call the candidate finalizer,
+and records `formal_blind_evidence=false`. Its result is engineering evidence
+for attribution and latency wiring only, not formal recall or paper accuracy.
+
 Blind latency evaluation must use both `--injections` and `--kernel-events` in
 the paper run. The immutable marker set defines the denominator and prevents an
 unknown or duplicated ID from inflating recall. The kernel event file binds
-each injection to an independently timestamped Tetragon `process_exec` event;
-the evaluator recomputes kernel-to-alert latency from `alerted_at` and refuses
+each injection to an independently timestamped Tetragon event. The current
+runner opens a live gRPC capture before the marker and requires exactly one
+exact-path `sys_execve` event from the checksum-bound
+`sentinel-pulse-exec-provenance` policy. This avoids treating a lossy stdout
+exporter as the source of truth for short-lived container-exec tasks. The
+evaluator recomputes kernel-to-alert latency from `alerted_at` and refuses
 to treat the userspace pre-exec marker as kernel latency. The frozen Pulse contract requires the
 complete 18-workload x 5-scenario x 5-trial matrix (450 injections); merely
 producing 450 unrelated IDs does not pass.
@@ -211,7 +375,9 @@ The default `alpha=1e-4` requires at least 9,999 independent calibration
 examples per workload candidate. Training fails closed when the temporal split
 cannot provide that p-value resolution. A zero observed alert count is reported
 with its Wilson 95% upper bound; it is never described as proof of zero future
-false positives.
+false positives. The A2 compatibility pilot explicitly overrides alpha to
+`1e-3`, which requires at least 999 calibration examples per workload; do not
+describe that pilot as using the stricter default.
 
 The finalizer never promotes a detector. Passing creates only an
 `eligible_for_overhead_evaluation` decision; counterbalanced overhead,

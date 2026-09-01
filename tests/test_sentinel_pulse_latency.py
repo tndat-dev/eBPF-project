@@ -4,11 +4,48 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sentinel_pulse.evaluate_latency import evaluate
+from sentinel_pulse.evaluate_latency import evaluate, kernel_events
 from sentinel_pulse.latency import InjectionTracker
 
 
 class PulseLatencyTests(unittest.TestCase):
+    def test_grpc_execve_kprobe_provenance_is_verified(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "kernel.jsonl"
+            raw = {
+                "node_name": "worker",
+                "time": "1970-01-01T00:00:10.000000000Z",
+                "process_kprobe": {
+                    "policy_name": "sentinel-pulse-exec-provenance",
+                    "function_name": "__x64_sys_execve",
+                    "args": [{"string_arg": "/tmp/sentinel-runtime-attack-blind"}],
+                    "process": {"exec_id": "exec-1", "pid": 123},
+                },
+            }
+            canonical = json.dumps(raw, sort_keys=True, separators=(",", ":")).encode()
+            record = {
+                "schema": "sentinel-pulse-kernel-event-v1",
+                "injection_id": "i0",
+                "kernel_event_at": 10.0,
+                "source": "tetragon_execve_kprobe_grpc",
+                "identity_scope": "serialized_node_exact_binary",
+                "policy_name": "sentinel-pulse-exec-provenance",
+                "exec_id": "exec-1",
+                "pid": 123,
+                "node_name": "worker",
+                "pod_name": "catalog-pod",
+                "pod_uid": "pod-uid",
+                "binary": "/tmp/sentinel-runtime-attack-blind",
+                "raw_event_sha256": hashlib.sha256(canonical).hexdigest(),
+                "raw_event": raw,
+            }
+            path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+            self.assertEqual(kernel_events(path)["i0"]["exec_id"], "exec-1")
+            record["policy_name"] = "wrong-policy"
+            path.write_text(json.dumps(record) + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "execve provenance mismatch"):
+                kernel_events(path)
+
     def _contract(self, path: Path) -> None:
         path.write_text(
             json.dumps(

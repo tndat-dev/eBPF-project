@@ -24,12 +24,14 @@ struct pulse_task_state {
     __u32 padding;
 };
 
-/* The map itself is the allow-list. NO_PREALLOC keeps memory proportional to
- * production cgroups rather than max_entries * CPUs. */
+/* The map itself is the allow-list. Preallocate a deliberately bounded map so
+ * target insertion cannot fail intermittently in the syscall collector's
+ * startup path. 1024 leaf cgroups per node is over 20x the current production
+ * high-water mark while keeping worst-case per-CPU memory below the service's
+ * 1 GiB cgroup limit on a 24-vCPU worker. */
 struct {
     __uint(type, BPF_MAP_TYPE_PERCPU_HASH);
-    __uint(max_entries, 4096);
-    __uint(map_flags, BPF_F_NO_PREALLOC);
+    __uint(max_entries, 1024);
     __type(key, __u64);
     __type(value, struct pulse_counters);
 } pulse_cgroups SEC(".maps");

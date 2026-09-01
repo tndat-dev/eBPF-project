@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from collections import defaultdict
+import hashlib
 import json
 import platform
 from pathlib import Path
@@ -16,6 +17,57 @@ from .model import MAX_CONTIGUOUS_GAP_SECONDS, PulseExtraTrees
 from .encoding import decode_vector, schema_digest
 from .integrity import sha256_file
 from .validate_capture import validate
+
+
+def source_git_provenance(repository: Path | None = None) -> dict:
+    """Bind the manifest to the complete Git worktree used for training.
+
+    ``git diff HEAD`` includes staged and unstaged tracked changes but omits
+    untracked files.  Hash their paths and contents as well so a dirty training
+    source cannot masquerade as the recorded commit.
+    """
+    root = (repository or Path.cwd()).resolve()
+
+    def git(*arguments: str, text: bool = False):
+        return subprocess.check_output(
+            ["git", "-C", str(root), *arguments], text=text
+        )
+
+    commit = git("rev-parse", "HEAD", text=True).strip()
+    status_output = git(
+        "status", "--porcelain=v1", "--untracked-files=all", "-z"
+    )
+    status = [
+        item.decode("utf-8", errors="surrogateescape")
+        for item in status_output.split(b"\0")
+        if item
+    ]
+    tracked_diff = git("diff", "--binary", "HEAD", "--")
+    untracked_output = git("ls-files", "--others", "--exclude-standard", "-z")
+    untracked = sorted(item for item in untracked_output.split(b"\0") if item)
+    digest = hashlib.sha256()
+    digest.update(b"sentinel-pulse-source-worktree-v1\0")
+    digest.update(len(tracked_diff).to_bytes(8, "big"))
+    digest.update(tracked_diff)
+    untracked_files = []
+    for encoded_path in untracked:
+        relative = encoded_path.decode("utf-8", errors="surrogateescape")
+        path = root / relative
+        if not path.is_file():
+            continue
+        content = path.read_bytes()
+        digest.update(len(encoded_path).to_bytes(8, "big"))
+        digest.update(encoded_path)
+        digest.update(len(content).to_bytes(8, "big"))
+        digest.update(content)
+        untracked_files.append(relative)
+    return {
+        "source_git_commit": commit,
+        "source_clean": not status,
+        "source_git_status": status,
+        "source_git_diff_sha256": digest.hexdigest(),
+        "source_untracked_files": untracked_files,
+    }
 
 
 def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
@@ -126,6 +178,7 @@ def validate_training_contract(
     history: int,
     alpha: float,
     window_seconds: float,
+    source_provenance: dict | None = None,
 ) -> dict:
     contract = json.loads(path.read_text(encoding="utf-8"))
     expected = {
@@ -136,8 +189,12 @@ def validate_training_contract(
         "window_seconds": window_seconds,
     }
     observed = {name: contract.get(name) for name in expected}
+    schema = contract.get("schema")
     if (
-        contract.get("schema") != "sentinel-pulse-training-contract-v1"
+        schema not in {
+            "sentinel-pulse-training-contract-v1",
+            "sentinel-pulse-training-contract-v2",
+        }
         or contract.get("frozen_before_training") is not True
         or contract.get("automatic_promotion") is not False
         or observed != expected
@@ -145,6 +202,24 @@ def validate_training_contract(
         raise ValueError(
             f"training contract mismatch: expected={expected}, observed={observed}"
         )
+    if schema == "sentinel-pulse-training-contract-v2":
+        actual_source = source_provenance or source_git_provenance()
+        expected_source = {
+            field: actual_source[field]
+            for field in (
+                "source_git_commit",
+                "source_clean",
+                "source_git_diff_sha256",
+            )
+        }
+        observed_source = {
+            field: contract.get(field) for field in expected_source
+        }
+        if observed_source != expected_source:
+            raise ValueError(
+                "training contract source mismatch: "
+                f"expected={expected_source}, observed={observed_source}"
+            )
     return contract
 
 
@@ -159,6 +234,7 @@ def main() -> None:
     parser.add_argument("--training-contract", type=Path, required=True)
     args = parser.parse_args()
     blind_attack_contract = load_contract(args.blind_attack_contract)
+    source_provenance = source_git_provenance()
     training_contract = validate_training_contract(
         args.training_contract,
         args.dataset,
@@ -166,6 +242,7 @@ def main() -> None:
         args.history,
         args.alpha,
         args.window_seconds,
+        source_provenance,
     )
     dataset_manifest_path, dataset_manifest = load_dataset_manifest(args.dataset)
     interval_min, interval_max = interval_bounds(args.window_seconds)
@@ -222,9 +299,9 @@ def main() -> None:
         "training_contract": str(args.training_contract),
         "training_contract_sha256": sha256_file(args.training_contract),
         "training_contract_id": training_contract.get("candidate_id"),
-        "source_git_commit": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], text=True
-        ).strip(),
+        **source_provenance,
+        "evidence_class": training_contract.get("evidence_class", "unspecified"),
+        "automatic_promotion": training_contract["automatic_promotion"],
         "expected_blind_injections": blind_attack_contract["expected_injections"],
         "capture_validation": {
             "schema": capture_validation["schema"],

@@ -86,7 +86,8 @@ Không có threshold nào được thay đổi sau khi xem blind result.
 ### 2.3 Testbed Kubernetes
 
 Thực nghiệm được triển khai trên Kubernetes v1.34.10 gồm ba control plane và
-ba worker. Cấu hình phần cứng đồng nhất theo node:
+ba worker. Bảng sau là cấu hình tại thời điểm thu evidence V8 đã đóng băng,
+không phải cấu hình live sau các lần nâng cấp hạ tầng:
 
 | Thành phần | Mỗi node | Toàn cụm 6 node |
 |---|---:|---:|
@@ -97,6 +98,11 @@ ba worker. Cấu hình phần cứng đồng nhất theo node:
 Mỗi node chạy một Tetragon DaemonSet pod để quan sát workload cục bộ trên node
 đó. Các con số toàn cụm là tổng tài nguyên thô; không đồng nghĩa toàn bộ disk
 được hợp nhất thành một storage pool hoặc đều khả dụng cho workload.
+
+Từ ngày 30-08-2026, testbed live đã được đổi thành 24 vCPU, 128 GB RAM và 600
+GB disk mỗi node; root ext4 usable khoảng 591 GiB. Thay đổi này phục vụ Sentinel
+Pulse và các experiment kế tiếp, không được dùng để diễn giải lại latency hoặc
+overhead V8 đã đo trên cấu hình trong bảng.
 
 Topology được xác minh gần nhất ngày 14-08-2026:
 

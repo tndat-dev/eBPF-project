@@ -1,0 +1,35 @@
+{
+  "contract_version": 2,
+  "frozen_before_candidate_evaluation": true,
+  "candidate_parameters_locked_before_contract_authoring": true,
+  "source": {
+    "path": "sentinel/benchmarks/runtime_attack_blind_b1.c",
+    "sha256": "5bf25eea099f07e1875231c3860505bc0ffea01fce17bb081928038f8e084646"
+  },
+  "binary": {
+    "platform": "linux-x86_64",
+    "compiler": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+    "flags": ["-O2", "-Wall", "-Wextra", "-Werror", "-static"],
+    "sha256": "d77c7237d302cae9e0ca56afd0bafcb8b328ef0779ce559cc300b3122ec1a927"
+  },
+  "scenarios": [
+    "anonymous_mprotect_churn",
+    "child_ptrace_handshake",
+    "invalid_setns_burst",
+    "seccomp_api_probe",
+    "execveat_resolution_probe"
+  ],
+  "attack_seconds": 45,
+  "post_attack_wait_seconds": 30,
+  "minimum_trials_per_scenario_per_workload": 5,
+  "safety": {
+    "external_network": false,
+    "persistent_writes": false,
+    "successful_mount": false,
+    "privilege_change": false,
+    "raw_sensitive_payload_persisted": false,
+    "effects_limited_to_generator_process_tree": true
+  },
+  "use_for_training_or_threshold_tuning": false,
+  "automatic_promotion": false
+}

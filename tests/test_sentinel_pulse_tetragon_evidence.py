@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from sentinel_pulse.tetragon_evidence import find_exec_event
+from sentinel_pulse.tetragon_evidence import find_exec_event, find_execve_kprobe_event
 
 
 def marker():
@@ -73,4 +73,36 @@ def test_duplicate_kernel_events_fail_closed():
             [event(), event()],
             marker(),
             expected_binary="/tmp/sentinel-runtime-attack-blind",
+        )
+
+
+def kprobe_event(path="/tmp/sentinel-runtime-attack-blind", policy="sentinel-pulse-exec-provenance"):
+    return json.dumps({
+        "process_kprobe": {
+            "process": {"exec_id": "runc:clock:pid", "pid": 999},
+            "function_name": "__x64_sys_execve",
+            "args": [{"string_arg": path}],
+            "action": "KPROBE_ACTION_POST",
+            "policy_name": policy,
+        },
+        "node_name": "k8s-worker1.local",
+        "time": "2026-08-20T11:20:00.123456789Z",
+    })
+
+
+def test_live_execve_kprobe_is_a_kernel_latency_origin():
+    result = find_execve_kprobe_event(
+        [kprobe_event()], marker(),
+        expected_binary="/tmp/sentinel-runtime-attack-blind",
+    )
+    assert result["source"] == "tetragon_execve_kprobe_grpc"
+    assert result["policy_name"] == "sentinel-pulse-exec-provenance"
+    assert result["identity_scope"] == "serialized_node_exact_binary"
+
+
+def test_execve_kprobe_rejects_wrong_policy_or_binary():
+    with pytest.raises(ValueError, match="observed 0"):
+        find_execve_kprobe_event(
+            [kprobe_event(policy="other"), kprobe_event(path="/tmp/other")],
+            marker(), expected_binary="/tmp/sentinel-runtime-attack-blind",
         )

@@ -10,6 +10,7 @@ POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-poli
 ATTACK_CONTRACT=${ATTACK_CONTRACT:-$LOCAL_ROOT/sentinel_pulse/protocol/blind-attack-contract.json}
 IMPLEMENTATION_CONTRACT=${IMPLEMENTATION_CONTRACT:-$LOCAL_ROOT/ml-service/aims_blind_attack_contract.json}
 RUNTIME_SOURCE=${RUNTIME_SOURCE:-$LOCAL_ROOT/sentinel/benchmarks/runtime_attack_blind.c}
+EXEC_PROVENANCE_POLICY=${EXEC_PROVENANCE_POLICY:-$LOCAL_ROOT/sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml}
 RUN_ID=${RUN_ID:-pulse500-blind-$(date -u +%Y%m%dT%H%M%SZ)}
 EVIDENCE_ROOT=${EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$RUN_ID}
 DURATION_SECONDS=${DURATION_SECONDS:-43200}
@@ -30,6 +31,7 @@ test -f "$POLICY_SOURCE"
 test -f "$ATTACK_CONTRACT"
 test -f "$IMPLEMENTATION_CONTRACT"
 test -f "$RUNTIME_SOURCE"
+test -f "$EXEC_PROVENANCE_POLICY"
 test ! -e "$EVIDENCE_ROOT"
 
 normal_sha=$(sha256sum "$NORMAL_EVIDENCE_ROOT/NORMAL_REPORT.json" | awk '{print $1}')
@@ -41,11 +43,26 @@ policy_sha=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
 contract_sha=$(sha256sum "$ATTACK_CONTRACT" | awk '{print $1}')
 implementation_sha=$(sha256sum "$IMPLEMENTATION_CONTRACT" | awk '{print $1}')
 source_sha=$(sha256sum "$RUNTIME_SOURCE" | awk '{print $1}')
+exec_provenance_policy_sha=$(sha256sum "$EXEC_PROVENANCE_POLICY" | awk '{print $1}')
 [[ $(jq -er '.model_manifest_sha256' "$NORMAL_EVIDENCE_ROOT/SOAK_START.json") == "$model_sha" ]]
 [[ $(jq -er '.decision_policy_sha256' "$NORMAL_EVIDENCE_ROOT/SOAK_START.json") == "$policy_sha" ]]
-[[ $(jq -er '.blind_attack_contract_sha256' "$MODEL_SOURCE/manifest.json") == "$contract_sha" ]]
+contract_schema=$(jq -er '.schema' "$ATTACK_CONTRACT")
+if [[ $contract_schema == sentinel-pulse-blind-attack-contract-v1 ]]; then
+  [[ $(jq -er '.blind_attack_contract_sha256' "$MODEL_SOURCE/manifest.json") == "$contract_sha" ]]
+elif [[ $contract_schema == sentinel-pulse-blind-attack-contract-v2 ]]; then
+  jq -e --arg model "$model_sha" --arg policy "$policy_sha" '
+    .frozen_before_candidate_evaluation == true and
+    .candidate_parameters_locked_before_contract_authoring == true and
+    .candidate_binding.model_manifest_sha256 == $model and
+    .candidate_binding.decision_policy_sha256 == $policy
+  ' "$ATTACK_CONTRACT" >/dev/null
+else
+  echo "unsupported blind attack contract schema: $contract_schema" >&2
+  exit 1
+fi
 [[ $(jq -er '.source.sha256' "$IMPLEMENTATION_CONTRACT") == "$source_sha" ]]
-[[ $(jq -er '.expected_injections' "$ATTACK_CONTRACT") -eq 450 ]]
+expected_injections=$(jq -er '.expected_injections' "$ATTACK_CONTRACT")
+[[ $expected_injections =~ ^[0-9]+$ ]] && ((expected_injections > 0))
 [[ -z $(git -C "$LOCAL_ROOT" status --porcelain --untracked-files=no) ]]
 
 node_total=$(kubectl get nodes -o json | jq '.items | length')
@@ -70,6 +87,8 @@ install -m 0444 "$ATTACK_CONTRACT" "$PROTOCOL_STAGED/blind-attack-contract.json"
 install -m 0444 "$IMPLEMENTATION_CONTRACT" \
   "$PROTOCOL_STAGED/attack-implementation-contract.json"
 install -m 0444 "$RUNTIME_SOURCE" "$PROTOCOL_STAGED/runtime_attack_blind.c"
+install -m 0444 "$EXEC_PROVENANCE_POLICY" \
+  "$PROTOCOL_STAGED/tetragon-exec-provenance.yaml"
 [[ $(sha256sum "$PROTOCOL_STAGED/decision-policy.json" | awk '{print $1}') == "$policy_sha" ]]
 [[ $(sha256sum "$PROTOCOL_STAGED/blind-attack-contract.json" | awk '{print $1}') == "$contract_sha" ]]
 [[ $(sha256sum "$PROTOCOL_STAGED/attack-implementation-contract.json" | awk '{print $1}') == "$implementation_sha" ]]
@@ -90,12 +109,12 @@ chmod 0444 "$binary"
 
 python3 - "$EVIDENCE_ROOT/BLIND_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$contract_sha" "$implementation_sha" "$source_sha" \
-  "$binary_sha" "$normal_sha" "$SCHEDULE_SEED" "$DURATION_SECONDS" \
-  "$(git -C "$LOCAL_ROOT" rev-parse HEAD)" <<'PY'
+  "$binary_sha" "$normal_sha" "$exec_provenance_policy_sha" "$SCHEDULE_SEED" "$DURATION_SECONDS" \
+  "$expected_injections" "$(git -C "$LOCAL_ROOT" rev-parse HEAD)" <<'PY'
 from datetime import datetime, timezone
 import json, pathlib, sys
 (out, run_id, model, policy, contract, implementation, source, binary,
- normal, schedule_seed, duration, commit) = sys.argv[1:]
+ normal, exec_provenance_policy, schedule_seed, duration, expected, commit) = sys.argv[1:]
 payload = {
     "schema": "sentinel-pulse-blind-start-v1",
     "created_at": datetime.now(timezone.utc).isoformat(),
@@ -107,9 +126,10 @@ payload = {
     "runtime_source_sha256": source,
     "runtime_binary_sha256": binary,
     "normal_report_sha256": normal,
+    "exec_provenance_policy_sha256": exec_provenance_policy,
     "schedule_seed": int(schedule_seed),
     "collector_duration_seconds": int(duration),
-    "expected_injections": 450,
+    "expected_injections": int(expected),
     "blind_evaluation_started": True,
     "attack_outcomes_used_for_training_or_tuning": False,
     "automatic_promotion": False,
@@ -157,7 +177,7 @@ done
   sha256sum BLIND_START.json runtime_attack_blind model/manifest.json \
     protocol/decision-policy.json protocol/blind-attack-contract.json \
     protocol/attack-implementation-contract.json \
-    protocol/runtime_attack_blind.c
+    protocol/runtime_attack_blind.c protocol/tetragon-exec-provenance.yaml
 ) >"$EVIDENCE_ROOT/START_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS)
 touch "$EVIDENCE_ROOT/ACTIVE"

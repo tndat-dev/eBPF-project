@@ -16,17 +16,23 @@ esac
 
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-loadgen \
   SLEEP_SECONDS="$sleep_seconds" >/dev/null
+kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-ingress-loadgen \
+  SLEEP_SECONDS="$sleep_seconds" >/dev/null
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-readmix-loadgen \
   SLEEP_SECONDS="$sleep_seconds" >/dev/null
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-dependency-loadgen \
   SLEEP_SECONDS="$sleep_seconds" >/dev/null
 kubectl -n "$NAMESPACE" scale deployment/aims-sentinel-loadgen \
   --replicas="$base_replicas" >/dev/null
+kubectl -n "$NAMESPACE" scale deployment/aims-sentinel-ingress-loadgen \
+  --replicas="$base_replicas" >/dev/null
 kubectl -n "$NAMESPACE" scale deployment/aims-sentinel-readmix-loadgen \
   --replicas="$mix_replicas" >/dev/null
 kubectl -n "$NAMESPACE" scale deployment/aims-sentinel-dependency-loadgen \
   --replicas="$dependency_replicas" >/dev/null
 kubectl -n "$NAMESPACE" annotate deployment aims-sentinel-loadgen \
+  sentinel.openai.dev/traffic-regime="$REGIME" --overwrite >/dev/null
+kubectl -n "$NAMESPACE" annotate deployment aims-sentinel-ingress-loadgen \
   sentinel.openai.dev/traffic-regime="$REGIME" --overwrite >/dev/null
 kubectl -n "$NAMESPACE" annotate deployment aims-sentinel-readmix-loadgen \
   sentinel.openai.dev/traffic-regime="$REGIME" --overwrite >/dev/null
@@ -35,6 +41,10 @@ kubectl -n "$NAMESPACE" annotate deployment aims-sentinel-dependency-loadgen \
 
 kubectl -n "$NAMESPACE" rollout status deployment/aims-sentinel-loadgen \
   --timeout=120s
+if (( base_replicas > 0 )); then
+  kubectl -n "$NAMESPACE" rollout status deployment/aims-sentinel-ingress-loadgen \
+    --timeout=120s
+fi
 if (( mix_replicas > 0 )); then
   kubectl -n "$NAMESPACE" rollout status deployment/aims-sentinel-readmix-loadgen \
     --timeout=120s
@@ -43,5 +53,6 @@ if (( dependency_replicas > 0 )); then
   kubectl -n "$NAMESPACE" rollout status deployment/aims-sentinel-dependency-loadgen \
     --timeout=120s
 fi
-printf 'AIMS traffic regime=%s base_replicas=%d readmix_replicas=%d dependency_replicas=%d sleep=%ss\n' \
-  "$REGIME" "$base_replicas" "$mix_replicas" "$dependency_replicas" "$sleep_seconds"
+printf 'AIMS traffic regime=%s east_west_replicas=%d ingress_replicas=%d readmix_replicas=%d dependency_replicas=%d sleep=%ss\n' \
+  "$REGIME" "$base_replicas" "$base_replicas" "$mix_replicas" \
+  "$dependency_replicas" "$sleep_seconds"

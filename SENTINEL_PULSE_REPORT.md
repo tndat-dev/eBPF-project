@@ -1,9 +1,9 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 20-08-2026
+**Snapshot cluster:** 31-08-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** chưa công bố đạt mục tiêu cho đến khi hoàn thành blind live test
+**Trạng thái claim:** pilot live non-formal đã terminal nhưng fail coverage và p99; chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -30,6 +30,42 @@ integrity phải được lưu amendment, không được mô tả là bundle b�
 toàn. A6 chưa tạo `SOAK_START.json`: preflight thiếu capacity trên worker3 rồi
 bị dừng, do đó không phải một formal run.
 
+**Checkpoint tương thích 30-08-2026:** A7 dừng ở production traffic preflight,
+trước `SOAK_START.json`, vì AIMS có HTTP 503; do đó A7 không phải formal soak
+và không sinh evidence false-positive/model. Root cause là payment và
+notification dùng gVisor trong khi Istio ambient in-pod redirection cần
+ztunnel listener trong workload network namespace. Hai workload đã chuyển sang
+native containerd bằng operational Argo override; source AIMS đã sửa cục bộ
+nhưng chưa merge vào repo GitOps. Traffic hậu kiểm đạt east-west 900/900 HTTP
+200 và north-south 300/300 thành công.
+
+Runtime identity vì vậy đổi từ `payment/notification:pod-slice` trong model A1
+sang `payment/notification:app`. A1 được giữ bất biến nhưng không còn đủ
+coverage cho formal run mới. Ba capture smoke 500 ms đã freeze hợp lệ với tổng
+4.236 row, union 20 workload/container và mọi loss counter bằng 0; p99
+`window_start -> emitted` lớn nhất là 0,534 giây. Pilot normal-only A2 R3
+`pulse500-data-pilot-20260830T094554Z` đã terminal trên ba worker. Protocol
+ghi rõ `nonformal_runtime_compatibility_pilot`, source dirty được hash,
+`automatic_model_training=false` và `automatic_promotion=false`. Chưa có claim
+recall, false-positive hay kernel-to-alert mới.
+
+Calibration audit R3 tại alpha `0,001` đủ tối thiểu 999 calibration example
+cho 16/20 key, nhưng frontend, waypoint và hai Kafka entity-operator chỉ có
+713–716; alpha không bị hạ để ép train. Extended R4 bị infrastructure-reject
+trước measured interval vì sparse BPF map trên worker4 trả `ENOMEM`. BPF map đã
+được đổi sang preallocated 1.024 entry và smoke hậu sửa pass đồng thời 3/3.
+Extended R5 `pulse500-data-pilot-20260830T163059Z` đã terminal hợp lệ với
+178.991 window, 20 workload/container, bốn regime và zero loss/integrity
+counter. Calibration ở `alpha=0,001` đạt 20/20 key; training pilot hoàn tất
+20/20 `PulseExtraTrees`, 0 collect-only. Model manifest SHA-256 là
+`2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81`.
+Canary normal non-formal 15 phút trên ba worker đã terminal với 63.076 decision,
+0 alert quan sát, 0 restart; p99 window-start-to-decision gộp là 841,42 ms và
+inference p99 29,31 ms. Candidate không auto-promote. Pilot attack-latency
+non-formal sau đó đã terminal đủ 15 trial lineage với 10 alert và 5 miss; riêng
+9 alert R6 có p50 0,718 giây nhưng p99 5,332 giây. Đây là kết quả fail
+engineering gate, không phải accuracy claim và không được dùng để tune A2.
+
 
 
 
@@ -49,14 +85,22 @@ cho quyết định ML.
 
 | IP | Hostname | Role | Kubernetes | Phần cứng |
 |---|---|---|---|---|
-| 10.1.16.234 | k8s-master.local | control plane | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
-| 10.1.16.235 | k8s-master2.local | control plane | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
-| 10.1.16.236 | k8s-master3.local | control plane | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
-| 10.1.16.237 | k8s-worker1.local | worker | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
-| 10.1.16.238 | k8s-worker4.local | worker | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
-| 10.1.16.239 | k8s-worker3.local | worker | v1.34.10 | 32 vCPU, 64 GB RAM, 400 GB disk |
+| 10.1.16.234 | k8s-master.local | control plane | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
+| 10.1.16.235 | k8s-master2.local | control plane | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
+| 10.1.16.236 | k8s-master3.local | control plane | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
+| 10.1.16.237 | k8s-worker1.local | worker | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
+| 10.1.16.238 | k8s-worker4.local | worker | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
+| 10.1.16.239 | k8s-worker3.local | worker | v1.34.10 | 24 vCPU, 128 GB RAM, 600 GB disk |
 
-Ngày 15-08-2026, 6/6 node Ready. Namespace `production` có đủ 10 workload AIMS
+Ngày 30-08-2026, audit trực tiếp xác nhận 6/6 node Ready. Mỗi VM thấy đúng 24
+CPU logic, khoảng 126 GiB RAM usable và disk `/dev/sda` 644.245.094.400 byte.
+Partition ext4 `/dev/sda2` đã được mở rộng theo disk, cung cấp 633.792.950.272
+byte (khoảng 591 GiB) cho root filesystem. Sau rolling restart kubelet, trường
+allocatable ephemeral-storage là 602.103.302.287 byte trên control plane và
+570.413.654.301 byte trên worker; không node nào có DiskPressure,
+MemoryPressure hoặc PIDPressure.
+
+Namespace `production` có đủ 10 workload AIMS
 ứng dụng (frontend và chín backend), mỗi workload hai replica. PostgreSQL CNPG
 3/3 healthy; Kafka ba broker/controller và hai topic replication factor 3;
 RabbitMQ 3/3; Redis 3/3 cùng Sentinel 3/3; MinIO 2/2; Istio ingress và waypoint
@@ -69,8 +113,8 @@ sys_enter trong kernel
   ├─ exact counter theo cgroup + syscall
   ├─ transition counter theo cgroup + process
   └─ sparse sensitive event từ Tetragon
-          ↓ mỗi 1 giây
-rolling feature 1–5 giây
+          ↓ mỗi 500 ms trong candidate A2
+rolling feature: 3 window lịch sử + window hiện tại
           ↓
 normal-only ExtraTrees temporal predictor
           ↓
@@ -96,7 +140,7 @@ gian soak.
 
 | Thành phần | Mục tiêu p99 |
 |---|---:|
-| Chờ đủ exact-counter window | 1.000 s |
+| Chờ đủ exact-counter window | 0.500 s |
 | Snapshot, resolve cgroup và feature | 0.300 s |
 | ExtraTrees inference + calibration | 0.050 s |
 | Queue và xuất alert | 0.350 s |
@@ -112,11 +156,12 @@ MITRE label trong fit. Score được biến đổi thành conformal p-value b�
 calibration split; blind attack không được dùng để chọn feature, model,
 threshold hoặc alpha.
 
-Với `alpha=10^-4`, split calibration phải có tối thiểu 9.999 example cho từng
-candidate thì conformal p-value nhỏ nhất mới có thể đạt alpha. Trainer hiện
-fail-closed nếu không đủ độ phân giải này; không còn tạo model từ vài trăm
-window rồi báo detector hoạt động. Đây mới là điều kiện toán học tối thiểu,
-không phải bảo đảm false-positive ngoài phân phối bằng 0.
+Candidate A2 đăng ký `alpha=10^-3`, nên split calibration phải có tối thiểu
+999 example cho từng candidate để conformal p-value nhỏ nhất có thể đạt alpha.
+R5 đạt 20/20 key, key nhỏ nhất có 1.428 example. Trainer fail-closed nếu không
+đủ độ phân giải; điều kiện toán học này không bảo đảm false-positive ngoài
+phân phối bằng 0. Cấu hình mặc định `10^-4` nếu dùng trong run khác vẫn yêu cầu
+tối thiểu 9.999 calibration example/key và không được nhập nhằng với A2.
 
 Thiết kế này sử dụng lịch sử thật giữa các cửa sổ, khác LSTM V8 có sequence
 length bằng một. Classifier một đầu ra với depth/leaf bị chặn tránh artifact
@@ -145,23 +190,93 @@ workload khác.
 
 ## 7. Tiến độ implementation
 
-| Hạng mục | Trạng thái 16-08-2026 |
+| Hạng mục | Trạng thái 31-08-2026 |
 |---|---|
 | Audit AIMS và dependency | Hoàn thành; application/dependency healthy |
 | Xác minh traffic | Đã apply và live-check: HTTP health/ingress, Redis AUTH+PING, MinIO health, PostgreSQL/Kafka/RabbitMQ TCP |
 | Feature schema exact counter + transition | Đã implement local, 249 chiều |
-| ExtraTrees normal-only + conformal score | 20/20 model fit/load pass; model giữ nguyên; semantic V1/V2/V3 fail normal gate; extended-envelope V4 pass canary và đang soak độc lập |
+| ExtraTrees normal-only + conformal score | A1 lịch sử giữ nguyên; A2 pilot đã train/load 20/20 model từ R5 với alpha 0,001, chưa promote |
 | eBPF collector theo cgroup | Đã build/verifier và active trên 3/3 worker |
-| Tetragon high-volume rate limit 500 ms | Policy Pulse tên riêng đã staging; V8 vẫn 1 giây; chưa apply, chờ A/B |
-| Dataset 1 giây đa workload | Terminal: 3.594.513 row, 20 workload/container, 4 traffic regime, integrity 0 |
-| Đóng băng capture bất biến | Finalizer đã arm trên 3/3 worker; tự rotate sau contract + 10 giây |
+| Exact eBPF counter 500 ms | A2 canary đã terminal; control collector production 1 giây vẫn active trên 3/3 worker; sampled Tetragon event không phải feature chính |
+| Dataset 500 ms đa workload | R5 terminal 178.991 row/20 key/4 regime, zero loss; dataset SHA-256 `2a016dc4...` |
+| Đóng băng capture bất biến | R5, model/policy và canary archive đã checksum/freeze; aggregate v2 read-only SHA-256 `d649726d...` |
 | Blind attack và latency CDF | Chưa chạy |
 | Capture integrity/ingest-lag validator | Đã implement local |
 | Model artifact integrity | Manifest v2 khóa SHA-256/size/metadata; runtime verify trước unpickle |
-| Independent normal-soak evaluator | Đã implement; V1/V2/V3/V4 đều terminal fail và frozen; không có soak active |
+| Independent normal-soak evaluator | Đã implement; các run cũ terminal/frozen; A7 bị preflight reject, không có formal soak active |
 | Terminal candidate decision | Đã implement; chỉ mở overhead evaluation, không auto-promote |
 | Multi-node dataset provenance | Contract + node-finalizer manifest + source/dataset hash bắt buộc khớp trước assemble |
-| Canary-first worker rollout | Hoàn thành; 3/3 node pass smoke và union đủ 18/18 workload |
+| Canary-first worker rollout | A2 audit-only pass 3/3 worker trong 15 phút: 63.076 decision, 0 alert quan sát, p99 decision 841,42 ms; candidate đã dừng |
+
+### 7.0 Cổng tương thích runtime và pilot A2 ngày 30-08-2026
+
+A7 không được tính là một lần normal soak. Lifecycle dừng trước marker formal;
+receipt immutable nằm tại
+`/home/dat/sentinel-pulse-evidence/preflight-rejections/pulse500-normal-soak-a7-20260830T043500Z-PREFLIGHT_REJECTED.txt`,
+SHA-256 `96e68aaf...`. Không có detector decision stream A7 nào được dùng để
+claim hoặc tune.
+
+Sau khi AIMS chuyển payment/notification sang native runtime, smoke 60 giây
+được chạy độc lập trên từng worker và finalize bằng capture validator:
+
+| Worker | Feature row | Workload key | Ingest p99 | Window-start→emit p99 | CPU trung bình | Peak RAM |
+|---|---:|---:|---:|---:|---:|---:|
+| k8s-worker1.local (.237) | 1.314 | 10 | 19,15 ms | 0,523 s | 0,0648 core | 36,9 MB |
+| k8s-worker3.local (.239) | 1.144 | 12 | 21,24 ms | 0,525 s | 0,0588 core | 36,8 MB |
+| k8s-worker4.local (.238) | 1.778 | 17 | 28,64 ms | 0,534 s | 0,0842 core | 38,9 MB |
+
+Union có 20 key; `feature_dim=249`; `malformed=0`, `unresolved=0` và toàn bộ
+`collector_max_drops=0`. SHA-256 capture tương ứng là `77aa1f62...`,
+`91f09478...`, `e865c998...`. Các số này chỉ đo telemetry đến feature emission;
+chưa bao gồm inference, corroboration hay alert.
+
+Lần start đầu trên hai worker và pilot R2 từng báo chung “no valid target”. Sau
+khi loader tách lỗi rỗng khỏi lỗi map, journal R3 ghi chính xác worker3 gặp
+`Cannot allocate memory` hai lần khi populate per-CPU BPF map. Loader mới chỉ
+retry hữu hạn với `ENOMEM/EAGAIN` (50 ms rồi 100 ms ở run này), sau đó attach
+thành công với 36 target; mọi lỗi khác và allowlist rỗng vẫn fail-closed. Cùng
+binary SHA-256 `7e9821e7...` đã được cài trên ba worker, bản cũ được giữ ở
+`pulse_counter_loader.pre-bounded-20260830` để rollback.
+
+Pilot R3 có schedule preregistered: steady 09:48:28–09:53:28 UTC, toolmix
+09:53:58–09:58:58, burst 09:59:28–10:04:28 và recovery
+10:04:58–10:09:58. Run đã terminal `PULSE_500MS_DATASET_COMPLETE`: dataset có
+89.503 row, 249 feature, đủ 20 workload/container; steady/toolmix/burst/recovery
+lần lượt 21.499/22.445/24.771/20.788 row. Dataset SHA-256 là
+`67bfcc42ac19451779cfc2c55ad9eec2e42d8791fad9b3f1d99a9b6aebeee1bc`;
+top-level `SHA256SUMS` verify pass. p99 interval/ingest/window-start-to-emit là
+0,508/0,0278/0,532 giây và mọi collector loss counter bằng 0. Đây là
+compatibility pilot, không phải formal training dataset. Hai attempt trước được
+giữ nguyên `FAILED.txt`: R1 lỗi current working
+directory trước collector; R2 lỗi BPF allocation trước khi có feature row hợp
+lệ. Không rerun chọn lọc hay đổi nhãn hai attempt này.
+
+Calibration split của R3 cho thấy 16/20 key đủ alpha `0,001`; bốn key thiếu là
+frontend (714), waypoint (716), Kafka topic-operator (713) và user-operator
+(713). Vì vậy không hạ alpha và không gọi R3 là full candidate dataset.
+Extended R4 `pulse500-data-pilot-20260830T162216Z` bị reject trước measured
+interval: worker4 trả `ENOMEM` qua đủ năm retry khi insert target vào sparse
+per-CPU hash map. `FAILED.txt` được giữ và hai collector đã mở trên worker1/3
+được restore tự động.
+
+Root fix đổi `pulse_cgroups` từ `max_entries=4096 + BPF_F_NO_PREALLOC` sang
+preallocated `max_entries=1024`. Trên worker4, `bpftool` đo map mới có memlock
+31.147.712 byte; current target high-water là 50. BPF object SHA-256
+`ead3346cdafe3ba42179d141f6c255e651e3d215ad6a9453d537076aebca5317`
+được cài trên cả ba worker, có backup object cũ để rollback. Smoke 60 giây
+đồng thời sau sửa terminal valid: 1.330/1.137/1.788 row trên worker1/3/4,
+mọi loss counter bằng 0, p99 emit 0,525/0,524/0,533 giây và không có ENOMEM.
+
+Extended R5 `pulse500-data-pilot-20260830T163059Z` đã attach đủ ba worker.
+Schedule khóa trước: steady 16:33:34–16:43:34, toolmix 16:44:04–16:54:04,
+burst 16:54:34–17:04:34, recovery 17:05:04–17:15:04 UTC. Trước terminal
+`COMPLETE`/checksum/validation, mục này chỉ ghi trạng thái active.
+
+Full regression trên detached source overlay đạt **448 passed, 2 warnings**
+trong 21,17 giây. Receipt tại
+`/home/dat/sentinel-pulse-evidence/pilot-a2/regression/local-overlay-20260830T163400Z.txt`
+có SHA-256 `3182ee16ff259b339d2025a3835dcea6daa9c63870e833bf45bf08ec5932dde6`;
+worktree test tạm đã được dọn sau khi lưu receipt.
 
 ### 7.1 Kết quả rollout collect-only trên cụm
 
@@ -1253,4 +1368,291 @@ Candidate chỉ được xem là đạt nếu đồng thời thỏa:
   verify lại thành công. Dọn worker3 chỉ xóa duplicate A4/A5 có archive phục
   hồi; không xóa Longhorn managed data. Archive lịch sử tiếp tục được offload
   và hash-verify trước khi xóa bản worker.
+- 30-08-2026: audit sau nâng cấp phần cứng xác nhận cả sáu VM đã nhận 24 vCPU,
+  khoảng 126 GiB RAM usable và disk 600 GB. Root ext4 trước đó vẫn giữ kích
+  thước cũ nên đã được mở rộng online lên 633.792.950.272 byte trên từng node.
+  Kubelet được restart rolling, từng node một; allocatable ephemeral-storage
+  sau refresh đạt khoảng 560,8 GB/control-plane và 531,2 GB/worker. Hậu kiểm có
+  6/6 node Ready, 0 node pressure, 0 pod không-ready và 28/28 Longhorn volume
+  healthy.
+- Cũng trong ngày 30-08-2026, reboot hạ tầng làm lộ filesystem corruption trên
+  Kafka-2 và Vault-1 cùng bbolt corruption cục bộ trên Vault-2. Mỗi sửa chữa
+  đều có Longhorn snapshot trước thao tác. Filesystem được sửa bằng `e2fsck`
+  trên đúng block device đã xác minh unmounted; Vault-2 corrupt state được giữ
+  nguyên trong `lost+found/vault2-corrupt-20260830t0322z`, sau đó node được
+  join/unseal lại. Kiểm tra cuối: Vault 3/3 Ready, autopilot healthy,
+  FailureTolerance=1, năm ExternalSecret đều `SecretSynced=True`.
+- Lỗi topology Longhorn được xử lý theo quy trình có snapshot/backup và không
+  xóa dữ liệu nguồn. Worker3 được cordon/drain đúng PDB; cây clone 194 GB được
+  giữ tại `replicas.clone-quarantine-20260830t0401z`. Disk UUID cũ
+  `e0acfceb-...` được thay bằng UUID độc lập `af26014b-...`; các replica được
+  auto-balance rồi khóa lại với `replica-auto-balance=disabled`. Guard cuối trả
+  `duplicate_disk_uuid=0`, `colocated_running_replicas=0`, không volume nào
+  non-healthy.
+- Recovery làm lộ thêm corruption trên volume Kafka-0, OpenSearch-0,
+  PostgreSQL replica-1 và Trivy DB. Chỉ block device đã unmount mới được sửa và
+  mỗi volume đều có snapshot trước thao tác. Kafka-0 và Trivy trở lại Ready.
+  PostgreSQL replica-1 mất `PG_VERSION`, nên không được vá file thủ công: bản
+  forensic được backup NFS 100%, pod/PVC lỗi được thay và CNPG bootstrap lại từ
+  primary. Cụm trở lại `Cluster in healthy state`, 3/3 Ready; truy vấn primary
+  thấy hai replication stream.
+- Hai OpenSearch node còn lại mang hai cluster UUID khác nhau, xác nhận
+  split-brain metadata chứ không phải lỗi TCP 9300. Sau khi backup NFS 100% cả
+  ba PVC và lưu manifest/checksum, riêng cụm OpenSearch telemetry được
+  bootstrap lại theo cấu hình ba cluster-manager nhất quán. Hậu kiểm cho thấy
+  cả ba node cùng UUID `VUagXlIUTV2vBHFNu0_arw`, health `green`, 9/9 shard
+  active và 0 shard unassigned. Kafka CR trở lại `Ready` sau khi restart riêng
+  Strimzi operator bị kẹt reconciliation; không restart broker.
+- Regression trước A7 đạt **440 passed, 2 Torch deprecation warnings**. A7 mở
+  lifecycle lúc 30-08-2026 04:34:54 UTC từ clean detached worktree `5568683`
+  nhưng dừng ở production traffic preflight vì AIMS HTTP 503; chưa từng tạo
+  `SOAK_START.json`. Service đã inactive/disabled, receipt rejection bất biến.
+- Sau sửa AIMS topology, traffic gate, loader diagnostic và preallocated BPF
+  counter map, R3 compatibility pilot terminal valid; R4 infrastructure-reject
+  được giữ; R5 extended pilot đang active. Trainer hiện ghi rõ dirty source và
+  hash toàn bộ tracked diff + untracked file vào model manifest. Cổng
+  calibration mới tái tạo R3 là 16/20 workload đủ `alpha=0,001` và fail-closed
+  cho bốn workload còn thiếu. Contract v2 khóa dataset + source fingerprint
+  trước fit; post-processor bắt buộc checksum → coverage 20/20 → freeze → train
+  → benchmark và không có lệnh promote. Overlay đạt **452 passed, 2 warnings**,
+  receipt SHA-256
+  `e3eab61c2f4050f7759fea221c5bd9ffd6a864df1911ee1d2128dd777b0103a8`.
+  PID post-process 597434 đang chờ R5 terminal. Không có claim false-positive,
+  recall hay kernel-to-alert mới và không có auto-promotion.
+- 31-08-2026: R5 terminal valid với **178.991 window/249 feature/20 workload**,
+  bốn regime steady/toolmix/burst/recovery lần lượt
+  42.899/44.946/49.617/41.529, zero loss counter. Dataset SHA-256
+  `2a016dc43b61c6c8e325c06e3d90e77bf8e567eb0acccf9f1c4c41d903acaf53`;
+  window-start-to-emit p99 534,05 ms, ingest p99 29,26 ms. Calibration
+  `alpha=0,001` đạt 20/20, nhỏ nhất 1.428 example (margin +429).
+- Lượt post-process đầu fail-closed trước fit vì shared venv thiếu Narwhals và
+  lệch software lock; evidence FAILED được giữ. Venv chuyên dụng đúng sáu
+  version lock được tạo và lượt r2 hoàn tất 20/20 model, 0 collect-only, fit
+  tổng 52,13 giây. Contract SHA-256 `bb3739bd...`, model manifest SHA-256
+  `2e37ffd1...`; bundle verifier pass 27 entry, mọi file read-only.
+- In-sample benchmark 10.000 inference cho mean/p50/p95/p99/max lần lượt
+  16,70/16,46/20,16/**24,94**/37,12 ms, 58,26 scored window/s, peak RSS
+  194.196 KiB. 9.999 normal và một suppressed, không có alert. Tổng hai tầng
+  p99 đã đo khoảng 558,98 ms nhưng chưa phải kernel-to-alert end-to-end;
+  candidate vẫn non-formal, dirty-source hash-bound, không auto-promote và chưa
+  có claim no-FP/recall.
+- Policy semantic A2 schema v2 SHA-256 `a7400e275d49c16999aa4688e3c3dcadd33d4ffb9c03d5f38479eaf10ba6cf2f`
+  bind trực tiếp sáu normal/model artifact, bao phủ 20 workload, không dùng
+  blind outcome và không thêm confirmation window. Benchmark policy-specific
+  10.000 inference có p99 23,41 ms, max 34,77 ms, 9.999 normal + một
+  suppressed và không thiếu workload.
+- Canary normal 15 phút `pulse500-a2-live-canary-20260831T012000Z` đã terminal
+  hợp lệ trên 3/3 worker, injection tracking tắt, audit-only, không enforcement
+  và không auto-promote. Worker1/3/4 chạy lần lượt 902,62/901,86/903,34 giây,
+  tạo 19.653/17.002/26.421 decision. Tổng **63.076 decision/20 workload** gồm
+  62.069 normal, 89 suppressed, 918 warming, **0 alert quan sát và 0 restart**;
+  toàn bộ loss/integrity counter bằng 0. Mỗi node có `CANARY_COMPLETE`, không có
+  `CANARY_FAILED`; candidate detector đã dừng sau finalization, còn collector
+  production 1 giây là pipeline riêng vẫn active.
+- Aggregate checksum-verified trên 62.158 scored decision cho inference
+  p50/p95/p99/max 16,75/24,09/**29,31**/48,43 ms; post-window p99 336,73 ms;
+  window-start-to-decision p50/p95/p99/max
+  649,87/789,41/**841,42**/994,47 ms. `AGGREGATE.v2.json` read-only có SHA-256
+  `d649726dc478b4216cef69b33d611ec9fdac89f374672d0f43ad25db4a73aaa5`.
+  Aggregator v2 xác minh `node_name` trên đủ 62.158 scored decision. Chỉ 918
+  warming record của schema cũ thiếu provenance; runtime đã được vá để
+  warming/collect-only record tương lai cũng ghi node/pod/container identity.
+  Aggregate v1 được giữ bất biến làm lịch sử và không thay thế v2.
+- Evidence chỉ cho phép nói “0 alert quan sát trong canary normal non-formal 15
+  phút”, không cho phép claim FPR=0, không false positive, recall hay blind
+  attack latency. Regression mới đạt **458 passed, 2 warnings**; receipt
+  SHA-256 `a614fc4ce7002fa9ff616f5a0a4433d03aaf4fe18ee48d0d9b8d205bf7cb433f`.
+  Hậu kiểm cụm: 6/6 node Ready ở Kubernetes v1.34.10 và 42/42 pod `production`
+  Running.
 
+### 7.31 Pilot kernel-to-alert A2 và hardening provenance (31-08-2026)
+
+Sau live-normal canary, một pilot 15 trial được đăng ký trước trên ba role
+`api-gateway`, `aims-postgres-cnpg` và `aims-kafka-dual-role`, năm scenario,
+seed 13001 và rate 12 operation/s. Pilot mang nhãn
+`nonformal_attack_latency_pilot`, không được dùng để train/tune, không tạo
+`MATRIX_COMPLETE` và không có đường auto-promote. Mọi detection miss hợp lệ
+được giữ; chỉ trial chưa có kernel provenance do lỗi hạ tầng mới được tiếp tục.
+
+Các attempt R1–R5 đều được giữ riêng, checksum và không overwrite. R1 phát
+hiện mismatch acknowledgement `done/complete`; R2 hoàn tất một Kafka
+`namespace_probe` với kết quả miss rồi dừng do copy timeout CNPG; R3 chứng minh
+`/tmp` của CNPG là read-only; R4 chứng minh `/dev/shm` chạy được nhưng stdout
+exporter không cung cấp `process_exec`; R5 dùng `/run` và hoàn tất một CNPG
+`credential_read_burst` có alert, sau đó dừng khi stdout exporter bỏ event exec
+Kafka kế tiếp. Các attempt lỗi đều đã stop/disable candidate, archive raw
+stream và tạo SHA-256 receipt. Miss R2 và alert R5 không bị chạy lại.
+
+Để bỏ phụ thuộc vào stdout exporter, manifest
+`sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml` thêm một
+TracingPolicyNamespaced chỉ match hai exact path binary pilot trên
+`sys_execve`. Policy được xác minh `enabled` trên 6/6 Tetragon sensor. Runner
+mở `tetra getevents` gRPC trước khi ghi marker, yêu cầu đúng một event
+`sys_execve` exact-path trên đúng node và fail-closed nếu policy không enabled,
+event thiếu hoặc event trùng. Policy manifest được stage read-only và SHA-256
+bind vào `BLIND_START.json`; marker userspace không được dùng thay kernel
+timestamp. CNPG dùng `/run`, các controller còn lại dùng `/tmp`.
+
+R6 `pulse500-attack-latency-pilot-r6-20260831T041332Z` đã terminal đủ **13/13**
+trial còn lại, không có infrastructure failure. Mỗi injection có đúng một
+kernel event gRPC; `injections.jsonl` và `kernel-events.jsonl` cùng có 13 dòng.
+Runner ghi 9 alert và giữ nguyên bốn miss: Kafka
+`identity_transition_probe`, API gateway `process_fanout`, API gateway
+`namespace_probe` và Kafka `credential_read_burst`. Kế hoạch lineage mang theo
+hai outcome bất biến không chạy lại: Kafka `namespace_probe` miss từ R2 và CNPG
+`credential_read_burst` alert từ R5. Vì vậy toàn pilot có 15 trial, 10 alert và
+5 miss; tỷ lệ 10/15 chỉ là thống kê mô tả của pilot, **không phải recall được
+phép công bố**.
+
+Finalizer đã dừng/disable candidate trên ba worker, archive raw stream và kiểm
+tra toàn bộ `RAW_SHA256SUMS`/`FINAL_SHA256SUMS`. Lần finalize đầu fail-closed vì
+evaluator cũ chỉ chấp nhận `tetragon_process_exec`, trong khi R6 dùng nguồn mới
+`tetragon_execve_kprobe_grpc`. Evaluator được sửa để xác minh nghiêm ngặt cả
+hai schema: policy name, exact binary argument, function `sys_execve`, node,
+exec ID, PID, raw-event checksum và timestamp. Finalizer cũng có recovery path
+chỉ đọc raw archive đã checksum, do đó không cần và không được chạy lại attack.
+Kết quả cuối có đủ kernel/model/policy/run/identity gate và checksum pass.
+
+Trên **9 alert của riêng R6**, kernel-to-alert min/p50/p95/p99/max là
+0,214/0,718/4,739/**5,332**/5,481 giây. Sáu alert dưới 2 giây nhưng ba outlier
+là Kafka `process_fanout` 5,481 giây, Kafka `local_socket_beacon` 3,044 giây và
+API gateway `identity_transition_probe` 3,628 giây. Inference p99 chỉ 28,97 ms
+và post-window processing p99 337,31 ms; vì vậy phần lớn tail latency không đến
+từ ExtraTrees mà do model/corroboration chỉ cùng thỏa ở cửa sổ muộn. Pilot fail
+cả coverage và cổng p99 <= 2 giây (`pilot_engineering_pass=false`). Phân tích
+sau sự kiện cho thấy một số miss không qua raw-model gate, số khác có anomaly
+và semantic signal ở các cửa sổ khác nhau. Chẩn đoán này không được dùng để
+tune candidate A2 hay đổi outcome; kiến trúc kế tiếp phải hiệu chỉnh bằng normal
+data độc lập rồi đánh giá trên blind set mới. Full regression sau hardening đạt
+**472 passed, 2 warning**.
+
+### 7.32 Candidate bounded event-time B1 (31-08-2026)
+
+A2 được giữ nguyên làm development evidence sau khi fail pilot; không sửa model
+hoặc policy A2 theo 15 attack outcome. Nhánh B1 thêm policy schema v3 và bộ nhớ
+corroboration theo event-time: model anomaly đã qua score gate và semantic
+evidence có thể nằm ở hai cửa sổ khác nhau nhưng cách nhau không quá horizon
+đóng băng. State tách theo workload/node/pod/container/cgroup, hết hạn theo
+event-time, reset khi temporal gap hoặc traffic regime đổi và consume sau alert.
+Loader từ chối horizon <=0 hoặc >2 giây, policy thiếu normal calibration, hoặc
+policy có đường auto-promote.
+
+Calibration chỉ replay canary normal A2, không đọc attack outcome. Attempt đầu
+fail-closed vì 918 warming record schema cũ thiếu full identity và được giữ tại
+`temporal-calibration-b1-20260831T114503Z/FAILED.json`. Calibrator được sửa chỉ
+bỏ qua warming unscored; mọi scored row vẫn bắt buộc đủ identity, model, policy,
+run và timestamp. R2 đọc **63.076 decision**, gồm 62.158 scored và 918 warming;
+baseline có 0 alert. Cả bốn horizon 0,5/1,0/1,5/2,0 giây đều chiếu ra 0 alert
+trên normal canary. Report SHA-256 là
+`86296997db4cd25f61ee4fb8084a9de53ae1456b5155d714f423cae4f7c2c431`.
+
+B1 chọn horizon **1,0 giây** từ latency budget, không chọn theo attack recall.
+Policy `sentinel-pulse-bounded-join-b1` có SHA-256
+`bdbdd2577c8a9a31a5ee0bb220e2e540f413a8035f85a6b311351d2332bcf85b`,
+bind model A2, base policy A2 và temporal calibration; bundle read-only và
+checksum pass. Canary live normal B1 R2
+`sentinel-pulse-bounded-canary-b1-r2-20260831T120032Z` đã terminal song song
+trên ba worker sau 901,79–903,29 giây. Aggregate hợp lệ có **63.160 decision**
+trên 20 workload: 62.164 normal, 85 suppressed, 911 warming và **0 alert quan
+sát**, 0 detector restart. Trên 62.249 scored decision, inference
+p50/p95/p99/max là 16,95/24,46/**29,65**/118,58 ms; post-window p99 338,42 ms;
+window-start-to-decision p50/p95/p99/max là
+0,653/0,791/**0,843**/1,024 giây. Aggregate SHA-256 là
+`afdb4b92bed4baa2406cab60158550ef4d5cd3f092a0f74aa1eb272f218adb7c`;
+`FINAL_SHA256SUMS` pass, `ACTIVE` đã xóa và candidate inactive+disabled trên
+3/3 worker.
+
+Attempt collect đầu fail trước copy vì precheck chạy bằng user `dat` không
+traverse được run directory `0750 root`; raw node evidence vẫn nguyên vẹn.
+Collector được sửa để precheck bằng `sudo`, sau đó archive và aggregate pass.
+Kết quả chỉ cho phép nói “0 alert quan sát trong canary normal non-formal 15
+phút”, không phải FPR=0. B1 không được đánh giá lại bằng attack set A2 để claim
+blind accuracy; bước attack kế tiếp phải freeze blind contract mới.
+
+### 7.33 B1 fail normal dài, B2 risk-tiered và blind set C2 (31-08-2026)
+
+Tập successor C1 được tạo trước khi đánh giá candidate, gồm năm scenario mới
+`anonymous_mprotect_churn`, `child_ptrace_handshake`, `invalid_setns_burst`,
+`seccomp_api_probe` và `execveat_resolution_probe`; không trùng năm scenario
+A2. Binary static chỉ có effect trong process tree, không external network,
+persistent write, mount hay privilege change. Smoke test chạy khi candidate
+detector tắt trên 3/3 worker và chỉ xác minh execute/cleanup. Bundle C1 bất biến
+tại `contract-c1-20260831T165500Z`, SHA-256 của index là
+`2b24541ee6ec6488878bdfeb73b83e9f8f43f8687cc9687ad81728ae5eccdaff`.
+Không outcome ML nào của C1 đã được đọc.
+
+Attempt normal dài đầu tiên fail ở launcher vì dùng model snapshot của canary
+chỉ có manifest, thiếu file `.pkl`; cleanup xác nhận candidate/collector 500 ms
+inactive trên 3/3 worker và attempt giữ `START_FAILED`. R2 dùng đúng bundle
+training đầy đủ nhưng B1 phát sinh hai alert normal nên được dừng sớm, không
+chờ đủ 24 giờ. Archive checksum có **39.051 decision**, 2 alert: Redis trên
+worker4 và PostgreSQL trên worker3; worker1 có 0 alert. Summary SHA-256 là
+`1477c5441143569254fc732872a40ca9886daf7456497a3564121b2a516f51fb`,
+checksum index SHA-256 là
+`df7684e1935ddcb459290cc5625e00eb7c9ae53064091b23f3afe5e2c67ecada`.
+B1 vì vậy bị reject, tuyệt đối không được trình bày là stable hay FPR=0.
+
+Hai false alert có cùng cơ chế phase-shift. Redis có window semantic trước với
+`clone3=5`, vượt `process_fanout` envelope đúng 4; window sau cách 0,504 giây
+có score 0,6179 vượt calibration max 0,5739. PostgreSQL có window trước với
+socket+connect=34 và openat=127, vượt envelope tương ứng; window sau cách
+0,505 giây có score 0,6077 vượt calibration max 0,5799. B1 đã cho các tín hiệu
+thường gặp này mượn semantic evidence từ window trước. Runtime cũng được sửa để
+alert tương lai nhúng score/conformal của model evidence cùng mass, exact field,
+triggered group của semantic evidence thay vì chỉ ghi timestamp.
+
+B2 áp dụng **risk-tiered temporal join**: mọi signal group vẫn alert nếu model
+và semantic cùng window, nhưng chỉ `identity_transition` và `namespace_probe`
+được join lệch window tối đa 1 giây. `socket/open/fanout` không được carry qua
+window. Replay normal-only trên 39.051 decision checksum-bound (38.429 scored,
+622 warming, 2 alert B1) chiếu ra **0 alert B2** ở cả horizon
+0,5/1,0/1,5/2,0 giây. Calibration SHA-256
+`584b2ea6c2584dc7d2e4d86eb7b84a1759e42eefc77c23b628b740fe648383ce`;
+policy B2 SHA-256
+`17fa395a3e538d603ed0afe27529dbbd77ae30e1a602b3f9e812134056de83ac`.
+
+Blind contract C2 bind model `2e37ffd1…` và policy B2 `17fa395a…`; C2 kế thừa
+scenario chưa mở của C1, ghi rõ predecessor chưa từng candidate-evaluate và
+không dùng attack outcome. Freeze index C2 SHA-256 là
+`d2f425b493daeee892f9b19e12589920a2c6c3ef8e99ad59bbc6d9dc9055ff95`.
+Canary B2 900 giây `sentinel-pulse-risk-tiered-canary-b2-20260831T175000Z`
+bắt đầu lúc 17:28:49 UTC trên 3/3 worker, audit-only, injection tracking tắt.
+Run đã terminal hợp lệ sau tối thiểu 901,86 giây; cả ba worker có
+`CANARY_COMPLETE`, toàn bộ detector/collector/finalizer đã inactive và mọi
+checksum trong `FINAL_SHA256SUMS` đều pass. Aggregate có **63.315 decision**
+trên 20 workload: 62.302 normal, 82 suppressed, 931 warming và **0 alert normal
+quan sát**, 0 detector restart. Trong 62.384 scored decision, inference
+p50/p95/p99/max là 16,74/23,98/**29,28**/110,74 ms; post-window processing
+p99 là 332,63 ms; window-start-to-decision p50/p95/p99/max là
+0,650/0,786/**0,837**/1,029 giây. Aggregate SHA-256 là
+`861090772045a495c10e07340f7a620e1d74061321690c5db5ea68ff57b207d5`;
+checksum index SHA-256 là
+`e148edfdabf7957317a59c6798dfb7164ea4e78bf059f0f9507a6a5387518335`.
+
+Đây chỉ là **0,25 giờ live-normal non-formal**: kết quả cho phép nói “không có
+alert trong canary này”, nhưng không cho phép suy ra FPR=0, recall, blind
+accuracy hoặc production readiness. C2 vẫn chưa được mở. Regression source B2
+đạt **482 passed, 2 Torch deprecation warnings**. Hậu kiểm trước canary có 6/6
+node Ready, 42/42 pod production Ready và Tetragon 6/6 Ready.
+
+Ngay sau khi khóa canary, soak B2 dự kiến 24 giờ được khởi chạy với run ID
+`sentinel-pulse-risk-tiered-soak-b2-20260831T175408Z`, bắt đầu
+`2026-08-31T17:54:14.278261Z`. Run giữ nguyên model `2e37ffd1…`, policy
+`17fa395a…`, normal-only, audit-only, `blind_outcome_used=false` và
+`automatic_promotion=false`. Tuy nhiên zero-alert gate đã fail sau khoảng 13
+phút nên run được dừng sớm và archive, không chờ đủ 24 giờ. Evidence terminal
+có **52.660 decision**: 51.772 normal, 95 suppressed, 791 warming và **2 alert
+normal**, 0 restart. Worker1 và worker4 mỗi node có một alert; worker3 có 0.
+Summary SHA-256 là
+`194c1541e21df3120690d84a103dacaac138aba886b131d9cb8baa2fec887cae`;
+checksum index SHA-256 là
+`ff438b3c25deb681fafe366fd50c01b826edb794bf6085c7282709afaeeaaf5f`.
+
+Cả hai alert là PostgreSQL trên hai replica gần như cùng thời điểm và đều là
+same-window, không phải lỗi cross-window của B1: model anomaly trùng burst
+socket/connect/openat/clone bình thường. B2 do đó bị reject và không được gọi
+stable. Replay development normal ban đầu với xác nhận hai window liên tiếp,
+gap tối đa 1,25 giây và bypass `namespace_probe` chiếu 2 alert xuống 0 trên
+51.869 scored decision; report SHA-256 `90e96068665679f8a5405ce750cdd04ff05e96756c02a176e5fa4992647423cb`.
+Đây chỉ là hướng B3 từ normal evidence, chưa phải kết quả candidate. C2 vẫn
+đóng và không được dùng để tune.

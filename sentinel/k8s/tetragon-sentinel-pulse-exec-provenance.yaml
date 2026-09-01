@@ -1,0 +1,24 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-pulse-exec-provenance
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+    sentinel.hust.vn/purpose: kernel-latency-provenance
+spec:
+  kprobes:
+  - call: sys_execve
+    syscall: true
+    args:
+    - index: 0
+      type: string
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: Equal
+        values:
+        - /tmp/sentinel-runtime-attack-blind
+        - /run/sentinel-runtime-attack-blind
+      matchActions:
+      - action: Post

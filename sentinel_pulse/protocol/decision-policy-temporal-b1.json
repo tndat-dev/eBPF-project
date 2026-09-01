@@ -1,0 +1,247 @@
+{
+  "automatic_promotion": false,
+  "blind_outcome_used": false,
+  "bounded_event_time_corroboration": {
+    "consume_on_alert": true,
+    "maximum_evidence_age_seconds": 1.0,
+    "mode": "bounded_model_semantic_join",
+    "normal_only_calibration": true,
+    "requires_raw_model_anomaly": true,
+    "requires_score_corroboration": true,
+    "requires_semantic_corroboration": true
+  },
+  "claim_scope": "Bounded event-time candidate calibrated only on checksum-bound normal decisions; no attack outcome used and no auto-promotion",
+  "created_at": "2026-08-31T11:48:55.227440+00:00",
+  "development_normal_evidence": {
+    "base_policy_sha256": "a7400e275d49c16999aa4688e3c3dcadd33d4ffb9c03d5f38479eaf10ba6cf2f",
+    "dataset_manifest_sha256": "609c445172c1784d768098fdbe1d7ad419273914fd73568f482d8190dce8e40a",
+    "dataset_sha256": "2a016dc43b61c6c8e325c06e3d90e77bf8e567eb0acccf9f1c4c41d903acaf53",
+    "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+    "semantic_envelope_calibration_sha256": "a1170a0cdec53614cb65272ef866747999916484b2db257c1797b17d8a60b645",
+    "temporal_calibration_sha256": "86296997db4cd25f61ee4fb8084a9de53ae1456b5155d714f423cae4f7c2c431",
+    "training_contract_sha256": "bb3739bd35afb86a9b699b57bc575586d1a91d8743cfd10974453e46418672c1"
+  },
+  "evidence_class": "normal_only_bounded_event_time_candidate",
+  "frozen_before_blind_evaluation": true,
+  "name": "sentinel-pulse-bounded-join-b1",
+  "same_window_corroboration": {
+    "additional_window_wait": 0,
+    "minimum_security_activity_mass": 1,
+    "requires_raw_model_anomaly": true,
+    "security_activity_fields": [
+      "socket",
+      "connect",
+      "clone",
+      "clone3",
+      "setuid",
+      "setgid",
+      "capset",
+      "openat",
+      "ptrace",
+      "pivot_root",
+      "mount",
+      "unshare",
+      "setns",
+      "execveat"
+    ],
+    "workload_normal_envelope": {
+      "signal_groups": [
+        {
+          "fields": [
+            "socket",
+            "connect"
+          ],
+          "minimum_excess": 4,
+          "name": "local_socket_beacon"
+        },
+        {
+          "fields": [
+            "clone",
+            "clone3"
+          ],
+          "minimum_excess": 4,
+          "name": "process_fanout"
+        },
+        {
+          "fields": [
+            "setuid",
+            "setgid",
+            "capset"
+          ],
+          "minimum_excess": 4,
+          "name": "identity_transition"
+        },
+        {
+          "fields": [
+            "openat"
+          ],
+          "minimum_excess": 4,
+          "name": "credential_open"
+        },
+        {
+          "fields": [
+            "ptrace",
+            "pivot_root",
+            "mount",
+            "unshare",
+            "setns",
+            "execveat"
+          ],
+          "minimum_excess": 1,
+          "name": "namespace_probe"
+        }
+      ],
+      "workload_group_maxima": {
+        "production/aims-frontend:web": {
+          "credential_open": 0,
+          "identity_transition": 0,
+          "local_socket_beacon": 0,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "credential_open": 106,
+          "identity_transition": 15,
+          "local_socket_beacon": 18,
+          "namespace_probe": 0,
+          "process_fanout": 12
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "credential_open": 4,
+          "identity_transition": 0,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 4
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "credential_open": 6,
+          "identity_transition": 0,
+          "local_socket_beacon": 4,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/aims-minio-pool-0:minio": {
+          "credential_open": 818,
+          "identity_transition": 0,
+          "local_socket_beacon": 14,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "credential_open": 1,
+          "identity_transition": 0,
+          "local_socket_beacon": 0,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "credential_open": 105,
+          "identity_transition": 0,
+          "local_socket_beacon": 28,
+          "namespace_probe": 0,
+          "process_fanout": 4
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "credential_open": 37,
+          "identity_transition": 0,
+          "local_socket_beacon": 11,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "credential_open": 17,
+          "identity_transition": 36,
+          "local_socket_beacon": 12,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/aims-redis:aims-redis": {
+          "credential_open": 12,
+          "identity_transition": 36,
+          "local_socket_beacon": 6,
+          "namespace_probe": 0,
+          "process_fanout": 1
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "credential_open": 1,
+          "identity_transition": 0,
+          "local_socket_beacon": 16,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/api-gateway:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/auth-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/cart-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/catalog-service:app": {
+          "credential_open": 197,
+          "identity_transition": 15,
+          "local_socket_beacon": 6,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/inventory-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/notification-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/order-service:app": {
+          "credential_open": 200,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/payment-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/security-telemetry-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        }
+      }
+    }
+  },
+  "schema": "sentinel-pulse-decision-policy-v3",
+  "score_corroboration": {
+    "minimum_excess_over_calibration_max": 0.01,
+    "reference": "per_workload_calibration_max"
+  },
+  "source_clean": false,
+  "source_git_commit": "556868321f6a5edac179f9ff668a6106daafe9b2",
+  "source_git_diff_sha256": "dc82de40f9eda2f1a956d4feefbf596ebf662004944ae3bb87048fb7900863ec",
+  "suppressed_decision_status": "suppressed"
+}

@@ -3,6 +3,7 @@
 set -euo pipefail
 
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+PYTHON=${PYTHON:-python3}
 MODEL_SOURCE=${MODEL_SOURCE:?point to the frozen candidate directory}
 POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
 NORMAL_RUN_ID=${NORMAL_RUN_ID:-pulse500-normal-soak-$(date -u +%Y%m%dT%H%M%SZ)}
@@ -41,6 +42,13 @@ PY
 }
 
 if [[ ! -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
+  traffic_gate="$STATE_ROOT/$NORMAL_RUN_ID-traffic-gate.json"
+  phase production_traffic_preflight
+  if ! "$PYTHON" -m sentinel_pulse.traffic_gate --samples 20 \
+    --output "$traffic_gate"; then
+    phase terminal_traffic_preflight_rejected
+    exit 5
+  fi
   phase normal_preflight
   LOCAL_ROOT="$LOCAL_ROOT" MODEL_SOURCE="$MODEL_SOURCE" \
     POLICY_SOURCE="$POLICY_SOURCE" RUN_ID="$NORMAL_RUN_ID" \

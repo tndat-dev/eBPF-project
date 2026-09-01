@@ -30,23 +30,79 @@ spec:
         args:
         - |
           set -eu
-          ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
           services="api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service security-telemetry-service"
           i=0
           while true; do
-            # Valid read traffic through the real Istio Gateway + waypoint.
-            wget -q -O /dev/null -T 3 "$ingress/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
-            wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
-            # Every backend exposes /api/health/. Direct service health calls
-            # diversify server-side syscall telemetry without fabricating a
-            # login token or mutating orders/payments.
+            # This pod remains inside ambient mode and exercises east-west
+            # traffic through the namespace waypoint.
             for service in $services; do
               wget -q -O /dev/null -T 3 "http://$service:8000/api/health/" || true
             done
             # A smaller, explicitly normal Internet error mix is retained.
             # It runs once per five cycles instead of dominating every cycle.
+            if [ $((i % 5)) -eq 0 ]; then
+              wget -q -O /dev/null -T 3 "http://api-gateway:8000/api/auth/me/" || true
+              wget -q -O /dev/null -T 3 "http://api-gateway:8000/api/cart/" || true
+            fi
+            i=$((i + 1))
+            sleep "${SLEEP_SECONDS:-1}"
+          done
+        env:
+        - {name: SLEEP_SECONDS, value: "1"}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities: {drop: [ALL]}
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+        resources:
+          requests: {cpu: 10m, memory: 8Mi}
+          limits: {cpu: 250m, memory: 32Mi}
+---
+# North-south traffic must originate outside ambient capture. Sending a
+# request from an ambient workload back into the ingress Gateway is an
+# unsupported mesh hairpin in this topology and previously produced 10-second
+# ztunnel timeouts. The pod stays in namespace production, but explicitly
+# opts out so it behaves like an external client.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aims-sentinel-ingress-loadgen
+  namespace: production
+  labels:
+    app.kubernetes.io/name: aims-sentinel-ingress-loadgen
+    app.kubernetes.io/part-of: agent-runtime-sentinel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aims-sentinel-ingress-loadgen
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aims-sentinel-ingress-loadgen
+        app.kubernetes.io/part-of: agent-runtime-sentinel
+        istio.io/dataplane-mode: none
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsGroup: 65534
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+      - name: loadgen
+        image: busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+        command: [/bin/sh, -c]
+        args:
+        - |
+          set -eu
+          ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
+          i=0
+          while true; do
+            wget -q -O /dev/null -T 3 "$ingress/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
+            wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
             if [ $((i % 5)) -eq 0 ]; then
               wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true
               wget -q -O /dev/null -T 3 "$ingress/api/cart/" || true
@@ -149,6 +205,7 @@ spec:
       labels:
         app.kubernetes.io/name: aims-sentinel-readmix-loadgen
         app.kubernetes.io/part-of: agent-runtime-sentinel
+        istio.io/dataplane-mode: none
     spec:
       automountServiceAccountToken: false
       securityContext:

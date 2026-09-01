@@ -8,6 +8,7 @@ from sentinel_pulse.decision_policy import (
     corroboration_details,
     load_decision_policy,
 )
+from sentinel_pulse.build_semantic_policy import write_policy
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -186,3 +187,103 @@ def test_v4_envelope_preserves_single_namespace_primitive_detection():
     assert policy["development_normal_evidence"][
         "semantic_envelope_extension_v4_sha256"
     ] == "80d8a008b15bbb7b63d33452443ae50a5b676085e791c7d75e3e99b4d7fa619c"
+
+
+def test_v2_policy_uses_direct_normal_evidence_and_is_read_only(tmp_path):
+    base = json.loads(EXTENDED_ENVELOPE_POLICY.read_text())
+    policy = {
+        **base,
+        "schema": "sentinel-pulse-decision-policy-v2",
+        "evidence_class": "nonformal_runtime_compatibility_pilot",
+        "blind_outcome_used": False,
+        "automatic_promotion": False,
+        "source_git_commit": "a" * 40,
+        "source_clean": False,
+        "source_git_diff_sha256": "b" * 64,
+        "development_normal_evidence": {
+            "dataset_sha256": "1" * 64,
+            "dataset_manifest_sha256": "2" * 64,
+            "semantic_envelope_calibration_sha256": "3" * 64,
+            "model_manifest_sha256": "4" * 64,
+            "training_contract_sha256": "5" * 64,
+            "base_policy_sha256": "6" * 64,
+        },
+    }
+    path = tmp_path / "policy-v2.json"
+    write_policy(path, policy)
+    loaded, digest = load_decision_policy(path)
+    assert loaded["blind_outcome_used"] is False
+    assert len(digest) == 64
+    assert path.stat().st_mode & 0o222 == 0
+
+
+def test_v2_policy_rejects_missing_direct_evidence(tmp_path):
+    base = json.loads(EXTENDED_ENVELOPE_POLICY.read_text())
+    base.update({
+        "schema": "sentinel-pulse-decision-policy-v2",
+        "evidence_class": "pilot",
+        "blind_outcome_used": False,
+        "automatic_promotion": False,
+        "source_git_commit": "a" * 40,
+        "source_git_diff_sha256": "b" * 64,
+        "development_normal_evidence": {},
+    })
+    path = tmp_path / "invalid-v2.json"
+    path.write_text(json.dumps(base))
+    with pytest.raises(ValueError, match="development evidence"):
+        load_decision_policy(path)
+
+
+def test_v3_policy_requires_normal_calibrated_bounded_join(tmp_path):
+    base = json.loads(EXTENDED_ENVELOPE_POLICY.read_text())
+    base.update({
+        "schema": "sentinel-pulse-decision-policy-v3",
+        "evidence_class": "normal_only_bounded_join_candidate",
+        "blind_outcome_used": False,
+        "automatic_promotion": False,
+        "source_git_commit": "a" * 40,
+        "source_clean": False,
+        "source_git_diff_sha256": "b" * 64,
+        "bounded_event_time_corroboration": {
+            "mode": "bounded_model_semantic_join",
+            "maximum_evidence_age_seconds": 1.0,
+            "requires_raw_model_anomaly": True,
+            "requires_score_corroboration": True,
+            "requires_semantic_corroboration": True,
+            "consume_on_alert": True,
+            "normal_only_calibration": True,
+        },
+        "development_normal_evidence": {
+            "dataset_sha256": "1" * 64,
+            "dataset_manifest_sha256": "2" * 64,
+            "semantic_envelope_calibration_sha256": "3" * 64,
+            "model_manifest_sha256": "4" * 64,
+            "training_contract_sha256": "5" * 64,
+            "base_policy_sha256": "6" * 64,
+            "temporal_calibration_sha256": "7" * 64,
+        },
+    })
+    path = tmp_path / "policy-v3.json"
+    path.write_text(json.dumps(base))
+    policy, digest = load_decision_policy(path)
+    assert policy["bounded_event_time_corroboration"][
+        "maximum_evidence_age_seconds"
+    ] == 1.0
+    assert len(digest) == 64
+
+    base["bounded_event_time_corroboration"][
+        "maximum_evidence_age_seconds"
+    ] = 2.1
+    path.write_text(json.dumps(base))
+    with pytest.raises(ValueError, match="bounded event-time"):
+        load_decision_policy(path)
+
+
+def test_b2_policy_limits_cross_window_join_to_rare_groups():
+    policy, digest = load_decision_policy(
+        ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b2.json"
+    )
+    assert len(digest) == 64
+    assert policy["bounded_event_time_corroboration"][
+        "eligible_semantic_signal_groups"
+    ] == ["identity_transition", "namespace_probe"]

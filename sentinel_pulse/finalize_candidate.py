@@ -11,6 +11,7 @@ from pathlib import Path
 
 from .integrity import contained_artifact, sha256_file, verify_sha256
 from .decision_policy import load_decision_policy
+from .blind_contract import load_contract
 
 
 def read_json(path: Path) -> dict:
@@ -71,6 +72,7 @@ def build_decision(
     maximum_processing_p99_seconds: float = 0.75,
     decision_policy_path: Path | None = None,
     soak_marker_path: Path | None = None,
+    attack_contract_path: Path | None = None,
 ) -> dict:
     manifest, candidates, collect_only = verify_model_bundle(model_dir)
     model_manifest_sha256 = sha256_file(model_dir / "manifest.json")
@@ -83,6 +85,12 @@ def build_decision(
     decision_policy_sha256 = None
     if decision_policy_path is not None:
         _policy, decision_policy_sha256 = load_decision_policy(decision_policy_path)
+    attack_contract = (
+        load_contract(attack_contract_path) if attack_contract_path is not None else None
+    )
+    attack_contract_sha256 = (
+        sha256_file(attack_contract_path) if attack_contract_path is not None else None
+    )
     if normal.get("schema") != "sentinel-pulse-normal-soak-report-v1":
         raise ValueError("unsupported normal-soak report")
     if attack.get("schema") != "sentinel-pulse-latency-report-v2":
@@ -132,9 +140,23 @@ def build_decision(
         "blind_kernel_timestamp_identity": attack.get("kernel_timestamp_gate") is True,
         "blind_attack_matrix": attack.get("attack_matrix_gate") is True,
         "blind_attack_contract": (
-            attack.get("blind_attack_contract_sha256")
-            == manifest.get("blind_attack_contract_sha256")
-            and int(manifest.get("expected_blind_injections", -1)) == expected_injections
+            (
+                attack.get("blind_attack_contract_sha256")
+                == manifest.get("blind_attack_contract_sha256")
+                and int(manifest.get("expected_blind_injections", -1))
+                == expected_injections
+            )
+            if attack_contract is None
+            or attack_contract.get("schema") == "sentinel-pulse-blind-attack-contract-v1"
+            else (
+                attack.get("blind_attack_contract_sha256") == attack_contract_sha256
+                and int(attack_contract.get("expected_injections", -1))
+                == expected_injections
+                and attack_contract["candidate_binding"]["model_manifest_sha256"]
+                == model_manifest_sha256
+                and attack_contract["candidate_binding"]["decision_policy_sha256"]
+                == decision_policy_sha256
+            )
         ),
         "blind_model_identity": (
             attack.get("model_identity_gate") is True
@@ -212,6 +234,7 @@ def build_decision(
             "normal_soak_report": sha256_file(normal_report_path),
             "normal_soak_marker": soak_marker_sha256,
             "blind_attack_report": sha256_file(attack_report_path),
+            "blind_attack_contract": attack_contract_sha256,
         },
         "next_gate": (
             "counterbalanced A/B overhead and independent reproduction; manual review remains required"
@@ -232,6 +255,7 @@ def main() -> None:
     parser.add_argument("--maximum-processing-p99-seconds", type=float, default=0.75)
     parser.add_argument("--decision-policy", type=Path)
     parser.add_argument("--soak-marker", type=Path, required=True)
+    parser.add_argument("--attack-contract", type=Path)
     args = parser.parse_args()
     decision = build_decision(
         args.model_dir,
@@ -243,6 +267,7 @@ def main() -> None:
         args.maximum_processing_p99_seconds,
         args.decision_policy,
         args.soak_marker,
+        args.attack_contract,
     )
     if args.output.exists():
         existing = read_json(args.output)

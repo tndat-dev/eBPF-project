@@ -1,3 +1,4 @@
+import hashlib
 import json
 import tempfile
 import unittest
@@ -46,6 +47,39 @@ class PulseBlindContractTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "target identity"):
             marker_matrix_key(marker)
+
+    def test_successor_contract_is_bound_and_excludes_a2_scenarios(self):
+        contract = load_contract(
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b1.json"
+        )
+        self.assertEqual(contract["expected_injections"], 450)
+        self.assertTrue(contract["frozen_before_candidate_evaluation"])
+        self.assertFalse(
+            set(contract["matrix"]["scenarios"])
+            & set(contract["independence"]["excluded_predecessor_scenarios"])
+        )
+
+    def test_b2_contract_rebinds_the_unopened_set_to_risk_tiered_policy(self):
+        contract = load_contract(
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b2.json"
+        )
+        b1_path = ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b1.json"
+        policy_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b2.json"
+        )
+        self.assertEqual(
+            contract["candidate_binding"]["decision_policy_sha256"],
+            hashlib.sha256(policy_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            contract["independence"]["derived_from_unused_contract_sha256"],
+            hashlib.sha256(b1_path.read_bytes()).hexdigest(),
+        )
+        self.assertFalse(
+            contract["independence"][
+                "predecessor_contract_candidate_evaluation_started"
+            ]
+        )
 
 
 if __name__ == "__main__":

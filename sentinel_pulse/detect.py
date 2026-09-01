@@ -171,6 +171,7 @@ class PulseRuntime:
                 self.models[workload] = model
         self.histories = {}
         self.history_metadata = {}
+        self.temporal_evidence = {}
         self.decision_policy = None
         self.decision_policy_sha256 = None
         if decision_policy is not None:
@@ -202,6 +203,12 @@ class PulseRuntime:
                 "decision_policy_sha256": self.decision_policy_sha256,
                 "workload_key": workload,
                 "cgroup_id": cgroup_id,
+                "pod_name": record.get("pod_name"),
+                "pod_uid": record.get("pod_uid"),
+                "node_name": record.get("node_name"),
+                "container_name": record.get("container_name"),
+                "window_start": record.get("window_start"),
+                "window_end": record.get("window_end"),
             }
         row = decode_vector(record)
         history = self.histories.setdefault(
@@ -220,6 +227,7 @@ class PulseRuntime:
                 )
             if window_end - previous_end > self.max_contiguous_gap_seconds:
                 history.clear()
+                self.temporal_evidence.pop(source_identity, None)
                 reset_reason = "temporal_gap"
             elif (
                 previous_regime is not None
@@ -227,6 +235,7 @@ class PulseRuntime:
                 and regime != previous_regime
             ):
                 history.clear()
+                self.temporal_evidence.pop(source_identity, None)
                 reset_reason = "traffic_regime_change"
         self.history_metadata[source_identity] = (window_end, regime)
         if len(history) < self.history_size:
@@ -239,6 +248,12 @@ class PulseRuntime:
                 "decision_policy_sha256": self.decision_policy_sha256,
                 "workload_key": workload,
                 "cgroup_id": cgroup_id,
+                "pod_name": record.get("pod_name"),
+                "pod_uid": record.get("pod_uid"),
+                "node_name": record.get("node_name"),
+                "container_name": record.get("container_name"),
+                "window_start": record.get("window_start"),
+                "window_end": record.get("window_end"),
             }
         decision = model.predict(list(history), row)
         history.append(row)
@@ -261,7 +276,7 @@ class PulseRuntime:
             calibration_max = float(model.calibration_scores[-1])
             score_excess = decision.score - calibration_max
             score_corroborated = score_excess >= minimum_score_excess
-            corroborated = semantic_corroborated and score_corroborated
+            same_window_corroborated = semantic_corroborated and score_corroborated
         else:
             semantic_corroborated = True
             score_corroborated = True
@@ -269,7 +284,96 @@ class PulseRuntime:
             score_excess = None
             minimum_score_excess = None
             semantic_signal_groups = {}
-        alerted = decision.anomalous and corroborated
+            same_window_corroborated = True
+
+        temporal = (
+            self.decision_policy.get("bounded_event_time_corroboration")
+            if self.decision_policy is not None
+            else None
+        )
+        temporal_corroborated = False
+        model_evidence_window_end = None
+        semantic_evidence_window_end = None
+        evidence_span_seconds = None
+        model_evidence_score = None
+        model_evidence_conformal_p = None
+        semantic_evidence_security_activity_mass = None
+        semantic_evidence_security_activity_fields = None
+        semantic_evidence_signal_groups = None
+        semantic_evidence_triggered_groups = None
+        eligible_temporal_semantic_groups = None
+        if temporal is not None:
+            maximum_age = float(temporal["maximum_evidence_age_seconds"])
+            triggered_groups = sorted(
+                name for name, details in semantic_signal_groups.items()
+                if details.get("triggered") is True
+            )
+            configured_eligible = temporal.get("eligible_semantic_signal_groups")
+            eligible_temporal_semantic_groups = (
+                sorted(configured_eligible)
+                if configured_eligible is not None
+                else sorted(semantic_signal_groups)
+            )
+            temporal_semantic_corroborated = bool(
+                semantic_corroborated
+                and (
+                    configured_eligible is None
+                    or set(triggered_groups) & set(configured_eligible)
+                )
+            )
+            evidence = self.temporal_evidence.setdefault(source_identity, {})
+            for name in ("model", "semantic"):
+                item = evidence.get(name)
+                if item is not None and window_end - float(item["window_end"]) > maximum_age:
+                    evidence.pop(name, None)
+            if decision.anomalous and score_corroborated:
+                evidence["model"] = {
+                    "window_end": window_end,
+                    "score": decision.score,
+                    "conformal_p": decision.conformal_p,
+                }
+            if temporal_semantic_corroborated:
+                evidence["semantic"] = {
+                    "window_end": window_end,
+                    "security_activity_mass": security_mass,
+                    "security_activity_fields": security_fields,
+                    "semantic_signal_groups": semantic_signal_groups,
+                    "triggered_groups": triggered_groups,
+                }
+            model_evidence = evidence.get("model")
+            semantic_evidence = evidence.get("semantic")
+            if model_evidence is not None:
+                model_evidence_window_end = float(model_evidence["window_end"])
+                model_evidence_score = float(model_evidence["score"])
+                model_evidence_conformal_p = float(model_evidence["conformal_p"])
+            if semantic_evidence is not None:
+                semantic_evidence_window_end = float(semantic_evidence["window_end"])
+                semantic_evidence_security_activity_mass = int(
+                    semantic_evidence["security_activity_mass"]
+                )
+                semantic_evidence_security_activity_fields = dict(
+                    semantic_evidence["security_activity_fields"]
+                )
+                semantic_evidence_signal_groups = dict(
+                    semantic_evidence["semantic_signal_groups"]
+                )
+                semantic_evidence_triggered_groups = list(
+                    semantic_evidence["triggered_groups"]
+                )
+            if model_evidence is not None and semantic_evidence is not None:
+                evidence_span_seconds = abs(
+                    model_evidence_window_end - semantic_evidence_window_end
+                )
+                temporal_corroborated = evidence_span_seconds <= maximum_age
+            alerted = bool(
+                decision.anomalous and same_window_corroborated
+                or temporal_corroborated
+            )
+            if alerted and temporal.get("consume_on_alert") is True:
+                self.temporal_evidence.pop(source_identity, None)
+        else:
+            maximum_age = None
+            alerted = decision.anomalous and same_window_corroborated
         status = (
             "alert"
             if alerted
@@ -295,7 +399,26 @@ class PulseRuntime:
             "score": decision.score,
             "conformal_p": decision.conformal_p,
             "raw_model_anomalous": decision.anomalous,
-            "same_window_corroborated": corroborated,
+            "same_window_corroborated": same_window_corroborated,
+            "corroboration_mode": (
+                "bounded_model_semantic_join" if temporal is not None else "same_window"
+            ),
+            "bounded_event_time_corroborated": temporal_corroborated,
+            "maximum_evidence_age_seconds": maximum_age,
+            "model_evidence_window_end": model_evidence_window_end,
+            "semantic_evidence_window_end": semantic_evidence_window_end,
+            "evidence_span_seconds": evidence_span_seconds,
+            "model_evidence_score": model_evidence_score,
+            "model_evidence_conformal_p": model_evidence_conformal_p,
+            "semantic_evidence_security_activity_mass": (
+                semantic_evidence_security_activity_mass
+            ),
+            "semantic_evidence_security_activity_fields": (
+                semantic_evidence_security_activity_fields
+            ),
+            "semantic_evidence_signal_groups": semantic_evidence_signal_groups,
+            "semantic_evidence_triggered_groups": semantic_evidence_triggered_groups,
+            "eligible_temporal_semantic_groups": eligible_temporal_semantic_groups,
             "semantic_corroborated": semantic_corroborated,
             "score_corroborated": score_corroborated,
             "calibration_score_max": calibration_max,

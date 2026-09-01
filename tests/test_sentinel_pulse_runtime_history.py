@@ -25,7 +25,10 @@ class _MarginalAnomalousEstimator:
 
 
 class PulseRuntimeHistoryTests(unittest.TestCase):
-    def _runtime(self, anomalous=False, with_policy=False, score_policy=False):
+    def _runtime(
+        self, anomalous=False, with_policy=False, score_policy=False,
+        temporal_policy=False, eligible_temporal_groups=None,
+    ):
         columns = ["f0", "f1"]
         model = PulseExtraTrees(history=2, alpha=0.1)
         model.estimator = _AnomalousEstimator() if anomalous else _NormalEstimator()
@@ -41,6 +44,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         runtime.models = {"production/catalog:app": model}
         runtime.histories = {}
         runtime.history_metadata = {}
+        runtime.temporal_evidence = {}
         runtime.decision_policy = None
         runtime.decision_policy_sha256 = None
         if with_policy:
@@ -59,6 +63,20 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
             runtime.decision_policy, runtime.decision_policy_sha256 = (
                 load_decision_policy(policy_path)
             )
+            if temporal_policy:
+                runtime.decision_policy["bounded_event_time_corroboration"] = {
+                    "mode": "bounded_model_semantic_join",
+                    "maximum_evidence_age_seconds": 1.0,
+                    "requires_raw_model_anomaly": True,
+                    "requires_score_corroboration": True,
+                    "requires_semantic_corroboration": True,
+                    "consume_on_alert": True,
+                    "normal_only_calibration": True,
+                }
+                if eligible_temporal_groups is not None:
+                    runtime.decision_policy["bounded_event_time_corroboration"][
+                        "eligible_semantic_signal_groups"
+                    ] = eligible_temporal_groups
         return runtime, columns
 
     def test_v2_policy_suppresses_raw_tail_inside_operational_score_margin(self):
@@ -107,6 +125,9 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         self.assertEqual(gap["status"], "warming")
         self.assertEqual(gap["schema"], "sentinel-pulse-decision-v1")
         self.assertEqual(gap["warming_reason"], "temporal_gap")
+        self.assertEqual(gap["node_name"], "worker-a")
+        self.assertEqual(gap["pod_uid"], "pod-a")
+        self.assertEqual(gap["container_name"], "app")
         runtime.score(self._record(columns, 11.0))
         changed = runtime.score(self._record(columns, 12.0, regime="toolmix"))
         self.assertEqual(changed["status"], "warming")
@@ -145,6 +166,80 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         self.assertTrue(decision["same_window_corroborated"])
         self.assertEqual(decision["security_activity_mass"], 6)
         self.assertEqual(decision["security_activity_fields"], {"connect": 6})
+
+    def test_bounded_event_time_join_alerts_without_waiting_for_third_window(self):
+        runtime, columns = self._runtime(
+            anomalous=True, with_policy=True, score_policy=True,
+            temporal_policy=True,
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        model_only = runtime.score(self._record(columns, 3.0))
+        self.assertEqual(model_only["status"], "suppressed")
+        runtime.models["production/catalog:app"].estimator = _NormalEstimator()
+        joined = runtime.score(
+            self._record(columns, 3.5, exact_counts={"connect": 6})
+        )
+        self.assertEqual(joined["status"], "alert")
+        self.assertFalse(joined["raw_model_anomalous"])
+        self.assertTrue(joined["bounded_event_time_corroborated"])
+        self.assertEqual(joined["evidence_span_seconds"], 0.5)
+        self.assertEqual(joined["model_evidence_score"], 1.0)
+        self.assertEqual(joined["semantic_evidence_security_activity_mass"], 6)
+        self.assertEqual(joined["semantic_evidence_triggered_groups"], [])
+        self.assertEqual(runtime.temporal_evidence, {})
+
+    def test_risk_tiered_join_does_not_carry_ineligible_group_across_windows(self):
+        runtime, columns = self._runtime(
+            anomalous=True, with_policy=True, score_policy=True,
+            temporal_policy=True,
+            eligible_temporal_groups=["namespace_probe"],
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        model_only = runtime.score(self._record(columns, 3.0))
+        self.assertEqual(model_only["status"], "suppressed")
+        runtime.models["production/catalog:app"].estimator = _NormalEstimator()
+        ineligible = runtime.score(
+            self._record(columns, 3.5, exact_counts={"connect": 6})
+        )
+        self.assertNotEqual(ineligible["status"], "alert")
+        self.assertFalse(ineligible["bounded_event_time_corroborated"])
+        self.assertEqual(ineligible["eligible_temporal_semantic_groups"], ["namespace_probe"])
+
+    def test_risk_tiered_policy_keeps_same_window_alert_for_ineligible_group(self):
+        runtime, columns = self._runtime(
+            anomalous=True, with_policy=True, score_policy=True,
+            temporal_policy=True,
+            eligible_temporal_groups=["namespace_probe"],
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        decision = runtime.score(
+            self._record(columns, 3.0, exact_counts={"connect": 6})
+        )
+        self.assertEqual(decision["status"], "alert")
+        self.assertTrue(decision["same_window_corroborated"])
+
+    def test_bounded_event_time_join_expires_and_resets_on_gap(self):
+        runtime, columns = self._runtime(
+            anomalous=True, with_policy=True, score_policy=True,
+            temporal_policy=True,
+        )
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        runtime.score(self._record(columns, 3.0))
+        runtime.models["production/catalog:app"].estimator = _NormalEstimator()
+        expired = runtime.score(
+            self._record(columns, 4.2, exact_counts={"connect": 6})
+        )
+        self.assertNotEqual(expired["status"], "alert")
+        reset = runtime.score(
+            self._record(columns, 10.0, exact_counts={"connect": 6})
+        )
+        self.assertEqual(reset["status"], "warming")
+        self.assertEqual(reset["warming_reason"], "temporal_gap")
+        self.assertEqual(runtime.temporal_evidence, {})
 
 
 if __name__ == "__main__":

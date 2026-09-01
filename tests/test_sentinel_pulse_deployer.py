@@ -284,7 +284,7 @@ class PulseDeployerTests(unittest.TestCase):
         ).read_text()
         sleep = source.index("usleep(interval_ms * 1000U);")
         exit_check = source.index("if (exiting)", sleep)
-        refresh = source.index("refresh_targets(cgroups_fd", exit_check)
+        refresh = source.index("refresh_targets_bounded(cgroups_fd", exit_check)
         self.assertLess(sleep, exit_check)
         self.assertLess(exit_check, refresh)
 
@@ -334,7 +334,74 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("HEALTH_FAILURE_LIMIT", runner)
         self.assertIn("health-warning-$timestamp.txt", runner)
         self.assertIn("collectors_started=true", runner)
+        self.assertIn("PULSE_500MS_CAMPAIGN_MODE", runner)
+        self.assertIn("PULSE_500MS_PILOT_ACK=nonformal", runner)
+        self.assertIn('"nonformal_runtime_compatibility_pilot"', runner)
+        self.assertIn('"source_clean": not git_status', runner)
+        self.assertIn('"git_diff_sha256"', runner)
+        self.assertIn("contract_reference", runner)
+        self.assertIn('root / "sentinel_pulse/ebpf/pulse_counter_loader.c"', runner)
+        self.assertIn('root / "sentinel_pulse/capture.py"', runner)
+        self.assertIn('if [[ $CAMPAIGN_MODE == formal ]]', runner)
+        self.assertIn('cd "$ROOT"', runner)
         self.assertNotIn("systemctl enable", runner)
+
+    def test_loader_distinguishes_empty_allowlist_from_bpf_map_failure(self):
+        source = (
+            ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"
+        ).read_text()
+        self.assertIn("if (targets < 0)", source)
+        self.assertIn("failed to populate target cgroups", source)
+        self.assertIn("if (targets == 0)", source)
+        self.assertIn("no valid target cgroup", source)
+        self.assertIn("PULSE_TARGET_REFRESH_RETRIES 5", source)
+        self.assertIn("refresh_targets_bounded", source)
+        self.assertIn("result != -ENOMEM && result != -EAGAIN", source)
+        self.assertIn("target refresh attempt", source)
+
+    def test_counter_allowlist_preallocates_a_bounded_capacity(self):
+        source = (
+            ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter.bpf.c"
+        ).read_text()
+        allowlist = source.split("} pulse_cgroups SEC", 1)[0].rsplit("struct {", 1)[1]
+        self.assertIn("BPF_MAP_TYPE_PERCPU_HASH", allowlist)
+        self.assertIn("max_entries, 1024", allowlist)
+        self.assertNotIn("BPF_F_NO_PREALLOC", allowlist)
+
+    def test_pilot_postprocess_is_ordered_and_never_promotes(self):
+        script = (
+            ROOT / "sentinel_pulse" / "run_pilot_postprocess.sh"
+        ).read_text()
+        checksum = script.index("sha256sum -c")
+        coverage = script.index("sentinel_pulse.audit_calibration_coverage")
+        freeze = script.index("sentinel_pulse.freeze_training_contract")
+        train = script.index("sentinel_pulse.train")
+        benchmark = script.index("sentinel_pulse.benchmark_inference")
+        self.assertLess(checksum, coverage)
+        self.assertLess(coverage, freeze)
+        self.assertLess(freeze, train)
+        self.assertLess(train, benchmark)
+        self.assertIn("automatic_model_training == false", script)
+        self.assertIn("automatic_promotion == false", script)
+        self.assertNotIn("install_detector_candidate", script)
+        self.assertNotIn("kubectl apply", script)
+
+    def test_live_canary_finalizer_is_bounded_and_never_promotes(self):
+        script = (
+            ROOT / "sentinel_pulse" / "finalize_live_canary.sh"
+        ).read_text()
+        self.assertIn("WAIT_TIMEOUT_SECONDS", script)
+        self.assertIn("systemctl stop \"$DETECTOR\"", script)
+        self.assertIn("systemctl disable \"$DETECTOR\"", script)
+        self.assertIn('"accuracy_claim_allowed": False', script)
+        self.assertIn('"automatic_promotion": False', script)
+        self.assertIn("window_start_to_alert_seconds", script)
+        self.assertIn("window_start_to_decision_seconds", script)
+        self.assertIn('"node_name"', script)
+        self.assertIn("EXPECTED_MODEL_SHA256", script)
+        self.assertIn("EXPECTED_POLICY_SHA256", script)
+        self.assertNotIn("install_detector_candidate", script)
+        self.assertNotIn("kubectl apply", script)
 
     def test_formal_soak_requires_pressure_free_stable_cluster(self):
         starter = (

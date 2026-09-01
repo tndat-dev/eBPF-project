@@ -20,15 +20,25 @@ import time
 
 from .blind_contract import expected_matrix, load_contract, marker_matrix_key
 from .integrity import sha256_file
-from .tetragon_evidence import find_exec_event
+from .tetragon_evidence import EXEC_PROVENANCE_POLICY, find_execve_kprobe_event
 
 
-BINARY_IN_CONTAINER = "/tmp/sentinel-runtime-attack-blind"
+DEFAULT_BINARY_IN_CONTAINER = "/tmp/sentinel-runtime-attack-blind"
+# CloudNativePG mounts /tmp read-only, while /run is an ephemeral writable
+# runtime filesystem.  Tetragon was also empirically verified to emit the
+# exact /run process_exec identity; /dev/shm execution was not observable.
+CONTROLLER_BINARY_PATHS = {
+    "aims-postgres-cnpg": "/run/sentinel-runtime-attack-blind",
+}
 PRIMARY_CONTAINER_ORDER = (
     "app", "web", "kafka", "postgres", "rabbitmq", "aims-redis",
     "aims-redis-sentinel-sentinel", "istio-proxy", "minio",
     "topic-operator", "pod-slice",
 )
+
+
+def binary_path_for_controller(controller: str) -> str:
+    return CONTROLLER_BINARY_PATHS.get(controller, DEFAULT_BINARY_IN_CONTAINER)
 
 
 def atomic_json(path: Path, payload: dict) -> None:
@@ -64,6 +74,51 @@ def build_schedule(contract: dict, seed: int) -> list[dict]:
     ))
     random.Random(seed).shuffle(rows)
     return rows
+
+
+def load_pilot_schedule(path: Path, contract: dict, start: dict) -> list[dict]:
+    """Load a pre-attack engineering subset without weakening the formal path."""
+    document = json.loads(path.read_text(encoding="utf-8"))
+    if document.get("schema") != "sentinel-pulse-attack-latency-pilot-plan-v1":
+        raise ValueError("unsupported attack-latency pilot plan")
+    if start.get("evidence_class") != "nonformal_attack_latency_pilot":
+        raise ValueError("pilot run must be explicitly non-formal")
+    if start.get("accuracy_claim_allowed") is not False:
+        raise ValueError("pilot run must forbid accuracy claims")
+    if start.get("automatic_promotion") is not False:
+        raise ValueError("pilot run must forbid automatic promotion")
+    if start.get("pilot_plan_sha256") != sha256_file(path):
+        raise ValueError("pilot plan differs from frozen start binding")
+    schedule = document.get("schedule")
+    if not isinstance(schedule, list) or not schedule:
+        raise ValueError("pilot plan has no schedule")
+    expected = int(start.get("expected_injections", -1))
+    if len(schedule) != expected:
+        raise ValueError("pilot schedule size differs from start marker")
+    required = {"workload_controller", "scenario", "seed", "rate_per_second"}
+    normalized = []
+    for item in schedule:
+        if not isinstance(item, dict) or set(item) != required:
+            raise ValueError("pilot schedule row has unexpected fields")
+        normalized.append({
+            "workload_controller": str(item["workload_controller"]),
+            "scenario": str(item["scenario"]),
+            "seed": int(item["seed"]),
+            "rate_per_second": int(item["rate_per_second"]),
+        })
+    keys = {
+        (row["workload_controller"], row["scenario"], row["seed"], row["rate_per_second"])
+        for row in normalized
+    }
+    if len(keys) != len(normalized):
+        raise ValueError("pilot schedule contains duplicate trials")
+    allowed = {
+        (row["workload_controller"], row["scenario"], row["seed"], row["rate_per_second"])
+        for row in build_schedule(contract, int(start["schedule_seed"]))
+    }
+    if not keys <= allowed:
+        raise ValueError("pilot schedule is not a subset of the frozen full matrix")
+    return normalized
 
 
 def controller_model_workload(manifest: dict, controller: str) -> str:
@@ -236,13 +291,18 @@ def main() -> int:
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--attack-contract", type=Path, required=True)
     parser.add_argument("--implementation-contract", type=Path, required=True)
+    parser.add_argument("--exec-provenance-policy", type=Path, required=True)
     parser.add_argument("--namespace", default="production")
     parser.add_argument("--ssh-user", default="dat")
     parser.add_argument("--post-trial-seconds", type=float, default=2.0)
+    parser.add_argument("--copy-timeout-seconds", type=int, default=120)
+    parser.add_argument("--pilot-plan", type=Path)
     args = parser.parse_args()
     password = os.environ.get("SSHPASS")
     if not password:
         raise ValueError("SSHPASS is required")
+    if not 30 <= args.copy_timeout_seconds <= 300:
+        raise ValueError("copy timeout must be between 30 and 300 seconds")
     root = args.evidence_root.resolve()
     marker_path = root / "BLIND_START.json"
     active = root / "ACTIVE"
@@ -258,17 +318,32 @@ def main() -> int:
         "model_manifest_sha256": sha256_file(manifest_path),
         "blind_attack_contract_sha256": sha256_file(args.attack_contract),
         "attack_implementation_contract_sha256": sha256_file(args.implementation_contract),
+        "exec_provenance_policy_sha256": sha256_file(args.exec_provenance_policy),
         "runtime_binary_sha256": sha256_file(binary),
     }
     for name, value in bindings.items():
         if start.get(name) != value:
             raise ValueError(f"blind start binding changed: {name}")
+    if contract.get("schema") == "sentinel-pulse-blind-attack-contract-v2":
+        candidate_binding = contract["candidate_binding"]
+        if (
+            candidate_binding["model_manifest_sha256"]
+            != bindings["model_manifest_sha256"]
+            or candidate_binding["decision_policy_sha256"]
+            != start.get("decision_policy_sha256")
+        ):
+            raise ValueError("successor blind contract belongs to another candidate")
     if implementation.get("binary", {}).get("sha256") != bindings["runtime_binary_sha256"]:
         raise ValueError("runtime binary differs from frozen implementation contract")
     if set(implementation.get("scenarios", [])) != set(contract["matrix"]["scenarios"]):
         raise ValueError("implementation scenarios differ from Pulse contract")
     duration = int(implementation["attack_seconds"])
-    schedule = build_schedule(contract, int(start["schedule_seed"]))
+    pilot_mode = args.pilot_plan is not None
+    schedule = (
+        load_pilot_schedule(args.pilot_plan, contract, start)
+        if pilot_mode
+        else build_schedule(contract, int(start["schedule_seed"]))
+    )
     if len(schedule) != int(start["expected_injections"]):
         raise ValueError("blind schedule size differs from start marker")
     for row in schedule:
@@ -296,11 +371,36 @@ def main() -> int:
     if len(workers) != 3:
         raise ValueError("blind run must bind all three workers")
     runtime = Runtime(password, args.ssh_user)
+    desired_policy = json.loads(runtime.run(
+        ["kubectl", "apply", "--dry-run=client", "-f",
+         str(args.exec_provenance_policy), "-o", "json"],
+        timeout=30,
+    ).stdout)
+    desired_metadata = desired_policy.get("metadata", {})
+    if (
+        desired_policy.get("kind") != "TracingPolicyNamespaced"
+        or desired_metadata.get("namespace") != args.namespace
+        or desired_metadata.get("name") != EXEC_PROVENANCE_POLICY
+    ):
+        raise ValueError("exec provenance manifest has the wrong identity")
+    active_policy = runtime.kubectl_json(
+        "get", "tracingpoliciesnamespaced.cilium.io", EXEC_PROVENANCE_POLICY,
+        "-n", args.namespace, "-o", "json",
+    )
+    if active_policy.get("spec") != desired_policy.get("spec"):
+        raise RuntimeError("active exec provenance policy differs from frozen manifest")
     partial_path = root / "REPORT.partial.json"
     report = json.loads(partial_path.read_text()) if partial_path.exists() else {
-        "schema": "sentinel-pulse-blind-run-v1",
+        "schema": (
+            "sentinel-pulse-attack-latency-pilot-run-v1"
+            if pilot_mode else "sentinel-pulse-blind-run-v1"
+        ),
         "plan_sha256": sha256_file(plan_path),
         "trials": [],
+        "evidence_class": (
+            "nonformal_attack_latency_pilot" if pilot_mode else "formal_blind_matrix"
+        ),
+        "accuracy_claim_allowed": False,
         "automatic_promotion": False,
     }
     if report.get("plan_sha256") != sha256_file(plan_path):
@@ -316,6 +416,7 @@ def main() -> int:
         raise ValueError("marker/report mismatch indicates an interrupted infrastructure trial")
 
     active_target = None
+    active_capture = None
     try:
         for index, row in enumerate(schedule, 1):
             key = tuple(row[part] for part in ("workload_controller", "scenario", "seed", "rate_per_second"))
@@ -338,13 +439,54 @@ def main() -> int:
             cgroup_id, _cgroup = select_cgroup(
                 json.loads(metadata_raw.stdout), str(pod["uid"]), model_container
             )
+            binary_in_container = binary_path_for_controller(row["workload_controller"])
+            active_target = (pod["name"], target_container, binary_in_container)
             runtime.run(
                 ["kubectl", "exec", "-i", "-n", args.namespace, pod["name"],
                  "-c", target_container, "--", "sh", "-c",
-                 'cat > "$1" && chmod 0755 "$1"', "pulse-copy", BINARY_IN_CONTAINER],
-                input_bytes=binary.read_bytes(), timeout=45,
+                 'cat > "$1" && chmod 0755 "$1"', "pulse-copy", binary_in_container],
+                input_bytes=binary.read_bytes(), timeout=args.copy_timeout_seconds,
             )
-            active_target = (pod["name"], target_container)
+            runtime.run(
+                ["kubectl", "exec", "-n", args.namespace, pod["name"],
+                 "-c", target_container, "--", "sh", "-c",
+                 'test "$(wc -c < "$1")" -eq "$2"', "pulse-size",
+                 binary_in_container, str(binary.stat().st_size)],
+                timeout=30,
+            )
+            tetragon_pods = runtime.kubectl_json(
+                "get", "pods", "-n", "kube-system", "-l",
+                "app.kubernetes.io/name=tetragon", "-o", "json",
+            )
+            sensor = next(
+                (item["metadata"]["name"] for item in tetragon_pods["items"]
+                 if item["spec"].get("nodeName") == pod["node_name"]), None
+            )
+            if sensor is None:
+                raise RuntimeError(f"no Tetragon pod on {pod['node_name']}")
+            policy_status = runtime.run(
+                ["kubectl", "exec", "-n", "kube-system", sensor, "-c", "tetragon",
+                 "--", "tetra", "tracingpolicy", "list"],
+                timeout=30,
+            ).stdout.decode(errors="replace")
+            if not any(
+                EXEC_PROVENANCE_POLICY in line and "enabled" in line
+                for line in policy_status.splitlines()
+            ):
+                raise RuntimeError(
+                    f"{EXEC_PROVENANCE_POLICY} is not enabled on {pod['node_name']}"
+                )
+            capture_timeout = duration + 5
+            active_capture = subprocess.Popen(
+                ["timeout", f"{capture_timeout}s", "kubectl", "exec", "-n",
+                 "kube-system", sensor, "-c", "tetragon", "--", "tetra",
+                 "getevents", "-o", "json", "--policy-names",
+                 EXEC_PROVENANCE_POLICY],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=runtime.environment,
+            )
+            time.sleep(0.5)
             injected_at = time.time()
             injection_id = f"{start['run_id']}:{index:04d}"
             injection = {
@@ -361,6 +503,7 @@ def main() -> int:
                 "scenario": row["scenario"],
                 "seed": row["seed"],
                 "rate_per_second": row["rate_per_second"],
+                "binary_path": binary_in_container,
             }
             encoded = (json.dumps(injection, sort_keys=True, separators=(",", ":")) + "\n").encode()
             runtime.remote_sudo(
@@ -369,31 +512,21 @@ def main() -> int:
             append_jsonl(injections_path, injection)
             attack = runtime.run(
                 ["kubectl", "exec", "-n", args.namespace, pod["name"],
-                 "-c", target_container, "--", BINARY_IN_CONTAINER,
+                 "-c", target_container, "--", binary_in_container,
                  row["scenario"], str(duration), str(row["rate_per_second"]), str(row["seed"])],
                 timeout=duration + 30,
             )
             stderr = attack.stderr.decode(errors="replace")
-            if "sentinel-runtime-attack start" not in stderr or "complete" not in stderr:
-                raise RuntimeError("frozen attack binary did not emit start/complete acknowledgements")
-            tetragon_pods = runtime.kubectl_json(
-                "get", "pods", "-n", "kube-system", "-l",
-                "app.kubernetes.io/name=tetragon", "-o", "json",
-            )
-            sensor = next(
-                (item["metadata"]["name"] for item in tetragon_pods["items"]
-                 if item["spec"].get("nodeName") == pod["node_name"]), None
-            )
-            if sensor is None:
-                raise RuntimeError(f"no Tetragon pod on {pod['node_name']}")
-            since = datetime.fromtimestamp(injected_at - 0.05, timezone.utc).isoformat().replace("+00:00", "Z")
-            logs = runtime.run(
-                ["kubectl", "logs", "-n", "kube-system", sensor, "-c", "export-stdout", f"--since-time={since}"],
-                timeout=90,
-            )
-            kernel = find_exec_event(
-                logs.stdout.decode(errors="replace").splitlines(), injection,
-                expected_binary=BINARY_IN_CONTAINER,
+            if (
+                "sentinel-runtime-attack start" not in stderr
+                or "sentinel-runtime-attack done" not in stderr
+            ):
+                raise RuntimeError("frozen attack binary did not emit start/done acknowledgements")
+            capture_stdout, capture_stderr = active_capture.communicate(timeout=15)
+            active_capture = None
+            kernel = find_execve_kprobe_event(
+                capture_stdout.decode(errors="replace").splitlines(), injection,
+                expected_binary=binary_in_container,
                 maximum_delay_seconds=10.0,
             )
             append_jsonl(kernel_path, kernel)
@@ -403,7 +536,7 @@ def main() -> int:
             ).stdout.decode(errors="replace").splitlines()
             cleanup = runtime.run(
                 ["kubectl", "exec", "-n", args.namespace, pod["name"],
-                 "-c", target_container, "--", "rm", "-f", "--", BINARY_IN_CONTAINER],
+                 "-c", target_container, "--", "rm", "-f", "--", binary_in_container],
                 timeout=30,
             )
             if cleanup.returncode != 0:
@@ -424,12 +557,20 @@ def main() -> int:
             atomic_json(partial_path, report)
             time.sleep(args.post_trial_seconds)
     except Exception as error:
+        if active_capture is not None:
+            active_capture.terminate()
+            try:
+                active_capture.communicate(timeout=5)
+            except subprocess.TimeoutExpired:
+                active_capture.kill()
+                active_capture.communicate()
+            active_capture = None
         cleanup_returncode = None
         if active_target is not None:
-            pod_name, container_name = active_target
+            pod_name, container_name, binary_in_container = active_target
             cleanup = runtime.run(
                 ["kubectl", "exec", "-n", args.namespace, pod_name,
-                 "-c", container_name, "--", "rm", "-f", "--", BINARY_IN_CONTAINER],
+                 "-c", container_name, "--", "rm", "-f", "--", binary_in_container],
                 timeout=30,
                 check=False,
             )
@@ -443,15 +584,27 @@ def main() -> int:
             "automatic_rerun": False,
             "temporary_binary_cleanup_returncode": cleanup_returncode,
         }
+        if isinstance(error, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
+            for name in ("stdout", "stderr"):
+                value = getattr(error, name, None)
+                if isinstance(value, bytes):
+                    value = value.decode(errors="replace")
+                if value:
+                    failure[f"command_{name}_tail"] = str(value)[-4096:]
         atomic_json(root / "INFRA_FAILURE.json", failure)
         raise
 
     report["completed_at"] = datetime.now(timezone.utc).isoformat()
     report["expected_injections"] = len(schedule)
-    report["matrix_complete"] = len(report["trials"]) == len(schedule)
+    report["schedule_complete"] = len(report["trials"]) == len(schedule)
+    report["matrix_complete"] = (
+        report["schedule_complete"] and not pilot_mode
+    )
+    report["formal_blind_evidence"] = not pilot_mode
     report["recall"] = report["detected_injections"] / len(schedule)
     atomic_json(root / "REPORT.json", report)
-    (root / "MATRIX_COMPLETE").write_text(
+    completion_marker = root / ("PILOT_COMPLETE" if pilot_mode else "MATRIX_COMPLETE")
+    completion_marker.write_text(
         f"completed_at={report['completed_at']}\nreport_sha256={sha256_file(root / 'REPORT.json')}\n",
         encoding="utf-8",
     )

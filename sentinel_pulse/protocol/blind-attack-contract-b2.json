@@ -1,0 +1,89 @@
+{
+  "schema": "sentinel-pulse-blind-attack-contract-v2",
+  "release": "sentinel-pulse-risk-tiered-bounded-join-b2",
+  "created_at": "2026-08-31T17:35:00Z",
+  "frozen_before_candidate_evaluation": true,
+  "candidate_parameters_locked_before_contract_authoring": true,
+  "candidate_binding": {
+    "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+    "decision_policy_sha256": "17fa395a3e538d603ed0afe27529dbbd77ae30e1a602b3f9e812134056de83ac"
+  },
+  "independence": {
+    "predecessor_development_set": "A2",
+    "predecessor_outcomes_used_to_select_these_scenarios": false,
+    "excluded_predecessor_scenarios": [
+      "local_socket_beacon",
+      "namespace_probe",
+      "process_fanout",
+      "identity_transition_probe",
+      "credential_read_burst"
+    ],
+    "derived_from_unused_contract_sha256": "c03206024a02418bf861fca3eac48a513f31c0d1f8449ebd3e4116e698a78f05",
+    "predecessor_contract_candidate_evaluation_started": false
+  },
+  "matrix": {
+    "scenarios": [
+      "anonymous_mprotect_churn",
+      "child_ptrace_handshake",
+      "invalid_setns_burst",
+      "seccomp_api_probe",
+      "execveat_resolution_probe"
+    ],
+    "workload_controllers": [
+      "aims-frontend",
+      "aims-kafka-dual-role",
+      "aims-kafka-entity-operator",
+      "aims-minio-pool-0",
+      "aims-postgres-cnpg",
+      "aims-rabbitmq-server",
+      "aims-redis",
+      "aims-redis-sentinel-sentinel",
+      "aims-waypoint",
+      "api-gateway",
+      "auth-service",
+      "cart-service",
+      "catalog-service",
+      "inventory-service",
+      "notification-service",
+      "order-service",
+      "payment-service",
+      "security-telemetry-service"
+    ],
+    "trials": [
+      {
+        "rate_per_second": 6,
+        "seed": 31013
+      },
+      {
+        "rate_per_second": 12,
+        "seed": 33013
+      },
+      {
+        "rate_per_second": 24,
+        "seed": 37003
+      },
+      {
+        "rate_per_second": 12,
+        "seed": 39019
+      },
+      {
+        "rate_per_second": 6,
+        "seed": 43003
+      }
+    ]
+  },
+  "expected_injections": 450,
+  "safety_contract": {
+    "external_network": false,
+    "persistent_write": false,
+    "successful_mount": false,
+    "successful_privilege_change": false,
+    "target_namespace": "production"
+  },
+  "selection_policy": {
+    "attack_outcomes_used_for_training_or_tuning": false,
+    "infrastructure_failure_must_have_machine_readable_evidence": true,
+    "misses_are_retained": true,
+    "rerun_detection_misses": false
+  }
+}

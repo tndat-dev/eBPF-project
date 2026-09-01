@@ -34,5 +34,6 @@ PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python \
   --model-dir "$EVIDENCE_ROOT/model" \
   --attack-contract "$EVIDENCE_ROOT/protocol/blind-attack-contract.json" \
   --implementation-contract "$EVIDENCE_ROOT/protocol/attack-implementation-contract.json"
+  --exec-provenance-policy "$EVIDENCE_ROOT/protocol/tetragon-exec-provenance.yaml"
 "$LOCAL_ROOT/sentinel_pulse/finalize_500ms_blind_matrix.sh" "$EVIDENCE_ROOT"
 complete=true
