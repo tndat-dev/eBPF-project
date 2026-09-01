@@ -431,6 +431,19 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("unhealthy_kubernetes_node", monitor)
         self.assertIn("FAILURE_NODES.json", monitor)
 
+    def test_candidate_lifecycle_can_stop_before_opening_blind_evaluation(self):
+        lifecycle = (
+            ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        interlock = lifecycle.index("if [[ $STOP_AFTER_NORMAL == true ]]")
+        blind = lifecycle.index("phase normal_pass_blind_interlock_open")
+        self.assertLess(interlock, blind)
+        self.assertIn("phase lifecycle_complete_after_normal", lifecycle)
+        self.assertIn(
+            "[[ $STOP_AFTER_NORMAL == true || $STOP_AFTER_NORMAL == false ]]",
+            lifecycle,
+        )
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)

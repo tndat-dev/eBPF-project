@@ -260,6 +260,20 @@ now emits node/pod/container identity for warming and collect-only rows too.
 This aggregate is still a short non-formal normal observation and explicitly
 does not create an FPR, recall, or promotion claim.
 
+For a formal 24-hour normal-only soak that must not open a blind contract, run
+the candidate lifecycle with `STOP_AFTER_NORMAL=true`. The lifecycle keeps the
+cluster, storage, maintenance, detector-restart and zero-alert gates active,
+then freezes normal evidence and exits before `normal_pass_blind_interlock_open`:
+
+```bash
+SSHPASS=... STOP_AFTER_NORMAL=true \
+MODEL_SOURCE=/absolute/path/inside/the/worktree/to/frozen-model \
+POLICY_SOURCE=$PWD/sentinel_pulse/protocol/decision-policy-temporal-b3.json \
+NORMAL_RUN_ID=SENTINEL_PULSE_B3_SOAK_ID \
+NORMAL_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b1/SENTINEL_PULSE_B3_SOAK_ID \
+./sentinel_pulse/run_500ms_candidate_lifecycle.sh
+```
+
 When same-window model and semantic signals are phase-shifted, calibrate a
 bounded event-time join strictly on checksum-bound normal decisions. Do not use
 the attack pilot to select the horizon:

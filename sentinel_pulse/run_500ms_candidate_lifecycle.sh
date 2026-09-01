@@ -11,6 +11,7 @@ NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sen
 BLIND_RUN_ID=${BLIND_RUN_ID:-pulse500-blind-$(date -u +%Y%m%dT%H%M%SZ)}
 BLIND_EVIDENCE_ROOT=${BLIND_EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$BLIND_RUN_ID}
 FINALIZE_MARGIN_SECONDS=${FINALIZE_MARGIN_SECONDS:-300}
+STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-false}
 STATE_ROOT=${STATE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign}
 PHASE_LOG=${PHASE_LOG:-$STATE_ROOT/$NORMAL_RUN_ID-lifecycle.jsonl}
 
@@ -18,6 +19,7 @@ PHASE_LOG=${PHASE_LOG:-$STATE_ROOT/$NORMAL_RUN_ID-lifecycle.jsonl}
 [[ $NORMAL_RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $BLIND_RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $FINALIZE_MARGIN_SECONDS =~ ^[0-9]+$ ]]
+[[ $STOP_AFTER_NORMAL == true || $STOP_AFTER_NORMAL == false ]]
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$POLICY_SOURCE"
 mkdir -p "$STATE_ROOT"
@@ -99,6 +101,10 @@ PY
 fi
 
 test -e "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"
+if [[ $STOP_AFTER_NORMAL == true ]]; then
+  phase lifecycle_complete_after_normal
+  exit 0
+fi
 phase normal_pass_blind_interlock_open
 if [[ -e "$BLIND_EVIDENCE_ROOT" ]]; then
   if [[ -e "$BLIND_EVIDENCE_ROOT/BLIND_RESULT.json" && \
