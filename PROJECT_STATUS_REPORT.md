@@ -6642,7 +6642,9 @@ Code validation được harden để reject digest predecessor sai, predecessor
 mở, runtime commit sai, model/policy sai hoặc runtime binary khác implementation
 contract. Wrapper `open_b3_blind_after_normal.sh` bắt buộc `NORMAL_PASS`, cấm
 normal evidence còn `ACTIVE`/có infrastructure failure, yêu cầu runtime
-worktree sạch và đúng commit đã soak. Focused regression đạt **22 passed**.
+tracked source sạch, chỉ cho phép model trong `.runtime-artifacts/` và đúng
+commit đã soak. Focused regression đạt **22 passed**; full regression trên ML
+venv của VM đạt **493 passed, 2 Torch deprecation warnings**.
 Không có attack nào được inject trong khi normal soak chạy.
 
 Snapshot trực tiếp R5 lúc `2026-09-01T12:57:07Z`: 105 monitor row = 35 vòng

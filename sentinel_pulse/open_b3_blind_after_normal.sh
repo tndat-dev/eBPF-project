@@ -26,8 +26,14 @@ observed_commit=$(git -C "$RUNTIME_ROOT" rev-parse HEAD)
   echo "B3 runtime worktree differs from the source commit used by the normal soak" >&2
   exit 1
 }
-[[ -z $(git -C "$RUNTIME_ROOT" status --porcelain) ]] || {
-  echo "B3 runtime worktree is not clean" >&2
+[[ -z $(git -C "$RUNTIME_ROOT" status --porcelain --untracked-files=no) ]] || {
+  echo "B3 runtime worktree has tracked modifications" >&2
+  exit 1
+}
+unexpected_untracked=$(git -C "$RUNTIME_ROOT" ls-files --others --exclude-standard | \
+  awk '$0 !~ /^\.runtime-artifacts\//')
+[[ -z $unexpected_untracked ]] || {
+  echo "B3 runtime worktree has untracked files outside .runtime-artifacts" >&2
   exit 1
 }
 

@@ -264,7 +264,8 @@ def test_b3_blind_opener_requires_terminal_normal_pass_and_exact_runtime_commit(
     assert 'test ! -e "$NORMAL_EVIDENCE_ROOT/ACTIVE"' in opener
     assert 'test ! -e "$NORMAL_EVIDENCE_ROOT/INFRA_FAILURE.json"' in opener
     assert ".candidate_binding.runtime_source_git_commit" in opener
-    assert 'git -C "$RUNTIME_ROOT" status --porcelain' in opener
+    assert 'git -C "$RUNTIME_ROOT" status --porcelain --untracked-files=no' in opener
+    assert "^\\.runtime-artifacts\\/" in opener
     assert "blind-attack-contract-b3.json" in opener
 
 

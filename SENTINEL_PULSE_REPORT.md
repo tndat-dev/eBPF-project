@@ -1733,6 +1733,8 @@ Attack implementation vẫn bind static binary/source B1 đã khóa checksum.
 Validator hiện fail-closed cả predecessor-contract digest/trạng thái unopened
 và runtime commit. Wrapper `open_b3_blind_after_normal.sh` chỉ chuyển phase khi
 R5 có `NORMAL_PASS`, không còn `ACTIVE`, không có `INFRA_FAILURE.json`, runtime
-worktree sạch và HEAD đúng `3c3be6c…`. Tại snapshot trên, C3 **chưa được mở**,
-không có attack injection và `blind_evaluation_started=false`; vì vậy chưa có
-recall hay kernel-to-alert blind result để công bố.
+tracked source sạch, không có untracked file ngoài `.runtime-artifacts/` và HEAD
+đúng `3c3be6c…`. Full regression trên ML venv của VM đạt **493 passed, 2 Torch
+warnings**. Tại snapshot trên, C3 **chưa được mở**, không có attack injection và
+`blind_evaluation_started=false`; vì vậy chưa có recall hay kernel-to-alert
+blind result để công bố.
