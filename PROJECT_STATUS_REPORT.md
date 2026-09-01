@@ -6645,6 +6645,10 @@ normal evidence còn `ACTIVE`/có infrastructure failure, yêu cầu runtime
 tracked source sạch, chỉ cho phép model trong `.runtime-artifacts/` và đúng
 commit đã soak. Focused regression đạt **22 passed**; full regression trên ML
 venv của VM đạt **493 passed, 2 Torch deprecation warnings**.
+Offline preregistration audit trên VM compile lại static attack source bằng
+flags đã khóa và thu đúng binary SHA-256 `d77c7237…`; model, policy,
+predecessor contract và C3 cũng lần lượt khớp hash đã bind. Thử gọi guarded
+opener khi R5 còn active trả exit code 1 trước khi tạo blind evidence hay inject.
 Không có attack nào được inject trong khi normal soak chạy.
 
 Snapshot trực tiếp R5 lúc `2026-09-01T12:57:07Z`: 105 monitor row = 35 vòng

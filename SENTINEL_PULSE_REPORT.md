@@ -1735,6 +1735,9 @@ và runtime commit. Wrapper `open_b3_blind_after_normal.sh` chỉ chuyển phase
 R5 có `NORMAL_PASS`, không còn `ACTIVE`, không có `INFRA_FAILURE.json`, runtime
 tracked source sạch, không có untracked file ngoài `.runtime-artifacts/` và HEAD
 đúng `3c3be6c…`. Full regression trên ML venv của VM đạt **493 passed, 2 Torch
-warnings**. Tại snapshot trên, C3 **chưa được mở**, không có attack injection và
+warnings**. Offline audit compile lại static source cho đúng binary SHA-256
+`d77c7237…`; toàn bộ model/policy/predecessor/C3 binding đều khớp. Guarded
+opener được thử khi R5 còn active và fail trước mọi mutation với exit code 1.
+Tại snapshot trên, C3 **chưa được mở**, không có attack injection và
 `blind_evaluation_started=false`; vì vậy chưa có recall hay kernel-to-alert
 blind result để công bố.
