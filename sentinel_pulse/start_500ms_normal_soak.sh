@@ -35,6 +35,9 @@ command -v jq >/dev/null
 [[ $MODEL_SOURCE == "$LOCAL_ROOT"/* ]] || {
   echo "MODEL_SOURCE must be contained by LOCAL_ROOT" >&2; exit 2;
 }
+[[ $POLICY_SOURCE == "$LOCAL_ROOT"/* ]] || {
+  echo "POLICY_SOURCE must be contained by LOCAL_ROOT" >&2; exit 2;
+}
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]] || {
   echo "RUN_ID contains unsafe characters" >&2; exit 2;
 }
@@ -100,6 +103,13 @@ cleanup() {
   fi
 }
 trap cleanup EXIT
+interrupt() {
+  # Bash defers a trapped signal while waiting for a foreground child. Exit
+  # only after that child returns so EXIT cleanup can quiesce every worker it
+  # may have finished mutating.
+  exit 130
+}
+trap interrupt INT TERM
 
 cluster_health_snapshot() {
   local node_bad pod_bad longhorn_bad longhorn_disk_bad
@@ -197,6 +207,7 @@ wait_for_stable_cluster() {
 }
 
 model_rel=${MODEL_SOURCE#"$LOCAL_ROOT/"}
+policy_rel=${POLICY_SOURCE#"$LOCAL_ROOT/"}
 model_sha=$(sha256sum "$MODEL_SOURCE/manifest.json" | awk '{print $1}')
 policy_sha=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
 source_commit=$(git -C "$LOCAL_ROOT" rev-parse HEAD)
@@ -212,13 +223,16 @@ for target in "${WORKERS[@]}"; do
   [[ $observed == "$expected_name" ]] || {
     echo "hostname mismatch for $host: $observed" >&2; exit 3;
   }
-  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")'"
+  remote "$host" "mkdir -p '$REMOTE_ROOT/sentinel_pulse' '$REMOTE_ROOT/$(dirname "$model_rel")' '$REMOTE_ROOT/$(dirname "$policy_rel")'"
   rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
     "$LOCAL_ROOT/sentinel_pulse/" "$SSH_USER@$host:$REMOTE_ROOT/sentinel_pulse/"
   rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
     "$MODEL_SOURCE/" "$SSH_USER@$host:$REMOTE_ROOT/$model_rel/"
+  rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
+    "$POLICY_SOURCE" "$SSH_USER@$host:$REMOTE_ROOT/$policy_rel"
   remote "$host" \
     "cd '$REMOTE_ROOT/$model_rel' && sha256sum -c manifest.sha256"
+  [[ $(remote "$host" sha256sum "$REMOTE_ROOT/$policy_rel" | awk '{print $1}') == "$policy_sha" ]]
   remote_sudo "$host" install -m 0644 \
     "$REMOTE_ROOT/sentinel_pulse/systemd/sentinel-pulse-resolver.service" \
     /etc/systemd/system/sentinel-pulse-resolver.service
@@ -304,9 +318,16 @@ for target in "${WORKERS[@]}"; do
   feature="/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/features.jsonl"
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" \
     MODEL_SOURCE="$REMOTE_ROOT/$model_rel" FEATURE_SOURCE="$feature" \
+    DECISION_POLICY_SOURCE="$REMOTE_ROOT/$policy_rel" \
     DEPLOYMENT_ID="$RUN_ID" \
     REQUIRE_CONTROL_COLLECTOR=false \
     "$REMOTE_ROOT/sentinel_pulse/install_detector_candidate.sh"
+  installed_model_sha=$(remote_sudo "$host" sha256sum \
+    /opt/sentinel-pulse/models/current/manifest.json | awk '{print $1}')
+  installed_policy_sha=$(remote_sudo "$host" sha256sum \
+    /opt/sentinel-pulse/policies/current.json | awk '{print $1}')
+  [[ $installed_model_sha == "$model_sha" ]]
+  [[ $installed_policy_sha == "$policy_sha" ]]
   remote "$host" \
     "grep -Fx 'PULSE_FEATURES=$feature' /etc/sentinel-pulse-detector-candidate.env && systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment sentinel-pulse-detector-candidate"
   printf '%s %s %s\n' "$host" "$node" "$feature" >>"$EVIDENCE_ROOT/workers.txt"
