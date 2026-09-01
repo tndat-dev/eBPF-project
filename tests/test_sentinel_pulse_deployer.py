@@ -473,6 +473,30 @@ class PulseDeployerTests(unittest.TestCase):
             lifecycle,
         )
 
+    def test_candidate_lifecycle_archives_a_failed_normal_finalizer(self):
+        lifecycle = (
+            ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        self.assertIn("phase normal_finalize_failed", lifecycle)
+        self.assertIn("reason=normal_finalize_failed", lifecycle)
+        self.assertIn('rm -f "$NORMAL_EVIDENCE_ROOT/ACTIVE"', lifecycle)
+        self.assertIn("phase normal_finalize_failure_archive", lifecycle)
+        self.assertIn("phase terminal_normal_finalize_failure", lifecycle)
+
+    def test_external_lifecycle_supervisor_only_mutates_after_process_exit(self):
+        supervisor = (
+            ROOT / "sentinel_pulse" / "supervise_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        process_loop = supervisor.index(
+            'while kill -0 "$LIFECYCLE_PID" 2>/dev/null; do'
+        )
+        failed_marker = supervisor.index('>"$EVIDENCE_ROOT/FAILED.tmp"')
+        self.assertLess(process_loop, failed_marker)
+        self.assertIn("normal_finalize_failed", supervisor)
+        self.assertIn("lifecycle_process_exited_without_terminal_evidence", supervisor)
+        self.assertIn("freeze_failed_500ms_normal_soak.sh", supervisor)
+        self.assertIn("automatic_promotion", supervisor)
+
     def test_capture_campaign_monitors_cluster_and_records_failure(self):
         script = (ROOT / "sentinel_pulse" / "run_capture_campaign.sh").read_text()
         self.assertIn("check_cluster_health", script)

@@ -94,10 +94,30 @@ PY
   delay=$((eligible_epoch + FINALIZE_MARGIN_SECONDS - $(date +%s)))
   ((delay <= 0)) || sleep "$delay"
   phase normal_finalize
-  MODEL_SOURCE="$MODEL_SOURCE" POLICY_SOURCE="$POLICY_SOURCE" \
-    FINALIZE_MARGIN_SECONDS="$FINALIZE_MARGIN_SECONDS" \
-    "$LOCAL_ROOT/sentinel_pulse/finalize_500ms_normal_soak.sh" \
-    "$NORMAL_EVIDENCE_ROOT"
+  if MODEL_SOURCE="$MODEL_SOURCE" POLICY_SOURCE="$POLICY_SOURCE" \
+      FINALIZE_MARGIN_SECONDS="$FINALIZE_MARGIN_SECONDS" \
+      "$LOCAL_ROOT/sentinel_pulse/finalize_500ms_normal_soak.sh" \
+      "$NORMAL_EVIDENCE_ROOT"; then
+    :
+  else
+    finalize_rc=$?
+    phase normal_finalize_failed
+    if [[ ! -e "$NORMAL_EVIDENCE_ROOT/FAILED" ]]; then
+      printf 'failed_at=%s\nreason=normal_finalize_failed\nhost=control-plane\nexit_code=%s\n' \
+        "$(date -u +%FT%TZ)" "$finalize_rc" \
+        >"$NORMAL_EVIDENCE_ROOT/FAILED.tmp"
+      mv "$NORMAL_EVIDENCE_ROOT/FAILED.tmp" \
+        "$NORMAL_EVIDENCE_ROOT/FAILED"
+    fi
+    rm -f "$NORMAL_EVIDENCE_ROOT/ACTIVE"
+    if [[ ! -e "$NORMAL_EVIDENCE_ROOT/ARCHIVE_COMPLETE" ]]; then
+      phase normal_finalize_failure_archive
+      "$LOCAL_ROOT/sentinel_pulse/freeze_failed_500ms_normal_soak.sh" \
+        "$NORMAL_EVIDENCE_ROOT"
+    fi
+    phase terminal_normal_finalize_failure
+    exit 3
+  fi
 fi
 
 test -e "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"
