@@ -1741,3 +1741,25 @@ opener được thử khi R5 còn active và fail trước mọi mutation với 
 Tại snapshot trên, C3 **chưa được mở**, không có attack injection và
 `blind_evaluation_started=false`; vì vậy chưa có recall hay kernel-to-alert
 blind result để công bố.
+
+### Hardening terminal finalization của R5
+
+Audit lifecycle phát hiện nhánh finalizer lỗi trước đây chỉ để lại
+`FINALIZE_FAILED`: lifecycle có thể thoát trước khi tạo `FAILED`, archive raw
+evidence và restore control collector. Đây là lỗi orchestration tiềm ẩn, chưa
+xảy ra trên R5 và không phải model alert. Lifecycle mới bắt exit code finalizer,
+ghi failure marker nguyên tử, xóa `ACTIVE`, archive với
+`candidate_status=not_evaluated_by_this_run` và kết thúc trước blind interlock.
+
+Vì R5 đang chạy runtime commit đã khóa `3c3be6c…`, code của tiến trình không bị
+hot-patch. Thay vào đó, external supervisor read-only được attach lúc
+`2026-09-01T13:06:40.745040Z`, PID `2212271`, theo dõi lifecycle PID `2165273`.
+Supervisor chỉ được mutation sau khi lifecycle đã chết, chờ thêm 120 giây mà
+vẫn không có `NORMAL_PASS`/`ARCHIVE_COMPLETE`; khi đó mới fail-closed archive
+và restore. Integration test xác minh không mutation khi lifecycle sống và
+đúng failure archive khi finalizer chết. Full regression đạt **497 passed, 2
+Torch warnings**.
+
+Snapshot R5 `2026-09-01T13:06:59Z`: 132 monitor row = 44 vòng đầy đủ trên ba
+worker, **213.250 decision, 0 alert, 0 restart**. R5 vẫn active và C3 vẫn chưa
+mở; snapshot này không phải terminal normal/FPR/recall claim.

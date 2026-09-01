@@ -6656,3 +6656,27 @@ Snapshot trực tiếp R5 lúc `2026-09-01T12:57:07Z`: 105 monitor row = 35 vòn
 500 ms và detector active, control collector inactive, feature binding đúng.
 R5 vẫn `ACTIVE`, C3 vẫn unopened; các số này chỉ là quan sát giữa soak, không
 phải FPR=0, normal pass, recall hay production-ready claim.
+
+### 18.157 Fail-closed supervisor cho terminal finalization (01-09-2026)
+
+Code audit tìm thấy một khoảng trống orchestration: nếu
+`finalize_500ms_normal_soak.sh` lỗi sau monitor pass, lifecycle cũ có thể thoát
+với `FINALIZE_FAILED` nhưng chưa tạo failure marker, chưa archive và chưa restore
+control collector. Đây là failure mode tiềm ẩn, **chưa xảy ra trên R5** và không
+được diễn giải là kết quả model.
+
+`run_500ms_candidate_lifecycle.sh` đã được sửa để bắt exit code finalizer, ghi
+`FAILED` nguyên tử với `reason=normal_finalize_failed`, xóa `ACTIVE`, gọi
+failure freezer và terminal trước blind interlock. Script mới
+`supervise_500ms_candidate_lifecycle.sh` bảo vệ các run đang chạy từ source
+commit cũ: hoàn toàn read-only khi lifecycle PID còn sống; chỉ sau khi PID chết,
+chờ grace 120 giây mà không có `NORMAL_PASS` hoặc `ARCHIVE_COMPLETE`, nó mới tạo
+infrastructure rejection và archive/restore fail-closed. Hai integration test
+kiểm chứng cả no-mutation và dead-finalizer path; full regression VM đạt **497
+passed, 2 Torch warnings**.
+
+R5 không bị hot-patch. Supervisor PID `2212271` được attach lúc
+`2026-09-01T13:06:40.745040Z` vào lifecycle PID `2165273`,
+`automatic_promotion=false`. Snapshot lúc `2026-09-01T13:06:59Z`: 132 monitor
+row = 44 vòng × 3 worker, tổng **213.250 decision, 0 alert, 0 restart**. Normal
+run vẫn `ACTIVE`; blind C3 vẫn unopened và không có attack injection.

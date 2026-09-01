@@ -274,6 +274,17 @@ NORMAL_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b1/SENTINEL_PULSE_B
 ./sentinel_pulse/run_500ms_candidate_lifecycle.sh
 ```
 
+For a lifecycle process that was started from an older frozen runtime commit,
+attach the read-only external guard from the control checkout. It does nothing
+while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a
+completed failure archive, the guard creates a fail-closed infrastructure
+rejection and invokes the evidence freezer; it never opens blind evaluation:
+
+```bash
+SSHPASS=... ./sentinel_pulse/supervise_500ms_candidate_lifecycle.sh \
+  /path/to/formal-normal-evidence LIFECYCLE_PID
+```
+
 When same-window model and semantic signals are phase-shifted, calibrate a
 bounded event-time join strictly on checksum-bound normal decisions. Do not use
 the attack pilot to select the horizon:
