@@ -1787,5 +1787,15 @@ Preflight đầu tiên sau pacing được dừng sớm ở 378,27 giây: đủ 
 0 alert/restart nhưng frontend vẫn chỉ đạt 281/353 bucket (79,60%), vì chỉ URL
 `/` chạy code frontend còn `/api/*` route thẳng tới api-gateway. Run được đóng
 `coverage_preflight_failed`; R6 không mở. Loadgen tiếp tục được sửa thành hai
-request `/` mỗi vòng, vẫn giữ gần cùng tổng RPS. Một canary mới phải đạt đủ
-coverage gate trước khi formal R6 được phép bắt đầu.
+request `/` mỗi vòng, vẫn giữ gần cùng tổng RPS.
+
+Preflight R3 terminal pass sau 601,85 giây với 42.054 decision, 0 alert/restart
+và đủ 20/20 workload. Coverage thấp nhất là frontend 560/580 bucket = 96,55%.
+Inference p99 29,02 ms, post-window-processing p99 0,341 giây và
+window-start-to-decision p99 0,846 giây (max 0,966 giây). Aggregate SHA-256
+`f3f601151b07cca8d7f7de266c0814841750b9bdbd4f92a3fe6eeef8d52b2fcc`.
+Đây chỉ là engineering preflight, không phải accuracy claim. Regression hiện
+đạt 503 passed, 2 warnings. Formal normal-only R6
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đang ở stability
+preflight với frozen runtime/model/policy B3; marker chưa được tạo ở snapshot
+này, C3 vẫn đóng và `STOP_AFTER_NORMAL=true`.

@@ -6720,6 +6720,23 @@ Canary normal-only
 `/` chạy trong frontend; các URL `/api/*` được route thẳng tới API gateway.
 Run được archive như `coverage_preflight_failed`, không dùng đánh giá candidate
 và không mở R6. Manifest sau đó bố trí hai request `/` mỗi vòng, khoảng cách
-tối đa danh định dưới một giây trong khi tổng throughput vẫn gần mức cũ. Một
-preflight hoàn toàn mới phải terminal với 0 alert/restart, đủ 20 workload và
-coverage từng workload ≥0,95 thì formal R6 mới được phép bắt đầu.
+tối đa danh định dưới một giây trong khi tổng throughput vẫn gần mức cũ.
+
+Preflight R3
+`sentinel-pulse-coverage-preflight-b3-r3-20260902T152917Z` đã terminal pass sau
+601,85 giây: **42.054 decision, 0 alert, 0 restart, đủ 20/20 workload**.
+Coverage thấp nhất là frontend 560/580 second-bucket = **96,55%**, vượt gate
+95%. Inference p50/p95/p99 là 16,80/23,93/**29,02 ms**;
+post-window-processing p99 0,341 giây và window-start-to-decision p99
+**0,846 giây**, max 0,966 giây. Aggregate SHA-256 là
+`f3f601151b07cca8d7f7de266c0814841750b9bdbd4f92a3fe6eeef8d52b2fcc`.
+Đây là engineering coverage/latency preflight, không phải FPR hoặc recall
+claim. Full regression sau hardening đạt **503 passed, 2 Torch warnings**.
+
+Formal normal-only R6
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã được launcher khởi
+động ở phase traffic/cluster stability preflight, dùng frozen runtime commit
+`3c3be6c…`, model `2e37ffd1…`, policy B3 `02e0f02a…`,
+`STOP_AFTER_NORMAL=true` và external fail-closed supervisor. Tại thời điểm cập
+nhật chưa có `SOAK_START.json`, vì vậy chưa được gọi là formal run active. C3
+vẫn đóng; lifecycle không có quyền tự mở blind hoặc promote candidate.
