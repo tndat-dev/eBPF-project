@@ -1803,3 +1803,15 @@ stability preflight với frozen runtime/model/policy B3. Marker start
 Snapshot `15:51:53Z` có 7.022 decision/0 alert/0 restart; ba experimental
 collector/detector active, control collector inactive và feature binding khớp.
 External supervisor đã attach; C3 vẫn đóng và `STOP_AFTER_NORMAL=true`.
+
+Hậu kiểm SSH lúc `2026-09-02T16:03:42Z` ghi nhận tổng **61.394 decision, 0
+alert, 0 restart** trên ba worker; collector/detector đều active, feature binding
+đúng, 6/6 node Ready và không có pod production non-Ready. R6 vẫn chỉ là run
+đang chạy, chưa đủ 24 giờ nên chưa có normal-gate result. C3 không có evidence
+file và không có attack injection.
+
+Failure freezer của source canonical đã được sửa để tránh lặp I/O: khi
+finalizer đã tạo và verify `RAW_SHA256SUMS`, freezer tái sử dụng cây raw local
+read-only và chỉ hash metadata mới vào `FAILURE_SHA256SUMS`. Nhánh monitor fail
+trước checkpoint vẫn dùng archive `raw.tar.gz` tự chứa. Cơ chế này không tune,
+evaluate hay promote model và không hot-patch frozen runtime của R6.

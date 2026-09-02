@@ -33,6 +33,36 @@ model_sha=$(jq -er '.model_manifest_sha256' "$MARKER")
 policy_sha=$(jq -er '.decision_policy_sha256' "$MARKER")
 started_at=$(jq -er '.started_not_before' "$MARKER")
 
+# A finalizer that reaches evaluation has already frozen, copied and checksummed
+# every raw stream before the normal-gate evaluator can reject the run. Reuse
+# verified local archive instead of copying and compressing the same multi-GB
+# worker data a second time.  Monitor failures occur before this checkpoint and
+# continue through the self-contained remote archive fallback below.
+reuse_finalizer_raw_archive=false
+if [[ -s "$EVIDENCE_ROOT/RAW_SHA256SUMS" ]] &&
+   (cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS >/dev/null); then
+  reuse_finalizer_raw_archive=true
+  while read -r host _node expected_feature; do
+    capture_dir=${expected_feature%/features.jsonl}
+    detector_dir="/var/lib/sentinel-pulse-detector/runs/$model_sha-$policy_sha-$run_id"
+    local_raw="$EVIDENCE_ROOT/workers/$host/raw"
+    if [[ ! -s "$local_raw/${capture_dir#/}/features.jsonl" ||
+          ! -s "$local_raw/${capture_dir#/}/FINAL.json" ||
+          ! -s "$local_raw/${detector_dir#/}/decisions.jsonl" ||
+          ! -f "$local_raw/${detector_dir#/}/alerts.jsonl" ||
+          ! -s "$EVIDENCE_ROOT/workers/$host-node-finalize.json" ]] ||
+       ! jq -e '.valid == true and .service_ok == true' \
+          "$local_raw/${capture_dir#/}/FINAL.json" >/dev/null; then
+      reuse_finalizer_raw_archive=false
+      break
+    fi
+  done <"$WORKERS_FILE"
+  if [[ $reuse_finalizer_raw_archive == true ]]; then
+    chmod -R a-w "$EVIDENCE_ROOT/workers"
+    chmod a-w "$EVIDENCE_ROOT/RAW_SHA256SUMS"
+  fi
+fi
+
 while read -r host node expected_feature; do
   [[ $expected_feature == "/var/lib/sentinel-pulse-500ms/runs/$run_id/features.jsonl" ]]
   capture_dir=${expected_feature%/features.jsonl}
@@ -64,28 +94,36 @@ while read -r host node expected_feature; do
     "$node_root/unattended-upgrades-dpkg.log" 2>/dev/null || true
   remote_sudo "$host" rm -f "/tmp/$run_id-unattended.log" || true
 
-  # The node finalizer deliberately returns non-zero for a failed service but
-  # still emits validation and FINAL.json; retain both outcomes as evidence.
-  remote_sudo "$host" env MINIMUM_ROWS_PER_WORKLOAD=20 \
-    "$REMOTE_ROOT/sentinel_pulse/finalize_500ms_experiment.sh" \
-    >"$node_root/node-finalize.json" 2>"$node_root/node-finalize.stderr" || true
-  remote_sudo "$host" test -s "$capture_dir/FINAL.json"
-  remote_sudo "$host" test -s "$detector_dir/decisions.jsonl"
+  if [[ $reuse_finalizer_raw_archive == true ]]; then
+    printf 'source=existing_verified_finalizer_archive\nraw_sha256sums=%s\n' \
+      "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$node_root/archive-reuse.txt"
+  else
+    # The node finalizer deliberately returns non-zero for a failed service but
+    # still emits validation and FINAL.json; retain both outcomes as evidence.
+    remote_sudo "$host" env MINIMUM_ROWS_PER_WORKLOAD=20 \
+      "$REMOTE_ROOT/sentinel_pulse/finalize_500ms_experiment.sh" \
+      >"$node_root/node-finalize.json" \
+      2>"$node_root/node-finalize.stderr" || true
+    remote_sudo "$host" test -s "$capture_dir/FINAL.json"
+    remote_sudo "$host" test -s "$detector_dir/decisions.jsonl"
+  fi
   remote_sudo "$host" chmod -R a-w "$capture_dir" \
     "$detector_dir"
 
   # Stream a compressed, self-contained copy; do not delete remote originals.
   # A validated archive is a resume checkpoint after a control-plane process
   # interruption, while a partial .tmp is always overwritten.
-  if [[ ! -s "$node_root/raw.tar.gz" ]] || \
-     ! tar -tzf "$node_root/raw.tar.gz" >/dev/null 2>&1; then
-    printf '%s\n' "$SSHPASS" | sshpass -e ssh \
-      -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
-      "sudo -S -p '' tar -C / -czf - '${capture_dir#/}' '${detector_dir#/}'" \
-      >"$node_root/raw.tar.gz.tmp"
-    mv "$node_root/raw.tar.gz.tmp" "$node_root/raw.tar.gz"
+  if [[ $reuse_finalizer_raw_archive != true ]]; then
+    if [[ ! -s "$node_root/raw.tar.gz" ]] || \
+       ! tar -tzf "$node_root/raw.tar.gz" >/dev/null 2>&1; then
+      printf '%s\n' "$SSHPASS" | sshpass -e ssh \
+        -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
+        "sudo -S -p '' tar -C / -czf - '${capture_dir#/}' '${detector_dir#/}'" \
+        >"$node_root/raw.tar.gz.tmp"
+      mv "$node_root/raw.tar.gz.tmp" "$node_root/raw.tar.gz"
+    fi
+    tar -tzf "$node_root/raw.tar.gz" >/dev/null
   fi
-  tar -tzf "$node_root/raw.tar.gz" >/dev/null
   remote_sudo "$host" systemctl reset-failed \
     sentinel-pulse-collector-500ms-experiment.service \
     sentinel-pulse-detector-candidate.service || true
@@ -117,8 +155,10 @@ Path(sys.argv[1]).write_text(json.dumps({
 }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
+REUSED_FINALIZER_RAW_ARCHIVE="$reuse_finalizer_raw_archive" \
 python3 - "$EVIDENCE_ROOT" "$FAILURE_ROOT/DISPOSITION.json" <<'PY'
 import json
+import os
 from pathlib import Path
 import sys
 from datetime import datetime, timezone
@@ -160,21 +200,46 @@ payload = {
         "tuning": False,
         "blind_attack": False,
     },
+    "archive": {
+        "reused_verified_finalizer_raw_archive": (
+            os.environ["REUSED_FINALIZER_RAW_ARCHIVE"] == "true"
+        ),
+    },
     "archived_at": datetime.now(timezone.utc).isoformat(),
 }
 out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
-(
-  cd "$EVIDENCE_ROOT"
-  # Runtime log is intentionally outside the immutable evidence index because
-  # stdout keeps appending until after this script exits. Temporary streams are
-  # likewise never evidence.
-  find . -type f ! -name RAW_SHA256SUMS ! -name ARCHIVE_COMPLETE \
-    ! -name archive.log ! -name '*.tmp' \
-    -print0 | sort -z | xargs -0 sha256sum
-) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
-(cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
-printf 'archived_at=%s\nautomatic_promotion=false\n' "$(date -u +%FT%TZ)" \
+if [[ $reuse_finalizer_raw_archive == true ]]; then
+  # Preserve the finalizer's immutable raw checksum manifest.  Hash only the
+  # newly added failure metadata so terminalization remains bounded by metadata
+  # size instead of rereading every raw stream.
+  (
+    cd "$EVIDENCE_ROOT"
+    {
+      find infrastructure-failure -type f ! -name '*.tmp' -print0
+      for path in FAILED FINALIZE_FAILED NORMAL_REPORT.json \
+        CONTROL_COLLECTOR_RESTORED.json; do
+        [[ ! -f $path ]] || printf '%s\0' "$path"
+      done
+    } | sort -z | xargs -0 sha256sum
+  ) >"$EVIDENCE_ROOT/FAILURE_SHA256SUMS"
+  # RAW_SHA256SUMS was verified before the local raw tree was made read-only;
+  # only the newly created failure metadata needs another read here.
+  (cd "$EVIDENCE_ROOT" && sha256sum -c FAILURE_SHA256SUMS)
+else
+  (
+    cd "$EVIDENCE_ROOT"
+    # Runtime log is intentionally outside the immutable evidence index because
+    # stdout keeps appending until after this script exits. Temporary streams are
+    # likewise never evidence.
+    find . -type f ! -name RAW_SHA256SUMS ! -name ARCHIVE_COMPLETE \
+      ! -name archive.log ! -name '*.tmp' \
+      -print0 | sort -z | xargs -0 sha256sum
+  ) >"$EVIDENCE_ROOT/RAW_SHA256SUMS"
+  (cd "$EVIDENCE_ROOT" && sha256sum -c RAW_SHA256SUMS)
+fi
+printf 'archived_at=%s\nautomatic_promotion=false\nreused_finalizer_raw_archive=%s\n' \
+  "$(date -u +%FT%TZ)" "$reuse_finalizer_raw_archive" \
   >"$EVIDENCE_ROOT/ARCHIVE_COMPLETE"
 printf 'failed soak archived without evaluation: %s\n' "$EVIDENCE_ROOT"

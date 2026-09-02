@@ -6745,3 +6745,20 @@ Snapshot `2026-09-02T15:51:53Z` có 6 monitor row, 7.022 decision, 0 alert,
 và feature source khớp trên cả ba worker. External fail-closed supervisor attach
 lúc `15:49:54Z`; `STOP_AFTER_NORMAL=true`. C3 vẫn đóng và lifecycle không có
 quyền tự mở blind hoặc promote candidate.
+
+### 18.159 Hậu kiểm sớm R6 và tối ưu failure archive (02-09-2026)
+
+SSH trực tiếp lúc `2026-09-02T16:03:42Z` xác nhận R6 vẫn `ACTIVE`. Snapshot mới
+nhất theo từng worker có tổng **61.394 decision, 0 alert, 0 detector restart**;
+ba collector 500 ms và ba detector đều `active`, control collector đều
+`inactive`, feature source đều khớp run ID. Cụm có 6/6 node `Ready`, không có
+pod `production` non-Running/non-Ready và thư mục blind C3 vẫn không có file.
+Đây là quan sát giữa soak, chưa phải normal pass hay chứng minh FPR bằng 0.
+
+Nhánh terminal failure được tối ưu cho các run tương lai: nếu formal finalizer
+đã copy raw evidence, tạo `RAW_SHA256SUMS` và toàn bộ checksum xác minh thành
+công trước khi evaluator reject, freezer dùng lại cây raw local đã chuyển
+read-only. Failure metadata mới được bind riêng bằng `FAILURE_SHA256SUMS`; hệ
+thống không còn copy/nén lại cùng dữ liệu nhiều GB. Nếu monitor fail trước
+checkpoint đó, fallback `raw.tar.gz` tự chứa vẫn được giữ nguyên. Thay đổi chỉ
+thuộc orchestration/evidence, không thay model, policy hoặc frozen runtime R6.

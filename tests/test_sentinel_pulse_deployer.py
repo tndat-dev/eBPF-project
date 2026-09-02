@@ -222,6 +222,22 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("! -name '*.tmp'", script)
         self.assertNotIn("evaluate_normal", script)
 
+    def test_failed_soak_freezer_reuses_verified_finalizer_archive(self):
+        script = (
+            ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
+        ).read_text()
+        verify = script.index("sha256sum -c RAW_SHA256SUMS")
+        reuse = script.index("reuse_finalizer_raw_archive=true", verify)
+        remote_fallback = script.index(">\"$node_root/raw.tar.gz.tmp\"")
+        self.assertLess(verify, reuse)
+        self.assertLess(reuse, remote_fallback)
+        self.assertIn(
+            "if [[ $reuse_finalizer_raw_archive != true ]]", script
+        )
+        self.assertIn("FAILURE_SHA256SUMS", script)
+        self.assertIn("reused_verified_finalizer_raw_archive", script)
+        self.assertIn('chmod -R a-w "$EVIDENCE_ROOT/workers"', script)
+
     def test_candidate_lifecycle_is_resumable_fail_closed_and_non_promoting(self):
         script = (
             ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"

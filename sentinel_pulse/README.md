@@ -293,6 +293,14 @@ SSHPASS=... ./sentinel_pulse/supervise_500ms_candidate_lifecycle.sh \
   /path/to/formal-normal-evidence LIFECYCLE_PID
 ```
 
+If normal evaluation rejects a run after the formal finalizer has already
+copied and verified all worker streams, the failure freezer reuses that
+read-only archive. It records `FAILURE_SHA256SUMS` for the additional failure
+metadata instead of copying/compressing the same multi-gigabyte streams again.
+Monitor failures before the raw-archive checkpoint still use the remote
+`raw.tar.gz` fallback. Neither path evaluates, trains, tunes, or promotes the
+candidate.
+
 When same-window model and semantic signals are phase-shifted, calibrate a
 bounded event-time join strictly on checksum-bound normal decisions. Do not use
 the attack pilot to select the horizon:
