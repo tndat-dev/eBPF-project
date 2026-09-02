@@ -19,8 +19,25 @@ remote() { local host=$1; shift; sshpass -e ssh -o StrictHostKeyChecking=no -o C
 remote_sudo() { local host=$1; shift; printf '%s\n' "$SSHPASS" | sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" "sudo -S -p '' $*"; }
 
 mkdir -p "$EVIDENCE_ROOT/nodes"
-while read -r host node unit; do
+declare -a hosts nodes units
+while read -r host node unit extra; do
+  [[ -n $host && -n $node && -n $unit && -z ${extra:-} ]]
+  hosts+=("$host")
+  nodes+=("$node")
+  units+=("$unit")
+done <"$EVIDENCE_ROOT/workers.txt"
+[[ ${#hosts[@]} -eq 3 ]]
+
+# Quiesce all telemetry sources before waiting for or copying any worker. This
+# bounds cross-worker capture skew and prevents later workers from continuing
+# to collect while a large archive from the first worker is transferred.
+for host in "${hosts[@]}"; do
   remote_sudo "$host" systemctl stop sentinel-pulse-collector-500ms-experiment.service
+done
+
+for index in "${!hosts[@]}"; do
+  host=${hosts[$index]}
+  node=${nodes[$index]}
   deadline=$(( $(date +%s) + 300 ))
   while :; do
     if remote_sudo "$host" "test ! -e '/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/CANARY_COMPLETE' -a ! -e '/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/CANARY_FAILED.txt'"; then
@@ -33,17 +50,34 @@ while read -r host node unit; do
     fi
     break
   done
+done
+
+# Every worker finalizer is now terminal. Enforce a second all-worker barrier
+# before copying evidence so no candidate process can append to a stream while
+# another node is already being archived.
+for host in "${hosts[@]}"; do
   remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service
   remote_sudo "$host" systemctl disable sentinel-pulse-detector-candidate.service
   remote_sudo "$host" sh -c \
     "'! systemctl is-active --quiet sentinel-pulse-detector-candidate.service sentinel-pulse-collector-500ms-experiment.service'"
+done
+
+for index in "${!hosts[@]}"; do
+  host=${hosts[$index]}
+  node=${nodes[$index]}
   destination="$EVIDENCE_ROOT/nodes/$node"
   mkdir -p "$destination"
   printf '%s\n' "$SSHPASS" | sshpass -e ssh -o StrictHostKeyChecking=no \
     -o ConnectTimeout=8 "$SSH_USER@$host" \
     "sudo -S -p '' tar -C '/var/lib/sentinel-pulse-500ms/runs/$RUN_ID' -cf - ." | \
     tar -C "$destination" -xf -
-done <"$EVIDENCE_ROOT/workers.txt"
+  if [[ -f "$destination/CANARY_COMPLETE" ]]; then
+    test -s "$destination/CANARY_SHA256SUMS"
+    (cd "$destination" && sha256sum -c CANARY_SHA256SUMS)
+  else
+    test -s "$destination/CANARY_FAILED.txt"
+  fi
+done
 
 PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python - \
   "$EVIDENCE_ROOT" <<'PY'

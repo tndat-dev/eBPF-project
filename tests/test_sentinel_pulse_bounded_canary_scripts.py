@@ -64,3 +64,23 @@ def test_failed_bounded_canary_is_stopped_and_checksum_archived():
     assert "not_evaluated_by_this_run" in script
     assert "automatic_promotion" in script
     assert "install_production" not in script
+
+
+def test_failed_bounded_canary_quiesces_all_workers_before_copy():
+    script = (
+        ROOT / "sentinel_pulse" / "freeze_failed_bounded_live_canary.sh"
+    ).read_text()
+    collector_barrier = script.index('for host in "${hosts[@]}"; do')
+    finalizer_barrier = script.index('for index in "${!hosts[@]}"; do')
+    detector_barrier = script.index(
+        'for host in "${hosts[@]}"; do', finalizer_barrier
+    )
+    copy_barrier = script.index(
+        'for index in "${!hosts[@]}"; do', detector_barrier
+    )
+    archive_copy = script.index('tar -C "$destination" -xf -')
+    assert collector_barrier < finalizer_barrier < detector_barrier
+    assert detector_barrier < copy_barrier < archive_copy
+    assert '[[ ${#hosts[@]} -eq 3 ]]' in script
+    assert "sha256sum -c CANARY_SHA256SUMS" in script
+    assert 'test -s "$destination/CANARY_FAILED.txt"' in script
