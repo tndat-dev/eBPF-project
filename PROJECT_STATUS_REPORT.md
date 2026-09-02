@@ -6731,7 +6731,7 @@ post-window-processing p99 0,341 giây và window-start-to-decision p99
 **0,846 giây**, max 0,966 giây. Aggregate SHA-256 là
 `f3f601151b07cca8d7f7de266c0814841750b9bdbd4f92a3fe6eeef8d52b2fcc`.
 Đây là engineering coverage/latency preflight, không phải FPR hoặc recall
-claim. Full regression sau hardening đạt **503 passed, 2 Torch warnings**.
+claim. Full regression sau hardening đạt **504 passed, 2 Torch warnings**.
 
 Formal normal-only R6
 `sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã **active** sau traffic
