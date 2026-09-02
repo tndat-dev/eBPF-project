@@ -22,7 +22,18 @@ PHASE_LOG=${PHASE_LOG:-$STATE_ROOT/$NORMAL_RUN_ID-lifecycle.jsonl}
 [[ $STOP_AFTER_NORMAL == true || $STOP_AFTER_NORMAL == false ]]
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$POLICY_SOURCE"
+command -v flock >/dev/null
+command -v jq >/dev/null
+command -v sha256sum >/dev/null
 mkdir -p "$STATE_ROOT"
+
+# Exactly one lifecycle process may own a normal run. This prevents duplicate
+# monitors/finalizers from racing on the same immutable evidence directory.
+exec 8>"$STATE_ROOT/$NORMAL_RUN_ID.lifecycle.lock"
+if ! flock -n 8; then
+  echo "candidate lifecycle already owns run: $NORMAL_RUN_ID" >&2
+  exit 6
+fi
 
 phase() {
   python3 - "$PHASE_LOG" "$1" <<'PY'
@@ -42,6 +53,24 @@ with path.open("a", encoding="utf-8") as handle:
     handle.write(json.dumps(row, separators=(",", ":")) + "\n")
 PY
 }
+
+# On resume, reject a caller that points the run at different model/policy
+# bytes immediately. Waiting until finalization would waste the entire soak and
+# could pair evidence with the wrong operator intent. This check is read-only.
+if [[ -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
+  marker_model_sha=$(jq -er '.model_manifest_sha256' \
+    "$NORMAL_EVIDENCE_ROOT/SOAK_START.json")
+  marker_policy_sha=$(jq -er '.decision_policy_sha256' \
+    "$NORMAL_EVIDENCE_ROOT/SOAK_START.json")
+  supplied_model_sha=$(sha256sum "$MODEL_SOURCE/manifest.json" | awk '{print $1}')
+  supplied_policy_sha=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
+  if [[ $supplied_model_sha != "$marker_model_sha" ||
+        $supplied_policy_sha != "$marker_policy_sha" ]]; then
+    phase terminal_resume_identity_mismatch
+    echo "resume model/policy identity does not match SOAK_START.json" >&2
+    exit 6
+  fi
+fi
 
 if [[ ! -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
   traffic_gate="$STATE_ROOT/$NORMAL_RUN_ID-traffic-gate.json"

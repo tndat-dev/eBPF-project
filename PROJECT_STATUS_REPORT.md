@@ -6782,3 +6782,9 @@ runtime/model/policy của R6. Focused regression đạt 39/39. Snapshot SSH R6 
 `2026-09-02T16:10:32Z`: **91.062 decision, 0 alert, 0 restart**, ba pipeline
 active/binding đúng, 6/6 node Ready và không có pod production non-Ready; run
 vẫn `ACTIVE` và chưa phải normal-pass result.
+
+Lifecycle canonical sau đó được khóa single-writer bằng `flock` theo normal run
+ID. Resume kiểm SHA-256 model manifest và policy với `SOAK_START.json` trước
+monitor; lệnh chạy trùng hoặc identity sai dừng với exit code 6 mà không chạm
+runtime/evidence. Hai behavioral test mới xác minh cả lock contention và
+resume identity mismatch.

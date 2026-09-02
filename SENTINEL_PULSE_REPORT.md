@@ -1825,3 +1825,7 @@ resource và namespace không rỗng; expected workload coverage vẫn được 
 ở cả lifecycle và normal finalizer, ngăn fallback nhầm policy cũ. Focused test
 39/39. Hậu kiểm R6 lúc `2026-09-02T16:10:32Z` có **91.062 decision, 0 alert,
 0 restart**; đây vẫn là interim observation.
+
+Lifecycle canonical còn giữ single-writer lock theo run ID và kiểm model/policy
+hash ngay khi resume. Duplicate process hoặc identity mismatch dừng trước
+monitor/finalizer; hai behavioral test thực thi thật đã khóa hai invariant này.

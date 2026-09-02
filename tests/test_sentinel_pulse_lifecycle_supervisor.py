@@ -1,4 +1,5 @@
 import json
+import fcntl
 import os
 from pathlib import Path
 import subprocess
@@ -7,6 +8,7 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 SUPERVISOR = ROOT / "sentinel_pulse" / "supervise_500ms_candidate_lifecycle.sh"
+LIFECYCLE = ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
 
 
 def evidence_fixture(root: Path) -> None:
@@ -27,6 +29,76 @@ def supervisor_env(local_root: Path) -> dict[str, str]:
         "POLL_SECONDS": "1",
         "EXIT_GRACE_SECONDS": "1",
     }
+
+
+def lifecycle_env(tmp_path: Path, model: Path, policy: Path) -> dict[str, str]:
+    return {
+        **os.environ,
+        "SSHPASS": "test-only",
+        "LOCAL_ROOT": str(ROOT),
+        "MODEL_SOURCE": str(model),
+        "POLICY_SOURCE": str(policy),
+        "NORMAL_RUN_ID": "resume-test",
+        "NORMAL_EVIDENCE_ROOT": str(tmp_path / "evidence"),
+        "BLIND_RUN_ID": "blind-test",
+        "BLIND_EVIDENCE_ROOT": str(tmp_path / "blind"),
+        "STATE_ROOT": str(tmp_path / "state"),
+        "PHASE_LOG": str(tmp_path / "state" / "phases.jsonl"),
+    }
+
+
+def lifecycle_inputs(tmp_path: Path) -> tuple[Path, Path]:
+    model = tmp_path / "model"
+    model.mkdir()
+    (model / "manifest.json").write_text("{}\n", encoding="utf-8")
+    policy = tmp_path / "policy.json"
+    policy.write_text("{}\n", encoding="utf-8")
+    return model, policy
+
+
+def test_lifecycle_rejects_resume_identity_mismatch_before_monitor(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "SOAK_START.json").write_text(json.dumps({
+        "model_manifest_sha256": "0" * 64,
+        "decision_policy_sha256": "1" * 64,
+    }), encoding="utf-8")
+
+    result = subprocess.run(
+        [str(LIFECYCLE)],
+        env=lifecycle_env(tmp_path, model, policy),
+        text=True,
+        capture_output=True,
+        timeout=5,
+        check=False,
+    )
+
+    assert result.returncode == 6
+    assert "identity does not match" in result.stderr
+    phases = (tmp_path / "state" / "phases.jsonl").read_text()
+    assert "terminal_resume_identity_mismatch" in phases
+
+
+def test_lifecycle_rejects_a_second_writer_for_the_same_run(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    state = tmp_path / "state"
+    state.mkdir()
+    lock_path = state / "resume-test.lifecycle.lock"
+    with lock_path.open("w", encoding="utf-8") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        result = subprocess.run(
+            [str(LIFECYCLE)],
+            env=lifecycle_env(tmp_path, model, policy),
+            text=True,
+            capture_output=True,
+            timeout=5,
+            check=False,
+        )
+
+    assert result.returncode == 6
+    assert "already owns run" in result.stderr
+    assert not (state / "phases.jsonl").exists()
 
 
 def test_supervisor_does_not_mutate_a_live_lifecycle(tmp_path):

@@ -258,6 +258,19 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertNotIn("decision-policy-semantic-v4.json", script)
         self.assertNotIn("kubectl apply", script)
 
+    def test_candidate_lifecycle_is_single_writer_and_resume_identity_bound(self):
+        script = (
+            ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        lock = script.index('flock -n 8')
+        marker = script.index('marker_model_sha=$(jq -er')
+        monitor = script.index('monitor_500ms_normal_soak.sh')
+        self.assertLess(lock, marker)
+        self.assertLess(marker, monitor)
+        self.assertIn("terminal_resume_identity_mismatch", script)
+        self.assertIn('sha256sum "$MODEL_SOURCE/manifest.json"', script)
+        self.assertIn('sha256sum "$POLICY_SOURCE"', script)
+
     def test_dependency_restart_canary_reproduces_a2_trigger(self):
         script = (
             ROOT / "sentinel_pulse" / "run_dependency_restart_canary.sh"
