@@ -251,6 +251,11 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("NORMAL_PASS", script)
         self.assertIn("refusing automatic rerun", script)
         self.assertIn('"automatic_promotion": False', script)
+        self.assertIn(
+            "POLICY_SOURCE=${POLICY_SOURCE:?point to the frozen candidate decision policy}",
+            script,
+        )
+        self.assertNotIn("decision-policy-semantic-v4.json", script)
         self.assertNotIn("kubectl apply", script)
 
     def test_dependency_restart_canary_reproduces_a2_trigger(self):
@@ -293,6 +298,10 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertLess(detector_stop, collector_stop)
         self.assertLess(collector_stop, evaluation)
         self.assertIn("FINALIZE_MARGIN_SECONDS", script)
+        self.assertIn(
+            "POLICY_SOURCE=${POLICY_SOURCE:?POLICY_SOURCE must be the frozen candidate policy}",
+            script,
+        )
         self.assertIn("--model-manifest", script)
         self.assertIn("expected_workload_gate", script)
         self.assertIn("automatic_promotion=false", script)

@@ -5,7 +5,7 @@ set -euo pipefail
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 PYTHON=${PYTHON:-python3}
 MODEL_SOURCE=${MODEL_SOURCE:?point to the frozen candidate directory}
-POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
+POLICY_SOURCE=${POLICY_SOURCE:?point to the frozen candidate decision policy}
 NORMAL_RUN_ID=${NORMAL_RUN_ID:-pulse500-normal-soak-$(date -u +%Y%m%dT%H%M%SZ)}
 NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$NORMAL_RUN_ID}
 BLIND_RUN_ID=${BLIND_RUN_ID:-pulse500-blind-$(date -u +%Y%m%dT%H%M%SZ)}

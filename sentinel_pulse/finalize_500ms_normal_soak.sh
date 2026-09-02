@@ -5,7 +5,7 @@ set -euo pipefail
 EVIDENCE_ROOT=${1:?usage: finalize_500ms_normal_soak.sh EVIDENCE_ROOT}
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 MODEL_SOURCE=${MODEL_SOURCE:?MODEL_SOURCE must contain the frozen manifest.json}
-POLICY_SOURCE=${POLICY_SOURCE:-$LOCAL_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v4.json}
+POLICY_SOURCE=${POLICY_SOURCE:?POLICY_SOURCE must be the frozen candidate policy}
 SSH_USER=${SSH_USER:-dat}
 FINALIZE_MARGIN_SECONDS=${FINALIZE_MARGIN_SECONDS:-300}
 MINIMUM_SCORED_WINDOWS=${MINIMUM_SCORED_WINDOWS:-86400}

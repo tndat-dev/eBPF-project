@@ -1817,3 +1817,11 @@ trước checkpoint vẫn dùng archive `raw.tar.gz` tự chứa. Cơ chế này
 evaluate hay promote model và không hot-patch frozen runtime của R6.
 Thay đổi ở commit `941037b`; host, `origin/main` và VM canonical đã đồng bộ.
 Full regression trên VM đạt **505 passed, 2 Torch deprecation warnings**.
+
+Bounded-canary preflight tiếp tục được harden để không phụ thuộc magic number
+42 pod: nó checksum-bind snapshot node/pod, yêu cầu đúng 6 node, zero unhealthy
+resource và namespace không rỗng; expected workload coverage vẫn được quyết
+định bởi model manifest ở aggregate gate. `POLICY_SOURCE` nay bắt buộc explicit
+ở cả lifecycle và normal finalizer, ngăn fallback nhầm policy cũ. Focused test
+39/39. Hậu kiểm R6 lúc `2026-09-02T16:10:32Z` có **91.062 decision, 0 alert,
+0 restart**; đây vẫn là interim observation.

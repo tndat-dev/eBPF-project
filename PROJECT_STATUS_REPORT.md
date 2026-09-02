@@ -6765,3 +6765,20 @@ thuộc orchestration/evidence, không thay model, policy hoặc frozen runtime 
 Commit `941037b` đã được push lên `origin/main`, VM canonical đã fast-forward
 đúng commit; full regression trên ML venv đạt **505 passed, 2 Torch deprecation
 warnings**.
+
+### 18.160 Scale-safe canary và khóa policy explicit (02-09-2026)
+
+Bounded canary trước đây hard-code đúng 42 pod Ready nên có thể reject sai khi
+HPA, rollout hoặc scale hợp lệ. Preflight mới lưu nguyên JSON của node và pod,
+bind hai snapshot vào `START_SHA256SUMS`, yêu cầu đúng 6 node, không node/pod
+unhealthy và namespace production không rỗng. Số replica không còn là magic
+number; việc thiếu model workload vẫn fail-closed ở coverage aggregate 20 key.
+
+Lifecycle và normal finalizer cũng không còn fallback sang policy
+`decision-policy-semantic-v4.json`: `POLICY_SOURCE` trở thành input bắt buộc.
+Điều này chặn tái diễn lỗi chạy candidate với policy ngầm sai identity. Các
+thay đổi chỉ áp dụng source canonical cho campaign tương lai, không thay frozen
+runtime/model/policy của R6. Focused regression đạt 39/39. Snapshot SSH R6 lúc
+`2026-09-02T16:10:32Z`: **91.062 decision, 0 alert, 0 restart**, ba pipeline
+active/binding đúng, 6/6 node Ready và không có pod production non-Ready; run
+vẫn `ACTIVE` và chưa phải normal-pass result.

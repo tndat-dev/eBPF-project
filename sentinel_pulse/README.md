@@ -282,6 +282,10 @@ NORMAL_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b1/SENTINEL_PULSE_B
 ./sentinel_pulse/run_500ms_candidate_lifecycle.sh
 ```
 
+`MODEL_SOURCE` and `POLICY_SOURCE` are mandatory identities. The lifecycle and
+normal finalizer deliberately have no default decision policy, so an omitted
+environment variable cannot silently bind a candidate to an older policy.
+
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
 while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a
