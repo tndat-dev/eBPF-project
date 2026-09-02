@@ -69,6 +69,15 @@ test -f "$POLICY_SOURCE"
 test ! -e "$EVIDENCE_ROOT"
 mkdir -p "$(dirname "$EVIDENCE_ROOT")"
 
+# Reject incomplete archived bundles before suspending a production collector.
+PYTHONPATH="$LOCAL_ROOT" "$PYTHON" - "$MODEL_SOURCE" <<'PY'
+from pathlib import Path
+import sys
+from sentinel_pulse.finalize_candidate import verify_model_bundle
+
+verify_model_bundle(Path(sys.argv[1]))
+PY
+
 remote() {
   local host=$1; shift
   sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 \

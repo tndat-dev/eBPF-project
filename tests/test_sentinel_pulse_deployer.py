@@ -168,6 +168,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("REQUIRE_CONTROL_COLLECTOR=false", script)
         self.assertIn("! systemctl is-active --quiet sentinel-pulse-collector", script)
         self.assertNotIn("systemctl enable", script)
+        self.assertIn("verify_model_bundle", script)
 
     def test_runtime_units_do_not_propagate_transient_dependency_restarts(self):
         unit_root = ROOT / "sentinel_pulse" / "systemd"
@@ -479,6 +480,7 @@ class PulseDeployerTests(unittest.TestCase):
         ).read_text()
         self.assertIn("phase normal_finalize_failed", lifecycle)
         self.assertIn("sentinel_pulse.classify_normal_failure", lifecycle)
+        self.assertIn("failure_reason=normal_finalize_failed", lifecycle)
         self.assertIn('reason=%s\\nhost=control-plane', lifecycle)
         self.assertIn('rm -f "$NORMAL_EVIDENCE_ROOT/ACTIVE"', lifecycle)
         self.assertIn("phase normal_finalize_failure_archive", lifecycle)
