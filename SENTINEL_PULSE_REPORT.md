@@ -1815,3 +1815,5 @@ finalizer đã tạo và verify `RAW_SHA256SUMS`, freezer tái sử dụng cây 
 read-only và chỉ hash metadata mới vào `FAILURE_SHA256SUMS`. Nhánh monitor fail
 trước checkpoint vẫn dùng archive `raw.tar.gz` tự chứa. Cơ chế này không tune,
 evaluate hay promote model và không hot-patch frozen runtime của R6.
+Thay đổi ở commit `941037b`; host, `origin/main` và VM canonical đã đồng bộ.
+Full regression trên VM đạt **505 passed, 2 Torch deprecation warnings**.

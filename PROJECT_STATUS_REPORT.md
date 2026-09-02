@@ -6762,3 +6762,6 @@ read-only. Failure metadata mới được bind riêng bằng `FAILURE_SHA256SUM
 thống không còn copy/nén lại cùng dữ liệu nhiều GB. Nếu monitor fail trước
 checkpoint đó, fallback `raw.tar.gz` tự chứa vẫn được giữ nguyên. Thay đổi chỉ
 thuộc orchestration/evidence, không thay model, policy hoặc frozen runtime R6.
+Commit `941037b` đã được push lên `origin/main`, VM canonical đã fast-forward
+đúng commit; full regression trên ML venv đạt **505 passed, 2 Torch deprecation
+warnings**.
