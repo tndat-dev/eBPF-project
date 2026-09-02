@@ -6,6 +6,7 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -47,16 +48,38 @@ def verify_checksums(root: Path) -> int:
     return verified
 
 
+def expected_workloads_from_manifest(path: Path) -> list[str]:
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    workloads = manifest.get("workloads")
+    if not isinstance(workloads, dict) or not workloads:
+        raise ValueError("model manifest has no workload mapping")
+    expected = sorted(str(workload) for workload in workloads)
+    if any(not workload or workload == "unknown" for workload in expected):
+        raise ValueError("model manifest contains an invalid workload key")
+    return expected
+
+
 def aggregate(
-    node_roots: dict[str, Path], expected_model: str, expected_policy: str
+    node_roots: dict[str, Path],
+    expected_model: str,
+    expected_policy: str,
+    expected_workloads: list[str] | None = None,
+    minimum_coverage_ratio: float = 0.95,
+    minimum_coverage_span_seconds: int = 300,
 ) -> dict:
     if len(node_roots) < 1:
         raise ValueError("at least one node root is required")
+    if not 0.0 < minimum_coverage_ratio <= 1.0:
+        raise ValueError("minimum coverage ratio must be in (0, 1]")
+    if minimum_coverage_span_seconds < 1:
+        raise ValueError("minimum coverage span must be positive")
     statuses: Counter[str] = Counter()
     inference_ms: list[float] = []
     post_window_seconds: list[float] = []
     start_to_decision_seconds: list[float] = []
     workloads = set()
+    workload_bounds: dict[str, list[float]] = {}
+    workload_second_buckets: dict[str, set[int]] = {}
     nodes = {}
     total_alerts = 0
     observed_durations = []
@@ -84,7 +107,8 @@ def aggregate(
                 if record.get("decision_policy_sha256") != expected_policy:
                     raise ValueError(f"decision policy identity mismatch: {node}")
                 statuses[str(record.get("status"))] += 1
-                workloads.add(str(record.get("workload_key")))
+                workload = str(record.get("workload_key"))
+                workloads.add(workload)
                 if "inference_ms" in record:
                     scored_rows += 1
                     observed_scored_node_names.add(str(record.get("node_name")))
@@ -94,6 +118,17 @@ def aggregate(
                     )
                     start_to_decision_seconds.append(
                         float(record["alerted_at"]) - float(record["window_start"])
+                    )
+                    window_end = float(record["window_end"])
+                    if not math.isfinite(window_end):
+                        raise ValueError(f"invalid decision window_end: {node}")
+                    bounds = workload_bounds.setdefault(
+                        workload, [window_end, window_end]
+                    )
+                    bounds[0] = min(bounds[0], window_end)
+                    bounds[1] = max(bounds[1], window_end)
+                    workload_second_buckets.setdefault(workload, set()).add(
+                        math.floor(window_end)
                     )
         alerts = sum(
             1 for line in (root / "alerts.jsonl").open() if line.strip()
@@ -120,8 +155,32 @@ def aggregate(
         }
     minimum_duration = min(observed_durations)
     duration_label = f"{minimum_duration / 3600.0:.2f}-hour"
+    expected = set(expected_workloads or workloads)
+    observed = set(workload_bounds)
+    coverage = {}
+    for workload in sorted(expected | observed):
+        bounds = workload_bounds.get(workload)
+        span_seconds = (
+            math.floor(bounds[1]) - math.floor(bounds[0]) + 1 if bounds else 0
+        )
+        observed_seconds = len(workload_second_buckets.get(workload, set()))
+        ratio = observed_seconds / span_seconds if span_seconds else 0.0
+        coverage[workload] = {
+            "observed_second_buckets": observed_seconds,
+            "span_seconds": span_seconds,
+            "coverage_ratio": ratio,
+            "coverage_gate": (
+                span_seconds >= minimum_coverage_span_seconds
+                and ratio >= minimum_coverage_ratio
+            ),
+        }
+    missing_workloads = sorted(expected - observed)
+    unexpected_workloads = sorted(observed - expected)
+    coverage_preflight_gate = bool(coverage) and not missing_workloads and all(
+        item["coverage_gate"] for item in coverage.values()
+    )
     return {
-        "schema": "sentinel-pulse-live-normal-canary-aggregate-v2",
+        "schema": "sentinel-pulse-live-normal-canary-aggregate-v3",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "evidence_class": "nonformal_live_normal_canary",
         "accuracy_claim_allowed": False,
@@ -139,6 +198,13 @@ def aggregate(
         "minimum_observed_duration_seconds": minimum_duration,
         "status_counts": dict(sorted(statuses.items())),
         "workloads": sorted(workloads),
+        "expected_workloads": sorted(expected),
+        "missing_workloads": missing_workloads,
+        "unexpected_workloads": unexpected_workloads,
+        "minimum_coverage_ratio": minimum_coverage_ratio,
+        "minimum_coverage_span_seconds": minimum_coverage_span_seconds,
+        "workload_coverage": coverage,
+        "coverage_preflight_gate": coverage_preflight_gate,
         "inference_ms": distribution(inference_ms),
         "post_window_processing_seconds": distribution(post_window_seconds),
         "window_start_to_decision_seconds": distribution(start_to_decision_seconds),
@@ -157,6 +223,9 @@ def main() -> None:
     parser.add_argument("--node-root", action="append", required=True)
     parser.add_argument("--expected-model", required=True)
     parser.add_argument("--expected-policy", required=True)
+    parser.add_argument("--model-manifest", type=Path, required=True)
+    parser.add_argument("--minimum-coverage-ratio", type=float, default=0.95)
+    parser.add_argument("--minimum-coverage-span-seconds", type=int, default=300)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     roots = {}
@@ -167,7 +236,16 @@ def main() -> None:
         roots[node] = Path(path)
     if args.output.exists():
         raise ValueError(f"refusing to overwrite aggregate: {args.output}")
-    report = aggregate(roots, args.expected_model, args.expected_policy)
+    if sha256_file(args.model_manifest) != args.expected_model:
+        raise ValueError("model manifest identity mismatch")
+    report = aggregate(
+        roots,
+        args.expected_model,
+        args.expected_policy,
+        expected_workloads_from_manifest(args.model_manifest),
+        args.minimum_coverage_ratio,
+        args.minimum_coverage_span_seconds,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"

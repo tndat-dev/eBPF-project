@@ -100,18 +100,26 @@ spec:
           i=0
           while true; do
             wget -q -O /dev/null -T 3 "$ingress/" || true
+            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
+            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
+            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
+            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             if [ $((i % 5)) -eq 0 ]; then
               wget -q -O /dev/null -T 3 "$ingress/api/auth/me/" || true
+              sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
               wget -q -O /dev/null -T 3 "$ingress/api/cart/" || true
+              sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             fi
             i=$((i + 1))
-            sleep "${SLEEP_SECONDS:-1}"
           done
         env:
-        - {name: SLEEP_SECONDS, value: "1"}
+        # Preserve roughly the previous 4.4 request/s steady-state rate while
+        # distributing requests across second boundaries. This avoids periodic
+        # empty 1-second feature buckets without increasing traffic materially.
+        - {name: REQUEST_INTERVAL_SECONDS, value: "0.22"}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities: {drop: [ALL]}

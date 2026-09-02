@@ -33,7 +33,12 @@ done <"$EVIDENCE_ROOT/workers.txt"
 
 PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python -m sentinel_pulse.aggregate_live_canary \
   "${node_args[@]}" --expected-model "$MODEL_SHA256" \
-  --expected-policy "$POLICY_SHA256" --output "$EVIDENCE_ROOT/AGGREGATE.json"
+  --expected-policy "$POLICY_SHA256" \
+  --model-manifest "$EVIDENCE_ROOT/model/manifest.json" \
+  --minimum-coverage-ratio "${MINIMUM_COVERAGE_RATIO:-0.95}" \
+  --minimum-coverage-span-seconds "${MINIMUM_COVERAGE_SPAN_SECONDS:-300}" \
+  --output "$EVIDENCE_ROOT/AGGREGATE.json"
+jq -e '.coverage_preflight_gate == true' "$EVIDENCE_ROOT/AGGREGATE.json" >/dev/null
 (
   cd "$EVIDENCE_ROOT"
   find nodes -type f -print0 | sort -z | xargs -0 sha256sum

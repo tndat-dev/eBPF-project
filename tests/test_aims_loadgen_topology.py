@@ -42,3 +42,21 @@ def test_regime_and_capture_scripts_bind_the_ingress_generator():
     capture = (ROOT / "sentinel_pulse/run_500ms_dataset_campaign.sh").read_text()
     assert regime.count("deployment/aims-sentinel-ingress-loadgen") >= 3
     assert "aims-sentinel-ingress-loadgen" in capture
+
+
+def test_ingress_load_is_evenly_paced_without_material_steady_rate_increase():
+    deployments = load_deployments()
+    ingress = deployments["aims-sentinel-ingress-loadgen"]
+    script = container_script(ingress)
+    env = {
+        item["name"]: item.get("value")
+        for item in ingress["spec"]["template"]["spec"]["containers"][0]["env"]
+    }
+
+    assert script.count('sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"') == 6
+    assert 'sleep "${SLEEP_SECONDS:-1}"' not in script
+    assert env["REQUEST_INTERVAL_SECONDS"] == "0.22"
+
+    regime = (ROOT / "ml-service/set_aims_traffic_regime.sh").read_text()
+    assert "ingress_interval=0.22" in regime
+    assert 'SLEEP_SECONDS- REQUEST_INTERVAL_SECONDS="$ingress_interval"' in regime

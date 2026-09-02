@@ -22,6 +22,7 @@ def write_node(root, node):
         "inference_ms": 10.0,
         "post_window_processing_seconds": 0.1,
         "window_start": 1.0,
+        "window_end": 2.0,
         "alerted_at": 1.6,
     }
     decisions.write_text(json.dumps(row) + "\n")
@@ -61,6 +62,7 @@ def test_aggregate_verifies_and_combines_raw_node_decisions(tmp_path):
     assert report["window_start_to_decision_seconds"]["p99"] == pytest.approx(0.6)
     assert report["accuracy_claim_allowed"] is False
     assert report["node_identity_binding"].startswith("verified from node_name")
+    assert report["coverage_preflight_gate"] is False
 
 
 def test_aggregate_rejects_wrong_scored_node_identity(tmp_path):
@@ -68,3 +70,42 @@ def test_aggregate_rejects_wrong_scored_node_identity(tmp_path):
     write_node(root, "worker-b")
     with pytest.raises(ValueError, match="node identity mismatch"):
         aggregate({"worker-a": root}, MODEL, POLICY)
+
+
+def test_aggregate_coverage_preflight_requires_every_expected_second(tmp_path):
+    root = tmp_path / "worker-a"
+    write_node(root, "worker-a")
+    rows = []
+    for second in range(1, 302):
+        rows.append(json.dumps({
+            "status": "normal",
+            "node_name": "worker-a",
+            "workload_key": "production/example:app",
+            "model_manifest_sha256": MODEL,
+            "decision_policy_sha256": POLICY,
+            "inference_ms": 10.0,
+            "post_window_processing_seconds": 0.1,
+            "window_start": float(second),
+            "window_end": float(second + 1),
+            "alerted_at": float(second) + 0.6,
+        }))
+    decisions = root / "decisions.jsonl"
+    decisions.write_text("\n".join(rows) + "\n")
+    canary = root / "CANARY.json"
+    metadata = json.loads(canary.read_text())
+    metadata["decisions"] = len(rows)
+    canary.write_text(json.dumps(metadata))
+    entries = []
+    for path in (decisions, root / "alerts.jsonl", canary):
+        entries.append(f"{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}")
+    (root / "CANARY_SHA256SUMS").write_text("\n".join(entries) + "\n")
+
+    report = aggregate(
+        {"worker-a": root}, MODEL, POLICY,
+        expected_workloads=["production/example:app"],
+    )
+
+    assert report["coverage_preflight_gate"] is True
+    assert report["workload_coverage"]["production/example:app"][
+        "coverage_ratio"
+    ] == 1.0

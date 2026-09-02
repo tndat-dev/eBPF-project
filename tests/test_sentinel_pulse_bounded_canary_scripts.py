@@ -34,6 +34,8 @@ def test_bounded_canary_collection_is_checksum_gated_and_never_promotes():
     assert "sha256sum -c START_SHA256SUMS" in script
     assert "sha256sum -c CANARY_SHA256SUMS" in script
     assert "sentinel_pulse.aggregate_live_canary" in script
+    assert "model/manifest.json" in script
+    assert "coverage_preflight_gate" in script
     assert 'remote_sudo "$host"' in script
     assert "finalize_candidate" not in script
     assert "install_production" not in script
