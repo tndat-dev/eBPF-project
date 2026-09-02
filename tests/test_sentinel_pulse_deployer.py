@@ -478,7 +478,8 @@ class PulseDeployerTests(unittest.TestCase):
             ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
         ).read_text()
         self.assertIn("phase normal_finalize_failed", lifecycle)
-        self.assertIn("reason=normal_finalize_failed", lifecycle)
+        self.assertIn("sentinel_pulse.classify_normal_failure", lifecycle)
+        self.assertIn('reason=%s\\nhost=control-plane', lifecycle)
         self.assertIn('rm -f "$NORMAL_EVIDENCE_ROOT/ACTIVE"', lifecycle)
         self.assertIn("phase normal_finalize_failure_archive", lifecycle)
         self.assertIn("phase terminal_normal_finalize_failure", lifecycle)
