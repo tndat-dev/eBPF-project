@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-01
+**Ngày xác minh cluster gần nhất:** 2026-09-02
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -8,9 +8,9 @@
 `/home/dat/eBPF-project-runtime-pulse-a2-pilot`
 **Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
 Sentinel Pulse A2/B3 500 ms đã hoàn tất compatibility dataset, train 20/20
-model và live-normal canary B3 15 phút. B3 đạt 63.056 decision/0 alert nhưng
-chưa có long soak hoặc blind attack bind đúng policy, vì vậy chưa promote và
-chưa có formal accuracy claim
+model và live-normal canary B3 15 phút. Formal normal R5 đã thu đủ 24 giờ và
+0 alert quan sát nhưng bị loại vì `aims-frontend:web` chỉ phủ 85,29% số giây,
+thấp hơn gate 95%; C3 chưa mở, chưa promote và chưa có formal accuracy claim
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -6680,3 +6680,46 @@ R5 không bị hot-patch. Supervisor PID `2212271` được attach lúc
 `automatic_promotion=false`. Snapshot lúc `2026-09-01T13:06:59Z`: 132 monitor
 row = 44 vòng × 3 worker, tổng **213.250 decision, 0 alert, 0 restart**. Normal
 run vẫn `ACTIVE`; blind C3 vẫn unopened và không có attack injection.
+
+### 18.158 R5 terminal và coverage preflight cho R6 (02-09-2026)
+
+R5 đã terminal và **không đạt formal normal gate**. Evaluator đọc
+**6.131.787 scored window**, 0 alert quan sát, 10.363 raw anomaly bị semantic
+gate suppress và 76.615 warming record. Wilson 95% upper bound của false-alert
+rate trên tập quan sát là `6,264823638016002e-7`; con số này chỉ mô tả mẫu đã
+thu, không được gọi là FPR bằng 0 hay production guarantee. Model, policy,
+run identity, đủ 20 workload và duration 24 giờ đều pass. Gate duy nhất fail là
+coverage của `production/aims-frontend:web`: 73.906 second-bucket trên span
+86.649 giây, tương đương **0,8529354061**, dưới protocol đã khóa 0,95. Mười
+chín workload-container còn lại pass coverage.
+
+Run vì vậy được đóng là `rejected_infrastructure_failure`,
+`candidate_status=not_evaluated_by_this_run`; không dữ liệu R5 nào được dùng
+train/tune và C3 không được mở. `NORMAL_REPORT.json` có SHA-256
+`9c511da766fef9da364aa86fc0b868f341319f7a60bb2fab028ba53495d63dc1`,
+`RAW_SHA256SUMS` có SHA-256
+`53f5745fd26cb81efe6251e941ed7d87adbdabe703d592058feb0aa6f26ff027`.
+Archive terminal lúc `2026-09-02T13:00:53Z`; control collector đã được restore
+trên cả ba worker và experimental detector đã dừng.
+
+Điều tra manifest production xác định loadgen ingress bắn dồn 4--6 HTTP request
+rồi ngủ một giây. Tổng request vẫn ổn nhưng nhịp burst/pause tạo các
+second-bucket trống đều đặn ở frontend. Không hạ gate 95% và không sửa
+model/policy sau kết quả này. Commit `88c2a7c` đổi loadgen sang pacing một
+request mỗi 0,22 giây, giữ xấp xỉ 4,4 request/giây, đồng thời bổ sung canary
+coverage gate bắt buộc đủ mọi workload, span tối thiểu 300 giây và ratio
+≥0,95. Commit `276e1c5` kiểm tra đủ toàn bộ model artifact trước khi mutation
+worker và bắt cleanup phục hồi control collector khi startup fail. Regression
+VM sau thay đổi pacing đạt **499 passed, 2 Torch warnings**; focused startup
+hardening đạt 4/4.
+
+Canary normal-only
+`sentinel-pulse-coverage-preflight-b3-r2-20260902T151735Z` được dừng sớm sau
+378,27 giây khi gate mới chứng minh frontend chỉ đạt 281/353 second-bucket
+(**79,60%**), dù đủ 20 workload, 0 alert và 0 restart. Nguyên nhân là chỉ URL
+`/` chạy trong frontend; các URL `/api/*` được route thẳng tới API gateway.
+Run được archive như `coverage_preflight_failed`, không dùng đánh giá candidate
+và không mở R6. Manifest sau đó bố trí hai request `/` mỗi vòng, khoảng cách
+tối đa danh định dưới một giây trong khi tổng throughput vẫn gần mức cũ. Một
+preflight hoàn toàn mới phải terminal với 0 alert/restart, đủ 20 workload và
+coverage từng workload ≥0,95 thì formal R6 mới được phép bắt đầu.

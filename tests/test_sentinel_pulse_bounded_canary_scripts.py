@@ -26,6 +26,8 @@ def test_bounded_canary_supervisor_reaches_a_checksum_bound_terminal_state():
     assert "CANARY_COMPLETE" in script
     assert "CANARY_FAILED.txt" in script
     assert "observed_alerts > 0" in script
+    assert "if \"$LOCAL_ROOT/sentinel_pulse/collect_bounded_live_canary.sh\"" in script
+    assert script.count("freeze_failed_bounded_live_canary.sh") >= 2
     assert "SUPERVISOR_TIMEOUT" in script
     assert "automatic_promotion" not in script
     assert "install_production" not in script
@@ -52,6 +54,8 @@ def test_failed_bounded_canary_is_stopped_and_checksum_archived():
     assert "FAILED_FINAL_SHA256SUMS" in script
     assert "valid_zero_alert_gate" in script
     assert "infrastructure_or_evidence_failure" in script
+    assert "coverage_preflight_failed" in script
+    assert "AGGREGATE.json" in script
     assert "not_evaluated_by_this_run" in script
     assert "automatic_promotion" in script
     assert "install_production" not in script

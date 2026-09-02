@@ -105,6 +105,11 @@ spec:
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
+            # A second frontend hit keeps the frontend cgroup observable in
+            # every one-second bucket. API paths are routed to api-gateway and
+            # therefore cannot provide frontend coverage by themselves.
+            wget -q -O /dev/null -T 3 "$ingress/" || true
+            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             if [ $((i % 5)) -eq 0 ]; then

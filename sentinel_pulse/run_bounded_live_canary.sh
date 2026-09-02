@@ -96,9 +96,15 @@ while :; do
     exit 1
   fi
   if ((complete == 3)); then
-    "$LOCAL_ROOT/sentinel_pulse/collect_bounded_live_canary.sh" \
+    if "$LOCAL_ROOT/sentinel_pulse/collect_bounded_live_canary.sh" \
+      "$EVIDENCE_ROOT"; then
+      exit 0
+    fi
+    # Collection includes the workload coverage gate. A checksum, identity or
+    # coverage rejection must still reach a terminal archived state.
+    "$LOCAL_ROOT/sentinel_pulse/freeze_failed_bounded_live_canary.sh" \
       "$EVIDENCE_ROOT"
-    exit 0
+    exit 1
   fi
   if (( $(date +%s) >= DEADLINE )); then
     printf 'supervisor_deadline_exceeded_at=%s\n' "$(date -u +%FT%TZ)" \

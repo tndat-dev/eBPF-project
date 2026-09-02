@@ -76,10 +76,23 @@ for node_root in sorted((root / "nodes").iterdir()):
     }
     total_decisions += decisions
     total_alerts += alerts
+aggregate_path = root / "AGGREGATE.json"
+aggregate = (
+    json.loads(aggregate_path.read_text(encoding="utf-8"))
+    if aggregate_path.is_file()
+    else None
+)
 if total_alerts:
     failure_class = "normal_alert_observed"
     candidate_status = "rejected_normal_gate"
     disposition = "development normal failure; candidate must not be promoted"
+elif aggregate is not None and aggregate.get("coverage_preflight_gate") is False:
+    failure_class = "coverage_preflight_failed"
+    candidate_status = "not_evaluated_by_this_run"
+    disposition = (
+        "terminal workload coverage preflight failure; formal normal soak must "
+        "not start from this run"
+    )
 else:
     failure_class = "infrastructure_or_evidence_failure"
     candidate_status = "not_evaluated_by_this_run"
@@ -112,7 +125,9 @@ PY
 (
   cd "$EVIDENCE_ROOT"
   find nodes -type f -print0 | sort -z | xargs -0 sha256sum
-  sha256sum FAILED_SUMMARY.json START.json workers.txt START_SHA256SUMS
+  evidence_files=(FAILED_SUMMARY.json START.json workers.txt START_SHA256SUMS)
+  [[ ! -f AGGREGATE.json ]] || evidence_files+=(AGGREGATE.json)
+  sha256sum "${evidence_files[@]}"
 ) >"$EVIDENCE_ROOT/FAILED_FINAL_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c FAILED_FINAL_SHA256SUMS)
 touch "$EVIDENCE_ROOT/FAILED_COMPLETE"

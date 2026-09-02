@@ -1,9 +1,10 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 31-08-2026
+**Snapshot cluster:** 02-09-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** pilot live non-formal đã terminal nhưng fail coverage và p99; chưa có claim production/formal
+**Trạng thái claim:** formal normal R5 bị loại vì coverage frontend 85,29%; C3
+chưa mở và chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -1763,3 +1764,28 @@ Torch warnings**.
 Snapshot R5 `2026-09-01T13:06:59Z`: 132 monitor row = 44 vòng đầy đủ trên ba
 worker, **213.250 decision, 0 alert, 0 restart**. R5 vẫn active và C3 vẫn chưa
 mở; snapshot này không phải terminal normal/FPR/recall claim.
+
+### Terminal R5 và sửa coverage pacing (02-09-2026)
+
+R5 đã kết thúc sau hơn 24 giờ với 6.131.787 scored window, 0 alert quan sát và
+Wilson 95% upper bound `6,264823638016002e-7`. Tuy nhiên formal gate trả
+`normal_gate=false`: `production/aims-frontend:web` chỉ có 73.906 giây quan sát
+trên span 86.649 giây (`coverage_ratio=0,8529354061`) trong khi protocol khóa
+ngưỡng 0,95. Tất cả identity/integrity, duration, 20/20 workload và 19 coverage
+key còn lại đều pass. Đây là **coverage/evidence rejection**, không phải model
+false alert và cũng không phải normal pass. C3 vẫn unopened; không có blind
+attack nào được inject và R5 bị cấm dùng để train/tune.
+
+Root cause là ingress loadgen thực hiện 4--6 request liên tiếp rồi sleep một
+giây, tạo khoảng trống định kỳ trong exact second-bucket dù tổng traffic vẫn
+healthy. Fix giữ gần cùng throughput bằng pacing từng request 0,22 giây; ngưỡng
+coverage không bị hạ. Bộ aggregate canary mới tính second-bucket cho từng model
+key, yêu cầu đủ workload, span tối thiểu 300 giây và coverage ≥0,95 trước khi
+cho phép formal R6. Startup cũng verify toàn bộ `.pkl` trước khi chạm service và
+restore control collector ở mọi nhánh lỗi. Full regression đạt 499 passed.
+Preflight đầu tiên sau pacing được dừng sớm ở 378,27 giây: đủ 20 workload,
+0 alert/restart nhưng frontend vẫn chỉ đạt 281/353 bucket (79,60%), vì chỉ URL
+`/` chạy code frontend còn `/api/*` route thẳng tới api-gateway. Run được đóng
+`coverage_preflight_failed`; R6 không mở. Loadgen tiếp tục được sửa thành hai
+request `/` mỗi vòng, vẫn giữ gần cùng tổng RPS. Một canary mới phải đạt đủ
+coverage gate trước khi formal R6 được phép bắt đầu.

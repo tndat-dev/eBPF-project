@@ -53,7 +53,8 @@ def test_ingress_load_is_evenly_paced_without_material_steady_rate_increase():
         for item in ingress["spec"]["template"]["spec"]["containers"][0]["env"]
     }
 
-    assert script.count('sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"') == 6
+    assert script.count('sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"') == 7
+    assert script.count('wget -q -O /dev/null -T 3 "$ingress/"') == 2
     assert 'sleep "${SLEEP_SECONDS:-1}"' not in script
     assert env["REQUEST_INTERVAL_SECONDS"] == "0.22"
 

@@ -39,6 +39,14 @@ the frozen V8 models, policy evidence, or production detector.
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.
 
+Before another 24-hour normal soak, a 15-minute live-normal coverage preflight
+must pass for every workload key. The ingress generator paces requests across
+second boundaries at approximately the same steady throughput; the preflight
+requires zero alerts/restarts, all expected model workloads, at least 300
+seconds of observed span, and at least 95% unique second-bucket coverage per
+workload. A coverage failure cannot be fixed by lowering the preregistered 95%
+threshold or by tuning the frozen model/policy.
+
 If an independent normal soak produces an alert, that candidate is terminally
 failed and its complete evidence bundle is frozen. The normal observations may
 then become development data for a new semantic policy, but they can never be
