@@ -16,6 +16,11 @@ def test_bounded_canary_starts_all_finalizers_without_serial_wait():
     assert "--exclude='*.pyc'" in script
     assert "verify_model_bundle" in script
     assert "systemctl start sentinel-pulse-collector.service" in script
+    assert "sentinel_pulse.cluster_health" in script
+    assert "PREFLIGHT_NODES.json" in script
+    assert "PREFLIGHT_PRODUCTION_PODS.json" in script
+    assert "PREFLIGHT_NODES.json PREFLIGHT_PRODUCTION_PODS.json" in script
+    assert "-eq 42" not in script
 
 
 def test_bounded_canary_supervisor_reaches_a_checksum_bound_terminal_state():

@@ -56,9 +56,24 @@ REMOTE_ROOT="/home/dat/sentinel-pulse-bounded-canary-$RUN_ID"
 remote() { local host=$1; shift; sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" "$@"; }
 remote_sudo() { local host=$1; shift; printf '%s\n' "$SSHPASS" | sshpass -e ssh -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" "sudo -S -p '' $*"; }
 
-# Fail before mutation if cluster/workload/worker state is unsuitable.
-[[ $(kubectl get nodes --no-headers | awk '$2=="Ready" {n++} END {print n+0}') -eq 6 ]]
-[[ $(kubectl get pods -n production --no-headers | awk '$3=="Running" {split($2,a,"/"); if(a[1]==a[2]) n++} END {print n+0}') -eq 42 ]]
+# Fail before mutation if cluster/workload/worker state is unsuitable.  Keep
+# the exact API snapshots that were evaluated: replica counts may legitimately
+# change through HPA or rollout, so health must not be coupled to a magic pod
+# count. Missing model workload keys remain fail-closed in the aggregate
+# coverage gate after the bounded run.
+PREFLIGHT_TMP=$(mktemp -d)
+cleanup_preflight() { rm -rf -- "$PREFLIGHT_TMP"; }
+trap cleanup_preflight EXIT
+kubectl get nodes -o json >"$PREFLIGHT_TMP/nodes.json"
+kubectl -n production get pods -o json >"$PREFLIGHT_TMP/production-pods.json"
+jq -e '.items | length == 6' "$PREFLIGHT_TMP/nodes.json" >/dev/null
+[[ $(PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python \
+  -m sentinel_pulse.cluster_health --resource nodes --count \
+  <"$PREFLIGHT_TMP/nodes.json") -eq 0 ]]
+jq -e '.items | length > 0' "$PREFLIGHT_TMP/production-pods.json" >/dev/null
+[[ $(PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python \
+  -m sentinel_pulse.cluster_health --resource pods --grace-seconds 0 --count \
+  <"$PREFLIGHT_TMP/production-pods.json") -eq 0 ]]
 for target in "${workers[@]}"; do
   IFS='|' read -r host node <<<"$target"
   [[ $(remote "$host" hostname -f) == "$node" ]]
@@ -66,6 +81,12 @@ for target in "${workers[@]}"; do
 done
 
 mkdir -p "$EVIDENCE_ROOT/protocol" "$EVIDENCE_ROOT/model"
+install -m 0444 "$PREFLIGHT_TMP/nodes.json" \
+  "$EVIDENCE_ROOT/PREFLIGHT_NODES.json"
+install -m 0444 "$PREFLIGHT_TMP/production-pods.json" \
+  "$EVIDENCE_ROOT/PREFLIGHT_PRODUCTION_PODS.json"
+cleanup_preflight
+trap - EXIT
 install -m 0444 "$POLICY_SOURCE" "$EVIDENCE_ROOT/protocol/decision-policy.json"
 install -m 0444 "$MODEL_SOURCE/manifest.json" "$MODEL_SOURCE/manifest.sha256" "$EVIDENCE_ROOT/model/"
 printf '%s\n' "${workers[@]}" >"$EVIDENCE_ROOT/workers.plan"
@@ -135,11 +156,13 @@ done
 (
   cd "$EVIDENCE_ROOT"
   sha256sum START.json workers.plan workers.txt protocol/decision-policy.json \
-    model/manifest.json model/manifest.sha256 SOURCE_SHA256SUMS
+    model/manifest.json model/manifest.sha256 SOURCE_SHA256SUMS \
+    PREFLIGHT_NODES.json PREFLIGHT_PRODUCTION_PODS.json
 ) >"$EVIDENCE_ROOT/START_SHA256SUMS"
 (cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS)
 touch "$EVIDENCE_ROOT/ACTIVE"
 chmod 0444 "$EVIDENCE_ROOT"/START.json "$EVIDENCE_ROOT"/workers.plan \
-  "$EVIDENCE_ROOT"/workers.txt "$EVIDENCE_ROOT"/*SHA256SUMS
+  "$EVIDENCE_ROOT"/workers.txt "$EVIDENCE_ROOT"/PREFLIGHT_*.json \
+  "$EVIDENCE_ROOT"/*SHA256SUMS
 complete=true
 printf 'bounded live canary active: run=%s duration=%ss evidence=%s\n' "$RUN_ID" "$DURATION_SECONDS" "$EVIDENCE_ROOT"
