@@ -6778,8 +6778,9 @@ Lifecycle và normal finalizer cũng không còn fallback sang policy
 `decision-policy-semantic-v4.json`: `POLICY_SOURCE` trở thành input bắt buộc.
 Điều này chặn tái diễn lỗi chạy candidate với policy ngầm sai identity. Các
 thay đổi chỉ áp dụng source canonical cho campaign tương lai, không thay frozen
-runtime/model/policy của R6. Focused regression đạt 39/39. Snapshot SSH R6 lúc
-`2026-09-02T16:10:32Z`: **91.062 decision, 0 alert, 0 restart**, ba pipeline
+runtime/model/policy của R6. Full regression đạt **508 passed, 2 Torch
+deprecation warnings**. Snapshot SSH R6 lúc `2026-09-02T16:16:19Z`:
+**116.061 decision, 0 alert, 0 restart**, ba pipeline
 active/binding đúng, 6/6 node Ready và không có pod production non-Ready; run
 vẫn `ACTIVE` và chưa phải normal-pass result.
 

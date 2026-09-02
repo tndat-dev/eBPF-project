@@ -1822,9 +1822,10 @@ Bounded-canary preflight tiếp tục được harden để không phụ thuộc
 42 pod: nó checksum-bind snapshot node/pod, yêu cầu đúng 6 node, zero unhealthy
 resource và namespace không rỗng; expected workload coverage vẫn được quyết
 định bởi model manifest ở aggregate gate. `POLICY_SOURCE` nay bắt buộc explicit
-ở cả lifecycle và normal finalizer, ngăn fallback nhầm policy cũ. Focused test
-39/39. Hậu kiểm R6 lúc `2026-09-02T16:10:32Z` có **91.062 decision, 0 alert,
-0 restart**; đây vẫn là interim observation.
+ở cả lifecycle và normal finalizer, ngăn fallback nhầm policy cũ. Full
+regression đạt **508 passed, 2 Torch deprecation warnings**. Hậu kiểm R6 lúc
+`2026-09-02T16:16:19Z` có **116.061 decision, 0 alert, 0 restart**; đây vẫn là
+interim observation.
 
 Lifecycle canonical còn giữ single-writer lock theo run ID và kiểm model/policy
 hash ngay khi resume. Duplicate process hoặc identity mismatch dừng trước
