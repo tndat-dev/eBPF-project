@@ -6734,9 +6734,14 @@ post-window-processing p99 0,341 giây và window-start-to-decision p99
 claim. Full regression sau hardening đạt **503 passed, 2 Torch warnings**.
 
 Formal normal-only R6
-`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã được launcher khởi
-động ở phase traffic/cluster stability preflight, dùng frozen runtime commit
-`3c3be6c…`, model `2e37ffd1…`, policy B3 `02e0f02a…`,
-`STOP_AFTER_NORMAL=true` và external fail-closed supervisor. Tại thời điểm cập
-nhật chưa có `SOAK_START.json`, vì vậy chưa được gọi là formal run active. C3
-vẫn đóng; lifecycle không có quyền tự mở blind hoặc promote candidate.
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã **active** sau traffic
+gate và 309 giây cluster-stability preflight. Marker khóa frozen runtime commit
+`3c3be6c…`, model `2e37ffd1…`, policy B3 `02e0f02a…`; bắt đầu lúc
+`2026-09-02T15:48:42.587983Z`, đủ điều kiện finalize từ
+`2026-09-03T15:48:42.587983Z` và có SHA-256
+`af0ac94dd206691e530d6436e5cf3bd7d0a5ef1baefbe63702b32cfaf9dc7792`.
+Snapshot `2026-09-02T15:51:53Z` có 6 monitor row, 7.022 decision, 0 alert,
+0 restart; experimental collector/detector active, control collector inactive
+và feature source khớp trên cả ba worker. External fail-closed supervisor attach
+lúc `15:49:54Z`; `STOP_AFTER_NORMAL=true`. C3 vẫn đóng và lifecycle không có
+quyền tự mở blind hoặc promote candidate.

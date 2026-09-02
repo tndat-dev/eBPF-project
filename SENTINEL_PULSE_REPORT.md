@@ -1796,6 +1796,10 @@ window-start-to-decision p99 0,846 giây (max 0,966 giây). Aggregate SHA-256
 `f3f601151b07cca8d7f7de266c0814841750b9bdbd4f92a3fe6eeef8d52b2fcc`.
 Đây chỉ là engineering preflight, không phải accuracy claim. Regression hiện
 đạt 503 passed, 2 warnings. Formal normal-only R6
-`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đang ở stability
-preflight với frozen runtime/model/policy B3; marker chưa được tạo ở snapshot
-này, C3 vẫn đóng và `STOP_AFTER_NORMAL=true`.
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã active sau 309 giây
+stability preflight với frozen runtime/model/policy B3. Marker start
+`2026-09-02T15:48:42.587983Z`, eligible finalize đúng 24 giờ sau và có SHA-256
+`af0ac94dd206691e530d6436e5cf3bd7d0a5ef1baefbe63702b32cfaf9dc7792`.
+Snapshot `15:51:53Z` có 7.022 decision/0 alert/0 restart; ba experimental
+collector/detector active, control collector inactive và feature binding khớp.
+External supervisor đã attach; C3 vẫn đóng và `STOP_AFTER_NORMAL=true`.

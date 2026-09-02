@@ -496,6 +496,12 @@ class PulseDeployerTests(unittest.TestCase):
         failed_marker = supervisor.index('>"$EVIDENCE_ROOT/FAILED.tmp"')
         self.assertLess(process_loop, failed_marker)
         self.assertIn("normal_finalize_failed", supervisor)
+
+        attachment = (
+            ROOT / "sentinel_pulse" / "attach_lifecycle_supervisor_when_ready.sh"
+        ).read_text()
+        self.assertIn('"$EVIDENCE_ROOT/ACTIVE"', attachment)
+        self.assertIn('wc -l <"$EVIDENCE_ROOT/workers.txt"', attachment)
         self.assertIn("lifecycle_process_exited_without_terminal_evidence", supervisor)
         self.assertIn("freeze_failed_500ms_normal_soak.sh", supervisor)
         self.assertIn("automatic_promotion", supervisor)
