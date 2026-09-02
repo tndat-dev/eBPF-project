@@ -21,6 +21,17 @@ test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$POLICY_SOURCE"
 for command in jq rsync sshpass sha256sum tar; do command -v "$command" >/dev/null; done
 
+# Verify every model artifact before touching collector services on any worker.
+# An archived canary may intentionally retain only manifest metadata and is not
+# a deployable model bundle even when its manifest checksum is valid.
+PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python - "$MODEL_SOURCE" <<'PY'
+from pathlib import Path
+import sys
+from sentinel_pulse.finalize_candidate import verify_model_bundle
+
+verify_model_bundle(Path(sys.argv[1]))
+PY
+
 MODEL_SHA256=$(awk '$2=="manifest.json" {print $1}' "$MODEL_SOURCE/manifest.sha256")
 POLICY_SHA256=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
 [[ $MODEL_SHA256 =~ ^[0-9a-f]{64}$ ]]
@@ -94,6 +105,7 @@ cleanup() {
     for host in "${started[@]}"; do
       remote_sudo "$host" systemctl stop "sentinel-pulse-bounded-canary-finalize-${RUN_ID}.service" sentinel-pulse-detector-candidate.service sentinel-pulse-collector-500ms-experiment.service >/dev/null 2>&1 || true
       remote_sudo "$host" systemctl disable sentinel-pulse-detector-candidate.service >/dev/null 2>&1 || true
+      remote_sudo "$host" systemctl start sentinel-pulse-collector.service >/dev/null 2>&1 || true
     done
     printf 'failed_at=%s\nexit_code=%s\n' "$(date -u +%FT%TZ)" "$rc" >"$EVIDENCE_ROOT/START_FAILED"
   fi

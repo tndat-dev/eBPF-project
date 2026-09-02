@@ -14,6 +14,8 @@ def test_bounded_canary_starts_all_finalizers_without_serial_wait():
     assert "DURATION_SECONDS <= 90000" in script
     assert "! -path '*/__pycache__/*'" in script
     assert "--exclude='*.pyc'" in script
+    assert "verify_model_bundle" in script
+    assert "systemctl start sentinel-pulse-collector.service" in script
 
 
 def test_bounded_canary_supervisor_reaches_a_checksum_bound_terminal_state():
