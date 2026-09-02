@@ -71,6 +71,11 @@ def test_supervisor_archives_a_dead_failed_finalizer(tmp_path):
         encoding="utf-8",
     )
     freezer.chmod(0o755)
+    (freezer.parent / "__init__.py").touch()
+    (freezer.parent / "classify_normal_failure.py").write_text(
+        (ROOT / "sentinel_pulse" / "classify_normal_failure.py").read_text(),
+        encoding="utf-8",
+    )
 
     result = subprocess.run(
         [str(SUPERVISOR), str(tmp_path), "99999999"],
@@ -84,3 +89,40 @@ def test_supervisor_archives_a_dead_failed_finalizer(tmp_path):
     assert "reason=normal_finalize_failed" in (tmp_path / "FAILED").read_text()
     assert not (tmp_path / "ACTIVE").exists()
     assert (tmp_path / "ARCHIVE_COMPLETE").exists()
+
+
+def test_supervisor_records_specific_coverage_failure(tmp_path):
+    evidence_fixture(tmp_path)
+    (tmp_path / "FINALIZE_FAILED").write_text("exit_code=1\n", encoding="utf-8")
+    (tmp_path / "NORMAL_REPORT.json").write_text(json.dumps({
+        "schema": "sentinel-pulse-normal-soak-report-v1",
+        "alerts": 0,
+        "maximum_alerts": 0,
+        "coverage_gate": False,
+        "duration_gate": True,
+        "expected_workload_gate": True,
+    }), encoding="utf-8")
+    fake_root = tmp_path / "fake-root"
+    freezer = fake_root / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
+    freezer.parent.mkdir(parents=True)
+    freezer.write_text(
+        "#!/usr/bin/env bash\n"
+        "set -euo pipefail\n"
+        "touch \"$1/ARCHIVE_COMPLETE\"\n",
+        encoding="utf-8",
+    )
+    freezer.chmod(0o755)
+
+    result = subprocess.run(
+        [str(SUPERVISOR), str(tmp_path), "99999999"],
+        env=supervisor_env(ROOT) | {"LOCAL_ROOT": str(fake_root)},
+        text=True,
+        capture_output=True,
+        timeout=5,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "reason=normal_coverage_gate_failed" in (
+        tmp_path / "FAILED"
+    ).read_text()

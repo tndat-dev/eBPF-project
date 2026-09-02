@@ -61,7 +61,10 @@ fi
 
 reason=lifecycle_process_exited_without_terminal_evidence
 if [[ -e "$EVIDENCE_ROOT/FINALIZE_FAILED" ]]; then
-  reason=normal_finalize_failed
+  if ! reason=$(PYTHONPATH="$LOCAL_ROOT" python3 -m \
+    sentinel_pulse.classify_normal_failure "$EVIDENCE_ROOT"); then
+    reason=normal_finalize_failed
+  fi
 fi
 if [[ ! -e "$EVIDENCE_ROOT/FAILED" ]]; then
   printf 'failed_at=%s\nreason=%s\nhost=control-plane\nlifecycle_pid=%s\n' \

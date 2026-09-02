@@ -102,9 +102,11 @@ PY
   else
     finalize_rc=$?
     phase normal_finalize_failed
+    failure_reason=$(PYTHONPATH="$LOCAL_ROOT" python3 -m \
+      sentinel_pulse.classify_normal_failure "$NORMAL_EVIDENCE_ROOT")
     if [[ ! -e "$NORMAL_EVIDENCE_ROOT/FAILED" ]]; then
-      printf 'failed_at=%s\nreason=normal_finalize_failed\nhost=control-plane\nexit_code=%s\n' \
-        "$(date -u +%FT%TZ)" "$finalize_rc" \
+      printf 'failed_at=%s\nreason=%s\nhost=control-plane\nexit_code=%s\n' \
+        "$(date -u +%FT%TZ)" "$failure_reason" "$finalize_rc" \
         >"$NORMAL_EVIDENCE_ROOT/FAILED.tmp"
       mv "$NORMAL_EVIDENCE_ROOT/FAILED.tmp" \
         "$NORMAL_EVIDENCE_ROOT/FAILED"
