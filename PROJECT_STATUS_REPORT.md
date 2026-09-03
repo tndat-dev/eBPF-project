@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-02
+**Ngày xác minh cluster gần nhất:** 2026-09-03
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -8,9 +8,9 @@
 `/home/dat/eBPF-project-runtime-pulse-a2-pilot`
 **Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
 Sentinel Pulse A2/B3 500 ms đã hoàn tất compatibility dataset, train 20/20
-model và live-normal canary B3 15 phút. Formal normal R5 đã thu đủ 24 giờ và
-0 alert quan sát nhưng bị loại vì `aims-frontend:web` chỉ phủ 85,29% số giây,
-thấp hơn gate 95%; C3 chưa mở, chưa promote và chưa có formal accuracy claim
+model và live-normal canary B3 15 phút. Formal normal R6 đã bị loại đúng theo
+zero-alert gate sau khoảng 3 giờ 24 phút vì một false positive trên PostgreSQL;
+C3 chưa mở, chưa promote và chưa có formal accuracy claim
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -23,7 +23,8 @@ nhắm p99 kernel-to-alert không quá 2 giây. Model A1 được giữ nguyên 
 artifact lịch sử; payment/notification đã chuyển từ gVisor `:pod-slice` sang
 containerd native `:app`, nên không được dùng A1 để mở normal/attack claim mới.
 Pulse A2 đã train từ baseline normal-only R5 và hoàn tất canary audit-only;
-attack data vẫn bị cấm train/tune và candidate chưa thay production detector.
+policy B3 sau đó trượt formal normal R6. Attack data vẫn bị cấm train/tune,
+candidate đã dừng và chưa thay production detector.
 
 Kết quả ML dưới đây là bằng chứng validation lịch sử của release V7, được thu thập trước đợt mở rộng topology. Trạng thái hạ tầng được xác minh lại sau cùng ở Mục 2 và Mục 18.7:
 
@@ -32,7 +33,7 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 - Tetragon đạt 6/6; control collector Sentinel Pulse active trên ba worker,
   candidate detector/formal soak không active tại snapshot;
 - V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
-- full regression trên source overlay gần nhất đạt `472 passed, 2 Torch
+- full regression trên source canonical gần nhất đạt `513 passed, 2 Torch
   deprecation warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
@@ -74,6 +75,13 @@ candidate đã dừng, bundle 2,1 GB được hash/freeze và blind 450 trial ch
 Pilot true kernel-to-alert non-formal đã hoàn tất nhưng fail: lineage 10/15
 alert, còn p99 trên 9 alert R6 là 5,332 giây. Formal blind matrix và overhead
 A/B vẫn chưa hoàn tất, vì vậy chưa có claim production cho Sentinel Pulse.
+
+Formal normal B3 R6 mới nhất cũng đã terminal fail: archive có đúng 882.176
+decision và một alert bình thường trên `production/aims-postgres-cnpg:postgres`.
+Alert xuất hiện sau hai window liên tiếp cùng kích hoạt
+`local_socket_beacon`, dù toàn bộ snapshot hạ tầng tại thời điểm đó khỏe. Vì
+vậy đây là false positive làm candidate B3 bị `rejected_normal_gate`, không
+phải infrastructure reject. C3 vẫn có 0 file; không attack nào được inject.
 
 **Cập nhật tương thích runtime ngày 30-08-2026.** A7 không qua production
 preflight vì AIMS trả HTTP 503 và đã dừng trước khi có `SOAK_START.json`; receipt
@@ -6789,3 +6797,62 @@ ID. Resume kiểm SHA-256 model manifest và policy với `SOAK_START.json` trư
 monitor; lệnh chạy trùng hoặc identity sai dừng với exit code 6 mà không chạm
 runtime/evidence. Hai behavioral test mới xác minh cả lock contention và
 resume identity mismatch.
+
+### 18.161 R6 trượt normal gate và audit lại archive bất biến (03-09-2026)
+
+SSH trực tiếp xác nhận formal normal B3 R6
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` không còn `ACTIVE`, không
+có `NORMAL_PASS`, có `FAILED` với `reason=normal_alert_observed` và đã hoàn tất
+archive lúc 19:15:23 UTC ngày 02-09-2026. Run dừng sớm sau khoảng 3 giờ 24 phút
+vì zero-alert gate chỉ cần một alert bình thường để loại candidate. Blind C3
+vẫn đóng, có **0 file** và chưa có injection.
+
+Audit mới đọc trực tiếp ba `raw.tar.gz`, verify đủ **32/32** entry trong
+`RAW_SHA256SUMS` và đếm chính xác **882.176 decision, 1 alert**: worker `.237`
+271.583/1, `.238` 375.181/0 và `.239` 235.412/0. Alert thuộc
+`production/aims-postgres-cnpg:postgres`, pod `aims-postgres-cnpg-2`, score
+0,734959, conformal p-value 0,00023299, inference 19,88 ms. Nó được phát tại
+`1788376355.6205673`, sau window kết thúc 0,194 giây và sau window bắt đầu
+khoảng 0,698 giây. Đây là độ trễ xử lý của **false alert**, không phải số liệu
+kernel-to-alert của attack.
+
+Nguyên nhân quyết định là hai window liên tiếp cùng kích hoạt semantic group
+`local_socket_beacon`: window alert có `socket=24`, `connect=24`, `clone=7`,
+`openat=104`; observed local-socket mass 48 vượt normal max 28. Model score
+cũng vượt calibration max 0,579945 thêm 0,155014. Cơ chế B3 vì thế đã hoạt
+động đúng như code nhưng giả định “connection burst lặp hai window là đủ bằng
+chứng tấn công” không đúng cho PostgreSQL production.
+
+Snapshot failure-time có 6/6 node Ready, 42/42 pod production khỏe, 28/28
+Longhorn volume healthy và CNPG 3/3 instance ready. Worker phát alert `.237`
+có finalizer `valid=true`, `service_ok=true`, không collector drop, p99 interval
+0,507 giây và p99 window-start-to-emit 0,525 giây. Worker `.238` không phát
+alert nhưng archive bị `valid=false` vì 47 row quanh một snapshot gap
+1,10--3,08 giây; p99 interval của nó vẫn 0,509 giây và mọi drop counter bằng
+0. Lỗi evidence cục bộ này được giữ nguyên, nhưng không giải thích hay vô hiệu
+hóa alert hợp lệ trên `.237`.
+
+Disposition schema v1 trong archive đã gọi nhầm mọi monitor failure là
+`rejected_infrastructure_failure`. Không sửa file gốc: sidecar post-hoc bất
+biến tại
+`/home/dat/sentinel-pulse-evidence/posthoc-analysis/sentinel-pulse-formal-normal-b3-r6-20260902T154252Z`
+bind source bằng SHA-256 và phân loại đúng `rejected_normal_gate`. SHA-256 của
+`POSTHOC_CLASSIFICATION.json` là `9521dce42cfc45153080d7e86e65617601d93c1668ddec8894b687ded4a8dc2e`;
+`RAW_SHA256SUMS`, `SOAK_START.json` và disposition cũ lần lượt là
+`6cb6c83f45e3dbe705153f7320c8cc21786ed48ad335c9f345099953fd3ec7bf`,
+`af0ac94dd206691e530d6436e5cf3bd7d0a5ef1baefbe63702b32cfaf9dc7792` và
+`dc3909bfbf0399c36db97cd7926499da5b69860b587029197eaea95bef020dd7`.
+
+Source canonical đã sửa freezer schema v2 để `normal_alert_observed` luôn tạo
+`candidate_status=rejected_normal_gate`, còn lỗi collector/evidence mới đi
+nhánh infrastructure. Tool `audit_failed_normal_soak.py` và ba test checksum,
+classification, fail-closed đã được thêm ở commit `6e9f188`, push lên
+`origin/main` và VM canonical đã fast-forward. Full regression trên VM đạt
+**513 passed, 2 Torch deprecation warnings**.
+
+Snapshot vận hành lúc 02:12 UTC ngày 03-09-2026: 6/6 node Kubernetes v1.34.10
+Ready, Tetragon 6/6, 42 pod production với 0 pod lỗi; control collector active
+trên ba worker, collector 500 ms và candidate detector đều inactive. B3 không
+được gọi là stable và không được mở C3. Nếu dùng R6 để thiết kế B4, R6 phải được
+khai báo development evidence; B4 cần policy/contract identity mới và một
+normal soak độc lập trước blind evaluation.

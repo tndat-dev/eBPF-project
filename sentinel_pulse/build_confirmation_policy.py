@@ -39,6 +39,7 @@ def build_policy(
     required_windows = calibration.get("required_consecutive_windows")
     maximum_gap = calibration.get("maximum_gap_seconds")
     bypass_groups = calibration.get("bypass_groups")
+    per_group_windows = calibration.get("required_consecutive_windows_by_group", {})
     if (
         isinstance(required_windows, bool)
         or not isinstance(required_windows, int)
@@ -46,6 +47,7 @@ def build_policy(
         or not isinstance(maximum_gap, (int, float))
         or not isinstance(bypass_groups, list)
         or not bypass_groups
+        or not isinstance(per_group_windows, dict)
     ):
         raise ValueError("confirmation calibration parameters are incomplete")
 
@@ -64,6 +66,9 @@ def build_policy(
             "temporal_confirmation": {
                 "mode": "consecutive_same_group",
                 "required_consecutive_windows": required_windows,
+                "required_consecutive_windows_by_group": dict(
+                    sorted(per_group_windows.items())
+                ),
                 "maximum_gap_seconds": float(maximum_gap),
                 "immediate_bypass_signal_groups": sorted(bypass_groups),
                 "normal_only_calibration": True,

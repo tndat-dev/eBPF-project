@@ -44,6 +44,45 @@ def test_same_group_in_two_consecutive_windows_confirms(tmp_path):
     assert report["projected_alerts"] == 1
 
 
+def test_three_window_group_override_suppresses_two_window_burst(tmp_path):
+    path = tmp_path / "decisions.jsonl"
+    _write(
+        path,
+        [
+            _record(1.0, group="local_socket_beacon"),
+            _record(1.5, group="local_socket_beacon"),
+        ],
+    )
+    report = evaluate(
+        [path],
+        required_consecutive_windows_by_group={"local_socket_beacon": 3},
+    )
+    assert report["projected_alerts"] == 0
+    assert report["required_consecutive_windows_by_group"] == {
+        "local_socket_beacon": 3
+    }
+
+
+def test_rotating_overlap_does_not_fake_a_same_group_streak(tmp_path):
+    path = tmp_path / "decisions.jsonl"
+    first = _record(1.0, group="a")
+    first["semantic_signal_groups"]["b"] = {"triggered": True}
+    second = _record(1.5, group="b")
+    second["semantic_signal_groups"]["c"] = {"triggered": True}
+    third = _record(2.0, group="c")
+    third["semantic_signal_groups"]["d"] = {"triggered": True}
+    _write(path, [first, second, third])
+    report = evaluate([path], required_consecutive_windows=3)
+    assert report["projected_alerts"] == 0
+
+
+def test_confirmation_evidence_is_consumed_after_alert(tmp_path):
+    path = tmp_path / "decisions.jsonl"
+    _write(path, [_record(1.0), _record(1.5), _record(2.0)])
+    report = evaluate([path])
+    assert report["projected_alerts"] == 1
+
+
 def test_different_group_or_large_gap_does_not_confirm(tmp_path):
     path = tmp_path / "decisions.jsonl"
     _write(

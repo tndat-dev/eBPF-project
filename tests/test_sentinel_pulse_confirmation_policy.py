@@ -29,6 +29,9 @@ def _calibration(path: Path, projected_alerts: int = 0) -> Path:
                     "model_manifest_sha256"
                 ],
                 "required_consecutive_windows": 2,
+                "required_consecutive_windows_by_group": {
+                    "local_socket_beacon": 3
+                },
                 "maximum_gap_seconds": 1.25,
                 "bypass_groups": ["namespace_probe"],
             }
@@ -57,6 +60,7 @@ def test_builds_checksum_bound_confirmation_policy(tmp_path):
     assert loaded["temporal_confirmation"] == {
         "mode": "consecutive_same_group",
         "required_consecutive_windows": 2,
+        "required_consecutive_windows_by_group": {"local_socket_beacon": 3},
         "maximum_gap_seconds": 1.25,
         "immediate_bypass_signal_groups": ["namespace_probe"],
         "normal_only_calibration": True,

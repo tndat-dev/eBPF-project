@@ -313,6 +313,33 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         self.assertTrue(decision["temporal_confirmation_bypassed"])
         self.assertEqual(decision["temporal_confirmation_count"], 1)
 
+    def test_group_specific_confirmation_keeps_local_burst_below_three_windows(self):
+        runtime, columns = self._runtime(
+            anomalous=True,
+            with_policy=True,
+            score_policy=True,
+            confirmation_policy=True,
+        )
+        runtime.decision_policy["temporal_confirmation"][
+            "required_consecutive_windows_by_group"
+        ] = {"common": 3}
+        runtime.score(self._record(columns, 1.0))
+        runtime.score(self._record(columns, 2.0))
+        first = runtime.score(
+            self._record(columns, 3.0, exact_counts={"connect": 6})
+        )
+        second = runtime.score(
+            self._record(columns, 3.5, exact_counts={"connect": 6})
+        )
+        third = runtime.score(
+            self._record(columns, 4.0, exact_counts={"connect": 6})
+        )
+        self.assertEqual(first["status"], "suppressed")
+        self.assertEqual(second["status"], "suppressed")
+        self.assertEqual(second["temporal_confirmation_group_counts"], {"common": 2})
+        self.assertEqual(third["status"], "alert")
+        self.assertEqual(third["temporal_confirmation_required_consecutive_windows"], 3)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -159,6 +159,9 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
     confirmation = policy.get("temporal_confirmation")
     if confirmation is not None:
         required_windows = confirmation.get("required_consecutive_windows")
+        per_group_windows = confirmation.get(
+            "required_consecutive_windows_by_group", {}
+        )
         maximum_gap = float(confirmation.get("maximum_gap_seconds", 0.0))
         bypass_groups = confirmation.get("immediate_bypass_signal_groups")
         if (
@@ -177,6 +180,17 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
             or not bypass_groups
             or len(bypass_groups) != len(set(bypass_groups))
             or envelope is None
+            or not isinstance(per_group_windows, dict)
+            or any(
+                not isinstance(group, str)
+                or group not in set(names)
+                or group in set(bypass_groups)
+                or isinstance(value, bool)
+                or not isinstance(value, int)
+                or value < 2
+                or value > 4
+                for group, value in per_group_windows.items()
+            )
             or not set(bypass_groups).issubset(set(names))
         ):
             raise ValueError("temporal confirmation contract is invalid")

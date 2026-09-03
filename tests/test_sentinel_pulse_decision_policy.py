@@ -302,3 +302,24 @@ def test_b3_policy_requires_persistence_only_for_common_groups():
         "namespace_probe",
     ]
     assert policy["blind_outcome_used"] is False
+
+
+def test_v3_policy_validates_per_group_confirmation_requirements(tmp_path):
+    source = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b3.json"
+    policy = json.loads(source.read_text())
+    policy["temporal_confirmation"]["required_consecutive_windows_by_group"] = {
+        "local_socket_beacon": 3
+    }
+    path = tmp_path / "per-group.json"
+    path.write_text(json.dumps(policy))
+    loaded, _digest = load_decision_policy(path)
+    assert loaded["temporal_confirmation"][
+        "required_consecutive_windows_by_group"
+    ] == {"local_socket_beacon": 3}
+
+    policy["temporal_confirmation"]["required_consecutive_windows_by_group"] = {
+        "namespace_probe": 3
+    }
+    path.write_text(json.dumps(policy))
+    with pytest.raises(ValueError, match="temporal confirmation"):
+        load_decision_policy(path)

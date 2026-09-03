@@ -307,10 +307,25 @@ class PulseRuntime:
         confirmation_corroborated = instant_candidate
         confirmation_count = 1 if instant_candidate else 0
         confirmation_groups = triggered_groups
+        confirmation_group_counts = (
+            {group: 1 for group in triggered_groups} if instant_candidate else {}
+        )
+        confirmation_required_by_group = {}
+        effective_confirmation_required = 1
         confirmation_bypassed = False
         if confirmation is not None:
             bypass_groups = set(confirmation["immediate_bypass_signal_groups"])
             required_windows = int(confirmation["required_consecutive_windows"])
+            configured_required_by_group = confirmation.get(
+                "required_consecutive_windows_by_group", {}
+            )
+            confirmation_required_by_group = {
+                group: int(configured_required_by_group.get(group, required_windows))
+                for group in triggered_groups
+            }
+            effective_confirmation_required = min(
+                confirmation_required_by_group.values(), default=required_windows
+            )
             maximum_confirmation_gap = float(confirmation["maximum_gap_seconds"])
             confirmation_corroborated = False
             if instant_candidate and set(triggered_groups) & bypass_groups:
@@ -319,21 +334,31 @@ class PulseRuntime:
                 self.confirmation_evidence.pop(source_identity, None)
             elif instant_candidate and triggered_groups:
                 previous_confirmation = self.confirmation_evidence.get(source_identity)
-                if (
+                contiguous = (
                     previous_confirmation is not None
                     and 0.0 < window_end - float(previous_confirmation["window_end"])
                     <= maximum_confirmation_gap
-                    and set(triggered_groups) & set(previous_confirmation["groups"])
-                ):
-                    confirmation_count = int(previous_confirmation["count"]) + 1
-                else:
-                    confirmation_count = 1
+                )
+                previous_counts = (
+                    previous_confirmation.get("group_counts", {})
+                    if contiguous else {}
+                )
+                confirmation_group_counts = {
+                    group: int(previous_counts.get(group, 0)) + 1
+                    for group in triggered_groups
+                }
+                confirmation_count = max(confirmation_group_counts.values())
                 self.confirmation_evidence[source_identity] = {
                     "window_end": window_end,
                     "groups": triggered_groups,
                     "count": confirmation_count,
+                    "group_counts": confirmation_group_counts,
                 }
-                confirmation_corroborated = confirmation_count >= required_windows
+                confirmation_corroborated = any(
+                    confirmation_group_counts[group]
+                    >= confirmation_required_by_group[group]
+                    for group in triggered_groups
+                )
                 if (
                     confirmation_corroborated
                     and confirmation.get("consume_on_alert") is True
@@ -447,10 +472,11 @@ class PulseRuntime:
             "temporal_confirmation_corroborated": confirmation_corroborated,
             "temporal_confirmation_count": confirmation_count,
             "temporal_confirmation_groups": confirmation_groups,
+            "temporal_confirmation_group_counts": confirmation_group_counts,
             "temporal_confirmation_bypassed": confirmation_bypassed,
-            "temporal_confirmation_required_consecutive_windows": (
-                int(confirmation["required_consecutive_windows"])
-                if confirmation is not None else 1
+            "temporal_confirmation_required_consecutive_windows": effective_confirmation_required,
+            "temporal_confirmation_required_consecutive_windows_by_group": (
+                confirmation_required_by_group
             ),
             "corroboration_mode": (
                 "bounded_model_semantic_join" if temporal is not None else "same_window"

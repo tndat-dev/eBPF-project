@@ -1,10 +1,10 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 02-09-2026
+**Snapshot cluster:** 03-09-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** formal normal R5 bị loại vì coverage frontend 85,29%; C3
-chưa mở và chưa có claim production/formal
+**Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
+PostgreSQL; C3 chưa mở và chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -30,6 +30,12 @@ ghi thêm vào `SOAK_PERIODIC_CHECKS.log` sau khi archive, khiến top-level
 integrity phải được lưu amendment, không được mô tả là bundle bất biến hoàn
 toàn. A6 chưa tạo `SOAK_START.json`: preflight thiếu capacity trên worker3 rồi
 bị dừng, do đó không phải một formal run.
+
+**Checkpoint formal mới nhất:** B3 R6
+`sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã terminal sau khoảng 3
+giờ 24 phút với 882.176 decision và một false positive trên PostgreSQL. Đây là
+`rejected_normal_gate`, không phải infrastructure reject. Candidate đã dừng,
+control collector đã phục hồi và C3 vẫn có 0 file.
 
 **Checkpoint tương thích 30-08-2026:** A7 dừng ở production traffic preflight,
 trước `SOAK_START.json`, vì AIMS có HTTP 503; do đó A7 không phải formal soak
@@ -1830,3 +1836,42 @@ interim observation.
 Lifecycle canonical còn giữ single-writer lock theo run ID và kiểm model/policy
 hash ngay khi resume. Duplicate process hoặc identity mismatch dừng trước
 monitor/finalizer; hai behavioral test thực thi thật đã khóa hai invariant này.
+
+### R6 terminal: B3 bị loại bởi false positive PostgreSQL (03-09-2026)
+
+R6 bắt đầu `2026-09-02T15:48:42.587983Z` và monitor fail-closed lúc
+`19:12:43Z` với `reason=normal_alert_observed`. Archive hoàn tất lúc 19:15:23Z;
+không còn `ACTIVE`, không có `NORMAL_PASS`. Audit tái lập từ ba raw tar, sau khi
+verify 32/32 checksum, thu được **882.176 decision và đúng 1 alert**. Phân bố
+theo worker là `.237` 271.583/1, `.238` 375.181/0, `.239` 235.412/0.
+
+False alert ở pod `aims-postgres-cnpg-2`, workload
+`production/aims-postgres-cnpg:postgres`: score 0,734959, conformal p-value
+0,00023299, inference 19,88 ms và post-window processing 0,194 giây. Hai
+window liên tiếp cùng kích hoạt `local_socket_beacon`; window thứ hai có 24
+`socket`, 24 `connect`, 7 `clone`, 104 `openat`. Local-socket observed 48 vượt
+normal max 28, trong khi score vượt calibration max 0,155014. Alert xuất hiện
+khoảng 0,698 giây sau đầu window, nhưng đây là latency của false alert chứ
+không phải attack-detection result.
+
+Hạ tầng không cung cấp bằng chứng để reject alert này: tại failure snapshot,
+6/6 node Ready, 42/42 pod production khỏe, 28/28 Longhorn volume healthy và
+CNPG 3/3 instance ready. Finalizer của worker phát alert `.237` hợp lệ, service
+healthy, zero drop, interval p99 0,507 giây và emit p99 0,525 giây. Worker
+`.238` có một cụm 47 row interval-invalid do gap tối đa 3,078 giây nhưng không
+phát alert; chi tiết này không được dùng để che false positive ở `.237`.
+
+Archive gốc được giữ bất biến. Vì freezer schema v1 từng gắn nhầm mọi monitor
+failure thành infrastructure rejection, sidecar audit riêng tại
+`/home/dat/sentinel-pulse-evidence/posthoc-analysis/sentinel-pulse-formal-normal-b3-r6-20260902T154252Z`
+bind lại source hashes và ghi `classification=rejected_normal_gate`. SHA-256
+classification là `9521dce42cfc45153080d7e86e65617601d93c1668ddec8894b687ded4a8dc2e`.
+Source canonical commit `6e9f188` đã sửa freezer tương lai và thêm audit tool;
+full regression đạt **513 passed, 2 warnings**.
+
+Kết luận khoa học: B3 không stable và không được mở blind C3. R6 chỉ được dùng
+như normal development evidence nếu thiết kế B4; không được dùng train model,
+tune rồi vẫn gọi C3 cũ là blind, hoặc claim FPR bằng 0. Hướng B4 cần tách
+PostgreSQL connection burst hợp lệ khỏi beacon bằng provenance destination
+hoặc policy confirmation chuyên biệt theo semantic group, sau đó đóng băng
+identity mới và chạy normal soak độc lập.

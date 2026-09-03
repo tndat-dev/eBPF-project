@@ -39,6 +39,7 @@ def evaluate(
     evidence_checksums_path: Path | None = None,
     expected_model_sha256: str | None = None,
     expected_policy_sha256: str | None = None,
+    required_consecutive_windows_by_group: dict[str, int] | None = None,
 ) -> dict:
     if not paths:
         raise ValueError("at least one decision source is required")
@@ -48,6 +49,19 @@ def evaluate(
         raise ValueError("maximum temporal confirmation gap must be positive")
     if not bypass_groups:
         raise ValueError("at least one immediate bypass group is required")
+    per_group_windows = required_consecutive_windows_by_group or {}
+    if any(
+        not isinstance(group, str)
+        or not group
+        or isinstance(value, bool)
+        or not isinstance(value, int)
+        or value < 2
+        or value > 4
+        for group, value in per_group_windows.items()
+    ):
+        raise ValueError("per-group temporal confirmation requirements are invalid")
+    if set(per_group_windows) & set(bypass_groups):
+        raise ValueError("a bypass group cannot also require temporal confirmation")
     if (expected_model_sha256 is None) != (expected_policy_sha256 is None):
         raise ValueError("expected model and policy identities must be supplied together")
 
@@ -185,21 +199,31 @@ def evaluate(
                     pending.pop(source_key, None)
                 elif instant_candidate and groups:
                     previous = pending.get(source_key)
-                    if (
+                    contiguous = (
                         previous is not None
                         and 0.0 < window_end - previous["window_end"]
                         <= maximum_gap_seconds
-                        and groups & previous["groups"]
-                    ):
-                        count = previous["count"] + 1
-                    else:
-                        count = 1
+                    )
+                    previous_counts = (
+                        previous.get("group_counts", {}) if contiguous else {}
+                    )
+                    group_counts = {
+                        group: int(previous_counts.get(group, 0)) + 1
+                        for group in groups
+                    }
                     pending[source_key] = {
                         "window_end": window_end,
                         "groups": groups,
-                        "count": count,
+                        "count": max(group_counts.values()),
+                        "group_counts": group_counts,
                     }
-                    projected_alert = count >= required_consecutive_windows
+                    projected_alert = any(
+                        group_counts[group]
+                        >= per_group_windows.get(group, required_consecutive_windows)
+                        for group in groups
+                    )
+                    if projected_alert:
+                        pending.pop(source_key, None)
                 else:
                     pending.pop(source_key, None)
 
@@ -255,6 +279,7 @@ def evaluate(
         "excluded_scored_windows_before_marker": excluded_before_marker,
         "sources": sources,
         "required_consecutive_windows": required_consecutive_windows,
+        "required_consecutive_windows_by_group": dict(sorted(per_group_windows.items())),
         "maximum_gap_seconds": maximum_gap_seconds,
         "bypass_groups": sorted(bypass_groups),
         "scored_rows": scored_rows,
@@ -269,6 +294,9 @@ def evaluate(
         "latency_cost_contract": {
             "additional_windows_for_non_bypass_groups": (
                 required_consecutive_windows - 1
+            ),
+            "maximum_additional_windows_for_overridden_groups": max(
+                (value - 1 for value in per_group_windows.values()), default=0
             ),
             "attack_latency_not_estimated_from_normal_evidence": True,
             "blind_live_latency_gate_still_required": True,
@@ -287,9 +315,24 @@ def main() -> None:
     parser.add_argument("--expected-model-sha256")
     parser.add_argument("--expected-policy-sha256")
     parser.add_argument(
+        "--group-required-windows",
+        action="append",
+        default=[],
+        metavar="GROUP=WINDOWS",
+    )
+    parser.add_argument(
         "--bypass-group", action="append", default=["namespace_probe"]
     )
     args = parser.parse_args()
+    group_requirements = {}
+    for item in args.group_required_windows:
+        group, separator, value = item.partition("=")
+        if not separator or group in group_requirements:
+            parser.error("--group-required-windows must be unique GROUP=WINDOWS values")
+        try:
+            group_requirements[group] = int(value)
+        except ValueError:
+            parser.error("--group-required-windows WINDOWS must be an integer")
     report = evaluate(
         args.decisions,
         args.required_consecutive_windows,
@@ -299,6 +342,7 @@ def main() -> None:
         args.evidence_checksums,
         args.expected_model_sha256,
         args.expected_policy_sha256,
+        group_requirements,
     )
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
