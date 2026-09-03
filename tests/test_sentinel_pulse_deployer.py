@@ -210,7 +210,7 @@ class PulseDeployerTests(unittest.TestCase):
             ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
         ).read_text()
         self.assertIn("rejected_infrastructure_failure", script)
-        self.assertIn('"normal_gate": False', script)
+        self.assertIn('"normal_gate": normal_gate_rejection', script)
         self.assertIn('"training": False', script)
         self.assertIn('"tuning": False', script)
         self.assertIn('"blind_attack": False', script)
@@ -221,6 +221,20 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("! -name archive.log", script)
         self.assertIn("! -name '*.tmp'", script)
         self.assertNotIn("evaluate_normal", script)
+
+    def test_failed_soak_freezer_does_not_hide_a_normal_alert_as_infrastructure(self):
+        script = (
+            ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
+        ).read_text()
+        self.assertIn(
+            'normal_gate_rejection = failure_reason == "normal_alert_observed"',
+            script,
+        )
+        self.assertIn('terminal_run_status = "rejected_normal_gate"', script)
+        self.assertIn('candidate_status = "rejected_normal_gate"', script)
+        self.assertIn('"normal_gate_result": False if normal_gate_rejection else None', script)
+        self.assertIn('"normal_gate": normal_gate_rejection', script)
+        self.assertIn('"schema": "sentinel-pulse-failed-soak-disposition-v2"', script)
 
     def test_failed_soak_freezer_reuses_verified_finalizer_archive(self):
         script = (

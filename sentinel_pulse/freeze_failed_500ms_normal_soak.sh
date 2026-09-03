@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Preserve a terminally failed formal soak without evaluating or tuning it.
+# Preserve a terminally failed formal soak without tuning or promotion.
 set -euo pipefail
 
 EVIDENCE_ROOT=${1:?usage: freeze_failed_500ms_normal_soak.sh EVIDENCE_ROOT}
@@ -70,8 +70,9 @@ while read -r host node expected_feature; do
   node_root="$FAILURE_ROOT/workers/$host"
   mkdir -p "$node_root"
 
-  # Quiesce first. The raw streams are rejected evidence and must never be fed
-  # to training, tuning, normal-gate evaluation, or blind-attack evaluation.
+  # Quiesce first. Raw streams must never be fed to training, tuning or blind
+  # evaluation. A normal alert is used only to reject the preregistered
+  # zero-alert gate; infrastructure failures remain excluded from that gate.
   remote_sudo "$host" systemctl stop sentinel-pulse-detector-candidate.service \
     sentinel-pulse-collector-500ms-experiment.service >/dev/null 2>&1 || true
   remote_sudo "$host" systemctl show \
@@ -178,24 +179,40 @@ if monitor_path.is_file():
         row = json.loads(line)
         last[row["host"]] = row
 failure_reason = failed.get("reason", "unknown_monitor_failure")
+normal_gate_rejection = failure_reason == "normal_alert_observed"
+if normal_gate_rejection:
+    terminal_run_status = "rejected_normal_gate"
+    candidate_status = "rejected_normal_gate"
+    trigger = "formal normal zero-alert gate"
+    mechanism = (
+        "one or more alerts were emitted during the normal-only soak; this "
+        "is sufficient to reject the candidate without waiting for 24 hours"
+    )
+else:
+    terminal_run_status = "rejected_infrastructure_failure"
+    candidate_status = "not_evaluated_by_this_run"
+    trigger = "formal normal monitor fail-closed infrastructure/evidence gate"
+    mechanism = (
+        "the run is infrastructure/evidence-rejected before candidate "
+        "evaluation; detailed snapshots are retained when available"
+    )
 payload = {
-    "schema": "sentinel-pulse-failed-soak-disposition-v1",
+    "schema": "sentinel-pulse-failed-soak-disposition-v2",
     "run_id": marker["run_id"],
-    "terminal_run_status": "rejected_infrastructure_failure",
-    "candidate_status": "not_evaluated_by_this_run",
+    "terminal_run_status": terminal_run_status,
+    "candidate_status": candidate_status,
+    "normal_gate_result": False if normal_gate_rejection else None,
+    "accuracy_claim_allowed": False,
     "failed": failed,
     "last_monitor_snapshot_by_host": last,
     "observed_alerts_before_failure": sum(row["alerts"] for row in last.values()),
     "root_cause": {
         "class": failure_reason,
-        "trigger": "formal normal monitor fail-closed gate",
-        "mechanism": (
-            "the run is infrastructure/evidence-rejected before candidate "
-            "evaluation; detailed snapshots are retained when available"
-        ),
+        "trigger": trigger,
+        "mechanism": mechanism,
     },
     "data_use": {
-        "normal_gate": False,
+        "normal_gate": normal_gate_rejection,
         "training": False,
         "tuning": False,
         "blind_attack": False,
@@ -242,4 +259,4 @@ fi
 printf 'archived_at=%s\nautomatic_promotion=false\nreused_finalizer_raw_archive=%s\n' \
   "$(date -u +%FT%TZ)" "$reuse_finalizer_raw_archive" \
   >"$EVIDENCE_ROOT/ARCHIVE_COMPLETE"
-printf 'failed soak archived without evaluation: %s\n' "$EVIDENCE_ROOT"
+printf 'failed soak archived without tuning or promotion: %s\n' "$EVIDENCE_ROOT"
