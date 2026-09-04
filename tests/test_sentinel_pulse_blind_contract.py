@@ -143,6 +143,32 @@ class PulseBlindContractTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "predecessor binding"):
                 load_contract(path)
 
+    def test_b4_contract_binds_policy_and_unopened_b3_matrix(self):
+        contract_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b4.json"
+        )
+        predecessor_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b3.json"
+        )
+        policy_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b4.json"
+        )
+        contract = load_contract(contract_path)
+        predecessor = load_contract(predecessor_path)
+        self.assertEqual(
+            contract["candidate_binding"]["decision_policy_sha256"],
+            hashlib.sha256(policy_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            contract["candidate_binding"]["runtime_source_git_commit"],
+            "a561520ac9479e06a1ca08dbbf92070c28b906a0",
+        )
+        self.assertEqual(
+            contract["independence"]["derived_from_unused_contract_sha256"],
+            hashlib.sha256(predecessor_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(contract["matrix"], predecessor["matrix"])
+
 
 if __name__ == "__main__":
     unittest.main()

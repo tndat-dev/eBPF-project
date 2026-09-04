@@ -7,7 +7,7 @@
   "candidate_binding": {
     "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
     "decision_policy_sha256": "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187",
-    "runtime_source_git_commit": "ef4b85bdcfeb7df0840bedb46c2932362f965c34"
+    "runtime_source_git_commit": "a561520ac9479e06a1ca08dbbf92070c28b906a0"
   },
   "independence": {
     "predecessor_development_set": "B3-R6-normal-only",
