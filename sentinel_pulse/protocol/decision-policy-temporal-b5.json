@@ -1,0 +1,277 @@
+{
+  "automatic_promotion": false,
+  "blind_outcome_used": false,
+  "bounded_event_time_corroboration": {
+    "consume_on_alert": true,
+    "eligible_semantic_signal_groups": [
+      "namespace_probe"
+    ],
+    "maximum_evidence_age_seconds": 1.0,
+    "mode": "bounded_model_semantic_join",
+    "normal_only_calibration": true,
+    "requires_raw_model_anomaly": true,
+    "requires_score_corroboration": true,
+    "requires_semantic_corroboration": true
+  },
+  "claim_scope": "Consecutive-window candidate calibrated only on checksum-bound normal decisions; no attack outcome used and no auto-promotion",
+  "created_at": "2026-09-04T07:59:00.834119+00:00",
+  "development_normal_evidence": {
+    "additional_temporal_confirmation_calibrations": [
+      {
+        "decision_policy_sha256": "02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10",
+        "evidence_checksums_sha256": "4c0eb55db008548c2e7574cd5f7e3fea392fa02c3c97aaa15963894edb3940b0",
+        "projected_alerts": 0,
+        "report_sha256": "d0343b0186694481d986c0ca2a70f45fccb06b7049f0d1014486080114aca9c4",
+        "run_id": "sentinel-pulse-formal-normal-b3-r6-20260902T154252Z",
+        "scored_rows": 874270
+      }
+    ],
+    "base_policy_sha256": "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187",
+    "dataset_manifest_sha256": "609c445172c1784d768098fdbe1d7ad419273914fd73568f482d8190dce8e40a",
+    "dataset_sha256": "2a016dc43b61c6c8e325c06e3d90e77bf8e567eb0acccf9f1c4c41d903acaf53",
+    "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+    "semantic_envelope_calibration_sha256": "a1170a0cdec53614cb65272ef866747999916484b2db257c1797b17d8a60b645",
+    "temporal_calibration_sha256": "584b2ea6c2584dc7d2e4d86eb7b84a1759e42eefc77c23b628b740fe648383ce",
+    "temporal_calibration_source_checksums_sha256": "df7684e1935ddcb459290cc5625e00eb7c9ae53064091b23f3afe5e2c67ecada",
+    "temporal_confirmation_calibration_sha256": "2851d22055879f277ba46d0652d3bac1f4ca790c3f4bebf0e2d0824a820be301",
+    "temporal_confirmation_source_checksums_sha256": "903a414b3f0a7ab50e93ef8537cdf860e6a445d5860bb15038b386249c21dc18",
+    "training_contract_sha256": "bb3739bd35afb86a9b699b57bc575586d1a91d8743cfd10974453e46418672c1"
+  },
+  "evidence_class": "normal_only_consecutive_confirmation_candidate",
+  "frozen_before_blind_evaluation": true,
+  "name": "sentinel-pulse-namespace-only-bounded-join-b5",
+  "same_window_corroboration": {
+    "additional_window_wait": 0,
+    "minimum_security_activity_mass": 1,
+    "requires_raw_model_anomaly": true,
+    "security_activity_fields": [
+      "socket",
+      "connect",
+      "clone",
+      "clone3",
+      "setuid",
+      "setgid",
+      "capset",
+      "openat",
+      "ptrace",
+      "pivot_root",
+      "mount",
+      "unshare",
+      "setns",
+      "execveat"
+    ],
+    "workload_normal_envelope": {
+      "signal_groups": [
+        {
+          "fields": [
+            "socket",
+            "connect"
+          ],
+          "minimum_excess": 4,
+          "name": "local_socket_beacon"
+        },
+        {
+          "fields": [
+            "clone",
+            "clone3"
+          ],
+          "minimum_excess": 4,
+          "name": "process_fanout"
+        },
+        {
+          "fields": [
+            "setuid",
+            "setgid",
+            "capset"
+          ],
+          "minimum_excess": 4,
+          "name": "identity_transition"
+        },
+        {
+          "fields": [
+            "openat"
+          ],
+          "minimum_excess": 4,
+          "name": "credential_open"
+        },
+        {
+          "fields": [
+            "ptrace",
+            "pivot_root",
+            "mount",
+            "unshare",
+            "setns",
+            "execveat"
+          ],
+          "minimum_excess": 1,
+          "name": "namespace_probe"
+        }
+      ],
+      "workload_group_maxima": {
+        "production/aims-frontend:web": {
+          "credential_open": 0,
+          "identity_transition": 0,
+          "local_socket_beacon": 0,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "credential_open": 106,
+          "identity_transition": 15,
+          "local_socket_beacon": 18,
+          "namespace_probe": 0,
+          "process_fanout": 12
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "credential_open": 4,
+          "identity_transition": 0,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 4
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "credential_open": 6,
+          "identity_transition": 0,
+          "local_socket_beacon": 4,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/aims-minio-pool-0:minio": {
+          "credential_open": 818,
+          "identity_transition": 0,
+          "local_socket_beacon": 14,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "credential_open": 1,
+          "identity_transition": 0,
+          "local_socket_beacon": 0,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "credential_open": 105,
+          "identity_transition": 0,
+          "local_socket_beacon": 28,
+          "namespace_probe": 0,
+          "process_fanout": 4
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "credential_open": 37,
+          "identity_transition": 0,
+          "local_socket_beacon": 11,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "credential_open": 17,
+          "identity_transition": 36,
+          "local_socket_beacon": 12,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/aims-redis:aims-redis": {
+          "credential_open": 12,
+          "identity_transition": 36,
+          "local_socket_beacon": 6,
+          "namespace_probe": 0,
+          "process_fanout": 1
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "credential_open": 1,
+          "identity_transition": 0,
+          "local_socket_beacon": 16,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        },
+        "production/api-gateway:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/auth-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/cart-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/catalog-service:app": {
+          "credential_open": 197,
+          "identity_transition": 15,
+          "local_socket_beacon": 6,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/inventory-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/notification-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/order-service:app": {
+          "credential_open": 200,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 6
+        },
+        "production/payment-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 5
+        },
+        "production/security-telemetry-service:app": {
+          "credential_open": 196,
+          "identity_transition": 15,
+          "local_socket_beacon": 2,
+          "namespace_probe": 0,
+          "process_fanout": 0
+        }
+      }
+    }
+  },
+  "schema": "sentinel-pulse-decision-policy-v3",
+  "score_corroboration": {
+    "minimum_excess_over_calibration_max": 0.01,
+    "reference": "per_workload_calibration_max"
+  },
+  "source_clean": true,
+  "source_git_commit": "76e4780a33ac01538cdfd7fc6264ecc4dd17c98a",
+  "source_git_diff_sha256": "66129b3c0caf86034131268c27bd275d29e55da10e6d33cf2a4ed391cbe621a0",
+  "suppressed_decision_status": "suppressed",
+  "temporal_confirmation": {
+    "consume_on_alert": true,
+    "immediate_bypass_signal_groups": [
+      "identity_transition",
+      "namespace_probe"
+    ],
+    "maximum_gap_seconds": 1.25,
+    "mode": "consecutive_same_group",
+    "normal_only_calibration": true,
+    "required_consecutive_windows": 2,
+    "required_consecutive_windows_by_group": {
+      "local_socket_beacon": 3
+    }
+  }
+}

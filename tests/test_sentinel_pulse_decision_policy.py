@@ -341,3 +341,41 @@ def test_b4_policy_is_bound_to_r6_normal_only_replay():
         "temporal_confirmation_calibration_sha256"
     ] == "1a16c7a073478de5c7e266c3a64f6c181e8deb3b708d118f327d6c0f30cf51bb"
     assert policy["blind_outcome_used"] is False
+
+
+def test_b5_policy_restricts_bounded_join_and_binds_two_normal_replays():
+    path = (
+        ROOT
+        / "sentinel_pulse"
+        / "protocol"
+        / "decision-policy-temporal-b5.json"
+    )
+    policy, digest = load_decision_policy(path)
+    assert digest == "ab6a4f6b93e2c5548ffaad9727fc0a23839d20ea2e27b7f6d7ea7e5eb155c5c7"
+    assert policy["source_clean"] is True
+    assert policy["bounded_event_time_corroboration"][
+        "eligible_semantic_signal_groups"
+    ] == ["namespace_probe"]
+    development = policy["development_normal_evidence"]
+    assert development["base_policy_sha256"] == (
+        "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187"
+    )
+    assert development["temporal_confirmation_calibration_sha256"] == (
+        "2851d22055879f277ba46d0652d3bac1f4ca790c3f4bebf0e2d0824a820be301"
+    )
+    assert development["additional_temporal_confirmation_calibrations"] == [
+        {
+            "decision_policy_sha256": (
+                "02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10"
+            ),
+            "evidence_checksums_sha256": (
+                "4c0eb55db008548c2e7574cd5f7e3fea392fa02c3c97aaa15963894edb3940b0"
+            ),
+            "projected_alerts": 0,
+            "report_sha256": (
+                "d0343b0186694481d986c0ca2a70f45fccb06b7049f0d1014486080114aca9c4"
+            ),
+            "run_id": "sentinel-pulse-formal-normal-b3-r6-20260902T154252Z",
+            "scored_rows": 874270,
+        }
+    ]
