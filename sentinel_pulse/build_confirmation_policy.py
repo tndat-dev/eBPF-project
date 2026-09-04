@@ -20,6 +20,7 @@ def build_policy(
     policy_name: str,
     source: dict | None = None,
     bounded_join_groups: list[str] | None = None,
+    additional_calibration_paths: list[Path] | None = None,
 ) -> dict:
     base, base_sha256 = load_decision_policy(base_policy_path)
     calibration = json.loads(calibration_path.read_text(encoding="utf-8"))
@@ -70,6 +71,59 @@ def build_policy(
     ):
         raise ValueError("bounded join groups differ from normal-only calibration")
 
+    replay_settings = {
+        "required_consecutive_windows": required_windows,
+        "required_consecutive_windows_by_group": per_group_windows,
+        "maximum_gap_seconds": maximum_gap,
+        "bypass_groups": sorted(bypass_groups),
+        "bounded_event_time_groups": selected_bounded_groups,
+        "maximum_evidence_age_seconds": calibration.get(
+            "maximum_evidence_age_seconds"
+        ),
+    }
+    additional_calibrations = []
+    for path in additional_calibration_paths or []:
+        extra = json.loads(path.read_text(encoding="utf-8"))
+        extra_settings = {
+            "required_consecutive_windows": extra.get(
+                "required_consecutive_windows"
+            ),
+            "required_consecutive_windows_by_group": extra.get(
+                "required_consecutive_windows_by_group", {}
+            ),
+            "maximum_gap_seconds": extra.get("maximum_gap_seconds"),
+            "bypass_groups": sorted(extra.get("bypass_groups", [])),
+            "bounded_event_time_groups": extra.get("bounded_event_time_groups"),
+            "maximum_evidence_age_seconds": extra.get(
+                "maximum_evidence_age_seconds"
+            ),
+        }
+        if (
+            extra.get("schema")
+            != "sentinel-pulse-temporal-confirmation-development-replay-v1"
+            or extra.get("normal_only_development_evidence") is not True
+            or extra.get("attack_outcomes_used") is not False
+            or extra.get("automatic_promotion") is not False
+            or int(extra.get("projected_alerts", -1)) != 0
+            or not extra.get("evidence_checksums_sha256")
+            or extra.get("model_manifest_sha256")
+            != base["development_normal_evidence"]["model_manifest_sha256"]
+            or extra_settings != replay_settings
+        ):
+            raise ValueError("additional confirmation calibration is incompatible")
+        additional_calibrations.append(
+            {
+                "report_sha256": sha256_file(path),
+                "evidence_checksums_sha256": extra[
+                    "evidence_checksums_sha256"
+                ],
+                "decision_policy_sha256": extra.get("decision_policy_sha256"),
+                "run_id": extra.get("run_id"),
+                "scored_rows": int(extra.get("scored_rows", 0)),
+                "projected_alerts": 0,
+            }
+        )
+
     provenance = source or source_git_provenance()
     policy = deepcopy(base)
     if selected_bounded_groups is not None:
@@ -111,6 +165,9 @@ def build_policy(
     development["temporal_confirmation_source_checksums_sha256"] = calibration[
         "evidence_checksums_sha256"
     ]
+    development["additional_temporal_confirmation_calibrations"] = (
+        additional_calibrations
+    )
     return policy
 
 
@@ -121,12 +178,16 @@ def main() -> None:
     parser.add_argument("--policy-name", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--bounded-join-group", action="append")
+    parser.add_argument(
+        "--additional-calibration", type=Path, action="append", default=[]
+    )
     args = parser.parse_args()
     policy = build_policy(
         args.base_policy,
         args.calibration,
         args.policy_name,
         bounded_join_groups=args.bounded_join_group,
+        additional_calibration_paths=args.additional_calibration,
     )
     write_policy(args.output, policy)
     load_decision_policy(args.output)

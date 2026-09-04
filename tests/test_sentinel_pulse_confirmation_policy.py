@@ -34,6 +34,10 @@ def _calibration(path: Path, projected_alerts: int = 0) -> Path:
                 },
                 "maximum_gap_seconds": 1.25,
                 "bypass_groups": ["namespace_probe"],
+                "bounded_event_time_groups": ["namespace_probe"],
+                "maximum_evidence_age_seconds": 1.0,
+                "run_id": "normal-primary",
+                "scored_rows": 100,
             }
         )
         + "\n"
@@ -52,6 +56,7 @@ def test_builds_checksum_bound_confirmation_policy(tmp_path):
             "source_clean": False,
             "source_git_diff_sha256": "b" * 64,
         },
+        bounded_join_groups=["namespace_probe"],
     )
     output = tmp_path / "policy.json"
     write_policy(output, policy)
@@ -69,6 +74,44 @@ def test_builds_checksum_bound_confirmation_policy(tmp_path):
     assert loaded["development_normal_evidence"][
         "temporal_confirmation_calibration_sha256"
     ] == sha256_file(calibration)
+    assert loaded["bounded_event_time_corroboration"][
+        "eligible_semantic_signal_groups"
+    ] == ["namespace_probe"]
+
+
+def test_binds_additional_independent_normal_replay(tmp_path):
+    calibration = _calibration(tmp_path / "primary.json")
+    additional = _calibration(tmp_path / "additional.json")
+    extra = json.loads(additional.read_text())
+    extra["decision_policy_sha256"] = "d" * 64
+    extra["run_id"] = "normal-independent"
+    extra["scored_rows"] = 200
+    additional.write_text(json.dumps(extra) + "\n")
+    policy = build_policy(
+        BASE,
+        calibration,
+        "sentinel-pulse-multi-replay",
+        source={
+            "source_git_commit": "a" * 40,
+            "source_clean": True,
+            "source_git_diff_sha256": "b" * 64,
+        },
+        bounded_join_groups=["namespace_probe"],
+        additional_calibration_paths=[additional],
+    )
+    bound = policy["development_normal_evidence"][
+        "additional_temporal_confirmation_calibrations"
+    ]
+    assert bound == [
+        {
+            "report_sha256": sha256_file(additional),
+            "evidence_checksums_sha256": "c" * 64,
+            "decision_policy_sha256": "d" * 64,
+            "run_id": "normal-independent",
+            "scored_rows": 200,
+            "projected_alerts": 0,
+        }
+    ]
 
 
 def test_rejects_calibration_with_projected_normal_alert(tmp_path):
