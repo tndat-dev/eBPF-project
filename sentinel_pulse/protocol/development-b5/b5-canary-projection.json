@@ -1,0 +1,65 @@
+{
+  "attack_outcomes_used": false,
+  "automatic_promotion": false,
+  "bounded_event_time_groups": [
+    "namespace_probe"
+  ],
+  "bypass_groups": [
+    "identity_transition",
+    "namespace_probe"
+  ],
+  "decision_policy_sha256": "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187",
+  "evidence_checksums_sha256": "903a414b3f0a7ab50e93ef8537cdf860e6a445d5860bb15038b386249c21dc18",
+  "excluded_scored_windows_before_marker": 0,
+  "latency_cost_contract": {
+    "additional_windows_for_non_bypass_groups": 1,
+    "attack_latency_not_estimated_from_normal_evidence": true,
+    "blind_live_latency_gate_still_required": true,
+    "maximum_additional_windows_for_overridden_groups": 2
+  },
+  "maximum_evidence_age_seconds": 1.0,
+  "maximum_gap_seconds": 1.25,
+  "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+  "normal_only_development_evidence": true,
+  "original_alerts": 1,
+  "original_alerts_suppressed": 1,
+  "projected_alerts": 0,
+  "projected_alerts_by_workload": {},
+  "projected_status_counts": {
+    "normal": 56319,
+    "suppressed": 172,
+    "warming": 761
+  },
+  "required_consecutive_windows": 2,
+  "required_consecutive_windows_by_group": {
+    "local_socket_beacon": 3
+  },
+  "run_id": "sentinel-pulse-b4-canary-r1-20260904T014737Z",
+  "schema": "sentinel-pulse-temporal-confirmation-development-replay-v1",
+  "scored_rows": 56491,
+  "soak_marker_identity_gate": false,
+  "soak_marker_sha256": null,
+  "sources": [
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/canary-b4/sentinel-pulse-b4-canary-r1-20260904T014737Z/nodes/k8s-worker1.local/decisions.jsonl",
+      "rows": 18412,
+      "sha256": "fd3d5820520a5033852eb1047eff4cc0576cb1585bb49d6e6e24883d295dd115"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/canary-b4/sentinel-pulse-b4-canary-r1-20260904T014737Z/nodes/k8s-worker3.local/decisions.jsonl",
+      "rows": 15462,
+      "sha256": "b29f788b608eb6f8cdea39c696d6390b1f181f385231164c688ac337b6d4bc82"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/canary-b4/sentinel-pulse-b4-canary-r1-20260904T014737Z/nodes/k8s-worker4.local/decisions.jsonl",
+      "rows": 23378,
+      "sha256": "57f3d22afbf41deb6fbde553bfbfcba30598329b7b69a1e513b7336f924f40c7"
+    }
+  ],
+  "status_counts": {
+    "alert": 1,
+    "normal": 56319,
+    "suppressed": 171,
+    "warming": 761
+  }
+}

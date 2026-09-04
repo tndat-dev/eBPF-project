@@ -363,6 +363,10 @@ def test_b5_policy_restricts_bounded_join_and_binds_two_normal_replays():
     assert development["temporal_confirmation_calibration_sha256"] == (
         "2851d22055879f277ba46d0652d3bac1f4ca790c3f4bebf0e2d0824a820be301"
     )
+    evidence_root = ROOT / "sentinel_pulse" / "protocol" / "development-b5"
+    assert sha256_file(evidence_root / "b5-canary-projection.json") == (
+        development["temporal_confirmation_calibration_sha256"]
+    )
     assert development["additional_temporal_confirmation_calibrations"] == [
         {
             "decision_policy_sha256": (
@@ -378,4 +382,17 @@ def test_b5_policy_restricts_bounded_join_and_binds_two_normal_replays():
             "run_id": "sentinel-pulse-formal-normal-b3-r6-20260902T154252Z",
             "scored_rows": 874270,
         }
+    ]
+    assert sha256_file(evidence_root / "b5-r6-projection.json") == (
+        development["additional_temporal_confirmation_calibrations"][0][
+            "report_sha256"
+        ]
+    )
+    reproduction = json.loads(
+        (evidence_root / "b4-canary-policy-reproduction.json").read_text()
+    )
+    assert reproduction["projected_alerts"] == 1
+    assert reproduction["bounded_event_time_groups"] == [
+        "identity_transition",
+        "namespace_probe",
     ]
