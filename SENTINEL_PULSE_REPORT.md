@@ -6,7 +6,8 @@
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
 Blind B4 chưa mở. B5 đã khóa policy/contract mới và đang chạy canary
-normal-only; chưa có claim production/formal
+normal-only; canary đã pass và formal normal soak 25 giờ đang active, chưa có
+claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -1944,6 +1945,21 @@ namespace probe được phép lệch tối đa một giây. Runtime commit đó
 đã khóa trước canary, kế thừa nguyên ma trận 450 injection chưa mở.
 
 Traffic gate trước canary đạt 90/90 east-west, 30/30 north-south và 9/9
-rollout Healthy. Run `sentinel-pulse-b5-canary-r1-20260904T080800Z` đang chạy
-normal-only 900 giây trên ba worker; chưa có terminal result nên chưa được gọi
-là pass. Full regression hiện đạt **530 passed, 2 warnings**.
+rollout Healthy. Run `sentinel-pulse-b5-canary-r1-20260904T080800Z` terminal
+valid sau 900 giây với **63.531 decision, 0 alert, 0 restart và 20/20 workload**.
+Inference p50/p95/p99 là 16,83/24,29/29,50 ms; p99
+window-start-to-decision là 0,851 giây, max 0,998 giây. Coverage thấp nhất là
+frontend 96,23%. Bundle verify 73/73 checksum; aggregate SHA-256 `82d31b85...`.
+Đây chỉ là canary non-formal 0,25 giờ, không tạo FPR/recall claim. Full
+regression hiện đạt **530 passed, 2 warnings**.
+
+Formal normal run `sentinel-pulse-formal-normal-b5-r1-20260904T082600Z` đã
+được giao cho persistent systemd lifecycle lúc 08:26:21 UTC. Duration đăng ký
+90.000 giây (25 giờ), stability preflight 300 giây và
+`STOP_AFTER_NORMAL=true`; control collector được suspend chỉ sau khi preflight
+đạt. Preflight đã pass; `SOAK_START.json` ghi start 08:32:14 UTC và phase
+`normal_active` bắt đầu 08:33:22 UTC. Ba worker đều có collector/detector
+active, legacy collector inactive, restart=0; model/policy trên từng worker
+khớp `2e37ffd1...`/`ab6a4f6b...`. Start bundle verify 3/3 checksum. Mốc eligible
+finalize là 08:32:14 UTC ngày 05-09-2026. Blind interlock vẫn đóng, không có
+automatic promotion và chưa được suy diễn formal pass khi run còn active.

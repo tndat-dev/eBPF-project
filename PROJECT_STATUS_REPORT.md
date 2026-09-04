@@ -13,8 +13,8 @@ model và live-normal canary B3 15 phút. Formal normal R6 đã bị loại đú
 zero-alert gate sau khoảng 3 giờ 24 phút vì một false positive trên PostgreSQL;
 C3 chưa mở. Candidate B4 đã khóa policy/runtime/blind contract mới nhưng bị
 loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa có
-formal accuracy claim. Successor B5 đã khóa identity mới và đang chạy canary
-normal-only độc lập
+formal accuracy claim. Successor B5 đã khóa identity mới; canary normal-only
+độc lập đã pass và formal normal soak 25 giờ đang active trên ba worker
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -6952,6 +6952,25 @@ kế thừa đúng ma trận chưa mở của B4 và vẫn có 450 injection. Co
 
 Traffic preflight B5 đạt 90/90 east-west HTTP 200, 30/30 north-south và 9/9
 rollout Healthy. Canary normal-only
-`sentinel-pulse-b5-canary-r1-20260904T080800Z` đã được khởi chạy nền 900 giây
-trên ba worker với đúng model/policy hash; automatic promotion và injection
-đều tắt. Đây mới là run đang active, chưa được diễn giải là canary pass.
+`sentinel-pulse-b5-canary-r1-20260904T080800Z` đã terminal valid sau 900 giây:
+**63.531 decision, 0 alert, 0 detector restart, đủ 20/20 workload**. Inference
+p50/p95/p99 là 16,83/24,29/29,50 ms; window-start-to-decision
+p50/p95/p99/max là 0,652/0,797/0,851/0,998 giây. Coverage thấp nhất là
+frontend 843/876 second-bucket = 96,23%, vượt gate 95%. Tổng 73/73 checksum
+verify thành công; `AGGREGATE.json` SHA-256 `82d31b85...`,
+`FINAL_SHA256SUMS` SHA-256 `d153e7ed...`. Đây là canary non-formal 0,25 giờ,
+không phải FPR hay recall claim.
+
+Sau canary pass, systemd lifecycle `sentinel-pulse-b5-r1-lifecycle.service`
+được enable/start lúc 08:26:21 UTC cho formal normal run
+`sentinel-pulse-formal-normal-b5-r1-20260904T082600Z`. Protocol giữ
+`DURATION_SECONDS=90000`, stability preflight 300 giây,
+`STOP_AFTER_NORMAL=true`, `SUSPEND_CONTROL_COLLECTOR=true`; vì vậy lifecycle
+không có quyền tự mở blind. Traffic/stability preflight đã pass liên tục và
+`SOAK_START.json` được phát hành lúc 08:32:14 UTC; ba detector chuyển sang
+`normal_active` lúc 08:33:22 UTC. Cả ba worker có collector/detector active,
+legacy collector inactive, restart=0 và cùng bind model SHA-256 `2e37ffd1...`
+với policy SHA-256 `ab6a4f6b...`. Marker khởi đầu verify 3/3 checksum;
+`blind_evaluation_started=false`, `automatic_promotion=false`. Mốc sớm nhất
+được phép finalize là **08:32:14 UTC ngày 05-09-2026**; kết quả trước mốc đó
+không được gọi là formal pass.

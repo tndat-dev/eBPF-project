@@ -326,6 +326,19 @@ bypass. Replays used to freeze B5 are preserved under
 `protocol/development-b5/`, and `open_b5_blind_after_normal.sh` is the only
 supported B5 blind entry point.
 
+The B5 non-formal live-normal canary completed with 63,531 decisions, zero
+alerts, zero detector restarts and all 20 workload keys. Inference p99 was
+29.50 ms and window-start-to-decision p99 was 0.851 s (max 0.998 s). This is a
+15-minute engineering gate, not an FPR or recall claim; B5 still requires its
+independent long normal soak before the blind opener can run.
+
+The independent B5 normal run
+`sentinel-pulse-formal-normal-b5-r1-20260904T082600Z` entered `normal_active`
+on all three workers at 2026-09-04 08:33:22 UTC after passing its traffic and
+300-second stability preflight. Its earliest eligible finalize time is
+2026-09-05 08:32:14 UTC. `STOP_AFTER_NORMAL=true`; an active run is not a pass
+and cannot open the blind matrix automatically.
+
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
 while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a
