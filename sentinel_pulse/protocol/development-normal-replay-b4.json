@@ -1,0 +1,61 @@
+{
+  "attack_outcomes_used": false,
+  "automatic_promotion": false,
+  "bypass_groups": [
+    "identity_transition",
+    "namespace_probe"
+  ],
+  "decision_policy_sha256": "02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10",
+  "evidence_checksums_sha256": "4c0eb55db008548c2e7574cd5f7e3fea392fa02c3c97aaa15963894edb3940b0",
+  "excluded_scored_windows_before_marker": 0,
+  "latency_cost_contract": {
+    "additional_windows_for_non_bypass_groups": 1,
+    "attack_latency_not_estimated_from_normal_evidence": true,
+    "blind_live_latency_gate_still_required": true,
+    "maximum_additional_windows_for_overridden_groups": 2
+  },
+  "maximum_gap_seconds": 1.25,
+  "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+  "normal_only_development_evidence": true,
+  "original_alerts": 1,
+  "original_alerts_suppressed": 1,
+  "projected_alerts": 0,
+  "projected_alerts_by_workload": {},
+  "projected_status_counts": {
+    "normal": 872713,
+    "suppressed": 1557,
+    "warming": 7906
+  },
+  "required_consecutive_windows": 2,
+  "required_consecutive_windows_by_group": {
+    "local_socket_beacon": 3
+  },
+  "run_id": "sentinel-pulse-formal-normal-b3-r6-20260902T154252Z",
+  "schema": "sentinel-pulse-temporal-confirmation-development-replay-v1",
+  "scored_rows": 874270,
+  "soak_marker_identity_gate": true,
+  "soak_marker_sha256": "af0ac94dd206691e530d6436e5cf3bd7d0a5ef1baefbe63702b32cfaf9dc7792",
+  "sources": [
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b4/r6-normal-replay/10.1.16.237-decisions.jsonl",
+      "rows": 271583,
+      "sha256": "12c55f8dd6b6f0529c6e55a4b2adec2b7119d2a47b7dbb8db4dc9834d890af39"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b4/r6-normal-replay/10.1.16.238-decisions.jsonl",
+      "rows": 375181,
+      "sha256": "9e0a9ae01e7089b961d7ab129e0531721a68a9af5a36d4b630eca4c084e097da"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b4/r6-normal-replay/10.1.16.239-decisions.jsonl",
+      "rows": 235412,
+      "sha256": "764a9f86a4a6d0069d360d71ac85c926bdc74c1325cbc63f36f529848bac625a"
+    }
+  ],
+  "status_counts": {
+    "alert": 1,
+    "normal": 872713,
+    "suppressed": 1556,
+    "warming": 7906
+  }
+}
