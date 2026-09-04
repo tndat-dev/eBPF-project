@@ -10,23 +10,29 @@ fi
 LIFECYCLE_ID=${LIFECYCLE_ID:?for example a3}
 LOCAL_ROOT=${LOCAL_ROOT:?absolute detached source worktree}
 MODEL_SOURCE=${MODEL_SOURCE:?absolute frozen model directory}
+POLICY_SOURCE=${POLICY_SOURCE:?absolute frozen decision policy}
 NORMAL_RUN_ID=${NORMAL_RUN_ID:?registered normal run ID}
 NORMAL_EVIDENCE_ROOT=${NORMAL_EVIDENCE_ROOT:?absolute normal evidence path}
 BLIND_RUN_ID=${BLIND_RUN_ID:?registered blind run ID}
 BLIND_EVIDENCE_ROOT=${BLIND_EVIDENCE_ROOT:?absolute blind evidence path}
 STATE_ROOT=${STATE_ROOT:?absolute evidence state root}
 PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
+STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-true}
+FINALIZE_MARGIN_SECONDS=${FINALIZE_MARGIN_SECONDS:-300}
 : "${SSHPASS:?SSH/sudo credential is required at runtime}"
 
 [[ $LIFECYCLE_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $NORMAL_RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $BLIND_RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
-for path in "$LOCAL_ROOT" "$MODEL_SOURCE" "$NORMAL_EVIDENCE_ROOT" \
+[[ $STOP_AFTER_NORMAL == true || $STOP_AFTER_NORMAL == false ]]
+[[ $FINALIZE_MARGIN_SECONDS =~ ^[0-9]+$ ]]
+for path in "$LOCAL_ROOT" "$MODEL_SOURCE" "$POLICY_SOURCE" "$NORMAL_EVIDENCE_ROOT" \
   "$BLIND_EVIDENCE_ROOT" "$STATE_ROOT" "$PYTHON"; do
   [[ $path == /* ]] || { echo "lifecycle paths must be absolute: $path" >&2; exit 2; }
 done
 test -x "$LOCAL_ROOT/sentinel_pulse/run_500ms_candidate_lifecycle.sh"
 test -f "$MODEL_SOURCE/manifest.json"
+test -f "$POLICY_SOURCE"
 test -x "$PYTHON"
 
 SERVICE="sentinel-pulse-$LIFECYCLE_ID-lifecycle.service"
@@ -45,6 +51,9 @@ trap cleanup EXIT
   printf 'LOCAL_ROOT=%s\n' "$LOCAL_ROOT"
   printf 'PYTHON=%s\n' "$PYTHON"
   printf 'MODEL_SOURCE=%s\n' "$MODEL_SOURCE"
+  printf 'POLICY_SOURCE=%s\n' "$POLICY_SOURCE"
+  printf 'STOP_AFTER_NORMAL=%s\n' "$STOP_AFTER_NORMAL"
+  printf 'FINALIZE_MARGIN_SECONDS=%s\n' "$FINALIZE_MARGIN_SECONDS"
   printf 'NORMAL_RUN_ID=%s\n' "$NORMAL_RUN_ID"
   printf 'NORMAL_EVIDENCE_ROOT=%s\n' "$NORMAL_EVIDENCE_ROOT"
   printf 'BLIND_RUN_ID=%s\n' "$BLIND_RUN_ID"

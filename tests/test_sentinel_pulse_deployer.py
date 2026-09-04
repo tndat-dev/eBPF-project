@@ -334,6 +334,14 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("chmod 0600", script)
         self.assertIn("Restart=no", script)
         self.assertIn("remote", script)
+        self.assertIn(
+            "POLICY_SOURCE=${POLICY_SOURCE:?absolute frozen decision policy}",
+            script,
+        )
+        self.assertIn("STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-true}", script)
+        self.assertIn("printf 'POLICY_SOURCE=%s\\n'", script)
+        self.assertIn("printf 'STOP_AFTER_NORMAL=%s\\n'", script)
+        self.assertIn("printf 'FINALIZE_MARGIN_SECONDS=%s\\n'", script)
         self.assertNotIn("SSHPASS=1", script)
 
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
