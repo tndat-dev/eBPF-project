@@ -247,6 +247,17 @@ class PulseDeployerTests(unittest.TestCase):
             script,
         )
 
+    def test_b4_blind_opener_binds_normal_model_policy_and_runtime(self):
+        script = (
+            ROOT / "sentinel_pulse" / "open_b4_blind_after_normal.sh"
+        ).read_text()
+        self.assertIn('test -f "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"', script)
+        self.assertIn('test ! -e "$NORMAL_EVIDENCE_ROOT/FAILED"', script)
+        self.assertIn("candidate_binding.runtime_source_git_commit", script)
+        self.assertIn("candidate_binding.model_manifest_sha256", script)
+        self.assertIn("candidate_binding.decision_policy_sha256", script)
+        self.assertIn("blind-attack-contract-b4.json", script)
+
     def test_failed_soak_freezer_reuses_verified_finalizer_archive(self):
         script = (
             ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
