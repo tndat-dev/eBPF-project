@@ -40,6 +40,8 @@ def evaluate(
     expected_model_sha256: str | None = None,
     expected_policy_sha256: str | None = None,
     required_consecutive_windows_by_group: dict[str, int] | None = None,
+    bounded_join_groups: frozenset[str] | None = None,
+    maximum_evidence_age_seconds: float = 1.0,
 ) -> dict:
     if not paths:
         raise ValueError("at least one decision source is required")
@@ -62,6 +64,13 @@ def evaluate(
         raise ValueError("per-group temporal confirmation requirements are invalid")
     if set(per_group_windows) & set(bypass_groups):
         raise ValueError("a bypass group cannot also require temporal confirmation")
+    if bounded_join_groups is not None and (
+        not bounded_join_groups
+        or not math.isfinite(maximum_evidence_age_seconds)
+        or maximum_evidence_age_seconds <= 0.0
+        or maximum_evidence_age_seconds > 2.0
+    ):
+        raise ValueError("bounded join evidence age must be in (0, 2]")
     if (expected_model_sha256 is None) != (expected_policy_sha256 is None):
         raise ValueError("expected model and policy identities must be supplied together")
 
@@ -123,7 +132,8 @@ def evaluate(
     run_ids: set[str] = set()
 
     for path in paths:
-        pending: dict[tuple[str, str], dict] = {}
+        pending: dict[tuple[str, ...], dict] = {}
+        bounded_pending: dict[tuple[str, ...], dict] = {}
         rows = 0
         with path.open(encoding="utf-8") as source:
             for line_number, line in enumerate(source, 1):
@@ -227,6 +237,42 @@ def evaluate(
                 else:
                     pending.pop(source_key, None)
 
+                bounded_alert = False
+                if bounded_join_groups is not None:
+                    evidence = bounded_pending.setdefault(source_key, {})
+                    for name in ("model", "semantic"):
+                        item = evidence.get(name)
+                        if (
+                            item is not None
+                            and window_end - float(item["window_end"])
+                            > maximum_evidence_age_seconds
+                        ):
+                            evidence.pop(name, None)
+                    if (
+                        record.get("raw_model_anomalous") is True
+                        and record.get("score_corroborated") is True
+                    ):
+                        evidence["model"] = {"window_end": window_end}
+                    if (
+                        record.get("semantic_corroborated") is True
+                        and groups & bounded_join_groups
+                    ):
+                        evidence["semantic"] = {"window_end": window_end}
+                    model_evidence = evidence.get("model")
+                    semantic_evidence = evidence.get("semantic")
+                    bounded_alert = bool(
+                        model_evidence is not None
+                        and semantic_evidence is not None
+                        and abs(
+                            float(model_evidence["window_end"])
+                            - float(semantic_evidence["window_end"])
+                        )
+                        <= maximum_evidence_age_seconds
+                    )
+                    if projected_alert or bounded_alert:
+                        bounded_pending.pop(source_key, None)
+                projected_alert = projected_alert or bounded_alert
+
                 if status == "alert":
                     original_alerts += 1
                     if not projected_alert:
@@ -282,6 +328,12 @@ def evaluate(
         "required_consecutive_windows_by_group": dict(sorted(per_group_windows.items())),
         "maximum_gap_seconds": maximum_gap_seconds,
         "bypass_groups": sorted(bypass_groups),
+        "bounded_event_time_groups": (
+            sorted(bounded_join_groups) if bounded_join_groups is not None else None
+        ),
+        "maximum_evidence_age_seconds": (
+            maximum_evidence_age_seconds if bounded_join_groups is not None else None
+        ),
         "scored_rows": scored_rows,
         "status_counts": dict(sorted(status_counts.items())),
         "projected_status_counts": dict(sorted(projected_status_counts.items())),
@@ -323,6 +375,8 @@ def main() -> None:
     parser.add_argument(
         "--bypass-group", action="append", default=["namespace_probe"]
     )
+    parser.add_argument("--bounded-join-group", action="append")
+    parser.add_argument("--maximum-evidence-age-seconds", type=float, default=1.0)
     args = parser.parse_args()
     group_requirements = {}
     for item in args.group_required_windows:
@@ -343,6 +397,12 @@ def main() -> None:
         args.expected_model_sha256,
         args.expected_policy_sha256,
         group_requirements,
+        (
+            frozenset(args.bounded_join_group)
+            if args.bounded_join_group is not None
+            else None
+        ),
+        args.maximum_evidence_age_seconds,
     )
     args.output.write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"

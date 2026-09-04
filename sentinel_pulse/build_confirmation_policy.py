@@ -19,6 +19,7 @@ def build_policy(
     calibration_path: Path,
     policy_name: str,
     source: dict | None = None,
+    bounded_join_groups: list[str] | None = None,
 ) -> dict:
     base, base_sha256 = load_decision_policy(base_policy_path)
     calibration = json.loads(calibration_path.read_text(encoding="utf-8"))
@@ -40,6 +41,7 @@ def build_policy(
     maximum_gap = calibration.get("maximum_gap_seconds")
     bypass_groups = calibration.get("bypass_groups")
     per_group_windows = calibration.get("required_consecutive_windows_by_group", {})
+    calibrated_bounded_groups = calibration.get("bounded_event_time_groups")
     if (
         isinstance(required_windows, bool)
         or not isinstance(required_windows, int)
@@ -48,11 +50,32 @@ def build_policy(
         or not isinstance(bypass_groups, list)
         or not bypass_groups
         or not isinstance(per_group_windows, dict)
+        or (
+            calibrated_bounded_groups is not None
+            and not isinstance(calibrated_bounded_groups, list)
+        )
     ):
         raise ValueError("confirmation calibration parameters are incomplete")
+    if bounded_join_groups is None:
+        selected_bounded_groups = (
+            None
+            if calibrated_bounded_groups is None
+            else sorted(calibrated_bounded_groups)
+        )
+    else:
+        selected_bounded_groups = sorted(bounded_join_groups)
+    if (
+        calibrated_bounded_groups is not None
+        and selected_bounded_groups != sorted(calibrated_bounded_groups)
+    ):
+        raise ValueError("bounded join groups differ from normal-only calibration")
 
     provenance = source or source_git_provenance()
     policy = deepcopy(base)
+    if selected_bounded_groups is not None:
+        policy["bounded_event_time_corroboration"][
+            "eligible_semantic_signal_groups"
+        ] = selected_bounded_groups
     policy.update(
         {
             "name": policy_name,
@@ -97,11 +120,13 @@ def main() -> None:
     parser.add_argument("--calibration", type=Path, required=True)
     parser.add_argument("--policy-name", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--bounded-join-group", action="append")
     args = parser.parse_args()
     policy = build_policy(
         args.base_policy,
         args.calibration,
         args.policy_name,
+        bounded_join_groups=args.bounded_join_group,
     )
     write_policy(args.output, policy)
     load_decision_policy(args.output)

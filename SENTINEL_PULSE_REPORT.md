@@ -1,10 +1,11 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 03-09-2026
+**Snapshot cluster:** 04-09-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
-PostgreSQL; C3 chưa mở và chưa có claim production/formal
+PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
+Blind B4 chưa mở, chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -1875,3 +1876,51 @@ tune rồi vẫn gọi C3 cũ là blind, hoặc claim FPR bằng 0. Hướng B4 
 PostgreSQL connection burst hợp lệ khỏi beacon bằng provenance destination
 hoặc policy confirmation chuyên biệt theo semantic group, sau đó đóng băng
 identity mới và chạy normal soak độc lập.
+
+### B4: group-specific temporal confirmation (04-09-2026)
+
+B4 giữ nguyên 20 model `PulseExtraTrees` và chỉ thay decision policy. Ba raw
+stream R6 đã được materialize thành 882.176 row với checksum index SHA-256
+`4c0eb55db008548c2e7574cd5f7e3fea392fa02c3c97aaa15963894edb3940b0`.
+Replay normal-only xét 874.270 scored row và 7.906 warming row: một alert B3
+được suppress, B4 project 0 alert. Replay report SHA-256 là
+`1a16c7a073478de5c7e266c3a64f6c181e8deb3b708d118f327d6c0f30cf51bb`.
+Không attack outcome nào được dùng và replay này không tạo claim FPR/recall.
+
+Runtime giữ streak độc lập cho từng semantic group và source identity. Nhóm
+thường cần hai window liên tiếp; `local_socket_beacon` cần ba để chịu được
+PostgreSQL connection burst; `identity_transition` và `namespace_probe` vẫn
+alert ngay khi model, score và semantic evidence hợp lệ. Khoảng cách liên tiếp
+tối đa 1,25 giây, state reset khi mất continuity và consume sau alert. Policy
+B4 có SHA-256 `205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187`.
+
+Frozen runtime là commit `a561520ac9479e06a1ca08dbbf92070c28b906a0`,
+tracked tree sạch; model manifest vẫn là `2e37ffd1…`. Blind contract B4 SHA-256
+`9b1788cb4ff88a624d109f24b693d690cf61cfd67f91b345935104e1238e0454`
+bind chính xác ba identity này và giữ nguyên ma trận chưa mở 450 injection. B4
+blind evidence hiện có 0 file. Traffic preflight trước live canary đạt 90/90
+east-west và 30/30 north-south, 9/9 rollout Healthy. Regression canonical mới
+nhất đạt **524 passed, 2 warnings**.
+
+Supervisor formal được sửa trước khi chạy dài: systemd environment root-only
+giờ bắt buộc mang policy identity, mặc định `STOP_AFTER_NORMAL=true`, suspend
+control collector và giữ duration/preflight interval qua reboot. Do đó normal
+pass cũng chỉ kết thúc lifecycle; blind B4 chỉ có thể được mở qua guarded
+opener sau khi verify marker, checksum và runtime commit.
+
+Live-normal canary B4
+`sentinel-pulse-b4-canary-r1-20260904T014737Z` đã terminal
+`rejected_normal_gate`, không mở formal soak. Tổng 57.252 decision có đúng một
+false alert trên `aims-kafka-dual-role:kafka`; 71/71 checksum trong failed
+bundle verify thành công. Alert có score 0,766911, p-value 0,00023299,
+inference 17,41 ms và post-window processing 0,197 giây.
+
+Nguyên nhân không phải streak ba window của B4. Window trước kích hoạt nhiều
+semantic group, trong đó có `identity_transition`, nhưng score chưa vượt margin;
+window sau có score vượt margin nhưng không có semantic activity. Bounded
+model-semantic join giữ evidence 1 giây đã ghép hai window cách nhau 0,503 giây
+và phát alert; `temporal_confirmation_count=0`. Đây cũng chứng minh replay B4
+ban đầu chưa mô phỏng toàn bộ decision policy vì chỉ xét confirmation branch.
+B4 vì vậy bị đóng như failed candidate. Successor chỉ được giữ bounded join
+cho `namespace_probe`, còn identity signal phải đồng thời với model/score trong
+cùng window; mọi thay đổi cần identity, canary và normal soak mới.

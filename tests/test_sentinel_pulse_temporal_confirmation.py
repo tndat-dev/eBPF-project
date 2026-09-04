@@ -104,6 +104,33 @@ def test_namespace_primitive_bypasses_temporal_wait(tmp_path):
     assert report["projected_alerts"] == 1
 
 
+def test_bounded_join_reproduces_cross_window_identity_alert(tmp_path):
+    path = tmp_path / "decisions.jsonl"
+    semantic = _record(1.0, status="suppressed", group="identity_transition")
+    semantic["score_corroborated"] = False
+    model = _record(1.5, status="alert", group="identity_transition")
+    model["semantic_corroborated"] = False
+    model["semantic_signal_groups"]["identity_transition"]["triggered"] = False
+    _write(path, [semantic, model])
+    report = evaluate(
+        [path], bounded_join_groups=frozenset({"identity_transition"})
+    )
+    assert report["projected_alerts"] == 1
+    assert report["bounded_event_time_groups"] == ["identity_transition"]
+
+
+def test_bounded_join_group_restriction_suppresses_cross_window_identity(tmp_path):
+    path = tmp_path / "decisions.jsonl"
+    semantic = _record(1.0, status="suppressed", group="identity_transition")
+    semantic["score_corroborated"] = False
+    model = _record(1.5, status="alert", group="identity_transition")
+    model["semantic_corroborated"] = False
+    model["semantic_signal_groups"]["identity_transition"]["triggered"] = False
+    _write(path, [semantic, model])
+    report = evaluate([path], bounded_join_groups=frozenset({"namespace_probe"}))
+    assert report["projected_alerts"] == 0
+
+
 def test_soak_marker_excludes_early_rows_and_binds_identity(tmp_path):
     path = tmp_path / "decisions.jsonl"
     rows = [_record(99.0), _record(100.0), _record(101.0)]

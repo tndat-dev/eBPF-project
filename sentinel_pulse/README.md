@@ -268,8 +268,9 @@ now emits node/pod/container identity for warming and collect-only rows too.
 This aggregate is still a short non-formal normal observation and explicitly
 does not create an FPR, recall, or promotion claim.
 
-For a formal 24-hour normal-only soak that must not open a blind contract, run
-the candidate lifecycle with `STOP_AFTER_NORMAL=true`. The lifecycle keeps the
+For a formal normal-only soak with at least 24 measured hours (the current
+default is 25 hours) that must not open a blind contract, run the candidate
+lifecycle with `STOP_AFTER_NORMAL=true`. The lifecycle keeps the
 cluster, storage, maintenance, detector-restart and zero-alert gates active,
 then freezes normal evidence and exits before `normal_pass_blind_interlock_open`:
 
@@ -288,6 +289,34 @@ environment variable cannot silently bind a candidate to an older policy.
 Each normal run also holds a non-blocking single-writer lock. On resume, the
 supplied manifest and policy hashes must match `SOAK_START.json` before any
 monitor or finalizer executes.
+
+For the B4 group-specific confirmation candidate, use the frozen B4 worktree
+and keep normal and blind phases separate. B4 retains the same model bundle;
+it requires three consecutive `local_socket_beacon` windows, two consecutive
+windows for other common groups, and immediate bypass only for
+`identity_transition` and `namespace_probe`. The persistent supervisor stores
+the explicit policy, stop-after-normal flag, collector isolation, duration and
+preflight intervals in its root-only environment file:
+
+```bash
+sudo env SSHPASS=... LIFECYCLE_ID=b4-r1 \
+  LOCAL_ROOT=/home/dat/eBPF-project-runtime-pulse-b4 \
+  MODEL_SOURCE=/home/dat/eBPF-project-runtime-pulse-b4/.runtime-artifacts/sentinel-pulse-a2-b4-model \
+  POLICY_SOURCE=/home/dat/eBPF-project-runtime-pulse-b4/sentinel_pulse/protocol/decision-policy-temporal-b4.json \
+  STOP_AFTER_NORMAL=true SUSPEND_CONTROL_COLLECTOR=true \
+  DURATION_SECONDS=90000 PREFLIGHT_STABILITY_SECONDS=300 \
+  NORMAL_RUN_ID=SENTINEL_PULSE_B4_NORMAL_ID \
+  NORMAL_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b4/SENTINEL_PULSE_B4_NORMAL_ID \
+  BLIND_RUN_ID=SENTINEL_PULSE_B4_BLIND_ID \
+  BLIND_EVIDENCE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b4/SENTINEL_PULSE_B4_BLIND_ID \
+  STATE_ROOT=/home/dat/sentinel-pulse-evidence/blind-b4 \
+  /home/dat/eBPF-project/sentinel_pulse/install_candidate_lifecycle_service.sh
+```
+
+Do not use the lifecycle's generic blind phase for B4. After an independent
+normal pass, invoke `open_b4_blind_after_normal.sh`; it verifies the normal
+marker, model/policy hashes, clean tracked runtime and preregistered B4 blind
+contract before any injection.
 
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing

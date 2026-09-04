@@ -1,16 +1,19 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-03
+**Ngày xác minh cluster gần nhất:** 2026-09-04
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
 `/home/dat/eBPF-project-runtime-5568683-a7`, pilot hiện tại tại
-`/home/dat/eBPF-project-runtime-pulse-a2-pilot`
+`/home/dat/eBPF-project-runtime-pulse-a2-pilot`, frozen B4 runtime tại
+`/home/dat/eBPF-project-runtime-pulse-b4`
 **Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
 Sentinel Pulse A2/B3 500 ms đã hoàn tất compatibility dataset, train 20/20
 model và live-normal canary B3 15 phút. Formal normal R6 đã bị loại đúng theo
 zero-alert gate sau khoảng 3 giờ 24 phút vì một false positive trên PostgreSQL;
-C3 chưa mở, chưa promote và chưa có formal accuracy claim
+C3 chưa mở. Candidate B4 đã khóa policy/runtime/blind contract mới nhưng bị
+loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa có
+formal accuracy claim
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -33,7 +36,7 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 - Tetragon đạt 6/6; control collector Sentinel Pulse active trên ba worker,
   candidate detector/formal soak không active tại snapshot;
 - V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
-- full regression trên source canonical gần nhất đạt `513 passed, 2 Torch
+- full regression trên source canonical gần nhất đạt `524 passed, 2 Torch
   deprecation warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
@@ -6856,3 +6859,68 @@ trên ba worker, collector 500 ms và candidate detector đều inactive. B3 kh�
 được gọi là stable và không được mở C3. Nếu dùng R6 để thiết kế B4, R6 phải được
 khai báo development evidence; B4 cần policy/contract identity mới và một
 normal soak độc lập trước blind evaluation.
+
+### 18.162 Candidate B4: xác nhận liên tiếp theo semantic group (04-09-2026)
+
+R6 được tái sử dụng đúng phạm vi **normal development evidence**, không dùng để
+đánh giá B3 và không dùng attack outcome. Tool
+`materialize_failed_normal_decisions.py` đã giải nén ba stream bất biến thành
+882.176 row; `DECISIONS_SHA256SUMS` có SHA-256
+`4c0eb55db008548c2e7574cd5f7e3fea392fa02c3c97aaa15963894edb3940b0`.
+Replay B4 xét 874.270 scored row và 7.906 warming row. B3 có một alert gốc;
+B4 project 0 alert, 1.557 suppressed và 872.713 normal. Kết quả replay có
+SHA-256 `1a16c7a073478de5c7e266c3a64f6c181e8deb3b708d118f327d6c0f30cf51bb`.
+Đây chỉ là replay trên normal development set, không phải FPR hoặc recall.
+
+B4 không train lại ExtraTrees và không đổi model manifest `2e37ffd1…`. Nó sửa
+decision layer để giữ streak riêng cho từng semantic group trên đúng source
+identity `(workload, node, pod UID, container, cgroup)`. Các nhóm thông thường
+cần hai window liên tiếp, `local_socket_beacon` cần ba window, còn
+`identity_transition` và `namespace_probe` được bypass để không cộng thêm độ
+trễ cho tín hiệu hiếm/nguy hiểm. Gap tối đa giữa hai window là 1,25 giây và
+state được consume sau alert. Cách đếm theo group loại bỏ lỗi logic kiểu chuỗi
+`A+B -> B+C -> C+D` bị hiểu nhầm là ba lần liên tiếp cùng một tín hiệu.
+
+Policy `decision-policy-temporal-b4.json` có SHA-256
+`205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187`.
+Blind contract B4 có SHA-256
+`9b1788cb4ff88a624d109f24b693d690cf61cfd67f91b345935104e1238e0454`,
+bind model trên, policy trên và frozen runtime commit
+`a561520ac9479e06a1ca08dbbf92070c28b906a0`. Contract kế thừa ma trận chưa mở
+của C3: 18 controller × 5 scenario mới × 5 seed/rate = 450 injection; năm
+scenario A2 đã biết bị loại trừ. Thư mục blind B4 vẫn có 0 file, vì normal gate
+chưa pass.
+
+Trước canary, traffic gate đạt 90/90 east-west HTTP 200 và 30/30 north-south;
+9/9 Argo Rollout đều Healthy 2/2. Frozen worktree sạch đối với tracked source,
+model/policy checksum khớp contract. Full regression trên canonical commit
+`3ae5ce7` đạt **524 passed, 2 Torch deprecation warnings**. Installer lifecycle
+cũng được harden để lưu explicit `POLICY_SOURCE`, `STOP_AFTER_NORMAL`,
+`SUSPEND_CONTROL_COLLECTOR`, duration và preflight interval trong environment
+root-only; mặc định dừng sau normal, không tự mở blind.
+
+### 18.163 B4 bị loại ở canary; khoanh vùng bounded-join false positive (04-09-2026)
+
+Canary `sentinel-pulse-b4-canary-r1-20260904T014737Z` terminal fail-closed sau
+57.252 decision: worker1 18.412/0 alert, worker3 15.462/0 và worker4 23.378/1.
+Bundle có 71/71 checksum hợp lệ, `FAILED_SUMMARY.json` ghi đúng
+`failure_class=normal_alert_observed`, `candidate_status=rejected_normal_gate`.
+Vì vậy B4 bị loại, formal soak không được mở và blind B4 vẫn đóng.
+
+False alert thuộc `production/aims-kafka-dual-role:kafka`, pod
+`aims-kafka-dual-role-1`: score 0,766911, conformal p-value 0,00023299,
+inference 17,41 ms và post-window processing 0,197 giây. Window trước có model
+anomaly nhưng chưa đủ score margin, đồng thời kích hoạt semantic
+`identity_transition`, `local_socket_beacon`, `process_fanout` và
+`credential_open`. Window kế tiếp có model anomaly đủ score margin nhưng zero
+semantic activity. Bounded event-time join ghép hai bằng chứng cách nhau
+0,503 giây và phát alert. Nhánh consecutive confirmation B4 có count 0 và
+không phải nguồn alert.
+
+Worker4 đồng thời có hai collector gap 5,66/5,30--8,93 giây nên finalizer
+`valid=false`, nhưng alert nằm sau reset/warm-up ba window, service result vẫn
+success và evidence alert đầy đủ. Lỗi gap được giữ nguyên, không dùng để che
+normal alert. Successor phải loại `identity_transition` khỏi cross-window join
+và giữ nó ở same-window high-risk bypass; chỉ `namespace_probe` đủ đặc hiệu để
+được phép bounded join. Evaluator development đang được mở rộng để replay cả
+bounded-join state, tránh lặp sai sót B4 chỉ replay confirmation branch.
