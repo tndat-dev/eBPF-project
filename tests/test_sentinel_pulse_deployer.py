@@ -339,9 +339,17 @@ class PulseDeployerTests(unittest.TestCase):
             script,
         )
         self.assertIn("STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-true}", script)
+        self.assertIn(
+            "SUSPEND_CONTROL_COLLECTOR=${SUSPEND_CONTROL_COLLECTOR:-true}",
+            script,
+        )
         self.assertIn("printf 'POLICY_SOURCE=%s\\n'", script)
         self.assertIn("printf 'STOP_AFTER_NORMAL=%s\\n'", script)
         self.assertIn("printf 'FINALIZE_MARGIN_SECONDS=%s\\n'", script)
+        self.assertIn("printf 'SUSPEND_CONTROL_COLLECTOR=%s\\n'", script)
+        self.assertIn("printf 'DURATION_SECONDS=%s\\n'", script)
+        self.assertIn("printf 'PREFLIGHT_STABILITY_SECONDS=%s\\n'", script)
+        self.assertIn("printf 'PREFLIGHT_TIMEOUT_SECONDS=%s\\n'", script)
         self.assertNotIn("SSHPASS=1", script)
 
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
