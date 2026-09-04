@@ -323,3 +323,21 @@ def test_v3_policy_validates_per_group_confirmation_requirements(tmp_path):
     path.write_text(json.dumps(policy))
     with pytest.raises(ValueError, match="temporal confirmation"):
         load_decision_policy(path)
+
+
+def test_b4_policy_is_bound_to_r6_normal_only_replay():
+    path = (
+        ROOT
+        / "sentinel_pulse"
+        / "protocol"
+        / "decision-policy-temporal-b4.json"
+    )
+    policy, digest = load_decision_policy(path)
+    assert digest == "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187"
+    assert policy["temporal_confirmation"][
+        "required_consecutive_windows_by_group"
+    ] == {"local_socket_beacon": 3}
+    assert policy["development_normal_evidence"][
+        "temporal_confirmation_calibration_sha256"
+    ] == "1a16c7a073478de5c7e266c3a64f6c181e8deb3b708d118f327d6c0f30cf51bb"
+    assert policy["blind_outcome_used"] is False

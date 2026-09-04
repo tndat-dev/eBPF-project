@@ -236,6 +236,17 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('"normal_gate": normal_gate_rejection', script)
         self.assertIn('"schema": "sentinel-pulse-failed-soak-disposition-v2"', script)
 
+    def test_lifecycle_records_normal_gate_rejection_separately(self):
+        script = (
+            ROOT / "sentinel_pulse" / "run_500ms_candidate_lifecycle.sh"
+        ).read_text()
+        self.assertIn("phase_terminal_normal_rejection", script)
+        self.assertIn("rejected_normal_gate) phase terminal_normal_gate_rejection", script)
+        self.assertIn(
+            "rejected_infrastructure_failure) phase terminal_normal_infrastructure_failure",
+            script,
+        )
+
     def test_failed_soak_freezer_reuses_verified_finalizer_archive(self):
         script = (
             ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"

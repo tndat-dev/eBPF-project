@@ -49,6 +49,21 @@ row = {
     "recorded_at": datetime.now(timezone.utc).isoformat(),
     "automatic_promotion": False,
 }
+
+phase_terminal_normal_rejection() {
+  local disposition="$NORMAL_EVIDENCE_ROOT/infrastructure-failure/DISPOSITION.json"
+  local status
+  status=$(jq -er '.terminal_run_status' "$disposition")
+  case "$status" in
+    rejected_normal_gate) phase terminal_normal_gate_rejection ;;
+    rejected_infrastructure_failure) phase terminal_normal_infrastructure_failure ;;
+    *)
+      echo "unsupported terminal normal disposition: $status" >&2
+      phase terminal_normal_disposition_invalid
+      return 1
+      ;;
+  esac
+}
 with path.open("a", encoding="utf-8") as handle:
     handle.write(json.dumps(row, separators=(",", ":")) + "\n")
 PY
@@ -94,7 +109,7 @@ if [[ -e "$NORMAL_EVIDENCE_ROOT/FAILED" ]]; then
     "$LOCAL_ROOT/sentinel_pulse/freeze_failed_500ms_normal_soak.sh" \
       "$NORMAL_EVIDENCE_ROOT"
   fi
-  phase terminal_normal_infrastructure_failure
+  phase_terminal_normal_rejection
   exit 3
 fi
 
@@ -105,7 +120,7 @@ if [[ -e "$NORMAL_EVIDENCE_ROOT/ACTIVE" ]]; then
     phase normal_monitor_failed
     "$LOCAL_ROOT/sentinel_pulse/freeze_failed_500ms_normal_soak.sh" \
       "$NORMAL_EVIDENCE_ROOT"
-    phase terminal_normal_failure
+    phase_terminal_normal_rejection
     exit 3
   fi
 fi
