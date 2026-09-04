@@ -246,6 +246,9 @@ class PulseDeployerTests(unittest.TestCase):
             "rejected_infrastructure_failure) phase terminal_normal_infrastructure_failure",
             script,
         )
+        heredoc_end = script.index("\nPY\n}", script.index("phase()"))
+        helper = script.index("phase_terminal_normal_rejection()")
+        self.assertGreater(helper, heredoc_end)
 
     def test_b4_blind_opener_binds_normal_model_policy_and_runtime(self):
         script = (

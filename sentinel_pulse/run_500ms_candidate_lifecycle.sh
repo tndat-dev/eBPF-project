@@ -49,6 +49,10 @@ row = {
     "recorded_at": datetime.now(timezone.utc).isoformat(),
     "automatic_promotion": False,
 }
+with path.open("a", encoding="utf-8") as handle:
+    handle.write(json.dumps(row, separators=(",", ":")) + "\n")
+PY
+}
 
 phase_terminal_normal_rejection() {
   local disposition="$NORMAL_EVIDENCE_ROOT/infrastructure-failure/DISPOSITION.json"
@@ -63,10 +67,6 @@ phase_terminal_normal_rejection() {
       return 1
       ;;
   esac
-}
-with path.open("a", encoding="utf-8") as handle:
-    handle.write(json.dumps(row, separators=(",", ":")) + "\n")
-PY
 }
 
 # On resume, reject a caller that points the run at different model/policy
