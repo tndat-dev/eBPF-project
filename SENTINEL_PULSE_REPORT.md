@@ -5,7 +5,8 @@
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
-Blind B4 chưa mở, chưa có claim production/formal
+Blind B4 chưa mở. B5 đã khóa policy/contract mới và đang chạy canary
+normal-only; chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -1924,3 +1925,25 @@ ban đầu chưa mô phỏng toàn bộ decision policy vì chỉ xét confirmat
 B4 vì vậy bị đóng như failed candidate. Successor chỉ được giữ bounded join
 cho `namespace_probe`, còn identity signal phải đồng thời với model/score trong
 cùng window; mọi thay đổi cần identity, canary và normal soak mới.
+
+### B5: bounded join chỉ dành cho namespace probe (04-09-2026)
+
+Full-policy evaluator mới tái hiện đúng false alert B4 trên 56.491 scored
+window. Policy successor chỉ giữ cross-window join cho `namespace_probe` cho
+0 projected alert trên cùng canary và 0/874.270 trên R6, tổng 930.761 scored
+normal window. Ba report checksum-bound được lưu trong
+`sentinel_pulse/protocol/development-b5/`; chúng là development evidence,
+không phải FPR hoặc recall.
+
+B5 policy SHA-256 là
+`ab6a4f6b93e2c5548ffaad9727fc0a23839d20ea2e27b7f6d7ea7e5eb155c5c7`.
+Identity transition chỉ bypass khi model/score/semantic cùng window;
+namespace probe được phép lệch tối đa một giây. Runtime commit đóng băng là
+`5bb0c131ff88962e6c5b0ee56da72bf9892d04a0`. Blind contract B5 SHA-256
+`ee91b565bebf50516793b1273e7b8a6716d95fdde6a12b545a90ed78e974e9fb`
+đã khóa trước canary, kế thừa nguyên ma trận 450 injection chưa mở.
+
+Traffic gate trước canary đạt 90/90 east-west, 30/30 north-south và 9/9
+rollout Healthy. Run `sentinel-pulse-b5-canary-r1-20260904T080800Z` đang chạy
+normal-only 900 giây trên ba worker; chưa có terminal result nên chưa được gọi
+là pass. Full regression hiện đạt **530 passed, 2 warnings**.

@@ -318,6 +318,14 @@ normal pass, invoke `open_b4_blind_after_normal.sh`; it verifies the normal
 marker, model/policy hashes, clean tracked runtime and preregistered B4 blind
 contract before any injection.
 
+B4 was rejected by its normal canary because the one-second bounded join
+paired a legitimate Kafka `identity_transition` burst with a model anomaly in
+the following window. B5 therefore permits bounded cross-window evidence only
+for `namespace_probe`; identity transition remains an immediate same-window
+bypass. Replays used to freeze B5 are preserved under
+`protocol/development-b5/`, and `open_b5_blind_after_normal.sh` is the only
+supported B5 blind entry point.
+
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
 while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a

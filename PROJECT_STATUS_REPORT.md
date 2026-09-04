@@ -13,7 +13,8 @@ model và live-normal canary B3 15 phút. Formal normal R6 đã bị loại đú
 zero-alert gate sau khoảng 3 giờ 24 phút vì một false positive trên PostgreSQL;
 C3 chưa mở. Candidate B4 đã khóa policy/runtime/blind contract mới nhưng bị
 loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa có
-formal accuracy claim
+formal accuracy claim. Successor B5 đã khóa identity mới và đang chạy canary
+normal-only độc lập
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -36,7 +37,7 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 - Tetragon đạt 6/6; control collector Sentinel Pulse active trên ba worker,
   candidate detector/formal soak không active tại snapshot;
 - V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
-- full regression trên source canonical gần nhất đạt `524 passed, 2 Torch
+- full regression trên source canonical gần nhất đạt `530 passed, 2 Torch
   deprecation warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
@@ -6924,3 +6925,33 @@ normal alert. Successor phải loại `identity_transition` khỏi cross-window 
 và giữ nó ở same-window high-risk bypass; chỉ `namespace_probe` đủ đặc hiệu để
 được phép bounded join. Evaluator development đang được mở rộng để replay cả
 bounded-join state, tránh lặp sai sót B4 chỉ replay confirmation branch.
+
+### 18.164 B5 namespace-only bounded join và canary độc lập (04-09-2026)
+
+Evaluator đã được mở rộng để mô phỏng đầy đủ cả consecutive confirmation và
+bounded model-semantic state. Nó tái hiện đúng 1/56.491 projected alert của
+policy B4 trên canary vừa fail. Khi giới hạn bounded join còn duy nhất
+`namespace_probe`, projection giảm còn 0/56.491; replay độc lập trên R6 cũng
+cho 0/874.270. Hai normal set có tổng **930.761 scored window**. Report lần
+lượt có SHA-256 `2851d220...` và `d0343b01...`; reproduction B4 có SHA-256
+`a26a0489...`. Cả ba report đã được lưu dưới
+`sentinel_pulse/protocol/development-b5/`.
+
+Policy B5 `sentinel-pulse-namespace-only-bounded-join-b5` giữ nguyên model,
+semantic envelope và group-confirmation của B4, nhưng chỉ cho
+`namespace_probe` ghép model/semantic qua tối đa 1 giây. `identity_transition`
+vẫn là same-window bypass, nên không bị cộng thêm một window khi model, score
+và semantic signal xuất hiện đồng thời. Policy được sinh từ clean worktree
+commit `76e4780...`, bind cả hai replay và có SHA-256
+`ab6a4f6b93e2c5548ffaad9727fc0a23839d20ea2e27b7f6d7ea7e5eb155c5c7`.
+
+Runtime B5 đóng băng tại commit `5bb0c131ff88962e6c5b0ee56da72bf9892d04a0`.
+Blind contract B5 SHA-256 `ee91b565bebf50516793b1273e7b8a6716d95fdde6a12b545a90ed78e974e9fb`
+kế thừa đúng ma trận chưa mở của B4 và vẫn có 450 injection. Contract chưa
+được mở. Full regression canonical đạt **530 passed, 2 warnings**.
+
+Traffic preflight B5 đạt 90/90 east-west HTTP 200, 30/30 north-south và 9/9
+rollout Healthy. Canary normal-only
+`sentinel-pulse-b5-canary-r1-20260904T080800Z` đã được khởi chạy nền 900 giây
+trên ba worker với đúng model/policy hash; automatic promotion và injection
+đều tắt. Đây mới là run đang active, chưa được diễn giải là canary pass.
