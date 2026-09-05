@@ -1963,3 +1963,30 @@ active, legacy collector inactive, restart=0; model/policy trên từng worker
 khớp `2e37ffd1...`/`ab6a4f6b...`. Start bundle verify 3/3 checksum. Mốc eligible
 finalize là 08:32:14 UTC ngày 05-09-2026. Blind interlock vẫn đóng, không có
 automatic promotion và chưa được suy diễn formal pass khi run còn active.
+
+### B5 formal rejection và B6 development proposal (05-09-2026)
+
+B5 formal normal run bị lifecycle loại fail-closed lúc 09:26:06 UTC ngày
+04-09, sau khoảng 53 phút active. Archive verify 31 entry, có 230.683 decision
+row, 228.563 scored row, một alert và zero detector restart. Không có
+`NORMAL_PASS`; blind B5 chưa từng mở.
+
+Alert ở Kafka broker trên worker `.238`: window 0,504 giây, score 0,639083,
+p-value 0,00023299, inference 25,99 ms. `setuid=12`, `setgid=12`, `capset=2`
+làm identity-transition observed 26 vượt envelope 15. B5 cho nhóm này bypass
+ngay ở count 1 nên phát alert cùng window; bounded join không tham gia. Pod
+không restart và liveness/readiness đều là exec probe chu kỳ 10 giây; không có
+identity transition lặp ở window kế tiếp.
+
+Worker phát alert còn có một gap collector 4,8549 giây và các lỗi containerd
+`ExecSync DeadlineExceeded`. Do continuity invalid, run không được dùng để
+ước lượng formal FPR; tuy nhiên zero-alert gate vẫn loại B5 và alert không bị
+xóa hoặc đổi nhãn. Audit checksum-bound được lưu trong
+`protocol/development-b6/b5-formal-failure-audit.json`.
+
+B6 mới ở development: chỉ `namespace_probe` được immediate bypass;
+`identity_transition` cần hai window liên tiếp. Ba replay normal-only độc lập
+project 0 alert trên 228.563 + 56.491 + 874.270 = **1.159.324 scored window**.
+Không attack outcome nào được đọc. B6 phải có policy/runtime/contract identity
+mới, canary mới và formal normal soak mới trước khi guarded blind opener được
+phép chạy.

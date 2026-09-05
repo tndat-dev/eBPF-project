@@ -1,0 +1,72 @@
+{
+  "schema": "sentinel-pulse-b5-formal-failure-development-audit-v1",
+  "recorded_at": "2026-09-05T02:55:00Z",
+  "candidate_status": "rejected_normal_gate",
+  "accuracy_claim_allowed": false,
+  "blind_attack_opened": false,
+  "source": {
+    "run_id": "sentinel-pulse-formal-normal-b5-r1-20260904T082600Z",
+    "evidence_root": "/home/dat/sentinel-pulse-evidence/blind-b5/sentinel-pulse-formal-normal-b5-r1-20260904T082600Z",
+    "raw_sha256sums_sha256": "b7e64a6e23ecaff554129abe7ce9a0cdcc0abeeed03fc198aa208143c186a942",
+    "raw_manifest_entries_verified": 31,
+    "disposition_sha256": "80eb3bb84a0a13196acf9c42b7e983b2fb81162bcc813b8c217a40db11d4750d",
+    "soak_start_sha256": "c377f55d208303ba11bbaee4d4a9a07464d5b4e4ec4469261094c408fccb73e0",
+    "materialized_decision_checksums_sha256": "307305061ffad79bbdafa09cc729bf0d91f3b5b49081ddf232bdd06cb9a77431"
+  },
+  "terminal": {
+    "failed_at": "2026-09-04T09:26:06Z",
+    "reason": "normal_alert_observed",
+    "total_decision_rows": 230683,
+    "scored_decision_rows": 228563,
+    "alerts": 1,
+    "detector_restarts": 0
+  },
+  "alert": {
+    "host": "10.1.16.238",
+    "node_name": "k8s-worker4.local",
+    "workload_key": "production/aims-kafka-dual-role:kafka",
+    "pod_name": "aims-kafka-dual-role-1",
+    "alerted_at": "2026-09-04T09:25:25.208728Z",
+    "window_seconds": 0.5041801929473877,
+    "score": 0.6390832036793693,
+    "conformal_p": 0.00023299161230195712,
+    "calibration_score_max": 0.626740647327126,
+    "score_excess": 0.01234255635224335,
+    "inference_ms": 25.99338599247858,
+    "post_window_processing_seconds": 0.09264039993286133,
+    "identity_transition": {
+      "setuid": 12,
+      "setgid": 12,
+      "capset": 2,
+      "observed": 26,
+      "normal_max": 15,
+      "excess": 11
+    },
+    "temporal_confirmation_count": 1,
+    "temporal_confirmation_bypassed": true,
+    "bounded_event_time_corroborated": false
+  },
+  "normal_operational_context": {
+    "kafka_container_restart_count": 0,
+    "kafka_liveness_probe": "exec /opt/kafka/kafka_liveness.sh every 10 seconds",
+    "kafka_readiness_probe": "exec /opt/kafka/kafka_readiness.sh every 10 seconds",
+    "containerd_execsync_deadline_exceeded_observed": true,
+    "interpretation": "A single normal exec-probe/lifecycle burst satisfied the B5 identity-transition immediate bypass. The following windows did not repeat identity_transition."
+  },
+  "infrastructure_limit": {
+    "source_worker_capture_valid": false,
+    "maximum_interval_seconds": 4.854888916015625,
+    "invalid_interval_rows": 16,
+    "collector_drop_counters_nonzero": false,
+    "interpretation": "The run is not eligible for a formal FPR estimate because worker4 also had a capture continuity violation. The zero-alert gate still rejects B5; the alert is retained as normal development evidence and is not relabelled or deleted."
+  },
+  "successor_projection": {
+    "policy_change": "Remove identity_transition from immediate bypass; retain only namespace_probe. Identity transition then requires two consecutive same-group windows.",
+    "report": "b6-b5-failure-projection.json",
+    "report_sha256": "b560838a02c4391a03d486ec15ca48313af8c712a291ee8b5bde1ab0d3eeb487",
+    "projected_alerts": 0,
+    "original_alerts_suppressed": 1,
+    "attack_outcomes_used": false,
+    "automatic_promotion": false
+  }
+}

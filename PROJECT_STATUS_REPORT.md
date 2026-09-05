@@ -6974,3 +6974,35 @@ với policy SHA-256 `ab6a4f6b...`. Marker khởi đầu verify 3/3 checksum;
 `blind_evaluation_started=false`, `automatic_promotion=false`. Mốc sớm nhất
 được phép finalize là **08:32:14 UTC ngày 05-09-2026**; kết quả trước mốc đó
 không được gọi là formal pass.
+
+### 18.165 B5 bị loại ở formal normal gate; B6 development replay (05-09-2026)
+
+Formal B5 không chạy đủ 25 giờ. Lifecycle phát hiện alert đầu tiên lúc
+09:26:06 UTC ngày 04-09-2026, dừng fail-closed sau khoảng 53 phút active,
+archive 31 evidence entry và khôi phục control collector. Không có
+`NORMAL_PASS`, blind B5 chưa mở và B5 không được gọi là stable. Ba archive có
+230.683 decision row, trong đó 228.563 row được score và đúng một alert.
+
+Alert thuộc `production/aims-kafka-dual-role:kafka` trên worker `.238`, tại
+09:25:25 UTC. Window dài 0,504 giây có score 0,639083, conformal p-value
+0,00023299, inference 25,99 ms và post-window processing 0,093 giây. Nó chứa
+12 `setuid`, 12 `setgid`, 2 `capset`; `identity_transition=26` vượt normal max
+15. B5 phát alert ngay ở count 1 vì `temporal_confirmation_bypassed=true`;
+bounded event-time join không tham gia. Kafka pod restartCount=0 và có cả
+liveness/readiness exec probe mỗi 10 giây. Các window kế tiếp không lặp lại
+identity transition, phù hợp một burst probe/lifecycle hợp lệ hơn là hành vi
+tấn công kéo dài.
+
+Worker `.238` đồng thời có 16 row interval 4,8549 giây và containerd ghi
+`ExecSync DeadlineExceeded`; vì thế run cũng không đủ continuity để tính FPR
+formal. Chi tiết hạ tầng này không được dùng để xóa alert: zero-alert gate vẫn
+loại B5, còn dữ liệu chỉ được chuyển thành development evidence. Audit cố định
+nằm tại `protocol/development-b6/b5-formal-failure-audit.json`.
+
+B6 development proposal bỏ `identity_transition` khỏi immediate bypass, chỉ
+giữ `namespace_probe`; identity phải xuất hiện ở hai window liên tiếp. Full
+policy replay cho 0/228.563 alert trên B5 failure, 0/56.491 trên B4 canary và
+0/874.270 trên R6: tổng **0/1.159.324 scored normal window**. Report SHA-256
+lần lượt là `b560838a...`, `49d593a8...`, `14206a00...`. Đây chỉ là normal
+development replay, chưa phải FPR/recall; B6 chưa freeze và không được mở
+blind trước một canary cùng normal soak độc lập mới.

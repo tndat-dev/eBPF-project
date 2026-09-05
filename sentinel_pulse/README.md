@@ -339,6 +339,15 @@ on all three workers at 2026-09-04 08:33:22 UTC after passing its traffic and
 2026-09-05 08:32:14 UTC. `STOP_AFTER_NORMAL=true`; an active run is not a pass
 and cannot open the blind matrix automatically.
 
+That formal B5 run was rejected fail-closed at 2026-09-04 09:26:06 UTC after
+one normal Kafka alert. The alert was a single-window identity-transition
+burst coincident with periodic exec probes; B5's immediate identity bypass,
+not its namespace-only bounded join, emitted it. Worker4 also had a 4.855 s
+capture gap, so the run cannot estimate formal FPR. B5 remains rejected and
+its blind matrix remains unopened. Development B6 replays remove the identity
+bypass while retaining namespace bypass and project zero alerts over
+1,159,324 scored normal windows; this is development evidence only.
+
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
 while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a
