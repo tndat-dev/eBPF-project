@@ -9,6 +9,7 @@ from sentinel_pulse.decision_policy import (
     load_decision_policy,
 )
 from sentinel_pulse.build_semantic_policy import write_policy
+from sentinel_pulse.integrity import sha256_file
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -396,3 +397,50 @@ def test_b5_policy_restricts_bounded_join_and_binds_two_normal_replays():
         "identity_transition",
         "namespace_probe",
     ]
+
+
+def test_b6_policy_removes_identity_bypass_and_binds_three_normal_replays():
+    path = (
+        ROOT
+        / "sentinel_pulse"
+        / "protocol"
+        / "decision-policy-temporal-b6.json"
+    )
+    policy, digest = load_decision_policy(path)
+    assert digest == "53f3346fc23a75a8435017d1fccf4f8e3a332e540f97a00026ce7c8110ded51a"
+    assert policy["source_clean"] is True
+    assert policy["source_git_commit"] == (
+        "2bb3a6700cabd85e8e1599788fa55c5f6215e984"
+    )
+    assert policy["temporal_confirmation"] == {
+        "consume_on_alert": True,
+        "immediate_bypass_signal_groups": ["namespace_probe"],
+        "maximum_gap_seconds": 1.25,
+        "mode": "consecutive_same_group",
+        "normal_only_calibration": True,
+        "required_consecutive_windows": 2,
+        "required_consecutive_windows_by_group": {
+            "local_socket_beacon": 3
+        },
+    }
+    assert policy["bounded_event_time_corroboration"][
+        "eligible_semantic_signal_groups"
+    ] == ["namespace_probe"]
+    development = policy["development_normal_evidence"]
+    assert development["base_policy_sha256"] == (
+        "ab6a4f6b93e2c5548ffaad9727fc0a23839d20ea2e27b7f6d7ea7e5eb155c5c7"
+    )
+    assert development["temporal_confirmation_calibration_sha256"] == (
+        "b560838a02c4391a03d486ec15ca48313af8c712a291ee8b5bde1ab0d3eeb487"
+    )
+    additional = development["additional_temporal_confirmation_calibrations"]
+    assert [item["report_sha256"] for item in additional] == [
+        "49d593a8f65367559a44f0f0c01f30cb4b9dfa977267ff7537cce9620bc9de92",
+        "14206a006570edaf62611f15806ad6d190ab398e8f90166cc0405d835e959e30",
+    ]
+    assert sum(
+        [
+            228563,
+            *(item["scored_rows"] for item in additional),
+        ]
+    ) == 1159324
