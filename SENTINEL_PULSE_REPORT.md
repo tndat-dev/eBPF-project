@@ -2027,3 +2027,11 @@ Lần kích hoạt systemd đầu tiên fail trước ExecStart vì thư mục `
 chưa tồn tại, trước mọi marker/capture. Sau khi tạo thư mục, cùng run ID khởi
 động hợp lệ. Installer canonical đã được harden để tạo `STATE_ROOT` với owner
 service trước redirect log; targeted regression đạt 38/38.
+
+Checkpoint 14:34:40 UTC ngày 05-09: formal lifecycle còn active, đạt gần
+11/25 giờ (khoảng 44%), monitor có **2.841.602 decision**, 0 alert và 0
+restart; cluster vẫn 6/6 Ready và blind B6 có 0 file. Read-only diagnostic trên
+20.000 feature row mới nhất mỗi worker không thấy interval >0,8 giây; max là
+0,510/0,513/0,522 giây, emit lag max 30/30/43 ms và các integrity counter đều
+bằng 0. Phép kiểm tra phần đuôi này không chứng minh continuity toàn run; chỉ
+terminal checksum/full-stream finalizer mới có quyền kết luận.

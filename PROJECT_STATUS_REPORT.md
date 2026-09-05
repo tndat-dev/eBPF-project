@@ -7053,3 +7053,13 @@ không tạo `SOAK_START`, không chạy collector và không mở blind. Cùng 
 được restart sau khi tạo thư mục. Installer canonical đã được sửa để tạo và
 gán owner cho `STATE_ROOT` trước khi systemd mở file log; targeted regression
 đạt 38/38 test.
+
+Checkpoint live lúc 14:34:40 UTC ngày 05-09, sau gần 11/25 giờ (khoảng 44%
+thời lượng collector): lifecycle vẫn `enabled/active`, `NRestarts=0`; monitor
+ghi 877.544 + 758.928 + 1.205.130 = **2.841.602 decision**, 0 alert và 0
+detector restart. Sáu node vẫn Ready, không có pod ở phase lỗi, blind B6 vẫn
+rỗng. Kiểm tra read-only 20.000 feature row mới nhất trên mỗi worker không có
+interval nào vượt 0,8 giây; max interval lần lượt là 0,510/0,513/0,522 giây,
+emit lag max 0,030/0,030/0,043 giây và cả ba collector integrity counter đều
+bằng 0. Đây chỉ là chẩn đoán continuity gần thời điểm snapshot, không thay thế
+full-stream finalizer và không được gọi là formal pass.
