@@ -1990,3 +1990,10 @@ project 0 alert trên 228.563 + 56.491 + 874.270 = **1.159.324 scored window**.
 Không attack outcome nào được đọc. B6 phải có policy/runtime/contract identity
 mới, canary mới và formal normal soak mới trước khi guarded blind opener được
 phép chạy.
+
+Policy B6 đã được freeze từ clean commit `2bb3a67`, có SHA-256 `53f3346f...`;
+runtime đóng băng tại `ab3535ae715757e876567990b7e33e7a669b8014`. Blind
+contract B6 SHA-256 `b2f5db8e...` bind chính xác model `2e37ffd1...`, policy và
+runtime trên, đồng thời kế thừa nguyên 450 injection chưa mở của B5. Guarded
+opener chỉ chấp nhận một B6 `NORMAL_PASS` độc lập. Việc freeze contract không
+có nghĩa blind đã bắt đầu; evidence blind B6 vẫn phải rỗng trước canary.

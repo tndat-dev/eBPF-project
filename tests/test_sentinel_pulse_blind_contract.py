@@ -195,6 +195,37 @@ class PulseBlindContractTests(unittest.TestCase):
         )
         self.assertEqual(contract["matrix"], predecessor["matrix"])
 
+    def test_b6_contract_binds_policy_and_unopened_b5_matrix(self):
+        contract_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b6.json"
+        )
+        predecessor_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b5.json"
+        )
+        policy_path = (
+            ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b6.json"
+        )
+        contract = load_contract(contract_path)
+        predecessor = load_contract(predecessor_path)
+        self.assertEqual(
+            contract["candidate_binding"]["decision_policy_sha256"],
+            hashlib.sha256(policy_path.read_bytes()).hexdigest(),
+        )
+        self.assertEqual(
+            contract["candidate_binding"]["runtime_source_git_commit"],
+            "ab3535ae715757e876567990b7e33e7a669b8014",
+        )
+        self.assertEqual(
+            contract["independence"]["derived_from_unused_contract_sha256"],
+            hashlib.sha256(predecessor_path.read_bytes()).hexdigest(),
+        )
+        self.assertFalse(
+            contract["independence"][
+                "predecessor_contract_candidate_evaluation_started"
+            ]
+        )
+        self.assertEqual(contract["matrix"], predecessor["matrix"])
+
 
 if __name__ == "__main__":
     unittest.main()

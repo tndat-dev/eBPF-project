@@ -348,6 +348,12 @@ its blind matrix remains unopened. Development B6 replays remove the identity
 bypass while retaining namespace bypass and project zero alerts over
 1,159,324 scored normal windows; this is development evidence only.
 
+B6 is frozen as policy SHA-256 `53f3346f...` on runtime commit `ab3535a`.
+Its blind contract SHA-256 is `b2f5db8e...` and inherits the exact unopened
+450-injection B5 matrix. `open_b6_blind_after_normal.sh` is the sole supported
+entry point and remains unusable until an independent B6 normal run produces
+a valid `NORMAL_PASS`.
+
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
 while the lifecycle PID is alive. If that PID exits without `NORMAL_PASS` or a

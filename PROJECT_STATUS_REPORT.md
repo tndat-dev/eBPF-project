@@ -7006,3 +7006,13 @@ policy replay cho 0/228.563 alert trên B5 failure, 0/56.491 trên B4 canary và
 lần lượt là `b560838a...`, `49d593a8...`, `14206a00...`. Đây chỉ là normal
 development replay, chưa phải FPR/recall; B6 chưa freeze và không được mở
 blind trước một canary cùng normal soak độc lập mới.
+
+Sau khi khóa ba replay ở commit `2bb3a67`, policy
+`sentinel-pulse-namespace-only-immediate-bypass-b6` được sinh từ tracked tree
+sạch. Policy SHA-256 là `53f3346fc23a75a8435017d1fccf4f8e3a332e540f97a00026ce7c8110ded51a`;
+frozen runtime commit là `ab3535ae715757e876567990b7e33e7a669b8014`. Blind
+contract B6 SHA-256 `b2f5db8e5ae8331319df9ea270a94478c24453a9d2be630ca4474908765a005f`
+kế thừa byte-for-byte ma trận chưa mở của B5: 18 controller × 5 scenario × 5
+trial = 450 injection. Guarded opener B6 yêu cầu `NORMAL_PASS`, đối chiếu đủ ba
+identity và từ chối mọi failed/active/infra-invalid normal run. Contract mới
+đã freeze nhưng **chưa được mở**; bước kế tiếp là canary normal-only B6.
