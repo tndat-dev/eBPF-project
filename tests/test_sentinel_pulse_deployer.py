@@ -373,6 +373,11 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("printf 'PREFLIGHT_STABILITY_SECONDS=%s\\n'", script)
         self.assertIn("printf 'PREFLIGHT_TIMEOUT_SECONDS=%s\\n'", script)
         self.assertNotIn("SSHPASS=1", script)
+        state_root = script.index(
+            'install -d -o dat -g dat -m 0750 "$STATE_ROOT"'
+        )
+        service_start = script.index("systemctl enable --now")
+        self.assertLess(state_root, service_start)
 
     def test_formal_soak_finalizer_freezes_all_nodes_before_evaluation(self):
         script = (

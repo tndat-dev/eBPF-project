@@ -43,6 +43,12 @@ test -f "$MODEL_SOURCE/manifest.json"
 test -f "$POLICY_SOURCE"
 test -x "$PYTHON"
 
+# systemd opens the redirected lifecycle log before ExecStart runs.  Therefore
+# run_500ms_candidate_lifecycle.sh cannot create STATE_ROOT itself on a fresh
+# deployment: the shell redirection would fail first.  Create the directory
+# here and make it writable by the service account.
+install -d -o dat -g dat -m 0750 "$STATE_ROOT"
+
 SERVICE="sentinel-pulse-$LIFECYCLE_ID-lifecycle.service"
 ENV_DIR=/etc/sentinel-pulse/lifecycle
 ENV_FILE="$ENV_DIR/$LIFECYCLE_ID.env"

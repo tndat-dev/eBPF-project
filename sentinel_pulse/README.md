@@ -353,6 +353,17 @@ Its blind contract SHA-256 is `b2f5db8e...` and inherits the exact unopened
 450-injection B5 matrix. `open_b6_blind_after_normal.sh` is the sole supported
 entry point and remains unusable until an independent B6 normal run produces
 a valid `NORMAL_PASS`.
+The canonical B6 source passes 535 tests in the VM ML environment; the only
+two messages are legacy Torch JIT deprecation warnings.
+
+B6 canary `sentinel-pulse-b6-canary-r1-20260905T031108Z` completed with
+63,464 decisions, 62,788 scored rows, zero alerts/restarts, all 20 workload
+keys and minimum coverage 95.449%. Its inference p99 was 30.405 ms and
+window-start-to-decision p99 was 0.854 s (max 1.079 s). This remains a
+15-minute engineering gate, not an FPR or recall claim. Formal normal run
+`sentinel-pulse-formal-normal-b6-r1-20260905T032856Z` is now active with
+`STOP_AFTER_NORMAL=true`; its 90,000-second collectors cannot terminal before
+approximately 2026-09-06 04:36 UTC. The B6 blind root remains unopened.
 
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing

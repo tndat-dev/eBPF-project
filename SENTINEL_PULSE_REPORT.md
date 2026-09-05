@@ -1,13 +1,13 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 04-09-2026
+**Snapshot cluster:** 05-09-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
-Blind B4 chưa mở. B5 đã khóa policy/contract mới và đang chạy canary
-normal-only; canary đã pass và formal normal soak 25 giờ đang active, chưa có
-claim production/formal
+Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B6 đã
+khóa policy/contract mới, pass canary normal-only và đang chạy formal normal
+soak 25 giờ; chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -1951,7 +1951,7 @@ Inference p50/p95/p99 là 16,83/24,29/29,50 ms; p99
 window-start-to-decision là 0,851 giây, max 0,998 giây. Coverage thấp nhất là
 frontend 96,23%. Bundle verify 73/73 checksum; aggregate SHA-256 `82d31b85...`.
 Đây chỉ là canary non-formal 0,25 giờ, không tạo FPR/recall claim. Full
-regression hiện đạt **530 passed, 2 warnings**.
+regression tại thời điểm freeze B5 đạt **530 passed, 2 warnings**.
 
 Formal normal run `sentinel-pulse-formal-normal-b5-r1-20260904T082600Z` đã
 được giao cho persistent systemd lifecycle lúc 08:26:21 UTC. Duration đăng ký
@@ -1997,3 +1997,33 @@ contract B6 SHA-256 `b2f5db8e...` bind chính xác model `2e37ffd1...`, policy v
 runtime trên, đồng thời kế thừa nguyên 450 injection chưa mở của B5. Guarded
 opener chỉ chấp nhận một B6 `NORMAL_PASS` độc lập. Việc freeze contract không
 có nghĩa blind đã bắt đầu; evidence blind B6 vẫn phải rỗng trước canary.
+Full regression B6 trên ML venv của VM đạt **535 passed, 2 Torch deprecation
+warnings**.
+
+### B6 live canary và formal normal soak (05-09-2026)
+
+Traffic gate độc lập trước canary đạt 90/90 east-west HTTP 200, 30/30
+north-south và 9/9 rollout Healthy. Run
+`sentinel-pulse-b6-canary-r1-20260905T031108Z` terminal valid sau ít nhất
+901,86 giây: **63.464 decision**, 62.788 scored, 154 suppressed, 0 alert, 0
+restart, đủ 20/20 workload và coverage tối thiểu 95,449%. Inference
+p50/p95/p99 là 16,998/24,971/30,405 ms; window-start-to-decision
+p50/p95/p99 là 0,653/0,800/0,854 giây, max 1,079 giây. Aggregate SHA-256 là
+`515a1041...`; final checksum index SHA-256 là `09461021...`. Đây là canary
+non-formal 0,25 giờ, không tạo FPR/recall claim.
+
+Formal run `sentinel-pulse-formal-normal-b6-r1-20260905T032856Z` đã pass
+traffic gate riêng 180/180 east-west, 60/60 north-south và stability preflight
+300 giây. `SOAK_START.json` (`b0544839...`) ghi start 03:35:17 UTC; ba worker
+vào `normal_active` lúc 03:36:26 UTC với model `2e37ffd1...`, policy
+`53f3346f...`, collector/detector active, control collector inactive và
+restart=0. Lifecycle được systemd giữ persistent, `STOP_AFTER_NORMAL=true`,
+blind evidence B6 vẫn rỗng và automatic promotion bị cấm. Marker 24 giờ là
+03:35:17 UTC ngày 06-09; do collector chạy 90.000 giây, kết quả terminal không
+thể có trước khoảng 04:36 UTC. Trạng thái active không được suy diễn thành
+normal pass.
+
+Lần kích hoạt systemd đầu tiên fail trước ExecStart vì thư mục `STATE_ROOT`
+chưa tồn tại, trước mọi marker/capture. Sau khi tạo thư mục, cùng run ID khởi
+động hợp lệ. Installer canonical đã được harden để tạo `STATE_ROOT` với owner
+service trước redirect log; targeted regression đạt 38/38.

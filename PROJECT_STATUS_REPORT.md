@@ -1,20 +1,22 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-04
+**Ngày xác minh cluster gần nhất:** 2026-09-05
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
 `/home/dat/eBPF-project-runtime-5568683-a7`, pilot hiện tại tại
 `/home/dat/eBPF-project-runtime-pulse-a2-pilot`, frozen B4 runtime tại
-`/home/dat/eBPF-project-runtime-pulse-b4`
+`/home/dat/eBPF-project-runtime-pulse-b4`, frozen B6 runtime tại
+`/home/dat/eBPF-project-runtime-pulse-b6`
 **Phiên bản hiện tại:** AIMS V8 đã đóng băng ở mức research-stable dry-run;
 Sentinel Pulse A2/B3 500 ms đã hoàn tất compatibility dataset, train 20/20
 model và live-normal canary B3 15 phút. Formal normal R6 đã bị loại đúng theo
 zero-alert gate sau khoảng 3 giờ 24 phút vì một false positive trên PostgreSQL;
 C3 chưa mở. Candidate B4 đã khóa policy/runtime/blind contract mới nhưng bị
 loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa có
-formal accuracy claim. Successor B5 đã khóa identity mới; canary normal-only
-độc lập đã pass và formal normal soak 25 giờ đang active trên ba worker
+formal accuracy claim. B5 pass canary nhưng bị loại ở formal normal gate do
+một false alert Kafka. Successor B6 đã khóa identity mới, pass canary
+normal-only độc lập và đang chạy formal normal soak 25 giờ trên ba worker
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -34,10 +36,10 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 
 - validation ban đầu thực hiện trên cluster 3 node;
 - sau mở rộng, cluster hiện có 6/6 node `Ready` (3 control plane, 3 worker);
-- Tetragon đạt 6/6; control collector Sentinel Pulse active trên ba worker,
-  candidate detector/formal soak không active tại snapshot;
+- Tetragon đạt 6/6; tại snapshot 05-09, formal B6 collector và candidate
+  detector active trên ba worker, control collector được tạm dừng có kiểm soát;
 - V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
-- full regression trên source canonical gần nhất đạt `530 passed, 2 Torch
+- full regression trên source canonical gần nhất đạt `535 passed, 2 Torch
   deprecation warnings`;
 - log thí nghiệm mới nhất khi đó ghi hơn 108k cửa sổ đã xử lý và `anomalies=0`;
 - validation attack đạt 15/15 detection trên Nginx, Redis và Postgres;
@@ -7016,3 +7018,38 @@ kế thừa byte-for-byte ma trận chưa mở của B5: 18 controller × 5 scen
 trial = 450 injection. Guarded opener B6 yêu cầu `NORMAL_PASS`, đối chiếu đủ ba
 identity và từ chối mọi failed/active/infra-invalid normal run. Contract mới
 đã freeze nhưng **chưa được mở**; bước kế tiếp là canary normal-only B6.
+Full regression trên ML venv của VM đạt **535 passed, 2 Torch deprecation
+warnings**.
+
+### 18.166 B6 canary pass và formal normal soak được kích hoạt (05-09-2026)
+
+Traffic gate mới trước canary B6 đạt 90/90 east-west HTTP 200, 30/30
+north-south thành công và 9/9 rollout Healthy. Canary normal-only
+`sentinel-pulse-b6-canary-r1-20260905T031108Z` chạy terminal hơn 901 giây
+trên ba worker. Aggregate có **63.464 decision**, 62.788 scored, 154
+suppressed, **0 alert**, 0 detector restart và đủ 20/20 workload-container;
+coverage thấp nhất 95,449%. Inference p50/p95/p99 là
+16,998/24,971/30,405 ms. Window-start-to-decision p50/p95/p99 là
+0,653/0,800/0,854 giây, max 1,079 giây. Đây là non-formal canary, không được
+dùng để claim FPR hoặc recall. `AGGREGATE.json` SHA-256
+`515a1041a652389fc4996a1667701a6c6d4ea0d50d4ca1c388cf1adc337c852e`;
+`FINAL_SHA256SUMS` SHA-256
+`09461021b8b04f253a522a17f4948f4d22178f73cf0ba3c46bf766abb9dadb21`.
+
+Sau canary pass, formal B6
+`sentinel-pulse-formal-normal-b6-r1-20260905T032856Z` vượt traffic gate riêng
+180/180 east-west, 60/60 north-south, 9/9 rollout Healthy và stability
+preflight 300 giây. `SOAK_START.json` được phát hành lúc 03:35:17 UTC; phase
+`normal_active` bắt đầu lúc 03:36:26 UTC. Ba worker cùng bind model SHA-256
+`2e37ffd1...` và policy SHA-256 `53f3346f...`; snapshot đầu kỳ có 6.962
+decision, 0 alert, 0 restart. Control collector được suspend có ghi nhận,
+blind B6 vẫn có 0 file, `STOP_AFTER_NORMAL=true` và không có automatic
+promotion. Marker 24 giờ là 03:35:17 UTC ngày 06-09; collector đăng ký 90.000
+giây nên terminal thực tế sớm nhất khoảng 04:36 UTC ngày 06-09. Run còn active
+không được gọi là pass.
+
+Lần start service đầu tiên dừng trước ExecStart vì `STATE_ROOT` chưa tồn tại;
+không tạo `SOAK_START`, không chạy collector và không mở blind. Cùng run ID
+được restart sau khi tạo thư mục. Installer canonical đã được sửa để tạo và
+gán owner cho `STATE_ROOT` trước khi systemd mở file log; targeted regression
+đạt 38/38 test.
