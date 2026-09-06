@@ -567,4 +567,6 @@ immediate/bounded corroboration. Checksum-bound normal replays project zero
 alerts over 7,350,925 scored rows, including 6,191,601 from B6. This is tuning
 evidence, not FPR/recall/latency evidence. The next candidate also includes a
 live feature-tail integrity check so cumulative collector loss terminates a
-formal run during monitoring. B7 is not frozen or deployed yet.
+formal run during monitoring. Policy SHA-256 `711e66a9...` and runtime commit
+`9cc382c...` are frozen; blind contract `ee1cb43d...` inherits the exact
+unopened B6 matrix. B7 has not been deployed or canary-tested yet.

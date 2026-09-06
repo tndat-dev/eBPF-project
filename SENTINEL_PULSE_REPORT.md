@@ -2072,6 +2072,7 @@ attack thật chưa được đo.
 
 Formal monitor mới đọc tail feature mỗi poll và fail-closed nếu feature stale,
 interval ngoài contract hoặc cumulative collector integrity counter khác 0.
-Evaluator checksum-bound cũng không hash trùng source lớn. Đây mới là
-development hardening; B7 chưa freeze/deploy/canary/formal soak và không được
-gọi là stable.
+Evaluator checksum-bound cũng không hash trùng source lớn. B7 policy
+`711e66a9...` và runtime commit `9cc382c...` đã được freeze; blind contract B7
+`ee1cb43d...` kế thừa đúng ma trận B6 chưa mở. Candidate vẫn chưa
+deploy/canary/formal soak và không được gọi là stable.

@@ -7122,5 +7122,9 @@ mỗi poll: freshness, interval và sáu collector integrity counter tích lũy.
 Counter khác 0 tạo `collector_integrity_violation` và archive fail-closed ngay,
 tránh lặp lại việc chỉ phát hiện gap ở finalizer cuối ngày. Evaluator cũng cache
 checksum đã verify, tránh đọc lại mỗi stream nhiều GB chỉ để ghi cùng digest.
-B7 ở thời điểm này vẫn là development candidate: chưa freeze policy/runtime,
-chưa canary, chưa formal soak và blind B6 vẫn có 0 file.
+B7 policy đã được sinh từ clean calibration commit `2959cf7`, SHA-256
+`711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da`;
+runtime đóng băng tại commit `9cc382cdbf78e1724c2aa1dc69ed53cc17a23140`.
+Blind contract B7 SHA-256 `ee1cb43d...` kế thừa byte-for-byte ma trận B6 chưa
+mở và bind model/policy/runtime mới. B7 chưa canary, chưa formal soak; blind B6
+và B7 đều chưa được mở.
