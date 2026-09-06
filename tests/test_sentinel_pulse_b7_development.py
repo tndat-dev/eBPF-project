@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+from sentinel_pulse.decision_policy import load_decision_policy
 from sentinel_pulse.integrity import sha256_file
 
 
@@ -75,3 +76,39 @@ def test_b7_b6_replay_is_bound_to_the_terminal_b6_identity():
         "attack_latency_not_estimated_from_normal_evidence": True,
         "blind_live_latency_gate_still_required": True,
     }
+
+
+def test_b7_policy_binds_all_normal_replays_and_clean_calibration_source():
+    path = ROOT / "sentinel_pulse" / "protocol" / "decision-policy-temporal-b7.json"
+    policy, digest = load_decision_policy(path)
+
+    assert digest == "711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da"
+    assert policy["name"] == "sentinel-pulse-minio-openat-three-window-b7"
+    assert policy["source_clean"] is True
+    assert policy["source_git_commit"] == (
+        "2959cf73550a35b3fccfe9f7523fd9d652fae14b"
+    )
+    assert policy["blind_outcome_used"] is False
+    assert policy["automatic_promotion"] is False
+    assert policy["temporal_confirmation"] == {
+        "mode": "consecutive_same_group",
+        "required_consecutive_windows": 2,
+        "required_consecutive_windows_by_group": {
+            "credential_open": 3,
+            "local_socket_beacon": 3,
+        },
+        "maximum_gap_seconds": 1.25,
+        "immediate_bypass_signal_groups": ["namespace_probe"],
+        "normal_only_calibration": True,
+        "consume_on_alert": True,
+    }
+    development = policy["development_normal_evidence"]
+    assert development["base_policy_sha256"] == (
+        "53f3346fc23a75a8435017d1fccf4f8e3a332e540f97a00026ce7c8110ded51a"
+    )
+    assert development["temporal_confirmation_calibration_sha256"] == (
+        "775eda2f844229e96bdd55ad3b2c60f38f5fc47b1d2910af4faf3ceb67375df1"
+    )
+    extras = development["additional_temporal_confirmation_calibrations"]
+    assert sum(item["scored_rows"] for item in extras) == 1159324
+    assert all(item["projected_alerts"] == 0 for item in extras)
