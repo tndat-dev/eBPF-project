@@ -17,8 +17,9 @@ loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa
 formal accuracy claim. B5 pass canary nhưng bị loại ở formal normal gate do
 một false alert Kafka. Successor B6 đã khóa identity mới, pass canary
 normal-only độc lập nhưng đã bị loại ở formal normal gate sau một cảnh báo
-normal trên MinIO; blind B6 chưa mở. B7 hiện là development candidate
-normal-only, chưa deploy
+normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
+63.534 decision, 0 alert, 0 restart, đủ 20/20 workload. Lifecycle normal soak
+25 giờ đã được khởi chạy ngày 06-09; xem checkpoint cuối tài liệu.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7126,5 +7127,39 @@ B7 policy đã được sinh từ clean calibration commit `2959cf7`, SHA-256
 `711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da`;
 runtime đóng băng tại commit `9cc382cdbf78e1724c2aa1dc69ed53cc17a23140`.
 Blind contract B7 SHA-256 `ee1cb43d...` kế thừa byte-for-byte ma trận B6 chưa
-mở và bind model/policy/runtime mới. B7 chưa canary, chưa formal soak; blind B6
-và B7 đều chưa được mở.
+mở và bind model/policy/runtime mới. Tại thời điểm freeze, B7 chưa canary hoặc
+formal soak; checkpoint triển khai tiếp theo được ghi bên dưới.
+
+### 18.169 B7 canary hợp lệ và khởi tạo formal soak (06-09-2026)
+
+SSH xác minh lại lúc 15:11 UTC: cả sáu node Ready, Kubernetes v1.34.10.
+Canary `sentinel-pulse-b7-canary-r1-20260906T080908Z` đã kết thúc lúc
+08:26:22 UTC với aggregate `valid=true`: 63.534 decision, 62.851 scored,
+333 suppressed, 683 warming, 0 alert, 0 detector restart trên ba worker.
+Đủ 20/20 workload-container key; coverage thấp nhất 95,336%, thời lượng
+collector ngắn nhất 901,991 giây. 73 entry trong FINAL_SHA256SUMS được
+kiểm tra lại thành công. Bản aggregate được lưu trong repo tại
+`validation-evidence/sentinel-pulse-canary/b7-r1-20260906/AGGREGATE.json`.
+
+| Phép đo | p50 | p95 | p99 | Max |
+| --- | ---: | ---: | ---: | ---: |
+| Inference (ms) | 16,941 | 24,348 | 29,574 | 48,536 |
+| Window-start → decision (s) | 0,652 | 0,796 | 0,852 | 0,988 |
+| Xử lý sau window (s) | 0,149 | 0,292 | 0,348 | 0,482 |
+
+Đây là decision trên normal traffic. Với zero alert và chưa có blind injection,
+các số này chưa đo kernel-to-alert, recall hoặc chứng minh FPR bằng 0.
+Aggregate SHA-256:
+`dcbb7da40f5bd79fbe3507b12a06f0d45092abb048151b0526972155ea428a6c`.
+Final checksum index SHA-256:
+`9115cc28668b6b7db5566d336a6bfc56f7df9622b72c1c6f8d87e9361f5db26f`.
+Raw archive trên VM:
+`/home/dat/sentinel-pulse-evidence/canary-b7/sentinel-pulse-b7-canary-r1-20260906T080908Z`.
+
+Lifecycle `sentinel-pulse-b7-r1-lifecycle.service` được khởi chạy lúc
+15:12:39 UTC cho run `sentinel-pulse-formal-normal-b7-r1-20260906T151400Z`.
+Run ID là nhãn đăng ký; thời gian đo thực tế phải lấy từ `SOAK_START.json`.
+Runtime giữ commit `9cc382c`, model `2e37ffd1...`, policy `711e66a9...`.
+Thiết lập 90.000 giây, stability preflight 300 giây, `STOP_AFTER_NORMAL=true`;
+evidence tại `/home/dat/sentinel-pulse-evidence/formal-b7/`.
+Checkpoint ban đầu là `normal_preflight`, chưa phải `normal_active` hay pass.

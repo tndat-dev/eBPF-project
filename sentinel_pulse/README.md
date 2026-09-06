@@ -569,4 +569,18 @@ evidence, not FPR/recall/latency evidence. The next candidate also includes a
 live feature-tail integrity check so cumulative collector loss terminates a
 formal run during monitoring. Policy SHA-256 `711e66a9...` and runtime commit
 `9cc382c...` are frozen; blind contract `ee1cb43d...` inherits the exact
-unopened B6 matrix. B7 has not been deployed or canary-tested yet.
+unopened B6 matrix.
+
+B7 canary `sentinel-pulse-b7-canary-r1-20260906T080908Z` completed valid:
+63,534 decisions, 62,851 scored, zero alerts/restarts, 20/20 workload coverage,
+minimum duration 901.991 seconds. Window-start-to-decision p99 was 0.852 s;
+inference p99 was 29.574 ms. These are normal-decision measurements, not
+attack kernel-to-alert or formal FPR/recall evidence. The archived aggregate
+is in `validation-evidence/sentinel-pulse-canary/b7-r1-20260906/AGGREGATE.json`.
+
+The B7 normal lifecycle was started at 2026-09-06 15:12:39 UTC with a
+90,000-second capture and a 300-second stability preflight. Service:
+`sentinel-pulse-b7-r1-lifecycle.service`; run:
+`sentinel-pulse-formal-normal-b7-r1-20260906T151400Z`. Its initial phase is
+`normal_preflight`; consult `SOAK_START.json` for the actual capture start.
+`STOP_AFTER_NORMAL=true`; blind evaluation remains gated.

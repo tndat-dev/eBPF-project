@@ -7,8 +7,9 @@
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
 Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B6 đã
 khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
-gate bởi một normal alert MinIO; blind B6 chưa mở. B7 mới ở development
-normal-only, chưa deploy và chưa có claim production/formal
+gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
+15 phút (63.534 decision, 0 alert), lifecycle formal soak 25 giờ đang triển
+khai; chưa có claim production/formal.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2074,5 +2075,32 @@ Formal monitor mới đọc tail feature mỗi poll và fail-closed nếu featur
 interval ngoài contract hoặc cumulative collector integrity counter khác 0.
 Evaluator checksum-bound cũng không hash trùng source lớn. B7 policy
 `711e66a9...` và runtime commit `9cc382c...` đã được freeze; blind contract B7
-`ee1cb43d...` kế thừa đúng ma trận B6 chưa mở. Candidate vẫn chưa
-deploy/canary/formal soak và không được gọi là stable.
+`ee1cb43d...` kế thừa đúng ma trận B6 chưa mở. Tại thời điểm freeze, candidate
+chưa deploy/canary/formal soak; kết quả triển khai tiếp theo ở bên dưới.
+
+### B7 canary terminal và formal lifecycle (06-09-2026)
+
+Canary `sentinel-pulse-b7-canary-r1-20260906T080908Z` terminal valid lúc
+08:26:22 UTC. SSH kiểm tra lại 15:11 UTC xác nhận 73 checksum entry hợp lệ.
+63.534 decision gồm 62.851 scored và 683 warming; 333 scored bị suppressed,
+0 alert, 0 detector restart. Coverage đạt 20/20 workload-container key,
+thấp nhất 95,336%; collector chạy tối thiểu 901,991 giây.
+
+Inference p50/p95/p99 = 16,941/24,348/29,574 ms (max 48,536 ms).
+Window-start-to-decision p50/p95/p99 = 0,652/0,796/0,852 giây
+(max 0,988 giây); post-window processing p99 = 0,348 giây.
+Đây là normal decision latency, chưa phải kernel-to-alert của attack.
+Zero alert trong canary không tạo formal FPR hoặc recall claim.
+
+Aggregate được đồng bộ tại
+`validation-evidence/sentinel-pulse-canary/b7-r1-20260906/AGGREGATE.json`,
+SHA-256 `dcbb7da40f5bd79fbe3507b12a06f0d45092abb048151b0526972155ea428a6c`.
+Final checksum index trên VM là
+`9115cc28668b6b7db5566d336a6bfc56f7df9622b72c1c6f8d87e9361f5db26f`.
+
+Lúc 15:12:39 UTC, service `sentinel-pulse-b7-r1-lifecycle.service` bắt đầu
+run `sentinel-pulse-formal-normal-b7-r1-20260906T151400Z`, evidence dưới
+`/home/dat/sentinel-pulse-evidence/formal-b7/`. Lifecycle chạy ngầm bằng
+systemd với 90.000 giây và stability preflight 300 giây. Checkpoint ban đầu
+`normal_preflight`; chỉ marker `SOAK_START.json` mới xác định giờ bắt đầu đo.
+`STOP_AFTER_NORMAL=true` giữ blind B7 chưa mở sau khi normal kết thúc.
