@@ -2104,3 +2104,12 @@ run `sentinel-pulse-formal-normal-b7-r1-20260906T151400Z`, evidence dưới
 systemd với 90.000 giây và stability preflight 300 giây. Checkpoint ban đầu
 `normal_preflight`; chỉ marker `SOAK_START.json` mới xác định giờ bắt đầu đo.
 `STOP_AFTER_NORMAL=true` giữ blind B7 chưa mở sau khi normal kết thúc.
+
+Checkpoint 15:19:55 UTC: marker bắt đầu lúc 15:18:35 UTC, ba worker vào
+`normal_active` lúc 15:19:43 UTC. 2.168 decision đầu tiên, 0 alert/restart,
+cả ba collector/detector active; feature tail valid, integrity counter đều 0.
+Marker SHA-256 `634fa0e9573d85ba8b418d71f6e233920d178132f151627046f9a0db3a25711c`.
+Mốc đủ 24 giờ là 07-09 22:18:35 giờ Việt Nam; lifecycle cho phép finalize
+sau thêm 300 giây và chủ động dừng collector. 25 giờ là giới hạn chạy tối đa,
+không phải thời lượng bắt buộc của normal gate. Dự kiến kiểm tra kết quả từ
+22:45 ngày 07-09, tùy thời gian xuất và kiểm chứng archive.

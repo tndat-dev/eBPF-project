@@ -7162,4 +7162,15 @@ Run ID là nhãn đăng ký; thời gian đo thực tế phải lấy từ `SOAK
 Runtime giữ commit `9cc382c`, model `2e37ffd1...`, policy `711e66a9...`.
 Thiết lập 90.000 giây, stability preflight 300 giây, `STOP_AFTER_NORMAL=true`;
 evidence tại `/home/dat/sentinel-pulse-evidence/formal-b7/`.
-Checkpoint ban đầu là `normal_preflight`, chưa phải `normal_active` hay pass.
+Sau stability preflight đạt 311 giây, marker bắt đầu đo lúc 15:18:35 UTC;
+`normal_active` và `normal_monitor` lúc 15:19:43 UTC. Checkpoint đầu đủ ba
+worker: 1.177 + 688 + 303 = 2.168 decision, 0 alert, 0 restart, collector và
+detector active, control collector inactive. Cả ba feature tail valid và sáu
+integrity counter đều 0. SHA-256 `SOAK_START.json`:
+`634fa0e9573d85ba8b418d71f6e233920d178132f151627046f9a0db3a25711c`.
+
+Mốc đủ 24 giờ là 07-09 15:18:35 UTC (22:18:35 giờ Việt Nam).
+90.000 giây là thời hạn tối đa của collector; lifecycle có thể chủ động
+dừng capture để finalize sau mốc 24 giờ cộng margin 300 giây. Cần thêm thời
+gian copy, checksum và evaluate archive; có thể kiểm tra từ 22:45 ngày 07-09,
+nhưng đó là ước lượng, không phải cam kết `NORMAL_PASS`.

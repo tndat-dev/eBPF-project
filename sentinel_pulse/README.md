@@ -582,5 +582,9 @@ The B7 normal lifecycle was started at 2026-09-06 15:12:39 UTC with a
 90,000-second capture and a 300-second stability preflight. Service:
 `sentinel-pulse-b7-r1-lifecycle.service`; run:
 `sentinel-pulse-formal-normal-b7-r1-20260906T151400Z`. Its initial phase is
-`normal_preflight`; consult `SOAK_START.json` for the actual capture start.
-`STOP_AFTER_NORMAL=true`; blind evaluation remains gated.
+`normal_preflight`. `SOAK_START.json` records 2026-09-06 15:18:35 UTC;
+all three workers reached `normal_active` at 15:19:43 UTC. The first monitor
+pass recorded 2,168 decisions, zero alerts/restarts, and valid feature tails.
+The lifecycle may finalize after 24 hours plus a 300-second margin; 90,000
+seconds is the collector's upper duration limit. Archive evaluation takes
+additional time. `STOP_AFTER_NORMAL=true`; blind evaluation remains gated.
