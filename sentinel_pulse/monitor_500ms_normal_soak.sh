@@ -28,7 +28,7 @@ write_row() {
   python3 - "$LOG" "$@" <<'PY'
 import json, pathlib, sys, time
 path=pathlib.Path(sys.argv[1])
-host, collector, legacy, detector, restarts, decisions, alerts, feature, expected = sys.argv[2:]
+host, collector, legacy, detector, restarts, decisions, alerts, feature, expected, tail = sys.argv[2:]
 row={
     "checked_at_unix": time.time(), "host": host,
     "collector": collector, "legacy_control_collector": legacy,
@@ -36,6 +36,7 @@ row={
     "nrestarts": int(restarts), "decisions": int(decisions),
     "alerts": int(alerts), "feature_source": feature,
     "expected_feature_source": expected,
+    "feature_tail": json.loads(tail),
 }
 with path.open("a", encoding="utf-8") as out:
     out.write(json.dumps(row, separators=(",", ":")) + "\n")
@@ -152,7 +153,13 @@ while true; do
     restarts=$(value restarts); decisions=$(value decisions)
     alerts=$(value alerts); feature=$(value feature)
     [[ $restarts =~ ^[0-9]+$ && $decisions =~ ^[0-9]+$ && $alerts =~ ^[0-9]+$ ]] || fail invalid_snapshot "$host"
-    write_row "$host" "$collector" "$legacy" "$detector" "$restarts" "$decisions" "$alerts" "$feature" "$expected_feature"
+    tail_snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
+      -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
+      "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.inspect_feature_tail --capture '$expected_feature' --maximum-age-seconds 5" 2>/dev/null) || \
+      fail collector_integrity_violation "$host"
+    write_row "$host" "$collector" "$legacy" "$detector" "$restarts" "$decisions" "$alerts" "$feature" "$expected_feature" "$tail_snapshot"
+    jq -e '.valid == true' <<<"$tail_snapshot" >/dev/null || \
+      fail collector_integrity_violation "$host"
     [[ $collector == active ]] || fail collector_inactive "$host"
     [[ $legacy == inactive ]] || fail legacy_control_collector_active "$host"
     [[ $detector == active ]] || fail detector_inactive "$host"
