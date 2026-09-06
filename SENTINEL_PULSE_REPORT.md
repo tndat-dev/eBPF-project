@@ -1,13 +1,14 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 05-09-2026
+**Snapshot cluster:** 06-09-2026
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
 Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B6 đã
-khóa policy/contract mới, pass canary normal-only và đang chạy formal normal
-soak 25 giờ; chưa có claim production/formal
+khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
+gate bởi một normal alert MinIO; blind B6 chưa mở. B7 mới ở development
+normal-only, chưa deploy và chưa có claim production/formal
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2035,3 +2036,42 @@ restart; cluster vẫn 6/6 Ready và blind B6 có 0 file. Read-only diagnostic t
 0,510/0,513/0,522 giây, emit lag max 30/30/43 ms và các integrity counter đều
 bằng 0. Phép kiểm tra phần đuôi này không chứng minh continuity toàn run; chỉ
 terminal checksum/full-stream finalizer mới có quyền kết luận.
+
+### B6 terminal rejection và B7 normal-only development (06-09-2026)
+
+B6 formal run bị zero-alert gate loại lúc 03:36:10 UTC ngày 06-09. Disposition
+v2 ghi đúng `rejected_normal_gate`; không có `NORMAL_PASS`, blind B6 vẫn rỗng
+và không attack outcome nào được dùng. Alert duy nhất nằm trên
+`aims-minio-pool-0-0:minio` ở worker `.237`: window 0,502 giây,
+`openat=1.026` so với normal max 818, score 0,594740, conformal p-value
+0,000387, score excess 0,010651 và inference 16,404 ms. Nó là window xác nhận
+thứ hai của `credential_open`.
+
+Replica `aims-minio-pool-0-1` trên `.238` có burst gần đồng thời với các mức
+`openat=1.049`, `2.585` và `3.385`; window cuối là model candidate bị
+suppressed ở confirmation count 1. Dữ liệu ủng hộ giả thuyết đây là hành vi
+nội bộ đồng bộ của MinIO, nhưng không có application ground-truth để gọi tên
+chắc chắn chu kỳ đó. Quan trọng hơn, `credential_open` chỉ tổng hợp toàn bộ
+`openat`, không quan sát pathname, nên tên nhóm là proxy lịch sử chứ không
+chứng minh credential file đã bị đọc.
+
+Archive worker `.237` và `.239` valid. `.238` invalid với max interval 2,703
+giây, max ingest lag 3,307 giây và hai integrity counter bằng 1. Vì vậy không
+có formal FPR claim; continuity failure này độc lập với normal alert trên
+worker valid `.237`. Lifecycle B6 đã terminal/disabled và control collector đã
+được phục hồi.
+
+Normal evidence B6 được materialize checksum-bound thành 6.247.867 decision;
+6.191.601 row được score trong replay B7. Policy development tăng riêng
+`credential_open` lên ba window, giữ `local_socket_beacon=3`, default=2 và chỉ
+cho `namespace_probe` bypass/bounded join. Replay project 0 alert trên B6 và
+0/7.350.925 scored normal window khi cộng B4, B5 và R6. Bốn report nằm trong
+`protocol/development-b7/`; không chứa/use attack outcome và không tự promote.
+Chi phí thiết kế tối đa cho nhóm ba-window là thêm khoảng 1 giây, nhưng latency
+attack thật chưa được đo.
+
+Formal monitor mới đọc tail feature mỗi poll và fail-closed nếu feature stale,
+interval ngoài contract hoặc cumulative collector integrity counter khác 0.
+Evaluator checksum-bound cũng không hash trùng source lớn. Đây mới là
+development hardening; B7 chưa freeze/deploy/canary/formal soak và không được
+gọi là stable.

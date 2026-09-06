@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+import sentinel_pulse.evaluate_temporal_confirmation as temporal_confirmation
 from sentinel_pulse.evaluate_temporal_confirmation import evaluate
 
 
@@ -220,3 +221,27 @@ def test_confirmation_replay_binds_checksum_and_candidate_identity(tmp_path):
             expected_model_sha256="a" * 64,
             expected_policy_sha256="b" * 64,
         )
+
+
+def test_checksum_bound_replay_hashes_each_large_source_only_once(
+    tmp_path, monkeypatch
+):
+    root = tmp_path / "evidence"
+    root.mkdir()
+    path = root / "decisions.jsonl"
+    _write(path, [_record(1.0)])
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    checksums = root / "DECISIONS_SHA256SUMS"
+    checksums.write_text(f"{digest}  decisions.jsonl\n")
+    calls = []
+    real_sha256 = temporal_confirmation.sha256_file
+
+    def counted_sha256(candidate):
+        calls.append(Path(candidate).resolve())
+        return real_sha256(candidate)
+
+    monkeypatch.setattr(temporal_confirmation, "sha256_file", counted_sha256)
+
+    evaluate([path], evidence_checksums_path=checksums)
+
+    assert calls.count(path.resolve()) == 1

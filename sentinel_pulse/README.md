@@ -361,9 +361,11 @@ B6 canary `sentinel-pulse-b6-canary-r1-20260905T031108Z` completed with
 keys and minimum coverage 95.449%. Its inference p99 was 30.405 ms and
 window-start-to-decision p99 was 0.854 s (max 1.079 s). This remains a
 15-minute engineering gate, not an FPR or recall claim. Formal normal run
-`sentinel-pulse-formal-normal-b6-r1-20260905T032856Z` is now active with
-`STOP_AFTER_NORMAL=true`; its 90,000-second collectors cannot terminal before
-approximately 2026-09-06 04:36 UTC. The B6 blind root remains unopened.
+`sentinel-pulse-formal-normal-b6-r1-20260905T032856Z` was rejected by the
+zero-alert normal gate at 2026-09-06 03:36:10 UTC after one MinIO alert. One
+separate worker archive also failed full-stream continuity validation. B6 is
+not stable, cannot provide a formal FPR estimate, and its blind root remains
+unopened.
 
 For a lifecycle process that was started from an older frozen runtime commit,
 attach the read-only external guard from the control checkout. It does nothing
@@ -548,3 +550,21 @@ independent reproduction and manual review remain mandatory.
 
 Promotion requires the gates in `SENTINEL_PULSE_REPORT.md`; successful build or
 short smoke testing alone is not a latency, recall, or false-positive claim.
+
+## B6 rejection and B7 development update (2026-09-06)
+
+B6 failed its independent zero-alert normal gate at 03:36:10 UTC after one
+MinIO alert. The alert was a two-window `openat`-volume event on one replica;
+another MinIO replica showed a synchronized burst. The legacy group name
+`credential_open` is only an `openat` count proxy and carries no pathname
+evidence. A different worker also failed full-stream continuity, so B6 is
+rejected and cannot yield a formal FPR estimate. No B6 blind outcome was
+opened.
+
+Development B7 raises only `credential_open` to three consecutive windows,
+retains `local_socket_beacon=3`, default confirmation=2 and namespace-only
+immediate/bounded corroboration. Checksum-bound normal replays project zero
+alerts over 7,350,925 scored rows, including 6,191,601 from B6. This is tuning
+evidence, not FPR/recall/latency evidence. The next candidate also includes a
+live feature-tail integrity check so cumulative collector loss terminates a
+formal run during monitoring. B7 is not frozen or deployed yet.

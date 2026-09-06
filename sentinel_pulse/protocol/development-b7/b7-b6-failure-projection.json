@@ -1,0 +1,65 @@
+{
+  "attack_outcomes_used": false,
+  "automatic_promotion": false,
+  "bounded_event_time_groups": [
+    "namespace_probe"
+  ],
+  "bypass_groups": [
+    "namespace_probe"
+  ],
+  "decision_policy_sha256": "53f3346fc23a75a8435017d1fccf4f8e3a332e540f97a00026ce7c8110ded51a",
+  "evidence_checksums_sha256": "d6010e2a833c88648aacc48c2b82d81f74b3e152a239df71aeb12c113df493c9",
+  "excluded_scored_windows_before_marker": 0,
+  "latency_cost_contract": {
+    "additional_windows_for_non_bypass_groups": 1,
+    "attack_latency_not_estimated_from_normal_evidence": true,
+    "blind_live_latency_gate_still_required": true,
+    "maximum_additional_windows_for_overridden_groups": 2
+  },
+  "maximum_evidence_age_seconds": 1.0,
+  "maximum_gap_seconds": 1.25,
+  "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+  "normal_only_development_evidence": true,
+  "original_alerts": 1,
+  "original_alerts_suppressed": 1,
+  "projected_alerts": 0,
+  "projected_alerts_by_workload": {},
+  "projected_status_counts": {
+    "normal": 6181140,
+    "suppressed": 10461,
+    "warming": 56266
+  },
+  "required_consecutive_windows": 2,
+  "required_consecutive_windows_by_group": {
+    "credential_open": 3,
+    "local_socket_beacon": 3
+  },
+  "run_id": "sentinel-pulse-formal-normal-b6-r1-20260905T032856Z",
+  "schema": "sentinel-pulse-temporal-confirmation-development-replay-v1",
+  "scored_rows": 6191601,
+  "soak_marker_identity_gate": true,
+  "soak_marker_sha256": "b054483989c21bfdbace00a3eb2c75cbb4213a3356558ef0deaa431f6c1ccb4c",
+  "sources": [
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b7/b6-failure-normal-replay/10.1.16.237-decisions.jsonl",
+      "rows": 1921884,
+      "sha256": "2c344204eefddf7dd0d699e31941743d5d1ab601daac67152b15243004a0c103"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b7/b6-failure-normal-replay/10.1.16.238-decisions.jsonl",
+      "rows": 2657862,
+      "sha256": "eafdca62ea09fc27e4451277ed3a91ac220d90ccabc3563768ad5bda3af1bfb2"
+    },
+    {
+      "path": "/home/dat/sentinel-pulse-evidence/development-b7/b6-failure-normal-replay/10.1.16.239-decisions.jsonl",
+      "rows": 1668121,
+      "sha256": "a429254ed2da67e5388768fd1c33238bc7aef78c26f72db6a7c76478ba144581"
+    }
+  ],
+  "status_counts": {
+    "alert": 1,
+    "normal": 6181140,
+    "suppressed": 10460,
+    "warming": 56266
+  }
+}

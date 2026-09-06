@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-05
+**Ngày xác minh cluster gần nhất:** 2026-09-06
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -16,7 +16,9 @@ C3 chưa mở. Candidate B4 đã khóa policy/runtime/blind contract mới nhưn
 loại ở live-normal gate vì một false alert Kafka; chưa promote và chưa có
 formal accuracy claim. B5 pass canary nhưng bị loại ở formal normal gate do
 một false alert Kafka. Successor B6 đã khóa identity mới, pass canary
-normal-only độc lập và đang chạy formal normal soak 25 giờ trên ba worker
+normal-only độc lập nhưng đã bị loại ở formal normal gate sau một cảnh báo
+normal trên MinIO; blind B6 chưa mở. B7 hiện là development candidate
+normal-only, chưa deploy
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -36,8 +38,8 @@ Kết quả ML dưới đây là bằng chứng validation lịch sử của rel
 
 - validation ban đầu thực hiện trên cluster 3 node;
 - sau mở rộng, cluster hiện có 6/6 node `Ready` (3 control plane, 3 worker);
-- Tetragon đạt 6/6; tại snapshot 05-09, formal B6 collector và candidate
-  detector active trên ba worker, control collector được tạm dừng có kiểm soát;
+- Tetragon đạt 6/6; formal B6 đã terminal, experimental collector/detector đã
+  dừng và control collector được phục hồi trên ba worker;
 - V8 lịch sử từng dùng model bundle tại `/home/dat/ml-service/models`;
 - full regression trên source canonical gần nhất đạt `535 passed, 2 Torch
   deprecation warnings`;
@@ -7063,3 +7065,62 @@ interval nào vượt 0,8 giây; max interval lần lượt là 0,510/0,513/0,52
 emit lag max 0,030/0,030/0,043 giây và cả ba collector integrity counter đều
 bằng 0. Đây chỉ là chẩn đoán continuity gần thời điểm snapshot, không thay thế
 full-stream finalizer và không được gọi là formal pass.
+
+### 18.167 B6 bị loại ở formal normal gate (06-09-2026)
+
+Formal B6 không pass. Monitor phát hiện alert đầu tiên lúc 03:36:10 UTC ngày
+06-09, sau khi interval normal-only đã chạy khoảng 24 giờ. Lifecycle kết thúc
+với `candidate_status=terminal_run_status=rejected_normal_gate`, không có
+`NORMAL_PASS`, không mở blind và không dùng attack data để train/tune. Service
+lifecycle đã được disable sau khi archive hoàn tất để không tự chạy lại khi
+reboot. `RAW_SHA256SUMS` và disposition có SHA-256 lần lượt là
+`7f6973b69398a651a405e1489b5b7f981819ffc7963dfb037384e6bdf8cdf022` và
+`4b6e042bfc33e4005f66177c9b7f76d7d144c3d85b2909003903d0feb63b6591`.
+
+Alert thuộc `production/aims-minio-pool-0:minio`, pod
+`aims-minio-pool-0-0` trên worker `.237`. Window dài 0,502 giây có
+`openat=1.026`, vượt envelope 818; score 0,594740, calibration max 0,584089,
+excess 0,010651, conformal p-value 0,000387 và inference 16,404 ms. B6 phát
+alert ở window xác nhận thứ hai của nhóm `credential_open`. Replica MinIO
+`aims-minio-pool-0-1` trên `.238` có burst đồng thời: hai window trước đó có
+`openat=1.049` và `2.585`, rồi một candidate bị suppress với `openat=3.385`.
+Đây là bằng chứng cùng hành vi xuất hiện trên hai replica; việc quy nó cho một
+chu kỳ scanner/maintenance MinIO chỉ là diễn giải phù hợp với dữ liệu, không
+phải nhãn ground-truth từ log ứng dụng. Kubernetes không ghi restart/event lỗi
+cho hai pod tại thời điểm này.
+
+Finalizer xác nhận archive `.237` và `.239` hợp lệ, nhưng `.238` không hợp lệ:
+max interval 2,702982 giây, max ingest lag 3,307040 giây,
+`snapshot_consistency_retry_exhausted=1` và `target_snapshot_gap=1`. Vì vậy
+B6 vừa có một normal alert đủ để loại candidate, vừa không đủ continuity để
+ước lượng formal FPR. Hai kết luận này độc lập; lỗi `.238` không xóa alert hợp
+lệ trên `.237`.
+
+### 18.168 B7 development: xác nhận ba window cho openat-volume proxy
+
+Ba archive B6 đã được verify theo 31 entry của `RAW_SHA256SUMS`, rồi
+materialize read-only thành 6.247.867 decision normal. `SOURCE_BINDING.json`
+và `DECISIONS_SHA256SUMS` có SHA-256 lần lượt là `89d85041...` và
+`d6010e2a...`; materializer cấm mọi row có trường attack attribution. Replay
+B7 giữ ExtraTrees/model B6, chỉ đổi decision policy: mặc định hai window,
+`local_socket_beacon=3`, `credential_open=3`, chỉ `namespace_probe` được
+immediate bypass/bounded join, gap tối đa 1,25 giây.
+
+Kết quả trên chính B6 là 0 projected alert/6.191.601 scored normal window;
+alert MinIO gốc được chuyển thành suppressed. Khi cộng B4 canary, B5 failure
+và R6, tổng là **0/7.350.925 scored normal window** trên bốn nguồn độc lập.
+SHA-256 bốn report lần lượt là `cdb29eec...`, `96ee41fd...`, `775eda2f...` và
+`f448312b...`. Đây là normal-only development projection, không phải FPR,
+precision, recall hay latency attack. Nhóm `credential_open` hiện chỉ là proxy
+theo tổng `openat`; exact counter không chứa pathname nên không được diễn giải
+như bằng chứng đã đọc credential. Tối đa hai window bổ sung tương đương khoảng
+1 giây; kernel-to-alert vẫn phải đo bằng blind live injection sau một normal
+soak độc lập của candidate mới.
+
+Monitor formal mới đã được harden để kiểm tra feature tail trên từng worker ở
+mỗi poll: freshness, interval và sáu collector integrity counter tích lũy.
+Counter khác 0 tạo `collector_integrity_violation` và archive fail-closed ngay,
+tránh lặp lại việc chỉ phát hiện gap ở finalizer cuối ngày. Evaluator cũng cache
+checksum đã verify, tránh đọc lại mỗi stream nhiều GB chỉ để ghi cùng digest.
+B7 ở thời điểm này vẫn là development candidate: chưa freeze policy/runtime,
+chưa canary, chưa formal soak và blind B6 vẫn có 0 file.

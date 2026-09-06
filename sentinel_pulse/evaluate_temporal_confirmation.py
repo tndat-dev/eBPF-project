@@ -75,6 +75,7 @@ def evaluate(
         raise ValueError("expected model and policy identities must be supplied together")
 
     evidence_checksums_sha256 = None
+    verified_source_hashes: dict[Path, str] = {}
     if evidence_checksums_path is not None:
         evidence_root = evidence_checksums_path.parent.resolve()
         expected_files = {}
@@ -91,12 +92,15 @@ def evaluate(
                 raise ValueError("normal evidence checksum index is malformed")
             expected_files[relative] = digest
         for path in paths:
+            resolved = path.resolve()
             try:
-                relative = path.resolve().relative_to(evidence_root).as_posix()
+                relative = resolved.relative_to(evidence_root).as_posix()
             except ValueError as error:
                 raise ValueError("normal decision is outside evidence bundle") from error
-            if expected_files.get(relative) != sha256_file(path):
+            observed_digest = sha256_file(path)
+            if expected_files.get(relative) != observed_digest:
                 raise ValueError("normal decision checksum is missing or mismatched")
+            verified_source_hashes[resolved] = observed_digest
         evidence_checksums_sha256 = sha256_file(evidence_checksums_path)
 
     marker = None
@@ -288,7 +292,8 @@ def evaluate(
         sources.append(
             {
                 "path": str(path),
-                "sha256": sha256_file(path),
+                "sha256": verified_source_hashes.get(path.resolve())
+                or sha256_file(path),
                 "rows": rows,
             }
         )
