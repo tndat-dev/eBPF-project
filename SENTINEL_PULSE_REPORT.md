@@ -1,7 +1,7 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 07-09-2026, 08:34 UTC
+**Snapshot cluster:** 07-09-2026, 11:46 UTC
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
@@ -9,8 +9,8 @@ Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B
 khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
 gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
 15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
-telemetry `.239` sau 96,5 phút. Canary telemetry R3 đã active sau sửa
-installer; chưa có claim production/formal.
+telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
+terminal hợp lệ; formal normal-only R4 đang active. Chưa có claim production.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2160,9 +2160,33 @@ Ba worker đồng thời ghi sysstat mỗi giây trong 7.800 giây bằng
 không mở blind contract cũ. Phải kiểm tra kết quả terminal, integrity và tải
 hệ thống trước khi kết luận sửa được telemetry stall hoặc đăng ký soak tiếp.
 
-Checkpoint 08:35 UTC: ba worker active, 2.065 decision đầu tiên, 0 alert,
-0 detector restart, feature tail valid và 7 integrity counter đều 0.
-Checksum capture/features trong `/opt` khớp runtime trên cả ba worker.
-START.json SHA-256 `cde45a7c43defef7deda0aab53c04acd4bb9973e64630d4efe1ecd1fa17780c3`.
-Diagnostics cũng active và ghi dữ liệu. Dự kiến kiểm tra lại từ **18:00
-ngày 07-09, giờ Việt Nam**; đây là thời gian chờ thí nghiệm, không phải train.
+R3 terminal hợp lệ lúc 10:36 UTC: 517.956 decision, 513.271 scored, 0 alert,
+0 restart và coverage đủ 20/20 key trong tối thiểu 7.201,959 giây. Inference
+p99 là 30,197 ms; window-start-to-decision p99 0,854 giây, tối đa 1,094 giây.
+Ba node có interval p99 0,507–0,509 giây, tối đa 0,634 giây; cả bảy integrity
+counter đều 0. Sysstat một giây ghi đủ 7.800 mẫu/node; iowait trung bình dưới
+0,1%, dù có spike ngắn 15,89% trên worker1. Không tìm thấy nhóm lỗi kernel
+timeout/reset, hung task, OOM hoặc stall trong khoảng đo.
+
+73 checksum entry đã verify. SHA-256 aggregate là
+`cebce2686c63c2774b680cbab5613bca49c3940d3d101194f1c58bd9c326e6bb`;
+checksum index là
+`5ac33df6645d205f306afcd9653dd280787534b474c375aeb7d84260cb6a9c0e`.
+Đây vẫn là normal-only diagnostic canary: 0 alert không phải formal FPR=0,
+không đo recall hay attack kernel-to-alert và không cho phép promote.
+
+### Formal normal-only telemetry R4 (07-09-2026)
+
+Sau R3, toàn bộ cluster/traffic/storage gate tiếp tục pass trong preflight ổn
+định 300 giây. Run
+`sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z` bind runtime
+`ba3b8e5`, model `2e37ffd1...` và policy `711e66a9...`; marker SHA-256 là
+`aefcf411016b6d063b6ad3b3007428930d633a2f42ed1c5649a2d861345268ff`.
+Marker bắt đầu 11:43:43 UTC, ba worker active từ 11:44:53 UTC. Checkpoint đầu
+có 16.990 decision, 0 alert/restart, feature tail hợp lệ và toàn bộ integrity
+counter bằng 0. Sysstat một giây chạy song song đủ 90.000 giây.
+
+Run chỉ đánh giá normal gate: `STOP_AFTER_NORMAL=true`, không tự mở blind và
+không promote. Mốc finalize sớm nhất là 08-09 lúc 11:43:43 UTC (18:43:43 giờ
+Việt Nam), sau đó còn margin 300 giây và bước archive/checksum. Trạng thái
+active không được diễn giải thành normal pass hoặc FPR bằng 0.

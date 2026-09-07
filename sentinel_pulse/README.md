@@ -620,8 +620,28 @@ samples and final kernel logs with checksums, without changing workloads.
 Node diagnostics are under `/var/lib/sentinel-pulse-diagnostics/<run_id>/`.
 This does not open the old B7 blind contract or establish a formal normal pass.
 
-At 2026-09-07 08:35 UTC, R3 was active on all three workers: initial monitor
-samples totaled 2,065 decisions and zero alerts. Direct checks confirmed zero
-detector restarts, valid feature tails, all seven integrity counters zero,
-matching installed capture/features hashes, and active diagnostic recording.
-Check terminal results after approximately 11:00 UTC (18:00 Vietnam time).
+R3 completed valid at 2026-09-07 10:36 UTC. It recorded 517,956 decisions,
+513,271 scored decisions, zero alerts/restarts and all 20 workload-container
+keys over at least 7,201.959 seconds. Inference p99 was 30.197 ms;
+window-start-to-decision p99 was 0.854 seconds (maximum 1.094 seconds). All
+three finalizers were valid and all seven integrity counters were zero;
+snapshot interval p99 was 0.507--0.509 seconds (maximum 0.634 seconds).
+
+The one-second sysstat observer produced 7,800 samples per node. Average
+iowait remained below 0.1%; a short 15.89% worker1 spike did not cause a
+telemetry gap. The queried kernel-error classes had no matches. The aggregate
+SHA-256 is `cebce2686c63c2774b680cbab5613bca49c3940d3d101194f1c58bd9c326e6bb`.
+This two-hour normal-only canary is not a formal FPR, recall or attack-latency
+result and does not permit promotion.
+
+The successor formal normal-only run is
+`sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z`. The immutable
+marker started at 2026-09-07 11:43:43 UTC and binds runtime `ba3b8e5`, model
+`2e37ffd1...`, and policy `711e66a9...`; its SHA-256 is
+`aefcf411016b6d063b6ad3b3007428930d633a2f42ed1c5649a2d861345268ff`.
+Initial monitoring recorded 16,990 decisions, zero alerts/restarts, valid
+feature tails and zero integrity counters. One-second node diagnostics run for
+the full 90,000-second collector bound. The earliest 24-hour finalization time
+is 2026-09-08 11:43:43 UTC, followed by a 300-second margin and archival.
+`STOP_AFTER_NORMAL=true`; this active run is not yet a pass and cannot open the
+blind campaign or promote the model.

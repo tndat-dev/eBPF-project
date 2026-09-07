@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-07 (08:34 UTC; SSH đã phục hồi)
+**Ngày xác minh cluster gần nhất:** 2026-09-07 (11:46 UTC; SSH trực tiếp)
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -21,7 +21,8 @@ normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
 63.534 decision, 0 alert, 0 restart, đủ 20/20 workload. Formal soak B7 R1
 đã bị loại vì lỗi telemetry sau khoảng 96,5 phút; chưa có normal pass.
 Bản sửa telemetry và installer đã qua 261 test Sentinel Pulse trên VM;
-canary chẩn đoán R3 kéo dài 2 giờ đã active trên ba worker, xem mục 18.171.
+canary chẩn đoán R3 kéo dài 2 giờ đã terminal hợp lệ. Formal normal-only R4
+đang chạy với cùng model/policy và runtime đã sửa; xem mục 18.172.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7275,7 +7276,60 @@ Checksum `capture.py` và `features.py` trong `/opt` trên cả ba worker khớp
 runtime R3, lần lượt `b8ae3cdf...` và `cc8b5250...`. START.json SHA-256:
 `cde45a7c43defef7deda0aab53c04acd4bb9973e64630d4efe1ecd1fa17780c3`.
 
-Đợt này chạy ngầm, không cần giữ phiên SSH. Dự kiến kiểm tra lại từ **18:00
-ngày 07-09, giờ Việt Nam**, để cả canary 2 giờ, diagnostics 2 giờ 10 phút
-và bước thu archive có thời gian kết thúc. Chưa có kết quả terminal hoặc
-latency attack mới; không cần train hay tune model trong lúc chờ.
+R3 kết thúc hợp lệ lúc 10:36 UTC. `AGGREGATE.json` có `valid=true`; 517.956
+decision gồm 513.271 decision đã score, 510.788 normal, 2.483 suppressed và
+4.685 warming. Không có alert hoặc detector restart; coverage đạt đủ 20/20
+workload-container key. Thời gian collector tối thiểu là 7.201,959 giây.
+Inference p50/p95/p99 là 17,210/25,105/30,197 ms; window-start-to-decision
+p50/p95/p99 là 0,655/0,800/0,854 giây, tối đa 1,094 giây. Đây là normal
+decision latency, không phải kernel-to-alert của attack.
+
+Finalizer của cả ba worker hợp lệ và cả bảy integrity counter đều bằng 0.
+Snapshot interval p99 trên worker1/worker3/worker4 lần lượt là
+0,507/0,508/0,509 giây; tối đa 0,634 giây. Sysstat ghi đủ 7.800 mẫu/node.
+CPU idle trung bình lần lượt 86,33/87,68/84,30%; iowait trung bình dưới 0,1%.
+Có spike ngắn, lớn nhất là iowait 15,89% trên worker1, nhưng không tạo gap
+telemetry. Kernel log của khoảng đo không khớp nhóm lỗi I/O timeout/reset,
+hung task, OOM hoặc stall đã truy vấn. Điều này chứng minh bản sửa chạy ổn
+trong 2 giờ, chưa chứng minh nguyên nhân hạ tầng cũ đã biến mất dài hạn.
+
+73 entry trong `FINAL_SHA256SUMS` đã verify. SHA-256 aggregate là
+`cebce2686c63c2774b680cbab5613bca49c3940d3d101194f1c58bd9c326e6bb`;
+checksum index là
+`5ac33df6645d205f306afcd9653dd280787534b474c375aeb7d84260cb6a9c0e`.
+Bản sao aggregate nằm tại
+`validation-evidence/sentinel-pulse-canary/b7-telemetry-r3-20260907/`.
+Đây vẫn là normal-only canary: không được diễn giải 0 alert thành FPR bằng 0,
+không có recall hoặc attack kernel-to-alert, và không tự promote model.
+
+### 18.172 Formal normal-only B7 telemetry R4 (07-09-2026)
+
+Sau khi R3 terminal hợp lệ, SSH trực tiếp xác minh lại 6/6 node Kubernetes
+v1.34.10 `Ready`, không có pod Failed/Pending/Unknown, các Deployment và
+StatefulSet AIMS đang healthy. Ba worker còn 216–308 GiB root disk. Production
+traffic gate và stability preflight 300 giây đều pass; Longhorn, CNPG, topology
+và maintenance guard không có lỗi.
+
+Lifecycle `sentinel-pulse-b7-telemetry-r4-lifecycle.service` bắt đầu lúc
+11:37:49 UTC. Marker immutable được tạo lúc 11:43:43 UTC; cả ba detector vào
+`normal_active` lúc 11:44:53 UTC. Run ID:
+`sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z`; evidence tại
+`/home/dat/sentinel-pulse-evidence/formal-b7-telemetry/<run_id>/`.
+
+Identity được bind vào marker: runtime commit `ba3b8e59272d0c2cfd7ba88f6a452aa55fcfbb63`,
+model `2e37ffd1...`, policy `711e66a9...`. SHA-256 `SOAK_START.json` là
+`aefcf411016b6d063b6ad3b3007428930d633a2f42ed1c5649a2d861345268ff`.
+Thiết lập `DURATION_SECONDS=90000`, normal gate tối thiểu 24 giờ,
+`STOP_AFTER_NORMAL=true`, `automatic_promotion=false` và
+`blind_evaluation_started=false`; do đó blind không thể tự mở.
+
+Checkpoint đầu: worker1/worker3/worker4 có 5.747/4.638/6.605 decision, tổng
+16.990, 0 alert và 0 restart. Collector/detector active, feature tail valid,
+interval khoảng 0,503–0,512 giây và cả bảy integrity counter đều 0. Ba node
+đồng thời chạy recorder sysstat một giây trong 90.000 giây để giữ bằng chứng
+scheduler/I/O cho toàn bộ soak.
+
+Mốc sớm nhất được phép finalize là **08-09-2026 11:43:43 UTC**, tức
+**18:43:43 giờ Việt Nam**. Cần thêm margin 300 giây và thời gian đóng/checksum
+archive. Trước khi có `NORMAL_PASS` hoặc disposition terminal, đây chỉ là run
+đang active; không được công bố FPR, recall hay production readiness.
