@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-06
+**Ngày xác minh cluster gần nhất:** 2026-09-07 (03:28 UTC; SSH mất kết nối ở cuối phiên)
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -18,8 +18,9 @@ formal accuracy claim. B5 pass canary nhưng bị loại ở formal normal gate 
 một false alert Kafka. Successor B6 đã khóa identity mới, pass canary
 normal-only độc lập nhưng đã bị loại ở formal normal gate sau một cảnh báo
 normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
-63.534 decision, 0 alert, 0 restart, đủ 20/20 workload. Lifecycle normal soak
-25 giờ đã được khởi chạy ngày 06-09; xem checkpoint cuối tài liệu.
+63.534 decision, 0 alert, 0 restart, đủ 20/20 workload. Formal soak B7 R1
+đã bị loại vì lỗi telemetry sau khoảng 96,5 phút; chưa có normal pass.
+Bản sửa telemetry đã kiểm thử cục bộ; chưa triển khai lên VM.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7174,3 +7175,54 @@ Mốc đủ 24 giờ là 07-09 15:18:35 UTC (22:18:35 giờ Việt Nam).
 dừng capture để finalize sau mốc 24 giờ cộng margin 300 giây. Cần thêm thời
 gian copy, checksum và evaluate archive; có thể kiểm tra từ 22:45 ngày 07-09,
 nhưng đó là ước lượng, không phải cam kết `NORMAL_PASS`.
+
+### 18.170 B7 R1 dừng vì telemetry; bản sửa chưa deploy (07-09-2026)
+
+SSH trực tiếp lúc 03:28 UTC ngày 07-09 xác nhận B7 R1 đã dừng, không còn
+chờ đến 22:45 để có kết quả. Monitor báo `collector_integrity_violation`
+trên `.239` lúc 06-09 16:55:05 UTC, tức 23:55:05 giờ Việt Nam, khoảng
+96,5 phút sau marker. Archive hoàn tất lúc 16:56:38 UTC. Disposition ghi
+`terminal_run_status=rejected_infrastructure_failure`,
+`candidate_status=not_evaluated_by_this_run`, `normal_gate_result=null`.
+Không có `NORMAL_PASS`; không sử dụng run này cho train, tune hoặc formal FPR.
+Checkpoint cuối theo từng host có 128.294 + 109.023 + 172.286 = 409.603
+decision và 0 alert. Đây là các snapshot cuối không đồng thời, không phải tổng
+raw terminal đã đếm lại. Control collector đã phục hồi; service lifecycle R1
+được disable để không chạy lại sau reboot. Sáu node đều Ready tại lần kiểm tra.
+
+Raw checksum index được verify thành công, SHA-256:
+`c9571298fbeb893738351d0553c4a9465cf3650169f774a3b1a759ca7cf3526d`.
+Disposition SHA-256:
+`1795f5d5a7abf32cff9703830190feeba05e8f02bef0cc660577502ec8ecadfd`.
+Nguồn là run directory đã ghi ở mục 18.169, dưới `infrastructure-failure/`.
+
+Finalizer `.239` ghi 111.022 feature row, duration 5.795,800 giây,
+`service_ok=true` nhưng `valid=false`: interval max 13,252 giây,
+ingest lag max 13,266 giây, window-start-to-emit max 16,595 giây.
+Sáu loss counter cũ đều 0; interval thực tế đã vi phạm contract.
+Kernel lúc 16:55:01 ghi iSCSI ping timeout và workqueue CPU-hog warning,
+containerd ghi ExecSync/probe timeout 3 giây cùng thời điểm. `sar` trung bình
+10 phút quanh sự cố có CPU idle khoảng 88%, swap-in/out bằng 0; độ phân giải
+này không loại trừ stall ngắn. Chưa xác định nguyên nhân cuối cùng ở storage,
+scheduler hay hypervisor; không có cơ sở kết luận thiếu CPU/RAM hoặc sửa xong
+stall bằng thay đổi thuật toán ML.
+
+Code canonical được sửa sau khi đọc bằng chứng:
+
+- `features.py`: histogram transition có delta bằng 0 giữ vector zero, tránh
+  chia cho 0 tạo NaN. Journal tại 16:55:10 có RuntimeWarning tương ứng.
+- `validate_capture.py`: từ chối vector NaN/Inf ở cả encoding compact/inline.
+- `capture.py`: với bound tường minh 0,35–0,80 giây của collector 500 ms,
+  tích lũy `capture_interval_violation` và vẫn giữ nguyên row lỗi để audit.
+  Monitor đọc tail sẽ thấy gap lịch sử ngay cả khi nhịp đã phục hồi.
+  Collector control 1 giây giữ mặc định không áp dụng bound 500 ms.
+- Monitor giữ stdout/stderr/exit code khi feature-tail check thất bại,
+  tránh chỉ còn reason chung mà thiếu payload của lần kiểm tra lỗi.
+
+Regression cục bộ trên môi trường `uv` tách biệt: **68 passed**; shell syntax
+và `git diff --check` đạt. Đây không phải kết quả full ML suite trên VM.
+Model, policy và frozen runtime B7 cũ chưa bị thay đổi. Bản sửa mới chưa
+deploy: sau lần SSH audit thành công, các kết nối mới tới `.234` và `.237`
+bị timeout dù route VPN vẫn qua `ppp0`. Chưa mở run mới. Cần khôi phục SSH,
+đồng bộ Git, chạy regression bằng ML venv VM, tạo runtime identity mới và
+canary có đo scheduler/I/O đủ chi tiết trước khi đăng ký lại formal soak.

@@ -588,3 +588,18 @@ pass recorded 2,168 decisions, zero alerts/restarts, and valid feature tails.
 The lifecycle may finalize after 24 hours plus a 300-second margin; 90,000
 seconds is the collector's upper duration limit. Archive evaluation takes
 additional time. `STOP_AFTER_NORMAL=true`; blind evaluation remains gated.
+
+Update verified on 2026-09-07 03:28 UTC: B7 R1 is terminal, rejected for
+`collector_integrity_violation` on `.239` at 2026-09-06 16:55:05 UTC.
+The archive is complete; the lifecycle has been disabled and control
+collectors restored. The worker had a 13.252-second maximum interval alongside
+kernel iSCSI and containerd timeouts; the underlying stall cause is unresolved.
+Last per-host monitor samples recorded 409,603 decisions and zero alerts,
+which is not a valid formal accuracy result.
+
+The canonical telemetry repair handles zero transition deltas without NaN,
+rejects non-finite captured vectors, persists bounded-capture interval
+violations across recovered windows, and retains failed tail-check output.
+68 local regression tests pass. This repair is not deployed: SSH timed out
+after the audit. Reconnect, validate in the VM ML environment and freeze a new
+runtime identity for a diagnostic canary before another formal soak.

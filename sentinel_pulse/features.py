@@ -181,7 +181,10 @@ class PulseFeatureBuilder:
         if transition_bin_delta:
             for index, count in transition_bin_delta.items():
                 bins[int(index) % self.transition_bins] += count
-            bins /= float(transition_total)
+            # A non-empty cumulative histogram can have an all-zero delta:
+            # a fresh task can issue a syscall without an adjacent transition.
+            if transition_total > 0:
+                bins /= float(transition_total)
         elif transition_total:
             for (left, right), count in transition_delta.items():
                 bins[self._transition_bin(left, right)] += count

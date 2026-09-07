@@ -22,6 +22,7 @@ DROP_COUNTERS = (
     "snapshot_consistency_retry_exhausted",
     "snapshot_total_mismatch",
     "target_snapshot_gap",
+    "capture_interval_violation",
 )
 
 
@@ -83,6 +84,8 @@ def validate(
                 continue
             if len(vector) != len(columns):
                 errors.append(f"line {line_number}: vector length mismatch")
+            if not np.all(np.isfinite(vector)):
+                errors.append(f"line {line_number}: non-finite feature vector")
             start, end = float(record["window_start"]), float(record["window_end"])
             interval = end - start
             intervals.append(interval)

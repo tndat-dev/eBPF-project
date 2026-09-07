@@ -95,7 +95,15 @@ def workload_key(metadata: dict) -> str:
     return f"{namespace}/{workload}:{container}"
 
 
-def run(source, destination, metadata_file: Path, rolling_windows: int = 5) -> dict:
+def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
+        interval_min_seconds: float | None = None,
+        interval_max_seconds: float | None = None) -> dict:
+    if (interval_min_seconds is None) != (interval_max_seconds is None):
+        raise ValueError("both capture interval bounds must be provided")
+    if interval_min_seconds is not None and not (
+        0 < interval_min_seconds < interval_max_seconds
+    ):
+        raise ValueError("invalid capture interval bounds")
     assembler = SnapshotAssembler()
     builders: dict[tuple[str, str, str, str], PulseFeatureBuilder] = {}
     emitted = 0
@@ -138,6 +146,19 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5) -> d
             feature = builder.ingest(snapshot, key)
             if feature is None:
                 continue
+            if interval_min_seconds is not None and not (
+                interval_min_seconds <= feature.window_end - feature.window_start
+                <= interval_max_seconds
+            ):
+                # Preserve the row and remember every violation. A monitor
+                # polling once per minute must see a past gap even after the
+                # newest window has recovered to the expected cadence.
+                assembler.stats["capture_interval_violation"] = (
+                    assembler.stats.get("capture_interval_violation", 0) + 1
+                )
+                collector_stats["capture_interval_violation"] = assembler.stats[
+                    "capture_interval_violation"
+                ]
             output, schema = compact_record(feature.as_record())
             schema_hash = schema["feature_schema_sha256"]
             if schema_hash not in written_schema_hashes:
@@ -162,10 +183,13 @@ def main() -> None:
     parser.add_argument("--metadata-file", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--rolling-windows", type=int, default=5)
+    parser.add_argument("--interval-min-seconds", type=float)
+    parser.add_argument("--interval-max-seconds", type=float)
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as destination:
-        stats = run(sys.stdin, destination, args.metadata_file, args.rolling_windows)
+        stats = run(sys.stdin, destination, args.metadata_file, args.rolling_windows,
+                    args.interval_min_seconds, args.interval_max_seconds)
     print(json.dumps(stats), file=sys.stderr)
 
 

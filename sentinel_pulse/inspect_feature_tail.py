@@ -22,6 +22,7 @@ DROP_COUNTERS = (
     "snapshot_consistency_retry_exhausted",
     "snapshot_total_mismatch",
     "target_snapshot_gap",
+    "capture_interval_violation",
 )
 
 

@@ -28,6 +28,20 @@ class PulseFeatureBuilderTests(unittest.TestCase):
         self.assertEqual(feature.exact_counts["read"], 4)
         self.assertTrue(np.all(feature.vector >= 0))
 
+    def test_syscalls_without_new_transitions_produce_finite_zero_bins(self):
+        builder = PulseFeatureBuilder()
+        unchanged = {index: (12 if index == 0 else 0) for index in range(64)}
+        builder.ingest(PulseSnapshot(3, 1.0, {0: 20}, {}, {0: 20}, unchanged), "w")
+        with np.errstate(divide="raise", invalid="raise"):
+            feature = builder.ingest(
+                PulseSnapshot(3, 1.5, {0: 21}, {}, {0: 21}, unchanged), "w"
+            )
+        self.assertEqual(feature.exact_total, 1)
+        self.assertTrue(np.isfinite(feature.vector).all())
+        transitions = [i for i, name in enumerate(feature.columns)
+                       if name.startswith("transition_bin:")]
+        np.testing.assert_array_equal(feature.vector[transitions], np.zeros(64))
+
     def test_rejects_non_monotonic_snapshot(self):
         builder = PulseFeatureBuilder()
         builder.ingest(PulseSnapshot(9, 2.0, {1: 3}, {}), "w")

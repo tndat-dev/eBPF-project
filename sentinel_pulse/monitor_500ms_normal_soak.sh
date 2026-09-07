@@ -153,10 +153,18 @@ while true; do
     restarts=$(value restarts); decisions=$(value decisions)
     alerts=$(value alerts); feature=$(value feature)
     [[ $restarts =~ ^[0-9]+$ && $decisions =~ ^[0-9]+$ && $alerts =~ ^[0-9]+$ ]] || fail invalid_snapshot "$host"
+    tail_check_rc=0
     tail_snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
-      "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.inspect_feature_tail --capture '$expected_feature' --maximum-age-seconds 5" 2>/dev/null) || \
+      "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.inspect_feature_tail --capture '$expected_feature' --maximum-age-seconds 5" \
+      2>"$EVIDENCE_ROOT/feature-tail-$host.stderr") || tail_check_rc=$?
+    if ((tail_check_rc != 0)); then
+      printf '%s\n' "$tail_snapshot" >"$EVIDENCE_ROOT/FAILURE_FEATURE_TAIL.stdout"
+      cp "$EVIDENCE_ROOT/feature-tail-$host.stderr" "$EVIDENCE_ROOT/FAILURE_FEATURE_TAIL.stderr"
+      printf 'host=%s\nexit_code=%s\n' "$host" "$tail_check_rc" \
+        >"$EVIDENCE_ROOT/FAILURE_FEATURE_TAIL.status"
       fail collector_integrity_violation "$host"
+    fi
     write_row "$host" "$collector" "$legacy" "$detector" "$restarts" "$decisions" "$alerts" "$feature" "$expected_feature" "$tail_snapshot"
     jq -e '.valid == true' <<<"$tail_snapshot" >/dev/null || \
       fail collector_integrity_violation "$host"

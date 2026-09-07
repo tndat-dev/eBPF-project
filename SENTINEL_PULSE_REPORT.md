@@ -1,15 +1,15 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 06-09-2026
+**Snapshot cluster:** 07-09-2026, 03:28 UTC
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
 Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B6 đã
 khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
 gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
-15 phút (63.534 decision, 0 alert), lifecycle formal soak 25 giờ đang triển
-khai; chưa có claim production/formal.
+15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
+telemetry `.239` sau 96,5 phút; chưa có claim production/formal.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2113,3 +2113,28 @@ Mốc đủ 24 giờ là 07-09 22:18:35 giờ Việt Nam; lifecycle cho phép fi
 sau thêm 300 giây và chủ động dừng collector. 25 giờ là giới hạn chạy tối đa,
 không phải thời lượng bắt buộc của normal gate. Dự kiến kiểm tra kết quả từ
 22:45 ngày 07-09, tùy thời gian xuất và kiểm chứng archive.
+
+### B7 R1 terminal infrastructure failure (xác minh 07-09-2026)
+
+Dự kiến chờ ở mục trước đã hết hiệu lực: run dừng lúc 06-09 16:55:05 UTC
+(23:55 giờ Việt Nam) với `collector_integrity_violation` trên `.239`.
+Archive đã hoàn tất, control collector được phục hồi, lifecycle R1 đã disable.
+Disposition ghi `rejected_infrastructure_failure`, model chưa được đánh giá
+bởi run này. Checkpoint monitor cuối của ba host ghi tổng 409.603 decision và
+0 alert; các checkpoint không đồng thời và không thay thế số đếm raw cuối.
+
+Finalizer `.239` có `valid=false`, max interval 13,252 giây, ingest lag max
+13,266 giây và window-start-to-emit max 16,595 giây, dù sáu loss counter cũ
+đều 0. Kernel iSCSI timeout/workqueue warning và containerd probe timeout
+xuất hiện cùng thời điểm; tương quan này chưa chứng minh nguyên nhân ở
+storage hay hypervisor. Không được dùng run invalid để khẳng định FPR bằng 0.
+Raw index SHA-256 `c9571298fbeb893738351d0553c4a9465cf3650169f774a3b1a759ca7cf3526d`;
+disposition SHA-256 `1795f5d5a7abf32cff9703830190feeba05e8f02bef0cc660577502ec8ecadfd`.
+
+Bản sửa code sau audit xử lý histogram transition delta 0, reject feature
+NaN/Inf, ghi cumulative `capture_interval_violation` cho collector 500 ms và
+giữ payload của feature-tail check thất bại. 68 regression test cục bộ pass.
+Đây là sửa telemetry, chưa chứng minh sửa được stall trên node. Frozen B7
+model/policy/runtime vẫn giữ nguyên. Bản sửa chưa deploy vì SSH bị timeout
+ở cuối phiên; không có formal run mới đang chạy. Bước tiếp theo là xác minh
+hạ tầng, kiểm thử VM và canary với runtime identity mới trước khi soak lại.
