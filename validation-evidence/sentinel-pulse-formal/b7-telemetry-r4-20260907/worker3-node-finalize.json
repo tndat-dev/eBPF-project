@@ -1,0 +1,74 @@
+{
+  "capture_bytes": 19275427,
+  "capture_sha256": "4d9fd61b57b847e85de84e747f799415b47270f9bf886d9dcc9aaf77cd81d748",
+  "collector_max_drops": {
+    "capture_interval_violation": 18,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 0.0,
+  "duration_seconds": 690.5677621364594,
+  "ended_at_unix": 1788782138.8564224,
+  "experiment_average_cpu_cores": 0.04556796700536077,
+  "experiment_cpu_seconds": 31.467769,
+  "experiment_memory_peak_bytes": 53153792,
+  "finalized_at_unix": 1788782143.2502542,
+  "ingest_lag_seconds": {
+    "max": 6.196822643280029,
+    "p50": 0.010611534118652344,
+    "p95": 0.017750787734985347,
+    "p99": 0.02126812934875487
+  },
+  "interval_seconds": {
+    "max": 4.8324973583221436,
+    "p50": 0.503138542175293,
+    "p95": 0.5057708263397217,
+    "p99": 0.5068732929229737
+  },
+  "registered_max_duration_seconds": 90000,
+  "rows": 13137,
+  "run_id": "sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 3.946470976,
+    "p50": 0.00197053,
+    "p95": 0.004042864,
+    "p99": 0.005093813
+  },
+  "started_at_unix": 1788781448.2886603,
+  "valid": false,
+  "validation_errors": [
+    "line 11858: invalid interval 4.832497s",
+    "line 11859: invalid interval 4.832497s",
+    "line 11860: invalid interval 4.832497s",
+    "line 11861: invalid interval 4.832497s",
+    "line 11862: invalid interval 4.832497s",
+    "line 11863: invalid interval 4.832497s",
+    "line 11864: invalid interval 1.354559s",
+    "line 11865: invalid interval 1.354559s",
+    "line 11866: invalid interval 1.354559s",
+    "line 11867: invalid interval 1.354559s",
+    "line 11868: invalid interval 1.354559s",
+    "line 11869: invalid interval 1.354559s",
+    "line 11870: invalid interval 1.354559s",
+    "line 11871: invalid interval 1.354559s",
+    "line 11872: invalid interval 1.354559s",
+    "line 11873: invalid interval 1.354559s",
+    "line 11874: invalid interval 1.354559s",
+    "line 11875: invalid interval 1.354559s",
+    "collector loss: capture_interval_violation=18"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 6.807793855667114,
+    "p50": 0.514009952545166,
+    "p95": 0.5216094970703125,
+    "p99": 0.5252114200592041
+  },
+  "workload_count": 12
+}

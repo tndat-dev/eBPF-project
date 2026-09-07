@@ -110,6 +110,8 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
     malformed = 0
     unresolved = 0
     written_schema_hashes = set()
+    metadata: dict[str, dict] = {}
+    metadata_mtime_ns: int | None = None
     for line in source:
         try:
             record = json.loads(line)
@@ -126,8 +128,22 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                 int(assembler.stats.get("target_snapshot_gap", 0)), gap
             )
         snapshot_read_seconds = float(record.get("snapshot_read_seconds", 0.0))
-        metadata = read_metadata(metadata_file)
+        # The resolver replaces this file atomically every 15 seconds. Avoid a
+        # filesystem open and JSON decode on every 500 ms snapshot, while still
+        # observing each resolver generation. If stat/read fails transiently,
+        # retain the last complete generation instead of dropping attribution.
+        try:
+            current_mtime_ns = metadata_file.stat().st_mtime_ns
+        except OSError:
+            current_mtime_ns = None
+        if current_mtime_ns is not None and current_mtime_ns != metadata_mtime_ns:
+            current_metadata = read_metadata(metadata_file)
+            if current_metadata:
+                metadata = current_metadata
+                metadata_mtime_ns = current_mtime_ns
         snapshots, collector_stats = assembler.snapshots(observed_at)
+        prepared = []
+        interval_violation = False
         for snapshot in snapshots:
             item = metadata.get(str(snapshot.cgroup_id))
             if item is None:
@@ -150,19 +166,11 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                 interval_min_seconds <= feature.window_end - feature.window_start
                 <= interval_max_seconds
             ):
-                # Preserve the row and remember every violation. A monitor
-                # polling once per minute must see a past gap even after the
-                # newest window has recovered to the expected cadence.
-                assembler.stats["capture_interval_violation"] = (
-                    assembler.stats.get("capture_interval_violation", 0) + 1
-                )
-                collector_stats["capture_interval_violation"] = assembler.stats[
-                    "capture_interval_violation"
-                ]
+                interval_violation = True
             output, schema = compact_record(feature.as_record())
             schema_hash = schema["feature_schema_sha256"]
             if schema_hash not in written_schema_hashes:
-                destination.write(json.dumps(schema, separators=(",", ":")) + "\n")
+                prepared.append(schema)
                 written_schema_hashes.add(schema_hash)
             output["pod_name"] = item.get("pod_name")
             output["pod_uid"] = item.get("pod_uid")
@@ -172,9 +180,28 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             output["emitted_at"] = time.time()
             output["collector_stats"] = collector_stats
             output["snapshot_read_seconds"] = snapshot_read_seconds
-            destination.write(json.dumps(output, separators=(",", ":")) + "\n")
-            destination.flush()
+            prepared.append(output)
             emitted += 1
+        if interval_violation:
+            # Count one delayed loader snapshot, not one copy of that snapshot
+            # per workload. Keep the cumulative value in all rows emitted for
+            # this snapshot so a minute-level tail monitor cannot miss it.
+            assembler.stats["capture_interval_violation"] = (
+                assembler.stats.get("capture_interval_violation", 0) + 1
+            )
+            collector_stats["capture_interval_violation"] = assembler.stats[
+                "capture_interval_violation"
+            ]
+        if prepared:
+            destination.write(
+                "".join(
+                    json.dumps(item, separators=(",", ":")) + "\n"
+                    for item in prepared
+                )
+            )
+            # One flush per BPF snapshot bounds visibility latency without
+            # forcing one userspace write/flush per workload row.
+            destination.flush()
     return {"emitted": emitted, "malformed": malformed, "unresolved": unresolved}
 
 

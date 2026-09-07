@@ -1,0 +1,34 @@
+{
+  "automatic_promotion": false,
+  "blind_evaluation_started": false,
+  "control_collector_suspended_hosts": [
+    "10.1.16.237",
+    "10.1.16.239",
+    "10.1.16.238"
+  ],
+  "decision_policy_sha256": "711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da",
+  "eligible_finalize_after": "2026-09-08T11:43:43.478915+00:00",
+  "legacy_control_collector_required_state": "inactive",
+  "maintenance_window_guard": {
+    "required_state": "masked",
+    "units": [
+      "unattended-upgrades.service",
+      "apt-daily.timer",
+      "apt-daily-upgrade.timer"
+    ]
+  },
+  "maximum_alerts": 0,
+  "maximum_root_used_percent": 80,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "minimum_root_available_bytes": 68719476736,
+  "model_manifest_sha256": "2e37ffd1ef4476b09e123315b467e47814613b9ff22dfd0b4e28fbb375952a81",
+  "run_id": "sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z",
+  "schema": "sentinel-pulse-semantic-soak-start-v7",
+  "source_git_commit": "ba3b8e59272d0c2cfd7ba88f6a452aa55fcfbb63",
+  "started_not_before": "2026-09-07T11:43:43.478915+00:00",
+  "storage_topology_guard": {
+    "colocated_running_replicas": 0,
+    "duplicate_longhorn_disk_uuids": 0
+  }
+}

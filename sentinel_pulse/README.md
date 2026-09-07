@@ -634,14 +634,19 @@ SHA-256 is `cebce2686c63c2774b680cbab5613bca49c3940d3d101194f1c58bd9c326e6bb`.
 This two-hour normal-only canary is not a formal FPR, recall or attack-latency
 result and does not permit promotion.
 
-The successor formal normal-only run is
+The successor formal normal-only run was
 `sentinel-pulse-formal-normal-b7-telemetry-r4-20260907T113747Z`. The immutable
 marker started at 2026-09-07 11:43:43 UTC and binds runtime `ba3b8e5`, model
 `2e37ffd1...`, and policy `711e66a9...`; its SHA-256 is
 `aefcf411016b6d063b6ad3b3007428930d633a2f42ed1c5649a2d861345268ff`.
 Initial monitoring recorded 16,990 decisions, zero alerts/restarts, valid
 feature tails and zero integrity counters. One-second node diagnostics run for
-the full 90,000-second collector bound. The earliest 24-hour finalization time
-is 2026-09-08 11:43:43 UTC, followed by a 300-second margin and archival.
-`STOP_AFTER_NORMAL=true`; this active run is not yet a pass and cannot open the
-blind campaign or promote the model.
+the intended 90,000-second collector bound.
+
+R4 was stopped fail-closed at 11:55:28 UTC and archived at 11:56:03 UTC. On
+worker3, one interval reached 4.832 seconds, the next 1.355 seconds, ingest lag
+6.197 seconds and window-start-to-emit 6.808 seconds. Sysstat missed four
+one-second samples in the same period, while containerd reported deadline and
+ExecSync timeouts; worker1 simultaneously reached 14.67% iowait. The run is an
+infrastructure rejection with `normal_gate_result=null`, not an FPR result.
+Blind stayed closed and the candidate was not promoted.

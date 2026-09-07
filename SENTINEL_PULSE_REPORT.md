@@ -10,7 +10,8 @@ khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal
 gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
 15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
 telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
-terminal hợp lệ; formal normal-only R4 đang active. Chưa có claim production.
+terminal hợp lệ; formal normal-only R4 tiếp tục bị infrastructure-reject vì
+pause worker3. Candidate chưa được đánh giá và chưa có claim production.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2186,7 +2187,13 @@ Marker bắt đầu 11:43:43 UTC, ba worker active từ 11:44:53 UTC. Checkpoint
 có 16.990 decision, 0 alert/restart, feature tail hợp lệ và toàn bộ integrity
 counter bằng 0. Sysstat một giây chạy song song đủ 90.000 giây.
 
-Run chỉ đánh giá normal gate: `STOP_AFTER_NORMAL=true`, không tự mở blind và
-không promote. Mốc finalize sớm nhất là 08-09 lúc 11:43:43 UTC (18:43:43 giờ
-Việt Nam), sau đó còn margin 300 giây và bước archive/checksum. Trạng thái
-active không được diễn giải thành normal pass hoặc FPR bằng 0.
+Run dừng fail-closed lúc 11:55:28 UTC, archive xong lúc 11:56:03 UTC. Worker3
+có interval 4,832 giây rồi 1,355 giây, ingest lag tối đa 6,197 giây và
+window-start-to-emit tối đa 6,808 giây. `sar` thiếu bốn mẫu đúng khoảng đó;
+containerd cùng lúc ghi deadline/ExecSync timeout. Worker1 có iowait 14,67%,
+worker4 không có spike tương ứng. Disposition là infrastructure reject,
+`normal_gate_result=null`; 0 alert trước lỗi không phải kết quả FPR.
+
+Counter 18 cũ nhân cùng hai snapshot lỗi theo workload row. Source kế tiếp
+đếm theo snapshot, cache metadata atomic và flush theo batch để giảm I/O nhưng
+không nới interval gate. Blind không mở và model/policy vẫn bất biến.

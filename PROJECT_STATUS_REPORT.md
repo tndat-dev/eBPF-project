@@ -22,7 +22,8 @@ normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
 đã bị loại vì lỗi telemetry sau khoảng 96,5 phút; chưa có normal pass.
 Bản sửa telemetry và installer đã qua 261 test Sentinel Pulse trên VM;
 canary chẩn đoán R3 kéo dài 2 giờ đã terminal hợp lệ. Formal normal-only R4
-đang chạy với cùng model/policy và runtime đã sửa; xem mục 18.172.
+sau đó bị infrastructure-reject vì pause telemetry trên worker3; model chưa
+được đánh giá bởi run này. Xem mục 18.172.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7329,7 +7330,21 @@ interval khoảng 0,503–0,512 giây và cả bảy integrity counter đều 0.
 đồng thời chạy recorder sysstat một giây trong 90.000 giây để giữ bằng chứng
 scheduler/I/O cho toàn bộ soak.
 
-Mốc sớm nhất được phép finalize là **08-09-2026 11:43:43 UTC**, tức
-**18:43:43 giờ Việt Nam**. Cần thêm margin 300 giây và thời gian đóng/checksum
-archive. Trước khi có `NORMAL_PASS` hoặc disposition terminal, đây chỉ là run
-đang active; không được công bố FPR, recall hay production readiness.
+R4 không chạy đến mốc finalize. Monitor dừng fail-closed lúc 11:55:28 UTC và
+archive hoàn tất lúc 11:56:03 UTC. Disposition là
+`rejected_infrastructure_failure`, `candidate_status=not_evaluated_by_this_run`
+và `normal_gate_result=null`; dữ liệu bị cấm dùng cho normal gate/train/tune.
+Trước khi dừng quan sát 0 alert, nhưng con số này không có giá trị accuracy.
+
+Worker3 có interval 4,832 giây, tiếp theo 1,355 giây; ingest lag tối đa 6,197
+giây và window-start-to-emit tối đa 6,808 giây. Sysstat cũng thiếu bốn mẫu một
+giây trong đúng khoảng 11:54:27–11:54:30 UTC. Journal đồng thời ghi containerd
+`context deadline exceeded`, ttrpc inactive stream và ExecSync timeout ba
+giây. Worker1 có iowait 14,67% cùng thời điểm; worker4 không có spike tương
+ứng. Evidence chỉ ra pause node/runtime, không phải false positive ML.
+
+Counter `capture_interval_violation=18` là số feature row của hai snapshot lỗi,
+không phải 18 pause độc lập. Source sau R4 sửa counter theo snapshot, cache
+metadata resolver và flush một batch mỗi snapshot để giảm critical-path I/O;
+ngưỡng 0,35–0,80 giây vẫn giữ fail-closed. Bản sao disposition/finalizer ở
+`validation-evidence/sentinel-pulse-formal/b7-telemetry-r4-20260907/`.
