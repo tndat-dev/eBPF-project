@@ -1,7 +1,7 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 07-09-2026, 03:28 UTC
+**Snapshot cluster:** 07-09-2026, 08:34 UTC
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
@@ -9,7 +9,8 @@ Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B
 khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
 gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
 15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
-telemetry `.239` sau 96,5 phút; chưa có claim production/formal.
+telemetry `.239` sau 96,5 phút. Canary telemetry R3 đã active sau sửa
+installer; chưa có claim production/formal.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2138,3 +2139,30 @@ giữ payload của feature-tail check thất bại. 68 regression test cục b�
 model/policy/runtime vẫn giữ nguyên. Bản sửa chưa deploy vì SSH bị timeout
 ở cuối phiên; không có formal run mới đang chạy. Bước tiếp theo là xác minh
 hạ tầng, kiểm thử VM và canary với runtime identity mới trước khi soak lại.
+
+### Telemetry R3: triển khai lại sau sửa installer (07-09-2026)
+
+SSH phục hồi và code đã sync VM. R2 lúc 03:42 UTC bị `START_FAILED` vì
+installer start collector với flags mới trước khi copy `capture.py` mới.
+Không có decision để đánh giá R2. Commit `ba3b8e5` sửa thứ tự và thêm CLI
+preflight; toàn bộ 261 test Sentinel Pulse pass trên ML venv VM trong 8,73 giây.
+
+Runtime R3 đóng băng tại `/home/dat/eBPF-project-runtime-pulse-b7-telemetry-r3`,
+commit `ba3b8e59272d0c2cfd7ba88f6a452aa55fcfbb63`; model và policy B7
+giữ nguyên. Canary 7.200 giây được launch với run
+`sentinel-pulse-b7-telemetry-r3-20260907T083400Z`, sau traffic gate pass và
+cluster healthy. Supervisor `sentinel-pulse-b7-telemetry-r3-canary.service`
+chạy ngầm; raw evidence dưới `/home/dat/sentinel-pulse-evidence/canary-b7-telemetry/`.
+Ba worker đồng thời ghi sysstat mỗi giây trong 7.800 giây bằng
+`record_node_pressure.sh`, vào `/var/lib/sentinel-pulse-diagnostics/<run_id>/`.
+
+Đây là diagnostic canary với runtime identity mới, chưa phải formal soak và
+không mở blind contract cũ. Phải kiểm tra kết quả terminal, integrity và tải
+hệ thống trước khi kết luận sửa được telemetry stall hoặc đăng ký soak tiếp.
+
+Checkpoint 08:35 UTC: ba worker active, 2.065 decision đầu tiên, 0 alert,
+0 detector restart, feature tail valid và 7 integrity counter đều 0.
+Checksum capture/features trong `/opt` khớp runtime trên cả ba worker.
+START.json SHA-256 `cde45a7c43defef7deda0aab53c04acd4bb9973e64630d4efe1ecd1fa17780c3`.
+Diagnostics cũng active và ghi dữ liệu. Dự kiến kiểm tra lại từ **18:00
+ngày 07-09, giờ Việt Nam**; đây là thời gian chờ thí nghiệm, không phải train.

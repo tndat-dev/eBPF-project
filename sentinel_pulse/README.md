@@ -603,3 +603,25 @@ violations across recovered windows, and retains failed tail-check output.
 68 local regression tests pass. This repair is not deployed: SSH timed out
 after the audit. Reconnect, validate in the VM ML environment and freeze a new
 runtime identity for a diagnostic canary before another formal soak.
+
+On 2026-09-07 SSH recovered. The R2 diagnostic launch failed before detector
+decisions because the old collector installer started the new unit before
+copying the new Python package. Commit `ba3b8e5` fixes installation ordering
+and verifies capture CLI support; 261 Pulse tests pass in the VM ML venv.
+
+The next diagnostic run is `sentinel-pulse-b7-telemetry-r3-20260907T083400Z`,
+with a 7,200-second canary and a 7,800-second per-node sysstat recording.
+Runtime: `/home/dat/eBPF-project-runtime-pulse-b7-telemetry-r3` at `ba3b8e5`.
+Model/policy retain B7 bytes. The supervisor is
+`sentinel-pulse-b7-telemetry-r3-canary.service`; evidence is under
+`/home/dat/sentinel-pulse-evidence/canary-b7-telemetry/<run_id>/`.
+`record_node_pressure.sh` records one-second CPU/run-queue/paging/swap/I/O
+samples and final kernel logs with checksums, without changing workloads.
+Node diagnostics are under `/var/lib/sentinel-pulse-diagnostics/<run_id>/`.
+This does not open the old B7 blind contract or establish a formal normal pass.
+
+At 2026-09-07 08:35 UTC, R3 was active on all three workers: initial monitor
+samples totaled 2,065 decisions and zero alerts. Direct checks confirmed zero
+detector restarts, valid feature tails, all seven integrity counters zero,
+matching installed capture/features hashes, and active diagnostic recording.
+Check terminal results after approximately 11:00 UTC (18:00 Vietnam time).

@@ -1,6 +1,6 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-07 (03:28 UTC; SSH mất kết nối ở cuối phiên)
+**Ngày xác minh cluster gần nhất:** 2026-09-07 (08:34 UTC; SSH đã phục hồi)
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -20,7 +20,8 @@ normal-only độc lập nhưng đã bị loại ở formal normal gate sau mộ
 normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
 63.534 decision, 0 alert, 0 restart, đủ 20/20 workload. Formal soak B7 R1
 đã bị loại vì lỗi telemetry sau khoảng 96,5 phút; chưa có normal pass.
-Bản sửa telemetry đã kiểm thử cục bộ; chưa triển khai lên VM.
+Bản sửa telemetry và installer đã qua 261 test Sentinel Pulse trên VM;
+canary chẩn đoán R3 kéo dài 2 giờ đã active trên ba worker, xem mục 18.171.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7226,3 +7227,55 @@ deploy: sau lần SSH audit thành công, các kết nối mới tới `.234` v�
 bị timeout dù route VPN vẫn qua `ppp0`. Chưa mở run mới. Cần khôi phục SSH,
 đồng bộ Git, chạy regression bằng ML venv VM, tạo runtime identity mới và
 canary có đo scheduler/I/O đủ chi tiết trước khi đăng ký lại formal soak.
+
+### 18.171 Sửa installer và triển khai canary telemetry R3 (07-09-2026)
+
+SSH đã phục hồi; canonical code trên VM được đồng bộ từ Git. Bản sửa telemetry
+`1d77802` qua 68 targeted test và toàn bộ 260 test Sentinel Pulse trên VM.
+Canary telemetry R2 (`sentinel-pulse-b7-telemetry-r2-20260907T034300Z`)
+gặp `START_FAILED`: unit collector mới nhận tham số interval nhưng Python
+package trong `/opt/sentinel-pulse` còn cũ. Installer trước đây chỉ copy Python
+code ở bước cài detector, sau bước start collector. Vì vậy không có decision
+ML cho R2 (`workers.txt` rỗng); không được tính R2 là normal observation.
+Marker, source checksum và supervisor log R2 được giữ tại
+`/home/dat/sentinel-pulse-evidence/canary-b7-telemetry/`.
+
+Commit `ba3b8e59272d0c2cfd7ba88f6a452aa55fcfbb63` sửa installer để copy
+package và kiểm tra CLI trước khi cài/start unit. Toàn bộ **261 test Sentinel
+Pulse pass trong ML venv VM (8,73 giây)** sau sửa; đây không phải full test suite
+của mọi nhánh đồ án. Model `2e37ffd1...` và policy B7 `711e66a9...` giữ nguyên.
+Runtime mới tách riêng tại
+`/home/dat/eBPF-project-runtime-pulse-b7-telemetry-r3` ở commit `ba3b8e5`;
+frozen runtime B7 cũ vẫn ở `9cc382c`. Blind contract B7 cũ không được dùng để
+gán kết quả từ runtime mới; chưa mở blind hoặc đăng ký formal soak R3.
+
+Run mới: `sentinel-pulse-b7-telemetry-r3-20260907T083400Z`.
+Traffic gate `passed=true` trước launch, 6/6 node Ready và 0 Longhorn volume
+unhealthy. Supervisor systemd là `sentinel-pulse-b7-telemetry-r3-canary.service`,
+canary có giới hạn 7.200 giây trên mỗi worker. Evidence dưới
+`/home/dat/sentinel-pulse-evidence/canary-b7-telemetry/` với run ID trên.
+Đây là canary non-formal nhằm đánh giá bản sửa và tìm nguyên nhân stall;
+không tự promote model.
+
+Script mới `sentinel_pulse/record_node_pressure.sh` chạy trên từng worker bằng
+systemd, lấy sysstat native binary mỗi giây trong 7.800 giây, lưu CPU, run
+queue, paging, swap, I/O. Khi kết thúc, script ghi kernel journal, trạng thái
+service và checksum. Dữ liệu tại
+`/var/lib/sentinel-pulse-diagnostics/sentinel-pulse-b7-telemetry-r3-20260907T083400Z/`;
+unit `pulse-pressure-sentinel-pulse-b7-telemetry-r3-20260907T083400Z.service`.
+Việc có thêm bộ ghi chẩn đoán là điều kiện thí nghiệm cần lưu khi phân tích
+overhead; chưa có cơ sở nói stall 13 giây đã được khắc phục.
+
+Checkpoint 08:35 UTC (15:35 giờ Việt Nam): `workers.txt` đủ 3 node,
+supervisor active, 1.240 + 651 + 174 = 2.065 decision và 0 alert.
+Hậu kiểm trực tiếp ba worker: detector active, restart=0; feature tail valid,
+interval 0,502–0,504 giây, cả 7 integrity counter (gồm counter mới) đều 0.
+Ba service ghi diagnostics đều active và `sar.bin` tăng kích thước.
+Checksum `capture.py` và `features.py` trong `/opt` trên cả ba worker khớp
+runtime R3, lần lượt `b8ae3cdf...` và `cc8b5250...`. START.json SHA-256:
+`cde45a7c43defef7deda0aab53c04acd4bb9973e64630d4efe1ecd1fa17780c3`.
+
+Đợt này chạy ngầm, không cần giữ phiên SSH. Dự kiến kiểm tra lại từ **18:00
+ngày 07-09, giờ Việt Nam**, để cả canary 2 giờ, diagnostics 2 giờ 10 phút
+và bước thu archive có thời gian kết thúc. Chưa có kết quả terminal hoặc
+latency attack mới; không cần train hay tune model trong lúc chờ.
