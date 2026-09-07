@@ -55,6 +55,19 @@ if [[ -e $RUN_DIR ]]; then
   exit 3
 fi
 
+# The collector starts before install_detector_candidate.sh. Deploy its Python
+# package here too; otherwise a new unit can invoke flags on a stale capture.py.
+test -f "$SOURCE_ROOT/sentinel_pulse/capture.py"
+install -d -m 0755 /opt/sentinel-pulse/sentinel_pulse
+cp -a "$SOURCE_ROOT/sentinel_pulse/." /opt/sentinel-pulse/sentinel_pulse/
+capture_help=$(cd /opt/sentinel-pulse && /opt/sentinel-pulse/venv/bin/python \
+  -m sentinel_pulse.capture --help)
+[[ $capture_help == *--interval-min-seconds* &&
+   $capture_help == *--interval-max-seconds* ]] || {
+  echo 'installed capture does not support the bounded interval contract' >&2
+  exit 3
+}
+
 install -m 0644 "$UNIT_SOURCE" "/etc/systemd/system/$SERVICE"
 install -m 0755 "$METRICS_SOURCE" /opt/sentinel-pulse/bin/record_500ms_metrics
 install -d -m 0750 "$ENV_DIR" "$STATE_ROOT"

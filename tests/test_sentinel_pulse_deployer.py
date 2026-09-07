@@ -6,6 +6,18 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PulseDeployerTests(unittest.TestCase):
+    def test_experiment_installs_capture_before_starting_new_unit(self):
+        script = (ROOT / "sentinel_pulse" / "install_500ms_experiment.sh").read_text()
+        copied = script.index('cp -a "$SOURCE_ROOT/sentinel_pulse/."')
+        probed = script.index('-m sentinel_pulse.capture --help')
+        installed = script.index('install -m 0644 "$UNIT_SOURCE"')
+        started = script.index('systemctl start "$SERVICE"')
+        self.assertLess(copied, probed)
+        self.assertLess(probed, installed)
+        self.assertLess(installed, started)
+        self.assertIn('$capture_help == *--interval-min-seconds*', script)
+        self.assertIn('$capture_help == *--interval-max-seconds*', script)
+
     def test_canary_deployer_never_rolls_remaining_workers_before_valid_report(self):
         script = (ROOT / "sentinel_pulse" / "deploy_canary_cluster.sh").read_text()
         validation = script.index('report.get("valid") is not True')
