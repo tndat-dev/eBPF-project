@@ -2242,3 +2242,9 @@ R6-r2 active trên ba worker từ khoảng 03:35 UTC. Checkpoint đầu có 5.11
 decision trực tiếp, 0 alert; collector/detector/finalizer đều active. Nhịp
 loader mới được ghi riêng ở khoảng 0,503 giây. Đây chỉ là checkpoint; terminal
 validation/checksum sau khoảng 05:35 UTC mới quyết định canary pass/fail.
+
+Checkpoint 04:04 UTC ghi 127.205 decision ở cùng một vòng monitor, 0 alert và
+0 restart. Inference p99 worker1/worker3/worker4 lần lượt
+30,691/29,159/29,503 ms; window-start-to-decision p99
+0,804/0,770/0,877 giây, max cao nhất 1,044 giây. Đây là normal-only latency
+checkpoint, chưa phải blind-attack kernel-to-alert và chưa phải terminal pass.

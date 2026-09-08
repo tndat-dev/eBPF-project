@@ -7420,3 +7420,12 @@ finalizer đều active. Feature record mới ghi nhịp loader trực tiếp
 `collector_snapshot_interval_seconds=0,5027–0,5029` giây, thay vì suy cadence
 từ history cgroup. R6-r2 còn active; chưa được gọi là pass, FPR hay production
 stable trước terminal validation và checksum, dự kiến sau 05:35 UTC.
+
+Checkpoint read-only 04:04 UTC sau khoảng 30 phút: monitor ghi
+39.997/34.115/53.093 decision trên worker1/worker3/worker4 (127.205 tổng tại
+đúng vòng monitor), 0 alert và tất cả finalizer vẫn active. Đọc trực tiếp sau
+đó cho 40.287/34.355/53.490 decision, 0 restart. Inference p99 từng node là
+30,691/29,159/29,503 ms; window-start-to-decision p99 là
+0,804/0,770/0,877 giây, max tương ứng 0,951/0,898/1,044 giây. Cụm vẫn 6/6
+Ready v1.34.10 và không có pod ngoài Running/Succeeded. Đây là normal checkpoint
+giữa run, không thay thế terminal validation và không đo attack latency.
