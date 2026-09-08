@@ -2280,3 +2280,44 @@ ba worker. Hậu kiểm cluster có 6/6 node Ready v1.34.10 và zero bad pod. Ca
 này chỉ cho phép chuyển sang formal normal soak 24 giờ theo cùng availability
 contract; `accuracy_claim_allowed=false`, `automatic_promotion=false` và blind
 set vẫn đóng.
+
+### Availability R8 smoke và formal soak mới (08-09-2026)
+
+Commit `a0a8c5b` đưa telemetry availability contract xuyên suốt formal marker,
+monitor, resume interlock, finalizer và aggregate. Capture ghi cumulative
+observed/missing snapshot, availability, min/max interval và cadence event.
+Hard-integrity vẫn zero-tolerance; khoảng đứt telemetry vượt history contract
+buộc detector xóa state rồi warm-up lại. Full regression authoritative trên
+VM ML venv đạt 277/277 test pass trong 29,83 giây.
+
+R7 300 giây bị coverage preflight reject do scored span chỉ 281–282 giây ở
+bốn workload; model không được đánh giá bởi run đó. Sau khi sửa minimum bounded
+duration thành 360 giây, R8 smoke 600 giây terminal `valid=true` và
+`coverage_preflight_gate=true`: 42.031 decision, 41.544 scored, 0 alert/restart,
+đủ 20/20 workload và telemetry availability 100% trên ba worker. Inference
+p99 là 29,787 ms; window-start-to-decision p99/max là 0,852/1,038 giây.
+Aggregate SHA-256 là `1707520b79ccfc4e14f5cb10395b036ccb5bd5d22e9ac09922809e6e8336222b`.
+Đây là normal-only engineering evidence, không phải FPR, recall hoặc attack
+kernel-to-alert evidence.
+
+Formal run `sentinel-pulse-formal-normal-availability-r8-20260908T062950Z`
+đã được giao cho persistent lifecycle và external fail-closed supervisor.
+Contract preregistered giữ nominal 500 ms, availability tối thiểu 99,9%, max
+gap 10 giây; collector bound 90.000 giây, normal gate tối thiểu 24 giờ và
+finalize margin 300 giây. Runtime khóa ở `a0a8c5b`; model/policy B7 không đổi.
+`STOP_AFTER_NORMAL=true` giữ blind đóng và không có automatic promotion.
+
+Stability preflight đã pass. Marker bắt đầu không sớm hơn 06:35:47 UTC, eligible
+finalize sau đúng 24 giờ và có SHA-256 `5574c8fc2d9577a89d930cc13da62c77d19a72b09434a8ec17833ce920d4218a`.
+Ba worker active từ 06:36:56 UTC; external supervisor attach lúc 06:37:06 UTC.
+Checkpoint khoảng 09:11 UTC ghi tổng 668.621 decision, 0 alert/restart và mọi
+service thí nghiệm vẫn active.
+
+Worker3 có hai cadence event 1,430 và 9,853 giây, estimated missing 21. Tại
+checkpoint, availability 99,8864% còn dưới 99,9% nên monitor ghi
+`telemetry_degraded=true`, nhưng chưa reject vì terminal budget của run là 180
+snapshot và max gap vẫn dưới 10 giây. Detector đã chuyển window gap sang
+`warming_reason=temporal_gap`, sau đó `history_fill`, không score qua khoảng
+thiếu. Kernel workqueue warning và hai ExecSync timeout ba giây xuất hiện cùng
+khoảng; đây chỉ là tương quan hạ tầng. Formal outcome vẫn chưa có và contract
+không được thay đổi giữa run.

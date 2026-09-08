@@ -7461,3 +7461,78 @@ detector inactive trên cả ba worker. Hậu kiểm SSH xác nhận 6/6 node Re
 v1.34.10 và không có pod ngoài Running/Succeeded. R6-r2 là engineering
 evidence để mở bước formal normal soak 24 giờ theo cùng contract, không tự
 promote candidate và không mở blind set.
+
+### 18.175 R8 smoke terminal và formal availability lifecycle (08-09-2026)
+
+Source commit `a0a8c5b91ad76a208977264d019abbfed8e5a24b` hoàn thiện việc đưa
+contract telemetry availability vào formal lifecycle: capture ghi cumulative
+availability/cadence metadata, monitor kiểm tra hard-integrity và budget đã
+đăng ký, finalizer tạo `TELEMETRY_REPORT.json` rồi bind vào checksum archive.
+Aggregate formal được tách thành module có test. Minimum bounded canary được
+nâng từ 300 lên 360 giây vì model cần warm-up trước khi đủ coverage span 300
+giây. Full regression trên canonical VM đạt **277/277 test Sentinel Pulse
+pass trong 29,83 giây**; shell syntax pass. Lần chạy pytest bằng system Python
+trên host không collect được vì host không cài NumPy; đây là thiếu dependency
+của môi trường host, không phải regression code, và kết quả authoritative dùng
+ML venv trên VM.
+
+Canary 300 giây R7 kết thúc thành infrastructure/setup rejection chỉ vì bốn
+workload đạt scored span 281–282 giây, thấp hơn gate 300 giây. Run vẫn có
+20.398 decision và 0 alert nhưng không được dùng đánh giá model. R7 là bằng
+chứng trực tiếp cho việc sửa minimum duration; không được đổi ngưỡng coverage
+để hợp thức hóa run cũ.
+
+Canary kế tiếp
+`sentinel-pulse-availability-r8-smoke-20260908T061606Z` chạy khoảng 600 giây
+và terminal hợp lệ: 42.031 decision, 41.544 scored, 41.423 normal, 121
+suppressed, 487 warming, 0 alert/restart. Coverage đạt đủ 20/20 key; collector
+node ngắn nhất chạy 601,841 giây. Inference p50/p95/p99/max là
+16,848/24,435/29,787/49,803 ms; `window-start -> decision`
+p50/p95/p99/max là 0,666/0,804/0,852/1,038 giây. Đây vẫn là normal-decision
+latency, không phải kernel-to-alert của attack.
+
+Ba worker đều báo telemetry availability 100%, không estimated missing
+snapshot, delayed/short interval hoặc cadence violation. 9 checksum start và
+73 checksum cuối đều verify. SHA-256 aggregate là
+`1707520b79ccfc4e14f5cb10395b036ccb5bd5d22e9ac09922809e6e8336222b`;
+checksum index cuối là
+`83abdda8f1ddb6dfbe502d2b0e26db61868be81e16f20d61fa9f6aaf0497c561`.
+
+Sau smoke, SSH xác nhận lại 6/6 node Kubernetes v1.34.10 `Ready`, không có pod
+ngoài Running/Succeeded; control collector active và experiment/detector
+inactive trên ba worker. Runtime detached
+`/home/dat/eBPF-project-runtime-pulse-availability-r8` được khóa ở commit
+`a0a8c5b`; model `2e37ffd1...` và policy `711e66a9...` giữ nguyên.
+
+Formal normal-only run đăng ký là
+`sentinel-pulse-formal-normal-availability-r8-20260908T062950Z`, evidence tại
+`/home/dat/sentinel-pulse-evidence/formal-availability-r8/<run_id>/`. Persistent
+lifecycle `sentinel-pulse-availability-r8-lifecycle.service` và external
+fail-closed supervisor `sentinel-pulse-availability-r8-supervisor.service` đã
+được khởi chạy. Thiết lập gồm 90.000 giây collector bound, stability preflight
+300 giây, nominal interval 0,5 giây, minimum availability 99,9%, max single
+gap 10 giây và finalization margin 300 giây. `STOP_AFTER_NORMAL=true`, blind
+được giữ khóa và `automatic_promotion=false`.
+
+Preflight đã pass. Marker `SOAK_START.json` khóa `started_not_before` lúc
+06:35:47 UTC, mốc eligible finalize là 06:35:47 UTC ngày 09-09-2026 và có
+SHA-256 `5574c8fc2d9577a89d930cc13da62c77d19a72b09434a8ec17833ce920d4218a`.
+Ba worker vào `normal_active` lúc 06:36:56 UTC; external supervisor gắn lúc
+06:37:06 UTC. `START_SHA256SUMS` verify marker, model manifest và policy.
+
+Checkpoint tuần tự khoảng 09:11 UTC ghi 207.227/178.619/282.775 decision trên
+worker1/worker3/worker4, tổng 668.621, 0 alert và 0 restart; collector, detector,
+lifecycle và fail-closed supervisor đều active. Worker1 và worker4 có telemetry
+availability 100%. Worker3 gặp hai cadence event liên tiếp lúc khoảng 07:00:14
+UTC: interval 1,430 giây rồi 9,853 giây, ước tính thiếu cộng dồn 21 snapshot.
+Availability của node này tại checkpoint là 99,8864%, nên được ghi rõ
+`telemetry_degraded=true`; nó vẫn `valid=true` trong monitor vì dưới budget
+terminal 180 snapshot của toàn run và max gap vẫn dưới 10 giây. Đây chưa phải
+terminal pass; availability phải đạt lại tối thiểu 99,9% khi finalize.
+
+Đúng timestamp gap, mọi decision liên quan chuyển thành
+`warming_reason=temporal_gap`, window kế tiếp là `history_fill`; không có
+inference qua lịch sử đứt đoạn. Journal worker3 cùng thời điểm ghi kernel
+workqueue hogged CPU và hai containerd/kubelet ExecSync timeout ba giây. Đây là
+tương quan hạ tầng, chưa đủ để quy nguyên nhân; không sửa model/policy hoặc
+contract trong khi formal run đang chạy.

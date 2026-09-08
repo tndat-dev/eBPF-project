@@ -700,3 +700,40 @@ Start/final checksum indexes verify. This is a nonformal normal-only canary,
 not an FPR, recall, blind attack latency or production promotion result; it
 permits preparation of a new 24-hour formal soak under the same preregistered
 availability contract.
+
+The availability lifecycle was subsequently promoted in source commit
+`a0a8c5b`; 277/277 Sentinel Pulse tests pass in the canonical VM ML venv. A
+300-second R7 smoke was correctly rejected because four scored workload spans
+were only 281--282 seconds against a 300-second coverage gate. The bounded
+minimum was therefore fixed prospectively at 360 seconds.
+
+The replacement 600-second smoke
+`sentinel-pulse-availability-r8-smoke-20260908T061606Z` completed valid with
+42,031 decisions, 41,544 scored, zero alerts/restarts, complete 20/20 coverage,
+and 100% measured telemetry availability on all three workers. Inference p99
+was 29.787 ms and window-start-to-decision p99/max was 0.852/1.038 seconds.
+This remains nonformal normal-only evidence.
+
+Formal run
+`sentinel-pulse-formal-normal-availability-r8-20260908T062950Z` is registered
+under `/home/dat/sentinel-pulse-evidence/formal-availability-r8/`. It uses the
+detached `a0a8c5b` runtime, unchanged B7 model/policy, a 500 ms nominal interval,
+99.9% minimum availability, 10-second maximum gap, 90,000-second collector
+bound and 300-second finalization margin. The persistent lifecycle and an
+external fail-closed supervisor are active. `STOP_AFTER_NORMAL=true`; blind
+evaluation and automatic promotion remain disabled.
+
+The preflight passed. `SOAK_START.json` binds a `started_not_before` time of
+2026-09-08 06:35:47 UTC and an eligible-finalize time exactly 24 hours later;
+its SHA-256 is `5574c8fc2d9577a89d930cc13da62c77d19a72b09434a8ec17833ce920d4218a`.
+All three workers reached `normal_active` at 06:36:56 UTC and the external
+supervisor attached at 06:37:06 UTC.
+
+At the 09:11 UTC checkpoint, the sequential monitor samples totalled 668,621
+decisions with zero alerts/restarts. Worker3 had two cadence events of 1.430
+and 9.853 seconds, estimating 21 missing snapshots. Its current availability
+was 0.998864 and therefore explicitly `telemetry_degraded`; monitoring remains
+valid because the preregistered full-run budget is 180 snapshots and the
+single-gap bound is 10 seconds. Gap decisions were reset to
+`warming_reason=temporal_gap` followed by `history_fill`, not scored across the
+missing interval. This is an active checkpoint, not a terminal normal pass.
