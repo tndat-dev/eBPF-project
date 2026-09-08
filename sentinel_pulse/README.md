@@ -680,3 +680,11 @@ and maximum gap. They never waive map insertion, snapshot consistency,
 target-attribution, finite-vector, or checksum failures. Runtime history and
 corroboration evidence are cleared after a gap beyond the model's contiguous
 history contract, forcing warm-up instead of scoring across missing time.
+
+Prospective canary R6-r2
+`sentinel-pulse-availability-r6-r2-20260908T033340Z` binds commit `105e452`,
+the unchanged B7 model/policy, a 500 ms nominal interval, minimum telemetry
+availability 0.999 and maximum single gap 10 seconds. It runs for 7,200 seconds
+on all three workers. The first checkpoint recorded 5,111 decisions, zero
+alerts and active collectors/detectors/finalizers. It is not a pass until
+terminal validation and checksums complete after approximately 05:35 UTC.

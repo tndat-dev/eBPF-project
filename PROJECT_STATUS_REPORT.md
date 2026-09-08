@@ -26,7 +26,8 @@ canary chẩn đoán R3 kéo dài 2 giờ đã terminal hợp lệ. Formal norma
 sau đó bị infrastructure-reject vì pause telemetry trên worker3; model chưa
 được đánh giá bởi run này. Canary cách ly R5 cũng terminal infrastructure
 failure vì một pause worker3 tương tự dù không chạy pressure recorder; giả
-thuyết observer gây pause không được dữ liệu ủng hộ. Xem mục 18.173.
+thuyết observer gây pause không được dữ liệu ủng hộ. Successor R6-r2 đang chạy
+với telemetry-availability contract đã preregister; xem mục 18.174.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7395,3 +7396,27 @@ sát, 9 snapshot 500 ms ước tính bị thiếu và availability 99,9371%. V�
 nhận implementation, **không đổi R5 thành pass** và không phải accuracy claim.
 Ngưỡng chỉ có giá trị khoa học sau khi được bind trong marker của R6 trước khi
 thu dữ liệu.
+
+### 18.174 Prospective availability canary R6-r2 (08-09-2026)
+
+Commit `105e4527e427e77a7c1ec330a811d00f4a3e5c0b` đã push GitHub và đồng bộ
+canonical VM. Full regression trong ML venv đạt **267/267 test pass**; lần chạy
+đầu thiếu một evidence fixture trong dev checkout nên đạt 266/267, sau khi cấp
+đúng fixture bất biến thì toàn suite pass. Shell syntax và diff check sạch.
+
+Attempt R6 đầu `...T033303Z` bị launcher reject trong 0,524 giây trước mutation
+do transient root service không có kubeconfig. Attempt mới không tái sử dụng
+run ID. R6-r2 `sentinel-pulse-availability-r6-r2-20260908T033340Z` chạy từ
+03:33:40 UTC bằng user `dat`, runtime detached
+`/home/dat/eBPF-project-runtime-pulse-availability-r6`, duration 7.200 giây.
+Marker khóa model `2e37ffd1...`, policy `711e66a9...`, nominal interval 0,5
+giây, minimum availability 99,9%, max single gap 10 giây và
+`automatic_promotion=false`.
+
+Checkpoint 03:35:49 UTC: worker1/worker3/worker4 lần lượt có
+2.064/1.368/1.396 decision trong monitor (tổng 4.828; kiểm tra trực tiếp ngay
+sau đó 2.172/1.455/1.484, tổng 5.111), 0 alert. Ba collector, detector và
+finalizer đều active. Feature record mới ghi nhịp loader trực tiếp
+`collector_snapshot_interval_seconds=0,5027–0,5029` giây, thay vì suy cadence
+từ history cgroup. R6-r2 còn active; chưa được gọi là pass, FPR hay production
+stable trước terminal validation và checksum, dự kiến sau 05:35 UTC.

@@ -14,7 +14,8 @@ telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
 terminal hợp lệ; formal normal-only R4 tiếp tục bị infrastructure-reject vì
 pause worker3. Canary cách ly R5 cũng terminal infrastructure failure vì một
 pause worker3 4,874 giây dù không chạy sysstat recorder; candidate chưa được
-đánh giá và chưa có claim production.
+đánh giá. Prospective availability canary R6-r2 đang active; chưa có claim
+production.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2226,3 +2227,18 @@ Counterfactual replay read-only trên R5 cho 14.291 snapshot quan sát, 9 snapsh
 error. Nó pass giả định 99,9%/max-gap 10 giây, nhưng vì ngưỡng được xây sau R5,
 R5 vẫn failed. Run R6 phải bind contract này trước start mới tạo được evidence
 prospective hợp lệ.
+
+### Prospective availability canary R6-r2 (08-09-2026)
+
+Source commit `105e452` đã push và đồng bộ VM; 267/267 test Sentinel Pulse
+pass. Attempt đầu bị reject trước mutation vì root transient service thiếu
+kubeconfig. Attempt mới
+`sentinel-pulse-availability-r6-r2-20260908T033340Z` bind trước dữ liệu:
+nominal interval 0,5 giây, availability tối thiểu 99,9%, max single gap 10
+giây, model `2e37ffd1...`, policy `711e66a9...`, duration 7.200 giây và không
+promotion tự động.
+
+R6-r2 active trên ba worker từ khoảng 03:35 UTC. Checkpoint đầu có 5.111
+decision trực tiếp, 0 alert; collector/detector/finalizer đều active. Nhịp
+loader mới được ghi riêng ở khoảng 0,503 giây. Đây chỉ là checkpoint; terminal
+validation/checksum sau khoảng 05:35 UTC mới quyết định canary pass/fail.
