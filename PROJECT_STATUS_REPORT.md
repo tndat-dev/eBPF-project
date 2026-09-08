@@ -7562,3 +7562,13 @@ Ba entry START_SHA256SUMS verify; frozen runtime vẫn `a0a8c5b`. Mốc eligible
 finalize vẫn 09-09 06:35:47 UTC; cộng margin 300 giây rồi cần thêm thời gian
 xuất/kiểm chứng archive. Checkpoint này chưa có số đo attack kernel-to-alert
 hoặc kết luận formal FPR. Tiếp tục quan sát nền theo contract hiện hành.
+
+Checkpoint SSH 08-09 17:47 UTC (09-09 00:47 giờ Việt Nam): formal run vẫn
+ACTIVE, mới đạt khoảng 11 giờ 12 phút tính từ marker. Các sample monitor
+908.298/770.416/1.220.939 decision trên worker1/worker3/worker4 cộng thành
+2.899.653; 0 alert, 0 restart và hard-integrity counter bằng 0. Availability
+100%/99,9737%/99,9912%, estimated missing giữ nguyên 0/21/7, không tăng
+cadence event so với checkpoint trước. Cả sáu node Ready; không có pod ngoài
+Running/Succeeded; START_SHA256SUMS verify. Chưa có NORMAL_PASS hoặc archive
+terminal. Mốc eligible finalize cộng margin là 09-09 13:40:47 giờ Việt Nam;
+có thể kiểm tra khoảng 14:15, tùy thời gian xuất và kiểm chứng archive.

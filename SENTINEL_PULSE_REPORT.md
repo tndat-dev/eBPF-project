@@ -2338,3 +2338,9 @@ có hai cadence event lịch sử, max interval 9,853/2,459 giây. Cluster 6/6 R
 không có pod ngoài Running/Succeeded; Longhorn volumes healthy. Start checksum
 verify và runtime vẫn `a0a8c5b`. Formal run tiếp tục chạy nền đến mốc đủ 24 giờ;
 chưa có terminal outcome hoặc attack kernel-to-alert mới.
+
+Checkpoint 09-09 00:47 giờ Việt Nam (08-09 17:47 UTC): run vẫn ACTIVE sau
+khoảng 11 giờ 12 phút. Monitor có tổng 2.899.653 decision, 0 alert/restart;
+availability worker1/worker3/worker4 là 100%/99,9737%/99,9912%, estimated
+missing giữ ở 0/21/7. Chưa có terminal outcome. Eligible finalize cộng margin
+là 09-09 13:40:47 giờ Việt Nam, sau đó cần xuất và kiểm chứng archive.
