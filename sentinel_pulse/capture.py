@@ -119,6 +119,8 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
     observed_snapshots = 0
     estimated_missing_snapshots = 0
     maximum_snapshot_interval_seconds = 0.0
+    minimum_snapshot_interval_seconds: float | None = None
+    short_interval_events = 0
     for line in source:
         try:
             record = json.loads(line)
@@ -168,6 +170,11 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             maximum_snapshot_interval_seconds = max(
                 maximum_snapshot_interval_seconds, snapshot_interval_seconds
             )
+            minimum_snapshot_interval_seconds = (
+                snapshot_interval_seconds
+                if minimum_snapshot_interval_seconds is None
+                else min(minimum_snapshot_interval_seconds, snapshot_interval_seconds)
+            )
         if interval_violation:
             # This cumulative counter is independent of workload cardinality.
             assembler.stats["capture_interval_violation"] = (
@@ -183,18 +190,28 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                     int(round(snapshot_interval_seconds / nominal_interval_seconds))
                     - 1,
                 )
+            elif (
+                snapshot_interval_seconds is not None
+                and snapshot_interval_seconds < interval_min_seconds
+            ):
+                short_interval_events += 1
         snapshots, collector_stats = assembler.snapshots(observed_at)
         expected_snapshots = observed_snapshots + estimated_missing_snapshots
         telemetry_availability = (
             observed_snapshots / expected_snapshots if expected_snapshots else 0.0
         )
         telemetry_state = {
+            "schema": "sentinel-pulse-telemetry-availability-v1",
             "observed_snapshots": observed_snapshots,
             "estimated_missing_snapshots": estimated_missing_snapshots,
             "availability": telemetry_availability,
             "maximum_snapshot_interval_seconds": (
                 maximum_snapshot_interval_seconds
             ),
+            "minimum_snapshot_interval_seconds": (
+                minimum_snapshot_interval_seconds
+            ),
+            "short_interval_events": short_interval_events,
             "cadence_violation_events": int(
                 collector_stats.get("capture_interval_violation", 0)
             ),

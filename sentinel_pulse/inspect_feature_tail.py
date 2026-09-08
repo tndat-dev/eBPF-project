@@ -172,6 +172,10 @@ def inspect(
             maximum_observed_gap = float(
                 telemetry_state["maximum_snapshot_interval_seconds"]
             )
+            minimum_observed_interval = float(
+                telemetry_state["minimum_snapshot_interval_seconds"]
+            )
+            short_interval_events = int(telemetry_state["short_interval_events"])
             reported_availability = float(telemetry_state["availability"])
             reported_cadence = int(telemetry_state["cadence_violation_events"])
             if observed_snapshots <= 0 or estimated_missing < 0:
@@ -184,6 +188,13 @@ def inspect(
                 errors.append("collector telemetry availability mismatch")
             if reported_cadence != cadence_violations:
                 errors.append("collector telemetry cadence counter mismatch")
+            if short_interval_events < 0:
+                errors.append("collector short interval count is invalid")
+            if minimum_observed_interval < interval_min_seconds:
+                errors.append(
+                    f"telemetry minimum interval {minimum_observed_interval:.6f}s "
+                    f"is below {interval_min_seconds:.6f}s"
+                )
             if not math.isfinite(maximum_observed_gap):
                 errors.append("collector maximum snapshot interval is not finite")
             elif maximum_observed_gap > maximum_single_gap_seconds:
