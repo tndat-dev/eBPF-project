@@ -26,8 +26,10 @@ canary chẩn đoán R3 kéo dài 2 giờ đã terminal hợp lệ. Formal norma
 sau đó bị infrastructure-reject vì pause telemetry trên worker3; model chưa
 được đánh giá bởi run này. Canary cách ly R5 cũng terminal infrastructure
 failure vì một pause worker3 tương tự dù không chạy pressure recorder; giả
-thuyết observer gây pause không được dữ liệu ủng hộ. Successor R6-r2 đang chạy
-với telemetry-availability contract đã preregister; xem mục 18.174.
+thuyết observer gây pause không được dữ liệu ủng hộ. Successor R6-r2 đã terminal
+hợp lệ theo telemetry-availability contract preregistered: 517.459 decision,
+0 alert, đủ 20/20 workload và p99 window-start-to-decision 0,858 giây; xem mục
+18.174. Đây là canary normal-only, chưa phải FPR/recall hay attack-latency claim.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7418,8 +7420,8 @@ Checkpoint 03:35:49 UTC: worker1/worker3/worker4 lần lượt có
 sau đó 2.172/1.455/1.484, tổng 5.111), 0 alert. Ba collector, detector và
 finalizer đều active. Feature record mới ghi nhịp loader trực tiếp
 `collector_snapshot_interval_seconds=0,5027–0,5029` giây, thay vì suy cadence
-từ history cgroup. R6-r2 còn active; chưa được gọi là pass, FPR hay production
-stable trước terminal validation và checksum, dự kiến sau 05:35 UTC.
+từ history cgroup. R6-r2 khi đó còn active; checkpoint này không được dùng thay
+terminal result.
 
 Checkpoint read-only 04:04 UTC sau khoảng 30 phút: monitor ghi
 39.997/34.115/53.093 decision trên worker1/worker3/worker4 (127.205 tổng tại
@@ -7429,3 +7431,33 @@ Checkpoint read-only 04:04 UTC sau khoảng 30 phút: monitor ghi
 0,804/0,770/0,877 giây, max tương ứng 0,951/0,898/1,044 giây. Cụm vẫn 6/6
 Ready v1.34.10 và không có pod ngoài Running/Succeeded. Đây là normal checkpoint
 giữa run, không thay thế terminal validation và không đo attack latency.
+
+R6-r2 đã terminal lúc 05:36:28 UTC và **pass đúng contract đã khóa trước run**.
+Archive có 517.459 decision, trong đó 512.694 được score, 0 alert, 2.397
+decision bị semantic gate suppress và 4.765 warming; coverage đạt 20/20
+workload, không thiếu/thừa key, thời lượng node ngắn nhất 7.201,875 giây và
+detector restart bằng 0. Inference gộp p50/p95/p99 là
+16,822/24,504/29,778 ms. `window-start -> decision` gộp
+p50/p95/p99 là 0,665/0,806/0,858 giây; max 3,356 giây. Vì vậy evidence ủng hộ
+mục tiêu **p99 dưới 2 giây trên normal traffic**, nhưng không cho phép claim
+maximum latency dưới 2 giây và chưa đo true kernel-to-alert trên blind attack.
+
+Hard-integrity counter đều bằng 0. Worker1 quan sát 14.304 snapshot,
+availability 100% và max interval 0,608 giây. Worker3 quan sát 14.295 snapshot,
+ước tính thiếu 5, availability 99,9650%, max gap 2,853 giây. Worker4 quan sát
+14.262 snapshot, ước tính thiếu 4, availability 99,9720%, max gap 2,574 giây.
+Cả ba đều vượt ngưỡng availability 99,9% và dưới max-gap 10 giây đã
+preregister. Tại chính hai gap cấp collector, decision của các workload bị ảnh
+hưởng chuyển sang `warming_reason=temporal_gap`; detector không score qua
+lịch sử đứt đoạn. Tổng reset `temporal_gap` còn bao gồm workload thưa/đổi
+container, nên không được diễn giải thành số pause cấp node.
+
+`START_SHA256SUMS` và `FINAL_SHA256SUMS` đều verify toàn bộ entry. SHA-256 của
+`AGGREGATE.json` là `e73375762b69cff016ce071626e2a250fe6dc895165a7724c318781aaed741f8`;
+SHA-256 của checksum index cuối là
+`18cb3a2de90e388ea51e882a216d830b2789f0b709ba627f03a54af5ac7a7373`.
+Sau finalization, collector control 1 giây active, collector 500 ms và candidate
+detector inactive trên cả ba worker. Hậu kiểm SSH xác nhận 6/6 node Ready
+v1.34.10 và không có pod ngoài Running/Succeeded. R6-r2 là engineering
+evidence để mở bước formal normal soak 24 giờ theo cùng contract, không tự
+promote candidate và không mở blind set.

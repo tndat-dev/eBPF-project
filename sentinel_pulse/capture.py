@@ -97,13 +97,16 @@ def workload_key(metadata: dict) -> str:
 
 def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
         interval_min_seconds: float | None = None,
-        interval_max_seconds: float | None = None) -> dict:
+        interval_max_seconds: float | None = None,
+        nominal_interval_seconds: float | None = None) -> dict:
     if (interval_min_seconds is None) != (interval_max_seconds is None):
         raise ValueError("both capture interval bounds must be provided")
     if interval_min_seconds is not None and not (
         0 < interval_min_seconds < interval_max_seconds
     ):
         raise ValueError("invalid capture interval bounds")
+    if nominal_interval_seconds is not None and nominal_interval_seconds <= 0:
+        raise ValueError("nominal capture interval must be positive")
     assembler = SnapshotAssembler()
     builders: dict[tuple[str, str, str, str], PulseFeatureBuilder] = {}
     emitted = 0
@@ -113,6 +116,9 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
     metadata: dict[str, dict] = {}
     metadata_mtime_ns: int | None = None
     previous_snapshot_observed_at: float | None = None
+    observed_snapshots = 0
+    estimated_missing_snapshots = 0
+    maximum_snapshot_interval_seconds = 0.0
     for line in source:
         try:
             record = json.loads(line)
@@ -129,6 +135,7 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             else observed_at - previous_snapshot_observed_at
         )
         previous_snapshot_observed_at = observed_at
+        observed_snapshots += 1
         if "targets" in record and "snapshots" in record:
             gap = abs(int(record["targets"]) - int(record["snapshots"]))
             assembler.stats["target_snapshot_gap"] = max(
@@ -148,8 +155,6 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             if current_metadata:
                 metadata = current_metadata
                 metadata_mtime_ns = current_mtime_ns
-        snapshots, collector_stats = assembler.snapshots(observed_at)
-        prepared = []
         interval_violation = bool(
             snapshot_interval_seconds is not None
             and interval_min_seconds is not None
@@ -159,6 +164,42 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                 <= interval_max_seconds
             )
         )
+        if snapshot_interval_seconds is not None:
+            maximum_snapshot_interval_seconds = max(
+                maximum_snapshot_interval_seconds, snapshot_interval_seconds
+            )
+        if interval_violation:
+            # This cumulative counter is independent of workload cardinality.
+            assembler.stats["capture_interval_violation"] = (
+                assembler.stats.get("capture_interval_violation", 0) + 1
+            )
+            if (
+                nominal_interval_seconds is not None
+                and snapshot_interval_seconds is not None
+                and snapshot_interval_seconds > interval_max_seconds
+            ):
+                estimated_missing_snapshots += max(
+                    1,
+                    int(round(snapshot_interval_seconds / nominal_interval_seconds))
+                    - 1,
+                )
+        snapshots, collector_stats = assembler.snapshots(observed_at)
+        expected_snapshots = observed_snapshots + estimated_missing_snapshots
+        telemetry_availability = (
+            observed_snapshots / expected_snapshots if expected_snapshots else 0.0
+        )
+        telemetry_state = {
+            "observed_snapshots": observed_snapshots,
+            "estimated_missing_snapshots": estimated_missing_snapshots,
+            "availability": telemetry_availability,
+            "maximum_snapshot_interval_seconds": (
+                maximum_snapshot_interval_seconds
+            ),
+            "cadence_violation_events": int(
+                collector_stats.get("capture_interval_violation", 0)
+            ),
+        }
+        prepared = []
         for snapshot in snapshots:
             item = metadata.get(str(snapshot.cgroup_id))
             if item is None:
@@ -193,18 +234,9 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             output["collector_snapshot_interval_seconds"] = (
                 snapshot_interval_seconds
             )
+            output["collector_telemetry_availability"] = telemetry_state
             prepared.append(output)
             emitted += 1
-        if interval_violation:
-            # Count one delayed loader snapshot, not one copy of that snapshot
-            # per workload. Keep the cumulative value in all rows emitted for
-            # this snapshot so a minute-level tail monitor cannot miss it.
-            assembler.stats["capture_interval_violation"] = (
-                assembler.stats.get("capture_interval_violation", 0) + 1
-            )
-            collector_stats["capture_interval_violation"] = assembler.stats[
-                "capture_interval_violation"
-            ]
         if prepared:
             destination.write(
                 "".join(
@@ -225,11 +257,13 @@ def main() -> None:
     parser.add_argument("--rolling-windows", type=int, default=5)
     parser.add_argument("--interval-min-seconds", type=float)
     parser.add_argument("--interval-max-seconds", type=float)
+    parser.add_argument("--nominal-interval-seconds", type=float)
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as destination:
         stats = run(sys.stdin, destination, args.metadata_file, args.rolling_windows,
-                    args.interval_min_seconds, args.interval_max_seconds)
+                    args.interval_min_seconds, args.interval_max_seconds,
+                    args.nominal_interval_seconds)
     print(json.dumps(stats), file=sys.stderr)
 
 

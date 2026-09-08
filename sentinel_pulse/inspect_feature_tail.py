@@ -64,7 +64,10 @@ def inspect(
     interval_min_seconds: float = 0.35,
     interval_max_seconds: float = 0.80,
     maximum_single_gap_seconds: float | None = None,
-    maximum_capture_interval_violations: int = 0,
+    maximum_capture_interval_violations: int | None = None,
+    nominal_interval_seconds: float = 0.5,
+    minimum_telemetry_availability: float = 1.0,
+    maximum_estimated_missing_snapshots: int | None = None,
 ) -> dict:
     if maximum_age_seconds <= 0:
         raise ValueError("maximum feature age must be positive")
@@ -74,7 +77,19 @@ def inspect(
         maximum_single_gap_seconds = interval_max_seconds
     if maximum_single_gap_seconds < interval_max_seconds:
         raise ValueError("maximum single gap cannot be below interval maximum")
-    if maximum_capture_interval_violations < 0:
+    if nominal_interval_seconds <= 0:
+        raise ValueError("nominal interval must be positive")
+    if not 0 < minimum_telemetry_availability <= 1:
+        raise ValueError("minimum telemetry availability must be in (0, 1]")
+    if (
+        maximum_estimated_missing_snapshots is not None
+        and maximum_estimated_missing_snapshots < 0
+    ):
+        raise ValueError("maximum estimated missing snapshots cannot be negative")
+    if (
+        maximum_capture_interval_violations is not None
+        and maximum_capture_interval_violations < 0
+    ):
         raise ValueError("maximum capture interval violations cannot be negative")
 
     newest = None
@@ -145,7 +160,75 @@ def inspect(
         cadence_violations = -1
         errors.append(f"invalid collector counter: {CADENCE_COUNTER}")
     drops[CADENCE_COUNTER] = cadence_violations
-    if cadence_violations > maximum_capture_interval_violations:
+    telemetry_state = newest.get("collector_telemetry_availability")
+    availability = None
+    maximum_observed_gap = None
+    if isinstance(telemetry_state, dict):
+        try:
+            observed_snapshots = int(telemetry_state["observed_snapshots"])
+            estimated_missing = int(
+                telemetry_state["estimated_missing_snapshots"]
+            )
+            maximum_observed_gap = float(
+                telemetry_state["maximum_snapshot_interval_seconds"]
+            )
+            reported_availability = float(telemetry_state["availability"])
+            reported_cadence = int(telemetry_state["cadence_violation_events"])
+            if observed_snapshots <= 0 or estimated_missing < 0:
+                raise ValueError("invalid snapshot counts")
+            expected_snapshots = observed_snapshots + estimated_missing
+            availability = observed_snapshots / expected_snapshots
+            if not math.isclose(
+                availability, reported_availability, rel_tol=0.0, abs_tol=1e-12
+            ):
+                errors.append("collector telemetry availability mismatch")
+            if reported_cadence != cadence_violations:
+                errors.append("collector telemetry cadence counter mismatch")
+            if not math.isfinite(maximum_observed_gap):
+                errors.append("collector maximum snapshot interval is not finite")
+            elif maximum_observed_gap > maximum_single_gap_seconds:
+                errors.append(
+                    f"telemetry maximum gap {maximum_observed_gap:.6f}s exceeds "
+                    f"{maximum_single_gap_seconds:.6f}s"
+                )
+            if (
+                maximum_estimated_missing_snapshots is not None
+                and estimated_missing > maximum_estimated_missing_snapshots
+            ):
+                errors.append(
+                    "telemetry missing-snapshot budget exceeded: "
+                    f"estimated={estimated_missing}, "
+                    f"maximum={maximum_estimated_missing_snapshots}"
+                )
+            elif (
+                maximum_estimated_missing_snapshots is None
+                and availability < minimum_telemetry_availability
+            ):
+                errors.append(
+                    f"telemetry availability {availability:.9f} is below "
+                    f"{minimum_telemetry_availability:.9f}"
+                )
+        except (KeyError, TypeError, ValueError) as error:
+            errors.append(f"invalid collector telemetry availability: {error}")
+    else:
+        # Legacy rows have only a cumulative cadence counter. Preserve the old
+        # zero-tolerance behavior unless the caller supplied an explicit count
+        # budget. New formal runs use the cumulative availability fields above.
+        cadence_budget = (
+            0
+            if maximum_capture_interval_violations is None
+            else maximum_capture_interval_violations
+        )
+        if cadence_violations > cadence_budget:
+            errors.append(
+                f"telemetry cadence budget exceeded: {CADENCE_COUNTER}="
+                f"{cadence_violations}, maximum={cadence_budget}"
+            )
+    if (
+        telemetry_state is not None
+        and maximum_capture_interval_violations is not None
+        and cadence_violations > maximum_capture_interval_violations
+    ):
         errors.append(
             f"telemetry cadence budget exceeded: {CADENCE_COUNTER}="
             f"{cadence_violations}, maximum={maximum_capture_interval_violations}"
@@ -162,9 +245,15 @@ def inspect(
         "feature_age_seconds": age,
         "collector_max_drops": drops,
         "telemetry_degraded": degraded_interval or cadence_violations > 0,
+        "collector_telemetry_availability": telemetry_state,
         "telemetry_availability_contract": {
+            "nominal_interval_seconds": nominal_interval_seconds,
+            "minimum_availability": minimum_telemetry_availability,
             "maximum_single_gap_seconds": maximum_single_gap_seconds,
             "maximum_capture_interval_violations": maximum_capture_interval_violations,
+            "maximum_estimated_missing_snapshots": (
+                maximum_estimated_missing_snapshots
+            ),
         },
         "errors": errors,
     }
@@ -177,7 +266,10 @@ def main() -> None:
     parser.add_argument("--interval-min-seconds", type=float, default=0.35)
     parser.add_argument("--interval-max-seconds", type=float, default=0.80)
     parser.add_argument("--maximum-single-gap-seconds", type=float)
-    parser.add_argument("--maximum-capture-interval-violations", type=int, default=0)
+    parser.add_argument("--maximum-capture-interval-violations", type=int)
+    parser.add_argument("--nominal-interval-seconds", type=float, default=0.5)
+    parser.add_argument("--minimum-telemetry-availability", type=float, default=1.0)
+    parser.add_argument("--maximum-estimated-missing-snapshots", type=int)
     args = parser.parse_args()
     result = inspect(
         args.capture,
@@ -186,6 +278,11 @@ def main() -> None:
         interval_max_seconds=args.interval_max_seconds,
         maximum_single_gap_seconds=args.maximum_single_gap_seconds,
         maximum_capture_interval_violations=args.maximum_capture_interval_violations,
+        nominal_interval_seconds=args.nominal_interval_seconds,
+        minimum_telemetry_availability=args.minimum_telemetry_availability,
+        maximum_estimated_missing_snapshots=(
+            args.maximum_estimated_missing_snapshots
+        ),
     )
     print(json.dumps(result, separators=(",", ":"), sort_keys=True))
     raise SystemExit(0 if result["valid"] else 1)

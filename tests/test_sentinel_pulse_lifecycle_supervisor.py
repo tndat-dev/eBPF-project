@@ -1,3 +1,4 @@
+import hashlib
 import json
 import fcntl
 import os
@@ -78,6 +79,37 @@ def test_lifecycle_rejects_resume_identity_mismatch_before_monitor(tmp_path):
     assert "identity does not match" in result.stderr
     phases = (tmp_path / "state" / "phases.jsonl").read_text()
     assert "terminal_resume_identity_mismatch" in phases
+
+
+def test_lifecycle_rejects_resume_telemetry_contract_mismatch(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "SOAK_START.json").write_text(json.dumps({
+        "model_manifest_sha256": hashlib.sha256(
+            (model / "manifest.json").read_bytes()
+        ).hexdigest(),
+        "decision_policy_sha256": hashlib.sha256(policy.read_bytes()).hexdigest(),
+        "telemetry_availability_contract": {
+            "nominal_interval_seconds": 0.5,
+            "minimum_availability": 0.9999,
+            "maximum_single_gap_seconds": 10.0,
+        },
+    }), encoding="utf-8")
+
+    result = subprocess.run(
+        [str(LIFECYCLE)],
+        env=lifecycle_env(tmp_path, model, policy),
+        text=True,
+        capture_output=True,
+        timeout=5,
+        check=False,
+    )
+
+    assert result.returncode == 6
+    assert "telemetry contract does not match" in result.stderr
+    phases = (tmp_path / "state" / "phases.jsonl").read_text()
+    assert "terminal_resume_telemetry_contract_mismatch" in phases
 
 
 def test_lifecycle_rejects_a_second_writer_for_the_same_run(tmp_path):

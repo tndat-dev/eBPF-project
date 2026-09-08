@@ -66,7 +66,8 @@ def capture_multiple_cgroups(tmp_path, times, cgroup_count=3, **kwargs):
 
 def test_gap_remains_visible_after_cadence_recovers(tmp_path):
     path = capture(tmp_path, [10.0, 10.5, 13.0, 13.5],
-                   interval_min_seconds=0.35, interval_max_seconds=0.8)
+                   interval_min_seconds=0.35, interval_max_seconds=0.8,
+                   nominal_interval_seconds=0.5)
     rows = [json.loads(line) for line in path.read_text().splitlines()]
     features = [row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"]
     assert [r["collector_stats"].get("capture_interval_violation", 0)
@@ -78,6 +79,56 @@ def test_gap_remains_visible_after_cadence_recovers(tmp_path):
     assert not tail["valid"]
     assert any("telemetry cadence budget exceeded" in item for item in tail["errors"])
     assert all(np.isfinite(decode_vector(row)).all() for row in features)
+
+
+def test_tail_uses_cumulative_availability_for_a_recovered_gap(tmp_path):
+    path = capture(
+        tmp_path,
+        [10.0, 10.5, 13.0] + [13.5 + 0.5 * tick for tick in range(5000)],
+        interval_min_seconds=0.35,
+        interval_max_seconds=0.8,
+        nominal_interval_seconds=0.5,
+    )
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    newest = [
+        row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"
+    ][-1]
+    state = newest["collector_telemetry_availability"]
+    assert state["estimated_missing_snapshots"] == 4
+    assert state["maximum_snapshot_interval_seconds"] == 2.5
+    assert state["cadence_violation_events"] == 1
+
+    result = inspect(
+        path,
+        observed_at=newest["emitted_at"],
+        nominal_interval_seconds=0.5,
+        minimum_telemetry_availability=0.999,
+        maximum_single_gap_seconds=10.0,
+    )
+    assert result["valid"], result["errors"]
+    assert result["telemetry_degraded"] is True
+
+
+def test_tail_rejects_cumulative_missing_snapshot_budget(tmp_path):
+    path = capture(
+        tmp_path,
+        [10.0, 10.5, 13.0, 13.5],
+        interval_min_seconds=0.35,
+        interval_max_seconds=0.8,
+        nominal_interval_seconds=0.5,
+    )
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    newest = [
+        row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"
+    ][-1]
+    result = inspect(
+        path,
+        observed_at=newest["emitted_at"],
+        maximum_single_gap_seconds=10.0,
+        maximum_estimated_missing_snapshots=3,
+    )
+    assert not result["valid"]
+    assert any("missing-snapshot budget exceeded" in item for item in result["errors"])
 
 
 def test_gap_counter_counts_loader_snapshots_not_workload_rows(tmp_path):

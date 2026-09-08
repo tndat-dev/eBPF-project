@@ -686,5 +686,17 @@ Prospective canary R6-r2
 the unchanged B7 model/policy, a 500 ms nominal interval, minimum telemetry
 availability 0.999 and maximum single gap 10 seconds. It runs for 7,200 seconds
 on all three workers. The first checkpoint recorded 5,111 decisions, zero
-alerts and active collectors/detectors/finalizers. It is not a pass until
-terminal validation and checksums complete after approximately 05:35 UTC.
+alerts and active collectors/detectors/finalizers.
+
+R6-r2 completed valid at 05:36:28 UTC with 517,459 decisions, 512,694 scored,
+zero alerts/restarts and complete 20/20 workload coverage. Aggregate inference
+p99 was 29.778 ms and window-start-to-decision p99 was 0.858 seconds; the latter
+had a 3.356-second maximum and therefore does not establish a hard two-second
+maximum. Worker1/worker3/worker4 telemetry availability was
+1.0/0.999650/0.999720, with maximum loader gaps of 0.608/2.853/2.574 seconds.
+All hard-integrity counters were zero and delayed sources were reset to
+`warming_reason=temporal_gap` rather than scored across missing history.
+Start/final checksum indexes verify. This is a nonformal normal-only canary,
+not an FPR, recall, blind attack latency or production promotion result; it
+permits preparation of a new 24-hour formal soak under the same preregistered
+availability contract.

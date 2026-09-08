@@ -14,8 +14,10 @@ telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
 terminal hợp lệ; formal normal-only R4 tiếp tục bị infrastructure-reject vì
 pause worker3. Canary cách ly R5 cũng terminal infrastructure failure vì một
 pause worker3 4,874 giây dù không chạy sysstat recorder; candidate chưa được
-đánh giá. Prospective availability canary R6-r2 đang active; chưa có claim
-production.
+đánh giá. Prospective availability canary R6-r2 đã terminal hợp lệ với 517.459
+decision, 0 alert, đủ 20/20 workload và p99 window-start-to-decision 0,858
+giây. Đây vẫn là normal-only engineering canary; chưa có claim production,
+FPR, recall hay blind-attack latency.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2241,10 +2243,40 @@ promotion tự động.
 R6-r2 active trên ba worker từ khoảng 03:35 UTC. Checkpoint đầu có 5.111
 decision trực tiếp, 0 alert; collector/detector/finalizer đều active. Nhịp
 loader mới được ghi riêng ở khoảng 0,503 giây. Đây chỉ là checkpoint; terminal
-validation/checksum sau khoảng 05:35 UTC mới quyết định canary pass/fail.
+validation/checksum mới quyết định canary pass/fail.
 
 Checkpoint 04:04 UTC ghi 127.205 decision ở cùng một vòng monitor, 0 alert và
 0 restart. Inference p99 worker1/worker3/worker4 lần lượt
 30,691/29,159/29,503 ms; window-start-to-decision p99
 0,804/0,770/0,877 giây, max cao nhất 1,044 giây. Đây là normal-only latency
 checkpoint, chưa phải blind-attack kernel-to-alert và chưa phải terminal pass.
+
+Terminal aggregate được tạo lúc 05:36:28 UTC và `valid=true`: 517.459 decision,
+512.694 scored, 510.297 normal, 2.397 suppressed, 4.765 warming, 0 alert và
+0 detector restart. Coverage gate đạt 20/20 workload, không có key thiếu hoặc
+ngoài preregistration; thời lượng node ngắn nhất 7.201,875 giây. Inference
+p50/p95/p99 là 16,822/24,504/29,778 ms; post-window processing
+p50/p95/p99 là 0,161/0,302/0,353 giây; window-start-to-decision
+p50/p95/p99 là 0,665/0,806/0,858 giây. Max tương ứng có outlier 2,852 giây
+post-window và 3,356 giây end-to-end, vì vậy chỉ p99 đạt mục tiêu dưới 2 giây;
+không được claim mọi quyết định đều dưới 2 giây.
+
+Hard-integrity counter bằng 0 trên 3/3 worker. Telemetry availability của
+worker1/worker3/worker4 lần lượt là 100%/99,9650%/99,9720%, với số snapshot
+ước tính thiếu 0/5/4 và max interval 0,608/2,853/2,574 giây. Hai interval dài
+đều nằm trong contract 99,9%/10 giây. Kiểm tra decision đúng timestamp xác nhận
+detector chuyển các source bị ảnh hưởng sang `warming_reason=temporal_gap`,
+xóa temporal evidence và không score qua gap. Tổng số warming do temporal gap
+không đồng nhất với số pause collector vì workload thưa và container identity
+thay đổi cũng buộc reset lịch sử.
+
+Mọi entry trong `START_SHA256SUMS` và `FINAL_SHA256SUMS` verify pass.
+`AGGREGATE.json` có SHA-256
+`e73375762b69cff016ce071626e2a250fe6dc895165a7724c318781aaed741f8`; checksum
+index cuối có SHA-256
+`18cb3a2de90e388ea51e882a216d830b2789f0b709ba627f03a54af5ac7a7373`.
+Finalizer đã phục hồi control collector và dừng experiment/candidate trên cả
+ba worker. Hậu kiểm cluster có 6/6 node Ready v1.34.10 và zero bad pod. Canary
+này chỉ cho phép chuyển sang formal normal soak 24 giờ theo cùng availability
+contract; `accuracy_claim_allowed=false`, `automatic_promotion=false` và blind
+set vẫn đóng.

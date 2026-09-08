@@ -150,6 +150,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("record_500ms_metrics", installer)
         self.assertIn("--interval-min-seconds 0.35", finalizer)
         self.assertIn("--interval-max-seconds 0.80", finalizer)
+        self.assertIn("--nominal-interval-seconds", unit)
         self.assertIn("cd /opt/sentinel-pulse", finalizer)
         self.assertIn("sentinel-pulse-500ms-final-v1", finalizer)
         self.assertIn('chmod 0444 "$RUN_DIR"/*', finalizer)
@@ -181,6 +182,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("! systemctl is-active --quiet sentinel-pulse-collector", script)
         self.assertNotIn("systemctl enable", script)
         self.assertIn("verify_model_bundle", script)
+        self.assertIn("TELEMETRY_MINIMUM_AVAILABILITY", script)
+        self.assertIn('"telemetry_availability_contract"', script)
+        self.assertIn("sentinel-pulse-semantic-soak-start-v8", script)
 
     def test_runtime_units_do_not_propagate_transient_dependency_restarts(self):
         unit_root = ROOT / "sentinel_pulse" / "systemd"
@@ -210,6 +214,8 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("feature_source_mismatch", script)
         self.assertIn("sentinel_pulse.inspect_feature_tail", script)
         self.assertIn("collector_integrity_violation", script)
+        self.assertIn("--maximum-estimated-missing-snapshots", script)
+        self.assertIn("telemetry_missing_budget", script)
         self.assertIn('jq -e \'.valid == true\'', script)
         self.assertIn("duplicate_longhorn_disk_uuid", script)
         self.assertIn("colocated_longhorn_replicas", script)
@@ -399,6 +405,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("printf 'DURATION_SECONDS=%s\\n'", script)
         self.assertIn("printf 'PREFLIGHT_STABILITY_SECONDS=%s\\n'", script)
         self.assertIn("printf 'PREFLIGHT_TIMEOUT_SECONDS=%s\\n'", script)
+        self.assertIn("printf 'TELEMETRY_NOMINAL_INTERVAL_SECONDS=%s\\n'", script)
+        self.assertIn("printf 'TELEMETRY_MINIMUM_AVAILABILITY=%s\\n'", script)
+        self.assertIn("printf 'TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=%s\\n'", script)
         self.assertNotIn("SSHPASS=1", script)
         state_root = script.index(
             'install -d -o dat -g dat -m 0750 "$STATE_ROOT"'
@@ -571,7 +580,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("worker_maintenance_snapshot", starter)
         self.assertIn("unattended-upgrades.service", starter)
         self.assertIn("apt-daily-upgrade.timer", starter)
-        self.assertIn("sentinel-pulse-semantic-soak-start-v7", starter)
+        self.assertIn("sentinel-pulse-semantic-soak-start-v8", starter)
         self.assertIn('"maintenance_window_guard"', starter)
         self.assertIn("SUSPEND_CONTROL_COLLECTOR", starter)
         self.assertIn('"control_collector_suspended_hosts"', starter)
@@ -592,10 +601,12 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("insufficient_worker_capacity", monitor)
         self.assertIn("unhealthy_kubernetes_node", monitor)
         self.assertIn("FAILURE_NODES.json", monitor)
+        self.assertIn("telemetry_availability_contract", monitor)
 
         finalizer = (
             ROOT / "sentinel_pulse" / "finalize_500ms_normal_soak.sh"
         ).read_text()
+        self.assertIn("TELEMETRY_REPORT.json", finalizer)
         failure_archive = (
             ROOT / "sentinel_pulse" / "freeze_failed_500ms_normal_soak.sh"
         ).read_text()

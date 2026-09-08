@@ -131,6 +131,60 @@ for index in "${!hosts[@]}"; do
   decision_paths+=("$decisions")
 done
 
+python3 - "$MARKER" "$EVIDENCE_ROOT/TELEMETRY_REPORT.json" \
+  "$EVIDENCE_ROOT/workers" <<'PY'
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+import sys
+
+marker_path, output_path, workers_root = map(Path, sys.argv[1:])
+marker = json.loads(marker_path.read_text(encoding="utf-8"))
+expected = marker["telemetry_availability_contract"]
+nodes = {}
+for path in sorted(workers_root.glob("*-node-finalize.json")):
+    report = json.loads(path.read_text(encoding="utf-8"))
+    node = path.name.removesuffix("-node-finalize.json")
+    contract = report.get("telemetry_availability_contract")
+    if contract != expected:
+        raise SystemExit(f"telemetry contract mismatch: {node}")
+    availability = report.get("telemetry_availability", {})
+    hard = {
+        key: int(value)
+        for key, value in report.get("collector_max_drops", {}).items()
+        if key != "capture_interval_violation"
+    }
+    node_valid = (
+        report.get("valid") is True
+        and all(value == 0 for value in hard.values())
+        and float(availability.get("availability", 0.0))
+        >= float(expected["minimum_availability"])
+        and float(availability.get("maximum_gap_seconds", float("inf")))
+        <= float(expected["maximum_single_gap_seconds"])
+    )
+    nodes[node] = {
+        "valid": node_valid,
+        "duration_seconds": report.get("duration_seconds"),
+        "rows": report.get("rows"),
+        "workload_count": report.get("workload_count"),
+        "telemetry_availability": availability,
+        "hard_integrity_counters": hard,
+    }
+payload = {
+    "schema": "sentinel-pulse-formal-telemetry-report-v1",
+    "created_at": datetime.now(timezone.utc).isoformat(),
+    "run_id": marker["run_id"],
+    "contract": expected,
+    "nodes": nodes,
+    "valid": len(nodes) == 3 and all(item["valid"] for item in nodes.values()),
+}
+output_path.write_text(
+    json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+)
+PY
+jq -e '.valid == true and (.nodes | length) == 3' \
+  "$EVIDENCE_ROOT/TELEMETRY_REPORT.json" >/dev/null
+
 (
   cd "$EVIDENCE_ROOT"
   find workers -type f \( -name decisions.jsonl -o -name alerts.jsonl \
@@ -191,6 +245,7 @@ printf 'passed_at=%s\nnormal_report_sha256=%s\nautomatic_promotion=false\n' \
   "$(date -u +%FT%TZ)" "$report_sha" >"$EVIDENCE_ROOT/NORMAL_PASS"
 sha256sum "$MARKER" "$MODEL_SOURCE/manifest.json" "$POLICY_SOURCE" \
   "$EVIDENCE_ROOT/NORMAL_REPORT.json" "$EVIDENCE_ROOT/RAW_SHA256SUMS" \
+  "$EVIDENCE_ROOT/TELEMETRY_REPORT.json" \
   "$EVIDENCE_ROOT/CONTROL_COLLECTOR_RESTORED.json" \
   >"$EVIDENCE_ROOT/FINAL_SHA256SUMS"
 rm -f "$EVIDENCE_ROOT/ACTIVE" "$EVIDENCE_ROOT/FINALIZE_FAILED" "$finalizing"

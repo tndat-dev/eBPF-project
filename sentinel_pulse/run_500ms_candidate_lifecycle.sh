@@ -12,6 +12,9 @@ BLIND_RUN_ID=${BLIND_RUN_ID:-pulse500-blind-$(date -u +%Y%m%dT%H%M%SZ)}
 BLIND_EVIDENCE_ROOT=${BLIND_EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$BLIND_RUN_ID}
 FINALIZE_MARGIN_SECONDS=${FINALIZE_MARGIN_SECONDS:-300}
 STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-false}
+TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
+TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-0.999}
+TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-10.0}
 STATE_ROOT=${STATE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign}
 PHASE_LOG=${PHASE_LOG:-$STATE_ROOT/$NORMAL_RUN_ID-lifecycle.jsonl}
 
@@ -85,6 +88,18 @@ if [[ -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
     echo "resume model/policy identity does not match SOAK_START.json" >&2
     exit 6
   fi
+  if ! jq -e \
+      --argjson nominal "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+      --argjson minimum "$TELEMETRY_MINIMUM_AVAILABILITY" \
+      --argjson maximum_gap "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
+      '.telemetry_availability_contract.nominal_interval_seconds == $nominal
+       and .telemetry_availability_contract.minimum_availability == $minimum
+       and .telemetry_availability_contract.maximum_single_gap_seconds == $maximum_gap' \
+      "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" >/dev/null; then
+    phase terminal_resume_telemetry_contract_mismatch
+    echo "resume telemetry contract does not match SOAK_START.json" >&2
+    exit 6
+  fi
 fi
 
 if [[ ! -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
@@ -99,6 +114,9 @@ if [[ ! -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
   LOCAL_ROOT="$LOCAL_ROOT" MODEL_SOURCE="$MODEL_SOURCE" \
     POLICY_SOURCE="$POLICY_SOURCE" RUN_ID="$NORMAL_RUN_ID" \
     EVIDENCE_ROOT="$NORMAL_EVIDENCE_ROOT" \
+    TELEMETRY_NOMINAL_INTERVAL_SECONDS="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+    TELEMETRY_MINIMUM_AVAILABILITY="$TELEMETRY_MINIMUM_AVAILABILITY" \
+    TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
     "$LOCAL_ROOT/sentinel_pulse/start_500ms_normal_soak.sh"
   phase normal_active
 fi

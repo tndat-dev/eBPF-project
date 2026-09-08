@@ -23,6 +23,30 @@ marker=json.loads(pathlib.Path(sys.argv[1]).read_text())
 print(datetime.fromisoformat(marker["eligible_finalize_after"]).timestamp())
 PY
 )
+read -r telemetry_nominal telemetry_minimum telemetry_maximum_gap \
+  telemetry_missing_budget telemetry_maximum_feature_age < <(
+  python3 - "$MARKER" <<'PY'
+import json
+import math
+from pathlib import Path
+import sys
+
+marker = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+contract = marker["telemetry_availability_contract"]
+nominal = float(contract["nominal_interval_seconds"])
+minimum = float(contract["minimum_availability"])
+maximum_gap = float(contract["maximum_single_gap_seconds"])
+duration = int(marker["registered_collector_duration_seconds"])
+if nominal <= 0 or not 0 < minimum <= 1 or maximum_gap < 0.8:
+    raise SystemExit("invalid telemetry availability contract in marker")
+expected_snapshots = math.floor(duration / nominal)
+missing_budget = math.floor(expected_snapshots * (1.0 - minimum))
+# Do not reject a recoverable pause merely because the previous row becomes
+# older than the legacy five-second liveness limit while the gap budget is 10s.
+maximum_feature_age = max(5, math.ceil(maximum_gap) + 2)
+print(nominal, minimum, maximum_gap, missing_budget, maximum_feature_age)
+PY
+)
 
 write_row() {
   python3 - "$LOG" "$@" <<'PY'
@@ -156,7 +180,7 @@ while true; do
     tail_check_rc=0
     tail_snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
-      "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.inspect_feature_tail --capture '$expected_feature' --maximum-age-seconds 5" \
+      "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.inspect_feature_tail --capture '$expected_feature' --maximum-age-seconds '$telemetry_maximum_feature_age' --nominal-interval-seconds '$telemetry_nominal' --minimum-telemetry-availability '$telemetry_minimum' --maximum-single-gap-seconds '$telemetry_maximum_gap' --maximum-estimated-missing-snapshots '$telemetry_missing_budget'" \
       2>"$EVIDENCE_ROOT/feature-tail-$host.stderr") || tail_check_rc=$?
     if ((tail_check_rc != 0)); then
       printf '%s\n' "$tail_snapshot" >"$EVIDENCE_ROOT/FAILURE_FEATURE_TAIL.stdout"

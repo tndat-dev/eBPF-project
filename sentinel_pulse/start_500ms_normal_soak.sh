@@ -11,6 +11,9 @@ DURATION_SECONDS=${DURATION_SECONDS:-90000}
 MINIMUM_DURATION_HOURS=${MINIMUM_DURATION_HOURS:-24}
 PREFLIGHT_STABILITY_SECONDS=${PREFLIGHT_STABILITY_SECONDS:-300}
 PREFLIGHT_TIMEOUT_SECONDS=${PREFLIGHT_TIMEOUT_SECONDS:-1800}
+TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
+TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-0.999}
+TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-10.0}
 # Do not start a multi-hour capture simply because kubelet has not yet set
 # DiskPressure.  A3 showed that the eviction signal can arrive after the
 # experiment has started; keep enough root filesystem headroom for Longhorn,
@@ -63,6 +66,18 @@ command -v jq >/dev/null
 [[ $SUSPEND_CONTROL_COLLECTOR == true || $SUSPEND_CONTROL_COLLECTOR == false ]] || {
   echo "SUSPEND_CONTROL_COLLECTOR must be true or false" >&2; exit 2;
 }
+python3 - "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+  "$TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" <<'PY'
+import math
+import sys
+
+nominal, availability, maximum_gap = map(float, sys.argv[1:])
+if not all(map(math.isfinite, (nominal, availability, maximum_gap))):
+    raise SystemExit("telemetry availability contract is not finite")
+if nominal <= 0 or not 0 < availability <= 1 or maximum_gap < 0.8:
+    raise SystemExit("invalid telemetry availability contract")
+PY
 test -f "$MODEL_SOURCE/manifest.json"
 test -f "$MODEL_SOURCE/manifest.sha256"
 test -f "$POLICY_SOURCE"
@@ -277,13 +292,19 @@ mkdir "$EVIDENCE_ROOT"
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" \
   "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" \
-  "$(IFS=,; echo "${suspended_control_hosts[*]}")" <<'PY'
+  "$(IFS=,; echo "${suspended_control_hosts[*]}")" \
+  "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+  "$TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" "$DURATION_SECONDS" <<'PY'
 from datetime import datetime, timedelta, timezone
 import json, pathlib, sys
-out, run_id, model, policy, commit, hours, min_root, max_root, suspended = sys.argv[1:]
+(
+    out, run_id, model, policy, commit, hours, min_root, max_root, suspended,
+    telemetry_nominal, telemetry_availability, telemetry_gap, duration_seconds,
+) = sys.argv[1:]
 started = datetime.now(timezone.utc)
 payload = {
-    "schema": "sentinel-pulse-semantic-soak-start-v7",
+    "schema": "sentinel-pulse-semantic-soak-start-v8",
     "run_id": run_id,
     "model_manifest_sha256": model,
     "decision_policy_sha256": policy,
@@ -292,6 +313,7 @@ payload = {
     "automatic_promotion": False,
     "maximum_alerts": 0,
     "minimum_duration_hours_per_workload": float(hours),
+    "registered_collector_duration_seconds": int(duration_seconds),
     "minimum_coverage_ratio_per_workload": 0.95,
     "minimum_root_available_bytes": int(min_root),
     "maximum_root_used_percent": int(max_root),
@@ -311,6 +333,11 @@ payload = {
     "control_collector_suspended_hosts": [
         item for item in suspended.split(",") if item
     ],
+    "telemetry_availability_contract": {
+        "nominal_interval_seconds": float(telemetry_nominal),
+        "minimum_availability": float(telemetry_availability),
+        "maximum_single_gap_seconds": float(telemetry_gap),
+    },
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }
@@ -323,6 +350,9 @@ for target in "${WORKERS[@]}"; do
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \
     REQUIRE_CONTROL_COLLECTOR=false \
+    TELEMETRY_NOMINAL_INTERVAL_SECONDS="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+    TELEMETRY_MINIMUM_AVAILABILITY="$TELEMETRY_MINIMUM_AVAILABILITY" \
+    TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
     "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
   feature="/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/features.jsonl"
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" \
