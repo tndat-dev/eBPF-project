@@ -77,7 +77,7 @@ def test_gap_remains_visible_after_cadence_recovers(tmp_path):
     tail = inspect(path, observed_at=features[-1]["emitted_at"])
     assert tail["interval_seconds"] == 0.5
     assert not tail["valid"]
-    assert any("telemetry cadence budget exceeded" in item for item in tail["errors"])
+    assert any("telemetry availability" in item for item in tail["errors"])
     assert all(np.isfinite(decode_vector(row)).all() for row in features)
 
 
