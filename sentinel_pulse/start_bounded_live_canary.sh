@@ -16,7 +16,10 @@ TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-0.8
 
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $DURATION_SECONDS =~ ^[1-9][0-9]*$ ]]
-(( DURATION_SECONDS >= 300 && DURATION_SECONDS <= 90000 ))
+# The aggregate requires a 300-second scored span. Reserve 60 seconds for
+# collector startup, temporal warm-up and detector installation so an otherwise
+# healthy canary is not structurally incapable of passing its coverage gate.
+(( DURATION_SECONDS >= 360 && DURATION_SECONDS <= 90000 ))
 [[ $EVIDENCE_ROOT == /home/dat/sentinel-pulse-evidence/* ]]
 test ! -e "$EVIDENCE_ROOT"
 test -f "$MODEL_SOURCE/manifest.json"

@@ -10,7 +10,7 @@ def test_bounded_canary_starts_all_finalizers_without_serial_wait():
     assert "ENABLE_INJECTION_TRACKING=false" in script
     assert "automatic_promotion" in script
     assert "systemctl disable sentinel-pulse-detector-candidate.service" in script
-    assert "DURATION_SECONDS >= 300" in script
+    assert "DURATION_SECONDS >= 360" in script
     assert "DURATION_SECONDS <= 90000" in script
     assert "! -path '*/__pycache__/*'" in script
     assert "--exclude='*.pyc'" in script
