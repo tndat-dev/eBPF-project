@@ -2329,3 +2329,12 @@ free nhỏ nhất 211 GiB. Monitor tuần tự có tổng 1.421.931 decision, 0 
 snapshot thiếu với max gap 2,459 giây. `telemetry_degraded` trên worker3/4 là
 cờ có cadence event lịch sử; terminal aggregate vẫn bắt buộc availability
 >=99,9% và max gap <=10 giây.
+
+Checkpoint SSH 16:45 UTC ngày 08-09: run vẫn ACTIVE sau hơn 10 giờ.
+Monitor lúc 16:44:39–16:44:47 UTC ghi tổng 2.628.139 decision, 0 alert/restart
+và hard-integrity counter đều 0. Availability worker1/worker3/worker4 là
+100%/99,9710%/99,9903%, estimated missing 0/21/7. Worker3 và worker4 mỗi node
+có hai cadence event lịch sử, max interval 9,853/2,459 giây. Cluster 6/6 Ready,
+không có pod ngoài Running/Succeeded; Longhorn volumes healthy. Start checksum
+verify và runtime vẫn `a0a8c5b`. Formal run tiếp tục chạy nền đến mốc đủ 24 giờ;
+chưa có terminal outcome hoặc attack kernel-to-alert mới.

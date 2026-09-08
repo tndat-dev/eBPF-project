@@ -7542,8 +7542,23 @@ node `Ready`, Kubernetes readyz pass, không có pod ngoài Running/Succeeded v�
 root free nhỏ nhất còn 211 GiB trên worker3. Tại các sample monitor tuần tự,
 worker1/worker3/worker4 có 439.979/380.221/601.731 decision, tổng 1.421.931,
 vẫn 0 alert và 0 restart. Telemetry worker1 là 100%; worker3 đã hồi phục lên
-99,9465% với 21 snapshot thiếu; worker4 có một gap 2,459 giây, 7 snapshot thiếu
+99,9465% với 21 snapshot thiếu; worker4 có max gap 2,459 giây, 7 snapshot thiếu
 và availability 99,9821%. Cả hai node có `telemetry_degraded=true` vì cờ này
 ghi nhận cadence event lịch sử, không phải kết luận terminal fail. Theo
 finalizer, run chỉ pass telemetry khi tỷ lệ cuối >=99,9% và max gap <=10 giây;
 chưa có kết quả formal cuối cùng.
+
+Checkpoint SSH 16:45 UTC ngày 08-09 (23:45 giờ Việt Nam): run vẫn `ACTIVE`,
+lifecycle/supervisor active. Ba sample monitor lúc 16:44:39–16:44:47 UTC ghi
+813.165/702.358/1.112.616 decision trên worker1/worker3/worker4, tổng
+2.628.139; 0 alert và 0 detector restart. Hard-integrity counter đều 0.
+Availability lần lượt 100%/99,9710%/99,9903%; estimated missing giữ ở
+0/21/7. Worker3 và worker4 mỗi node có hai cadence event tích lũy, max interval
+lần lượt 9,853 và 2,459 giây. Max interval worker1 là 0,714 giây.
+
+Kiểm tra trực tiếp xác nhận 6/6 node Ready v1.34.10, không có pod ngoài
+Running/Succeeded, không có Longhorn volume với robustness khác healthy.
+Ba entry START_SHA256SUMS verify; frozen runtime vẫn `a0a8c5b`. Mốc eligible
+finalize vẫn 09-09 06:35:47 UTC; cộng margin 300 giây rồi cần thêm thời gian
+xuất/kiểm chứng archive. Checkpoint này chưa có số đo attack kernel-to-alert
+hoặc kết luận formal FPR. Tiếp tục quan sát nền theo contract hiện hành.
