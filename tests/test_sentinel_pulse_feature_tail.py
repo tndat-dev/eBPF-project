@@ -53,6 +53,42 @@ def test_tail_rejects_stale_or_invalid_interval(tmp_path: Path) -> None:
     assert any("latest feature age" in item for item in result["errors"])
 
 
+def test_tail_accepts_preregistered_bounded_cadence_degradation(tmp_path: Path) -> None:
+    capture = tmp_path / "features.jsonl"
+    write_capture(
+        capture,
+        stats={"capture_interval_violation": 1},
+        interval=4.8,
+    )
+
+    result = inspect(
+        capture,
+        observed_at=104.0,
+        maximum_age_seconds=5.0,
+        maximum_single_gap_seconds=10.0,
+        maximum_capture_interval_violations=1,
+    )
+
+    assert result["valid"] is True
+    assert result["telemetry_degraded"] is True
+
+
+def test_tail_never_budgets_hard_integrity_failure(tmp_path: Path) -> None:
+    capture = tmp_path / "features.jsonl"
+    write_capture(
+        capture,
+        stats={"capture_interval_violation": 1, "count_insert_fail": 1},
+    )
+    result = inspect(
+        capture,
+        observed_at=100.0,
+        maximum_single_gap_seconds=10.0,
+        maximum_capture_interval_violations=1,
+    )
+    assert result["valid"] is False
+    assert "collector loss: count_insert_fail=1" in result["errors"]
+
+
 def test_tail_rejects_malformed_newest_row(tmp_path: Path) -> None:
     capture = tmp_path / "features.jsonl"
     write_capture(capture)

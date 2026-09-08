@@ -112,6 +112,7 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
     written_schema_hashes = set()
     metadata: dict[str, dict] = {}
     metadata_mtime_ns: int | None = None
+    previous_snapshot_observed_at: float | None = None
     for line in source:
         try:
             record = json.loads(line)
@@ -122,6 +123,12 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             assembler.add(record)
             continue
         observed_at = float(record["observed_at"])
+        snapshot_interval_seconds = (
+            None
+            if previous_snapshot_observed_at is None
+            else observed_at - previous_snapshot_observed_at
+        )
+        previous_snapshot_observed_at = observed_at
         if "targets" in record and "snapshots" in record:
             gap = abs(int(record["targets"]) - int(record["snapshots"]))
             assembler.stats["target_snapshot_gap"] = max(
@@ -143,7 +150,15 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                 metadata_mtime_ns = current_mtime_ns
         snapshots, collector_stats = assembler.snapshots(observed_at)
         prepared = []
-        interval_violation = False
+        interval_violation = bool(
+            snapshot_interval_seconds is not None
+            and interval_min_seconds is not None
+            and not (
+                interval_min_seconds
+                <= snapshot_interval_seconds
+                <= interval_max_seconds
+            )
+        )
         for snapshot in snapshots:
             item = metadata.get(str(snapshot.cgroup_id))
             if item is None:
@@ -162,11 +177,6 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             feature = builder.ingest(snapshot, key)
             if feature is None:
                 continue
-            if interval_min_seconds is not None and not (
-                interval_min_seconds <= feature.window_end - feature.window_start
-                <= interval_max_seconds
-            ):
-                interval_violation = True
             output, schema = compact_record(feature.as_record())
             schema_hash = schema["feature_schema_sha256"]
             if schema_hash not in written_schema_hashes:
@@ -180,6 +190,9 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             output["emitted_at"] = time.time()
             output["collector_stats"] = collector_stats
             output["snapshot_read_seconds"] = snapshot_read_seconds
+            output["collector_snapshot_interval_seconds"] = (
+                snapshot_interval_seconds
+            )
             prepared.append(output)
             emitted += 1
         if interval_violation:

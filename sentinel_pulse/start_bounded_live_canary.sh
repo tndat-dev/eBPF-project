@@ -9,6 +9,9 @@ EVIDENCE_ROOT=${EVIDENCE_ROOT:?choose a new control-plane evidence directory}
 RUN_ID=${RUN_ID:-sentinel-pulse-bounded-canary-$(date -u +%Y%m%dT%H%M%SZ)}
 DURATION_SECONDS=${DURATION_SECONDS:-900}
 SSH_USER=${SSH_USER:-dat}
+TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
+TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-1.0}
+TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-0.8}
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
 
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
@@ -98,6 +101,9 @@ printf '%s\n' "${workers[@]}" >"$EVIDENCE_ROOT/workers.plan"
 
 START_PATH="$EVIDENCE_ROOT/START.json" RUN_VALUE="$RUN_ID" MODEL_VALUE="$MODEL_SHA256" \
 POLICY_VALUE="$POLICY_SHA256" DURATION_VALUE="$DURATION_SECONDS" REMOTE_VALUE="$REMOTE_ROOT" \
+TELEMETRY_NOMINAL_VALUE="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+TELEMETRY_AVAILABILITY_VALUE="$TELEMETRY_MINIMUM_AVAILABILITY" \
+TELEMETRY_GAP_VALUE="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
 /home/dat/ml-venv/bin/python - <<'PY'
 from datetime import datetime, timezone
 import json, os
@@ -114,6 +120,11 @@ payload = {
     "model_manifest_sha256": os.environ["MODEL_VALUE"],
     "decision_policy_sha256": os.environ["POLICY_VALUE"],
     "remote_source_root": os.environ["REMOTE_VALUE"],
+    "telemetry_availability_contract": {
+        "nominal_interval_seconds": float(os.environ["TELEMETRY_NOMINAL_VALUE"]),
+        "minimum_availability": float(os.environ["TELEMETRY_AVAILABILITY_VALUE"]),
+        "maximum_single_gap_seconds": float(os.environ["TELEMETRY_GAP_VALUE"]),
+    },
 }
 Path(os.environ["START_PATH"]).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 PY
@@ -145,7 +156,12 @@ for target in "${workers[@]}"; do
   rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
     "$POLICY_SOURCE" "$SSH_USER@$host:$REMOTE_ROOT/decision-policy.json"
   started+=("$host")
-  remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" DURATION_SECONDS="$DURATION_SECONDS" "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
+  remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
+    DURATION_SECONDS="$DURATION_SECONDS" \
+    TELEMETRY_NOMINAL_INTERVAL_SECONDS="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+    TELEMETRY_MINIMUM_AVAILABILITY="$TELEMETRY_MINIMUM_AVAILABILITY" \
+    TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
+    "$REMOTE_ROOT/sentinel_pulse/install_500ms_experiment.sh"
   feature="/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/features.jsonl"
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" MODEL_SOURCE="$REMOTE_ROOT/model" DECISION_POLICY_SOURCE="$REMOTE_ROOT/decision-policy.json" FEATURE_SOURCE="$feature" DEPLOYMENT_ID="$RUN_ID" ENABLE_INJECTION_TRACKING=false "$REMOTE_ROOT/sentinel_pulse/install_detector_candidate.sh"
   unit="sentinel-pulse-bounded-canary-finalize-${RUN_ID}"

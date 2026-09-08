@@ -650,3 +650,33 @@ one-second samples in the same period, while containerd reported deadline and
 ExecSync timeouts; worker1 simultaneously reached 14.67% iowait. The run is an
 infrastructure rejection with `normal_gate_result=null`, not an FPR result.
 Blind stayed closed and the candidate was not promoted.
+
+Commit `d54c739` caches atomically replaced resolver metadata, writes and
+flushes one batch per BPF snapshot, and counts interval violations per loader
+snapshot rather than per emitted workload row. It does not relax the
+0.35--0.80-second gate. All 262 Pulse tests pass on both the host and VM.
+
+The isolated normal-only R5 canary
+`sentinel-pulse-b7-telemetry-r5-20260907T122659Z` started at 12:27:05 UTC for
+7,200 seconds without the sysstat pressure recorder. This is an observer
+perturbation isolation test, not evidence that the observer caused R4. The
+12:29 UTC checkpoint had 7,208 decisions, zero alerts/restarts, valid feature
+tails and zero integrity counters.
+
+R5 subsequently completed its 7,200-second bound but failed the original
+zero-cadence-violation contract. The archive contains 517,116 decisions and
+zero alerts; worker1/worker4 passed while worker3 had one 4.873938-second
+loader interval. Worker3 interval p99 remained 0.507403 seconds,
+window-start-to-emit p99 was 0.523591 seconds and ingest-lag p99 was 0.019569
+seconds. Containerd/kubelet ExecSync probes timed out in the same node pause.
+Because R5 had no sysstat recorder, it does not support the observer
+perturbation hypothesis. It remains an immutable infrastructure rejection;
+zero observed alerts are not an accuracy result.
+
+The successor code separates zero-tolerance BPF/data integrity from bounded
+telemetry availability. Availability budgets must be preregistered for a new
+run and report delayed snapshots, estimated missing snapshots, availability,
+and maximum gap. They never waive map insertion, snapshot consistency,
+target-attribution, finite-vector, or checksum failures. Runtime history and
+corroboration evidence are cleared after a gap beyond the model's contiguous
+history contract, forcing warm-up instead of scoring across missing time.

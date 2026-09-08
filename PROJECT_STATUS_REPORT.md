@@ -1,6 +1,7 @@
 # Báo cáo kỹ thuật: eBPF Runtime Sentinel cho Kubernetes
 
-**Ngày xác minh cluster gần nhất:** 2026-09-07 (11:46 UTC; SSH trực tiếp)
+**Ngày xác minh cluster gần nhất:** 2026-09-08 (SSH trực tiếp; 6/6 node Ready,
+Kubernetes v1.34.10, không có pod ngoài Running/Succeeded)
 **Workspace local:** `/home/tndat/Downloads/eBPF-project`  
 **Máy cluster:** `dat@10.1.16.234`; evidence lịch sử tại
 `/home/dat/eBPF-project`, A7 clean worktree tại
@@ -23,7 +24,9 @@ normal trên MinIO; blind B6 chưa mở. B7 đã pass canary normal 15 phút:
 Bản sửa telemetry và installer đã qua 261 test Sentinel Pulse trên VM;
 canary chẩn đoán R3 kéo dài 2 giờ đã terminal hợp lệ. Formal normal-only R4
 sau đó bị infrastructure-reject vì pause telemetry trên worker3; model chưa
-được đánh giá bởi run này. Xem mục 18.172.
+được đánh giá bởi run này. Canary cách ly R5 cũng terminal infrastructure
+failure vì một pause worker3 tương tự dù không chạy pressure recorder; giả
+thuyết observer gây pause không được dữ liệu ủng hộ. Xem mục 18.173.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7348,3 +7351,47 @@ không phải 18 pause độc lập. Source sau R4 sửa counter theo snapshot, 
 metadata resolver và flush một batch mỗi snapshot để giảm critical-path I/O;
 ngưỡng 0,35–0,80 giây vẫn giữ fail-closed. Bản sao disposition/finalizer ở
 `validation-evidence/sentinel-pulse-formal/b7-telemetry-r4-20260907/`.
+
+### 18.173 Canary R5 cách ly observer và tối ưu capture (07–08-09-2026)
+
+Commit `d54c7397159bf4e12ad3dda4fe6f2ef0838b2774` sửa ba điểm mà không đổi
+feature/model/policy: metadata resolver chỉ decode lại khi mtime thay đổi;
+feature của một BPF snapshot được write/flush theo một batch; interval violation
+được đếm theo loader snapshot thay vì workload row. Toàn bộ **262 test Sentinel
+Pulse pass** trên cả host (`7,99 s`) và ML venv VM (`9,00 s`). Interval gate
+0,35–0,80 giây vẫn fail-closed; thay đổi không làm R4 hợp lệ trở lại.
+
+Runtime tách biệt `/home/dat/eBPF-project-runtime-pulse-b7-telemetry-r5` bind
+commit trên, model `2e37ffd1...` và policy `711e66a9...`. Canary normal-only
+`sentinel-pulse-b7-telemetry-r5-20260907T122659Z` bắt đầu 12:27:05 UTC, giới
+hạn 7.200 giây, `automatic_promotion=false`; SHA-256 `START.json` là
+`9c43e4b35b02ed7195cdc2d1149685322efc24d77d0ed4559a308647acb73b57`.
+
+R5 cố ý không chạy sysstat recorder để tách khả năng observer làm perturb
+runtime. Run hoàn tất đủ khoảng 7.202 giây nhưng terminal **failed theo contract
+cũ**: 517.116 decision được archive, 0 alert, worker1/worker4 valid và worker3
+`failed_gate`. Toàn bộ checksum failure archive đã verify. Vì đây là
+infrastructure rejection, 0 alert không được dùng để claim FPR hay promote.
+
+Worker3 có đúng một delayed loader snapshot: interval 4,873938 giây. Các
+phân vị còn lại vẫn thấp: interval p50/p95/p99 = 0,503090/0,505939/0,507403
+giây; ingest-lag p99 = 0,019569 giây; window-start-to-emit p99 = 0,523591
+giây. `capture_interval_violation=1` xác nhận counter mới không còn nhân theo
+12 workload row, dù validator cũ liệt kê 12 dòng cùng snapshot. Journal đúng
+khoảng 13:20:59–13:21:04 UTC ghi hai `ExecSync` health probe timeout 3 giây.
+Do R5 không có sysstat recorder, giả thuyết recorder gây pause bị bác bỏ bởi
+run này; bằng chứng phù hợp hơn với pause cấp node/runtime/hypervisor.
+
+Hệ thống kế nhiệm không hợp thức hóa R5. R5 vẫn failed bất biến. Source đang
+được bổ sung một contract availability **chỉ có hiệu lực cho run preregister
+kế tiếp**: hard-integrity eBPF (map insert, consistency, target gap, NaN) vẫn
+zero-tolerance; cadence pause được báo riêng bằng số delayed snapshot, số
+snapshot ước tính bị thiếu, availability và max single gap. Detector đã có
+fail-safe xóa history/evidence và quay lại warming khi gap vượt 1,5 giây.
+
+Replay read-only validator mới trên capture R5 tính được 14.291 snapshot quan
+sát, 9 snapshot 500 ms ước tính bị thiếu và availability 99,9371%. Với ngưỡng
+99,9% và max-gap 10 giây, replay hậu nghiệm không có error; kết quả này chỉ xác
+nhận implementation, **không đổi R5 thành pass** và không phải accuracy claim.
+Ngưỡng chỉ có giá trị khoa học sau khi được bind trong marker của R6 trước khi
+thu dữ liệu.

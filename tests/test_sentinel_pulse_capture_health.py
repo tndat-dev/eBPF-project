@@ -72,10 +72,11 @@ def test_gap_remains_visible_after_cadence_recovers(tmp_path):
     assert [r["collector_stats"].get("capture_interval_violation", 0)
             for r in features] == [0, 1, 1]
     assert features[1]["window_end"] - features[1]["window_start"] == 2.5
+    assert features[1]["collector_snapshot_interval_seconds"] == 2.5
     tail = inspect(path, observed_at=features[-1]["emitted_at"])
     assert tail["interval_seconds"] == 0.5
     assert not tail["valid"]
-    assert "collector loss: capture_interval_violation=1" in tail["errors"]
+    assert any("telemetry cadence budget exceeded" in item for item in tail["errors"])
     assert all(np.isfinite(decode_vector(row)).all() for row in features)
 
 
@@ -93,10 +94,86 @@ def test_gap_counter_counts_loader_snapshots_not_workload_rows(tmp_path):
     assert {row["collector_stats"]["capture_interval_violation"] for row in recovered_rows} == {1}
 
 
+def test_loader_cadence_is_not_confused_with_per_cgroup_history(tmp_path):
+    metadata = tmp_path / "metadata.json"
+    metadata.write_text(json.dumps({"cgroups": {
+        "1": {"namespace": "production", "workload_name": "a",
+              "container_name": "app", "pod_uid": "a", "node_name": "node"},
+        "2": {"namespace": "production", "workload_name": "b",
+              "container_name": "app", "pod_uid": "b", "node_name": "node"},
+    }}))
+    rows = [
+        {"type": "cgroup_snapshot", "cgroup_id": 1, "total": 1,
+         "counts": {"0": 1}, "syscall_bins": [1] + [0] * 63,
+         "transition_bins": [0] * 64},
+        {"type": "snapshot_end", "observed_at": 10.0, "targets": 1, "snapshots": 1},
+        {"type": "cgroup_snapshot", "cgroup_id": 2, "total": 1,
+         "counts": {"0": 1}, "syscall_bins": [1] + [0] * 63,
+         "transition_bins": [0] * 64},
+        {"type": "snapshot_end", "observed_at": 10.5, "targets": 1, "snapshots": 1},
+        {"type": "cgroup_snapshot", "cgroup_id": 1, "total": 2,
+         "counts": {"0": 2}, "syscall_bins": [2] + [0] * 63,
+         "transition_bins": [0] * 64},
+        {"type": "snapshot_end", "observed_at": 11.0, "targets": 1, "snapshots": 1},
+    ]
+    destination = io.StringIO()
+    run(io.StringIO("".join(json.dumps(row) + "\n" for row in rows)),
+        destination, metadata, interval_min_seconds=0.35,
+        interval_max_seconds=0.8)
+    features = [json.loads(line) for line in destination.getvalue().splitlines()
+                if json.loads(line).get("schema") == "sentinel-pulse-feature-v1"]
+    assert len(features) == 1
+    assert features[0]["window_end"] - features[0]["window_start"] == 1.0
+    assert features[0]["collector_snapshot_interval_seconds"] == 0.5
+    assert features[0]["collector_stats"].get("capture_interval_violation", 0) == 0
+
+
 def test_default_capture_keeps_one_second_control_compatible(tmp_path):
     path = capture(tmp_path, [10.0, 11.0, 12.0])
     report = validate(path, minimum_rows_per_workload=1)
     assert report["valid"], report["errors"]
+
+
+def test_preregistered_availability_budget_accepts_one_bounded_pause(tmp_path):
+    path = capture(
+        tmp_path, [10.0, 10.5, 15.0] + [15.5 + 0.5 * tick for tick in range(10000)],
+        interval_min_seconds=0.35, interval_max_seconds=0.8,
+    )
+    report = validate(
+        path,
+        minimum_rows_per_workload=1,
+        interval_min_seconds=0.35,
+        interval_max_seconds=0.8,
+        nominal_interval_seconds=0.5,
+        minimum_telemetry_availability=0.999,
+        maximum_single_gap_seconds=10.0,
+    )
+    assert report["valid"], report["errors"]
+    availability = report["telemetry_availability"]
+    assert availability["cadence_violation_events"] == 1
+    assert availability["estimated_missing_snapshots"] == 8
+    assert availability["availability"] >= 0.999
+
+
+def test_availability_budget_does_not_hide_hard_integrity_loss(tmp_path):
+    path = capture(
+        tmp_path, [10.0, 10.5, 15.0] + [15.5 + 0.5 * tick for tick in range(10000)],
+        interval_min_seconds=0.35, interval_max_seconds=0.8,
+    )
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    for row in rows:
+        if row.get("schema") == "sentinel-pulse-feature-v1":
+            row.setdefault("collector_stats", {})["count_insert_fail"] = 1
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
+    report = validate(
+        path, minimum_rows_per_workload=1,
+        interval_min_seconds=0.35, interval_max_seconds=0.8,
+        nominal_interval_seconds=0.5,
+        minimum_telemetry_availability=0.999,
+        maximum_single_gap_seconds=10.0,
+    )
+    assert not report["valid"]
+    assert "collector loss: count_insert_fail=1" in report["errors"]
 
 
 @pytest.mark.parametrize("encoding", ["compact", "inline"])

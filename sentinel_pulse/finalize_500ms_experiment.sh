@@ -17,6 +17,9 @@ test -f "$ENV_FILE"
 source "$ENV_FILE"
 : "${PULSE_500MS_OUTPUT:?missing PULSE_500MS_OUTPUT}"
 : "${PULSE_500MS_RUN_ID:?missing PULSE_500MS_RUN_ID}"
+: "${PULSE_TELEMETRY_NOMINAL_INTERVAL_SECONDS:=0.5}"
+: "${PULSE_TELEMETRY_MINIMUM_AVAILABILITY:=1.0}"
+: "${PULSE_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:=0.8}"
 
 RUN_DIR=$(dirname "$PULSE_500MS_OUTPUT")
 EXPECTED_DIR="/var/lib/sentinel-pulse-500ms/runs/$PULSE_500MS_RUN_ID"
@@ -49,6 +52,9 @@ set +e
   --minimum-rows-per-workload "$MINIMUM_ROWS_PER_WORKLOAD" \
   --interval-min-seconds 0.35 \
   --interval-max-seconds 0.80 \
+  --nominal-interval-seconds "$PULSE_TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+  --minimum-telemetry-availability "$PULSE_TELEMETRY_MINIMUM_AVAILABILITY" \
+  --maximum-single-gap-seconds "$PULSE_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
   --output "$RUN_DIR/validation.json"
 VALIDATION_RC=$?
 set -e
@@ -129,6 +135,10 @@ payload = {
     ),
     "snapshot_read_seconds": validation.get("snapshot_read_seconds", {}),
     "collector_max_drops": validation.get("collector_max_drops", {}),
+    "telemetry_availability_contract": validation.get(
+        "telemetry_availability_contract", {}
+    ),
+    "telemetry_availability": validation.get("telemetry_availability", {}),
     "control_collector_cpu_seconds": control_cpu_ns / 1e9,
     "experiment_cpu_seconds": experiment_cpu_ns / 1e9,
     "experiment_average_cpu_cores": (

@@ -14,6 +14,9 @@ METRICS_SOURCE="$SOURCE_ROOT/sentinel_pulse/record_500ms_metrics.sh"
 DURATION_SECONDS=${DURATION_SECONDS:-900}
 RUN_ID=${RUN_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
 REQUIRE_CONTROL_COLLECTOR=${REQUIRE_CONTROL_COLLECTOR:-true}
+TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
+TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-1.0}
+TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-0.8}
 STATE_ROOT=/var/lib/sentinel-pulse-500ms/runs
 RUN_DIR="$STATE_ROOT/$RUN_ID"
 OUTPUT="$RUN_DIR/features.jsonl"
@@ -33,6 +36,16 @@ case "$REQUIRE_CONTROL_COLLECTOR" in
   true|false) ;;
   *) echo "REQUIRE_CONTROL_COLLECTOR must be true or false" >&2; exit 2 ;;
 esac
+python3 - "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+  "$TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" <<'PY'
+import math, sys
+nominal, availability, maximum_gap = map(float, sys.argv[1:])
+if not all(map(math.isfinite, (nominal, availability, maximum_gap))):
+    raise SystemExit("telemetry availability contract is not finite")
+if nominal <= 0 or not 0 < availability <= 1 or maximum_gap < 0.8:
+    raise SystemExit("invalid telemetry availability contract")
+PY
 
 test -f "$UNIT_SOURCE"
 test -x "$METRICS_SOURCE"
@@ -79,11 +92,17 @@ PULSE_500MS_DURATION_SECONDS=$DURATION_SECONDS
 PULSE_500MS_OUTPUT=$OUTPUT
 PULSE_500MS_RUN_ID=$RUN_ID
 PULSE_500MS_RUN_DIR=$RUN_DIR
+PULSE_TELEMETRY_NOMINAL_INTERVAL_SECONDS=$TELEMETRY_NOMINAL_INTERVAL_SECONDS
+PULSE_TELEMETRY_MINIMUM_AVAILABILITY=$TELEMETRY_MINIMUM_AVAILABILITY
+PULSE_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS
 EOF
 install -m 0640 "$ENV_FILE.tmp" "$ENV_FILE"
 rm -f "$ENV_FILE.tmp"
 
-/opt/sentinel-pulse/venv/bin/python - "$RUN_DIR/START.json" <<'PY'
+/opt/sentinel-pulse/venv/bin/python - "$RUN_DIR/START.json" \
+  "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
+  "$TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" <<'PY'
 import hashlib
 import json
 from pathlib import Path
@@ -92,6 +111,7 @@ import sys
 import time
 
 output = Path(sys.argv[1])
+nominal_interval, minimum_availability, maximum_single_gap = map(float, sys.argv[2:])
 files = {
     "bpf_object": Path("/opt/sentinel-pulse/bin/pulse_counter.bpf.o"),
     "loader": Path("/opt/sentinel-pulse/bin/pulse_counter_loader"),
@@ -108,6 +128,11 @@ payload = {
     "started_at_unix": time.time(),
     "kernel": platform.release(),
     "sha256": hashes,
+    "telemetry_availability_contract": {
+        "nominal_interval_seconds": nominal_interval,
+        "minimum_availability": minimum_availability,
+        "maximum_single_gap_seconds": maximum_single_gap,
+    },
 }
 output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY

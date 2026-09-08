@@ -1,7 +1,8 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 07-09-2026, 11:46 UTC
+**Snapshot cluster:** 08-09-2026, SSH trực tiếp; 6/6 node Ready v1.34.10,
+không có pod ngoài Running/Succeeded
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
 PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
@@ -11,7 +12,9 @@ gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary no
 15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
 telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
 terminal hợp lệ; formal normal-only R4 tiếp tục bị infrastructure-reject vì
-pause worker3. Candidate chưa được đánh giá và chưa có claim production.
+pause worker3. Canary cách ly R5 cũng terminal infrastructure failure vì một
+pause worker3 4,874 giây dù không chạy sysstat recorder; candidate chưa được
+đánh giá và chưa có claim production.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2197,3 +2200,29 @@ worker4 không có spike tương ứng. Disposition là infrastructure reject,
 Counter 18 cũ nhân cùng hai snapshot lỗi theo workload row. Source kế tiếp
 đếm theo snapshot, cache metadata atomic và flush theo batch để giảm I/O nhưng
 không nới interval gate. Blind không mở và model/policy vẫn bất biến.
+
+### Canary R5 cách ly observer (07–08-09-2026)
+
+Runtime R5 bind commit `d54c739`; 262 test Pulse pass trên host và VM. Model
+`2e37ffd1...`, policy `711e66a9...` và interval gate 0,35–0,80 giây không đổi.
+Run `sentinel-pulse-b7-telemetry-r5-20260907T122659Z` bắt đầu 12:27:05 UTC,
+normal-only 7.200 giây và không kèm sysstat recorder để tách perturbation.
+R5 hoàn tất khoảng 7.202 giây và archive 517.116 decision, 0 alert; worker1 và
+worker4 valid, worker3 failed gate. Worker3 chỉ có một cadence event nhưng
+interval đó dài 4,873938 giây. Interval p99 vẫn 0,507403 giây,
+window-start-to-emit p99 0,523591 giây và ingest-lag p99 0,019569 giây. Hai
+containerd/kubelet `ExecSync` probe cùng timeout 3 giây ngay sau khoảng pause.
+Do run không chạy recorder, R5 bác bỏ giả thuyết recorder là nguyên nhân. R5
+vẫn là infrastructure rejection; 0 alert không phải FPR và không được promote.
+
+Nhánh kế tiếp tách hard-integrity zero-tolerance khỏi telemetry availability.
+Contract availability phải được khóa trước run; validator ghi delayed event,
+estimated missing snapshots, availability và maximum gap. Đây không phải sửa
+hậu nghiệm để đổi kết luận R5. Detector tiếp tục xóa history, temporal evidence
+và confirmation evidence rồi warm-up lại khi gap vượt 1,5 giây.
+
+Counterfactual replay read-only trên R5 cho 14.291 snapshot quan sát, 9 snapshot
+500 ms ước tính bị thiếu, availability 99,9371% và không có hard-integrity
+error. Nó pass giả định 99,9%/max-gap 10 giây, nhưng vì ngưỡng được xây sau R5,
+R5 vẫn failed. Run R6 phải bind contract này trước start mới tạo được evidence
+prospective hợp lệ.

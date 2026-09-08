@@ -139,6 +139,10 @@ report = {
         "window_start_to_emit_seconds"
     ),
     "collector_max_drops": final.get("collector_max_drops"),
+    "telemetry_availability_contract": final.get(
+        "telemetry_availability_contract"
+    ),
+    "telemetry_availability": final.get("telemetry_availability"),
     "decisions": len(decisions),
     "status_counts": dict(sorted(statuses.items())),
     "alerts": alerts,
