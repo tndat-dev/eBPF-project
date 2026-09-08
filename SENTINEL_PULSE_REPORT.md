@@ -2321,3 +2321,11 @@ snapshot và max gap vẫn dưới 10 giây. Detector đã chuyển window gap s
 thiếu. Kernel workqueue warning và hai ExecSync timeout ba giây xuất hiện cùng
 khoảng; đây chỉ là tương quan hạ tầng. Formal outcome vẫn chưa có và contract
 không được thay đổi giữa run.
+
+Checkpoint 12:06 UTC: cluster vẫn 6/6 Ready, readyz pass, zero bad pod và root
+free nhỏ nhất 211 GiB. Monitor tuần tự có tổng 1.421.931 decision, 0 alert và
+0 restart. Availability worker1/worker3/worker4 là
+100%/99,9465%/99,9821%; worker3 giữ 21 snapshot thiếu còn worker4 ghi nhận 7
+snapshot thiếu với max gap 2,459 giây. `telemetry_degraded` trên worker3/4 là
+cờ có cadence event lịch sử; terminal aggregate vẫn bắt buộc availability
+>=99,9% và max gap <=10 giây.

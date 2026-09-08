@@ -7536,3 +7536,14 @@ inference qua lịch sử đứt đoạn. Journal worker3 cùng thời điểm g
 workqueue hogged CPU và hai containerd/kubelet ExecSync timeout ba giây. Đây là
 tương quan hạ tầng, chưa đủ để quy nguyên nhân; không sửa model/policy hoặc
 contract trong khi formal run đang chạy.
+
+Checkpoint tiếp theo lúc 12:06 UTC xác nhận formal run tiếp tục active: 6/6
+node `Ready`, Kubernetes readyz pass, không có pod ngoài Running/Succeeded và
+root free nhỏ nhất còn 211 GiB trên worker3. Tại các sample monitor tuần tự,
+worker1/worker3/worker4 có 439.979/380.221/601.731 decision, tổng 1.421.931,
+vẫn 0 alert và 0 restart. Telemetry worker1 là 100%; worker3 đã hồi phục lên
+99,9465% với 21 snapshot thiếu; worker4 có một gap 2,459 giây, 7 snapshot thiếu
+và availability 99,9821%. Cả hai node có `telemetry_degraded=true` vì cờ này
+ghi nhận cadence event lịch sử, không phải kết luận terminal fail. Theo
+finalizer, run chỉ pass telemetry khi tỷ lệ cuối >=99,9% và max gap <=10 giây;
+chưa có kết quả formal cuối cùng.
