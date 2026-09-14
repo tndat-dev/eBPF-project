@@ -169,6 +169,18 @@ class PulseRuntime:
                 if observed != expected or model.history != self.history_size:
                     raise ValueError(f"model metadata mismatch for {artifact.name}")
                 self.models[workload] = model
+        revisions = self.manifest.get("approved_workload_revisions", {})
+        if not isinstance(revisions, dict) or any(
+            not isinstance(workload, str)
+            or not isinstance(values, list)
+            or not values
+            or any(not isinstance(value, str) or not value for value in values)
+            for workload, values in revisions.items()
+        ):
+            raise ValueError("invalid approved workload revisions in model manifest")
+        self.approved_workload_revisions = {
+            workload: frozenset(values) for workload, values in revisions.items()
+        }
         self.histories = {}
         self.history_metadata = {}
         self.temporal_evidence = {}
@@ -188,6 +200,9 @@ class PulseRuntime:
             raise ValueError("live feature schema does not match model manifest")
         workload = record["workload_key"]
         cgroup_id = str(record["cgroup_id"])
+        revision = record.get("workload_revision", "unknown")
+        if not isinstance(revision, str) or not revision:
+            raise ValueError("live workload revision is invalid")
         source_identity = (
             workload,
             str(record.get("node_name", "unknown-node")),
@@ -208,6 +223,33 @@ class PulseRuntime:
                 "pod_uid": record.get("pod_uid"),
                 "node_name": record.get("node_name"),
                 "container_name": record.get("container_name"),
+                "workload_revision": revision,
+                "window_start": record.get("window_start"),
+                "window_end": record.get("window_end"),
+            }
+        approved_revisions = self.approved_workload_revisions.get(workload)
+        if approved_revisions is not None and revision not in approved_revisions:
+            # Never reinterpret a controller rollout as hostile behaviour or
+            # silently call it normal.  The deployment must collect a bounded
+            # normal baseline and mint a separately checksum-bound candidate.
+            self.histories.pop(source_identity, None)
+            self.history_metadata.pop(source_identity, None)
+            self.temporal_evidence.pop(source_identity, None)
+            self.confirmation_evidence.pop(source_identity, None)
+            return {
+                "schema": "sentinel-pulse-decision-v1",
+                "status": "rebaseline-required",
+                "rebaseline_reason": "unapproved_workload_revision",
+                "model_manifest_sha256": self.model_manifest_sha256,
+                "decision_policy_sha256": self.decision_policy_sha256,
+                "workload_key": workload,
+                "cgroup_id": cgroup_id,
+                "pod_name": record.get("pod_name"),
+                "pod_uid": record.get("pod_uid"),
+                "node_name": record.get("node_name"),
+                "container_name": record.get("container_name"),
+                "workload_revision": revision,
+                "approved_workload_revisions": sorted(approved_revisions),
                 "window_start": record.get("window_start"),
                 "window_end": record.get("window_end"),
             }
@@ -255,6 +297,7 @@ class PulseRuntime:
                 "pod_uid": record.get("pod_uid"),
                 "node_name": record.get("node_name"),
                 "container_name": record.get("container_name"),
+                "workload_revision": revision,
                 "window_start": record.get("window_start"),
                 "window_end": record.get("window_end"),
             }
@@ -461,6 +504,7 @@ class PulseRuntime:
             "pod_uid": record.get("pod_uid"),
             "node_name": record.get("node_name"),
             "container_name": record.get("container_name"),
+            "workload_revision": revision,
             "window_start": record["window_start"],
             "window_end": window_end,
             "alerted_at": alerted_at,

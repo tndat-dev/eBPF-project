@@ -163,6 +163,29 @@ def load_sequences(
     return sequences, columns or []
 
 
+def load_workload_revisions(path: Path) -> dict[str, list[str]]:
+    """Record the rollout revisions represented by a normal-only dataset.
+
+    This allowlist is provenance, rather than an input feature.  A candidate
+    therefore cannot silently score a pod template that was absent from its
+    normal baseline.
+    """
+    revisions: dict[str, set[str]] = defaultdict(set)
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            record = json.loads(line)
+            if record.get("schema") != "sentinel-pulse-feature-v1":
+                continue
+            workload = record.get("workload_key")
+            if not isinstance(workload, str) or not workload:
+                raise ValueError("feature row has no workload key")
+            revision = record.get("workload_revision", "unknown")
+            if not isinstance(revision, str) or not revision:
+                raise ValueError(f"feature row has invalid workload revision: {workload}")
+            revisions[workload].add(revision)
+    return {workload: sorted(values) for workload, values in sorted(revisions.items())}
+
+
 def interval_bounds(window_seconds: float) -> tuple[float, float]:
     if window_seconds == 1.0:
         return 0.80, 1.50
@@ -259,6 +282,7 @@ def main() -> None:
     sequences, columns = load_sequences(
         args.dataset, maximum_gap_seconds=maximum_gap_seconds
     )
+    approved_workload_revisions = load_workload_revisions(args.dataset)
     import sklearn
     import scipy
     import joblib
@@ -319,6 +343,7 @@ def main() -> None:
         "history_windows": args.history,
         "window_seconds": args.window_seconds,
         "max_contiguous_gap_seconds": maximum_gap_seconds,
+        "approved_workload_revisions": approved_workload_revisions,
         "alpha": args.alpha,
         "software": {
             "python": platform.python_version(),

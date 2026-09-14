@@ -30,6 +30,12 @@ thuyết observer gây pause không được dữ liệu ủng hộ. Successor R
 hợp lệ theo telemetry-availability contract preregistered: 517.459 decision,
 0 alert, đủ 20/20 workload và p99 window-start-to-decision 0,858 giây; xem mục
 18.174. Đây là canary normal-only, chưa phải FPR/recall hay attack-latency claim.
+Formal availability R8 sau đó không pass: fail `normal_alert_observed` sau
+~21,2 giờ đúng thời điểm AIMS rollout, dù worker1 có telemetry availability
+100% và collector drop=0. Alert này không được dùng để tune candidate. Source
+14-09-2026 bổ sung revision provenance/rebaseline guard và normal-soak
+fingerprint bất biến; vì vậy chưa có claim Sentinel Pulse stable, zero-FP hay
+attack kernel-to-alert.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt

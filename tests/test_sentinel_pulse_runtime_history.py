@@ -43,6 +43,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
         runtime.model_manifest_sha256 = "a" * 64
         runtime.feature_schema_sha256 = schema_digest(columns)
         runtime.models = {"production/catalog:app": model}
+        runtime.approved_workload_revisions = {}
         runtime.histories = {}
         runtime.history_metadata = {}
         runtime.temporal_evidence = {}
@@ -140,6 +141,7 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
                 "pod_uid": "pod-a",
                 "pod_name": "catalog-a",
                 "container_name": "app",
+                "workload_revision": "revision-a",
                 "traffic_regime": regime,
                 "window_start": window_end - 1.0,
                 "window_end": window_end,
@@ -147,6 +149,19 @@ class PulseRuntimeHistoryTests(unittest.TestCase):
             }
         )
         return compact
+
+    def test_runtime_requires_rebaseline_for_unapproved_rollout_revision(self):
+        runtime, columns = self._runtime(anomalous=True, with_policy=True)
+        runtime.approved_workload_revisions = {
+            "production/catalog:app": frozenset({"revision-a"})
+        }
+        record = self._record(columns, 1.0)
+        record["workload_revision"] = "revision-b"
+        decision = runtime.score(record)
+        self.assertEqual(decision["status"], "rebaseline-required")
+        self.assertEqual(decision["rebaseline_reason"], "unapproved_workload_revision")
+        self.assertEqual(decision["approved_workload_revisions"], ["revision-a"])
+        self.assertNotIn("score", decision)
 
     def test_runtime_resets_history_on_gap_and_regime_change(self):
         runtime, columns = self._runtime()

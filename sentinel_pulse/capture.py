@@ -245,6 +245,10 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             output["node_name"] = item.get("node_name")
             output["role"] = item.get("role")
             output["container_name"] = item.get("container_name")
+            # This is provenance metadata, not an ML feature.  Keeping it out
+            # of the vector prevents a deployment hash from becoming a learned
+            # shortcut while allowing inference to reject an unapproved rollout.
+            output["workload_revision"] = item.get("workload_revision", "unknown")
             output["emitted_at"] = time.time()
             output["collector_stats"] = collector_stats
             output["snapshot_read_seconds"] = snapshot_read_seconds

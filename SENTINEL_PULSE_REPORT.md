@@ -2344,3 +2344,32 @@ khoảng 11 giờ 12 phút. Monitor có tổng 2.899.653 decision, 0 alert/resta
 availability worker1/worker3/worker4 là 100%/99,9737%/99,9912%, estimated
 missing giữ ở 0/21/7. Chưa có terminal outcome. Eligible finalize cộng margin
 là 09-09 13:40:47 giờ Việt Nam, sau đó cần xuất và kiểm chứng archive.
+
+### R8 formal terminal và rollout-drift guard (14-09-2026)
+
+Checkpoint phía trên đã lỗi thời và **không phải pass**. Run
+`sentinel-pulse-formal-normal-availability-r8-20260908T062950Z` terminal fail
+lúc 09-09-2026 03:49:26 UTC, trước mốc 24 giờ, với reason chính xác
+`normal_alert_observed` trên worker1 (`10.1.16.237`). Đây không phải lỗi
+telemetry hay kết luận suy ra từ các snapshot hạ tầng được ghi kèm lúc
+fail-closed.
+
+Run kéo dài 76.418,95 giây (~21,2 giờ), ghi 1.957.757 feature row tại worker1;
+collector drop bằng 0, telemetry availability 100%, interval p50/p95/p99
+0,50365/0,50677/0,50844 giây và ingest lag p99 0,0241 giây. Ba alert xảy ra
+ngay sau rollout AIMS: một ở `production/cart-service:app` (score 0,88656,
+`setuid=6`, `setgid=6`, `capset=1`, `openat=221`) và hai ở
+`production/security-telemetry-service:app` (score 0,86670/0,76300;
+`openat=261/217`). Đây là workload transition cần giữ nguyên làm false
+positive normal-soak, không dùng để train hay tune ngưỡng.
+
+Source hiện bổ sung `workload_revision` lấy từ CRI label theo thứ tự
+`rollouts-pod-template-hash`, `pod-template-hash`,
+`controller-revision-hash`. Revision không nằm trong manifest normal baseline
+trả về `rebaseline-required`, không chấm model và không bị giả vờ là normal.
+Normal soak snapshot template fingerprint khi bắt đầu và fail với
+`workload_revision_changed` nếu rollout diễn ra. Revision là metadata ngoài
+249 feature ML, nên không trở thành shortcut học máy. Patch qua 28 test
+Sentinel Pulse trên VM ML (22,25 giây) ngày 14-09-2026. Candidate mới vẫn phải
+thu normal-only baseline cho revision AIMS hiện tại, train/checksum mới, canary
+và formal soak bất biến trước blind test; R8/B7 chưa stable.

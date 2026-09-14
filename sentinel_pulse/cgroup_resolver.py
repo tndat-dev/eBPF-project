@@ -58,6 +58,26 @@ def infer_workload_name(pod_name: str) -> str:
     return pod_name
 
 
+def workload_revision(labels: dict) -> str:
+    """Return the controller revision that produced a pod.
+
+    A pod UID is intentionally *not* a revision: every restart would then look
+    like a new workload.  Kubernetes Deployment/Argo Rollouts template hashes
+    change only when the effective pod template changes.  StatefulSet uses a
+    controller-revision hash.  ``unknown`` is explicit so an older CRI runtime
+    cannot accidentally be treated as an approved version.
+    """
+    for key in (
+        "rollouts-pod-template-hash",
+        "pod-template-hash",
+        "controller-revision-hash",
+    ):
+        value = labels.get(key)
+        if isinstance(value, str) and value:
+            return value
+    return "unknown"
+
+
 def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
     result = subprocess.run(
         [command, "pods", "-o", "json"], capture_output=True, text=True, check=True
@@ -81,6 +101,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
             "namespace": namespace,
             "role": infer_role(name),
             "workload_name": infer_workload_name(name),
+            "workload_revision": workload_revision(labels),
         }
     return list(selected.values())
 

@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from sentinel_pulse.cgroup_resolver import infer_role, infer_workload_name, resolve_cgroups
+from sentinel_pulse.cgroup_resolver import infer_role, infer_workload_name, resolve_cgroups, workload_revision
 
 
 class PulseResolverTests(unittest.TestCase):
@@ -13,6 +13,9 @@ class PulseResolverTests(unittest.TestCase):
         self.assertEqual(infer_role("catalog-service-deadbeef"), "stateless-http")
         self.assertEqual(infer_workload_name("catalog-service-74cf5f59b9-h944d"), "catalog-service")
         self.assertEqual(infer_workload_name("aims-kafka-dual-role-2"), "aims-kafka-dual-role")
+        self.assertEqual(workload_revision({"rollouts-pod-template-hash": "abc"}), "abc")
+        self.assertEqual(workload_revision({"pod-template-hash": "def"}), "def")
+        self.assertEqual(workload_revision({}), "unknown")
 
     def test_includes_leaf_container_cgroup(self):
         pod = {"pod_uid": "1234-abcd", "pod_name": "catalog-service-x", "namespace": "production", "role": "stateless-http"}

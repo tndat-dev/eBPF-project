@@ -288,6 +288,14 @@ wait_for_stable_cluster
 # mkdir is the final atomic ownership check immediately before preregistration.
 mkdir "$EVIDENCE_ROOT"
 
+# A normal-soak result is only meaningful for one immutable deployment state.
+# Store template revisions, not pod UIDs, so harmless restarts do not invalidate
+# the experiment while an actual Deployment/StatefulSet rollout does.
+kubectl -n production get pods -o json >"$EVIDENCE_ROOT/workload-pods-start.json"
+PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
+  --input "$EVIDENCE_ROOT/workload-pods-start.json" \
+  --output "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json"
+
 # The marker exists before any experimental collector or detector starts.
 python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" \
@@ -373,7 +381,7 @@ for target in "${WORKERS[@]}"; do
 done
 
 sha256sum "$EVIDENCE_ROOT/SOAK_START.json" "$MODEL_SOURCE/manifest.json" \
-  "$POLICY_SOURCE" >"$EVIDENCE_ROOT/START_SHA256SUMS"
+  "$POLICY_SOURCE" "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json" >"$EVIDENCE_ROOT/START_SHA256SUMS"
 touch "$EVIDENCE_ROOT/ACTIVE"
 launch_complete=true
 printf 'formal normal soak active: run=%s duration=%ss evidence=%s\n' \

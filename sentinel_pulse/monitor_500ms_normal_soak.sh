@@ -11,9 +11,10 @@ LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 PYTHON=${PYTHON:-python3}
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
 MARKER="$EVIDENCE_ROOT/SOAK_START.json"
+WORKLOAD_FINGERPRINT="$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json"
 WORKERS_FILE="$EVIDENCE_ROOT/workers.txt"
 LOG="$EVIDENCE_ROOT/MONITOR.jsonl"
-test -f "$MARKER" && test -f "$WORKERS_FILE" && test -f "$EVIDENCE_ROOT/ACTIVE" || exit 2
+test -f "$MARKER" && test -f "$WORKERS_FILE" && test -f "$WORKLOAD_FINGERPRINT" && test -f "$EVIDENCE_ROOT/ACTIVE" || exit 2
 test ! -e "$EVIDENCE_ROOT/FAILED" || exit 2
 
 eligible_epoch=$(python3 - "$MARKER" <<'PY'
@@ -164,8 +165,22 @@ check_worker_maintenance() {
   done <"$WORKERS_FILE"
 }
 
+check_workload_fingerprint() {
+  local observed
+  kubectl -n production get pods -o json >"$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT_OBSERVED.json" ||
+    fail workload_fingerprint_unavailable
+  PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
+    --input "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT_OBSERVED.json" \
+    --output "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT_CURRENT.json" ||
+    fail workload_fingerprint_invalid
+  if ! cmp -s "$WORKLOAD_FINGERPRINT" "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT_CURRENT.json"; then
+    fail workload_revision_changed
+  fi
+}
+
 while true; do
   check_cluster_health
+  check_workload_fingerprint
   check_worker_capacity
   check_worker_maintenance
   while read -r host _node expected_feature; do
