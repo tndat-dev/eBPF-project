@@ -36,6 +36,15 @@ Formal availability R8 sau đó không pass: fail `normal_alert_observed` sau
 14-09-2026 bổ sung revision provenance/rebaseline guard và normal-soak
 fingerprint bất biến; vì vậy chưa có claim Sentinel Pulse stable, zero-FP hay
 attack kernel-to-alert.
+Control collector 1 giây trên ba worker đã được rollout canary-first với source
+đó và xác minh feature thực tế có `workload_revision` theo Argo Rollout hash;
+candidate detector vẫn tắt để chỉ thu normal-only provenance baseline.
+Resolver hiện cover cả revision riêng của Strimzi và CNPG; kiểm tra 3/3 worker
+không còn workload revision `unknown`. Observer R3 đã fail-closed đúng lúc 11
+workload AIMS đổi rollout hash. R4 đang đợi preflight: chỉ bắt đầu đồng hồ 24
+giờ khi mọi Argo Rollout Healthy và fingerprint đứng yên liên tục 300 giây.
+Full regression source mới đạt 281 pass; đây vẫn chỉ là prerequisite cho
+dataset, chưa phải training/model pass.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt

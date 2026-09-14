@@ -2373,3 +2373,51 @@ Normal soak snapshot template fingerprint khi bắt đầu và fail với
 Sentinel Pulse trên VM ML (22,25 giây) ngày 14-09-2026. Candidate mới vẫn phải
 thu normal-only baseline cho revision AIMS hiện tại, train/checksum mới, canary
 và formal soak bất biến trước blind test; R8/B7 chưa stable.
+
+### Control telemetry provenance rollout (14-09-2026)
+
+Sau khi full regression tăng lên **279/279 pass trong 31,84 giây** trên VM ML,
+control collector 1 giây được rollout canary-first sang ba worker, không bật
+candidate detector hay response. Worker1 build lại BPF object từ source commit
+`3351a16`, restart resolver/collector, rồi phát feature thật cho
+`security-telemetry-service` có
+`workload_revision=7fb984d99b` (đúng CRI rollout hash), `vector_dim=249` và
+telemetry availability đầu phiên 1,0. Sau khi canary active, worker3 và worker4
+được cập nhật cùng source; resolver và control collector đều `active` trên
+3/3 worker.
+
+Đây là bước thu provenance phục vụ normal baseline mới, không phải training,
+canary detector, normal-soak formal hay claim giảm false positive. Control
+collector tiếp tục ghi exact counter 1 giây trong namespace `production`; chỉ
+sau một khoảng normal-only đủ dài và deployment fingerprint ổn định mới được
+assemble dataset/retrain candidate.
+
+Revision audit phát hiện Kafka Strimzi và PostgreSQL CNPG không có các label
+revision chuẩn của Deployment/StatefulSet. Resolver được mở rộng dùng
+`strimzi.io/revision` cho broker và SHA-256 rút gọn của toàn bộ
+`cnpg.io/podSpec` cho PostgreSQL; cả ba worker sau rollout đều còn 0 pod
+revision `unknown`, trong khi collector vẫn `active` và không bị restart.
+
+Observer R1 fail preflight vì transient systemd unit thiếu `KUBECONFIG`; không
+có approved fingerprint. R2 đã active nhưng được dừng và ghi `ABORTED` khi
+thuật toán revision được mở rộng cho Strimzi/CNPG, nên không được sử dụng làm
+evidence. R3 `revision-baseline-r3-20260914T0428Z` bắt đầu hợp lệ lúc khoảng
+04:30 UTC, chạy nền 86.400 giây với CPU quota 10%, memory limit 256 MiB và poll
+60 giây. Fingerprint ban đầu có 19 workload, không có revision `unknown`, hash
+nội dung `015aa1d2e334a77e53ebe225d62631857ffb5b3df43b57b59bd7a3331e4ac068`.
+Kafka có ba pod-generation revision và CNPG có ba pod-template hash tương ứng
+ba instance; tập này phải giữ nguyên đến terminal. R3 chỉ là deployment
+stability evidence, không phải ML normal-pass.
+
+R3 terminal fail lúc 04:40:45 UTC với `workload_revision_changed`: 11 workload
+Argo Rollout đồng thời xuất hiện hash mới; bốn rollout notification, order,
+payment và search-recommendation còn `Degraded` tại thời điểm audit. Hai
+fingerprint cuối trước drift giống nhau, nên đây là rollout thật chứ không phải
+collector loss. Guard đã làm đúng nhiệm vụ và R3 không được dùng làm baseline.
+
+Observer được harden thêm preflight liên tục: chỉ tạo `START` và bắt đầu đồng
+hồ 24 giờ sau khi toàn bộ Argo Rollout `Healthy` và fingerprint không đổi đủ
+300 giây. R4 `revision-baseline-r4-20260914T0445Z` đang chạy nền trong trạng
+thái `PREFLIGHT`; timeout 1.800 giây. Full regression source cuối đạt
+**281 pass, 292 deselected, 2 Torch deprecation warning trong 36,88 giây**.
+Không sửa workload AIMS từ pipeline eBPF này.

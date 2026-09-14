@@ -8,6 +8,7 @@ are included because ``bpf_get_current_cgroup_id`` reports the leaf cgroup.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -58,7 +59,7 @@ def infer_workload_name(pod_name: str) -> str:
     return pod_name
 
 
-def workload_revision(labels: dict) -> str:
+def workload_revision(labels: dict, annotations: dict | None = None) -> str:
     """Return the controller revision that produced a pod.
 
     A pod UID is intentionally *not* a revision: every restart would then look
@@ -75,6 +76,18 @@ def workload_revision(labels: dict) -> str:
         value = labels.get(key)
         if isinstance(value, str) and value:
             return value
+    annotations = annotations or {}
+    # StrimziPodSet does not expose controller-revision-hash, but its own
+    # revision annotation changes with the generated broker pod generation.
+    strimzi = annotations.get("strimzi.io/revision")
+    if isinstance(strimzi, str) and strimzi:
+        return f"strimzi-{strimzi}"
+    # CloudNativePG stores the effective pod template as canonical JSON. Hash
+    # the complete template rather than only podEnvHash so image, resources,
+    # security context and probes are part of the inference provenance.
+    cnpg_spec = annotations.get("cnpg.io/podSpec")
+    if isinstance(cnpg_spec, str) and cnpg_spec:
+        return f"cnpg-{hashlib.sha256(cnpg_spec.encode('utf-8')).hexdigest()[:16]}"
     return "unknown"
 
 
@@ -92,6 +105,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
         if any(marker in name.lower() for marker in EXCLUDED_MARKERS):
             continue
         labels = item.get("labels", {})
+        annotations = item.get("annotations", {})
         uid = labels.get("io.kubernetes.pod.uid") or metadata.get("uid", "")
         if not uid:
             continue
@@ -101,7 +115,7 @@ def cri_pods(namespace: str, command: str = "crictl") -> list[dict]:
             "namespace": namespace,
             "role": infer_role(name),
             "workload_name": infer_workload_name(name),
-            "workload_revision": workload_revision(labels),
+            "workload_revision": workload_revision(labels, annotations),
         }
     return list(selected.values())
 

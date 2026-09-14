@@ -15,6 +15,14 @@ class PulseResolverTests(unittest.TestCase):
         self.assertEqual(infer_workload_name("aims-kafka-dual-role-2"), "aims-kafka-dual-role")
         self.assertEqual(workload_revision({"rollouts-pod-template-hash": "abc"}), "abc")
         self.assertEqual(workload_revision({"pod-template-hash": "def"}), "def")
+        self.assertEqual(
+            workload_revision({}, {"strimzi.io/revision": "80e3e646"}),
+            "strimzi-80e3e646",
+        )
+        self.assertEqual(
+            workload_revision({}, {"cnpg.io/podSpec": '{"image":"postgres:17"}'}),
+            "cnpg-b848f0243a8309e1",
+        )
         self.assertEqual(workload_revision({}), "unknown")
 
     def test_includes_leaf_container_cgroup(self):

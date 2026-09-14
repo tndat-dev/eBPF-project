@@ -16,3 +16,20 @@ def test_fingerprint_tracks_template_not_pod_uid_and_excludes_load_generators():
         "schema": "sentinel-pulse-workload-fingerprint-v1",
         "workloads": {"production/cart-service": ["a1b2c3d4"]},
     }
+
+
+def test_fingerprint_supports_operator_owned_workload_revisions():
+    payload = {"items": [
+        {"metadata": {"namespace": "production", "name": "aims-kafka-dual-role-0",
+          "labels": {"app.kubernetes.io/name": "kafka"},
+          "annotations": {"strimzi.io/revision": "80e3e646"}},
+         "status": {"phase": "Running"}},
+        {"metadata": {"namespace": "production", "name": "aims-postgres-cnpg-1",
+          "labels": {"app.kubernetes.io/name": "postgresql"},
+          "annotations": {"cnpg.io/podSpec": '{"image":"postgres:17"}'}},
+         "status": {"phase": "Running"}},
+    ]}
+    assert fingerprint(payload)["workloads"] == {
+        "production/kafka": ["strimzi-80e3e646"],
+        "production/postgresql": ["cnpg-b848f0243a8309e1"],
+    }

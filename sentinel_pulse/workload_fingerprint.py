@@ -23,9 +23,10 @@ def fingerprint(pods: dict) -> dict:
         if any(marker in name.lower() for marker in EXCLUDED_MARKERS):
             continue
         labels = metadata.get("labels", {})
+        annotations = metadata.get("annotations", {})
         workload = labels.get("app.kubernetes.io/name") or infer_workload_name(name)
         key = f"{namespace}/{workload}"
-        values.setdefault(key, set()).add(workload_revision(labels))
+        values.setdefault(key, set()).add(workload_revision(labels, annotations))
     return {
         "schema": "sentinel-pulse-workload-fingerprint-v1",
         "workloads": {key: sorted(value) for key, value in sorted(values.items())},
