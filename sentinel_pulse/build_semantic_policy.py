@@ -43,8 +43,11 @@ def build_policy(
         raise ValueError("semantic calibration is not normal-only evidence")
     if model.get("schema") != "sentinel-pulse-model-manifest-v2":
         raise ValueError("unsupported model manifest")
-    if contract.get("schema") != "sentinel-pulse-training-contract-v2":
-        raise ValueError("policy requires a v2 training contract")
+    if contract.get("schema") not in {
+        "sentinel-pulse-training-contract-v2",
+        "sentinel-pulse-training-contract-v3",
+    }:
+        raise ValueError("policy requires a v2 or v3 training contract")
     dataset_sha256 = calibration.get("dataset_sha256")
     if not dataset_sha256 or not (
         dataset_sha256 == model.get("dataset_sha256")

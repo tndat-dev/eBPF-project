@@ -11,7 +11,7 @@ import tempfile
 
 from .blind_contract import load_contract
 from .integrity import sha256_file
-from .train import load_dataset_manifest, source_git_provenance
+from .train import load_dataset_manifest, load_workload_revisions, source_git_provenance
 
 
 def build_contract(
@@ -33,8 +33,11 @@ def build_contract(
     dataset_manifest_path, dataset_manifest = load_dataset_manifest(dataset)
     load_contract(blind_attack_contract)
     provenance = source or source_git_provenance()
+    approved_workload_revisions = load_workload_revisions(
+        dataset, require_known=True
+    )
     return {
-        "schema": "sentinel-pulse-training-contract-v2",
+        "schema": "sentinel-pulse-training-contract-v3",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "candidate_id": candidate_id,
         "evidence_class": evidence_class,
@@ -42,6 +45,8 @@ def build_contract(
         "automatic_promotion": False,
         "normal_only": True,
         "blind_outcome_used": False,
+        "require_workload_revision_provenance": True,
+        "approved_workload_revisions": approved_workload_revisions,
         "dataset_sha256": dataset_manifest["dataset_sha256"],
         "dataset_manifest_sha256": sha256_file(dataset_manifest_path),
         "blind_attack_contract_sha256": sha256_file(blind_attack_contract),

@@ -7,6 +7,7 @@ from sentinel_pulse.finalize_500ms_dataset import finalize
 from sentinel_pulse.freeze_training_contract import freeze
 from sentinel_pulse.train import (
     interval_bounds,
+    load_workload_revisions,
     source_git_provenance,
     validate_training_contract,
 )
@@ -172,3 +173,49 @@ def test_v2_training_contract_rejects_source_drift(tmp_path):
             0.5,
             {**source, "source_git_diff_sha256": "c" * 64},
         )
+
+
+def test_v3_training_contract_binds_known_workload_revisions(tmp_path):
+    dataset = tmp_path / "dataset.jsonl"
+    blind = tmp_path / "blind.json"
+    dataset.write_text(json.dumps({
+        "schema": "sentinel-pulse-feature-v1",
+        "workload_key": "production/catalog:app",
+        "workload_revision": "revision-a",
+    }) + "\n")
+    blind.write_text("blind")
+    source = {
+        "source_git_commit": "a" * 40,
+        "source_clean": True,
+        "source_git_diff_sha256": "b" * 64,
+    }
+    contract = tmp_path / "training-v3.json"
+    contract.write_text(json.dumps({
+        "schema": "sentinel-pulse-training-contract-v3",
+        "frozen_before_training": True,
+        "automatic_promotion": False,
+        "dataset_sha256": hashlib.sha256(dataset.read_bytes()).hexdigest(),
+        "blind_attack_contract_sha256": hashlib.sha256(blind.read_bytes()).hexdigest(),
+        "history_windows": 3,
+        "alpha": 0.001,
+        "window_seconds": 0.5,
+        "require_workload_revision_provenance": True,
+        "approved_workload_revisions": {
+            "production/catalog:app": ["revision-a"]
+        },
+        **source,
+    }))
+    validate_training_contract(
+        contract, dataset, blind, 3, 0.001, 0.5, source
+    )
+    assert load_workload_revisions(dataset, require_known=True) == {
+        "production/catalog:app": ["revision-a"]
+    }
+
+    dataset.write_text(json.dumps({
+        "schema": "sentinel-pulse-feature-v1",
+        "workload_key": "production/catalog:app",
+        "workload_revision": "unknown",
+    }) + "\n")
+    with pytest.raises(ValueError, match="unknown workload revision"):
+        load_workload_revisions(dataset, require_known=True)

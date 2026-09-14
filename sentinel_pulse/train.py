@@ -163,7 +163,9 @@ def load_sequences(
     return sequences, columns or []
 
 
-def load_workload_revisions(path: Path) -> dict[str, list[str]]:
+def load_workload_revisions(
+    path: Path, require_known: bool = False
+) -> dict[str, list[str]]:
     """Record the rollout revisions represented by a normal-only dataset.
 
     This allowlist is provenance, rather than an input feature.  A candidate
@@ -182,6 +184,10 @@ def load_workload_revisions(path: Path) -> dict[str, list[str]]:
             revision = record.get("workload_revision", "unknown")
             if not isinstance(revision, str) or not revision:
                 raise ValueError(f"feature row has invalid workload revision: {workload}")
+            if require_known and revision == "unknown":
+                raise ValueError(
+                    f"feature row has unknown workload revision: {workload}"
+                )
             revisions[workload].add(revision)
     return {workload: sorted(values) for workload, values in sorted(revisions.items())}
 
@@ -217,6 +223,7 @@ def validate_training_contract(
         schema not in {
             "sentinel-pulse-training-contract-v1",
             "sentinel-pulse-training-contract-v2",
+            "sentinel-pulse-training-contract-v3",
         }
         or contract.get("frozen_before_training") is not True
         or contract.get("automatic_promotion") is not False
@@ -225,7 +232,10 @@ def validate_training_contract(
         raise ValueError(
             f"training contract mismatch: expected={expected}, observed={observed}"
         )
-    if schema == "sentinel-pulse-training-contract-v2":
+    if schema in {
+        "sentinel-pulse-training-contract-v2",
+        "sentinel-pulse-training-contract-v3",
+    }:
         actual_source = source_provenance or source_git_provenance()
         expected_source = {
             field: actual_source[field]
@@ -243,6 +253,12 @@ def validate_training_contract(
                 "training contract source mismatch: "
                 f"expected={expected_source}, observed={observed_source}"
             )
+    if schema == "sentinel-pulse-training-contract-v3":
+        if contract.get("require_workload_revision_provenance") is not True:
+            raise ValueError("v3 training contract does not require revision provenance")
+        expected_revisions = load_workload_revisions(dataset, require_known=True)
+        if contract.get("approved_workload_revisions") != expected_revisions:
+            raise ValueError("training contract workload revisions differ from dataset")
     return contract
 
 
@@ -282,7 +298,12 @@ def main() -> None:
     sequences, columns = load_sequences(
         args.dataset, maximum_gap_seconds=maximum_gap_seconds
     )
-    approved_workload_revisions = load_workload_revisions(args.dataset)
+    approved_workload_revisions = load_workload_revisions(
+        args.dataset,
+        require_known=(
+            training_contract.get("schema") == "sentinel-pulse-training-contract-v3"
+        ),
+    )
     import sklearn
     import scipy
     import joblib

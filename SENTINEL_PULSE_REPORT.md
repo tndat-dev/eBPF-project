@@ -2434,3 +2434,19 @@ R5 `revision-baseline-r5-20260914T0540Z` hiện `active` ở preflight và đã 
 4/4 source checksum. Vì AIMS còn rollout `Degraded`, `START` chưa tồn tại và
 đồng hồ 24 giờ vẫn chưa chạy. Khi AIMS Healthy + fingerprint ổn định 300 giây,
 R5 tự tạo marker bất biến; nếu không đạt trong 1.800 giây, nó fail-closed.
+
+R5 terminal `preflight_not_stable` lúc 06:09:32 UTC vì bốn rollout chưa hội
+tụ trong timeout; không có `START`, nên không được tính vào 24 giờ. Khi kiểm
+tra lại, 10/10 Argo Rollout và 6/6 node đều Healthy/Ready. R6
+`revision-baseline-r6-20260914T0615Z` được mở với timeout preflight 3.600 giây;
+fingerprint hai mẫu đầu giống nhau và stability counter đã tăng từ 0 lên 74
+giây. Đồng hồ 24 giờ chỉ bắt đầu sau mốc 300 giây.
+
+Training pipeline đồng thời được nâng lên contract V3. Candidate mới bắt buộc
+`require_workload_revision_provenance=true`; contract bind chính xác map
+workload-to-revision từ dataset. Record thiếu revision hoặc có `unknown`, và
+dataset có map khác contract đều bị từ chối trước khi fit. Runtime vẫn đọc V1/
+V2 để tái lập artifact lịch sử, còn semantic-policy builder chấp nhận V2/V3.
+Thay đổi này qua full regression **282 pass, 292 deselected, 2 Torch
+deprecation warning trong 38,02 giây**; chưa tạo model mới và không dùng attack
+data để hiệu chỉnh.

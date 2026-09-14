@@ -49,6 +49,10 @@ training/model pass.
 R4 đã được ghi `ABORTED` trước `START` để bổ sung frozen-source provenance.
 R5 hiện chờ preflight với 4/4 source checksum verify; đồng hồ 24 giờ chưa chạy
 khi bốn Argo Rollout còn Degraded.
+R5 sau đó terminal `preflight_not_stable` trước `START`. Hiện 10/10 rollout
+Healthy; R6 đang tích lũy 300 giây fingerprint ổn định trước khi bắt đầu 24
+giờ. Training Contract V3 đã qua full regression 282 pass và bắt buộc candidate
+mới bind revision đã biết; dataset có `unknown` bị từ chối trước fit.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
