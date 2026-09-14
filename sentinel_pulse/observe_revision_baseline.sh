@@ -34,12 +34,25 @@ test ! -e "$EVIDENCE_ROOT"
 test -r "$KUBECONFIG_PATH"
 export KUBECONFIG="$KUBECONFIG_PATH"
 mkdir -p "$EVIDENCE_ROOT"
+RUNTIME_ROOT="$EVIDENCE_ROOT/runtime"
+install -d -m 0755 "$RUNTIME_ROOT/sentinel_pulse"
+install -m 0644 "$LOCAL_ROOT/sentinel_pulse/__init__.py" \
+  "$LOCAL_ROOT/sentinel_pulse/cgroup_resolver.py" \
+  "$LOCAL_ROOT/sentinel_pulse/workload_fingerprint.py" \
+  "$RUNTIME_ROOT/sentinel_pulse/"
+install -m 0555 "${BASH_SOURCE[0]}" \
+  "$RUNTIME_ROOT/observe_revision_baseline.sh"
+sha256sum "$RUNTIME_ROOT/observe_revision_baseline.sh" \
+  "$RUNTIME_ROOT/sentinel_pulse/__init__.py" \
+  "$RUNTIME_ROOT/sentinel_pulse/cgroup_resolver.py" \
+  "$RUNTIME_ROOT/sentinel_pulse/workload_fingerprint.py" \
+  >"$EVIDENCE_ROOT/SOURCE_SHA256SUMS"
 
 snapshot() {
   local prefix=$1
   kubectl -n "$NAMESPACE" get pods -o json \
     >"$EVIDENCE_ROOT/$prefix-pods.json" || return 1
-  PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
+  PYTHONPATH="$RUNTIME_ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
     --input "$EVIDENCE_ROOT/$prefix-pods.json" \
     --output "$EVIDENCE_ROOT/$prefix-fingerprint.json" || return 1
 }
@@ -96,6 +109,7 @@ printf 'started_at=%s\neligible_at_epoch=%s\nduration_seconds=%s\nnamespace=%s\n
 cp "$EVIDENCE_ROOT/preflight-current-fingerprint.json" \
   "$EVIDENCE_ROOT/APPROVED_FINGERPRINT.json"
 sha256sum "$EVIDENCE_ROOT/START" "$EVIDENCE_ROOT/APPROVED_FINGERPRINT.json" \
+  "$EVIDENCE_ROOT/SOURCE_SHA256SUMS" \
   >"$EVIDENCE_ROOT/START_SHA256SUMS"
 touch "$EVIDENCE_ROOT/ACTIVE"
 rm -f "$EVIDENCE_ROOT/PREFLIGHT"

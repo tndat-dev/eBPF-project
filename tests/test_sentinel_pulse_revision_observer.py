@@ -17,3 +17,6 @@ def test_revision_observer_is_bounded_and_fail_closed():
     assert '>"$EVIDENCE_ROOT/$prefix-pods.json" || return 1' in source
     assert "fail preflight_not_stable" in source
     assert '(.status.phase // "") == "Healthy"' in source
+    assert 'RUNTIME_ROOT="$EVIDENCE_ROOT/runtime"' in source
+    assert 'PYTHONPATH="$RUNTIME_ROOT"' in source
+    assert "SOURCE_SHA256SUMS" in source

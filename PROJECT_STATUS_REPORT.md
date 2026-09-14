@@ -43,8 +43,12 @@ Resolver hiện cover cả revision riêng của Strimzi và CNPG; kiểm tra 3/
 không còn workload revision `unknown`. Observer R3 đã fail-closed đúng lúc 11
 workload AIMS đổi rollout hash. R4 đang đợi preflight: chỉ bắt đầu đồng hồ 24
 giờ khi mọi Argo Rollout Healthy và fingerprint đứng yên liên tục 300 giây.
-Full regression source mới đạt 281 pass; đây vẫn chỉ là prerequisite cho
-dataset, chưa phải training/model pass.
+Full regression revision guard đạt 281 pass; patch frozen-source kế tiếp qua
+5 targeted test. Đây vẫn chỉ là prerequisite cho dataset, chưa phải
+training/model pass.
+R4 đã được ghi `ABORTED` trước `START` để bổ sung frozen-source provenance.
+R5 hiện chờ preflight với 4/4 source checksum verify; đồng hồ 24 giờ chưa chạy
+khi bốn Argo Rollout còn Degraded.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt

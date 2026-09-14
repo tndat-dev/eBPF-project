@@ -2419,5 +2419,18 @@ Observer được harden thêm preflight liên tục: chỉ tạo `START` và b�
 hồ 24 giờ sau khi toàn bộ Argo Rollout `Healthy` và fingerprint không đổi đủ
 300 giây. R4 `revision-baseline-r4-20260914T0445Z` đang chạy nền trong trạng
 thái `PREFLIGHT`; timeout 1.800 giây. Full regression source cuối đạt
-**281 pass, 292 deselected, 2 Torch deprecation warning trong 36,88 giây**.
+**281 pass, 292 deselected, 2 Torch deprecation warning trong 36,88 giây**
+trước patch frozen-source; patch frozen-source sau đó qua 5/5 targeted test.
 Không sửa workload AIMS từ pipeline eBPF này.
+
+R4 được dừng ở preflight và ghi `ABORTED` với reason
+`observer_source_binding_added`; chưa có `START`, nên không mất evidence ML.
+Observer sau đó freeze bản sao read-only của chính script,
+`workload_fingerprint.py`, `cgroup_resolver.py` và package initializer vào
+evidence, kèm `SOURCE_SHA256SUMS`; mọi lần fingerprint trong run dùng bản đã
+freeze thay vì working tree.
+
+R5 `revision-baseline-r5-20260914T0540Z` hiện `active` ở preflight và đã verify
+4/4 source checksum. Vì AIMS còn rollout `Degraded`, `START` chưa tồn tại và
+đồng hồ 24 giờ vẫn chưa chạy. Khi AIMS Healthy + fingerprint ổn định 300 giây,
+R5 tự tạo marker bất biến; nếu không đạt trong 1.800 giây, nó fail-closed.
