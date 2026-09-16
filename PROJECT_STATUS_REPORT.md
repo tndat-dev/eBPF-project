@@ -7621,7 +7621,7 @@ Audit cũng xác nhận syscall/transition hash-bin là exact eBPF counters đư
 chuẩn hóa, không phải event sample Tetragon. Chúng giữ hình dạng long-tail và
 chuyển tiếp ở số chiều cố định nhưng có collision; các count/rolling feature
 vẫn nhạy với tải, nên high-load coverage là bắt buộc. Full source overlay qua
-**577 test**, 2 warning deprecation Torch, trên ML venv VM.
+**579 test**, 2 warning deprecation Torch, trên ML venv VM.
 
 Pulse hiện chưa tự dựng RCA đến process/destination/content vì hot-path map
 aggregate theo cgroup. Hướng mở rộng đã chốt là enrichment hậu-alert:
@@ -7629,3 +7629,18 @@ process/parent/exec identity + connect 5-tuple từ Tetragon/eBPF, ánh xạ
 destination qua Kubernetes Endpoint/Service, và L7 metadata đã redact từ
 Istio/Envoy. Payload TLS/raw body không được xem là khả dụng từ syscall
 `connect` và không thu mặc định vì privacy/secret risk.
+
+Đã thêm RCA parser `sentinel_pulse/rca_connect.py` và khai báo destination
+`sockaddr` cho policy AIMS/Pulse. Parser giữ process `exec_id`, parent, PID,
+binary, pod/container/node và resolve IP sang Pod/Service/EndpointSlice; output
+ghi rõ không có L7 payload. Hai policy qua server-side dry-run, nhưng chưa apply
+giữa peak campaign để giữ nguyên treatment. Full regression sau thay đổi đạt
+579 pass.
+
+Pilot không-formal `pulse500-data-pilot-20260916T173948Z` đang chạy nền từ
+detached clean commit `c9114fa`: năm regime x 300 giây, gap 60 giây, ba worker,
+collector 500 ms collect-only. Peak interval đã khóa 17:54:54-17:59:54 UTC;
+run tự restore steady, không train và không promote. Lúc 17:43:43 UTC, unit
+active, steady đúng `1/0/1`, 6/6 node Ready. Dự kiến archive terminal sau
+18:12 UTC; chưa có kết quả false-positive high-load cho tới khi checksum và
+`COMPLETE` được xác minh.

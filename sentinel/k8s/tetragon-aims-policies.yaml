@@ -16,7 +16,15 @@ spec:
   # process_exec for these pods is already exported by aims-sensitive-exec;
   # avoid a second execve hook that would duplicate the same event.
   - {call: sys_execveat, syscall: true}
-  - {call: sys_connect, syscall: true}
+  # Keep process lineage plus the destination socket address for post-alert
+  # RCA. connect(2) carries no application payload, so raw content is neither
+  # available nor requested here.
+  - call: sys_connect
+    syscall: true
+    args:
+    - {index: 0, type: fd, label: socket_fd}
+    - {index: 1, type: sockaddr, label: destination}
+    - {index: 2, type: int, label: address_length}
   - call: sys_read
     syscall: true
     selectors: &sampledAimsContext

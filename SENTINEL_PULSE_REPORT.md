@@ -2509,7 +2509,7 @@ manifest. Peak data dùng train/calibration vẫn không phải independent hold
 Kết luận false-positive tại high load chỉ được phép sau một peak campaign khác,
 không tham gia fit/calibration, hoặc live peak soak preregistered.
 
-Source overlay mới đã qua **577 test**, 2 Torch deprecation warning, trong ML
+Source overlay mới đã qua **579 test**, 2 Torch deprecation warning, trong ML
 venv trên VM; test chạy từ bản copy tạm nên không thay đổi source observer đang
 hoạt động. Lúc 17:35:44 UTC, R8 đã có `START`, chạy khoảng 6 giờ 15 phút, các
 observation liên tiếp vẫn giữ cùng fingerprint
@@ -2525,3 +2525,22 @@ resolver ánh xạ IP sang Pod/Service/ServiceAccount; sau alert mới dựng c�
 `sys_connect`; L7 chỉ nên lấy method/route/status từ Istio/Envoy access log hoặc
 trace đã redact. Không thu raw request body/credential mặc định. Thiết kế tách
 này giữ latency ML và hạn chế overhead/privacy risk.
+
+RCA enrichment đầu tiên đã được hiện thực nhưng chưa rollout giữa phép đo peak:
+policy AIMS khai báo rõ ba argument của `connect(2)` (`fd`, `sockaddr`, length),
+và `rca_connect.py` chuẩn hóa process/parent lineage thành graph edge rồi ánh
+xạ Pod IP, Service ClusterIP hoặc EndpointSlice. Event Tetragon live trước
+patch chứng minh phần process đã có `/usr/local/bin/python`, PID, `exec_id`,
+`parent_exec_id`, pod/container/node nhưng destination trống vì policy cũ
+không yêu cầu args. Hai manifest mới đã qua Kubernetes server-side dry-run;
+parser có unit test. Policy chỉ được rollout sau khi peak pilot kết thúc để
+không đổi telemetry overhead giữa campaign.
+
+Peak pilot không-formal `pulse500-data-pilot-20260916T173948Z` được chạy nền
+từ clean detached commit `c9114fa` trên cả ba worker. Contract khóa 300 giây
+mỗi regime, transition gap 60 giây; `peak` được đăng ký từ 17:54:54 đến
+17:59:54 UTC. Unit `sentinel-pulse-peak-pilot-c1.service` active, ba collector
+500 ms đã khởi động, steady bắt đầu 17:42:54 UTC và 6/6 node vẫn Ready. Run tự
+trả traffic về steady và không train/promote; terminal archive dự kiến sau
+18:12 UTC. Chỉ archive `COMPLETE` và checksum hợp lệ mới được dùng làm pilot
+holdout, không được đổi hậu nghiệm thành formal training evidence.
