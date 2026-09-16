@@ -29,7 +29,7 @@ cd "$ROOT"
 
 worker_hosts=(10.1.16.237 10.1.16.239 10.1.16.238)
 worker_nodes=(k8s-worker1.local k8s-worker3.local k8s-worker4.local)
-regimes=(steady toolmix burst recovery)
+regimes=(steady toolmix peak burst recovery)
 
 [[ $REGIME_SECONDS =~ ^[0-9]+$ ]] && ((REGIME_SECONDS >= 300))
 [[ $TRANSITION_GAP_SECONDS =~ ^[0-9]+$ ]] && ((TRANSITION_GAP_SECONDS >= 30))
@@ -38,7 +38,7 @@ experiment_duration=$((
   PREPARE_SECONDS + ${#regimes[@]} * REGIME_SECONDS +
   (${#regimes[@]} - 1) * TRANSITION_GAP_SECONDS + FINAL_GRACE_SECONDS + 60
 ))
-((experiment_duration <= 3600))
+((experiment_duration <= 4500))
 
 campaign_prefix=pulse500-data
 [[ $CAMPAIGN_MODE == pilot ]] && campaign_prefix=pulse500-data-pilot

@@ -90,6 +90,40 @@ def load_dataset_manifest(dataset: Path) -> tuple[Path, dict]:
     return manifest_path, manifest
 
 
+def validate_workload_regime_coverage(
+    manifest: dict, workloads: set[str]
+) -> dict[str, dict[str, int]]:
+    """Require every candidate workload to cover every registered normal mode."""
+    required = manifest.get("required_regimes")
+    observed = manifest.get("rows_by_workload_regime")
+    if (
+        not isinstance(required, list)
+        or not required
+        or any(not isinstance(item, str) or not item for item in required)
+        or len(set(required)) != len(required)
+        or not isinstance(observed, dict)
+    ):
+        raise ValueError("dataset manifest has no valid workload regime coverage")
+    result: dict[str, dict[str, int]] = {}
+    failures = []
+    for workload in sorted(workloads):
+        counts = observed.get(workload)
+        if not isinstance(counts, dict):
+            failures.append(f"{workload}:missing-all")
+            continue
+        normalized = {regime: int(counts.get(regime, 0)) for regime in required}
+        missing = [regime for regime, count in normalized.items() if count <= 0]
+        if missing:
+            failures.append(f"{workload}:missing={','.join(missing)}")
+        result[workload] = normalized
+    unexpected = sorted(set(observed) - workloads)
+    if unexpected:
+        failures.append("manifest-only=" + ",".join(unexpected))
+    if failures:
+        raise ValueError("incomplete workload regime coverage: " + "; ".join(failures))
+    return result
+
+
 def load_sequences(
     path: Path,
     maximum_gap_seconds: float = MAX_CONTIGUOUS_GAP_SECONDS,
@@ -192,6 +226,19 @@ def load_workload_revisions(
     return {workload: sorted(values) for workload, values in sorted(revisions.items())}
 
 
+def controller_revisions(
+    model_revisions: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    """Collapse per-container model keys to resolver/controller identities."""
+    result: dict[str, set[str]] = defaultdict(set)
+    for workload_key, revisions in model_revisions.items():
+        controller, separator, container = workload_key.rpartition(":")
+        if not separator or not controller or not container:
+            raise ValueError(f"invalid workload key for revision binding: {workload_key}")
+        result[controller].update(revisions)
+    return {key: sorted(values) for key, values in sorted(result.items())}
+
+
 def interval_bounds(window_seconds: float) -> tuple[float, float]:
     if window_seconds == 1.0:
         return 0.80, 1.50
@@ -259,6 +306,19 @@ def validate_training_contract(
         expected_revisions = load_workload_revisions(dataset, require_known=True)
         if contract.get("approved_workload_revisions") != expected_revisions:
             raise ValueError("training contract workload revisions differ from dataset")
+        if contract.get("workload_fingerprint_workloads") != controller_revisions(
+            expected_revisions
+        ):
+            raise ValueError("training contract fingerprint differs from dataset")
+        fingerprint_sha = contract.get("workload_fingerprint_sha256")
+        observer_complete_sha = contract.get("observer_complete_sha256")
+        if any(
+            not isinstance(value, str)
+            or len(value) != 64
+            or any(character not in "0123456789abcdef" for character in value)
+            for value in (fingerprint_sha, observer_complete_sha)
+        ):
+            raise ValueError("training contract revision evidence hashes are invalid")
     return contract
 
 
@@ -297,6 +357,9 @@ def main() -> None:
     maximum_gap_seconds = args.window_seconds * 2.5
     sequences, columns = load_sequences(
         args.dataset, maximum_gap_seconds=maximum_gap_seconds
+    )
+    workload_regime_coverage = validate_workload_regime_coverage(
+        dataset_manifest, set(sequences)
     )
     approved_workload_revisions = load_workload_revisions(
         args.dataset,
@@ -344,6 +407,13 @@ def main() -> None:
         "training_contract": str(args.training_contract),
         "training_contract_sha256": sha256_file(args.training_contract),
         "training_contract_id": training_contract.get("candidate_id"),
+        "training_contract_schema": training_contract.get("schema"),
+        "workload_fingerprint_sha256": training_contract.get(
+            "workload_fingerprint_sha256"
+        ),
+        "observer_complete_sha256": training_contract.get(
+            "observer_complete_sha256"
+        ),
         **source_provenance,
         "evidence_class": training_contract.get("evidence_class", "unspecified"),
         "automatic_promotion": training_contract["automatic_promotion"],
@@ -365,6 +435,8 @@ def main() -> None:
         "window_seconds": args.window_seconds,
         "max_contiguous_gap_seconds": maximum_gap_seconds,
         "approved_workload_revisions": approved_workload_revisions,
+        "required_normal_regimes": dataset_manifest["required_regimes"],
+        "workload_regime_coverage": workload_regime_coverage,
         "alpha": args.alpha,
         "software": {
             "python": platform.python_version(),

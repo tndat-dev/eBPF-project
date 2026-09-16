@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sentinel_pulse.finalize_candidate import build_decision
+from sentinel_pulse.finalize_candidate import build_decision, verify_model_bundle
 from sentinel_pulse.integrity import sha256_file
 
 
@@ -115,6 +115,33 @@ class PulseFinalizerTests(unittest.TestCase):
             decision = build_decision(model_dir, normal, attack, soak_marker_path=marker)
             self.assertEqual(decision["status"], "eligible_for_overhead_evaluation")
             self.assertFalse(decision["production_ready"])
+
+    def test_v3_model_bundle_requires_revision_observer_provenance(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            model_dir, _normal, _attack, _marker = self._fixture(Path(temporary))
+            manifest_path = model_dir / "manifest.json"
+            manifest = json.loads(manifest_path.read_text())
+            manifest["training_contract_schema"] = (
+                "sentinel-pulse-training-contract-v3"
+            )
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            (model_dir / "manifest.sha256").write_text(
+                f"{sha256_file(manifest_path)}  manifest.json\n", encoding="ascii"
+            )
+            with self.assertRaisesRegex(ValueError, "workload_fingerprint_sha256"):
+                verify_model_bundle(model_dir)
+
+            manifest["workload_fingerprint_sha256"] = "e" * 64
+            manifest["observer_complete_sha256"] = "f" * 64
+            manifest["approved_workload_revisions"] = {
+                "production/catalog:app": ["revision-a"]
+            }
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            (model_dir / "manifest.sha256").write_text(
+                f"{sha256_file(manifest_path)}  manifest.json\n", encoding="ascii"
+            )
+            _manifest, candidates, _collect_only = verify_model_bundle(model_dir)
+            self.assertEqual(candidates, ["production/catalog:app"])
 
     def test_collect_only_workload_fails_full_coverage_gate(self):
         with tempfile.TemporaryDirectory() as temporary:

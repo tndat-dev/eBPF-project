@@ -4,12 +4,13 @@ import json
 import pytest
 
 from sentinel_pulse.finalize_500ms_dataset import finalize
-from sentinel_pulse.freeze_training_contract import freeze
+from sentinel_pulse.freeze_training_contract import bind_completed_fingerprint, freeze
 from sentinel_pulse.train import (
     interval_bounds,
     load_workload_revisions,
     source_git_provenance,
     validate_training_contract,
+    validate_workload_regime_coverage,
 )
 
 
@@ -77,6 +78,29 @@ def test_training_interval_bounds_are_profile_specific():
     assert interval_bounds(1.0) == (0.80, 1.50)
     with pytest.raises(ValueError, match="0.5 or 1.0"):
         interval_bounds(0.25)
+
+
+def test_training_requires_peak_coverage_for_every_workload():
+    manifest = {
+        "required_regimes": ["steady", "peak", "recovery"],
+        "rows_by_workload_regime": {
+            "production/catalog:app": {
+                "steady": 100,
+                "peak": 100,
+                "recovery": 100,
+            }
+        },
+    }
+    coverage = validate_workload_regime_coverage(
+        manifest, {"production/catalog:app"}
+    )
+    assert coverage["production/catalog:app"]["peak"] == 100
+
+    manifest["rows_by_workload_regime"]["production/catalog:app"]["peak"] = 0
+    with pytest.raises(ValueError, match="missing=peak"):
+        validate_workload_regime_coverage(
+            manifest, {"production/catalog:app"}
+        )
 
 
 def test_training_contract_binds_dataset_blind_matrix_and_parameters(tmp_path):
@@ -203,6 +227,11 @@ def test_v3_training_contract_binds_known_workload_revisions(tmp_path):
         "approved_workload_revisions": {
             "production/catalog:app": ["revision-a"]
         },
+        "workload_fingerprint_workloads": {
+            "production/catalog": ["revision-a"]
+        },
+        "workload_fingerprint_sha256": "c" * 64,
+        "observer_complete_sha256": "d" * 64,
         **source,
     }))
     validate_training_contract(
@@ -219,3 +248,27 @@ def test_v3_training_contract_binds_known_workload_revisions(tmp_path):
     }) + "\n")
     with pytest.raises(ValueError, match="unknown workload revision"):
         load_workload_revisions(dataset, require_known=True)
+
+
+def test_completed_observer_fingerprint_must_match_dataset_revisions(tmp_path):
+    fingerprint = tmp_path / "APPROVED_FINGERPRINT.json"
+    fingerprint.write_text(json.dumps({
+        "schema": "sentinel-pulse-workload-fingerprint-v1",
+        "workloads": {"production/catalog": ["revision-a"]},
+    }))
+    (tmp_path / "COMPLETE").write_text("completed_at=2026-09-16T00:00:00Z\n")
+    fingerprint_sha = hashlib.sha256(fingerprint.read_bytes()).hexdigest()
+    (tmp_path / "FINAL_SHA256SUMS").write_text(
+        f"{fingerprint_sha}  {fingerprint}\n"
+    )
+    binding = bind_completed_fingerprint(
+        fingerprint, {"production/catalog:app": ["revision-a"]}
+    )
+    assert binding["workload_fingerprint_sha256"] == fingerprint_sha
+    assert binding["workload_fingerprint_workloads"] == {
+        "production/catalog": ["revision-a"]
+    }
+    with pytest.raises(ValueError, match="differ from completed observer"):
+        bind_completed_fingerprint(
+            fingerprint, {"production/catalog:app": ["revision-b"]}
+        )

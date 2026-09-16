@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
+from collections import Counter, defaultdict
 import json
 import os
 from pathlib import Path
@@ -164,6 +164,7 @@ def assemble(
     excluded = 0
     by_node = Counter()
     by_regime = Counter()
+    by_workload_regime: dict[str, Counter] = defaultdict(Counter)
     span_by_node = Counter()
     schema_hash = None
     try:
@@ -209,7 +210,10 @@ def assemble(
                         destination.write(json.dumps(record, separators=(",", ":")) + "\n")
                         rows += 1
                         by_node[source_node] += 1
-                        by_regime[str(interval["regime"])] += 1
+                        regime = str(interval["regime"])
+                        workload = str(record["workload_key"])
+                        by_regime[regime] += 1
+                        by_workload_regime[workload][regime] += 1
                 node_manifest = source_manifests[source_node]
                 if source_rows != int(node_manifest["rows"]):
                     raise ValueError(
@@ -246,6 +250,13 @@ def assemble(
             node: source_manifests[node]["schema"] for node in sorted(source_manifests)
         },
         "rows_by_regime": dict(sorted(by_regime.items())),
+        "required_regimes": [
+            str(item["regime"]) for item in contract["intervals"]
+        ],
+        "rows_by_workload_regime": {
+            workload: dict(sorted(counts.items()))
+            for workload, counts in sorted(by_workload_regime.items())
+        },
         "source_sha256": {
             node: {"path": str(path), "sha256": sha256_file(path)}
             for node, path in sorted(sources.items())

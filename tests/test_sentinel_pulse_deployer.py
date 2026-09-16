@@ -480,7 +480,8 @@ class PulseDeployerTests(unittest.TestCase):
             ROOT / "sentinel_pulse" / "run_500ms_dataset_campaign.sh"
         ).read_text()
         self.assertIn("k8s-worker1.local k8s-worker3.local k8s-worker4.local", runner)
-        self.assertIn("regimes=(steady toolmix burst recovery)", runner)
+        self.assertIn("regimes=(steady toolmix peak burst recovery)", runner)
+        self.assertIn("experiment_duration <= 4500", runner)
         self.assertIn('"normal_only": True', runner)
         self.assertIn('"automatic_model_training": False', runner)
         self.assertIn('"automatic_promotion": False', runner)
@@ -543,6 +544,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertLess(train, benchmark)
         self.assertIn("automatic_model_training == false", script)
         self.assertIn("automatic_promotion == false", script)
+        self.assertIn("--workload-fingerprint", script)
         self.assertNotIn("install_detector_candidate", script)
         self.assertNotIn("kubectl apply", script)
 

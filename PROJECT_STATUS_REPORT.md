@@ -53,6 +53,11 @@ R5 sau đó terminal `preflight_not_stable` trước `START`. Hiện 10/10 rollo
 Healthy; R6 đang tích lũy 300 giây fingerprint ổn định trước khi bắt đầu 24
 giờ. Training Contract V3 đã qua full regression 282 pass và bắt buộc candidate
 mới bind revision đã biết; dataset có `unknown` bị từ chối trước fit.
+R6 sau đó fail-closed vì AIMS rollout tiếp. R7/R7-r2 đều được `ABORTED` trước
+`START` để sửa provenance/tên run và đồng nhất controller key giữa observer với
+model. R8 bắt đầu preflight ngày 16-09-2026 11:19:59 UTC. Training Contract V3
+nay còn bắt buộc fingerprint từ observer đã COMPLETE và checksum-bound phải
+khớp tuyệt đối revision trong dataset; targeted regression đạt 50 pass.
 **Chế độ phản ứng:** audit/dry-run, tức là hệ thống ghi log hành động cô lập nhưng chưa thật sự cordon/evict pod
 
 ## Tóm tắt
@@ -7595,3 +7600,32 @@ cadence event so với checkpoint trước. Cả sáu node Ready; không có pod
 Running/Succeeded; START_SHA256SUMS verify. Chưa có NORMAL_PASS hoặc archive
 terminal. Mốc eligible finalize cộng margin là 09-09 13:40:47 giờ Việt Nam;
 có thể kiểm tra khoảng 14:15, tùy thời gian xuất và kiểm chứng archive.
+
+### 18.176 Peak-hour coverage cho Sentinel Pulse (16-09-2026)
+
+Trạng thái trực tiếp: 6/6 node Kubernetes v1.34.10 Ready; 10/10 AIMS Argo
+Rollout đạt 4/4; frontend, waypoint, Kafka, CNPG PostgreSQL, RabbitMQ,
+Redis/Sentinel và MinIO đều Running/Ready. Revision observer R8 đã qua
+preflight, có `START` và lúc 17:35:44 UTC đã chạy khoảng 6 giờ 15 phút với
+fingerprint không đổi `de25bc3f...`; chưa đủ 24 giờ và chưa phải model pass.
+
+Sentinel Pulse được bổ sung normal regime `peak` mô phỏng 20:00, nằm giữa
+steady và burst: loadgen base/readmix/dependency `4/2/3`, east-west sleep 0,25
+giây, ingress interval 0,08 giây. Capture contract mới có năm regime
+steady/toolmix/peak/burst/recovery. Dataset assembler ghi số row theo từng
+workload và regime; trainer từ chối candidate nếu bất kỳ workload/container
+nào thiếu peak hoặc một regime đã preregister. Việc này xử lý đúng rủi ro model
+học low/medium=normal nhưng high-load=abnormal; không dùng attack data để tune.
+
+Audit cũng xác nhận syscall/transition hash-bin là exact eBPF counters được
+chuẩn hóa, không phải event sample Tetragon. Chúng giữ hình dạng long-tail và
+chuyển tiếp ở số chiều cố định nhưng có collision; các count/rolling feature
+vẫn nhạy với tải, nên high-load coverage là bắt buộc. Full source overlay qua
+**577 test**, 2 warning deprecation Torch, trên ML venv VM.
+
+Pulse hiện chưa tự dựng RCA đến process/destination/content vì hot-path map
+aggregate theo cgroup. Hướng mở rộng đã chốt là enrichment hậu-alert:
+process/parent/exec identity + connect 5-tuple từ Tetragon/eBPF, ánh xạ
+destination qua Kubernetes Endpoint/Service, và L7 metadata đã redact từ
+Istio/Envoy. Payload TLS/raw body không được xem là khả dụng từ syscall
+`connect` và không thu mặc định vì privacy/secret risk.

@@ -27,9 +27,13 @@ class PulseContractTests(unittest.TestCase):
             contract = prepare(path, "pulse-c1", 1000.0, 300, 30, ["worker-a"])
             self.assertEqual(
                 [item["regime"] for item in contract["intervals"]],
-                ["steady", "toolmix", "burst", "recovery"],
+                ["steady", "toolmix", "peak", "burst", "recovery"],
             )
             self.assertEqual(contract["intervals"][1]["start"], 1330.0)
+            self.assertEqual(
+                contract["normal_contexts"]["peak"],
+                "simulated_20h_peak_hour",
+            )
             with self.assertRaisesRegex(ValueError, "overwrite"):
                 prepare(path, "pulse-c2", 2000.0, 300, 30, ["worker-a"])
 

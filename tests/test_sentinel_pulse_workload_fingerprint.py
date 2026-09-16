@@ -30,6 +30,6 @@ def test_fingerprint_supports_operator_owned_workload_revisions():
          "status": {"phase": "Running"}},
     ]}
     assert fingerprint(payload)["workloads"] == {
-        "production/kafka": ["strimzi-80e3e646"],
-        "production/postgresql": ["cnpg-b848f0243a8309e1"],
+        "production/aims-kafka-dual-role": ["strimzi-80e3e646"],
+        "production/aims-postgres-cnpg": ["cnpg-b848f0243a8309e1"],
     }

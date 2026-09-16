@@ -2,11 +2,14 @@
 # Reproducibly switch only the Sentinel-owned AIMS traffic generators.
 set -euo pipefail
 
-REGIME=${1:?usage: set_aims_traffic_regime.sh steady|burst|recovery|toolmix|idle}
+REGIME=${1:?usage: set_aims_traffic_regime.sh steady|toolmix|peak|burst|recovery|idle}
 NAMESPACE=${NAMESPACE:-production}
 
 case "$REGIME" in
   steady)   base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=1; ingress_interval=0.22 ;;
+  # Sustained, legitimate 20:00 peak-hour traffic. Keep this below the
+  # deliberately spiky burst regime so both normal modes remain identifiable.
+  peak)     base_replicas=4; mix_replicas=2; dependency_replicas=3; sleep_seconds=0.25; ingress_interval=0.08 ;;
   burst)    base_replicas=6; mix_replicas=2; dependency_replicas=3; sleep_seconds=0; ingress_interval=0.04 ;;
   recovery) base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=2; ingress_interval=0.44 ;;
   toolmix)  base_replicas=2; mix_replicas=4; dependency_replicas=2; sleep_seconds=1; ingress_interval=0.22 ;;

@@ -45,6 +45,25 @@ def verify_model_bundle(model_dir: Path) -> tuple[dict, list[str], list[str]]:
         "narwhals",
     }:
         raise ValueError("model manifest has incomplete training software provenance")
+    if manifest.get("training_contract_schema") == "sentinel-pulse-training-contract-v3":
+        for field in (
+            "workload_fingerprint_sha256",
+            "observer_complete_sha256",
+        ):
+            value = manifest.get(field)
+            if (
+                not isinstance(value, str)
+                or len(value) != 64
+                or any(character not in "0123456789abcdef" for character in value)
+            ):
+                raise ValueError(f"model manifest has invalid {field}")
+        revisions = manifest.get("approved_workload_revisions")
+        if (
+            not isinstance(revisions, dict)
+            or not revisions
+            or any("unknown" in values for values in revisions.values())
+        ):
+            raise ValueError("model manifest has unapproved workload revisions")
     candidates, collect_only = [], []
     for workload, item in sorted(manifest.get("workloads", {}).items()):
         if item.get("status") != "candidate":

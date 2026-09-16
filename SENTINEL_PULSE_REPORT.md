@@ -2450,3 +2450,78 @@ V2 để tái lập artifact lịch sử, còn semantic-policy builder chấp nh
 Thay đổi này qua full regression **282 pass, 292 deselected, 2 Torch
 deprecation warning trong 38,02 giây**; chưa tạo model mới và không dùng attack
 data để hiệu chỉnh.
+
+### Revision observer R6–R8 và binding dataset (16-09-2026)
+
+R6 đã vượt preflight và tạo `START`, nhưng terminal fail lúc 14-09 16:50:54
+UTC với `workload_revision_changed` sau 6 observation: AIMS tiếp tục rollout.
+Không có dữ liệu R6 nào được phép dùng làm baseline. Đến 16-09, cluster được
+xác minh lại 6/6 node Ready v1.34.10, 10/10 Argo Rollout Healthy. Resolver và
+control collector active trên 3/3 worker; experiment collector và candidate
+detector inactive; không còn revision `unknown`.
+
+R7 ban đầu được ghi `ABORTED` trước `START` vì tên run có timestamp không đúng.
+R7-r2 cũng được ghi `ABORTED` trước `START` khi audit phát hiện khóa fingerprint
+của operator workload chưa trùng khóa model: observer dùng label generic
+`kafka`/`postgresql`, trong khi feature dùng controller
+`aims-kafka-dual-role`/`aims-postgres-cnpg`. `workload_fingerprint.py` nay dùng
+chính `infer_workload_name()` giống cgroup resolver. Targeted regression cho
+revision/training/deployer đạt 50/50 pass.
+
+R8 `revision-baseline-r8-20260916T111959Z` đang chạy nền với preflight 300
+giây và 24 giờ observation; source observer được freeze/checksum trong evidence.
+Đồng hồ 24 giờ chỉ bắt đầu khi 10/10 rollout Healthy và fingerprint mới đứng
+yên đủ preflight. Đây vẫn là prerequisite, chưa phải model normal-pass.
+
+Training Contract V3 được siết thêm: `freeze_training_contract` bắt buộc nhận
+`APPROVED_FINGERPRINT.json` từ observer đã có `COMPLETE` và
+`FINAL_SHA256SUMS`. Revision trong dataset được collapse từ key per-container
+về đúng controller identity rồi phải khớp tuyệt đối fingerprint; contract bind
+SHA-256 của fingerprint, marker COMPLETE và checksum index. Dataset khác
+revision, observer chưa terminal hoặc checksum không bind đều bị từ chối trước
+fit. Postprocess cũ cũng không thể gọi training nếu thiếu fingerprint.
+
+### Peak-hour normal regime và giới hạn RCA hiện tại (16-09-2026)
+
+Audit code xác nhận 64 `syscall_bin` và 64 `transition_bin` được tăng trực tiếp
+tại raw tracepoint `sys_enter`, không đi qua rate limit của Tetragon. Syscall ID
+được hash vào bucket cố định; cặp syscall liền kề của cùng task trong thời gian
+cho phép được hash vào transition bucket. Các bucket được chuẩn hóa theo tổng
+syscall/transition, nên giữ được hình dạng phân phối với số chiều cố định nhưng
+có collision và không thể giải ngược chính xác syscall/transition. 29 syscall
+quan trọng vẫn có exact counter riêng. Feature còn có `log_total`, exact
+`log_count` và rolling mean/std, vì vậy tăng tải hợp lệ chưa có trong baseline
+vẫn có thể tạo distribution shift và false alert; hash-bin không tự giải quyết
+được vấn đề này.
+
+Capture contract được mở rộng từ bốn thành năm normal regime:
+`steady -> toolmix -> peak -> burst -> recovery`. `peak` mô phỏng giờ cao điểm
+20:00 kéo dài với loadgen `4/2/3` (base/readmix/dependency), east-west sleep
+0,25 giây và ingress interval 0,08 giây. `burst` vẫn là stress shape mạnh hơn
+`6/2/3`, sleep 0 và ingress interval 0,04 giây; do đó hai dạng tải không bị
+đánh đồng. Contract ghi rõ `peak=simulated_20h_peak_hour` và reset temporal
+history tại mọi ranh giới regime.
+
+Dataset manifest nay ghi `required_regimes` và
+`rows_by_workload_regime`. Trainer fail-closed nếu bất kỳ workload/container
+nào thiếu một normal regime, đặc biệt là `peak`; coverage được bind vào model
+manifest. Peak data dùng train/calibration vẫn không phải independent holdout.
+Kết luận false-positive tại high load chỉ được phép sau một peak campaign khác,
+không tham gia fit/calibration, hoặc live peak soak preregistered.
+
+Source overlay mới đã qua **577 test**, 2 Torch deprecation warning, trong ML
+venv trên VM; test chạy từ bản copy tạm nên không thay đổi source observer đang
+hoạt động. Lúc 17:35:44 UTC, R8 đã có `START`, chạy khoảng 6 giờ 15 phút, các
+observation liên tiếp vẫn giữ cùng fingerprint
+`de25bc3fc3c2a8120f9cd57074760805155e47fbf8a18c7f0f5bfd326f6aad3a`.
+Đây mới là revision-stability prerequisite, chưa phải ML normal-pass.
+
+RCA hiện chưa nằm trong vector Pulse: counter được aggregate theo cgroup nên
+không giữ PID/process tree, destination 5-tuple hay payload. Kiến trúc có thể mở
+rộng bằng một enrichment path tách khỏi hot path: Tetragon/eBPF connect event
+ghi `exec_id`, PID/TGID, parent exec, binary và destination IP/port; Kubernetes
+resolver ánh xạ IP sang Pod/Service/ServiceAccount; sau alert mới dựng cạnh
+`workload -> process -> connect -> destination`. Nội dung TLS không thể lấy từ
+`sys_connect`; L7 chỉ nên lấy method/route/status từ Istio/Envoy access log hoặc
+trace đã redact. Không thu raw request body/credential mặc định. Thiết kế tách
+này giữ latency ML và hạn chế overhead/privacy risk.

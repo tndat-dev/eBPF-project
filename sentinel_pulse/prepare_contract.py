@@ -1,4 +1,4 @@
-"""Freeze an absolute four-regime capture schedule before collection starts."""
+"""Freeze an absolute normal-traffic capture schedule before collection starts."""
 
 from __future__ import annotations
 
@@ -10,7 +10,9 @@ from pathlib import Path
 from .assemble_dataset import load_contract
 
 
-REGIMES = ("steady", "toolmix", "burst", "recovery")
+# ``peak`` models sustained, legitimate evening demand. It is distinct from
+# ``burst`` so peak-hour windows can be held out and evaluated as normal.
+REGIMES = ("steady", "toolmix", "peak", "burst", "recovery")
 
 
 def prepare(
@@ -34,6 +36,10 @@ def prepare(
         "schema": "sentinel-pulse-capture-contract-v1",
         "campaign_id": campaign_id,
         "normal_only": True,
+        "normal_contexts": {
+            "peak": "simulated_20h_peak_hour",
+            "burst": "bounded_legitimate_stress",
+        },
         "expected_nodes": nodes,
         "intervals": intervals,
         "schedule": {

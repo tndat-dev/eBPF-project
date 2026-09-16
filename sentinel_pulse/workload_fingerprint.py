@@ -24,7 +24,11 @@ def fingerprint(pods: dict) -> dict:
             continue
         labels = metadata.get("labels", {})
         annotations = metadata.get("annotations", {})
-        workload = labels.get("app.kubernetes.io/name") or infer_workload_name(name)
+        # Match cgroup_resolver/workload_key exactly. Application labels are
+        # useful for presentation but operator-owned pods often use generic
+        # values ("kafka", "postgresql") while model artifacts are keyed by
+        # their concrete controller ("aims-kafka-dual-role", etc.).
+        workload = infer_workload_name(name)
         key = f"{namespace}/{workload}"
         values.setdefault(key, set()).add(workload_revision(labels, annotations))
     return {

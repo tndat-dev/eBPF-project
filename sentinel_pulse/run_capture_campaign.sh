@@ -88,7 +88,7 @@ wait_until() {
   done
 }
 
-for regime in steady toolmix burst recovery; do
+for regime in steady toolmix peak burst recovery; do
   regime_start=$(python3 - "$CONTRACT" "$regime" <<'PY'
 import json, sys
 contract = json.load(open(sys.argv[1], encoding="utf-8"))

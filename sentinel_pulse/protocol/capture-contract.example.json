@@ -8,10 +8,15 @@
     "k8s-worker4.local"
   ],
   "intervals": [
-    {"regime": "steady", "start": 0, "end": 21600},
-    {"regime": "toolmix", "start": 21600, "end": 43200},
-    {"regime": "burst", "start": 43200, "end": 64800},
-    {"regime": "recovery", "start": 64800, "end": 86400}
+    {"regime": "steady", "start": 0, "end": 17280},
+    {"regime": "toolmix", "start": 17280, "end": 34560},
+    {"regime": "peak", "start": 34560, "end": 51840},
+    {"regime": "burst", "start": 51840, "end": 69120},
+    {"regime": "recovery", "start": 69120, "end": 86400}
   ],
+  "normal_contexts": {
+    "peak": "simulated_20h_peak_hour",
+    "burst": "bounded_legitimate_stress"
+  },
   "notes": "Replace relative example timestamps with immutable Unix timestamps before the campaign. Never edit after capture starts."
 }

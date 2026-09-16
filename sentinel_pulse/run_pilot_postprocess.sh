@@ -10,6 +10,7 @@ WAIT_INTERVAL_SECONDS=${WAIT_INTERVAL_SECONDS:-15}
 PYTHON=${PYTHON:-/home/dat/ml-venv/bin/python}
 BLIND_CONTRACT=${BLIND_CONTRACT:-$SOURCE_ROOT/sentinel_pulse/protocol/blind-attack-contract.json}
 BENCHMARK_POLICY=${BENCHMARK_POLICY:-$SOURCE_ROOT/sentinel_pulse/protocol/decision-policy-semantic-v1.json}
+WORKLOAD_FINGERPRINT=${WORKLOAD_FINGERPRINT:?completed observer APPROVED_FINGERPRINT.json is required}
 CANDIDATE_ID=${CANDIDATE_ID:-sentinel-pulse-500ms-candidate-a2-pilot}
 EVIDENCE_CLASS=${EVIDENCE_CLASS:-nonformal_runtime_compatibility_pilot}
 
@@ -58,6 +59,7 @@ dataset="$EVIDENCE_ROOT/dataset/features.jsonl"
 "$PYTHON" -m sentinel_pulse.freeze_training_contract \
   --dataset "$dataset" \
   --blind-attack-contract "$BLIND_CONTRACT" \
+  --workload-fingerprint "$WORKLOAD_FINGERPRINT" \
   --candidate-id "$CANDIDATE_ID" \
   --evidence-class "$EVIDENCE_CLASS" \
   --history 3 \
