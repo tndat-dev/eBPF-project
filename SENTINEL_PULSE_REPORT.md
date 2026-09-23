@@ -2567,12 +2567,18 @@ hậu nghiệm thành formal independent holdout hoặc bằng chứng model rec
 Observer R9 được khởi chạy từ detached source commit `65ac511` bằng systemd
 unit `sentinel-pulse-revision-r9.service`. Evidence root là
 `/home/dat/sentinel-pulse-evidence/revision-baseline-r9-20260923T121038Z`.
-Tại lần kiểm tra 12:12:28 UTC, unit còn active trong preflight 300 giây, 10/10
-Argo Rollout Healthy và fingerprint chưa đổi được 61 giây. Đồng hồ quan sát 24
-giờ chỉ bắt đầu sau khi preflight terminal; chưa được ghi R9 là pass cho tới
-khi có `COMPLETE`, `FINAL_SHA256SUMS` hợp lệ và không có `FAILED`. Lúc
-12:16:31 UTC, AIMS bắt đầu rollout revision mới trên cả 10 service; fingerprint
-đổi từ `105173d5...bd305` sang `6b49eed6...0938` và Argo chuyển sang
-`Progressing`. R9 đã reset preflight về 0 đúng contract, chưa mở đồng hồ 24 giờ
-và không trộn hai revision vào baseline. Observer tiếp tục chờ rollout Healthy
-rồi yêu cầu lại đủ 300 giây ổn định.
+Trong preflight đầu tiên, lúc 12:16:31 UTC, AIMS bắt đầu rollout revision mới
+trên cả 10 service. R9 đã reset stability về 0 đúng contract và không trộn hai
+revision vào baseline. Sau khi 10/10 Argo Rollout trở lại Healthy và fingerprint
+mới đứng yên đủ 300 giây, R9 tạo `START` lúc 12:33:45 UTC ngày 23-09-2026;
+`START_SHA256SUMS` và `SOURCE_SHA256SUMS` đều kiểm tra đạt. Fingerprint được
+khóa có internal SHA-256
+`bf583085dd0ca7d35c14f5c75f7dfa4727dd1d86a0493857c3818bfc3b1ee9eb`,
+gồm 19 workload controller. Union resolver trên ba worker khớp 19/19 workload,
+không thiếu, không lệch revision và không có key thừa; metadata mới 27--34
+giây, allowed-cgroup count lần lượt 61/71/63. Resolver và control collector đều
+active, `NRestarts=0`; experiment collector và candidate detector vẫn inactive.
+
+Mốc đủ 24 giờ là 12:33:45 UTC ngày 24-09-2026 (19:33:45 giờ Việt Nam).
+Observer hiện active; chưa được ghi R9 là pass hay mở training cho tới khi có
+`COMPLETE`, `FINAL_SHA256SUMS` hợp lệ và không có `FAILED`.
