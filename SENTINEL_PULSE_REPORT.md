@@ -2468,10 +2468,15 @@ của operator workload chưa trùng khóa model: observer dùng label generic
 chính `infer_workload_name()` giống cgroup resolver. Targeted regression cho
 revision/training/deployer đạt 50/50 pass.
 
-R8 `revision-baseline-r8-20260916T111959Z` đang chạy nền với preflight 300
-giây và 24 giờ observation; source observer được freeze/checksum trong evidence.
-Đồng hồ 24 giờ chỉ bắt đầu khi 10/10 rollout Healthy và fingerprint mới đứng
-yên đủ preflight. Đây vẫn là prerequisite, chưa phải model normal-pass.
+R8 `revision-baseline-r8-20260916T111959Z` đã kết thúc `success` với
+`ExecMainStatus=0`. Bundle có `COMPLETE`, `FINAL_SHA256SUMS` và
+`APPROVED_FINGERPRINT.json`; kiểm tra lại toàn bộ checksum ngày 23-09-2026 đều
+đạt. Fingerprint được duyệt có SHA-256
+`8841ae8229dc2fe8942f028a1dc5197347fbda06dff8d40e7623cc368d1cc6fa`.
+Đây là prerequisite revision-stability hợp lệ cho đúng revision trong bundle,
+không phải model normal-pass. AIMS sau đó đã rollout revision mới, ví dụ
+`api-gateway` live là `7f896dc97` thay vì `f9c46d7c6` trong R8; do đó training
+cho trạng thái live hiện tại phải có observer/fingerprint mới.
 
 Training Contract V3 được siết thêm: `freeze_training_contract` bắt buộc nhận
 `APPROVED_FINGERPRINT.json` từ observer đã có `COMPLETE` và
@@ -2481,7 +2486,7 @@ SHA-256 của fingerprint, marker COMPLETE và checksum index. Dataset khác
 revision, observer chưa terminal hoặc checksum không bind đều bị từ chối trước
 fit. Postprocess cũ cũng không thể gọi training nếu thiếu fingerprint.
 
-### Peak-hour normal regime và giới hạn RCA hiện tại (16-09-2026)
+### Peak-hour normal regime và RCA enrichment (xác minh 23-09-2026)
 
 Audit code xác nhận 64 `syscall_bin` và 64 `transition_bin` được tăng trực tiếp
 tại raw tracepoint `sys_enter`, không đi qua rate limit của Tetragon. Syscall ID
@@ -2526,21 +2531,30 @@ resolver ánh xạ IP sang Pod/Service/ServiceAccount; sau alert mới dựng c�
 trace đã redact. Không thu raw request body/credential mặc định. Thiết kế tách
 này giữ latency ML và hạn chế overhead/privacy risk.
 
-RCA enrichment đầu tiên đã được hiện thực nhưng chưa rollout giữa phép đo peak:
-policy AIMS khai báo rõ ba argument của `connect(2)` (`fd`, `sockaddr`, length),
-và `rca_connect.py` chuẩn hóa process/parent lineage thành graph edge rồi ánh
-xạ Pod IP, Service ClusterIP hoặc EndpointSlice. Event Tetragon live trước
-patch chứng minh phần process đã có `/usr/local/bin/python`, PID, `exec_id`,
-`parent_exec_id`, pod/container/node nhưng destination trống vì policy cũ
-không yêu cầu args. Hai manifest mới đã qua Kubernetes server-side dry-run;
-parser có unit test. Policy chỉ được rollout sau khi peak pilot kết thúc để
-không đổi telemetry overhead giữa campaign.
+RCA enrichment đã được rollout sau khi peak pilot kết thúc. `connect(2)` phải
+khai báo socket FD là `int`, không phải Tetragon `fd`: kiểu `fd` cố resolve file
+descriptor ngay tại syscall entry và làm mất connect event trong test live.
+Generation 3 của `sentinel-aims-syscalls` đã reload sensor thành công trên 6/6
+Tetragon pod. Một request thật vào health endpoint của `api-gateway` trả HTTP
+200 và tạo 7 connect event đúng pod, mang binary `/usr/local/bin/uvicorn`, FD,
+destination IP/port và process lineage.
 
-Peak pilot không-formal `pulse500-data-pilot-20260916T173948Z` được chạy nền
-từ clean detached commit `c9114fa` trên cả ba worker. Contract khóa 300 giây
-mỗi regime, transition gap 60 giây; `peak` được đăng ký từ 17:54:54 đến
-17:59:54 UTC. Unit `sentinel-pulse-peak-pilot-c1.service` active, ba collector
-500 ms đã khởi động, steady bắt đầu 17:42:54 UTC và 6/6 node vẫn Ready. Run tự
-trả traffic về steady và không train/promote; terminal archive dự kiến sau
-18:12 UTC. Chỉ archive `COMPLETE` và checksum hợp lệ mới được dùng làm pilot
-holdout, không được đổi hậu nghiệm thành formal training evidence.
+`rca_connect.py` hiện nhận đúng live shape `sockaddr_arg.addr`, chịu được
+`EndpointSlice.endpoints=null`, ánh xạ Pod IP/Service ClusterIP/EndpointSlice,
+và có CLI materialize JSONL theo kiểu không ghi đè, kèm SHA-256. Replay stream
+live gồm 709 Tetragon record tạo 92 connect edge; 90 đích resolve thành
+Kubernetes Service và 2 đích được giữ `unresolved`, không đoán nhãn. Năm unit
+test RCA đều đạt. RCA vẫn là enrichment path tách khỏi vector 249 chiều và
+không thu payload L7.
+
+Peak pilot không-formal `pulse500-data-pilot-20260916T173948Z` đã kết thúc
+`success` với `ExecMainStatus=0`; archive có `COMPLETE` và `SHA256SUMS` hợp lệ.
+Dataset có 195.336 row, SHA-256
+`19617bf235c6442ec79b00a271a85fa2d2bad89559a211b7fd8fa03de830fa61`,
+bao phủ 21 workload/container key và đủ cả năm regime cho từng key:
+38.424 `steady`, 39.199 `toolmix`, 39.441 `peak`, 39.422 `burst`, 38.850
+`recovery`. Validation đạt `valid=true`, không có cadence violation, missing
+snapshot ước lượng hay hard-drop. `window_start -> feature_emit` p50/p95/p99
+lần lượt là 0,52271/0,53865/0,54651 giây, max 0,57212 giây; ingest-lag p99 là
+0,03910 giây. Đây là engineering pilot về coverage/telemetry, không được đổi
+hậu nghiệm thành formal independent holdout hoặc bằng chứng model recall/FPR.

@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
+import os
+from pathlib import Path
+import sys
+import tempfile
 from typing import Mapping
 
 
@@ -21,7 +26,7 @@ def _socket_address(arguments: list) -> tuple[str | None, int | None, str | None
             address = next(
                 (
                     value.get(name)
-                    for name in ("daddr", "address", "sin_addr", "sin6_addr")
+                    for name in ("daddr", "address", "addr", "sin_addr", "sin6_addr")
                     if value.get(name) not in (None, "")
                 ),
                 None,
@@ -42,6 +47,17 @@ def _socket_address(arguments: list) -> tuple[str | None, int | None, str | None
                     str(family) if family is not None else None,
                 )
     return None, None, None
+
+
+def _labeled_integer(arguments: list, label: str) -> int | None:
+    """Extract an integer argument without depending on its list position."""
+    for argument in arguments:
+        if not isinstance(argument, dict) or argument.get("label") != label:
+            continue
+        for name in ("int_arg", "uint_arg", "long_arg", "size_arg"):
+            if argument.get(name) is not None:
+                return int(argument[name])
+    return None
 
 
 def kubernetes_target_index(
@@ -83,8 +99,8 @@ def kubernetes_target_index(
     for item in endpoint_slices.get("items", []):
         metadata = item.get("metadata", {})
         service = metadata.get("labels", {}).get("kubernetes.io/service-name")
-        for endpoint in item.get("endpoints", []):
-            for ip in endpoint.get("addresses", []):
+        for endpoint in item.get("endpoints") or []:
+            for ip in endpoint.get("addresses") or []:
                 existing = result.get(str(ip), {})
                 if existing.get("kind") == "Pod":
                     existing = dict(existing)
@@ -117,7 +133,8 @@ def normalize_connect_event(
         return None
     pod = process.get("pod") if isinstance(process.get("pod"), dict) else {}
     container = pod.get("container") if isinstance(pod.get("container"), dict) else {}
-    address, port, family = _socket_address(event.get("args", []))
+    arguments = event.get("args", [])
+    address, port, family = _socket_address(arguments)
     target = dict((target_index or {}).get(address, {})) if address else {}
     return {
         "schema": SCHEMA,
@@ -134,6 +151,9 @@ def normalize_connect_event(
             "uid": process.get("uid"),
             "binary": process.get("binary"),
         },
+        "connection": {
+            "socket_fd": _labeled_integer(arguments, "socket_fd"),
+        },
         "destination": {
             "address": address,
             "port": port,
@@ -149,3 +169,107 @@ def normalize_connect_event(
             json.dumps(record, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
     }
+
+
+def _atomic_new_jsonl(lines, destination: Path) -> dict:
+    """Materialize immutable JSONL without exposing a partial destination."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if destination.exists():
+        raise FileExistsError(f"refusing to overwrite RCA evidence: {destination}")
+    descriptor, temporary_name = tempfile.mkstemp(
+        dir=destination.parent, prefix=f".{destination.name}.", suffix=".tmp"
+    )
+    digest = hashlib.sha256()
+    count = 0
+    try:
+        with os.fdopen(descriptor, "wb") as sink:
+            for item in lines:
+                encoded = (
+                    json.dumps(item, sort_keys=True, separators=(",", ":")) + "\n"
+                ).encode()
+                sink.write(encoded)
+                digest.update(encoded)
+                count += 1
+            sink.flush()
+            os.fsync(sink.fileno())
+        os.link(temporary_name, destination)
+    finally:
+        try:
+            os.unlink(temporary_name)
+        except FileNotFoundError:
+            pass
+    return {"edges": count, "output_sha256": digest.hexdigest()}
+
+
+def materialize_connect_edges(lines, destination: Path, target_index: Mapping) -> dict:
+    """Normalize one immutable event stream and return checksumable statistics."""
+    counters = {
+        "input_records": 0,
+        "connect_edges": 0,
+        "resolved_kubernetes_targets": 0,
+        "unresolved_targets": 0,
+    }
+
+    def edges():
+        for number, line in enumerate(lines, 1):
+            if not str(line).strip():
+                continue
+            try:
+                record = json.loads(line)
+            except (json.JSONDecodeError, TypeError) as error:
+                raise ValueError(f"invalid Tetragon JSON at line {number}") from error
+            if not isinstance(record, dict):
+                raise ValueError(f"Tetragon record at line {number} is not an object")
+            counters["input_records"] += 1
+            edge = normalize_connect_event(record, target_index)
+            if edge is None:
+                continue
+            counters["connect_edges"] += 1
+            if edge["destination"]["kubernetes"]:
+                counters["resolved_kubernetes_targets"] += 1
+            else:
+                counters["unresolved_targets"] += 1
+            yield edge
+
+    result = _atomic_new_jsonl(edges(), destination)
+    if result["edges"] != counters["connect_edges"]:
+        raise RuntimeError("RCA edge count changed while materializing evidence")
+    return {
+        "schema": "sentinel-pulse-rca-materialization-v1",
+        **counters,
+        "output": str(destination),
+        "output_sha256": result["output_sha256"],
+    }
+
+
+def _collection(path: Path) -> dict:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict) or not isinstance(value.get("items"), list):
+        raise ValueError(f"Kubernetes collection is invalid: {path}")
+    return value
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Materialize privacy-safe Tetragon connect edges for RCA"
+    )
+    parser.add_argument("--events", type=Path, required=True)
+    parser.add_argument("--pods", type=Path, required=True)
+    parser.add_argument("--services", type=Path, required=True)
+    parser.add_argument("--endpoint-slices", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    target_index = kubernetes_target_index(
+        _collection(args.pods),
+        _collection(args.services),
+        _collection(args.endpoint_slices),
+    )
+    with args.events.open(encoding="utf-8") as source:
+        summary = materialize_connect_edges(source, args.output, target_index)
+    json.dump(summary, sys.stdout, sort_keys=True)
+    sys.stdout.write("\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

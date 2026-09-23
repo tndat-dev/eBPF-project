@@ -22,7 +22,7 @@ spec:
   - call: sys_connect
     syscall: true
     args:
-    - {index: 0, type: fd, label: socket_fd}
+    - {index: 0, type: int, label: socket_fd}
     - {index: 1, type: sockaddr, label: destination}
     - {index: 2, type: int, label: address_length}
   - call: sys_read
