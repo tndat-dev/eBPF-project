@@ -2544,8 +2544,13 @@ destination IP/port và process lineage.
 và có CLI materialize JSONL theo kiểu không ghi đè, kèm SHA-256. Replay stream
 live gồm 709 Tetragon record tạo 92 connect edge; 90 đích resolve thành
 Kubernetes Service và 2 đích được giữ `unresolved`, không đoán nhãn. Năm unit
-test RCA đều đạt. RCA vẫn là enrichment path tách khỏi vector 249 chiều và
-không thu payload L7.
+test RCA đều đạt. Full regression trên checkout tạm sạch, dùng ML virtualenv,
+đạt 541 passed, 7 skipped, 0 failed. Evidence engineering smoke hợp lệ nằm tại
+`/home/dat/sentinel-pulse-evidence/rca-connect-smoke-20260923T121250Z`, bind
+source commit `65ac511`; `sha256sum -c SHA256SUMS` đạt. Một bundle trước đó có
+marker metadata thiếu newline đã được giữ lại và đánh dấu `SUPERSEDED`, không
+được dùng làm evidence. RCA vẫn là enrichment path tách khỏi vector 249 chiều
+và không thu payload L7.
 
 Peak pilot không-formal `pulse500-data-pilot-20260916T173948Z` đã kết thúc
 `success` với `ExecMainStatus=0`; archive có `COMPLETE` và `SHA256SUMS` hợp lệ.
@@ -2558,3 +2563,16 @@ snapshot ước lượng hay hard-drop. `window_start -> feature_emit` p50/p95/p
 lần lượt là 0,52271/0,53865/0,54651 giây, max 0,57212 giây; ingest-lag p99 là
 0,03910 giây. Đây là engineering pilot về coverage/telemetry, không được đổi
 hậu nghiệm thành formal independent holdout hoặc bằng chứng model recall/FPR.
+
+Observer R9 được khởi chạy từ detached source commit `65ac511` bằng systemd
+unit `sentinel-pulse-revision-r9.service`. Evidence root là
+`/home/dat/sentinel-pulse-evidence/revision-baseline-r9-20260923T121038Z`.
+Tại lần kiểm tra 12:12:28 UTC, unit còn active trong preflight 300 giây, 10/10
+Argo Rollout Healthy và fingerprint chưa đổi được 61 giây. Đồng hồ quan sát 24
+giờ chỉ bắt đầu sau khi preflight terminal; chưa được ghi R9 là pass cho tới
+khi có `COMPLETE`, `FINAL_SHA256SUMS` hợp lệ và không có `FAILED`. Lúc
+12:16:31 UTC, AIMS bắt đầu rollout revision mới trên cả 10 service; fingerprint
+đổi từ `105173d5...bd305` sang `6b49eed6...0938` và Argo chuyển sang
+`Progressing`. R9 đã reset preflight về 0 đúng contract, chưa mở đồng hồ 24 giờ
+và không trộn hai revision vào baseline. Observer tiếp tục chờ rollout Healthy
+rồi yêu cầu lại đủ 300 giây ổn định.
