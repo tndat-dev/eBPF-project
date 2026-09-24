@@ -2579,6 +2579,21 @@ không thiếu, không lệch revision và không có key thừa; metadata mới
 giây, allowed-cgroup count lần lượt 61/71/63. Resolver và control collector đều
 active, `NRestarts=0`; experiment collector và candidate detector vẫn inactive.
 
-Mốc đủ 24 giờ là 12:33:45 UTC ngày 24-09-2026 (19:33:45 giờ Việt Nam).
-Observer hiện active; chưa được ghi R9 là pass hay mở training cho tới khi có
-`COMPLETE`, `FINAL_SHA256SUMS` hợp lệ và không có `FAILED`.
+R9 kết thúc thành công lúc 12:34:10 UTC ngày 24-09-2026. Evidence có
+`COMPLETE`, không có `FAILED`; `FINAL_SHA256SUMS`, `START_SHA256SUMS` và
+`SOURCE_SHA256SUMS` đều kiểm tra đạt. Thời lượng thực là 86.425 giây với 1.428
+observation, một fingerprint duy nhất, poll 60--61 giây và không có gap trên
+90 giây. `final-fingerprint.json` khớp byte-for-byte với
+`APPROVED_FINGERPRINT.json`. R9 vì vậy là revision-stability prerequisite hợp
+lệ; nó chưa phải normal-soak/model-pass.
+
+Sau khi R9 terminal, baseline formal mới
+`pulse500-data-20260924T151745Z` được khởi chạy dưới systemd từ clean detached
+commit `1225605`; HEAD khớp `origin/main`, protocol ghi
+`formal_candidate_training_dataset`, `normal_only=true`, detector inactive và
+không auto-train/promote. Contract đã khóa năm regime
+`steady -> toolmix -> peak -> burst -> recovery`, mỗi regime 600 giây, gap 180
+giây; khoảng đo từ 15:20:51 đến 16:22:51 UTC. Ba collector 500 ms active,
+`NRestarts=0`, attach lần lượt 61/60/71 target trên worker1/worker3/worker4.
+Campaign chỉ hợp lệ sau khi có `COMPLETE`, checksum toàn bundle đạt và
+`dataset/VALIDATION.json.valid=true`.
