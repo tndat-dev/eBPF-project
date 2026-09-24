@@ -1,23 +1,16 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 08-09-2026, SSH trực tiếp; 6/6 node Ready v1.34.10,
+**Snapshot cluster:** 24-09-2026, SSH trực tiếp; 6/6 node Ready v1.34.10,
 không có pod ngoài Running/Succeeded
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** formal normal B3 R6 bị loại vì một false positive
-PostgreSQL; B4 tiếp tục bị loại ở live-normal gate vì một false alert Kafka.
-Blind B4 chưa mở. B5 pass canary nhưng bị loại ở formal normal gate. B6 đã
-khóa policy/contract mới và pass canary, nhưng cũng bị loại ở formal normal
-gate bởi một normal alert MinIO; blind B6 chưa mở. B7 đã pass canary normal
-15 phút (63.534 decision, 0 alert), nhưng formal soak B7 R1 bị loại vì lỗi
-telemetry `.239` sau 96,5 phút. Canary telemetry R3 sau sửa installer đã
-terminal hợp lệ; formal normal-only R4 tiếp tục bị infrastructure-reject vì
-pause worker3. Canary cách ly R5 cũng terminal infrastructure failure vì một
-pause worker3 4,874 giây dù không chạy sysstat recorder; candidate chưa được
-đánh giá. Prospective availability canary R6-r2 đã terminal hợp lệ với 517.459
-decision, 0 alert, đủ 20/20 workload và p99 window-start-to-decision 0,858
-giây. Đây vẫn là normal-only engineering canary; chưa có claim production,
-FPR, recall hay blind-attack latency.
+**Trạng thái claim:** candidate formal R9-C1 đã được train từ normal-only
+dataset R9, khóa checksum và vượt kiểm định artifact/regression/inference.
+Formal live-normal run `pulse500-normal-r9-c1-20260924T171400Z` đang active từ
+17:19:57 UTC ngày 24-09-2026 trên ba worker, chưa đủ gate 24 giờ. Vì vậy chưa
+được claim production, FPR, recall hay kernel-to-alert blind-attack. Các
+candidate B3--B7 và run availability trước đó là lịch sử phát triển hoặc đã bị
+loại; chúng không được gộp vào kết quả R9-C1.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -31,7 +24,7 @@ window-start-to-decision p99 1,433 giây. Independent soak
 alert trên MinIO sidecar và auth-service; detector candidate đã dừng, evidence
 2,1 GB đã freeze và blind 450 trial chưa được mở.
 
-**Checkpoint formal hiện tại:** Run A5 (`pulse500-normal-soak-a5-20260827T070900Z`)
+**Checkpoint formal lịch sử A5:** Run A5 (`pulse500-normal-soak-a5-20260827T070900Z`)
 bị infrastructure-reject lúc 2026-08-28 06:01:32 UTC (21 giờ 53 phút, 91,2%
 của gate 24 giờ), khi pod `notification-service-85955489ff-v5tmq` tạm thời
 unready sau container exit 255. Snapshot cuối hợp lệ có **5.699.660 decision**,
@@ -44,7 +37,7 @@ integrity phải được lưu amendment, không được mô tả là bundle b�
 toàn. A6 chưa tạo `SOAK_START.json`: preflight thiếu capacity trên worker3 rồi
 bị dừng, do đó không phải một formal run.
 
-**Checkpoint formal mới nhất:** B3 R6
+**Checkpoint formal lịch sử B3:** B3 R6
 `sentinel-pulse-formal-normal-b3-r6-20260902T154252Z` đã terminal sau khoảng 3
 giờ 24 phút với 882.176 decision và một false positive trên PostgreSQL. Đây là
 `rejected_normal_gate`, không phải infrastructure reject. Candidate đã dừng,
@@ -121,7 +114,8 @@ allocatable ephemeral-storage là 602.103.302.287 byte trên control plane và
 MemoryPressure hoặc PIDPressure.
 
 Namespace `production` có đủ 10 workload AIMS
-ứng dụng (frontend và chín backend), mỗi workload hai replica. PostgreSQL CNPG
+ứng dụng (frontend và chín backend), mỗi Argo Rollout hiện có bốn replica
+Ready và phase `Healthy`. PostgreSQL CNPG
 3/3 healthy; Kafka ba broker/controller và hai topic replication factor 3;
 RabbitMQ 3/3; Redis 3/3 cùng Sentinel 3/3; MinIO 2/2; Istio ingress và waypoint
 đều Programmed. Các PVC đều Bound.
@@ -2616,6 +2610,39 @@ Calibration audit cho candidate `sentinel-pulse-500ms-r9-c1` đạt 21/21
 workload; workload ít nhất có 1.779 calibration example, vượt yêu cầu 999 tại
 `alpha=0,001`. Training Contract V3 đã bind dataset/manifest, blind contract,
 R9 `COMPLETE`/final checksums, 19 controller revision và clean source commit
-`1225605`. ExtraTrees training được khởi chạy nền lúc 16:58:17 UTC, giới hạn 8
-CPU với nice/ionice thấp; chưa build policy, chạy normal soak, blind attack hay
-promote model.
+`1225605`. ExtraTrees training chạy từ 16:58:17 đến 17:02:45 UTC ngày
+24-09-2026, hoàn tất 21/21 `PulseExtraTrees`, 0 collect-only, `NRestarts=0`;
+thời gian thực 268 giây, CPU 1.212 giây và peak RAM 1,1 GiB. Model manifest
+SHA-256 là
+`af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c`.
+
+Semantic envelope quét toàn bộ normal dataset, sinh đủ 21/21 workload. Policy
+`sentinel-pulse-500ms-r9-c1-same-window` được build từ clean commit `56380c8`,
+khóa checksum dataset/model/training contract, đặt
+`blind_outcome_used=false`, `automatic_promotion=false` và không thêm window
+xác nhận. Policy SHA-256 là
+`715bf6af6b57484a7007ff5ebb3b7d4ca5e777c327ed73521750f8033e221193`.
+Full regression trên clean source đạt **583 passed, 2 deprecation warning, 0
+failed** trong 60,14 giây.
+
+Inference benchmark in-sample cân bằng 500 mẫu cho mỗi workload chạy đủ 10.500
+decision, không thiếu hoặc thiếu mẫu ở workload nào. Inference p50/p95/p99/max
+là 17,98/23,57/28,74/39,11 ms; throughput tuần tự 51,46 scored window/giây.
+Kết quả này chỉ chứng minh runtime/inference budget, không phải accuracy
+evidence. Frozen training bundle nằm tại
+`/home/dat/sentinel-pulse-evidence/pulse500-training-r9-c1-20260924T165622Z`,
+có 35 checksum hợp lệ, 0 file writable, `COMPLETE status=success`; SHA-256 của
+top-level `SHA256SUMS` là
+`8ee28250793f1487e928d6ef36f12352de7f4fbc5e3420054fc57c1feb00c585`.
+
+Formal live-normal run `pulse500-normal-r9-c1-20260924T171400Z` vượt traffic
+preflight: 20/20 HTTP 200 cho chín east-west service và 20/20 success cho cả
+ba ingress path. Cụm giữ 6/6 node, toàn bộ production pod, Longhorn và CNPG
+healthy liên tục 300 giây trước launch. `SOAK_START.json` được tạo lúc
+17:19:57 UTC ngày 24-09-2026 và chỉ đủ điều kiện finalize sau 17:19:57 UTC
+ngày 25-09-2026. Ba worker hiện chạy collector 500 ms và candidate detector,
+legacy collector inactive, model/policy checksum khớp, feature tail hợp lệ,
+`NRestarts=0` và snapshot đầu có 0 alert. Lifecycle đặt
+`STOP_AFTER_NORMAL=true`: nó không tự mở blind attack hoặc promote model sau
+normal gate. Do run chưa terminal, không được diễn giải snapshot này thành
+normal-pass/FPR claim.
