@@ -8,7 +8,7 @@ from sentinel_pulse.decision_policy import (
     corroboration_details,
     load_decision_policy,
 )
-from sentinel_pulse.build_semantic_policy import write_policy
+from sentinel_pulse.build_semantic_policy import claim_scope, write_policy
 from sentinel_pulse.integrity import sha256_file
 
 
@@ -216,6 +216,15 @@ def test_v2_policy_uses_direct_normal_evidence_and_is_read_only(tmp_path):
     assert loaded["blind_outcome_used"] is False
     assert len(digest) == 64
     assert path.stat().st_mode & 0o222 == 0
+
+
+def test_policy_claim_scope_preserves_formal_candidate_boundary():
+    formal = claim_scope("formal_candidate_training")
+    pilot = claim_scope("nonformal_runtime_compatibility_pilot")
+    assert formal.startswith("Formal candidate")
+    assert pilot.startswith("Non-formal candidate")
+    assert "independent evaluation is still required" in formal
+    assert "independent evaluation is still required" in pilot
 
 
 def test_v2_policy_rejects_missing_direct_evidence(tmp_path):

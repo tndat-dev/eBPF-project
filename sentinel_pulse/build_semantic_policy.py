@@ -19,6 +19,20 @@ def _read(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def claim_scope(evidence_class: str) -> str:
+    """Describe policy evidence without upgrading a candidate into a result."""
+    prefix = (
+        "Formal candidate"
+        if evidence_class.startswith("formal_")
+        else "Non-formal candidate"
+    )
+    return (
+        f"{prefix} same-window policy built only from checksum-bound normal "
+        "calibration evidence; no blind outcome is used, no additional "
+        "confirmation window is added, and independent evaluation is still required"
+    )
+
+
 def build_policy(
     calibration_path: Path,
     model_manifest_path: Path,
@@ -104,11 +118,7 @@ def build_policy(
             "training_contract_sha256": sha256_file(training_contract_path),
             "base_policy_sha256": base_policy_sha256,
         },
-        "claim_scope": (
-            "Non-formal same-window pilot policy built only from checksum-bound "
-            "normal calibration evidence; no blind outcome is used and no "
-            "additional confirmation window is added"
-        ),
+        "claim_scope": claim_scope(evidence_class),
     }
 
 

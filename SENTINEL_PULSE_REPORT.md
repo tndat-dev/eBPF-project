@@ -2595,5 +2595,27 @@ không auto-train/promote. Contract đã khóa năm regime
 `steady -> toolmix -> peak -> burst -> recovery`, mỗi regime 600 giây, gap 180
 giây; khoảng đo từ 15:20:51 đến 16:22:51 UTC. Ba collector 500 ms active,
 `NRestarts=0`, attach lần lượt 61/60/71 target trên worker1/worker3/worker4.
-Campaign chỉ hợp lệ sau khi có `COMPLETE`, checksum toàn bundle đạt và
-`dataset/VALIDATION.json.valid=true`.
+Campaign terminal `success` lúc 16:26:15 UTC, có `COMPLETE`, không có
+`FAILED.txt`; toàn bộ `SHA256SUMS` đạt và
+`dataset/VALIDATION.json.valid=true`. Dataset SHA-256 là
+`4593785d2d6eb9c56c1dd0f16f120a1d7c2dae3171bb4b468bf9418be40244a0`,
+gồm 390.028 rows và 21 workload/container key. Mọi key có đủ cả năm regime;
+rows theo regime là 76.905 `steady`, 78.507 `toolmix`, 78.976 `peak`, 78.809
+`burst`, 76.831 `recovery`.
+
+Telemetry availability đạt 1,0 với 17.771 snapshot, không estimated-missing,
+cadence violation hay hard-drop. `window_start -> feature_emit` p50/p95/p99 là
+0,52294/0,53976/0,54859 giây, max 0,71799 giây; ingest-lag p99 0,04099 giây.
+Collector 500 ms dùng trung bình khoảng 0,070/0,070/0,081 CPU core và peak RAM
+348/338/404 MB trên worker1/worker3/worker4. Hai health warning transient không
+liên tiếp được giữ nguyên trong bundle: pod loadgen cũ `Failed` lúc đổi regime
+và pod replacement trong recovery; application collector không restart, node
+vẫn Ready và warning counter không đạt ngưỡng reject 3 lần liên tiếp.
+
+Calibration audit cho candidate `sentinel-pulse-500ms-r9-c1` đạt 21/21
+workload; workload ít nhất có 1.779 calibration example, vượt yêu cầu 999 tại
+`alpha=0,001`. Training Contract V3 đã bind dataset/manifest, blind contract,
+R9 `COMPLETE`/final checksums, 19 controller revision và clean source commit
+`1225605`. ExtraTrees training được khởi chạy nền lúc 16:58:17 UTC, giới hạn 8
+CPU với nice/ionice thấp; chưa build policy, chạy normal soak, blind attack hay
+promote model.
