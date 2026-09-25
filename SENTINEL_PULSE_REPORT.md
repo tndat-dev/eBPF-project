@@ -2674,3 +2674,33 @@ source/target model và template, ghi `attack_outcomes_used=false`,
 lệch. Evidence C1 chỉ được dùng reject/diagnose, không train, tune hay
 calibrate. Targeted test đạt 28/28; full regression đạt **587 passed, 2
 deprecation warning, 0 failed** trong 60,39 giây.
+
+R9-C2 đã được materialize thành bundle bất biến tại
+`/home/dat/sentinel-pulse-evidence/pulse500-policy-r9-c2-20260925T101200Z`.
+Model manifest vẫn giữ SHA-256
+`af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c`;
+policy temporal mới có SHA-256
+`1945a5a649cc30b1a6e1e49c2172000c07efb90e8d46d7f9f528b7e71231a2b2`.
+Bundle có `COMPLETE`, toàn bộ checksum kiểm tra đạt và có 0 file writable;
+SHA-256 của `SHA256SUMS` là
+`b166c9bc88427ae9844eaeb3af99081c8362c3f3c8216b508203da6b2356bbc7`.
+Đây là policy successor mới cần đánh giá độc lập, không phải sửa kết quả C1 và
+không phải artifact đã đạt accuracy gate.
+
+Benchmark C2 chạy 500 mẫu cân bằng trên mỗi một trong 21 workload, tổng cộng
+10.500 inference. Không thiếu workload hoặc thiếu mẫu; inference p50/p95/p99/max
+là 18,18/24,56/29,50/39,28 ms, throughput tuần tự 50,71 scored window/giây và
+peak RSS 214.332 KiB. Benchmark bind đúng model/policy checksum nêu trên nhưng
+được đánh dấu rõ `in_sample=true`, `accuracy_evidence=false`; nó chỉ xác nhận
+runtime budget.
+
+Live-normal canary độc lập C2
+`pulse500-r9-c2-canary-20260925T102428Z` được khởi chạy nền lúc 10:24:28 UTC
+ngày 25-09-2026, thời lượng đăng ký trước 900 giây trên đủ ba worker. Preflight
+khóa snapshot 6 node và production pod; model/policy checksum đều được verify
+trước rollout. Sau khi staging hoàn tất, collector 500 ms, detector và
+finalizer đều active trên 3/3 worker, `NRestarts=0`; các monitor row đầu tiên
+ghi nhận 0 alert. Trạng thái này chỉ là **đang chạy**, chưa phải canary pass;
+chỉ archive terminal có checksum và coverage/telemetry gate đạt mới cho phép
+khởi chạy formal normal soak mới. Blind attack vẫn đóng và automatic promotion
+vẫn tắt.
