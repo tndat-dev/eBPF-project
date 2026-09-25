@@ -156,6 +156,41 @@ def load_decision_policy(path: Path) -> tuple[dict, str]:
             or not set(eligible_groups).issubset(set(names))
         ):
             raise ValueError("bounded event-time eligible semantic groups are invalid")
+        transfer = policy.get("confirmation_transfer")
+        if transfer is not None:
+            transfer_hashes = (
+                "source_policy_sha256",
+                "source_model_manifest_sha256",
+                "target_base_policy_sha256",
+                "target_model_manifest_sha256",
+            )
+            if (
+                transfer.get("schema")
+                != "sentinel-pulse-confirmation-transfer-v1"
+                or transfer.get("scope")
+                != "temporal_control_structure_only"
+                or not isinstance(transfer.get("source_policy_name"), str)
+                or not transfer["source_policy_name"]
+                or transfer.get("normal_only_prior") is not True
+                or transfer.get("attack_outcomes_used") is not False
+                or transfer.get("independent_target_evaluation_required") is not True
+                or any(
+                    not isinstance(transfer.get(field), str)
+                    or len(transfer[field]) != 64
+                    or any(
+                        character not in "0123456789abcdef"
+                        for character in transfer[field]
+                    )
+                    for field in transfer_hashes
+                )
+                or transfer["target_model_manifest_sha256"]
+                != development.get("model_manifest_sha256")
+                or transfer["target_base_policy_sha256"]
+                != development.get("base_policy_sha256")
+                or transfer["source_policy_sha256"]
+                != development.get("confirmation_template_sha256")
+            ):
+                raise ValueError("confirmation transfer provenance is invalid")
     confirmation = policy.get("temporal_confirmation")
     if confirmation is not None:
         required_windows = confirmation.get("required_consecutive_windows")

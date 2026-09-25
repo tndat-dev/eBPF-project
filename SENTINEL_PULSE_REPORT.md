@@ -4,13 +4,15 @@
 **Snapshot cluster:** 24-09-2026, SSH trực tiếp; 6/6 node Ready v1.34.10,
 không có pod ngoài Running/Succeeded
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** candidate formal R9-C1 đã được train từ normal-only
-dataset R9, khóa checksum và vượt kiểm định artifact/regression/inference.
-Formal live-normal run `pulse500-normal-r9-c1-20260924T171400Z` đang active từ
-17:19:57 UTC ngày 24-09-2026 trên ba worker, chưa đủ gate 24 giờ. Vì vậy chưa
-được claim production, FPR, recall hay kernel-to-alert blind-attack. Các
-candidate B3--B7 và run availability trước đó là lịch sử phát triển hoặc đã bị
-loại; chúng không được gộp vào kết quả R9-C1.
+**Trạng thái claim:** candidate formal R9-C1 đã bị zero-alert normal gate loại
+sau 44 phút 37 giây vì hai normal alert trên worker3; blind không được mở và
+model không được promote. Forensic audit xác nhận đây không phải delta bị dồn
+từ telemetry gap. Cả Kafka và inventory đều có fingerprint
+`setuid=12,setgid=12,capset=2`; fingerprint Kafka này đã được ghi nhận từ B5
+trước R9. R9-C1 đã làm mất temporal control B7 khi quay lại same-window policy.
+Successor R9-C2 giữ nguyên model/envelope R9 nhưng khôi phục cấu trúc xác nhận
+2--3 window từ prior normal-only B7; C2 vẫn phải qua canary và formal normal
+độc lập. Chưa được claim production, FPR, recall hay kernel-to-alert blind.
 
 **Checkpoint development lịch sử:** model ExtraTrees và dataset normal-only
 3.594.513 window vẫn giữ nguyên checksum. Policy V3 `382e4562...` fail normal
@@ -2639,10 +2641,36 @@ Formal live-normal run `pulse500-normal-r9-c1-20260924T171400Z` vượt traffic
 preflight: 20/20 HTTP 200 cho chín east-west service và 20/20 success cho cả
 ba ingress path. Cụm giữ 6/6 node, toàn bộ production pod, Longhorn và CNPG
 healthy liên tục 300 giây trước launch. `SOAK_START.json` được tạo lúc
-17:19:57 UTC ngày 24-09-2026 và chỉ đủ điều kiện finalize sau 17:19:57 UTC
-ngày 25-09-2026. Ba worker hiện chạy collector 500 ms và candidate detector,
-legacy collector inactive, model/policy checksum khớp, feature tail hợp lệ,
-`NRestarts=0` và snapshot đầu có 0 alert. Lifecycle đặt
-`STOP_AFTER_NORMAL=true`: nó không tự mở blind attack hoặc promote model sau
-normal gate. Do run chưa terminal, không được diễn giải snapshot này thành
-normal-pass/FPR claim.
+17:19:57 UTC ngày 24-09-2026, nhưng fail-closed lúc 18:04:35 UTC sau 2.677,26
+giây vì `normal_alert_observed` trên worker `.239`. Archive terminal có 340.560
+decision: 337.783 normal, 566 suppressed, 2 alert và 2.209 warming; detector
+không restart. `RAW_SHA256SUMS` kiểm tra đạt, disposition là
+`rejected_normal_gate`, control collector đã được phục hồi và blind không mở.
+
+Hai alert xảy ra trên Kafka và inventory ở hai nominal window 0,507/0,504
+giây. Kafka có score 0,61326, score excess 0,04537, conformal p-value
+0,000187 và processing 0,39209 giây; inventory có score 0,84206, score excess
+0,24291, p-value 0,000140 và processing 0,05497 giây. Cả hai đều có
+`setuid=12,setgid=12,capset=2`; Kafka còn đồng thời vượt envelope socket,
+process và openat. Worker có một capture gap 3,011 giây trước đó nhưng long
+window đó có count thấp; alert xuất hiện ở các window 500 ms sau khi cadence
+đã phục hồi. Telemetry cuối vẫn `valid=true`, availability 0,999057 và 0
+collector/detector restart. Vì vậy không được đổi nhãn hai alert thành lỗi hạ
+tầng.
+
+Fingerprint Kafka giống chính xác normal probe/lifecycle burst đã được lưu từ
+B5 trước khi R9-C1 tồn tại. B7 đã xử lý lớp này bằng default 2 window,
+`credential_open`/`local_socket_beacon` 3 window, chỉ cho
+`namespace_probe` immediate bypass; chi phí chờ thêm tối đa khoảng 1 giây nên
+vẫn nằm trong mục tiêu kernel-to-alert 1--2 giây. R9-C1 lại build policy v2
+same-window nên vô tình bỏ control đã đăng ký trước. Đây là regression policy,
+không phải lý do để tăng threshold theo holdout C1.
+
+Implementation mới `build_prior_confirmation_policy.py` chỉ chuyển cấu trúc
+temporal B7 sang successor R9-C2; model manifest, score calibration, semantic
+maxima và training contract R9 được giữ nguyên. Policy phải bind checksum
+source/target model và template, ghi `attack_outcomes_used=false`,
+`independent_target_evaluation_required=true`; loader fail-closed nếu provenance
+lệch. Evidence C1 chỉ được dùng reject/diagnose, không train, tune hay
+calibrate. Targeted test đạt 28/28; full regression đạt **587 passed, 2
+deprecation warning, 0 failed** trong 60,39 giây.

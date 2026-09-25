@@ -196,6 +196,18 @@ python -m sentinel_pulse.build_semantic_policy \
   --evidence-class nonformal_runtime_compatibility_pilot \
   --output decision-policy-pulse.json
 
+# If a later model accidentally drops a temporal control that was already
+# frozen from earlier normal-only evidence, transfer only that control
+# structure.  The target model, score calibration, and semantic maxima remain
+# unchanged.  This command does not consume the rejected target holdout and
+# the resulting candidate must repeat independent canary/formal validation.
+python -m sentinel_pulse.build_prior_confirmation_policy \
+  --base-policy decision-policy-pulse.json \
+  --confirmation-template \
+    sentinel_pulse/protocol/decision-policy-temporal-b7.json \
+  --policy-name sentinel-pulse-500ms-r9-c2 \
+  --output decision-policy-r9-c2.json
+
 # manifest.json records source_clean, the porcelain status, and a SHA-256 over
 # the complete tracked diff plus every untracked source file. A dirty pilot is
 # therefore explicit and reproducible; it must never be described as a clean

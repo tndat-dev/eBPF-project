@@ -1,0 +1,117 @@
+{
+  "schema": "sentinel-pulse-r9-c1-formal-failure-audit-v1",
+  "recorded_at": "2026-09-25T10:10:04Z",
+  "candidate_id": "sentinel-pulse-500ms-r9-c1",
+  "candidate_status": "rejected_normal_gate",
+  "normal_gate_result": false,
+  "accuracy_claim_allowed": false,
+  "blind_attack_opened": false,
+  "automatic_promotion": false,
+  "source": {
+    "run_id": "pulse500-normal-r9-c1-20260924T171400Z",
+    "evidence_root": "/home/dat/eBPF-project-runtime-policy-56380c8/validation-evidence/sentinel-pulse-campaign/pulse500-normal-r9-c1-20260924T171400Z",
+    "model_manifest_sha256": "af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c",
+    "decision_policy_sha256": "715bf6af6b57484a7007ff5ebb3b7d4ca5e777c327ed73521750f8033e221193",
+    "raw_sha256sums_sha256": "6dce6d7e7ce65695f1177a13147e365c17bab44b15faf9f828af50ef1ad08114",
+    "disposition_sha256": "a4d160871f95f9811987b05ab4e97faf8697f4452029b1eb56ff32d85efc5f19",
+    "soak_start_sha256": "503f20b607c28b0c47b5d9b9978fa8391d95bd7944221e8f5ec08592caf24bb0",
+    "archive_complete_sha256": "14a6d47be2cfcc6da477590846c939ea6e2995b8e1ac1445a015ad9b1bbaade8"
+  },
+  "terminal": {
+    "started_at": "2026-09-24T17:19:57.741439Z",
+    "failed_at": "2026-09-24T18:04:35Z",
+    "elapsed_seconds": 2677.258561,
+    "reason": "normal_alert_observed",
+    "host": "10.1.16.239",
+    "decision_rows": 340560,
+    "scored_decision_rows": 338351,
+    "warming_rows": 2209,
+    "normal_rows": 337783,
+    "suppressed_rows": 566,
+    "alerts": 2,
+    "detector_restarts": 0
+  },
+  "alerts": [
+    {
+      "workload_key": "production/aims-kafka-dual-role:kafka",
+      "pod_name": "aims-kafka-dual-role-0",
+      "window_start": 1790273063.1434252,
+      "window_end": 1790273063.6506202,
+      "post_window_processing_seconds": 0.3920929431915283,
+      "inference_ms": 21.075746044516563,
+      "score": 0.6132582465014814,
+      "calibration_score_max": 0.5678870289909639,
+      "score_excess": 0.045371217510517536,
+      "conformal_p": 0.00018730099269526128,
+      "triggered_groups": [
+        "credential_open",
+        "identity_transition",
+        "local_socket_beacon",
+        "process_fanout"
+      ],
+      "identity_transition": {
+        "setuid": 12,
+        "setgid": 12,
+        "capset": 2,
+        "observed": 26,
+        "normal_max": 17,
+        "excess": 9
+      }
+    },
+    {
+      "workload_key": "production/inventory-service:app",
+      "pod_name": "inventory-service-6d5b58bb97-hrwtd",
+      "window_start": 1790273067.687443,
+      "window_end": 1790273068.1911795,
+      "post_window_processing_seconds": 0.05496549606323242,
+      "inference_ms": 27.990904171019793,
+      "score": 0.8420553274828709,
+      "calibration_score_max": 0.5991453767683964,
+      "score_excess": 0.24290995071447452,
+      "conformal_p": 0.0001404494382022472,
+      "triggered_groups": [
+        "identity_transition"
+      ],
+      "identity_transition": {
+        "setuid": 12,
+        "setgid": 12,
+        "capset": 2,
+        "observed": 26,
+        "normal_max": 15,
+        "excess": 11
+      }
+    }
+  ],
+  "telemetry": {
+    "capture_valid": true,
+    "availability": 0.9990566037735849,
+    "maximum_gap_seconds": 3.010730028152466,
+    "estimated_missing_snapshots": 5,
+    "collector_restarts": 0,
+    "interpretation": "A prior 3.01-second capture gap was within the preregistered availability contract. Its long window had low syscall counts; the alerts occurred in later nominal 0.50-second windows and are not accumulated-gap artifacts."
+  },
+  "prior_normal_evidence": {
+    "preexisting_policy": "sentinel_pulse/protocol/decision-policy-temporal-b7.json",
+    "preexisting_policy_sha256": "711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da",
+    "preexisting_observation": "The Kafka identity-transition fingerprint setuid=12, setgid=12, capset=2 was already documented by the B5 normal-only failure before R9-C1. B7 already required temporal persistence for this class.",
+    "r9_c1_regression": "R9-C1 rebuilt a same-window v2 policy and therefore dropped the preregistered B7 temporal control."
+  },
+  "data_use": {
+    "candidate_rejection": true,
+    "diagnosis": true,
+    "training": false,
+    "threshold_tuning": false,
+    "policy_calibration": false,
+    "blind_attack": false
+  },
+  "successor_contract": {
+    "candidate_id": "sentinel-pulse-500ms-r9-c2",
+    "model_retrained": false,
+    "target_model_unchanged": true,
+    "target_semantic_envelope_unchanged": true,
+    "control_structure_source": "preexisting B7 normal-only temporal policy",
+    "independent_canary_required": true,
+    "independent_formal_normal_gate_required": true,
+    "automatic_promotion": false
+  }
+}
