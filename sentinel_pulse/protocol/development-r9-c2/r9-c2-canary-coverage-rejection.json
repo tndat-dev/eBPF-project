@@ -1,0 +1,60 @@
+{
+  "schema": "sentinel-pulse-development-canary-audit-v1",
+  "run_id": "pulse500-r9-c2-canary-20260925T102428Z",
+  "evidence_root": "/home/dat/sentinel-pulse-evidence/pulse500-r9-c2-canary-20260925T102428Z",
+  "started_at": "2026-09-25T10:24:37.415205+00:00",
+  "aggregate_created_at": "2026-09-25T10:41:18.083924+00:00",
+  "registered_duration_seconds": 900,
+  "minimum_observed_duration_seconds": 902.5823290348053,
+  "model_manifest_sha256": "af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c",
+  "decision_policy_sha256": "1945a5a649cc30b1a6e1e49c2172000c07efb90e8d46d7f9f528b7e71231a2b2",
+  "archive": {
+    "checksum_verification": "pass",
+    "failed_final_sha256sums_sha256": "74369fd5298891e774f85bbd52a3eefdaa37820703079aaaa661983b02d795c4",
+    "failed_summary_sha256": "a7870e6102e8848d41ab9a1e84ed9c3ec37c3faf807f1e194ba952fb079495a0",
+    "aggregate_sha256": "51ec5cf6eb9bff976d20a728b419434cc3aa0a3d2baeca03ea17fd2412c76cbb",
+    "start_sha256": "795268519fde45bd3e7b594b327aaa00950c1cccd89a28f3bbc322dfce33ca4a"
+  },
+  "outcome": {
+    "disposition": "rejected_coverage_preflight",
+    "accuracy_claim_allowed": false,
+    "valid_zero_alert_gate": null,
+    "automatic_promotion": false,
+    "formal_normal_soak_may_start": false,
+    "decisions": 112757,
+    "scored_decisions": 111936,
+    "alerts": 0,
+    "status_counts": {
+      "normal": 111654,
+      "suppressed": 282,
+      "warming": 821
+    }
+  },
+  "runtime": {
+    "inference_p99_ms": 31.569724064320326,
+    "post_window_processing_p99_seconds": 1.0771572470664965,
+    "window_start_to_decision_p99_seconds": 1.5832121968269337
+  },
+  "coverage_failure": {
+    "workload": "production/aims-frontend:web",
+    "observed_second_buckets": 843,
+    "span_seconds": 908,
+    "coverage_ratio": 0.9284140969162996,
+    "required_ratio": 0.95,
+    "other_workloads_passing": 20,
+    "telemetry_availability_on_all_nodes": 1.0,
+    "collector_integrity_errors": 0
+  },
+  "diagnosis": {
+    "class": "normal_traffic_coverage_gap",
+    "model_or_policy_tuning": false,
+    "evidence_used_for_threshold_tuning": false,
+    "reason": "Frontend requests were serialized with API requests. API latency could pause frontend traffic even while exact-counter snapshots remained complete."
+  },
+  "remediation": {
+    "type": "traffic_harness_fix",
+    "description": "Run a bounded frontend heartbeat independently from the sequential API traffic loop, retain the frozen C2 model and policy, and rerun a new independent canary.",
+    "blind_outcomes_used": false,
+    "requires_new_canary": true
+  }
+}

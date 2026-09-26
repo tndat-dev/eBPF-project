@@ -6,21 +6,22 @@ REGIME=${1:?usage: set_aims_traffic_regime.sh steady|toolmix|peak|burst|recovery
 NAMESPACE=${NAMESPACE:-production}
 
 case "$REGIME" in
-  steady)   base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=1; ingress_interval=0.22 ;;
+  steady)   base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=1; ingress_interval=0.22; frontend_interval=0.30 ;;
   # Sustained, legitimate 20:00 peak-hour traffic. Keep this below the
   # deliberately spiky burst regime so both normal modes remain identifiable.
-  peak)     base_replicas=4; mix_replicas=2; dependency_replicas=3; sleep_seconds=0.25; ingress_interval=0.08 ;;
-  burst)    base_replicas=6; mix_replicas=2; dependency_replicas=3; sleep_seconds=0; ingress_interval=0.04 ;;
-  recovery) base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=2; ingress_interval=0.44 ;;
-  toolmix)  base_replicas=2; mix_replicas=4; dependency_replicas=2; sleep_seconds=1; ingress_interval=0.22 ;;
-  idle)     base_replicas=0; mix_replicas=0; dependency_replicas=0; sleep_seconds=2; ingress_interval=0.44 ;;
+  peak)     base_replicas=4; mix_replicas=2; dependency_replicas=3; sleep_seconds=0.25; ingress_interval=0.08; frontend_interval=0.12 ;;
+  burst)    base_replicas=6; mix_replicas=2; dependency_replicas=3; sleep_seconds=0; ingress_interval=0.04; frontend_interval=0.06 ;;
+  recovery) base_replicas=1; mix_replicas=0; dependency_replicas=1; sleep_seconds=2; ingress_interval=0.44; frontend_interval=0.40 ;;
+  toolmix)  base_replicas=2; mix_replicas=4; dependency_replicas=2; sleep_seconds=1; ingress_interval=0.22; frontend_interval=0.30 ;;
+  idle)     base_replicas=0; mix_replicas=0; dependency_replicas=0; sleep_seconds=2; ingress_interval=0.44; frontend_interval=0.40 ;;
   *) printf 'unknown AIMS traffic regime: %s\n' "$REGIME" >&2; exit 2 ;;
 esac
 
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-loadgen \
   SLEEP_SECONDS="$sleep_seconds" >/dev/null
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-ingress-loadgen \
-  SLEEP_SECONDS- REQUEST_INTERVAL_SECONDS="$ingress_interval" >/dev/null
+  SLEEP_SECONDS- REQUEST_INTERVAL_SECONDS="$ingress_interval" \
+  FRONTEND_INTERVAL_SECONDS="$frontend_interval" >/dev/null
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-readmix-loadgen \
   SLEEP_SECONDS="$sleep_seconds" >/dev/null
 kubectl -n "$NAMESPACE" set env deployment/aims-sentinel-dependency-loadgen \
@@ -56,6 +57,7 @@ if (( dependency_replicas > 0 )); then
   kubectl -n "$NAMESPACE" rollout status deployment/aims-sentinel-dependency-loadgen \
     --timeout=120s
 fi
-printf 'AIMS traffic regime=%s east_west_replicas=%d ingress_replicas=%d readmix_replicas=%d dependency_replicas=%d sleep=%ss ingress_interval=%ss\n' \
+printf 'AIMS traffic regime=%s east_west_replicas=%d ingress_replicas=%d readmix_replicas=%d dependency_replicas=%d sleep=%ss ingress_interval=%ss frontend_interval=%ss\n' \
   "$REGIME" "$base_replicas" "$base_replicas" "$mix_replicas" \
-  "$dependency_replicas" "$sleep_seconds" "$ingress_interval"
+  "$dependency_replicas" "$sleep_seconds" "$ingress_interval" \
+  "$frontend_interval"

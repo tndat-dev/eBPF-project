@@ -97,18 +97,27 @@ spec:
         - |
           set -eu
           ingress=http://aims-ingress-istio.istio-ingress.svc.cluster.local
+          # Keep frontend coverage independent from API latency.  The prior
+          # sequential loop could block on a slow API request and leave the
+          # frontend model with empty wall-clock buckets even though collector
+          # telemetry remained complete.
+          (
+            while true; do
+              wget -q -O /dev/null -T 3 "$ingress/" || true
+              sleep "${FRONTEND_INTERVAL_SECONDS:-0.30}"
+            done
+          ) &
+          frontend_pid=$!
+          cleanup() {
+            kill "$frontend_pid" 2>/dev/null || true
+            wait "$frontend_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT INT TERM
           i=0
           while true; do
-            wget -q -O /dev/null -T 3 "$ingress/" || true
-            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/health/" || true
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/" || true
-            sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
-            # A second frontend hit keeps the frontend cgroup observable in
-            # every one-second bucket. API paths are routed to api-gateway and
-            # therefore cannot provide frontend coverage by themselves.
-            wget -q -O /dev/null -T 3 "$ingress/" || true
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
             wget -q -O /dev/null -T 3 "$ingress/api/products/1/" || true
             sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"
@@ -121,10 +130,10 @@ spec:
             i=$((i + 1))
           done
         env:
-        # Preserve roughly the previous 4.4 request/s steady-state rate while
-        # distributing requests across second boundaries. This avoids periodic
-        # empty 1-second feature buckets without increasing traffic materially.
+        # API and frontend pacing are independent so an API timeout cannot
+        # create a false coverage gap for the frontend workload.
         - {name: REQUEST_INTERVAL_SECONDS, value: "0.22"}
+        - {name: FRONTEND_INTERVAL_SECONDS, value: "0.30"}
         securityContext:
           allowPrivilegeEscalation: false
           capabilities: {drop: [ALL]}

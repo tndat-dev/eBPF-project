@@ -2704,3 +2704,28 @@ ghi nhận 0 alert. Trạng thái này chỉ là **đang chạy**, chưa phải 
 chỉ archive terminal có checksum và coverage/telemetry gate đạt mới cho phép
 khởi chạy formal normal soak mới. Blind attack vẫn đóng và automatic promotion
 vẫn tắt.
+
+Canary trên đã terminal lúc 10:41:43 UTC nhưng **bị reject**, không được đổi
+hậu nghiệm thành pass. Archive `FAILED_COMPLETE` có toàn bộ checksum hợp lệ;
+SHA-256 của `FAILED_FINAL_SHA256SUMS` là
+`74369fd5298891e774f85bbd52a3eefdaa37820703079aaaa661983b02d795c4`.
+Ba node hoàn thành 902,58--903,68 giây với telemetry availability 1,0, không
+collector integrity error, không detector restart và không alert trong 112.757
+decision. Tuy nhiên coverage gate chỉ đạt 20/21 workload:
+`production/aims-frontend:web` có 843/908 second bucket, tương đương 92,84%,
+thấp hơn contract 95%. Vì thế `valid_zero_alert_gate=null`, accuracy claim vẫn
+bị cấm và formal normal soak chưa được mở.
+
+Trong phần evidence runtime không-formal này, 111.936 scored decision có
+inference p99 31,57 ms, post-window processing p99 1,077 giây và
+`window_start -> decision` p99 1,583 giây. Các số này cho thấy C2 đang nằm trong
+mục tiêu latency p99 1--2 giây ở canary, nhưng không bù được coverage failure và
+không phải accuracy claim.
+
+RCA cho thấy ba collector vẫn snapshot liên tục 500 ms; khoảng trống chỉ xuất
+hiện ở frontend vì generator tuần tự chèn request frontend giữa các API call.
+Một API call chậm có thể làm frontend không nhận request trong một số second
+bucket. Traffic harness được sửa theo hướng chạy frontend heartbeat nền độc lập
+với API loop, còn model, policy, calibration và threshold C2 giữ nguyên. Đây là
+sửa infrastructure coverage, không dùng kết quả model để tune. C2 phải chạy lại
+canary mới và pass toàn bộ gate trước khi formal soak được phép bắt đầu.

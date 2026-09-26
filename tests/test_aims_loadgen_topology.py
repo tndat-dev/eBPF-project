@@ -44,7 +44,7 @@ def test_regime_and_capture_scripts_bind_the_ingress_generator():
     assert "aims-sentinel-ingress-loadgen" in capture
 
 
-def test_ingress_load_is_evenly_paced_without_material_steady_rate_increase():
+def test_ingress_frontend_heartbeat_is_independent_of_api_latency():
     deployments = load_deployments()
     ingress = deployments["aims-sentinel-ingress-loadgen"]
     script = container_script(ingress)
@@ -53,11 +53,16 @@ def test_ingress_load_is_evenly_paced_without_material_steady_rate_increase():
         for item in ingress["spec"]["template"]["spec"]["containers"][0]["env"]
     }
 
-    assert script.count('sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"') == 7
-    assert script.count('wget -q -O /dev/null -T 3 "$ingress/"') == 2
+    assert script.count('sleep "${REQUEST_INTERVAL_SECONDS:-0.22}"') == 5
+    assert script.count('wget -q -O /dev/null -T 3 "$ingress/"') == 1
+    assert 'sleep "${FRONTEND_INTERVAL_SECONDS:-0.30}"' in script
+    assert 'frontend_pid=$!' in script
+    assert 'trap cleanup EXIT INT TERM' in script
     assert 'sleep "${SLEEP_SECONDS:-1}"' not in script
     assert env["REQUEST_INTERVAL_SECONDS"] == "0.22"
+    assert env["FRONTEND_INTERVAL_SECONDS"] == "0.30"
 
     regime = (ROOT / "ml-service/set_aims_traffic_regime.sh").read_text()
     assert "ingress_interval=0.22" in regime
-    assert 'SLEEP_SECONDS- REQUEST_INTERVAL_SECONDS="$ingress_interval"' in regime
+    assert "frontend_interval=0.30" in regime
+    assert 'FRONTEND_INTERVAL_SECONDS="$frontend_interval"' in regime
