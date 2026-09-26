@@ -2761,6 +2761,17 @@ lúc 09:21:38 UTC trên đủ 3/3 worker; experiment collector và detector acti
 legacy control collector được chủ động suspend để tránh double collection.
 Hậu kiểm đầu run có tổng 8.454 decision, 0 alert, telemetry availability 1,0,
 0 integrity drop và 0 collector/detector restart. Thời điểm sớm nhất được phép
-finalize là 09:20:21 UTC ngày 27-09-2026; collector vẫn chạy đủ duration đăng ký
-90.000 giây trước khi lifecycle tạo evidence terminal. Các số đầu run này chỉ
-là health check, chưa phải kết quả formal.
+finalize là 09:20:21 UTC ngày 27-09-2026. Lifecycle chờ thêm margin 300 giây,
+sau đó mới stop/freeze stream nếu đã đủ 24 giờ; 90.000 giây là giới hạn tối đa
+đăng ký của collector, không phải yêu cầu phải chờ trọn 25 giờ. Các số đầu run
+này chỉ là health check, chưa phải kết quả formal.
+
+Checkpoint lúc 15:30 UTC ngày 26-09-2026, sau khoảng 6 giờ 10 phút (xấp xỉ
+25,7% minimum duration), ghi nhận 2.845.587 decision và 0 alert. Cả ba collector
+và detector vẫn active, `NRestarts=0`, workload fingerprint không đổi, 6/6 node
+Ready và production health gate có 0 lỗi. Worker1/worker4 giữ telemetry
+availability 1,0. Worker3 có ba interval chậm, ước lượng thiếu tám snapshot,
+availability 0,999817 và maximum gap 3,378 giây; các giá trị này vẫn trong
+contract formal đã khóa (availability tối thiểu 0,999, maximum gap 10 giây,
+missing budget 180), nên run tiếp tục và evidence không bị sửa nhãn. Đây vẫn là
+checkpoint giữa run, không phải normal-pass.
