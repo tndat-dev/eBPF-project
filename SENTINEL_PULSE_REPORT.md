@@ -2729,3 +2729,27 @@ bucket. Traffic harness được sửa theo hướng chạy frontend heartbeat n
 với API loop, còn model, policy, calibration và threshold C2 giữ nguyên. Đây là
 sửa infrastructure coverage, không dùng kết quả model để tune. C2 phải chạy lại
 canary mới và pass toàn bộ gate trước khi formal soak được phép bắt đầu.
+
+Canary lặp độc lập `pulse500-r9-c2-r2-canary-20260926T001311Z` đã terminal
+success trên 3/3 worker. `CANARY_COMPLETE` và toàn bộ `FINAL_SHA256SUMS` kiểm
+tra đạt; SHA-256 của checksum index là
+`35a43b8d7a385e2cc7b8ea28ab41c587c0c852bf28a1a544fbed9bdc396e1407`.
+Run quan sát tối thiểu 902,60 giây, sinh 113.555 decision gồm 113.097 normal,
+141 suppressed, 317 warming và **0 alert**. Coverage đạt 21/21 workload, không
+thiếu hoặc thừa key; workload thấp nhất vẫn là frontend nhưng đã đạt
+99,89%, vượt contract 95%.
+
+Trong 113.238 scored decision, inference p99 là 32,34 ms, post-window
+processing p99 1,012 giây và `window_start -> decision` p50/p95/p99 là
+0,788/1,087/1,518 giây; max 2,360 giây. Kết quả này vượt canary latency p99
+1--2 giây và cho phép mở formal normal soak, nhưng canary vẫn được ghi
+`accuracy_claim_allowed=false`: nó không tạo FPR, recall hoặc production-ready
+claim.
+
+Formal lifecycle R9-C2-R2 được khởi chạy nền từ clean source commit
+`d79f43ae9cb03360fc801ccc55c6666acd2a1467`, với model/policy checksum giữ
+nguyên, `STOP_AFTER_NORMAL=true` và automatic promotion tắt. Run ID là
+`pulse500-normal-r9-c2-r2-20260926T091412Z`; duration đăng ký 90.000 giây,
+minimum scored duration 24 giờ và preflight stability 300 giây. Lifecycle bị
+chặn cứng trước blind: dù normal pass, service phải dừng sau phase normal để
+con người kiểm tra evidence terminal trước khi mở blind campaign.

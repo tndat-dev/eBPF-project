@@ -1,0 +1,47 @@
+{
+  "schema": "sentinel-pulse-development-canary-audit-v1",
+  "run_id": "pulse500-r9-c2-r2-canary-20260926T001311Z",
+  "evidence_root": "/home/dat/sentinel-pulse-evidence/pulse500-r9-c2-r2-canary-20260926T001311Z",
+  "evidence_class": "nonformal_live_normal_canary",
+  "model_manifest_sha256": "af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c",
+  "decision_policy_sha256": "1945a5a649cc30b1a6e1e49c2172000c07efb90e8d46d7f9f528b7e71231a2b2",
+  "archive": {
+    "terminal_marker": "CANARY_COMPLETE",
+    "checksum_verification": "pass",
+    "final_sha256sums_sha256": "35a43b8d7a385e2cc7b8ea28ab41c587c0c852bf28a1a544fbed9bdc396e1407",
+    "aggregate_sha256": "a1342b763aba001d22c237f2edcf9c7632340bcc3c3d6f887330efe4f4534562",
+    "start_sha256": "b095dcdf04625fc16c712663c3c4dd504e4c596dd698eb1a4f1678f79a1f405c"
+  },
+  "outcome": {
+    "valid": true,
+    "coverage_preflight_gate": true,
+    "accuracy_claim_allowed": false,
+    "automatic_promotion": false,
+    "nodes": 3,
+    "minimum_observed_duration_seconds": 902.600067615509,
+    "decisions": 113555,
+    "scored_decisions": 113238,
+    "alerts": 0,
+    "missing_workloads": [],
+    "unexpected_workloads": [],
+    "status_counts": {
+      "normal": 113097,
+      "suppressed": 141,
+      "warming": 317
+    }
+  },
+  "coverage": {
+    "workloads_passing": 21,
+    "workloads_expected": 21,
+    "minimum_workload": "production/aims-frontend:web",
+    "minimum_ratio": 0.9988974641675854,
+    "required_ratio": 0.95
+  },
+  "runtime": {
+    "inference_p99_ms": 32.337866513989866,
+    "post_window_processing_p99_seconds": 1.0121280884742747,
+    "window_start_to_decision_p99_seconds": 1.518028731346134,
+    "window_start_to_decision_max_seconds": 2.3598148822784424
+  },
+  "claim_boundary": "This canary permits formal normal soak launch only. It does not establish a false-positive rate, recall, blind accuracy, or production readiness."
+}
