@@ -2753,3 +2753,14 @@ nguyên, `STOP_AFTER_NORMAL=true` và automatic promotion tắt. Run ID là
 minimum scored duration 24 giờ và preflight stability 300 giây. Lifecycle bị
 chặn cứng trước blind: dù normal pass, service phải dừng sau phase normal để
 con người kiểm tra evidence terminal trước khi mở blind campaign.
+
+Preflight đã giữ liên tục healthy 318 giây rồi tạo marker bất biến lúc
+09:20:21 UTC ngày 26-09-2026. `START_SHA256SUMS` xác minh đạt cho marker,
+workload fingerprint, model và policy. Formal soak chuyển sang `normal_active`
+lúc 09:21:38 UTC trên đủ 3/3 worker; experiment collector và detector active,
+legacy control collector được chủ động suspend để tránh double collection.
+Hậu kiểm đầu run có tổng 8.454 decision, 0 alert, telemetry availability 1,0,
+0 integrity drop và 0 collector/detector restart. Thời điểm sớm nhất được phép
+finalize là 09:20:21 UTC ngày 27-09-2026; collector vẫn chạy đủ duration đăng ký
+90.000 giây trước khi lifecycle tạo evidence terminal. Các số đầu run này chỉ
+là health check, chưa phải kết quả formal.
