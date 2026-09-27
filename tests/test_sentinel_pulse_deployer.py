@@ -504,6 +504,11 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('root / "sentinel_pulse/ebpf/pulse_counter_loader.c"', runner)
         self.assertIn('root / "sentinel_pulse/capture.py"', runner)
         self.assertIn('if [[ $CAMPAIGN_MODE == formal ]]', runner)
+        self.assertIn("PULSE_500MS_REVISION_EVIDENCE_ROOT", runner)
+        self.assertIn("sentinel_pulse.revision_evidence", runner)
+        self.assertIn("snapshot_and_validate_revision", runner)
+        self.assertIn('"revision_evidence"', runner)
+        self.assertIn("sentinel-pulse-500ms-dataset-protocol-v2", runner)
         self.assertIn('cd "$ROOT"', runner)
         self.assertNotIn("systemctl enable", runner)
 

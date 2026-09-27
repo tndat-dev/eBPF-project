@@ -11,6 +11,7 @@ TRANSITION_GAP_SECONDS=${PULSE_500MS_TRANSITION_GAP_SECONDS:-180}
 PREPARE_SECONDS=${PULSE_500MS_PREPARE_SECONDS:-180}
 FINAL_GRACE_SECONDS=${PULSE_500MS_FINAL_GRACE_SECONDS:-15}
 CAMPAIGN_MODE=${PULSE_500MS_CAMPAIGN_MODE:-formal}
+REVISION_EVIDENCE_ROOT=${PULSE_500MS_REVISION_EVIDENCE_ROOT:-}
 : "${SSHPASS:?export SSHPASS for SSH and remote sudo authentication}"
 
 case "$CAMPAIGN_MODE" in
@@ -53,6 +54,9 @@ collectors_started=false
 health_failures=0
 HEALTH_FAILURE_LIMIT=${PULSE_500MS_HEALTH_FAILURE_LIMIT:-3}
 mkdir -p "$output_root/nodes" "$output_root/dataset"
+revision_gate_enabled=false
+bound_revision_root=
+revision_validation_report="$output_root/revision-evidence-validation.json"
 
 remote() {
   local host=$1
@@ -87,6 +91,45 @@ restore() {
 }
 trap restore EXIT INT TERM
 
+if [[ $CAMPAIGN_MODE == formal ]]; then
+  : "${REVISION_EVIDENCE_ROOT:?formal campaign requires PULSE_500MS_REVISION_EVIDENCE_ROOT}"
+fi
+if [[ -n $REVISION_EVIDENCE_ROOT ]]; then
+  current_stage=validating-completed-revision-observer
+  PYTHONPATH="$ROOT" "$PYTHON" -m sentinel_pulse.revision_evidence \
+    --observer-root "$REVISION_EVIDENCE_ROOT" >/dev/null
+  bound_revision_root="$output_root/revision-observer"
+  mkdir -p "$bound_revision_root"
+  cp -a "$REVISION_EVIDENCE_ROOT/runtime" "$bound_revision_root/"
+  for artifact in START COMPLETE APPROVED_FINGERPRINT.json \
+      final-fingerprint.json OBSERVATIONS.log SOURCE_SHA256SUMS \
+      START_SHA256SUMS FINAL_SHA256SUMS; do
+    cp -a "$REVISION_EVIDENCE_ROOT/$artifact" "$bound_revision_root/$artifact"
+  done
+  revision_gate_enabled=true
+fi
+
+snapshot_and_validate_revision() {
+  local temporary_pods temporary_fingerprint temporary_report
+  [[ $revision_gate_enabled == true ]] || return 0
+  temporary_pods="$output_root/revision-current-pods.json.tmp"
+  temporary_fingerprint="$output_root/revision-current-fingerprint.json.tmp"
+  temporary_report="$revision_validation_report.tmp"
+  kubectl -n production get pods -o json >"$temporary_pods" \
+    2>"$output_root/revision-gate-error.txt" || return 1
+  PYTHONPATH="$ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
+    --input "$temporary_pods" --output "$temporary_fingerprint" \
+    >/dev/null 2>"$output_root/revision-gate-error.txt" || return 1
+  PYTHONPATH="$ROOT" "$PYTHON" -m sentinel_pulse.revision_evidence \
+    --observer-root "$bound_revision_root" \
+    --current-fingerprint "$temporary_fingerprint" \
+    --output "$temporary_report" >/dev/null \
+    2>"$output_root/revision-gate-error.txt" || return 1
+  mv "$temporary_pods" "$output_root/revision-current-pods.json"
+  mv "$temporary_fingerprint" "$output_root/revision-current-fingerprint.json"
+  mv "$temporary_report" "$revision_validation_report"
+}
+
 check_cluster_health() {
   local ready bad timestamp host status ssh_rc healthy=true
   local -a statuses=()
@@ -95,6 +138,11 @@ check_cluster_health() {
   bad=$(kubectl get pods -A -o json | \
     "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300 --count)
   [[ $ready -eq 6 && $bad -eq 0 ]] || healthy=false
+  if ! snapshot_and_validate_revision; then
+    printf 'revision gate failed closed at %s\n' "$(date -u +%FT%TZ)" \
+      >>"$output_root/revision-gate-error.txt"
+    return 1
+  fi
   for host in "${worker_hosts[@]}"; do
     set +e
     status=$(remote "$host" \
@@ -173,7 +221,7 @@ PY
 
 "$PYTHON" - "$protocol" "$campaign_id" "$contract" \
   "$experiment_duration" "${worker_hosts[*]}" "${worker_nodes[*]}" \
-  "$ROOT" "$CAMPAIGN_MODE" <<'PY'
+  "$ROOT" "$CAMPAIGN_MODE" "$revision_validation_report" <<'PY'
 import hashlib, json, subprocess, sys
 from pathlib import Path
 output, campaign, contract = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
@@ -187,6 +235,8 @@ sources = [
     root / "sentinel_pulse/train.py",
     root / "sentinel_pulse/capture.py",
     root / "sentinel_pulse/features.py",
+    root / "sentinel_pulse/revision_evidence.py",
+    root / "sentinel_pulse/workload_fingerprint.py",
     root / "sentinel_pulse/ebpf/pulse_counter.bpf.c",
     root / "sentinel_pulse/ebpf/pulse_counter_loader.c",
     root / "sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service",
@@ -210,7 +260,7 @@ try:
 except ValueError:
     contract_reference = str(contract)
 payload = {
-    "schema": "sentinel-pulse-500ms-dataset-protocol-v1",
+    "schema": "sentinel-pulse-500ms-dataset-protocol-v2",
     "campaign_id": campaign,
     "registered_at": subprocess.check_output(
         ["date", "-u", "+%FT%TZ"], text=True
@@ -239,6 +289,10 @@ payload = {
     ],
     "contract": contract_reference,
     "contract_sha256": hashlib.sha256(contract.read_bytes()).hexdigest(),
+    "revision_evidence": (
+        json.loads(Path(sys.argv[9]).read_text())
+        if sys.argv[9] and Path(sys.argv[9]).is_file() else None
+    ),
     "source_sha256": {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sources
@@ -316,6 +370,8 @@ done
 wait_until "$((campaign_end + FINAL_GRACE_SECONDS))"
 current_stage=restoring-steady
 "$ROOT/ml-service/set_aims_traffic_regime.sh" steady
+current_stage=final-health-and-revision-gate
+check_cluster_health
 
 capture_args=()
 manifest_args=()
