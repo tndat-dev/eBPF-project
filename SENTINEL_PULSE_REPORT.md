@@ -2848,3 +2848,19 @@ Validator đã được thử trên evidence thật: chấp nhận R9 terminal v
 regression ở clean VM repo đạt 591 pass, 2 Torch JIT deprecation warning và 0
 failure trong 65,18 giây. R10 đang chạy bằng runtime copy bất biến nên commit
 mới không thay đổi hay reset đồng hồ observer hiện tại.
+
+Dataset successor đã được xếp hàng bằng
+`sentinel-pulse-dataset-r10.service`, có ordering `After=` R10. Tại thời điểm
+xếp lịch, systemd giữ dataset job ở trạng thái `waiting`, output directory còn
+rỗng, collector thí nghiệm 500 ms và candidate detector đều inactive trên
+3/3 worker; vì vậy chưa có traffic regime nào bị đổi. Campaign chỉ có thể chạy
+sau khi R10 kết thúc và validator mới chấp nhận toàn bộ evidence terminal cùng
+fingerprint live. Nếu R10 fail hoặc revision thay đổi, job fail-closed trước
+khi deploy traffic. Credential SSH/sudo nằm trong environment file
+`root:root 0600`, không nằm trong unit hoặc Git.
+
+Nếu R10 hoàn thành đúng mốc sớm nhất 09:19 giờ Việt Nam ngày 28-09, dataset
+normal-only dự kiến cần thêm khoảng 66 phút cho 5 regime 600 giây, bốn gap 180
+giây, prepare/final grace và finalize. Campaign vẫn đặt
+`automatic_model_training=false` và `automatic_promotion=false`; hoàn tất
+dataset không tự động train model hay mở blind.
