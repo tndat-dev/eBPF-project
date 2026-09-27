@@ -2797,6 +2797,18 @@ toàn trên revision mới; fingerprint ổn định hiện tại là
 `d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280`.
 Model C2 bind revision cũ nên không được phép rerun trên deployment mới. Một
 prospective revision observer R10 được khởi chạy nền lúc 02:14:03 UTC với
-preflight stability 300 giây và thời lượng 86.400 giây. Sau khi R10 terminal
-success mới được thu normal dataset năm regime, train candidate mới, chạy
-canary và formal soak mới; blind vẫn đóng.
+preflight stability 300 giây và thời lượng 86.400 giây. Preflight giữ nguyên
+fingerprint trong đủ 300 giây rồi tạo `START` và `ACTIVE` lúc 02:19:08 UTC
+(09:19:08 giờ Việt Nam). `START_SHA256SUMS` kiểm tra đạt cho `START`,
+`APPROVED_FINGERPRINT.json` và `SOURCE_SHA256SUMS`; observation đầu tiên lúc
+02:19:09 UTC vẫn có đúng fingerprint đã duyệt. Tại checkpoint 02:19:30 UTC,
+unit không restart (`NRestarts=0`) và 6/6 node vẫn Ready trên Kubernetes
+v1.34.10. Systemd hiển thị `activating/start` vì observer là tiến trình dài
+chạy trong `ExecStart`; marker nghiệp vụ `ACTIVE`, không phải riêng nhãn
+systemd, là bằng chứng observer đã bước vào pha prospective.
+
+Nếu không có rollout hoặc drift mới, mốc sớm nhất đủ 86.400 giây là
+02:19:08 UTC ngày 28-09-2026 (09:19:08 giờ Việt Nam). Đây chỉ là khóa revision
+prerequisite, không phải normal-model pass hay accuracy claim. Sau khi R10
+terminal success mới được thu normal dataset năm regime, train candidate mới,
+chạy canary và formal soak mới; blind vẫn đóng.
