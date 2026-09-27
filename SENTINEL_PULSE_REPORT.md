@@ -2775,3 +2775,28 @@ availability 0,999817 và maximum gap 3,378 giây; các giá trị này vẫn tr
 contract formal đã khóa (availability tối thiểu 0,999, maximum gap 10 giây,
 missing budget 180), nên run tiếp tục và evidence không bị sửa nhãn. Đây vẫn là
 checkpoint giữa run, không phải normal-pass.
+
+Formal R9-C2-R2 đã fail-closed lúc 16:00:44 UTC ngày 26-09-2026 với lý do
+`workload_revision_changed`. Đây không phải model alert: snapshot cuối trước
+failure có 3.079.504 decision, 0 alert, detector active và 0 restart; telemetry
+ba worker vẫn trong contract. AIMS bắt đầu rollout frontend cùng toàn bộ mười
+application microservice sang template hash mới đúng thời điểm đó. Monitor thấy
+cả old/new revision trong overlap generation nên dừng run trước khi hai phân
+phối bị trộn.
+
+Archive terminal có `ARCHIVE_COMPLETE`; toàn bộ `RAW_SHA256SUMS` kiểm tra đạt.
+SHA-256 của checksum index là
+`3e127efbeaf8a239738e6914a4822c04cce54565d0239253c416c461033fcefb` và
+disposition là `rejected_infrastructure_failure`. Control collector đã được
+phục hồi trên ba worker. Run này có
+`candidate_status=not_evaluated_by_this_run`, `normal_gate_result=null`; dữ liệu
+không được dùng để train, tune, mở blind hoặc tạo accuracy claim.
+
+Đến 02:12 UTC ngày 27-09-2026, frontend và 10/10 Argo Rollout đã Healthy hoàn
+toàn trên revision mới; fingerprint ổn định hiện tại là
+`d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280`.
+Model C2 bind revision cũ nên không được phép rerun trên deployment mới. Một
+prospective revision observer R10 được khởi chạy nền lúc 02:14:03 UTC với
+preflight stability 300 giây và thời lượng 86.400 giây. Sau khi R10 terminal
+success mới được thu normal dataset năm regime, train candidate mới, chạy
+canary và formal soak mới; blind vẫn đóng.

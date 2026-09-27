@@ -1,0 +1,52 @@
+{
+  "schema": "sentinel-pulse-development-formal-audit-v1",
+  "run_id": "pulse500-normal-r9-c2-r2-20260926T091412Z",
+  "evidence_root": "/home/dat/eBPF-project-runtime-c2-formal-d79f43a/validation-evidence/sentinel-pulse-campaign/pulse500-normal-r9-c2-r2-20260926T091412Z",
+  "terminal_run_status": "rejected_infrastructure_failure",
+  "failed_at": "2026-09-26T16:00:44Z",
+  "failure_reason": "workload_revision_changed",
+  "model_manifest_sha256": "af3ba337a3e6a261ddbbd3fb7f9b0c0b95bd2386864848403646a780da122d0c",
+  "decision_policy_sha256": "1945a5a649cc30b1a6e1e49c2172000c07efb90e8d46d7f9f528b7e71231a2b2",
+  "archive": {
+    "terminal_marker": "ARCHIVE_COMPLETE",
+    "checksum_verification": "pass",
+    "raw_sha256sums_sha256": "3e127efbeaf8a239738e6914a4822c04cce54565d0239253c416c461033fcefb",
+    "disposition_sha256": "a03569d49e8f11ad9fbd4f0f133351af0182a7c870442602aeb7e5d654a7d122",
+    "archive_complete_sha256": "d6aad861b8abaa65772c1bba47f01127a8591e8854011d99f517c3db4f82d943",
+    "control_collector_restored_sha256": "663f733c0a78df337dc93566ae5898deff261ac49788477651095fe4e92ee382"
+  },
+  "outcome": {
+    "candidate_status": "not_evaluated_by_this_run",
+    "normal_gate_result": null,
+    "accuracy_claim_allowed": false,
+    "automatic_promotion": false,
+    "observed_alerts_before_failure": 0,
+    "observed_decisions_before_failure": 3079504,
+    "training_use": false,
+    "tuning_use": false,
+    "blind_attack_use": false
+  },
+  "telemetry_before_failure": {
+    "worker1_availability": 1.0,
+    "worker3_availability": 0.9998308954088103,
+    "worker3_estimated_missing_snapshots": 8,
+    "worker3_maximum_gap_seconds": 3.377828359603882,
+    "worker4_availability": 1.0,
+    "detector_restarts": 0
+  },
+  "revision_drift": {
+    "original_fingerprint_sha256": "bf583085dd0ca7d35c14f5c75f7dfa4727dd1d86a0493857c3818bfc3b1ee9eb",
+    "overlap_fingerprint_sha256": "f4321e8179ac57d18bfb053b1f5ca4b7dba425feb00b67c37a2c765a1b842e47",
+    "current_stable_fingerprint_sha256": "d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280",
+    "changed_targets": 11,
+    "mechanism": "AIMS rolled the frontend deployment and all ten application Rollouts to new template hashes. The overlap generation was detected before old replicas terminated."
+  },
+  "next_action": {
+    "reuse_old_model": false,
+    "rerun_same_candidate": false,
+    "prospective_revision_observation_required": true,
+    "new_normal_dataset_required": true,
+    "new_candidate_required": true,
+    "blind_remains_closed": true
+  }
+}
