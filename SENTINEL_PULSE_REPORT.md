@@ -2812,3 +2812,18 @@ Nếu không có rollout hoặc drift mới, mốc sớm nhất đủ 86.400 gi�
 prerequisite, không phải normal-model pass hay accuracy claim. Sau khi R10
 terminal success mới được thu normal dataset năm regime, train candidate mới,
 chạy canary và formal soak mới; blind vẫn đóng.
+
+Checkpoint 08:45:46 UTC ngày 27-09-2026, sau khoảng 6 giờ 27 phút (xấp xỉ
+26,9% thời lượng đăng ký), R10 vẫn không có `COMPLETE`, `FAILED` hoặc
+`REJECTED`; `NRestarts=0` và các observation mỗi phút giữ nguyên fingerprint.
+Cluster có 6/6 node Ready, 66/66 pod production Running và 10/10 Argo Rollout
+Healthy với current hash trùng stable hash. Candidate detector vẫn inactive;
+ba worker chỉ chạy exact-counter control collector ở cadence 1 giây, nên giai
+đoạn này không sinh model decision hoặc attack claim.
+
+Môi trường phát triển host được bổ sung venv riêng tại
+`~/.venvs/sentinel-pulse` với đúng phiên bản NumPy/scikit-learn/SciPy trong
+training lock. Toàn bộ 295 test Sentinel Pulse pass trên host trong 26,10 giây;
+full regression trong ML venv chuẩn trên VM đồng thời đạt 587 pass, 2 cảnh báo
+deprecation của Torch JIT và 0 failure trong 66,66 giây. Venv không phải artifact
+Git; code và báo cáo vẫn dùng repository checksum/provenance riêng.
