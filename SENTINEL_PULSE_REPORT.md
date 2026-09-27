@@ -2827,3 +2827,24 @@ training lock. Toàn bộ 295 test Sentinel Pulse pass trên host trong 26,10 gi
 full regression trong ML venv chuẩn trên VM đồng thời đạt 587 pass, 2 cảnh báo
 deprecation của Torch JIT và 0 failure trong 66,66 giây. Venv không phải artifact
 Git; code và báo cáo vẫn dùng repository checksum/provenance riêng.
+
+Checkpoint 11:54:10 UTC cùng ngày, R10 đạt khoảng 9 giờ 35 phút, tương đương
+39,9% thời lượng 24 giờ. Observer vẫn `NRestarts=0`, chưa có marker `COMPLETE`,
+`FAILED` hoặc `REJECTED`; bốn observation gần nhất tiếp tục cùng fingerprint.
+Hạ tầng vẫn có 6/6 node Ready, 66/66 pod production Running và 10/10 Rollout
+Healthy.
+
+Audit launcher dataset tại commit `44ebd58` đã đóng một lỗ hổng provenance:
+formal campaign giờ bắt buộc truyền `PULSE_500MS_REVISION_EVIDENCE_ROOT` trỏ
+tới observer terminal success. Module `revision_evidence.py` fail-closed nếu
+observer còn `ACTIVE`, thiếu `COMPLETE`, có `FAILED`/`REJECTED`, checksum
+START/SOURCE/FINAL sai, approved/final fingerprint lệch hoặc fingerprint live
+khác revision đã duyệt. Campaign sao chép evidence observer vào archive, bind
+validation report vào protocol v2, kiểm tra lại revision theo mỗi health tick
+và một lần cuối trước finalize. Không có cơ chế tự train hoặc promote được thêm.
+
+Validator đã được thử trên evidence thật: chấp nhận R9 terminal và từ chối R10
+đang active. Sau thay đổi, 299 test Sentinel Pulse pass trên host; full
+regression ở clean VM repo đạt 591 pass, 2 Torch JIT deprecation warning và 0
+failure trong 65,18 giây. R10 đang chạy bằng runtime copy bất biến nên commit
+mới không thay đổi hay reset đồng hồ observer hiện tại.
