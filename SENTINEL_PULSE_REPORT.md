@@ -2864,3 +2864,29 @@ normal-only dự kiến cần thêm khoảng 66 phút cho 5 regime 600 giây, b�
 giây, prepare/final grace và finalize. Campaign vẫn đặt
 `automatic_model_training=false` và `automatic_promotion=false`; hoàn tất
 dataset không tự động train model hay mở blind.
+
+R10 đã terminal success lúc 02:19:37 UTC ngày 28-09-2026 sau đủ 24 giờ
+prospective. `FINAL_SHA256SUMS` xác minh `APPROVED_FINGERPRINT.json`,
+`final-fingerprint.json` và `OBSERVATIONS.log` đều đạt; fingerprint workload
+giữ nguyên `d8c990b9...e0104280`. Đây là revision-stability prerequisite pass,
+không phải model pass, FPR hay recall claim.
+
+Dataset job R1 `pulse500-data-20260928T021937Z` được revision gate chấp nhận
+nhưng fail trước collection tại stage `starting-collector-k8s-worker1.local`.
+Clean source root mới trên worker chỉ có lifecycle script, thiếu
+`sentinel_pulse/capture.py`; không collector nào start, không đổi traffic và
+không có row được thu. Run được phân loại
+`rejected_infrastructure_failure`, đóng băng cùng `RAW_SHA256SUMS`; tuyệt đối
+không dùng cho dataset/train/tune. Corrective commit `60e259a` đồng bộ và
+checksum-bind bộ runtime tối thiểu gồm capture, feature, encoding, integrity và
+validator, đồng thời installer kiểm tra byte identity và CLI contract trước
+khi start service. Sau sửa, 300 test Pulse pass trên host và full regression
+VM đạt 592 pass, 2 warning, 0 failure.
+
+Successor `pulse500-data-20260928T024801Z` bắt đầu từ source sạch commit
+`60e259a`. Đến 02:48:39 UTC, collector 500 ms đã active trên 3/3 worker và
+feature row tăng trên cả ba; candidate detector vẫn inactive. Contract khóa
+năm measured interval `steady -> toolmix -> peak -> burst -> recovery`, mỗi
+regime 600 giây, gap 180 giây; measured steady bắt đầu 02:51:08 UTC và recovery
+kết thúc 03:53:08 UTC. Đây là normal-only capture đang chạy, chưa phải dataset
+terminal hoặc model evidence.

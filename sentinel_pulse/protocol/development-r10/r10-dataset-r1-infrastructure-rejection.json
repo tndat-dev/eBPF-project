@@ -1,0 +1,20 @@
+{
+  "schema": "sentinel-pulse-dataset-campaign-audit-v1",
+  "campaign_id": "pulse500-data-20260928T021937Z",
+  "result": "rejected_infrastructure_failure",
+  "failed_at": "2026-09-28T02:19:54Z",
+  "failure_stage": "starting-collector-k8s-worker1.local",
+  "reason": "worker_runtime_bundle_incomplete",
+  "missing_artifact": "sentinel_pulse/capture.py",
+  "collector_started_on_any_worker": false,
+  "traffic_regime_changed": false,
+  "captured_rows": 0,
+  "dataset_eligible": false,
+  "candidate_status": "not_created",
+  "protocol_sha256": "eb51cd489ded2768b8b33f1f5f604e845b4b04c490f75a5dc04d64163272f648",
+  "raw_checksums_sha256": "5a572261aaa63686da72f0b2907a65f9de7e3074740baf15bc4f866f83a1b170",
+  "disposition_sha256": "881e75fca12e59cc467ff2fb9e57010266e8c3bd0cfd317e972c3d6ef05cabe4",
+  "corrective_commit": "60e259a",
+  "automatic_training": false,
+  "automatic_promotion": false
+}
