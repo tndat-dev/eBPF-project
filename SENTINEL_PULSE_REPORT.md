@@ -2890,3 +2890,28 @@ năm measured interval `steady -> toolmix -> peak -> burst -> recovery`, mỗi
 regime 600 giây, gap 180 giây; measured steady bắt đầu 02:51:08 UTC và recovery
 kết thúc 03:53:08 UTC. Đây là normal-only capture đang chạy, chưa phải dataset
 terminal hoặc model evidence.
+
+R2 trên sau đó chạy đủ năm regime và restore steady nhưng bị capture gate loại
+lúc 03:54:03 UTC. Worker1 có 167.902 raw row, availability 0,998576 và max gap
+4,190 giây; worker3 có 167.645 row, availability 0,999871 và max gap 1,080
+giây; worker4 có 176.208 row, availability 1,0. Toàn bộ bốn delayed interval
+đều nằm trong transition gaps đã preregister, không nằm trong measured windows,
+nhưng contract R2 áp yêu cầu tuyệt đối `availability=1,0/max-gap=0,8s` cho cả
+raw span nên kết quả reject là đúng contract. 511.755 raw row không được cứu
+hậu nghiệm, assemble hoặc train; archive đã readonly và 41 file kiểm tra đạt
+qua `RAW_SHA256SUMS`.
+
+Commit `05f0ed8` preregister hai tầng telemetry trước successor: raw full-span
+transport yêu cầu availability tối thiểu 0,998 và max gap 10 giây để chịu được
+bounded rollout trong transition; dataset sau khi lọc chỉ measured intervals
+vẫn bắt buộc availability 1,0, cadence 0,35--0,80 giây và nominal 0,5 giây.
+Hard integrity counters vẫn phải bằng 0 ở cả hai tầng. Diagnostic replay R2 chỉ
+xác nhận contract mới khả thi, không thay đổi disposition R2. Full regression
+sau thay đổi đạt 592 pass, 2 warning và 0 failure.
+
+R3 `pulse500-data-20260928T121911Z` đã khởi chạy từ clean source commit
+`05f0ed8`; protocol bind cả hai telemetry contract và R10 evidence. Đến
+12:20:07 UTC, 3/3 collector active, feature row tăng, detector inactive và chưa
+có marker fail. Measured steady được khóa bắt đầu 12:22:19 UTC, recovery kết
+thúc 13:24:19 UTC. Đây vẫn là active normal-only capture, chưa phải terminal
+dataset hay model evidence.
