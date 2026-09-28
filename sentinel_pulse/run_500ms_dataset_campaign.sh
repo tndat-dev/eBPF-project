@@ -31,6 +31,14 @@ cd "$ROOT"
 worker_hosts=(10.1.16.237 10.1.16.239 10.1.16.238)
 worker_nodes=(k8s-worker1.local k8s-worker3.local k8s-worker4.local)
 regimes=(steady toolmix peak burst recovery)
+worker_runtime_sources=(
+  sentinel_pulse/__init__.py
+  sentinel_pulse/capture.py
+  sentinel_pulse/encoding.py
+  sentinel_pulse/features.py
+  sentinel_pulse/integrity.py
+  sentinel_pulse/validate_capture.py
+)
 
 [[ $REGIME_SECONDS =~ ^[0-9]+$ ]] && ((REGIME_SECONDS >= 300))
 [[ $TRANSITION_GAP_SECONDS =~ ^[0-9]+$ ]] && ((TRANSITION_GAP_SECONDS >= 30))
@@ -233,8 +241,12 @@ sources = [
     root / "sentinel_pulse/finalize_500ms_dataset.py",
     root / "sentinel_pulse/assemble_dataset.py",
     root / "sentinel_pulse/train.py",
+    root / "sentinel_pulse/__init__.py",
     root / "sentinel_pulse/capture.py",
+    root / "sentinel_pulse/encoding.py",
     root / "sentinel_pulse/features.py",
+    root / "sentinel_pulse/integrity.py",
+    root / "sentinel_pulse/validate_capture.py",
     root / "sentinel_pulse/revision_evidence.py",
     root / "sentinel_pulse/workload_fingerprint.py",
     root / "sentinel_pulse/ebpf/pulse_counter.bpf.c",
@@ -315,8 +327,15 @@ for host in "${worker_hosts[@]}"; do
       sentinel_pulse/finalize_500ms_experiment.sh \
       sentinel_pulse/record_500ms_metrics.sh \
       sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service \
+      "${worker_runtime_sources[@]}" \
       "$SSH_USER@$host:$ROOT/"
   )
+  for source in "${worker_runtime_sources[@]}"; do
+    remote "$host" "test -f '$ROOT/$source'" || {
+      echo "worker runtime sync missing on $host: $source" >&2
+      exit 3
+    }
+  done
 done
 
 for index in "${!worker_hosts[@]}"; do

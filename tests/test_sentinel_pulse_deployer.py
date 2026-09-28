@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class PulseDeployerTests(unittest.TestCase):
     def test_experiment_installs_capture_before_starting_new_unit(self):
         script = (ROOT / "sentinel_pulse" / "install_500ms_experiment.sh").read_text()
-        copied = script.index('cp -a "$SOURCE_ROOT/sentinel_pulse/."')
+        copied = script.index('install -m 0644 "$SOURCE_ROOT/sentinel_pulse/$module"')
         probed = script.index('-m sentinel_pulse.capture --help')
         installed = script.index('install -m 0644 "$UNIT_SOURCE"')
         started = script.index('systemctl start "$SERVICE"')
@@ -503,6 +503,12 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("contract_reference", runner)
         self.assertIn('root / "sentinel_pulse/ebpf/pulse_counter_loader.c"', runner)
         self.assertIn('root / "sentinel_pulse/capture.py"', runner)
+        self.assertIn('root / "sentinel_pulse/__init__.py"', runner)
+        self.assertIn('root / "sentinel_pulse/encoding.py"', runner)
+        self.assertIn('root / "sentinel_pulse/integrity.py"', runner)
+        self.assertIn('root / "sentinel_pulse/validate_capture.py"', runner)
+        self.assertIn('"${worker_runtime_sources[@]}"', runner)
+        self.assertIn("worker runtime sync missing", runner)
         self.assertIn('if [[ $CAMPAIGN_MODE == formal ]]', runner)
         self.assertIn("PULSE_500MS_REVISION_EVIDENCE_ROOT", runner)
         self.assertIn("sentinel_pulse.revision_evidence", runner)
@@ -511,6 +517,19 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("sentinel-pulse-500ms-dataset-protocol-v2", runner)
         self.assertIn('cd "$ROOT"', runner)
         self.assertNotIn("systemctl enable", runner)
+
+    def test_500ms_installer_deploys_minimal_checksum_bound_runtime(self):
+        installer = (
+            ROOT / "sentinel_pulse" / "install_500ms_experiment.sh"
+        ).read_text()
+        for module in (
+            "__init__.py", "capture.py", "encoding.py", "features.py",
+            "integrity.py", "validate_capture.py",
+        ):
+            self.assertIn(module, installer)
+        self.assertIn("missing worker runtime module", installer)
+        self.assertIn("installed worker runtime differs", installer)
+        self.assertIn("sentinel_pulse.validate_capture --help", installer)
 
     def test_loader_distinguishes_empty_allowlist_from_bpf_map_failure(self):
         source = (
