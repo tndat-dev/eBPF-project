@@ -2909,9 +2909,36 @@ Hard integrity counters vẫn phải bằng 0 ở cả hai tầng. Diagnostic re
 xác nhận contract mới khả thi, không thay đổi disposition R2. Full regression
 sau thay đổi đạt 592 pass, 2 warning và 0 failure.
 
-R3 `pulse500-data-20260928T121911Z` đã khởi chạy từ clean source commit
-`05f0ed8`; protocol bind cả hai telemetry contract và R10 evidence. Đến
-12:20:07 UTC, 3/3 collector active, feature row tăng, detector inactive và chưa
-có marker fail. Measured steady được khóa bắt đầu 12:22:19 UTC, recovery kết
-thúc 13:24:19 UTC. Đây vẫn là active normal-only capture, chưa phải terminal
-dataset hay model evidence.
+R3 `pulse500-data-20260928T121911Z` khởi chạy từ clean source commit `05f0ed8`,
+bind cả hai telemetry contract và R10 evidence, nhưng terminal fail lúc
+12:21:53 UTC, sớm hơn measured steady 26 giây. Ba health warning liên tiếp đều
+do Trivy Operator tạo Job `scan-vulnerabilityreport-b847f6f8f-*` trong
+`trivy-system` rồi Job lỗi khi quét image MinIO từ `quay.io`; tại cả ba mẫu,
+6/6 node Ready, pod production khỏe, revision gate pass và toàn bộ service
+Pulse trên ba worker đúng trạng thái. Đây là lỗi phạm vi health gate toàn cụm,
+không phải telemetry/model failure.
+
+Archive R3 đã readonly và toàn bộ `RAW_SHA256SUMS` kiểm tra đạt. Ba worker có
+17.078 feature row trước measured interval; các row này bị cấm dùng cho
+training hoặc cứu hậu nghiệm. SHA-256 của checksum index là
+`21255347...45ba`, disposition là `e3924b23...f5463`; dataset/candidate không
+được tạo và traffic đã về `steady`.
+
+Successor preregister causal health scope thay vì bỏ qua lỗi: blocking gate vẫn
+yêu cầu đúng sáu node Ready và không pressure, mọi pod `production` khỏe,
+revision live khớp evidence R10 và service Pulse đúng trạng thái trên 3/3
+worker. Pod lỗi ngoài `production` được ghi vào immutable auxiliary-health log
+nhưng không được phép tự biến một lỗi scanner không nằm trên data path thành
+model/capture failure. `cluster_health.py` nay cũng được đưa vào source hash của
+protocol. R3 vẫn giữ nguyên disposition; thay đổi chỉ có hiệu lực với R4.
+
+### Làm rõ zero-alert gate và false-positive claim
+
+Formal candidate hiện dùng release SLO bảo thủ: chỉ cần một alert trong normal
+soak là candidate bị loại, còn muốn pass phải hoàn tất tối thiểu 24 giờ với
+zero alert quan sát. Điều này không tương đương và không cho phép tuyên bố
+false-positive rate bằng 0 trong quần thể. Báo cáo khoa học vẫn phải công bố
+exposure theo workload-hour, số alert, khoảng tin cậy và block bootstrap để xử
+lý tương quan giữa các window liên tiếp. R1--R3 là dataset infrastructure hoặc
+capture rejection xảy ra trước khi có candidate, nên không được tính là bằng
+chứng false positive hay bằng chứng model tốt.

@@ -76,6 +76,8 @@ mkdir -p "$output_root/nodes" "$output_root/dataset"
 revision_gate_enabled=false
 bound_revision_root=
 revision_validation_report="$output_root/revision-evidence-validation.json"
+auxiliary_health_log="$output_root/auxiliary-health-observations.jsonl"
+last_auxiliary_health_sha=unset
 
 remote() {
   local host=$1
@@ -150,13 +152,44 @@ snapshot_and_validate_revision() {
 }
 
 check_cluster_health() {
-  local ready bad timestamp host status ssh_rc healthy=true
+  local ready node_bad production_bad auxiliary_bad auxiliary_rows
+  local auxiliary_sha timestamp host status ssh_rc healthy=true
   local -a statuses=()
   ready=$(kubectl get nodes --no-headers | \
     awk '$2 == "Ready" {count++} END {print count+0}')
-  bad=$(kubectl get pods -A -o json | \
+  node_bad=$(kubectl get nodes -o json | \
+    "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count)
+  production_bad=$(kubectl -n production get pods -o json | \
     "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300 --count)
-  [[ $ready -eq 6 && $bad -eq 0 ]] || healthy=false
+  auxiliary_rows=$(kubectl get pods -A -o json | jq \
+    '{items: [.items[] | select(.metadata.namespace != "production")]}' | \
+    "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300)
+  auxiliary_bad=$(printf '%s\n' "$auxiliary_rows" | sed '/^$/d' | wc -l)
+  auxiliary_sha=$(printf '%s' "$auxiliary_rows" | sha256sum | awk '{print $1}')
+  if [[ $auxiliary_sha != "$last_auxiliary_health_sha" ]]; then
+    "$PYTHON" - "$auxiliary_health_log" "$current_stage" \
+      "$auxiliary_rows" <<'PY'
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+import sys
+
+rows = [json.loads(line) for line in sys.argv[3].splitlines() if line]
+record = {
+    "schema": "sentinel-pulse-auxiliary-health-observation-v1",
+    "observed_at": datetime.now(timezone.utc).isoformat(),
+    "stage": sys.argv[2],
+    "blocking": False,
+    "scope": "non-production Kubernetes namespaces",
+    "unhealthy_pods": rows,
+}
+with Path(sys.argv[1]).open("a", encoding="utf-8") as handle:
+    handle.write(json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n")
+PY
+    last_auxiliary_health_sha=$auxiliary_sha
+  fi
+  [[ $ready -eq 6 && $node_bad -eq 0 && $production_bad -eq 0 ]] || \
+    healthy=false
   if ! snapshot_and_validate_revision; then
     printf 'revision gate failed closed at %s\n' "$(date -u +%FT%TZ)" \
       >>"$output_root/revision-gate-error.txt"
@@ -185,11 +218,12 @@ check_cluster_health() {
   health_failures=$((health_failures + 1))
   timestamp=$(date -u +%Y%m%dT%H%M%SZ)
   {
-    printf 'ready_nodes=%s expected=6 non_running_pods=%s consecutive=%s limit=%s stage=%s\n' \
-      "$ready" "$bad" "$health_failures" "$HEALTH_FAILURE_LIMIT" "$current_stage"
+    printf 'ready_nodes=%s expected=6 unhealthy_nodes=%s production_unhealthy_pods=%s auxiliary_unhealthy_pods=%s consecutive=%s limit=%s stage=%s\n' \
+      "$ready" "$node_bad" "$production_bad" "$auxiliary_bad" \
+      "$health_failures" "$HEALTH_FAILURE_LIMIT" "$current_stage"
     printf '%s\n' "${statuses[@]}"
     kubectl get nodes -o wide
-    kubectl get pods -A -o json | \
+    kubectl -n production get pods -o json | \
       "$PYTHON" -m sentinel_pulse.cluster_health --grace-seconds 300
   } >"$output_root/health-warning-$timestamp.txt"
   ((health_failures < HEALTH_FAILURE_LIMIT))
@@ -260,6 +294,7 @@ sources = [
     root / "sentinel_pulse/features.py",
     root / "sentinel_pulse/integrity.py",
     root / "sentinel_pulse/validate_capture.py",
+    root / "sentinel_pulse/cluster_health.py",
     root / "sentinel_pulse/revision_evidence.py",
     root / "sentinel_pulse/workload_fingerprint.py",
     root / "sentinel_pulse/ebpf/pulse_counter.bpf.c",
@@ -328,6 +363,21 @@ payload = {
         json.loads(Path(sys.argv[9]).read_text())
         if sys.argv[9] and Path(sys.argv[9]).is_file() else None
     ),
+    "health_gate_contract": {
+        "blocking_scope": {
+            "expected_ready_nodes": 6,
+            "all_nodes_pressure_free": True,
+            "namespaces": ["production"],
+            "pulse_worker_runtime": True,
+            "workload_revision_evidence": True,
+        },
+        "non_production_namespaces": "observed_non_blocking",
+        "rationale": (
+            "Only health failures on the experiment causal path may reject the "
+            "dataset. Auxiliary controllers and bounded batch Jobs are recorded "
+            "without being misclassified as model or capture failures."
+        ),
+    },
     "source_sha256": {
         str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
         for path in sources

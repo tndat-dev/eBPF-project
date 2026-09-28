@@ -1,0 +1,37 @@
+{
+  "schema": "sentinel-pulse-dataset-campaign-audit-v1",
+  "campaign_id": "pulse500-data-20260928T121911Z",
+  "result": "rejected_infrastructure_failure",
+  "failed_at": "2026-09-28T12:21:53Z",
+  "failure_stage": "measuring-steady",
+  "reason": "auxiliary_trivy_scan_job_failed_global_health_gate",
+  "first_measured_interval_started": false,
+  "first_measured_interval_start": "2026-09-28T12:22:19Z",
+  "all_six_nodes_ready_at_failure": true,
+  "production_pods_healthy_at_failure": true,
+  "pulse_worker_services_healthy_at_failure": true,
+  "trigger_namespace": "trivy-system",
+  "trigger_job_prefix": "scan-vulnerabilityreport-b847f6f8f",
+  "trigger_count": 3,
+  "raw_feature_rows_total": 17078,
+  "raw_rows_scope": "pre-measurement only",
+  "raw_rows_forbidden_for_training": true,
+  "traffic_restored_to": "steady",
+  "dataset_eligible": false,
+  "candidate_status": "not_created",
+  "protocol_sha256": "dd024208639506210ab3f98a50aa70aa3b74da8b1ca120cc70b5d35acc8bb5bd",
+  "raw_checksums_sha256": "21255347a0b2d095432eb2aee84a7a42f46dab2b88004158a49621a5bbd345ba",
+  "disposition_sha256": "e3924b235d8cae910dba94a450a2cb77c024f6f4ad41606af3a11023af4f5463",
+  "successor_health_gate": {
+    "blocking": [
+      "six ready pressure-free nodes",
+      "production namespace pods",
+      "Pulse services on all three workers",
+      "completed revision evidence and live fingerprint"
+    ],
+    "observed_non_blocking": "pods in non-production namespaces"
+  },
+  "posthoc_salvage_forbidden": true,
+  "automatic_training": false,
+  "automatic_promotion": false
+}
