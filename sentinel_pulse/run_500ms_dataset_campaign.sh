@@ -12,6 +12,8 @@ PREPARE_SECONDS=${PULSE_500MS_PREPARE_SECONDS:-180}
 FINAL_GRACE_SECONDS=${PULSE_500MS_FINAL_GRACE_SECONDS:-15}
 CAMPAIGN_MODE=${PULSE_500MS_CAMPAIGN_MODE:-formal}
 REVISION_EVIDENCE_ROOT=${PULSE_500MS_REVISION_EVIDENCE_ROOT:-}
+RAW_TELEMETRY_MINIMUM_AVAILABILITY=${PULSE_500MS_RAW_TELEMETRY_MINIMUM_AVAILABILITY:-0.998}
+RAW_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${PULSE_500MS_RAW_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-10.0}
 : "${SSHPASS:?export SSHPASS for SSH and remote sudo authentication}"
 
 case "$CAMPAIGN_MODE" in
@@ -43,6 +45,15 @@ worker_runtime_sources=(
 [[ $REGIME_SECONDS =~ ^[0-9]+$ ]] && ((REGIME_SECONDS >= 300))
 [[ $TRANSITION_GAP_SECONDS =~ ^[0-9]+$ ]] && ((TRANSITION_GAP_SECONDS >= 30))
 [[ $PREPARE_SECONDS =~ ^[0-9]+$ ]] && ((PREPARE_SECONDS >= 150))
+"$PYTHON" - "$RAW_TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$RAW_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" <<'PY'
+import math, sys
+availability, maximum_gap = map(float, sys.argv[1:])
+if not all(map(math.isfinite, (availability, maximum_gap))):
+    raise SystemExit("raw telemetry contract must be finite")
+if not 0 < availability <= 1 or maximum_gap < 0.8:
+    raise SystemExit("invalid raw telemetry contract")
+PY
 experiment_duration=$((
   PREPARE_SECONDS + ${#regimes[@]} * REGIME_SECONDS +
   (${#regimes[@]} - 1) * TRANSITION_GAP_SECONDS + FINAL_GRACE_SECONDS + 60
@@ -229,7 +240,9 @@ PY
 
 "$PYTHON" - "$protocol" "$campaign_id" "$contract" \
   "$experiment_duration" "${worker_hosts[*]}" "${worker_nodes[*]}" \
-  "$ROOT" "$CAMPAIGN_MODE" "$revision_validation_report" <<'PY'
+  "$ROOT" "$CAMPAIGN_MODE" "$revision_validation_report" \
+  "$RAW_TELEMETRY_MINIMUM_AVAILABILITY" \
+  "$RAW_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" <<'PY'
 import hashlib, json, subprocess, sys
 from pathlib import Path
 output, campaign, contract = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3])
@@ -294,6 +307,16 @@ payload = {
         "interval_ms": 500, "rolling_windows": 10,
         "detector_active": False, "one_second_control_collector": True,
         "registered_duration_seconds": int(sys.argv[4]),
+        "raw_full_span_telemetry_contract": {
+            "minimum_availability": float(sys.argv[10]),
+            "maximum_single_gap_seconds": float(sys.argv[11]),
+        },
+        "measured_dataset_telemetry_contract": {
+            "minimum_availability": 1.0,
+            "minimum_interval_seconds": 0.35,
+            "maximum_interval_seconds": 0.80,
+            "nominal_interval_seconds": 0.5,
+        },
     },
     "workers": [
         {"host": host, "node": node}
@@ -344,7 +367,7 @@ for index in "${!worker_hosts[@]}"; do
   run_id="$campaign_id-$node"
   current_stage="starting-collector-$node"
   remote_sudo "$host" \
-    "env SOURCE_ROOT=$ROOT DURATION_SECONDS=$experiment_duration RUN_ID=$run_id $ROOT/sentinel_pulse/install_500ms_experiment.sh"
+    "env SOURCE_ROOT=$ROOT DURATION_SECONDS=$experiment_duration RUN_ID=$run_id TELEMETRY_MINIMUM_AVAILABILITY=$RAW_TELEMETRY_MINIMUM_AVAILABILITY TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=$RAW_TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS $ROOT/sentinel_pulse/install_500ms_experiment.sh"
 done
 for host in "${worker_hosts[@]}"; do
   remote "$host" \
@@ -425,7 +448,9 @@ current_stage=assembling-dataset
   >"$output_root/dataset/ASSEMBLY.json"
 "$PYTHON" -m sentinel_pulse.validate_capture --capture "$dataset" \
   --minimum-rows-per-workload 100 --interval-min-seconds 0.35 \
-  --interval-max-seconds 0.80 --output "$output_root/dataset/VALIDATION.json"
+  --interval-max-seconds 0.80 --nominal-interval-seconds 0.5 \
+  --minimum-telemetry-availability 1.0 --maximum-single-gap-seconds 0.80 \
+  --output "$output_root/dataset/VALIDATION.json"
 
 kubectl get nodes -o wide >"$output_root/nodes-final.txt"
 kubectl -n production get pods -o wide >"$output_root/production-pods-final.txt"
