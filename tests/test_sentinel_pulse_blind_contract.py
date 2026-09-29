@@ -59,6 +59,19 @@ class PulseBlindContractTests(unittest.TestCase):
             & set(contract["independence"]["excluded_predecessor_scenarios"])
         )
 
+    def test_r10_pretraining_contract_covers_current_19_controllers(self):
+        contract = load_contract(
+            ROOT / "sentinel_pulse" / "protocol" / "development-r10"
+            / "blind-attack-contract-r10.json"
+        )
+        independence = contract["pretraining_independence"]
+        self.assertEqual(contract["expected_injections"], 475)
+        self.assertEqual(len(contract["matrix"]["workload_controllers"]), 19)
+        self.assertFalse(independence["attack_execution_started"])
+        self.assertFalse(
+            independence["attack_outcomes_used_to_select_model_or_policy"]
+        )
+
     def test_b2_contract_rebinds_the_unopened_set_to_risk_tiered_policy(self):
         contract = load_contract(
             ROOT / "sentinel_pulse" / "protocol" / "blind-attack-contract-b2.json"

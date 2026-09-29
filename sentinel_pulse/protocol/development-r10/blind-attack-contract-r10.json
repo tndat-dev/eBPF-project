@@ -1,0 +1,66 @@
+{
+  "schema": "sentinel-pulse-blind-attack-contract-v1",
+  "release": "sentinel-pulse-r10-r4-pretraining-blind-matrix",
+  "created_at": "2026-09-29T00:00:00Z",
+  "frozen_before_candidate_training": true,
+  "pretraining_independence": {
+    "attack_outcomes_used_to_select_model_or_policy": false,
+    "attack_execution_started": false,
+    "scenario_source": "unopened static B1 implementation matrix",
+    "source_implementation_contract_sha256": "e7622ed1afb88d47d4793f56310a12201adea49b464754d15901cfc7eb472803",
+    "source_runtime_sha256": "5bf25eea099f07e1875231c3860505bc0ffea01fce17bb081928038f8e084646",
+    "source_binary_sha256": "d77c7237d302cae9e0ca56afd0bafcb8b328ef0779ce559cc300b3122ec1a927",
+    "rationale": "The B1 scenario matrix remained unopened by the prior candidate lifecycle. R10 uses a distinct pre-training contract and fresh seeds; no attack outcome may be used for R10 training, calibration, policy selection, or promotion."
+  },
+  "matrix": {
+    "scenarios": [
+      "anonymous_mprotect_churn",
+      "child_ptrace_handshake",
+      "invalid_setns_burst",
+      "seccomp_api_probe",
+      "execveat_resolution_probe"
+    ],
+    "workload_controllers": [
+      "aims-frontend",
+      "aims-kafka-dual-role",
+      "aims-kafka-entity-operator",
+      "aims-minio-pool-0",
+      "aims-postgres-cnpg",
+      "aims-rabbitmq-server",
+      "aims-redis",
+      "aims-redis-sentinel-sentinel",
+      "aims-waypoint",
+      "api-gateway",
+      "auth-service",
+      "cart-service",
+      "catalog-service",
+      "inventory-service",
+      "notification-service",
+      "order-service",
+      "payment-service",
+      "search-recommendation-service",
+      "security-telemetry-service"
+    ],
+    "trials": [
+      {"rate_per_second": 6, "seed": 51029},
+      {"rate_per_second": 12, "seed": 53051},
+      {"rate_per_second": 24, "seed": 57059},
+      {"rate_per_second": 12, "seed": 59069},
+      {"rate_per_second": 6, "seed": 61079}
+    ]
+  },
+  "expected_injections": 475,
+  "safety_contract": {
+    "external_network": false,
+    "persistent_write": false,
+    "successful_mount": false,
+    "successful_privilege_change": false,
+    "target_namespace": "production"
+  },
+  "selection_policy": {
+    "attack_outcomes_used_for_training_or_tuning": false,
+    "infrastructure_failure_must_have_machine_readable_evidence": true,
+    "misses_are_retained": true,
+    "rerun_detection_misses": false
+  }
+}
