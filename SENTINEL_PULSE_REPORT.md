@@ -2942,3 +2942,23 @@ exposure theo workload-hour, số alert, khoảng tin cậy và block bootstrap 
 lý tương quan giữa các window liên tiếp. R1--R3 là dataset infrastructure hoặc
 capture rejection xảy ra trước khi có candidate, nên không được tính là bằng
 chứng false positive hay bằng chứng model tốt.
+
+### R4 terminal: dataset 500 ms đa workload hợp lệ (28-09-2026)
+
+R4 `pulse500-data-20260928T142929Z` khởi chạy từ commit sạch `edbc4b9` lúc
+14:29:29 UTC và hoàn tất lúc 15:38:02 UTC. Archive có `COMPLETE`; toàn bộ
+`SHA256SUMS` verify pass. Dataset sau assemble/validation có **391.454 row**,
+249 feature, **21 workload/container key** và đủ cả năm regime đã khóa
+`steady/toolmix/peak/burst/recovery`. Telemetry measured đạt availability `1,0`,
+zero missing snapshot/cadence violation/drop; interval p50/p95/p99 là
+0,5055/0,5093/0,5125 giây, ingest lag p99 0,0405 giây và
+window-start-to-emit p99 0,5479 giây.
+
+R4 có một health warning đơn lẻ trong recovery (`production_unhealthy_pods=4`)
+nhưng không lặp đủ ngưỡng ba mẫu liên tiếp; snapshot tiếp theo phục hồi và
+finalization pass. Auxiliary log ghi rõ các Job Trivy ngoài `production` xuyên
+suốt đầu run; chúng không chặn causal health scope mới. Để minh bạch, R4 chỉ là
+normal-only training dataset checksum-bound; detector candidate inactive suốt
+run, không auto-train/auto-promote, và chưa có claim false-positive, recall,
+precision hay latency kernel-to-alert. `WORKLOAD_TELEMETRY_LOG_FORMAT.md` mô tả
+đầy đủ format/cách đọc raw eBPF, Tetragon, decision và alert log của tập này.
