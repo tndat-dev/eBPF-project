@@ -3077,6 +3077,15 @@ chiếm khoảng 330 GiB. Không dọn dữ liệu giữa phép đo để tránh
 thực nghiệm. Monitor kiểm tra capacity định kỳ và sẽ fail-closed nếu vượt ngưỡng.
 Checkpoint này vẫn là trạng thái đang chạy, chưa cho phép claim normal pass.
 
+Provenance amendment: sau khi marker khóa source commit `34b62c4`, checkout
+control-plane đã được fast-forward đến `33818b8` để đồng bộ chính tài liệu báo
+cáo. Diff giữa hai commit chỉ có `SENTINEL_PULSE_REPORT.md`; Git tree của cả
+`sentinel_pulse/` (`5f5d88e3...67922`) và `sentinel/`
+(`dff52e1e...29fb`) giống hệt nhau. Model, policy và runtime bytes không đổi,
+nhưng final evidence phải công bố HEAD movement này thay vì mô tả checkout là
+bất biến tuyệt đối. Các commit code/loadgen sau đó không được pull vào VM trong
+khi C1 chạy.
+
 Ba traffic generator nền đều Running 1/1 và không restart. Audit manifest cho
 thấy east-west loop đang triển khai chỉ gọi chín service, thiếu
 `search-recommendation-service`; traffic gate point-in-time vẫn đã gọi service
