@@ -30,7 +30,7 @@ spec:
         args:
         - |
           set -eu
-          services="api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service security-telemetry-service"
+          services="api-gateway auth-service cart-service catalog-service inventory-service order-service payment-service notification-service search-recommendation-service security-telemetry-service"
           i=0
           while true; do
             # This pod remains inside ambient mode and exercises east-west

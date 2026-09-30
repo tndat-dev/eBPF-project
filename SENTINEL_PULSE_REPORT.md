@@ -3077,6 +3077,16 @@ chiếm khoảng 330 GiB. Không dọn dữ liệu giữa phép đo để tránh
 thực nghiệm. Monitor kiểm tra capacity định kỳ và sẽ fail-closed nếu vượt ngưỡng.
 Checkpoint này vẫn là trạng thái đang chạy, chưa cho phép claim normal pass.
 
+Ba traffic generator nền đều Running 1/1 và không restart. Audit manifest cho
+thấy east-west loop đang triển khai chỉ gọi chín service, thiếu
+`search-recommendation-service`; traffic gate point-in-time vẫn đã gọi service
+này 20/20 thành công, và ingress/business flow có thể tạo thêm activity nhưng
+không thay thế được heartbeat trực tiếp liên tục. Source manifest đã bổ sung
+service thứ mười cho các run sau. Không rollout loadgen giữa C1 để tránh thay
+đổi phân phối traffic giữa một formal measurement đã preregister. Vì vậy khi
+báo cáo C1 phải ghi rõ giới hạn exposure này; run không được dùng để claim mức
+bao phủ traffic đồng đều cho cả mười microservice.
+
 Khi soak active, supervisor theo dõi alert, telemetry, cluster/storage health
 và workload fingerprint; một alert hoặc lỗi làm run terminal fail và archive
 evidence. Blind không tự chạy sau normal soak.
