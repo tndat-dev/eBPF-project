@@ -3048,9 +3048,9 @@ và `/api/products/`. Artifact:
 
 Traffic gate đã pass lúc 03:09:49 UTC. Lifecycle formal C1 chạy dưới systemd
 unit `sentinel-pulse-r10-c1-formal-normal` từ 03:11:37 UTC ngày 30-09, source
-commit `34b62c4`. Lúc 03:12:24 UTC, sáu node, production pods, Longhorn,
-topology, CNPG và dung lượng worker đều pass; cửa sổ ổn định 5 phút mới ở
-giây 0/300. Worker3 có 141 GB trống (77% disk đã dùng), vẫn trên yêu cầu 64 GB
+commit `34b62c4`. Lúc 03:13:33 UTC, sáu node, production pods, Longhorn,
+topology, CNPG và dung lượng worker đều pass liên tục 68/300 giây. Worker3 có
+141 GB trống (77% disk đã dùng), vẫn trên yêu cầu 64 GB
 và dưới ngưỡng 80%. Vì vậy **24 giờ capture chưa bắt đầu** tại mốc kiểm tra này;
 chỉ bắt đầu sau khi health/capacity gates ổn định đủ 300 giây và marker
 `SOAK_START.json` được ghi. Theo tiến độ preflight lúc đó, mốc hoàn thành sớm
