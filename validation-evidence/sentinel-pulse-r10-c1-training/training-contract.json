@@ -1,0 +1,157 @@
+{
+  "alpha": 0.001,
+  "approved_workload_revisions": {
+    "production/aims-frontend:web": [
+      "8cb8dc8b"
+    ],
+    "production/aims-kafka-dual-role:kafka": [
+      "strimzi-80e3e646",
+      "strimzi-ae9505e5",
+      "strimzi-fec8050f"
+    ],
+    "production/aims-kafka-entity-operator:topic-operator": [
+      "5455dcf447"
+    ],
+    "production/aims-kafka-entity-operator:user-operator": [
+      "5455dcf447"
+    ],
+    "production/aims-minio-pool-0:minio": [
+      "aims-minio-pool-0-698d85cb5b"
+    ],
+    "production/aims-minio-pool-0:sidecar": [
+      "aims-minio-pool-0-698d85cb5b"
+    ],
+    "production/aims-postgres-cnpg:postgres": [
+      "cnpg-13f2a629d9ff764f",
+      "cnpg-42b36feb6549c758",
+      "cnpg-4fbb2b494070f224"
+    ],
+    "production/aims-rabbitmq-server:rabbitmq": [
+      "aims-rabbitmq-server-6579bff56b"
+    ],
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+      "aims-redis-sentinel-sentinel-74d4bfb67b"
+    ],
+    "production/aims-redis:aims-redis": [
+      "aims-redis-5f454bf965"
+    ],
+    "production/aims-waypoint:istio-proxy": [
+      "6d558c5d7c"
+    ],
+    "production/api-gateway:app": [
+      "5b79675d85"
+    ],
+    "production/auth-service:app": [
+      "b5bdfb67b"
+    ],
+    "production/cart-service:app": [
+      "7b588cf549"
+    ],
+    "production/catalog-service:app": [
+      "6dc97b678f"
+    ],
+    "production/inventory-service:app": [
+      "695bf6f445"
+    ],
+    "production/notification-service:app": [
+      "79797674dd"
+    ],
+    "production/order-service:app": [
+      "7b4bb44876"
+    ],
+    "production/payment-service:app": [
+      "86bf86b6"
+    ],
+    "production/search-recommendation-service:app": [
+      "75bd67f9b9"
+    ],
+    "production/security-telemetry-service:app": [
+      "6799d88468"
+    ]
+  },
+  "automatic_promotion": false,
+  "blind_attack_contract_sha256": "e7fd8101366ceb1a06b18ba7a1cde466794ae01d07262cd24a17463b321dfd2d",
+  "blind_outcome_used": false,
+  "candidate_id": "sentinel-pulse-r10-r4-c1",
+  "created_at": "2026-09-29T14:40:49.132098+00:00",
+  "dataset_manifest_sha256": "d97318dae77551b71d54cd1198cf01ffdaa3ab108ac7c55d68d477bcb0acc414",
+  "dataset_sha256": "f46514f5e4db334fe2939da7deccaf958d800c11a9175616c699aac341717145",
+  "evidence_class": "formal_multiregime_normal_dataset_candidate",
+  "frozen_before_training": true,
+  "history_windows": 3,
+  "normal_only": true,
+  "observer_complete_sha256": "c80c9b5363537711c9fb1bcd3d476f55e94f1686beb45229c7fafc8447bc4dc5",
+  "observer_final_checksums_sha256": "ffe3205bc24b1b1613ff5e117efa869219ea80aec5f0494a182ba9611c577a1c",
+  "require_workload_revision_provenance": true,
+  "schema": "sentinel-pulse-training-contract-v3",
+  "source_clean": true,
+  "source_git_commit": "e525aac7ac8cab5210f30d2f3de61616555e734e",
+  "source_git_diff_sha256": "66129b3c0caf86034131268c27bd275d29e55da10e6d33cf2a4ed391cbe621a0",
+  "source_git_status": [],
+  "source_untracked_files": [],
+  "window_seconds": 0.5,
+  "workload_fingerprint_sha256": "13e565a1dfd5976b2cef6e1b46f860238c2bc3354b3198710605cbb62d1b8ef1",
+  "workload_fingerprint_workloads": {
+    "production/aims-frontend": [
+      "8cb8dc8b"
+    ],
+    "production/aims-kafka-dual-role": [
+      "strimzi-80e3e646",
+      "strimzi-ae9505e5",
+      "strimzi-fec8050f"
+    ],
+    "production/aims-kafka-entity-operator": [
+      "5455dcf447"
+    ],
+    "production/aims-minio-pool-0": [
+      "aims-minio-pool-0-698d85cb5b"
+    ],
+    "production/aims-postgres-cnpg": [
+      "cnpg-13f2a629d9ff764f",
+      "cnpg-42b36feb6549c758",
+      "cnpg-4fbb2b494070f224"
+    ],
+    "production/aims-rabbitmq-server": [
+      "aims-rabbitmq-server-6579bff56b"
+    ],
+    "production/aims-redis": [
+      "aims-redis-5f454bf965"
+    ],
+    "production/aims-redis-sentinel-sentinel": [
+      "aims-redis-sentinel-sentinel-74d4bfb67b"
+    ],
+    "production/aims-waypoint": [
+      "6d558c5d7c"
+    ],
+    "production/api-gateway": [
+      "5b79675d85"
+    ],
+    "production/auth-service": [
+      "b5bdfb67b"
+    ],
+    "production/cart-service": [
+      "7b588cf549"
+    ],
+    "production/catalog-service": [
+      "6dc97b678f"
+    ],
+    "production/inventory-service": [
+      "695bf6f445"
+    ],
+    "production/notification-service": [
+      "79797674dd"
+    ],
+    "production/order-service": [
+      "7b4bb44876"
+    ],
+    "production/payment-service": [
+      "86bf86b6"
+    ],
+    "production/search-recommendation-service": [
+      "75bd67f9b9"
+    ],
+    "production/security-telemetry-service": [
+      "6799d88468"
+    ]
+  }
+}

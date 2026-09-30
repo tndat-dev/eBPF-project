@@ -1,10 +1,16 @@
 # Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 24-09-2026, SSH trực tiếp; 6/6 node Ready v1.34.10,
-không có pod ngoài Running/Succeeded
+**Snapshot cluster:** 30-09-2026 lúc 02:38 UTC, SSH trực tiếp;
+6/6 node Ready v1.34.10, 66 pod namespace production Running; kiểm tra tiếp
+xác nhận tất cả pod production Ready và 19 controller khớp revision R10.
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
-**Trạng thái claim:** candidate formal R9-C1 đã bị zero-alert normal gate loại
+**Trạng thái hiện tại:** R10/R4-C1 đã train xong 21/21 model, bundle SHA-256
+được kiểm tra lại ngày 30-09. Benchmark inference p99 31,27 ms; chưa có kết quả
+blind hoặc latency kernel-to-alert cho candidate này. Chi tiết ở checkpoint
+R10-C1 cuối tài liệu.
+
+**Checkpoint R9 lịch sử:** candidate formal R9-C1 đã bị zero-alert normal gate loại
 sau 44 phút 37 giây vì hai normal alert trên worker3; blind không được mở và
 model không được promote. Forensic audit xác nhận đây không phải delta bị dồn
 từ telemetry gap. Cả Kafka và inventory đều có fingerprint
@@ -2962,3 +2968,52 @@ normal-only training dataset checksum-bound; detector candidate inactive suốt
 run, không auto-train/auto-promote, và chưa có claim false-positive, recall,
 precision hay latency kernel-to-alert. `WORKLOAD_TELEMETRY_LOG_FORMAT.md` mô tả
 đầy đủ format/cách đọc raw eBPF, Tetragon, decision và alert log của tập này.
+
+### R10-C1: training hoàn tất, chuyển sang live canary (30-09-2026)
+
+SSH kiểm tra lúc 02:38 UTC ngày 30-09 xác nhận unit
+`sentinel-pulse-r10-c1-training.service` đã kết thúc thành công, exit code 0.
+Pipeline bắt đầu 14:39:32 UTC và hoàn tất 14:49:19 UTC ngày 29-09
+(9 phút 47 giây, gồm audit, training, dựng policy và benchmark).
+Bundle `/home/dat/sentinel-pulse-evidence/training-r10-c1` có `COMPLETE`,
+readonly và toàn bộ `SHA256SUMS` kiểm tra đạt. Source training là commit sạch
+`e525aac7ac8cab5210f30d2f3de61616555e734e`.
+
+Model gồm **21/21 PulseExtraTrees**, không collect-only; window 500 ms,
+history 3 và alpha 0,001. Dataset R4 bao phủ năm regime normal. Manifest SHA-256:
+`6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21`.
+Policy có xác nhận temporal kế thừa control B7, SHA-256:
+`602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143`.
+Blind contract R10 khóa trước training gồm 475 trial trên 19 controller;
+chưa mở attack outcome và không sử dụng attack để train/tune.
+
+`inference-benchmark.json` đo 500 scored window mỗi workload, tổng 10.500:
+
+| Chỉ số inference | Giá trị |
+|---|---:|
+| p50 | 18,55 ms |
+| p95 | 25,83 ms |
+| p99 | 31,27 ms |
+| max | 48,64 ms |
+| Status scored | 10.499 normal, 1 suppressed, 0 alert |
+
+Đây là replay **in-sample**, chỉ đo inference, không bao gồm chờ window,
+ingest lag hoặc temporal confirmation. Zero alert trong replay không xác nhận
+FPR ngoài mẫu; chưa thể suy ra kernel-to-alert đạt 1–2 giây.
+
+Preflight live ngày 30-09 xác nhận fingerprint 19 controller vẫn khớp R10:
+`d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280`.
+Bước tiếp theo là bounded normal canary 900 giây trên ba worker, dùng model
+và policy đã đóng băng. Canary có supervisor thu evidence, dừng candidate khi
+alert/lỗi và phục hồi control collector; không auto-promote. Kết quả canary
+phải được đọc từ terminal artifact trước khi quyết định chạy formal soak.
+
+Canary `pulse500-r10-c1-canary-20260930` đã khởi chạy thành công bằng unit
+`sentinel-pulse-r10-c1-canary.service`; `START.json` lúc 02:39:51 UTC,
+hoàn tất deployment ba worker lúc 02:41:15 UTC. Snapshot supervisor đầu tiên
+02:41:17–20 UTC có 4.359 decision tổng cộng, 0 alert; ba worker đều active.
+Đây chỉ là snapshot đầu run, chưa phải canary pass. Evidence ở
+`/home/dat/sentinel-pulse-evidence/canary-r10-c1-20260930`.
+Dự kiến kết thúc thu dữ liệu khoảng 09:56 giờ Việt Nam; thu gom/verify có thể
+cần thêm vài phút, nên kiểm tra terminal khoảng **10:00 ngày 30-09-2026**.
+Supervisor chạy nền và tự finalize; model/policy vẫn giữ nguyên checksum.

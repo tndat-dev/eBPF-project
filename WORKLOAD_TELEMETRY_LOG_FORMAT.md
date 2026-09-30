@@ -18,13 +18,18 @@ flowchart TD
     C --> S[Collector snapshot mỗi 500 ms]
     S --> F[features.jsonl]
     W --> T[Tetragon process/kprobe event]
-    T --> E[Semantic evidence / RCA edge]
+    T --> E[Event chi tiết cho điều tra / RCA]
     F --> D[PulseExtraTrees + conformal]
-    E --> D
-    D --> Q[decisions.jsonl]
+    F --> G[Exact counts cho semantic policy gate]
+    D --> G
+    G --> Q[decisions.jsonl]
     Q -->|status alert| A[alerts.jsonl]
     F --> X[Dataset assembly gắn traffic regime]
 ```
+
+Trong detector hiện tại, semantic gate đọc `exact_counts` của feature stream.
+Tetragon là nhánh telemetry chi tiết riêng; sơ đồ không khẳng định đã có cây
+RCA hoàn chỉnh hoặc Tetragon event trực tiếp tham gia quyết định ML.
 
 ## 1. Workload được theo dõi
 
@@ -186,7 +191,7 @@ production:
 
 ```json
 {
-  "time": "2026-09-28T14:33:44.517193527Z",
+  "time": "2026-09-28T14:33:44.517193646Z",
   "node_name": "k8s-worker1.local",
   "process_kprobe": {
     "policy_name": "sentinel-aims-syscalls",
@@ -243,6 +248,11 @@ tập con có `status="alert"`.
 ```
 
 Các số trong ví dụ decision chỉ minh họa **format**, không phải kết quả R4.
+
+Lưu ý `alerted_at` hiện được lấy ngay sau `model.predict`, trước khi đánh giá
+policy gate và ghi file. Field này cũng xuất hiện ở normal/suppressed, nên tên
+field không có nghĩa alert đã được phát hoặc lưu tại thời điểm đó. Không dùng
+riêng field này để khẳng định latency kernel-to-alert hoàn chỉnh.
 
 | `status` | Nghĩa |
 |---|---|

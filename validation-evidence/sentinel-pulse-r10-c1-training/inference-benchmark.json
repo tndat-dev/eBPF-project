@@ -1,0 +1,203 @@
+{
+  "accuracy_evidence": false,
+  "created_at": "2026-09-29T14:49:16.294044+00:00",
+  "dataset_sha256": "f46514f5e4db334fe2939da7deccaf958d800c11a9175616c699aac341717145",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "in_sample": true,
+  "inference_ms": {
+    "count": 10500,
+    "max": 48.64291101694107,
+    "mean": 19.134463430249266,
+    "p50": 18.54542992077768,
+    "p95": 25.830996572040014,
+    "p99": 31.273456844501204
+  },
+  "inference_ms_by_workload": {
+    "production/aims-frontend:web": {
+      "count": 500,
+      "max": 40.83545599132776,
+      "mean": 17.96764492802322,
+      "p50": 17.523104790598154,
+      "p95": 22.410861193202436,
+      "p99": 26.10943511594086
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "count": 500,
+      "max": 39.566371124237776,
+      "mean": 19.401476117782295,
+      "p50": 18.715000012889504,
+      "p95": 26.12747154198587,
+      "p99": 31.34972797241062
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "count": 500,
+      "max": 38.49878674373031,
+      "mean": 19.963247563689947,
+      "p50": 19.358815159648657,
+      "p95": 26.774085895158347,
+      "p99": 31.025524931028478
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "count": 500,
+      "max": 41.33614106103778,
+      "mean": 19.85944042354822,
+      "p50": 19.26899002864957,
+      "p95": 25.72462211828678,
+      "p99": 31.144289299845692
+    },
+    "production/aims-minio-pool-0:minio": {
+      "count": 500,
+      "max": 35.29447829350829,
+      "mean": 19.55457249470055,
+      "p50": 18.954439088702202,
+      "p95": 26.509285811334845,
+      "p99": 31.742334757000204
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "count": 500,
+      "max": 37.4287161976099,
+      "mean": 19.988657548092306,
+      "p50": 19.2845668643713,
+      "p95": 27.723117964342233,
+      "p99": 33.502557943575084
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "count": 500,
+      "max": 35.72931885719299,
+      "mean": 19.422430993057787,
+      "p50": 18.903574673458934,
+      "p95": 26.31786747369915,
+      "p99": 30.146153829991817
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "count": 500,
+      "max": 42.405183892697096,
+      "mean": 19.318208694458008,
+      "p50": 18.385032191872597,
+      "p95": 26.519075990654514,
+      "p99": 32.37075398210436
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "count": 500,
+      "max": 33.693606965243816,
+      "mean": 19.254037738777697,
+      "p50": 18.62418674863875,
+      "p95": 26.29750419873743,
+      "p99": 31.3934210781008
+    },
+    "production/aims-redis:aims-redis": {
+      "count": 500,
+      "max": 34.37133273109794,
+      "mean": 19.287875245325267,
+      "p50": 18.702445551753044,
+      "p95": 26.06129525229334,
+      "p99": 31.303295623511072
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "count": 500,
+      "max": 38.36217988282442,
+      "mean": 19.34854871686548,
+      "p50": 18.84141145274043,
+      "p95": 26.107313646934923,
+      "p99": 32.073770333081484
+    },
+    "production/api-gateway:app": {
+      "count": 500,
+      "max": 36.07827890664339,
+      "mean": 19.160895140841603,
+      "p50": 18.46522348932922,
+      "p95": 26.804147404618558,
+      "p99": 29.123404114507128
+    },
+    "production/auth-service:app": {
+      "count": 500,
+      "max": 35.666918847709894,
+      "mean": 19.03438940178603,
+      "p50": 18.387192394584417,
+      "p95": 26.289631170220673,
+      "p99": 30.71891138330102
+    },
+    "production/cart-service:app": {
+      "count": 500,
+      "max": 33.505477011203766,
+      "mean": 18.089254022575915,
+      "p50": 17.860114574432373,
+      "p95": 22.19808744266628,
+      "p99": 25.9446362266317
+    },
+    "production/catalog-service:app": {
+      "count": 500,
+      "max": 40.9725159406662,
+      "mean": 19.446388793177903,
+      "p50": 18.805912230163813,
+      "p95": 26.074725179932983,
+      "p99": 32.27644749451429
+    },
+    "production/inventory-service:app": {
+      "count": 500,
+      "max": 33.92339590936899,
+      "mean": 18.868857896886766,
+      "p50": 18.277923576533794,
+      "p95": 24.585627834312614,
+      "p99": 29.463057443499565
+    },
+    "production/notification-service:app": {
+      "count": 500,
+      "max": 36.725169979035854,
+      "mean": 18.818120983429253,
+      "p50": 18.16144771873951,
+      "p95": 25.07539317011833,
+      "p99": 29.29227233864367
+    },
+    "production/order-service:app": {
+      "count": 500,
+      "max": 48.64291101694107,
+      "mean": 19.292598956264555,
+      "p50": 18.658757209777832,
+      "p95": 26.261160080321126,
+      "p99": 31.542280381545414
+    },
+    "production/payment-service:app": {
+      "count": 500,
+      "max": 37.68170392140746,
+      "mean": 18.883272724226117,
+      "p50": 18.413110403344035,
+      "p95": 25.15951278619468,
+      "p99": 30.436722547747188
+    },
+    "production/search-recommendation-service:app": {
+      "count": 500,
+      "max": 34.07843830063939,
+      "mean": 18.088427681475878,
+      "p50": 17.70824659615755,
+      "p95": 22.400538600049913,
+      "p99": 29.12320467643437
+    },
+    "production/security-telemetry-service:app": {
+      "count": 500,
+      "max": 40.6224406324327,
+      "mean": 18.775385970249772,
+      "p50": 18.34813505411148,
+      "p95": 25.244718114845444,
+      "p99": 29.721990949474268
+    }
+  },
+  "latency_scope": "model inference only; excludes telemetry window and ingest lag",
+  "max_rss_kib": 215392,
+  "method": "bounded in-sample replay with equal per-workload scored-window cap",
+  "missing_workloads": [],
+  "model_load_seconds": 2.3848529742099345,
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "per_workload_target": 500,
+  "replay_seconds": 212.11105547985062,
+  "schema": "sentinel-pulse-inference-benchmark-v1",
+  "scored_windows_per_second": 49.50237023829926,
+  "short_workloads": {},
+  "source_rows_read": 268391,
+  "status_counts": {
+    "normal": 10499,
+    "suppressed": 1,
+    "warming": 114
+  },
+  "target_workloads": 21
+}
