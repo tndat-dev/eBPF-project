@@ -3096,6 +3096,13 @@ service thứ mười cho các run sau. Không rollout loadgen giữa C1 để t
 báo cáo C1 phải ghi rõ giới hạn exposure này; run không được dùng để claim mức
 bao phủ traffic đồng đều cho cả mười microservice.
 
+Audit log còn xác nhận request chi tiết `/api/products/1/` luôn trả HTTP 422
+vì catalog dùng UUID làm `product_id`; một UUID lấy từ list endpoint trả 200.
+Source loadgen đã thay request sai bằng read-only
+`/api/products/?page=1`, được kiểm tra trả HTTP 200 trên ingress thật. C1 vẫn
+giữ workload hiện hành để không đổi traffic giữa run, nên các HTTP 422 này là
+một phần của exposure normal C1 và phải được công bố khi diễn giải kết quả.
+
 Khi soak active, supervisor theo dõi alert, telemetry, cluster/storage health
 và workload fingerprint; một alert hoặc lỗi làm run terminal fail và archive
 evidence. Blind không tự chạy sau normal soak.
