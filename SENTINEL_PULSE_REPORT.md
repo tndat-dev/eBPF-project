@@ -3048,13 +3048,20 @@ và `/api/products/`. Artifact:
 
 Traffic gate đã pass lúc 03:09:49 UTC. Lifecycle formal C1 chạy dưới systemd
 unit `sentinel-pulse-r10-c1-formal-normal` từ 03:11:37 UTC ngày 30-09, source
-commit `34b62c4`. Lúc 03:13:33 UTC, sáu node, production pods, Longhorn,
-topology, CNPG và dung lượng worker đều pass liên tục 68/300 giây. Worker3 có
-141 GB trống (77% disk đã dùng), vẫn trên yêu cầu 64 GB
-và dưới ngưỡng 80%. Vì vậy **24 giờ capture chưa bắt đầu** tại mốc kiểm tra này;
-chỉ bắt đầu sau khi health/capacity gates ổn định đủ 300 giây và marker
-`SOAK_START.json` được ghi. Theo tiến độ preflight lúc đó, mốc hoàn thành sớm
-nhất khoảng 10:22 giờ Việt Nam ngày 01-10, cộng thời gian finalize.
+commit `34b62c4`. Health, storage, CNPG, capacity và maintenance gates đã giữ
+ổn định hơn 300 giây; `SOAK_START.json` được ghi lúc **03:17:45 UTC ngày
+30-09** (10:17:45 giờ Việt Nam). Đủ 24 giờ lúc **03:17:45 UTC ngày 01-10**;
+với margin finalize 5 phút, thời điểm sớm nhất để có kết quả terminal khoảng
+**10:22:45 giờ Việt Nam ngày 01-10**, cộng thời gian archive/aggregation.
+
+Đến 03:19:02 UTC, collector và detector candidate đều active trên 3/3 worker,
+legacy collector inactive, detector restart 0 và alert 0. Feature tail của mỗi
+worker qua health check, telemetry availability 1,0 và không có error. Snapshot
+monitor đầu tiên: worker1 2.549 decision, worker3 1.600, worker4 556; các mẫu
+được ghi cách nhau trong lúc rollout nên không cộng chúng thành cùng một mốc.
+Lifecycle đã ở phase `normal_monitor`; đây mới là checkpoint đầu run, chưa phải
+normal pass. Evidence đang ghi tại
+`/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930`.
 
 Khi soak active, supervisor theo dõi alert, telemetry, cluster/storage health
 và workload fingerprint; một alert hoặc lỗi làm run terminal fail và archive
