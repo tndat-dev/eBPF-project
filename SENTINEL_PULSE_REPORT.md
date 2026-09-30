@@ -3032,3 +3032,27 @@ Canary pass cho phép chuyển sang formal normal soak tối thiểu 24 giờ, s
 traffic preflight, sáu node, production, Longhorn, CNPG, dung lượng đĩa và
 revision gate cùng pass ổn định. Run sẽ dừng khi có alert/lỗi và không tự mở
 blind. Sau đó mới có thể cân nhắc đánh giá blind matrix đã khóa trước training.
+
+### Traffic preflight và formal normal soak C1 (30-09-2026)
+
+Đã sửa traffic gate để bao gồm `search-recommendation-service`; trước đó gate
+chỉ kiểm tra chín microservice dù workload này đã có trong model/training. Có
+test xác nhận rollout và HTTP lỗi của service này làm gate fail. Nhóm test liên
+quan gate/deployer/lifecycle: **51 passed**.
+
+Traffic gate thực tế lúc 03:09:49 UTC pass trên 10/10 Rollout AIMS (mỗi rollout
+4/4 replica Ready, phase Healthy), east-west **200/200 HTTP 200** (20 request
+cho từng service) và north-south **60/60 thành công** trên `/`, `/api/health/`
+và `/api/products/`. Artifact:
+`/home/dat/sentinel-pulse-evidence/traffic-gate-r10-c1-20260930.json`.
+
+Sau preflight, candidate C1 được đăng ký cho normal soak 24 giờ với cùng model
+và policy hash nêu trên. Khi active, supervisor theo dõi alert, telemetry,
+cluster/storage health và workload fingerprint; một alert hoặc lỗi làm run
+terminal fail và archive evidence. Blind không tự chạy sau normal soak.
+Đây là release gate nghiêm ngặt của candidate; dù pass 24 giờ cũng chỉ cho
+phép báo cáo số alert quan sát cùng exposure, không chứng minh FPR quần thể
+bằng 0. Thời lượng capture dự kiến 24 giờ từ lúc `SOAK_START.json` được tạo,
+cộng 5 phút margin và thời gian finalize. Kiểm tra trạng thái service và
+evidence trên master bằng `systemctl status sentinel-pulse-r10-c1-formal-normal`
+và thư mục `/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930`.
