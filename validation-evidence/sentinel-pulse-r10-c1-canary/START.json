@@ -1,0 +1,18 @@
+{
+  "automatic_promotion": false,
+  "blind_outcome_used": false,
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "duration_seconds": 900,
+  "evidence_class": "nonformal_live_normal_canary",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "normal_only": true,
+  "remote_source_root": "/home/dat/sentinel-pulse-bounded-canary-pulse500-r10-c1-canary-20260930",
+  "run_id": "pulse500-r10-c1-canary-20260930",
+  "schema": "sentinel-pulse-bounded-live-canary-start-v1",
+  "started_at": "2026-09-30T02:39:51.158341+00:00",
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 0.8,
+    "minimum_availability": 1.0,
+    "nominal_interval_seconds": 0.5
+  }
+}

@@ -3003,17 +3003,32 @@ FPR ngoài mẫu; chưa thể suy ra kernel-to-alert đạt 1–2 giây.
 
 Preflight live ngày 30-09 xác nhận fingerprint 19 controller vẫn khớp R10:
 `d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280`.
-Bước tiếp theo là bounded normal canary 900 giây trên ba worker, dùng model
-và policy đã đóng băng. Canary có supervisor thu evidence, dừng candidate khi
-alert/lỗi và phục hồi control collector; không auto-promote. Kết quả canary
-phải được đọc từ terminal artifact trước khi quyết định chạy formal soak.
+Bounded normal canary `pulse500-r10-c1-canary-20260930` hoàn tất thành công
+trên cả ba worker. `START.json` ghi thời điểm bắt đầu 02:39:51 UTC; ba worker
+đã thu khoảng 902,6–903,7 giây và archive terminal lúc 02:56:20 UTC. Aggregate
+`valid=true`, coverage gate pass và checksum terminal xác minh được.
 
-Canary `pulse500-r10-c1-canary-20260930` đã khởi chạy thành công bằng unit
-`sentinel-pulse-r10-c1-canary.service`; `START.json` lúc 02:39:51 UTC,
-hoàn tất deployment ba worker lúc 02:41:15 UTC. Snapshot supervisor đầu tiên
-02:41:17–20 UTC có 4.359 decision tổng cộng, 0 alert; ba worker đều active.
-Đây chỉ là snapshot đầu run, chưa phải canary pass. Evidence ở
-`/home/dat/sentinel-pulse-evidence/canary-r10-c1-20260930`.
-Dự kiến kết thúc thu dữ liệu khoảng 09:56 giờ Việt Nam; thu gom/verify có thể
-cần thêm vài phút, nên kiểm tra terminal khoảng **10:00 ngày 30-09-2026**.
-Supervisor chạy nền và tự finalize; model/policy vẫn giữ nguyên checksum.
+| Chỉ số canary C1 | Quan sát |
+|---|---:|
+| Decision records | 113.543 |
+| Scored / warming | 113.191 / 352 |
+| Normal / suppressed / alert | 112.793 / 398 / **0** |
+| Candidate detector restart | 0 trên cả 3 worker |
+| Workload coverage | 21/21; mỗi coverage gate pass |
+| Inference p50 / p95 / p99 | 17,34 / 24,36 / 29,91 ms |
+| Post-window processing p50 / p95 / p99 | 0,265 / 0,462 / 0,529 giây |
+| Window-start-to-decision p50 / p95 / p99 | 0,771 / 0,968 / **1,035 giây** |
+| Window-start-to-decision max | 1,540 giây |
+
+Đây là **normal-only, non-formal canary dài 15 phút**, trên workload live và
+không có blind attack. Kết quả 0 alert là số đếm quan sát trong khoảng chạy
+này, không chứng minh FPR bằng 0. `window_start_to_decision` không bắt đầu từ
+timestamp injection ở kernel, do đó chưa phải kernel-to-alert attack latency.
+Không có claim recall/precision từ run này. Artifact gốc:
+`/home/dat/sentinel-pulse-evidence/canary-r10-c1-20260930`; bản sao aggregate,
+start marker và checksum index nằm trong `validation-evidence/`.
+
+Canary pass cho phép chuyển sang formal normal soak tối thiểu 24 giờ, sau khi
+traffic preflight, sáu node, production, Longhorn, CNPG, dung lượng đĩa và
+revision gate cùng pass ổn định. Run sẽ dừng khi có alert/lỗi và không tự mở
+blind. Sau đó mới có thể cân nhắc đánh giá blind matrix đã khóa trước training.
