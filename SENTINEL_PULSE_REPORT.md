@@ -3063,6 +3063,20 @@ Lifecycle đã ở phase `normal_monitor`; đây mới là checkpoint đầu run
 normal pass. Evidence đang ghi tại
 `/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930`.
 
+Checkpoint 08:56 UTC ngày 30-09 (15:56 giờ Việt Nam), run đã đi được khoảng
+5 giờ 39 phút, tương đương **23,5%** thời lượng đăng ký. Snapshot mới nhất theo
+từng worker có tổng **2.618.491 decision quan sát**, 0 alert và 0 detector
+restart. Cả ba collector/detector đều active; telemetry availability 1,0,
+không missing snapshot, cadence violation, BPF drop hay feature-tail error.
+Sáu node vẫn Ready và namespace production không có pod ngoài phase Running.
+
+Dung lượng cần tiếp tục theo dõi: worker3 dùng 78% root filesystem, còn khoảng
+128 GiB; ngưỡng preregister là tối đa 80% và tối thiểu 64 GiB trống. Current C1
+run trên worker3 chiếm khoảng 1,5 GiB feature và 2,0 GiB detector log; Longhorn
+chiếm khoảng 330 GiB. Không dọn dữ liệu giữa phép đo để tránh thay đổi điều kiện
+thực nghiệm. Monitor kiểm tra capacity định kỳ và sẽ fail-closed nếu vượt ngưỡng.
+Checkpoint này vẫn là trạng thái đang chạy, chưa cho phép claim normal pass.
+
 Khi soak active, supervisor theo dõi alert, telemetry, cluster/storage health
 và workload fingerprint; một alert hoặc lỗi làm run terminal fail và archive
 evidence. Blind không tự chạy sau normal soak.
