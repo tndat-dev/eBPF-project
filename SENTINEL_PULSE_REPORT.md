@@ -3046,10 +3046,19 @@ cho từng service) và north-south **60/60 thành công** trên `/`, `/api/heal
 và `/api/products/`. Artifact:
 `/home/dat/sentinel-pulse-evidence/traffic-gate-r10-c1-20260930.json`.
 
-Sau preflight, candidate C1 được đăng ký cho normal soak 24 giờ với cùng model
-và policy hash nêu trên. Khi active, supervisor theo dõi alert, telemetry,
-cluster/storage health và workload fingerprint; một alert hoặc lỗi làm run
-terminal fail và archive evidence. Blind không tự chạy sau normal soak.
+Traffic gate đã pass lúc 03:09:49 UTC. Lifecycle formal C1 chạy dưới systemd
+unit `sentinel-pulse-r10-c1-formal-normal` từ 03:11:37 UTC ngày 30-09, source
+commit `34b62c4`. Lúc 03:12:24 UTC, sáu node, production pods, Longhorn,
+topology, CNPG và dung lượng worker đều pass; cửa sổ ổn định 5 phút mới ở
+giây 0/300. Worker3 có 141 GB trống (77% disk đã dùng), vẫn trên yêu cầu 64 GB
+và dưới ngưỡng 80%. Vì vậy **24 giờ capture chưa bắt đầu** tại mốc kiểm tra này;
+chỉ bắt đầu sau khi health/capacity gates ổn định đủ 300 giây và marker
+`SOAK_START.json` được ghi. Theo tiến độ preflight lúc đó, mốc hoàn thành sớm
+nhất khoảng 10:22 giờ Việt Nam ngày 01-10, cộng thời gian finalize.
+
+Khi soak active, supervisor theo dõi alert, telemetry, cluster/storage health
+và workload fingerprint; một alert hoặc lỗi làm run terminal fail và archive
+evidence. Blind không tự chạy sau normal soak.
 Đây là release gate nghiêm ngặt của candidate; dù pass 24 giờ cũng chỉ cho
 phép báo cáo số alert quan sát cùng exposure, không chứng minh FPR quần thể
 bằng 0. Thời lượng capture dự kiến 24 giờ từ lúc `SOAK_START.json` được tạo,
