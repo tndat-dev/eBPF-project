@@ -65,3 +65,13 @@ def test_ready_pod_rejects_terminating_and_unready_candidates():
         ]
     }
     assert ready_pod(payload)["metadata"]["name"] == "ready"
+
+
+def test_search_recommendation_is_required_by_rollout_and_http_gates():
+    service = "search-recommendation-service"
+    payload = {"items": [rollout(name) for name in MICROSERVICES if name != service]}
+    _, errors = rollout_summary(payload)
+    assert f"missing Rollout: {service}" in errors
+    east = {name: {"status_counts": {"200": 20}} for name in MICROSERVICES}
+    east[service] = {"status_counts": {"200": 19, "503": 1}}
+    assert any(service in error for error in east_west_errors(east, 20))

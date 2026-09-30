@@ -22,6 +22,7 @@ MICROSERVICES = (
     "notification-service",
     "order-service",
     "payment-service",
+    "search-recommendation-service",
     "security-telemetry-service",
 )
 INGRESS_PATHS = ("/", "/api/health/", "/api/products/")

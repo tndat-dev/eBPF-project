@@ -9,6 +9,7 @@ fi
 
 LIFECYCLE_ID=${LIFECYCLE_ID:?for example a3}
 LOCAL_ROOT=${LOCAL_ROOT:?absolute detached source worktree}
+REMOTE_ROOT=${REMOTE_ROOT:-$LOCAL_ROOT}
 MODEL_SOURCE=${MODEL_SOURCE:?absolute frozen model directory}
 POLICY_SOURCE=${POLICY_SOURCE:?absolute frozen decision policy}
 NORMAL_RUN_ID=${NORMAL_RUN_ID:?registered normal run ID}
@@ -47,7 +48,7 @@ nominal, availability, maximum_gap = map(float, sys.argv[1:])
 assert all(map(math.isfinite, (nominal, availability, maximum_gap)))
 assert nominal > 0 and 0 < availability <= 1 and maximum_gap >= 0.8
 PY
-for path in "$LOCAL_ROOT" "$MODEL_SOURCE" "$POLICY_SOURCE" "$NORMAL_EVIDENCE_ROOT" \
+for path in "$LOCAL_ROOT" "$REMOTE_ROOT" "$MODEL_SOURCE" "$POLICY_SOURCE" "$NORMAL_EVIDENCE_ROOT" \
   "$BLIND_EVIDENCE_ROOT" "$STATE_ROOT" "$PYTHON"; do
   [[ $path == /* ]] || { echo "lifecycle paths must be absolute: $path" >&2; exit 2; }
 done
@@ -76,6 +77,7 @@ trap cleanup EXIT
 {
   printf 'SSHPASS=%s\n' "$SSHPASS"
   printf 'LOCAL_ROOT=%s\n' "$LOCAL_ROOT"
+  printf 'REMOTE_ROOT=%s\n' "$REMOTE_ROOT"
   printf 'PYTHON=%s\n' "$PYTHON"
   printf 'MODEL_SOURCE=%s\n' "$MODEL_SOURCE"
   printf 'POLICY_SOURCE=%s\n' "$POLICY_SOURCE"
