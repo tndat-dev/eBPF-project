@@ -13,7 +13,8 @@
 #define PULSE_SYSCALL_BINS 64
 #define PULSE_TRANSITION_BINS 64
 #define PULSE_TRACKED 29
-#define PULSE_SNAPSHOT_RETRIES 8
+#define PULSE_SNAPSHOT_RETRIES 32
+#define PULSE_SNAPSHOT_RETRY_DELAY_US 50
 #define PULSE_TARGET_REFRESH_RETRIES 5
 
 struct pulse_counters {
@@ -136,7 +137,7 @@ static int per_cpu_snapshot_consistent(
 
 static int lookup_consistent_snapshot(
     int map_fd, const uint64_t *key, unsigned char *per_cpu,
-    int cpu_count, size_t stride)
+    int cpu_count, size_t stride, uint64_t *consistency_retries)
 {
     for (int attempt = 0; attempt < PULSE_SNAPSHOT_RETRIES; attempt++) {
         memset(per_cpu, 0, (size_t)cpu_count * stride);
@@ -147,12 +148,20 @@ static int lookup_consistent_snapshot(
          * never existed or weakening the integrity gate. */
         if (per_cpu_snapshot_consistent(per_cpu, cpu_count, stride))
             return 0;
+        (*consistency_retries)++;
+        /* Immediate back-to-back lookups can repeatedly intersect the same
+         * high-rate syscall burst on a hot cgroup.  A short, bounded pause
+         * changes the sampling phase while keeping the worst-case retry wait
+         * below 1.6 ms per target at the 500 ms collection cadence. */
+        if (attempt + 1 < PULSE_SNAPSHOT_RETRIES)
+            usleep(PULSE_SNAPSHOT_RETRY_DELAY_US);
     }
     return -EAGAIN;
 }
 
 static int print_snapshots(
     int map_fd, int cpu_count, double observed_at,
+    uint64_t *consistency_retries,
     uint64_t *consistency_retry_exhausted)
 {
     size_t stride = (sizeof(struct pulse_counters) + 7U) & ~7U;
@@ -162,7 +171,8 @@ static int print_snapshots(
     int has_key = 0, printed = 0;
     while (bpf_map_get_next_key(map_fd, has_key ? &key : NULL, &next) == 0) {
         int lookup = lookup_consistent_snapshot(
-            map_fd, &next, per_cpu, cpu_count, stride);
+            map_fd, &next, per_cpu, cpu_count, stride,
+            consistency_retries);
         if (lookup == -EAGAIN) {
             (*consistency_retry_exhausted)++;
         } else if (lookup == 0) {
@@ -232,6 +242,7 @@ int main(int argc, char **argv)
     error = libbpf_get_error(link);
     if (!program || error) { fprintf(stderr, "attach raw tracepoint: %s\n", program ? strerror(-error) : "program missing"); if (error) link = NULL; bpf_object__close(object); return 1; }
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
+    uint64_t consistency_retries = 0;
     uint64_t consistency_retry_exhausted = 0;
     while (!exiting) {
         usleep(interval_ms * 1000U);
@@ -245,6 +256,7 @@ int main(int argc, char **argv)
         double snapshot_started_at = wall_time();
         int snapshots = print_snapshots(
             cgroups_fd, cpu_count, snapshot_started_at,
+            &consistency_retries,
             &consistency_retry_exhausted);
         /* The boundary is after all map lookups, so no included count can be
          * timestamped later than the window end used for latency evidence. */
@@ -253,6 +265,7 @@ int main(int argc, char **argv)
         uint32_t zero = 0; uint64_t task_failures = 0;
         bpf_map_lookup_elem(stats_fd, &zero, &task_failures);
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"task_state_update_fail\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)task_failures);
+        printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"snapshot_consistency_retries\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)consistency_retries);
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"snapshot_consistency_retry_exhausted\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)consistency_retry_exhausted);
         printf("{\"type\":\"snapshot_end\",\"observed_at\":%.9f,\"targets\":%d,\"snapshots\":%d,\"snapshot_read_seconds\":%.9f}\n",
                observed_at, targets, snapshots, snapshot_read_seconds);

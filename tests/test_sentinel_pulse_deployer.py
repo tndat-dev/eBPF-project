@@ -112,8 +112,10 @@ class PulseDeployerTests(unittest.TestCase):
         source = (
             ROOT / "sentinel_pulse" / "ebpf" / "pulse_counter_loader.c"
         ).read_text()
-        self.assertIn("PULSE_SNAPSHOT_RETRIES 8", source)
+        self.assertIn("PULSE_SNAPSHOT_RETRIES 32", source)
+        self.assertIn("PULSE_SNAPSHOT_RETRY_DELAY_US 50", source)
         self.assertIn("per_cpu_snapshot_consistent", source)
+        self.assertIn('name\\\":\\\"snapshot_consistency_retries', source)
         self.assertIn("snapshot_consistency_retry_exhausted", source)
 
     def test_500ms_experiment_is_isolated_collect_only_and_not_enabled(self):
@@ -237,6 +239,9 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn('"blind_attack": False', script)
         self.assertIn("raw.tar.gz", script)
         self.assertIn("resume checkpoint", script)
+        self.assertIn("node_archive_reusable", script)
+        self.assertIn('node-finalize.json.tmp', script)
+        self.assertIn('node-finalize.stderr.tmp', script)
         self.assertIn("RAW_SHA256SUMS", script)
         self.assertIn("ARCHIVE_COMPLETE", script)
         self.assertIn("! -name archive.log", script)
@@ -326,7 +331,7 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertLess(verify, reuse)
         self.assertLess(reuse, remote_fallback)
         self.assertIn(
-            "if [[ $reuse_finalizer_raw_archive != true ]]", script
+            "if [[ $reuse_finalizer_raw_archive != true &&", script
         )
         self.assertIn("FAILURE_SHA256SUMS", script)
         self.assertIn("reused_verified_finalizer_raw_archive", script)

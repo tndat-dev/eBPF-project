@@ -316,8 +316,11 @@ bao gồm inference hoặc alert và không được gọi là kernel-to-alert M
 Canary thực tế đã phát hiện hai lỗi trước rollout: chỉ số mảng không được kernel
 6.8 verifier chứng minh bounded và systemd shared runtime directory bị xóa khi
 collector restart. Sau khi sửa, verifier pass. Một torn per-CPU map read trên
-worker3 cũng bị gate từ chối; loader hiện retry tối đa tám lần và fail-closed
+worker3 cũng bị gate từ chối; loader ở rollout này retry tối đa tám lần và fail-closed
 nếu không lấy được snapshot tự nhất quán, thay vì nới integrity threshold.
+Sau failure C1 ngày 30-09, successor prospective tăng retry lên 32 lần, chèn
+50 microsecond giữa hai lần đọc và xuất riêng số retry; exhaustion vẫn là hard
+failure. Thay đổi này không được dùng để sửa disposition của evidence cũ.
 
 Evidence local nằm tại `validation-evidence/sentinel-pulse-canary/`; rollout
 manifest SHA-256 là

@@ -69,6 +69,16 @@ while read -r host node expected_feature; do
   detector_dir="/var/lib/sentinel-pulse-detector/runs/$model_sha-$policy_sha-$run_id"
   node_root="$FAILURE_ROOT/workers/$host"
   mkdir -p "$node_root"
+  node_archive_reusable=false
+  if [[ $reuse_finalizer_raw_archive != true &&
+        -s "$node_root/node-finalize.json" &&
+        -s "$node_root/raw.tar.gz" ]] &&
+     tar -tzf "$node_root/raw.tar.gz" \
+       "${capture_dir#/}/FINAL.json" \
+       "${detector_dir#/}/decisions.jsonl" \
+       "${detector_dir#/}/alerts.jsonl" >/dev/null 2>&1; then
+    node_archive_reusable=true
+  fi
 
   # Quiesce first. Raw streams must never be fed to training, tuning or blind
   # evaluation. A normal alert is used only to reject the preregistered
@@ -98,13 +108,20 @@ while read -r host node expected_feature; do
   if [[ $reuse_finalizer_raw_archive == true ]]; then
     printf 'source=existing_verified_finalizer_archive\nraw_sha256sums=%s\n' \
       "$EVIDENCE_ROOT/RAW_SHA256SUMS" >"$node_root/archive-reuse.txt"
+  elif [[ $node_archive_reusable == true ]]; then
+    printf 'source=existing_valid_per_node_archive\narchive=%s\n' \
+      "$node_root/raw.tar.gz" >"$node_root/archive-reuse.txt"
   else
     # The node finalizer deliberately returns non-zero for a failed service but
     # still emits validation and FINAL.json; retain both outcomes as evidence.
     remote_sudo "$host" env MINIMUM_ROWS_PER_WORKLOAD=20 \
       "$REMOTE_ROOT/sentinel_pulse/finalize_500ms_experiment.sh" \
-      >"$node_root/node-finalize.json" \
-      2>"$node_root/node-finalize.stderr" || true
+      >"$node_root/node-finalize.json.tmp" \
+      2>"$node_root/node-finalize.stderr.tmp" || true
+    mv "$node_root/node-finalize.json.tmp" \
+      "$node_root/node-finalize.json"
+    mv "$node_root/node-finalize.stderr.tmp" \
+      "$node_root/node-finalize.stderr"
     remote_sudo "$host" test -s "$capture_dir/FINAL.json"
     remote_sudo "$host" test -s "$detector_dir/decisions.jsonl"
   fi
@@ -114,7 +131,8 @@ while read -r host node expected_feature; do
   # Stream a compressed, self-contained copy; do not delete remote originals.
   # A validated archive is a resume checkpoint after a control-plane process
   # interruption, while a partial .tmp is always overwritten.
-  if [[ $reuse_finalizer_raw_archive != true ]]; then
+  if [[ $reuse_finalizer_raw_archive != true &&
+        $node_archive_reusable != true ]]; then
     if [[ ! -s "$node_root/raw.tar.gz" ]] || \
        ! tar -tzf "$node_root/raw.tar.gz" >/dev/null 2>&1; then
       printf '%s\n' "$SSHPASS" | sshpass -e ssh \

@@ -85,6 +85,14 @@ The loader refuses to attach when the target file is empty. It has no
 host-wide fallback. The task-state error counter and compact-snapshot integrity
 counter must stay zero, and resolved target coverage must be complete.
 
+Per-CPU map copies can intersect the adjacent `total` and syscall-bin writes
+of a hot cgroup. The loader therefore retries a torn read at most 32 times,
+with a 50 microsecond phase-changing delay between attempts. It exports the
+cumulative diagnostic `snapshot_consistency_retries`; this may be non-zero.
+`snapshot_consistency_retry_exhausted` and the resulting
+`target_snapshot_gap` remain hard integrity failures and may never be waived
+by the telemetry-availability budget.
+
 For a worker prepared with clang, bpftool and libbpf headers, the idempotent
 node installer builds against that node's BTF and starts only the resolver and
 collect-only service:
