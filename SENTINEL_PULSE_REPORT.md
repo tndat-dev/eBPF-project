@@ -3115,3 +3115,32 @@ bằng 0. Thời lượng capture dự kiến 24 giờ từ lúc `SOAK_START.jso
 cộng 5 phút margin và thời gian finalize. Kiểm tra trạng thái service và
 evidence trên master bằng `systemctl status sentinel-pulse-r10-c1-formal-normal`
 và thư mục `/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930`.
+
+### C1 terminal: capture integrity rejection (30-09-2026)
+
+Formal normal soak `pulse500-normal-r10-c1-20260930` dừng fail-closed lúc
+20:25:50 UTC ngày 30-09, sau 61.685 giây (khoảng **17 giờ 8 phút, 71,4%** của
+24 giờ). Monitor ghi nhận **0 alert** và tổng 7.942.890 decision ở snapshot
+cuối mỗi worker; detector restart bằng 0. Đây không phải formal normal pass hay
+FPR estimate, vì run không hoàn tất thời lượng đã preregister.
+
+Nguyên nhân là `collector_integrity_violation` tại worker
+`10.1.16.237`: `snapshot_consistency_retry_exhausted=1` làm
+`target_snapshot_gap=1`. Finalizer worker1 đọc 2.650.897 feature row; cadence
+p99 0,5129 giây và ingest lag p99 0,0366 giây vẫn đạt, nhưng hai integrity
+counter bắt buộc bằng 0 nên capture không hợp lệ. Không cứu các row của run này
+để train/tune và không mở blind attack.
+
+Tại lần cập nhật báo cáo này, worker1 và worker3 đã được finalize; worker4 đang
+đọc/validate capture rồi mới nén archive. `ARCHIVE_COMPLETE`, checksum index
+cuối cùng và việc phục hồi control collector vẫn đang chờ archive kết thúc.
+Run được giữ nguyên tại
+`/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930` trên master.
+Phần archive sẽ được cập nhật khi các checksum cuối và trạng thái service được
+xác minh.
+
+Phân tích code cho thấy loader chỉ thử map snapshot 8 lần liên tiếp, không nghỉ
+giữa lần đọc. Successor prospective tăng giới hạn lên 32 retry, cách nhau 50
+microsecond, đồng thời xuất counter `snapshot_consistency_retries`. Exhaustion
+vẫn bị xem là hard integrity failure. Thay đổi này áp dụng cho run mới và không
+thay đổi disposition của C1.
