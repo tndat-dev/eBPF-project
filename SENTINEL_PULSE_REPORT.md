@@ -3124,12 +3124,15 @@ Formal normal soak `pulse500-normal-r10-c1-20260930` dừng fail-closed lúc
 cuối mỗi worker; detector restart bằng 0. Đây không phải formal normal pass hay
 FPR estimate, vì run không hoàn tất thời lượng đã preregister.
 
-Nguyên nhân là `collector_integrity_violation` tại worker
-`10.1.16.237`: `snapshot_consistency_retry_exhausted=1` làm
-`target_snapshot_gap=1`. Finalizer worker1 đọc 2.650.897 feature row; cadence
-p99 0,5129 giây và ingest lag p99 0,0366 giây vẫn đạt, nhưng hai integrity
-counter bắt buộc bằng 0 nên capture không hợp lệ. Không cứu các row của run này
-để train/tune và không mở blind attack.
+Nguyên nhân chính là `collector_integrity_violation` tại worker `10.1.16.237`:
+`snapshot_consistency_retry_exhausted=1` làm `target_snapshot_gap=1`.
+Finalizer worker1 đọc 2.650.897 feature row; cadence p99 0,5129 giây và ingest
+lag p99 0,0366 giây vẫn đạt, nhưng hai integrity counter bắt buộc bằng 0 nên
+capture không hợp lệ. Worker4 (`10.1.16.238`) cũng trượt telemetry gate:
+3.853.988 row, 17 delayed intervals, availability 0,998940 dưới mức 0,999 và
+gap lớn nhất 22,208 giây (giới hạn 10 giây). Worker4 cadence p99 0,5126 giây,
+nhưng các gap dài vẫn làm toàn node không hợp lệ. Không cứu row của bất kỳ node
+nào trong run này để train/tune và không mở blind attack.
 
 Tại lần cập nhật báo cáo này, worker1 và worker3 đã được finalize; worker4 đang
 đọc/validate capture rồi mới nén archive. `ARCHIVE_COMPLETE`, checksum index
