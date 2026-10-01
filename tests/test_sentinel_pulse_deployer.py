@@ -155,6 +155,8 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("--nominal-interval-seconds", unit)
         self.assertIn("cd /opt/sentinel-pulse", finalizer)
         self.assertIn("sentinel-pulse-500ms-final-v1", finalizer)
+        self.assertIn('validation["capture_sha256"]', finalizer)
+        self.assertNotIn("capture.read_bytes()", finalizer)
         self.assertIn('chmod 0444 "$RUN_DIR"/*', finalizer)
         self.assertIn("experiment-cgroup-final.txt", finalizer)
         self.assertIn("control-collector-at-experiment-end.systemd", metrics)

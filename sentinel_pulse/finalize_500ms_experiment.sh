@@ -61,7 +61,6 @@ set -e
 
 /opt/sentinel-pulse/venv/bin/python - \
   "$RUN_DIR" "$VALIDATION_RC" <<'PY'
-import hashlib
 import json
 from pathlib import Path
 import sys
@@ -124,7 +123,11 @@ payload = {
     "valid": validation_rc == 0 and validation.get("valid") is True and service_ok,
     "service_ok": service_ok,
     "service_result": experiment.get("Result"),
-    "capture_sha256": hashlib.sha256(capture.read_bytes()).hexdigest(),
+    # validate_capture already streamed and hashed the immutable capture.
+    # Reuse that verified digest instead of allocating the multi-GB file with
+    # read_bytes() and hashing it a second time. SHA256SUMS below performs the
+    # independent terminal checksum pass used by the archive.
+    "capture_sha256": validation["capture_sha256"],
     "capture_bytes": capture.stat().st_size,
     "rows": validation.get("rows", 0),
     "workload_count": len(validation.get("workloads", {})),
