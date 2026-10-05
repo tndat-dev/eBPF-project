@@ -61,10 +61,16 @@ flowchart TB
     BUNDLE["Model, calibration và policy<br/>đã đóng băng"] --> MODEL
     MODEL --> POLICY["Decision policy<br/>raw anomaly + score excess<br/>semantic + temporal corroboration"]
     BUNDLE --> POLICY
+    REGIME["Normal traffic regimes (nhãn offline)<br/>steady · toolmix · peak · burst · recovery<br/>coverage context; không phải feature runtime"] -.-> BUNDLE
     POLICY --> RESULT["normal · suppressed · alert<br/>warming · telemetry-degraded<br/>collect-only · rebaseline-required"]
     RESULT --> DECISIONS["decisions.jsonl"]
     RESULT -->|"chỉ khi alert"| ALERTS["alerts.jsonl<br/>audit-only · không enforcement"]
 ```
+
+Bốn regime cũ là `steady`, `toolmix`, `burst`, `recovery`; contract hiện hành
+thêm `peak` để mô phỏng giờ cao điểm. Mô tả traffic của từng regime ở mục 12.1.
+Các nhãn này thuộc bối cảnh dữ liệu normal offline, không được ghép vào vector
+249 chiều khi detector chạy realtime.
 
 Sơ đồ này mô tả duy nhất đường ML của formal recovery đang được đánh giá:
 collector 500 ms → feature theo run → detector audit-only. Collector và
