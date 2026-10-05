@@ -67,7 +67,7 @@ flowchart TB
         MAP["BPF maps theo cgroup và CPU<br/>counts, hash bins, task transition state"]
         COL["Collector systemd có quyền root<br/>loader C và capture.py, cadence 500 ms"]
         FEATURE["Feature JSONL trên filesystem node<br/>vector 249 chiều và provenance"]
-        DET["Detector user không đặc quyền<br/>runtime-venv, model và policy readonly"]
+        DET["Detector user không đặc quyền<br/>PulseRuntime + PulseExtraTrees<br/>21 model theo workload + conformal calibration<br/>runtime-venv, model và policy readonly"]
         OUTPUT["decisions.jsonl và alerts.jsonl<br/>run, workload, source identity, score, gates"]
         PROBE["recovery_worker_probe.py<br/>marker, executed bytes, units, tail health<br/>seal verification + streaming node report"]
     end
