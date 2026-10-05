@@ -89,7 +89,7 @@ flowchart LR
     SNAP --> FEATURE["Feature vector<br/>249 chiều"]
     FEATURE --> READY{"Telemetry mới và<br/>đủ history?"}
     READY -->|"Chưa"| WARM["warming / telemetry-degraded"]
-    READY -->|"Đủ"| MODEL["ExtraTrees<br/>score + conformal p-value"]
+    READY -->|"Đủ"| MODEL["Classifier PulseExtraTrees<br/>mô hình riêng từng workload<br/>điểm bất thường + conformal p-value"]
     BUNDLE["Model và policy<br/>đã đóng băng"] --> MODEL
     MODEL --> POLICY["Decision policy<br/>score + semantic + temporal gates"]
     BUNDLE --> POLICY

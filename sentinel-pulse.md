@@ -81,7 +81,6 @@ flowchart TB
     RES -->|"metadata"| COL
     POD --> KERNEL
     KERNEL --> MAP
-    MAP -->|"cumulative snapshots"| COL
     COL --> FEATURE
     FEATURE --> DET
     DET --> OUTPUT
@@ -174,7 +173,7 @@ flowchart TB
     RESET --> READY
     READY -->|"Chưa"| WARM["warming<br/>append current row, chưa score"]
     READY -->|"Đủ"| X["Flatten 3 history + current<br/>4 x 249 = 996 input dimensions"]
-    X --> MODEL["PulseExtraTrees.predict<br/>score class corrupted + conformal p-value"]
+    X --> MODEL["Classifier PulseExtraTrees<br/>điểm lớp corrupted<br/>sau đó tính conformal p-value"]
     MODEL --> POLICY["Decision policy<br/>score + exact-count semantics + temporal evidence"]
     POLICY --> RESULT["normal / suppressed / alert<br/>kèm score và chi tiết từng gate"]
     CO --> DECFILE["decisions.jsonl<br/>mọi trạng thái trả về, flush mỗi record"]
