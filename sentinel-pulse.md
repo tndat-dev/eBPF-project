@@ -48,60 +48,24 @@ phải mọi nhóm đều quyết định chỉ trong một window. Giá trị t
 ### 3.1 Kiến trúc triển khai trên cụm
 
 ```mermaid
-flowchart TB
-    subgraph CP["Control plane: .234, .235, .236"]
-        API["Kubernetes API<br/>nodes, pods, PV, CNPG, Longhorn"]
-        REPO["Git source và artifact đã đóng băng"]
-        GUARD["recovery_capacity_guard.py<br/>guard riêng trên master: storage budget<br/>chỉ quản lý coordinator child đang sở hữu"]
-        ORCH["VM .234: recovery_coordinator.py + systemd<br/>single-writer flock theo run<br/>preregister, stage, parallel probe, finalize<br/>resume kiểm tra executable/source/model/policy/profile"]
-        FROZEN["Worktree runtime riêng<br/>source commit, model và policy frozen"]
-        HEALTH["Parallel dependency health monitor<br/>node, controller, CNPG, Longhorn<br/>journal + compressed API evidence"]
-        ARCHIVE["Evidence coordinator trên master<br/>marker, health log, node reports, terminal, checksums"]
-    end
-
-    subgraph WORKERS["Worker .237, .239, .238: pipeline lặp trên từng node"]
-        POD["Workload namespace production<br/>trong scope đã đăng ký của run"]
-        CRI["Local CRI và cgroup v2<br/>Pod UID, container, revision"]
-        RES["Resolver có quyền root<br/>allowed-cgroups và cgroups.json"]
-        KERNEL["Linux kernel<br/>raw_tp/sys_enter"]
-        MAP["BPF maps theo cgroup và CPU<br/>counts, hash bins, task transition state"]
-        COL["Collector systemd có quyền root<br/>loader C và capture.py, cadence 500 ms"]
-        FEATURE["Feature JSONL trên filesystem node<br/>vector 249 chiều và provenance"]
-        DET["Detector user không đặc quyền<br/>PulseRuntime + PulseExtraTrees<br/>21 model theo workload + conformal calibration<br/>runtime-venv, model và policy readonly"]
-        OUTPUT["decisions.jsonl và alerts.jsonl<br/>run, workload, source identity, score, gates"]
-        PROBE["recovery_worker_probe.py<br/>marker, executed bytes, units, tail health<br/>seal verification + streaming node report"]
-    end
-
-    REPO -->|"đồng bộ có kiểm soát"| FROZEN
-    FROZEN -->|"cài bundle và source theo checksum"| COL
-    FROZEN -->|"cài candidate audit-only"| DET
-    GUARD -->|"launch và giám sát đúng child"| ORCH
-    CRI --> RES
-    RES -->|"allow-list"| MAP
-    RES -->|"metadata"| COL
-    POD --> KERNEL
-    KERNEL --> MAP
-    COL --> FEATURE
-    FEATURE --> DET
-    DET --> OUTPUT
-    ORCH -->|"SSH bounded, parent riêng theo run"| PROBE
-    PROBE -->|"stage/attest trước capture"| COL
-    OUTPUT -->|"giữ mọi alert, không waive incident"| PROBE
-    PROBE -->|"node reports cùng health journal"| ARCHIVE
-    ORCH --> HEALTH
-    API --> HEALTH
-    HEALTH --> ARCHIVE
-    ARCHIVE -->|"SSH trích receipt khi kiểm tra; không tự export toàn bộ raw"| LOCAL["Bản trích evidence trên host"]
+flowchart LR
+    APP["Workload AIMS<br/>namespace production"] --> CALL["Syscall trong Linux kernel"]
+    CALL --> EBPF["eBPF counter<br/>theo cgroup"]
+    ID["cgroup resolver<br/>pod / container / workload"] --> EBPF
+    EBPF --> COL["Collector systemd trên worker<br/>snapshot 500 ms"]
+    COL --> FEATURE["Feature vector<br/>249 chiều"]
+    FEATURE --> DET["Detector systemd<br/>PulseRuntime + PulseExtraTrees<br/>21 model theo workload"]
+    BUNDLE["Model, calibration và policy<br/>đã đóng băng"] --> DET
+    DET --> DEC["Decision policy"]
+    DEC --> OUT["decisions.jsonl"]
+    DEC -->|"chỉ khi alert"| ALERT["alerts.jsonl"]
 ```
 
-Receipt ngày05/10 xác nhận formal run `pulse-recovery-formal-c1-20261005`
-đã đăng ký và ba worker active/tail ready. Diagnostic crash/resume đã hoàn tất
-trước đó; receipt START formal không phải terminal hoặc formal PASS.
-Finalizer tổng hợp union scored exposure giữa replica/node, không cộng trùng;
-mọi alert vẫn nằm trong numerator. Khởi động/resume và shutdown không được
-đổi source/model/policy/profile/marker hoặc hồi sinh một run đã terminal.
-Chi tiết adapter, paths, thời gian và receipt ở
-[trạng thái recovery lifecycle](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+Sơ đồ chỉ tập trung vào đường phát hiện chính. Resolver cung cấp danh tính và
+allow-list cgroup; bundle đã đóng băng cung cấp model, calibration và policy.
+Collector và detector chạy bằng systemd trên từng worker, không chạy bên trong
+pod AIMS. Các bước điều phối run, health monitoring và lưu evidence được lược
+khỏi hình để không lẫn với luồng xử lý telemetry.
 
 Collector và detector Pulse được triển khai bằng **systemd trên worker**, không phải
 một Deployment nằm trong pod AIMS. Kubernetes
