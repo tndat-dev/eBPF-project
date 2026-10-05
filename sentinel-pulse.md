@@ -50,22 +50,25 @@ phải mọi nhóm đều quyết định chỉ trong một window. Giá trị t
 ```mermaid
 flowchart LR
     APP["Workload AIMS<br/>namespace production"] --> CALL["Syscall trong Linux kernel"]
-    CALL --> EBPF["eBPF counter<br/>theo cgroup"]
-    ID["cgroup resolver<br/>pod / container / workload"] --> EBPF
-    EBPF --> COL["Collector systemd trên worker<br/>snapshot 500 ms"]
-    COL --> FEATURE["Feature vector<br/>249 chiều"]
-    FEATURE --> DET["Detector systemd<br/>PulseRuntime + PulseExtraTrees<br/>21 model theo workload"]
+    ID["cgroup resolver<br/>allow-list + workload identity"] --> BASE
+    ID --> SOAK
+    CALL --> BASE["eBPF collector nền systemd<br/>counter theo cgroup · snapshot 1 s"]
+    BASE --> BASEDATA["Telemetry nền<br/>features.jsonl"]
+    CALL --> SOAK["eBPF collector candidate systemd<br/>counter theo cgroup · 500 ms<br/>formal recovery đang chạy"]
+    SOAK --> FEATURE["Feature vector theo run<br/>249 chiều"]
+    FEATURE --> DET["Detector candidate systemd<br/>PulseRuntime + 21 ExtraTrees model<br/>audit-only"]
     BUNDLE["Model, calibration và policy<br/>đã đóng băng"] --> DET
     DET --> DEC["Decision policy"]
     DEC --> OUT["decisions.jsonl"]
     DEC -->|"chỉ khi alert"| ALERT["alerts.jsonl"]
 ```
 
-Sơ đồ chỉ tập trung vào đường phát hiện chính. Resolver cung cấp danh tính và
-allow-list cgroup; bundle đã đóng băng cung cấp model, calibration và policy.
-Collector và detector chạy bằng systemd trên từng worker, không chạy bên trong
-pod AIMS. Các bước điều phối run, health monitoring và lưu evidence được lược
-khỏi hình để không lẫn với luồng xử lý telemetry.
+Sơ đồ thể hiện hai cadence đang có: collector nền 1 giây và đường formal
+recovery candidate 500 ms. Model chỉ đọc feature của candidate run; detector
+đang ở chế độ audit-only, không tự chặn hay sửa workload. Resolver, collector
+và detector chạy bằng systemd trên worker, không nằm trong pod AIMS. Các probe
+diagnostic và điều phối run không phải thành phần của pipeline này nên không
+đưa vào sơ đồ.
 
 Collector và detector Pulse được triển khai bằng **systemd trên worker**, không phải
 một Deployment nằm trong pod AIMS. Kubernetes
