@@ -78,116 +78,32 @@ Tên worker3/worker4 phản ánh hostname hiện có, không suy tên từ thứ
 Workload ở namespace `production`; collector và detector Pulse chạy bằng
 **systemd trên worker**, không phải container trong pod ứng dụng.
 
-### 2.2 Sơ đồ đầy đủ các đường dữ liệu
+### 2.2 Sơ đồ tóm tắt luồng đang chạy
 
 ```mermaid
-flowchart TB
-    subgraph APP["Kubernetes production"]
-        LOAD["Traffic AIMS và dependency loadgens"]
-        POD["Frontend, microservices, database, brokers, storage, mesh"]
-        CRI["CRI + cgroup v2 + pod/container revision"]
-        API["Kubernetes API: nodes/pods/PV/CNPG/Longhorn"]
-        LOAD --> POD
-    end
-
-    subgraph TELEMETRY["Worker: thu thập exact telemetry"]
-        RES["cgroup_resolver.py: workload identity, cgroups.json, allow-list"]
-        SYSCALL["Linux raw_tp/sys_enter"]
-        CG{"Cgroup được theo dõi và syscall ID hợp lệ?"}
-        MAP["Per-CPU counters + syscall bins + task transition state"]
-        PROJECT["Projected loader: reconstruct total/bin + integrity checks"]
-        SNAP["Snapshot cumulative theo cgroup, timestamp thực"]
-        REC["capture.py + recovery snapshot journal"]
-        DELTA["features.py: delta + rate + rolling statistics"]
-        VEC["249 float32 + metadata + exact_counts"]
-        JSONL["features.jsonl: schema record + vector compact"]
-        CRI --> RES
-        POD --> SYSCALL
-        RES --> CG
-        SYSCALL --> CG
-        CG -->|"Có"| MAP
-        CG -->|"Không"| SKIP["Không đưa vào telemetry Pulse"]
-        MAP --> PROJECT --> SNAP --> REC --> DELTA --> VEC --> JSONL
-        RES --> REC
-    end
-
-    subgraph OFFLINE["Offline: chỉ normal data"]
-        GATE["Capture integrity + revision/traffic admission"]
-        DATA["Ordered normal sequences, tách workload/container"]
-        SPLIT["Temporal train/calibration; giữ nguồn dữ liệu"]
-        NEG["Corrupt current row; history giữ nguyên"]
-        TREE["ExtraTrees: normal vs corrupted"]
-        CAL["Calibration scores normal"]
-        FREEZE["Manifest + model artifacts + policy + checksums"]
-        JSONL --> GATE --> DATA --> SPLIT
-        SPLIT --> NEG --> TREE
-        SPLIT --> TREE
-        TREE --> CAL --> FREEZE
-    end
-
-    subgraph ONLINE["Worker: runtime ML và policy"]
-        TAIL["JSONL tail reader: chỉ nhận dòng hoàn chỉnh"]
-        ID["Schema, revision, workload model, source identity"]
-        FRESH{"Recovery eligible và queue age đủ mới?"}
-        RESET["Degraded/warming: reset history và evidence"]
-        HIST["3 vector trước cùng identity + hiện tại"]
-        SCORE["ExtraTrees score + conformal p-value"]
-        SAME["Raw anomaly + score excess + semantic envelope"]
-        CONF["Consecutive same-group confirmation"]
-        JOIN["Namespace-only bounded model/semantic join, tối đa 1 s"]
-        DEC["Decision: normal / suppressed / alert / các trạng thái không score"]
-        OUT["decisions.jsonl: mọi decision"]
-        ALERT["alerts.jsonl: chỉ status=alert"]
-        JSONL --> TAIL --> ID --> FRESH
-        FREEZE --> ID
-        FRESH -->|"Không"| RESET --> DEC
-        FRESH -->|"Có"| HIST --> SCORE --> SAME
-        SAME --> CONF --> DEC
-        SAME --> JOIN --> DEC
-        DEC --> OUT
-        DEC -->|"alert"| ALERT
-    end
-
-    subgraph LIFE["Control plane: lifecycle/evidence"]
-        LOCK["Single-writer flock theo run"]
-        START["Preregistration START + config/source/model/profile binding"]
-        STAGE["Worker attestation trước capture"]
-        TIMING["Actual systemd start timing receipt"]
-        PROBE["Parallel bounded SSH/API probes"]
-        HEALTH["Health/supervision journal + API snapshots"]
-        SEAL["Worker terminal + raw seals"]
-        EVAL["Streaming node evaluation"]
-        UNION["Union scored exposure giữa replica/node"]
-        REPORT["Report + terminal + coordinator seal"]
-        RESUME["Resume: replay journals + verify local executable/bundle"]
-        CAPACITY["External capacity guard: preregister budget, đọc filesystem 3 worker<br/>dừng đúng coordinator child nếu vượt budget; không xóa dữ liệu"]
-        CAPACITY --> LOCK
-        LOCK --> START --> STAGE --> TIMING
-        STAGE --> REC
-        TIMING --> PROBE
-        API --> PROBE --> HEALTH
-        OUT --> SEAL
-        ALERT --> SEAL
-        HEALTH --> EVAL
-        SEAL --> EVAL --> UNION --> REPORT
-        RESUME --> LOCK
-        START --> RESUME
-    end
-
-    subgraph RCA["Kênh điều tra riêng; không cộng vào 249 feature"]
-        TET["Tetragon detailed events"]
-        EDGE["rca_connect.py: process, parent, socket FD, destination"]
-        INVENTORY["Pod/Service/EndpointSlice inventory"]
-        GRAPH["Connect-edge evidence; chưa là RCA tree đầy đủ"]
-        POD --> TET --> EDGE --> GRAPH
-        API --> INVENTORY --> EDGE
-        ALERT -.->|"join theo identity/time"| GRAPH
-    end
+flowchart LR
+    APP["AIMS workload<br/>có traffic"] --> KERNEL["Syscall trong kernel"]
+    ID["Resolver<br/>cgroup + workload identity"] --> COUNTER
+    KERNEL --> COUNTER["eBPF counters<br/>theo cgroup"]
+    COUNTER --> SNAP["Snapshot projected<br/>mỗi 500 ms"]
+    SNAP --> FEATURE["Feature vector<br/>249 chiều"]
+    FEATURE --> READY{"Telemetry mới và<br/>đủ history?"}
+    READY -->|"Chưa"| WARM["warming / telemetry-degraded"]
+    READY -->|"Đủ"| MODEL["ExtraTrees<br/>score + conformal p-value"]
+    BUNDLE["Model và policy<br/>đã đóng băng"] --> MODEL
+    MODEL --> POLICY["Decision policy<br/>score + semantic + temporal gates"]
+    BUNDLE --> POLICY
+    POLICY --> RESULT["Decision"]
+    WARM --> JSONL["decisions.jsonl"]
+    RESULT --> JSONL
+    RESULT -->|"Chỉ khi alert"| ALERT["alerts.jsonl"]
 ```
 
-Đường offline dùng capture được admit cho training, không mặc định lấy
-diagnostic/evaluation đang chạy để train. Kênh Tetragon chỉ bổ sung điều tra;
-event sampled của Tetragon **không được cộng vào exact counters hoặc vector**.
+Luồng chính là: workload → syscall/counter → snapshot 500 ms → vector 249
+chiều → kiểm tra độ mới và history → ExtraTrees → policy → decision/alert.
+Resolver cung cấp danh tính cgroup; bundle đã đóng băng cung cấp model và
+policy cho bước inference. Các bước train và đánh giá lifecycle được giải
+thích ở những mục riêng bên dưới, không nằm trong sơ đồ online này.
 
 ## 3. Workload identity và chọn model
 
