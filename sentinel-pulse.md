@@ -45,30 +45,30 @@ Policy live là `sentinel-pulse-r10-r4-c1-temporal-transfer`, schema v3; không
 phải mọi nhóm đều quyết định chỉ trong một window. Giá trị trong bundle frozen
 được ưu tiên hơn default của constructor hoặc ví dụ lịch sử trong README.
 
-### 3.1 Kiến trúc triển khai trên cụm
+### 3.1 Luồng tổng thể
+
+Sơ đồ thể hiện đường ML đang được formal recovery đánh giá:
 
 ```mermaid
-flowchart LR
-    APP["Workload AIMS<br/>namespace production"] --> CALL["Syscall trong Linux kernel"]
-    ID["cgroup resolver<br/>allow-list + workload identity"] --> BASE
-    ID --> SOAK
-    CALL --> BASE["eBPF collector nền systemd<br/>counter theo cgroup · snapshot 1 s"]
-    BASE --> BASEDATA["Telemetry nền<br/>features.jsonl"]
-    CALL --> SOAK["eBPF collector candidate systemd<br/>counter theo cgroup · 500 ms<br/>formal recovery đang chạy"]
-    SOAK --> FEATURE["Feature vector theo run<br/>249 chiều"]
-    FEATURE --> DET["Detector candidate systemd<br/>PulseRuntime + 21 ExtraTrees model<br/>audit-only"]
-    BUNDLE["Model, calibration và policy<br/>đã đóng băng"] --> DET
-    DET --> DEC["Decision policy"]
-    DEC --> OUT["decisions.jsonl"]
-    DEC -->|"chỉ khi alert"| ALERT["alerts.jsonl"]
+flowchart TB
+    APP["Pod/container trong namespace production"] --> CALL["Linux kernel · raw_tp/sys_enter"]
+    RES["cgroup resolver<br/>Pod UID → container → cgroup ID → revision<br/>allow-list và metadata"] --> COL
+    CALL --> COL["eBPF collector systemd<br/>exact syscall/security counters<br/>64 syscall bins + 64 transition bins<br/>snapshot 500 ms · formal run"]
+    COL --> DELTA["Delta giữa hai cumulative snapshots"]
+    DELTA --> VECTOR["Feature vector / workload / container<br/>249 chiều; rolling mean/std nằm trong vector"]
+    VECTOR --> CONTEXT["3 feature window trước + hiện tại<br/>đầu vào model = 4 × 249 = 996 chiều"]
+    CONTEXT --> MODEL["PulseExtraTrees classifier<br/>21 model theo workload<br/>score class corrupted → conformal p-value"]
+    BUNDLE["Model, calibration và policy<br/>đã đóng băng"] --> MODEL
+    MODEL --> POLICY["Decision policy<br/>raw anomaly + score excess<br/>semantic + temporal corroboration"]
+    BUNDLE --> POLICY
+    POLICY --> RESULT["normal · suppressed · alert<br/>warming · telemetry-degraded<br/>collect-only · rebaseline-required"]
+    RESULT --> DECISIONS["decisions.jsonl"]
+    RESULT -->|"chỉ khi alert"| ALERTS["alerts.jsonl<br/>audit-only · không enforcement"]
 ```
 
-Sơ đồ thể hiện hai cadence đang có: collector nền 1 giây và đường formal
-recovery candidate 500 ms. Model chỉ đọc feature của candidate run; detector
-đang ở chế độ audit-only, không tự chặn hay sửa workload. Resolver, collector
-và detector chạy bằng systemd trên worker, không nằm trong pod AIMS. Các probe
-diagnostic và điều phối run không phải thành phần của pipeline này nên không
-đưa vào sơ đồ.
+Sơ đồ này mô tả duy nhất đường ML của formal recovery đang được đánh giá:
+collector 500 ms → feature theo run → detector audit-only. Collector và
+detector chạy bằng systemd trên worker, không nằm trong pod AIMS.
 
 Collector và detector Pulse được triển khai bằng **systemd trên worker**, không phải
 một Deployment nằm trong pod AIMS. Kubernetes
@@ -237,25 +237,6 @@ SSH/sudo không đưa vào model manifest, feature record hoặc tài liệu Git
 - **Tự phản ứng/promotion:** chưa được lifecycle tự động cho phép. Soak pass
   không tương đương bật kill/quarantine hoặc tuyên bố model production-stable.
 
-### 3.6 Công cụ connect-edge chạy offline
-
-```mermaid
-flowchart TB
-    EVENTS["Tetragon JSONL đã thu"] --> NORMALIZE["Lọc sys_connect<br/>và chuẩn hóa process/socket"]
-    PODS["pods.json"] --> RESOLVE["Tra cứu destination IP"]
-    SERVICES["services.json"] --> RESOLVE
-    ENDPOINTS["endpointslices.json"] --> RESOLVE
-    NORMALIZE --> RESOLVE
-    RESOLVE --> OUTPUT["connect-edges.jsonl<br/>giữ destination unresolved nếu không khớp"]
-```
-
-Sơ đồ trên chỉ mô tả thao tác CLI đã triển khai: nhận file Tetragon và inventory,
-chuẩn hóa connect event, tra cứu địa chỉ và ghi edge. IP lookup dựa trên snapshot
-nên có thể lỗi thời sau rollout; địa chỉ chưa resolve được giữ nguyên.
-
-Một `sys_connect` event thể hiện **attempt** với đối số syscall, không tự
-chứng minh TCP handshake thành công. Tool này chỉ ghi connect edge; không ghép
-Pulse alert, không dựng cây RCA và không đọc payload ứng dụng.
 
 ## 4. Feature vector 249 chiều
 
