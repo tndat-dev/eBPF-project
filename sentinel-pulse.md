@@ -54,7 +54,7 @@ flowchart TB
     APP["Pod/container trong namespace production"] --> CALL["Linux kernel · raw_tp/sys_enter"]
     RES["cgroup resolver<br/>Pod UID → container → cgroup ID → revision<br/>allow-list và metadata"] --> COL
     CALL --> COL["eBPF collector systemd<br/>exact syscall/security counters<br/>64 syscall bins + 64 transition bins<br/>snapshot 500 ms · formal run"]
-    COL --> DELTA["Delta giữa hai cumulative snapshots"]
+    COL --> DELTA["Số syscall trong cửa sổ 500 ms<br/>= số đếm mới − số đếm lần trước"]
     DELTA --> VECTOR["Feature vector / workload / container<br/>249 chiều; rolling mean/std nằm trong vector"]
     VECTOR --> CONTEXT["3 feature window trước + hiện tại<br/>đầu vào model = 4 × 249 = 996 chiều"]
     CONTEXT --> MODEL["PulseExtraTrees classifier<br/>21 model theo workload<br/>score class corrupted → conformal p-value"]
