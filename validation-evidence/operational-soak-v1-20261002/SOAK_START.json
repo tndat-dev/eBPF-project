@@ -1,0 +1,157 @@
+{
+  "automatic_promotion": false,
+  "blind_evaluation_started": false,
+  "control_collector_suspended_hosts": [
+    "10.1.16.237",
+    "10.1.16.239",
+    "10.1.16.238"
+  ],
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "eligible_finalize_after": "2026-10-03T04:58:00.598401+00:00",
+  "legacy_control_collector_required_state": "inactive",
+  "maintenance_window_guard": {
+    "required_state": "masked",
+    "units": [
+      "unattended-upgrades.service",
+      "apt-daily.timer",
+      "apt-daily-upgrade.timer"
+    ]
+  },
+  "maximum_alerts": 0,
+  "maximum_root_used_percent": 85,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "minimum_root_available_bytes": 68719476736,
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "operational_evaluation_contract": {
+    "cnpg_clusters": [
+      "aims-postgres-cnpg"
+    ],
+    "expected_workloads": [
+      "production/aims-frontend:web",
+      "production/aims-kafka-dual-role:kafka",
+      "production/aims-kafka-entity-operator:topic-operator",
+      "production/aims-kafka-entity-operator:user-operator",
+      "production/aims-minio-pool-0:minio",
+      "production/aims-minio-pool-0:sidecar",
+      "production/aims-postgres-cnpg:postgres",
+      "production/aims-rabbitmq-server:rabbitmq",
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+      "production/aims-redis:aims-redis",
+      "production/aims-waypoint:istio-proxy",
+      "production/api-gateway:app",
+      "production/auth-service:app",
+      "production/cart-service:app",
+      "production/catalog-service:app",
+      "production/inventory-service:app",
+      "production/notification-service:app",
+      "production/order-service:app",
+      "production/payment-service:app",
+      "production/search-recommendation-service:app",
+      "production/security-telemetry-service:app"
+    ],
+    "longhorn_volumes": [
+      "pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502",
+      "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+      "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+      "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+      "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+      "pvc-67599f47-06e8-4a0d-958b-614b69894ed8",
+      "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+      "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c",
+      "pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6",
+      "pvc-a56e96b0-933e-432f-a59c-74cc8f6a04f9",
+      "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+      "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+      "pvc-d32c9b4f-5a32-4003-86bc-471d1f7c1e2d",
+      "pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4",
+      "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+      "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6"
+    ],
+    "minimum_ready_pods": {
+      "production/aims-frontend": 1,
+      "production/aims-kafka-dual-role": 3,
+      "production/aims-kafka-entity-operator": 1,
+      "production/aims-minio-pool-0": 2,
+      "production/aims-postgres-cnpg": 3,
+      "production/aims-rabbitmq-server": 3,
+      "production/aims-redis": 3,
+      "production/aims-redis-sentinel-sentinel": 3,
+      "production/aims-sentinel-dependency-loadgen": 1,
+      "production/aims-sentinel-ingress-loadgen": 1,
+      "production/aims-sentinel-loadgen": 1,
+      "production/aims-waypoint": 1,
+      "production/api-gateway": 1,
+      "production/auth-service": 1,
+      "production/cart-service": 1,
+      "production/catalog-service": 1,
+      "production/inventory-service": 1,
+      "production/notification-service": 1,
+      "production/order-service": 1,
+      "production/payment-service": 1,
+      "production/search-recommendation-service": 1,
+      "production/security-telemetry-service": 1
+    },
+    "profile": {
+      "additional_workloads": [
+        "production/aims-sentinel-loadgen",
+        "production/aims-sentinel-ingress-loadgen",
+        "production/aims-sentinel-dependency-loadgen"
+      ],
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "maximum_alerts_per_hour_per_workload": 0.05,
+      "maximum_alerts_per_workload_hour": 0.01,
+      "maximum_excluded_seconds": 900,
+      "maximum_health_observation_gap_seconds": 180,
+      "maximum_recovery_seconds": 300,
+      "recovery_exclusion_seconds": 30,
+      "schema": "sentinel-pulse-operational-soak-contract-v1"
+    },
+    "profile_sha256": "3832b990663e4a15b7da0991fcc49057d856d83741b41e1ab45813472fb76723",
+    "ready_pods_at_registration": {
+      "production/aims-frontend": 2,
+      "production/aims-kafka-dual-role": 3,
+      "production/aims-kafka-entity-operator": 1,
+      "production/aims-minio-pool-0": 2,
+      "production/aims-postgres-cnpg": 3,
+      "production/aims-rabbitmq-server": 3,
+      "production/aims-redis": 3,
+      "production/aims-redis-sentinel-sentinel": 3,
+      "production/aims-sentinel-dependency-loadgen": 1,
+      "production/aims-sentinel-ingress-loadgen": 1,
+      "production/aims-sentinel-loadgen": 1,
+      "production/aims-waypoint": 4,
+      "production/api-gateway": 4,
+      "production/auth-service": 4,
+      "production/cart-service": 4,
+      "production/catalog-service": 4,
+      "production/inventory-service": 4,
+      "production/notification-service": 4,
+      "production/order-service": 4,
+      "production/payment-service": 4,
+      "production/search-recommendation-service": 4,
+      "production/security-telemetry-service": 4
+    },
+    "source_contract_sha256": "c08a15b023f7ed40207d6362b75d2d39b8b23b4e958844b28899902eca90359d",
+    "worker_nodes": [
+      "k8s-worker1.local",
+      "k8s-worker3.local",
+      "k8s-worker4.local"
+    ]
+  },
+  "registered_collector_duration_seconds": 90000,
+  "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+  "schema": "sentinel-pulse-semantic-soak-start-v8",
+  "source_git_commit": "464bb99c3dc69611d4bb05f8b16434e7a9c0b4ab",
+  "started_not_before": "2026-10-02T04:08:00.598401+00:00",
+  "storage_topology_guard": {
+    "colocated_running_replicas": 0,
+    "duplicate_longhorn_disk_uuids": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  }
+}

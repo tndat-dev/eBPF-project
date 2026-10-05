@@ -12,6 +12,10 @@ BLIND_RUN_ID=${BLIND_RUN_ID:-pulse500-blind-$(date -u +%Y%m%dT%H%M%SZ)}
 BLIND_EVIDENCE_ROOT=${BLIND_EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$BLIND_RUN_ID}
 FINALIZE_MARGIN_SECONDS=${FINALIZE_MARGIN_SECONDS:-300}
 STOP_AFTER_NORMAL=${STOP_AFTER_NORMAL:-false}
+OPERATIONAL_CONTRACT_SOURCE=${OPERATIONAL_CONTRACT_SOURCE:-}
+COLLECTOR_VARIANT=${COLLECTOR_VARIANT:-legacy}
+PROJECTED_CANARY_PLAN_SOURCE=${PROJECTED_CANARY_PLAN_SOURCE:-}
+export COLLECTOR_VARIANT PROJECTED_CANARY_PLAN_SOURCE
 TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
 TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-0.999}
 TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-10.0}
@@ -100,6 +104,47 @@ if [[ -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
     echo "resume telemetry contract does not match SOAK_START.json" >&2
     exit 6
   fi
+  operational_sha=$(jq -r '.operational_evaluation_contract.source_contract_sha256 // empty' \
+    "$NORMAL_EVIDENCE_ROOT/SOAK_START.json")
+  supplied_operational_sha=
+  if [[ -n $OPERATIONAL_CONTRACT_SOURCE ]]; then
+    supplied_operational_sha=$(sha256sum "$OPERATIONAL_CONTRACT_SOURCE" | awk '{print $1}')
+  fi
+  if [[ $operational_sha != "$supplied_operational_sha" ]]; then
+    phase terminal_resume_operational_contract_mismatch
+    echo "resume operational contract does not match SOAK_START.json" >&2
+    exit 6
+  fi
+  collector_args=(--variant "$COLLECTOR_VARIANT" --model-sha "$supplied_model_sha" --policy-sha "$supplied_policy_sha")
+  [[ -z $PROJECTED_CANARY_PLAN_SOURCE ]] || collector_args+=(--plan "$PROJECTED_CANARY_PLAN_SOURCE")
+  if ! PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.collector_contract \
+      --marker "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" "${collector_args[@]}" >/dev/null; then
+    phase terminal_resume_collector_contract_mismatch
+    exit 6
+  fi
+  # Preserve the identity/telemetry rejection diagnostics above, then bind
+  # capacity before any monitor or remote action. New-run defaults must not
+  # silently alter the capacity contract of a resumed run.
+  capacity_args=()
+  [[ ! ${MINIMUM_ROOT_AVAILABLE_BYTES+x} ]] || capacity_args+=(--minimum "$MINIMUM_ROOT_AVAILABLE_BYTES")
+  [[ ! ${MAXIMUM_ROOT_USED_PERCENT+x} ]] || capacity_args+=(--maximum "$MAXIMUM_ROOT_USED_PERCENT")
+  if ! capacity=$(PYTHONPATH="$LOCAL_ROOT" python3 -m sentinel_pulse.capacity_contract \
+      --marker "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" "${capacity_args[@]}"); then
+    phase terminal_resume_capacity_contract_mismatch
+    exit 6
+  fi
+  read -r MINIMUM_ROOT_AVAILABLE_BYTES MAXIMUM_ROOT_USED_PERCENT <<<"$capacity"
+  export MINIMUM_ROOT_AVAILABLE_BYTES MAXIMUM_ROOT_USED_PERCENT
+fi
+if [[ -n $OPERATIONAL_CONTRACT_SOURCE ]]; then
+  # OPERATIONAL_PASS must never satisfy the legacy zero-alert blind interlock.
+  STOP_AFTER_NORMAL=true
+  DURATION_SECONDS=90000
+  export OPERATIONAL_CONTRACT_SOURCE DURATION_SECONDS FINALIZE_MARGIN_SECONDS
+fi
+if [[ -e "$NORMAL_EVIDENCE_ROOT/OPERATIONAL_PASS" ]]; then
+  phase lifecycle_complete_after_operational_normal
+  exit 0
 fi
 
 if [[ ! -e "$NORMAL_EVIDENCE_ROOT/SOAK_START.json" ]]; then
@@ -186,6 +231,10 @@ PY
   fi
 fi
 
+if [[ -e "$NORMAL_EVIDENCE_ROOT/OPERATIONAL_PASS" ]]; then
+  phase lifecycle_complete_after_operational_normal
+  exit 0
+fi
 test -e "$NORMAL_EVIDENCE_ROOT/NORMAL_PASS"
 if [[ $STOP_AFTER_NORMAL == true ]]; then
   phase lifecycle_complete_after_normal

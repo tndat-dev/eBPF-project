@@ -21,3 +21,13 @@ validation-evidence/**/*.pkl
 validation-evidence/**/decisions.jsonl
 validation-evidence/**/alerts.jsonl
 validation-evidence/**/MONITOR.jsonl
+
+# Raw observers and API payloads remain on VM/host, outside the Git publication.
+# Receipts, digests and adjudication reports are still versioned.
+validation-evidence/**/clock.jsonl
+validation-evidence/**/runtime.txt
+validation-evidence/**/journal.txt
+validation-evidence/**/PREFLIGHT_PRODUCTION_PODS.json
+validation-evidence/**/FAILURE_PRODUCTION_PODS.json
+validation-evidence/**/workload-pods-start.json
+validation-evidence/**/WORKLOAD_FINGERPRINT_OBSERVED.json

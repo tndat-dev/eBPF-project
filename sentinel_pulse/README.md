@@ -1,7 +1,143 @@
 # Sentinel Pulse
 
+## Current status
+
+SSH/receipts reviewed on 2026-10-05. Update this block in place, keep raw
+evidence separately. **Formal recovery soak is now running in the background**:
+`pulse-recovery-formal-c1-20261005`, registered09:06:19 ICT,89880s/node,
+diagnostic_only=false. All3 worker legs active/tail ready,0 detector restarts,
+dependency health not degraded at START receipt; union21/21 model keys.
+
+Frozen coordinator source remains`1c03987`; model249/history3/alpha0.001
+and the21 ExtraTrees models/policy are unchanged. An external source-hashed
+capacity guard preregisters used<90%/available>0, probes every30s and limits
+unknown observations to60s. No fixed64GiB reserve, deletion or pod shutdown;
+no retroactive changes to old85% contracts. It only stops its owned child
+and does not issue formal PASS.
+
+The180s/node guard diagnostic completed09:04:50 ICT:23413 decisions,
+19812 scored,0 alerts; retain433 suppressed,2791 degraded and810 warming.
+3 valid node reports; coordinator12/12 and guard4/4 seal digests match.
+Union scored exposure0.93272273workload-hours is NOT24h/key or zero-FPR proof.
+Main+guard tests: subset168 host/VM, full host892+20subtests/7skip,
+VM933+20subtests; optional dependencies differ.
+
+No formal terminal/PASS or blind attack evidence yet. Kernel-to-alert1–2s
+is an **unmeasured target**. Review around10:40 ICT2026-10-06, allowing for
+finalization, not guaranteeing success. Blind evaluation/promotion remain
+manual and closed.
+
+[Formal START receipt](../validation-evidence/recovery-formal-c1-20261005/START_REMOTE_RECEIPT.json),
+[guard diagnostic terminal](../validation-evidence/recovery-capacity-c1-20261005/TERMINAL_REMOTE_RECEIPT.json),
+[tests](../validation-evidence/recovery-capacity-c1-20261005/TEST_RECEIPT.json),
+[real flow and all249 features](../SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md).
+Historical SSH review 2026-10-04 22:17 ICT: the three-worker recovery coordinator
+is deployed on frozen source `dd872e7`. A new 600s/node diagnostic registered
+22:16:03 covers a union of21/21 model keys. All3 worker legs active/tail ready,
+0 detector restarts; coordinator monitoring, dependency health not degraded.
+Parallel bounded probes, audit journals and streaming finalization are wired;
+no terminal end-to-end verdict or24h formal PASS yet. Review around22:30 ICT.
+Host832 tests +20 subtests pass (7 skips); VM873 +20 pass (optional dependencies
+differ). Frozen model/policy unchanged; no automatic blind/promotion.
+[Live receipt](../validation-evidence/recovery-fleet-diagnostic-c1-20261004/START_REMOTE_RECEIPT.json),
+[lifecycle status](../PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+
+Historical SSH review 2026-10-04 21:40–21:50 ICT: fault diagnostic C1 finished
+18:49:02, exit0.19 run +3 registration +177 source checksums verified;
+independent replay matches the frozen report.80,084 decisions/78,779 scored
+rows/19 keys/0 alerts; preserve769 degraded and536 warming rows. One actual
+quarantine-to-clean recovery; final availability0.999437254 passes0.999 floor.
+Window-start to post-policy decision p99 1.132s/max1.351s is conditional on
+fresh scored rows; excludes output flush and is NOT kernel-to-alert. Candidate
+and experiment stopped; control/resolver active. No remaining job for this run.
+
+New formal freshness/attestation installer bridge and worker launcher pass
+557 tests +20 subtests on host/VM. The three-worker SSH/systemd coordinator
+and end-to-end finalization are not integrated yet; no formal recovery soak
+or PASS. Model/calibration/policy unchanged; blind/promotion closed.
+[Terminal receipt](../validation-evidence/recovery-fault-smoke-c1-20261004/TERMINAL_REMOTE_RECEIPT.json).
+
+Latest SSH review 2026-10-04: recovery C2 smoke completed; **formal recovery
+lifecycle is not integrated and no formal recovery soak is running**.
+[Current status/evidence](../PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+
+Checkpoint 2026-10-04: pressure C2 rejected at00:02:31 ICT:179,034 decisions,
+one Redis Sentinel alert. Worker4 also failed capture validation (13.209s gap,
+availability0.990699). Preserve the alert and verdict; no infrastructure excuse
+or FPR-zero claim. All three observers completed with23 verified checksums/node.
+Recovery worker installers/unit rendering and a separate runtime smoke evaluator
+are implemented; formal recovery lifecycle/exposure integration is still missing.
+Old02:10 review schedules below are historical.
+[Incident and implementation](../docs/archive/PULSE_PRESSURE_C2_INCIDENT_20261004.md).
+
+Latest checkpoint, 2026-10-03 ~23:40 ICT: opt-in telemetry quarantine/replay
+core tested on host/VM (435 tests +20 subtests), frozen source `936d3df`.
+NOT yet integrated into the formal operational lifecycle. Frozen model/policy
+unchanged. Pressure diagnostic C1 was rejected; its observers failed126 before
+sampling. New launcher verifies actual clock samples, sar data and source
+hashes. Observer C2 ready3/3 from23:36; ML diagnostic C2 START23:37:48,
+7200s, legacy telemetry gates, no recovery enabled. Next terminal review around
+02:10 ICT2026-10-04. No FPR/recall/kernel-to-alert claim.
+See [recovery implementation and remaining work](../PULSE_TELEMETRY_RECOVERY.md).
+
+Terminal verified 2026-10-03 11:50:47 ICT: projected ML canary completed valid,
+114,984 decisions, 21/21 keys, zero alerts/restarts. START 10/10 and FINAL
+76/76 checksums verified. Inference p99 30.092 ms; window start to post-model
+timestamp p99 1.053 s excludes policy/output, not kernel-to-alert. Candidate
+stopped; control collectors restored. Preparing a fresh projected operational
+soak with frozen model/policy and collector provenance bound at launch,
+resume and every monitor poll. Earlier ACTIVE checkpoints below are historical.
+
+Latest checkpoint (2026-10-03, 10:15 ICT): a new projected-counter ML canary
+is active on all three workers with the frozen R10-C1 model/policy. Main
+regression passed 375 tests and 20 subtests on host and VM. Control collector
+binaries remain checksum-identical; projected binaries are private to the
+experiment run. See [ML canary](../docs/archive/PROJECTED_ML_CANARY_20261003.md).
+The 10:02 collector-only checkpoint below is historical; ML is no longer
+inactive. This new canary is non-formal/audit-only, not an operational pass.
+
+Current update (2026-10-03): R10-C3 was infrastructure-rejected, archived and
+stopped; it is not a passing normal/operational gate. Worker1's opt-in projected
+counter canary passed a full collector safety review; worker3/4 canaries are
+terminal with valid full captures at 09:59 ICT; final source/duration/coverage
+reviews passed on both nodes around 10:01 ICT: all three collector safety
+reviews passed, 117,412 rows and observed union coverage of 21 keys.
+There is no outstanding collector canary/review job. Pulse ML candidate is
+inactive, production/control binaries unchanged. Main source regression passed
+370 tests and 20 subtests on both host and VM. See
+[projected counter evidence](../docs/archive/PROJECTED_COUNTER_CANARY.md).
+[Operational soak](../OPERATIONAL_SOAK_RUNBOOK.md) is opt-in and never opens
+the legacy blind/promotion interlock. See the
+[249-feature layout](../SENTINEL_PULSE_FEATURES_249.md) and
+[V8 model retirement](../docs/archive/V8_MODEL_RETIREMENT.md); references to preserving V8
+below describe the original isolation design, not currently installed artifacts.
+
 Sentinel Pulse is the isolated one-second ML candidate. It does not overwrite
 the frozen V8 models, policy evidence, or production detector.
+
+## Projected collector safety review
+
+`make -C sentinel_pulse/ebpf projected` builds a separate loader/object; the
+default target remains legacy. Do not mix the two map ABIs or install the
+experimental collector just because a short canary tail is valid.
+
+Review a completed capture with explicit **node-local** expected workload keys,
+not the fleet's full 21-key list or a list inferred from observed rows:
+
+```bash
+python -m sentinel_pulse.evaluate_projected_counter_canary \
+  --run-dir /var/lib/sentinel-pulse-projection-canary/<run-id> \
+  --expected-workload-keys /path/to/node-expected-keys.json \
+  --output /path/to/fresh-safety-review.json
+```
+
+The expectation used for worker1 is registered start metadata intersected with
+the frozen manifest keys; its 16-key list and review are under
+`validation-evidence/projected-counter-c1-20261002/`. The evaluator rereads raw
+capture, binds its checksum and registered artifacts, verifies duration within
+2-second startup slack, checks coverage and rejects nonzero integrity/cadence
+counters. Output uses exclusive creation. It never trains/promotes a model or
+converts collector-only results into ML accuracy/latency evidence.
 
 ## Data path
 
@@ -640,6 +776,14 @@ samples and final kernel logs with checksums, without changing workloads.
 Node diagnostics are under `/var/lib/sentinel-pulse-diagnostics/<run_id>/`.
 This does not open the old B7 blind contract or establish a formal normal pass.
 
+As of 2026-10-02, the observer also records one-second NIC/TCP counters,
+clock/PSI samples and final kubelet/containerd journals. Deploy
+`record_node_pressure.sh` **together with** `node_clock_probe.py` in the same
+directory. Clock flags identify observer delay or wall/monotonic offset change,
+not their root cause; this diagnostic never changes the ML decision policy.
+R10-C2 diagnosis and the six-hour background observer are documented in
+`validation-evidence/longhorn-r10-c2-diagnosis-20261002/README.md`.
+
 R3 completed valid at 2026-09-07 10:36 UTC. It recorded 517,956 decisions,
 513,271 scored decisions, zero alerts/restarts and all 20 workload-container
 keys over at least 7,201.959 seconds. Inference p99 was 30.197 ms;
@@ -757,3 +901,14 @@ valid because the preregistered full-run budget is 180 snapshots and the
 single-gap bound is 10 seconds. Gap decisions were reset to
 `warming_reason=temporal_gap` followed by `history_fill`, not scored across the
 missing interval. This is an active checkpoint, not a terminal normal pass.
+## Current recovery lifecycle
+
+Recovery preregistration/supervision/finalization and scored exposure are now
+wired through a three-worker coordinator. Fleet diagnostic C2 finished with
+integrity gate=true; no24h/key formal PASS and no formal soak running.
+Historical C2 smoke
+terminal10:56:48 ICT:26,648 decisions,19 scored keys,
+0 alerts, no recovery incident. All-run window-start→post-model p9912.551s;
+after120s startup p991.907s. Neither is kernel-to-alert. Processing-age gate
+is a separate opt-in under validation; no model/policy tuning or formal PASS.
+See [status and raw evidence references](../PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).

@@ -1,0 +1,219 @@
+{
+  "schema": "sentinel-pulse-live-run-checkpoint-v1",
+  "checked_at": "2026-10-02T04:36:58.684265+00:00",
+  "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+  "markers": [
+    "ACTIVE"
+  ],
+  "services": {
+    "sentinel-pulse-operational-r10-c3-20261002.service": "active",
+    "sentinel-pulse-operational-r10-c3-20261002-supervisor.service": "active"
+  },
+  "workers": {
+    "10.1.16.237": {
+      "checked_at_unix": 1790915762.2515166,
+      "host": "10.1.16.237",
+      "collector": "active",
+      "legacy_control_collector": "inactive",
+      "detector": "active",
+      "nrestarts": 0,
+      "decisions": 70806,
+      "alerts": 0,
+      "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "feature_tail": {
+        "collector_max_drops": {
+          "capture_interval_violation": 0,
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "collector_telemetry_availability": {
+          "availability": 1,
+          "cadence_violation_events": 0,
+          "estimated_missing_snapshots": 0,
+          "maximum_snapshot_interval_seconds": 0.640662431716919,
+          "minimum_snapshot_interval_seconds": 0.5036835670471191,
+          "observed_snapshots": 3308,
+          "schema": "sentinel-pulse-telemetry-availability-v1",
+          "short_interval_events": 0
+        },
+        "errors": [],
+        "feature_age_seconds": 0.21231675148010254,
+        "feature_interval_seconds": 0.5049598217010498,
+        "interval_seconds": 0.5049598217010498,
+        "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "schema": "sentinel-pulse-feature-tail-health-v1",
+        "telemetry_availability_contract": {
+          "maximum_capture_interval_violations": null,
+          "maximum_estimated_missing_snapshots": 180,
+          "maximum_single_gap_seconds": 10,
+          "minimum_availability": 0.999,
+          "nominal_interval_seconds": 0.5
+        },
+        "telemetry_degraded": false,
+        "valid": true,
+        "window_end": 1790915761.9670784,
+        "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+      }
+    },
+    "10.1.16.239": {
+      "checked_at_unix": 1790915765.1918867,
+      "host": "10.1.16.239",
+      "collector": "active",
+      "legacy_control_collector": "inactive",
+      "detector": "active",
+      "nrestarts": 0,
+      "decisions": 70442,
+      "alerts": 0,
+      "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "feature_tail": {
+        "collector_max_drops": {
+          "capture_interval_violation": 0,
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "collector_telemetry_availability": {
+          "availability": 1,
+          "cadence_violation_events": 0,
+          "estimated_missing_snapshots": 0,
+          "maximum_snapshot_interval_seconds": 0.532006025314331,
+          "minimum_snapshot_interval_seconds": 0.5036923885345459,
+          "observed_snapshots": 3261,
+          "schema": "sentinel-pulse-telemetry-availability-v1",
+          "short_interval_events": 0
+        },
+        "errors": [],
+        "feature_age_seconds": 0.5169742107391357,
+        "feature_interval_seconds": 0.5041265487670898,
+        "interval_seconds": 0.5041265487670898,
+        "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "schema": "sentinel-pulse-feature-tail-health-v1",
+        "telemetry_availability_contract": {
+          "maximum_capture_interval_violations": null,
+          "maximum_estimated_missing_snapshots": 180,
+          "maximum_single_gap_seconds": 10,
+          "minimum_availability": 0.999,
+          "nominal_interval_seconds": 0.5
+        },
+        "telemetry_degraded": false,
+        "valid": true,
+        "window_end": 1790915764.6127155,
+        "workload_key": "production/order-service:app"
+      }
+    },
+    "10.1.16.238": {
+      "checked_at_unix": 1790915768.400193,
+      "host": "10.1.16.238",
+      "collector": "active",
+      "legacy_control_collector": "inactive",
+      "detector": "active",
+      "nrestarts": 0,
+      "decisions": 71701,
+      "alerts": 0,
+      "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+      "feature_tail": {
+        "collector_max_drops": {
+          "capture_interval_violation": 0,
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "collector_telemetry_availability": {
+          "availability": 1,
+          "cadence_violation_events": 0,
+          "estimated_missing_snapshots": 0,
+          "maximum_snapshot_interval_seconds": 0.5209774971008301,
+          "minimum_snapshot_interval_seconds": 0.5036356449127197,
+          "observed_snapshots": 3213,
+          "schema": "sentinel-pulse-telemetry-availability-v1",
+          "short_interval_events": 0
+        },
+        "errors": [],
+        "feature_age_seconds": 0.1441807746887207,
+        "feature_interval_seconds": 0.5063247680664062,
+        "interval_seconds": 0.5063247680664062,
+        "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "schema": "sentinel-pulse-feature-tail-health-v1",
+        "telemetry_availability_contract": {
+          "maximum_capture_interval_violations": null,
+          "maximum_estimated_missing_snapshots": 180,
+          "maximum_single_gap_seconds": 10,
+          "minimum_availability": 0.999,
+          "nominal_interval_seconds": 0.5
+        },
+        "telemetry_degraded": false,
+        "valid": true,
+        "window_end": 1790915768.1629336,
+        "workload_key": "production/cart-service:app"
+      }
+    }
+  },
+  "total_decisions_at_asynchronous_latest_checks": 212949,
+  "total_alerts_at_asynchronous_latest_checks": 0,
+  "health": {
+    "binding_sha256": "c64a958817cfa56342cd9a4e4f9cc90a72c7cfc0f2a286c4944864722a28513e",
+    "checked_at_unix": 1790915757.7654786,
+    "degraded": false,
+    "excluded_interval": null,
+    "excluded_seconds": 0,
+    "fatal": [],
+    "outage_started_at": null,
+    "schema": "sentinel-pulse-operational-health-v1",
+    "transient": [],
+    "warnings": []
+  },
+  "nodes": [
+    {
+      "name": "k8s-master.local",
+      "version": "v1.34.10",
+      "ready": true
+    },
+    {
+      "name": "k8s-master2.local",
+      "version": "v1.34.10",
+      "ready": true
+    },
+    {
+      "name": "k8s-master3.local",
+      "version": "v1.34.10",
+      "ready": true
+    },
+    {
+      "name": "k8s-worker1.local",
+      "version": "v1.34.10",
+      "ready": true
+    },
+    {
+      "name": "k8s-worker3.local",
+      "version": "v1.34.10",
+      "ready": true
+    },
+    {
+      "name": "k8s-worker4.local",
+      "version": "v1.34.10",
+      "ready": true
+    }
+  ],
+  "longhorn_robustness": {
+    "healthy": 29
+  },
+  "bundle_sha256": {
+    "model/manifest.json": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "decision-policy.json": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143"
+  },
+  "terminal_pass_claim_allowed": false,
+  "kernel_to_alert_claim_allowed": false
+}

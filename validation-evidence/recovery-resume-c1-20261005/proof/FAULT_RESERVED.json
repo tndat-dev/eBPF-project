@@ -1,0 +1,27 @@
+{
+  "contract_sha256": "ed46c1b6787352f2880420b63a20fcf4a34a1183de4fb010f1974f5bb9a70781",
+  "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+  "pidfd_used": true,
+  "previous_state": {
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "checked_at_unix": 1791164423.8112736,
+    "degraded_workers": [],
+    "errors": [],
+    "finished_workers": [],
+    "formal_recovery_pass": false,
+    "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+    "phase": "monitoring",
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+    "unknown_since": {}
+  },
+  "reserved_at_unix": 1791164424.6499953,
+  "target": {
+    "ActiveState": "active",
+    "InvocationID": "23845a54ac534aa49f1b9c1e643ad24b",
+    "MainPID": "3206548",
+    "Result": "success",
+    "User": "dat"
+  }
+}

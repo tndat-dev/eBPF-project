@@ -1,0 +1,9 @@
+{
+  "killed_at_unix": 1791164424.6518245,
+  "registration_replaced": false,
+  "reserved_sha256": "d4aa8bbb580d0608d97dc2ffd9bc364b7404a009f1770eccbf6bad7da4168483",
+  "resume_launched_at_unix": 1791164424.6828651,
+  "run_id": "pulse-recovery-resume-c1-20261005",
+  "schema": "sentinel-pulse-coordinator-resume-fault-event-v1",
+  "worker_relaunch": false
+}

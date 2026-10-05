@@ -2,6 +2,11 @@
 # Preregister and start a non-promoting 25-hour Pulse live-normal soak.
 set -euo pipefail
 
+if [[ -n ${TELEMETRY_RECOVERY_PROFILE_SOURCE:-} ]]; then
+  echo 'recovery requires its separate diagnostic launcher; formal integration is not enabled' >&2
+  exit 2
+fi
+
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 REMOTE_ROOT=${REMOTE_ROOT:-/home/dat/eBPF-project}
 MODEL_SOURCE=${MODEL_SOURCE:?MODEL_SOURCE must be an absolute candidate directory}
@@ -16,12 +21,16 @@ TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-0.999}
 TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-10.0}
 # Do not start a multi-hour capture simply because kubelet has not yet set
 # DiskPressure.  A3 showed that the eviction signal can arrive after the
-# experiment has started; keep enough root filesystem headroom for Longhorn,
-# container image GC and immutable raw evidence.
-MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-68719476736}
+# experiment has started. Keep the percentage and node-pressure guards;
+# a fixed free-byte floor is optional, not a mandatory 64 GiB reserve.
+MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-0}
 MAXIMUM_ROOT_USED_PERCENT=${MAXIMUM_ROOT_USED_PERCENT:-80}
 SUSPEND_CONTROL_COLLECTOR=${SUSPEND_CONTROL_COLLECTOR:-false}
 PYTHON=${PYTHON:-python3}
+OPERATIONAL_CONTRACT_SOURCE=${OPERATIONAL_CONTRACT_SOURCE:-}
+COLLECTOR_VARIANT=${COLLECTOR_VARIANT:-legacy}
+PROJECTED_CANARY_PLAN_SOURCE=${PROJECTED_CANARY_PLAN_SOURCE:-}
+operational_binding=
 SSH_USER=${SSH_USER:-dat}
 EVIDENCE_ROOT=${EVIDENCE_ROOT:-$LOCAL_ROOT/validation-evidence/sentinel-pulse-campaign/$RUN_ID}
 WORKERS=(
@@ -55,9 +64,8 @@ command -v jq >/dev/null
   ((PREFLIGHT_TIMEOUT_SECONDS >= PREFLIGHT_STABILITY_SECONDS)) || {
     echo "preflight timeout must cover the stability interval" >&2; exit 2;
   }
-[[ $MINIMUM_ROOT_AVAILABLE_BYTES =~ ^[0-9]+$ ]] &&
-  ((MINIMUM_ROOT_AVAILABLE_BYTES >= 34359738368)) || {
-    echo "minimum root availability must be at least 32 GiB" >&2; exit 2;
+[[ $MINIMUM_ROOT_AVAILABLE_BYTES =~ ^[0-9]+$ ]] || {
+    echo "minimum root availability must be a non-negative byte count (0 disables the floor)" >&2; exit 2;
   }
 [[ $MAXIMUM_ROOT_USED_PERCENT =~ ^[0-9]+$ ]] &&
   ((MAXIMUM_ROOT_USED_PERCENT >= 1 && MAXIMUM_ROOT_USED_PERCENT <= 99)) || {
@@ -136,6 +144,11 @@ interrupt() {
 trap interrupt INT TERM
 
 cluster_health_snapshot() {
+  if [[ -n $operational_binding ]]; then
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.operational_soak \
+      snapshot --binding "$operational_binding"
+    return $?
+  fi
   local node_bad pod_bad longhorn_bad longhorn_disk_bad
   local longhorn_replica_bad cnpg_bad total
   total=$(kubectl get nodes -o json | jq '.items | length')
@@ -237,6 +250,36 @@ policy_sha=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
 source_commit=$(git -C "$LOCAL_ROOT" rev-parse HEAD)
 source_dirty=$(git -C "$LOCAL_ROOT" status --porcelain --untracked-files=no)
 [[ -z $source_dirty ]] || { echo "tracked source worktree is dirty" >&2; exit 3; }
+collector_args=(--variant "$COLLECTOR_VARIANT" --model-sha "$model_sha" --policy-sha "$policy_sha")
+[[ -z $PROJECTED_CANARY_PLAN_SOURCE ]] || collector_args+=(--plan "$PROJECTED_CANARY_PLAN_SOURCE")
+collector_binding=$(PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.collector_contract "${collector_args[@]}")
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  unit_sha=$(sha256sum "$LOCAL_ROOT/sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service" | awk '{print $1}')
+  collector_binding=$(jq --arg unit "$unit_sha" '. + {unit_sha256:$unit, artifacts:{}}' <<<"$collector_binding")
+fi
+if [[ -n $OPERATIONAL_CONTRACT_SOURCE ]]; then
+  [[ $OPERATIONAL_CONTRACT_SOURCE == "$LOCAL_ROOT"/* ]] || exit 2
+  ((DURATION_SECONDS == 90000)) || {
+    echo "operational soak requires the preregistered 25-hour collector bound" >&2; exit 2;
+  }
+  python3 - "$TELEMETRY_MINIMUM_AVAILABILITY" "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
+    "$MINIMUM_DURATION_HOURS" "$POLICY_SOURCE" <<'PY'
+import json, math, pathlib, sys
+minimum, gap, hours = map(float, sys.argv[1:4])
+if not all(map(math.isfinite, (minimum, gap, hours))) or minimum < 0.999 or gap > 10 or not 24 <= hours <= 24.5:
+    raise SystemExit("invalid operational telemetry/exposure contract")
+policy = json.loads(pathlib.Path(sys.argv[4]).read_text())
+for section, key in (("bounded_event_time_corroboration", "maximum_evidence_age_seconds"),
+                     ("temporal_confirmation", "maximum_gap_seconds")):
+    horizon = float((policy.get(section) or {}).get(key, 0))
+    if not math.isfinite(horizon) or horizon > 30:
+        raise SystemExit("policy horizon exceeds operational recovery exclusion")
+PY
+  operational_binding=$(PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m \
+    sentinel_pulse.operational_soak bind --contract "$OPERATIONAL_CONTRACT_SOURCE" \
+    --model-manifest "$MODEL_SOURCE/manifest.json" \
+    --worker-nodes k8s-worker1.local k8s-worker3.local k8s-worker4.local)
+fi
 
 # Stage the exact source/model and install only the dependency-hardened base
 # units before the stability interval and before creating the immutable marker.
@@ -257,6 +300,14 @@ for target in "${WORKERS[@]}"; do
   remote "$host" \
     "cd '$REMOTE_ROOT/$model_rel' && sha256sum -c manifest.sha256"
   [[ $(remote "$host" sha256sum "$REMOTE_ROOT/$policy_rel" | awk '{print $1}') == "$policy_sha" ]]
+  if [[ $COLLECTOR_VARIANT == projected ]]; then
+    safety_run=$(jq -er --arg host "$host" '.safety_runs[$host]' <<<"$collector_binding")
+    selection=$(remote_sudo "$host" env PYTHONPATH="$REMOTE_ROOT" \
+      /opt/sentinel-pulse/venv/bin/python -m sentinel_pulse.select_projected_collector \
+      --canary-run-dir "$safety_run" --model-manifest "$REMOTE_ROOT/$model_rel/manifest.json")
+    collector_binding=$(jq --arg host "$host" --argjson selection "$selection" \
+      '.artifacts[$host] = $selection' <<<"$collector_binding")
+  fi
   remote_sudo "$host" install -m 0644 \
     "$REMOTE_ROOT/sentinel_pulse/systemd/sentinel-pulse-resolver.service" \
     /etc/systemd/system/sentinel-pulse-resolver.service
@@ -297,18 +348,19 @@ PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.workload_fingerprint \
   --output "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json"
 
 # The marker exists before any experimental collector or detector starts.
-python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
+PYTHONPATH="$LOCAL_ROOT" python3 - "$EVIDENCE_ROOT/SOAK_START.json" "$RUN_ID" "$model_sha" \
   "$policy_sha" "$source_commit" "$MINIMUM_DURATION_HOURS" \
   "$MINIMUM_ROOT_AVAILABLE_BYTES" "$MAXIMUM_ROOT_USED_PERCENT" \
   "$(IFS=,; echo "${suspended_control_hosts[*]}")" \
   "$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
   "$TELEMETRY_MINIMUM_AVAILABILITY" \
-  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" "$DURATION_SECONDS" <<'PY'
+  "$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" "$DURATION_SECONDS" \
+  "$operational_binding" "$collector_binding" "$REMOTE_ROOT" <<'PY'
 from datetime import datetime, timedelta, timezone
 import json, pathlib, sys
 (
     out, run_id, model, policy, commit, hours, min_root, max_root, suspended,
-    telemetry_nominal, telemetry_availability, telemetry_gap, duration_seconds,
+    telemetry_nominal, telemetry_availability, telemetry_gap, duration_seconds, operational, collector, remote_root,
 ) = sys.argv[1:]
 started = datetime.now(timezone.utc)
 payload = {
@@ -317,6 +369,8 @@ payload = {
     "model_manifest_sha256": model,
     "decision_policy_sha256": policy,
     "source_git_commit": commit,
+    "remote_source_root": remote_root,
+    "collector_contract": json.loads(collector),
     "blind_evaluation_started": False,
     "automatic_promotion": False,
     "maximum_alerts": 0,
@@ -349,14 +403,42 @@ payload = {
     "started_not_before": started.isoformat(),
     "eligible_finalize_after": (started + timedelta(hours=float(hours))).isoformat(),
 }
+if operational:
+    from sentinel_pulse.operational_soak import validate_binding
+    payload["operational_evaluation_contract"] = validate_binding(json.loads(operational))
+    if float(telemetry_availability) < 0.999 or float(telemetry_gap) > 10:
+        raise SystemExit("operational contract must not weaken telemetry")
+    if float(hours) < 24 or float(hours) * 3600 + 1200 > int(duration_seconds):
+        raise SystemExit("insufficient preregistered operational exposure/headroom")
+    payload["eligible_finalize_after"] = (started + timedelta(seconds=int(duration_seconds) - 600)).isoformat()
 pathlib.Path(out).write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n")
 PY
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  install -m 0444 "$PROJECTED_CANARY_PLAN_SOURCE" "$EVIDENCE_ROOT/PROJECTED_COLLECTOR_PLAN.json"
+  [[ $(sha256sum "$EVIDENCE_ROOT/PROJECTED_COLLECTOR_PLAN.json" | awk '{print $1}') == \
+     $(jq -er '.plan_sha256' <<<"$collector_binding") ]]
+fi
+
+# Cover worker installation too: otherwise the first monitor observation can
+# arrive >180s after registration and leave startup health unobserved.
+record_operational_startup_health() {
+  if [[ -n $operational_binding ]]; then
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.operational_soak \
+      observe --marker "$EVIDENCE_ROOT/SOAK_START.json" \
+      --log "$EVIDENCE_ROOT/OPERATIONAL_HEALTH.jsonl" \
+      >"$EVIDENCE_ROOT/OPERATIONAL_HEALTH_LAST.json"
+  fi
+}
+record_operational_startup_health
 
 for target in "${WORKERS[@]}"; do
   IFS='|' read -r host node <<<"$target"
   started_hosts+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \
+    COLLECTOR_VARIANT="$COLLECTOR_VARIANT" \
+    PROJECTED_CANARY_RUN_DIR="$(jq -r --arg host "$host" '.safety_runs[$host] // empty' <<<"$collector_binding")" \
+    MODEL_MANIFEST_SOURCE="$REMOTE_ROOT/$model_rel/manifest.json" \
     REQUIRE_CONTROL_COLLECTOR=false \
     TELEMETRY_NOMINAL_INTERVAL_SECONDS="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
     TELEMETRY_MINIMUM_AVAILABILITY="$TELEMETRY_MINIMUM_AVAILABILITY" \
@@ -375,13 +457,27 @@ for target in "${WORKERS[@]}"; do
     /opt/sentinel-pulse/policies/current.json | awk '{print $1}')
   [[ $installed_model_sha == "$model_sha" ]]
   [[ $installed_policy_sha == "$policy_sha" ]]
+  if [[ $COLLECTOR_VARIANT == projected ]]; then
+    rsync -a --checksum -e "sshpass -e ssh -o StrictHostKeyChecking=no" \
+      "$EVIDENCE_ROOT/SOAK_START.json" "$SSH_USER@$host:$REMOTE_ROOT/SOAK_START.json"
+    remote_sudo "$host" install -m 0444 "$REMOTE_ROOT/SOAK_START.json" \
+      "/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/SOAK_START.json"
+    remote_sudo "$host" env PYTHONPATH=/opt/sentinel-pulse \
+      /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.collector_contract \
+      --marker "/var/lib/sentinel-pulse-500ms/runs/$RUN_ID/SOAK_START.json" \
+      --marker-sha "$(sha256sum "$EVIDENCE_ROOT/SOAK_START.json" | awk '{print $1}')" --runtime-host "$host"
+  fi
   remote "$host" \
     "grep -Fx 'PULSE_FEATURES=$feature' /etc/sentinel-pulse-detector-candidate.env && systemctl is-active --quiet sentinel-pulse-collector-500ms-experiment sentinel-pulse-detector-candidate"
   printf '%s %s %s\n' "$host" "$node" "$feature" >>"$EVIDENCE_ROOT/workers.txt"
+  record_operational_startup_health
 done
 
 sha256sum "$EVIDENCE_ROOT/SOAK_START.json" "$MODEL_SOURCE/manifest.json" \
   "$POLICY_SOURCE" "$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json" >"$EVIDENCE_ROOT/START_SHA256SUMS"
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  sha256sum "$EVIDENCE_ROOT/PROJECTED_COLLECTOR_PLAN.json" >>"$EVIDENCE_ROOT/START_SHA256SUMS"
+fi
 touch "$EVIDENCE_ROOT/ACTIVE"
 launch_complete=true
 printf 'formal normal soak active: run=%s duration=%ss evidence=%s\n' \

@@ -15,6 +15,10 @@ test -f "$ENV_FILE"
 # The file is root-owned and generated from validated values by the installer.
 # shellcheck disable=SC1090
 source "$ENV_FILE"
+if [[ -n ${PULSE_TELEMETRY_RECOVERY_PROFILE:-} ]]; then
+  echo 'recovery capture requires its separate diagnostic validator; refusing legacy FINAL/PASS' >&2
+  exit 2
+fi
 : "${PULSE_500MS_OUTPUT:?missing PULSE_500MS_OUTPUT}"
 : "${PULSE_500MS_RUN_ID:?missing PULSE_500MS_RUN_ID}"
 : "${PULSE_TELEMETRY_NOMINAL_INTERVAL_SECONDS:=0.5}"

@@ -1,0 +1,120 @@
+{
+  "checked_at_unix": 1790996488.2631836,
+  "review": {
+    "ML_evaluation": false,
+    "accuracy_claim_allowed": false,
+    "automatic_promotion": false,
+    "capture_sha256": "186cc7e9a99be97b6c8507a1dd958f33bddaf861ebe260bf1db2675c83e22d38",
+    "duration_slack_seconds": 2,
+    "errors": [],
+    "evidence_class": "nonformal_collector_safety_review",
+    "expected_workload_keys": [
+      "production/aims-frontend:web",
+      "production/aims-kafka-dual-role:kafka",
+      "production/aims-postgres-cnpg:postgres",
+      "production/aims-rabbitmq-server:rabbitmq",
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+      "production/aims-redis:aims-redis",
+      "production/aims-waypoint:istio-proxy",
+      "production/api-gateway:app",
+      "production/cart-service:app",
+      "production/catalog-service:app",
+      "production/notification-service:app",
+      "production/order-service:app",
+      "production/payment-service:app",
+      "production/search-recommendation-service:app",
+      "production/security-telemetry-service:app"
+    ],
+    "first_window_start": 1790995453.2298377,
+    "last_window_end": 1790996352.2562695,
+    "measured_span_seconds": 899.0264317989349,
+    "missing_workload_keys": [],
+    "recomputed_validation": {
+      "accepted_interval_seconds": {
+        "maximum": 0.8,
+        "minimum": 0.35
+      },
+      "capture_sha256": "186cc7e9a99be97b6c8507a1dd958f33bddaf861ebe260bf1db2675c83e22d38",
+      "collector_max_drops": {
+        "capture_interval_violation": 0,
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_projection_fail": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "errors": [],
+      "feature_dim": 249,
+      "ingest_lag_seconds": {
+        "max": 0.06968855857849121,
+        "p50": 0.016629934310913086,
+        "p95": 0.030431246757507323,
+        "p99": 0.03736898183822633
+      },
+      "interval_seconds": {
+        "max": 0.5184998512268066,
+        "p50": 0.5058684349060059,
+        "p95": 0.5093393325805664,
+        "p99": 0.5123770236968994
+      },
+      "path": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z/features.jsonl",
+      "rows": 38832,
+      "schema": "sentinel-pulse-capture-validation-v1",
+      "snapshot_read_seconds": {
+        "max": 0.01400733,
+        "p50": 0.003810883,
+        "p95": 0.00646615,
+        "p99": 0.008875847
+      },
+      "telemetry_availability": {
+        "availability": 1,
+        "cadence_violation_events": 0,
+        "delayed_interval_events": 0,
+        "estimated_missing_snapshots": 0,
+        "maximum_gap_seconds": 0,
+        "observed_snapshots": 1776,
+        "short_interval_events": 0
+      },
+      "telemetry_availability_contract": {
+        "maximum_single_gap_seconds": 0.8,
+        "minimum_availability": 1,
+        "nominal_interval_seconds": 0.5
+      },
+      "valid": true,
+      "window_start_to_emit_seconds": {
+        "max": 0.5757708549499512,
+        "p50": 0.5227916240692139,
+        "p95": 0.5370835661888123,
+        "p99": 0.5447737050056458
+      },
+      "workloads": {
+        "production/aims-frontend:web": 1536,
+        "production/aims-kafka-dual-role:kafka": 1776,
+        "production/aims-postgres-cnpg:postgres": 1776,
+        "production/aims-rabbitmq-server:rabbitmq": 1776,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1776,
+        "production/aims-redis:aims-redis": 1776,
+        "production/aims-waypoint:istio-proxy": 3552,
+        "production/api-gateway:app": 3552,
+        "production/cart-service:app": 3552,
+        "production/catalog-service:app": 3552,
+        "production/notification-service:app": 1776,
+        "production/order-service:app": 1776,
+        "production/payment-service:app": 3552,
+        "production/search-recommendation-service:app": 5328,
+        "production/security-telemetry-service:app": 1776
+      }
+    },
+    "registered_duration_seconds": 900,
+    "run_dir": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+    "run_id": "pulse-projected-counter-c2-20261003T024600Z",
+    "schema": "sentinel-pulse-projected-counter-canary-review-v1",
+    "source_hashes_match": true,
+    "terminal_elapsed_seconds": 904.2783081531525,
+    "unexpected_workload_keys": [],
+    "valid": true
+  },
+  "unit": "ExecMainStatus=0\nActiveState=inactive\nSubState=dead\n"
+}

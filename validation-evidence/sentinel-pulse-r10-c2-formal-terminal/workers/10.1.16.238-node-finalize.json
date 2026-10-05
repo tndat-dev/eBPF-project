@@ -1,0 +1,70 @@
+{
+  "capture_bytes": 825481509,
+  "capture_sha256": "8ea38b9a80d7e2f4662374a02531cb3fc9b18f7218cefaa03393c77abe9759e7",
+  "collector_max_drops": {
+    "capture_interval_violation": 7,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 0.0,
+  "duration_seconds": 9915.309792757034,
+  "ended_at_unix": 1790870083.3520389,
+  "experiment_average_cpu_cores": 0.07195012177240617,
+  "experiment_cpu_seconds": 713.407747,
+  "experiment_memory_peak_bytes": 537137152,
+  "finalized_at_unix": 1790870131.5174906,
+  "ingest_lag_seconds": {
+    "max": 10.150707483291626,
+    "p50": 0.017817258834838867,
+    "p95": 0.03104119300842284,
+    "p99": 0.03746461868286133
+  },
+  "interval_seconds": {
+    "max": 8.993614435195923,
+    "p50": 0.5055043697357178,
+    "p95": 0.5088052749633789,
+    "p99": 0.5115525722503662
+  },
+  "registered_max_duration_seconds": 86400,
+  "rows": 441319,
+  "run_id": "sentinel-pulse-r10-c2-formal-20261001",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 3.319778204,
+    "p50": 0.003506899,
+    "p95": 0.006017447,
+    "p99": 0.008337498
+  },
+  "started_at_unix": 1790860168.042246,
+  "telemetry_availability": {
+    "availability": 0.9977031441404655,
+    "cadence_violation_events": 7,
+    "delayed_interval_events": 7,
+    "estimated_missing_snapshots": 45,
+    "maximum_gap_seconds": 8.993614435195923,
+    "observed_snapshots": 19547,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "validation_errors": [
+    "telemetry availability 0.997703144 is below 0.999000000"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 13.385850429534912,
+    "p50": 0.5236084461212158,
+    "p95": 0.537327790260315,
+    "p99": 0.544363694190979
+  },
+  "workload_count": 19
+}

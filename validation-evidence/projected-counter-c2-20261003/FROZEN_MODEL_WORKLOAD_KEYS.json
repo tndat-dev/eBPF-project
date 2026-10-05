@@ -1,0 +1,27 @@
+{
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "feature_schema_sha256": "879e33f8c33774c50d848524b78c0fa2398b9855971982e5a41a12f9259f5ae2",
+  "workload_keys": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/search-recommendation-service:app",
+    "production/security-telemetry-service:app"
+  ]
+}

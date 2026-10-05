@@ -1,0 +1,18 @@
+{
+  "config_sha256": "4d11c8571651fea4bc9112f84a00874f7dbdd6a66378e6c4ff83636bb671d9f4",
+  "control_collector_modified": false,
+  "diagnostic_only": true,
+  "duplicate_writer_must_be_rejected": true,
+  "duration_seconds": 300,
+  "fault": "SIGKILL_one_coordinator_main_process_only",
+  "maximum_observation_gap_seconds": 30,
+  "primary_unit": "sentinel-pulse-recovery-resume-c1-20261005.service",
+  "production_workloads_modified": false,
+  "registered_at_unix": 1791164374.33686,
+  "resumed_unit": "sentinel-pulse-recovery-resumed-c1-20261005.service",
+  "run_id": "pulse-recovery-resume-c1-20261005",
+  "scheduled_after_registration_seconds": 35,
+  "schema": "sentinel-pulse-coordinator-resume-diagnostic-v1",
+  "source_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+  "worker_relaunch": false
+}

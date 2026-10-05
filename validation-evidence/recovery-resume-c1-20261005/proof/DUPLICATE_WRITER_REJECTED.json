@@ -1,0 +1,8 @@
+{
+  "active_run_not_terminated": true,
+  "checked_at_unix": 1791164424.6149118,
+  "exit_status": 1,
+  "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+  "reason": "another coordinator owns this run",
+  "registration_unchanged": true
+}

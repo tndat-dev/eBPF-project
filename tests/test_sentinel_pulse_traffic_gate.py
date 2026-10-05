@@ -36,6 +36,8 @@ def test_rollout_gate_requires_native_runtime_and_full_readiness():
 
 
 def test_request_gates_are_exact_and_fail_closed():
+    assert "/api/products/?page=1" in INGRESS_PATHS
+    assert "/api/products/" not in INGRESS_PATHS
     east = {name: {"status_counts": {"200": 20}} for name in MICROSERVICES}
     north = {path: {"success": 20, "failure": 0} for path in INGRESS_PATHS}
     assert east_west_errors(east, 20) == []

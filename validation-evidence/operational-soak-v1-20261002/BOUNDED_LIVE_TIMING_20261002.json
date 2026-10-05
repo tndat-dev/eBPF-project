@@ -1,0 +1,191 @@
+{
+  "schema": "sentinel-pulse-multi-worker-bounded-live-timing-v1",
+  "samples": [
+    {
+      "schema": "sentinel-pulse-bounded-live-metrics-checkpoint-v1",
+      "checked_at": "2026-10-02T04:37:59.896352+00:00",
+      "node": "k8s-worker1.local",
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "sample_rows": 3000,
+      "sample_sha256": "c28cdc2f325d42699672dc93aecb40169adb89e4549d2c2f3cb9ed30b66e1e7d",
+      "sample_window_start_min": 1790915765.517372,
+      "sample_window_end_max": 1790915835.9528515,
+      "status_counts": {
+        "normal": 2992,
+        "suppressed": 8
+      },
+      "workload_rows": {
+        "production/notification-service:app": 416,
+        "production/api-gateway:app": 139,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 139,
+        "production/security-telemetry-service:app": 277,
+        "production/aims-postgres-cnpg:postgres": 139,
+        "production/aims-minio-pool-0:sidecar": 113,
+        "production/auth-service:app": 277,
+        "production/catalog-service:app": 139,
+        "production/inventory-service:app": 277,
+        "production/order-service:app": 139,
+        "production/aims-rabbitmq-server:rabbitmq": 138,
+        "production/payment-service:app": 276,
+        "production/aims-waypoint:istio-proxy": 138,
+        "production/aims-kafka-dual-role:kafka": 138,
+        "production/aims-redis:aims-redis": 138,
+        "production/aims-minio-pool-0:minio": 117
+      },
+      "raw_model_anomalous": 8,
+      "metrics": {
+        "inference_ms": {
+          "count": 3000,
+          "p50": 17.280222615227103,
+          "p95": 24.902422190643836,
+          "p99": 29.828257258050076,
+          "max": 41.257180739194155
+        },
+        "window_start_to_post_model_seconds": {
+          "count": 3000,
+          "p50": 0.775378942489624,
+          "p95": 0.9665334701538085,
+          "p99": 1.030963938236236,
+          "max": 1.4963366985321045
+        },
+        "window_end_to_post_model_seconds": {
+          "count": 3000,
+          "p50": 0.2685316801071167,
+          "p95": 0.4592369437217709,
+          "p99": 0.5232839012145996,
+          "max": 0.6249358654022217
+        }
+      },
+      "full_policy_latency_measured": false,
+      "alert_output_latency_measured": false,
+      "true_kernel_to_alert_claim_allowed": false,
+      "scope": "last 3000 decision rows, not full-run percentiles; alerted_at occurs after inference before policy/output"
+    },
+    {
+      "schema": "sentinel-pulse-bounded-live-metrics-checkpoint-v1",
+      "checked_at": "2026-10-02T04:37:58.790832+00:00",
+      "node": "k8s-worker3.local",
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "sample_rows": 3000,
+      "sample_sha256": "aad6a952acab3c9740f2fbff9212ad9f361ef0d124a78f89b888b50a6c6f5e4a",
+      "sample_window_start_min": 1790915790.4212615,
+      "sample_window_end_max": 1790915860.2627954,
+      "status_counts": {
+        "normal": 2950,
+        "suppressed": 44,
+        "warming": 6
+      },
+      "workload_rows": {
+        "production/notification-service:app": 138,
+        "production/aims-rabbitmq-server:rabbitmq": 138,
+        "production/order-service:app": 137,
+        "production/catalog-service:app": 274,
+        "production/aims-redis:aims-redis": 137,
+        "production/aims-postgres-cnpg:postgres": 137,
+        "production/aims-waypoint:istio-proxy": 274,
+        "production/api-gateway:app": 274,
+        "production/cart-service:app": 274,
+        "production/payment-service:app": 274,
+        "production/search-recommendation-service:app": 411,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 137,
+        "production/aims-kafka-dual-role:kafka": 137,
+        "production/security-telemetry-service:app": 137,
+        "production/aims-frontend:web": 121
+      },
+      "raw_model_anomalous": 44,
+      "metrics": {
+        "inference_ms": {
+          "count": 2994,
+          "p50": 17.01252954080701,
+          "p95": 25.094298506155607,
+          "p99": 29.788602557964648,
+          "max": 36.31692100316286
+        },
+        "window_start_to_post_model_seconds": {
+          "count": 2994,
+          "p50": 0.7663834095001221,
+          "p95": 0.9630672574043274,
+          "p99": 1.0252601623535162,
+          "max": 1.0957276821136475
+        },
+        "window_end_to_post_model_seconds": {
+          "count": 2994,
+          "p50": 0.26050662994384766,
+          "p95": 0.457480251789093,
+          "p99": 0.5187888002395633,
+          "max": 0.5889663696289062
+        }
+      },
+      "full_policy_latency_measured": false,
+      "alert_output_latency_measured": false,
+      "true_kernel_to_alert_claim_allowed": false,
+      "scope": "last 3000 decision rows, not full-run percentiles; alerted_at occurs after inference before policy/output"
+    },
+    {
+      "schema": "sentinel-pulse-bounded-live-metrics-checkpoint-v1",
+      "checked_at": "2026-10-02T04:38:00.584396+00:00",
+      "node": "k8s-worker4.local",
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "sample_rows": 3000,
+      "sample_sha256": "161a26603341d2dc88d4db090d87d4821213f36657ce14913b37dcc309b7bed1",
+      "sample_window_start_min": 1790915811.6937811,
+      "sample_window_end_max": 1790915879.498316,
+      "status_counts": {
+        "normal": 2964,
+        "suppressed": 30,
+        "warming": 6
+      },
+      "workload_rows": {
+        "production/security-telemetry-service:app": 133,
+        "production/aims-kafka-dual-role:kafka": 133,
+        "production/auth-service:app": 266,
+        "production/order-service:app": 266,
+        "production/cart-service:app": 266,
+        "production/aims-minio-pool-0:sidecar": 112,
+        "production/catalog-service:app": 133,
+        "production/aims-postgres-cnpg:postgres": 133,
+        "production/search-recommendation-service:app": 133,
+        "production/aims-kafka-entity-operator:user-operator": 133,
+        "production/aims-waypoint:istio-proxy": 133,
+        "production/aims-minio-pool-0:minio": 113,
+        "production/aims-frontend:web": 115,
+        "production/aims-redis:aims-redis": 133,
+        "production/aims-kafka-entity-operator:topic-operator": 133,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 133,
+        "production/aims-rabbitmq-server:rabbitmq": 133,
+        "production/inventory-service:app": 266,
+        "production/api-gateway:app": 133
+      },
+      "raw_model_anomalous": 30,
+      "metrics": {
+        "inference_ms": {
+          "count": 2994,
+          "p50": 18.396142404526472,
+          "p95": 28.30249930266291,
+          "p99": 33.61508137546482,
+          "max": 46.820180024951696
+        },
+        "window_start_to_post_model_seconds": {
+          "count": 2994,
+          "p50": 0.8325217962265015,
+          "p95": 1.6798412799835205,
+          "p99": 1.9547299122810382,
+          "max": 2.165764570236206
+        },
+        "window_end_to_post_model_seconds": {
+          "count": 2994,
+          "p50": 0.326648473739624,
+          "p95": 1.1742212772369385,
+          "p99": 1.4489552426338215,
+          "max": 1.6599514484405518
+        }
+      },
+      "full_policy_latency_measured": false,
+      "alert_output_latency_measured": false,
+      "true_kernel_to_alert_claim_allowed": false,
+      "scope": "last 3000 decision rows, not full-run percentiles; alerted_at occurs after inference before policy/output"
+    }
+  ],
+  "comparison_scope": "Asynchronous last-3000-row samples; not full-run quantiles or kernel-to-alert evidence",
+  "terminal_result": false
+}

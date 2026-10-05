@@ -1,0 +1,84 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "allowVolumeExpansion": true,
+            "apiVersion": "storage.k8s.io/v1",
+            "kind": "StorageClass",
+            "metadata": {
+                "annotations": {
+                    "longhorn.io/last-applied-configmap": "kind: StorageClass\napiVersion: storage.k8s.io/v1\nmetadata:\n  name: longhorn\n  annotations:\n    storageclass.kubernetes.io/is-default-class: \"true\"\nprovisioner: driver.longhorn.io\nallowVolumeExpansion: true\nreclaimPolicy: \"Delete\"\nvolumeBindingMode: Immediate\nparameters:\n  numberOfReplicas: \"2\"\n  staleReplicaTimeout: \"30\"\n  fromBackup: \"\"\n  fsType: \"ext4\"\n  dataLocality: \"disabled\"\n  unmapMarkSnapChainRemoved: \"ignored\"\n  disableRevisionCounter: \"true\"\n  dataEngine: \"v1\"\n  backupTargetName: \"default\"\n",
+                    "storageclass.kubernetes.io/is-default-class": "true"
+                },
+                "creationTimestamp": "2026-07-29T08:27:25Z",
+                "name": "longhorn",
+                "resourceVersion": "26907963",
+                "uid": "8786f8e0-f488-4b26-a6a9-93077426b19b"
+            },
+            "parameters": {
+                "backupTargetName": "default",
+                "dataEngine": "v1",
+                "dataLocality": "disabled",
+                "disableRevisionCounter": "true",
+                "fromBackup": "",
+                "fsType": "ext4",
+                "numberOfReplicas": "2",
+                "staleReplicaTimeout": "30",
+                "unmapMarkSnapChainRemoved": "ignored"
+            },
+            "provisioner": "driver.longhorn.io",
+            "reclaimPolicy": "Delete",
+            "volumeBindingMode": "Immediate"
+        },
+        {
+            "allowVolumeExpansion": true,
+            "apiVersion": "storage.k8s.io/v1",
+            "kind": "StorageClass",
+            "metadata": {
+                "creationTimestamp": "2026-07-29T08:27:25Z",
+                "name": "longhorn-static",
+                "resourceVersion": "26908022",
+                "uid": "7187c1bd-0deb-488b-a872-4e495ae84c47"
+            },
+            "parameters": {
+                "staleReplicaTimeout": "30"
+            },
+            "provisioner": "driver.longhorn.io",
+            "reclaimPolicy": "Delete",
+            "volumeBindingMode": "Immediate"
+        },
+        {
+            "allowVolumeExpansion": true,
+            "apiVersion": "storage.k8s.io/v1",
+            "kind": "StorageClass",
+            "metadata": {
+                "annotations": {
+                    "meta.helm.sh/release-name": "nfs-client",
+                    "meta.helm.sh/release-namespace": "nfs-provisioner",
+                    "storageclass.kubernetes.io/is-default-class": "false"
+                },
+                "creationTimestamp": "2026-07-29T04:41:53Z",
+                "labels": {
+                    "app": "nfs-subdir-external-provisioner",
+                    "app.kubernetes.io/managed-by": "Helm",
+                    "chart": "nfs-subdir-external-provisioner-4.0.18",
+                    "heritage": "Helm",
+                    "release": "nfs-client"
+                },
+                "name": "nfs-client",
+                "resourceVersion": "26976577",
+                "uid": "f7397fdf-5efa-4e8a-af11-93804bf64b08"
+            },
+            "parameters": {
+                "archiveOnDelete": "true"
+            },
+            "provisioner": "cluster.local/nfs-client-nfs-subdir-external-provisioner",
+            "reclaimPolicy": "Retain",
+            "volumeBindingMode": "Immediate"
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

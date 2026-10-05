@@ -23,6 +23,11 @@ CGROUP=/sys/fs/cgroup/system.slice/sentinel-pulse-collector-500ms-experiment.ser
   cat "$CGROUP/pids.current"
 } >"$PULSE_500MS_RUN_DIR/experiment-cgroup-final.txt"
 
+# Preserve memory.high events, file-cache accounting and PSI before removal.
+# Unsupported diagnostic fields are retained as errors, not silent zeros.
+/opt/sentinel-pulse/venv/bin/python -m sentinel_pulse.cgroup_pressure \
+  --output "$PULSE_500MS_RUN_DIR/service-cgroups-final.json"
+
 systemctl show sentinel-pulse-collector.service \
   -p CPUUsageNSec -p MemoryCurrent -p MemoryPeak -p TasksCurrent \
   >"$PULSE_500MS_RUN_DIR/control-collector-at-experiment-end.systemd"

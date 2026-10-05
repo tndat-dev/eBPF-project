@@ -1,0 +1,72 @@
+{
+  "capture_bytes": 113693408,
+  "capture_sha256": "adbf455f37b42558635a9acaebc46f3203cd956612915b75229b175987a55329",
+  "collector_max_drops": {
+    "capture_interval_violation": 1,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 52.098251,
+  "duration_seconds": 1365.5120854377747,
+  "ended_at_unix": 1791046911.4326081,
+  "experiment_average_cpu_cores": 0.07670693662621056,
+  "experiment_cpu_seconds": 104.744249,
+  "experiment_memory_peak_bytes": 149737472,
+  "finalized_at_unix": 1791046923.6394331,
+  "ingest_lag_seconds": {
+    "max": 13.416420936584473,
+    "p50": 0.018110275268554688,
+    "p95": 0.03235435485839844,
+    "p99": 0.04017440080642703
+  },
+  "interval_seconds": {
+    "max": 13.208959102630615,
+    "p50": 0.5059490203857422,
+    "p95": 0.5093050003051758,
+    "p99": 0.51253342628479
+  },
+  "registered_max_duration_seconds": 7200,
+  "rows": 59986,
+  "run_id": "pulse-projected-pressure-c2-20261003T163700Z",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 2.977631092,
+    "p50": 0.003851175,
+    "p95": 0.006483555,
+    "p99": 0.009156466
+  },
+  "started_at_unix": 1791045545.9205227,
+  "telemetry_availability": {
+    "availability": 0.9906994047619048,
+    "cadence_violation_events": 1,
+    "delayed_interval_events": 1,
+    "estimated_missing_snapshots": 25,
+    "maximum_gap_seconds": 13.208959102630615,
+    "observed_snapshots": 2663,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "validation_errors": [
+    "telemetry cadence: maximum gap 13.208959s exceeds 10.000000s",
+    "telemetry availability 0.990699405 is below 0.999000000"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 13.928285837173462,
+    "p50": 0.5242900848388672,
+    "p95": 0.539099931716919,
+    "p99": 0.5475194692611695
+  },
+  "workload_count": 19
+}

@@ -15,7 +15,7 @@ WAIT_TIMEOUT_SECONDS=${WAIT_TIMEOUT_SECONDS:-2400}
 deadline=$(( $(date +%s) + WAIT_TIMEOUT_SECONDS ))
 
 while kill -0 "$LIFECYCLE_PID" 2>/dev/null; do
-  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || \
+  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || -e "$EVIDENCE_ROOT/OPERATIONAL_PASS" || \
         -e "$EVIDENCE_ROOT/ARCHIVE_COMPLETE" ]]; then
     exit 0
   fi

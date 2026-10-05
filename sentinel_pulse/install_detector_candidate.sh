@@ -18,6 +18,16 @@ ENV_FILE=/etc/sentinel-pulse-detector-candidate.env
 DEPLOYMENT_ID=${DEPLOYMENT_ID:-$(date -u +%Y%m%dT%H%M%SZ)}
 ENABLE_INJECTION_TRACKING=${ENABLE_INJECTION_TRACKING:-false}
 REQUIRE_CONTROL_COLLECTOR=${REQUIRE_CONTROL_COLLECTOR:-true}
+TELEMETRY_RECOVERY_PROFILE_SOURCE=${TELEMETRY_RECOVERY_PROFILE_SOURCE:-}
+DETECTOR_LIVE_FRESHNESS=${DETECTOR_LIVE_FRESHNESS:-false}
+case "$DETECTOR_LIVE_FRESHNESS" in
+  true|false) ;;
+  *) echo 'DETECTOR_LIVE_FRESHNESS must be true or false' >&2; exit 2 ;;
+esac
+if [[ $DETECTOR_LIVE_FRESHNESS == true && -z $TELEMETRY_RECOVERY_PROFILE_SOURCE ]]; then
+  echo 'live freshness requires explicit recovery runtime' >&2
+  exit 2
+fi
 if [[ ! $DEPLOYMENT_ID =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "DEPLOYMENT_ID contains unsafe characters" >&2
   exit 2
@@ -51,6 +61,39 @@ case "$FEATURE_SOURCE" in
   *) echo "FEATURE_SOURCE is outside an approved telemetry root" >&2; exit 2 ;;
 esac
 test -s "$FEATURE_SOURCE"
+
+# Refuse both a legacy reader of recovery features and an unregistered recovery
+# reader of legacy features. This check precedes user/venv/unit mutation.
+recovery_binding=$(PYTHONPATH="$SOURCE_ROOT" python3 - "$FEATURE_SOURCE" \
+  "$TELEMETRY_RECOVERY_PROFILE_SOURCE" <<'PY'
+import json
+from pathlib import Path
+import sys
+from sentinel_pulse.recovery_deployment import bind_detector
+binding = bind_detector(Path(sys.argv[1]), Path(sys.argv[2]) if sys.argv[2] else None)
+print(json.dumps(binding))
+PY
+)
+if [[ -n $TELEMETRY_RECOVERY_PROFILE_SOURCE ]]; then
+  [[ $INSTALL_ROOT == /opt/sentinel-pulse ]] || {
+    echo 'recovery runtime requires the registered /opt/sentinel-pulse root' >&2
+    exit 2
+  }
+fi
+
+if [[ $DETECTOR_LIVE_FRESHNESS == true ]]; then
+  PYTHONPATH="$SOURCE_ROOT" python3 - "$FEATURE_SOURCE" <<'PY'
+import json
+from pathlib import Path
+import sys
+from sentinel_pulse.recovery_deployment import bind_freshness_preregistration
+contract = bind_freshness_preregistration(Path(sys.argv[1]))
+path = Path(sys.argv[1]).parent / "DETECTOR_FRESHNESS_CONTRACT.json"
+with path.open("x") as stream:
+    stream.write(json.dumps(contract, indent=2, sort_keys=True) + "\n")
+path.chmod(0o444)
+PY
+fi
 
 if ! id "$RUNTIME_USER" >/dev/null 2>&1; then
   useradd --system --no-create-home --home-dir /nonexistent \
@@ -125,6 +168,19 @@ fi
 policy_path="$INSTALL_ROOT/policies/$policy_sha.json"
 if [[ ! -f "$policy_path" ]]; then
   install -m 0444 "$DECISION_POLICY_SOURCE" "$policy_path"
+fi
+recovery_path=
+if [[ -n $TELEMETRY_RECOVERY_PROFILE_SOURCE ]]; then
+  recovery_sha=$(python3 -c 'import json,sys; print(json.load(sys.stdin)["profile_sha256"])' <<<"$recovery_binding")
+  [[ $recovery_sha =~ ^[0-9a-f]{64}$ ]]
+  recovery_path="$INSTALL_ROOT/policies/recovery-$recovery_sha.json"
+  if [[ ! -e $recovery_path ]]; then
+    install -m 0444 "$TELEMETRY_RECOVERY_PROFILE_SOURCE" "$recovery_path"
+  fi
+  cmp -s "$TELEMETRY_RECOVERY_PROFILE_SOURCE" "$recovery_path" || {
+    echo 'immutable recovery runtime profile differs from registered bytes' >&2
+    exit 3
+  }
 fi
 run_id="$manifest_sha-$policy_sha-$DEPLOYMENT_ID"
 run_dir="/var/lib/sentinel-pulse-detector/runs/$run_id"
@@ -221,6 +277,8 @@ env_stage=$(mktemp /etc/.sentinel-pulse-detector-candidate.XXXXXX)
   printf 'PULSE_ALERTS=%s\n' "$alert_path"
   printf 'PULSE_INJECTIONS=%s\n' "$injection_path"
   printf 'PULSE_RUN_ID=%s\n' "$DEPLOYMENT_ID"
+  printf 'PULSE_TELEMETRY_RECOVERY_PROFILE=%s\n' "$recovery_path"
+  printf 'PULSE_DETECTOR_LIVE_FRESHNESS=%s\n' "$DETECTOR_LIVE_FRESHNESS"
 } >"$env_stage"
 chmod 0644 "$env_stage"
 mv -f "$env_stage" "$ENV_FILE"
@@ -241,6 +299,15 @@ else
     -e '/^Wants=sentinel-pulse-collector\.service$/d' \
     "$unit_source" >"$unit_stage"
   ! grep -Eq '^(After|Wants)=sentinel-pulse-collector\.service$' "$unit_stage"
+fi
+if [[ -n $recovery_path ]]; then
+  PYTHONPATH="$SOURCE_ROOT" python3 - "$unit_stage" "$recovery_path" "$DETECTOR_LIVE_FRESHNESS" <<'PY'
+from pathlib import Path
+import sys
+from sentinel_pulse.recovery_deployment import render_unit
+path = Path(sys.argv[1])
+path.write_text(render_unit(path.read_text(), "detector", sys.argv[2], live_freshness=sys.argv[3] == "true"))
+PY
 fi
 install -m 0644 "$unit_stage" "/etc/systemd/system/$SERVICE"
 rm -f -- "$unit_stage"
@@ -279,6 +346,25 @@ if [[ "$observed_policy_sha" != "$policy_sha" ]]; then
   echo "live decision policy identity mismatch" >&2
   rollback_candidate
   exit 6
+fi
+if [[ -n $recovery_path ]]; then
+  # Do not report ready merely because the service started. Verify actual
+  # recovery decisions, profile identity, and an entirely replayed prefix.
+  if ! PYTHONPATH="$SOURCE_ROOT" python3 - "$decision_path" "$recovery_sha" "$DETECTOR_LIVE_FRESHNESS" <<'PY'
+import json, sys
+from sentinel_pulse.detector_freshness import CONTRACT_SHA256
+with open(sys.argv[1]) as source:
+    rows = [json.loads(line) for line in source if line.endswith("\n")]
+if not rows or any(row.get("telemetry_recovery", {}).get("profile_sha256") != sys.argv[2] for row in rows):
+    raise SystemExit("live recovery decision profile identity mismatch")
+if sys.argv[3] == "true" and any(
+        row.get("detector_freshness", {}).get("contract_sha256") != CONTRACT_SHA256 for row in rows):
+    raise SystemExit("live detector freshness contract identity mismatch")
+PY
+  then
+    rollback_candidate
+    exit 6
+  fi
 fi
 printf 'candidate detector active: manifest=%s policy=%s run=%s decisions=%s alerts=%s injections=%s\n' \
   "$manifest_sha" "$policy_sha" "$DEPLOYMENT_ID" \

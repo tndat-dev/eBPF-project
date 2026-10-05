@@ -1,0 +1,205 @@
+{
+  "east_west": {
+    "api-gateway": {
+      "max_ms": 157.01112430542707,
+      "p50_ms": 19.773179199546576,
+      "p95_ms": 39.63586874306202,
+      "p99_ms": 39.63586874306202,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "auth-service": {
+      "max_ms": 58.7035370990634,
+      "p50_ms": 14.159508049488068,
+      "p95_ms": 40.14149587601423,
+      "p99_ms": 40.14149587601423,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "cart-service": {
+      "max_ms": 26.90396597608924,
+      "p50_ms": 8.437910117208958,
+      "p95_ms": 25.69463476538658,
+      "p99_ms": 25.69463476538658,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "catalog-service": {
+      "max_ms": 37.14985121041536,
+      "p50_ms": 8.677077945321798,
+      "p95_ms": 28.598859906196594,
+      "p99_ms": 28.598859906196594,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "inventory-service": {
+      "max_ms": 13.192565180361271,
+      "p50_ms": 8.056259714066982,
+      "p95_ms": 12.3314019292593,
+      "p99_ms": 12.3314019292593,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "notification-service": {
+      "max_ms": 23.949825204908848,
+      "p50_ms": 8.858099579811096,
+      "p95_ms": 17.006367910653353,
+      "p99_ms": 17.006367910653353,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "order-service": {
+      "max_ms": 31.293092761188745,
+      "p50_ms": 9.487390983849764,
+      "p95_ms": 16.94041397422552,
+      "p99_ms": 16.94041397422552,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "payment-service": {
+      "max_ms": 228.23006799444556,
+      "p50_ms": 11.156172025948763,
+      "p95_ms": 16.62810007110238,
+      "p99_ms": 16.62810007110238,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "search-recommendation-service": {
+      "max_ms": 38.21874409914017,
+      "p50_ms": 12.637524865567684,
+      "p95_ms": 20.67589107900858,
+      "p99_ms": 20.67589107900858,
+      "status_counts": {
+        "200": 20
+      }
+    },
+    "security-telemetry-service": {
+      "max_ms": 38645.826124120504,
+      "p50_ms": 12.764820829033852,
+      "p95_ms": 1275.066195987165,
+      "p99_ms": 1275.066195987165,
+      "status_counts": {
+        "200": 19,
+        "TimeoutError": 1
+      }
+    }
+  },
+  "errors": [
+    "east-west security-telemetry-service: expected 200x20, observed={'200': 19, 'TimeoutError': 1}",
+    "north-south /api/products/: expected success=20 failure=0, observed={'success': 0, 'failure': 20}"
+  ],
+  "namespace": "production",
+  "north_south": {
+    "/": {
+      "failure": 0,
+      "success": 20
+    },
+    "/api/health/": {
+      "failure": 0,
+      "success": 20
+    },
+    "/api/products/": {
+      "failure": 20,
+      "success": 0
+    }
+  },
+  "passed": false,
+  "recorded_at": "2026-10-01T12:02:19.817668+00:00",
+  "rollouts": {
+    "api-gateway": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753258",
+      "runtime_class": null
+    },
+    "auth-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753093",
+      "runtime_class": null
+    },
+    "cart-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753259",
+      "runtime_class": null
+    },
+    "catalog-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753312",
+      "runtime_class": null
+    },
+    "inventory-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753281",
+      "runtime_class": null
+    },
+    "notification-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228753399",
+      "runtime_class": null
+    },
+    "order-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228752940",
+      "runtime_class": null
+    },
+    "payment-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228752873",
+      "runtime_class": null
+    },
+    "search-recommendation-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228752973",
+      "runtime_class": null
+    },
+    "security-telemetry-service": {
+      "desired": 4,
+      "phase": "Healthy",
+      "ready": 4,
+      "resource_version": "228752859",
+      "runtime_class": null
+    }
+  },
+  "samples_per_target": 20,
+  "schema": "sentinel-pulse-production-traffic-gate-v1",
+  "source_git_commit": "6eb1cd34b36f8c52d75e679e2e931e6ae7d35080",
+  "source_pods": {
+    "east_west": {
+      "name": "api-gateway-5b79675d85-4q84j",
+      "node": "k8s-worker1.local",
+      "uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9"
+    },
+    "north_south": {
+      "dataplane_mode": "none",
+      "name": "aims-sentinel-ingress-loadgen-5b76d6d654-t7nzh",
+      "node": "k8s-worker3.local",
+      "uid": "e5c6a8ca-b5d6-41e6-ad42-ab5c514bec0d"
+    }
+  },
+  "source_sha256": "1431fbf5bc51986a90c61793f10196ef6c6955b979f6b8d539cbf3ffb0a6d092"
+}

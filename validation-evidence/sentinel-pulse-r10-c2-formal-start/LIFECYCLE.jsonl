@@ -1,0 +1,4 @@
+{"schema":"sentinel-pulse-candidate-lifecycle-phase-v1","phase":"production_traffic_preflight","recorded_at":"2026-10-01T13:02:25.610003+00:00","automatic_promotion":false}
+{"schema":"sentinel-pulse-candidate-lifecycle-phase-v1","phase":"normal_preflight","recorded_at":"2026-10-01T13:02:34.080137+00:00","automatic_promotion":false}
+{"schema":"sentinel-pulse-candidate-lifecycle-phase-v1","phase":"normal_active","recorded_at":"2026-10-01T13:09:54.708377+00:00","automatic_promotion":false}
+{"schema":"sentinel-pulse-candidate-lifecycle-phase-v1","phase":"normal_monitor","recorded_at":"2026-10-01T13:09:54.763007+00:00","automatic_promotion":false}

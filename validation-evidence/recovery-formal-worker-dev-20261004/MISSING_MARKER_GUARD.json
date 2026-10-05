@@ -1,0 +1,24 @@
+{
+  "after": {
+    "sentinel-pulse-collector-500ms-experiment.service": "NRestarts=0\nActiveState=inactive",
+    "sentinel-pulse-collector.service": "NRestarts=0\nActiveState=active",
+    "sentinel-pulse-detector-candidate.service": "NRestarts=0\nActiveState=inactive",
+    "sentinel-pulse-resolver.service": "NRestarts=0\nActiveState=active"
+  },
+  "before": {
+    "sentinel-pulse-collector-500ms-experiment.service": "NRestarts=0\nActiveState=inactive",
+    "sentinel-pulse-collector.service": "NRestarts=0\nActiveState=active",
+    "sentinel-pulse-detector-candidate.service": "NRestarts=0\nActiveState=inactive",
+    "sentinel-pulse-resolver.service": "NRestarts=0\nActiveState=active"
+  },
+  "exit_code": 1,
+  "formal_recovery_pass": false,
+  "formal_worker_leg_executed": false,
+  "guard_pass": true,
+  "marker_present": false,
+  "reviewed_at_unix": 1791125430.0477881,
+  "run_created": false,
+  "schema": "sentinel-pulse-formal-worker-missing-marker-guard-v1",
+  "source_commit": "3628e0835d39548441d5548532de409c1a559f0f",
+  "worker_ip": "10.1.16.238"
+}

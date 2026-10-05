@@ -1,9 +1,244 @@
-# Sentinel Pulse: phát hiện bất thường runtime Kubernetes với quyết định ML 1 giây
+# Sentinel Pulse: phát hiện bất thường runtime Kubernetes với telemetry 500 ms
+
+## Trạng thái hiện hành
+
+Cập nhật ngày **05/10/2026**, theo SSH và receipt có checksum. Chỉ sửa mục
+hiện hành; giữ riêng evidence và verdict cũ, không nối thêm checkpoint lịch sử.
+
+**Đang chạy ngầm:** formal recovery soak `pulse-recovery-formal-c1-20261005`,
+đăng ký **09:06:19 ICT**, **89.880 s/node** (24 giờ58 phút), `diagnostic_only=false`.
+Coordinator/systemd trên master234; ba worker237/238/239 đã active, tail ready,
+detector restart0, health không degraded tại receipt START. Scope16/19/15 key,
+union **21/21 model key**; không suy thành50 workload độc lập.
+Chưa có terminal hoặc formal PASS; startup unavailable không tính normal.
+
+Runtime source vẫn **`1c03987`**, 21 model ExtraTrees, feature249, cadence500ms,
+history3, alpha0,001 và policy frozen **không đổi**. Crash/resume cùng marker
+và single-writer theo run đã kiểm chứng trước đó, không restage run terminal.
+
+Thêm **guard dung lượng riêng**, source SHA`bc5c3ea6…`, không sửa coordinator
+frozen hoặc gate đánh giá: preregister trước launch, bind marker thật, probe
+hai filesystem/3 worker mỗi30 s. Budget mới available>0/used<90%, unknown≤60 s;
+không reserve cố định64 GiB, không xóa dữ liệu, không sửa marker cũ max85%.
+Nếu vượt, chỉ dừng coordinator child đang sở hữu; guard không cấp formal PASS.
+
+**Đã đo:** diagnostic dùng guard `pulse-recovery-capacity-diagnostic-c1-20261005`,
+180 s/node, terminal **09:04:50 ICT**: integrity gate đạt, node report3/3 valid,
+seal coordinator12/12 +guard4/4 khớp. **23.413 decision /19.812 scored /0 alert**;
+giữ433 suppressed,2.791 telemetry-degraded,810 warming. Union valid exposure
+**0,93272273 workload-hour**, không đủ24h/key; 0 alert không chứng minh FPR=0.
+Regression main+guard: subset168/168 host/VM; full host892 passed/7skip/+20subtest,
+VM933 passed/+20subtest; số khác do dependency tùy chọn.
+
+**Kỳ vọng, chưa đo:** kernel-to-alert1–2 s. Formal đang chạy là normal exposure,
+không blind attack/recall/precision/kernel-to-alert. Không tự mở blind/promote,
+không chỉnh model/policy theo holdout. Có thể nhắc tiếp tục khoảng
+**10:40 ICT ngày06/10/2026** để kiểm tra terminal và scored exposure thật; đây
+là lịch dự kiến có slack finalization, không đảm bảo PASS.
+
+[Toàn bộ luồng và ví dụ log thật](SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md),
+[receipt START formal](validation-evidence/recovery-formal-c1-20261005/START_REMOTE_RECEIPT.json),
+[terminal diagnostic guard](validation-evidence/recovery-capacity-c1-20261005/TERMINAL_REMOTE_RECEIPT.json),
+[test receipt](validation-evidence/recovery-capacity-c1-20261005/TEST_RECEIPT.json),
+[checksum raw đã SSH đọc lại](validation-evidence/recovery-resume-c1-20261005/SOURCE_RECHECK.json).
+## Checkpoint lịch sử 04/10/2026 — 22:21 ICT
+
+Đã triển khai coordinator SSH/systemd ba worker, source frozen `dd872e7`,
+giữ nguyên 21 model/policy. Diagnostic mới
+`pulse-recovery-fleet-diagnostic-c1-20261004` đăng ký **22:16:03**, 600 s/node,
+scope 16/19/15 key và union21/21. Checkpoint SSH22:17: cả ba active/tail ready,
+detector restart0, coordinator monitoring, dependency health không degraded.
+Startup được ghi unavailable, không normal; integrity failure khác SSH timeout.
+
+Coordinator nối preregistration→attestation→launch→parallel health/runtime
+probes→worker seal verification→streaming node reports→aggregate. Journal/API
+evidence được giữ. Diagnostic đang chạy, **chưa có terminal hoặc formal PASS**;
+không claim recall/FPR=0/kernel-to-alert từ checkpoint. Không tự mở blind,
+formal24h hoặc promote. Dự kiến kiểm tra terminal **22:30 ICT 04/10**.
+
+Host832 test +20 subtest đạt (7 skip); VM873 +20 đạt, count khác do dependency
+tùy chọn. [Chi tiết tích hợp](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md),
+[receipt SSH](validation-evidence/recovery-fleet-diagnostic-c1-20261004/START_REMOTE_RECEIPT.json).
+
+Checkpoint đọc decision thật22:21: tổng37.063 decision/34.394 scored/0 alert,
+union21/21 key. Giữ2.341 degraded và328 warming. p99 đầu window→sau policy
+theo worker237/238/239: **1,282/1,385/1,290 s**, chỉ trên row đủ mới, trước
+output flush; không kernel-to-alert/FPR/recall. Mọi service cần thiết active,
+0 restart; diagnostic vẫn đang chạy. Evidence từng node liên kết trong status.
+
+## Checkpoint lịch sử 04/10/2026 — 21:40–21:50 ICT
+
+Fault diagnostic `pulse-recovery-fault-smoke-c1-20261004` đã terminal
+**18:49:02**, exit0; SSH verify19 file run +3 preregistration +177 source
+khớp. Replay độc lập trên raw VM cho report giống hệt frozen report.
+**80.084 decision,78.779 scored row/19 key,0 alert**, giữ769 degraded và536
+warming. Một incident đã quarantine→clean recovery; availability cuối
+**0,999437254** đạt floor0,999, excluded6,950973 s, bảy hard counters0.
+
+Đầu window→quyết định sau policy p50/p95/p99/max **0,820/1,050/1,132/1,351 s**
+trên78.779 scored row đủ mới. Không gồm output flush, không kernel-to-alert,
+không recall/zero-FPR hoặc formal24h PASS. Collector experiment/candidate
+đã dừng; control/resolver active,6/6 node Ready và67/67 pod production Ready.
+Không còn job này chạy ngầm; lịch18:50 ở các checkpoint dưới đã hết hiệu lực.
+[Terminal evidence](validation-evidence/recovery-fault-smoke-c1-20261004/TERMINAL_REMOTE_RECEIPT.json).
+
+Code mới nối installer freshness với formal marker/worker attestation và
+launcher worker riêng, không relabel smoke cũ. Smoke evaluator từ chối
+unconsumed feature. Host/VM **557 test +20 subtest đạt**. Còn coordinator
+SSH/systemd ba worker, live health journal và finalization end-to-end; chưa
+khởi động formal recovery soak mới. Model/calibration/policy frozen giữ nguyên.
+[Trạng thái tích hợp](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+
+## Cập nhật hiện hành 04/10/2026 — 18:18 ICT
+
+SSH xác nhận 6/6 node Ready v1.34.10 và 67/67 pod `production` Ready.
+Freshness smoke C1 đã **terminal 11:21:49**, không còn chạy: 26.670 decision,
+25.718 scored row/19 key, 818 queue-stale degraded, 134 warming, **0 alert**.
+Checksum 18 file run +3 file preregistration được kiểm tra lại khớp. Đầu
+window→quyết định sau policy p99 **1,278 s**, max **1,527 s**, chỉ trên row
+đủ mới; chưa gồm output flush, **không phải kernel-to-alert hoặc FPR=0**.
+[Terminal receipt](validation-evidence/recovery-freshness-dev-20261004/TERMINAL_REMOTE_RECEIPT.json).
+
+Source riêng `7e1c04cdeb564c1368eb2f2dc97bcb7b8f1aac8c` thêm formal core
+(registration/attestation/resume, supervisor state machine, streaming evaluator,
+interval union/aggregate) và controlled collector fault diagnostic. Host/VM
+đều **542 test +20 subtest đạt**; core chưa nối coordinator SSH/systemd ba
+worker end-to-end, **chưa có formal recovery soak/PASS mới**.
+
+Diagnostic mới `pulse-recovery-fault-smoke-c1-20261004` đang chạy riêng `.238`,
+collector START **18:18:06,869 ICT**, duration **1.800 s**. Preregister duy
+nhất một lần SIGSTOP/SIGCONT **1.200 ms** của private projected loader sau
+120 s; không dừng control collector hoặc sửa pod AIMS, không inject attack.
+Checkpoint 18:18:41: parent/collector/detector/control/resolver active, 0 restart;
+1.335 decision, 520 scored row/19 key, **0 alert**. Chưa đến giờ fault ở
+checkpoint này, chưa kết luận recovery thành công. Dự kiến kiểm tra terminal
+**18:50 ICT 04/10/2026**; job tự dừng, evaluate và giữ checksum/verdict.
+Model, alpha, calibration và semantic policy frozen không đổi; không mở blind
+hoặc promotion. [Start receipt](validation-evidence/recovery-fault-smoke-c1-20261004/START_REMOTE_RECEIPT.json).
+
+Các checkpoint/lịch chờ 11:23 hoặc 02:10 dưới đây là lịch sử.
+
+**Checkpoint sau fault18:21:** pause diễn ra thật1,200428 s; event được bind
+với preregistration/private loader. Replay event/journal xác nhận quarantine
+sequence223 rồi clean recovery; tailready/epoch1/incidents1. Có hai snapshot
+thiếu ước tính, excluded6,951 s, maxgap1,380 s; availability tạm thời0,994169
+**chưa đạt floor0,999**, phải kiểm tra lại lúc terminal, không miễn gate.
+Checkpoint18:20:42 có6.687 decision/5.541 scored/19 key/0 alert, các service
+active/0 restart. [Review](validation-evidence/recovery-fault-smoke-c1-20261004/LIVE_FAULT_REVIEW.json).
+
+**Checkpoint04/10/2026:** pressure ML canary C2 đã **reject00:02:31 ICT**:
+179.034 decision, **1 alert Redis Sentinel** trên worker4. Collector cùng node
+gap13,208959 s, availability0,990699. Giữ alert và telemetry rejection;
+không tự làm alert vô hiệu vì hạ tầng. Alert đi sau gap khoảng2 s;
+observer độc lập cũng trễ13,643 s. Cả ba observer đã kết thúc01:46–01:47,
+checksum23/23 mỗi node đạt. Lịch chờ02:10 dưới đây đã hết hiệu lực.
+Đã nối recovery profile vào worker installers/unit rendering và thêm runtime
+smoke/evaluator riêng, không tạo legacy formal PASS. Model/policy frozen không
+sửa. Smoke đầu dừng trước deploy vì root Git ownership; sửa scoped trust,
+retry phải dùng source/run mới. Formal recovery lifecycle vẫn chưa xong.
+[Incident, số liệu và thay đổi](docs/archive/PULSE_PRESSURE_C2_INCIDENT_20261004.md).
+
+Recovery deployment release`ef056f5`: smoke C2 trên`.238` đã terminal
+**10:56:48 ICT**, exit0; checksum17 file run +3 file preregistration khớp.
+26.648 decision,26.290 scored row/19 workload,0 alert,358 warming,371
+suppressed; không phải formal PASS. Không có incident recovery trong smoke.
+Audit latency phát hiện backlog: toàn run đầu window→sau model p99 **12,551 s**;
+sau120 s startup p99 **1,907 s**, max2,457 s, vẫn156 row vượt2 s. Phép đo
+chưa bao gồm policy/output, không phải kernel-to-alert. Đang xác minh release
+riêng thêm processing-age gate, giữ nguyên model/policy và evidence cũ.
+**Formal recovery prereg/supervisor/finalizer/scored exposure chưa tích hợp**;
+không có formal recovery soak đang chạy. [Trạng thái và evidence](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+
+Release freshness`f476462` test host/VM483 +20 subtest; canary riêng `.238`
+START11:11:21, duration600 s. Checkpoint11:12:03:1.645 decision,807 queue-stale
+degraded giữ lại,769 scored/19 key,0 alert; p99 đầu window→sau policy **1,155 s**
+trên scored row, không output flush/kernel-to-alert hoặc formal PASS. Review
+**11:23 ICT04/10**. Không bỏ stale khỏi raw hoặc gọi chúng là normal.
+
+**Checkpoint mới 03/10, khoảng 23:40 ICT:** đã thêm recovery core opt-in
+(quarantine, reset rolling/model history, replay validator, watchdog và training
+interlock), release `936d3df`; host/VM **435 test +20 subtest đạt**. Chưa nối
+profile recovery vào lifecycle formal, chưa recovery PASS/promotion.
+Diagnostic C1 trước đó đã reject: supervisor gặp SSH unreachable, terminal
+worker4 gap **16,485 s**, 90.343 decision/0 alert không được claim normal PASS.
+Observer C1 failed exit126, không có dữ liệu PSI/clock như dự kiến; launcher
+đã sửa và observer C2 có sample/sar thật trên 3/3 node từ 23:36.
+ML diagnostic C2 START **23:37:48**, duration 7.200 s, giữ source/model/policy
+cũ và gap contract 10 s; không bật recovery. Kiểm tra terminal khoảng
+**02:10 ICT 04/10**, không đảm bảo PASS. Xem
+[PULSE_TELEMETRY_RECOVERY.md](PULSE_TELEMETRY_RECOVERY.md) để phân biệt code đã
+test, deployment đang chạy và tích hợp formal còn thiếu.
+
+**SSH mới 03/10/2026, khoảng 23:10–23:18 ICT:** operational projected run
+`pulse-projected-operational-c1-20261003T050000Z` đã infrastructure-reject
+lúc **20:13:34**, sau khoảng 8 giờ 8 phút, vì gap **14,030 s** trên worker3
+vượt contract 10 s. Không có counter consistency/projection/total/target
+failure. Archive **52/52 checksum** và START 5/5 kiểm tra lại khớp; controls
+phục hồi, candidate dừng. Snapshot cuối bất đồng bộ **3.806.735 decision,
+0 alert/restart** không được tính là normal/operational PASS hoặc FPR=0.
+Thêm đo service cgroup pressure/clock cho diagnostic canary mới; không sửa
+model/policy hoặc nới telemetry contract. Cụm hiện 6/6 node Ready, 67/67 pod
+production Ready, 29/29 volume healthy. Chi tiết:
+[operational report](docs/archive/PROJECTED_OPERATIONAL_SOAK_20261003.md).
+Các checkpoint “đang chuẩn bị” dưới đây là lịch sử.
+
+**Terminal SSH 03/10/2026, 11:50:47 ICT:** projected ML canary đã hoàn tất,
+aggregate valid, **114.984 decision, 21/21 key, 0 alert, 0 restart**.
+START 10/10 và FINAL 76/76 checksum khớp. Inference p99 **30,092 ms**;
+đầu window → timestamp sau inference p99 **1,053 s**, max **1,376 s**.
+Timestamp chưa bao gồm policy/output; **chưa phải kernel-to-alert** và không
+chứng minh FPR=0/recall. Candidate đã dừng, control collectors active.
+Đang chuẩn bị operational soak projected mới, không đổi model/policy frozen.
+[Terminal receipt](validation-evidence/projected-ml-c1-20261003/TERMINAL_RECEIPT_20261003.json).
+Các checkpoint ACTIVE và lịch 10:35 bên dưới là lịch sử đã kết thúc.
+
+**Checkpoint mới 03/10/2026, 10:15 ICT:** đã mở **ML live-normal canary trên
+3/3 worker bằng projected counters**; model/policy R10-C1 frozen không đổi.
+Run `pulse-projected-ml-c1-20261003T031200Z`, duration 900 s/node, source riêng
+readonly. Checkpoint bất đồng bộ có **9.172 decision, 0 alert, 0 restart**;
+telemetry tails valid, control binary hashes trước/sau khớp. Đây chưa phải
+normal gate/production PASS hoặc kernel-to-alert measurement.
+Regression main host/VM đạt **375 test + 20 subtest**. Finalizer/supervisor
+systemd chạy ngầm; dự kiến thu xong khoảng 10:30 rồi archive, kiểm tra **10:35
+ICT ngày 03/10**. Chi tiết ở
+[PROJECTED_ML_CANARY_20261003.md](docs/archive/PROJECTED_ML_CANARY_20261003.md).
+Đoạn checkpoint 10:02 bên dưới là trạng thái lịch sử trước khi mở ML canary.
+
+**Monitor 10:21 ICT:** ML canary còn active, tổng **49.318 decision** từ ba
+checkpoint bất đồng bộ, **0 alert**, chưa FAILED/COMPLETE. Finalizers đang chờ
+deadline thu; lịch kiểm tra 10:35 giữ nguyên. Không lấy số này làm FPR=0.
+
+**Cập nhật 03/10/2026, 10:02 ICT:** operational soak R10-C3 đã
+**infrastructure-reject lúc 11:37:15 ICT** vì collector snapshot consistency
+retry exhausted trên worker1. Archive đã freeze và checksum được kiểm tra
+lại thành công; detector Pulse candidate đã dừng, control collector phục hồi.
+Snapshot monitor cuối bất đồng bộ có tổng 212.949 decision, 0 alert, **không
+được tính là normal-pass hoặc dùng để train/tune**. Lịch finalize C3 ngày
+03/10 đã mất hiệu lực.
+
+Đã bổ sung projected counters opt-in để bỏ cập nhật các bản đếm syscall dư
+thừa gây race consistency, giữ schema 249 và frozen model/policy. Regression
+host và VM main: **370 test + 20 subtest pass**, gồm kiểm tra duration/coverage
+và checksum canary. Worker1 đã terminal đạt collector safety review:
+**38.505 row, 1.776 snapshot, 16/16 key trên node**, hard counters 0,
+p99 window-start-to-feature-emit **0,547 s**; không phải kernel-to-alert.
+Hai canary worker3/worker4 đã terminal **09:59 ICT ngày 03/10**: full capture
+validation valid, lần lượt 38.832/40.075 row, hard counters 0; safety review
+tự động cũng đã exit 0, source/duration/coverage đạt. **3/3 worker đạt collector
+safety review**, tổng 117.412 row, observed union 21 key; p99 đầu window đến
+feature emit 0,542–0,547 s. Không có canary còn chờ; không cài thay collector
+chuẩn, ML candidate vẫn dừng. Chi tiết và evidence ở
+[PROJECTED_COUNTER_CANARY.md](docs/archive/PROJECTED_COUNTER_CANARY.md) và
+[operational runbook](OPERATIONAL_SOAK_RUNBOOK.md).
+
+Model V8 riêng đã [retire vào backup rồi chuyển backup vào Trash có thể phục hồi](docs/archive/V8_MODEL_RETIREMENT.md),
+không xóa model Pulse. [Ánh xạ 249 feature](SENTINEL_PULSE_FEATURES_249.md) đối
+chiếu với manifest.
 
 **Trạng thái tài liệu:** đang cập nhật cùng implementation
-**Snapshot cluster:** 30-09-2026 lúc 02:38 UTC, SSH trực tiếp;
-6/6 node Ready v1.34.10, 66 pod namespace production Running; kiểm tra tiếp
-xác nhận tất cả pod production Ready và 19 controller khớp revision R10.
+**Snapshot cluster:** 03-10-2026 lúc 09:43 ICT, SSH trực tiếp;
+6/6 node Ready v1.34.10, 67/67 pod namespace production Ready,
+29 volume Longhorn healthy. Snapshot health không tự approve revision mới.
 **Mục tiêu latency:** median ≤ 1 giây, p99 kernel-to-alert ≤ 2 giây
 **Trạng thái hiện tại:** R10/R4-C1 đã train xong 21/21 model, bundle SHA-256
 được kiểm tra lại ngày 30-09. Benchmark inference p99 31,27 ms; chưa có kết quả
@@ -3128,22 +3363,226 @@ Nguyên nhân chính là `collector_integrity_violation` tại worker `10.1.16.2
 `snapshot_consistency_retry_exhausted=1` làm `target_snapshot_gap=1`.
 Finalizer worker1 đọc 2.650.897 feature row; cadence p99 0,5129 giây và ingest
 lag p99 0,0366 giây vẫn đạt, nhưng hai integrity counter bắt buộc bằng 0 nên
-capture không hợp lệ. Worker4 (`10.1.16.238`) cũng trượt telemetry gate:
-3.853.988 row, 17 delayed intervals, availability 0,998940 dưới mức 0,999 và
-gap lớn nhất 22,208 giây (giới hạn 10 giây). Worker4 cadence p99 0,5126 giây,
-nhưng các gap dài vẫn làm toàn node không hợp lệ. Không cứu row của bất kỳ node
-nào trong run này để train/tune và không mở blind attack.
+capture không hợp lệ. Worker3 (`10.1.16.239`) cũng không đạt cadence gate:
+3.579.468 row, 8 delayed interval, availability 0,999374 nhưng gap lớn nhất
+43,460 giây, vượt giới hạn 10 giây. P99 interval cả ba node vẫn gần mục tiêu
+500 ms; điều đó không bù được các khoảng mất telemetry dài. Vì vậy cả ba
+node-finalize đều `valid=false`: worker1 do hard integrity counter, worker3 và
+worker4 do cadence gap. Không dùng bất kỳ row nào của run này cho train/tune và
+không mở blind attack.
 
-Tại lần cập nhật báo cáo này, worker1 và worker3 đã được finalize; worker4 đang
-đọc/validate capture rồi mới nén archive. `ARCHIVE_COMPLETE`, checksum index
-cuối cùng và việc phục hồi control collector vẫn đang chờ archive kết thúc.
-Run được giữ nguyên tại
+Archive hoàn tất lúc 11:56:13 UTC ngày 01-10-2026. `RAW_SHA256SUMS` có 41 mục;
+`sha256sum -c` trả về thành công cho cả 41/41. Ba capture được giữ nguyên dưới
+`infrastructure-failure/workers/` trên master; SHA-256 lần lượt là
+`0fad59d9…ca67a6` (worker1), `212af1b2…937068` (worker3), và
+`f1d4b358…def927b` (worker4). Archive không promote candidate hay đổi
+disposition: `accuracy_claim_allowed=false`, `automatic_promotion=false`, và
+các cờ training/tuning/blind attack đều false. `CONTROL_COLLECTOR_RESTORED.json`
+ghi nhận phục hồi lúc 11:55:29 UTC; kiểm tra trực tiếp sau đó xác nhận
+`sentinel-pulse-collector.service` active trên cả ba worker. Detector candidate
+vẫn audit-only/inactive như mong đợi.
+
+Run/evidence gốc vẫn được giữ tại
 `/home/dat/sentinel-pulse-evidence/formal-normal-r10-c1-20260930` trên master.
-Phần archive sẽ được cập nhật khi các checksum cuối và trạng thái service được
-xác minh.
+Đây là lần chạy bị loại do integrity/availability, không phải bằng chứng model
+đạt hay không đạt chất lượng phát hiện. Chưa xác lập quan hệ nhân quả với backup,
+CPU hay tải node nếu chưa đối chiếu timestamp chính xác của từng gap.
 
 Phân tích code cho thấy loader chỉ thử map snapshot 8 lần liên tiếp, không nghỉ
 giữa lần đọc. Successor prospective tăng giới hạn lên 32 retry, cách nhau 50
 microsecond, đồng thời xuất counter `snapshot_consistency_retries`. Exhaustion
 vẫn bị xem là hard integrity failure. Thay đổi này áp dụng cho run mới và không
 thay đổi disposition của C1.
+
+### Kiểm tra traffic và hạ tầng sau C1 (01-10-2026)
+
+Traffic gate live chạy lúc `2026-10-01T12:02:19Z` thất bại, nên không khởi chạy
+canary kế tiếp. Mười Argo Rollout đều Healthy 4/4 tại snapshot kiểm tra. Trong
+20 request tới `security-telemetry-service`, có 19 HTTP 200 và một
+`TimeoutError`; ingress `/` và `/api/health/` đạt 20/20. Gate cũ kiểm tra
+`/api/products/` nên thất bại 20/20, trong khi loadgen đã dùng route phân trang
+hợp lệ `/api/products/?page=1`. Gate source đã được sửa để dùng cùng route và
+focused tests đạt 4/4.
+Receipt đầu ra gốc được lưu tại
+`validation-evidence/traffic-gate-r10-c1-retry-20261001/traffic-gate.json` và
+trên master tại `/home/dat/sentinel-pulse-evidence/traffic-gate-r10-c1-retry-20261001.json`.
+Sau khi đổi gate sang route phân trang và chờ node hồi phục, lần chạy thứ hai
+`2026-10-01T12:13:34Z` pass: 20/20 HTTP 200 cho từng 10 east-west service và
+20/20 cho mỗi ingress route (`/`, health, products page 1); không có gate error.
+Đây là smoke/coverage gate ngắn, không thay thế thời gian quan sát ổn định hay
+canary telemetry. JSON gốc nằm ở
+`validation-evidence/traffic-gate-r10-c1-retry-20261001/traffic-gate-v2.json`
+và `/home/dat/sentinel-pulse-evidence/traffic-gate-r10-c1-retry-20261001-v2.json`.
+
+Cùng khoảng thời gian, Kubernetes ghi nhận worker1 `NodeNotReady`, probe timeout
+trên nhiều workload và PostgreSQL primary pod bị liveness-restart; CNPG sau đó
+trở lại Ready với 3/3 instance. Kernel log worker1 có iSCSI ping timeout,
+connection error 1022 và SCSI device reset; worker4 cũng ghi nhận lỗi tương tự
+đến ít nhất 12:09:31 UTC. Cùng khoảng thời gian, Longhorn instance-manager log
+các kết nối bị từ chối tới replica endpoint `10.0.4.244`. Longhorn hiện báo cả
+29 volume `healthy`, ba Longhorn node Ready, sáu Kubernetes node Ready và các
+rollout AIMS Healthy; trạng thái healthy hiện tại không xóa bằng chứng transient
+disruption. Đây là tương quan hạ tầng, chưa chứng minh nguyên nhân của từng
+telemetry gap C1. Traffic gate sửa lại sau đó đã pass; bounded canary bên dưới
+cũng ghi nhận telemetry liên tục trên cả ba worker. Tuy nhiên 15 phút không đủ
+để kết luận storage/node ổn định dài hạn. Formal soak kế tiếp vẫn phải giữ nguyên
+telemetry hard-fail contract và theo dõi node/storage; không đổi timeout hoặc bỏ
+request lỗi chỉ để làm gate xanh.
+
+Lý do preregister soak 24 giờ là phủ ít nhất một chu kỳ ngày/đêm và các tác vụ
+vận hành có lịch như backup/reconnect; đây là thời lượng xác nhận normal, không
+phải thời gian train và không phải ngưỡng phổ quát. Với cadence 500 ms, trần lý
+thuyết là 172.800 window cho mỗi workload hoạt động liên tục trong một ngày.
+Ngay cả 0 alert trong 24 giờ cũng chỉ cho phép báo exposure và giới hạn thống kê
+có điều kiện; window phụ thuộc thời gian nên không thể coi toàn bộ mẫu là độc
+lập, và một lần chạy không chứng minh FPR quần thể bằng 0. C1 không đạt gate
+integrity/duration nên không được tính là một ngày normal pass.
+
+### Bounded live-normal canary sau C1 (01-10-2026)
+
+Sau khi traffic gate đã pass và không ghi nhận thêm iSCSI timeout/reset trong lần
+kiểm tra trước canary, chạy non-formal normal-only canary
+`sentinel-pulse-canary-r10-c1-retry-20261001` trên worker1/worker3/worker4.
+Thời lượng capture thực đo 902,67–903,87 giây. Model/policy giữ nguyên checksum
+đã freeze; không inject attack, không dùng blind outcome và không automatic
+promotion.
+
+Aggregate hợp lệ: **114.964 decision, 0 alert, 0 detector restart**. Cả 21
+workload key đều pass coverage gate, không thiếu hoặc có workload ngoài danh
+sách; frontend đạt 906/908 bucket một giây (coverage 0,9978). Telemetry cả ba
+node đạt availability 1,0, zero cadence violation, zero estimated missing
+snapshot và toàn bộ hard-drop counter bằng 0. `FINAL_SHA256SUMS` xác minh thành
+công **73/73 mục** trên master. Các collector production đã active lại; detector
+candidate và 500-ms experiment inactive trên cả ba worker sau run.
+
+Số đo timing của đường normal: inference p99 **30,77 ms**; window-start-to-decision
+p99 **1,096 giây**, max **1,570 giây**. Đây là latency quyết định trong normal
+observation, không phải kernel-to-alert thực nghiệm vì không có alert/attack để
+đo injection-to-alert. Per-node window-start-to-emit p99 lần lượt worker1/
+worker3/worker4 là 0,546/0,549/0,545 giây. Experiment CPU trung bình xấp xỉ
+0,073/0,075/0,074 core và peak memory 109,4/108,9/110,2 MB.
+
+Đây là canary **15 phút**, không phải formal normal-soak pass. Aggregate ghi
+`accuracy_claim_allowed=false` và `automatic_promotion=false`; 0 alert trên một
+canary ngắn không chứng minh FPR thấp hoặc bằng 0, cũng không thay thế blind
+attack evaluation. Bằng chứng compact nằm trong
+`validation-evidence/canary-r10-c1-retry-20261001/`; raw capture/decision stream
+được giữ trên master tại
+`/home/dat/sentinel-pulse-evidence/canary-r10-c1-retry-20261001`.
+
+Phân tích decision stream cho thấy 1.182 decision ở trạng thái `suppressed`
+trong tổng 114.964 (1,028%); cả 1.182 đều có `raw_model_anomalous=true`, nhưng
+không decision nào đạt semantic corroboration. Có 91 decision đạt score
+corroboration; vẫn bị suppress vì thiếu semantic corroboration. Search service
+có 881/6.959 raw flags (12,66%), Kafka entity operator 71/1.736 (4,09%), và
+Kafka dual-role 59/5.219 (1,13%). Đây là raw-model signal rate trên normal-only
+canary, chưa phải nhãn false positive có ground truth; đồng thời cho thấy policy
+đã chặn các tín hiệu này khỏi thành final alert. Đối chiếu read-only với feature
+stream ghép được 881/881 raw flags của search. Theo node, exact syscall total của
+nhóm raw có p50 24–25 và p90 36–38; nhóm không-raw có p50 18 nhưng p90
+1.370–1.427, phản ánh đuôi workload high-load rộng hơn nhiều. Mỗi counter trong
+`setuid`, `setgid`, `capset`, `connect` và `execve` khác 0 ở 16/881 cửa sổ; hợp
+của năm counter xuất hiện ở 30/881 cửa sổ. Do đó nhóm counter này không giải
+thích phần lớn raw flags. Đây là tương quan
+mô tả, chưa chứng minh nguyên nhân (ví dụ workload regime/low-volume sensitivity)
+và không cung cấp ground-truth label. Vì vậy kết quả đúng là “0 final alert trong
+canary ngắn, nhưng raw model còn phát nhiều tín hiệu cần điều tra”, không phải
+“model không có false positive”. Canary không được dùng để train, tune ngưỡng,
+hay chọn lại model.
+
+### Readiness snapshot sau canary (01-10-2026, 19:49 ICT)
+
+Kiểm tra trực tiếp sau run: cả 6 Kubernetes node `Ready`, CNPG PostgreSQL
+`3/3` Ready, Longhorn có 0/29 volume không-healthy. Trên worker1/worker3/worker4,
+collector production đều `active`; collector experiment và detector candidate
+đều `inactive`. Root filesystem còn lần lượt khoảng 247,5/127,1/204,1 GB; worker3
+đang ở 80% used, tức đúng biên tối đa hiện hành của preflight (không vượt biên,
+nhưng cần đo lại ngay trước soak). Đây là snapshot một thời điểm, không phải bằng
+chứng ổn định kéo dài.
+
+### Formal normal soak R10-C2 (đã dừng; xác minh 02-10-2026)
+
+Để giữ nguyên workspace chính đang có thay đổi, soak chạy từ worktree tách biệt
+`/home/dat/eBPF-project-formal-r10-c2-20261001`, source commit
+`05c09a79ea608486374e3b694e3d0d070ab51ec0`. Snapshot chỉ chứa sửa route ingress
+products sang `/api/products/?page=1` và test gate tương ứng; không đưa các sửa
+đổi tài liệu/user files ngoài scope vào source commit. Formal traffic gate trước
+run pass: 20/20 cho từng 10 east-west service và 20/20 cho mỗi ingress route.
+
+Run `sentinel-pulse-r10-c2-formal-20261001` bắt đầu **2026-10-01 13:08:37 UTC
+(20:08:37 ICT)** sau khi cluster giữ preflight healthy liên tục 321 giây. Thời
+lượng đăng ký 86.400 giây, cadence 500 ms, tối thiểu 24 giờ/workload; điều kiện
+telemetry availability ≥0,999, max single gap 10 giây, zero hard collector drop,
+zero alert cho phép qua normal gate. Model SHA-256 giữ nguyên
+`6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21`, policy SHA
+`602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143`.
+
+Snapshot monitor lúc **13:11 UTC** xác nhận cả ba worker đều có experiment
+collector và candidate detector `active`, collector cũ `inactive`; không restart,
+không monitor error, 0 alert. Telemetry từng node availability 1,0; observed max
+interval 0,513/0,524/0,516 giây (worker1/3/4). Decision count lúc đó lần lượt
+5.600/4.699/3.725. Đây chỉ là vài phút đầu, chưa phải kết quả soak và không chứng
+minh FPR thấp. `automatic_promotion=false`; không có attack injection/training,
+và `STOP_AFTER_NORMAL=true` nên lifecycle **không tự mở blind attack phase**.
+
+Đủ 24 giờ vào **2026-10-02 13:08:37 UTC (20:08:37 ICT)**; finalize có thêm margin
+mặc định 300 giây, nên thời điểm dự kiến sớm nhất khoảng **20:13:37 ICT** nếu
+monitor và integrity tiếp tục đạt. Evidence start receipt nằm tại
+`validation-evidence/sentinel-pulse-r10-c2-formal-start/`; full captures và
+monitor đang được ghi trên master trong
+`/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/`.
+
+**Cập nhật terminal:** R10-C2 đã dừng fail-closed lúc `2026-10-01T15:51:28Z`
+(22:51:28 ICT), sau khoảng 2 giờ 43 phút, do `unhealthy_longhorn_volume`.
+Failure snapshot ghi ba volume degraded thuộc Kafka, OpenSearch và Tempo.
+Disposition là `rejected_infrastructure_failure`, candidate chưa được đánh giá
+bởi run này. Snapshot monitor cuối mỗi worker có tổng 1.260.946 decision,
+0 alert và 0 detector restart; đây không phải tổng cuối của toàn decision stream.
+Worker4 finalizer còn có availability 0,997703 < 0,999, capture `valid=false`;
+worker1/worker3 capture valid không làm formal run đủ điều kiện normal pass.
+
+Archive hoàn tất lúc `2026-10-01T15:56:33Z`. SSH ngày 02/10 xác nhận cả 38 mục
+trong `RAW_SHA256SUMS` đạt khi kiểm tra từ đúng archive directory. Collector chuẩn
+đã phục hồi trên cả ba worker; experiment/detector inactive. Sáu node Ready và
+29 volume Longhorn healthy tại snapshot sáng 02/10. Lịch finalize dự kiến
+20:13:37 ICT ngày 02/10 ở trên là lịch ban đầu, đã mất hiệu lực khi run terminal.
+Compact terminal receipt: `validation-evidence/sentinel-pulse-r10-c2-formal-terminal/`.
+Không dùng run này cho train/tune, normal-pass hoặc mở blind attack.
+
+### R10-C2: engine timeout và observer hạ tầng (02-10-2026)
+
+SSH đọc rotated log trên worker1 và log engine OpenSearch trên worker3 xác nhận
+ba R/W timeout 8 giây lúc `2026-10-01T15:50:47–50Z`, đều tới instance-manager
+`10.0.4.244` của worker4. Journald worker4 cùng thời điểm có containerd deadline
+exceeded và kubelet housekeeping actual `10.092s` thay vì `1s`. Cơ chế Longhorn
+đánh replica ERR đã rõ; nguyên nhân sâu của gián đoạn xử lý chưa được chứng minh.
+Sysstat 10 phút ghi CPU idle 78,49% ở mẫu 15:50:01, trước timeout; không đủ căn
+cứ để quy cho thiếu CPU/RAM hoặc loại trừ stall ngắn. Kernel journal khoảng lỗi
+không có entry. Giữ nguyên Longhorn/PV/PVC, không tăng timeout để che failure.
+
+Traffic gate mới ngày 02/10 pass 20/20 cho cả 10 east-west target và 3 ingress
+route; application Rollout Healthy 4/4. Kiểm tra này không thay business-flow
+evaluation hay peak holdout. Không thay candidate/policy, không mở blind phase.
+
+Thêm `node_clock_probe.py` và mở rộng `record_node_pressure.sh`: clock/PSI mỗi
+giây, sysstat network/TCP cùng CPU/I/O và kernel/runtime journal lúc finalize.
+9 test mới pass host/VM; Pulse subset VM 311 passed, 9 subtests passed (29,03s).
+Source được sync main VM và tách riêng trên ba worker, không sửa source formal.
+
+Observer `sentinel-pulse-infra-r10c2-20261002.service` đã active trên ba worker
+từ **10:24 ICT 02/10**, duration 6 giờ, dự kiến hoàn tất **16:24 ICT**. Output
+ở `/var/lib/sentinel-pulse-diagnostics/r10-c2-stall-20261002/` trên mỗi worker;
+unit giới hạn MemoryMax 256 MiB và RuntimeMaxSec 22.200. Đây chỉ là diagnostic
+observer, không phải training/canary/formal soak. Control collectors và AIMS
+loadgen vẫn chạy. Mẫu đầu hợp lệ chưa chứng minh lỗi đã được khắc phục.
+Receipt/log trích đoạn/lệnh kiểm tra sau run:
+`validation-evidence/longhorn-r10-c2-diagnosis-20261002/README.md`.
+
+Checkpoint SSH **10:28 ICT 02/10**: cả ba observer vẫn active, mỗi node mới có
+254 mẫu/253 giây, chưa có FINAL receipt; 0 observer-late/clock offset/PSI read
+error, max interval 1,0027–1,0039 giây. Các số này không phải latency ML.
+Cluster 6/6 Ready, 29/29 volume healthy, 10 Rollout available 4/4 và ba loadgen
+Running. Replica CR snapshot (74 replica) không có `lastFailedAt` mới từ 10:24;
+không đồng nghĩa đã chứng minh không có failure toàn thời gian. Chưa đủ sáu
+giờ, chưa mở formal soak hoặc blind phase. Receipt:
+`validation-evidence/longhorn-r10-c2-diagnosis-20261002/checkpoint-20261002T0328Z.json`.

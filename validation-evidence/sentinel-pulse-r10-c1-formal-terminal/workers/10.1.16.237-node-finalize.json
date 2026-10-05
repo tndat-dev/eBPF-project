@@ -1,0 +1,71 @@
+{
+  "capture_bytes": 5009233819,
+  "capture_sha256": "0fad59d943ac4d8d0939a3957be6e64d1174c62c1e0cf23385319b9decae67a6",
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 1,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 1,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 0.0,
+  "duration_seconds": 61685.18232345581,
+  "ended_at_unix": 1790799951.7825592,
+  "experiment_average_cpu_cores": 0.07053209844117803,
+  "experiment_cpu_seconds": 4350.785352,
+  "experiment_memory_peak_bytes": 537169920,
+  "finalized_at_unix": 1790853796.0609658,
+  "ingest_lag_seconds": {
+    "max": 0.2524590492248535,
+    "p50": 0.017183780670166016,
+    "p95": 0.03033924102783203,
+    "p99": 0.03662872314453125
+  },
+  "interval_seconds": {
+    "max": 1.0115315914154053,
+    "p50": 0.5055384635925293,
+    "p95": 0.509101152420044,
+    "p99": 0.512883186340332
+  },
+  "registered_max_duration_seconds": 86400,
+  "rows": 2650897,
+  "run_id": "pulse500-normal-r10-c1-20260930",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 0.233514547,
+    "p50": 0.003487587,
+    "p95": 0.00623107,
+    "p99": 0.009294987
+  },
+  "started_at_unix": 1790738266.6002357,
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 121914,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "validation_errors": [
+    "collector loss: snapshot_consistency_retry_exhausted=1",
+    "collector loss: target_snapshot_gap=1"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 1.0185868740081787,
+    "p50": 0.5230779647827148,
+    "p95": 0.5367674827575684,
+    "p99": 0.5435807800292969
+  },
+  "workload_count": 16
+}

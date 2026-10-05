@@ -1,73 +1,48 @@
-# eBPF Runtime Sentinel
+# eBPF Runtime Sentinel — Sentinel Pulse
 
-The working runtime pipeline is under `ml-service/`; production-like Kubernetes
-policies, systemd deployment, attack generators and reproducible benchmarks are
-under `sentinel/`. The detector consumes all Tetragon node streams, currently
-builds 10-second per-deployment syscall n-gram windows, scores a robust-tail LSTM model,
-applies EVT-POT thresholding plus an independent kernel behavior gate, and hands
-alerts to the four-step isolation responder.
+Hướng phát triển hiện tại là **Sentinel Pulse**: thu syscall bằng eBPF counters,
+trích xuất feature và phát hiện bất thường theo workload/container bằng
+ExtraTrees. Tài liệu tổng thể ở [sentinel-pulse.md](sentinel-pulse.md);
+hướng dẫn code và triển khai ở [sentinel_pulse/README.md](sentinel_pulse/README.md).
 
-The systemd detector is active in audit/dry-run mode with full Tetragon coverage
-gating. The production V7 release uses a validated 10-second cadence. Isolation
-Forest is retained only as a diagnostic; it is not mixed into the actionable
-score. The action decision requires independent kernel corroboration: a
-workload-conditioned behavior gate, or persistent full-threshold ML score plus
-extreme event volume learned only from clean windows. A high score or high
-volume alone is not actionable.
+Bắt đầu tra cứu tại [mục lục tài liệu](DOCS_INDEX.md). Thư mục gốc chỉ giữ
+tài liệu đang dùng; báo cáo V8, canary đã kết thúc và đặc tả Agent đời đầu
+được chuyển vào [docs/archive/](docs/archive/README.md).
 
-The production release was promoted atomically on 1 August 2026 after a strict
-offline gate, an independent four-regime live normal matrix and 15/15 real
-in-container kernel attack trials. All 216 measured normal-control windows had
-zero detections, score crossings, behavior crossings and actionable pairs while
-Tetragon remained healthy on 6/6 nodes. Fast-path early warning matched 6/6
-high-specificity trials at p50/p95/max 0.285/0.919/0.956 seconds. The separate
-ML confirmation path measured min/median/max 7.058/17.303/18.593 seconds; this
-distinction is intentional and must be preserved in paper claims. Atomic model,
-calibration and systemd backups remain available for rollback. Immutable release
-evidence is under `validation-evidence/20260801T153648Z/` and the full history,
-including rejected candidates and root-cause analyses, is in
-`PROJECT_STATUS_REPORT.md`.
+## Tài liệu đang dùng
 
-Sentinel's cluster client uses a dedicated local HAProxy endpoint backed by all
-three Kubernetes control planes; the operator's default kubeconfig remains
-unchanged. Collection and validation now reject API membership failures,
-incomplete DaemonSet coverage, queue backpressure and any unexpected Tetragon
-stream restart. Validation emits runtime-health samples inside every measured
-regime/trial and defaults to the same confirmation policy as the systemd
-production detector.
+- [Kiến trúc, khái niệm và luồng tổng thể](sentinel-pulse.md).
+- [Báo cáo nghiên cứu Pulse và lịch sử đánh giá](SENTINEL_PULSE_REPORT.md).
+- [Tiến độ từ 18/09/2026](TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md).
+- [249 feature](SENTINEL_PULSE_FEATURES_249.md), [định dạng telemetry](WORKLOAD_TELEMETRY_LOG_FORMAT.md)
+  và [ví dụ/lệnh kiểm tra](example.md).
+- [Operational soak runbook](OPERATIONAL_SOAK_RUNBOOK.md),
+  [telemetry recovery](PULSE_TELEMETRY_RECOVERY.md) và
+  [trạng thái tích hợp formal recovery ngày 04/10/2026](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
 
-Key reproducibility entry points:
+Các báo cáo có nhiều checkpoint theo thời gian. Một dòng “active”, lịch kiểm
+tra hoặc phiên bản trong checkpoint cũ không phải trạng thái live hiện tại.
+Đối chiếu run ID, timestamp và terminal receipt trước khi dùng số liệu.
+Mục tiêu latency 1–2 giây không đồng nghĩa đã đạt kernel-to-alert;
+smoke diagnostic cũng không thay cho formal soak hoặc blind attack evaluation.
 
-- `collect_real_baseline.py` and `merge_baselines.py`: immutable real-data
-  collection with checksums;
-- `build_phase_dataset.py` and `train_candidate.py`: mixed-vocabulary-safe,
-  phase-balanced holdout, deterministic seeds and immutable candidate output;
-- `analyze_normal_run.py`, `run_kernel_regression.py` and
-  `run_kernel_matrix.py`: independent normal control and 15-trial real syscall
-  attack validation with injection acknowledgements and dual-clock latency;
-- `promote_candidate.py`: gated, atomic promotion with rollback artifacts;
-- `sentinel/benchmarks/measure_phase.py`: repeated workload/Tetragon/ML overhead
-  measurements with raw ApacheBench output.
+## Bố cục code và bằng chứng
 
-Raw reports and environment captures are stored under
-`sentinel/benchmarks/results/`. Passing results are empirical evidence for this
-cluster, traffic mix and attack implementation; they are not a mathematical
-guarantee of universal zero false positives.
+- `sentinel_pulse/`: collector, features, ExtraTrees, detector, protocol,
+  deployment và evaluation cho Pulse.
+- `tests/test_sentinel_pulse*.py`: regression cho Pulse.
+- `validation-evidence/`: receipts, checksum và kết quả đánh giá; giữ cả
+  lượt bị reject để bảo toàn provenance.
+- `ml-service/`, `sentinel/`: pipeline và benchmark các thế hệ trước;
+  việc source còn trong repo không chứng minh model/service đang active.
+- `agent_runtime/`, `Agent_Runtime_Sentinel_ALL_FILES/`: extension Agent/MCP;
+  không mặc định coi là một phần đã triển khai của ML path Pulse.
 
-The original V1 scripts remain for comparison. The Agent Runtime Sentinel V2
-extension is now scaffolded under `agent_runtime/`:
+## Tài liệu lịch sử
 
-- MCP JSON-RPC parsing and a bounded sliding-window behavior graph
-  (`agent -> tool -> resource`);
-- deterministic graph feature vectors so the current test/evaluation harness can
-  run before PyTorch Geometric is installed;
-- five AI-agent attack scenarios mapped to the V1 evaluation methodology;
-- a realtime graph-to-alert bridge using a robust median/MAD baseline,
-  two-window confirmation and cooldown to suppress legitimate MCP bursts;
-- an eBPF TLS-uprobe skeleton showing the correct split: copy raw bytes in
-  kernel space, parse JSON-RPC in userspace.
-
-The full MCP TLS-uprobe/GAT pipeline in `Agent_Runtime_Sentinel_ALL_FILES/` is
-still a V2 extension and must not be claimed as fully deployed until real MCP
-capture data, a ring-buffer consumer, a minimal HTTPS MCP pod, and an
-independent evaluation exist.
+[V8 status](docs/archive/PROJECT_STATUS_V8.md) và
+[retirement/khôi phục model V8](docs/archive/V8_MODEL_RETIREMENT.md)
+được giữ để tra cứu lịch sử, không làm báo cáo runtime hiện hành.
+Các số liệu và verdict canary/incident vẫn nằm trong
+[thư mục lưu trữ](docs/archive/README.md). Dọn tài liệu không sửa model,
+không xóa raw evidence và không khởi động hoặc dừng workload trên cụm.

@@ -1,0 +1,86 @@
+{
+  "collector": {
+    "ActiveState": "inactive",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "conditional_window_to_post_policy_p99": 1.2543699741363525,
+  "control": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "decisions": 25639,
+  "detector": {
+    "ActiveState": "inactive",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "first_window_start": 1791126981.2645876,
+  "formal_recovery_pass": false,
+  "inputs_sha256": {
+    "FORMAL_WORKER_SHA256SUMS": "eab09ea90097665d90f5a82f2043fb26814e6e2dac50fec810de8d6ad3be0e59",
+    "START.json": "c1512bd08893399f91cf451f8774b10fff62a210a340055169d240518795c2d6",
+    "alerts.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "decisions.jsonl": "aa7de7d7fd1f4c3eac597cb9c07e41a9416e03a651b2b20e58e66b3a9a201bfa",
+    "features.jsonl": "7b5c76f4dfad745675495725e315ce8de65c6ef994af56882f940c1c72443f2f"
+  },
+  "kernel_to_alert_claim_allowed": false,
+  "last_window_end": 1791127580.321513,
+  "old_evaluator_upper_boundary": 1791127578.2759185,
+  "original_reject_verdict_preserved": true,
+  "registered_setup_receipt_at": 1791126977.2759185,
+  "resolver": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "reviewed_at_unix": 1791128153.8486695,
+  "rows_outside_old_setup_anchored_upper_boundary": 107,
+  "run_id": "pulse-recovery-fleet-diagnostic-c1-20261004",
+  "schema": "sentinel-pulse-recovery-c1-terminal-audit-v1",
+  "scored": 24816,
+  "scored_keys": [
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/security-telemetry-service:app"
+  ],
+  "seal_lines": 18,
+  "sealed_files_verified": true,
+  "source_commit": "dd872e706fdae6da50bd3cb551c92278397bbc34",
+  "statuses": {
+    "normal": 24761,
+    "suppressed": 55,
+    "telemetry-degraded": 745,
+    "warming": 78
+  },
+  "systemd_exec_start": "ExecMainStartTimestamp=\nExecMainStartTimestampMonotonic=0",
+  "worker_terminal": {
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "exit_code": 0,
+    "finished_at_unix": 1791127586.599524,
+    "formal_recovery_pass": false,
+    "marker_sha256": "113a29a8b0c41dcfbf134b6fd34158f2bee7b00ff3e8d8080f50f9d57515f7e1",
+    "run_id": "pulse-recovery-fleet-diagnostic-c1-20261004",
+    "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+    "worker_ip": "10.1.16.237"
+  }
+}

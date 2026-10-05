@@ -1,0 +1,20 @@
+{
+  "collector_bpf_object": "/opt/sentinel-pulse/experiments/pulse-projected-pressure-c2-20261003T163700Z/pulse_counter_projected.bpf.o",
+  "collector_loader": "/opt/sentinel-pulse/experiments/pulse-projected-pressure-c2-20261003T163700Z/pulse_counter_projected_loader",
+  "collector_variant": "projected",
+  "kernel": "6.8.0-138-generic",
+  "schema": "sentinel-pulse-500ms-start-v1",
+  "sha256": {
+    "allowlist": "91b13f921f5573df6a69c7e8dd3c9d2f7c23c316a147d676ad9725a01599b162",
+    "bpf_object": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+    "loader": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+    "metadata": "910a50689b8fd42a8b9edc0ffc4f97935f356c10787d928434ce69797508df22",
+    "unit": "d165251bd1f0e4eaecf49c96817413390569098e4f4711962c2ba2f321513f17"
+  },
+  "started_at_unix": 1791045511.37271,
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  }
+}

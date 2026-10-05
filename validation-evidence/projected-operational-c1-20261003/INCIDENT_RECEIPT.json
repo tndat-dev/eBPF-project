@@ -1,0 +1,66 @@
+{
+  "schema": "sentinel-pulse-operational-incident-receipt-v1",
+  "run_id": "pulse-projected-operational-c1-20261003T050000Z",
+  "started_not_before": "2026-10-03T05:05:14.441194+00:00",
+  "source_git_commit": "4c2948f817bb0d856b8b4cb34b5267563af15cdd",
+  "terminal_run_status": "rejected_infrastructure_failure",
+  "failed": {
+    "failed_at": "2026-10-03T13:13:34Z",
+    "host": "10.1.16.239",
+    "reason": "collector_integrity_violation"
+  },
+  "accuracy_claim_allowed": false,
+  "training_allowed": false,
+  "tuning_allowed": false,
+  "blind_started": false,
+  "latest_asynchronous_monitor_decisions": 3806735,
+  "latest_asynchronous_monitor_alerts": 0,
+  "failure_tail": {
+    "collector_max_drops": {
+      "capture_interval_violation": 4,
+      "count_insert_fail": 0,
+      "snapshot_consistency_retry_exhausted": 0,
+      "snapshot_projection_fail": 0,
+      "snapshot_total_mismatch": 0,
+      "target_snapshot_gap": 0,
+      "task_state_update_fail": 0,
+      "transition_insert_fail": 0
+    },
+    "collector_telemetry_availability": {
+      "availability": 0.9991690182296626,
+      "cadence_violation_events": 4,
+      "estimated_missing_snapshots": 48,
+      "maximum_snapshot_interval_seconds": 14.030071496963501,
+      "minimum_snapshot_interval_seconds": 0.5037238597869873,
+      "observed_snapshots": 57715,
+      "schema": "sentinel-pulse-telemetry-availability-v1",
+      "short_interval_events": 0
+    },
+    "errors": [
+      "telemetry maximum gap 14.030071s exceeds 10.000000s"
+    ],
+    "feature_age_seconds": 0.09889078140258789,
+    "feature_interval_seconds": 0.5059680938720703,
+    "interval_seconds": 0.5059680938720703,
+    "path": "/var/lib/sentinel-pulse-500ms/runs/pulse-projected-operational-c1-20261003T050000Z/features.jsonl",
+    "schema": "sentinel-pulse-feature-tail-health-v1",
+    "telemetry_availability_contract": {
+      "maximum_capture_interval_violations": null,
+      "maximum_estimated_missing_snapshots": 180,
+      "maximum_single_gap_seconds": 10,
+      "minimum_availability": 0.999,
+      "nominal_interval_seconds": 0.5
+    },
+    "telemetry_degraded": true,
+    "valid": false,
+    "window_end": 1791033212.9776404,
+    "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+  },
+  "fresh_vm_checksum_verification": {
+    "start_entries": 5,
+    "start_passed": true,
+    "archive_entries": 52,
+    "archive_passed": true
+  },
+  "host_copy": "metadata_only; raw archives preserved on VM"
+}

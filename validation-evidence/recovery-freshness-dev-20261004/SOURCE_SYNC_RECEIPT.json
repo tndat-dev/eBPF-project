@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-selective-host-vm-sync-v1",
+  "vm_root": "dat@10.1.16.234:/home/dat/eBPF-project-main-0aa73e2",
+  "frozen_runtime_source_commit": "f476462519cd7c07131c3ecc2e691d5f74573ada",
+  "host_fetched_ref": "refs/remotes/vm-recovery/runtime/recovery-freshness-20261004",
+  "files_verified": 20,
+  "mismatches": [],
+  "sha256": {
+    "sentinel_pulse/audit_recovery_smoke_latency.py": "976c704e99ad11a102617d42f9e3a4680ef12074dcfa805156b054cb51816c3d",
+    "sentinel_pulse/detector_freshness.py": "4f3b144a43a1113c4043d1a15c1a34f35848ec3cecb7adf5e80c6a8785ef989c",
+    "sentinel_pulse/detect.py": "f7d3814da7edc9ba71d5556280584018cffd4eba3b6b9a0a7b2b4c81c35c0064",
+    "sentinel_pulse/recovery_deployment.py": "930ddd0a2b923b3d4c7c1279550a6f3ac4a0c6388b062bc414f8fc06ce151599",
+    "sentinel_pulse/install_detector_candidate.sh": "01d4b2740d4267ef28bce8ad7a89940e4c30a89c5edea43f8acac87225861ef9",
+    "sentinel_pulse/run_recovery_runtime_smoke.sh": "a84a892983f0bf7b25a91dfb4af2456e3307c219c46c2f80b88acaaca92e03c0",
+    "sentinel_pulse/evaluate_recovery_smoke.py": "5b26acbc2a233c092d15ff5600dccaf2f7c2d25e4eff0c471618475fbe316549",
+    "tests/test_sentinel_pulse_detector_freshness.py": "239f3d8566610af1db5f39fd79924df00852544eabde9686bca005be405b2af6",
+    "tests/test_sentinel_pulse_telemetry_recovery.py": "8d961ef9df6079edc6b55b8fe04eaea45fd92d9b20e3e3e8d69142d2240b032a",
+    "tests/test_sentinel_pulse_recovery_deployment.py": "06748b8b51674a60e09e461c1f59ea16f2279f462abc43457edeb30b6e8d037a",
+    "SENTINEL_PULSE_REPORT.md": "229078f5e9431ea892b0db9d6b14844bb4405ff9e939812f4e020c3b93e5d3d5",
+    "PULSE_TELEMETRY_RECOVERY.md": "406858dcf2266cac485b28f931b02599e248a8818eca69e73c02fc668b6c7130",
+    "PULSE_PRESSURE_C2_INCIDENT_20261004.md": "02c45b9a1097d8eb00f4f5dabdb46d0a5a90a41aafe3bc16c9f8411924f5bcd6",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "855a0e580cde7e90ee2f07a03390abb4fc65b2605d5881a51089dd11555d4a0c",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "d3d0ce41a7cc6afd36b78b61ac7bdb43a06daa890ee9d83584e384f25323853f",
+    "sentinel-pulse.md": "9b1a07cc441fd0767d6c089b6e6715c2d674d26044d00de1431ac5fd68c40a98",
+    "sentinel_pulse/README.md": "959936a0197a16f2b35e23fbb523dffd62b99846d5295897f5aaf80432a359e6",
+    "validation-evidence/recovery-runtime-smoke-c2-20261004/TERMINAL_REMOTE_RECEIPT.json": "d399053be2a1d4b0ede59537ba22f95eca1656526ec6ff131c97afd23aea7cb9",
+    "validation-evidence/recovery-runtime-smoke-c2-20261004/LATENCY_AUDIT.json": "2645935e37dc5ead83a5d36875e7d248dadfde5f7503a4819eed3578a35c4fdc",
+    "validation-evidence/recovery-freshness-dev-20261004/LIVE_CHECKPOINT.json": "8d927fe80e690359ec285e77ea20f2c84c70882f8562cca87b5339cdf5926bd4"
+  },
+  "unrelated_user_changes_preserved": true,
+  "github_push_performed": false
+}

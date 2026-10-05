@@ -1,0 +1,16 @@
+{
+  "schema": "sentinel-pulse-operational-soak-contract-v1",
+  "maximum_alerts_per_workload_hour": 0.01,
+  "maximum_alerts_per_hour_per_workload": 0.05,
+  "maximum_recovery_seconds": 300,
+  "maximum_excluded_seconds": 900,
+  "recovery_exclusion_seconds": 30,
+  "maximum_health_observation_gap_seconds": 180,
+  "additional_workloads": [
+    "production/aims-sentinel-loadgen",
+    "production/aims-sentinel-ingress-loadgen",
+    "production/aims-sentinel-dependency-loadgen"
+  ],
+  "automatic_promotion": false,
+  "automatic_blind_evaluation": false
+}

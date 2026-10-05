@@ -1,0 +1,61 @@
+{
+  "schema": "sentinel-pulse-infrastructure-observer-checkpoint-v1",
+  "checked_at": "2026-10-02T03:28:39.797869+00:00",
+  "run_id": "r10-c2-stall-20261002",
+  "phase": "running_not_complete",
+  "planned_finish": "2026-10-02T09:24:00Z",
+  "workers": {
+    "10.1.16.237": {
+      "checked_at": "2026-10-02T03:28:14.595038+00:00",
+      "clock_offset_changes": 0,
+      "complete_record": false,
+      "elapsed_seconds": 253.27867166511714,
+      "first_unix": 1790911440.704692,
+      "last_unix": 1790911693.9833646,
+      "late_samples": 0,
+      "max_interval_seconds": 1.00394680025056,
+      "read_error_samples": 0,
+      "samples": 254,
+      "terminal_receipt_exists": false
+    },
+    "10.1.16.239": {
+      "checked_at": "2026-10-02T03:28:14.343167+00:00",
+      "clock_offset_changes": 0,
+      "complete_record": false,
+      "elapsed_seconds": 253.25237175496295,
+      "first_unix": 1790911440.6948721,
+      "last_unix": 1790911693.9472444,
+      "late_samples": 0,
+      "max_interval_seconds": 1.0026570279151201,
+      "read_error_samples": 0,
+      "samples": 254,
+      "terminal_receipt_exists": false
+    },
+    "10.1.16.238": {
+      "checked_at": "2026-10-02T03:28:14.503271+00:00",
+      "clock_offset_changes": 0,
+      "complete_record": false,
+      "elapsed_seconds": 253.27025171602145,
+      "first_unix": 1790911440.9057732,
+      "last_unix": 1790911694.1760259,
+      "late_samples": 0,
+      "max_interval_seconds": 1.0031086150556803,
+      "read_error_samples": 0,
+      "samples": 254,
+      "terminal_receipt_exists": false
+    }
+  },
+  "replica_snapshot": {
+    "checked_at": "2026-10-02T03:28:39.797869+00:00",
+    "replicas_last_failed_since_start": [],
+    "replicas_total": 74,
+    "since": "2026-10-02T03:24:00Z"
+  },
+  "data_use": {
+    "formal_normal_gate": false,
+    "training": false,
+    "tuning": false,
+    "blind_attack": false
+  },
+  "note": "Early diagnostic snapshot only; no claim that node stall was fixed."
+}

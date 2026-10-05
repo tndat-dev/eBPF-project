@@ -1,0 +1,18 @@
+[
+  "production/aims-kafka-dual-role:kafka",
+  "production/aims-minio-pool-0:minio",
+  "production/aims-minio-pool-0:sidecar",
+  "production/aims-postgres-cnpg:postgres",
+  "production/aims-rabbitmq-server:rabbitmq",
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+  "production/aims-redis:aims-redis",
+  "production/aims-waypoint:istio-proxy",
+  "production/api-gateway:app",
+  "production/auth-service:app",
+  "production/catalog-service:app",
+  "production/inventory-service:app",
+  "production/notification-service:app",
+  "production/order-service:app",
+  "production/payment-service:app",
+  "production/security-telemetry-service:app"
+]

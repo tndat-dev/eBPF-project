@@ -1,0 +1,68 @@
+{
+  "capture_bytes": 73454758,
+  "capture_sha256": "9891b2b3254b9b05a10f8696e8bc631e5930f8258f34e121c2d9761a993bb4b0",
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 33.68021,
+  "duration_seconds": 903.8729891777039,
+  "ended_at_unix": 1790857950.0367045,
+  "experiment_average_cpu_cores": 0.0740175033450931,
+  "experiment_cpu_seconds": 66.902422,
+  "experiment_memory_peak_bytes": 110235648,
+  "finalized_at_unix": 1790857958.207955,
+  "ingest_lag_seconds": {
+    "max": 0.05749344825744629,
+    "p50": 0.017429113388061523,
+    "p95": 0.03151988983154297,
+    "p99": 0.0380081653594971
+  },
+  "interval_seconds": {
+    "max": 0.517383337020874,
+    "p50": 0.5054855346679688,
+    "p95": 0.5087840557098389,
+    "p99": 0.511171817779541
+  },
+  "registered_max_duration_seconds": 900,
+  "rows": 40071,
+  "run_id": "sentinel-pulse-canary-r10-c1-retry-20261001",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 0.014825106,
+    "p50": 0.003473997,
+    "p95": 0.006028414,
+    "p99": 0.008487225
+  },
+  "started_at_unix": 1790857046.1637154,
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 1777,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 0.8,
+    "minimum_availability": 1.0,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": true,
+  "validation_errors": [],
+  "window_start_to_emit_seconds": {
+    "max": 0.5644485950469971,
+    "p50": 0.5232174396514893,
+    "p95": 0.5376018285751343,
+    "p99": 0.5446459531784058
+  },
+  "workload_count": 19
+}

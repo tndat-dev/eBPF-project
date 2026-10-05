@@ -2,6 +2,11 @@
 # Start a bounded, non-formal normal canary on all three workers.
 set -Eeuo pipefail
 
+if [[ -n ${TELEMETRY_RECOVERY_PROFILE_SOURCE:-} ]]; then
+  echo 'recovery requires its separate diagnostic launcher; legacy canary evaluation is not compatible' >&2
+  exit 2
+fi
+
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 MODEL_SOURCE=${MODEL_SOURCE:?point to the frozen candidate model directory}
 POLICY_SOURCE=${POLICY_SOURCE:?point to the frozen bounded policy}
@@ -9,6 +14,8 @@ EVIDENCE_ROOT=${EVIDENCE_ROOT:?choose a new control-plane evidence directory}
 RUN_ID=${RUN_ID:-sentinel-pulse-bounded-canary-$(date -u +%Y%m%dT%H%M%SZ)}
 DURATION_SECONDS=${DURATION_SECONDS:-900}
 SSH_USER=${SSH_USER:-dat}
+COLLECTOR_VARIANT=${COLLECTOR_VARIANT:-legacy}
+PROJECTED_CANARY_PLAN_SOURCE=${PROJECTED_CANARY_PLAN_SOURCE:-}
 TELEMETRY_NOMINAL_INTERVAL_SECONDS=${TELEMETRY_NOMINAL_INTERVAL_SECONDS:-0.5}
 TELEMETRY_MINIMUM_AVAILABILITY=${TELEMETRY_MINIMUM_AVAILABILITY:-1.0}
 TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-0.8}
@@ -16,6 +23,7 @@ TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS=${TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS:-0.8
 
 [[ $RUN_ID =~ ^[A-Za-z0-9._-]+$ ]]
 [[ $DURATION_SECONDS =~ ^[1-9][0-9]*$ ]]
+[[ $COLLECTOR_VARIANT == legacy || $COLLECTOR_VARIANT == projected ]]
 # The aggregate requires a 300-second scored span. Reserve 60 seconds for
 # collector startup, temporal warm-up and detector installation so an otherwise
 # healthy canary is not structurally incapable of passing its coverage gate.
@@ -42,6 +50,16 @@ MODEL_SHA256=$(awk '$2=="manifest.json" {print $1}' "$MODEL_SOURCE/manifest.sha2
 POLICY_SHA256=$(sha256sum "$POLICY_SOURCE" | awk '{print $1}')
 [[ $MODEL_SHA256 =~ ^[0-9a-f]{64}$ ]]
 [[ $POLICY_SHA256 =~ ^[0-9a-f]{64}$ ]]
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  : "${PROJECTED_CANARY_PLAN_SOURCE:?provide the verified per-worker safety plan}"
+  jq -e --arg model "$MODEL_SHA256" --arg policy "$POLICY_SHA256" '
+    .schema == "sentinel-pulse-projected-ml-canary-plan-v1" and
+    .model_manifest_sha256 == $model and .decision_policy_sha256 == $policy and
+    (.workers | keys == ["10.1.16.237", "10.1.16.238", "10.1.16.239"]) and
+    all(.workers[]; type == "string" and
+      test("^/var/lib/sentinel-pulse-projection-canary/[A-Za-z0-9._-]+$"))
+  ' "$PROJECTED_CANARY_PLAN_SOURCE" >/dev/null
+fi
 PYTHONPATH="$LOCAL_ROOT" /home/dat/ml-venv/bin/python - "$POLICY_SOURCE" <<'PY'
 from pathlib import Path
 import sys
@@ -95,6 +113,9 @@ cleanup_preflight
 trap - EXIT
 install -m 0444 "$POLICY_SOURCE" "$EVIDENCE_ROOT/protocol/decision-policy.json"
 install -m 0444 "$MODEL_SOURCE/manifest.json" "$MODEL_SOURCE/manifest.sha256" "$EVIDENCE_ROOT/model/"
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  install -m 0444 "$PROJECTED_CANARY_PLAN_SOURCE" "$EVIDENCE_ROOT/protocol/projected-collector-plan.json"
+fi
 printf '%s\n' "${workers[@]}" >"$EVIDENCE_ROOT/workers.plan"
 (
   cd "$LOCAL_ROOT"
@@ -107,6 +128,7 @@ POLICY_VALUE="$POLICY_SHA256" DURATION_VALUE="$DURATION_SECONDS" REMOTE_VALUE="$
 TELEMETRY_NOMINAL_VALUE="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
 TELEMETRY_AVAILABILITY_VALUE="$TELEMETRY_MINIMUM_AVAILABILITY" \
 TELEMETRY_GAP_VALUE="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
+COLLECTOR_VARIANT_VALUE="$COLLECTOR_VARIANT" \
 /home/dat/ml-venv/bin/python - <<'PY'
 from datetime import datetime, timezone
 import json, os
@@ -123,6 +145,7 @@ payload = {
     "model_manifest_sha256": os.environ["MODEL_VALUE"],
     "decision_policy_sha256": os.environ["POLICY_VALUE"],
     "remote_source_root": os.environ["REMOTE_VALUE"],
+    "collector_variant": os.environ["COLLECTOR_VARIANT_VALUE"],
     "telemetry_availability_contract": {
         "nominal_interval_seconds": float(os.environ["TELEMETRY_NOMINAL_VALUE"]),
         "minimum_availability": float(os.environ["TELEMETRY_AVAILABILITY_VALUE"]),
@@ -161,6 +184,9 @@ for target in "${workers[@]}"; do
   started+=("$host")
   remote_sudo "$host" env SOURCE_ROOT="$REMOTE_ROOT" RUN_ID="$RUN_ID" \
     DURATION_SECONDS="$DURATION_SECONDS" \
+    COLLECTOR_VARIANT="$COLLECTOR_VARIANT" \
+    PROJECTED_CANARY_RUN_DIR="$(if [[ $COLLECTOR_VARIANT == projected ]]; then jq -er --arg host "$host" '.workers[$host]' "$PROJECTED_CANARY_PLAN_SOURCE"; fi)" \
+    MODEL_MANIFEST_SOURCE="$REMOTE_ROOT/model/manifest.json" \
     TELEMETRY_NOMINAL_INTERVAL_SECONDS="$TELEMETRY_NOMINAL_INTERVAL_SECONDS" \
     TELEMETRY_MINIMUM_AVAILABILITY="$TELEMETRY_MINIMUM_AVAILABILITY" \
     TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS="$TELEMETRY_MAXIMUM_SINGLE_GAP_SECONDS" \
@@ -178,6 +204,10 @@ done
     model/manifest.json model/manifest.sha256 SOURCE_SHA256SUMS \
     PREFLIGHT_NODES.json PREFLIGHT_PRODUCTION_PODS.json
 ) >"$EVIDENCE_ROOT/START_SHA256SUMS"
+if [[ $COLLECTOR_VARIANT == projected ]]; then
+  (cd "$EVIDENCE_ROOT" && sha256sum protocol/projected-collector-plan.json) \
+    >>"$EVIDENCE_ROOT/START_SHA256SUMS"
+fi
 (cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS)
 touch "$EVIDENCE_ROOT/ACTIVE"
 chmod 0444 "$EVIDENCE_ROOT"/START.json "$EVIDENCE_ROOT"/workers.plan \

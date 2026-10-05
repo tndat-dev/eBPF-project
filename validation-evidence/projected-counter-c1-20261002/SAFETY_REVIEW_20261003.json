@@ -1,0 +1,120 @@
+{
+  "schema": "sentinel-pulse-projected-counter-canary-review-v1",
+  "valid": true,
+  "evidence_class": "nonformal_collector_safety_review",
+  "ML_evaluation": false,
+  "accuracy_claim_allowed": false,
+  "automatic_promotion": false,
+  "run_dir": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c1-20261002T101900Z",
+  "errors": [],
+  "duration_slack_seconds": 2,
+  "expected_workload_keys": [
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/security-telemetry-service:app"
+  ],
+  "run_id": "pulse-projected-counter-c1-20261002T101900Z",
+  "registered_duration_seconds": 900,
+  "terminal_elapsed_seconds": 904.6019415855408,
+  "source_hashes_match": true,
+  "capture_sha256": "1adb429c33046224e3be276f751789c539b78daebe94cb5e61975957c1bca193",
+  "recomputed_validation": {
+    "schema": "sentinel-pulse-capture-validation-v1",
+    "valid": true,
+    "path": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c1-20261002T101900Z/features.jsonl",
+    "capture_sha256": "1adb429c33046224e3be276f751789c539b78daebe94cb5e61975957c1bca193",
+    "rows": 38505,
+    "feature_dim": 249,
+    "accepted_interval_seconds": {
+      "minimum": 0.35,
+      "maximum": 0.8
+    },
+    "telemetry_availability_contract": {
+      "nominal_interval_seconds": 0.5,
+      "minimum_availability": 1,
+      "maximum_single_gap_seconds": 0.8
+    },
+    "telemetry_availability": {
+      "observed_snapshots": 1776,
+      "estimated_missing_snapshots": 0,
+      "availability": 1,
+      "cadence_violation_events": 0,
+      "short_interval_events": 0,
+      "delayed_interval_events": 0,
+      "maximum_gap_seconds": 0
+    },
+    "workloads": {
+      "production/aims-kafka-dual-role:kafka": 1776,
+      "production/aims-minio-pool-0:minio": 1469,
+      "production/aims-minio-pool-0:sidecar": 1520,
+      "production/aims-postgres-cnpg:postgres": 1776,
+      "production/aims-rabbitmq-server:rabbitmq": 1776,
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1776,
+      "production/aims-redis:aims-redis": 1772,
+      "production/aims-waypoint:istio-proxy": 1776,
+      "production/api-gateway:app": 1776,
+      "production/auth-service:app": 3552,
+      "production/catalog-service:app": 1776,
+      "production/inventory-service:app": 3552,
+      "production/notification-service:app": 5328,
+      "production/order-service:app": 1776,
+      "production/payment-service:app": 3552,
+      "production/security-telemetry-service:app": 3552
+    },
+    "interval_seconds": {
+      "p50": 0.5057055950164795,
+      "p95": 0.5096125602722168,
+      "p99": 0.5129966735839844,
+      "max": 0.5682742595672607
+    },
+    "ingest_lag_seconds": {
+      "p50": 0.01615619659423828,
+      "p95": 0.030616474151611325,
+      "p99": 0.03920319557189941,
+      "max": 0.17583274841308594
+    },
+    "window_start_to_emit_seconds": {
+      "p50": 0.5222659111022949,
+      "p95": 0.5374873161315917,
+      "p99": 0.5465698051452637,
+      "max": 0.6818253993988037
+    },
+    "snapshot_read_seconds": {
+      "p50": 0.003700733,
+      "p95": 0.006342649,
+      "p99": 0.00902462,
+      "max": 0.015336752
+    },
+    "collector_max_drops": {
+      "count_insert_fail": 0,
+      "transition_insert_fail": 0,
+      "task_state_update_fail": 0,
+      "snapshot_consistency_retry_exhausted": 0,
+      "snapshot_projection_fail": 0,
+      "snapshot_total_mismatch": 0,
+      "target_snapshot_gap": 0,
+      "capture_interval_violation": 0
+    },
+    "errors": []
+  },
+  "missing_workload_keys": [],
+  "unexpected_workload_keys": [],
+  "first_window_start": 1790936342.8050287,
+  "last_window_end": 1790937241.8122463,
+  "measured_span_seconds": 899.0072176456451,
+  "coverage_expectation_origin": "registered start-cgroups intersect frozen R10-C1 model manifest keys",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21"
+}

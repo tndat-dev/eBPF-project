@@ -5,10 +5,9 @@ set -u
 EVIDENCE_ROOT=${1:?usage: monitor_500ms_normal_soak.sh EVIDENCE_ROOT}
 SSH_USER=${SSH_USER:-dat}
 POLL_SECONDS=${POLL_SECONDS:-60}
-MINIMUM_ROOT_AVAILABLE_BYTES=${MINIMUM_ROOT_AVAILABLE_BYTES:-68719476736}
-MAXIMUM_ROOT_USED_PERCENT=${MAXIMUM_ROOT_USED_PERCENT:-80}
 LOCAL_ROOT=${LOCAL_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 PYTHON=${PYTHON:-python3}
+OPERATIONAL=false
 : "${SSHPASS:?export SSHPASS for SSH and sudo authentication}"
 MARKER="$EVIDENCE_ROOT/SOAK_START.json"
 WORKLOAD_FINGERPRINT="$EVIDENCE_ROOT/WORKLOAD_FINGERPRINT.json"
@@ -17,6 +16,14 @@ LOG="$EVIDENCE_ROOT/MONITOR.jsonl"
 test -f "$MARKER" && test -f "$WORKERS_FILE" && test -f "$WORKLOAD_FINGERPRINT" && test -f "$EVIDENCE_ROOT/ACTIVE" || exit 2
 test ! -e "$EVIDENCE_ROOT/FAILED" || exit 2
 
+# The marker, not a changed default or resume environment, is authoritative.
+capacity_args=()
+[[ ! ${MINIMUM_ROOT_AVAILABLE_BYTES+x} ]] || capacity_args+=(--minimum "$MINIMUM_ROOT_AVAILABLE_BYTES")
+[[ ! ${MAXIMUM_ROOT_USED_PERCENT+x} ]] || capacity_args+=(--maximum "$MAXIMUM_ROOT_USED_PERCENT")
+capacity=$(PYTHONPATH="$LOCAL_ROOT" python3 -m sentinel_pulse.capacity_contract \
+  --marker "$MARKER" "${capacity_args[@]}") || exit 2
+read -r MINIMUM_ROOT_AVAILABLE_BYTES MAXIMUM_ROOT_USED_PERCENT <<<"$capacity"
+
 eligible_epoch=$(python3 - "$MARKER" <<'PY'
 from datetime import datetime
 import json, pathlib, sys
@@ -24,6 +31,15 @@ marker=json.loads(pathlib.Path(sys.argv[1]).read_text())
 print(datetime.fromisoformat(marker["eligible_finalize_after"]).timestamp())
 PY
 )
+if jq -e 'has("operational_evaluation_contract")' "$MARKER" >/dev/null; then
+  OPERATIONAL=true
+  # Keep health observations running through the finalization margin.
+  eligible_epoch=$(python3 - "$eligible_epoch" "${FINALIZE_MARGIN_SECONDS:-300}" <<'PY'
+import sys
+print(float(sys.argv[1]) + int(sys.argv[2]))
+PY
+)
+fi
 read -r telemetry_nominal telemetry_minimum telemetry_maximum_gap \
   telemetry_missing_budget telemetry_maximum_feature_age < <(
   python3 - "$MARKER" <<'PY'
@@ -88,6 +104,13 @@ fail() {
 }
 
 check_cluster_health() {
+  if [[ $OPERATIONAL == true ]]; then
+    PYTHONPATH="$LOCAL_ROOT" "$PYTHON" -m sentinel_pulse.operational_soak \
+      observe --marker "$MARKER" --log "$EVIDENCE_ROOT/OPERATIONAL_HEALTH.jsonl" \
+      >"$EVIDENCE_ROOT/OPERATIONAL_HEALTH_LAST.json" \
+      2>"$EVIDENCE_ROOT/OPERATIONAL_HEALTH.stderr" || fail operational_health_gate_failed
+    return
+  fi
   local nodes pods longhorn longhorn_disks longhorn_replicas cnpg
   nodes=$(kubectl get nodes -o json 2>/dev/null | PYTHONPATH="$LOCAL_ROOT" \
     "$PYTHON" -m sentinel_pulse.cluster_health --resource nodes --count) ||
@@ -179,11 +202,23 @@ check_workload_fingerprint() {
 }
 
 while true; do
+  (cd "$EVIDENCE_ROOT" && sha256sum -c START_SHA256SUMS >/dev/null) || fail registered_start_checksum_drift
   check_cluster_health
   check_workload_fingerprint
   check_worker_capacity
   check_worker_maintenance
   while read -r host _node expected_feature; do
+    if [[ $(jq -r '.collector_contract.variant // "legacy"' "$MARKER") == projected ]]; then
+      run_id=$(jq -er '.run_id' "$MARKER")
+      marker_sha=$(sha256sum "$MARKER" | awk '{print $1}')
+      [[ $run_id =~ ^[A-Za-z0-9._-]+$ ]] || fail invalid_collector_run_id "$host"
+      runtime_receipt=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
+        -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
+        "sudo -S -p '' env PYTHONPATH=/opt/sentinel-pulse /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.collector_contract --marker '/var/lib/sentinel-pulse-500ms/runs/$run_id/SOAK_START.json' --marker-sha '$marker_sha' --runtime-host '$host'" \
+        2>"$EVIDENCE_ROOT/collector-contract-$host.stderr") || fail collector_provenance_drift "$host"
+      printf '%s\n' "$runtime_receipt" >"$EVIDENCE_ROOT/collector-contract-$host.json"
+      jq -e '.valid == true' <<<"$runtime_receipt" >/dev/null || fail collector_provenance_drift "$host"
+    fi
     snapshot=$(printf '%s\n' "$SSHPASS" | sshpass -e ssh \
       -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$SSH_USER@$host" \
       "sudo -S bash -c 'source /etc/sentinel-pulse-detector-candidate.env; printf \"collector=%s\\nlegacy=%s\\ndetector=%s\\nrestarts=%s\\ndecisions=%s\\nalerts=%s\\nfeature=%s\\n\" \"\$(systemctl is-active sentinel-pulse-collector-500ms-experiment)\" \"\$(systemctl is-active sentinel-pulse-collector)\" \"\$(systemctl is-active sentinel-pulse-detector-candidate)\" \"\$(systemctl show sentinel-pulse-detector-candidate -p NRestarts --value)\" \"\$(wc -l < \"\$PULSE_DECISIONS\")\" \"\$(wc -l < \"\$PULSE_ALERTS\")\" \"\$PULSE_FEATURES\"'" 2>/dev/null) || fail ssh_unreachable "$host"
@@ -211,7 +246,9 @@ while true; do
     [[ $legacy == inactive ]] || fail legacy_control_collector_active "$host"
     [[ $detector == active ]] || fail detector_inactive "$host"
     ((restarts == 0)) || fail detector_restarted "$host"
-    ((alerts == 0)) || fail normal_alert_observed "$host"
+    if [[ $OPERATIONAL != true ]]; then
+      ((alerts == 0)) || fail normal_alert_observed "$host"
+    fi
     [[ $feature == "$expected_feature" ]] || fail feature_source_mismatch "$host"
   done <"$WORKERS_FILE"
   now=$(date +%s)

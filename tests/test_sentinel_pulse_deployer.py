@@ -101,7 +101,11 @@ class PulseDeployerTests(unittest.TestCase):
         self.assertIn("static __always_inline void increment_tracked", source)
         self.assertIn("increment_tracked(counters, syscall_id);", source)
         self.assertIn("case 435: counters->tracked[28]++; break;", source)
-        self.assertNotIn("tracked[slot]", source)
+        # A macro parameter named slot in the projected variant expands to
+        # integer literals. Keep the legacy dynamic-offset guard scoped to
+        # the legacy function rather than rejecting unexpanded macro text.
+        legacy = source.split("#ifndef PULSE_PROJECTED_COUNTERS", 1)[1].split("#else", 1)[0]
+        self.assertNotIn("tracked[slot]", legacy)
 
     def test_smoke_evaluator_runs_from_installed_package_parent(self):
         script = (ROOT / "sentinel_pulse" / "smoke_node.sh").read_text()

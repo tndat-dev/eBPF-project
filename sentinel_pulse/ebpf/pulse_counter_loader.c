@@ -17,12 +17,17 @@
 #define PULSE_SNAPSHOT_RETRY_DELAY_US 50
 #define PULSE_TARGET_REFRESH_RETRIES 5
 
+#ifdef PULSE_PROJECTED_COUNTERS
+#include "pulse_counter_projection.h"
+#else
 struct pulse_counters {
     uint64_t syscall_bins[PULSE_SYSCALL_BINS];
     uint64_t transition_bins[PULSE_TRANSITION_BINS];
     uint64_t tracked[PULSE_TRACKED];
     uint64_t total;
 };
+#define pulse_snapshot pulse_counters
+#endif
 
 static const uint32_t tracked_ids[PULSE_TRACKED] = {
     0, 1, 2, 3, 9, 10, 41, 42, 43, 44, 45, 56, 59, 90, 101,
@@ -120,6 +125,7 @@ static int refresh_targets_bounded(int map_fd, const char *path, int cpu_count)
     return result;
 }
 
+#ifndef PULSE_PROJECTED_COUNTERS
 static int per_cpu_snapshot_consistent(
     const unsigned char *per_cpu, int cpu_count, size_t stride)
 {
@@ -158,31 +164,57 @@ static int lookup_consistent_snapshot(
     }
     return -EAGAIN;
 }
+#endif
 
 static int print_snapshots(
     int map_fd, int cpu_count, double observed_at,
     uint64_t *consistency_retries,
-    uint64_t *consistency_retry_exhausted)
+    uint64_t *consistency_retry_exhausted,
+    uint64_t *projection_failures)
 {
+#ifdef PULSE_PROJECTED_COUNTERS
+    (void)consistency_retries;
+    (void)consistency_retry_exhausted;
+#else
+    (void)projection_failures;
+#endif
     size_t stride = (sizeof(struct pulse_counters) + 7U) & ~7U;
     unsigned char *per_cpu = calloc((size_t)cpu_count, stride);
     if (!per_cpu) return -ENOMEM;
     uint64_t key = 0, next = 0;
     int has_key = 0, printed = 0;
     while (bpf_map_get_next_key(map_fd, has_key ? &key : NULL, &next) == 0) {
+#ifdef PULSE_PROJECTED_COUNTERS
+        memset(per_cpu, 0, (size_t)cpu_count * stride);
+        int lookup = bpf_map_lookup_elem(map_fd, &next, per_cpu) < 0 ? -errno : 0;
+#else
         int lookup = lookup_consistent_snapshot(
             map_fd, &next, per_cpu, cpu_count, stride,
             consistency_retries);
+#endif
         if (lookup == -EAGAIN) {
             (*consistency_retry_exhausted)++;
         } else if (lookup == 0) {
-            struct pulse_counters sum = {0};
+            struct pulse_snapshot sum = {0};
+            int projection_ok = 1;
             for (int cpu = 0; cpu < cpu_count; cpu++) {
                 struct pulse_counters *value = (struct pulse_counters *)(per_cpu + (size_t)cpu * stride);
+#ifdef PULSE_PROJECTED_COUNTERS
+                if (pulse_project_cpu(value, &sum) != 0) {
+                    projection_ok = 0;
+                    (*projection_failures)++;
+                    break;
+                }
+#else
                 sum.total += value->total;
                 for (int bin = 0; bin < PULSE_SYSCALL_BINS; bin++) sum.syscall_bins[bin] += value->syscall_bins[bin];
                 for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++) sum.transition_bins[bin] += value->transition_bins[bin];
                 for (int slot = 0; slot < PULSE_TRACKED; slot++) sum.tracked[slot] += value->tracked[slot];
+#endif
+            }
+            if (!projection_ok) {
+                key = next; has_key = 1;
+                continue;
             }
             printf("{\"type\":\"cgroup_snapshot\",\"observed_at\":%.9f,\"cgroup_id\":%llu,\"total\":%llu,\"counts\":{",
                    observed_at, (unsigned long long)next, (unsigned long long)sum.total);
@@ -224,6 +256,13 @@ int main(int argc, char **argv)
     int cgroups_fd = bpf_object__find_map_fd_by_name(object, "pulse_cgroups");
     int stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_stats");
     if (cgroups_fd < 0 || stats_fd < 0) { fprintf(stderr, "required BPF map missing\n"); bpf_object__close(object); return 1; }
+    /* Never let a legacy loader read a projected value or vice versa. */
+    struct bpf_map *counter_map = bpf_object__find_map_by_name(object, "pulse_cgroups");
+    if (!counter_map || bpf_map__value_size(counter_map) != sizeof(struct pulse_counters)) {
+        fprintf(stderr, "counter map layout does not match loader\n");
+        bpf_object__close(object);
+        return 1;
+    }
     int targets = refresh_targets_bounded(cgroups_fd, allow_file, cpu_count);
     if (targets < 0) {
         fprintf(stderr, "failed to populate target cgroups from %s: %s\n",
@@ -244,6 +283,7 @@ int main(int argc, char **argv)
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;
     uint64_t consistency_retry_exhausted = 0;
+    uint64_t projection_failures = 0;
     while (!exiting) {
         usleep(interval_ms * 1000U);
         /* SIGTERM can interrupt usleep. Do not turn that shortened sleep into
@@ -257,7 +297,8 @@ int main(int argc, char **argv)
         int snapshots = print_snapshots(
             cgroups_fd, cpu_count, snapshot_started_at,
             &consistency_retries,
-            &consistency_retry_exhausted);
+            &consistency_retry_exhausted,
+            &projection_failures);
         /* The boundary is after all map lookups, so no included count can be
          * timestamped later than the window end used for latency evidence. */
         double observed_at = wall_time();
@@ -267,6 +308,7 @@ int main(int argc, char **argv)
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"task_state_update_fail\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)task_failures);
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"snapshot_consistency_retries\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)consistency_retries);
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"snapshot_consistency_retry_exhausted\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)consistency_retry_exhausted);
+        printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"snapshot_projection_fail\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)projection_failures);
         printf("{\"type\":\"snapshot_end\",\"observed_at\":%.9f,\"targets\":%d,\"snapshots\":%d,\"snapshot_read_seconds\":%.9f}\n",
                observed_at, targets, snapshots, snapshot_read_seconds);
         fflush(stdout);

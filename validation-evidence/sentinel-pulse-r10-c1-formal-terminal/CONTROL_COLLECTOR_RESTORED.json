@@ -1,0 +1,9 @@
+{
+  "hosts": [
+    "10.1.16.237",
+    "10.1.16.239",
+    "10.1.16.238"
+  ],
+  "restored_at": "2026-10-01T11:55:29.061786+00:00",
+  "schema": "sentinel-pulse-control-collector-restore-v1"
+}

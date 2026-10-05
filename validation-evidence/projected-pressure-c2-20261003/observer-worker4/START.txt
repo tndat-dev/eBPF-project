@@ -1,0 +1,5 @@
+run_id=pulse-pressure-observer-c2-20261003T163600Z
+started_at=2026-10-03T16:36:19Z
+host=k8s-worker4.local
+duration_seconds=7800
+sample_seconds=1

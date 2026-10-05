@@ -1,0 +1,21 @@
+NRestarts=0
+MemoryPeak=[not set]
+CPUUsageNSec=[not set]
+CPUWeight=200
+CPUQuotaPerSecUSec=2s
+IOWeight=[not set]
+MemoryHigh=536870912
+MemoryMax=1073741824
+Id=sentinel-pulse-collector-500ms-experiment.service
+ActiveState=inactive
+
+NRestarts=0
+MemoryPeak=[not set]
+CPUUsageNSec=[not set]
+CPUWeight=200
+CPUQuotaPerSecUSec=2s
+IOWeight=[not set]
+MemoryHigh=805306368
+MemoryMax=1073741824
+Id=sentinel-pulse-detector-candidate.service
+ActiveState=inactive

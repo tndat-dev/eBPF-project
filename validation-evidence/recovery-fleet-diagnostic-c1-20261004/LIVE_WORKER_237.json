@@ -1,0 +1,228 @@
+{
+  "attestation": {
+    "attested_at_unix": 1791126970.503891,
+    "marker_sha256": "113a29a8b0c41dcfbf134b6fd34158f2bee7b00ff3e8d8080f50f9d57515f7e1",
+    "schema": "sentinel-pulse-recovery-formal-worker-start-v1",
+    "source_commit": "dd872e706fdae6da50bd3cb551c92278397bbc34",
+    "source_files_sha256": "191c17a62992aed387ef995d462eadff0826b46e3666d328902ee563842d4eb6",
+    "worker_ip": "10.1.16.237"
+  },
+  "collector": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "collector_start": {
+    "collector_bpf_object": "/opt/sentinel-pulse/experiments/pulse-recovery-fleet-diagnostic-c1-20261004/pulse_counter_projected.bpf.o",
+    "collector_loader": "/opt/sentinel-pulse/experiments/pulse-recovery-fleet-diagnostic-c1-20261004/pulse_counter_projected_loader",
+    "collector_variant": "projected",
+    "kernel": "6.8.0-138-generic",
+    "schema": "sentinel-pulse-500ms-start-v1",
+    "sha256": {
+      "allowlist": "f5b8afded2b96757dbc2752b63f67c774061cc16ceb5d845c630df8ddb76ee9f",
+      "bpf_object": "7f8686e552991c79dcdce526f62494b6b464eb9fdd430db56baeaa5aee61f707",
+      "loader": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+      "metadata": "850336bc2d6bbc02be96ace5c818ceb812ef3f3f575197f06fe3dce351056b3e",
+      "telemetry_recovery_profile": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "unit": "d99c6da68fd5e7e416af6f9eb90981f50761dac30a0bfd1a8aacbadb49c72ec4"
+    },
+    "started_at_unix": 1791126977.2759185,
+    "telemetry_availability_contract": {
+      "maximum_single_gap_seconds": 30,
+      "minimum_availability": 0.999,
+      "nominal_interval_seconds": 0.5
+    },
+    "telemetry_recovery_contract": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "formal_lifecycle_enabled": false,
+      "profile": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "interval_max_seconds": 0.8,
+        "interval_min_seconds": 0.35,
+        "maximum_excluded_seconds": 900,
+        "maximum_incident_seconds": 60,
+        "maximum_incidents": 12,
+        "maximum_ingest_lag_seconds": 1,
+        "maximum_recoverable_gap_seconds": 30,
+        "maximum_wall_seconds": 90000,
+        "minimum_scored_hours_per_workload": 24,
+        "minimum_telemetry_availability": 0.999,
+        "nominal_interval_seconds": 0.5,
+        "rolling_windows": 10,
+        "schema": "sentinel-pulse-telemetry-recovery-profile-v1"
+      },
+      "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "schema": "sentinel-pulse-recovery-deployment-v1"
+    }
+  },
+  "control": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "decision_stream_bytes_at_stat": 35934739,
+  "decisions_at_checkpoint": 12208,
+  "detector": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "formal_recovery_pass": false,
+  "kernel_to_alert_claim_allowed": false,
+  "last_decision": {
+    "alerted_at": 1791127266.8370047,
+    "bounded_event_time_corroborated": false,
+    "calibration_score_max": 0.556035720656573,
+    "cgroup_id": "3849495",
+    "conformal_p": 0.6560348461430378,
+    "container_name": "app",
+    "corroboration_mode": "bounded_model_semantic_join",
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "detector_freshness": {
+      "checked_at": 1791127266.809231,
+      "contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+      "decision_completed_at": 1791127266.8371193,
+      "eligible": true,
+      "feature_age_at_processing_start_seconds": 0.3429989814758301,
+      "reason": "fresh",
+      "schema": "sentinel-pulse-detector-freshness-v1",
+      "window_end_to_decision_completed_seconds": 0.37088727951049805
+    },
+    "eligible_temporal_semantic_groups": [
+      "namespace_probe"
+    ],
+    "evidence_span_seconds": null,
+    "inference_ms": 27.557852678000927,
+    "maximum_evidence_age_seconds": 1,
+    "minimum_score_excess": 0.01,
+    "model_evidence_conformal_p": null,
+    "model_evidence_score": null,
+    "model_evidence_window_end": null,
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "node_name": "k8s-worker1.local",
+    "pod_name": "security-telemetry-service-6799d88468-jt742",
+    "pod_uid": "a76a36f9-90b0-456c-9db5-d4bbef61f1cf",
+    "post_window_processing_seconds": 0.3707726001739502,
+    "raw_model_anomalous": false,
+    "run_id": "pulse-recovery-fleet-diagnostic-c1-20261004",
+    "same_window_corroborated": false,
+    "schema": "sentinel-pulse-decision-v1",
+    "score": 0.453513504551549,
+    "score_corroborated": false,
+    "score_excess_over_calibration_max": -0.10252221610502404,
+    "security_activity_fields": {},
+    "security_activity_mass": 0,
+    "semantic_corroborated": false,
+    "semantic_evidence_security_activity_fields": null,
+    "semantic_evidence_security_activity_mass": null,
+    "semantic_evidence_signal_groups": null,
+    "semantic_evidence_triggered_groups": null,
+    "semantic_evidence_window_end": null,
+    "semantic_signal_groups": {
+      "credential_open": {
+        "excess": -197,
+        "minimum_excess": 4,
+        "normal_max": 197,
+        "observed": 0,
+        "triggered": false
+      },
+      "identity_transition": {
+        "excess": -15,
+        "minimum_excess": 4,
+        "normal_max": 15,
+        "observed": 0,
+        "triggered": false
+      },
+      "local_socket_beacon": {
+        "excess": -10,
+        "minimum_excess": 4,
+        "normal_max": 10,
+        "observed": 0,
+        "triggered": false
+      },
+      "namespace_probe": {
+        "excess": 0,
+        "minimum_excess": 1,
+        "normal_max": 0,
+        "observed": 0,
+        "triggered": false
+      },
+      "process_fanout": {
+        "excess": -6,
+        "minimum_excess": 4,
+        "normal_max": 6,
+        "observed": 0,
+        "triggered": false
+      }
+    },
+    "status": "normal",
+    "telemetry_recovery": {
+      "eligible": true,
+      "epoch": 0,
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "reason": "ready",
+      "rolling_history_before": 10,
+      "snapshot_sequence": 564
+    },
+    "temporal_confirmation_bypassed": false,
+    "temporal_confirmation_corroborated": false,
+    "temporal_confirmation_count": 0,
+    "temporal_confirmation_group_counts": {},
+    "temporal_confirmation_groups": [],
+    "temporal_confirmation_required_consecutive_windows": 2,
+    "temporal_confirmation_required_consecutive_windows_by_group": {},
+    "window_end": 1791127266.466232,
+    "window_start": 1791127265.9612694,
+    "workload_key": "production/security-telemetry-service:app",
+    "workload_revision": "6799d88468"
+  },
+  "latency_is_conditional_on_fresh_scored_rows": true,
+  "parent": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "raw_copied_to_host": false,
+  "resolver": {
+    "ActiveState": "active",
+    "ExecMainStatus": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "reviewed_at_unix": 1791127266.841147,
+  "run_id": "pulse-recovery-fleet-diagnostic-c1-20261004",
+  "schema": "sentinel-pulse-recovery-fleet-live-node-receipt-v1",
+  "scored_rows": 11393,
+  "scored_workloads": [
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/security-telemetry-service:app"
+  ],
+  "statuses": {
+    "normal": 11370,
+    "suppressed": 23,
+    "telemetry-degraded": 743,
+    "warming": 72
+  },
+  "window_start_to_post_policy_p99_seconds": 1.2823176383972168
+}

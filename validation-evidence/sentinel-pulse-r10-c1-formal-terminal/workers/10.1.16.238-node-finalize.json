@@ -1,0 +1,71 @@
+{
+  "capture_bytes": 7176794602,
+  "capture_sha256": "f1d4b358efb4af148b8234625285c6fe9c55006ffb32104aa94373a09def927b",
+  "collector_max_drops": {
+    "capture_interval_violation": 17,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 0.0,
+  "duration_seconds": 86403.45121908188,
+  "ended_at_unix": 1790824720.0186086,
+  "experiment_average_cpu_cores": 0.07173032114521892,
+  "experiment_cpu_seconds": 6197.747304,
+  "experiment_memory_peak_bytes": 537161728,
+  "finalized_at_unix": 1790855206.122114,
+  "ingest_lag_seconds": {
+    "max": 25.26274561882019,
+    "p50": 0.015992164611816406,
+    "p95": 0.029781818389892578,
+    "p99": 0.03635454177856445
+  },
+  "interval_seconds": {
+    "max": 22.2084481716156,
+    "p50": 0.5055909156799316,
+    "p95": 0.5090476632118225,
+    "p99": 0.5125763416290283
+  },
+  "registered_max_duration_seconds": 86400,
+  "rows": 3853988,
+  "run_id": "pulse500-normal-r10-c1-20260930",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 21.240933657,
+    "p50": 0.003546476,
+    "p95": 0.006171703,
+    "p99": 0.009105444
+  },
+  "started_at_unix": 1790738316.5673895,
+  "telemetry_availability": {
+    "availability": 0.9989400327945654,
+    "cadence_violation_events": 17,
+    "delayed_interval_events": 17,
+    "estimated_missing_snapshots": 181,
+    "maximum_gap_seconds": 22.2084481716156,
+    "observed_snapshots": 170579,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "validation_errors": [
+    "telemetry cadence: maximum gap 22.208448s exceeds 10.000000s",
+    "telemetry availability 0.998940033 is below 0.999000000"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 36.03732776641846,
+    "p50": 0.5219399929046631,
+    "p95": 0.5361900329589844,
+    "p99": 0.5432596516609192
+  },
+  "workload_count": 19
+}

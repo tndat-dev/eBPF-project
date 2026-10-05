@@ -1,0 +1,103 @@
+{
+  "schema": "sentinel-pulse-live-freshness-development-checkpoint-v1",
+  "source_commit": "f476462519cd7c07131c3ecc2e691d5f74573ada",
+  "host_regression": {
+    "passed": 483,
+    "subtests": 20,
+    "seconds": 18.9
+  },
+  "vm_regression": {
+    "passed": 483,
+    "subtests": 20,
+    "seconds": 40.46
+  },
+  "vm_post_shell_revision_targeted_tests": {
+    "passed": 84,
+    "seconds": 2.87
+  },
+  "runtime_smoke_terminal": false,
+  "formal_recovery_lifecycle_integrated": false,
+  "formal_recovery_soak_running": false,
+  "kernel_to_alert_claim_allowed": false,
+  "accuracy_claim_allowed": false,
+  "automatic_blind_evaluation": false,
+  "automatic_promotion": false,
+  "observed_at": 1791087122.9989357,
+  "preregistration": {
+    "accuracy_claim_allowed": false,
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "detector_freshness_contract": {
+      "kernel_to_alert_claim_allowed": false,
+      "maximum_age_at_processing_start_seconds": 1,
+      "maximum_future_clock_skew_seconds": 0.05,
+      "offline_replay": false,
+      "reset_source_history_on_stale": true,
+      "schema": "sentinel-pulse-detector-freshness-contract-v1"
+    },
+    "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+    "duration_seconds": 600,
+    "formal_lifecycle_enabled": false,
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "run_id": "pulse-recovery-freshness-smoke-c1-20261004",
+    "schema": "sentinel-pulse-recovery-runtime-smoke-start-v1",
+    "source_commit": "f476462519cd7c07131c3ecc2e691d5f74573ada",
+    "started_at": 1791087074.7825089,
+    "telemetry_recovery_contract": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "formal_lifecycle_enabled": false,
+      "profile": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "interval_max_seconds": 0.8,
+        "interval_min_seconds": 0.35,
+        "maximum_excluded_seconds": 900,
+        "maximum_incident_seconds": 60,
+        "maximum_incidents": 12,
+        "maximum_ingest_lag_seconds": 1,
+        "maximum_recoverable_gap_seconds": 30,
+        "maximum_wall_seconds": 90000,
+        "minimum_scored_hours_per_workload": 24,
+        "minimum_telemetry_availability": 0.999,
+        "nominal_interval_seconds": 0.5,
+        "rolling_windows": 10,
+        "schema": "sentinel-pulse-telemetry-recovery-profile-v1"
+      },
+      "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "schema": "sentinel-pulse-recovery-deployment-v1"
+    }
+  },
+  "decisions": 1645,
+  "statuses": {
+    "telemetry-degraded": 807,
+    "warming": 69,
+    "normal": 765,
+    "suppressed": 4
+  },
+  "scored_workloads": 19,
+  "scored_rows": 769,
+  "alerts": 0,
+  "freshness_reasons": {
+    "detector_queue_stale": 807,
+    "fresh": 838
+  },
+  "freshness_contracts": [
+    "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba"
+  ],
+  "model_manifests": [
+    "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21"
+  ],
+  "policy_hashes": [
+    "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143"
+  ],
+  "window_start_to_after_policy_seconds": {
+    "n": 769,
+    "p99": 1.154984712600708,
+    "max": 1.2171804904937744
+  },
+  "maximum_scored_processing_start_age_seconds": 0.6876997947692871,
+  "all_scored_fresh": true
+}

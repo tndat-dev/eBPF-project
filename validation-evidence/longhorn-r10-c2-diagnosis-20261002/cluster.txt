@@ -1,0 +1,59 @@
+NAME                STATUS   ROLES           AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+k8s-master.local    Ready    control-plane   178d   v1.34.10   10.1.16.234   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.4
+k8s-master2.local   Ready    control-plane   64d    v1.34.10   10.1.16.235   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.2
+k8s-master3.local   Ready    control-plane   64d    v1.34.10   10.1.16.236   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.2
+k8s-worker1.local   Ready    <none>          64d    v1.34.10   10.1.16.237   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.4
+k8s-worker3.local   Ready    <none>          64d    v1.34.10   10.1.16.239   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.2
+k8s-worker4.local   Ready    <none>          64d    v1.34.10   10.1.16.238   <none>        Ubuntu 24.04.4 LTS   6.8.0-138-generic   containerd://2.2.2
+NAME                                       STATE      ROBUSTNESS
+pvc-2f53757c-a9af-4097-aa79-8e214311d82e   attached   healthy
+pvc-330fb5c5-ee4c-4ee2-88bc-87d190624a8d   attached   healthy
+pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502   attached   healthy
+pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728   attached   healthy
+pvc-42c0c214-3581-4869-b5a9-b437cfcf0853   attached   healthy
+pvc-48293a1d-87d9-4d09-97ef-27764018bcd7   attached   healthy
+pvc-492d4be7-7ac6-4a3e-885d-d02a26736193   attached   healthy
+pvc-541f8751-4409-40f4-bc8f-5a75081158cd   attached   healthy
+pvc-66f13181-45cb-4bcb-a893-6adb4855c70a   attached   healthy
+pvc-67599f47-06e8-4a0d-958b-614b69894ed8   attached   healthy
+pvc-68e642ea-d36f-48e9-9252-c8065ed3674a   attached   healthy
+pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99   attached   healthy
+pvc-6b7a0097-7149-455d-ad02-2177a7a08645   attached   healthy
+pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c   attached   healthy
+pvc-76996779-0b5a-4f54-a930-d8948b2ec752   attached   healthy
+pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6   attached   healthy
+pvc-a2dc6b92-3b62-4402-9952-167d4814c003   attached   healthy
+pvc-a56e96b0-933e-432f-a59c-74cc8f6a04f9   attached   healthy
+pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981   attached   healthy
+pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2   attached   healthy
+pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8   attached   healthy
+pvc-ceebad9b-9578-4df1-a37b-7e4fc725c25a   attached   healthy
+pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f   attached   healthy
+pvc-d32c9b4f-5a32-4003-86bc-471d1f7c1e2d   attached   healthy
+pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4   attached   healthy
+pvc-e420b772-0053-4cc0-9b88-a06292870621   attached   healthy
+pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538   attached   healthy
+pvc-eca50b57-a905-493a-9c9a-36a815106f25   attached   healthy
+pvc-fd11d74e-a76a-4287-b553-a2b37960dca6   attached   healthy
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/MONITOR.jsonl
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/RAW_SHA256SUMS
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/START_SHA256SUMS
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILED
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/feature-tail-10.1.16.238.stderr
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/ARCHIVE_COMPLETE
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/feature-tail-10.1.16.239.stderr
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_LONGHORN_VOLUMES.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_NODES.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/WORKLOAD_FINGERPRINT_OBSERVED.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_LONGHORN_NODES.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/workers.txt
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/feature-tail-10.1.16.237.stderr
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/WORKLOAD_FINGERPRINT_CURRENT.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_CNPG_CLUSTERS.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_PRODUCTION_PODS.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/infrastructure-failure/DISPOSITION.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/WORKLOAD_FINGERPRINT.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/FAILURE_LONGHORN_REPLICAS.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/SOAK_START.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/CONTROL_COLLECTOR_RESTORED.json
+/home/dat/eBPF-project-formal-r10-c2-20261001/validation-evidence/sentinel-pulse-campaign/sentinel-pulse-r10-c2-formal-20261001/workload-pods-start.json

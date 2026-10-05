@@ -7,6 +7,23 @@ from sentinel_pulse.capture import SnapshotAssembler
 
 
 class PulseFeatureBuilderTests(unittest.TestCase):
+    def test_default_249_schema_layout_matches_documented_offsets(self):
+        columns = PulseFeatureBuilder().columns
+        self.assertEqual(len(columns), 249)
+        self.assertEqual(len(set(columns)), 249)
+        expected = {
+            0: "log_count:read", 28: "log_count:clone3",
+            29: "ratio:read", 57: "ratio:clone3",
+            58: "log_count:other", 59: "ratio:other", 60: "log_total",
+            61: "sensitive_ratio", 62: "seccomp_denied",
+            63: "syscall_bin:0", 126: "syscall_bin:63",
+            127: "transition_bin:0", 190: "transition_bin:63",
+            191: "rolling_mean:read", 219: "rolling_mean:clone3",
+            220: "rolling_std:read", 248: "rolling_std:clone3",
+        }
+        for index, name in expected.items():
+            self.assertEqual(columns[index], name)
+
     def test_uses_exact_deltas_and_keeps_transition_distribution(self):
         builder = PulseFeatureBuilder(rolling_windows=3, transition_bins=16)
         first = PulseSnapshot(7, 10.0, {0: 100, 42: 2}, {(0, 0): 90, (0, 42): 2})

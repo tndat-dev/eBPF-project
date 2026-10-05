@@ -1,0 +1,39 @@
+{
+  "capture_tail": {
+    "availability_floor_evaluated": false,
+    "errors": [],
+    "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+    "recovery": {
+      "availability": 0.9941690962099126,
+      "can_score": true,
+      "clean_windows": 118,
+      "epoch": 1,
+      "estimated_missing_snapshots": 2,
+      "excluded_seconds": 6.950973033905029,
+      "incident_start": null,
+      "incidents": 1,
+      "maximum_snapshot_gap_seconds": 1.3798153400421143,
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "reasons": [],
+      "reset_required": false,
+      "sequence": 341,
+      "status": "ready"
+    },
+    "schema": "sentinel-pulse-recovery-tail-health-v1",
+    "snapshot_age_seconds": 0.3689534664154053,
+    "status": "ready",
+    "terminal_pass": false,
+    "valid": true
+  },
+  "fault_review": {
+    "clean_recovery_observed": true,
+    "event_sha256": "e7dcd7758e1e5ed069b99c8ba40eae8d93be2bcfbbf18ed472144e4b741b4f2e",
+    "quarantine_snapshot_sequence": 223
+  },
+  "formal_recovery_pass": false,
+  "kernel_to_alert_claim_allowed": false,
+  "reviewed_at_unix": 1791112864.2552948,
+  "run_id": "pulse-recovery-fault-smoke-c1-20261004",
+  "schema": "sentinel-pulse-controlled-fault-live-review-v1",
+  "terminal": false
+}

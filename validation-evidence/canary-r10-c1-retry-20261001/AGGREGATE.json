@@ -1,0 +1,262 @@
+{
+  "accuracy_claim_allowed": false,
+  "alerts": 0,
+  "automatic_promotion": false,
+  "claim_boundary": "0.25-hour non-formal live normal observation only; no blind attack, independence assumption, false-positive-rate or recall claim",
+  "coverage_preflight_gate": true,
+  "created_at": "2026-10-01T12:32:56.641453+00:00",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "decisions": 114964,
+  "evidence_class": "nonformal_live_normal_canary",
+  "expected_workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/search-recommendation-service:app",
+    "production/security-telemetry-service:app"
+  ],
+  "inference_ms": {
+    "count": 114616,
+    "max": 124.18280495330691,
+    "mean": 18.511695811622364,
+    "p50": 17.607870046049356,
+    "p95": 25.72043309919536,
+    "p99": 30.76758463867011
+  },
+  "minimum_coverage_ratio": 0.95,
+  "minimum_coverage_span_seconds": 300,
+  "minimum_observed_duration_seconds": 902.6700413227081,
+  "missing_workloads": [],
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "node_count": 3,
+  "node_identity_binding": "verified from node_name in every scored decision; legacy warming records in this canary do not embed provenance",
+  "nodes": {
+    "k8s-worker1.local": {
+      "alerts": 0,
+      "canary_sha256": "eff1373c5ac9b5303439e759058c47c443b14ec2bfcc02128749ae0549ab0676",
+      "collector_duration_seconds": 903.1492300033569,
+      "collector_rows": 38545,
+      "collector_workloads": 16,
+      "decisions": 37787,
+      "detector_restarts": 0,
+      "scored_decision_node_identity": "k8s-worker1.local",
+      "scored_decisions": 37721,
+      "verified_checksum_entries": 7
+    },
+    "k8s-worker3.local": {
+      "alerts": 0,
+      "canary_sha256": "0a2aa195f1de1bd03a6f013cd57682b8fcd0764d0247cafccdc59fe9278b0bd5",
+      "collector_duration_seconds": 902.6700413227081,
+      "collector_rows": 38794,
+      "collector_workloads": 15,
+      "decisions": 38026,
+      "detector_restarts": 0,
+      "scored_decision_node_identity": "k8s-worker3.local",
+      "scored_decisions": 37888,
+      "verified_checksum_entries": 7
+    },
+    "k8s-worker4.local": {
+      "alerts": 0,
+      "canary_sha256": "1cf418e3d4f985a04c2d047ba57a21b760e3ca5db98793f7695d9273d25737d9",
+      "collector_duration_seconds": 903.8729891777039,
+      "collector_rows": 40071,
+      "collector_workloads": 19,
+      "decisions": 39151,
+      "detector_restarts": 0,
+      "scored_decision_node_identity": "k8s-worker4.local",
+      "scored_decisions": 39007,
+      "verified_checksum_entries": 7
+    }
+  },
+  "post_window_processing_seconds": {
+    "count": 114616,
+    "max": 1.061919927597046,
+    "mean": 0.2805738116667759,
+    "p50": 0.2763040065765381,
+    "p95": 0.48679137229919434,
+    "p99": 0.5892003417015081
+  },
+  "schema": "sentinel-pulse-live-normal-canary-aggregate-v3",
+  "status_counts": {
+    "normal": 113434,
+    "suppressed": 1182,
+    "warming": 348
+  },
+  "unexpected_workloads": [],
+  "valid": true,
+  "window_start_to_decision_seconds": {
+    "count": 114616,
+    "max": 1.570044994354248,
+    "mean": 0.786506558393179,
+    "p50": 0.7823135852813721,
+    "p95": 0.992929995059967,
+    "p99": 1.0959097146987917
+  },
+  "workload_coverage": {
+    "production/aims-frontend:web": {
+      "coverage_gate": true,
+      "coverage_ratio": 0.9977973568281938,
+      "observed_second_buckets": 906,
+      "span_seconds": 908
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 877,
+      "span_seconds": 877
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 877,
+      "span_seconds": 877
+    },
+    "production/aims-minio-pool-0:minio": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-redis:aims-redis": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/api-gateway:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/auth-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/cart-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 909,
+      "span_seconds": 909
+    },
+    "production/catalog-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/inventory-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/notification-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 907,
+      "span_seconds": 907
+    },
+    "production/order-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    },
+    "production/payment-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 907,
+      "span_seconds": 907
+    },
+    "production/search-recommendation-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 909,
+      "span_seconds": 909
+    },
+    "production/security-telemetry-service:app": {
+      "coverage_gate": true,
+      "coverage_ratio": 1.0,
+      "observed_second_buckets": 936,
+      "span_seconds": 936
+    }
+  },
+  "workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/search-recommendation-service:app",
+    "production/security-telemetry-service:app"
+  ]
+}

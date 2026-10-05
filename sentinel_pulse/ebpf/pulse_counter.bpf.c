@@ -3,6 +3,7 @@
 
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+#include "pulse_counter_ids.h"
 
 #define PULSE_MAX_SYSCALL_ID 1024
 #define PULSE_SYSCALL_BINS 64
@@ -11,10 +12,16 @@
 #define PULSE_TRANSITION_MAX_GAP_NS 5000000000ULL
 
 struct pulse_counters {
+#ifdef PULSE_PROJECTED_COUNTERS
+    __u64 tracked[PULSE_TRACKED];
+    __u64 other_syscall_bins[PULSE_SYSCALL_BINS];
+    __u64 transition_bins[PULSE_TRANSITION_BINS];
+#else
     __u64 syscall_bins[PULSE_SYSCALL_BINS];
     __u64 transition_bins[PULSE_TRANSITION_BINS];
     __u64 tracked[PULSE_TRACKED];
     __u64 total;
+#endif
 };
 
 struct pulse_task_state {
@@ -50,6 +57,7 @@ struct {
     __type(value, __u64);
 } pulse_stats SEC(".maps");
 
+#ifndef PULSE_PROJECTED_COUNTERS
 static __always_inline void increment_tracked(
     struct pulse_counters *counters, __u32 id)
 {
@@ -89,6 +97,18 @@ static __always_inline void increment_tracked(
     default: break;
     }
 }
+#else
+static __always_inline int increment_projected_tracked(
+    struct pulse_counters *counters, __u32 id)
+{
+    switch (id) {
+#define PULSE_CASE(number, slot) case number: counters->tracked[slot]++; return 1;
+        PULSE_TRACKED_ROWS(PULSE_CASE)
+#undef PULSE_CASE
+    default: return 0;
+    }
+}
+#endif
 
 static __always_inline __u32 syscall_bin(__u32 id)
 {
@@ -112,11 +132,19 @@ int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
     if (syscall_id >= PULSE_MAX_SYSCALL_ID)
         return 0;
 
+#ifdef PULSE_PROJECTED_COUNTERS
+    if (!increment_projected_tracked(counters, syscall_id)) {
+        __u32 sc_bin = syscall_bin(syscall_id);
+        if (sc_bin < PULSE_SYSCALL_BINS)
+            counters->other_syscall_bins[sc_bin]++;
+    }
+#else
     counters->total++;
     __u32 sc_bin = syscall_bin(syscall_id);
     if (sc_bin < PULSE_SYSCALL_BINS)
         counters->syscall_bins[sc_bin]++;
     increment_tracked(counters, syscall_id);
+#endif
 
     __u64 pid_tgid = bpf_get_current_pid_tgid();
     __u64 now_ns = bpf_ktime_get_ns();

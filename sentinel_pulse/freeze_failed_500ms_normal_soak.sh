@@ -29,6 +29,8 @@ remote_sudo() {
 }
 
 run_id=$(jq -er '.run_id' "$MARKER")
+REMOTE_ROOT=$(jq -r --arg fallback "$REMOTE_ROOT" '.remote_source_root // $fallback' "$MARKER")
+[[ $REMOTE_ROOT =~ ^/home/dat/[A-Za-z0-9._-]+$ ]] || exit 2
 model_sha=$(jq -er '.model_manifest_sha256' "$MARKER")
 policy_sha=$(jq -er '.decision_policy_sha256' "$MARKER")
 started_at=$(jq -er '.started_not_before' "$MARKER")
@@ -198,6 +200,7 @@ if monitor_path.is_file():
         last[row["host"]] = row
 failure_reason = failed.get("reason", "unknown_monitor_failure")
 normal_gate_rejection = failure_reason == "normal_alert_observed"
+normal_gate_rejection = normal_gate_rejection or failure_reason == "operational_normal_gate_failed"
 if normal_gate_rejection:
     terminal_run_status = "rejected_normal_gate"
     candidate_status = "rejected_normal_gate"
@@ -206,6 +209,9 @@ if normal_gate_rejection:
         "one or more alerts were emitted during the normal-only soak; this "
         "is sufficient to reject the candidate without waiting for 24 hours"
     )
+    if failure_reason == "operational_normal_gate_failed":
+        trigger = "preregistered operational alert-rate/exposure gate"
+        mechanism = "operational exposure or alert-rate budget failed; not an infrastructure rejection"
 else:
     terminal_run_status = "rejected_infrastructure_failure"
     candidate_status = "not_evaluated_by_this_run"

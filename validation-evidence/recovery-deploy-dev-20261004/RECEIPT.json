@@ -1,0 +1,55 @@
+{
+  "schema": "sentinel-pulse-recovery-deploy-development-receipt-v1",
+  "source_commit": "ef056f5742047781e46a761a8477e1f72e43c6a7",
+  "vm_source": "/home/dat/eBPF-project-recovery-deploy-r2-20261004",
+  "host_fetch_ref": "refs/remotes/vm-recovery/runtime/recovery-deploy-r2-20261004",
+  "regression": {
+    "command": "python -m pytest -q tests/test_sentinel_pulse*.py",
+    "host_passed": 459,
+    "host_subtests": 20,
+    "host_seconds": 20.19,
+    "vm_release_passed": 459,
+    "vm_release_subtests": 20,
+    "vm_release_seconds": 39.81
+  },
+  "prior_failed_launch": {
+    "run_id": "pulse-recovery-runtime-smoke-c1-20261004",
+    "source_commit": "9bc386718fb1c2575a3c533c9eb9c496b90106aa",
+    "failure_phase": "preregistration_before_collector_and_detector_deployment",
+    "cause_evidence": "git rev-parse as root rejected dat-owned repository; subprocess exit128",
+    "ml_result_available": false,
+    "old_source_and_run_preserved": true
+  },
+  "runtime_smoke_checkpoint": {
+    "run_id": "pulse-recovery-runtime-smoke-c2-20261004",
+    "node": "k8s-worker4.local",
+    "ip": "10.1.16.238",
+    "unit": "sentinel-pulse-recovery-runtime-smoke-20261004-c2.service",
+    "preregistered_at_unix": 1791085575.4732032,
+    "collector_started_at_unix": 1791085582.2046173,
+    "duration_seconds": 600,
+    "observed_at_unix": 1791085702.395604,
+    "decisions": 5033,
+    "status_counts": {"warming": 314, "normal": 4653, "suppressed": 66},
+    "scored_workloads": 19,
+    "alerts": 0,
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+    "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+    "terminal_checked": false,
+    "claim_note": "Checkpoint only, not formal recovery pass or zero-FPR evidence. Native capture freshness is not a proof of detector queue latency."
+  },
+  "formal_recovery_lifecycle_enabled": false,
+  "model_policy_calibration_changed": false,
+  "failed_pressure_c2_verdict_changed": false,
+  "automatic_promotion": false,
+  "automatic_blind_evaluation": false,
+  "kernel_to_alert_claim_allowed": false,
+  "pending": [
+    "Check terminal runtime smoke and preserve ALL alerts",
+    "Integrate formal preregistration, supervision, finalization and valid scored exposure",
+    "Evaluate detector queue freshness separately from capture emission freshness",
+    "Adjudicate Redis Sentinel pressure-C2 alert with process-level evidence"
+  ]
+}

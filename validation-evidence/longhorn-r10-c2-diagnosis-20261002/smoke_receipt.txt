@@ -1,0 +1,30 @@
+Result=success
+ExecMainStatus=0
+ActiveState=inactive
+finished_at=2026-10-02T03:25:35Z
+exit_code=0
+kernel_journal_exit_code=0
+runtime_journal_exit_code=0
+{"record_type": "complete", "samples": 60, "late_samples": 0, "clock_offset_changes": 0, "max_elapsed_monotonic_seconds": 1.0020626988261938}
+./clock.jsonl: OK
+./clock.stderr: OK
+./clock-summary.json: OK
+./FINAL.txt: OK
+./kernel.stderr: OK
+./kernel.txt: OK
+./pressure-cpu-final.txt: OK
+./pressure-cpu-start.txt: OK
+./pressure-io-final.txt: OK
+./pressure-io-start.txt: OK
+./pressure-memory-final.txt: OK
+./pressure-memory-start.txt: OK
+./runtime.stderr: OK
+./runtime.txt: OK
+./sar.bin: OK
+./sar.stderr: OK
+./sar-version.txt: OK
+./services-final.txt: OK
+./services-start.txt: OK
+./SOURCE_SHA256SUMS: OK
+./START.txt: OK
+active

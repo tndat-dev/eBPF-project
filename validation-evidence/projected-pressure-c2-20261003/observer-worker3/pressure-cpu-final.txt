@@ -1,0 +1,2 @@
+some avg10=10.85 avg60=10.76 avg300=10.71 total=205326114984
+full avg10=0.00 avg60=0.00 avg300=0.00 total=0

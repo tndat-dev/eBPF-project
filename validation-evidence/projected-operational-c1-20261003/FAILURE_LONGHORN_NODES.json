@@ -1,0 +1,488 @@
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "longhorn.io/v1beta2",
+            "kind": "Node",
+            "metadata": {
+                "creationTimestamp": "2026-07-29T15:43:14Z",
+                "finalizers": [
+                    "longhorn.io"
+                ],
+                "generation": 1,
+                "name": "k8s-worker1.local",
+                "namespace": "longhorn-system",
+                "resourceVersion": "231205290",
+                "uid": "5720ebe1-8c08-4828-952b-dcc7162bb6af"
+            },
+            "spec": {
+                "allowScheduling": true,
+                "disks": {
+                    "default-disk-cf5c3abdc3413580": {
+                        "allowScheduling": true,
+                        "diskDriver": "",
+                        "diskType": "filesystem",
+                        "evictionRequested": false,
+                        "path": "/var/lib/longhorn/",
+                        "storageReserved": 4195375513,
+                        "tags": []
+                    }
+                },
+                "evictionRequested": false,
+                "instanceManagerCPURequest": 0,
+                "name": "k8s-worker1.local",
+                "tags": []
+            },
+            "status": {
+                "autoEvicting": false,
+                "conditions": [
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-10-01T11:48:58Z",
+                        "message": "Node k8s-worker1.local is ready",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-08-30T04:12:21Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Schedulable"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:43:14Z",
+                        "message": "All required packages [nfs-common open-iscsi cryptsetup dmsetup] are installed",
+                        "reason": "",
+                        "status": "True",
+                        "type": "RequiredPackages"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:43:14Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Multipathd"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:43:14Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "NFSClientInstalled"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:43:14Z",
+                        "message": "Kernel modules [dm_crypt] are not loaded",
+                        "reason": "KernelModulesNotLoaded",
+                        "status": "False",
+                        "type": "KernelModulesLoaded"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:43:44Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "MountPropagation"
+                    }
+                ],
+                "diskStatus": {
+                    "default-disk-cf5c3abdc3413580": {
+                        "conditions": [
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T11:48:58Z",
+                                "message": "Disk default-disk-cf5c3abdc3413580(/var/lib/longhorn/) on node k8s-worker1.local is ready",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Ready"
+                            },
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T11:48:58Z",
+                                "message": "Disk default-disk-cf5c3abdc3413580(/var/lib/longhorn/) on node k8s-worker1.local is schedulable",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Schedulable"
+                            }
+                        ],
+                        "diskDriver": "",
+                        "diskName": "default-disk-cf5c3abdc3413580",
+                        "diskPath": "/var/lib/longhorn/",
+                        "diskType": "filesystem",
+                        "diskUUID": "577db686-b922-40cc-a9a0-4b6cabe68cb6",
+                        "filesystemType": "ext2/ext3",
+                        "healthDataLastCollectedAt": "2026-10-03T13:10:43Z",
+                        "instanceManagerName": "instance-manager-ce78a02ffed28be43271f6f6f3dc8f25",
+                        "scheduledBackingImage": {},
+                        "scheduledReplica": {
+                            "pvc-2f53757c-a9af-4097-aa79-8e214311d82e-r-a1cc578b": 5368709120,
+                            "pvc-330fb5c5-ee4c-4ee2-88bc-87d190624a8d-r-3dde71dc": 10737418240,
+                            "pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502-r-88b7c7f6": 5368709120,
+                            "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728-r-efc543af": 21474836480,
+                            "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853-r-f936c099": 53687091200,
+                            "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7-r-a4c46ad4": 53687091200,
+                            "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193-r-529e3b2c": 5368709120,
+                            "pvc-541f8751-4409-40f4-bc8f-5a75081158cd-r-a3b1f784": 53687091200,
+                            "pvc-66f13181-45cb-4bcb-a893-6adb4855c70a-r-b618e958": 2147483648,
+                            "pvc-67599f47-06e8-4a0d-958b-614b69894ed8-r-a9b32d8a": 10737418240,
+                            "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a-r-5cad5956": 5368709120,
+                            "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99-r-0ca43fa1": 5368709120,
+                            "pvc-6b7a0097-7149-455d-ad02-2177a7a08645-r-51573e67": 2147483648,
+                            "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c-r-b78a4aa7": 5368709120,
+                            "pvc-76996779-0b5a-4f54-a930-d8948b2ec752-r-7c29a213": 5368709120,
+                            "pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6-r-1d6c6938": 10737418240,
+                            "pvc-a2dc6b92-3b62-4402-9952-167d4814c003-r-ee13398a": 10737418240,
+                            "pvc-a56e96b0-933e-432f-a59c-74cc8f6a04f9-r-f311e4b2": 10737418240,
+                            "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981-r-14f6dcc3": 10737418240,
+                            "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8-r-6d09ed5b": 53687091200,
+                            "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f-r-d7a66c95": 10737418240,
+                            "pvc-d32c9b4f-5a32-4003-86bc-471d1f7c1e2d-r-a1b81536": 5368709120,
+                            "pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4-r-0f870106": 5368709120,
+                            "pvc-e420b772-0053-4cc0-9b88-a06292870621-r-00dc7676": 5368709120,
+                            "pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538-r-6d184ba7": 2147483648,
+                            "pvc-eca50b57-a905-493a-9c9a-36a815106f25-r-d9a68282": 10737418240,
+                            "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6-r-0b740b8b": 10737418240
+                        },
+                        "storageAvailable": 260046848000,
+                        "storageMaximum": 633792950272,
+                        "storageScheduled": 392989507584
+                    }
+                },
+                "region": "",
+                "snapshotCheckStatus": {
+                    "lastPeriodicCheckedAt": "2026-10-01T00:00:00Z"
+                },
+                "zone": ""
+            }
+        },
+        {
+            "apiVersion": "longhorn.io/v1beta2",
+            "kind": "Node",
+            "metadata": {
+                "creationTimestamp": "2026-07-29T09:10:38Z",
+                "finalizers": [
+                    "longhorn.io"
+                ],
+                "generation": 9,
+                "name": "k8s-worker3.local",
+                "namespace": "longhorn-system",
+                "resourceVersion": "231204337",
+                "uid": "6ae2db46-5836-435e-a9a4-ec291f37396a"
+            },
+            "spec": {
+                "allowScheduling": true,
+                "disks": {
+                    "default-disk-6f93b8ceea299d28": {
+                        "allowScheduling": true,
+                        "diskDriver": "",
+                        "diskType": "filesystem",
+                        "evictionRequested": false,
+                        "path": "/var/lib/longhorn/",
+                        "storageReserved": 68719476736,
+                        "tags": []
+                    }
+                },
+                "evictionRequested": false,
+                "instanceManagerCPURequest": 0,
+                "name": "k8s-worker3.local",
+                "tags": []
+            },
+            "status": {
+                "autoEvicting": false,
+                "conditions": [
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-10-01T11:48:53Z",
+                        "message": "Node k8s-worker3.local is ready",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-08-30T04:21:08Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Schedulable"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T09:10:38Z",
+                        "message": "All required packages [open-iscsi cryptsetup dmsetup nfs-common] are installed",
+                        "reason": "",
+                        "status": "True",
+                        "type": "RequiredPackages"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T09:10:38Z",
+                        "message": "multipathd is running with a known issue that affects Longhorn. See description and solution at https://longhorn.io/kb/troubleshooting-volume-with-multipath",
+                        "reason": "MultipathdIsRunning",
+                        "status": "False",
+                        "type": "Multipathd"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T09:10:38Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "NFSClientInstalled"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T09:10:38Z",
+                        "message": "Kernel modules [dm_crypt] are not loaded",
+                        "reason": "KernelModulesNotLoaded",
+                        "status": "False",
+                        "type": "KernelModulesLoaded"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T09:11:08Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "MountPropagation"
+                    }
+                ],
+                "diskStatus": {
+                    "default-disk-6f93b8ceea299d28": {
+                        "conditions": [
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T11:48:52Z",
+                                "message": "Disk default-disk-6f93b8ceea299d28(/var/lib/longhorn/) on node k8s-worker3.local is ready",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Ready"
+                            },
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T11:48:52Z",
+                                "message": "Disk default-disk-6f93b8ceea299d28(/var/lib/longhorn/) on node k8s-worker3.local is schedulable",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Schedulable"
+                            }
+                        ],
+                        "diskDriver": "",
+                        "diskName": "default-disk-6f93b8ceea299d28",
+                        "diskPath": "/var/lib/longhorn/",
+                        "diskType": "filesystem",
+                        "diskUUID": "af26014b-7731-4695-b696-b3fb55cf254b",
+                        "filesystemType": "ext2/ext3",
+                        "healthDataLastCollectedAt": "2026-10-03T13:09:48Z",
+                        "instanceManagerName": "instance-manager-1b0e97eff7c0c24b052a44050b9bf8f5",
+                        "scheduledBackingImage": {},
+                        "scheduledReplica": {
+                            "pvc-2f53757c-a9af-4097-aa79-8e214311d82e-r-f3d5f534": 5368709120,
+                            "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728-r-12e7b0b0": 21474836480,
+                            "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853-r-c0c78ed7": 53687091200,
+                            "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7-r-3bc3e3b4": 53687091200,
+                            "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193-r-4d34c8f6": 5368709120,
+                            "pvc-541f8751-4409-40f4-bc8f-5a75081158cd-r-b744aed8": 53687091200,
+                            "pvc-66f13181-45cb-4bcb-a893-6adb4855c70a-r-4d4dcf42": 2147483648,
+                            "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a-r-3c5e8557": 5368709120,
+                            "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99-r-6997e808": 5368709120,
+                            "pvc-6b7a0097-7149-455d-ad02-2177a7a08645-r-daada950": 2147483648,
+                            "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c-r-a38d3e01": 5368709120,
+                            "pvc-a2dc6b92-3b62-4402-9952-167d4814c003-r-25bbccbf": 10737418240,
+                            "pvc-a56e96b0-933e-432f-a59c-74cc8f6a04f9-r-4bb0ba36": 10737418240,
+                            "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981-r-8b80d508": 10737418240,
+                            "pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2-r-7c6b5731": 10737418240,
+                            "pvc-ceebad9b-9578-4df1-a37b-7e4fc725c25a-r-2bf4e77a": 10737418240,
+                            "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f-r-34f4df2c": 10737418240,
+                            "pvc-d32c9b4f-5a32-4003-86bc-471d1f7c1e2d-r-bdc070ca": 5368709120,
+                            "pvc-e420b772-0053-4cc0-9b88-a06292870621-r-44b6fc3b": 5368709120,
+                            "pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538-r-6607f715": 2147483648,
+                            "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6-r-750d1fc3": 10737418240
+                        },
+                        "storageAvailable": 140089753600,
+                        "storageMaximum": 633792950272,
+                        "storageScheduled": 301721452544
+                    }
+                },
+                "region": "",
+                "snapshotCheckStatus": {
+                    "lastPeriodicCheckedAt": "2026-10-01T00:00:00Z"
+                },
+                "zone": ""
+            }
+        },
+        {
+            "apiVersion": "longhorn.io/v1beta2",
+            "kind": "Node",
+            "metadata": {
+                "creationTimestamp": "2026-07-29T14:00:00Z",
+                "finalizers": [
+                    "longhorn.io"
+                ],
+                "generation": 1,
+                "name": "k8s-worker4.local",
+                "namespace": "longhorn-system",
+                "resourceVersion": "231205482",
+                "uid": "ee40fb1f-bb5c-4b7e-9f5d-d61271615f18"
+            },
+            "spec": {
+                "allowScheduling": true,
+                "disks": {
+                    "default-disk-6f93b8ceea299d28": {
+                        "allowScheduling": true,
+                        "diskDriver": "",
+                        "diskType": "filesystem",
+                        "evictionRequested": false,
+                        "path": "/var/lib/longhorn/",
+                        "storageReserved": 27023232614,
+                        "tags": []
+                    }
+                },
+                "evictionRequested": false,
+                "instanceManagerCPURequest": 0,
+                "name": "k8s-worker4.local",
+                "tags": []
+            },
+            "status": {
+                "autoEvicting": false,
+                "conditions": [
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-10-01T16:23:59Z",
+                        "message": "Node k8s-worker4.local is ready",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Ready"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-08-03T08:42:09Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Schedulable"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T14:00:00Z",
+                        "message": "All required packages [nfs-common open-iscsi cryptsetup dmsetup] are installed",
+                        "reason": "",
+                        "status": "True",
+                        "type": "RequiredPackages"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T15:30:00Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "Multipathd"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T14:00:00Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "NFSClientInstalled"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T14:00:00Z",
+                        "message": "Kernel modules [dm_crypt] are not loaded",
+                        "reason": "KernelModulesNotLoaded",
+                        "status": "False",
+                        "type": "KernelModulesLoaded"
+                    },
+                    {
+                        "lastProbeTime": "",
+                        "lastTransitionTime": "2026-07-29T14:00:31Z",
+                        "message": "",
+                        "reason": "",
+                        "status": "True",
+                        "type": "MountPropagation"
+                    }
+                ],
+                "diskStatus": {
+                    "default-disk-6f93b8ceea299d28": {
+                        "conditions": [
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T16:23:59Z",
+                                "message": "Disk default-disk-6f93b8ceea299d28(/var/lib/longhorn/) on node k8s-worker4.local is ready",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Ready"
+                            },
+                            {
+                                "lastProbeTime": "",
+                                "lastTransitionTime": "2026-10-01T16:23:59Z",
+                                "message": "Disk default-disk-6f93b8ceea299d28(/var/lib/longhorn/) on node k8s-worker4.local is schedulable",
+                                "reason": "",
+                                "status": "True",
+                                "type": "Schedulable"
+                            }
+                        ],
+                        "diskDriver": "",
+                        "diskName": "default-disk-6f93b8ceea299d28",
+                        "diskPath": "/var/lib/longhorn/",
+                        "diskType": "filesystem",
+                        "diskUUID": "e0acfceb-738d-4514-a50f-9a3b6bf5ccab",
+                        "filesystemType": "ext2/ext3",
+                        "healthDataLastCollectedAt": "2026-10-03T13:11:55Z",
+                        "instanceManagerName": "instance-manager-68394771960b3f996546f93318382c5f",
+                        "scheduledBackingImage": {},
+                        "scheduledReplica": {
+                            "pvc-2f53757c-a9af-4097-aa79-8e214311d82e-r-5a26a5c9": 5368709120,
+                            "pvc-330fb5c5-ee4c-4ee2-88bc-87d190624a8d-r-9ba035b3": 10737418240,
+                            "pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502-r-b2092b59": 5368709120,
+                            "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853-r-2ec49ba3": 53687091200,
+                            "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7-r-faaeaaf5": 53687091200,
+                            "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193-r-498fd4b6": 5368709120,
+                            "pvc-541f8751-4409-40f4-bc8f-5a75081158cd-r-b7bce057": 53687091200,
+                            "pvc-66f13181-45cb-4bcb-a893-6adb4855c70a-r-d966dda3": 2147483648,
+                            "pvc-67599f47-06e8-4a0d-958b-614b69894ed8-r-cc56dd49": 10737418240,
+                            "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a-r-4d3271d0": 5368709120,
+                            "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99-r-90117b51": 5368709120,
+                            "pvc-6b7a0097-7149-455d-ad02-2177a7a08645-r-7bdf136d": 2147483648,
+                            "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c-r-f175fdb2": 5368709120,
+                            "pvc-76996779-0b5a-4f54-a930-d8948b2ec752-r-f3d8500a": 5368709120,
+                            "pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6-r-fc8afb37": 10737418240,
+                            "pvc-a2dc6b92-3b62-4402-9952-167d4814c003-r-2858e7e7": 10737418240,
+                            "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981-r-11ae2256": 10737418240,
+                            "pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2-r-45a11f5e": 10737418240,
+                            "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8-r-cbfbfbe9": 53687091200,
+                            "pvc-ceebad9b-9578-4df1-a37b-7e4fc725c25a-r-09195223": 10737418240,
+                            "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f-r-9ea909ad": 10737418240,
+                            "pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4-r-26eb3225": 5368709120,
+                            "pvc-e420b772-0053-4cc0-9b88-a06292870621-r-1f0d92a4": 5368709120,
+                            "pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538-r-16014a10": 2147483648,
+                            "pvc-eca50b57-a905-493a-9c9a-36a815106f25-r-97fc11d0": 10737418240,
+                            "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6-r-3f245ab2": 10737418240
+                        },
+                        "storageAvailable": 216530944000,
+                        "storageMaximum": 633792950272,
+                        "storageScheduled": 376883380224
+                    }
+                },
+                "region": "",
+                "snapshotCheckStatus": {
+                    "lastPeriodicCheckedAt": "2026-10-01T00:00:00Z"
+                },
+                "zone": ""
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-recovery-coordinator-source-sync-v1",
+  "reviewed_at_utc": "2026-10-04 15:24:24 UTC",
+  "release_commit": "dd872e706fdae6da50bd3cb551c92278397bbc34",
+  "remote_main": "/home/dat/eBPF-project-main-0aa73e2",
+  "verified_files": 9,
+  "all_sha256_equal": true,
+  "host_sha256": {
+    "sentinel_pulse/recovery_coordinator.py": "c313103d01d7ec6060f1f23b81d2b7ee8dd75c0815d88c02a48fe043a96d3ec2",
+    "sentinel_pulse/recovery_worker_probe.py": "db754354fb5af8ca5e15aa6ec7fd9256498353ae2ab44d9cc1db257086846bf6",
+    "tests/test_sentinel_pulse_recovery_coordinator.py": "8a338b885120d36e6f62f6af511a3983c51d245b7fc6e82c799994dc5178273e",
+    "sentinel-pulse.md": "e91df1fb86ca3a18ec36b3758706435e01353416420b2249f92775b034857e23",
+    "SENTINEL_PULSE_REPORT.md": "250a90d4f0c7368f7d8d2029de8ebcd0cd00e2208c030d12efafe9d21364c36f",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "ab0255fdefabf70a0508d6a4adc9308bd9224178490a0aaa80f2e61f5aef2bff",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "e714416760442117fb7b809c56173c400f2725214a95e1a14bf6b2ce108b5a74",
+    "PULSE_TELEMETRY_RECOVERY.md": "6a03f346b1ddc49a912dfa0a63c30fb1d75c8079f21aa4e746571f9c0a9ba598",
+    "sentinel_pulse/README.md": "8a4cd14e2a0a340abb040829e9a25d34a588e53743e789a1716516f18491f3ef"
+  },
+  "vm_main_sha256": {
+    "sentinel_pulse/recovery_coordinator.py": "c313103d01d7ec6060f1f23b81d2b7ee8dd75c0815d88c02a48fe043a96d3ec2",
+    "sentinel_pulse/recovery_worker_probe.py": "db754354fb5af8ca5e15aa6ec7fd9256498353ae2ab44d9cc1db257086846bf6",
+    "tests/test_sentinel_pulse_recovery_coordinator.py": "8a338b885120d36e6f62f6af511a3983c51d245b7fc6e82c799994dc5178273e",
+    "sentinel-pulse.md": "e91df1fb86ca3a18ec36b3758706435e01353416420b2249f92775b034857e23",
+    "SENTINEL_PULSE_REPORT.md": "250a90d4f0c7368f7d8d2029de8ebcd0cd00e2208c030d12efafe9d21364c36f",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "ab0255fdefabf70a0508d6a4adc9308bd9224178490a0aaa80f2e61f5aef2bff",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "e714416760442117fb7b809c56173c400f2725214a95e1a14bf6b2ce108b5a74",
+    "PULSE_TELEMETRY_RECOVERY.md": "6a03f346b1ddc49a912dfa0a63c30fb1d75c8079f21aa4e746571f9c0a9ba598",
+    "sentinel_pulse/README.md": "8a4cd14e2a0a340abb040829e9a25d34a588e53743e789a1716516f18491f3ef"
+  },
+  "github_push": false,
+  "unrelated_worktree_changes_preserved": true
+}

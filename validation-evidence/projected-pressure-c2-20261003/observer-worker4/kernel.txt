@@ -1,0 +1,45 @@
+2026-10-03T16:49:10+00:00 k8s-worker4.local kernel: sd 42:0:0:1: Power-on or device reset occurred
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection11:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283582977, last ping 7283590688, now 7283596259
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection11:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection12:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283581376, last ping 7283590688, now 7283596880
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection12:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection7:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283580417, last ping 7283590688, now 7283596887
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection7:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection9:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283580417, last ping 7283590673, now 7283596887
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection9:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection13:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283579393, last ping 7283590673, now 7283596888
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection13:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection3:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283578880, last ping 7283590673, now 7283596888
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection3:0: detected conn error (1022)
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection14:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7283578880, last ping 7283590673, now 7283596889
+2026-10-03T17:01:29+00:00 k8s-worker4.local kernel:  connection14:0: detected conn error (1022)
+2026-10-03T17:01:31+00:00 k8s-worker4.local kernel: sd 41:0:0:1: Power-on or device reset occurred
+2026-10-03T17:01:31+00:00 k8s-worker4.local kernel: sd 35:0:0:1: Power-on or device reset occurred
+2026-10-03T17:01:31+00:00 k8s-worker4.local kernel: sd 38:0:0:1: Power-on or device reset occurred
+2026-10-03T17:22:41+00:00 k8s-worker4.local kernel: workqueue: blk_mq_run_work_fn hogged CPU for >10000us 16 times, consider switching to WQ_UNBOUND
+2026-10-03T17:22:58+00:00 k8s-worker4.local kernel: sd 42:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:15+00:00 k8s-worker4.local kernel:  connection3:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285430524, last ping 7285435629, now 7285441292
+2026-10-03T17:32:16+00:00 k8s-worker4.local kernel:  connection3:0: detected conn error (1022)
+2026-10-03T17:32:16+00:00 k8s-worker4.local kernel:  connection12:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285432609, last ping 7285437995, now 7285443089
+2026-10-03T17:32:16+00:00 k8s-worker4.local kernel:  connection12:0: detected conn error (1022)
+2026-10-03T17:32:16+00:00 k8s-worker4.local kernel:  connection11:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285432442, last ping 7285437995, now 7285443091
+2026-10-03T17:32:16+00:00 k8s-worker4.local kernel:  connection11:0: detected conn error (1022)
+2026-10-03T17:32:17+00:00 k8s-worker4.local kernel:  connection9:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434019, last ping 7285439490, now 7285444652
+2026-10-03T17:32:17+00:00 k8s-worker4.local kernel:  connection15:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434018, last ping 7285439189, now 7285444652
+2026-10-03T17:32:17+00:00 k8s-worker4.local kernel:  connection1:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434019, last ping 7285439188, now 7285444652
+2026-10-03T17:32:17+00:00 k8s-worker4.local kernel:  connection1:0: detected conn error (1022)
+2026-10-03T17:32:17+00:00 k8s-worker4.local kernel:  connection9:0: detected conn error (1022)
+2026-10-03T17:32:18+00:00 k8s-worker4.local kernel:  connection15:0: detected conn error (1022)
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection14:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434019, last ping 7285439490, now 7285444963
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection14:0: detected conn error (1022)
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection7:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434019, last ping 7285439490, now 7285444963
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection7:0: detected conn error (1022)
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection13:0: ping timeout of 5 secs expired, recv timeout 5, last rx 7285434019, last ping 7285439490, now 7285444963
+2026-10-03T17:32:21+00:00 k8s-worker4.local kernel:  connection13:0: detected conn error (1022)
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 38:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 41:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 33:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 36:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 42:0:0:1: Power-on or device reset occurred
+2026-10-03T17:32:34+00:00 k8s-worker4.local kernel: sd 35:0:0:1: Power-on or device reset occurred
+2026-10-03T18:19:15+00:00 k8s-worker4.local kernel: sd 34:0:0:1: Power-on or device reset occurred

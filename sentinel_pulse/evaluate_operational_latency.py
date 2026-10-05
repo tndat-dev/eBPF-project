@@ -104,8 +104,17 @@ def evaluate(paths: list[Path], soak_marker_path: Path) -> dict:
                     raise ValueError(
                         f"{path}:{line_number}: decision identity differs from soak marker"
                     )
-                if window_start > window_end or alerted_at < window_end or processing < 0.0:
+                if (
+                    window_start > window_end
+                    or alerted_at < window_end
+                    or processing < 0.0
+                    or inference_ms < 0.0
+                ):
                     raise ValueError(f"{path}:{line_number}: impossible latency ordering")
+                if not math.isclose(
+                    processing, alerted_at - window_end, rel_tol=0.0, abs_tol=1e-6
+                ):
+                    raise ValueError(f"{path}:{line_number}: inconsistent post-window timing")
                 measured = {
                     "inference_ms": inference_ms,
                     "post_window_processing_seconds": processing,
@@ -149,6 +158,14 @@ def evaluate(paths: list[Path], soak_marker_path: Path) -> dict:
         "schema": "sentinel-pulse-operational-latency-report-v1",
         "normal_only_evidence": True,
         "true_attack_kernel_to_alert_claim": False,
+        "full_policy_latency_measured": False,
+        "alert_output_latency_measured": False,
+        "timestamp_semantics": {
+            "alerted_at": "legacy post-model timestamp before policy and JSONL publication",
+            "window_start_to_decision_seconds": "legacy metric name: window start to post-model timestamp",
+            "window_end_to_decision_seconds": "legacy metric name: window end to post-model timestamp",
+            "inference_ms": "model scoring plus conformal calculation; excludes policy and output",
+        },
         "soak_marker_sha256": marker["sha256"],
         "excluded_scored_windows_before_marker": excluded,
         "scored_rows": scored_rows,
@@ -162,7 +179,9 @@ def evaluate(paths: list[Path], soak_marker_path: Path) -> dict:
             item for _delay, _sequence, item in sorted(top_delays, reverse=True)
         ],
         "interpretation": (
-            "Operational normal-path timing is not injection-to-alert latency. "
+            "Legacy alerted_at is captured after model.predict, before policy "
+            "evaluation and JSONL publication. These metrics do not measure "
+            "full-policy, alert-output, or injection-to-alert latency. "
             "Blind live attack markers remain required for the paper latency claim."
         ),
     }

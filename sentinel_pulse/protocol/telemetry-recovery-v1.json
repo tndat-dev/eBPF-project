@@ -1,0 +1,17 @@
+{
+  "schema": "sentinel-pulse-telemetry-recovery-profile-v1",
+  "nominal_interval_seconds": 0.5,
+  "interval_min_seconds": 0.35,
+  "interval_max_seconds": 0.8,
+  "maximum_recoverable_gap_seconds": 30,
+  "maximum_ingest_lag_seconds": 1,
+  "maximum_incident_seconds": 60,
+  "maximum_incidents": 12,
+  "maximum_excluded_seconds": 900,
+  "rolling_windows": 10,
+  "minimum_telemetry_availability": 0.999,
+  "maximum_wall_seconds": 90000,
+  "minimum_scored_hours_per_workload": 24,
+  "automatic_promotion": false,
+  "automatic_blind_evaluation": false
+}

@@ -1,0 +1,102 @@
+{
+  "accuracy_claim_allowed": false,
+  "alerts": 0,
+  "automatic_promotion": false,
+  "collector_duration_seconds": 1398.9623453617096,
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "collector_rows": 60242,
+  "collector_valid": true,
+  "collector_window_start_to_emit_seconds": {
+    "max": 0.5851726531982422,
+    "p50": 0.5236029624938965,
+    "p95": 0.539520263671875,
+    "p99": 0.5489213371276855
+  },
+  "collector_workloads": 15,
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "decisions": 59499,
+  "detector_restarts": 0,
+  "evidence_class": "nonformal_live_normal_canary",
+  "inference_ms": {
+    "count": 59292,
+    "max": 61.50780105963349,
+    "mean": 18.726587699062932,
+    "p50": 17.728056525811553,
+    "p95": 26.859195390716195,
+    "p99": 31.54902125708759
+  },
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "node_name": "k8s-worker3.local",
+  "post_window_processing_seconds": {
+    "count": 59292,
+    "max": 1.143355369567871,
+    "mean": 0.28605949538106146,
+    "p50": 0.27929818630218506,
+    "p95": 0.5042701363563538,
+    "p99": 0.6740282464027403
+  },
+  "run_id": "pulse-projected-pressure-c2-20261003T163700Z",
+  "schema": "sentinel-pulse-live-normal-canary-v1",
+  "status_counts": {
+    "normal": 58061,
+    "suppressed": 1231,
+    "warming": 207
+  },
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 2757,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": true,
+  "window_start_to_alert_seconds": {
+    "count": 59292,
+    "max": 1.6492137908935547,
+    "mean": 0.7921884851136253,
+    "p50": 0.7854166030883789,
+    "p95": 1.011083972454071,
+    "p99": 1.180774264335632
+  },
+  "window_start_to_decision_seconds": {
+    "count": 59292,
+    "max": 1.6492137908935547,
+    "mean": 0.7921884851136253,
+    "p50": 0.7854166030883789,
+    "p95": 1.011083972454071,
+    "p99": 1.180774264335632
+  },
+  "workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/search-recommendation-service:app",
+    "production/security-telemetry-service:app"
+  ]
+}

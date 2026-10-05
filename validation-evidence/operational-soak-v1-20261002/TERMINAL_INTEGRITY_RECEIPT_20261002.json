@@ -1,0 +1,448 @@
+{
+  "schema": "sentinel-pulse-terminal-integrity-receipt-v1",
+  "checked_at": "2026-10-02T10:17:58.921948+00:00",
+  "FAILED": "failed_at=2026-10-02T04:37:15Z\nreason=collector_integrity_violation\nhost=10.1.16.237\n",
+  "failure_feature_tail": {
+    "collector_max_drops": {
+      "capture_interval_violation": 0,
+      "count_insert_fail": 0,
+      "snapshot_consistency_retry_exhausted": 1,
+      "snapshot_total_mismatch": 0,
+      "target_snapshot_gap": 1,
+      "task_state_update_fail": 0,
+      "transition_insert_fail": 0
+    },
+    "collector_telemetry_availability": {
+      "availability": 1,
+      "cadence_violation_events": 0,
+      "estimated_missing_snapshots": 0,
+      "maximum_snapshot_interval_seconds": 0.640662431716919,
+      "minimum_snapshot_interval_seconds": 0.5036835670471191,
+      "observed_snapshots": 3451,
+      "schema": "sentinel-pulse-telemetry-availability-v1",
+      "short_interval_events": 0
+    },
+    "errors": [
+      "collector loss: snapshot_consistency_retry_exhausted=1",
+      "collector loss: target_snapshot_gap=1"
+    ],
+    "feature_age_seconds": 0.016650676727294922,
+    "feature_interval_seconds": 0.5057015419006348,
+    "interval_seconds": 0.5057015419006348,
+    "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+    "schema": "sentinel-pulse-feature-tail-health-v1",
+    "telemetry_availability_contract": {
+      "maximum_capture_interval_violations": null,
+      "maximum_estimated_missing_snapshots": 180,
+      "maximum_single_gap_seconds": 10,
+      "minimum_availability": 0.999,
+      "nominal_interval_seconds": 0.5
+    },
+    "telemetry_degraded": false,
+    "valid": false,
+    "window_end": 1790915834.436513,
+    "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+  },
+  "failure_feature_tail_status": "host=10.1.16.237\nexit_code=1\n",
+  "disposition": {
+    "accuracy_claim_allowed": false,
+    "archive": {
+      "reused_verified_finalizer_raw_archive": false
+    },
+    "archived_at": "2026-10-02T04:38:32.586367+00:00",
+    "candidate_status": "not_evaluated_by_this_run",
+    "data_use": {
+      "blind_attack": false,
+      "normal_gate": false,
+      "training": false,
+      "tuning": false
+    },
+    "failed": {
+      "failed_at": "2026-10-02T04:37:15Z",
+      "host": "10.1.16.237",
+      "reason": "collector_integrity_violation"
+    },
+    "last_monitor_snapshot_by_host": {
+      "10.1.16.237": {
+        "alerts": 0,
+        "checked_at_unix": 1790915762.2515166,
+        "collector": "active",
+        "decisions": 70806,
+        "detector": "active",
+        "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_tail": {
+          "collector_max_drops": {
+            "capture_interval_violation": 0,
+            "count_insert_fail": 0,
+            "snapshot_consistency_retry_exhausted": 0,
+            "snapshot_total_mismatch": 0,
+            "target_snapshot_gap": 0,
+            "task_state_update_fail": 0,
+            "transition_insert_fail": 0
+          },
+          "collector_telemetry_availability": {
+            "availability": 1,
+            "cadence_violation_events": 0,
+            "estimated_missing_snapshots": 0,
+            "maximum_snapshot_interval_seconds": 0.640662431716919,
+            "minimum_snapshot_interval_seconds": 0.5036835670471191,
+            "observed_snapshots": 3308,
+            "schema": "sentinel-pulse-telemetry-availability-v1",
+            "short_interval_events": 0
+          },
+          "errors": [],
+          "feature_age_seconds": 0.21231675148010254,
+          "feature_interval_seconds": 0.5049598217010498,
+          "interval_seconds": 0.5049598217010498,
+          "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+          "schema": "sentinel-pulse-feature-tail-health-v1",
+          "telemetry_availability_contract": {
+            "maximum_capture_interval_violations": null,
+            "maximum_estimated_missing_snapshots": 180,
+            "maximum_single_gap_seconds": 10,
+            "minimum_availability": 0.999,
+            "nominal_interval_seconds": 0.5
+          },
+          "telemetry_degraded": false,
+          "valid": true,
+          "window_end": 1790915761.9670784,
+          "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+        },
+        "host": "10.1.16.237",
+        "legacy_control_collector": "inactive",
+        "nrestarts": 0
+      },
+      "10.1.16.238": {
+        "alerts": 0,
+        "checked_at_unix": 1790915768.400193,
+        "collector": "active",
+        "decisions": 71701,
+        "detector": "active",
+        "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_tail": {
+          "collector_max_drops": {
+            "capture_interval_violation": 0,
+            "count_insert_fail": 0,
+            "snapshot_consistency_retry_exhausted": 0,
+            "snapshot_total_mismatch": 0,
+            "target_snapshot_gap": 0,
+            "task_state_update_fail": 0,
+            "transition_insert_fail": 0
+          },
+          "collector_telemetry_availability": {
+            "availability": 1,
+            "cadence_violation_events": 0,
+            "estimated_missing_snapshots": 0,
+            "maximum_snapshot_interval_seconds": 0.5209774971008301,
+            "minimum_snapshot_interval_seconds": 0.5036356449127197,
+            "observed_snapshots": 3213,
+            "schema": "sentinel-pulse-telemetry-availability-v1",
+            "short_interval_events": 0
+          },
+          "errors": [],
+          "feature_age_seconds": 0.1441807746887207,
+          "feature_interval_seconds": 0.5063247680664062,
+          "interval_seconds": 0.5063247680664062,
+          "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+          "schema": "sentinel-pulse-feature-tail-health-v1",
+          "telemetry_availability_contract": {
+            "maximum_capture_interval_violations": null,
+            "maximum_estimated_missing_snapshots": 180,
+            "maximum_single_gap_seconds": 10,
+            "minimum_availability": 0.999,
+            "nominal_interval_seconds": 0.5
+          },
+          "telemetry_degraded": false,
+          "valid": true,
+          "window_end": 1790915768.1629336,
+          "workload_key": "production/cart-service:app"
+        },
+        "host": "10.1.16.238",
+        "legacy_control_collector": "inactive",
+        "nrestarts": 0
+      },
+      "10.1.16.239": {
+        "alerts": 0,
+        "checked_at_unix": 1790915765.1918867,
+        "collector": "active",
+        "decisions": 70442,
+        "detector": "active",
+        "expected_feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_source": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+        "feature_tail": {
+          "collector_max_drops": {
+            "capture_interval_violation": 0,
+            "count_insert_fail": 0,
+            "snapshot_consistency_retry_exhausted": 0,
+            "snapshot_total_mismatch": 0,
+            "target_snapshot_gap": 0,
+            "task_state_update_fail": 0,
+            "transition_insert_fail": 0
+          },
+          "collector_telemetry_availability": {
+            "availability": 1,
+            "cadence_violation_events": 0,
+            "estimated_missing_snapshots": 0,
+            "maximum_snapshot_interval_seconds": 0.532006025314331,
+            "minimum_snapshot_interval_seconds": 0.5036923885345459,
+            "observed_snapshots": 3261,
+            "schema": "sentinel-pulse-telemetry-availability-v1",
+            "short_interval_events": 0
+          },
+          "errors": [],
+          "feature_age_seconds": 0.5169742107391357,
+          "feature_interval_seconds": 0.5041265487670898,
+          "interval_seconds": 0.5041265487670898,
+          "path": "/var/lib/sentinel-pulse-500ms/runs/sentinel-pulse-operational-r10-c3-20261002T040300Z/features.jsonl",
+          "schema": "sentinel-pulse-feature-tail-health-v1",
+          "telemetry_availability_contract": {
+            "maximum_capture_interval_violations": null,
+            "maximum_estimated_missing_snapshots": 180,
+            "maximum_single_gap_seconds": 10,
+            "minimum_availability": 0.999,
+            "nominal_interval_seconds": 0.5
+          },
+          "telemetry_degraded": false,
+          "valid": true,
+          "window_end": 1790915764.6127155,
+          "workload_key": "production/order-service:app"
+        },
+        "host": "10.1.16.239",
+        "legacy_control_collector": "inactive",
+        "nrestarts": 0
+      }
+    },
+    "normal_gate_result": null,
+    "observed_alerts_before_failure": 0,
+    "root_cause": {
+      "class": "collector_integrity_violation",
+      "mechanism": "the run is infrastructure/evidence-rejected before candidate evaluation; detailed snapshots are retained when available",
+      "trigger": "formal normal monitor fail-closed infrastructure/evidence gate"
+    },
+    "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+    "schema": "sentinel-pulse-failed-soak-disposition-v2",
+    "terminal_run_status": "rejected_infrastructure_failure"
+  },
+  "node_final": {
+    "10.1.16.237": {
+      "capture_bytes": 141566263,
+      "capture_sha256": "c504fe1ce51d8df9067b1aadfa8a69b8ae251da44715891091a0b9d1f2418594",
+      "collector_max_drops": {
+        "capture_interval_violation": 0,
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 1,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 1,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "control_collector_cpu_seconds": 0,
+      "duration_seconds": 1753.4196152687073,
+      "ended_at_unix": 1790915836.8476176,
+      "experiment_average_cpu_cores": 0.07274851033330772,
+      "experiment_cpu_seconds": 127.558665,
+      "experiment_memory_peak_bytes": 180371456,
+      "finalized_at_unix": 1790915847.524472,
+      "ingest_lag_seconds": {
+        "max": 0.15259623527526855,
+        "p50": 0.017598748207092285,
+        "p95": 0.03156388998031616,
+        "p99": 0.0394115209579468
+      },
+      "interval_seconds": {
+        "max": 1.0171122550964355,
+        "p50": 0.5060009956359863,
+        "p95": 0.5105359554290771,
+        "p99": 0.5165102481842041
+      },
+      "registered_max_duration_seconds": 90000,
+      "rows": 74804,
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "schema": "sentinel-pulse-500ms-final-v1",
+      "service_ok": true,
+      "service_result": "success",
+      "snapshot_read_seconds": {
+        "max": 0.021604776,
+        "p50": 0.003762722,
+        "p95": 0.007028341,
+        "p99": 0.011967659
+      },
+      "started_at_unix": 1790914083.4280024,
+      "telemetry_availability": {
+        "availability": 1,
+        "cadence_violation_events": 0,
+        "delayed_interval_events": 0,
+        "estimated_missing_snapshots": 0,
+        "maximum_gap_seconds": 0,
+        "observed_snapshots": 3453,
+        "short_interval_events": 0
+      },
+      "telemetry_availability_contract": {
+        "maximum_single_gap_seconds": 10,
+        "minimum_availability": 0.999,
+        "nominal_interval_seconds": 0.5
+      },
+      "valid": false,
+      "validation_errors": [
+        "collector loss: snapshot_consistency_retry_exhausted=1",
+        "collector loss: target_snapshot_gap=1"
+      ],
+      "window_start_to_emit_seconds": {
+        "max": 1.050877571105957,
+        "p50": 0.5240291357040405,
+        "p95": 0.5389651894569397,
+        "p99": 0.5484946036338806
+      },
+      "workload_count": 16
+    },
+    "10.1.16.239": {
+      "capture_bytes": 140117599,
+      "capture_sha256": "458b6e65c497af43e74e1284d3016475c2994f1af92dc44292e56968425cb20a",
+      "collector_max_drops": {
+        "capture_interval_violation": 0,
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "control_collector_cpu_seconds": 0,
+      "duration_seconds": 1749.4639866352081,
+      "ended_at_unix": 1790915861.0334802,
+      "experiment_average_cpu_cores": 0.07197980693629313,
+      "experiment_cpu_seconds": 125.92608,
+      "experiment_memory_peak_bytes": 176873472,
+      "finalized_at_unix": 1790915872.7103076,
+      "ingest_lag_seconds": {
+        "max": 0.06636762619018555,
+        "p50": 0.016963958740234375,
+        "p95": 0.030241394042968748,
+        "p99": 0.03737544059753413
+      },
+      "interval_seconds": {
+        "max": 0.532006025314331,
+        "p50": 0.5057406425476074,
+        "p95": 0.509423017501831,
+        "p99": 0.5135214328765869
+      },
+      "registered_max_duration_seconds": 90000,
+      "rows": 75369,
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "schema": "sentinel-pulse-500ms-final-v1",
+      "service_ok": true,
+      "service_result": "success",
+      "snapshot_read_seconds": {
+        "max": 0.029497623,
+        "p50": 0.003634214,
+        "p95": 0.006600618,
+        "p99": 0.009986401
+      },
+      "started_at_unix": 1790914111.5694935,
+      "telemetry_availability": {
+        "availability": 1,
+        "cadence_violation_events": 0,
+        "delayed_interval_events": 0,
+        "estimated_missing_snapshots": 0,
+        "maximum_gap_seconds": 0,
+        "observed_snapshots": 3449,
+        "short_interval_events": 0
+      },
+      "telemetry_availability_contract": {
+        "maximum_single_gap_seconds": 10,
+        "minimum_availability": 0.999,
+        "nominal_interval_seconds": 0.5
+      },
+      "valid": true,
+      "validation_errors": [],
+      "window_start_to_emit_seconds": {
+        "max": 0.5836565494537354,
+        "p50": 0.523017168045044,
+        "p95": 0.5371535778045654,
+        "p99": 0.5454557037353515
+      },
+      "workload_count": 15
+    },
+    "10.1.16.238": {
+      "capture_bytes": 142770862,
+      "capture_sha256": "d8dd89c6b4590be0e1a40066f967ca1d7e3767a611700a27bbbd60ff5eeeeb8a",
+      "collector_max_drops": {
+        "capture_interval_violation": 0,
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "control_collector_cpu_seconds": 0,
+      "duration_seconds": 1746.4091022014618,
+      "ended_at_unix": 1790915884.8331573,
+      "experiment_average_cpu_cores": 0.07436333436208731,
+      "experiment_cpu_seconds": 129.868804,
+      "experiment_memory_peak_bytes": 181559296,
+      "finalized_at_unix": 1790915895.7811472,
+      "ingest_lag_seconds": {
+        "max": 0.05755138397216797,
+        "p50": 0.018158435821533203,
+        "p95": 0.03256713151931763,
+        "p99": 0.039379913806915294
+      },
+      "interval_seconds": {
+        "max": 0.5209774971008301,
+        "p50": 0.5057504177093506,
+        "p95": 0.5089216232299805,
+        "p99": 0.511584997177124
+      },
+      "registered_max_duration_seconds": 90000,
+      "rows": 77860,
+      "run_id": "sentinel-pulse-operational-r10-c3-20261002T040300Z",
+      "schema": "sentinel-pulse-500ms-final-v1",
+      "service_ok": true,
+      "service_result": "success",
+      "snapshot_read_seconds": {
+        "max": 0.018803358,
+        "p50": 0.003632307,
+        "p95": 0.006112337,
+        "p99": 0.008564949
+      },
+      "started_at_unix": 1790914138.424055,
+      "telemetry_availability": {
+        "availability": 1,
+        "cadence_violation_events": 0,
+        "delayed_interval_events": 0,
+        "estimated_missing_snapshots": 0,
+        "maximum_gap_seconds": 0,
+        "observed_snapshots": 3441,
+        "short_interval_events": 0
+      },
+      "telemetry_availability_contract": {
+        "maximum_single_gap_seconds": 10,
+        "minimum_availability": 0.999,
+        "nominal_interval_seconds": 0.5
+      },
+      "valid": true,
+      "validation_errors": [],
+      "window_start_to_emit_seconds": {
+        "max": 0.5678277015686035,
+        "p50": 0.5241113901138306,
+        "p95": 0.5391573905944824,
+        "p99": 0.5465040683746338
+      },
+      "workload_count": 19
+    }
+  },
+  "control_collector_restored": {
+    "hosts": [
+      "10.1.16.237",
+      "10.1.16.239",
+      "10.1.16.238"
+    ],
+    "restored_at": "2026-10-02T04:38:32.537749+00:00",
+    "schema": "sentinel-pulse-control-collector-restore-v1"
+  },
+  "raw_checksum_exit_code": 0,
+  "ARCHIVE_COMPLETE": true
+}

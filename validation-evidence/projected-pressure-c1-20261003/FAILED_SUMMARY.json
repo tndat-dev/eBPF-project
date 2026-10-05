@@ -1,0 +1,33 @@
+{
+  "accuracy_claim_allowed": false,
+  "alerts": 0,
+  "automatic_promotion": false,
+  "candidate_status": "not_evaluated_by_this_run",
+  "created_at": "2026-10-03T16:30:02.358205+00:00",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "decisions": 90343,
+  "disposition": "terminal infrastructure/evidence failure without an observed alert; candidate must not be evaluated or promoted from this run",
+  "failure_class": "infrastructure_or_evidence_failure",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "nodes": {
+    "k8s-worker1.local": {
+      "alerts": 0,
+      "decisions": 31301,
+      "terminal": "complete"
+    },
+    "k8s-worker3.local": {
+      "alerts": 0,
+      "decisions": 30116,
+      "terminal": "complete"
+    },
+    "k8s-worker4.local": {
+      "alerts": 0,
+      "decisions": 28926,
+      "terminal": "failed_gate"
+    }
+  },
+  "normal_only": true,
+  "run_id": "pulse-projected-pressure-c1-20261003T162000Z",
+  "schema": "sentinel-pulse-bounded-normal-failure-v1",
+  "valid_zero_alert_gate": null
+}

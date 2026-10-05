@@ -1,0 +1,39 @@
+{
+  "schema": "sentinel-pulse-source-sync-receipt-v1",
+  "reviewed_at_utc": "2026-10-04 15:48:04 UTC",
+  "release_commit": "c6631f36228944db0b012c1e3cb111db17878643",
+  "remote_main": "/home/dat/eBPF-project-main-0aa73e2",
+  "verified_files": 12,
+  "host_sha256": {
+    "sentinel_pulse/recovery_coordinator.py": "35539b77c0683852727c85e0d6023e739a75e298a4a4a7e03b964c1ae8e6e495",
+    "sentinel_pulse/recovery_worker_probe.py": "10b15475f2e420d1770568aaad89dc1ff21da4731e8a5e60d1109411733349b6",
+    "sentinel_pulse/recovery_formal.py": "c11561bf3302f0594f36399e1aa68aa06d880535102407d89bd04eebadf29cbe",
+    "sentinel_pulse/run_recovery_formal_worker.sh": "b28bc0c757d99c1fa7684b6d37b5617f5356b94780c1f0b2cc3222e64f26616a",
+    "tests/test_sentinel_pulse_recovery_coordinator.py": "63668de789fa29868a5ea886a44fef4ccd00bc312ae1592adce6e5a1bfb680ed",
+    "tests/test_sentinel_pulse_recovery_formal.py": "8d974e25e689f2c74c849cb78d2e9392c689b33c520610e4db8b7534911c942e",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "6dcea89751747cb582925e5f3bc3b11fe76ddbb37685b6f00deb994f62a43cda",
+    "SENTINEL_PULSE_REPORT.md": "553f52463c157b1893bb3a5814c3a4ec1cc44e096c61f427c19690bf80099c4b",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "37648188facd626ea7247c79a7ffc50729a6c2b82253f63f6eeb959ecf3ce5a8",
+    "sentinel-pulse.md": "11be1ff17126ae97d5125ad31cc2fa1222608060594e4f8f40fc90a040338433",
+    "PULSE_TELEMETRY_RECOVERY.md": "3ff0c7fc54b1761d4033f9192640c3de9795a0dea2a5d022c92c3f3e6c2f6176",
+    "sentinel_pulse/README.md": "6ccf447f4ec60e7e510b55fbb079f88757f2f0c5bb5928f32f869c689333b184"
+  },
+  "vm_main_sha256": {
+    "sentinel_pulse/recovery_coordinator.py": "35539b77c0683852727c85e0d6023e739a75e298a4a4a7e03b964c1ae8e6e495",
+    "sentinel_pulse/recovery_worker_probe.py": "10b15475f2e420d1770568aaad89dc1ff21da4731e8a5e60d1109411733349b6",
+    "sentinel_pulse/recovery_formal.py": "c11561bf3302f0594f36399e1aa68aa06d880535102407d89bd04eebadf29cbe",
+    "sentinel_pulse/run_recovery_formal_worker.sh": "b28bc0c757d99c1fa7684b6d37b5617f5356b94780c1f0b2cc3222e64f26616a",
+    "tests/test_sentinel_pulse_recovery_coordinator.py": "63668de789fa29868a5ea886a44fef4ccd00bc312ae1592adce6e5a1bfb680ed",
+    "tests/test_sentinel_pulse_recovery_formal.py": "8d974e25e689f2c74c849cb78d2e9392c689b33c520610e4db8b7534911c942e",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "6dcea89751747cb582925e5f3bc3b11fe76ddbb37685b6f00deb994f62a43cda",
+    "SENTINEL_PULSE_REPORT.md": "553f52463c157b1893bb3a5814c3a4ec1cc44e096c61f427c19690bf80099c4b",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "37648188facd626ea7247c79a7ffc50729a6c2b82253f63f6eeb959ecf3ce5a8",
+    "sentinel-pulse.md": "11be1ff17126ae97d5125ad31cc2fa1222608060594e4f8f40fc90a040338433",
+    "PULSE_TELEMETRY_RECOVERY.md": "3ff0c7fc54b1761d4033f9192640c3de9795a0dea2a5d022c92c3f3e6c2f6176",
+    "sentinel_pulse/README.md": "6ccf447f4ec60e7e510b55fbb079f88757f2f0c5bb5928f32f869c689333b184"
+  },
+  "all_sha256_equal": true,
+  "unrelated_worktree_changes_preserved": true,
+  "frozen_runtime_worktrees_modified": false,
+  "github_push": false
+}

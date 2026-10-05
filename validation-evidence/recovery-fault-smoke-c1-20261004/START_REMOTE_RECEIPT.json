@@ -1,0 +1,177 @@
+{
+  "collector_start": {
+    "collector_bpf_object": "/opt/sentinel-pulse/experiments/pulse-recovery-fault-smoke-c1-20261004/pulse_counter_projected.bpf.o",
+    "collector_loader": "/opt/sentinel-pulse/experiments/pulse-recovery-fault-smoke-c1-20261004/pulse_counter_projected_loader",
+    "collector_variant": "projected",
+    "kernel": "6.8.0-138-generic",
+    "schema": "sentinel-pulse-500ms-start-v1",
+    "sha256": {
+      "allowlist": "cef67daa4665e64be17d5c07829ce7896ca5f5072468ed48c96263da2c242008",
+      "bpf_object": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+      "loader": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+      "metadata": "e94be8542af0589cf6196fa06d0411aad3408c3528fcc6d1759a6fd88900a069",
+      "telemetry_recovery_profile": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "unit": "698a70876876626bb5f9d9494fdc4f7e0484204b039bc6e010439e546c5af2e9"
+    },
+    "started_at_unix": 1791112686.8694737,
+    "telemetry_availability_contract": {
+      "maximum_single_gap_seconds": 30,
+      "minimum_availability": 0.999,
+      "nominal_interval_seconds": 0.5
+    },
+    "telemetry_recovery_contract": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "formal_lifecycle_enabled": false,
+      "profile": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "interval_max_seconds": 0.8,
+        "interval_min_seconds": 0.35,
+        "maximum_excluded_seconds": 900,
+        "maximum_incident_seconds": 60,
+        "maximum_incidents": 12,
+        "maximum_ingest_lag_seconds": 1,
+        "maximum_recoverable_gap_seconds": 30,
+        "maximum_wall_seconds": 90000,
+        "minimum_scored_hours_per_workload": 24,
+        "minimum_telemetry_availability": 0.999,
+        "nominal_interval_seconds": 0.5,
+        "rolling_windows": 10,
+        "schema": "sentinel-pulse-telemetry-recovery-profile-v1"
+      },
+      "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "schema": "sentinel-pulse-recovery-deployment-v1"
+    }
+  },
+  "decision_statuses": {
+    "normal": 516,
+    "suppressed": 4,
+    "telemetry-degraded": 746,
+    "warming": 69
+  },
+  "formal_recovery_pass": false,
+  "full_raw_copied_to_host": false,
+  "kernel_to_alert_claim_allowed": false,
+  "node_name": "k8s-worker4.local",
+  "preregistration": {
+    "accuracy_claim_allowed": false,
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "controlled_fault": {
+      "control_collector_modified": false,
+      "pause_ms": 1200,
+      "production_workloads_modified": false,
+      "scheduled_after_preregistration_seconds": 120,
+      "schema": "sentinel-pulse-controlled-loader-pause-v1",
+      "scope": "private_projected_loader_only",
+      "signals": [
+        "SIGSTOP",
+        "SIGCONT"
+      ]
+    },
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "detector_freshness_contract": {
+      "kernel_to_alert_claim_allowed": false,
+      "maximum_age_at_processing_start_seconds": 1,
+      "maximum_future_clock_skew_seconds": 0.05,
+      "offline_replay": false,
+      "reset_source_history_on_stale": true,
+      "schema": "sentinel-pulse-detector-freshness-contract-v1"
+    },
+    "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+    "duration_seconds": 1800,
+    "formal_lifecycle_enabled": false,
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "run_id": "pulse-recovery-fault-smoke-c1-20261004",
+    "schema": "sentinel-pulse-recovery-runtime-smoke-start-v1",
+    "source_commit": "7e1c04cdeb564c1368eb2f2dc97bcb7b8f1aac8c",
+    "started_at": 1791112679.3630664,
+    "telemetry_recovery_contract": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "formal_lifecycle_enabled": false,
+      "profile": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "interval_max_seconds": 0.8,
+        "interval_min_seconds": 0.35,
+        "maximum_excluded_seconds": 900,
+        "maximum_incident_seconds": 60,
+        "maximum_incidents": 12,
+        "maximum_ingest_lag_seconds": 1,
+        "maximum_recoverable_gap_seconds": 30,
+        "maximum_wall_seconds": 90000,
+        "minimum_scored_hours_per_workload": 24,
+        "minimum_telemetry_availability": 0.999,
+        "nominal_interval_seconds": 0.5,
+        "rolling_windows": 10,
+        "schema": "sentinel-pulse-telemetry-recovery-profile-v1"
+      },
+      "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "schema": "sentinel-pulse-recovery-deployment-v1"
+    }
+  },
+  "raw_location": "/var/lib/sentinel-pulse-500ms/runs/pulse-recovery-fault-smoke-c1-20261004",
+  "reviewed_at_unix": 1791112721.5371616,
+  "schema": "sentinel-pulse-controlled-fault-start-receipt-v1",
+  "scored_rows_by_workload": {
+    "production/aims-frontend:web": 19,
+    "production/aims-kafka-dual-role:kafka": 23,
+    "production/aims-kafka-entity-operator:topic-operator": 23,
+    "production/aims-kafka-entity-operator:user-operator": 23,
+    "production/aims-minio-pool-0:minio": 20,
+    "production/aims-minio-pool-0:sidecar": 20,
+    "production/aims-postgres-cnpg:postgres": 23,
+    "production/aims-rabbitmq-server:rabbitmq": 23,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 23,
+    "production/aims-redis:aims-redis": 23,
+    "production/aims-waypoint:istio-proxy": 23,
+    "production/api-gateway:app": 23,
+    "production/auth-service:app": 47,
+    "production/cart-service:app": 46,
+    "production/catalog-service:app": 23,
+    "production/inventory-service:app": 46,
+    "production/order-service:app": 46,
+    "production/search-recommendation-service:app": 23,
+    "production/security-telemetry-service:app": 23
+  },
+  "services": {
+    "sentinel-pulse-collector-500ms-experiment.service": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    },
+    "sentinel-pulse-collector.service": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    },
+    "sentinel-pulse-detector-candidate.service": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    },
+    "sentinel-pulse-recovery-fault-smoke-20261004-c1.service": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    },
+    "sentinel-pulse-resolver.service": {
+      "ActiveState": "active",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    }
+  },
+  "source_clean": true,
+  "source_commit": "7e1c04cdeb564c1368eb2f2dc97bcb7b8f1aac8c",
+  "source_sha256": "0faa3e6e7e8cd3b5dfa426e32928ab2e94ae1fbd44af4b8dc6b70b5b4ea8f266  /home/dat/eBPF-project-recovery-fault-20261004/sentinel_pulse/recovery_formal.py\nacd7143275564143cfccef23f34eed30e05e678b74f37fd6f2e1ea0927f9708e  /home/dat/eBPF-project-recovery-fault-20261004/sentinel_pulse/controlled_collector_pause.py\n7b44b968b99ddeec367fc2c8b8052f8cfd8f92993006a3c7cde100373b92e33a  /home/dat/eBPF-project-recovery-fault-20261004/sentinel_pulse/evaluate_recovery_smoke.py\n6c356cd9a171aa49db0566823efbd45cb5612857b0f610bd4fe1b7800b39a867  /home/dat/eBPF-project-recovery-fault-20261004/sentinel_pulse/run_recovery_runtime_smoke.sh\n666603cc600e2070f0b2fcf0317cca854e28edf885ebdf733f99c6e13a39c382  /home/dat/eBPF-project-recovery-fault-20261004/tests/test_sentinel_pulse_recovery_formal.py\nd5f0141f23027652649055580a9a1ff880e7c8b9554263786047217d53574a8f  /home/dat/eBPF-project-recovery-fault-20261004/tests/test_sentinel_pulse_controlled_collector_pause.py\n",
+  "worker_ip": "10.1.16.238"
+}

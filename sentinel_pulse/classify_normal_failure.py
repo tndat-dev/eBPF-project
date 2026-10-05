@@ -7,6 +7,18 @@ from pathlib import Path
 
 
 def classify(evidence_root: Path) -> str:
+    operational = evidence_root / "OPERATIONAL_REPORT.json"
+    if operational.is_file():
+        report = json.loads(operational.read_text())
+        if (report.get("schema") == "sentinel-pulse-operational-soak-report-v1"
+                and report.get("identity_gate") is True
+                and report.get("telemetry_gate") is True
+                and report.get("health_gate") is True
+                and report.get("operational_normal_gate") is False):
+            if all(w.get("exposure_gate") is True for w in report.get("workloads", {}).values()) and report.get("workloads"):
+                return "operational_normal_gate_failed"
+            return "operational_exposure_gate_failed"
+        return "operational_finalize_failed"
     report_path = evidence_root / "NORMAL_REPORT.json"
     if not report_path.is_file():
         return "normal_finalize_failed"

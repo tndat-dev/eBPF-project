@@ -1,0 +1,69 @@
+{
+  "capture_bytes": 115798658,
+  "capture_sha256": "12102c6075ecf74d2240fd3ca00999d12af1e4d9567fb5bebef5c34370e3f10c",
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 53.800257,
+  "duration_seconds": 1398.9623453617096,
+  "ended_at_unix": 1791046910.3350554,
+  "experiment_average_cpu_cores": 0.07484903103158677,
+  "experiment_cpu_seconds": 104.710976,
+  "experiment_memory_peak_bytes": 152408064,
+  "finalized_at_unix": 1791046923.1617346,
+  "ingest_lag_seconds": {
+    "max": 0.07057547569274902,
+    "p50": 0.017544865608215332,
+    "p95": 0.03255960941314697,
+    "p99": 0.041161165237426744
+  },
+  "interval_seconds": {
+    "max": 0.526982307434082,
+    "p50": 0.5056829452514648,
+    "p95": 0.5094871520996094,
+    "p99": 0.5150208473205566
+  },
+  "registered_max_duration_seconds": 7200,
+  "rows": 60242,
+  "run_id": "pulse-projected-pressure-c2-20261003T163700Z",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 0.022319078,
+    "p50": 0.003744364,
+    "p95": 0.006748676,
+    "p99": 0.010320663
+  },
+  "started_at_unix": 1791045511.37271,
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 2757,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": true,
+  "validation_errors": [],
+  "window_start_to_emit_seconds": {
+    "max": 0.5851726531982422,
+    "p50": 0.5236029624938965,
+    "p95": 0.539520263671875,
+    "p99": 0.5489213371276855
+  },
+  "workload_count": 15
+}

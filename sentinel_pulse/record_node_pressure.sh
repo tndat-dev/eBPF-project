@@ -12,6 +12,12 @@ DURATION_SECONDS=${DURATION_SECONDS:-7800}
 command -v sar >/dev/null
 command -v journalctl >/dev/null
 command -v sha256sum >/dev/null
+command -v python3 >/dev/null
+CLOCK_PROBE="$(dirname "${BASH_SOURCE[0]}")/node_clock_probe.py"
+[[ -r $CLOCK_PROBE ]] || { echo 'node_clock_probe.py missing' >&2; exit 2; }
+CGROUP_PROBE="$(dirname "${BASH_SOURCE[0]}")/cgroup_pressure.py"
+[[ -r $CGROUP_PROBE ]] || { echo 'cgroup_pressure.py missing' >&2; exit 2; }
+CLOCK_PID=
 
 DIAG_ROOT=/var/lib/sentinel-pulse-diagnostics
 DIAG_RUN="$DIAG_ROOT/$RUN_ID"
@@ -21,7 +27,7 @@ STARTED_AT=$(date -u +%FT%TZ)
 printf 'run_id=%s\nstarted_at=%s\nhost=%s\nduration_seconds=%s\nsample_seconds=1\n' \
   "$RUN_ID" "$STARTED_AT" "$(hostname -f)" "$DURATION_SECONDS" >"$DIAG_RUN/START.txt"
 sar -V >"$DIAG_RUN/sar-version.txt" 2>&1
-sha256sum "${BASH_SOURCE[0]}" >"$DIAG_RUN/SOURCE_SHA256SUMS"
+sha256sum "${BASH_SOURCE[0]}" "$CLOCK_PROBE" "$CGROUP_PROBE" >"$DIAG_RUN/SOURCE_SHA256SUMS"
 
 snapshot() {
   local tag=$1
@@ -29,7 +35,9 @@ snapshot() {
     sentinel-pulse-detector-candidate.service \
     -p Id -p ActiveState -p NRestarts -p CPUUsageNSec -p MemoryPeak \
     -p CPUQuotaPerSecUSec -p CPUWeight -p MemoryMax \
+    -p MemoryHigh -p IOWeight \
     >"$DIAG_RUN/services-$tag.txt"
+  python3 "$CGROUP_PROBE" --output "$DIAG_RUN/service-cgroups-$tag.json"
   for kind in cpu io memory; do
     if [[ -r /proc/pressure/$kind ]]; then
       cp "/proc/pressure/$kind" "$DIAG_RUN/pressure-$kind-$tag.txt"
@@ -41,20 +49,34 @@ finish() {
   local rc=$?
   trap - EXIT
   set +e
+  if [[ -n $CLOCK_PID ]]; then
+    # On early failure stop only the child started by this invocation.
+    if ((rc != 0)); then kill "$CLOCK_PID" 2>/dev/null; fi
+    wait "$CLOCK_PID"
+    local clock_rc=$?
+    if ((rc == 0 && clock_rc != 0)); then rc=$clock_rc; fi
+  fi
   snapshot final
   journalctl -k --since "$STARTED_AT" --no-pager -o short-iso \
     >"$DIAG_RUN/kernel.txt" 2>"$DIAG_RUN/kernel.stderr"
   local journal_rc=$?
-  printf 'finished_at=%s\nexit_code=%s\nkernel_journal_exit_code=%s\n' \
-    "$(date -u +%FT%TZ)" "$rc" "$journal_rc" >"$DIAG_RUN/FINAL.txt"
+  journalctl -u kubelet -u containerd --since "$STARTED_AT" --no-pager -o short-iso \
+    >"$DIAG_RUN/runtime.txt" 2>"$DIAG_RUN/runtime.stderr"
+  local runtime_rc=$?
+  printf 'finished_at=%s\nexit_code=%s\nkernel_journal_exit_code=%s\nruntime_journal_exit_code=%s\n' \
+    "$(date -u +%FT%TZ)" "$rc" "$journal_rc" "$runtime_rc" >"$DIAG_RUN/FINAL.txt"
   (cd "$DIAG_RUN" && find . -maxdepth 1 -type f ! -name SHA256SUMS \
     -print0 | sort -z | xargs -0 sha256sum) >"$DIAG_RUN/SHA256SUMS"
   exit "$rc"
 }
 trap finish EXIT
 snapshot start
+python3 "$CLOCK_PROBE" --output "$DIAG_RUN/clock.jsonl" \
+  --duration-seconds "$DURATION_SECONDS" \
+  >"$DIAG_RUN/clock-summary.json" 2>"$DIAG_RUN/clock.stderr" &
+CLOCK_PID=$!
 # Retain native sysstat data, avoiding high-volume text in journald. sar can
 # replay CPU, run queue, paging, swap and device I/O around the exact stall.
-LC_ALL=C sar -u ALL -r -q -b -B -W -d \
+LC_ALL=C sar -u ALL -r -q -b -B -W -d -n DEV,EDEV,TCP,ETCP \
   -o "$DIAG_RUN/sar.bin" 1 "$DURATION_SECONDS" \
   >/dev/null 2>"$DIAG_RUN/sar.stderr"

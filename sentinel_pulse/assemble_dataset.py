@@ -187,6 +187,8 @@ def assemble(
                             continue
                         if record.get("schema") != "sentinel-pulse-feature-v1":
                             raise ValueError(f"{source_path}:{line_number}: unsupported record")
+                        if "telemetry_recovery" in record:
+                            raise ValueError("recovery evaluation capture cannot enter training dataset")
                         source_rows += 1
                         if str(record.get("node_name")) != source_node:
                             raise ValueError(

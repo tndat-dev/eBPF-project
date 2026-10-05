@@ -1,0 +1,3416 @@
+{
+  "coordinator_seal_file_count": 13,
+  "coordinator_seal_verified": true,
+  "duplicate_writer": {
+    "active_run_not_terminated": true,
+    "checked_at_unix": 1791164424.6149118,
+    "exit_status": 1,
+    "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+    "reason": "another coordinator owns this run",
+    "registration_unchanged": true
+  },
+  "failure": null,
+  "fault_contract": {
+    "config_sha256": "4d11c8571651fea4bc9112f84a00874f7dbdd6a66378e6c4ff83636bb671d9f4",
+    "control_collector_modified": false,
+    "diagnostic_only": true,
+    "duplicate_writer_must_be_rejected": true,
+    "duration_seconds": 300,
+    "fault": "SIGKILL_one_coordinator_main_process_only",
+    "maximum_observation_gap_seconds": 30,
+    "primary_unit": "sentinel-pulse-recovery-resume-c1-20261005.service",
+    "production_workloads_modified": false,
+    "registered_at_unix": 1791164374.33686,
+    "resumed_unit": "sentinel-pulse-recovery-resumed-c1-20261005.service",
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "scheduled_after_registration_seconds": 35,
+    "schema": "sentinel-pulse-coordinator-resume-diagnostic-v1",
+    "source_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+    "worker_relaunch": false
+  },
+  "fault_event": {
+    "killed_at_unix": 1791164424.6518245,
+    "registration_replaced": false,
+    "reserved_sha256": "d4aa8bbb580d0608d97dc2ffd9bc364b7404a009f1770eccbf6bad7da4168483",
+    "resume_launched_at_unix": 1791164424.6828651,
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "schema": "sentinel-pulse-coordinator-resume-fault-event-v1",
+    "worker_relaunch": false
+  },
+  "fault_reserved": {
+    "contract_sha256": "ed46c1b6787352f2880420b63a20fcf4a34a1183de4fb010f1974f5bb9a70781",
+    "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+    "pidfd_used": true,
+    "previous_state": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "checked_at_unix": 1791164423.8112736,
+      "degraded_workers": [],
+      "errors": [],
+      "finished_workers": [],
+      "formal_recovery_pass": false,
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "phase": "monitoring",
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+      "unknown_since": {}
+    },
+    "reserved_at_unix": 1791164424.6499953,
+    "target": {
+      "ActiveState": "active",
+      "InvocationID": "23845a54ac534aa49f1b9c1e643ad24b",
+      "MainPID": "3206548",
+      "Result": "success",
+      "User": "dat"
+    }
+  },
+  "last_health": {
+    "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+    "checked_at_unix": 1791164716.2465212,
+    "degraded": false,
+    "excluded_interval": null,
+    "excluded_seconds": 0,
+    "fatal": [],
+    "outage_started_at": null,
+    "schema": "sentinel-pulse-operational-health-v1",
+    "transient": [],
+    "warnings": []
+  },
+  "last_supervision": {
+    "nodes": {
+      "10.1.16.237": {
+        "collector_exit_status": 0,
+        "detector_restarts": 0,
+        "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+        "observed_at_unix": 1791164716.1366525,
+        "run_id": "pulse-recovery-resume-c1-20261005",
+        "status": "finished",
+        "terminal": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "exit_code": 0,
+          "finished_at_unix": 1791164711.7050748,
+          "formal_recovery_pass": false,
+          "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+          "run_id": "pulse-recovery-resume-c1-20261005",
+          "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+          "worker_ip": "10.1.16.237"
+        },
+        "worker_ip": "10.1.16.237"
+      },
+      "10.1.16.238": {
+        "collector_exit_status": 0,
+        "detector_restarts": 0,
+        "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+        "observed_at_unix": 1791164716.173132,
+        "run_id": "pulse-recovery-resume-c1-20261005",
+        "status": "finished",
+        "terminal": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "exit_code": 0,
+          "finished_at_unix": 1791164714.458142,
+          "formal_recovery_pass": false,
+          "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+          "run_id": "pulse-recovery-resume-c1-20261005",
+          "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+          "worker_ip": "10.1.16.238"
+        },
+        "worker_ip": "10.1.16.238"
+      },
+      "10.1.16.239": {
+        "collector_exit_status": 0,
+        "detector_restarts": 0,
+        "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+        "observed_at_unix": 1791164716.1646316,
+        "run_id": "pulse-recovery-resume-c1-20261005",
+        "status": "finished",
+        "terminal": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "exit_code": 0,
+          "finished_at_unix": 1791164710.143728,
+          "formal_recovery_pass": false,
+          "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+          "run_id": "pulse-recovery-resume-c1-20261005",
+          "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+          "worker_ip": "10.1.16.239"
+        },
+        "worker_ip": "10.1.16.239"
+      }
+    },
+    "probe_failures": {},
+    "state": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "checked_at_unix": 1791164716.2465212,
+      "degraded_workers": [],
+      "errors": [],
+      "finished_workers": [
+        "10.1.16.237",
+        "10.1.16.238",
+        "10.1.16.239"
+      ],
+      "formal_recovery_pass": false,
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "phase": "ready_to_finalize",
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+      "unknown_since": {}
+    }
+  },
+  "marker": {
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "collector_duration_seconds": 300,
+    "collector_timing_contract": {
+      "anchor": "systemd-exec-main-start-monotonic",
+      "automatic_bound_widening": false,
+      "duration_slack_seconds": 2,
+      "end_slack_seconds": 1,
+      "maximum_clock_pair_seconds": 0.05,
+      "schema": "sentinel-pulse-collector-timing-contract-v1"
+    },
+    "coordinator_config_sha256": "71c66d7103f6c71499265b498a94609ba26cc0278df96ba3e96f0afbaef92289",
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "detector_freshness_contract": {
+      "kernel_to_alert_claim_allowed": false,
+      "maximum_age_at_processing_start_seconds": 1,
+      "maximum_future_clock_skew_seconds": 0.05,
+      "offline_replay": false,
+      "reset_source_history_on_stale": true,
+      "schema": "sentinel-pulse-detector-freshness-contract-v1"
+    },
+    "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+    "diagnostic_only": true,
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "operational_evaluation_contract": {
+      "cnpg_clusters": [
+        "aims-postgres-cnpg"
+      ],
+      "expected_workloads": [
+        "production/aims-frontend:web",
+        "production/aims-kafka-dual-role:kafka",
+        "production/aims-kafka-entity-operator:topic-operator",
+        "production/aims-kafka-entity-operator:user-operator",
+        "production/aims-minio-pool-0:minio",
+        "production/aims-minio-pool-0:sidecar",
+        "production/aims-postgres-cnpg:postgres",
+        "production/aims-rabbitmq-server:rabbitmq",
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+        "production/aims-redis:aims-redis",
+        "production/aims-waypoint:istio-proxy",
+        "production/api-gateway:app",
+        "production/auth-service:app",
+        "production/cart-service:app",
+        "production/catalog-service:app",
+        "production/inventory-service:app",
+        "production/notification-service:app",
+        "production/order-service:app",
+        "production/payment-service:app",
+        "production/search-recommendation-service:app",
+        "production/security-telemetry-service:app"
+      ],
+      "longhorn_volumes": [
+        "pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502",
+        "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+        "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+        "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+        "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+        "pvc-67599f47-06e8-4a0d-958b-614b69894ed8",
+        "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+        "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c",
+        "pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6",
+        "pvc-a56e96b0-933e-432f-a59c-74cc8f6a04f9",
+        "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+        "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+        "pvc-d32c9b4f-5a32-4003-86bc-471d1f7c1e2d",
+        "pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4",
+        "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+        "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6"
+      ],
+      "minimum_ready_pods": {
+        "production/aims-frontend": 1,
+        "production/aims-kafka-dual-role": 3,
+        "production/aims-kafka-entity-operator": 1,
+        "production/aims-minio-pool-0": 2,
+        "production/aims-postgres-cnpg": 3,
+        "production/aims-rabbitmq-server": 3,
+        "production/aims-redis": 3,
+        "production/aims-redis-sentinel-sentinel": 3,
+        "production/aims-sentinel-dependency-loadgen": 1,
+        "production/aims-sentinel-ingress-loadgen": 1,
+        "production/aims-sentinel-loadgen": 1,
+        "production/aims-waypoint": 1,
+        "production/api-gateway": 1,
+        "production/auth-service": 1,
+        "production/cart-service": 1,
+        "production/catalog-service": 1,
+        "production/inventory-service": 1,
+        "production/notification-service": 1,
+        "production/order-service": 1,
+        "production/payment-service": 1,
+        "production/search-recommendation-service": 1,
+        "production/security-telemetry-service": 1
+      },
+      "profile": {
+        "additional_workloads": [
+          "production/aims-sentinel-loadgen",
+          "production/aims-sentinel-ingress-loadgen",
+          "production/aims-sentinel-dependency-loadgen"
+        ],
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "maximum_alerts_per_hour_per_workload": 0.05,
+        "maximum_alerts_per_workload_hour": 0.01,
+        "maximum_excluded_seconds": 900,
+        "maximum_health_observation_gap_seconds": 180,
+        "maximum_recovery_seconds": 300,
+        "recovery_exclusion_seconds": 30,
+        "schema": "sentinel-pulse-operational-soak-contract-v1"
+      },
+      "profile_sha256": "3832b990663e4a15b7da0991fcc49057d856d83741b41e1ab45813472fb76723",
+      "ready_pods_at_registration": {
+        "production/aims-frontend": 2,
+        "production/aims-kafka-dual-role": 3,
+        "production/aims-kafka-entity-operator": 1,
+        "production/aims-minio-pool-0": 2,
+        "production/aims-postgres-cnpg": 3,
+        "production/aims-rabbitmq-server": 3,
+        "production/aims-redis": 3,
+        "production/aims-redis-sentinel-sentinel": 3,
+        "production/aims-sentinel-dependency-loadgen": 1,
+        "production/aims-sentinel-ingress-loadgen": 1,
+        "production/aims-sentinel-loadgen": 1,
+        "production/aims-waypoint": 4,
+        "production/api-gateway": 4,
+        "production/auth-service": 4,
+        "production/cart-service": 4,
+        "production/catalog-service": 4,
+        "production/inventory-service": 4,
+        "production/notification-service": 4,
+        "production/order-service": 4,
+        "production/payment-service": 4,
+        "production/search-recommendation-service": 4,
+        "production/security-telemetry-service": 4
+      },
+      "worker_nodes": [
+        "k8s-worker1.local",
+        "k8s-worker3.local",
+        "k8s-worker4.local"
+      ]
+    },
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "schema": "sentinel-pulse-recovery-formal-start-v1",
+    "source_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+    "source_files": {
+      "sentinel_pulse/README.md": "bc0ee1cd8f31a0da887c8c4a82484816728a66a0bb1d4ef871e78af9db0799bf",
+      "sentinel_pulse/__init__.py": "5991bfd58c2977b0a07da6dee8e9b7fbfb3cb3233acc84836d4dbba34aa8f87d",
+      "sentinel_pulse/aggregate_500ms_overhead.py": "024666d9e190472c8d30bb253c910c2854ac129ca412df12f3b610a2e8d1dec7",
+      "sentinel_pulse/aggregate_formal_telemetry.py": "40918c88e9f3b677c2e610e91fd18288db9a2584a73a11015ee862e2951ec513",
+      "sentinel_pulse/aggregate_live_canary.py": "3322747f8f08752080341357c151e21c2005d3d779d7e8fa0cced8c3e3d2f642",
+      "sentinel_pulse/analyze_500ms_overhead_pilot.py": "1ff5f07bfdeacc3c37b82694f1e15cf88dd9bf18fd955e3ee66883009335b8d7",
+      "sentinel_pulse/analyze_500ms_overhead_replication.py": "a5e0185f8464a1abdbc55bcf3634fd61ece303f41286ee8f503f281757112792",
+      "sentinel_pulse/archive_failed_attack_latency_pilot.sh": "5cc52b56e2b4b7e37d11c4129297afe6ec6d2d33cf5310d2027a1d9939c779eb",
+      "sentinel_pulse/arm_capture_finalizer.sh": "3f819c725ccd2af07f4bf827d117b85e2078bced6d235a883be25504b3c77cc9",
+      "sentinel_pulse/assemble_dataset.py": "ea62ec0502ed1d168f50bd422c92c2015e103d9fff5bd51530330a8d7c123c0d",
+      "sentinel_pulse/attach_lifecycle_supervisor_when_ready.sh": "3b8a32c9bf5784a56abf146ff85435e38463a3e0eaa2697a3a42ad22bfa73332",
+      "sentinel_pulse/audit_calibration_coverage.py": "9a71c7aa573d544845a92f3bb772a145887a1b94a69c564fc24eb0de14a44b8e",
+      "sentinel_pulse/audit_failed_normal_soak.py": "8db3cb9499b61c33e69b9d9bdea1f3bf032659a38e811e08be32051538a7bd8e",
+      "sentinel_pulse/audit_recovery_smoke_latency.py": "976c704e99ad11a102617d42f9e3a4680ef12074dcfa805156b054cb51816c3d",
+      "sentinel_pulse/benchmark_inference.py": "a01a6679548860c2a1e35d48ec1bc929678a5b201b831ffb1fa0b9634e5bccfe",
+      "sentinel_pulse/blind_contract.py": "d719d26b473b13fa1e3ea5021a0afbfefa9d789ba0b7e747b9afae79e19b4432",
+      "sentinel_pulse/build_confirmation_policy.py": "55585ed340cb5e19c0a4fe8ab49e097dba8446e18e8678a4722d9211199b0098",
+      "sentinel_pulse/build_prior_confirmation_policy.py": "661e1b5ec61b8bada14f63390c83e45cad6dc0777db1c027f8e22d70cc67159a",
+      "sentinel_pulse/build_semantic_policy.py": "477a6fb4db45ec26e30f91811997e5ab2f96fcd40ef0a81ed779d648d3c0a8f1",
+      "sentinel_pulse/build_temporal_policy.py": "1fda83cc90d40d68ea9dd9698f06bb7183f2bd26f82ad5d6d55c8658dd339783",
+      "sentinel_pulse/calibrate_semantic_envelope.py": "8df017f526e9ba628a35c55375ce9d3f9d4a4e24a82619e367bd7869af21692e",
+      "sentinel_pulse/calibrate_temporal_join.py": "284abd961ea216ca30269339dd2b6d6f2ef4c2c0c25d0b628544cc89abac48f0",
+      "sentinel_pulse/capacity_contract.py": "aefa47319bfe750cf46ff96e6631988c90cf6545943508d9dff2ee9361d82c9b",
+      "sentinel_pulse/capture.py": "7cc61ebfb08b75c86910a7f7e32e93f165d5c214792c4c8a18cc94ed8e8381ff",
+      "sentinel_pulse/cgroup_pressure.py": "9930b10881a2daede2c3f3f694dd13a855a1ed05900e3138c05e218545fe164e",
+      "sentinel_pulse/cgroup_resolver.py": "7f0447b8d189a8904cb8fcf26f25346151c50eeff44e510559c5dc4ef375dfd1",
+      "sentinel_pulse/classify_normal_failure.py": "f4709aa8a00c53daab0796e282b02363e68050fba9806ea09cb32e4ac56c8afa",
+      "sentinel_pulse/cluster_health.py": "57406889c81c46cdddacbdf484b4823f9bf846b0d6bfdc94a6f0401d626a39cf",
+      "sentinel_pulse/collect_bounded_live_canary.sh": "38d6c460e745e74a24d5f19a6e5984821069a6cbb2a05f3f73515af914e43acf",
+      "sentinel_pulse/collector_contract.py": "e850626819d2aa94632c2e4d62a214744e782cc118ca7d0340d8edc259196b52",
+      "sentinel_pulse/controlled_collector_pause.py": "acd7143275564143cfccef23f34eed30e05e678b74f37fd6f2e1ea0927f9708e",
+      "sentinel_pulse/decision_policy.py": "308334bfcbdc04ab3b282d36509c94f8503d312a8d4b98c9571c1eb4dbe8aea1",
+      "sentinel_pulse/deploy_canary_cluster.sh": "be80d7c7dfb7b63d8a253db58ead468652e1cdf998051c80f1134c095ef393eb",
+      "sentinel_pulse/detect.py": "f7d3814da7edc9ba71d5556280584018cffd4eba3b6b9a0a7b2b4c81c35c0064",
+      "sentinel_pulse/detector_freshness.py": "4f3b144a43a1113c4043d1a15c1a34f35848ec3cecb7adf5e80c6a8785ef989c",
+      "sentinel_pulse/ebpf/Makefile": "65f8a33a3f28393e5ce4e963bfbce2cc46bc410d045b8d64505b4469933cb48b",
+      "sentinel_pulse/ebpf/pulse_counter.bpf.c": "d484a7decec0173455d13a5258b619ded20b470bb5c3054d7c8719dd18eb0174",
+      "sentinel_pulse/ebpf/pulse_counter_ids.h": "52569e225f2b0678d60855a724dce7bc3b7546bb003334b2964a546d75c51b2f",
+      "sentinel_pulse/ebpf/pulse_counter_loader.c": "0118e8c00525ec61078d49a5bc88ee02ea890fa537576cf4f53785ef7072abb3",
+      "sentinel_pulse/ebpf/pulse_counter_projection.h": "2ac76011710245b6c11438540482529cc4b1106e9b786447f58f08143c8e0912",
+      "sentinel_pulse/encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+      "sentinel_pulse/evaluate_latency.py": "ead0e2e9bd81804823b327e3aaecf6ab0e766cc6467df6aeabae9cf025e85e07",
+      "sentinel_pulse/evaluate_normal.py": "00f41c3c57f40158c9f17df40ce94edb69e2c11c1894f696f0e2758338da9329",
+      "sentinel_pulse/evaluate_operational_latency.py": "d38ac2df89e2e06c188871b468b0bcbbac33d15476a098a8f7ebf48015d47221",
+      "sentinel_pulse/evaluate_operational_soak.py": "74051a171c5649bd38ca983d52bc8024cee753372fc1482a1729d8d59294ab53",
+      "sentinel_pulse/evaluate_projected_counter_canary.py": "37b6fbada64471ff9065c86e46d3d94ba913aa2bba9b3746f0d6df5f60c1f343",
+      "sentinel_pulse/evaluate_recovery_smoke.py": "13fe3d1dd1d76b3896c3cd139932f37445791b53ab667b6c41f69c5c592cfd07",
+      "sentinel_pulse/evaluate_temporal_confirmation.py": "101956106e6ea0813edc150864b675cba59a4383c291f0da74c42319583b2b9a",
+      "sentinel_pulse/extend_semantic_envelope.py": "69e029ccd46bc290e3eaa8d0cf07c91f0b079653e3d33a138cc34897dea61ca6",
+      "sentinel_pulse/features.py": "2d5c88e67852f623c7ce5108e89aaa19e061f0a71655fb3f9ac06fe8622b1ff7",
+      "sentinel_pulse/finalize_500ms_blind_matrix.sh": "f4ecf062e1c02d7f99c82c06b0ddb6f2a9edf3714ac0176a59e8ac4445d0a817",
+      "sentinel_pulse/finalize_500ms_dataset.py": "dfb7386188a18b33469734b5e42c38c5748bbbc0a793486cd979c9221c90c492",
+      "sentinel_pulse/finalize_500ms_experiment.sh": "32b3b82999dd15885fd6911ec28c504a41df1ff1011c2c755be893f2af95b1fa",
+      "sentinel_pulse/finalize_500ms_normal_soak.sh": "7d36d0b660c14adf3c1fd99d319595f03e18d0fe7e0bea8913361514fc2a5beb",
+      "sentinel_pulse/finalize_attack_latency_pilot.sh": "1179622bdc2e19360df8bfd57f16859dcb8e8e68b3c23c7affc0c1a8491c3e21",
+      "sentinel_pulse/finalize_candidate.py": "52d47b55556746cbb9da15f4883c746e680dc6a497db7d5dc82df74968fa0c53",
+      "sentinel_pulse/finalize_capture_node.sh": "0ffbe86f61872cd940dcc21204b27f3069b07d6b94eb544e591b282bec97d756",
+      "sentinel_pulse/finalize_live_canary.sh": "26b51ed46898882ae83685f6bcdc87c434b1ad0988c66b933a6a9d315fdb2c09",
+      "sentinel_pulse/freeze_failed_500ms_normal_soak.sh": "8de561d902acea49db5153dd3e63dff6d4beeaf8ebb32567c2483e80d3d55e51",
+      "sentinel_pulse/freeze_failed_bounded_live_canary.sh": "f0aaf9543dcdb5093ed37438151780bc4c5e104052a27ba2a6bb0f7dc43dfba0",
+      "sentinel_pulse/freeze_training_contract.py": "eed5abddd00b2d0ae09cfc816e0575825dc67db935e6c4140a4d0a995fa85e9c",
+      "sentinel_pulse/inspect_feature_tail.py": "21b44d22d58c570cf3f141fd50bf49dbe320d268def37a660c777a082474f460",
+      "sentinel_pulse/inspect_recovery_tail.py": "5a5ad5af18e064feace340d6838120df28e7222eca9aec502203e7bd6f0c4787",
+      "sentinel_pulse/install_500ms_experiment.sh": "297ef6933c2e0bb0aeaf2334d2bccebf51f88dbb03007b9b484d752b1048f8e6",
+      "sentinel_pulse/install_candidate_lifecycle_service.sh": "35c9c04a9ebcc9db9d99bac7a12df53c5efd24a3f4c3d9a0a3ab000ebda9b451",
+      "sentinel_pulse/install_detector_candidate.sh": "01d4b2740d4267ef28bce8ad7a89940e4c30a89c5edea43f8acac87225861ef9",
+      "sentinel_pulse/install_node.sh": "7265f74df7eb5079e65cd1b68b1f7390d39393779e1683e2410d98bd69a2b3e2",
+      "sentinel_pulse/integrity.py": "d6d51ea8ec204cda3d5f5744eb9978e3ba99092b4615a9f34767b05a1e29b7b4",
+      "sentinel_pulse/k8s/tetragon-pulse-detail-policy.yaml": "984b545af2db7868cb94e41a4bf295108613f94b358e632e35450a51fc1c10b9",
+      "sentinel_pulse/latency.py": "bb2a67ff91225ec339349853755283380ccd76f3d8511f4ef289922bf23f3f9a",
+      "sentinel_pulse/materialize_failed_normal_decisions.py": "8555c1280af8ff606af45ec8157109f786faff85e163e77267ce1989d625753b",
+      "sentinel_pulse/model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+      "sentinel_pulse/monitor_500ms_normal_soak.sh": "a921cabc8d1aa6d5964e8af4faf91b6ea97f72ce6be8c1fcb58c77a9fd4241ed",
+      "sentinel_pulse/node_clock_probe.py": "062c384911bddde2b9618fa33ffbb50c86924cf79308dbc736e8ca7d36c368c9",
+      "sentinel_pulse/observe_revision_baseline.sh": "f4f9539a1fdde7a80d6495b4f60ff20ede732466a9b40b894441f30ac7a627e6",
+      "sentinel_pulse/open_b3_blind_after_normal.sh": "e139dc498348985ee5d67d9a571e89bfd1756a12b19b7ad286b5d219fb2488fc",
+      "sentinel_pulse/open_b4_blind_after_normal.sh": "38d2f18aa70e16ff95e06dc7313da8f9d3b38fea33fcdf9bba07af0ac60687aa",
+      "sentinel_pulse/open_b5_blind_after_normal.sh": "16187ff11fb40809f84cb35ee96d2b82da49570c68ae99bf4fd4d2f7861f78d1",
+      "sentinel_pulse/open_b6_blind_after_normal.sh": "830d6c93f9e0e05eebcebe2d8a6f12a62d59fe078916d5ff7c5d973e2e68d347",
+      "sentinel_pulse/open_b7_blind_after_normal.sh": "3af6a7cc041e414e42d50708f826b6de5732b799f8a618a6e6210fb8d46b29df",
+      "sentinel_pulse/operational_soak.py": "c9f3b8afe17cf393ce6f85838060984d6026b16561b7c028098f58db164183b2",
+      "sentinel_pulse/prepare_contract.py": "3f74b306fe9aa83065a805f95804a336e7292bc3edb17a8e25d9b12bd8653ab5",
+      "sentinel_pulse/protocol/attack-implementation-contract-b1.json": "e7622ed1afb88d47d4793f56310a12201adea49b464754d15901cfc7eb472803",
+      "sentinel_pulse/protocol/blind-attack-contract-b1.json": "c03206024a02418bf861fca3eac48a513f31c0d1f8449ebd3e4116e698a78f05",
+      "sentinel_pulse/protocol/blind-attack-contract-b2.json": "12099bcf417f6910ac78e202bbc168d4ebc1e1ede66dfd8e14f4bf11d591e19d",
+      "sentinel_pulse/protocol/blind-attack-contract-b3.json": "85ead02bae2e7f79744523d14332faac1f3e8e51d623ddf6d23adcb53d81b328",
+      "sentinel_pulse/protocol/blind-attack-contract-b4.json": "9b1788cb4ff88a624d109f24b693d690cf61cfd67f91b345935104e1238e0454",
+      "sentinel_pulse/protocol/blind-attack-contract-b5.json": "ee91b565bebf50516793b1273e7b8a6716d95fdde6a12b545a90ed78e974e9fb",
+      "sentinel_pulse/protocol/blind-attack-contract-b6.json": "b2f5db8e5ae8331319df9ea270a94478c24453a9d2be630ca4474908765a005f",
+      "sentinel_pulse/protocol/blind-attack-contract-b7.json": "ee1cb43dec2da6ec4083e7b5e3d3d50152d3f623b6eb2317b45f02b953907221",
+      "sentinel_pulse/protocol/blind-attack-contract.json": "b47cb7f91fc4b1e83475917e700d9c0adc41b596af0f624ba52c92fc77bc5751",
+      "sentinel_pulse/protocol/capture-contract.example.json": "924eaa7144bb4d267e24383dcce200046118c02cb9c8c262cef342802b8892c4",
+      "sentinel_pulse/protocol/decision-policy-semantic-v1.json": "795647467c2aeb5b09494bfb0b7254f931a72a4495244fdf4e1ec49ec07c6a1a",
+      "sentinel_pulse/protocol/decision-policy-semantic-v2.json": "71c6ed92504698abdfe3e144b3068a69595e4f9756edcb0e44b991a96933898d",
+      "sentinel_pulse/protocol/decision-policy-semantic-v3.json": "382e45628544f9a93b0adb11a900b5496fdd82c6fa847913cf29aacbba06d5d1",
+      "sentinel_pulse/protocol/decision-policy-semantic-v4.json": "272e9119a974a1baed498e4de7f64dae0bb4e4e69f8c8f341d28be8dade6959e",
+      "sentinel_pulse/protocol/decision-policy-temporal-b1.json": "bdbdd2577c8a9a31a5ee0bb220e2e540f413a8035f85a6b311351d2332bcf85b",
+      "sentinel_pulse/protocol/decision-policy-temporal-b2.json": "17fa395a3e538d603ed0afe27529dbbd77ae30e1a602b3f9e812134056de83ac",
+      "sentinel_pulse/protocol/decision-policy-temporal-b3.json": "02e0f02aa846ae6a6548004b73e5e8274d5f53f098f6cccf4fc6301277583d10",
+      "sentinel_pulse/protocol/decision-policy-temporal-b4.json": "205b8d31252926f99f6716a37dfeaf3bc7d4324a51df5bf71da0f7a9cd11b187",
+      "sentinel_pulse/protocol/decision-policy-temporal-b5.json": "ab6a4f6b93e2c5548ffaad9727fc0a23839d20ea2e27b7f6d7ea7e5eb155c5c7",
+      "sentinel_pulse/protocol/decision-policy-temporal-b6.json": "53f3346fc23a75a8435017d1fccf4f8e3a332e540f97a00026ce7c8110ded51a",
+      "sentinel_pulse/protocol/decision-policy-temporal-b7.json": "711e66a920be6e6d532c665afe6b2ae02e2afac00a73d0f7fbab1672e6b631da",
+      "sentinel_pulse/protocol/development-b5/b4-canary-policy-reproduction.json": "a26a0489fc89426a2373b63140b7f5c8eb25510faad499f5c687a695be6af15b",
+      "sentinel_pulse/protocol/development-b5/b5-canary-projection.json": "2851d22055879f277ba46d0652d3bac1f4ca790c3f4bebf0e2d0824a820be301",
+      "sentinel_pulse/protocol/development-b5/b5-r6-projection.json": "d0343b0186694481d986c0ca2a70f45fccb06b7049f0d1014486080114aca9c4",
+      "sentinel_pulse/protocol/development-b6/b5-formal-failure-audit.json": "2e2ec4bd7f7cc77afb51aeceed75983e196debf437d46c9bda26f318a25bbf60",
+      "sentinel_pulse/protocol/development-b6/b6-b4-canary-projection.json": "49d593a8f65367559a44f0f0c01f30cb4b9dfa977267ff7537cce9620bc9de92",
+      "sentinel_pulse/protocol/development-b6/b6-b5-failure-projection.json": "b560838a02c4391a03d486ec15ca48313af8c712a291ee8b5bde1ab0d3eeb487",
+      "sentinel_pulse/protocol/development-b6/b6-r6-projection.json": "14206a006570edaf62611f15806ad6d190ab398e8f90166cc0405d835e959e30",
+      "sentinel_pulse/protocol/development-b7/b7-b4-canary-projection.json": "cdb29eec7eae57f078260cbc6ff85fbf3d52a3da3cae218e4eab7cd2d863de17",
+      "sentinel_pulse/protocol/development-b7/b7-b5-failure-projection.json": "96ee41fd0d4340344828ad45b1ca7a676a5aaabcbb743cd8248483a7a376f2c5",
+      "sentinel_pulse/protocol/development-b7/b7-b6-failure-projection.json": "775eda2f844229e96bdd55ad3b2c60f38f5fc47b1d2910af4faf3ceb67375df1",
+      "sentinel_pulse/protocol/development-b7/b7-r6-projection.json": "f448312b59848a2f95c6113e361dd2db922634c28be9505c6df9459940d77fb9",
+      "sentinel_pulse/protocol/development-normal-replay-b4.json": "1a16c7a073478de5c7e266c3a64f6c181e8deb3b708d118f327d6c0f30cf51bb",
+      "sentinel_pulse/protocol/development-r10/blind-attack-contract-r10.json": "e7fd8101366ceb1a06b18ba7a1cde466794ae01d07262cd24a17463b321dfd2d",
+      "sentinel_pulse/protocol/development-r10/r10-dataset-r1-infrastructure-rejection.json": "529032b0e64882c5674a725a86bf20f187dd910ba871b7c0afb25f34e11648b9",
+      "sentinel_pulse/protocol/development-r10/r10-dataset-r2-capture-gate-rejection.json": "0cb6e01a86ac50f6e5a8a9559eb6bf4d541d29aeade6f565506c30c256909390",
+      "sentinel_pulse/protocol/development-r10/r10-dataset-r3-infrastructure-rejection.json": "18983f0e2fcf1dbf42755da9ec319369b4113e76b05af6afca2024098992a299",
+      "sentinel_pulse/protocol/development-r10/r10-revision-observer-pass.json": "1d9b7b66299a98e6d896e8d864d52f51809322bece275c27aeccd85ed591bd9b",
+      "sentinel_pulse/protocol/development-r9-c2/r9-c1-formal-failure-audit.json": "e4ab15c1e9394d1435d2082969b417a45cee418b419fc2a57a252e0c22d7cc8a",
+      "sentinel_pulse/protocol/development-r9-c2/r9-c2-canary-coverage-rejection.json": "a4dab20adbbdccc661ad854263cc0dfbf8ba7ccd6ba9b5ada0d6605a8e4e47f6",
+      "sentinel_pulse/protocol/development-r9-c2/r9-c2-r2-canary-pass.json": "430013a1de8e0c755160b64386145eecae99ffaa1e248d5851a86f6184b31d35",
+      "sentinel_pulse/protocol/development-r9-c2/r9-c2-r2-formal-infrastructure-rejection.json": "591666c89e6f937757ff8f1e7b03918ae29972af28a348a137954440ba9f1827",
+      "sentinel_pulse/protocol/operational-soak-v1.json": "c08a15b023f7ed40207d6362b75d2d39b8b23b4e958844b28899902eca90359d",
+      "sentinel_pulse/protocol/pipeline-overhead-contract-v1.json": "80de96a2f966ee0690ea4f205e30f347d633fe8c04ac14a18002f8bbd17b90b6",
+      "sentinel_pulse/protocol/pulse500-training-contract.json": "be2fe692bd200eef595e7c735230ae7bad9906055d4cadb459527f8b94c549e2",
+      "sentinel_pulse/protocol/telemetry-recovery-v1.json": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "sentinel_pulse/rca_connect.py": "3ffe79452ca2df63c48e847d150cd28d088f1bf62d801b0cb6f6441e8253b790",
+      "sentinel_pulse/record_500ms_metrics.sh": "5ce8fe9c2f34b59fcb2a08fb0f3ad3ad4d1797dc9b7f8292c09f129eb28b5053",
+      "sentinel_pulse/record_node_pressure.sh": "d799e12a1d3ddfb148af09c1baf9bf918e3c10e62d89a08cdb834dd96ed889eb",
+      "sentinel_pulse/recovery_coordinator.py": "12e081425a03b2568b9f2787ec85a6e413c1507b563cb030b3ecc0199aca9d1e",
+      "sentinel_pulse/recovery_deployment.py": "282d17f329ba1b7edb083cbf6dd343e4ab74f662e7ac0ac3dd873e26f4971a1d",
+      "sentinel_pulse/recovery_formal.py": "c11561bf3302f0594f36399e1aa68aa06d880535102407d89bd04eebadf29cbe",
+      "sentinel_pulse/recovery_worker_probe.py": "10b15475f2e420d1770568aaad89dc1ff21da4731e8a5e60d1109411733349b6",
+      "sentinel_pulse/requirements-collector.txt": "99f43573522565d7c480efd1f954892948033915df6a4e685327e995d3396eb6",
+      "sentinel_pulse/requirements-lock.txt": "9e4641de957bdff0f33816d7a326ecf382ab046753f130e2579f415652c6d20a",
+      "sentinel_pulse/requirements.txt": "ab3898955bed3704d8b21f85ece7a45b59d29bc5f6316e42fcdb65e4846dd345",
+      "sentinel_pulse/revision_evidence.py": "9e6d8e1451bbb02b51c74d34bb8c9f2f7e06521f46225f9cfff28dc323dfb8d7",
+      "sentinel_pulse/rotate_control_capture.sh": "bb1e7b9e7eba39f15414f0188237ed168578e5f801e8117d108ab4a488752f63",
+      "sentinel_pulse/run_500ms_blind_campaign.sh": "db5a404d8669c93fb2965a82d8fd59b30a71f8d3c5255040390e8984c77da339",
+      "sentinel_pulse/run_500ms_blind_matrix.py": "f1e372571ad749c1a7d90f43213751f046ec9d75c68366c7b1d7c44a5b48fef5",
+      "sentinel_pulse/run_500ms_candidate_lifecycle.sh": "9384c79b40aae6cb2376ced36096086e3263b334fcf5489e055f3b8e1534d6dd",
+      "sentinel_pulse/run_500ms_dataset_campaign.sh": "35dc1dea7f0a91857aab3a2c1a3b0a81c76a698a1cb07f6323439391987b4690",
+      "sentinel_pulse/run_500ms_overhead_ab.sh": "e836064bea3873266f01c2d76404e27bd6f38650fe38d21d86473890ccc71dcb",
+      "sentinel_pulse/run_bounded_live_canary.sh": "23be8eb55daa2f9ff0282c1588a60a96a97c1e099cdf4020888f632284504338",
+      "sentinel_pulse/run_capture_campaign.sh": "56f3317cfb2bd808c7341ca7a2187c2aac12a36f13b605407088d9c697b5f3e8",
+      "sentinel_pulse/run_dependency_restart_canary.sh": "8ae9bf37b9c0bd92a1dd738665c8ebaa71ff0c9d1a88c270ab3e37504855eab4",
+      "sentinel_pulse/run_pilot_postprocess.sh": "74f1703c428ed6fe7f7687d497d1d214457e7d2be09446751e9340baafd69b58",
+      "sentinel_pulse/run_projected_counter_canary.sh": "b5d26fd99debe1296599642b24224881f7b1df57213b78a2fba626aef2ad7851",
+      "sentinel_pulse/run_recovery_formal_worker.sh": "b28bc0c757d99c1fa7684b6d37b5617f5356b94780c1f0b2cc3222e64f26616a",
+      "sentinel_pulse/run_recovery_runtime_smoke.sh": "6c356cd9a171aa49db0566823efbd45cb5612857b0f610bd4fe1b7800b39a867",
+      "sentinel_pulse/select_projected_collector.py": "275d4fc7dbc66a5c45a1b20e6d29cc452201e8eaa84fece7fbfd24b0bf8faa98",
+      "sentinel_pulse/smoke_collect.py": "31920c70b734f29615351c4350ed133bd9d2f5922329a270577447eb2cad65bb",
+      "sentinel_pulse/smoke_node.sh": "a646c086e2576161eeec3e6fcba712e94cd82dd437d233da58930603d5e545b9",
+      "sentinel_pulse/start_500ms_blind_matrix.sh": "d5ced392279e99be72c1ac9ee4eb6a592844738f99acd8fbd0e7eb80e8f9d0ee",
+      "sentinel_pulse/start_500ms_normal_soak.sh": "efd4ece61fd075f42db600435c02be7603aef8f65d2a4009097623773378a16b",
+      "sentinel_pulse/start_attack_latency_pilot.sh": "ff407e46f67ce469508d5d6241e261bab842067ab0a7b7d0500af9da47430505",
+      "sentinel_pulse/start_bounded_live_canary.sh": "713894027a760f9438d9ac365ea9838db534f6498b3f9ca891fd9570abc9f0e9",
+      "sentinel_pulse/start_node_pressure_diagnostic.sh": "d426360271439255ce9b01084c5ba447e2076b28acd8531bb8811d14a501c618",
+      "sentinel_pulse/storage_health.py": "c300f161501e202a450088fddf32dfbc114c98d6ea4bc4b26b8bf25199a82359",
+      "sentinel_pulse/supervise_500ms_candidate_lifecycle.sh": "411d19247367515bda00807a656d697c055bc598715d93e0a8fe334c489b2e0d",
+      "sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service": "d165251bd1f0e4eaecf49c96817413390569098e4f4711962c2ba2f321513f17",
+      "sentinel_pulse/systemd/sentinel-pulse-collector.service": "88baf320dde432049b29a00eec83e59975a159a9b87470a4249bbf85e48d528b",
+      "sentinel_pulse/systemd/sentinel-pulse-control-rotate.service": "27a54f48f6a467d15f6421d6e64d18a0779c928ca220a17f622486d9bae9e4fc",
+      "sentinel_pulse/systemd/sentinel-pulse-control-rotate.timer": "a3761b16a893c0944c0e1e32d4d179e0e8e6b22612854c9286783ff638988962",
+      "sentinel_pulse/systemd/sentinel-pulse-detector-candidate.service": "e118f379af36225e576ad8e56271a2a3e35abdea68c3554663cba36a58604bf8",
+      "sentinel_pulse/systemd/sentinel-pulse-freeze@.service": "897cc3eb5564a408a52f96f85318a9dab9c9650b25caab969cb3e3e62d50a829",
+      "sentinel_pulse/systemd/sentinel-pulse-resolver.service": "90c9bbdf4b6c214ecfbb01a6481f55187532bd490ac1ffc327a2f25ef3b8092b",
+      "sentinel_pulse/telemetry_recovery.py": "c78083818b49887068d813bb280ebb791f8dc63407001a1580df734d66a91f41",
+      "sentinel_pulse/tetragon_evidence.py": "df8feea26641899d8a535e430542e6480c6f4911c8614cb946782692e6ca1d71",
+      "sentinel_pulse/traffic_gate.py": "9b63ee2fccab6d4541ae06788864da9587ad97a46fe8bb48b4fcea06b76f0720",
+      "sentinel_pulse/train.py": "daa6a5a21e67f7c5b1f3d4e287efe30cb2f94f776530543ca35c9dab9a47d1f6",
+      "sentinel_pulse/validate_capture.py": "dd4134bf777c36bbd68a1cef4393c66a3e7c721867e72be847862f91e63c256f",
+      "sentinel_pulse/validate_infrastructure_rejection.py": "4ded62016f0903c9328b7f39af6defc34a7b87a251f71754e17c11b1c462c8fa",
+      "sentinel_pulse/validate_recovery_capture.py": "af53e462e01b35ba9ba563bb71e3c49339972561f80646f9c29113465ccb768e",
+      "sentinel_pulse/validate_rollout.py": "5e6a848d0737dffdb51a638b14edbf4a4ceb8da6b5586c5de0c33e4f8d580196",
+      "sentinel_pulse/verify_distributed_injections.py": "9b10d984208ed6e1b58fa6f0e9d598ae91e2f2ac46442ff8ddd97ec0b09e15d6",
+      "sentinel_pulse/wait_and_run_500ms_blind_campaign.sh": "a40308c021526f7c1d0574e81575f0f3b86e6e512774226912158981cdd0dcd2",
+      "sentinel_pulse/workload_fingerprint.py": "ca91e9e90a1c0f8291e2e6db36041d905dc645819a322d5e04c4900656547f84"
+    },
+    "source_files_sha256": "627eca0da4ae1839d292ff25c65e6f519d17c56289580f6dbb6cb05ae733759e",
+    "started_at_unix": 1791164385.3124444,
+    "telemetry_recovery_contract": {
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "formal_lifecycle_enabled": false,
+      "profile": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "interval_max_seconds": 0.8,
+        "interval_min_seconds": 0.35,
+        "maximum_excluded_seconds": 900,
+        "maximum_incident_seconds": 60,
+        "maximum_incidents": 12,
+        "maximum_ingest_lag_seconds": 1,
+        "maximum_recoverable_gap_seconds": 30,
+        "maximum_wall_seconds": 90000,
+        "minimum_scored_hours_per_workload": 24,
+        "minimum_telemetry_availability": 0.999,
+        "nominal_interval_seconds": 0.5,
+        "rolling_windows": 10,
+        "schema": "sentinel-pulse-telemetry-recovery-profile-v1"
+      },
+      "profile_file_sha256": "0bda3f825f6fce69934131f3c9e8319f2a9236eb4ac1e2b21d2357c6118df22e",
+      "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "schema": "sentinel-pulse-recovery-deployment-v1"
+    },
+    "workers": {
+      "10.1.16.237": {
+        "bpf_object_sha256": "7f8686e552991c79dcdce526f62494b6b464eb9fdd430db56baeaa5aee61f707",
+        "expected_workloads": [
+          "production/aims-kafka-dual-role:kafka",
+          "production/aims-minio-pool-0:minio",
+          "production/aims-minio-pool-0:sidecar",
+          "production/aims-postgres-cnpg:postgres",
+          "production/aims-rabbitmq-server:rabbitmq",
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+          "production/aims-redis:aims-redis",
+          "production/aims-waypoint:istio-proxy",
+          "production/api-gateway:app",
+          "production/auth-service:app",
+          "production/catalog-service:app",
+          "production/inventory-service:app",
+          "production/notification-service:app",
+          "production/order-service:app",
+          "production/payment-service:app",
+          "production/security-telemetry-service:app"
+        ],
+        "loader_sha256": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+        "node_name": "k8s-worker1.local"
+      },
+      "10.1.16.238": {
+        "bpf_object_sha256": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+        "expected_workloads": [
+          "production/aims-frontend:web",
+          "production/aims-kafka-dual-role:kafka",
+          "production/aims-kafka-entity-operator:topic-operator",
+          "production/aims-kafka-entity-operator:user-operator",
+          "production/aims-minio-pool-0:minio",
+          "production/aims-minio-pool-0:sidecar",
+          "production/aims-postgres-cnpg:postgres",
+          "production/aims-rabbitmq-server:rabbitmq",
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+          "production/aims-redis:aims-redis",
+          "production/aims-waypoint:istio-proxy",
+          "production/api-gateway:app",
+          "production/auth-service:app",
+          "production/cart-service:app",
+          "production/catalog-service:app",
+          "production/inventory-service:app",
+          "production/order-service:app",
+          "production/search-recommendation-service:app",
+          "production/security-telemetry-service:app"
+        ],
+        "loader_sha256": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+        "node_name": "k8s-worker4.local"
+      },
+      "10.1.16.239": {
+        "bpf_object_sha256": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+        "expected_workloads": [
+          "production/aims-frontend:web",
+          "production/aims-kafka-dual-role:kafka",
+          "production/aims-postgres-cnpg:postgres",
+          "production/aims-rabbitmq-server:rabbitmq",
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+          "production/aims-redis:aims-redis",
+          "production/aims-waypoint:istio-proxy",
+          "production/api-gateway:app",
+          "production/cart-service:app",
+          "production/catalog-service:app",
+          "production/notification-service:app",
+          "production/order-service:app",
+          "production/payment-service:app",
+          "production/search-recommendation-service:app",
+          "production/security-telemetry-service:app"
+        ],
+        "loader_sha256": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+        "node_name": "k8s-worker3.local"
+      }
+    }
+  },
+  "maximum_observation_gap_seconds": 10.71122121810913,
+  "node_reports": {
+    "10.1.16.237": {
+      "alerts_during_health_degraded": {},
+      "all_alerts": {},
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "capture": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "availability": 1,
+        "availability_valid": true,
+        "capture_sha256": "fd39d6c9119785a4bae94a5d52da3dcbff01753a2bce96facf24c53bf15174e8",
+        "eligible_feature_exposure_seconds": {
+          "production/aims-kafka-dual-role:kafka": 293.859566450119,
+          "production/aims-minio-pool-0:minio": 247.7194366455078,
+          "production/aims-minio-pool-0:sidecar": 252.8173885345459,
+          "production/aims-postgres-cnpg:postgres": 293.859566450119,
+          "production/aims-rabbitmq-server:rabbitmq": 293.859566450119,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 293.859566450119,
+          "production/aims-redis:aims-redis": 293.859566450119,
+          "production/aims-waypoint:istio-proxy": 293.859566450119,
+          "production/api-gateway:app": 293.859566450119,
+          "production/auth-service:app": 293.859566450119,
+          "production/catalog-service:app": 293.859566450119,
+          "production/inventory-service:app": 293.859566450119,
+          "production/notification-service:app": 293.859566450119,
+          "production/order-service:app": 293.859566450119,
+          "production/payment-service:app": 293.859566450119,
+          "production/security-telemetry-service:app": 293.859566450119
+        },
+        "eligible_feature_rows": {
+          "production/aims-kafka-dual-role:kafka": 580,
+          "production/aims-minio-pool-0:minio": 489,
+          "production/aims-minio-pool-0:sidecar": 499,
+          "production/aims-postgres-cnpg:postgres": 580,
+          "production/aims-rabbitmq-server:rabbitmq": 580,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 580,
+          "production/aims-redis:aims-redis": 580,
+          "production/aims-waypoint:istio-proxy": 580,
+          "production/api-gateway:app": 580,
+          "production/auth-service:app": 1160,
+          "production/catalog-service:app": 580,
+          "production/inventory-service:app": 1160,
+          "production/notification-service:app": 1740,
+          "production/order-service:app": 580,
+          "production/payment-service:app": 1160,
+          "production/security-telemetry-service:app": 1160
+        },
+        "errors": [],
+        "estimated_missing_snapshots": 0,
+        "excluded_seconds": 0,
+        "exposure_note": "feature-eligible exposure only; model warming and health exclusions still require decision/health evaluation",
+        "feature_rows": 12808,
+        "feature_states": {
+          "ready": 12588,
+          "rolling_history_fill": 4,
+          "snapshot_warming": 216
+        },
+        "hard_integrity_counters": {
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_projection_fail": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "incidents": 0,
+        "integrity_valid": true,
+        "journal_rows": 591,
+        "legacy_normal_pass": false,
+        "maximum_gap_seconds": 0.5956158638000488,
+        "observed_snapshots": 591,
+        "operational_soak_pass": false,
+        "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+        "schema": "sentinel-pulse-recovery-capture-validation-v1",
+        "valid": true,
+        "workloads": {
+          "production/aims-kafka-dual-role:kafka": 590,
+          "production/aims-minio-pool-0:minio": 499,
+          "production/aims-minio-pool-0:sidecar": 509,
+          "production/aims-postgres-cnpg:postgres": 590,
+          "production/aims-rabbitmq-server:rabbitmq": 590,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 590,
+          "production/aims-redis:aims-redis": 590,
+          "production/aims-waypoint:istio-proxy": 590,
+          "production/api-gateway:app": 590,
+          "production/auth-service:app": 1180,
+          "production/catalog-service:app": 590,
+          "production/inventory-service:app": 1180,
+          "production/notification-service:app": 1770,
+          "production/order-service:app": 590,
+          "production/payment-service:app": 1180,
+          "production/security-telemetry-service:app": 1180
+        }
+      },
+      "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+      "decisions": 12808,
+      "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+      "errors": [],
+      "excluded_health_intervals": [],
+      "formal_recovery_pass": false,
+      "health_log_sha256": "95d0ae97bfb277463ad1f84d9d2132ff134193e7ae3727f7cb9bf2aa32c29d66",
+      "inputs_sha256": {
+        "COLLECTOR_RUNTIME_START.json": "4b1b99d1a2de58d223f363236ba144e65dcfb5116608d409cfc1bd5aa0a2b318",
+        "FORMAL_WORKER_START.json": "ddf0c2df0b79e3c82dd35e3a930e4fc08d54133cc4f1be99f3fc405e9acc5ac0",
+        "START.json": "eeb309e875e9f4d35c2d96254865d0fba695072691868da6ddf0db0d7dd41f64",
+        "alerts.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decisions.jsonl": "240beda6cab9db744c8fe9ef34d54a1923faff5a51a1b30d7588970bcb1c05e2",
+        "features.jsonl": "fd39d6c9119785a4bae94a5d52da3dcbff01753a2bce96facf24c53bf15174e8"
+      },
+      "kernel_to_alert_claim_allowed": false,
+      "legacy_normal_pass": false,
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-formal-node-report-v1",
+      "scored_rows": {
+        "production/aims-kafka-dual-role:kafka": 551,
+        "production/aims-minio-pool-0:minio": 468,
+        "production/aims-minio-pool-0:sidecar": 476,
+        "production/aims-postgres-cnpg:postgres": 551,
+        "production/aims-rabbitmq-server:rabbitmq": 551,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 551,
+        "production/aims-redis:aims-redis": 551,
+        "production/aims-waypoint:istio-proxy": 551,
+        "production/api-gateway:app": 551,
+        "production/auth-service:app": 1102,
+        "production/catalog-service:app": 551,
+        "production/inventory-service:app": 1102,
+        "production/notification-service:app": 1653,
+        "production/order-service:app": 551,
+        "production/payment-service:app": 1102,
+        "production/security-telemetry-service:app": 1102
+      },
+      "source_files_sha256": "627eca0da4ae1839d292ff25c65e6f519d17c56289580f6dbb6cb05ae733759e",
+      "statuses": {
+        "normal": 11936,
+        "suppressed": 28,
+        "telemetry-degraded": 778,
+        "warming": 66
+      },
+      "telemetry_profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "valid": true,
+      "valid_scored_intervals": {
+        "production/aims-kafka-dual-role:kafka": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-minio-pool-0:minio": [
+          [
+            1791164424.2636213,
+            1791164425.7825427
+          ],
+          [
+            1791164426.2890546,
+            1791164429.8324864
+          ],
+          [
+            1791164430.3397632,
+            1791164445.5408967
+          ],
+          [
+            1791164446.0475326,
+            1791164446.5580356
+          ],
+          [
+            1791164447.067975,
+            1791164448.585285
+          ],
+          [
+            1791164449.0893803,
+            1791164449.59578
+          ],
+          [
+            1791164450.102939,
+            1791164455.6877139
+          ],
+          [
+            1791164456.196437,
+            1791164459.737691
+          ],
+          [
+            1791164460.2448628,
+            1791164465.8263192
+          ],
+          [
+            1791164466.3328245,
+            1791164472.4112082
+          ],
+          [
+            1791164472.918045,
+            1791164475.4462194
+          ],
+          [
+            1791164475.9515765,
+            1791164476.4589841
+          ],
+          [
+            1791164476.9667752,
+            1791164478.4847906
+          ],
+          [
+            1791164478.9894695,
+            1791164479.4957879
+          ],
+          [
+            1791164480.0014992,
+            1791164482.526635
+          ],
+          [
+            1791164483.0332084,
+            1791164483.5385559
+          ],
+          [
+            1791164484.0448816,
+            1791164485.5628874
+          ],
+          [
+            1791164486.0702457,
+            1791164486.5747573
+          ],
+          [
+            1791164487.079541,
+            1791164489.6138616
+          ],
+          [
+            1791164490.1199806,
+            1791164492.6506455
+          ],
+          [
+            1791164493.1606646,
+            1791164493.6653044
+          ],
+          [
+            1791164494.1705744,
+            1791164494.6763284
+          ],
+          [
+            1791164495.1858494,
+            1791164503.7846453
+          ],
+          [
+            1791164504.290133,
+            1791164505.8123608
+          ],
+          [
+            1791164506.3243105,
+            1791164509.8667405
+          ],
+          [
+            1791164510.372109,
+            1791164514.4192212
+          ],
+          [
+            1791164514.924362,
+            1791164515.4308012
+          ],
+          [
+            1791164515.936346,
+            1791164522.5011666
+          ],
+          [
+            1791164523.0059037,
+            1791164525.5320957
+          ],
+          [
+            1791164526.0386662,
+            1791164533.621712
+          ],
+          [
+            1791164534.1277237,
+            1791164535.6519332
+          ],
+          [
+            1791164536.1592026,
+            1791164536.6677444
+          ],
+          [
+            1791164537.1749756,
+            1791164538.6895888
+          ],
+          [
+            1791164539.195176,
+            1791164539.7001467
+          ],
+          [
+            1791164540.2066169,
+            1791164543.7494807
+          ],
+          [
+            1791164544.2540417,
+            1791164549.8379989
+          ],
+          [
+            1791164550.344816,
+            1791164559.4609475
+          ],
+          [
+            1791164559.9669428,
+            1791164560.4710338
+          ],
+          [
+            1791164560.9761925,
+            1791164562.4954114
+          ],
+          [
+            1791164563.0017757,
+            1791164565.5294101
+          ],
+          [
+            1791164566.040463,
+            1791164568.5659258
+          ],
+          [
+            1791164569.07297,
+            1791164569.5780468
+          ],
+          [
+            1791164570.0921369,
+            1791164575.6535404
+          ],
+          [
+            1791164576.1594129,
+            1791164576.6644905
+          ],
+          [
+            1791164577.171096,
+            1791164579.69828
+          ],
+          [
+            1791164580.2057781,
+            1791164582.735772
+          ],
+          [
+            1791164583.2405066,
+            1791164583.7456374
+          ],
+          [
+            1791164584.249782,
+            1791164585.7683604
+          ],
+          [
+            1791164586.2748263,
+            1791164589.8208451
+          ],
+          [
+            1791164590.3294814,
+            1791164596.4247744
+          ],
+          [
+            1791164596.9301286,
+            1791164599.4686205
+          ],
+          [
+            1791164599.97543,
+            1791164600.4810262
+          ],
+          [
+            1791164600.98745,
+            1791164602.5073457
+          ],
+          [
+            1791164603.015262,
+            1791164603.5200984
+          ],
+          [
+            1791164604.0310419,
+            1791164605.5576773
+          ],
+          [
+            1791164606.0636618,
+            1791164612.7342844
+          ],
+          [
+            1791164613.2396955,
+            1791164613.7440543
+          ],
+          [
+            1791164614.2516706,
+            1791164626.418628
+          ],
+          [
+            1791164626.9284606,
+            1791164629.4659922
+          ],
+          [
+            1791164629.9721386,
+            1791164630.4787073
+          ],
+          [
+            1791164630.9831223,
+            1791164632.5054636
+          ],
+          [
+            1791164633.011522,
+            1791164635.5481446
+          ],
+          [
+            1791164636.0526574,
+            1791164636.5572815
+          ],
+          [
+            1791164637.0615282,
+            1791164639.5935817
+          ],
+          [
+            1791164640.1025078,
+            1791164645.6634672
+          ],
+          [
+            1791164646.171526,
+            1791164649.7098074
+          ],
+          [
+            1791164650.2219002,
+            1791164652.753518
+          ],
+          [
+            1791164653.2588055,
+            1791164659.8458705
+          ],
+          [
+            1791164660.3559966,
+            1791164664.4010024
+          ],
+          [
+            1791164664.9075222,
+            1791164666.4230525
+          ],
+          [
+            1791164666.9279127,
+            1791164668.4451828
+          ],
+          [
+            1791164668.9527822,
+            1791164669.458949
+          ],
+          [
+            1791164669.965943,
+            1791164670.4712744
+          ],
+          [
+            1791164670.9765666,
+            1791164673.5036674
+          ],
+          [
+            1791164674.0084422,
+            1791164674.5125504
+          ],
+          [
+            1791164675.017519,
+            1791164675.5259438
+          ],
+          [
+            1791164676.051303,
+            1791164679.591562
+          ],
+          [
+            1791164680.099262,
+            1791164682.6278913
+          ],
+          [
+            1791164683.1330316,
+            1791164683.6420636
+          ],
+          [
+            1791164684.1467214,
+            1791164685.6683815
+          ],
+          [
+            1791164686.1793213,
+            1791164689.721991
+          ],
+          [
+            1791164690.230313,
+            1791164695.8066466
+          ],
+          [
+            1791164696.31252,
+            1791164699.859245
+          ],
+          [
+            1791164700.3643496,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          [
+            1791164424.2636213,
+            1791164428.818184
+          ],
+          [
+            1791164429.327384,
+            1791164429.8324864
+          ],
+          [
+            1791164430.3397632,
+            1791164431.8616405
+          ],
+          [
+            1791164432.3680634,
+            1791164432.8721132
+          ],
+          [
+            1791164433.376945,
+            1791164433.8811364
+          ],
+          [
+            1791164434.3870516,
+            1791164436.4123845
+          ],
+          [
+            1791164436.9196951,
+            1791164437.426403
+          ],
+          [
+            1791164437.932389,
+            1791164438.4393582
+          ],
+          [
+            1791164438.9454799,
+            1791164442.5018616
+          ],
+          [
+            1791164443.0082066,
+            1791164443.5163991
+          ],
+          [
+            1791164444.0211937,
+            1791164444.5254047
+          ],
+          [
+            1791164445.0350332,
+            1791164450.6089184
+          ],
+          [
+            1791164451.1164799,
+            1791164452.6395597
+          ],
+          [
+            1791164453.1490545,
+            1791164456.7017379
+          ],
+          [
+            1791164457.20597,
+            1791164458.727518
+          ],
+          [
+            1791164459.2316813,
+            1791164459.737691
+          ],
+          [
+            1791164460.2448628,
+            1791164460.7526355
+          ],
+          [
+            1791164461.2597115,
+            1791164462.7765563
+          ],
+          [
+            1791164463.280746,
+            1791164466.8426464
+          ],
+          [
+            1791164467.3494737,
+            1791164475.4462194
+          ],
+          [
+            1791164475.9515765,
+            1791164477.471837
+          ],
+          [
+            1791164477.978125,
+            1791164483.5385559
+          ],
+          [
+            1791164484.0448816,
+            1791164485.5628874
+          ],
+          [
+            1791164486.0702457,
+            1791164489.6138616
+          ],
+          [
+            1791164490.1199806,
+            1791164492.6506455
+          ],
+          [
+            1791164493.1606646,
+            1791164493.6653044
+          ],
+          [
+            1791164494.1705744,
+            1791164496.7063727
+          ],
+          [
+            1791164497.2112484,
+            1791164499.7368424
+          ],
+          [
+            1791164500.2434945,
+            1791164504.796954
+          ],
+          [
+            1791164505.3056386,
+            1791164515.4308012
+          ],
+          [
+            1791164515.936346,
+            1791164517.4495673
+          ],
+          [
+            1791164517.9535332,
+            1791164522.5011666
+          ],
+          [
+            1791164523.0059037,
+            1791164525.5320957
+          ],
+          [
+            1791164526.0386662,
+            1791164527.5564895
+          ],
+          [
+            1791164528.0606503,
+            1791164529.5800176
+          ],
+          [
+            1791164530.0861638,
+            1791164531.6003768
+          ],
+          [
+            1791164532.1058,
+            1791164532.6116145
+          ],
+          [
+            1791164533.117461,
+            1791164534.6355727
+          ],
+          [
+            1791164535.1442308,
+            1791164537.6810384
+          ],
+          [
+            1791164538.1852462,
+            1791164545.7728596
+          ],
+          [
+            1791164546.2805235,
+            1791164553.8871963
+          ],
+          [
+            1791164554.3921297,
+            1791164555.4120705
+          ],
+          [
+            1791164555.920696,
+            1791164559.4609475
+          ],
+          [
+            1791164559.9669428,
+            1791164563.507119
+          ],
+          [
+            1791164564.01277,
+            1791164572.6182466
+          ],
+          [
+            1791164573.1232727,
+            1791164575.6535404
+          ],
+          [
+            1791164576.1594129,
+            1791164580.7111704
+          ],
+          [
+            1791164581.2186844,
+            1791164581.7253914
+          ],
+          [
+            1791164582.2300527,
+            1791164584.7569737
+          ],
+          [
+            1791164585.2635007,
+            1791164588.810765
+          ],
+          [
+            1791164589.3161001,
+            1791164592.869064
+          ],
+          [
+            1791164593.3799121,
+            1791164595.4123845
+          ],
+          [
+            1791164595.9174788,
+            1791164598.4527442
+          ],
+          [
+            1791164598.9611502,
+            1791164610.707092
+          ],
+          [
+            1791164611.2154934,
+            1791164611.7229462
+          ],
+          [
+            1791164612.2283301,
+            1791164613.7440543
+          ],
+          [
+            1791164614.2516706,
+            1791164614.758302
+          ],
+          [
+            1791164615.2660463,
+            1791164615.7710147
+          ],
+          [
+            1791164616.2797227,
+            1791164623.8790932
+          ],
+          [
+            1791164624.3848448,
+            1791164626.418628
+          ],
+          [
+            1791164626.9284606,
+            1791164635.5481446
+          ],
+          [
+            1791164636.0526574,
+            1791164644.646546
+          ],
+          [
+            1791164645.1535313,
+            1791164646.6778655
+          ],
+          [
+            1791164647.1838903,
+            1791164647.6897457
+          ],
+          [
+            1791164648.195388,
+            1791164648.7002454
+          ],
+          [
+            1791164649.2057154,
+            1791164653.764113
+          ],
+          [
+            1791164654.2695146,
+            1791164656.8042493
+          ],
+          [
+            1791164657.308936,
+            1791164665.4133677
+          ],
+          [
+            1791164665.9182608,
+            1791164667.4343271
+          ],
+          [
+            1791164667.9392056,
+            1791164669.458949
+          ],
+          [
+            1791164669.965943,
+            1791164670.4712744
+          ],
+          [
+            1791164670.9765666,
+            1791164675.5259438
+          ],
+          [
+            1791164676.051303,
+            1791164687.6973453
+          ],
+          [
+            1791164688.202327,
+            1791164693.7805462
+          ],
+          [
+            1791164694.2895594,
+            1791164697.8313205
+          ],
+          [
+            1791164698.3387136,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-redis:aims-redis": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/api-gateway:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/auth-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/catalog-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/inventory-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/notification-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/order-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/payment-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ],
+        "production/security-telemetry-service:app": [
+          [
+            1791164424.2636213,
+            1791164703.4059176
+          ]
+        ]
+      },
+      "worker_ip": "10.1.16.237"
+    },
+    "10.1.16.238": {
+      "alerts_during_health_degraded": {},
+      "all_alerts": {},
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "capture": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "availability": 1,
+        "availability_valid": true,
+        "capture_sha256": "db22b6e73a2f94a89c98b2190fc5ad7dfe34f4d96b6f4701c388ee8661aeda33",
+        "eligible_feature_exposure_seconds": {
+          "production/aims-frontend:web": 245.61161375045776,
+          "production/aims-kafka-dual-role:kafka": 293.69907450675964,
+          "production/aims-kafka-entity-operator:topic-operator": 293.69907450675964,
+          "production/aims-kafka-entity-operator:user-operator": 293.69907450675964,
+          "production/aims-minio-pool-0:minio": 247.6252601146698,
+          "production/aims-minio-pool-0:sidecar": 245.10966444015503,
+          "production/aims-postgres-cnpg:postgres": 293.69907450675964,
+          "production/aims-rabbitmq-server:rabbitmq": 293.69907450675964,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 293.69907450675964,
+          "production/aims-redis:aims-redis": 293.69907450675964,
+          "production/aims-waypoint:istio-proxy": 293.69907450675964,
+          "production/api-gateway:app": 293.69907450675964,
+          "production/auth-service:app": 293.69907450675964,
+          "production/cart-service:app": 293.69907450675964,
+          "production/catalog-service:app": 293.69907450675964,
+          "production/inventory-service:app": 293.69907450675964,
+          "production/order-service:app": 293.69907450675964,
+          "production/search-recommendation-service:app": 293.69907450675964,
+          "production/security-telemetry-service:app": 293.69907450675964
+        },
+        "eligible_feature_rows": {
+          "production/aims-frontend:web": 485,
+          "production/aims-kafka-dual-role:kafka": 580,
+          "production/aims-kafka-entity-operator:topic-operator": 580,
+          "production/aims-kafka-entity-operator:user-operator": 580,
+          "production/aims-minio-pool-0:minio": 489,
+          "production/aims-minio-pool-0:sidecar": 484,
+          "production/aims-postgres-cnpg:postgres": 580,
+          "production/aims-rabbitmq-server:rabbitmq": 580,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 580,
+          "production/aims-redis:aims-redis": 580,
+          "production/aims-waypoint:istio-proxy": 580,
+          "production/api-gateway:app": 580,
+          "production/auth-service:app": 1160,
+          "production/cart-service:app": 1160,
+          "production/catalog-service:app": 580,
+          "production/inventory-service:app": 1160,
+          "production/order-service:app": 1160,
+          "production/search-recommendation-service:app": 580,
+          "production/security-telemetry-service:app": 580
+        },
+        "errors": [],
+        "estimated_missing_snapshots": 0,
+        "excluded_seconds": 0,
+        "exposure_note": "feature-eligible exposure only; model warming and health exclusions still require decision/health evaluation",
+        "feature_rows": 13288,
+        "feature_states": {
+          "ready": 13058,
+          "rolling_history_fill": 5,
+          "snapshot_warming": 225
+        },
+        "hard_integrity_counters": {
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_projection_fail": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "incidents": 0,
+        "integrity_valid": true,
+        "journal_rows": 591,
+        "legacy_normal_pass": false,
+        "maximum_gap_seconds": 0.5235655307769775,
+        "observed_snapshots": 591,
+        "operational_soak_pass": false,
+        "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+        "schema": "sentinel-pulse-recovery-capture-validation-v1",
+        "valid": true,
+        "workloads": {
+          "production/aims-frontend:web": 495,
+          "production/aims-kafka-dual-role:kafka": 590,
+          "production/aims-kafka-entity-operator:topic-operator": 590,
+          "production/aims-kafka-entity-operator:user-operator": 590,
+          "production/aims-minio-pool-0:minio": 499,
+          "production/aims-minio-pool-0:sidecar": 494,
+          "production/aims-postgres-cnpg:postgres": 590,
+          "production/aims-rabbitmq-server:rabbitmq": 590,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 590,
+          "production/aims-redis:aims-redis": 590,
+          "production/aims-waypoint:istio-proxy": 590,
+          "production/api-gateway:app": 590,
+          "production/auth-service:app": 1180,
+          "production/cart-service:app": 1180,
+          "production/catalog-service:app": 590,
+          "production/inventory-service:app": 1180,
+          "production/order-service:app": 1180,
+          "production/search-recommendation-service:app": 590,
+          "production/security-telemetry-service:app": 590
+        }
+      },
+      "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+      "decisions": 13288,
+      "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+      "errors": [],
+      "excluded_health_intervals": [],
+      "formal_recovery_pass": false,
+      "health_log_sha256": "95d0ae97bfb277463ad1f84d9d2132ff134193e7ae3727f7cb9bf2aa32c29d66",
+      "inputs_sha256": {
+        "COLLECTOR_RUNTIME_START.json": "4938eaef182b4d1753655143bb784caccb7ef9331960f40e4cc70d4c1a27a1cf",
+        "FORMAL_WORKER_START.json": "4677681dc2bb8a37da8ac6ee298d96deeaa9e34264db4861c5f89874ca423a9c",
+        "START.json": "bc480d8448f8955e770c94ef22b6d496b1146476ac62afebd74639e2ec89d57f",
+        "alerts.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decisions.jsonl": "b8f2c3e217bb4cd12779788f39cb9d1d26f017c50161f9b01c1643e8771281a3",
+        "features.jsonl": "db22b6e73a2f94a89c98b2190fc5ad7dfe34f4d96b6f4701c388ee8661aeda33"
+      },
+      "kernel_to_alert_claim_allowed": false,
+      "legacy_normal_pass": false,
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-formal-node-report-v1",
+      "scored_rows": {
+        "production/aims-frontend:web": 416,
+        "production/aims-kafka-dual-role:kafka": 548,
+        "production/aims-kafka-entity-operator:topic-operator": 548,
+        "production/aims-kafka-entity-operator:user-operator": 548,
+        "production/aims-minio-pool-0:minio": 461,
+        "production/aims-minio-pool-0:sidecar": 455,
+        "production/aims-postgres-cnpg:postgres": 548,
+        "production/aims-rabbitmq-server:rabbitmq": 548,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 543,
+        "production/aims-redis:aims-redis": 548,
+        "production/aims-waypoint:istio-proxy": 548,
+        "production/api-gateway:app": 548,
+        "production/auth-service:app": 1096,
+        "production/cart-service:app": 1096,
+        "production/catalog-service:app": 548,
+        "production/inventory-service:app": 1096,
+        "production/order-service:app": 1096,
+        "production/search-recommendation-service:app": 548,
+        "production/security-telemetry-service:app": 548
+      },
+      "source_files_sha256": "627eca0da4ae1839d292ff25c65e6f519d17c56289580f6dbb6cb05ae733759e",
+      "statuses": {
+        "normal": 12181,
+        "suppressed": 106,
+        "telemetry-degraded": 885,
+        "warming": 116
+      },
+      "telemetry_profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "valid": true,
+      "valid_scored_intervals": {
+        "production/aims-frontend:web": [
+          [
+            1791164427.1584446,
+            1791164428.1695292
+          ],
+          [
+            1791164428.6737537,
+            1791164429.182873
+          ],
+          [
+            1791164432.722658,
+            1791164434.2391095
+          ],
+          [
+            1791164434.744929,
+            1791164440.3148477
+          ],
+          [
+            1791164440.8203602,
+            1791164445.373125
+          ],
+          [
+            1791164445.87784,
+            1791164446.38272
+          ],
+          [
+            1791164446.886849,
+            1791164450.4338136
+          ],
+          [
+            1791164450.942841,
+            1791164454.4850671
+          ],
+          [
+            1791164454.9909906,
+            1791164455.4972456
+          ],
+          [
+            1791164456.0022748,
+            1791164458.0235028
+          ],
+          [
+            1791164458.5302246,
+            1791164463.0863638
+          ],
+          [
+            1791164463.5922515,
+            1791164465.112104
+          ],
+          [
+            1791164465.6185396,
+            1791164472.1953635
+          ],
+          [
+            1791164472.7009847,
+            1791164486.3559248
+          ],
+          [
+            1791164486.8629875,
+            1791164491.4225526
+          ],
+          [
+            1791164491.9272199,
+            1791164499.0162525
+          ],
+          [
+            1791164502.0527983,
+            1791164503.062903
+          ],
+          [
+            1791164503.5671184,
+            1791164504.0720797
+          ],
+          [
+            1791164504.5784104,
+            1791164505.0876946
+          ],
+          [
+            1791164505.5942848,
+            1791164506.1107793
+          ],
+          [
+            1791164506.6165211,
+            1791164509.1443174
+          ],
+          [
+            1791164509.649736,
+            1791164510.1547642
+          ],
+          [
+            1791164510.6619332,
+            1791164512.1807106
+          ],
+          [
+            1791164512.6856184,
+            1791164514.2036402
+          ],
+          [
+            1791164514.7098086,
+            1791164519.2594082
+          ],
+          [
+            1791164519.7678306,
+            1791164520.2746239
+          ],
+          [
+            1791164520.7796044,
+            1791164521.2873344
+          ],
+          [
+            1791164524.329749,
+            1791164524.835028
+          ],
+          [
+            1791164527.3628507,
+            1791164529.3944883
+          ],
+          [
+            1791164529.900455,
+            1791164530.405593
+          ],
+          [
+            1791164530.9111538,
+            1791164533.4400635
+          ],
+          [
+            1791164533.9457445,
+            1791164534.4506292
+          ],
+          [
+            1791164534.9555464,
+            1791164543.0484197
+          ],
+          [
+            1791164546.593533,
+            1791164550.1376302
+          ],
+          [
+            1791164552.6601586,
+            1791164575.4469352
+          ],
+          [
+            1791164575.953372,
+            1791164576.4585352
+          ],
+          [
+            1791164576.962959,
+            1791164583.0324476
+          ],
+          [
+            1791164585.5643523,
+            1791164588.09556
+          ],
+          [
+            1791164588.5995638,
+            1791164589.1047635
+          ],
+          [
+            1791164592.1412146,
+            1791164595.187861
+          ],
+          [
+            1791164595.6924553,
+            1791164604.2875497
+          ],
+          [
+            1791164604.792607,
+            1791164609.3399754
+          ],
+          [
+            1791164609.8459218,
+            1791164610.35074
+          ],
+          [
+            1791164610.8569994,
+            1791164611.3638883
+          ],
+          [
+            1791164614.9029412,
+            1791164619.4622178
+          ],
+          [
+            1791164619.9669096,
+            1791164620.4742901
+          ],
+          [
+            1791164620.9796042,
+            1791164624.5229402
+          ],
+          [
+            1791164625.029078,
+            1791164627.0664456
+          ],
+          [
+            1791164627.581168,
+            1791164630.1208503
+          ],
+          [
+            1791164633.1588771,
+            1791164635.1827652
+          ],
+          [
+            1791164643.7985947,
+            1791164644.306837
+          ],
+          [
+            1791164644.8128,
+            1791164648.3676176
+          ],
+          [
+            1791164648.872184,
+            1791164656.4855375
+          ],
+          [
+            1791164656.9907176,
+            1791164659.01577
+          ],
+          [
+            1791164662.5695608,
+            1791164666.1209295
+          ],
+          [
+            1791164666.626119,
+            1791164673.210081
+          ],
+          [
+            1791164673.714434,
+            1791164674.7276726
+          ],
+          [
+            1791164675.2351391,
+            1791164680.304892
+          ],
+          [
+            1791164680.8127759,
+            1791164689.427753
+          ],
+          [
+            1791164689.937828,
+            1791164701.0813944
+          ],
+          [
+            1791164701.5878215,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-minio-pool-0:minio": [
+          [
+            1791164427.1584446,
+            1791164442.8442087
+          ],
+          [
+            1791164443.3514247,
+            1791164443.8570623
+          ],
+          [
+            1791164444.3618944,
+            1791164448.9085565
+          ],
+          [
+            1791164449.4143496,
+            1791164451.9537973
+          ],
+          [
+            1791164452.4613445,
+            1791164452.9669366
+          ],
+          [
+            1791164453.4725013,
+            1791164453.9801185
+          ],
+          [
+            1791164454.4850671,
+            1791164454.9909906
+          ],
+          [
+            1791164455.4972456,
+            1791164457.013975
+          ],
+          [
+            1791164457.5186865,
+            1791164463.0863638
+          ],
+          [
+            1791164463.5922515,
+            1791164475.2305653
+          ],
+          [
+            1791164475.7356532,
+            1791164482.8156326
+          ],
+          [
+            1791164483.3208497,
+            1791164483.82535
+          ],
+          [
+            1791164484.3317058,
+            1791164485.8504398
+          ],
+          [
+            1791164486.3559248,
+            1791164486.8629875
+          ],
+          [
+            1791164487.3684378,
+            1791164488.893167
+          ],
+          [
+            1791164489.3985636,
+            1791164492.940066
+          ],
+          [
+            1791164493.4452074,
+            1791164496.989697
+          ],
+          [
+            1791164497.4952826,
+            1791164498.002272
+          ],
+          [
+            1791164498.5087397,
+            1791164499.0162525
+          ],
+          [
+            1791164499.5209792,
+            1791164501.0413084
+          ],
+          [
+            1791164501.5478866,
+            1791164511.168874
+          ],
+          [
+            1791164511.674643,
+            1791164521.2873344
+          ],
+          [
+            1791164521.7946908,
+            1791164523.8257132
+          ],
+          [
+            1791164524.329749,
+            1791164525.8478823
+          ],
+          [
+            1791164526.3523645,
+            1791164526.8569663
+          ],
+          [
+            1791164527.3628507,
+            1791164528.8854525
+          ],
+          [
+            1791164529.3944883,
+            1791164529.900455
+          ],
+          [
+            1791164530.405593,
+            1791164531.92073
+          ],
+          [
+            1791164532.4265575,
+            1791164532.932649
+          ],
+          [
+            1791164533.4400635,
+            1791164539.0042262
+          ],
+          [
+            1791164539.509481,
+            1791164540.0152414
+          ],
+          [
+            1791164540.5215387,
+            1791164541.0281487
+          ],
+          [
+            1791164541.532704,
+            1791164542.037438
+          ],
+          [
+            1791164542.54242,
+            1791164545.0724227
+          ],
+          [
+            1791164545.5782979,
+            1791164551.1460218
+          ],
+          [
+            1791164551.652058,
+            1791164555.1886532
+          ],
+          [
+            1791164555.6978374,
+            1791164571.9016607
+          ],
+          [
+            1791164572.406215,
+            1791164572.9121933
+          ],
+          [
+            1791164573.4164038,
+            1791164573.9212146
+          ],
+          [
+            1791164574.4267697,
+            1791164575.953372
+          ],
+          [
+            1791164576.4585352,
+            1791164576.962959
+          ],
+          [
+            1791164577.4679403,
+            1791164577.9751697
+          ],
+          [
+            1791164578.483493,
+            1791164579.9976852
+          ],
+          [
+            1791164580.5042405,
+            1791164581.0083857
+          ],
+          [
+            1791164581.5133684,
+            1791164587.0847685
+          ],
+          [
+            1791164587.5895877,
+            1791164589.1047635
+          ],
+          [
+            1791164589.6125233,
+            1791164591.1288786
+          ],
+          [
+            1791164591.6355324,
+            1791164601.2546232
+          ],
+          [
+            1791164601.7615077,
+            1791164605.2972145
+          ],
+          [
+            1791164605.8046763,
+            1791164606.8145761
+          ],
+          [
+            1791164607.3193784,
+            1791164608.8352299
+          ],
+          [
+            1791164609.3399754,
+            1791164609.8459218
+          ],
+          [
+            1791164610.35074,
+            1791164614.9029412
+          ],
+          [
+            1791164615.4126496,
+            1791164616.9291384
+          ],
+          [
+            1791164617.4351285,
+            1791164617.9396276
+          ],
+          [
+            1791164618.4449434,
+            1791164618.9563386
+          ],
+          [
+            1791164619.4622178,
+            1791164621.9892364
+          ],
+          [
+            1791164622.4994464,
+            1791164623.0048306
+          ],
+          [
+            1791164623.5112612,
+            1791164629.099534
+          ],
+          [
+            1791164629.603696,
+            1791164631.1332154
+          ],
+          [
+            1791164631.6401427,
+            1791164635.1827652
+          ],
+          [
+            1791164635.6878185,
+            1791164641.2699387
+          ],
+          [
+            1791164641.7759202,
+            1791164645.8293693
+          ],
+          [
+            1791164646.3349345,
+            1791164648.872184
+          ],
+          [
+            1791164649.379357,
+            1791164649.8935452
+          ],
+          [
+            1791164650.399308,
+            1791164651.9188914
+          ],
+          [
+            1791164652.4240124,
+            1791164652.9313302
+          ],
+          [
+            1791164653.438173,
+            1791164655.4741116
+          ],
+          [
+            1791164657.495846,
+            1791164659.01577
+          ],
+          [
+            1791164659.5218306,
+            1791164660.0297036
+          ],
+          [
+            1791164660.5378284,
+            1791164661.0456567
+          ],
+          [
+            1791164661.5535424,
+            1791164665.1055546
+          ],
+          [
+            1791164665.6117902,
+            1791164671.1897345
+          ],
+          [
+            1791164671.695013,
+            1791164679.291034
+          ],
+          [
+            1791164679.7967486,
+            1791164682.8365686
+          ],
+          [
+            1791164683.3409,
+            1791164683.8454638
+          ],
+          [
+            1791164684.351261,
+            1791164685.8726113
+          ],
+          [
+            1791164686.378091,
+            1791164688.9098992
+          ],
+          [
+            1791164689.427753,
+            1791164692.9742246
+          ],
+          [
+            1791164693.4798868,
+            1791164693.9903507
+          ],
+          [
+            1791164694.4970357,
+            1791164696.0160737
+          ],
+          [
+            1791164696.5238178,
+            1791164697.0282965
+          ],
+          [
+            1791164697.5378375,
+            1791164699.0566733
+          ],
+          [
+            1791164699.561224,
+            1791164703.1062806
+          ],
+          [
+            1791164703.612825,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          [
+            1791164427.1584446,
+            1791164429.182873
+          ],
+          [
+            1791164429.688437,
+            1791164430.1926754
+          ],
+          [
+            1791164430.6982825,
+            1791164436.2642097
+          ],
+          [
+            1791164436.7700229,
+            1791164437.2791204
+          ],
+          [
+            1791164437.7839282,
+            1791164438.289116
+          ],
+          [
+            1791164438.7944028,
+            1791164440.8203602
+          ],
+          [
+            1791164441.3265717,
+            1791164446.886849
+          ],
+          [
+            1791164447.3926756,
+            1791164447.8974133
+          ],
+          [
+            1791164448.4015367,
+            1791164451.9537973
+          ],
+          [
+            1791164452.4613445,
+            1791164453.9801185
+          ],
+          [
+            1791164454.4850671,
+            1791164454.9909906
+          ],
+          [
+            1791164455.4972456,
+            1791164459.0363376
+          ],
+          [
+            1791164459.5425997,
+            1791164469.1583726
+          ],
+          [
+            1791164469.663168,
+            1791164470.1703038
+          ],
+          [
+            1791164470.6791272,
+            1791164471.1846082
+          ],
+          [
+            1791164471.6895547,
+            1791164476.2403963
+          ],
+          [
+            1791164476.746855,
+            1791164477.2524683
+          ],
+          [
+            1791164477.7578044,
+            1791164478.263635
+          ],
+          [
+            1791164478.7694206,
+            1791164486.8629875
+          ],
+          [
+            1791164487.3684378,
+            1791164489.9065137
+          ],
+          [
+            1791164490.412114,
+            1791164494.9634442
+          ],
+          [
+            1791164495.4699512,
+            1791164499.0162525
+          ],
+          [
+            1791164499.5209792,
+            1791164500.0286052
+          ],
+          [
+            1791164500.5366802,
+            1791164501.0413084
+          ],
+          [
+            1791164501.5478866,
+            1791164503.062903
+          ],
+          [
+            1791164503.5671184,
+            1791164504.0720797
+          ],
+          [
+            1791164504.5784104,
+            1791164505.0876946
+          ],
+          [
+            1791164505.5942848,
+            1791164508.1341429
+          ],
+          [
+            1791164508.6385531,
+            1791164510.1547642
+          ],
+          [
+            1791164510.6619332,
+            1791164515.2146752
+          ],
+          [
+            1791164515.719953,
+            1791164516.2245147
+          ],
+          [
+            1791164516.7342124,
+            1791164521.2873344
+          ],
+          [
+            1791164521.7946908,
+            1791164522.8090708
+          ],
+          [
+            1791164523.3156114,
+            1791164524.835028
+          ],
+          [
+            1791164525.3425615,
+            1791164526.8569663
+          ],
+          [
+            1791164527.3628507,
+            1791164527.8697877
+          ],
+          [
+            1791164528.376528,
+            1791164529.900455
+          ],
+          [
+            1791164530.405593,
+            1791164531.92073
+          ],
+          [
+            1791164532.4265575,
+            1791164535.9652205
+          ],
+          [
+            1791164536.471295,
+            1791164536.978482
+          ],
+          [
+            1791164537.4833462,
+            1791164539.0042262
+          ],
+          [
+            1791164539.509481,
+            1791164540.0152414
+          ],
+          [
+            1791164540.5215387,
+            1791164541.0281487
+          ],
+          [
+            1791164541.532704,
+            1791164547.099104
+          ],
+          [
+            1791164547.604633,
+            1791164551.1460218
+          ],
+          [
+            1791164551.652058,
+            1791164554.176077
+          ],
+          [
+            1791164554.6830082,
+            1791164556.2057652
+          ],
+          [
+            1791164556.7142215,
+            1791164561.2634861
+          ],
+          [
+            1791164561.7682106,
+            1791164565.8194845
+          ],
+          [
+            1791164566.3275418,
+            1791164573.9212146
+          ],
+          [
+            1791164574.4267697,
+            1791164574.9393344
+          ],
+          [
+            1791164575.4469352,
+            1791164575.953372
+          ],
+          [
+            1791164576.4585352,
+            1791164577.9751697
+          ],
+          [
+            1791164578.483493,
+            1791164582.0202625
+          ],
+          [
+            1791164582.5249271,
+            1791164595.187861
+          ],
+          [
+            1791164595.6924553,
+            1791164596.1967804
+          ],
+          [
+            1791164596.704124,
+            1791164599.233885
+          ],
+          [
+            1791164599.7384386,
+            1791164600.2443109
+          ],
+          [
+            1791164600.7490578,
+            1791164602.2653327
+          ],
+          [
+            1791164602.7721808,
+            1791164606.8145761
+          ],
+          [
+            1791164607.3193784,
+            1791164609.8459218
+          ],
+          [
+            1791164610.35074,
+            1791164611.868206
+          ],
+          [
+            1791164612.372863,
+            1791164614.9029412
+          ],
+          [
+            1791164615.4126496,
+            1791164617.9396276
+          ],
+          [
+            1791164618.4449434,
+            1791164624.0158613
+          ],
+          [
+            1791164624.5229402,
+            1791164625.029078
+          ],
+          [
+            1791164625.539517,
+            1791164627.0664456
+          ],
+          [
+            1791164627.581168,
+            1791164633.1588771
+          ],
+          [
+            1791164633.6650617,
+            1791164640.251156
+          ],
+          [
+            1791164640.758365,
+            1791164645.8293693
+          ],
+          [
+            1791164646.3349345,
+            1791164646.8446395
+          ],
+          [
+            1791164647.3554304,
+            1791164651.9188914
+          ],
+          [
+            1791164652.4240124,
+            1791164658.001104
+          ],
+          [
+            1791164658.5067544,
+            1791164663.0833764
+          ],
+          [
+            1791164663.5878947,
+            1791164664.0929465
+          ],
+          [
+            1791164664.5990121,
+            1791164666.1209295
+          ],
+          [
+            1791164666.626119,
+            1791164668.1477182
+          ],
+          [
+            1791164668.651879,
+            1791164669.158845
+          ],
+          [
+            1791164669.6659498,
+            1791164671.1897345
+          ],
+          [
+            1791164671.695013,
+            1791164672.2005994
+          ],
+          [
+            1791164672.7044964,
+            1791164674.2222383
+          ],
+          [
+            1791164674.7276726,
+            1791164676.253899
+          ],
+          [
+            1791164676.7591953,
+            1791164680.8127759
+          ],
+          [
+            1791164681.3182132,
+            1791164681.8242247
+          ],
+          [
+            1791164682.330625,
+            1791164682.8365686
+          ],
+          [
+            1791164683.3409,
+            1791164685.8726113
+          ],
+          [
+            1791164686.378091,
+            1791164691.9617703
+          ],
+          [
+            1791164692.46709,
+            1791164696.0160737
+          ],
+          [
+            1791164696.5238178,
+            1791164699.0566733
+          ],
+          [
+            1791164699.561224,
+            1791164700.067598
+          ],
+          [
+            1791164700.5727665,
+            1791164701.0813944
+          ],
+          [
+            1791164701.5878215,
+            1791164703.1062806
+          ],
+          [
+            1791164703.612825,
+            1791164704.1179252
+          ]
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          [
+            1791164427.1584446,
+            1791164654.9684863
+          ],
+          [
+            1791164657.495846,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-redis:aims-redis": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/api-gateway:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/auth-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/cart-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/catalog-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/inventory-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/order-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/search-recommendation-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ],
+        "production/security-telemetry-service:app": [
+          [
+            1791164427.1584446,
+            1791164704.6226716
+          ]
+        ]
+      },
+      "worker_ip": "10.1.16.238"
+    },
+    "10.1.16.239": {
+      "alerts_during_health_degraded": {},
+      "all_alerts": {},
+      "automatic_blind_evaluation": false,
+      "automatic_promotion": false,
+      "capture": {
+        "automatic_blind_evaluation": false,
+        "automatic_promotion": false,
+        "availability": 1,
+        "availability_valid": true,
+        "capture_sha256": "68434ae0d2f89562b43b754cb9737bfa2be89a8696f048a94473f53dd2bc931c",
+        "eligible_feature_exposure_seconds": {
+          "production/aims-frontend:web": 252.8225018978119,
+          "production/aims-kafka-dual-role:kafka": 293.8355920314789,
+          "production/aims-postgres-cnpg:postgres": 293.8355920314789,
+          "production/aims-rabbitmq-server:rabbitmq": 293.8355920314789,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 293.8355920314789,
+          "production/aims-redis:aims-redis": 293.8355920314789,
+          "production/aims-waypoint:istio-proxy": 293.8355920314789,
+          "production/api-gateway:app": 293.8355920314789,
+          "production/cart-service:app": 293.8355920314789,
+          "production/catalog-service:app": 293.8355920314789,
+          "production/notification-service:app": 293.8355920314789,
+          "production/order-service:app": 293.8355920314789,
+          "production/payment-service:app": 293.8355920314789,
+          "production/search-recommendation-service:app": 293.8355920314789,
+          "production/security-telemetry-service:app": 293.8355920314789
+        },
+        "eligible_feature_rows": {
+          "production/aims-frontend:web": 499,
+          "production/aims-kafka-dual-role:kafka": 580,
+          "production/aims-postgres-cnpg:postgres": 580,
+          "production/aims-rabbitmq-server:rabbitmq": 580,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 580,
+          "production/aims-redis:aims-redis": 580,
+          "production/aims-waypoint:istio-proxy": 1160,
+          "production/api-gateway:app": 1160,
+          "production/cart-service:app": 1160,
+          "production/catalog-service:app": 1160,
+          "production/notification-service:app": 580,
+          "production/order-service:app": 580,
+          "production/payment-service:app": 1160,
+          "production/search-recommendation-service:app": 1740,
+          "production/security-telemetry-service:app": 580
+        },
+        "errors": [],
+        "estimated_missing_snapshots": 0,
+        "excluded_seconds": 0,
+        "exposure_note": "feature-eligible exposure only; model warming and health exclusions still require decision/health evaluation",
+        "feature_rows": 12899,
+        "feature_states": {
+          "ready": 12679,
+          "rolling_history_fill": 2,
+          "snapshot_warming": 218
+        },
+        "hard_integrity_counters": {
+          "count_insert_fail": 0,
+          "snapshot_consistency_retry_exhausted": 0,
+          "snapshot_projection_fail": 0,
+          "snapshot_total_mismatch": 0,
+          "target_snapshot_gap": 0,
+          "task_state_update_fail": 0,
+          "transition_insert_fail": 0
+        },
+        "incidents": 0,
+        "integrity_valid": true,
+        "journal_rows": 591,
+        "legacy_normal_pass": false,
+        "maximum_gap_seconds": 0.5256955623626709,
+        "observed_snapshots": 591,
+        "operational_soak_pass": false,
+        "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+        "schema": "sentinel-pulse-recovery-capture-validation-v1",
+        "valid": true,
+        "workloads": {
+          "production/aims-frontend:web": 509,
+          "production/aims-kafka-dual-role:kafka": 590,
+          "production/aims-postgres-cnpg:postgres": 590,
+          "production/aims-rabbitmq-server:rabbitmq": 590,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 590,
+          "production/aims-redis:aims-redis": 590,
+          "production/aims-waypoint:istio-proxy": 1180,
+          "production/api-gateway:app": 1180,
+          "production/cart-service:app": 1180,
+          "production/catalog-service:app": 1180,
+          "production/notification-service:app": 590,
+          "production/order-service:app": 590,
+          "production/payment-service:app": 1180,
+          "production/search-recommendation-service:app": 1770,
+          "production/security-telemetry-service:app": 590
+        }
+      },
+      "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+      "decisions": 12899,
+      "detector_freshness_contract_sha256": "a5ca1b229e1c27c43750e8ecaec13f603bee88012c1a197f8424f195b943b3ba",
+      "errors": [],
+      "excluded_health_intervals": [],
+      "formal_recovery_pass": false,
+      "health_log_sha256": "95d0ae97bfb277463ad1f84d9d2132ff134193e7ae3727f7cb9bf2aa32c29d66",
+      "inputs_sha256": {
+        "COLLECTOR_RUNTIME_START.json": "75ce43959d3baef5969a039ae0e73e55a07ea18c217a0f4dec90a80df7daf62a",
+        "FORMAL_WORKER_START.json": "4c0437a729c06b48dcc135379f149929329dbabecf25ece31e363d37e6347f1b",
+        "START.json": "dbcad604b9e218d30fffdf7eca5669d707924ccfb2761dec58922e66e44f9708",
+        "alerts.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "decisions.jsonl": "6ed4d1bbaf8ccea9726f740aaaeb170060d26bd1bb641f0bca8913389a3afabe",
+        "features.jsonl": "68434ae0d2f89562b43b754cb9737bfa2be89a8696f048a94473f53dd2bc931c"
+      },
+      "kernel_to_alert_claim_allowed": false,
+      "legacy_normal_pass": false,
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-formal-node-report-v1",
+      "scored_rows": {
+        "production/aims-frontend:web": 455,
+        "production/aims-kafka-dual-role:kafka": 553,
+        "production/aims-postgres-cnpg:postgres": 553,
+        "production/aims-rabbitmq-server:rabbitmq": 553,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 553,
+        "production/aims-redis:aims-redis": 553,
+        "production/aims-waypoint:istio-proxy": 1106,
+        "production/api-gateway:app": 1106,
+        "production/cart-service:app": 1106,
+        "production/catalog-service:app": 1106,
+        "production/notification-service:app": 553,
+        "production/order-service:app": 553,
+        "production/payment-service:app": 1106,
+        "production/search-recommendation-service:app": 1659,
+        "production/security-telemetry-service:app": 553
+      },
+      "source_files_sha256": "627eca0da4ae1839d292ff25c65e6f519d17c56289580f6dbb6cb05ae733759e",
+      "statuses": {
+        "normal": 11844,
+        "suppressed": 224,
+        "telemetry-degraded": 744,
+        "warming": 87
+      },
+      "telemetry_profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+      "valid": true,
+      "valid_scored_intervals": {
+        "production/aims-frontend:web": [
+          [
+            1791164422.864242,
+            1791164423.3692183
+          ],
+          [
+            1791164423.876052,
+            1791164425.3962271
+          ],
+          [
+            1791164425.9008372,
+            1791164426.4083161
+          ],
+          [
+            1791164426.914515,
+            1791164435.0112426
+          ],
+          [
+            1791164435.5173101,
+            1791164437.0350308
+          ],
+          [
+            1791164439.5675023,
+            1791164452.2075896
+          ],
+          [
+            1791164454.73305,
+            1791164456.2576704
+          ],
+          [
+            1791164456.762682,
+            1791164464.3568366
+          ],
+          [
+            1791164464.862115,
+            1791164469.4257622
+          ],
+          [
+            1791164472.4821534,
+            1791164479.0964553
+          ],
+          [
+            1791164482.1337192,
+            1791164485.1698053
+          ],
+          [
+            1791164485.674601,
+            1791164489.215206
+          ],
+          [
+            1791164489.7205546,
+            1791164494.2847714
+          ],
+          [
+            1791164494.7942715,
+            1791164495.3015082
+          ],
+          [
+            1791164495.8071654,
+            1791164503.403934
+          ],
+          [
+            1791164503.9118586,
+            1791164509.478142
+          ],
+          [
+            1791164509.9839404,
+            1791164513.0264165
+          ],
+          [
+            1791164513.5340257,
+            1791164518.5950499
+          ],
+          [
+            1791164519.1011822,
+            1791164536.3222256
+          ],
+          [
+            1791164536.8277235,
+            1791164537.334128
+          ],
+          [
+            1791164537.8391309,
+            1791164542.3922076
+          ],
+          [
+            1791164542.8970695,
+            1791164546.4413373
+          ],
+          [
+            1791164546.9479637,
+            1791164547.4537153
+          ],
+          [
+            1791164547.9606948,
+            1791164554.0388753
+          ],
+          [
+            1791164554.5451903,
+            1791164558.0976632
+          ],
+          [
+            1791164558.6031764,
+            1791164559.1100874
+          ],
+          [
+            1791164559.616534,
+            1791164560.1253421
+          ],
+          [
+            1791164560.6326807,
+            1791164563.160294
+          ],
+          [
+            1791164563.6663086,
+            1791164566.198944
+          ],
+          [
+            1791164566.7044618,
+            1791164567.2090266
+          ],
+          [
+            1791164567.7135715,
+            1791164569.2302957
+          ],
+          [
+            1791164569.7365775,
+            1791164572.2675457
+          ],
+          [
+            1791164572.773271,
+            1791164573.2794292
+          ],
+          [
+            1791164573.785769,
+            1791164579.3585098
+          ],
+          [
+            1791164579.8634963,
+            1791164584.4160159
+          ],
+          [
+            1791164584.9232926,
+            1791164586.4458058
+          ],
+          [
+            1791164586.9537477,
+            1791164587.4584455
+          ],
+          [
+            1791164587.9664588,
+            1791164592.0305135
+          ],
+          [
+            1791164595.066854,
+            1791164597.096663
+          ],
+          [
+            1791164597.6022036,
+            1791164600.1393259
+          ],
+          [
+            1791164600.6466372,
+            1791164605.212828
+          ],
+          [
+            1791164605.7208343,
+            1791164606.2277281
+          ],
+          [
+            1791164606.7342257,
+            1791164617.369744
+          ],
+          [
+            1791164617.8750584,
+            1791164621.420771
+          ],
+          [
+            1791164621.9285438,
+            1791164628.0070617
+          ],
+          [
+            1791164628.5147681,
+            1791164637.1262429
+          ],
+          [
+            1791164637.6323977,
+            1791164639.1508305
+          ],
+          [
+            1791164639.6554961,
+            1791164643.201621
+          ],
+          [
+            1791164643.7066166,
+            1791164647.2481427
+          ],
+          [
+            1791164647.7544188,
+            1791164651.3102474
+          ],
+          [
+            1791164651.8153765,
+            1791164652.3212316
+          ],
+          [
+            1791164652.8303056,
+            1791164653.3381832
+          ],
+          [
+            1791164653.8461285,
+            1791164662.4710371
+          ],
+          [
+            1791164662.975118,
+            1791164663.4809604
+          ],
+          [
+            1791164663.9862614,
+            1791164665.5094001
+          ],
+          [
+            1791164666.0141306,
+            1791164668.037542
+          ],
+          [
+            1791164668.5455444,
+            1791164670.060575
+          ],
+          [
+            1791164670.5677226,
+            1791164676.1553237
+          ],
+          [
+            1791164676.6597593,
+            1791164678.1832917
+          ],
+          [
+            1791164678.6911583,
+            1791164679.195941
+          ],
+          [
+            1791164679.7042227,
+            1791164682.2397342
+          ],
+          [
+            1791164682.7467346,
+            1791164683.2541463
+          ],
+          [
+            1791164683.7591279,
+            1791164684.263905
+          ],
+          [
+            1791164686.7962227,
+            1791164688.3162887
+          ],
+          [
+            1791164690.8492982,
+            1791164692.3677342
+          ],
+          [
+            1791164692.8742447,
+            1791164693.3799472
+          ],
+          [
+            1791164693.8860092,
+            1791164698.4531615
+          ],
+          [
+            1791164698.9587069,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-redis:aims-redis": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/api-gateway:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/cart-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/catalog-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/notification-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/order-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/payment-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/search-recommendation-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ],
+        "production/security-telemetry-service:app": [
+          [
+            1791164422.864242,
+            1791164703.0064492
+          ]
+        ]
+      },
+      "worker_ip": "10.1.16.239"
+    }
+  },
+  "proof_sha256": {
+    "CONTRACT.json": "ed46c1b6787352f2880420b63a20fcf4a34a1183de4fb010f1974f5bb9a70781",
+    "DUPLICATE_WRITER_REJECTED.json": "ceecd39f89e489fff1165273596cd35d31b0e47daf1d2490e840136a63435981",
+    "FAULT_EVENT.json": "62febe08e60f21b9faccd15761dfc028e96797544d5f5825159f6532fbceec00",
+    "FAULT_RESERVED.json": "d4aa8bbb580d0608d97dc2ffd9bc364b7404a009f1770eccbf6bad7da4168483"
+  },
+  "raw_worker_streams_copied_to_host": false,
+  "report": {
+    "all_alerts": 0,
+    "all_alerts_per_valid_workload_hour": 0,
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "diagnostic_integrity_gate": true,
+    "diagnostic_only": true,
+    "false_positive_ground_truth_adjudicated": false,
+    "formal_recovery_pass": false,
+    "kernel_to_alert_claim_allowed": false,
+    "legacy_normal_pass": false,
+    "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+    "node_reports_sha256": {
+      "10.1.16.237": "3d9b3d8e7023eeb526c8c88a4c063b2d7b3c5e83391682bdfa0acf06dba779fb",
+      "10.1.16.238": "16cf956528ac4737d9cb8c2d3653e607b79eade7bc1e0232da5fd81fab963aa3",
+      "10.1.16.239": "2634b2e754a2dbf2ae5f141e6d84c31db6bcfc5ccb44323a9564a610c5590780"
+    },
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "schema": "sentinel-pulse-recovery-formal-report-v1",
+    "total_valid_workload_hours": 1.633749680320422,
+    "workloads": {
+      "production/aims-frontend:web": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.07679906878206465
+      },
+      "production/aims-kafka-dual-role:kafka": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/aims-kafka-entity-operator:topic-operator": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0770733963780933
+      },
+      "production/aims-kafka-entity-operator:user-operator": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0770733963780933
+      },
+      "production/aims-minio-pool-0:minio": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.07600866887304518
+      },
+      "production/aims-minio-pool-0:sidecar": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.07598887046178182
+      },
+      "production/aims-postgres-cnpg:postgres": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/aims-rabbitmq-server:rabbitmq": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/aims-redis:aims-redis": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/aims-waypoint:istio-proxy": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/api-gateway:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/auth-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0778775139649709
+      },
+      "production/cart-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/catalog-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/inventory-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0778775139649709
+      },
+      "production/notification-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0779282432132297
+      },
+      "production/order-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/payment-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0779282432132297
+      },
+      "production/search-recommendation-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      },
+      "production/security-telemetry-service:app": {
+        "all_alerts": 0,
+        "all_alerts_per_valid_hour": 0,
+        "exposure_gate": false,
+        "rate_gate": true,
+        "valid_scored_hours": 0.0782662304242452
+      }
+    }
+  },
+  "resume_events": [
+    {
+      "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+      "previous_checked_at_unix": 1791164423.8112736,
+      "registration_replaced": false,
+      "resumed_at_unix": 1791164425.2922938,
+      "run_id": "pulse-recovery-resume-c1-20261005",
+      "schema": "sentinel-pulse-recovery-coordinator-resume-v1",
+      "source_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+      "worker_relaunch": false
+    }
+  ],
+  "reviewed_at_unix": 1791164768.699153,
+  "root": "/home/dat/sentinel-pulse-recovery-coordinator-runs/pulse-recovery-resume-c1-20261005",
+  "run_id": "pulse-recovery-resume-c1-20261005",
+  "schema": "sentinel-pulse-coordinator-resume-review-v1",
+  "terminal": {
+    "automatic_blind_evaluation": false,
+    "automatic_promotion": false,
+    "cleanup": {},
+    "diagnostic_integrity_gate": true,
+    "diagnostic_only": true,
+    "finished_at_unix": 1791164725.8790157,
+    "formal_recovery_pass": false,
+    "kernel_to_alert_claim_allowed": false,
+    "marker_sha256": "81584635cc9898f10ab250bcd0bfd5fa26c8f9be1ae37e614be4f762f30553a8",
+    "reason": null,
+    "run_id": "pulse-recovery-resume-c1-20261005",
+    "schema": "sentinel-pulse-recovery-coordinator-terminal-v1"
+  },
+  "units": {
+    "sentinel-pulse-recovery-resume-c1-20261005.service": {
+      "ActiveState": "failed",
+      "ExecMainStatus": "9",
+      "NRestarts": "0",
+      "Result": "signal"
+    },
+    "sentinel-pulse-recovery-resumed-c1-20261005.service": {
+      "ActiveState": "inactive",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    },
+    "sentinel-pulse-resume-diagnostic-driver-c1-20261005.service": {
+      "ActiveState": "inactive",
+      "ExecMainStatus": "0",
+      "NRestarts": "0",
+      "Result": "success"
+    }
+  }
+}

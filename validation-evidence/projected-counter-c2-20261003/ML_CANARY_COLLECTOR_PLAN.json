@@ -1,0 +1,10 @@
+{
+  "schema": "sentinel-pulse-projected-ml-canary-plan-v1",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "workers": {
+    "10.1.16.237": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c1-20261002T101900Z",
+    "10.1.16.238": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+    "10.1.16.239": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z"
+  }
+}

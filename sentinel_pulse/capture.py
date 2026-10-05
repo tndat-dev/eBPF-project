@@ -11,6 +11,9 @@ import time
 
 from .features import PulseFeatureBuilder, PulseSnapshot
 from .encoding import compact_record
+from .telemetry_recovery import (
+    RecoveryTracker, SNAPSHOT_SCHEMA, feature_eligibility, load_profile,
+)
 
 
 class SnapshotAssembler:
@@ -98,7 +101,8 @@ def workload_key(metadata: dict) -> str:
 def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
         interval_min_seconds: float | None = None,
         interval_max_seconds: float | None = None,
-        nominal_interval_seconds: float | None = None) -> dict:
+        nominal_interval_seconds: float | None = None,
+        recovery_profile: dict | None = None) -> dict:
     if (interval_min_seconds is None) != (interval_max_seconds is None):
         raise ValueError("both capture interval bounds must be provided")
     if interval_min_seconds is not None and not (
@@ -108,6 +112,14 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
     if nominal_interval_seconds is not None and nominal_interval_seconds <= 0:
         raise ValueError("nominal capture interval must be positive")
     assembler = SnapshotAssembler()
+    recovery = RecoveryTracker(recovery_profile) if recovery_profile is not None else None
+    if recovery is not None and (
+        rolling_windows != recovery.profile["rolling_windows"]
+        or interval_min_seconds != recovery.profile["interval_min_seconds"]
+        or interval_max_seconds != recovery.profile["interval_max_seconds"]
+        or nominal_interval_seconds != recovery.profile["nominal_interval_seconds"]
+    ):
+        raise ValueError("capture configuration differs from recovery profile")
     builders: dict[tuple[str, str, str, str], PulseFeatureBuilder] = {}
     emitted = 0
     malformed = 0
@@ -126,6 +138,8 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             record = json.loads(line)
         except json.JSONDecodeError:
             malformed += 1
+            if recovery is not None:
+                raise ValueError("malformed loader JSON in recovery mode")
             continue
         if record.get("type") != "snapshot_end":
             assembler.add(record)
@@ -196,6 +210,11 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             ):
                 short_interval_events += 1
         snapshots, collector_stats = assembler.snapshots(observed_at)
+        received_at = time.time()
+        recovery_state = None
+        if recovery is not None:
+            recovery_state = recovery.step(
+                observed_at, received_at, collector_stats, snapshot_read_seconds)
         expected_snapshots = observed_snapshots + estimated_missing_snapshots
         telemetry_availability = (
             observed_snapshots / expected_snapshots if expected_snapshots else 0.0
@@ -217,6 +236,12 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             ),
         }
         prepared = []
+        if recovery is not None:
+            prepared.append({
+                "schema": SNAPSHOT_SCHEMA, "observed_at": observed_at,
+                "received_at": received_at, "snapshot_read_seconds": snapshot_read_seconds,
+                "collector_stats": collector_stats, "recovery": recovery_state,
+            })
         for snapshot in snapshots:
             item = metadata.get(str(snapshot.cgroup_id))
             if item is None:
@@ -232,6 +257,7 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             builder = builders.setdefault(
                 source_identity, PulseFeatureBuilder(rolling_windows=rolling_windows)
             )
+            history_before = builder.history_windows_available(snapshot.cgroup_id)
             feature = builder.ingest(snapshot, key)
             if feature is None:
                 continue
@@ -256,8 +282,38 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
                 snapshot_interval_seconds
             )
             output["collector_telemetry_availability"] = telemetry_state
+            if recovery is not None:
+                eligible, reason = feature_eligibility(
+                    recovery_state, recovery.profile, history_before,
+                    feature.window_start, feature.window_end, output["emitted_at"])
+                output["telemetry_recovery"] = {
+                    "profile_sha256": recovery.profile_sha256,
+                    "snapshot_sequence": recovery_state["sequence"],
+                    "epoch": recovery_state["epoch"],
+                    "eligible": eligible, "reason": reason,
+                    "rolling_history_before": history_before,
+                }
+                if reason in {"source_cadence", "feature_ingest_lag"}:
+                    replacement = PulseFeatureBuilder(rolling_windows=rolling_windows)
+                    replacement.ingest(snapshot, key)
+                    builders[source_identity] = replacement
             prepared.append(output)
             emitted += 1
+        if recovery is not None and recovery_state["reset_required"]:
+            # Retain the bad delta as a quarantined diagnostic feature, but
+            # never allow its rate into subsequent rolling features.
+            builders.clear()
+            for snapshot in snapshots:
+                item = metadata.get(str(snapshot.cgroup_id))
+                if item is None:
+                    continue
+                identity = (str(item.get("node_name", "unknown-node")),
+                            str(item.get("pod_uid", "unknown-pod")),
+                            str(item.get("container_name", "unknown-container")),
+                            str(snapshot.cgroup_id))
+                builder = PulseFeatureBuilder(rolling_windows=rolling_windows)
+                builder.ingest(snapshot, workload_key(item))
+                builders[identity] = builder
         if prepared:
             destination.write(
                 "".join(
@@ -268,6 +324,8 @@ def run(source, destination, metadata_file: Path, rolling_windows: int = 5,
             # One flush per BPF snapshot bounds visibility latency without
             # forcing one userspace write/flush per workload row.
             destination.flush()
+        if recovery is not None and recovery_state["status"] == "fatal":
+            raise ValueError("fatal recovery integrity error: " + "; ".join(recovery_state["reasons"]))
     return {"emitted": emitted, "malformed": malformed, "unresolved": unresolved}
 
 
@@ -279,12 +337,15 @@ def main() -> None:
     parser.add_argument("--interval-min-seconds", type=float)
     parser.add_argument("--interval-max-seconds", type=float)
     parser.add_argument("--nominal-interval-seconds", type=float)
+    parser.add_argument("--recovery-profile", type=Path,
+                        help="opt-in quarantine journal; not a legacy formal capture")
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("a", encoding="utf-8") as destination:
         stats = run(sys.stdin, destination, args.metadata_file, args.rolling_windows,
                     args.interval_min_seconds, args.interval_max_seconds,
-                    args.nominal_interval_seconds)
+                    args.nominal_interval_seconds,
+                    load_profile(args.recovery_profile) if args.recovery_profile else None)
     print(json.dumps(stats), file=sys.stderr)
 
 

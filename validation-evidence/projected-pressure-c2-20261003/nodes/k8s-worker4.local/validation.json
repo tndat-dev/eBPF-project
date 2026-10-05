@@ -1,0 +1,85 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "adbf455f37b42558635a9acaebc46f3203cd956612915b75229b175987a55329",
+  "collector_max_drops": {
+    "capture_interval_violation": 1,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [
+    "telemetry cadence: maximum gap 13.208959s exceeds 10.000000s",
+    "telemetry availability 0.990699405 is below 0.999000000"
+  ],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 13.416420936584473,
+    "p50": 0.018110275268554688,
+    "p95": 0.03235435485839844,
+    "p99": 0.04017440080642703
+  },
+  "interval_seconds": {
+    "max": 13.208959102630615,
+    "p50": 0.5059490203857422,
+    "p95": 0.5093050003051758,
+    "p99": 0.51253342628479
+  },
+  "path": "/var/lib/sentinel-pulse-500ms/runs/pulse-projected-pressure-c2-20261003T163700Z/features.jsonl",
+  "rows": 59986,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 2.977631092,
+    "p50": 0.003851175,
+    "p95": 0.006483555,
+    "p99": 0.009156466
+  },
+  "telemetry_availability": {
+    "availability": 0.9906994047619048,
+    "cadence_violation_events": 1,
+    "delayed_interval_events": 1,
+    "estimated_missing_snapshots": 25,
+    "maximum_gap_seconds": 13.208959102630615,
+    "observed_snapshots": 2663,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "window_start_to_emit_seconds": {
+    "max": 13.928285837173462,
+    "p50": 0.5242900848388672,
+    "p95": 0.539099931716919,
+    "p99": 0.5475194692611695
+  },
+  "workloads": {
+    "production/aims-frontend:web": 2306,
+    "production/aims-kafka-dual-role:kafka": 2631,
+    "production/aims-kafka-entity-operator:topic-operator": 2663,
+    "production/aims-kafka-entity-operator:user-operator": 2663,
+    "production/aims-minio-pool-0:minio": 2316,
+    "production/aims-minio-pool-0:sidecar": 2174,
+    "production/aims-postgres-cnpg:postgres": 2662,
+    "production/aims-rabbitmq-server:rabbitmq": 2663,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2663,
+    "production/aims-redis:aims-redis": 2663,
+    "production/aims-waypoint:istio-proxy": 2663,
+    "production/api-gateway:app": 2663,
+    "production/auth-service:app": 5326,
+    "production/cart-service:app": 5325,
+    "production/catalog-service:app": 2647,
+    "production/inventory-service:app": 5324,
+    "production/order-service:app": 5308,
+    "production/search-recommendation-service:app": 2663,
+    "production/security-telemetry-service:app": 2663
+  }
+}

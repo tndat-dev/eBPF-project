@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from sentinel_pulse.evaluate_operational_latency import evaluate
 
 
@@ -50,3 +52,21 @@ def test_operational_latency_is_marker_bound_and_not_attack_latency(tmp_path):
     assert report["window_start_to_decision_over_2s"] == 1
     assert report["latency"]["inference_ms"]["p99"] == 3.0
     assert report["true_attack_kernel_to_alert_claim"] is False
+    assert report["full_policy_latency_measured"] is False
+    assert report["alert_output_latency_measured"] is False
+    assert "before policy" in report["timestamp_semantics"]["alerted_at"]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("inference_ms", -3.0),
+    ("post_window_processing_seconds", 1.5),
+])
+def test_operational_latency_rejects_invalid_or_inconsistent_measurements(tmp_path, field, value):
+    marker = tmp_path / "SOAK_START.json"
+    _marker(marker)
+    row = _decision(101.0, 0.2)
+    row[field] = value
+    decisions = tmp_path / "decisions.jsonl"
+    decisions.write_text(json.dumps(row) + "\n")
+    with pytest.raises(ValueError):
+        evaluate([decisions], marker)

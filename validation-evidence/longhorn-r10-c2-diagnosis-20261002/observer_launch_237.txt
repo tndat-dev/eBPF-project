@@ -1,0 +1,5 @@
+Running as unit: sentinel-pulse-infra-r10c2-20261002.service; invocation ID: af590804dfc34884a1d57df0e74bc455
+Result=success
+ExecMainStartTimestamp=Fri 2026-10-02 03:24:00 UTC
+ActiveState=active
+SubState=running

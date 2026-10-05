@@ -1,0 +1,33 @@
+{
+  "accuracy_claim_allowed": false,
+  "alerts": 1,
+  "automatic_promotion": false,
+  "candidate_status": "rejected_normal_gate",
+  "created_at": "2026-10-03T17:02:31.268957+00:00",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "decisions": 179034,
+  "disposition": "development normal failure; candidate must not be promoted",
+  "failure_class": "normal_alert_observed",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "nodes": {
+    "k8s-worker1.local": {
+      "alerts": 0,
+      "decisions": 60386,
+      "terminal": "complete"
+    },
+    "k8s-worker3.local": {
+      "alerts": 0,
+      "decisions": 59499,
+      "terminal": "complete"
+    },
+    "k8s-worker4.local": {
+      "alerts": 1,
+      "decisions": 59149,
+      "terminal": "failed_gate"
+    }
+  },
+  "normal_only": true,
+  "run_id": "pulse-projected-pressure-c2-20261003T163700Z",
+  "schema": "sentinel-pulse-bounded-normal-failure-v1",
+  "valid_zero_alert_gate": false
+}

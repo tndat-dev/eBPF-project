@@ -1,0 +1,26 @@
+{
+  "schema": "sentinel-pulse-scoped-source-sync-v1",
+  "checked_at_utc": "2026-10-05 02:10:08 UTC",
+  "host_root": "/home/tndat/Downloads/eBPF-project",
+  "vm_root": "/home/dat/eBPF-project-main-0aa73e2",
+  "verified_file_count": 13,
+  "files_sha256": {
+    "SENTINEL_PULSE_REPORT.md": "2b54f2f16539f0961067e64bfe8dd5b6f5484de6bae0b300e5fcd54f6293626d",
+    "TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md": "fcb1fd2430b702a218a8fce337ecca61b07d83c58b2b565bb87724cca359c446",
+    "PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md": "a4f298e8526b1800cada84675175fcf99dcc970d5822362c45d083f796d13aac",
+    "PULSE_TELEMETRY_RECOVERY.md": "587fbeb409de08de2f698a137fdc83d5f0d6248bc43c781510ca2150147ade5f",
+    "sentinel-pulse.md": "e02b7cb10ccd76613476f882211dc9b9f45bc3ad8c0d57603aa4121e3ca475c0",
+    "sentinel_pulse/README.md": "cdd0b4d8e9a6da2c6c27545fec4beea120de6e9eff7ebee30737158463f4890e",
+    "SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md": "bff571220df69408de7b2d0ad5e0c4a3e568cc52fe117f19b3986be86f6c3664",
+    "DOCS_INDEX.md": "499ba83115b9a18c277a10725677b7d46ac2ef1dad90a594dd81939c767379c6",
+    "OPERATIONAL_SOAK_RUNBOOK.md": "f253c93340171444f6664a9245167668bb9bce1986cb2f179de85743f0762e82",
+    "sentinel_pulse/recovery_coordinator.py": "12e081425a03b2568b9f2787ec85a6e413c1507b563cb030b3ecc0199aca9d1e",
+    "tests/test_sentinel_pulse_recovery_coordinator.py": "39ebdde6f8545815a7cc8f8e741e436983d0a1caf0c8b0dafa045a265033b327",
+    "sentinel_pulse/recovery_capacity_guard.py": "bc5c3ea6d9ac2b7184d7e6162e881f0878cad4934c46ff529f7d30e68d04695f",
+    "tests/test_sentinel_pulse_recovery_capacity_guard.py": "e7820d6ffbf19b324b0386306ed04129f590b1908bf120176c235530d2b92896"
+  },
+  "coordinator_frozen_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+  "frozen_runtime_checkout_unchanged": true,
+  "scope": "Explicit changed code/tests/docs only; not a claim of complete worktree equality",
+  "verification_completed_before_requested_git_commit": true
+}

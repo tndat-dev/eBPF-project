@@ -1,0 +1,40 @@
+{
+  "automatic_promotion": false,
+  "blind_evaluation_started": false,
+  "control_collector_suspended_hosts": [
+    "10.1.16.237",
+    "10.1.16.239",
+    "10.1.16.238"
+  ],
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "eligible_finalize_after": "2026-10-01T03:17:45.501233+00:00",
+  "legacy_control_collector_required_state": "inactive",
+  "maintenance_window_guard": {
+    "required_state": "masked",
+    "units": [
+      "unattended-upgrades.service",
+      "apt-daily.timer",
+      "apt-daily-upgrade.timer"
+    ]
+  },
+  "maximum_alerts": 0,
+  "maximum_root_used_percent": 80,
+  "minimum_coverage_ratio_per_workload": 0.95,
+  "minimum_duration_hours_per_workload": 24.0,
+  "minimum_root_available_bytes": 68719476736,
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "registered_collector_duration_seconds": 86400,
+  "run_id": "pulse500-normal-r10-c1-20260930",
+  "schema": "sentinel-pulse-semantic-soak-start-v8",
+  "source_git_commit": "34b62c4e749dece798a2fc45beb45e4631c7cd45",
+  "started_not_before": "2026-09-30T03:17:45.501233+00:00",
+  "storage_topology_guard": {
+    "colocated_running_replicas": 0,
+    "duplicate_longhorn_disk_uuids": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  }
+}

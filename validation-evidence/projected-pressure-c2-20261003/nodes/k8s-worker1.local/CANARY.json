@@ -1,0 +1,103 @@
+{
+  "accuracy_claim_allowed": false,
+  "alerts": 0,
+  "automatic_promotion": false,
+  "collector_duration_seconds": 1431.1014382839203,
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "collector_rows": 61120,
+  "collector_valid": true,
+  "collector_window_start_to_emit_seconds": {
+    "max": 0.7153012752532959,
+    "p50": 0.5235743522644043,
+    "p95": 0.5398669719696045,
+    "p99": 0.5511935353279114
+  },
+  "collector_workloads": 16,
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "decisions": 60386,
+  "detector_restarts": 0,
+  "evidence_class": "nonformal_live_normal_canary",
+  "inference_ms": {
+    "count": 60317,
+    "max": 187.0322274044156,
+    "mean": 18.63250723272936,
+    "p50": 17.67351385205984,
+    "p95": 26.094143651425835,
+    "p99": 31.35270660743116
+  },
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "node_name": "k8s-worker1.local",
+  "post_window_processing_seconds": {
+    "count": 60317,
+    "max": 0.9015653133392334,
+    "mean": 0.2778016932892076,
+    "p50": 0.27430081367492676,
+    "p95": 0.481944465637207,
+    "p99": 0.5663575267791743
+  },
+  "run_id": "pulse-projected-pressure-c2-20261003T163700Z",
+  "schema": "sentinel-pulse-live-normal-canary-v1",
+  "status_counts": {
+    "normal": 59990,
+    "suppressed": 327,
+    "warming": 69
+  },
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 2818,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": true,
+  "window_start_to_alert_seconds": {
+    "count": 60317,
+    "max": 1.4130182266235352,
+    "mean": 0.7841725108189374,
+    "p50": 0.7804512977600098,
+    "p95": 0.9888877391815185,
+    "p99": 1.0740705013275145
+  },
+  "window_start_to_decision_seconds": {
+    "count": 60317,
+    "max": 1.4130182266235352,
+    "mean": 0.7841725108189374,
+    "p50": 0.7804512977600098,
+    "p95": 0.9888877391815185,
+    "p99": 1.0740705013275145
+  },
+  "workloads": [
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/notification-service:app",
+    "production/order-service:app",
+    "production/payment-service:app",
+    "production/security-telemetry-service:app"
+  ]
+}

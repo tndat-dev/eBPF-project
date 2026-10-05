@@ -1,0 +1,36 @@
+{
+  "checked_at_unix": 1790997660.3903136,
+  "ACTIVE": true,
+  "FAILED": false,
+  "COMPLETE": false,
+  "last_monitor_rows": [
+    {
+      "schema": "sentinel-pulse-bounded-supervisor-row-v1",
+      "observed_at": "2026-10-03T03:20:53.462600+00:00",
+      "node": "k8s-worker1.local",
+      "terminal_state": "active",
+      "decisions": 17663,
+      "alerts": 0,
+      "finalizer_state": "activating"
+    },
+    {
+      "schema": "sentinel-pulse-bounded-supervisor-row-v1",
+      "observed_at": "2026-10-03T03:20:55.005809+00:00",
+      "node": "k8s-worker3.local",
+      "terminal_state": "active",
+      "decisions": 16378,
+      "alerts": 0,
+      "finalizer_state": "activating"
+    },
+    {
+      "schema": "sentinel-pulse-bounded-supervisor-row-v1",
+      "observed_at": "2026-10-03T03:20:57.470511+00:00",
+      "node": "k8s-worker4.local",
+      "terminal_state": "active",
+      "decisions": 15277,
+      "alerts": 0,
+      "finalizer_state": "activating"
+    }
+  ],
+  "supervisor": "ExecMainStatus=0\nActiveState=active\nSubState=running\n"
+}

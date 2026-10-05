@@ -1,0 +1,130 @@
+{
+  "checked_at_unix": 1790996407.4591491,
+  "node": "10.1.16.238",
+  "files": {
+    "START.json": {
+      "schema": "sentinel-pulse-projected-counter-canary-start-v1",
+      "run_id": "pulse-projected-counter-c2-20261003T024600Z",
+      "started_at_unix": 1790995452.6024294,
+      "registered_duration_seconds": 900,
+      "kernel": "6.8.0-138-generic",
+      "window_seconds": 0.5,
+      "evidence_class": "nonformal_collector_projection_safety_canary",
+      "control_collector_remains_active": true,
+      "ML_evaluation": false,
+      "automatic_promotion": false,
+      "source_root": "/home/dat/pulse-counter-projection-canary-20261003",
+      "sha256": {
+        "sentinel_pulse/ebpf/pulse_counter_projected_loader": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+        "sentinel_pulse/ebpf/pulse_counter_projected.bpf.o": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+        "sentinel_pulse/ebpf/pulse_counter.bpf.c": "d484a7decec0173455d13a5258b619ded20b470bb5c3054d7c8719dd18eb0174",
+        "sentinel_pulse/ebpf/pulse_counter_loader.c": "0118e8c00525ec61078d49a5bc88ee02ea890fa537576cf4f53785ef7072abb3",
+        "sentinel_pulse/ebpf/pulse_counter_projection.h": "2ac76011710245b6c11438540482529cc4b1106e9b786447f58f08143c8e0912",
+        "sentinel_pulse/ebpf/pulse_counter_ids.h": "52569e225f2b0678d60855a724dce7bc3b7546bb003334b2964a546d75c51b2f",
+        "sentinel_pulse/capture.py": "069e3a1009f080fb45aff9b1b24e8cc043369a66f625e407ae259ced46bfb353",
+        "sentinel_pulse/features.py": "cc8b52509c0fafd26b476a4bc3acd9c20eccda75a57a1bb504da1f20c082ebb6",
+        "sentinel_pulse/encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+        "sentinel_pulse/validate_capture.py": "dd4134bf777c36bbd68a1cef4393c66a3e7c721867e72be847862f91e63c256f",
+        "sentinel_pulse/run_projected_counter_canary.sh": "b5d26fd99debe1296599642b24224881f7b1df57213b78a2fba626aef2ad7851"
+      }
+    },
+    "TERMINAL.json": {
+      "schema": "sentinel-pulse-projected-counter-canary-terminal-v1",
+      "completed_at_unix": 1790996357.1264317,
+      "capture_exit_code": 0,
+      "validation_exit_code": 0,
+      "automatic_promotion": false,
+      "ML_evaluation": false
+    },
+    "VALIDATION.json": {
+      "accepted_interval_seconds": {
+        "maximum": 0.8,
+        "minimum": 0.35
+      },
+      "capture_sha256": "e4b0731115323f12c63604af35bea7e406ab24a704e3c113396d3082f8334b38",
+      "collector_max_drops": {
+        "capture_interval_violation": 0,
+        "count_insert_fail": 0,
+        "snapshot_consistency_retry_exhausted": 0,
+        "snapshot_projection_fail": 0,
+        "snapshot_total_mismatch": 0,
+        "target_snapshot_gap": 0,
+        "task_state_update_fail": 0,
+        "transition_insert_fail": 0
+      },
+      "errors": [],
+      "feature_dim": 249,
+      "ingest_lag_seconds": {
+        "max": 0.0554351806640625,
+        "p50": 0.015557289123535156,
+        "p95": 0.02898340225219726,
+        "p99": 0.03536026477813723
+      },
+      "interval_seconds": {
+        "max": 0.5151050090789795,
+        "p50": 0.5058212280273438,
+        "p95": 0.5091989040374756,
+        "p99": 0.5110149383544922
+      },
+      "path": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z/features.jsonl",
+      "rows": 40075,
+      "schema": "sentinel-pulse-capture-validation-v1",
+      "snapshot_read_seconds": {
+        "max": 0.012539387,
+        "p50": 0.003737211,
+        "p95": 0.006307364,
+        "p99": 0.007863045
+      },
+      "telemetry_availability": {
+        "availability": 1,
+        "cadence_violation_events": 0,
+        "delayed_interval_events": 0,
+        "estimated_missing_snapshots": 0,
+        "maximum_gap_seconds": 0,
+        "observed_snapshots": 1775,
+        "short_interval_events": 0
+      },
+      "telemetry_availability_contract": {
+        "maximum_single_gap_seconds": 0.8,
+        "minimum_availability": 1,
+        "nominal_interval_seconds": 0.5
+      },
+      "valid": true,
+      "window_start_to_emit_seconds": {
+        "max": 0.5619051456451416,
+        "p50": 0.5217583179473877,
+        "p95": 0.5354768991470337,
+        "p99": 0.5420879030227662
+      },
+      "workloads": {
+        "production/aims-frontend:web": 1514,
+        "production/aims-kafka-dual-role:kafka": 1775,
+        "production/aims-kafka-entity-operator:topic-operator": 1775,
+        "production/aims-kafka-entity-operator:user-operator": 1775,
+        "production/aims-minio-pool-0:minio": 1546,
+        "production/aims-minio-pool-0:sidecar": 1515,
+        "production/aims-postgres-cnpg:postgres": 1775,
+        "production/aims-rabbitmq-server:rabbitmq": 1775,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1775,
+        "production/aims-redis:aims-redis": 1775,
+        "production/aims-waypoint:istio-proxy": 1775,
+        "production/api-gateway:app": 1775,
+        "production/auth-service:app": 3550,
+        "production/cart-service:app": 3550,
+        "production/catalog-service:app": 1775,
+        "production/inventory-service:app": 3550,
+        "production/order-service:app": 3550,
+        "production/search-recommendation-service:app": 1775,
+        "production/security-telemetry-service:app": 1775
+      }
+    }
+  },
+  "units": {
+    "sentinel-pulse-projection-canary-20261003.service": "ExecMainStatus=0\nActiveState=inactive\nSubState=dead\n",
+    "sentinel-pulse-collector.service": "ExecMainStatus=0\nActiveState=active\nSubState=running\n",
+    "sentinel-pulse-resolver.service": "ExecMainStatus=0\nActiveState=active\nSubState=running\n",
+    "sentinel-pulse-detector-candidate.service": "ExecMainStatus=15\nActiveState=inactive\nSubState=dead\n"
+  },
+  "capture_sha256": "e4b0731115323f12c63604af35bea7e406ab24a704e3c113396d3082f8334b38",
+  "capture_bytes": 75914509
+}

@@ -143,6 +143,8 @@ def load_sequences(
                 continue
             if record.get("schema") != "sentinel-pulse-feature-v1":
                 raise ValueError(f"line {line_number}: unsupported schema")
+            if "telemetry_recovery" in record:
+                raise ValueError("recovery evaluation captures are not admitted for training")
             if "columns" in record:
                 if columns is None:
                     columns = record["columns"]
@@ -210,6 +212,8 @@ def load_workload_revisions(
     with path.open(encoding="utf-8") as handle:
         for line in handle:
             record = json.loads(line)
+            if "telemetry_recovery" in record or record.get("schema") == "sentinel-pulse-recovery-snapshot-v1":
+                raise ValueError("recovery evaluation captures are not admitted for training")
             if record.get("schema") != "sentinel-pulse-feature-v1":
                 continue
             workload = record.get("workload_key")

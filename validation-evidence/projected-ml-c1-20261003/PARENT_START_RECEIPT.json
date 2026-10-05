@@ -1,0 +1,26 @@
+{
+  "checked_at_unix": 1790997344.0063736,
+  "START": {
+    "automatic_promotion": false,
+    "blind_outcome_used": false,
+    "collector_variant": "projected",
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "duration_seconds": 900,
+    "evidence_class": "nonformal_live_normal_canary",
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "normal_only": true,
+    "remote_source_root": "/home/dat/sentinel-pulse-bounded-canary-pulse-projected-ml-c1-20261003T031200Z",
+    "run_id": "pulse-projected-ml-c1-20261003T031200Z",
+    "schema": "sentinel-pulse-bounded-live-canary-start-v1",
+    "started_at": "2026-10-03T03:13:29.106523+00:00",
+    "telemetry_availability_contract": {
+      "maximum_single_gap_seconds": 0.8,
+      "minimum_availability": 1,
+      "nominal_interval_seconds": 0.5
+    }
+  },
+  "ACTIVE": true,
+  "START_FAILED": false,
+  "workers": "10.1.16.237 k8s-worker1.local sentinel-pulse-bounded-canary-finalize-pulse-projected-ml-c1-20261003T031200Z\n10.1.16.239 k8s-worker3.local sentinel-pulse-bounded-canary-finalize-pulse-projected-ml-c1-20261003T031200Z\n10.1.16.238 k8s-worker4.local sentinel-pulse-bounded-canary-finalize-pulse-projected-ml-c1-20261003T031200Z\n",
+  "supervisor": "ExecMainStatus=0\nActiveState=active\nSubState=running\n"
+}

@@ -1,0 +1,78 @@
+{
+  "accepted_interval_seconds": {
+    "maximum": 0.8,
+    "minimum": 0.35
+  },
+  "capture_sha256": "12102c6075ecf74d2240fd3ca00999d12af1e4d9567fb5bebef5c34370e3f10c",
+  "collector_max_drops": {
+    "capture_interval_violation": 0,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "errors": [],
+  "feature_dim": 249,
+  "ingest_lag_seconds": {
+    "max": 0.07057547569274902,
+    "p50": 0.017544865608215332,
+    "p95": 0.03255960941314697,
+    "p99": 0.041161165237426744
+  },
+  "interval_seconds": {
+    "max": 0.526982307434082,
+    "p50": 0.5056829452514648,
+    "p95": 0.5094871520996094,
+    "p99": 0.5150208473205566
+  },
+  "path": "/var/lib/sentinel-pulse-500ms/runs/pulse-projected-pressure-c2-20261003T163700Z/features.jsonl",
+  "rows": 60242,
+  "schema": "sentinel-pulse-capture-validation-v1",
+  "snapshot_read_seconds": {
+    "max": 0.022319078,
+    "p50": 0.003744364,
+    "p95": 0.006748676,
+    "p99": 0.010320663
+  },
+  "telemetry_availability": {
+    "availability": 1.0,
+    "cadence_violation_events": 0,
+    "delayed_interval_events": 0,
+    "estimated_missing_snapshots": 0,
+    "maximum_gap_seconds": 0.0,
+    "observed_snapshots": 2757,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": true,
+  "window_start_to_emit_seconds": {
+    "max": 0.5851726531982422,
+    "p50": 0.5236029624938965,
+    "p95": 0.539520263671875,
+    "p99": 0.5489213371276855
+  },
+  "workloads": {
+    "production/aims-frontend:web": 2345,
+    "production/aims-kafka-dual-role:kafka": 2757,
+    "production/aims-postgres-cnpg:postgres": 2757,
+    "production/aims-rabbitmq-server:rabbitmq": 2757,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2757,
+    "production/aims-redis:aims-redis": 2757,
+    "production/aims-waypoint:istio-proxy": 5514,
+    "production/api-gateway:app": 5514,
+    "production/cart-service:app": 5514,
+    "production/catalog-service:app": 5514,
+    "production/notification-service:app": 2757,
+    "production/order-service:app": 2757,
+    "production/payment-service:app": 5514,
+    "production/search-recommendation-service:app": 8271,
+    "production/security-telemetry-service:app": 2757
+  }
+}

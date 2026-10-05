@@ -146,6 +146,10 @@ class PulseFeatureBuilder:
         value = (syscall_id * 2654435761) & 0xFFFFFFFF
         return value >> (32 - int(math.log2(self.syscall_bins)))
 
+    def history_windows_available(self, cgroup_id: int) -> int:
+        """Number of prior valid feature rates available for rolling mean/std."""
+        return len(self._history.get(cgroup_id, ()))
+
     def ingest(self, snapshot: PulseSnapshot, workload_key: str) -> PulseFeature | None:
         previous = self._previous.get(snapshot.cgroup_id)
         self._previous[snapshot.cgroup_id] = snapshot

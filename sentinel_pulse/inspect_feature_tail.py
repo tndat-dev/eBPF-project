@@ -20,6 +20,7 @@ HARD_INTEGRITY_COUNTERS = (
     "transition_insert_fail",
     "task_state_update_fail",
     "snapshot_consistency_retry_exhausted",
+    "snapshot_projection_fail",
     "snapshot_total_mismatch",
     "target_snapshot_gap",
 )

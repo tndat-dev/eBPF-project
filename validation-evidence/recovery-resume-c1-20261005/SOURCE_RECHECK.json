@@ -1,0 +1,15 @@
+{
+  "schema": "sentinel-pulse-evidence-source-recheck-v1",
+  "checked_at_utc": "2026-10-05 02:05:52 UTC",
+  "transport": "SSH master 10.1.16.234 to worker 10.1.16.237, sudo sha256sum; host receipt compared",
+  "run_id": "pulse-recovery-resume-c1-20261005",
+  "raw_root": "/var/lib/sentinel-pulse-500ms/runs/pulse-recovery-resume-c1-20261005",
+  "inputs_sha256": {
+    "features.jsonl": "fd39d6c9119785a4bae94a5d52da3dcbff01753a2bce96facf24c53bf15174e8",
+    "decisions.jsonl": "240beda6cab9db744c8fe9ef34d54a1923faff5a51a1b30d7588970bcb1c05e2"
+  },
+  "matches_host_example_and_node_report": true,
+  "raw_streams_copied_to_host": false,
+  "example_is_live_attack": false,
+  "kernel_to_alert_measured": false
+}

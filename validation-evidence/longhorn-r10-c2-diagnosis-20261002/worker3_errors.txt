@@ -1,0 +1,2 @@
+2026-10-01T15:50:50.016688753Z stderr F [pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2-e-0] time="2026-10-01T15:50:50.015533758Z" level=error msg="R/W Timeout. No response received in 8s" func="dataconn.(*Client).loop" file="client.go:183" peerAddr="10.0.4.244:13456"
+2026-10-01T15:50:50.017689799Z stderr F time="2026-10-01T15:50:50.015844054Z" level=error msg="Backend tcp://10.0.4.244:13455 monitoring failed, mark as ERR" func="controller.(*Controller).monitoring" file="control.go:1492" error="r/w timeout" volume=pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2

@@ -1,0 +1,9 @@
+{
+  "attached_at": "2026-10-03T05:07:11.741299+00:00",
+  "automatic_promotion": false,
+  "exit_grace_seconds": 120,
+  "lifecycle_pid": 1473451,
+  "mutates_runtime_only_after_lifecycle_exit_without_terminal_evidence": true,
+  "poll_seconds": 30,
+  "schema": "sentinel-pulse-lifecycle-supervisor-v1"
+}

@@ -1,0 +1,160 @@
+{
+  "checked_at_unix": 1790997348.0989869,
+  "units": {
+    "sentinel-pulse-collector.service": "NRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=running\n",
+    "sentinel-pulse-resolver.service": "NRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=running\n",
+    "sentinel-pulse-collector-500ms-experiment.service": "NRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=running\n",
+    "sentinel-pulse-detector-candidate.service": "NRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=running\n"
+  },
+  "start": {
+    "collector_bpf_object": "/opt/sentinel-pulse/experiments/pulse-projected-ml-c1-20261003T031200Z/pulse_counter_projected.bpf.o",
+    "collector_loader": "/opt/sentinel-pulse/experiments/pulse-projected-ml-c1-20261003T031200Z/pulse_counter_projected_loader",
+    "collector_variant": "projected",
+    "kernel": "6.8.0-138-generic",
+    "schema": "sentinel-pulse-500ms-start-v1",
+    "sha256": {
+      "allowlist": "f2d553c36f12ad7eaa974951d25fe0f92cdc48a533550f61d9e8e4a76e247c87",
+      "bpf_object": "9854e53b67e1807d58a10ec27d47ffd6d5fc77b0295d2ae9a3dbb6558f981eaa",
+      "loader": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+      "metadata": "efc25870e3bbb9adcc761d2a0c5c4528e102614465b47f9fa5a486d38a7f7dbe",
+      "unit": "d165251bd1f0e4eaecf49c96817413390569098e4f4711962c2ba2f321513f17"
+    },
+    "started_at_unix": 1790997253.2713199,
+    "telemetry_availability_contract": {
+      "maximum_single_gap_seconds": 0.8,
+      "minimum_availability": 1,
+      "nominal_interval_seconds": 0.5
+    }
+  },
+  "last_decision": {
+    "schema": "sentinel-pulse-decision-v1",
+    "status": "normal",
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "workload_key": "production/aims-waypoint:istio-proxy",
+    "cgroup_id": "3778419",
+    "pod_name": "aims-waypoint-6d558c5d7c-sctgm",
+    "pod_uid": "66451426-5f89-4092-ae1e-b0f8f8c80eb1",
+    "node_name": "k8s-worker3.local",
+    "container_name": "istio-proxy",
+    "workload_revision": "6d558c5d7c",
+    "window_start": 1790997347.1776583,
+    "window_end": 1790997347.6824872,
+    "alerted_at": 1790997348.1525092,
+    "post_window_processing_seconds": 0.47002196311950684,
+    "score": 0.4696159408337898,
+    "conformal_p": 0.10954280454127033,
+    "raw_model_anomalous": false,
+    "same_window_corroborated": false,
+    "temporal_confirmation_corroborated": false,
+    "temporal_confirmation_count": 0,
+    "temporal_confirmation_groups": [],
+    "temporal_confirmation_group_counts": {},
+    "temporal_confirmation_bypassed": false,
+    "temporal_confirmation_required_consecutive_windows": 2,
+    "temporal_confirmation_required_consecutive_windows_by_group": {},
+    "corroboration_mode": "bounded_model_semantic_join",
+    "bounded_event_time_corroborated": false,
+    "maximum_evidence_age_seconds": 1,
+    "model_evidence_window_end": null,
+    "semantic_evidence_window_end": null,
+    "evidence_span_seconds": null,
+    "model_evidence_score": null,
+    "model_evidence_conformal_p": null,
+    "semantic_evidence_security_activity_mass": null,
+    "semantic_evidence_security_activity_fields": null,
+    "semantic_evidence_signal_groups": null,
+    "semantic_evidence_triggered_groups": null,
+    "eligible_temporal_semantic_groups": [
+      "namespace_probe"
+    ],
+    "semantic_corroborated": false,
+    "score_corroborated": false,
+    "calibration_score_max": 0.5844178251557964,
+    "score_excess_over_calibration_max": -0.11480188432200661,
+    "minimum_score_excess": 0.01,
+    "security_activity_mass": 0,
+    "security_activity_fields": {},
+    "semantic_signal_groups": {
+      "local_socket_beacon": {
+        "observed": 0,
+        "normal_max": 16,
+        "excess": -16,
+        "minimum_excess": 4,
+        "triggered": false
+      },
+      "process_fanout": {
+        "observed": 0,
+        "normal_max": 0,
+        "excess": 0,
+        "minimum_excess": 4,
+        "triggered": false
+      },
+      "identity_transition": {
+        "observed": 0,
+        "normal_max": 0,
+        "excess": 0,
+        "minimum_excess": 4,
+        "triggered": false
+      },
+      "credential_open": {
+        "observed": 0,
+        "normal_max": 1,
+        "excess": -1,
+        "minimum_excess": 4,
+        "triggered": false
+      },
+      "namespace_probe": {
+        "observed": 0,
+        "normal_max": 0,
+        "excess": 0,
+        "minimum_excess": 1,
+        "triggered": false
+      }
+    },
+    "inference_ms": 17.724773846566677,
+    "run_id": "pulse-projected-ml-c1-20261003T031200Z"
+  },
+  "feature_tail": {
+    "schema": "sentinel-pulse-feature-tail-health-v1",
+    "valid": true,
+    "path": "/var/lib/sentinel-pulse-500ms/runs/pulse-projected-ml-c1-20261003T031200Z/features.jsonl",
+    "workload_key": "production/security-telemetry-service:app",
+    "window_end": 1790997347.6824872,
+    "interval_seconds": 0.504828929901123,
+    "feature_interval_seconds": 0.504828929901123,
+    "feature_age_seconds": 0.45177388191223145,
+    "collector_max_drops": {
+      "count_insert_fail": 0,
+      "transition_insert_fail": 0,
+      "task_state_update_fail": 0,
+      "snapshot_consistency_retry_exhausted": 0,
+      "snapshot_projection_fail": 0,
+      "snapshot_total_mismatch": 0,
+      "target_snapshot_gap": 0,
+      "capture_interval_violation": 0
+    },
+    "telemetry_degraded": false,
+    "collector_telemetry_availability": {
+      "schema": "sentinel-pulse-telemetry-availability-v1",
+      "observed_snapshots": 181,
+      "estimated_missing_snapshots": 0,
+      "availability": 1,
+      "maximum_snapshot_interval_seconds": 0.518634557723999,
+      "minimum_snapshot_interval_seconds": 0.5043079853057861,
+      "short_interval_events": 0,
+      "cadence_violation_events": 0
+    },
+    "telemetry_availability_contract": {
+      "nominal_interval_seconds": 0.5,
+      "minimum_availability": 1,
+      "maximum_single_gap_seconds": 0.8,
+      "maximum_capture_interval_violations": null,
+      "maximum_estimated_missing_snapshots": null
+    },
+    "errors": []
+  },
+  "decisions": 3147,
+  "alerts": 0,
+  "control_binary_sha256": "7e9821e735acb4209c8959e652de8394d341798f3f0c39dc962d293c402616bf  /opt/sentinel-pulse/bin/pulse_counter_loader\nb4e3d2f85c3bc6b32a681d777105478f2f42a203116bf3ff306050a4b9291ccf  /opt/sentinel-pulse/bin/pulse_counter.bpf.o\n"
+}

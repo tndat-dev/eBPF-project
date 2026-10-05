@@ -133,6 +133,90 @@ def test_lifecycle_rejects_a_second_writer_for_the_same_run(tmp_path):
     assert not (state / "phases.jsonl").exists()
 
 
+def capacity_resume_marker(model: Path, policy: Path) -> dict:
+    return {
+        "model_manifest_sha256": hashlib.sha256(
+            (model / "manifest.json").read_bytes()
+        ).hexdigest(),
+        "decision_policy_sha256": hashlib.sha256(policy.read_bytes()).hexdigest(),
+        "telemetry_availability_contract": {
+            "nominal_interval_seconds": 0.5,
+            "minimum_availability": 0.999,
+            "maximum_single_gap_seconds": 10.0,
+        },
+        "minimum_root_available_bytes": 64 * 1024**3,
+        "maximum_root_used_percent": 85,
+    }
+
+
+def test_lifecycle_rejects_capacity_override_before_monitor(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "SOAK_START.json").write_text(
+        json.dumps(capacity_resume_marker(model, policy)), encoding="utf-8"
+    )
+    (evidence / "ACTIVE").touch()
+    env = lifecycle_env(tmp_path, model, policy)
+    env["MINIMUM_ROOT_AVAILABLE_BYTES"] = "0"
+    env["MAXIMUM_ROOT_USED_PERCENT"] = "85"
+
+    result = subprocess.run(
+        [str(LIFECYCLE)], env=env, text=True, capture_output=True,
+        timeout=5, check=False,
+    )
+
+    assert result.returncode == 6
+    assert "capacity override differs" in result.stderr
+    phases = (tmp_path / "state" / "phases.jsonl").read_text()
+    assert "terminal_resume_capacity_contract_mismatch" in phases
+    assert '"phase":"normal_monitor"' not in phases
+    assert (evidence / "ACTIVE").exists()
+    assert not (evidence / "FAILED").exists()
+
+
+def test_lifecycle_resume_keeps_capacity_from_marker_without_overrides(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    (evidence / "SOAK_START.json").write_text(
+        json.dumps(capacity_resume_marker(model, policy)), encoding="utf-8"
+    )
+    (evidence / "OPERATIONAL_PASS").touch()
+    env = lifecycle_env(tmp_path, model, policy)
+    env.pop("MINIMUM_ROOT_AVAILABLE_BYTES", None)
+    env.pop("MAXIMUM_ROOT_USED_PERCENT", None)
+
+    result = subprocess.run(
+        [str(LIFECYCLE)], env=env, text=True, capture_output=True,
+        timeout=5, check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    phases = (tmp_path / "state" / "phases.jsonl").read_text()
+    assert "lifecycle_complete_after_operational_normal" in phases
+    assert "capacity_contract_mismatch" not in phases
+    assert not (tmp_path / "blind").exists()
+
+
+def test_lifecycle_rejects_collector_switch_before_monitor(tmp_path):
+    model, policy = lifecycle_inputs(tmp_path)
+    evidence = tmp_path / "evidence"
+    evidence.mkdir()
+    marker = capacity_resume_marker(model, policy)
+    marker["collector_contract"] = {"variant": "projected", "plan_sha256": "c" * 64}
+    (evidence / "SOAK_START.json").write_text(json.dumps(marker))
+    (evidence / "ACTIVE").touch()
+    result = subprocess.run([str(LIFECYCLE)], env=lifecycle_env(tmp_path, model, policy),
+                            text=True, capture_output=True, timeout=5, check=False)
+    assert result.returncode == 6
+    assert "collector contract differs" in result.stderr
+    phases = (tmp_path / "state" / "phases.jsonl").read_text()
+    assert "terminal_resume_collector_contract_mismatch" in phases
+    assert '"phase":"normal_monitor"' not in phases
+    assert (evidence / "ACTIVE").exists()
+
+
 def test_supervisor_does_not_mutate_a_live_lifecycle(tmp_path):
     evidence_fixture(tmp_path)
     lifecycle = subprocess.Popen(["sleep", "10"])

@@ -100,7 +100,12 @@ class RotatingJsonlFollower:
 
 
 class PulseRuntime:
-    def __init__(self, model_dir: Path, decision_policy: Path | None = None):
+    def __init__(self, model_dir: Path, decision_policy: Path | None = None,
+                 recovery_profile: Path | None = None, live_freshness: bool = False):
+        if live_freshness and recovery_profile is None:
+            raise ValueError("live freshness requires explicit recovery runtime")
+        self.live_freshness = live_freshness
+        self.last_processing_check = None
         checksum_path = model_dir / "manifest.sha256"
         manifest_path = model_dir / "manifest.json"
         try:
@@ -191,8 +196,77 @@ class PulseRuntime:
             self.decision_policy, self.decision_policy_sha256 = load_decision_policy(
                 decision_policy
             )
+        self.recovery_tracker = None
+        self.recovery_state = None
+        self.recovery_last_features = {}
+        if recovery_profile is not None:
+            from .telemetry_recovery import RecoveryTracker, load_profile
+            self.recovery_tracker = RecoveryTracker(load_profile(recovery_profile))
+
+    def observe_recovery_snapshot(self, record: dict) -> None:
+        tracker = getattr(self, "recovery_tracker", None)
+        if tracker is None:
+            raise ValueError("recovery capture requires explicit recovery runtime")
+        state = tracker.replay(record)
+        if state["status"] == "fatal":
+            raise ValueError("fatal telemetry recovery journal")
+        self.recovery_state = state
+        self.recovery_snapshot_input = record
+        if not state["can_score"]:
+            self.histories.clear()
+            self.history_metadata.clear()
+            self.temporal_evidence.clear()
+            self.confirmation_evidence.clear()
+
+    def _recovery_feature_gate(self, record: dict, identity: tuple) -> tuple[bool, str] | None:
+        tracker = getattr(self, "recovery_tracker", None)
+        meta = record.get("telemetry_recovery")
+        if tracker is None:
+            if meta is not None:
+                raise ValueError("recovery feature cannot enter legacy runtime")
+            return None
+        from .telemetry_recovery import feature_eligibility
+        state = self.recovery_state
+        if state is None or not isinstance(meta, dict):
+            raise ValueError("recovery feature has no replayed snapshot")
+        if (meta.get("profile_sha256") != tracker.profile_sha256
+                or meta.get("snapshot_sequence") != state["sequence"]
+                or meta.get("epoch") != state["epoch"]
+                or float(record["window_end"]) != tracker.previous_end
+                or record.get("collector_stats") != self.recovery_snapshot_input["collector_stats"]):
+            raise ValueError("recovery feature/journal binding mismatch")
+        history = meta.get("rolling_history_before")
+        if type(history) is not int or not 0 <= history <= tracker.profile["rolling_windows"]:
+            raise ValueError("invalid recovery rolling history")
+        eligible, reason = feature_eligibility(
+            state, tracker.profile, history, float(record["window_start"]),
+            float(record["window_end"]), float(record["emitted_at"]))
+        if type(meta.get("eligible")) is not bool or (eligible, reason) != (meta["eligible"], meta.get("reason")):
+            raise ValueError("feature quarantine decision differs from replay")
+        previous = self.recovery_last_features.get(identity)
+        end = float(record["window_end"])
+        if previous is not None and end <= previous:
+            raise ValueError("non-monotonic recovery feature")
+        self.recovery_last_features[identity] = end
+        if not eligible:
+            self.histories.pop(identity, None)
+            self.history_metadata.pop(identity, None)
+            self.temporal_evidence.pop(identity, None)
+            self.confirmation_evidence.pop(identity, None)
+        return eligible, reason
 
     def score(self, record: dict) -> dict:
+        freshness = None
+        if getattr(self, "live_freshness", False):
+            from .detector_freshness import check, complete
+            freshness = check(record, time.time(), self.last_processing_check)
+            self.last_processing_check = freshness["checked_at"]
+        result = self._score(record, freshness)
+        if freshness is not None:
+            result["detector_freshness"] = complete(freshness, record["window_end"], time.time())
+        return result
+
+    def _score(self, record: dict, freshness: dict | None = None) -> dict:
         observed_schema = record.get("feature_schema_sha256")
         if observed_schema is None and "columns" in record:
             observed_schema = schema_digest(record["columns"])
@@ -210,6 +284,7 @@ class PulseRuntime:
             str(record.get("container_name", "unknown-container")),
             cgroup_id,
         )
+        recovery_gate = self._recovery_feature_gate(record, source_identity)
         model = self.models.get(workload)
         if model is None:
             return {
@@ -254,6 +329,44 @@ class PulseRuntime:
                 "window_end": record.get("window_end"),
             }
         row = decode_vector(record)
+        if recovery_gate is not None and not np.all(np.isfinite(row)):
+            raise ValueError("non-finite recovery feature vector")
+        if freshness is not None and not freshness["eligible"]:
+            # Keep the row and journal audit, but never warm/score on an old
+            # queue item. Reset BOTH ML context and policy confirmation so
+            # current data cannot corroborate stale semantic evidence.
+            self.histories.pop(source_identity, None)
+            self.history_metadata.pop(source_identity, None)
+            self.temporal_evidence.pop(source_identity, None)
+            self.confirmation_evidence.pop(source_identity, None)
+            return {
+                "schema": "sentinel-pulse-decision-v1", "status": "telemetry-degraded",
+                "telemetry_reason": "detector_queue_stale",
+                "model_manifest_sha256": self.model_manifest_sha256,
+                "decision_policy_sha256": self.decision_policy_sha256,
+                "workload_key": workload, "cgroup_id": cgroup_id,
+                "pod_name": record.get("pod_name"), "pod_uid": record.get("pod_uid"),
+                "node_name": record.get("node_name"), "container_name": record.get("container_name"),
+                "workload_revision": revision, "window_start": record.get("window_start"),
+                "window_end": record.get("window_end"),
+            }
+        if recovery_gate is not None and not recovery_gate[0]:
+            reason = recovery_gate[1]
+            warming = reason in {"rolling_history_fill", "snapshot_warming"}
+            return {
+                "schema": "sentinel-pulse-decision-v1",
+                "status": "warming" if warming else "telemetry-degraded",
+                "warming_reason": reason if warming else None,
+                "telemetry_reason": reason,
+                "telemetry_recovery": record["telemetry_recovery"],
+                "model_manifest_sha256": self.model_manifest_sha256,
+                "decision_policy_sha256": self.decision_policy_sha256,
+                "workload_key": workload, "cgroup_id": cgroup_id,
+                "pod_name": record.get("pod_name"), "pod_uid": record.get("pod_uid"),
+                "node_name": record.get("node_name"), "container_name": record.get("container_name"),
+                "workload_revision": revision, "window_start": record.get("window_start"),
+                "window_end": record.get("window_end"),
+            }
         history = self.histories.setdefault(
             source_identity, deque(maxlen=self.history_size)
         )
@@ -563,8 +676,14 @@ def main() -> None:
     parser.add_argument("--alerts", type=Path, required=True)
     parser.add_argument("--from-start", action="store_true")
     parser.add_argument("--injections", type=Path)
+    parser.add_argument("--recovery-profile", type=Path)
+    parser.add_argument("--live-freshness", action="store_true",
+                        help="quarantine queue items older than 1s at processing start; live only")
     args = parser.parse_args()
-    runtime = PulseRuntime(args.model_dir, args.decision_policy)
+    if args.recovery_profile is not None and not args.from_start:
+        raise ValueError("recovery detector must replay the complete journal with --from-start")
+    runtime = PulseRuntime(args.model_dir, args.decision_policy, args.recovery_profile,
+                           live_freshness=args.live_freshness)
     injection_tracker = InjectionTracker(args.injections) if args.injections else None
     args.decisions.parent.mkdir(parents=True, exist_ok=True)
     args.alerts.parent.mkdir(parents=True, exist_ok=True)
@@ -577,7 +696,12 @@ def main() -> None:
                 record = json.loads(line)
                 if record.get("schema") == "sentinel-pulse-feature-schema-v1":
                     continue
+                if record.get("schema") == "sentinel-pulse-recovery-snapshot-v1":
+                    runtime.observe_recovery_snapshot(record)
+                    continue
                 result = runtime.score(record)
+                if args.recovery_profile is not None:
+                    result["telemetry_recovery"] = record["telemetry_recovery"]
                 result["run_id"] = args.run_id
                 if result.get("status") == "alert" and injection_tracker is not None:
                     marker = injection_tracker.match(result)

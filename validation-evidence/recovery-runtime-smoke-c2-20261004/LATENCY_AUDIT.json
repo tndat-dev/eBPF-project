@@ -1,0 +1,102 @@
+{
+  "accuracy_claim_allowed": false,
+  "after_startup": {
+    "inference_ms": {
+      "max": 50.74618896469474,
+      "n": 21254,
+      "p50": 19.307570066303015,
+      "p95": 26.0771457105875,
+      "p99": 31.22687293216586
+    },
+    "scored_rows": 21254,
+    "window_end_to_post_model_over_1s": 420,
+    "window_end_to_post_model_seconds": {
+      "max": 1.9522805213928223,
+      "n": 21254,
+      "p50": 0.31597280502319336,
+      "p95": 0.5874178409576416,
+      "p99": 1.4003770351409912
+    },
+    "window_start_to_post_model_over_2s": 156,
+    "window_start_to_post_model_seconds": {
+      "max": 2.4571568965911865,
+      "n": 21254,
+      "p50": 0.8225469589233398,
+      "p95": 1.0939915180206299,
+      "p99": 1.9074416160583496
+    },
+    "workloads": 19
+  },
+  "all": {
+    "inference_ms": {
+      "max": 50.74618896469474,
+      "n": 26290,
+      "p50": 19.26780492067337,
+      "p95": 25.975951924920082,
+      "p99": 31.184921972453594
+    },
+    "scored_rows": 26290,
+    "window_end_to_post_model_over_1s": 5456,
+    "window_end_to_post_model_seconds": {
+      "max": 12.734894752502441,
+      "n": 26290,
+      "p50": 0.37250256538391113,
+      "p95": 9.998541831970215,
+      "p99": 12.045072793960571
+    },
+    "window_start_to_post_model_over_2s": 5191,
+    "window_start_to_post_model_seconds": {
+      "max": 13.238922595977783,
+      "n": 26290,
+      "p50": 0.878826379776001,
+      "p95": 10.506412029266357,
+      "p99": 12.551033973693848
+    },
+    "workloads": 19
+  },
+  "all_windows_retained_in_terminal_verdict": true,
+  "kernel_to_alert_claim_allowed": false,
+  "method": "nearest-rank ceil(q*n); diagnostic partition, not acceptance retuning",
+  "operational_soak_pass": false,
+  "partition_origin_window_start": 1791085586.7039647,
+  "run_id": "pulse-recovery-runtime-smoke-c2-20261004",
+  "schema": "sentinel-pulse-recovery-smoke-latency-audit-v1",
+  "source_sha256": {
+    "alerts.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "decisions.jsonl": "5edbbe45943b07222a7384ae4779a8d8f9dd5381a516ab8db95cc85fc598cb3a",
+    "features.jsonl": "bf5ba50343e04980bf5a864114365fa6df2bdabc6d5f85c9c918af8474ec4e6a"
+  },
+  "startup": {
+    "inference_ms": {
+      "max": 39.434035774320364,
+      "n": 5036,
+      "p50": 19.103797152638435,
+      "p95": 25.582020170986652,
+      "p99": 30.99427418783307
+    },
+    "scored_rows": 5036,
+    "window_end_to_post_model_over_1s": 5036,
+    "window_end_to_post_model_seconds": {
+      "max": 12.734894752502441,
+      "n": 5036,
+      "p50": 7.1857686042785645,
+      "p95": 12.062708854675293,
+      "p99": 12.430710554122925
+    },
+    "window_start_to_post_model_over_2s": 5035,
+    "window_start_to_post_model_seconds": {
+      "max": 13.238922595977783,
+      "n": 5036,
+      "p50": 7.691378593444824,
+      "p95": 12.569813966751099,
+      "p99": 12.938556671142578
+    },
+    "workloads": 19
+  },
+  "startup_partition_seconds": 120,
+  "status_counts": {
+    "normal": 25919,
+    "suppressed": 371
+  },
+  "timestamp_scope": "alerted_at was sampled immediately after model.predict, before policy and output; not actual alert delivery"
+}

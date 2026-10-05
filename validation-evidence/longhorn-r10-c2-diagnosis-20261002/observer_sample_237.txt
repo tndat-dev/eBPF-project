@@ -1,0 +1,10 @@
+run_id=r10-c2-stall-20261002
+started_at=2026-10-02T03:24:00Z
+host=k8s-worker1.local
+duration_seconds=21600
+sample_seconds=1
+{"boottime": 2853555.309828816, "boottime_minus_monotonic_seconds": 5.140900611877441e-07, "clock_offset_changed": false, "elapsed_monotonic_seconds": 1.0011517177335918, "elapsed_realtime_seconds": 1.0011520385742188, "monotonic": 2853555.309821401, "observer_late": false, "pressure": {"cpu": "some avg10=13.34 avg60=11.02 avg300=9.87 total=245000951364\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0", "io": "some avg10=0.00 avg60=0.00 avg300=0.00 total=5018858721\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=3691023443", "memory": "some avg10=0.00 avg60=0.00 avg300=0.00 total=13940763\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=11408063"}, "read_errors": {}, "realtime": 1790911475.741418, "realtime_minus_monotonic_seconds": 3.2084062695503235e-07, "record_type": "sample", "sample_read_seconds": 0.0005072313360869884}
+-rw-r--r-- 1 root root 1.5M Oct  2 03:24 /var/lib/sentinel-pulse-diagnostics/r10-c2-stall-20261002/sar.bin
+MemoryCurrent=10596352
+CPUUsageNSec=921384000
+ActiveState=active

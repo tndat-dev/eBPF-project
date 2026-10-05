@@ -1,0 +1,67 @@
+{
+  "schema": "sentinel-pulse-workload-fingerprint-v1",
+  "sha256": "d8c990b9367dd4d78735eba961aca4afd61d0eeb1f2b30c8396a3956e0104280",
+  "workloads": {
+    "production/aims-frontend": [
+      "8cb8dc8b"
+    ],
+    "production/aims-kafka-dual-role": [
+      "strimzi-80e3e646",
+      "strimzi-ae9505e5",
+      "strimzi-fec8050f"
+    ],
+    "production/aims-kafka-entity-operator": [
+      "5455dcf447"
+    ],
+    "production/aims-minio-pool-0": [
+      "aims-minio-pool-0-698d85cb5b"
+    ],
+    "production/aims-postgres-cnpg": [
+      "cnpg-13f2a629d9ff764f",
+      "cnpg-42b36feb6549c758",
+      "cnpg-4fbb2b494070f224"
+    ],
+    "production/aims-rabbitmq-server": [
+      "aims-rabbitmq-server-6579bff56b"
+    ],
+    "production/aims-redis": [
+      "aims-redis-5f454bf965"
+    ],
+    "production/aims-redis-sentinel-sentinel": [
+      "aims-redis-sentinel-sentinel-74d4bfb67b"
+    ],
+    "production/aims-waypoint": [
+      "6d558c5d7c"
+    ],
+    "production/api-gateway": [
+      "5b79675d85"
+    ],
+    "production/auth-service": [
+      "b5bdfb67b"
+    ],
+    "production/cart-service": [
+      "7b588cf549"
+    ],
+    "production/catalog-service": [
+      "6dc97b678f"
+    ],
+    "production/inventory-service": [
+      "695bf6f445"
+    ],
+    "production/notification-service": [
+      "79797674dd"
+    ],
+    "production/order-service": [
+      "7b4bb44876"
+    ],
+    "production/payment-service": [
+      "86bf86b6"
+    ],
+    "production/search-recommendation-service": [
+      "75bd67f9b9"
+    ],
+    "production/security-telemetry-service": [
+      "6799d88468"
+    ]
+  }
+}

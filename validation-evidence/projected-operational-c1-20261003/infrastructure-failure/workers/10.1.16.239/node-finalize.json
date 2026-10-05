@@ -1,0 +1,71 @@
+{
+  "capture_bytes": 2445201186,
+  "capture_sha256": "a8c210a718bb98735400ca2b754edda8693369f8883544130fc98822ce832c74",
+  "collector_max_drops": {
+    "capture_interval_violation": 4,
+    "count_insert_fail": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "snapshot_total_mismatch": 0,
+    "target_snapshot_gap": 0,
+    "task_state_update_fail": 0,
+    "transition_insert_fail": 0
+  },
+  "control_collector_cpu_seconds": 0.0,
+  "duration_seconds": 29537.091269493103,
+  "ended_at_unix": 1791033497.368454,
+  "experiment_average_cpu_cores": 0.07390306703133472,
+  "experiment_cpu_seconds": 2182.881636,
+  "experiment_memory_peak_bytes": 537137152,
+  "finalized_at_unix": 1791033634.9292467,
+  "ingest_lag_seconds": {
+    "max": 21.49316668510437,
+    "p50": 0.015811920166015625,
+    "p95": 0.030478644371032704,
+    "p99": 0.038071112632751425
+  },
+  "interval_seconds": {
+    "max": 14.030071496963501,
+    "p50": 0.5059576034545898,
+    "p95": 0.5098457336425781,
+    "p99": 0.5144782066345215
+  },
+  "registered_max_duration_seconds": 90000,
+  "rows": 1270207,
+  "run_id": "pulse-projected-operational-c1-20261003T050000Z",
+  "schema": "sentinel-pulse-500ms-final-v1",
+  "service_ok": true,
+  "service_result": "success",
+  "snapshot_read_seconds": {
+    "max": 11.815943003,
+    "p50": 0.003862619,
+    "p95": 0.006903172,
+    "p99": 0.010661364
+  },
+  "started_at_unix": 1791003960.2771845,
+  "telemetry_availability": {
+    "availability": 0.9991769829566888,
+    "cadence_violation_events": 4,
+    "delayed_interval_events": 4,
+    "estimated_missing_snapshots": 48,
+    "maximum_gap_seconds": 14.030071496963501,
+    "observed_snapshots": 58274,
+    "short_interval_events": 0
+  },
+  "telemetry_availability_contract": {
+    "maximum_single_gap_seconds": 10.0,
+    "minimum_availability": 0.999,
+    "nominal_interval_seconds": 0.5
+  },
+  "valid": false,
+  "validation_errors": [
+    "telemetry cadence: maximum gap 14.030071s exceeds 10.000000s"
+  ],
+  "window_start_to_emit_seconds": {
+    "max": 24.540258646011353,
+    "p50": 0.5221939086914062,
+    "p95": 0.5374330759048462,
+    "p99": 0.5459289121627807
+  },
+  "workload_count": 15
+}

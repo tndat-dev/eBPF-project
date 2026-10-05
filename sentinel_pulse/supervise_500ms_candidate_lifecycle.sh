@@ -35,7 +35,7 @@ Path(out).write_text(json.dumps({
 PY
 
 while kill -0 "$LIFECYCLE_PID" 2>/dev/null; do
-  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || \
+  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || -e "$EVIDENCE_ROOT/OPERATIONAL_PASS" || \
         -e "$EVIDENCE_ROOT/ARCHIVE_COMPLETE" ]]; then
     exit 0
   fi
@@ -45,7 +45,7 @@ done
 # Give the exiting lifecycle time to finish its terminal rename/checksum path.
 deadline=$(( $(date +%s) + EXIT_GRACE_SECONDS ))
 while (( $(date +%s) < deadline )); do
-  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || \
+  if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || -e "$EVIDENCE_ROOT/OPERATIONAL_PASS" || \
         -e "$EVIDENCE_ROOT/ARCHIVE_COMPLETE" ]]; then
     exit 0
   fi
@@ -54,7 +54,7 @@ done
 
 exec 9>"$EVIDENCE_ROOT/.lifecycle-supervisor.lock"
 flock 9
-if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || \
+if [[ -e "$EVIDENCE_ROOT/NORMAL_PASS" || -e "$EVIDENCE_ROOT/OPERATIONAL_PASS" || \
       -e "$EVIDENCE_ROOT/ARCHIVE_COMPLETE" ]]; then
   exit 0
 fi

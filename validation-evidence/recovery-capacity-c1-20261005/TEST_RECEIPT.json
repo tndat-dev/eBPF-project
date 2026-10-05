@@ -1,0 +1,39 @@
+{
+  "schema": "sentinel-pulse-capacity-guard-test-receipt-v1",
+  "recorded_at_utc": "2026-10-05 02:04:19 UTC",
+  "coordinator_source_commit": "1c039878faa5c24cacafa4b2f7882c56ef2fb057",
+  "guard_source_sha256": "bc5c3ea6d9ac2b7184d7e6162e881f0878cad4934c46ff529f7d30e68d04695f",
+  "guard_tests_sha256": "e7820d6ffbf19b324b0386306ed04129f590b1908bf120176c235530d2b92896",
+  "software_tests_not_live_attack_evidence": true,
+  "host": {
+    "guard_only": {
+      "passed": 21,
+      "seconds": 0.2
+    },
+    "recovery_subset": {
+      "passed": 168,
+      "seconds": 1.2
+    },
+    "full": {
+      "passed": 892,
+      "skipped": 7,
+      "subtests_passed": 20,
+      "seconds": 22.75
+    }
+  },
+  "vm": {
+    "recovery_subset": {
+      "passed": 168,
+      "seconds": 4.44
+    },
+    "full": {
+      "passed": 933,
+      "subtests_passed": 20,
+      "warnings": 2,
+      "seconds": 90.86
+    }
+  },
+  "frozen_model_or_policy_changed": false,
+  "github_pushed": false,
+  "kernel_to_alert_measured": false
+}

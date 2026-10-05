@@ -25,7 +25,7 @@ MICROSERVICES = (
     "search-recommendation-service",
     "security-telemetry-service",
 )
-INGRESS_PATHS = ("/", "/api/health/", "/api/products/")
+INGRESS_PATHS = ("/", "/api/health/", "/api/products/?page=1")
 NATIVE_RUNTIME_REQUIRED = ("notification-service", "payment-service")
 
 
@@ -171,7 +171,7 @@ samples=$1
 base=http://aims-ingress-istio.istio-ingress.svc.cluster.local
 first=true
 printf '{'
-for path in / /api/health/ /api/products/; do
+for path in / /api/health/ '/api/products/?page=1'; do
   ok=0
   bad=0
   i=0
