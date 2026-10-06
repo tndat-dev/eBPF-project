@@ -375,7 +375,7 @@ def test_verified_worker_sealing_is_bounded_unknown_not_false_startup_failure(tm
         assert result["status"] == "unavailable" and result["reason"] == "worker_sealing"
         assert verified == ["marker", "runtime"]
     else:
-        with pytest.raises(ValueError, match="startup"):
+        with pytest.raises(ValueError, match="detector stopped during runtime"):
             worker.probe(tmp_path, "10.1.16.238", marker)
         assert not verified
 

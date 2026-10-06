@@ -183,7 +183,10 @@ def probe(source, host, marker):
     if not (root / "FORMAL_WORKER_START.json").exists() or detector["ActiveState"] != "active":
         if time.time() <= marker["started_at_unix"] + 120:
             return {**result, "status": "unavailable", "reason": "worker_installing"}
-        raise ValueError("worker did not complete startup within 120 seconds")
+        if (root / "FORMAL_WORKER_START.json").exists():
+            raise ValueError("detector stopped during runtime: " + detector['ActiveState'] +
+                             "; inspect detector journal and recovery snapshot")
+        raise ValueError("worker installation did not complete within 120 seconds")
     validate_worker_start(root, prereg / "START.json", host)
     check_runtime(source, root, marker, host)
     return {**result, "status": "active", "detector_active": True,
@@ -234,7 +237,7 @@ def finalize(model, host, marker, payload):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["preflight", "stage", "probe", "stop", "finalize"])
+    parser.add_argument("command", choices=["preflight", "stage", "probe", "stop", "finalize", "audit-segment"])
     for name in ("source", "model", "policy", "safety"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--worker-ip", required=True)
@@ -262,6 +265,19 @@ def main():
                           "reason": str(error), "worker_ip": args.worker_ip}
         elif args.command == "stop":
             result = stop_owned(marker, args.worker_ip)
+        elif args.command == "audit-segment":
+            from .observation_audit import audit
+            prereg = PREREG / marker['run_id']
+            if json.loads((prereg / 'START.json').read_text()) != marker:
+                raise ValueError('audit marker differs from worker registration')
+            if not (prereg / 'WORKER_TERMINAL.json').exists():
+                raise ValueError('cannot audit a running worker')
+            manifest, _, _ = verify_model_bundle(args.model)
+            if sha256_file(args.model / 'manifest.json') != marker['model_manifest_sha256']:
+                raise ValueError('audit model changed')
+            result = audit(CAPTURES / marker['run_id'], marker,
+                           [json.loads(l) for l in payload['health_journal'].splitlines()], manifest)
+            result['worker_ip'] = args.worker_ip
         else:
             result = finalize(args.model, args.worker_ip, marker, payload)
     print(json.dumps(result, sort_keys=True, allow_nan=False))

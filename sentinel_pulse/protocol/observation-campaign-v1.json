@@ -1,0 +1,33 @@
+{
+  "schema": "sentinel-pulse-observation-campaign-v1",
+  "minimum_wall_seconds": 86400,
+  "target_valid_seconds_per_workload": 86400,
+  "maximum_wall_seconds": 172800,
+  "segment_seconds": 1800,
+  "retry_seconds": 60,
+  "stop_on_alert": false,
+  "stop_on_quality_gate": false,
+  "maximum_alerts_per_valid_workload_hour": 0.01,
+  "maximum_alerts_per_hour_per_workload": 0.05,
+  "automatic_training": false,
+  "automatic_promotion": false,
+  "evaluation_unit": "preregistered non-overlapping scenario interval, same unit for normal and attack",
+  "expected_confusion_matrix_not_measured": {
+    "normal_intervals": 200,
+    "attack_intervals": 200,
+    "TP": 190,
+    "FN": 10,
+    "FP": 10,
+    "TN": 190,
+    "precision": 0.95,
+    "recall": 0.95,
+    "fpr": 0.05
+  },
+  "minimum_recall_target": 0.90,
+  "preferred_recall_target": 0.95,
+  "precision_target_benchmark_only": 0.95,
+  "matrix_is_not_a_deployment_rate_budget": true,
+  "missing_attack_observation": "count as end-to-end miss; also report conditional scored recall",
+  "missing_normal_observation": "unknown, never TN",
+  "test_outcomes_used_for_training": false
+}

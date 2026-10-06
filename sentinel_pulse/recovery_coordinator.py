@@ -208,7 +208,7 @@ def load_resume(root, config):
     return marker, health, previous
 
 
-def start(root, config, remote, run_id, duration, diagnostic):
+def start(root, config, remote, run_id, duration, diagnostic, observation=False):
     snapshots, failures = parallel_calls({name: lambda args=args: api_snapshot(args) for name, args in QUERIES.items()})
     if failures:
         raise ValueError("preflight API snapshot incomplete")
@@ -220,7 +220,7 @@ def start(root, config, remote, run_id, duration, diagnostic):
     binding = bind(profile, manifest, snapshots["pods"], api_snapshot(["get", "pv"]),
                    [r["node_name"] for r in replies.values()])
     health = dependency_health(binding, snapshots, {})
-    if health["fatal"] or health["transient"]:
+    if (health["fatal"] or health["transient"]) and not observation:
         raise ValueError("dependencies are not healthy at registration")
     workers = {host: {name: reply[name] for name in ("node_name", "expected_workloads", "loader_sha256", "bpf_object_sha256")}
                for host, reply in replies.items()}
@@ -232,6 +232,8 @@ def start(root, config, remote, run_id, duration, diagnostic):
             if reply[name] != marker[name]:
                 raise ValueError("worker preflight source/model differs: " + host + "/" + name)
     marker["coordinator_config_sha256"] = digest(config)
+    if observation:
+        marker['observational_segment'] = True
     root.mkdir(mode=0o750, parents=True, exist_ok=False)
     write_new(root / "CONFIG.json", config)
     write_new(root / "PREFLIGHT.json", {"workers": replies, "health": health, "registration_pending": False})
@@ -239,12 +241,12 @@ def start(root, config, remote, run_id, duration, diagnostic):
     return marker
 
 
-def run(root, config, remote, run_id, duration, diagnostic, resume=False):
+def run(root, config, remote, run_id, duration, diagnostic, resume=False, observation=False):
     with coordinator_lock(root):
-        return _run_owned(root, config, remote, run_id, duration, diagnostic, resume)
+        return _run_owned(root, config, remote, run_id, duration, diagnostic, resume, observation)
 
 
-def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False):
+def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False, observation=False):
     if resume:
         marker, health_rows, previous = load_resume(root, config)
         if (marker["run_id"] != run_id or marker["collector_duration_seconds"] != duration
@@ -257,7 +259,8 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
             "previous_checked_at_unix": previous["checked_at_unix"],
             "worker_relaunch": False, "registration_replaced": False})
     else:
-        marker = start(root, config, remote, run_id, duration, diagnostic)
+        marker = (start(root, config, remote, run_id, duration, diagnostic, True) if observation
+                  else start(root, config, remote, run_id, duration, diagnostic))
         health_rows, previous = [], None
     payload = {"marker": marker, "marker_bytes": base64.b64encode((root / "START.json").read_bytes()).decode()}
     marker_sha = sha256_file(root / "START.json")
@@ -267,6 +270,8 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
     def interrupted(signum, _frame):
         nonlocal stopped
         stopped = True
+        if observation and callable(old_signals.get(signum)):
+            old_signals[signum](signum, _frame)
 
     old_signals = {s: signal.signal(s, interrupted) for s in (signal.SIGINT, signal.SIGTERM)}
     try:
@@ -296,10 +301,10 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
                 stream.write(json.dumps({"checked_at_unix": now, "snapshots": {k: results[k] for k in QUERIES if k in results}},
                                         sort_keys=True, allow_nan=False) + "\n")
             previous = state
-            if state["phase"] == "rejected" or health["fatal"]:
+            if state["phase"] == "rejected" or (health["fatal"] and not observation):
                 raise ValueError("supervision/dependency gate rejected run")
             if state["phase"] == "ready_to_finalize":
-                if health["degraded"]:
+                if health["degraded"] and not observation:
                     raise ValueError("dependency health degraded at terminal")
                 break
             remaining = max(0, 10 - (time.monotonic() - cycle_start))
@@ -309,7 +314,15 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
                 time.sleep(min(.25, max(0, until - time.monotonic())))
         if stopped:
             raise ValueError("coordinator interrupted")
+        if observation:
+            # Completed or failed legs are audited by the persistent campaign.
+            # An alert/availability verdict never controls campaign scheduling.
+            return_observation = True
+        else:
+            return_observation = False
         payload["health_journal"] = (root / "dependency-health.jsonl").read_text()
+        if return_observation:
+            raise ObservationComplete()
         reports, failures = parallel_calls({host: lambda host=host: remote.call(host, "finalize", payload, timeout=1800)
                                             for host in sorted(WORKERS)})
         for host, report in reports.items():
@@ -322,6 +335,8 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
         write_new(root / "REPORT.json", final_report)
         if not (final_report["formal_recovery_pass"] or (marker["diagnostic_only"] and final_report["diagnostic_integrity_gate"])):
             reason = "terminal evidence gate rejected run"
+    except ObservationComplete:
+        pass
     except (ValueError, RuntimeError, OSError, KeyError, subprocess.SubprocessError) as error:
         reason = str(error)
     finally:
@@ -343,6 +358,10 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False)
         # worker streams (those keep their independent worker seals).
         write_new(root / "SHA256.json", {p.name: sha256_file(p) for p in sorted(root.iterdir()) if p.is_file()})
     return terminal
+
+
+class ObservationComplete(Exception):
+    """Internal completion signal; observational verdict is evaluated later."""
 
 
 def main():
