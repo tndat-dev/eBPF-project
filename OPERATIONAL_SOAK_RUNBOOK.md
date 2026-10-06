@@ -2,6 +2,22 @@
 
 ## Trạng thái hiện hành
 
+Từ 06/10/2026, dùng **campaign quan sát có phục hồi** trong
+[`observation_campaign.py`](sentinel_pulse/observation_campaign.py).
+Đăng ký tối thiểu 24 giờ wall time, mục tiêu 24 giờ exposure hợp lệ cho mỗi
+workload, tối đa 48 giờ để bù thiếu telemetry. Alert hoặc không đạt ngân sách
+chất lượng không chấm dứt campaign. Giữ và audit các đoạn tốt trước sự cố,
+chờ phục hồi rồi thu tiếp; health/telemetry không quan sát được là unknown,
+không tính normal/TN. Khởi động lại coordinator tiếp tục cùng registration.
+
+Protocol và trạng thái live được ghi tại
+[SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md);
+phân tích lựa chọn syscall tại [syscall_analysis.md](syscall_analysis.md).
+Các mô tả formal/zero-alert/guard phía dưới là **protocol legacy**, không
+phải cách điều khiển campaign quan sát hiện hành.
+
+## Protocol formal legacy
+
 Formal recovery lifecycle đã tích hợp bằng adapter riêng
 [`recovery_coordinator.py`](sentinel_pulse/recovery_coordinator.py): marker trước
 capture, worker attestation, freshness gate, bounded supervision, worker seals,

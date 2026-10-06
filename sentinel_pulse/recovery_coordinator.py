@@ -212,7 +212,7 @@ def start(root, config, remote, run_id, duration, diagnostic, observation=False)
     snapshots, failures = parallel_calls({name: lambda args=args: api_snapshot(args) for name, args in QUERIES.items()})
     if failures:
         raise ValueError("preflight API snapshot incomplete")
-    replies, failures = parallel_calls({host: lambda host=host: remote.call(host, "preflight", timeout=60) for host in sorted(WORKERS)})
+    replies, failures = parallel_calls({host: lambda host=host: remote.call(host, "preflight-observation" if observation else "preflight", timeout=60) for host in sorted(WORKERS)})
     if failures:
         raise ValueError("worker preflight failed: " + ",".join(sorted(failures)))
     manifest = json.loads((Path(config["model"]) / "manifest.json").read_text())

@@ -174,6 +174,17 @@ def test_selector_rejects_tampered_model_manifest(selection):
         select(run, manifest, live)
 
 
+def test_observation_scope_change_preserves_safety_verification(selection):
+    run,manifest,live=selection
+    write_json(live,{'cgroups':{}})
+    result=select(run,manifest,live,allow_scope_changes=True)
+    assert result['observational_scope_changes'] and result['live_workloads']==[]
+    assert result['safety_review']['valid']
+    manifest.write_text('{}')
+    with pytest.raises(ValueError,match='SHA-256 mismatch'):
+        select(run,manifest,live,allow_scope_changes=True)
+
+
 def test_projected_install_does_not_overwrite_control_binaries():
     from pathlib import Path
     root = Path(__file__).resolve().parents[1]

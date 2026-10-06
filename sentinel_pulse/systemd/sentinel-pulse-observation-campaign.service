@@ -1,0 +1,21 @@
+[Unit]
+Description=Sentinel Pulse persistent 24-hour observation campaign
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/observation-campaign.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_SOURCE} /home/dat/ml-venv/bin/python -m sentinel_pulse.observation_campaign --config ${PULSE_CONFIG} --password-file ${PULSE_CREDENTIAL_FILE} --protocol ${PULSE_SOURCE}/sentinel_pulse/protocol/observation-campaign-v1.json --output-root ${PULSE_OUTPUT_ROOT} --run-id ${PULSE_RUN_ID}
+Restart=on-failure
+RestartSec=60
+TimeoutStopSec=90
+MemoryMax=2G
+CPUQuota=200%
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

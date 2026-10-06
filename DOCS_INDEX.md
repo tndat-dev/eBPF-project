@@ -1,6 +1,6 @@
 # Mục lục tài liệu Sentinel Pulse
 
-Cập nhật bố cục: 05/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
+Cập nhật bố cục: 06/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
 tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
 Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
 
@@ -9,11 +9,8 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | Tài liệu | Đọc khi cần |
 |---|---|
 | [README.md](README.md) | Điểm vào repo, bố cục source và giới hạn claim |
-| [sentinel-pulse.md](sentinel-pulse.md) | Khái niệm, kiến trúc đầy đủ, luồng online/offline |
-| [SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md](SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md) | Toàn bộ luồng, sơ đồ và ví dụ log thật đã đối chiếu checksum; đầy đủ 249 giá trị của một window |
-| [SENTINEL_PULSE_REPORT.md](SENTINEL_PULSE_REPORT.md) | Báo cáo nghiên cứu và trạng thái hiện hành |
-| [TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md](TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md) | Tiến độ hiện hành; không nối thêm checkpoint lịch sử |
-| [SENTINEL_PULSE_FEATURES_249.md](SENTINEL_PULSE_FEATURES_249.md) | Tên, thứ tự và ý nghĩa feature |
+| [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md) | Campaign 24 giờ, recovery, ngân sách alert, confusion matrix kỳ vọng và trạng thái live |
+| [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
 | [WORKLOAD_TELEMETRY_LOG_FORMAT.md](WORKLOAD_TELEMETRY_LOG_FORMAT.md) | Schema telemetry, nhận diện workload và cách đọc log |
 | [example.md](example.md) | Ví dụ feature/log và lệnh lấy dữ liệu |
 | [OPERATIONAL_SOAK_RUNBOOK.md](OPERATIONAL_SOAK_RUNBOOK.md) | Protocol và thao tác operational soak |

@@ -100,10 +100,14 @@ if [[ $COLLECTOR_VARIANT == projected ]]; then
   : "${MODEL_MANIFEST_SOURCE:?required for projected mode}"
   [[ $PROJECTED_CANARY_RUN_DIR == /var/lib/sentinel-pulse-projection-canary/* ]]
   command -v jq >/dev/null
+  scope_args=()
+  if [[ ${PULSE_OBSERVATIONAL_SCOPE:-false} == true ]]; then
+    scope_args+=(--allow-scope-changes)
+  fi
   PROJECTED_SELECTION=$(PYTHONPATH="$SOURCE_ROOT" /opt/sentinel-pulse/venv/bin/python \
     -m sentinel_pulse.select_projected_collector \
     --canary-run-dir "$PROJECTED_CANARY_RUN_DIR" \
-    --model-manifest "$MODEL_MANIFEST_SOURCE")
+    --model-manifest "$MODEL_MANIFEST_SOURCE" "${scope_args[@]}")
 fi
 
 # The collector starts before install_detector_candidate.sh. Deploy the exact

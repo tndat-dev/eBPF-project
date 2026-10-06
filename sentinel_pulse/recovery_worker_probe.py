@@ -50,7 +50,7 @@ def clean_source(source):
     return commit, {name: sha256_file(source / name) for name in names}
 
 
-def preflight(source, model, policy, safety):
+def preflight(source, model, policy, safety, observation=False):
     from .decision_policy import load_decision_policy
     commit, files = clean_source(source)
     manifest, candidates, collect_only = verify_model_bundle(model)
@@ -63,7 +63,8 @@ def preflight(source, model, policy, safety):
     for name in (COLLECTOR, DETECTOR):
         if service(name)["ActiveState"] != "inactive":
             raise ValueError("another experiment owns service: " + name)
-    chosen = select(safety, model / "manifest.json", Path("/run/sentinel-pulse/cgroups.json"))
+    chosen = (select(safety, model / "manifest.json", Path("/run/sentinel-pulse/cgroups.json"), True)
+              if observation else select(safety, model / "manifest.json", Path("/run/sentinel-pulse/cgroups.json")))
     metadata = json.loads(Path("/run/sentinel-pulse/cgroups.json").read_text())["cgroups"]
     workloads = sorted({key(v) for v in metadata.values()} & set(candidates))
     return {"node_name": socket.gethostname(), "source_commit": commit,
@@ -82,7 +83,8 @@ def stage(source, model, policy, safety, host, marker, raw):
     run_id = marker["run_id"]
     if marker["workers"][host]["node_name"] != socket.gethostname():
         raise ValueError("hostname differs from preregistration")
-    info = preflight(source, model, policy, safety)
+    info = (preflight(source, model, policy, safety, True) if marker.get('observational_segment')
+            else preflight(source, model, policy, safety))
     for name in ("source_commit", "source_files_sha256", "model_manifest_sha256", "decision_policy_sha256"):
         if info[name] != marker[name]:
             raise ValueError("prelaunch identity drift: " + name)
@@ -237,15 +239,16 @@ def finalize(model, host, marker, payload):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["preflight", "stage", "probe", "stop", "finalize", "audit-segment"])
+    parser.add_argument("command", choices=["preflight", "preflight-observation", "stage", "probe", "stop", "finalize", "audit-segment"])
     for name in ("source", "model", "policy", "safety"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--worker-ip", required=True)
     args = parser.parse_args()
     if os.geteuid() != 0:
         raise ValueError("root worker adapter required")
-    if args.command == "preflight":
-        result = preflight(args.source, args.model, args.policy, args.safety)
+    if args.command in {'preflight','preflight-observation'}:
+        result = (preflight(args.source, args.model, args.policy, args.safety, True) if args.command=='preflight-observation'
+                  else preflight(args.source, args.model, args.policy, args.safety))
     else:
         payload = json.load(sys.stdin)
         marker = validate_marker(payload["marker"])
