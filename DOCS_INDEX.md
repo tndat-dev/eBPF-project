@@ -10,6 +10,7 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 |---|---|
 | [README.md](README.md) | Điểm vào repo, bố cục source và giới hạn claim |
 | [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md) | Campaign 24 giờ, recovery, ngân sách alert, confusion matrix kỳ vọng và trạng thái live |
+| [SOAK_INCIDENTS.md](SOAK_INCIDENTS.md) | Lỗi/alert trong campaign hiện hành, nguyên nhân đã xác minh, phần chưa biết và bằng chứng từ VM |
 | [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
 | [WORKLOAD_TELEMETRY_LOG_FORMAT.md](WORKLOAD_TELEMETRY_LOG_FORMAT.md) | Schema telemetry, nhận diện workload và cách đọc log |
 | [example.md](example.md) | Ví dụ feature/log và lệnh lấy dữ liệu |
@@ -36,5 +37,5 @@ gỡ trước đợt dọn này. Không khôi phục các file người dùng đ
 `validation-evidence/` không bị dọn, không sửa checksum hoặc receipt.
 Không xóa tài liệu vĩnh viễn: muốn đưa một báo cáo về root có thể chuyển
 file từ `docs/archive/` về và cập nhật lại các link tương đối.
-Thay đổi chưa được tự commit/push hay đồng bộ sang VM; không sửa code,
-model, raw data hoặc tài nguyên Kubernetes trong đợt dọn tài liệu này.
+Tài liệu và bằng chứng được đồng bộ bằng Git. Không thay model/runtime frozen
+hoặc xóa raw data để cập nhật báo cáo; checkout vận hành đã đăng ký giữ riêng.

@@ -1,0 +1,11 @@
+{
+  "automatic_blind_evaluation": false,
+  "automatic_promotion": false,
+  "exit_code": 1,
+  "finished_at_unix": 1791285460.3053596,
+  "formal_recovery_pass": false,
+  "marker_sha256": "4654867dbd147873eb88214c43673807ec599c94fd68d889443d121d5d2c36e1",
+  "run_id": "pulse-observation-c1-20261006-s0019",
+  "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+  "worker_ip": "10.1.16.237"
+}
