@@ -6,6 +6,7 @@ source/model binding and raw seals; missing or corrupt evidence is never normal.
 from __future__ import annotations
 
 import argparse
+import copy
 from collections import Counter, defaultdict
 import json
 import os
@@ -18,6 +19,53 @@ from .integrity import sha256_file
 from .operational_soak import merge_intervals
 from .recovery_formal import write_new
 from .telemetry_recovery import digest
+
+
+class AuditRemote(coordinator.Remote):
+    """Frozen runtime transport plus separately registered offline auditor."""
+    def __init__(self, config, password_file, auditor_source):
+        super().__init__(config,password_file)
+        from .recovery_worker_probe import clean_source
+        commit,files=clean_source(auditor_source)
+        self.audit_binding={'source':str(auditor_source),'commit':commit,'files_sha256':digest(files)}
+        audit_config=copy.deepcopy(config)
+        audit_config['source']=str(auditor_source)
+        for worker in audit_config['workers'].values():worker['source']=str(auditor_source)
+        self.auditor=coordinator.Remote(audit_config,password_file)
+
+    def call(self,host,command,payload=None,timeout=12):
+        if command!='audit-segment':return super().call(host,command,payload,timeout)
+        result=self.auditor.call(host,command,payload,timeout)
+        if (result.get('auditor_source_commit')!=self.audit_binding['commit']
+                or result.get('auditor_source_files_sha256')!=self.audit_binding['files_sha256']):
+            raise ValueError('remote auditor code differs from controller registration')
+        return result
+
+
+def repair_receipts(root,receipts,remote):
+    """Only run between worker segments, leaving live health polls timely."""
+    for attempt in receipts:
+        if not attempt.get('failures'):continue
+        sr=root/'segments'/attempt['run_id']
+        if not (sr/'TERMINAL.json').exists() or not (sr/'START.json').exists():continue
+        sidecar=root/(attempt['run_id']+'-corrected-audit.json')
+        if sidecar.exists():corrected=json.loads(sidecar.read_text())
+        elif hasattr(remote,'audit_binding'):
+            hp=sr/'dependency-health.jsonl'
+            payload={'marker':json.loads((sr/'START.json').read_text()),'health_journal':hp.read_text()}
+            reports,failures=coordinator.parallel_calls({h:lambda h=h:remote.call(h,'audit-segment',payload,timeout=900)
+                                                       for h in sorted(coordinator.WORKERS)})
+            corrected={'run_id':attempt['run_id'],'workers':reports,'failures':failures,
+                       'original_marker_sha256':sha256_file(sr/'START.json'),
+                       'original_health_sha256':sha256_file(hp),'auditor':remote.audit_binding}
+            if failures:coordinator.append(root/'audit-recovery-errors.jsonl',corrected)
+            else:write_new(sidecar,corrected)
+        else:continue
+        if (corrected.get('original_marker_sha256')!=sha256_file(sr/'START.json')
+                or corrected.get('original_health_sha256')!=sha256_file(sr/'dependency-health.jsonl')):
+            raise ValueError('corrected audit no longer bound to original segment')
+        attempt['workers'].update(corrected['workers'])
+        attempt['failures']=corrected['failures']
 
 
 def validate_protocol(p):
@@ -103,6 +151,21 @@ def _campaign_owned(root, config, remote, protocol):
         write_new(root / 'START.json', registration)
     expected = sorted(manifest['workloads'])
     receipts = [json.loads(l) for l in (root / 'segments.jsonl').read_text().splitlines()] if (root / 'segments.jsonl').exists() else []
+    if hasattr(remote,'audit_binding'):
+        executable=Path(__file__).resolve().parents[1]
+        ec,ef=clean_source(executable)
+        coordinator.append(root/'CONTROLLER_BINDINGS.jsonl',{'registered_at_unix':time.time(),
+            'runtime_binding_sha256':digest(binding),'controller_source':str(executable),
+            'controller_commit':ec,'controller_files_sha256':digest(ef),
+            'auditor':remote.audit_binding,'model_policy_protocol_unchanged':True})
+    # Cached corrections need no SSH and can be loaded before live resume.
+    for r in receipts:
+        path=root/(r['run_id']+'-corrected-audit.json')
+        if path.exists():
+            correction=json.loads(path.read_text());sr=root/'segments'/r['run_id']
+            if correction['original_marker_sha256']!=sha256_file(sr/'START.json') or correction['original_health_sha256']!=sha256_file(sr/'dependency-health.jsonl'):
+                raise ValueError('cached correction binding mismatch')
+            r['workers'].update(correction['workers']);r['failures']=correction['failures']
     stopped = False
     def interrupt(_sig, _frame):
         nonlocal stopped
@@ -143,6 +206,8 @@ def _campaign_owned(root, config, remote, protocol):
                 attempt['failures']['coordinator'] = str(error)
             coordinator.append(root / 'segments.jsonl', attempt)
             receipts.append(attempt)
+            if not stopped:
+                repair_receipts(root,receipts,remote)
             # Failures preserve prior exposure; waiting and retry are journaled.
             if attempt['failures'] or attempt.get('terminal', {}).get('reason'):
                 coordinator.append(root / 'recovery-events.jsonl', {'run_id': run_id, 'observed_at_unix': time.time(),
@@ -163,10 +228,12 @@ def main():
     for name in ('config', 'password-file', 'output-root', 'protocol'):
         p.add_argument('--' + name, type=Path, required=True)
     p.add_argument('--run-id', required=True)
+    p.add_argument('--auditor-source',type=Path,default=os.environ.get('PULSE_AUDITOR_SOURCE'))
     args = p.parse_args()
     if not coordinator.re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]*', args.run_id): raise ValueError('unsafe campaign ID')
     cfg = coordinator.validate_config(json.loads(args.config.read_text()))
-    result = campaign(args.output_root / args.run_id, cfg, coordinator.Remote(cfg,args.password_file),
+    remote=(AuditRemote(cfg,args.password_file,Path(args.auditor_source)) if args.auditor_source else coordinator.Remote(cfg,args.password_file))
+    result = campaign(args.output_root / args.run_id, cfg, remote,
                       json.loads(args.protocol.read_text()))
     print(json.dumps(result, allow_nan=False))
 

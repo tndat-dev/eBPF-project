@@ -273,7 +273,9 @@ def main():
             prereg = PREREG / marker['run_id']
             if json.loads((prereg / 'START.json').read_text()) != marker:
                 raise ValueError('audit marker differs from worker registration')
-            if not (prereg / 'WORKER_TERMINAL.json').exists():
+            terminal_present = (prereg / 'WORKER_TERMINAL.json').exists()
+            closure = service(parent_unit(marker['run_id']))
+            if closure['ActiveState'] not in {'inactive','failed'}:
                 raise ValueError('cannot audit a running worker')
             manifest, _, _ = verify_model_bundle(args.model)
             if sha256_file(args.model / 'manifest.json') != marker['model_manifest_sha256']:
@@ -281,6 +283,12 @@ def main():
             result = audit(CAPTURES / marker['run_id'], marker,
                            [json.loads(l) for l in payload['health_journal'].splitlines()], manifest)
             result['worker_ip'] = args.worker_ip
+            result['worker_terminal_receipt_present'] = terminal_present
+            result['closure_state'] = closure
+            result['marker_sha256'] = sha256_file(prereg / 'START.json')
+            commit,files = clean_source(args.source)
+            result['auditor_source_commit'] = commit
+            result['auditor_source_files_sha256'] = digest(files)
         else:
             result = finalize(args.model, args.worker_ip, marker, payload)
     print(json.dumps(result, sort_keys=True, allow_nan=False))

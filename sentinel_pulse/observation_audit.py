@@ -19,7 +19,7 @@ from .integrity import sha256_file
 from .operational_soak import merge_intervals
 from .telemetry_recovery import digest, RecoveryTracker, feature_eligibility
 from collections import deque
-from .recovery_formal import add_interval
+from .recovery_formal import add_interval, source_key
 
 
 def audit(root, marker, health_rows, manifest=None):
@@ -67,8 +67,7 @@ def audit(root, marker, health_rows, manifest=None):
                 exclusions['unconsumed_feature'] += 1
                 continue
             row = json.loads(raw)
-            fields = ('node_name', 'pod_uid', 'container_name', 'cgroup_id', 'window_start', 'window_end', 'workload_key')
-            if any(row.get(k) != feature.get(k) for k in fields):
+            if source_key(row) != source_key(feature) or row.get('workload_key') != feature.get('workload_key'):
                 raise ValueError('feature/decision alignment mismatch')
             if (row.get('model_manifest_sha256') != marker['model_manifest_sha256'] or
                     row.get('decision_policy_sha256') != marker['decision_policy_sha256'] or
@@ -100,7 +99,7 @@ def audit(root, marker, health_rows, manifest=None):
                     or recovery['profile_sha256'] != tracker.profile_sha256
                     or (recovery['eligible'], recovery['reason']) != expected_eligibility):
                 raise ValueError('feature recovery eligibility mismatch')
-            source = tuple(feature.get(k) for k in fields[:4])
+            source = source_key(feature)[:4]
             if end <= previous_source.get(source, -math.inf):
                 raise ValueError('non-monotonic source windows')
             previous_source[source] = end

@@ -238,9 +238,11 @@ def test_lock_released_when_owner_process_is_killed(tmp_path):
         child.stdout.close()
 
 
+@pytest.mark.parametrize("observation", [False, True])
 @pytest.mark.parametrize("mutation", [None, "executable", "commit", "files", "manifest", "policy", "profile", "scope", "collect_only"])
-def test_resume_verifies_local_executable_source_and_entire_bundle(tmp_path, monkeypatch, mutation):
+def test_resume_verifies_local_executable_source_and_entire_bundle(tmp_path, monkeypatch, mutation, observation):
     cfg, marker = config_fixture(), marker_fixture()
+    if observation:marker['observational_segment']=True
     source, model = tmp_path / "source", tmp_path / "model"
     (source / "sentinel_pulse/protocol").mkdir(parents=True)
     model.mkdir()
@@ -270,7 +272,7 @@ def test_resume_verifies_local_executable_source_and_entire_bundle(tmp_path, mon
         collect_only = ["production/test:app"]
     monkeypatch.setattr(worker, "clean_source", lambda _: (commit, files))
     monkeypatch.setattr("sentinel_pulse.finalize_candidate.verify_model_bundle", lambda _: ({}, candidates, collect_only))
-    if mutation is None:
+    if mutation is None or (observation and mutation=='executable'):
         coordinator.validate_resume_runtime(marker, cfg)
     else:
         with pytest.raises(ValueError, match="resume"):

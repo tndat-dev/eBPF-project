@@ -80,6 +80,45 @@ def test_raw_alert_tampering_rejected_even_without_quality_gate(tmp_path,monkeyp
     with pytest.raises(Exception):audit(tmp_path,marker,[{'checked_at_unix':130,'fatal':[],'degraded':False}])
 
 
+@pytest.mark.parametrize('mutation', ['string_cgroup', 'different_cgroup', 'different_window'])
+def test_audit_normalizes_only_cgroup_representation(tmp_path,monkeypatch,mutation):
+    marker=sealed_segment(tmp_path,monkeypatch)
+    rows=[json.loads(l) for l in (tmp_path/'decisions.jsonl').read_text().splitlines()]
+    for row in rows:
+        if mutation=='string_cgroup':row['cgroup_id']=str(row['cgroup_id'])
+        elif mutation=='different_cgroup':row['cgroup_id']=str(int(row['cgroup_id'])+1)
+        else:row['window_end']+=.01
+    (tmp_path/'decisions.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows))
+    (tmp_path/'alerts.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in rows if r['status']=='alert'))
+    import subprocess
+    seal=subprocess.check_output(['sha256sum','features.jsonl','decisions.jsonl','alerts.jsonl'],cwd=tmp_path,text=True)
+    (tmp_path/'FORMAL_WORKER_SHA256SUMS').write_text(seal)
+    if mutation=='string_cgroup':
+        assert audit(tmp_path,marker,[{'checked_at_unix':130,'fatal':[],'degraded':False}])['decisions']==len(rows)
+    else:
+        with pytest.raises(ValueError,match='alignment mismatch'):
+            audit(tmp_path,marker,[{'checked_at_unix':130,'fatal':[],'degraded':False}])
+
+
+def test_corrected_audit_preserves_original_journal_and_binding(tmp_path):
+    root=tmp_path/'campaign';sr=root/'segments'/'s1';sr.mkdir(parents=True)
+    (sr/'START.json').write_text('{}');(sr/'TERMINAL.json').write_text('{}')
+    (sr/'dependency-health.jsonl').write_text('')
+    original={'run_id':'s1','workers':{},'failures':{'worker':'old audit error'}}
+    (root/'segments.jsonl').write_text(json.dumps(original)+'\n')
+    reports=[copy.deepcopy(original)]
+    class Remote:
+        audit_binding={'commit':'audit-r3'}
+        def call(self,*args,**kwargs):return {'valid_intervals':{'x':[[1,2]]}}
+    campaign.repair_receipts(root,reports,Remote())
+    assert not reports[0]['failures'] and len(reports[0]['workers'])==3
+    assert json.loads((root/'segments.jsonl').read_text())==original
+    campaign.repair_receipts(root,[copy.deepcopy(original)],object())
+    (sr/'START.json').write_text('{"changed":true}')
+    with pytest.raises(ValueError,match='bound to original'):
+        campaign.repair_receipts(root,[copy.deepcopy(original)],object())
+
+
 def test_campaign_runs_again_after_failed_segment_and_keeps_prefix(tmp_path,monkeypatch):
     p=json.loads(PROTOCOL.read_text())
     p.update(minimum_wall_seconds=180,target_valid_seconds_per_workload=180,maximum_wall_seconds=600,retry_seconds=.01)

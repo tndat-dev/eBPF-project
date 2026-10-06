@@ -166,7 +166,8 @@ def validate_resume_runtime(marker, config):
     from .recovery_worker_probe import clean_source
     from .finalize_candidate import verify_model_bundle
     source, model, policy = (Path(config[name]) for name in ("source", "model", "policy"))
-    if Path(__file__).resolve() != (source / "sentinel_pulse/recovery_coordinator.py").resolve():
+    if (Path(__file__).resolve() != (source / "sentinel_pulse/recovery_coordinator.py").resolve()
+            and marker.get('observational_segment') is not True):
         raise ValueError("resume executable is not the registered source")
     commit, files = clean_source(source)
     if commit != marker["source_commit"] or files != marker["source_files"]:
@@ -258,6 +259,13 @@ def _run_owned(root, config, remote, run_id, duration, diagnostic, resume=False,
             "source_commit": marker["source_commit"], "resumed_at_unix": time.time(),
             "previous_checked_at_unix": previous["checked_at_unix"],
             "worker_relaunch": False, "registration_replaced": False})
+        if observation:
+            executable_root=Path(__file__).resolve().parents[1]
+            from .recovery_worker_probe import clean_source
+            executable_commit,executable_files=clean_source(executable_root)
+            append(root/'CONTROLLER_EXECUTION.jsonl',{'source':str(executable_root),
+                'source_commit':executable_commit,'source_files_sha256':digest(executable_files),
+                'runtime_registration_unchanged':True,'observed_at_unix':time.time()})
     else:
         marker = (start(root, config, remote, run_id, duration, diagnostic, True) if observation
                   else start(root, config, remote, run_id, duration, diagnostic))
