@@ -1,0 +1,11 @@
+{
+  "10.1.16.237": {
+    "audit_error": "Traceback (most recent call last):\n  File \"<string>\", line 12, in <module>\n  File \"/home/dat/eBPF-project-observation-r2-20261006/sentinel_pulse/observation_audit.py\", line 72, in audit\n    raise ValueError('feature/decision alignment mismatch')\nValueError: feature/decision alignment mismatch\n"
+  },
+  "10.1.16.238": {
+    "audit_error": "Traceback (most recent call last):\n  File \"<string>\", line 12, in <module>\n  File \"/home/dat/eBPF-project-observation-r2-20261006/sentinel_pulse/observation_audit.py\", line 72, in audit\n    raise ValueError('feature/decision alignment mismatch')\nValueError: feature/decision alignment mismatch\n"
+  },
+  "10.1.16.239": {
+    "audit_error": "Traceback (most recent call last):\n  File \"<string>\", line 12, in <module>\n  File \"/home/dat/eBPF-project-observation-r2-20261006/sentinel_pulse/observation_audit.py\", line 72, in audit\n    raise ValueError('feature/decision alignment mismatch')\nValueError: feature/decision alignment mismatch\n"
+  }
+}

@@ -1,6 +1,20 @@
 # Soak quan sát có phục hồi — trạng thái hiện hành
 
-Cập nhật ngày 06/10/2026, múi giờ Asia/Bangkok. Đây là tài liệu cho campaign quan sát mới. Các biên bản đã kết thúc của hệ thống cũ giữ nguyên kết luận đã đăng ký.
+Cập nhật ngày 06/10/2026, múi giờ Asia/Bangkok. Đây là tài liệu trạng thái hiện hành; không bổ sung checkpoint lịch sử. Các biên bản đã kết thúc của hệ thống cũ giữ nguyên kết luận đã đăng ký.
+
+## Trạng thái triển khai đã xác minh
+
+Campaign `pulse-observation-c1-20261006` chạy bằng systemd trên `.234`, bắt đầu **09:09:24 ngày 06/10 ICT**. Tối thiểu 24 giờ wall time tới khoảng **09:10 ngày 07/10**; còn có thể kéo dài để đủ exposure từng workload, tối đa khoảng 09:10 ngày 08/10. Đây là thời hạn thiết kế, không phải cam kết sẽ đạt mọi tiêu chí chất lượng.
+
+Tại kiểm tra live **16:45 ngày 06/10**, service active, đang thu đợt `s0015`; 14 đợt trước đã kết thúc và raw data được giữ. Cả ba worker báo detector active, can-score, không có lỗi supervision. Số đợt hoàn thành **không tương đương** số giờ normal hợp lệ.
+
+Audit ban đầu bị lỗi đối chiếu `cgroup_id`: feature lưu số nguyên, decision lưu chuỗi. Bản sửa chuẩn hóa cách biểu diễn nhưng vẫn kiểm tra đúng identity/window/model/policy. Không sửa raw capture hay model. Audit thử lại `s0014` thành công ở cả ba worker: **234.702 decision, 0 alert trong riêng đợt này**; các row telemetry-degraded/warming vẫn loại khỏi scored exposure. Bằng chứng: [current-segment-corrected-audit.json](validation-evidence/syscall-analysis-20261006/current-segment-corrected-audit.json). Không suy rộng thành FPR = 0 hoặc precision = 100% cho toàn campaign.
+
+Kiểm chứng lại các đợt đã seal đang chạy bằng `sentinel-pulse-audit-backfill-r3-20261006.service`. Report sửa được ghi thành `*-corrected-audit.json`; journal gốc không bị ghi đè. `BACKFILL_STATUS.json` là tổng hợp kiểm chứng bổ sung; coordinator nhập các receipt này khi hoàn thành đợt đang chạy rồi cập nhật `STATUS.json`. Trong thời gian backfill chưa xong, tổng exposure của `STATUS.json` có thể chưa phản ánh dữ liệu đã thu; không coi giá trị 0 cũ là bằng chứng không có telemetry.
+
+Runtime worker giữ nguyên checkout **a3cdbfb** tại `/home/dat/eBPF-project-observation-r2-20261006`; controller/auditor dùng checkout **529d207** tại `/home/dat/eBPF-project-observation-audit-r3-20261006`. Khi chuyển controller, checksum `START.json` vẫn là `10457f3f7f3823293258bf9fc8fcd1c14907cc29db68c232aca935f1a1be186f`; PID và InvocationID của cả ba collector không đổi. Model, policy, protocol và thời điểm bắt đầu không đổi. Resume được ghi trong `RESUME.jsonl`, nguồn controller/auditor trong `CONTROLLER_BINDINGS.jsonl` và `CONTROLLER_EXECUTION.jsonl`.
+
+Toàn bộ test Sentinel Pulse đã qua **661 test và 20 subtest**, gồm các kiểm tra recovery/audit/features và model. Phân tích syscall và 171 fit ablation đã hoàn thành; kết quả và giới hạn tại [syscall_analysis.md](syscall_analysis.md). Chưa có precision/recall end-to-end được adjudication hoặc phép đo blind kernel-to-alert mới cho campaign này.
 
 ## Mục tiêu và tiêu chí đã đăng ký
 
@@ -54,15 +68,21 @@ Manifest SHA-256: `6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441c
 
 ## Vận hành
 
+Trên control plane `.234`:
+
 ```bash
-python -m sentinel_pulse.observation_campaign \
-  --config /home/dat/pulse-observation-config-20261006.json \
-  --password-file /home/dat/.config/sentinel-pulse/ssh-password \
-  --protocol /home/dat/eBPF-project-observation-20261006/sentinel_pulse/protocol/observation-campaign-v1.json \
-  --output-root /home/dat/sentinel-pulse-observation-campaigns \
-  --run-id pulse-observation-c1-20261006
+systemctl status sentinel-pulse-observation-campaign.service --no-pager
+systemctl status sentinel-pulse-audit-backfill-r3-20261006.service --no-pager
+journalctl -u sentinel-pulse-observation-campaign.service -n 30 --no-pager
+
+cd /home/dat/sentinel-pulse-observation-campaigns/pulse-observation-c1-20261006
+python3 -m json.tool STATUS.json
+python3 -m json.tool BACKFILL_STATUS.json
+test ! -f TERMINAL.json || python3 -m json.tool TERMINAL.json
 ```
 
-Credential phải là file riêng mode 0600; không lưu trong config/Git/command arguments. Đọc `STATUS.json`, `segments.jsonl`, `recovery-events.jsonl` và `TERMINAL.json` trong thư mục campaign. Cùng lệnh tự tiếp tục registration cũ nếu chưa terminal và binding vẫn khớp. Không thay nguồn/model/protocol khi đang đo.
+Service enabled và restart khi process lỗi. Config: `/home/dat/pulse-observation-config-20261006.json`; biến môi trường: `/etc/sentinel-pulse/observation-campaign.env`. `PULSE_SOURCE` là runtime frozen R2; `PULSE_CONTROLLER_SOURCE` và `PULSE_AUDITOR_SOURCE` là R3 đã kiểm chứng. Credential ở `/home/dat/.pulse-recovery-credential-20261005`, mode 0600, không trong Git/config/command arguments.
 
-Trạng thái deploy và kiểm tra live sẽ được cập nhật tại đây sau kiểm chứng; các lệnh trên chưa tự chứng minh dịch vụ đã chạy.
+Không chạy thêm một coordinator thủ công song song service. Restart tiếp tục registration hiện hữu nếu chưa terminal và binding khớp. SIGTERM chủ động dừng đợt worker để seal; không dùng restart tùy tiện giữa đợt. Nếu phải thay controller trong campaign quan sát, đăng ký nguồn code mới riêng và xác minh worker không bị relaunch; không áp dụng cách này cho formal legacy.
+
+Giữ `START.json`, raw seals, health journals, `segments.jsonl`, correction receipts, `recovery-events.jsonl` và `TERMINAL.json`. Không thay nguồn runtime/model/protocol đã đăng ký giữa phép đo; không tự promote chỉ vì service chạy đủ ngày.

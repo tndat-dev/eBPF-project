@@ -47,4 +47,43 @@ Precision = TP/(TP+FP), recall = TP/(TP+FN), FPR = FP/(FP+TN). Chỉ normal data
 
 ## Kết quả thực nghiệm hiện hành
 
-Công cụ đã được viết; kết quả JSON tần suất/importance và ablation sẽ được ghi vào phần này sau khi chạy, kiểm tra seal và lấy kết quả từ VM. Không dùng số kỳ vọng thay cho số đo.
+Đã chạy trực tiếp trên VM, lấy kết quả và kiểm tra liên kết checksum giữa analysis và ablation. Bằng chứng lưu trong [analysis-worker4.json](validation-evidence/syscall-analysis-20261006/analysis-worker4.json) và [ablation.json](validation-evidence/syscall-analysis-20261006/ablation.json). Analysis SHA-256: `4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49`; capture SHA-256: `37c7662a49fd14976d51a3c7e420522de57907eb1178dc35e45b6f0c9bc620c2`. Hai hash này được ghi lại trong ablation; không dùng số kỳ vọng thay cho số đo.
+
+Capture nằm trên worker `.238`, có **143.447 feature rows hợp lệ và 45.028.993 syscall**, phủ 19 workload/container trong bundle 21 workload. 253 rows bị loại theo eligibility/revision. Đây không phải coverage toàn cụm. Regime trong capture này là `unlabelled`; chưa có bằng chứng riêng cho từng chế độ peak/burst/recovery. Context đánh giá lấy tối đa 1.024 lịch sử liên tiếp hợp lệ mỗi workload, tổng 19.456 context; mỗi context gồm bốn vector 249 chiều.
+
+### Ví dụ tần suất RabbitMQ
+
+`production/aims-rabbitmq-server:rabbitmq`: 6.367 rows, tổng 1.445.750 syscall.
+
+| Counter | Tổng lần gọi | Tỷ lệ tổng syscall |
+|---|---:|---:|
+| other | 1.061.410 | 73,42% |
+| read | 186.796 | 12,92% |
+| write | 92.493 | 6,40% |
+| recvfrom | 66.161 | 4,58% |
+| openat | 15.923 | 1,10% |
+| close | 13.397 | 0,93% |
+
+Các số này chứng minh read/write/recvfrom có mặt đáng kể trong capture này, không chứng minh đó là feature tối ưu. Tỷ lệ `other` giữa các workload từ 55,13% đến 97,45%: tập syscall tường minh chưa giải thích đầy đủ hành vi. Hash bins giữ tín hiệu tổng hợp nhưng không thay thế histogram syscall ID để diễn giải từng syscall.
+
+### Feature quan trọng theo mô hình đã đóng băng
+
+Importance cộng qua bốn vị trí temporal, tính bằng impurity importance của các cây. Với RabbitMQ, feature đầu bảng là `log_count:recvfrom` (0,04249) và `rolling_mean:recvfrom` (0,04173). Với search-recommendation, đầu bảng là `rolling_std:openat` (0,03511) và `rolling_std:setuid` (0,03122). Không có một feature đứng đầu chung cho mọi workload.
+
+Đây là importance đối với **bài toán normal/corruption tự giám sát**, không phải bằng chứng `setuid` gây attack. Feature của một syscall ít xuất hiện vẫn có thể được model sử dụng khi phân biệt dữ liệu bị corrupt. Muốn diễn giải một alert cụ thể cần thêm attribution trên đúng context đó và kiểm tra counts/policy.
+
+### Ablation train lại: kết quả normal holdout
+
+Đã hoàn thành **19 workload × 9 biến thể = 171 fit**: full và bỏ tám nhóm feature. Fit dùng dataset normal gốc; threshold calibration lại trên calibration split, không trên holdout. Cột bên dưới là số context được raw model gọi anomalous trong 1.024 context normal của mỗi workload. Chúng **không phải số alert sau semantic/temporal policy**, và không dùng để sửa model đang soak.
+
+| Workload/container | Full | Bỏ count | Bỏ ratio | Bỏ rolling mean | Bỏ rolling std | Bỏ security | Bỏ syscall bins | Bỏ transition bins | Bỏ volume |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| search-recommendation/app | 157 | 225 | 146 | 153 | 165 | 186 | 189 | 115 | 173 |
+| Kafka user-operator | 44 | 13 | 11 | 22 | 7 | 38 | 14 | 22 | 0 |
+| Redis Sentinel | 33 | 51 | 56 | 43 | 22 | 41 | 113 | 2 | 55 |
+| Kafka broker | 7 | 10 | 3 | 5 | 6 | 8 | 4 | 3 | 4 |
+| RabbitMQ | 1 | 0 | 1 | 1 | 0 | 1 | 1 | 1 | 1 |
+
+Full raw-model anomaly rate của search-recommendation là **157/1.024 = 15,33%**, Redis Sentinel **3,22%**, RabbitMQ **0,098%**. Đây là dấu hiệu cần phân tích drift và hiệu quả gate; chưa thể nói hệ thống end-to-end có FPR tương ứng. Bỏ nhóm feature đôi khi giảm anomalous rate, nhưng cũng có thể làm giảm khả năng phát hiện attack. Không lựa chọn biến thể chỉ vì nó cho ít anomaly trên normal holdout.
+
+**Chưa đo:** blind attack recall của từng biến thể, precision end-to-end đã adjudication, latency kernel-to-alert và confidence interval của so sánh attack. Kết quả hiện tại cung cấp bằng chứng tần suất và độ nhạy, chưa đủ chứng minh 29 syscall là tập tối ưu cho paper.

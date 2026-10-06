@@ -1,0 +1,3468 @@
+{
+  "automatic_promotion": false,
+  "heldout_analysis_sha256": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
+  "heldout_capture_sha256": "37c7662a49fd14976d51a3c7e420522de57907eb1178dc35e45b6f0c9bc620c2",
+  "schema": "sentinel-pulse-retrained-normal-ablation-v1",
+  "scope": "raw model, independent normal holdout; policy/attack recall not evaluated",
+  "training_sha256": "f46514f5e4db334fe2939da7deccaf958d800c11a9175616c699aac341717145",
+  "workloads": {
+    "production/aims-frontend:web": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5271934411018211,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 20.164941050112247
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5269723897316854,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 20.077637545298785
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5317293412990299,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 19.999799793120474
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5254124177777924,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 17.73049640096724
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5289185317505516,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 16.569264583755285
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5262562633556201,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 16.377590770833194
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5310201934724426,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 20.322759204078466
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.5335093498725343,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 17.38962121726945
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3307,
+          "calibration_score_p99": 0.524888992747078,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 58349664,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0003022974607013301,
+          "train_examples": 7323,
+          "train_seconds": 16.22747275326401
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 7,
+        "TN_raw_model": 1017,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4768343422771519,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 36.521596909035
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0068359375,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 10,
+        "TN_raw_model": 1014,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47983904978261505,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.548353326972574
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.009765625,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4778769253920704,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 36.18893871502951
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 5,
+        "TN_raw_model": 1019,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.48942093949113885,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.84153061825782
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0048828125,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.48435273758032,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 39.733301906846464
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4838786681727639,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 38.56272540614009
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 4,
+        "TN_raw_model": 1020,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4787237119524275,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.795250774826854
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.00390625,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47559702611097787,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.28039782913402
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 4,
+        "TN_raw_model": 1020,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47998149124493106,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 39.94079147512093
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.00390625,
+        "recall": null
+      }
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5146483587746398,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.1126792547293
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.525570017073852,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 9.429327179677784
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5257764927552427,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 9.554468617774546
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5196910924312581,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.377839184831828
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.519529083910222,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.426581541076303
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5224264863185265,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 11.503140591084957
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5176259741724824,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 9.857971133198589
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5333829125242858,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 8.964561928994954
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5245435888683841,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.005352185573429
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 44,
+        "TN_raw_model": 980,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5100556385934287,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.134999664966017
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.04296875,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 13,
+        "TN_raw_model": 1011,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5160109116814412,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.032208551187068
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0126953125,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 11,
+        "TN_raw_model": 1013,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5108297769327586,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.289368922356516
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0107421875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 22,
+        "TN_raw_model": 1002,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5112220363916603,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.217763338238
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.021484375,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 7,
+        "TN_raw_model": 1017,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5266903120240265,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.307551842648536
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0068359375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 38,
+        "TN_raw_model": 986,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5184795997342635,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 9.596334674861282
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.037109375,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 14,
+        "TN_raw_model": 1010,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5121807197103412,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 10.022581343073398
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.013671875,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 22,
+        "TN_raw_model": 1002,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5237796395171,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 9.040130416862667
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.021484375,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 1779,
+          "calibration_score_p99": 0.5171176450772271,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 32907840,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0005617977528089888,
+          "train_examples": 4130,
+          "train_seconds": 8.639395154081285
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-minio-pool-0:minio": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.516458241501571,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 19.083752712234855
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 13,
+        "TN_raw_model": 1011,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5173599198758678,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 18.770689104218036
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0126953125,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 12,
+        "TN_raw_model": 1012,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5181260539863628,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 19.035169761627913
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.01171875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5177450815946627,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 18.71716786408797
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 7,
+        "TN_raw_model": 1017,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5194948064486878,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 18.517096504103392
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0068359375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.516458241501571,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 19.334014512132853
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 5,
+        "TN_raw_model": 1019,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5176965330317941,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 18.79757883027196
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0048828125,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5164322350307966,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 17.442700295709074
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 10,
+        "TN_raw_model": 1014,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 3347,
+          "calibration_score_p99": 0.5153001273848073,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 61871520,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0002986857825567503,
+          "train_examples": 7765,
+          "train_seconds": 18.476737031713128
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.009765625,
+        "recall": null
+      }
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5448024707167272,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 15.485336198937148
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5429504029364529,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 15.172331421170384
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5335136439997977,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 15.285260311793536
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5564716728237479,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 14.791957115288824
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5525757861073174,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 14.809416639152914
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5448024707167272,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 14.728106441907585
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5498508320750071,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 15.035224553663284
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5315127161972295,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 13.04050315078348
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 2990,
+          "calibration_score_p99": 0.5402188574985798,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 55218240,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00033433634236041456,
+          "train_examples": 6930,
+          "train_seconds": 15.028812190052122
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5130817654903145,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.51236100960523
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5207496267059429,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.98758147191256
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5190310668833373,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.87392279598862
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5179693959484896,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.67842173110694
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5143418987084066,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.34487386280671
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5168210459343868,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.48147701565176
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5162541296624042,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 31.407429278828204
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5173915467439711,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 31.114888853859156
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.5237995263069753,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.49307364737615
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4898804048929565,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.0314408200793
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.49267719328605386,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.90146590117365
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.48621736589088066,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.68750831997022
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4974643250933921,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.45695751486346
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4945629872721871,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 32.76325819315389
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.49213533012720123,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.46282616164535
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4920840436103163,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 32.52653537783772
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4947816945178044,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 31.317201355006546
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4922078099085086,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.21170408092439
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      }
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 33,
+        "TN_raw_model": 991,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.468070337213724,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.969031773973256
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0322265625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 51,
+        "TN_raw_model": 973,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4709075351357178,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.24653692776337
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0498046875,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 56,
+        "TN_raw_model": 968,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.46978654504700135,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.21436831029132
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0546875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 43,
+        "TN_raw_model": 981,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47604002261453765,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.225976704154164
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0419921875,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 22,
+        "TN_raw_model": 1002,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47311721056200223,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.639995735138655
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.021484375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 41,
+        "TN_raw_model": 983,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4719762940008475,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.89762190775946
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0400390625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 113,
+        "TN_raw_model": 911,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.46925528971842323,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.53443754790351
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1103515625,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4639493823289969,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 31.230879531707615
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 55,
+        "TN_raw_model": 969,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.46981983906874397,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.125782678835094
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0537109375,
+        "recall": null
+      }
+    },
+    "production/aims-redis:aims-redis": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47820287573128983,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 36.060321853961796
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47719987963441957,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.17738949507475
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.48037944188687226,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.46820448292419
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4825424749409451,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.22662100987509
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4836606541614196,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.555133300833404
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47989678591924156,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 35.20380391785875
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4758547098321897,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 33.378928766120225
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.47510098649389026,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 31.786515180021524
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 5337,
+          "calibration_score_p99": 0.4795991230303472,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 98731488,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00018733608092918696,
+          "train_examples": 12391,
+          "train_seconds": 34.67366106901318
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 9,
+        "TN_raw_model": 1015,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5040422268039525,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.46652305312455
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0087890625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.504742567575899,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.34097460983321
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 4,
+        "TN_raw_model": 1020,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5022843470850946,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.391031148377806
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.00390625,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5087542186086286,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.23293231707066
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5080692756820528,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 37.644772231113166
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5029667162095269,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.27726365160197
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.49986295000712966,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.18091886676848
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 7,
+        "TN_raw_model": 1017,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.504249164405736,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 35.25839661993086
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0068359375,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 5,
+        "TN_raw_model": 1019,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 6517,
+          "calibration_score_p99": 0.5059642527235662,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 120516000,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.00015342129487572875,
+          "train_examples": 15125,
+          "train_seconds": 38.11592413112521
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0048828125,
+        "recall": null
+      }
+    },
+    "production/api-gateway:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4776944434512204,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 50.437737768981606
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4812052322596392,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 47.53726664977148
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.48032663626912037,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.18872226588428
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4868056733934154,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.41415052302182
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4955369221986323,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.98250739602372
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4919926508687525,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.20887039182708
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4787412789209651,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 46.48486314481124
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 4,
+        "TN_raw_model": 1020,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47714721986874675,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 44.62671056902036
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.00390625,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47919949875577594,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.625977308955044
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      }
+    },
+    "production/auth-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4637693615820816,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 49.083790115080774
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.464821018988589,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 48.82868249481544
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46526846331306526,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 48.94449537061155
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4738059992127548,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 48.01150068780407
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47671326294033417,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 49.20976969692856
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4708203462618779,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 49.07826666813344
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46653207564084476,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 47.073995348997414
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4632031653684514,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 45.99623092683032
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4662451395619654,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 50.42674304172397
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/cart-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4676767330663694,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 50.576681326143444
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4673297114796367,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 49.53150381986052
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4646595075164724,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 48.82573089003563
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47648653699341326,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 53.069587310776114
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4808749112211354,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 52.71436902228743
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47383194367814463,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 56.349569770973176
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4643930335150249,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 45.350938314106315
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4631232327710557,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 44.44384239707142
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.467049649164669,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 49.021905366797
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      }
+    },
+    "production/catalog-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4687494639265507,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 51.81934478878975
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47375180958351343,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.496052871923894
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4695066381012195,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.41099721984938
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.48089216276327734,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.63135524885729
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.48453579104649674,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 50.0254927938804
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 2,
+        "TN_raw_model": 1022,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4819089255279728,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.48408676777035
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.001953125,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47585280824695664,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 47.074313153047115
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4752488627337078,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 47.319546692073345
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47278438137727463,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.840105548966676
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/inventory-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47208577005340446,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 51.44466293370351
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4755446640688714,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 51.09865143429488
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47115318317812127,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 49.69520573178306
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.48054542106161474,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 57.48980570817366
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.48600883394838396,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 55.27414546580985
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47836854642905763,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 57.912764846812934
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47800562623882126,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 48.20446467678994
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4753584075395673,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 47.11262505501509
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4758703745367646,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 53.7377051897347
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    },
+    "production/order-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 8,
+        "TN_raw_model": 1016,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4629539714101521,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 57.607008905149996
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0078125,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 11,
+        "TN_raw_model": 1013,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4647329382735519,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 54.447788963560015
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0107421875,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 11,
+        "TN_raw_model": 1013,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46210584427119644,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 55.48260516067967
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0107421875,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4782141632325119,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 57.12591521581635
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 7,
+        "TN_raw_model": 1017,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4764524433365177,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 51.19077575113624
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0068359375,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 9,
+        "TN_raw_model": 1015,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47221975126518784,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 48.41446323832497
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0087890625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 14,
+        "TN_raw_model": 1010,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46655796750472606,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 55.28444437822327
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.013671875,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 3,
+        "TN_raw_model": 1021,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4669788376219725,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 52.13973694341257
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0029296875,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 6,
+        "TN_raw_model": 1018,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4666755411657613,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131639328,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16521,
+          "train_seconds": 49.352656414266676
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.005859375,
+        "recall": null
+      }
+    },
+    "production/search-recommendation-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 157,
+        "TN_raw_model": 867,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.460550153902329,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 57.068051296286285
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1533203125,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 225,
+        "TN_raw_model": 799,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4578908319932678,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 55.7794952779077
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.2197265625,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 146,
+        "TN_raw_model": 878,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4597605543566158,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 52.55277097225189
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.142578125,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 153,
+        "TN_raw_model": 871,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4669685901485415,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 56.526403098367155
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1494140625,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 165,
+        "TN_raw_model": 859,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47202036344168663,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 54.301326046232134
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1611328125,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 186,
+        "TN_raw_model": 838,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46643570322507083,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 53.61369999824092
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.181640625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 189,
+        "TN_raw_model": 835,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4625566515125388,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 54.04461146425456
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1845703125,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 115,
+        "TN_raw_model": 909,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4617825731720047,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 50.071909881196916
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1123046875,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 173,
+        "TN_raw_model": 851,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4601427654565853,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131631360,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16520,
+          "train_seconds": 55.76917863404378
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.1689453125,
+        "recall": null
+      }
+    },
+    "production/security-telemetry-service:app": {
+      "full": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.46978196252923865,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 56.99568452592939
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "log_count": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.470746531060192,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 55.70558734377846
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "ratio": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4687734743084373,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 55.69309113314375
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "rolling_mean": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.478794133772667,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 58.733602637890726
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "rolling_std": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4836152834914532,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 55.331949438434094
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "security": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4790959835260069,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 55.24954192293808
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "syscall_bin": {
+        "FN": null,
+        "FP_raw_model": 1,
+        "TN_raw_model": 1023,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4733957351902294,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 51.53694768156856
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0009765625,
+        "recall": null
+      },
+      "transition_bin": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.4746304967916649,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 51.57525150058791
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      },
+      "volume": {
+        "FN": null,
+        "FP_raw_model": 0,
+        "TN_raw_model": 1024,
+        "TP": null,
+        "fit": {
+          "calibration_examples": 7116,
+          "calibration_score_p99": 0.47204606781021957,
+          "feature_dim": 249,
+          "fit_matrix_bytes": 131647296,
+          "minimum_calibration_examples": 999,
+          "minimum_conformal_p": 0.0001405086412814388,
+          "train_examples": 16522,
+          "train_seconds": 56.09311308898032
+        },
+        "normal_contexts": 1024,
+        "precision": null,
+        "raw_model_fpr": 0.0,
+        "recall": null
+      }
+    }
+  }
+}
