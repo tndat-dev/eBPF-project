@@ -8,6 +8,11 @@ Thời điểm kiểm tra nằm trong `checked_at_unix`; giờ trình bày trong
 ground truth vẫn cần adjudication; khoảng thiếu telemetry không tính normal/TN.
 Các lỗi được mô tả trong [SOAK_INCIDENTS.md](../../SOAK_INCIDENTS.md).
 
+`current-inspection.json` là snapshot hiện hành từ VM, dùng bởi
+`python3 -m sentinel_pulse.review_observation --inspection <snapshot>`.
+Review không kiểm tra lại raw seals, không có attack/ground-truth labels,
+không suy ra FP=0 khi eligible alerts bằng 0. Snapshot trước đó được giữ nguyên.
+
 `redis-alert-s0012.jsonl` là raw alert sao chép từ worker `.237`, đối chiếu
 SHA-256 với receipt đã audit. `s0019-worker-terminal.json` là receipt exit 1
 của worker `.237`. `s0024-corrected-audit.json` kiểm chứng lại ba raw streams

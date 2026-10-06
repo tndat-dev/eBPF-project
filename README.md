@@ -2,7 +2,7 @@
 
 Hướng phát triển hiện tại là **Sentinel Pulse**: thu syscall bằng eBPF counters,
 trích xuất feature và phát hiện bất thường theo workload/container bằng
-ExtraTrees. Tài liệu tổng thể ở [sentinel-pulse.md](sentinel-pulse.md);
+ExtraTrees. Trạng thái hiện hành ở [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md);
 hướng dẫn code và triển khai ở [sentinel_pulse/README.md](sentinel_pulse/README.md).
 
 Bắt đầu tra cứu tại [mục lục tài liệu](DOCS_INDEX.md). Thư mục gốc chỉ giữ
@@ -11,16 +11,16 @@ tài liệu đang dùng; báo cáo V8, canary đã kết thúc và đặc tả A
 
 ## Tài liệu đang dùng
 
-- [Kiến trúc, khái niệm và luồng tổng thể](sentinel-pulse.md).
-- [Báo cáo nghiên cứu Pulse và lịch sử đánh giá](SENTINEL_PULSE_REPORT.md).
-- [Tiến độ từ 18/09/2026](TIEN_DO_SENTINEL_PULSE_TU_2026-09-18.md).
-- [249 feature](SENTINEL_PULSE_FEATURES_249.md), [định dạng telemetry](WORKLOAD_TELEMETRY_LOG_FORMAT.md)
+- [Campaign soak và tiến độ hiện hành](SOAK_OBSERVATION_STATUS.md).
+- [Lỗi/alert và bằng chứng từ VM](SOAK_INCIDENTS.md).
+- [Nguồn syscall, frequency, importance và ablation](syscall_analysis.md).
+- [Định dạng telemetry](WORKLOAD_TELEMETRY_LOG_FORMAT.md)
   và [ví dụ/lệnh kiểm tra](example.md).
 - [Operational soak runbook](OPERATIONAL_SOAK_RUNBOOK.md),
   [telemetry recovery](PULSE_TELEMETRY_RECOVERY.md) và
   [trạng thái tích hợp formal recovery ngày 04/10/2026](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
 
-Các báo cáo có nhiều checkpoint theo thời gian. Một dòng “active”, lịch kiểm
+Các tài liệu lưu trữ có checkpoint theo thời gian. Một dòng “active”, lịch kiểm
 tra hoặc phiên bản trong checkpoint cũ không phải trạng thái live hiện tại.
 Đối chiếu run ID, timestamp và terminal receipt trước khi dùng số liệu.
 Mục tiêu latency 1–2 giây không đồng nghĩa đã đạt kernel-to-alert;

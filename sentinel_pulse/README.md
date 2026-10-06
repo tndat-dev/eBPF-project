@@ -2,6 +2,36 @@
 
 ## Current status
 
+The active observation campaign is `pulse-observation-c1-20261006`.
+Its frozen worker runtime/model/policy are separate from the current reporting
+checkout. See [live status](../SOAK_OBSERVATION_STATUS.md) and
+[incident evidence](../SOAK_INCIDENTS.md); do not use archived checkpoints below
+to decide whether a service is running.
+
+The current path is projected exact counters, 500 ms snapshots, 249 features,
+three prior windows plus the current window (996 inputs), per-workload/container
+ExtraTrees and conformal calibration, followed by the frozen decision policy.
+The campaign retains alerts and valid exposure across recovery, does not stop
+on quality-budget violations, and does not automatically train/promote.
+
+Read-only progress/alert review of a copied inspection snapshot:
+
+```bash
+python -m sentinel_pulse.review_observation \
+  --inspection validation-evidence/soak-inspection-20261006/current-inspection.json
+```
+
+This review retains alerts outside admitted normal exposure, reports wall and
+bottleneck exposure progress separately, and leaves precision/recall/FPR null.
+It does not audit raw seals or replace the campaign coordinator/finalizer.
+
+## Archived checkpoints and legacy contracts
+
+The following old checkpoints are historical, not current status. The run from
+2026-10-05 ended early; its old ACTIVE statements and review schedules are not
+valid now. Legacy zero-alert gates do not control the current observation
+campaign. Old V8 isolation statements describe the original design.
+
 SSH/receipts reviewed on 2026-10-05. Update this block in place, keep raw
 evidence separately. **Formal recovery soak is now running in the background**:
 `pulse-recovery-formal-c1-20261005`, registered09:06:19 ICT,89880s/node,
@@ -139,13 +169,15 @@ capture, binds its checksum and registered artifacts, verifies duration within
 counters. Output uses exclusive creation. It never trains/promotes a model or
 converts collector-only results into ML accuracy/latency evidence.
 
-## Data path
+## Current data path
 
 1. `cgroup_resolver.py` maps local production pod/container cgroups from CRI.
-2. `pulse_counter.bpf.c` counts every syscall and per-task adjacent transition.
-3. `pulse_counter_loader` snapshots cumulative maps every second.
+2. The projected eBPF collector counts syscall entry attempts and per-task
+   adjacent transitions for allowed production cgroups, with integrity checks.
+3. `pulse_counter_projected_loader` snapshots the maps every 500 ms in the
+   active observation segments.
 4. `capture.py` computes exact deltas and emits 249-dimensional JSONL features.
-   `assemble_dataset.py` then admits only rows fully contained in the four
+   `assemble_dataset.py` then admits only rows fully contained in preregistered
    measured traffic intervals. Legacy node-manifest v1 called the full
    first-to-last campaign span `in_contract_rows`, including transition gaps;
    the assembler verifies that value as `campaign_span_rows` while deriving
@@ -157,8 +189,9 @@ converts collector-only results into ML accuracy/latency evidence.
    rows are compacted into contiguous `float32` arrays per sequence instead of
    retaining JSON dictionaries/Python-float lists for the multi-million-row
    campaign.
-6. `detect.py` performs one-window decisions and records inference plus
-   kernel-window-to-decision latency. Its JSONL follower detects atomic file
+6. `detect.py` scores temporal contexts and applies the frozen semantic/temporal
+   policy. It records inference and feature/window-to-decision timing, not
+   measured blind kernel-to-alert latency. Its JSONL follower detects atomic file
    replacement/truncation and resumes at the beginning of the new capture, so
    collector rotation does not strand the detector on an old inode.
    Runtime history uses the same 1.5-second/regime boundary as training;
@@ -168,12 +201,17 @@ converts collector-only results into ML accuracy/latency evidence.
    Every scored decision carries that manifest SHA-256. Normal and blind-attack
    evaluators reject missing/mixed model identities, and finalization requires
    both reports to match the exact bundle being reviewed.
-   Normal-soak duration is measured with unique one-second wall-clock buckets,
-   not raw replica window count; every workload must cover at least 95% of its
-   24-hour span with zero alerts.
+   Current observation exposure is the union of eligible scored intervals
+   across replicas/nodes, not raw row counts. Missing intervals remain unknown,
+   alerts are retained, and quality-budget failures do not stop the campaign.
 
 No attack sample is accepted by `train.py`. Keep attack captures in a separate
 immutable root and hash the normal dataset/model manifest before blind tests.
+
+## Legacy zero-alert evaluation path
+
+The following gates/extensions are kept for reproducibility of older runs.
+They are not the control policy of the active observation campaign.
 
 Before another 24-hour normal soak, a 15-minute live-normal coverage preflight
 must pass for every workload key. The ingress generator paces requests across
