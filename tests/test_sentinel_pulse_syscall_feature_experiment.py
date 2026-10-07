@@ -6,7 +6,7 @@ import json
 
 from sentinel_pulse.features import PulseFeatureBuilder, SENSITIVE_IDS, TRACKED_SYSCALLS
 from sentinel_pulse.syscall_feature_experiment import (
-    explicit_channels, load_checkpoint, masked_contexts, training_frequency_proxy, variant_masks,
+    explicit_channels, load_checkpoint, masked_contexts, training_frequency_proxy, validate_proxy_roundoff, variant_masks,
 )
 
 
@@ -156,3 +156,21 @@ def test_resume_rejects_unbound_or_tampered_checkpoint(tmp_path,change):
     else:result['schema']='other'
     (tmp_path/'RESULTS.json').write_text(json.dumps(result))
     with pytest.raises(ValueError):load_checkpoint(tmp_path,expected)
+
+
+def test_cross_cpu_one_ulp_proxy_difference_does_not_change_selection():
+    old={name:0. for name in TRACKED_SYSCALLS.values()};old['read']=76804.0012292337
+    current={**old,'read':np.nextafter(old['read'],0)}
+    differences=validate_proxy_roundoff(old,current,columns())
+    assert len(differences)==1 and differences[0]['syscall']=='read'
+    assert differences[0]['absolute_difference']==np.spacing(old['read'])
+
+
+@pytest.mark.parametrize('change',['large','rank','zero'])
+def test_proxy_tolerance_does_not_admit_changed_counts_or_rank(change):
+    old={name:0. for name in TRACKED_SYSCALLS.values()};old['read']=10.;old['write']=10.
+    current=old.copy()
+    if change=='large':current['read']+=1e-8
+    elif change=='rank':current['write']=np.nextafter(10.,11.)
+    else:current['close']=np.nextafter(0.,1.)
+    with pytest.raises(ValueError):validate_proxy_roundoff(old,current,columns())

@@ -140,6 +140,31 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def validate_proxy_roundoff(old, current, columns):
+    """Allow only float64 reduction roundoff, never a changed selection.
+
+    The hash-bound float32 inputs are identical. SIMD/reduction implementations
+    can differ by an ULP when accumulating expm1 counts across CPUs.
+    """
+    old_masks, old_rank, old_kept = variant_masks(columns, old)
+    masks, rank, kept = variant_masks(columns, current)
+    if (old_masks, old_rank, old_kept) != (masks, rank, kept):
+        raise ValueError("checkpoint syscall ranking/masks changed")
+    differences = []
+    for name, value in current.items():
+        previous = old[name]
+        difference = abs(value - previous)
+        bound = 8 * max(np.spacing(abs(value)), np.spacing(abs(previous)))
+        if (value == 0 or previous == 0) and value != previous:
+            raise ValueError("checkpoint zero count changed")
+        if difference > bound:
+            raise ValueError("checkpoint training counts changed beyond 8 float64 ULPs")
+        if difference:
+            differences.append({"syscall": name, "previous": previous, "current": value,
+                                "absolute_difference": difference, "maximum_allowed_difference": float(bound)})
+    return differences
+
+
 def load_checkpoint(parent, start):
     """Read a stopped attempt; never rewrite its START/results/terminal.
 
@@ -194,7 +219,10 @@ def load_checkpoint(parent, start):
                         or not np.array_equal(anomalous, p <= start["alpha"])
                         or int(anomalous.sum()) != record["raw_anomalous_contexts"]):
                     raise ValueError("checkpoint prediction content mismatch")
-            kept[variant] = {**record, "carried_from_start_sha256": parent_start_hash,
+            kept[variant] = {**record,
+                             "origin_start_sha256": record.get("origin_start_sha256", record.get("carried_from_start_sha256", parent_start_hash)),
+                             "origin_source_commit": record.get("origin_source_commit", record.get("carried_from_source_commit", prior["source"]["source_git_commit"])),
+                             "carried_from_start_sha256": parent_start_hash,
                              "carried_from_source_commit": prior["source"]["source_git_commit"]}
         carried[key] = {**result, "variants": kept}
     receipt = {"path": str(parent), "start_sha256": parent_start_hash,
@@ -218,6 +246,7 @@ def run(inputs, output, resume_from=None):
     start = {
         "schema": "sentinel-pulse-explicit-syscall-experiment-start-v1",
         "created_at": utc_now(), "source": source, "software": software,
+        "execution_host": {"hostname": platform.node(), "machine": platform.machine(), "kernel": platform.release()},
         "reference_training_software": manifest["software"],
         "input_sha256": {name: sha256_file(inputs / name) for name in (
             "manifest.json", "features.jsonl", "features.jsonl.manifest.json",
@@ -269,8 +298,8 @@ def run(inputs, output, resume_from=None):
                 proxy = training_frequency_proxy(sequences[key], columns, manifest["history_windows"])
                 variants, ranking, retained = variant_masks(columns, proxy)
                 result = results["workloads"].get(key)
-                if result is not None and result["training_count_proxy"] != proxy:
-                    raise ValueError("checkpoint training ranking differs from verified inputs")
+                if result is not None:
+                    result["resume_training_proxy_roundoff"] = validate_proxy_roundoff(result["training_count_proxy"], proxy, columns)
                 result = result or {"training_count_proxy": proxy, "training_rank": ranking,
                           "top16_plus_sensitive_retained_syscalls": retained, "variants": {}}
                 results["workloads"][key] = result
