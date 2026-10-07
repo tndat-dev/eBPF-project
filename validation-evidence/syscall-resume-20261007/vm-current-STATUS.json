@@ -1,0 +1,11 @@
+{
+  "completed_fits": 61,
+  "errors": [],
+  "expected_fits": 608,
+  "process_peak_rss_mib_cumulative": 1059.68359375,
+  "reused_fits": 59,
+  "state": "fitting",
+  "updated_at": "2026-10-07T06:38:40.128825+00:00",
+  "variant": "drop_clone3",
+  "workload": "production/aims-kafka-dual-role:kafka"
+}

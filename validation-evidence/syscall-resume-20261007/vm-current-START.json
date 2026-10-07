@@ -1,0 +1,98 @@
+{
+  "alpha": 0.001,
+  "automatic_promotion": false,
+  "collector_attached": false,
+  "created_at": "2026-10-07T06:36:39.581575+00:00",
+  "deploy_from_holdout_ranking": false,
+  "evidence_class": "exploratory_independent_normal_only",
+  "execution_host": {
+    "hostname": "k8s-master.local",
+    "kernel": "6.8.0-138-generic",
+    "machine": "x86_64"
+  },
+  "expected_fits": 608,
+  "heldout_already_inspected": true,
+  "history": 3,
+  "host_resource_limits": "set externally by systemd; inference timing is host/quota-specific, not kernel-to-alert",
+  "input_sha256": {
+    "analysis.json": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
+    "contexts.npz": "63b5a4b456ecec9c26a90464ae373d87692482e093ab0f51f975da51281c0ea2",
+    "features.jsonl": "f46514f5e4db334fe2939da7deccaf958d800c11a9175616c699aac341717145",
+    "features.jsonl.manifest.json": "d97318dae77551b71d54cd1198cf01ffdaa3ab108ac7c55d68d477bcb0acc414",
+    "manifest.json": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "training-contract.json": "e75c7e6f957f16b7595329b332467d72169a9557903b94cdc03db09376e50e65"
+  },
+  "live_soak_modified": false,
+  "missing_holdout_workloads": [
+    "production/notification-service:app",
+    "production/payment-service:app"
+  ],
+  "privacy": "no production payloads or credentials collected",
+  "reference_binding": "manifest only; every classifier including full is retrained on this host",
+  "reference_model_artifacts_loaded": false,
+  "reference_training_software": {
+    "joblib": "1.5.3",
+    "narwhals": "2.24.0",
+    "numpy": "2.5.2",
+    "python": "3.12.3",
+    "scikit_learn": "1.9.0",
+    "scipy": "1.18.0",
+    "threadpoolctl": "3.6.0"
+  },
+  "resume_from": {
+    "orchestration_source_may_differ": true,
+    "path": "/home/dat/sentinel-pulse-syscall-feature-c1/runs/attempt-000001",
+    "results_sha256": "d48fd722f791c2ef27aee099b3412271b17b940f81967c9f1d45c293cc54531e",
+    "reused_fits": 59,
+    "start_sha256": "2a70c30a59a3510885d890d4ec6f1df169e3e137c5086656fc6b063aca48d525",
+    "terminal_sha256": "c5642b4a87e7b2239042b3db25c09b2f3be3c097e8fcf48ca29f38015d4f493d",
+    "timing_warning": "carried inference timings belong to the original host/quota; do not pool with new VM timings"
+  },
+  "schema": "sentinel-pulse-explicit-syscall-experiment-start-v1",
+  "scope": "explicit channels only; bins/aggregates retained; policy and attack recall not evaluated",
+  "software": {
+    "joblib": "1.6.0",
+    "numpy": "2.5.3",
+    "python": "3.12.3",
+    "scikit_learn": "1.9.1"
+  },
+  "source": {
+    "source_clean": true,
+    "source_git_commit": "8976daa457580f60345ded588f28f7662d256853",
+    "source_git_diff_sha256": "66129b3c0caf86034131268c27bd275d29e55da10e6d33cf2a4ed391cbe621a0",
+    "source_git_status": [],
+    "source_untracked_files": []
+  },
+  "source_module_sha256": {
+    "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+    "features.py": "4a23687e23cdff740c3a8efda98b9f77607566159c0b45286ed007245b4f8ddc",
+    "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+    "syscall_feature_experiment.py": "f7a98acc2f08cdec8ce950e7dde7a57159f2cc750eb6ac8f262720c82a339140",
+    "train.py": "daa6a5a21e67f7c5b1f3d4e287efe30cb2f94f776530543ca35c9dab9a47d1f6"
+  },
+  "top16_selection": "training-prefix expm1(log_count) approximation plus fixed sensitive whitelist; never calibration/holdout ranking",
+  "training_fraction": 0.7,
+  "variants_per_workload": 32,
+  "window_seconds": 0.5,
+  "workloads": [
+    "production/aims-frontend:web",
+    "production/aims-kafka-dual-role:kafka",
+    "production/aims-kafka-entity-operator:topic-operator",
+    "production/aims-kafka-entity-operator:user-operator",
+    "production/aims-minio-pool-0:minio",
+    "production/aims-minio-pool-0:sidecar",
+    "production/aims-postgres-cnpg:postgres",
+    "production/aims-rabbitmq-server:rabbitmq",
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+    "production/aims-redis:aims-redis",
+    "production/aims-waypoint:istio-proxy",
+    "production/api-gateway:app",
+    "production/auth-service:app",
+    "production/cart-service:app",
+    "production/catalog-service:app",
+    "production/inventory-service:app",
+    "production/order-service:app",
+    "production/search-recommendation-service:app",
+    "production/security-telemetry-service:app"
+  ]
+}

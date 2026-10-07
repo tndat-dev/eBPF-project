@@ -1,0 +1,3 @@
+Nguồn: last -x -n 8 trên tndat-Dell; timezone Asia/Bangkok, kiểm tra 07/10/2026.
+reboot   system boot  7.0.0-38-generic Wed Oct  7 13:21   still running
+shutdown system down  7.0.0-38-generic Wed Oct  7 10:25 - 13:21  (02:55)

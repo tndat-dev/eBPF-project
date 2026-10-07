@@ -1,0 +1,69 @@
+{
+  "binding": {
+    "config": {
+      "model": "/home/dat/eBPF-project-projected-operational-20261003/validation-evidence/frozen-r10-c1/model",
+      "policy": "/home/dat/eBPF-project-projected-operational-20261003/validation-evidence/frozen-r10-c1/decision-policy.json",
+      "schema": "sentinel-pulse-recovery-coordinator-config-v1",
+      "source": "/home/dat/eBPF-project-observation-r2-20261006",
+      "workers": {
+        "10.1.16.237": {
+          "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+          "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+          "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c1-20261002T101900Z",
+          "source": "/home/dat/eBPF-project-observation-r2-20261006"
+        },
+        "10.1.16.238": {
+          "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+          "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+          "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+          "source": "/home/dat/eBPF-project-observation-r2-20261006"
+        },
+        "10.1.16.239": {
+          "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+          "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+          "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+          "source": "/home/dat/eBPF-project-observation-r2-20261006"
+        }
+      }
+    },
+    "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "protocol": {
+      "automatic_promotion": false,
+      "automatic_training": false,
+      "evaluation_unit": "preregistered non-overlapping scenario interval, same unit for normal and attack",
+      "expected_confusion_matrix_not_measured": {
+        "FN": 10,
+        "FP": 10,
+        "TN": 190,
+        "TP": 190,
+        "attack_intervals": 200,
+        "fpr": 0.05,
+        "normal_intervals": 200,
+        "precision": 0.95,
+        "recall": 0.95
+      },
+      "matrix_is_not_a_deployment_rate_budget": true,
+      "maximum_alerts_per_hour_per_workload": 0.05,
+      "maximum_alerts_per_valid_workload_hour": 0.01,
+      "maximum_wall_seconds": 172800,
+      "minimum_recall_target": 0.9,
+      "minimum_wall_seconds": 86400,
+      "missing_attack_observation": "count as end-to-end miss; also report conditional scored recall",
+      "missing_normal_observation": "unknown, never TN",
+      "precision_target_benchmark_only": 0.95,
+      "preferred_recall_target": 0.95,
+      "retry_seconds": 60,
+      "schema": "sentinel-pulse-observation-campaign-v1",
+      "segment_seconds": 1800,
+      "stop_on_alert": false,
+      "stop_on_quality_gate": false,
+      "target_valid_seconds_per_workload": 86400,
+      "test_outcomes_used_for_training": false
+    },
+    "source_commit": "a3cdbfbf170d4fc0604bc1b3ebfc96c1aad89b4f",
+    "source_files_sha256": "4bfe49e4682d4150679d7eb621b589cbff912e7e99f1699838d185e5bf05a349"
+  },
+  "schema": "sentinel-pulse-observation-registration-v1",
+  "started_at_unix": 1791252565.1356192
+}

@@ -126,7 +126,7 @@ Capture sau train của run `pulse-recovery-formal-c1-20261005` được dùng c
 
 ## Các phép đo đã triển khai trong code
 
-Thí nghiệm offline bỏ từng kênh syscall đã khởi chạy trên host, không thay soak. Phạm vi 19 workload × 32 biến thể và đường dẫn kiểm tra job trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Đây là normal-only exploratory, chưa cung cấp blind recall hoặc lựa chọn tập syscall tối ưu. Danh sách VM cho vòng full-ID/cross-distro tiếp theo nằm trong [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md); các VM đó chưa được tạo/kiểm chứng trong lượt này.
+Thí nghiệm offline bỏ từng kênh syscall đã chuyển sang service cố định trên VM `.234`, tiếp tục checkpoint 59 fit sau shutdown host; không thay model production. Phạm vi 19 workload × 32 biến thể và đường dẫn job trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Đây là normal-only exploratory, chưa cung cấp blind recall hoặc tập syscall tối ưu. Danh sách VM full-ID/cross-distro tiếp theo tại [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md); các VM đó chưa được tạo/kiểm chứng trong lượt này.
 
 `sentinel_pulse/syscall_analysis.py` thực hiện:
 

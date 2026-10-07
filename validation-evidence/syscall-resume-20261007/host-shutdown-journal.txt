@@ -1,0 +1,8 @@
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Stopped target default.target - Main User Target.
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Stopping pulse-syscall-feature-c1-20261007.service - Isolated normal-only syscall feature experiment...
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Stopped pulse-syscall-feature-c1-20261007.service - Isolated normal-only syscall feature experiment.
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: pulse-syscall-feature-c1-20261007.service: Consumed 27min 59.525s CPU time, 1.1G memory peak, 0B memory swap peak.
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Reached target shutdown.target - Shutdown.
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Finished systemd-exit.service - Exit the Session.
+2026-10-07T10:25:41+07:00 tndat-Dell systemd[2567]: Reached target exit.target - Exit the Session.
+2026-10-07T10:25:41+07:00 tndat-Dell (sd-pam)[2578]: pam_unix(systemd-user:session): session closed for user tndat

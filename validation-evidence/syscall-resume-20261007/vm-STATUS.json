@@ -1,0 +1,13 @@
+{
+  "completed_fits": 59,
+  "errors": [
+    {
+      "exception": "ValueError",
+      "message": "checkpoint training ranking differs from verified inputs"
+    }
+  ],
+  "expected_fits": 608,
+  "reused_fits": 59,
+  "state": "failed",
+  "updated_at": "2026-10-07T06:33:03.338728+00:00"
+}

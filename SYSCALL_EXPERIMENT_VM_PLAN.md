@@ -79,4 +79,4 @@ Các lệnh này chỉ kiểm tra nền tảng, chưa chứng minh attach/đếm
 - **Khả năng tổng quát ML:** báo riêng chuyển model Ubuntu đã khóa sang OS đích và model train/calibrate từ normal của OS đích. Mapping đúng không đồng nghĩa model vẫn đúng trên phân phối mới.
 - **Chất lượng và tốc độ:** normal holdout/soak có adjudication, blind attack trials trong lab tách biệt, precision/recall/FPR, coverage, CI, overhead và kernel-to-alert. Không suy recall từ chỉ tần suất hoặc importance.
 
-Thí nghiệm offline đang chạy trên host được mô tả trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó chưa phải thực nghiệm full-ID/cross-OS trong bảng này và không thay đổi model hay soak production.
+Thí nghiệm offline chọn kênh đã chuyển sang service cố định trên VM `.234`, mô tả trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó chưa phải thực nghiệm full-ID/cross-OS trong bảng này và không thay đổi model production. Soak hiện hành đã completed; các VM trong kế hoạch này vẫn chưa được kiểm chứng.

@@ -1,0 +1,13 @@
+Restart=on-failure
+MainPID=0
+Result=exit-code
+NRestarts=0
+MemoryCurrent=[not set]
+CPUQuotaPerSecUSec=1.500000s
+MemoryMax=4294967296
+TasksMax=64
+ActiveState=failed
+SubState=failed
+UnitFileState=enabled
+ActiveEnterTimestamp=
+0d424d403e154f41bfded05e1b23c4478f6091c0c96cb268a6418c4a8b794b16  /etc/systemd/system/pulse-syscall-feature-c1.service

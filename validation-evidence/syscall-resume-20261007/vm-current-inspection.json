@@ -1,0 +1,13 @@
+{
+  "schema": "sentinel-pulse-offline-vm-detached-inspection-v1",
+  "checked_at_unix": 1791355144.5742023,
+  "host": "10.1.16.234",
+  "attempt": "attempt-000002",
+  "sha256": {
+    "START.json": "03d176fca3031d6fcb84ecd71941ba482aa035983818f11fa0901f607ab0095f",
+    "STATUS.json": "4c6114792e4281d3d5a29ec28f428db14ed75387131763c00acbaacbb499367f"
+  },
+  "systemd_show": "Restart=on-failure\nMainPID=2106315\nNRestarts=0\nMemoryCurrent=1072046080\nCPUQuotaPerSecUSec=1.500000s\nMemoryMax=4294967296\nTasksMax=64\nActiveState=activating\nSubState=start\nUnitFileState=enabled\n",
+  "ssh_deployment_connection_closed_before_this_check": true,
+  "boot_recovery_configured_not_tested_by_reboot": true
+}
