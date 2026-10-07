@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from sentinel_pulse.support_model import PulseSupportEnsemble
-from sentinel_pulse.diagnose_attack_gates import classify
+from sentinel_pulse.diagnose_attack_gates import classify, verified_records
 
 
 class ConstantTree:
@@ -86,3 +86,16 @@ def test_late_or_wrong_identity_does_not_count_as_horizon_evidence():
     record=dict(status='alert',workload_key='w',pod_uid='p',node_name='n',cgroup_id='1',window_end=11,alerted_at=26)
     assert classify(trial,[record])['first_limiting_stage']=='no_scored_horizon_window'
     assert classify(dict(trial,status='infrastructure_unknown'),[])['first_limiting_stage']=='infrastructure_unknown'
+
+
+def test_streamed_diagnosis_checks_binding_even_outside_target_horizon(tmp_path):
+    import json
+    path = tmp_path / 'tail.jsonl'
+    row = dict(status='normal', model_manifest_sha256='model', decision_policy_sha256='policy')
+    path.write_text(json.dumps(row)+'\n'+json.dumps(dict(row, decision_policy_sha256='changed'))+'\n')
+    start = dict(model_manifest_sha256='model', decision_policy_sha256='policy')
+    records = verified_records(path, start)
+    assert iter(records) is records
+    assert next(records) == row
+    with pytest.raises(ValueError, match='mismatch'):
+        next(records)

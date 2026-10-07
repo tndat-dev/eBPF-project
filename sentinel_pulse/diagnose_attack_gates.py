@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 
 from .integrity import sha256_file
-from .observation_attack import rows
 from .run_500ms_blind_matrix import atomic_json
 
 
@@ -33,6 +32,20 @@ def classify(trial, records):
                 any_semantic_windows=sum(r.get('semantic_corroborated') is True for r in selected))
 
 
+def verified_records(path, start):
+    """Stream large tails; do not materialize all workload decisions in RAM."""
+    if not path.exists():
+        raise ValueError('observed trial has no decision tail')
+    with path.open(encoding='utf-8') as stream:
+        for line in stream:
+            row = json.loads(line)
+            if row.get('status') in {'normal','suppressed','alert'} and (
+                    row.get('model_manifest_sha256') != start['model_manifest_sha256']
+                    or row.get('decision_policy_sha256') != start['decision_policy_sha256']):
+                raise ValueError('decision tail model/policy mismatch')
+            yield row
+
+
 def analyze(root, output):
     start = json.loads((root/'START.json').read_text())
     policy = json.loads(Path(start['config']['policy']).read_text())
@@ -45,12 +58,7 @@ def analyze(root, output):
         records = []
         if trial['status'] == 'observed':
             index = int(trial['injection_id'].rsplit(':',1)[1])
-            records = rows(root/'trials'/f'{index:04d}'/'decision-tail.jsonl')
-            for row in records:
-                if row.get('status') in {'normal','suppressed','alert'} and (
-                        row.get('model_manifest_sha256') != start['model_manifest_sha256']
-                        or row.get('decision_policy_sha256') != start['decision_policy_sha256']):
-                    raise ValueError('decision tail model/policy mismatch')
+            records = verified_records(root/'trials'/f'{index:04d}'/'decision-tail.jsonl', start)
         detail = classify(trial,records)
         details.append(dict(injection_id=trial['injection_id'], scenario=trial['scenario'],
                             workload_key=trial['workload_key'], **detail))
