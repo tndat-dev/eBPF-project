@@ -113,6 +113,14 @@ def seal(root):
 def run(args):
     root = args.root
     root.mkdir(parents=True, exist_ok=True)
+    # A boot-enabled oneshot runs again after reboot. Never rewrite QUEUE (or
+    # any other sealed receipt) after terminal; only regenerate the separate
+    # derived report. Also recover the terminal-to-seal crash boundary.
+    if (root / 'TERMINAL.json').exists():
+        if not (root / 'EVIDENCE_SEAL.json').exists():
+            seal(root)
+        finalize(args.attack_root, root, args.output)
+        return
     if args.password_file.stat().st_mode & 0o077:
         raise ValueError('credential must be private')
     cfg = json.loads(args.config.read_text())

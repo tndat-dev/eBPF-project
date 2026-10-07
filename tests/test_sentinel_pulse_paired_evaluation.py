@@ -1,10 +1,11 @@
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from sentinel_pulse.integrity import sha256_file
-from sentinel_pulse.normal_control import evaluate_control, recover_epochs, select_targets
+from sentinel_pulse.normal_control import evaluate_control, recover_epochs, run, seal, select_targets
 from sentinel_pulse.observation_attack import schedule
 from sentinel_pulse.blind_contract import load_contract
 from sentinel_pulse.paired_evaluation import audit_attack, confusion, control_plan, verify_seal
@@ -134,6 +135,23 @@ def test_boot_persistent_normal_control_waits_for_sealed_attack():
     unit = (ROOT / 'sentinel_pulse/systemd/sentinel-pulse-normal-control.service').read_text()
     assert 'Restart=on-failure' in unit and 'WantedBy=multi-user.target' in unit
     assert 'TimeoutStartSec=infinity' in unit and 'RestartPreventExitStatus=65' in unit
+
+
+@pytest.mark.parametrize('already_sealed', [False, True])
+def test_completed_service_reboot_never_rewrites_sealed_queue(tmp_path, monkeypatch, already_sealed):
+    (tmp_path / 'START.json').write_text('{}')
+    (tmp_path / 'TERMINAL.json').write_text('{}')
+    (tmp_path / 'QUEUE.json').write_text('{"status":"auditing_sealed_attack"}')
+    if already_sealed:
+        seal(tmp_path)
+    before = sha256_file(tmp_path / 'QUEUE.json')
+    called = []
+    def finalizer(attack, root, output):
+        verify_seal(root)
+        called.append(root)
+    monkeypatch.setattr('sentinel_pulse.normal_control.finalize', finalizer)
+    run(SimpleNamespace(root=tmp_path, attack_root=Path('/not-needed'), output=Path('/separate')))
+    assert sha256_file(tmp_path / 'QUEUE.json') == before and called == [tmp_path]
 
 
 @pytest.mark.parametrize('detected', [True, False])
