@@ -26,6 +26,14 @@ Regression suite Sentinel Pulse hiện qua **726 test và 20 subtest** (34,37 gi
 
 Giữ model/policy và raw seals cuối kỳ; không xóa alert hoặc đưa campaign vào training hiện tại. Adjudicate alert Redis bằng bằng chứng process/maintenance nếu còn đủ log, giữ `uncertain` nếu không đủ. Ưu tiên chạy trọn luồng attack của chính candidate đã soak, **không yêu cầu alert = 0**, không đợi thí nghiệm syscall và không thay model/subset trước khi lấy kết quả. Luồng riêng và giới hạn kết luận: [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md). Thí nghiệm syscall offline vẫn chạy độc lập; subset mới chỉ được đánh giá trên candidate/tập kiểm tra tách biệt sau này.
 
+SSH kiểm tra ngày 08/10 lúc 02:23:50 ICT: attack campaign đang chạy ngầm,
+447/475 receipt (94,11%). Trong 371 interval observed có 131 phát hiện,
+240 miss: recall có điều kiện **35,31%**; 76 unknown được giữ, tỷ lệ phát
+hiện end-to-end **29,31%**. Precision/FP/TN chưa đo được; không chuyển một
+alert Redis chưa adjudication thành FP hay xóa nó để công bố precision 100%.
+Candidate hiện **chưa đủ bằng chứng recall cao/stable**. Chi tiết, latency
+và bằng chứng có checksum nằm trong báo cáo attack được liên kết ở trên.
+
 ## Mục tiêu và tiêu chí đã đăng ký
 
 Campaign thu tối thiểu 24 giờ thực tế và hướng tới 24 giờ **được score hợp lệ cho từng workload**. Thời gian tối đa 48 giờ. Nếu chưa đủ khi hết hạn, xuất kết quả `completed_with_insufficient_coverage` cùng phần thiếu; không tự chạy lại từ đầu. Thời lượng là thiết kế thí nghiệm để quan sát chu kỳ vận hành, không phải yêu cầu bắt buộc của ExtraTrees.

@@ -1,0 +1,67 @@
+{
+  "attack_attribution_horizon_seconds": 15,
+  "attack_outcomes_used_for_training_or_tuning": false,
+  "automatic_promotion": false,
+  "completed_trial_receipts": 447,
+  "conditional_observed_attack_recall": 0.353099730458221,
+  "confusion_matrix": {
+    "FN_observed": 240,
+    "FP": null,
+    "TN": null,
+    "TP_observed": 131,
+    "attack_unknown": 76
+  },
+  "detected_attack_intervals": 131,
+  "end_to_end_detection_fraction_on_completed_planned_trials": 0.2930648769574944,
+  "evidence_class": "observation_attack_matrix",
+  "expected_trial_intervals": 475,
+  "false_positive_rate": null,
+  "formal_legacy_pass": false,
+  "infrastructure_unknown_intervals": 76,
+  "kernel_to_alert_seconds_detected_trials_only": {
+    "p50": 0.6510524749755859,
+    "p95": 1.8816909790039062,
+    "p99": 4.543833589553829
+  },
+  "last_trial": {
+    "cgroup_id": 4524944,
+    "detected": false,
+    "health_context_before_trial": {
+      "global_health_gate": true
+    },
+    "injected_at": 1791400853.4053335,
+    "injection_id": "pulse-observation-attack-c2-20261007:0447",
+    "kernel_event_at": 1791400854.2164,
+    "kernel_exec_id": "azhzLXdvcmtlcjQubG9jYWw6MzM0Mjg5NTE0ODczNjA2MToyMzUxODM4",
+    "leg_run_id": "pulse-observation-attack-c2-20261007-a0078",
+    "minimum_scored_target_windows": 81,
+    "node_name": "k8s-worker4.local",
+    "pod_name": "aims-kafka-entity-operator-5455dcf447-8cgn9",
+    "pod_uid": "db91fe6e-9908-4151-b1fe-ed12669b6df1",
+    "rate_per_second": 12,
+    "scenario": "execveat_resolution_probe",
+    "scored_target_windows": 85,
+    "seed": 53051,
+    "status": "observed",
+    "target_status_counts": {
+      "normal": 85,
+      "telemetry-degraded": 1,
+      "warming": 3
+    },
+    "temporary_binary_cleanup_returncode": 0,
+    "workload_controller": "aims-kafka-entity-operator",
+    "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+  },
+  "latency_sample_count": 131,
+  "minimum_scored_window_fraction_for_observed_trial": 0.9,
+  "mixed_window_and_interval_denominators_forbidden": true,
+  "normal_soak_alerts_not_silently_adjudicated": true,
+  "observed_attack_intervals": 371,
+  "observed_misses": 240,
+  "planned_full_matrix_detection_lower_bound": 0.27578947368421053,
+  "precision": null,
+  "progress_percent": 94.10526315789474,
+  "schema": "sentinel-pulse-observation-attack-results-v1",
+  "status": "running",
+  "updated_at_unix": 1791400937.8743773
+}

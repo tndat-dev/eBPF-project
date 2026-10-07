@@ -1,6 +1,7 @@
 import copy
 import json
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -122,3 +123,60 @@ def test_vm_service_is_detached_boot_enabled_and_not_a_zero_gate():
     assert 'TimeoutStartSec=infinity' in unit and 'User=dat' in unit
     assert '--password-file ${PULSE_ATTACK_CREDENTIAL}' in unit
     assert 'SSHPASS=' not in unit
+
+
+@pytest.mark.parametrize('case', ['hit', 'miss', 'kernel_missing', 'sparse', 'cleanup_failed'])
+def test_trial_live_path_retains_hit_miss_and_evidence_failure(tmp_path, monkeypatch, case):
+    import sentinel_pulse.attack_trial as module
+    class FakeRuntime:
+        environment = {}
+        marker = None
+        def kubectl_json(self, *args):
+            if args[:2] == ('get', 'node'):
+                return {'status': {'conditions': [{'type': 'Ready', 'status': 'True'}]}}
+            if 'kube-system' in args:
+                return {'items': [{'metadata': {'name': 'sensor'}, 'spec': {'nodeName': 'node'}}]}
+            return {'items': [{'metadata': {'name': 'x-pod', 'uid': 'uid'},
+                'spec': {'nodeName': 'node', 'containers': [{'name': 'app'}]},
+                'status': {'phase': 'Running', 'conditions': [{'type': 'Ready', 'status': 'True'}],
+                           'containerStatuses': [{'ready': True}]}}]}
+        def run(self, cmd, **kwargs):
+            if 'list' in cmd:
+                return subprocess.CompletedProcess(cmd, 0, b'sentinel-pulse-exec-provenance enabled', b'')
+            if cmd[-4:] == ['a', '1', '12', '1']:
+                return subprocess.CompletedProcess(cmd, 0, b'', b'sentinel-runtime-attack start\nsentinel-runtime-attack done')
+            return subprocess.CompletedProcess(cmd, 1 if case == 'cleanup_failed' and 'rm' in cmd else 0, b'', b'')
+        def remote_sudo(self, host, cmd, **kwargs):
+            if cmd.startswith('cat '):
+                payload = json.dumps({'cgroups': {'42': {'pod_uid': 'uid', 'container_name': 'app'}}}).encode()
+            elif cmd.startswith('tee '):
+                self.marker = json.loads(kwargs['payload']); payload = b''
+            else:
+                alert = dict(schema='sentinel-pulse-decision-v1', injection_id=self.marker['injection_id'],
+                    status='alert', alerted_at=self.marker['injected_at']+.1,
+                    window_end=self.marker['injected_at']+.25, cgroup_id='42', workload_key='production/x:app',
+                    pod_uid='uid', node_name='node', model_manifest_sha256='m', decision_policy_sha256='p')
+                if cmd.startswith('grep'):
+                    payload = (json.dumps(alert)+'\n').encode() if case == 'hit' else b''
+                elif case == 'sparse': payload = b''
+                else: payload = (json.dumps(dict(alert, status='normal'))+'\n').encode()
+            return subprocess.CompletedProcess([], 0, payload, b'')
+    class FakeCapture:
+        def wait(self, **kwargs): return 0
+        def terminate(self): pass
+        def kill(self): pass
+    monkeypatch.setattr(module.subprocess, 'Popen', lambda *a, **k: FakeCapture())
+    monkeypatch.setattr(module.time, 'sleep', lambda *_: None)
+    def kernel(lines, marker, **kwargs):
+        if case == 'kernel_missing': raise ValueError('no kernel event')
+        return {'exec_id': 'exec', 'kernel_event_at': marker['injected_at']+.01}
+    monkeypatch.setattr(module, 'find_execve_kprobe_event', kernel)
+    binary = tmp_path / 'binary'; binary.write_bytes(b'unit-test-fixture-not-a-real-binary')
+    row = dict(workload_controller='x', workload_key='production/x:app', scenario='a', seed=1, rate_per_second=12)
+    result = module.execute(FakeRuntime(), tmp_path, row, 'run:0001',
+        {'node': {'host': 'worker', 'injections': '/var/lib/sentinel-pulse-detector/runs/leg/injections.jsonl'}},
+        binary, 1, 0, 'm', 'p')
+    assert result['detected'] is (case == 'hit')
+    assert result['status'] == ('observed' if case in {'hit', 'miss'} else 'infrastructure_unknown')
+    assert (tmp_path / 'INTENTS.jsonl').exists()
+    assert result['temporary_binary_cleanup_returncode'] == (1 if case == 'cleanup_failed' else 0)

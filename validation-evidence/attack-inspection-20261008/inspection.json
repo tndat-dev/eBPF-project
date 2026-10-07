@@ -1,0 +1,56 @@
+{
+  "by_scenario": {
+    "anonymous_mprotect_churn": {
+      "detected": 0,
+      "miss": 76,
+      "unknown": 15
+    },
+    "child_ptrace_handshake": {
+      "detected": 65,
+      "miss": 8,
+      "unknown": 17
+    },
+    "execveat_resolution_probe": {
+      "detected": 66,
+      "miss": 7,
+      "unknown": 18
+    },
+    "invalid_setns_burst": {
+      "detected": 0,
+      "miss": 75,
+      "unknown": 12
+    },
+    "seccomp_api_probe": {
+      "detected": 0,
+      "miss": 74,
+      "unknown": 14
+    }
+  },
+  "candidate_not_retuned": true,
+  "checked_at_unix": 1791401030.2918096,
+  "covered_trial_prefix_sha256": "d44c64b01621a190f483170b8d4284f088ff1a1da69019912f7ab057266fdf11",
+  "covered_trial_receipts": 447,
+  "detected": 131,
+  "detected_within_1s": 111,
+  "detected_within_2s": 124,
+  "false_positive_rate": null,
+  "missed": 240,
+  "missing_hit_provenance": 0,
+  "normal_ground_truth_pending": true,
+  "observed": 371,
+  "precision": null,
+  "raw_worker_seals_reaudited": false,
+  "remote_root": "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007",
+  "schema": "sentinel-pulse-readonly-attack-inspection-v1",
+  "service": {
+    "ActiveState": "activating",
+    "MainPID": "2122534",
+    "NRestarts": "0",
+    "Result": "success",
+    "SubState": "start"
+  },
+  "start_sha256": "9e9c4664d16c62809b0c58b047d27670b6a9a59079f4ce6f9e671ff4064b21e9",
+  "status_sha256": "0c6c4055300f25bc7e933408cc6f034ae524ab032f3a1ef4cdb3fdf91fad4c29",
+  "unknown": 76,
+  "verified_kernel_records_at_inspection": 386
+}

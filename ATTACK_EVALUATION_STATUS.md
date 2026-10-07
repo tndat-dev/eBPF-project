@@ -80,6 +80,74 @@ syscall độc hại đầu tiên hay hiệu quả trên mọi attack thực t�
 
 ## Trạng thái triển khai
 
-Đang kiểm thử và chuẩn bị service trên VM. Chưa có kết quả attack live mới
-để công bố recall/latency của campaign này. Thí nghiệm chọn syscall chạy độc
-lập; không đợi nó hoàn thành và không lấy subset mới thay vào candidate hiện tại.
+Kiểm tra SSH lúc **08/10/2026 02:23:50 ICT**. Campaign hiện hành
+`pulse-observation-attack-c2-20261007` trên control plane `.234`, thư mục
+`/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007`.
+Service PID **2122534**, `NRestarts=0`, đang chạy. Với `Type=oneshot`, trạng thái
+`activating/start` trong lúc chạy là bình thường, không phải startup bị treo.
+Source triển khai frozen: `/home/dat/eBPF-project-observation-attack-r2-20261007`,
+commit **ee2528be497507797fa98e6e37bd0dbd41587a89**. Thí nghiệm syscall giữ
+source/service riêng, không thay candidate này.
+
+Đã xử lý **447/475 interval: 94,11%**, chưa terminal. Đây là số receipt đã
+xử lý, không có nghĩa 447 attack đều đã được tiêm thành công. Bằng chứng:
+[STATUS.json](validation-evidence/attack-inspection-20261008/STATUS.json),
+[đối chiếu độc lập](validation-evidence/attack-inspection-20261008/inspection.json).
+
+### Kết quả tạm thời, không phải kỳ vọng
+
+| Nhóm đánh giá | Có alert hợp lệ | Không có alert trong horizon | Thiếu chứng cứ |
+|---|---:|---:|---:|
+| Attack interval đã xử lý | 131 | 240 | 76 |
+| Normal interval cùng đơn vị, đã adjudication | Chưa có FP | Chưa có TN | Chưa đánh giá |
+
+**Recall có điều kiện = 131/(131+240) = 35,31%**, trên 371 interval observed.
+Đây là phát hiện theo attribution horizon 15 giây của detector hiện hành,
+không phải recall trên mọi attack thực tế hoặc mọi alert trong suốt 45 giây.
+**Tỷ lệ phát hiện end-to-end = 131/447 = 29,31%**; 76 unknown không bị xóa
+khỏi mẫu số này. Unknown không được gán thành FN thuần ML trong bảng có điều kiện.
+
+**Precision, FPR và confusion matrix 2×2 đầy đủ chưa đo được**: FP/TN vẫn
+`null`, không phải 0. Không lấy hàng triệu normal window làm TN để ghép với
+TP theo attack interval. Alert Redis trong soak chưa adjudication; không tự
+gán FP=1 hoặc FP=0, không công bố precision=100% trên tập chỉ có attack.
+
+| Scenario | Có phát hiện | Miss observed | Unknown |
+|---|---:|---:|---:|
+| anonymous_mprotect_churn | 0 | 76 | 15 |
+| child_ptrace_handshake | 65 | 8 | 17 |
+| execveat_resolution_probe | 66 | 7 | 18 |
+| invalid_setns_burst | 0 | 75 | 12 |
+| seccomp_api_probe | 0 | 74 | 14 |
+
+Ba scenario chưa có phát hiện trong các interval observed. Không thể gọi
+candidate đạt recall cao hoặc production stable dựa trên kết quả này.
+Chưa chỉnh model/policy theo matrix; giữ miss để phân tích sau khi chạy hết.
+
+Latency trên **131 trial đã phát hiện**: p50 **0,651 s**, p95 **1,882 s**,
+p99 **4,544 s**. Đã kiểm tra provenance loader trên 386 kernel records có mặt
+lúc inspection; không hit nào thiếu kernel record. Đây không phải audit lại
+mọi raw seal. **124/371 = 33,42%** interval observed được phát hiện trong 2 giây;
+latency đẹp trên riêng hit không bù được những miss. Chưa đạt mục tiêu đồng
+thời recall cao và tail latency 1–2 giây.
+
+### Lỗi giữ nguyên và bước tiếp theo
+
+76 unknown gồm 41 `CalledProcessError`, 7 copy timeout, 14 interval thiếu
+scored coverage và 14 lần không tìm thấy container target. Ví dụ có raw stderr
+RabbitMQ: `cannot create /tmp/sentinel-runtime-attack-blind: Read-only file system`.
+Không coi đó là false negative thuần ML; không vô hiệu hóa hardening của AIMS
+hay đổi model giữa matrix để qua lỗi. Cần phân tích target selection theo
+prefix và đường staging writable trong phiên đánh giá hạ tầng tiếp theo.
+
+Giữ campaign chạy ngầm đến hết; còn 28 receipt, kỳ vọng khoảng **45–60 phút**
+tính từ lần kiểm tra trên nếu không phát sinh chờ hạ tầng. Không cần giữ SSH
+hoặc laptop bật. Sau terminal: xuất kết quả baseline nguyên vẹn; thực hiện
+normal control interval cùng đơn vị với nhãn/adjudication để hoàn thiện FP/TN
+và precision; phân tích model-only so với policy trên replay riêng. Chỉ sửa
+candidate trên tập phát triển độc lập, không tune theo các miss của matrix
+này rồi gọi lại chính matrix đó là blind test mới.
+
+Regression trên host: **754 test + 20 subtest** đã qua (34,44 giây), gồm
+admission nonzero-alert, checkpoint intent, hit/miss, thiếu kernel provenance,
+thiếu scored coverage và cleanup failure. Không thay thế số đo live.
