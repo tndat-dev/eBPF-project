@@ -1,0 +1,75 @@
+{
+  "schema": "sentinel-pulse-syscall-selection-evaluation-plan-v1",
+  "status": "planned_not_executed",
+  "created_client_date": "2026-10-07",
+  "timezone": "Asia/Bangkok",
+  "claim": "utility of explicit syscall feature channels, not globally optimal syscall subset",
+  "known_evidence_before_registration": {
+    "analysis_sha256": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
+    "ablation_sha256": "cdd660295eb32b96e74856125767eda9ce8ed2a656b00a554f422881c16769bf",
+    "normal_holdout_scores_already_inspected": true,
+    "past_results_are_exploratory": true
+  },
+  "operational_boundary": {
+    "do_not_attach_extra_probes_to_current_soak": true,
+    "do_not_inject_attacks_during_normal_soak": true,
+    "do_not_modify_frozen_candidate": true,
+    "new_capture_requires_separate_registered_run": true,
+    "raw_files_remain_immutable": true,
+    "automatic_train_or_launch": false,
+    "automatic_promotion": false
+  },
+  "normal_data": {
+    "selection_capture": "new per-ID histogram, separate from final evaluation",
+    "train_and_calibration": "normal-only; same temporal split and source intervals for every variant",
+    "test": "new independent sealed normal capture, disjoint by source/hash/time from selection/train/calibration",
+    "workloads": "all 21 frozen workload/container keys; report missing coverage explicitly",
+    "regimes": ["steady", "toolmix", "peak", "burst", "recovery"],
+    "regime_labels_source": "actual traffic orchestration receipts, not inferred retrospectively from syscall scores",
+    "full_histogram": "exact syscall-ID entry counts; cannot invert existing hash bins",
+    "integrity": "record allowed cgroups, IDs/ABI, duration, overflow/drop/map-cardinality and snapshot boundaries",
+    "normal_labels": "benign evidence/adjudication required; unknown intervals not TN",
+    "rank_selection_uses_final_test": false
+  },
+  "classifier_variants": {
+    "reference": "current explicit 29 + other + bins + rolling features",
+    "group_ablation": ["file_io", "memory", "socket", "process", "privilege_namespace_sandbox"],
+    "individual_ablation": "29 retrained variants, each masks log_count/ratio/rolling_mean/rolling_std for one explicit syscall",
+    "no_explicit_channels": "mask all explicit per-syscall channels; retain aggregate channels as disclosed",
+    "frequency_selection": "top-K only from selection/training normal, with fixed rare-security whitelist; K=16 and K=29",
+    "full_id_counts_candidate": "separate feature schema/model from future full histogram; cannot reuse frozen 249-dimensional model",
+    "held_constant": ["normal source intervals", "temporal split", "history=3", "snapshot=500ms", "alpha=0.001", "seed", "tree hyperparameters", "calibration procedure"],
+    "calibration": "each retrained variant uses calibration only; never test scores/attack labels",
+    "residual_information": "ID evidence can remain in hash bins, sensitive_ratio and unchanged policy; masking explicit channels is not removal of all syscall information",
+    "raw_and_policy_metrics_reported_separately": true,
+    "gate_policy": "unchanged reference policy, with compatible exact-count evidence; report policy contribution separately",
+    "feature_groups_can_overlap": true
+  },
+  "attack_evaluation": {
+    "new_blind_binary_and_cases": true,
+    "binary_and_case_manifest_sha256_frozen_before_training": true,
+    "minimum_trials_per_scenario_workload": 5,
+    "rates_ops_per_second": [6, 12, 24],
+    "same_trial_inputs_for_all_variants": true,
+    "safety": "no external network, persistent writes, successful mount or privilege changes",
+    "no_attack_training_or_tuning": true,
+    "sensitive_syscall_success_not_claimed_from_entry_counts": true,
+    "case_catalog_and_start_schedule": "must be bound in separate START before execution; not launched by this plan"
+  },
+  "metrics": {
+    "primary_unit": "preregistered scenario interval; normal interval lengths and incident grouping fixed before test",
+    "confusion": ["TP", "FP", "TN", "FN", "uncertain", "missing_telemetry"],
+    "quality": ["precision", "recall", "FPR", "alerts_per_valid_workload_hour", "raw_model_anomaly_rate"],
+    "latency": ["kernel_to_alert_p50", "kernel_to_alert_p95", "kernel_to_alert_p99", "inference_ms", "telemetry_lag"],
+    "overhead": ["collector_CPU", "collector_RAM", "map_memory", "workload_throughput", "workload_response_p99"],
+    "no_detection_latency": "misses/censored outcomes kept; latency among detections reported with denominator",
+    "missing_attack_telemetry": "miss in end-to-end recall plus separate conditional-telemetry recall",
+    "normal_alerts": "retain every alert, including infrastructure-degraded intervals, adjudicate and stratify after run",
+    "interval_estimation": "95% paired block/bootstrap by trial/workload or time blocks, not IID syscall/window bootstrap",
+    "bootstrap_repeats": 10000,
+    "bootstrap_seed": 73021,
+    "multiple_comparisons": "Holm correction for the preregistered ablation family",
+    "performance_permutation_importance": "paired held-out labeled performance, not mean score displacement on normal-only data"
+  },
+  "selection_rule": "Use development data for engineering choices. Report final blind trade-offs with confidence intervals; never tune and rerun against the same blind test to claim improvement. If inconclusive, keep the conclusion inconclusive."
+}

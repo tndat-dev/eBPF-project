@@ -18,12 +18,26 @@ Read-only progress/alert review of a copied inspection snapshot:
 
 ```bash
 python -m sentinel_pulse.review_observation \
-  --inspection validation-evidence/soak-inspection-20261006/current-inspection.json
+  --inspection validation-evidence/soak-inspection-20261007/inspection.json
 ```
 
 This review retains alerts outside admitted normal exposure, reports wall and
 bottleneck exposure progress separately, and leaves precision/recall/FPR null.
 It does not audit raw seals or replace the campaign coordinator/finalizer.
+
+Syscall selection evidence (ABI, collector/Python order, observed counts and
+existing normal-only ablation; no new model fitting):
+
+```bash
+python -m sentinel_pulse.verify_syscall_selection \
+  --analysis validation-evidence/syscall-analysis-20261006/analysis-worker4.json \
+  --ablation validation-evidence/syscall-analysis-20261006/ablation.json
+```
+
+See [syscall analysis](../syscall_analysis.md). The 29-call list is an
+engineering hypothesis, not a measured optimal subset. The future histogram
+and blind comparison plan is `protocol/syscall-selection-evaluation-v1.json`;
+it is not executed and does not attach probes/change the frozen active soak.
 
 ## Archived checkpoints and legacy contracts
 

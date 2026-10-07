@@ -1,0 +1,770 @@
+{
+  "abi_table_sha256": "4c30abea9a4b69f3409bea7a0c910a8c8feb9a44b22a448b5c82f2bfdd8249c8",
+  "ablation_sha256": "cdd660295eb32b96e74856125767eda9ce8ed2a656b00a554f422881c16769bf",
+  "analysis_sha256": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
+  "attack_recall": null,
+  "automatic_promotion": false,
+  "capture_raw_seals_reverified_by_this_tool": false,
+  "capture_sha256": "37c7662a49fd14976d51a3c7e420522de57907eb1178dc35e45b6f0c9bc620c2",
+  "collector_header_sha256": "52569e225f2b0678d60855a724dce7bc3b7546bb003334b2964a546d75c51b2f",
+  "collector_python_order_matches": true,
+  "container_seconds": 72681.76850628853,
+  "exact_total": 45028993,
+  "feature_rows": 143447,
+  "group_ablation_normal_only": {
+    "full": {
+      "anomalous_contexts": 274,
+      "descriptive_raw_anomaly_rate": 0.014083059210526315,
+      "normal_contexts": 19456
+    },
+    "log_count": {
+      "anomalous_contexts": 335,
+      "descriptive_raw_anomaly_rate": 0.017218338815789474,
+      "normal_contexts": 19456
+    },
+    "ratio": {
+      "anomalous_contexts": 252,
+      "descriptive_raw_anomaly_rate": 0.012952302631578948,
+      "normal_contexts": 19456
+    },
+    "rolling_mean": {
+      "anomalous_contexts": 250,
+      "descriptive_raw_anomaly_rate": 0.012849506578947368,
+      "normal_contexts": 19456
+    },
+    "rolling_std": {
+      "anomalous_contexts": 228,
+      "descriptive_raw_anomaly_rate": 0.01171875,
+      "normal_contexts": 19456
+    },
+    "security": {
+      "anomalous_contexts": 305,
+      "descriptive_raw_anomaly_rate": 0.01567639802631579,
+      "normal_contexts": 19456
+    },
+    "syscall_bin": {
+      "anomalous_contexts": 354,
+      "descriptive_raw_anomaly_rate": 0.018194901315789474,
+      "normal_contexts": 19456
+    },
+    "transition_bin": {
+      "anomalous_contexts": 169,
+      "descriptive_raw_anomaly_rate": 0.008686266447368422,
+      "normal_contexts": 19456
+    },
+    "volume": {
+      "anomalous_contexts": 259,
+      "descriptive_raw_anomaly_rate": 0.013312088815789474,
+      "normal_contexts": 19456
+    }
+  },
+  "individual_untracked_frequency_available": false,
+  "kernel_to_alert_seconds": null,
+  "linux_abi_source": "https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl",
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "native_x86_64_abi_matches": true,
+  "optimal_syscall_selection_proven": false,
+  "other_count": 31299762,
+  "other_share": 0.6951024199008847,
+  "per_syscall_security_utility_proven": false,
+  "precision": null,
+  "proof_scope": "ABI correctness, exact observed frequency, descriptive frozen-model importance, retrained group sensitivity",
+  "regime_rows": {
+    "unlabelled": 143447
+  },
+  "schema": "sentinel-pulse-syscall-selection-evidence-v1",
+  "syscalls_not_observed_in_this_capture": [
+    "ptrace",
+    "pivot_root",
+    "mount",
+    "unshare",
+    "recvmmsg",
+    "setns",
+    "execveat"
+  ],
+  "top5_impurity_features_by_workload_descriptive": {
+    "production/aims-frontend:web": [
+      {
+        "feature": "ratio:other",
+        "weight": 0.044382669644574796
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.03832802269484108
+      },
+      {
+        "feature": "rolling_std:accept4",
+        "weight": 0.03709148304436484
+      },
+      {
+        "feature": "log_count:other",
+        "weight": 0.034659938464381
+      },
+      {
+        "feature": "syscall_bin:0",
+        "weight": 0.03357993151058009
+      }
+    ],
+    "production/aims-kafka-dual-role:kafka": [
+      {
+        "feature": "log_total",
+        "weight": 0.030562066286698896
+      },
+      {
+        "feature": "rolling_mean:write",
+        "weight": 0.026086211715665754
+      },
+      {
+        "feature": "ratio:other",
+        "weight": 0.02579372148455913
+      },
+      {
+        "feature": "log_count:read",
+        "weight": 0.02566929503442505
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.023655044000025185
+      }
+    ],
+    "production/aims-kafka-entity-operator:topic-operator": [
+      {
+        "feature": "log_count:other",
+        "weight": 0.055390614249049015
+      },
+      {
+        "feature": "transition_bin:62",
+        "weight": 0.04967302351075992
+      },
+      {
+        "feature": "ratio:other",
+        "weight": 0.04919502855335338
+      },
+      {
+        "feature": "syscall_bin:53",
+        "weight": 0.04449629607214669
+      },
+      {
+        "feature": "log_total",
+        "weight": 0.039074681326169106
+      }
+    ],
+    "production/aims-kafka-entity-operator:user-operator": [
+      {
+        "feature": "log_count:other",
+        "weight": 0.06077721000815688
+      },
+      {
+        "feature": "syscall_bin:53",
+        "weight": 0.04972807540507305
+      },
+      {
+        "feature": "ratio:other",
+        "weight": 0.049417830640957935
+      },
+      {
+        "feature": "transition_bin:62",
+        "weight": 0.04747687917086368
+      },
+      {
+        "feature": "log_total",
+        "weight": 0.044117435115298614
+      }
+    ],
+    "production/aims-minio-pool-0:minio": [
+      {
+        "feature": "ratio:other",
+        "weight": 0.06520736657560477
+      },
+      {
+        "feature": "log_total",
+        "weight": 0.03970759234983148
+      },
+      {
+        "feature": "syscall_bin:53",
+        "weight": 0.037078918080951345
+      },
+      {
+        "feature": "rolling_mean:write",
+        "weight": 0.03638151347736312
+      },
+      {
+        "feature": "log_count:other",
+        "weight": 0.034212811605391705
+      }
+    ],
+    "production/aims-minio-pool-0:sidecar": [
+      {
+        "feature": "log_count:accept4",
+        "weight": 0.03583536792344294
+      },
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.035181148935243774
+      },
+      {
+        "feature": "log_count:close",
+        "weight": 0.03497959837353116
+      },
+      {
+        "feature": "rolling_std:accept4",
+        "weight": 0.03296384118270531
+      },
+      {
+        "feature": "log_total",
+        "weight": 0.03165387887662525
+      }
+    ],
+    "production/aims-postgres-cnpg:postgres": [
+      {
+        "feature": "ratio:other",
+        "weight": 0.020664647468870322
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.018630557901450566
+      },
+      {
+        "feature": "log_total",
+        "weight": 0.016650897011981365
+      },
+      {
+        "feature": "rolling_mean:write",
+        "weight": 0.01597478509365836
+      },
+      {
+        "feature": "log_count:other",
+        "weight": 0.015799146103162215
+      }
+    ],
+    "production/aims-rabbitmq-server:rabbitmq": [
+      {
+        "feature": "log_count:recvfrom",
+        "weight": 0.04249198631514889
+      },
+      {
+        "feature": "rolling_mean:recvfrom",
+        "weight": 0.041728749621384724
+      },
+      {
+        "feature": "rolling_mean:write",
+        "weight": 0.03541254867555965
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.034570830735117276
+      },
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.03159511850882267
+      }
+    ],
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.03982827911868135
+      },
+      {
+        "feature": "rolling_mean:recvfrom",
+        "weight": 0.03726955864182649
+      },
+      {
+        "feature": "rolling_mean:open",
+        "weight": 0.033584874947204885
+      },
+      {
+        "feature": "rolling_mean:sendto",
+        "weight": 0.028868418986980043
+      },
+      {
+        "feature": "rolling_mean:close",
+        "weight": 0.027048646767640894
+      }
+    ],
+    "production/aims-redis:aims-redis": [
+      {
+        "feature": "rolling_mean:open",
+        "weight": 0.034483788548503556
+      },
+      {
+        "feature": "rolling_mean:close",
+        "weight": 0.026576358720642047
+      },
+      {
+        "feature": "rolling_std:recvfrom",
+        "weight": 0.0246672056057098
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.024643006386782698
+      },
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.023098299364630256
+      }
+    ],
+    "production/aims-waypoint:istio-proxy": [
+      {
+        "feature": "rolling_mean:sendto",
+        "weight": 0.04888809916223029
+      },
+      {
+        "feature": "transition_bin:34",
+        "weight": 0.04706710108338844
+      },
+      {
+        "feature": "rolling_std:recvfrom",
+        "weight": 0.04448815422955523
+      },
+      {
+        "feature": "syscall_bin:24",
+        "weight": 0.04321045628931131
+      },
+      {
+        "feature": "transition_bin:6",
+        "weight": 0.04315567942412898
+      }
+    ],
+    "production/api-gateway:app": [
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.031170293019982958
+      },
+      {
+        "feature": "rolling_std:setgid",
+        "weight": 0.030654476233493884
+      },
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.030426200805676287
+      },
+      {
+        "feature": "rolling_std:sendto",
+        "weight": 0.03000531403729266
+      },
+      {
+        "feature": "rolling_std:execve",
+        "weight": 0.0286307817415016
+      }
+    ],
+    "production/auth-service:app": [
+      {
+        "feature": "rolling_mean:mmap",
+        "weight": 0.03288078140465799
+      },
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.03247834087715561
+      },
+      {
+        "feature": "rolling_mean:close",
+        "weight": 0.0322270969887081
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.031773831246462346
+      },
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.029699822527359292
+      }
+    ],
+    "production/cart-service:app": [
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.03420875141982571
+      },
+      {
+        "feature": "rolling_std:mprotect",
+        "weight": 0.031647916178041156
+      },
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.0314359473256755
+      },
+      {
+        "feature": "rolling_std:execve",
+        "weight": 0.03139876996372112
+      },
+      {
+        "feature": "rolling_std:sendto",
+        "weight": 0.031150503004739125
+      }
+    ],
+    "production/catalog-service:app": [
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.03905965541201011
+      },
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.03458305422727596
+      },
+      {
+        "feature": "rolling_mean:openat",
+        "weight": 0.03431072654410845
+      },
+      {
+        "feature": "rolling_std:setgid",
+        "weight": 0.03317309784586676
+      },
+      {
+        "feature": "rolling_std:mprotect",
+        "weight": 0.030140844627158027
+      }
+    ],
+    "production/inventory-service:app": [
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.029392718985638427
+      },
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.029103722463245232
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.02886735295514653
+      },
+      {
+        "feature": "rolling_std:mprotect",
+        "weight": 0.025510594847797635
+      },
+      {
+        "feature": "rolling_std:recvfrom",
+        "weight": 0.024505832056673026
+      }
+    ],
+    "production/order-service:app": [
+      {
+        "feature": "rolling_mean:recvfrom",
+        "weight": 0.031042451201366103
+      },
+      {
+        "feature": "rolling_mean:sendto",
+        "weight": 0.030663234675661594
+      },
+      {
+        "feature": "rolling_std:recvfrom",
+        "weight": 0.027440669727561918
+      },
+      {
+        "feature": "rolling_std:mmap",
+        "weight": 0.026860654305391717
+      },
+      {
+        "feature": "rolling_std:read",
+        "weight": 0.026834018367471835
+      }
+    ],
+    "production/search-recommendation-service:app": [
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.03511111950048035
+      },
+      {
+        "feature": "rolling_std:setuid",
+        "weight": 0.031216358694345827
+      },
+      {
+        "feature": "rolling_std:mprotect",
+        "weight": 0.030864643087762596
+      },
+      {
+        "feature": "rolling_mean:read",
+        "weight": 0.029993021686773175
+      },
+      {
+        "feature": "rolling_std:connect",
+        "weight": 0.02948324240088161
+      }
+    ],
+    "production/security-telemetry-service:app": [
+      {
+        "feature": "rolling_std:openat",
+        "weight": 0.04435259731769978
+      },
+      {
+        "feature": "rolling_std:capset",
+        "weight": 0.03270819629195748
+      },
+      {
+        "feature": "rolling_std:setgid",
+        "weight": 0.03258619496819337
+      },
+      {
+        "feature": "rolling_std:mmap",
+        "weight": 0.032208871047489596
+      },
+      {
+        "feature": "rolling_std:execve",
+        "weight": 0.029932376970354467
+      }
+    ]
+  },
+  "tracked_share": 0.3048975800991153,
+  "tracked_syscalls": [
+    {
+      "calls_per_container_second": 51.18067538048622,
+      "count": 3719902,
+      "name": "read",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.08261126336980265,
+      "syscall_id": 0,
+      "workloads_with_nonzero_count": 19
+    },
+    {
+      "calls_per_container_second": 10.660830300695821,
+      "count": 774848,
+      "name": "write",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.017207757677370223,
+      "syscall_id": 1,
+      "workloads_with_nonzero_count": 19
+    },
+    {
+      "calls_per_container_second": 1.2278595008633915,
+      "count": 89243,
+      "name": "open",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.0019819008610741083,
+      "syscall_id": 2,
+      "workloads_with_nonzero_count": 2
+    },
+    {
+      "calls_per_container_second": 25.956124056568246,
+      "count": 1886537,
+      "name": "close",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.04189605128411377,
+      "syscall_id": 3,
+      "workloads_with_nonzero_count": 19
+    },
+    {
+      "calls_per_container_second": 21.56716921196509,
+      "count": 1567540,
+      "name": "mmap",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.03481179337055128,
+      "syscall_id": 9,
+      "workloads_with_nonzero_count": 16
+    },
+    {
+      "calls_per_container_second": 4.972608776969008,
+      "count": 361418,
+      "name": "mprotect",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.008026339829540492,
+      "syscall_id": 10,
+      "workloads_with_nonzero_count": 15
+    },
+    {
+      "calls_per_container_second": 0.8104645939497657,
+      "count": 58906,
+      "name": "socket",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.001308179376785086,
+      "syscall_id": 41,
+      "workloads_with_nonzero_count": 17
+    },
+    {
+      "calls_per_container_second": 0.8363032607653305,
+      "count": 60784,
+      "name": "connect",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.0013498858391081498,
+      "syscall_id": 42,
+      "workloads_with_nonzero_count": 17
+    },
+    {
+      "calls_per_container_second": 0.05613512279419828,
+      "count": 4080,
+      "name": "accept",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 9.060828875298189e-05,
+      "syscall_id": 43,
+      "workloads_with_nonzero_count": 5
+    },
+    {
+      "calls_per_container_second": 9.117554699328265,
+      "count": 662680,
+      "name": "sendto",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.014716740389908342,
+      "syscall_id": 44,
+      "workloads_with_nonzero_count": 14
+    },
+    {
+      "calls_per_container_second": 27.615811244691123,
+      "count": 2007166,
+      "name": "recvfrom",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.04457496973116854,
+      "syscall_id": 45,
+      "workloads_with_nonzero_count": 14
+    },
+    {
+      "calls_per_container_second": 0.060716739434018875,
+      "count": 4413,
+      "name": "clone",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 9.800352408502674e-05,
+      "syscall_id": 56,
+      "workloads_with_nonzero_count": 4
+    },
+    {
+      "calls_per_container_second": 0.28843546918077767,
+      "count": 20964,
+      "name": "execve",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0004655667072101746,
+      "syscall_id": 59,
+      "workloads_with_nonzero_count": 13
+    },
+    {
+      "calls_per_container_second": 1.3758608527989776e-05,
+      "count": 1,
+      "name": "chmod",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 2.220791391004458e-08,
+      "syscall_id": 90,
+      "workloads_with_nonzero_count": 1
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "ptrace",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 101,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 1.0465347990730143,
+      "count": 76064,
+      "name": "setuid",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.001689222763653631,
+      "syscall_id": 105,
+      "workloads_with_nonzero_count": 11
+    },
+    {
+      "calls_per_container_second": 1.0465347990730143,
+      "count": 76064,
+      "name": "setgid",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.001689222763653631,
+      "syscall_id": 106,
+      "workloads_with_nonzero_count": 11
+    },
+    {
+      "calls_per_container_second": 0.16863926472757068,
+      "count": 12257,
+      "name": "capset",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0002722024007954164,
+      "syscall_id": 126,
+      "workloads_with_nonzero_count": 11
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "pivot_root",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 155,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "mount",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 165,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 31.117019391242795,
+      "count": 2261640,
+      "name": "openat",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.05022630641551322,
+      "syscall_id": 257,
+      "workloads_with_nonzero_count": 18
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "unshare",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 272,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 0.5075000341634308,
+      "count": 36886,
+      "name": "accept4",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.0008191611124859044,
+      "syscall_id": 288,
+      "workloads_with_nonzero_count": 15
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "recvmmsg",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 299,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 0.22086694269981985,
+      "count": 16053,
+      "name": "sendmmsg",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.0003565036419979456,
+      "syscall_id": 307,
+      "workloads_with_nonzero_count": 6
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "setns",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 308,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 0.34752869280849374,
+      "count": 25259,
+      "name": "seccomp",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.000560949697453816,
+      "syscall_id": 317,
+      "workloads_with_nonzero_count": 11
+    },
+    {
+      "calls_per_container_second": 0.0,
+      "count": 0,
+      "name": "execveat",
+      "sensitive_design_flag": true,
+      "share_of_all_syscalls": 0.0,
+      "syscall_id": 322,
+      "workloads_with_nonzero_count": 0
+    },
+    {
+      "calls_per_container_second": 0.08978867925366127,
+      "count": 6526,
+      "name": "clone3",
+      "sensitive_design_flag": false,
+      "share_of_all_syscalls": 0.00014492884617695092,
+      "syscall_id": 435,
+      "workloads_with_nonzero_count": 11
+    }
+  ],
+  "workloads": 19
+}

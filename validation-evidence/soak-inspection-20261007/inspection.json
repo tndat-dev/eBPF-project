@@ -1,0 +1,2965 @@
+{
+  "active_segments": [
+    {
+      "last_health": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791340878.8291266,
+        "degraded": false,
+        "excluded_interval": null,
+        "excluded_seconds": 0,
+        "fatal": [],
+        "outage_started_at": null,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [],
+        "warnings": []
+      },
+      "last_supervision": {
+        "nodes": {
+          "10.1.16.237": {
+            "capture_tail": {
+              "availability_floor_evaluated": false,
+              "errors": [],
+              "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+              "recovery": {
+                "availability": 1.0,
+                "can_score": true,
+                "clean_windows": 891,
+                "epoch": 0,
+                "estimated_missing_snapshots": 0,
+                "excluded_seconds": 0.0,
+                "incident_start": null,
+                "incidents": 0,
+                "maximum_snapshot_gap_seconds": 0.5385763645172119,
+                "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+                "reasons": [],
+                "reset_required": false,
+                "sequence": 892,
+                "status": "ready"
+              },
+              "schema": "sentinel-pulse-recovery-tail-health-v1",
+              "snapshot_age_seconds": 0.4805924892425537,
+              "status": "ready",
+              "terminal_pass": false,
+              "valid": true
+            },
+            "detector_active": true,
+            "detector_restarts": 0,
+            "marker_sha256": "c09826c73159a04d19488f131d037561a3d0f516af123cb68d45c9a6f19c5143",
+            "observed_at_unix": 1791340878.5220125,
+            "run_id": "pulse-observation-c1-20261006-s0049",
+            "status": "active",
+            "worker_ip": "10.1.16.237"
+          },
+          "10.1.16.238": {
+            "capture_tail": {
+              "availability_floor_evaluated": false,
+              "errors": [],
+              "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+              "recovery": {
+                "availability": 1.0,
+                "can_score": true,
+                "clean_windows": 887,
+                "epoch": 0,
+                "estimated_missing_snapshots": 0,
+                "excluded_seconds": 0.0,
+                "incident_start": null,
+                "incidents": 0,
+                "maximum_snapshot_gap_seconds": 0.5331196784973145,
+                "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+                "reasons": [],
+                "reset_required": false,
+                "sequence": 888,
+                "status": "ready"
+              },
+              "schema": "sentinel-pulse-recovery-tail-health-v1",
+              "snapshot_age_seconds": 0.12478470802307129,
+              "status": "ready",
+              "terminal_pass": false,
+              "valid": true
+            },
+            "detector_active": true,
+            "detector_restarts": 0,
+            "marker_sha256": "c09826c73159a04d19488f131d037561a3d0f516af123cb68d45c9a6f19c5143",
+            "observed_at_unix": 1791340878.7164798,
+            "run_id": "pulse-observation-c1-20261006-s0049",
+            "status": "active",
+            "worker_ip": "10.1.16.238"
+          },
+          "10.1.16.239": {
+            "capture_tail": {
+              "availability_floor_evaluated": false,
+              "errors": [],
+              "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+              "recovery": {
+                "availability": 1.0,
+                "can_score": true,
+                "clean_windows": 892,
+                "epoch": 0,
+                "estimated_missing_snapshots": 0,
+                "excluded_seconds": 0.0,
+                "incident_start": null,
+                "incidents": 0,
+                "maximum_snapshot_gap_seconds": 0.5231201648712158,
+                "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+                "reasons": [],
+                "reset_required": false,
+                "sequence": 893,
+                "status": "ready"
+              },
+              "schema": "sentinel-pulse-recovery-tail-health-v1",
+              "snapshot_age_seconds": 0.32879185676574707,
+              "status": "ready",
+              "terminal_pass": false,
+              "valid": true
+            },
+            "detector_active": true,
+            "detector_restarts": 0,
+            "marker_sha256": "c09826c73159a04d19488f131d037561a3d0f516af123cb68d45c9a6f19c5143",
+            "observed_at_unix": 1791340878.54661,
+            "run_id": "pulse-observation-c1-20261006-s0049",
+            "status": "active",
+            "worker_ip": "10.1.16.239"
+          }
+        },
+        "probe_failures": {},
+        "state": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "checked_at_unix": 1791340878.8291266,
+          "degraded_workers": [],
+          "errors": [],
+          "finished_workers": [],
+          "formal_recovery_pass": false,
+          "marker_sha256": "c09826c73159a04d19488f131d037561a3d0f516af123cb68d45c9a6f19c5143",
+          "phase": "monitoring",
+          "run_id": "pulse-observation-c1-20261006-s0049",
+          "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+          "unknown_since": {}
+        }
+      },
+      "run_id": "pulse-observation-c1-20261006-s0049",
+      "started_at_unix": 1791340409.455321
+    }
+  ],
+  "audit_recovery_errors": [
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0015",
+      "worker_audits": 2
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0017",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0017",
+      "worker_audits": 2
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0021",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0024",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0025",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0027",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0031",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0033",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0036",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0039",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0041",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0046",
+      "worker_audits": 0
+    },
+    {
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "run_id": "pulse-observation-c1-20261006-s0048",
+      "worker_audits": 0
+    }
+  ],
+  "backfill_service": {
+    "ActiveState": "inactive",
+    "MainPID": "0",
+    "NRestarts": "0",
+    "Result": "success"
+  },
+  "campaign_root": "/home/dat/sentinel-pulse-observation-campaigns/pulse-observation-c1-20261006",
+  "campaign_service": {
+    "ActiveState": "active",
+    "MainPID": "528252",
+    "NRestarts": "1",
+    "Result": "success"
+  },
+  "checked_at_unix": 1791340883.7705333,
+  "registration": {
+    "binding": {
+      "config": {
+        "model": "/home/dat/eBPF-project-projected-operational-20261003/validation-evidence/frozen-r10-c1/model",
+        "policy": "/home/dat/eBPF-project-projected-operational-20261003/validation-evidence/frozen-r10-c1/decision-policy.json",
+        "schema": "sentinel-pulse-recovery-coordinator-config-v1",
+        "source": "/home/dat/eBPF-project-observation-r2-20261006",
+        "workers": {
+          "10.1.16.237": {
+            "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+            "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+            "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c1-20261002T101900Z",
+            "source": "/home/dat/eBPF-project-observation-r2-20261006"
+          },
+          "10.1.16.238": {
+            "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+            "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+            "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+            "source": "/home/dat/eBPF-project-observation-r2-20261006"
+          },
+          "10.1.16.239": {
+            "model": "/opt/sentinel-pulse/models/6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+            "policy": "/opt/sentinel-pulse/policies/602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143.json",
+            "safety": "/var/lib/sentinel-pulse-projection-canary/pulse-projected-counter-c2-20261003T024600Z",
+            "source": "/home/dat/eBPF-project-observation-r2-20261006"
+          }
+        }
+      },
+      "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+      "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "protocol": {
+        "automatic_promotion": false,
+        "automatic_training": false,
+        "evaluation_unit": "preregistered non-overlapping scenario interval, same unit for normal and attack",
+        "expected_confusion_matrix_not_measured": {
+          "FN": 10,
+          "FP": 10,
+          "TN": 190,
+          "TP": 190,
+          "attack_intervals": 200,
+          "fpr": 0.05,
+          "normal_intervals": 200,
+          "precision": 0.95,
+          "recall": 0.95
+        },
+        "matrix_is_not_a_deployment_rate_budget": true,
+        "maximum_alerts_per_hour_per_workload": 0.05,
+        "maximum_alerts_per_valid_workload_hour": 0.01,
+        "maximum_wall_seconds": 172800,
+        "minimum_recall_target": 0.9,
+        "minimum_wall_seconds": 86400,
+        "missing_attack_observation": "count as end-to-end miss; also report conditional scored recall",
+        "missing_normal_observation": "unknown, never TN",
+        "precision_target_benchmark_only": 0.95,
+        "preferred_recall_target": 0.95,
+        "retry_seconds": 60,
+        "schema": "sentinel-pulse-observation-campaign-v1",
+        "segment_seconds": 1800,
+        "stop_on_alert": false,
+        "stop_on_quality_gate": false,
+        "target_valid_seconds_per_workload": 86400,
+        "test_outcomes_used_for_training": false
+      },
+      "source_commit": "a3cdbfbf170d4fc0604bc1b3ebfc96c1aad89b4f",
+      "source_files_sha256": "4bfe49e4682d4150679d7eb621b589cbff912e7e99f1699838d185e5bf05a349"
+    },
+    "schema": "sentinel-pulse-observation-registration-v1",
+    "started_at_unix": 1791252565.1356192
+  },
+  "registration_sha256": "10457f3f7f3823293258bf9fc8fcd1c14907cc29db68c232aca935f1a1be186f",
+  "schema": "sentinel-pulse-soak-inspection-v1",
+  "segments": [
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 4125,
+        "warming": 3869
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0001",
+      "statuses": {
+        "normal": 223963,
+        "suppressed": 2867,
+        "telemetry-degraded": 4125,
+        "warming": 3869
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 4953,
+        "warming": 5395
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0002",
+      "statuses": {
+        "normal": 221536,
+        "suppressed": 2872,
+        "telemetry-degraded": 4953,
+        "warming": 5395
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 4928,
+        "warming": 5226
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0003",
+      "statuses": {
+        "normal": 221043,
+        "suppressed": 3588,
+        "telemetry-degraded": 4928,
+        "warming": 5226
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3836,
+        "warming": 3055
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0004",
+      "statuses": {
+        "normal": 225054,
+        "suppressed": 3007,
+        "telemetry-degraded": 3836,
+        "warming": 3055
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3041,
+        "warming": 2354
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0005",
+      "statuses": {
+        "normal": 225856,
+        "suppressed": 3190,
+        "telemetry-degraded": 3041,
+        "warming": 2354
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 21069,
+        "telemetry-degraded": 3007,
+        "warming": 2337
+      },
+      "failures": {},
+      "health_degraded_probes": 13,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791263595.9386725,
+        "degraded": true,
+        "excluded_interval": [
+          1791263591.9028068,
+          1791263625.9386725
+        ],
+        "excluded_seconds": 34.035865783691406,
+        "fatal": [],
+        "outage_started_at": 1791263591.9028068,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-375ccc2f-be08-43b8-9fa1-55cd817a4502",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-e2a2b225-24d6-439e-94bd-0e58ae7bdad4",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-2f53757c-a9af-4097-aa79-8e214311d82e",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791263714.563782,
+        "degraded": true,
+        "excluded_interval": [
+          1791263591.9028068,
+          1791263744.563782
+        ],
+        "excluded_seconds": 152.6609752178192,
+        "fatal": [],
+        "outage_started_at": 1791263591.9028068,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0006",
+      "statuses": {
+        "normal": 221745,
+        "suppressed": 4600,
+        "telemetry-degraded": 3475,
+        "warming": 3539
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3116,
+        "warming": 2072
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0007",
+      "statuses": {
+        "normal": 226731,
+        "suppressed": 2871,
+        "telemetry-degraded": 3116,
+        "warming": 2072
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 7877,
+        "telemetry-degraded": 3433,
+        "warming": 2916
+      },
+      "failures": {},
+      "health_degraded_probes": 8,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791267703.6734595,
+        "degraded": true,
+        "excluded_interval": [
+          1791267699.7635355,
+          1791267733.6734595
+        ],
+        "excluded_seconds": 33.909924030303955,
+        "fatal": [],
+        "outage_started_at": 1791267699.7635355,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-66f13181-45cb-4bcb-a893-6adb4855c70a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-adcc7821-182b-40b5-9754-4bd3d3e0dac2",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ceebad9b-9578-4df1-a37b-7e4fc725c25a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-e420b772-0053-4cc0-9b88-a06292870621",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791267773.767413,
+        "degraded": true,
+        "excluded_interval": [
+          1791267699.7635355,
+          1791267803.767413
+        ],
+        "excluded_seconds": 104.00387740135193,
+        "fatal": [],
+        "outage_started_at": 1791267699.7635355,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-66f13181-45cb-4bcb-a893-6adb4855c70a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-e420b772-0053-4cc0-9b88-a06292870621",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0008",
+      "statuses": {
+        "normal": 221870,
+        "suppressed": 4511,
+        "telemetry-degraded": 3542,
+        "warming": 3188
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 11487,
+        "telemetry-degraded": 3081,
+        "warming": 2072
+      },
+      "failures": {},
+      "health_degraded_probes": 5,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791268040.7596486,
+        "degraded": true,
+        "excluded_interval": [
+          1791268033.173942,
+          1791268070.7596486
+        ],
+        "excluded_seconds": 37.58570647239685,
+        "fatal": [],
+        "outage_started_at": 1791268033.173942,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791268080.5737507,
+        "degraded": true,
+        "excluded_interval": [
+          1791268033.173942,
+          1791268110.5737507
+        ],
+        "excluded_seconds": 77.39980864524841,
+        "fatal": [],
+        "outage_started_at": 1791268033.173942,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0009",
+      "statuses": {
+        "normal": 225483,
+        "suppressed": 3430,
+        "telemetry-degraded": 3088,
+        "warming": 2272
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 17645,
+        "telemetry-degraded": 2952,
+        "warming": 2081
+      },
+      "failures": {},
+      "health_degraded_probes": 12,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791269824.3352108,
+        "degraded": true,
+        "excluded_interval": [
+          1791269818.9991746,
+          1791269854.3352108
+        ],
+        "excluded_seconds": 35.33603620529175,
+        "fatal": [],
+        "outage_started_at": 1791269818.9991746,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-2f53757c-a9af-4097-aa79-8e214311d82e",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791271625.7371576,
+        "degraded": true,
+        "excluded_interval": [
+          1791271606.7544549,
+          1791271655.7371576
+        ],
+        "excluded_seconds": 183.40406489372253,
+        "fatal": [],
+        "outage_started_at": 1791271606.7544549,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-771b47cc-f50d-417e-935b-bf96f2dde4d6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-2f53757c-a9af-4097-aa79-8e214311d82e",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-330fb5c5-ee4c-4ee2-88bc-87d190624a8d",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b7a0097-7149-455d-ad02-2177a7a08645",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "reason": "supervision/dependency gate rejected run",
+      "rejected_supervision": {
+        "nodes": {
+          "10.1.16.237": {
+            "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+            "observed_at_unix": 1791271625.5042138,
+            "reason": "worker_sealing",
+            "run_id": "pulse-observation-c1-20261006-s0010",
+            "status": "unavailable",
+            "worker_ip": "10.1.16.237"
+          },
+          "10.1.16.238": {
+            "collector_exit_status": 0,
+            "detector_restarts": 0,
+            "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+            "observed_at_unix": 1791271623.9000988,
+            "run_id": "pulse-observation-c1-20261006-s0010",
+            "status": "finished",
+            "terminal": {
+              "automatic_blind_evaluation": false,
+              "automatic_promotion": false,
+              "exit_code": 0,
+              "finished_at_unix": 1791271592.0806875,
+              "formal_recovery_pass": false,
+              "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+              "run_id": "pulse-observation-c1-20261006-s0010",
+              "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+              "worker_ip": "10.1.16.238"
+            },
+            "worker_ip": "10.1.16.238"
+          },
+          "10.1.16.239": {
+            "collector_exit_status": 0,
+            "detector_restarts": 0,
+            "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+            "observed_at_unix": 1791271623.8685806,
+            "run_id": "pulse-observation-c1-20261006-s0010",
+            "status": "finished",
+            "terminal": {
+              "automatic_blind_evaluation": false,
+              "automatic_promotion": false,
+              "exit_code": 0,
+              "finished_at_unix": 1791271588.8259292,
+              "formal_recovery_pass": false,
+              "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+              "run_id": "pulse-observation-c1-20261006-s0010",
+              "schema": "sentinel-pulse-recovery-formal-worker-terminal-v1",
+              "worker_ip": "10.1.16.239"
+            },
+            "worker_ip": "10.1.16.239"
+          }
+        },
+        "probe_failures": {},
+        "state": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "checked_at_unix": 1791271625.7371576,
+          "degraded_workers": [
+            "10.1.16.237"
+          ],
+          "errors": [
+            "worker connectivity unknown beyond bound: 10.1.16.237"
+          ],
+          "finished_workers": [
+            "10.1.16.238",
+            "10.1.16.239"
+          ],
+          "formal_recovery_pass": false,
+          "marker_sha256": "c01c1ee21f057169a67307c40565024ec47142886941ac53d32280ef495142ab",
+          "phase": "rejected",
+          "run_id": "pulse-observation-c1-20261006-s0010",
+          "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+          "unknown_since": {
+            "10.1.16.237": 1791271591.5231247
+          }
+        }
+      },
+      "run_id": "pulse-observation-c1-20261006-s0010",
+      "statuses": {
+        "normal": 224525,
+        "suppressed": 3391,
+        "telemetry-degraded": 3332,
+        "warming": 2651
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 18225,
+        "telemetry-degraded": 486,
+        "warming": 1166
+      },
+      "failures": {},
+      "health_degraded_probes": 12,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791271724.0358322,
+        "degraded": true,
+        "excluded_interval": [
+          1791271713.5434022,
+          1791271754.0358322
+        ],
+        "excluded_seconds": 40.492429971694946,
+        "fatal": [],
+        "outage_started_at": 1791271713.5434022,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-2f53757c-a9af-4097-aa79-8e214311d82e",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b7a0097-7149-455d-ad02-2177a7a08645",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791271834.2491467,
+        "degraded": true,
+        "excluded_interval": [
+          1791271713.5434022,
+          1791271864.2491467
+        ],
+        "excluded_seconds": 150.7057445049286,
+        "fatal": [],
+        "outage_started_at": 1791271713.5434022,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0011",
+      "statuses": {
+        "normal": 226451,
+        "suppressed": 2781,
+        "telemetry-degraded": 3433,
+        "warming": 2111
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {
+        "production/aims-redis:aims-redis": 1
+      },
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 42833,
+        "telemetry-degraded": 2772,
+        "warming": 1555
+      },
+      "failures": {},
+      "health_degraded_probes": 26,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791274844.25616,
+        "degraded": true,
+        "excluded_interval": [
+          1791274837.0935411,
+          1791274874.25616
+        ],
+        "excluded_seconds": 37.16261887550354,
+        "fatal": [],
+        "outage_started_at": 1791274837.0935411,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791275329.0757995,
+        "degraded": true,
+        "excluded_interval": [
+          1791275192.8515348,
+          1791275359.0757995
+        ],
+        "excluded_seconds": 318.168927192688,
+        "fatal": [],
+        "outage_started_at": 1791275192.8515348,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-42c0c214-3581-4869-b5a9-b437cfcf0853",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0012",
+      "statuses": {
+        "alert": 1,
+        "normal": 223693,
+        "suppressed": 4234,
+        "telemetry-degraded": 3219,
+        "warming": 2678
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 18630,
+        "telemetry-degraded": 2899,
+        "warming": 1940
+      },
+      "failures": {},
+      "health_degraded_probes": 11,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791276283.2320793,
+        "degraded": true,
+        "excluded_interval": [
+          1791276279.4311972,
+          1791276313.2320793
+        ],
+        "excluded_seconds": 33.80088210105896,
+        "fatal": [],
+        "outage_started_at": 1791276279.4311972,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791276382.04589,
+        "degraded": true,
+        "excluded_interval": [
+          1791276279.4311972,
+          1791276412.04589
+        ],
+        "excluded_seconds": 132.61469292640686,
+        "fatal": [],
+        "outage_started_at": 1791276279.4311972,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0013",
+      "statuses": {
+        "normal": 223938,
+        "suppressed": 4138,
+        "telemetry-degraded": 3179,
+        "warming": 2618
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3266,
+        "warming": 2725
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0014",
+      "statuses": {
+        "normal": 225845,
+        "suppressed": 2866,
+        "telemetry-degraded": 3266,
+        "warming": 2725
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 18961,
+        "telemetry-degraded": 3136,
+        "warming": 2147
+      },
+      "failures": {},
+      "health_degraded_probes": 11,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791280805.226418,
+        "degraded": true,
+        "excluded_interval": [
+          1791280795.4819326,
+          1791280835.226418
+        ],
+        "excluded_seconds": 39.74448537826538,
+        "fatal": [],
+        "outage_started_at": 1791280795.4819326,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791280902.6588361,
+        "degraded": true,
+        "excluded_interval": [
+          1791280795.4819326,
+          1791280932.6588361
+        ],
+        "excluded_seconds": 137.17690348625183,
+        "fatal": [],
+        "outage_started_at": 1791280795.4819326,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0015",
+      "statuses": {
+        "normal": 223426,
+        "suppressed": 4218,
+        "telemetry-degraded": 3480,
+        "warming": 2956
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 12506,
+        "telemetry-degraded": 3311,
+        "warming": 2651
+      },
+      "failures": {},
+      "health_degraded_probes": 6,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791282086.432485,
+        "degraded": true,
+        "excluded_interval": [
+          1791282078.214228,
+          1791282116.432485
+        ],
+        "excluded_seconds": 38.218257188797,
+        "fatal": [],
+        "outage_started_at": 1791282078.214228,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-6b7a0097-7149-455d-ad02-2177a7a08645",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791282135.773959,
+        "degraded": true,
+        "excluded_interval": [
+          1791282078.214228,
+          1791282165.773959
+        ],
+        "excluded_seconds": 87.55973100662231,
+        "fatal": [],
+        "outage_started_at": 1791282078.214228,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0016",
+      "statuses": {
+        "normal": 222043,
+        "suppressed": 4859,
+        "telemetry-degraded": 3458,
+        "warming": 3184
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 18588,
+        "telemetry-degraded": 2900,
+        "warming": 2026
+      },
+      "failures": {},
+      "health_degraded_probes": 11,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791283831.146985,
+        "degraded": true,
+        "excluded_interval": [
+          1791283827.9675815,
+          1791283861.146985
+        ],
+        "excluded_seconds": 33.17940354347229,
+        "fatal": [],
+        "outage_started_at": 1791283827.9675815,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791283930.5893865,
+        "degraded": true,
+        "excluded_interval": [
+          1791283827.9675815,
+          1791283960.5893865
+        ],
+        "excluded_seconds": 132.62180495262146,
+        "fatal": [],
+        "outage_started_at": 1791283827.9675815,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0017",
+      "statuses": {
+        "normal": 223838,
+        "suppressed": 4244,
+        "telemetry-degraded": 3103,
+        "warming": 2553
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {},
+      "failures": {
+        "coordinator": "worker preflight failed: 10.1.16.237"
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0018",
+      "statuses": {},
+      "worker_audits": 0
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 6884,
+        "health_unobserved": 1201,
+        "telemetry-degraded": 221,
+        "unconsumed_feature": 388,
+        "warming": 271
+      },
+      "failures": {},
+      "health_degraded_probes": 3,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791285156.0807552,
+        "degraded": true,
+        "excluded_interval": [
+          1791285145.8702905,
+          1791285186.0807552
+        ],
+        "excluded_seconds": 40.21046471595764,
+        "fatal": [],
+        "outage_started_at": 1791285145.8702905,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791285460.0654142,
+        "degraded": true,
+        "excluded_interval": [
+          1791285449.4186,
+          1791285490.0654142
+        ],
+        "excluded_seconds": 105.14414691925049,
+        "fatal": [],
+        "outage_started_at": 1791285449.4186,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ebf1a7ca-3554-4e28-a8e4-ec672cd7d538",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "reason": "supervision/dependency gate rejected run",
+      "rejected_supervision": {
+        "nodes": {
+          "10.1.16.237": {
+            "reason": "detector stopped during runtime: inactive; inspect detector journal and recovery snapshot",
+            "run_id": "pulse-observation-c1-20261006-s0019",
+            "status": "invalid",
+            "worker_ip": "10.1.16.237"
+          },
+          "10.1.16.238": {
+            "capture_tail": {
+              "availability_floor_evaluated": false,
+              "errors": [],
+              "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+              "recovery": {
+                "availability": 1.0,
+                "can_score": true,
+                "clean_windows": 574,
+                "epoch": 0,
+                "estimated_missing_snapshots": 0,
+                "excluded_seconds": 0.0,
+                "incident_start": null,
+                "incidents": 0,
+                "maximum_snapshot_gap_seconds": 0.5355896949768066,
+                "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+                "reasons": [],
+                "reset_required": false,
+                "sequence": 575,
+                "status": "ready"
+              },
+              "schema": "sentinel-pulse-recovery-tail-health-v1",
+              "snapshot_age_seconds": 0.20092988014221191,
+              "status": "ready",
+              "terminal_pass": false,
+              "valid": true
+            },
+            "detector_active": true,
+            "detector_restarts": 0,
+            "marker_sha256": "4654867dbd147873eb88214c43673807ec599c94fd68d889443d121d5d2c36e1",
+            "observed_at_unix": 1791285456.919799,
+            "run_id": "pulse-observation-c1-20261006-s0019",
+            "status": "active",
+            "worker_ip": "10.1.16.238"
+          },
+          "10.1.16.239": {
+            "capture_tail": {
+              "availability_floor_evaluated": false,
+              "errors": [],
+              "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+              "recovery": {
+                "availability": 1.0,
+                "can_score": true,
+                "clean_windows": 578,
+                "epoch": 0,
+                "estimated_missing_snapshots": 0,
+                "excluded_seconds": 0.0,
+                "incident_start": null,
+                "incidents": 0,
+                "maximum_snapshot_gap_seconds": 0.5578510761260986,
+                "profile_sha256": "8490b7e2d570fe15fe5d27e97429912f6f00e9ef9dd8f90177eed2d1084fde23",
+                "reasons": [],
+                "reset_required": false,
+                "sequence": 579,
+                "status": "ready"
+              },
+              "schema": "sentinel-pulse-recovery-tail-health-v1",
+              "snapshot_age_seconds": 0.2871689796447754,
+              "status": "ready",
+              "terminal_pass": false,
+              "valid": true
+            },
+            "detector_active": true,
+            "detector_restarts": 0,
+            "marker_sha256": "4654867dbd147873eb88214c43673807ec599c94fd68d889443d121d5d2c36e1",
+            "observed_at_unix": 1791285456.810053,
+            "run_id": "pulse-observation-c1-20261006-s0019",
+            "status": "active",
+            "worker_ip": "10.1.16.239"
+          }
+        },
+        "probe_failures": {},
+        "state": {
+          "automatic_blind_evaluation": false,
+          "automatic_promotion": false,
+          "checked_at_unix": 1791285460.0654142,
+          "degraded_workers": [],
+          "errors": [
+            "worker live binding mismatch: 10.1.16.237",
+            "unsupported worker lifecycle state: 10.1.16.237"
+          ],
+          "finished_workers": [],
+          "formal_recovery_pass": false,
+          "marker_sha256": "4654867dbd147873eb88214c43673807ec599c94fd68d889443d121d5d2c36e1",
+          "phase": "rejected",
+          "run_id": "pulse-observation-c1-20261006-s0019",
+          "schema": "sentinel-pulse-recovery-formal-supervision-v1",
+          "unknown_since": {}
+        }
+      },
+      "run_id": "pulse-observation-c1-20261006-s0019",
+      "statuses": {
+        "normal": 32994,
+        "suppressed": 1986,
+        "telemetry-degraded": 2549,
+        "warming": 655
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 25020,
+        "telemetry-degraded": 2847,
+        "warming": 1832
+      },
+      "failures": {},
+      "health_degraded_probes": 12,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791286031.171835,
+        "degraded": true,
+        "excluded_interval": [
+          1791286023.3303466,
+          1791286061.171835
+        ],
+        "excluded_seconds": 37.84148836135864,
+        "fatal": [],
+        "outage_started_at": 1791286023.3303466,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-68e642ea-d36f-48e9-9252-c8065ed3674a",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791286509.9612248,
+        "degraded": true,
+        "excluded_interval": [
+          1791286463.3345532,
+          1791286539.9612248
+        ],
+        "excluded_seconds": 183.01157522201538,
+        "fatal": [],
+        "outage_started_at": 1791286463.3345532,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0020",
+      "statuses": {
+        "normal": 222637,
+        "suppressed": 4543,
+        "telemetry-degraded": 3085,
+        "warming": 2778
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2783,
+        "warming": 1861
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0021",
+      "statuses": {
+        "normal": 226824,
+        "suppressed": 3055,
+        "telemetry-degraded": 2783,
+        "warming": 1861
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3205,
+        "warming": 2649
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0022",
+      "statuses": {
+        "normal": 226116,
+        "suppressed": 2789,
+        "telemetry-degraded": 3205,
+        "warming": 2649
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3323,
+        "warming": 2664
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0023",
+      "statuses": {
+        "normal": 225891,
+        "suppressed": 2925,
+        "telemetry-degraded": 3323,
+        "warming": 2664
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3060,
+        "warming": 2126
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0024",
+      "statuses": {
+        "normal": 226706,
+        "suppressed": 2855,
+        "telemetry-degraded": 3060,
+        "warming": 2126
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2780,
+        "warming": 1977
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0025",
+      "statuses": {
+        "normal": 226820,
+        "suppressed": 3202,
+        "telemetry-degraded": 2780,
+        "warming": 1977
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 18397,
+        "telemetry-degraded": 3315,
+        "warming": 2567
+      },
+      "failures": {},
+      "health_degraded_probes": 13,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791297837.985896,
+        "degraded": true,
+        "excluded_interval": [
+          1791297832.718882,
+          1791297867.985896
+        ],
+        "excluded_seconds": 35.267014026641846,
+        "fatal": [],
+        "outage_started_at": 1791297832.718882,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791298764.622158,
+        "degraded": true,
+        "excluded_interval": [
+          1791298752.024742,
+          1791298794.622158
+        ],
+        "excluded_seconds": 185.18148517608643,
+        "fatal": [],
+        "outage_started_at": 1791298752.024742,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0026",
+      "statuses": {
+        "normal": 221979,
+        "suppressed": 4528,
+        "telemetry-degraded": 3523,
+        "warming": 3217
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2838,
+        "warming": 1891
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0027",
+      "statuses": {
+        "normal": 226007,
+        "suppressed": 3653,
+        "telemetry-degraded": 2838,
+        "warming": 1891
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2808,
+        "warming": 1442
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0028",
+      "statuses": {
+        "normal": 227725,
+        "suppressed": 2771,
+        "telemetry-degraded": 2808,
+        "warming": 1442
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2799,
+        "warming": 1566
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0029",
+      "statuses": {
+        "normal": 227749,
+        "suppressed": 2638,
+        "telemetry-degraded": 2799,
+        "warming": 1566
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 17361,
+        "telemetry-degraded": 3256,
+        "warming": 2466
+      },
+      "failures": {},
+      "health_degraded_probes": 10,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791304779.7167335,
+        "degraded": true,
+        "excluded_interval": [
+          1791304776.3998744,
+          1791304809.7167335
+        ],
+        "excluded_seconds": 33.316859006881714,
+        "fatal": [],
+        "outage_started_at": 1791304776.3998744,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-d0806f30-ea71-4878-b00d-a73ab6cb6c5f",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791304869.4698246,
+        "degraded": true,
+        "excluded_interval": [
+          1791304776.3998744,
+          1791304899.4698246
+        ],
+        "excluded_seconds": 123.06995010375977,
+        "fatal": [],
+        "outage_started_at": 1791304776.3998744,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0030",
+      "statuses": {
+        "normal": 222864,
+        "suppressed": 4502,
+        "telemetry-degraded": 3497,
+        "warming": 2908
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 19024,
+        "telemetry-degraded": 2990,
+        "warming": 2049
+      },
+      "failures": {},
+      "health_degraded_probes": 11,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791307704.0039334,
+        "degraded": true,
+        "excluded_interval": [
+          1791307692.843086,
+          1791307734.0039334
+        ],
+        "excluded_seconds": 41.160847425460815,
+        "fatal": [],
+        "outage_started_at": 1791307692.843086,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-541f8751-4409-40f4-bc8f-5a75081158cd",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-6b02d612-4c23-40d0-861d-f6fb9abf3a99",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-eca50b57-a905-493a-9c9a-36a815106f25",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-382fe9b0-9e8e-471f-9fe9-9dd374753728",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791307800.4662256,
+        "degraded": true,
+        "excluded_interval": [
+          1791307692.843086,
+          1791307830.4662256
+        ],
+        "excluded_seconds": 137.62313961982727,
+        "fatal": [],
+        "outage_started_at": 1791307692.843086,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-48293a1d-87d9-4d09-97ef-27764018bcd7",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0031",
+      "statuses": {
+        "normal": 223659,
+        "suppressed": 4279,
+        "telemetry-degraded": 3289,
+        "warming": 2751
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3233,
+        "warming": 2653
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0032",
+      "statuses": {
+        "normal": 225543,
+        "suppressed": 3096,
+        "telemetry-degraded": 3233,
+        "warming": 2653
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3195,
+        "warming": 2444
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0033",
+      "statuses": {
+        "normal": 226302,
+        "suppressed": 2777,
+        "telemetry-degraded": 3195,
+        "warming": 2444
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2860,
+        "warming": 1989
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0034",
+      "statuses": {
+        "normal": 227023,
+        "suppressed": 2706,
+        "telemetry-degraded": 2860,
+        "warming": 1989
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2748,
+        "warming": 1354
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0035",
+      "statuses": {
+        "normal": 228108,
+        "suppressed": 2720,
+        "telemetry-degraded": 2748,
+        "warming": 1354
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2904,
+        "warming": 2204
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0036",
+      "statuses": {
+        "normal": 226470,
+        "suppressed": 3116,
+        "telemetry-degraded": 2904,
+        "warming": 2204
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2953,
+        "warming": 2369
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0037",
+      "statuses": {
+        "normal": 226115,
+        "suppressed": 2944,
+        "telemetry-degraded": 2953,
+        "warming": 2369
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "health_degraded": 11165,
+        "telemetry-degraded": 3162,
+        "warming": 2675
+      },
+      "failures": {},
+      "health_degraded_probes": 5,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791320531.1335738,
+        "degraded": true,
+        "excluded_interval": [
+          1791320526.2315261,
+          1791320561.1335738
+        ],
+        "excluded_seconds": 34.902047634124756,
+        "fatal": [],
+        "outage_started_at": 1791320526.2315261,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791320571.2126682,
+        "degraded": true,
+        "excluded_interval": [
+          1791320526.2315261,
+          1791320601.2126682
+        ],
+        "excluded_seconds": 74.98114204406738,
+        "fatal": [],
+        "outage_started_at": 1791320526.2315261,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0038",
+      "statuses": {
+        "normal": 222488,
+        "suppressed": 5009,
+        "telemetry-degraded": 3226,
+        "warming": 2947
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2693,
+        "warming": 1378
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0039",
+      "statuses": {
+        "normal": 227903,
+        "suppressed": 2887,
+        "telemetry-degraded": 2693,
+        "warming": 1378
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3178,
+        "warming": 2499
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0040",
+      "statuses": {
+        "normal": 225864,
+        "suppressed": 3149,
+        "telemetry-degraded": 3178,
+        "warming": 2499
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2757,
+        "warming": 1473
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0041",
+      "statuses": {
+        "normal": 227833,
+        "suppressed": 2816,
+        "telemetry-degraded": 2757,
+        "warming": 1473
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2874,
+        "warming": 1670
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0042",
+      "statuses": {
+        "normal": 227341,
+        "suppressed": 2829,
+        "telemetry-degraded": 2874,
+        "warming": 1670
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 4418,
+        "warming": 4140
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0043",
+      "statuses": {
+        "normal": 223310,
+        "suppressed": 2990,
+        "telemetry-degraded": 4418,
+        "warming": 4140
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2879,
+        "warming": 1660
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0044",
+      "statuses": {
+        "normal": 227598,
+        "suppressed": 2672,
+        "telemetry-degraded": 2879,
+        "warming": 1660
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3192,
+        "warming": 2485
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0045",
+      "statuses": {
+        "normal": 224377,
+        "suppressed": 4526,
+        "telemetry-degraded": 3192,
+        "warming": 2485
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 2656,
+        "warming": 1381
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0046",
+      "statuses": {
+        "normal": 228119,
+        "suppressed": 2821,
+        "telemetry-degraded": 2656,
+        "warming": 1381
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {
+        "telemetry-degraded": 3304,
+        "warming": 2992
+      },
+      "failures": {},
+      "health_degraded_probes": 0,
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0047",
+      "statuses": {
+        "normal": 224359,
+        "suppressed": 3383,
+        "telemetry-degraded": 3304,
+        "warming": 2992
+      },
+      "worker_audits": 3
+    },
+    {
+      "all_alerts": {},
+      "eligible_alerts": {},
+      "excluded": {},
+      "failures": {
+        "10.1.16.237": "RuntimeError",
+        "10.1.16.238": "RuntimeError",
+        "10.1.16.239": "RuntimeError"
+      },
+      "health_degraded_probes": 8,
+      "health_issue_first": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791339467.9343083,
+        "degraded": true,
+        "excluded_interval": [
+          1791339463.8882954,
+          1791339497.9343083
+        ],
+        "excluded_seconds": 34.04601287841797,
+        "fatal": [],
+        "outage_started_at": 1791339463.8882954,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-492d4be7-7ac6-4a3e-885d-d02a26736193",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-739f1858-116e-4bfb-99cc-dc2f6bc6c37c",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-ae9865f5-17ac-4acc-b6e4-551d9fc821e8",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          },
+          {
+            "name": "pvc-fd11d74e-a76a-4287-b553-a2b37960dca6",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": [
+          {
+            "name": "pvc-a2dc6b92-3b62-4402-9952-167d4814c003",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ]
+      },
+      "health_issue_last": {
+        "binding_sha256": "a5c3f207aeef3646b6d9194e6133e7c06f5943e1d2dbd103cab5265f123d461a",
+        "checked_at_unix": 1791339536.2618291,
+        "degraded": true,
+        "excluded_interval": [
+          1791339463.8882954,
+          1791339566.2618291
+        ],
+        "excluded_seconds": 102.37353372573853,
+        "fatal": [],
+        "outage_started_at": 1791339463.8882954,
+        "schema": "sentinel-pulse-operational-health-v1",
+        "transient": [
+          {
+            "name": "pvc-a9fc774d-ee2e-4a30-8e24-6875ddc07981",
+            "reason": "longhorn_volume_unhealthy",
+            "robustness": "degraded",
+            "state": "attached"
+          }
+        ],
+        "warnings": []
+      },
+      "reason": null,
+      "run_id": "pulse-observation-c1-20261006-s0048",
+      "statuses": {},
+      "worker_audits": 0
+    }
+  ],
+  "status": {
+    "all_alerts": {
+      "production/aims-redis:aims-redis": 1
+    },
+    "automatic_promotion": false,
+    "confusion_matrix_measured": null,
+    "elapsed_wall_seconds": 87833.29850721359,
+    "eligible_alert_rate_per_workload_hour": 0.0,
+    "eligible_alert_rates_per_key_hour": {
+      "production/aims-frontend:web": 0.0,
+      "production/aims-kafka-dual-role:kafka": 0.0,
+      "production/aims-kafka-entity-operator:topic-operator": 0.0,
+      "production/aims-kafka-entity-operator:user-operator": 0.0,
+      "production/aims-minio-pool-0:minio": 0.0,
+      "production/aims-minio-pool-0:sidecar": 0.0,
+      "production/aims-postgres-cnpg:postgres": 0.0,
+      "production/aims-rabbitmq-server:rabbitmq": 0.0,
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0.0,
+      "production/aims-redis:aims-redis": 0.0,
+      "production/aims-waypoint:istio-proxy": 0.0,
+      "production/api-gateway:app": 0.0,
+      "production/auth-service:app": 0.0,
+      "production/cart-service:app": 0.0,
+      "production/catalog-service:app": 0.0,
+      "production/inventory-service:app": 0.0,
+      "production/notification-service:app": 0.0,
+      "production/order-service:app": 0.0,
+      "production/payment-service:app": 0.0,
+      "production/search-recommendation-service:app": 0.0,
+      "production/security-telemetry-service:app": 0.0
+    },
+    "eligible_alerts": {},
+    "excluded_rows": {
+      "health_degraded": 285672,
+      "health_unobserved": 1201,
+      "telemetry-degraded": 140473,
+      "unconsumed_feature": 388,
+      "warming": 106314
+    },
+    "expected_confusion_matrix_not_measured": {
+      "FN": 10,
+      "FP": 10,
+      "TN": 190,
+      "TP": 190,
+      "attack_intervals": 200,
+      "fpr": 0.05,
+      "normal_intervals": 200,
+      "precision": 0.95,
+      "recall": 0.95
+    },
+    "exposure_target_reached": false,
+    "missing_segment_audits": [
+      {
+        "segment": "pulse-observation-c1-20261006-s0018",
+        "workers": {
+          "coordinator": "worker preflight failed: 10.1.16.237"
+        }
+      },
+      {
+        "segment": "pulse-observation-c1-20261006-s0048",
+        "workers": {
+          "10.1.16.237": "RuntimeError",
+          "10.1.16.238": "RuntimeError",
+          "10.1.16.239": "RuntimeError"
+        }
+      }
+    ],
+    "normal_alerts_await_adjudication": true,
+    "precision": null,
+    "quality_budget_met": true,
+    "recall": null,
+    "schema": "sentinel-pulse-observation-summary-v1",
+    "valid_seconds_per_workload": {
+      "production/aims-frontend:web": 76171.63249206543,
+      "production/aims-kafka-dual-role:kafka": 78339.50117182732,
+      "production/aims-kafka-entity-operator:topic-operator": 75183.91627550125,
+      "production/aims-kafka-entity-operator:user-operator": 76354.61421895027,
+      "production/aims-minio-pool-0:minio": 76317.15594387054,
+      "production/aims-minio-pool-0:sidecar": 75985.23080134392,
+      "production/aims-postgres-cnpg:postgres": 78336.49080967903,
+      "production/aims-rabbitmq-server:rabbitmq": 78338.85750174522,
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 78337.71164107323,
+      "production/aims-redis:aims-redis": 78337.17005085945,
+      "production/aims-waypoint:istio-proxy": 78339.68641853333,
+      "production/api-gateway:app": 78339.36686348915,
+      "production/auth-service:app": 78269.33768224716,
+      "production/cart-service:app": 78337.19021987915,
+      "production/catalog-service:app": 78339.53034853935,
+      "production/inventory-service:app": 78272.93579030037,
+      "production/notification-service:app": 78335.98833656311,
+      "production/order-service:app": 78340.12416625023,
+      "production/payment-service:app": 78339.70034170151,
+      "production/search-recommendation-service:app": 78331.33247709274,
+      "production/security-telemetry-service:app": 78337.94465327263
+    }
+  },
+  "status_counts_from_audited_segments": {
+    "alert": 1,
+    "normal": 10163764,
+    "suppressed": 155834,
+    "telemetry-degraded": 149183,
+    "warming": 116569
+  },
+  "terminal_present": false
+}
