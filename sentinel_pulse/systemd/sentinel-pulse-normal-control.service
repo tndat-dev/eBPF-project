@@ -1,0 +1,24 @@
+[Unit]
+Description=Sentinel Pulse paired normal controls and final frozen attack evaluation
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/normal-control.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_CONTROL_SOURCE} /home/dat/ml-venv/bin/python -u -m sentinel_pulse.normal_control --config ${PULSE_CONTROL_CONFIG} --attack-root ${PULSE_CONTROL_ATTACK_ROOT} --root ${PULSE_CONTROL_ROOT} --output ${PULSE_CONTROL_RESULTS} --password-file ${PULSE_CONTROL_CREDENTIAL}
+TimeoutStartSec=infinity
+TimeoutStopSec=120
+Restart=on-failure
+RestartPreventExitStatus=65
+RestartSec=60
+RemainAfterExit=yes
+CPUQuota=150%
+MemoryMax=3G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target
