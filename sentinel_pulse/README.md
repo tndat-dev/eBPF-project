@@ -39,6 +39,26 @@ engineering hypothesis, not a measured optimal subset. The future histogram
 and blind comparison plan is `protocol/syscall-selection-evaluation-v1.json`;
 it is not executed and does not attach probes/change the frozen active soak.
 
+An isolated exploratory stage is implemented in `syscall_feature_experiment`:
+32 retrained variants per workload (full, 29 leave-one-explicit-channel-out,
+no explicit channels, and top-16 training frequency proxy plus sensitive
+whitelist). It uses copied checksum-bound normal training/context inputs,
+requires a clean frozen Git checkout, and never loads/deploys live model
+artifacts. All four temporal positions are masked identically. Bins and
+aggregates remain, so this is not removal of all information about an ID.
+Normal raw-anomaly fractions are not adjudicated FP/precision/attack recall.
+
+```bash
+python -m sentinel_pulse.syscall_feature_experiment \
+  --inputs /path/to/verified/offline-inputs \
+  --output /path/to/new/experiment-run
+```
+
+Outputs bind source, inputs, software and masks in `START.json`, preserve
+per-context scores/p-values for paired follow-up, and incrementally write
+`STATUS.json`/`RESULTS.json`. The independent holdout was already inspected:
+this stage is exploratory, not a new blind confirmation or promotion gate.
+
 ## Archived checkpoints and legacy contracts
 
 The following old checkpoints are historical, not current status. The run from
