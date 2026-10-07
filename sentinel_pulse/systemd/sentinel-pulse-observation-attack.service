@@ -1,0 +1,23 @@
+[Unit]
+Description=Sentinel Pulse frozen candidate observational attack evaluation
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/observation-attack.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_ATTACK_SOURCE} /home/dat/ml-venv/bin/python -u -m sentinel_pulse.observation_attack --config ${PULSE_ATTACK_CONFIG} --normal-root ${PULSE_ATTACK_NORMAL_ROOT} --root ${PULSE_ATTACK_ROOT} --password-file ${PULSE_ATTACK_CREDENTIAL}
+TimeoutStartSec=infinity
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=60
+RemainAfterExit=yes
+CPUQuota=150%
+MemoryMax=2G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

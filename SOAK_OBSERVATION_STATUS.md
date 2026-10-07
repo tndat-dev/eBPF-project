@@ -24,7 +24,7 @@ Phân tích syscall và 171 fit ablation theo nhóm đã hoàn thành. Thí nghi
 
 Regression suite Sentinel Pulse hiện qua **726 test và 20 subtest** (34,37 giây), gồm checkpoint recovery, kiểm tra roundoff không đổi ranking/mask và duration của campaign sau terminal. Đây là kiểm tra code trên host, không thay thế đánh giá live/attack.
 
-Giữ model/policy và raw seals cuối kỳ; không xóa alert hoặc đưa campaign vào training hiện tại. Adjudicate alert Redis bằng bằng chứng process/maintenance nếu còn đủ log, giữ `uncertain` nếu không đủ. Hoàn thành thí nghiệm syscall offline trước khi chọn subset; sau đó cần tập normal/attack đánh giá mới, tách biệt, để đo confusion matrix và kernel-to-alert. Việc hoàn thành soak không thay thế những phép đo này.
+Giữ model/policy và raw seals cuối kỳ; không xóa alert hoặc đưa campaign vào training hiện tại. Adjudicate alert Redis bằng bằng chứng process/maintenance nếu còn đủ log, giữ `uncertain` nếu không đủ. Ưu tiên chạy trọn luồng attack của chính candidate đã soak, **không yêu cầu alert = 0**, không đợi thí nghiệm syscall và không thay model/subset trước khi lấy kết quả. Luồng riêng và giới hạn kết luận: [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md). Thí nghiệm syscall offline vẫn chạy độc lập; subset mới chỉ được đánh giá trên candidate/tập kiểm tra tách biệt sau này.
 
 ## Mục tiêu và tiêu chí đã đăng ký
 

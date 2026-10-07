@@ -49,7 +49,8 @@ def bind_detector(feature: Path, supplied_profile: Path | None) -> dict | None:
 
 def bind_freshness_preregistration(feature: Path, preregistration_root: Path = Path(
         "/var/lib/sentinel-pulse-recovery-smoke"), formal_preregistration_root: Path = Path(
-        "/var/lib/sentinel-pulse-recovery-formal")) -> dict:
+        "/var/lib/sentinel-pulse-recovery-formal"), attack_preregistration_root: Path = Path(
+        "/var/lib/sentinel-pulse-attack-registration")) -> dict:
     """Refuse retroactive freshness opt-in on an already frozen/legacy run."""
     from .detector_freshness import CONTRACT, CONTRACT_SHA256
     run_id = feature.parent.name
@@ -57,6 +58,22 @@ def bind_freshness_preregistration(feature: Path, preregistration_root: Path = P
         raise ValueError("unsafe freshness preregistration run ID")
     smoke = preregistration_root / run_id / "START.json"
     formal = formal_preregistration_root / run_id / "START.json"
+    attack = attack_preregistration_root / run_id / "START.json"
+    if attack.exists():
+        if smoke.exists() or formal.exists():
+            raise ValueError('ambiguous attack freshness preregistration')
+        marker = json.loads(attack.read_text())
+        collector = json.loads((feature.parent / 'START.json').read_text())
+        if (marker.get('schema') != 'sentinel-pulse-attack-worker-start-v1'
+                or marker.get('run_id') != run_id
+                or marker.get('automatic_promotion') is not False
+                or marker.get('detector_freshness_contract') != CONTRACT
+                or marker.get('detector_freshness_contract_sha256') != CONTRACT_SHA256
+                or collector.get('telemetry_recovery_contract', {}).get('profile_file_sha256')
+                != marker.get('recovery_profile_sha256')
+                or not marker.get('campaign_start_sha256')):
+            raise ValueError('changed attack freshness preregistration')
+        return CONTRACT
     if smoke.exists() and formal.exists():
         raise ValueError("ambiguous smoke/formal freshness preregistration")
     if formal.exists():
