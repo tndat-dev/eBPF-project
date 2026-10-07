@@ -18,6 +18,27 @@ Các nhóm trên giải thích giả thuyết thiết kế: quan sát I/O thông
 
 Syscall ngoài danh sách được gom thành `other`, 64 syscall hash bins và 64 transition bins. Do collision, không thể suy ra tần suất riêng của futex/epoll/... từ bins. Muốn so sánh tập 29 syscall với một tập khác, cần capture thêm histogram theo syscall ID trong thí nghiệm riêng rồi train các biến thể; dữ liệu hiện tại không đủ để khẳng định tập thay thế tốt hơn. Ánh xạ trên không áp dụng trực tiếp cho ARM hay process dùng ABI compat.
 
+## Phạm vi OS, architecture và khả năng chuyển model
+
+Danh sách hiện tại gắn với **ABI native Linux x86-64**, không gắn riêng với Ubuntu. Cần tách ba câu hỏi: ID/tên syscall có đúng không, collector có chạy được không, và model có còn phát hiện tốt không. Đúng ABI không tự chứng minh hai điều còn lại.
+
+| Môi trường đích | Ánh xạ 29 ID/tên hiện tại | Collector và model |
+|---|---|---|
+| Ubuntu x86-64 native, cụm hiện hành | Đã đối chiếu bảng ABI | Có bằng chứng vận hành trong cụm hiện tại; chưa thay thế blind evaluation |
+| RHEL/Fedora x86-64 native | Cùng ABI Linux; đối chiếu UAPI và khả năng syscall của kernel đích | Cần kiểm tra eBPF/BTF, cgroup, quyền và snapshot integrity; đánh giá normal/calibration và blind test của môi trường đích trước reuse model |
+| Linux ARM64 hoặc process compat/x32 | Không được dùng nguyên bảng ID hardcode x86-64 | Cần mapping/guard ABI riêng, collector phù hợp và schema/model đã kiểm chứng |
+| Windows worker/container native | Không phải ABI Linux | Collector `raw_tp/sys_enter` và schema syscall hiện tại không dùng trực tiếp; chưa triển khai backend Windows |
+
+Nguồn: [Linux syscall ABI](https://www.man7.org/linux/man-pages/man2/syscall.2.html), [eBPF for Windows — giới hạn tương thích hooks/helpers Linux](https://github.com/microsoft/ebpf-for-windows#frequently-asked-questions), [Windows containers trong Kubernetes](https://kubernetes.io/docs/concepts/windows/intro/).
+
+Container Linux không mang một Linux kernel riêng. Ví dụ image Ubuntu hoặc RHEL/UBI chạy trên worker Linux vẫn dùng kernel của worker; thư viện/runtime trong image có thể đổi tần suất syscall và các đường fallback. Windows chỉ là máy người dùng truy cập AIMS thì collector ở server vẫn thu syscall Linux; khác với AIMS chạy trên Windows worker.
+
+Tập 29 có thể giữ đúng tên/ID ở distro Linux cùng ABI nhưng không nhất thiết vẫn là tập feature tốt nhất. Kernel, libc/runtime, probe, traffic và revision khác có thể làm baseline thay đổi. Collector phải phân biệt ABI không hỗ trợ, telemetry không quan sát được và count thực sự bằng 0; syscall entry không chứng minh syscall thành công.
+
+Đối với paper, bằng chứng hiện tại chỉ thuộc cụm Ubuntu Linux x86-64 đã đo. Cross-distro và cross-kernel evaluation là thí nghiệm riêng chưa chạy: khóa source/feature schema, dùng cùng workload và traffic trên môi trường đích, so sánh reuse model với calibration/train normal của môi trường đó, rồi test blind. Không công bố hỗ trợ Windows/ARM hoặc recall đa-OS dựa vào sáu node Ubuntu.
+
+Nếu sau này mở rộng Windows, hướng thiết kế là backend telemetry riêng, chẳng hạn [ETW](https://learn.microsoft.com/en-us/windows/win32/etw/event-tracing-portal), cùng schema sự kiện hành vi có version/khả năng quan sát và calibration riêng. Đây là hướng nghiên cứu, không phải luồng đang deploy; không ánh xạ giả Windows thành 29 syscall Linux hay đưa dữ liệu đó vào model 249 chiều hiện hành.
+
 ## Kiểm chứng nguồn và đủ 29 syscall
 
 Kiểm tra ngày 07/10/2026 bằng `sentinel_pulse.verify_syscall_selection`. **Trong project chưa có nguồn thống kê chứng minh AIMS phải dùng đúng 29 syscall này.** Đây là tập feature engineering do project chọn trước. Nguồn Linux cung cấp tên/ID, còn dữ liệu capture cung cấp tần suất thực tế; hai loại bằng chứng khác nhau.

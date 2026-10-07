@@ -4,6 +4,17 @@
   "created_client_date": "2026-10-07",
   "timezone": "Asia/Bangkok",
   "claim": "utility of explicit syscall feature channels, not globally optimal syscall subset",
+  "platform_scope": {
+    "current_evidence": "Ubuntu Linux native x86-64 on the existing six-node cluster",
+    "syscall_mapping_identity": "operating system + architecture + process ABI + kernel capabilities, not distro name alone",
+    "cross_distro_matrix": "planned separate Ubuntu/RHEL/Fedora native x86-64 runs with matching workload/traffic; no current evidence for the latter two",
+    "collector_admission": ["native ABI mapping", "eBPF hook/helper/BTF support", "cgroup identity", "permissions", "counter integrity"],
+    "model_transfer": "evaluate frozen-model reuse versus target-normal calibration/training on disjoint target tests; do not assume Ubuntu baseline generalizes",
+    "unsupported_current_targets": ["Linux ARM64", "compat/x32 processes", "native Windows worker/container"],
+    "windows_future": "separate telemetry backend and versioned observable-behavior schema; not a direct reuse of Linux syscall IDs or current 249-dimensional model",
+    "deploy_new_operating_systems_automatically": false,
+    "claim_cross_platform_recall_from_current_soak": false
+  },
   "known_evidence_before_registration": {
     "analysis_sha256": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
     "ablation_sha256": "cdd660295eb32b96e74856125767eda9ce8ed2a656b00a554f422881c16769bf",
