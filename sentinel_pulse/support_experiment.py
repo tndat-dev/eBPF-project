@@ -6,6 +6,7 @@ import fcntl
 import json
 import importlib.metadata
 import platform
+import os
 from pathlib import Path
 import pickle
 import signal
@@ -82,7 +83,14 @@ def run(dataset, model_dir, analysis, root):
         path = root / (key.replace('/', '__').replace(':', '__') + '.pkl')
         with path.with_suffix('.tmp').open('wb') as stream:
             pickle.dump(ensemble, stream, protocol=pickle.HIGHEST_PROTOCOL)
+            stream.flush()
+            os.fsync(stream.fileno())
         path.with_suffix('.tmp').replace(path)
+        directory_fd = os.open(root, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
         row = dict(fit=fit, artifact=path.name, artifact_sha256=sha256_file(path),
                    artifact_schema='exploratory-PulseSupportEnsemble-not-serving-v2',
                    policy_evaluated=False, precision=None, recall=None)

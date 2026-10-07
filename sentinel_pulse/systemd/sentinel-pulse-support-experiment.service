@@ -1,0 +1,27 @@
+[Unit]
+Description=Sentinel Pulse normal-only support experiment (no automatic promotion)
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/support-experiment.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_SUPPORT_SOURCE} /home/dat/ml-venv/bin/python -u -m sentinel_pulse.support_experiment --dataset ${PULSE_SUPPORT_DATASET} --model ${PULSE_SUPPORT_MODEL} --analysis ${PULSE_SUPPORT_ANALYSIS} --root ${PULSE_SUPPORT_ROOT}
+TimeoutStartSec=infinity
+TimeoutStopSec=60
+Restart=on-failure
+RestartPreventExitStatus=65
+RestartSec=60
+RemainAfterExit=yes
+Nice=15
+CPUQuota=150%
+MemoryMax=4G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target
