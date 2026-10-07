@@ -148,17 +148,23 @@ và precision; phân tích model-only so với policy trên replay riêng. Chỉ
 candidate trên tập phát triển độc lập, không tune theo các miss của matrix
 này rồi gọi lại chính matrix đó là blind test mới.
 
-Regression trên host: **772 test + 20 subtest** đã qua (23,01 giây), gồm
+Regression trên host: **774 test + 20 subtest** đã qua (22,83 giây), gồm
 admission nonzero-alert, checkpoint intent, hit/miss, thiếu kernel provenance,
 thiếu scored coverage và cleanup failure. Không thay thế số đo live.
 
 ## Normal-control và báo cáo cuối
 
-`sentinel-pulse-normal-control.service` trên `.234` **enabled**, PID **2709870**,
+`sentinel-pulse-normal-control.service` trên `.234` **enabled**, PID **2713751**,
 `NRestarts=0`, đang `waiting_for_sealed_attack`, chưa thu normal-control.
-Controller riêng `/home/dat/eBPF-project-paired-evaluation-20261008`, commit
-**5bc0b2993be272d6534449dadcd7a5221c4258e3**. Worker vẫn dùng source frozen
+Controller riêng `/home/dat/eBPF-project-paired-evaluation-r2-20261008`, commit
+**2036357776b92445f9a5d4cfe921da87be8bd84e**. Worker vẫn dùng source frozen
 **ee2528b**, không đổi model/policy/pipeline đã soak.
+
+Kiểm tra controller lúc 02:38:59 ICT: queue chưa START, không BLOCKED,
+source sạch; attack PID vẫn 2122534, đã có 457 receipt. Biên bản:
+[controller-r2-inspection.json](validation-evidence/paired-evaluation-deployment-20261008/controller-r2-inspection.json).
+Đã thêm xử lý service chạy lại sau terminal/reboot: không sửa QUEUE đã seal,
+chỉ tái tạo report riêng. Thay controller khi còn queued, không restart attack.
 
 Luồng tự động: attack terminal → đóng/seal leg → kiểm tra controller seal và
 đối chiếu raw provenance/alert → đăng ký normal-control → thu interval → audit
@@ -206,5 +212,5 @@ python3 -m json.tool /home/dat/sentinel-pulse-paired-results/pulse-paired-c1-202
 
 Mã: `sentinel_pulse/normal_control.py`, `paired_evaluation.py`, installer và
 systemd unit. Service restart/checkpoint, enabled khi VM boot; chưa chủ động
-reboot production để test. Gồm 18 test mới cho FP, sparse coverage, exact target,
+reboot production để test. Gồm 20 test mới cho FP, sparse coverage, exact target,
 checkpoint, seal drift và raw attack audit. Test code không thay thế số đo live.

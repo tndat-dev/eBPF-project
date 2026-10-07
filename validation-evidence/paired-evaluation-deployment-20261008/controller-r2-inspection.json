@@ -1,0 +1,18 @@
+{
+  "checked_at_utc": "2026-10-07T19:38:59.995824+00:00",
+  "controller_source": "/home/dat/eBPF-project-paired-evaluation-r2-20261008",
+  "controller_commit": "2036357776b92445f9a5d4cfe921da87be8bd84e",
+  "controller_dirty": "",
+  "normal_control_unit": "MainPID=2713751\nResult=success\nNRestarts=0\nActiveState=activating\n",
+  "normal_control_queue": {
+    "attack_root": "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007",
+    "checked_at_unix": 1791401919.757087,
+    "no_worker_mutations": true,
+    "status": "waiting_for_sealed_attack"
+  },
+  "normal_control_start_present": false,
+  "normal_control_blocked_present": false,
+  "attack_unit": "MainPID=2122534\nResult=success\nNRestarts=0\nActiveState=activating\n",
+  "attack_completed_receipts": 457,
+  "change_scope": "queued controller only; no attack restart, no worker or candidate change; terminal-to-seal reboot regression fixed before control registration"
+}
