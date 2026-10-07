@@ -1,0 +1,26 @@
+[Unit]
+Description=Sentinel Pulse offline syscall feature campaign
+After=local-fs.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=dat
+WorkingDirectory=/home/dat/sentinel-pulse-syscall-feature-c1/source
+ExecStart=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python -u -m sentinel_pulse.syscall_feature_campaign --inputs /home/dat/sentinel-pulse-syscall-feature-c1/inputs --root /home/dat/sentinel-pulse-syscall-feature-c1/runs --initial-checkpoint /home/dat/sentinel-pulse-syscall-feature-c1/imported-host-attempt
+Environment=LOKY_MAX_CPU_COUNT=2 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+CPUQuota=150%
+MemoryMax=4G
+MemorySwapMax=0
+Nice=15
+IOWeight=10
+TasksMax=64
+TimeoutStartSec=infinity
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=60
+RestartPreventExitStatus=65
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

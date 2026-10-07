@@ -51,3 +51,23 @@ def test_zero_recorded_alerts_does_not_imply_zero_false_positive_rate():
     r=review(s)
     assert r['retained_alerts_total']==0 and r['all_alerts_per_campaign_wall_hour']==0
     assert r['false_positive_rate'] is None and r['confusion_matrix_measured'] is None
+
+
+def test_completed_campaign_duration_and_alert_rate_do_not_grow_after_finish():
+    s=snapshot();s['terminal_present']=True;s['active_segments']=[]
+    s['status']['elapsed_wall_seconds']=3600;s['checked_at_unix']=7300
+    r=review(s)
+    assert r['elapsed_wall_hours']==1
+    assert r['all_alerts_per_campaign_wall_hour']==1
+    assert r['elapsed_wall_source']=='terminal STATUS.json duration'
+
+
+@pytest.mark.parametrize('change', ['missing','future','negative','active'])
+def test_invalid_terminal_duration_is_rejected(change):
+    s=snapshot();s['terminal_present']=True;s['active_segments']=[]
+    s['status']['elapsed_wall_seconds']=3600
+    if change=='missing':del s['status']['elapsed_wall_seconds']
+    elif change=='future':s['status']['elapsed_wall_seconds']=3602
+    elif change=='negative':s['status']['elapsed_wall_seconds']=-1
+    else:s['active_segments']=[{'run_id':'s2'}]
+    with pytest.raises(ValueError):review(s)

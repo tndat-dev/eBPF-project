@@ -59,6 +59,19 @@ per-context scores/p-values for paired follow-up, and incrementally write
 `STATUS.json`/`RESULTS.json`. The independent holdout was already inspected:
 this stage is exploratory, not a new blind confirmation or promotion gate.
 
+Use `--resume-from /path/to/stopped-attempt` with a **new** output directory
+to carry checksum-verified completed fits. Input/software and model/feature/
+training source must match; old receipts remain unchanged. Failed fits are
+retained in the parent and retried in the child. Carried host inference timing
+must not be pooled with timing on another machine.
+
+For boot-persistent operation, `syscall_feature_campaign` holds a single-writer
+flock and creates a new checkpoint-bound attempt per restart. The system-level
+unit `systemd/pulse-syscall-feature-c1.service` runs as `dat`, has resource
+limits, no startup deadline, restart-on-failure and boot enablement. Binding/
+integrity errors exit 65 and require investigation, never bypass validation.
+Do not use a transient host user unit if the laptop will be powered off.
+
 ## Archived checkpoints and legacy contracts
 
 The following old checkpoints are historical, not current status. The run from

@@ -15,6 +15,7 @@ from pathlib import Path
 import pickle
 import platform
 import resource
+import shutil
 import signal
 import time
 
@@ -139,12 +140,77 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
-def run(inputs, output):
+def load_checkpoint(parent, start):
+    """Read a stopped attempt; never rewrite its START/results/terminal.
+
+    No ML transformation may change across attempts. The orchestration module
+    may change to add recovery; the exact prior source remains in the receipt.
+    """
+    prior = json.loads((parent / "START.json").read_text())
+    if prior.get("schema") != "sentinel-pulse-explicit-syscall-experiment-start-v1":
+        raise ValueError("checkpoint START schema mismatch")
+    for key in ("input_sha256", "software", "training_fraction", "history", "alpha",
+                "window_seconds", "workloads", "expected_fits", "variants_per_workload"):
+        if prior.get(key) != start.get(key):
+            raise ValueError("checkpoint binding mismatch: " + key)
+    for name in ("model.py", "features.py", "train.py", "encoding.py"):
+        if prior["source_module_sha256"].get(name) != start["source_module_sha256"].get(name):
+            raise ValueError("checkpoint ML source mismatch: " + name)
+    result_path = parent / "RESULTS.json"
+    results = json.loads(result_path.read_text()) if result_path.exists() else {"workloads": {}}
+    if result_path.exists() and results.get("schema") != "sentinel-pulse-explicit-syscall-experiment-results-v1":
+        raise ValueError("checkpoint results schema mismatch")
+    parent_start_hash = sha256_file(parent / "START.json")
+    if result_path.exists() and results.get("start_sha256") != parent_start_hash:
+        raise ValueError("checkpoint results START mismatch")
+    carried = {}
+    for key, result in results["workloads"].items():
+        if key not in start["workloads"]:
+            raise ValueError("checkpoint unexpected workload")
+        variants, ranking, retained = variant_masks(list(PulseFeatureBuilder().columns), result["training_count_proxy"])
+        if result["training_rank"] != ranking or result["top16_plus_sensitive_retained_syscalls"] != retained:
+            raise ValueError("checkpoint ranking mismatch")
+        kept = {}
+        for variant, record in result["variants"].items():
+            if variant not in variants or record.get("status") not in ("measured", "error"):
+                raise ValueError("checkpoint unexpected variant/status")
+            if record["status"] == "error":
+                continue  # old error stays in the parent; retry in the child
+            expected_columns = [list(PulseFeatureBuilder().columns)[i] for i in variants[variant]]
+            if record["masked_columns"] != expected_columns:
+                raise ValueError("checkpoint mask mismatch")
+            filename = record["prediction_artifact"]
+            expected_name = hashlib.sha256(key.encode()).hexdigest()[:16] + "__" + variant + ".npz"
+            if filename != expected_name:
+                raise ValueError("checkpoint prediction path mismatch")
+            artifact = parent / filename
+            verify_sha256(artifact, record["prediction_sha256"])
+            with np.load(artifact, allow_pickle=False) as prediction:
+                score, p, anomalous = (prediction[n] for n in ("score", "conformal_p", "anomalous"))
+                if (score.shape != (record["heldout_contexts"],) or p.shape != score.shape
+                        or anomalous.shape != score.shape or anomalous.dtype != np.dtype(bool)
+                        or not np.isfinite(score).all() or not np.isfinite(p).all()
+                        or (p <= 0).any() or (p > 1).any()
+                        or not np.array_equal(anomalous, p <= start["alpha"])
+                        or int(anomalous.sum()) != record["raw_anomalous_contexts"]):
+                    raise ValueError("checkpoint prediction content mismatch")
+            kept[variant] = {**record, "carried_from_start_sha256": parent_start_hash,
+                             "carried_from_source_commit": prior["source"]["source_git_commit"]}
+        carried[key] = {**result, "variants": kept}
+    receipt = {"path": str(parent), "start_sha256": parent_start_hash,
+               "results_sha256": sha256_file(result_path) if result_path.exists() else None,
+               "terminal_sha256": sha256_file(parent / "TERMINAL.json") if (parent / "TERMINAL.json").exists() else None,
+               "reused_fits": sum(len(v["variants"]) for v in carried.values()),
+               "orchestration_source_may_differ": True,
+               "timing_warning": "carried inference timings belong to the original host/quota; do not pool with new VM timings"}
+    return carried, receipt
+
+
+def run(inputs, output, resume_from=None):
     source = source_git_provenance(Path(__file__).resolve().parents[1])
     if not source["source_clean"]:
         raise ValueError("run experiments from a clean, frozen Git checkout")
     manifest, analysis, provenance = verify_inputs(inputs)
-    output.mkdir(parents=True, exist_ok=False)
     software = {"python": platform.python_version(), "numpy": np.__version__}
     import sklearn
     import joblib
@@ -177,12 +243,22 @@ def run(inputs, output):
         "host_resource_limits": "set externally by systemd; inference timing is host/quota-specific, not kernel-to-alert",
         "privacy": "no production payloads or credentials collected",
     }
+    carried, receipt = load_checkpoint(resume_from, start) if resume_from else ({}, None)
+    output.mkdir(parents=True, exist_ok=False)
+    start["resume_from"] = receipt
+    for result in carried.values():
+        for record in result["variants"].values():
+            destination = output / record["prediction_artifact"]
+            shutil.copyfile(resume_from / record["prediction_artifact"], destination)
+            verify_sha256(destination, record["prediction_sha256"])
     atomic_json(output / "START.json", start)
-    status = {"state": "loading_training", "completed_fits": 0, "expected_fits": start["expected_fits"], "errors": []}
+    status = {"state": "loading_training", "completed_fits": receipt["reused_fits"] if receipt else 0,
+              "reused_fits": receipt["reused_fits"] if receipt else 0, "expected_fits": start["expected_fits"], "errors": []}
     atomic_json(output / "STATUS.json", status)
     results = {"schema": "sentinel-pulse-explicit-syscall-experiment-results-v1", "start_sha256": sha256_file(output / "START.json"),
                "evidence_class": start["evidence_class"], "automatic_promotion": False,
-               "precision": None, "recall": None, "kernel_to_alert_seconds": None, "workloads": {}}
+               "precision": None, "recall": None, "kernel_to_alert_seconds": None, "workloads": carried}
+    atomic_json(output / "RESULTS.json", results)
     terminal = "interrupted"
     try:
         sequences, columns = load_sequences(inputs / "features.jsonl", manifest["max_contiguous_gap_seconds"])
@@ -192,10 +268,15 @@ def run(inputs, output):
             for key in start["workloads"]:
                 proxy = training_frequency_proxy(sequences[key], columns, manifest["history_windows"])
                 variants, ranking, retained = variant_masks(columns, proxy)
-                result = {"training_count_proxy": proxy, "training_rank": ranking,
+                result = results["workloads"].get(key)
+                if result is not None and result["training_count_proxy"] != proxy:
+                    raise ValueError("checkpoint training ranking differs from verified inputs")
+                result = result or {"training_count_proxy": proxy, "training_rank": ranking,
                           "top16_plus_sensitive_retained_syscalls": retained, "variants": {}}
                 results["workloads"][key] = result
                 for variant, indices in variants.items():
+                    if result["variants"].get(variant, {}).get("status") == "measured":
+                        continue
                     status.update(state="fitting", workload=key, variant=variant, updated_at=utc_now())
                     atomic_json(output / "STATUS.json", status)
                     model = None
@@ -262,11 +343,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inputs", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--resume-from", type=Path)
     args = parser.parse_args()
     def stop(_signal, _frame):
         raise KeyboardInterrupt("experiment stopped; live soak is unaffected")
     signal.signal(signal.SIGTERM, stop)
-    run(args.inputs.resolve(), args.output.resolve())
+    run(args.inputs.resolve(), args.output.resolve(), args.resume_from.resolve() if args.resume_from else None)
 
 
 if __name__ == "__main__":

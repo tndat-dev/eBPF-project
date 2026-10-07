@@ -36,12 +36,18 @@ def review(snapshot):
     checked = number(snapshot['checked_at_unix'], 'inspection time')
     registration = snapshot['registration']
     protocol = registration['binding']['protocol']
-    elapsed = checked - number(registration['started_at_unix'], 'registration time')
+    observed_elapsed = checked - number(registration['started_at_unix'], 'registration time')
+    status = snapshot['status']
+    terminal = snapshot.get('terminal_present') is True
+    elapsed = number(status.get('elapsed_wall_seconds'), 'terminal wall duration') if terminal else observed_elapsed
+    if elapsed <= 0 or elapsed > observed_elapsed + 1:
+        raise ValueError('invalid terminal wall duration')
+    if terminal and snapshot['active_segments']:
+        raise ValueError('terminal campaign still has active segments')
     wall_target = number(protocol['minimum_wall_seconds'], 'wall target')
     exposure_target = number(protocol['target_valid_seconds_per_workload'], 'exposure target')
     if elapsed <= 0 or wall_target <= 0 or exposure_target <= 0:
         raise ValueError('invalid campaign duration')
-    status = snapshot['status']
     exposure = {
         k: number(v, 'valid exposure')
         for k, v in status['valid_seconds_per_workload'].items()
@@ -76,6 +82,7 @@ def review(snapshot):
         'terminal_present':snapshot['terminal_present'],
         'active_segments':[r['run_id'] for r in snapshot['active_segments']],
         'elapsed_wall_hours':elapsed/3600,'wall_progress_percent':min(100,elapsed/wall_target*100),
+        'elapsed_wall_source':'terminal STATUS.json duration' if terminal else 'inspection time minus registration time',
         'exposure_from':'STATUS.json snapshot; can lag corrections and active segments',
         'valid_hours_range':[low/3600,high/3600],
         'valid_progress_percent_range':[min(100,low/exposure_target*100),min(100,high/exposure_target*100)],
