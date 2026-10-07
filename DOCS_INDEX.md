@@ -1,6 +1,6 @@
 # Mục lục tài liệu Sentinel Pulse
 
-Cập nhật bố cục: 06/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
+Cập nhật bố cục: 07/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
 tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
 Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
 
@@ -12,6 +12,8 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md) | Campaign 24 giờ, recovery, ngân sách alert, confusion matrix kỳ vọng và trạng thái live |
 | [SOAK_INCIDENTS.md](SOAK_INCIDENTS.md) | Lỗi/alert trong campaign hiện hành, nguyên nhân đã xác minh, phần chưa biết và bằng chứng từ VM |
 | [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
+| [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
+| [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
 | [WORKLOAD_TELEMETRY_LOG_FORMAT.md](WORKLOAD_TELEMETRY_LOG_FORMAT.md) | Schema telemetry, nhận diện workload và cách đọc log |
 | [example.md](example.md) | Ví dụ feature/log và lệnh lấy dữ liệu |
 | [OPERATIONAL_SOAK_RUNBOOK.md](OPERATIONAL_SOAK_RUNBOOK.md) | Protocol và thao tác operational soak |
