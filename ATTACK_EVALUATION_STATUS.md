@@ -40,6 +40,12 @@ chạy bằng systemd, không gắn với SSH. Worker reboot làm mất BPF maps
 giữ kết quả cũ, ghi khoảng thiếu chứng cứ, khởi tạo leg mới; không giả vờ
 telemetry liên tục. Chưa thực nghiệm reboot để tránh gián đoạn production.
 
+Binary thực thi phải có SHA-256 `d77c7237d302cae9e0ca56afd0bafcb8b328ef0779ce559cc300b3122ec1a927`.
+Tái biên dịch có thể khác hash dù cùng tên/version GCC vì static link phụ thuộc
+libc/linker. Launcher nhận bản binary gốc đã đóng băng và xác minh hash trước
+registration; không sửa contract để chấp nhận binary mới. Binding sai dừng
+dispatch với `BLOCKED.json`/exit 65, không mắc kẹt restart vô hạn.
+
 `INTENTS.jsonl` được fsync trước dispatch. Nếu crash sau intent nhưng chưa có
 receipt, interval giữ là `infrastructure_unknown`, không tự tiêm lại seed đó.
 Detection miss và alert trong normal không bị xóa. Binary chỉ tác động cây

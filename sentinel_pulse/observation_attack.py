@@ -11,6 +11,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import shutil
 import shlex
 import subprocess
 import time
@@ -233,22 +234,30 @@ def register(cfg, normal_root, root, seed):
                'global_health_warning_policy': 'retain context; only target readiness, telemetry and safety block dispatch',
                'zero_alert_gate': False, 'stop_on_detection_miss': False, 'automatic_promotion': False,
                'evidence_class': 'observation_attack_matrix', 'attack_outcomes_used_for_training_or_tuning': False}
+    root.mkdir(parents=True, exist_ok=True)
+    binary = root / 'runtime_attack_blind'
+    if not binary.exists():
+        if cfg.get('binary'):
+            original = Path(cfg['binary'])
+            if sha256_file(original) != binding['binary_sha256']:
+                raise ValueError('supplied frozen binary checksum differs')
+            shutil.copyfile(original, binary)
+        else:
+            subprocess.run(['gcc', '-O2', '-Wall', '-Wextra', '-Werror', '-static', str(binary_source), '-o', str(binary)], check=True)
+    if sha256_file(binary) != binding['binary_sha256']:
+        raise ValueError('static binary checksum differs from frozen implementation')
+    binary.chmod(0o555)
+    # GCC's version string alone does not freeze static libc/linker artifacts.
+    # Verify the executable BEFORE creating immutable registration.
     start_path = root / 'START.json'
     if start_path.exists():
         start = json.loads(start_path.read_text())
         if {k: start[k] for k in binding} != binding:
             raise ValueError('registered campaign binding changed')
     else:
-        root.mkdir(parents=True, exist_ok=False)
         start = dict(binding, schema='sentinel-pulse-observation-attack-start-v1',
                      run_id=root.name, started_at_unix=time.time())
         atomic_json(start_path, start); start_path.chmod(0o444)
-    binary = root / 'runtime_attack_blind'
-    if not binary.exists():
-        subprocess.run(['gcc', '-O2', '-Wall', '-Wextra', '-Werror', '-static', str(binary_source), '-o', str(binary)], check=True)
-    if sha256_file(binary) != binding['binary_sha256']:
-        raise ValueError('static binary checksum differs from frozen implementation')
-    binary.chmod(0o555)
     return start
 
 
@@ -269,7 +278,13 @@ def main():
     with Path('/home/dat/.pulse-attack-campaign.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         root = args.root
-        start = register(cfg, args.normal_root, root, args.seed)
+        try:
+            start = register(cfg, args.normal_root, root, args.seed)
+        except ValueError as exc:
+            root.mkdir(parents=True, exist_ok=True)
+            atomic_json(root / 'BLOCKED.json', {'error': str(exc), 'blocked_at_unix': time.time(),
+                        'automatic_attack_dispatch': False, 'requires_binding_review': True})
+            raise SystemExit(65) from exc
         if (root / 'TERMINAL.json').exists():
             return
         recover_intents(root, start['schedule'])
@@ -311,6 +326,8 @@ def main():
                         if desired['spec'] != rendered['spec']:
                             raise ValueError('active kernel provenance policy differs')
                         if leg is None:
+                            atomic_json(root / 'STATUS.json', dict(result_report(start['schedule'], rows(root / 'TRIALS.jsonl')),
+                                                                  status='starting_capture_leg', updated_at_unix=time.time()))
                             number += 1
                             prospective = start['run_id'] + f'-a{number:04d}'
                             append_jsonl(root / 'ACTIVE_LEG.jsonl', {'run_id': prospective, 'started_at_unix': time.time()})

@@ -13,6 +13,7 @@ ExecStart=/usr/bin/env PYTHONPATH=${PULSE_ATTACK_SOURCE} /home/dat/ml-venv/bin/p
 TimeoutStartSec=infinity
 TimeoutStopSec=90
 Restart=on-failure
+RestartPreventExitStatus=65
 RestartSec=60
 RemainAfterExit=yes
 CPUQuota=150%
