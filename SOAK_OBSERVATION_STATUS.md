@@ -1,6 +1,6 @@
 # Soak quan sát có phục hồi — trạng thái hiện hành
 
-Cập nhật ngày 07/10/2026, múi giờ Asia/Bangkok. Đây là tài liệu trạng thái hiện hành; không bổ sung checkpoint lịch sử. Các biên bản đã kết thúc của hệ thống cũ giữ nguyên kết luận đã đăng ký.
+Cập nhật ngày 08/10/2026, múi giờ Asia/Bangkok. Đây là tài liệu trạng thái hiện hành; không bổ sung checkpoint lịch sử. Các biên bản đã kết thúc của hệ thống cũ giữ nguyên kết luận đã đăng ký.
 
 ## Trạng thái triển khai đã xác minh
 
@@ -16,23 +16,26 @@ Các receipt đã audit có **12.223.588 decision**: 11.734.773 normal, 181.373 
 
 Runtime worker giữ nguyên checkout **a3cdbfb** tại `/home/dat/eBPF-project-observation-r2-20261006`; controller/auditor dùng checkout **529d207** tại `/home/dat/eBPF-project-observation-audit-r3-20261006`. Khi chuyển controller, checksum `START.json` vẫn là `10457f3f7f3823293258bf9fc8fcd1c14907cc29db68c232aca935f1a1be186f`; PID và InvocationID của cả ba collector không đổi. Model, policy, protocol và thời điểm bắt đầu không đổi. Resume được ghi trong `RESUME.jsonl`, nguồn controller/auditor trong `CONTROLLER_BINDINGS.jsonl` và `CONTROLLER_EXECUTION.jsonl`.
 
-Phân tích syscall và 171 fit ablation theo nhóm đã hoàn thành. Thí nghiệm chọn kênh từng syscall được triển khai riêng, không thay model soak: [trạng thái job](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nguồn/giới hạn tại [syscall_analysis.md](syscall_analysis.md). Histogram full-ID/cross-OS và blind recall theo subset chưa chạy. Chưa có precision/recall end-to-end được adjudication hoặc phép đo blind kernel-to-alert mới cho campaign này.
+Phân tích syscall và 171 fit ablation theo nhóm đã hoàn thành. Thí nghiệm chọn kênh từng syscall được triển khai riêng, không thay model soak: [trạng thái job](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nguồn/giới hạn tại [syscall_analysis.md](syscall_analysis.md). Histogram full-ID/cross-OS và blind recall theo subset chưa chạy. Soak riêng không cung cấp precision/recall; phép đo attack/latency của candidate này đang chạy, cập nhật ở phần tiếp theo và báo cáo attack.
 
 `review_observation.py` tách wall time/exposure, giữ tổng alert và alert ngoài admission. Với campaign đã terminal, mẫu số wall time được cố định theo thời lượng kết thúc, không tăng theo thời điểm đọc report. Toàn campaign **0,0363 alert/giờ wall time** (một alert/27,55 giờ), không phải FPR hoặc alert/workload-hour. Công cụ review không tự đọc raw seals, adjudicate hay promote model.
 
 ## Bước tiếp theo
 
-Regression suite Sentinel Pulse hiện qua **726 test và 20 subtest** (34,37 giây), gồm checkpoint recovery, kiểm tra roundoff không đổi ranking/mask và duration của campaign sau terminal. Đây là kiểm tra code trên host, không thay thế đánh giá live/attack.
+Regression suite Sentinel Pulse hiện qua **772 test và 20 subtest** (23,01 giây), gồm checkpoint recovery, kiểm tra roundoff không đổi ranking/mask và duration của campaign sau terminal. Đây là kiểm tra code trên host, không thay thế đánh giá live/attack.
 
 Giữ model/policy và raw seals cuối kỳ; không xóa alert hoặc đưa campaign vào training hiện tại. Adjudicate alert Redis bằng bằng chứng process/maintenance nếu còn đủ log, giữ `uncertain` nếu không đủ. Ưu tiên chạy trọn luồng attack của chính candidate đã soak, **không yêu cầu alert = 0**, không đợi thí nghiệm syscall và không thay model/subset trước khi lấy kết quả. Luồng riêng và giới hạn kết luận: [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md). Thí nghiệm syscall offline vẫn chạy độc lập; subset mới chỉ được đánh giá trên candidate/tập kiểm tra tách biệt sau này.
 
-SSH kiểm tra ngày 08/10 lúc 02:23:50 ICT: attack campaign đang chạy ngầm,
-447/475 receipt (94,11%). Trong 371 interval observed có 131 phát hiện,
-240 miss: recall có điều kiện **35,31%**; 76 unknown được giữ, tỷ lệ phát
-hiện end-to-end **29,31%**. Precision/FP/TN chưa đo được; không chuyển một
+SSH kiểm tra ngày 08/10 lúc 02:34:18 ICT: attack campaign đang chạy ngầm,
+454/475 receipt (95,58%). Trong 378 interval observed có 131 phát hiện,
+247 miss: recall có điều kiện **34,66%**; 76 unknown được giữ, tỷ lệ phát
+hiện end-to-end **28,85%**. Precision/FP/TN chưa đo được; không chuyển một
 alert Redis chưa adjudication thành FP hay xóa nó để công bố precision 100%.
 Candidate hiện **chưa đủ bằng chứng recall cao/stable**. Chi tiết, latency
 và bằng chứng có checksum nằm trong báo cáo attack được liên kết ở trên.
+Service normal-control đã enabled, chờ attack terminal/seal rồi tự thu 475
+normal interval cùng đơn vị và xuất báo cáo paired. Không restart soak, không
+zero-FP gate; phân biệt nhãn protocol với adjudication.
 
 ## Mục tiêu và tiêu chí đã đăng ký
 
@@ -42,7 +45,10 @@ Protocol: `sentinel_pulse/protocol/observation-campaign-v1.json`.
 
 Ngân sách ban đầu: trung bình tối đa 0,01 alert/workload-hour, và tối đa 0,05 alert/hour cho từng workload. Đây là mục tiêu chất lượng được đánh giá cuối kỳ; vượt ngân sách vẫn tiếp tục thu và giữ mọi alert. Alert cần được đối chiếu ground truth trước khi gọi là false positive.
 
-Benchmark cân bằng dự kiến có 200 interval normal và 200 interval attack, cùng định nghĩa đơn vị đánh giá:
+Ví dụ kỳ vọng trong protocol observation ban đầu dùng 200 interval normal và
+200 interval attack, cùng đơn vị đánh giá. Đây không phải kích thước matrix
+đang chạy: attack hiện có 475 interval và paired normal-control đăng ký 475.
+Các số dưới đây chỉ minh họa tỷ lệ mục tiêu, không phải kết quả hay gate:
 
 | Ground truth | Có phát hiện | Không phát hiện |
 |---|---:|---:|

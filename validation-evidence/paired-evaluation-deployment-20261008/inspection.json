@@ -1,0 +1,96 @@
+{
+  "checked_at_utc": "2026-10-07T19:34:18.511958+00:00",
+  "attack_status": {
+    "attack_attribution_horizon_seconds": 15,
+    "attack_outcomes_used_for_training_or_tuning": false,
+    "automatic_promotion": false,
+    "completed_trial_receipts": 454,
+    "conditional_observed_attack_recall": 0.34656084656084657,
+    "confusion_matrix": {
+      "FN_observed": 247,
+      "FP": null,
+      "TN": null,
+      "TP_observed": 131,
+      "attack_unknown": 76
+    },
+    "detected_attack_intervals": 131,
+    "end_to_end_detection_fraction_on_completed_planned_trials": 0.28854625550660795,
+    "evidence_class": "observation_attack_matrix",
+    "expected_trial_intervals": 475,
+    "false_positive_rate": null,
+    "formal_legacy_pass": false,
+    "infrastructure_unknown_intervals": 76,
+    "kernel_to_alert_seconds_detected_trials_only": {
+      "p50": 0.6510524749755859,
+      "p95": 1.8816909790039062,
+      "p99": 4.543833589553829
+    },
+    "last_trial": {
+      "cgroup_id": 5110231,
+      "detected": false,
+      "health_context_before_trial": {
+        "global_health_gate": true
+      },
+      "injected_at": 1791401519.2627423,
+      "injection_id": "pulse-observation-attack-c2-20261007:0454",
+      "kernel_event_at": 1791401520.006501,
+      "kernel_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MzM0MzU5OTUyNjg0MzIzMToxMjU2MDcx",
+      "leg_run_id": "pulse-observation-attack-c2-20261007-a0078",
+      "minimum_scored_target_windows": 81,
+      "node_name": "k8s-worker1.local",
+      "pod_name": "payment-service-86bf86b6-b46mr",
+      "pod_uid": "7ca5a333-adea-41cd-8311-e36f0e1b154f",
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "scored_target_windows": 89,
+      "seed": 51029,
+      "status": "observed",
+      "target_status_counts": {
+        "normal": 47,
+        "suppressed": 42
+      },
+      "temporary_binary_cleanup_returncode": 0,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    "latency_sample_count": 131,
+    "minimum_scored_window_fraction_for_observed_trial": 0.9,
+    "mixed_window_and_interval_denominators_forbidden": true,
+    "normal_soak_alerts_not_silently_adjudicated": true,
+    "observed_attack_intervals": 378,
+    "observed_misses": 247,
+    "planned_full_matrix_detection_lower_bound": 0.27578947368421053,
+    "precision": null,
+    "progress_percent": 95.57894736842105,
+    "schema": "sentinel-pulse-observation-attack-results-v1",
+    "status": "running",
+    "updated_at_unix": 1791401603.3015792
+  },
+  "attack_status_raw_sha256": "e1bba34f710156c7fd2ed119d30199cfe21b7435d9d4872a2b9d0df7f1de822b",
+  "attack_terminal_present": false,
+  "attack_seal_present": false,
+  "attack_unit": "MainPID=2122534\nResult=success\nNRestarts=0\nActiveState=activating\n",
+  "normal_control_unit": "MainPID=2709870\nResult=success\nNRestarts=0\nActiveState=activating\n",
+  "normal_control_enabled": "enabled",
+  "normal_control_queue": {
+    "attack_root": "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007",
+    "checked_at_unix": 1791401656.9375367,
+    "no_worker_mutations": true,
+    "status": "waiting_for_sealed_attack"
+  },
+  "normal_control_blocked": null,
+  "normal_control_start_present": false,
+  "controller_source": {
+    "commit": "5bc0b2993be272d6534449dadcd7a5221c4258e3",
+    "status": ""
+  },
+  "frozen_worker_source": {
+    "commit": "ee2528be497507797fa98e6e37bd0dbd41587a89",
+    "status": ""
+  },
+  "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+  "attack_root": "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007",
+  "control_root": "/home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008",
+  "results_root": "/home/dat/sentinel-pulse-paired-results/pulse-paired-c1-20261008"
+}

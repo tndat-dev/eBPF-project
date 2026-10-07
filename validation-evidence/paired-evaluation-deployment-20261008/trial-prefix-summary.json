@@ -1,0 +1,38 @@
+{
+  "trial_prefix_count": 454,
+  "trial_prefix_raw_sha256": "78971893adeba26ece941dc3dcd32aa2cf3b0adca87cc71ffd89cd4849554003",
+  "scenarios": {
+    "anonymous_mprotect_churn": {
+      "detected": 0,
+      "misses": 78,
+      "unknown": 15
+    },
+    "child_ptrace_handshake": {
+      "detected": 65,
+      "misses": 8,
+      "unknown": 17
+    },
+    "execveat_resolution_probe": {
+      "detected": 66,
+      "misses": 7,
+      "unknown": 18
+    },
+    "invalid_setns_burst": {
+      "detected": 0,
+      "misses": 77,
+      "unknown": 12
+    },
+    "seccomp_api_probe": {
+      "detected": 0,
+      "misses": 77,
+      "unknown": 14
+    }
+  },
+  "hits_within_2_seconds": 124,
+  "unknown_error_types": {
+    "RuntimeError": 14,
+    "ValueError": 14,
+    "CalledProcessError": 41,
+    "TimeoutExpired": 7
+  }
+}
