@@ -11,6 +11,14 @@ key**, telemetry availability `1.0`, không missing snapshot và không cadence
 violation. Đó là bằng chứng capture/dataset hợp lệ, **không phải** claim
 precision, recall hay model pass.
 
+**Nhánh đang quan sát từ 08/10/2026:** collector riêng bổ sung seccomp
+skip/emulation, snapshot 500 ms, ghi `sentinel-pulse-extended-feature-v1`
+trong `/var/lib/sentinel-pulse-extended-c1-20261008/segments/`. Nó chưa load
+model/ghi alert, không thay stream R4 hoặc manifest frozen. Xem
+[contract, tiến độ và recovery](EXTENDED_TELEMETRY_STATUS.md); không đưa các
+feature mới này vào model cũ chỉ vì cùng 249 chiều. Phần mô tả R4 bên dưới
+là contract tham chiếu, không khẳng định detector R4 đang chạy liên tục.
+
 ```mermaid
 flowchart TD
     W[Kubernetes pod / container] --> K[Linux sys_enter eBPF]

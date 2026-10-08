@@ -1,0 +1,299 @@
+{
+  "workers": [
+    {
+      "ip": "10.1.16.237",
+      "inspection": {
+        "node": "k8s-worker1.local",
+        "checked_at_unix": 1791429338.7758427,
+        "status": {
+          "boundary_observation_seconds": 191.2179045677185,
+          "current_segment": "s0001",
+          "eligible_for_normal_review_rows": 7192,
+          "errors": 0,
+          "feature_rows": 7855,
+          "rows_by_workload": {
+            "production/aims-kafka-dual-role:kafka": 378,
+            "production/aims-minio-pool-0:minio": 343,
+            "production/aims-minio-pool-0:sidecar": 330,
+            "production/aims-postgres-cnpg:postgres": 378,
+            "production/aims-rabbitmq-server:rabbitmq": 378,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 378,
+            "production/aims-redis:aims-redis": 378,
+            "production/aims-waypoint:istio-proxy": 378,
+            "production/api-gateway:app": 378,
+            "production/auth-service:app": 756,
+            "production/catalog-service:app": 378,
+            "production/inventory-service:app": 756,
+            "production/notification-service:app": 756,
+            "production/order-service:app": 378,
+            "production/payment-service:app": 756,
+            "production/security-telemetry-service:app": 756
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 1,
+          "skip_delta_by_workload": {
+            "production/aims-kafka-dual-role:kafka": 19,
+            "production/aims-minio-pool-0:minio": 0,
+            "production/aims-minio-pool-0:sidecar": 0,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/auth-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/inventory-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "256597819cb3e8da4b67bd6eb630ce9d072c7975b18b08b7fa3a0060b5df9776",
+          "state": "collecting",
+          "updated_at_unix": 1791429336.3078005
+        },
+        "start_sha256": "256597819cb3e8da4b67bd6eb630ce9d072c7975b18b08b7fa3a0060b5df9776",
+        "units": {
+          "sentinel-pulse-extended-collection.service": {
+            "MainPID": "1061212",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 03:12:23 UTC",
+            "MemoryCurrent": "69095424",
+            "MemoryPeak": "69537792",
+            "CPUUsageNSec": "17927146000",
+            "ActiveState": "activating",
+            "SubState": "start",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-collector.service": {
+            "MainPID": "3855864",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 00:31:02 UTC",
+            "MemoryCurrent": "449572864",
+            "MemoryPeak": "449937408",
+            "CPUUsageNSec": "335224804000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-resolver.service": {
+            "MainPID": "563592",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Mon 2026-09-14 04:27:28 UTC",
+            "MemoryCurrent": "30715904",
+            "MemoryPeak": "44175360",
+            "CPUUsageNSec": "22432476120000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          }
+        },
+        "segment_terminals": {},
+        "available_gib": 161.06468963623047
+      }
+    },
+    {
+      "ip": "10.1.16.238",
+      "inspection": {
+        "node": "k8s-worker4.local",
+        "checked_at_unix": 1791429338.9817631,
+        "status": {
+          "boundary_observation_seconds": 191.56001329421997,
+          "current_segment": "s0001",
+          "eligible_for_normal_review_rows": 8261,
+          "errors": 0,
+          "feature_rows": 9282,
+          "rows_by_workload": {
+            "production/aims-frontend:web": 320,
+            "production/aims-kafka-dual-role:kafka": 378,
+            "production/aims-kafka-entity-operator:topic-operator": 378,
+            "production/aims-kafka-entity-operator:user-operator": 378,
+            "production/aims-minio-pool-0:minio": 339,
+            "production/aims-minio-pool-0:sidecar": 307,
+            "production/aims-postgres-cnpg:postgres": 378,
+            "production/aims-rabbitmq-server:rabbitmq": 378,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 378,
+            "production/aims-redis:aims-redis": 378,
+            "production/aims-waypoint:istio-proxy": 378,
+            "production/api-gateway:app": 378,
+            "production/auth-service:app": 756,
+            "production/cart-service:app": 756,
+            "production/catalog-service:app": 378,
+            "production/inventory-service:app": 756,
+            "production/notification-service:app": 378,
+            "production/order-service:app": 756,
+            "production/payment-service:app": 378,
+            "production/search-recommendation-service:app": 378,
+            "production/security-telemetry-service:app": 378
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 1,
+          "skip_delta_by_workload": {
+            "production/aims-frontend:web": 0,
+            "production/aims-kafka-dual-role:kafka": 19,
+            "production/aims-kafka-entity-operator:topic-operator": 10,
+            "production/aims-kafka-entity-operator:user-operator": 7,
+            "production/aims-minio-pool-0:minio": 0,
+            "production/aims-minio-pool-0:sidecar": 0,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/auth-service:app": 0,
+            "production/cart-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/inventory-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/search-recommendation-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "381d254dd5efb781e801ca47f615c10cfb4838a01de00d4b1f66062cbdeb4d6f",
+          "state": "collecting",
+          "updated_at_unix": 1791429336.0409586
+        },
+        "start_sha256": "381d254dd5efb781e801ca47f615c10cfb4838a01de00d4b1f66062cbdeb4d6f",
+        "units": {
+          "sentinel-pulse-extended-collection.service": {
+            "MainPID": "2562782",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 03:12:22 UTC",
+            "MemoryCurrent": "74547200",
+            "MemoryPeak": "74960896",
+            "CPUUsageNSec": "21453997000",
+            "ActiveState": "activating",
+            "SubState": "start",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-collector.service": {
+            "MainPID": "1111293",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 00:36:44 UTC",
+            "MemoryCurrent": "500047872",
+            "MemoryPeak": "500256768",
+            "CPUUsageNSec": "381562777000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-resolver.service": {
+            "MainPID": "1595210",
+            "NRestarts": "1",
+            "ExecMainStartTimestamp": "Sun 2026-10-04 16:25:30 UTC",
+            "MemoryCurrent": "11210752",
+            "MemoryPeak": "24305664",
+            "CPUUsageNSec": "3530819400000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          }
+        },
+        "segment_terminals": {},
+        "available_gib": 112.64374542236328
+      }
+    },
+    {
+      "ip": "10.1.16.239",
+      "inspection": {
+        "node": "k8s-worker3.local",
+        "checked_at_unix": 1791429337.8501024,
+        "status": {
+          "boundary_observation_seconds": 177.40663647651672,
+          "current_segment": "s0002",
+          "eligible_for_normal_review_rows": 6341,
+          "errors": 0,
+          "feature_rows": 6963,
+          "rows_by_workload": {
+            "production/aims-frontend:web": 294,
+            "production/aims-kafka-dual-role:kafka": 351,
+            "production/aims-postgres-cnpg:postgres": 351,
+            "production/aims-rabbitmq-server:rabbitmq": 351,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 351,
+            "production/aims-redis:aims-redis": 351,
+            "production/aims-waypoint:istio-proxy": 351,
+            "production/api-gateway:app": 702,
+            "production/cart-service:app": 702,
+            "production/catalog-service:app": 702,
+            "production/notification-service:app": 351,
+            "production/order-service:app": 351,
+            "production/payment-service:app": 351,
+            "production/search-recommendation-service:app": 1053,
+            "production/security-telemetry-service:app": 351
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 2,
+          "skip_delta_by_workload": {
+            "production/aims-frontend:web": 0,
+            "production/aims-kafka-dual-role:kafka": 17,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/cart-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/search-recommendation-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "22712de7f8a84e959fc4ed7e9c7b38a069997ae51bbfd88b9fbbdbf321c50468",
+          "state": "collecting",
+          "updated_at_unix": 1791429337.6893008
+        },
+        "start_sha256": "22712de7f8a84e959fc4ed7e9c7b38a069997ae51bbfd88b9fbbdbf321c50468",
+        "units": {
+          "sentinel-pulse-extended-collection.service": {
+            "MainPID": "2404227",
+            "NRestarts": "1",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 03:15:06 UTC",
+            "MemoryCurrent": "40169472",
+            "MemoryPeak": "41140224",
+            "CPUUsageNSec": "3598629000",
+            "ActiveState": "activating",
+            "SubState": "start",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-collector.service": {
+            "MainPID": "1062331",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Thu 2026-10-08 00:33:42 UTC",
+            "MemoryCurrent": "431783936",
+            "MemoryPeak": "432177152",
+            "CPUUsageNSec": "346166874000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          },
+          "sentinel-pulse-resolver.service": {
+            "MainPID": "3723594",
+            "NRestarts": "0",
+            "ExecMainStartTimestamp": "Mon 2026-09-14 04:29:06 UTC",
+            "MemoryCurrent": "14258176",
+            "MemoryPeak": "26468352",
+            "CPUUsageNSec": "21961096160000",
+            "ActiveState": "active",
+            "SubState": "running",
+            "UnitFileState": "enabled"
+          }
+        },
+        "segment_terminals": {
+          "s0001": {
+            "features_sha256": "0ab93127d2d4652a5061de63f598e9d1d89cedd491546c554e528fe3f1c55416",
+            "loader_exit_status": 0,
+            "raw_sha256": "9c8939c3636fcc89d43d512ca34eada18c77600a77b45ec6a0ebdfe0c745a6f5",
+            "reason": "system_stop_checkpoint_retained",
+            "raw_checksum_verified": true
+          }
+        },
+        "available_gib": 94.88135147094727
+      }
+    }
+  ]
+}

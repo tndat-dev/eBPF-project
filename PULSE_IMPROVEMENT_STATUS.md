@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **08/10/2026, 09:07 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **08/10/2026, khoảng 10:15 ICT**.
 Bằng chứng và checksum: [inspection](validation-evidence/pulse-improvement-20261008/inspection.json),
 [kết quả paired cuối](validation-evidence/pulse-improvement-20261008/paired-final-inspection.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
@@ -78,8 +78,11 @@ trong dữ liệu. Return −1 có thể là skip/emulation, không luôn đồn
 KILL không nhất thiết quay lại fexit, TRACE recheck phải tránh đếm đôi.
 
 Collector frozen hiện chưa ghi giá trị thực cho `seccomp_denied`; giá trị
-mặc định 0 ở feature không phải bằng chứng không có syscall bị chặn. Hook
-probe chưa được ghép vào collector/model production. RuntimeDefault kiểm tra
+mặc định 0 ở feature không phải bằng chứng không có syscall bị chặn. Nhánh
+collector **riêng, opt-in** đã tích hợp hook và kiểm chứng trên ba worker:
+20 setns +20 seccomp skip được đếm đúng mỗi fixture. Đang thu dữ liệu AIMS
+500 ms bằng system service có checkpoint, **chưa ghép vào model frozen**.
+[Trạng thái, source pin và receipt](EXTENDED_TELEMETRY_STATUS.md). RuntimeDefault kiểm tra
 trước đó cho phép syscall `seccomp`; **không suy rằng scenario seccomp API
 cũng bị chặn như fixture**. Nó còn có vấn đề policy/model riêng.
 
@@ -176,9 +179,10 @@ phát alert production. Không bypass manifest/type checks để ép chạy.
 
 ## 5. Công việc tiếp theo để tiến đến kỳ vọng
 
-1. Thu bổ sung seccomp skip/emulation với semantic/schema đúng; kiểm chứng
-   double-count, task identity, coverage và overhead. Không gắn nhãn tất cả
-   skip là attack. Feature contract thay đổi thì cần normal baseline mới.
+1. Collector bổ sung đã qua fixture trên ba worker; job quan sát 2 giờ 500 ms
+   đã enabled, độc lập SSH, checkpoint và automatic restart đã thử trên .239.
+   Tiếp tục đánh giá coverage/overhead/normal skip; không gắn nhãn tất cả
+   skip là attack. Contract mới cần normal baseline mới.
 2. Candidate mới phải khai báo các security field thực sự hỗ trợ, calibration
    và decision policy cùng nhau. So sánh model-only và full policy; không
    sửa ngưỡng để vừa khít 475 interval đã nhìn thấy.
@@ -211,7 +215,8 @@ Git giữ source hiện hành trên host và reporting checkout của VM; các s
 runtime đã đăng ký/frozen giữ commit riêng. “Đồng bộ code” không đồng nghĩa
 ghi đè source của một thí nghiệm đang/chạy xong.
 
-Regression host: **1.049 test qua, 7 skipped, 20 subtest qua** trong 26,07 s
+Regression host: **1.061 test qua, 7 skipped, 20 subtest qua** trong 38,83 s
 (`python -m pytest tests -q`). Bao gồm binding/checksum, calibration resolution,
-matched-budget analysis, target selection và timing. Test fixture không được
+matched-budget analysis, target selection, timing và extended telemetry
+contract/checkpoint/resume. Test fixture không được
 đưa vào số liệu precision/recall thực nghiệm.

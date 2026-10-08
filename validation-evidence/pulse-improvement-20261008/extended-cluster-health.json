@@ -1,0 +1,541 @@
+{
+  "checked_at_unix": 1791429242.2119508,
+  "nodes": [
+    {
+      "name": "k8s-master.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999828Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.234",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-master.local",
+          "type": "Hostname"
+        }
+      ]
+    },
+    {
+      "name": "k8s-master2.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999840Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.235",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-master2.local",
+          "type": "Hostname"
+        }
+      ]
+    },
+    {
+      "name": "k8s-master3.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999840Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.236",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-master3.local",
+          "type": "Hostname"
+        }
+      ]
+    },
+    {
+      "name": "k8s-worker1.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999836Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.237",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-worker1.local",
+          "type": "Hostname"
+        }
+      ]
+    },
+    {
+      "name": "k8s-worker3.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999828Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.239",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-worker3.local",
+          "type": "Hostname"
+        }
+      ]
+    },
+    {
+      "name": "k8s-worker4.local",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      },
+      "version": "v1.34.10",
+      "cpu": "24",
+      "memory": "131999824Ki",
+      "addresses": [
+        {
+          "address": "10.1.16.238",
+          "type": "InternalIP"
+        },
+        {
+          "address": "k8s-worker4.local",
+          "type": "Hostname"
+        }
+      ]
+    }
+  ],
+  "production_pods": [
+    {
+      "name": "aims-frontend-8cb8dc8b-cxs8l",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-frontend-8cb8dc8b-lprp5",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-kafka-dual-role-0",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-kafka-dual-role-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-kafka-dual-role-2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-kafka-entity-operator-5455dcf447-8cgn9",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 25
+    },
+    {
+      "name": "aims-minio-pool-0-0",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-minio-pool-0-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-postgres-cnpg-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 1
+    },
+    {
+      "name": "aims-postgres-cnpg-2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 3
+    },
+    {
+      "name": "aims-postgres-cnpg-3",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 2
+    },
+    {
+      "name": "aims-rabbitmq-server-0",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-rabbitmq-server-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-rabbitmq-server-2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-0",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-sentinel-sentinel-0",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-sentinel-sentinel-1",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-redis-sentinel-sentinel-2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-sentinel-dependency-loadgen-7bfbfcc86-69p67",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-sentinel-ingress-loadgen-5b76d6d654-t7nzh",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-sentinel-loadgen-86bdbb4fcb-pk6tw",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-waypoint-6d558c5d7c-ltgwj",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "aims-waypoint-6d558c5d7c-n879w",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 2
+    },
+    {
+      "name": "aims-waypoint-6d558c5d7c-sctgm",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "api-gateway-5b79675d85-4q84j",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "api-gateway-5b79675d85-79rbz",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "api-gateway-5b79675d85-mdx68",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "api-gateway-5b79675d85-n9krn",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "auth-service-b5bdfb67b-f7nx2",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "auth-service-b5bdfb67b-lr7sm",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "auth-service-b5bdfb67b-mtldx",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "auth-service-b5bdfb67b-xm7z8",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "cart-service-7b588cf549-2lt27",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "cart-service-7b588cf549-5r5jl",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "cart-service-7b588cf549-rxnjh",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "cart-service-7b588cf549-xzn7t",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "catalog-service-6dc97b678f-4z6qs",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "catalog-service-6dc97b678f-9b8f6",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "catalog-service-6dc97b678f-lcwmr",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "catalog-service-6dc97b678f-qpp64",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "inventory-service-695bf6f445-n6f7l",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "inventory-service-695bf6f445-p6r8f",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "inventory-service-695bf6f445-q4gsr",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "inventory-service-695bf6f445-ttlgj",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "notification-service-79797674dd-85lrs",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "notification-service-79797674dd-ckzfp",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "notification-service-79797674dd-m5xl9",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "notification-service-79797674dd-snkm6",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "order-service-7b4bb44876-5ghdm",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "order-service-7b4bb44876-b7j4l",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "order-service-7b4bb44876-g8rn4",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "order-service-7b4bb44876-zt555",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "payment-service-86bf86b6-7gmhb",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "payment-service-86bf86b6-b46mr",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "payment-service-86bf86b6-hzzrd",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "payment-service-86bf86b6-tcw2s",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "search-recommendation-service-75bd67f9b9-62pbr",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "search-recommendation-service-75bd67f9b9-cz7gm",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "search-recommendation-service-75bd67f9b9-kshh9",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "search-recommendation-service-75bd67f9b9-zj8rx",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "security-telemetry-service-6799d88468-64xjj",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "security-telemetry-service-6799d88468-cwc9h",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "security-telemetry-service-6799d88468-jt742",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    },
+    {
+      "name": "security-telemetry-service-6799d88468-llcjp",
+      "phase": "Running",
+      "ready": "True",
+      "restarts": 0
+    }
+  ]
+}

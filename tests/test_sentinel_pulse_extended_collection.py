@@ -90,3 +90,26 @@ def test_proof_must_match_artifacts(setup):
     source,build,root,proof=setup;(build/'pulse_counter_extended.bpf.o').write_bytes(b'drift')
     with pytest.raises(ValueError,match='compiled artifacts'):ec.collect(source,build,root,proof=proof)
     assert not (root/'START.json').exists()
+
+
+def test_system_stop_resumes_checkpoint_in_new_segment_not_from_zero(setup,monkeypatch):
+    source,build,root,proof=setup
+    emit(monkeypatch,[(10,0),(10.5,1)])
+    handlers={};original_read=ec.os.read;calls=0
+    monkeypatch.setattr(ec.signal,'signal',lambda sig,handler:handlers.update({sig:handler}))
+    def read(*args):
+        nonlocal calls
+        calls+=1
+        if calls==5:handlers[ec.signal.SIGTERM]()
+        return original_read(*args)
+    monkeypatch.setattr(ec.os,'read',read)
+    with pytest.raises(SystemExit) as stopped:ec.collect(source,build,root,seconds=1,proof=proof)
+    assert stopped.value.code==1
+    first=json.loads((root/'STATUS.json').read_text())
+    assert first['boundary_observation_seconds']==.5 and first['segments']==1
+    emit(monkeypatch,[(20,0),(20.5,1)])
+    ec.collect(source,build,root,seconds=1,proof=proof)
+    terminal=json.loads((root/'TERMINAL.json').read_text())
+    assert terminal['boundary_observation_seconds']==1 and terminal['segments']==2
+    assert terminal['start_sha256']==first['start_sha256']
+    assert (root/'segments/s0001/raw.jsonl').exists() and (root/'segments/s0002/raw.jsonl').exists()

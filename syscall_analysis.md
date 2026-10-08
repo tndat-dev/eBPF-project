@@ -16,6 +16,14 @@ ID/tên syscall được đối chiếu với bảng ABI x86-64 chính thức c�
 
 Các nhóm trên giải thích giả thuyết thiết kế: quan sát I/O thông dụng và các hoạt động có thể liên quan security. Chưa có bằng chứng rằng 29 syscall này là tập tối ưu. `SENSITIVE_IDS` cũng là lựa chọn engineering; syscall nhạy cảm có thể hoàn toàn hợp lệ. Đếm `sys_enter` ghi nhận lần gọi, không tự chứng minh syscall thành công hoặc là attack.
 
+**Giới hạn visibility đã kiểm chứng:** fixture trên ba worker cho thấy syscall
+bị seccomp ERRNO/EPERM chặn có thể không xuất hiện ở `raw_tp/sys_enter`.
+Collector riêng đã bổ sung `fexit/__seccomp_filter` và đếm đúng 20 setns +20
+seccomp skip mỗi proof. [Receipt và job 500 ms mới](EXTENDED_TELEMETRY_STATUS.md).
+Bảng tần suất/importance bên dưới vẫn dùng capture theo contract entry cũ;
+không cộng số liệu skip mới vào mẫu số cũ hoặc gọi count=0 là không có attempt.
+Contract mới cần baseline/calibration riêng; skip không mặc nhiên là attack.
+
 Syscall ngoài danh sách được gom thành `other`, 64 syscall hash bins và 64 transition bins. Do collision, không thể suy ra tần suất riêng của futex/epoll/... từ bins. Muốn so sánh tập 29 syscall với một tập khác, cần capture thêm histogram theo syscall ID trong thí nghiệm riêng rồi train các biến thể; dữ liệu hiện tại không đủ để khẳng định tập thay thế tốt hơn. Ánh xạ trên không áp dụng trực tiếp cho ARM hay process dùng ABI compat.
 
 ## Phạm vi OS, architecture và khả năng chuyển model
