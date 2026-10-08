@@ -11,6 +11,8 @@ from pathlib import Path
 import pickle
 import platform
 import signal
+import shlex
+import subprocess
 import time
 import numpy as np
 from .encoding import decode_vector
@@ -70,31 +72,32 @@ def partitions_for(path,cut1,cut2):
 
 
 def fetch_inputs(root,credential,known_hosts):
-    import paramiko
     if credential.stat().st_mode&0o077:raise ValueError('SSH credential is not private')
-    password=credential.read_text().strip();inputs=root/'inputs';inputs.mkdir(exist_ok=True)
+    inputs=root/'inputs';inputs.mkdir(exist_ok=True)
     reports={};paths=[]
     for host in WORKERS:
-        client=paramiko.SSHClient();client.load_system_host_keys(str(known_hosts))
-        try:
-            client.connect(host,username='dat',password=password,timeout=8,auth_timeout=8,
-                           banner_timeout=8,look_for_keys=False,allow_agent=False)
-            with client.open_sftp() as sftp:
-                def read(name):
-                    with sftp.open(AUDIT+'/'+name) as f:return json.loads(f.read())
-                try:terminal=read('TERMINAL.json')
-                except OSError:return None
-                if terminal.get('state')!='completed_audit':return None
-                report=read('RESULTS.json');reports[host]=report
-                for segment,data in report['segments'].items():
-                    if not segment.startswith('s') or not segment[1:].isdigit():raise ValueError('unsafe audit segment')
-                    dest=inputs/(host+'-'+segment+'.jsonl')
-                    if not dest.exists() or sha256_file(dest)!=data['reference_sha256']:
-                        temp=dest.with_suffix('.tmp');sftp.get(AUDIT+'/'+segment+'/reference.jsonl',str(temp))
-                        if sha256_file(temp)!=data['reference_sha256']:raise ValueError('reference download checksum differs')
-                        temp.replace(dest)
-                    paths.append(dict(path=str(dest),sha256=data['reference_sha256'],host=host,segment=segment))
-        finally:client.close()
+        prefix=['sshpass','-f',str(credential),'ssh','-o','StrictHostKeyChecking=yes',
+                '-o','UserKnownHostsFile='+str(known_hosts),'-o','ConnectTimeout=8',
+                '-o','ServerAliveInterval=15','-o','ServerAliveCountMax=3','dat@'+host]
+        def read(name):
+            result=subprocess.run(prefix+['cat -- '+shlex.quote(AUDIT+'/'+name)],
+                capture_output=True,timeout=30,check=True)
+            return json.loads(result.stdout)
+        try:terminal=read('TERMINAL.json')
+        except subprocess.CalledProcessError:return None
+        if terminal.get('state')!='completed_audit':return None
+        report=read('RESULTS.json');reports[host]=report
+        for segment,data in report['segments'].items():
+            if not segment.startswith('s') or not segment[1:].isdigit():raise ValueError('unsafe audit segment')
+            dest=inputs/(host+'-'+segment+'.jsonl')
+            if not dest.exists() or sha256_file(dest)!=data['reference_sha256']:
+                temp=dest.with_suffix('.tmp')
+                with temp.open('wb') as f:
+                    subprocess.run(prefix+['cat -- '+shlex.quote(AUDIT+'/'+segment+'/reference.jsonl')],
+                        stdout=f,stderr=subprocess.PIPE,timeout=900,check=True)
+                if sha256_file(temp)!=data['reference_sha256']:raise ValueError('reference download checksum differs')
+                temp.replace(dest)
+            paths.append(dict(path=str(dest),sha256=data['reference_sha256'],host=host,segment=segment))
     return dict(reports=reports,reference_files=paths)
 
 
@@ -136,7 +139,7 @@ def run(source,root,credential,known_hosts):
     commit,files=clean_source(source)
     while not (root/'INPUTS.json').exists():
         try:inputs=fetch_inputs(root,credential,known_hosts)
-        except (OSError,EOFError) as exc:
+        except (OSError,EOFError,subprocess.CalledProcessError,subprocess.TimeoutExpired) as exc:
             inputs=None;atomic_json(root/'QUEUE.json',dict(state='waiting_for_worker_audits',error=type(exc).__name__,at_unix=time.time()))
         if inputs is None:
             atomic_json(root/'QUEUE.json',dict(state='waiting_for_worker_audits',at_unix=time.time()));time.sleep(30);continue

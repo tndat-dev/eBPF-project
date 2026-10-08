@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import pytest
+from sentinel_pulse import extended_reference_experiment as exp
 from sentinel_pulse.extended_reference_experiment import phase_for,partitions_for,PulseExtendedReferenceTree
 
 
@@ -34,3 +35,15 @@ def test_reference_tree_does_not_accept_nonfinite_data():
     base=PulseExtendedReferenceTree()
     with pytest.raises(ValueError,match='invalid reference sequence'):
         base._split_sequences(dict(train=[np.full((10,2),np.nan)],calibration=[]),.7)
+
+
+def test_fetch_waits_without_paramiko_or_password_on_command_line(tmp_path,monkeypatch):
+    credential=tmp_path/'private';credential.write_text('fixture-password-not-real\n');credential.chmod(0o600)
+    observed=[]
+    def run(command,**kwargs):
+        observed.append(command)
+        raise exp.subprocess.CalledProcessError(1,command)
+    monkeypatch.setattr(exp.subprocess,'run',run)
+    assert exp.fetch_inputs(tmp_path,credential,tmp_path/'known_hosts') is None
+    assert 'StrictHostKeyChecking=yes' in observed[0] and observed[0][:2]==['sshpass','-f']
+    assert all('fixture-password-not-real' not in word for word in observed[0])
