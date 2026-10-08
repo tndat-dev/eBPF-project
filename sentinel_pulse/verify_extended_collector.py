@@ -21,7 +21,8 @@ def verify(build,root):
     files=['pulse_counter_extended_loader','pulse_counter_extended.bpf.o','seccomp_fixture']
     atomic_json(root/'START.json',dict(schema='pulse-extended-proof-start-v1',cgroup_id=cg,cgroup_path=path,
         kernel=platform.release(),started_at_unix=time.time(),source_commit=subprocess.check_output(
-        ['git','-C',str(Path(__file__).resolve().parents[1]),'rev-parse','HEAD'],text=True).strip(),
+        ['git','-c','safe.directory='+str(Path(__file__).resolve().parents[1]),
+         '-C',str(Path(__file__).resolve().parents[1]),'rev-parse','HEAD'],text=True).strip(),
         artifact_sha256={name:sha256_file(build/name) for name in files},isolated_cgroup_only=True,
         modifies_production_policies=False))
     with (root/'loader.stderr').open('wb') as err,(root/'raw.jsonl').open('w') as raw:

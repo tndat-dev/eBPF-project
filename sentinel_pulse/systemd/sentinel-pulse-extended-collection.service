@@ -1,0 +1,31 @@
+[Unit]
+Description=Pulse extended telemetry observation (not model promotion)
+After=sentinel-pulse-resolver.service
+Wants=sentinel-pulse-resolver.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+EnvironmentFile=/etc/sentinel-pulse/extended-collection.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.extended_collection --source ${PULSE_EXTENDED_SOURCE} --build ${PULSE_EXTENDED_BUILD} --root ${PULSE_EXTENDED_ROOT} --proof ${PULSE_EXTENDED_PROOF} --seconds ${PULSE_EXTENDED_SECONDS}
+TimeoutStartSec=infinity
+TimeoutStopSec=20
+Restart=on-failure
+RestartSec=15
+RestartPreventExitStatus=65
+CPUQuota=150%
+MemoryHigh=768M
+MemoryMax=1G
+Nice=15
+LimitMEMLOCK=infinity
+UMask=0027
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-extended-c1-20261008
+
+[Install]
+WantedBy=multi-user.target

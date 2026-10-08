@@ -28,13 +28,13 @@ class ExtendedFeatureStream:
         if (len(bins)!=64 or len(transitions)!=64 or set(counts)!=set(TRACKED_SYSCALLS)
                 or min([total,skipped,*counts.values(),*bins,*transitions])<0
                 or sum(bins)!=total or sum(counts.values())>total or skipped>total
-                or not math.isfinite(boundary)):
+                or not math.isfinite(boundary) or not math.isfinite(received_at)):
             raise ValueError('extended snapshot integrity violation')
         if not item or item.get('namespace')!='production':return None
         identity=(item.get('node_name'),item.get('pod_uid'),item.get('container_name'),item.get('workload_revision'),cg)
         if not all(identity[:4]) or 'unknown' in identity[:4]:return None
         previous=self.previous.get(identity)
-        cumulative=np.asarray([*counts.values(),*bins,*transitions,skipped],dtype=np.uint64)
+        cumulative=np.asarray([*(counts[i] for i in TRACKED_SYSCALLS),*bins,*transitions,skipped],dtype=np.uint64)
         reset=(previous is not None and (not .35<=boundary-previous[0]<=.8 or np.any(cumulative<previous[1])))
         hard_loss=any(int(self.stats.get(k,0))>0 for k in ['task_state_update_fail','snapshot_projection_fail'])
         if reset or hard_loss:self.builders.pop(identity,None)
