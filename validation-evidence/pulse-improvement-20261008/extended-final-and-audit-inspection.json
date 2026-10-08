@@ -1,0 +1,279 @@
+{
+  "workers": [
+    {
+      "ip": "10.1.16.237",
+      "inspection": {
+        "checked_at_unix": 1791469245.8447995,
+        "capture_terminal": {
+          "automatic_promotion": false,
+          "boundary_observation_seconds": 7200.278201341629,
+          "current_segment": "s0001",
+          "eligible_for_normal_review_rows": 277941,
+          "errors": 0,
+          "feature_rows": 295726,
+          "finished_at_unix": 1791436350.526149,
+          "normal_training_admission": false,
+          "rows_by_workload": {
+            "production/aims-kafka-dual-role:kafka": 14232,
+            "production/aims-minio-pool-0:minio": 13057,
+            "production/aims-minio-pool-0:sidecar": 12261,
+            "production/aims-postgres-cnpg:postgres": 14232,
+            "production/aims-rabbitmq-server:rabbitmq": 14232,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 14232,
+            "production/aims-redis:aims-redis": 14232,
+            "production/aims-waypoint:istio-proxy": 14232,
+            "production/api-gateway:app": 14232,
+            "production/auth-service:app": 28464,
+            "production/catalog-service:app": 14232,
+            "production/inventory-service:app": 28464,
+            "production/notification-service:app": 28464,
+            "production/order-service:app": 14232,
+            "production/payment-service:app": 28464,
+            "production/security-telemetry-service:app": 28464
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 1,
+          "skip_delta_by_workload": {
+            "production/aims-kafka-dual-role:kafka": 720,
+            "production/aims-minio-pool-0:minio": 0,
+            "production/aims-minio-pool-0:sidecar": 0,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/auth-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/inventory-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "256597819cb3e8da4b67bd6eb630ce9d072c7975b18b08b7fa3a0060b5df9776",
+          "state": "completed_observation",
+          "updated_at_unix": 1791436345.074693
+        },
+        "capture_start_sha256": "256597819cb3e8da4b67bd6eb630ce9d072c7975b18b08b7fa3a0060b5df9776",
+        "audit": {
+          "STATUS.json": {
+            "segment": "s0001",
+            "state": "replaying",
+            "totals": {
+              "boundaries": 1400,
+              "boundary_observation_seconds": 707.6845128536224,
+              "cadence_gaps": 0,
+              "replayed_feature_rows": 29041
+            },
+            "updated_at_unix": 1791469244.1141222
+          }
+        },
+        "sentinel-pulse-extended-collection.service": {
+          "MainPID": "0",
+          "NRestarts": "0",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "[not set]",
+          "ActiveState": "active",
+          "SubState": "exited",
+          "UnitFileState": "enabled"
+        },
+        "sentinel-pulse-extended-audit-r2.service": {
+          "MainPID": "2632145",
+          "NRestarts": "0",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "72179712",
+          "ActiveState": "activating",
+          "SubState": "start",
+          "UnitFileState": "enabled"
+        }
+      }
+    },
+    {
+      "ip": "10.1.16.238",
+      "inspection": {
+        "checked_at_unix": 1791469245.7291427,
+        "capture_terminal": {
+          "automatic_promotion": false,
+          "boundary_observation_seconds": 7200.342926025391,
+          "current_segment": "s0001",
+          "eligible_for_normal_review_rows": 319979,
+          "errors": 0,
+          "feature_rows": 349486,
+          "finished_at_unix": 1791436350.9305663,
+          "normal_training_admission": false,
+          "rows_by_workload": {
+            "production/aims-frontend:web": 12178,
+            "production/aims-kafka-dual-role:kafka": 14211,
+            "production/aims-kafka-entity-operator:topic-operator": 14211,
+            "production/aims-kafka-entity-operator:user-operator": 14211,
+            "production/aims-minio-pool-0:minio": 12689,
+            "production/aims-minio-pool-0:sidecar": 11977,
+            "production/aims-postgres-cnpg:postgres": 14211,
+            "production/aims-rabbitmq-server:rabbitmq": 14211,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 14211,
+            "production/aims-redis:aims-redis": 14211,
+            "production/aims-waypoint:istio-proxy": 14211,
+            "production/api-gateway:app": 14211,
+            "production/auth-service:app": 28422,
+            "production/cart-service:app": 28422,
+            "production/catalog-service:app": 14211,
+            "production/inventory-service:app": 28422,
+            "production/notification-service:app": 14211,
+            "production/order-service:app": 28422,
+            "production/payment-service:app": 14211,
+            "production/search-recommendation-service:app": 14211,
+            "production/security-telemetry-service:app": 14211
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 1,
+          "skip_delta_by_workload": {
+            "production/aims-frontend:web": 0,
+            "production/aims-kafka-dual-role:kafka": 720,
+            "production/aims-kafka-entity-operator:topic-operator": 515,
+            "production/aims-kafka-entity-operator:user-operator": 175,
+            "production/aims-minio-pool-0:minio": 0,
+            "production/aims-minio-pool-0:sidecar": 0,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/auth-service:app": 0,
+            "production/cart-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/inventory-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/search-recommendation-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "381d254dd5efb781e801ca47f615c10cfb4838a01de00d4b1f66062cbdeb4d6f",
+          "state": "completed_observation",
+          "updated_at_unix": 1791436344.5297434
+        },
+        "capture_start_sha256": "381d254dd5efb781e801ca47f615c10cfb4838a01de00d4b1f66062cbdeb4d6f",
+        "audit": {
+          "STATUS.json": {
+            "segment": "s0001",
+            "state": "replaying",
+            "totals": {
+              "boundaries": 1000,
+              "boundary_observation_seconds": 506.22153520584106,
+              "cadence_gaps": 0,
+              "replayed_feature_rows": 24584
+            },
+            "updated_at_unix": 1791469238.6628537
+          }
+        },
+        "sentinel-pulse-extended-collection.service": {
+          "MainPID": "0",
+          "NRestarts": "0",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "[not set]",
+          "ActiveState": "active",
+          "SubState": "exited",
+          "UnitFileState": "enabled"
+        },
+        "sentinel-pulse-extended-audit-r2.service": {
+          "MainPID": "372335",
+          "NRestarts": "0",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "887676928",
+          "ActiveState": "activating",
+          "SubState": "start",
+          "UnitFileState": "enabled"
+        }
+      }
+    },
+    {
+      "ip": "10.1.16.239",
+      "inspection": {
+        "checked_at_unix": 1791469245.4413927,
+        "capture_terminal": {
+          "automatic_promotion": false,
+          "boundary_observation_seconds": 7200.30952167511,
+          "current_segment": "s0002",
+          "eligible_for_normal_review_rows": 281866,
+          "errors": 0,
+          "feature_rows": 292051,
+          "finished_at_unix": 1791436365.9739866,
+          "normal_training_admission": false,
+          "rows_by_workload": {
+            "production/aims-frontend:web": 12123,
+            "production/aims-kafka-dual-role:kafka": 14245,
+            "production/aims-postgres-cnpg:postgres": 14245,
+            "production/aims-rabbitmq-server:rabbitmq": 14245,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 14245,
+            "production/aims-redis:aims-redis": 14245,
+            "production/aims-waypoint:istio-proxy": 23518,
+            "production/api-gateway:app": 28490,
+            "production/cart-service:app": 28490,
+            "production/catalog-service:app": 28490,
+            "production/notification-service:app": 14245,
+            "production/order-service:app": 14245,
+            "production/payment-service:app": 14245,
+            "production/search-recommendation-service:app": 42735,
+            "production/security-telemetry-service:app": 14245
+          },
+          "schema": "pulse-extended-collection-status-v1",
+          "segments": 2,
+          "skip_delta_by_workload": {
+            "production/aims-frontend:web": 0,
+            "production/aims-kafka-dual-role:kafka": 720,
+            "production/aims-postgres-cnpg:postgres": 0,
+            "production/aims-rabbitmq-server:rabbitmq": 0,
+            "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+            "production/aims-redis:aims-redis": 0,
+            "production/aims-waypoint:istio-proxy": 0,
+            "production/api-gateway:app": 0,
+            "production/cart-service:app": 0,
+            "production/catalog-service:app": 0,
+            "production/notification-service:app": 0,
+            "production/order-service:app": 0,
+            "production/payment-service:app": 0,
+            "production/search-recommendation-service:app": 0,
+            "production/security-telemetry-service:app": 0
+          },
+          "start_sha256": "22712de7f8a84e959fc4ed7e9c7b38a069997ae51bbfd88b9fbbdbf321c50468",
+          "state": "completed_observation",
+          "updated_at_unix": 1791436360.291115
+        },
+        "capture_start_sha256": "22712de7f8a84e959fc4ed7e9c7b38a069997ae51bbfd88b9fbbdbf321c50468",
+        "audit": {
+          "STATUS.json": {
+            "segment": "s0002",
+            "state": "replaying",
+            "totals": {
+              "boundaries": 1000,
+              "boundary_observation_seconds": 505.05093717575073,
+              "cadence_gaps": 0,
+              "replayed_feature_rows": 20171
+            },
+            "updated_at_unix": 1791469239.5447097
+          }
+        },
+        "sentinel-pulse-extended-collection.service": {
+          "MainPID": "0",
+          "NRestarts": "1",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "[not set]",
+          "ActiveState": "active",
+          "SubState": "exited",
+          "UnitFileState": "enabled"
+        },
+        "sentinel-pulse-extended-audit-r2.service": {
+          "MainPID": "3754535",
+          "NRestarts": "0",
+          "ExecMainStatus": "0",
+          "MemoryCurrent": "569679872",
+          "ActiveState": "activating",
+          "SubState": "start",
+          "UnitFileState": "enabled"
+        }
+      }
+    }
+  ]
+}
