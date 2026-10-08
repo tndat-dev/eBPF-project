@@ -74,3 +74,12 @@ def test_eligibility_cannot_be_changed_without_audit_notice(tmp_path):
     report=audit_segment(directory,output)
     assert report['totals']['mismatched_feature_rows']==1
     assert 'eligibility' in report['mismatch_examples'][0]['fields']
+
+
+def test_partial_next_raw_frame_is_retained_without_fail_or_extra_feature(tmp_path):
+    directory,output=fixture(tmp_path)
+    with (directory/'raw.jsonl').open('a') as f:f.write(json.dumps(raw(99))+'\n')
+    seal(directory);report=audit_segment(directory,output)
+    assert report['all_features_replayed'] and report['totals']['replayed_feature_rows']==15
+    assert report['totals']['trailing_unclosed_raw_snapshots']==1
+    assert report['trailing_raw_not_admitted'] is True

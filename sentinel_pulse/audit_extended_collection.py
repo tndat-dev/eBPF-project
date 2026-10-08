@@ -115,7 +115,9 @@ def audit_segment(directory,output,progress=None):
                 export.write(json.dumps(actual,separators=(',',':'))+'\n')
             pending=[]
             if progress and totals['boundaries']%200==0:progress(dict(totals))
-        if pending:raise ValueError('unclosed final raw boundary')
+        # A graceful stop can preserve part of the next frame in the pipe.
+        # Keep it in raw, but never turn it into a feature/exposure/normal row.
+        totals['trailing_unclosed_raw_snapshots']=len(pending)
         if next(stored,None) is not None:raise ValueError('stored features remain after raw replay')
     for w in workloads.values():
         w['source_identities']=len(w.pop('_identities'));w['revisions']=sorted(w.pop('_revisions'))
@@ -124,6 +126,7 @@ def audit_segment(directory,output,progress=None):
     reference.replace(output/'reference.jsonl')
     return dict(schema='pulse-extended-segment-audit-v1',files_sha256=files,totals=dict(totals),
         observation_event_counts=dict(events),unplaced_observation_events=unplaced,workloads=workloads,
+        trailing_raw_not_admitted=True,
         mismatch_examples=mismatches,all_features_replayed=totals['mismatched_feature_rows']==0 and unplaced==0,
         reference_file='reference.jsonl',reference_sha256=sha256_file(output/'reference.jsonl'),
         normal_label='unadjudicated_observation',normal_training_admission=False,

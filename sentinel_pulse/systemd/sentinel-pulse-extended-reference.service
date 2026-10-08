@@ -1,0 +1,29 @@
+[Unit]
+Description=Exploratory Pulse reference fit (not production promotion)
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/extended-reference.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_REFERENCE_SOURCE} /home/dat/ml-venv/bin/python -u -m sentinel_pulse.extended_reference_experiment --source ${PULSE_REFERENCE_SOURCE} --root /home/dat/pulse-extended-reference-c1-20261008 --credential ${PULSE_REFERENCE_CREDENTIAL} --known-hosts /home/dat/.ssh/known_hosts
+TimeoutStartSec=infinity
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=30
+RestartPreventExitStatus=65
+CPUQuota=200%
+MemoryMax=8G
+TasksMax=128
+Nice=15
+UMask=0027
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
