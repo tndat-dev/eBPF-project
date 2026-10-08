@@ -3,6 +3,12 @@
 
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
+#ifdef PULSE_SECCOMP_EXTENDED
+#include <bpf/bpf_tracing.h>
+#ifndef PULSE_PROJECTED_COUNTERS
+#error extended seccomp requires the projected counter ABI
+#endif
+#endif
 #include "pulse_counter_ids.h"
 
 #define PULSE_MAX_SYSCALL_ID 1024
@@ -16,6 +22,9 @@ struct pulse_counters {
     __u64 tracked[PULSE_TRACKED];
     __u64 other_syscall_bins[PULSE_SYSCALL_BINS];
     __u64 transition_bins[PULSE_TRANSITION_BINS];
+#ifdef PULSE_SECCOMP_EXTENDED
+    __u64 seccomp_skipped_or_emulated;
+#endif
 #else
     __u64 syscall_bins[PULSE_SYSCALL_BINS];
     __u64 transition_bins[PULSE_TRANSITION_BINS];
@@ -120,15 +129,13 @@ static __always_inline __u32 transition_bin(__u32 previous, __u32 current)
     return ((previous * 31U + current) * 2654435761U) >> 26;
 }
 
-SEC("raw_tp/sys_enter")
-int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
+static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
 {
     __u64 cgroup_id = bpf_get_current_cgroup_id();
     struct pulse_counters *counters = bpf_map_lookup_elem(&pulse_cgroups, &cgroup_id);
     if (!counters)
         return 0;
 
-    __u32 syscall_id = (__u32)context->args[1];
     if (syscall_id >= PULSE_MAX_SYSCALL_ID)
         return 0;
 
@@ -144,6 +151,12 @@ int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
     if (sc_bin < PULSE_SYSCALL_BINS)
         counters->syscall_bins[sc_bin]++;
     increment_tracked(counters, syscall_id);
+#endif
+
+#ifdef PULSE_SECCOMP_EXTENDED
+    if (skipped) counters->seccomp_skipped_or_emulated++;
+#else
+    (void)skipped;
 #endif
 
     __u64 pid_tgid = bpf_get_current_pid_tgid();
@@ -180,5 +193,25 @@ int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
     }
     return 0;
 }
+
+SEC("raw_tp/sys_enter")
+int pulse_sys_enter(struct bpf_raw_tracepoint_args *context)
+{
+    return pulse_record_call((__u32)context->args[1], 0);
+}
+
+#ifdef PULSE_SECCOMP_EXTENDED
+SEC("fexit/__seccomp_filter")
+int BPF_PROG(pulse_seccomp_skip, int nr, const struct seccomp_data *sd,
+             bool recheck_after_trace, int result)
+{
+    /* Skip does not reach sys_enter on the validated Linux 6.8 entry path.
+     * Avoid counting the nested TRACE recheck. KILL need not return here;
+     * -1 can include emulation, so this is NOT labelled universally denied. */
+    if (result == -1 && !recheck_after_trace && nr >= 0)
+        return pulse_record_call((__u32)nr, 1);
+    return 0;
+}
+#endif
 
 char LICENSE[] SEC("license") = "GPL";

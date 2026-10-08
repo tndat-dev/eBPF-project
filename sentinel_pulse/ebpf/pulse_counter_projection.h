@@ -11,6 +11,9 @@ struct pulse_counters {
     uint64_t tracked[PULSE_TRACKED];
     uint64_t other_syscall_bins[PULSE_SYSCALL_BINS];
     uint64_t transition_bins[PULSE_TRANSITION_BINS];
+#ifdef PULSE_SECCOMP_EXTENDED
+    uint64_t seccomp_skipped_or_emulated;
+#endif
 };
 
 struct pulse_snapshot {
@@ -18,10 +21,18 @@ struct pulse_snapshot {
     uint64_t transition_bins[PULSE_TRANSITION_BINS];
     uint64_t tracked[PULSE_TRACKED];
     uint64_t total;
+#ifdef PULSE_SECCOMP_EXTENDED
+    uint64_t seccomp_skipped_or_emulated;
+#endif
 };
 
+#ifdef PULSE_SECCOMP_EXTENDED
+_Static_assert(sizeof(struct pulse_counters) == (29 + 64 + 64 + 1) * 8,
+               "extended seccomp counter map ABI changed");
+#else
 _Static_assert(sizeof(struct pulse_counters) == (29 + 64 + 64) * 8,
                "projected counter map ABI changed");
+#endif
 
 static inline int pulse_add_u64(uint64_t *destination, uint64_t value)
 {
@@ -58,6 +69,10 @@ static inline int pulse_project_cpu(
     for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++)
         if (pulse_add_u64(&sum->transition_bins[bin], raw->transition_bins[bin]))
             return -1;
+#ifdef PULSE_SECCOMP_EXTENDED
+    if (pulse_add_u64(&sum->seccomp_skipped_or_emulated, raw->seccomp_skipped_or_emulated))
+        return -1;
+#endif
     return 0;
 }
 #endif

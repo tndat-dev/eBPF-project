@@ -216,7 +216,12 @@ static int print_snapshots(
                 key = next; has_key = 1;
                 continue;
             }
+#ifdef PULSE_SECCOMP_EXTENDED
+            printf("{\"type\":\"cgroup_snapshot_extended\",\"telemetry_contract\":\"pulse-entered-plus-seccomp-skip-v1\",\"seccomp_skipped_or_emulated\":%llu,\"observed_at\":%.9f,\"cgroup_id\":%llu,\"total\":%llu,\"counts\":{",
+                   (unsigned long long)sum.seccomp_skipped_or_emulated,
+#else
             printf("{\"type\":\"cgroup_snapshot\",\"observed_at\":%.9f,\"cgroup_id\":%llu,\"total\":%llu,\"counts\":{",
+#endif
                    observed_at, (unsigned long long)next, (unsigned long long)sum.total);
             for (int slot = 0; slot < PULSE_TRACKED; slot++)
                 printf("%s\"%u\":%llu", slot ? "," : "", tracked_ids[slot], (unsigned long long)sum.tracked[slot]);
@@ -280,6 +285,16 @@ int main(int argc, char **argv)
     struct bpf_link *link = program ? bpf_program__attach_raw_tracepoint(program, "sys_enter") : NULL;
     error = libbpf_get_error(link);
     if (!program || error) { fprintf(stderr, "attach raw tracepoint: %s\n", program ? strerror(-error) : "program missing"); if (error) link = NULL; bpf_object__close(object); return 1; }
+#ifdef PULSE_SECCOMP_EXTENDED
+    program = bpf_object__find_program_by_name(object, "pulse_seccomp_skip");
+    struct bpf_link *seccomp_link = program ? bpf_program__attach_trace(program) : NULL;
+    error = libbpf_get_error(seccomp_link);
+    if (!program || !seccomp_link || error) {
+        fprintf(stderr, "required extended seccomp hook unavailable\n");
+        if (!error) bpf_link__destroy(seccomp_link);
+        bpf_link__destroy(link); bpf_object__close(object); return 1;
+    }
+#endif
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;
     uint64_t consistency_retry_exhausted = 0;
@@ -313,6 +328,9 @@ int main(int argc, char **argv)
                observed_at, targets, snapshots, snapshot_read_seconds);
         fflush(stdout);
     }
+#ifdef PULSE_SECCOMP_EXTENDED
+    bpf_link__destroy(seccomp_link);
+#endif
     bpf_link__destroy(link); bpf_object__close(object);
     return targets <= 0 ? 1 : 0;
 }
