@@ -1,0 +1,38 @@
+{
+  "node_ip": "10.1.16.238",
+  "checked_at": "2026-10-08T02:06:21.805922+00:00",
+  "kernel": "6.8.0-138-generic",
+  "source_commit": "2b8c4fcb30aab42c18e145c5ca9f8c917e5af1f1",
+  "unit": "Result=success\nExecMainStatus=0\n",
+  "records": [
+    {
+      "schema": "pulse-visibility-fixture-v1",
+      "setns_errno_eperm": 20,
+      "seccomp_errno_eperm": 20,
+      "mprotect_success": 40
+    },
+    {
+      "schema": "pulse-visibility-probe-v1",
+      "cgroup_id": 5430500,
+      "raw_sys_enter": {
+        "mprotect": 40,
+        "setns": 0,
+        "seccomp": 0
+      },
+      "seccomp_skipped_or_emulated": {
+        "mprotect": 0,
+        "setns": 20,
+        "seccomp": 20
+      },
+      "not_frozen_candidate_input": true
+    }
+  ],
+  "stderr": "",
+  "artifact_sha256": {
+    "visibility_probe": "85e1c9c659b446136a8a8c0e90b31924500dd5f5a73af3c1534bae75a10f2b1e",
+    "visibility_probe.bpf.o": "22f68c90e5af2b737c1f6fbe6d85c36de0040522b11a193ed3a6c3d3455304dd"
+  },
+  "btf_sha256": "e4a80f258a7ef205e7c1a2d1ed955501f91aa4b89e4b8fe0e656782844917cda",
+  "isolated_cgroup_only": true,
+  "candidate_unchanged": true
+}

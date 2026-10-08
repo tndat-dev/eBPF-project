@@ -1,0 +1,1171 @@
+{
+  "checked_at": "2026-10-08T02:06:17.803176+00:00",
+  "host": "10.1.16.234",
+  "artifacts": {
+    "/home/dat/sentinel-pulse-improvement-c1/support/STATUS.json": "1283beb3783fad38b1ba826d04b5ce87946e815765e25321b808b17ad3688d9f",
+    "/home/dat/sentinel-pulse-improvement-c1/support/TERMINAL.json": "5b4b2aa0dc0e7fdea36c5b1dfc5df646492683954192a0afd80b7f424bf5a2d2",
+    "/home/dat/sentinel-pulse-improvement-c1/support/START.json": "de8dc1241ecb959aa056e9ded8ea36c6ac7189ce131ca47b1e1e108cc1cc89bd",
+    "/home/dat/sentinel-pulse-improvement-c1/support/RESULTS.json": "8acf761c840db3854333873fcd15368388b75249c1a46a7e4151bb0127ff618f",
+    "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007/STATUS.json": "d1f2afaf96910522e7e466c6c13cad60b000480754094b2241e05fffd5c65a9f",
+    "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007/TERMINAL.json": "a64e24573cda6c4a3eba21982ba5827572f3dc21a642288251d3c03674147202",
+    "/home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008/STATUS.json": "b3f85d41c1a453b857c53dd498291c0a30c4c33d61d7516cc15f3b4b347b321f",
+    "/home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008/TERMINAL.json": "6af7bfe41a047939f597ce8ebad60f823fe6d91425086b5f42f9a21945412197",
+    "/home/dat/sentinel-pulse-syscall-feature-c1/runs/attempt-000002/STATUS.json": "449e6e3171c2475da7b8a25de8381310f6f2cd85f1cb43fb29b17ac34b608642",
+    "/home/dat/sentinel-pulse-syscall-feature-c1/runs/attempt-000002/TERMINAL.json": "1e46beba3d6e6a6735eddb79e2d2c875ce6e5a8da9700f87c4a3acd862a9115f",
+    "/home/dat/sentinel-pulse-improvement-c1/gate-diagnosis-streamed.json": "ce8f6c5f54384617e68821c5495a7bea8490ab164d9151ac8952e8789f03d505",
+    "/home/dat/sentinel-pulse-improvement-c1/support-matched-analysis.json": "d0939ce02293cd1fa03d01396c6e6581c39a24d7cbd549fe4e06ad7b7b7f383e"
+  },
+  "support": {
+    "STATUS.json": {
+      "completed": 21,
+      "current_workload": "production/security-telemetry-service:app",
+      "expected": 21,
+      "state": "fitting",
+      "updated_at_unix": 1791403067.3000546
+    },
+    "TERMINAL.json": {
+      "automatic_promotion": false,
+      "completed": 21,
+      "finished_at_unix": 1791403067.3010983,
+      "state": "completed"
+    },
+    "START.json": {
+      "analysis_sha256": "4a7c62b3a854c5150d928aaea6cbc7da843f4bdd0002434de51e4ec17e908f49",
+      "attack_data_used_for_fit": false,
+      "automatic_promotion": false,
+      "base_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "base_model_weights_unchanged": true,
+      "calibration_split": 0.7,
+      "context_archive_sha256": "63b5a4b456ecec9c26a90464ae373d87692482e093ab0f51f975da51281c0ea2",
+      "dataset_sha256": "f46514f5e4db334fe2939da7deccaf958d800c11a9175616c699aac341717145",
+      "evidence_class": "exploratory_previously_inspected_normal_holdout",
+      "horizon_windows": 30,
+      "interval_fpr_budget": 0.05,
+      "live_deployment": false,
+      "new_unseen_attack_and_normal_evaluation_required": true,
+      "normal_only": true,
+      "reference_quantiles": [
+        0.01,
+        0.99
+      ],
+      "scale_floor": 0.05,
+      "schema": "pulse-support-experiment-start-v1",
+      "software": {
+        "joblib": "1.5.3",
+        "narwhals": "2.24.0",
+        "numpy": "2.5.2",
+        "python": "3.12.3",
+        "scikit_learn": "1.9.0",
+        "scipy": "1.18.0",
+        "threadpoolctl": "3.6.0"
+      },
+      "source_commit": "025b37e7108b11f86a28b9bb9e37f6e1b70a3665",
+      "started_at_unix": 1791403003.1711206
+    },
+    "RESULTS.json": {
+      "schema": "pulse-support-experiment-results-v1",
+      "start_sha256": "de8dc1241ecb959aa056e9ded8ea36c6ac7189ce131ca47b1e1e108cc1cc89bd",
+      "workloads": {
+        "production/aims-frontend:web": {
+          "artifact": "production__aims-frontend__web.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "ee84f0561b97800dbc815f8511b6a6e6781975a5cd3dec9154f1febe8ef79110",
+          "ensemble_raw_normal_anomalies": 0,
+          "ensemble_raw_normal_context_rate": 0,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 3307,
+            "constant_training_coordinates": 157,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 7323
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.09579664096236229,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "artifact": "production__aims-kafka-dual-role__kafka.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "c548756be909a39bfa38e063c23584c7b1b39bb55e0e849ce39f3373b51c0cc1",
+          "ensemble_raw_normal_anomalies": 3,
+          "ensemble_raw_normal_context_rate": 0.0029296875,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 5337,
+            "constant_training_coordinates": 49,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 12391
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07239951007068157,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 7
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "artifact": "production__aims-kafka-entity-operator__topic-operator.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "330f1aabf79c53ac95f9db6a8c959918b82d3aed9e1327c7fbbcd4ee26def047",
+          "ensemble_raw_normal_anomalies": 0,
+          "ensemble_raw_normal_context_rate": 0,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 1779,
+            "constant_training_coordinates": 125,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 4130
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07330745691433549,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "artifact": "production__aims-kafka-entity-operator__user-operator.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "680bbfd3792aa518d59063dc907b43370fb3e2fb6c32ef9efc6442806fb9993b",
+          "ensemble_raw_normal_anomalies": 44,
+          "ensemble_raw_normal_context_rate": 0.04296875,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 1779,
+            "constant_training_coordinates": 125,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 4130
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07176493527367711,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 44
+        },
+        "production/aims-minio-pool-0:minio": {
+          "artifact": "production__aims-minio-pool-0__minio.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "1bcc1d9d029f736aab2bbbcd77cc92e82fa6cc6e70dd5260ce125b5d669ce5f0",
+          "ensemble_raw_normal_anomalies": 11,
+          "ensemble_raw_normal_context_rate": 0.0107421875,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 3347,
+            "constant_training_coordinates": 128,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 7765
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.08327770885080099,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 8
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "artifact": "production__aims-minio-pool-0__sidecar.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "7d7ff7d91cee6f62e4b4d317c666f2435d53b64279e29ac5d9e70ee666ec952c",
+          "ensemble_raw_normal_anomalies": 1,
+          "ensemble_raw_normal_context_rate": 0.0009765625,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 2990,
+            "constant_training_coordinates": 159,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 6930
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07900540996342897,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 1
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "artifact": "production__aims-postgres-cnpg__postgres.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "3b6fa28397f1016f842e16a12069d489ee189a78c42fc733caadbc09ca26dfae",
+          "ensemble_raw_normal_anomalies": 0,
+          "ensemble_raw_normal_context_rate": 0,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 5337,
+            "constant_training_coordinates": 81,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 12391
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07350995764136314,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "artifact": "production__aims-rabbitmq-server__rabbitmq.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "3b49bb093fd94542d04de00baf26d32f80d7122ef39862215af19573c81e8bbd",
+          "ensemble_raw_normal_anomalies": 0,
+          "ensemble_raw_normal_context_rate": 0,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 5337,
+            "constant_training_coordinates": 92,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 12391
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07351893186569214,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 1
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "artifact": "production__aims-redis-sentinel-sentinel__aims-redis-sentinel-sentinel.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "deda87fdab77e8b721146d74aaa09677a4939f0e9978bc3a472872adff2c00fc",
+          "ensemble_raw_normal_anomalies": 28,
+          "ensemble_raw_normal_context_rate": 0.02734375,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 5337,
+            "constant_training_coordinates": 61,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 12391
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06889878306537867,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 33
+        },
+        "production/aims-redis:aims-redis": {
+          "artifact": "production__aims-redis__aims-redis.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "d706aa1619b832dcdf654b1e1a0419edbcc58ea1a5a1ae1526454c9c03ea2256",
+          "ensemble_raw_normal_anomalies": 1,
+          "ensemble_raw_normal_context_rate": 0.0009765625,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 5337,
+            "constant_training_coordinates": 56,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 12391
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.0666526579298079,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "artifact": "production__aims-waypoint__istio-proxy.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "1e8f956ef555bdbb897dab30165c030af1906cd95fdffc330da70f353df02875",
+          "ensemble_raw_normal_anomalies": 7,
+          "ensemble_raw_normal_context_rate": 0.0068359375,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 6517,
+            "constant_training_coordinates": 117,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 15125
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.0866062706336379,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 9
+        },
+        "production/api-gateway:app": {
+          "artifact": "production__api-gateway__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "0853588c1b145e7122427e4f179503b0d345333b03432b85c35e186efcc45498",
+          "ensemble_raw_normal_anomalies": 2,
+          "ensemble_raw_normal_context_rate": 0.001953125,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 58,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16521
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06128852674737573,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 2
+        },
+        "production/auth-service:app": {
+          "artifact": "production__auth-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "0eb6122523fdf26cf4eb6ee3fcaa4be3014b0ad5ce57fb3acc18365a5ffac658",
+          "ensemble_raw_normal_anomalies": 0,
+          "ensemble_raw_normal_context_rate": 0,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 62,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16522
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06850422499701381,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/cart-service:app": {
+          "artifact": "production__cart-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "3625f1d7ee0260319dbb0275ab953908a4e428370e29e9cea4a09086f0835590",
+          "ensemble_raw_normal_anomalies": 4,
+          "ensemble_raw_normal_context_rate": 0.00390625,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 62,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16520
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07887506624683738,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 2
+        },
+        "production/catalog-service:app": {
+          "artifact": "production__catalog-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "926d7e72054e0bb837f96a0c1f1a3c0c6e8807398311815ed6da6ab428884af0",
+          "ensemble_raw_normal_anomalies": 2,
+          "ensemble_raw_normal_context_rate": 0.001953125,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 57,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16521
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06309010228142142,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 1
+        },
+        "production/inventory-service:app": {
+          "artifact": "production__inventory-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "6e06a81a8f95d15ac0d434e210bf07a057d9491a7915c3a40116ef3d6e53e48c",
+          "ensemble_raw_normal_anomalies": 2,
+          "ensemble_raw_normal_context_rate": 0.001953125,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 57,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16522
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06412356719374657,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 0
+        },
+        "production/notification-service:app": {
+          "artifact": "production__notification-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "7f34600fff0ae45da554cc5c5bd2c252f82d952bade7b0529b09d72dddc08922",
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 60,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16523
+          },
+          "holdout_status": "missing_workload; not treated as zero FP",
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null
+        },
+        "production/order-service:app": {
+          "artifact": "production__order-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "1b67fcad0176af40a09aef2d48a894a632ed78766b519b1e9ce7c752256b59d2",
+          "ensemble_raw_normal_anomalies": 8,
+          "ensemble_raw_normal_context_rate": 0.0078125,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 60,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16521
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.06529025640338659,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 8
+        },
+        "production/payment-service:app": {
+          "artifact": "production__payment-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "f611286f2d378e44dada47924da4c3ecb3d7a5127b70053af266c43be2597c3f",
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 59,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16522
+          },
+          "holdout_status": "missing_workload; not treated as zero FP",
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null
+        },
+        "production/search-recommendation-service:app": {
+          "artifact": "production__search-recommendation-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "b531a3f41ccdabc3305a129548f6556ad6dfb531d01c349b6aaeca098e4eb58c",
+          "ensemble_raw_normal_anomalies": 38,
+          "ensemble_raw_normal_context_rate": 0.037109375,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 65,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16520
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.07273438712581992,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 157
+        },
+        "production/security-telemetry-service:app": {
+          "artifact": "production__security-telemetry-service__app.pkl",
+          "artifact_schema": "exploratory-PulseSupportEnsemble-not-serving-v2",
+          "artifact_sha256": "94c5c1558e590e51f86f536c16b4d6ede2054f54d05226991b7aa3dd3b07259b",
+          "ensemble_raw_normal_anomalies": 1,
+          "ensemble_raw_normal_context_rate": 0.0009765625,
+          "fit": {
+            "alpha_per_window_combined": 0.0016666666666666668,
+            "calibration_rows": 7116,
+            "constant_training_coordinates": 60,
+            "fitted_from_attack_data": false,
+            "minimum_calibration_examples_per_branch": 1199,
+            "training_rows": 16522
+          },
+          "interval_FPR": null,
+          "kernel_to_alert_seconds": null,
+          "normal_contexts": 1024,
+          "offline_batch_seconds": 0.0719191450625658,
+          "policy_evaluated": false,
+          "precision": null,
+          "recall": null,
+          "tree_anomalies_at_original_alpha": 1
+        }
+      }
+    }
+  },
+  "attack": {
+    "STATUS.json": {
+      "attack_attribution_horizon_seconds": 15,
+      "attack_outcomes_used_for_training_or_tuning": false,
+      "automatic_promotion": false,
+      "completed_trial_receipts": 475,
+      "conditional_observed_attack_recall": 0.3526448362720403,
+      "confusion_matrix": {
+        "FN_observed": 257,
+        "FP": null,
+        "TN": null,
+        "TP_observed": 140,
+        "attack_unknown": 78
+      },
+      "detected_attack_intervals": 140,
+      "end_to_end_detection_fraction_on_completed_planned_trials": 0.29473684210526313,
+      "evidence_class": "observation_attack_matrix",
+      "expected_trial_intervals": 475,
+      "false_positive_rate": null,
+      "formal_legacy_pass": false,
+      "infrastructure_unknown_intervals": 78,
+      "kernel_to_alert_seconds_detected_trials_only": {
+        "p50": 0.6496320962905884,
+        "p95": 1.5378161191940176,
+        "p99": 4.511111454963679
+      },
+      "last_trial": {
+        "cgroup_id": 8188573,
+        "detected": false,
+        "health_context_before_trial": {
+          "global_health_gate": true
+        },
+        "injected_at": 1791403673.7543173,
+        "injection_id": "pulse-observation-attack-c2-20261007:0475",
+        "kernel_event_at": 1791403674.474267,
+        "kernel_exec_id": "azhzLXdvcmtlcjMubG9jYWw6MzM0NTY2OTQ0OTkxNjc5MzozMDM2NDkx",
+        "leg_run_id": "pulse-observation-attack-c2-20261007-a0081",
+        "minimum_scored_target_windows": 81,
+        "node_name": "k8s-worker3.local",
+        "pod_name": "payment-service-86bf86b6-hzzrd",
+        "pod_uid": "258c1a0c-d1f3-49f0-baa7-bbc163bdd961",
+        "rate_per_second": 24,
+        "scenario": "invalid_setns_burst",
+        "scored_target_windows": 89,
+        "seed": 57059,
+        "status": "observed",
+        "target_status_counts": {
+          "normal": 49,
+          "suppressed": 40
+        },
+        "temporary_binary_cleanup_returncode": 0,
+        "workload_controller": "payment-service",
+        "workload_key": "production/payment-service:app"
+      },
+      "latency_sample_count": 140,
+      "minimum_scored_window_fraction_for_observed_trial": 0.9,
+      "mixed_window_and_interval_denominators_forbidden": true,
+      "normal_soak_alerts_not_silently_adjudicated": true,
+      "observed_attack_intervals": 397,
+      "observed_misses": 257,
+      "planned_full_matrix_detection_lower_bound": 0.29473684210526313,
+      "precision": null,
+      "progress_percent": 100,
+      "schema": "sentinel-pulse-observation-attack-results-v1",
+      "status": "running",
+      "updated_at_unix": 1791403757.4945352
+    },
+    "TERMINAL.json": {
+      "attack_attribution_horizon_seconds": 15,
+      "attack_outcomes_used_for_training_or_tuning": false,
+      "automatic_promotion": false,
+      "completed_trial_receipts": 475,
+      "conditional_observed_attack_recall": 0.3526448362720403,
+      "confusion_matrix": {
+        "FN_observed": 257,
+        "FP": null,
+        "TN": null,
+        "TP_observed": 140,
+        "attack_unknown": 78
+      },
+      "detected_attack_intervals": 140,
+      "end_to_end_detection_fraction_on_completed_planned_trials": 0.29473684210526313,
+      "evidence_class": "observation_attack_matrix",
+      "expected_trial_intervals": 475,
+      "false_positive_rate": null,
+      "finished_at_unix": 1791403757.5186195,
+      "formal_legacy_pass": false,
+      "infrastructure_unknown_intervals": 78,
+      "kernel_to_alert_seconds_detected_trials_only": {
+        "p50": 0.6496320962905884,
+        "p95": 1.5378161191940176,
+        "p99": 4.511111454963679
+      },
+      "latency_sample_count": 140,
+      "minimum_scored_window_fraction_for_observed_trial": 0.9,
+      "mixed_window_and_interval_denominators_forbidden": true,
+      "normal_admission": {
+        "all_alerts": {
+          "production/aims-redis:aims-redis": 1
+        },
+        "automatic_promotion": false,
+        "coverage_workloads": [
+          "production/aims-frontend:web",
+          "production/aims-kafka-dual-role:kafka",
+          "production/aims-kafka-entity-operator:topic-operator",
+          "production/aims-kafka-entity-operator:user-operator",
+          "production/aims-minio-pool-0:minio",
+          "production/aims-minio-pool-0:sidecar",
+          "production/aims-postgres-cnpg:postgres",
+          "production/aims-rabbitmq-server:rabbitmq",
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+          "production/aims-redis:aims-redis",
+          "production/aims-waypoint:istio-proxy",
+          "production/api-gateway:app",
+          "production/auth-service:app",
+          "production/cart-service:app",
+          "production/catalog-service:app",
+          "production/inventory-service:app",
+          "production/notification-service:app",
+          "production/order-service:app",
+          "production/payment-service:app",
+          "production/search-recommendation-service:app",
+          "production/security-telemetry-service:app"
+        ],
+        "decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+        "false_positive_rate": null,
+        "model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+        "normal_alerts_await_adjudication": true,
+        "precision": null,
+        "quality_budget_met": true,
+        "raw_seals_reaudited_by_admission": false,
+        "schema": "sentinel-pulse-attack-normal-admission-v1",
+        "start_sha256": "10457f3f7f3823293258bf9fc8fcd1c14907cc29db68c232aca935f1a1be186f",
+        "terminal_sha256": "03f86a54c3a2cc609607124be704ebf583844a5c878fe9ef4d034be590658ae3",
+        "zero_alert_gate": false
+      },
+      "normal_soak_alerts_not_silently_adjudicated": true,
+      "observed_attack_intervals": 397,
+      "observed_misses": 257,
+      "planned_full_matrix_detection_lower_bound": 0.29473684210526313,
+      "precision": null,
+      "progress_percent": 100,
+      "schema": "sentinel-pulse-observation-attack-results-v1",
+      "status": "completed"
+    }
+  },
+  "normal": {
+    "STATUS.json": {
+      "adjudicated_confusion_matrix": null,
+      "adjudicated_precision": null,
+      "attack_unknown": 78,
+      "automatic_promotion": false,
+      "conditional_observed_attack_recall": 0.3526448362720403,
+      "counted_alert_rows_in_control_receipts": 0,
+      "expectations_not_measurements": {
+        "false_positive_rate": 0.05,
+        "precision": 0.95,
+        "recall": 0.95
+      },
+      "finished_epoch": 25,
+      "normal_label_basis": "protocol assumption; healthy pre/post context; not independent adjudication",
+      "normal_receipts_missing": 0,
+      "normal_unknown_or_uncertain": 44,
+      "precision_not_a_production_prevalence_estimate": true,
+      "provisional_protocol_confusion_matrix": {
+        "FN": 257,
+        "FP": 0,
+        "TN": 431,
+        "TP": 140
+      },
+      "provisional_protocol_false_positive_rate": 0,
+      "provisional_protocol_precision": 1,
+      "replica_and_shared_epoch_dependence_not_independent_samples": true,
+      "status": "running",
+      "unit": "45-second target interval; prediction horizon first 15 seconds",
+      "updated_at_unix": 1791405624.0180194,
+      "zero_false_positive_gate": false
+    },
+    "TERMINAL.json": {
+      "adjudicated_confusion_matrix": null,
+      "adjudicated_precision": null,
+      "attack_unknown": 78,
+      "automatic_promotion": false,
+      "conditional_observed_attack_recall": 0.3526448362720403,
+      "counted_alert_rows_in_control_receipts": 0,
+      "expectations_not_measurements": {
+        "false_positive_rate": 0.05,
+        "precision": 0.95,
+        "recall": 0.95
+      },
+      "finished_at_unix": 1791405652.9693472,
+      "normal_label_basis": "protocol assumption; healthy pre/post context; not independent adjudication",
+      "normal_receipts_missing": 0,
+      "normal_unknown_or_uncertain": 44,
+      "precision_not_a_production_prevalence_estimate": true,
+      "provisional_protocol_confusion_matrix": {
+        "FN": 257,
+        "FP": 0,
+        "TN": 431,
+        "TP": 140
+      },
+      "provisional_protocol_false_positive_rate": 0,
+      "provisional_protocol_precision": 1,
+      "replica_and_shared_epoch_dependence_not_independent_samples": true,
+      "status": "completed",
+      "unit": "45-second target interval; prediction horizon first 15 seconds",
+      "zero_false_positive_gate": false
+    }
+  },
+  "ablation": {
+    "STATUS.json": {
+      "completed_fits": 608,
+      "errors": [],
+      "expected_fits": 608,
+      "state": "completed"
+    },
+    "TERMINAL.json": {
+      "automatic_promotion": false,
+      "completed_fits": 608,
+      "ended_at": "2026-10-07T11:55:09.057861+00:00",
+      "errors": [],
+      "expected_fits": 608,
+      "start_sha256": "03d176fca3031d6fcb84ecd71941ba482aa035983818f11fa0901f607ab0095f",
+      "state": "completed"
+    }
+  },
+  "gate-diagnosis-streamed.json": {
+    "automatic_promotion": false,
+    "evidence_class": "exposed_test_descriptive_diagnosis_not_fresh_validation",
+    "frozen_decision_policy_sha256": "602165bd48d81f549d3bfb65e5bdb319a11252678cbf484d739afcf2e5bc8143",
+    "frozen_model_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "full_controller_seal_present": false,
+    "scenarios": {
+      "anonymous_mprotect_churn": {
+        "infrastructure_unknown": 15,
+        "no_raw_model_anomaly": 6,
+        "score_excess_veto": 3,
+        "semantic_or_event_time_join_veto": 60,
+        "temporal_confirmation_or_attribution_veto": 11
+      },
+      "child_ptrace_handshake": {
+        "detected": 69,
+        "infrastructure_unknown": 17,
+        "no_raw_model_anomaly": 3,
+        "score_excess_veto": 1,
+        "semantic_or_event_time_join_veto": 4
+      },
+      "execveat_resolution_probe": {
+        "detected": 67,
+        "infrastructure_unknown": 18,
+        "no_raw_model_anomaly": 6,
+        "score_excess_veto": 1
+      },
+      "invalid_setns_burst": {
+        "infrastructure_unknown": 13,
+        "no_raw_model_anomaly": 9,
+        "score_excess_veto": 5,
+        "semantic_or_event_time_join_veto": 56,
+        "temporal_confirmation_or_attribution_veto": 10
+      },
+      "seccomp_api_probe": {
+        "infrastructure_unknown": 14,
+        "no_raw_model_anomaly": 7,
+        "score_excess_veto": 3,
+        "semantic_or_event_time_join_veto": 48,
+        "temporal_confirmation_or_attribution_veto": 21
+      }
+    },
+    "schema": "pulse-exposed-attack-gate-diagnosis-v1",
+    "semantic_fields": [
+      "socket",
+      "connect",
+      "clone",
+      "clone3",
+      "setuid",
+      "setgid",
+      "capset",
+      "openat",
+      "ptrace",
+      "pivot_root",
+      "mount",
+      "unshare",
+      "setns",
+      "execveat"
+    ],
+    "thresholds_or_models_selected_from_this_report": false,
+    "trial_prefix_sha256": "bef1b185dbcd255a2afc36c964eac3f5c8ac36aaa0134167ad8cedacf30cb80e",
+    "trial_receipts": 467,
+    "workloads": {
+      "production/aims-frontend:web": {
+        "detected": 9,
+        "infrastructure_unknown": 1,
+        "semantic_or_event_time_join_veto": 2,
+        "temporal_confirmation_or_attribution_veto": 13
+      },
+      "production/aims-kafka-dual-role:kafka": {
+        "detected": 9,
+        "infrastructure_unknown": 1,
+        "semantic_or_event_time_join_veto": 13,
+        "temporal_confirmation_or_attribution_veto": 1
+      },
+      "production/aims-kafka-entity-operator:topic-operator": {
+        "detected": 4,
+        "infrastructure_unknown": 3,
+        "no_raw_model_anomaly": 17,
+        "score_excess_veto": 1
+      },
+      "production/aims-minio-pool-0:minio": {
+        "detected": 7,
+        "infrastructure_unknown": 2,
+        "no_raw_model_anomaly": 1,
+        "score_excess_veto": 8,
+        "semantic_or_event_time_join_veto": 6,
+        "temporal_confirmation_or_attribution_veto": 1
+      },
+      "production/aims-postgres-cnpg:postgres": {
+        "detected": 4,
+        "no_raw_model_anomaly": 13,
+        "score_excess_veto": 4,
+        "temporal_confirmation_or_attribution_veto": 4
+      },
+      "production/aims-rabbitmq-server:rabbitmq": {
+        "infrastructure_unknown": 24
+      },
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+        "detected": 9,
+        "semantic_or_event_time_join_veto": 14,
+        "temporal_confirmation_or_attribution_veto": 1
+      },
+      "production/aims-redis:aims-redis": {
+        "detected": 2,
+        "infrastructure_unknown": 14,
+        "semantic_or_event_time_join_veto": 9
+      },
+      "production/aims-waypoint:istio-proxy": {
+        "infrastructure_unknown": 25
+      },
+      "production/api-gateway:app": {
+        "detected": 10,
+        "semantic_or_event_time_join_veto": 12,
+        "temporal_confirmation_or_attribution_veto": 3
+      },
+      "production/auth-service:app": {
+        "detected": 9,
+        "infrastructure_unknown": 3,
+        "semantic_or_event_time_join_veto": 12,
+        "temporal_confirmation_or_attribution_veto": 1
+      },
+      "production/cart-service:app": {
+        "detected": 10,
+        "semantic_or_event_time_join_veto": 12,
+        "temporal_confirmation_or_attribution_veto": 3
+      },
+      "production/catalog-service:app": {
+        "detected": 9,
+        "infrastructure_unknown": 1,
+        "semantic_or_event_time_join_veto": 12,
+        "temporal_confirmation_or_attribution_veto": 1
+      },
+      "production/inventory-service:app": {
+        "detected": 10,
+        "semantic_or_event_time_join_veto": 12,
+        "temporal_confirmation_or_attribution_veto": 3
+      },
+      "production/notification-service:app": {
+        "detected": 9,
+        "semantic_or_event_time_join_veto": 13,
+        "temporal_confirmation_or_attribution_veto": 2
+      },
+      "production/order-service:app": {
+        "detected": 10,
+        "semantic_or_event_time_join_veto": 11,
+        "temporal_confirmation_or_attribution_veto": 4
+      },
+      "production/payment-service:app": {
+        "detected": 10,
+        "semantic_or_event_time_join_veto": 13
+      },
+      "production/search-recommendation-service:app": {
+        "detected": 9,
+        "infrastructure_unknown": 3,
+        "semantic_or_event_time_join_veto": 10,
+        "temporal_confirmation_or_attribution_veto": 3
+      },
+      "production/security-telemetry-service:app": {
+        "detected": 6,
+        "semantic_or_event_time_join_veto": 17,
+        "temporal_confirmation_or_attribution_veto": 2
+      }
+    }
+  },
+  "support-matched-analysis.json": {
+    "automatic_promotion": false,
+    "confusion_matrix": null,
+    "evidence_class": "exploratory_previously_inspected_normal_holdout",
+    "policy_evaluated": false,
+    "precision": null,
+    "recall": null,
+    "results_sha256": "8acf761c840db3854333873fcd15368388b75249c1a46a7e4151bb0127ff618f",
+    "schema": "pulse-support-matched-normal-analysis-v1",
+    "start_sha256": "de8dc1241ecb959aa056e9ded8ea36c6ac7189ce131ca47b1e1e108cc1cc89bd",
+    "terminal_sha256": "5b4b2aa0dc0e7fdea36c5b1dfc5df646492683954192a0afd80b7f424bf5a2d2",
+    "thresholds_selected_from_this_report": false,
+    "totals": {
+      "combined": 152,
+      "normal_contexts": 19456,
+      "support_branch": 18,
+      "support_only": 10,
+      "tree_matched_branch_budget": 142,
+      "tree_original_alpha": 274
+    },
+    "workloads": {
+      "production/aims-frontend:web": {
+        "combined": 0,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/aims-kafka-dual-role:kafka": {
+        "combined": 3,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 3,
+        "tree_original_alpha": 7
+      },
+      "production/aims-kafka-entity-operator:topic-operator": {
+        "combined": 0,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/aims-kafka-entity-operator:user-operator": {
+        "combined": 44,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 44,
+        "tree_original_alpha": 44
+      },
+      "production/aims-minio-pool-0:minio": {
+        "combined": 11,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 6,
+        "support_normal_anomaly_argmax_counts": {
+          "syscall_bin:19": 6
+        },
+        "support_only": 3,
+        "tree_matched_branch_budget": 8,
+        "tree_original_alpha": 8
+      },
+      "production/aims-minio-pool-0:sidecar": {
+        "combined": 1,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 1,
+        "tree_original_alpha": 1
+      },
+      "production/aims-postgres-cnpg:postgres": {
+        "combined": 0,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/aims-rabbitmq-server:rabbitmq": {
+        "combined": 0,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 1
+      },
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+        "combined": 28,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 28,
+        "tree_original_alpha": 33
+      },
+      "production/aims-redis:aims-redis": {
+        "combined": 1,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 1,
+        "support_normal_anomaly_argmax_counts": {
+          "transition_bin:48": 1
+        },
+        "support_only": 1,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/aims-waypoint:istio-proxy": {
+        "combined": 7,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 7,
+        "tree_original_alpha": 9
+      },
+      "production/api-gateway:app": {
+        "combined": 2,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 2,
+        "tree_original_alpha": 2
+      },
+      "production/auth-service:app": {
+        "combined": 0,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/cart-service:app": {
+        "combined": 4,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 2,
+        "support_normal_anomaly_argmax_counts": {
+          "syscall_bin:19": 2
+        },
+        "support_only": 2,
+        "tree_matched_branch_budget": 2,
+        "tree_original_alpha": 2
+      },
+      "production/catalog-service:app": {
+        "combined": 2,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 1,
+        "support_normal_anomaly_argmax_counts": {
+          "syscall_bin:19": 1
+        },
+        "support_only": 1,
+        "tree_matched_branch_budget": 1,
+        "tree_original_alpha": 1
+      },
+      "production/inventory-service:app": {
+        "combined": 2,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 2,
+        "support_normal_anomaly_argmax_counts": {
+          "syscall_bin:19": 2
+        },
+        "support_only": 2,
+        "tree_matched_branch_budget": 0,
+        "tree_original_alpha": 0
+      },
+      "production/notification-service:app": {
+        "holdout_status": "missing; not zero FP"
+      },
+      "production/order-service:app": {
+        "combined": 8,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 6,
+        "support_normal_anomaly_argmax_counts": {
+          "syscall_bin:19": 1,
+          "syscall_bin:3": 5
+        },
+        "support_only": 1,
+        "tree_matched_branch_budget": 7,
+        "tree_original_alpha": 8
+      },
+      "production/payment-service:app": {
+        "holdout_status": "missing; not zero FP"
+      },
+      "production/search-recommendation-service:app": {
+        "combined": 38,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 38,
+        "tree_original_alpha": 157
+      },
+      "production/security-telemetry-service:app": {
+        "combined": 1,
+        "matched_per_branch_alpha": 0.0008333333333333334,
+        "normal_contexts": 1024,
+        "support_branch": 0,
+        "support_normal_anomaly_argmax_counts": {},
+        "support_only": 0,
+        "tree_matched_branch_budget": 1,
+        "tree_original_alpha": 1
+      }
+    }
+  },
+  "sentinel-pulse-support-experiment.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nMemoryCurrent=[not set]\nActiveState=active\nSubState=exited\n",
+  "sentinel-pulse-observation-attack.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nMemoryCurrent=[not set]\nActiveState=active\nSubState=exited\n",
+  "sentinel-pulse-normal-control.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nMemoryCurrent=[not set]\nActiveState=active\nSubState=exited\n",
+  "pulse-gate-diagnosis-c2-20261008.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nMemoryCurrent=[not set]\nActiveState=inactive\nSubState=dead\n",
+  "pulse-support-analysis-c1-20261008.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nMemoryCurrent=[not set]\nActiveState=inactive\nSubState=dead\n"
+}

@@ -1,0 +1,115 @@
+{
+  "checked_at_utc": "2026-10-08T02:07:38.092387+00:00",
+  "host": "10.1.16.234",
+  "paired_files": {
+    "RESULTS.json": {
+      "sha256": "7fe79acbc5e791f22b82e4d5513a03ff7837fecd6b1982eb80d4bf19200c720a",
+      "data": {
+        "attack": {
+          "attack_attribution_horizon_seconds": 15,
+          "attack_outcomes_used_for_training_or_tuning": false,
+          "automatic_promotion": false,
+          "completed_trial_receipts": 475,
+          "conditional_observed_attack_recall": 0.3526448362720403,
+          "confusion_matrix": {
+            "FN_observed": 257,
+            "FP": null,
+            "TN": null,
+            "TP_observed": 140,
+            "attack_unknown": 78
+          },
+          "controller_evidence_seal_sha256": "2d12d1e534396622547ad8d494e6f734e718a79b6faee82bfca3bbaf24cc0c79",
+          "detected_attack_intervals": 140,
+          "end_to_end_detection_fraction_on_completed_planned_trials": 0.29473684210526313,
+          "evidence_class": "observation_attack_matrix",
+          "expected_trial_intervals": 475,
+          "false_positive_rate": null,
+          "formal_legacy_pass": false,
+          "infrastructure_unknown_intervals": 78,
+          "kernel_to_alert_seconds_detected_trials_only": {
+            "p50": 0.6496320962905884,
+            "p95": 1.5378161191940176,
+            "p99": 4.511111454963679
+          },
+          "latency_sample_count": 140,
+          "minimum_scored_window_fraction_for_observed_trial": 0.9,
+          "mixed_window_and_interval_denominators_forbidden": true,
+          "normal_soak_alerts_not_silently_adjudicated": true,
+          "observed_attack_intervals": 397,
+          "observed_misses": 257,
+          "planned_full_matrix_detection_lower_bound": 0.29473684210526313,
+          "precision": null,
+          "progress_percent": 100,
+          "schema": "sentinel-pulse-observation-attack-results-v1",
+          "worker_raw_seals_rehashed_by_this_audit": false
+        },
+        "attack_root": "/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007",
+        "blind_outcomes_used_for_tuning": false,
+        "control_evidence_seal_sha256": "557ce66a3a24fb3005a63a913e2db1864eac32580c02e60dadf4efa256a58bc0",
+        "control_root": "/home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008",
+        "interval_metrics": {
+          "adjudicated_confusion_matrix": null,
+          "adjudicated_precision": null,
+          "attack_unknown": 78,
+          "automatic_promotion": false,
+          "conditional_observed_attack_recall": 0.3526448362720403,
+          "counted_alert_rows_in_control_receipts": 0,
+          "expectations_not_measurements": {
+            "false_positive_rate": 0.05,
+            "precision": 0.95,
+            "recall": 0.95
+          },
+          "normal_label_basis": "protocol assumption; healthy pre/post context; not independent adjudication",
+          "normal_receipts_missing": 0,
+          "normal_unknown_or_uncertain": 44,
+          "precision_not_a_production_prevalence_estimate": true,
+          "provisional_protocol_confusion_matrix": {
+            "FN": 257,
+            "FP": 0,
+            "TN": 431,
+            "TP": 140
+          },
+          "provisional_protocol_false_positive_rate": 0,
+          "provisional_protocol_precision": 1,
+          "replica_and_shared_epoch_dependence_not_independent_samples": true,
+          "unit": "45-second target interval; prediction horizon first 15 seconds",
+          "zero_false_positive_gate": false
+        },
+        "model_unchanged": true,
+        "schema": "sentinel-pulse-paired-evaluation-v1"
+      }
+    }
+  },
+  "units": {
+    "sentinel-pulse-normal-control.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=exited\n",
+    "sentinel-pulse-observation-attack.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=exited\n",
+    "sentinel-pulse-support-experiment.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nActiveState=active\nSubState=exited\n",
+    "pulse-gate-diagnosis-c2-20261008.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nActiveState=inactive\nSubState=dead\n",
+    "pulse-support-analysis-c1-20261008.service": "MainPID=0\nResult=success\nNRestarts=0\nExecMainStatus=0\nActiveState=inactive\nSubState=dead\n"
+  },
+  "scenario_counts": {
+    "invalid_setns_burst": {
+      "miss": 82,
+      "unknown": 13
+    },
+    "anonymous_mprotect_churn": {
+      "miss": 80,
+      "unknown": 15
+    },
+    "child_ptrace_handshake": {
+      "miss": 8,
+      "detected": 70,
+      "unknown": 17
+    },
+    "execveat_resolution_probe": {
+      "miss": 7,
+      "detected": 70,
+      "unknown": 18
+    },
+    "seccomp_api_probe": {
+      "miss": 80,
+      "unknown": 15
+    }
+  },
+  "attack_prefix_sha256": "606b9270c89476263c69eec3c6aad50e0ea42ba480e13dee6f108f49e52c6bc0"
+}

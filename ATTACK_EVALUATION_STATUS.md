@@ -80,91 +80,86 @@ syscall độc hại đầu tiên hay hiệu quả trên mọi attack thực t�
 
 ## Trạng thái triển khai
 
-Kiểm tra SSH lúc **08/10/2026 02:34:18 ICT**. Campaign hiện hành
+Kiểm tra SSH lúc **08/10/2026 09:07 ICT**. Campaign đã hoàn thành
 `pulse-observation-attack-c2-20261007` trên control plane `.234`, thư mục
 `/home/dat/sentinel-pulse-observation-attacks/pulse-observation-attack-c2-20261007`.
-Service PID **2122534**, `NRestarts=0`, đang chạy. Với `Type=oneshot`, trạng thái
-`activating/start` trong lúc chạy là bình thường, không phải startup bị treo.
+Service `active/exited`, MainPID **0**, `ExecMainStatus=0`, `NRestarts=0`.
+Không còn đợi matrix chạy ngầm; đây là hoàn thành thu, không phải đạt quality gate.
 Source triển khai frozen: `/home/dat/eBPF-project-observation-attack-r2-20261007`,
 commit **ee2528be497507797fa98e6e37bd0dbd41587a89**. Thí nghiệm syscall giữ
 source/service riêng, không thay candidate này.
 
-Đã xử lý **454/475 interval: 95,58%**, chưa terminal. Đây là số receipt đã
-xử lý, không có nghĩa 454 attack đều đã được tiêm thành công. Bằng chứng:
-[inspection.json](validation-evidence/paired-evaluation-deployment-20261008/inspection.json),
-[prefix TRIALS có checksum](validation-evidence/paired-evaluation-deployment-20261008/trial-prefix-summary.json).
+Đã xử lý **475/475 interval: 100%**, đã terminal và controller seal. Đây là
+số receipt, không có nghĩa mọi generator đều đã tiêm thành công. Bằng chứng:
+[paired-final-inspection.json](validation-evidence/pulse-improvement-20261008/paired-final-inspection.json).
 
-### Kết quả tạm thời, không phải kỳ vọng
+### Kết quả cuối của baseline, không phải kỳ vọng
 
 | Nhóm đánh giá | Có alert hợp lệ | Không có alert trong horizon | Thiếu chứng cứ |
 |---|---:|---:|---:|
-| Attack interval đã xử lý | 131 | 247 | 76 |
-| Normal interval cùng đơn vị, đã adjudication | Chưa có FP | Chưa có TN | Chưa đánh giá |
+| Attack interval đã xử lý | 140 | 257 | 78 |
+| Normal interval theo giả định protocol, chưa adjudication | 0 | 431 | 44 |
 
-**Recall có điều kiện = 131/(131+247) = 34,66%**, trên 378 interval observed.
+**Recall có điều kiện = 140/(140+257) = 35,26%**, trên 397 interval observed.
 Đây là phát hiện theo attribution horizon 15 giây của detector hiện hành,
 không phải recall trên mọi attack thực tế hoặc mọi alert trong suốt 45 giây.
-**Tỷ lệ phát hiện end-to-end = 131/454 = 28,85%**; 76 unknown không bị xóa
+**Tỷ lệ phát hiện end-to-end = 140/475 = 29,47%**; 78 unknown không bị xóa
 khỏi mẫu số này. Unknown không được gán thành FN thuần ML trong bảng có điều kiện.
 
-**Precision, FPR và confusion matrix 2×2 đầy đủ chưa đo được**: FP/TN vẫn
-`null`, không phải 0. Không lấy hàng triệu normal window làm TN để ghép với
-TP theo attack interval. Alert Redis trong soak chưa adjudication; không tự
-gán FP=1 hoặc FP=0, không công bố precision=100% trên tập chỉ có attack.
+**Confusion matrix protocol tạm tính đã có**: TP=140, FN=257, FP=0, TN=431;
+precision protocol 100%, FPR protocol 0%. Normal label là giả định protocol,
+chưa review độc lập, vì vậy adjudicated matrix/precision vẫn `null`. Không
+lấy hàng triệu normal window làm TN, không gọi precision này là precision
+production. Alert Redis trong soak chưa adjudication, không tự gán FP=1/0.
 
 | Scenario | Có phát hiện | Miss observed | Unknown |
 |---|---:|---:|---:|
-| anonymous_mprotect_churn | 0 | 78 | 15 |
-| child_ptrace_handshake | 65 | 8 | 17 |
-| execveat_resolution_probe | 66 | 7 | 18 |
-| invalid_setns_burst | 0 | 77 | 12 |
-| seccomp_api_probe | 0 | 77 | 14 |
+| anonymous_mprotect_churn | 0 | 80 | 15 |
+| child_ptrace_handshake | 70 | 8 | 17 |
+| execveat_resolution_probe | 70 | 7 | 18 |
+| invalid_setns_burst | 0 | 82 | 13 |
+| seccomp_api_probe | 0 | 80 | 15 |
 
 Ba scenario chưa có phát hiện trong các interval observed. Không thể gọi
 candidate đạt recall cao hoặc production stable dựa trên kết quả này.
-Chưa chỉnh model/policy theo matrix; giữ miss để phân tích sau khi chạy hết.
+Model/policy baseline không đổi; giữ toàn bộ miss và unknown.
 
-Latency trên **131 trial đã phát hiện**: p50 **0,651 s**, p95 **1,882 s**,
-p99 **4,544 s**. Full audit raw Tetragon/attributed alert/controller seal đã
-được nối vào service mới, chưa chạy vì matrix chưa kết thúc.
-**124/378 = 32,80%** interval observed được phát hiện trong 2 giây;
-latency đẹp trên riêng hit không bù được những miss. Chưa đạt mục tiêu đồng
-thời recall cao và tail latency 1–2 giây.
+Latency trên **140 trial đã phát hiện**: p50 **0,650 s**, p95 **1,538 s**,
+p99 **4,511 s**. Audit raw Tetragon/attributed alerts/controller seals đã xuất
+report cuối. Latency trên riêng hit không bù được miss; chưa đạt đồng thời
+recall cao và tail latency 1–2 giây. Không giữ tỷ lệ detection-within-2s của
+prefix cũ làm tỷ lệ cuối; cần đọc đủ raw receipt để tính theo mẫu số cuối.
 
 ### Lỗi giữ nguyên và bước tiếp theo
 
-76 unknown gồm 41 `CalledProcessError`, 7 copy timeout, 14 interval thiếu
-scored coverage và 14 lần không tìm thấy container target. Ví dụ có raw stderr
+78 unknown được giữ trong report cuối. Ví dụ có raw stderr
 RabbitMQ: `cannot create /tmp/sentinel-runtime-attack-blind: Read-only file system`.
 Không coi đó là false negative thuần ML; không vô hiệu hóa hardening của AIMS
 hay đổi model giữa matrix để qua lỗi. Cần phân tích target selection theo
 prefix và đường staging writable trong phiên đánh giá hạ tầng tiếp theo.
 
-Giữ campaign chạy ngầm đến hết; còn 21 receipt, dự kiến khoảng **30–45 phút**
-tính từ lần kiểm tra trên nếu không phát sinh chờ hạ tầng. Không cần giữ SSH
-hoặc laptop bật. Sau terminal: xuất kết quả baseline nguyên vẹn; thực hiện
-normal control interval cùng đơn vị với nhãn/adjudication để hoàn thiện FP/TN
-và precision; phân tích model-only so với policy trên replay riêng. Chỉ sửa
-candidate trên tập phát triển độc lập, không tune theo các miss của matrix
-này rồi gọi lại chính matrix đó là blind test mới.
+Campaign và paired normal-control đều đã hoàn thành, không cần đợi thêm.
+Đã phân tích gate trên prefix riêng, kiểm chứng điểm mù seccomp và fit support
+ensemble normal-only: [trạng thái cải thiện](PULSE_IMPROVEMENT_STATUS.md).
+Sửa exact target selection ở source mới, không sửa checkout frozen/unknown
+cũ. Candidate sửa đổi cần bộ normal/attack mới; không tune theo miss rồi gọi
+lại matrix này là blind test mới.
 
-Regression trên host: **774 test + 20 subtest** đã qua (22,83 giây), gồm
-admission nonzero-alert, checkpoint intent, hit/miss, thiếu kernel provenance,
+Regression đã bao phủ admission nonzero-alert, checkpoint intent,
+hit/miss, thiếu kernel provenance,
 thiếu scored coverage và cleanup failure. Không thay thế số đo live.
 
 ## Normal-control và báo cáo cuối
 
-`sentinel-pulse-normal-control.service` trên `.234` **enabled**, PID **2713751**,
-`NRestarts=0`, đang `waiting_for_sealed_attack`, chưa thu normal-control.
+`sentinel-pulse-normal-control.service` trên `.234` **enabled**, MainPID **0**,
+`NRestarts=0`, `active/exited`, `ExecMainStatus=0`; đủ 25 epoch/475 receipt.
 Controller riêng `/home/dat/eBPF-project-paired-evaluation-r2-20261008`, commit
 **2036357776b92445f9a5d4cfe921da87be8bd84e**. Worker vẫn dùng source frozen
 **ee2528b**, không đổi model/policy/pipeline đã soak.
 
-Kiểm tra controller lúc 02:38:59 ICT: queue chưa START, không BLOCKED,
-source sạch; attack PID vẫn 2122534, đã có 457 receipt. Biên bản:
-[controller-r2-inspection.json](validation-evidence/paired-evaluation-deployment-20261008/controller-r2-inspection.json).
-Đã thêm xử lý service chạy lại sau terminal/reboot: không sửa QUEUE đã seal,
-chỉ tái tạo report riêng. Thay controller khi còn queued, không restart attack.
+Report cuối checksum `7fe79acbc5e791f22b82e4d5513a03ff7837fecd6b1982eb80d4bf19200c720a`.
+Service chạy lại sau terminal/reboot không sửa QUEUE đã seal, chỉ tái tạo
+report riêng. Không restart attack để thu lại các trial miss.
 
 Luồng tự động: attack terminal → đóng/seal leg → kiểm tra controller seal và
 đối chiếu raw provenance/alert → đăng ký normal-control → thu interval → audit
@@ -173,8 +168,8 @@ attack đã seal. Khóa fleet ngăn collector control chạy đồng thời vớ
 
 Plan có **19 workload/container chính × 25 interval = 475**; quan sát song song
 19 workload mỗi đợt. Interval 45 giây, prediction horizon 15 giây giống attack,
-tối thiểu 81 scored windows/interval. Dự kiến 20–35 phút khi sẵn sàng, không
-phải soak 24 giờ hoặc retrain. Chọn target bằng workload/container đúng metadata
+tối thiểu 81 scored windows/interval. Pha này đã xong, không phải soak 24 giờ
+hoặc retrain. Chọn target bằng workload/container đúng metadata
 cgroup, không chỉ prefix pod name để tránh nhầm Redis/Sentinel. Không tiêm
 binary trong pha này; loadgens vẫn chạy.
 
@@ -206,7 +201,7 @@ journalctl -u sentinel-pulse-normal-control.service -n 30 --no-pager
 python3 -m json.tool /home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008/QUEUE.json
 # STATUS/TERMINAL xuất khi pha control bắt đầu/kết thúc:
 python3 -m json.tool /home/dat/sentinel-pulse-normal-controls/pulse-normal-control-c1-20261008/STATUS.json
-# Xuất tự động sau terminal và audit; hiện chưa có:
+# Report cuối đã xuất sau terminal và audit:
 python3 -m json.tool /home/dat/sentinel-pulse-paired-results/pulse-paired-c1-20261008/RESULTS.json
 ```
 

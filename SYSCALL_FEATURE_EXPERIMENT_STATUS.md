@@ -1,6 +1,6 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật: 07/10/2026. Job chuyển sang **systemd hệ thống trên VM `dat@10.1.16.234`**, không phụ thuộc host/terminal/SSH. Đây là exploratory normal-only, chưa phải xác nhận blind recall.
+Cập nhật: 08/10/2026. Job **đã hoàn thành 608/608 fit** trên **systemd hệ thống VM `dat@10.1.16.234`**, không phụ thuộc host/terminal/SSH. Đây là exploratory normal-only, chưa phải xác nhận blind recall.
 
 ## Phạm vi đã triển khai
 
@@ -16,7 +16,12 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 
 Checkpoint giữ **59/608 fit đã đo trên host**. Các fit đó được xác minh prediction SHA, START, input, software và ML source trước khi tái dùng. Chỉ fit các biến thể còn thiếu/error; không chạy lại 59 fit từ đầu. Progress hiện hành đọc từ STATUS của attempt mới nhất bên dưới; chưa suy chất lượng toàn campaign từ vài workload đầu.
 
-Kiểm tra qua **kết nối SSH mới lúc 13:39 ngày 07/10 ICT**: MainPID `2106315`, unit enabled, NRestarts `0`, attempt `000002` state `fitting`, **61/608 fit (10,03%)**, reused `59`, `errors=[]`. RAM khoảng 1 GiB, dưới budget 4 GiB. Receipt: [vm-current-inspection.json](validation-evidence/syscall-resume-20261007/vm-current-inspection.json), [START](validation-evidence/syscall-resume-20261007/vm-current-START.json), [STATUS](validation-evidence/syscall-resume-20261007/vm-current-STATUS.json). Kết nối triển khai đã đóng trước lần kiểm tra này. Boot recovery đã cấu hình, chưa reboot VM để test vì không muốn gián đoạn cụm.
+Kiểm tra SSH ngày **08/10/2026 09:06 ICT**: attempt `000002` terminal
+`state=completed`, **608/608 fit (100%)**, `errors=[]`, không còn đợi training.
+Thời điểm kết thúc ghi trong terminal: **18:55:09 ngày 07/10 ICT**. Receipt
+và checksum START/STATUS/TERMINAL: [inspection.json](validation-evidence/pulse-improvement-20261008/inspection.json),
+phần `ablation`. Boot recovery đã cấu hình, chưa reboot VM để test vì không
+muốn gián đoạn cụm. Chưa deploy subset vào candidate production.
 
 | Thành phần | Giá trị |
 |---|---|
