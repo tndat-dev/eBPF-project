@@ -1,0 +1,28 @@
+[Unit]
+Description=Replay sealed Pulse extended capture without model promotion
+After=sentinel-pulse-extended-collection.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+Group=dat
+EnvironmentFile=/etc/sentinel-pulse/extended-audit.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.audit_extended_collection --source ${PULSE_AUDIT_SOURCE} --capture /var/lib/sentinel-pulse-extended-c1-20261008 --root /var/lib/sentinel-pulse-extended-audit-c1-20261008
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartSec=15
+RestartPreventExitStatus=65
+CPUQuota=150%
+MemoryMax=1G
+Nice=15
+UMask=0027
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-extended-audit-c1-20261008
+
+[Install]
+WantedBy=multi-user.target
