@@ -148,7 +148,8 @@ def test_trial_live_path_retains_hit_miss_and_evidence_failure(tmp_path, monkeyp
             return subprocess.CompletedProcess(cmd, 1 if case == 'cleanup_failed' and 'rm' in cmd else 0, b'', b'')
         def remote_sudo(self, host, cmd, **kwargs):
             if cmd.startswith('cat '):
-                payload = json.dumps({'cgroups': {'42': {'pod_uid': 'uid', 'container_name': 'app'}}}).encode()
+                payload = json.dumps({'cgroups': {'42': {'pod_uid': 'uid', 'container_name': 'app',
+                    'namespace': 'production', 'workload_name': 'x'}}}).encode()
             elif cmd.startswith('tee '):
                 self.marker = json.loads(kwargs['payload']); payload = b''
             else:

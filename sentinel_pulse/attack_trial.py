@@ -29,27 +29,38 @@ def first_alert(records, injection, model_sha, policy_sha):
     return min(accepted, key=lambda r: float(r['alerted_at'])) if accepted else None
 
 
+def select_target(runtime, row, workers, index):
+    """Resolve exact controller/container from cgroup identity, not pod prefix."""
+    pods = ready_pods(runtime.kubectl_json('get', 'pods', '-n', 'production', '-o', 'json'), row['workload_controller'])
+    expected_container = row['workload_key'].split(':', 1)[1]
+    cache, matches = {}, []
+    for pod in pods:
+        worker = workers.get(pod['node_name'])
+        if worker is None or (expected_container != 'pod-slice' and expected_container not in pod['containers']):
+            continue
+        if pod['node_name'] not in cache:
+            cache[pod['node_name']] = json.loads(runtime.remote_sudo(worker['host'], 'cat /run/sentinel-pulse/cgroups.json').stdout)
+        try:
+            cg, identity = select_cgroup(cache[pod['node_name']], pod['uid'], expected_container)
+        except ValueError:
+            continue
+        if identity.get('namespace') != 'production' or identity.get('workload_name') != row['workload_controller']:
+            continue
+        container = pod['containers'][0] if expected_container == 'pod-slice' else expected_container
+        matches.append((pod, worker, container, cg))
+    if not matches:
+        raise RuntimeError('no exact ready controller/container/cgroup target: ' + row['workload_key'])
+    return matches[(index-1) % len(matches)]
+
+
 def execute(runtime, root, row, injection_id, workers, binary, duration, post_wait,
             model_sha, policy_sha):
-    pods = ready_pods(runtime.kubectl_json('get', 'pods', '-n', 'production', '-o', 'json'), row['workload_controller'])
-    if not pods:
-        raise RuntimeError('no ready target: ' + row['workload_controller'])
     index = int(injection_id.rsplit(':', 1)[1])
-    pod = pods[(index - 1) % len(pods)]
+    pod, worker, container, cg = select_target(runtime, row, workers, index)
     node = runtime.kubectl_json('get', 'node', pod['node_name'], '-o', 'json')
     conditions = {c['type']: c['status'] for c in node['status'].get('conditions', [])}
     if conditions.get('Ready') != 'True' or any(conditions.get(c) == 'True' for c in ('MemoryPressure', 'PIDPressure')):
         raise RuntimeError('target node is not safe for a bounded generator process tree')
-    worker = workers.get(pod['node_name'])
-    if worker is None:
-        raise ValueError('target is outside registered worker fleet')
-    container = row['workload_key'].split(':', 1)[1]
-    if container == 'pod-slice':
-        container = pod['containers'][0]
-    if container not in pod['containers']:
-        raise ValueError('target container disappeared')
-    cg, _ = select_cgroup(json.loads(runtime.remote_sudo(worker['host'], 'cat /run/sentinel-pulse/cgroups.json').stdout),
-                         pod['uid'], row['workload_key'].split(':', 1)[1])
     path = binary_path_for_controller(row['workload_controller'])
     prefix = ['kubectl', 'exec', '-n', 'production', pod['name'], '-c', container, '--']
     # Never overwrite/remove a pre-existing operator file.
