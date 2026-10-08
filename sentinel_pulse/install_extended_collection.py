@@ -33,14 +33,14 @@ def install(source,build,proof,seconds):
     existing=subprocess.run(['systemctl','show',UNIT,'-p','ActiveState','--value'],capture_output=True,text=True,check=True).stdout.strip()
     if existing in ('active','activating','deactivating') or (OUTPUT/'START.json').exists():
         raise ValueError('campaign already exists; resume via systemctl, not reinstall')
-    OUTPUT.mkdir(parents=True,exist_ok=True)
-    env=Path('/etc/sentinel-pulse/extended-collection.env');env.parent.mkdir(parents=True,exist_ok=True)
+    env=Path('/etc/sentinel-pulse/extended-collection.env')
+    target=Path('/etc/systemd/system')/UNIT
     if env.exists():raise ValueError('environment file already exists; inspect before replacing')
+    if target.exists():raise ValueError('system unit already exists')
+    OUTPUT.mkdir(parents=True,exist_ok=True);env.parent.mkdir(parents=True,exist_ok=True)
     env.write_text('\n'.join(['PYTHONPATH='+str(source),'PULSE_EXTENDED_SOURCE='+str(source),
         'PULSE_EXTENDED_BUILD='+str(build),'PULSE_EXTENDED_ROOT='+str(OUTPUT),
         'PULSE_EXTENDED_PROOF='+str(proof),'PULSE_EXTENDED_SECONDS='+str(seconds)])+'\n');env.chmod(0o600)
-    target=Path('/etc/systemd/system')/UNIT
-    if target.exists():raise ValueError('system unit already exists')
     target.write_bytes((source/'sentinel_pulse/systemd'/UNIT).read_bytes());target.chmod(0o644)
     subprocess.run(['systemctl','daemon-reload'],check=True)
     subprocess.run(['systemctl','enable',UNIT],check=True)

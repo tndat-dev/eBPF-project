@@ -43,3 +43,14 @@ def test_extended_integrity_and_loss_are_not_normal():
     with pytest.raises(ValueError,match='integrity'):stream.snapshot(dict(raw(2),total=1),10,META,10.1)
     stream.snapshot(raw(),10,META,10.1);stream.stats={'snapshot_projection_fail':1}
     assert stream.snapshot(raw(2),10.5,META,10.6) is None
+
+
+def test_idle_boundary_resets_rolling_history_and_json_key_order_is_not_semantic():
+    stream=ExtendedFeatureStream();stream.snapshot(raw(),10,META,10.1)
+    for i in range(1,12):
+        value=raw(i);value['counts']=dict(reversed(list(value['counts'].items()))) if i%2 else value['counts']
+        row,_=stream.snapshot(value,10+i*.5,META,10+i*.5+.1)
+    assert row['eligible_for_normal_review'] and row['history_before']==10
+    assert stream.snapshot(raw(11),16,META,16.1) is None
+    row,_=stream.snapshot(raw(12),16.5,META,16.6)
+    assert row['history_before']==0 and not row['eligible_for_normal_review']

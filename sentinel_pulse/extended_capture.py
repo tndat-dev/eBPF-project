@@ -39,18 +39,25 @@ class ExtendedFeatureStream:
         hard_loss=any(int(self.stats.get(k,0))>0 for k in ['task_state_update_fail','snapshot_projection_fail'])
         if reset or hard_loss:self.builders.pop(identity,None)
         self.previous[identity]=(boundary,cumulative)
-        builder=self.builders.setdefault(identity,PulseFeatureBuilder())
+        builder=self.builders.setdefault(identity,PulseFeatureBuilder(rolling_windows=10))
         builder.columns=tuple('seccomp_skipped_or_emulated' if c=='seccomp_denied' else c for c in builder.columns)
         history=builder.history_windows_available(cg)
         # Reuse the mathematical delta slot only, not the old field's meaning.
-        feature=builder.ingest(PulseSnapshot(cg,boundary,counts,{},dict(enumerate(bins)),dict(enumerate(transitions)),skipped),workload_key(item))
-        if feature is None:return None
+        snapshot=PulseSnapshot(cg,boundary,counts,{},dict(enumerate(bins)),dict(enumerate(transitions)),skipped)
+        feature=builder.ingest(snapshot,workload_key(item))
+        if feature is None:
+            # Idle boundaries must not make old active rows look adjacent.
+            fresh=PulseFeatureBuilder(rolling_windows=10);fresh.columns=builder.columns
+            fresh.ingest(snapshot,workload_key(item));self.builders[identity]=fresh
+            return None
+        if skipped- (int(previous[1][-1]) if previous is not None else skipped)>feature.exact_total:
+            raise ValueError('extended skip delta exceeds total delta')
         record=feature.as_record();record['schema']=SCHEMA
         record.update(telemetry_contract=CONTRACT,normal_label='unadjudicated_observation',
                       pod_name=item.get('pod_name'),pod_uid=item['pod_uid'],node_name=item['node_name'],
                       container_name=item['container_name'],workload_revision=item['workload_revision'],
-                      emitted_at=received_at,history_before=history,collector_stats=dict(self.stats),
-                      eligible_for_normal_review=not hard_loss and history>=5 and 0<=received_at-boundary<=1,
+                      emitted_at=received_at,history_before=history,rolling_windows=10,collector_stats=dict(self.stats),
+                      eligible_for_normal_review=not hard_loss and history>=10 and 0<=received_at-boundary<=1,
                       not_accepted_by_frozen_model=True)
         output,schema=compact_record(record)
         schema['schema']='sentinel-pulse-extended-feature-schema-v1';schema['telemetry_contract']=CONTRACT
