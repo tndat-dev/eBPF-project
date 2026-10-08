@@ -1,0 +1,24 @@
+{
+  "schema": "pulse-improvement-expectations-v1",
+  "evidence_class": "development_protocol_not_measurement",
+  "benchmark_unit": "45-second target interval; alert in first 15 seconds",
+  "precision_minimum": 0.95,
+  "recall_minimum": 0.95,
+  "interval_false_positive_rate_maximum": 0.05,
+  "kernel_to_alert_p95_seconds_maximum": 2.0,
+  "example_only_confusion_matrix_for_475_positive_and_475_negative_intervals": {
+    "TP_minimum": 452,
+    "FN_maximum": 23,
+    "FP_maximum": 23,
+    "TN_minimum": 452
+  },
+  "unknowns": "report separately and include in end-to-end detection denominator; never silently relabel TN/FN",
+  "fit_data": "normal training prefix only; calibration uses normal suffix",
+  "inspected_normal_holdout": "exploratory development evidence only",
+  "exposed_attack_matrix": "descriptive diagnosis only; not a fresh confirmation of revised candidate",
+  "final_validation_requires": "freeze complete telemetry/model/policy; new unseen attack and normal intervals; independent label review",
+  "zero_false_positive_gate": false,
+  "stop_on_quality_failure": false,
+  "automatic_promotion": false,
+  "hard_safety_or_integrity_failure": "retain evidence; stop dispatch or quarantine affected interval, not erase/restart the campaign"
+}
