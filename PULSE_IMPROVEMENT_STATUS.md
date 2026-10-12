@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:08 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:11 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -46,9 +46,14 @@ không phải phép đo CPU utilization).
 
 Quét JSONL gốc xác nhận **19/19 khóa `pod-slice` chỉ có zero exact-syscall
 trong 1.816.774 hàng**; cả 249 tọa độ huấn luyện đều hằng. Đây là cgroup
-ancestor rỗng, không phải kết quả phát hiện thành công. Chỉ còn **21 khóa
-container có biến thiên feature** có ý nghĩa cho benchmark tiếp theo. Candidate
-vẫn exploratory: chưa adjudicated, chưa dùng attack, không serving-compatible,
+ancestor rỗng, không phải kết quả phát hiện thành công. **21 khóa container có
+biến thiên feature** đã được benchmark và đóng băng thành model-only candidate
+`sentinel-pulse-idle-aware-model-only-20261012`. Manifest trên master:
+`/home/dat/pulse-idle-reference-benchmark-c1-20261012/CANDIDATE_MANIFEST.json`,
+SHA-256 `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`.
+Manifest giữ hash model/dữ liệu; loại 19 scope suy biến. Holdout đã dùng cho
+diagnostic và timing, vì vậy **không được trình bày thành blind test độc lập**.
+Candidate chưa adjudicated, chưa có decision policy, chưa serving-compatible,
 không tự promotion. Resolver đã được chỉnh để ưu tiên CRI container cgroup và
 chỉ giữ deepest fallback khi runtime không lộ container scope; chưa triển khai
 thay đổi này vào collector đang chạy. Dry-run trên cả ba worker map được mọi
@@ -241,21 +246,21 @@ phát alert production. Không bypass manifest/type checks để ép chạy.
 
 ## 5. Công việc tiếp theo để tiến đến kỳ vọng
 
-1. Để reference fit idle-aware v2 chạy đến terminal 40/40; giữ checksum, mọi
-   key thiếu calibration và mọi lỗi. Không nới alpha, gộp workload hay promote
-   tự động để ép đủ model.
-2. Trước khi dùng cho đánh giá attack, chốt candidate/policy/calibration và
-   tạo preregistration mới; các quan sát hiện tại chưa adjudicate normal.
-3. Candidate mới phải khai báo các security field thực sự hỗ trợ, calibration
-   và decision policy cùng nhau. So sánh model-only và full policy; không
-   sửa ngưỡng để vừa khít 475 interval đã nhìn thấy.
-4. Thu normal độc lập có peak/burst/recovery/rollout cho các workload chưa có
-   coverage; kiểm tra nhánh support có gây alert do tải hợp lệ hay không.
-5. Đóng băng candidate hoàn chỉnh trước bộ attack/normal mới; giữ mọi miss,
-   alert và unknown. Lấy confusion matrix/CI theo đơn vị interval, phân nhóm
-   workload/scenario/regime và công bố detection-within-2s cùng recall.
-6. Chỉ công bố đạt kỳ vọng khi cả accuracy, coverage và latency có evidence.
-   Không đặt trần thời gian hoàn thiện bằng cách loại các khoảng xấu khỏi mẫu.
+1. Model-only artifact đã đóng băng: 21 model container có biến thiên, 19
+   `pod-slice` suy biến bị loại; manifest được bind bằng SHA-256 trong evidence.
+   Không dùng lại 412.738 holdout context đã xem cho blind accuracy claim.
+2. Định nghĩa và freeze decision policy/semantic fields cho đúng contract
+   `pulse-entered-plus-seccomp-skip-idle-v2`; hiện model-only manifest chưa có
+   policy, không phát alert và không serving-compatible.
+3. Đăng ký một bộ normal độc lập và blind attack mới *sau* khi policy cố định;
+   giữ mọi miss, alert, unknown và infrastructure gap theo đúng contract.
+4. Chạy đánh giá model-only lẫn full policy, confusion matrix/CI theo interval,
+   nhóm workload/scenario/regime, rồi mới tối ưu. Không dùng lại blind set đã
+   mở để tune ngưỡng.
+5. Đo end-to-end kernel-to-alert dưới tải và overhead CPU/RAM/request latency;
+   inference 20,89/27,50/32,09 ms hiện tại không thay thế phép đo này.
+6. Chỉ công bố đạt kỳ vọng khi accuracy, coverage, latency và chi phí runtime
+   đều có evidence độc lập; không loại bỏ các khoảng xấu khỏi mẫu.
 
 Thí nghiệm chọn kênh syscall **608/608 fit đã hoàn thành**; chưa deploy subset.
 [Trạng thái riêng](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Các artifact/evidence

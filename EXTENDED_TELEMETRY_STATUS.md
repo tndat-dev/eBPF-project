@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 17:08 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 17:11 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -179,9 +179,14 @@ dry-run read-only trên CRI/cgroup hiện thời của cả ba worker: mọi run
 container nằm trong phạm vi theo dõi đều có mapping; mỗi node có một loadgen
 được loại theo cấu hình hiện hữu. Không service nào bị restart và thay đổi
 chưa được cài vào resolver/collector đang chạy; dữ liệu/model cũ được giữ
-nguyên. Candidate chưa attack-evaluated, chưa serving-compatible, không tự
-promotion. Xem snapshot và hashes trong
-[evidence hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
+nguyên. Model-only candidate gồm 21 artifact đã được freeze bằng manifest
+`/home/dat/pulse-idle-reference-benchmark-c1-20261012/CANDIDATE_MANIFEST.json`
+trên master, SHA-256
+`747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`.
+Manifest bind source/data/model checksums, nhưng `decision_policy=null`,
+`serving_compatible=false`, `automatic_promotion=false`. Holdout đã được dùng
+cho diagnostic và timing; không được dùng lại như blind test chính. Xem
+snapshot và hashes trong [evidence hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 
 Inference benchmark của 21 khóa container (mỗi khóa 128 mẫu, tổng 2.688) cho
 pooled p50/p95/p99 **20,89/27,50/32,09 ms**; p95 cao nhất giữa workload

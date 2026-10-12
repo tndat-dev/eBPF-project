@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-10-12T10:07:52Z",
+  "observed_at_utc": "2026-10-12T10:11:55Z",
   "scope": "Sentinel Pulse extended telemetry and exploratory reference candidate; read-only SSH evidence from master and three workers",
   "cluster": {
     "ready_nodes": 6,
@@ -135,7 +135,7 @@
     "requested_boundary_seconds_per_worker": 7200,
     "capture_state": "completed_observation",
     "audit_state": "completed_audit",
-      "status_at_utc": "2026-10-12T10:07:52Z",
+      "status_at_utc": "2026-10-12T10:11:55Z",
     "cadence_seconds": 0.5,
     "normal_label": "unadjudicated_observation",
     "normal_training_admission": false,
@@ -270,7 +270,7 @@
     }
   },
   "post_benchmark_runtime_check": {
-    "observed_at_utc": "2026-10-12T10:07:52Z",
+    "observed_at_utc": "2026-10-12T10:11:55Z",
     "cluster_ready_nodes": 6,
     "cluster_total_nodes": 6,
     "kubernetes_version": "v1.34.10",
@@ -283,8 +283,23 @@
     "benchmark_process": "completed; no benchmark process remains",
     "note": "no resolver/collector service was restarted by this task; worker .239 extended-capture restart is consistent with the previously recorded recovery test; worker .238 resolver has one prior restart, its cause was not present in the recent journal lines inspected"
   },
+  "model_only_candidate_freeze": {
+    "path_on_master": "/home/dat/pulse-idle-reference-benchmark-c1-20261012/CANDIDATE_MANIFEST.json",
+    "manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "manifest_generator_sha256": "73817e52a777cec65f4fb32594eaf1c7b1dfd9ca8b5b5b1fa99857f8c0630b45",
+    "candidate_name": "sentinel-pulse-idle-aware-model-only-20261012",
+    "status": "offline_frozen_candidate_for_independent_evaluation",
+    "feature_contract": "pulse-entered-plus-seccomp-skip-idle-v2",
+    "eligible_workload_models": 21,
+    "excluded_degenerate_models": 19,
+    "decision_policy": null,
+    "serving_compatible": false,
+    "automatic_promotion": false,
+    "independent_blind_attack_and_normal_evaluation_complete": false,
+    "prior_holdout_use": "used for reference diagnostics and timing; must not be presented as untouched blind test data"
+  },
   "verification": {
-    "targeted_vm_tests": "5 passed in VM ml-venv",
+    "targeted_vm_tests": "7 passed in VM ml-venv after candidate-freeze utility was added",
     "local_python_compile": "passed",
     "local_pytest_unavailable": "host /usr/bin/python3 lacks numpy; the same focused tests passed in VM ml-venv"
   }
