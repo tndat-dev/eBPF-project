@@ -83,7 +83,7 @@ def test_cleanup_only_owned_popen_child():
     assert len(child.calls) == 4
 
 
-def setup(tmp_path, monkeypatch):
+def build_supervisor_args(tmp_path, monkeypatch):
     source = tmp_path / "source"
     (source / "sentinel_pulse").mkdir(parents=True)
     (source / "sentinel_pulse/recovery_coordinator.py").write_text("frozen")
@@ -100,7 +100,7 @@ def setup(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("failure", ["capacity", "ssh", "existing"])
 def test_preflight_never_starts_child_on_failure(tmp_path, monkeypatch, failure):
-    args = setup(tmp_path, monkeypatch)
+    args = build_supervisor_args(tmp_path, monkeypatch)
     results = {"10.1.16.237": guard.capacity(sample(81 if failure == "capacity" else 50,
                                                             9 if failure == "capacity" else 40))}
     monkeypatch.setattr(guard, "observations", lambda *_: (results, {"worker": "error"} if failure == "ssh" else {}))
@@ -112,7 +112,7 @@ def test_preflight_never_starts_child_on_failure(tmp_path, monkeypatch, failure)
 
 
 def test_live_capacity_violation_retained_and_terminates_only_child(tmp_path, monkeypatch):
-    args = setup(tmp_path, monkeypatch)
+    args = build_supervisor_args(tmp_path, monkeypatch)
     count = [0]
     def observe(*_):
         count[0] += 1
@@ -142,14 +142,14 @@ def test_live_capacity_violation_retained_and_terminates_only_child(tmp_path, mo
 
 @pytest.mark.parametrize("duration,diagnostic", [(180, False), (89881, False), (1801, True), (True, True)])
 def test_duration_rejected_before_launch(tmp_path, monkeypatch, duration, diagnostic):
-    args = setup(tmp_path, monkeypatch)
+    args = build_supervisor_args(tmp_path, monkeypatch)
     monkeypatch.setattr(guard, "observations", lambda *_: pytest.fail("preflight launched"))
     with pytest.raises(ValueError):
         guard.supervise(*args, "new", duration, diagnostic)
 
 
 def test_unknown_storage_timeout_not_reported_as_healthy(tmp_path, monkeypatch):
-    args = setup(tmp_path, monkeypatch)
+    args = build_supervisor_args(tmp_path, monkeypatch)
     calls = [0]
     def observe(*_):
         calls[0] += 1

@@ -12,12 +12,25 @@ import time
 import numpy as np
 
 from .detect import RotatingJsonlFollower
-from .encoding import decode_vector
+from .encoding import decode_vector, schema_digest
 from .idle_candidate import FEATURE_CONTRACT, FEATURE_DIM, IdleCandidateScorer
 from .candidate_policy import CandidatePreviewPolicy
 
 
 EXTENDED_SCHEMA = "sentinel-pulse-extended-feature-v2"
+EXTENDED_FEATURE_SCHEMA = "sentinel-pulse-extended-feature-schema-v2"
+
+
+def is_valid_feature_schema_record(record: dict) -> bool:
+    """Validate and identify the schema header preceding feature rows."""
+    if record.get("schema") != EXTENDED_FEATURE_SCHEMA:
+        return False
+    columns = record.get("columns")
+    if (record.get("telemetry_contract") != FEATURE_CONTRACT
+            or not isinstance(columns, list) or len(columns) != FEATURE_DIM
+            or record.get("feature_schema_sha256") != schema_digest(columns)):
+        raise ValueError("feature schema header does not match frozen candidate contract")
+    return True
 
 
 class SegmentedJsonlFollower:
@@ -139,9 +152,6 @@ class CandidateShadowRuntime:
             raise ValueError("record telemetry contract does not match candidate")
         if record.get("vector_dim") != FEATURE_DIM:
             raise ValueError("feature record must declare a 249-dimensional vector")
-        vector = decode_vector(record)
-        if vector.shape != (FEATURE_DIM,) or not np.isfinite(vector).all():
-            raise ValueError("feature vector must contain 249 finite values")
         end = float(record["window_end"])
         if not np.isfinite(end):
             raise ValueError("window_end must be finite")
@@ -172,6 +182,31 @@ class CandidateShadowRuntime:
                 "serving_compatible": False,
             }
             return base
+        # Workloads without a pinned model still count as observed coverage,
+        # but decoding 249 floats and maintaining history cannot change their
+        # result. Keep every row in the audit stream while avoiding that cost.
+        if str(identity[0]) not in self.scorer.models:
+            return {
+                "schema": "sentinel-pulse-candidate-shadow-score-v1",
+                "status": "candidate-model-unavailable",
+                "candidate_manifest_sha256": self.scorer.manifest_sha256,
+                "workload_key": str(identity[0]),
+                "pod_uid": str(identity[1]),
+                "container_name": str(identity[2]),
+                "workload_revision": str(identity[3]),
+                "cgroup_id": str(identity[4]),
+                "window_end": end,
+                "processed_at": now,
+                "history_available": 0,
+                "history_required": self.history_size + 1,
+                "reset_reason": "no_pinned_workload_model",
+                "alert": False,
+                "policy_applied": False,
+                "serving_compatible": False,
+            }
+        vector = decode_vector(record)
+        if vector.shape != (FEATURE_DIM,) or not np.isfinite(vector).all():
+            raise ValueError("feature vector must contain 249 finite values")
         if prior is not None:
             previous_end, previous_history = prior
             gap = end - previous_end
@@ -239,11 +274,14 @@ def run(features: Path, output: Path, candidate_dir: Path,
     follower = (SegmentedJsonlFollower(features, from_start=from_start)
                 if segmented else RotatingJsonlFollower(features, from_start=from_start))
     try:
-        with output.open("a", encoding="utf-8") as sink:
+        last_flush = last_sync = time.monotonic()
+        with output.open("a", encoding="utf-8", buffering=64 * 1024) as sink:
             while True:
                 line = follower.readline()
                 try:
                     record = json.loads(line)
+                    if is_valid_feature_schema_record(record):
+                        continue
                     decision = runtime.observe(record)
                     decision["run_id"] = run_id
                 except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
@@ -258,7 +296,15 @@ def run(features: Path, output: Path, candidate_dir: Path,
                         "serving_compatible": False,
                     }
                 sink.write(json.dumps(decision, sort_keys=True, allow_nan=False) + "\n")
-                sink.flush()
+                now = time.monotonic()
+                preview = decision.get("candidate_alert_preview") is True
+                if preview or now - last_flush >= 1.0:
+                    sink.flush()
+                    last_flush = now
+                if now - last_sync >= 5.0:
+                    sink.flush()
+                    os.fsync(sink.fileno())
+                    last_sync = now
     finally:
         follower.close()
 

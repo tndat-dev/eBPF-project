@@ -1,12 +1,13 @@
 import numpy as np
 
-from sentinel_pulse.candidate_shadow import CandidateShadowRuntime
-from sentinel_pulse.encoding import compact_record
+from sentinel_pulse.candidate_shadow import CandidateShadowRuntime, is_valid_feature_schema_record
+from sentinel_pulse.encoding import compact_record, schema_digest
 
 
 class _Scorer:
     manifest_sha256 = "a" * 64
     manifest = {"history_windows": 3}
+    models = {"production/catalog:app": object()}
 
     def __init__(self):
         self.contexts = []
@@ -97,6 +98,24 @@ def test_shadow_rejects_wrong_contract_and_vector_dimension():
         raise AssertionError("wrong vector dimension was accepted")
 
 
+def test_feature_schema_header_is_validated_separately_from_decision_rows():
+    columns = [f"feature_{index}" for index in range(249)]
+    header = {
+        "schema": "sentinel-pulse-extended-feature-schema-v2",
+        "telemetry_contract": "pulse-entered-plus-seccomp-skip-idle-v2",
+        "columns": columns,
+        "feature_schema_sha256": schema_digest(columns),
+    }
+    assert is_valid_feature_schema_record(header)
+    header["feature_schema_sha256"] = "0" * 64
+    try:
+        is_valid_feature_schema_record(header)
+    except ValueError as exc:
+        assert "schema header" in str(exc)
+    else:
+        raise AssertionError("schema drift was accepted")
+
+
 def test_collector_integrity_error_resets_history_and_is_not_scored():
     scorer = _Scorer()
     runtime = CandidateShadowRuntime(scorer)
@@ -110,3 +129,28 @@ def test_collector_integrity_error_resets_history_and_is_not_scored():
     assert result["reset_reason"] == "collector_integrity_error"
     assert result["alert"] is False
     assert scorer.contexts == []
+
+
+def test_unmodeled_workload_is_retained_as_coverage_without_vector_decode():
+    import sentinel_pulse.candidate_shadow as shadow
+
+    scorer = _Scorer()
+    scorer.models = {}
+    runtime = CandidateShadowRuntime(scorer)
+    row = _row(10)
+    row["vector"] = "not-decoded-for-unmodeled-workload"
+    original = shadow.decode_vector
+
+    def fail_decode(_record):
+        raise AssertionError("unmodeled workload should not decode its feature vector")
+
+    shadow.decode_vector = fail_decode
+    try:
+        result = runtime.observe(row, processed_at=20)
+    finally:
+        shadow.decode_vector = original
+
+    assert result["status"] == "candidate-model-unavailable"
+    assert result["reset_reason"] == "no_pinned_workload_model"
+    assert result["workload_key"] == "production/catalog:app"
+    assert result["alert"] is False

@@ -44,9 +44,12 @@ và được xác nhận tải đủ 21 model trên cả ba worker.
 
 ## Kiểm chứng code
 
-Lần test mới nhất: **1.128 passed, 7 skipped, 20 subtests passed** trong toàn
-bộ repo; riêng ba module bundle, policy và shadow có **14 passed**. Đây là test
-trong workspace, không phải bằng chứng runtime đã triển khai lên worker.
+Ngày 13/10/2026, toàn bộ repo đạt **1.130 passed, 7 skipped**. Test riêng
+candidate shadow đạt **6 passed**. Thay đổi mới giữ record của workload không
+có model ở trạng thái `candidate-model-unavailable` nhưng bỏ decode vector
+không cần thiết; output được flush theo lô mỗi giây và `fsync` tối đa mỗi 5
+giây. Decision/preview vẫn ghi từng dòng; không thay candidate, policy hay
+ngưỡng. Đây là test local, chưa phải kiểm thử runtime trên worker.
 
 ## Trạng thái cluster
 
@@ -63,22 +66,35 @@ systemd kết thúc nó theo giới hạn 180 giây riêng của smoke. Không t
 là canary thành công. Đã xác nhận `ProtectSystem=full` vẫn cho phép ghi vào
 `/var/lib` qua `ReadWritePaths`.
 
-Tốc độ ghi smoke khoảng **22.7 MB/phút**, tương đương gần 33 GB/24 giờ nếu giữ
-nguyên tốc độ. Runbook mới đặt hard cap **70 GiB/node** và dự trữ **12 GiB free**;
-worker có ít dung lượng nhất vẫn đủ cho budget + reserve. Khi free space xuống
-dưới reserve, collector đóng segment, ghi `capacity_events.jsonl`, pause (không
-tính là normal exposure), rồi tự tiếp tục từ checkpoint sau khi dung lượng hồi
-phục. Journal được hash-bind vào terminal receipt. Hard cap vẫn có thể kết thúc
-run nếu bị chạm; capacity được đặt cao hơn gấp đôi mức ghi ngoại suy từ smoke,
-nhưng cần theo dõi thực tế và không thể bảo đảm trước mất filesystem/phần cứng.
+Integrated smoke B1 trên worker1 ngày 12/10 đã chạy capture đủ **300.411 giây**:
+48,462 feature rows, 47,642 eligible rows, 0 lỗi và 112,446,798 byte. Ngoại suy
+từ riêng capture là khoảng **32.3 GB/24 giờ/node**; đây là ước tính từ 5 phút,
+không phải dung lượng thực đo một ngày. Shadow ghi 48,463 decision rows tới
+khi smoke kết thúc; có 31,752 `candidate-model-unavailable`, 16,464 scored, 246
+warming và một schema header bị nhầm thành rejected. Schema header đã được sửa
+để validate rồi bỏ qua. Tại mẫu giữa lần chạy, event-age p95/p99 khoảng
+**22.18/23.29 giây** và backlog tăng; lần smoke cuối đã bắt kịp capture nhưng
+chưa đủ để chứng minh latency ổn định. Có 130 preview dương trong 16,464 scored
+row; chưa adjudicate nên không gọi đây là false positive.
 
-Installer và systemd pair boot-persistent vừa được thêm nhưng **chưa cài/chưa
-mở run 24 giờ**. Cần hoàn tất integrated smoke 5 phút để xác nhận shadow nhận
-feature rows khi capture còn chạy, rồi mới cài cùng run ID trên cả ba worker.
-Candidate vẫn là model-only; `candidate_alert_preview` chỉ là cờ shadow, không
-phải alert production. Giữ nguyên preview/alert và khoảng degraded để
-adjudicate sau soak; không tune candidate trong lúc đo này. V7 và campaign
-khác không bị thay đổi.
+Ngày 13/10, kết nối SSH tới worker1 bị từ chối xác thực với thông tin truy cập
+hiện có. Do đó chưa xác nhận được trạng thái unit/soak live, cũng chưa thể
+triển khai tối ưu shadow. Không có bằng chứng soak 24 giờ đã được mở. B1 là
+smoke tích hợp 5 phút, không phải normal soak và không dùng tính confusion
+matrix.
+
+Runbook đặt hard cap capture **70 GiB/node** và reserve **12 GiB free**. Khi
+free space thấp, collector đóng segment, ghi `capacity_events.jsonl`, pause
+(không tính normal exposure), rồi tiếp tục từ checkpoint sau phục hồi. Hard cap
+nếu chạm sẽ tạo `completed_with_capacity_limit`, không phải hoàn tất đủ 24 giờ;
+cần quan sát tốc độ thực khi SSH khôi phục. Trước soak cần deploy source đã
+test, chạy lại integrated smoke 5 phút, kiểm tra decision-age không tăng dần,
+schema header không bị reject, preview được giữ lại và đo tăng trưởng đĩa của
+cả capture lẫn shadow.
+
+Candidate vẫn model-only; preview không phải alert production. Không tune
+candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
+adjudicate sau thu thập. V7 và campaign khác không bị thay đổi.
 
 ## Chạy thủ công trên feature stream riêng
 
