@@ -35,6 +35,11 @@ Kiểm tra SSH chỉ đọc trên master `10.1.16.234` lúc **21:00 ICT, 12/10/2
 10-second window), không phải candidate Pulse này. C2 đang chạy nền tại
 **306/608 workload-variant fits**, không bị dừng hay chỉnh sửa.
 
+Snapshot ba worker: available RAM lần lượt khoảng **24,4 / 37,1 / 27,4 GiB**
+(worker1/worker3/worker4), disk trống khoảng **160,9 / 295,9 / 115,7 GiB**.
+Worker4 đang dùng 81% filesystem nhưng còn hơn 100 GiB; đây là lý do vẫn cần
+capacity guard cho capture, không phải bằng chứng DiskPressure.
+
 Candidate hiện có manifest model-only (`decision_policy=null`,
 `serving_compatible=false`). Vì thế **chưa mở candidate canary, soak mới hay
 blind attack mới**. Những kết quả baseline đã xem trước đây không được tái dùng
