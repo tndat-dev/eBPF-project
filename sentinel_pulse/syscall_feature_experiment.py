@@ -140,6 +140,71 @@ def utc_now():
     return datetime.now(timezone.utc).isoformat()
 
 
+def atomic_bytes(path, payload):
+    """Create a model artifact atomically without replacing prior evidence."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f".{path.name}.tmp-{os.getpid()}")
+    try:
+        with temporary.open("xb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.link(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def write_model_manifest(output, start, results, terminal):
+    """Seal all fitted variant artifacts after a complete successful attempt."""
+    if terminal.get("state") != "completed" or terminal.get("errors"):
+        return None
+    entries = {}
+    for workload, row in sorted(results.get("workloads", {}).items()):
+        variants = row.get("variants", {})
+        if len(variants) != 32:
+            raise ValueError(f"incomplete variant set for {workload}")
+        entries[workload] = {}
+        for variant, record in sorted(variants.items()):
+            artifact_name = record.get("model_artifact")
+            if record.get("status") != "measured" or not artifact_name:
+                raise ValueError(f"missing fitted model for {workload}/{variant}")
+            artifact_path = Path(artifact_name)
+            if artifact_path.parts != ("models", artifact_path.name):
+                raise ValueError("variant model path is not a plain filename")
+            artifact = output / artifact_path
+            verify_sha256(artifact, record["model_sha256"])
+            columns = record["masked_columns"]
+            entries[workload][variant] = {
+                "artifact": f"models/{artifact_name}",
+                "sha256": record["model_sha256"],
+                "bytes": artifact.stat().st_size,
+                "masked_columns": columns,
+                "masked_columns_sha256": hashlib.sha256(
+                    json.dumps(columns, separators=(",", ":")).encode()
+                ).hexdigest(),
+            }
+    manifest = {
+        "schema": "sentinel-pulse-syscall-variant-models-v1",
+        "evidence_class": "development_artifacts_for_preregistered_independent_evaluation",
+        "start_sha256": sha256_file(output / "START.json"),
+        "results_sha256": sha256_file(output / "RESULTS.json"),
+        "training_manifest_sha256": start["input_sha256"]["manifest.json"],
+        "training_dataset_sha256": start["input_sha256"]["features.jsonl"],
+        "training_contract_sha256": start["input_sha256"]["training-contract.json"],
+        "feature_dim": 249,
+        "history": start["history"],
+        "alpha": start["alpha"],
+        "workloads": entries,
+        "blind_attack_data_used": False,
+        "automatic_promotion": False,
+    }
+    if len(entries) != len(start["workloads"]):
+        raise ValueError("variant model manifest workload coverage is incomplete")
+    atomic_json(output / "VARIANT_MODEL_MANIFEST.json", manifest)
+    return manifest
+
+
 def validate_proxy_roundoff(old, current, columns):
     """Allow only float64 reduction roundoff, never a changed selection.
 
@@ -201,6 +266,16 @@ def load_checkpoint(parent, start):
                 raise ValueError("checkpoint unexpected variant/status")
             if record["status"] == "error":
                 continue  # old error stays in the parent; retry in the child
+            # The previous 608-fit output stored scores and an estimator-size
+            # measurement, not reusable fitted model bytes. Never carry those
+            # rows as if the classifiers were available for blind evaluation.
+            model_name = record.get("model_artifact")
+            if not model_name:
+                continue
+            model_path = Path(model_name)
+            if model_path.parts != ("models", model_path.name):
+                raise ValueError("checkpoint model path mismatch")
+            verify_sha256(parent / model_path, record.get("model_sha256", ""))
             expected_columns = [list(PulseFeatureBuilder().columns)[i] for i in variants[variant]]
             if record["masked_columns"] != expected_columns:
                 raise ValueError("checkpoint mask mismatch")
@@ -260,6 +335,7 @@ def run(inputs, output, resume_from=None):
         "training_fraction": TRAIN_FRACTION, "history": manifest["history_windows"],
         "alpha": manifest["alpha"], "window_seconds": manifest["window_seconds"],
         "variants_per_workload": 32,
+        "model_artifacts_saved": True,
         "workloads": sorted(analysis["workloads"]),
         "missing_holdout_workloads": sorted(set(manifest["workloads"]) - set(analysis["workloads"])),
         "expected_fits": len(analysis["workloads"]) * 32,
@@ -280,6 +356,10 @@ def run(inputs, output, resume_from=None):
             destination = output / record["prediction_artifact"]
             shutil.copyfile(resume_from / record["prediction_artifact"], destination)
             verify_sha256(destination, record["prediction_sha256"])
+            model_name = record["model_artifact"]
+            model_destination = output / model_name
+            shutil.copyfile(resume_from / model_name, model_destination)
+            verify_sha256(model_destination, record["model_sha256"])
     atomic_json(output / "START.json", start)
     status = {"state": "loading_training", "completed_fits": receipt["reused_fits"] if receipt else 0,
               "reused_fits": receipt["reused_fits"] if receipt else 0, "expected_fits": start["expected_fits"], "errors": []}
@@ -330,6 +410,10 @@ def run(inputs, output, resume_from=None):
                         evidence_name = hashlib.sha256(key.encode()).hexdigest()[:16] + "__" + variant + ".npz"
                         prediction = output / evidence_name
                         np.savez_compressed(prediction, score=score, conformal_p=conformal, anomalous=anomaly)
+                        model_name = f"{hashlib.sha256(key.encode()).hexdigest()[:16]}__{variant}.pkl"
+                        model_payload = pickle.dumps(model, protocol=5)
+                        model_path = output / "models" / model_name
+                        atomic_bytes(model_path, model_payload)
                         result["variants"][variant] = {
                             "status": "measured", "masked_columns": [columns[i] for i in indices],
                             "heldout_contexts": len(x), "raw_anomalous_contexts": int(anomaly.sum()),
@@ -337,6 +421,9 @@ def run(inputs, output, resume_from=None):
                             "host_inference_ms": {"samples": len(timings), "p50": float(np.percentile(timings, 50)),
                                                   "p95": float(np.percentile(timings, 95)), "p99": float(np.percentile(timings, 99))},
                             "fit": fit, "serialized_estimator_bytes": len(pickle.dumps(model.estimator, protocol=5)),
+                            "model_artifact": f"models/{model_name}",
+                            "model_sha256": sha256_file(model_path),
+                            "model_bytes": len(model_payload),
                             "prediction_artifact": evidence_name, "prediction_sha256": sha256_file(prediction),
                             "policy_alerts": None, "TP": None, "FP": None, "TN": None, "FN": None,
                             "precision": None, "recall": None,
@@ -362,9 +449,27 @@ def run(inputs, output, resume_from=None):
     finally:
         status.update(state=terminal, updated_at=utc_now())
         atomic_json(output / "STATUS.json", status)
-        atomic_json(output / "TERMINAL.json", {"state": terminal, "ended_at": utc_now(),
-                    "start_sha256": sha256_file(output / "START.json"), "completed_fits": status["completed_fits"],
-                    "expected_fits": status["expected_fits"], "errors": status["errors"], "automatic_promotion": False})
+        terminal_record = {
+            "state": terminal,
+            "ended_at": utc_now(),
+            "start_sha256": sha256_file(output / "START.json"),
+            "completed_fits": status["completed_fits"],
+            "expected_fits": status["expected_fits"],
+            "errors": status["errors"],
+            "automatic_promotion": False,
+        }
+        if terminal == "completed":
+            try:
+                write_model_manifest(output, start, results, terminal_record)
+            except Exception as exc:
+                terminal_record["state"] = "failed"
+                terminal_record["errors"].append({
+                    "exception": type(exc).__name__,
+                    "message": f"variant model manifest finalization failed: {exc}",
+                })
+                status.update(state="failed", errors=terminal_record["errors"])
+                atomic_json(output / "STATUS.json", status)
+        atomic_json(output / "TERMINAL.json", terminal_record)
     return status
 
 
