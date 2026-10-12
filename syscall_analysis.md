@@ -196,4 +196,20 @@ Importance cộng qua bốn vị trí temporal, tính bằng impurity importance
 
 Full raw-model anomaly rate của search-recommendation là **157/1.024 = 15,33%**, Redis Sentinel **3,22%**, RabbitMQ **0,098%**. Đây là dấu hiệu cần phân tích drift và hiệu quả gate; chưa thể nói hệ thống end-to-end có FPR tương ứng. Bỏ nhóm feature đôi khi giảm anomalous rate, nhưng cũng có thể làm giảm khả năng phát hiện attack. Không lựa chọn biến thể chỉ vì nó cho ít anomaly trên normal holdout.
 
+Tổng hợp mô tả trên đủ **19 workload × 1.024 context = 19.456 context cho mỗi biến thể** cho thấy raw-model anomalous contexts như sau:
+
+| Biến thể | Raw anomalous contexts / 19.456 | Tỷ lệ gộp mô tả |
+|---|---:|---:|
+| Full | 274 | 1,41% |
+| Bỏ `log_count` | 335 | 1,72% |
+| Bỏ `ratio` | 252 | 1,29% |
+| Bỏ `rolling_mean` | 250 | 1,28% |
+| Bỏ `rolling_std` | 228 | 1,17% |
+| Bỏ `security` | 305 | 1,57% |
+| Bỏ `syscall_bin` | 354 | 1,82% |
+| Bỏ `transition_bin` | 169 | 0,87% |
+| Bỏ `volume` | 259 | 1,33% |
+
+> Đây là tỷ lệ gộp mô tả của **raw model trên normal holdout**, không phải FPR của alert sau policy và không phải ước lượng độc lập: các context thời gian liên tiếp có tương quan, đồng thời mỗi workload được lấy cùng số context. Không dùng bảng này để chọn biến thể hay tuyên bố bỏ `transition_bin` tốt hơn; cần so sánh paired trên blind attack mới và normal test chưa xem, kèm bootstrap theo block/trial.
+
 **Chưa đo:** blind attack recall của từng biến thể, precision end-to-end đã adjudication, latency kernel-to-alert và confidence interval của so sánh attack. Kết quả hiện tại cung cấp bằng chứng tần suất và độ nhạy, chưa đủ chứng minh 29 syscall là tập tối ưu cho paper.
