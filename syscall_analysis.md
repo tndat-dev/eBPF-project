@@ -106,6 +106,8 @@ Gộp 19 workload, bản full có **274 raw anomaly / 19.456 context (1,4083%)**
 
 Kế hoạch máy đọc được: [syscall-selection-evaluation-v1.json](sentinel_pulse/protocol/syscall-selection-evaluation-v1.json). **Đây là kế hoạch chưa chạy**, không phải kết quả đã đo hay registration hồi tố cho capture đã xem.
 
+Đã thêm collector pilot riêng để có thể thu histogram theo syscall ID chính xác, thay vì cố suy ra ID từ hash bins: [runbook pilot](sentinel_pulse/SYSCALL_SELECTION_PILOT.md). Build đã xác minh trên worker3, nhưng probe **chưa attach**, chưa có dữ liệu tần suất mới hay overhead measurement. Không xem việc biên dịch thành công là kết quả thực nghiệm.
+
 1. Thu normal mới với histogram exact theo từng syscall ID trên từng workload/container, có nhãn traffic thật cho steady/toolmix/peak/burst/recovery. Không thể giải mã histogram đầy đủ từ hash bins cũ. Collector bổ sung chỉ gắn trong run riêng sau soak hiện hành; đo CPU/RAM/map integrity và ảnh hưởng throughput trước thu dài.
 2. Tách dữ liệu lựa chọn feature, train/calibration normal và evaluation chưa xem theo thời gian/nguồn/revision. Xếp hạng tần suất và chọn top-K chỉ trên dữ liệu phát triển. Không dùng normal test hoặc attack để chọn syscall/threshold.
 3. Giữ bản full29; train lại các bản bỏ nhóm, 29 bản bỏ kênh tường minh từng syscall, bản không có kênh tường minh, top-K tần suất + rare-security whitelist và candidate full-ID. Các bản dùng cùng normal source/split/history/alpha/seed/hyperparameter; calibration riêng chỉ từ calibration normal.
