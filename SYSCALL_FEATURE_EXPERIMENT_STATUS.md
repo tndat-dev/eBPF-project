@@ -1,6 +1,48 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật: 08/10/2026. Job **đã hoàn thành 608/608 fit** trên **systemd hệ thống VM `dat@10.1.16.234`**, không phụ thuộc host/terminal/SSH. Đây là exploratory normal-only, chưa phải xác nhận blind recall.
+Cập nhật trạng thái: **12/10/2026**. Job exploratory normal-only trước đó đã
+hoàn thành **608/608 fit** trên VM `.234`; kết quả này chưa phải blind recall.
+
+## Audit phục vụ blind evaluation — 12/10/2026
+
+Đã đọc trực tiếp output `/home/dat/sentinel-pulse-syscall-feature-c1/runs/attempt-000002`
+trên VM: có đủ 608 prediction `.npz` (thư mục tổng **9,9 MB**) nhưng **không có
+classifier pickle nào**. Trường `serialized_estimator_bytes` chỉ là kích thước
+ước lượng từ `pickle.dumps(estimator)` trong lúc fit; tổng **2.335.533.494 byte**
+là ước lượng cho estimator, không phải model bundle đã lưu. `train_seconds` cộng
+trên 608 fit cũ là **19.501,4 giây tích lũy**, không phải wall-clock duration.
+
+Do đó chưa thể đem 608 biến thể cũ chạy blind từ output hiện có. Source host đã
+được sửa để mỗi fit mới lưu đầy đủ `PulseExtraTrees` cùng SHA-256; checkpoint
+chỉ mang sang fit có model artifact thật và bỏ qua score-only fit cũ. Khi đủ
+608 artifact, job sẽ tạo `VARIANT_MODEL_MANIFEST.json` bind workload, variant,
+mask, file hash, train/calibration dataset và fit run. Đây vẫn là bundle phát
+triển, không phải serving artifact hay promotion.
+
+Regression syscall-feature/campaign: **34 test pass** trên virtualenv tạm của
+host. Chưa chạy lại refit 608 biến thể trên VM; chưa có file model bundle,
+normal test mới, attack binary/case blind mới, confusion matrix mới hay latency
+kernel-to-alert cho từng biến thể.
+
+Unit riêng cho lần refit có lưu artifact đã được thêm tại
+[`pulse-syscall-variant-models-c2.service`](sentinel_pulse/systemd/pulse-syscall-variant-models-c2.service).
+Nó dùng VM venv đã có, CPU quota 150%, RAM tối đa 4 GiB, output riêng trên NFS
+và resume từ score-only attempt cũ nhưng không tái dùng các fit đó. Unit chưa
+được cài/bật trên VM tại thời điểm cập nhật file này.
+
+SSH snapshot cùng ngày: sáu node Kubernetes đều `Ready`, nhưng namespace
+`production` còn pod trạng thái `Evicted`, `Error`, `ContainerStatusUnknown`;
+các bản ghi cũ không được coi là workload bình thường hoặc xóa để làm sạch
+kết quả. Trước attack phải đăng ký lại exact target pod/UID/container trên
+những replica hiện Ready và ghi health context. Không có attack nào được tiêm
+trong lượt kiểm tra này.
+
+Đánh giá đúng cần hai mức: (1) freeze 608 model artifact, capture một bộ normal
+độc lập và blind attack mới, replay **cùng trace/seed/rate** qua mọi biến thể
+để so sánh paired confusion matrix; (2) đo **kernel-to-alert thực tế** bằng
+live execution từng biến thể với policy/runtime cố định. Offline replay có thể
+đo inference nhưng không được gọi là kernel-to-alert. Tập blind đã mở không
+được dùng để tune rồi báo lại như xác nhận độc lập.
 
 ## Phạm vi đã triển khai
 

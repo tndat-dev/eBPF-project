@@ -6,7 +6,8 @@ import json
 
 from sentinel_pulse.features import PulseFeatureBuilder, SENSITIVE_IDS, TRACKED_SYSCALLS
 from sentinel_pulse.syscall_feature_experiment import (
-    explicit_channels, load_checkpoint, masked_contexts, training_frequency_proxy, validate_proxy_roundoff, variant_masks,
+    explicit_channels, load_checkpoint, masked_contexts, training_frequency_proxy,
+    validate_proxy_roundoff, variant_masks, write_model_manifest,
 )
 
 
@@ -119,8 +120,13 @@ def checkpoint_fixture(tmp_path):
     artifact=hashlib.sha256(key.encode()).hexdigest()[:16]+'__full.npz'
     np.savez_compressed(tmp_path/artifact,score=np.array([.1,.9]),
                         conformal_p=np.array([.9,.001]),anomalous=np.array([False,True]))
+    model_path=tmp_path/'models'/(hashlib.sha256(key.encode()).hexdigest()[:16]+'__full.pkl')
+    model_path.parent.mkdir()
+    model_path.write_bytes(b'fixture model bytes')
     records={'full':{'status':'measured','masked_columns':[],
              'prediction_artifact':artifact,'prediction_sha256':sha256_file(tmp_path/artifact),
+             'model_artifact':str(model_path.relative_to(tmp_path)),
+             'model_sha256':sha256_file(model_path),
              'heldout_contexts':2,'raw_anomalous_contexts':1},
              'drop_read':{'status':'error','message':'preserved in parent'}}
     result={'schema':'sentinel-pulse-explicit-syscall-experiment-results-v1',
@@ -133,15 +139,55 @@ def checkpoint_fixture(tmp_path):
 
 def test_resume_reuses_verified_successes_and_preserves_original_files(tmp_path):
     start,_=checkpoint_fixture(tmp_path)
-    before={p.name:p.read_bytes() for p in tmp_path.iterdir()}
+    before={str(p.relative_to(tmp_path)):p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
     carried,receipt=load_checkpoint(tmp_path,start)
     assert receipt['reused_fits']==1
     assert set(carried['test/workload:app']['variants'])=={'full'}
     assert carried['test/workload:app']['variants']['full']['carried_from_source_commit']=='parent'
-    assert before=={p.name:p.read_bytes() for p in tmp_path.iterdir()}
+    assert before=={str(p.relative_to(tmp_path)):p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
 
 
-@pytest.mark.parametrize('change',['software','input','source','hash','mask','path','result_start','ranking','schema'])
+def test_resume_does_not_reuse_old_score_only_fit_without_model_artifact(tmp_path):
+    start, result = checkpoint_fixture(tmp_path)
+    del result['workloads']['test/workload:app']['variants']['full']['model_artifact']
+    del result['workloads']['test/workload:app']['variants']['full']['model_sha256']
+    (tmp_path/'RESULTS.json').write_text(json.dumps(result))
+
+    carried, receipt = load_checkpoint(tmp_path, start)
+
+    assert receipt['reused_fits'] == 0
+    assert carried['test/workload:app']['variants'] == {}
+
+
+def test_variant_manifest_requires_all_checksummed_models(tmp_path):
+    key = 'test/workload:app'
+    feature_columns = columns()
+    proxy = {name: 0.0 for name in TRACKED_SYSCALLS.values()}
+    masks, _, _ = variant_masks(feature_columns, proxy)
+    (tmp_path/'models').mkdir()
+    (tmp_path/'START.json').write_text(json.dumps({'input_sha256': {
+        'manifest.json': 'a'*64, 'features.jsonl': 'b'*64,
+        'training-contract.json': 'c'*64}, 'history': 3, 'alpha': .001,
+        'workloads': [key]}))
+    (tmp_path/'RESULTS.json').write_text('{}')
+    variants = {}
+    for name, slots in masks.items():
+        filename = f"{hashlib.sha256(key.encode()).hexdigest()[:16]}__{name}.pkl"
+        artifact = tmp_path/'models'/filename
+        artifact.write_bytes(name.encode())
+        variants[name] = {'status': 'measured', 'model_artifact': f'models/{filename}',
+                          'model_sha256': hashlib.sha256(artifact.read_bytes()).hexdigest(),
+                          'masked_columns': [feature_columns[i] for i in slots]}
+    result = {'workloads': {key: {'variants': variants}}}
+    terminal = {'state': 'completed', 'errors': []}
+
+    manifest = write_model_manifest(tmp_path, json.loads((tmp_path/'START.json').read_text()), result, terminal)
+
+    assert len(manifest['workloads'][key]) == 32
+    assert manifest['automatic_promotion'] is False
+
+
+@pytest.mark.parametrize('change',['software','input','source','hash','model_hash','mask','path','model_path','result_start','ranking','schema'])
 def test_resume_rejects_unbound_or_tampered_checkpoint(tmp_path,change):
     start,result=checkpoint_fixture(tmp_path);expected=copy.deepcopy(start)
     variant=result['workloads']['test/workload:app']['variants']['full']
@@ -149,8 +195,10 @@ def test_resume_rejects_unbound_or_tampered_checkpoint(tmp_path,change):
     elif change=='input':expected['input_sha256']['data']='other'
     elif change=='source':expected['source_module_sha256']['model.py']='other'
     elif change=='hash':variant['prediction_sha256']='0'*64
+    elif change=='model_hash':variant['model_sha256']='0'*64
     elif change=='mask':variant['masked_columns']=['log_count:read']
     elif change=='path':variant['prediction_artifact']='../outside.npz'
+    elif change=='model_path':variant['model_artifact']='../outside.pkl'
     elif change=='result_start':result['start_sha256']='0'*64
     elif change=='ranking':result['workloads']['test/workload:app']['training_rank'].reverse()
     else:result['schema']='other'
