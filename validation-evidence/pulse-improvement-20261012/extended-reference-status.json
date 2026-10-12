@@ -212,7 +212,7 @@
       "expected_workload_keys": 40,
       "current_workload_key": "production/aims-waypoint:pod-slice",
       "process_restarts": 0,
-      "process_rss_bytes_approx": 1760000000,
+      "process_rss_bytes_approx": 1718493184,
       "process_cpu_percent_approx": 47,
       "normal_label_adjudicated": false,
       "attack_data_used_for_fit": false,

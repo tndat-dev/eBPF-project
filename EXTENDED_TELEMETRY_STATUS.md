@@ -121,8 +121,10 @@ cộng lại dữ liệu đó để tránh double-count. Downtime không cộng 
 Ngân sách output **4 GiB/node**; đầy budget thì giữ dữ liệu và kết thúc với
 `completed_with_capacity_limit`, không xóa evidence. Root còn dưới **2 GiB**
 sẽ chờ hồi phục, không ghi tiếp làm đầy node. Không giữ trống 64 GiB.
-Khi kiểm tra, worker còn khoảng **161 / 113 / 95 GiB**. Không cam kết đủ 2 giờ
-nếu budget/hạ tầng không cho phép.
+Snapshot SSH 13:27 ICT: filesystem `/` còn khoảng **142 / 100 / 90 GiB** trên
+`.237 / .238 / .239`; RAM `MemAvailable` lần lượt khoảng **23 / 26 / 36 GiB**.
+Đây là trạng thái tức thời trong lúc AIMS chạy, không phải dung lượng được
+reserve cho experiment. Không cam kết thời lượng nếu budget/hạ tầng thay đổi.
 
 ## Candidate tham chiếu và capture idle-aware follow-up
 
