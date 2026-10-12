@@ -19,6 +19,9 @@ def test_extended_skip_is_counted_and_has_new_feature_contract():
     stream=ExtendedFeatureStream();assert stream.snapshot(raw(),10,META,10.1) is None
     row,schema=stream.snapshot(raw(2),10.5,META,10.6)
     assert row['schema']==SCHEMA and row['exact_counts']['setns']==2
+    assert row['exact_counts']['seccomp_skipped_or_emulated']==2
+    # The skip signal overlaps the syscall count; do not add it to total again.
+    assert row['exact_total']==2
     assert len(decode_vector(row))==249
     assert 'seccomp_denied' not in schema['columns']
     assert decode_vector(row)[schema['columns'].index('seccomp_skipped_or_emulated')]==2

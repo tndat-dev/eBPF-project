@@ -57,6 +57,14 @@ class ExtendedFeatureStream:
         if skipped- (int(previous[1][-1]) if previous is not None else skipped)>feature.exact_total:
             raise ValueError('extended skip delta exceeds total delta')
         record=feature.as_record();record['schema']=IDLE_SCHEMA if self.include_idle else SCHEMA
+        # Keep the fexit-observed skip count as explicit decision metadata.
+        # It overlaps with the syscall-ID counts/bins by design and must not
+        # be summed into exact_total a second time. The neutral name reflects
+        # that -1 from __seccomp_filter can represent skip/emulation, not only
+        # a confirmed denial.
+        record['exact_counts']['seccomp_skipped_or_emulated'] = max(
+            0, skipped - (int(previous[1][-1]) if previous is not None else skipped)
+        )
         record.update(telemetry_contract=self.feature_contract,normal_label='unadjudicated_observation',
                       pod_name=item.get('pod_name'),pod_uid=item['pod_uid'],node_name=item['node_name'],
                       container_name=item['container_name'],workload_revision=item['workload_revision'],

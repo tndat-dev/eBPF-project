@@ -42,6 +42,22 @@ def test_policy_rejects_unknown_security_field(tmp_path):
         load_decision_policy(path)
 
 
+def test_extended_seccomp_skip_signal_is_an_explicit_corroboration_field(tmp_path):
+    policy = json.loads(SCORE_POLICY.read_text())
+    policy["same_window_corroboration"]["security_activity_fields"].append(
+        "seccomp_skipped_or_emulated"
+    )
+    path = tmp_path / "extended-policy.json"
+    path.write_text(json.dumps(policy))
+    loaded, _ = load_decision_policy(path)
+    confirmed, mass, fields = corroborate(
+        loaded, {"seccomp_skipped_or_emulated": 1}
+    )
+    assert confirmed is True
+    assert mass == 1
+    assert fields == {"seccomp_skipped_or_emulated": 1}
+
+
 def test_policy_rejects_missing_exact_counts_and_negative_values():
     policy, _ = load_decision_policy(POLICY)
     with pytest.raises(ValueError, match="requires exact"):

@@ -31,6 +31,10 @@ ALLOWED_SECURITY_FIELDS = frozenset(
         "unshare",
         "setns",
         "seccomp",
+        # Available only under the separately versioned extended telemetry
+        # contract; it may overlap exact syscall counts and is not itself an
+        # attack/denial label.
+        "seccomp_skipped_or_emulated",
     }
 )
 
