@@ -6,11 +6,11 @@ from sentinel_pulse.integrity import sha256_file
 from test_sentinel_pulse_extended_capture import raw,META
 
 
-def fixture(tmp_path,frames=16):
+def fixture(tmp_path,frames=16,idle=False):
     directory=tmp_path/'capture';directory.mkdir();output=tmp_path/'audit';output.mkdir()
-    stream=ExtendedFeatureStream();raw_rows=[];features=[];header=False
+    stream=ExtendedFeatureStream(include_idle=idle);raw_rows=[];features=[];header=False
     for i in range(frames):
-        boundary=10+i*.5;row=raw(i)
+        boundary=10+i*.5;row=raw(0 if idle else i)
         raw_rows.extend([row,dict(type='snapshot_end',observed_at=boundary,targets=1,snapshots=1)])
         result=stream.snapshot(row,boundary,META,boundary+.1)
         if result:
@@ -83,3 +83,16 @@ def test_partial_next_raw_frame_is_retained_without_fail_or_extra_feature(tmp_pa
     assert report['all_features_replayed'] and report['totals']['replayed_feature_rows']==15
     assert report['totals']['trailing_unclosed_raw_snapshots']==1
     assert report['trailing_raw_not_admitted'] is True
+
+
+def test_idle_aware_replay_keeps_verified_zero_activity_not_gaps(tmp_path):
+    directory,output=fixture(tmp_path,idle=True)
+    report=audit_segment(directory,output,include_idle=True)
+    assert report['all_features_replayed'] and report['totals']['replayed_feature_rows']==15
+    assert report['workloads']['production/test:app']['eligible_rows']==5
+    assert report['workloads']['production/test:app']['exact_total']==0
+
+
+def test_legacy_replay_does_not_silently_consume_idle_schema(tmp_path):
+    directory,output=fixture(tmp_path,idle=True)
+    with pytest.raises(ValueError,match='unexpected stored feature'):audit_segment(directory,output)

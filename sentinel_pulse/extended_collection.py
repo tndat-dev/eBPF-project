@@ -11,13 +11,13 @@ import signal
 import subprocess
 import time
 
-from .extended_capture import ExtendedFeatureStream,CONTRACT
+from .extended_capture import ExtendedFeatureStream,CONTRACT,IDLE_CONTRACT
 from .integrity import sha256_file
 from .recovery_worker_probe import clean_source
 from .run_500ms_blind_matrix import atomic_json
 
 
-def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None):
+def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,include_idle=False):
     commit,files=clean_source(source)
     artifacts={name:sha256_file(build/name) for name in ['pulse_counter_extended_loader','pulse_counter_extended.bpf.o']}
     if proof is None:raise ValueError('integrated collector proof is required')
@@ -28,7 +28,8 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None):
             or any(proof_start.get('artifact_sha256',{}).get(k)!=v for k,v in artifacts.items())):
         raise ValueError('proof validity, kernel or compiled artifacts differ')
     binding=dict(schema='pulse-extended-collection-start-v1',source_commit=commit,source_files=files,
-        artifacts=artifacts,telemetry_contract=CONTRACT,interval_ms=500,
+        artifacts=artifacts,telemetry_contract=IDLE_CONTRACT if include_idle else CONTRACT,interval_ms=500,
+        raw_telemetry_contract=CONTRACT,include_idle_windows=include_idle,rolling_windows=10,
         kernel=platform.release(),proof_start_sha256=sha256_file(proof/'START.json'),
         proof_result_sha256=sha256_file(proof/'RESULTS.json'),
         requested_boundary_observation_seconds=seconds,maximum_bytes=maximum_bytes,
@@ -67,7 +68,7 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None):
         directory=root/'segments'/f"s{status['segments']+1:04d}"
         while directory.exists():status['segments']+=1;directory=root/'segments'/f"s{status['segments']+1:04d}"
         directory.mkdir(parents=True);status['segments']+=1
-        stream=ExtendedFeatureStream();metadata={};mtime=None;buffer=b'';pending=[];last=None;checkpoint=time.monotonic()
+        stream=ExtendedFeatureStream(include_idle=include_idle);metadata={};mtime=None;buffer=b'';pending=[];last=None;checkpoint=time.monotonic()
         with (directory/'raw.jsonl').open('a') as raw,(directory/'features.jsonl').open('a') as features,\
                 (directory/'observations.jsonl').open('a') as observations,(directory/'loader.stderr').open('ab') as err:
             proc=subprocess.Popen([str(build/'pulse_counter_extended_loader'),'--object',str(build/'pulse_counter_extended.bpf.o'),
@@ -163,12 +164,13 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('source','build','root','proof'):p.add_argument('--'+name,type=Path,required=True)
-    p.add_argument('--seconds',type=int,default=7200);a=p.parse_args()
+    p.add_argument('--seconds',type=int,default=7200)
+    p.add_argument('--idle-aware',action='store_true');a=p.parse_args()
     if not 60<=a.seconds<=86400:raise ValueError('invalid observation duration')
     a.root.mkdir(parents=True,exist_ok=True)
     with (a.root/'collection.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        try:collect(a.source,a.build,a.root,a.seconds,proof=a.proof)
+        try:collect(a.source,a.build,a.root,a.seconds,proof=a.proof,include_idle=a.idle_aware)
         except ValueError as exc:
             atomic_json(a.root/'BLOCKED.json',dict(error=str(exc),automatic_promotion=False));raise SystemExit(65) from exc
 

@@ -1,0 +1,25 @@
+[Unit]
+Description=Single-context timing of frozen Pulse reference models
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/extended-reference-benchmark.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/home/dat/ml-venv/bin/python ${PULSE_REFERENCE_BENCH_SCRIPT} --source /home/dat/eBPF-project-extended-reference-r2-20261008 --experiment /home/dat/pulse-extended-reference-r2-c1-20261008 --output /home/dat/pulse-extended-reference-benchmark-c1-20261012
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartSec=30
+CPUQuota=200%
+MemoryHigh=1G
+MemoryMax=2G
+Nice=15
+UMask=0027
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

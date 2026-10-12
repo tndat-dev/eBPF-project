@@ -1,6 +1,6 @@
 import math
 import pytest
-from sentinel_pulse.extended_capture import ExtendedFeatureStream,CONTRACT,SCHEMA
+from sentinel_pulse.extended_capture import ExtendedFeatureStream,CONTRACT,SCHEMA,IDLE_SCHEMA,IDLE_CONTRACT
 from sentinel_pulse.features import TRACKED_SYSCALLS
 from sentinel_pulse.encoding import decode_vector
 
@@ -54,3 +54,29 @@ def test_idle_boundary_resets_rolling_history_and_json_key_order_is_not_semantic
     assert stream.snapshot(raw(11),16,META,16.1) is None
     row,_=stream.snapshot(raw(12),16.5,META,16.6)
     assert row['history_before']==0 and not row['eligible_for_normal_review']
+
+
+def test_opt_in_observed_idle_windows_are_not_missing_telemetry():
+    stream=ExtendedFeatureStream(include_idle=True)
+    assert stream.snapshot(raw(),10,META,10.1) is None
+    for i in range(1,12):row,schema=stream.snapshot(raw(),10+i*.5,META,10+i*.5+.1)
+    assert row['schema']==IDLE_SCHEMA and row['telemetry_contract']==IDLE_CONTRACT
+    assert schema['schema']=='sentinel-pulse-extended-feature-schema-v2'
+    assert row['exact_total']==0 and row['observed_idle']
+    assert row['history_before']==10 and row['eligible_for_normal_review']
+    assert (decode_vector(row)==0).all()
+
+
+def test_opt_in_idle_never_fabricates_a_row_for_unknown_cgroup_or_gap():
+    stream=ExtendedFeatureStream(include_idle=True)
+    assert stream.snapshot(raw(),10,{},10.1) is None
+    assert stream.snapshot(raw(),10.5,META,10.6) is None
+    assert stream.snapshot(raw(),15,META,15.1) is None
+
+
+def test_idle_history_includes_zero_rates_before_activity():
+    stream=ExtendedFeatureStream(include_idle=True);stream.snapshot(raw(),10,META,10.1)
+    for i in range(1,12):stream.snapshot(raw(),10+i*.5,META,10+i*.5+.1)
+    row,schema=stream.snapshot(raw(4),16,META,16.1)
+    assert not row['observed_idle'] and row['exact_counts']['setns']==4
+    assert decode_vector(row)[schema['columns'].index('rolling_mean:setns')]==0

@@ -71,7 +71,7 @@ def partitions_for(path,cut1,cut2):
             for phase in ('train','calibration','holdout')},dict(counts)
 
 
-def fetch_inputs(root,credential,known_hosts):
+def fetch_inputs(root,credential,known_hosts,audit_root=AUDIT):
     if credential.stat().st_mode&0o077:raise ValueError('SSH credential is not private')
     inputs=root/'inputs';inputs.mkdir(exist_ok=True)
     reports={};paths=[]
@@ -80,7 +80,7 @@ def fetch_inputs(root,credential,known_hosts):
                 '-o','UserKnownHostsFile='+str(known_hosts),'-o','ConnectTimeout=8',
                 '-o','ServerAliveInterval=15','-o','ServerAliveCountMax=3','dat@'+host]
         def read(name):
-            result=subprocess.run(prefix+['cat -- '+shlex.quote(AUDIT+'/'+name)],
+            result=subprocess.run(prefix+['cat -- '+shlex.quote(audit_root+'/'+name)],
                 capture_output=True,timeout=30,check=True)
             return json.loads(result.stdout)
         try:terminal=read('TERMINAL.json')
@@ -93,7 +93,7 @@ def fetch_inputs(root,credential,known_hosts):
             if not dest.exists() or sha256_file(dest)!=data['reference_sha256']:
                 temp=dest.with_suffix('.tmp')
                 with temp.open('wb') as f:
-                    subprocess.run(prefix+['cat -- '+shlex.quote(AUDIT+'/'+segment+'/reference.jsonl')],
+                    subprocess.run(prefix+['cat -- '+shlex.quote(audit_root+'/'+segment+'/reference.jsonl')],
                         stdout=f,stderr=subprocess.PIPE,timeout=900,check=True)
                 if sha256_file(temp)!=data['reference_sha256']:raise ValueError('reference download checksum differs')
                 temp.replace(dest)
@@ -101,7 +101,10 @@ def fetch_inputs(root,credential,known_hosts):
     return dict(reports=reports,reference_files=paths)
 
 
-def build_index(root,inputs):
+def build_index(root,inputs,include_idle=False):
+    schema_name='sentinel-pulse-extended-feature-schema-v2' if include_idle else 'sentinel-pulse-extended-feature-schema-v1'
+    record_schema='sentinel-pulse-extended-feature-v2' if include_idle else 'sentinel-pulse-extended-feature-v1'
+    contract='pulse-entered-plus-seccomp-skip-idle-v2' if include_idle else 'pulse-entered-plus-seccomp-skip-v1'
     if (root/'INDEX.json').exists():
         index=json.loads((root/'INDEX.json').read_text())
         for item in index['workloads'].values():
@@ -114,10 +117,10 @@ def build_index(root,inputs):
             with Path(item['path']).open() as f:
                 for line in f:
                     row=json.loads(line)
-                    if row['schema']=='sentinel-pulse-extended-feature-schema-v1':
+                    if row['schema']==schema_name:
                         if columns is not None and columns!=row['columns']:raise ValueError('reference schema differs by node')
                         columns=row['columns'];continue
-                    if (row['schema']!='sentinel-pulse-extended-feature-v1' or row.get('normal_label')!='unadjudicated_observation'
+                    if (row['schema']!=record_schema or row.get('telemetry_contract')!=contract or row.get('normal_label')!='unadjudicated_observation'
                             or row.get('eligible_for_normal_review') is not True):raise ValueError('unexpected reference label or admission')
                     key=row['workload_key']
                     if key not in handles:handles[key]=(directory/(hashlib.sha256(key.encode()).hexdigest()+'.tmp')).open('w')
@@ -135,10 +138,11 @@ def build_index(root,inputs):
     atomic_json(root/'INDEX.json',index);return index
 
 
-def run(source,root,credential,known_hosts):
+def run(source,root,credential,known_hosts,include_idle=False):
     commit,files=clean_source(source)
+    audit_root='/var/lib/sentinel-pulse-idle-audit-c1-20261012' if include_idle else AUDIT
     while not (root/'INPUTS.json').exists():
-        try:inputs=fetch_inputs(root,credential,known_hosts)
+        try:inputs=fetch_inputs(root,credential,known_hosts,audit_root)
         except (OSError,EOFError,subprocess.CalledProcessError,subprocess.TimeoutExpired) as exc:
             inputs=None;atomic_json(root/'QUEUE.json',dict(state='waiting_for_worker_audits',error=type(exc).__name__,at_unix=time.time()))
         if inputs is None:
@@ -152,14 +156,14 @@ def run(source,root,credential,known_hosts):
         attack_data_used_for_fit=False,global_time_split=[.7,.15,.15],embargo_seconds=2.,
         history_windows=3,feature_dimensions=249,trees=192,max_depth=16,min_samples_leaf=4,
         seed=73021,interval_budget=.05,horizon_windows=30,automatic_promotion=False,
-        normal_training_admission=False,serving_manifest_compatible=False,
+        normal_training_admission=False,serving_manifest_compatible=False,include_idle_windows=include_idle,
         software=dict(python=platform.python_version(),numpy=np.__version__,
                       sklearn=importlib.metadata.version('scikit-learn')))
     if (root/'START.json').exists():
         previous=json.loads((root/'START.json').read_text())
         if any(previous.get(k)!=v for k,v in binding.items()):raise ValueError('reference experiment binding changed')
     else:atomic_json(root/'START.json',dict(binding,started_at_unix=time.time()))
-    index=build_index(root,inputs);path=root/'RESULTS.json'
+    index=build_index(root,inputs,include_idle=include_idle);path=root/'RESULTS.json'
     result=json.loads(path.read_text()) if path.exists() else dict(start_sha256=sha256_file(root/'START.json'),workloads={})
     if result['start_sha256']!=sha256_file(root/'START.json'):raise ValueError('reference checkpoint changed')
     for key,item in index['workloads'].items():
@@ -201,12 +205,12 @@ def run(source,root,credential,known_hosts):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ['source','root','credential','known-hosts']:p.add_argument('--'+name,type=Path,required=True)
-    a=p.parse_args();a.root.mkdir(parents=True,exist_ok=True)
+    p.add_argument('--idle-aware',action='store_true');a=p.parse_args();a.root.mkdir(parents=True,exist_ok=True)
     def stop(*_):raise KeyboardInterrupt('system stop; reference checkpoints retained')
     signal.signal(signal.SIGTERM,stop)
     with (a.root/'experiment.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        try:run(a.source,a.root,a.credential,a.known_hosts)
+        try:run(a.source,a.root,a.credential,a.known_hosts,include_idle=a.idle_aware)
         except ValueError as exc:
             atomic_json(a.root/'BLOCKED.json',dict(error=str(exc),automatic_promotion=False));raise SystemExit(65) from exc
 

@@ -1,0 +1,31 @@
+[Unit]
+Description=Idle-aware Pulse 500ms observation, not model promotion
+After=sentinel-pulse-resolver.service
+Wants=sentinel-pulse-resolver.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+EnvironmentFile=/etc/sentinel-pulse/idle-collection.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.extended_collection --source ${PULSE_IDLE_SOURCE} --build ${PULSE_IDLE_BUILD} --proof ${PULSE_IDLE_PROOF} --root /var/lib/sentinel-pulse-idle-c1-20261012 --seconds ${PULSE_IDLE_SECONDS} --idle-aware
+TimeoutStartSec=infinity
+TimeoutStopSec=20
+Restart=on-failure
+RestartSec=15
+RestartPreventExitStatus=65
+CPUQuota=150%
+MemoryHigh=768M
+MemoryMax=1G
+Nice=15
+LimitMEMLOCK=infinity
+UMask=0027
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-idle-c1-20261012
+
+[Install]
+WantedBy=multi-user.target

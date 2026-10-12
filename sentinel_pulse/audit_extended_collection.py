@@ -11,7 +11,7 @@ import time
 import numpy as np
 
 from .encoding import decode_vector, schema_digest
-from .extended_capture import ExtendedFeatureStream, CONTRACT, SCHEMA
+from .extended_capture import ExtendedFeatureStream, CONTRACT, SCHEMA, IDLE_CONTRACT, IDLE_SCHEMA
 from .integrity import sha256_file
 from .recovery_worker_probe import clean_source
 from .run_500ms_blind_matrix import atomic_json
@@ -24,20 +24,23 @@ def rows(path):
             yield json.loads(line)
 
 
-def feature_rows(path):
+def feature_rows(path,include_idle=False):
     columns=None
+    record_schema=IDLE_SCHEMA if include_idle else SCHEMA
+    schema_name='sentinel-pulse-extended-feature-schema-v2' if include_idle else 'sentinel-pulse-extended-feature-schema-v1'
+    contract=IDLE_CONTRACT if include_idle else CONTRACT
     for row in rows(path):
-        if row.get('schema')=='sentinel-pulse-extended-feature-schema-v1':
+        if row.get('schema')==schema_name:
             if (len(row['columns'])!=249 or row['feature_schema_sha256']!=schema_digest(row['columns'])
-                    or row.get('telemetry_contract')!=CONTRACT):raise ValueError('feature schema drift')
+                    or row.get('telemetry_contract')!=contract):raise ValueError('feature schema drift')
             if columns is not None and columns!=row['columns']:raise ValueError('feature columns changed')
             columns=row['columns'];continue
-        if row.get('schema')!=SCHEMA or columns is None or row.get('feature_schema_sha256')!=schema_digest(columns):
+        if row.get('schema')!=record_schema or columns is None or row.get('feature_schema_sha256')!=schema_digest(columns):
             raise ValueError('unexpected stored feature contract')
         yield row
 
 
-def audit_segment(directory,output,progress=None):
+def audit_segment(directory,output,progress=None,include_idle=False):
     seal=json.loads((directory/'TERMINAL.json').read_text())
     files={name:sha256_file(directory/name) for name in ['raw.jsonl','features.jsonl','observations.jsonl','loader.stderr']}
     if any(files[name]!=seal[name.replace('.jsonl','')+'_sha256'] for name in ['raw.jsonl','features.jsonl']):
@@ -47,8 +50,8 @@ def audit_segment(directory,output,progress=None):
         events[event['event']]+=1
         if event['event']!='resolver_generation' and 'observed_at' not in event:unplaced+=1
     generations=(e for e in rows(directory/'observations.jsonl') if e['event']=='resolver_generation')
-    next_generation=next(generations,None);metadata={};stream=ExtendedFeatureStream()
-    stored=iter(feature_rows(directory/'features.jsonl'));pending=[];columns=None
+    next_generation=next(generations,None);metadata={};stream=ExtendedFeatureStream(include_idle=include_idle)
+    stored=iter(feature_rows(directory/'features.jsonl',include_idle));pending=[];columns=None
     totals=Counter();workloads={};mismatches=[];last_boundary=None
     reference=output/'reference.tmp'
     with reference.open('w') as export:
@@ -89,7 +92,8 @@ def audit_segment(directory,output,progress=None):
                 eligible=(expected['history_before']>=10 and 0<=lag<=1
                           and not any(stream.stats.get(k,0)>0 for k in ['task_state_update_fail','snapshot_projection_fail']))
                 if actual.get('eligible_for_normal_review')!=eligible:difference.append('eligibility')
-                if actual.get('normal_label')!='unadjudicated_observation' or actual.get('telemetry_contract')!=CONTRACT:
+                if include_idle and actual.get('observed_idle')!=(actual['exact_total']==0):difference.append('observed_idle')
+                if actual.get('normal_label')!='unadjudicated_observation' or actual.get('telemetry_contract')!=stream.feature_contract:
                     difference.append('observation_contract')
                 key=actual['workload_key'];w=workloads.setdefault(key,dict(rows=0,eligible_rows=0,
                     verified_reference_rows=0,skip_delta=0,exact_total=0,exact_counts={},
@@ -136,6 +140,7 @@ def audit_segment(directory,output,progress=None):
 def run(capture,root,source):
     commit,files=clean_source(source)
     start=json.loads((capture/'START.json').read_text());terminal=json.loads((capture/'TERMINAL.json').read_text())
+    include_idle=start.get('include_idle_windows',False)
     if terminal.get('state')!='completed_observation' or terminal.get('start_sha256')!=sha256_file(capture/'START.json'):
         raise ValueError('capture not completed with bound terminal')
     # Replay exactly the mathematical contract that produced this capture.
@@ -165,7 +170,7 @@ def run(capture,root,source):
                 if sha256_file(segment/name)!=value:raise ValueError('audited capture drift')
             continue
         def progress(totals):atomic_json(root/'STATUS.json',dict(state='replaying',segment=segment.name,totals=totals,updated_at_unix=time.time()))
-        result['segments'][segment.name]=audit_segment(segment,output,progress)
+        result['segments'][segment.name]=audit_segment(segment,output,progress,include_idle=include_idle)
         atomic_json(result_path,result)
     totals=Counter()
     for s in result['segments'].values():totals.update(s['totals'])

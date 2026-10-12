@@ -12,11 +12,15 @@ from .encoding import compact_record
 
 CONTRACT='pulse-entered-plus-seccomp-skip-v1'
 SCHEMA='sentinel-pulse-extended-feature-v1'
+IDLE_CONTRACT='pulse-entered-plus-seccomp-skip-idle-v2'
+IDLE_SCHEMA='sentinel-pulse-extended-feature-v2'
 
 
 class ExtendedFeatureStream:
-    def __init__(self):
+    def __init__(self,include_idle=False):
         self.builders={};self.previous={};self.last_boundary=None;self.stats={}
+        self.include_idle=include_idle
+        self.feature_contract=IDLE_CONTRACT if include_idle else CONTRACT
 
     def snapshot(self, record, boundary, metadata, received_at):
         if record.get('type')!='cgroup_snapshot_extended' or record.get('telemetry_contract')!=CONTRACT:
@@ -39,7 +43,7 @@ class ExtendedFeatureStream:
         hard_loss=any(int(self.stats.get(k,0))>0 for k in ['task_state_update_fail','snapshot_projection_fail'])
         if reset or hard_loss:self.builders.pop(identity,None)
         self.previous[identity]=(boundary,cumulative)
-        builder=self.builders.setdefault(identity,PulseFeatureBuilder(rolling_windows=10))
+        builder=self.builders.setdefault(identity,PulseFeatureBuilder(rolling_windows=10,include_idle=self.include_idle))
         builder.columns=tuple('seccomp_skipped_or_emulated' if c=='seccomp_denied' else c for c in builder.columns)
         history=builder.history_windows_available(cg)
         # Reuse the mathematical delta slot only, not the old field's meaning.
@@ -47,18 +51,20 @@ class ExtendedFeatureStream:
         feature=builder.ingest(snapshot,workload_key(item))
         if feature is None:
             # Idle boundaries must not make old active rows look adjacent.
-            fresh=PulseFeatureBuilder(rolling_windows=10);fresh.columns=builder.columns
+            fresh=PulseFeatureBuilder(rolling_windows=10,include_idle=self.include_idle);fresh.columns=builder.columns
             fresh.ingest(snapshot,workload_key(item));self.builders[identity]=fresh
             return None
         if skipped- (int(previous[1][-1]) if previous is not None else skipped)>feature.exact_total:
             raise ValueError('extended skip delta exceeds total delta')
-        record=feature.as_record();record['schema']=SCHEMA
-        record.update(telemetry_contract=CONTRACT,normal_label='unadjudicated_observation',
+        record=feature.as_record();record['schema']=IDLE_SCHEMA if self.include_idle else SCHEMA
+        record.update(telemetry_contract=self.feature_contract,normal_label='unadjudicated_observation',
                       pod_name=item.get('pod_name'),pod_uid=item['pod_uid'],node_name=item['node_name'],
                       container_name=item['container_name'],workload_revision=item['workload_revision'],
                       emitted_at=received_at,history_before=history,rolling_windows=10,collector_stats=dict(self.stats),
                       eligible_for_normal_review=not hard_loss and history>=10 and 0<=received_at-boundary<=1,
                       not_accepted_by_frozen_model=True)
+        if self.include_idle:record['observed_idle']=feature.exact_total==0
         output,schema=compact_record(record)
-        schema['schema']='sentinel-pulse-extended-feature-schema-v1';schema['telemetry_contract']=CONTRACT
+        schema['schema']='sentinel-pulse-extended-feature-schema-v2' if self.include_idle else 'sentinel-pulse-extended-feature-schema-v1'
+        schema['telemetry_contract']=self.feature_contract
         return output,schema

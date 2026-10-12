@@ -106,7 +106,8 @@ class PulseFeatureBuilder:
     """
 
     def __init__(
-        self, rolling_windows: int = 5, syscall_bins: int = 64, transition_bins: int = 64
+        self, rolling_windows: int = 5, syscall_bins: int = 64, transition_bins: int = 64,
+        include_idle: bool = False,
     ):
         if rolling_windows < 2:
             raise ValueError("rolling_windows must be >= 2")
@@ -117,6 +118,7 @@ class PulseFeatureBuilder:
         if syscall_bins & (syscall_bins - 1) or transition_bins & (transition_bins - 1):
             raise ValueError("hash bin counts must be powers of two")
         self.rolling_windows = rolling_windows
+        self.include_idle = include_idle
         self.syscall_bins = syscall_bins
         self.transition_bins = transition_bins
         self._previous: Dict[int, PulseSnapshot] = {}
@@ -166,7 +168,7 @@ class PulseFeatureBuilder:
         transition_bin_delta = self._delta(snapshot.transition_bins, previous.transition_bins)
         denied_delta = self._delta({0: snapshot.seccomp_denied}, {0: previous.seccomp_denied})[0]
         total = sum(syscall_bin_delta.values()) if syscall_bin_delta else sum(count_delta.values())
-        if total <= 0:
+        if total <= 0 and not self.include_idle:
             return None
 
         names = tuple(TRACKED_SYSCALLS.values())
