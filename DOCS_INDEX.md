@@ -1,6 +1,6 @@
 # Mục lục tài liệu Sentinel Pulse
 
-Cập nhật bố cục: 08/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
+Cập nhật bố cục: 12/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
 tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
 Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
 
@@ -12,8 +12,8 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md) | Campaign 24 giờ, recovery, ngân sách alert, confusion matrix kỳ vọng và trạng thái live |
 | [SOAK_INCIDENTS.md](SOAK_INCIDENTS.md) | Lỗi/alert trong campaign hiện hành, nguyên nhân đã xác minh, phần chưa biết và bằng chứng từ VM |
 | [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md) | Luồng attack đã soak → paired normal-control → audit/precision/recall; không zero-alert gate |
-| [PULSE_IMPROVEMENT_STATUS.md](PULSE_IMPROVEMENT_STATUS.md) | Confusion matrix cuối, nguyên nhân miss, probe seccomp thật và nhánh support normal-only; mục tiêu 95% chưa đạt |
-| [EXTENDED_TELEMETRY_STATUS.md](EXTENDED_TELEMETRY_STATUS.md) | Collector seccomp đã kiểm chứng ba worker, job 500 ms riêng, checkpoint/restart và giới hạn dữ liệu mới |
+| [PULSE_IMPROVEMENT_STATUS.md](PULSE_IMPROVEMENT_STATUS.md) | Baseline confusion matrix, candidate reference-only, latency inference đơn, giới hạn nhãn và tiến độ idle-aware |
+| [EXTENDED_TELEMETRY_STATUS.md](EXTENDED_TELEMETRY_STATUS.md) | Capture/audit v1 đã hoàn tất; idle-aware v2 đang chạy riêng; không phải production model |
 | [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
 | [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
 | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |

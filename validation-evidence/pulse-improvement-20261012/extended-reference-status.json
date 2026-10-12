@@ -1,0 +1,182 @@
+{
+  "observed_at_utc": "2026-10-12T03:22:57Z",
+  "scope": "Sentinel Pulse extended telemetry and exploratory reference candidate; read-only SSH evidence from master and three workers",
+  "cluster": {
+    "ready_nodes": 6,
+    "total_nodes": 6,
+    "kubernetes_version": "v1.34.10"
+  },
+  "completed_capture_and_replay": {
+    "telemetry_contract": "pulse-entered-plus-seccomp-skip-v1",
+    "normal_label": "unadjudicated_observation",
+    "promotion": false,
+    "workers": [
+      {
+        "ip": "10.1.16.237",
+        "node": "k8s-worker1.local",
+        "feature_rows": 295726,
+        "review_eligible_rows": 277941,
+        "boundary_observation_seconds": 7200.278201341629,
+        "capture_errors": 0,
+        "capture_start_sha256": "256597819cb3e8da4b67bd6eb630ce9d072c7975b18b08b7fa3a0060b5df9776",
+        "capture_terminal_sha256": "9bc5c25d392801c810f05e25d53f5819c8249e909cf789db0df185618cf2ea9",
+        "audit_terminal_sha256": "d19205c8f1505671145ce8df8d9b0886bae49e07d5b7b5f07d9fc86e48e25b88",
+        "audit_all_features_replayed": true,
+        "audit_rows": 295726,
+        "cadence_gaps": 0,
+        "feature_mismatches": 0,
+        "reference_sha256": "9ac7dcb15dfeb7cbc2ce0244c869f9d2cf98874b8afb9ccc3acc51c577ef0af4"
+      },
+      {
+        "ip": "10.1.16.238",
+        "node": "k8s-worker4.local",
+        "feature_rows": 349486,
+        "review_eligible_rows": 319979,
+        "boundary_observation_seconds": 7200.342926025391,
+        "capture_errors": 0,
+        "capture_start_sha256": "381d254dd5efb781e801ca47f615c10cfb4838a01de00d4b1f66062cbdeb4d6f",
+        "capture_terminal_sha256": "89978ecfd6e0277b40a3cba20306498f62784cb53777bc6e38f3765c1171f49f",
+        "audit_terminal_sha256": "6792c600111f3729bdaa98a65815ad67077ac9dc1564c6ee2d137d570ce2fa73",
+        "audit_all_features_replayed": true,
+        "audit_rows": 349486,
+        "cadence_gaps": 0,
+        "feature_mismatches": 0,
+        "reference_sha256": "8ebe9d466540ddc4a2a42d45a403ad7cb2c5a7f263382e05298ba3e3163a0a77"
+      },
+      {
+        "ip": "10.1.16.239",
+        "node": "k8s-worker3.local",
+        "feature_rows": 292051,
+        "review_eligible_rows": 281866,
+        "boundary_observation_seconds": 7200.30952167511,
+        "capture_errors": 0,
+        "capture_start_sha256": "22712de7f8a84e959fc4ed7e9c7b38a069997ae51bbfd88b9fbbdbf321c50468",
+        "capture_terminal_sha256": "8c27b3058f7132f5106b6cfb9ba85f6f1344609e39b4e794e8241deb7cea04d0",
+        "audit_terminal_sha256": "b88f499a88e59c1c0a7f69e82a53bf1bd3af1c0b4a0412232b8dac87bdf18582",
+        "audit_all_features_replayed": true,
+        "audit_rows": 292051,
+        "cadence_gaps": 0,
+        "feature_mismatches": 0,
+        "trailing_unclosed_raw_snapshots_not_admitted": 5,
+        "reference_sha256_by_segment": {
+          "s0001": "0b3f0849d5d721c5d9469a2e75a1270427fa4b560d15c47793e50b61ea948708",
+          "s0002": "7cdaedbdb1753af4b65a9f2740821096880beb05df3729eb93e3e433b5271379"
+        }
+      }
+    ],
+    "totals": {
+      "feature_rows": 937263,
+      "review_eligible_rows": 879786,
+      "target_boundary_seconds_per_worker": 7200,
+      "cadence_gaps": 0,
+      "feature_mismatches": 0,
+      "observed_workload_container_keys": 21
+    }
+  },
+  "exploratory_reference_fit": {
+    "root": "/home/dat/pulse-extended-reference-r2-c1-20261008",
+    "source_commit": "68c7839e3c5b120553f198729bbd1ceca4e194b5",
+    "start_sha256": "4d3c558c50399622266bfb6af53c833fcf1ce57e943a73e0bcae9e5a5bf49b6b",
+    "results_sha256": "b53663a71780c917b833ac13e8bb01865168a0436a811812cb804f70092e9b3c",
+    "index_sha256": "c8acce739e73394255d4a8b03203b00e4c8cb94366d6bce9b394115c04021b27",
+    "state": "completed_reference_experiment",
+    "workload_keys": 21,
+    "fitted_artifacts": 18,
+    "insufficient_calibration": {
+      "production/aims-frontend:web": 400,
+      "production/aims-minio-pool-0:minio": 827,
+      "production/aims-minio-pool-0:sidecar": 390
+    },
+    "minimum_calibration_examples_at_alpha_0_001": 999,
+    "holdout_contexts": 126599,
+    "raw_reference_flags": 196,
+    "tree_reference_flags": 128,
+    "labels_adjudicated": false,
+    "attack_data_used_for_fit": false,
+    "precision": null,
+    "recall": null,
+    "false_positive_rate": null,
+    "serving_compatible": false,
+    "automatic_promotion": false,
+    "queue_and_status_reconciled_to_terminal": true
+  },
+  "single_context_inference_benchmark": {
+    "root": "/home/dat/pulse-extended-reference-benchmark-r2-c1-20261012",
+    "state": "completed",
+    "benchmark_source_commit": "71163c3722868ff2ebf23b7741be8a1504989c30",
+    "start_sha256": "3c3361632798411c3023d67319022339a19a74c10fab3df105349a19497a6901",
+    "results_sha256": "b605a35af8dc5c043512327efdbe400d9dd8bb982e6557bf1a5abd6376535392",
+    "benchmark_script_sha256": "c9b094911077e0110f5adacdc2f491a636f4500dbdbb6ecf3a22084565633e4d",
+    "measured_workloads": 18,
+    "workloads_without_model": 3,
+    "samples_per_measured_workload": 128,
+    "single_context_samples": 2304,
+    "pooled_descriptive_inference_ms": {
+      "p50": 19.913973519578576,
+      "p95": 26.935851690359414,
+      "p99": 31.920122266747054
+    },
+    "median_of_per_workload_p50_ms": 19.66594427358359,
+    "worst_per_workload_p95": {
+      "workload": "production/auth-service:app",
+      "milliseconds": 32.2284797206521
+    },
+    "worst_per_workload_p99": {
+      "workload": "production/auth-service:app",
+      "milliseconds": 35.89223937131465
+    },
+    "attack_data_used": false,
+    "kernel_to_alert": false,
+    "interpretation": "predict_contexts only; excludes collection, feature extraction, queueing, decision policy, and alert delivery; flags are not adjudicated false positives"
+  },
+  "idle_aware_followup": {
+    "source_commit_at_capture_start": "71163c3722868ff2ebf23b7741be8a1504989c30",
+    "telemetry_contract": "pulse-entered-plus-seccomp-skip-idle-v2",
+    "requested_boundary_seconds_per_worker": 7200,
+    "status_at_utc": "2026-10-12T03:22:57Z",
+    "workers": [
+      {
+        "ip": "10.1.16.237",
+        "boundary_seconds": 252.9090051651001,
+        "feature_rows": 37848,
+        "review_eligible_rows": 37088,
+        "errors": 0,
+        "state": "collecting"
+      },
+      {
+        "ip": "10.1.16.238",
+        "boundary_seconds": 252.81166553497314,
+        "feature_rows": 39840,
+        "review_eligible_rows": 39040,
+        "errors": 0,
+        "state": "collecting"
+      },
+      {
+        "ip": "10.1.16.239",
+        "boundary_seconds": 256.3221378326416,
+        "feature_rows": 19851,
+        "review_eligible_rows": 19461,
+        "errors": 0,
+        "state": "collecting"
+      }
+    ],
+    "totals_at_observation": {
+      "boundary_seconds_per_worker_approximately": 253,
+      "feature_rows": 97539,
+      "review_eligible_rows": 95589,
+      "errors": 0
+    },
+    "audit_services": "enabled and ordered behind collection; start jobs waiting",
+    "reference_service": "enabled and waiting_for_worker_audits",
+    "promotion": false
+  },
+  "source_sync": {
+    "host_and_master_worker_checkouts": "7a7d714",
+    "worktree_user_deletions_preserved": true
+  },
+  "verification": {
+    "targeted_vm_tests": "13 passed",
+    "local_python_compile": "passed",
+    "local_pytest_unavailable": "host /usr/bin/python3 lacks numpy; the same focused tests passed in VM ml-venv"
+  }
+}

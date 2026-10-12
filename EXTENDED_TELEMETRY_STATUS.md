@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **08/10/2026, khoảng 10:15 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 10:22 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -38,7 +38,7 @@ proof thành công nằm riêng tại `proof-r2`.
 luôn là denial; TRACE recheck được loại để tránh đếm đôi. Đây chưa phải kết
 quả cross-kernel/cross-ABI hoặc RCA provenance cho từng syscall.
 
-## Job đang chạy ngầm
+## Capture extended v1 và audit đã hoàn tất
 
 Trên cả ba worker:
 
@@ -48,24 +48,25 @@ Trên cả ba worker:
 - Build: `/home/dat/pulse-extended-telemetry-c1/build`; proof:
   `/home/dat/pulse-extended-telemetry-c1/proof-r2`.
 - Output: `/var/lib/sentinel-pulse-extended-c1-20261008`.
-- Snapshot **500 ms**, mục tiêu **7.200 giây quan sát boundary/node**.
-  Bắt đầu khoảng 10:12 ICT; dự kiến khoảng **12:15 ICT** nếu không gián đoạn.
+- Snapshot **500 ms**, đã hoàn thành **7.200 giây quan sát boundary/node** ngày
+  08/10. Kết quả bên dưới được xác minh lại trực tiếp qua SSH ngày 12/10.
 - CPU quota 150%, RAM cap 1 GiB, nice 15. Không phụ thuộc SSH/laptop.
 
-| Worker | Giây boundary | Feature rows | Đủ điều kiện review normal | Lỗi parse/integrity | Segment | RAM unit lúc kiểm tra |
-|---|---:|---:|---:|---:|---:|---:|
-| .237 | 191,22 | 7.855 | 7.192 | 0 | 1 | ~66 MiB |
-| .238 | 191,56 | 9.282 | 8.261 | 0 | 1 | ~71 MiB |
-| .239 | 177,41 | 6.963 | 6.341 | 0 | 2 | ~38 MiB |
+| Worker | Giây boundary | Feature rows | Đủ điều kiện review | Lỗi capture | Audit replay | Mismatch | Cadence gap |
+|---|---:|---:|---:|---:|---|---:|---:|
+| .237 | 7.200,28 | 295.726 | 277.941 | 0 | 295.726/295.726 | 0 | 0 |
+| .238 | 7.200,34 | 349.486 | 319.979 | 0 | 349.486/349.486 | 0 | 0 |
+| .239 | 7.200,31 | 292.051 | 281.866 | 0 | 292.051/292.051 | 0 | 0 |
 
-Tổng **24.100 feature rows**, **21.794** đủ điều kiện review về cadence,
-history/integrity; union có **21 workload/container key**. Đây không phải
-21 workload đã đủ 2 giờ exposure, và điều kiện review **không phải nhãn
-normal đã adjudication**. [Snapshot thực](validation-evidence/pulse-improvement-20261008/extended-collection-restart-proof.json).
+Tổng **937.263 feature rows**, **879.786** đủ điều kiện review kỹ thuật; 21
+workload/container key xuất hiện trên tập ba worker. Điều kiện review không
+phải nhãn normal đã adjudication. Audit phát lại đúng vector đã lưu, không
+có cadence gap hay mismatch. Riêng `.239` có 5 snapshot cuối chưa đóng frame;
+giữ trong raw nhưng không nhận thành feature/exposure. [Evidence và các seal SHA-256](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 
-Đã thấy 3 seccomp skip ở Kafka trên mỗi worker trong
-[snapshot đầu](validation-evidence/pulse-improvement-20261008/extended-collection-inspection.json).
-Chưa điều tra nhãn từng lời gọi; **không gọi chúng là attack hoặc false
+Capture ghi 720 seccomp-skip ở Kafka mỗi worker; `.238` còn ghi 515 ở topic
+operator và 175 ở user operator. Đây là số telemetry của hook, chưa adjudicate
+nguyên nhân từng lời gọi; **không coi chúng tự động là attack hoặc false
 positive**. Skip cũng có thể xuất hiện trong vận hành bình thường.
 
 Unit dùng `Type=oneshot` với thời hạn không giới hạn nên đang thu sẽ hiển thị
@@ -123,17 +124,30 @@ sẽ chờ hồi phục, không ghi tiếp làm đầy node. Không giữ trốn
 Khi kiểm tra, worker còn khoảng **161 / 113 / 95 GiB**. Không cam kết đủ 2 giờ
 nếu budget/hạ tầng không cho phép.
 
-## Hạ tầng và bước tiếp theo
+## Candidate tham chiếu và job idle-aware hiện hành
 
-[Snapshot cụm](validation-evidence/pulse-improvement-20261008/extended-cluster-health.json):
-6/6 node Ready, không DiskPressure/MemoryPressure, Kubernetes `v1.34.10`;
-**24 vCPU/node, khoảng 126 GiB RAM OS báo**. `production` có **66/66 pod Ready**
-tại snapshot. Đây không phải bằng chứng ổn định nhiều ngày hoặc A/B overhead.
+[SSH snapshot 12/10](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
+6/6 node Ready, Kubernetes `v1.34.10`. Reference fit v1 hoàn thành trên 21 key:
+**18 artifact fit**, 3 key không đủ conformal calibration tại alpha 0,001
+(frontend web 400, MinIO 827, sidecar 390; cần tối thiểu 999). Holdout có
+126.599 context chưa adjudicate, trong đó 196 raw reference flags và 128 tree
+flags. Đây chỉ là tỷ lệ cờ trên quan sát chưa gán nhãn, **không phải FPR**;
+precision, recall, confusion matrix và kernel-to-alert vẫn `null`. Model chưa
+được chấp nhận bởi serving manifest và không tự promotion.
 
-Sau collection: kiểm tra completeness/loss và traffic regimes; phân tích
-skip trong normal; đăng ký baseline/calibration mới theo contract mới.
-Đóng băng model + policy trước normal/attack độc lập mới. Không dùng 475
-interval đã xem để chỉnh threshold rồi gọi là blind validation.
+Đo riêng 2.304 lần `predict_contexts` đơn (128 × 18 workload): pooled p50/p95/p99
+lần lượt **19,91/26,94/31,92 ms**; workload xấu nhất p95 **32,23 ms**, p99
+**35,89 ms**. Đo này bỏ qua collector, feature extraction, queue, policy và
+delivery; **không đại diện latency kernel-to-alert**. Candidate còn thiếu nhãn
+độc lập và phép thử attack mới.
+
+Hiện đang chạy capture v2 riêng có giữ verified idle windows, không sửa hoặc
+ghi đè v1: 500 ms, mục tiêu 7.200 boundary-second/worker, contract
+`pulse-entered-plus-seccomp-skip-idle-v2`. Tại 10:22 ICT, ba worker đã có xấp
+xỉ 253 giây mỗi node, 97.539 feature rows, 95.589 review-eligible rows, 0 lỗi.
+Unit collector enabled; audit worker đã đăng ký và đang chờ capture; master
+reference service chờ đủ audit. Khi xong sẽ audit rồi fit candidate mới; không
+đưa nhãn normal hay promotion tự động vào pipeline.
 
 Model baseline vẫn **recall 35,26% có điều kiện**, p95 **1,538 s trên hit**
 từ kernel exec-entry. Collector bổ sung là bước sửa nguyên nhân, chưa thay

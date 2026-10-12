@@ -1,9 +1,39 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **08/10/2026, khoảng 10:15 ICT**.
-Bằng chứng và checksum: [inspection](validation-evidence/pulse-improvement-20261008/inspection.json),
-[kết quả paired cuối](validation-evidence/pulse-improvement-20261008/paired-final-inspection.json).
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 10:22 ICT**.
+Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
+
+## Trạng thái candidate extended mới nhất
+
+Capture 500 ms ngày 08/10 trên ba worker đã thu **937.263 feature rows** trong
+7.200 giây boundary/node. Audit độc lập replay đủ **937.263/937.263**, không có
+cadence gap hoặc mismatch; 5 raw snapshot chưa đóng frame ở `.239` được giữ
+trong raw nhưng loại khỏi feature. Có **879.786** row đạt điều kiện review kỹ
+thuật, không đồng nghĩa đã được adjudicate là normal.
+
+Reference-only ExtraTrees/support fit hoàn tất **18/21 workload key**. Ba key
+không fit vì conformal calibration thiếu mẫu ở alpha 0,001: frontend web 400,
+MinIO 827, sidecar 390 (tối thiểu cần 999). Không nới alpha, không gộp nhãn và
+không ép artifact. Tập holdout của các model đã fit có 126.599 context,
+196 raw reference flags và 128 tree flags. Vì mọi nhãn còn là
+`unadjudicated_observation`, các con số này **không phải FP/FPR**; precision,
+recall và confusion matrix vẫn `null`. Candidate không dùng attack để fit,
+không tương thích serving manifest và không có auto-promotion.
+
+Benchmark r2 hoàn tất 2.304 lần chấm một context (128 × 18 workload): pooled
+p50/p95/p99 **19,91/26,94/31,92 ms**, p95 tệ nhất theo workload **32,23 ms**,
+p99 **35,89 ms**. Đây là `predict_contexts` đơn, không bao gồm telemetry,
+feature extraction, queue, policy hoặc alert delivery; **không phải
+kernel-to-alert**. Lượt benchmark r1 lỗi do pickle lưu lớp dưới tên
+`__main__`; đã giữ nguyên evidence lỗi, sửa loader, vô hiệu hóa unit r1 và chạy
+thành công trên output root r2 riêng. Không thay artifact/model.
+
+Capture tiếp theo đang chạy contract v2 có giữ verified idle windows, tách
+biệt v1: tại 10:22 ICT có khoảng **253/7.200 giây mỗi worker**, **97.539 feature
+rows**, **95.589 review-eligible**, **0 lỗi**. Worker audit chờ capture; master
+reference fit đang chờ audit. Cụm hiện **6/6 node Ready, v1.34.10**. Unit systemd
+được enable, không phụ thuộc SSH/laptop.
 
 ## 1. Mục tiêu, không phải kết quả
 
@@ -179,10 +209,9 @@ phát alert production. Không bypass manifest/type checks để ép chạy.
 
 ## 5. Công việc tiếp theo để tiến đến kỳ vọng
 
-1. Collector bổ sung đã qua fixture trên ba worker; job quan sát 2 giờ 500 ms
-   đã enabled, độc lập SSH, checkpoint và automatic restart đã thử trên .239.
-   Tiếp tục đánh giá coverage/overhead/normal skip; không gắn nhãn tất cả
-   skip là attack. Contract mới cần normal baseline mới.
+1. Đợi capture idle-aware v2 đủ 7.200 boundary-second/node; audit sealed raw và
+   feature trước khi sử dụng. Mọi lỗi/hạ tầng phải được ghi lại, không biến
+   khoảng thiếu telemetry thành normal.
 2. Candidate mới phải khai báo các security field thực sự hỗ trợ, calibration
    và decision policy cùng nhau. So sánh model-only và full policy; không
    sửa ngưỡng để vừa khít 475 interval đã nhìn thấy.
