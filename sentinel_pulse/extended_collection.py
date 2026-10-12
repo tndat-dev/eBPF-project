@@ -17,7 +17,10 @@ from .recovery_worker_probe import clean_source
 from .run_500ms_blind_matrix import atomic_json
 
 
-def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,include_idle=False):
+def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
+            minimum_free_bytes=2*1024**3,proof=None,include_idle=False):
+    if maximum_bytes < 1024**3 or minimum_free_bytes < 1024**3:
+        raise ValueError('storage guards are below safe minimums')
     commit,files=clean_source(source)
     artifacts={name:sha256_file(build/name) for name in ['pulse_counter_extended_loader','pulse_counter_extended.bpf.o']}
     if proof is None:raise ValueError('integrated collector proof is required')
@@ -33,6 +36,7 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,in
         kernel=platform.release(),proof_start_sha256=sha256_file(proof/'START.json'),
         proof_result_sha256=sha256_file(proof/'RESULTS.json'),
         requested_boundary_observation_seconds=seconds,maximum_bytes=maximum_bytes,
+        minimum_free_bytes=minimum_free_bytes,
         normal_label='unadjudicated_observation',fit_or_promotion=False,
         frozen_v1_models_compatible=False,stops_on_alert_or_quality_gate=False)
     start=root/'START.json'
@@ -48,11 +52,23 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,in
         boundary_observation_seconds=0,feature_rows=0,
         eligible_for_normal_review_rows=0,errors=0,segments=0,rows_by_workload={},skip_delta_by_workload={})
     if status.get('start_sha256')!=start_sha:raise ValueError('checkpoint registration binding differs')
+    status.setdefault('capacity_pause_seconds',0.0)
+    status.setdefault('capacity_pause_count',0)
     if (root/'TERMINAL.json').exists():
         if json.loads((root/'TERMINAL.json').read_text()).get('start_sha256')!=start_sha:
             raise ValueError('terminal registration binding differs')
         return
     stopping=False
+    capacity_wait_started=status.get('capacity_wait_started_at_unix')
+    capacity_events=root/'capacity_events.jsonl'
+    def capacity_event(event,available,at):
+        row=dict(event=event,at_unix=at,available_bytes=available,minimum_free_bytes=minimum_free_bytes,
+                 not_normal=True,counts_toward_observation=False)
+        fd=os.open(capacity_events,os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o640)
+        try:
+            os.write(fd,(json.dumps(row,separators=(',',':'))+'\n').encode())
+            os.fsync(fd)
+        finally:os.close(fd)
     def stop(*_):
         nonlocal stopping
         stopping=True
@@ -61,10 +77,25 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,in
         available=os.statvfs(root).f_bavail*os.statvfs(root).f_frsize
         used=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
         if used>=maximum_bytes:
-            atomic_json(root/'TERMINAL.json',dict(status,state='completed_with_capacity_limit',automatic_promotion=False));return
-        if available<2*1024**3:
+            capacity_event('hard_storage_budget_reached',available,time.time())
+            atomic_json(root/'TERMINAL.json',dict(status,state='completed_with_capacity_limit',
+                capacity_events_sha256=sha256_file(capacity_events),automatic_promotion=False));return
+        if available<minimum_free_bytes:
+            now=time.time()
+            if capacity_wait_started is None:
+                capacity_wait_started=now
+                status['capacity_wait_started_at_unix']=now
+                status['capacity_pause_count']+=1
+                capacity_event('paused_low_free_space',available,now)
             status.update(state='waiting_for_critical_filesystem_recovery',updated_at_unix=time.time())
             atomic_json(status_path,status);time.sleep(30);continue
+        if capacity_wait_started is not None:
+            now=time.time();paused=max(0.0,now-capacity_wait_started)
+            status['capacity_pause_seconds']+=paused
+            status.pop('capacity_wait_started_at_unix',None)
+            capacity_event('resumed_after_free_space_recovery',available,now)
+            capacity_wait_started=None
+            atomic_json(status_path,status)
         directory=root/'segments'/f"s{status['segments']+1:04d}"
         while directory.exists():status['segments']+=1;directory=root/'segments'/f"s{status['segments']+1:04d}"
         directory.mkdir(parents=True);status['segments']+=1
@@ -138,18 +169,20 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,in
                             status['errors']+=1;pending=[];stream.builders.clear();stream.previous.clear()
                             observation(dict(event='record_ineligible',error=str(exc),not_normal=True))
                     if time.monotonic()-checkpoint>=5:
-                        raw.flush();features.flush();os.fsync(raw.fileno());os.fsync(features.fileno())
+                        raw.flush();features.flush();observations.flush()
+                        os.fsync(raw.fileno());os.fsync(features.fileno());os.fsync(observations.fileno())
                         status.update(state='collecting',updated_at_unix=time.time(),current_segment=directory.name)
                         atomic_json(status_path,status);checkpoint=time.monotonic()
                         used=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
-                        if used>=maximum_bytes or os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<2*1024**3:
+                        if used>=maximum_bytes or os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<minimum_free_bytes:
                             reason='capacity_guard; retain data and reassess';break
                 else:reason='target_reached' if not stopping else 'system_stop_checkpoint_retained'
             finally:
                 proc.terminate()
                 try:proc.wait(timeout=5)
                 except subprocess.TimeoutExpired:proc.kill();proc.wait()
-                raw.flush();features.flush();os.fsync(raw.fileno());os.fsync(features.fileno())
+                raw.flush();features.flush();observations.flush()
+                os.fsync(raw.fileno());os.fsync(features.fileno());os.fsync(observations.fileno())
                 status.update(state='segment_closed',updated_at_unix=time.time())
                 atomic_json(status_path,status)
                 atomic_json(directory/'TERMINAL.json',dict(reason=reason,loader_exit_status=proc.returncode,
@@ -157,6 +190,7 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,proof=None,in
         if not stopping and status['boundary_observation_seconds']<seconds:time.sleep(5)
     if not stopping:
         atomic_json(root/'TERMINAL.json',dict(status,state='completed_observation',automatic_promotion=False,
+            capacity_events_sha256=sha256_file(capacity_events) if capacity_events.exists() else None,
             normal_training_admission=False,finished_at_unix=time.time()))
     else:raise SystemExit(1)
 
@@ -165,12 +199,17 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for name in ('source','build','root','proof'):p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--seconds',type=int,default=7200)
+    p.add_argument('--maximum-bytes',type=int,default=4*1024**3,
+                   help='per-run hard storage budget; reaching it is recorded as capacity-limited')
+    p.add_argument('--minimum-free-bytes',type=int,default=2*1024**3,
+                   help='pause collection without closing the run when filesystem free space falls below this value')
     p.add_argument('--idle-aware',action='store_true');a=p.parse_args()
     if not 60<=a.seconds<=86400:raise ValueError('invalid observation duration')
     a.root.mkdir(parents=True,exist_ok=True)
     with (a.root/'collection.lock').open('a') as lock:
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        try:collect(a.source,a.build,a.root,a.seconds,proof=a.proof,include_idle=a.idle_aware)
+        try:collect(a.source,a.build,a.root,a.seconds,maximum_bytes=a.maximum_bytes,
+                    minimum_free_bytes=a.minimum_free_bytes,proof=a.proof,include_idle=a.idle_aware)
         except ValueError as exc:
             atomic_json(a.root/'BLOCKED.json',dict(error=str(exc),automatic_promotion=False));raise SystemExit(65) from exc
 

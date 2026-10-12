@@ -39,45 +39,46 @@ có manifest/kết quả; artifacts ở reference root
 `/home/dat/pulse-idle-reference-c1-20261012`. SSH ngày 12/10/2026 xác nhận
 21/21 model artifacts có mặt và SHA-256 khớp manifest. Đã thêm
 `sentinel_pulse.bundle_candidate`: giữ nguyên manifest, xác minh hash trước và
-sau khi copy; từ chối ghi đè output đã có. Chưa tạo bundle triển khai trên
-cluster.
+sau khi copy; từ chối ghi đè output đã có. Bundle đã được dựng riêng trên NFS
+và được xác nhận tải đủ 21 model trên cả ba worker.
 
 ## Kiểm chứng code
 
-Lần test mới nhất: **1.127 passed, 7 skipped, 20 subtests passed** trong toàn
+Lần test mới nhất: **1.128 passed, 7 skipped, 20 subtests passed** trong toàn
 bộ repo; riêng ba module bundle, policy và shadow có **14 passed**. Đây là test
 trong workspace, không phải bằng chứng runtime đã triển khai lên worker.
 
 ## Trạng thái cluster
 
-SSH kiểm tra master lúc **21:00 ICT, 12/10/2026** cho thấy 6/6 node `Ready`.
-`sentinel-detector.service` active là detector legacy (`anomaly_detector2.py`,
-10-second window), không phải candidate Pulse. Lần kiểm tra tiếp theo trên ba
-worker lúc khoảng **22:10 ICT** thấy idle collection C1 đã chạy xong với exit
-status 0 (03:18–05:18 UTC), nhưng mỗi output root chỉ có 4 KiB: không có
-`START/STATUS/TERMINAL.json`, segment, hay feature JSONL. Journal chỉ ghi
-`Starting`/`Finished`. Vì vậy lần chạy đó **không cung cấp dữ liệu soak hợp lệ**;
-nguyên nhân output rỗng vẫn cần truy tiếp. Không có collector đang chạy liên tục.
+Kiểm tra SSH ngày 12/10/2026 trên ba worker cho thấy disk trống khoảng **160.9
+GiB (worker1), 118.1 GiB (worker4), 303.0 GiB (worker3)**. Smoke capture mới
+trên worker1 đạt **60.44 giây boundary exposure**, tạo 9,758 feature rows,
+8,938 rows đủ điều kiện review và 0 lỗi; raw/features/observations khoảng
+22.7 MB. Đây chỉ là kiểm tra kỹ thuật một node, không phải normal soak, không
+phải dữ liệu độc lập đã adjudicate và không dùng để train/tune.
 
-Snapshot ba worker: available RAM lần lượt khoảng **24,4 / 37,1 / 27,4 GiB**
-(worker1/worker3/worker4), disk trống khoảng **160,9 / 295,9 / 115,7 GiB**.
-Worker4 đang dùng 81% filesystem nhưng còn hơn 100 GiB; đây là lý do vẫn cần
-capacity guard cho capture, không phải bằng chứng DiskPressure.
+Smoke shadow đầu tiên **không hợp lệ để kết luận scoring**: scorer được khởi
+động sau khi smoke capture ngắn đã đóng segment, nên không có decision rows;
+systemd kết thúc nó theo giới hạn 180 giây riêng của smoke. Không tính lần đó
+là canary thành công. Đã xác nhận `ProtectSystem=full` vẫn cho phép ghi vào
+`/var/lib` qua `ReadWritePaths`.
 
-Candidate hiện vẫn là manifest model-only (`decision_policy=null`,
-`serving_compatible=false`). Policy mới chỉ đăng ký cách ghi nhận “would
-preview”, không nâng candidate thành detector serving. **Chưa mở candidate
-canary/soak mới hay blind attack mới.** Baseline đã xem trước đây không được
-tái dùng làm blind confirmation. Source trong workspace chưa được cài lên
-cluster; detector V7 và các campaign khác không bị sửa hay dừng.
+Tốc độ ghi smoke khoảng **22.7 MB/phút**, tương đương gần 33 GB/24 giờ nếu giữ
+nguyên tốc độ. Runbook mới đặt hard cap **70 GiB/node** và dự trữ **12 GiB free**;
+worker có ít dung lượng nhất vẫn đủ cho budget + reserve. Khi free space xuống
+dưới reserve, collector đóng segment, ghi `capacity_events.jsonl`, pause (không
+tính là normal exposure), rồi tự tiếp tục từ checkpoint sau khi dung lượng hồi
+phục. Journal được hash-bind vào terminal receipt. Hard cap vẫn có thể kết thúc
+run nếu bị chạm; capacity được đặt cao hơn gấp đôi mức ghi ngoại suy từ smoke,
+nhưng cần theo dõi thực tế và không thể bảo đảm trước mất filesystem/phần cứng.
 
-Không thay thế hoặc nâng cấp `sentinel-pulse-detector-candidate.service` hiện
-hữu bằng adapter này. Trước khi shadow canary cần một run ID và thư mục output
-mới, candidate manifest/model artifacts được sao chép có kiểm tra SHA-256,
-đồng thời feature stream trên worker phải đúng idle-aware v2. Shadow có thể
-được dùng để xác minh input, continuity và chi phí inference; muốn đánh giá
-confusion matrix cần đăng ký decision policy trước khi mở dữ liệu attack mới,
-có normal label protocol và một blind set mới chưa nhìn thấy.
+Installer và systemd pair boot-persistent vừa được thêm nhưng **chưa cài/chưa
+mở run 24 giờ**. Cần hoàn tất integrated smoke 5 phút để xác nhận shadow nhận
+feature rows khi capture còn chạy, rồi mới cài cùng run ID trên cả ba worker.
+Candidate vẫn là model-only; `candidate_alert_preview` chỉ là cờ shadow, không
+phải alert production. Giữ nguyên preview/alert và khoảng degraded để
+adjudicate sau soak; không tune candidate trong lúc đo này. V7 và campaign
+khác không bị thay đổi.
 
 ## Chạy thủ công trên feature stream riêng
 
@@ -101,6 +102,32 @@ Thêm `--from-start` chỉ khi chủ ý replay một file đã đóng; kết qu�
 được coi là live latency. `feature_event_age_seconds` chỉ là thời gian từ cuối
 feature window tới lúc chấm, **không phải kernel-to-alert**. Đồng hồ lệch được
 giữ nguyên dấu để lộ vấn đề thay vì clamp thành số 0.
+
+## Khởi chạy soak quan sát bền vững
+
+Sau khi commit/push và tạo checkout đúng commit trên NFS, chạy installer bằng
+runtime venv trên từng worker (dùng cùng run ID):
+
+```bash
+sudo /opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.install_normal_observation \
+  --run-id normal-a1-20261012 \
+  --source /mnt/sentinel-pulse-archive/runtime-<commit>/source \
+  --build /home/dat/pulse-extended-telemetry-c1/build \
+  --proof /home/dat/pulse-extended-telemetry-c1/proof-r2 \
+  --candidate-dir /mnt/sentinel-pulse-archive/runtime-<commit>/model-bundle \
+  --manifest-sha256 747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08 \
+  --policy /mnt/sentinel-pulse-archive/runtime-<commit>/source/sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json
+```
+
+Mặc định collector cần **86,400 giây boundary exposure trên mỗi node**. Gap,
+pause và thiếu free space không được cộng vào exposure. Capture checkpoint/fsync
+mỗi 5 giây; systemd bật lúc boot và restart process khi lỗi. Shadow chạy song
+song, ghi `decisions.jsonl`; sau restart history warm-up lại. Theo dõi hai unit,
+`STATUS.json`, capacity journal và số decision rows trên từng worker. Chỉ xác
+nhận hoàn tất khi cả ba capture có `TERMINAL.json` với
+`state=completed_observation`, `boundary_observation_seconds >= 86400`, audit
+replay thành công và mọi pause/gap được giữ nguyên. Không train/tune hoặc chạy
+blind attack trong normal soak.
 
 ## Gate trước khi đo accuracy
 

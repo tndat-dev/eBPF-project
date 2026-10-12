@@ -1,0 +1,31 @@
+[Unit]
+Description=Sentinel Pulse frozen candidate shadow scoring (%i)
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/sentinel-pulse-archive
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+EnvironmentFile=/etc/sentinel-pulse/normal-soak-%i.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.candidate_shadow --features-root ${PULSE_CAPTURE_ROOT} --candidate-dir ${PULSE_CANDIDATE_DIR} --manifest-sha256 ${PULSE_MANIFEST_SHA256} --policy ${PULSE_POLICY} --run-id ${PULSE_RUN_ID} --output ${PULSE_SHADOW_ROOT}/decisions.jsonl
+Restart=always
+RestartSec=10
+TimeoutStartSec=180
+TimeoutStopSec=30
+CPUQuota=150%
+MemoryHigh=768M
+MemoryMax=1G
+Nice=15
+UMask=0027
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-normal-%i/shadow
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

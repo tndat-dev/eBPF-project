@@ -143,6 +143,13 @@ def run(capture,root,source):
     include_idle=start.get('include_idle_windows',False)
     if terminal.get('state')!='completed_observation' or terminal.get('start_sha256')!=sha256_file(capture/'START.json'):
         raise ValueError('capture not completed with bound terminal')
+    capacity_events=capture/'capacity_events.jsonl'
+    expected_capacity_hash=terminal.get('capacity_events_sha256')
+    if expected_capacity_hash is not None:
+        if not capacity_events.is_file() or sha256_file(capacity_events)!=expected_capacity_hash:
+            raise ValueError('capacity recovery event journal differs from terminal seal')
+    elif capacity_events.exists():
+        raise ValueError('unsealed capacity recovery events found')
     # Replay exactly the mathematical contract that produced this capture.
     for name in ['extended_capture.py','features.py','encoding.py','capture.py']:
         path='sentinel_pulse/'+name

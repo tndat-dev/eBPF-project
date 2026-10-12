@@ -1,0 +1,32 @@
+[Unit]
+Description=Sentinel Pulse 24h unadjudicated normal observation capture (%i)
+After=network-online.target
+Wants=network-online.target
+RequiresMountsFor=/mnt/sentinel-pulse-archive
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+EnvironmentFile=/etc/sentinel-pulse/normal-soak-%i.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/sentinel-pulse/runtime-venv/bin/python -m sentinel_pulse.extended_collection --source ${PULSE_SOURCE} --build ${PULSE_BUILD} --proof ${PULSE_PROOF} --root ${PULSE_CAPTURE_ROOT} --seconds ${PULSE_SECONDS} --maximum-bytes ${PULSE_MAXIMUM_BYTES} --minimum-free-bytes ${PULSE_MINIMUM_FREE_BYTES} --idle-aware
+TimeoutStartSec=infinity
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=15
+RestartPreventExitStatus=65
+CPUQuota=150%
+MemoryHigh=768M
+MemoryMax=1G
+Nice=15
+LimitMEMLOCK=infinity
+UMask=0027
+NoNewPrivileges=yes
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-normal-%i
+
+[Install]
+WantedBy=multi-user.target
