@@ -55,13 +55,19 @@ int histogram_sys_enter(struct bpf_raw_tracepoint_args *context)
     if (!count) {
         __u64 zero = 0;
         if (bpf_map_update_elem(&syscall_histogram, &key, &zero, BPF_NOEXIST) < 0) {
-            __u32 stat_key = 0;
-            __u64 *drops = bpf_map_lookup_elem(&histogram_stats, &stat_key);
-            if (drops)
-                __sync_fetch_and_add(drops, 1);
-            return 0;
+            /* Another CPU may have inserted this key at the same time. That
+             * is normal first-use contention, not a lost counter update. */
+            count = bpf_map_lookup_elem(&syscall_histogram, &key);
+            if (!count) {
+                __u32 stat_key = 0;
+                __u64 *drops = bpf_map_lookup_elem(&histogram_stats, &stat_key);
+                if (drops)
+                    __sync_fetch_and_add(drops, 1);
+                return 0;
+            }
+        } else {
+            count = bpf_map_lookup_elem(&syscall_histogram, &key);
         }
-        count = bpf_map_lookup_elem(&syscall_histogram, &key);
     }
     if (count)
         __sync_fetch_and_add(count, 1);

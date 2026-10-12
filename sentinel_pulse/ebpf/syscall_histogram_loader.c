@@ -94,7 +94,7 @@ static int previous_target_index(const uint64_t *ids, size_t count, uint64_t id)
 static int snapshot(int map_fd, int cpu_count, const uint64_t *ids,
                     size_t target_count, uint64_t *previous,
                     const uint64_t *previous_ids, size_t previous_count,
-                    double window_start, double window_end,
+                    double window_start,
                     uint64_t *entry_count, uint64_t *next_previous)
 {
     size_t cells = target_count * MAX_SYSCALL_ID;
@@ -107,6 +107,7 @@ static int snapshot(int map_fd, int cpu_count, const uint64_t *ids,
     struct histogram_key next_key;
     int has_key = 0;
     *entry_count = 0;
+    double snapshot_started_at = wall_time();
     while (bpf_map_get_next_key(map_fd, has_key ? key : NULL, &next_key) == 0) {
         key_storage[0] = next_key.cgroup_id;
         key_storage[1] = ((uint64_t)next_key.syscall_id) |
@@ -129,14 +130,18 @@ static int snapshot(int map_fd, int cpu_count, const uint64_t *ids,
         current[(size_t)index * MAX_SYSCALL_ID + next_key.syscall_id] = sum;
         (*entry_count)++;
     }
+    double window_end = wall_time();
+    double snapshot_scan_seconds = window_end - snapshot_started_at;
 
     for (size_t target = 0; target < target_count; target++) {
         int first = 1;
         int old_target = previous_target_index(previous_ids, previous_count, ids[target]);
         printf("{\"schema\":\"sentinel-pulse-syscall-id-histogram-v1\","
                "\"type\":\"interval\",\"window_start\":%.9f,"
-               "\"window_end\":%.9f,\"cgroup_id\":%llu,\"counts\":{",
-               window_start, window_end, (unsigned long long)ids[target]);
+               "\"window_end\":%.9f,\"snapshot_scan_seconds\":%.9f,"
+               "\"cgroup_id\":%llu,\"counts\":{",
+               window_start, window_end, snapshot_scan_seconds,
+               (unsigned long long)ids[target]);
         for (uint32_t syscall_id = 0; syscall_id < MAX_SYSCALL_ID; syscall_id++) {
             size_t cell = target * MAX_SYSCALL_ID + syscall_id;
             size_t old_cell = old_target < 0 ? 0 :
@@ -231,9 +236,10 @@ int main(int argc, char **argv)
         uint64_t entries = 0;
         memset(next_previous, 0, (size_t)MAX_TARGETS * MAX_SYSCALL_ID * sizeof(*next_previous));
         error = snapshot(histogram_fd, cpu_count, ids, target_count, previous,
-                         previous_ids, previous_count, previous_at, now,
+                         previous_ids, previous_count, previous_at,
                          &entries, next_previous);
         if (error) { fprintf(stderr, "histogram snapshot failed: %s\n", strerror(-error)); break; }
+        now = wall_time();
         memcpy(previous, next_previous,
                (size_t)MAX_TARGETS * MAX_SYSCALL_ID * sizeof(*previous));
         memcpy(previous_ids, ids, target_count * sizeof(*ids));
