@@ -44,12 +44,16 @@ và được xác nhận tải đủ 21 model trên cả ba worker.
 
 ## Kiểm chứng code
 
-Ngày 13/10/2026, toàn bộ repo đạt **1.130 passed, 7 skipped**. Test riêng
-candidate shadow đạt **6 passed**. Thay đổi mới giữ record của workload không
-có model ở trạng thái `candidate-model-unavailable` nhưng bỏ decode vector
-không cần thiết; output được flush theo lô mỗi giây và `fsync` tối đa mỗi 5
-giây. Decision/preview vẫn ghi từng dòng; không thay candidate, policy hay
-ngưỡng. Đây là test local, chưa phải kiểm thử runtime trên worker.
+Ngày 13/10/2026, toàn bộ repo đạt **1.131 passed, 7 skipped, 20 subtests**.
+Thay đổi mới giữ record của workload không có model ở trạng thái
+`candidate-model-unavailable` nhưng bỏ decode vector không cần thiết; output
+flush theo lô mỗi giây và `fsync` tối đa mỗi 5 giây. Decision/preview vẫn ghi
+từng dòng; không thay candidate, policy hay ngưỡng. Collector khi chạm ngưỡng
+byte đăng ký sẽ mở rộng ngân sách đúng bằng phần dung lượng hiện có sau khi trừ
+reserve, ghi journal; khi chạm reserve thì pause và tiếp tục sau phục hồi thay
+vì terminal sớm. Installer yêu cầu đủ free-space cho capture 70 GiB, shadow
+headroom 8 GiB và reserve 12 GiB. Các thay đổi mới đã unit-test local nhưng
+chưa deploy lên worker.
 
 ## Trạng thái cluster
 
@@ -77,20 +81,34 @@ warming và một schema header bị nhầm thành rejected. Schema header đã 
 chưa đủ để chứng minh latency ổn định. Có 130 preview dương trong 16,464 scored
 row; chưa adjudicate nên không gọi đây là false positive.
 
-Ngày 13/10, kết nối SSH tới worker1 bị từ chối xác thực với thông tin truy cập
-hiện có. Do đó chưa xác nhận được trạng thái unit/soak live, cũng chưa thể
-triển khai tối ưu shadow. Không có bằng chứng soak 24 giờ đã được mở. B1 là
-smoke tích hợp 5 phút, không phải normal soak và không dùng tính confusion
-matrix.
+Ngày 13/10, SSH tương tác xác nhận **6/6 node Ready, v1.34.10**. NFS
+`10.1.16.233:/sentinel-pulse` được mount trên cả ba worker; legacy collector và
+resolver đang active. Không thấy unit `sentinel-pulse-observation-*` hay
+thư mục normal-observation trên ba worker; **chưa có soak 24 giờ chạy**. Free
+space filesystem lần kiểm tra là worker1 **163.0 GB**, worker3 **302.6 GB**,
+worker4 **117.2 GB**. Các pod workload AIMS đang chạy; một số pod `Completed`
+là job/pod đã kết thúc, không gộp vào số replica Ready.
 
-Runbook đặt hard cap capture **70 GiB/node** và reserve **12 GiB free**. Khi
-free space thấp, collector đóng segment, ghi `capacity_events.jsonl`, pause
-(không tính normal exposure), rồi tiếp tục từ checkpoint sau phục hồi. Hard cap
-nếu chạm sẽ tạo `completed_with_capacity_limit`, không phải hoàn tất đủ 24 giờ;
-cần quan sát tốc độ thực khi SSH khôi phục. Trước soak cần deploy source đã
-test, chạy lại integrated smoke 5 phút, kiểm tra decision-age không tăng dần,
-schema header không bị reject, preview được giữ lại và đo tăng trưởng đĩa của
-cả capture lẫn shadow.
+Source commit `8f34cc5` đã được clone vào thư mục NFS riêng
+`runtime-8f34cc5-20261013/source`; model bundle cũ vẫn được giữ nguyên, manifest
+SHA `747c4eed…78a08`, policy SHA `fd0be94a…0f401`. Trên worker1, kernel hiện
+`6.8.0-138-generic` khớp kernel trong proof, runtime có NumPy 2.5.2/scikit-learn
+1.9.0 và load thành công 21 model. Tuy nhiên code optimizer/budget vừa cập nhật
+chưa được deploy và chưa chạy integrated smoke mới.
+
+Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
+terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
+ghi `expanded_byte_budget_from_current_free_space`. Khi free space chạm reserve
+12 GiB, collector đóng segment, ghi event pause (không tính normal exposure),
+chờ phục hồi rồi tiếp tục từ checkpoint. Việc này tránh fail sớm chỉ vì chạm
+ngưỡng kế hoạch, nhưng không thể bảo đảm trước hỏng đĩa, mất NFS/hệ điều hành
+hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run sẽ ở trạng thái
+waiting thay vì giả vờ đã hoàn tất.
+
+Trước soak cần đưa commit mới lên NFS, chạy integrated smoke 5 phút, xác nhận
+decision-age không tăng dần, schema header không bị reject, preview được giữ,
+và đo tốc độ tăng tổng dung lượng capture + shadow. Chỉ khởi chạy khi phép đo
+cho thấy worker ít dung lượng nhất còn đủ reserve/headroom cho 24 giờ.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để

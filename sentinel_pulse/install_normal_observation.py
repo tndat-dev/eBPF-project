@@ -25,19 +25,22 @@ VAR = Path('/var/lib')
 PYTHON = Path('/opt/sentinel-pulse/runtime-venv/bin/python')
 DEFAULT_BYTES = 70 * 1024**3
 DEFAULT_MIN_FREE = 12 * 1024**3
+DEFAULT_SHADOW_HEADROOM = 8 * 1024**3
 
 
 def install(*, run_id: str, source: Path, build: Path, proof: Path,
             candidate_dir: Path, manifest_sha256: str, policy: Path,
             seconds: int = 86400, maximum_bytes: int = DEFAULT_BYTES,
-            minimum_free_bytes: int = DEFAULT_MIN_FREE) -> Path:
+            minimum_free_bytes: int = DEFAULT_MIN_FREE,
+            shadow_headroom_bytes: int = DEFAULT_SHADOW_HEADROOM) -> Path:
     if os.geteuid() != 0:
         raise ValueError('installer must run as root')
     if not re.fullmatch(r'[a-z0-9][a-z0-9-]{2,63}', run_id):
         raise ValueError('run id must be a short lowercase systemd-safe slug')
     if not 3600 <= seconds <= 86400:
         raise ValueError('observation duration must be 1h..24h')
-    if maximum_bytes < 10 * 1024**3 or minimum_free_bytes < 4 * 1024**3:
+    if (maximum_bytes < 10 * 1024**3 or minimum_free_bytes < 4 * 1024**3
+            or shadow_headroom_bytes < 1024**3):
         raise ValueError('storage budget/reserve is below the registered safe minimum')
     for path in (source, build, proof, candidate_dir, policy):
         if not path.is_absolute() or any(c.isspace() for c in str(path)):
@@ -75,8 +78,11 @@ def install(*, run_id: str, source: Path, build: Path, proof: Path,
         raise ValueError('run id already has local state; refusing overwrite or implicit resume')
 
     free = shutil.disk_usage(VAR).free
-    if free < maximum_bytes + minimum_free_bytes:
-        raise ValueError(f'insufficient free space for preregistered budget: {free} bytes')
+    required_free = maximum_bytes + shadow_headroom_bytes + minimum_free_bytes
+    if free < required_free:
+        raise ValueError(
+            f'insufficient free space for capture + shadow headroom + reserve: '
+            f'{free} available, {required_free} required bytes')
 
     CONFIG.mkdir(mode=0o750, parents=True, exist_ok=True)
     run_root.mkdir(mode=0o750)
@@ -111,6 +117,7 @@ def install(*, run_id: str, source: Path, build: Path, proof: Path,
         'policy_sha256': loaded_policy.sha256, 'telemetry_contract': IDLE_CONTRACT,
         'requested_boundary_observation_seconds': seconds,
         'maximum_bytes': maximum_bytes, 'minimum_free_bytes': minimum_free_bytes,
+        'shadow_headroom_bytes': shadow_headroom_bytes,
         'created_at_unix': time.time(), 'purpose': 'independent normal observation; no fitting/tuning/promotion',
         'alerts_are_retained_for_post-run_adjudication': True,
         'infrastructure_gaps_are_not_labeled_normal': True,
@@ -134,13 +141,16 @@ def main(argv=None):
     parser.add_argument('--seconds', type=int, default=86400)
     parser.add_argument('--maximum-bytes', type=int, default=DEFAULT_BYTES)
     parser.add_argument('--minimum-free-bytes', type=int, default=DEFAULT_MIN_FREE)
+    parser.add_argument('--shadow-headroom-bytes', type=int, default=DEFAULT_SHADOW_HEADROOM,
+                        help='free-space admission budget for shadow output; not a hard output cap')
     args = parser.parse_args(argv)
     try:
         root = install(run_id=args.run_id, source=args.source, build=args.build,
                        proof=args.proof, candidate_dir=args.candidate_dir,
                        manifest_sha256=args.manifest_sha256, policy=args.policy,
                        seconds=args.seconds, maximum_bytes=args.maximum_bytes,
-                       minimum_free_bytes=args.minimum_free_bytes)
+                       minimum_free_bytes=args.minimum_free_bytes,
+                       shadow_headroom_bytes=args.shadow_headroom_bytes)
     except (OSError, ValueError, subprocess.CalledProcessError) as exc:
         parser.error(f'observation install refused: {type(exc).__name__}: {exc}')
     print(root)

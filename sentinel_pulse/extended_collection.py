@@ -54,6 +54,8 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
     if status.get('start_sha256')!=start_sha:raise ValueError('checkpoint registration binding differs')
     status.setdefault('capacity_pause_seconds',0.0)
     status.setdefault('capacity_pause_count',0)
+    status.setdefault('maximum_bytes',maximum_bytes)
+    status.setdefault('effective_maximum_bytes',maximum_bytes)
     if (root/'TERMINAL.json').exists():
         if json.loads((root/'TERMINAL.json').read_text()).get('start_sha256')!=start_sha:
             raise ValueError('terminal registration binding differs')
@@ -61,9 +63,9 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
     stopping=False
     capacity_wait_started=status.get('capacity_wait_started_at_unix')
     capacity_events=root/'capacity_events.jsonl'
-    def capacity_event(event,available,at):
+    def capacity_event(event,available,at,**details):
         row=dict(event=event,at_unix=at,available_bytes=available,minimum_free_bytes=minimum_free_bytes,
-                 not_normal=True,counts_toward_observation=False)
+                 not_normal=True,counts_toward_observation=False,**details)
         fd=os.open(capacity_events,os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o640)
         try:
             os.write(fd,(json.dumps(row,separators=(',',':'))+'\n').encode())
@@ -74,13 +76,10 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
         stopping=True
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     while not stopping and status['boundary_observation_seconds']<seconds:
-        available=os.statvfs(root).f_bavail*os.statvfs(root).f_frsize
+        fs=os.statvfs(root);available=fs.f_bavail*fs.f_frsize
         used=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
-        if used>=maximum_bytes:
-            capacity_event('hard_storage_budget_reached',available,time.time())
-            atomic_json(root/'TERMINAL.json',dict(status,state='completed_with_capacity_limit',
-                capacity_events_sha256=sha256_file(capacity_events),automatic_promotion=False));return
-        if available<minimum_free_bytes:
+        effective_maximum=int(status['effective_maximum_bytes'])
+        if available<=minimum_free_bytes:
             now=time.time()
             if capacity_wait_started is None:
                 capacity_wait_started=now
@@ -89,6 +88,23 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
                 capacity_event('paused_low_free_space',available,now)
             status.update(state='waiting_for_critical_filesystem_recovery',updated_at_unix=time.time())
             atomic_json(status_path,status);time.sleep(30);continue
+        if used>=effective_maximum:
+            # The preregistered byte budget is a capacity planning threshold,
+            # not a reason to terminate a valid-duration observation. Expand
+            # only into currently free bytes while preserving the reserve;
+            # every expansion is journaled and does not count as normal data.
+            now=time.time()
+            expanded_maximum=used+available-minimum_free_bytes
+            if expanded_maximum<=effective_maximum:
+                status.update(state='waiting_for_registered_storage_budget_recovery',
+                              updated_at_unix=now)
+                atomic_json(status_path,status);time.sleep(30);continue
+            capacity_event('expanded_byte_budget_from_current_free_space',available,now,
+                           prior_maximum_bytes=effective_maximum,
+                           new_maximum_bytes=expanded_maximum)
+            status.update(effective_maximum_bytes=expanded_maximum,
+                          state='storage_budget_expanded',updated_at_unix=now)
+            atomic_json(status_path,status)
         if capacity_wait_started is not None:
             now=time.time();paused=max(0.0,now-capacity_wait_started)
             status['capacity_pause_seconds']+=paused
@@ -174,7 +190,9 @@ def collect(source,build,root,seconds=7200,maximum_bytes=4*1024**3,
                         status.update(state='collecting',updated_at_unix=time.time(),current_segment=directory.name)
                         atomic_json(status_path,status);checkpoint=time.monotonic()
                         used=sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
-                        if used>=maximum_bytes or os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<minimum_free_bytes:
+                        fs=os.statvfs(root)
+                        if (used>=int(status['effective_maximum_bytes'])
+                                or fs.f_bavail*fs.f_frsize<=minimum_free_bytes):
                             reason='capacity_guard; retain data and reassess';break
                 else:reason='target_reached' if not stopping else 'system_stop_checkpoint_retained'
             finally:

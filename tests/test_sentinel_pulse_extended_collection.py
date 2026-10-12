@@ -111,6 +111,27 @@ def test_low_free_space_pauses_then_resumes_under_same_registration(setup,monkey
     assert terminal['capacity_events_sha256']==sha256_file(root/'capacity_events.jsonl')
 
 
+def test_registered_byte_budget_expands_from_free_space_instead_of_ending_run(setup,monkeypatch):
+    source,build,root,proof=setup
+    emit(monkeypatch,[(10,0),(10.5,1),(11,2)])
+    with (root/'prior-evidence.bin').open('wb') as evidence:
+        evidence.truncate(2*1024**3)
+    monkeypatch.setattr(ec.os,'statvfs',lambda _:SimpleNamespace(
+        f_bavail=5,f_frsize=1024**3))
+
+    ec.collect(source,build,root,seconds=1,maximum_bytes=1024**3,
+               minimum_free_bytes=3*1024**3,proof=proof)
+
+    terminal=json.loads((root/'TERMINAL.json').read_text())
+    events=[json.loads(line) for line in (root/'capacity_events.jsonl').read_text().splitlines()]
+    assert terminal['state']=='completed_observation'
+    assert terminal['boundary_observation_seconds']==1
+    assert terminal['effective_maximum_bytes'] > terminal['maximum_bytes']
+    assert [row['event'] for row in events]==['expanded_byte_budget_from_current_free_space']
+    assert events[0]['not_normal'] and not events[0]['counts_toward_observation']
+    assert events[0]['new_maximum_bytes']==terminal['effective_maximum_bytes']
+
+
 def test_system_stop_resumes_checkpoint_in_new_segment_not_from_zero(setup,monkeypatch):
     source,build,root,proof=setup
     emit(monkeypatch,[(10,0),(10.5,1)])
