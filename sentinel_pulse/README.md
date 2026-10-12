@@ -39,6 +39,14 @@ engineering hypothesis, not a measured optimal subset. The future histogram
 and blind comparison plan is `protocol/syscall-selection-evaluation-v1.json`;
 it is not executed and does not attach probes/change the frozen active soak.
 
+The idle-aware model-only freeze can be inspected through
+`sentinel_pulse.idle_candidate.IdleCandidateScorer`. This adapter requires a
+caller-pinned manifest SHA-256 and verifies each artifact before loading it.
+It returns raw model scores only: no policy, alert output, collector hookup,
+serving compatibility, or promotion. Do not use it as the production detector.
+Its fixture tests do not substitute for replaying the actual frozen artifacts
+or a blind normal/attack evaluation.
+
 An isolated exploratory stage is implemented in `syscall_feature_experiment`:
 32 retrained variants per workload (full, 29 leave-one-explicit-channel-out,
 no explicit channels, and top-16 training frequency proxy plus sensitive

@@ -266,6 +266,23 @@ Thí nghiệm chọn kênh syscall **608/608 fit đã hoàn thành**; chưa depl
 [Trạng thái riêng](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Các artifact/evidence
 vẫn giữ, không xóa dữ liệu cũ để che kết quả.
 
+### Shadow scorer đã bổ sung; chưa chạy trên candidate live
+
+Đã thêm [idle_candidate.py](sentinel_pulse/idle_candidate.py), một adapter
+offline/shadow riêng cho manifest `sentinel-pulse-model-only-candidate-v1`.
+Trước khi unpickle, nó yêu cầu SHA-256 manifest do caller pin, kiểm tra schema,
+feature contract, kích thước 249, history, trạng thái non-serving, từng hash
+artifact và calibration metadata. API chỉ trả raw tree/support/joint score;
+workload không có model trả `candidate-model-unavailable`, không bị coi là
+normal. Adapter không nhận policy, không ghi alerts, không nối collector và
+không có đường promotion; nó **không** làm candidate serving-compatible.
+
+Kiểm thử trong virtualenv tạm ngoài repo: **26 test pass** gồm adapter,
+freeze candidate, support scoring và reference benchmark. Artifact dùng trong
+test là fixture; chưa nạp manifest/model thật từ VM qua adapter, chưa đo live
+latency, chưa chạy policy hay tạo confusion matrix. Vì vậy đây mới là bước
+chuẩn bị cho phép replay/shadow tách biệt, không phải kết quả bảo mật mới.
+
 ## 6. Vận hành và giới hạn
 
 Fit support chạy trên VM `.234` bằng system service enabled, checkpoint/hash
