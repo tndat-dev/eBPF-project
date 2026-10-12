@@ -170,10 +170,6 @@
     "reference_service": "enabled and waiting_for_worker_audits",
     "promotion": false
   },
-  "source_sync": {
-    "host_and_master_worker_checkouts": "9ef0ba4",
-    "worktree_user_deletions_preserved": true
-  },
   "verification": {
     "targeted_vm_tests": "13 passed",
     "local_python_compile": "passed",
