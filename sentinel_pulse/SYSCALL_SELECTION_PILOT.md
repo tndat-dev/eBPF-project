@@ -109,11 +109,53 @@ Run bind source commit `3cd8d1d795222a79efc368497122c80997476356`, loader
 SHA-256 `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`,
 object SHA-256 `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`.
 
+Capture độc lập thứ hai, `syscall-id-histogram-worker1-steady-20261012-001`,
+được đăng ký trước bằng receipt SHA-256
+`efe8d52a5a48d311afe9fcbe6d8e624de009ff8f919466ec57c9b74f0827df1c` và hoàn tất
+exit 0 sau **721,0 s**. Probe có **117 chu kỳ**, 82 cgroup targets, 48 metadata
+snapshot hợp lệ, 28 identity workload/container có syscall và **2.830.672
+syscall entries**. Không có integrity problem, drop, identity bị mất hay lỗi
+receipt; map cao nhất 2.142 entries, scan snapshot tối đa 23,63 ms. Loader hash
+`e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`; object
+worker1 hash `6785c33cb190b0f72b8fdeef4a64cffc2a505d8507c06270c4e518f3de62ced4`.
+Source code đúng commit `3cd8d1d795222a79efc368497122c80997476356` được build
+trên kernel worker1.
+
+Analyzer/cohort nhận **2/2 capture**, không loại capture và không phát hiện
+overlap; cả hai node là worker1/worker3, cùng nhãn receipt `steady`. Cohort có
+**3.350.093 syscall entries**, 128 syscall ID khác nhau và 18 workload name
+(41 hàng workload × container × revision × regime, trong đó có cgroup pod-slice
+không mang syscall count). Các ID có count gộp nhiều nhất:
+
+| Syscall native x86-64 | ID | Số entry trong hai capture |
+|---|---:|---:|
+| read | 0 | 333.183 |
+| futex | 202 | 315.742 |
+| epoll_wait | 232 | 269.977 |
+| newfstatat | 262 | 253.636 |
+| recvfrom | 45 | 233.544 |
+| openat | 257 | 159.523 |
+| close | 3 | 150.811 |
+| epoll_ctl | 233 | 144.179 |
+| fstat | 5 | 143.790 |
+| epoll_pwait | 281 | 143.616 |
+| nanosleep | 35 | 119.643 |
+| mmap | 9 | 103.585 |
+| lseek | 8 | 100.592 |
+
+Đây là thống kê mô tả trên steady synthetic traffic khoảng 2 phút/node, không
+phủ peak/toolmix/burst/recovery hay mọi replica. Cả hai run không có attack,
+không chạy A/B throughput/latency nên số liệu không chứng minh feature nào hữu
+ích cho detection hoặc nên loại. Cgroup pilot dùng trung bình khoảng 2,01% và
+2,33% của một CPU core trong pha probe, peak RSS tương ứng 47,7 và 52,1 MiB;
+đây là tài nguyên tiến trình collector pilot, không phải overhead nhân quả lên
+workload. Cohort artifact vẫn đặt `selection_rank_allowed=false`.
+
 Checksum của tất cả artifact, gồm `ANALYSIS.json`, đã xác minh ở worker3 và trên
 bản sao NFS `/mnt/sentinel-pulse-archive/syscall-id-histogram/`
 `syscall-id-histogram-worker3-steady-20261012-001`. Histogram raw và chi tiết
 được giữ ngoài Git; report không thay thế dữ liệu nguồn. Cluster snapshot lúc
-13:05 UTC: 6/6 node và 100/100 controller sẵn sàng; 238 pod Running đều Ready,
-11 pod Succeeded là Job đã hoàn tất. C2 refit độc lập còn `214/608` lúc 13:07:36
+13:31 UTC: 6/6 node và 100/100 controller sẵn sàng; 238 pod Running đều Ready,
+11 pod Succeeded là Job đã hoàn tất. C2 refit độc lập còn `255/608` lúc 13:31:15
 UTC. Xem [`../SYSCALL_EXPERIMENT_TODO.md`](../SYSCALL_EXPERIMENT_TODO.md) và
 [`../CLUSTER_READINESS.md`](../CLUSTER_READINESS.md).

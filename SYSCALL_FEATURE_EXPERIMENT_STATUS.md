@@ -3,8 +3,8 @@
 Cập nhật trạng thái: **12/10/2026**. C1 lịch sử đã hoàn tất **608/608 fit** trên
 VM `.234`, nhưng chỉ lưu prediction/score chứ không có model pickle. Refit C2
 để tạo đủ artifact hiện đang chạy; đây chưa phải blind recall hay kết quả
-confusion matrix. SSH đọc trực tiếp lúc **13:07:36 UTC** cho thấy unit đang
-`activating`; journal ghi `214/608 fit`; đây là snapshot,
+confusion matrix. SSH đọc trực tiếp lúc **13:31:15 UTC** cho thấy unit đang
+`activating`; journal ghi `255/608 fit`; đây là snapshot,
 không phải trạng thái cuối cùng.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
@@ -30,8 +30,8 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` đã ghi **214/608 fit** lúc
-13:07:36 UTC cho `production/aims-postgres-cnpg:postgres`. C2 tiếp tục chạy riêng;
+đang chạy nền trên `.234`; `attempt-000002` đã ghi **255/608 fit** lúc
+13:31:15 UTC cho `production/aims-rabbitmq-server:rabbitmq`. C2 tiếp tục chạy riêng;
 không bị pilot syscall-ID đụng vào. Có model artifacts trong output;
 thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
@@ -78,8 +78,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 ## Chạy ngầm và phục hồi
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` đang ở workload `production/aims-postgres-cnpg:postgres`,
-`completed_fits=214/608` tại lần SSH kiểm tra mới nhất (12/10/2026 13:07:36 UTC).
+`attempt-000002` đang ở workload `production/aims-rabbitmq-server:rabbitmq`,
+`completed_fits=255/608` tại lần SSH kiểm tra mới nhất (12/10/2026 13:31:15 UTC).
 Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
@@ -106,9 +106,9 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
 
 - Holdout normal độc lập với training nhưng đã được xem trong phân tích trước: kết quả **exploratory**, cần tập đánh giá mới để xác nhận lựa chọn.
 - Raw model anomaly rate không phải policy alert FPR. TP/FP/TN/FN, precision, attack recall và kernel-to-alert giữ `null` khi chưa có ground truth/phép đo tương ứng. Inference timing trên host có quota không phải latency production.
-- Không attach collector mới, inject attack, deploy subset hoặc tune model/policy. Soak production đã completed lúc 12:42:20 ngày 07/10; model/policy/raw seals giữ nguyên, không relaunch soak. [Trạng thái soak](SOAK_OBSERVATION_STATUS.md).
+- Không attach vào collector serving, inject attack, deploy subset hoặc tune model/policy. Các exact-ID pilot là probe tách biệt, read-only, chạy bounded trên worker1/worker3. Soak production đã completed lúc 12:42:20 ngày 07/10; model/policy/raw seals giữ nguyên, không relaunch soak. [Trạng thái soak](SOAK_OBSERVATION_STATUS.md).
 - Soak normal 24 giờ đã kết thúc lúc 12:42:20 ngày 07/10 theo receipt cũ; không có soak hay blind attack đang chạy tại snapshot 12/10. Cluster đã phục hồi: toàn bộ Running pod Ready, 10/10 microservice health endpoint trả 200; incident DiskPressure trước cleanup được ghi ở [CLUSTER_READINESS.md](CLUSTER_READINESS.md). Không gộp các khoảng lỗi/telemetry thiếu vào normal hoặc TN.
-- Thêm collector pilot tách biệt `ebpf/syscall_histogram.bpf.c` + loader: per-ID counts theo cgroup, map cap 65.536 keys, drop counter và duration bắt buộc; Make target không đụng collector đang cài. Nhánh `experiment/syscall-id-histogram-pilot` đã push qua commit `f50dfad` (histogram race/snapshot hardening ở `cb6c94e`). Build lại trên worker3 (.239; Ubuntu 24.04.4, kernel 6.8.0-138, clang 18.1.3, libbpf 1.4) thành công với `-Wall -Wextra -Werror`; binary từ chối thiếu tham số (exit 2) trước khi load/attach. SHA-256 object `cee7d00dfeb27e909642c5d7e2d18bf02da3421d4ea15d1805f21b4b7f40a4c0`, loader `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`.
+- Thêm collector pilot tách biệt `ebpf/syscall_histogram.bpf.c` + loader: per-ID counts theo cgroup, map cap 65.536 keys, drop counter và duration bắt buộc; Make target không đụng collector đang cài. Nhánh `experiment/syscall-id-histogram-pilot` đã push qua commit `f50dfad` (histogram race/snapshot hardening ở `cb6c94e`). Worker3 và worker1 (Ubuntu 24.04.4, kernel 6.8.0-138, clang 18.1.3, libbpf) build thành công; binary từ chối thiếu tham số (exit 2) trước khi load/attach. Loader SHA-256 `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`; object worker3 `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`, worker1 `6785c33cb190b0f72b8fdeef4a64cffc2a505d8507c06270c4e518f3de62ced4`.
 - Đã thêm harness `sentinel_pulse/syscall_histogram_pilot.py` và analyzer
   `sentinel_pulse/syscall_histogram_analysis.py`: START/raw/terminal/seal,
   snapshots metadata, host/cgroup metrics, receipt traffic preregistered, kiểm
@@ -116,13 +116,12 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
   độc lập mà không gộp revision/regime hay double-count run chồng thời gian.
   Mười regression test mới pass trên host bằng
   `PYTHONPATH=. python3 -m pytest -q tests/test_sentinel_pulse_syscall_histogram_pilot.py`.
-- Histogram pilot `syscall-id-histogram-worker3-steady-20261012-001` đã hoàn tất
-  độc lập bằng systemd trên worker3, exit 0. Có 119 chu kỳ/7 workload container,
-  519.421 syscall entries; analyzer không có integrity problem và bản archive
-  NFS đã xác minh SHA-256. Đây chỉ là một node/steady regime, không đủ để rank
-  feature hoặc kết luận overhead A/B. Kết quả/giới hạn nằm trong
-  `syscall_analysis.md` và runbook.
-- Cluster snapshot 12/10 13:05 UTC xác nhận 6/6 node Ready, 100/100
+- Exact-ID pilot độc lập trên worker1 + worker3 đã hoàn tất exit 0: 236 chu kỳ
+  tổng, 3.350.093 syscall entries; analyzer hợp lệ 2/2, cohort không loại run.
+  Raw/ANALYSIS/COHORT/checksum lưu ngoài Git trên NFS. Chỉ hai capture steady
+  ngắn, chưa có A/B overhead, syscall ranking, blind attack hay precision/recall.
+  Kết quả/giới hạn và top syscall ID ghi trong `syscall_analysis.md`/runbook.
+- Cluster snapshot 12/10 13:31 UTC xác nhận 6/6 node Ready, 100/100
   Deployment/StatefulSet/DaemonSet đủ replica, 238 pod Running đều Ready và 11
   Job pod Succeeded. Không còn pod Failed/Pending; incident DiskPressure cũ
   vẫn được lưu, không tính vào normal/TN. C2 và soak cũ không bị thay đổi.

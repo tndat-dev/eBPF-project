@@ -1,9 +1,9 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành: **12/10/2026 13:08 UTC**. Đây là checklist điều phối,
-không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:07:36 UTC:
+Cập nhật hiện hành: **12/10/2026 13:32 UTC**. Đây là checklist điều phối,
+không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:31:15 UTC:
 service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
-`214/608` fit. Không sửa hoặc dừng service này.
+`255/608` fit. Không sửa hoặc dừng service này.
 
 ## Đã làm trong lượt hiện tại
 
@@ -31,7 +31,7 @@ service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
   OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
   không phải pod readiness; chi tiết trong readiness report.
 - [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **13:07:36 UTC**: journal `214/608`;
+- [x] Cập nhật trạng thái C2 qua SSH lúc **13:31:15 UTC**: journal `255/608`;
   job vẫn chạy nền, chưa có terminal result.
 - [x] Pre-register receipt cho run `syscall-id-histogram-worker3-steady-
   20261012-001`, SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`;
@@ -43,8 +43,15 @@ service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
   snapshot 1 s → post 300 s. Run completed với exit 0, 119 chu kỳ, 7 workload
   container có syscall, 519.421 syscall entries; analyzer không ghi lỗi integrity,
   drop, map pressure, identity gap hay lệch traffic receipt. Seal được kiểm tra
-  và bản sao trên NFS `.233` đã xác minh checksum. Đây chỉ là một worker, một
-  steady regime; chưa đại diện toàn AIMS và chưa đủ để chọn/rank feature.
+  và bản sao trên NFS `.233` đã xác minh checksum.
+- [x] Capture lặp độc lập trên worker1 với receipt riêng, preregister trước khi
+  chạy: `syscall-id-histogram-worker1-steady-20261012-001`, SHA-256
+  `efe8d52a5a48d311afe9fcbe6d8e624de009ff8f919466ec57c9b74f0827df1c`.
+  Run completed exit 0, 117 chu kỳ, 82 cgroup targets, 28 workload/container có
+  count, 2.830.672 syscall entries; không drop/identity gap/integrity problem.
+  Analyzer và cohort hợp lệ cho cả worker1 + worker3; 2/2 capture được nhận,
+  không overlap hay bị loại. Raw, ANALYSIS, COHORT và checksum được lưu/kiểm
+  tra trên NFS `.233`. Đây vẫn chỉ là hai capture steady ngắn; cohort cấm tự rank.
 
 ## Checklist để có bằng chứng chọn syscall
 
@@ -115,11 +122,11 @@ service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
 
 ## Gate hiện tại
 
-Bounded feasibility pilot đã có terminal/seal và analyzer hợp lệ. Kết quả và
-giới hạn được ghi trong `syscall_analysis.md` cùng
-`sentinel_pulse/SYSCALL_SELECTION_PILOT.md`. Chưa có kết luận overhead A/B,
-syscall ranking, ablation mới hay blind evaluation; một worker/run không đại
-diện toàn AIMS. C2 là offline normal-only refit, độc lập với pilot và vẫn đang
-chạy nền.
+Hai bounded feasibility capture trên worker1/worker3 đã có terminal/seal;
+analyzer và cohort đều hợp lệ. Kết quả/giới hạn được ghi trong
+`syscall_analysis.md` cùng `sentinel_pulse/SYSCALL_SELECTION_PILOT.md`. Chưa có
+đối chứng overhead A/B, syscall feature ranking, ablation mới hay blind
+evaluation; mới có steady regime và chưa phủ mọi replica/regime. C2 là offline
+normal-only refit, độc lập với pilot và vẫn chạy nền.
 Không khai báo project xong chỉ vì TODO được tạo; checklist chỉ chuyển sang
 hoàn tất khi có artifact và receipt có thể kiểm tra độc lập.

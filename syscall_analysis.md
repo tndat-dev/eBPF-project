@@ -244,20 +244,49 @@ tổng **519.421 syscall entries**. 14 identity còn lại không có count tron
 capture này; không diễn giải đó là workload chưa chạy hoặc syscall không tồn
 tại nói chung.
 
-Trong capture steady đơn lẻ này, syscall ID có count gộp cao nhất là 232
-(**122.671**), 202 (**102.581**), 45 (**67.476**), 0 (**25.215**) và 17
-(**22.257**). Theo container: Kafka 184.676; Istio proxy của waypoint 185.741;
-RabbitMQ 53.193; Redis Sentinel 35.064; PostgreSQL 34.217; Redis 23.954;
-frontend 2.576. Đây là tần suất của một node/replica và khoảng steady hai phút,
-không đại diện workload, peak/burst/recovery và không chứng minh syscall nào
-nên bỏ/giữ trong model.
+Capture độc lập worker1
+(`syscall-id-histogram-worker1-steady-20261012-001`) hoàn tất exit 0: 117 chu kỳ,
+82 cgroup targets, 28 workload/container có count và **2.830.672 entries**.
+Analyzer ghi 117/117 integrity record, 48 metadata snapshot dùng được, không có
+integrity problem, dropped update, identity gap hay receipt error; map cao nhất
+2.142 entries, scan snapshot tối đa 23,63 ms. Capture này có 128 syscall ID
+khác nhau; số ID không đồng nghĩa 128 feature tốt hoặc hữu ích.
 
-Capture và bản sao NFS đã xác minh SHA-256; raw data nằm ngoài Git. Max snapshot
-scan time là 4,52 ms. Chưa có đối chứng A/B throughput hoặc p95/p99 response
-time nên chưa thể kết luận overhead. Pilot process dùng 2,767 s CPU và peak RSS
-47,9 MiB; đây không phải chi phí toàn pipeline. C2 offline refit còn chạy;
-journal SSH lúc **13:07:36 UTC** ghi **214/608 fit**, chưa có terminal. Cluster
-lúc **13:05 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
+Cohort analyzer nhận **2/2 capture** trên hai node worker1/worker3, không overlap
+hoặc loại run. Tổng **3.350.093 syscall entries**, 128 ID khác nhau, 18 workload
+name và 41 hàng workload × container × revision × regime. Trong cohort steady
+này, ID/tên syscall native x86-64 được đối chiếu với bảng ABI/header Linux:
+
+| Syscall | ID | Số entry |
+|---|---:|---:|
+| read | 0 | 333.183 |
+| futex | 202 | 315.742 |
+| epoll_wait | 232 | 269.977 |
+| newfstatat | 262 | 253.636 |
+| recvfrom | 45 | 233.544 |
+| openat | 257 | 159.523 |
+| close | 3 | 150.811 |
+| epoll_ctl | 233 | 144.179 |
+| fstat | 5 | 143.790 |
+| epoll_pwait | 281 | 143.616 |
+| nanosleep | 35 | 119.643 |
+| mmap | 9 | 103.585 |
+| lseek | 8 | 100.592 |
+
+Đây mới là hai capture steady ngắn, trên hai node và một revision/regime tại mỗi
+thời điểm; không phủ peak/toolmix/burst/recovery hay mọi replica của AIMS. Count
+bằng 0 ở một cgroup hoặc syscall trong hai phút không chứng minh syscall không
+được dùng ngoài khoảng đó. Kết quả chỉ mô tả tần suất, không chứng minh syscall
+nào nên bị bỏ/giữ và không phải feature importance hay blind detection result.
+
+SHA-256 của cả hai capture, ANALYSIS và COHORT đã xác minh tại NFS
+`10.1.16.233:/sentinel-pulse`; raw data nằm ngoài Git. Max snapshot scan lần
+worker3 là 4,52 ms, worker1 là 23,63 ms. Pilot process CPU trung bình pha probe
+lần lượt 2,01% và 2,33% của một core, peak RSS 47,7 và 52,1 MiB. Đây là tài
+nguyên tiến trình pilot, không phải tác động nhân quả lên workload: chưa có
+đối chứng A/B throughput hay p95/p99 response-time. C2 offline refit còn chạy;
+journal SSH lúc **13:31:15 UTC** ghi **255/608 fit**, chưa có terminal. Cluster
+lúc **13:31 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
 đều Ready, 11 pod Succeeded là Job đã hoàn tất. Incident Evicted/DiskPressure
 trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
 Checklist thực hiện và điều kiện hoàn tất ở
