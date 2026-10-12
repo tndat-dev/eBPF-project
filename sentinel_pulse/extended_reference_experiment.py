@@ -138,6 +138,27 @@ def build_index(root,inputs,include_idle=False):
     atomic_json(root/'INDEX.json',index);return index
 
 
+def finalize_reference_lifecycle(root,result,expected):
+    completed=len(result['workloads']);fitted=sum('artifact' in row for row in result['workloads'].values())
+    if completed!=expected:raise ValueError('reference results do not cover the full workload index')
+    terminal_path=root/'TERMINAL.json'
+    if terminal_path.exists():
+        terminal=json.loads(terminal_path.read_text())
+        if (terminal.get('state')!='completed_reference_experiment'
+                or terminal.get('completed')!=completed or terminal.get('fitted')!=fitted):
+            raise ValueError('reference terminal does not match completed workload results')
+    else:
+        terminal=dict(state='completed_reference_experiment',completed=completed,fitted=fitted,
+            normal_training_admission=False,automatic_promotion=False,finished_at_unix=time.time())
+        atomic_json(terminal_path,terminal)
+    finished=terminal.get('finished_at_unix',time.time())
+    status=dict(state='completed_reference_experiment',completed=completed,expected=expected,
+        fitted=fitted,updated_at_unix=finished)
+    queue=dict(state='completed_reference_experiment',completed=completed,expected=expected,
+        fitted=fitted,terminal_sha256=sha256_file(terminal_path),updated_at_unix=finished)
+    atomic_json(root/'STATUS.json',status);atomic_json(root/'QUEUE.json',queue)
+
+
 def run(source,root,credential,known_hosts,include_idle=False):
     commit,files=clean_source(source)
     audit_root='/var/lib/sentinel-pulse-idle-audit-c1-20261012' if include_idle else AUDIT
@@ -196,10 +217,7 @@ def run(source,root,credential,known_hosts,include_idle=False):
         except ValueError as exc:
             row=dict(state='insufficient_or_invalid_reference',error=str(exc),precision=None,recall=None)
         result['workloads'][key]=row;atomic_json(path,result)
-    if (root/'TERMINAL.json').exists():return
-    atomic_json(root/'TERMINAL.json',dict(state='completed_reference_experiment',
-        completed=len(result['workloads']),fitted=sum('artifact' in r for r in result['workloads'].values()),
-        normal_training_admission=False,automatic_promotion=False,finished_at_unix=time.time()))
+    finalize_reference_lifecycle(root,result,expected=len(index['workloads']))
 
 
 def main():

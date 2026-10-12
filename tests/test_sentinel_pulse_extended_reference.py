@@ -47,3 +47,17 @@ def test_fetch_waits_without_paramiko_or_password_on_command_line(tmp_path,monke
     assert exp.fetch_inputs(tmp_path,credential,tmp_path/'known_hosts') is None
     assert 'StrictHostKeyChecking=yes' in observed[0] and observed[0][:2]==['sshpass','-f']
     assert all('fixture-password-not-real' not in word for word in observed[0])
+
+
+def test_reference_completion_reconciles_queue_and_status_without_rewriting_terminal(tmp_path):
+    result={'workloads':{'fit':{'artifact':'m.pkl'},'insufficient':{'state':'insufficient_or_invalid_reference'}}}
+    terminal={'state':'completed_reference_experiment','completed':2,'fitted':1,
+              'normal_training_admission':False,'automatic_promotion':False,'finished_at_unix':123.0}
+    exp.atomic_json(tmp_path/'TERMINAL.json',terminal)
+    before=exp.sha256_file(tmp_path/'TERMINAL.json')
+    exp.finalize_reference_lifecycle(tmp_path,result,expected=2)
+    assert exp.sha256_file(tmp_path/'TERMINAL.json')==before
+    assert json.loads((tmp_path/'STATUS.json').read_text())=={
+        'state':'completed_reference_experiment','completed':2,'expected':2,'fitted':1,'updated_at_unix':123.0}
+    queue=json.loads((tmp_path/'QUEUE.json').read_text())
+    assert queue['state']=='completed_reference_experiment' and queue['terminal_sha256']==before
