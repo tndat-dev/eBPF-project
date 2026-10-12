@@ -1,6 +1,6 @@
 # Trạng thái readiness cụm Kubernetes
 
-Cập nhật từ kiểm tra trực tiếp qua SSH: **12/10/2026 13:05 UTC**. Báo cáo này
+Cập nhật từ kiểm tra trực tiếp qua SSH: **12/10/2026 13:10 UTC**. Báo cáo này
 tách readiness của workload đang được quản lý khỏi pod đã kết thúc; `Succeeded`
 là trạng thái hợp lệ của Job, không phải microservice lỗi.
 
@@ -56,7 +56,7 @@ Deployment, ReplicaSet, Job, PVC, dữ liệu volume hay log thí nghiệm. Gi�
 pod `Succeeded` theo vòng đời bình thường; không restart database/broker và
 không thay đổi cấu hình storage.
 
-Kiểm tra mới nhất lúc **12/10/2026 13:05 UTC**: production còn **66
+Kiểm tra mới nhất lúc **12/10/2026 13:10 UTC**: production còn **66
 Running/Ready + 4 Succeeded**, không còn pod Failed; toàn cluster có **238
 Running/Ready + 11 Succeeded**, không có pod Failed/Pending hoặc Running nào
 chưa Ready. Cả **100 Deployment, StatefulSet, DaemonSet** đạt replica mong muốn.
