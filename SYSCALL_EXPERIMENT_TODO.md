@@ -1,9 +1,9 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành: **12/10/2026**. Đây là checklist điều phối công việc, không
-phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:55:13 UTC: service
-`pulse-syscall-variant-models-c2.service` đang `activating`; journal ghi
-`192/608` fit. Không sửa hoặc dừng service này.
+Cập nhật hiện hành: **12/10/2026 13:08 UTC**. Đây là checklist điều phối,
+không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:07:36 UTC:
+service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
+`214/608` fit. Không sửa hoặc dừng service này.
 
 ## Đã làm trong lượt hiện tại
 
@@ -31,7 +31,7 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:55:
   OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
   không phải pod readiness; chi tiết trong readiness report.
 - [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **12:55:13 UTC**: journal `192/608`;
+- [x] Cập nhật trạng thái C2 qua SSH lúc **13:07:36 UTC**: journal `214/608`;
   job vẫn chạy nền, chưa có terminal result.
 - [x] Pre-register receipt cho run `syscall-id-histogram-worker3-steady-
   20261012-001`, SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`;
@@ -39,9 +39,12 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:55:
 - [x] Đồng bộ commit `3cd8d1d` sang clone riêng trên worker3 và build loader/object
   theo kernel hiện tại. Hash loader `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`,
   object `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`.
-- [x] Khởi chạy systemd bounded capture worker3: baseline 300 s → probe 120 s /
-  snapshot 1 s → post 300 s. Snapshot đầu unit active ở baseline, chưa attach
-  probe và chưa có histogram result. Không inject attack.
+- [x] Chạy systemd bounded capture worker3: baseline 300 s → probe 120 s /
+  snapshot 1 s → post 300 s. Run completed với exit 0, 119 chu kỳ, 7 workload
+  container có syscall, 519.421 syscall entries; analyzer không ghi lỗi integrity,
+  drop, map pressure, identity gap hay lệch traffic receipt. Seal được kiểm tra
+  và bản sao trên NFS `.233` đã xác minh checksum. Đây chỉ là một worker, một
+  steady regime; chưa đại diện toàn AIMS và chưa đủ để chọn/rank feature.
 
 ## Checklist để có bằng chứng chọn syscall
 
@@ -112,10 +115,11 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:55:
 
 ## Gate hiện tại
 
-Harness đang chạy một bounded feasibility pilot với receipt preregistered;
-snapshot đầu còn ở baseline. Chưa có histogram đã seal/analyzed, overhead result,
-syscall ranking hay blind evaluation. Chỉ khi terminal/seals và analyzer đạt
-integrity mới đánh giá capture; một node/run không đại diện toàn AIMS. C2 là
-offline normal-only refit, độc lập với pilot.
+Bounded feasibility pilot đã có terminal/seal và analyzer hợp lệ. Kết quả và
+giới hạn được ghi trong `syscall_analysis.md` cùng
+`sentinel_pulse/SYSCALL_SELECTION_PILOT.md`. Chưa có kết luận overhead A/B,
+syscall ranking, ablation mới hay blind evaluation; một worker/run không đại
+diện toàn AIMS. C2 là offline normal-only refit, độc lập với pilot và vẫn đang
+chạy nền.
 Không khai báo project xong chỉ vì TODO được tạo; checklist chỉ chuyển sang
 hoàn tất khi có artifact và receipt có thể kiểm tra độc lập.

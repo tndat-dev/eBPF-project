@@ -91,4 +91,29 @@ Target build chỉ biên dịch object/loader; nó không attach probe, không c
 - Báo tần suất count/share/rate theo workload, regime, revision và thời lượng đủ điều kiện; kèm missing telemetry, map drops, CPU/RSS, throughput và p95/p99.
 - Mọi alert trong normal capture được giữ lại và adjudicate sau run; không ép zero-alert gate.
 
-Trạng thái hiện tại: code BPF/loader đã build trên worker3 (kernel BTF, clang 18.1.3, libbpf headers); runner/analyzer/cohort aggregator offline có **10 regression tests pass**. Run `syscall-id-histogram-worker3-steady-20261012-001` có receipt preregistered SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`; systemd unit đang ở baseline 300 s trước probe 120 s/1 s snapshot và post 300 s. Đây là one-node feasibility run, chưa phải kết quả frequency đại diện, overhead hay syscall selection; chưa có histogram terminal để phân tích. Hash object/loader và run state ở [`../SYSCALL_EXPERIMENT_TODO.md`](../SYSCALL_EXPERIMENT_TODO.md). Cluster readiness/incident ở [`../CLUSTER_READINESS.md`](../CLUSTER_READINESS.md).
+Trạng thái hiện tại (**12/10/2026**): BPF/loader được build trên worker3
+(kernel BTF, clang 18.1.3, libbpf headers); 10 regression tests của
+runner/analyzer/cohort pass. Run
+`syscall-id-histogram-worker3-steady-20261012-001` có receipt preregistered SHA-256
+`f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`, hoàn tất
+exit 0 sau **722,0 s**: baseline 300 s, probe 120 s với chu kỳ xấp xỉ 1 s,
+post 300 s. Analyzer kiểm tra **119 chu kỳ**, 119 integrity record, 48 metadata
+snapshot dùng được, không có problem, syscall count không gán identity là 0;
+7 workload/container trên worker3 có tổng cộng **519.421 syscall entries**.
+Các syscall ID nhiều nhất gộp trong đúng capture này: 232 (122.671), 202
+(102.581), 45 (67.476), 0 (25.215), 17 (22.257). Đây là số đếm của một node,
+một steady regime, không chứng minh tập feature tối ưu, không phải benchmark
+overhead A/B, không có attack và không cho phép suy ra precision/recall.
+
+Run bind source commit `3cd8d1d795222a79efc368497122c80997476356`, loader
+SHA-256 `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`,
+object SHA-256 `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`.
+
+Checksum của tất cả artifact, gồm `ANALYSIS.json`, đã xác minh ở worker3 và trên
+bản sao NFS `/mnt/sentinel-pulse-archive/syscall-id-histogram/`
+`syscall-id-histogram-worker3-steady-20261012-001`. Histogram raw và chi tiết
+được giữ ngoài Git; report không thay thế dữ liệu nguồn. Cluster snapshot lúc
+13:05 UTC: 6/6 node và 100/100 controller sẵn sàng; 238 pod Running đều Ready,
+11 pod Succeeded là Job đã hoàn tất. C2 refit độc lập còn `214/608` lúc 13:07:36
+UTC. Xem [`../SYSCALL_EXPERIMENT_TODO.md`](../SYSCALL_EXPERIMENT_TODO.md) và
+[`../CLUSTER_READINESS.md`](../CLUSTER_READINESS.md).

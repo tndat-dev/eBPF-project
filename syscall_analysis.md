@@ -106,7 +106,12 @@ Gộp 19 workload, bản full có **274 raw anomaly / 19.456 context (1,4083%)**
 
 Kế hoạch máy đọc được: [syscall-selection-evaluation-v1.json](sentinel_pulse/protocol/syscall-selection-evaluation-v1.json). **Đây là kế hoạch chưa chạy**, không phải kết quả đã đo hay registration hồi tố cho capture đã xem.
 
-Đã thêm collector pilot riêng để có thể thu histogram theo syscall ID chính xác, thay vì cố suy ra ID từ hash bins: [runbook pilot](sentinel_pulse/SYSCALL_SELECTION_PILOT.md). Capture một node trên worker3 đang chạy qua baseline preregistered trước khi attach; chưa có dữ liệu tần suất mới hay overhead measurement. Không xem việc biên dịch thành công là kết quả thực nghiệm.
+Đã thêm collector pilot riêng để thu histogram theo syscall ID chính xác, thay
+vì suy ra ID từ hash bins: [runbook pilot](sentinel_pulse/SYSCALL_SELECTION_PILOT.md).
+Capture preregistered một node trên worker3 đã hoàn tất và vượt kiểm tra
+integrity; kết quả exploratory bên dưới chưa đại diện toàn cluster và không
+phải overhead benchmark A/B. Không xem việc biên dịch thành công tự nó là kết
+quả thực nghiệm.
 
 1. Thu normal mới với histogram exact theo từng syscall ID trên từng workload/container, có nhãn traffic thật cho steady/toolmix/peak/burst/recovery. Không thể giải mã histogram đầy đủ từ hash bins cũ. Collector bổ sung chỉ gắn trong run riêng sau soak hiện hành; đo CPU/RAM/map integrity và ảnh hưởng throughput trước thu dài.
 2. Tách dữ liệu lựa chọn feature, train/calibration normal và evaluation chưa xem theo thời gian/nguồn/revision. Xếp hạng tần suất và chọn top-K chỉ trên dữ liệu phát triển. Không dùng normal test hoặc attack để chọn syscall/threshold.
@@ -229,14 +234,32 @@ telemetry gap hoặc identity thiếu sẽ vẫn được ghi nhận nhưng khô
 ranking. Không có receipt thì capture là engineering/unlabelled.
 
 Mười regression test tổng hợp cho harness/analyzer/cohort pass trên host; đây
-chỉ là kiểm thử logic và seal, không phải capture thật. Tại SSH snapshot
-**12/10/2026 12:55:13 UTC**, C2 offline refit đang chạy nền; journal ghi
-**192/608 fit**. Cluster audit xác nhận 6/6 node Ready, mọi Running pod Ready,
-10/10 microservice health endpoint trả 200. Trước cleanup có 31 pod production
-và 53 pod Velero terminal Evicted do DiskPressure/ephemeral-storage; nguyên
-nhân và cleanup được ghi tại `CLUSTER_READINESS.md`. Receipt cho one-node
-feasibility pilot đã preregister; capture đang ở baseline và chưa có histogram
-đã seal, overhead measurement hay syscall ranking mới.
+chỉ là kiểm thử logic, tách biệt với capture thật. Run
+`syscall-id-histogram-worker3-steady-20261012-001` hoàn tất ngày 12/10/2026:
+baseline 300 s, probe 120 s, post 300 s; 119 chu kỳ khoảng 1 s; terminal exit 0.
+Analyzer trả `capture_valid_for_feature_selection=true`, không có integrity
+problem, telemetry drop, thiếu workload identity hay lỗi traffic receipt. Có 21
+cgroup identity trong allow-list, trong đó 7 workload/container có syscall;
+tổng **519.421 syscall entries**. 14 identity còn lại không có count trong
+capture này; không diễn giải đó là workload chưa chạy hoặc syscall không tồn
+tại nói chung.
+
+Trong capture steady đơn lẻ này, syscall ID có count gộp cao nhất là 232
+(**122.671**), 202 (**102.581**), 45 (**67.476**), 0 (**25.215**) và 17
+(**22.257**). Theo container: Kafka 184.676; Istio proxy của waypoint 185.741;
+RabbitMQ 53.193; Redis Sentinel 35.064; PostgreSQL 34.217; Redis 23.954;
+frontend 2.576. Đây là tần suất của một node/replica và khoảng steady hai phút,
+không đại diện workload, peak/burst/recovery và không chứng minh syscall nào
+nên bỏ/giữ trong model.
+
+Capture và bản sao NFS đã xác minh SHA-256; raw data nằm ngoài Git. Max snapshot
+scan time là 4,52 ms. Chưa có đối chứng A/B throughput hoặc p95/p99 response
+time nên chưa thể kết luận overhead. Pilot process dùng 2,767 s CPU và peak RSS
+47,9 MiB; đây không phải chi phí toàn pipeline. C2 offline refit còn chạy;
+journal SSH lúc **13:07:36 UTC** ghi **214/608 fit**, chưa có terminal. Cluster
+lúc **13:05 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
+đều Ready, 11 pod Succeeded là Job đã hoàn tất. Incident Evicted/DiskPressure
+trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
 Checklist thực hiện và điều kiện hoàn tất ở
 [`SYSCALL_EXPERIMENT_TODO.md`](SYSCALL_EXPERIMENT_TODO.md); trạng thái C2/pilot
 ở [`SYSCALL_FEATURE_EXPERIMENT_STATUS.md`](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
