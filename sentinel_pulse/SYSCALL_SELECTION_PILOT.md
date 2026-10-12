@@ -38,4 +38,4 @@ Target build chỉ biên dịch object/loader; nó không attach probe, không c
 - Báo tần suất count/share/rate theo workload, regime, revision và thời lượng đủ điều kiện; kèm missing telemetry, map drops, CPU/RSS, throughput và p95/p99.
 - Mọi alert trong normal capture được giữ lại và adjudicate sau run; không ép zero-alert gate.
 
-Trạng thái hiện tại của pilot: **code mới được thêm ở workspace; chưa build trên node, chưa attach, chưa thu dữ liệu, chưa có overhead hay histogram kết quả**. Chỉ chuyển trạng thái sau khi có receipt và raw output đã hash.
+Trạng thái hiện tại: code đã build thành công trên worker3 bằng kernel BTF của node, clang 18.1.3 và libbpf 1.4. Binary đã qua kiểm tra usage fail-closed; **chưa attach, chưa thu dữ liệu, chưa đo overhead và chưa có histogram kết quả**. Build SHA-256 và preflight cluster được ghi trong `../SYSCALL_FEATURE_EXPERIMENT_STATUS.md`. Chỉ chuyển sang live pilot sau khi START/metadata/traffic context được lưu và xác minh; nếu không có traffic receipt thì kết quả phải gắn `regime=unlabelled` và chỉ được dùng để kiểm tra instrumentation, không dùng chọn feature.
