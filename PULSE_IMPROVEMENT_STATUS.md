@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 13:28 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 13:33 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -38,8 +38,9 @@ gap trên `.239`**; chúng được giữ trong kết quả, không xóa hoặc 
 normal. Capture errors 0; trailing unclosed snapshots 0.
 
 Index v2 chứa **40 workload/container key** (v1 có 21). Reference ExtraTrees /
-support fit đang chạy **7/40**, tại key `production/aims-waypoint:pod-slice`;
-process còn sống, không restart, khoảng 1,6 GiB RSS và 47% CPU ở lần kiểm tra.
+support fit đang chạy **9/40**, hiện tại ở key
+`production/notification-service:pod-slice`; process còn sống, không restart,
+khoảng 1,6 GiB RSS và 51% CPU ở lần kiểm tra.
 Đây là reference exploratory, chưa phải model đã đánh giá attack hay được đưa
 vào serving. Cụm hiện **6/6 node Ready, v1.34.10**; job systemd không phụ thuộc
 SSH/laptop.

@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 13:28 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 13:33 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -128,7 +128,7 @@ reserve cho experiment. Không cam kết thời lượng nếu budget/hạ tần
 
 ## Candidate tham chiếu và capture idle-aware follow-up
 
-[SSH snapshot 12/10, 13:28 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
+[SSH snapshot 12/10, 13:33 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
 6/6 node Ready, Kubernetes `v1.34.10`. Reference fit v1 hoàn thành trên 21 key:
 **18 artifact fit**, 3 key không đủ conformal calibration tại alpha 0,001
 (frontend web 400, MinIO 827, sidecar 390; cần tối thiểu 999). Holdout có
@@ -161,9 +161,9 @@ trong báo cáo chất lượng telemetry. Không có trailing unclosed raw snap
 adjudicate hoặc được tự động đưa vào training.
 
 Reference fit được khởi chạy sau audit với `include_idle_windows=true`; index
-có **40 workload/container key**. Tại 13:28 ICT, **7/40** key đã có kết quả;
-process vẫn hoạt động, không restart, khoảng 1,6 GiB RSS/47% CPU ở snapshot
-tài nguyên gần nhất. Key đang fit: `production/aims-waypoint:pod-slice`.
+có **40 workload/container key**. Tại 13:33 ICT, **9/40** key đã có kết quả;
+process vẫn hoạt động, không restart, khoảng 1,6 GiB RSS/51% CPU ở snapshot
+tài nguyên gần nhất. Key đang fit: `production/notification-service:pod-slice`.
 Candidate này chưa có attack evaluation, chưa serving-compatible, không tự
 promotion. Mọi thiếu calibration và kết quả holdout chưa adjudicate phải được
 giữ nguyên. [Snapshot SSH và hashes](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
