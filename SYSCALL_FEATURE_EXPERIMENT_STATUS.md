@@ -3,8 +3,8 @@
 Cập nhật trạng thái: **12/10/2026**. C1 lịch sử đã hoàn tất **608/608 fit** trên
 VM `.234`, nhưng chỉ lưu prediction/score chứ không có model pickle. Refit C2
 để tạo đủ artifact hiện đang chạy; đây chưa phải blind recall hay kết quả
-confusion matrix. SSH đọc trực tiếp lúc **12:47:04 UTC** cho thấy unit đang
-`activating`; journal ghi `160/608 fit`, ở `top16_plus_sensitive`; đây là snapshot,
+confusion matrix. SSH đọc trực tiếp lúc **12:55:13 UTC** cho thấy unit đang
+`activating`; journal ghi `192/608 fit`; đây là snapshot,
 không phải trạng thái cuối cùng.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
@@ -30,9 +30,8 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` đã ghi **160/608 fit** lúc
-12:46:53 UTC, đang fit `top16_plus_sensitive` cho
-`production/aims-minio-pool-0:minio`. C2 tiếp tục chạy riêng;
+đang chạy nền trên `.234`; `attempt-000002` đã ghi **192/608 fit** lúc
+12:54:42 UTC cho `production/aims-minio-pool-0:sidecar`. C2 tiếp tục chạy riêng;
 không bị pilot syscall-ID đụng vào. Có model artifacts trong output;
 thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
@@ -80,8 +79,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
 `attempt-000002` đang ở workload `production/aims-kafka-dual-role:kafka`, biến thể
-`top16_plus_sensitive`; `completed_fits=160/608` tại lần SSH kiểm tra mới nhất
-(12/10/2026 12:46:53 UTC). Đọc `STATUS.json`
+`completed_fits=192/608` tại lần SSH kiểm tra mới nhất (12/10/2026 12:54:42 UTC).
+Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
@@ -117,11 +116,15 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
   độc lập mà không gộp revision/regime hay double-count run chồng thời gian.
   Mười regression test mới pass trên host bằng
   `PYTHONPATH=. python3 -m pytest -q tests/test_sentinel_pulse_syscall_histogram_pilot.py`.
-- **Harness mới chưa attach probe; chưa có histogram/overhead result hoặc
-  traffic receipt thực.** Sau cleanup pod terminal, cluster snapshot 12/10
-  12:47 xác nhận mọi Running pod Ready; 10/10 microservice health endpoint trả
-  200, dependency probe thành công. DiskPressure incident cũ vẫn được lưu và
-  không tính vào normal/TN. Chưa attach probe mới vì traffic-regime receipt vẫn
-  chưa được preregister. Capture thiếu receipt hoặc cắt regime không được dùng
-  xếp hạng feature. C2 và soak cũ không bị thay đổi.
+- Histogram pilot `syscall-id-histogram-worker3-steady-20261012-001` đang chạy
+  độc lập bằng systemd trên worker3. Receipt được đăng ký trước khi attach;
+  source/model/policy không thay đổi. Cấu hình 300 s baseline, 120 s probe với
+  1 s snapshot, 300 s post; snapshot đầu cho thấy unit ở baseline. Chưa có
+  result nên chưa báo histogram/overhead. Sau khi kết thúc phải verify terminal,
+  SHA256SUMS, analyzer và regime coverage. Một worker/run chỉ là feasibility
+  pilot, không dùng xếp hạng syscall.
+- Sau cleanup pod terminal, cluster snapshot 12/10 12:47 xác nhận mọi Running
+  pod Ready; 10/10 microservice health endpoint trả 200. DiskPressure incident
+  cũ vẫn được lưu và không tính vào normal/TN. Capture thiếu receipt hoặc cắt
+  regime không được dùng xếp hạng feature. C2 và soak cũ không bị thay đổi.
 - Vòng full-ID histogram/cross-OS chưa có dữ liệu; kế hoạch cấp VM trong [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md). Giữ nguyên scope Linux native x86_64 hiện tại đến khi kiểm chứng nền tảng khác.

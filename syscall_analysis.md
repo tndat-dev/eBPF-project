@@ -106,7 +106,7 @@ Gộp 19 workload, bản full có **274 raw anomaly / 19.456 context (1,4083%)**
 
 Kế hoạch máy đọc được: [syscall-selection-evaluation-v1.json](sentinel_pulse/protocol/syscall-selection-evaluation-v1.json). **Đây là kế hoạch chưa chạy**, không phải kết quả đã đo hay registration hồi tố cho capture đã xem.
 
-Đã thêm collector pilot riêng để có thể thu histogram theo syscall ID chính xác, thay vì cố suy ra ID từ hash bins: [runbook pilot](sentinel_pulse/SYSCALL_SELECTION_PILOT.md). Build đã xác minh trên worker3, nhưng probe **chưa attach**, chưa có dữ liệu tần suất mới hay overhead measurement. Không xem việc biên dịch thành công là kết quả thực nghiệm.
+Đã thêm collector pilot riêng để có thể thu histogram theo syscall ID chính xác, thay vì cố suy ra ID từ hash bins: [runbook pilot](sentinel_pulse/SYSCALL_SELECTION_PILOT.md). Capture một node trên worker3 đang chạy qua baseline preregistered trước khi attach; chưa có dữ liệu tần suất mới hay overhead measurement. Không xem việc biên dịch thành công là kết quả thực nghiệm.
 
 1. Thu normal mới với histogram exact theo từng syscall ID trên từng workload/container, có nhãn traffic thật cho steady/toolmix/peak/burst/recovery. Không thể giải mã histogram đầy đủ từ hash bins cũ. Collector bổ sung chỉ gắn trong run riêng sau soak hiện hành; đo CPU/RAM/map integrity và ảnh hưởng throughput trước thu dài.
 2. Tách dữ liệu lựa chọn feature, train/calibration normal và evaluation chưa xem theo thời gian/nguồn/revision. Xếp hạng tần suất và chọn top-K chỉ trên dữ liệu phát triển. Không dùng normal test hoặc attack để chọn syscall/threshold.
@@ -230,12 +230,13 @@ ranking. Không có receipt thì capture là engineering/unlabelled.
 
 Mười regression test tổng hợp cho harness/analyzer/cohort pass trên host; đây
 chỉ là kiểm thử logic và seal, không phải capture thật. Tại SSH snapshot
-**12/10/2026 12:47:04 UTC**, C2 offline refit đang chạy nền; journal ghi
-**160/608 fit**. Cluster audit xác nhận 6/6 node Ready, mọi Running pod Ready,
+**12/10/2026 12:55:13 UTC**, C2 offline refit đang chạy nền; journal ghi
+**192/608 fit**. Cluster audit xác nhận 6/6 node Ready, mọi Running pod Ready,
 10/10 microservice health endpoint trả 200. Trước cleanup có 31 pod production
 và 53 pod Velero terminal Evicted do DiskPressure/ephemeral-storage; nguyên
-nhân và cleanup được ghi tại `CLUSTER_READINESS.md`. Chưa có receipt traffic
-thật, histogram từ harness mới, overhead measurement hay syscall ranking mới.
+nhân và cleanup được ghi tại `CLUSTER_READINESS.md`. Receipt cho one-node
+feasibility pilot đã preregister; capture đang ở baseline và chưa có histogram
+đã seal, overhead measurement hay syscall ranking mới.
 Checklist thực hiện và điều kiện hoàn tất ở
 [`SYSCALL_EXPERIMENT_TODO.md`](SYSCALL_EXPERIMENT_TODO.md); trạng thái C2/pilot
 ở [`SYSCALL_FEATURE_EXPERIMENT_STATUS.md`](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).

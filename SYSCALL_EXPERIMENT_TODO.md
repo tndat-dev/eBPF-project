@@ -1,9 +1,9 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
 Cập nhật hiện hành: **12/10/2026**. Đây là checklist điều phối công việc, không
-phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:47:04 UTC: service
+phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:55:13 UTC: service
 `pulse-syscall-variant-models-c2.service` đang `activating`; journal ghi
-`160/608` fit, variant `top16_plus_sensitive`. Không sửa hoặc dừng service này.
+`192/608` fit. Không sửa hoặc dừng service này.
 
 ## Đã làm trong lượt hiện tại
 
@@ -31,8 +31,17 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:47:
   OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
   không phải pod readiness; chi tiết trong readiness report.
 - [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **12:47:04 UTC**: journal `160/608`;
+- [x] Cập nhật trạng thái C2 qua SSH lúc **12:55:13 UTC**: journal `192/608`;
   job vẫn chạy nền, chưa có terminal result.
+- [x] Pre-register receipt cho run `syscall-id-histogram-worker3-steady-
+  20261012-001`, SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`;
+  receipt bind ba loadgen Deployment đang Ready cùng UID/config.
+- [x] Đồng bộ commit `3cd8d1d` sang clone riêng trên worker3 và build loader/object
+  theo kernel hiện tại. Hash loader `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`,
+  object `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`.
+- [x] Khởi chạy systemd bounded capture worker3: baseline 300 s → probe 120 s /
+  snapshot 1 s → post 300 s. Snapshot đầu unit active ở baseline, chưa attach
+  probe và chưa có histogram result. Không inject attack.
 
 ## Checklist để có bằng chứng chọn syscall
 
@@ -103,9 +112,10 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:47:
 
 ## Gate hiện tại
 
-Code harness và unit tests đã có; chưa có lần chạy collector histogram nào được
-thực hiện bởi harness mới, chưa có traffic receipt thực, chưa có full-ID capture
-được chấp nhận làm selection evidence, chưa có blind evaluation cho từng biến
-thể. C2 đang chạy là offline normal-only refit, không thay cho các bước trên.
+Harness đang chạy một bounded feasibility pilot với receipt preregistered;
+snapshot đầu còn ở baseline. Chưa có histogram đã seal/analyzed, overhead result,
+syscall ranking hay blind evaluation. Chỉ khi terminal/seals và analyzer đạt
+integrity mới đánh giá capture; một node/run không đại diện toàn AIMS. C2 là
+offline normal-only refit, độc lập với pilot.
 Không khai báo project xong chỉ vì TODO được tạo; checklist chỉ chuyển sang
 hoàn tất khi có artifact và receipt có thể kiểm tra độc lập.

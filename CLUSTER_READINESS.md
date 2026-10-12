@@ -71,6 +71,6 @@ tra gần nhất.
 Node/control-plane health tốt và workload production hiện sẵn sàng, nhưng các
 pod Evicted ghi nhận một khoảng hạ tầng bất thường trước đó. Không dùng thời
 gian DiskPressure hoặc telemetry thiếu làm normal baseline; giữ incident này
-trong báo cáo vận hành. Job refit C2 không bị tác động: tại **12:47:04 UTC**,
-`pulse-syscall-variant-models-c2.service` vẫn chạy nền, `160/608`, chưa có
+trong báo cáo vận hành. Job refit C2 không bị tác động: tại **12:55:13 UTC**,
+`pulse-syscall-variant-models-c2.service` vẫn chạy nền, `192/608`, chưa có
 terminal result.
