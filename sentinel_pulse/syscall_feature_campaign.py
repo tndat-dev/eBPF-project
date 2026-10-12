@@ -19,7 +19,11 @@ def campaign(inputs, root, initial_checkpoint=None):
                        if (p / "START.json").is_file() and (p / "RESULTS.json").is_file()), initial_checkpoint)
         if parent and (parent / "TERMINAL.json").is_file():
             terminal = json.loads((parent / "TERMINAL.json").read_text())
-            if terminal["state"] == "completed":
+            # A previous exploratory campaign may be terminal-complete while
+            # containing only predictions/scores.  Treat it as reusable only
+            # when the artifact-sealing step wrote its model manifest.
+            if (terminal["state"] == "completed"
+                    and (parent / "VARIANT_MODEL_MANIFEST.json").is_file()):
                 return terminal  # service may start after reboot; do not re-fit
         output = root / f"attempt-{len(attempts) + 1:06d}"
         return run(inputs, output, parent)
