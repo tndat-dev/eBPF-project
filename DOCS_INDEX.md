@@ -17,6 +17,7 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
 | [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
 | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
+| [SYSCALL_EXPERIMENT_TODO.md](SYSCALL_EXPERIMENT_TODO.md) | Checklist từ C2/normal capture đến blind attack và cross-ABI; trạng thái theo evidence |
 | [SYSCALL_SELECTION_PILOT.md](sentinel_pulse/SYSCALL_SELECTION_PILOT.md) | Build/pilot histogram syscall-ID exact tách biệt; điều kiện an toàn và giới hạn claim |
 | [WORKLOAD_TELEMETRY_LOG_FORMAT.md](WORKLOAD_TELEMETRY_LOG_FORMAT.md) | Schema telemetry, nhận diện workload và cách đọc log |
 | [example.md](example.md) | Ví dụ feature/log và lệnh lấy dữ liệu |

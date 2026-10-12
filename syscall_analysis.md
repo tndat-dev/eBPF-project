@@ -215,3 +215,24 @@ Tổng hợp mô tả trên đủ **19 workload × 1.024 context = 19.456 contex
 > Đây là tỷ lệ gộp mô tả của **raw model trên normal holdout**, không phải FPR của alert sau policy và không phải ước lượng độc lập: các context thời gian liên tiếp có tương quan, đồng thời mỗi workload được lấy cùng số context. Không dùng bảng này để chọn biến thể hay tuyên bố bỏ `transition_bin` tốt hơn; cần so sánh paired trên blind attack mới và normal test chưa xem, kèm bootstrap theo block/trial.
 
 **Chưa đo:** blind attack recall của từng biến thể, precision end-to-end đã adjudication, latency kernel-to-alert và confidence interval của so sánh attack. Kết quả hiện tại cung cấp bằng chứng tần suất và độ nhạy, chưa đủ chứng minh 29 syscall là tập tối ưu cho paper.
+
+### Tiến độ harness exact-ID và các bước kế tiếp
+
+Đã bổ sung runner/analyzer cho probe exact syscall-ID tại
+`sentinel_pulse/syscall_histogram_pilot.py` và
+`sentinel_pulse/syscall_histogram_analysis.py`. Runner lưu baseline/probe/post,
+host/cgroup metrics, cgroup identity snapshots, START/TERMINAL và SHA256SUMS.
+Traffic regime chỉ được gán từ receipt preregistered, hash-bound trước khi
+attach; interval không nằm trọn trong một regime, sai coverage target, map drop,
+telemetry gap hoặc identity thiếu sẽ vẫn được ghi nhận nhưng không được đưa vào
+ranking. Không có receipt thì capture là engineering/unlabelled.
+
+Bảy regression test tổng hợp cho harness/analyzer pass trên host; đây chỉ là
+kiểm thử logic và seal, không phải capture thật. Tại SSH snapshot **12/10/2026
+12:24:09 UTC**, C2 offline refit đang ở **57/608 fit**, không lỗi. Sáu node
+Kubernetes đều Ready, nhưng production còn 20 Evicted, 5 Error, 6
+ContainerStatusUnknown và 4 Completed; vì vậy chưa attach histogram probe mới.
+Chưa có receipt traffic thật, histogram từ harness mới, overhead measurement
+hay syscall ranking mới. Checklist thực hiện và điều kiện hoàn tất ở
+[`SYSCALL_EXPERIMENT_TODO.md`](SYSCALL_EXPERIMENT_TODO.md); trạng thái C2/pilot
+ở [`SYSCALL_FEATURE_EXPERIMENT_STATUS.md`](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).

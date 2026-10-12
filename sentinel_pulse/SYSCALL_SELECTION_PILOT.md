@@ -18,6 +18,52 @@ Probe riêng dùng `raw_tp/sys_enter`, chỉ xử lý cgroup trong allow-list `/
 
 Không được chạy pilot cho đến khi kiểm tra trạng thái soak/capture hiện hành và ghi kết quả kiểm tra vào START. Nếu không xác minh được trạng thái, chỉ build/test binary offline.
 
+## Harness và receipt traffic
+
+Runner/analyzer đã được thêm ở `syscall_histogram_pilot.py` và
+`syscall_histogram_analysis.py`. Runner luôn đo baseline → probe → post; nếu
+không có receipt, nó ghi `traffic_regime=unlabelled`, và analyzer không cho dùng
+kết quả xếp hạng. Receipt phải được tạo bởi nguồn điều khiển traffic trước lúc
+capture, không được gán regime suy đoán sau khi xem dữ liệu. Schema tối thiểu:
+
+```json
+{
+  "schema": "sentinel-pulse-traffic-receipt-v1",
+  "receipt_id": "registered-unique-id",
+  "registered_at_unix": 1791800000.0,
+  "node_name": "k8s-worker3.local",
+  "schedule": [
+    {"start_unix": 1791800300.0, "end_unix": 1791800600.0, "regime": "steady"},
+    {"start_unix": 1791800600.0, "end_unix": 1791800900.0, "regime": "peak"}
+  ]
+}
+```
+
+Mọi interval phải nằm hoàn toàn trong đúng một khoảng regime; interval cắt
+ranh giới hoặc nằm ngoài lịch sẽ không được tính vào selection evidence. Ví dụ
+trên chỉ mô tả schema, **không phải receipt hay kết quả đã chạy**. Analyzer seal
+receipt cùng artifacts; checksum phát hiện thay đổi file sau capture nhưng
+không thay thế chữ ký/xác thực của hệ thống traffic controller.
+
+Lệnh mẫu sau chỉ dùng sau khi đã có receipt thật và preflight an toàn; các
+placeholder phải được thay bằng artifact/path đã xác minh:
+
+```bash
+sudo python3 -m sentinel_pulse.syscall_histogram_pilot \
+  --run-id syscall-histogram-worker3-YYYYMMDD-HHMM \
+  --source-commit "$(git rev-parse HEAD)" \
+  --loader /var/tmp/<registered-build>/syscall_histogram_loader \
+  --object /var/tmp/<registered-build>/syscall_histogram.bpf.o \
+  --traffic-receipt /path/to/preregistered-traffic-receipt.json \
+  --output /var/lib/sentinel-pulse/syscall-histogram/<run-id>
+
+python3 -m sentinel_pulse.syscall_histogram_analysis \
+  --capture-dir /var/lib/sentinel-pulse/syscall-histogram/<run-id> \
+  --output /var/lib/sentinel-pulse/syscall-histogram/<run-id>/ANALYSIS.json
+```
+
+Đây là hướng dẫn, không phải bằng chứng đã chạy trên cluster.
+
 ## Build và xác nhận offline
 
 Build trên node Linux đích để dùng đúng kernel BTF/libbpf, trong thư mục tạm riêng:
@@ -38,4 +84,4 @@ Target build chỉ biên dịch object/loader; nó không attach probe, không c
 - Báo tần suất count/share/rate theo workload, regime, revision và thời lượng đủ điều kiện; kèm missing telemetry, map drops, CPU/RSS, throughput và p95/p99.
 - Mọi alert trong normal capture được giữ lại và adjudicate sau run; không ép zero-alert gate.
 
-Trạng thái hiện tại: code đã build thành công trên worker3 bằng kernel BTF của node, clang 18.1.3 và libbpf 1.4. Binary đã qua kiểm tra usage fail-closed; **chưa attach, chưa thu dữ liệu, chưa đo overhead và chưa có histogram kết quả**. Build SHA-256 và preflight cluster được ghi trong `../SYSCALL_FEATURE_EXPERIMENT_STATUS.md`. Chỉ chuyển sang live pilot sau khi START/metadata/traffic context được lưu và xác minh; nếu không có traffic receipt thì kết quả phải gắn `regime=unlabelled` và chỉ được dùng để kiểm tra instrumentation, không dùng chọn feature.
+Trạng thái hiện tại: code BPF/loader đã build thành công trên worker3 bằng kernel BTF của node, clang 18.1.3 và libbpf 1.4. Harness/analyzer offline đã có; năm regression tests pass trên host. **Harness mới chưa attach, chưa thu histogram/overhead và chưa có traffic receipt thật.** Tại lần SSH 12/10 12:19 UTC: sáu node Ready nhưng namespace production có 20 Evicted, 5 Error, 6 ContainerStatusUnknown và 4 Completed. Chưa attach thêm probe trong điều kiện này. Build SHA-256 và C2 ghi trong `../SYSCALL_FEATURE_EXPERIMENT_STATUS.md`; checklist ở `../SYSCALL_EXPERIMENT_TODO.md`.
