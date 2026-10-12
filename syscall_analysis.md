@@ -285,8 +285,9 @@ worker3 là 4,52 ms, worker1 là 23,63 ms. Pilot process CPU trung bình pha pro
 lần lượt 2,01% và 2,33% của một core, peak RSS 47,7 và 52,1 MiB. Đây là tài
 nguyên tiến trình pilot, không phải tác động nhân quả lên workload: chưa có
 đối chứng A/B throughput hay p95/p99 response-time. C2 offline refit còn chạy;
-journal SSH lúc **13:31:15 UTC** ghi **255/608 fit**, chưa có terminal. Cluster
-lúc **13:31 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
+journal SSH lúc **13:38:59 UTC** ghi **269/608 fit**, chưa có terminal; unit dùng
+2,17 GiB/4 GiB RAM và NFS còn 343 GiB trống. Cluster
+lúc **13:36 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
 đều Ready, 11 pod Succeeded là Job đã hoàn tất. Incident Evicted/DiskPressure
 trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
 Checklist thực hiện và điều kiện hoàn tất ở

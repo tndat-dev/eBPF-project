@@ -3,8 +3,8 @@
 Cập nhật trạng thái: **12/10/2026**. C1 lịch sử đã hoàn tất **608/608 fit** trên
 VM `.234`, nhưng chỉ lưu prediction/score chứ không có model pickle. Refit C2
 để tạo đủ artifact hiện đang chạy; đây chưa phải blind recall hay kết quả
-confusion matrix. SSH đọc trực tiếp lúc **13:31:15 UTC** cho thấy unit đang
-`activating`; journal ghi `255/608 fit`; đây là snapshot,
+confusion matrix. SSH đọc trực tiếp lúc **13:38:59 UTC** cho thấy unit đang
+`activating`; journal ghi `269/608 fit`; đây là snapshot,
 không phải trạng thái cuối cùng.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
@@ -30,8 +30,9 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` đã ghi **255/608 fit** lúc
-13:31:15 UTC cho `production/aims-rabbitmq-server:rabbitmq`. C2 tiếp tục chạy riêng;
+đang chạy nền trên `.234`; `attempt-000002` đã ghi **269/608 fit** lúc
+13:38:59 UTC, hiện ở `production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel`.
+Unit đang dùng 2,17 GiB trên giới hạn 4 GiB; NFS còn 343 GiB. C2 tiếp tục chạy riêng;
 không bị pilot syscall-ID đụng vào. Có model artifacts trong output;
 thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
@@ -78,8 +79,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 ## Chạy ngầm và phục hồi
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` đang ở workload `production/aims-rabbitmq-server:rabbitmq`,
-`completed_fits=255/608` tại lần SSH kiểm tra mới nhất (12/10/2026 13:31:15 UTC).
+`attempt-000002` đang ở workload `production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel`,
+`completed_fits=269/608` tại lần SSH kiểm tra mới nhất (12/10/2026 13:38:59 UTC).
 Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
@@ -121,7 +122,7 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
   Raw/ANALYSIS/COHORT/checksum lưu ngoài Git trên NFS. Chỉ hai capture steady
   ngắn, chưa có A/B overhead, syscall ranking, blind attack hay precision/recall.
   Kết quả/giới hạn và top syscall ID ghi trong `syscall_analysis.md`/runbook.
-- Cluster snapshot 12/10 13:31 UTC xác nhận 6/6 node Ready, 100/100
+- Cluster snapshot 12/10 13:36 UTC xác nhận 6/6 node Ready, 100/100
   Deployment/StatefulSet/DaemonSet đủ replica, 238 pod Running đều Ready và 11
   Job pod Succeeded. Không còn pod Failed/Pending; incident DiskPressure cũ
   vẫn được lưu, không tính vào normal/TN. C2 và soak cũ không bị thay đổi.

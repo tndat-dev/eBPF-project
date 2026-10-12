@@ -1,9 +1,10 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành: **12/10/2026 13:32 UTC**. Đây là checklist điều phối,
-không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:31:15 UTC:
+Cập nhật hiện hành: **12/10/2026 13:40 UTC**. Đây là checklist điều phối,
+không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:38:59 UTC:
 service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
-`255/608` fit. Không sửa hoặc dừng service này.
+`269/608` fit. Unit dùng khoảng 2,17 GiB trong giới hạn 4 GiB; NFS còn 343 GiB.
+Không sửa hoặc dừng service này.
 
 ## Đã làm trong lượt hiện tại
 
@@ -31,7 +32,7 @@ service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
   OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
   không phải pod readiness; chi tiết trong readiness report.
 - [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **13:31:15 UTC**: journal `255/608`;
+- [x] Cập nhật trạng thái C2 qua SSH lúc **13:38:59 UTC**: journal `269/608`;
   job vẫn chạy nền, chưa có terminal result.
 - [x] Pre-register receipt cho run `syscall-id-histogram-worker3-steady-
   20261012-001`, SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`;
