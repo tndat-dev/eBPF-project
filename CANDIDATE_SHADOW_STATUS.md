@@ -52,8 +52,8 @@ từng dòng; không thay candidate, policy hay ngưỡng. Collector khi chạm 
 byte đăng ký sẽ mở rộng ngân sách đúng bằng phần dung lượng hiện có sau khi trừ
 reserve, ghi journal; khi chạm reserve thì pause và tiếp tục sau phục hồi thay
 vì terminal sớm. Installer yêu cầu đủ free-space cho capture 70 GiB, shadow
-headroom 8 GiB và reserve 12 GiB. Các thay đổi mới đã unit-test local nhưng
-chưa deploy lên worker.
+headroom 8 GiB và reserve 12 GiB. Các thay đổi đã unit-test local và source
+đang được chạy trong soak A1.
 
 ## Trạng thái cluster
 
@@ -70,31 +70,32 @@ systemd kết thúc nó theo giới hạn 180 giây riêng của smoke. Không t
 là canary thành công. Đã xác nhận `ProtectSystem=full` vẫn cho phép ghi vào
 `/var/lib` qua `ReadWritePaths`.
 
-Integrated smoke B1 trên worker1 ngày 12/10 đã chạy capture đủ **300.411 giây**:
-48,462 feature rows, 47,642 eligible rows, 0 lỗi và 112,446,798 byte. Ngoại suy
-từ riêng capture là khoảng **32.3 GB/24 giờ/node**; đây là ước tính từ 5 phút,
-không phải dung lượng thực đo một ngày. Shadow ghi 48,463 decision rows tới
-khi smoke kết thúc; có 31,752 `candidate-model-unavailable`, 16,464 scored, 246
-warming và một schema header bị nhầm thành rejected. Schema header đã được sửa
-để validate rồi bỏ qua. Tại mẫu giữa lần chạy, event-age p95/p99 khoảng
-**22.18/23.29 giây** và backlog tăng; lần smoke cuối đã bắt kịp capture nhưng
-chưa đủ để chứng minh latency ổn định. Có 130 preview dương trong 16,464 scored
-row; chưa adjudicate nên không gọi đây là false positive.
+Integrated smoke B2 trên worker1 chạy capture đủ **300.209 giây**: 48,462
+feature rows, 47,642 eligible, 0 lỗi, capture 112,411,154 byte. Shadow ghi
+48,455 decision rows, 31,908 model-unavailable, 16,463 scored, 84 warming,
+không có `record_rejected`, và 133 preview dương chưa adjudicate. Shadow
+event-age p95 là **27.3 giây** lúc capture kết thúc; sau khi đọc gần hết backlog,
+event-age của row cuối khoảng **31.8 giây**. Candidate shadow vì vậy chưa đạt
+mục tiêu latency thấp; đây không phải kernel-to-alert production latency.
+Ngoại suy từ smoke: capture khoảng **32.3 GB/24 giờ/node**, shadow khoảng
+**10.6 GB/24 giờ/node**. Đây là ước tính từ 5 phút, không phải số đo 24 giờ.
 
 Ngày 13/10, SSH tương tác xác nhận **6/6 node Ready, v1.34.10**. NFS
-`10.1.16.233:/sentinel-pulse` được mount trên cả ba worker; legacy collector và
-resolver đang active. Không thấy unit `sentinel-pulse-observation-*` hay
-thư mục normal-observation trên ba worker; **chưa có soak 24 giờ chạy**. Free
-space filesystem lần kiểm tra là worker1 **163.0 GB**, worker3 **302.6 GB**,
-worker4 **117.2 GB**. Các pod workload AIMS đang chạy; một số pod `Completed`
-là job/pod đã kết thúc, không gộp vào số replica Ready.
+`10.1.16.233:/sentinel-pulse` được mount trên cả ba worker; legacy collector
+và resolver active. Các pod workload AIMS chính đang Running; một số pod
+`Completed` là job/pod kết thúc, không tính như replica Ready. Free space trước
+run: worker1 **163.0 GB**, worker3 **302.6 GB**, worker4 **117.2 GB**.
 
-Source commit `8f34cc5` đã được clone vào thư mục NFS riêng
-`runtime-8f34cc5-20261013/source`; model bundle cũ vẫn được giữ nguyên, manifest
-SHA `747c4eed…78a08`, policy SHA `fd0be94a…0f401`. Trên worker1, kernel hiện
-`6.8.0-138-generic` khớp kernel trong proof, runtime có NumPy 2.5.2/scikit-learn
-1.9.0 và load thành công 21 model. Tuy nhiên code optimizer/budget vừa cập nhật
-chưa được deploy và chưa chạy integrated smoke mới.
+Run normal-observation **`normal-a1-20261013` đang chạy trên cả ba worker** với
+source commit `2c1a72d`, model manifest SHA
+`747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`, policy SHA
+`fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`, và 86,400
+giây boundary exposure/node. Capture/shadow units đều `enabled`; checkpoint
+đầu cho thấy cả ba capture `collecting`, cả ba shadow `active`, errors=0 và
+capacity pauses=0. Units được bật lại khi node reboot. Capture checkpoint/fsync
+mỗi 5 giây và tự resume sau lỗi/reboot. Snapshot đầu run (chưa đủ để đánh giá
+chất lượng): worker1 70.1 giây/11,316 rows; worker3 59.7 giây/2,499 rows;
+worker4 54.9 giây/9,612 rows.
 
 Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
 terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
@@ -105,10 +106,12 @@ ngưỡng kế hoạch, nhưng không thể bảo đảm trước hỏng đĩa, 
 hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run sẽ ở trạng thái
 waiting thay vì giả vờ đã hoàn tất.
 
-Trước soak cần đưa commit mới lên NFS, chạy integrated smoke 5 phút, xác nhận
-decision-age không tăng dần, schema header không bị reject, preview được giữ,
-và đo tốc độ tăng tổng dung lượng capture + shadow. Chỉ khởi chạy khi phép đo
-cho thấy worker ít dung lượng nhất còn đủ reserve/headroom cho 24 giờ.
+Run tiếp tục thu; không train/tune hoặc chạy blind attack trong independent
+normal soak. Sau khi từng worker đạt 86,400 giây exposure, kiểm tra terminal,
+journal, gaps, decision coverage và disk. Mọi pause/gap không cộng normal
+exposure; nếu có pause, thời điểm kết thúc lùi tương ứng. Sau đó mới adjudicate
+preview/normal và tính confusion matrix; cải thiện candidate trên split phát
+triển riêng.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
