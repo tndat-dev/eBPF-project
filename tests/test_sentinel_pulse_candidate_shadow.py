@@ -17,6 +17,15 @@ class _Scorer:
                 "alert": False, "policy_applied": False, "serving_compatible": False}
 
 
+class _PreviewPolicy:
+    def __init__(self, scorer):
+        self.scorer = scorer
+
+    def evaluate(self, _score):
+        return {"policy_evaluated": True, "candidate_alert_preview": True,
+                "alert": False, "policy_applied": False, "serving_compatible": False}
+
+
 def _row(end, *, uid="uid", revision="r1", value=0.0):
     record = {
         "schema": "sentinel-pulse-extended-feature-v2",
@@ -37,7 +46,7 @@ def _row(end, *, uid="uid", revision="r1", value=0.0):
 
 def test_shadow_scores_only_after_four_contiguous_windows_and_never_alerts():
     scorer = _Scorer()
-    runtime = CandidateShadowRuntime(scorer)
+    runtime = CandidateShadowRuntime(scorer, policy=_PreviewPolicy(scorer))
     results = [runtime.observe(_row(10 + i * 0.5, value=float(i)), processed_at=20)
                for i in range(4)]
 
@@ -47,6 +56,7 @@ def test_shadow_scores_only_after_four_contiguous_windows_and_never_alerts():
     assert results[3]["raw_model_anomaly"] is True
     assert results[3]["alert"] is False
     assert results[3]["policy_applied"] is False
+    assert results[3]["candidate_alert_preview"] is True
     assert len(scorer.contexts) == 1
     assert scorer.contexts[0][1].shape == (996,)
     assert scorer.contexts[0][1][-1] == 3
