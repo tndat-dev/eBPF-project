@@ -14,6 +14,7 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md) | Luồng attack đã soak → paired normal-control → audit/precision/recall; không zero-alert gate |
 | [PULSE_IMPROVEMENT_STATUS.md](PULSE_IMPROVEMENT_STATUS.md) | Baseline confusion matrix, candidate reference-only, latency inference đơn, giới hạn nhãn và tiến độ idle-aware |
 | [CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md) | Shadow scorer model-only, continuity/integrity rules, test status và các gate trước canary/soak/blind mới |
+| [V8_DEPLOYED_RESOURCE_RETIREMENT.md](V8_DEPLOYED_RESOURCE_RETIREMENT.md) | Receipt gỡ V8 systemd runtime; phân biệt model V7/dữ liệu/evidence được giữ với tài nguyên V8 đã retire |
 | [EXTENDED_TELEMETRY_STATUS.md](EXTENDED_TELEMETRY_STATUS.md) | Capture/audit v1 đã hoàn tất; idle-aware v2 đang chạy riêng; không phải production model |
 | [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
 | [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
