@@ -28,8 +28,8 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` đã ghi **37/608 fit**, đang fit
-`drop_mmap` cho `production/aims-kafka-dual-role:kafka`. C2 tiếp tục chạy riêng;
+đang chạy nền trên `.234`; `attempt-000002` đã ghi **41/608 fit**, đang fit
+`drop_accept` cho `production/aims-kafka-dual-role:kafka`. C2 tiếp tục chạy riêng;
 không bị pilot syscall-ID đụng vào. Có model artifacts trong output;
 thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
@@ -77,8 +77,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
 `attempt-000002` đang ở workload `production/aims-kafka-dual-role:kafka`, biến thể
-`drop_mmap`; `completed_fits=37/608` tại lần kiểm tra mới nhất (12/10/2026
-12:11:36 UTC). Đọc `STATUS.json`
+`drop_accept`; `completed_fits=41/608` tại lần kiểm tra mới nhất (12/10/2026
+12:13:46 UTC). Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
@@ -106,6 +106,6 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
 - Raw model anomaly rate không phải policy alert FPR. TP/FP/TN/FN, precision, attack recall và kernel-to-alert giữ `null` khi chưa có ground truth/phép đo tương ứng. Inference timing trên host có quota không phải latency production.
 - Không attach collector mới, inject attack, deploy subset hoặc tune model/policy. Soak production đã completed lúc 12:42:20 ngày 07/10; model/policy/raw seals giữ nguyên, không relaunch soak. [Trạng thái soak](SOAK_OBSERVATION_STATUS.md).
 - Soak normal 24 giờ đã kết thúc lúc 12:42:20 ngày 07/10 theo receipt cũ; không có soak hay blind attack đang chạy tại snapshot 12/10. Sáu node đều Ready, nhưng `production` có 20 Evicted, 5 Error, 6 ContainerStatusUnknown và 4 Completed; worker3 có workload AIMS/traffic generator đang chạy. Không gộp pod lỗi/unknown vào normal hoặc TN.
-- Thêm collector pilot tách biệt `ebpf/syscall_histogram.bpf.c` + loader: per-ID counts theo cgroup, map cap 65.536 keys, drop counter và duration bắt buộc; Make target không đụng collector đang cài. Nhánh `experiment/syscall-id-histogram-pilot` đã push qua commit `cb6c94e`. Build lại chính commit này trên worker3 (.239; Ubuntu 24.04.4, kernel 6.8.0-138, clang 18.1.3, libbpf 1.4) thành công với `-Wall -Wextra -Werror`; binary từ chối thiếu tham số (exit 2) trước khi load/attach. SHA-256 object `cee7d00dfeb27e909642c5d7e2d18bf02da3421d4ea15d1805f21b4b7f40a4c0`, loader `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`.
+- Thêm collector pilot tách biệt `ebpf/syscall_histogram.bpf.c` + loader: per-ID counts theo cgroup, map cap 65.536 keys, drop counter và duration bắt buộc; Make target không đụng collector đang cài. Nhánh `experiment/syscall-id-histogram-pilot` đã push qua commit `f50dfad` (histogram race/snapshot hardening ở `cb6c94e`). Build lại trên worker3 (.239; Ubuntu 24.04.4, kernel 6.8.0-138, clang 18.1.3, libbpf 1.4) thành công với `-Wall -Wextra -Werror`; binary từ chối thiếu tham số (exit 2) trước khi load/attach. SHA-256 object `cee7d00dfeb27e909642c5d7e2d18bf02da3421d4ea15d1805f21b4b7f40a4c0`, loader `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`.
 - **Chưa attach probe và chưa có histogram/overhead result.** Lý do: production hiện chỉ có một phần workload/traffic ổn định trên worker3, 31 pod còn Evicted/Error/Unknown và 4 Completed; chưa có receipt điều khiển regime để gọi đây là normal-selection evidence. Runbook pilot yêu cầu capture riêng bounded sau khi có START + metadata/traffic binding. Cần tiếp tục cấu hình capture/evidence harness, rồi chạy instrumentation pilot; không thay đổi soak đã hoàn tất hoặc C2.
 - Vòng full-ID histogram/cross-OS chưa có dữ liệu; kế hoạch cấp VM trong [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md). Giữ nguyên scope Linux native x86_64 hiện tại đến khi kiểm chứng nền tảng khác.
