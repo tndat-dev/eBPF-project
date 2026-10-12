@@ -7,8 +7,20 @@ def test_reboot_after_completion_does_not_start_training_again(tmp_path,monkeypa
     attempt=tmp_path/'attempt-000001';attempt.mkdir()
     for filename in ['START.json','RESULTS.json']:(attempt/filename).write_text('{}')
     (attempt/'TERMINAL.json').write_text(json.dumps({'state':'completed','completed_fits':608}))
+    (attempt/'VARIANT_MODEL_MANIFEST.json').write_text('{}')
     monkeypatch.setattr('sentinel_pulse.syscall_feature_campaign.run',lambda *args:pytest.fail('unexpected retrain'))
     assert campaign(tmp_path/'inputs',tmp_path)['completed_fits']==608
+
+
+def test_completed_score_only_checkpoint_still_starts_artifact_refit(tmp_path,monkeypatch):
+    attempt=tmp_path/'attempt-000002';attempt.mkdir()
+    for filename in ['START.json','RESULTS.json']:(attempt/filename).write_text('{}')
+    (attempt/'TERMINAL.json').write_text(json.dumps({'state':'completed','completed_fits':608}))
+    called=[]
+    monkeypatch.setattr('sentinel_pulse.syscall_feature_campaign.run',lambda *args:called.append(args) or {'state':'running'})
+    campaign(tmp_path/'inputs',tmp_path,attempt)
+    assert called[0][1]==tmp_path/'attempt-000002'
+    assert called[0][2]==attempt
 
 
 def test_campaign_skips_partial_directory_and_resumes_latest_committed_results(tmp_path,monkeypatch):
