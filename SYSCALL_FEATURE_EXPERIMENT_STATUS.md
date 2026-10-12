@@ -74,8 +74,9 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 ## Chạy ngầm và phục hồi
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` ở `loading_training`, `completed_fits=0/608` tại lần kiểm tra
-mới nhất; đây là tiến độ load/chuẩn bị, chưa có fit hoàn tất. Đọc `STATUS.json`
+`attempt-000002` đang fit biến thể `full` cho workload
+`production/aims-frontend:web`; `completed_fits=0/608` tại lần kiểm tra mới
+nhất vì model đầu chưa lưu xong. Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
