@@ -1,6 +1,6 @@
 # Trạng thái readiness cụm Kubernetes
 
-Cập nhật từ kiểm tra trực tiếp qua SSH: **12/10/2026 12:43 UTC**. Báo cáo này
+Cập nhật từ kiểm tra trực tiếp qua SSH: **12/10/2026 13:05 UTC**. Báo cáo này
 tách readiness của workload đang được quản lý khỏi pod đã kết thúc; `Succeeded`
 là trạng thái hợp lệ của Job, không phải microservice lỗi.
 
@@ -10,12 +10,15 @@ là trạng thái hợp lệ của Job, không phải microservice lỗi.
   24.04.4, kernel `6.8.0-138-generic`.
 - Không có Deployment, StatefulSet hoặc DaemonSet nào thiếu replica ready so
   với replica mong muốn. Các workload được scale `0/0` vẫn là cấu hình chủ đích.
-- Mọi pod đang `Running` trong toàn cụm đều có tất cả container `Ready`.
-- Namespace `production`: **66 pod Running/Ready**, **31 pod Failed/Evicted** đã
-  kết thúc, **4 pod Succeeded** (Job hoàn tất). Không còn pod production đang
-  chạy nhưng chưa Ready.
-- Namespace `velero`: **53 pod Failed/Evicted** cũ; Deployment Velero hiện
-  `1/1`, node-agent DaemonSet `3/3`.
+- Snapshot mới nhất: toàn cụm **249 pod objects** gồm **238 Running/Ready** và
+  **11 Succeeded** (Job đã hoàn tất); không có pod Failed, Pending hoặc Running
+  nhưng thiếu container Ready. Các pod `Succeeded` là trạng thái kết thúc hợp
+  lệ, không phải microservice chưa sẵn sàng.
+- Namespace `production`: **70 pod objects**, gồm **66 Running/Ready** và **4
+  Succeeded**; không có pod production Failed/Pending/Running-not-ready.
+- Trước cleanup, namespace `velero` có **53 pod Failed/Evicted** cũ; các object
+  terminal này đã được dọn sau khi ghi lại nguyên nhân. Snapshot hiện hành
+  không còn pod Failed; Deployment Velero `1/1`, node-agent DaemonSet `3/3`.
 - PostgreSQL CNPG `3/3`, trạng thái `Cluster in healthy state`; Kafka CR
   `Ready=True`; các StatefulSet RabbitMQ `3/3`, Redis `3/3`, Redis Sentinel
   `3/3`, MinIO `2/2`.
@@ -53,10 +56,12 @@ Deployment, ReplicaSet, Job, PVC, dữ liệu volume hay log thí nghiệm. Gi�
 pod `Succeeded` theo vòng đời bình thường; không restart database/broker và
 không thay đổi cấu hình storage.
 
-Kiểm tra sau cleanup: production còn **66 Running/Ready + 4 Succeeded**, không
-còn pod Failed; toàn cluster không có pod Running nào chưa Ready, không có
-Deployment/StatefulSet dưới replica mong muốn. Sáu node đều `Ready`,
-`MemoryPressure=False`, `DiskPressure=False`, `PIDPressure=False`.
+Kiểm tra mới nhất lúc **12/10/2026 13:05 UTC**: production còn **66
+Running/Ready + 4 Succeeded**, không còn pod Failed; toàn cluster có **238
+Running/Ready + 11 Succeeded**, không có pod Failed/Pending hoặc Running nào
+chưa Ready. Cả **100 Deployment, StatefulSet, DaemonSet** đạt replica mong muốn.
+Sáu node đều `Ready`, `MemoryPressure=False`, `DiskPressure=False`,
+`PIDPressure=False`.
 
 Smoke test không ghi dữ liệu: `/api/health/` của **10/10 microservice trả
 HTTP 200**; ingress frontend/health/products trả HTTP 200; MinIO liveness trả
@@ -71,6 +76,7 @@ tra gần nhất.
 Node/control-plane health tốt và workload production hiện sẵn sàng, nhưng các
 pod Evicted ghi nhận một khoảng hạ tầng bất thường trước đó. Không dùng thời
 gian DiskPressure hoặc telemetry thiếu làm normal baseline; giữ incident này
-trong báo cáo vận hành. Job refit C2 không bị tác động: tại **12:55:13 UTC**,
-`pulse-syscall-variant-models-c2.service` vẫn chạy nền, `192/608`, chưa có
-terminal result.
+trong báo cáo vận hành. Job refit C2 không bị tác động: journal trực tiếp lúc
+**13:04:39 UTC** ghi `209/608` fit; unit còn chạy, chưa có terminal result.
+Pilot histogram riêng trên worker3 cũng đang trong pha post-capture; chưa kết
+luận integrity hoặc phân tích cho đến khi runner tạo terminal/seal.
