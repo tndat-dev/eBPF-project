@@ -1,7 +1,9 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật trạng thái: **12/10/2026**. Job exploratory normal-only trước đó đã
-hoàn thành **608/608 fit** trên VM `.234`; kết quả này chưa phải blind recall.
+Cập nhật trạng thái: **12/10/2026**. C1 lịch sử đã hoàn tất **608/608 fit** trên
+VM `.234`, nhưng chỉ lưu prediction/score chứ không có model pickle. Refit C2
+để tạo đủ artifact hiện đang chạy; đây chưa phải blind recall hay kết quả
+confusion matrix.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
 
@@ -12,23 +14,33 @@ classifier pickle nào**. Trường `serialized_estimator_bytes` chỉ là kích
 là ước lượng cho estimator, không phải model bundle đã lưu. `train_seconds` cộng
 trên 608 fit cũ là **19.501,4 giây tích lũy**, không phải wall-clock duration.
 
-Do đó chưa thể đem 608 biến thể cũ chạy blind từ output hiện có. Source host đã
-được sửa để mỗi fit mới lưu đầy đủ `PulseExtraTrees` cùng SHA-256; checkpoint
-chỉ mang sang fit có model artifact thật và bỏ qua score-only fit cũ. Khi đủ
-608 artifact, job sẽ tạo `VARIANT_MODEL_MANIFEST.json` bind workload, variant,
-mask, file hash, train/calibration dataset và fit run. Đây vẫn là bundle phát
-triển, không phải serving artifact hay promotion.
+Do đó chưa thể đem 608 biến thể cũ chạy blind từ output hiện có. C2 lưu đầy đủ
+`PulseExtraTrees` cùng SHA-256; checkpoint score-only không được tính là fit có
+thể tái sử dụng. Khi đủ 608 artifact, job tạo `VARIANT_MODEL_MANIFEST.json`
+bind workload, variant, mask, file hash, train/calibration dataset và run. Đây
+vẫn là bundle phát triển, không phải serving artifact hay promotion.
 
-Regression syscall-feature/campaign: **34 test pass** trên virtualenv tạm của
-host. Chưa chạy lại refit 608 biến thể trên VM; chưa có file model bundle,
-normal test mới, attack binary/case blind mới, confusion matrix mới hay latency
-kernel-to-alert cho từng biến thể.
+Regression syscall-feature/campaign: **36 test pass**. Khởi động C2 lần đầu bị
+launcher bỏ qua checkpoint `completed` dù thiếu manifest; lần kế tiếp integrity
+check chặn vì `features.py` hiện tại khác source C1. Không fit nào chạy trong hai
+lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
+(`8976daa`), giữ nguyên hash `features.py`, `model.py`, `train.py`, `encoding.py`;
+nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
-Unit riêng cho lần refit có lưu artifact đã được thêm tại
+Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
+đang chạy nền trên `.234`; `attempt-000002` ở `loading_training`, **0/608 fit**
+đã ghi tại lần kiểm tra mới nhất. `attempt-000001` được giữ nguyên với lỗi
+`NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
+không được seal. Writer đã sửa, smoke test trên VM pass. NFS
+`10.1.16.233:/sentinel-pulse` mount tại
+`/mnt/sentinel-pulse-archive`, còn khoảng **344 GiB**; output C2 nằm riêng ở đó.
+Job giới hạn CPU 150%, RAM 4 GiB. Cần theo dõi tiếp STATUS/log và xác minh
+terminal + manifest SHA sau khi hoàn tất.
+
+Unit riêng cho lần refit có lưu artifact tại
 [`pulse-syscall-variant-models-c2.service`](sentinel_pulse/systemd/pulse-syscall-variant-models-c2.service).
 Nó dùng VM venv đã có, CPU quota 150%, RAM tối đa 4 GiB, output riêng trên NFS
-và resume từ score-only attempt cũ nhưng không tái dùng các fit đó. Unit chưa
-được cài/bật trên VM tại thời điểm cập nhật file này.
+và refit lại score-only checkpoint mà không nhận nhầm score cũ thành model.
 
 SSH snapshot cùng ngày: sáu node Kubernetes đều `Ready`, nhưng namespace
 `production` còn pod trạng thái `Evicted`, `Error`, `ContainerStatusUnknown`;
@@ -37,12 +49,17 @@ kết quả. Trước attack phải đăng ký lại exact target pod/UID/contai
 những replica hiện Ready và ghi health context. Không có attack nào được tiêm
 trong lượt kiểm tra này.
 
-Đánh giá đúng cần hai mức: (1) freeze 608 model artifact, capture một bộ normal
-độc lập và blind attack mới, replay **cùng trace/seed/rate** qua mọi biến thể
-để so sánh paired confusion matrix; (2) đo **kernel-to-alert thực tế** bằng
-live execution từng biến thể với policy/runtime cố định. Offline replay có thể
-đo inference nhưng không được gọi là kernel-to-alert. Tập blind đã mở không
-được dùng để tune rồi báo lại như xác nhận độc lập.
+Protocol
+[`syscall-selection-evaluation-v1.json`](sentinel_pulse/protocol/syscall-selection-evaluation-v1.json)
+đang ở trạng thái `planned_not_executed`: chưa có normal test độc lập mới,
+binary/case blind mới, confusion matrix hay kernel-to-alert cho từng biến thể.
+Sau khi C2 được seal, cần freeze model/policy; thu normal độc lập; đăng ký hash
+binary/case và lịch trial trước khi chạy; giữ cùng trial/seed/rate cho mọi biến
+thể; chấm TP/FP/TN/FN cùng uncertain/missing telemetry. Replay paired dùng để
+so sánh confusion/inference; **không** đại diện kernel-to-alert. Latency thật
+cần trial live, đo từ timestamp syscall injection đã bind tới alert và giữ
+miss/censored trong mẫu số. Không tune trên blind set rồi gọi lần chạy lại là
+blind xác nhận.
 
 ## Phạm vi đã triển khai
 
@@ -56,43 +73,29 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 
 ## Chạy ngầm và phục hồi
 
-Checkpoint giữ **59/608 fit đã đo trên host**. Các fit đó được xác minh prediction SHA, START, input, software và ML source trước khi tái dùng. Chỉ fit các biến thể còn thiếu/error; không chạy lại 59 fit từ đầu. Progress hiện hành đọc từ STATUS của attempt mới nhất bên dưới; chưa suy chất lượng toàn campaign từ vài workload đầu.
-
-Kiểm tra SSH ngày **08/10/2026 09:06 ICT**: attempt `000002` terminal
-`state=completed`, **608/608 fit (100%)**, `errors=[]`, không còn đợi training.
-Thời điểm kết thúc ghi trong terminal: **18:55:09 ngày 07/10 ICT**. Receipt
-và checksum START/STATUS/TERMINAL: [inspection.json](validation-evidence/pulse-improvement-20261008/inspection.json),
-phần `ablation`. Boot recovery đã cấu hình, chưa reboot VM để test vì không
-muốn gián đoạn cụm. Chưa deploy subset vào candidate production.
+Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
+`attempt-000002` ở `loading_training`, `completed_fits=0/608` tại lần kiểm tra
+mới nhất; đây là tiến độ load/chuẩn bị, chưa có fit hoàn tất. Đọc `STATUS.json`
+và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
 |---|---|
-| Unit trên VM | `pulse-syscall-feature-c1.service`, enabled tại `multi-user.target`, process chạy user `dat` |
+| Unit đang chạy | `pulse-syscall-variant-models-c2.service`, enabled tại `multi-user.target`, user `dat` |
 | Giới hạn tài nguyên | CPU quota 150%, RAM tối đa 4 GiB, không swap, nice 15 |
 | Input | `/home/dat/sentinel-pulse-syscall-feature-c1/inputs` |
-| Checkout source frozen | `/home/dat/sentinel-pulse-syscall-feature-c1/source` |
-| Output campaign | `/home/dat/sentinel-pulse-syscall-feature-c1/runs` |
-| Attempt hiện hành | `attempt-000002`; các attempt cũ giữ nguyên |
-| Checkpoint host nhập trên VM | `/home/dat/sentinel-pulse-syscall-feature-c1/imported-host-attempt` |
-| Tự phục hồi | Restart on failure, retry 60 giây, boot enablement; lỗi binding/checksum exit 65 để điều tra |
+| Checkout C2 | `/home/dat/eBPF-project-syscall-variants-c2`, commit `ce4177a`, ML module hashes khớp checkpoint C1 |
+| Output campaign | `/mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs` trên NFS `.233` |
+| Attempt hiện hành | `attempt-000002`; attempt-000001 lỗi được giữ nguyên, checkpoint C1 không sửa |
+| Tự phục hồi | Restart on failure sau 60 giây, boot enablement; lỗi binding/checksum exit 65 để điều tra |
 
-Output gồm START, STATUS, RESULTS, prediction archives có checksum và TERMINAL. Raw dataset/archive không đưa vào Git. Campaign giữ single-writer flock, tạo attempt mới khi phục hồi, không ghi đè receipt cũ. Hoàn thành thì boot lại không train lại. Unit `Type=oneshot` hiển thị `activating/start` trong khi process training chạy; startup deadline là infinity, không có timeout 120 giây. Khi VM shutdown không thể tính toán, nhưng sau boot service tiếp tục checkpoint; đóng SSH hoặc tắt laptop không dừng process VM.
+Output có START, STATUS, RESULTS, prediction/model artifacts, SHA-256 manifest và TERMINAL. Raw data không đưa vào Git. Campaign dùng single-writer lock, checkpoint và output riêng; job `Type=oneshot` hiển thị `activating/start` trong lúc fit, không có startup deadline 120 giây. Mất SSH/laptop không dừng job; VM reboot thì systemd tiếp tục từ checkpoint. Job này là offline experiment, không gắn collector và không inject attack.
 
 ```bash
 # Trên VM .234, lệnh chỉ đọc
-systemctl status pulse-syscall-feature-c1.service --no-pager
-systemctl is-enabled pulse-syscall-feature-c1.service
-journalctl -u pulse-syscall-feature-c1.service -n 20 --no-pager
-cat /home/dat/sentinel-pulse-syscall-feature-c1/runs/attempt-000002/STATUS.json
+systemctl status pulse-syscall-variant-models-c2.service --no-pager
+journalctl -u pulse-syscall-variant-models-c2.service -n 20 --no-pager
+cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002/STATUS.json
 ```
-
-## Nguyên nhân gián đoạn đã xác minh
-
-Job cũ là transient user unit trên tndat-Dell. `last -x` ghi host shutdown **10:25**, boot lại **13:21** ngày 07/10; journal cùng lúc dừng default target, job thí nghiệm và user manager. Process nhận SIGTERM, ghi terminal `interrupted`, **59/608 fit**, không có lỗi fit được ghi. Đây là shutdown toàn host, không phải bằng chứng người dùng gửi stop riêng cho job. [Journal](validation-evidence/syscall-resume-20261007/host-shutdown-journal.txt).
-
-Attempt đầu trên VM giữ 59 fit nhưng dừng vì kiểm tra proxy float64 quá chặt. Cùng dataset SHA và gap **1,25 giây**, proxy `read` frontend: host `76804.0012292337`, VM `76804.00122923369`, chênh **1 ULP**, `1,4551915228366852e-11`; ranking/retained set giống nhau. Kafka không có chênh. Đây là roundoff khi tính/reduce cross-CPU, chưa quy cho instruction cụ thể.
-
-Bản sửa cho tối đa 8 ULP nhưng ranking/mask/retained set phải giống hệt; zero-count không được đổi. Input hash, phần mềm và model/feature/training source vẫn phải trùng. Chênh lệch ghi trong `resume_training_proxy_roundoff`; không đổi model production. Attempt lỗi giữ tại [receipt VM đầu](validation-evidence/syscall-resume-20261007/vm-STATUS.json), không sửa thành success. Lỗi integrity/binding khác vẫn dừng và báo rõ, không bỏ validation để ép chạy.
 
 ## Giới hạn kết luận và bảo vệ soak
 
