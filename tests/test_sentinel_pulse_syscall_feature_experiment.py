@@ -7,12 +7,21 @@ import json
 from sentinel_pulse.features import PulseFeatureBuilder, SENSITIVE_IDS, TRACKED_SYSCALLS
 from sentinel_pulse.syscall_feature_experiment import (
     explicit_channels, load_checkpoint, masked_contexts, training_frequency_proxy,
-    validate_proxy_roundoff, variant_masks, write_model_manifest,
+    validate_proxy_roundoff, variant_masks, write_model_manifest, atomic_bytes,
 )
 
 
 def columns():
     return list(PulseFeatureBuilder().columns)
+
+
+def test_atomic_model_write_is_durable_and_refuses_overwrite(tmp_path):
+    target = tmp_path / "models" / "model.pkl"
+    atomic_bytes(target, b"model-artifact")
+    assert target.read_bytes() == b"model-artifact"
+    with pytest.raises(FileExistsError):
+        atomic_bytes(target, b"replacement")
+    assert target.read_bytes() == b"model-artifact"
 
 
 def test_leave_one_out_removes_four_explicit_channels_only():
