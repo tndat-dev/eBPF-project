@@ -28,8 +28,9 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` ở `loading_training`, **0/608 fit**
-đã ghi tại lần kiểm tra mới nhất. `attempt-000001` được giữ nguyên với lỗi
+đang chạy nền trên `.234`; `attempt-000002` đã ghi **3/608 fit**, đang fit
+`drop_open` cho `production/aims-frontend:web`. Có 3 model pickle trong output;
+thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
 không được seal. Writer đã sửa, smoke test trên VM pass. NFS
 `10.1.16.233:/sentinel-pulse` mount tại
@@ -74,9 +75,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 ## Chạy ngầm và phục hồi
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` đang fit biến thể `full` cho workload
-`production/aims-frontend:web`; `completed_fits=0/608` tại lần kiểm tra mới
-nhất vì model đầu chưa lưu xong. Đọc `STATUS.json`
+`attempt-000002` đang ở workload `production/aims-frontend:web`, biến thể
+`drop_open`; `completed_fits=3/608` tại lần kiểm tra mới nhất. Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
