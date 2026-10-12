@@ -6,6 +6,7 @@ from types import SimpleNamespace
 import pytest
 
 from sentinel_pulse.syscall_histogram_analysis import summarize, verify_seals
+from sentinel_pulse.syscall_histogram_cohort import aggregate
 from sentinel_pulse import syscall_histogram_pilot as pilot
 from sentinel_pulse.syscall_histogram_pilot import read_traffic_receipt
 
@@ -17,15 +18,17 @@ def seal_capture(root: Path) -> None:
     ))
 
 
-def capture_fixture(root: Path, *, receipt: bool = True) -> Path:
+def capture_fixture(root: Path, *, receipt: bool = True, run_id: str = "test-1",
+                    offset: float = 0.0) -> Path:
     root.mkdir()
-    begin, end = 1000.0, 1001.0
+    begin, end = 1000.0 + offset, 1001.0 + offset
+    node_name = "worker-a"
     metadata = {
         "schema": "sentinel-pulse-cgroups-v1",
-        "node_name": "worker-a",
+        "node_name": node_name,
         "generated_at": "fixture",
         "cgroups": {"123": {
-            "node_name": "worker-a", "namespace": "production", "pod_uid": "uid-1",
+            "node_name": node_name, "namespace": "production", "pod_uid": f"uid-{offset}",
             "pod_name": "api-0", "container_name": "api", "workload_revision": "rev-1",
             "workload_name": "api", "role": "app",
         }},
@@ -33,12 +36,15 @@ def capture_fixture(root: Path, *, receipt: bool = True) -> Path:
     metadata_bytes = json.dumps(metadata).encode()
     traffic = {
         "schema": "sentinel-pulse-traffic-receipt-v1", "receipt_id": "traffic-1",
-        "registered_at_unix": 900.0, "node_name": "worker-a",
-        "schedule": [{"start_unix": 999.0, "end_unix": 1002.0, "regime": "steady"}],
+        "registered_at_unix": 900.0 + offset, "node_name": node_name,
+        "schedule": [{"start_unix": 999.0 + offset, "end_unix": 1002.0 + offset, "regime": "steady"}],
     }
     start = {
-        "schema": "sentinel-pulse-syscall-histogram-pilot-v1", "run_id": "test-1",
-        "node_name": "worker-a", "registered_wall_time": 950.0,
+        "schema": "sentinel-pulse-syscall-histogram-pilot-v1", "run_id": run_id,
+        "node_name": node_name, "registered_wall_time": 950.0 + offset,
+        "kernel": "6.8.0-test", "architecture": "x86_64",
+        "process_abi_scope": "native_x86_64_only; compat/x32 not verified",
+        "duration_seconds": 1,
         "traffic_regime": "registered_schedule" if receipt else "unlabelled",
         "traffic_receipt_id": "traffic-1" if receipt else None,
         "traffic_receipt_sha256": hashlib.sha256(json.dumps(traffic).encode()).hexdigest() if receipt else None,
@@ -46,12 +52,12 @@ def capture_fixture(root: Path, *, receipt: bool = True) -> Path:
         "snapshot_interval_ms": 1000,
     }
     terminal = {
-        "state": "completed", "exit_code": 0, "probe_started_at_unix": 999.5,
-        "probe_ended_at_unix": 1001.5,
+        "state": "completed", "exit_code": 0, "probe_started_at_unix": 999.5 + offset,
+        "probe_ended_at_unix": 1001.5 + offset,
     }
     rows = [
-        {"observed_at": 999.5, "identity_match": True, "metadata_sha256": hashlib.sha256(metadata_bytes).hexdigest(), "document": metadata},
-        {"observed_at": 1001.0, "identity_match": True, "metadata_sha256": hashlib.sha256(metadata_bytes).hexdigest(), "document": metadata},
+        {"observed_at": 999.5 + offset, "identity_match": True, "metadata_sha256": hashlib.sha256(metadata_bytes).hexdigest(), "document": metadata},
+        {"observed_at": 1001.0 + offset, "identity_match": True, "metadata_sha256": hashlib.sha256(metadata_bytes).hexdigest(), "document": metadata},
     ]
     interval = {
         "schema": "sentinel-pulse-syscall-id-histogram-v1", "type": "interval",
@@ -182,3 +188,41 @@ def test_runner_lifecycle_seals_a_bounded_fake_loader_without_attaching_bpf(tmp_
     assert (output / "SHA256SUMS").is_file()
     assert not (output / "metadata").exists()
     assert "START.json" in verify_seals(output)
+
+
+def test_cohort_aggregates_only_verified_nonoverlapping_regime_captures(tmp_path):
+    first = capture_fixture(tmp_path / "capture-a", run_id="run-a", offset=0)
+    second = capture_fixture(tmp_path / "capture-b", run_id="run-b", offset=3)
+
+    result = aggregate([first, second])
+
+    assert result["eligible_capture_count"] == 2
+    assert result["selection_rank_allowed"] is False
+    summary = result["workload_revision_regime_summaries"][0]
+    assert summary["capture_count"] == 2
+    assert summary["pod_replica_count"] == 2
+    assert summary["syscall_total"] == 24
+    assert summary["observed_container_seconds"] == 2.0
+
+
+def test_cohort_excludes_overlapping_runs_on_same_node(tmp_path):
+    first = capture_fixture(tmp_path / "capture-a", run_id="run-a")
+    second = capture_fixture(tmp_path / "capture-b", run_id="run-b")
+
+    result = aggregate([first, second])
+
+    assert result["eligible_capture_count"] == 0
+    assert result["excluded_capture_count"] == 2
+    assert any(item["reason"] == "overlapping_probe_runs_on_same_node"
+               for item in result["input_errors"])
+
+
+def test_cohort_excludes_duplicate_run_ids_even_when_copies_do_not_overlap(tmp_path):
+    first = capture_fixture(tmp_path / "capture-a", run_id="same-run", offset=0)
+    second = capture_fixture(tmp_path / "capture-b", run_id="same-run", offset=3)
+
+    result = aggregate([first, second])
+
+    assert result["eligible_capture_count"] == 0
+    assert result["excluded_capture_count"] == 2
+    assert any(item["reason"] == "duplicate_run_id" for item in result["input_errors"])

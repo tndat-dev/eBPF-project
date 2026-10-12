@@ -220,19 +220,22 @@ Tổng hợp mô tả trên đủ **19 workload × 1.024 context = 19.456 contex
 
 Đã bổ sung runner/analyzer cho probe exact syscall-ID tại
 `sentinel_pulse/syscall_histogram_pilot.py` và
-`sentinel_pulse/syscall_histogram_analysis.py`. Runner lưu baseline/probe/post,
+`sentinel_pulse/syscall_histogram_analysis.py` và
+`sentinel_pulse/syscall_histogram_cohort.py`. Runner lưu baseline/probe/post,
 host/cgroup metrics, cgroup identity snapshots, START/TERMINAL và SHA256SUMS.
 Traffic regime chỉ được gán từ receipt preregistered, hash-bound trước khi
 attach; interval không nằm trọn trong một regime, sai coverage target, map drop,
 telemetry gap hoặc identity thiếu sẽ vẫn được ghi nhận nhưng không được đưa vào
 ranking. Không có receipt thì capture là engineering/unlabelled.
 
-Bảy regression test tổng hợp cho harness/analyzer pass trên host; đây chỉ là
-kiểm thử logic và seal, không phải capture thật. Tại SSH snapshot **12/10/2026
-12:24:09 UTC**, C2 offline refit đang ở **57/608 fit**, không lỗi. Sáu node
-Kubernetes đều Ready, nhưng production còn 20 Evicted, 5 Error, 6
-ContainerStatusUnknown và 4 Completed; vì vậy chưa attach histogram probe mới.
-Chưa có receipt traffic thật, histogram từ harness mới, overhead measurement
-hay syscall ranking mới. Checklist thực hiện và điều kiện hoàn tất ở
+Mười regression test tổng hợp cho harness/analyzer/cohort pass trên host; đây
+chỉ là kiểm thử logic và seal, không phải capture thật. Tại SSH snapshot
+**12/10/2026 12:47:04 UTC**, C2 offline refit đang chạy nền; journal ghi
+**160/608 fit**. Cluster audit xác nhận 6/6 node Ready, mọi Running pod Ready,
+10/10 microservice health endpoint trả 200. Trước cleanup có 31 pod production
+và 53 pod Velero terminal Evicted do DiskPressure/ephemeral-storage; nguyên
+nhân và cleanup được ghi tại `CLUSTER_READINESS.md`. Chưa có receipt traffic
+thật, histogram từ harness mới, overhead measurement hay syscall ranking mới.
+Checklist thực hiện và điều kiện hoàn tất ở
 [`SYSCALL_EXPERIMENT_TODO.md`](SYSCALL_EXPERIMENT_TODO.md); trạng thái C2/pilot
 ở [`SYSCALL_FEATURE_EXPERIMENT_STATUS.md`](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).

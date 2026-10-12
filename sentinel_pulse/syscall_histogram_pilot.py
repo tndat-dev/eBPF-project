@@ -336,10 +336,13 @@ def run(args) -> int:
                 exit_code = child.wait()
             probe_ended_at = time.time()
             phase = "post"
-            if exit_code == 0 and not _stop:
+            probe_elapsed = probe_ended_at - probe_started_at
+            duration_complete = probe_elapsed >= max(0, args.duration_seconds - 1)
+            if exit_code == 0 and duration_complete and not _stop:
                 _sample_phase(phase, args.post_seconds, metrics_path, args.allowlist,
                               args.metadata, metadata_out, args.metric_interval_seconds)
-            terminal_state = "completed" if exit_code == 0 and not _stop else "interrupted_or_failed"
+            terminal_state = ("completed" if exit_code == 0 and duration_complete and not _stop
+                              else "interrupted_or_failed")
     finally:
         try:
             if child is not None and child.poll() is None:

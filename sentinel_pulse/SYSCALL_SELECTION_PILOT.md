@@ -21,7 +21,9 @@ Không được chạy pilot cho đến khi kiểm tra trạng thái soak/captur
 ## Harness và receipt traffic
 
 Runner/analyzer đã được thêm ở `syscall_histogram_pilot.py` và
-`syscall_histogram_analysis.py`. Runner luôn đo baseline → probe → post; nếu
+`syscall_histogram_analysis.py`; `syscall_histogram_cohort.py` gộp nhiều capture
+đã seal theo workload × revision × regime, loại run trùng/chồng lấn trên cùng
+node và không tự chọn/rank feature. Runner luôn đo baseline → probe → post; nếu
 không có receipt, nó ghi `traffic_regime=unlabelled`, và analyzer không cho dùng
 kết quả xếp hạng. Receipt phải được tạo bởi nguồn điều khiển traffic trước lúc
 capture, không được gán regime suy đoán sau khi xem dữ liệu. Schema tối thiểu:
@@ -60,6 +62,11 @@ sudo python3 -m sentinel_pulse.syscall_histogram_pilot \
 python3 -m sentinel_pulse.syscall_histogram_analysis \
   --capture-dir /var/lib/sentinel-pulse/syscall-histogram/<run-id> \
   --output /var/lib/sentinel-pulse/syscall-histogram/<run-id>/ANALYSIS.json
+
+python3 -m sentinel_pulse.syscall_histogram_cohort \
+  --capture-dir /var/lib/sentinel-pulse/syscall-histogram/run-a \
+  --capture-dir /var/lib/sentinel-pulse/syscall-histogram/run-b \
+  --output /var/lib/sentinel-pulse/syscall-histogram/cohort.json
 ```
 
 Đây là hướng dẫn, không phải bằng chứng đã chạy trên cluster.
@@ -84,4 +91,4 @@ Target build chỉ biên dịch object/loader; nó không attach probe, không c
 - Báo tần suất count/share/rate theo workload, regime, revision và thời lượng đủ điều kiện; kèm missing telemetry, map drops, CPU/RSS, throughput và p95/p99.
 - Mọi alert trong normal capture được giữ lại và adjudicate sau run; không ép zero-alert gate.
 
-Trạng thái hiện tại: code BPF/loader đã build thành công trên worker3 bằng kernel BTF của node, clang 18.1.3 và libbpf 1.4. Harness/analyzer offline đã có; năm regression tests pass trên host. **Harness mới chưa attach, chưa thu histogram/overhead và chưa có traffic receipt thật.** Tại lần SSH 12/10 12:19 UTC: sáu node Ready nhưng namespace production có 20 Evicted, 5 Error, 6 ContainerStatusUnknown và 4 Completed. Chưa attach thêm probe trong điều kiện này. Build SHA-256 và C2 ghi trong `../SYSCALL_FEATURE_EXPERIMENT_STATUS.md`; checklist ở `../SYSCALL_EXPERIMENT_TODO.md`.
+Trạng thái hiện tại: code BPF/loader đã build thành công trên worker3 bằng kernel BTF của node, clang 18.1.3 và libbpf 1.4. Runner/analyzer/cohort aggregator offline đã có; **10 regression tests pass** trên host. **Harness mới chưa attach, chưa thu histogram/overhead và chưa có traffic receipt thật.** Tại lần SSH 12/10 12:47 UTC: sáu node Ready, toàn bộ Running pod Ready; production 66 Running/Ready và 4 Job Succeeded. Các pod Failed/Evicted cũ đã được dọn sau khi ghi nhận nguyên nhân DiskPressure/ephemeral-storage trong [`../CLUSTER_READINESS.md`](../CLUSTER_READINESS.md). Health probe 10/10 microservice trả 200. Chưa attach probe chính thức vì traffic-regime receipt chưa preregister. Build SHA-256 và C2 ghi trong `../SYSCALL_FEATURE_EXPERIMENT_STATUS.md`; checklist ở `../SYSCALL_EXPERIMENT_TODO.md`.

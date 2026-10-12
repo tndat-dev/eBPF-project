@@ -1,9 +1,9 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
 Cập nhật hiện hành: **12/10/2026**. Đây là checklist điều phối công việc, không
-phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:24:09 UTC: service
-`pulse-syscall-variant-models-c2.service` đang `activating`, `57/608` fit,
-đang ở `drop_sendmmsg`, `errors=[]`. Không sửa hoặc dừng service này.
+phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:47:04 UTC: service
+`pulse-syscall-variant-models-c2.service` đang `activating`; journal ghi
+`160/608` fit, variant `top16_plus_sensitive`. Không sửa hoặc dừng service này.
 
 ## Đã làm trong lượt hiện tại
 
@@ -16,14 +16,23 @@ phải số liệu kết quả. Trạng thái live C2 đọc qua SSH lúc 12:24:
 - [x] Thêm analyzer `sentinel_pulse/syscall_histogram_analysis.py`: kiểm tra
   seal, integrity/drop/map capacity, target coverage, identity/revision, độ mới
   metadata, receipt và việc interval nằm trọn trong đúng một regime.
-- [x] Thêm regression tests cho receipt, capture hợp lệ, dữ liệu unlabelled,
-  interval cắt qua ranh giới regime và artifact bị sửa.
-- [x] SSH kiểm tra cluster: 6/6 node `Ready`, Kubernetes `v1.34.10`; namespace
-  `production` có 66 Running, 20 Evicted, 5 Error, 6 ContainerStatusUnknown,
-  4 Completed; trên worker3, một phần loadgen AIMS Evicted/Unknown và một số
-  microservice Error/Completed. Vì vậy lượt hiện tại **không attach probe** và
-  không phát sinh tải/canary mới.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **12:24:09 UTC**: `57/608`, không lỗi.
+- [x] Thêm cohort aggregator `sentinel_pulse/syscall_histogram_cohort.py`: gộp
+  captures hợp lệ theo workload × revision × regime, loại run trùng/chồng lấn,
+  và không tự xếp hạng feature.
+- [x] Thêm 10 regression tests cho receipt, capture hợp lệ/unlabelled, ranh giới
+  regime, artifact bị sửa, target coverage, runner sealing và cohort overlap.
+- [x] Audit cluster trực tiếp: 6/6 node Ready; production 66 Running/Ready,
+  31 pod terminal Evicted, 4 Job pod Succeeded. Deployment/StatefulSet/DaemonSet
+  đều đủ replica; CNPG 3/3 và Kafka `Ready=True`. Đã lưu root cause DiskPressure
+  vào [CLUSTER_READINESS.md](CLUSTER_READINESS.md), dọn 31 pod Failed production
+  và 53 pod Failed Velero sau khi ghi nhận sự cố; không đụng PVC/data/log.
+- [x] Hậu kiểm: không có Running pod chưa Ready; node pressure đều False;
+  10/10 microservice health endpoint trả 200, MinIO health 200, Redis AUTH/PING
+  OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
+  không phải pod readiness; chi tiết trong readiness report.
+- [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
+- [x] Cập nhật trạng thái C2 qua SSH lúc **12:47:04 UTC**: journal `160/608`;
+  job vẫn chạy nền, chưa có terminal result.
 
 ## Checklist để có bằng chứng chọn syscall
 

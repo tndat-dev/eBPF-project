@@ -170,7 +170,18 @@ def summarize(root: Path, max_metadata_age_seconds: float = 30.0,
     terminal = json.loads((root / "TERMINAL.json").read_text())
     if start.get("schema") != "sentinel-pulse-syscall-histogram-pilot-v1":
         raise ValueError("unsupported pilot START schema")
-    snapshots, problems = load_metadata(root / "metadata-snapshots.jsonl")
+    expected_duration = start.get("duration_seconds")
+    probe_start, probe_end = terminal.get("probe_started_at_unix"), terminal.get("probe_ended_at_unix")
+    if type(expected_duration) is not int or expected_duration <= 0:
+        raise ValueError("invalid registered probe duration")
+    if (not isinstance(probe_start, (int, float)) or not isinstance(probe_end, (int, float))
+            or not math.isfinite(probe_start) or not math.isfinite(probe_end)
+            or probe_end - probe_start < max(0, expected_duration - 1)):
+        problems = Counter({"probe_duration_short": 1})
+    else:
+        problems = Counter()
+    snapshots, metadata_problems = load_metadata(root / "metadata-snapshots.jsonl")
+    problems.update(metadata_problems)
     raw_targets = start.get("allowlist_cgroup_ids")
     expected_targets = set(raw_targets) if isinstance(raw_targets, list) and all(
         type(value) is int and value > 0 for value in raw_targets
@@ -192,6 +203,8 @@ def summarize(root: Path, max_metadata_age_seconds: float = 30.0,
     integrity = []
     counts_by_identity = defaultdict(Counter)
     exposure = defaultdict(lambda: {"records": 0, "seconds": 0.0, "regimes": Counter()})
+    counts_by_regime = defaultdict(Counter)
+    exposure_by_regime = defaultdict(lambda: {"records": 0, "seconds": 0.0})
     unassigned = Counter()
     max_scan = 0.0
     seen = set()
@@ -294,6 +307,10 @@ def summarize(root: Path, max_metadata_age_seconds: float = 30.0,
                     problems["interval_outside_single_registered_regime"] += 1
             else:
                 exposure[identity_key]["regimes"][regime] += 1
+            regime_key = regime or "unlabelled"
+            counts_by_regime[(identity_key, regime_key)].update(entry["counts"])
+            exposure_by_regime[(identity_key, regime_key)]["records"] += 1
+            exposure_by_regime[(identity_key, regime_key)]["seconds"] += seconds
 
     if len(integrity_by_begin) != cycle_count:
         problems["integrity_cycle_count_mismatch"] += abs(len(integrity_by_begin) - cycle_count)
@@ -314,6 +331,23 @@ def summarize(root: Path, max_metadata_age_seconds: float = 30.0,
                  "per_container_second": count / info["seconds"] if info["seconds"] else None}
                 for syscall_id, count in counts.most_common()
             ],
+            "by_regime": {
+                regime: {
+                    "interval_records": regime_exposure["records"],
+                    "observed_container_seconds": regime_exposure["seconds"],
+                    "syscall_total": sum(regime_counts.values()),
+                    "syscall_ids": [
+                        {"id": syscall_id, "count": count,
+                         "share": count / sum(regime_counts.values()) if sum(regime_counts.values()) else 0.0,
+                         "per_container_second": count / regime_exposure["seconds"]
+                         if regime_exposure["seconds"] else None}
+                        for syscall_id, count in regime_counts.most_common()
+                    ],
+                }
+                for (workload_key, regime), regime_counts in sorted(counts_by_regime.items())
+                if workload_key == identity_key
+                for regime_exposure in [exposure_by_regime[(identity_key, regime)]]
+            },
         }
     valid = (terminal.get("state") == "completed" and terminal.get("exit_code") == 0
              and not problems and cycle_count > 0 and bool(schedule)
@@ -324,6 +358,12 @@ def summarize(root: Path, max_metadata_age_seconds: float = 30.0,
         "capture_valid_for_feature_selection": valid,
         "selection_rank_allowed": valid,
         "run_id": start.get("run_id"),
+        "node_name": start.get("node_name"),
+        "kernel": start.get("kernel"),
+        "architecture": start.get("architecture"),
+        "process_abi_scope": start.get("process_abi_scope"),
+        "probe_started_at_unix": terminal.get("probe_started_at_unix"),
+        "probe_ended_at_unix": terminal.get("probe_ended_at_unix"),
         "start_sha256": sha256_file(root / "START.json"),
         "terminal_sha256": sha256_file(root / "TERMINAL.json"),
         "capture_sha256": seals["histogram.jsonl"],
