@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 10:26 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 13:28 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -29,11 +29,20 @@ kernel-to-alert**. Lượt benchmark r1 lỗi do pickle lưu lớp dưới tên
 `__main__`; đã giữ nguyên evidence lỗi, sửa loader, vô hiệu hóa unit r1 và chạy
 thành công trên output root r2 riêng. Không thay artifact/model.
 
-Capture tiếp theo đang chạy contract v2 có giữ verified idle windows, tách
-biệt v1: tại 10:26 ICT có khoảng **480/7.200 giây mỗi worker**, **184.489 feature
-rows**, **182.539 review-eligible**, **0 lỗi**. Worker audit chờ capture; master
-reference fit đang chờ audit. Cụm hiện **6/6 node Ready, v1.34.10**. Unit systemd
-được enable, không phụ thuộc SSH/laptop.
+Capture idle-aware v2 đã hoàn tất riêng biệt với v1: đủ **7.200 giây/worker**
+ở cadence 500 ms. Ba worker ghi **2.770.424 feature rows**, trong đó
+**2.767.694** đạt điều kiện review kỹ thuật; các hàng này vẫn mang nhãn
+`unadjudicated_observation`, không tự động được gọi là normal. Audit replay đủ
+2.770.424/2.770.424, không có feature mismatch hay unplaced event. Có **3 cadence
+gap trên `.239`**; chúng được giữ trong kết quả, không xóa hoặc chuyển thành
+normal. Capture errors 0; trailing unclosed snapshots 0.
+
+Index v2 chứa **40 workload/container key** (v1 có 21). Reference ExtraTrees /
+support fit đang chạy **7/40**, tại key `production/aims-waypoint:pod-slice`;
+process còn sống, không restart, khoảng 1,6 GiB RSS và 47% CPU ở lần kiểm tra.
+Đây là reference exploratory, chưa phải model đã đánh giá attack hay được đưa
+vào serving. Cụm hiện **6/6 node Ready, v1.34.10**; job systemd không phụ thuộc
+SSH/laptop.
 
 ## 1. Mục tiêu, không phải kết quả
 
@@ -209,18 +218,20 @@ phát alert production. Không bypass manifest/type checks để ép chạy.
 
 ## 5. Công việc tiếp theo để tiến đến kỳ vọng
 
-1. Đợi capture idle-aware v2 đủ 7.200 boundary-second/node; audit sealed raw và
-   feature trước khi sử dụng. Mọi lỗi/hạ tầng phải được ghi lại, không biến
-   khoảng thiếu telemetry thành normal.
-2. Candidate mới phải khai báo các security field thực sự hỗ trợ, calibration
+1. Để reference fit idle-aware v2 chạy đến terminal 40/40; giữ checksum, mọi
+   key thiếu calibration và mọi lỗi. Không nới alpha, gộp workload hay promote
+   tự động để ép đủ model.
+2. Trước khi dùng cho đánh giá attack, chốt candidate/policy/calibration và
+   tạo preregistration mới; các quan sát hiện tại chưa adjudicate normal.
+3. Candidate mới phải khai báo các security field thực sự hỗ trợ, calibration
    và decision policy cùng nhau. So sánh model-only và full policy; không
    sửa ngưỡng để vừa khít 475 interval đã nhìn thấy.
-3. Thu normal độc lập có peak/burst/recovery/rollout cho cả 21 container, rồi
-   kiểm tra nhánh support có gây alert do thay đổi tải hợp lệ hay không.
-4. Đóng băng candidate hoàn chỉnh trước bộ attack/normal mới; giữ mọi miss,
+4. Thu normal độc lập có peak/burst/recovery/rollout cho các workload chưa có
+   coverage; kiểm tra nhánh support có gây alert do tải hợp lệ hay không.
+5. Đóng băng candidate hoàn chỉnh trước bộ attack/normal mới; giữ mọi miss,
    alert và unknown. Lấy confusion matrix/CI theo đơn vị interval, phân nhóm
    workload/scenario/regime và công bố detection-within-2s cùng recall.
-5. Chỉ công bố đạt kỳ vọng khi cả accuracy, coverage và latency có evidence.
+6. Chỉ công bố đạt kỳ vọng khi cả accuracy, coverage và latency có evidence.
    Không đặt trần thời gian hoàn thiện bằng cách loại các khoảng xấu khỏi mẫu.
 
 Thí nghiệm chọn kênh syscall **608/608 fit đã hoàn thành**; chưa deploy subset.

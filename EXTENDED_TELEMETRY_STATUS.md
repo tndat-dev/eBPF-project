@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 10:26 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 13:28 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -124,9 +124,9 @@ sẽ chờ hồi phục, không ghi tiếp làm đầy node. Không giữ trốn
 Khi kiểm tra, worker còn khoảng **161 / 113 / 95 GiB**. Không cam kết đủ 2 giờ
 nếu budget/hạ tầng không cho phép.
 
-## Candidate tham chiếu và job idle-aware hiện hành
+## Candidate tham chiếu và capture idle-aware follow-up
 
-[SSH snapshot 12/10, 10:26 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
+[SSH snapshot 12/10, 13:28 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
 6/6 node Ready, Kubernetes `v1.34.10`. Reference fit v1 hoàn thành trên 21 key:
 **18 artifact fit**, 3 key không đủ conformal calibration tại alpha 0,001
 (frontend web 400, MinIO 827, sidecar 390; cần tối thiểu 999). Holdout có
@@ -141,13 +141,30 @@ lần lượt **19,91/26,94/31,92 ms**; workload xấu nhất p95 **32,23 ms**, 
 delivery; **không đại diện latency kernel-to-alert**. Candidate còn thiếu nhãn
 độc lập và phép thử attack mới.
 
-Hiện đang chạy capture v2 riêng có giữ verified idle windows, không sửa hoặc
-ghi đè v1: 500 ms, mục tiêu 7.200 boundary-second/worker, contract
-`pulse-entered-plus-seccomp-skip-idle-v2`. Tại 10:26 ICT, ba worker đã có xấp
-xỉ 480/7.200 giây mỗi node, 184.489 feature rows, 182.539 review-eligible rows, 0 lỗi.
-Unit collector enabled; audit worker đã đăng ký và đang chờ capture; master
-reference service chờ đủ audit. Khi xong sẽ audit rồi fit candidate mới; không
-đưa nhãn normal hay promotion tự động vào pipeline.
+Capture v2 riêng có giữ verified idle windows đã hoàn tất, không sửa/ghi đè
+v1: cadence 500 ms, **7.200 boundary-second trên mỗi worker**, contract
+`pulse-entered-plus-seccomp-skip-idle-v2`.
+
+| Worker | Boundary seconds | Feature rows | Review-eligible | Capture errors | Audit replay | Cadence gaps |
+|---|---:|---:|---:|---:|---:|---:|
+| .237 | 7.200,28 | 1.078.516 | 1.077.756 | 0 | 1.078.516/1.078.516 | 0 |
+| .238 | 7.200,41 | 1.134.880 | 1.134.080 | 0 | 1.134.880/1.134.880 | 0 |
+| .239 | 7.200,35 | 557.028 | 555.858 | 0 | 557.028/557.028 | 3 |
+
+Tổng **2.770.424 feature rows**, **2.767.694 review-eligible rows** và
+**42.685 boundaries**. Audit đánh dấu `all_features_replayed=true`, không có
+mismatch hay unplaced events; `.239` có 3 cadence gaps và chúng vẫn được tính
+trong báo cáo chất lượng telemetry. Không có trailing unclosed raw snapshot.
+`review-eligible` chỉ là điều kiện kỹ thuật, không phải nhãn normal đã
+adjudicate hoặc được tự động đưa vào training.
+
+Reference fit được khởi chạy sau audit với `include_idle_windows=true`; index
+có **40 workload/container key**. Tại 13:28 ICT, **7/40** key đã có kết quả;
+process vẫn hoạt động, không restart, khoảng 1,6 GiB RSS/47% CPU ở snapshot
+tài nguyên gần nhất. Key đang fit: `production/aims-waypoint:pod-slice`.
+Candidate này chưa có attack evaluation, chưa serving-compatible, không tự
+promotion. Mọi thiếu calibration và kết quả holdout chưa adjudicate phải được
+giữ nguyên. [Snapshot SSH và hashes](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 
 Model baseline vẫn **recall 35,26% có điều kiện**, p95 **1,538 s trên hit**
 từ kernel exec-entry. Collector bổ sung là bước sửa nguyên nhân, chưa thay
