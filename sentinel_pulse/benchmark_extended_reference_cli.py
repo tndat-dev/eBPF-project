@@ -4,6 +4,7 @@ Execute this file with PYTHONPATH set to the original frozen reference source.
 This keeps the pickle's scoring helpers pinned while the benchmark itself is new.
 """
 import argparse
+import __main__
 import importlib.metadata
 import json
 import platform
@@ -11,10 +12,21 @@ from pathlib import Path
 import pickle
 import time
 import numpy as np
-from sentinel_pulse.extended_reference_experiment import partitions_for
+from sentinel_pulse.extended_reference_experiment import (
+    PulseExtendedReferenceTree,
+    partitions_for,
+)
 from sentinel_pulse.integrity import sha256_file
 from sentinel_pulse.recovery_worker_probe import clean_source
 from sentinel_pulse.run_500ms_blind_matrix import atomic_json
+
+
+def load_reference_model(path):
+    # The trainer runs with ``python -m`` and pickles this detector under the
+    # module name ``__main__``. Recreate that name before loading the artifact.
+    __main__.PulseExtendedReferenceTree=PulseExtendedReferenceTree
+    with Path(path).open('rb') as f:
+        return pickle.load(f)
 
 
 def run(source,experiment,output,samples=128):
@@ -44,7 +56,7 @@ def run(source,experiment,output,samples=128):
         if sha256_file(artifact)!=row['artifact_sha256']:raise ValueError('benchmark artifact drift')
         data=experiment/index['workloads'][key]['file']
         if sha256_file(data)!=index['workloads'][key]['sha256']:raise ValueError('benchmark reference input drift')
-        with artifact.open('rb') as f:model=pickle.load(f)
+        model=load_reference_model(artifact)
         partitions,_=partitions_for(data,index['train_cut'],index['holdout_cut'])
         contexts=[]
         for seq in partitions['holdout']:

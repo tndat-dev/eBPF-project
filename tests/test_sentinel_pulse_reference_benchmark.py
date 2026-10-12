@@ -1,4 +1,5 @@
 import importlib.metadata
+import __main__
 import json
 import pickle
 import platform
@@ -6,11 +7,26 @@ import numpy as np
 from sentinel_pulse import benchmark_extended_reference_cli as bench
 from sentinel_pulse.model import PulseExtraTrees
 from sentinel_pulse.integrity import sha256_file
+from sentinel_pulse.extended_reference_experiment import PulseExtendedReferenceTree
 
 
 class FixtureModel:
     def __init__(self):self.base=PulseExtraTrees()
     def predict_contexts(self,values):return {'anomalous':np.zeros(len(values),dtype=bool)}
+
+
+def test_load_reference_model_restores_trainer_main_module_pickle(tmp_path,monkeypatch):
+    artifact=tmp_path/'legacy-main.pkl'
+    model_type=PulseExtendedReferenceTree
+    original_module=model_type.__module__
+    monkeypatch.setattr(model_type,'__module__','__main__')
+    monkeypatch.setattr(__main__,'PulseExtendedReferenceTree',model_type,raising=False)
+    try:
+        with artifact.open('wb') as f:pickle.dump(model_type(),f)
+    finally:
+        monkeypatch.setattr(model_type,'__module__',original_module)
+    loaded=bench.load_reference_model(artifact)
+    assert type(loaded) is model_type
 
 
 def test_single_context_timing_keeps_missing_model_and_never_calls_flags_fp(tmp_path,monkeypatch):
