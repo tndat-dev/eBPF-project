@@ -91,11 +91,16 @@ source commit `2c1a72d`, model manifest SHA
 `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`, policy SHA
 `fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`, và 86,400
 giây boundary exposure/node. Capture/shadow units đều `enabled`; checkpoint
-đầu cho thấy cả ba capture `collecting`, cả ba shadow `active`, errors=0 và
-capacity pauses=0. Units được bật lại khi node reboot. Capture checkpoint/fsync
-mỗi 5 giây và tự resume sau lỗi/reboot. Snapshot đầu run (chưa đủ để đánh giá
-chất lượng): worker1 70.1 giây/11,316 rows; worker3 59.7 giây/2,499 rows;
-worker4 54.9 giây/9,612 rows.
+được xác minh gần nhất lúc **01:49 ngày 13/10 (UTC+7)**: cả ba capture vẫn
+`collecting`, cả ba shadow `active`, không có journal warning, capture error,
+capacity pause hay systemd restart. Boundary exposure: worker1 **426.0 s**
+(68,716 rows; 67,896 eligible), worker3 **355.9 s** (14,889 rows; 14,679
+eligible), worker4 **330.1 s** (57,672 rows; 56,782 eligible). So với yêu cầu
+86,400 giây/node, node chậm nhất mới đạt **0.38%**; đây chỉ là tiến độ thu,
+không phải kết quả chất lượng hay confusion matrix. Dung lượng trống tại lần
+kiểm tra: worker1 **162.6 GB**, worker3 **302.6 GB**, worker4 **117.0 GB**.
+Units được bật lại khi node reboot. Capture checkpoint/fsync mỗi 5 giây và tự
+resume sau lỗi/reboot; shadow tự khởi động lại và warm-up history sau restart.
 
 Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
 terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
@@ -112,6 +117,14 @@ journal, gaps, decision coverage và disk. Mọi pause/gap không cộng normal
 exposure; nếu có pause, thời điểm kết thúc lùi tương ứng. Sau đó mới adjudicate
 preview/normal và tính confusion matrix; cải thiện candidate trên split phát
 triển riêng.
+
+Ước tính theo tốc độ thời gian: tối thiểu khoảng **24 giờ từ lúc mỗi worker bắt
+đầu**, song song trên ba worker; các khoảng pause/degraded không cộng exposure
+nên có thể kéo dài hơn. Shadow có thể cần thêm thời gian để đọc hết backlog:
+smoke B2 gợi ý khoảng **2–3 giờ** sau capture nếu tốc độ hụt tương tự, nhưng đây
+chỉ là ước tính pilot ngắn. Lần kiểm tra tiếp theo phù hợp khoảng **04:15 ngày
+14/10 (UTC+7)** để xác nhận exposure đủ và shadow drain; không được coi giờ đó
+là cam kết hoàn tất nếu có gap/pause hoặc backlog tăng.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
