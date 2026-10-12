@@ -25,7 +25,7 @@ class PulseResolverTests(unittest.TestCase):
         )
         self.assertEqual(workload_revision({}), "unknown")
 
-    def test_includes_leaf_container_cgroup(self):
+    def test_containerd_mapping_omits_idle_pod_slice_parent(self):
         pod = {"pod_uid": "1234-abcd", "pod_name": "catalog-service-x", "namespace": "production", "role": "stateless-http"}
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -34,10 +34,22 @@ class PulseResolverTests(unittest.TestCase):
             leaf.mkdir(parents=True)
             found = resolve_cgroups([pod], root, [{"pod_uid": "1234-abcd", "container_id": "test", "container_name": "app"}])
             paths = {item["cgroup_path"] for item in found.values()}
-            self.assertIn(str(pod_path), paths)
+            self.assertNotIn(str(pod_path), paths)
             self.assertIn(str(leaf), paths)
             leaf_item = next(value for value in found.values() if value["cgroup_path"] == str(leaf))
             self.assertEqual(leaf_item["container_name"], "app")
+
+    def test_gvisor_fallback_keeps_only_deepest_pod_slice(self):
+        pod = {"pod_uid": "1234-abcd", "pod_name": "catalog-service-x", "namespace": "production", "role": "stateless-http"}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            parent = root / "kubepods-pod1234_abcd.slice"
+            leaf = parent / "sentry.scope"
+            leaf.mkdir(parents=True)
+            found = resolve_cgroups([pod], root, [])
+            self.assertEqual(len(found), 1)
+            self.assertEqual(next(iter(found.values()))["cgroup_path"], str(leaf))
+            self.assertEqual(next(iter(found.values()))["container_name"], "pod-slice")
 
 
 if __name__ == "__main__":

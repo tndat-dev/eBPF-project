@@ -50,6 +50,14 @@ def run(source,experiment,output,samples=128):
     measured=json.loads(target.read_text()) if target.exists() else dict(workloads={},not_kernel_to_alert=True)
     for key,row in result['workloads'].items():
         if key in measured['workloads']:continue
+        dimension=row.get('fit',{}).get('feature_dim')
+        constant=row.get('support',{}).get('constant_training_coordinates')
+        if isinstance(dimension,int) and constant==dimension:
+            measured['workloads'][key]=dict(state='excluded_degenerate_reference',
+                reason='all current-row feature coordinates were constant during reference fit',
+                feature_dim=dimension,reference_flags=row.get('raw_holdout_reference_flags'),
+                reference_flags_are_not_false_positives=True,artifact_sha256=row.get('artifact_sha256'))
+            atomic_json(target,measured);continue
         if 'artifact' not in row:
             measured['workloads'][key]=dict(state='missing_model',error=row.get('error'));atomic_json(target,measured);continue
         artifact=experiment/row['artifact']

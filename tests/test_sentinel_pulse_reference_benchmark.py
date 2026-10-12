@@ -42,9 +42,13 @@ def test_single_context_timing_keeps_missing_model_and_never_calls_flags_fp(tmp_
     (experiment/'INDEX.json').write_text(json.dumps(dict(train_cut=10,holdout_cut=20,workloads={'demo':dict(
         file='fixture.jsonl',sha256=sha256_file(experiment/'fixture.jsonl'))})))
     (experiment/'RESULTS.json').write_text(json.dumps(dict(workloads={'demo':dict(artifact='fixture.pkl',
-        artifact_sha256=sha256_file(experiment/'fixture.pkl')),'missing':dict(error='no calibration')})))
+        artifact_sha256=sha256_file(experiment/'fixture.pkl')),'missing':dict(error='no calibration'),
+        'empty-slice':dict(artifact='fixture.pkl',artifact_sha256=sha256_file(experiment/'fixture.pkl'),
+            fit=dict(feature_dim=249),support=dict(constant_training_coordinates=249),
+            raw_holdout_reference_flags=0)})))
     bench.run(source,experiment,output,samples=16)
     result=json.loads((output/'RESULTS.json').read_text())
     assert result['not_kernel_to_alert'] and result['workloads']['demo']['samples']==16
     assert result['workloads']['demo']['reference_flags_are_not_false_positives']
     assert result['workloads']['missing']['state']=='missing_model'
+    assert result['workloads']['empty-slice']['state']=='excluded_degenerate_reference'

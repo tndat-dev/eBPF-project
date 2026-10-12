@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 13:33 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 17:00 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -128,7 +128,7 @@ reserve cho experiment. Không cam kết thời lượng nếu budget/hạ tần
 
 ## Candidate tham chiếu và capture idle-aware follow-up
 
-[SSH snapshot 12/10, 13:33 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
+[SSH snapshot 12/10, 17:00 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
 6/6 node Ready, Kubernetes `v1.34.10`. Reference fit v1 hoàn thành trên 21 key:
 **18 artifact fit**, 3 key không đủ conformal calibration tại alpha 0,001
 (frontend web 400, MinIO 827, sidecar 390; cần tối thiểu 999). Holdout có
@@ -160,13 +160,24 @@ trong báo cáo chất lượng telemetry. Không có trailing unclosed raw snap
 `review-eligible` chỉ là điều kiện kỹ thuật, không phải nhãn normal đã
 adjudicate hoặc được tự động đưa vào training.
 
-Reference fit được khởi chạy sau audit với `include_idle_windows=true`; index
-có **40 workload/container key**. Tại 13:33 ICT, **9/40** key đã có kết quả;
-process vẫn hoạt động, không restart, khoảng 1,6 GiB RSS/51% CPU ở snapshot
-tài nguyên gần nhất. Key đang fit: `production/notification-service:pod-slice`.
-Candidate này chưa có attack evaluation, chưa serving-compatible, không tự
-promotion. Mọi thiếu calibration và kết quả holdout chưa adjudicate phải được
-giữ nguyên. [Snapshot SSH và hashes](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
+Reference fit sau audit với `include_idle_windows=true` đã **hoàn tất 40/40**;
+systemd `active/exited`, `ExecMainStatus=0`, `NRestarts=0`. Có 1.935.979 train
+examples, tối thiểu 2.117 calibration examples/key; tổng fit time cộng từ các
+model là 10.406,57 giây. Holdout gồm 412.738 context, có 778 raw flags và 434
+tree flags. Do nhãn `unadjudicated_observation`, đây chỉ là số cờ quan sát,
+không phải FP/FPR; precision/recall/confusion matrix vẫn `null`.
+
+Kiểm tra cấu trúc cho thấy **19/40 khóa `pod-slice` đều có 249/249 tọa độ
+constant**. Quét trực tiếp 1.816.774 JSONL rows cho cả 19 khóa xác nhận toàn bộ
+`exact_total=0`. Đây là ancestor cgroup không nhận syscall, tạo ra 19 model
+suy biến; không được diễn giải zero flags thành detector chính xác. 21 khóa
+container còn lại mới có biến thiên feature. Resolver trong source đã được sửa
+để ưu tiên CRI container ID cgroup; nếu runtime không expose cgroup của
+container thì mới giữ scope sâu nhất làm fallback (ví dụ gVisor). Thay đổi
+chưa được cài vào resolver/collector đang chạy trên worker; dữ liệu/model cũ
+được giữ nguyên. Candidate chưa attack-evaluated, chưa serving-compatible,
+không tự promotion. Xem snapshot và hashes trong
+[evidence hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 
 Model baseline vẫn **recall 35,26% có điều kiện**, p95 **1,538 s trên hit**
 từ kernel exec-entry. Collector bổ sung là bước sửa nguyên nhân, chưa thay

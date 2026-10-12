@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 13:33 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:00 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -37,13 +37,20 @@ Capture idle-aware v2 đã hoàn tất riêng biệt với v1: đủ **7.200 gi�
 gap trên `.239`**; chúng được giữ trong kết quả, không xóa hoặc chuyển thành
 normal. Capture errors 0; trailing unclosed snapshots 0.
 
-Index v2 chứa **40 workload/container key** (v1 có 21). Reference ExtraTrees /
-support fit đang chạy **9/40**, hiện tại ở key
-`production/notification-service:pod-slice`; process còn sống, không restart,
-khoảng 1,6 GiB RSS và 51% CPU ở lần kiểm tra.
-Đây là reference exploratory, chưa phải model đã đánh giá attack hay được đưa
-vào serving. Cụm hiện **6/6 node Ready, v1.34.10**; job systemd không phụ thuộc
-SSH/laptop.
+Index v2 chứa **40 workload/container key** (v1 có 21). Reference fit đã hoàn
+tất **40/40 artifact**, service thoát mã 0, không restart. Có **412.738 holdout
+context**, 778 raw flags và 434 tree flags; mọi nhãn chưa adjudicate nên các
+flag này **không phải false positive/FPR**. Tổng thời gian fit ExtraTrees là
+10.406,57 giây CPU theo tổng số liệu từng model.
+
+Quét JSONL gốc xác nhận **19/19 khóa `pod-slice` chỉ có zero exact-syscall
+trong 1.816.774 hàng**; cả 249 tọa độ huấn luyện đều hằng. Đây là cgroup
+ancestor rỗng, không phải kết quả phát hiện thành công. Chỉ còn **21 khóa
+container có biến thiên feature** có ý nghĩa cho benchmark tiếp theo. Candidate
+vẫn exploratory: chưa adjudicated, chưa dùng attack, không serving-compatible,
+không tự promotion. Resolver đã được chỉnh để ưu tiên CRI container cgroup và
+chỉ giữ deepest fallback khi runtime không lộ container scope; chưa triển khai
+thay đổi này vào collector đang chạy. Cụm hiện **6/6 node Ready, v1.34.10**.
 
 ## 1. Mục tiêu, không phải kết quả
 

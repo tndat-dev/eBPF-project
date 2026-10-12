@@ -1,8 +1,10 @@
 """Resolve production pod cgroups without granting the detector Kubernetes RBAC.
 
-The resolver is intended to run as root on each node.  It reads local CRI pod
-metadata and scans cgroup v2.  Both the pod slice and all container descendants
-are included because ``bpf_get_current_cgroup_id`` reports the leaf cgroup.
+The resolver is intended to run as root on each node. It reads local CRI pod
+metadata and scans cgroup v2. When CRI container IDs are visible, it resolves
+those container cgroups and descendants, not their idle pod-slice ancestors.
+Runtimes without visible container cgroups retain the deepest pod-slice
+fallback (for example, a gVisor sentry scope).
 """
 
 from __future__ import annotations
@@ -148,7 +150,7 @@ def resolve_cgroups(
     by_token = {
         pod["pod_uid"].replace("-", "_").lower(): pod for pod in pods
     }
-    resolved: dict[int, dict] = {}
+    candidates: dict[str, list[tuple[int, int, dict, bool]]] = {}
     containers_by_uid: dict[str, list[dict]] = {}
     for container in containers:
         containers_by_uid.setdefault(container["pod_uid"], []).append(container)
@@ -162,12 +164,32 @@ def resolve_cgroups(
         except FileNotFoundError:
             continue
         item = dict(matched, cgroup_path=root, container_name="pod-slice")
+        is_container_cgroup = False
         for container in containers_by_uid.get(matched["pod_uid"], []):
             if container["container_id"].lower() in lowered:
                 item["container_name"] = container["container_name"]
                 item["container_id"] = container["container_id"]
+                is_container_cgroup = True
                 break
-        resolved[cgroup_id] = item
+        depth = len(Path(root).parts)
+        candidates.setdefault(matched["pod_uid"], []).append(
+            (depth, cgroup_id, item, is_container_cgroup)
+        )
+
+    resolved: dict[int, dict] = {}
+    for entries in candidates.values():
+        # A containerd pod slice is an ancestor and receives no task syscall
+        # events while leaf tasks execute in their CRI container cgroup. Keeping
+        # that ancestor manufactures a permanent all-zero "pod-slice" model.
+        # Preserve gVisor/CRI-less fallback, but bind it to deepest scopes only.
+        scoped = [entry for entry in entries if entry[3]]
+        if scoped:
+            selected = scoped
+        else:
+            deepest = max(entry[0] for entry in entries)
+            selected = [entry for entry in entries if entry[0] == deepest]
+        for _depth, cgroup_id, item, _is_container_cgroup in selected:
+            resolved[cgroup_id] = item
     return resolved
 
 
