@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 10:22 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 10:26 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -30,8 +30,8 @@ kernel-to-alert**. Lượt benchmark r1 lỗi do pickle lưu lớp dưới tên
 thành công trên output root r2 riêng. Không thay artifact/model.
 
 Capture tiếp theo đang chạy contract v2 có giữ verified idle windows, tách
-biệt v1: tại 10:22 ICT có khoảng **253/7.200 giây mỗi worker**, **97.539 feature
-rows**, **95.589 review-eligible**, **0 lỗi**. Worker audit chờ capture; master
+biệt v1: tại 10:26 ICT có khoảng **480/7.200 giây mỗi worker**, **184.489 feature
+rows**, **182.539 review-eligible**, **0 lỗi**. Worker audit chờ capture; master
 reference fit đang chờ audit. Cụm hiện **6/6 node Ready, v1.34.10**. Unit systemd
 được enable, không phụ thuộc SSH/laptop.
 

@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 10:22 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 10:26 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -126,7 +126,7 @@ nếu budget/hạ tầng không cho phép.
 
 ## Candidate tham chiếu và job idle-aware hiện hành
 
-[SSH snapshot 12/10](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
+[SSH snapshot 12/10, 10:26 ICT](validation-evidence/pulse-improvement-20261012/extended-reference-status.json):
 6/6 node Ready, Kubernetes `v1.34.10`. Reference fit v1 hoàn thành trên 21 key:
 **18 artifact fit**, 3 key không đủ conformal calibration tại alpha 0,001
 (frontend web 400, MinIO 827, sidecar 390; cần tối thiểu 999). Holdout có
@@ -143,8 +143,8 @@ delivery; **không đại diện latency kernel-to-alert**. Candidate còn thi�
 
 Hiện đang chạy capture v2 riêng có giữ verified idle windows, không sửa hoặc
 ghi đè v1: 500 ms, mục tiêu 7.200 boundary-second/worker, contract
-`pulse-entered-plus-seccomp-skip-idle-v2`. Tại 10:22 ICT, ba worker đã có xấp
-xỉ 253 giây mỗi node, 97.539 feature rows, 95.589 review-eligible rows, 0 lỗi.
+`pulse-entered-plus-seccomp-skip-idle-v2`. Tại 10:26 ICT, ba worker đã có xấp
+xỉ 480/7.200 giây mỗi node, 184.489 feature rows, 182.539 review-eligible rows, 0 lỗi.
 Unit collector enabled; audit worker đã đăng ký và đang chờ capture; master
 reference service chờ đủ audit. Khi xong sẽ audit rồi fit candidate mới; không
 đưa nhãn normal hay promotion tự động vào pipeline.

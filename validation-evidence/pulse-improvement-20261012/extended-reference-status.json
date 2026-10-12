@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-10-12T03:22:57Z",
+  "observed_at_utc": "2026-10-12T03:26:42Z",
   "scope": "Sentinel Pulse extended telemetry and exploratory reference candidate; read-only SSH evidence from master and three workers",
   "cluster": {
     "ready_nodes": 6,
@@ -133,37 +133,37 @@
     "source_commit_at_capture_start": "71163c3722868ff2ebf23b7741be8a1504989c30",
     "telemetry_contract": "pulse-entered-plus-seccomp-skip-idle-v2",
     "requested_boundary_seconds_per_worker": 7200,
-    "status_at_utc": "2026-10-12T03:22:57Z",
+    "status_at_utc": "2026-10-12T03:26:42Z",
     "workers": [
       {
         "ip": "10.1.16.237",
-        "boundary_seconds": 252.9090051651001,
-        "feature_rows": 37848,
-        "review_eligible_rows": 37088,
+        "boundary_seconds": 481.29634976387024,
+        "feature_rows": 72048,
+        "review_eligible_rows": 71288,
         "errors": 0,
         "state": "collecting"
       },
       {
         "ip": "10.1.16.238",
-        "boundary_seconds": 252.81166553497314,
-        "feature_rows": 39840,
-        "review_eligible_rows": 39040,
+        "boundary_seconds": 476.0159809589386,
+        "feature_rows": 75040,
+        "review_eligible_rows": 74240,
         "errors": 0,
         "state": "collecting"
       },
       {
         "ip": "10.1.16.239",
-        "boundary_seconds": 256.3221378326416,
-        "feature_rows": 19851,
-        "review_eligible_rows": 19461,
+        "boundary_seconds": 482.90542578697205,
+        "feature_rows": 37401,
+        "review_eligible_rows": 37011,
         "errors": 0,
         "state": "collecting"
       }
     ],
     "totals_at_observation": {
-      "boundary_seconds_per_worker_approximately": 253,
-      "feature_rows": 97539,
-      "review_eligible_rows": 95589,
+      "boundary_seconds_per_worker_approximately": 480,
+      "feature_rows": 184489,
+      "review_eligible_rows": 182539,
       "errors": 0
     },
     "audit_services": "enabled and ordered behind collection; start jobs waiting",
@@ -171,7 +171,7 @@
     "promotion": false
   },
   "source_sync": {
-    "host_and_master_worker_checkouts": "7a7d714",
+    "host_and_master_worker_checkouts": "9ef0ba4",
     "worktree_user_deletions_preserved": true
   },
   "verification": {
