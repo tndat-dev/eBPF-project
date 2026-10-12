@@ -1,5 +1,5 @@
 {
-  "observed_at_utc": "2026-10-12T10:00:10Z",
+  "observed_at_utc": "2026-10-12T10:07:52Z",
   "scope": "Sentinel Pulse extended telemetry and exploratory reference candidate; read-only SSH evidence from master and three workers",
   "cluster": {
     "ready_nodes": 6,
@@ -135,7 +135,7 @@
     "requested_boundary_seconds_per_worker": 7200,
     "capture_state": "completed_observation",
     "audit_state": "completed_audit",
-      "status_at_utc": "2026-10-12T10:00:10Z",
+      "status_at_utc": "2026-10-12T10:07:52Z",
     "cadence_seconds": 0.5,
     "normal_label": "unadjudicated_observation",
     "normal_training_admission": false,
@@ -222,7 +222,7 @@
       "raw_holdout_reference_flags": 778,
       "tree_holdout_reference_flags": 434,
       "minimum_calibration_examples": 2117,
-      "total_tree_fit_seconds": 10406.57,
+      "sum_model_train_elapsed_seconds": 10406.57,
       "process_restarts": 0,
       "service_active_state": "active",
       "service_sub_state": "exited",
@@ -235,10 +235,56 @@
       "recall": null,
       "false_positive_rate": null,
       "kernel_to_alert_seconds": null
+    },
+    "resolver_dry_run": {
+      "source_commit": "e6bd1e9632d2b95a54706f74ab670ce9c4a42240",
+      "applied_to_runtime": false,
+      "worker_results": [
+        {"ip": "10.1.16.237", "node": "k8s-worker1.local", "production_pods": 27, "running_production_containers": 29, "resolved_scopes": 28, "pod_slice_fallbacks": 0, "unmapped_non_excluded_containers": 0, "excluded_running_loadgens": 1},
+        {"ip": "10.1.16.238", "node": "k8s-worker4.local", "production_pods": 29, "running_production_containers": 32, "resolved_scopes": 31, "pod_slice_fallbacks": 0, "unmapped_non_excluded_containers": 0, "excluded_running_loadgens": 1},
+        {"ip": "10.1.16.239", "node": "k8s-worker3.local", "production_pods": 6, "running_production_containers": 7, "resolved_scopes": 6, "pod_slice_fallbacks": 0, "unmapped_non_excluded_containers": 0, "excluded_running_loadgens": 1}
+      ],
+      "interpretation": "read-only resolver dry-run against live CRI/cgroup state; intentional loadgen exclusions preserved; no collector or resolver service restarted"
+    },
+    "single_context_inference_benchmark": {
+      "root": "/home/dat/pulse-idle-reference-benchmark-c1-20261012",
+      "state": "completed",
+      "benchmark_source_commit": "e6bd1e9632d2b95a54706f74ab670ce9c4a42240",
+      "start_sha256": "887d82d6e16b2bd13d9a34a8e6944ba443b2b8089f9cd9627c04599943b4ea45",
+      "results_sha256": "3696b6aed662740c9432ef9f386db7be053e51e369ec8e1a4ec9d846296bc2e9",
+      "terminal_sha256": "014755a2a557f612149eccef880f62fe3bb47f17f9679991ac245ef0db17d10d",
+      "benchmark_script_sha256": "65a4a6f1f41aec7437f5582f36611d41099cf20496dd7e1191bd9cb6efd53420",
+      "measured_workloads": 21,
+      "excluded_degenerate_workloads": 19,
+      "samples_per_measured_workload": 128,
+      "single_context_samples": 2688,
+      "pooled_inference_ms": {"p50": 20.892830565571785, "p95": 27.50203632749617, "p99": 32.09406012203545},
+      "worst_per_workload_p95": {"workload": "production/cart-service:app", "milliseconds": 30.559964571148146},
+      "worst_per_workload_p99": {"workload": "production/aims-minio-pool-0:sidecar", "milliseconds": 34.73960147239269},
+      "maximum_observed_sample_ms": 91.55852068215609,
+      "node": "10.1.16.234",
+      "software": {"python": "3.12.3", "numpy": "2.5.2", "scikit-learn": "1.9.0"},
+      "attack_data_used": false,
+      "kernel_to_alert": false,
+      "interpretation": "one-context model inference only; excludes collection, feature extraction, queueing, decision policy and alert delivery; raw flags are not adjudicated false positives"
     }
   },
+  "post_benchmark_runtime_check": {
+    "observed_at_utc": "2026-10-12T10:07:52Z",
+    "cluster_ready_nodes": 6,
+    "cluster_total_nodes": 6,
+    "kubernetes_version": "v1.34.10",
+    "worker_services": [
+      {"ip": "10.1.16.237", "resolver_state": "active/running", "resolver_restarts": 0, "extended_capture_state": "active/exited", "extended_capture_restarts": 0},
+      {"ip": "10.1.16.238", "resolver_state": "active/running", "resolver_restarts": 1, "resolver_current_process_started_utc": "2026-10-04T16:25:30Z", "extended_capture_state": "active/exited", "extended_capture_restarts": 0},
+      {"ip": "10.1.16.239", "resolver_state": "active/running", "resolver_restarts": 0, "extended_capture_state": "active/exited", "extended_capture_restarts": 1}
+    ],
+    "fit_service": {"state": "active/exited", "exec_main_status": 0, "restarts": 0},
+    "benchmark_process": "completed; no benchmark process remains",
+    "note": "no resolver/collector service was restarted by this task; worker .239 extended-capture restart is consistent with the previously recorded recovery test; worker .238 resolver has one prior restart, its cause was not present in the recent journal lines inspected"
+  },
   "verification": {
-    "targeted_vm_tests": "pending refreshed checkout; local resolver tests passed",
+    "targeted_vm_tests": "5 passed in VM ml-venv",
     "local_python_compile": "passed",
     "local_pytest_unavailable": "host /usr/bin/python3 lacks numpy; the same focused tests passed in VM ml-venv"
   }

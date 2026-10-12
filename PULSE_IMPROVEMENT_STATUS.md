@@ -1,6 +1,6 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:00 ICT**.
+Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:08 ICT**.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 
@@ -41,7 +41,8 @@ Index v2 chứa **40 workload/container key** (v1 có 21). Reference fit đã ho
 tất **40/40 artifact**, service thoát mã 0, không restart. Có **412.738 holdout
 context**, 778 raw flags và 434 tree flags; mọi nhãn chưa adjudicate nên các
 flag này **không phải false positive/FPR**. Tổng thời gian fit ExtraTrees là
-10.406,57 giây CPU theo tổng số liệu từng model.
+10.406,57 giây cộng dồn thời gian fit ExtraTrees từng model (`perf_counter`,
+không phải phép đo CPU utilization).
 
 Quét JSONL gốc xác nhận **19/19 khóa `pod-slice` chỉ có zero exact-syscall
 trong 1.816.774 hàng**; cả 249 tọa độ huấn luyện đều hằng. Đây là cgroup
@@ -50,7 +51,21 @@ container có biến thiên feature** có ý nghĩa cho benchmark tiếp theo. C
 vẫn exploratory: chưa adjudicated, chưa dùng attack, không serving-compatible,
 không tự promotion. Resolver đã được chỉnh để ưu tiên CRI container cgroup và
 chỉ giữ deepest fallback khi runtime không lộ container scope; chưa triển khai
-thay đổi này vào collector đang chạy. Cụm hiện **6/6 node Ready, v1.34.10**.
+thay đổi này vào collector đang chạy. Dry-run trên cả ba worker map được mọi
+container được giám sát, bỏ loadgen theo exclusion hiện có; chưa restart
+resolver/collector.
+
+Inference benchmark của 21 model hợp lệ hoàn tất **2.688 lần chấm một
+context** (128/model): pooled p50/p95/p99 **20,89/27,50/32,09 ms**; p95 xấu
+nhất theo workload **30,56 ms**, p99 xấu nhất **34,74 ms**. Đây là đo
+`predict_contexts` (tree+support) trên master `.234`, không gồm telemetry,
+feature extraction, queue, policy hoặc alert delivery; **không phải
+kernel-to-alert**. Cực đại một mẫu là 91,56 ms; p99 từng workload dựa trên 128
+mẫu nên chỉ exploratory. Cụm hiện **6/6 node Ready, v1.34.10**. Resolver trên
+ba worker vẫn active; `.238` có `NRestarts=1` từ trước (process hiện tại chạy
+từ 04/10; nguyên nhân không thấy trong 500 dòng journal gần nhất), không phải
+restart do benchmark hay thay đổi vừa commit. `.239` extended collector có một
+restart đã ghi nhận trong recovery test trước đó; hiện `active/exited`.
 
 ## 1. Mục tiêu, không phải kết quả
 

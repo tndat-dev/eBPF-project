@@ -1,6 +1,6 @@
 # Sentinel Pulse — collector bổ sung seccomp và job quan sát
 
-Trạng thái SSH ngày **12/10/2026, 17:00 ICT**. Đây là nhánh thu dữ liệu
+Trạng thái SSH ngày **12/10/2026, 17:08 ICT**. Đây là nhánh thu dữ liệu
 để sửa điểm mù telemetry, **chưa phải model đạt precision/recall 95%**.
 Không sửa kết quả baseline đã chốt.
 
@@ -162,8 +162,9 @@ adjudicate hoặc được tự động đưa vào training.
 
 Reference fit sau audit với `include_idle_windows=true` đã **hoàn tất 40/40**;
 systemd `active/exited`, `ExecMainStatus=0`, `NRestarts=0`. Có 1.935.979 train
-examples, tối thiểu 2.117 calibration examples/key; tổng fit time cộng từ các
-model là 10.406,57 giây. Holdout gồm 412.738 context, có 778 raw flags và 434
+examples, tối thiểu 2.117 calibration examples/key; tổng thời lượng fit tree
+cộng từ `perf_counter` của từng model là 10.406,57 giây (không phải CPU
+utilization). Holdout gồm 412.738 context, có 778 raw flags và 434
 tree flags. Do nhãn `unadjudicated_observation`, đây chỉ là số cờ quan sát,
 không phải FP/FPR; precision/recall/confusion matrix vẫn `null`.
 
@@ -173,11 +174,23 @@ constant**. Quét trực tiếp 1.816.774 JSONL rows cho cả 19 khóa xác nh�
 suy biến; không được diễn giải zero flags thành detector chính xác. 21 khóa
 container còn lại mới có biến thiên feature. Resolver trong source đã được sửa
 để ưu tiên CRI container ID cgroup; nếu runtime không expose cgroup của
-container thì mới giữ scope sâu nhất làm fallback (ví dụ gVisor). Thay đổi
-chưa được cài vào resolver/collector đang chạy trên worker; dữ liệu/model cũ
-được giữ nguyên. Candidate chưa attack-evaluated, chưa serving-compatible,
-không tự promotion. Xem snapshot và hashes trong
+container thì mới giữ scope sâu nhất làm fallback (ví dụ gVisor). Thay đổi đã
+dry-run read-only trên CRI/cgroup hiện thời của cả ba worker: mọi running
+container nằm trong phạm vi theo dõi đều có mapping; mỗi node có một loadgen
+được loại theo cấu hình hiện hữu. Không service nào bị restart và thay đổi
+chưa được cài vào resolver/collector đang chạy; dữ liệu/model cũ được giữ
+nguyên. Candidate chưa attack-evaluated, chưa serving-compatible, không tự
+promotion. Xem snapshot và hashes trong
 [evidence hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
+
+Inference benchmark của 21 khóa container (mỗi khóa 128 mẫu, tổng 2.688) cho
+pooled p50/p95/p99 **20,89/27,50/32,09 ms**; p95 cao nhất giữa workload
+30,56 ms, p99 cao nhất 34,74 ms. Đây là inference một context của
+`predict_contexts` (tree + support), chạy trên master `.234`; không bao gồm
+kernel collection, feature extraction, queue, policy hay alert delivery, nên
+không phải kernel-to-alert. 19 model suy biến bị loại khỏi phép đo. Có một
+outlier 91,56 ms và p99 từng workload mới có 128 mẫu, nên các tail percentile
+còn mang tính exploratory.
 
 Model baseline vẫn **recall 35,26% có điều kiện**, p95 **1,538 s trên hit**
 từ kernel exec-entry. Collector bổ sung là bước sửa nguyên nhân, chưa thay
