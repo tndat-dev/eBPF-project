@@ -1,11 +1,9 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật trạng thái: **12/10/2026**. C1 lịch sử đã hoàn tất **608/608 fit** trên
-VM `.234`, nhưng chỉ lưu prediction/score chứ không có model pickle. Refit C2
-để tạo đủ artifact hiện đang chạy; đây chưa phải blind recall hay kết quả
-confusion matrix. SSH đọc trực tiếp lúc **13:38:59 UTC** cho thấy unit đang
-`activating`; journal ghi `269/608 fit`; đây là snapshot,
-không phải trạng thái cuối cùng.
+Cập nhật hiện hành qua SSH: **12/10/2026, 14:00 UTC**. C1 lịch sử hoàn tất
+**608/608 fit** trên VM `.234`, nhưng chỉ lưu prediction/score chứ không có
+model pickle. Refit C2 để tạo đủ artifact đang chạy nền; snapshot mới nhất ghi
+**306/608 fit**. Đây chưa phải blind recall hay kết quả confusion matrix.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
 
@@ -30,16 +28,14 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
 Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` đã ghi **269/608 fit** lúc
-13:38:59 UTC, hiện ở `production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel`.
-Unit đang dùng 2,17 GiB trên giới hạn 4 GiB; NFS còn 343 GiB. C2 tiếp tục chạy riêng;
-không bị pilot syscall-ID đụng vào. Có model artifacts trong output;
-thư mục khoảng 24 MiB, RSS đỉnh khoảng 1 GiB. `attempt-000001` được giữ nguyên với lỗi
+đang chạy nền trên `.234`; `attempt-000002` ghi **306/608 fit**. CPU/RAM và
+dung lượng NFS chưa được lấy lại trong snapshot này nên không báo số cũ thành số
+hiện tại. C2 tiếp tục chạy riêng; không bị pilot syscall-ID đụng vào. Có model
+artifacts trong output. `attempt-000001` được giữ nguyên với lỗi
 `NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
 không được seal. Writer đã sửa, smoke test trên VM pass. NFS
-`10.1.16.233:/sentinel-pulse` mount tại
-`/mnt/sentinel-pulse-archive`, còn khoảng **344 GiB**; output C2 nằm riêng ở đó.
-Job giới hạn CPU 150%, RAM 4 GiB. Cần theo dõi tiếp STATUS/log và xác minh
+`10.1.16.233:/sentinel-pulse` mount tại `/mnt/sentinel-pulse-archive`; output C2
+nằm riêng ở đó. Job giới hạn CPU 150%, RAM 4 GiB. Cần theo dõi tiếp STATUS/log và xác minh
 terminal + manifest SHA sau khi hoàn tất.
 
 Unit riêng cho lần refit có lưu artifact tại
@@ -79,8 +75,8 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 ## Chạy ngầm và phục hồi
 
 Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` đang ở workload `production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel`,
-`completed_fits=269/608` tại lần SSH kiểm tra mới nhất (12/10/2026 13:38:59 UTC).
+`attempt-000002` đã đạt `completed_fits=306/608` tại lần SSH kiểm tra mới nhất
+(12/10/2026 14:00 UTC).
 Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
