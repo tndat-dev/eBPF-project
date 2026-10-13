@@ -284,12 +284,19 @@ SHA-256 của cả hai capture, ANALYSIS và COHORT đã xác minh tại NFS
 worker3 là 4,52 ms, worker1 là 23,63 ms. Pilot process CPU trung bình pha probe
 lần lượt 2,01% và 2,33% của một core, peak RSS 47,7 và 52,1 MiB. Đây là tài
 nguyên tiến trình pilot, không phải tác động nhân quả lên workload: chưa có
-đối chứng A/B throughput hay p95/p99 response-time. C2 offline refit còn chạy;
-journal SSH lúc **13:38:59 UTC** ghi **269/608 fit**, chưa có terminal; unit dùng
-2,17 GiB/4 GiB RAM và NFS còn 343 GiB trống. Cluster
-lúc **13:36 UTC** có 6/6 node và 100/100 controllers sẵn sàng; 238 pod Running
-đều Ready, 11 pod Succeeded là Job đã hoàn tất. Incident Evicted/DiskPressure
-trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
+C2 offline normal-only refit đã hoàn tất **608/608 fits** (19 workload × 32
+variants), terminal `completed`, errors rỗng; không tự promotion. SHA-256/size
+của 608 model artifacts khớp `RESULTS.json` và metadata manifest. Tuy nhiên cả
+608 đường dẫn trong manifest C2 đều bị lặp `models/`; file thực tế nằm dưới
+`attempt-000002/models/`. Manifest gốc được giữ nguyên; generator đã sửa trong
+working tree và 36 test liên quan pass, cần tạo manifest dẫn xuất có provenance
+trước khi nạp. C1 cũng hoàn tất 608/608 nhưng chỉ có prediction/score `.npz`,
+không có model pickle. Cả hai kết quả normal-only còn exploratory; holdout đã
+được xem, precision/recall/kernel-to-alert là null và chưa có blind attack.
+Tại SSH check **13/10 01:50 UTC**, cluster có 6/6 node `Ready`; Sentinel Pulse
+normal soak độc lập vẫn đang chạy, trạng thái hiện hành ở
+[`CANDIDATE_SHADOW_STATUS.md`](CANDIDATE_SHADOW_STATUS.md). Incident
+Evicted/DiskPressure trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
 Checklist thực hiện và điều kiện hoàn tất ở
 [`SYSCALL_EXPERIMENT_TODO.md`](SYSCALL_EXPERIMENT_TODO.md); trạng thái C2/pilot
 ở [`SYSCALL_FEATURE_EXPERIMENT_STATUS.md`](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).

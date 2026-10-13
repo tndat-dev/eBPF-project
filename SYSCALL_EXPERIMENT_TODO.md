@@ -1,10 +1,25 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành: **12/10/2026 13:40 UTC**. Đây là checklist điều phối,
-không thay cho artifact kết quả. Trạng thái live C2 đọc qua SSH lúc 13:38:59 UTC:
-service `pulse-syscall-variant-models-c2.service` còn chạy, journal ghi
-`269/608` fit. Unit dùng khoảng 2,17 GiB trong giới hạn 4 GiB; NFS còn 343 GiB.
-Không sửa hoặc dừng service này.
+Cập nhật hiện hành qua SSH: **13/10/2026 01:53 UTC (08:53 UTC+7)**. Sentinel
+Pulse normal soak `normal-a1-20261013` vẫn chạy trên worker1/3/4: khoảng
+25.6 ks/86.4 ks exposure mỗi node (~29.7%), không error/pause/restart; chi tiết
+ở [CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md). Shadow lag mẫu tối đa
+~74 phút; chưa phải realtime.
+
+Hai offline syscall-feature campaigns đã kết thúc: C1 attempt-000002 và C2
+attempt-000002 đều terminal `completed`, 608/608 fits, errors rỗng, 19 workload
+× 32 variants. C2 service là `active (exited)` kiểu oneshot, không còn fit process.
+C2 attempt-000001 lỗi `NameError: os`; artifact gốc được giữ. C2 manifest hiện
+có path dư `models/` (`models/models/<file>.pkl`) trong khi file thực tế ở
+`attempt-000002/models/<file>.pkl`. SHA/size đã xác minh cho đủ 608 model file
+(2,362,081,485 byte) theo `RESULTS.json` và metadata hash; không ghi đè manifest
+đã seal. Generator đã sửa trong working tree, 36 test liên quan pass. C1/C2 đều
+exploratory normal-only; precision, recall và kernel-to-alert để null, không tự
+promotion.
+
+Hai exact-ID histogram pilot worker1/worker3 đã có terminal exit 0 và analyzer
+hợp lệ; chỉ là captures steady ngắn, chưa đại diện các regime khác. Checklist
+này không thay cho artifact kết quả và không tuyên bố syscall tối ưu.
 
 ## Đã làm trong lượt hiện tại
 
@@ -32,8 +47,8 @@ Không sửa hoặc dừng service này.
   OK, PostgreSQL/Kafka/RabbitMQ ports mở. Loadgen 401/400 là traffic error-mix,
   không phải pod readiness; chi tiết trong readiness report.
 - [x] Regression pilot: **10 passed**, py_compile và `git diff --check` pass.
-- [x] Cập nhật trạng thái C2 qua SSH lúc **13:38:59 UTC**: journal `269/608`;
-  job vẫn chạy nền, chưa có terminal result.
+- [x] Cập nhật trạng thái C2 qua SSH: attempt-000002 terminal `completed`,
+  `608/608`, errors rỗng; attempt-000001 lỗi được bảo toàn.
 - [x] Pre-register receipt cho run `syscall-id-histogram-worker3-steady-
   20261012-001`, SHA-256 `f2a443df2b65ab7612f0d28c97c5e9b06f0a00583644cbd151f9202142e56c14`;
   receipt bind ba loadgen Deployment đang Ready cùng UID/config.
@@ -58,11 +73,14 @@ Không sửa hoặc dừng service này.
 
 ### A. Hoàn tất và đóng băng normal-only ablation
 
-- [ ] Chờ C2 hoàn tất đủ `608/608`, không dừng job chỉ vì phiên SSH kết thúc.
-- [ ] Xác minh terminal `completed`, `errors=[]`, đủ 608 model artifact, manifest
-  chứa checksum khớp mọi model/dataset/source/policy.
-- [ ] Đối chiếu C2 với C1; giữ nguyên checkpoint cũ, không gộp timing tích lũy
-  hoặc kết quả từ host khác vào wall time của VM.
+- [x] C2 hoàn tất `608/608`; terminal `completed`, `errors=[]`, manifest khai
+  báo 19 workload và 608 variant records. Job là offline, không gắn serving.
+- [x] Xác minh đủ 608 model file với SHA-256/size; phát hiện cả 608 manifest path
+  đều lặp `models/models/`.
+- [ ] Tạo manifest dẫn xuất đã sửa path, bind SHA manifest gốc/START/RESULTS và
+  kiểm tra consumer; không sửa/ghi đè manifest gốc.
+- [ ] Đối chiếu C2 với C1 theo input/source/training split hashes; không gộp
+  timing tích lũy hoặc kết quả từ host khác vào wall time của VM.
 - [ ] Khóa một candidate/model manifest và policy; không dùng blind set để tune.
 
 ### B. Thu full-ID syscall normal độc lập
@@ -126,8 +144,10 @@ Không sửa hoặc dừng service này.
 Hai bounded feasibility capture trên worker1/worker3 đã có terminal/seal;
 analyzer và cohort đều hợp lệ. Kết quả/giới hạn được ghi trong
 `syscall_analysis.md` cùng `sentinel_pulse/SYSCALL_SELECTION_PILOT.md`. Chưa có
-đối chứng overhead A/B, syscall feature ranking, ablation mới hay blind
-evaluation; mới có steady regime và chưa phủ mọi replica/regime. C2 là offline
-normal-only refit, độc lập với pilot và vẫn chạy nền.
+đối chứng overhead A/B, kết luận feature ranking đã xác nhận hay blind
+evaluation; pilot histogram mới có steady regime, chưa phủ mọi replica/regime.
+C1/C2 normal-only refits đã xong; C2 model hashes hợp lệ nhưng manifest path lỗi
+cần tạo bản dẫn xuất và đối chiếu input/source trước khi nạp model.
+Không có syscall fit job đang chạy; normal soak Sentinel Pulse vẫn chạy riêng.
 Không khai báo project xong chỉ vì TODO được tạo; checklist chỉ chuyển sang
 hoàn tất khi có artifact và receipt có thể kiểm tra độc lập.

@@ -194,6 +194,10 @@ def test_variant_manifest_requires_all_checksummed_models(tmp_path):
 
     assert len(manifest['workloads'][key]) == 32
     assert manifest['automatic_promotion'] is False
+    for variant, record in manifest['workloads'][key].items():
+        artifact_name = result['workloads'][key]['variants'][variant]['model_artifact']
+        assert record['artifact'] == artifact_name
+        assert (tmp_path / record['artifact']).is_file()
 
 
 @pytest.mark.parametrize('change',['software','input','source','hash','model_hash','mask','path','model_path','result_start','ranking','schema'])

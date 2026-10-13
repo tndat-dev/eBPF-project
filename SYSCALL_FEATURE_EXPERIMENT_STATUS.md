@@ -1,9 +1,22 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật hiện hành qua SSH: **12/10/2026, 14:00 UTC**. C1 lịch sử hoàn tất
-**608/608 fit** trên VM `.234`, nhưng chỉ lưu prediction/score chứ không có
-model pickle. Refit C2 để tạo đủ artifact đang chạy nền; snapshot mới nhất ghi
-**306/608 fit**. Đây chưa phải blind recall hay kết quả confusion matrix.
+Cập nhật hiện hành qua SSH: **13/10/2026, 01:53 UTC** trên VM `.234`. C1
+`attempt-000002` (07/10) và C2 `attempt-000002` (12/10) đều terminal
+`completed`, **608/608 fits**, `errors=[]`, 19 workload × 32 variants; không có
+fit process nào còn chạy. C1 có 608 file `.npz` prediction/score nhưng không có
+model pickle. C2 có 608 model pickle, tổng **2,362,081,485 byte**; đã đọc/hash
+đủ 608 file và tất cả đều khớp hash/size trong `RESULTS.json` và manifest.
+Phát hiện manifest ghi sai đường dẫn ở cả 608 record: `models/models/<file>.pkl`
+trong khi file nằm tại `attempt-000002/models/<file>.pkl`. Manifest gốc được giữ
+nguyên; generator đã sửa trong working tree, hai test campaign và experiment
+cùng **36 tests pass**. Cần tạo manifest dẫn xuất có provenance trước khi consumer
+nạp artifact. Đây vẫn không phải blind recall hay confusion matrix.
+
+C2 attempt-000001 được giữ với lỗi `NameError: os is not defined`; attempt-000002
+hoàn tất sạch. C1 attempt-000001 được giữ với lỗi checkpoint ranking mismatch;
+attempt-000002 hoàn tất và tái sử dụng 59 fit đã xác minh. Unit C2 báo
+`active (exited)` vì `Type=oneshot`; terminal xác nhận đã kết thúc, không phải job
+còn chạy.
 
 ## Audit phục vụ blind evaluation — 12/10/2026
 
@@ -27,16 +40,14 @@ lần đó. Đã sửa launcher và tạo nhánh refit từ đúng source ML C1
 (`8976daa`), giữ nguyên hash `features.py`, `model.py`, `train.py`, `encoding.py`;
 nhánh `experiment/syscall-variant-artifacts-8976` tại commit `4628e7b` đã push.
 
-Trạng thái SSH mới nhất: systemd job `pulse-syscall-variant-models-c2.service`
-đang chạy nền trên `.234`; `attempt-000002` ghi **306/608 fit**. CPU/RAM và
-dung lượng NFS chưa được lấy lại trong snapshot này nên không báo số cũ thành số
-hiện tại. C2 tiếp tục chạy riêng; không bị pilot syscall-ID đụng vào. Có model
-artifacts trong output. `attempt-000001` được giữ nguyên với lỗi
-`NameError` trong writer artifact; lần fit đầu không được ghi nhận và artifact
-không được seal. Writer đã sửa, smoke test trên VM pass. NFS
+Trạng thái hiện hành: `pulse-syscall-variant-models-c2.service` đã chạy xong trên
+`.234`; terminal attempt-000002 xác nhận 608/608, không lỗi. NFS
 `10.1.16.233:/sentinel-pulse` mount tại `/mnt/sentinel-pulse-archive`; output C2
-nằm riêng ở đó. Job giới hạn CPU 150%, RAM 4 GiB. Cần theo dõi tiếp STATUS/log và xác minh
-terminal + manifest SHA sau khi hoàn tất.
+nằm riêng ở đó. Job đã được giới hạn CPU 150%, RAM 4 GiB. Manifest hiện tại có
+đường dẫn artifact lặp `models/`; audit đã xác minh đủ 608 artifact qua đường dẫn
+và hash trong `RESULTS.json`. File gốc/manifest gốc không bị thay đổi. Phát hành
+manifest dẫn xuất có provenance riêng trước khi dùng bất kỳ variant nào cho
+evaluation.
 
 Unit riêng cho lần refit có lưu artifact tại
 [`pulse-syscall-variant-models-c2.service`](sentinel_pulse/systemd/pulse-syscall-variant-models-c2.service).
@@ -74,20 +85,20 @@ Scientific stack cài riêng trên VM trùng job host: Python 3.12.3, scikit-lea
 
 ## Chạy ngầm và phục hồi
 
-Job C2 hiện chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
-`attempt-000002` đã đạt `completed_fits=306/608` tại lần SSH kiểm tra mới nhất
-(12/10/2026 14:00 UTC).
+Job C2 đã chạy qua systemd trên VM `.234`, độc lập SSH/laptop. Attempt
+`attempt-000002` hiện có terminal `completed_fits=608/608` (12/10/2026 18:04 UTC).
 Đọc `STATUS.json`
 và journal để cập nhật số fit, không ước lượng hoàn thành từ CPU time.
 
 | Thành phần | Giá trị |
 |---|---|
-| Unit đang chạy | `pulse-syscall-variant-models-c2.service`, enabled tại `multi-user.target`, user `dat` |
+| Unit | `pulse-syscall-variant-models-c2.service`, `active (exited)` sau khi oneshot hoàn tất; enabled tại `multi-user.target`, user `dat` |
 | Giới hạn tài nguyên | CPU quota 150%, RAM tối đa 4 GiB, không swap, nice 15 |
 | Input | `/home/dat/sentinel-pulse-syscall-feature-c1/inputs` |
 | Checkout C2 | `/home/dat/eBPF-project-syscall-variants-c2`, commit `ce4177a`, ML module hashes khớp checkpoint C1 |
 | Output campaign | `/mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs` trên NFS `.233` |
 | Attempt hiện hành | `attempt-000002`; attempt-000001 lỗi được giữ nguyên, checkpoint C1 không sửa |
+| Terminal | `completed`, 608/608, errors rỗng; không tự promotion |
 | Tự phục hồi | Restart on failure sau 60 giây, boot enablement; lỗi binding/checksum exit 65 để điều tra |
 
 Output có START, STATUS, RESULTS, prediction/model artifacts, SHA-256 manifest và TERMINAL. Raw data không đưa vào Git. Campaign dùng single-writer lock, checkpoint và output riêng; job `Type=oneshot` hiển thị `activating/start` trong lúc fit, không có startup deadline 120 giây. Mất SSH/laptop không dừng job; VM reboot thì systemd tiếp tục từ checkpoint. Job này là offline experiment, không gắn collector và không inject attack.

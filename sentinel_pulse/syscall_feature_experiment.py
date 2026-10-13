@@ -177,7 +177,10 @@ def write_model_manifest(output, start, results, terminal):
             verify_sha256(artifact, record["model_sha256"])
             columns = record["masked_columns"]
             entries[workload][variant] = {
-                "artifact": f"models/{artifact_name}",
+                # model_artifact is already relative to the attempt root
+                # ("models/<file>.pkl"). Do not prefix another "models/";
+                # consumers resolve this field from the manifest directory.
+                "artifact": artifact_name,
                 "sha256": record["model_sha256"],
                 "bytes": artifact.stat().st_size,
                 "masked_columns": columns,
