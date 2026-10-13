@@ -91,25 +91,26 @@ source commit `2c1a72d`, model manifest SHA
 `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`, policy SHA
 `fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`, và 86,400
 giây boundary exposure/node. Capture/shadow units đều `enabled`; checkpoint
-được xác minh gần nhất lúc **06:45 ngày 13/10 (UTC+7)**: cả ba capture còn
+được xác minh gần nhất lúc **08:50 ngày 13/10 (UTC+7)**: cả ba capture còn
 `collecting`, cả ba shadow `active`; không có capture error, capacity pause,
 systemd restart hoặc warning trong journal capture. Boundary exposure: worker1
-**18,089 s (20.94%)** với 2,915,756 feature rows; worker3 **18,063 s (20.91%)**
-với 859,158 rows; worker4 **18,042 s (20.88%)** với 3,151,312 rows. Dung lượng
-trống: worker1 **152.2 GB**, worker3 **299.4 GB**, worker4 **99.0 GB**; thư mục
-run trên worker4 đang chiếm khoảng **9.1 GB**. Tiến độ chỉ là lượng telemetry đã
-thu, không phải kết quả chất lượng hay confusion matrix. Units tự khởi động lại
-khi node reboot; capture checkpoint/fsync mỗi 5 giây và resume từ checkpoint.
+**25,668 s (29.71%)** với 4,137,556 feature rows; worker3 **25,643 s (29.68%)**
+với 1,221,342 rows; worker4 **25,620 s (29.65%)** với 4,474,742 rows. Dung lượng
+trống: worker1 **151.0 GB**, worker3 **299.1 GB**, worker4 **105.2 GB**. Tiến độ
+chỉ là lượng telemetry đã thu, không phải kết quả chất lượng hay confusion
+matrix. Units tự khởi động lại khi node reboot; capture checkpoint/fsync mỗi 5
+giây và resume từ checkpoint.
 
-Shadow vẫn chạy nhưng chưa realtime: một decision mới nhất quan sát được có
-`feature_event_age_seconds` khoảng **52 phút** trên worker4 và khoảng **23 phút**
-trên worker1 (worker3 có mẫu mới nhất khoảng 0.17 giây). Đây là độ tuổi của các
-row được lấy mẫu, **không phải p95 hay kernel-to-alert latency**. Shadow worker4
-đang dùng xấp xỉ một CPU core và 782 MB RAM (peak 806 MB, giới hạn 1 GiB); số
-dòng decision bằng khoảng 82.7% feature rows hiện có tại snapshot, nên backlog
-có thể còn tăng. Có row preview dương; chúng vẫn là ứng viên chưa adjudicate,
-không được gọi là false positive lúc này. Backlog shadow không làm mất exposure
-capture, nhưng hiện chưa đạt yêu cầu latency thấp.
+Shadow vẫn chạy nhưng chưa realtime: các row cuối được lấy mẫu trễ khoảng **33
+phút trên worker1** (tính từ `processed_at - window_end`) và **74.5 phút trên
+worker4** (`feature_event_age_seconds`); worker3 có row được chấm gần thời gian
+thực, khoảng **0.13–0.15 giây**. Đây là số đo ở vài row cuối, **không phải p95
+hay kernel-to-alert latency**. Trên worker4, shadow đang dùng khoảng 805 MB RAM
+(peak 806 MB, giới hạn 1 GiB); capture cũng xấp xỉ 805 MB. Một số workload có
+`candidate-model-unavailable`; scorer gắn `serving_compatible=false` theo thiết
+kế vì đây là candidate shadow, không phải detector production. Các preview
+được giữ để adjudicate; chưa kết luận false positive. Backlog shadow không làm
+mất exposure capture, nhưng hiện chưa đạt yêu cầu latency thấp.
 
 Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
 terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
@@ -127,13 +128,13 @@ exposure; nếu có pause, thời điểm kết thúc lùi tương ứng. Sau đ
 preview/normal và tính confusion matrix; cải thiện candidate trên split phát
 triển riêng.
 
-Ước tính hiện tại: còn khoảng **19 giờ exposure tối thiểu** nếu không có pause,
+Ước tính hiện tại: còn khoảng **17 giờ exposure tối thiểu** nếu không có pause,
 song song trên ba worker; mọi gap/pause sẽ đẩy hạn hoàn thành tương ứng. Capture
-có thể đạt đủ khoảng **01:43 ngày 14/10 (UTC+7)**. Shadow đang hụt tốc độ; nếu
-tỷ lệ xử lý quan sát được trên worker4 (~82.7% số feature rows) giữ nguyên, phần
-drain sau capture có thể mất xấp xỉ **5 giờ**. Đây là ngoại suy từ snapshot, có
-độ bất định cao; kiểm tra lại gần 01:45 ngày 14/10 rồi mới ước lượng chính xác
-hơn. Không được coi đây là cam kết hoàn tất.
+có thể đạt đủ khoảng **01:43 ngày 14/10 (UTC+7)**. Shadow worker4 đang trễ hơn
+74 phút; chưa đủ hai snapshot cùng cách đo để ước lượng chắc thời gian drain.
+Kiểm tra lại gần 01:45 ngày 14/10; nếu capture đủ nhưng shadow còn backlog, giữ
+run/evidence và tiếp tục drain trước khi chốt báo cáo. Không coi thời điểm này
+là cam kết hoàn tất.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
