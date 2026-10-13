@@ -1,21 +1,28 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành qua SSH: **13/10/2026 01:53 UTC (08:53 UTC+7)**. Sentinel
-Pulse normal soak `normal-a1-20261013` vẫn chạy trên worker1/3/4: khoảng
-25.6 ks/86.4 ks exposure mỗi node (~29.7%), không error/pause/restart; chi tiết
-ở [CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md). Shadow lag mẫu tối đa
-~74 phút; chưa phải realtime.
+Cập nhật hiện hành qua SSH: **13/10/2026 02:08 UTC (09:08 UTC+7)**. Unit
+`sentinel-pulse-observation-shadow@normal-a1-20261013.service` và tiến trình
+capture/shadow còn `active/running` trên worker1, worker3, worker4; NRestarts=0
+trên worker1. Tiến trình đã chạy khoảng 26.7 ks (~7 giờ 25 phút), tương đương
+khoảng 31% thời lượng 24 giờ theo wall clock, **không phải tỷ lệ telemetry đủ
+điều kiện**. Checkpoint chi tiết cuối cùng lúc 08:50 ICT ở
+[CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md); chưa đọc lại journal
+hoặc đếm eligible exposure ở snapshot mới này. Không sửa soak.
 
 Hai offline syscall-feature campaigns đã kết thúc: C1 attempt-000002 và C2
 attempt-000002 đều terminal `completed`, 608/608 fits, errors rỗng, 19 workload
 × 32 variants. C2 service là `active (exited)` kiểu oneshot, không còn fit process.
-C2 attempt-000001 lỗi `NameError: os`; artifact gốc được giữ. C2 manifest hiện
-có path dư `models/` (`models/models/<file>.pkl`) trong khi file thực tế ở
-`attempt-000002/models/<file>.pkl`. SHA/size đã xác minh cho đủ 608 model file
-(2,362,081,485 byte) theo `RESULTS.json` và metadata hash; không ghi đè manifest
-đã seal. Generator đã sửa trong working tree, 36 test liên quan pass. C1/C2 đều
-exploratory normal-only; precision, recall và kernel-to-alert để null, không tự
-promotion.
+C2 attempt-000001 lỗi `NameError: os`; artifact gốc được giữ. C2 manifest gốc có
+path dư `models/` (`models/models/<file>.pkl`). Đã tạo
+`VARIANT_MODEL_MANIFEST.derived.json` riêng trên NFS bằng verifier mới: kiểm tra
+START/RESULTS/TERMINAL binding và SHA-256/size cả 608 model, rồi sửa đúng prefix
+trong sidecar; SHA-256 sidecar là
+`4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408`; manifest
+gốc không bị sửa. Sidecar có detached SHA-256 và provenance. C1/C2 dùng cùng
+input hashes và cùng hash của model/features/train/encoding; chỉ hash module
+điều phối experiment khác nhau, nên đây **không phải
+hai lần xác nhận độc lập**. Cả hai vẫn exploratory normal-only; precision,
+recall và kernel-to-alert để null, không tự promotion.
 
 Hai exact-ID histogram pilot worker1/worker3 đã có terminal exit 0 và analyzer
 hợp lệ; chỉ là captures steady ngắn, chưa đại diện các regime khác. Checklist
@@ -77,10 +84,16 @@ này không thay cho artifact kết quả và không tuyên bố syscall tối �
   báo 19 workload và 608 variant records. Job là offline, không gắn serving.
 - [x] Xác minh đủ 608 model file với SHA-256/size; phát hiện cả 608 manifest path
   đều lặp `models/models/`.
-- [ ] Tạo manifest dẫn xuất đã sửa path, bind SHA manifest gốc/START/RESULTS và
-  kiểm tra consumer; không sửa/ghi đè manifest gốc.
-- [ ] Đối chiếu C2 với C1 theo input/source/training split hashes; không gộp
-  timing tích lũy hoặc kết quả từ host khác vào wall time của VM.
+- [x] Tạo manifest dẫn xuất đã sửa path, bind SHA manifest gốc/START/RESULTS/
+  TERMINAL và xác minh hash/size đủ 608 model; giữ nguyên manifest gốc.
+- [x] Đối chiếu C2 với C1 theo input/source/training split hashes: input và các
+  module ML giống nhau; hai run không độc lập về dữ liệu.
+- [x] Nạp tuần tự 608/608 pickle trên VM bằng đúng venv C2 (Python 3.12.3,
+  scikit-learn 1.9.1, NumPy 2.5.3); mỗi model có estimator `predict_proba` và
+  calibration scores. Đây chỉ là deserialization/schema check, không phải
+  inference benchmark hay kiểm thử phát hiện.
+- [ ] Chấm các model trên normal holdout mới, độc lập và chưa xem; kiểm tra
+  overlap source/hash/revision, nhãn unknown không được tính TN.
 - [ ] Khóa một candidate/model manifest và policy; không dùng blind set để tune.
 
 ### B. Thu full-ID syscall normal độc lập

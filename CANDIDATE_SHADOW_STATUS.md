@@ -101,6 +101,11 @@ chỉ là lượng telemetry đã thu, không phải kết quả chất lượng
 matrix. Units tự khởi động lại khi node reboot; capture checkpoint/fsync mỗi 5
 giây và resume từ checkpoint.
 
+Kiểm tra SSH tiếp theo lúc **09:08 UTC+7 (02:08 UTC)**: capture và shadow còn
+`active/running` trên worker1, worker3, worker4; worker1 `NRestarts=0`. Lượt này
+xác nhận process tồn tại nhưng chưa đọc checkpoint/journal mới, vì vậy exposure,
+số row và lỗi vẫn theo checkpoint 08:50, không ngoại suy thành coverage mới.
+
 Shadow vẫn chạy nhưng chưa realtime: các row cuối được lấy mẫu trễ khoảng **33
 phút trên worker1** (tính từ `processed_at - window_end`) và **74.5 phút trên
 worker4** (`feature_event_age_seconds`); worker3 có row được chấm gần thời gian

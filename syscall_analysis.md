@@ -283,18 +283,28 @@ SHA-256 của cả hai capture, ANALYSIS và COHORT đã xác minh tại NFS
 `10.1.16.233:/sentinel-pulse`; raw data nằm ngoài Git. Max snapshot scan lần
 worker3 là 4,52 ms, worker1 là 23,63 ms. Pilot process CPU trung bình pha probe
 lần lượt 2,01% và 2,33% của một core, peak RSS 47,7 và 52,1 MiB. Đây là tài
-nguyên tiến trình pilot, không phải tác động nhân quả lên workload: chưa có
-C2 offline normal-only refit đã hoàn tất **608/608 fits** (19 workload × 32
-variants), terminal `completed`, errors rỗng; không tự promotion. SHA-256/size
-của 608 model artifacts khớp `RESULTS.json` và metadata manifest. Tuy nhiên cả
-608 đường dẫn trong manifest C2 đều bị lặp `models/`; file thực tế nằm dưới
-`attempt-000002/models/`. Manifest gốc được giữ nguyên; generator đã sửa trong
-working tree và 36 test liên quan pass, cần tạo manifest dẫn xuất có provenance
-trước khi nạp. C1 cũng hoàn tất 608/608 nhưng chỉ có prediction/score `.npz`,
-không có model pickle. Cả hai kết quả normal-only còn exploratory; holdout đã
-được xem, precision/recall/kernel-to-alert là null và chưa có blind attack.
-Tại SSH check **13/10 01:50 UTC**, cluster có 6/6 node `Ready`; Sentinel Pulse
-normal soak độc lập vẫn đang chạy, trạng thái hiện hành ở
+nguyên tiến trình pilot, không phải tác động nhân quả lên workload; chưa có A/B
+throughput/p99 để ước lượng overhead nhân quả.
+Hai offline normal-only refit C1/C2 đều hoàn tất **608/608 fits** (19 workload ×
+32 variants), terminal `completed`, errors rỗng; không tự promotion. C1 chỉ có
+prediction/score `.npz`, không có model pickle. C2 có 608 model pickle, mọi
+SHA-256/size khớp `RESULTS.json`. Manifest gốc C2 lặp prefix `models/`; đã tạo
+sidecar `VARIANT_MODEL_MANIFEST.derived.json` trên NFS bằng verifier: kiểm tra
+START/RESULTS/TERMINAL binding và đủ 608 model, chỉ sửa path trong sidecar;
+file gốc không đổi. SHA-256 sidecar là
+`4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408`.
+Đã nạp tuần tự 608/608 pickle bằng venv C2 khớp Python 3.12.3,
+scikit-learn 1.9.1, NumPy 2.5.3; mỗi object có estimator `predict_proba` và
+calibration scores. Đây chỉ là deserialization/schema check, không phải đo
+inference hoặc detection. C1/C2 có cùng input hashes và cùng
+model/features/train/encoding hashes, nên không phải hai xác nhận độc lập.
+Ablation còn exploratory; precision/recall/kernel-to-alert chưa đo từ blind set
+mới. Repo chứa generator và tests; 41 test liên quan pass.
+
+SSH **13/10 02:08 UTC** xác nhận `normal-a1-20261013` capture/shadow unit còn
+active/running trên cả ba worker. Không gắn histogram probe hay tiêm attack vào
+run đó; Sentinel Pulse không được tinh chỉnh cho đến khi hoàn tất syscall
+selection evaluation. Cluster có 6/6 node `Ready`; trạng thái soak ở
 [`CANDIDATE_SHADOW_STATUS.md`](CANDIDATE_SHADOW_STATUS.md). Incident
 Evicted/DiskPressure trước đó và cleanup được lưu tại `CLUSTER_READINESS.md`.
 Checklist thực hiện và điều kiện hoàn tất ở
