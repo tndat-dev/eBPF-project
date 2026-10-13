@@ -1,13 +1,12 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành qua SSH: **13/10/2026 02:08 UTC (09:08 UTC+7)**. Unit
-`sentinel-pulse-observation-shadow@normal-a1-20261013.service` và tiến trình
-capture/shadow còn `active/running` trên worker1, worker3, worker4; NRestarts=0
-trên worker1. Tiến trình đã chạy khoảng 26.7 ks (~7 giờ 25 phút), tương đương
-khoảng 31% thời lượng 24 giờ theo wall clock, **không phải tỷ lệ telemetry đủ
-điều kiện**. Checkpoint chi tiết cuối cùng lúc 08:50 ICT ở
-[CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md); chưa đọc lại journal
-hoặc đếm eligible exposure ở snapshot mới này. Không sửa soak.
+Cập nhật hiện hành qua SSH: **14/10/2026 03:14 UTC+7**. Capture soak
+`normal-a1-20261013` hoàn tất **100% trên ba worker**, đủ 86.400 giây/node,
+errors=0, capacity pauses=0. Shadow vẫn xử lý backlog, chưa chốt đánh giá.
+Job `pulse-syscall-capture-c3.service` enabled/active trên `.234`, đã chấp nhận
+4/10 phase (12/30 capture worker), đang thu selection-recovery; sau đó là năm
+regime holdout riêng. ETA capture khoảng 05:30–06:00 ngày 14/10. Chi tiết:
+[SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).
 
 Hai offline syscall-feature campaigns đã kết thúc: C1 attempt-000002 và C2
 attempt-000002 đều terminal `completed`, 608/608 fits, errors rỗng, 19 workload
@@ -92,18 +91,24 @@ này không thay cho artifact kết quả và không tuyên bố syscall tối �
   scikit-learn 1.9.1, NumPy 2.5.3); mỗi model có estimator `predict_proba` và
   calibration scores. Đây chỉ là deserialization/schema check, không phải
   inference benchmark hay kiểm thử phát hiện.
+- [x] Replay 608/608 model trên context C2 đã lưu: score sai lệch lớn nhất 0,
+  conformal p-value và decision khớp. Receipt riêng trên NFS; không gọi là test độc lập.
 - [ ] Chấm các model trên normal holdout mới, độc lập và chưa xem; kiểm tra
   overlap source/hash/revision, nhãn unknown không được tính TN.
 - [ ] Khóa một candidate/model manifest và policy; không dùng blind set để tune.
 
 ### B. Thu full-ID syscall normal độc lập
 
+- [x] Triển khai coordinator systemd bền vững C3; build hai collector trên ba
+  worker; cấu hình năm regime selection và năm regime holdout tách biệt.
+- [x] Đăng ký điều kiện chờ soak, source/archive binding, capture/feature schema,
+  unit phân tích 30 giây và kế hoạch bootstrap/Holm trước capture mới.
 - [ ] Phục hồi/ổn định workload và traffic generator; xác định target pod UID,
   container, revision, cgroup và node từ resolver/API tại thời điểm capture.
 - [ ] Đăng ký trước traffic receipt với regime và khoảng thời gian chính xác.
-  Bốn chế độ dự kiến phải được định nghĩa bởi lịch traffic có receipt (ví dụ
-  steady, peak, burst, recovery); tên ví dụ không tự động được coi là chế độ đã
-  chạy.
+  Năm chế độ steady, toolmix, peak, burst, recovery được định nghĩa trong code;
+  receipt execution được phát hành sau rollout, trước probe. Job hiện đang chờ,
+  chưa coi cấu hình tải là dữ liệu đã thu.
 - [ ] Dùng runner trước trên một node, một run bounded; kiểm tra baseline và
   post metrics, drop counter, map occupancy, metadata coverage, scan skew, CPU,
   memory, throughput và p95/p99 nếu có nguồn đo đã đăng ký.
@@ -159,8 +164,10 @@ analyzer và cohort đều hợp lệ. Kết quả/giới hạn được ghi tro
 `syscall_analysis.md` cùng `sentinel_pulse/SYSCALL_SELECTION_PILOT.md`. Chưa có
 đối chứng overhead A/B, kết luận feature ranking đã xác nhận hay blind
 evaluation; pilot histogram mới có steady regime, chưa phủ mọi replica/regime.
-C1/C2 normal-only refits đã xong; C2 model hashes hợp lệ nhưng manifest path lỗi
-cần tạo bản dẫn xuất và đối chiếu input/source trước khi nạp model.
-Không có syscall fit job đang chạy; normal soak Sentinel Pulse vẫn chạy riêng.
+C1/C2 normal-only refits đã xong; manifest dẫn xuất, load và replay 608/608
+đã xác minh. Không có fit job đang chạy. C3 đã chấp nhận bốn phase selection,
+đang thu recovery; còn vòng holdout riêng. Preflight 12 capture kiểm tra
+313.318 rows, 269.036 context đủ điều kiện đầu vào; chưa phải kết quả scoring.
+Blind attack từng biến thể và thống kê kết luận giữ/bỏ vẫn chưa có kết quả mới.
 Không khai báo project xong chỉ vì TODO được tạo; checklist chỉ chuyển sang
 hoàn tất khi có artifact và receipt có thể kiểm tra độc lập.

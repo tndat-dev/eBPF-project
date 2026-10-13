@@ -86,36 +86,32 @@ và resolver active. Các pod workload AIMS chính đang Running; một số pod
 `Completed` là job/pod kết thúc, không tính như replica Ready. Free space trước
 run: worker1 **163.0 GB**, worker3 **302.6 GB**, worker4 **117.2 GB**.
 
-Run normal-observation **`normal-a1-20261013` đang chạy trên cả ba worker** với
+Run normal-observation **`normal-a1-20261013` đã hoàn tất capture trên cả ba worker** với
 source commit `2c1a72d`, model manifest SHA
 `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`, policy SHA
 `fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`, và 86,400
-giây boundary exposure/node. Capture/shadow units đều `enabled`; checkpoint
-được xác minh gần nhất lúc **08:50 ngày 13/10 (UTC+7)**: cả ba capture còn
-`collecting`, cả ba shadow `active`; không có capture error, capacity pause,
-systemd restart hoặc warning trong journal capture. Boundary exposure: worker1
-**25,668 s (29.71%)** với 4,137,556 feature rows; worker3 **25,643 s (29.68%)**
-với 1,221,342 rows; worker4 **25,620 s (29.65%)** với 4,474,742 rows. Dung lượng
-trống: worker1 **151.0 GB**, worker3 **299.1 GB**, worker4 **105.2 GB**. Tiến độ
-chỉ là lượng telemetry đã thu, không phải kết quả chất lượng hay confusion
-matrix. Units tự khởi động lại khi node reboot; capture checkpoint/fsync mỗi 5
-giây và resume từ checkpoint.
+giây boundary exposure/node. Kiểm tra SSH **03:14 ngày 14/10 (UTC+7)** xác nhận
+terminal `completed_observation`, không còn writer capture; errors=0 và
+capacity_pause_count=0 trên cả ba node:
 
-Kiểm tra SSH tiếp theo lúc **09:08 UTC+7 (02:08 UTC)**: capture và shadow còn
-`active/running` trên worker1, worker3, worker4; worker1 `NRestarts=0`. Lượt này
-xác nhận process tồn tại nhưng chưa đọc checkpoint/journal mới, vì vậy exposure,
-số row và lỗi vẫn theo checkpoint 08:50, không ngoại suy thành coverage mới.
+| Worker | Boundary exposure | Feature rows |
+|---|---:|---:|
+| worker1 `.237` | 86.400,249 s | 13.928.602 |
+| worker4 `.238` | 86.400,297 s | 15.096.447 |
+| worker3 `.239` | 86.400,390 s | 4.124.430 |
 
-Shadow vẫn chạy nhưng chưa realtime: các row cuối được lấy mẫu trễ khoảng **33
-phút trên worker1** (tính từ `processed_at - window_end`) và **74.5 phút trên
-worker4** (`feature_event_age_seconds`); worker3 có row được chấm gần thời gian
-thực, khoảng **0.13–0.15 giây**. Đây là số đo ở vài row cuối, **không phải p95
-hay kernel-to-alert latency**. Trên worker4, shadow đang dùng khoảng 805 MB RAM
-(peak 806 MB, giới hạn 1 GiB); capture cũng xấp xỉ 805 MB. Một số workload có
-`candidate-model-unavailable`; scorer gắn `serving_compatible=false` theo thiết
-kế vì đây là candidate shadow, không phải detector production. Các preview
-được giữ để adjudicate; chưa kết luận false positive. Backlog shadow không làm
-mất exposure capture, nhưng hiện chưa đạt yêu cầu latency thấp.
+Shadow vẫn active, `NRestarts=0`, model/policy không thay đổi. Row cuối worker1
+có event age **7.627,28 s (~127 phút)**; worker4 row cuối là
+`candidate-model-unavailable`, `processed_at - window_end` = **16.515,10 s
+(~275 phút)**. Worker3 đã đọc tới cuối capture, event age của row cuối
+**0,01164 s**. Các con số là mẫu row cuối, **không phải p95 hay kernel-to-alert**.
+Worker1/worker4 vẫn xử lý backlog; chưa xác nhận hoàn tất scoring hoặc confusion
+matrix. Không loại preview khỏi evidence và không tune model trong lúc drain.
+
+Evidence: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0315.json`.
+Capture đủ 24 giờ không đồng nghĩa candidate đạt realtime, stable hoặc chất
+lượng phát hiện. C3 đã bắt đầu thu dữ liệu mới trong thư mục riêng sau khi cả
+ba capture đóng; nó không sửa hoặc thêm record vào capture soak đã hoàn tất.
 
 Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
 terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
@@ -126,20 +122,10 @@ ngưỡng kế hoạch, nhưng không thể bảo đảm trước hỏng đĩa, 
 hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run sẽ ở trạng thái
 waiting thay vì giả vờ đã hoàn tất.
 
-Run tiếp tục thu; không train/tune hoặc chạy blind attack trong independent
-normal soak. Sau khi từng worker đạt 86,400 giây exposure, kiểm tra terminal,
-journal, gaps, decision coverage và disk. Mọi pause/gap không cộng normal
-exposure; nếu có pause, thời điểm kết thúc lùi tương ứng. Sau đó mới adjudicate
-preview/normal và tính confusion matrix; cải thiện candidate trên split phát
-triển riêng.
-
-Ước tính hiện tại: còn khoảng **17 giờ exposure tối thiểu** nếu không có pause,
-song song trên ba worker; mọi gap/pause sẽ đẩy hạn hoàn thành tương ứng. Capture
-có thể đạt đủ khoảng **01:43 ngày 14/10 (UTC+7)**. Shadow worker4 đang trễ hơn
-74 phút; chưa đủ hai snapshot cùng cách đo để ước lượng chắc thời gian drain.
-Kiểm tra lại gần 01:45 ngày 14/10; nếu capture đủ nhưng shadow còn backlog, giữ
-run/evidence và tiếp tục drain trước khi chốt báo cáo. Không coi thời điểm này
-là cam kết hoàn tất.
+Tiếp theo: để shadow drain hết file đóng; kiểm tra journal, gaps, decision
+coverage, adjudicate preview/normal rồi mới tổng hợp đánh giá. Chưa đủ mẫu
+tốc độ drain để cam kết giờ xong. Thu C3 dự kiến xong khoảng **05:30–06:00
+ngày 14/10**, không phải ETA của shadow hoặc toàn bộ blind evaluation.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để

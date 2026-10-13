@@ -1,6 +1,6 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật hiện hành qua SSH: **13/10/2026, 02:08 UTC**. C1 `attempt-000002` và
+Cập nhật hiện hành qua SSH: **14/10/2026, 03:14 UTC+7**. C1 `attempt-000002` và
 C2 `attempt-000002` đều terminal `completed`, **608/608 fits**, `errors=[]`, 19
 workload × 32 variants; không còn fit process nào chạy. C1 có prediction/score
 `.npz`, không có pickle. C2 có 608 model pickle, tổng **2,362,081,485 byte**.
@@ -11,8 +11,66 @@ START/RESULTS/TERMINAL và hash/size đủ 608 model. SHA-256 sidecar là
 `4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408`; file gốc
 không đổi. Đã nạp tuần tự 608/608 pickle bằng C2 venv khớp Python 3.12.3,
 scikit-learn 1.9.1, NumPy 2.5.3; mọi object có estimator `predict_proba` và
-calibration scores. Đây là load/schema check, không phải detection evaluation.
-Generator và regression tests nằm trong repo; **41 test pass**.
+calibration scores. Sau đó đã **replay 608/608 model** bằng đúng C2 venv:
+score sai lệch lớn nhất **0**, conformal p-value và quyết định khớp prediction
+đã seal. Artifact: `/mnt/sentinel-pulse-archive/syscall-variant-replay-c3/TERMINAL.json`.
+Replay dùng context cũ đã xem; chưa phải phép đo chất lượng độc lập.
+
+## Job C3 đã triển khai
+
+`pulse-syscall-capture-c3.service` trên `.234` đang **active/running, enabled,
+NRestarts=0**, source `b14f888c28e1d7d8752d19fd4d88457d38063a3a`. Trạng thái
+`collecting`, đang thu `selection-recovery`. Đã chấp nhận **4/10 phase (40%)**:
+selection steady, toolmix, peak, burst — tương đương **12/30 capture worker**.
+Chưa có rejected attempt trong bốn phase này. Output:
+`/mnt/sentinel-pulse-archive/syscall-capture-c3-r2`.
+
+Ba worker đã build histogram loader/object và projected counter. Coordinator
+tự đợi soak đủ 86.400 giây/node, rồi thu selection qua **steady, toolmix, peak,
+burst, recovery**; tiếp theo thu năm regime thành **holdout riêng**. Mỗi regime
+300 giây baseline + 600 giây probe + 300 giây post, ba worker song song.
+Probe thu full-ID histogram 1 giây và feature legacy 249 chiều/500 ms.
+Chi tiết cấu hình, receipt, recovery, giới hạn và lệnh xem ở
+[SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).
+
+Soak `normal-a1-20261013` đã có terminal **`completed_observation` trên cả ba
+worker**, không còn tiến trình capture. Số đo trực tiếp:
+
+| Worker | Boundary exposure | Tiến độ / 86.400 s | Capture errors | Capacity pauses |
+|---|---:|---:|---:|---:|
+| `.237` / worker1 | 86.400,249 s | 100% | 0 | 0 |
+| `.238` / worker4 | 86.400,297 s | 100% | 0 | 0 |
+| `.239` / worker3 | 86.400,390 s | 100% | 0 | 0 |
+
+Tổng **33.149.479 feature rows** trong capture soak. Shadow vẫn active và giữ
+nguyên source/model/policy: worker1 còn đọc backlog, row cuối có event age
+**7.627,28 s**; worker4 row cuối `candidate-model-unavailable`, chênh
+`processed_at - window_end` **16.515,10 s**. Worker3 đã đọc tới cuối capture,
+row cuối có event age **0,01164 s**. Đây là mẫu row cuối, không phải p95 hay
+kernel-to-alert. **100% capture không có nghĩa 100% đánh giá/model stable.**
+
+C3 còn khoảng hai giờ thu holdout cùng chuyển phase/copy. Kiểm tra khoảng
+**05:30–06:00 ngày 14/10 (UTC+7)** nếu không phải retry. Đây là ETA capture,
+không phải cam kết hoàn thành blind evaluation hoặc công bố syscall tối ưu.
+
+**38 regression tests pass** cho campaign, sidecar, histogram/cohort, manifest,
+paired statistics và feature compatibility audit. Smoke sidecar thực trên cgroup
+riêng ở control plane đã tạo **22 feature rows**, schema legacy đúng, malformed=0,
+exit=0; không dùng smoke này để train/evaluate. Service có checkpoint và khởi động cùng VM; mất SSH/laptop
+không dừng job. Worker reboot làm attempt dở được ghi nhận và thu bổ sung;
+không bỏ các phase đã hoàn tất. Không có zero-alert gate.
+
+Evidence đọc qua SSH: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0315.json`.
+Preflight mới `sentinel_pulse/variant_capture_audit.py` chỉ đọc capture đã seal,
+kiểm tra schema/identity/revision/cadence và history bốn window liền kề; không
+chấm score hoặc chọn feature trên holdout. Code audit triển khai riêng dưới
+`/home/dat/pulse-syscall-audit-c3-20261014/source`, không sửa source C3 đang chạy.
+Audit đã xong 12 capture selection: 313.318 rows, 269.036 context đủ điều kiện
+đầu vào, 6.592 warming, 37.659 thiếu model C2, 31 ngoài biên probe; 2.492 history
+gap resets. Không có mismatch schema/revision hoặc collector integrity flag
+trong phần đã audit. Đây không phải kết luận false-positive/recall.
+
+## Những bằng chứng vẫn cần hoàn tất
 
 So sánh START C1/C2 cho thấy cả sáu input hash giống nhau, cùng 19 workload,
 split/history/alpha/window và cùng hash của `model.py`, `features.py`,
@@ -36,7 +94,7 @@ classifier pickle nào**. Trường `serialized_estimator_bytes` chỉ là kích
 là ước lượng cho estimator, không phải model bundle đã lưu. `train_seconds` cộng
 trên 608 fit cũ là **19.501,4 giây tích lũy**, không phải wall-clock duration.
 
-Do đó chưa thể đem 608 biến thể cũ chạy blind từ output hiện có. C2 lưu đầy đủ
+Output C1 không đủ để chạy lại model; **C2 hiện đã lưu đầy đủ**
 `PulseExtraTrees` cùng SHA-256; checkpoint score-only không được tính là fit có
 thể tái sử dụng. Khi đủ 608 artifact, job tạo `VARIANT_MODEL_MANIFEST.json`
 bind workload, variant, mask, file hash, train/calibration dataset và run. Đây
@@ -55,8 +113,7 @@ Trạng thái hiện hành: `pulse-syscall-variant-models-c2.service` đã chạ
 nằm riêng ở đó. Job đã được giới hạn CPU 150%, RAM 4 GiB. Manifest hiện tại có
 đường dẫn artifact lặp `models/`; audit đã xác minh đủ 608 artifact qua đường dẫn
 và hash trong `RESULTS.json`. Manifest gốc không bị thay đổi. Sidecar dẫn xuất
-đã được phát hành trên NFS với provenance; consumer-isolated load test vẫn chưa
-chạy.
+đã được phát hành trên NFS với provenance; load và replay 608/608 đã hoàn tất.
 
 Unit riêng cho lần refit có lưu artifact tại
 [`pulse-syscall-variant-models-c2.service`](sentinel_pulse/systemd/pulse-syscall-variant-models-c2.service).
@@ -123,7 +180,7 @@ cat /mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002
 
 - Holdout normal độc lập với training nhưng đã được xem trong phân tích trước: kết quả **exploratory**, cần tập đánh giá mới để xác nhận lựa chọn.
 - Raw model anomaly rate không phải policy alert FPR. TP/FP/TN/FN, precision, attack recall và kernel-to-alert giữ `null` khi chưa có ground truth/phép đo tương ứng. Inference timing trên host có quota không phải latency production.
-- Không attach thêm collector vào worker, không inject attack, deploy subset hoặc tune model/policy trong khi soak hiện tại hoạt động. SSH 13/10 02:08 UTC xác nhận capture/shadow `normal-a1-20261013` còn chạy trên worker1/3/4; model/policy/raw seals giữ nguyên. Exact-ID pilots trước đó là các run riêng đã kết thúc.
+- C3 đang chờ capture soak hoàn tất trước khi đổi traffic hoặc attach probe worker. Model/policy/raw seals của soak giữ nguyên. Exact-ID pilots trước đó là các run riêng đã kết thúc.
 - Soak đang chạy là một normal capture có thể cung cấp tập đánh giá tương lai nếu protocol freeze/adjudication cho phép; chưa tính nó là holdout hợp lệ khi chưa chốt trước phân tích, nhãn và điều kiện tách biệt. Các khoảng thiếu telemetry/hạ tầng không được tính là normal/TN.
 - Thêm collector pilot tách biệt `ebpf/syscall_histogram.bpf.c` + loader: per-ID counts theo cgroup, map cap 65.536 keys, drop counter và duration bắt buộc; Make target không đụng collector đang cài. Nhánh `experiment/syscall-id-histogram-pilot` đã push qua commit `f50dfad` (histogram race/snapshot hardening ở `cb6c94e`). Worker3 và worker1 (Ubuntu 24.04.4, kernel 6.8.0-138, clang 18.1.3, libbpf) build thành công; binary từ chối thiếu tham số (exit 2) trước khi load/attach. Loader SHA-256 `e744b99bc01c9633a4a8b44738f337c6b6545b8d5feabd0de4e7d55d203ba23d`; object worker3 `b8c13be88076036b5eff367a7c563bce17c7e932f1623224b75a32010ed922ee`, worker1 `6785c33cb190b0f72b8fdeef4a64cffc2a505d8507c06270c4e518f3de62ced4`.
 - Đã thêm harness `sentinel_pulse/syscall_histogram_pilot.py` và analyzer

@@ -1,5 +1,32 @@
 # Phân tích syscall và bằng chứng lựa chọn feature của Sentinel Pulse
 
+## Trạng thái thực nghiệm hiện hành
+
+Kiểm tra SSH **14/10/2026 03:14 UTC+7**: bộ C2 đã fit, load và replay **608/608
+model** (19 workload × 32 biến thể); score sai lệch lớn nhất 0, p-value và
+decision khớp kết quả C2 đã lưu. Đây là kiểm tra tái lập trên dữ liệu đã xem.
+
+Capture normal soak đã hoàn tất 86.400 giây/node trên cả ba worker; shadow còn
+drain backlog trên hai worker. Job C3 trên `.234` enabled/active, đã chấp nhận
+selection **steady, toolmix, peak, burst**, đang thu **recovery**; tiếp theo là
+vòng năm regime holdout riêng. C3 thu full-ID histogram và feature 249 chiều/500 ms.
+Nguồn, receipt, ngân sách, schema và lệnh kiểm tra nằm trong
+[SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).
+
+Preflight trên 12 capture selection đã seal xác minh **313.318 feature rows**:
+**269.036 context bốn window** đủ điều kiện schema/identity/revision/cadence;
+6.592 warming rows; 37.659 rows không có model C2 (notification/payment);
+31 rows ngoài biên probe. Có 2.492 lần reset history vì không liền kề, không nối
+giả qua gap. Các bộ đếm này chưa adjudicate health/nhãn normal, không phải TN/FP
+hay kết quả đánh giá chất lượng. Tool không chấm model hoặc đọc score holdout.
+Evidence: `syscall-capture-c3-r2/selection-preflight-20261014.json` trên NFS.
+
+Chưa có kết quả blind mới cho từng biến thể, nên **chưa kết luận syscall nào
+nên giữ/bỏ từ thực nghiệm hoàn chỉnh**. Histogram cung cấp tần suất; ablation
+và paired blind evaluation mới trả lời đóng góp phát hiện. Kế hoạch chấm đã
+đăng ký interval workload 30 giây, bootstrap block 10.000 lần, CI 95% và Holm;
+không dùng normal holdout/blind để tune rồi báo lại như kiểm định độc lập.
+
 ## Nguồn định nghĩa và cơ sở lựa chọn
 
 ID/tên syscall được đối chiếu với bảng ABI x86-64 chính thức của [Linux v6.8](https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl). Các worker đang chạy kernel 6.8.0-138-generic. Bảng ABI chứng minh ánh xạ ID/tên, không chứng minh tập syscall được chọn là tối ưu để phát hiện attack.
