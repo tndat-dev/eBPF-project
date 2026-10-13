@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import tarfile
 
 from .syscall_capture_campaign import Remote, SOURCE, WORKERS
 
@@ -13,7 +14,19 @@ from .syscall_capture_campaign import Remote, SOURCE, WORKERS
 def install(source_commit, archive, credential):
     if not re.fullmatch('[0-9a-f]{40}', source_commit):
         raise ValueError('full source Git commit required')
+    with tarfile.open(archive, 'r:gz') as bundle:
+        if bundle.pax_headers.get('comment') != source_commit:
+            raise ValueError('archive Git commit differs from requested source commit')
     remote = Remote(credential)
+    for name in ('syscall-capture-c3', 'syscall-capture-c3-r2'):
+        status = Path('/mnt/sentinel-pulse-archive') / name / 'STATUS.json'
+        if status.exists() and json.loads(status.read_text()).get('active'):
+            raise ValueError('cannot replace source during an active capture attempt')
+    # Only this waiting coordinator is stopped; the protected soak is separate.
+    stopped = subprocess.run(['sudo', '-S', '-p', '', 'systemctl', 'stop', 'pulse-syscall-capture-c3.service'],
+                             input=remote.password + '\n', text=True, capture_output=True, timeout=30)
+    if stopped.returncode not in (0, 5):
+        raise RuntimeError('could not stop the waiting coordinator for installation')
     for host in WORKERS:
         transfer = ['sshpass', '-f', str(credential), 'scp', '-q',
                     '-o', 'StrictHostKeyChecking=yes',

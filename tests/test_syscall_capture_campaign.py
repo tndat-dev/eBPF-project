@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from sentinel_pulse.syscall_capture_campaign import (
-    Remote, healthy, phases, soak_complete, run,
+    Remote, healthy, phases, soak_complete, run, traffic_identity,
 )
 
 
@@ -90,3 +90,23 @@ def test_resume_rejects_changed_source_without_touching_traffic(tmp_path):
         script.write_text('# changed')
         with pytest.raises(ValueError, match='changed'):
             run(args)
+
+
+def test_traffic_identity_detects_external_generator_changes():
+    snap = {'deployments': {'items': [dict(metadata=dict(name='loadgen', uid='a'),
+                                         spec=dict(replicas=1))]}}
+    original = traffic_identity(snap)
+    snap['deployments']['items'][0]['spec'] = dict(replicas=2)
+    assert traffic_identity(snap) != original
+
+
+def test_installer_rejects_misidentified_archive_before_any_remote_work(tmp_path):
+    import tarfile
+    from sentinel_pulse.install_syscall_campaign import install
+    archive = tmp_path / 'source.tar.gz'
+    with tarfile.open(archive, 'w:gz', format=tarfile.PAX_FORMAT, pax_headers={'comment': 'a' * 40}) as bundle:
+        bundle.addfile(tarfile.TarInfo('source.py'))
+    with patch('sentinel_pulse.install_syscall_campaign.Remote') as remote:
+        with pytest.raises(ValueError, match='archive Git commit'):
+            install('b' * 40, archive, tmp_path / 'credential')
+        remote.assert_not_called()

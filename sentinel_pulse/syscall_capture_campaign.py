@@ -158,6 +158,11 @@ def healthy(snap):
     return len(snap["nodes"]["items"]) == 6 and len(snap["deployments"]["items"]) == 4
 
 
+def traffic_identity(snap):
+    return {item["metadata"]["name"]: dict(uid=item["metadata"]["uid"], spec=item["spec"])
+            for item in snap["deployments"]["items"]}
+
+
 def set_regime(source, regime, log):
     env = {**os.environ, "KUBECONFIG": "/home/dat/.kube/config", "NAMESPACE": "production"}
     with log.open("a") as stream:
@@ -179,6 +184,12 @@ def run(args):
         feature_schema="sentinel-pulse-feature-v1", feature_rolling_windows=5,
         holdout_not_for_selection=True,
         attack_injection=False, frozen_models_modified=False,
+        variant_model_manifest_sha256="4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+        analysis_plan=dict(unit="fixed 30-second workload intervals", history=3,
+            normal_labels="provisional controlled normal; infrastructure/telemetry unknown reported separately",
+            bootstrap_repeats=10000, bootstrap_seed=73021, confidence_level=0.95,
+            comparisons="each variant versus full, paired intervals; Holm correction",
+            zero_alert_gate=False, tune_using_final_holdout=False),
         evidence_scope="full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately")
     if start_path.exists():
         if json.loads(start_path.read_text())["contract"] != json.loads(json.dumps(contract)):
@@ -212,13 +223,15 @@ def run(args):
             attempt = state["attempts"].get(key, 0) + 1
             state["attempts"][key] = attempt
             # Record intent before mutation/launch, so reboot cannot overwrite evidence.
-            active = dict(key=key, split=split, regime=regime, attempt=attempt, runs={}, phase="preparing")
+            active = dict(key=key, split=split, regime=regime, attempt=attempt, runs={}, phase="preparing",
+                          traffic_drift=False)
             save("preparing_traffic", active=active)
             set_regime(source, regime, root / "traffic-controller.log")
             snap = snapshot()
             if not healthy(snap):
                 raise RuntimeError("traffic rollout not yet healthy")
             atomic_json(root / f"{key}-{attempt}-traffic.json", snap)
+            active["traffic_identity"] = traffic_identity(snap)
             now = time.time()
             for host, node in WORKERS.items():
                 run_id = f"{key}-{attempt:03d}-{host.rsplit('.', 1)[-1]}"
@@ -235,7 +248,12 @@ def run(args):
         active = state["active"]
         statuses = {host: remote.inspect(host, run_id) for host, run_id in active["runs"].items()}
         if any(s.get("unit_state") in ("active", "activating", "deactivating") for s in statuses.values()):
-            append_jsonl(root / "health-events.jsonl", snapshot())
+            observed = snapshot()
+            if traffic_identity(observed) != active.get("traffic_identity"):
+                active["traffic_drift"] = True
+                append_jsonl(root / "traffic-drift.jsonl", dict(at_unix=time.time(), key=active["key"],
+                                                              observed=observed))
+            append_jsonl(root / "health-events.jsonl", observed)
             save("collecting", worker_status=statuses)
             time.sleep(30)
             continue
@@ -251,7 +269,7 @@ def run(args):
                 analysis = summarize(destination)
                 atomic_json(destination / "ANALYSIS.json", analysis)
                 analyses.append(analysis)
-            complete = all(x["capture_valid_for_feature_selection"] for x in analyses)
+            complete = all(x["capture_valid_for_feature_selection"] for x in analyses) and not active.get("traffic_drift")
         append_jsonl(root / "attempts.jsonl", dict(at_unix=time.time(), attempt=active, accepted=complete,
                                                  worker_status=statuses))
         if complete:
@@ -262,7 +280,14 @@ def run(args):
             time.sleep(60)
     # Do NOT inspect/rank the held-out frequency distribution here.
     from .syscall_histogram_cohort import aggregate
-    atomic_json(root / "SELECTION_COHORT.json", aggregate(sorted((root / "selection").glob("*/"))))
+    # Only accepted attempts enter the development cohort; rejected raw data
+    # remains available for auditing. Held-out data is never ranked here.
+    accepted = [json.loads(line) for line in (root / "attempts.jsonl").read_text().splitlines()
+                if line.strip()]
+    selection_dirs = [root / 'selection' / run_id for item in accepted
+                      if item['accepted'] and item['attempt']['split'] == 'selection'
+                      for run_id in item['attempt']['runs'].values()]
+    atomic_json(root / "SELECTION_COHORT.json", aggregate(selection_dirs))
     atomic_json(root / "TERMINAL.json", dict(state="completed_frequency_collection", completed=state["completed"],
         finished_at_unix=time.time(), start_sha256=digest(start_path),
         holdout_sealed_not_ranked=True, blind_evaluation_complete=False, automatic_promotion=False))

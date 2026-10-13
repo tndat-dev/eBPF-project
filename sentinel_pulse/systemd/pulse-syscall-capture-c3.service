@@ -12,7 +12,7 @@ Group=dat
 WorkingDirectory=/home/dat/pulse-syscall-capture-c3/source
 EnvironmentFile=/etc/sentinel-pulse/syscall-capture-c3.env
 Environment=PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
-ExecStart=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python -u -m sentinel_pulse.syscall_capture_campaign --root /mnt/sentinel-pulse-archive/syscall-capture-c3 --source /home/dat/pulse-syscall-capture-c3/source --credential /home/dat/.pulse-recovery-credential-20261005 --source-commit ${PULSE_SOURCE_COMMIT}
+ExecStart=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python -u -m sentinel_pulse.syscall_capture_campaign --root /mnt/sentinel-pulse-archive/syscall-capture-c3-r2 --source /home/dat/pulse-syscall-capture-c3/source --credential /home/dat/.pulse-recovery-credential-20261005 --source-commit ${PULSE_SOURCE_COMMIT}
 Restart=on-failure
 RestartSec=60
 TimeoutStopSec=30
