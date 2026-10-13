@@ -18,6 +18,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 
@@ -123,6 +124,19 @@ def build_start(args, allow_ids: list[int], metadata: dict) -> dict:
     registered_at = time.time()
     receipt = read_traffic_receipt(args.traffic_receipt,
                                    metadata["document"].get("node_name"), registered_at)
+    feature_loader = getattr(args, "feature_loader", None)
+    feature_object = getattr(args, "feature_object", None)
+    if bool(feature_loader) != bool(feature_object):
+        raise ValueError("both feature loader and object are required")
+    feature_binding = None
+    if feature_loader:
+        feature_binding = {
+            "loader_sha256": sha256_file(feature_loader),
+            "object_sha256": sha256_file(feature_object),
+            "schema": "sentinel-pulse-feature-v1", "snapshot_interval_ms": 500,
+            "rolling_windows": 5, "include_idle": False,
+            "observable": "sys_enter entry only; seccomp skipped/emulated not included",
+        }
     return {
         "schema": SCHEMA,
         "run_id": args.run_id,
@@ -150,7 +164,66 @@ def build_start(args, allow_ids: list[int], metadata: dict) -> dict:
         "use_limit": "feature selection only when capture analysis verifies the preregistered receipt and all integrity checks",
         "no_attack_injection": True,
         "no_model_training_or_promotion": True,
+        "parallel_feature_capture": feature_binding,
     }
+
+
+class FeatureSidecar:
+    """Optional legacy-compatible feature capture for a separately registered run."""
+    def __init__(self, args):
+        self.args = args
+        self.result = {}
+        self.child = None
+        self.thread = None
+        self.stderr = None
+
+    def start(self):
+        from .capture import run as capture_run
+        args = self.args
+        self.stderr = (args.output / "feature-loader.log").open("x")
+        self.child = subprocess.Popen([
+            str(args.feature_loader), "--object", str(args.feature_object),
+            "--allow-cgroup-file", str(args.allowlist), "--interval-ms", "500"],
+            stdout=subprocess.PIPE, stderr=self.stderr, text=True)
+
+        def pump():
+            try:
+                with (args.output / "feature-raw.jsonl").open("x") as raw, \
+                     (args.output / "features.jsonl").open("x") as features:
+                    def lines():
+                        for line in self.child.stdout:
+                            raw.write(line)
+                            yield line
+                    self.result["capture"] = capture_run(
+                        lines(), features, args.metadata, 5, 0.35, 0.75, 0.5)
+                    for stream in (raw, features):
+                        stream.flush()
+                        os.fsync(stream.fileno())
+            except Exception as exc:
+                self.result["error"] = str(exc)
+        self.thread = threading.Thread(target=pump, daemon=True)
+        self.thread.start()
+
+    def finish(self):
+        if self.child is None:
+            return {}
+        unexpected_exit = self.child.poll() is not None
+        if not unexpected_exit:
+            self.child.terminate()
+        try:
+            exit_status = self.child.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            self.child.kill()
+            exit_status = self.child.wait()
+            self.result["error"] = "feature collector did not stop gracefully"
+        self.thread.join(timeout=10)
+        if self.thread.is_alive():
+            raise RuntimeError("feature capture pump failed to drain")
+        self.child.stdout.close()
+        self.stderr.close()
+        result = dict(self.result, loader_exit_status=exit_status, unexpected_exit=unexpected_exit)
+        atomic_json(self.args.output / "FEATURE_CAPTURE.json", result)
+        return result
 
 
 def proc_sample(phase: str, observed_at: float) -> dict:
@@ -306,6 +379,8 @@ def run(args) -> int:
     started_at = time.time()
     terminal_state = "failed"
     child = None
+    feature_sidecar = None
+    feature_result = None
     probe_started_at = None
     probe_ended_at = None
     previous_handlers = {sig: signal.signal(sig, _signal_handler)
@@ -318,6 +393,9 @@ def run(args) -> int:
         else:
             phase = "probe"
             probe_started_at = time.time()
+            if getattr(args, "feature_loader", None):
+                feature_sidecar = FeatureSidecar(args)
+                feature_sidecar.start()
             command = [str(args.loader), "--object", str(args.object),
                        "--allow-cgroup-file", str(args.allowlist),
                        "--interval-ms", str(args.interval_ms),
@@ -335,13 +413,20 @@ def run(args) -> int:
                         child.kill()
                 exit_code = child.wait()
             probe_ended_at = time.time()
+            if feature_sidecar is not None:
+                feature_result = feature_sidecar.finish()
+                feature_sidecar = None
             phase = "post"
             probe_elapsed = probe_ended_at - probe_started_at
             duration_complete = probe_elapsed >= max(0, args.duration_seconds - 1)
             if exit_code == 0 and duration_complete and not _stop:
                 _sample_phase(phase, args.post_seconds, metrics_path, args.allowlist,
                               args.metadata, metadata_out, args.metric_interval_seconds)
-            terminal_state = ("completed" if exit_code == 0 and duration_complete and not _stop
+            feature_ok = (feature_result is None or (
+                not feature_result.get("error") and not feature_result.get("unexpected_exit")
+                and feature_result.get("capture", {}).get("emitted", 0) > 0
+                and feature_result.get("capture", {}).get("malformed", 0) == 0))
+            terminal_state = ("completed" if exit_code == 0 and duration_complete and not _stop and feature_ok
                               else "interrupted_or_failed")
     finally:
         try:
@@ -351,6 +436,8 @@ def run(args) -> int:
                     child.wait(timeout=10)
                 except subprocess.TimeoutExpired:
                     child.kill()
+            if feature_sidecar is not None:
+                feature_result = feature_sidecar.finish()
             ended_at = time.time()
             terminal = {
                 "schema": "sentinel-pulse-syscall-histogram-pilot-terminal-v1",
@@ -364,6 +451,7 @@ def run(args) -> int:
                 "capture_bytes": capture_path.stat().st_size if capture_path.exists() else 0,
                 "probe_started_at_unix": probe_started_at,
                 "probe_ended_at_unix": probe_ended_at,
+                "feature_capture": feature_result,
             }
             atomic_json(args.output / "TERMINAL.json", terminal)
             files = sorted(path for path in args.output.rglob("*") if path.is_file() and path.name != "SHA256SUMS")
@@ -390,6 +478,9 @@ def main() -> None:
     parser.add_argument("--metadata", type=Path, default=Path("/run/sentinel-pulse/cgroups.json"))
     parser.add_argument("--traffic-receipt", type=Path,
                         help="pre-registered node traffic schedule JSON; omission labels capture unlabelled")
+    parser.add_argument("--feature-loader", type=Path,
+                        help="opt-in legacy feature collector alongside full-ID histogram")
+    parser.add_argument("--feature-object", type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--duration-seconds", type=int, default=600)
     parser.add_argument("--interval-ms", type=int, default=1000)
