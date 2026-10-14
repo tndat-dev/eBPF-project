@@ -1,0 +1,897 @@
+{
+  "schema": "pulse-independent-normal-verification-v1",
+  "completed_models": 608,
+  "workloads": 19,
+  "variants": 32,
+  "unique_source_contexts": 334655,
+  "labels": "pending_health_and_behavior_adjudication",
+  "raw_model_only": true,
+  "policy_applied": false,
+  "variant_counts": {
+    "drop_accept": {
+      "contexts": 334655,
+      "raw_model_positive": 145361,
+      "raw_model_negative": 189294,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29941
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29434
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28311
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28696
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28979
+        }
+      }
+    },
+    "drop_accept4": {
+      "contexts": 334655,
+      "raw_model_positive": 141699,
+      "raw_model_negative": 192956,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29548
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28787
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27640
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27807
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 27917
+        }
+      }
+    },
+    "drop_capset": {
+      "contexts": 334655,
+      "raw_model_positive": 144528,
+      "raw_model_negative": 190127,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29652
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29200
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28256
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28455
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28965
+        }
+      }
+    },
+    "drop_chmod": {
+      "contexts": 334655,
+      "raw_model_positive": 141873,
+      "raw_model_negative": 192782,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29289
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28720
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27615
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27946
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28303
+        }
+      }
+    },
+    "drop_clone": {
+      "contexts": 334655,
+      "raw_model_positive": 145128,
+      "raw_model_negative": 189527,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29881
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29396
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28273
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28625
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28953
+        }
+      }
+    },
+    "drop_clone3": {
+      "contexts": 334655,
+      "raw_model_positive": 145979,
+      "raw_model_negative": 188676,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29950
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29423
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28426
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28829
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29351
+        }
+      }
+    },
+    "drop_close": {
+      "contexts": 334655,
+      "raw_model_positive": 142373,
+      "raw_model_negative": 192282,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29528
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28878
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27611
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27908
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28448
+        }
+      }
+    },
+    "drop_connect": {
+      "contexts": 334655,
+      "raw_model_positive": 146500,
+      "raw_model_negative": 188155,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30135
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29643
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28573
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28924
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29225
+        }
+      }
+    },
+    "drop_execve": {
+      "contexts": 334655,
+      "raw_model_positive": 146845,
+      "raw_model_negative": 187810,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30220
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29762
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28549
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28894
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29420
+        }
+      }
+    },
+    "drop_execveat": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_mmap": {
+      "contexts": 334655,
+      "raw_model_positive": 140278,
+      "raw_model_negative": 194377,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 28917
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28471
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27335
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27664
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 27891
+        }
+      }
+    },
+    "drop_mount": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_mprotect": {
+      "contexts": 334655,
+      "raw_model_positive": 140037,
+      "raw_model_negative": 194618,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 28741
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28279
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27413
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27653
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 27951
+        }
+      }
+    },
+    "drop_open": {
+      "contexts": 334655,
+      "raw_model_positive": 145280,
+      "raw_model_negative": 189375,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29908
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29380
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28314
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28680
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28998
+        }
+      }
+    },
+    "drop_openat": {
+      "contexts": 334655,
+      "raw_model_positive": 144373,
+      "raw_model_negative": 190282,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29810
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29219
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28135
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28371
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28838
+        }
+      }
+    },
+    "drop_pivot_root": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_ptrace": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_read": {
+      "contexts": 334655,
+      "raw_model_positive": 144753,
+      "raw_model_negative": 189902,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29767
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29268
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28165
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28551
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29002
+        }
+      }
+    },
+    "drop_recvfrom": {
+      "contexts": 334655,
+      "raw_model_positive": 146026,
+      "raw_model_negative": 188629,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30225
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29658
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28450
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28621
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29072
+        }
+      }
+    },
+    "drop_recvmmsg": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_seccomp": {
+      "contexts": 334655,
+      "raw_model_positive": 143357,
+      "raw_model_negative": 191298,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29410
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28990
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28018
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28244
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28695
+        }
+      }
+    },
+    "drop_sendmmsg": {
+      "contexts": 334655,
+      "raw_model_positive": 145629,
+      "raw_model_negative": 189026,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29947
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29483
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28357
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28703
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29139
+        }
+      }
+    },
+    "drop_sendto": {
+      "contexts": 334655,
+      "raw_model_positive": 139736,
+      "raw_model_negative": 194919,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 28498
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28193
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27320
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 27977
+        }
+      }
+    },
+    "drop_setgid": {
+      "contexts": 334655,
+      "raw_model_positive": 145103,
+      "raw_model_negative": 189552,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29863
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29292
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28246
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28606
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29096
+        }
+      }
+    },
+    "drop_setns": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_setuid": {
+      "contexts": 334655,
+      "raw_model_positive": 140564,
+      "raw_model_negative": 194091,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29159
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28499
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27332
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 27649
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 27925
+        }
+      }
+    },
+    "drop_socket": {
+      "contexts": 334655,
+      "raw_model_positive": 143984,
+      "raw_model_negative": 190671,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29656
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29177
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28101
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28407
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28643
+        }
+      }
+    },
+    "drop_unshare": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "drop_write": {
+      "contexts": 334655,
+      "raw_model_positive": 142922,
+      "raw_model_negative": 191733,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 29269
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 28813
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 27824
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28235
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 28781
+        }
+      }
+    },
+    "full": {
+      "contexts": 334655,
+      "raw_model_positive": 145820,
+      "raw_model_negative": 188835,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30060
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29516
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28410
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28748
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29086
+        }
+      }
+    },
+    "no_explicit_channels": {
+      "contexts": 334655,
+      "raw_model_positive": 7780,
+      "raw_model_negative": 326875,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 3245
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 2605
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 414
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 572
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 944
+        }
+      }
+    },
+    "top16_plus_sensitive": {
+      "contexts": 334655,
+      "raw_model_positive": 146620,
+      "raw_model_negative": 188035,
+      "by_regime": {
+        "burst": {
+          "contexts": 67811,
+          "raw_model_positive": 30077
+        },
+        "peak": {
+          "contexts": 68187,
+          "raw_model_positive": 29562
+        },
+        "recovery": {
+          "contexts": 64925,
+          "raw_model_positive": 28569
+        },
+        "steady": {
+          "contexts": 66336,
+          "raw_model_positive": 28936
+        },
+        "toolmix": {
+          "contexts": 67396,
+          "raw_model_positive": 29476
+        }
+      }
+    }
+  },
+  "confusion_matrix": {
+    "TP": null,
+    "FP": null,
+    "TN": null,
+    "FN": null
+  },
+  "precision": null,
+  "recall": null,
+  "false_positive_rate": null,
+  "kernel_to_alert": null,
+  "interpretation": "raw positives/negatives are not FP/TN; no ranking or tuning from holdout",
+  "verified_at_unix": 1791964094.124526,
+  "prediction_archives_verified": 608,
+  "raw_context_seals_verified": true,
+  "bindings": {
+    "START.json": "3869135cffd0b0e62f1400df8fb5dbff111b2b5b88c7a07fb78d2d22aec2b692",
+    "DATASET.json": "ea1d6412a378c37f63851194417ef7c5d1395cbad08876c4f9df79bcabfd93df",
+    "TERMINAL.json": "dc1218b68f56fdb2b45c0d9882afb6ff6951c8d7f1b52435eefc29096a977134"
+  },
+  "verifier_sha256": "1deffb752a63ac0343c17cc581638024da0e184b82c29c4462f2451a16ad1f13",
+  "automatic_promotion": false
+}
