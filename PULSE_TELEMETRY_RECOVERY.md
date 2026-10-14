@@ -40,7 +40,7 @@ không chỉnh model/policy theo holdout. Có thể nhắc tiếp tục khoảng
 **10:40 ICT ngày06/10/2026** để kiểm tra terminal và scored exposure thật; đây
 là lịch dự kiến có slack finalization, không đảm bảo PASS.
 
-[Toàn bộ luồng và ví dụ log thật](SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md),
+[Báo cáo Sentinel Pulse hiện hành](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md),
 [receipt START formal](validation-evidence/recovery-formal-c1-20261005/START_REMOTE_RECEIPT.json),
 [terminal diagnostic guard](validation-evidence/recovery-capacity-c1-20261005/TERMINAL_REMOTE_RECEIPT.json),
 [test receipt](validation-evidence/recovery-capacity-c1-20261005/TEST_RECEIPT.json),

@@ -115,7 +115,7 @@ manual and closed.
 [Formal START receipt](../validation-evidence/recovery-formal-c1-20261005/START_REMOTE_RECEIPT.json),
 [guard diagnostic terminal](../validation-evidence/recovery-capacity-c1-20261005/TERMINAL_REMOTE_RECEIPT.json),
 [tests](../validation-evidence/recovery-capacity-c1-20261005/TEST_RECEIPT.json),
-[real flow and all249 features](../SENTINEL_PULSE_LUONG_VA_MINH_CHUNG.md).
+[current Pulse and syscall report](../SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md).
 Historical SSH review 2026-10-04 22:17 ICT: the three-worker recovery coordinator
 is deployed on frozen source `dd872e7`. A new 600s/node diagnostic registered
 22:16:03 covers a union of21/21 model keys. All3 worker legs active/tail ready,
@@ -193,7 +193,7 @@ inactive, production/control binaries unchanged. Main source regression passed
 [projected counter evidence](../docs/archive/PROJECTED_COUNTER_CANARY.md).
 [Operational soak](../OPERATIONAL_SOAK_RUNBOOK.md) is opt-in and never opens
 the legacy blind/promotion interlock. See the
-[249-feature layout](../SENTINEL_PULSE_FEATURES_249.md) and
+[249-feature layout](../WORKLOAD_TELEMETRY_LOG_FORMAT.md) and
 [V8 model retirement](../docs/archive/V8_MODEL_RETIREMENT.md); references to preserving V8
 below describe the original isolation design, not currently installed artifacts.
 
@@ -797,7 +797,7 @@ The finalizer never promotes a detector. Passing creates only an
 `eligible_for_overhead_evaluation` decision; counterbalanced overhead,
 independent reproduction and manual review remain mandatory.
 
-Promotion requires the gates in `SENTINEL_PULSE_REPORT.md`; successful build or
+Promotion requires the current candidate gates in `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md`; successful build or
 short smoke testing alone is not a latency, recall, or false-positive claim.
 
 ## B6 rejection and B7 development update (2026-09-06)

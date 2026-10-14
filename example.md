@@ -488,7 +488,7 @@ phải đọc header `sentinel-pulse-feature-schema-v1` của capture tương �
 - [capture.py](sentinel_pulse/capture.py): delta snapshot, metadata pod và log JSONL.
 - [collector 500 ms](sentinel_pulse/systemd/sentinel-pulse-collector-500ms-experiment.service):
   cadence và rolling-windows=10.
-- [Tài liệu 249 feature](SENTINEL_PULSE_FEATURES_249.md): mapping/công thức đầy đủ.
+- [Định dạng telemetry workload](WORKLOAD_TELEMETRY_LOG_FORMAT.md): schema, vector 249 chiều và cách đọc log.
 
 Một feature row không kết luận normal/anomaly. Phải đọc decision tương ứng
 trong `decisions.jsonl` và policy gate; không suy ra precision, recall,

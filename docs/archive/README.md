@@ -20,5 +20,5 @@ timestamp/run ID được ghi. Không dùng chúng làm xác nhận trạng thá
 Incident và rejected runs vẫn được giữ, không xóa alert để làm đẹp kết quả.
 
 Trở lại [mục lục hiện hành](../../DOCS_INDEX.md),
-[báo cáo Pulse](../../SENTINEL_PULSE_REPORT.md) hoặc
+[báo cáo Pulse hiện hành](../../SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md) hoặc
 [bằng chứng gốc](../../validation-evidence/).
