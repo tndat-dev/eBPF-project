@@ -7,12 +7,12 @@ r2 đã hoàn tất trên cả ba worker: **33.148.914 decision, 11.388.831 scor
 Các key không có model đều là scope `pod-slice`. Preview dương là
 **0,267% scored rows** khi đếm theo từng window có chồng lấn; đây không phải FPR.
 
-Kiểm tra SSH hiện hành ngày **15/10/2026**: collector exact nền trên ba worker
-đang ghi telemetry **1 giây**; tiến trình A1 `candidate_shadow` còn sống trên cả
-ba worker nhưng chưa xác minh được heartbeat/đầu ra vì file JSONL thuộc root và
-user `dat` không có quyền đọc. Vì vậy không khẳng định shadow đang xử lý dữ liệu
-mới hay chỉ còn tiến trình chờ. B2/B3 500 ms là timing canary bounded đã dừng
-sau terminal, không phải ML alert stream đang chạy liên tục.
+Kiểm tra root qua SSH ngày **15/10/2026**: collector exact nền và resolver vẫn
+active trên ba worker, chu kỳ collector **1 giây**. Ba follower A1 shadow đã
+được disable/stop vì capture đã đóng và output không thay đổi nhiều giờ; capture
+và decisions được giữ nguyên. Hiện **không có candidate scorer hay attack
+evaluator chạy nền**. B2/B3 500 ms là timing canary bounded đã dừng sau
+terminal, không phải ML alert stream đang chạy liên tục.
 
 Batch scorer giữ nguyên 21 frozen model/policy, scalar/batch score khớp tuyệt
 đối. Canary B1 live 5 phút đạt feature-window-end → score p95/p99
@@ -121,12 +121,15 @@ capacity_pause_count=0 trên cả ba node:
 | worker4 `.238` | 86.400,297 s | 15.096.447 |
 | worker3 `.239` | 86.400,390 s | 4.124.430 |
 
-Capture 24 giờ và lượt review đã hoàn tất theo terminal. Tuy nhiên, kiểm tra
-trực tiếp ngày **15/10** thấy tiến trình `candidate_shadow` A1 vẫn `running`
-trên cả ba worker (được khởi chạy từ 12/10), trỏ vào capture A1 và cùng
-manifest/policy trên. Vì vậy không kết luận tiến trình đã dừng hay đang tiếp tục
-score: user `dat` bị từ chối quyền đọc `shadow/decisions.jsonl` root-owned;
-cần kiểm tra heartbeat/output bằng quyền audit phù hợp. Model/policy không đổi.
+Capture 24 giờ và lượt review đã hoàn tất theo terminal. Root audit ngày
+**15/10** xác nhận ba tiến trình `candidate_shadow` A1 vẫn sống từ 12/10 dù
+capture đã terminal. Chúng chờ trên capture cũ, không score dữ liệu mới; output
+không cập nhật từ 13/10. Trước khi dừng, RSS lần lượt khoảng 709, 767 và 201
+MiB; CPU tích lũy lần lượt khoảng 1 ngày 2 giờ, 1 ngày 5 giờ và 9 giờ. Đã chạy
+`systemctl disable --now` cho đúng ba instance; xác minh cả ba `inactive/disabled`
+và không còn process `candidate_shadow`. Files decisions (khoảng 11,7 / 12,8 /
+3,5 GB) cùng capture được giữ nguyên, không sửa/xóa evidence. Collector exact
+nền 1 giây và resolver vẫn active. Model/policy không đổi.
 Row cuối đã review của ba worker: worker1 window_end=1791916967,012;
 worker4=1791917016,301; worker3=1791916992,378. Worker1 row cuối mang trạng thái
 `candidate-model-unavailable`; worker4 row cuối scored có event age
@@ -141,9 +144,10 @@ lượng phát hiện. C3 đã bắt đầu thu dữ liệu mới trong thư m�
 ba capture đóng; nó không sửa hoặc thêm record vào capture soak đã hoàn tất.
 
 SSH kiểm tra lại **15/10/2026**: cả 6 node `Ready`; baseline
-`pulse_counter_loader` vẫn chạy trên ba worker với chu kỳ **1.000 ms**. A1
-`candidate_shadow` process còn sống nhưng output của nó chưa kiểm chứng được.
-Không có extended 500 ms loader hay attack scorer; canary B3/B4 đều
+`pulse_counter_loader` và resolver vẫn chạy trên ba worker với chu kỳ
+**1.000 ms**. Ba follower candidate shadow A1 đã dừng do stale, giữ nguyên
+output/capture; chưa triển khai lại candidate scorer. Không có extended 500 ms
+loader hay candidate attack scorer; canary B3/B4 đều
 `inactive/dead`, nên chưa có attack preview trực tuyến. Tetragon exec-provenance policy
 đã enabled trên 6/6 agent, giới hạn `sys_execve` tới hai đường dẫn binary thử
 nghiệm; đây là timestamp nguồn khả dụng, không phải bằng chứng đã chạy attack

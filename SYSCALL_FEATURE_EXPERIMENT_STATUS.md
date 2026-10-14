@@ -9,12 +9,11 @@ không phải job nền còn hoạt động). A2 đã hoàn tất 105/105 model 
 nhưng trên C3 cũ đã lộ; không có blind attack mới và không có confusion matrix
 hợp lệ cho candidate Pulse hiện hành.
 
-Sentinel Pulse A1 normal capture đã thu đủ 24 giờ trên ba worker. Candidate
-shadow A1 còn tiến trình trên ba worker, nhưng chưa đọc/kiểm chứng được output
-root-owned nên không thể coi đó là một lượt ML evaluation hoàn tất. Loader nền
-đang ở chu kỳ 1 giây; chưa có loader/evaluator attack 500 ms chạy. Nhánh syscall
-và Sentinel Pulse được thiết kế chạy song song, không đợi chọn xong syscall mới
-đánh giá Pulse.
+Sentinel Pulse A1 normal capture đã thu đủ 24 giờ trên ba worker. Root audit đã
+đọc được output; ba candidate-shadow follower cũ không cập nhật từ 13/10 nên đã
+được disable/stop, giữ nguyên dữ liệu. Loader nền đang ở chu kỳ 1 giây; chưa có
+loader/evaluator attack 500 ms chạy. Nhánh syscall và Sentinel Pulse được thiết
+kế chạy song song, không đợi chọn xong syscall mới đánh giá Pulse.
 
 [Lịch/job hiện hành](PULSE_PARALLEL_EXECUTION.md).
 
