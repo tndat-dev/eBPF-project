@@ -1,0 +1,20 @@
+{
+  "automatic_promotion": false,
+  "blind_evaluation_complete": false,
+  "completed": [
+    "selection-steady",
+    "selection-toolmix",
+    "selection-peak",
+    "selection-burst",
+    "selection-recovery",
+    "holdout-steady",
+    "holdout-toolmix",
+    "holdout-peak",
+    "holdout-burst",
+    "holdout-recovery"
+  ],
+  "finished_at_unix": 1791954351.875749,
+  "holdout_sealed_not_ranked": true,
+  "start_sha256": "36bc9a43fdd8e0ca0a014bc020dea675b2de62f6d835d114d64834cd074a114a",
+  "state": "completed_frequency_collection"
+}

@@ -1,0 +1,2286 @@
+{
+  "schema": "pulse-variant-capture-preflight-v1",
+  "checked_at_unix": 1791962926.7555041,
+  "split": "selection",
+  "campaign_start_sha256": "36bc9a43fdd8e0ca0a014bc020dea675b2de62f6d835d114d64834cd074a114a",
+  "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+  "variant_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+  "auditor_sha256": "6b341c03131ae7024839dd9bf024bebedfb33a9973d6e84af80269ef5ca3b4b2",
+  "captures": {
+    "selection-steady-001-237": {
+      "regime": "steady",
+      "seals": {
+        "FEATURE_CAPTURE.json": "048d8779a1bb0030fc9f87772f409c8d7be112299cef358b123bfe489412df09",
+        "START.json": "8ca604944ce193ff685fa9f5e5f65df56a4b330374d2c23db6cc42f47a19e777",
+        "TERMINAL.json": "9907f2abb2b6cb7af415b638b2589c8a0e1fa39d77b0702468f84d7722104834",
+        "feature-loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+        "feature-raw.jsonl": "fccda70fa951c6c2a83df2e76b3abe66c11a4cdbc0e2c274acbc77c000845302",
+        "features.jsonl": "1a931b6986e751676aa77fc4abf55f633b906751c595335f89d66281d6a63178",
+        "histogram.jsonl": "09d04eed9a7f89c62ffba637df8363710cc254df7294cfc2518d18c3916d0ee1",
+        "host-metrics.jsonl": "84d32f6bb4f3d8353e4fe81cc284b0d46e2a10b3dd3f4d81529076eadf93e594",
+        "loader.log": "34f9cf976c0e8f239a92983a805bd3f3e8eeb6116fd37be9fdd879b50386a397",
+        "metadata-snapshots.jsonl": "d1a4742cfab694798e4288bf536a6709fb5eeba799e81eb4e30c94f4390b6b12",
+        "traffic-receipt.json": "dbba160148913a2d9cd95644e640e76e26d699313b9d0998e56ee9aab5711fcb"
+      },
+      "counts": {
+        "feature_rows": 32770,
+        "warming_rows": 829,
+        "no_frozen_variant_model": 5905,
+        "history_gap_resets": 298,
+        "eligible_four_window_contexts": 26036
+      },
+      "workloads": {
+        "production/catalog-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2362,
+          "no_frozen_variant_model": 2362
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 3543,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3534
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/order-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1059,
+          "warming_rows": 361,
+          "eligible_four_window_contexts": 698,
+          "history_gap_resets": 122
+        },
+        "production/payment-service:app": {
+          "feature_rows": 3543,
+          "no_frozen_variant_model": 3543
+        },
+        "production/cart-service:app": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 1005,
+          "warming_rows": 405,
+          "history_gap_resets": 176,
+          "eligible_four_window_contexts": 600
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        }
+      },
+      "observed_revisions": {
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-80e3e646"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-42b36feb6549c758"
+        ]
+      }
+    },
+    "selection-steady-001-238": {
+      "regime": "steady",
+      "seals": {
+        "FEATURE_CAPTURE.json": "af922300f42a9645ff53fc470967b746e3148c8180679f83aee6060a2f91817f",
+        "START.json": "dc16e38ac05b1e4a5b2ee12eb13533aabfe3c1e9ba0b2bd6010f52b7d12190cc",
+        "TERMINAL.json": "4f48659c7451b349c3e45219c98e5c82413e45ff4bc1a6f1544415183ee1aa13",
+        "feature-loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+        "feature-raw.jsonl": "7b6167a05dda7e17447ce5fec8f11ea5cbb993749ffd6b50c2acd77e4bb66364",
+        "features.jsonl": "19223dc4a21170daef9db7d39d42f684982e7dd7ce187b65726fa03681c8cd7c",
+        "histogram.jsonl": "25e8e0201fdf967da6509a9b448bc86c51a555e1d42c93fd103560db666ae6b2",
+        "host-metrics.jsonl": "d4ab00a4e9f2f8688be8cca1d58427f654dca577d6f3d90c018a7b5564dfbaf0",
+        "loader.log": "cb2c57df2b166ba28ff1a3faea3118bd591df5b490c864df7752824b3eda2c5c",
+        "metadata-snapshots.jsonl": "cf337ba9334f9708ee8389b5bed051a845147d870ee1247c14c0a39f23ec3e12",
+        "traffic-receipt.json": "06ea0f88ecd42985d9401c92ac7ca00cb4666b0dfacf23579d06f3b625c2d782"
+      },
+      "counts": {
+        "feature_rows": 36011,
+        "warming_rows": 1152,
+        "no_frozen_variant_model": 3528,
+        "history_gap_resets": 430,
+        "eligible_four_window_contexts": 31331
+      },
+      "workloads": {
+        "production/api-gateway:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/cart-service:app": {
+          "feature_rows": 3528,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3519
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 3528,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3519
+        },
+        "production/payment-service:app": {
+          "feature_rows": 1176,
+          "no_frozen_variant_model": 1176
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2352,
+          "no_frozen_variant_model": 2352
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1099,
+          "warming_rows": 213,
+          "eligible_four_window_contexts": 886,
+          "history_gap_resets": 77
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/order-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1026,
+          "warming_rows": 359,
+          "eligible_four_window_contexts": 667,
+          "history_gap_resets": 136
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 958,
+          "warming_rows": 505,
+          "history_gap_resets": 217,
+          "eligible_four_window_contexts": 453
+        }
+      },
+      "observed_revisions": {
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-ae9505e5"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          "5455dcf447"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-4fbb2b494070f224"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          "5455dcf447"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ]
+      }
+    },
+    "selection-steady-001-239": {
+      "regime": "steady",
+      "seals": {
+        "FEATURE_CAPTURE.json": "3bc2a0164dfb9cae76a2c75539a37e7db5b8cf355f77b2efbb2f47dce0dc32ce",
+        "START.json": "74a43569154f372460f81a7e7eeff7cbd54f35e4a0d264031b5fbeb762871286",
+        "TERMINAL.json": "eadb2221928984fc848e695ddfcfad7bb095c9ecc41d648a779c8e1c4a65a307",
+        "feature-loader.log": "01e2afa40addbd22751823c5746d4302a97cb71236c4653fe3512a1f028e8f6b",
+        "feature-raw.jsonl": "307562fd1cafa2de44ec6f44ccd510a5d94e4ac286a4e10ddce198cd77320a44",
+        "features.jsonl": "d5eeef5283c57959f26b0ca3c4361c00609f328590df3e0a2328c7e4987e8dc6",
+        "histogram.jsonl": "2d2c037205343b863f6cfcab22db6e4f97985da514190401f4cb9fe8939e5f40",
+        "host-metrics.jsonl": "939562c07237c9d771a419eacab79a34512d19bb8434389ac790f51dcbfa5fa2",
+        "loader.log": "95d521c44905346c434ca87337d0536b57924dde69d70d263d7b845ce7407167",
+        "metadata-snapshots.jsonl": "09a90700572625633d24fb5e6abd8cf2cd82a5ff0eff1d094c2d2cd801ae87b9",
+        "traffic-receipt.json": "2cad3f4524f6210d3fe0ea311cab45e9ae1bb484c19ba8784102eebfc84ca61e"
+      },
+      "counts": {
+        "feature_rows": 9394,
+        "warming_rows": 386,
+        "eligible_four_window_contexts": 9008,
+        "history_gap_resets": 146
+      },
+      "workloads": {
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 2390,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2384
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1029,
+          "warming_rows": 365,
+          "history_gap_resets": 146,
+          "eligible_four_window_contexts": 664
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        }
+      },
+      "observed_revisions": {
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-fec8050f"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-13f2a629d9ff764f"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ]
+      }
+    },
+    "selection-toolmix-001-237": {
+      "regime": "toolmix",
+      "seals": {
+        "FEATURE_CAPTURE.json": "2670381ab371c9341ac5e53a43822fdd1e9ab0d4141c429b3d0033d55b5063e6",
+        "START.json": "1dc731369b9cc67870b7f7a464c04a1c4db68916be53375900391603c00a50f9",
+        "TERMINAL.json": "34f2813d5782777f1c5841091b0088e879f9c0d1ced7c765fd2bf3c02ff17b43",
+        "feature-loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+        "feature-raw.jsonl": "7d5a41c3ee8c354e69faf4db3fb126f196c04cf5008fe76bff083d179f60d535",
+        "features.jsonl": "06deab5ddb1144063f91e16f1458dd7e7cb3456cb4f3fded8849528ebf0b3862",
+        "histogram.jsonl": "06b7637efe70cabdeba1a1bbd2895f8527e410b177b16db7496f8810e900c14d",
+        "host-metrics.jsonl": "7a4b94a0a33941eec6f7184cf200d04085c408fbbb604134b31abc5d327d3614",
+        "loader.log": "34f9cf976c0e8f239a92983a805bd3f3e8eeb6116fd37be9fdd879b50386a397",
+        "metadata-snapshots.jsonl": "970ba39f7bde2c53b286d4ae85df68e34152b5a50bd65c10ff3a398e68438de8",
+        "traffic-receipt.json": "0a476a1692cf17520787901ca1f9cbc7888db905ac3baa1619ac86872ac7e691"
+      },
+      "counts": {
+        "feature_rows": 32786,
+        "warming_rows": 781,
+        "no_frozen_variant_model": 5905,
+        "eligible_four_window_contexts": 26100,
+        "history_gap_resets": 282
+      },
+      "workloads": {
+        "production/catalog-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/payment-service:app": {
+          "feature_rows": 3543,
+          "no_frozen_variant_model": 3543
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/order-service:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2362,
+          "no_frozen_variant_model": 2362
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2362,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2356
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 3543,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3534
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/cart-service:app": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1097,
+          "warming_rows": 249,
+          "eligible_four_window_contexts": 848,
+          "history_gap_resets": 84
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 983,
+          "warming_rows": 469,
+          "eligible_four_window_contexts": 514,
+          "history_gap_resets": 198
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1181,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1178
+        }
+      },
+      "observed_revisions": {
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-42b36feb6549c758"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-80e3e646"
+        ]
+      }
+    },
+    "selection-toolmix-001-238": {
+      "regime": "toolmix",
+      "seals": {
+        "FEATURE_CAPTURE.json": "0f848167484a15e7bdebec3f154205e484be3d182a915ff685253c3490d5794f",
+        "START.json": "52ff6c12cac38e99114d5be0706be6996cfa2537058e4919181684453ea40d33",
+        "TERMINAL.json": "7c3edc47bc0a115e78fba652ae29f31ce42560fcdb18d54161b980fec87f29c1",
+        "feature-loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+        "feature-raw.jsonl": "637c72fe0cd5f025c86892399c3acaa74432a88edc618c5b163d87c51d247ce9",
+        "features.jsonl": "c4db6aa3c3c053c84b715b4405bc5a40000b7b4f195cbc80762411cbfd96665a",
+        "histogram.jsonl": "3b4b322f753f72255b1dcd381d4026e5c84db1d310a9b3006f2dd48f14338a92",
+        "host-metrics.jsonl": "c34cd3be614957d45dc2d16bec0643d87c1d12e86d005bc5904eeddb4ad972dd",
+        "loader.log": "cb2c57df2b166ba28ff1a3faea3118bd591df5b490c864df7752824b3eda2c5c",
+        "metadata-snapshots.jsonl": "df7b76c5d71d52b722a96557909bde5de9109a98ac352c5eeb918832577a9716",
+        "traffic-receipt.json": "45f1f378035176e626c613f2451dd7bbd063617cb90e7a4b50f1376e36d98f8e"
+      },
+      "counts": {
+        "feature_rows": 36141,
+        "warming_rows": 899,
+        "no_frozen_variant_model": 3531,
+        "eligible_four_window_contexts": 31711,
+        "history_gap_resets": 345
+      },
+      "workloads": {
+        "production/cart-service:app": {
+          "feature_rows": 3531,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3522
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 3531,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3522
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2354,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2348
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2354,
+          "no_frozen_variant_model": 2354
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1111,
+          "warming_rows": 189,
+          "eligible_four_window_contexts": 922,
+          "history_gap_resets": 66
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2354,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2348
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2354,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2348
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 936,
+          "warming_rows": 522,
+          "history_gap_resets": 241,
+          "eligible_four_window_contexts": 414
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/payment-service:app": {
+          "feature_rows": 1177,
+          "no_frozen_variant_model": 1177
+        },
+        "production/order-service:app": {
+          "feature_rows": 2354,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2348
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2354,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2348
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1138,
+          "warming_rows": 113,
+          "eligible_four_window_contexts": 1025,
+          "history_gap_resets": 38
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1177,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1174
+        }
+      },
+      "observed_revisions": {
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-ae9505e5"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-4fbb2b494070f224"
+        ]
+      }
+    },
+    "selection-toolmix-001-239": {
+      "regime": "toolmix",
+      "seals": {
+        "FEATURE_CAPTURE.json": "273d8a0a351d01a8cc274b398837d0a7f4ba10a5c2fcf0e69356c200820be487",
+        "START.json": "d9797244d00c86baf4afac61034ee7e48ffb4e309f16bc527fa309dded496776",
+        "TERMINAL.json": "af45d48cb7d88ee5b4f829940c0a51d86f0258edef81365d3cf67996fc38e416",
+        "feature-loader.log": "01e2afa40addbd22751823c5746d4302a97cb71236c4653fe3512a1f028e8f6b",
+        "feature-raw.jsonl": "ec0df7490b5fe702997ef2402191663d8b056184362154e4af518eaa40db9c04",
+        "features.jsonl": "de3a1086945507b72b20bc5e3d51d33b89dfb606b7a56cdd0869414e7cb4b9aa",
+        "histogram.jsonl": "345915938f7148196f0a841334533e9f8527757fdf2bccd529f8958b42ff6d5f",
+        "host-metrics.jsonl": "2f9a84ac7aedc380335b04991422a43c774481015f0091b28171619cdb1870db",
+        "loader.log": "95d521c44905346c434ca87337d0536b57924dde69d70d263d7b845ce7407167",
+        "metadata-snapshots.jsonl": "c711b7096f7b8c4c9ce8726c5b505ab94bf1a402b70a507332df1d3047f98738",
+        "traffic-receipt.json": "ff912382ec99feac7668d44a4a80ec409f44d37ccc1e419df3f40df81d14344c"
+      },
+      "counts": {
+        "feature_rows": 9512,
+        "warming_rows": 157,
+        "eligible_four_window_contexts": 9355,
+        "history_gap_resets": 47
+      },
+      "workloads": {
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 2390,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2384
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1147,
+          "warming_rows": 136,
+          "eligible_four_window_contexts": 1011,
+          "history_gap_resets": 47
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        }
+      },
+      "observed_revisions": {
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-13f2a629d9ff764f"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-fec8050f"
+        ]
+      }
+    },
+    "selection-peak-001-237": {
+      "regime": "peak",
+      "seals": {
+        "FEATURE_CAPTURE.json": "5d0544d8bba4e5ebd8abf01819f7734949738a8151d14e459dfa3c7a03deec33",
+        "START.json": "3888986dc4ab51d473cf90383b1e3fb32f4225239b3c96cbe08620449133c7cb",
+        "TERMINAL.json": "3e0a4e089a1c9d0305cd0684472231d21f0aa89aa05c0e47c373a7b170aa4d90",
+        "feature-loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+        "feature-raw.jsonl": "818d336c5afa1c37d8811344afad737d66221f0f815e67a7bfd7829d7c8227d5",
+        "features.jsonl": "105ea949f07270877a302218343a7210b77022c7c483cf5e5751ba5196008c6d",
+        "histogram.jsonl": "2b592c4396c1fb7d73d0cc127eb5875c51c4dac2bd24ab597fde78a30c6b3510",
+        "host-metrics.jsonl": "3a63375cfdd84900a16e8893bd6ee399c441b5490ec6187f3223064e81d9c58e",
+        "loader.log": "34f9cf976c0e8f239a92983a805bd3f3e8eeb6116fd37be9fdd879b50386a397",
+        "metadata-snapshots.jsonl": "5aa43c2b5f53ca4a776c3076b85681f870fcbd79a17741ec122f6b207501a259",
+        "traffic-receipt.json": "7bbceb61d9a5791bc197470328837291249e339d4ceae0febf6820873a496c49"
+      },
+      "counts": {
+        "feature_rows": 32709,
+        "warming_rows": 559,
+        "no_frozen_variant_model": 5880,
+        "eligible_four_window_contexts": 26270,
+        "history_gap_resets": 218
+      },
+      "workloads": {
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/order-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/payment-service:app": {
+          "feature_rows": 3528,
+          "no_frozen_variant_model": 3528
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2352,
+          "no_frozen_variant_model": 2352
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1169,
+          "warming_rows": 24,
+          "eligible_four_window_contexts": 1145,
+          "history_gap_resets": 7
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 3528,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3519
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 964,
+          "warming_rows": 472,
+          "history_gap_resets": 211,
+          "eligible_four_window_contexts": 492
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/cart-service:app": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2352,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2346
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1176,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1173
+        }
+      },
+      "observed_revisions": {
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-80e3e646"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-42b36feb6549c758"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ]
+      }
+    },
+    "selection-peak-001-238": {
+      "regime": "peak",
+      "seals": {
+        "FEATURE_CAPTURE.json": "e9cb774ba005dc3b44dcc4af7c6b831a88c7d5550dc842d74fe98a6589a1d720",
+        "START.json": "d65390cd157e61f6d68d7cb2a00187a88b940374452ebe6dbb48160929d91d52",
+        "TERMINAL.json": "2be63f69bb5d587b8e512b921746ae0dbc79c0210fdb6935cf44eec5e3a4a878",
+        "feature-loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+        "feature-raw.jsonl": "579803e1ce1f8928ee3f80e41a6dae44e395453c110be22d7fdb3da1561e9df9",
+        "features.jsonl": "98bb0c6e5169e33e5aa83e75b97be9600c02174d2a1f5055d406c6597cdac666",
+        "histogram.jsonl": "9c52cd7d8e61976621fe7e4872641e0d2444ecaf875d0223848af9df07d38df2",
+        "host-metrics.jsonl": "1a04ff6c99ea928f2ac01ed8192954fccba80c7eb5eed810e90be2c37f4f304d",
+        "loader.log": "cb2c57df2b166ba28ff1a3faea3118bd591df5b490c864df7752824b3eda2c5c",
+        "metadata-snapshots.jsonl": "8b3a7129258577df7b8e703fc6bb84a4be503360c61ab5c726c787294f189a9d",
+        "traffic-receipt.json": "87b035efc7db34f10fb0c4823d55a15ea073c18bb57244f565f280c39008d7b8"
+      },
+      "counts": {
+        "feature_rows": 36185,
+        "warming_rows": 611,
+        "no_frozen_variant_model": 3525,
+        "eligible_four_window_contexts": 32049,
+        "history_gap_resets": 239
+      },
+      "workloads": {
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2350,
+          "no_frozen_variant_model": 2350
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/cart-service:app": {
+          "feature_rows": 3525,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3516
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 941,
+          "warming_rows": 512,
+          "eligible_four_window_contexts": 429,
+          "history_gap_resets": 233
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/payment-service:app": {
+          "feature_rows": 1175,
+          "no_frozen_variant_model": 1175
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/order-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 3525,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3516
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1169,
+          "warming_rows": 21,
+          "eligible_four_window_contexts": 1148,
+          "history_gap_resets": 6
+        }
+      },
+      "observed_revisions": {
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-ae9505e5"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-4fbb2b494070f224"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ]
+      }
+    },
+    "selection-peak-001-239": {
+      "regime": "peak",
+      "seals": {
+        "FEATURE_CAPTURE.json": "8a7b9d4a22448aafd059b7ebecdf33b920f2490b11eac3327bf875ada69635b4",
+        "START.json": "2de5236a93f9771db68b57f33ea439dce39ee53a46d90c70a6f542ca7394a68d",
+        "TERMINAL.json": "605b425b2c1a45d968ea818f73cc3deb7b869b796bce43c03761c21514e309a5",
+        "feature-loader.log": "01e2afa40addbd22751823c5746d4302a97cb71236c4653fe3512a1f028e8f6b",
+        "feature-raw.jsonl": "a14280e469e293be51ddbbed732ffe7511d23ae096439d6ecbe5bc3771db9973",
+        "features.jsonl": "a688473c9ad2935894d6a2b410dc3ecba8532e2391d04d4f53cba9ddeac509c3",
+        "histogram.jsonl": "d577263031864976ec687069aad9b909a6656af020fbbe6009b4476a78f04dd0",
+        "host-metrics.jsonl": "477679a4433f9878b51746dd6ae1e07c0d007d099354e29f733b978bf7b3bc8a",
+        "loader.log": "95d521c44905346c434ca87337d0536b57924dde69d70d263d7b845ce7407167",
+        "metadata-snapshots.jsonl": "4e83e7ff8fe430f19b45c4a949bb651ef176cded0c6bb58b49ed287afcaec6b9",
+        "traffic-receipt.json": "81524b5d35f978100747050a1889be8e7b26c22d6bcb80f3e2f69e483fbd5647"
+      },
+      "counts": {
+        "feature_rows": 9544,
+        "warming_rows": 24,
+        "eligible_four_window_contexts": 9520
+      },
+      "workloads": {
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 2386,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2380
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1193,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1190
+        }
+      },
+      "observed_revisions": {
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-fec8050f"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-13f2a629d9ff764f"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ]
+      }
+    },
+    "selection-burst-001-237": {
+      "regime": "burst",
+      "seals": {
+        "FEATURE_CAPTURE.json": "d7722140fdac7689852834e3b360eda3e4114b9344fc2a18498f68b82525b5d4",
+        "START.json": "fbc47792194b84150dbf61075cf40338928aaa4954cd9e03556c781cab145840",
+        "TERMINAL.json": "3262c7306c325cf274ecd33ca05bf583d0d0ff00d9324a141a9c50e2f649c961",
+        "feature-loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+        "feature-raw.jsonl": "fc17ac8e623fafb0247f81e55066be4dcdb4db899c650994c18e309038e66e9a",
+        "features.jsonl": "82607e38041451de3d690a9ed6e8922a9f4510314aef6c9fc6d833efea2e0d43",
+        "histogram.jsonl": "1938f396040a91eb484b20a12cded4e1328bac85ce8704612841cc16ece9e4ab",
+        "host-metrics.jsonl": "a372667e769cf21f2956a93b33003d1b4da449b6d14796604508a197795454a0",
+        "loader.log": "34f9cf976c0e8f239a92983a805bd3f3e8eeb6116fd37be9fdd879b50386a397",
+        "metadata-snapshots.jsonl": "2d5f74e7ccd9fe7c46ae37d42e961c5bd7a07422d2139097aaa94ab144b8bac8",
+        "traffic-receipt.json": "6d8d3817fbae61bb2d1fec03d845e08e48ec0ec82b2239a72b22bd65722c9a42"
+      },
+      "counts": {
+        "feature_rows": 32663,
+        "warming_rows": 569,
+        "no_frozen_variant_model": 5875,
+        "history_gap_resets": 237,
+        "eligible_four_window_contexts": 26219
+      },
+      "workloads": {
+        "production/api-gateway:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 3525,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3516
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/order-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/payment-service:app": {
+          "feature_rows": 3525,
+          "no_frozen_variant_model": 3525
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 938,
+          "warming_rows": 503,
+          "history_gap_resets": 237,
+          "eligible_four_window_contexts": 435
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2350,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2344
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2350,
+          "no_frozen_variant_model": 2350
+        },
+        "production/cart-service:app": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1175,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1172
+        }
+      },
+      "observed_revisions": {
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-42b36feb6549c758"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-80e3e646"
+        ]
+      }
+    },
+    "selection-burst-001-238": {
+      "regime": "burst",
+      "seals": {
+        "FEATURE_CAPTURE.json": "0f278ea3fbb280f34363597bbda7f667845bf684bbca5457cb97fe4096679866",
+        "START.json": "c3c3c8773233bac9df7a7dc2fbee6556408d4ff6a75cbed007f8b7856ba65fb0",
+        "TERMINAL.json": "79b8c4ba7034ec1198a867780ac9ed30f73df7371e509bc9dc7dd7fd7e16a4b2",
+        "feature-loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+        "feature-raw.jsonl": "b8e7961cbde32856ea73252702867c1703e2063eebc3490281a266b3e5c2290f",
+        "features.jsonl": "cfdf57273f91bf64e7e043d37b7f107b6d776639dc637e42a0f7b324f9533e1a",
+        "histogram.jsonl": "ea1687450626688923c1bb31175bd8fd6f416988f65193a22a7b4e25f3f443d9",
+        "host-metrics.jsonl": "fac5abe6a80531c1ff1eff336a7ba5c0a1371231be98b6192bfda75721812ce6",
+        "loader.log": "cb2c57df2b166ba28ff1a3faea3118bd591df5b490c864df7752824b3eda2c5c",
+        "metadata-snapshots.jsonl": "1b5242181823070afa5558ad1f58e82e60d4826e04078d4be520f9d8b7894dda",
+        "traffic-receipt.json": "82aae2f3a261ad303b4f2041a071c80813b8aa1a01f48d3f666938d92346a5f8"
+      },
+      "counts": {
+        "feature_rows": 36051,
+        "warming_rows": 601,
+        "no_frozen_variant_model": 3510,
+        "eligible_four_window_contexts": 31909,
+        "history_gap_resets": 250,
+        "outside_probe_interval": 31
+      },
+      "workloads": {
+        "production/search-recommendation-service:app": {
+          "feature_rows": 3513,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3501,
+          "outside_probe_interval": 3
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2342,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2334,
+          "outside_probe_interval": 2
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2342,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2334,
+          "outside_probe_interval": 2
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/cart-service:app": {
+          "feature_rows": 3513,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3501,
+          "outside_probe_interval": 3
+        },
+        "production/order-service:app": {
+          "feature_rows": 2342,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2334,
+          "outside_probe_interval": 2
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2342,
+          "no_frozen_variant_model": 2340,
+          "outside_probe_interval": 2
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 921,
+          "warming_rows": 520,
+          "eligible_four_window_contexts": 400,
+          "history_gap_resets": 250,
+          "outside_probe_interval": 1
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2342,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2334,
+          "outside_probe_interval": 2
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2342,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2334,
+          "outside_probe_interval": 2
+        },
+        "production/payment-service:app": {
+          "feature_rows": 1171,
+          "no_frozen_variant_model": 1170,
+          "outside_probe_interval": 1
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "feature_rows": 1171,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1167,
+          "outside_probe_interval": 1
+        }
+      },
+      "observed_revisions": {
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-4fbb2b494070f224"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-ae9505e5"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          "5455dcf447"
+        ]
+      }
+    },
+    "selection-burst-001-239": {
+      "regime": "burst",
+      "seals": {
+        "FEATURE_CAPTURE.json": "f0e7e27b04f4702767662e25aba0d4611e765e5016904e3744cb72489d35cc28",
+        "START.json": "63e53a3244961b89845ae4937a6826e039135d977085376bc7f2c29406dccc24",
+        "TERMINAL.json": "1ca68dd7291e5097d809962dcfac626eb6f85050ad1a96bc0ec24dd89eb89096",
+        "feature-loader.log": "01e2afa40addbd22751823c5746d4302a97cb71236c4653fe3512a1f028e8f6b",
+        "feature-raw.jsonl": "24f2e5bdaff39becd1ed2466299b4403541c323b4adb6792029e17e551f3a3ab",
+        "features.jsonl": "446970ff595dc5ac6e7fb8ffa07f54877789b314a50f1237e40013a176c8d72f",
+        "histogram.jsonl": "08223f1b47301d31afd24c3d61715f5d1c77363c4335b8d9d463c094aa45d691",
+        "host-metrics.jsonl": "e9be643ab9cde015405b8e6c9786cd9b7c2819b91ac7ecac4227ed59e4a5c51a",
+        "loader.log": "95d521c44905346c434ca87337d0536b57924dde69d70d263d7b845ce7407167",
+        "metadata-snapshots.jsonl": "719d6837f41f6989716e289e22b6dfdc3a622d42ac133271baf127ebbeab04a9",
+        "traffic-receipt.json": "6d2f160ea462baaf8176beda7e5e7f4130b5092e1292d8f030aef75f08558f4e"
+      },
+      "counts": {
+        "feature_rows": 9552,
+        "warming_rows": 24,
+        "eligible_four_window_contexts": 9528
+      },
+      "workloads": {
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 2388,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2382
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1194,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1191
+        }
+      },
+      "observed_revisions": {
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-13f2a629d9ff764f"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-fec8050f"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ]
+      }
+    },
+    "selection-recovery-017-237": {
+      "regime": "recovery",
+      "seals": {
+        "FEATURE_CAPTURE.json": "4e79fb8571c281e319008c03d6769873431aa73f87cd99101b58889f63b1bc25",
+        "START.json": "9479c60e048201646f011b9113cb399ae2946fe7194a206c429ab47f48086cef",
+        "TERMINAL.json": "9627fe8cb7b613e9e7dd96fff0e3655722de8b0df1c6eb9d71bf70cfd67e690f",
+        "feature-loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+        "feature-raw.jsonl": "6c247beb64046e5e98a372ac9f3555a25a9f3026bed852f11f2f3765365390db",
+        "features.jsonl": "827ad0e82874c302bdac86e03cd66ee2fd4d170345aad7a2b5a30b5148a92800",
+        "histogram.jsonl": "3e63bb67902ea9cf8fb0f61c5d6d2f2253ace32be2b67088cf875f7556fb97c6",
+        "host-metrics.jsonl": "e11ab55dc8cceff9d0ab9c0211544770d9e25b126cc86c612956981cd9362b30",
+        "loader.log": "34f9cf976c0e8f239a92983a805bd3f3e8eeb6116fd37be9fdd879b50386a397",
+        "metadata-snapshots.jsonl": "77e0952bfcabaef4af029a03452aa876668c44b0cfc1f7879dd7f92f9e6c75dc",
+        "traffic-receipt.json": "3aa009392bd3400fed6bce36a368052b077f520e7b8f984a66a0271fe45665ba"
+      },
+      "counts": {
+        "feature_rows": 32743,
+        "no_frozen_variant_model": 5900,
+        "warming_rows": 835,
+        "eligible_four_window_contexts": 26008,
+        "history_gap_resets": 297
+      },
+      "workloads": {
+        "production/notification-service:app": {
+          "feature_rows": 2360,
+          "no_frozen_variant_model": 2360
+        },
+        "production/auth-service:app": {
+          "feature_rows": 2360,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2354
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2360,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2354
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2360,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2354
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2360,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2354
+        },
+        "production/payment-service:app": {
+          "feature_rows": 3540,
+          "no_frozen_variant_model": 3540
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 3540,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3531
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/order-service:app": {
+          "feature_rows": 2360,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2354
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 1008,
+          "warming_rows": 404,
+          "history_gap_resets": 172,
+          "eligible_four_window_contexts": 604
+        },
+        "production/cart-service:app": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1180,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1177
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1055,
+          "warming_rows": 368,
+          "eligible_four_window_contexts": 687,
+          "history_gap_resets": 125
+        }
+      },
+      "observed_revisions": {
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-42b36feb6549c758"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-80e3e646"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ]
+      }
+    },
+    "selection-recovery-017-238": {
+      "regime": "recovery",
+      "seals": {
+        "FEATURE_CAPTURE.json": "caadae6acb7d84c15ebfbee04db5eb30fdade3e7e4ab86ec7de8f5cc31e67210",
+        "START.json": "cb9b43ecd60214dbbb9b7c265b1edd312e19168c510f36bfa954b03f4b7a7cba",
+        "TERMINAL.json": "4dc4cf17086f0799273174c74dc0ddfbb391e44fee198b71f155c822ec43f5d0",
+        "feature-loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+        "feature-raw.jsonl": "6a7e5761350f7c9f19959690e87b15817009525f266d3f8d210b9a8290540131",
+        "features.jsonl": "3bc73bc1f21d485f3fbf85d614ad2c87992ac48e738a8f4d31ad119235af06e1",
+        "histogram.jsonl": "c3c95759ae8263ad9e38b67e9d7900bce084d38d2c66c18de65dead2b52ddf7c",
+        "host-metrics.jsonl": "8ca95b9baaf098e25a246060810dc25e970b8de9822b3a8a691f1ce0f5fd037e",
+        "loader.log": "cb2c57df2b166ba28ff1a3faea3118bd591df5b490c864df7752824b3eda2c5c",
+        "metadata-snapshots.jsonl": "efbbaf51fd3c70ba6e97218317f56960fe855727e228013811e7c837f29919cd",
+        "traffic-receipt.json": "8ccaa8492df6d54b0a22beb0172988d489cfe6365170213e4947b99f9d044a42"
+      },
+      "counts": {
+        "feature_rows": 36000,
+        "warming_rows": 1295,
+        "no_frozen_variant_model": 3537,
+        "eligible_four_window_contexts": 31168,
+        "history_gap_resets": 498
+      },
+      "workloads": {
+        "production/auth-service:app": {
+          "feature_rows": 2358,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2352
+        },
+        "production/security-telemetry-service:app": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/search-recommendation-service:app": {
+          "feature_rows": 3537,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3528
+        },
+        "production/cart-service:app": {
+          "feature_rows": 3537,
+          "warming_rows": 9,
+          "eligible_four_window_contexts": 3528
+        },
+        "production/order-service:app": {
+          "feature_rows": 2358,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2352
+        },
+        "production/aims-kafka-entity-operator:user-operator": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/notification-service:app": {
+          "feature_rows": 2358,
+          "no_frozen_variant_model": 2358
+        },
+        "production/aims-kafka-entity-operator:topic-operator": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/api-gateway:app": {
+          "feature_rows": 2358,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2352
+        },
+        "production/catalog-service:app": {
+          "feature_rows": 2358,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2352
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/inventory-service:app": {
+          "feature_rows": 2358,
+          "warming_rows": 6,
+          "eligible_four_window_contexts": 2352
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 968,
+          "warming_rows": 398,
+          "history_gap_resets": 161,
+          "eligible_four_window_contexts": 570
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/aims-minio-pool-0:minio": {
+          "feature_rows": 1053,
+          "warming_rows": 341,
+          "eligible_four_window_contexts": 712,
+          "history_gap_resets": 125
+        },
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1179,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1176
+        },
+        "production/payment-service:app": {
+          "feature_rows": 1179,
+          "no_frozen_variant_model": 1179
+        },
+        "production/aims-minio-pool-0:sidecar": {
+          "feature_rows": 967,
+          "warming_rows": 481,
+          "eligible_four_window_contexts": 486,
+          "history_gap_resets": 212
+        }
+      },
+      "observed_revisions": {
+        "production/auth-service:app": [
+          "b5bdfb67b"
+        ],
+        "production/security-telemetry-service:app": [
+          "6799d88468"
+        ],
+        "production/search-recommendation-service:app": [
+          "75bd67f9b9"
+        ],
+        "production/cart-service:app": [
+          "7b588cf549"
+        ],
+        "production/order-service:app": [
+          "7b4bb44876"
+        ],
+        "production/aims-kafka-entity-operator:user-operator": [
+          "5455dcf447"
+        ],
+        "production/notification-service:app": [
+          "79797674dd"
+        ],
+        "production/aims-kafka-entity-operator:topic-operator": [
+          "5455dcf447"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/api-gateway:app": [
+          "5b79675d85"
+        ],
+        "production/catalog-service:app": [
+          "6dc97b678f"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-ae9505e5"
+        ],
+        "production/inventory-service:app": [
+          "695bf6f445"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-4fbb2b494070f224"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-minio-pool-0:minio": [
+          "aims-minio-pool-0-698d85cb5b"
+        ],
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/payment-service:app": [
+          "86bf86b6"
+        ],
+        "production/aims-minio-pool-0:sidecar": [
+          "aims-minio-pool-0-698d85cb5b"
+        ]
+      }
+    },
+    "selection-recovery-017-239": {
+      "regime": "recovery",
+      "seals": {
+        "FEATURE_CAPTURE.json": "d02f6a1a2ff60b2d7f55f71448abf4cbc4d2baffc34752207b5ccdd83a1af2b3",
+        "START.json": "e0efb3c1bbbd92e0024d28602d660844ecf30f1ddb42f0810d2b2622153493c3",
+        "TERMINAL.json": "913e7de29d3ce98e14e02da53534d386b00048c9efa00a6134d0fff739a34b51",
+        "feature-loader.log": "251b90f861d314f9724db9e3758a368467ddf1639ffbc8911109ef110a9c18d9",
+        "feature-raw.jsonl": "cb17409250ebca87fbbdae2a8c88f61beeda31dd67042f24ee5b7939ecd4a22f",
+        "features.jsonl": "49210093216d5ec9c54384e0a77d673ec41f931a2929b0d79aa4653bf0c0f486",
+        "histogram.jsonl": "dc58073b3017fd7f809789c8c3c255c0c5743239a8fabe23c1eb0c29bcb82c5b",
+        "host-metrics.jsonl": "123a109c888db3661bdc4a209fefa9d8c6b3760c31e18de9c5555c5def8ad1dc",
+        "loader.log": "2f6a5c9e179d8c5b2a7a3afcca6a72b26bcfe9fbf20f06f663a3caa53a4cb246",
+        "metadata-snapshots.jsonl": "feb12123850ee3021a20b83a5bdb19b9e208e8ad60f92a76734a17228ebf3018",
+        "traffic-receipt.json": "09adaff7fe07e733169576a254278c73cc9dab47592d42d86b944a078b20bf07"
+      },
+      "counts": {
+        "feature_rows": 8134,
+        "warming_rows": 469,
+        "eligible_four_window_contexts": 7665,
+        "history_gap_resets": 185
+      },
+      "workloads": {
+        "production/aims-rabbitmq-server:rabbitmq": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-waypoint:istio-proxy": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-postgres-cnpg:postgres": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-kafka-dual-role:kafka": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-redis:aims-redis": {
+          "feature_rows": 1195,
+          "warming_rows": 3,
+          "eligible_four_window_contexts": 1192
+        },
+        "production/aims-frontend:web": {
+          "feature_rows": 964,
+          "warming_rows": 451,
+          "history_gap_resets": 185,
+          "eligible_four_window_contexts": 513
+        }
+      },
+      "observed_revisions": {
+        "production/aims-rabbitmq-server:rabbitmq": [
+          "aims-rabbitmq-server-6579bff56b"
+        ],
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+          "aims-redis-sentinel-sentinel-74d4bfb67b"
+        ],
+        "production/aims-waypoint:istio-proxy": [
+          "6d558c5d7c"
+        ],
+        "production/aims-postgres-cnpg:postgres": [
+          "cnpg-13f2a629d9ff764f"
+        ],
+        "production/aims-kafka-dual-role:kafka": [
+          "strimzi-fec8050f"
+        ],
+        "production/aims-redis:aims-redis": [
+          "aims-redis-5f454bf965"
+        ],
+        "production/aims-frontend:web": [
+          "8cb8dc8b"
+        ]
+      }
+    }
+  },
+  "captures_verified": 15,
+  "expected_captures": 15,
+  "scores_computed": false,
+  "normal_labels_adjudicated": false,
+  "precision": null,
+  "recall": null,
+  "kernel_to_alert": null,
+  "limitations": [
+    "compatibility only; health/traffic interval adjudication still required",
+    "no model fitting, score inspection, feature ranking or holdout tuning"
+  ]
+}

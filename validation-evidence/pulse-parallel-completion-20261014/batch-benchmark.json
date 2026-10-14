@@ -1,0 +1,1825 @@
+{
+  "attack_recall": null,
+  "binding": {
+    "batch_sizes": [
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "batch_source_sha256": "ad7fbe40d7b3d36bf3a5fece95eb258dbcdcad2e38b33abbed7c3a7b90419659",
+    "inputs": [
+      {
+        "contexts_sha256": "9688452977c48448601d39221c09f67153b081604e164dc71e02fca7237309f5",
+        "path": "/home/dat/pulse-idle-batch-b1-20261014/inputs/export-237",
+        "terminal_sha256": "7d08cfa667847673a14ee2f7236555342efc66d7d084193668f872d2085c1404"
+      },
+      {
+        "contexts_sha256": "26706af5a79ebabbd6194b2764e1870b99afec64cd6bc0d4d6b7f8317796bcf7",
+        "path": "/home/dat/pulse-idle-batch-b1-20261014/inputs/export-238",
+        "terminal_sha256": "da0691423380ce2dd19f737cb1d614a718734ec45ce813cce60b5ee496f9a6c3"
+      },
+      {
+        "contexts_sha256": "b8882b59a3371ffc75d01d5c8f56de8cef54a8e0c101382a4a30ac313b6d4fd2",
+        "path": "/home/dat/pulse-idle-batch-b1-20261014/inputs/export-239",
+        "terminal_sha256": "63221d0be74138f521d09c8e8af3690bba9982296b4bc10746a797a6b9d84b7f"
+      }
+    ],
+    "model_manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "ordering": "sorted workloads; scalar reference then ascending batch sizes; warm-up first",
+    "repeats": 2,
+    "software": {
+      "numpy": "2.5.2",
+      "python": "3.12.3",
+      "sklearn": "1.9.0"
+    },
+    "source_sha256": "344eaadcdde2546d3dafd292820d9f21f1498f4c4f30a9dd74a9643f975603d0",
+    "unchanged_source_sha256": {
+      "candidate_policy.py": "71619cb7376b46569a70c84e167de32889cb3862f6c421c9ffe3a7b462d34401",
+      "candidate_shadow.py": "38721e999940e8b96f99dbe700003af39692ef6c1c3d86b2732e5b88c75fb4af",
+      "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+      "extended_reference_experiment.py": "027f5c0b6e746295697ee1347036c8a066e3f2317e0236416d9f5d468849447c",
+      "idle_candidate.py": "c227f9c083e4348dd9f2ed21f11cc0bead8598d78d1128bff5ac5885ca216fc2",
+      "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+      "support_model.py": "fbe1d77b70751a7346875c733c55ecebf57af540cde38ca231203dbc1a7fec04"
+    }
+  },
+  "finished_at_unix": 1791946785.1038654,
+  "independent_accuracy_test": false,
+  "kernel_to_alert": null,
+  "model_changed": false,
+  "precision": null,
+  "registered_at_unix": 1791946645.7801394,
+  "schema": "pulse-idle-batch-equivalence-benchmark-v1",
+  "state": "completed_equivalence_benchmark",
+  "threshold_changed": false,
+  "updated_at_unix": 1791946785.0973248,
+  "workloads": {
+    "production/aims-frontend:web": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.43608616781421,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.542555117979646,
+          "p95_ms": 26.423540757969022,
+          "p99_ms": 27.276189038529992,
+          "samples": 8,
+          "total_ms": 183.8190294802189,
+          "total_time_speedup": 16.04468096586899
+        },
+        "2": {
+          "amortized_ms_per_context": 11.328380547638517,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.197887068614364,
+          "p95_ms": 29.061620333231986,
+          "p99_ms": 30.306236506439742,
+          "samples": 64,
+          "total_ms": 1450.0327100977302,
+          "total_time_speedup": 2.033966311882026
+        },
+        "32": {
+          "amortized_ms_per_context": 0.7507309710490517,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.75481983087957,
+          "p95_ms": 28.772697108797725,
+          "p99_ms": 29.435068792663515,
+          "samples": 4,
+          "total_ms": 96.09356429427862,
+          "total_time_speedup": 30.692145776107715
+        },
+        "4": {
+          "amortized_ms_per_context": 5.687828535883455,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.74173335172236,
+          "p95_ms": 28.664057119749486,
+          "p99_ms": 29.98469104990363,
+          "samples": 32,
+          "total_ms": 728.0420525930822,
+          "total_time_speedup": 4.051026548481827
+        },
+        "64": {
+          "amortized_ms_per_context": 0.40019860534812324,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 25.612710742279887,
+          "p95_ms": 27.77041986119002,
+          "p99_ms": 27.962216227315366,
+          "samples": 2,
+          "total_ms": 51.225421484559774,
+          "total_time_speedup": 57.57527411179533
+        },
+        "8": {
+          "amortized_ms_per_context": 2.9162712380639277,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.13293476961553,
+          "p95_ms": 30.2807450061664,
+          "p99_ms": 36.32200032006949,
+          "samples": 16,
+          "total_ms": 373.28271847218275,
+          "total_time_speedup": 7.901029266870719
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 22.188423201441765,
+        "p95_ms": 32.36474995501339,
+        "p99_ms": 36.164786410518005,
+        "samples": 128,
+        "total_ms": 2949.317683465779
+      }
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.450384337658761,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.946853190660477,
+          "p95_ms": 26.500168372876942,
+          "p99_ms": 26.92808008287102,
+          "samples": 8,
+          "total_ms": 185.64919522032142,
+          "total_time_speedup": 15.260293675498934
+        },
+        "2": {
+          "amortized_ms_per_context": 10.194395050348248,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.31209086999297,
+          "p95_ms": 23.380127479322255,
+          "p99_ms": 24.295848603360355,
+          "samples": 64,
+          "total_ms": 1304.8825664445758,
+          "total_time_speedup": 2.171123526771764
+        },
+        "32": {
+          "amortized_ms_per_context": 0.648314362479141,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.019211504608393,
+          "p95_ms": 21.313346759416163,
+          "p99_ms": 21.336577427573502,
+          "samples": 4,
+          "total_ms": 82.98423839733005,
+          "total_time_speedup": 34.13975104666731
+        },
+        "4": {
+          "amortized_ms_per_context": 5.18914270287496,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.419178064912558,
+          "p95_ms": 24.444634467363358,
+          "p99_ms": 25.59144454076886,
+          "samples": 32,
+          "total_ms": 664.2102659679949,
+          "total_time_speedup": 4.26530781717645
+        },
+        "64": {
+          "amortized_ms_per_context": 0.35568923703976907,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.76411117054522,
+          "p95_ms": 23.165058041922748,
+          "p99_ms": 23.200697763822973,
+          "samples": 2,
+          "total_ms": 45.52822234109044,
+          "total_time_speedup": 62.22648489232193
+        },
+        "8": {
+          "amortized_ms_per_context": 2.6690038648666814,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.111179376021028,
+          "p95_ms": 25.89410776272416,
+          "p99_ms": 26.451182458549738,
+          "samples": 16,
+          "total_ms": 341.6324947029352,
+          "total_time_speedup": 8.292715955329752
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 21.02089929394424,
+        "p95_ms": 29.748210078105323,
+        "p99_ms": 35.76087327674031,
+        "samples": 128,
+        "total_ms": 2833.061239682138
+      }
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.4542557946697343,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 23.295311024412513,
+          "p95_ms": 25.21419881377369,
+          "p99_ms": 25.505847078748047,
+          "samples": 8,
+          "total_ms": 186.144741717726,
+          "total_time_speedup": 14.521990859477393
+        },
+        "2": {
+          "amortized_ms_per_context": 10.579522018815624,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.766953006386757,
+          "p95_ms": 24.749754578806456,
+          "p99_ms": 27.293008756823834,
+          "samples": 64,
+          "total_ms": 1354.1788184083998,
+          "total_time_speedup": 1.9961855856981474
+        },
+        "32": {
+          "amortized_ms_per_context": 1.0063151312351692,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 30.967304715886712,
+          "p95_ms": 42.73921933490783,
+          "p99_ms": 43.89449755195528,
+          "samples": 4,
+          "total_ms": 128.80833679810166,
+          "total_time_speedup": 20.986159009270242
+        },
+        "4": {
+          "amortized_ms_per_context": 5.78335552563658,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.71500027179718,
+          "p95_ms": 30.723580764606595,
+          "p99_ms": 34.22583932988346,
+          "samples": 32,
+          "total_ms": 740.2695072814822,
+          "total_time_speedup": 3.6516325624320594
+        },
+        "64": {
+          "amortized_ms_per_context": 0.4200597577437293,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 26.883824495598674,
+          "p95_ms": 28.092565550468862,
+          "p99_ms": 28.200009199790657,
+          "samples": 2,
+          "total_ms": 53.76764899119735,
+          "total_time_speedup": 50.27544050153939
+        },
+        "8": {
+          "amortized_ms_per_context": 2.6686515484470874,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.666169468313456,
+          "p95_ms": 25.54747078102082,
+          "p99_ms": 26.785961515270174,
+          "samples": 16,
+          "total_ms": 341.5873982012272,
+          "total_time_speedup": 7.913618160387058
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.342009142041206,
+        "p95_ms": 27.535463194362816,
+        "p99_ms": 31.711017261259265,
+        "samples": 128,
+        "total_ms": 2703.192237764597
+      }
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.1772337966249324,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.593441927805543,
+          "p95_ms": 20.494131348095834,
+          "p99_ms": 20.566800604574382,
+          "samples": 8,
+          "total_ms": 150.68592596799135,
+          "total_time_speedup": 17.630994688981552
+        },
+        "2": {
+          "amortized_ms_per_context": 10.485502949450165,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.64572654105723,
+          "p95_ms": 27.807364193722602,
+          "p99_ms": 32.579219317995005,
+          "samples": 64,
+          "total_ms": 1342.1443775296211,
+          "total_time_speedup": 1.9794761315738465
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6491018430097029,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.959755405783653,
+          "p95_ms": 21.71158902347088,
+          "p99_ms": 21.784088239073753,
+          "samples": 4,
+          "total_ms": 83.08503590524197,
+          "total_time_speedup": 31.976188389398104
+        },
+        "4": {
+          "amortized_ms_per_context": 5.137967833434232,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.892912358045578,
+          "p95_ms": 24.043985665775836,
+          "p99_ms": 28.249213700182743,
+          "samples": 32,
+          "total_ms": 657.6598826795816,
+          "total_time_speedup": 4.039691078040583
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3529272034938913,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.587341023609042,
+          "p95_ms": 22.767590289004147,
+          "p99_ms": 22.783612445928156,
+          "samples": 2,
+          "total_ms": 45.174682047218084,
+          "total_time_speedup": 58.81043628971216
+        },
+        "8": {
+          "amortized_ms_per_context": 2.5160509067063686,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.706801511347294,
+          "p95_ms": 22.459388244897127,
+          "p99_ms": 23.233206663280725,
+          "samples": 16,
+          "total_ms": 322.0545160584152,
+          "total_time_speedup": 8.249357260880748
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.449783420190215,
+        "p95_ms": 24.325358029454943,
+        "p99_ms": 28.825523913837973,
+        "samples": 128,
+        "total_ms": 2656.7427604459226
+      }
+    },
+    "production/aims-minio-pool-0:minio": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2624680966837332,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.405761966481805,
+          "p95_ms": 23.57968855649233,
+          "p99_ms": 24.163261763751507,
+          "samples": 8,
+          "total_ms": 161.59591637551785,
+          "total_time_speedup": 16.863848771430572
+        },
+        "2": {
+          "amortized_ms_per_context": 10.127578345418442,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.913717173039913,
+          "p95_ms": 22.619190881960094,
+          "p99_ms": 25.422452781349413,
+          "samples": 64,
+          "total_ms": 1296.3300282135606,
+          "total_time_speedup": 2.1021877427254423
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6026557966833934,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.958341795951128,
+          "p95_ms": 21.87318946234882,
+          "p99_ms": 22.191356560215354,
+          "samples": 4,
+          "total_ms": 77.13994197547436,
+          "total_time_speedup": 35.32708252106144
+        },
+        "4": {
+          "amortized_ms_per_context": 5.196852955123177,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.18959471024573,
+          "p95_ms": 27.09973305463791,
+          "p99_ms": 30.062387273646895,
+          "samples": 32,
+          "total_ms": 665.1971782557666,
+          "total_time_speedup": 4.0967237759232775
+        },
+        "64": {
+          "amortized_ms_per_context": 0.33766886190278456,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.61080716177821,
+          "p95_ms": 22.623372077941895,
+          "p99_ms": 22.713377848267555,
+          "samples": 2,
+          "total_ms": 43.22161432355642,
+          "total_time_speedup": 63.05014605510091
+        },
+        "8": {
+          "amortized_ms_per_context": 2.5712153874337673,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.993393449112773,
+          "p95_ms": 26.01223182864487,
+          "p99_ms": 26.3597393874079,
+          "samples": 16,
+          "total_ms": 329.1155695915222,
+          "total_time_speedup": 8.280158544974748
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.365779055282474,
+        "p95_ms": 30.8101667324081,
+        "p99_ms": 34.15954804979265,
+        "samples": 128,
+        "total_ms": 2725.129095837474
+      }
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.3317058801476378,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.74291417375207,
+          "p95_ms": 25.02239588648081,
+          "p99_ms": 25.520615838468075,
+          "samples": 8,
+          "total_ms": 170.45835265889764,
+          "total_time_speedup": 16.225339578361567
+        },
+        "2": {
+          "amortized_ms_per_context": 9.887248073937371,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.049273105338216,
+          "p95_ms": 25.272982823662456,
+          "p99_ms": 26.44046983681619,
+          "samples": 64,
+          "total_ms": 1265.5677534639835,
+          "total_time_speedup": 2.185378576760201
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6122289669292513,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.525789888575673,
+          "p95_ms": 20.660618925467134,
+          "p99_ms": 20.779997231438756,
+          "samples": 4,
+          "total_ms": 78.36530776694417,
+          "total_time_speedup": 35.292972549587354
+        },
+        "4": {
+          "amortized_ms_per_context": 4.857039180933498,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.15694959461689,
+          "p95_ms": 22.65311279334128,
+          "p99_ms": 23.283382123336196,
+          "samples": 32,
+          "total_ms": 621.7010151594877,
+          "total_time_speedup": 4.448673218185459
+        },
+        "64": {
+          "amortized_ms_per_context": 0.393036210880382,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 25.154317496344447,
+          "p95_ms": 25.98596301395446,
+          "p99_ms": 26.05988705996424,
+          "samples": 2,
+          "total_ms": 50.308634992688894,
+          "total_time_speedup": 54.975545575042084
+        },
+        "8": {
+          "amortized_ms_per_context": 2.449122999678366,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.61761456914246,
+          "p95_ms": 24.31573742069304,
+          "p99_ms": 24.37782329507172,
+          "samples": 16,
+          "total_ms": 313.48774395883083,
+          "total_time_speedup": 8.822496921034144
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.823873579502106,
+        "p95_ms": 28.49433892406523,
+        "p99_ms": 32.03713887836785,
+        "samples": 128,
+        "total_ms": 2765.7446558587253
+      }
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2465337458706927,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.717966206371784,
+          "p95_ms": 22.548903292044997,
+          "p99_ms": 23.157720370218158,
+          "samples": 8,
+          "total_ms": 159.55631947144866,
+          "total_time_speedup": 17.544475544275855
+        },
+        "2": {
+          "amortized_ms_per_context": 10.188180094701238,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.099577261134982,
+          "p95_ms": 24.276131717488166,
+          "p99_ms": 25.498874248005446,
+          "samples": 64,
+          "total_ms": 1304.0870521217585,
+          "total_time_speedup": 2.1465836504909426
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6337370505207218,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.75340279750526,
+          "p95_ms": 22.93234111275524,
+          "p99_ms": 23.285571443848312,
+          "samples": 4,
+          "total_ms": 81.1183424666524,
+          "total_time_speedup": 34.50923502353733
+        },
+        "4": {
+          "amortized_ms_per_context": 5.125278195919236,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.293720299378037,
+          "p95_ms": 24.372447421774268,
+          "p99_ms": 27.636952726170424,
+          "samples": 32,
+          "total_ms": 656.0356090776622,
+          "total_time_speedup": 4.2670426820842104
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3134362013952341,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.059916889294982,
+          "p95_ms": 20.075144921429455,
+          "p99_ms": 20.076498524285853,
+          "samples": 2,
+          "total_ms": 40.119833778589964,
+          "total_time_speedup": 69.77426577463453
+        },
+        "8": {
+          "amortized_ms_per_context": 2.38623140467098,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.321236293762922,
+          "p95_ms": 21.61535038612783,
+          "p99_ms": 24.726516706869003,
+          "samples": 16,
+          "total_ms": 305.4376197978854,
+          "total_time_speedup": 9.164987426086785
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.838110707700253,
+        "p95_ms": 31.659068563021716,
+        "p99_ms": 36.13419795408846,
+        "samples": 128,
+        "total_ms": 2799.331944901496
+      }
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.201928243972361,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.255998078733683,
+          "p95_ms": 20.752259506843984,
+          "p99_ms": 20.864740568213165,
+          "samples": 8,
+          "total_ms": 153.84681522846222,
+          "total_time_speedup": 17.325930742550355
+        },
+        "2": {
+          "amortized_ms_per_context": 9.72135550546227,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.440434174612164,
+          "p95_ms": 22.866773512214422,
+          "p99_ms": 25.4226196464151,
+          "samples": 64,
+          "total_ms": 1244.3335046991706,
+          "total_time_speedup": 2.1421421632898143
+        },
+        "32": {
+          "amortized_ms_per_context": 0.7279388555616606,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 24.284140206873417,
+          "p95_ms": 24.659719644114375,
+          "p99_ms": 24.69724385999143,
+          "samples": 4,
+          "total_ms": 93.17617351189256,
+          "total_time_speedup": 28.607520196888757
+        },
+        "4": {
+          "amortized_ms_per_context": 5.372213236114476,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.263233153149486,
+          "p95_ms": 25.2255862345919,
+          "p99_ms": 26.541438549757007,
+          "samples": 32,
+          "total_ms": 687.6432942226529,
+          "total_time_speedup": 3.8763400850488035
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3895542940881569,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 24.93147482164204,
+          "p95_ms": 24.993715272285044,
+          "p99_ms": 24.999247756786644,
+          "samples": 2,
+          "total_ms": 49.86294964328408,
+          "total_time_speedup": 53.457312186289656
+        },
+        "8": {
+          "amortized_ms_per_context": 2.84150971492636,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.81127993389964,
+          "p95_ms": 27.29120443109423,
+          "p99_ms": 27.855522488243878,
+          "samples": 16,
+          "total_ms": 363.7132435105741,
+          "total_time_speedup": 7.328683552686702
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.203418796882033,
+        "p95_ms": 27.415589033626016,
+        "p99_ms": 32.83365667797625,
+        "samples": 128,
+        "total_ms": 2665.5392656102777
+      }
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2278878275537863,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.506898010149598,
+          "p95_ms": 21.704868017695844,
+          "p99_ms": 21.97833667974919,
+          "samples": 8,
+          "total_ms": 157.16964192688465,
+          "total_time_speedup": 16.444618895736063
+        },
+        "2": {
+          "amortized_ms_per_context": 9.312113561463775,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.38482404127717,
+          "p95_ms": 21.710524079389867,
+          "p99_ms": 23.740204530768096,
+          "samples": 64,
+          "total_ms": 1191.9505358673632,
+          "total_time_speedup": 2.1683742619287054
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6298115768004209,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.859803073108196,
+          "p95_ms": 21.252503292635083,
+          "p99_ms": 21.255266973748803,
+          "samples": 4,
+          "total_ms": 80.61588183045387,
+          "total_time_speedup": 32.06061640437888
+        },
+        "4": {
+          "amortized_ms_per_context": 5.180379313969752,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.288100466132164,
+          "p95_ms": 24.54815562814474,
+          "p99_ms": 25.005483287386596,
+          "samples": 32,
+          "total_ms": 663.0885521881282,
+          "total_time_speedup": 3.8978125243423443
+        },
+        "64": {
+          "amortized_ms_per_context": 0.31967604445526376,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.45926684513688,
+          "p95_ms": 21.271503437310457,
+          "p99_ms": 21.343702245503664,
+          "samples": 2,
+          "total_ms": 40.91853369027376,
+          "total_time_speedup": 63.16440571968175
+        },
+        "8": {
+          "amortized_ms_per_context": 2.5612407953303773,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.131546607241035,
+          "p95_ms": 29.359834850765765,
+          "p99_ms": 33.85427531320602,
+          "samples": 16,
+          "total_ms": 327.8388218022883,
+          "total_time_speedup": 7.883736432610856
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.029103383421898,
+        "p95_ms": 24.61324832402169,
+        "p99_ms": 30.659036836586907,
+        "samples": 128,
+        "total_ms": 2584.5948634669185
+      }
+    },
+    "production/aims-redis:aims-redis": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2837375870731194,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.326117519289255,
+          "p95_ms": 22.769476380199194,
+          "p99_ms": 23.280728068202734,
+          "samples": 8,
+          "total_ms": 164.31841114535928,
+          "total_time_speedup": 16.477811649982637
+        },
+        "2": {
+          "amortized_ms_per_context": 10.567232518951641,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.560561446473002,
+          "p95_ms": 29.47027957998216,
+          "p99_ms": 32.80970256309955,
+          "samples": 64,
+          "total_ms": 1352.60576242581,
+          "total_time_speedup": 2.0017716208910126
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6694500953017268,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.5315004568547,
+          "p95_ms": 24.823505245149136,
+          "p99_ms": 25.42895782738924,
+          "samples": 4,
+          "total_ms": 85.68961219862103,
+          "total_time_speedup": 31.597853695517255
+        },
+        "4": {
+          "amortized_ms_per_context": 5.533985877264058,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.567933028563857,
+          "p95_ms": 28.755802777595818,
+          "p99_ms": 32.92761612683535,
+          "samples": 32,
+          "total_ms": 708.3501922897995,
+          "total_time_speedup": 3.822414194206789
+        },
+        "64": {
+          "amortized_ms_per_context": 0.347623663401464,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.247914457693696,
+          "p95_ms": 22.566449199803174,
+          "p99_ms": 22.594763399101794,
+          "samples": 2,
+          "total_ms": 44.49582891538739,
+          "total_time_speedup": 60.85082344743785
+        },
+        "8": {
+          "amortized_ms_per_context": 2.8436727698135655,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.164039382711053,
+          "p95_ms": 28.95894052926451,
+          "p99_ms": 32.49699689913541,
+          "samples": 16,
+          "total_ms": 363.9901145361364,
+          "total_time_speedup": 7.438685066840821
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.327928476035595,
+        "p95_ms": 27.073046402074397,
+        "p99_ms": 31.258227983489636,
+        "samples": 128,
+        "total_ms": 2707.607829477638
+      }
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.1866922432091087,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.741635605692863,
+          "p95_ms": 20.82989274058491,
+          "p99_ms": 20.86086404044181,
+          "samples": 8,
+          "total_ms": 151.89660713076591,
+          "total_time_speedup": 17.138388879576137
+        },
+        "2": {
+          "amortized_ms_per_context": 10.22239646044909,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.0470220297575,
+          "p95_ms": 24.459322495386,
+          "p99_ms": 27.72720290813594,
+          "samples": 64,
+          "total_ms": 1308.4667469374835,
+          "total_time_speedup": 1.9895523738668184
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6035329606675077,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.356944132596254,
+          "p95_ms": 20.04270541947335,
+          "p99_ms": 20.043404973112047,
+          "samples": 4,
+          "total_ms": 77.25221896544099,
+          "total_time_speedup": 33.69823103281786
+        },
+        "4": {
+          "amortized_ms_per_context": 5.035951631725766,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.01133537851274,
+          "p95_ms": 24.069059337489307,
+          "p99_ms": 25.544158071279526,
+          "samples": 32,
+          "total_ms": 644.601808860898,
+          "total_time_speedup": 4.038560064073658
+        },
+        "64": {
+          "amortized_ms_per_context": 0.34136475733248517,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.84734446927905,
+          "p95_ms": 23.716188687831163,
+          "p99_ms": 23.882308173924685,
+          "samples": 2,
+          "total_ms": 43.6946889385581,
+          "total_time_speedup": 59.57847934690366
+        },
+        "8": {
+          "amortized_ms_per_context": 2.3896931525086984,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.903981428593397,
+          "p95_ms": 23.215310066007078,
+          "p99_ms": 25.142308208160102,
+          "samples": 16,
+          "total_ms": 305.8807235211134,
+          "total_time_speedup": 8.510713236610917
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 20.062669413164258,
+        "p95_ms": 24.230294069275256,
+        "p99_ms": 27.721423129551116,
+        "samples": 128,
+        "total_ms": 2603.263122495264
+      }
+    },
+    "production/api-gateway:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2727505891234614,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.39134269580245,
+          "p95_ms": 23.556784796528518,
+          "p99_ms": 24.019757858477533,
+          "samples": 8,
+          "total_ms": 162.91207540780306,
+          "total_time_speedup": 15.859993227174202
+        },
+        "2": {
+          "amortized_ms_per_context": 9.581207734299824,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.905137199908495,
+          "p95_ms": 21.92401348147541,
+          "p99_ms": 24.612589683383696,
+          "samples": 64,
+          "total_ms": 1226.3945899903774,
+          "total_time_speedup": 2.106813283164371
+        },
+        "32": {
+          "amortized_ms_per_context": 0.5968414407107048,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.20784467458725,
+          "p95_ms": 20.512820477597415,
+          "p99_ms": 20.53861455526203,
+          "samples": 4,
+          "total_ms": 76.39570441097021,
+          "total_time_speedup": 33.82106929328379
+        },
+        "4": {
+          "amortized_ms_per_context": 4.9663946774671786,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.647897221148014,
+          "p95_ms": 24.434787593781948,
+          "p99_ms": 25.797665137797594,
+          "samples": 32,
+          "total_ms": 635.6985187157989,
+          "total_time_speedup": 4.064480782198864
+        },
+        "64": {
+          "amortized_ms_per_context": 0.33948756754398346,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.72720432281494,
+          "p95_ms": 22.847803588956594,
+          "p99_ms": 22.94741241261363,
+          "samples": 2,
+          "total_ms": 43.45440864562988,
+          "total_time_speedup": 59.459661128134925
+        },
+        "8": {
+          "amortized_ms_per_context": 2.3736645562166814,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.087825203314424,
+          "p95_ms": 22.3416289081797,
+          "p99_ms": 23.25295719783753,
+          "samples": 16,
+          "total_ms": 303.8290631957352,
+          "total_time_speedup": 8.504072603903936
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.36638541519642,
+        "p95_ms": 28.370287315919988,
+        "p99_ms": 29.825667929835618,
+        "samples": 128,
+        "total_ms": 2583.7844125926495
+      }
+    },
+    "production/auth-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.268485651962692,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.60691174119711,
+          "p95_ms": 22.073951363563538,
+          "p99_ms": 22.23659172654152,
+          "samples": 8,
+          "total_ms": 162.36616345122457,
+          "total_time_speedup": 15.08993560750564
+        },
+        "2": {
+          "amortized_ms_per_context": 9.572117080097087,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.734612502157688,
+          "p95_ms": 22.28500167839229,
+          "p99_ms": 26.115681868977823,
+          "samples": 64,
+          "total_ms": 1225.230986252427,
+          "total_time_speedup": 1.9997004473505338
+        },
+        "32": {
+          "amortized_ms_per_context": 0.5976642023597378,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.843722995370626,
+          "p95_ms": 20.86566360667348,
+          "p99_ms": 21.06244632974267,
+          "samples": 4,
+          "total_ms": 76.50101790204644,
+          "total_time_speedup": 32.02695883672906
+        },
+        "4": {
+          "amortized_ms_per_context": 4.889243238721974,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.602471962571144,
+          "p95_ms": 21.439135959371924,
+          "p99_ms": 21.63443258497864,
+          "samples": 32,
+          "total_ms": 625.8231345564127,
+          "total_time_speedup": 3.914995812760033
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3458008977759164,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.13125745765865,
+          "p95_ms": 22.820315905846655,
+          "p99_ms": 22.88156554568559,
+          "samples": 2,
+          "total_ms": 44.2625149153173,
+          "total_time_speedup": 55.35372212817589
+        },
+        "8": {
+          "amortized_ms_per_context": 2.3846531767048873,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.52933643385768,
+          "p95_ms": 22.86690624896437,
+          "p99_ms": 24.32388693559915,
+          "samples": 16,
+          "total_ms": 305.2356066182256,
+          "total_time_speedup": 8.02689757745458
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 18.807557178661227,
+        "p95_ms": 23.02529690787196,
+        "p99_ms": 26.795354778878398,
+        "samples": 128,
+        "total_ms": 2450.0949513167143
+      }
+    },
+    "production/cart-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2782760277332272,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.077116321772337,
+          "p95_ms": 23.154576821252704,
+          "p99_ms": 23.419967209920287,
+          "samples": 8,
+          "total_ms": 163.6193315498531,
+          "total_time_speedup": 15.175421912066847
+        },
+        "2": {
+          "amortized_ms_per_context": 10.042867481388384,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.68403928913176,
+          "p95_ms": 24.32683138176798,
+          "p99_ms": 26.851649773307145,
+          "samples": 64,
+          "total_ms": 1285.4870376177132,
+          "total_time_speedup": 1.931557702706124
+        },
+        "32": {
+          "amortized_ms_per_context": 0.7662555217393674,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.532776463776827,
+          "p95_ms": 30.17888716422021,
+          "p99_ms": 31.24118844978511,
+          "samples": 4,
+          "total_ms": 98.08070678263903,
+          "total_time_speedup": 25.31580848761663
+        },
+        "4": {
+          "amortized_ms_per_context": 4.396593121782644,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 17.072441056370735,
+          "p95_ms": 19.89333089441061,
+          "p99_ms": 21.4688259549439,
+          "samples": 32,
+          "total_ms": 562.7639195881784,
+          "total_time_speedup": 4.4121385590184685
+        },
+        "64": {
+          "amortized_ms_per_context": 0.36132663808530197,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 23.124904837459326,
+          "p95_ms": 23.383492836728692,
+          "p99_ms": 23.406478436663747,
+          "samples": 2,
+          "total_ms": 46.24980967491865,
+          "total_time_speedup": 53.686542856973134
+        },
+        "8": {
+          "amortized_ms_per_context": 2.3724329221295193,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.545940285548568,
+          "p95_ms": 22.104097297415137,
+          "p99_ms": 23.661959497258067,
+          "samples": 16,
+          "total_ms": 303.67141403257847,
+          "total_time_speedup": 8.176575978182097
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.189466256648302,
+        "p95_ms": 21.685249730944633,
+        "p99_ms": 27.69295946229251,
+        "samples": 128,
+        "total_ms": 2482.992389239371
+      }
+    },
+    "production/catalog-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.251226491149282,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.87814002111554,
+          "p95_ms": 24.83666697517037,
+          "p99_ms": 26.12082364037633,
+          "samples": 8,
+          "total_ms": 160.1569908671081,
+          "total_time_speedup": 15.668429681523186
+        },
+        "2": {
+          "amortized_ms_per_context": 9.973552860174095,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.62088909931481,
+          "p95_ms": 23.031948297284544,
+          "p99_ms": 29.220208451151823,
+          "samples": 64,
+          "total_ms": 1276.6147661022842,
+          "total_time_speedup": 1.9656740749343464
+        },
+        "32": {
+          "amortized_ms_per_context": 0.5927972597419284,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.598102731630206,
+          "p95_ms": 20.015387213788927,
+          "p99_ms": 20.211183722130954,
+          "samples": 4,
+          "total_ms": 75.87804924696684,
+          "total_time_speedup": 33.07160073709915
+        },
+        "4": {
+          "amortized_ms_per_context": 5.31864805452642,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.399537170305848,
+          "p95_ms": 29.672746011056006,
+          "p99_ms": 32.130643636919565,
+          "samples": 32,
+          "total_ms": 680.7869509793818,
+          "total_time_speedup": 3.686040905742381
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3528368652041536,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.58155937306583,
+          "p95_ms": 23.351221135817468,
+          "p99_ms": 23.419635514728725,
+          "samples": 2,
+          "total_ms": 45.16311874613166,
+          "total_time_speedup": 55.563225460831845
+        },
+        "8": {
+          "amortized_ms_per_context": 2.5294911392848007,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.570269087329507,
+          "p95_ms": 23.660635109990835,
+          "p99_ms": 23.71238386258483,
+          "samples": 16,
+          "total_ms": 323.7748658284545,
+          "total_time_speedup": 7.750473598328022
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.037618534639478,
+        "p95_ms": 23.361853603273627,
+        "p99_ms": 34.33342603500934,
+        "samples": 128,
+        "total_ms": 2509.4085494056344
+      }
+    },
+    "production/inventory-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2381640553940088,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.480546936392784,
+          "p95_ms": 23.061008169315752,
+          "p99_ms": 24.320925581268966,
+          "samples": 8,
+          "total_ms": 158.48499909043312,
+          "total_time_speedup": 16.08908230492857
+        },
+        "2": {
+          "amortized_ms_per_context": 9.833451869781129,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.40623647533357,
+          "p95_ms": 23.307151021435853,
+          "p99_ms": 24.633227344602343,
+          "samples": 64,
+          "total_ms": 1258.6818393319845,
+          "total_time_speedup": 2.025832195859595
+        },
+        "32": {
+          "amortized_ms_per_context": 0.5448314732348081,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 17.762696836143732,
+          "p95_ms": 18.483423627912998,
+          "p99_ms": 18.507097475230694,
+          "samples": 4,
+          "total_ms": 69.73842857405543,
+          "total_time_speedup": 36.563459294967984
+        },
+        "4": {
+          "amortized_ms_per_context": 5.010359072912252,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.63169756345451,
+          "p95_ms": 23.880266677588224,
+          "p99_ms": 24.05702981632203,
+          "samples": 32,
+          "total_ms": 641.3259613327682,
+          "total_time_speedup": 3.9759472533491267
+        },
+        "64": {
+          "amortized_ms_per_context": 0.32052800816018134,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.513792522251606,
+          "p95_ms": 20.584145188331604,
+          "p99_ms": 20.590398758649826,
+          "samples": 2,
+          "total_ms": 41.02758504450321,
+          "total_time_speedup": 62.1503359677792
+        },
+        "8": {
+          "amortized_ms_per_context": 2.645666932949098,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.844708101823926,
+          "p95_ms": 30.651028617285192,
+          "p99_ms": 32.595832156948745,
+          "samples": 16,
+          "total_ms": 338.6453674174845,
+          "total_time_speedup": 7.529641447358112
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.520862959325314,
+        "p95_ms": 23.074328806251287,
+        "p99_ms": 32.487668087706,
+        "samples": 128,
+        "total_ms": 2549.878194462508
+      }
+    },
+    "production/notification-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.169688650406897,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.95457529462874,
+          "p95_ms": 20.17017938196659,
+          "p99_ms": 20.532991215586662,
+          "samples": 8,
+          "total_ms": 149.72014725208282,
+          "total_time_speedup": 16.30173796925499
+        },
+        "2": {
+          "amortized_ms_per_context": 10.00864709567395,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.956727581098676,
+          "p95_ms": 25.68396162241697,
+          "p99_ms": 35.87775344960391,
+          "samples": 64,
+          "total_ms": 1281.1068282462656,
+          "total_time_speedup": 1.9051483884157037
+        },
+        "32": {
+          "amortized_ms_per_context": 0.5683485651388764,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 17.41162850521505,
+          "p95_ms": 20.40136728901416,
+          "p99_ms": 20.790403210557997,
+          "samples": 4,
+          "total_ms": 72.74861633777618,
+          "total_time_speedup": 33.549759872949565
+        },
+        "4": {
+          "amortized_ms_per_context": 5.097302488138666,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.976079231128097,
+          "p95_ms": 22.833570698276162,
+          "p99_ms": 25.31433289404959,
+          "samples": 32,
+          "total_ms": 652.4547184817493,
+          "total_time_speedup": 3.740793866739426
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3337387679493986,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.35928114876151,
+          "p95_ms": 21.959737641736865,
+          "p99_ms": 22.013111552223563,
+          "samples": 2,
+          "total_ms": 42.71856229752302,
+          "total_time_speedup": 57.134380886297926
+        },
+        "8": {
+          "amortized_ms_per_context": 2.7095886580355,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.5093488804996,
+          "p95_ms": 25.33445821609348,
+          "p99_ms": 25.882863509468734,
+          "samples": 16,
+          "total_ms": 346.827348228544,
+          "total_time_speedup": 7.03721497652317
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 18.83552805520594,
+        "p95_ms": 22.502800310030576,
+        "p99_ms": 24.0575631801039,
+        "samples": 128,
+        "total_ms": 2440.6986092217267
+      }
+    },
+    "production/order-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2072248755430337,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.474106607958674,
+          "p95_ms": 19.867463526315987,
+          "p99_ms": 19.910534569062293,
+          "samples": 8,
+          "total_ms": 154.5247840695083,
+          "total_time_speedup": 15.843450356882977
+        },
+        "2": {
+          "amortized_ms_per_context": 10.204054186033318,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.680863711982965,
+          "p95_ms": 25.32610420603305,
+          "p99_ms": 29.36547675170004,
+          "samples": 64,
+          "total_ms": 1306.1189358122647,
+          "total_time_speedup": 1.874412565491823
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6263709256018046,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.66437341272831,
+          "p95_ms": 21.409483277238905,
+          "p99_ms": 21.411130880005658,
+          "samples": 4,
+          "total_ms": 80.17547847703099,
+          "total_time_speedup": 30.535592575411805
+        },
+        "4": {
+          "amortized_ms_per_context": 4.78053001279477,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.642788287252188,
+          "p95_ms": 21.788791613653302,
+          "p99_ms": 22.301740190014243,
+          "samples": 32,
+          "total_ms": 611.9078416377306,
+          "total_time_speedup": 4.00093866873949
+        },
+        "64": {
+          "amortized_ms_per_context": 0.30690463972860016,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.64189694263041,
+          "p95_ms": 20.08533168118447,
+          "p99_ms": 20.124748102389276,
+          "samples": 2,
+          "total_ms": 39.28379388526082,
+          "total_time_speedup": 62.32101085918479
+        },
+        "8": {
+          "amortized_ms_per_context": 2.6615030510583892,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.805385265499353,
+          "p95_ms": 32.030582427978516,
+          "p99_ms": 32.32502527534962,
+          "samples": 16,
+          "total_ms": 340.6723905354738,
+          "total_time_speedup": 7.186393183977108
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 18.6656613368541,
+        "p95_ms": 22.48208597302436,
+        "p99_ms": 30.172685827128593,
+        "samples": 128,
+        "total_ms": 2448.2057453133166
+      }
+    },
+    "production/payment-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.2693683565885294,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.149891963228583,
+          "p95_ms": 21.65569313801825,
+          "p99_ms": 21.703401850536466,
+          "samples": 8,
+          "total_ms": 162.47914964333177,
+          "total_time_speedup": 16.03640534808597
+        },
+        "2": {
+          "amortized_ms_per_context": 10.207320141489618,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.086649572476745,
+          "p95_ms": 23.35131266154348,
+          "p99_ms": 28.1176059320569,
+          "samples": 64,
+          "total_ms": 1306.536978110671,
+          "total_time_speedup": 1.9942654115007212
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6398582190740854,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.472781965509057,
+          "p95_ms": 20.620584418065846,
+          "p99_ms": 20.633634538389742,
+          "samples": 4,
+          "total_ms": 81.90185204148293,
+          "total_time_speedup": 31.813462569479753
+        },
+        "4": {
+          "amortized_ms_per_context": 4.851519723160891,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.08063469454646,
+          "p95_ms": 23.99475707206875,
+          "p99_ms": 24.900220609270036,
+          "samples": 32,
+          "total_ms": 620.994524564594,
+          "total_time_speedup": 4.195820415839691
+        },
+        "64": {
+          "amortized_ms_per_context": 0.35508385190041736,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.72536652162671,
+          "p95_ms": 24.3384369648993,
+          "p99_ms": 24.48182100430131,
+          "samples": 2,
+          "total_ms": 45.45073304325342,
+          "total_time_speedup": 57.32760133512415
+        },
+        "8": {
+          "amortized_ms_per_context": 2.420110919047147,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.7758959364146,
+          "p95_ms": 21.311995456926525,
+          "p99_ms": 21.592461480759084,
+          "samples": 16,
+          "total_ms": 309.7741976380348,
+          "total_time_speedup": 8.41122832101516
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.507385790348053,
+        "p95_ms": 28.20356742013245,
+        "p99_ms": 34.77265513502063,
+        "samples": 128,
+        "total_ms": 2605.581504292786
+      }
+    },
+    "production/search-recommendation-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.4277981863415334,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.56358554586768,
+          "p95_ms": 28.035605209879577,
+          "p99_ms": 28.14499770756811,
+          "samples": 8,
+          "total_ms": 182.75816785171628,
+          "total_time_speedup": 14.9182853809552
+        },
+        "2": {
+          "amortized_ms_per_context": 11.138216163089965,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.513612311333418,
+          "p95_ms": 36.45688921678811,
+          "p99_ms": 38.54836514685302,
+          "samples": 64,
+          "total_ms": 1425.6916688755155,
+          "total_time_speedup": 1.9123619526112803
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6790198676753789,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.479757502675056,
+          "p95_ms": 25.49872314557433,
+          "p99_ms": 25.779178272932768,
+          "samples": 4,
+          "total_ms": 86.9145430624485,
+          "total_time_speedup": 31.3691864174383
+        },
+        "4": {
+          "amortized_ms_per_context": 5.3227277312544174,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.455025602132082,
+          "p95_ms": 27.38691831473261,
+          "p99_ms": 31.06777145527304,
+          "samples": 32,
+          "total_ms": 681.3091496005654,
+          "total_time_speedup": 4.0017641115062945
+        },
+        "64": {
+          "amortized_ms_per_context": 0.34550145210232586,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 22.112092934548855,
+          "p95_ms": 22.869361005723476,
+          "p99_ms": 22.93667372316122,
+          "samples": 2,
+          "total_ms": 44.22418586909771,
+          "total_time_speedup": 61.650394464752694
+        },
+        "8": {
+          "amortized_ms_per_context": 2.8659505951509345,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.43132407218218,
+          "p95_ms": 30.240867286920547,
+          "p99_ms": 35.611242055892944,
+          "samples": 16,
+          "total_ms": 366.8416761793196,
+          "total_time_speedup": 7.432193997444493
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 19.84162745065987,
+        "p95_ms": 29.564746865071353,
+        "p99_ms": 37.36276278737934,
+        "samples": 128,
+        "total_ms": 2726.4385037124157
+      }
+    },
+    "production/security-telemetry-service:app": {
+      "batch": {
+        "16": {
+          "amortized_ms_per_context": 1.3957536139059812,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 20.335696637630463,
+          "p95_ms": 29.47095916606486,
+          "p99_ms": 30.45878400094807,
+          "samples": 8,
+          "total_ms": 178.6564625799656,
+          "total_time_speedup": 15.47125860307105
+        },
+        "2": {
+          "amortized_ms_per_context": 10.178725286095869,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.99891153536737,
+          "p95_ms": 25.235690246336162,
+          "p99_ms": 29.22038224060087,
+          "samples": 64,
+          "total_ms": 1302.8768366202712,
+          "total_time_speedup": 2.121490117864552
+        },
+        "32": {
+          "amortized_ms_per_context": 0.6037393577571493,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.025948829948902,
+          "p95_ms": 21.801270497962832,
+          "p99_ms": 22.025598948821425,
+          "samples": 4,
+          "total_ms": 77.2786377929151,
+          "total_time_speedup": 35.76719792980022
+        },
+        "4": {
+          "amortized_ms_per_context": 4.961134909535758,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 19.23187030479312,
+          "p95_ms": 22.913600667379797,
+          "p99_ms": 27.725234176032252,
+          "samples": 32,
+          "total_ms": 635.025268420577,
+          "total_time_speedup": 4.35264621919566
+        },
+        "64": {
+          "amortized_ms_per_context": 0.3426624825806357,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 21.930398885160685,
+          "p95_ms": 22.476812219247222,
+          "p99_ms": 22.525382293388247,
+          "samples": 2,
+          "total_ms": 43.86079777032137,
+          "total_time_speedup": 63.01846920702468
+        },
+        "8": {
+          "amortized_ms_per_context": 2.3547855598735623,
+          "contexts_scored": 128,
+          "exact_p_and_decision_match": true,
+          "maximum_score_error": 0.0,
+          "p50_ms": 18.41196045279503,
+          "p95_ms": 22.768765687942505,
+          "p99_ms": 22.934184223413467,
+          "samples": 16,
+          "total_ms": 301.412551663816,
+          "total_time_speedup": 9.170289420353797
+        }
+      },
+      "contexts": 64,
+      "scalar": {
+        "p50_ms": 21.10896701924503,
+        "p95_ms": 26.608666568063196,
+        "p99_ms": 29.259754875674847,
+        "samples": 128,
+        "total_ms": 2764.040333684534
+      }
+    }
+  }
+}
