@@ -10,7 +10,7 @@ import tarfile
 from .syscall_capture_campaign import Remote, WORKERS
 
 
-SOURCE = '/home/dat/pulse-shadow-summary-20261014/source'
+SOURCE = '/home/dat/pulse-shadow-summary-20261014/source-r2'
 UNIT = 'pulse-shadow-soak-summary@normal-a1-20261013.service'
 
 
@@ -27,10 +27,21 @@ r=Path('/var/lib/sentinel-pulse-normal-normal-a1-20261013');t=json.loads((r/'cap
 assert t['state']=='completed_observation' and t['boundary_observation_seconds']>=86400
 assert (r/'shadow/decisions.jsonl').is_file()
 p=subprocess.run(['systemctl','is-active',%r],text=True,capture_output=True)
-assert p.stdout.strip() not in ['active','activating'], 'summary already running; do not replace its source'
+active=p.stdout.strip() in ['active','activating']
+old=Path('/var/lib/pulse-shadow-review/normal-a1-20261013/STATUS.json')
+if active:
+ assert old.exists(), 'unexpected active review; do not replace its source'
+ s=json.loads(old.read_text())
+ assert s['binding']['run_id']=='normal-a1-20261013', 'not the diagnosed first configuration'
+new=Path('/var/lib/pulse-shadow-review/normal-a1-20261013-r2/STATUS.json')
+assert not new.exists(), 'corrected summary already exists; do not replace its source'
+with (r/'shadow/decisions.jsonl').open() as f:first=json.loads(f.readline())
+env=dict(l.split('=',1) for l in Path('/etc/sentinel-pulse/normal-soak-normal-a1-20261013.env').read_text().splitlines() if '=' in l)
+assert first['run_id']==env['PULSE_RUN_ID'], 'node-specific run identity differs from soak registration'
 print(json.dumps(dict(feature_rows=t['feature_rows'],shadow_bytes=(r/'shadow/decisions.jsonl').stat().st_size)))
 ''' % UNIT
         print(host, remote.command(host, ['python3', '-c', preflight]).strip())
+        remote.command(host, ['systemctl', 'stop', UNIT])
         target = '/home/dat/pulse-shadow-summary-20261014.tar.gz'
         subprocess.run(['sshpass', '-f', str(credential), 'scp', '-q', '-o', 'StrictHostKeyChecking=yes',
                         str(archive), f'dat@{host}:{target}'], check=True, capture_output=True, timeout=90)
