@@ -28,12 +28,21 @@ không đưa chúng vào mẫu số TN. Đây là admission đầu vào, chưa p
 đã adjudicate. Artifact và SHA-256:
 [completion evidence](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json).
 
-Job **C4 đã chạy** trên `.234`: `pulse-syscall-normal-evaluation-c4.service`,
+Job **C4 đã hoàn tất 608/608 model lúc 14:46** trên `.234`:
+`pulse-syscall-normal-evaluation-c4.service`,
 output NFS `/mnt/sentinel-pulse-archive/syscall-variant-normal-c4`.
 Nó trích đúng 334.655 context holdout, chấm cùng dữ liệu cho 608 model/mask đã
 khóa, không fit/calibrate/tune lại. Python/NumPy/sklearn khớp C2; checkpoint
 theo capture và model, tự resume sau SSH/reboot. Raw positives giữ là pending
 adjudication; chưa tính FP/FPR hoặc precision từ nhãn mặc định.
+Bản full có **145.820/334.655 raw flags (43,57%)**, nhưng profile không khớp:
+training rolling-10, sidecar C3 rolling-5. **Không dùng kết quả này để kết luận
+quality, FPR hoặc chọn syscall**; giữ số đếm và verdict riêng.
+[Hậu kiểm prediction](validation-evidence/pulse-parallel-completion-20261014/c4-verification.json).
+C5 đã hoàn tất và giúp nhận diện sai khác rolling; nó chưa chứng minh drift
+tự nhiên. C6 đang replay raw và sửa đúng profile, rồi tự chấm lại 608 model.
+[Profile mismatch và recovery](SYSCALL_PROFILE_MISMATCH.md). Không dùng holdout
+để fit/calibrate, không sửa ngưỡng hoặc xóa kết quả C4 đã đóng.
 
 Chưa có kết quả blind mới cho từng biến thể, nên **chưa kết luận syscall nào
 nên giữ/bỏ từ thực nghiệm hoàn chỉnh**. Histogram cung cấp tần suất; ablation

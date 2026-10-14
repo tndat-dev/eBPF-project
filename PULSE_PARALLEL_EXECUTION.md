@@ -12,8 +12,8 @@ Hai nhánh tiếp theo tách biệt, giữ model/policy Pulse:
 | Thêm syscall A1 | 0/105 fit vì kiểm tra continuity đặt quá chặt; output/terminal giữ nguyên, không có kết quả chất lượng | `.234`: `pulse-syscall-addition-a1.service`; NFS `syscall-addition-a1-20261014` |
 | Sentinel Pulse B3 | Canary batch 30 phút hoàn tất trên ba worker; raw-score preview, không phát alert/enforcement | `.237/.238/.239`: `pulse-idle-batch-canary-b3.service`; `/var/lib/pulse-idle-batch-canary-b3-20261014` |
 
-B3 chạy **12:53–13:23 UTC (20:53–21:23 ICT)**, cả ba unit thoát thành công,
-không restart. p99 `feature-window-end → score` lần lượt .237/.238/.239 là
+Snapshot terminal B3 được thu lúc **15:55 UTC ngày 14/10**; cả ba unit thoát
+thành công, không restart. p99 `feature-window-end → score` lần lượt .237/.238/.239 là
 **0,516 / 0,555 / 0,220 giây**. `.238` ghi 3 `collector_cadence_gap`; issue được
 giữ, không làm mất terminal. Kernel-to-alert, precision và recall đều null vì
 đây là normal timing canary, không có blind attack và policy chỉ preview.
@@ -21,9 +21,9 @@ Raw-positive preview vẫn chờ adjudication, không gọi tự động là fal
 
 A1 terminal có 0/105 model; nguyên nhân là exact boundary tolerance 100 µs so
 với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 service
-đã `enabled` trên `.234`, source/test đúng hash; lúc **16:04 UTC** service vẫn
-`activating/start`, PID `3889873`, `NRestarts=0`, checkpoint **37/105 fit, 0
-unknown**. A2 tiếp tục nền, không sửa binding đang chạy. Không dùng holdout C3
+đã `enabled` trên `.234`; lần SSH kiểm tra hiện tại cho thấy service vẫn
+`activating/start`, `NRestarts=0`, checkpoint **99/105 fit, 0 workload/arm
+unknown**, chưa có terminal. A2 tiếp tục nền, không sửa binding đang chạy. Không dùng holdout C3
 đã lộ để quyết định syscall hoặc làm blind claim. Cả hai nhánh giữ model/policy
 Pulse, không zero-alert gate và không auto-promotion.
 

@@ -155,8 +155,9 @@ def run(campaign,audit_path,audit_hash,training_path,model_root,model_hash,outpu
     verify_sha256(training_path,manifest['training_manifest_sha256']);training=json.loads(training_path.read_text())
     profile=training_profile(training_path)
     if corrected_root is None:
-        if profile['rolling_windows']!=5:
-            raise ValueError('C3 rolling-5 differs from training profile; verified raw refeature required')
+        if (audit.get('preprocessing_compatible_with_training') is not True
+                or audit.get('observed_rolling_windows')!=[profile['rolling_windows']]):
+            raise ValueError('capture rolling profile differs/unverified; verified raw refeature required')
     else:
         correction=json.loads((corrected_root/'TERMINAL.json').read_text())
         if (correction['state']!='completed_profile_repair' or correction['completed_captures']!=30

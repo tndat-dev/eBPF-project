@@ -1,0 +1,75 @@
+{
+  "automatic_promotion": false,
+  "batch_call_ms_repeated_per_scored_row": {
+    "maximum": 112.2435899451375,
+    "minimum": 13.911769725382328,
+    "p50": 19.54285241663456,
+    "p95": 27.127776248380542,
+    "p99": 34.60614998824895,
+    "samples": 98532
+  },
+  "elapsed_seconds": 1800.4352225591429,
+  "feature_window_end_to_score_seconds": {
+    "maximum": 0.8798565864562988,
+    "minimum": 0.07644081115722656,
+    "p50": 0.22756147384643555,
+    "p95": 0.42900673151016233,
+    "p99": 0.501981565952301,
+    "samples": 98532
+  },
+  "finished_at_unix": 1791965122.8172908,
+  "frames": 3523,
+  "incomplete_trailing_bytes": 0,
+  "incomplete_trailing_snapshots": 0,
+  "issues": {},
+  "kernel_to_alert": null,
+  "pipeline_frame_processing_ms": {
+    "maximum": 741.2369549274445,
+    "minimum": 17.72292284294963,
+    "p50": 432.88152292370796,
+    "p95": 517.589985532686,
+    "p99": 583.2454101927577,
+    "samples": 3523
+  },
+  "precision": null,
+  "preview_positive_pending_adjudication": {
+    "production/aims-kafka-dual-role:kafka": 16,
+    "production/aims-minio-pool-0:minio": 5,
+    "production/aims-minio-pool-0:sidecar": 1,
+    "production/aims-postgres-cnpg:postgres": 3,
+    "production/aims-rabbitmq-server:rabbitmq": 10,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 140,
+    "production/aims-redis:aims-redis": 1,
+    "production/aims-waypoint:istio-proxy": 3,
+    "production/api-gateway:app": 30,
+    "production/auth-service:app": 174,
+    "production/cart-service:app": 48,
+    "production/catalog-service:app": 152,
+    "production/inventory-service:app": 44,
+    "production/notification-service:app": 171,
+    "production/order-service:app": 35,
+    "production/payment-service:app": 88,
+    "production/search-recommendation-service:app": 99,
+    "production/security-telemetry-service:app": 200
+  },
+  "recall": null,
+  "scored_rows_by_batch_size": {
+    "1": 35190,
+    "2": 42228,
+    "3": 21114
+  },
+  "seals": {
+    "decisions.jsonl": "6bc4c2b5d6dd2109fc00e52edc043f75643e26aca384da725c27e4d12fe93202",
+    "features.jsonl": "cdaf8cc8eeff551966f272533e47ef80afd23c63d0830008cb075a805e7f66f0",
+    "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+    "raw.jsonl": "a6e37150a94e6dc91147a7e857c87e7c0e3942efa16820c25843fc9b3b163b52"
+  },
+  "start_sha256": "101a85984c9fb083828a5eb5fa8534daa43d69ba3481210fe2b393fb7d238795",
+  "state": "completed_timing_canary",
+  "statuses": {
+    "candidate-model-unavailable": 190188,
+    "candidate-raw-score-only": 98532,
+    "warming": 84
+  }
+}

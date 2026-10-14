@@ -1,0 +1,38 @@
+{
+  "accuracy_claim": false,
+  "artifacts": {
+    "pulse_counter_extended.bpf.o": "26353df43c98f91735fcd689504615fda3b66594a2199af0fa05a1f0edfc1ed3",
+    "pulse_counter_extended_loader": "b32032e1c7359f9ee6c924edea5e9a3a3d065fbaeb05e2b5517b3fd2473bb6be"
+  },
+  "attack_injection": false,
+  "automatic_promotion": false,
+  "batch_source_sha256": "ad7fbe40d7b3d36bf3a5fece95eb258dbcdcad2e38b33abbed7c3a7b90419659",
+  "benchmark_terminal_sha256": "31b450d8bb50eaccd4de8f5786f840dc0159f995c04136ea7c8f5bb56ca39b62",
+  "interval_ms": 500,
+  "kernel_to_alert": null,
+  "model_manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+  "model_or_threshold_changed": false,
+  "output_mode": "shadow_preview_only",
+  "policy_sha256": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+  "registered_at_unix": 1791963322.4787197,
+  "run_id": "pulse-idle-batch-canary-b2-20261014",
+  "runtime_sha256": "468ae54f054d83690e0f26877af2b915b6efaf3bad2c2c3795502a1fc164c0a5",
+  "schema": "pulse-idle-batch-timing-canary-v1",
+  "seconds": 1800,
+  "software": {
+    "numpy": "2.5.2",
+    "python": "3.12.3",
+    "sklearn": "1.9.0"
+  },
+  "unchanged_core_sha256": {
+    "candidate_policy.py": "71619cb7376b46569a70c84e167de32889cb3862f6c421c9ffe3a7b462d34401",
+    "candidate_shadow.py": "38721e999940e8b96f99dbe700003af39692ef6c1c3d86b2732e5b88c75fb4af",
+    "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+    "extended_capture.py": "06fb268cfe0432d95ae2713b4c9e189c7a4a717e1ff04ec166af8d541cef9ce0",
+    "extended_reference_experiment.py": "027f5c0b6e746295697ee1347036c8a066e3f2317e0236416d9f5d468849447c",
+    "features.py": "912c113469d39a31f6d638271b9af3be9e41728ccf7fc7f4b567e9220ea97a63",
+    "idle_candidate.py": "c227f9c083e4348dd9f2ed21f11cc0bead8598d78d1128bff5ac5885ca216fc2",
+    "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+    "support_model.py": "fbe1d77b70751a7346875c733c55ecebf57af540cde38ca231203dbc1a7fec04"
+  }
+}

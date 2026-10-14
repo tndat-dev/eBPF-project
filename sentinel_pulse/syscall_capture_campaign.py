@@ -217,7 +217,7 @@ def run(args):
         controller_sha256=digest(__file__), traffic_script_sha256=digest(source / "ml-service/set_aims_traffic_regime.sh"),
         protected_soak=SOAK_ROOT, phases=phases(), workers=WORKERS, baseline_seconds=300,
         probe_seconds=600, post_seconds=300, histogram_interval_ms=1000, feature_interval_ms=500,
-        feature_schema="sentinel-pulse-feature-v1", feature_rolling_windows=5,
+        feature_schema="sentinel-pulse-feature-v1", feature_rolling_windows=10,
         holdout_not_for_selection=True,
         attack_injection=False, frozen_models_modified=False,
         variant_model_manifest_sha256="4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",

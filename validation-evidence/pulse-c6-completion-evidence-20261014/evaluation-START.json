@@ -1,0 +1,57 @@
+{
+  "automatic_promotion": false,
+  "binding": {
+    "audit_sha256": "5ffef44c038ce66c780725f617ec5550c00c5e836eb4ebd785823a8703d14992",
+    "campaign_terminal_sha256": "aa097a979a567a45f7b73ddb11ffb8dda2918819a8dff0e62ab5527bcc204a46",
+    "corrected_preprocessing_terminal_sha256": "3014af8ceb2af43ad5434bf59885c2469690050832dd6fa3abe38dd3fd56302e",
+    "model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+    "software": {
+      "joblib": "1.6.0",
+      "numpy": "2.5.3",
+      "python": "3.12.3",
+      "scikit-learn": "1.9.1"
+    },
+    "source_sha256": {
+      "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+      "variant_capture_audit.py": "48d37f3f0e9be646a6adf76a098bece46b14745a6a89778b1e1cc43e81bfcdb1",
+      "variant_independent_normal.py": "afe8b7a385e5b13fe33894a12f9f82e1a8f15014ac463fe78f3a38c9e2719487",
+      "variant_replay.py": "8b6d8eeb476adadd047f84eecf09d1e7351f6b36e21ecb6617e10b0cfc8f6074"
+    },
+    "training_feature_profile": {
+      "capture_receipts": {
+        "k8s-worker1.local": {
+          "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker1.local/capture-manifest.json",
+          "profile": "exact-ebpf-500ms-rolling-10",
+          "sha256": "ee4600b2d30b542e23b5c88cf6fa547a96785f39cbb7d14e900680b12bfebe73"
+        },
+        "k8s-worker3.local": {
+          "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker3.local/capture-manifest.json",
+          "profile": "exact-ebpf-500ms-rolling-10",
+          "sha256": "80100ce5c6eed8b8d678c02db0d41a1211c32bdd4730e6db69cab234149e250b"
+        },
+        "k8s-worker4.local": {
+          "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker4.local/capture-manifest.json",
+          "profile": "exact-ebpf-500ms-rolling-10",
+          "sha256": "37d13ccf9a2be3143a5d82511f98f72122e84e9889dd49393127ac1d44100899"
+        }
+      },
+      "dataset_manifest_sha256": "d97318dae77551b71d54cd1198cf01ffdaa3ab108ac7c55d68d477bcb0acc414",
+      "include_idle": false,
+      "interval_ms": 500,
+      "name": "exact-ebpf-500ms-rolling-10",
+      "rolling_windows": 10
+    },
+    "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21"
+  },
+  "evidence_class": "frozen_model_inference_on_new_normal_holdout",
+  "expected_models": 608,
+  "false_positive_rate": null,
+  "kernel_to_alert": null,
+  "labels": "pending_health_and_behavior_adjudication",
+  "no_training_or_threshold_change": true,
+  "policy_applied": false,
+  "precision": null,
+  "previously_scored_under_wrong_preprocessing": true,
+  "recall": null,
+  "registered_at_unix": 1791967236.287714
+}

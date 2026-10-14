@@ -6,10 +6,17 @@ r2 đã hoàn tất trên cả ba worker: **33.148.914 decision, 11.388.831 scor
 **565 dòng** chưa được giải thích, không tuyên bố coverage hoàn chỉnh.
 Các key không có model đều là scope `pod-slice`.
 
+Kiểm tra SSH hiện hành phân biệt rõ hai tiến trình: collector exact nền trên ba
+worker đang ghi telemetry **1 giây**; candidate shadow service vẫn mở để theo
+dõi/review segment của capture A1 đã đóng, không đọc luồng 500 ms mới. B2/B3
+500 ms là timing canary bounded đã dừng sau terminal, không phải ML alert stream
+đang chạy liên tục.
+
 Batch scorer giữ nguyên 21 frozen model/policy, scalar/batch score khớp tuyệt
 đối. Canary B1 live 5 phút đạt feature-window-end → score p95/p99
-**0,424/0,474 giây**, **chưa phải kernel-to-alert**. B2 đang canary 30 phút
-trên ba worker. [Kết quả/bằng chứng](PULSE_BATCH_TIMING.md),
+**0,424/0,474 giây**, **chưa phải kernel-to-alert**. B2 và B3 đều đã hoàn tất
+canary 30 phút trên ba worker; chúng chỉ chấm preview, không tiêm attack hay
+phát alert. [Kết quả/bằng chứng](PULSE_BATCH_TIMING.md),
 [job song song và ETA](PULSE_PARALLEL_EXECUTION.md).
 
 ## Mục đích và giới hạn
@@ -136,9 +143,14 @@ hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run s�
 waiting thay vì giả vờ đã hoàn tất.
 
 Tiếp theo: audit alignment, journal/gaps và nhãn preview/normal để tổng hợp
-đánh giá. C3 đã thu đủ selection/holdout; C4 đang chấm 608 biến thể độc lập.
-Pulse tiếp tục đo batch live B2 và chuẩn bị attack adapter riêng, không dùng
-adapter legacy R10 cho feature idle-aware chỉ vì cùng 249 chiều.
+đánh giá. C3 đã thu đủ selection/holdout; C4 chấm xong 608 biến thể độc lập,
+C4 sai rolling profile nên không phải quality evidence. C6 đang sửa từ raw
+và chấm lại, không tune holdout; xem [profile mismatch](SYSCALL_PROFILE_MISMATCH.md).
+Pulse B2/B3 timing canary đã terminal. Adapter attack hiện có là legacy C2,
+không bind candidate idle-aware; chưa có attack/control matrix cho candidate
+này. Không dùng adapter legacy R10 chỉ vì cả hai schema có 249 chiều. Cần
+adapter đo `candidate_alert_preview` và ghi rõ đây là preview, không phải
+operational alert.
 
 Nhánh Pulse tiếp tục **song song với thí nghiệm syscall**, không chờ kết luận
 chọn feature. Job review có checkpoint đã hoàn tất riêng trên ba worker dưới unit

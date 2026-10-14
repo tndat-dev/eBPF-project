@@ -1,0 +1,126 @@
+{
+  "checked_at_unix": 1791964435.3126938,
+  "batch_canary": {
+    "10.1.16.237": {
+      "status": {
+        "elapsed_seconds": 1108.82324011717,
+        "frames": 2170,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 117126,
+          "candidate-raw-score-only": 60648,
+          "warming": 84
+        },
+        "updated_at_unix": 1791964431.2053113
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963322.3796797,
+      "checked_at_unix": 1791964435.0392396,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=793251840\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.238": {
+      "status": {
+        "elapsed_seconds": 1111.8774684611708,
+        "frames": 2110,
+        "issues": {
+          "collector_cadence_gap": 6
+        },
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 121974,
+          "candidate-raw-score-only": 64542,
+          "warming": 651
+        },
+        "updated_at_unix": 1791964435.0942066
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963323.2145607,
+      "checked_at_unix": 1791964435.190097,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=926822400\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.239": {
+      "status": {
+        "elapsed_seconds": 1110.1350964372978,
+        "frames": 2210,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 33246,
+          "candidate-raw-score-only": 16599,
+          "warming": 24
+        },
+        "updated_at_unix": 1791964432.6175625
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963322.4787197,
+      "checked_at_unix": 1791964434.7307243,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=458969088\nActiveState=active\nSubState=running\n"
+    }
+  },
+  "syscall_c4": {
+    "automatic_promotion": false,
+    "binding": {
+      "audit_sha256": "5ffef44c038ce66c780725f617ec5550c00c5e836eb4ebd785823a8703d14992",
+      "campaign_terminal_sha256": "aa097a979a567a45f7b73ddb11ffb8dda2918819a8dff0e62ab5527bcc204a46",
+      "model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+      "software": {
+        "joblib": "1.6.0",
+        "numpy": "2.5.3",
+        "python": "3.12.3",
+        "scikit-learn": "1.9.1"
+      },
+      "source_sha256": {
+        "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+        "variant_capture_audit.py": "6b341c03131ae7024839dd9bf024bebedfb33a9973d6e84af80269ef5ca3b4b2",
+        "variant_independent_normal.py": "343648185704e1ad9ad89c1b3964cfa6a9b8a5ebd03366f8d240381098bbef49",
+        "variant_replay.py": "8b6d8eeb476adadd047f84eecf09d1e7351f6b36e21ecb6617e10b0cfc8f6074"
+      },
+      "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21"
+    },
+    "blind_attack_complete": false,
+    "completed_models": 608,
+    "confusion_matrix": {
+      "FN": null,
+      "FP": null,
+      "TN": null,
+      "TP": null
+    },
+    "dataset_sha256": "ea1d6412a378c37f63851194417ef7c5d1395cbad08876c4f9df79bcabfd93df",
+    "expected_models": 608,
+    "false_positive_rate": null,
+    "finished_at_unix": 1791963984.9328132,
+    "kernel_to_alert": null,
+    "precision": null,
+    "recall": null,
+    "registered_at_unix": 1791963291.1182442,
+    "start_sha256": "3869135cffd0b0e62f1400df8fb5dbff111b2b5b88c7a07fb78d2d22aec2b692",
+    "state": "completed_independent_normal_raw_scores",
+    "updated_at_unix": 1791963984.7774234,
+    "terminal_exists": true,
+    "service": "NRestarts=0\nMemoryCurrent=[not set]\nActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n"
+  },
+  "syscall_c5": {
+    "binding": {
+      "decoder_sha256": "6b341c03131ae7024839dd9bf024bebedfb33a9973d6e84af80269ef5ca3b4b2",
+      "scope": "old normal dataset versus C3 selection; no holdout, model score or fitting",
+      "selection_audit_sha256": "e13e685b8620a3873b0dece250d0eafb584a041d60394a191f35a1a8bc4f2d4c",
+      "source_sha256": "4c0c5c99fe5cc13ea3ab4b367c2f9681e854c632b7855a472a77cde7a4441a36",
+      "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+      "variant_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408"
+    },
+    "finished_at_unix": 1791964389.538249,
+    "fitting_performed": false,
+    "holdout_used": false,
+    "limitations": [
+      "old reference includes the sealed normal training/calibration dataset, not training prefix only",
+      "single-feature window moments, not full temporal context distributions",
+      "differences do not prove cause of alerts or feature utility; labels remain unadjudicated"
+    ],
+    "model_or_threshold_changed": false,
+    "start_sha256": "415b6d4f9b25a1859d8d854f4c6927816b4cc71693d36fbbf35bfbffbd295359",
+    "state": "completed_descriptive_distribution_audit",
+    "terminal_exists": true,
+    "service": "NRestarts=0\nActiveState=inactive\nSubState=dead\nUnitFileState=enabled\n"
+  }
+}

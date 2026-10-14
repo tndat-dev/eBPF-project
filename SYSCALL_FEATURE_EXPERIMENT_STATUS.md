@@ -106,9 +106,9 @@ ra từ 19 model cũ. Xem
 A2 dùng source cố định đã sửa, input C3 giữ nguyên, output mới
 `/mnt/sentinel-pulse-archive/syscall-addition-a2-20261014`; systemd
 `pulse-syscall-addition-a2.service` đã `enabled` để VM boot có thể tiếp tục.
-SSH lúc **16:04 UTC 14/10** thấy `activating/start`, PID `3889873`,
-`NRestarts=0`, `ExecMainStatus=0`; checkpoint đạt **37/105 fit**, 0
-workload/arm unknown. Tiến độ tăng từ 18 lên 37 kể từ lần kiểm tra 15:59.
+SSH lần kiểm tra hiện tại thấy `activating/start`, `NRestarts=0`,
+`ExecMainStatus=0`; checkpoint đạt **99/105 fit**, 0 workload/arm unknown.
+Chưa có terminal; A2 tiếp tục nền.
 Cả 9 unit tests đã pass trên VM venv trước start. Đây là pipeline
 retry/exploratory trên C3, không phải blind confirmation; model flags không
 được diễn giải thành FP. Service chưa terminal; không sửa input/source khi

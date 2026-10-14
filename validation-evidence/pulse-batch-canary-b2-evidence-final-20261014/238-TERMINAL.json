@@ -1,0 +1,79 @@
+{
+  "automatic_promotion": false,
+  "batch_call_ms_repeated_per_scored_row": {
+    "maximum": 114.0176854096353,
+    "minimum": 13.986362144351006,
+    "p50": 19.621898187324405,
+    "p95": 27.04614042304453,
+    "p99": 34.49984034989028,
+    "samples": 104780
+  },
+  "elapsed_seconds": 1805.189919152297,
+  "feature_window_end_to_score_seconds": {
+    "maximum": 0.8626134395599365,
+    "minimum": 0.08371853828430176,
+    "p50": 0.28668105602264404,
+    "p95": 0.49291249513626095,
+    "p99": 0.5557967853546142,
+    "samples": 104780
+  },
+  "finished_at_unix": 1791965128.406654,
+  "frames": 3420,
+  "incomplete_trailing_bytes": 0,
+  "incomplete_trailing_snapshots": 0,
+  "issues": {
+    "collector_cadence_gap": 9
+  },
+  "kernel_to_alert": null,
+  "pipeline_frame_processing_ms": {
+    "maximum": 860.524779651314,
+    "minimum": 20.88708756491542,
+    "p50": 502.2656563669443,
+    "p95": 583.7238845881075,
+    "p99": 657.6067988807335,
+    "samples": 3420
+  },
+  "precision": null,
+  "preview_positive_pending_adjudication": {
+    "production/aims-frontend:web": 32,
+    "production/aims-kafka-dual-role:kafka": 58,
+    "production/aims-kafka-entity-operator:topic-operator": 1,
+    "production/aims-minio-pool-0:minio": 8,
+    "production/aims-minio-pool-0:sidecar": 1,
+    "production/aims-postgres-cnpg:postgres": 10,
+    "production/aims-rabbitmq-server:rabbitmq": 21,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 40,
+    "production/aims-redis:aims-redis": 13,
+    "production/aims-waypoint:istio-proxy": 2,
+    "production/api-gateway:app": 182,
+    "production/auth-service:app": 662,
+    "production/cart-service:app": 1356,
+    "production/catalog-service:app": 312,
+    "production/inventory-service:app": 151,
+    "production/notification-service:app": 462,
+    "production/order-service:app": 148,
+    "production/payment-service:app": 108,
+    "production/search-recommendation-service:app": 1953,
+    "production/security-telemetry-service:app": 304
+  },
+  "recall": null,
+  "scored_rows_by_batch_size": {
+    "1": 43940,
+    "2": 40560,
+    "3": 20280
+  },
+  "seals": {
+    "decisions.jsonl": "22b44c98c52dd47895d6c54b78bb2bf93c96397fae05ba8a1cc26e607aee8799",
+    "features.jsonl": "0f0401c0ff7189bb37649977a8e5dee27729ace33fdb44faaefb0d6b3ecbc88b",
+    "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af",
+    "raw.jsonl": "30b523a6cdc50696837d45a0b2e9c7c765d437dfaaa182a1694fa38991ac2b83"
+  },
+  "start_sha256": "21cc394659fe35d23191a3c5d81f896cbd7705b58edb60cf915498b664b898ff",
+  "state": "completed_timing_canary",
+  "statuses": {
+    "candidate-model-unavailable": 197780,
+    "candidate-raw-score-only": 104780,
+    "warming": 930
+  }
+}

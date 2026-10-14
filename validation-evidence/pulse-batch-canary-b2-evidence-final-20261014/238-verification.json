@@ -1,0 +1,11 @@
+{
+  "verified_raw_seals": {
+    "decisions.jsonl": true,
+    "features.jsonl": true,
+    "issues.jsonl": true,
+    "loader.log": true,
+    "raw.jsonl": true
+  },
+  "checked_at_unix": 1791965197.1252985,
+  "service": "Result=success\nNRestarts=0\nMemoryPeak=[not set]\nCPUUsageNSec=[not set]\nActiveState=inactive\nSubState=dead\n"
+}

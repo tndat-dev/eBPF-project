@@ -31,7 +31,25 @@ print(json.dumps(dict(status=json.loads(f.read_text()) if f.exists() else {},ter
     state['terminal_exists']=(root/'TERMINAL.json').exists()
     state['service']=subprocess.check_output(['systemctl','show','pulse-syscall-normal-evaluation-c4.service',
         '-p','ActiveState','-p','SubState','-p','NRestarts','-p','UnitFileState','-p','MemoryCurrent'],text=True)
-    out=dict(checked_at_unix=time.time(),batch_canary=workers,syscall_c4=state)
+    c5=Path('/mnt/sentinel-pulse-archive/syscall-development-distribution-c5')
+    status=c5/('STATUS.json' if (c5/'STATUS.json').exists() else 'START.json')
+    distribution=json.loads(status.read_text()) if status.exists() else {}
+    distribution.pop('workloads',None)
+    distribution['terminal_exists']=(c5/'TERMINAL.json').exists()
+    distribution['service']=subprocess.check_output(['systemctl','show','pulse-syscall-distribution-audit-c5.service',
+        '-p','ActiveState','-p','SubState','-p','NRestarts','-p','UnitFileState'],text=True)
+    repair=Path('/mnt/sentinel-pulse-archive/syscall-feature-profile-repair-c6')
+    progress=repair/('STATUS.json' if (repair/'STATUS.json').exists() else 'START.json')
+    corrected=json.loads(progress.read_text()) if progress.exists() else {}
+    corrected.pop('captures',None)
+    evaluation=Path('/mnt/sentinel-pulse-archive/syscall-variant-normal-c6-corrected/STATUS.json')
+    corrected['corrected_scoring']={}
+    if evaluation.exists():
+        d=json.loads(evaluation.read_text())
+        corrected['corrected_scoring']={k:d.get(k) for k in ('state','completed_models','expected_models')}
+    corrected['service']=subprocess.check_output(['systemctl','show','pulse-syscall-profile-repair-c6.service',
+        '-p','ActiveState','-p','SubState','-p','NRestarts','-p','UnitFileState'],text=True)
+    out=dict(checked_at_unix=time.time(),batch_canary=workers,syscall_c4=state,syscall_c5=distribution,syscall_c6=corrected)
     with a.output.open('x') as stream:json.dump(out,stream,indent=2);stream.write('\n')
     print(json.dumps(dict(checked_at_unix=out['checked_at_unix'],syscall_state=state['state'],
         completed_models=state.get('completed_models'),canaries={h:w['status'] for h,w in workers.items()})))

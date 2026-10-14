@@ -1,0 +1,25 @@
+[Unit]
+Description=Frozen exploratory syscall addition study on sealed one-second histograms
+After=network-online.target remote-fs.target
+RequiresMountsFor=/mnt/sentinel-pulse-archive
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=dat
+WorkingDirectory=/home/dat/pulse-syscall-addition-a1-20261014/source
+Environment=PYTHONPATH=/home/dat/pulse-syscall-addition-a1-20261014/source PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
+ExecStart=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python -u -m sentinel_pulse.syscall_addition_experiment --selection /mnt/sentinel-pulse-archive/syscall-capture-c3-r2/SELECTION_COHORT.json --selection-sha256 c33a70c77f0fcd8feaab2f8843c410f71c6c593cce9af67a83f567946d6425cc --holdout /home/dat/pulse-syscall-addition-a1-20261014/inputs/HOLDOUT_COHORT.json --holdout-sha256 38ba74e88defec13f7100b8e83a1e87ee5cc9e9bf039c6129382a4b8e92e56fe --output /mnt/sentinel-pulse-archive/syscall-addition-a1-20261014
+TimeoutStartSec=infinity
+Restart=on-failure
+RestartPreventExitStatus=65
+RestartSec=60
+CPUQuota=150%
+MemoryMax=3G
+MemorySwapMax=0
+Nice=19
+IOWeight=1
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

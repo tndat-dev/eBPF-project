@@ -1,0 +1,46 @@
+{
+  "unit": "pulse-syscall-profile-repair-c6.service",
+  "source_commit": "c4be24cd49c42175f6d3cb66a5e779e81abf02a8",
+  "repair": "/mnt/sentinel-pulse-archive/syscall-feature-profile-repair-c6",
+  "corrected_evaluation": "/mnt/sentinel-pulse-archive/syscall-variant-normal-c6-corrected",
+  "commands": [
+    [
+      "/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python",
+      "-u",
+      "-m",
+      "sentinel_pulse.repair_legacy_profile",
+      "--campaign",
+      "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2",
+      "--training-manifest",
+      "/home/dat/sentinel-pulse-syscall-feature-c1/inputs/manifest.json",
+      "--selection-audit",
+      "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/selection-preflight-complete-20261014.json",
+      "--holdout-audit",
+      "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/holdout-preflight-complete-20261014.json",
+      "--output",
+      "/mnt/sentinel-pulse-archive/syscall-feature-profile-repair-c6"
+    ],
+    [
+      "/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python",
+      "-u",
+      "-m",
+      "sentinel_pulse.variant_independent_normal",
+      "--campaign",
+      "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2",
+      "--audit",
+      "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/holdout-preflight-complete-20261014.json",
+      "--audit-sha256",
+      "5ffef44c038ce66c780725f617ec5550c00c5e836eb4ebd785823a8703d14992",
+      "--training-manifest",
+      "/home/dat/sentinel-pulse-syscall-feature-c1/inputs/manifest.json",
+      "--model-root",
+      "/mnt/sentinel-pulse-archive/syscall-variant-artifacts-c2/runs/attempt-000002",
+      "--model-sha256",
+      "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+      "--corrected-root",
+      "/mnt/sentinel-pulse-archive/syscall-feature-profile-repair-c6",
+      "--output",
+      "/mnt/sentinel-pulse-archive/syscall-variant-normal-c6-corrected"
+    ]
+  ]
+}

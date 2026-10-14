@@ -14,7 +14,17 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 - [x] Audit 15 capture mỗi split; 333.877 context selection và 334.655 holdout.
 - [x] Thống kê selection mới: 185.303.624 entry, 135 ID, tập 29 chiếm 35,7347%.
 - [x] Triển khai C4 independent holdout scoring bằng systemd, checkpoint/reboot resume.
-- [ ] C4 chấm hết 608/608; xác minh prediction seals và coverage theo workload/regime.
+- [x] C4 chấm hết 608/608; hậu kiểm toàn bộ context/prediction seals, số đếm và nguồn.
+- [x] Giữ 145.820/334.655 raw flags C4 nhưng đánh dấu không hợp lệ cho quality:
+  training rolling-10 khác sidecar rolling-5, không dùng tỷ lệ này làm FPR.
+- [x] Khởi động C5 read-only audit training/reference so với selection, không dùng holdout để tune.
+- [x] C5 hoàn tất; xác minh profile qua hash-bound training capture manifests.
+- [x] Triển khai C6 replay nguyên bản rồi derive đúng rolling-10, tự chấm lại model.
+- [x] C6 sửa đủ 30 capture/781.239 rows, xác minh nonrolling invariant và chấm đủ 608 model.
+  Full 11.989/334.655 raw positives (3,5825%), chưa adjudicate nên không phải FPR.
+- [x] Thiết kế và test nhánh thêm syscall ngoài tập 29: base29, +top8/+top16/+top32/+all training-observed.
+- [ ] Hoàn thành fit/evaluate addition study trên cùng histogram 1s; không giả lập count 500ms.
+- [ ] Blind attack/control paired cho các arms thêm syscall, không kết luận tối ưu từ normal flags.
 - [ ] Adjudicate normal/health, chia interval 30 s và báo unknown riêng.
 - [ ] Khóa fresh blind binary/cases/target UID/container/revision, seed/rate và lịch.
 - [ ] Chạy blind trials cùng đầu vào cho mọi biến thể; giữ miss và infrastructure evidence.
@@ -33,18 +43,25 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 - [x] Batch runtime giữ history/identity/policy; 21/21 model có scalar/batch score sai lệch 0.
 - [x] B1 live 5 phút: feature-end-to-score p95/p99 0,424/0,474 s; không gọi kernel-to-alert.
 - [x] Triển khai B2 live 30 phút trên cả ba worker, riêng với soak đã đóng.
-- [ ] Chốt B2 lag/backlog/CPU/RAM/issues theo node, không chỉ pooled latency.
+- [x] Chốt B2 timing theo node: p99 feature-end-to-score 0,502/0,556/0,213 s;
+  .238 có 9 cadence gaps; không gọi đây là kernel-to-alert. Overhead A/B vẫn thiếu.
+- [x] Chạy tiếp B3 bounded 30 phút trên ba worker, cùng frozen model/policy, song song nhánh thêm syscall.
 - [ ] Adapter blind phù hợp idle-aware contract; fresh attack/control và kernel timestamp.
 - [ ] Confusion/recall/live latency, overhead A/B lặp và CI trước claim stable/paper.
 
-## Job đang chạy và khi nào xem tiếp
+## Trạng thái hiện hành
 
-- Syscall: `.234`, `pulse-syscall-normal-evaluation-c4.service`, NFS
-  `/mnt/sentinel-pulse-archive/syscall-variant-normal-c4`; resume sau reboot.
-- Pulse: `.237/.238/.239`, `pulse-idle-batch-canary-b2.service`,
-  `/var/lib/pulse-idle-batch-canary-b2-20261014`; bounded 30 phút, không nối SSH.
-- B2 dự kiến kết thúc khoảng 15:06; **kiểm tra khoảng 15:10 ngày 14/10 UTC+7**.
-  C4 có thời lượng khác; xem completed_models/608, không suy thành quality %.
+- C4/C5/C6 đã kết thúc; C4 sai rolling profile không dùng kết luận quality.
+- A1 capture/review và B2 đã kết thúc, không chạy lại để xóa preview/unknown.
+- B3 `pulse-idle-batch-canary-b3.service` đã terminal thành công trên .237/.238/.239
+  (terminal summary được thu lúc 15:55 UTC ngày 14/10); p99 feature-end-to-score lần lượt
+  0,516/0,555/0,220 giây. Có 10.138 preview dương đang chờ adjudication và
+  3 cadence gaps trên worker .238; không có attack injection hay alert serving.
+- Nhánh thêm syscall có source/6 unit tests pass trong VM venv; đang chuẩn bị
+  input cohort đã seal trước khi chạy fit/evaluation riêng. Không thay Pulse.
+
+Tổng hợp kết quả và giải thích đầy đủ:
+[SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md).
 
 Chi tiết: [trạng thái syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md),
 [batch timing Pulse](PULSE_BATCH_TIMING.md), [hai nhánh](PULSE_PARALLEL_EXECUTION.md),

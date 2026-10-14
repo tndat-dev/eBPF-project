@@ -1,0 +1,47 @@
+{
+  "schema": "pulse-feature-semantic-profile-verdict-v1",
+  "issued_at_unix": 1791964951.4431355,
+  "state": "invalid_for_model_quality_claims",
+  "c4_terminal_sha256": "dc1218b68f56fdb2b45c0d9882afb6ff6951c8d7f1b52435eefc29096a977134",
+  "expected_training_profile": {
+    "name": "exact-ebpf-500ms-rolling-10",
+    "interval_ms": 500,
+    "rolling_windows": 10,
+    "include_idle": false,
+    "dataset_manifest_sha256": "d97318dae77551b71d54cd1198cf01ffdaa3ab108ac7c55d68d477bcb0acc414",
+    "capture_receipts": {
+      "k8s-worker1.local": {
+        "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker1.local/capture-manifest.json",
+        "sha256": "ee4600b2d30b542e23b5c88cf6fa547a96785f39cbb7d14e900680b12bfebe73",
+        "profile": "exact-ebpf-500ms-rolling-10"
+      },
+      "k8s-worker3.local": {
+        "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker3.local/capture-manifest.json",
+        "sha256": "80100ce5c6eed8b8d678c02db0d41a1211c32bdd4730e6db69cab234149e250b",
+        "profile": "exact-ebpf-500ms-rolling-10"
+      },
+      "k8s-worker4.local": {
+        "path": "/home/dat/sentinel-pulse-evidence/dataset-r10/pulse500-data-20260928T142929Z/nodes/k8s-worker4.local/capture-manifest.json",
+        "sha256": "37d13ccf9a2be3143a5d82511f98f72122e84e9889dd49393127ac1d44100899",
+        "profile": "exact-ebpf-500ms-rolling-10"
+      }
+    }
+  },
+  "observed_capture_settings": {
+    "include_idle": false,
+    "loader_sha256": "6c56348310896e3facbf9831bda7057272f2c7c7ef28081d60739c8f3ac7bb50",
+    "object_sha256": "4df33742c7fdd87d1719716f8aa998a61c9bfcecba97983878512915dff269ab",
+    "observable": "sys_enter entry only; seccomp skipped/emulated not included",
+    "rolling_windows": 5,
+    "schema": "sentinel-pulse-feature-v1",
+    "snapshot_interval_ms": 500
+  },
+  "example_capture_start_sha256": "fa62731fefa3be320f2a276e96bd476b9b5654d79cd55e8b1b8516c4c1b60e22",
+  "affected_columns": "29 rolling_mean + 29 rolling_std = 58 of 249",
+  "raw_c4_full_positive": 145820,
+  "raw_c4_contexts": 334655,
+  "interpretation": "measured flags on incompatible preprocessing; not valid FPR, model stability, syscall utility or precision/recall evidence",
+  "original_evidence_modified": false,
+  "model_or_threshold_changed": false,
+  "recovery_unit": "pulse-syscall-profile-repair-c6.service"
+}

@@ -134,7 +134,8 @@ def build_start(args, allow_ids: list[int], metadata: dict) -> dict:
             "loader_sha256": sha256_file(feature_loader),
             "object_sha256": sha256_file(feature_object),
             "schema": "sentinel-pulse-feature-v1", "snapshot_interval_ms": 500,
-            "rolling_windows": 5, "include_idle": False,
+            "rolling_windows": 10, "include_idle": False,
+            "feature_profile": "exact-ebpf-500ms-rolling-10",
             "observable": "sys_enter entry only; seccomp skipped/emulated not included",
         }
     return {
@@ -195,7 +196,7 @@ class FeatureSidecar:
                             raw.write(line)
                             yield line
                     self.result["capture"] = capture_run(
-                        lines(), features, args.metadata, 5, 0.35, 0.75, 0.5)
+                        lines(), features, args.metadata, 10, 0.35, 0.75, 0.5)
                     for stream in (raw, features):
                         stream.flush()
                         os.fsync(stream.fileno())

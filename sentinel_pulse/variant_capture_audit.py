@@ -136,7 +136,7 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
         raise ValueError('legacy 249-column schema required')
     revisions = {k: training['approved_workload_revisions'].get(k, []) for k in variants['workloads']}
     campaign_hash = sha256_file(campaign / 'START.json')
-    captures, seen = {}, set()
+    captures, seen,rolling_profiles = {}, set(),set()
     # Read a stable prefix of the append-only journal; never include active or
     # rejected attempts, and never change a running capture/coordinator.
     lines = (campaign / 'attempts.jsonl').read_bytes().splitlines(keepends=True)
@@ -164,8 +164,9 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
                 raise ValueError('capture does not match normal campaign')
             parallel = start.get('parallel_feature_capture', {})
             if (parallel.get('schema') != 'sentinel-pulse-feature-v1' or parallel.get('include_idle') is not False
-                    or parallel.get('rolling_windows') != 5 or parallel.get('snapshot_interval_ms') != 500):
+                    or parallel.get('rolling_windows') not in (5,10) or parallel.get('snapshot_interval_ms') != 500):
                 raise ValueError('incompatible feature capture settings')
+            rolling_profiles.add(parallel['rolling_windows'])
             if (feature.get('unexpected_exit') or feature.get('loader_exit_status') != 0
                     or feature.get('error') or feature['capture']['malformed'] or feature['capture']['unresolved']):
                 raise ValueError('feature sidecar failed')
@@ -179,8 +180,8 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
         campaign_start_sha256=campaign_hash, training_manifest_sha256=training_hash,
         variant_manifest_sha256=variant_hash, auditor_sha256=sha256_file(Path(__file__)), captures=captures,
         captures_verified=len(captures), expected_captures=15, scores_computed=False,
-        training_preprocessing=preprocessing,observed_rolling_windows=5,
-        preprocessing_compatible_with_training=preprocessing['rolling_windows']==5,
+        training_preprocessing=preprocessing,observed_rolling_windows=sorted(rolling_profiles),
+        preprocessing_compatible_with_training=rolling_profiles=={preprocessing['rolling_windows']},
         normal_labels_adjudicated=False, precision=None, recall=None, kernel_to_alert=None,
         limitations=['shape/identity admission only; rolling profile must also match before model evaluation',
                      'health/traffic interval adjudication still required',

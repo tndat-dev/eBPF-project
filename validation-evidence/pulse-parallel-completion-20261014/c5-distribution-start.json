@@ -1,0 +1,12 @@
+{
+  "binding": {
+    "decoder_sha256": "6b341c03131ae7024839dd9bf024bebedfb33a9973d6e84af80269ef5ca3b4b2",
+    "scope": "old normal dataset versus C3 selection; no holdout, model score or fitting",
+    "selection_audit_sha256": "e13e685b8620a3873b0dece250d0eafb584a041d60394a191f35a1a8bc4f2d4c",
+    "source_sha256": "4c0c5c99fe5cc13ea3ab4b367c2f9681e854c632b7855a472a77cde7a4441a36",
+    "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21",
+    "variant_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408"
+  },
+  "no_training_or_threshold_change": true,
+  "registered_at_unix": 1791964320.3367326
+}

@@ -1,0 +1,61 @@
+{
+  "automatic_promotion": false,
+  "batch_call_ms_repeated_per_scored_row": {
+    "maximum": 98.57051027938724,
+    "minimum": 13.953766785562038,
+    "p50": 20.67818073555827,
+    "p95": 31.55754995532334,
+    "p99": 34.90362275391817,
+    "samples": 27583
+  },
+  "elapsed_seconds": 1800.3016229281202,
+  "feature_window_end_to_score_seconds": {
+    "maximum": 0.2901771068572998,
+    "minimum": 0.03297257423400879,
+    "p50": 0.10225963592529297,
+    "p95": 0.1842990159988402,
+    "p99": 0.2127018404006958,
+    "samples": 27583
+  },
+  "finished_at_unix": 1791965122.7840853,
+  "frames": 3583,
+  "incomplete_trailing_bytes": 804,
+  "incomplete_trailing_snapshots": 4,
+  "issues": {},
+  "kernel_to_alert": null,
+  "pipeline_frame_processing_ms": {
+    "maximum": 288.0796347744763,
+    "minimum": 5.392006598412991,
+    "p50": 171.58086691051722,
+    "p95": 214.60728193633256,
+    "p99": 262.8414755128324,
+    "samples": 3583
+  },
+  "precision": null,
+  "preview_positive_pending_adjudication": {
+    "production/aims-kafka-dual-role:kafka": 22,
+    "production/aims-postgres-cnpg:postgres": 57,
+    "production/aims-rabbitmq-server:rabbitmq": 4,
+    "production/aims-redis:aims-redis": 2,
+    "production/aims-waypoint:istio-proxy": 29
+  },
+  "recall": null,
+  "scored_rows_by_batch_size": {
+    "1": 22523,
+    "2": 5060
+  },
+  "seals": {
+    "decisions.jsonl": "2d413f6fb67e53bd062eb017a670ddde342f90fb574408a1009e287ef5662486",
+    "features.jsonl": "3d7e1e8fdc3b19908f828ddf4f3adb0973edec14b0670a25e54196be5f0708e4",
+    "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loader.log": "251b90f861d314f9724db9e3758a368467ddf1639ffbc8911109ef110a9c18d9",
+    "raw.jsonl": "bbd0894856685685a1b9d2cb41233379953f90f7113a73ecacf8e56a9624a346"
+  },
+  "start_sha256": "43153c8c447af4f11b31efbdd01e10d89661416b72221d7b9f7c9e43f1c62bb3",
+  "state": "completed_timing_canary",
+  "statuses": {
+    "candidate-model-unavailable": 55214,
+    "candidate-raw-score-only": 27583,
+    "warming": 24
+  }
+}

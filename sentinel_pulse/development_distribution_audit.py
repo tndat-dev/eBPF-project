@@ -26,10 +26,14 @@ def merge(parts):
     return result
 
 
+def input_rows(path):
+    with path.open() as stream:
+        for line in stream:yield json.loads(line)
+
+
 def read_input(path,columns,workloads,revisions,probe=None):
     sums={};excluded=Counter();saw_schema=False
-    for line in path.open():
-        row=json.loads(line)
+    for row in input_rows(path):
         if row['schema']=='sentinel-pulse-feature-schema-v1':
             if row['columns']!=columns:raise ValueError('feature columns differ')
             saw_schema=True;continue
