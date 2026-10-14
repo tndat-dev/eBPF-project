@@ -19,8 +19,12 @@
 
 struct pulse_counters {
 #ifdef PULSE_PROJECTED_COUNTERS
+#ifdef PULSE_FULL_IDS
+    __u64 full_counts[PULSE_MAX_SYSCALL_ID];
+#else
     __u64 tracked[PULSE_TRACKED];
     __u64 other_syscall_bins[PULSE_SYSCALL_BINS];
+#endif
     __u64 transition_bins[PULSE_TRANSITION_BINS];
 #ifdef PULSE_SECCOMP_EXTENDED
     __u64 seccomp_skipped_or_emulated;
@@ -140,11 +144,15 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
         return 0;
 
 #ifdef PULSE_PROJECTED_COUNTERS
+#ifdef PULSE_FULL_IDS
+    counters->full_counts[syscall_id]++;
+#else
     if (!increment_projected_tracked(counters, syscall_id)) {
         __u32 sc_bin = syscall_bin(syscall_id);
         if (sc_bin < PULSE_SYSCALL_BINS)
             counters->other_syscall_bins[sc_bin]++;
     }
+#endif
 #else
     counters->total++;
     __u32 sc_bin = syscall_bin(syscall_id);

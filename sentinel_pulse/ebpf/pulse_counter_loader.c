@@ -231,7 +231,18 @@ static int print_snapshots(
             printf("],\"transition_bins\":[");
             for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++)
                 printf("%s%llu", bin ? "," : "", (unsigned long long)sum.transition_bins[bin]);
-            printf("]}\n");
+            printf("]");
+#ifdef PULSE_FULL_IDS
+            printf(",\"full_counts\":{");
+            int separator = 0;
+            for (int id = 0; id < 1024; id++) {
+                if (!sum.full_counts[id]) continue;
+                printf("%s\"%d\":%llu", separator++ ? "," : "", id,
+                       (unsigned long long)sum.full_counts[id]);
+            }
+            printf("}");
+#endif
+            printf("}\n");
             printed++;
         }
         key = next; has_key = 1;

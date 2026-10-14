@@ -65,3 +65,14 @@ syscall-histogram: check-deps
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(HISTOGRAM_BUILD_DIR)/vmlinux.h"
 	$(CLANG) $(BPF_CFLAGS) -I"$(HISTOGRAM_BUILD_DIR)" -c syscall_histogram.bpf.c -o "$(HISTOGRAM_BUILD_DIR)/syscall_histogram.bpf.o"
 	$(CC) -O2 -Wall -Wextra -Werror syscall_histogram_loader.c -o "$(HISTOGRAM_BUILD_DIR)/syscall_histogram_loader" -lbpf -lelf -lz
+
+# Opt-in matched observable: derive the same Pulse counters and bins from
+# authoritative full-ID words, including the existing seccomp skip hook.
+.PHONY: matched
+matched: check-deps
+	@test -n "$(MATCHED_BUILD_DIR)" || { echo 'explicit MATCHED_BUILD_DIR required' >&2; exit 2; }
+	mkdir -p "$(MATCHED_BUILD_DIR)"
+	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(MATCHED_BUILD_DIR)/vmlinux.h"
+	$(CLANG) $(BPF_CFLAGS) -I"$(MATCHED_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -c pulse_counter.bpf.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS pulse_counter_loader.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended_loader" -lbpf -lelf -lz
+	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(MATCHED_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
