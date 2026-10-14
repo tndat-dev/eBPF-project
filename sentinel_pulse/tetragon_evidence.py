@@ -175,6 +175,10 @@ def find_execve_kprobe_event(
         ):
             continue
         process = event.get("process") if isinstance(event.get("process"), dict) else {}
+        container_id = str(marker.get("container_id", "")).removeprefix("containerd://")
+        arguments = str(process.get("arguments", ""))
+        if container_id and container_id not in arguments.split():
+            continue
         matches.append({
             "schema": SCHEMA,
             "injection_id": marker["injection_id"],
@@ -193,7 +197,9 @@ def find_execve_kprobe_event(
             "seed": int(marker["seed"]),
             "rate_per_second": int(marker["rate_per_second"]),
             "binary": expected_binary,
-            "identity_scope": "serialized_node_exact_binary",
+            "identity_scope": "serialized_node_container_id_and_exact_binary"
+            if container_id else "serialized_node_exact_binary",
+            "container_id": marker.get("container_id"),
             "raw_event_sha256": hashlib.sha256(
                 json.dumps(record, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest(),

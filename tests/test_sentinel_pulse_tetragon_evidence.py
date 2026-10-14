@@ -76,10 +76,11 @@ def test_duplicate_kernel_events_fail_closed():
         )
 
 
-def kprobe_event(path="/tmp/sentinel-runtime-attack-blind", policy="sentinel-pulse-exec-provenance"):
+def kprobe_event(path="/tmp/sentinel-runtime-attack-blind", policy="sentinel-pulse-exec-provenance",
+                 arguments="runc exec container-id"):
     return json.dumps({
         "process_kprobe": {
-            "process": {"exec_id": "runc:clock:pid", "pid": 999},
+            "process": {"exec_id": "runc:clock:pid", "pid": 999, "arguments": arguments},
             "function_name": "__x64_sys_execve",
             "args": [{"string_arg": path}],
             "action": "KPROBE_ACTION_POST",
@@ -91,13 +92,22 @@ def kprobe_event(path="/tmp/sentinel-runtime-attack-blind", policy="sentinel-pul
 
 
 def test_live_execve_kprobe_is_a_kernel_latency_origin():
+    trial=marker();trial['container_id']='containerd://container-id'
     result = find_execve_kprobe_event(
-        [kprobe_event()], marker(),
+        [kprobe_event()], trial,
         expected_binary="/tmp/sentinel-runtime-attack-blind",
     )
     assert result["source"] == "tetragon_execve_kprobe_grpc"
     assert result["policy_name"] == "sentinel-pulse-exec-provenance"
-    assert result["identity_scope"] == "serialized_node_exact_binary"
+    assert result["identity_scope"] == "serialized_node_container_id_and_exact_binary"
+    assert result["container_id"] == "containerd://container-id"
+
+
+def test_live_execve_kprobe_rejects_another_cri_container():
+    trial=marker();trial['container_id']='containerd://target-container'
+    with pytest.raises(ValueError,match="observed 0"):
+        find_execve_kprobe_event([kprobe_event(arguments="runc exec other-container")],trial,
+            expected_binary="/tmp/sentinel-runtime-attack-blind")
 
 
 def test_execve_kprobe_rejects_wrong_policy_or_binary():
