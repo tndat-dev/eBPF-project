@@ -1,6 +1,6 @@
 # Kiểm tra đồng bộ host–VM và rủi ro cần cải thiện
 
-Ngày kiểm tra: **14/10/2026** (UTC). Phạm vi là repo eBPF/Sentinel Pulse,
+Ngày kiểm tra: **15/10/2026** (Asia/Bangkok). Phạm vi là repo eBPF/Sentinel Pulse,
 checkout vận hành và trạng thái cluster liên quan trực tiếp đến candidate.
 Đây là snapshot hiện hành; không khẳng định mọi clone hoặc raw data đều đã
 đồng bộ.
@@ -9,25 +9,34 @@ checkout vận hành và trạng thái cluster liên quan trực tiếp đến c
 
 | Vị trí | Trạng thái quan sát | Ý nghĩa |
 |---|---|---|
-| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, commit `703bb73`; `origin` cùng SHA; working tree sạch trước cập nhật audit | Revision đã push, nguồn Git hiện hành |
-| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng hiện ở commit `703bb73`, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
-| VM `/home/dat/eBPF-project` | Branch `main`, commit `ca682ef`, **37 file có thay đổi cục bộ** | Chưa đồng bộ; không pull/reset/stash/clean và không ghi đè |
+| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, commit `87a38be`; `origin` cùng SHA; working tree sạch trước cập nhật audit | Revision đã push, nguồn Git hiện hành |
+| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng ở commit `87a38be`, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
+| VM `/home/dat/eBPF-project` | Branch `main`, commit `ca682ef`, **37 mục dirty** | Chưa đồng bộ; không pull/reset/stash/clean và không ghi đè |
 | Runtime frozen trên NFS | `/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source`, commit `2c1a72d`, sạch | Checkout vận hành tách biệt; không thay bằng Git head mới nếu chưa đăng ký lại candidate |
 
 Host và worktree mirror VM cùng commit nên nội dung **tracked** giống hệt theo
 Git. Việc đó không đồng bộ file untracked/ignored, raw telemetry, model output
-hoặc các clone cũ khác trên VM. Checkout cũ có 37 sửa đổi chưa review và được
-giữ nguyên. Candidate runtime tiếp tục bind commit `2c1a72d` và manifest riêng;
-Git head `67b9585` không tự động trở thành runtime đã deploy.
+hoặc checkout cũ. Checkout `/home/dat/eBPF-project` vẫn ở `ca682ef`, cũ hơn
+nhánh host 167 commit tại lần so sánh, có 17 file tracked sửa đổi và 20 mục
+untracked (4 source/test mới cùng evidence lịch sử). Không file nào bị xóa hoặc
+ghi đè. Trong 19 source/test thay đổi được so SHA, 10 file byte-identical với
+host; 9 file khác phiên bản nhưng các chức năng revision provenance, contract
+v3, observer và test đã có bản tương ứng trong host branch. Hai báo cáo cũ và
+raw evidence của checkout này chưa được đồng bộ; không thể tuyên bố *mọi file*
+hay mọi clone đã đồng bộ. Candidate runtime tiếp tục bind commit `2c1a72d` và
+manifest riêng; Git head mới không tự động trở thành runtime đã deploy.
 
 Các commit đã push trong nhánh host: `ce45c27` (pacing C7), `f5ef974` (link
-tài liệu), `67b9585` (canary/review và C6), `703bb73` (status/audit). Không
-stage đại trà raw campaign.
+tài liệu), `67b9585` (canary/review và C6), `703bb73` (status/audit),
+`87a38be` (audit mirror). Không stage đại trà raw campaign.
 
 ## Kiểm chứng code và môi trường
 
 - VM worktree tại `67b9585`: **1.235 passed**, 20 subtests passed, 2 cảnh báo
   deprecation; pytest dùng `/home/dat/ml-venv`, hoàn thành trong 92,43 giây.
+- VM checkout cũ `ca682ef` với các sửa đổi cục bộ: **576 passed**, 2 cảnh báo
+  deprecation trong 85,43 giây. Đây là test collection của nhánh cũ, không
+  thay thế bộ test đầy đủ ở host branch; test không làm mất 37 thay đổi cục bộ.
 - Host report gần nhất: **1.194 passed, 7 skipped**, 20 subtests. Host venv
   thiếu `torch`, trong khi root `requirements.txt` khai báo `torch>=2.2`; do đó
   một số test ML bị bỏ qua và coverage không tương đương VM. Host có Python
@@ -59,11 +68,17 @@ Python và dependencies, đồng thời fail nếu test quan trọng bị skip.
 - B3: 30 phút/node; p99 feature-window-end-to-score `.237/.238/.239` là
   **0,516/0,555/0,220 giây**. Không phải kernel-to-preview/alert hoặc quality
   metric; `.238` giữ 3 cadence gaps. B3/B4 hiện `inactive/dead`.
-- SSH/`kubectl` kiểm tra: **6/6 node Ready, v1.34.10**; Tetragon **6/6 pod
-  Running**. Policy `sentinel-pulse-exec-provenance` enabled trên đủ 6 agent,
-  lọc `sys_execve` theo hai đường dẫn binary thử nghiệm. Trên ba worker baseline
-  collector chạy **1.000 ms**; không có extended 500 ms loader hay candidate
-  scorer live tại thời điểm kiểm tra.
+- SSH/`kubectl` kiểm tra ngày 15/10: **6/6 node Ready, v1.34.10**, Ubuntu
+  24.04/kernel `6.8.0-138-generic`; Tetragon **6 agent 2/2 Running** và operator
+  1/1 Running. Ba AIMS load-generator hiện 1/1 Ready. Policy
+  `sentinel-pulse-exec-provenance` đã được xác nhận enabled trên đủ agent trong
+  lần kiểm tra trước.
+- Các service `sentinel-pulse-observation-campaign`, `...-attack` và
+  `...-normal-control` báo `Result=success`, `ActiveState=active`,
+  `SubState=exited`: đều là oneshot đã thoát, không phải soak/attack đang chạy.
+  Không thấy unit/candidate scorer 500 ms hiện hành hoặc tiến trình Pulse live;
+  unit attack 500 ms được liệt kê là các pilot cũ ở trạng thái failed. Vì vậy
+  chưa có blind attack evaluation mới cho candidate hiện hành.
 - `sentinel-pulse-observation-attack.service` thoát `Result=success` nhưng dùng
   source/config C2 cũ. Nó **không** tạo attack matrix cho idle-aware candidate
   hiện hành. Candidate này chưa có confusion matrix, precision, recall, FPR
@@ -82,7 +97,7 @@ Python và dependencies, đồng thời fail nếu test quan trọng bị skip.
 | Cao | Không có candidate 500 ms đang chạy; baseline collector là 1 s | Bật bounded canary sau khi có quyền root hợp lệ, preregister budget/rollback và xác minh source/model binding; đo lại cadence thật |
 | Cao | 18 file trong `sentinel_pulse`/`scripts` dùng `StrictHostKeyChecking=no` | Chuyển transport sang known-hosts pinning và `StrictHostKeyChecking=yes`; cấp SSH key riêng hạn quyền, kiểm thử bootstrap host-key thay vì tắt xác minh |
 | Cao | Có 7 vị trí `pickle.load`; SHA manifest không bảo vệ nếu cùng lúc thay artifact và manifest | Chỉ load từ root tin cậy; ký manifest bằng khóa ngoài data store hoặc chuyển định dạng; không nhận pickle chưa xác thực |
-| Trung bình | Host/VM developer checkout lệch revision; checkout VM có 37 sửa đổi và nhiều clone | Worktree/branch rõ ràng; inventory/diff từng clone, review thay đổi VM trước khi đồng bộ; không xóa tự động |
+| Trung bình | Host/mirror đã cùng revision, nhưng checkout `main` trên VM cũ hơn 167 commit, có 37 mục dirty; report/raw evidence chưa mirror | Tiếp tục dùng worktree branch rõ ràng; review rồi cherry-pick/port có chọn lọc nếu cần; không reset hoặc xóa tự động |
 | Trung bình | Dependency test/train chưa khóa thống nhất; host thiếu Torch nên bỏ qua test ML | Lock đầy đủ toàn môi trường và CI chuẩn; test quan trọng không được silently skip |
 | Trung bình | Repo ~1,4 GiB với nhiều evidence, dễ commit raw hoặc làm cạn storage | Manifest/hash/receipt ở Git; raw ở NFS/object store có quota/retention/backup; stage allow-list |
 | Trung bình | Nhiều systemd unit legacy `failed`/`active,exited`, dễ nhầm với process sống | Status checker đọc `Result`, terminal, PID và timestamp; chỉ retire sau owner/source/output audit |
@@ -95,9 +110,12 @@ thực, không phải lỗi SSH; không dùng privileged pod để lách quyền
 
 ## Kết luận
 
-**Source đã mirror chính xác trong worktree VM riêng; tất cả clone trên VM chưa
-đồng bộ.** Bộ test VM worktree pass, nhưng host venv thiếu Torch nên test
-coverage khác. A1/B3 cung cấp normal/timing evidence, không phải confusion
-matrix. A2 đã kết thúc exploratory; Pulse tiếp tục độc lập với nó. Để có matrix
-candidate hợp lệ: adjudicate normal exposure, rồi chạy preview scorer 500 ms
-và blind attack mới với Tetragon kernel timestamp cùng paired normal controls.
+**Host và worktree mirror VM đã đồng bộ ở `87a38be`; checkout VM cũ chưa đồng bộ
+và được giữ nguyên.** Test checkout VM cũ cũng pass, nhưng chỉ 576 test thuộc
+revision cũ; host/mirror mới hơn có coverage lớn hơn. A1/B3 cung cấp
+normal/timing evidence, không phải confusion matrix. A2 đã kết thúc
+exploratory; Pulse tiếp tục độc lập với nó. Để có matrix candidate hợp lệ:
+adjudicate normal exposure, rồi triển khai preview scorer 500 ms cùng blind
+attack mới, ghép identity/revision và Tetragon kernel timestamp, kèm paired
+normal controls. Chưa thực hiện bước này vì hiện không có scorer/loader live;
+không dùng kết quả C2 cũ làm kết quả candidate mới.
