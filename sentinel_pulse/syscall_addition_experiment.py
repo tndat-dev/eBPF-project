@@ -229,10 +229,16 @@ def run(selection, selection_hash, holdout, holdout_hash, output):
     state = json.loads((output/'STATUS.json').read_text()) if (output/'STATUS.json').exists() else dict(
         state='running', binding=binding, completed={}, unknowns={}, precision=None, recall=None,
         false_positive_rate=None, kernel_to_alert=None, fresh_blind_complete=False)
+    if state['binding'] != binding:
+        raise ValueError('status checkpoint binding differs')
     all_rows = selection_rows + holdout_rows
-    for variant, ids in variants.items():
-        contexts, metadata, preparation = build_contexts(all_rows, ids, SENSITIVE_IDS)
-        for workload, phases in sorted(contexts.items()):
+    # Bound peak memory to ONE workload/variant rather than materializing
+    # 21 workloads of a 4*expanded-width context simultaneously.
+    workloads = sorted({row['workload'] for row in all_rows})
+    state['expected_models'] = len(workloads) * len(variants)
+    for workload in workloads:
+        workload_rows = [row for row in all_rows if row['workload'] == workload]
+        for variant, ids in variants.items():
             key = workload+'|'+variant
             if key in state['completed']:
                 result = state['completed'][key]
@@ -240,6 +246,8 @@ def run(selection, selection_hash, holdout, holdout_hash, output):
                     if sha256_file(output/relative) != expected:
                         raise ValueError('completed checkpoint artifact changed')
                 continue
+            contexts, metadata, preparation = build_contexts(workload_rows, ids, SENSITIVE_IDS)
+            phases = contexts.get(workload, {})
             needed = ('train', 'calibration', 'holdout')
             if any(p not in phases or len(phases[p]) < (199 if p == 'calibration' else 100) for p in needed):
                 state['unknowns'][key] = {p: len(phases.get(p, ())) for p in needed}
