@@ -110,3 +110,35 @@ def test_installer_rejects_misidentified_archive_before_any_remote_work(tmp_path
         with pytest.raises(ValueError, match='archive Git commit'):
             install('b' * 40, archive, tmp_path / 'credential')
         remote.assert_not_called()
+
+
+def test_target_stability_waits_through_hpa_scale_down_and_poll_gaps():
+    from sentinel_pulse.syscall_capture_campaign import stable_targets
+    state = None
+    for now in range(0, 331, 30):
+        state = stable_targets(state, {'node': ['pod-a', 'pod-b']}, now, True, 360)
+        assert not state['ready']
+    state = stable_targets(state, {'node': ['pod-a']}, 360, True, 360)
+    assert state['since'] == 360
+    for now in range(390, 721, 30):
+        state = stable_targets(state, {'node': ['pod-a']}, now, True, 360)
+    assert state['ready']
+    assert not stable_targets(state, {'node': ['pod-a']}, 1000, True, 360)['ready']
+    assert not stable_targets(state, {'node': ['pod-a']}, 750, False, 360)['ready']
+
+
+def test_amendment_binds_original_without_relaxing_integrity(tmp_path):
+    from sentinel_pulse.syscall_capture_campaign import verify_amendment, digest
+    original = dict(controller_sha256='old', source_commit='old', probe_seconds=600)
+    effective = dict(original, controller_sha256='new', source_commit='new', target_settle_seconds=360)
+    p = tmp_path/'amendment.json'
+    p.write_text(json.dumps(dict(original_start_sha256='start', original_contract=original,
+                                effective_contract=effective)))
+    verify_amendment(original, effective, p, digest(p), 'start')
+    with pytest.raises(ValueError, match='bind'):
+        verify_amendment(original, effective, p, digest(p), 'different')
+    changed = dict(effective, probe_seconds=1)
+    p.write_text(json.dumps(dict(original_start_sha256='start', original_contract=original,
+                                effective_contract=changed)))
+    with pytest.raises(ValueError, match='semantics'):
+        verify_amendment(original, changed, p, digest(p), 'start')

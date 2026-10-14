@@ -44,7 +44,8 @@ def phases():
 
 
 class Remote:
-    def __init__(self, credential):
+    def __init__(self, credential, source=SOURCE):
+        self.source = str(source)
         self.credential = Path(credential)
         if self.credential.stat().st_mode & 0o077:
             raise ValueError("credential must be private")
@@ -83,6 +84,15 @@ print(json.dumps(out))
 ''' % (SOAK_ROOT, run, REMOTE_ROOT)
         return json.loads(self.command(host, ["python3", "-c", script]))
 
+    def targets(self, host):
+        script = '''import json
+from pathlib import Path
+d=json.loads(Path('/run/sentinel-pulse/cgroups.json').read_text())
+print(json.dumps({k:[v.get(f) for f in ('pod_uid','container_name','workload_revision','container_id')]
+ for k,v in d['cgroups'].items()},sort_keys=True))
+'''
+        return json.loads(self.command(host, ['python3', '-c', script]))
+
     def launch(self, host, run, receipt, source_commit):
         if not soak_complete(self.inspect(host)):
             raise RuntimeError("protected capture is still active")
@@ -100,13 +110,13 @@ assert sum(f.stat().st_size for f in p.rglob('*') if f.is_file()) < 4*1024**3, '
         self.command(host, ["systemd-run", "--unit=pulse-syscall-c3-" + run,
             "--property=RuntimeMaxSec=1500", "--property=CPUQuota=100%",
             "--property=MemoryMax=512M", "--property=Nice=15", "--property=TasksMax=32",
-            "env", "PYTHONPATH=" + SOURCE, "/opt/sentinel-pulse/runtime-venv/bin/python",
+            "env", "PYTHONPATH=" + self.source, "/opt/sentinel-pulse/runtime-venv/bin/python",
             "-m", "sentinel_pulse.syscall_histogram_pilot",
             "--run-id", run, "--source-commit", source_commit,
-            "--loader", SOURCE + "/build/syscall_histogram_loader",
-            "--object", SOURCE + "/build/syscall_histogram.bpf.o",
-            "--feature-loader", SOURCE + "/sentinel_pulse/ebpf/pulse_counter_projected_loader",
-            "--feature-object", SOURCE + "/sentinel_pulse/ebpf/pulse_counter_projected.bpf.o",
+            "--loader", self.source + "/build/syscall_histogram_loader",
+            "--object", self.source + "/build/syscall_histogram.bpf.o",
+            "--feature-loader", self.source + "/sentinel_pulse/ebpf/pulse_counter_projected_loader",
+            "--feature-object", self.source + "/sentinel_pulse/ebpf/pulse_counter_projected.bpf.o",
             "--traffic-receipt", receipt_path, "--output", REMOTE_ROOT + "/" + run,
             "--owner-uid", "1000", "--owner-gid", "1000"])
 
@@ -170,12 +180,38 @@ def set_regime(source, regime, log):
                        env=env, stdout=stream, stderr=stream, check=True, timeout=600)
 
 
+def verify_amendment(original, contract, path, expected_hash, start_hash):
+    if not path or not expected_hash or digest(path) != expected_hash:
+        raise ValueError('campaign code/config changed; use a bound operational amendment')
+    amendment = json.loads(path.read_text())
+    if (amendment.get('original_start_sha256') != start_hash
+            or amendment.get('original_contract') != original
+            or amendment.get('effective_contract') != contract):
+        raise ValueError('amendment does not bind original and effective contracts')
+    changed = {k for k in set(original) | set(contract) if original.get(k) != contract.get(k)}
+    if not changed <= {'controller_sha256', 'source_commit', 'target_settle_seconds'}:
+        raise ValueError('operational amendment may not alter capture/model/analysis semantics')
+    if contract.get('target_settle_seconds') != 360:
+        raise ValueError('registered target settling interval must be 360 seconds')
+
+
+def stable_targets(previous, targets, now, healthy_now, seconds):
+    fingerprint = hashlib.sha256(json.dumps(targets, sort_keys=True).encode()).hexdigest()
+    previous = previous or {}
+    since = previous.get('since', now)
+    if (previous.get('fingerprint') != fingerprint or not healthy_now or now < since
+            or now - previous.get('observed_at', now) > 60):
+        since = now
+    return dict(fingerprint=fingerprint, since=since, observed_at=now,
+                ready=healthy_now and now - since >= seconds)
+
+
 def run(args):
     root, source = args.root, args.source
     root.mkdir(parents=True, exist_ok=True)
     lock = (root / "campaign.lock").open("a")
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    remote = Remote(args.credential)
+    remote = Remote(args.credential, source=source)
     start_path = root / "START.json"
     contract = dict(schema="pulse-syscall-multiregime-campaign-v1", source_commit=args.source_commit,
         controller_sha256=digest(__file__), traffic_script_sha256=digest(source / "ml-service/set_aims_traffic_regime.sh"),
@@ -191,9 +227,14 @@ def run(args):
             comparisons="each variant versus full, paired intervals; Holm correction",
             zero_alert_gate=False, tune_using_final_holdout=False),
         evidence_scope="full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately")
+    settle_seconds = getattr(args, 'target_settle_seconds', 0)
+    if settle_seconds:
+        contract['target_settle_seconds'] = settle_seconds
     if start_path.exists():
-        if json.loads(start_path.read_text())["contract"] != json.loads(json.dumps(contract)):
-            raise ValueError("campaign code/config changed; use a new campaign")
+        original = json.loads(start_path.read_text())["contract"]
+        if original != json.loads(json.dumps(contract)):
+            verify_amendment(original, json.loads(json.dumps(contract)),
+                getattr(args, 'operational_amendment', None), getattr(args, 'amendment_sha256', None), digest(start_path))
     else:
         atomic_json(start_path, dict(registered_at_unix=time.time(), contract=contract))
     state_path = root / "STATUS.json"
@@ -226,12 +267,27 @@ def run(args):
             active = dict(key=key, split=split, regime=regime, attempt=attempt, runs={}, phase="preparing",
                           traffic_drift=False)
             save("preparing_traffic", active=active)
+        active = state['active']
+        if active['phase'] == 'preparing':
+            regime = active['regime']
             set_regime(source, regime, root / "traffic-controller.log")
+            active['phase'] = 'stabilizing'
+            save('waiting_for_target_stability', active=active)
+        if active['phase'] == 'stabilizing':
             snap = snapshot()
-            if not healthy(snap):
-                raise RuntimeError("traffic rollout not yet healthy")
+            with ThreadPoolExecutor(max_workers=3) as pool:
+                targets = dict(zip(WORKERS, pool.map(remote.targets, WORKERS)))
+            active['stability'] = stable_targets(active.get('stability'), targets, time.time(), healthy(snap), settle_seconds)
+            save('waiting_for_target_stability', active=active)
+            append_jsonl(root / 'target-stability.jsonl', dict(at_unix=time.time(), key=active['key'],
+                                                             stability=active['stability'], targets=targets))
+            if not active['stability']['ready']:
+                time.sleep(30)
+                continue
+            key, attempt, regime, split = (active[k] for k in ('key', 'attempt', 'regime', 'split'))
             atomic_json(root / f"{key}-{attempt}-traffic.json", snap)
             active["traffic_identity"] = traffic_identity(snap)
+            active['phase'] = 'launching'
             now = time.time()
             for host, node in WORKERS.items():
                 run_id = f"{key}-{attempt:03d}-{host.rsplit('.', 1)[-1]}"
@@ -240,6 +296,8 @@ def run(args):
                     schedule=[dict(start_unix=now, end_unix=now + 1500, regime=regime)],
                     split=split, campaign_start_sha256=digest(start_path),
                     traffic_evidence_sha256=digest(root / f"{key}-{attempt}-traffic.json"))
+                if getattr(args, 'amendment_sha256', None):
+                    receipt['operational_amendment_sha256'] = args.amendment_sha256
                 active["runs"][host] = run_id
                 save("launching", active=active)
                 remote.launch(host, run_id, receipt, args.source_commit)
@@ -298,6 +356,9 @@ def main():
     for field in ("root", "source", "credential"):
         p.add_argument("--" + field, type=Path, required=True)
     p.add_argument("--source-commit", required=True)
+    p.add_argument('--target-settle-seconds', type=int, choices=(0, 360), default=0)
+    p.add_argument('--operational-amendment', type=Path)
+    p.add_argument('--amendment-sha256')
     p.add_argument("--inspect-only", action="store_true")
     args = p.parse_args()
     if args.inspect_only:
