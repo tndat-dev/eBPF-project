@@ -31,7 +31,7 @@ Selection có thêm 31 rows ngoài biên probe. Notification/payment chưa có m
 trong C2; không gán các row này thành normal/TN. Idle-aware Pulse có bundle
 21 model khác, không tráo hai bundle chỉ vì cùng 249 chiều.
 
-## Đang chạy: C4 independent normal inference
+## C4 đã chạy hết nhưng không hợp lệ để đánh giá chất lượng model
 
 Unit trên `.234`: `pulse-syscall-normal-evaluation-c4.service`, enabled,
 checkpoint theo capture và model. Source `3995962` tại
@@ -45,17 +45,98 @@ calibration hoặc chọn feature theo holdout. Prediction có hash và index v�
 capture/metadata gốc. Kết quả dương vẫn là **raw positive pending adjudication**,
 không tự tính FP/FPR, precision hoặc recall.
 
-Checkpoint lúc 14:36: **80/608 model đã chấm**, service running, NRestarts=0.
-Tiến độ mới phải đọc STATUS, không dùng con số checkpoint này như trạng thái
-realtime. Giới hạn CPU 200%, RAM 3 GiB, Nice=19, IOWeight=1. Job không phụ thuộc
+Terminal lúc **14:46 ngày 14/10: 608/608 model đã chấm**. Hậu kiểm độc lập
+xác minh hash toàn bộ context/metadata và 608 prediction archives, shape,
+positive counts, p-value/decision ở alpha 0,001 và nguồn từng capture.
+Giới hạn CPU 200%, RAM 3 GiB, Nice=19, IOWeight=1. Job không phụ thuộc
 SSH/laptop; reboot tự khởi động và xác minh checkpoint trước khi tiếp tục.
 Không zero-alert gate, không auto-promotion.
 
+Bản full có **145.820 raw positive / 334.655 context (43,57%)**, nhưng đã
+xác minh training dùng **rolling-10**, C3/C4 dùng **rolling-5**. Do đó số này
+chỉ là phép chấm trên preprocessing không tương thích, **không dùng để kết luận
+FPR, model stability hoặc utility syscall**. Không nới threshold theo holdout.
+Bằng chứng:
+[c4-verification.json](validation-evidence/pulse-parallel-completion-20261014/c4-verification.json).
+Đây là bộ ablation legacy C2, không phải candidate idle-aware 21 model của Pulse.
+
+## C5/C6 đã hoàn tất; thêm nhánh kiểm tra syscall ngoài danh sách
+
+Unit `.234`: `pulse-syscall-distribution-audit-c5.service`, source frozen
+`6f2b9ae` tại `/home/dat/pulse-distribution-audit-c5/source`, output NFS
+`/mnt/sentinel-pulse-archive/syscall-development-distribution-c5`.
+Job chỉ so mean/std của từng feature trong dataset normal tham chiếu với
+**selection C3**, không dùng holdout/C4 scores, không fit hoặc đổi threshold.
+Đã tổng hợp đủ 19 workload. Chênh rolling mean/std trong C5 chịu confound
+rolling-10/5; không được diễn giải thành drift tự nhiên hay causal importance.
+
+C6 đã hoàn tất lúc khoảng **15:53 ngày 14/10**, Result=success, NRestarts=0.
+Replay/sửa đủ 30 capture, 781.239 rows; 191 chiều không rolling giữ nguyên,
+58 chiều rolling được derive về rolling-10 đúng training. Chấm đủ 608 model;
+full có **11.989/334.655 raw positives (3,5825%)**, chưa có nhãn FP/FPR.
+Không thay raw/model/alpha/mask. Bằng chứng:
+[C6 terminal](validation-evidence/pulse-c6-completion-evidence-20261014/evaluation-TERMINAL.json),
+[hậu kiểm](validation-evidence/pulse-parallel-completion-20261014/c6-verification.json).
+
+**608 model chỉ ablate tập 29; chưa đủ trả lời có cần thêm syscall khác.**
+Addition A1 đã đọc cohort nhưng kết thúc **0/105 fit**: `build_contexts`
+đòi biên timestamp liền nhau sai số dưới 100 µs, trong khi capture thật có
+khoảng nghỉ đọc snapshot 0,6–1,4 ms. History bị reset ở hầu hết mỗi row nên
+không đủ rolling-10. Terminal A1 được giữ nguyên, nhưng đây **không phải kết
+quả model**. Đã sửa ngưỡng continuity thành tối đa 50 ms, giữ reset khi gap lớn,
+và thêm test cho jitter/gap. Regime cũng lấy từ traffic receipt theo timestamp,
+không chọn tùy tiện regime đầu tiên của workload.
+
+A1/C3 dùng histogram entry-only **1 s**, rolling-10, history 3, alpha 0,005;
+không có transition features. Holdout C3 đã xem trong C4/C6 nên chỉ là dữ liệu
+exploratory. Nhánh này không thay Pulse 500 ms/249 chiều và không được dùng để
+tuyên bố thêm syscall cải thiện recall. A2 chạy lại có output mới riêng, không
+ghi đè A1; kết quả chỉ là kiểm tra pipeline/normal-score exploratory.
+
+Đã thêm protocol v2 với metric chính **recall tại ngân sách false-alert khác
+0**, luật chọn tập nhỏ nhất không kém base29 quá 3 điểm phần trăm theo CI paired,
+ablation nhóm tương đương, nhóm syscall bảo mật hiếm, 3 seed, bootstrap theo
+block và yêu cầu phủ đủ **21/21** workload của bundle Pulse hiện hành. C2 chỉ có
+19 workload; notification/payment phải có model/coverage riêng, không được suy
+ra từ 19 model cũ. Xem
+[protocol v2](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json).
+
+### A2 pipeline retry đang chạy nền
+
+A2 dùng source cố định đã sửa, input C3 giữ nguyên, output mới
+`/mnt/sentinel-pulse-archive/syscall-addition-a2-20261014`; systemd
+`pulse-syscall-addition-a2.service` đã `enabled` để VM boot có thể tiếp tục.
+SSH lúc **16:02 UTC 14/10** thấy `activating/start`, PID `3889873`,
+`NRestarts=0`, `ExecMainStatus=0`; checkpoint đạt **31/105 fit**, 0
+workload/arm unknown. Tiến độ tăng từ 18 lên 31 kể từ lần kiểm tra 15:59.
+Cả 9 unit tests đã pass trên VM venv trước start. Đây là pipeline
+retry/exploratory trên C3, không phải blind confirmation; model flags không
+được diễn giải thành FP. Service chưa terminal; không sửa input/source khi
+đang chạy.
+
+A2 chỉ lặp các 5 arm frequency đã đóng băng trong A1; **chưa** chạy threat-model
+arm, grouped ablation, nhiều seed hoặc metric recall@FPR. Không đổi input/binding
+đang chạy. Các phần đó thuộc protocol v2 và cần capture matched Pulse 500ms
+mới; không tự sửa tiếp service A2 giữa chừng.
+
+Protocol cuối yêu cầu observable khớp Pulse: 500 ms, exact full-ID deltas,
+syscall + transition bins, rolling/history, cùng support/policy. Histogram C3
+1 giây không thể nội suy thành 500 ms; cần capture full-ID đồng bộ mới trước khi
+chạy blind comparison chính thức. C3/A2 không trả lời addition study cuối.
+
+Source [syscall_addition_experiment.py](sentinel_pulse/syscall_addition_experiment.py)
+đã qua 6 unit tests trong VM venv. Service riêng `.234`:
+`pulse-syscall-addition-a1.service`, có checkpoint, enable khi boot và giới hạn
+CPU 150%, RAM 3 GiB; output NFS `syscall-addition-a1-20261014`.
+Hard integrity mismatch dừng bước evaluation và giữ bằng chứng, không sửa source
+frozen, không fail/xóa soak đã thu. Cần blind attack/control mới trước kết luận
+giữ/bỏ/**bổ sung** syscall. Tổng hợp:
+[báo cáo đầy đủ](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md).
+
 ```bash
-systemctl status pulse-syscall-normal-evaluation-c4.service --no-pager
-python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-variant-normal-c4/PREPARE_STATUS.json
-# STATUS chứa completed_models và expected_models; TERMINAL chỉ có khi chấm hết.
-python3 -c 'import json; p="/mnt/sentinel-pulse-archive/syscall-variant-normal-c4/STATUS.json"; d=json.load(open(p)); print(d["state"], d["completed_models"], "/", d["expected_models"])'
+systemctl status pulse-syscall-profile-repair-c6.service --no-pager
+python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-feature-profile-repair-c6/STATUS.json
+# Sau repair, đọc STATUS.json dưới syscall-variant-normal-c6-corrected.
 ```
 
 ## Kết quả tần suất và phần còn thiếu

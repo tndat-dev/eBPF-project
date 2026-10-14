@@ -1,0 +1,70 @@
+{
+  "schema": "sentinel-pulse-syscall-selection-preregistration-v2",
+  "status": "prospective_protocol_not_yet_executed",
+  "claim_scope": "incremental utility of explicit syscall channels within the frozen Sentinel Pulse feature family; not globally optimal syscall selection",
+  "known_exposed_data": {
+    "C3_selection_and_holdout": "exploratory_only; holdout inspected in C4/C6 and addition-A1 preparation",
+    "legacy_C2": "19 workload keys; does not cover notification-service or payment-service in the current 21-key Pulse bundle",
+    "A1": "completed with 0/105 fits because exact timestamp equality reset rolling history; invalid/incomplete, retained as evidence"
+  },
+  "candidate_coverage": {
+    "frozen_pulse_bundle_workload_keys": 21,
+    "minimum_required": "all 21 keys, each reported explicitly; no silently pooled substitute",
+    "legacy_19_key_models": "diagnostic only; not evidence for missing notification/payment models"
+  },
+  "primary_endpoint": {
+    "quality": "scenario-trial recall at a pre-registered normal false-alert budget",
+    "false_alert_budget": "one-sided 95% upper confidence bound <= 0.1 adjudicated false-alert episodes per valid workload-hour; non-zero allowance",
+    "selection_rule": "choose the smallest explicit feature set whose paired 95% lower confidence bound on recall difference versus base29 is above -0.03 absolute, subject to the false-alert budget; otherwise retain base29 or report inconclusive",
+    "no_zero_gate": true,
+    "no_test_set_tuning": true
+  },
+  "matched_observable": {
+    "cadence_ms": 500,
+    "base_schema": "frozen Pulse 249-dimensional candidate, with exact counts, 64 syscall bins, 64 task-adjacent transition bins, rolling features, same history/warm-up and same decision support path",
+    "required_raw_capture": "versioned full syscall-ID delta stream from the same 500ms boundaries and same cgroup identities; current one-second histogram cannot be split or interpolated into 500ms rows",
+    "variant_rule": "all arms consume the same source intervals, workload identities, history, traffic regime, calibration method, implementation version, and scenario trials; addition may expand explicit dimensions but must preserve all other Pulse observables",
+    "hash_bin_caveat": "addition estimates marginal value beyond existing hash bins; group ablation must report whether the removed IDs remain represented in aggregate/hash features",
+    "transition_bins": "identical and present in every arm; no entry-only histogram result may be called a Pulse-matched result",
+    "support_and_policy": "freeze support/runtime gates and policy; report raw model and end-to-end policy outputs separately"
+  },
+  "arms": {
+    "reference": "base29",
+    "frequency_additions": ["top8", "top16", "top32"],
+    "threat_model_addition": "pre-listed rare security group: init_module(175), delete_module(176), kexec_load(246), add_key(248), request_key(249), keyctl(250), open_by_handle_at(265), process_vm_readv(310), process_vm_writev(311), finit_module(313), bpf(321), userfaultfd(323), io_uring_setup(425), io_uring_enter(426), io_uring_register(427)",
+    "group_ablation": ["accept+accept4", "open+openat", "execve+execveat", "clone+clone3"],
+    "interpretation": "pre-specified candidate families; frequency ranks use training prefix only; syscall ABI names/IDs must be checked against the exact kernel/ABI before capture"
+  },
+  "data_partitions": {
+    "selection_train_calibration": "normal-only selection cohort, temporal split with >=2s embargo; all histories reset at each boundary",
+    "normal_test": "new normal capture after protocol and candidate code are frozen; source capture hashes disjoint from all selection/calibration and prior C3/C4/C6",
+    "blind_attack": "new attack binary/cases/checksums, sealed until arm/model/policy freeze; not used for feature selection or threshold tuning",
+    "trial_design": "eight fresh blind families x all 21 workload keys x 3 rates (6/12/24 ops/s) x 5 fixed seeds per rate = 2,520 paired attack intervals; use the same case/workload/revision/rate/seed input on every arm",
+    "diagnostic_development_only": ["new current-candidate traces for the already-exposed mprotect, setns, and seccomp zero-hit families; never count as blind confirmation"],
+    "fresh_blind_family_descriptions": ["read-only kernel-interface capability probes using invalid or denied requests", "safe io_uring setup/teardown and syscall-sequence probe", "process_vm self/invalid-target access pattern", "openat/statx/fd churn with ephemeral read-only objects", "execve/execveat path-resolution pattern with ephemeral executable fixture", "loopback-only connection lifecycle to a registered local sink", "namespace API denial probe that cannot enter/change namespace", "anonymous memory permission-transition pattern with immediate cleanup"],
+    "excluded_as_non_blind_reuse": ["anonymous_mprotect_churn", "invalid_setns_burst", "seccomp_api_probe", "child_ptrace_handshake", "execveat_resolution_probe", "all previously executed binary hashes and seeds"],
+    "attack_interval_definition": "pre-registered injection timestamp through fixed 15s decision horizon; exactly one TP/FN/missing-telemetry outcome per trial; keep per-event latency separately",
+    "coverage": "all 21 frozen workload keys; missing telemetry is reported and is a miss for end-to-end attack recall; normal unknown is not TN"
+  },
+  "normal_test_exposure": {
+    "wall_duration": "at least 24h after source/model/policy freeze",
+    "workloads": "all 21 workload keys, report valid scored hours per key and regime",
+    "false_alert_adjudication": "episode-level; retain all candidate alerts and infrastructure context; unknown time excluded from denominator but disclosed",
+    "minimum_exposure_check": "at least 30 valid workload-hours pooled before evaluating the registered upper false-alert budget; do not infer 0 rate from zero observed events"
+  },
+  "analysis": {
+    "confusion_matrix": ["TP", "FP", "TN", "FN", "uncertain", "missing_telemetry"],
+    "report_separately": ["precision", "recall", "normal false-alert episodes/workload-hour", "raw score/anomaly", "policy alert", "coverage", "kernel-to-alert latency"],
+    "uncertainty": "paired block bootstrap 10,000 replicates, clustered by workload and trial/day; no IID syscall/window assumption",
+    "paired_tests": "paired candidate-vs-base contrasts with Holm correction across pre-registered arms",
+    "repeatability": "three fixed fit seeds per arm; report seed spread and paired aggregate, never pick the best seed",
+    "normal_alerts": "retain all; adjudicate after the run and stratify infrastructure-degraded/unknown time rather than deleting it",
+    "latency": "kernel event timestamp to emitted alert; misses are censored and remain in recall denominator"
+  },
+  "safety_and_freeze": {
+    "attack_constraints": "no external network, persistent writes, successful mount, or privilege change",
+    "normal_soak_continues_independently": true,
+    "pulse_candidate_modified": false,
+    "promote_without_independent_blind_confirmation": false
+  }
+}

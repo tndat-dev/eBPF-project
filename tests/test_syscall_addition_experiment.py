@@ -56,8 +56,27 @@ class FeatureTests(unittest.TestCase):
                      counts={}, regime='steady', run_id='capture') for i in range(24)]
         contexts, _, _ = build_contexts(rows, (0,), frozenset())
         self.assertEqual(contexts, {})
-        for i, row in enumerate(rows):
-            row['phase'] = 'holdout'; row['run_id'] = 'a' if i < 12 else 'b'
+
+    def test_submillisecond_snapshot_boundary_jitter_does_not_reset_history(self):
+        rows = [dict(workload='production/x:app', identity=('n', 'p', 'app', 'rev', 1),
+                     phase='holdout', begin=i * 1.001, end=i * 1.001 + 1.,
+                     counts={0: 2}, regime='steady', run_id='capture') for i in range(24)]
+        # Real captures have a small read/serialization gap between adjacent
+        # intervals (about 0.6--1.4ms); the resulting history must still warm.
+        contexts, _, _ = build_contexts(rows, (0,), frozenset())
+        self.assertGreater(contexts['production/x:app']['holdout'].shape[0], 0)
+
+    def test_material_snapshot_gap_resets_history(self):
+        rows = [dict(workload='production/x:app', identity=('n', 'p', 'app', 'rev', 1),
+                     phase='holdout', begin=i * 1.1, end=i * 1.1 + 1.,
+                     counts={0: 2}, regime='steady', run_id='capture') for i in range(24)]
+        contexts, _, _ = build_contexts(rows, (0,), frozenset())
+        self.assertEqual(contexts, {})
+
+    def test_history_does_not_cross_capture(self):
+        rows = [dict(workload='production/x:app', identity=('n', 'p', 'app', 'rev', 1),
+                     phase='holdout', begin=i, end=i+1., counts={0: 2},
+                     regime='steady', run_id='a' if i < 12 else 'b') for i in range(24)]
         contexts, _, _ = build_contexts(rows, (0,), frozenset())
         self.assertEqual(contexts, {})
 

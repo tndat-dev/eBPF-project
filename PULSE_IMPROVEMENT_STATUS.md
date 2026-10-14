@@ -3,7 +3,14 @@
 Hiện hành **14/10/2026**: capture soak A1/review đã hoàn tất; còn pending nhãn
 và chênh 565 decision/feature. Batch inference giữ frozen model, live canary
 B1 p95/p99 feature-end-to-score **0,424/0,474 s**, không phải kernel-to-alert.
-B2 30 phút đang chạy trên ba worker; nhánh C4 syscall chạy song song.
+B2 đã hoàn tất trên ba worker, p99 feature-end-to-score 0,502/0,556/0,213 s.
+C6 syscall đã sửa đủ 30 capture/chấm đủ 608 model; full raw-positive fraction
+3,5825%, chưa phải FPR. B3 đã hoàn tất 30 phút trên ba worker: p99
+feature-window-end-to-score là 0,516/0,555/0,220 giây; worker .238 ghi 3
+cadence gaps. Đây chỉ là normal timing canary, chưa có attack/alert labels.
+A1 của syscall addition kết thúc 0/105 fit do history reset vì tolerance timestamp
+quá chặt; đã giữ terminal, sửa lỗi và chuẩn bị A2 riêng. Không sửa Pulse
+model/policy theo holdout.
 Xem [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) và
 [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) cho job/ETA.
 

@@ -1,0 +1,60 @@
+{
+  "schema": "pulse-idle-batch-canary-summary-v1",
+  "collected_at": "2026-10-14T15:55:00Z",
+  "source": "read-only SSH from each worker; terminal field values and per-file seals",
+  "claim_boundary": "500ms bounded batch timing canary; no attack injection, no alert enforcement, no kernel-to-alert or quality estimate",
+  "candidate_manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+  "policy_sha256": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+  "workers": [
+    {
+      "ip": "10.1.16.237",
+      "node": "k8s-worker1.local",
+      "unit_result": "completed_timing_canary; ExecMainStatus=0; NRestarts=0",
+      "elapsed_seconds": 1800.1809512819164,
+      "frames": 3525,
+      "scored_rows": 98588,
+      "feature_window_end_to_score_seconds": {"p50": 0.2897827625274658, "p95": 0.44614421129226683, "p99": 0.5159681534767151, "samples": 98588},
+      "batch_call_ms_repeated_per_scored_row": {"p50": 19.57933511584997, "p95": 26.866743108257634, "p99": 33.12903778627515, "samples": 98588},
+      "pipeline_frame_processing_ms": {"p50": 436.30100414156914, "p95": 514.608194772154, "p99": 578.9042941108339, "samples": 3525},
+      "raw_positive_preview_pending": 3362,
+      "issues": {},
+      "start_sha256": "c67b217af79ae59b59da81e0484479c64ad95b7b234d5f8e288d76ca2fc53db5",
+      "terminal_sha256": "44dda036ab687fc7104ac009bfea31fad309a736807759e35b9d7748219981ec",
+      "files": {"decisions.jsonl": "26eacd6cba17e6924aa74c12250416d5b25f04efbc2532ef06304d2e0244075b", "features.jsonl": "25d9fc5115bd43d5eeb887a24c7e456d05b9568f6244418c4c2866e335b69566", "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080", "raw.jsonl": "a06e6bf0f96c283c91127330d21cdd5d2f408532dcd9e1fa0d9bc12c818d147d"}
+    },
+    {
+      "ip": "10.1.16.238",
+      "node": "k8s-worker4.local",
+      "unit_result": "completed_timing_canary; ExecMainStatus=0; NRestarts=0",
+      "elapsed_seconds": 1805.5345850219019,
+      "frames": 3452,
+      "scored_rows": 104403,
+      "feature_window_end_to_score_seconds": {"p50": 0.2995789051055908, "p95": 0.4866235017776489, "p99": 0.5550871801376343, "samples": 104403},
+      "batch_call_ms_repeated_per_scored_row": {"p50": 19.616893026977777, "p95": 27.07982957363127, "p99": 33.13968423753977, "samples": 104403},
+      "pipeline_frame_processing_ms": {"p50": 489.33235043659806, "p95": 574.2948416387662, "p99": 642.2849171608686, "samples": 3452},
+      "raw_positive_preview_pending": 4375,
+      "issues": {"collector_cadence_gap": 3},
+      "start_sha256": "6dd79cc5fd4aeb709c2fab694781ef432e2d10fc09eb02a157f41694a8ca2904",
+      "terminal_sha256": "d35e1578b251f152206f21b32c3adf1ad17f55a154a980d6bac47753f7ab9b22",
+      "files": {"decisions.jsonl": "112abed801070c24a96f7cc643c18d0b21c1e4d4150f386972b36f2bb5c2d5dd", "features.jsonl": "214bf0c3bca50d08060ed6e17c2a457516df41e3fbb0552d0c78b4729b3dfbd9", "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "loader.log": "bacdd4c863c742588aeb416729e961a267190cda49729e7111d574c072b320af", "raw.jsonl": "efe4ac81458a7f5b789eee378f20af1400007efd0ec246dea7f3990af38eba48"}
+    },
+    {
+      "ip": "10.1.16.239",
+      "node": "k8s-worker3.local",
+      "unit_result": "completed_timing_canary; ExecMainStatus=0; NRestarts=0",
+      "elapsed_seconds": 1800.2809437168762,
+      "frames": 3584,
+      "scored_rows": 27866,
+      "feature_window_end_to_score_seconds": {"p50": 0.1079070568085902, "p95": 0.19395875930759024, "p99": 0.21983580589294432, "samples": 27866},
+      "batch_call_ms_repeated_per_scored_row": {"p50": 22.00139849446714, "p95": 31.41728264745325, "p99": 35.56498326361179, "samples": 27866},
+      "pipeline_frame_processing_ms": {"p50": 183.09854064156914, "p95": 222.56452299188823, "p99": 245.85092732682827, "samples": 3584},
+      "raw_positive_preview_pending": 2401,
+      "issues": {},
+      "start_sha256": "736787860cbcc38f121189be0cf6f486ac85d6194c97c7ebae0669a09b78ca0e",
+      "terminal_sha256": "e74c2209a0122537a6b2eefd5d4654eaabf7615897ec0b65fa954461c8314db9",
+      "files": {"decisions.jsonl": "8a2d8c8f75df2c36b3473396ce3133f9f75ea7bb1e6acd975ac2dcba7a60a2ab", "features.jsonl": "9bee40d63f09ceebd5e0b2b2476fa6aff68d0cab8cfcc85b4864ea7fbdb700fd", "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "loader.log": "251b90f861d314f9724db9e3758a368467ddf1639ffbc8911109ef110a9c18d9", "raw.jsonl": "1c90df3b46c4396f333161f2da517b21350ab551514bbbc560f5dd01c452913e"}
+    }
+  ],
+  "aggregate": {"frames": 10561, "scored_rows": 230857, "raw_positive_preview_pending": 10138},
+  "limitations": ["Terminal hashes are recorded, while worker files remain in root-owned /var/lib paths; this summary is not a substitute for exporting raw terminal artifacts.", "All positive preview labels are unadjudicated; do not call these false positives.", "This records feature-window-end-to-score timing, not kernel-to-alert latency or attack recall."]
+}

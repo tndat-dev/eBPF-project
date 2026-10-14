@@ -20,7 +20,8 @@ import time
 
 from .integrity import sha256_file
 from .syscall_histogram_analysis import (
-    latest_metadata, load_metadata, read_jsonl, summarize, workload_identity,
+    interval_regime, latest_metadata, load_metadata, load_traffic_receipt,
+    read_jsonl, summarize, workload_identity,
 )
 from .syscall_histogram_pilot import atomic_json
 
@@ -30,6 +31,7 @@ VARIANTS = ('base29', 'plus_top8', 'plus_top16', 'plus_top32', 'plus_all_observe
 HISTORY = 3
 ROLLING = 10
 ALPHA = .005
+MAX_SNAPSHOT_BOUNDARY_GAP_SECONDS = .05
 
 
 def tracked_from_source(path):
@@ -122,6 +124,11 @@ def load_rows(root, expected_hash, split):
     if not report['capture_valid_for_feature_selection'] or report['capture_sha256'] != expected_hash:
         raise ValueError('capture integrity/admission differs from cohort')
     start = report['probe_started_at_unix']; end = report['probe_ended_at_unix']
+    start_doc = json.loads((root/'START.json').read_text())
+    terminal_doc = json.loads((root/'TERMINAL.json').read_text())
+    schedule, schedule_error = load_traffic_receipt(root, start_doc, terminal_doc)
+    if schedule_error:
+        raise ValueError(f'invalid traffic receipt: {schedule_error}')
     metadata, invalid = load_metadata(root/'metadata-snapshots.jsonl')
     if invalid:
         raise ValueError('invalid metadata snapshots')
@@ -142,8 +149,9 @@ def load_rows(root, expected_hash, split):
         key = f"{identity['namespace']}/{identity['workload_name']}:{identity['container_name']}"
         ident = tuple(identity[k] for k in ('node_name', 'pod_uid', 'container_name',
                                           'workload_revision', 'cgroup_id'))
-        regime = next(iter(report['workloads'][json.dumps(identity, sort_keys=True,
-            separators=(',', ':'))]['by_regime']))
+        regime = interval_regime(begin, finish, schedule) if schedule else 'unlabelled'
+        if regime is None:
+            raise ValueError('histogram interval does not map to exactly one registered regime')
         counts = {int(k): v for k, v in row['counts'].items()}
         rows.append(dict(workload=key, identity=ident, phase=phase, begin=begin, end=finish,
                          counts=counts, regime=regime, run_id=root.name))
@@ -161,7 +169,12 @@ def build_contexts(rows, ids, sensitive):
         if not .75 <= dt <= 1.5:
             state.pop(ident, None); counts['cadence_rejected'] += 1
             continue
-        if previous is None or abs(row['begin'] - previous['end']) > 1e-4:
+        # Snapshot reads take measurable time: adjacent cgroup intervals can
+        # have a sub-millisecond boundary gap. Exact float equality would reset
+        # history on every row and silently yield zero eligible contexts.
+        boundary_gap = None if previous is None else row['begin'] - previous['end']
+        if (previous is None or boundary_gap < -1e-6
+                or boundary_gap > MAX_SNAPSHOT_BOUNDARY_GAP_SECONDS):
             previous = dict(end=None, rates=deque(maxlen=ROLLING), vectors=deque(maxlen=HISTORY))
             state[ident] = previous; counts['history_reset'] += 1
         vector, rate = histogram_vector(row['counts'], dt, previous['rates'], ids, sensitive)
@@ -198,6 +211,7 @@ def run(selection, selection_hash, holdout, holdout_hash, output):
         variants=list(VARIANTS), alpha=ALPHA, history=HISTORY, rolling=ROLLING,
         ranking='training-prefix-only; descending exact counts; ID tie-break',
         split='per-selection-capture 70/30 temporal; 2s embargo; reset all feature history at partition',
+        max_snapshot_boundary_gap_seconds=MAX_SNAPSHOT_BOUNDARY_GAP_SECONDS,
         include_idle=True, transition_features=False, seccomp_skips_observed=False,
         holdout_previously_inspected_in_C4_C6=True, final_blind_confirmation=False,
         model_promotion=False, pulse_candidate_modified=False)
@@ -280,9 +294,13 @@ def run(selection, selection_hash, holdout, holdout_hash, output):
                 seals={p.name: sha256_file(p) for p in (artifact, prediction, meta)})
             state.update(updated_at_unix=time.time(), completed_models=len(state['completed']))
             atomic_json(output/'STATUS.json', state)
-    state.update(state='completed_exploratory_addition_study', finished_at_unix=time.time(),
-        completed_models=len(state['completed']), incomplete_models=len(state['unknowns']),
-        statement='Raw positives alone cannot decide which syscall to add; blind recall/control required.')
+    complete = len(state['completed']) == state['expected_models']
+    state.update(state=('completed_exploratory_addition_study' if complete
+                        else 'incomplete_exploratory_addition_study'),
+        finished_at_unix=time.time(), completed_models=len(state['completed']),
+        incomplete_models=len(state['unknowns']),
+        statement=('Raw positives alone cannot decide which syscall to add; blind recall/control required.'
+                   if complete else 'Not all workload/variant fits completed; this is an incomplete run, not an evaluation result.'))
     atomic_json(output/'STATUS.json', state); atomic_json(output/'TERMINAL.json', state)
     return state
 

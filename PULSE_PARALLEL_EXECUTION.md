@@ -3,20 +3,37 @@
 Hai nhánh có tiến độ và artifact riêng; không yêu cầu hoàn tất chọn syscall
 mới tiếp tục đánh giá candidate Pulse đã đóng băng.
 
-SSH **14/10/2026, 14:36 UTC+7**: C3 đã hoàn tất **10/10 phase**, đủ 15 capture
-selection và 15 capture holdout. Review soak Pulse đã đọc hết cả ba worker,
-không có lỗi binding trong kết quả. Hai công việc tiếp theo đang chạy song song:
+SSH **14/10/2026**: C3, C5, C6, soak A1/review, B2 và B3 đã kết thúc.
+C6 full raw-positive fraction 3,5825% sau sửa rolling profile, chưa phải FPR.
+Hai nhánh tiếp theo tách biệt, giữ model/policy Pulse:
 
 | Nhánh | Công việc hiện hành | Service / output |
 |---|---|---|
-| Chọn syscall C4 | Chấm 608 biến thể đã đóng băng trên holdout C3 mới | `.234`: `pulse-syscall-normal-evaluation-c4.service`; NFS `syscall-variant-normal-c4` |
-| Sentinel Pulse | Canary batch 30 phút, live normal traffic trên ba worker | `.237/.238/.239`: `pulse-idle-batch-canary-b2.service`; `/var/lib/pulse-idle-batch-canary-b2-20261014` |
+| Thêm syscall A1 | 0/105 fit vì kiểm tra continuity đặt quá chặt; output/terminal giữ nguyên, không có kết quả chất lượng | `.234`: `pulse-syscall-addition-a1.service`; NFS `syscall-addition-a1-20261014` |
+| Sentinel Pulse B3 | Canary batch 30 phút hoàn tất trên ba worker; raw-score preview, không phát alert/enforcement | `.237/.238/.239`: `pulse-idle-batch-canary-b3.service`; `/var/lib/pulse-idle-batch-canary-b3-20261014` |
 
-Canary bắt đầu khoảng **14:35**, dự kiến kết thúc khoảng **15:06 ngày 14/10**.
-Kiểm tra cả hai nhánh khoảng **15:10 UTC+7**. Đây là ETA canary, không phải ETA
-hoàn tất blind attack hoặc paper. C4 resume bằng checkpoint sau SSH/reboot;
-canary 30 phút tách biệt SSH nhưng là job bounded, chưa có cơ chế cộng dồn sau
-reboot. Cả hai giữ model/policy, không zero-alert gate và không auto-promotion.
+B3 chạy **12:53–13:23 UTC (20:53–21:23 ICT)**, cả ba unit thoát thành công,
+không restart. p99 `feature-window-end → score` lần lượt .237/.238/.239 là
+**0,516 / 0,555 / 0,220 giây**. `.238` ghi 3 `collector_cadence_gap`; issue được
+giữ, không làm mất terminal. Kernel-to-alert, precision và recall đều null vì
+đây là normal timing canary, không có blind attack và policy chỉ preview.
+Raw-positive preview vẫn chờ adjudication, không gọi tự động là false positive.
+
+A1 terminal có 0/105 model; nguyên nhân là exact boundary tolerance 100 µs so
+với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 service
+đã `enabled` trên `.234`, source/test đúng hash; lúc **16:02 UTC** service vẫn
+`activating/start`, PID `3889873`, `NRestarts=0`, checkpoint **31/105 fit, 0
+unknown**. A2 tiếp tục nền, không sửa binding đang chạy. Không dùng holdout C3
+đã lộ để quyết định syscall hoặc làm blind claim. Cả hai nhánh giữ model/policy
+Pulse, không zero-alert gate và không auto-promotion.
+
+Tình trạng cụm lúc kiểm tra: 6/6 node `Ready` ở v1.34.10; namespace
+`production` có 70 pod objects, trong đó 66 `Running` và 4 `Completed` (job
+pod đã hoàn tất, không phải service đang hỏng). Trên cả ba worker,
+`sentinel-pulse-resolver.service` active và `pulse_counter_loader` đang thu
+feature **mỗi 1.000 ms**. Canary B3 đã dừng bình thường; hiện không có B3
+500-ms canary chạy. Đây là capture nền, không được mô tả nhầm thành ML
+decision/alert real-time đang chạy trên 500 ms.
 
 ## Kết quả soak Pulse đã tổng hợp
 
@@ -63,9 +80,15 @@ Source, giới hạn và artifact: [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md
 
 ## Công việc sau hai job hiện hành
 
+C4 đã hoàn tất lúc 14:46 và xác minh đủ 608 prediction. Full C2 có
+145.820/334.655 raw flags (43,57%); **không được coi là bộ model đã ổn định**.
+Không relabel chúng thành FP khi chưa adjudicate, cũng không che kết quả bằng
+đổi ngưỡng. C5 chỉ đọc dataset reference và selection để tìm bằng chứng;
+không dùng holdout để chọn biến thể. [Chi tiết](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
+
 Nhánh Pulse xử lý coverage/nhãn của soak, chuẩn bị adapter đánh giá attack cho
 idle-aware candidate và đo confusion matrix trên interval thống nhất.
-Nhánh syscall hoàn tất C4; sau đó bind blind binary/cases/target mới, chấm cùng
+Nhánh syscall chốt audit C5; tiếp tục bind blind binary/cases/target mới, chấm cùng
 trial cho các biến thể và tổng hợp paired statistics/CI. Không chọn syscall hay
 tune threshold bằng holdout, không dùng latency offline thay cho live latency.
 
@@ -82,8 +105,8 @@ sudo systemctl status pulse-idle-batch-canary-b2.service --no-pager
 sudo python3 -m json.tool /var/lib/pulse-idle-batch-canary-b2-20261014/STATUS.json
 ```
 
-Trên `.234`, xem `pulse-syscall-normal-evaluation-c4.service` và
-`/mnt/sentinel-pulse-archive/syscall-variant-normal-c4/STATUS.json`.
-`completed_models/608` là tiến độ scoring, không phải phần trăm chất lượng model.
+Trên `.234`, xem `pulse-syscall-distribution-audit-c5.service` và
+`/mnt/sentinel-pulse-archive/syscall-development-distribution-c5/STATUS.json`.
+`completed_inputs/expected_inputs` là tiến độ đọc dữ liệu, không phải chất lượng model.
 Evidence hoàn tất capture/review:
 [SUMMARY.json](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json).

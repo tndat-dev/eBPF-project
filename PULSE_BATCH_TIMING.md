@@ -44,19 +44,39 @@ này. Không cộng cơ học 500 ms vào p99 rồi công bố thành latency at
 Soak scalar cũ có backlog lớn: 6.660.911/11.388.831 scored row có event age
 trên một giờ. Canary mới là thay đổi kỹ thuật có triển vọng, không xóa kết quả cũ.
 
-## Đang chạy
+## B2/B3 đã hoàn tất; Pulse và A2 tiếp tục chạy song song
 
-B2: **30 phút trên cả ba worker** `.237/.238/.239`, unit
-`pulse-idle-batch-canary-b2.service`, source `5ee9c39`. Bắt đầu khoảng 14:35,
-dự kiến kết thúc 15:06; kiểm tra khoảng **15:10 UTC+7 ngày 14/10**.
-Mỗi node CPU quota 200%, RAM tối đa 2 GiB, Nice=15, IOWeight=1; raw/features/
-decisions có budget 1 GiB. Mọi lỗi và preview được giữ, không zero-FP gate.
-Đây là canary bounded, không phải soak 24 giờ mới hoặc job tự cộng dồn qua reboot.
-Đóng SSH/laptop không dừng service; reboot/interruption được giữ là evidence.
+B2 đã hoàn tất **30 phút trên cả ba worker**, 230.895 scored rows,
+7.158 preview pending. Feature-end-to-score p99 lần lượt .237/.238/.239:
+**0,502/0,556/0,213 s**, max **0,880/0,863/0,290 s**. .238 có 9 cadence gaps;
+giữ warming/reset và issue counts. .239 có bốn trailing snapshots/804 bytes
+chưa đóng nên không score. Các seal đã kiểm tra trên từng worker.
+[Terminal/verification B2](validation-evidence/pulse-batch-canary-b2-evidence-final-20261014/).
 
-Output từng worker: `/var/lib/pulse-idle-batch-canary-b2-20261014`.
-Nhánh C4 syscall vẫn chạy độc lập trên control plane, không dùng runtime venv
-1.9.0 này để mở pickle C2 vốn yêu cầu scikit-learn 1.9.1.
+B3 unit `pulse-idle-batch-canary-b3.service`, source `8214906`, hoàn tất
+**30 phút** trên cả ba worker, `ExecMainStatus=0`, `NRestarts=0`. Cadence là
+**500 ms**; model manifest/policy khớp B2. Mỗi node CPU quota 200%, RAM tối đa
+2 GiB, Nice=15, IOWeight=1; raw/features/decisions có budget 1 GiB. Unit này
+không phát enforcement; mọi issue và positive preview được giữ.
+
+| Worker | Frames | Scored rows | p99 window-end → score | Preview positives pending | Issue |
+|---|---:|---:|---:|---:|---|
+| .237 | 3.525 | 98.588 | 0,516 s | 3.362 | none |
+| .238 | 3.452 | 104.403 | 0,555 s | 4.375 | 3 cadence gaps |
+| .239 | 3.584 | 27.866 | 0,220 s | 2.401 | none |
+| **Tổng** | **10.561** | **230.857** | — | **10.138** | — |
+
+Pipeline frame processing p99 lần lượt là 0,579/0,642/0,246 s. Bảng B3 là
+timing/coverage canary, **không phải** kernel-to-alert, recall hay FPR; các
+10.138 preview cần adjudication. Evidence có per-file seals và START/TERMINAL
+hash trong [B3 terminal summary](validation-evidence/pulse-parallel-completion-20261014/b3-canary-terminal-summary.json).
+Raw terminal gốc vẫn root-owned tại `/var/lib/pulse-idle-batch-canary-b3-20261014`
+trên worker; summary hash không thay thế export raw terminal.
+
+Output B3 từng worker: `/var/lib/pulse-idle-batch-canary-b3-20261014`.
+Nhánh syscall chạy độc lập trên control plane: C6 đã hoàn tất; nhánh mới
+thử thêm ID ngoài tập 29, không đổi Pulse. Không dùng runtime venv 1.9.0 này để mở pickle
+C2 vốn yêu cầu scikit-learn 1.9.1. Lỗi đó không áp vào Pulse idle-aware B1/B2.
 
 ## Source và bằng chứng
 
@@ -74,9 +94,10 @@ Giữ mọi miss/unknown, đo recall và latency thực; không đổi ngưỡng
 
 ## Kiểm chứng code và quan sát đang chạy
 
-Regression liên quan: **41 passed, 8 skipped** trên Python hệ thống host.
+Regression liên quan: **47 passed, 12 skipped** trên Python hệ thống host.
 Các test ML bị skip vì host chưa có NumPy; bốn batch-runtime tests đã pass
-trên cả ba worker, bốn context-extraction tests đã pass bằng venv C2 trên VM.
+trên cả ba worker, bốn context-extraction tests và một distribution-audit test
+đã pass bằng venv C2 trên VM.
 Lượt chạy toàn bộ pytest trên host bị chặn khi collect do thiếu NumPy
 (46 collection errors); không báo toàn bộ suite đã pass trong lượt này.
 
