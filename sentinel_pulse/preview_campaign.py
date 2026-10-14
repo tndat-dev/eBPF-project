@@ -60,6 +60,7 @@ def one_pair(runtime,cfg,root,item,index):
     append_jsonl(root/'INTERVALS.jsonl',control)
     time.sleep(17)
     ctl=evaluate_interval(tail_rows(worker,control['start_at']),control,cfg['model_hash'],cfg['policy_hash'])
+    atomic_json(trial_dir/'CONTROL.json',ctl)
     path=binary_path_for_controller(item['workload_controller'])
     args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],
           '--container-name',container,'--binary',cfg['binary'],'--sha256',cfg['binary_hash'],'--path',path]
@@ -152,6 +153,8 @@ def run(config,credential):
             except Exception as exc:
                 pair=[dict(label=label,outcome='unknown',reason=type(exc).__name__+': '+str(exc),
                            trial_id=f'{index}:{label}',**item) for label in ('attack','expected_normal')]
+                control=root/'trials'/f'{index:04d}'/'CONTROL.json'
+                if control.exists():pair[1]=json.loads(control.read_text())
         results['completed'][key]=pair;results['outcomes'].extend(pair)
         atomic_json(result_path,results)
         atomic_json(root/'STATUS.json',dict(summarize(results['outcomes']),state='running',

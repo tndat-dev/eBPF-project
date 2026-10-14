@@ -70,3 +70,15 @@ def test_full_id_projection_and_delta_share_exact_same_words():
     assert delta=={'0':1,'202':5}
     row['counts']['0']=3
     with pytest.raises(ValueError,match='explicit'):full_delta(row,None)
+
+
+def test_full_id_native_projection_matches_every_id_and_bin(tmp_path):
+    import subprocess
+    from pathlib import Path
+    root=Path(__file__).resolve().parents[1]
+    output=tmp_path/'full-id-test'
+    subprocess.run(['cc','-std=c11','-O2','-Wall','-Wextra','-Werror',
+        '-I',str(root/'sentinel_pulse/ebpf'),str(root/'tests/c/pulse_counter_full_ids.c'),
+        '-o',str(output)],check=True,capture_output=True)
+    result=subprocess.run([str(output)],check=True,capture_output=True,text=True)
+    assert 'PASS' in result.stdout
