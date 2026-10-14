@@ -83,9 +83,9 @@ UMask=0077
 [Install]
 WantedBy=multi-user.target
 '''%(SOURCE,SOURCE,shlex.join(args))
-    write='from pathlib import Path;import sys;p=Path(sys.argv[1]);assert not p.exists();p.write_text(sys.stdin.read())'
+    write='from pathlib import Path;import sys;p=Path(sys.argv[1]);assert not p.exists();p.write_text(sys.argv[2])'
     path='/etc/systemd/system/pulse-idle-batch-benchmark-b1.service'
-    remote.command(worker,['python3','-c',write,path],unit)
+    remote.command(worker,['python3','-c',write,path,unit])
     remote.command(worker,['systemctl','daemon-reload'])
     remote.command(worker,['systemctl','enable','--no-block','--now','pulse-idle-batch-benchmark-b1.service'])
     print(json.dumps(dict(source_commit=commit,context_exports=receipts,benchmark_worker=worker,
