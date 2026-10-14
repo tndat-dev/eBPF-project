@@ -23,6 +23,7 @@ import numpy as np
 from sklearn.exceptions import InconsistentVersionWarning
 
 from .derive_variant_manifest import _safe_model_path
+from .feature_profile import training_profile
 from .integrity import sha256_file, verify_sha256
 from .syscall_histogram_pilot import atomic_json
 from .variant_capture_audit import IDENTITY, FAILURE_COUNTERS, decode
@@ -75,7 +76,7 @@ def verify_dataset(root,dataset):
         for relative,expected in capture['seals'].items():verify_sha256(checked_path(root,relative),expected)
 
 
-def prepare(campaign,audit,training,manifest,root,model_ended):
+def prepare(campaign,audit,training,manifest,root,model_ended,corrected_root=None):
     path=root/'DATASET.json'
     if path.exists():
         dataset=json.loads(path.read_text());verify_dataset(root,dataset);return dataset
@@ -88,13 +89,25 @@ def prepare(campaign,audit,training,manifest,root,model_ended):
         source=campaign/'holdout'/run_id
         for name in ('features.jsonl','START.json','TERMINAL.json'):
             verify_sha256(source/name,report['seals'][name])
+        features_source=source/'features.jsonl';feature_hash=report['seals']['features.jsonl']
+        if corrected_root is not None:
+            corrected=corrected_root/'holdout'/run_id
+            correction=json.loads((corrected/'DERIVED.json').read_text())
+            complete=json.loads((corrected_root/'TERMINAL.json').read_text())
+            if (correction!=complete['captures']['holdout/'+run_id]
+                    or correction['source_features_sha256']!=feature_hash
+                    or correction['training_profile']!='exact-ebpf-500ms-rolling-10'
+                    or correction['reference_vectors_exact'] is not True
+                    or correction['nonrolling_191_features_unchanged'] is not True):raise ValueError('correction provenance differs')
+            features_source=corrected/'features.jsonl';feature_hash=correction['corrected_features_sha256']
+            verify_sha256(features_source,feature_hash)
         terminal=json.loads((source/'TERMINAL.json').read_text());start=json.loads((source/'START.json').read_text())
         if terminal['probe_started_at_unix']<=model_ended:raise ValueError('capture predates model freeze')
         final=root/'contexts'/run_id
         receipt=final/'RECEIPT.json'
         if receipt.exists():
             saved=json.loads(receipt.read_text())
-            if saved['source_features_sha256']!=report['seals']['features.jsonl']:raise ValueError('resume capture changed')
+            if saved['source_features_sha256']!=feature_hash:raise ValueError('resume capture changed')
             for relative,expected in saved['seals'].items():verify_sha256(checked_path(root,relative),expected)
         else:
             # Incomplete attempts survive for inspection; only complete receipts are reused.
@@ -107,7 +120,7 @@ def prepare(campaign,audit,training,manifest,root,model_ended):
                 arrays[w]=np.lib.format.open_memmap(temporary/name,mode='w+',dtype=np.float32,shape=(n,996))
                 files[w]=name;expected[w]=n
             meta=temporary/'metadata.jsonl'
-            with (source/'features.jsonl').open() as stream,meta.open('x') as metadata:
+            with features_source.open() as stream,meta.open('x') as metadata:
                 for w,context,identity in temporal_contexts(stream,training['feature_columns'],revisions,
                         terminal['probe_started_at_unix'],terminal['probe_ended_at_unix'],start['node_name']):
                     i=counts[w]
@@ -118,9 +131,9 @@ def prepare(campaign,audit,training,manifest,root,model_ended):
             if dict(counts)!=expected:raise ValueError('extraction counts differ from verified audit')
             for array in arrays.values():array.flush()
             arrays.clear();gc.collect()
-            verify_sha256(source/'features.jsonl',report['seals']['features.jsonl'])
+            verify_sha256(features_source,feature_hash)
             if final.exists():raise ValueError('unsealed final context directory')
-            saved=dict(regime=report['regime'],source_features_sha256=report['seals']['features.jsonl'],
+            saved=dict(regime=report['regime'],source_features_sha256=feature_hash,
                 probe_start=terminal['probe_started_at_unix'],probe_end=terminal['probe_ended_at_unix'],
                 workloads={w:dict(rows=counts[w],path=str((final/name).relative_to(root))) for w,name in files.items()},
                 seals={str((final/p.name).relative_to(root)):sha256_file(p) for p in temporary.iterdir() if p.is_file()})
@@ -134,12 +147,24 @@ def prepare(campaign,audit,training,manifest,root,model_ended):
     atomic_json(path,dataset);return dataset
 
 
-def run(campaign,audit_path,audit_hash,training_path,model_root,model_hash,output):
+def run(campaign,audit_path,audit_hash,training_path,model_root,model_hash,output,corrected_root=None):
     output.mkdir(parents=True,exist_ok=True)
     lock=(output/'run.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     verify_sha256(audit_path,audit_hash);audit=json.loads(audit_path.read_text())
     manifest,start,results,software=check_chain(model_root,model_hash)
     verify_sha256(training_path,manifest['training_manifest_sha256']);training=json.loads(training_path.read_text())
+    profile=training_profile(training_path)
+    if corrected_root is None:
+        if profile['rolling_windows']!=5:
+            raise ValueError('C3 rolling-5 differs from training profile; verified raw refeature required')
+    else:
+        correction=json.loads((corrected_root/'TERMINAL.json').read_text())
+        if (correction['state']!='completed_profile_repair' or correction['completed_captures']!=30
+                or correction['binding']['training_manifest_sha256']!=manifest['training_manifest_sha256']
+                or correction['binding']['audit_sha256']['holdout']!=audit_hash
+                or correction['binding']['target_profile']!=profile['name']
+                or correction['binding']['campaign_start_sha256']!=sha256_file(campaign/'START.json')):
+            raise ValueError('completed matching preprocessing repair required')
     verify_sha256(Path(__file__).with_name('model.py'),start['source_module_sha256']['model.py'])
     if (audit['split']!='holdout' or audit['captures_verified']!=15 or audit['variant_manifest_sha256']!=model_hash
             or audit['training_manifest_sha256']!=manifest['training_manifest_sha256']
@@ -150,16 +175,18 @@ def run(campaign,audit_path,audit_hash,training_path,model_root,model_hash,outpu
         training_manifest_sha256=manifest['training_manifest_sha256'],software=software,
         source_sha256={n:sha256_file(Path(__file__).with_name(n)) for n in
             ('variant_independent_normal.py','variant_capture_audit.py','variant_replay.py','model.py')},
-        campaign_terminal_sha256=sha256_file(campaign/'TERMINAL.json'))
+        campaign_terminal_sha256=sha256_file(campaign/'TERMINAL.json'),training_feature_profile=profile,
+        corrected_preprocessing_terminal_sha256=sha256_file(corrected_root/'TERMINAL.json') if corrected_root else None)
     if (output/'START.json').exists():
         if json.loads((output/'START.json').read_text())['binding']!=binding:raise ValueError('resume binding changed')
     else:
         atomic_json(output/'START.json',dict(binding=binding,registered_at_unix=time.time(),expected_models=608,
             evidence_class='frozen_model_inference_on_new_normal_holdout',no_training_or_threshold_change=True,
             policy_applied=False,labels='pending_health_and_behavior_adjudication',
+            previously_scored_under_wrong_preprocessing=corrected_root is not None,
             precision=None,recall=None,false_positive_rate=None,kernel_to_alert=None,automatic_promotion=False))
     ended=datetime.fromisoformat(json.loads((model_root/'TERMINAL.json').read_text())['ended_at']).timestamp()
-    dataset=prepare(campaign,audit,training,manifest,output,ended)
+    dataset=prepare(campaign,audit,training,manifest,output,ended,corrected_root)
     state_path=output/'STATUS.json'
     state=json.loads(state_path.read_text()) if state_path.exists() else dict(state='scoring',completed={},binding=binding,
         registered_at_unix=time.time(),dataset_sha256=sha256_file(output/'DATASET.json'),expected_models=608)
@@ -211,7 +238,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     for n in ('campaign','audit','training-manifest','model-root','output'):p.add_argument('--'+n,type=Path,required=True)
     for n in ('audit-sha256','model-sha256'):p.add_argument('--'+n,required=True)
-    a=p.parse_args();run(a.campaign,a.audit,a.audit_sha256,a.training_manifest,a.model_root,a.model_sha256,a.output)
+    p.add_argument('--corrected-root',type=Path)
+    a=p.parse_args();run(a.campaign,a.audit,a.audit_sha256,a.training_manifest,a.model_root,a.model_sha256,a.output,a.corrected_root)
 
 
 if __name__=='__main__':main()

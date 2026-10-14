@@ -127,6 +127,8 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
         if sha256_file(path) != expected:
             raise ValueError('pinned manifest hash mismatch')
     training, variants = [json.loads(p.read_text()) for p in (training_manifest, variant_manifest)]
+    from .feature_profile import training_profile
+    preprocessing=training_profile(training_manifest)
     if variants['training_manifest_sha256'] != training_hash or variants['history'] != 3:
         raise ValueError('variant/training binding or history differs')
     columns = training['feature_columns']
@@ -177,8 +179,11 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
         campaign_start_sha256=campaign_hash, training_manifest_sha256=training_hash,
         variant_manifest_sha256=variant_hash, auditor_sha256=sha256_file(Path(__file__)), captures=captures,
         captures_verified=len(captures), expected_captures=15, scores_computed=False,
+        training_preprocessing=preprocessing,observed_rolling_windows=5,
+        preprocessing_compatible_with_training=preprocessing['rolling_windows']==5,
         normal_labels_adjudicated=False, precision=None, recall=None, kernel_to_alert=None,
-        limitations=['compatibility only; health/traffic interval adjudication still required',
+        limitations=['shape/identity admission only; rolling profile must also match before model evaluation',
+                     'health/traffic interval adjudication still required',
                      'no model fitting, score inspection, feature ranking or holdout tuning'])
 
 
