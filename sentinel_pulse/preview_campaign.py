@@ -121,6 +121,10 @@ def run(config,credential):
     binding=dict(config_sha256=sha256_file(config),model_hash=cfg['model_hash'],policy_hash=cfg['policy_hash'],
         binary_sha256=sha256_file(Path(cfg['binary'])),evidence_class='development_candidate_preview',
         fresh_blind=False,automatic_promotion=False,stop_on_false_positive=False,stop_on_miss=False)
+    exec_policy=Path(cfg['exec_provenance_policy'])
+    binding['exec_provenance_policy_sha256']=sha256_file(exec_policy)
+    if binding['exec_provenance_policy_sha256']!=cfg['exec_provenance_policy_sha256']:
+        raise ValueError('Tetragon provenance policy changed after registration')
     if binding['binary_sha256']!=cfg['binary_hash']:raise ValueError('binary hash differs')
     if (root/'START.json').exists():
         if json.loads((root/'START.json').read_text())['binding']!=binding:raise ValueError('campaign registration differs')

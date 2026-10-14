@@ -20,6 +20,7 @@ def plan(source,root,run_id,smoke=False):
     root.mkdir(parents=True,exist_ok=False)
     candidate=Path('/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle')
     policy=source/'sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json'
+    exec_policy=source/'sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
     if sha256_file(candidate/'CANDIDATE_MANIFEST.json')!=MODEL_HASH or sha256_file(policy)!=POLICY_HASH:
         raise ValueError('candidate or preview policy differs')
     keys=sorted(json.loads((candidate/'CANDIDATE_MANIFEST.json').read_text())['workloads'])
@@ -32,6 +33,7 @@ def plan(source,root,run_id,smoke=False):
     native=[int(value) for value in re.findall(r'^#define __NR_\w+\s+(\d+)$',header.read_text(),re.M)]
     cfg=dict(run_id=run_id,source=str(source),frozen_source='/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source',
         candidate=str(candidate),model_hash=MODEL_HASH,policy=str(policy),policy_hash=POLICY_HASH,
+        exec_provenance_policy=str(exec_policy),exec_provenance_policy_sha256=sha256_file(exec_policy),
         seconds=90 if smoke else 172800,minimum_free_bytes=4*1024**3,workload_keys=keys,
         campaign_output=str(root/'pulse-development-matrix'),study_output=str(root/'syscall-matched-study'),
         traffic_output=str(root/'traffic'),binary=str(binary),binary_hash=sha256_file(binary),
