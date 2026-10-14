@@ -1,12 +1,16 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành qua SSH: **14/10/2026 09:10 UTC+7**. Capture soak
+Hai nhánh triển khai song song: C3 thu selection/holdout; Pulse tổng hợp soak
+và chuẩn bị đánh giá candidate đã đóng băng. Không có điều kiện chờ chọn xong
+syscall mới tiếp tục Pulse. [Lịch chạy và job review](PULSE_PARALLEL_EXECUTION.md).
+
+Cập nhật hiện hành qua SSH: **14/10/2026 09:33 UTC+7**. Capture soak
 `normal-a1-20261013` hoàn tất **100% trên ba worker**, đủ 86.400 giây/node,
 errors=0, capacity pauses=0. Shadow đã đọc tới cuối các capture; chưa audit
 đủ decision coverage/nhãn để chốt đánh giá.
 Job `pulse-syscall-capture-c3.service` enabled/active trên `.234`, đã chấp nhận
 4/10 phase (12/30 capture worker), recovery gặp 16 retry do HPA đổi cgroup.
-Đã deploy bước settle 360 giây, attempt 17 đang đợi target ổn định; sau đó là
+Đã deploy bước settle 360 giây, attempt 17 đã ổn định và đang collecting; sau đó là
 năm regime holdout riêng. ETA mới khoảng 12:00–12:30 ngày 14/10 nếu ổn định.
 Root cause: [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md). Chi tiết:
 [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).

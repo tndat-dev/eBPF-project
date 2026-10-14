@@ -1,6 +1,6 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật hiện hành qua SSH: **14/10/2026, 09:10 UTC+7**. C1 `attempt-000002` và
+Cập nhật hiện hành qua SSH: **14/10/2026, 09:33 UTC+7**. C1 `attempt-000002` và
 C2 `attempt-000002` đều terminal `completed`, **608/608 fits**, `errors=[]`, 19
 workload × 32 variants; không còn fit process nào chạy. C1 có prediction/score
 `.npz`, không có pickle. C2 có 608 model pickle, tổng **2,362,081,485 byte**.
@@ -22,7 +22,8 @@ Replay dùng context cũ đã xem; chưa phải phép đo chất lượng độc
 NRestarts=0**, coordinator mới `49280a6b7c0c81c3a3b50c20e8383e2c8857eb75`
 ở `/home/dat/pulse-syscall-c3-settle-20261014/source`. START gốc/source capture
 được giữ; amendment riêng bind thay đổi điều phối. Trạng thái
-`waiting_for_target_stability`, attempt 17 của `selection-recovery`.
+`collecting`, attempt 17 của `selection-recovery` đã qua target stability và
+đang thu trên ba worker.
 Đã chấp nhận **4/10 phase (40%)**:
 selection steady, toolmix, peak, burst — tương đương **12/30 capture worker**.
 **16 attempt recovery bị từ chối** vì cgroup waypoint thay đổi theo HPA trên

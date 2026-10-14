@@ -1,5 +1,10 @@
 # Candidate Shadow Runtime — trạng thái hiện hành
 
+Đang triển khai song song với nhánh chọn syscall. SSH **09:33 ngày 14/10**:
+job review soak r2 đang xử lý trên cả ba worker, đã đọc 2.722.602 decision;
+issues={} tại checkpoint. Review dự kiến xong khoảng 09:50–10:00 nếu tốc độ
+giữ nguyên. [Trạng thái và source](PULSE_PARALLEL_EXECUTION.md).
+
 ## Mục đích và giới hạn
 
 `sentinel_pulse.candidate_shadow` là bộ chấm điểm **shadow-only** cho candidate
@@ -126,6 +131,13 @@ Tiếp theo: audit decision coverage, journal/gaps và nhãn preview/normal đ�
 tổng hợp đánh giá. C3 recovery bị lặp vì HPA/cgroup; đã sửa bước đợi identity
 ổn định. ETA capture C3 mới khoảng **12:00–12:30 ngày 14/10**, phụ thuộc identity
 ổn định; đây chưa phải ETA của toàn bộ blind evaluation.
+
+Nhánh Pulse tiếp tục **song song với thí nghiệm syscall**, không chờ kết luận
+chọn feature. Job review có checkpoint chạy riêng trên ba worker dưới unit
+`pulse-shadow-soak-summary@normal-a1-20261013.service`, output
+`/var/lib/pulse-shadow-review/normal-a1-20261013-r2`. Nó tổng hợp mọi decision,
+coverage, preview và histogram latency của soak đã đóng. Chi tiết vận hành và
+ranh giới nhãn/inject ở [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md).
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
