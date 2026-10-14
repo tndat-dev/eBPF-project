@@ -23,6 +23,14 @@ from .run_500ms_blind_matrix import append_jsonl, atomic_json, binary_path_for_c
 from .tetragon_evidence import EXEC_PROVENANCE_POLICY, find_execve_kprobe_event
 
 
+class PreviewRuntime(AttackRuntime):
+    def remote_sudo(self,host,command,*,payload=b'',timeout=30):
+        return self.run(['sshpass','-e','ssh','-o','StrictHostKeyChecking=yes',
+            '-o','UserKnownHostsFile=/home/dat/.ssh/known_hosts','-o','ConnectTimeout=8',
+            f'{self.ssh_user}@{host}','sudo -k -S -p "" '+command],
+            input_bytes=self.password.encode()+b'\n'+payload,timeout=timeout)
+
+
 def tail_rows(worker, begin):
     records=[]
     # Trials last 15s. Read only bounded suffixes, including both sides of a
@@ -114,7 +122,7 @@ def one_pair(runtime,cfg,root,item,index):
 def run(config,credential):
     cfg=json.loads(config.read_text());root=Path(cfg['campaign_output']);root.mkdir(parents=True,exist_ok=True)
     lock=(root/'campaign.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    runtime=AttackRuntime(credential.read_text().strip())
+    runtime=PreviewRuntime(credential.read_text().strip())
     binding=dict(config_sha256=sha256_file(config),model_hash=cfg['model_hash'],policy_hash=cfg['policy_hash'],
         binary_sha256=sha256_file(Path(cfg['binary'])),evidence_class='development_candidate_preview',
         fresh_blind=False,automatic_promotion=False,stop_on_false_positive=False,stop_on_miss=False)
