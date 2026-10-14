@@ -9,8 +9,8 @@ checkout vận hành và trạng thái cluster liên quan trực tiếp đến c
 
 | Vị trí | Trạng thái quan sát | Ý nghĩa |
 |---|---|---|
-| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, commit `67b9585`; `origin` cùng SHA; working tree sạch trước cập nhật báo cáo lượt này | Revision đã push, nguồn Git hiện hành |
-| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng tại commit `67b9585`, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
+| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, commit `703bb73`; `origin` cùng SHA; working tree sạch trước cập nhật audit | Revision đã push, nguồn Git hiện hành |
+| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng hiện ở commit `703bb73`, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
 | VM `/home/dat/eBPF-project` | Branch `main`, commit `ca682ef`, **37 file có thay đổi cục bộ** | Chưa đồng bộ; không pull/reset/stash/clean và không ghi đè |
 | Runtime frozen trên NFS | `/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source`, commit `2c1a72d`, sạch | Checkout vận hành tách biệt; không thay bằng Git head mới nếu chưa đăng ký lại candidate |
 
@@ -21,7 +21,8 @@ giữ nguyên. Candidate runtime tiếp tục bind commit `2c1a72d` và manifest
 Git head `67b9585` không tự động trở thành runtime đã deploy.
 
 Các commit đã push trong nhánh host: `ce45c27` (pacing C7), `f5ef974` (link
-tài liệu), `67b9585` (canary/review và C6). Không stage đại trà raw campaign.
+tài liệu), `67b9585` (canary/review và C6), `703bb73` (status/audit). Không
+stage đại trà raw campaign.
 
 ## Kiểm chứng code và môi trường
 
