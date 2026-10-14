@@ -7,6 +7,12 @@ import subprocess
 
 from .integrity import sha256_file
 
+ALLOWED_PATHS = {
+    '/tmp/sentinel-runtime-attack-blind',
+    '/run/sentinel-runtime-attack-blind',
+    '/etc/istio/proxy/sentinel-runtime-attack-blind',
+}
+
 
 def target(container_id, pod_uid, container_name):
     container_id=container_id.removeprefix('containerd://')
@@ -30,7 +36,7 @@ def main():
     for key in ('container-id','pod-uid','container-name','binary','sha256','path'):
         p.add_argument('--'+key,required=True)
     a=p.parse_args()
-    if a.path not in ('/tmp/sentinel-runtime-attack-blind','/run/sentinel-runtime-attack-blind'):
+    if a.path not in ALLOWED_PATHS:
         raise ValueError('unregistered container path')
     pid=target(a.container_id,a.pod_uid,a.container_name)
     destination=Path('/proc')/str(pid)/'root'/a.path.lstrip('/')

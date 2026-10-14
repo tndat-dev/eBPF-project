@@ -271,4 +271,5 @@ def test_b3_blind_opener_requires_terminal_normal_pass_and_exact_runtime_commit(
 
 def test_binary_staging_path_preserves_tetragon_visibility_for_cnpg():
     assert binary_path_for_controller("aims-postgres-cnpg").startswith("/run/")
+    assert binary_path_for_controller("aims-waypoint") == "/etc/istio/proxy/sentinel-runtime-attack-blind"
     assert binary_path_for_controller("api-gateway").startswith("/tmp/")

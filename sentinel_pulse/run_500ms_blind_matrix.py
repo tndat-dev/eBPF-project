@@ -29,6 +29,9 @@ DEFAULT_BINARY_IN_CONTAINER = "/tmp/sentinel-runtime-attack-blind"
 # exact /run process_exec identity; /dev/shm execution was not observable.
 CONTROLLER_BINARY_PATHS = {
     "aims-postgres-cnpg": "/run/sentinel-runtime-attack-blind",
+    # Istio waypoint is distroless with a read-only root. This path is inside
+    # its writable emptyDir mount and is allowlisted by the provenance policy.
+    "aims-waypoint": "/etc/istio/proxy/sentinel-runtime-attack-blind",
 }
 PRIMARY_CONTAINER_ORDER = (
     "app", "web", "kafka", "postgres", "rabbitmq", "aims-redis",

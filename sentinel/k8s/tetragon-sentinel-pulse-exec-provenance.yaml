@@ -20,5 +20,6 @@ spec:
         values:
         - /tmp/sentinel-runtime-attack-blind
         - /run/sentinel-runtime-attack-blind
+        - /etc/istio/proxy/sentinel-runtime-attack-blind
       matchActions:
       - action: Post
