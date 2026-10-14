@@ -21,8 +21,8 @@ Raw-positive preview vẫn chờ adjudication, không gọi tự động là fal
 
 A1 terminal có 0/105 model; nguyên nhân là exact boundary tolerance 100 µs so
 với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 service
-đã `enabled` trên `.234`, source/test đúng hash; lúc **16:02 UTC** service vẫn
-`activating/start`, PID `3889873`, `NRestarts=0`, checkpoint **31/105 fit, 0
+đã `enabled` trên `.234`, source/test đúng hash; lúc **16:04 UTC** service vẫn
+`activating/start`, PID `3889873`, `NRestarts=0`, checkpoint **37/105 fit, 0
 unknown**. A2 tiếp tục nền, không sửa binding đang chạy. Không dùng holdout C3
 đã lộ để quyết định syscall hoặc làm blind claim. Cả hai nhánh giữ model/policy
 Pulse, không zero-alert gate và không auto-promotion.
