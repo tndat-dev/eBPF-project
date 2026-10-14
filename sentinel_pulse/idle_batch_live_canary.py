@@ -35,6 +35,7 @@ def percentiles(values):
 
 
 def run(source, frozen_source, build, proof, candidate, model_hash, policy_path, policy_hash, benchmark, output, seconds=300):
+    if type(seconds) is not int or not 30<=seconds<=3600:raise ValueError('registered duration must be 30..3600 seconds')
     verified=json.loads((benchmark/'TERMINAL.json').read_text())
     if (verified['state']!='completed_equivalence_benchmark'
             or verified['binding']['model_manifest_sha256']!=model_hash
@@ -62,7 +63,7 @@ def run(source, frozen_source, build, proof, candidate, model_hash, policy_path,
     stream=ExtendedFeatureStream(include_idle=True)
     output.mkdir(parents=True)
     atomic_json(output/'START.json',dict(schema='pulse-idle-batch-timing-canary-v1',registered_at_unix=time.time(),
-        seconds=seconds,interval_ms=500,model_manifest_sha256=model_hash,policy_sha256=policy_hash,
+        run_id=output.name,seconds=seconds,interval_ms=500,model_manifest_sha256=model_hash,policy_sha256=policy_hash,
         benchmark_terminal_sha256=sha256_file(benchmark/'TERMINAL.json'),software=software,unchanged_core_sha256=core,
         artifacts=artifacts,runtime_sha256=sha256_file(Path(__file__)),batch_source_sha256=sha256_file(source/'sentinel_pulse/idle_batch.py'),
         output_mode='shadow_preview_only',attack_injection=False,model_or_threshold_changed=False,
@@ -118,7 +119,7 @@ def run(source, frozen_source, build, proof, candidate, model_hash, policy_path,
                             features.write(json.dumps(record,separators=(',',':'))+'\n')
                         for start in range(0,len(records),256):
                             for decision in runtime.observe_many(records[start:start+256]):
-                                decision['run_id']='pulse-idle-batch-canary-b1-20261014'
+                                decision['run_id']=output.name
                                 statuses[decision['status']]+=1
                                 if decision['status']=='candidate-raw-score-only':
                                     ages.append(decision['feature_event_age_seconds']);batch_times.append(decision['batch_inference_ms'])
@@ -159,8 +160,9 @@ def main():
     for name in ('source','frozen-source','build','proof','candidate','policy','benchmark','output'):
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--model-sha256',required=True);p.add_argument('--policy-sha256',required=True)
+    p.add_argument('--seconds',type=int,default=300)
     a=p.parse_args()
-    run(a.source,a.frozen_source,a.build,a.proof,a.candidate,a.model_sha256,a.policy,a.policy_sha256,a.benchmark,a.output)
+    run(a.source,a.frozen_source,a.build,a.proof,a.candidate,a.model_sha256,a.policy,a.policy_sha256,a.benchmark,a.output,a.seconds)
 
 
 if __name__=='__main__':main()
