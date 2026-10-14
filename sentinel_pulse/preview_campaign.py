@@ -31,19 +31,14 @@ class PreviewRuntime(AttackRuntime):
             input_bytes=self.password.encode()+b'\n'+payload,timeout=timeout)
 
 
-def tail_rows(worker, begin):
-    records=[]
-    # Trials last 15s. Read only bounded suffixes, including both sides of a
-    # segment rotation, with complete JSONL lines.
-    for path in sorted(Path(worker['output']).glob('segments/s*/decisions.jsonl'))[-2:]:
-        with path.open('rb') as f:
-            offset=max(0,path.stat().st_size-32*1024**2);f.seek(offset)
-            if offset:f.readline()
-            for line in f:
-                if not line.endswith(b'\n'):continue
-                row=json.loads(line)
-                if row.get('window_end',0)>=begin:records.append(row)
-    return records
+def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
+    # Read on the writer's client. A second NFS client's attribute/page cache
+    # can temporarily hide appended rows even after Python flushes on worker.
+    args=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
+        '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.preview_read_tail',
+        '--root',worker['output'],'--since',str(begin),'--pod-uid',pod_uid,'--cgroup-id',str(cgroup_id)]
+    result=runtime.remote_sudo(worker['host'],shlex.join(args))
+    return [json.loads(line) for line in result.stdout.splitlines()]
 
 
 def target_identity(runtime,pod,container,cg,worker):
@@ -67,7 +62,7 @@ def one_pair(runtime,cfg,root,item,index):
     control=dict(identity,label='expected_normal',start_at=time.time(),trial_id=f'{index}:control')
     append_jsonl(root/'INTERVALS.jsonl',control)
     time.sleep(17)
-    ctl=evaluate_interval(tail_rows(worker,control['start_at']),control,cfg['model_hash'],cfg['policy_hash'])
+    ctl=evaluate_interval(tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg),control,cfg['model_hash'],cfg['policy_hash'])
     atomic_json(trial_dir/'CONTROL.json',ctl)
     path=binary_path_for_controller(item['workload_controller'])
     args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],
@@ -103,9 +98,9 @@ def one_pair(runtime,cfg,root,item,index):
                 expected_binary=path,maximum_delay_seconds=10)
             atomic_json(trial_dir/'KERNEL_EVENT.json',event);injection['kernel_event_at']=event['kernel_event_at']
         except ValueError as exc:injection['infrastructure_issue']='kernel_provenance: '+str(exc)
-        outcome=evaluate_interval(tail_rows(worker,injection['start_at']),injection,cfg['model_hash'],cfg['policy_hash'])
+        outcome=evaluate_interval(tail_rows(runtime,cfg,worker,injection['start_at'],pod['uid'],cg),injection,cfg['model_hash'],cfg['policy_hash'])
         # Store exact selected rows as evidence so later replay is independent of tail position.
-        rows=[r for r in tail_rows(worker,control['start_at'])
+        rows=[r for r in tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg)
               if r.get('pod_uid')==pod['uid'] and str(r.get('cgroup_id'))==str(cg)
               and r.get('window_end',0)<=injection['start_at']+17]
         atomic_json(trial_dir/'EVALUATION_INPUT.json',dict(control=control,attack=injection,decisions=rows))

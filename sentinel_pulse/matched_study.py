@@ -105,7 +105,17 @@ def run(config_path):
         inputs=[]
         for path in files:
             inputs.append(dict(path=str(path),sha256=sha256_file(path)))
-        atomic_json(index_path,dict(files=inputs,selection_start=cfg['selection_start'],selection_end=end))
+        excluded=[]
+        journals=[Path(cfg['campaign_output'])/'INTERVALS.jsonl',
+                  *config_path.parent.glob('evaluator-smoke*/INTERVALS.jsonl')]
+        for journal in journals:
+            if not journal.exists():continue
+            for line in journal.read_text().splitlines():
+                row=json.loads(line)
+                if row.get('label')=='attack':
+                    excluded.append([row['start_at']-10,row['start_at']+45])
+        atomic_json(index_path,dict(files=inputs,selection_start=cfg['selection_start'],selection_end=end,
+                                   excluded_attack_intervals=excluded))
     inputs=json.loads(index_path.read_text())
     counts=Counter();columns=None;handles={};directory=root/'workloads';directory.mkdir(exist_ok=True)
     # Completed index is reused; partial indexes are rebuilt from immutable sources.
@@ -122,6 +132,8 @@ def run(config_path):
                             columns=row['columns'];continue
                         a,b=row['window_start'],row['window_end']
                         if a<cfg['selection_start'] or b>end:continue
+                        if any(a<finish and b>begin for begin,finish in inputs.get('excluded_attack_intervals',[])):
+                            continue
                         key=row['workload_key']
                         if key not in cfg['workload_keys']:continue
                         if key not in handles:handles[key]=(directory/(hashlib.sha256(key.encode()).hexdigest()+'.jsonl')).open('w')

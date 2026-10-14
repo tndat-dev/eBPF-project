@@ -82,3 +82,15 @@ def test_full_id_native_projection_matches_every_id_and_bin(tmp_path):
         '-o',str(output)],check=True,capture_output=True)
     result=subprocess.run([str(output)],check=True,capture_output=True,text=True)
     assert 'PASS' in result.stdout
+
+
+def test_writer_side_tail_keeps_identity_rotation_and_ignores_partial_line(tmp_path):
+    import json
+    from sentinel_pulse.preview_read_tail import read
+    base=dict(window_end=100.,pod_uid='uid',cgroup_id=42)
+    for n in (1,2):
+        folder=tmp_path/'segments'/f's{n:05d}';folder.mkdir(parents=True)
+        (folder/'decisions.jsonl').write_text(json.dumps(base)+'\n'+
+            json.dumps(dict(base,pod_uid='wrong'))+'\n'+json.dumps(base)[:12])
+    result=list(read(tmp_path,99,'uid',42))
+    assert result==[base,base]
