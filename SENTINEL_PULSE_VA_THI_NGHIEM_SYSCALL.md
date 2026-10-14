@@ -593,7 +593,7 @@ Code mới: [syscall_addition_experiment.py](sentinel_pulse/syscall_addition_exp
 - Không chia count 1 giây thành hai count 500 ms bằng ước lượng. Kết quả nhánh này cần xác nhận lại ở đúng cadence/observable Pulse trước khi thay runtime.
 - Giữ artifact, prediction và checkpoint từng workload/arm; không promotion hoặc thay candidate Pulse.
 
-Đây là **exploratory addition study**, không phải lựa chọn feature kết luận. A1 đọc đủ input nhưng có **0/105 fit**: kiểm tra continuity yêu cầu sai số timestamp ≤100 µs, còn các interval liên tiếp thật có khoảng đọc snapshot 0,6–1,4 ms. Do đó rolling history bị reset liên tục. Terminal A1 giữ nguyên và được phân loại là lỗi pipeline, không phải kết quả model. Đã sửa ngưỡng sang tối đa 50 ms (gap lớn hơn vẫn reset), lấy regime từ traffic receipt theo từng timestamp, và thêm unit tests cho jitter nhỏ, gap lớn và không nối history qua capture. A2 retry đang chạy bằng service systemd enabled, output riêng; lần SSH lúc **16:04 UTC** thấy **37/105 fits, 0 unknown**, service `activating/start`, `NRestarts=0`. Đây chỉ xác nhận fix có thể tạo context và chạy fit; chưa phải kết quả detection hay lựa chọn syscall.
+Đây là **exploratory addition study**, không phải lựa chọn feature kết luận. A1 đọc đủ input nhưng có **0/105 fit**: kiểm tra continuity yêu cầu sai số timestamp ≤100 µs, còn các interval liên tiếp thật có khoảng đọc snapshot 0,6–1,4 ms. Do đó rolling history bị reset liên tục. Terminal A1 giữ nguyên và được phân loại là lỗi pipeline, không phải kết quả model. Đã sửa ngưỡng sang tối đa 50 ms (gap lớn hơn vẫn reset), lấy regime từ traffic receipt theo từng timestamp, và thêm unit tests cho jitter nhỏ, gap lớn và không nối history qua capture. A2 đã kết thúc thành công lúc **16:44:43 UTC ngày 14/10**: terminal `completed_exploratory_addition_study`, **105/105 models**, `unknowns={}`. Các trường precision, recall, FPR, kernel-to-alert đều `null`; `fresh_blind_complete=false`. Đây chỉ xác nhận fit/evaluate exploratory chạy hết trên C3, không phải kết quả detection hoặc lựa chọn syscall.
 
 Holdout C3 đã xem ở C4/C6/A1 nên không thể gọi là blind. C3/A2 chỉ exploratory; normal raw-positive không quyết định recall/FPR. Hơn nữa nó dùng histogram entry-only **1 giây**, không task-transition, feature width phụ thuộc số ID, alpha 0,005; không tương thích Pulse 500 ms/249 chiều và support path. Không chia count 1 giây thành hai count 500 ms. Protocol cuối yêu cầu capture mới đồng bộ 500 ms có full-ID deltas cùng exact counters, 64 syscall bins, 64 transition bins, rolling/history và support path như candidate Pulse trước khi chạy paired blind.
 
@@ -902,7 +902,7 @@ Dự án có nhiều thực hành **MLOps**: versioning dữ liệu/model, featu
 |---|---|
 | Soak A1/B2 | Đã hoàn thành; giữ kết quả, không chạy lại từ đầu để xóa preview hoặc issue |
 | Đối soát A1 | Giải thích chênh 565 feature/decision; báo coverage thực |
-| Addition study A2 | Đang fit 37/105 exploratory models trên C3 đã lộ; chờ terminal, không tính recall và không chọn feature từ raw positives |
+| Addition study A2 | Đã hoàn tất 105/105 exploratory models trên C3 đã lộ; không có blind attack, recall/FPR/confusion matrix |
 | Matched syscall experiment | Chưa capture: cần full-ID delta đồng bộ 500 ms + Pulse observables; sau đó mới chạy grouped/rare/addition arms |
 | Label review | Adjudicate normal, preview và unknown; ghi căn cứ, không chỉ đổi tên raw positive thành FP |
 | New blind trials | Chưa chạy; sau khi normal cohort/candidate/arms freeze, dùng binary/cases mới, cùng target/horizon cho so sánh paired |

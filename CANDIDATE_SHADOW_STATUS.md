@@ -4,13 +4,12 @@ Triển khai song song với nhánh syscall. SSH **14/10/2026** xác nhận revi
 r2 đã hoàn tất trên cả ba worker: **33.148.914 decision, 11.388.831 scored,
 30.412 preview dương chưa adjudicate**, issues={}. Chênh capture/decision
 **565 dòng** chưa được giải thích, không tuyên bố coverage hoàn chỉnh.
-Các key không có model đều là scope `pod-slice`.
+Các key không có model đều là scope `pod-slice`. Preview dương là
+**0,267% scored rows** khi đếm theo từng window có chồng lấn; đây không phải FPR.
 
-Kiểm tra SSH hiện hành phân biệt rõ hai tiến trình: collector exact nền trên ba
-worker đang ghi telemetry **1 giây**; candidate shadow service vẫn mở để theo
-dõi/review segment của capture A1 đã đóng, không đọc luồng 500 ms mới. B2/B3
-500 ms là timing canary bounded đã dừng sau terminal, không phải ML alert stream
-đang chạy liên tục.
+Kiểm tra SSH hiện hành: collector exact nền trên ba worker đang ghi telemetry
+**1 giây**; service candidate shadow **không còn chạy**. B2/B3 500 ms là timing
+canary bounded đã dừng sau terminal, không phải ML alert stream đang chạy liên tục.
 
 Batch scorer giữ nguyên 21 frozen model/policy, scalar/batch score khớp tuyệt
 đối. Canary B1 live 5 phút đạt feature-window-end → score p95/p99
@@ -119,7 +118,7 @@ capacity_pause_count=0 trên cả ba node:
 | worker4 `.238` | 86.400,297 s | 15.096.447 |
 | worker3 `.239` | 86.400,390 s | 4.124.430 |
 
-Shadow vẫn active, `NRestarts=0`, model/policy không thay đổi. Row cuối của ba
+Capture/shadow scoring đã kết thúc; model/policy không thay đổi. Row cuối của ba
 worker đã tới cuối capture: worker1 window_end=1791916967,012;
 worker4=1791917016,301; worker3=1791916992,378. Worker1 row cuối mang trạng thái
 `candidate-model-unavailable`; worker4 row cuối scored có event age
@@ -133,6 +132,14 @@ Capture đủ 24 giờ không đồng nghĩa candidate đạt realtime, stable h
 lượng phát hiện. C3 đã bắt đầu thu dữ liệu mới trong thư mục riêng sau khi cả
 ba capture đóng; nó không sửa hoặc thêm record vào capture soak đã hoàn tất.
 
+SSH kiểm tra lại **14/10/2026 16:45 UTC**: cả 6 node `Ready`; baseline
+`pulse_counter_loader` vẫn chạy trên ba worker với chu kỳ **1.000 ms**. Không
+có extended 500 ms loader; canary B3/B4 đều `inactive/dead`, vì vậy hiện không
+có candidate preview được score trực tuyến. Tetragon exec-provenance policy
+đã enabled trên 6/6 agent, giới hạn `sys_execve` tới hai đường dẫn binary thử
+nghiệm; đây là timestamp nguồn khả dụng, không phải bằng chứng đã chạy attack
+trên candidate hiện hành.
+
 Ngưỡng **70 GiB** là mức ngân sách đăng ký ban đầu, không còn là điều kiện
 terminal: khi chạm, collector mở rộng theo free space hiện có sau reserve và
 ghi `expanded_byte_budget_from_current_free_space`. Khi free space chạm reserve
@@ -144,8 +151,8 @@ waiting thay vì giả vờ đã hoàn tất.
 
 Tiếp theo: audit alignment, journal/gaps và nhãn preview/normal để tổng hợp
 đánh giá. C3 đã thu đủ selection/holdout; C4 chấm xong 608 biến thể độc lập,
-C4 sai rolling profile nên không phải quality evidence. C6 đang sửa từ raw
-và chấm lại, không tune holdout; xem [profile mismatch](SYSCALL_PROFILE_MISMATCH.md).
+C4 sai rolling profile nên không phải quality evidence. C6 đã sửa từ raw và
+chấm lại, không tune holdout; xem [profile mismatch](SYSCALL_PROFILE_MISMATCH.md).
 Pulse B2/B3 timing canary đã terminal. Adapter attack hiện có là legacy C2,
 không bind candidate idle-aware; chưa có attack/control matrix cho candidate
 này. Không dùng adapter legacy R10 chỉ vì cả hai schema có 249 chiều. Cần

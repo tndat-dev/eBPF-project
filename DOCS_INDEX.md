@@ -23,6 +23,7 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md) | Job nhiều regime sau soak, holdout riêng, full-ID và 249 feature, lịch kiểm tra |
 | [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md) | Vòng retry do HPA/cgroup, evidence và amendment bước đợi ổn định |
 | [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Pulse canary và C6 sửa rolling profile syscall chạy riêng; không thay model theo holdout |
+| [REPO_SYNC_AND_FUTURE_RISKS.md](REPO_SYNC_AND_FUTURE_RISKS.md) | Đối chiếu commit host/VM, kiểm thử hai môi trường và điểm yếu cần xử lý trước production/paper |
 | [SYSCALL_PROFILE_MISMATCH.md](SYSCALL_PROFILE_MISMATCH.md) | Root cause rolling-10/5, C4 không hợp lệ cho quality và job C6 sửa từ sealed raw |
 | [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) | Batch frozen model, bằng chứng tương đương, live latency B1 và canary ba worker B2 |
 | [SYSCALL_EXPERIMENT_TODO.md](SYSCALL_EXPERIMENT_TODO.md) | Checklist từ C2/normal capture đến blind attack và cross-ABI; trạng thái theo evidence |

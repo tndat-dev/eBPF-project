@@ -1,5 +1,13 @@
 # Đánh giá attack của candidate đã soak
 
+> **Phân biệt candidate:** các kết quả R10/C2 bên dưới là baseline lịch sử
+> với model/policy cũ, không phải matrix của idle-aware candidate hiện hành
+> (`747c4eed…` / preview policy `fd0be94a…`). Với candidate hiện hành, normal
+> A1 đã được score shadow-only nhưng preview dương còn chờ adjudication; chưa
+> có blind attack/control matrix, precision/recall/FPR hoặc kernel-to-preview.
+> Tetragon exec-provenance policy hiện đã enabled trên 6/6 node; điều đó cung
+> cấp timestamp exec, nhưng chưa đồng nghĩa đã chạy attack gắn với preview.
+
 ## Luồng hiện hành
 
 Entry point mới: `sentinel_pulse.observation_attack`. Luồng này nhận

@@ -9,7 +9,7 @@ Hai nhánh tiếp theo tách biệt, giữ model/policy Pulse:
 
 | Nhánh | Công việc hiện hành | Service / output |
 |---|---|---|
-| Thêm syscall A1 | 0/105 fit vì kiểm tra continuity đặt quá chặt; output/terminal giữ nguyên, không có kết quả chất lượng | `.234`: `pulse-syscall-addition-a1.service`; NFS `syscall-addition-a1-20261014` |
+| Thêm syscall A2 | 105/105 exploratory models, 0 unknown trên C3 đã lộ; không có blind/quality verdict | `.234`: `pulse-syscall-addition-a2.service`; NFS `syscall-addition-a2-20261014` |
 | Sentinel Pulse B3 | Canary batch 30 phút hoàn tất trên ba worker; raw-score preview, không phát alert/enforcement | `.237/.238/.239`: `pulse-idle-batch-canary-b3.service`; `/var/lib/pulse-idle-batch-canary-b3-20261014` |
 
 Snapshot terminal B3 được thu lúc **15:55 UTC ngày 14/10**; cả ba unit thoát
@@ -20,12 +20,13 @@ giữ, không làm mất terminal. Kernel-to-alert, precision và recall đều 
 Raw-positive preview vẫn chờ adjudication, không gọi tự động là false positive.
 
 A1 terminal có 0/105 model; nguyên nhân là exact boundary tolerance 100 µs so
-với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 service
-đã `enabled` trên `.234`; lần SSH kiểm tra hiện tại cho thấy service vẫn
-`activating/start`, `NRestarts=0`, checkpoint **99/105 fit, 0 workload/arm
-unknown**, chưa có terminal. A2 tiếp tục nền, không sửa binding đang chạy. Không dùng holdout C3
-đã lộ để quyết định syscall hoặc làm blind claim. Cả hai nhánh giữ model/policy
-Pulse, không zero-alert gate và không auto-promotion.
+với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 đã kết thúc
+thành công trên `.234` lúc **16:44:43 UTC ngày 14/10**: terminal ghi
+`completed_exploratory_addition_study`, **105/105 model**, `unknowns={}`,
+`fresh_blind_complete=false`; precision/recall/FPR/kernel-to-alert đều null.
+Đây là pipeline exploratory hoàn tất trên C3 đã lộ, không phải blind attack
+hay bằng chứng chọn syscall. Không còn cần chờ A2 chạy nền. Candidate Pulse
+giữ nguyên; không zero-alert gate và không auto-promotion.
 
 Tình trạng cụm lúc kiểm tra: 6/6 node `Ready` ở v1.34.10; namespace
 `production` có 70 pod objects, trong đó 66 `Running` và 4 `Completed` (job
@@ -87,7 +88,10 @@ Không relabel chúng thành FP khi chưa adjudicate, cũng không che kết qu�
 không dùng holdout để chọn biến thể. [Chi tiết](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 
 Nhánh Pulse xử lý coverage/nhãn của soak, chuẩn bị adapter đánh giá attack cho
-idle-aware candidate và đo confusion matrix trên interval thống nhất.
+idle-aware candidate và đo confusion matrix trên interval thống nhất. SSH hiện
+xác nhận `sentinel-pulse-exec-provenance` đã enabled trên 6/6 Tetragon pod;
+điều đó cung cấp timestamp exec, nhưng chưa đồng nghĩa đã chạy attack gắn với
+preview của candidate hiện hành.
 Nhánh syscall chốt audit C5; tiếp tục bind blind binary/cases/target mới, chấm cùng
 trial cho các biến thể và tổng hợp paired statistics/CI. Không chọn syscall hay
 tune threshold bằng holdout, không dùng latency offline thay cho live latency.
@@ -98,13 +102,16 @@ hai job cùng active. Trong lúc capture normal chạy, review/offline analysis 
 chuẩn bị attack của nhánh Pulse vẫn triển khai độc lập. Việc điều phối lịch
 inject bảo vệ nhãn dữ liệu, không tạo thứ tự ưu tiên giữa hai nhánh.
 
-## Kiểm tra job đang chạy
+## Kiểm tra terminal và process live
 
 ```bash
-sudo systemctl status pulse-idle-batch-canary-b2.service --no-pager
-sudo python3 -m json.tool /var/lib/pulse-idle-batch-canary-b2-20261014/STATUS.json
+systemctl show pulse-syscall-addition-a2.service -p Result -p ExecMainStatus -p ActiveState
+python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-addition-a2-20261014/TERMINAL.json
+systemctl show pulse-idle-batch-canary-b3.service -p Result -p ActiveState -p SubState
 ```
 
+Canary B3 hiện đã `inactive/dead` sau `Result=success`; baseline exact loader
+trên workers chạy 1.000 ms, không có candidate 500 ms scorer live.
 Trên `.234`, xem `pulse-syscall-distribution-audit-c5.service` và
 `/mnt/sentinel-pulse-archive/syscall-development-distribution-c5/STATUS.json`.
 `completed_inputs/expected_inputs` là tiến độ đọc dữ liệu, không phải chất lượng model.

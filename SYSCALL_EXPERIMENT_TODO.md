@@ -23,7 +23,8 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 - [x] C6 sửa đủ 30 capture/781.239 rows, xác minh nonrolling invariant và chấm đủ 608 model.
   Full 11.989/334.655 raw positives (3,5825%), chưa adjudicate nên không phải FPR.
 - [x] Thiết kế và test nhánh thêm syscall ngoài tập 29: base29, +top8/+top16/+top32/+all training-observed.
-- [ ] Hoàn thành fit/evaluate addition study trên cùng histogram 1s; không giả lập count 500ms.
+- [x] Hoàn thành exploratory fit/evaluate A2: 105/105 model, 0 unknown trên C3 histogram 1s.
+- [ ] Chạy addition study trên observable Pulse 500 ms; A2 không phải blind/quality result.
 - [ ] Blind attack/control paired cho các arms thêm syscall, không kết luận tối ưu từ normal flags.
 - [ ] Adjudicate normal/health, chia interval 30 s và báo unknown riêng.
 - [ ] Khóa fresh blind binary/cases/target UID/container/revision, seed/rate và lịch.
@@ -52,7 +53,8 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 ## Trạng thái hiện hành
 
 - C4/C5/C6 đã kết thúc; C4 sai rolling profile không dùng kết luận quality.
-- A1 capture/review và B2 đã kết thúc, không chạy lại để xóa preview/unknown.
+- A1 capture/review và B2/B3 đã kết thúc, không chạy lại để xóa preview/unknown.
+- A2 addition study đã hoàn tất 105/105 exploratory models; precision/recall/FPR/kernel-to-alert chưa đo và fresh blind chưa chạy.
 - B3 `pulse-idle-batch-canary-b3.service` đã terminal thành công trên .237/.238/.239
   (terminal summary được thu lúc 15:55 UTC ngày 14/10); p99 feature-end-to-score lần lượt
   0,516/0,555/0,220 giây. Có 10.138 preview dương đang chờ adjudication và

@@ -101,23 +101,22 @@ block và yêu cầu phủ đủ **21/21** workload của bundle Pulse hiện h�
 ra từ 19 model cũ. Xem
 [protocol v2](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json).
 
-### A2 pipeline retry đang chạy nền
+### A2 exploratory retry đã hoàn tất
 
-A2 dùng source cố định đã sửa, input C3 giữ nguyên, output mới
+A2 dùng source cố định đã sửa, input C3 giữ nguyên, output riêng
 `/mnt/sentinel-pulse-archive/syscall-addition-a2-20261014`; systemd
-`pulse-syscall-addition-a2.service` đã `enabled` để VM boot có thể tiếp tục.
-SSH lần kiểm tra hiện tại thấy `activating/start`, `NRestarts=0`,
-`ExecMainStatus=0`; checkpoint đạt **99/105 fit**, 0 workload/arm unknown.
-Chưa có terminal; A2 tiếp tục nền.
-Cả 9 unit tests đã pass trên VM venv trước start. Đây là pipeline
-retry/exploratory trên C3, không phải blind confirmation; model flags không
-được diễn giải thành FP. Service chưa terminal; không sửa input/source khi
-đang chạy.
+A2 kết thúc lúc **16:44:43 UTC ngày 14/10** với `Result=success`,
+`ExecMainStatus=0`, `NRestarts=0`. `STATUS.json` và `TERMINAL.json` cùng ghi
+`completed_exploratory_addition_study`, **105/105 model**, `unknowns={}`.
+Terminal ghi `fresh_blind_complete=false`; precision, recall, FPR và
+kernel-to-alert đều `null`. Cả 9 unit tests đã pass trên VM venv trước start.
+Đây là pipeline fit/evaluate exploratory hoàn tất trên C3 đã lộ, không phải
+blind confirmation; không gọi raw model positives là FP.
 
-A2 chỉ lặp các 5 arm frequency đã đóng băng trong A1; **chưa** chạy threat-model
-arm, grouped ablation, nhiều seed hoặc metric recall@FPR. Không đổi input/binding
-đang chạy. Các phần đó thuộc protocol v2 và cần capture matched Pulse 500ms
-mới; không tự sửa tiếp service A2 giữa chừng.
+A2 chỉ lặp 5 arm frequency đã đóng băng trong A1; **chưa** chạy threat-model
+arm, grouped ablation, nhiều seed hoặc metric recall@FPR. Không chỉnh sửa
+terminal/input A2; các phần còn lại thuộc protocol v2 và cần capture matched
+Pulse 500 ms mới.
 
 Protocol cuối yêu cầu observable khớp Pulse: 500 ms, exact full-ID deltas,
 syscall + transition bins, rolling/history, cùng support/policy. Histogram C3
