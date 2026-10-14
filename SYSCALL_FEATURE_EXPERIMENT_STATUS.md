@@ -1,7 +1,21 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Hiện hành xác minh qua SSH **14/10/2026**. Nhánh syscall và Sentinel Pulse
-tiếp tục song song; không đợi chọn xong syscall mới triển khai Pulse.
+## Trạng thái tiến trình hiện hành
+
+Kiểm tra SSH lúc **17:10 UTC ngày 14/10/2026 (00:10 ngày 15/10, UTC+7)**:
+không có tiến trình thí nghiệm syscall nào đang chạy. Các unit A1, A2, C3, C4,
+C5 và C6 ở `inactive/dead`; C1 và C2 là oneshot `active/exited` (đã kết thúc,
+không phải job nền còn hoạt động). A2 đã hoàn tất 105/105 model exploratory,
+nhưng trên C3 cũ đã lộ; không có blind attack mới và không có confusion matrix
+hợp lệ cho candidate Pulse hiện hành.
+
+Sentinel Pulse A1 normal capture đã thu đủ 24 giờ trên ba worker. Candidate
+shadow A1 còn tiến trình trên ba worker, nhưng chưa đọc/kiểm chứng được output
+root-owned nên không thể coi đó là một lượt ML evaluation hoàn tất. Loader nền
+đang ở chu kỳ 1 giây; chưa có loader/evaluator attack 500 ms chạy. Nhánh syscall
+và Sentinel Pulse được thiết kế chạy song song, không đợi chọn xong syscall mới
+đánh giá Pulse.
+
 [Lịch/job hiện hành](PULSE_PARALLEL_EXECUTION.md).
 
 ## Đã hoàn tất

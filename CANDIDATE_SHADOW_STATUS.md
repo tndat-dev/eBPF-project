@@ -7,9 +7,12 @@ r2 đã hoàn tất trên cả ba worker: **33.148.914 decision, 11.388.831 scor
 Các key không có model đều là scope `pod-slice`. Preview dương là
 **0,267% scored rows** khi đếm theo từng window có chồng lấn; đây không phải FPR.
 
-Kiểm tra SSH hiện hành: collector exact nền trên ba worker đang ghi telemetry
-**1 giây**; service candidate shadow **không còn chạy**. B2/B3 500 ms là timing
-canary bounded đã dừng sau terminal, không phải ML alert stream đang chạy liên tục.
+Kiểm tra SSH hiện hành ngày **15/10/2026**: collector exact nền trên ba worker
+đang ghi telemetry **1 giây**; tiến trình A1 `candidate_shadow` còn sống trên cả
+ba worker nhưng chưa xác minh được heartbeat/đầu ra vì file JSONL thuộc root và
+user `dat` không có quyền đọc. Vì vậy không khẳng định shadow đang xử lý dữ liệu
+mới hay chỉ còn tiến trình chờ. B2/B3 500 ms là timing canary bounded đã dừng
+sau terminal, không phải ML alert stream đang chạy liên tục.
 
 Batch scorer giữ nguyên 21 frozen model/policy, scalar/batch score khớp tuyệt
 đối. Canary B1 live 5 phút đạt feature-window-end → score p95/p99
