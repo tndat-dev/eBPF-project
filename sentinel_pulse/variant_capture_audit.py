@@ -25,6 +25,23 @@ FAILURE_COUNTERS = ('task_state_update_fail', 'snapshot_projection_fail',
                     'snapshot_consistency_retry_exhausted', 'target_snapshot_gap')
 
 
+def verify_capture_source(campaign, start, receipt):
+    original = json.loads((campaign/'START.json').read_text())['contract']
+    amendment_hash = receipt.get('operational_amendment_sha256')
+    if amendment_hash is None:
+        if start['source_commit'] != original['source_commit']:
+            raise ValueError('capture source changed without bound amendment')
+        return
+    from .syscall_capture_campaign import verify_amendment
+    path = campaign/'AMENDMENT-target-settle-20261014.json'
+    amendment = json.loads(path.read_text())
+    effective = amendment['effective_contract']
+    verify_amendment(original, effective, path, amendment_hash, sha256_file(campaign/'START.json'))
+    if (start['source_commit'] != effective['source_commit']
+            or start['runner_sha256'] != amendment['unchanged_runtime_sha256']['syscall_histogram_pilot.py']):
+        raise ValueError('amended capture source/runner differs')
+
+
 def decode(row, dimension):
     if row.get('vector_dim') != dimension:
         raise ValueError('feature dimension mismatch')
@@ -138,6 +155,7 @@ def audit_campaign(campaign, split, training_manifest, training_hash, variant_ma
                 raise ValueError('feature sidecar/receipt not sealed')
             start, terminal, receipt, feature = [json.loads((root / name).read_text()) for name in
                 ('START.json', 'TERMINAL.json', 'traffic-receipt.json', 'FEATURE_CAPTURE.json')]
+            verify_capture_source(campaign, start, receipt)
             if (receipt.get('campaign_start_sha256') != campaign_hash or receipt.get('split') != split
                     or terminal['state'] != 'completed' or start['run_id'] != run_id
                     or not start.get('no_attack_injection')):

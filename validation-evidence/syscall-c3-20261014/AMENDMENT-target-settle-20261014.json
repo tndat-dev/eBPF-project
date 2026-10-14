@@ -1,0 +1,176 @@
+{
+  "schema": "pulse-syscall-operational-amendment-v1",
+  "registered_at_unix": 1791943498.0296266,
+  "original_start_sha256": "36bc9a43fdd8e0ca0a014bc020dea675b2de62f6d835d114d64834cd074a114a",
+  "original_contract": {
+    "analysis_plan": {
+      "bootstrap_repeats": 10000,
+      "bootstrap_seed": 73021,
+      "comparisons": "each variant versus full, paired intervals; Holm correction",
+      "confidence_level": 0.95,
+      "history": 3,
+      "normal_labels": "provisional controlled normal; infrastructure/telemetry unknown reported separately",
+      "tune_using_final_holdout": false,
+      "unit": "fixed 30-second workload intervals",
+      "zero_alert_gate": false
+    },
+    "attack_injection": false,
+    "baseline_seconds": 300,
+    "controller_sha256": "886277523d0f01f23f7084f4925cebdc8fb72b2fd5b89ea08df3468a4f41e1bc",
+    "evidence_scope": "full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately",
+    "feature_interval_ms": 500,
+    "feature_rolling_windows": 5,
+    "feature_schema": "sentinel-pulse-feature-v1",
+    "frozen_models_modified": false,
+    "histogram_interval_ms": 1000,
+    "holdout_not_for_selection": true,
+    "phases": [
+      [
+        "selection",
+        "steady"
+      ],
+      [
+        "selection",
+        "toolmix"
+      ],
+      [
+        "selection",
+        "peak"
+      ],
+      [
+        "selection",
+        "burst"
+      ],
+      [
+        "selection",
+        "recovery"
+      ],
+      [
+        "holdout",
+        "steady"
+      ],
+      [
+        "holdout",
+        "toolmix"
+      ],
+      [
+        "holdout",
+        "peak"
+      ],
+      [
+        "holdout",
+        "burst"
+      ],
+      [
+        "holdout",
+        "recovery"
+      ]
+    ],
+    "post_seconds": 300,
+    "probe_seconds": 600,
+    "protected_soak": "/var/lib/sentinel-pulse-normal-normal-a1-20261013/capture",
+    "schema": "pulse-syscall-multiregime-campaign-v1",
+    "source_commit": "b14f888c28e1d7d8752d19fd4d88457d38063a3a",
+    "traffic_script_sha256": "652340e323e5f5242151a46b5f590e6e80cfc7431dd3cb25f331ddfa630db5f9",
+    "variant_model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+    "workers": {
+      "10.1.16.237": "k8s-worker1.local",
+      "10.1.16.238": "k8s-worker4.local",
+      "10.1.16.239": "k8s-worker3.local"
+    }
+  },
+  "effective_contract": {
+    "analysis_plan": {
+      "bootstrap_repeats": 10000,
+      "bootstrap_seed": 73021,
+      "comparisons": "each variant versus full, paired intervals; Holm correction",
+      "confidence_level": 0.95,
+      "history": 3,
+      "normal_labels": "provisional controlled normal; infrastructure/telemetry unknown reported separately",
+      "tune_using_final_holdout": false,
+      "unit": "fixed 30-second workload intervals",
+      "zero_alert_gate": false
+    },
+    "attack_injection": false,
+    "baseline_seconds": 300,
+    "controller_sha256": "f0b5f27e0aaabb192d1046cf876cd66ae35ed535257d3c414989fb5dcfa57f57",
+    "evidence_scope": "full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately",
+    "feature_interval_ms": 500,
+    "feature_rolling_windows": 5,
+    "feature_schema": "sentinel-pulse-feature-v1",
+    "frozen_models_modified": false,
+    "histogram_interval_ms": 1000,
+    "holdout_not_for_selection": true,
+    "phases": [
+      [
+        "selection",
+        "steady"
+      ],
+      [
+        "selection",
+        "toolmix"
+      ],
+      [
+        "selection",
+        "peak"
+      ],
+      [
+        "selection",
+        "burst"
+      ],
+      [
+        "selection",
+        "recovery"
+      ],
+      [
+        "holdout",
+        "steady"
+      ],
+      [
+        "holdout",
+        "toolmix"
+      ],
+      [
+        "holdout",
+        "peak"
+      ],
+      [
+        "holdout",
+        "burst"
+      ],
+      [
+        "holdout",
+        "recovery"
+      ]
+    ],
+    "post_seconds": 300,
+    "probe_seconds": 600,
+    "protected_soak": "/var/lib/sentinel-pulse-normal-normal-a1-20261013/capture",
+    "schema": "pulse-syscall-multiregime-campaign-v1",
+    "source_commit": "49280a6b7c0c81c3a3b50c20e8383e2c8857eb75",
+    "traffic_script_sha256": "652340e323e5f5242151a46b5f590e6e80cfc7431dd3cb25f331ddfa630db5f9",
+    "variant_model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+    "workers": {
+      "10.1.16.237": "k8s-worker1.local",
+      "10.1.16.238": "k8s-worker4.local",
+      "10.1.16.239": "k8s-worker3.local"
+    },
+    "target_settle_seconds": 360
+  },
+  "reason": "HPA scale-down changed waypoint cgroups during recovery; wait for stable targets before capture",
+  "unchanged_runtime_sha256": {
+    "syscall_histogram_pilot.py": "76d980bccafc6e4851f67862b41c02e496f1c44c98bc1dfa89a3613df4ecb200",
+    "syscall_histogram_analysis.py": "b65bc0697b2eefad4a98d90d9208f1729df8baa585a3fe69fdc9583cb18087ee",
+    "capture.py": "7cc61ebfb08b75c86910a7f7e32e93f165d5c214792c4c8a18cc94ed8e8381ff",
+    "features.py": "912c113469d39a31f6d638271b9af3be9e41728ccf7fc7f4b567e9220ea97a63",
+    "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+    "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+    "telemetry_recovery.py": "c78083818b49887068d813bb280ebb791f8dc63407001a1580df734d66a91f41"
+  },
+  "new_source": "/home/dat/pulse-syscall-c3-settle-20261014/source",
+  "original_source": "/home/dat/pulse-syscall-capture-c3/source",
+  "model_or_threshold_changed": false,
+  "previous_rejected_attempts_preserved": true,
+  "previous_completed_phases_preserved": true,
+  "hpa_disabled": false
+}

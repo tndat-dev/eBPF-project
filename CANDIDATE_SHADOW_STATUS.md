@@ -90,7 +90,7 @@ Run normal-observation **`normal-a1-20261013` đã hoàn tất capture trên c�
 source commit `2c1a72d`, model manifest SHA
 `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`, policy SHA
 `fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`, và 86,400
-giây boundary exposure/node. Kiểm tra SSH **03:14 ngày 14/10 (UTC+7)** xác nhận
+giây boundary exposure/node. Kiểm tra SSH **09:06 ngày 14/10 (UTC+7)** xác nhận
 terminal `completed_observation`, không còn writer capture; errors=0 và
 capacity_pause_count=0 trên cả ba node:
 
@@ -100,15 +100,15 @@ capacity_pause_count=0 trên cả ba node:
 | worker4 `.238` | 86.400,297 s | 15.096.447 |
 | worker3 `.239` | 86.400,390 s | 4.124.430 |
 
-Shadow vẫn active, `NRestarts=0`, model/policy không thay đổi. Row cuối worker1
-có event age **7.627,28 s (~127 phút)**; worker4 row cuối là
-`candidate-model-unavailable`, `processed_at - window_end` = **16.515,10 s
-(~275 phút)**. Worker3 đã đọc tới cuối capture, event age của row cuối
-**0,01164 s**. Các con số là mẫu row cuối, **không phải p95 hay kernel-to-alert**.
-Worker1/worker4 vẫn xử lý backlog; chưa xác nhận hoàn tất scoring hoặc confusion
-matrix. Không loại preview khỏi evidence và không tune model trong lúc drain.
+Shadow vẫn active, `NRestarts=0`, model/policy không thay đổi. Row cuối của ba
+worker đã tới cuối capture: worker1 window_end=1791916967,012;
+worker4=1791917016,301; worker3=1791916992,378. Worker1 row cuối mang trạng thái
+`candidate-model-unavailable`; worker4 row cuối scored có event age
+**18.816,45 s (~314 phút)** lúc xử lý; worker3 row cuối **0,01164 s**. Chưa audit
+mọi decision row để xác nhận coverage hoàn chỉnh. Các con số là mẫu row cuối,
+**không phải p95 hay kernel-to-alert**. Chưa chốt confusion matrix.
 
-Evidence: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0315.json`.
+Evidence: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0906.json`.
 Capture đủ 24 giờ không đồng nghĩa candidate đạt realtime, stable hoặc chất
 lượng phát hiện. C3 đã bắt đầu thu dữ liệu mới trong thư mục riêng sau khi cả
 ba capture đóng; nó không sửa hoặc thêm record vào capture soak đã hoàn tất.
@@ -122,10 +122,10 @@ ngưỡng kế hoạch, nhưng không thể bảo đảm trước hỏng đĩa, 
 hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run sẽ ở trạng thái
 waiting thay vì giả vờ đã hoàn tất.
 
-Tiếp theo: để shadow drain hết file đóng; kiểm tra journal, gaps, decision
-coverage, adjudicate preview/normal rồi mới tổng hợp đánh giá. Chưa đủ mẫu
-tốc độ drain để cam kết giờ xong. Thu C3 dự kiến xong khoảng **05:30–06:00
-ngày 14/10**, không phải ETA của shadow hoặc toàn bộ blind evaluation.
+Tiếp theo: audit decision coverage, journal/gaps và nhãn preview/normal để
+tổng hợp đánh giá. C3 recovery bị lặp vì HPA/cgroup; đã sửa bước đợi identity
+ổn định. ETA capture C3 mới khoảng **12:00–12:30 ngày 14/10**, phụ thuộc identity
+ổn định; đây chưa phải ETA của toàn bộ blind evaluation.
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để

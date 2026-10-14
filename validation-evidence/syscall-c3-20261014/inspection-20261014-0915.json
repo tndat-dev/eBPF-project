@@ -1,0 +1,773 @@
+{
+  "checked_at": "2026-10-14T02:14:22.991424+00:00",
+  "workers": {
+    "10.1.16.237": {
+      "status": {
+        "state": "segment_closed",
+        "boundary_observation_seconds": 86400.2490234375,
+        "feature_rows": 13928602,
+        "eligible_for_normal_review_rows": 13927782,
+        "errors": 0,
+        "capacity_pause_count": 0,
+        "updated_at_unix": 1791916967.2627838
+      },
+      "terminal": {
+        "automatic_promotion": false,
+        "boundary_observation_seconds": 86400.2490234375,
+        "capacity_events_sha256": null,
+        "capacity_pause_count": 0,
+        "capacity_pause_seconds": 0.0,
+        "current_segment": "s0001",
+        "effective_maximum_bytes": 75161927680,
+        "eligible_for_normal_review_rows": 13927782,
+        "errors": 0,
+        "feature_rows": 13928602,
+        "finished_at_unix": 1791917108.1996543,
+        "maximum_bytes": 75161927680,
+        "normal_training_admission": false,
+        "rows_by_workload": {
+          "production/aims-kafka-dual-role:kafka": 169861,
+          "production/aims-kafka-dual-role:pod-slice": 339722,
+          "production/aims-minio-pool-0:minio": 169861,
+          "production/aims-minio-pool-0:pod-slice": 339722,
+          "production/aims-minio-pool-0:sidecar": 169861,
+          "production/aims-postgres-cnpg:pod-slice": 339722,
+          "production/aims-postgres-cnpg:postgres": 169861,
+          "production/aims-rabbitmq-server:pod-slice": 339722,
+          "production/aims-rabbitmq-server:rabbitmq": 169861,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 169861,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 339722,
+          "production/aims-redis:aims-redis": 169861,
+          "production/aims-redis:pod-slice": 339722,
+          "production/aims-waypoint:istio-proxy": 169861,
+          "production/aims-waypoint:pod-slice": 339722,
+          "production/api-gateway:app": 339722,
+          "production/api-gateway:pod-slice": 679444,
+          "production/auth-service:app": 339722,
+          "production/auth-service:pod-slice": 679444,
+          "production/cart-service:app": 169861,
+          "production/cart-service:pod-slice": 339722,
+          "production/catalog-service:app": 339722,
+          "production/catalog-service:pod-slice": 679444,
+          "production/inventory-service:app": 339722,
+          "production/inventory-service:pod-slice": 679444,
+          "production/notification-service:app": 339722,
+          "production/notification-service:pod-slice": 679444,
+          "production/order-service:app": 339722,
+          "production/order-service:pod-slice": 679444,
+          "production/payment-service:app": 509583,
+          "production/payment-service:pod-slice": 1019166,
+          "production/search-recommendation-service:app": 169861,
+          "production/search-recommendation-service:pod-slice": 339722,
+          "production/security-telemetry-service:app": 509583,
+          "production/security-telemetry-service:pod-slice": 1019166
+        },
+        "schema": "pulse-extended-collection-status-v1",
+        "segments": 1,
+        "skip_delta_by_workload": {
+          "production/aims-kafka-dual-role:kafka": 8640,
+          "production/aims-kafka-dual-role:pod-slice": 0,
+          "production/aims-minio-pool-0:minio": 0,
+          "production/aims-minio-pool-0:pod-slice": 0,
+          "production/aims-minio-pool-0:sidecar": 0,
+          "production/aims-postgres-cnpg:pod-slice": 0,
+          "production/aims-postgres-cnpg:postgres": 0,
+          "production/aims-rabbitmq-server:pod-slice": 0,
+          "production/aims-rabbitmq-server:rabbitmq": 0,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 0,
+          "production/aims-redis:aims-redis": 0,
+          "production/aims-redis:pod-slice": 0,
+          "production/aims-waypoint:istio-proxy": 0,
+          "production/aims-waypoint:pod-slice": 0,
+          "production/api-gateway:app": 0,
+          "production/api-gateway:pod-slice": 0,
+          "production/auth-service:app": 0,
+          "production/auth-service:pod-slice": 0,
+          "production/cart-service:app": 0,
+          "production/cart-service:pod-slice": 0,
+          "production/catalog-service:app": 0,
+          "production/catalog-service:pod-slice": 0,
+          "production/inventory-service:app": 0,
+          "production/inventory-service:pod-slice": 0,
+          "production/notification-service:app": 0,
+          "production/notification-service:pod-slice": 0,
+          "production/order-service:app": 0,
+          "production/order-service:pod-slice": 0,
+          "production/payment-service:app": 0,
+          "production/payment-service:pod-slice": 0,
+          "production/search-recommendation-service:app": 0,
+          "production/search-recommendation-service:pod-slice": 0,
+          "production/security-telemetry-service:app": 0,
+          "production/security-telemetry-service:pod-slice": 0
+        },
+        "start_sha256": "7ea189c9e7bcf518ad6ab7157bb7923fc313524627a4b55c5124070044d09611",
+        "state": "completed_observation",
+        "updated_at_unix": 1791916967.2627838
+      },
+      "active_capture": false,
+      "shadow": {
+        "service": "NRestarts=0\nActiveState=active\n",
+        "last_row": {
+          "processed_at": 1791924757.1485324,
+          "window_end": 1791916967.01176,
+          "feature_event_age_seconds": null,
+          "status": "candidate-model-unavailable"
+        },
+        "checked_at_unix": 1791944062.685025
+      }
+    },
+    "10.1.16.238": {
+      "status": {
+        "state": "segment_closed",
+        "boundary_observation_seconds": 86400.29694032669,
+        "feature_rows": 15096447,
+        "eligible_for_normal_review_rows": 15095557,
+        "errors": 0,
+        "capacity_pause_count": 0,
+        "updated_at_unix": 1791917016.558493
+      },
+      "terminal": {
+        "automatic_promotion": false,
+        "boundary_observation_seconds": 86400.29694032669,
+        "capacity_events_sha256": null,
+        "capacity_pause_count": 0,
+        "capacity_pause_seconds": 0.0,
+        "current_segment": "s0001",
+        "effective_maximum_bytes": 75161927680,
+        "eligible_for_normal_review_rows": 15095557,
+        "errors": 0,
+        "feature_rows": 15096447,
+        "finished_at_unix": 1791917173.772469,
+        "maximum_bytes": 75161927680,
+        "normal_training_admission": false,
+        "rows_by_workload": {
+          "production/aims-frontend:pod-slice": 339246,
+          "production/aims-frontend:web": 169623,
+          "production/aims-kafka-dual-role:kafka": 169623,
+          "production/aims-kafka-dual-role:pod-slice": 339246,
+          "production/aims-kafka-entity-operator:pod-slice": 339246,
+          "production/aims-kafka-entity-operator:topic-operator": 169623,
+          "production/aims-kafka-entity-operator:user-operator": 169623,
+          "production/aims-minio-pool-0:minio": 169623,
+          "production/aims-minio-pool-0:pod-slice": 339246,
+          "production/aims-minio-pool-0:sidecar": 169623,
+          "production/aims-postgres-cnpg:pod-slice": 339246,
+          "production/aims-postgres-cnpg:postgres": 169623,
+          "production/aims-rabbitmq-server:pod-slice": 339246,
+          "production/aims-rabbitmq-server:rabbitmq": 169623,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 169623,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 339246,
+          "production/aims-redis:aims-redis": 169623,
+          "production/aims-redis:pod-slice": 339246,
+          "production/aims-waypoint:istio-proxy": 169623,
+          "production/aims-waypoint:pod-slice": 339246,
+          "production/api-gateway:app": 339246,
+          "production/api-gateway:pod-slice": 678492,
+          "production/auth-service:app": 339246,
+          "production/auth-service:pod-slice": 678492,
+          "production/cart-service:app": 508869,
+          "production/cart-service:pod-slice": 1017738,
+          "production/catalog-service:app": 339246,
+          "production/catalog-service:pod-slice": 678492,
+          "production/inventory-service:app": 339246,
+          "production/inventory-service:pod-slice": 678492,
+          "production/notification-service:app": 339246,
+          "production/notification-service:pod-slice": 678492,
+          "production/order-service:app": 339246,
+          "production/order-service:pod-slice": 678492,
+          "production/payment-service:app": 169623,
+          "production/payment-service:pod-slice": 339246,
+          "production/search-recommendation-service:app": 508869,
+          "production/search-recommendation-service:pod-slice": 1017738,
+          "production/security-telemetry-service:app": 169623,
+          "production/security-telemetry-service:pod-slice": 339246
+        },
+        "schema": "pulse-extended-collection-status-v1",
+        "segments": 1,
+        "skip_delta_by_workload": {
+          "production/aims-frontend:pod-slice": 0,
+          "production/aims-frontend:web": 0,
+          "production/aims-kafka-dual-role:kafka": 8640,
+          "production/aims-kafka-dual-role:pod-slice": 0,
+          "production/aims-kafka-entity-operator:pod-slice": 0,
+          "production/aims-kafka-entity-operator:topic-operator": 6222,
+          "production/aims-kafka-entity-operator:user-operator": 2169,
+          "production/aims-minio-pool-0:minio": 0,
+          "production/aims-minio-pool-0:pod-slice": 0,
+          "production/aims-minio-pool-0:sidecar": 0,
+          "production/aims-postgres-cnpg:pod-slice": 0,
+          "production/aims-postgres-cnpg:postgres": 0,
+          "production/aims-rabbitmq-server:pod-slice": 0,
+          "production/aims-rabbitmq-server:rabbitmq": 0,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 0,
+          "production/aims-redis:aims-redis": 0,
+          "production/aims-redis:pod-slice": 0,
+          "production/aims-waypoint:istio-proxy": 0,
+          "production/aims-waypoint:pod-slice": 0,
+          "production/api-gateway:app": 0,
+          "production/api-gateway:pod-slice": 0,
+          "production/auth-service:app": 0,
+          "production/auth-service:pod-slice": 0,
+          "production/cart-service:app": 0,
+          "production/cart-service:pod-slice": 0,
+          "production/catalog-service:app": 0,
+          "production/catalog-service:pod-slice": 0,
+          "production/inventory-service:app": 0,
+          "production/inventory-service:pod-slice": 0,
+          "production/notification-service:app": 0,
+          "production/notification-service:pod-slice": 0,
+          "production/order-service:app": 0,
+          "production/order-service:pod-slice": 0,
+          "production/payment-service:app": 0,
+          "production/payment-service:pod-slice": 0,
+          "production/search-recommendation-service:app": 0,
+          "production/search-recommendation-service:pod-slice": 0,
+          "production/security-telemetry-service:app": 0,
+          "production/security-telemetry-service:pod-slice": 0
+        },
+        "start_sha256": "d1ec3b7733f9ec878eeacaf388ffb2aadfb4617a0e5085415f4959cc13866407",
+        "state": "completed_observation",
+        "updated_at_unix": 1791917016.558493
+      },
+      "active_capture": false,
+      "shadow": {
+        "service": "NRestarts=0\nActiveState=active\n",
+        "last_row": {
+          "processed_at": 1791935832.753252,
+          "window_end": 1791917016.3007946,
+          "feature_event_age_seconds": 18816.45245742798,
+          "status": "candidate-raw-score-only"
+        },
+        "checked_at_unix": 1791944062.8141413
+      }
+    },
+    "10.1.16.239": {
+      "status": {
+        "state": "segment_closed",
+        "boundary_observation_seconds": 86400.3904595375,
+        "feature_rows": 4124430,
+        "eligible_for_normal_review_rows": 4124190,
+        "errors": 0,
+        "capacity_pause_count": 0,
+        "updated_at_unix": 1791916992.5725102
+      },
+      "terminal": {
+        "automatic_promotion": false,
+        "boundary_observation_seconds": 86400.3904595375,
+        "capacity_events_sha256": null,
+        "capacity_pause_count": 0,
+        "capacity_pause_seconds": 0.0,
+        "current_segment": "s0001",
+        "effective_maximum_bytes": 75161927680,
+        "eligible_for_normal_review_rows": 4124190,
+        "errors": 0,
+        "feature_rows": 4124430,
+        "finished_at_unix": 1791917036.1676376,
+        "maximum_bytes": 75161927680,
+        "normal_training_admission": false,
+        "rows_by_workload": {
+          "production/aims-frontend:pod-slice": 344030,
+          "production/aims-frontend:web": 172015,
+          "production/aims-kafka-dual-role:kafka": 172015,
+          "production/aims-kafka-dual-role:pod-slice": 344030,
+          "production/aims-postgres-cnpg:pod-slice": 344030,
+          "production/aims-postgres-cnpg:postgres": 172015,
+          "production/aims-rabbitmq-server:pod-slice": 344030,
+          "production/aims-rabbitmq-server:rabbitmq": 172015,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 172015,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 344030,
+          "production/aims-redis:aims-redis": 172015,
+          "production/aims-redis:pod-slice": 344030,
+          "production/aims-waypoint:istio-proxy": 342720,
+          "production/aims-waypoint:pod-slice": 685440
+        },
+        "schema": "pulse-extended-collection-status-v1",
+        "segments": 1,
+        "skip_delta_by_workload": {
+          "production/aims-frontend:pod-slice": 0,
+          "production/aims-frontend:web": 0,
+          "production/aims-kafka-dual-role:kafka": 8640,
+          "production/aims-kafka-dual-role:pod-slice": 0,
+          "production/aims-postgres-cnpg:pod-slice": 0,
+          "production/aims-postgres-cnpg:postgres": 0,
+          "production/aims-rabbitmq-server:pod-slice": 0,
+          "production/aims-rabbitmq-server:rabbitmq": 0,
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 0,
+          "production/aims-redis-sentinel-sentinel:pod-slice": 0,
+          "production/aims-redis:aims-redis": 0,
+          "production/aims-redis:pod-slice": 0,
+          "production/aims-waypoint:istio-proxy": 0,
+          "production/aims-waypoint:pod-slice": 0
+        },
+        "start_sha256": "034ae98a30ce29b1a13c89cd90997dfc12734822d2e716345f7a6717fd44a7db",
+        "state": "completed_observation",
+        "updated_at_unix": 1791916992.5725102
+      },
+      "active_capture": false,
+      "shadow": {
+        "service": "NRestarts=0\nActiveState=active\n",
+        "last_row": {
+          "processed_at": 1791916992.3895853,
+          "window_end": 1791916992.377942,
+          "feature_event_age_seconds": 0.011643171310424805,
+          "status": "candidate-raw-score-only"
+        },
+        "checked_at_unix": 1791944062.587597
+      }
+    }
+  },
+  "campaign": {
+    "root": "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2",
+    "state": "waiting_for_target_stability",
+    "active": {
+      "attempt": 17,
+      "key": "selection-recovery",
+      "phase": "stabilizing",
+      "regime": "recovery",
+      "runs": {},
+      "split": "selection",
+      "stability": {
+        "fingerprint": "c2a2b00d3078278492f350f6093949af4793c830f0780c8cba073aff23da402c",
+        "observed_at": 1791944057.5850585,
+        "ready": false,
+        "since": 1791943989.2136078
+      },
+      "traffic_drift": false
+    },
+    "completed": [
+      "selection-steady",
+      "selection-toolmix",
+      "selection-peak",
+      "selection-burst"
+    ],
+    "source_commit": "b14f888c28e1d7d8752d19fd4d88457d38063a3a",
+    "effective_source_commit": "49280a6b7c0c81c3a3b50c20e8383e2c8857eb75",
+    "operational_amendment": {
+      "schema": "pulse-syscall-operational-amendment-v1",
+      "registered_at_unix": 1791943498.0296266,
+      "original_start_sha256": "36bc9a43fdd8e0ca0a014bc020dea675b2de62f6d835d114d64834cd074a114a",
+      "original_contract": {
+        "analysis_plan": {
+          "bootstrap_repeats": 10000,
+          "bootstrap_seed": 73021,
+          "comparisons": "each variant versus full, paired intervals; Holm correction",
+          "confidence_level": 0.95,
+          "history": 3,
+          "normal_labels": "provisional controlled normal; infrastructure/telemetry unknown reported separately",
+          "tune_using_final_holdout": false,
+          "unit": "fixed 30-second workload intervals",
+          "zero_alert_gate": false
+        },
+        "attack_injection": false,
+        "baseline_seconds": 300,
+        "controller_sha256": "886277523d0f01f23f7084f4925cebdc8fb72b2fd5b89ea08df3468a4f41e1bc",
+        "evidence_scope": "full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately",
+        "feature_interval_ms": 500,
+        "feature_rolling_windows": 5,
+        "feature_schema": "sentinel-pulse-feature-v1",
+        "frozen_models_modified": false,
+        "histogram_interval_ms": 1000,
+        "holdout_not_for_selection": true,
+        "phases": [
+          [
+            "selection",
+            "steady"
+          ],
+          [
+            "selection",
+            "toolmix"
+          ],
+          [
+            "selection",
+            "peak"
+          ],
+          [
+            "selection",
+            "burst"
+          ],
+          [
+            "selection",
+            "recovery"
+          ],
+          [
+            "holdout",
+            "steady"
+          ],
+          [
+            "holdout",
+            "toolmix"
+          ],
+          [
+            "holdout",
+            "peak"
+          ],
+          [
+            "holdout",
+            "burst"
+          ],
+          [
+            "holdout",
+            "recovery"
+          ]
+        ],
+        "post_seconds": 300,
+        "probe_seconds": 600,
+        "protected_soak": "/var/lib/sentinel-pulse-normal-normal-a1-20261013/capture",
+        "schema": "pulse-syscall-multiregime-campaign-v1",
+        "source_commit": "b14f888c28e1d7d8752d19fd4d88457d38063a3a",
+        "traffic_script_sha256": "652340e323e5f5242151a46b5f590e6e80cfc7431dd3cb25f331ddfa630db5f9",
+        "variant_model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+        "workers": {
+          "10.1.16.237": "k8s-worker1.local",
+          "10.1.16.238": "k8s-worker4.local",
+          "10.1.16.239": "k8s-worker3.local"
+        }
+      },
+      "effective_contract": {
+        "analysis_plan": {
+          "bootstrap_repeats": 10000,
+          "bootstrap_seed": 73021,
+          "comparisons": "each variant versus full, paired intervals; Holm correction",
+          "confidence_level": 0.95,
+          "history": 3,
+          "normal_labels": "provisional controlled normal; infrastructure/telemetry unknown reported separately",
+          "tune_using_final_holdout": false,
+          "unit": "fixed 30-second workload intervals",
+          "zero_alert_gate": false
+        },
+        "attack_injection": false,
+        "baseline_seconds": 300,
+        "controller_sha256": "f0b5f27e0aaabb192d1046cf876cd66ae35ed535257d3c414989fb5dcfa57f57",
+        "evidence_scope": "full-ID frequency and legacy 249-dim normal features; blind evaluation registered separately",
+        "feature_interval_ms": 500,
+        "feature_rolling_windows": 5,
+        "feature_schema": "sentinel-pulse-feature-v1",
+        "frozen_models_modified": false,
+        "histogram_interval_ms": 1000,
+        "holdout_not_for_selection": true,
+        "phases": [
+          [
+            "selection",
+            "steady"
+          ],
+          [
+            "selection",
+            "toolmix"
+          ],
+          [
+            "selection",
+            "peak"
+          ],
+          [
+            "selection",
+            "burst"
+          ],
+          [
+            "selection",
+            "recovery"
+          ],
+          [
+            "holdout",
+            "steady"
+          ],
+          [
+            "holdout",
+            "toolmix"
+          ],
+          [
+            "holdout",
+            "peak"
+          ],
+          [
+            "holdout",
+            "burst"
+          ],
+          [
+            "holdout",
+            "recovery"
+          ]
+        ],
+        "post_seconds": 300,
+        "probe_seconds": 600,
+        "protected_soak": "/var/lib/sentinel-pulse-normal-normal-a1-20261013/capture",
+        "schema": "pulse-syscall-multiregime-campaign-v1",
+        "source_commit": "49280a6b7c0c81c3a3b50c20e8383e2c8857eb75",
+        "traffic_script_sha256": "652340e323e5f5242151a46b5f590e6e80cfc7431dd3cb25f331ddfa630db5f9",
+        "variant_model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+        "workers": {
+          "10.1.16.237": "k8s-worker1.local",
+          "10.1.16.238": "k8s-worker4.local",
+          "10.1.16.239": "k8s-worker3.local"
+        },
+        "target_settle_seconds": 360
+      },
+      "reason": "HPA scale-down changed waypoint cgroups during recovery; wait for stable targets before capture",
+      "unchanged_runtime_sha256": {
+        "syscall_histogram_pilot.py": "76d980bccafc6e4851f67862b41c02e496f1c44c98bc1dfa89a3613df4ecb200",
+        "syscall_histogram_analysis.py": "b65bc0697b2eefad4a98d90d9208f1729df8baa585a3fe69fdc9583cb18087ee",
+        "capture.py": "7cc61ebfb08b75c86910a7f7e32e93f165d5c214792c4c8a18cc94ed8e8381ff",
+        "features.py": "912c113469d39a31f6d638271b9af3be9e41728ccf7fc7f4b567e9220ea97a63",
+        "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+        "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+        "telemetry_recovery.py": "c78083818b49887068d813bb280ebb791f8dc63407001a1580df734d66a91f41"
+      },
+      "new_source": "/home/dat/pulse-syscall-c3-settle-20261014/source",
+      "original_source": "/home/dat/pulse-syscall-capture-c3/source",
+      "model_or_threshold_changed": false,
+      "previous_rejected_attempts_preserved": true,
+      "previous_completed_phases_preserved": true,
+      "hpa_disabled": false
+    },
+    "attempts": [
+      {
+        "key": "selection-steady",
+        "attempt": 1,
+        "accepted": true
+      },
+      {
+        "key": "selection-toolmix",
+        "attempt": 1,
+        "accepted": true
+      },
+      {
+        "key": "selection-peak",
+        "attempt": 1,
+        "accepted": true
+      },
+      {
+        "key": "selection-burst",
+        "attempt": 1,
+        "accepted": true
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 1,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 2,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 3,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 4,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 5,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 6,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 7,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 8,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 9,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 10,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 11,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 12,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 13,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 14,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 15,
+        "accepted": false
+      },
+      {
+        "key": "selection-recovery",
+        "attempt": 16,
+        "accepted": false
+      }
+    ],
+    "recovery_first_worker3_analysis": {
+      "path": "/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/selection/selection-recovery-001-239/ANALYSIS.json",
+      "sha256": "aec3ced4e3b973cb04b3d03dcc282a0fd99fee2a672554270082379a9cd5a053",
+      "integrity": {
+        "cycles": 593,
+        "integrity_records": 593,
+        "max_snapshot_scan_seconds": 0.007463217,
+        "metadata_snapshots_usable": 79,
+        "problems": {
+          "metadata_target_allowlist_mismatch": 55,
+          "target_coverage_mismatch": 543
+        },
+        "terminal_state": "completed",
+        "traffic_receipt_error": null,
+        "unassigned_reasons": {},
+        "unassigned_syscall_count": 0
+      }
+    },
+    "waypoint_hpa": {
+      "apiVersion": "autoscaling/v2",
+      "kind": "HorizontalPodAutoscaler",
+      "metadata": {
+        "creationTimestamp": "2026-09-13T09:04:03Z",
+        "labels": {
+          "app.kubernetes.io/part-of": "aims"
+        },
+        "name": "aims-waypoint",
+        "namespace": "production",
+        "resourceVersion": "244090826",
+        "uid": "92994e6a-6ce1-43ca-92e4-1d39959b90ef"
+      },
+      "spec": {
+        "behavior": {
+          "scaleDown": {
+            "policies": [
+              {
+                "periodSeconds": 15,
+                "type": "Percent",
+                "value": 100
+              }
+            ],
+            "selectPolicy": "Max",
+            "stabilizationWindowSeconds": 300
+          },
+          "scaleUp": {
+            "policies": [
+              {
+                "periodSeconds": 15,
+                "type": "Pods",
+                "value": 4
+              },
+              {
+                "periodSeconds": 15,
+                "type": "Percent",
+                "value": 100
+              }
+            ],
+            "selectPolicy": "Max",
+            "stabilizationWindowSeconds": 0
+          }
+        },
+        "maxReplicas": 4,
+        "metrics": [
+          {
+            "resource": {
+              "name": "cpu",
+              "target": {
+                "averageUtilization": 70,
+                "type": "Utilization"
+              }
+            },
+            "type": "Resource"
+          }
+        ],
+        "minReplicas": 2,
+        "scaleTargetRef": {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "name": "aims-waypoint"
+        }
+      },
+      "status": {
+        "conditions": [
+          {
+            "lastTransitionTime": "2026-09-13T09:04:18Z",
+            "message": "recommended size matches current size",
+            "reason": "ReadyForNewScale",
+            "status": "True",
+            "type": "AbleToScale"
+          },
+          {
+            "lastTransitionTime": "2026-10-07T06:39:57Z",
+            "message": "the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)",
+            "reason": "ValidMetricFound",
+            "status": "True",
+            "type": "ScalingActive"
+          },
+          {
+            "lastTransitionTime": "2026-10-14T02:06:58Z",
+            "message": "the desired count is within the acceptable range",
+            "reason": "DesiredWithinRange",
+            "status": "False",
+            "type": "ScalingLimited"
+          }
+        ],
+        "currentMetrics": [
+          {
+            "resource": {
+              "current": {
+                "averageUtilization": 56,
+                "averageValue": "56m"
+              },
+              "name": "cpu"
+            },
+            "type": "Resource"
+          }
+        ],
+        "currentReplicas": 3,
+        "desiredReplicas": 3,
+        "lastScaleTime": "2026-10-14T02:12:43Z"
+      }
+    },
+    "service": "NRestarts=0\nExecStart={ path=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python ; argv[]=/home/dat/sentinel-pulse-syscall-feature-c1/venv/bin/python -u -m sentinel_pulse.syscall_capture_campaign --root /mnt/sentinel-pulse-archive/syscall-capture-c3-r2 --source /home/dat/pulse-syscall-c3-settle-20261014/source --credential /home/dat/.pulse-recovery-credential-20261005 --source-commit 49280a6b7c0c81c3a3b50c20e8383e2c8857eb75 --target-settle-seconds 360 --operational-amendment /mnt/sentinel-pulse-archive/syscall-capture-c3-r2/AMENDMENT-target-settle-20261014.json --amendment-sha256 1b11286f109da381e27eed7bea04d2716e727ca833383dcbd658554b9b53b7e7 ; ignore_errors=no ; start_time=[Wed 2026-10-14 02:05:13 UTC] ; stop_time=[n/a] ; pid=3508122 ; code=(null) ; status=0/0 }\nActiveState=active\nSubState=running\nUnitFileState=enabled\n"
+  },
+  "replay": {
+    "state": "completed_consistency_replay",
+    "completed_models": 608,
+    "maximum_score_error": 0.0,
+    "independent_test": false
+  },
+  "smoke": {
+    "feature_rows": 22,
+    "feature_schema_sha256": [
+      "879e33f8c33774c50d848524b78c0fa2398b9855971982e5a41a12f9259f5ae2"
+    ],
+    "finished_at_unix": 1791886111.4571211,
+    "sidecar": {
+      "capture": {
+        "emitted": 22,
+        "malformed": 0,
+        "unresolved": 0
+      },
+      "loader_exit_status": 0,
+      "unexpected_exit": false
+    },
+    "state": "passed",
+    "use_for_training_or_evaluation": false
+  }
+}

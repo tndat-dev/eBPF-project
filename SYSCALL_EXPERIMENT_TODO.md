@@ -1,11 +1,14 @@
 # TODO thực nghiệm chọn syscall và đánh giá candidate
 
-Cập nhật hiện hành qua SSH: **14/10/2026 03:14 UTC+7**. Capture soak
+Cập nhật hiện hành qua SSH: **14/10/2026 09:10 UTC+7**. Capture soak
 `normal-a1-20261013` hoàn tất **100% trên ba worker**, đủ 86.400 giây/node,
-errors=0, capacity pauses=0. Shadow vẫn xử lý backlog, chưa chốt đánh giá.
+errors=0, capacity pauses=0. Shadow đã đọc tới cuối các capture; chưa audit
+đủ decision coverage/nhãn để chốt đánh giá.
 Job `pulse-syscall-capture-c3.service` enabled/active trên `.234`, đã chấp nhận
-4/10 phase (12/30 capture worker), đang thu selection-recovery; sau đó là năm
-regime holdout riêng. ETA capture khoảng 05:30–06:00 ngày 14/10. Chi tiết:
+4/10 phase (12/30 capture worker), recovery gặp 16 retry do HPA đổi cgroup.
+Đã deploy bước settle 360 giây, attempt 17 đang đợi target ổn định; sau đó là
+năm regime holdout riêng. ETA mới khoảng 12:00–12:30 ngày 14/10 nếu ổn định.
+Root cause: [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md). Chi tiết:
 [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).
 
 Hai offline syscall-feature campaigns đã kết thúc: C1 attempt-000002 và C2
@@ -103,12 +106,16 @@ này không thay cho artifact kết quả và không tuyên bố syscall tối �
   worker; cấu hình năm regime selection và năm regime holdout tách biệt.
 - [x] Đăng ký điều kiện chờ soak, source/archive binding, capture/feature schema,
   unit phân tích 30 giây và kế hoạch bootstrap/Holm trước capture mới.
+- [x] Xác minh bốn regime đầu: 12 capture đã seal; preflight 313.318 feature rows,
+  269.036 context bốn window đủ điều kiện đầu vào.
+- [x] Sửa điều phối recovery: amendment SHA-256 giữ START và các phase đã đạt;
+  chờ target ổn định 360 giây, vẫn giữ HPA và integrity checks.
 - [ ] Phục hồi/ổn định workload và traffic generator; xác định target pod UID,
   container, revision, cgroup và node từ resolver/API tại thời điểm capture.
 - [ ] Đăng ký trước traffic receipt với regime và khoảng thời gian chính xác.
   Năm chế độ steady, toolmix, peak, burst, recovery được định nghĩa trong code;
-  receipt execution được phát hành sau rollout, trước probe. Job hiện đang chờ,
-  chưa coi cấu hình tải là dữ liệu đã thu.
+  receipt execution được phát hành sau rollout/settle, trước probe. Bốn regime
+  đầu đã có receipt và raw; recovery/holdout còn chờ hoàn tất.
 - [ ] Dùng runner trước trên một node, một run bounded; kiểm tra baseline và
   post metrics, drop counter, map occupancy, metadata coverage, scan skew, CPU,
   memory, throughput và p95/p99 nếu có nguồn đo đã đăng ký.

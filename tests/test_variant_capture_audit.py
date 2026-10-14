@@ -80,3 +80,11 @@ def test_invalid_counts_or_schema_rejected():
     r = row(0); r['feature_schema_sha256'] = 'different'
     with pytest.raises(ValueError, match='schema'):
         audit([r])
+
+
+def test_new_source_requires_bound_amendment(tmp_path):
+    from sentinel_pulse.variant_capture_audit import verify_capture_source
+    (tmp_path/'START.json').write_text(json.dumps({'contract': {'source_commit': 'old'}}))
+    verify_capture_source(tmp_path, {'source_commit': 'old'}, {})
+    with pytest.raises(ValueError, match='without bound amendment'):
+        verify_capture_source(tmp_path, {'source_commit': 'new'}, {})

@@ -20,6 +20,7 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
 | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
 | [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md) | Job nhiều regime sau soak, holdout riêng, full-ID và 249 feature, lịch kiểm tra |
+| [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md) | Vòng retry do HPA/cgroup, evidence và amendment bước đợi ổn định |
 | [SYSCALL_EXPERIMENT_TODO.md](SYSCALL_EXPERIMENT_TODO.md) | Checklist từ C2/normal capture đến blind attack và cross-ABI; trạng thái theo evidence |
 | [CLUSTER_READINESS.md](CLUSTER_READINESS.md) | Snapshot readiness cụm, DiskPressure đã hồi phục và kiểm chứng workload sau cleanup |
 | [SYSCALL_SELECTION_PILOT.md](sentinel_pulse/SYSCALL_SELECTION_PILOT.md) | Build/pilot histogram syscall-ID exact, receipt regimes và gộp nhiều capture |

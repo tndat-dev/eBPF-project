@@ -13,6 +13,15 @@ Service: `pulse-syscall-capture-c3.service`. Output chính trên NFS:
 Source triển khai: commit `b14f888c28e1d7d8752d19fd4d88457d38063a3a`, tại
 `/home/dat/pulse-syscall-capture-c3/source` trên control plane và ba worker.
 
+Coordinator hiện dùng commit `49280a6b7c0c81c3a3b50c20e8383e2c8857eb75` ở
+`/home/dat/pulse-syscall-c3-settle-20261014/source`, qua amendment có hash
+`1b11286f109da381e27eed7bea04d2716e727ca833383dcbd658554b9b53b7e7`.
+Capture/model/analyzer và binary giữ nguyên hash; START và attempt gốc không
+đổi. Sau đổi regime, đợi cgroup/UID/revision ổn định liên tục 360 giây rồi mới
+đăng ký worker. Gap poll >60 giây hoặc thay identity/health sẽ tính lại thời
+gian ổn định. HPA vẫn hoạt động. Chi tiết lỗi 16 recovery retry và sửa điều phối
+ở [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md).
+
 Lượt đăng ký ban đầu trong thư mục `syscall-capture-c3` được giữ làm receipt
 đã thay thế: chỉ ở trạng thái chờ, chưa đổi tải hoặc attach probe. Lượt `r2`
 khóa đúng commit của archive và bổ sung kế hoạch phân tích trước khi thu dữ liệu.
@@ -27,7 +36,8 @@ Hai phần chạy theo thứ tự, mỗi phần gồm năm regime:
 
 Mỗi regime có 300 giây baseline → 600 giây probe → 300 giây post trên ba
 worker chạy song song. Tổng kế hoạch: **30 capture worker**, khoảng **3 giờ
-20 phút thu/đối chiếu**, cộng rollout, chuyển artifact và recovery. Thời lượng
+20 phút thu/đối chiếu**, cộng tối thiểu **60 phút đợi identity ổn định** nếu chạy
+từ đầu, rollout, chuyển artifact và recovery. Thời lượng
 600 giây/regime là vòng thực nghiệm đầu; chưa đại diện mọi chu kỳ vận hành.
 
 Hai probe trong cùng đợt thí nghiệm:
@@ -139,7 +149,7 @@ python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-capture-c3-r2/STATUS.js
 ```
 
 `waiting_for_existing_soak` nghĩa là chưa đổi traffic/attach probe. Sau đó là
-`preparing_traffic`, `launching`, `collecting`, `between_phases`; terminal
+`preparing_traffic`, `waiting_for_target_stability`, `launching`, `collecting`, `between_phases`; terminal
 `completed_frequency_collection` chỉ xác nhận phần capture, chưa xác nhận
 blind evaluation hay syscall nào nên bỏ. Các phase/attempt được liệt kê trong
 `attempts.jsonl`. Xem tiến độ hiện hành tại

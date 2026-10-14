@@ -1,6 +1,6 @@
 # Trạng thái thực nghiệm chọn kênh syscall
 
-Cập nhật hiện hành qua SSH: **14/10/2026, 03:14 UTC+7**. C1 `attempt-000002` và
+Cập nhật hiện hành qua SSH: **14/10/2026, 09:10 UTC+7**. C1 `attempt-000002` và
 C2 `attempt-000002` đều terminal `completed`, **608/608 fits**, `errors=[]`, 19
 workload × 32 variants; không còn fit process nào chạy. C1 có prediction/score
 `.npz`, không có pickle. C2 có 608 model pickle, tổng **2,362,081,485 byte**.
@@ -19,10 +19,17 @@ Replay dùng context cũ đã xem; chưa phải phép đo chất lượng độc
 ## Job C3 đã triển khai
 
 `pulse-syscall-capture-c3.service` trên `.234` đang **active/running, enabled,
-NRestarts=0**, source `b14f888c28e1d7d8752d19fd4d88457d38063a3a`. Trạng thái
-`collecting`, đang thu `selection-recovery`. Đã chấp nhận **4/10 phase (40%)**:
+NRestarts=0**, coordinator mới `49280a6b7c0c81c3a3b50c20e8383e2c8857eb75`
+ở `/home/dat/pulse-syscall-c3-settle-20261014/source`. START gốc/source capture
+được giữ; amendment riêng bind thay đổi điều phối. Trạng thái
+`waiting_for_target_stability`, attempt 17 của `selection-recovery`.
+Đã chấp nhận **4/10 phase (40%)**:
 selection steady, toolmix, peak, burst — tương đương **12/30 capture worker**.
-Chưa có rejected attempt trong bốn phase này. Output:
+**16 attempt recovery bị từ chối** vì cgroup waypoint thay đổi theo HPA trên
+`.239`; runner khởi động trước khi HPA ổn định rồi retry đưa về steady.
+Đã thêm chờ cgroup ổn định 360 giây trước capture, giữ checkpoint/evidence;
+chưa xác nhận attempt sửa đã pass. Root cause/bằng chứng:
+[SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md). Output:
 `/mnt/sentinel-pulse-archive/syscall-capture-c3-r2`.
 
 Ba worker đã build histogram loader/object và projected counter. Coordinator
@@ -43,24 +50,27 @@ worker**, không còn tiến trình capture. Số đo trực tiếp:
 | `.239` / worker3 | 86.400,390 s | 100% | 0 | 0 |
 
 Tổng **33.149.479 feature rows** trong capture soak. Shadow vẫn active và giữ
-nguyên source/model/policy: worker1 còn đọc backlog, row cuối có event age
-**7.627,28 s**; worker4 row cuối `candidate-model-unavailable`, chênh
-`processed_at - window_end` **16.515,10 s**. Worker3 đã đọc tới cuối capture,
-row cuối có event age **0,01164 s**. Đây là mẫu row cuối, không phải p95 hay
+nguyên source/model/policy. SSH 09:06 xác nhận row cuối shadow trên cả ba worker
+đã tới cuối capture: worker1 window_end=1791916967,012; worker4=1791917016,301;
+worker3=1791916992,378. Chưa audit đủ mọi decision row để xác nhận coverage.
+Worker4 row cuối scored có event age **18.816,45 s (~314 phút)** lúc được xử lý;
+worker3 row cuối **0,01164 s**. Đây là mẫu row cuối, không phải p95 hay
 kernel-to-alert. **100% capture không có nghĩa 100% đánh giá/model stable.**
 
-C3 còn khoảng hai giờ thu holdout cùng chuyển phase/copy. Kiểm tra khoảng
-**05:30–06:00 ngày 14/10 (UTC+7)** nếu không phải retry. Đây là ETA capture,
+C3 còn recovery và năm regime holdout. ETA trước 05:30–06:00 không đạt do vòng
+retry nêu trên. Kiểm tra khoảng **12:00–12:30 ngày 14/10 (UTC+7)** nếu identity
+ổn định; bước settle cộng tối thiểu sáu phút/phase. Đây là ETA capture,
 không phải cam kết hoàn thành blind evaluation hoặc công bố syscall tối ưu.
 
-**38 regression tests pass** cho campaign, sidecar, histogram/cohort, manifest,
+**41 regression tests pass** cho campaign, sidecar, histogram/cohort, manifest,
 paired statistics và feature compatibility audit. Smoke sidecar thực trên cgroup
 riêng ở control plane đã tạo **22 feature rows**, schema legacy đúng, malformed=0,
 exit=0; không dùng smoke này để train/evaluate. Service có checkpoint và khởi động cùng VM; mất SSH/laptop
 không dừng job. Worker reboot làm attempt dở được ghi nhận và thu bổ sung;
 không bỏ các phase đã hoàn tất. Không có zero-alert gate.
 
-Evidence đọc qua SSH: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0315.json`.
+Evidence đọc qua SSH: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0906.json`
+và amendment/attempts/target-stability journal trên NFS.
 Preflight mới `sentinel_pulse/variant_capture_audit.py` chỉ đọc capture đã seal,
 kiểm tra schema/identity/revision/cadence và history bốn window liền kề; không
 chấm score hoặc chọn feature trên holdout. Code audit triển khai riêng dưới
