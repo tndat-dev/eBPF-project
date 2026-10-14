@@ -110,7 +110,7 @@ static __always_inline void increment_tracked(
     default: break;
     }
 }
-#else
+#elif !defined(PULSE_FULL_IDS)
 static __always_inline int increment_projected_tracked(
     struct pulse_counters *counters, __u32 id)
 {
