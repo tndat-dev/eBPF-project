@@ -9,8 +9,8 @@ checkout vận hành và trạng thái cluster liên quan trực tiếp đến c
 
 | Vị trí | Trạng thái quan sát | Ý nghĩa |
 |---|---|---|
-| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, commit `87a38be`; `origin` cùng SHA; working tree sạch trước cập nhật audit | Revision đã push, nguồn Git hiện hành |
-| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng ở commit `87a38be`, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
+| Host `/home/tndat/Downloads/eBPF-project` | Branch `experiment/syscall-id-histogram-pilot`, tip đã push; working tree sạch sau cập nhật audit | Revision Git hiện hành |
+| VM `/home/dat/eBPF-project-host-sync-67b9585` | Worktree riêng fast-forward tới cùng branch tip, sạch; full test pass | Mirror an toàn của host branch, tạo riêng để không đè checkout cũ |
 | VM `/home/dat/eBPF-project` | Branch `main`, commit `ca682ef`, **37 mục dirty** | Chưa đồng bộ; không pull/reset/stash/clean và không ghi đè |
 | Runtime frozen trên NFS | `/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source`, commit `2c1a72d`, sạch | Checkout vận hành tách biệt; không thay bằng Git head mới nếu chưa đăng ký lại candidate |
 
@@ -26,9 +26,9 @@ raw evidence của checkout này chưa được đồng bộ; không thể tuyê
 hay mọi clone đã đồng bộ. Candidate runtime tiếp tục bind commit `2c1a72d` và
 manifest riêng; Git head mới không tự động trở thành runtime đã deploy.
 
-Các commit đã push trong nhánh host: `ce45c27` (pacing C7), `f5ef974` (link
-tài liệu), `67b9585` (canary/review và C6), `703bb73` (status/audit),
-`87a38be` (audit mirror). Không stage đại trà raw campaign.
+Các commit đã push gồm `ce45c27` (pacing C7), `f5ef974` (link tài liệu),
+`67b9585` (canary/review và C6), cùng các commit audit/status report-only sau
+đó. Không stage đại trà raw campaign.
 
 ## Kiểm chứng code và môi trường
 
@@ -61,7 +61,8 @@ Python và dependencies, đồng thời fail nếu test quan trọng bị skip.
 
 - Candidate manifest: `747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08`;
   policy preview: `fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401`.
-- Normal A1: 24 giờ mỗi worker; **33.148.914 decision**, **11.388.831 scored**,
+- Normal A1 review snapshot: 24 giờ mỗi worker; **33.148.914 decision**,
+  **11.388.831 scored**,
   **30.412 preview-positive**. Tỷ lệ raw là **0,267% scored rows** (window có
   chồng lấn); nhãn chưa adjudicate nên không gọi là FPR. Decision ít hơn
   capture **565 dòng**, alignment chưa chứng minh.
@@ -76,9 +77,14 @@ Python và dependencies, đồng thời fail nếu test quan trọng bị skip.
 - Các service `sentinel-pulse-observation-campaign`, `...-attack` và
   `...-normal-control` báo `Result=success`, `ActiveState=active`,
   `SubState=exited`: đều là oneshot đã thoát, không phải soak/attack đang chạy.
-  Không thấy unit/candidate scorer 500 ms hiện hành hoặc tiến trình Pulse live;
-  unit attack 500 ms được liệt kê là các pilot cũ ở trạng thái failed. Vì vậy
-  chưa có blind attack evaluation mới cho candidate hiện hành.
+  Trên cả ba worker, exact collector đang chạy chu kỳ **1.000 ms**. Đồng thời,
+  tiến trình `candidate_shadow` cho normal A1 vẫn `running` từ 12/10 và gắn
+  manifest ở trên; nó là normal shadow, không phải attack evaluator. Không có
+  extended 500 ms loader hay attack scorer hiện hành; các unit attack 500 ms
+  thấy trên master là pilot cũ ở trạng thái failed. Vì vậy chưa có blind attack
+  evaluation mới cho candidate hiện hành. User `dat` không đọc được file output
+  root-owned trong lần kiểm tra này, nên chưa xác nhận được A1 shadow output còn
+  tiến triển hay chỉ đang chờ follower.
 - `sentinel-pulse-observation-attack.service` thoát `Result=success` nhưng dùng
   source/config C2 cũ. Nó **không** tạo attack matrix cho idle-aware candidate
   hiện hành. Candidate này chưa có confusion matrix, precision, recall, FPR
@@ -94,7 +100,7 @@ Python và dependencies, đồng thời fail nếu test quan trọng bị skip.
 |---|---|---|
 | Cao | Candidate chỉ chạy shadow/preview; chưa có attack/control matrix gắn với model/policy hiện hành | Run mới: scorer idle-aware 500 ms đồng thời với blind attack; ghép workload, pod UID, container, revision và cgroup; lưu preview latency, miss, unknown, normal controls riêng. Không gọi preview là alert serving |
 | Cao | A1 có 30.412 preview-positive chờ adjudication; chênh 565 capture/decision | Đối soát theo identity/window/source offset; chia interval 30 s cùng health/traffic context; giữ positive và unknown đến khi có căn cứ |
-| Cao | Không có candidate 500 ms đang chạy; baseline collector là 1 s | Bật bounded canary sau khi có quyền root hợp lệ, preregister budget/rollback và xác minh source/model binding; đo lại cadence thật |
+| Cao | A1 normal shadow process còn chạy nhưng output không đọc được; collector live là 1 s, chưa có attack scorer/extended 500 ms loader | Thêm health/heartbeat và quyền đọc audit tối thiểu; đối soát shadow progress; chỉ bật bounded 500 ms canary sau khi có quyền root hợp lệ, preregister budget/rollback và xác minh source/model binding |
 | Cao | 18 file trong `sentinel_pulse`/`scripts` dùng `StrictHostKeyChecking=no` | Chuyển transport sang known-hosts pinning và `StrictHostKeyChecking=yes`; cấp SSH key riêng hạn quyền, kiểm thử bootstrap host-key thay vì tắt xác minh |
 | Cao | Có 7 vị trí `pickle.load`; SHA manifest không bảo vệ nếu cùng lúc thay artifact và manifest | Chỉ load từ root tin cậy; ký manifest bằng khóa ngoài data store hoặc chuyển định dạng; không nhận pickle chưa xác thực |
 | Trung bình | Host/mirror đã cùng revision, nhưng checkout `main` trên VM cũ hơn 167 commit, có 37 mục dirty; report/raw evidence chưa mirror | Tiếp tục dùng worktree branch rõ ràng; review rồi cherry-pick/port có chọn lọc nếu cần; không reset hoặc xóa tự động |
@@ -110,12 +116,15 @@ thực, không phải lỗi SSH; không dùng privileged pod để lách quyền
 
 ## Kết luận
 
-**Host và worktree mirror VM đã đồng bộ ở `87a38be`; checkout VM cũ chưa đồng bộ
-và được giữ nguyên.** Test checkout VM cũ cũng pass, nhưng chỉ 576 test thuộc
-revision cũ; host/mirror mới hơn có coverage lớn hơn. A1/B3 cung cấp
+**Host và worktree mirror VM riêng đã được fast-forward cùng branch tip và sạch;
+checkout VM cũ chưa đồng bộ và được giữ nguyên.** Test checkout VM cũ cũng pass,
+nhưng chỉ 576 test thuộc revision cũ; host/mirror mới hơn có coverage lớn hơn.
+A1/B3 cung cấp
 normal/timing evidence, không phải confusion matrix. A2 đã kết thúc
 exploratory; Pulse tiếp tục độc lập với nó. Để có matrix candidate hợp lệ:
 adjudicate normal exposure, rồi triển khai preview scorer 500 ms cùng blind
 attack mới, ghép identity/revision và Tetragon kernel timestamp, kèm paired
-normal controls. Chưa thực hiện bước này vì hiện không có scorer/loader live;
-không dùng kết quả C2 cũ làm kết quả candidate mới.
+normal controls. A1 normal shadow còn sống nhưng không phải attack run; bước
+attack chưa chạy vì không có extended 500 ms loader/attack scorer và thao tác
+quản trị root chưa xác thực được. Không dùng kết quả C2 cũ làm kết quả
+candidate mới.

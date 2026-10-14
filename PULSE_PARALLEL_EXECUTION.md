@@ -110,8 +110,12 @@ python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-addition-a2-20261014/TE
 systemctl show pulse-idle-batch-canary-b3.service -p Result -p ActiveState -p SubState
 ```
 
-Canary B3 hiện đã `inactive/dead` sau `Result=success`; baseline exact loader
-trên workers chạy 1.000 ms, không có candidate 500 ms scorer live.
+Canary B3 đã `inactive/dead` sau `Result=success`; baseline exact loader trên
+workers chạy 1.000 ms. Kiểm tra ngày 15/10 thấy tiến trình normal A1
+`candidate_shadow` còn `running` trên cả ba worker, nhưng không có extended
+500 ms loader hoặc attack scorer. User `dat` chưa đọc được output root-owned,
+nên không xác nhận được shadow follower còn tiến triển hay chỉ đang chờ; không
+gọi trạng thái này là attack evaluation live.
 Trên `.234`, xem `pulse-syscall-distribution-audit-c5.service` và
 `/mnt/sentinel-pulse-archive/syscall-development-distribution-c5/STATUS.json`.
 `completed_inputs/expected_inputs` là tiến độ đọc dữ liệu, không phải chất lượng model.

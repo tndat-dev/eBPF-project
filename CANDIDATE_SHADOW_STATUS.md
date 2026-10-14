@@ -118,8 +118,13 @@ capacity_pause_count=0 trên cả ba node:
 | worker4 `.238` | 86.400,297 s | 15.096.447 |
 | worker3 `.239` | 86.400,390 s | 4.124.430 |
 
-Capture/shadow scoring đã kết thúc; model/policy không thay đổi. Row cuối của ba
-worker đã tới cuối capture: worker1 window_end=1791916967,012;
+Capture 24 giờ và lượt review đã hoàn tất theo terminal. Tuy nhiên, kiểm tra
+trực tiếp ngày **15/10** thấy tiến trình `candidate_shadow` A1 vẫn `running`
+trên cả ba worker (được khởi chạy từ 12/10), trỏ vào capture A1 và cùng
+manifest/policy trên. Vì vậy không kết luận tiến trình đã dừng hay đang tiếp tục
+score: user `dat` bị từ chối quyền đọc `shadow/decisions.jsonl` root-owned;
+cần kiểm tra heartbeat/output bằng quyền audit phù hợp. Model/policy không đổi.
+Row cuối đã review của ba worker: worker1 window_end=1791916967,012;
 worker4=1791917016,301; worker3=1791916992,378. Worker1 row cuối mang trạng thái
 `candidate-model-unavailable`; worker4 row cuối scored có event age
 **18.816,45 s (~314 phút)** lúc xử lý; worker3 row cuối **0,01164 s**. Review đã
@@ -132,10 +137,11 @@ Capture đủ 24 giờ không đồng nghĩa candidate đạt realtime, stable h
 lượng phát hiện. C3 đã bắt đầu thu dữ liệu mới trong thư mục riêng sau khi cả
 ba capture đóng; nó không sửa hoặc thêm record vào capture soak đã hoàn tất.
 
-SSH kiểm tra lại **14/10/2026 16:45 UTC**: cả 6 node `Ready`; baseline
-`pulse_counter_loader` vẫn chạy trên ba worker với chu kỳ **1.000 ms**. Không
-có extended 500 ms loader; canary B3/B4 đều `inactive/dead`, vì vậy hiện không
-có candidate preview được score trực tuyến. Tetragon exec-provenance policy
+SSH kiểm tra lại **15/10/2026**: cả 6 node `Ready`; baseline
+`pulse_counter_loader` vẫn chạy trên ba worker với chu kỳ **1.000 ms**. A1
+`candidate_shadow` process còn sống nhưng output của nó chưa kiểm chứng được.
+Không có extended 500 ms loader hay attack scorer; canary B3/B4 đều
+`inactive/dead`, nên chưa có attack preview trực tuyến. Tetragon exec-provenance policy
 đã enabled trên 6/6 agent, giới hạn `sys_execve` tới hai đường dẫn binary thử
 nghiệm; đây là timestamp nguồn khả dụng, không phải bằng chứng đã chạy attack
 trên candidate hiện hành.
