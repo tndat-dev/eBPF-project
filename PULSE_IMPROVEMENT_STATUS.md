@@ -1,6 +1,16 @@
 # Sentinel Pulse — cải thiện theo confusion matrix kỳ vọng
 
-Cập nhật trạng thái hiện hành từ SSH ngày **12/10/2026, 17:11 ICT**.
+Hiện hành **14/10/2026**: capture soak A1/review đã hoàn tất; còn pending nhãn
+và chênh 565 decision/feature. Batch inference giữ frozen model, live canary
+B1 p95/p99 feature-end-to-score **0,424/0,474 s**, không phải kernel-to-alert.
+B2 30 phút đang chạy trên ba worker; nhánh C4 syscall chạy song song.
+Xem [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) và
+[PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) cho job/ETA.
+
+## Bằng chứng reference và baseline giữ để đối chiếu
+
+Số đo reference bên dưới được xác minh SSH ngày **12/10/2026, 17:11 ICT**,
+không phải trạng thái canary ngày 14/10.
 Bằng chứng mới và checksum: [capture/audit, reference fit, inference benchmark và job hiện hành](validation-evidence/pulse-improvement-20261012/extended-reference-status.json).
 Không thay model/policy của phép đo baseline đã hoàn thành.
 

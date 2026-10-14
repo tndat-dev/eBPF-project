@@ -1,0 +1,89 @@
+{
+  "checked_at_unix": 1791963768.6869552,
+  "batch_canary": {
+    "10.1.16.237": {
+      "status": {
+        "elapsed_seconds": 445.2311942540109,
+        "frames": 870,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 46926,
+          "candidate-raw-score-only": 24248,
+          "warming": 84
+        },
+        "updated_at_unix": 1791963767.6132658
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963322.3796797,
+      "checked_at_unix": 1791963768.5169334,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=441028608\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.238": {
+      "status": {
+        "elapsed_seconds": 442.44739479990676,
+        "frames": 840,
+        "issues": {
+          "collector_cadence_gap": 3
+        },
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 48488,
+          "candidate-raw-score-only": 25544,
+          "warming": 372
+        },
+        "updated_at_unix": 1791963765.664132
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963323.2145607,
+      "checked_at_unix": 1791963768.6101046,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=558411776\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.239": {
+      "status": {
+        "elapsed_seconds": 442.11370653426275,
+        "frames": 880,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 12306,
+          "candidate-raw-score-only": 6132,
+          "warming": 21
+        },
+        "updated_at_unix": 1791963764.5961726
+      },
+      "terminal_exists": false,
+      "registered_at_unix": 1791963322.4787197,
+      "checked_at_unix": 1791963768.0187247,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=356339712\nActiveState=active\nSubState=running\n"
+    }
+  },
+  "syscall_c4": {
+    "binding": {
+      "audit_sha256": "5ffef44c038ce66c780725f617ec5550c00c5e836eb4ebd785823a8703d14992",
+      "campaign_terminal_sha256": "aa097a979a567a45f7b73ddb11ffb8dda2918819a8dff0e62ab5527bcc204a46",
+      "model_manifest_sha256": "4c379dcabd8ea2c8ca0c19f9e13e186dfa9fe63f0df1ea1a2d4d591e946c4408",
+      "software": {
+        "joblib": "1.6.0",
+        "numpy": "2.5.3",
+        "python": "3.12.3",
+        "scikit-learn": "1.9.1"
+      },
+      "source_sha256": {
+        "model.py": "60495736ec65771047f2d410115ed866604d6968f8ccb3097f252020d4236ae6",
+        "variant_capture_audit.py": "6b341c03131ae7024839dd9bf024bebedfb33a9973d6e84af80269ef5ca3b4b2",
+        "variant_independent_normal.py": "343648185704e1ad9ad89c1b3964cfa6a9b8a5ebd03366f8d240381098bbef49",
+        "variant_replay.py": "8b6d8eeb476adadd047f84eecf09d1e7351f6b36e21ecb6617e10b0cfc8f6074"
+      },
+      "training_manifest_sha256": "6ddf7cf9b03cb783b82c23272f7046bafa7ab1412b0545b60a2821d1f441cc21"
+    },
+    "completed_models": 443,
+    "dataset_sha256": "ea1d6412a378c37f63851194417ef7c5d1395cbad08876c4f9df79bcabfd93df",
+    "expected_models": 608,
+    "registered_at_unix": 1791963291.1182442,
+    "state": "scoring",
+    "updated_at_unix": 1791963767.4351888,
+    "terminal_exists": false,
+    "service": "NRestarts=0\nMemoryCurrent=2006470656\nActiveState=active\nSubState=running\nUnitFileState=enabled\n"
+  }
+}

@@ -3,25 +3,32 @@
 Hai nhánh có tiến độ và artifact riêng; không yêu cầu hoàn tất chọn syscall
 mới tiếp tục đánh giá candidate Pulse đã đóng băng.
 
-SSH **09:33 ngày 14/10/2026 (UTC+7)** xác nhận C3 đang collecting recovery
-attempt 17. Cả ba review r2 đang `summarizing`, enabled, NRestarts=0, issues={}.
-Đã tổng hợp 2.722.602 dòng decision, trong đó 929.400 dòng scored; 2.834 preview
-dương còn chờ adjudicate. Đây là số đếm prefix đang đọc, chưa phải kết quả toàn
-soak hoặc số false positive. Byte progress: `.237` 7,61%; `.238` 5,95%; `.239`
-18,56%. Ngoại suy tuyến tính từ tốc độ hiện tại cho review khoảng **09:50–10:00**;
-không phải cam kết hoàn thành nhãn/confusion matrix. Evidence:
-`validation-evidence/syscall-c3-20261014/parallel-status-20261014-0935.json`.
+SSH **14/10/2026, 14:36 UTC+7**: C3 đã hoàn tất **10/10 phase**, đủ 15 capture
+selection và 15 capture holdout. Review soak Pulse đã đọc hết cả ba worker,
+không có lỗi binding trong kết quả. Hai công việc tiếp theo đang chạy song song:
 
 | Nhánh | Công việc hiện hành | Service / output |
 |---|---|---|
-| Chọn syscall C3 | Recovery đa chế độ tải, sau đó năm regime normal holdout | `.234`: `pulse-syscall-capture-c3.service`; NFS `syscall-capture-c3-r2` |
-| Sentinel Pulse | Tổng hợp toàn bộ decision của soak 24 giờ trên từng worker | `.237/.238/.239`: `pulse-shadow-soak-summary@normal-a1-20261013.service`; `/var/lib/pulse-shadow-review/normal-a1-20261013-r2` |
+| Chọn syscall C4 | Chấm 608 biến thể đã đóng băng trên holdout C3 mới | `.234`: `pulse-syscall-normal-evaluation-c4.service`; NFS `syscall-variant-normal-c4` |
+| Sentinel Pulse | Canary batch 30 phút, live normal traffic trên ba worker | `.237/.238/.239`: `pulse-idle-batch-canary-b2.service`; `/var/lib/pulse-idle-batch-canary-b2-20261014` |
 
-## Nhánh Pulse đang xử lý gì
+Canary bắt đầu khoảng **14:35**, dự kiến kết thúc khoảng **15:06 ngày 14/10**.
+Kiểm tra cả hai nhánh khoảng **15:10 UTC+7**. Đây là ETA canary, không phải ETA
+hoàn tất blind attack hoặc paper. C4 resume bằng checkpoint sau SSH/reboot;
+canary 30 phút tách biệt SSH nhưng là job bounded, chưa có cơ chế cộng dồn sau
+reboot. Cả hai giữ model/policy, không zero-alert gate và không auto-promotion.
+
+## Kết quả soak Pulse đã tổng hợp
 
 Capture đã đóng với 33.149.479 feature rows tổng trên ba worker. Job review
-đọc lần lượt các file decision khoảng 11,75 GB, 12,79 GB và 3,51 GB; không sao
-chép lại raw. Nó tổng hợp theo workload:
+đã đọc hết các file decision khoảng 11,75 GB, 12,79 GB và 3,51 GB; không sao
+chép lại raw. Tổng **33.148.914 decision**, gồm **11.388.831 scored**,
+**21.759.882 model-unavailable**, **201 warming**. Các key model-unavailable
+là `pod-slice`, không phải 21 container ứng dụng bị thiếu model. Có **30.412
+preview dương chờ adjudicate**; không tự gọi chúng là FP. Tổng số decision
+ít hơn feature capture **565 dòng**; chưa chứng minh alignment/coverage hoàn chỉnh.
+
+Review cung cấp theo workload:
 
 - Số dòng scored, warming, thiếu model, degraded/rejected và lỗi binding.
 - Raw model anomaly và preview dương cần adjudicate; giữ ví dụ identity/time.
@@ -33,7 +40,7 @@ So sánh số dòng chỉ kiểm tra tổng lượng dữ liệu; chưa chứng 
 precision/recall/FPR và confusion matrix còn null. Kernel-to-alert cần đánh
 giá live attack riêng. Candidate/model/policy đã đóng băng vẫn được giữ nguyên.
 
-Job review chạy systemd cố định, checkpoint mỗi khoảng 5 giây, tự chạy khi VM
+Job review dùng systemd cố định, checkpoint mỗi khoảng 5 giây, tự chạy khi VM
 boot. Resume xác minh source/input binding và SHA-256 prefix trước khi đọc tiếp;
 không cộng lại những dòng đã checkpoint. Giới hạn mỗi worker: CPU 50% một core,
 RAM 256 MiB, Nice=19, IOWeight=1. Chỉ đọc dữ liệu đã đóng; output tổng hợp nhỏ.
@@ -44,12 +51,23 @@ binding và bucket latency đã pass. Cấu hình r2 lấy run ID **riêng từn
 environment đã đăng ký của soak. Output r1 được giữ để chẩn đoán: cấu hình đầu
 đã dùng run ID chung nên ghi `run_binding_mismatch`, không phải lỗi của model.
 
-## Công việc song song tiếp theo
+## Batch timing và giới hạn phép đo
+
+Benchmark đã xác minh **21/21 frozen model**, score sai lệch lớn nhất **0**,
+p-value/decision scalar và batch khớp tuyệt đối. Canary live 5 phút trên `.237`
+chấm **16.380 context**, feature-window-end → score p50/p95/p99
+**0,227/0,424/0,474 giây**, max **0,667 giây**; issues={}. Còn 4 snapshot và
+607 byte ở frame cuối chưa đóng; giữ raw và không đưa vào scoring.
+Đây chưa phải kernel-to-alert, chưa đánh giá recall/precision bằng attack.
+Source, giới hạn và artifact: [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md).
+
+## Công việc sau hai job hiện hành
 
 Nhánh Pulse xử lý coverage/nhãn của soak, chuẩn bị adapter đánh giá attack cho
 idle-aware candidate và đo confusion matrix trên interval thống nhất.
-Nhánh syscall hoàn tất holdout, rồi chấm cùng trial cho các biến thể và tổng
-hợp paired statistics/CI để đánh giá đóng góp syscall.
+Nhánh syscall hoàn tất C4; sau đó bind blind binary/cases/target mới, chấm cùng
+trial cho các biến thể và tổng hợp paired statistics/CI. Không chọn syscall hay
+tune threshold bằng holdout, không dùng latency offline thay cho live latency.
 
 Blind attack tác động vào chính workload đang thu normal phải có khoảng thời
 gian hoặc target riêng. Không inject vào capture đã đăng ký normal chỉ để làm
@@ -57,13 +75,15 @@ hai job cùng active. Trong lúc capture normal chạy, review/offline analysis 
 chuẩn bị attack của nhánh Pulse vẫn triển khai độc lập. Việc điều phối lịch
 inject bảo vệ nhãn dữ liệu, không tạo thứ tự ưu tiên giữa hai nhánh.
 
-## Kiểm tra trên từng worker
+## Kiểm tra job đang chạy
 
 ```bash
-sudo systemctl status pulse-shadow-soak-summary@normal-a1-20261013.service --no-pager
-sudo python3 -m json.tool /var/lib/pulse-shadow-review/normal-a1-20261013-r2/STATUS.json
+sudo systemctl status pulse-idle-batch-canary-b2.service --no-pager
+sudo python3 -m json.tool /var/lib/pulse-idle-batch-canary-b2-20261014/STATUS.json
 ```
 
-`activating/start` là trạng thái systemd bình thường của job `Type=oneshot`
-đang tính toán. Xem tiến độ bằng byte offset/size và số row trong STATUS, không
-chỉ dựa vào trạng thái active. `TERMINAL.json` chỉ được tạo sau khi đọc hết.
+Trên `.234`, xem `pulse-syscall-normal-evaluation-c4.service` và
+`/mnt/sentinel-pulse-archive/syscall-variant-normal-c4/STATUS.json`.
+`completed_models/608` là tiến độ scoring, không phải phần trăm chất lượng model.
+Evidence hoàn tất capture/review:
+[SUMMARY.json](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json).

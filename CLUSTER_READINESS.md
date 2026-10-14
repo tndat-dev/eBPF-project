@@ -1,10 +1,21 @@
 # Trạng thái readiness cụm Kubernetes
 
-Cập nhật từ kiểm tra trực tiếp qua SSH: **12/10/2026 13:36 UTC**. Báo cáo này
+Hiện hành qua SSH **14/10/2026 14:44 UTC+7**: sáu node Ready, v1.34.10;
+NetworkUnavailable/MemoryPressure/DiskPressure/PIDPressure đều False.
+Snapshot có **251 pod objects: 239 Running, 11 Succeeded, 1 Failed**;
+không có pod đang hoạt động nào chưa Ready. Pod Failed là Grafana
+`monitoring-grafana-774fdc6675-hb24b`, terminal Evicted vì ephemeral-storage;
+không xóa evidence hoặc tính khoảng này là normal chỉ vì replica hiện Ready.
+Đây là API readiness, không thay cho kiểm tra chức năng/HTTP/throughput.
+Snapshot: [cluster-readiness](validation-evidence/pulse-parallel-completion-20261014/cluster-readiness-20261014.json).
+
+## Kiểm tra chức năng và cleanup tham chiếu ngày 12/10
+
+Phần dưới từ kiểm tra trực tiếp qua SSH: **12/10/2026 13:36 UTC**. Báo cáo này
 tách readiness của workload đang được quản lý khỏi pod đã kết thúc; `Succeeded`
 là trạng thái hợp lệ của Job, không phải microservice lỗi.
 
-## Tóm tắt hiện hành
+### Tóm tắt tại lần kiểm tra tham chiếu
 
 - Sáu node (`10.1.16.234`–`.239`) đều `Ready`, Kubernetes `v1.34.10`, Ubuntu
   24.04.4, kernel `6.8.0-138-generic`.

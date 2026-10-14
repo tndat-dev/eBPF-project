@@ -1,0 +1,81 @@
+{
+  "checked_at_unix": 1791963875.863534,
+  "pods": {
+    "total": 251,
+    "phases": {
+      "Running": 239,
+      "Succeeded": 11,
+      "Failed": 1
+    },
+    "active_not_ready": []
+  },
+  "nodes": [
+    {
+      "name": "k8s-master.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    },
+    {
+      "name": "k8s-master2.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    },
+    {
+      "name": "k8s-master3.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    },
+    {
+      "name": "k8s-worker1.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    },
+    {
+      "name": "k8s-worker3.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    },
+    {
+      "name": "k8s-worker4.local",
+      "version": "v1.34.10",
+      "conditions": {
+        "NetworkUnavailable": "False",
+        "MemoryPressure": "False",
+        "DiskPressure": "False",
+        "PIDPressure": "False",
+        "Ready": "True"
+      }
+    }
+  ],
+  "application_functional_checks_performed": false
+}

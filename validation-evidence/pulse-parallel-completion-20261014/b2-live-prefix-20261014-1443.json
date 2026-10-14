@@ -1,0 +1,38 @@
+{
+  "10.1.16.237": {
+    "checked_at_unix": 1791963835.6089995,
+    "latest_scored": {
+      "window_end": 1791963834.9112527,
+      "processed_at": 1791963835.0253556,
+      "feature_event_age_seconds": 0.11410284042358398,
+      "batch_contexts": 3,
+      "inference_ms": 19.434044137597084
+    },
+    "cpu_stat": "usage_usec 456277822\nuser_usec 448149694\nsystem_usec 8128128\ncore_sched.force_idle_usec 0\nnr_periods 5148\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "unit": "NRestarts=0\nMemoryCurrent=476483584\nActiveState=active\n"
+  },
+  "10.1.16.238": {
+    "checked_at_unix": 1791963835.7804205,
+    "latest_scored": {
+      "window_end": 1791963834.7879639,
+      "processed_at": 1791963835.0285497,
+      "feature_event_age_seconds": 0.2405858039855957,
+      "batch_contexts": 2,
+      "inference_ms": 20.496427081525326
+    },
+    "cpu_stat": "usage_usec 504424421\nuser_usec 494906621\nsystem_usec 9517799\ncore_sched.force_idle_usec 0\nnr_periods 5123\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "unit": "NRestarts=0\nMemoryCurrent=594980864\nActiveState=active\n"
+  },
+  "10.1.16.239": {
+    "checked_at_unix": 1791963835.191563,
+    "latest_scored": {
+      "window_end": 1791963834.729154,
+      "processed_at": 1791963834.9013677,
+      "feature_event_age_seconds": 0.17221355438232422,
+      "batch_contexts": 1,
+      "inference_ms": 29.333404265344143
+    },
+    "cpu_stat": "usage_usec 185040391\nuser_usec 181615732\nsystem_usec 3424659\ncore_sched.force_idle_usec 0\nnr_periods 3866\nnr_throttled 0\nthrottled_usec 0\nnr_bursts 0\nburst_usec 0\n",
+    "unit": "NRestarts=0\nMemoryCurrent=365252608\nActiveState=active\n"
+  }
+}

@@ -1,9 +1,16 @@
 # Candidate Shadow Runtime — trạng thái hiện hành
 
-Đang triển khai song song với nhánh chọn syscall. SSH **09:33 ngày 14/10**:
-job review soak r2 đang xử lý trên cả ba worker, đã đọc 2.722.602 decision;
-issues={} tại checkpoint. Review dự kiến xong khoảng 09:50–10:00 nếu tốc độ
-giữ nguyên. [Trạng thái và source](PULSE_PARALLEL_EXECUTION.md).
+Triển khai song song với nhánh syscall. SSH **14/10/2026** xác nhận review soak
+r2 đã hoàn tất trên cả ba worker: **33.148.914 decision, 11.388.831 scored,
+30.412 preview dương chưa adjudicate**, issues={}. Chênh capture/decision
+**565 dòng** chưa được giải thích, không tuyên bố coverage hoàn chỉnh.
+Các key không có model đều là scope `pod-slice`.
+
+Batch scorer giữ nguyên 21 frozen model/policy, scalar/batch score khớp tuyệt
+đối. Canary B1 live 5 phút đạt feature-window-end → score p95/p99
+**0,424/0,474 giây**, **chưa phải kernel-to-alert**. B2 đang canary 30 phút
+trên ba worker. [Kết quả/bằng chứng](PULSE_BATCH_TIMING.md),
+[job song song và ETA](PULSE_PARALLEL_EXECUTION.md).
 
 ## Mục đích và giới hạn
 
@@ -58,7 +65,7 @@ byte đăng ký sẽ mở rộng ngân sách đúng bằng phần dung lượng 
 reserve, ghi journal; khi chạm reserve thì pause và tiếp tục sau phục hồi thay
 vì terminal sớm. Installer yêu cầu đủ free-space cho capture 70 GiB, shadow
 headroom 8 GiB và reserve 12 GiB. Các thay đổi đã unit-test local và source
-đang được chạy trong soak A1.
+đã được chạy trong soak A1 vừa hoàn tất.
 
 ## Trạng thái cluster
 
@@ -109,8 +116,9 @@ Shadow vẫn active, `NRestarts=0`, model/policy không thay đổi. Row cuối 
 worker đã tới cuối capture: worker1 window_end=1791916967,012;
 worker4=1791917016,301; worker3=1791916992,378. Worker1 row cuối mang trạng thái
 `candidate-model-unavailable`; worker4 row cuối scored có event age
-**18.816,45 s (~314 phút)** lúc xử lý; worker3 row cuối **0,01164 s**. Chưa audit
-mọi decision row để xác nhận coverage hoàn chỉnh. Các con số là mẫu row cuối,
+**18.816,45 s (~314 phút)** lúc xử lý; worker3 row cuối **0,01164 s**. Review đã
+đọc mọi decision row; còn chênh 565 dòng so capture và chưa audit alignment.
+Các con số này là mẫu row cuối,
 **không phải p95 hay kernel-to-alert**. Chưa chốt confusion matrix.
 
 Evidence: `/home/dat/pulse-syscall-capture-c3/inspection-20261014-0906.json`.
@@ -127,13 +135,13 @@ ngưỡng kế hoạch, nhưng không thể bảo đảm trước hỏng đĩa, 
 hoặc hết sạch dung lượng; nếu tài nguyên chưa hồi phục, run sẽ ở trạng thái
 waiting thay vì giả vờ đã hoàn tất.
 
-Tiếp theo: audit decision coverage, journal/gaps và nhãn preview/normal để
-tổng hợp đánh giá. C3 recovery bị lặp vì HPA/cgroup; đã sửa bước đợi identity
-ổn định. ETA capture C3 mới khoảng **12:00–12:30 ngày 14/10**, phụ thuộc identity
-ổn định; đây chưa phải ETA của toàn bộ blind evaluation.
+Tiếp theo: audit alignment, journal/gaps và nhãn preview/normal để tổng hợp
+đánh giá. C3 đã thu đủ selection/holdout; C4 đang chấm 608 biến thể độc lập.
+Pulse tiếp tục đo batch live B2 và chuẩn bị attack adapter riêng, không dùng
+adapter legacy R10 cho feature idle-aware chỉ vì cùng 249 chiều.
 
 Nhánh Pulse tiếp tục **song song với thí nghiệm syscall**, không chờ kết luận
-chọn feature. Job review có checkpoint chạy riêng trên ba worker dưới unit
+chọn feature. Job review có checkpoint đã hoàn tất riêng trên ba worker dưới unit
 `pulse-shadow-soak-summary@normal-a1-20261013.service`, output
 `/var/lib/pulse-shadow-review/normal-a1-20261013-r2`. Nó tổng hợp mọi decision,
 coverage, preview và histogram latency của soak đã đóng. Chi tiết vận hành và
@@ -141,7 +149,7 @@ ranh giới nhãn/inject ở [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUT
 
 Candidate vẫn model-only; preview không phải alert production. Không tune
 candidate trong independent normal soak; giữ mọi preview và khoảng degraded để
-adjudicate sau thu thập. V7 và campaign khác không bị thay đổi.
+adjudicate sau thu thập. Model và evidence của campaign đã đóng không bị thay đổi.
 
 ## Chạy thủ công trên feature stream riêng
 

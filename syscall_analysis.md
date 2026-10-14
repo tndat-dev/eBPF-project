@@ -2,33 +2,73 @@
 
 ## Trạng thái thực nghiệm hiện hành
 
-Kiểm tra SSH **14/10/2026 09:33 UTC+7**: bộ C2 đã fit, load và replay **608/608
+Kiểm tra SSH **14/10/2026 14:36 UTC+7**: bộ C2 đã fit, load và replay **608/608
 model** (19 workload × 32 biến thể); score sai lệch lớn nhất 0, p-value và
 decision khớp kết quả C2 đã lưu. Đây là kiểm tra tái lập trên dữ liệu đã xem.
 
-Capture normal soak đã hoàn tất 86.400 giây/node trên cả ba worker; shadow đã
-đọc tới cuối file, chưa audit đủ decision coverage. Job C3 trên `.234`
-enabled/active, đã chấp nhận selection **steady, toolmix, peak, burst**;
-**recovery** gặp 16 attempt lỗi cgroup churn do HPA. Đã thêm bước đợi target
-ổn định 360 giây qua amendment; attempt 17 đang collecting trên ba worker. Tiếp theo là
-vòng năm regime holdout riêng. C3 thu full-ID histogram và feature 249 chiều/500 ms.
+Capture soak Pulse và review đã hoàn tất; xem số đếm/giới hạn tại
+[PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md). C3 đã có terminal
+`completed_frequency_collection`, đủ **10/10 phase**: selection và holdout,
+mỗi phần có đủ **steady, toolmix, peak, burst, recovery**, trên ba worker.
+Recovery attempt 17 đã pass sau amendment chờ target ổn định; 16 attempt bị
+từ chối vẫn được giữ. C3 thu full-ID histogram và feature 249 chiều/500 ms.
 Nguồn, receipt, ngân sách, schema và lệnh kiểm tra nằm trong
 [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md).
 Phân tích root cause: [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md).
 
-Preflight trên 12 capture selection đã seal xác minh **313.318 feature rows**:
-**269.036 context bốn window** đủ điều kiện schema/identity/revision/cadence;
-6.592 warming rows; 37.659 rows không có model C2 (notification/payment);
-31 rows ngoài biên probe. Có 2.492 lần reset history vì không liền kề, không nối
-giả qua gap. Các bộ đếm này chưa adjudicate health/nhãn normal, không phải TN/FP
-hay kết quả đánh giá chất lượng. Tool không chấm model hoặc đọc score holdout.
-Evidence: `syscall-capture-c3-r2/selection-preflight-20261014.json` trên NFS.
+Audit xác minh **15/15 capture của mỗi split**:
+
+| Split | Feature rows | Context đủ 4 window | Warming | Không có model C2 | Gap reset |
+|---|---:|---:|---:|---:|---:|
+| Selection | 390.195 | 333.877 | 9.191 | 47.096 | 3.472 |
+| Holdout | 391.044 | 334.655 | 9.192 | 47.197 | 3.401 |
+
+Selection có thêm 31 rows ngoài probe. Model C2 thiếu notification/payment;
+không đưa chúng vào mẫu số TN. Đây là admission đầu vào, chưa phải nhãn normal
+đã adjudicate. Artifact và SHA-256:
+[completion evidence](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json).
+
+Job **C4 đã chạy** trên `.234`: `pulse-syscall-normal-evaluation-c4.service`,
+output NFS `/mnt/sentinel-pulse-archive/syscall-variant-normal-c4`.
+Nó trích đúng 334.655 context holdout, chấm cùng dữ liệu cho 608 model/mask đã
+khóa, không fit/calibrate/tune lại. Python/NumPy/sklearn khớp C2; checkpoint
+theo capture và model, tự resume sau SSH/reboot. Raw positives giữ là pending
+adjudication; chưa tính FP/FPR hoặc precision từ nhãn mặc định.
 
 Chưa có kết quả blind mới cho từng biến thể, nên **chưa kết luận syscall nào
 nên giữ/bỏ từ thực nghiệm hoàn chỉnh**. Histogram cung cấp tần suất; ablation
 và paired blind evaluation mới trả lời đóng góp phát hiện. Kế hoạch chấm đã
 đăng ký interval workload 30 giây, bootstrap block 10.000 lần, CI 95% và Holm;
 không dùng normal holdout/blind để tune rồi báo lại như kiểm định độc lập.
+
+## Tần suất C3 selection nhiều chế độ tải
+
+Phân tích mới chỉ dùng 15 capture selection đã seal, loại scope `pod-slice`
+khỏi tổng container. Tổng **185.303.624 syscall entry**, **135 ID** có count > 0.
+29 ID tường minh chiếm **66.217.752 entry (35,7347%)**; các ID khác chiếm
+119.085.872 entry và vẫn hiện diện trong aggregate/hash bins của feature.
+
+| Regime | Syscall entry | ID xuất hiện | Tỷ lệ thuộc 29 syscall tường minh |
+|---|---:|---:|---:|
+| steady | 28.938.394 | 131 | 33,3054% |
+| toolmix | 33.106.382 | 133 | 34,6515% |
+| peak | 43.300.587 | 129 | 36,8772% |
+| burst | 52.076.508 | 131 | 38,2770% |
+| recovery | 27.881.753 | 129 | 33,0198% |
+
+Bảy syscall chưa xuất hiện trong selection này: `ptrace`, `pivot_root`,
+`mount`, `unshare`, `recvmmsg`, `setns`, `execveat`. Không suy ra chúng vô ích:
+normal frequency không đo được khả năng nhận diện hành vi attack hiếm.
+Ngược lại, các ID ngoài tập 29 có tần suất cao cũng chưa tự chứng minh thêm
+chúng làm tăng recall. Cần so sánh ablation trên cùng normal/attack trial.
+
+Nguồn số đo:
+[SELECTION_COHORT](validation-evidence/pulse-parallel-completion-20261014/c3-SELECTION_COHORT.json)
+và [frequency description](validation-evidence/pulse-parallel-completion-20261014/selection-frequency-description.json).
+Tái lập bằng `python3 -m sentinel_pulse.syscall_frequency_report --cohort <cohort>
+--feature-source sentinel_pulse/features.py --output <file-mới.json>`.
+Tool bind hash cohort/source và không dùng holdout để rank/chọn feature.
+Số entry là số gọi quan sát được, không phải request/s hay syscall thành công.
 
 ## Nguồn định nghĩa và cơ sở lựa chọn
 

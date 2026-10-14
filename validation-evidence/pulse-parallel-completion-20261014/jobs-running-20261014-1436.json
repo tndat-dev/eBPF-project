@@ -1,0 +1,65 @@
+{
+  "checked_at_unix": 1791963365.6994407,
+  "batch_canary": {
+    "10.1.16.237": {
+      "checked_at_unix": 1791963365.5582044,
+      "status": {
+        "elapsed_seconds": 41.32734282827005,
+        "frames": 80,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 4266,
+          "candidate-raw-score-only": 2128,
+          "warming": 84
+        },
+        "updated_at_unix": 1791963363.7094145
+      },
+      "registered_at_unix": 1791963322.3796797,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=230309888\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.238": {
+      "checked_at_unix": 1791963365.6244156,
+      "status": {
+        "elapsed_seconds": 37.49346582684666,
+        "frames": 70,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 4002,
+          "candidate-raw-score-only": 2046,
+          "warming": 93
+        },
+        "updated_at_unix": 1791963360.7102036
+      },
+      "registered_at_unix": 1791963323.2145607,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=337596416\nActiveState=active\nSubState=running\n"
+    },
+    "10.1.16.239": {
+      "checked_at_unix": 1791963365.3817647,
+      "status": {
+        "elapsed_seconds": 40.53181328019127,
+        "frames": 80,
+        "issues": {},
+        "state": "running",
+        "statuses": {
+          "candidate-model-unavailable": 1106,
+          "candidate-raw-score-only": 532,
+          "warming": 21
+        },
+        "updated_at_unix": 1791963363.0142791
+      },
+      "registered_at_unix": 1791963322.4787197,
+      "service": "Result=success\nNRestarts=0\nMemoryCurrent=301674496\nActiveState=active\nSubState=running\n"
+    }
+  },
+  "syscall_c4": {
+    "completed_models": 80,
+    "dataset_sha256": "ea1d6412a378c37f63851194417ef7c5d1395cbad08876c4f9df79bcabfd93df",
+    "expected_models": 608,
+    "registered_at_unix": 1791963291.1182442,
+    "state": "scoring",
+    "updated_at_unix": 1791963365.5242786,
+    "service": "NRestarts=0\nActiveState=active\nSubState=running\nUnitFileState=enabled\n"
+  }
+}

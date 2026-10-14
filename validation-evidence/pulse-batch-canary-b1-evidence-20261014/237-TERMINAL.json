@@ -1,0 +1,71 @@
+{
+  "automatic_promotion": false,
+  "batch_call_ms_repeated_per_scored_row": {
+    "maximum": 89.78768577799201,
+    "minimum": 13.940430246293545,
+    "p50": 19.52173886820674,
+    "p95": 26.44324582070112,
+    "p99": 31.939007444307197,
+    "samples": 16380
+  },
+  "elapsed_seconds": 300.20612605987117,
+  "feature_window_end_to_score_seconds": {
+    "maximum": 0.6669015884399414,
+    "minimum": 0.07947468757629395,
+    "p50": 0.2268892526626587,
+    "p95": 0.4239155650138855,
+    "p99": 0.47382506608963004,
+    "samples": 16380
+  },
+  "finished_at_unix": 1791963202.5552368,
+  "frames": 589,
+  "incomplete_trailing_bytes": 607,
+  "incomplete_trailing_snapshots": 4,
+  "issues": {},
+  "kernel_to_alert": null,
+  "pipeline_frame_processing_ms": {
+    "maximum": 668.1389999575913,
+    "minimum": 18.817048985511065,
+    "p50": 435.3204481303692,
+    "p95": 499.84796615317464,
+    "p99": 533.2527628727257,
+    "samples": 589
+  },
+  "precision": null,
+  "preview_positive_pending_adjudication": {
+    "production/aims-kafka-dual-role:kafka": 2,
+    "production/aims-postgres-cnpg:postgres": 3,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 22,
+    "production/aims-redis:aims-redis": 1,
+    "production/api-gateway:app": 9,
+    "production/auth-service:app": 11,
+    "production/cart-service:app": 7,
+    "production/catalog-service:app": 8,
+    "production/inventory-service:app": 9,
+    "production/notification-service:app": 7,
+    "production/order-service:app": 12,
+    "production/payment-service:app": 17,
+    "production/search-recommendation-service:app": 7,
+    "production/security-telemetry-service:app": 24
+  },
+  "recall": null,
+  "scored_rows_by_batch_size": {
+    "1": 5850,
+    "2": 7020,
+    "3": 3510
+  },
+  "seals": {
+    "decisions.jsonl": "e059d684e3d7d9a9b94f1fee1c518344aa7cfcaa508d474b306583b31d8e1e22",
+    "features.jsonl": "ba21fdf1be339d474c061414ae0c8c7cde509e49483040e4c07022c833009f44",
+    "issues.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loader.log": "06175a3ce3b5a286737cfff9783c855a3dd316f20175f43a4106c1bf160ab080",
+    "raw.jsonl": "a0ae3baa54b66ade45ee75811a72b1bac49e98a2a34c2f4e24093f0ea4470445"
+  },
+  "start_sha256": "604485d57bac3765bf7c59e2774206a0fbfaff8f5f741857d963391c50aff7c0",
+  "state": "completed_timing_canary",
+  "statuses": {
+    "candidate-model-unavailable": 31752,
+    "candidate-raw-score-only": 16380,
+    "warming": 84
+  }
+}

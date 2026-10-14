@@ -2,10 +2,11 @@
 
 ## Kết luận từ kiểm tra trực tiếp
 
-SSH ngày **14/10/2026, khoảng 09:01 UTC+7** xác nhận C3 chưa kết thúc như ETA
-05:30–06:00 trước đó. Bốn phase selection đầu đã đạt; `selection-recovery`
-có **15 attempt bị từ chối**, attempt 16 đang chạy. Không có model nào đang
-train, không có blind attack được inject trong khoảng này.
+SSH ngày **14/10/2026** xác nhận recovery **attempt 17 đã pass** trên ba worker
+sau amendment. C3 đã hoàn tất cả 10/10 phase, kể cả năm regime holdout.
+**16 attempt recovery bị từ chối** được giữ nguyên. ETA ban đầu không đạt do
+vòng retry bên dưới; không có model nào đang train hay attack được inject
+trong vòng thu normal này.
 
 Đây là lỗi giả định trong điều phối thí nghiệm, không phải chứng cứ model
 phát hiện sai hay bằng chứng HPA hoạt động sai. `NRestarts=0` của coordinator
@@ -61,16 +62,16 @@ xóa; không suy diễn từ tên error chung. Kubernetes events xác nhận sca
 - Service systemd có drop-in mới, được enable và active từ 09:05 UTC+7;
   tiếp tục độc lập với SSH. 40 test liên quan pass.
 
-## Phạm vi chưa xác nhận
+## Phạm vi kết luận
 
-Chưa được coi bước sửa này là capture recovery đã pass cho tới khi attempt
-mới có terminal và seal hợp lệ. Nếu workload tiếp tục autoscale, runner sẽ
-đợi ổn định; 360 giây không bảo đảm workload không đổi trong tương lai.
+Terminal và seal của recovery attempt 17 đã được audit hợp lệ. Nếu workload
+tiếp tục autoscale, runner vẫn phải đợi ổn định; 360 giây không bảo đảm
+workload không đổi trong tương lai.
 Thí nghiệm hiện tại đánh giá những đoạn identity ổn định; chưa phải đánh giá
 detector xuyên suốt autoscaling/rollout. Các đoạn churn bị loại khỏi cohort
 phải được thống kê riêng, không gán normal/TN hoặc xóa evidence.
 
-Sau recovery còn năm regime holdout riêng. Thời gian tối thiểu cho sáu phase
-là 6 × (6 phút ổn định + 20 phút baseline/probe/post), chưa tính scale-down,
-rollout, copy, retry. ETA trước không còn dùng được; kiểm tra mới khoảng
-**12:00–12:30 ngày 14/10 (UTC+7)** nếu hạ tầng/identity ổn định.
+Năm regime holdout cũng đã hoàn tất. Bằng chứng mới nằm trong
+`validation-evidence/pulse-parallel-completion-20261014/c3-TERMINAL.json` và
+hai preflight-complete JSON cùng thư mục. Kết quả này xác nhận sửa điều phối
+capture, không chứng minh model đã có recall/precision tốt hay hỗ trợ mọi rollout.

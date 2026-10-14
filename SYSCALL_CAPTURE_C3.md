@@ -2,11 +2,16 @@
 
 ## Mục tiêu và cách chạy
 
+Hiện hành SSH **14/10/2026**: C3 **đã hoàn tất 10/10 phase, 30/30 capture worker**,
+terminal `completed_frequency_collection`; service đã kết thúc bình thường.
+Selection/holdout đều được audit đủ 15 capture. C4 đang chấm holdout riêng,
+không tiếp tục attach probe C3. [Trạng thái hai nhánh](PULSE_PARALLEL_EXECUTION.md).
+
 C3 tiếp nối 608 model C2 đã đóng băng. Coordinator chạy bằng systemd trên
 `10.1.16.234`; ba worker `.237/.238/.239` thu dữ liệu. Coordinator đợi cả ba
 capture `normal-a1-20261013` có terminal `completed_observation`, đủ 86.400
 giây boundary exposure và không còn tiến trình `extended_collection` trước
-khi đổi tải. Soak Sentinel Pulse hiện hành tiếp tục theo cấu hình đã đăng ký.
+khi đổi tải. Capture soak đã hoàn tất; nó không bị C3 sửa hoặc restart.
 
 Service: `pulse-syscall-capture-c3.service`. Output chính trên NFS:
 `/mnt/sentinel-pulse-archive/syscall-capture-c3-r2`.
@@ -134,10 +139,10 @@ integrity và bốn window liền kề. Không gộp history qua gap, không coi
 thiếu model thành normal, không tính precision/recall. Audit chạy bằng source
 riêng, không ghi đè source collector/coordinator đang hoạt động.
 
-Kết quả selection hiện có (12 capture của bốn regime đầu): 313.318 rows,
-269.036 context đủ điều kiện đầu vào, 6.592 warming rows, 37.659 rows chưa có
-model, 31 rows ngoài probe; 2.492 lần reset history. Artifact:
-`/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/selection-preflight-20261014.json`.
+Kết quả đầy đủ: selection 390.195 rows / 333.877 context, holdout
+391.044 rows / 334.655 context. Artifact:
+`/mnt/sentinel-pulse-archive/syscall-capture-c3-r2/selection-preflight-complete-20261014.json`
+và `holdout-preflight-complete-20261014.json`.
 Chỉ số context chưa xác minh đầy đủ health/nhãn normal và không thay cho scoring.
 
 Trên `.234`:
@@ -146,6 +151,7 @@ Trên `.234`:
 systemctl status pulse-syscall-capture-c3.service --no-pager
 journalctl -u pulse-syscall-capture-c3.service -n 30 --no-pager
 python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-capture-c3-r2/STATUS.json
+python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-capture-c3-r2/TERMINAL.json
 ```
 
 `waiting_for_existing_soak` nghĩa là chưa đổi traffic/attach probe. Sau đó là

@@ -1,6 +1,6 @@
 # Mục lục tài liệu Sentinel Pulse
 
-Cập nhật bố cục: 12/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
+Cập nhật bố cục: 14/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
 tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
 Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
 
@@ -21,7 +21,8 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
 | [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md) | Job nhiều regime sau soak, holdout riêng, full-ID và 249 feature, lịch kiểm tra |
 | [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md) | Vòng retry do HPA/cgroup, evidence và amendment bước đợi ổn định |
-| [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Hai nhánh chạy song song: capture syscall và review soak Pulse có checkpoint |
+| [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Hai nhánh song song: C4 chấm holdout syscall và B2 canary batch Pulse |
+| [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) | Batch frozen model, bằng chứng tương đương, live latency B1 và canary ba worker B2 |
 | [SYSCALL_EXPERIMENT_TODO.md](SYSCALL_EXPERIMENT_TODO.md) | Checklist từ C2/normal capture đến blind attack và cross-ABI; trạng thái theo evidence |
 | [CLUSTER_READINESS.md](CLUSTER_READINESS.md) | Snapshot readiness cụm, DiskPressure đã hồi phục và kiểm chứng workload sau cleanup |
 | [SYSCALL_SELECTION_PILOT.md](sentinel_pulse/SYSCALL_SELECTION_PILOT.md) | Build/pilot histogram syscall-ID exact, receipt regimes và gộp nhiều capture |
