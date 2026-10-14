@@ -45,7 +45,7 @@ tài liệu), `67b9585` (canary/review và C6), `703bb73` (status/audit),
   nhất không còn link nội bộ gãy. Quét các pattern secret phổ biến không tìm
   private key, GitHub token hay access-key literal trong source đã quét. Đây
   là heuristic, không thay thế secret scanner chuyên dụng.
-- Repo có **2.044 tracked files**, trong đó 1.364 nằm dưới
+- Repo có **2.045 tracked files**, trong đó 1.364 nằm dưới
   `validation-evidence/`; kích thước worktree khoảng **1,4 GiB**, phần lớn là
   evidence/raw. `.gitignore` loại một số JSONL/pickle lớn, nhưng các lần commit
   evidence vẫn cần allow-list và kiểm tra dung lượng.
