@@ -792,10 +792,40 @@ Precision benchmark với tỷ lệ attack/normal cân bằng không tự đại
 
 ### 16.4. Feature nào ảnh hưởng output nhiều nhất?
 
-- **Impurity importance:** mô tả cách cây dùng feature khi fit; có thể lệch theo số giá trị/sự tương quan, không phải nhân quả.
-- **Permutation importance:** làm xáo trộn feature trên tập đánh giá, xem metric giảm bao nhiêu. Với temporal context cần thử nhóm bốn lag của một feature/syscall, không phá history tùy tiện.
-- **Ablation:** train lại khi bỏ/giữ/thêm nhóm feature rồi so sánh paired outcomes; đo utility của thiết kế, không chỉ ảnh hưởng một lần dự đoán.
-- **Giải thích từng prediction:** cho biết vì sao output đó cao/thấp trong model; chưa thay ground truth hoặc chứng minh process là root cause.
+1. Impurity importance
+
+ExtraTrees là rừng cây quyết định. Mỗi lần cây chia node theo một feature, độ “lẫn lộn” (impurity) giảm đi một lượng. Cộng lượng giảm đó trên mọi cây, mọi node, theo từng feature, ra điểm importance. Nó có sẵn sau khi fit, không tốn thêm chi phí.
+
+Điểm yếu:
+
+Thiên vị feature có nhiều giá trị khác nhau (liên tục) hơn feature ít giá trị, vì chúng có nhiều ngưỡng chia hơn.
+Feature tương quan nhau thì điểm bị chia nhau. Ví dụ log_count:read và ratio:read mang thông tin gần giống nhau, mỗi cái nhận một nửa, trông đều “không quan trọng” dù cặp đó rất quan trọng.
+Nó chỉ nói cây đã dùng feature này nhiều, không nói bỏ feature này thì model tệ đi. Và càng không phải nhân quả.
+2. Permutation importance
+
+Làm trên tập đánh giá, sau khi model đã train xong:
+
+Đo metric gốc.
+Xáo ngẫu nhiên các giá trị của một feature giữa các mẫu (phá quan hệ giữa feature đó và nhãn/hành vi).
+Đo lại metric. Metric giảm nhiều nghĩa là model phụ thuộc feature đó.
+
+Điểm đặc biệt của dự án: input là context 996 chiều gồm 4 thời điểm (3 trước + hiện tại). Một syscall như connect xuất hiện ở bốn vị trí lag. Nếu xáo từng chiều riêng lẻ thì phá history một cách vô nghĩa (vector không còn là chuỗi thời gian có thể xảy ra). Nên báo cáo yêu cầu xáo cả nhóm bốn lag của một feature/syscall cùng lúc, giữ cấu trúc thời gian.
+
+Điểm yếu: feature tương quan vẫn làm kết quả sai lệch (xáo cái này, cái kia còn bù lại). Ngoài ra nó cần một metric có nhãn mới đo được, mà hiện chưa có ground truth cho candidate hiện hành.
+
+3. Ablation
+
+Bỏ (hoặc giữ, hoặc thêm) một nhóm feature, train lại model, rồi so sánh kết quả giữa các biến thể trên cùng trial (paired). Đây chính là bộ 608 model C2.
+
+Khác permutation ở chỗ: permutation hỏi “model này dựa vào feature nào”, còn ablation hỏi “thiết kế có cần feature này không”, vì model được train lại và có thể bù bằng feature khác. Vì thế báo cáo nói ablation đo utility của thiết kế.
+
+Điểm yếu: tốn kém (train lại nhiều lần), và hiện mới có raw positives, chưa có attack outcomes, nên chưa kết luận được. Ví dụ no_explicit_channels flag ít nhất nhưng chưa biết có bỏ lỡ attack không.
+
+4. Giải thích từng prediction
+
+Trả lời câu hỏi cục bộ: “với riêng record này, vì sao score cao?” (ví dụ chỉ ra mprotect tăng đột biến đẩy điểm lên). Hữu ích để review một preview cụ thể.
+
+Giới hạn báo cáo nhấn mạnh: nó giải thích model, không giải thích thực tế. Model báo cao vì feature X lạ, không chứng minh process nào là root cause hay đó là attack. Vẫn cần ground truth và RCA.
 
 Nguồn phương pháp: [permutation importance của scikit-learn](https://scikit-learn.org/stable/modules/permutation_importance.html). Chưa có bảng kết luận syscall tối ưu dựa trên fresh blind recall của tất cả biến thể. Tần suất, raw-flag counts và feature importance là ba loại evidence khác nhau.
 
@@ -904,29 +934,6 @@ RCA là phân tích nguyên nhân gốc: nối evidence từ process cha/con, sy
 MCP là giao thức tích hợp tool/ngữ cảnh cho agent, không phải điều kiện để ExtraTrees hoạt động. LSTM/GAT, agent graph và policy legacy có thể nằm trong repo nhưng không thuộc inference path của candidate đang báo cáo. RBAC hạn chế quyền, runtime security quan sát hành vi thực thi: hai lớp bổ sung nhau, không thay thế nhau.
 
 Dự án có nhiều thực hành **MLOps**: versioning dữ liệu/model, feature contract, freeze/checksum, môi trường runtime, shadow/canary, giám sát drift/lag, checkpoint/recovery, evaluation và audit. Tuy vậy đây là framework nghiên cứu đang phát triển, không mặc nhiên đã có đầy đủ model registry, CI/CD promotion và production SLO được chứng minh.
-
-## 20. Công việc tiếp theo và tiêu chuẩn kết luận
-
-| Việc | Trạng thái/kết quả cần có |
-|---|---|
-| Soak A1/B2 | Đã hoàn thành; giữ kết quả, không chạy lại từ đầu để xóa preview hoặc issue |
-| Đối soát A1 | Giải thích chênh 565 feature/decision; báo coverage thực |
-| Addition study A2 | Đã hoàn tất 105/105 exploratory models trên C3 đã lộ; không có blind attack, recall/FPR/confusion matrix |
-| Matched syscall experiment | Capture 500 ms đang chạy; R3 fit 627/693, R4 sửa sealed selection đang chạy lại; cần holdout và attack paired cho các arm |
-| Label review | Adjudicate normal, preview và unknown; ghi căn cứ, không chỉ đổi tên raw positive thành FP |
-| New blind trials | Chưa chạy; sau khi normal cohort/candidate/arms freeze, dùng binary/cases mới, cùng target/horizon cho so sánh paired |
-| Ba scenario 0-hit | Đã chạy lại trong 315 cặp development trên candidate idle-aware; cần phân tích theo scenario, coverage và miss, rồi xác nhận trên blind set mới |
-| Đánh giá đồng đơn vị | Precision/recall/FPR/coverage, miss và unknown; model-only và policy tách biệt |
-| Thống kê | Block bootstrap CI theo epoch/capture phụ thuộc, paired comparison và hiệu chỉnh nhiều kiểm định; không coi window chồng lấn là mẫu độc lập |
-| Chọn tập syscall | Cân nhắc recall, false alerts, latency, overhead và diễn giải; không chọn chỉ vì ít raw flags |
-| Xác nhận đúng observable | Tập syscall mới cần schema/model riêng và xác nhận ở cadence 500 ms/extended observable trước khi thay Pulse |
-| Realtime | Fresh kernel timestamp → decision/alert đúng target; báo cả những trial không phát hiện |
-| Overhead | A/B có lặp CPU/RAM/HTTP/throughput của stack thật |
-| Generalization | Pod-version/unseen-workload/cross-kernel/distro/ABI theo máy có thực; không suy rộng từ sáu Ubuntu node |
-
-Không thể chứng minh “tối ưu tuyệt đối” trên mọi tổ hợp syscall/threat model chỉ bằng một bộ thử. Kết luận có thể bảo vệ được là **tập tốt hơn trong các cấu hình, dữ liệu và ngân sách đã đăng ký**, có trade-off và khoảng bất định.
-
-Hiện đã có kết quả kỹ thuật đáng kể: capture thật, soi lỗi visibility, phát hiện lỗi profile, lưu đủ biến thể, sửa backlog và canary batch hoàn thành. Nhưng còn thiếu blind validation của candidate mới, nhãn chất lượng, overhead A/B và generalization. Vì vậy **chưa kết luận production-stable hoặc đủ bằng chứng cho world-class paper**; không gán phần trăm hoàn thành tùy ý thay các tiêu chí này.
 
 ## 21. Thuật ngữ tra cứu
 
