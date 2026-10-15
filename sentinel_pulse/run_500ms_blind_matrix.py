@@ -32,6 +32,7 @@ CONTROLLER_BINARY_PATHS = {
     # Istio waypoint is distroless with a read-only root. This path is inside
     # its writable emptyDir mount and is allowlisted by the provenance policy.
     "aims-waypoint": "/etc/istio/proxy/sentinel-runtime-attack-blind",
+    "aims-rabbitmq-server": "/operator/sentinel-runtime-attack-blind",
 }
 PRIMARY_CONTAINER_ORDER = (
     "app", "web", "kafka", "postgres", "rabbitmq", "aims-redis",

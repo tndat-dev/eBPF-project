@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 from sentinel_pulse.matched_study import arm_specs, contexts, SECURITY
+from sentinel_pulse.matched_study import sealed_selection_files
 from sentinel_pulse.features import TRACKED_SYSCALLS
 
 
@@ -37,3 +38,29 @@ def test_matched_contexts_recompute_rolling_and_reset_at_temporal_split():
 def test_group_drop_keeps_hash_and_transition_information():
     data=contexts(rows(),dict(add=[],drop=[43,288]),10,90)
     assert data['train'].shape[1]==4*(249-8)
+
+
+def test_selection_waits_for_sealed_tail_and_skips_later_segments(tmp_path):
+    import json
+    from sentinel_pulse.integrity import sha256_file
+    def segment(index, end, sealed=True):
+        directory=tmp_path/'segments'/f's{index:05d}'
+        directory.mkdir(parents=True)
+        path=directory/'features.jsonl'
+        path.write_text(json.dumps(dict(window_end=end))+'\n')
+        if sealed:
+            (directory/'TERMINAL.json').write_text(json.dumps(
+                dict(seals={'features.jsonl':sha256_file(path)})))
+        return path
+    old=segment(1,90)
+    first=segment(2,150)
+    tail=segment(3,210,False)
+    assert sealed_selection_files(tmp_path,200,100)==([],150)
+    (tail.parent/'TERMINAL.json').write_text(json.dumps(
+        dict(seals={'features.jsonl':sha256_file(tail)})))
+    segment(4,300)
+    assert sealed_selection_files(tmp_path,200,100)==([first,tail],210)
+
+
+def test_empty_selection_coverage_is_json_null(tmp_path):
+    assert sealed_selection_files(tmp_path,200)==([],None)

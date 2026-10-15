@@ -11,6 +11,7 @@ ALLOWED_PATHS = {
     '/tmp/sentinel-runtime-attack-blind',
     '/run/sentinel-runtime-attack-blind',
     '/etc/istio/proxy/sentinel-runtime-attack-blind',
+    '/operator/sentinel-runtime-attack-blind',
 }
 
 

@@ -71,6 +71,32 @@ def contexts(rows, spec, start, stop):
     return {phase:np.stack(items) for phase,items in result.items() if items}
 
 
+def sealed_selection_files(worker_root, selection_end, selection_start=0):
+    """Return sealed feature files only after the last one covers selection end."""
+    files=[];latest_end=None
+    for terminal_path in sorted(worker_root.glob('segments/s*/TERMINAL.json')):
+        segment=terminal_path.parent
+        feature_path=segment/'features.jsonl'
+        terminal=json.loads(terminal_path.read_text())
+        if not terminal.get('seals',{}).get(feature_path.name):
+            raise ValueError('feature segment has no seal: '+str(feature_path))
+        with feature_path.open('rb') as stream:
+            stream.seek(max(0,feature_path.stat().st_size-1024**2))
+            if stream.tell():stream.readline()
+            last=None
+            for line in stream:
+                if line.endswith(b'\n'):
+                    row=json.loads(line)
+                    if 'window_end' in row:last=max(last or float('-inf'),float(row['window_end']))
+        if last is not None:
+            latest_end=max(latest_end or last,last)
+            if last>=selection_start:files.append(feature_path)
+            if last>=selection_end:break
+    if latest_end is None or latest_end < selection_end:
+        return [],latest_end
+    return files,latest_end
+
+
 def run(config_path):
     cfg=json.loads(config_path.read_text());root=Path(cfg['study_output']);root.mkdir(parents=True,exist_ok=True)
     lock=(root/'study.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -87,26 +113,35 @@ def run(config_path):
     if (root/'TERMINAL.json').exists():return
     end=cfg['selection_end']
     while True:
-        files=[];ready=True
+        files=[];ready=True;coverage={};waiting={}
         for worker in cfg['workers'].values():
             worker_root=Path(worker['output'])
             try:
                 state=json.loads((worker_root/'STATUS.json').read_text())
                 if state.get('completed_seconds',0)<cfg['selection_seconds']:ready=False
-                parts=sorted(worker_root.glob('segments/s*/TERMINAL.json'))
-                files.extend(p.parent/'features.jsonl' for p in parts)
-            except (OSError,ValueError):ready=False
+                sealed,latest=sealed_selection_files(worker_root,end,cfg['selection_start'])
+                coverage[state.get('node_name',worker['node_name'])]=latest
+                if not sealed:ready=False
+                files.extend(sealed)
+            except (OSError,ValueError) as exc:
+                ready=False;waiting[worker['node_name']]=str(exc)
         if time.time()>=end+60 and ready and len(files)>=3:break
         atomic_json(root/'STATUS.json',dict(state='waiting_for_clean_selection_capture',
-            selection_end=end,sealed_feature_files=len(files),updated_at_unix=time.time()))
+            selection_end=end,sealed_feature_files=len(files),sealed_coverage_end=coverage,waiting_reasons=waiting,
+            updated_at_unix=time.time()))
         time.sleep(30)
     index_path=root/'INPUTS.json'
     if not index_path.exists():
         inputs=[]
         for path in files:
-            inputs.append(dict(path=str(path),sha256=sha256_file(path)))
+            digest=sha256_file(path)
+            terminal=json.loads((path.parent/'TERMINAL.json').read_text())
+            if terminal['seals'].get(path.name)!=digest:
+                raise ValueError('sealed feature segment hash mismatch: '+str(path))
+            inputs.append(dict(path=str(path.resolve()),sha256=digest))
         excluded=[]
         journals=[Path(cfg['campaign_output'])/'INTERVALS.jsonl',
+                  *[Path(p)/'INTERVALS.jsonl' for p in cfg.get('prior_campaign_outputs',[])],
                   *config_path.parent.glob('evaluator-smoke*/INTERVALS.jsonl')]
         for journal in journals:
             if not journal.exists():continue
@@ -144,7 +179,7 @@ def run(config_path):
             for f in handles.values():f.close()
         defined=cfg['native_syscall_ids']
         index=dict(arms=arm_specs(counts,defined),training_counts={str(k):v for k,v in counts.items()},
-            workloads={k:dict(path=f.name,sha256=sha256_file(Path(f.name))) for k,f in handles.items()},
+            workloads={k:dict(path=str(Path(f.name).resolve()),sha256=sha256_file(Path(f.name))) for k,f in handles.items()},
             missing_workloads=sorted(set(cfg['workload_keys'])-set(handles)),
             input_manifest_sha256=sha256_file(index_path),columns=columns,
             hash_and_sensitive_aggregate_information_retained_in_group_ablations=True,

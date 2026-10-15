@@ -35,8 +35,18 @@ def evaluate_interval(rows, trial, model_hash, policy_hash):
         a, b = float(row.get('window_start', 0)), float(row.get('window_end', 0))
         if not (math.isfinite(a) and math.isfinite(b)) or b <= begin or a >= finish:
             continue
-        if (row.get('candidate_manifest_sha256') != model_hash
-                or row.get('policy_sha256') != policy_hash):
+        # Warming has no policy decision/hash. It contributes no scored
+        # exposure, but is an expected recovery state rather than a mismatch.
+        scored = row.get('status') == 'candidate-raw-score-only'
+        if any(value is not None and value != expected for value, expected in (
+                (row.get('candidate_manifest_sha256'), model_hash),
+                (row.get('policy_sha256'), policy_hash))):
+            issues.append('model_or_policy_binding_mismatch')
+            continue
+        if not scored:
+            continue
+        if (row.get('candidate_manifest_sha256') is None
+                or row.get('policy_sha256') is None):
             issues.append('model_or_policy_binding_mismatch')
             continue
         if (row.get('alert') is not False or row.get('policy_applied') is not False

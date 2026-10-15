@@ -61,6 +61,24 @@ def test_missing_kernel_provenance_retained_as_unknown():
     assert evaluate_interval(rows,trial,'a'*64,'b'*64)['outcome']=='unknown'
 
 
+def test_warming_without_policy_binding_reduces_exposure_without_false_mismatch():
+    trial,rows=fixtures('expected_normal')
+    rows[0].update(status='warming',policy_sha256=None,eligible_for_normal_review=False)
+    result=evaluate_interval(rows,trial,'a'*64,'b'*64)
+    assert result['outcome']=='TN_expected'
+    assert result['scored_seconds']==14.5
+    assert result['issues']==[]
+    rows[0]['candidate_manifest_sha256']='c'*64
+    assert evaluate_interval(rows,trial,'a'*64,'b'*64)['outcome']=='unknown'
+
+
+def test_scored_row_without_policy_hash_remains_invalid():
+    trial,rows=fixtures('expected_normal');rows[0]['policy_sha256']=None
+    result=evaluate_interval(rows,trial,'a'*64,'b'*64)
+    assert result['outcome']=='unknown'
+    assert result['issues']==['model_or_policy_binding_mismatch']
+
+
 def test_full_id_projection_and_delta_share_exact_same_words():
     counts={0:2,202:8};bins=[0]*64
     for k,v in counts.items():bins[((k*2654435761)&0xffffffff)>>26]+=v

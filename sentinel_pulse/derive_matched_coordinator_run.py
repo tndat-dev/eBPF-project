@@ -1,6 +1,7 @@
 """Fork study/campaign coordinators while keeping an active worker capture."""
 import argparse
 import json
+import math
 from pathlib import Path
 import re
 import subprocess
@@ -10,7 +11,7 @@ from .integrity import sha256_file
 
 
 def derive(capture_config, source, root, run_id, *, selection_delay=180,
-           selection_seconds=5400, attack_delay=120):
+           selection_seconds=5400, attack_delay=120, selection_start_at=None):
     if not re.fullmatch(r'[a-z0-9-]{3,60}', run_id):
         raise ValueError('unsafe coordinator run id')
     base=json.loads(capture_config.read_text())
@@ -38,8 +39,11 @@ def derive(capture_config, source, root, run_id, *, selection_delay=180,
     if sha256_file(binary)!=base['binary_hash']:
         raise ValueError('attack fixture differs from registered capture')
     exec_policy=source/'sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
-    root.mkdir(parents=True,exist_ok=False)
     now=time.time()
+    start=now+selection_delay if selection_start_at is None else float(selection_start_at)
+    if not math.isfinite(start) or start<=0 or selection_seconds<=0 or attack_delay<0:
+        raise ValueError('invalid selection timing')
+    root.mkdir(parents=True,exist_ok=False)
     cfg=dict(base)
     cfg.update(run_id=run_id,source=str(source),
         source_commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip(),
@@ -49,8 +53,8 @@ def derive(capture_config, source, root, run_id, *, selection_delay=180,
         exec_provenance_policy=str(exec_policy),
         exec_provenance_policy_sha256=sha256_file(exec_policy),
         coordinator_parent_config_sha256=sha256_file(capture_config),
+        prior_campaign_outputs=sorted(set(base.get('prior_campaign_outputs',[])+[base['campaign_output']])),
         derived_at_unix=now)
-    start=now+selection_delay
     cfg.update(selection_start=start,selection_seconds=selection_seconds,
                selection_end=start+selection_seconds,
                attack_not_before=start+selection_seconds+attack_delay)
@@ -66,9 +70,11 @@ if __name__=='__main__':
     p.add_argument('--root',type=Path,required=True)
     p.add_argument('--run-id',required=True)
     p.add_argument('--selection-delay',type=int,default=180)
+    p.add_argument('--selection-start-at',type=float,
+                   help='Reuse an explicit capture boundary for a corrected study; preserve parent registration')
     p.add_argument('--selection-seconds',type=int,default=5400)
     p.add_argument('--attack-delay',type=int,default=120)
     a=p.parse_args()
     print(derive(a.capture_config,a.source,a.root,a.run_id,
         selection_delay=a.selection_delay,selection_seconds=a.selection_seconds,
-        attack_delay=a.attack_delay))
+        attack_delay=a.attack_delay,selection_start_at=a.selection_start_at))
