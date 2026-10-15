@@ -1,0 +1,27 @@
+[Unit]
+Description=Sentinel Pulse expanded runtime RCA subscriber (read-only)
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dat
+EnvironmentFile=/etc/sentinel-pulse-rca/rca-runtime-events.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_RCA_SOURCE} /usr/bin/python3 -u -m sentinel_pulse.rca_service --config ${PULSE_RCA_CONFIG}
+Restart=always
+RestartSec=10
+TimeoutStopSec=35
+CPUQuota=200%
+MemoryMax=1G
+TasksMax=128
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-rca
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
