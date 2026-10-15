@@ -1,7 +1,7 @@
 {
-  "output": "/var/lib/sentinel-pulse-rca/parallel-20261015-r2",
-  "previous_output": "/var/lib/sentinel-pulse-rca/parallel-20261015",
-  "registration_reason": "Persist the evaluated policy receipt in each signal; preserve prior cases without backfilling their missing field",
+  "output": "/var/lib/sentinel-pulse-rca/parallel-20261015-r3",
+  "previous_output": "/var/lib/sentinel-pulse-rca/parallel-20261015-r2",
+  "registration_reason": "Open decision logs before inspecting size to revalidate NFS appends, and retain policy evaluation receipts; prior evidence is preserved",
   "kubeconfig": "/home/dat/.kube/config",
   "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
   "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",

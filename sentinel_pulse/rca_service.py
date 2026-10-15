@@ -56,10 +56,11 @@ def read_complete(path, offset, limit=1024*1024):
 
 
 def initial_offset(path):
-    size = path.stat().st_size
-    if not size:
-        return 0
     with path.open('rb') as stream:
+        # Open before inspecting length: NFS path.stat() can lag the writer.
+        size = stream.seek(0, os.SEEK_END)
+        if not size:
+            return 0
         stream.seek(max(0, size-65536)); data = stream.read()
     last = data.rfind(b'\n')
     if last < 0:
@@ -210,7 +211,10 @@ class Service:
             remaining = 2*1024**2
             for path in paths:
                 if remaining <= 0: break
-                st = path.stat(); off, ino = known.get(str(path), (0, st.st_ino))
+                # Revalidate NFS on open before the unchanged-size shortcut.
+                with path.open('rb') as probe:
+                    st = os.fstat(probe.fileno())
+                off, ino = known.get(str(path), (0, st.st_ino))
                 if st.st_ino != ino or st.st_size < off:
                     self.issue('decision_source_replaced_or_truncated', path=str(path))
                     # Preserve current receipt; use a new registration to re-admit a replaced source.
