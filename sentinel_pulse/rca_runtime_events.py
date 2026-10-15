@@ -54,6 +54,10 @@ def credentials(value):
                 for key in ('effective', 'permitted', 'inheritable') if isinstance(caps.get(key), list)}
     if selected:
         result['capabilities'] = selected
+    elif isinstance(value.get('caps'), dict) and not value['caps']:
+        # ProtoJSON omits empty repeated fields: an observed empty caps object
+        # means empty sets, unlike a missing credentials/caps observation.
+        result['capabilities'] = dict(effective=[], permitted=[], inheritable=[])
     return result
 
 
@@ -99,6 +103,10 @@ def normalize_runtime_event(record, target_index=None, *, policy_names=(POLICY, 
                 return None
             category, operation = SYSCALLS[function]
     details = {}
+    if operation == 'fork' and event.get('policy_name') == FORK_POLICY and len(args) == 2:
+        # Tetragon 1.6.1 does not serialize tracepoint argument labels.
+        # Position is bound to this versioned policy's parent_pid/child_pid order.
+        details.update(parent_pid=integer(args[0]), child_pid=integer(args[1]))
     for argument in args:
         label = argument.get('label')
         if label in INTEGER_LABELS:

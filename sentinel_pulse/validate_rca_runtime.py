@@ -121,6 +121,14 @@ def run(fixture, output):
     with (output/'TREE.md').open('x') as stream:
         stream.write(render_runtime_markdown(tree))
     nodes = {n['id'] for n in tree['nodes']}
+    checks['fork_pid_arguments'] = any(e['operation'] == 'fork'
+        and e['details'].get('parent_pid') == e['source'].get('pid')
+        and (e['details'].get('child_pid') or 0) > 0 for e in normalized)
+    checks['fork_child_exec_link'] = any(e['relation'] == 'observed_child_exec' for e in tree['edges'])
+    checks['child_exit_status'] = any(e['operation'] == 'exit' and e['outcome'].get('exit_status') == 3 for e in normalized)
+    checks['empty_capabilities_observed'] = any(e['operation'] == 'commit_creds'
+        and e['details'].get('new_credentials', {}).get('capabilities') == dict(effective=[], permitted=[], inheritable=[])
+        for e in normalized)
     checks['no_dangling_edges'] = all(e['source'] in nodes and e['target'] in nodes for e in tree['edges'])
     checks['no_argv_or_file_payload'] = not any(k in json.dumps(normalized) for k in ('SECRET_ARG', 'RCA-proof\\n'))
     report = dict(state='completed_observability_validation' if all(checks.values()) else 'completed_with_missing_evidence',

@@ -165,3 +165,13 @@ def test_manual_observability_fixture_is_not_an_ml_alert():
                   trigger_purpose='manual_observability_validation')
     tree = build_runtime_tree(signal, [normalize_runtime_event(record('sys_mount', ret=-1))])
     assert tree['trigger_kind'] == 'manual_observability_validation'
+
+
+def test_live_v161_tracepoint_omits_labels_and_proto_omits_empty_capabilities():
+    from sentinel_pulse.rca_runtime_events import FORK_POLICY, credentials
+    raw = dict(node_name='worker1', time=99., process_tracepoint=dict(process=process(),
+        policy_name=FORK_POLICY, subsys='sched', event='sched_process_fork',
+        args=[dict(int_arg=21), dict(int_arg=22)]))
+    assert normalize_runtime_event(raw)['details'] == dict(parent_pid=21, child_pid=22)
+    assert credentials({'caps': {}})['capabilities'] == dict(effective=[], permitted=[], inheritable=[])
+    assert 'capabilities' not in credentials({})

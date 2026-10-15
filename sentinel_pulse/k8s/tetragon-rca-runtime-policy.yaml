@@ -169,5 +169,7 @@ spec:
       event: sched_process_fork
       # Verified Linux 6.8 format: common fields occupy indices 0..3.
       args:
-        - {index: 5, type: int, label: parent_pid}
-        - {index: 7, type: int, label: child_pid}
+        # Infer scalar width from format; type=int yielded zero on v1.6.1.
+        # This release omits tracepoint labels in JSON: normalize by this order.
+        - {index: 5, type: auto, label: parent_pid}
+        - {index: 7, type: auto, label: child_pid}
