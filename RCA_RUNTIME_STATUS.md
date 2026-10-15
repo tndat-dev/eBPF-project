@@ -1,6 +1,6 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **15:42 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **15:44 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
@@ -12,19 +12,20 @@ bằng chứng cho lần chọn feature của Pulse kế tiếp; Pulse hiện ph
 Kết quả thí nghiệm syscall không tự đổi candidate đang freeze. Pulse hiện chưa
 phát operational alert, nên các case live hiện được kích hoạt từ preview.
 
-| Trạng thái live tại 15:41 UTC+7 | Giá trị |
+| Trạng thái live tại 15:44 UTC+7 | Giá trị |
 |---|---:|
 | Expanded RCA subscriber | `pulse-rca-runtime-events.service`, **active/enabled**, PID 284577, NRestarts=0 |
 | Connect-only subscriber | `pulse-rca-context.service`, **inactive/disabled**; output cũ được giữ nguyên |
 | Deployed source | `/home/dat/eBPF-project-current`, commit `15ef2dd`; deployed service source SHA khớp checkout |
 | Active output/config | `/var/lib/sentinel-pulse-rca/runtime-events-20261015-r2`; `/etc/sentinel-pulse-rca/runtime-events-20261015-r2.json` |
 | Runtime tracing policies | `sentinel-rca-runtime-v1`, `sentinel-rca-fork-v1`; namespace `production`, observation-only |
-| Ring behavior after capacity fix | 115.694 cumulative runtime events; current 180s ring ~58.000 events; no ring-cap drops in this run at snapshot |
+| Ring behavior after capacity fix | 205.976 cumulative runtime events; current 180s ring 55.842 events; no ring-cap drops in this run at snapshot |
 | Worker streams | 3 workers × policy+lifecycle; each stream had fresh events at audit |
-| Cases retained / structural audit | 59 emitted and audited; 0 structural/binding errors |
-| Full pre-window among cases | 16/59 had subscription before the complete 30s pre-window; 10/16 had runtime context |
-| Retained case context | 15/59 runtime context; 3/59 connect context; early cases include initial-tail/warm-up gap |
-| Retained preview→case latency | p50 9,91s; p95 13,61s; p99 13,61s (n=59; descriptive only) |
+| Cases retained / structural audit | 107 emitted and audited; 0 structural/binding errors |
+| Full pre-window among cases | 64/107 had subscription before the complete 30s pre-window; 58/64 had runtime context |
+| Retained case context | 63/107 runtime context; 3/107 connect context; early cases include initial-tail/warm-up gap |
+| Retained preview→case latency | p50 11,04s; p95 17,11s; p99 17,69s (n=107; descriptive only) |
+| Connect return evidence | 10 success, 13 in-progress, 4 failure in retained cases; EINPROGRESS is not final socket completion |
 | Probe in restricted production pod | 35 events → 59 nodes/78 edges; 19/23 checks; 4 namespace/mount checks had no matching Tetragon event |
 
 Fastcase connect-only đã được **dừng và disable**; dữ liệu/run cũ không bị xóa.
@@ -100,14 +101,14 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 | Policy | Hai `TracingPolicyNamespaced` observation-only trong `production` |
 | Tetragon stream | policy+lifecycle trên worker1, worker3, worker4; có event mới ở cả sáu stream tại snapshot |
 | Run/output hiện hành | `runtime-events-20261015-r2`; ring cap 120.000; run trước không bị xóa |
-| Case hiện tại | 59 retained; audit không tìm thấy lỗi cấu trúc/binding |
+| Case hiện tại | 107 retained; audit không tìm thấy lỗi cấu trúc/binding |
 | Runtime detail | Process/file/credential/ptrace đã thấy ở restricted probe; namespace/mount chưa có Tetragon event tương ứng |
 | Trigger | candidate_alert_preview, không phải alert production |
 | Tự thay model/enforce/cách ly | Không |
 
 Mở stream và có event ở node không chứng minh mọi workload hay mọi loại event
-đều được bao phủ. Trong 59 case r2, 56 thiếu connect context và 44 thiếu runtime
-context; chỉ 16 case có đủ 30 giây pre-window sau khi subscriber bắt đầu. Không
+đều được bao phủ. Trong 107 case r2, 104 thiếu connect context và 44 thiếu runtime
+context; 64 case có đủ 30 giây pre-window sau khi subscriber bắt đầu. Không
 được diễn giải những ô thiếu thành “không có hoạt động”.
 
 ## 3. Thuật ngữ cần hiểu
@@ -202,15 +203,15 @@ receipt thiếu. Đã sửa reader để mở file trước khi so độ dài, t
 append vì kích thước NFS còn cache. Lượt đăng ký mới dùng output riêng;
 Pulse và evaluator syscall tiếp tục chạy trong thời gian cập nhật subscriber.
 
-Audit SSH r2 hiện hành kiểm tra **59 case, không có lỗi cấu trúc/binding**;
-15 có runtime context và 3 có connect context. **43 case chưa có đủ history
-30 giây khi subscriber bắt đầu**; trong 16 case có đủ pre-window, 10 có runtime
+Audit SSH r2 hiện hành kiểm tra **107 case, không có lỗi cấu trúc/binding**;
+63 có runtime context và 3 có connect context. **43 case chưa có đủ history
+30 giây khi subscriber bắt đầu**; trong 64 case có đủ pre-window, 58 có runtime
 evidence và 6 không có event phù hợp trong cửa sổ. Retained preview→case p50/p95/p99
-lần lượt **9,91/13,61/13,61 giây**. Đây là mô tả các case được giữ, không phải
+lần lượt **11,04/17,11/17,69 giây**. Đây là mô tả các case được giữ, không phải
 latency bảo đảm. Audit không kiểm chứng raw event completeness, ground truth,
 confusion matrix hay causal root.
 
-Run r2 có **115.694 cumulative normalized events**, ring hiện giữ khoảng **58.000**
+Run r2 có **205.976 cumulative normalized events**, ring hiện giữ **55.842**
 event trong cửa sổ 180 giây. `issues.jsonl` có 10 mục khởi tạo/subscription, chưa
 có `event_ring_count_cap`. Đây là counters, không phải số event độc lập/attack.
 Run đầu đã lưu 105 ring-cap issues; giữ nguyên làm evidence. R3 cũ (495 case,
@@ -259,19 +260,19 @@ Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 | Expanded Tetragon subscriber (policy+lifecycle) ba worker | Đang chạy; active/enabled, NRestarts=0 tại kiểm tra; run r2 đã qua quan sát cửa sổ 180s không cap drop |
 | Connect-only subscriber | Đã stop/disable; output cũ giữ nguyên |
 | Normalize process/file/credential/network, không lấy payload | Có evidence production; coverage chưa đầy đủ |
-| Join preview có model/policy binding | Đang chạy; 59 case r2 audit không lỗi cấu trúc/binding |
+| Join preview có model/policy binding | Đang chạy; 107 case r2 audit không lỗi cấu trúc/binding |
 | Local context, durable case/cursor, bounded output | Đã có; restart process đã thử |
 | Cây và input evidence thật, replay normalized | Đã có |
 | Pod ngoài selector hoặc context thiếu | Đã đánh dấu; coverage chưa toàn workload |
 | Operational alert thật làm trigger | Chưa có vì Pulse chưa promote |
-| Kết quả connect thành công/thất bại | Chưa có return/flow receipt |
+| Kết quả connect syscall | Case r2: 10 success, 13 in-progress (`EINPROGRESS`), 4 failure; in-progress chưa phải xác nhận hoàn tất socket |
 | Production restricted fixture | 19/23 checks; process/file/credentials/ptrace thấy được, namespace/mount attempts EPERM nhưng không có Tetragon event tương ứng |
 | Namespace/mount trong fixture cô lập | Đã có kiểm chứng trước đây; không thay thế kiểm chứng production |
 | Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
 | Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
 | Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
-| Audit cấu trúc/binding của expanded cases | 59 audited, 0 structural/binding errors; không chứng minh event completeness hoặc causal accuracy |
-| Latency tới khi cây sẵn sàng | Expanded r2 retained cases n=59: preview→case p50 9,91s, p95 13,61s; descriptive only |
+| Audit cấu trúc/binding của expanded cases | 107 audited, 0 structural/binding errors; không chứng minh event completeness hoặc causal accuracy |
+| Latency tới khi cây sẵn sàng | Expanded r2 retained cases n=107: preview→case p50 11,04s, p95 17,11s, p99 17,69s; descriptive only |
 
 Fixture restricted production được lưu ở
 `/mnt/sentinel-pulse-archive/rca-production-runtime-validation-20261015-r2`:
@@ -284,12 +285,12 @@ cô lập trước đây có 24/24, nhưng không thay thế kết quả restric
 Probe không sinh ML alert, không phải blind attack, không tác động workload khác;
 Pod tạm đã xóa.
 
-Run r2 hiện active với cap 120.000 event, 59 case retained được audit không lỗi
-cấu trúc, nhưng chỉ 15 case có runtime context và 3 có connect context. Trong
-59 case, 43 case không có đủ 30 giây history trước lúc subscriber bắt đầu (tail
-NFS/warm-up); trong 16 case có đủ pre-window, 10 có runtime evidence và 6 không
-có event phù hợp trong cửa sổ. Vì vậy RCA vẫn thiếu coverage thực tế, dù service
-đã chạy và cấu trúc case qua audit.
+Run r2 hiện active với cap 120.000 event; 107 case audit không lỗi cấu trúc,
+63 có runtime context và 3 có connect context. Trong 107 case, 43 chưa có đủ
+30 giây history trước lúc subscriber bắt đầu (initial tail/warm-up); trong 64
+case có đủ pre-window, 58 có runtime evidence và 6 không có event phù hợp trong
+cửa sổ. Vì vậy RCA vẫn thiếu coverage thực tế, dù service đã chạy và cấu trúc
+case qua audit.
 
 ## 8. File, service và lệnh kiểm tra
 
