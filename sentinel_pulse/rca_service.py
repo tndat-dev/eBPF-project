@@ -20,6 +20,8 @@ import time
 
 from .rca_connect import kubernetes_target_index, normalize_connect_event
 from .rca_tree import build_tree, case_id, event_time, identity, render_markdown, trigger_kind
+from .rca_runtime_events import normalize_runtime_event
+from .rca_runtime_tree import build_runtime_tree, render_runtime_markdown
 
 
 def atomic(path, value):
@@ -77,7 +79,8 @@ class Service:
         self.db = database(self.root/'context.sqlite3')
         binding = dict(config_sha256=hashlib.sha256(config.read_bytes()).hexdigest(),
             source_sha256={name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                           for name in ('rca_service.py', 'rca_tree.py', 'rca_connect.py')})
+                           for name in ('rca_service.py', 'rca_tree.py', 'rca_connect.py',
+                                        'rca_runtime_events.py', 'rca_runtime_tree.py')})
         old = self.db.execute("select value from metadata where key='binding'").fetchone()
         if old and json.loads(old[0]) != binding:
             raise ValueError('RCA config/source changed; use a separate registered output')
@@ -87,6 +90,8 @@ class Service:
             atomic(self.root/'START.json', dict(binding=binding, registered_at=time.time(),
                 model_hash=self.cfg['model_hash'], policy_hash=self.cfg['policy_hash'],
                 trigger='candidate_alert_preview', automatic_response=False,
+                runtime_events=self.cfg.get('runtime_events', False),
+                telemetry_policy=self.cfg['connect_policy'],
                 previous_output=self.cfg.get('previous_output'),
                 registration_reason=self.cfg.get('registration_reason')))
         self.streams = {}; self.index = {}; self.inventory = {}; self.target_inventory = {}
@@ -122,21 +127,52 @@ class Service:
             and p['metadata'].get('labels', {}).get('app.kubernetes.io/name')=='tetragon'
             and p.get('status', {}).get('phase')=='Running'}
         targets = {p['metadata']['uid']: dict(name=p['metadata']['name'],
-            connect_policy_selected=p['metadata'].get('labels', {}).get('aims.hust.vn/runtime-hardened')=='true')
+            connect_policy_selected=bool(self.cfg.get('runtime_events') or
+                p['metadata'].get('labels', {}).get('aims.hust.vn/runtime-hardened')=='true'))
             for p in pods['items'] if p['metadata']['namespace']=='production'}
         return sensors, targets, kubernetes_target_index(pods, services, endpoints), time.time()
 
-    def start_stream(self, node, sensor):
+    def start_stream(self, node, sensor, channel='policy'):
         now = time.time()
         args = ['kubectl', 'exec', '-n', 'kube-system', sensor, '-c', 'tetragon', '--',
-            'tetra', 'getevents', '-o', 'json', '--policy-names', self.cfg['connect_policy'],
-            '--event-types', 'PROCESS_KPROBE']
+            'tetra', 'getevents', '-o', 'json']
+        if self.cfg.get('runtime_events') and channel == 'lifecycle':
+            args += ['--namespace', 'production', '--event-types', 'PROCESS_EXEC,PROCESS_EXIT']
+        else:
+            args += ['--policy-names', self.cfg['connect_policy'], '--event-types',
+                     'PROCESS_KPROBE,PROCESS_TRACEPOINT' if self.cfg.get('runtime_events') else 'PROCESS_KPROBE']
         child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             env=dict(os.environ, KUBECONFIG=self.cfg['kubeconfig']), start_new_session=True)
-        self.streams[node] = dict(child=child, buffer=b'', started_at=now, last_event_at=None,
-            normalized_events=0, sensor=sensor)
-        self.issue('tetragon_subscription_started', node=node, sensor=sensor,
+        key = node if channel == 'policy' else node+'/lifecycle'
+        self.streams[key] = dict(child=child, buffer=b'', started_at=now, last_event_at=None,
+            normalized_events=0, sensor=sensor, node_name=node, channel=channel)
+        self.issue('tetragon_subscription_started', node=node, sensor=sensor, channel=channel,
                    readiness='unconfirmed_until_event_received')
+
+    def ingest_event(self, raw, node):
+        if raw.get('node_name') != node:
+            raise ValueError('sensor node identity mismatch')
+        if raw.get('rate_limit_info') is not None or raw.get('process_throttle') is not None:
+            self.issue('tetragon_rate_limit_or_throttle', node=node)
+            return None
+        if self.cfg.get('runtime_events'):
+            edge = normalize_runtime_event(raw, self.index, policy_names=(self.cfg['connect_policy'],))
+        else:
+            edge = normalize_connect_event(raw, self.index, policy_name=self.cfg['connect_policy'])
+        if edge is None or edge['source']['namespace'] != 'production':
+            return None
+        if not edge['source']['pod_uid'] or not edge['source']['container_name']:
+            self.count('runtime_missing_identity')
+            return None
+        at = event_time(edge['observed_at'])
+        self.db.execute('insert or ignore into events values(?,?,?,?,?,?)',
+            (edge['raw_event_sha256'], at, node, edge['source']['pod_uid'],
+             edge['source']['container_name'], json.dumps(edge, separators=(',', ':'))))
+        if edge.get('operation', 'connect') == 'connect':
+            self.count('connect_events')
+        self.count('runtime_events')
+        self.count('runtime_category_'+edge.get('category', 'network'))
+        return edge
 
     def stop_stream(self, stream):
         child = stream['child']
@@ -150,30 +186,22 @@ class Service:
         lookup = {s['child'].stdout: (n, s) for n, s in self.streams.items()}
         readable = select.select(list(lookup), [], [], .1)[0] if lookup else []
         for pipe in readable:
-            node, stream = lookup[pipe]
+            key, stream = lookup[pipe]
+            node = stream['node_name']
             chunk = os.read(pipe.fileno(), 256*1024)
             if not chunk: continue
             stream['buffer'] += chunk
             if len(stream['buffer']) > 2*1024**2:
                 self.issue('oversized_tetragon_record', node=node)
-                self.stop_stream(stream); del self.streams[node]; continue
+                self.stop_stream(stream); del self.streams[key]; continue
             while b'\n' in stream['buffer']:
                 line, stream['buffer'] = stream['buffer'].split(b'\n', 1)
                 try:
                     raw = json.loads(line)
-                    if raw.get('node_name') != node:
-                        raise ValueError('sensor node identity mismatch')
-                    edge = normalize_connect_event(raw, self.index, policy_name=self.cfg['connect_policy'])
-                    if edge is None: continue
-                    if edge['source']['namespace'] != 'production': continue
-                    if not edge['source']['pod_uid'] or not edge['source']['container_name']:
-                        self.count('connect_missing_identity'); continue
-                    at = event_time(edge['observed_at'])
-                    self.db.execute('insert or ignore into events values(?,?,?,?,?,?)',
-                        (edge['raw_event_sha256'], at, node, edge['source']['pod_uid'],
-                         edge['source']['container_name'], json.dumps(edge, separators=(',', ':'))))
+                    edge = self.ingest_event(raw, node)
+                    if edge is None:
+                        continue
                     stream['last_event_at'] = time.time(); stream['normalized_events'] += 1
-                    self.count('connect_events')
                 except (ValueError, TypeError, KeyError):
                     self.count('invalid_or_unjoinable_events')
 
@@ -255,15 +283,25 @@ class Service:
                 query_event_cap=10001, query_event_cap_reached=len(source)==10001,
                 ring_retention_seconds=self.cfg['ring_seconds'],
                 initial_history_backfill=False)
-            tree = build_tree(row, [json.loads(e[0]) for e in source],
+            if self.cfg.get('runtime_events'):
+                coverage.update(runtime_policy=self.cfg['connect_policy'],
+                    runtime_policy_scope='production namespace, all pods',
+                    file_detail_sampling='500ms per process per open/write hook',
+                    lifecycle_subscription_started_at=self.streams.get(row['node_name']+'/lifecycle', {}).get('started_at'),
+                    last_runtime_event_received_at=stream.get('last_event_at'))
+                coverage.pop('last_connect_received_at', None)
+            builder = build_runtime_tree if self.cfg.get('runtime_events') else build_tree
+            tree = builder(row, [json.loads(e[0]) for e in source],
                 before_seconds=self.cfg['before_seconds'], after_seconds=self.cfg['after_seconds'], coverage=coverage)
             tree['created_at'] = now
             out = self.root/'cases'; out.mkdir(exist_ok=True)
             atomic(out/(cid+'.json'), tree)
             md = out/(cid+'.md'); temp = md.with_suffix('.md.tmp')
-            temp.write_text(render_markdown(tree)); os.replace(temp, md)
+            renderer = render_runtime_markdown if self.cfg.get('runtime_events') else render_markdown
+            temp.write_text(renderer(tree)); os.replace(temp, md)
             self.db.execute('update cases set emitted=1 where id=?', (cid,))
-            self.count('cases_emitted'); self.count('cases_without_connect_context', not source)
+            self.count('cases_emitted'); self.count('cases_without_connect_context', not tree['matched_connect_events'])
+            self.count('cases_without_runtime_context', not source)
 
     def maintenance(self):
         now = time.time()
@@ -307,13 +345,15 @@ class Service:
                     except Exception as exc: self.issue('inventory_unavailable', error_type=type(exc).__name__)
                     future = None
                 for worker in self.cfg['workers']:
-                    node = worker['node_name']; stream = self.streams.get(node)
-                    sensor = self.inventory.get(node)
-                    if stream and (stream['child'].poll() is not None or sensor and stream['sensor']!=sensor):
-                        self.issue('tetragon_stream_disconnected', node=node)
-                        self.stop_stream(stream); del self.streams[node]; retry[node] = now+5
-                    if node not in self.streams and sensor and now>=retry.get(node, 0):
-                        self.start_stream(node, sensor)
+                    node = worker['node_name']; sensor = self.inventory.get(node)
+                    for channel in (('policy', 'lifecycle') if self.cfg.get('runtime_events') else ('policy',)):
+                        key = node if channel == 'policy' else node+'/lifecycle'
+                        stream = self.streams.get(key)
+                        if stream and (stream['child'].poll() is not None or sensor and stream['sensor']!=sensor):
+                            self.issue('tetragon_stream_disconnected', node=node, channel=channel)
+                            self.stop_stream(stream); del self.streams[key]; retry[key] = now+5
+                        if key not in self.streams and sensor and now>=retry.get(key, 0):
+                            self.start_stream(node, sensor, channel)
                 self.drain_streams()
                 if now>=tail:
                     try: self.tail_decisions(); self.emit_cases()

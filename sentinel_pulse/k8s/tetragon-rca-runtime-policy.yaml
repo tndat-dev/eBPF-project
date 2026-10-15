@@ -1,0 +1,162 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-rca-runtime-v1
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: sentinel-pulse
+    sentinel.hust.vn/purpose: rca-evidence
+spec:
+  # Namespace scope includes all production workloads, not only hardened apps.
+  # Every action is observation-only; no Override, Signal or Sigkill action.
+  kprobes:
+    - call: sys_connect
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: socket_fd}
+        - {index: 1, type: sockaddr, label: destination}
+      returnArg: &result {index: 0, type: int64}
+    - call: sys_openat
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: dirfd}
+        - {index: 1, type: string, label: filename}
+        - {index: 2, type: int, label: flags}
+        - {index: 3, type: int, label: mode}
+      returnArg: *result
+      selectors: &fileSample
+        - matchActions:
+            - {action: Post, rateLimit: 500ms, rateLimitScope: process}
+    - call: sys_openat2
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: dirfd}
+        - {index: 1, type: string, label: filename}
+      returnArg: *result
+      selectors: *fileSample
+    - call: vfs_write
+      syscall: false
+      return: true
+      args:
+        - {index: 0, type: file, label: file}
+        - {index: 2, type: size_t, label: requested_bytes}
+      returnArg: *result
+      selectors: *fileSample
+    - call: vfs_writev
+      syscall: false
+      return: true
+      args:
+        - {index: 0, type: file, label: file}
+        - {index: 2, type: size_t, label: iov_count}
+      returnArg: *result
+      selectors: *fileSample
+    - call: sys_unlinkat
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: dirfd}
+        - {index: 1, type: string, label: filename}
+        - {index: 2, type: int, label: flags}
+      returnArg: *result
+    - call: sys_renameat2
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: old_dirfd}
+        - {index: 1, type: string, label: old_path}
+        - {index: 2, type: int, label: new_dirfd}
+        - {index: 3, type: string, label: new_path}
+        - {index: 4, type: int, label: flags}
+      returnArg: *result
+    - call: sys_setuid
+      syscall: true
+      return: true
+      args: [{index: 0, type: uint32, label: uid}]
+      returnArg: *result
+    - call: sys_setgid
+      syscall: true
+      return: true
+      args: [{index: 0, type: uint32, label: gid}]
+      returnArg: *result
+    - call: sys_setreuid
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: uint32, label: ruid}
+        - {index: 1, type: uint32, label: euid}
+      returnArg: *result
+    - call: sys_setregid
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: uint32, label: rgid}
+        - {index: 1, type: uint32, label: egid}
+      returnArg: *result
+    - call: sys_setresuid
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: uint32, label: ruid}
+        - {index: 1, type: uint32, label: euid}
+        - {index: 2, type: uint32, label: suid}
+      returnArg: *result
+    - call: sys_setresgid
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: uint32, label: rgid}
+        - {index: 1, type: uint32, label: egid}
+        - {index: 2, type: uint32, label: sgid}
+      returnArg: *result
+    - {call: sys_capset, syscall: true, return: true, returnArg: *result}
+    - call: commit_creds
+      syscall: false
+      return: true
+      args: [{index: 0, type: cred, label: new_credentials}]
+      returnArg: *result
+    - call: sys_setns
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: int, label: namespace_fd}
+        - {index: 1, type: int, label: namespace_flags}
+      returnArg: *result
+    - call: sys_unshare
+      syscall: true
+      return: true
+      args: [{index: 0, type: uint64, label: namespace_flags}]
+      returnArg: *result
+    - call: sys_mount
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: string, label: mount_source}
+        - {index: 1, type: string, label: mount_target}
+        - {index: 2, type: string, label: filesystem}
+        - {index: 3, type: uint64, label: flags}
+      returnArg: *result
+    - call: sys_umount
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: string, label: mount_target}
+        - {index: 1, type: int, label: flags}
+      returnArg: *result
+    - call: sys_ptrace
+      syscall: true
+      return: true
+      args:
+        - {index: 0, type: uint64, label: ptrace_request}
+        - {index: 1, type: int, label: target_pid}
+        - {index: 2, type: uint64, label: target_address}
+      returnArg: *result
+  tracepoints:
+    - subsystem: sched
+      event: sched_process_fork
+      # Verified Linux 6.8 format: common fields occupy indices 0..3.
+      args:
+        - {index: 5, type: int, label: parent_pid}
+        - {index: 7, type: int, label: child_pid}

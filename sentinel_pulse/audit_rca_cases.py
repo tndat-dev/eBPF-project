@@ -14,7 +14,7 @@ from .integrity import sha256_file
 
 def validate(tree, model_hash, policy_hash):
     errors = []
-    if tree.get('schema') != 'sentinel-pulse-rca-evidence-tree-v1':
+    if tree.get('schema') not in ('sentinel-pulse-rca-evidence-tree-v1', 'sentinel-pulse-rca-evidence-tree-v2'):
         return ['unsupported_case_schema']
     nodes = tree.get('nodes', [])
     signal = [node for node in nodes if node.get('kind') == 'signal']
@@ -48,8 +48,24 @@ def validate(tree, model_hash, policy_hash):
         digest = node.get('evidence_sha256', '')
         if len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest):
             errors.append('missing_connect_evidence_hash')
-        if node.get('success') != 'unknown_no_return_probe':
+        if tree['schema'].endswith('-v1'):
+            if node.get('success') != 'unknown_no_return_probe':
+                errors.append('unsupported_connection_success_claim')
+        elif node.get('outcome', {}).get('return_observed') is True:
+            from .rca_runtime_events import outcome
+            result = node['outcome']
+            if outcome(result.get('return_value'), 'connect') != result or node.get('success') != result['status']:
+                errors.append('connection_result_differs_from_kernel_return')
+        elif node.get('success') not in ('unknown', 'unknown_no_return_probe'):
             errors.append('unsupported_connection_success_claim')
+    runtime = [node for node in nodes if node.get('kind') == 'runtime_event']
+    for node in runtime:
+        digest = node.get('evidence_sha256', '')
+        if len(digest) != 64 or any(c not in '0123456789abcdef' for c in digest):
+            errors.append('missing_runtime_evidence_hash')
+        result = node.get('outcome', {})
+        if result.get('status') in ('success', 'failure') and result.get('return_observed') is not True:
+            errors.append('runtime_result_has_no_kernel_return')
     if tree.get('causal_root_confirmed') is not False or tree.get('automatic_response') is not False:
         errors.append('unsupported_causal_or_response_claim')
     if tree.get('application_payload_captured') is not False or tree.get('affects_model_decision') is not False:
@@ -76,6 +92,7 @@ def audit(config):
         counts['cases_with_errors'] += bool(errors)
         counts['cases_without_connect_context'] += not tree.get('matched_connect_events')
         counts['cases_with_connect_context'] += bool(tree.get('matched_connect_events'))
+        counts['cases_with_runtime_context'] += bool(tree.get('matched_runtime_events'))
         counts['cases_truncated'] += tree.get('truncated') is True
         counts['cases_outside_connect_selector'] += tree.get('coverage', {}).get('connect_policy_selected') is False
         counts['cases_stale_inventory'] += (tree.get('coverage', {}).get('inventory_age_seconds') or 0) > 120
