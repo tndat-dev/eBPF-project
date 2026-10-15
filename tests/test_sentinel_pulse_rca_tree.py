@@ -151,6 +151,9 @@ def test_case_generation_is_idempotent_and_records_empty_context(tmp_path, monke
     doc = json.loads(next((srv.root/'cases').glob('*.json')).read_text())
     assert doc['matched_connect_events']==0
     assert doc['coverage']['connect_policy_selected'] is None
+    assert doc['nodes'][0]['trigger']['policy_evaluated'] is True
+    from sentinel_pulse.audit_rca_cases import validate
+    assert validate(doc, 'model', 'policy') == []
     srv.db.close(); srv.lock.close()
 
 

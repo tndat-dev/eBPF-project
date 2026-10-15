@@ -22,6 +22,8 @@ def validate(tree, model_hash, policy_hash):
         return ['missing_or_duplicate_signal']
     trigger = signal[0].get('trigger', {})
     try:
+        if trigger.get('policy_evaluated') is None:
+            errors.append('policy_evaluation_receipt_missing')
         kind = trigger_kind(trigger, model_hash, policy_hash)
         if not kind or kind != tree.get('trigger_kind'):
             errors.append('trigger_model_policy_or_kind_mismatch')

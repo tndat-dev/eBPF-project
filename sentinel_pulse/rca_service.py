@@ -85,7 +85,9 @@ class Service:
         if not (self.root/'START.json').exists():
             atomic(self.root/'START.json', dict(binding=binding, registered_at=time.time(),
                 model_hash=self.cfg['model_hash'], policy_hash=self.cfg['policy_hash'],
-                trigger='candidate_alert_preview', automatic_response=False))
+                trigger='candidate_alert_preview', automatic_response=False,
+                previous_output=self.cfg.get('previous_output'),
+                registration_reason=self.cfg.get('registration_reason')))
         self.streams = {}; self.index = {}; self.inventory = {}; self.target_inventory = {}
         self.inventory_at = None; self.stop = False; self.counts = {}
         status = self.root/'STATUS.json'
@@ -185,6 +187,7 @@ class Service:
         safe = {k: row.get(k) for k in ('schema', 'status', 'run_id', 'capture_segment', 'node_name',
             'workload_key', 'pod_uid', 'container_name', 'cgroup_id', 'window_start', 'window_end',
             'preview_emitted_at', 'candidate_manifest_sha256', 'policy_sha256', 'candidate_alert_preview',
+            'policy_evaluated', 'serving_compatible', 'container_id',
             'joint_p', 'tree_p', 'support_p', 'candidate_policy_alpha', 'alert', 'policy_applied')}
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',
             (case_id(row), now, 0, key, json.dumps(safe)))
