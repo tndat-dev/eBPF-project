@@ -1,6 +1,6 @@
 # Sentinel Pulse — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH lúc **14:01 ngày 15/10/2026, UTC+7**. Đây là báo cáo
+Cập nhật bằng SSH lúc **14:51 ngày 15/10/2026, UTC+7**. Đây là báo cáo
 hiện hành của nhánh phát hiện ML, không phải nhật ký checkpoint.
 Hai nhánh còn lại: [chọn feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)
 và [RCA sau tín hiệu](RCA_RUNTIME_STATUS.md). Báo cáo tổng hợp cũ
@@ -19,11 +19,11 @@ tra; runtime vẫn ghi `alert=false`, `policy_applied=false`.
 
 | Node | IP | Trạng thái | Cadence tích lũy | Scored rows | Preview dương | Issue đã giữ |
 |---|---|---|---:|---:|---:|---:|
-| k8s-worker1.local | 10.1.16.237 | running | 13,30 giờ | 2.537.668 | 134.614 | 20 |
-| k8s-worker4.local | 10.1.16.238 | running | 13,23 giờ | 2.686.363 | 307.291 | 179 |
-| k8s-worker3.local | 10.1.16.239 | running | 13,30 giờ | 751.991 | 14.456 | 18 |
+| k8s-worker1.local | 10.1.16.237 | running | 14,12 giờ | 2.693.376 | 143.155 | 22 |
+| k8s-worker4.local | 10.1.16.238 | running | 14,04 giờ | 2.850.198 | 326.807 | 196 |
+| k8s-worker3.local | 10.1.16.239 | running | 14,10 giờ | 797.215 | 16.460 | 28 |
 
-Đăng ký capture 48 giờ/node: cadence hiện khoảng **27,7% thời lượng đăng ký**,
+Đăng ký capture 48 giờ/node: cadence hiện khoảng **29,4% thời lượng đăng ký**,
 không phải phần trăm hoàn thành toàn dự án. `completed_seconds` đếm cadence,
 không thay cho valid normal/scored exposure. Preview dương và issue không tự
 động là false positive, attack hoặc số lần service restart.
@@ -44,7 +44,10 @@ Khoảng gap/ineligible không tự trở thành normal/TN. Cadence tích lũy c
 thay cho exposure hợp lệ. Checkpoint có chu kỳ khoảng 5 giây; segment bị ngắt
 trước seal cần giữ làm evidence thiếu coverage. Lượt này `NRestarts=0` trên cả
 ba worker; issue count không phải số process restart. Yêu cầu bỏ bổ sung
-recovery cho fit syscall R4 không tắt recovery của soak Pulse.
+recovery cho fit syscall R4 không tắt recovery của soak Pulse. Các unit đã được
+xác nhận active/enabled lúc **14:51 UTC+7**. RCA runtime hooks mới chưa được
+bật trên production trong normal holdout, vì vậy môi trường capture hiện tại
+chưa bị thay đổi bởi RCA mở rộng.
 
 Một mẫu tail ngắn tại snapshot có p99 **cuối-window→preview** lần lượt
 0,522 / 0,603 / 0,224 giây (worker1/worker4/worker3), với 356 / 363 / 348

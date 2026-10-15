@@ -1,7 +1,7 @@
 {
   "output": "/var/lib/sentinel-pulse-rca/runtime-events-20261015",
   "previous_output": "/var/lib/sentinel-pulse-rca/parallel-20261015-r3",
-  "registration_reason": "Extend post-preview evidence to lifecycle, files, credentials, namespaces, mounts and ptrace; preserve previous cases and frozen ML",
+  "registration_reason": "Extend post-preview evidence to lifecycle, files, credentials, namespaces, mounts and ptrace; target first case by 5s with 3s post-context and 2s delivery grace; preserve previous cases and frozen ML",
   "kubeconfig": "/home/dat/.kube/config",
   "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
   "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
@@ -14,7 +14,8 @@
     {"node_name": "k8s-worker3.local", "output": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local"}
   ],
   "before_seconds": 30,
-  "after_seconds": 5,
+  "after_seconds": 3,
+  "case_ready_grace_seconds": 2,
   "ring_seconds": 180,
   "max_ring_events": 40000,
   "max_cases": 500,

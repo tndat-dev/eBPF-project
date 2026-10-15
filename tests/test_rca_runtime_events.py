@@ -159,6 +159,26 @@ def test_runtime_service_stores_all_categories_and_exports_v2(tmp_path, monkeypa
     service.db.close(); service.lock.close()
 
 
+def test_case_ready_grace_is_explicit_and_bounded_by_config(tmp_path, monkeypatch):
+    from sentinel_pulse.rca_service import Service
+    root = tmp_path/'rca'
+    config = tmp_path/'CONFIG.json'
+    config.write_text(json.dumps(dict(output=str(root), model_hash='model', policy_hash='policy',
+        connect_policy=POLICY, case_cooldown_seconds=300, before_seconds=30, after_seconds=3,
+        case_ready_grace_seconds=2, ring_seconds=180, max_ring_events=1000,
+        max_cases=10, workers=[])))
+    service = Service(config)
+    now = [104.99]
+    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: now[0])
+    service.observe_trigger(trigger(), 100.)
+    service.emit_cases()
+    assert not list((root/'cases').glob('*.json'))
+    now[0] = 105.
+    service.emit_cases()
+    assert len(list((root/'cases').glob('*.json'))) == 1
+    service.db.close(); service.lock.close()
+
+
 def test_manual_observability_fixture_is_not_an_ml_alert():
     signal = trigger()
     signal.update(candidate_alert_preview=False, alert=False, policy_evaluated=False,

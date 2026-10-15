@@ -265,9 +265,10 @@ class Service:
 
     def emit_cases(self):
         now = time.time()
+        ready_after = self.cfg['after_seconds'] + self.cfg.get('case_ready_grace_seconds', 2)
         for cid, created, trigger_json in self.db.execute(
                 'select id,created,trigger from cases where emitted=0 and created<=? limit 20',
-                (now-self.cfg['after_seconds']-2,)).fetchall():
+                (now-ready_after,)).fetchall():
             row = json.loads(trigger_json); at = event_time(row['window_end'])
             source = self.db.execute('select document from events where node=? and pod=? and container=? and at between ? and ? order by at limit 10001',
                 (*identity(row), at-self.cfg['before_seconds'], at+self.cfg['after_seconds'])).fetchall()
@@ -289,6 +290,9 @@ class Service:
                 coverage.update(runtime_policy=self.cfg['connect_policy'],
                     runtime_policy_scope='production namespace, all pods',
                     file_detail_sampling='1s per process per open/write hook',
+                post_context_seconds=self.cfg['after_seconds'],
+                case_ready_grace_seconds=self.cfg.get('case_ready_grace_seconds', 2),
+                target_preview_to_case_seconds=ready_after,
                     lifecycle_subscription_started_at=self.streams.get(row['node_name']+'/lifecycle', {}).get('started_at'),
                     last_runtime_event_received_at=stream.get('last_event_at'))
                 coverage.pop('last_connect_received_at', None)

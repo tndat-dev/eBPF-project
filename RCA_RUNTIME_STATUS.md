@@ -1,10 +1,35 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **14:05 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **14:51 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
-## 1. Mục tiêu và những gì thực sự đã triển khai
+## 1. Mục tiêu và trạng thái hiện hành
+
+Ba nhánh bổ trợ theo chuỗi nghiên cứu: thí nghiệm syscall/feature cung cấp
+bằng chứng cho lần chọn feature của Pulse kế tiếp; Pulse hiện phát
+`candidate_alert_preview`; RCA nhận preview đó và ghép context để điều tra.
+Kết quả thí nghiệm syscall không tự đổi candidate đang freeze. Pulse hiện chưa
+phát operational alert, nên các case live hiện được kích hoạt từ preview.
+
+| Chỉ số live tại 14:51 UTC+7 | Giá trị |
+|---|---:|
+| RCA service | `pulse-rca-context.service`, PID 231866, NRestarts=0 |
+| Case đã xuất ở lượt R3 | 495 |
+| Connect event đã nhận | 136.966 |
+| Preview quan sát / gom theo cooldown | 27.577 / 27.081 |
+| Case thiếu connect context | 160 |
+| Preview→case p50 / p95 / p99 | 15,00 / 22,63 / 22,99 giây (495 case) |
+| RAM hiện tại | 135.618.560 byte (~129 MiB), chưa phải overhead A/B |
+| Connect event theo worker | worker1 73.925; worker4 63.041; worker3 0 tại snapshot |
+
+Latency đo từ lúc subscriber thấy preview tới lúc xuất case; gồm chờ hậu ngữ
+cảnh và backlog. Không phải thời gian CPU dựng graph hoặc kernel-to-alert.
+RCA runtime mới đã qua kiểm chứng trên pod cô lập, chưa bật policy mở rộng
+trên production. Dự kiến đợi normal holdout kết thúc lúc **12:38 ngày
+16/10/2026 UTC+7** rồi mới mở rộng, để không đổi điều kiện capture giữa chừng.
+
+## 2. Mục tiêu và những gì thực sự đã triển khai
 
 Sau tín hiệu Pulse, thu thập bằng chứng để trả lời: process nào đang hoạt động,
 parent là ai, process nào gọi connect, thử kết nối tới đâu và đích K8s nào?
@@ -19,8 +44,8 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 | VM chạy subscriber | 10.1.16.234 — k8s-master.local |
 | Unit | pulse-rca-context.service |
 | systemd | active/running, enabled; MainPID 231866 |
-| Case trong lượt đăng ký hiện hành | **41** case đã xuất; audit kiểm tra 41 case |
-| Context ring đang giữ | 2.805 normalized connect event tại snapshot |
+| Case trong lượt đăng ký hiện hành | 495 case; audit ban đầu kiểm tra 41 case đầu |
+| Context ring đang giữ | 8.832 normalized event tại snapshot |
 | Stream được mở | Ba sensor trên worker1, worker4, worker3 |
 | Stream có connect event đã nhận ở snapshot | worker1 và worker4; worker3 chưa có normalized event |
 | Trigger | candidate_alert_preview, không phải alert production |
@@ -37,7 +62,7 @@ không phải microservice đang Running nhưng mất readiness. Sensor và poli
 connect trên node này đã được kiểm tra enabled; số normalized event vẫn bằng
 0 nên coverage connect của worker3 chưa được xác nhận bằng event.
 
-## 2. Thuật ngữ cần hiểu
+## 3. Thuật ngữ cần hiểu
 
 | Thuật ngữ | Nghĩa trong nhánh này |
 |---|---|
@@ -66,7 +91,7 @@ connect trên node này đã được kiểm tra enabled; số normalized event 
 | Payload/L7/TLS plaintext | Nội dung tầng ứng dụng/nội dung giải mã; connect không cung cấp các dữ liệu này |
 | Hash/provenance | Checksum và nguồn bằng chứng; hash không thay cho event hoặc nhãn ground truth |
 
-## 3. Luồng và output hiện hành
+## 4. Luồng và output hiện hành
 
 ```mermaid
 flowchart TD
@@ -100,7 +125,7 @@ Không join chỉ theo PID, pod name hoặc địa chỉ IP. Nếu trigger có C
 kiểm tra thêm CRI ID. Parent ngoài container có thể xuất hiện vì lineage
 kernel; không vì thế kết luận parent là workload hoặc process tấn công.
 
-## 4. Ví dụ thật và kiểm chứng đã làm
+## 5. Ví dụ thật và kiểm chứng đã làm
 
 [Cây thật và normalized input](validation-evidence/pulse-rca-context-20261015/README.md)
 của inventory-service-695bf6f445-ttlgj:
@@ -134,10 +159,10 @@ subscription nên chưa đủ pre-context 30 giây cho mọi case. Audit kiểm 
 identity, model/policy, graph node/edge và evidence hash; không xác nhận nhãn
 attack hay root cause. Một số case còn thiếu context dù thuộc selector.
 
-Trong 41 case này, preview→case có p50 **16,36 giây**, p95 **22,88 giây**.
-Đây là mẫu đầu lượt đăng ký, gồm post-context và backlog, chưa phải benchmark
-ổn định hoặc bằng chứng cải thiện theo paired A/B. RCA chưa hoàn tất trong
-1–2 giây. Phép đo này tách khỏi latency suy luận của Pulse.
+Audit ban đầu có 41/41 case qua kiểm tra cấu trúc/binding. Mẫu latency hiện
+hành đã mở rộng trên 495 case: preview→case p50 **15,00 giây**, p95 **22,63
+giây**, p99 **22,99 giây** tại snapshot 14:51 UTC+7. Đây vẫn gồm chờ
+post-context và backlog, không phải phép đo paired A/B. RCA chưa đạt 1–2 giây.
 
 [Sample mới và input normalized](validation-evidence/pulse-parallel-live-20261015/rca-case-replay.json)
 giữ case `5b7c1b37393c64bdc4687c41`: **52 connect event, 74 node, 127 edge**.
@@ -149,17 +174,17 @@ Startup từng gặp quyền đọc config do thư mục cha root-only. Đã chu
 sang thư mục RCA riêng root:dat 0750/file 0640, giữ journal lỗi; không nới quyền
 cấu hình khác. Không dùng NRestarts hiện tại để phủ nhận startup failure cũ.
 
-## 5. Coverage, hiệu năng và retention
+## 6. Coverage, hiệu năng và retention
 
 | Cấu hình | Ý nghĩa/giới hạn |
 |---|---|
-| Selector policy | aims.hust.vn/runtime-hardened=true; không mặc nhiên có connect detail cho mọi broker/database |
+| Selector policy hiện tại | `aims.hust.vn/runtime-hardened=true`; không mặc nhiên có connect detail cho mọi workload |
 | Context ring | 180 giây, tối đa 20.000 event; vượt trần ghi issue và bỏ context cũ nhất của riêng RCA |
 | Case grouping | 300 giây/node/Pod UID/container; decision gốc Pulse vẫn nguyên |
 | Cây mỗi case | Tối đa 200 connect event; truncation phải hiện rõ |
 | Query guard | Tối đa 10.001 event, có cờ khi chạm cap |
 | Case retention | Chỉ giữ 500 case JSON/Markdown gần nhất của subscriber; có counter hết hạn |
-| CPU/RAM | Quota 1 core, MemoryMax 512 MiB; MemoryCurrent 85,9 MiB ở snapshot; chưa phải A/B overhead |
+| CPU/RAM dịch vụ R3 | Quota 1 core, MemoryMax 512 MiB; MemoryCurrent khoảng 129 MiB tại snapshot; chưa phải A/B overhead |
 | Persistence | SQLite WAL local và case/cursor checkpoint; không gắn terminal SSH |
 | Boot/retry | enabled + Restart=always; NFS mount không phải prerequisite của unit |
 
@@ -177,7 +202,7 @@ Bước đợi 5 giây post-context không cộng vào **mốc tính preview c�
 cây RCA hoàn tất muộn hơn; latency tới khi người dùng nhận alert/cây cần đo riêng.
 Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 
-## 6. Tiến độ hoàn thiện
+## 7. Tiến độ hoàn thiện
 
 | Hạng mục | Trạng thái |
 |---|---|
@@ -188,19 +213,21 @@ Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 | Pod ngoài selector hoặc context thiếu | Đã đánh dấu; coverage chưa toàn workload |
 | Operational alert thật làm trigger | Chưa có vì Pulse chưa promote |
 | Kết quả connect thành công/thất bại | Chưa có return/flow receipt |
-| Chuỗi process đầy đủ qua mọi fork/exec/exit | Chưa triển khai đầy đủ |
+| Process, file, credential, namespace, mount, ptrace trong RCA mới | Đã kiểm chứng ở pod cô lập; chưa bật production |
 | Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
 | Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
 | Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
-| Audit cấu trúc/binding của case live | Đã có tool và 41/41 case mới qua kiểm tra; không đánh đồng với causal accuracy |
-| Latency tới khi cây sẵn sàng | Có mẫu preview→case 41 case; còn cần đo dài và A/B overhead |
+| Audit cấu trúc/binding của case live | Audit ban đầu 41/41; chưa audit lại đủ 495 case; không đồng nghĩa causal accuracy |
+| Latency tới khi cây sẵn sàng | Mẫu 495 case: p50 15,00s, p95 22,63s, p99 22,99s; cần đo sau cutover |
 
-Hướng tiếp theo: đo coverage theo workload và lý do thiếu; kiểm thử recovery/
-transport; bổ sung process lifecycle và return/flow evidence ở release riêng;
-xây tập incident có root-cause labels rồi mới đánh giá causal ranking.
-Không mở thêm kernel hooks giữa một lượt freeze chỉ để làm cây nhiều event hơn.
+RCA runtime candidate mới đã qua kiểm thử isolated live fixture: **34 event**
+chuẩn hóa thành **58 node/75 edge**, với **24/24 checks** đạt. Receipt bao gồm
+fork→child exec identity, exit status, file open/write, UID/GID/capability,
+setns/unshare, mount và ptrace cùng return thành công/thất bại. Đây là kiểm thử
+khả năng quan sát thủ công, không phải ML alert, blind attack hay đo causal
+accuracy. Production cutover đang chờ normal holdout kết thúc.
 
-## 7. File, service và lệnh kiểm tra
+## 8. File, service và lệnh kiểm tra
 
 - Source: [rca_service.py](sentinel_pulse/rca_service.py),
   [rca_tree.py](sentinel_pulse/rca_tree.py), [rca_connect.py](sentinel_pulse/rca_connect.py),
