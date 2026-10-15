@@ -2,18 +2,25 @@
 
 ## Trạng thái tiến trình hiện hành
 
-Kiểm tra SSH lúc **17:10 UTC ngày 14/10/2026 (00:10 ngày 15/10, UTC+7)**:
-không có tiến trình thí nghiệm syscall nào đang chạy. Các unit A1, A2, C3, C4,
-C5 và C6 ở `inactive/dead`; C1 và C2 là oneshot `active/exited` (đã kết thúc,
-không phải job nền còn hoạt động). A2 đã hoàn tất 105/105 model exploratory,
-nhưng trên C3 cũ đã lộ; không có blind attack mới và không có confusion matrix
-hợp lệ cho candidate Pulse hiện hành.
+Kiểm tra SSH **15/10/2026, khoảng 10:20 UTC+7**: matched capture **500 ms** và
+frozen candidate preview đang chạy trên cả ba worker, chưa restart, đã thu
+trên 9 giờ/node. Đây là full-ID deltas, 249 baseline feature, transition
+bins, rolling-10/history-3 và tree/support khớp observable của Pulse.
 
-Sentinel Pulse A1 normal capture đã thu đủ 24 giờ trên ba worker. Root audit đã
-đọc được output; ba candidate-shadow follower cũ không cập nhật từ 13/10 nên đã
-được disable/stop, giữ nguyên dữ liệu. Loader nền đang ở chu kỳ 1 giây; chưa có
-loader/evaluator attack 500 ms chạy. Nhánh syscall và Sentinel Pulse được thiết
-kế chạy song song, không đợi chọn xong syscall mới đánh giá Pulse.
+Study R3 đã index đủ **21/21 key**, bao gồm notification/payment, và hoàn tất
+**627/693 model**, gồm 11 arm × 3 seed. 66 model của hai container Kafka
+operator thiếu calibration vì coordinator cũ chưa chờ segment cuối đóng.
+Study R4 đã chạy bằng systemd trên `.234`, đọc lại cùng khoảng selection đã
+đăng ký sau khi segment được seal; giữ nguyên kết quả R3. Lần kiểm tra có
+81/693 model đã fit, chưa có gap; hai Kafka operator đều có 2.741 calibration
+context sau sửa, thay vì 678 ở R3.
+
+Pulse R3 đã hoàn tất 315 cặp development attack/control trên candidate hiện
+hành. Replay evaluator có TP=284/FN=2/FP kỳ vọng=72/TN kỳ vọng=237, unknown=35;
+control còn cần adjudication. Không coi đây là fresh blind result hoặc kết
+quả chọn syscall giữa các arm. R5 hoàn tất 15 cặp RabbitMQ sau sửa staging:
+TP=13/FN=0/FP kỳ vọng=1/TN kỳ vọng=14, unknown=2; p95 kernel→preview 1,288 s
+trên 13 trial phát hiện. Đây là follow-up riêng, không thay thế matrix R3.
 
 [Lịch/job hiện hành](PULSE_PARALLEL_EXECUTION.md).
 

@@ -1,0 +1,2222 @@
+{
+  "binding": {
+    "automatic_promotion": false,
+    "binary_sha256": "bf1ebe1e724ad51bf3baf5affa44af2bd73913a0114e94f7a6b62ccaf6cb6c01",
+    "config_sha256": "77d45d77e123d59ccca76ad5dc6a1b61e2e0310becd793f53240d16b03813e9a",
+    "evidence_class": "development_candidate_preview",
+    "exec_provenance_policy_sha256": "2e51ddd9ac56b015c7b3e3cf8b7cc6e751542168fc8877fe03b101cb767f10ff",
+    "fresh_blind": false,
+    "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+    "stop_on_false_positive": false,
+    "stop_on_miss": false
+  },
+  "registered_at": 1792000562.2568593,
+  "schedule": [
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-waypoint",
+      "workload_key": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "auth-service",
+      "workload_key": "production/auth-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-minio-pool-0",
+      "workload_key": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-redis-sentinel-sentinel",
+      "workload_key": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "api-gateway",
+      "workload_key": "production/api-gateway:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-redis",
+      "workload_key": "production/aims-redis:aims-redis"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-entity-operator",
+      "workload_key": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "payment-service",
+      "workload_key": "production/payment-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "security-telemetry-service",
+      "workload_key": "production/security-telemetry-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "search-recommendation-service",
+      "workload_key": "production/search-recommendation-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "cart-service",
+      "workload_key": "production/cart-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "catalog-service",
+      "workload_key": "production/catalog-service:app"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "order-service",
+      "workload_key": "production/order-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-kafka-dual-role",
+      "workload_key": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-frontend",
+      "workload_key": "production/aims-frontend:web"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "notification-service",
+      "workload_key": "production/notification-service:app"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "inventory-service",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-postgres-cnpg",
+      "workload_key": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    }
+  ]
+}

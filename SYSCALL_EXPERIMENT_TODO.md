@@ -1,6 +1,6 @@
 # TODO hiện hành: syscall và Sentinel Pulse
 
-Cập nhật **14/10/2026**. Hai nhánh chạy song song; chỉ điều phối attack tránh
+Cập nhật **15/10/2026**. Hai nhánh chạy song song; chỉ điều phối attack tránh
 làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa miss/unknown.
 
 ## Nhánh syscall
@@ -25,6 +25,9 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 - [x] Thiết kế và test nhánh thêm syscall ngoài tập 29: base29, +top8/+top16/+top32/+all training-observed.
 - [x] Hoàn thành exploratory fit/evaluate A2: 105/105 model, 0 unknown trên C3 histogram 1s.
 - [ ] Chạy addition study trên observable Pulse 500 ms; A2 không phải blind/quality result.
+- [x] Capture full-ID matched 500 ms và index đủ 21/21 model key trong R3.
+- [x] R3 fit 627/693 biến thể; giữ 66 thiếu calibration của hai Kafka operator.
+- [x] Triển khai R4 chờ sealed coverage đến cuối selection, giữ nguyên R3 và chạy lại study.
 - [ ] Blind attack/control paired cho các arms thêm syscall, không kết luận tối ưu từ normal flags.
 - [ ] Adjudicate normal/health, chia interval 30 s và báo unknown riêng.
 - [ ] Khóa fresh blind binary/cases/target UID/container/revision, seed/rate và lịch.
@@ -47,20 +50,21 @@ làm bẩn capture đã đăng ký normal. Không zero-alert gate, không xóa m
 - [x] Chốt B2 timing theo node: p99 feature-end-to-score 0,502/0,556/0,213 s;
   .238 có 9 cadence gaps; không gọi đây là kernel-to-alert. Overhead A/B vẫn thiếu.
 - [x] Chạy tiếp B3 bounded 30 phút trên ba worker, cùng frozen model/policy, song song nhánh thêm syscall.
-- [ ] Adapter blind phù hợp idle-aware contract; fresh attack/control và kernel timestamp.
+- [x] Adapter attack/control 500 ms gắn candidate preview với CRI identity và kernel timestamp.
+- [x] R3 hoàn tất 315 cặp development; replay có TP=284/FN=2/FP kỳ vọng=72/TN kỳ vọng=237, unknown=35.
+- [x] Triển khai R5 follow-up 15 cặp RabbitMQ sau sửa staging; kết quả ở output riêng.
+- [x] R5 chạy hết: TP=13/FN=0/FP kỳ vọng=1/TN kỳ vọng=14, unknown=2; giữ thiếu coverage và kernel receipt.
+- [ ] Fresh blind attack/control, review nhãn và confusion matrix confirmed.
 - [ ] Confusion/recall/live latency, overhead A/B lặp và CI trước claim stable/paper.
 
 ## Trạng thái hiện hành
 
-- C4/C5/C6 đã kết thúc; C4 sai rolling profile không dùng kết luận quality.
-- A1 capture/review và B2/B3 đã kết thúc, không chạy lại để xóa preview/unknown.
-- A2 addition study đã hoàn tất 105/105 exploratory models; precision/recall/FPR/kernel-to-alert chưa đo và fresh blind chưa chạy.
-- B3 `pulse-idle-batch-canary-b3.service` đã terminal thành công trên .237/.238/.239
-  (terminal summary được thu lúc 15:55 UTC ngày 14/10); p99 feature-end-to-score lần lượt
-  0,516/0,555/0,220 giây. Có 10.138 preview dương đang chờ adjudication và
-  3 cadence gaps trên worker .238; không có attack injection hay alert serving.
-- Nhánh thêm syscall có source/6 unit tests pass trong VM venv; đang chuẩn bị
-  input cohort đã seal trước khi chạy fit/evaluation riêng. Không thay Pulse.
+- Capture/preview 500 ms còn chạy, đã tích lũy trên 9 giờ/node trong đăng ký 48 giờ.
+- Study R4 active, enabled, checkpoint trên VM/NFS; R5 đã chạy hết 15 cặp, Result=success.
+- R3 replay: precision kỳ vọng 79,78%, recall observable 99,30%, lower bound 90,16%;
+  kernel→preview p95 1,609 s và p99 4,751 s. Control-positive 23,30% cần cải thiện.
+- Chờ R4 đủ 693 fit; cần independent normal holdout/fresh paired blind và CI để chọn syscall.
+- C4/C5/C6, A2 và B3 đã kết thúc; giữ kết quả theo đúng candidate/observable.
 
 Tổng hợp kết quả và giải thích đầy đủ:
 [SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md).

@@ -1,0 +1,38 @@
+{
+  "alert": false,
+  "automatic_promotion": false,
+  "changed_outcomes": 1,
+  "completed_pairs": 315,
+  "confirmed_FPR": null,
+  "confirmed_precision": null,
+  "confusion_matrix_expected_control_labels": {
+    "FN": 2,
+    "FP": 72,
+    "TN": 237,
+    "TP": 284
+  },
+  "control_labels": "pending_post_run_adjudication",
+  "control_positive_rate": 0.23300970873786409,
+  "expected_pairs": 315,
+  "finished_at_unix": 1792033399.5079925,
+  "fresh_blind": false,
+  "intervals": 630,
+  "kernel_to_alert": null,
+  "kernel_to_preview_seconds": {
+    "p50": 1.0666542053222656,
+    "p95": 1.6094665169715845,
+    "p99": 4.751005344390888,
+    "samples": 284
+  },
+  "latency_conditional_on_detected_trials": true,
+  "parent_terminal_sha256": "7c1e63206955a98eaf60cbca9d829ec4266a89ddb69a974d36a4da61caaabc7d",
+  "policy_applied": false,
+  "precision_expected": 0.797752808988764,
+  "preserved_pairs_without_raw_input": 15,
+  "recall_end_to_end_lower_bound": 0.9015873015873016,
+  "recall_observed": 0.993006993006993,
+  "replayed_pairs": 300,
+  "schema": "pulse-preview-interval-matrix-v1",
+  "state": "completed_recorded_preview_replay",
+  "unknown": 35
+}

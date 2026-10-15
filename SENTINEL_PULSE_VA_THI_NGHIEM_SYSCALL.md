@@ -5,7 +5,7 @@
 - **Sentinel Pulse:** phát hiện bất thường hành vi runtime của workload Kubernetes bằng telemetry eBPF và mô hình học máy.
 - **Thí nghiệm syscall:** kiểm tra bằng dữ liệu độc lập xem các kênh syscall được chọn làm feature có hữu ích hay không.
 
-Trạng thái được tổng hợp ngày **14/10/2026, UTC+7**. Capacity và điều kiện node có receipt lúc khoảng 19:30; SSH kiểm tra lại lúc **19:36** xác nhận sáu node Ready và job sửa profile C6 kết thúc thành công, không restart. Thời gian của từng kết quả được phân biệt theo lượt chạy; không coi một snapshot là bảo đảm hệ thống luôn khỏe.
+Trạng thái hiện hành được kiểm tra SSH ngày **15/10/2026, khoảng 10:20 UTC+7**: sáu node Ready; matched capture/preview 500 ms active trên ba worker; study R4 đang fit, RabbitMQ follow-up R5 đã chạy hết 15 cặp. Capacity vẫn dẫn receipt riêng ngày 14/10. Chi tiết tiến trình: [triển khai song song](PULSE_PARALLEL_EXECUTION.md).
 
 Artifact là file sản phẩm của một bước (model, histogram, prediction arrays, bundle). Ví dụ: c6-verification.json, selection-frequency-description.json, batch-benchmark.json.
 
@@ -64,10 +64,19 @@ Quy ước xuyên suốt:
 | Ablation | Có artifact cho 19 workload × 32 biến thể = 608 model |
 | Sửa tính tương thích feature | Replay và sửa rolling profile cho 30 capture, tổng 781.239 feature rows; giữ nguyên raw, model và threshold |
 | Đánh giá lại C6 | 608/608 model đã chạy trên holdout đã sửa; biến thể full gắn cờ 11.989/334.655 context, tức 3,5825% raw positives |
+| Matched syscall study R3 | Đủ 21 key, hoàn tất 627/693 model; 66 model Kafka operator thiếu calibration vì chưa lấy segment cuối selection |
+| Study R4 | Đang đọc lại cùng normal selection sau sửa sealed coverage; 11 arm × 3 seed, mục tiêu 693 model |
+| Pulse development R3 | Hoàn tất 315 cặp; replay có TP=284/FN=2/FP kỳ vọng=72/TN kỳ vọng=237, unknown=35 |
+| Kernel→preview R3 | Trên 284 trial phát hiện: p50/p95/p99 = 1,067/1,609/4,751 s |
+| RabbitMQ follow-up R5 | Hoàn tất 15 cặp, TP=13/FN=0/FP kỳ vọng=1/TN kỳ vọng=14, unknown=2; p95 kernel→preview 1,288 s trên 13 trial phát hiện |
 
 ### 2.2. Những kết luận chưa thể đưa ra
 
-**Chưa có precision, recall, FPR hay confusion matrix có nhãn hợp lệ cho candidate idle-aware hiện hành và bộ biến thể trên blind attack mới. Chưa có phép đo kernel-to-alert hợp lệ cho chúng.**
+Candidate idle-aware đã có matrix development theo interval 15 s: precision theo nhãn expected-normal **79,78%**, recall trên attack đánh giá được **99,30%**, lower bound theo toàn bộ attack đăng ký **90,16%**; control-positive rate **23,30%**. Còn 35 interval unknown và control chưa review, nên confirmed precision/FPR vẫn null. Những scenario này đã dùng trong phát triển; kết quả chưa phải fresh blind validation.
+
+Metric latency trên là **kernel→candidate preview**; runtime ghi `alert=false`, `policy_applied=false`, nên kernel-to-alert còn null. p95 dưới 2 s trong tập development, p99 còn 4,751 s. Bằng chứng: [terminal replay](validation-evidence/pulse-matched-r3-r4-20261015/r3-replay-TERMINAL.json), [terminal gốc](validation-evidence/pulse-matched-r3-r4-20261015/r3-campaign-TERMINAL.json). Bộ biến thể syscall chưa có paired blind matrix để kết luận giữ/bỏ/thêm kênh.
+
+Timestamp kernel hiện là `execve` của fixture do Tetragon ghi, chưa phải syscall bảo mật đầu tiên của scenario. Control R3 quan sát hoạt động nền, chưa có benign fixture cùng cách stage/exec; vì vậy chưa tách được launch artifact khỏi tín hiệu attack. Cần matched benign-exec controls trong phép so sánh tiếp theo. Precision của thiết kế attack/control gần 1:1 cũng không suy ra precision khi attack hiếm trong production.
 
 Các con số 30.412 preview trong soak và 3,5825% raw positives của C6 không phải cùng model/policy, không cùng dataset và không được gọi chung là false-positive rate. Kết quả tốc độ tốt hơn cũng không tự chứng minh khả năng phát hiện attack tốt hơn.
 
@@ -903,10 +912,10 @@ Dự án có nhiều thực hành **MLOps**: versioning dữ liệu/model, featu
 | Soak A1/B2 | Đã hoàn thành; giữ kết quả, không chạy lại từ đầu để xóa preview hoặc issue |
 | Đối soát A1 | Giải thích chênh 565 feature/decision; báo coverage thực |
 | Addition study A2 | Đã hoàn tất 105/105 exploratory models trên C3 đã lộ; không có blind attack, recall/FPR/confusion matrix |
-| Matched syscall experiment | Chưa capture: cần full-ID delta đồng bộ 500 ms + Pulse observables; sau đó mới chạy grouped/rare/addition arms |
+| Matched syscall experiment | Capture 500 ms đang chạy; R3 fit 627/693, R4 sửa sealed selection đang chạy lại; cần holdout và attack paired cho các arm |
 | Label review | Adjudicate normal, preview và unknown; ghi căn cứ, không chỉ đổi tên raw positive thành FP |
 | New blind trials | Chưa chạy; sau khi normal cohort/candidate/arms freeze, dùng binary/cases mới, cùng target/horizon cho so sánh paired |
-| Ba scenario 0-hit | Chỉ có chẩn đoán visibility của fixture cũ; chưa tái thử candidate idle-aware. Cần event→feature→score→policy trace mới trước khi thêm syscall |
+| Ba scenario 0-hit | Đã chạy lại trong 315 cặp development trên candidate idle-aware; cần phân tích theo scenario, coverage và miss, rồi xác nhận trên blind set mới |
 | Đánh giá đồng đơn vị | Precision/recall/FPR/coverage, miss và unknown; model-only và policy tách biệt |
 | Thống kê | Block bootstrap CI theo epoch/capture phụ thuộc, paired comparison và hiệu chỉnh nhiều kiểm định; không coi window chồng lấn là mẫu độc lập |
 | Chọn tập syscall | Cân nhắc recall, false alerts, latency, overhead và diễn giải; không chọn chỉ vì ít raw flags |

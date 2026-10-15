@@ -1,0 +1,21 @@
+{
+  "attacks_used_for_fit": false,
+  "automatic_promotion": false,
+  "calibration_context_cap": 1500,
+  "config_sha256": "046bc988b6c2d018e7a031757219a64474b3ecd323f64beb0004495097140e31",
+  "horizon_windows": 30,
+  "normal_labels": "expected_normal_unadjudicated",
+  "purpose": "prospective_feature_utility_development; no global optimum claim",
+  "raw_observable": "same full-ID 500ms frames, idle v2, transition64, rolling10, history3",
+  "sample_rule": "equally spaced ordered contexts; same indices for every arm and seed",
+  "seeds": [
+    73021,
+    73022,
+    73023
+  ],
+  "source_sha256": "836d644201a3f6da5f7d6bf147b42c0342a76ee2ec74132470b728b5a338e0fc",
+  "support_budget": 0.05,
+  "train_context_cap": 3000,
+  "tree_alpha": 0.001,
+  "trees": 192
+}

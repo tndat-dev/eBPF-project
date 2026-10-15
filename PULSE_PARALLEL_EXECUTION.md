@@ -1,123 +1,135 @@
-# Sentinel Pulse và thí nghiệm syscall: triển khai song song
+# Sentinel Pulse và thí nghiệm syscall: trạng thái hiện hành
 
-Hai nhánh có tiến độ và artifact riêng; không yêu cầu hoàn tất chọn syscall
-mới tiếp tục đánh giá candidate Pulse đã đóng băng.
+Kiểm tra SSH ngày **15/10/2026, khoảng 10:20 UTC+7**. Cả ba worker đang chạy
+capture **500 ms**, xuất full syscall-ID delta và 249 feature từ cùng snapshot,
+đồng thời chấm frozen candidate preview. Các service capture chưa restart.
+Sáu node Kubernetes v1.34.10 đều Ready; không thấy pod production ở trạng thái
+khác Running/Completed trong lần kiểm tra này.
 
-SSH **14/10/2026**: C3, C5, C6, soak A1/review, B2 và B3 đã kết thúc.
-C6 full raw-positive fraction 3,5825% sau sửa rolling profile, chưa phải FPR.
-Hai nhánh tiếp theo tách biệt, giữ model/policy Pulse:
-
-| Nhánh | Công việc hiện hành | Service / output |
+| Nhánh | Trạng thái | Service / output |
 |---|---|---|
-| Thêm syscall A2 | 105/105 exploratory models, 0 unknown trên C3 đã lộ; không có blind/quality verdict | `.234`: `pulse-syscall-addition-a2.service`; NFS `syscall-addition-a2-20261014` |
-| Sentinel Pulse B3 | Canary batch 30 phút hoàn tất trên ba worker; raw-score preview, không phát alert/enforcement | `.237/.238/.239`: `pulse-idle-batch-canary-b3.service`; `/var/lib/pulse-idle-batch-canary-b3-20261014` |
+| Capture và Pulse preview | Chạy trên `.237/.238/.239`, đã tích lũy trên 9 giờ/node; đăng ký 48 giờ | `pulse-matched-worker-parallel-20261015.service`; NFS `matched-parallel-20261015/workers/<node>` |
+| Matched syscall study R4 | Đã fit 81/693 model, chưa có coverage gap trong phần đã xử lý | `.234`: `pulse-matched-study-parallel-r4-20261015.service`; NFS `matched-parallel-r4-20261015/syscall-matched-study` |
+| Pulse follow-up R5 | Hoàn tất 15/15 cặp RabbitMQ, Result=success; đã kết thúc | `.234`: `pulse-matched-campaign-parallel-r5-rabbit-20261015.service`; NFS `matched-parallel-r5-rabbit-20261015/pulse-development-matrix` |
 
-Snapshot terminal B3 được thu lúc **15:55 UTC ngày 14/10**; cả ba unit thoát
-thành công, không restart. p99 `feature-window-end → score` lần lượt .237/.238/.239 là
-**0,516 / 0,555 / 0,220 giây**. `.238` ghi 3 `collector_cadence_gap`; issue được
-giữ, không làm mất terminal. Kernel-to-alert, precision và recall đều null vì
-đây là normal timing canary, không có blind attack và policy chỉ preview.
-Raw-positive preview vẫn chờ adjudication, không gọi tự động là false positive.
+Capture tiếp tục sau cadence gap và recovery, giữ issue và reset history khi
+cần. Attack/control intervals được lưu riêng trong campaign journal. Những
+khoảng attack không được mặc nhiên xem là normal vì capture vẫn đang chạy.
 
-A1 terminal có 0/105 model; nguyên nhân là exact boundary tolerance 100 µs so
-với jitter 0,6–1,4 ms. Code đã sửa, test jitter và material gap. A2 đã kết thúc
-thành công trên `.234` lúc **16:44:43 UTC ngày 14/10**: terminal ghi
-`completed_exploratory_addition_study`, **105/105 model**, `unknowns={}`,
-`fresh_blind_complete=false`; precision/recall/FPR/kernel-to-alert đều null.
-Đây là pipeline exploratory hoàn tất trên C3 đã lộ, không phải blind attack
-hay bằng chứng chọn syscall. Không còn cần chờ A2 chạy nền. Candidate Pulse
-giữ nguyên; không zero-alert gate và không auto-promotion.
+## Kết quả candidate Pulse đã hoàn tất
 
-Tình trạng cụm lúc kiểm tra: 6/6 node `Ready` ở v1.34.10; namespace
-`production` có 70 pod objects, trong đó 66 `Running` và 4 `Completed` (job
-pod đã hoàn tất, không phải service đang hỏng). Trên cả ba worker,
-`sentinel-pulse-resolver.service` active và `pulse_counter_loader` đang thu
-feature **mỗi 1.000 ms**. Canary B3 đã dừng bình thường; hiện không có B3
-500-ms canary chạy. Đây là capture nền, không được mô tả nhầm thành ML
-decision/alert real-time đang chạy trên 500 ms.
+R3 đã chạy đủ **315 cặp = 630 interval**, trên 21 workload/container key,
+5 scenario development, 3 rate và 1 seed. Các scenario đã được sử dụng trong
+phát triển; đây chưa phải fresh blind validation.
 
-## Kết quả soak Pulse đã tổng hợp
+Replay có binding sau sửa evaluator cho `warming` cho kết quả:
 
-Capture đã đóng với 33.149.479 feature rows tổng trên ba worker. Job review
-đã đọc hết các file decision khoảng 11,75 GB, 12,79 GB và 3,51 GB; không sao
-chép lại raw. Tổng **33.148.914 decision**, gồm **11.388.831 scored**,
-**21.759.882 model-unavailable**, **201 warming**. Các key model-unavailable
-là `pod-slice`, không phải 21 container ứng dụng bị thiếu model. Có **30.412
-preview dương chờ adjudicate**; không tự gọi chúng là FP. Tổng số decision
-ít hơn feature capture **565 dòng**; chưa chứng minh alignment/coverage hoàn chỉnh.
+| Ground truth dùng để chấm | Preview dương | Preview âm | Chưa kết luận |
+|---|---:|---:|---:|
+| Attack theo lịch inject | TP = 284 | FN = 2 | 29 |
+| Control expected-normal | FP kỳ vọng = 72 | TN kỳ vọng = 237 | 6 |
 
-Review cung cấp theo workload:
+- Precision theo nhãn control kỳ vọng: **79,78%**.
+- Recall trên attack đánh giá được: **99,30% = 284/286**.
+- Lower bound theo toàn bộ attack đăng ký: **90,16% = 284/315**.
+- Control-positive rate: **23,30% = 72/309**.
+- Kernel → preview trên 284 trial phát hiện được: p50 **1,067 s**,
+  p95 **1,609 s**, p99 **4,751 s**.
 
-- Số dòng scored, warming, thiếu model, degraded/rejected và lỗi binding.
-- Raw model anomaly và preview dương cần adjudicate; giữ ví dụ identity/time.
-- Histogram thời gian inference và feature-window-end đến lúc chấm score.
-- SHA-256 toàn bộ file decision và chênh số dòng so với terminal capture.
+Chỉ số còn phụ thuộc nhãn expected-normal chưa review; `confirmed_precision`
+và `confirmed_FPR` vẫn null. `alert=false`, `policy_applied=false`;
+`kernel_to_alert` còn null. Kết quả p95 đạt kỳ vọng 2 giây ở tập development,
+nhưng p99 chưa đạt và tỷ lệ control dương vượt kỳ vọng 5%.
+Precision trên thiết kế attack/control gần 1:1 này không suy ra precision khi
+attack hiếm trong production. Kỳ vọng 5% ở đây thuộc development interval;
+protocol chọn syscall còn đăng ký metric episode/workload-hour riêng.
 
-So sánh số dòng chỉ kiểm tra tổng lượng dữ liệu; chưa chứng minh mọi feature
-đã ghép đúng decision. Preview chưa có nhãn được giữ là pending adjudication;
-precision/recall/FPR và confusion matrix còn null. Kernel-to-alert cần đánh
-giá live attack riêng. Candidate/model/policy đã đóng băng vẫn được giữ nguyên.
+Terminal R3 gốc giữ TP=284/FN=2/FP kỳ vọng=72/TN kỳ vọng=236, unknown=36.
+Replay chỉ chuyển một control từ unknown sang TN; các khoảng warming còn lại
+vẫn bị giới hạn bởi scored coverage. Cả terminal gốc, replay và danh sách thay
+đổi đều có trong [evidence đã sao chép](validation-evidence/pulse-matched-r3-r4-20261015/README.md).
 
-Job review dùng systemd cố định, checkpoint mỗi khoảng 5 giây, tự chạy khi VM
-boot. Resume xác minh source/input binding và SHA-256 prefix trước khi đọc tiếp;
-không cộng lại những dòng đã checkpoint. Giới hạn mỗi worker: CPU 50% một core,
-RAM 256 MiB, Nice=19, IOWeight=1. Chỉ đọc dữ liệu đã đóng; output tổng hợp nhỏ.
+## Syscall study R3 và bản sửa R4
 
-Source review: `/home/dat/pulse-shadow-summary-20261014/source-r2`, commit
-`c416941` (summary logic từ `12c796d`). Bốn test cho resume, source thay đổi,
-binding và bucket latency đã pass. Cấu hình r2 lấy run ID **riêng từng node** từ
-environment đã đăng ký của soak. Output r1 được giữ để chẩn đoán: cấu hình đầu
-đã dùng run ID chung nên ghi `run_binding_mismatch`, không phải lỗi của model.
+Study R3 index đủ **21/21 key**, gồm notification/payment. Nó hoàn tất
+**627/693 model = 19/21 key × 11 arm × 3 seed**. Hai container
+`topic-operator` và `user-operator` chỉ có 678 calibration context, chưa đạt
+1.200, nên 66 model được ghi thiếu coverage.
 
-## Batch timing và giới hạn phép đo
+Coordinator cũ bắt đầu khi selection đã hết nhưng segment cuối vẫn đang mở;
+nó chỉ đọc segment đã đóng, làm mất phần cuối calibration. R4 dùng lại đúng
+khoảng selection đã đăng ký **00:58:40–02:28:40 ngày 15/10, UTC+7**, đợi mỗi
+worker có segment đã seal phủ hết biên cuối, xác minh SHA-256 trước indexing.
+Giữ nguyên artifact và kết quả R3. Chưa dùng R4 để thay candidate Pulse.
+Kiểm tra trực tiếp input R4 cho thấy mỗi Kafka operator có **5.734 train** và
+**2.741 calibration context**, đủ điều kiện tối thiểu 1.200 calibration.
 
-Benchmark đã xác minh **21/21 frozen model**, score sai lệch lớn nhất **0**,
-p-value/decision scalar và batch khớp tuyệt đối. Canary live 5 phút trên `.237`
-chấm **16.380 context**, feature-window-end → score p50/p95/p99
-**0,227/0,424/0,474 giây**, max **0,667 giây**; issues={}. Còn 4 snapshot và
-607 byte ở frame cuối chưa đóng; giữ raw và không đưa vào scoring.
-Đây chưa phải kernel-to-alert, chưa đánh giá recall/precision bằng attack.
-Source, giới hạn và artifact: [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md).
+11 arm gồm base29, +top8/+top16/+top32, +security, +all-observed,
++all-defined-native, và bỏ nhóm accept/accept4, open/openat,
+execve/execveat, clone/clone3. Xếp hạng syscall chỉ dùng training prefix;
+3 seed dùng cùng data/context, temporal embargo và reset history.
 
-## Công việc sau hai job hiện hành
+Đây là phép đo utility của các kênh tường minh: hash/transition bins và
+sensitive aggregate vẫn giữ thông tin. Hoàn tất fit chưa đủ kết luận giữ/bỏ
+syscall; còn cần independent normal holdout, fresh paired blind attack trên
+từng arm, cùng đơn vị interval, CI theo block và phép so sánh paired.
 
-C4 đã hoàn tất lúc 14:46 và xác minh đủ 608 prediction. Full C2 có
-145.820/334.655 raw flags (43,57%); **không được coi là bộ model đã ổn định**.
-Không relabel chúng thành FP khi chưa adjudicate, cũng không che kết quả bằng
-đổi ngưỡng. C5 chỉ đọc dataset reference và selection để tìm bằng chứng;
-không dùng holdout để chọn biến thể. [Chi tiết](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
+## RabbitMQ follow-up
 
-Nhánh Pulse xử lý coverage/nhãn của soak, chuẩn bị adapter đánh giá attack cho
-idle-aware candidate và đo confusion matrix trên interval thống nhất. SSH hiện
-xác nhận `sentinel-pulse-exec-provenance` đã enabled trên 6/6 Tetragon pod;
-điều đó cung cấp timestamp exec, nhưng chưa đồng nghĩa đã chạy attack gắn với
-preview của candidate hiện hành.
-Nhánh syscall chốt audit C5; tiếp tục bind blind binary/cases/target mới, chấm cùng
-trial cho các biến thể và tổng hợp paired statistics/CI. Không chọn syscall hay
-tune threshold bằng holdout, không dùng latency offline thay cho live latency.
+15 attack RabbitMQ của R3 bị unknown vì `/tmp` thuộc root filesystem chỉ đọc.
+Fixture được chuyển sang `/operator/sentinel-runtime-attack-blind`, trong
+emptyDir `rabbitmq-plugins`. Runner xác minh CRI container identity và checksum,
+stage bằng create-exclusive và cleanup đúng file. Tetragon provenance policy
+đã thêm đường dẫn cố định này. Không đổi securityContext hoặc dùng PVC để stage.
 
-Blind attack tác động vào chính workload đang thu normal phải có khoảng thời
-gian hoặc target riêng. Không inject vào capture đã đăng ký normal chỉ để làm
-hai job cùng active. Trong lúc capture normal chạy, review/offline analysis và
-chuẩn bị attack của nhánh Pulse vẫn triển khai độc lập. Việc điều phối lịch
-inject bảo vệ nhãn dữ liệu, không tạo thứ tự ưu tiên giữa hai nhánh.
+R5 ghi 15 cặp mới ở output riêng; kết quả không thay thế 15 unknown của R3.
+Các ca FN và control dương trong R3 vẫn được giữ để phân tích.
+R5 hoàn tất trên cả ba replica: **TP=13, FN=0, FP kỳ vọng=1, TN kỳ vọng=14,
+unknown=2**. Trial 7 `child_ptrace_handshake` chỉ có 4,433/15 giây được score;
+trial 15 có đủ scored exposure nhưng không lấy được kernel exec receipt.
+Campaign ghi cả hai và chạy đến hết; không loại hoặc thay chúng bằng TN/FN.
 
-## Kiểm tra terminal và process live
+Precision kỳ vọng R5 **92,86%**, recall observable **100% = 13/13**, lower
+bound **86,67% = 13/15**, control-positive **6,67% = 1/15**. Trên 13 trial phát
+hiện được, kernel→preview p50/p95/p99 **0,951/1,288/1,332 s**. Tập này nhỏ và
+chỉ gồm RabbitMQ; không dùng để thay matrix R3 hoặc suy ra stable toàn cụm.
+Bằng chứng: [R5 terminal](validation-evidence/pulse-matched-r3-r4-20261015/r5-TERMINAL.json).
+
+## Điểm cần cải thiện trước phép so sánh cuối
+
+- Control R3 là hoạt động nền, không chạy một fixture benign cùng cách stage,
+  exec và nhịp sleep. Vì vậy chưa tách được tín hiệu của thao tác inject/exec
+  khỏi tín hiệu riêng của scenario. Cần thêm matched benign-exec control.
+- Timestamp kernel hiện lấy từ execve của fixture qua Tetragon; chưa phải
+  timestamp syscall bảo mật đầu tiên trong scenario. Phải ghi rõ khi báo latency.
+- Chưa có fresh blind set cho từng arm, independent normal holdout hoàn chỉnh,
+  adjudication và paired CI. Những phần này còn cần chạy sau khi model arm freeze.
+- Các checkout frozen có contract khác nhau; không thay chỉ vì cùng 249 chiều.
+  Resume study cần tiếp tục kiểm tra input/index/model binding và coverage.
+
+## Kiểm tra và bước kế tiếp
+
+Hai bản sửa đã qua 34 tests trong VM ML venv; thay đổi scope follow-up đã qua
+16 tests liên quan. Source R4 cố định tại
+`/mnt/sentinel-pulse-archive/runtime-control-981aef3/source`; source R5 tại
+`/mnt/sentinel-pulse-archive/runtime-control-24912d6/source`.
+
+R5 đã hoàn tất. Study R4 dự kiến cần tổng **2–4 giờ**, tùy NFS/CPU và số context.
+Đây là dự kiến, không bảo đảm mọi trial đều đủ coverage. Service được enable
+khi boot, restart khi process lỗi; checkpoint và bằng chứng nằm trên VM/NFS.
+
+Lượt kiểm tra tiếp theo sau khoảng **2–3 giờ**: xác minh R4 đủ
+693/693 model, phân tích unknown/provenance R5, rồi khóa independent normal holdout và bộ blind mới cho so sánh
+arm. Dùng paired metrics để chọn feature; chưa tune candidate theo R3 rồi gọi
+R3 là blind test.
 
 ```bash
-systemctl show pulse-syscall-addition-a2.service -p Result -p ExecMainStatus -p ActiveState
-python3 -m json.tool /mnt/sentinel-pulse-archive/syscall-addition-a2-20261014/TERMINAL.json
-systemctl show pulse-idle-batch-canary-b3.service -p Result -p ActiveState -p SubState
+systemctl show pulse-matched-study-parallel-r4-20261015.service -p ActiveState -p SubState -p NRestarts
+systemctl show pulse-matched-campaign-parallel-r5-rabbit-20261015.service -p ActiveState -p SubState -p NRestarts
+python3 -m json.tool /mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-development-matrix/STATUS.json
 ```
 
-Canary B3 đã `inactive/dead` sau `Result=success`; baseline exact loader trên
-workers chạy 1.000 ms. Kiểm tra ngày 15/10 thấy tiến trình normal A1
-`candidate_shadow` còn `running` trên cả ba worker, nhưng không có extended
-500 ms loader hoặc attack scorer. User `dat` chưa đọc được output root-owned,
-nên không xác nhận được shadow follower còn tiến triển hay chỉ đang chờ; không
-gọi trạng thái này là attack evaluation live.
-Trên `.234`, xem `pulse-syscall-distribution-audit-c5.service` và
-`/mnt/sentinel-pulse-archive/syscall-development-distribution-c5/STATUS.json`.
-`completed_inputs/expected_inputs` là tiến độ đọc dữ liệu, không phải chất lượng model.
-Evidence hoàn tất capture/review:
-[SUMMARY.json](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json).
+Checkout cũ `/home/dat/eBPF-project` còn các thay đổi chưa commit từ trước và
+không trùng host hiện tại. Checkout đồng bộ mới dùng `/home/dat/eBPF-project-current`;
+release thực thi R4/R5 được ghim riêng ở NFS. Các thay đổi cũ vẫn cần review,
+chưa được coi là đã hợp nhất vào phiên bản hiện hành.

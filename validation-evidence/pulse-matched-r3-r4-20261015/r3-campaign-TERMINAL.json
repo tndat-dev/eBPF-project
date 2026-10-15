@@ -1,0 +1,45 @@
+{
+  "alert": false,
+  "automatic_promotion": false,
+  "binding": {
+    "automatic_promotion": false,
+    "binary_sha256": "bf1ebe1e724ad51bf3baf5affa44af2bd73913a0114e94f7a6b62ccaf6cb6c01",
+    "config_sha256": "77d45d77e123d59ccca76ad5dc6a1b61e2e0310becd793f53240d16b03813e9a",
+    "evidence_class": "development_candidate_preview",
+    "exec_provenance_policy_sha256": "2e51ddd9ac56b015c7b3e3cf8b7cc6e751542168fc8877fe03b101cb767f10ff",
+    "fresh_blind": false,
+    "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+    "stop_on_false_positive": false,
+    "stop_on_miss": false
+  },
+  "completed_pairs": 315,
+  "confirmed_FPR": null,
+  "confirmed_precision": null,
+  "confusion_matrix_expected_control_labels": {
+    "FN": 2,
+    "FP": 72,
+    "TN": 236,
+    "TP": 284
+  },
+  "control_labels": "pending_post_run_adjudication",
+  "control_positive_rate": 0.23376623376623376,
+  "expected_pairs": 315,
+  "finished_at_unix": 1792023437.475511,
+  "intervals": 630,
+  "kernel_to_alert": null,
+  "kernel_to_preview_seconds": {
+    "p50": 1.0666542053222656,
+    "p95": 1.6094665169715845,
+    "p99": 4.751005344390888,
+    "samples": 284
+  },
+  "latency_conditional_on_detected_trials": true,
+  "policy_applied": false,
+  "precision_expected": 0.797752808988764,
+  "recall_end_to_end_lower_bound": 0.9015873015873016,
+  "recall_observed": 0.993006993006993,
+  "schema": "pulse-preview-interval-matrix-v1",
+  "state": "completed_development_preview_matrix",
+  "unknown": 36
+}

@@ -1,0 +1,122 @@
+{
+  "binding": {
+    "automatic_promotion": false,
+    "binary_sha256": "bf1ebe1e724ad51bf3baf5affa44af2bd73913a0114e94f7a6b62ccaf6cb6c01",
+    "config_sha256": "fbacf5c2523c000f7cc363ded94b237c017723edd018c1f2eeb1165d908164ce",
+    "evidence_class": "development_candidate_preview",
+    "exec_provenance_policy_sha256": "b5d12b64a5a23ea034d21553ea26a5452c99900c2ddffe6c2e383aeffb2f0553",
+    "fresh_blind": false,
+    "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+    "stop_on_false_positive": false,
+    "stop_on_miss": false
+  },
+  "registered_at": 1792033527.6000612,
+  "schedule": [
+    {
+      "rate_per_second": 6,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 12,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "invalid_setns_burst",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "seccomp_api_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "anonymous_mprotect_churn",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 24,
+      "scenario": "execveat_resolution_probe",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "rate_per_second": 6,
+      "scenario": "child_ptrace_handshake",
+      "seed": 61501,
+      "workload_controller": "aims-rabbitmq-server",
+      "workload_key": "production/aims-rabbitmq-server:rabbitmq"
+    }
+  ]
+}
