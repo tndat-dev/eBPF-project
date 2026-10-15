@@ -133,6 +133,7 @@ def normalize_connect_event(
         return None
     pod = process.get("pod") if isinstance(process.get("pod"), dict) else {}
     container = pod.get("container") if isinstance(pod.get("container"), dict) else {}
+    parent = event.get("parent") if isinstance(event.get("parent"), dict) else {}
     arguments = event.get("args", [])
     address, port, family = _socket_address(arguments)
     target = dict((target_index or {}).get(address, {})) if address else {}
@@ -145,12 +146,16 @@ def normalize_connect_event(
             "pod_name": pod.get("name"),
             "pod_uid": pod.get("uid"),
             "container_name": container.get("name"),
+            "container_id": container.get("id"),
             "exec_id": process.get("exec_id"),
             "parent_exec_id": process.get("parent_exec_id"),
             "pid": process.get("pid"),
             "uid": process.get("uid"),
             "binary": process.get("binary"),
+            "start_time": process.get("start_time"),
         },
+        "parent": {key: parent.get(key) for key in
+                   ("exec_id", "parent_exec_id", "pid", "uid", "binary", "start_time")},
         "connection": {
             "socket_fd": _labeled_integer(arguments, "socket_fd"),
         },

@@ -1,0 +1,28 @@
+[Unit]
+Description=Pulse independent post-preview RCA evidence trees (read-only subscriber)
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/mnt/sentinel-pulse-archive
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dat
+EnvironmentFile=/etc/sentinel-pulse/rca-context.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_RCA_SOURCE} /usr/bin/python3 -u -m sentinel_pulse.rca_service --config ${PULSE_RCA_CONFIG}
+Restart=always
+RestartSec=10
+TimeoutStopSec=35
+CPUQuota=50%
+MemoryMax=512M
+TasksMax=64
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sentinel-pulse-rca
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
