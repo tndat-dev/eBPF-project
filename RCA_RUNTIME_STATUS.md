@@ -1,6 +1,6 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **15:19 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **15:31 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
@@ -12,33 +12,41 @@ bằng chứng cho lần chọn feature của Pulse kế tiếp; Pulse hiện ph
 Kết quả thí nghiệm syscall không tự đổi candidate đang freeze. Pulse hiện chưa
 phát operational alert, nên các case live hiện được kích hoạt từ preview.
 
-| Chỉ số live tại 15:12 UTC+7 | Giá trị |
+| Trạng thái live tại 15:31 UTC+7 | Giá trị |
 |---|---:|
-| RCA service | `pulse-rca-context.service`, PID 262736, NRestarts=0 |
-| Active run/output | `parallel-20261015-r3-fastcase`; R3 cũ được giữ riêng |
-| Deployed source | `/home/dat/eBPF-project-current`, commit `90a54ec`; dùng policy connect có sẵn |
-| Config SHA-256 | `968b5cd8ed9541ea321ceddb40924ebc9202a802805748ba51c537806888e9f9` |
-| Case fastcase đã xuất | 103; 41 chưa có connect context |
-| Preview quan sát / gom cooldown | 3.982 / 3.879 |
-| Preview→subscriber p50 / p95 | 7,73 / 15,54 giây (103 case) |
-| Subscriber nhận preview→ghi case p50 / p95 | 2,06 / 2,11 giây (103 case) |
-| Preview phát→ghi case p50 / p95 | 9,79 / 17,61 giây (103 case) |
-| Connect event đã nhận | 25.424: worker1 13.626; worker4 11.798; worker3 0 |
+| Expanded RCA subscriber | `pulse-rca-runtime-events.service`, **active/enabled**, PID 277441, NRestarts=0 |
+| Connect-only subscriber | `pulse-rca-context.service`, **inactive/disabled**; output cũ được giữ nguyên |
+| Deployed source | `/home/dat/eBPF-project-current`, commit `34df4a1`; deployed service source SHA khớp checkout |
+| Active output/config | `/var/lib/sentinel-pulse-rca/runtime-events-20261015`; `/etc/sentinel-pulse-rca/runtime-events-20261015.json` |
+| Runtime tracing policies | `sentinel-rca-runtime-v1`, `sentinel-rca-fork-v1`; namespace `production`, observation-only |
+| Captured counters at audit | 155.556 runtime events (file 106.812; process 31.826; credential 7.790; network/connect 9.128) |
+| Worker streams | 3 workers × policy+lifecycle; each stream had fresh events at audit |
+| Cases retained / structural audit | 64 emitted; 58 audited, 0 structural/binding errors |
+| Audited case context | 31/58 runtime context; 16/58 connect context; 48/58 lacked connect; 27/58 lacked runtime context |
+| Retained preview→case latency | p50 10,51s; p95 17,24s; p99 17,24s (58 retained cases; descriptive only) |
+| Runtime ops present in audited cases | exec 285, fork 10, exit 714, open 1.472, write 418, setuid 2, setgid 2, commit_creds 15 |
 
-R3 cũ đo preview→case p50/p95 15,00/22,63 giây trên 495 case. Fastcase mới
-đặt `after_seconds=0`, dùng grace 2 giây và giữ nguyên policy connect sẵn có;
-không cài hook mới. Trong 103 case, subscriber→case là 2,06/2,11 giây, nhưng
-preview→subscriber còn 7,73/15,54 giây. Do đó preview→case tổng p50/p95 là
-9,79/17,61 giây trong mẫu 103 case; đây là số liệu mô tả, **không phải gate
-đạt/trượt của RCA**. RCA không bị yêu cầu phải đáp ứng latency thấp để được
-coi là hoàn thiện. 41/103 case thiếu connect context; stream worker3
-chưa có normalized event. `timedatectl` trên master và ba worker báo
-`NTPSynchronized=yes`; `chronyc` không có nên chưa biết offset chính xác.
+Fastcase connect-only đã được **dừng và disable**; dữ liệu/run cũ không bị xóa.
+Subscriber mở rộng là service duy nhất đang chạy cho RCA. Nó đọc policy+lifecycle
+streams của worker1, worker3, worker4, ghi event process/file/credential/network
+và dựng case từ preview. Cumulative counters là bộ đếm service tại thời điểm
+audit, không phải số event độc lập, attack, hay số case chính xác; ring buffer
+vẫn có giới hạn. 58 issue được service ghi nhận tại snapshot, cần xem như tín hiệu
+về coverage/transport/processing để phân loại tiếp, không bỏ qua.
 
-RCA expanded multi-event đã qua pod validation cô lập nhưng chưa bật policy
-mở rộng trên production trong lúc R4 normal holdout còn chạy đến **12:38 ngày
-16/10/2026 UTC+7**. Fastcase live hiện chỉ ghi connect evidence, chưa có
-process/file/credential/namespace/mount/ptrace coverage mở rộng.
+Case audit **chỉ xác nhận cấu trúc, identity/model/policy binding và hash**;
+không xác nhận event completeness, ground truth, causal root cause hoặc độ đúng
+của nhãn. Các số đếm category trong case là số operation được giữ trong case,
+không phải độc lập với nhau hay confusion matrix. Không thấy operation namespace,
+mount hoặc ptrace trong các case production snapshot này; các nhánh đó chỉ có
+bằng chứng từ fixture cô lập trước đây, chưa được xác nhận bằng workload production.
+Không suy ra “không xảy ra” từ việc không quan sát thấy.
+
+R4 normal holdout vẫn chạy đến **12:38 ngày 16/10/2026 UTC+7**. Thời điểm bật
+production instrumentation (`2026-10-15T08:25:39Z`) đã được append vào
+`INSTRUMENTATION_INTERVALS.jsonl` với `interval_status=ongoing`, `ended_at=null`
+cho ba worker. Khoảng này phải được đánh dấu là có instrumentation và phân tích
+riêng/sensitivity-check; không coi là normal sạch, cũng không loại âm thầm.
 
 Trong validation, hai `TracingPolicyNamespaced` và pod thử nghiệm đã ở
 worker1 từ **07:36:34Z đến 08:09:19Z**. Hash evidence C3 đã đối chiếu với
@@ -80,25 +88,20 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 | Mục | Trạng thái xác minh |
 |---|---|
 | VM chạy subscriber | 10.1.16.234 — k8s-master.local |
-| Unit | pulse-rca-context.service |
-| systemd | active/running, enabled; MainPID 262736, NRestarts=0 |
-| Case trong run fastcase | 103 case đã xuất; 41 case thiếu connect context |
-| Context ring đang giữ | 8.796 normalized event tại snapshot |
-| Stream được mở | Ba sensor trên worker1, worker4, worker3 |
-| Stream có connect event đã nhận ở snapshot | worker1 13.626; worker4 11.798; worker3 chưa có normalized event |
+| Unit đang chạy | `pulse-rca-runtime-events.service`; active/running, enabled; PID 277441, NRestarts=0 |
+| Unit connect-only cũ | `pulse-rca-context.service`; inactive/disabled, evidence cũ được giữ |
+| Policy | Hai `TracingPolicyNamespaced` observation-only trong `production` |
+| Tetragon stream | policy+lifecycle trên worker1, worker3, worker4; có event mới ở cả sáu stream tại snapshot |
+| Case hiện tại | 64 đã emit; audit 58 retained cases không tìm thấy lỗi cấu trúc/binding |
+| Runtime detail trong cases | Process/file/credential đã có; namespace/mount/ptrace chưa quan sát thấy trong case production snapshot |
 | Trigger | candidate_alert_preview, không phải alert production |
 | Tự thay model/enforce/cách ly | Không |
 
-Mở stream không chứng minh mọi workload đều có event. Pod ngoài selector,
-khoảng thiếu telemetry hoặc không phát sinh connect đều có thể làm thiếu
-context; không tự suy ra không có kết nối hay không có anomaly.
-
-Worker3 hiện chỉ có frontend đang Running và thuộc selector của policy;
-Kafka/PostgreSQL/RabbitMQ/Redis/waypoint trên node này nằm ngoài selector.
-Các pod service tên cũ có `ready=false` trên worker3 là phase `Succeeded`,
-không phải microservice đang Running nhưng mất readiness. Sensor và policy
-connect trên node này đã được kiểm tra enabled; số normalized event vẫn bằng
-0 nên coverage connect của worker3 chưa được xác nhận bằng event.
+Mở stream và có event ở node không chứng minh mọi workload hay mọi loại event
+đều được bao phủ. Audit có 48/64 case thiếu connect context và 27/64 thiếu
+runtime context tại snapshot; case có thể chưa có event phù hợp, bị giới hạn
+ring/query, nằm ngoài phạm vi hoặc telemetry chưa tới. Không được diễn giải
+những ô thiếu thành “không có hoạt động”.
 
 ## 3. Thuật ngữ cần hiểu
 
@@ -133,31 +136,33 @@ connect trên node này đã được kiểm tra enabled; số normalized event 
 
 ```mermaid
 flowchart TD
-    A[Pulse decision dương: candidate preview] --> C[Join theo node + Pod UID + container + thời gian]
-    B[Tetragon connect events từ ba worker] --> R[Context ring SQLite local]
-    R --> C
-    I[Kubernetes Pod / Service / EndpointSlice inventory] --> C
-    C --> P[Container và process được quan sát]
-    P --> L[Parent / child theo exec identity]
-    P --> N[Connect attempt: socket FD + IP/port]
-    N --> D[Resolve đích K8s nếu có bằng chứng]
-    L --> O[Case JSON node/edge + Markdown]
-    D --> O
-    C --> U[Thiếu context / stale / ngoài coverage: ghi rõ unknown]
+    A[Pulse candidate_alert_preview] --> J[Join theo node + Pod UID + container + thời gian]
+    subgraph K[Tetragon production workers]
+      P[Policy events: connect, file, credentials]
+      L[Lifecycle events: fork, exec, exit]
+    end
+    P --> R[Normalize + evidence hash + bounded context ring]
+    L --> R
+    R --> J
+    J --> G[Evidence graph: process lineage, file, credentials, network]
+    I --> G
+    G --> O[Case JSON + Markdown, chỉ rõ evidence/missing/unknown]
+    J --> U[Thiếu context / ngoài coverage / lỗi ingest]
     U --> O
 ```
 
-1. Subscribe Tetragon qua kubectl exec tới ba sensor, chỉ chuẩn hóa sys_connect
-   của policy sentinel-aims-syscalls. Không thay tracing policy/collector.
-2. Giữ context normalized trong SQLite local. Raw event chỉ được dùng lúc
-   normalize và tính hash, không persist argv, token hoặc request payload.
-3. Tail decisions của ba worker từ NFS, kiểm tra model/policy, status và identity.
-   Lần đầu bắt đầu ở cuối log hiện tại, ghi byte đã bỏ qua; không giả vờ có
-   lịch sử trước subscription. Sau restart dùng lại cursor, không tự seek-tail mới.
-4. Gom preview theo identity với cooldown 300 giây. Chờ post-context rồi
-   dựng graph bằng chứng trong khoảng window_end−30 s tới window_end+5 s.
-5. Xuất một JSON đầy đủ node/edge và Markdown để đọc. Từng connect có raw
-   event hash; destination có mapping K8s nếu inventory xác định được.
+1. Chỉ `pulse-rca-runtime-events.service` đang được enable để chạy lúc boot.
+   Service mở policy+lifecycle event streams qua ba Tetragon sensor và theo dõi
+   decision preview từ Pulse.
+2. Chuẩn hóa event thành process (`fork/exec/exit`), file (`open/write` và các
+   thao tác được policy bắt), credential, network/connect; ghi evidence hash,
+   giữ context bounded và không lấy argv/token/request payload.
+3. Kiểm tra model/policy binding của preview, join theo identity và thời gian,
+   kết hợp Kubernetes inventory khi có dữ liệu phù hợp.
+4. Xuất graph/case JSON và Markdown. Case nêu rõ phần evidence quan sát được,
+   giới hạn coverage và unknown; đây không phải chứng minh nhân quả.
+5. Service connect-only cũ đã bị dừng/disable. Không xóa thư mục output cũ,
+   config, journal hay case lịch sử.
 
 Không join chỉ theo PID, pod name hoặc địa chỉ IP. Nếu trigger có CRI ID thì
 kiểm tra thêm CRI ID. Parent ngoài container có thể xuất hiện vì lineage
@@ -191,17 +196,22 @@ append vì kích thước NFS còn cache. Lượt đăng ký mới dùng output 
 Pulse và evaluator syscall tiếp tục chạy trong thời gian cập nhật subscriber.
 
 [Audit SSH hiện hành](validation-evidence/pulse-parallel-live-20261015/inspection.json)
-kiểm tra **41/41 case không có lỗi cấu trúc/binding**; 8 có connect context,
-33 chưa có, trong đó 8 nằm ngoài selector. Số này gồm giai đoạn đầu sau
-subscription nên chưa đủ pre-context 30 giây cho mọi case. Audit kiểm tra
-identity, model/policy, graph node/edge và evidence hash; không xác nhận nhãn
-attack hay root cause. Một số case còn thiếu context dù thuộc selector.
+kiểm tra 41 case lịch sử trước khi policy runtime mở rộng; không đại diện
+service mới. Snapshot mới được audit trực tiếp từ VM bằng `audit_rca_cases`:
+**58 case retained, 0 lỗi cấu trúc/binding, 31 case có runtime context, 16 có
+connect context, 48 thiếu connect và 27 thiếu runtime context**. Retained
+preview→case p50/p95/p99 lần lượt **10,51/17,24/17,24 giây** (n=58). Đây là
+thống kê case được giữ lại, có ảnh hưởng cooldown/backlog và không phải latency
+bảo đảm hay gate RCA. Audit không xác minh tính đầy đủ raw event, nhãn
+attack/normal, confusion matrix hoặc causal root.
 
-Audit ban đầu có 41/41 case R3 qua kiểm tra cấu trúc/binding. Mẫu **lịch sử**
-495 case của R3 đo preview→case p50 **15,00 giây**, p95 **22,63 giây**, p99
-**22,99 giây** tại snapshot 14:51 UTC+7, khi còn chờ hậu ngữ cảnh. Mẫu
-fastcase đang chạy được báo riêng ở đầu tài liệu; nó giảm phần chờ sau khi
-subscriber nhận preview nhưng hiện vẫn có độ trễ subscriber lớn.
+Snapshot service cùng thời điểm đếm cumulative **155.556 normalized runtime
+events**: file 106.812, process 31.826, credential 7.790, network/connect
+9.128; luồng policy và lifecycle đều cập nhật trên cả ba worker. Đây là counter
+ingest, không phải số event độc lập hay số attack. Có **58 issues** trong
+`STATUS.json`; phải phân loại thay vì xóa hoặc diễn giải thành normal. Snapshot
+R3 lịch sử (495 case, preview→case p50/p95 15,00/22,63 giây) không phải benchmark
+đối chứng trực tiếp vì khác cấu hình/observable.
 
 [Sample mới và input normalized](validation-evidence/pulse-parallel-live-20261015/rca-case-replay.json)
 giữ case `5b7c1b37393c64bdc4687c41`: **52 connect event, 74 node, 127 edge**.
@@ -217,15 +227,13 @@ cấu hình khác. Không dùng NRestarts hiện tại để phủ nhận startu
 
 | Cấu hình | Ý nghĩa/giới hạn |
 |---|---|
-| Selector policy hiện tại | `aims.hust.vn/runtime-hardened=true`; không mặc nhiên có connect detail cho mọi workload |
-| Context ring | 180 giây, tối đa 20.000 event; vượt trần ghi issue và bỏ context cũ nhất của riêng RCA |
-| Case grouping | 300 giây/node/Pod UID/container; decision gốc Pulse vẫn nguyên |
-| Cây mỗi case | Tối đa 200 connect event; truncation phải hiện rõ |
-| Query guard | Tối đa 10.001 event, có cờ khi chạm cap |
-| Case retention | Chỉ giữ 500 case JSON/Markdown gần nhất của subscriber; có counter hết hạn |
-| CPU/RAM dịch vụ R3 | Quota 1 core, MemoryMax 512 MiB; MemoryCurrent khoảng 129 MiB tại snapshot; chưa phải A/B overhead |
+| Policy hiện hành | Namespaced trong `production`; quan sát connect, file, credential, process lifecycle và các thao tác namespace/mount/ptrace khai báo trong policy; có sampling cho sự kiện file; không phải mọi event đều được giữ |
+| Context ring | 180 giây, tối đa 40.000 normalized events; ghi issue khi thiếu/tràn context |
+| Case grouping | Cooldown 300 giây theo identity; không xóa Pulse decision gốc |
+| Case retention | Tối đa 500 case gần nhất theo config; counter và file bị retention cần được tính đến |
+| CPU/RAM subscriber | `CPUQuota=200%`, `MemoryMax=1G`; snapshot usage A/B chưa đo |
 | Persistence | SQLite WAL local và case/cursor checkpoint; không gắn terminal SSH |
-| Boot/retry | enabled + Restart=always; NFS mount không phải prerequisite của unit |
+| Boot/retry | Expanded unit enabled + `Restart=always`; connect-only unit disabled; NFS mount không phải prerequisite của unit |
 
 Case local hết retention sẽ bị xóa; sample đã giữ trong Git/evidence không bị
 vòng retention này xóa. Counter STATUS có thể mất phần chưa checkpoint trong
@@ -245,45 +253,48 @@ Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 
 | Hạng mục | Trạng thái |
 |---|---|
-| Normalize process/parent/socket/destination không lấy payload | Đã triển khai |
-| Subscriber ba sensor, join preview có model/policy binding | Đang chạy |
+| Expanded Tetragon subscriber (policy+lifecycle) ba worker | Đang chạy; active/enabled, NRestarts=0 tại kiểm tra |
+| Connect-only subscriber | Đã stop/disable; output cũ giữ nguyên |
+| Normalize process/file/credential/network, không lấy payload | Có evidence production; coverage chưa đầy đủ |
+| Join preview có model/policy binding | Đang chạy; 58 case audit không lỗi cấu trúc/binding |
 | Local context, durable case/cursor, bounded output | Đã có; restart process đã thử |
 | Cây và input evidence thật, replay normalized | Đã có |
 | Pod ngoài selector hoặc context thiếu | Đã đánh dấu; coverage chưa toàn workload |
 | Operational alert thật làm trigger | Chưa có vì Pulse chưa promote |
 | Kết quả connect thành công/thất bại | Chưa có return/flow receipt |
-| Process, file, credential, namespace, mount, ptrace trong RCA mới | Đã kiểm chứng ở pod cô lập; chưa bật production |
+| Namespace/mount/ptrace trong production cases | Chưa quan sát thấy trong snapshot; không kết luận là không xảy ra |
+| Namespace/mount/ptrace trong fixture cô lập | Đã có kiểm chứng trước đây; không thay thế kiểm chứng production |
 | Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
 | Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
 | Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
-| Audit cấu trúc/binding của case live | R3 cũ: 41/41 đã audit; fastcase: 103 case, chưa audit lại đầy đủ; không đồng nghĩa causal accuracy |
-| Latency tới khi cây sẵn sàng | Fastcase n=103: preview→case p50 9,79s, p95 17,61s; subscriber→case p50 2,06s, p95 2,11s |
+| Audit cấu trúc/binding của expanded cases | 58 audited, 0 structural/binding errors; does not prove event completeness or causal accuracy |
+| Latency tới khi cây sẵn sàng | Expanded retained cases n=58: preview→case p50 10,51s, p95 17,24s; descriptive only |
 
-RCA runtime candidate mới đã qua kiểm thử isolated live fixture: **34 event**
-chuẩn hóa thành **58 node/75 edge**, với **24/24 checks** đạt. Receipt bao gồm
-fork→child exec identity, exit status, file open/write, UID/GID/capability,
-setns/unshare, mount và ptrace cùng return thành công/thất bại. Đây là kiểm thử
-khả năng quan sát thủ công, không phải ML alert, blind attack hay đo causal
-accuracy. Mở rộng policy trên production đang chờ normal holdout kết thúc; fastcase
-connect-only đã được chuyển riêng mà không thêm hook mới.
+Fixture cô lập trước đó báo **34 event → 58 node/75 edge, 24/24 checks**; receipt
+kiểm tra process lineage, file, credential, namespace, mount và ptrace cả return
+thành công/thất bại. Đây là kiểm thử khả năng quan sát fixture, không phải bằng
+chứng production hay causal accuracy. Policy mở rộng hiện đã được bật production;
+interval ảnh hưởng tới R4 holdout đã được ghi riêng để sensitivity-check.
 
 ## 8. File, service và lệnh kiểm tra
 
 - Source: [rca_service.py](sentinel_pulse/rca_service.py),
   [rca_tree.py](sentinel_pulse/rca_tree.py), [rca_connect.py](sentinel_pulse/rca_connect.py),
   [audit_rca_cases.py](sentinel_pulse/audit_rca_cases.py).
-- Runtime source: /home/dat/eBPF-project-current, code commit 61a72e9 khi deploy;
-  START/SQLite binding khóa hash source và config, sửa source phải đăng ký lại.
-- Config: /etc/sentinel-pulse-rca/parallel-20261015-r3.json.
-- Environment file systemd đọc: /etc/sentinel-pulse/rca-context.env.
-- Output hiện hành: /var/lib/sentinel-pulse-rca/parallel-20261015-r3.
-  Hai output trước vẫn được giữ để đối chiếu, không sửa case cũ.
-- Unit: [pulse-rca-context.service](sentinel_pulse/systemd/pulse-rca-context.service).
+- Runtime source: `/home/dat/eBPF-project-current`, commit `34df4a1`; source
+  snapshot của systemd có SHA-256 trùng checkout tại thời điểm kiểm tra.
+- Config/env: `/etc/sentinel-pulse-rca/runtime-events-20261015.json` và
+  `/etc/sentinel-pulse-rca/rca-runtime-events.env`.
+- Output hiện hành: `/var/lib/sentinel-pulse-rca/runtime-events-20261015`.
+  Output connect-only cũ `/var/lib/sentinel-pulse-rca/parallel-20261015-r3-fastcase`
+  được giữ nguyên.
+- Unit hiện hành: [pulse-rca-runtime-events.service](sentinel_pulse/systemd/pulse-rca-runtime-events.service).
 - Model/policy hash phải trùng candidate trong [báo cáo Pulse](SENTINEL_PULSE_STATUS.md).
 
-    sudo systemctl show pulse-rca-context.service -p ActiveState -p SubState -p NRestarts -p UnitFileState
-    python3 -m json.tool /var/lib/sentinel-pulse-rca/parallel-20261015-r3/STATUS.json
-    PYTHONPATH=/home/dat/eBPF-project-current python3 -m sentinel_pulse.audit_rca_cases --config /etc/sentinel-pulse-rca/parallel-20261015-r3.json
+    sudo systemctl show pulse-rca-runtime-events.service -p ActiveState -p SubState -p NRestarts -p UnitFileState
+    sudo systemctl is-active pulse-rca-context.service  # expected: inactive
+    python3 -m json.tool /var/lib/sentinel-pulse-rca/runtime-events-20261015/STATUS.json
+    PYTHONPATH=/opt/sentinel-pulse-rca/runtime-events-20261015/source python3 -m sentinel_pulse.audit_rca_cases --config /etc/sentinel-pulse-rca/runtime-events-20261015.json
 
 Không reset Pulse hoặc thí nghiệm syscall nếu subscriber lỗi. Cây điều tra
 không tự xác nhận anomaly, false positive, attack hay root cause.

@@ -42,7 +42,9 @@ là tài liệu tham khảo, không thay thế timestamp của ba báo cáo trê
 - [rca_tree.py](rca_tree.py): identity/time join và graph bằng chứng.
 - [rca_service.py](rca_service.py): subscriber, local context, case/cursor
   checkpoint và bounded retention.
-- [systemd](systemd/pulse-rca-context.service): consumer riêng, không enforce.
+- [systemd expanded subscriber](systemd/pulse-rca-runtime-events.service): đọc
+  policy+lifecycle events, không enforce. `pulse-rca-context.service` là
+  connect-only legacy unit và hiện được giữ làm artifact nhưng không chạy.
 
 ## Kiểm thử và contract
 
