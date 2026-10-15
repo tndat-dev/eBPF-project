@@ -62,10 +62,43 @@ tín hiệu, không mặc nhiên là hành vi tấn công.
 - Subscriber không nằm trong đường quyết định ML nên bước đợi post-context
   không cộng vào kernel→preview latency. RCA có latency hoàn tất cây riêng.
 
-## Cách kiểm tra sau cài đặt
+## Triển khai và kết quả live đã kiểm chứng
+
+SSH xác minh lúc **11:06 ngày 15/10/2026, UTC+7**: service
+`pulse-rca-context.service` đang `active/running`, `enabled`, trên `.234`.
+Source ba module được ghim tại `/opt/sentinel-pulse-rca/2027dc8`, khớp Git
+commit **2027dc8**. Cấu hình riêng
+`/etc/sentinel-pulse-rca/parallel-20261015.json`; environment file
+`/etc/sentinel-pulse/rca-context.env` do systemd đọc. Không cài thêm package.
+
+- Đã sinh **52 case**; **27 case có connect context**, 25 case không có.
+  Đây là số case RCA, **không phải TP/FP hoặc confusion matrix**.
+- Ví dụ thật: `inventory-service-695bf6f445-ttlgj` có **99 lần connect** trong
+  khoảng join; cây chứa 10 process, 5 parent, 3 đích: `kube-dns:53`,
+  `aims-postgres-cnpg-rw:5432`, `127.0.0.1:8000`.
+  Không kết luận các kết nối này độc hại hoặc gây anomaly.
+- Đã thử restart **riêng RCA**: trước restart 49 case; sau resume còn nguyên
+  ledger và tăng lên 52, các cursor đều tăng; chỉ có đúng ba receipt initial-tail
+  của lần đầu, không tua lại từ đầu. Không thử reboot VM trong lượt này.
+- Unit báo MemoryCurrent **88.834.048 byte ≈ 84,7 MiB** ở snapshot.
+  Đây là cgroup gồm subscriber và ba kubectl, chưa phải A/B overhead benchmark.
+- 33 test RCA local và **57 test regression trên VM** đều pass. Suite VM gồm
+  RCA, preview evaluator/replay, batch scorer và matched study; không train lại.
+  Python host chưa có NumPy nên regression ML chạy bằng venv hiện hữu trên VM.
+- Lúc cài, config ban đầu không đọc được vì thư mục cha `/etc/sentinel-pulse`
+  là root:root 0750. Đã chuyển config sang thư mục RCA riêng root:dat 0750,
+  file 0640; không nới quyền cấu hình khác. Journal giữ startup failure.
+  Restart chủ động có thể reset `NRestarts`, không dùng counter này để nói
+  chưa từng có lỗi. Pulse/syscall không restart bởi thao tác triển khai này.
+
+Bằng chứng đã sao chép về repo: [receipt và case thật](validation-evidence/pulse-rca-context-20261015/README.md).
+Các số trên là snapshot, không phải SLO hoặc kết quả phát hiện cuối cùng.
+Một số counter STATUS có thể mất phần chưa checkpoint trong khoảng 5 giây
+khi process restart; ledger case/cursor SQLite là nguồn kiểm tra resume.
+
+## Cách kiểm tra
 
 Unit: [pulse-rca-context.service](sentinel_pulse/systemd/pulse-rca-context.service).
-Trạng thái triển khai live được bổ sung sau khi SSH kiểm chứng service và cây thật.
 
 ```bash
 sudo systemctl status pulse-rca-context.service --no-pager

@@ -1,0 +1,146 @@
+{
+  "checked_at_unix": 1792037173.0664518,
+  "rca": {
+    "automatic_response": false,
+    "causal_root_confirmed": false,
+    "counts": {
+      "cases_emitted": 52,
+      "cases_without_connect_context": 25,
+      "connect_events": 4530,
+      "decision_rows_read": 35435,
+      "issues": 11,
+      "positive_decisions_grouped_by_cooldown": 973,
+      "positive_decisions_observed": 1025
+    },
+    "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+    "pending_cases": 0,
+    "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+    "retained_cases": 52,
+    "ring_events": 4689,
+    "state": "running",
+    "streams": {
+      "k8s-worker1.local": {
+        "last_event_at": 1792037169.4109704,
+        "normalized_events": 467,
+        "sensor": "tetragon-6mzj8",
+        "started_at": 1792037149.724585
+      },
+      "k8s-worker3.local": {
+        "last_event_at": null,
+        "normalized_events": 0,
+        "sensor": "tetragon-sfv2g",
+        "started_at": 1792037149.7538416
+      },
+      "k8s-worker4.local": {
+        "last_event_at": 1792037169.4127727,
+        "normalized_events": 424,
+        "sensor": "tetragon-7sjqf",
+        "started_at": 1792037149.7265384
+      }
+    },
+    "trigger": "candidate_alert_preview",
+    "updated_at_unix": 1792037169.4128864
+  },
+  "cases_total": 52,
+  "cases_with_connections": 27,
+  "chosen_case": "87ab07911c7413268acae4f4",
+  "restart_check": {
+    "before_case_count": 49,
+    "after_case_count": 52,
+    "before_offsets": [
+      216433991,
+      68238708,
+      217135595
+    ],
+    "after_cursors": [
+      [
+        "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker4.local/segments/s00021/decisions.jsonl",
+        220562144
+      ],
+      [
+        "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local/segments/s00021/decisions.jsonl",
+        69684841
+      ],
+      [
+        "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker1.local/segments/s00021/decisions.jsonl",
+        221698156
+      ]
+    ],
+    "initial_tail_receipts_total": 3
+  },
+  "units": "MainPID=125957\nNRestarts=0\nMemoryCurrent=88834048\nId=pulse-rca-context.service\nActiveState=active\nSubState=running\nUnitFileState=enabled\n\nMainPID=74195\nNRestarts=0\nMemoryCurrent=3080212480\nId=pulse-matched-study-parallel-r4-20261015.service\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+  "source_revision": "2027dc88dd52f8bb3051caaa102b916e7f430e73",
+  "startup_issue": "initial /etc/sentinel-pulse parent directory root:root 0750 denied dat read; moved RCA config to separate root:dat 0750 directory",
+  "manual_rca_restart_only": true,
+  "pulse_or_study_restart_performed": false,
+  "test_results": {
+    "local_rca": {
+      "passed": 33
+    },
+    "vm_regression": {
+      "passed": 57,
+      "seconds": 1.21
+    }
+  },
+  "pulse_workers": {
+    "k8s-worker3.local": {
+      "completed_seconds": 37405.61304616928,
+      "config_sha256": "8d04bab1c517403e9379239095921c928d70e62cf244e3709aadfff5356a4adc",
+      "current_segment": "s00021",
+      "feature_rows": 1763550,
+      "frames": 73841,
+      "issues": 16,
+      "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+      "node_name": "k8s-worker3.local",
+      "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+      "preview_positive": 13261,
+      "scored_rows": 587055,
+      "segments": 21,
+      "started_at_unix": 1791999528.661155,
+      "state": "running",
+      "updated_at_unix": 1792037170.245305
+    },
+    "k8s-worker4.local": {
+      "completed_seconds": 37270.062767505646,
+      "config_sha256": "f9d7f96ce9d211095912d4dffc9cff6c087beed55bb947cae0c7dc9daf7b6ccf",
+      "current_segment": "s00021",
+      "feature_rows": 6070755,
+      "frames": 68447,
+      "issues": 133,
+      "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+      "node_name": "k8s-worker4.local",
+      "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+      "preview_positive": 251101,
+      "scored_rows": 2100091,
+      "segments": 21,
+      "started_at_unix": 1791999530.8417902,
+      "state": "running",
+      "updated_at_unix": 1792037168.4633167
+    },
+    "k8s-worker1.local": {
+      "completed_seconds": 37454.7754342556,
+      "config_sha256": "4c47d1c0b7c5261d22ad8bbd92308cf1bf60fe87aea17173ad46c8747d25762d",
+      "current_segment": "s00021",
+      "feature_rows": 5821180,
+      "frames": 71028,
+      "issues": 17,
+      "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+      "node_name": "k8s-worker1.local",
+      "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+      "preview_positive": 118309,
+      "scored_rows": 1984528,
+      "segments": 21,
+      "started_at_unix": 1791999530.244731,
+      "state": "running",
+      "updated_at_unix": 1792037172.1910775
+    }
+  },
+  "syscall": {
+    "state": "fitting_matched_variants",
+    "updated_at_unix": 1792037172.7260506,
+    "current_model": "production/aims-waypoint:istio-proxy|drop_open_pair|73022",
+    "expected_models": 693,
+    "unknown": {},
+    "completed_models": 343
+  }
+}

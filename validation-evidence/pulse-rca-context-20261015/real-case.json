@@ -1,0 +1,2211 @@
+{
+  "affects_model_decision": false,
+  "application_payload_captured": false,
+  "automatic_response": false,
+  "case_id": "87ab07911c7413268acae4f4",
+  "causal_root_confirmed": false,
+  "coverage": {
+    "connect_policy": "sentinel-aims-syscalls",
+    "connect_policy_selected": true,
+    "initial_history_backfill": false,
+    "inventory_age_seconds": 5.378073453903198,
+    "inventory_at": 1792037125.3225951,
+    "last_connect_received_at": 1792037130.6730547,
+    "pod_name": "inventory-service-695bf6f445-ttlgj",
+    "query_event_cap": 10001,
+    "query_event_cap_reached": false,
+    "ring_retention_seconds": 180,
+    "subscriber_lag_seconds": 13.619035482406616,
+    "subscription_started_at": 1792037065.0188148,
+    "subscription_started_before_pre_window": true,
+    "transport_loss": "not_measured_no_exact_event_completeness_guarantee"
+  },
+  "created_at": 1792037130.7006686,
+  "edges": [
+    {
+      "relation": "signal_on_container",
+      "source": "signal:87ab07911c7413268acae4f4",
+      "target": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:57d713583df9491c752433e9432708476f8de2922f4ddb49aae0419f391ffc89"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:57d713583df9491c752433e9432708476f8de2922f4ddb49aae0419f391ffc89",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:16d83915283e6e813fcd49dcb7d848bcd8a38d44331322f97819f3cd4366e62a"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:16d83915283e6e813fcd49dcb7d848bcd8a38d44331322f97819f3cd4366e62a",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:6aaa038222aee9b560ace202fc3abcb9c1359ad365d5570137c8700bb456b850"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:6aaa038222aee9b560ace202fc3abcb9c1359ad365d5570137c8700bb456b850",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:db922f3d5e03b3237c7644767689b0270317670aeb1dba7534753d6408b79c17"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:db922f3d5e03b3237c7644767689b0270317670aeb1dba7534753d6408b79c17",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:21e0904d473bf0a6c0c9822a4f5092a6c2cf59eb48b0dd372401db2d4ba673e4"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:21e0904d473bf0a6c0c9822a4f5092a6c2cf59eb48b0dd372401db2d4ba673e4",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:86087d667afa33025da0304126b9d24d39f25de6ab46789ac778b1505c49b5c8"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:86087d667afa33025da0304126b9d24d39f25de6ab46789ac778b1505c49b5c8",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:99448a3e7a354aa6184579af9998308607f84cfd4a047c2acaa5ca176e3e3725"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:99448a3e7a354aa6184579af9998308607f84cfd4a047c2acaa5ca176e3e3725",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:a79ff38668b6ba74cfb3738bb61fd8f3e60c50bb12a7141c1424fd31f4a59fe3"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:a79ff38668b6ba74cfb3738bb61fd8f3e60c50bb12a7141c1424fd31f4a59fe3",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:4f5ff591844814623dc38475d46850b5fb3bb4fa0a37b575374981c16e061c0c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4f5ff591844814623dc38475d46850b5fb3bb4fa0a37b575374981c16e061c0c",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:1ea9c220b7877d83c074078be9b89f7bc10f0a01ade594cc9a734861f9dad97b"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:1ea9c220b7877d83c074078be9b89f7bc10f0a01ade594cc9a734861f9dad97b",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:30a7490c6cb95d33a216eefce735fc84cd76e97d9702fcad71e4b148aa861ad5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:30a7490c6cb95d33a216eefce735fc84cd76e97d9702fcad71e4b148aa861ad5",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:67e2b34693a90b1226c922c219e5a761b0ed5f0df3e33e33beb9acdfe4d7c822"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:67e2b34693a90b1226c922c219e5a761b0ed5f0df3e33e33beb9acdfe4d7c822",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ba5daa7b1ff0c2e428b89ccda0cedab824b766540a167ebb6ff26ae272227429"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ba5daa7b1ff0c2e428b89ccda0cedab824b766540a167ebb6ff26ae272227429",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ffa7b3d0d5c42644ac7c8eb30ff987f61f7ad3ca72bab9ebb92e8b7a36817d05"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ffa7b3d0d5c42644ac7c8eb30ff987f61f7ad3ca72bab9ebb92e8b7a36817d05",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzE1OTY5Mzc0ODoxNjg3NzI4"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzA3NTI4MTM1OToxNjg3NzE1",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzE1OTY5Mzc0ODoxNjg3NzI4"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzE1OTY5Mzc0ODoxNjg3NzI4",
+      "target": "connect:98147db53cba740abf0b974b1d0df60dc2fd0cd2401f4337ba6127a28161a1d1"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:98147db53cba740abf0b974b1d0df60dc2fd0cd2401f4337ba6127a28161a1d1",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:37529a5b47af963a81a0e65a4cce7b732eaa94db5c4764d4d4edaed4311a8806"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:37529a5b47af963a81a0e65a4cce7b732eaa94db5c4764d4d4edaed4311a8806",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:19a7d0427588624a93adac03ce0b91d20a4ef46e5458fb9c1d243c4c84af45b5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:19a7d0427588624a93adac03ce0b91d20a4ef46e5458fb9c1d243c4c84af45b5",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:118f67ffe45f18589d3e07b483dbc61703c09996dc4571dd497a3eeb6baf5332"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:118f67ffe45f18589d3e07b483dbc61703c09996dc4571dd497a3eeb6baf5332",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:06f5b6d6d95cf55b6bca54623b7e92d231fc227f36c16a0feb10fd84fd7f7407"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:06f5b6d6d95cf55b6bca54623b7e92d231fc227f36c16a0feb10fd84fd7f7407",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:5b89493b645a499e6a6fd4a6222ef5267b35087a96c1fa7eb4ffbf240602c2fe"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:5b89493b645a499e6a6fd4a6222ef5267b35087a96c1fa7eb4ffbf240602c2fe",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:4df07acdbc7711a8dcdf2a40fe84403bd58cf5cd49ae9c7b5f9097304e73f1fa"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4df07acdbc7711a8dcdf2a40fe84403bd58cf5cd49ae9c7b5f9097304e73f1fa",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:22360ea994c1b507eb2711bedc4bf59473df2ab1328b59c5db0dde35d33b23f5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:22360ea994c1b507eb2711bedc4bf59473df2ab1328b59c5db0dde35d33b23f5",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:049cdd2ac522ffa62626a77d900f741c4669124cdfa75a87005aa350b3860dc9"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:049cdd2ac522ffa62626a77d900f741c4669124cdfa75a87005aa350b3860dc9",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzQ1ODU4MzcyMzoxNjg4NTAy"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzM2OTI4NTE5ODoxNjg4NDg5",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzQ1ODU4MzcyMzoxNjg4NTAy"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzQ1ODU4MzcyMzoxNjg4NTAy",
+      "target": "connect:099a6149cebc9a69cb616bc8f9f0f848a0728c64c3f62f2d020bafb8d5ee9d60"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:099a6149cebc9a69cb616bc8f9f0f848a0728c64c3f62f2d020bafb8d5ee9d60",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:0d79d04719f624ba27363017420750c3433472f8696a072e0d9f37c799e4ecd5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:0d79d04719f624ba27363017420750c3433472f8696a072e0d9f37c799e4ecd5",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:24f918045a2ed9a93e8d26204ec99c3ef9edf2a5f920b1ab9ec997204b78df1b"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:24f918045a2ed9a93e8d26204ec99c3ef9edf2a5f920b1ab9ec997204b78df1b",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODE0NDk0MzMwNDoxNjg4Nzc1"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODA3MzU3ODI4MjoxNjg4NzU1",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODE0NDk0MzMwNDoxNjg4Nzc1"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODE0NDk0MzMwNDoxNjg4Nzc1",
+      "target": "connect:f6f477be1719f060f80a45ac71d68663245e2088cb1bb0febc216b0f9d1bb6e1"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:f6f477be1719f060f80a45ac71d68663245e2088cb1bb0febc216b0f9d1bb6e1",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e816ea4fbed652bf7abb339493464be7535f4d79d095d3a4af43fbccf28de3d0"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e816ea4fbed652bf7abb339493464be7535f4d79d095d3a4af43fbccf28de3d0",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e71c3681675fc282b8b56a0b10a55266fa0bf179cc35f7b21ad7c8ba2cf75291"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e71c3681675fc282b8b56a0b10a55266fa0bf179cc35f7b21ad7c8ba2cf75291",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:01617ec301e61795a08b2fed3f8d90662bbb609447b2c75db6108d92cff6cba5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:01617ec301e61795a08b2fed3f8d90662bbb609447b2c75db6108d92cff6cba5",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:8e0789eb7661208b125fd465dabe485eaa6f9f2b959ff037321875244067d922"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:8e0789eb7661208b125fd465dabe485eaa6f9f2b959ff037321875244067d922",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:b346af5c12b95f8fb4b47c6044f745ec11dcb6c3f2c0dd5de820ae133bb5e314"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:b346af5c12b95f8fb4b47c6044f745ec11dcb6c3f2c0dd5de820ae133bb5e314",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:9a861f1b018082cca8519124e403ca2f858e65b3f69acf5f592f89afb78effe9"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:9a861f1b018082cca8519124e403ca2f858e65b3f69acf5f592f89afb78effe9",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ae9cbc3954ed09ee698c600f59741d7296bc66cbb9903e928b7e74d51fdb2c6d"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ae9cbc3954ed09ee698c600f59741d7296bc66cbb9903e928b7e74d51fdb2c6d",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:34481c6d241d6aaf1ba410804c4d568429bbb25132ab9bc0ec7eb5fd3fc06463"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:34481c6d241d6aaf1ba410804c4d568429bbb25132ab9bc0ec7eb5fd3fc06463",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e6245b289c1f97e984644294db3375e60cf2418ec3784efb846c0a76d432da8c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e6245b289c1f97e984644294db3375e60cf2418ec3784efb846c0a76d432da8c",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:4090648d25aa46f6b1cda61b2f13ef389f4caf09d6c4fe62285af1b73d1db462"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4090648d25aa46f6b1cda61b2f13ef389f4caf09d6c4fe62285af1b73d1db462",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:0ec939abb8ae20e746ca505e04045c966902696bce648d4b18051ac71aa312ce"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:0ec939abb8ae20e746ca505e04045c966902696bce648d4b18051ac71aa312ce",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:dad8ae62b5ba9b0baccd6ce7bccb0d5a50ebd0b2281681a06b4c4b72069a8174"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:dad8ae62b5ba9b0baccd6ce7bccb0d5a50ebd0b2281681a06b4c4b72069a8174",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3MzEzODI5ODI1MToxNjg5OTA3"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3MzEzODI5ODI1MToxNjg5OTA3"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3MzEzODI5ODI1MToxNjg5OTA3",
+      "target": "connect:9b69e0b34dd343fd489a76df1914034bdb29c7431b5aefaa95101782069030e5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:9b69e0b34dd343fd489a76df1914034bdb29c7431b5aefaa95101782069030e5",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e50fdd72d1f622be09941d94e19ce36a7a9b56ab0b05949e930fd77eca91942c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e50fdd72d1f622be09941d94e19ce36a7a9b56ab0b05949e930fd77eca91942c",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e6362707ca2e3f22344e9c08b3c92a2c06dea7e352d3f0aa44fdfa15c21a004c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e6362707ca2e3f22344e9c08b3c92a2c06dea7e352d3f0aa44fdfa15c21a004c",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:8ef0433c7c98c128ccb8d684ba0e7434a4e411f7584fae0efa6a0163294d85b4"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:8ef0433c7c98c128ccb8d684ba0e7434a4e411f7584fae0efa6a0163294d85b4",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ed89477cc5a59a3b3481307f6d61bcd35d16d4f19cb192bbe6a6986bcf7853f5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ed89477cc5a59a3b3481307f6d61bcd35d16d4f19cb192bbe6a6986bcf7853f5",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:accf9aefbe6c4796b60eeafe5df0a6123681bcfa6eda34e106de28cf21478349"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:accf9aefbe6c4796b60eeafe5df0a6123681bcfa6eda34e106de28cf21478349",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:1f46736ec226c7e0034d4a6515c1e9f7ca83a247d66b5656e54ce7dc3ebe72a7"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:1f46736ec226c7e0034d4a6515c1e9f7ca83a247d66b5656e54ce7dc3ebe72a7",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:3d25d872a2f60d9b2db64ed7af1fbfe1ab3a5fe751e2ad7434280a023c860e5c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:3d25d872a2f60d9b2db64ed7af1fbfe1ab3a5fe751e2ad7434280a023c860e5c",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:3d96286e5d7809a8a98a03c1854bbde7fb4f227deef06a1b16dcf36b54245506"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:3d96286e5d7809a8a98a03c1854bbde7fb4f227deef06a1b16dcf36b54245506",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:4393fd4b6f79e3599f731edfef8911c1424681f00a36b797eb433f6c9d7c2a0f"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4393fd4b6f79e3599f731edfef8911c1424681f00a36b797eb433f6c9d7c2a0f",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:d95f7d355ca7984b9a5b69254ef0d7fdbb71ba7c4632f351973add40d9d51ee3"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:d95f7d355ca7984b9a5b69254ef0d7fdbb71ba7c4632f351973add40d9d51ee3",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:93283ebd5b28338aeb559999c18da61917db0b62d9b7d8e14dfdc442a4f5f452"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:93283ebd5b28338aeb559999c18da61917db0b62d9b7d8e14dfdc442a4f5f452",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:55e72e2e993e8162c4a9e478b6438b16b64ca594366135d1fa4087af11cc4da1"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:55e72e2e993e8162c4a9e478b6438b16b64ca594366135d1fa4087af11cc4da1",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:61dfd2aa85ec4449508f3fff265e7a7a1b5410423ad6b42200669245386a423e"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:61dfd2aa85ec4449508f3fff265e7a7a1b5410423ad6b42200669245386a423e",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:53e7339ced43f522b34bfdcd531c2d8e4722e565742d607ec76ee4584d699150"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:53e7339ced43f522b34bfdcd531c2d8e4722e565742d607ec76ee4584d699150",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3ODE0NTY1OTY5ODoxNjkwODgw"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3ODE0NTY1OTY5ODoxNjkwODgw"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3ODE0NTY1OTY5ODoxNjkwODgw",
+      "target": "connect:1dd5d7a33aab91c945992cd6112b2fafa96b11cddb84effbec194eb0a09097ab"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:1dd5d7a33aab91c945992cd6112b2fafa96b11cddb84effbec194eb0a09097ab",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:5d35efd734a6db5a4ac41eaf6b2787d16b08aabaa1b9b5001b81dea3b825ecd2"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:5d35efd734a6db5a4ac41eaf6b2787d16b08aabaa1b9b5001b81dea3b825ecd2",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:fef5bffa99d0a5ca3cf4ee1823aff6b256b2f57841facde3cc8a4ffef75a1253"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:fef5bffa99d0a5ca3cf4ee1823aff6b256b2f57841facde3cc8a4ffef75a1253",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:387b5bbf7fe0fcd176cb1936950cc7c4a114cf293cbf45174065700bfc62a4a1"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:387b5bbf7fe0fcd176cb1936950cc7c4a114cf293cbf45174065700bfc62a4a1",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:bcaa63eef6b13f1958696773f34ce9db98111b609951292a425d08064a455ec8"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:bcaa63eef6b13f1958696773f34ce9db98111b609951292a425d08064a455ec8",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:888f03838476c498e96d7d4bac1acab3948809631f8885d48853a9a60aafb5e3"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:888f03838476c498e96d7d4bac1acab3948809631f8885d48853a9a60aafb5e3",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:4f8026f7bdb97e5d1944ba8290c8ed2ec26d425a14fb814c45cc99b87c98140c"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4f8026f7bdb97e5d1944ba8290c8ed2ec26d425a14fb814c45cc99b87c98140c",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:089babe50ffda46565161aaaf545ca85662e54297db9073336104c7387a3b14b"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:089babe50ffda46565161aaaf545ca85662e54297db9073336104c7387a3b14b",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:eb36642c2c008b4048d99b43d8210e277512cf2435a0fa8fa3f64d7ed20bb562"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:eb36642c2c008b4048d99b43d8210e277512cf2435a0fa8fa3f64d7ed20bb562",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:57a3b5eacae31e7a19f55ccd8e5e86b79d236ce75d18c68ebc6665d2366a2ea1"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:57a3b5eacae31e7a19f55ccd8e5e86b79d236ce75d18c68ebc6665d2366a2ea1",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ef4c1005a4c32ede6322f04f91562c925def826cc22b95239358a9fded6e9a07"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ef4c1005a4c32ede6322f04f91562c925def826cc22b95239358a9fded6e9a07",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:1331f64e0ff5573a67b3669bdc9c87dce4ace1d0dfb4322b69d02f7aff9634c8"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:1331f64e0ff5573a67b3669bdc9c87dce4ace1d0dfb4322b69d02f7aff9634c8",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:145ac42bc9917a1ee4286882a960ca78075cd7d252bf1a87bf58415d881960c5"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:145ac42bc9917a1ee4286882a960ca78075cd7d252bf1a87bf58415d881960c5",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MjQ0MDQ3Mjg5NToxNjkxNTUz"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MjQ0MDQ3Mjg5NToxNjkxNTUz"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MjQ0MDQ3Mjg5NToxNjkxNTUz",
+      "target": "connect:d9ea4e66dc88f83c020cd380b5ff72f4621303937e130229bb945f7e6e57f82a"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:d9ea4e66dc88f83c020cd380b5ff72f4621303937e130229bb945f7e6e57f82a",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MzE2OTMwNTM2MzoxNjkxNzIx"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MzE2OTMwNTM2MzoxNjkxNzIx"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MzE2OTMwNTM2MzoxNjkxNzIx",
+      "target": "connect:e8c047e88fa2689becf4d066909ed21164eaaa6fd5ce88555bd6c942204dfac8"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e8c047e88fa2689becf4d066909ed21164eaaa6fd5ce88555bd6c942204dfac8",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:fbf986561070efd7076b4ff6875db1e0b09c7b4a8896fc9a72351064dc7e5616"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:fbf986561070efd7076b4ff6875db1e0b09c7b4a8896fc9a72351064dc7e5616",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:b01c70cdceefb4c45516b66247ec98e0d66d28d2c5b30dfb69bc19f0ca13f57f"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:b01c70cdceefb4c45516b66247ec98e0d66d28d2c5b30dfb69bc19f0ca13f57f",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:39fd8cfc1f3dc5d21aafe210a97ed8e30022cc13e000e504e2465b2718239ef0"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:39fd8cfc1f3dc5d21aafe210a97ed8e30022cc13e000e504e2465b2718239ef0",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:ff8032d049fb5f8509fcf3b816346b171fb5c699cb1a1471c0c0b12771d50100"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:ff8032d049fb5f8509fcf3b816346b171fb5c699cb1a1471c0c0b12771d50100",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:34d546b8a768ff3419d64ccbe9683710556e7e9abdddbd2dbab13c8e1ce1edd3"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:34d546b8a768ff3419d64ccbe9683710556e7e9abdddbd2dbab13c8e1ce1edd3",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:7a0c9dd8e8a5c77e5ba9519deb5a6aad63bedcca77e4434b2b6e09af2f767559"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:7a0c9dd8e8a5c77e5ba9519deb5a6aad63bedcca77e4434b2b6e09af2f767559",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:b28dd2f7db25ea9a3fd7ea44ecb7f8580144997b715540bcc1aa32ab8feaa57b"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:b28dd2f7db25ea9a3fd7ea44ecb7f8580144997b715540bcc1aa32ab8feaa57b",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:07aa51ce43ce701830a8e05d68aa9bd3bdbe1e8da48a40058a7c699bc7054b42"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:07aa51ce43ce701830a8e05d68aa9bd3bdbe1e8da48a40058a7c699bc7054b42",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e6b4702d70dea1d941591399d7e80ce6e2222e9f76f8ee943ef4941afc840c4d"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e6b4702d70dea1d941591399d7e80ce6e2222e9f76f8ee943ef4941afc840c4d",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:c6a1a9855f46f1e887337d2b4b92c49539f0885ba523bbeabae18cd4ba990797"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:c6a1a9855f46f1e887337d2b4b92c49539f0885ba523bbeabae18cd4ba990797",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:a6a85fdc60bf81a4caaede9b3a48dd3470f5ff44142ce48749d44cf6d4f6d549"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:a6a85fdc60bf81a4caaede9b3a48dd3470f5ff44142ce48749d44cf6d4f6d549",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:72e9b41deed02313cb387e8d5666b1b9a8a920d59919f09176668c131f9fa7f0"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:72e9b41deed02313cb387e8d5666b1b9a8a920d59919f09176668c131f9fa7f0",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4ODE0NDYyNzAyMzoxNjkyNTk2"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4ODE0NDYyNzAyMzoxNjkyNTk2"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4ODE0NDYyNzAyMzoxNjkyNTk2",
+      "target": "connect:4c657eeee24efd3a193baf62ee0f76ca2d3fecc2b047db5771972d963beeaf48"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:4c657eeee24efd3a193baf62ee0f76ca2d3fecc2b047db5771972d963beeaf48",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:e443efc331161f7cd9c16742e991e435867516e00824148c3b0137eab37ccb85"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e443efc331161f7cd9c16742e991e435867516e00824148c3b0137eab37ccb85",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:526e915171ff831aafc7b06220fc7787cefb3285a5914b845101ce2624c64af2"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:526e915171ff831aafc7b06220fc7787cefb3285a5914b845101ce2624c64af2",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:f1a273559b2ae4009f5bb8dc28e4a16e100119c8177b18f4b7a409426f520661"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:f1a273559b2ae4009f5bb8dc28e4a16e100119c8177b18f4b7a409426f520661",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:78b367a19bf0e7b16ea93178d19582f8a9d79df33f0205acef85357a0ca10f26"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:78b367a19bf0e7b16ea93178d19582f8a9d79df33f0205acef85357a0ca10f26",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:969a8b69f596ca9c9e95cfed39b28e8e0c36c55387e15a5702019de34cc654db"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:969a8b69f596ca9c9e95cfed39b28e8e0c36c55387e15a5702019de34cc654db",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:c64d1db566bf0d23635236a2b249347534045469fe8d83c70994f22957ed83a9"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:c64d1db566bf0d23635236a2b249347534045469fe8d83c70994f22957ed83a9",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:c396cc58581b5c51ef65a9e358e7c82222f61d9ac5a2d7e76ab78dd871c7be45"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:c396cc58581b5c51ef65a9e358e7c82222f61d9ac5a2d7e76ab78dd871c7be45",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:075674f829942813022559ec2c60e7cefb64eb4570d25ce4cb962585dee42751"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:075674f829942813022559ec2c60e7cefb64eb4570d25ce4cb962585dee42751",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:a86ea29f38406ef746876fe7338b758912356ceafec96f746ab26de0ae23f134"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:a86ea29f38406ef746876fe7338b758912356ceafec96f746ab26de0ae23f134",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:dd094de65eeadd235580f578892c8e66f4182e40ef2e2dbda833352dd31e77cf"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:dd094de65eeadd235580f578892c8e66f4182e40ef2e2dbda833352dd31e77cf",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:c7a98cfae86db91306a48359ce14084ba21b3a134e18a120ba0781458a0596d9"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:c7a98cfae86db91306a48359ce14084ba21b3a134e18a120ba0781458a0596d9",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:daf5769a60280a71c41f04508a1d8f813be835837ab6447d83dbe499289b0046"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:daf5769a60280a71c41f04508a1d8f813be835837ab6447d83dbe499289b0046",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:403b13790593e8476c1a92c7b6a24d55dd2b51d390ec430e188796058f2b9c6f"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:403b13790593e8476c1a92c7b6a24d55dd2b51d390ec430e188796058f2b9c6f",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:be76850b266672d8f26bc8259508c45f462b1d807f1ed4f53aa224b178f42bcb"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:be76850b266672d8f26bc8259508c45f462b1d807f1ed4f53aa224b178f42bcb",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:fe9cc597f12f0c067e39157f241a6d79c282e46906d109962757561be7c56ce3"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:fe9cc597f12f0c067e39157f241a6d79c282e46906d109962757561be7c56ce3",
+      "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "target": "connect:5160ca094b6886adaa91889fe78e0e296a51bb3152764f10c1e19d7872cb5f7e"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:5160ca094b6886adaa91889fe78e0e296a51bb3152764f10c1e19d7872cb5f7e",
+      "target": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]"
+    },
+    {
+      "relation": "observed_process_in_container",
+      "source": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzE0ODk3OTQ5ODoxNjkzNDkz"
+    },
+    {
+      "evidence": "tetragon_exec_identity",
+      "relation": "parent_of",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzA3MzkxNDMzOToxNjkzNDgx",
+      "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzE0ODk3OTQ5ODoxNjkzNDkz"
+    },
+    {
+      "relation": "called_connect",
+      "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzE0ODk3OTQ5ODoxNjkzNDkz",
+      "target": "connect:e01eb2422e13389cdda4c35e0c77ec0b4760e02908629f3e3470f218da40e9a9"
+    },
+    {
+      "relation": "attempted_destination",
+      "source": "connect:e01eb2422e13389cdda4c35e0c77ec0b4760e02908629f3e3470f218da40e9a9",
+      "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+    }
+  ],
+  "join": {
+    "after_seconds": 5,
+    "before_seconds": 30,
+    "node_pod_uid_container": true,
+    "process_causality": "not_established_by_aggregate_anomaly"
+  },
+  "limitations": [
+    "connect_entry_is_an_attempt_not_a_success_receipt",
+    "no_l7_payload_or_tls_plaintext",
+    "time_join_is_not_proof_of_root_cause",
+    "missing_events_are_unknown_not_evidence_of_no_connection"
+  ],
+  "matched_connect_events": 99,
+  "nodes": [
+    {
+      "id": "signal:87ab07911c7413268acae4f4",
+      "kind": "signal",
+      "trigger": {
+        "alert": false,
+        "candidate_alert_preview": true,
+        "candidate_manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+        "candidate_policy_alpha": 0.0016666666666666668,
+        "capture_segment": "s00021",
+        "cgroup_id": 3846336,
+        "container_name": "app",
+        "joint_p": 0.00047219926809113444,
+        "node_name": "k8s-worker1.local",
+        "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+        "policy_applied": false,
+        "policy_sha256": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+        "preview_emitted_at": 1792037110.3635402,
+        "run_id": "parallel-20261015",
+        "schema": "sentinel-pulse-candidate-shadow-score-v1",
+        "status": "candidate-raw-score-only",
+        "support_p": 0.010860583166096092,
+        "tree_p": 0.00023609963404556722,
+        "window_end": 1792037109.9145832,
+        "window_start": 1792037109.3834593,
+        "workload_key": "production/inventory-service:app"
+      }
+    },
+    {
+      "container_name": "app",
+      "id": "container:k8s-worker1.local|b41ce3d7-5598-454e-ace2-6397160b45ec|app",
+      "kind": "container",
+      "node_name": "k8s-worker1.local",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "workload_key": "production/inventory-service:app"
+    },
+    {
+      "binary": "/usr/local/bin/uvicorn",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDUyMzIwNTg5NDcxNDozNzc3Njcz",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 3777673,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-09-26T16:00:43.637493089Z",
+      "uid": 10001
+    },
+    {
+      "binary": "/usr/bin/containerd-shim-runc-v2",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "kind": "process_parent",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg4MjU4MzQ1MjozNzczNTI0",
+      "pid": 3773546,
+      "start_time": "2026-09-26T16:00:18.328247740Z",
+      "uid": 0
+    },
+    {
+      "evidence_sha256": "57d713583df9491c752433e9432708476f8de2922f4ddb49aae0419f391ffc89",
+      "id": "connect:57d713583df9491c752433e9432708476f8de2922f4ddb49aae0419f391ffc89",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:40.143794675Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "address": "10.96.0.10",
+      "family": "AF_INET",
+      "id": "destination:[\"AF_INET\", \"10.96.0.10\", 53]",
+      "kind": "destination",
+      "kubernetes": {
+        "kind": "Service",
+        "name": "kube-dns",
+        "namespace": "kube-system",
+        "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+      },
+      "port": 53
+    },
+    {
+      "evidence_sha256": "16d83915283e6e813fcd49dcb7d848bcd8a38d44331322f97819f3cd4366e62a",
+      "id": "connect:16d83915283e6e813fcd49dcb7d848bcd8a38d44331322f97819f3cd4366e62a",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:40.147030990Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "address": "10.109.129.182",
+      "family": "AF_INET",
+      "id": "destination:[\"AF_INET\", \"10.109.129.182\", 5432]",
+      "kind": "destination",
+      "kubernetes": {
+        "kind": "Service",
+        "name": "aims-postgres-cnpg-rw",
+        "namespace": "production",
+        "uid": "5f09aa86-f08a-4cc3-a8aa-6a85a9a7e6d8"
+      },
+      "port": 5432
+    },
+    {
+      "evidence_sha256": "6aaa038222aee9b560ace202fc3abcb9c1359ad365d5570137c8700bb456b850",
+      "id": "connect:6aaa038222aee9b560ace202fc3abcb9c1359ad365d5570137c8700bb456b850",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:41.199356807Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "db922f3d5e03b3237c7644767689b0270317670aeb1dba7534753d6408b79c17",
+      "id": "connect:db922f3d5e03b3237c7644767689b0270317670aeb1dba7534753d6408b79c17",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:41.200976285Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "21e0904d473bf0a6c0c9822a4f5092a6c2cf59eb48b0dd372401db2d4ba673e4",
+      "id": "connect:21e0904d473bf0a6c0c9822a4f5092a6c2cf59eb48b0dd372401db2d4ba673e4",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:42.026013023Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "86087d667afa33025da0304126b9d24d39f25de6ab46789ac778b1505c49b5c8",
+      "id": "connect:86087d667afa33025da0304126b9d24d39f25de6ab46789ac778b1505c49b5c8",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:42.027251063Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "99448a3e7a354aa6184579af9998308607f84cfd4a047c2acaa5ca176e3e3725",
+      "id": "connect:99448a3e7a354aa6184579af9998308607f84cfd4a047c2acaa5ca176e3e3725",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:42.247890451Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "a79ff38668b6ba74cfb3738bb61fd8f3e60c50bb12a7141c1424fd31f4a59fe3",
+      "id": "connect:a79ff38668b6ba74cfb3738bb61fd8f3e60c50bb12a7141c1424fd31f4a59fe3",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:42.249699836Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "4f5ff591844814623dc38475d46850b5fb3bb4fa0a37b575374981c16e061c0c",
+      "id": "connect:4f5ff591844814623dc38475d46850b5fb3bb4fa0a37b575374981c16e061c0c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.113406595Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "1ea9c220b7877d83c074078be9b89f7bc10f0a01ade594cc9a734861f9dad97b",
+      "id": "connect:1ea9c220b7877d83c074078be9b89f7bc10f0a01ade594cc9a734861f9dad97b",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.114838528Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "30a7490c6cb95d33a216eefce735fc84cd76e97d9702fcad71e4b148aa861ad5",
+      "id": "connect:30a7490c6cb95d33a216eefce735fc84cd76e97d9702fcad71e4b148aa861ad5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.307189856Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "67e2b34693a90b1226c922c219e5a761b0ed5f0df3e33e33beb9acdfe4d7c822",
+      "id": "connect:67e2b34693a90b1226c922c219e5a761b0ed5f0df3e33e33beb9acdfe4d7c822",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.310881110Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ba5daa7b1ff0c2e428b89ccda0cedab824b766540a167ebb6ff26ae272227429",
+      "id": "connect:ba5daa7b1ff0c2e428b89ccda0cedab824b766540a167ebb6ff26ae272227429",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.661082479Z",
+      "socket_fd": 29,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ffa7b3d0d5c42644ac7c8eb30ff987f61f7ad3ca72bab9ebb92e8b7a36817d05",
+      "id": "connect:ffa7b3d0d5c42644ac7c8eb30ff987f61f7ad3ca72bab9ebb92e8b7a36817d05",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:43.664611360Z",
+      "socket_fd": 29,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzE1OTY5Mzc0ODoxNjg3NzI4",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzE1OTY5Mzc0ODoxNjg3NzI4",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzA3NTI4MTM1OToxNjg3NzE1",
+      "pid": 1687728,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:04:43.591291229Z",
+      "uid": 10001
+    },
+    {
+      "binary": "/usr/bin/runc",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzA3NTI4MTM1OToxNjg3NzE1",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2MzA3NTI4MTM1OToxNjg3NzE1",
+      "kind": "process_parent",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1687715,
+      "start_time": "2026-10-15T04:04:43.506878277Z",
+      "uid": 0
+    },
+    {
+      "evidence_sha256": "98147db53cba740abf0b974b1d0df60dc2fd0cd2401f4337ba6127a28161a1d1",
+      "id": "connect:98147db53cba740abf0b974b1d0df60dc2fd0cd2401f4337ba6127a28161a1d1",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:44.222818403Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "address": "127.0.0.1",
+      "family": "AF_INET",
+      "id": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]",
+      "kind": "destination",
+      "kubernetes": null,
+      "port": 8000
+    },
+    {
+      "evidence_sha256": "37529a5b47af963a81a0e65a4cce7b732eaa94db5c4764d4d4edaed4311a8806",
+      "id": "connect:37529a5b47af963a81a0e65a4cce7b732eaa94db5c4764d4d4edaed4311a8806",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:44.373659327Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "19a7d0427588624a93adac03ce0b91d20a4ef46e5458fb9c1d243c4c84af45b5",
+      "id": "connect:19a7d0427588624a93adac03ce0b91d20a4ef46e5458fb9c1d243c4c84af45b5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:44.376727084Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "118f67ffe45f18589d3e07b483dbc61703c09996dc4571dd497a3eeb6baf5332",
+      "id": "connect:118f67ffe45f18589d3e07b483dbc61703c09996dc4571dd497a3eeb6baf5332",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:45.430756239Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "06f5b6d6d95cf55b6bca54623b7e92d231fc227f36c16a0feb10fd84fd7f7407",
+      "id": "connect:06f5b6d6d95cf55b6bca54623b7e92d231fc227f36c16a0feb10fd84fd7f7407",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:45.432277214Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "5b89493b645a499e6a6fd4a6222ef5267b35087a96c1fa7eb4ffbf240602c2fe",
+      "id": "connect:5b89493b645a499e6a6fd4a6222ef5267b35087a96c1fa7eb4ffbf240602c2fe",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:46.485066633Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "4df07acdbc7711a8dcdf2a40fe84403bd58cf5cd49ae9c7b5f9097304e73f1fa",
+      "id": "connect:4df07acdbc7711a8dcdf2a40fe84403bd58cf5cd49ae9c7b5f9097304e73f1fa",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:46.486521339Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "22360ea994c1b507eb2711bedc4bf59473df2ab1328b59c5db0dde35d33b23f5",
+      "id": "connect:22360ea994c1b507eb2711bedc4bf59473df2ab1328b59c5db0dde35d33b23f5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:47.547920790Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "049cdd2ac522ffa62626a77d900f741c4669124cdfa75a87005aa350b3860dc9",
+      "id": "connect:049cdd2ac522ffa62626a77d900f741c4669124cdfa75a87005aa350b3860dc9",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:47.552769504Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzQ1ODU4MzcyMzoxNjg4NTAy",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzQ1ODU4MzcyMzoxNjg4NTAy",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzM2OTI4NTE5ODoxNjg4NDg5",
+      "pid": 1688502,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:04:47.890182579Z",
+      "uid": 10001
+    },
+    {
+      "binary": "/usr/bin/runc",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzM2OTI4NTE5ODoxNjg4NDg5",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2NzM2OTI4NTE5ODoxNjg4NDg5",
+      "kind": "process_parent",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1688489,
+      "start_time": "2026-10-15T04:04:47.800882426Z",
+      "uid": 0
+    },
+    {
+      "evidence_sha256": "099a6149cebc9a69cb616bc8f9f0f848a0728c64c3f62f2d020bafb8d5ee9d60",
+      "id": "connect:099a6149cebc9a69cb616bc8f9f0f848a0728c64c3f62f2d020bafb8d5ee9d60",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:48.490792862Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "0d79d04719f624ba27363017420750c3433472f8696a072e0d9f37c799e4ecd5",
+      "id": "connect:0d79d04719f624ba27363017420750c3433472f8696a072e0d9f37c799e4ecd5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:48.595349142Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "24f918045a2ed9a93e8d26204ec99c3ef9edf2a5f920b1ab9ec997204b78df1b",
+      "id": "connect:24f918045a2ed9a93e8d26204ec99c3ef9edf2a5f920b1ab9ec997204b78df1b",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:48.597305900Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODE0NDk0MzMwNDoxNjg4Nzc1",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODE0NDk0MzMwNDoxNjg4Nzc1",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODA3MzU3ODI4MjoxNjg4NzU1",
+      "pid": 1688775,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:04:48.576540297Z",
+      "uid": 10001
+    },
+    {
+      "binary": "/usr/bin/runc",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODA3MzU3ODI4MjoxNjg4NzU1",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE2ODA3MzU3ODI4MjoxNjg4NzU1",
+      "kind": "process_parent",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1688755,
+      "start_time": "2026-10-15T04:04:48.505176004Z",
+      "uid": 0
+    },
+    {
+      "evidence_sha256": "f6f477be1719f060f80a45ac71d68663245e2088cb1bb0febc216b0f9d1bb6e1",
+      "id": "connect:f6f477be1719f060f80a45ac71d68663245e2088cb1bb0febc216b0f9d1bb6e1",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:49.184118032Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e816ea4fbed652bf7abb339493464be7535f4d79d095d3a4af43fbccf28de3d0",
+      "id": "connect:e816ea4fbed652bf7abb339493464be7535f4d79d095d3a4af43fbccf28de3d0",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:49.687805876Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e71c3681675fc282b8b56a0b10a55266fa0bf179cc35f7b21ad7c8ba2cf75291",
+      "id": "connect:e71c3681675fc282b8b56a0b10a55266fa0bf179cc35f7b21ad7c8ba2cf75291",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:49.692323934Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "01617ec301e61795a08b2fed3f8d90662bbb609447b2c75db6108d92cff6cba5",
+      "id": "connect:01617ec301e61795a08b2fed3f8d90662bbb609447b2c75db6108d92cff6cba5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:50.742703747Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "8e0789eb7661208b125fd465dabe485eaa6f9f2b959ff037321875244067d922",
+      "id": "connect:8e0789eb7661208b125fd465dabe485eaa6f9f2b959ff037321875244067d922",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:50.744027707Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "b346af5c12b95f8fb4b47c6044f745ec11dcb6c3f2c0dd5de820ae133bb5e314",
+      "id": "connect:b346af5c12b95f8fb4b47c6044f745ec11dcb6c3f2c0dd5de820ae133bb5e314",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:51.040693942Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "9a861f1b018082cca8519124e403ca2f858e65b3f69acf5f592f89afb78effe9",
+      "id": "connect:9a861f1b018082cca8519124e403ca2f858e65b3f69acf5f592f89afb78effe9",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:51.041961743Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ae9cbc3954ed09ee698c600f59741d7296bc66cbb9903e928b7e74d51fdb2c6d",
+      "id": "connect:ae9cbc3954ed09ee698c600f59741d7296bc66cbb9903e928b7e74d51fdb2c6d",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:51.790802054Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "34481c6d241d6aaf1ba410804c4d568429bbb25132ab9bc0ec7eb5fd3fc06463",
+      "id": "connect:34481c6d241d6aaf1ba410804c4d568429bbb25132ab9bc0ec7eb5fd3fc06463",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:51.792179705Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e6245b289c1f97e984644294db3375e60cf2418ec3784efb846c0a76d432da8c",
+      "id": "connect:e6245b289c1f97e984644294db3375e60cf2418ec3784efb846c0a76d432da8c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:52.840771685Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "4090648d25aa46f6b1cda61b2f13ef389f4caf09d6c4fe62285af1b73d1db462",
+      "id": "connect:4090648d25aa46f6b1cda61b2f13ef389f4caf09d6c4fe62285af1b73d1db462",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:52.842348913Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "0ec939abb8ae20e746ca505e04045c966902696bce648d4b18051ac71aa312ce",
+      "id": "connect:0ec939abb8ae20e746ca505e04045c966902696bce648d4b18051ac71aa312ce",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:53.887237987Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "dad8ae62b5ba9b0baccd6ce7bccb0d5a50ebd0b2281681a06b4c4b72069a8174",
+      "id": "connect:dad8ae62b5ba9b0baccd6ce7bccb0d5a50ebd0b2281681a06b4c4b72069a8174",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:53.888689602Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3MzEzODI5ODI1MToxNjg5OTA3",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3MzEzODI5ODI1MToxNjg5OTA3",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1689907,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:04:53.569895543Z",
+      "uid": 10001
+    },
+    {
+      "evidence_sha256": "9b69e0b34dd343fd489a76df1914034bdb29c7431b5aefaa95101782069030e5",
+      "id": "connect:9b69e0b34dd343fd489a76df1914034bdb29c7431b5aefaa95101782069030e5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:54.163204482Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e50fdd72d1f622be09941d94e19ce36a7a9b56ab0b05949e930fd77eca91942c",
+      "id": "connect:e50fdd72d1f622be09941d94e19ce36a7a9b56ab0b05949e930fd77eca91942c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:54.903289087Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e6362707ca2e3f22344e9c08b3c92a2c06dea7e352d3f0aa44fdfa15c21a004c",
+      "id": "connect:e6362707ca2e3f22344e9c08b3c92a2c06dea7e352d3f0aa44fdfa15c21a004c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:54.904446Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "8ef0433c7c98c128ccb8d684ba0e7434a4e411f7584fae0efa6a0163294d85b4",
+      "id": "connect:8ef0433c7c98c128ccb8d684ba0e7434a4e411f7584fae0efa6a0163294d85b4",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:54.967015612Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ed89477cc5a59a3b3481307f6d61bcd35d16d4f19cb192bbe6a6986bcf7853f5",
+      "id": "connect:ed89477cc5a59a3b3481307f6d61bcd35d16d4f19cb192bbe6a6986bcf7853f5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:54.968207335Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "accf9aefbe6c4796b60eeafe5df0a6123681bcfa6eda34e106de28cf21478349",
+      "id": "connect:accf9aefbe6c4796b60eeafe5df0a6123681bcfa6eda34e106de28cf21478349",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:56.005811561Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "1f46736ec226c7e0034d4a6515c1e9f7ca83a247d66b5656e54ce7dc3ebe72a7",
+      "id": "connect:1f46736ec226c7e0034d4a6515c1e9f7ca83a247d66b5656e54ce7dc3ebe72a7",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:56.006911301Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "3d25d872a2f60d9b2db64ed7af1fbfe1ab3a5fe751e2ad7434280a023c860e5c",
+      "id": "connect:3d25d872a2f60d9b2db64ed7af1fbfe1ab3a5fe751e2ad7434280a023c860e5c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:57.058285646Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "3d96286e5d7809a8a98a03c1854bbde7fb4f227deef06a1b16dcf36b54245506",
+      "id": "connect:3d96286e5d7809a8a98a03c1854bbde7fb4f227deef06a1b16dcf36b54245506",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:57.059547564Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "4393fd4b6f79e3599f731edfef8911c1424681f00a36b797eb433f6c9d7c2a0f",
+      "id": "connect:4393fd4b6f79e3599f731edfef8911c1424681f00a36b797eb433f6c9d7c2a0f",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:58.107557903Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "d95f7d355ca7984b9a5b69254ef0d7fdbb71ba7c4632f351973add40d9d51ee3",
+      "id": "connect:d95f7d355ca7984b9a5b69254ef0d7fdbb71ba7c4632f351973add40d9d51ee3",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:58.109301572Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "93283ebd5b28338aeb559999c18da61917db0b62d9b7d8e14dfdc442a4f5f452",
+      "id": "connect:93283ebd5b28338aeb559999c18da61917db0b62d9b7d8e14dfdc442a4f5f452",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:58.324259782Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "55e72e2e993e8162c4a9e478b6438b16b64ca594366135d1fa4087af11cc4da1",
+      "id": "connect:55e72e2e993e8162c4a9e478b6438b16b64ca594366135d1fa4087af11cc4da1",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:58.327321832Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "61dfd2aa85ec4449508f3fff265e7a7a1b5410423ad6b42200669245386a423e",
+      "id": "connect:61dfd2aa85ec4449508f3fff265e7a7a1b5410423ad6b42200669245386a423e",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.161745014Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "53e7339ced43f522b34bfdcd531c2d8e4722e565742d607ec76ee4584d699150",
+      "id": "connect:53e7339ced43f522b34bfdcd531c2d8e4722e565742d607ec76ee4584d699150",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.163392401Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3ODE0NTY1OTY5ODoxNjkwODgw",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE3ODE0NTY1OTY5ODoxNjkwODgw",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1690880,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:04:58.577257273Z",
+      "uid": 10001
+    },
+    {
+      "evidence_sha256": "1dd5d7a33aab91c945992cd6112b2fafa96b11cddb84effbec194eb0a09097ab",
+      "id": "connect:1dd5d7a33aab91c945992cd6112b2fafa96b11cddb84effbec194eb0a09097ab",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.197595334Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "5d35efd734a6db5a4ac41eaf6b2787d16b08aabaa1b9b5001b81dea3b825ecd2",
+      "id": "connect:5d35efd734a6db5a4ac41eaf6b2787d16b08aabaa1b9b5001b81dea3b825ecd2",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.409313932Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "fef5bffa99d0a5ca3cf4ee1823aff6b256b2f57841facde3cc8a4ffef75a1253",
+      "id": "connect:fef5bffa99d0a5ca3cf4ee1823aff6b256b2f57841facde3cc8a4ffef75a1253",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.411260756Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "387b5bbf7fe0fcd176cb1936950cc7c4a114cf293cbf45174065700bfc62a4a1",
+      "id": "connect:387b5bbf7fe0fcd176cb1936950cc7c4a114cf293cbf45174065700bfc62a4a1",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.925032726Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "bcaa63eef6b13f1958696773f34ce9db98111b609951292a425d08064a455ec8",
+      "id": "connect:bcaa63eef6b13f1958696773f34ce9db98111b609951292a425d08064a455ec8",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:04:59.926583905Z",
+      "socket_fd": 28,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "888f03838476c498e96d7d4bac1acab3948809631f8885d48853a9a60aafb5e3",
+      "id": "connect:888f03838476c498e96d7d4bac1acab3948809631f8885d48853a9a60aafb5e3",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:00.203001013Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "4f8026f7bdb97e5d1944ba8290c8ed2ec26d425a14fb814c45cc99b87c98140c",
+      "id": "connect:4f8026f7bdb97e5d1944ba8290c8ed2ec26d425a14fb814c45cc99b87c98140c",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:00.204522434Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "089babe50ffda46565161aaaf545ca85662e54297db9073336104c7387a3b14b",
+      "id": "connect:089babe50ffda46565161aaaf545ca85662e54297db9073336104c7387a3b14b",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:01.255144471Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "eb36642c2c008b4048d99b43d8210e277512cf2435a0fa8fa3f64d7ed20bb562",
+      "id": "connect:eb36642c2c008b4048d99b43d8210e277512cf2435a0fa8fa3f64d7ed20bb562",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:01.256356362Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "57a3b5eacae31e7a19f55ccd8e5e86b79d236ce75d18c68ebc6665d2366a2ea1",
+      "id": "connect:57a3b5eacae31e7a19f55ccd8e5e86b79d236ce75d18c68ebc6665d2366a2ea1",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:02.305232531Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ef4c1005a4c32ede6322f04f91562c925def826cc22b95239358a9fded6e9a07",
+      "id": "connect:ef4c1005a4c32ede6322f04f91562c925def826cc22b95239358a9fded6e9a07",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:02.306569487Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "1331f64e0ff5573a67b3669bdc9c87dce4ace1d0dfb4322b69d02f7aff9634c8",
+      "id": "connect:1331f64e0ff5573a67b3669bdc9c87dce4ace1d0dfb4322b69d02f7aff9634c8",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:03.363770644Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "145ac42bc9917a1ee4286882a960ca78075cd7d252bf1a87bf58415d881960c5",
+      "id": "connect:145ac42bc9917a1ee4286882a960ca78075cd7d252bf1a87bf58415d881960c5",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:03.366292767Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MjQ0MDQ3Mjg5NToxNjkxNTUz",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MjQ0MDQ3Mjg5NToxNjkxNTUz",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1691553,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:05:02.872068788Z",
+      "uid": 10001
+    },
+    {
+      "evidence_sha256": "d9ea4e66dc88f83c020cd380b5ff72f4621303937e130229bb945f7e6e57f82a",
+      "id": "connect:d9ea4e66dc88f83c020cd380b5ff72f4621303937e130229bb945f7e6e57f82a",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:03.513827669Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MzE2OTMwNTM2MzoxNjkxNzIx",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4MzE2OTMwNTM2MzoxNjkxNzIx",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1691721,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:05:03.600902051Z",
+      "uid": 10001
+    },
+    {
+      "evidence_sha256": "e8c047e88fa2689becf4d066909ed21164eaaa6fd5ce88555bd6c942204dfac8",
+      "id": "connect:e8c047e88fa2689becf4d066909ed21164eaaa6fd5ce88555bd6c942204dfac8",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:04.163145153Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "fbf986561070efd7076b4ff6875db1e0b09c7b4a8896fc9a72351064dc7e5616",
+      "id": "connect:fbf986561070efd7076b4ff6875db1e0b09c7b4a8896fc9a72351064dc7e5616",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:04.464414502Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "b01c70cdceefb4c45516b66247ec98e0d66d28d2c5b30dfb69bc19f0ca13f57f",
+      "id": "connect:b01c70cdceefb4c45516b66247ec98e0d66d28d2c5b30dfb69bc19f0ca13f57f",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:04.465846762Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "39fd8cfc1f3dc5d21aafe210a97ed8e30022cc13e000e504e2465b2718239ef0",
+      "id": "connect:39fd8cfc1f3dc5d21aafe210a97ed8e30022cc13e000e504e2465b2718239ef0",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:05.513166678Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "ff8032d049fb5f8509fcf3b816346b171fb5c699cb1a1471c0c0b12771d50100",
+      "id": "connect:ff8032d049fb5f8509fcf3b816346b171fb5c699cb1a1471c0c0b12771d50100",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:05.517582029Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "34d546b8a768ff3419d64ccbe9683710556e7e9abdddbd2dbab13c8e1ce1edd3",
+      "id": "connect:34d546b8a768ff3419d64ccbe9683710556e7e9abdddbd2dbab13c8e1ce1edd3",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:06.574163322Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "7a0c9dd8e8a5c77e5ba9519deb5a6aad63bedcca77e4434b2b6e09af2f767559",
+      "id": "connect:7a0c9dd8e8a5c77e5ba9519deb5a6aad63bedcca77e4434b2b6e09af2f767559",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:06.576570720Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "b28dd2f7db25ea9a3fd7ea44ecb7f8580144997b715540bcc1aa32ab8feaa57b",
+      "id": "connect:b28dd2f7db25ea9a3fd7ea44ecb7f8580144997b715540bcc1aa32ab8feaa57b",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:07.624545617Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "07aa51ce43ce701830a8e05d68aa9bd3bdbe1e8da48a40058a7c699bc7054b42",
+      "id": "connect:07aa51ce43ce701830a8e05d68aa9bd3bdbe1e8da48a40058a7c699bc7054b42",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:07.625996586Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e6b4702d70dea1d941591399d7e80ce6e2222e9f76f8ee943ef4941afc840c4d",
+      "id": "connect:e6b4702d70dea1d941591399d7e80ce6e2222e9f76f8ee943ef4941afc840c4d",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:08.406729542Z",
+      "socket_fd": 26,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "c6a1a9855f46f1e887337d2b4b92c49539f0885ba523bbeabae18cd4ba990797",
+      "id": "connect:c6a1a9855f46f1e887337d2b4b92c49539f0885ba523bbeabae18cd4ba990797",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:08.407969622Z",
+      "socket_fd": 26,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "a6a85fdc60bf81a4caaede9b3a48dd3470f5ff44142ce48749d44cf6d4f6d549",
+      "id": "connect:a6a85fdc60bf81a4caaede9b3a48dd3470f5ff44142ce48749d44cf6d4f6d549",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:08.685368243Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "72e9b41deed02313cb387e8d5666b1b9a8a920d59919f09176668c131f9fa7f0",
+      "id": "connect:72e9b41deed02313cb387e8d5666b1b9a8a920d59919f09176668c131f9fa7f0",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:08.686518909Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4ODE0NDYyNzAyMzoxNjkyNTk2",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE4ODE0NDYyNzAyMzoxNjkyNTk2",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1692596,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:05:08.576224291Z",
+      "uid": 10001
+    },
+    {
+      "evidence_sha256": "4c657eeee24efd3a193baf62ee0f76ca2d3fecc2b047db5771972d963beeaf48",
+      "id": "connect:4c657eeee24efd3a193baf62ee0f76ca2d3fecc2b047db5771972d963beeaf48",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:09.146240483Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "e443efc331161f7cd9c16742e991e435867516e00824148c3b0137eab37ccb85",
+      "id": "connect:e443efc331161f7cd9c16742e991e435867516e00824148c3b0137eab37ccb85",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:09.468796024Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "526e915171ff831aafc7b06220fc7787cefb3285a5914b845101ce2624c64af2",
+      "id": "connect:526e915171ff831aafc7b06220fc7787cefb3285a5914b845101ce2624c64af2",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:09.470226544Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "f1a273559b2ae4009f5bb8dc28e4a16e100119c8177b18f4b7a409426f520661",
+      "id": "connect:f1a273559b2ae4009f5bb8dc28e4a16e100119c8177b18f4b7a409426f520661",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:09.762956039Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "78b367a19bf0e7b16ea93178d19582f8a9d79df33f0205acef85357a0ca10f26",
+      "id": "connect:78b367a19bf0e7b16ea93178d19582f8a9d79df33f0205acef85357a0ca10f26",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:09.764029068Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "969a8b69f596ca9c9e95cfed39b28e8e0c36c55387e15a5702019de34cc654db",
+      "id": "connect:969a8b69f596ca9c9e95cfed39b28e8e0c36c55387e15a5702019de34cc654db",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:10.826196621Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "c64d1db566bf0d23635236a2b249347534045469fe8d83c70994f22957ed83a9",
+      "id": "connect:c64d1db566bf0d23635236a2b249347534045469fe8d83c70994f22957ed83a9",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:10.831158195Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "c396cc58581b5c51ef65a9e358e7c82222f61d9ac5a2d7e76ab78dd871c7be45",
+      "id": "connect:c396cc58581b5c51ef65a9e358e7c82222f61d9ac5a2d7e76ab78dd871c7be45",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:11.794542429Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "075674f829942813022559ec2c60e7cefb64eb4570d25ce4cb962585dee42751",
+      "id": "connect:075674f829942813022559ec2c60e7cefb64eb4570d25ce4cb962585dee42751",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:11.795881972Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "a86ea29f38406ef746876fe7338b758912356ceafec96f746ab26de0ae23f134",
+      "id": "connect:a86ea29f38406ef746876fe7338b758912356ceafec96f746ab26de0ae23f134",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:11.882482684Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "dd094de65eeadd235580f578892c8e66f4182e40ef2e2dbda833352dd31e77cf",
+      "id": "connect:dd094de65eeadd235580f578892c8e66f4182e40ef2e2dbda833352dd31e77cf",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:11.885665422Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "c7a98cfae86db91306a48359ce14084ba21b3a134e18a120ba0781458a0596d9",
+      "id": "connect:c7a98cfae86db91306a48359ce14084ba21b3a134e18a120ba0781458a0596d9",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:12.278025202Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "daf5769a60280a71c41f04508a1d8f813be835837ab6447d83dbe499289b0046",
+      "id": "connect:daf5769a60280a71c41f04508a1d8f813be835837ab6447d83dbe499289b0046",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:12.279919560Z",
+      "socket_fd": 27,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "403b13790593e8476c1a92c7b6a24d55dd2b51d390ec430e188796058f2b9c6f",
+      "id": "connect:403b13790593e8476c1a92c7b6a24d55dd2b51d390ec430e188796058f2b9c6f",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:12.947495920Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "be76850b266672d8f26bc8259508c45f462b1d807f1ed4f53aa224b178f42bcb",
+      "id": "connect:be76850b266672d8f26bc8259508c45f462b1d807f1ed4f53aa224b178f42bcb",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:12.949152295Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "fe9cc597f12f0c067e39157f241a6d79c282e46906d109962757561be7c56ce3",
+      "id": "connect:fe9cc597f12f0c067e39157f241a6d79c282e46906d109962757561be7c56ce3",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:14.002819826Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "evidence_sha256": "5160ca094b6886adaa91889fe78e0e296a51bb3152764f10c1e19d7872cb5f7e",
+      "id": "connect:5160ca094b6886adaa91889fe78e0e296a51bb3152764f10c1e19d7872cb5f7e",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:14.005448029Z",
+      "socket_fd": 16,
+      "success": "unknown_no_return_probe"
+    },
+    {
+      "binary": "/usr/local/bin/python",
+      "container_id": "containerd://f2938ec9b77c4d0f303acde9c378b9e8946b0a53655c81288bd988d4e54682ce",
+      "container_name": "app",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzE0ODk3OTQ5ODoxNjkzNDkz",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzE0ODk3OTQ5ODoxNjkzNDkz",
+      "kind": "process",
+      "namespace": "production",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzA3MzkxNDMzOToxNjkzNDgx",
+      "pid": 1693493,
+      "pod_name": "inventory-service-695bf6f445-ttlgj",
+      "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+      "start_time": "2026-10-15T04:05:13.580576639Z",
+      "uid": 10001
+    },
+    {
+      "binary": "/usr/bin/runc",
+      "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzA3MzkxNDMzOToxNjkzNDgx",
+      "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk3OTE5MzA3MzkxNDMzOToxNjkzNDgx",
+      "kind": "process_parent",
+      "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDQ5Nzg5NjY1MTgyNjozNzczNTQ2",
+      "pid": 1693481,
+      "start_time": "2026-10-15T04:05:13.505510977Z",
+      "uid": 0
+    },
+    {
+      "evidence_sha256": "e01eb2422e13389cdda4c35e0c77ec0b4760e02908629f3e3470f218da40e9a9",
+      "id": "connect:e01eb2422e13389cdda4c35e0c77ec0b4760e02908629f3e3470f218da40e9a9",
+      "kind": "connect_attempt",
+      "observed_at": "2026-10-15T04:05:14.095956199Z",
+      "socket_fd": 3,
+      "success": "unknown_no_return_probe"
+    }
+  ],
+  "retained_connect_events": 99,
+  "schema": "sentinel-pulse-rca-evidence-tree-v1",
+  "trigger_kind": "candidate_alert_preview",
+  "truncated": false
+}

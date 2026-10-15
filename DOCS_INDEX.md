@@ -1,6 +1,6 @@
 # Mục lục tài liệu Sentinel Pulse
 
-Cập nhật bố cục: 14/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
+Cập nhật bố cục: 15/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
 tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
 Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
 
@@ -22,7 +22,8 @@ Mục lục này phân loại tài liệu, không xác nhận trạng thái live
 | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
 | [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md) | Job nhiều regime sau soak, holdout riêng, full-ID và 249 feature, lịch kiểm tra |
 | [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md) | Vòng retry do HPA/cgroup, evidence và amendment bước đợi ổn định |
-| [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Pulse canary và C6 sửa rolling profile syscall chạy riêng; không thay model theo holdout |
+| [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Ba nhánh Pulse realtime, matched feature/syscall study và RCA subscriber; không thay model theo holdout |
+| [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) | Subscriber dựng cây bằng chứng sau preview: process/parent, connect attempt, đích K8s, checkpoint và giới hạn coverage |
 | [REPO_SYNC_AND_FUTURE_RISKS.md](REPO_SYNC_AND_FUTURE_RISKS.md) | Đối chiếu commit host/VM, kiểm thử hai môi trường và điểm yếu cần xử lý trước production/paper |
 | [SYSCALL_PROFILE_MISMATCH.md](SYSCALL_PROFILE_MISMATCH.md) | Root cause rolling-10/5, C4 không hợp lệ cho quality và job C6 sửa từ sealed raw |
 | [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) | Batch frozen model, bằng chứng tương đương, live latency B1 và canary ba worker B2 |

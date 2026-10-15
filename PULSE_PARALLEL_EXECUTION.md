@@ -1,6 +1,6 @@
-# Sentinel Pulse và thí nghiệm syscall: trạng thái hiện hành
+# Ba nhánh song song: Pulse, feature/syscall và RCA
 
-Kiểm tra SSH ngày **15/10/2026, khoảng 10:48 UTC+7**. Cả ba worker đang chạy
+Kiểm tra SSH ngày **15/10/2026, khoảng 11:06 UTC+7**. Cả ba worker đang chạy
 capture **500 ms**, xuất full syscall-ID delta và 249 feature từ cùng snapshot,
 đồng thời chấm frozen candidate preview. Các service capture chưa restart.
 Sáu node Kubernetes v1.34.10 đều Ready; không thấy pod production ở trạng thái
@@ -8,9 +8,19 @@ khác Running/Completed trong lần kiểm tra này.
 
 | Nhánh | Trạng thái | Service / output |
 |---|---|---|
-| Capture và Pulse preview | Chạy trên `.237/.238/.239`, khoảng 10,1 giờ/node; đăng ký 48 giờ | `pulse-matched-worker-parallel-20261015.service`; NFS `matched-parallel-20261015/workers/<node>` |
-| Matched syscall study R4 | Đã fit 249/693 model, chưa có coverage gap trong phần đã xử lý | `.234`: `pulse-matched-study-parallel-r4-20261015.service`; NFS `matched-parallel-r4-20261015/syscall-matched-study` |
+| Capture và Pulse preview | Chạy trên `.237/.238/.239`, khoảng 10,35–10,40 giờ/node; đăng ký 48 giờ | `pulse-matched-worker-parallel-20261015.service`; NFS `matched-parallel-20261015/workers/<node>` |
+| Matched syscall study R4 | Đã fit 343/693 model, chưa có coverage gap trong phần đã xử lý | `.234`: `pulse-matched-study-parallel-r4-20261015.service`; NFS `matched-parallel-r4-20261015/syscall-matched-study` |
+| RCA sau tín hiệu Pulse | Service độc lập đang chạy trên `.234`: 52 case, 27 case có connect context; đã kiểm tra resume qua restart riêng RCA | `pulse-rca-context.service`; local `/var/lib/sentinel-pulse-rca/parallel-20261015` |
 | Pulse follow-up R5 | Hoàn tất 15/15 cặp RabbitMQ, Result=success; đã kết thúc | `.234`: `pulse-matched-campaign-parallel-r5-rabbit-20261015.service`; NFS `matched-parallel-r5-rabbit-20261015/pulse-development-matrix` |
+
+Ba nhánh đầu đang tiến triển song song; R5 là kết quả đã hoàn tất, không phải
+lượt attack mới đang inject. RCA dùng **candidate_alert_preview**, chưa phải
+operational alert. Cây ghép theo node/Pod UID/container và thời gian, không
+khẳng định process trong cây là thủ phạm. Policy hiện chỉ có connect detail
+cho các pod AIMS được chọn; case ngoài coverage vẫn được giữ và đánh dấu.
+[Trạng thái RCA](RCA_RUNTIME_STATUS.md) ghi cấu hình, retention, giới hạn và
+[cây thật đã lưu](validation-evidence/pulse-rca-context-20261015/README.md).
+Không restart collector hoặc study để cài RCA; model/policy frozen giữ nguyên.
 
 Capture tiếp tục sau cadence gap và recovery, giữ issue và reset history khi
 cần. Attack/control intervals được lưu riêng trong campaign journal. Những
