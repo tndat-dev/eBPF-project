@@ -169,7 +169,8 @@ spec:
       event: sched_process_fork
       # Verified Linux 6.8 format: common fields occupy indices 0..3.
       args:
-        # Infer scalar width from format; type=int yielded zero on v1.6.1.
+        # pid_t is a signed 32-bit scalar; int yielded zero and auto cannot
+        # resolve tracepoint.PidTy in v1.6.1. Use its explicit scalar reader.
         # This release omits tracepoint labels in JSON: normalize by this order.
-        - {index: 5, type: auto, label: parent_pid}
-        - {index: 7, type: auto, label: child_pid}
+        - {index: 5, type: int32, label: parent_pid}
+        - {index: 7, type: int32, label: child_pid}
