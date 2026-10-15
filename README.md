@@ -1,48 +1,35 @@
 # eBPF Runtime Sentinel — Sentinel Pulse
 
-Hướng phát triển hiện tại là **Sentinel Pulse**: thu syscall bằng eBPF counters,
-trích xuất feature và phát hiện bất thường theo workload/container bằng
-ExtraTrees. Trạng thái hiện hành ở [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md);
-hướng dẫn code và triển khai ở [sentinel_pulse/README.md](sentinel_pulse/README.md).
+Ba tiến trình phát triển chạy song song; mỗi tiến trình có **một báo cáo hiện hành**:
 
-Bắt đầu tra cứu tại [mục lục tài liệu](DOCS_INDEX.md). Thư mục gốc chỉ giữ
-tài liệu đang dùng; báo cáo V8, canary đã kết thúc và đặc tả Agent đời đầu
-được chuyển vào [docs/archive/](docs/archive/README.md).
+| Đầu việc | Báo cáo |
+|---|---|
+| Sentinel Pulse: exact telemetry, ML realtime, latency và confusion matrix | [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md) |
+| Thí nghiệm chọn feature/syscall: addition, ablation, holdout và blind comparison | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) |
+| Dựng cây RCA từ tín hiệu Pulse: process/parent/connect/destination | [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) |
 
-## Tài liệu đang dùng
+Mỗi báo cáo có thuật ngữ, luồng triển khai, trạng thái SSH có timestamp,
+kết quả kèm nguồn, giới hạn, việc còn lại và lệnh kiểm tra. Cập nhật tại chỗ,
+không sinh thêm báo cáo/checkpoint cho mỗi lần kiểm tra.
 
-- [Campaign soak và tiến độ hiện hành](SOAK_OBSERVATION_STATUS.md).
-- [Lỗi/alert và bằng chứng từ VM](SOAK_INCIDENTS.md).
-- [Nguồn syscall, frequency, importance và ablation](syscall_analysis.md).
-- [Định dạng telemetry](WORKLOAD_TELEMETRY_LOG_FORMAT.md)
-  và [ví dụ/lệnh kiểm tra](example.md).
-- [Operational soak runbook](OPERATIONAL_SOAK_RUNBOOK.md),
-  [telemetry recovery](PULSE_TELEMETRY_RECOVERY.md) và
-  [trạng thái tích hợp formal recovery ngày 04/10/2026](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md).
+Giữ nguyên [SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md)
+theo yêu cầu; không dùng số liệu cũ trong đó để thay cho trạng thái mới.
+Các báo cáo phụ cũ đã gỡ, không tạo thư mục lưu trữ; lịch sử vẫn trong Git.
+Một số liên kết lịch sử của bản tổng hợp giữ nguyên có thể trỏ file đã gỡ.
 
-Các tài liệu lưu trữ có checkpoint theo thời gian. Một dòng “active”, lịch kiểm
-tra hoặc phiên bản trong checkpoint cũ không phải trạng thái live hiện tại.
-Đối chiếu run ID, timestamp và terminal receipt trước khi dùng số liệu.
-Mục tiêu latency 1–2 giây không đồng nghĩa đã đạt kernel-to-alert;
-smoke diagnostic cũng không thay cho formal soak hoặc blind attack evaluation.
+## Code và bằng chứng
 
-## Bố cục code và bằng chứng
+- [sentinel_pulse/](sentinel_pulse/README.md): collector, features, ExtraTrees,
+  support model, candidate preview, study và RCA.
+- tests/: regression và kiểm chứng contract.
+- validation-evidence/: raw receipts, checksum, kết quả và mẫu cây thật;
+  không xóa hoặc sửa seal để dọn báo cáo.
+- sentinel/, ml-service/, agent_runtime/: code khác/legacy; source còn
+  tồn tại không chứng minh nó thuộc inference path Pulse hiện hành.
 
-- `sentinel_pulse/`: collector, features, ExtraTrees, detector, protocol,
-  deployment và evaluation cho Pulse.
-- `tests/test_sentinel_pulse*.py`: regression cho Pulse.
-- `validation-evidence/`: receipts, checksum và kết quả đánh giá; giữ cả
-  lượt bị reject để bảo toàn provenance.
-- `ml-service/`, `sentinel/`: pipeline và benchmark các thế hệ trước;
-  việc source còn trong repo không chứng minh model/service đang active.
-- `agent_runtime/`, `Agent_Runtime_Sentinel_ALL_FILES/`: extension Agent/MCP;
-  không mặc định coi là một phần đã triển khai của ML path Pulse.
+Pulse đang ở shadow/preview, không mặc nhiên là alert production hoặc
+root cause đã được xác nhận. Development result, mục tiêu kỳ vọng và blind
+validation là ba loại thông tin khác nhau.
 
-## Tài liệu lịch sử
-
-[V8 status](docs/archive/PROJECT_STATUS_V8.md) và
-[retirement/khôi phục model V8](docs/archive/V8_MODEL_RETIREMENT.md)
-được giữ để tra cứu lịch sử, không làm báo cáo runtime hiện hành.
-Các số liệu và verdict canary/incident vẫn nằm trong
-[thư mục lưu trữ](docs/archive/README.md). Dọn tài liệu không sửa model,
-không xóa raw evidence và không khởi động hoặc dừng workload trên cụm.
+Việc dọn báo cáo không đổi model/policy/source frozen, không xóa dataset,
+không restart các job đang chạy. [Mục lục ngắn](DOCS_INDEX.md).

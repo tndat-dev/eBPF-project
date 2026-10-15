@@ -1,59 +1,25 @@
-# Mục lục tài liệu Sentinel Pulse
+# Tài liệu đang dùng
 
-Cập nhật bố cục: 15/10/2026. Tài liệu ở thư mục gốc phục vụ phát triển hiện
-tại; báo cáo của các lượt chạy đã kết thúc nằm trong `docs/archive/`.
-Mục lục này phân loại tài liệu, không xác nhận trạng thái live của cụm.
+Chỉ có **ba báo cáo tiến độ hiện hành**:
 
-## Tài liệu đang dùng
+1. [Sentinel Pulse](SENTINEL_PULSE_STATUS.md): thuật ngữ eBPF/ML, 249 feature,
+   996 chiều temporal context, candidate preview, soak/canary, matrix,
+   latency và phần còn thiếu trước production.
+2. [Thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md): nguồn
+   syscall, frequency, arm/seed, addition/ablation, split/calibration/blind,
+   matched study và tiêu chí thống kê để kết luận giữ/bỏ/thêm kênh.
+3. [RCA sau alert/preview](RCA_RUNTIME_STATUS.md): exec identity, parent/child,
+   connect và đích K8s, context/case/checkpoint, coverage và giới hạn causal claim.
 
-| Tài liệu | Đọc khi cần |
-|---|---|
-| [SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md) | Báo cáo tổng hợp tiếng Việt: lý thuyết, thuật ngữ, luồng code, model hiện hành, kết quả A1/B2/C6, giới hạn và thử nghiệm thêm syscall |
-| [README.md](README.md) | Điểm vào repo, bố cục source và giới hạn claim |
-| [SOAK_OBSERVATION_STATUS.md](SOAK_OBSERVATION_STATUS.md) | Campaign 24 giờ, recovery, ngân sách alert, confusion matrix kỳ vọng và trạng thái live |
-| [SOAK_INCIDENTS.md](SOAK_INCIDENTS.md) | Lỗi/alert trong campaign hiện hành, nguyên nhân đã xác minh, phần chưa biết và bằng chứng từ VM |
-| [ATTACK_EVALUATION_STATUS.md](ATTACK_EVALUATION_STATUS.md) | Luồng attack đã soak → paired normal-control → audit/precision/recall; không zero-alert gate |
-| [PULSE_IMPROVEMENT_STATUS.md](PULSE_IMPROVEMENT_STATUS.md) | Baseline confusion matrix, candidate reference-only, latency inference đơn, giới hạn nhãn và tiến độ idle-aware |
-| [CANDIDATE_SHADOW_STATUS.md](CANDIDATE_SHADOW_STATUS.md) | Shadow scorer model-only, continuity/integrity rules, test status và các gate trước canary/soak/blind mới |
-| [V8_DEPLOYED_RESOURCE_RETIREMENT.md](V8_DEPLOYED_RESOURCE_RETIREMENT.md) | Receipt gỡ V8 systemd runtime; phân biệt model V7/dữ liệu/evidence được giữ với tài nguyên V8 đã retire |
-| [EXTENDED_TELEMETRY_STATUS.md](EXTENDED_TELEMETRY_STATUS.md) | Capture/audit v1 đã hoàn tất; idle-aware v2 đang chạy riêng; không phải production model |
-| [syscall_analysis.md](syscall_analysis.md) | Nguồn ABI syscall, tần suất capture độc lập, importance và ablation |
-| [SYSCALL_EXPERIMENT_VM_PLAN.md](SYSCALL_EXPERIMENT_VM_PLAN.md) | Danh sách OS/VM cần cấp, phần cứng và phạm vi cross-distro/cross-ABI |
-| [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Job offline chọn kênh syscall, source frozen, tiến độ và giới hạn kết luận |
-| [SYSCALL_CAPTURE_C3.md](SYSCALL_CAPTURE_C3.md) | Job nhiều regime sau soak, holdout riêng, full-ID và 249 feature, lịch kiểm tra |
-| [SYSCALL_C3_RECOVERY_INCIDENT.md](SYSCALL_C3_RECOVERY_INCIDENT.md) | Vòng retry do HPA/cgroup, evidence và amendment bước đợi ổn định |
-| [PULSE_PARALLEL_EXECUTION.md](PULSE_PARALLEL_EXECUTION.md) | Ba nhánh Pulse realtime, matched feature/syscall study và RCA subscriber; không thay model theo holdout |
-| [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) | Subscriber dựng cây bằng chứng sau preview: process/parent, connect attempt, đích K8s, checkpoint và giới hạn coverage |
-| [REPO_SYNC_AND_FUTURE_RISKS.md](REPO_SYNC_AND_FUTURE_RISKS.md) | Đối chiếu commit host/VM, kiểm thử hai môi trường và điểm yếu cần xử lý trước production/paper |
-| [SYSCALL_PROFILE_MISMATCH.md](SYSCALL_PROFILE_MISMATCH.md) | Root cause rolling-10/5, C4 không hợp lệ cho quality và job C6 sửa từ sealed raw |
-| [PULSE_BATCH_TIMING.md](PULSE_BATCH_TIMING.md) | Batch frozen model, bằng chứng tương đương, live latency B1 và canary ba worker B2 |
-| [SYSCALL_EXPERIMENT_TODO.md](SYSCALL_EXPERIMENT_TODO.md) | Checklist từ C2/normal capture đến blind attack và cross-ABI; trạng thái theo evidence |
-| [CLUSTER_READINESS.md](CLUSTER_READINESS.md) | Snapshot readiness cụm, DiskPressure đã hồi phục và kiểm chứng workload sau cleanup |
-| [SYSCALL_SELECTION_PILOT.md](sentinel_pulse/SYSCALL_SELECTION_PILOT.md) | Build/pilot histogram syscall-ID exact, receipt regimes và gộp nhiều capture |
-| [WORKLOAD_TELEMETRY_LOG_FORMAT.md](WORKLOAD_TELEMETRY_LOG_FORMAT.md) | Schema telemetry, nhận diện workload và cách đọc log |
-| [example.md](example.md) | Ví dụ feature/log và lệnh lấy dữ liệu |
-| [OPERATIONAL_SOAK_RUNBOOK.md](OPERATIONAL_SOAK_RUNBOOK.md) | Protocol và thao tác operational soak |
-| [PULSE_TELEMETRY_RECOVERY.md](PULSE_TELEMETRY_RECOVERY.md) | Quarantine, tính toàn vẹn và recovery telemetry |
-| [PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md](PULSE_RECOVERY_LIFECYCLE_STATUS_20261004.md) | Trạng thái tích hợp formal recovery và các receipt kiểm chứng |
+[SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md)
+được giữ nguyên riêng theo yêu cầu. Không tiếp tục tạo báo cáo tổng hợp mới.
+Các link lịch sử trong file giữ nguyên không nhất thiết còn là điểm vào hợp lệ.
 
-Hướng dẫn riêng theo module: [Pulse](sentinel_pulse/README.md),
-[pipeline legacy](sentinel/README.md), [benchmark legacy](sentinel/benchmarks/README.md),
-[Agent extension](agent_runtime/README.md).
+Báo cáo cũ đã xóa, không archive Markdown. Có thể tra lịch sử bằng Git khi
+cần nhưng không dùng trạng thái “đang chạy” trong commit cũ làm trạng thái live.
+[README](README.md) và README trong module là hướng dẫn code, không phải
+báo cáo tiến độ bổ sung.
 
-## Tài liệu lưu trữ
-
-[Mục lục lưu trữ](docs/archive/README.md) gồm báo cáo V8/retirement, ba báo
-cáo projected counter/ML/operational và incident pressure C2, cùng đặc tả
-Agent V1→V2. Đây là lịch sử thiết kế/thử nghiệm, không phải trạng thái live.
-
-Nội dung và verdict được giữ; chỉ điều chỉnh link theo vị trí mới. Riêng
-link đến `V8_ONE_WINDOW_PAPER.md` đã được thay bằng chú thích vì file đã bị
-gỡ trước đợt dọn này. Không khôi phục các file người dùng đã xóa.
-
-## Bằng chứng và phục hồi tài liệu
-
-`validation-evidence/` không bị dọn, không sửa checksum hoặc receipt.
-Không xóa tài liệu vĩnh viễn: muốn đưa một báo cáo về root có thể chuyển
-file từ `docs/archive/` về và cập nhật lại các link tương đối.
-Tài liệu và bằng chứng được đồng bộ bằng Git. Không thay model/runtime frozen
-hoặc xóa raw data để cập nhật báo cáo; checkout vận hành đã đăng ký giữ riêng.
+Bằng chứng gốc trong validation-evidence/ và artifact trên VM/NFS giữ nguyên.
+README hoặc report nằm trong thư mục evidence là một phần hồ sơ thí nghiệm,
+không thuộc đợt xóa báo cáo này. Không đổi hash/seal để sửa đường dẫn lịch sử.

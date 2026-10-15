@@ -1,114 +1,185 @@
-# RCA sau tín hiệu Pulse — trạng thái và cách vận hành
+# Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-## Phạm vi
+Cập nhật bằng SSH **11:14 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
+Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
-Nhánh thứ ba chạy độc lập với Pulse realtime và thí nghiệm feature/syscall.
-Không sửa model, policy, feature, input study hoặc capture đang chạy.
-Code: [rca_service.py](sentinel_pulse/rca_service.py),
-[rca_tree.py](sentinel_pulse/rca_tree.py),
-[rca_connect.py](sentinel_pulse/rca_connect.py).
+## 1. Mục tiêu và những gì thực sự đã triển khai
 
-Pulse hiện xuất **candidate_alert_preview**, chưa phát alert production.
-RCA nhận tín hiệu preview đã khớp model/policy hash để kiểm chứng luồng sau
-alert; không đổi tên preview thành operational alert và không tự xử lý pod.
+Sau tín hiệu Pulse, thu thập bằng chứng để trả lời: process nào đang hoạt động,
+parent là ai, process nào gọi connect, thử kết nối tới đâu và đích K8s nào?
 
-## Luồng đang triển khai
+Hiện Pulse chưa phát operational alert. Subscriber nhận
+**candidate_alert_preview** đã khớp model/policy hash; không đổi tên preview
+thành alert production. Output hiện là **cây/graph bằng chứng điều tra**,
+chưa phải thuật toán chứng minh root cause nhân quả, không tự xử lý pod.
 
-1. Subscriber đọc ba luồng Tetragon trên ba worker. Giữ các `sys_connect`
-   thuộc policy `sentinel-aims-syscalls`; không persist argv, nội dung request,
-   token hay TLS plaintext. Không thay tracing policy đang triển khai.
-2. SQLite local giữ context gần thời điểm hiện tại; không phụ thuộc NFS để
-   ghi context. Đọc preview từ các log capture trên NFS bằng cursor bền vững,
-   chỉ xử lý dòng JSONL hoàn chỉnh. Lần đầu bắt đầu ở cuối log hiện tại và
-   ghi receipt số byte đã bỏ qua, không giả vờ có lịch sử trước khi subscribe.
-3. Join bằng **node + Pod UID + container name**, không join chỉ theo tên pod,
-   PID hoặc IP. Nếu có CRI ID trong trigger thì đối chiếu cả CRI ID.
-4. Sau tín hiệu, lấy cửa sổ **30 giây trước + 5 giây sau** để dựng cây bằng
-   chứng: signal → container → process → connect attempt → IP/port/đích K8s.
-   Cạnh parent → process dựa trên exec ID của Tetragon, không dựa PID tái sử dụng.
-5. Xuất JSON node/edge và Markdown dễ đọc. Ghi rõ thiếu context, pod ngoài
-   selector policy, inventory cũ, lag đọc preview, giới hạn số event và
-   subscription chưa đủ thời gian phủ cửa sổ trước tín hiệu.
+| Mục | Trạng thái xác minh |
+|---|---|
+| VM chạy subscriber | 10.1.16.234 — k8s-master.local |
+| Unit | pulse-rca-context.service |
+| systemd | active/running, enabled; MainPID 125957 |
+| Case đang giữ | **113**, còn 1 case pending tại snapshot |
+| Context ring đang giữ | 8.847 normalized connect event |
+| Stream được mở | Ba sensor trên worker1, worker4, worker3 |
+| Stream có connect event đã nhận ở snapshot | worker1 và worker4; worker3 chưa có normalized event |
+| Trigger | candidate_alert_preview, không phải alert production |
+| Tự thay model/enforce/cách ly | Không |
 
-Đây là **cây/graph bằng chứng điều tra**, chưa phải thuật toán chứng minh
-root cause nhân quả. Anomaly từ count tổng hợp của container không chỉ ra
-process nào có lỗi. Các process/connect trong cây là hành vi quan sát quanh
-tín hiệu, không mặc nhiên là hành vi tấn công.
+Mở stream không chứng minh mọi workload đều có event. Pod ngoài selector,
+khoảng thiếu telemetry hoặc không phát sinh connect đều có thể làm thiếu
+context; không tự suy ra không có kết nối hay không có anomaly.
 
-## Giới hạn và retention
+## 2. Thuật ngữ cần hiểu
 
-- Policy hiện dùng selector `aims.hust.vn/runtime-hardened=true`; các dependency
-  như broker/database không mặc nhiên có connect detail. Case thiếu event vẫn
-  được giữ và đánh dấu unknown, không suy ra không có kết nối.
-- Entry `connect` là **lần gọi/thử kết nối**, không phải receipt thành công.
-  Cần return probe hoặc network flow để khẳng định thành công; chưa triển khai.
-- IP→Pod/Service được resolve theo inventory API gần thời điểm nhận event.
-  Ghi tuổi inventory; chưa có lịch sử inventory hoàn chỉnh để replay mọi lần
-  tái sử dụng IP hoặc NAT/service-mesh mapping.
-- Buffer context giữ **180 giây**, tối đa **20.000 event**. Nếu chạm cap,
-  ghi issue và bỏ context cũ nhất của riêng nhánh RCA. Không xóa capture gốc.
-- Gom case theo node/Pod UID/container trong **300 giây** để tránh tạo một
-  cây mỗi 500 ms. Tất cả decision vẫn nằm nguyên trong capture Pulse;
-  STATUS RCA đếm số positive đã đọc và số được gom.
-- Mỗi cây tối đa **200 connect event**; truncation được ghi rõ. Query tối đa
-  10.001 event, ghi cờ khi đạt trần. Chỉ giữ **500 case JSON/Markdown gần nhất**
-  của subscriber mới này; case cũ hết retention sẽ bị xóa, có counter.
-  Muốn giữ minh chứng lâu dài phải sao chép case + SHA-256 sang evidence.
-- RCA CPU quota **0,5 core**, RAM cap **512 MiB**, trên control plane `.234`.
-  Đây là hạn mức cấu hình, không phải overhead đã đo.
-- Service tự restart, enable sau boot, resume cursor/case từ SQLite WAL.
-  Unit không yêu cầu mount NFS thành công mới được start; khi preview input
-  chưa có, reader ghi lỗi và retry. NFS hard-mount stall vẫn là giới hạn riêng.
-  Đổi config/source phải dùng output đăng ký mới; không trộn checkpoint cũ.
-  Reconnect có issue; không cam kết không mất event khi sensor/API/VM mất kết nối.
-- Subscriber không nằm trong đường quyết định ML nên bước đợi post-context
-  không cộng vào kernel→preview latency. RCA có latency hoàn tất cây riêng.
+| Thuật ngữ | Nghĩa trong nhánh này |
+|---|---|
+| RCA — Root Cause Analysis | Điều tra nguyên nhân gốc; khác với chỉ phát hiện điểm bất thường |
+| Alert/preview | Alert đã publish phục vụ vận hành / tín hiệu ứng viên để đánh giá; hiện dùng preview |
+| Evidence graph/tree | Các node và quan hệ có chứng cứ; có thể chia sẻ parent/đích nên không nhất thiết là cây thuần túy |
+| Node/edge | Thực thể / quan hệ: process, container, destination; parent_of, called_connect... |
+| Process lineage | Quan hệ cha–con giữa các process |
+| Exec ID | Identity process gắn với lần khởi chạy; không dùng PID đơn lẻ vì PID có thể tái sử dụng |
+| Pod UID/CRI ID | Identity lần tạo pod / container runtime, khác tên pod hoặc tên workload |
+| Cgroup | Nhóm tài nguyên mà Pulse đếm; count anomaly là tổng container, chưa chỉ ra process gây ra |
+| Socket FD | File descriptor socket trong process; không phải ID duy nhất toàn cụm |
+| Connect attempt | Lần gọi connect ở entry hook; chưa có return receipt để biết thành công |
+| Destination/inventory | IP/port đích / thông tin Pod, Service, EndpointSlice từ Kubernetes API |
+| Identity/time join | Ghép cùng node, Pod UID, container và khoảng thời gian, không chỉ trùng PID/IP |
+| Pre/post context | Dữ liệu trước/sau tín hiệu để điều tra; ở đây 30 giây trước và 5 giây sau |
+| Subscriber | Consumer riêng nhận event/decision; không nằm trong bước tính score |
+| JSONL | Mỗi dòng là một JSON; chỉ xử lý dòng hoàn chỉnh để tránh đọc partial write |
+| Cursor/checkpoint | Vị trí đọc / trạng thái đã lưu để resume sau restart |
+| SQLite WAL | Journal local giúp commit context/case/cursor và phục hồi process |
+| Ring buffer/retention | Context gần hiện tại có trần / quy tắc giữ và hết hạn output |
+| Cooldown/grouping | Gom nhiều preview cùng identity thành một case, không xóa decision gốc |
+| Coverage/unknown | Phạm vi đã quan sát / không đủ bằng chứng; thiếu event không được mặc định là normal |
+| Correlation/causality | Xuất hiện liên quan theo identity/thời gian / quan hệ gây ra; nhánh hiện tại mới chứng minh liên quan |
+| Payload/L7/TLS plaintext | Nội dung tầng ứng dụng/nội dung giải mã; connect không cung cấp các dữ liệu này |
+| Hash/provenance | Checksum và nguồn bằng chứng; hash không thay cho event hoặc nhãn ground truth |
 
-## Triển khai và kết quả live đã kiểm chứng
+## 3. Luồng và output hiện hành
 
-SSH xác minh lúc **11:06 ngày 15/10/2026, UTC+7**: service
-`pulse-rca-context.service` đang `active/running`, `enabled`, trên `.234`.
-Source ba module được ghim tại `/opt/sentinel-pulse-rca/2027dc8`, khớp Git
-commit **2027dc8**. Cấu hình riêng
-`/etc/sentinel-pulse-rca/parallel-20261015.json`; environment file
-`/etc/sentinel-pulse/rca-context.env` do systemd đọc. Không cài thêm package.
-
-- Đã sinh **52 case**; **27 case có connect context**, 25 case không có.
-  Đây là số case RCA, **không phải TP/FP hoặc confusion matrix**.
-- Ví dụ thật: `inventory-service-695bf6f445-ttlgj` có **99 lần connect** trong
-  khoảng join; cây chứa 10 process, 5 parent, 3 đích: `kube-dns:53`,
-  `aims-postgres-cnpg-rw:5432`, `127.0.0.1:8000`.
-  Không kết luận các kết nối này độc hại hoặc gây anomaly.
-- Đã thử restart **riêng RCA**: trước restart 49 case; sau resume còn nguyên
-  ledger và tăng lên 52, các cursor đều tăng; chỉ có đúng ba receipt initial-tail
-  của lần đầu, không tua lại từ đầu. Không thử reboot VM trong lượt này.
-- Unit báo MemoryCurrent **88.834.048 byte ≈ 84,7 MiB** ở snapshot.
-  Đây là cgroup gồm subscriber và ba kubectl, chưa phải A/B overhead benchmark.
-- 33 test RCA local và **57 test regression trên VM** đều pass. Suite VM gồm
-  RCA, preview evaluator/replay, batch scorer và matched study; không train lại.
-  Python host chưa có NumPy nên regression ML chạy bằng venv hiện hữu trên VM.
-- Lúc cài, config ban đầu không đọc được vì thư mục cha `/etc/sentinel-pulse`
-  là root:root 0750. Đã chuyển config sang thư mục RCA riêng root:dat 0750,
-  file 0640; không nới quyền cấu hình khác. Journal giữ startup failure.
-  Restart chủ động có thể reset `NRestarts`, không dùng counter này để nói
-  chưa từng có lỗi. Pulse/syscall không restart bởi thao tác triển khai này.
-
-Bằng chứng đã sao chép về repo: [receipt và case thật](validation-evidence/pulse-rca-context-20261015/README.md).
-Các số trên là snapshot, không phải SLO hoặc kết quả phát hiện cuối cùng.
-Một số counter STATUS có thể mất phần chưa checkpoint trong khoảng 5 giây
-khi process restart; ledger case/cursor SQLite là nguồn kiểm tra resume.
-
-## Cách kiểm tra
-
-Unit: [pulse-rca-context.service](sentinel_pulse/systemd/pulse-rca-context.service).
-
-```bash
-sudo systemctl status pulse-rca-context.service --no-pager
-sudo systemctl show pulse-rca-context.service -p ActiveState -p NRestarts -p UnitFileState
-sudo python3 -m json.tool /var/lib/sentinel-pulse-rca/parallel-20261015/STATUS.json
-sudo ls /var/lib/sentinel-pulse-rca/parallel-20261015/cases
+```mermaid
+flowchart TD
+    A[Pulse decision dương: candidate preview] --> C[Join theo node + Pod UID + container + thời gian]
+    B[Tetragon connect events từ ba worker] --> R[Context ring SQLite local]
+    R --> C
+    I[Kubernetes Pod / Service / EndpointSlice inventory] --> C
+    C --> P[Container và process được quan sát]
+    P --> L[Parent / child theo exec identity]
+    P --> N[Connect attempt: socket FD + IP/port]
+    N --> D[Resolve đích K8s nếu có bằng chứng]
+    L --> O[Case JSON node/edge + Markdown]
+    D --> O
+    C --> U[Thiếu context / stale / ngoài coverage: ghi rõ unknown]
+    U --> O
 ```
 
-Lỗi RCA không được dùng để dừng hay reset Pulse/syscall study. NFS reader
-RCA còn có thể chờ khi NFS lỗi; đây là consumer riêng, không thay đổi loop
-collector. Độ đầy đủ Tetragon chưa được đo bằng exact-event reconciliation.
+1. Subscribe Tetragon qua kubectl exec tới ba sensor, chỉ chuẩn hóa sys_connect
+   của policy sentinel-aims-syscalls. Không thay tracing policy/collector.
+2. Giữ context normalized trong SQLite local. Raw event chỉ được dùng lúc
+   normalize và tính hash, không persist argv, token hoặc request payload.
+3. Tail decisions của ba worker từ NFS, kiểm tra model/policy, status và identity.
+   Lần đầu bắt đầu ở cuối log hiện tại, ghi byte đã bỏ qua; không giả vờ có
+   lịch sử trước subscription. Sau restart dùng lại cursor, không tự seek-tail mới.
+4. Gom preview theo identity với cooldown 300 giây. Chờ post-context rồi
+   dựng graph bằng chứng trong khoảng window_end−30 s tới window_end+5 s.
+5. Xuất một JSON đầy đủ node/edge và Markdown để đọc. Từng connect có raw
+   event hash; destination có mapping K8s nếu inventory xác định được.
+
+Không join chỉ theo PID, pod name hoặc địa chỉ IP. Nếu trigger có CRI ID thì
+kiểm tra thêm CRI ID. Parent ngoài container có thể xuất hiện vì lineage
+kernel; không vì thế kết luận parent là workload hoặc process tấn công.
+
+## 4. Ví dụ thật và kiểm chứng đã làm
+
+[Cây thật và normalized input](validation-evidence/pulse-rca-context-20261015/README.md)
+của inventory-service-695bf6f445-ttlgj:
+
+- Case ID: 87ab07911c7413268acae4f4.
+- **99 connect attempt**, 10 process, 5 parent, 3 đích.
+- Đích resolve được: kube-dns:53 và aims-postgres-cnpg-rw:5432;
+  loopback 127.0.0.1:8000 chưa gán một Service K8s.
+- Trigger có alert=false, candidate_alert_preview=true. Các kết nối này
+  không được tự gắn nhãn attack hoặc nguyên nhân anomaly.
+- Replay 99 normalized edge tạo lại cùng nodes/links. Raw Tetragon corpus
+  không được lưu trong sample này; không khẳng định raw replay end-to-end.
+
+Đã kiểm tra restart riêng subscriber: ledger case vẫn còn, cursor tăng,
+chỉ có ba receipt initial-tail của lần start đầu. **Chưa thử reboot VM**.
+33 test RCA local và 57 test regression trên VM đã pass trước/chung đợt deploy.
+Snapshot triển khai trong receipt có MemoryCurrent 84,7 MiB; đó là cgroup gồm
+subscriber và ba kubectl, không phải overhead A/B đã đo.
+
+Startup từng gặp quyền đọc config do thư mục cha root-only. Đã chuyển config
+sang thư mục RCA riêng root:dat 0750/file 0640, giữ journal lỗi; không nới quyền
+cấu hình khác. Không dùng NRestarts hiện tại để phủ nhận startup failure cũ.
+
+## 5. Coverage, hiệu năng và retention
+
+| Cấu hình | Ý nghĩa/giới hạn |
+|---|---|
+| Selector policy | aims.hust.vn/runtime-hardened=true; không mặc nhiên có connect detail cho mọi broker/database |
+| Context ring | 180 giây, tối đa 20.000 event; vượt trần ghi issue và bỏ context cũ nhất của riêng RCA |
+| Case grouping | 300 giây/node/Pod UID/container; decision gốc Pulse vẫn nguyên |
+| Cây mỗi case | Tối đa 200 connect event; truncation phải hiện rõ |
+| Query guard | Tối đa 10.001 event, có cờ khi chạm cap |
+| Case retention | Chỉ giữ 500 case JSON/Markdown gần nhất của subscriber; có counter hết hạn |
+| CPU/RAM | Quota 0,5 core, MemoryMax 512 MiB; hạn mức cấu hình, không phải số đo overhead |
+| Persistence | SQLite WAL local và case/cursor checkpoint; không gắn terminal SSH |
+| Boot/retry | enabled + Restart=always; NFS mount không phải prerequisite của unit |
+
+Case local hết retention sẽ bị xóa; sample đã giữ trong Git/evidence không bị
+vòng retention này xóa. Counter STATUS có thể mất phần chưa checkpoint trong
+khoảng 5 giây khi restart; ledger/cursor SQLite dùng để kiểm chứng resume.
+
+IP mapping lấy từ inventory gần thời điểm nhận event, có tuổi inventory;
+chưa có timeline đầy đủ để xử lý mọi lần IP reuse, NAT hay service-mesh mapping.
+Stream reconnect được log, transport loss chưa được đo exact. Subscription
+đã bắt đầu trước pre-window cũng không bảo đảm không mất event.
+
+Reader NFS còn có thể bị hard-mount stall; đây là rủi ro của consumer RCA.
+Bước đợi 5 giây post-context không cộng vào **mốc tính preview của ML**, nhưng
+cây RCA hoàn tất muộn hơn; latency tới khi người dùng nhận alert/cây cần đo riêng.
+Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
+
+## 6. Tiến độ hoàn thiện
+
+| Hạng mục | Trạng thái |
+|---|---|
+| Normalize process/parent/socket/destination không lấy payload | Đã triển khai |
+| Subscriber ba sensor, join preview có model/policy binding | Đang chạy |
+| Local context, durable case/cursor, bounded output | Đã có; restart process đã thử |
+| Cây và input evidence thật, replay normalized | Đã có |
+| Pod ngoài selector hoặc context thiếu | Đã đánh dấu; coverage chưa toàn workload |
+| Operational alert thật làm trigger | Chưa có vì Pulse chưa promote |
+| Kết quả connect thành công/thất bại | Chưa có return/flow receipt |
+| Chuỗi process đầy đủ qua mọi fork/exec/exit | Chưa triển khai đầy đủ |
+| Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
+| Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
+| Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
+| A/B overhead và latency tới khi cây sẵn sàng | Chưa đo đầy đủ |
+
+Hướng tiếp theo: đo coverage theo workload và lý do thiếu; kiểm thử recovery/
+transport; bổ sung process lifecycle và return/flow evidence ở release riêng;
+xây tập incident có root-cause labels rồi mới đánh giá causal ranking.
+Không mở thêm kernel hooks giữa một lượt freeze chỉ để làm cây nhiều event hơn.
+
+## 7. File, service và lệnh kiểm tra
+
+- Source: [rca_service.py](sentinel_pulse/rca_service.py),
+  [rca_tree.py](sentinel_pulse/rca_tree.py), [rca_connect.py](sentinel_pulse/rca_connect.py).
+- Module runtime ghim tại /opt/sentinel-pulse-rca/2027dc8.
+- Config: /etc/sentinel-pulse-rca/parallel-20261015.json.
+- Environment file systemd đọc: /etc/sentinel-pulse/rca-context.env.
+- Output: /var/lib/sentinel-pulse-rca/parallel-20261015.
+- Unit: [pulse-rca-context.service](sentinel_pulse/systemd/pulse-rca-context.service).
+- Model/policy hash phải trùng candidate trong [báo cáo Pulse](SENTINEL_PULSE_STATUS.md).
+
+    sudo systemctl show pulse-rca-context.service -p ActiveState -p SubState -p NRestarts -p UnitFileState
+    sudo python3 -m json.tool /var/lib/sentinel-pulse-rca/parallel-20261015/STATUS.json
+    sudo ls /var/lib/sentinel-pulse-rca/parallel-20261015/cases
+
+Không reset Pulse hoặc thí nghiệm syscall nếu subscriber lỗi. Cây điều tra
+không tự xác nhận anomaly, false positive, attack hay root cause.
