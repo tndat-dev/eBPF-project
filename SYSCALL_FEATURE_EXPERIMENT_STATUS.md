@@ -1,6 +1,6 @@
 # Thí nghiệm chọn feature/syscall — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **11:14 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
+Cập nhật bằng SSH **12:39 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
 chọn feature, chạy song song nhưng không đổi model [Pulse realtime](SENTINEL_PULSE_STATUS.md)
 hoặc [RCA](RCA_RUNTIME_STATUS.md). Chỉ cập nhật trạng thái hiện hành, không
 thêm checkpoint theo từng lần kiểm tra.
@@ -11,9 +11,10 @@ Tập 29 syscall tường minh có cần bổ sung, bỏ bớt hoặc thay nhóm
 hiện tốt hơn trong cùng ngân sách false alert và latency? Không chọn đơn
 thuần theo syscall xuất hiện nhiều hoặc biến thể có ít raw flags nhất.
 
-**Chưa có bằng chứng cuối để kết luận syscall nào tối ưu.** Đã có frequency,
-ablation exploratory và matched fits đang chạy; còn thiếu independent normal,
-fresh paired blind attack và phân tích thống kê cho các arm đã freeze.
+**Chưa có bằng chứng cuối để kết luận syscall nào tối ưu.** R4 đã fit đủ và
+được audit integrity; hiện đang thu normal exposure sau thời điểm fit freeze.
+Independent normal chưa đủ 24 giờ; fresh paired blind attack và phân tích
+thống kê vẫn chưa chạy.
 
 ## 2. Tiến trình đang chạy ngầm
 
@@ -21,23 +22,37 @@ fresh paired blind attack và phân tích thống kê cho các arm đã freeze.
 |---|---|
 | VM | 10.1.16.234 — k8s-master.local |
 | Unit | pulse-matched-study-parallel-r4-20261015.service |
-| systemd | active/running, enabled; MainPID 74195 |
-| Pha | fitting_matched_variants |
-| Fit hoàn tất | **381/693 = 55,0% lượt fit**, không phải 55% toàn bộ nghiên cứu |
-| Coverage gap đã ghi trong phần đã xử lý | unknown={} |
+| systemd | inactive/dead, `Result=success`, `ExecMainStatus=0`, `NRestarts=0` |
+| Pha | matched fits hoàn tất; chờ normal holdout rồi blind comparison |
+| Fit hoàn tất | **693/693** (21 workload × 11 arm × 3 seed) |
+| Audit | `R4_FIT_AUDIT.json`: `fit_set_verified_blind_evaluation_pending`; đã kiểm tra hash 693 artifact |
+| Confusion matrix | **Chưa có**; precision/recall vẫn null, không suy diễn từ fit audit |
 | Phạm vi | 21 workload/container key, gồm notification/payment |
 | Thiết kế | 11 arm × 3 seed × 21 key = 693 model |
 | Source cố định | /mnt/sentinel-pulse-archive/runtime-control-981aef3/source |
 | Output/checkpoint | /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study |
 
-STATUS có thể không đổi trong lúc một model đang fit; tuổi checkpoint khoảng
-30 giây trong lần đọc không tự chứng minh job bị treo. Cần kiểm tra đồng thời
-PID, trạng thái và mức tiến triển qua thời gian. Service không gắn terminal SSH.
+R4 fit kết thúc lúc **2026-10-15 05:22:03 UTC**. Audit được ghi lúc
+05:32:27 UTC; kết quả audit bind config/index/input/source/terminal và xác minh
+693 artifact. Terminal R4 vẫn ghi `fresh_blind_complete=false`, precision/recall
+null.
 
-Capture matched 500 ms và Pulse preview vẫn chạy trên ba worker. Study đang
-fit offline từ selection đã đăng ký, không phải đang inject một blind campaign.
-Các attack development R3/R5 đã hoàn tất; kết quả của chúng thuộc báo cáo Pulse,
-**không** phải attack comparison của 11 arm.
+Tại **05:35 UTC**, capture service trên cả ba worker (`.237`, `.238`, `.239`)
+đang active, `NRestarts=0`; cùng một NFS archive còn khoảng 267 GiB trống.
+Capture bắt đầu 2026-10-14 17:38:49 UTC, chạy 172.800 giây (48 giờ), nên theo
+đăng ký hiện tại vẫn phủ hết khoảng holdout. Do stream đã tồn tại trước khi
+đăng ký, không gán ngược các row cũ cho holdout. `NORMAL_HOLDOUT_START.json`
+được tạo mới theo kiểu no-overwrite trên NFS và bind audit R4, terminal, source
+và protocol. Manifest SHA-256:
+`ad6d376cca418f350d88c4c411cdcd5cede556c8940d845eb8209af96939e920`.
+Mốc bắt đầu là **2026-10-15 05:38:32 UTC**; hết 24 giờ dự kiến
+**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Cần chốt segment seal và kiểm tra
+coverage/health sau mốc này.
+
+Đây mới là thời gian quan sát, chưa phải 24 valid workload-hours: workload
+coverage và telemetry/infrastructure intervals phải kiểm tra từ feature records
+đã seal. Alert/issue không bị xoá hay tự gán normal; chúng sẽ được giữ để review.
+Không có R4 blind campaign/evaluator đang chạy tại thời điểm kiểm tra.
 
 ## 3. Thuật ngữ sử dụng
 
@@ -129,9 +144,9 @@ finit_module, bpf, userfaultfd và io_uring_setup/enter/register.
 Việc có arm không có nghĩa đã có blind result hoặc syscall được phép thành công.
 
 R3 đủ index 21 key nhưng fit 627/693: hai Kafka operator chỉ có 678 calibration
-context vì đọc thiếu segment cuối. R4 chờ sealed segment phủ hết selection;
-mỗi operator có 5.734 train và 2.741 calibration context trước cap.
-Giữ nguyên R3, không thay unknown cũ bằng kết quả mới.
+context vì đọc thiếu segment cuối. R4 đã chờ sealed segment phủ hết selection;
+mỗi operator có 5.734 train và 2.741 calibration context trước cap. Giữ nguyên
+R3, không thay unknown cũ bằng kết quả mới.
 
 ## 6. Kết quả đã có và giới hạn
 
@@ -142,7 +157,7 @@ Giữ nguyên R3, không thay unknown cũ bằng kết quả mới.
 | C4 | Full raw flags 43,57%, rolling-5 khác training rolling-10 | Không hợp lệ để kết luận quality/FPR |
 | C6 | Sửa 781.239 rows và chấm 608 model; full 11.989/334.655 = 3,5825% raw positives | Sửa preprocessing, không chứng minh recall tốt hơn |
 | A2 addition exploratory | 105/105 model, 0 unknown | Pipeline hoàn tất trên histogram 1 s đã lộ; không matched Pulse 500 ms |
-| R4 matched | 381/693 fit tại snapshot | Chưa chọn arm thắng và chưa có paired blind matrix |
+| R4 matched | 693/693 fit; 693 artifact hash đã audit | Bộ fit integrity hợp lệ; chưa có normal metric, chưa chọn arm, chưa có paired blind matrix |
 
 [Receipt C3/C6](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json),
 [C6 verification](validation-evidence/pulse-parallel-completion-20261014/c6-verification.json),
@@ -168,10 +183,10 @@ Protocol [v2](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đă
 | Bước | Trạng thái |
 |---|---|
 | Full-ID capture, frequency, exploratory ablation/addition | Đã có |
-| 21-key matched arms, grouped/threat-model arms, 3 seed | Đã triển khai; đang fit |
-| Xác minh đủ 693 artifact và freeze từng arm | Chưa hoàn tất |
-| Normal holdout mới độc lập, có health/adjudication | Còn phải chạy/chốt |
-| Blind binary/cases/seed mới và benign-exec controls | Chưa có bằng chứng hoàn tất |
+| 21-key matched arms, grouped/threat-model arms, 3 seed | Đã fit đủ 693 model |
+| Xác minh đủ artifact/freeze arm | Đã xác minh 693 SHA-256; freeze phục vụ đánh giá, không promote |
+| Normal holdout mới độc lập, có health/adjudication | Đã đăng ký lúc 15/10 12:38:32 UTC+7; đang thu, đủ 24 giờ dự kiến 16/10 12:38:32 UTC+7; sau đó seal/review |
+| Blind binary/cases/seed mới và benign-exec controls | Chưa chạy; chỉ mở sau normal review và policy/evaluator binding |
 | Paired attack/control cho mọi arm | Chưa hoàn tất |
 | Matrix, recall@budget, CI, importance trên evaluation tách biệt | Chưa hoàn tất |
 | Kết luận giữ/bỏ/thêm syscall | Chưa đủ bằng chứng |
@@ -182,20 +197,17 @@ interval**, đây là **kế hoạch chưa chạy xong**, không phải kết qu
 OS hiện được kiểm chứng là Linux native x86-64 trên cụm Ubuntu; Windows/ARM,
 cross-kernel và cross-distro cần backend/ABI guard và đánh giá riêng.
 
-Hai rủi ro resume đã có [probe cách ly](validation-evidence/repo-vm-audit-20261015/resume-probes.json):
-STATUS waiting có thể mất completed ledger; input/index đổi có thể reuse
-artifact cũ sai dimension. Chưa hotpatch R4 frozen và chưa thấy trigger live;
-cần sửa/test ở release sau trước lượt xác nhận, không coi enable/restart là
-bảo đảm recovery đúng.
-
 ## 8. Kiểm tra tiếp và nguồn code
 
-    systemctl show pulse-matched-study-parallel-r4-20261015.service -p ActiveState -p SubState -p NRestarts
-    sudo python3 -m json.tool /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study/STATUS.json
+    sudo systemctl show pulse-matched-worker-parallel-20261015.service -p ActiveState -p MainPID -p NRestarts
+    sudo python3 -m json.tool /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study/R4_FIT_AUDIT.json
 
 Code: [matched_study.py](sentinel_pulse/matched_study.py),
 [frequency](sentinel_pulse/syscall_frequency_report.py),
 [ablation](sentinel_pulse/syscall_ablation.py),
 [addition](sentinel_pulse/syscall_addition_experiment.py).
-Bước tiếp theo là kiểm tra đủ fit rồi freeze và đánh giá mới, không thay
-candidate Pulse chỉ vì arm có ít raw positives hơn. Không reset soak để xóa lỗi.
+Bước kế tiếp là chờ đủ 24 giờ normal sau freeze, xác minh 21 workload keys,
+valid exposure, alerts và health intervals; sau đó chạy evaluator matched và
+blind paired trials theo protocol. Không thay candidate Pulse chỉ vì arm có ít
+raw positives hơn. Không thêm recovery job; capture hiện tại chạy độc lập dưới
+systemd và đủ thời gian cho mốc holdout đã đăng ký.
