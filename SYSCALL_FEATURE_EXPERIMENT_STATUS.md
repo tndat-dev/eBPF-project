@@ -1,6 +1,6 @@
 # Thí nghiệm chọn feature/syscall — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **15:12 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
+Cập nhật bằng SSH **15:19 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
 chọn feature, chạy song song nhưng không đổi model [Pulse realtime](SENTINEL_PULSE_STATUS.md)
 hoặc [RCA](RCA_RUNTIME_STATUS.md). Chỉ cập nhật trạng thái hiện hành, không
 thêm checkpoint theo từng lần kiểm tra.
@@ -22,7 +22,7 @@ thống kê vẫn chưa chạy.
 |---|---|
 | VM | 10.1.16.234 — k8s-master.local |
 | Unit | pulse-matched-study-parallel-r4-20261015.service |
-| systemd | inactive/dead, `Result=success`, `ExecMainStatus=0`, `NRestarts=0` |
+| Fit systemd | inactive/dead, `Result=success`, `ExecMainStatus=0`, `NRestarts=0` |
 | Pha | matched fits hoàn tất; đang thu và chấm normal holdout |
 | Fit hoàn tất | **693/693** (21 workload × 11 arm × 3 seed) |
 | Audit | `R4_FIT_AUDIT.json`: `fit_set_verified_blind_evaluation_pending`; đã kiểm tra hash 693 artifact |
@@ -32,8 +32,8 @@ thống kê vẫn chưa chạy.
 | Source cố định | /mnt/sentinel-pulse-archive/runtime-control-981aef3/source |
 | Output/checkpoint | /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study |
 | Evaluator mới | `pulse-syscall-holdout-r4-20261015.service`, active/running trên .234 |
-| Tiến độ evaluator lúc 15:11 | 10 segment hoàn tất; đang chấm worker4/s00027; 2.787.840 context-model đã chấm |
-| Tài nguyên evaluator | CPUQuota 4 core, MemoryMax 16 GiB; MemoryCurrent khoảng 8,0 GiB tại snapshot |
+| Tiến độ evaluator lúc 15:19 | 11 segment hoàn tất; đang chấm worker1/s00027; 1.858.560 context-model đã chấm; 594/693 model đã nạp |
+| Tình trạng evaluator lúc 15:19 | active/running, `NRestarts=0` |
 
 R4 fit kết thúc lúc **2026-10-15 05:22:03 UTC**. Audit được ghi lúc
 05:32:27 UTC; kết quả audit bind config/index/input/source/terminal và xác minh
@@ -49,11 +49,22 @@ Capture bắt đầu 2026-10-14 17:38:49 UTC, chạy 172.800 giây (48 giờ), n
 và protocol. Manifest SHA-256:
 `ad6d376cca418f350d88c4c411cdcd5cede556c8940d845eb8209af96939e920`.
 Mốc bắt đầu là **2026-10-15 05:38:32 UTC**; hết 24 giờ dự kiến
-**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Tại snapshot 15:11 UTC+7,
-holdout đã chạy khoảng **2 giờ 33 phút (10,6% thời gian đăng ký)**; evaluator
-đang ở segment worker4/s00027. STATUS ghi 10 segment hoàn tất và 2.787.840
-context-model đã chấm; đây là tiến độ xử lý, chưa phải số window độc lập hay
-confusion matrix. Cần chốt segment seal và kiểm tra coverage/health sau mốc này.
+**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Tại snapshot 15:19 UTC+7,
+holdout đã chạy khoảng **2 giờ 41 phút (11,2% thời gian đăng ký)**. STATUS ghi
+11 segment hoàn tất, đang ở worker1/s00027; 1.858.560 context-model đã chấm và
+594/693 artifact đã nạp vào evaluator. Đây là trạng thái xử lý, không phải số
+window độc lập hay confusion matrix. Cần chốt segment seal và kiểm tra
+coverage/health sau mốc 24 giờ.
+
+**Vì sao vẫn chấm normal holdout sau khi fit R4?** Fit chỉ tạo và audit
+artifact của 693 model; nó không cho biết model có gắn cờ nhầm trên normal mới
+hay không. Evaluator chấm artifact đã khóa trên capture độc lập, không refit
+và không đổi ngưỡng. Kết quả giúp so sánh raw-positive/episode burden giữa các
+arm và seed trong cùng điều kiện. Positive chưa adjudicate nên chưa tự gọi là
+false positive. Normal holdout cũng không đo recall; bước đó cần blind attack
+có ground truth. Trình tự này giảm nguy cơ chọn feature chỉ theo attack set.
+Holdout này phục vụ so sánh phát triển; sau khi xem kết quả, nó không còn là
+blind để tiếp tục tune.
 
 Đây mới là thời gian quan sát, chưa phải 24 valid workload-hours: workload
 coverage và telemetry/infrastructure intervals phải kiểm tra từ feature records

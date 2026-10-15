@@ -1,6 +1,6 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **15:12 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **15:19 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
@@ -29,8 +29,9 @@ R3 cũ đo preview→case p50/p95 15,00/22,63 giây trên 495 case. Fastcase m�
 đặt `after_seconds=0`, dùng grace 2 giây và giữ nguyên policy connect sẵn có;
 không cài hook mới. Trong 103 case, subscriber→case là 2,06/2,11 giây, nhưng
 preview→subscriber còn 7,73/15,54 giây. Do đó preview→case tổng p50/p95 là
-9,79/17,61 giây: **chưa đạt mục tiêu end-to-end 5 giây**. Đây là mẫu ngắn,
-không phải cam kết production. 41/103 case thiếu connect context; stream worker3
+9,79/17,61 giây trong mẫu 103 case; đây là số liệu mô tả, **không phải gate
+đạt/trượt của RCA**. RCA không bị yêu cầu phải đáp ứng latency thấp để được
+coi là hoàn thiện. 41/103 case thiếu connect context; stream worker3
 chưa có normalized event. `timedatectl` trên master và ba worker báo
 `NTPSynchronized=yes`; `chronyc` không có nên chưa biết offset chính xác.
 
