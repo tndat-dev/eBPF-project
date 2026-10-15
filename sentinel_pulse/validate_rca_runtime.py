@@ -33,8 +33,8 @@ def write_new(path, value):
         stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
 
 
-def run(fixture, output):
-    pod = json.loads(command('get', 'pod', POD, '-n', NAMESPACE, '-o', 'json').stdout)
+def run(fixture, output, *, namespace=NAMESPACE, pod_name=POD):
+    pod = json.loads(command('get', 'pod', pod_name, '-n', namespace, '-o', 'json').stdout)
     spec = pod['spec']; security = spec.get('securityContext', {}); container = spec['containers'][0]
     if (security.get('runAsUser') != 1000 or not security.get('runAsNonRoot')
             or spec.get('hostPID') or spec.get('hostNetwork') or spec.get('hostIPC')
@@ -53,25 +53,26 @@ def run(fixture, output):
                                     '--', 'tetra', 'tracingpolicy', 'list', '-o', 'json').stdout)
     for name in (POLICY, FORK_POLICY):
         policy = next((p for p in policy_list['policies'] if p['name'] == name
-                       and p.get('namespace') == NAMESPACE), None)
+                       and p.get('namespace') == namespace), None)
         if not policy or policy.get('state') != 'TP_STATE_ENABLED':
             write_new(output/'BLOCKED.json', dict(reason='validation_policy_not_enabled', policy=name,
                                                   observed=policy))
             raise ValueError('validation policy is not enabled: '+name)
     write_new(output/'START.json', dict(registered_at_unix=time.time(), fixture_sha256=sha256_file(fixture),
-        fixture_kind='isolated_observability_fixture', namespace=NAMESPACE, pod_uid=pod['metadata']['uid'],
-        node_name=spec['nodeName'], policies=policy_list, attack_or_ML_evaluation=False,
-        modifies_production_workload=False, normal_training_admission=False))
-    command('cp', str(fixture), NAMESPACE+'/'+POD+':/proof/rca-runtime-probe', '-c', 'probe')
+        fixture_kind='restricted_observability_fixture', namespace=namespace, pod_name=pod_name,
+        pod_uid=pod['metadata']['uid'], node_name=spec['nodeName'], policies=policy_list,
+        attack_or_ML_evaluation=False, modifies_existing_workload=False,
+        production_namespace_fixture=namespace == 'production', normal_training_admission=False))
+    command('cp', str(fixture), namespace+'/'+pod_name+':/proof/rca-runtime-probe', '-c', 'probe')
     process = None
     with (output/'raw.jsonl').open('xb') as raw, (output/'capture.stderr').open('xb') as errors:
         try:
             process = subprocess.Popen(['kubectl', 'exec', '-n', 'kube-system', sensor,
-                '-c', 'tetragon', '--', 'tetra', 'getevents', '-o', 'json', '--namespace', NAMESPACE,
+                '-c', 'tetragon', '--', 'tetra', 'getevents', '-o', 'json', '--namespace', namespace,
                 '--event-types', 'PROCESS_EXEC,PROCESS_EXIT,PROCESS_KPROBE,PROCESS_TRACEPOINT'],
                 stdout=raw, stderr=errors)
             time.sleep(2)
-            result = command('exec', '-n', NAMESPACE, POD, '-c', 'probe', '--',
+            result = command('exec', '-n', namespace, pod_name, '-c', 'probe', '--',
                              '/proof/rca-runtime-probe', timeout=25)
             (output/'fixture.stdout').write_bytes(result.stdout)
             (output/'fixture.stderr').write_bytes(result.stderr)
@@ -112,10 +113,11 @@ def run(fixture, output):
     for operation in ('fork', 'exec', 'exit', 'commit_creds'):
         checks[operation] = any(e['operation'] == operation for e in normalized)
     trigger = dict(node_name=spec['nodeName'], pod_uid=pod['metadata']['uid'], container_name='probe',
-        workload_key=NAMESPACE+'/'+POD+':probe', window_end=max((event_time(e['observed_at']) for e in normalized), default=time.time()),
+        workload_key=namespace+'/'+pod_name+':probe', window_end=max((event_time(e['observed_at']) for e in normalized), default=time.time()),
         candidate_alert_preview=False, alert=False, policy_evaluated=False,
         trigger_purpose='manual_observability_validation', run_id='rca-runtime-proof-20261015')
-    tree = build_runtime_tree(trigger, normalized, coverage=dict(validation_namespace=True,
+    tree = build_runtime_tree(trigger, normalized, coverage=dict(validation_namespace=namespace != 'production',
+                              production_namespace_fixture=namespace == 'production',
                               fixture_sha256=sha256_file(fixture), production_ML_trigger=False))
     write_new(output/'TREE.json', tree)
     with (output/'TREE.md').open('x') as stream:
@@ -145,8 +147,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fixture', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--namespace', default=NAMESPACE)
+    parser.add_argument('--pod', default=POD)
     args = parser.parse_args()
-    print(json.dumps(run(args.fixture, args.output), indent=2))
+    print(json.dumps(run(args.fixture, args.output, namespace=args.namespace, pod_name=args.pod), indent=2))
 
 
 if __name__ == '__main__':

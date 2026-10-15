@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sentinel-rca-runtime-proof
+  namespace: production
+  labels:
+    app.kubernetes.io/name: sentinel-rca-runtime-proof
+    app.kubernetes.io/part-of: sentinel-pulse
+    sentinel.hust.vn/purpose: bounded-observability-validation
+spec:
+  nodeSelector:
+    kubernetes.io/hostname: k8s-worker1.local
+  automountServiceAccountToken: false
+  restartPolicy: Never
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile: {type: Unconfined}
+  containers:
+    - name: probe
+      image: busybox:1.37.0
+      command: [sh, -c, "sleep 3600"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: {drop: [ALL]}
+      resources:
+        requests: {cpu: 10m, memory: 16Mi}
+        limits: {cpu: 100m, memory: 64Mi}
+      volumeMounts:
+        - {name: proof, mountPath: /proof}
+  volumes:
+    - name: proof
+      emptyDir: {sizeLimit: 32Mi}
