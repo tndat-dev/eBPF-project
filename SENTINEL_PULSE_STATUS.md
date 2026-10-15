@@ -1,6 +1,6 @@
 # Sentinel Pulse — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH lúc **11:14 ngày 15/10/2026, UTC+7**. Đây là báo cáo
+Cập nhật bằng SSH lúc **14:01 ngày 15/10/2026, UTC+7**. Đây là báo cáo
 hiện hành của nhánh phát hiện ML, không phải nhật ký checkpoint.
 Hai nhánh còn lại: [chọn feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)
 và [RCA sau tín hiệu](RCA_RUNTIME_STATUS.md). Báo cáo tổng hợp cũ
@@ -19,11 +19,11 @@ tra; runtime vẫn ghi `alert=false`, `policy_applied=false`.
 
 | Node | IP | Trạng thái | Cadence tích lũy | Scored rows | Preview dương | Issue đã giữ |
 |---|---|---|---:|---:|---:|---:|
-| k8s-worker1.local | 10.1.16.237 | running | 10,54 giờ | 2.010.596 | 119.302 | 17 |
-| k8s-worker4.local | 10.1.16.238 | running | 10,49 giờ | 2.127.588 | 254.517 | 135 |
-| k8s-worker3.local | 10.1.16.239 | running | 10,53 giờ | 595.015 | 13.291 | 16 |
+| k8s-worker1.local | 10.1.16.237 | running | 13,30 giờ | 2.537.668 | 134.614 | 20 |
+| k8s-worker4.local | 10.1.16.238 | running | 13,23 giờ | 2.686.363 | 307.291 | 179 |
+| k8s-worker3.local | 10.1.16.239 | running | 13,30 giờ | 751.991 | 14.456 | 18 |
 
-Đăng ký capture 48 giờ/node: cadence hiện khoảng **21,9% thời lượng đăng ký**,
+Đăng ký capture 48 giờ/node: cadence hiện khoảng **27,7% thời lượng đăng ký**,
 không phải phần trăm hoàn thành toàn dự án. `completed_seconds` đếm cadence,
 không thay cho valid normal/scored exposure. Preview dương và issue không tự
 động là false positive, attack hoặc số lần service restart.
@@ -31,6 +31,26 @@ không thay cho valid normal/scored exposure. Preview dương và issue không t
 Unit trên cả ba worker: `pulse-matched-worker-parallel-20261015.service`.
 Collector xuất full-ID delta và 249 feature từ cùng snapshot 500 ms, đồng
 thời chấm candidate đã freeze. Thay tài liệu không restart các service này.
+
+**Soak Pulse hiện có recovery.** Cả ba unit được xác minh `enabled`,
+`Restart=on-failure`, `RestartSec=30`; process lỗi sẽ được systemd chạy lại.
+Worker đọc `STATUS.json` để tiếp tục `completed_seconds`, tạo segment mới và
+reset history. Khi loader thoát/mất dữ liệu, worker ghi issue rồi mở segment
+mới. Khi storage thiếu chỗ, worker giữ tiến độ và chờ. NFS mount là prerequisite
+của unit; boot được cấu hình khởi động service sau mount. Đây là cấu hình đã
+xác minh, chưa phải bằng chứng đã thử reboot thực tế.
+
+Khoảng gap/ineligible không tự trở thành normal/TN. Cadence tích lũy cũng không
+thay cho exposure hợp lệ. Checkpoint có chu kỳ khoảng 5 giây; segment bị ngắt
+trước seal cần giữ làm evidence thiếu coverage. Lượt này `NRestarts=0` trên cả
+ba worker; issue count không phải số process restart. Yêu cầu bỏ bổ sung
+recovery cho fit syscall R4 không tắt recovery của soak Pulse.
+
+Một mẫu tail ngắn tại snapshot có p99 **cuối-window→preview** lần lượt
+0,522 / 0,603 / 0,224 giây (worker1/worker4/worker3), với 356 / 363 / 348
+scored rows. Mẫu chỉ phủ khoảng 6–22 giây, chưa đại diện toàn soak và chưa
+đo kernel→alert. [Dữ liệu kiểm tra SSH](validation-evidence/pulse-parallel-live-20261015/inspection.json)
+giữ giới hạn mẫu và các timestamp.
 
 ## 2. Thuật ngữ cần hiểu
 

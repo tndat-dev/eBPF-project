@@ -1,0 +1,267 @@
+{
+  "10.1.16.234": {
+    "data": {
+      "checked_at_unix": 1792047931.0545208,
+      "rca_audit": {
+        "schema": "sentinel-pulse-retained-rca-audit-v1",
+        "checked_at_unix": 1792047931.0519836,
+        "config_sha256": "0ec54918359aee51e7848f1af17a55b4711df80cad6579124d350906954c1326",
+        "counts": {
+          "cases_checked": 41,
+          "cases_with_errors": 0,
+          "cases_without_connect_context": 33,
+          "cases_with_connect_context": 8,
+          "cases_truncated": 0,
+          "cases_outside_connect_selector": 8,
+          "cases_stale_inventory": 0
+        },
+        "service_status_at_unix": 1792047927.2312183,
+        "service_counts": {
+          "cases_emitted": 41,
+          "cases_without_connect_context": 33,
+          "connect_events": 2805,
+          "decision_rows_read": 22459,
+          "issues": 7,
+          "positive_decisions_grouped_by_cooldown": 714,
+          "positive_decisions_observed": 756
+        },
+        "streams": {
+          "k8s-worker1.local": {
+            "last_event_at": 1792047927.1785178,
+            "normalized_events": 1538,
+            "sensor": "tetragon-6mzj8",
+            "started_at": 1792047869.5794334
+          },
+          "k8s-worker3.local": {
+            "last_event_at": null,
+            "normalized_events": 0,
+            "sensor": "tetragon-sfv2g",
+            "started_at": 1792047869.5826156
+          },
+          "k8s-worker4.local": {
+            "last_event_at": 1792047927.231058,
+            "normalized_events": 1267,
+            "sensor": "tetragon-7sjqf",
+            "started_at": 1792047869.5811613
+          }
+        },
+        "preview_to_case_seconds": {
+          "samples": 41,
+          "p50": 16.356972694396973,
+          "p95": 22.87581729888916,
+          "p99": 22.876406288146974
+        },
+        "latency_scope": "retained cases only; includes post-context wait and subscriber backlog",
+        "causal_root_confirmed": false,
+        "labels_adjudicated": false,
+        "source_events_completeness": "not_verified_by_this_structural_audit",
+        "automatic_response": false,
+        "case_source_manifest_sha256": "8a5899c686b189503e75d2d6372f291121ac1326f625e9112ed2475aa87b2052",
+        "issue_counts": {},
+        "issue_samples": []
+      },
+      "rca_service": "MainPID=231866\nNRestarts=0\nMemoryCurrent=90034176\nCPUQuotaPerSecUSec=1s\nActiveState=active\n",
+      "evaluator_service": "MainPID=226630\nResult=success\nMemoryCurrent=4041347072\nCPUUsageNSec=616013235000\nActiveState=active\n",
+      "evaluator_status": {
+        "automatic_promotion": false,
+        "completed_segments": 1,
+        "counts": {
+          "ineligible_input_rows": 280,
+          "input_rows": 65147,
+          "outside_registered_workload": 125636,
+          "unscored_input_rows": 644
+        },
+        "current_segment": "k8s-worker1.local/s00025",
+        "loaded_models": 594,
+        "planned_end_unix": 1792129112.2651455,
+        "scored_contexts": 1959936,
+        "state": "scoring_sealed_segment",
+        "updated_at_unix": 1792047922.281793
+      },
+      "evaluator_start": {
+        "automatic_promotion": false,
+        "episode_quiet_seconds": 15,
+        "episode_unit": "workload/arm/seed, union across replicas",
+        "estimator_rule": "joint_p <= frozen per-model alpha; tree/support, no semantic gate",
+        "fit_audit_sha256": "4e8f635468c65ffb5875d4699b2ff6ce8069546568624f28c1255fe2801ed145",
+        "inference": "offline replay; no live latency estimate",
+        "predictions": "unadjudicated normal observations; preserve every positive",
+        "preprocessing": "R4 rolling10 + history3, reset at sealed segment and continuity gaps",
+        "registered_at_unix": 1792047281.2908964,
+        "registration_sha256": "ad6d376cca418f350d88c4c411cdcd5cede556c8940d845eb8209af96939e920",
+        "schema": "pulse-r4-prospective-normal-evaluator-v1",
+        "source_sha256": "643eabc47997e69a1372c0fe7bc04c34ca720aebbce1886fad25adbf319b6e56"
+      },
+      "holdout_start": {
+        "attack_data_used_for_scoring": false,
+        "automatic_promotion": false,
+        "capture_run_id": "parallel-20261015",
+        "fit_audit_sha256": "4e8f635468c65ffb5875d4699b2ff6ce8069546568624f28c1255fe2801ed145",
+        "holdout_start_unix": 1792042712.2651455,
+        "matched_study_source_sha256": "836d644201a3f6da5f7d6bf147b42c0342a76ee2ec74132470b728b5a338e0fc",
+        "minimum_wall_seconds": 86400,
+        "normal_labels": "unadjudicated_observation; do not infer TN from unknown/invalid telemetry",
+        "planned_end_unix": 1792129112.2651455,
+        "preserve_alerts_and_infrastructure_context": true,
+        "protocol_sha256": "92d149e2c04d1fb20160355942dcadd9b00d247770cb0fc7066abcbe19cdfd8e",
+        "r4_config_sha256": "046bc988b6c2d018e7a031757219a64474b3ecd323f64beb0004495097140e31",
+        "r4_terminal_sha256": "fdfaa8695652b9f342daf52f30ed7f1e51d53f9c2924e3c522cc11c23fe8f6a8",
+        "registered_at_unix": 1792042712.2651455,
+        "registered_at_utc": "2026-10-15T05:38:32Z",
+        "schema": "sentinel-pulse-r4-normal-holdout-start-v1",
+        "state": "collecting_unadjudicated_normal_holdout",
+        "workers": {
+          "k8s-worker1.local": {
+            "output": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker1.local",
+            "service": "pulse-matched-worker-parallel-20261015.service"
+          },
+          "k8s-worker3.local": {
+            "output": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local",
+            "service": "pulse-matched-worker-parallel-20261015.service"
+          },
+          "k8s-worker4.local": {
+            "output": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker4.local",
+            "service": "pulse-matched-worker-parallel-20261015.service"
+          }
+        },
+        "workload_key_count": 21,
+        "workload_keys": [
+          "production/aims-frontend:web",
+          "production/aims-kafka-dual-role:kafka",
+          "production/aims-kafka-entity-operator:topic-operator",
+          "production/aims-kafka-entity-operator:user-operator",
+          "production/aims-minio-pool-0:minio",
+          "production/aims-minio-pool-0:sidecar",
+          "production/aims-postgres-cnpg:postgres",
+          "production/aims-rabbitmq-server:rabbitmq",
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+          "production/aims-redis:aims-redis",
+          "production/aims-waypoint:istio-proxy",
+          "production/api-gateway:app",
+          "production/auth-service:app",
+          "production/cart-service:app",
+          "production/catalog-service:app",
+          "production/inventory-service:app",
+          "production/notification-service:app",
+          "production/order-service:app",
+          "production/payment-service:app",
+          "production/search-recommendation-service:app",
+          "production/security-telemetry-service:app"
+        ]
+      }
+    },
+    "error": "",
+    "exit_code": 0
+  },
+  "10.1.16.237": {
+    "data": {
+      "checked_at_unix": 1792047688.7667928,
+      "state": {
+        "completed_seconds": 47885.310638189316,
+        "config_sha256": "4c47d1c0b7c5261d22ad8bbd92308cf1bf60fe87aea17173ad46c8747d25762d",
+        "current_segment": "s00027",
+        "feature_rows": 7443304,
+        "frames": 90819,
+        "issues": 20,
+        "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+        "node_name": "k8s-worker1.local",
+        "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+        "preview_positive": 134614,
+        "scored_rows": 2537668,
+        "segments": 27,
+        "started_at_unix": 1791999530.244731,
+        "state": "running",
+        "updated_at_unix": 1792047685.550455
+      },
+      "service": "Restart=on-failure\nRestartUSec=30s\nMainPID=2779933\nNRestarts=0\nActiveState=active\nUnitFileState=enabled\n",
+      "tail_sample": {
+        "rows": 1044,
+        "scored_rows": 356,
+        "begin": 1792047681.9442773,
+        "end": 1792047688.2530193,
+        "window_end_to_preview_seconds": {
+          "p50": 0.4810504913330078,
+          "p95": 0.5212013125419617,
+          "p99": 0.5224327325820923
+        },
+        "kernel_to_alert_seconds": null
+      }
+    },
+    "error": "",
+    "exit_code": 0
+  },
+  "10.1.16.238": {
+    "data": {
+      "checked_at_unix": 1792047688.6731818,
+      "state": {
+        "completed_seconds": 47629.01612329483,
+        "config_sha256": "f9d7f96ce9d211095912d4dffc9cff6c087beed55bb947cae0c7dc9daf7b6ccf",
+        "current_segment": "s00027",
+        "feature_rows": 7767807,
+        "frames": 87567,
+        "issues": 179,
+        "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+        "node_name": "k8s-worker4.local",
+        "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+        "preview_positive": 307291,
+        "scored_rows": 2686363,
+        "segments": 27,
+        "started_at_unix": 1791999530.8417902,
+        "state": "running",
+        "updated_at_unix": 1792047688.0853696
+      },
+      "service": "Restart=on-failure\nRestartUSec=30s\nMainPID=3650066\nNRestarts=0\nActiveState=active\nUnitFileState=enabled\n",
+      "tail_sample": {
+        "rows": 1040,
+        "scored_rows": 363,
+        "begin": 1792047681.3813095,
+        "end": 1792047687.480159,
+        "window_end_to_preview_seconds": {
+          "p50": 0.5535492897033691,
+          "p95": 0.6021896600723267,
+          "p99": 0.6034020042419433
+        },
+        "kernel_to_alert_seconds": null
+      }
+    },
+    "error": "",
+    "exit_code": 0
+  },
+  "10.1.16.239": {
+    "data": {
+      "checked_at_unix": 1792047688.6840808,
+      "state": {
+        "completed_seconds": 47864.69705796242,
+        "config_sha256": "8d04bab1c517403e9379239095921c928d70e62cf244e3709aadfff5356a4adc",
+        "current_segment": "s00027",
+        "feature_rows": 2258934,
+        "frames": 94490,
+        "issues": 18,
+        "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+        "node_name": "k8s-worker3.local",
+        "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+        "preview_positive": 14456,
+        "scored_rows": 751991,
+        "segments": 27,
+        "started_at_unix": 1791999528.661155,
+        "state": "running",
+        "updated_at_unix": 1792047688.1854658
+      },
+      "service": "Restart=on-failure\nRestartUSec=30s\nMainPID=1999644\nNRestarts=0\nActiveState=active\nUnitFileState=enabled\n",
+      "tail_sample": {
+        "rows": 1045,
+        "scored_rows": 348,
+        "begin": 1792047666.409677,
+        "end": 1792047688.188117,
+        "window_end_to_preview_seconds": {
+          "p50": 0.1840440034866333,
+          "p95": 0.21059112548828124,
+          "p99": 0.22399158477783201
+        },
+        "kernel_to_alert_seconds": null
+      }
+    },
+    "error": "",
+    "exit_code": 0
+  }
+}

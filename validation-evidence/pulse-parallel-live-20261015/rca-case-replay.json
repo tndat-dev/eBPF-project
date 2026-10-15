@@ -1,0 +1,3761 @@
+{
+  "checked_at_unix": 1792048096.2864487,
+  "source_case": "/var/lib/sentinel-pulse-rca/parallel-20261015-r3/cases/5b7c1b37393c64bdc4687c41.json",
+  "case": {
+    "affects_model_decision": false,
+    "application_payload_captured": false,
+    "automatic_response": false,
+    "case_id": "5b7c1b37393c64bdc4687c41",
+    "causal_root_confirmed": false,
+    "coverage": {
+      "connect_policy": "sentinel-aims-syscalls",
+      "connect_policy_selected": true,
+      "initial_history_backfill": false,
+      "inventory_age_seconds": 209.1458134651184,
+      "inventory_at": 1792047869.5739305,
+      "last_connect_received_at": 1792048078.6826193,
+      "pod_name": "api-gateway-5b79675d85-4q84j",
+      "query_event_cap": 10001,
+      "query_event_cap_reached": false,
+      "ring_retention_seconds": 180,
+      "subscriber_lag_seconds": 6.761402606964111,
+      "subscription_started_at": 1792047869.5794334,
+      "subscription_started_before_pre_window": true,
+      "transport_loss": "not_measured_no_exact_event_completeness_guarantee"
+    },
+    "created_at": 1792048078.719744,
+    "edges": [
+      {
+        "relation": "signal_on_container",
+        "source": "signal:5b7c1b37393c64bdc4687c41",
+        "target": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:4c37a1f4c56c7841ddbbf8f00daf60e9b20f148f8233f6c44e90e6ada70de914"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:4c37a1f4c56c7841ddbbf8f00daf60e9b20f148f8233f6c44e90e6ada70de914",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:bade281556bc24fd43b50bc160d0dd003ecbbcd612c7531588127545cdb3c294"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:bade281556bc24fd43b50bc160d0dd003ecbbcd612c7531588127545cdb3c294",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy",
+        "target": "connect:b368b0baf2aa0f00eff95535d1ed0af645c7d1e06b12c7b05a5d587a69c1817e"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:b368b0baf2aa0f00eff95535d1ed0af645c7d1e06b12c7b05a5d587a69c1817e",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1",
+        "target": "connect:6896879eac7f1b276ffc08a6547da02272ff8a70ea69de905881133f15540075"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:6896879eac7f1b276ffc08a6547da02272ff8a70ea69de905881133f15540075",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:fbf22ae5a3351bf58e723fa0eae7562e13ae0f0622841c837d26ac978921b801"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:fbf22ae5a3351bf58e723fa0eae7562e13ae0f0622841c837d26ac978921b801",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:30a4501f51a4d18cbc68b2b08769e4f3488b9156fef8b7b91f941e12843a17bf"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:30a4501f51a4d18cbc68b2b08769e4f3488b9156fef8b7b91f941e12843a17bf",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:182303ffd120499e0d817989b6b89496b3b82ee56760db7cb2e7fd95c5210c3b"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:182303ffd120499e0d817989b6b89496b3b82ee56760db7cb2e7fd95c5210c3b",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:54a84c577c5ee37539ac498dbe75ec799f2305fe80da3a2002fa1d2cea5c5ac2"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:54a84c577c5ee37539ac498dbe75ec799f2305fe80da3a2002fa1d2cea5c5ac2",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw",
+        "target": "connect:b7668668f1cdbf599c87ef02cdf9bc1cced208895768855cecbf97a2f5085110"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:b7668668f1cdbf599c87ef02cdf9bc1cced208895768855cecbf97a2f5085110",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:680fe807b14d3200a05f3b7da4b19170f0399022c1417db9a813be950b12f1ba"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:680fe807b14d3200a05f3b7da4b19170f0399022c1417db9a813be950b12f1ba",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:ab2dd5b964056941edb050456ec26ce5efea26f58b5a9014b703ddaacb574397"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:ab2dd5b964056941edb050456ec26ce5efea26f58b5a9014b703ddaacb574397",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:4e44d2c96c5a04d903c98d6b257674fb754d876423937bd64da68c36b62cd6c2"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:4e44d2c96c5a04d903c98d6b257674fb754d876423937bd64da68c36b62cd6c2",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:13249f0057467be80fb79108cdad9b76bb037c92f283226a002e7c6a0777f6c7"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:13249f0057467be80fb79108cdad9b76bb037c92f283226a002e7c6a0777f6c7",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:0d74f9ed0eff4ccfea846d9e496b0a3442ee36564211561a16f68e3639a0ecea"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:0d74f9ed0eff4ccfea846d9e496b0a3442ee36564211561a16f68e3639a0ecea",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:734ffb1f997c7df84088aba66dbef60d400c46eab1179e877739e6f7c214d03c"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:734ffb1f997c7df84088aba66dbef60d400c46eab1179e877739e6f7c214d03c",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:d7b48dab899f49915dd0af40e55ce43cff386f35aaecca02bb7d1f477c9e32eb"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:d7b48dab899f49915dd0af40e55ce43cff386f35aaecca02bb7d1f477c9e32eb",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:f0ba0cc9d783af9d7a3de786f98e4aa9a6d3b52e3f063a4a96140d24733456be"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:f0ba0cc9d783af9d7a3de786f98e4aa9a6d3b52e3f063a4a96140d24733456be",
+        "target": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5",
+        "target": "connect:d8d90a3e92783ed37176e17c74ff03b2f9fba7e018aa8fea8f3a45ef10154a43"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:d8d90a3e92783ed37176e17c74ff03b2f9fba7e018aa8fea8f3a45ef10154a43",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:5c87dbfce1492e7c06036d55d7c8dfd7ed8f12d9e15896f0c7feb871ec89cecc"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:5c87dbfce1492e7c06036d55d7c8dfd7ed8f12d9e15896f0c7feb871ec89cecc",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:6f20b8272265b46b6a140b7fbffd8a3e5da3d90077f7e923e6b6839ce9cc43eb"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:6f20b8272265b46b6a140b7fbffd8a3e5da3d90077f7e923e6b6839ce9cc43eb",
+        "target": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:8d244b182267221e76bf15890ad0d94bdff98ce64dd3b9e001cb27800880c3c9"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:8d244b182267221e76bf15890ad0d94bdff98ce64dd3b9e001cb27800880c3c9",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:71bdefc517aa7b2b3e87239b845d2e27371189173f5088aa9d6eb63c1cd89979"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:71bdefc517aa7b2b3e87239b845d2e27371189173f5088aa9d6eb63c1cd89979",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2",
+        "target": "connect:51acc9892ac9a06cd018348372a9b59a41bda9edbbc954ef43c0e0d90bceab61"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:51acc9892ac9a06cd018348372a9b59a41bda9edbbc954ef43c0e0d90bceab61",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:79b5b936d9924e2add65929676b98b3833f423bac4b1a143d709769a952ea580"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:79b5b936d9924e2add65929676b98b3833f423bac4b1a143d709769a952ea580",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:fcfc04ffcc6c4ae58923b7f1ffff3bd77d9a7e8fe39d73de4637238bb37cd6e6"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:fcfc04ffcc6c4ae58923b7f1ffff3bd77d9a7e8fe39d73de4637238bb37cd6e6",
+        "target": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx",
+        "target": "connect:8e7b3414434c1324775522b94aa580a5b0554ef2c744911376902c55d34057cb"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:8e7b3414434c1324775522b94aa580a5b0554ef2c744911376902c55d34057cb",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:42af9254e8719223933078df249ec9134b96ae4aaa47c33c6fe6f48c29458b12"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:42af9254e8719223933078df249ec9134b96ae4aaa47c33c6fe6f48c29458b12",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:5c8a00e6abc568c050a7005fcebf24e8db0674caf9d58df9732cc83ba3a47a64"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:5c8a00e6abc568c050a7005fcebf24e8db0674caf9d58df9732cc83ba3a47a64",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:ae6618e208c3e8d0af3e471f001a7d3ff3af722017ad75d4cdbdd9ca5c030c82"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:ae6618e208c3e8d0af3e471f001a7d3ff3af722017ad75d4cdbdd9ca5c030c82",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:e8e3913e65f07a4b516031c537d4f363f37f675e59a425cdac5e0e67655f9997"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:e8e3913e65f07a4b516031c537d4f363f37f675e59a425cdac5e0e67655f9997",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:4302ce74905b979e034df5497116835287f922074e7dd1380be3c88e0e550478"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:4302ce74905b979e034df5497116835287f922074e7dd1380be3c88e0e550478",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:cdcd9dd7922248840a34882c18f036ccae478de3a05414d3896636afb937e6e6"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:cdcd9dd7922248840a34882c18f036ccae478de3a05414d3896636afb937e6e6",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:2026c1c58b7373418ff51ce88801b10df55c9045d8a215026e6bc70eaf366c97"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:2026c1c58b7373418ff51ce88801b10df55c9045d8a215026e6bc70eaf366c97",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:90ffecea0b7e823d12b62db3861012eccc656f74b5ce46bf2b5687554cfc5e48"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:90ffecea0b7e823d12b62db3861012eccc656f74b5ce46bf2b5687554cfc5e48",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx",
+        "target": "connect:2f4af590e8b2155ff26e334b35f13607df348160c7cb08b15603b9380f0e3636"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:2f4af590e8b2155ff26e334b35f13607df348160c7cb08b15603b9380f0e3636",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:7736b0adec4d8199acc2e906a67b65508674f49ef05c08236e00b361cfa14a8f"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:7736b0adec4d8199acc2e906a67b65508674f49ef05c08236e00b361cfa14a8f",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:b81a40bcb579a3b70d08d2c3bff1132b8fea25bc282a8e0beeef9650249a3b9e"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:b81a40bcb579a3b70d08d2c3bff1132b8fea25bc282a8e0beeef9650249a3b9e",
+        "target": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:7cbe1e74074c159438526d37212a22f7d41a7fdf626efdd9fb0bb814724aa1ca"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:7cbe1e74074c159438526d37212a22f7d41a7fdf626efdd9fb0bb814724aa1ca",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:9010506f3418f9633a067f95f4059f0843e40ee32db3a9453ae6704f3953f2c8"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:9010506f3418f9633a067f95f4059f0843e40ee32db3a9453ae6704f3953f2c8",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:e4fb2eb1719790ecf4d7c53ab95591a24131f2d2fd4ebe0a4a2f888743c1b5c2"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:e4fb2eb1719790ecf4d7c53ab95591a24131f2d2fd4ebe0a4a2f888743c1b5c2",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:6d0b5258159caec2cde32af2f400cbb98c54af64965553566027ac1657cd4c18"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:6d0b5258159caec2cde32af2f400cbb98c54af64965553566027ac1657cd4c18",
+        "target": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:3bf6aa50946330537c28854ae38e3a03802a5a79fe94543fcc4f893c0288a559"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:3bf6aa50946330537c28854ae38e3a03802a5a79fe94543fcc4f893c0288a559",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:a8a6856efc3d6a42f3fbbd89c48e18796c358f52862b1ea73449de28a976bb7c"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:a8a6856efc3d6a42f3fbbd89c48e18796c358f52862b1ea73449de28a976bb7c",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4",
+        "target": "connect:bb722425117ebc0d1422b52b4d53124db24b6581fa055c7c77d53eae1771844b"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:bb722425117ebc0d1422b52b4d53124db24b6581fa055c7c77d53eae1771844b",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:e3c0bfb154e2ef2346645fa879e03b3742704f93125c2c88b0b4136dbcda1781"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:e3c0bfb154e2ef2346645fa879e03b3742704f93125c2c88b0b4136dbcda1781",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:ddf8c108f821d8722400f5b66ad322078b1434f0b5bb4d4c00983c1daefc0790"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:ddf8c108f821d8722400f5b66ad322078b1434f0b5bb4d4c00983c1daefc0790",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:648eacd076a319991506af545a06db4f615354d1913349f45303b4dfdc096708"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:648eacd076a319991506af545a06db4f615354d1913349f45303b4dfdc096708",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:27f5ad725497e42ee6adf311106ed88c68efa4ab798ddccce60d7735cf326558"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:27f5ad725497e42ee6adf311106ed88c68efa4ab798ddccce60d7735cf326558",
+        "target": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5",
+        "target": "connect:00794c7481fa274dbc564993d07c60326e41af1ee3d372ad82d068966b3e7bcd"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:00794c7481fa274dbc564993d07c60326e41af1ee3d372ad82d068966b3e7bcd",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:ffa0c3a0e01070ba8bc7d032df75af6547fe0c495a5b1627204e09c83824b912"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:ffa0c3a0e01070ba8bc7d032df75af6547fe0c495a5b1627204e09c83824b912",
+        "target": "destination:[\"AF_INET\", \"10.96.0.10\", 53]"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "target": "connect:b19b6566d702a6ab567995ce85154c3e2afe84062be9fb43086e30685cef0849"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:b19b6566d702a6ab567995ce85154c3e2afe84062be9fb43086e30685cef0849",
+        "target": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]"
+      },
+      {
+        "relation": "observed_process_in_container",
+        "source": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1"
+      },
+      {
+        "evidence": "tetragon_exec_identity",
+        "relation": "parent_of",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "target": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1"
+      },
+      {
+        "relation": "called_connect",
+        "source": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1",
+        "target": "connect:cd83c3502bc2fb4a11e6f51d5bfbdca86bdc2982dd4d7be819d1cd70f62e0902"
+      },
+      {
+        "relation": "attempted_destination",
+        "source": "connect:cd83c3502bc2fb4a11e6f51d5bfbdca86bdc2982dd4d7be819d1cd70f62e0902",
+        "target": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]"
+      }
+    ],
+    "join": {
+      "after_seconds": 5,
+      "before_seconds": 30,
+      "node_pod_uid_container": true,
+      "process_causality": "not_established_by_aggregate_anomaly"
+    },
+    "limitations": [
+      "connect_entry_is_an_attempt_not_a_success_receipt",
+      "no_l7_payload_or_tls_plaintext",
+      "time_join_is_not_proof_of_root_cause",
+      "missing_events_are_unknown_not_evidence_of_no_connection"
+    ],
+    "matched_connect_events": 52,
+    "nodes": [
+      {
+        "id": "signal:5b7c1b37393c64bdc4687c41",
+        "kind": "signal",
+        "trigger": {
+          "alert": false,
+          "candidate_alert_preview": true,
+          "candidate_manifest_sha256": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+          "candidate_policy_alpha": 0.0016666666666666668,
+          "capture_segment": "s00027",
+          "cgroup_id": 3849021,
+          "container_id": null,
+          "container_name": "app",
+          "joint_p": 0.0009407337723424271,
+          "node_name": "k8s-worker1.local",
+          "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+          "policy_applied": false,
+          "policy_evaluated": true,
+          "policy_sha256": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+          "preview_emitted_at": 1792048065.1701696,
+          "run_id": "parallel-20261015",
+          "schema": "sentinel-pulse-candidate-shadow-score-v1",
+          "serving_compatible": false,
+          "status": "candidate-raw-score-only",
+          "support_p": 0.027869238005644403,
+          "tree_p": 0.00047036688617121356,
+          "window_end": 1792048064.7664776,
+          "window_start": 1792048064.2477963,
+          "workload_key": "production/api-gateway:app"
+        }
+      },
+      {
+        "container_name": "app",
+        "id": "container:k8s-worker1.local|9fa980bd-f485-4b2d-892f-d1e3018931d9|app",
+        "kind": "container",
+        "node_name": "k8s-worker1.local",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "workload_key": "production/api-gateway:app"
+      },
+      {
+        "binary": "/usr/local/bin/uvicorn",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-09-26T16:03:11.542463931Z",
+        "uid": 10001
+      },
+      {
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "kind": "process_parent",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "start_time": "2026-09-26T16:03:02.379436052Z",
+        "uid": 0
+      },
+      {
+        "evidence_sha256": "4c37a1f4c56c7841ddbbf8f00daf60e9b20f148f8233f6c44e90e6ada70de914",
+        "id": "connect:4c37a1f4c56c7841ddbbf8f00daf60e9b20f148f8233f6c44e90e6ada70de914",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:17.193202590Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "address": "10.96.0.10",
+        "family": "AF_INET",
+        "id": "destination:[\"AF_INET\", \"10.96.0.10\", 53]",
+        "kind": "destination",
+        "kubernetes": {
+          "kind": "Service",
+          "name": "kube-dns",
+          "namespace": "kube-system",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        },
+        "port": 53
+      },
+      {
+        "evidence_sha256": "bade281556bc24fd43b50bc160d0dd003ecbbcd612c7531588127545cdb3c294",
+        "id": "connect:bade281556bc24fd43b50bc160d0dd003ecbbcd612c7531588127545cdb3c294",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:17.194006111Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "address": "10.105.36.105",
+        "family": "AF_INET",
+        "id": "destination:[\"AF_INET\", \"10.105.36.105\", 8000]",
+        "kind": "destination",
+        "kubernetes": {
+          "kind": "Service",
+          "name": "catalog-service",
+          "namespace": "production",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        },
+        "port": 8000
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3683942,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:16.824649121Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "b368b0baf2aa0f00eff95535d1ed0af645c7d1e06b12c7b05a5d587a69c1817e",
+        "id": "connect:b368b0baf2aa0f00eff95535d1ed0af645c7d1e06b12c7b05a5d587a69c1817e",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:17.444019234Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "address": "127.0.0.1",
+        "family": "AF_INET",
+        "id": "destination:[\"AF_INET\", \"127.0.0.1\", 8000]",
+        "kind": "destination",
+        "kubernetes": null,
+        "port": 8000
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3684215,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:18.069329205Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "6896879eac7f1b276ffc08a6547da02272ff8a70ea69de905881133f15540075",
+        "id": "connect:6896879eac7f1b276ffc08a6547da02272ff8a70ea69de905881133f15540075",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:18.707127353Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "fbf22ae5a3351bf58e723fa0eae7562e13ae0f0622841c837d26ac978921b801",
+        "id": "connect:fbf22ae5a3351bf58e723fa0eae7562e13ae0f0622841c837d26ac978921b801",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:22.262776729Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "30a4501f51a4d18cbc68b2b08769e4f3488b9156fef8b7b91f941e12843a17bf",
+        "id": "connect:30a4501f51a4d18cbc68b2b08769e4f3488b9156fef8b7b91f941e12843a17bf",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:22.263912149Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "182303ffd120499e0d817989b6b89496b3b82ee56760db7cb2e7fd95c5210c3b",
+        "id": "connect:182303ffd120499e0d817989b6b89496b3b82ee56760db7cb2e7fd95c5210c3b",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:23.402788088Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "54a84c577c5ee37539ac498dbe75ec799f2305fe80da3a2002fa1d2cea5c5ac2",
+        "id": "connect:54a84c577c5ee37539ac498dbe75ec799f2305fe80da3a2002fa1d2cea5c5ac2",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:23.403997782Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "pid": 3685020,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:23.074025503Z",
+        "uid": 10001
+      },
+      {
+        "binary": "/usr/bin/runc",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "kind": "process_parent",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3685005,
+        "start_time": "2026-10-15T07:07:22.991444912Z",
+        "uid": 0
+      },
+      {
+        "evidence_sha256": "b7668668f1cdbf599c87ef02cdf9bc1cced208895768855cecbf97a2f5085110",
+        "id": "connect:b7668668f1cdbf599c87ef02cdf9bc1cced208895768855cecbf97a2f5085110",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:23.772902177Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "680fe807b14d3200a05f3b7da4b19170f0399022c1417db9a813be950b12f1ba",
+        "id": "connect:680fe807b14d3200a05f3b7da4b19170f0399022c1417db9a813be950b12f1ba",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:24.107314587Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "ab2dd5b964056941edb050456ec26ce5efea26f58b5a9014b703ddaacb574397",
+        "id": "connect:ab2dd5b964056941edb050456ec26ce5efea26f58b5a9014b703ddaacb574397",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:24.108948122Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "address": "10.109.229.136",
+        "family": "AF_INET",
+        "id": "destination:[\"AF_INET\", \"10.109.229.136\", 8000]",
+        "kind": "destination",
+        "kubernetes": {
+          "kind": "Service",
+          "name": "cart-service",
+          "namespace": "production",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        },
+        "port": 8000
+      },
+      {
+        "evidence_sha256": "4e44d2c96c5a04d903c98d6b257674fb754d876423937bd64da68c36b62cd6c2",
+        "id": "connect:4e44d2c96c5a04d903c98d6b257674fb754d876423937bd64da68c36b62cd6c2",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:24.609841095Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "13249f0057467be80fb79108cdad9b76bb037c92f283226a002e7c6a0777f6c7",
+        "id": "connect:13249f0057467be80fb79108cdad9b76bb037c92f283226a002e7c6a0777f6c7",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:24.610821556Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "0d74f9ed0eff4ccfea846d9e496b0a3442ee36564211561a16f68e3639a0ecea",
+        "id": "connect:0d74f9ed0eff4ccfea846d9e496b0a3442ee36564211561a16f68e3639a0ecea",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:27.237850320Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "734ffb1f997c7df84088aba66dbef60d400c46eab1179e877739e6f7c214d03c",
+        "id": "connect:734ffb1f997c7df84088aba66dbef60d400c46eab1179e877739e6f7c214d03c",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:27.239636127Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "d7b48dab899f49915dd0af40e55ce43cff386f35aaecca02bb7d1f477c9e32eb",
+        "id": "connect:d7b48dab899f49915dd0af40e55ce43cff386f35aaecca02bb7d1f477c9e32eb",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:27.488750794Z",
+        "socket_fd": 28,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "f0ba0cc9d783af9d7a3de786f98e4aa9a6d3b52e3f063a4a96140d24733456be",
+        "id": "connect:f0ba0cc9d783af9d7a3de786f98e4aa9a6d3b52e3f063a4a96140d24733456be",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:27.489734846Z",
+        "socket_fd": 28,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "address": "10.102.22.84",
+        "family": "AF_INET",
+        "id": "destination:[\"AF_INET\", \"10.102.22.84\", 8000]",
+        "kind": "destination",
+        "kubernetes": {
+          "kind": "Service",
+          "name": "auth-service",
+          "namespace": "production",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        },
+        "port": 8000
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3686399,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:28.063720624Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "d8d90a3e92783ed37176e17c74ff03b2f9fba7e018aa8fea8f3a45ef10154a43",
+        "id": "connect:d8d90a3e92783ed37176e17c74ff03b2f9fba7e018aa8fea8f3a45ef10154a43",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:28.625917847Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "5c87dbfce1492e7c06036d55d7c8dfd7ed8f12d9e15896f0c7feb871ec89cecc",
+        "id": "connect:5c87dbfce1492e7c06036d55d7c8dfd7ed8f12d9e15896f0c7feb871ec89cecc",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:29.860498138Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "6f20b8272265b46b6a140b7fbffd8a3e5da3d90077f7e923e6b6839ce9cc43eb",
+        "id": "connect:6f20b8272265b46b6a140b7fbffd8a3e5da3d90077f7e923e6b6839ce9cc43eb",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:29.861401839Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "8d244b182267221e76bf15890ad0d94bdff98ce64dd3b9e001cb27800880c3c9",
+        "id": "connect:8d244b182267221e76bf15890ad0d94bdff98ce64dd3b9e001cb27800880c3c9",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:31.078822136Z",
+        "socket_fd": 28,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "71bdefc517aa7b2b3e87239b845d2e27371189173f5088aa9d6eb63c1cd89979",
+        "id": "connect:71bdefc517aa7b2b3e87239b845d2e27371189173f5088aa9d6eb63c1cd89979",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:31.080533267Z",
+        "socket_fd": 28,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3686976,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:31.814800388Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "51acc9892ac9a06cd018348372a9b59a41bda9edbbc954ef43c0e0d90bceab61",
+        "id": "connect:51acc9892ac9a06cd018348372a9b59a41bda9edbbc954ef43c0e0d90bceab61",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:32.383074388Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "79b5b936d9924e2add65929676b98b3833f423bac4b1a143d709769a952ea580",
+        "id": "connect:79b5b936d9924e2add65929676b98b3833f423bac4b1a143d709769a952ea580",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:33.355218663Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "fcfc04ffcc6c4ae58923b7f1ffff3bd77d9a7e8fe39d73de4637238bb37cd6e6",
+        "id": "connect:fcfc04ffcc6c4ae58923b7f1ffff3bd77d9a7e8fe39d73de4637238bb37cd6e6",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:33.356670195Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3687231,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:33.079463800Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "8e7b3414434c1324775522b94aa580a5b0554ef2c744911376902c55d34057cb",
+        "id": "connect:8e7b3414434c1324775522b94aa580a5b0554ef2c744911376902c55d34057cb",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:33.702582909Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "42af9254e8719223933078df249ec9134b96ae4aaa47c33c6fe6f48c29458b12",
+        "id": "connect:42af9254e8719223933078df249ec9134b96ae4aaa47c33c6fe6f48c29458b12",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:35.225684852Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "5c8a00e6abc568c050a7005fcebf24e8db0674caf9d58df9732cc83ba3a47a64",
+        "id": "connect:5c8a00e6abc568c050a7005fcebf24e8db0674caf9d58df9732cc83ba3a47a64",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:35.226731783Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "ae6618e208c3e8d0af3e471f001a7d3ff3af722017ad75d4cdbdd9ca5c030c82",
+        "id": "connect:ae6618e208c3e8d0af3e471f001a7d3ff3af722017ad75d4cdbdd9ca5c030c82",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:36.355429508Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "e8e3913e65f07a4b516031c537d4f363f37f675e59a425cdac5e0e67655f9997",
+        "id": "connect:e8e3913e65f07a4b516031c537d4f363f37f675e59a425cdac5e0e67655f9997",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:36.356912552Z",
+        "socket_fd": 27,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "4302ce74905b979e034df5497116835287f922074e7dd1380be3c88e0e550478",
+        "id": "connect:4302ce74905b979e034df5497116835287f922074e7dd1380be3c88e0e550478",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:37.901095733Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "cdcd9dd7922248840a34882c18f036ccae478de3a05414d3896636afb937e6e6",
+        "id": "connect:cdcd9dd7922248840a34882c18f036ccae478de3a05414d3896636afb937e6e6",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:37.902813781Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "2026c1c58b7373418ff51ce88801b10df55c9045d8a215026e6bc70eaf366c97",
+        "id": "connect:2026c1c58b7373418ff51ce88801b10df55c9045d8a215026e6bc70eaf366c97",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:38.363848014Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "90ffecea0b7e823d12b62db3861012eccc656f74b5ce46bf2b5687554cfc5e48",
+        "id": "connect:90ffecea0b7e823d12b62db3861012eccc656f74b5ce46bf2b5687554cfc5e48",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:38.364958191Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "pid": 3688161,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:38.053290198Z",
+        "uid": 10001
+      },
+      {
+        "binary": "/usr/bin/runc",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "kind": "process_parent",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3688147,
+        "start_time": "2026-10-15T07:07:37.986643221Z",
+        "uid": 0
+      },
+      {
+        "evidence_sha256": "2f4af590e8b2155ff26e334b35f13607df348160c7cb08b15603b9380f0e3636",
+        "id": "connect:2f4af590e8b2155ff26e334b35f13607df348160c7cb08b15603b9380f0e3636",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:38.688312180Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "7736b0adec4d8199acc2e906a67b65508674f49ef05c08236e00b361cfa14a8f",
+        "id": "connect:7736b0adec4d8199acc2e906a67b65508674f49ef05c08236e00b361cfa14a8f",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:39.186646883Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "b81a40bcb579a3b70d08d2c3bff1132b8fea25bc282a8e0beeef9650249a3b9e",
+        "id": "connect:b81a40bcb579a3b70d08d2c3bff1132b8fea25bc282a8e0beeef9650249a3b9e",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:39.187959089Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "7cbe1e74074c159438526d37212a22f7d41a7fdf626efdd9fb0bb814724aa1ca",
+        "id": "connect:7cbe1e74074c159438526d37212a22f7d41a7fdf626efdd9fb0bb814724aa1ca",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:39.226077195Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "9010506f3418f9633a067f95f4059f0843e40ee32db3a9453ae6704f3953f2c8",
+        "id": "connect:9010506f3418f9633a067f95f4059f0843e40ee32db3a9453ae6704f3953f2c8",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:39.227975608Z",
+        "socket_fd": 29,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "e4fb2eb1719790ecf4d7c53ab95591a24131f2d2fd4ebe0a4a2f888743c1b5c2",
+        "id": "connect:e4fb2eb1719790ecf4d7c53ab95591a24131f2d2fd4ebe0a4a2f888743c1b5c2",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:41.937683665Z",
+        "socket_fd": 24,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "6d0b5258159caec2cde32af2f400cbb98c54af64965553566027ac1657cd4c18",
+        "id": "connect:6d0b5258159caec2cde32af2f400cbb98c54af64965553566027ac1657cd4c18",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:41.940802153Z",
+        "socket_fd": 24,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "3bf6aa50946330537c28854ae38e3a03802a5a79fe94543fcc4f893c0288a559",
+        "id": "connect:3bf6aa50946330537c28854ae38e3a03802a5a79fe94543fcc4f893c0288a559",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:42.208673353Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "a8a6856efc3d6a42f3fbbd89c48e18796c358f52862b1ea73449de28a976bb7c",
+        "id": "connect:a8a6856efc3d6a42f3fbbd89c48e18796c358f52862b1ea73449de28a976bb7c",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:42.209991714Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3688978,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:43.062778271Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "bb722425117ebc0d1422b52b4d53124db24b6581fa055c7c77d53eae1771844b",
+        "id": "connect:bb722425117ebc0d1422b52b4d53124db24b6581fa055c7c77d53eae1771844b",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:43.627404780Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "e3c0bfb154e2ef2346645fa879e03b3742704f93125c2c88b0b4136dbcda1781",
+        "id": "connect:e3c0bfb154e2ef2346645fa879e03b3742704f93125c2c88b0b4136dbcda1781",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:45.092388550Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "ddf8c108f821d8722400f5b66ad322078b1434f0b5bb4d4c00983c1daefc0790",
+        "id": "connect:ddf8c108f821d8722400f5b66ad322078b1434f0b5bb4d4c00983c1daefc0790",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:45.093250085Z",
+        "socket_fd": 25,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "648eacd076a319991506af545a06db4f615354d1913349f45303b4dfdc096708",
+        "id": "connect:648eacd076a319991506af545a06db4f615354d1913349f45303b4dfdc096708",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:47.111277527Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "27f5ad725497e42ee6adf311106ed88c68efa4ab798ddccce60d7735cf326558",
+        "id": "connect:27f5ad725497e42ee6adf311106ed88c68efa4ab798ddccce60d7735cf326558",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:47.112799309Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "pid": 3689689,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:46.836945274Z",
+        "uid": 10001
+      },
+      {
+        "binary": "/usr/bin/runc",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "kind": "process_parent",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3689675,
+        "start_time": "2026-10-15T07:07:46.751648151Z",
+        "uid": 0
+      },
+      {
+        "evidence_sha256": "00794c7481fa274dbc564993d07c60326e41af1ee3d372ad82d068966b3e7bcd",
+        "id": "connect:00794c7481fa274dbc564993d07c60326e41af1ee3d372ad82d068966b3e7bcd",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:47.428479187Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "ffa0c3a0e01070ba8bc7d032df75af6547fe0c495a5b1627204e09c83824b912",
+        "id": "connect:ffa0c3a0e01070ba8bc7d032df75af6547fe0c495a5b1627204e09c83824b912",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:48.211749096Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "evidence_sha256": "b19b6566d702a6ab567995ce85154c3e2afe84062be9fb43086e30685cef0849",
+        "id": "connect:b19b6566d702a6ab567995ce85154c3e2afe84062be9fb43086e30685cef0849",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:48.213178843Z",
+        "socket_fd": 26,
+        "success": "unknown_no_return_probe"
+      },
+      {
+        "binary": "/usr/local/bin/python",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "container_name": "app",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1",
+        "id": "exec:k8s-worker1.local:azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1",
+        "kind": "process",
+        "namespace": "production",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3689955,
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "start_time": "2026-10-15T07:07:48.072982137Z",
+        "uid": 10001
+      },
+      {
+        "evidence_sha256": "cd83c3502bc2fb4a11e6f51d5bfbdca86bdc2982dd4d7be819d1cd70f62e0902",
+        "id": "connect:cd83c3502bc2fb4a11e6f51d5bfbdca86bdc2982dd4d7be819d1cd70f62e0902",
+        "kind": "connect_attempt",
+        "observed_at": "2026-10-15T07:07:48.692983264Z",
+        "socket_fd": 3,
+        "success": "unknown_no_return_probe"
+      }
+    ],
+    "retained_connect_events": 52,
+    "schema": "sentinel-pulse-rca-evidence-tree-v1",
+    "trigger_kind": "candidate_alert_preview",
+    "truncated": false
+  },
+  "normalized_connect_events": [
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:17.193202590Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "4c37a1f4c56c7841ddbbf8f00daf60e9b20f148f8233f6c44e90e6ada70de914"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:17.194006111Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "bade281556bc24fd43b50bc160d0dd003ecbbcd612c7531588127545cdb3c294"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:17.444019234Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNjM5MzA1MjAyNDozNjgzOTQy",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3683942,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:16.824649121Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "b368b0baf2aa0f00eff95535d1ed0af645c7d1e06b12c7b05a5d587a69c1817e"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:18.707127353Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDExNzYzNzczMTQwNzozNjg0MjE1",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3684215,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:18.069329205Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "6896879eac7f1b276ffc08a6547da02272ff8a70ea69de905881133f15540075"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:22.262776729Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "fbf22ae5a3351bf58e723fa0eae7562e13ae0f0622841c837d26ac978921b801"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:22.263912149Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "30a4501f51a4d18cbc68b2b08769e4f3488b9156fef8b7b91f941e12843a17bf"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:23.402788088Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "182303ffd120499e0d817989b6b89496b3b82ee56760db7cb2e7fd95c5210c3b"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:23.403997782Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "54a84c577c5ee37539ac498dbe75ec799f2305fe80da3a2002fa1d2cea5c5ac2"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:23.772902177Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjY0MjQyNzI1MDozNjg1MDIw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "pid": 3685020,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:23.074025503Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyMjU1OTg0NzY1NTozNjg1MDA1",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3685005,
+        "uid": 0,
+        "binary": "/usr/bin/runc",
+        "start_time": "2026-10-15T07:07:22.991444912Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "b7668668f1cdbf599c87ef02cdf9bc1cced208895768855cecbf97a2f5085110"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:24.107314587Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "680fe807b14d3200a05f3b7da4b19170f0399022c1417db9a813be950b12f1ba"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:24.108948122Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "ab2dd5b964056941edb050456ec26ce5efea26f58b5a9014b703ddaacb574397"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:24.609841095Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "4e44d2c96c5a04d903c98d6b257674fb754d876423937bd64da68c36b62cd6c2"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:24.610821556Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "13249f0057467be80fb79108cdad9b76bb037c92f283226a002e7c6a0777f6c7"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:27.237850320Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "0d74f9ed0eff4ccfea846d9e496b0a3442ee36564211561a16f68e3639a0ecea"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:27.239636127Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "734ffb1f997c7df84088aba66dbef60d400c46eab1179e877739e6f7c214d03c"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:27.488750794Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 28
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "d7b48dab899f49915dd0af40e55ce43cff386f35aaecca02bb7d1f477c9e32eb"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:27.489734846Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 28
+      },
+      "destination": {
+        "address": "10.102.22.84",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "auth-service",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "f0ba0cc9d783af9d7a3de786f98e4aa9a6d3b52e3f063a4a96140d24733456be"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:28.625917847Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEyNzYzMjEyMzgwOTozNjg2Mzk5",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3686399,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:28.063720624Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "d8d90a3e92783ed37176e17c74ff03b2f9fba7e018aa8fea8f3a45ef10154a43"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:29.860498138Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "5c87dbfce1492e7c06036d55d7c8dfd7ed8f12d9e15896f0c7feb871ec89cecc"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:29.861401839Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.102.22.84",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "auth-service",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "6f20b8272265b46b6a140b7fbffd8a3e5da3d90077f7e923e6b6839ce9cc43eb"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:31.078822136Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 28
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "8d244b182267221e76bf15890ad0d94bdff98ce64dd3b9e001cb27800880c3c9"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:31.080533267Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 28
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "71bdefc517aa7b2b3e87239b845d2e27371189173f5088aa9d6eb63c1cd89979"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:32.383074388Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMTM4MzIwNDc5MTozNjg2OTc2",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3686976,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:31.814800388Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "51acc9892ac9a06cd018348372a9b59a41bda9edbbc954ef43c0e0d90bceab61"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:33.355218663Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "79b5b936d9924e2add65929676b98b3833f423bac4b1a143d709769a952ea580"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:33.356670195Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.102.22.84",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "auth-service",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "fcfc04ffcc6c4ae58923b7f1ffff3bd77d9a7e8fe39d73de4637238bb37cd6e6"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:33.702582909Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzMjY0Nzg2NjkyNTozNjg3MjMx",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3687231,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:33.079463800Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "8e7b3414434c1324775522b94aa580a5b0554ef2c744911376902c55d34057cb"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:35.225684852Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "42af9254e8719223933078df249ec9134b96ae4aaa47c33c6fe6f48c29458b12"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:35.226731783Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "5c8a00e6abc568c050a7005fcebf24e8db0674caf9d58df9732cc83ba3a47a64"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:36.355429508Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "ae6618e208c3e8d0af3e471f001a7d3ff3af722017ad75d4cdbdd9ca5c030c82"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:36.356912552Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 27
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "e8e3913e65f07a4b516031c537d4f363f37f675e59a425cdac5e0e67655f9997"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:37.901095733Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "4302ce74905b979e034df5497116835287f922074e7dd1380be3c88e0e550478"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:37.902813781Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "cdcd9dd7922248840a34882c18f036ccae478de3a05414d3896636afb937e6e6"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:38.363848014Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "2026c1c58b7373418ff51ce88801b10df55c9045d8a215026e6bc70eaf366c97"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:38.364958191Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "90ffecea0b7e823d12b62db3861012eccc656f74b5ce46bf2b5687554cfc5e48"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:38.688312180Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzYyMTY5MjczMjozNjg4MTYx",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "pid": 3688161,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:38.053290198Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDEzNzU1NTA0Njk5MTozNjg4MTQ3",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3688147,
+        "uid": 0,
+        "binary": "/usr/bin/runc",
+        "start_time": "2026-10-15T07:07:37.986643221Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "2f4af590e8b2155ff26e334b35f13607df348160c7cb08b15603b9380f0e3636"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:39.186646883Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "7736b0adec4d8199acc2e906a67b65508674f49ef05c08236e00b361cfa14a8f"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:39.187959089Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.102.22.84",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "auth-service",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "b81a40bcb579a3b70d08d2c3bff1132b8fea25bc282a8e0beeef9650249a3b9e"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:39.226077195Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "7cbe1e74074c159438526d37212a22f7d41a7fdf626efdd9fb0bb814724aa1ca"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:39.227975608Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 29
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "9010506f3418f9633a067f95f4059f0843e40ee32db3a9453ae6704f3953f2c8"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:41.937683665Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 24
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "e4fb2eb1719790ecf4d7c53ab95591a24131f2d2fd4ebe0a4a2f888743c1b5c2"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:41.940802153Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 24
+      },
+      "destination": {
+        "address": "10.102.22.84",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "auth-service",
+          "uid": "c7c9cf16-74cc-421a-a68b-037012071e20"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "6d0b5258159caec2cde32af2f400cbb98c54af64965553566027ac1657cd4c18"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:42.208673353Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "3bf6aa50946330537c28854ae38e3a03802a5a79fe94543fcc4f893c0288a559"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:42.209991714Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "a8a6856efc3d6a42f3fbbd89c48e18796c358f52862b1ea73449de28a976bb7c"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:43.627404780Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0MjYzMTE4MTQwMjozNjg4OTc4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3688978,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:43.062778271Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "bb722425117ebc0d1422b52b4d53124db24b6581fa055c7c77d53eae1771844b"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:45.092388550Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "e3c0bfb154e2ef2346645fa879e03b3742704f93125c2c88b0b4136dbcda1781"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:45.093250085Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 25
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "ddf8c108f821d8722400f5b66ad322078b1434f0b5bb4d4c00983c1daefc0790"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:47.111277527Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "648eacd076a319991506af545a06db4f615354d1913349f45303b4dfdc096708"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:47.112799309Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.105.36.105",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "catalog-service",
+          "uid": "539fa59e-4c87-4745-9e8a-0a8944229d30"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "27f5ad725497e42ee6adf311106ed88c68efa4ab798ddccce60d7735cf326558"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:47.428479187Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjQwNTM0ODE4ODozNjg5Njg5",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "pid": 3689689,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:46.836945274Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NjMyMDA1MjE1NjozNjg5Njc1",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3689675,
+        "uid": 0,
+        "binary": "/usr/bin/runc",
+        "start_time": "2026-10-15T07:07:46.751648151Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "00794c7481fa274dbc564993d07c60326e41af1ee3d372ad82d068966b3e7bcd"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:48.211749096Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.96.0.10",
+        "port": 53,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "kube-system",
+          "name": "kube-dns",
+          "uid": "f57e394f-78cc-4b99-b1dd-2476dc2504a3"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "ffa0c3a0e01070ba8bc7d032df75af6547fe0c495a5b1627204e09c83824b912"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:48.213178843Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY3MTExMDg2NTg4MzozODA0OTM4",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3804938,
+        "uid": 10001,
+        "binary": "/usr/local/bin/uvicorn",
+        "start_time": "2026-09-26T16:03:11.542463931Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 26
+      },
+      "destination": {
+        "address": "10.109.229.136",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": {
+          "kind": "Service",
+          "namespace": "production",
+          "name": "cart-service",
+          "uid": "72ba8842-b294-4e96-9486-27b93805e6f1"
+        }
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "b19b6566d702a6ab567995ce85154c3e2afe84062be9fb43086e30685cef0849"
+    },
+    {
+      "schema": "sentinel-pulse-rca-connect-edge-v1",
+      "observed_at": "2026-10-15T07:07:48.692983264Z",
+      "node_name": "k8s-worker1.local",
+      "source": {
+        "namespace": "production",
+        "pod_name": "api-gateway-5b79675d85-4q84j",
+        "pod_uid": "9fa980bd-f485-4b2d-892f-d1e3018931d9",
+        "container_name": "app",
+        "container_id": "containerd://225bf41a4cc18589c114b0280ba1416232ae2837404fec697bc426153507cd66",
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6Mzk5MDE0NzY0MTM4NjI4MDozNjg5OTU1",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "pid": 3689955,
+        "uid": 10001,
+        "binary": "/usr/local/bin/python",
+        "start_time": "2026-10-15T07:07:48.072982137Z"
+      },
+      "parent": {
+        "exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTk0NzgzOTU2MjozODAzMzEw",
+        "parent_exec_id": "azhzLXdvcmtlcjEubG9jYWw6MjM4MDY2MTkzNTU3NzYwMDozODAzMzAy",
+        "pid": 3803310,
+        "uid": 0,
+        "binary": "/usr/bin/containerd-shim-runc-v2",
+        "start_time": "2026-09-26T16:03:02.379436052Z"
+      },
+      "connection": {
+        "socket_fd": 3
+      },
+      "destination": {
+        "address": "127.0.0.1",
+        "port": 8000,
+        "family": "AF_INET",
+        "kubernetes": null
+      },
+      "application_content": {
+        "captured": false,
+        "reason": "connect_syscall_has_no_l7_payload",
+        "recommended_source": "redacted_istio_envoy_access_log_or_trace"
+      },
+      "raw_event_sha256": "cd83c3502bc2fb4a11e6f51d5bfbdca86bdc2982dd4d7be819d1cd70f62e0902"
+    }
+  ],
+  "normalized_replay_matches": true,
+  "raw_event_replay_verified": false,
+  "structural_issues": []
+}

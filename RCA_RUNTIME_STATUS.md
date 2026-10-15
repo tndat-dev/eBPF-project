@@ -1,6 +1,6 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **11:14 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **14:05 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
@@ -18,9 +18,9 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 |---|---|
 | VM chạy subscriber | 10.1.16.234 — k8s-master.local |
 | Unit | pulse-rca-context.service |
-| systemd | active/running, enabled; MainPID 125957 |
-| Case đang giữ | **113**, còn 1 case pending tại snapshot |
-| Context ring đang giữ | 8.847 normalized connect event |
+| systemd | active/running, enabled; MainPID 231866 |
+| Case trong lượt đăng ký hiện hành | **41** case đã xuất; audit kiểm tra 41 case |
+| Context ring đang giữ | 2.805 normalized connect event tại snapshot |
 | Stream được mở | Ba sensor trên worker1, worker4, worker3 |
 | Stream có connect event đã nhận ở snapshot | worker1 và worker4; worker3 chưa có normalized event |
 | Trigger | candidate_alert_preview, không phải alert production |
@@ -29,6 +29,13 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 Mở stream không chứng minh mọi workload đều có event. Pod ngoài selector,
 khoảng thiếu telemetry hoặc không phát sinh connect đều có thể làm thiếu
 context; không tự suy ra không có kết nối hay không có anomaly.
+
+Worker3 hiện chỉ có frontend đang Running và thuộc selector của policy;
+Kafka/PostgreSQL/RabbitMQ/Redis/waypoint trên node này nằm ngoài selector.
+Các pod service tên cũ có `ready=false` trên worker3 là phase `Succeeded`,
+không phải microservice đang Running nhưng mất readiness. Sensor và policy
+connect trên node này đã được kiểm tra enabled; số normalized event vẫn bằng
+0 nên coverage connect của worker3 chưa được xác nhận bằng event.
 
 ## 2. Thuật ngữ cần hiểu
 
@@ -50,6 +57,7 @@ context; không tự suy ra không có kết nối hay không có anomaly.
 | Subscriber | Consumer riêng nhận event/decision; không nằm trong bước tính score |
 | JSONL | Mỗi dòng là một JSON; chỉ xử lý dòng hoàn chỉnh để tránh đọc partial write |
 | Cursor/checkpoint | Vị trí đọc / trạng thái đã lưu để resume sau restart |
+| NFS revalidation | Mở lại file trước khi kiểm tra độ dài để cập nhật trạng thái append từ writer; cached stat có thể chưa thấy dữ liệu mới |
 | SQLite WAL | Journal local giúp commit context/case/cursor và phục hồi process |
 | Ring buffer/retention | Context gần hiện tại có trần / quy tắc giữ và hết hạn output |
 | Cooldown/grouping | Gom nhiều preview cùng identity thành một case, không xóa decision gốc |
@@ -108,9 +116,34 @@ của inventory-service-695bf6f445-ttlgj:
 
 Đã kiểm tra restart riêng subscriber: ledger case vẫn còn, cursor tăng,
 chỉ có ba receipt initial-tail của lần start đầu. **Chưa thử reboot VM**.
-33 test RCA local và 57 test regression trên VM đã pass trước/chung đợt deploy.
+Lượt sửa hiện hành đã qua 61 test liên quan trên host; 37 test RCA pass trên VM.
 Snapshot triển khai trong receipt có MemoryCurrent 84,7 MiB; đó là cgroup gồm
 subscriber và ba kubectl, không phải overhead A/B đã đo.
+
+Audit phát hiện case cũ thiếu trường `policy_evaluated` trong signal được lưu,
+mặc dù subscriber kiểm tra policy lúc nhận decision. Runtime hiện hành giữ
+trường này cùng binding model/policy. Các case cũ giữ nguyên, không điền bù
+receipt thiếu. Đã sửa reader để mở file trước khi so độ dài, tránh bỏ qua
+append vì kích thước NFS còn cache. Lượt đăng ký mới dùng output riêng;
+Pulse và evaluator syscall tiếp tục chạy trong thời gian cập nhật subscriber.
+
+[Audit SSH hiện hành](validation-evidence/pulse-parallel-live-20261015/inspection.json)
+kiểm tra **41/41 case không có lỗi cấu trúc/binding**; 8 có connect context,
+33 chưa có, trong đó 8 nằm ngoài selector. Số này gồm giai đoạn đầu sau
+subscription nên chưa đủ pre-context 30 giây cho mọi case. Audit kiểm tra
+identity, model/policy, graph node/edge và evidence hash; không xác nhận nhãn
+attack hay root cause. Một số case còn thiếu context dù thuộc selector.
+
+Trong 41 case này, preview→case có p50 **16,36 giây**, p95 **22,88 giây**.
+Đây là mẫu đầu lượt đăng ký, gồm post-context và backlog, chưa phải benchmark
+ổn định hoặc bằng chứng cải thiện theo paired A/B. RCA chưa hoàn tất trong
+1–2 giây. Phép đo này tách khỏi latency suy luận của Pulse.
+
+[Sample mới và input normalized](validation-evidence/pulse-parallel-live-20261015/rca-case-replay.json)
+giữ case `5b7c1b37393c64bdc4687c41`: **52 connect event, 74 node, 127 edge**.
+Dựng lại từ 52 normalized event cho kết quả nodes/edges và số đếm khớp nguyên
+case đã xuất; `policy_evaluated` được giữ. Đây là replay từ normalized events,
+chưa phải tái dựng từ raw Tetragon corpus hoặc kiểm chứng nguyên nhân tấn công.
 
 Startup từng gặp quyền đọc config do thư mục cha root-only. Đã chuyển config
 sang thư mục RCA riêng root:dat 0750/file 0640, giữ journal lỗi; không nới quyền
@@ -126,7 +159,7 @@ cấu hình khác. Không dùng NRestarts hiện tại để phủ nhận startu
 | Cây mỗi case | Tối đa 200 connect event; truncation phải hiện rõ |
 | Query guard | Tối đa 10.001 event, có cờ khi chạm cap |
 | Case retention | Chỉ giữ 500 case JSON/Markdown gần nhất của subscriber; có counter hết hạn |
-| CPU/RAM | Quota 0,5 core, MemoryMax 512 MiB; hạn mức cấu hình, không phải số đo overhead |
+| CPU/RAM | Quota 1 core, MemoryMax 512 MiB; MemoryCurrent 85,9 MiB ở snapshot; chưa phải A/B overhead |
 | Persistence | SQLite WAL local và case/cursor checkpoint; không gắn terminal SSH |
 | Boot/retry | enabled + Restart=always; NFS mount không phải prerequisite của unit |
 
@@ -159,7 +192,8 @@ Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 | Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
 | Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
 | Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
-| A/B overhead và latency tới khi cây sẵn sàng | Chưa đo đầy đủ |
+| Audit cấu trúc/binding của case live | Đã có tool và 41/41 case mới qua kiểm tra; không đánh đồng với causal accuracy |
+| Latency tới khi cây sẵn sàng | Có mẫu preview→case 41 case; còn cần đo dài và A/B overhead |
 
 Hướng tiếp theo: đo coverage theo workload và lý do thiếu; kiểm thử recovery/
 transport; bổ sung process lifecycle và return/flow evidence ở release riêng;
@@ -169,17 +203,20 @@ Không mở thêm kernel hooks giữa một lượt freeze chỉ để làm cây
 ## 7. File, service và lệnh kiểm tra
 
 - Source: [rca_service.py](sentinel_pulse/rca_service.py),
-  [rca_tree.py](sentinel_pulse/rca_tree.py), [rca_connect.py](sentinel_pulse/rca_connect.py).
-- Module runtime ghim tại /opt/sentinel-pulse-rca/2027dc8.
-- Config: /etc/sentinel-pulse-rca/parallel-20261015.json.
+  [rca_tree.py](sentinel_pulse/rca_tree.py), [rca_connect.py](sentinel_pulse/rca_connect.py),
+  [audit_rca_cases.py](sentinel_pulse/audit_rca_cases.py).
+- Runtime source: /home/dat/eBPF-project-current, code commit 61a72e9 khi deploy;
+  START/SQLite binding khóa hash source và config, sửa source phải đăng ký lại.
+- Config: /etc/sentinel-pulse-rca/parallel-20261015-r3.json.
 - Environment file systemd đọc: /etc/sentinel-pulse/rca-context.env.
-- Output: /var/lib/sentinel-pulse-rca/parallel-20261015.
+- Output hiện hành: /var/lib/sentinel-pulse-rca/parallel-20261015-r3.
+  Hai output trước vẫn được giữ để đối chiếu, không sửa case cũ.
 - Unit: [pulse-rca-context.service](sentinel_pulse/systemd/pulse-rca-context.service).
 - Model/policy hash phải trùng candidate trong [báo cáo Pulse](SENTINEL_PULSE_STATUS.md).
 
     sudo systemctl show pulse-rca-context.service -p ActiveState -p SubState -p NRestarts -p UnitFileState
-    sudo python3 -m json.tool /var/lib/sentinel-pulse-rca/parallel-20261015/STATUS.json
-    sudo ls /var/lib/sentinel-pulse-rca/parallel-20261015/cases
+    python3 -m json.tool /var/lib/sentinel-pulse-rca/parallel-20261015-r3/STATUS.json
+    PYTHONPATH=/home/dat/eBPF-project-current python3 -m sentinel_pulse.audit_rca_cases --config /etc/sentinel-pulse-rca/parallel-20261015-r3.json
 
 Không reset Pulse hoặc thí nghiệm syscall nếu subscriber lỗi. Cây điều tra
 không tự xác nhận anomaly, false positive, attack hay root cause.
