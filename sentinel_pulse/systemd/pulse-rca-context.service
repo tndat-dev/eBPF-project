@@ -15,9 +15,9 @@ ExecStart=/usr/bin/env PYTHONPATH=${PULSE_RCA_SOURCE} /usr/bin/python3 -u -m sen
 Restart=always
 RestartSec=10
 TimeoutStopSec=35
-CPUQuota=100%
+CPUQuota=200%
 MemoryMax=512M
-TasksMax=64
+TasksMax=128
 UMask=0077
 NoNewPrivileges=yes
 ProtectSystem=strict
