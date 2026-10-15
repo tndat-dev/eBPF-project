@@ -22,7 +22,7 @@ def test_derive_coordinator_keeps_capture_bindings_and_moves_phase_forward(tmp_p
         matched_observable='500ms full-ID + 249 baseline + transitions + rolling10 + history3 + tree/support',
         workers={f'host-{i}':dict(output=str(tmp_path/f'worker-{i}')) for i in range(3)},
         campaign_output=str(tmp_path/'parent-campaign'),
-        schedule=[dict(scenario='dev')],native_syscall_ids=[0,1])
+        schedule=[dict(scenario='dev',workload_key=k) for k in keys],native_syscall_ids=[0,1])
     base_path=tmp_path/'capture.json';base_path.write_text(json.dumps(base))
     root=tmp_path/'derived'
     path=derive(base_path,source_path,root,'coordinator-test',selection_delay=60,
@@ -40,6 +40,14 @@ def test_derive_coordinator_keeps_capture_bindings_and_moves_phase_forward(tmp_p
     replay=derive(base_path,source_path,tmp_path/'replay','coordinator-replay',
                   selection_seconds=600,selection_start_at=actual['selection_start'])
     assert json.loads(replay.read_text())['selection_start']==actual['selection_start']
+    subset=derive(base_path,source_path,tmp_path/'subset','coordinator-subset',
+                  campaign_workloads=[keys[-1]])
+    subcfg=json.loads(subset.read_text())
+    assert subcfg['schedule']==[base['schedule'][-1]]
+    assert subcfg['workload_keys']==keys
+    with pytest.raises(ValueError,match='outside frozen'):
+        derive(base_path,source_path,tmp_path/'invalid','coordinator-invalid',
+               campaign_workloads=['production/not-frozen:app'])
 
 
 def test_derive_rejects_capture_with_wrong_worker_count(tmp_path):

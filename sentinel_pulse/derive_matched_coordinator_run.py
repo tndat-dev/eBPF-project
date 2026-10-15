@@ -11,7 +11,8 @@ from .integrity import sha256_file
 
 
 def derive(capture_config, source, root, run_id, *, selection_delay=180,
-           selection_seconds=5400, attack_delay=120, selection_start_at=None):
+           selection_seconds=5400, attack_delay=120, selection_start_at=None,
+           campaign_workloads=None):
     if not re.fullmatch(r'[a-z0-9-]{3,60}', run_id):
         raise ValueError('unsafe coordinator run id')
     base=json.loads(capture_config.read_text())
@@ -43,6 +44,11 @@ def derive(capture_config, source, root, run_id, *, selection_delay=180,
     start=now+selection_delay if selection_start_at is None else float(selection_start_at)
     if not math.isfinite(start) or start<=0 or selection_seconds<=0 or attack_delay<0:
         raise ValueError('invalid selection timing')
+    selected=set(campaign_workloads or base['workload_keys'])
+    if not selected or not selected<=set(base['workload_keys']):
+        raise ValueError('campaign subset is outside frozen workload keys')
+    schedule=[item for item in base['schedule'] if item['workload_key'] in selected]
+    if not schedule:raise ValueError('campaign subset has no registered trials')
     root.mkdir(parents=True,exist_ok=False)
     cfg=dict(base)
     cfg.update(run_id=run_id,source=str(source),
@@ -50,6 +56,7 @@ def derive(capture_config, source, root, run_id, *, selection_delay=180,
         campaign_output=str(root/'pulse-development-matrix'),
         study_output=str(root/'syscall-matched-study'),
         traffic_output=str(root/'traffic-coordinator-unused'),traffic_schedule=[],
+        schedule=schedule,campaign_workloads=sorted(selected),
         exec_provenance_policy=str(exec_policy),
         exec_provenance_policy_sha256=sha256_file(exec_policy),
         coordinator_parent_config_sha256=sha256_file(capture_config),
@@ -74,7 +81,10 @@ if __name__=='__main__':
                    help='Reuse an explicit capture boundary for a corrected study; preserve parent registration')
     p.add_argument('--selection-seconds',type=int,default=5400)
     p.add_argument('--attack-delay',type=int,default=120)
+    p.add_argument('--campaign-workload',action='append',
+                   help='Run a recorded workload subset in a separate follow-up; retains original results')
     a=p.parse_args()
     print(derive(a.capture_config,a.source,a.root,a.run_id,
         selection_delay=a.selection_delay,selection_seconds=a.selection_seconds,
-        attack_delay=a.attack_delay,selection_start_at=a.selection_start_at))
+        attack_delay=a.attack_delay,selection_start_at=a.selection_start_at,
+        campaign_workloads=a.campaign_workload))
