@@ -1,6 +1,6 @@
 # Sentinel Pulse và thí nghiệm syscall: trạng thái hiện hành
 
-Kiểm tra SSH ngày **15/10/2026, khoảng 10:20 UTC+7**. Cả ba worker đang chạy
+Kiểm tra SSH ngày **15/10/2026, khoảng 10:48 UTC+7**. Cả ba worker đang chạy
 capture **500 ms**, xuất full syscall-ID delta và 249 feature từ cùng snapshot,
 đồng thời chấm frozen candidate preview. Các service capture chưa restart.
 Sáu node Kubernetes v1.34.10 đều Ready; không thấy pod production ở trạng thái
@@ -8,13 +8,18 @@ khác Running/Completed trong lần kiểm tra này.
 
 | Nhánh | Trạng thái | Service / output |
 |---|---|---|
-| Capture và Pulse preview | Chạy trên `.237/.238/.239`, đã tích lũy trên 9 giờ/node; đăng ký 48 giờ | `pulse-matched-worker-parallel-20261015.service`; NFS `matched-parallel-20261015/workers/<node>` |
-| Matched syscall study R4 | Đã fit 81/693 model, chưa có coverage gap trong phần đã xử lý | `.234`: `pulse-matched-study-parallel-r4-20261015.service`; NFS `matched-parallel-r4-20261015/syscall-matched-study` |
+| Capture và Pulse preview | Chạy trên `.237/.238/.239`, khoảng 10,1 giờ/node; đăng ký 48 giờ | `pulse-matched-worker-parallel-20261015.service`; NFS `matched-parallel-20261015/workers/<node>` |
+| Matched syscall study R4 | Đã fit 249/693 model, chưa có coverage gap trong phần đã xử lý | `.234`: `pulse-matched-study-parallel-r4-20261015.service`; NFS `matched-parallel-r4-20261015/syscall-matched-study` |
 | Pulse follow-up R5 | Hoàn tất 15/15 cặp RabbitMQ, Result=success; đã kết thúc | `.234`: `pulse-matched-campaign-parallel-r5-rabbit-20261015.service`; NFS `matched-parallel-r5-rabbit-20261015/pulse-development-matrix` |
 
 Capture tiếp tục sau cadence gap và recovery, giữ issue và reset history khi
 cần. Attack/control intervals được lưu riêng trong campaign journal. Những
 khoảng attack không được mặc nhiên xem là normal vì capture vẫn đang chạy.
+
+[Audit repo và toàn bộ tiến trình VM](REPO_SYNC_AND_FUTURE_RISKS.md) đã phát
+hiện hai lỗi resume trong code study bằng probe cách ly. Chưa thấy chúng bị
+trigger trong R4 live; source/model của run này vẫn giữ nguyên. Audit cũng ghi
+VMware balloon/swap và collector/detector legacy còn chạy để xử lý ở lượt sau.
 
 ## Kết quả candidate Pulse đã hoàn tất
 

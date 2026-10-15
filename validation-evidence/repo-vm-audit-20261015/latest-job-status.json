@@ -1,0 +1,38 @@
+{
+  "inspected_at_unix": 1792036110.7907932,
+  "experiments": {
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local/STATUS.json": {
+      "state": "running",
+      "node_name": "k8s-worker3.local",
+      "completed_seconds": 36373.251987695694,
+      "issues": 15,
+      "updated_at_unix": 1792036110.6351793,
+      "heartbeat_age_seconds": 0.16732525825500488
+    },
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker4.local/STATUS.json": {
+      "state": "running",
+      "node_name": "k8s-worker4.local",
+      "completed_seconds": 36211.21713876724,
+      "issues": 129,
+      "updated_at_unix": 1792036106.2549117,
+      "heartbeat_age_seconds": 4.549113750457764
+    },
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker1.local/STATUS.json": {
+      "state": "running",
+      "node_name": "k8s-worker1.local",
+      "completed_seconds": 36392.31836438179,
+      "issues": 16,
+      "updated_at_unix": 1792036108.74853,
+      "heartbeat_age_seconds": 2.05716872215271
+    },
+    "/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study/STATUS.json": {
+      "state": "fitting_matched_variants",
+      "expected_models": 693,
+      "updated_at_unix": 1792036081.2170262,
+      "current_model": "production/aims-rabbitmq-server:rabbitmq|plus_all_defined_native|73023",
+      "completed_models": 249,
+      "unknown_workload_arms": 0,
+      "heartbeat_age_seconds": 29.596597909927368
+    }
+  }
+}

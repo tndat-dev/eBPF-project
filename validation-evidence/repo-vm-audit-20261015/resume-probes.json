@@ -1,0 +1,24 @@
+{
+  "inspected_at_unix": 1792035643.727769,
+  "source_file": "/home/dat/eBPF-project-current/sentinel_pulse/matched_study.py",
+  "source_sha256": "836d644201a3f6da5f7d6bf147b42c0342a76ee2ec74132470b728b5a338e0fc",
+  "scope": "temporary fixture and mocked readiness/context admission; no live job or ML quality measurement",
+  "checkpoint_lost_while_waiting": {
+    "reproduced": true,
+    "before_completed": 1,
+    "after_completed": 0,
+    "after_state": "waiting_for_clean_selection_capture"
+  },
+  "changed_index_reuses_checkpoint": {
+    "reproduced": true,
+    "terminal_state": "completed_matched_fits",
+    "old_index_hash": "a12c029041eaec8b178ac7ce82b1f41ef736343f5e46245f69bbb9f90c91e728",
+    "new_index_hash": "5a75440b36b37a1f74a59d4fcf505a2ecedac44dcecadf9af77481dfdfc2f79c",
+    "stored_input_manifest_hash_mismatch": true,
+    "expected_new_feature_dim": 253,
+    "reused_artifact_feature_dims": [
+      249
+    ],
+    "reused_models": 3
+  }
+}

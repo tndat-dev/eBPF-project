@@ -1,0 +1,76 @@
+{
+  "master": {
+    "inspected_at_unix": 1792035797.7640874,
+    "legacy_detector": {
+      "pid": 3939857,
+      "dry_run": true,
+      "live_response": false,
+      "window": "10",
+      "mode": "kubectl",
+      "model-dir": "/home/dat/ml-service/models",
+      "threshold": "0.80"
+    },
+    "versions": {
+      "numpy": "2.5.2",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.18.0",
+      "joblib": "1.5.3",
+      "pytest": "9.1.1"
+    },
+    "candidate_keys": [
+      "automatic_promotion",
+      "bindings",
+      "candidate_name",
+      "created_at_unix",
+      "decision_policy",
+      "eligible_workload_count",
+      "excluded_degenerate_workload_count",
+      "excluded_degenerate_workloads",
+      "feature_contract",
+      "feature_dimensions",
+      "fit_protocol",
+      "history_windows",
+      "reference_root",
+      "schema",
+      "serving_compatible",
+      "software",
+      "source_commit",
+      "status",
+      "workloads"
+    ],
+    "candidate_environment": {
+      "software": {
+        "numpy": "2.5.2",
+        "python": "3.12.3",
+        "sklearn": "1.9.0"
+      }
+    }
+  },
+  "worker1_legacy": {
+    "pid": "1674",
+    "dry_run": true,
+    "live_response": false,
+    "--window": "30",
+    "--mode": "kubectl",
+    "--model-dir": "/home/dat/ml-service/models",
+    "--threshold": "0.80"
+  },
+  "nfs": "/srv/nfs      \t10.1.16.234(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs      \t10.1.16.235(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs      \t10.1.16.236(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs      \t10.1.16.237(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs      \t10.1.16.238(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs      \t10.1.16.239(sync,wdelay,hide,no_subtree_check,fsid=0,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.234(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.235(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.236(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.237(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.238(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\n/srv/nfs/sentinel-pulse\n\t\t10.1.16.239(sync,wdelay,hide,no_subtree_check,anonuid=1000,anongid=1000,sec=sys,rw,secure,root_squash,no_all_squash)\nNAME                                    SIZE TYPE FSTYPE      MOUNTPOINTS\nsda                                     500G disk             \n├─sda1                                    1G part vfat        /boot/efi\n├─sda2                                    2G part ext4        /boot\n└─sda3                                496.9G part LVM2_member \n  ├─ubuntu--vg-ubuntu--lv               100G lvm  ext4        /\n  └─ubuntu--vg-sentinel_pulse_archive   350G lvm  ext4        /srv/nfs\nsr0                                    1024M rom              \nFilesystem                                     Size  Used Avail Use% Mounted on\n/dev/mapper/ubuntu--vg-ubuntu--lv               98G  6.9G   87G   8% /\n/dev/sda2                                      2.0G  201M  1.6G  11% /boot\n/dev/mapper/ubuntu--vg-sentinel_pulse_archive  344G   68G  276G  20% /srv/nfs\n",
+  "worker_runtime_versions": {
+    "10.1.16.237": {
+      "numpy": "2.5.2",
+      "scikit-learn": "1.9.0",
+      "joblib": "1.5.3"
+    },
+    "10.1.16.238": {
+      "numpy": "2.5.2",
+      "scikit-learn": "1.9.0",
+      "joblib": "1.5.3"
+    },
+    "10.1.16.239": {
+      "numpy": "2.5.2",
+      "scikit-learn": "1.9.0",
+      "joblib": "1.5.3"
+    }
+  }
+}

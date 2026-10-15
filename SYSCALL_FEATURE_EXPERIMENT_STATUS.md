@@ -2,7 +2,7 @@
 
 ## Trạng thái tiến trình hiện hành
 
-Kiểm tra SSH **15/10/2026, khoảng 10:20 UTC+7**: matched capture **500 ms** và
+Kiểm tra SSH **15/10/2026, khoảng 10:48 UTC+7**: matched capture **500 ms** và
 frozen candidate preview đang chạy trên cả ba worker, chưa restart, đã thu
 trên 9 giờ/node. Đây là full-ID deltas, 249 baseline feature, transition
 bins, rolling-10/history-3 và tree/support khớp observable của Pulse.
@@ -12,7 +12,7 @@ Study R3 đã index đủ **21/21 key**, bao gồm notification/payment, và ho�
 operator thiếu calibration vì coordinator cũ chưa chờ segment cuối đóng.
 Study R4 đã chạy bằng systemd trên `.234`, đọc lại cùng khoảng selection đã
 đăng ký sau khi segment được seal; giữ nguyên kết quả R3. Lần kiểm tra có
-81/693 model đã fit, chưa có gap; hai Kafka operator đều có 2.741 calibration
+249/693 model đã fit, chưa có gap; hai Kafka operator đều có 2.741 calibration
 context sau sửa, thay vì 678 ở R3.
 
 Pulse R3 đã hoàn tất 315 cặp development attack/control trên candidate hiện

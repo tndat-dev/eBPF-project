@@ -1,0 +1,177 @@
+{
+  "inspected_at_unix": 1792036111.043863,
+  "old_commit": "ca682ef2c5908b6671a056ec714ea56c930a7173",
+  "current_commit": "0e944eb5fafc70f9f13fc8d54dcab80e7e95a761",
+  "dirty_entries": 37,
+  "source_files": [
+    {
+      "path": "sentinel_pulse/build_semantic_policy.py",
+      "status": " M",
+      "old_sha256": "073fa6fbef9a526e3da6767231fb9d8717289f1a9d10d156f6e7ff4c0bb6ed5a",
+      "present_in_current": true,
+      "current_sha256": "477a6fb4db45ec26e30f91811997e5ab2f96fcd40ef0a81ed779d648d3c0a8f1",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/capture.py",
+      "status": " M",
+      "old_sha256": "069e3a1009f080fb45aff9b1b24e8cc043369a66f625e407ae259ced46bfb353",
+      "present_in_current": true,
+      "current_sha256": "7cc61ebfb08b75c86910a7f7e32e93f165d5c214792c4c8a18cc94ed8e8381ff",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/cgroup_resolver.py",
+      "status": " M",
+      "old_sha256": "7f0447b8d189a8904cb8fcf26f25346151c50eeff44e510559c5dc4ef375dfd1",
+      "present_in_current": true,
+      "current_sha256": "74762acc805dd898d05a2a110631339ba2521ee96d9dca62d4a9825d3d73df06",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/detect.py",
+      "status": " M",
+      "old_sha256": "5d082d88cb8ee1309f3e7d469b3c82ec647d6efd660b3c79b7e963e2cee64418",
+      "present_in_current": true,
+      "current_sha256": "f7d3814da7edc9ba71d5556280584018cffd4eba3b6b9a0a7b2b4c81c35c0064",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/finalize_candidate.py",
+      "status": " M",
+      "old_sha256": "52d47b55556746cbb9da15f4883c746e680dc6a497db7d5dc82df74968fa0c53",
+      "present_in_current": true,
+      "current_sha256": "52d47b55556746cbb9da15f4883c746e680dc6a497db7d5dc82df74968fa0c53",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/freeze_training_contract.py",
+      "status": " M",
+      "old_sha256": "eed5abddd00b2d0ae09cfc816e0575825dc67db935e6c4140a4d0a995fa85e9c",
+      "present_in_current": true,
+      "current_sha256": "eed5abddd00b2d0ae09cfc816e0575825dc67db935e6c4140a4d0a995fa85e9c",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/monitor_500ms_normal_soak.sh",
+      "status": " M",
+      "old_sha256": "77388befb8d266686a69c7995d582c2949071b5fb60709e909b34fd92cf36b0a",
+      "present_in_current": true,
+      "current_sha256": "a921cabc8d1aa6d5964e8af4faf91b6ea97f72ce6be8c1fcb58c77a9fd4241ed",
+      "identical": false
+    },
+    {
+      "path": "sentinel_pulse/run_pilot_postprocess.sh",
+      "status": " M",
+      "old_sha256": "74f1703c428ed6fe7f7687d497d1d214457e7d2be09446751e9340baafd69b58",
+      "present_in_current": true,
+      "current_sha256": "74f1703c428ed6fe7f7687d497d1d214457e7d2be09446751e9340baafd69b58",
+      "identical": true
+    },
+    {
+      "path": "sentinel_pulse/start_500ms_normal_soak.sh",
+      "status": " M",
+      "old_sha256": "67e30402df090a38fc1fd14a7ccb75b5beb510912f3b817ab6d3dd0515bb9db2",
+      "present_in_current": true,
+      "current_sha256": "efd4ece61fd075f42db600435c02be7603aef8f65d2a4009097623773378a16b",
+      "identical": false
+    },
+    {
+      "path": "sentinel_pulse/train.py",
+      "status": " M",
+      "old_sha256": "63b07ff195657fbec9ff873bd074dcfc2349c555f94ad23ff74d0f7057ab3dfb",
+      "present_in_current": true,
+      "current_sha256": "daa6a5a21e67f7c5b1f3d4e287efe30cb2f94f776530543ca35c9dab9a47d1f6",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_500ms_dataset.py",
+      "status": " M",
+      "old_sha256": "dd94bf73c588c88d90ea42c1dd7e5f780906831bf6d040ec90dfae8fa79d9012",
+      "present_in_current": true,
+      "current_sha256": "201d4af70d8d8055bf8c39749450a9959f63289e9f9e3e00a45c49ac772f4494",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_deployer.py",
+      "status": " M",
+      "old_sha256": "dc6ada53961ddbf05da1691d0f7cc51849c699fd2c529692b95e37372446c94c",
+      "present_in_current": true,
+      "current_sha256": "c94f131f3ebfcc2586447f755b3087728f2126f3898ebfa6c260a8ef4f19a8df",
+      "identical": false,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_finalizer.py",
+      "status": " M",
+      "old_sha256": "cbbd229ad20ad038d2f2824934d9c267ae205ec55a38fef9dfb9927561e13463",
+      "present_in_current": true,
+      "current_sha256": "cbbd229ad20ad038d2f2824934d9c267ae205ec55a38fef9dfb9927561e13463",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_resolver.py",
+      "status": " M",
+      "old_sha256": "975dab36efe04688ab9f311abbfeda535f32dafe362e16c6a6cc8b878b73b0cb",
+      "present_in_current": true,
+      "current_sha256": "e1973fff0b572c43eebf14380495eb841ae26012a12b77e7cbf8085b296808bc",
+      "identical": false,
+      "old_definition_names_not_in_current": [
+        "test_includes_leaf_container_cgroup"
+      ]
+    },
+    {
+      "path": "tests/test_sentinel_pulse_runtime_history.py",
+      "status": " M",
+      "old_sha256": "4d54ab0885ebf8f3cefcc0d6394223ff9ae6603af0b4ae3d1bcac19973e0c65a",
+      "present_in_current": true,
+      "current_sha256": "4d54ab0885ebf8f3cefcc0d6394223ff9ae6603af0b4ae3d1bcac19973e0c65a",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "sentinel_pulse/observe_revision_baseline.sh",
+      "status": "??",
+      "old_sha256": "f4f9539a1fdde7a80d6495b4f60ff20ede732466a9b40b894441f30ac7a627e6",
+      "present_in_current": true,
+      "current_sha256": "f4f9539a1fdde7a80d6495b4f60ff20ede732466a9b40b894441f30ac7a627e6",
+      "identical": true
+    },
+    {
+      "path": "sentinel_pulse/workload_fingerprint.py",
+      "status": "??",
+      "old_sha256": "ca91e9e90a1c0f8291e2e6db36041d905dc645819a322d5e04c4900656547f84",
+      "present_in_current": true,
+      "current_sha256": "ca91e9e90a1c0f8291e2e6db36041d905dc645819a322d5e04c4900656547f84",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_revision_observer.py",
+      "status": "??",
+      "old_sha256": "b50699795b4feeecd16b79cb4874dcff0b3d88e124c43f1778c08e157323c3e3",
+      "present_in_current": true,
+      "current_sha256": "b50699795b4feeecd16b79cb4874dcff0b3d88e124c43f1778c08e157323c3e3",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    },
+    {
+      "path": "tests/test_sentinel_pulse_workload_fingerprint.py",
+      "status": "??",
+      "old_sha256": "002c4681a37912b13181c8d85d982343c3de5166a021e80c29541aeb7f29edee",
+      "present_in_current": true,
+      "current_sha256": "002c4681a37912b13181c8d85d982343c3de5166a021e80c29541aeb7f29edee",
+      "identical": true,
+      "old_definition_names_not_in_current": []
+    }
+  ]
+}

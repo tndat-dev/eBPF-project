@@ -5,7 +5,7 @@
 - **Sentinel Pulse:** phát hiện bất thường hành vi runtime của workload Kubernetes bằng telemetry eBPF và mô hình học máy.
 - **Thí nghiệm syscall:** kiểm tra bằng dữ liệu độc lập xem các kênh syscall được chọn làm feature có hữu ích hay không.
 
-Trạng thái hiện hành được kiểm tra SSH ngày **15/10/2026, khoảng 10:20 UTC+7**: sáu node Ready; matched capture/preview 500 ms active trên ba worker; study R4 đang fit, RabbitMQ follow-up R5 đã chạy hết 15 cặp. Capacity vẫn dẫn receipt riêng ngày 14/10. Chi tiết tiến trình: [triển khai song song](PULSE_PARALLEL_EXECUTION.md).
+Trạng thái hiện hành được kiểm tra SSH ngày **15/10/2026, khoảng 10:48 UTC+7**: sáu node Ready; matched capture/preview 500 ms active trên ba worker; study R4 đang fit 249/693 model, RabbitMQ follow-up R5 đã chạy hết 15 cặp. Capacity vẫn dẫn receipt riêng ngày 14/10. Chi tiết tiến trình: [triển khai song song](PULSE_PARALLEL_EXECUTION.md). [Audit repo/VM](REPO_SYNC_AND_FUTURE_RISKS.md) có findings về resume, provenance, giới hạn cgroup và VMware memory reclamation; chưa hotpatch các findings vào model/source đã freeze.
 
 Artifact là file sản phẩm của một bước (model, histogram, prediction arrays, bundle). Ví dụ: c6-verification.json, selection-frequency-description.json, batch-benchmark.json.
 

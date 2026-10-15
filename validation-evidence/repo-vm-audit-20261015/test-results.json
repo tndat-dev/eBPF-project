@@ -1,0 +1,15 @@
+{
+  "reviewed_commit": "0e944eb5fafc70f9f13fc8d54dcab80e7e95a761",
+  "checkout": "/home/dat/eBPF-project-current",
+  "python": "/home/dat/ml-venv/bin/python",
+  "command": "python -m pytest -q -p no:cacheprovider tests",
+  "environment": {"PYTHONDONTWRITEBYTECODE": "1", "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"},
+  "exit_code": 0,
+  "passed": 1258,
+  "subtests_passed": 20,
+  "warnings": 2,
+  "duration_seconds": 67.99,
+  "output_summary": "1258 passed, 2 warnings, 20 subtests passed in 67.99s (0:01:07)",
+  "warning_summary": "torch.jit.script is deprecated; two DeprecationWarning entries",
+  "scope": "Repository regression tests on reviewed commit; not a new live attack or ML quality measurement."
+}
