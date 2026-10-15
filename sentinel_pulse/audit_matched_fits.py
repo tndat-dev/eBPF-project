@@ -15,9 +15,10 @@ import time
 from .integrity import contained_artifact, sha256_file, verify_sha256
 
 
-def audit(root: Path, source_root: Path | None = None) -> dict:
+def audit(root: Path, source_root: Path | None = None, config_path: Path | None = None) -> dict:
     root = root.resolve(strict=True)
-    config_path = root / "CONFIG.json"
+    config_path = Path(config_path) if config_path else root.parent / "CONFIG.json"
+    config_path = config_path.resolve(strict=True)
     start_path = root / "START.json"
     index_path = root / "INDEX.json"
     inputs_path = root / "INPUTS.json"
@@ -130,10 +131,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--study-root", type=Path, required=True)
     parser.add_argument("--source-root", type=Path)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     output = args.output or args.study_root / "R4_FIT_AUDIT.json"
-    result = audit(args.study_root, args.source_root)
+    result = audit(args.study_root, args.source_root, args.config)
     write_new(output, result)
     print(json.dumps({"state": result["state"], **result["scope"],
                       "output": str(output), "terminal_sha256": result["binding"]["terminal_sha256"]}))
