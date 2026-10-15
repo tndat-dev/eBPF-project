@@ -135,6 +135,9 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
             'return_receipt_required_for_success_or_failure',
             'namespace_fd_and_ptrace_pid_are_not_fully_resolved_kernel_objects',
             'no_file_content_argv_or_network_payload'])
+    if (trigger.get('trigger_purpose') == 'manual_observability_validation'
+            and trigger.get('candidate_alert_preview') is False and trigger.get('alert') is False):
+        tree['trigger_kind'] = 'manual_observability_validation'
     return tree
 
 

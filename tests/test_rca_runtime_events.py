@@ -157,3 +157,11 @@ def test_runtime_service_stores_all_categories_and_exports_v2(tmp_path, monkeypa
     assert service.counts['runtime_events'] == 3
     assert service.counts.get('connect_events', 0) == 0
     service.db.close(); service.lock.close()
+
+
+def test_manual_observability_fixture_is_not_an_ml_alert():
+    signal = trigger()
+    signal.update(candidate_alert_preview=False, alert=False, policy_evaluated=False,
+                  trigger_purpose='manual_observability_validation')
+    tree = build_runtime_tree(signal, [normalize_runtime_event(record('sys_mount', ret=-1))])
+    assert tree['trigger_kind'] == 'manual_observability_validation'
