@@ -29,6 +29,20 @@ RCA runtime mới đã qua kiểm chứng trên pod cô lập, chưa bật polic
 trên production. Dự kiến đợi normal holdout kết thúc lúc **12:38 ngày
 16/10/2026 UTC+7** rồi mới mở rộng, để không đổi điều kiện capture giữa chừng.
 
+### Vì sao bản R3 phải đợi tối thiểu khoảng 7 giây?
+
+R3 cấu hình `after_seconds=5`; `emit_cases()` còn đợi thêm 2 giây trước khi
+đóng case. Hai giây là khoảng đệm để Tetragon stream chuyển hết event hậu
+ngữ cảnh tới subscriber. Vì vậy ngưỡng sớm nhất là 5+2=7 giây **tính từ lúc
+subscriber đọc preview**; nó không bảo đảm case sẵn sàng đúng giây thứ 7.
+Backlog khiến mẫu 495 case có p50 15,00 giây và p95 22,63 giây.
+
+Candidate runtime mới đăng ký mục tiêu case đầu trong 5 giây: lấy 3 giây hậu
+ngữ cảnh và thêm 2 giây grace. Mốc này cũng tính từ lúc subscriber nhận
+preview, chưa phải SLO đã đo. Nó rút ngắn phần dữ liệu hậu ngữ cảnh; cần đo
+event đến trễ, backlog và độ đầy đủ sau holdout trước khi kết luận có đạt 5 giây
+trong production hay không. Pulse không cần đợi RCA mới phát hiện.
+
 ## 2. Mục tiêu và những gì thực sự đã triển khai
 
 Sau tín hiệu Pulse, thu thập bằng chứng để trả lời: process nào đang hoạt động,
