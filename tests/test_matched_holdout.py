@@ -89,6 +89,7 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
     import json
     from types import SimpleNamespace
     from sentinel_pulse.integrity import sha256_file
+    from sentinel_pulse.encoding import compact_record, schema_digest
     from sentinel_pulse.matched_holdout import score_segment
 
     class Model:
@@ -103,9 +104,12 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
 
     monkeypatch.setattr('sentinel_pulse.matched_holdout.pickle.load', lambda stream: Model())
     segment = tmp_path/'source'; segment.mkdir()
+    columns = ['f'+str(i) for i in range(249)]
     with (segment/'features.jsonl').open('w') as stream:
+        stream.write(json.dumps(dict(columns=columns, feature_schema_sha256=schema_digest(columns)))+'\n')
         for row in rows(40):
-            row['vector'] = row['vector'].tolist()
+            row['columns'] = columns
+            row, _ = compact_record(row)
             stream.write(json.dumps(row)+'\n')
     for name in ('issues.jsonl', 'decisions.jsonl'):
         (segment/name).write_text('')
@@ -117,7 +121,7 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
     registration = dict(holdout_start_unix=100, planned_end_unix=120,
         workload_keys=['production/test:app'], capture_run_id='r', seeds=[73021], episode_quiet_seconds=15.)
     result = score_segment(segment, 'worker', registration,
-        dict(arms={'base29': dict(add=[], drop=[])}), terminal, tmp_path, tmp_path/'out', batch_size=8)
+        dict(arms={'base29': dict(add=[], drop=[])}, columns=columns), terminal, tmp_path, tmp_path/'out', batch_size=8)
     assert result['model_counts'][tag]['scored_windows'] == 27
     assert result['model_counts'][tag]['candidate_preview_positive_windows'] == 27
     assert result['precision'] is None and result['recall'] is None

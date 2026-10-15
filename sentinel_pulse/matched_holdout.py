@@ -18,7 +18,7 @@ import time
 
 import numpy as np
 
-from .encoding import decode_vector
+from .encoding import decode_vector, schema_digest
 from .features import TRACKED_SYSCALLS
 from .integrity import contained_artifact, sha256_file
 from .syscall_histogram_pilot import atomic_json
@@ -140,6 +140,8 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
     counts = Counter(); totals = {}; exposure = defaultdict(list); last_order = {}
     positive_intervals = defaultdict(list)
     last_progress = time.monotonic()
+    expected_schema = schema_digest(index['columns'])
+    schema_seen = False
     positive_path = output/'positive-windows.jsonl.gz'
     partial = positive_path.with_suffix('.partial')
     if output.exists():
@@ -180,11 +182,15 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
         for line in source:
             row = json.loads(line)
             if 'columns' in row:
-                if len(row['columns']) != 249:
-                    raise ValueError('base schema dimension changed')
+                if (row['columns'] != index['columns'] or len(row['columns']) != 249
+                        or row.get('feature_schema_sha256') != expected_schema):
+                    raise ValueError('base schema differs from frozen R4 columns')
+                schema_seen = True
                 continue
             if row['window_end'] <= begin or row['window_start'] >= finish:
                 continue
+            if not schema_seen or row.get('feature_schema_sha256') != expected_schema or row.get('vector_dim') != 249:
+                raise ValueError('feature row is not bound to the frozen R4 schema')
             if not validate_row(row, node, registration['capture_run_id'], keys):
                 counts['outside_registered_workload'] += 1
                 continue
@@ -276,6 +282,8 @@ def run(study, output, once=False, poll_seconds=30):
     terminal = json.loads((study/'TERMINAL.json').read_text())
     if sha256_file(study/'INDEX.json') != audit['binding']['index_sha256']:
         raise ValueError('R4 arm index changed')
+    if sha256_file(Path(__file__).with_name('matched_study.py')) != registration['matched_study_source_sha256']:
+        raise ValueError('R4 preprocessing source differs from registration')
     index = json.loads((study/'INDEX.json').read_text())
     registration = dict(registration, seeds=[73021, 73022, 73023], episode_quiet_seconds=15.)
     output.mkdir(parents=True, exist_ok=True)
