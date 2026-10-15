@@ -57,6 +57,8 @@ tín hiệu, không mặc nhiên là hành vi tấn công.
 - RCA CPU quota **0,5 core**, RAM cap **512 MiB**, trên control plane `.234`.
   Đây là hạn mức cấu hình, không phải overhead đã đo.
 - Service tự restart, enable sau boot, resume cursor/case từ SQLite WAL.
+  Unit không yêu cầu mount NFS thành công mới được start; khi preview input
+  chưa có, reader ghi lỗi và retry. NFS hard-mount stall vẫn là giới hạn riêng.
   Đổi config/source phải dùng output đăng ký mới; không trộn checkpoint cũ.
   Reconnect có issue; không cam kết không mất event khi sensor/API/VM mất kết nối.
 - Subscriber không nằm trong đường quyết định ML nên bước đợi post-context

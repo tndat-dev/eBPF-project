@@ -2,7 +2,8 @@
 Description=Pulse independent post-preview RCA evidence trees (read-only subscriber)
 Wants=network-online.target
 After=network-online.target
-RequiresMountsFor=/mnt/sentinel-pulse-archive
+# Local context collection must still start when the preview NFS is unavailable.
+# The reader records missing input and retries; NFS is not a unit prerequisite.
 StartLimitIntervalSec=0
 
 [Service]

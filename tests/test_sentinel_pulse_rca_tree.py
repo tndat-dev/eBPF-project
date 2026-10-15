@@ -172,3 +172,4 @@ def test_unit_keeps_rca_separate_from_model_and_restartable():
     assert 'CPUQuota=50%' in unit and 'MemoryMax=512M' in unit
     assert 'ReadWritePaths=/var/lib/sentinel-pulse-rca' in unit
     assert 'sentinel_pulse.rca_service' in unit
+    assert 'RequiresMountsFor=' not in unit
