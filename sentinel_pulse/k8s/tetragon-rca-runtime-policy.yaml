@@ -28,7 +28,7 @@ spec:
       returnArg: *result
       selectors: &fileSample
         - matchActions:
-            - {action: Post, rateLimit: 500ms, rateLimitScope: process}
+            - {action: Post, rateLimit: 1s, rateLimitScope: process}
     - call: sys_openat2
       syscall: true
       return: true

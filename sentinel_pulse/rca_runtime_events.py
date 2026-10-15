@@ -128,7 +128,7 @@ def normalize_runtime_event(record, target_index=None, *, policy_names=(POLICY, 
     elif operation == 'fork':
         result['outcome'] = dict(status='child_created', return_observed=False, return_value=None)
     if category == 'file' and operation in ('open', 'write'):
-        result['sampling'] = dict(rate_limit_ms=500, scope='process', exhaustive=False)
+        result['sampling'] = dict(rate_limit_ms=1000, scope='process', exhaustive=False)
     if operation == 'connect':
         address, port, family = _socket_address(args)
         result['connection'] = dict(socket_fd=details.get('socket_fd'))

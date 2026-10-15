@@ -288,7 +288,7 @@ class Service:
             if self.cfg.get('runtime_events'):
                 coverage.update(runtime_policy=self.cfg['connect_policy'],
                     runtime_policy_scope='production namespace, all pods',
-                    file_detail_sampling='500ms per process per open/write hook',
+                    file_detail_sampling='1s per process per open/write hook',
                     lifecycle_subscription_started_at=self.streams.get(row['node_name']+'/lifecycle', {}).get('started_at'),
                     last_runtime_event_received_at=stream.get('last_event_at'))
                 coverage.pop('last_connect_received_at', None)

@@ -38,11 +38,11 @@ int main(int argc, char **argv) {
     receipt("open_file", result, error);
     if (result < 0) return 65;
     int fd = (int)result;
-    usleep(650000);
+    usleep(1100000);
     result = write(fd, "RCA-proof\n", 10); error = errno;
     receipt("write_file", result, error);
     close(fd);
-    usleep(650000);
+    usleep(1100000);
     result = syscall(SYS_openat, AT_FDCWD, "/proof/not-existing", O_RDONLY, 0); error = errno;
     receipt("open_missing", result, error);
     if (result >= 0) close((int)result);
