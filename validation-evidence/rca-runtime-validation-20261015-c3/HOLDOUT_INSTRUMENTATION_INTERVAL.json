@@ -1,0 +1,21 @@
+{
+  "schema": "sentinel-pulse-instrumentation-interval-v1",
+  "interval_id": "rca-c3-validation-worker1-20261015",
+  "started_at": "2026-10-15T07:36:34Z",
+  "ended_at": "2026-10-15T08:09:19Z",
+  "timezone": "UTC",
+  "affected_node": "k8s-worker1.local",
+  "affected_node_ip": "10.1.16.237",
+  "validation_namespace": "sentinel-rca-validation",
+  "validation_pod": "rca-runtime-proof-20261015",
+  "pod_created_at": "2026-10-15T07:35:37Z",
+  "tracing_policies": [
+    {"name": "sentinel-rca-runtime-v1", "created_at": "2026-10-15T07:36:34Z"},
+    {"name": "sentinel-rca-fork-v1", "created_at": "2026-10-15T07:38:41Z"}
+  ],
+  "purpose": "Isolated RCA event-schema validation with a benign restricted pod; not an attack trial",
+  "cleanup": "Deleted the exact validation namespace after verifying C3 evidence was preserved on NFS and local SHA-256 receipts matched",
+  "evidence_nfs": "/mnt/sentinel-pulse-archive/rca-runtime-validation-20261015-c3",
+  "normal_holdout_handling": "Retain and mark this interval. Do not label it normal and do not silently drop it. Review worker1 overlapping exposure separately and report sensitivity with and without the affected interval.",
+  "holdout_service_was_not_stopped": true
+}

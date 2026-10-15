@@ -1,11 +1,10 @@
 # Sentinel Pulse — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH lúc **14:51 ngày 15/10/2026, UTC+7**. Đây là báo cáo
+Cập nhật từ SSH lúc **15:12 ngày 15/10/2026, UTC+7**. Bảng worker là snapshot
+15:06 UTC+7. Đây là báo cáo
 hiện hành của nhánh phát hiện ML, không phải nhật ký checkpoint.
 Hai nhánh còn lại: [chọn feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)
-và [RCA sau tín hiệu](RCA_RUNTIME_STATUS.md). Báo cáo tổng hợp cũ
-[SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md)
-được giữ nguyên theo yêu cầu; số live trong file này có timestamp riêng.
+và [RCA sau tín hiệu](RCA_RUNTIME_STATUS.md).
 
 ## 1. Mục tiêu và trạng thái thực tế
 
@@ -19,11 +18,11 @@ tra; runtime vẫn ghi `alert=false`, `policy_applied=false`.
 
 | Node | IP | Trạng thái | Cadence tích lũy | Scored rows | Preview dương | Issue đã giữ |
 |---|---|---|---:|---:|---:|---:|
-| k8s-worker1.local | 10.1.16.237 | running | 14,12 giờ | 2.693.376 | 143.155 | 22 |
-| k8s-worker4.local | 10.1.16.238 | running | 14,04 giờ | 2.850.198 | 326.807 | 196 |
-| k8s-worker3.local | 10.1.16.239 | running | 14,10 giờ | 797.215 | 16.460 | 28 |
+| k8s-worker1.local | 10.1.16.237 | running | 14,34 giờ | 2.734.984 | 144.163 | 22 |
+| k8s-worker4.local | 10.1.16.238 | running | 14,26 giờ | 2.894.280 | 331.408 | 199 |
+| k8s-worker3.local | 10.1.16.239 | running | 14,31 giờ | 809.535 | 16.502 | 28 |
 
-Đăng ký capture 48 giờ/node: cadence hiện khoảng **29,4% thời lượng đăng ký**,
+Đăng ký capture 48 giờ/node: cadence hiện khoảng **29,8% thời lượng đăng ký**,
 không phải phần trăm hoàn thành toàn dự án. `completed_seconds` đếm cadence,
 không thay cho valid normal/scored exposure. Preview dương và issue không tự
 động là false positive, attack hoặc số lần service restart.
@@ -44,10 +43,14 @@ Khoảng gap/ineligible không tự trở thành normal/TN. Cadence tích lũy c
 thay cho exposure hợp lệ. Checkpoint có chu kỳ khoảng 5 giây; segment bị ngắt
 trước seal cần giữ làm evidence thiếu coverage. Lượt này `NRestarts=0` trên cả
 ba worker; issue count không phải số process restart. Yêu cầu bỏ bổ sung
-recovery cho fit syscall R4 không tắt recovery của soak Pulse. Các unit đã được
-xác nhận active/enabled lúc **14:51 UTC+7**. RCA runtime hooks mới chưa được
-bật trên production trong normal holdout, vì vậy môi trường capture hiện tại
-chưa bị thay đổi bởi RCA mở rộng.
+recovery cho fit syscall R4 không tắt recovery của soak Pulse. Collector và
+matched-worker active, `NRestarts=0` trên cả ba node lúc **15:06 UTC+7**;
+resolver worker4 có `NRestarts=1`, hiện active và tiếp tục refresh 29 pod/89
+cgroup. RCA C3 validation policy từng hoạt động trên worker1 từ 07:36:34 đến
+08:09:19 UTC; khoảng này đã được đánh dấu trong holdout, không bị xóa hay coi
+là normal ([receipt interval](validation-evidence/rca-runtime-validation-20261015-c3/HOLDOUT_INSTRUMENTATION_INTERVAL.json)).
+Namespace thử nghiệm đã được gỡ sau khi evidence C3 được xác nhận trên NFS.
+Không còn RCA policy mở rộng nào hoạt động trên production.
 
 Một mẫu tail ngắn tại snapshot có p99 **cuối-window→preview** lần lượt
 0,522 / 0,603 / 0,224 giây (worker1/worker4/worker3), với 356 / 363 / 348

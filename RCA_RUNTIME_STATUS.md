@@ -1,6 +1,6 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **14:51 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
+Cập nhật bằng SSH **15:12 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.
 
@@ -12,22 +12,40 @@ bằng chứng cho lần chọn feature của Pulse kế tiếp; Pulse hiện ph
 Kết quả thí nghiệm syscall không tự đổi candidate đang freeze. Pulse hiện chưa
 phát operational alert, nên các case live hiện được kích hoạt từ preview.
 
-| Chỉ số live tại 14:51 UTC+7 | Giá trị |
+| Chỉ số live tại 15:12 UTC+7 | Giá trị |
 |---|---:|
-| RCA service | `pulse-rca-context.service`, PID 231866, NRestarts=0 |
-| Case đã xuất ở lượt R3 | 495 |
-| Connect event đã nhận | 136.966 |
-| Preview quan sát / gom theo cooldown | 27.577 / 27.081 |
-| Case thiếu connect context | 160 |
-| Preview→case p50 / p95 / p99 | 15,00 / 22,63 / 22,99 giây (495 case) |
-| RAM hiện tại | 135.618.560 byte (~129 MiB), chưa phải overhead A/B |
-| Connect event theo worker | worker1 73.925; worker4 63.041; worker3 0 tại snapshot |
+| RCA service | `pulse-rca-context.service`, PID 262736, NRestarts=0 |
+| Active run/output | `parallel-20261015-r3-fastcase`; R3 cũ được giữ riêng |
+| Deployed source | `/home/dat/eBPF-project-current`, commit `90a54ec`; dùng policy connect có sẵn |
+| Config SHA-256 | `968b5cd8ed9541ea321ceddb40924ebc9202a802805748ba51c537806888e9f9` |
+| Case fastcase đã xuất | 103; 41 chưa có connect context |
+| Preview quan sát / gom cooldown | 3.982 / 3.879 |
+| Preview→subscriber p50 / p95 | 7,73 / 15,54 giây (103 case) |
+| Subscriber nhận preview→ghi case p50 / p95 | 2,06 / 2,11 giây (103 case) |
+| Preview phát→ghi case p50 / p95 | 9,79 / 17,61 giây (103 case) |
+| Connect event đã nhận | 25.424: worker1 13.626; worker4 11.798; worker3 0 |
 
-Latency đo từ lúc subscriber thấy preview tới lúc xuất case; gồm chờ hậu ngữ
-cảnh và backlog. Không phải thời gian CPU dựng graph hoặc kernel-to-alert.
-RCA runtime mới đã qua kiểm chứng trên pod cô lập, chưa bật policy mở rộng
-trên production. Dự kiến đợi normal holdout kết thúc lúc **12:38 ngày
-16/10/2026 UTC+7** rồi mới mở rộng, để không đổi điều kiện capture giữa chừng.
+R3 cũ đo preview→case p50/p95 15,00/22,63 giây trên 495 case. Fastcase mới
+đặt `after_seconds=0`, dùng grace 2 giây và giữ nguyên policy connect sẵn có;
+không cài hook mới. Trong 103 case, subscriber→case là 2,06/2,11 giây, nhưng
+preview→subscriber còn 7,73/15,54 giây. Do đó preview→case tổng p50/p95 là
+9,79/17,61 giây: **chưa đạt mục tiêu end-to-end 5 giây**. Đây là mẫu ngắn,
+không phải cam kết production. 41/103 case thiếu connect context; stream worker3
+chưa có normalized event. `timedatectl` trên master và ba worker báo
+`NTPSynchronized=yes`; `chronyc` không có nên chưa biết offset chính xác.
+
+RCA expanded multi-event đã qua pod validation cô lập nhưng chưa bật policy
+mở rộng trên production trong lúc R4 normal holdout còn chạy đến **12:38 ngày
+16/10/2026 UTC+7**. Fastcase live hiện chỉ ghi connect evidence, chưa có
+process/file/credential/namespace/mount/ptrace coverage mở rộng.
+
+Trong validation, hai `TracingPolicyNamespaced` và pod thử nghiệm đã ở
+worker1 từ **07:36:34Z đến 08:09:19Z**. Hash evidence C3 đã đối chiếu với
+bản lưu NFS; namespace thử nghiệm đã được gỡ. Khoảng can thiệp được ghi trong
+`INSTRUMENTATION_INTERVALS.jsonl` và
+[receipt holdout](validation-evidence/rca-runtime-validation-20261015-c3/HOLDOUT_INSTRUMENTATION_INTERVAL.json).
+Holdout không bị dừng; phần exposure worker1 giao interval phải được báo riêng
+và sensitivity-check, không coi là normal.
 
 ### Vì sao R3 đợi hậu ngữ cảnh, và RCA đầu tiên có cần đợi không?
 
@@ -41,11 +59,10 @@ Mốc sớm nhất là 5+2=7 giây tính từ lúc
 subscriber đọc preview, không phải từ lúc kernel phát hiện; backlog khiến mẫu
 495 case có p50 15,00 giây và p95 22,63 giây.
 
-Candidate runtime đổi RCA đầu tiên thành snapshot ngay tại preview: ghép ring
-buffer trước alert với event đã nhận đến `window_end`, không chờ hậu ngữ cảnh.
-`case_ready_grace_seconds=2` chỉ là grace để drain event đang trên stream,
-không phải cửa sổ post-context. Đây là mục tiêu thiết kế, chưa phải SLO 5 giây
-đã đo; backlog vẫn có thể làm trễ hơn. Nếu cần sự kiện xảy ra sau alert, chúng
+Fastcase live đổi RCA đầu tiên thành snapshot không hậu ngữ cảnh: ghép ring
+buffer trước alert với event đã nhận đến `window_end`. `after_seconds=0`; code
+đợi grace 2 giây để drain event đang trên stream, không phải cửa sổ post-context.
+Số đo cho thấy subscriber lag là nút thắt lớn hơn phần dựng case. Nếu cần sự kiện xảy ra sau alert, chúng
 phải tạo một bản enrichment/update riêng, không trì hoãn RCA đầu tiên; cơ chế
 enrichment đó chưa được triển khai. Pulse không cần đợi RCA mới phát hiện.
 
@@ -63,11 +80,11 @@ chưa phải thuật toán chứng minh root cause nhân quả, không tự xử
 |---|---|
 | VM chạy subscriber | 10.1.16.234 — k8s-master.local |
 | Unit | pulse-rca-context.service |
-| systemd | active/running, enabled; MainPID 231866 |
-| Case trong lượt đăng ký hiện hành | 495 case; audit ban đầu kiểm tra 41 case đầu |
-| Context ring đang giữ | 8.832 normalized event tại snapshot |
+| systemd | active/running, enabled; MainPID 262736, NRestarts=0 |
+| Case trong run fastcase | 103 case đã xuất; 41 case thiếu connect context |
+| Context ring đang giữ | 8.796 normalized event tại snapshot |
 | Stream được mở | Ba sensor trên worker1, worker4, worker3 |
-| Stream có connect event đã nhận ở snapshot | worker1 và worker4; worker3 chưa có normalized event |
+| Stream có connect event đã nhận ở snapshot | worker1 13.626; worker4 11.798; worker3 chưa có normalized event |
 | Trigger | candidate_alert_preview, không phải alert production |
 | Tự thay model/enforce/cách ly | Không |
 
@@ -179,10 +196,11 @@ subscription nên chưa đủ pre-context 30 giây cho mọi case. Audit kiểm 
 identity, model/policy, graph node/edge và evidence hash; không xác nhận nhãn
 attack hay root cause. Một số case còn thiếu context dù thuộc selector.
 
-Audit ban đầu có 41/41 case qua kiểm tra cấu trúc/binding. Mẫu latency hiện
-hành đã mở rộng trên 495 case: preview→case p50 **15,00 giây**, p95 **22,63
-giây**, p99 **22,99 giây** tại snapshot 14:51 UTC+7. Đây vẫn gồm chờ
-post-context và backlog, không phải phép đo paired A/B. RCA chưa đạt 1–2 giây.
+Audit ban đầu có 41/41 case R3 qua kiểm tra cấu trúc/binding. Mẫu **lịch sử**
+495 case của R3 đo preview→case p50 **15,00 giây**, p95 **22,63 giây**, p99
+**22,99 giây** tại snapshot 14:51 UTC+7, khi còn chờ hậu ngữ cảnh. Mẫu
+fastcase đang chạy được báo riêng ở đầu tài liệu; nó giảm phần chờ sau khi
+subscriber nhận preview nhưng hiện vẫn có độ trễ subscriber lớn.
 
 [Sample mới và input normalized](validation-evidence/pulse-parallel-live-20261015/rca-case-replay.json)
 giữ case `5b7c1b37393c64bdc4687c41`: **52 connect event, 74 node, 127 edge**.
@@ -237,15 +255,16 @@ Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 | Đích qua NAT/mesh và lịch sử inventory | Còn thiếu |
 | Causal root-cause ranking, nhãn và benchmark độ đúng | Chưa có |
 | Reboot, NFS outage, backlog và transport-loss tests | Chưa hoàn tất |
-| Audit cấu trúc/binding của case live | Audit ban đầu 41/41; chưa audit lại đủ 495 case; không đồng nghĩa causal accuracy |
-| Latency tới khi cây sẵn sàng | Mẫu 495 case: p50 15,00s, p95 22,63s, p99 22,99s; cần đo sau cutover |
+| Audit cấu trúc/binding của case live | R3 cũ: 41/41 đã audit; fastcase: 103 case, chưa audit lại đầy đủ; không đồng nghĩa causal accuracy |
+| Latency tới khi cây sẵn sàng | Fastcase n=103: preview→case p50 9,79s, p95 17,61s; subscriber→case p50 2,06s, p95 2,11s |
 
 RCA runtime candidate mới đã qua kiểm thử isolated live fixture: **34 event**
 chuẩn hóa thành **58 node/75 edge**, với **24/24 checks** đạt. Receipt bao gồm
 fork→child exec identity, exit status, file open/write, UID/GID/capability,
 setns/unshare, mount và ptrace cùng return thành công/thất bại. Đây là kiểm thử
 khả năng quan sát thủ công, không phải ML alert, blind attack hay đo causal
-accuracy. Production cutover đang chờ normal holdout kết thúc.
+accuracy. Mở rộng policy trên production đang chờ normal holdout kết thúc; fastcase
+connect-only đã được chuyển riêng mà không thêm hook mới.
 
 ## 8. File, service và lệnh kiểm tra
 

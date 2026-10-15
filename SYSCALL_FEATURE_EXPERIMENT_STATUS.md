@@ -1,6 +1,6 @@
 # Thí nghiệm chọn feature/syscall — thuật ngữ, triển khai và tiến độ
 
-Cập nhật bằng SSH **14:51 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
+Cập nhật bằng SSH **15:12 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
 chọn feature, chạy song song nhưng không đổi model [Pulse realtime](SENTINEL_PULSE_STATUS.md)
 hoặc [RCA](RCA_RUNTIME_STATUS.md). Chỉ cập nhật trạng thái hiện hành, không
 thêm checkpoint theo từng lần kiểm tra.
@@ -32,7 +32,7 @@ thống kê vẫn chưa chạy.
 | Source cố định | /mnt/sentinel-pulse-archive/runtime-control-981aef3/source |
 | Output/checkpoint | /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study |
 | Evaluator mới | `pulse-syscall-holdout-r4-20261015.service`, active/running trên .234 |
-| Tiến độ evaluator ở snapshot | 9 segment hoàn tất; đang chấm worker4/s00026; 692.736 context-model đã chấm |
+| Tiến độ evaluator lúc 15:11 | 10 segment hoàn tất; đang chấm worker4/s00027; 2.787.840 context-model đã chấm |
 | Tài nguyên evaluator | CPUQuota 4 core, MemoryMax 16 GiB; MemoryCurrent khoảng 8,0 GiB tại snapshot |
 
 R4 fit kết thúc lúc **2026-10-15 05:22:03 UTC**. Audit được ghi lúc
@@ -49,13 +49,21 @@ Capture bắt đầu 2026-10-14 17:38:49 UTC, chạy 172.800 giây (48 giờ), n
 và protocol. Manifest SHA-256:
 `ad6d376cca418f350d88c4c411cdcd5cede556c8940d845eb8209af96939e920`.
 Mốc bắt đầu là **2026-10-15 05:38:32 UTC**; hết 24 giờ dự kiến
-**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Tại snapshot 14:51 UTC+7,
-holdout đã chạy khoảng **2 giờ 13 phút (9,2% thời gian đăng ký)**. Cần chốt
-segment seal và kiểm tra coverage/health sau mốc này.
+**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Tại snapshot 15:11 UTC+7,
+holdout đã chạy khoảng **2 giờ 33 phút (10,6% thời gian đăng ký)**; evaluator
+đang ở segment worker4/s00027. STATUS ghi 10 segment hoàn tất và 2.787.840
+context-model đã chấm; đây là tiến độ xử lý, chưa phải số window độc lập hay
+confusion matrix. Cần chốt segment seal và kiểm tra coverage/health sau mốc này.
 
 Đây mới là thời gian quan sát, chưa phải 24 valid workload-hours: workload
 coverage và telemetry/infrastructure intervals phải kiểm tra từ feature records
 đã seal. Alert/issue không bị xoá hay tự gán normal; chúng sẽ được giữ để review.
+Một interval RCA validation trên worker1 (07:36:34–08:09:19 UTC ngày 15/10)
+đã được ghi vào `INSTRUMENTATION_INTERVALS.jsonl` và
+[receipt C3](validation-evidence/rca-runtime-validation-20261015-c3/HOLDOUT_INSTRUMENTATION_INTERVAL.json).
+Holdout vẫn tiếp tục; interval này không bị gán normal hoặc âm thầm loại khỏi
+evidence. Khi tính kết quả cuối, cần báo sensitivity riêng cho phần exposure
+worker1 giao với interval này.
 Evaluator [matched_holdout.py](sentinel_pulse/matched_holdout.py) đã chạy từ
 13:54:41 UTC+7. Đọc các segment đã seal, kiểm tra hash features/decisions/issues,
 đối chiếu thứ tự 249 cột với R4 rồi dựng rolling-10 và history-3 cho từng arm.
