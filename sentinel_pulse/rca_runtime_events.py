@@ -9,6 +9,7 @@ from .rca_connect import _socket_address
 
 SCHEMA = 'sentinel-pulse-rca-runtime-event-v1'
 POLICY = 'sentinel-rca-runtime-v1'
+FORK_POLICY = 'sentinel-rca-fork-v1'
 SYSCALLS = {
     'sys_connect': ('network', 'connect'),
     'sys_open': ('file', 'open'), 'sys_openat': ('file', 'open'),
@@ -78,7 +79,7 @@ def outcome(value, operation):
                 errno=errno.errorcode.get(-value) if -4095 <= value < 0 else None)
 
 
-def normalize_runtime_event(record, target_index=None, *, policy_names=(POLICY,)):
+def normalize_runtime_event(record, target_index=None, *, policy_names=(POLICY, FORK_POLICY)):
     native = next((k for k in ('process_exec', 'process_exit') if isinstance(record.get(k), dict)), None)
     event = record.get(native) if native else record.get('process_kprobe', record.get('process_tracepoint'))
     if not isinstance(event, dict) or not isinstance(event.get('process'), dict):

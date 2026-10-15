@@ -139,7 +139,8 @@ class Service:
         if self.cfg.get('runtime_events') and channel == 'lifecycle':
             args += ['--namespace', 'production', '--event-types', 'PROCESS_EXEC,PROCESS_EXIT']
         else:
-            args += ['--policy-names', self.cfg['connect_policy'], '--event-types',
+            policies = self.cfg.get('runtime_policies', [self.cfg['connect_policy']])
+            args += ['--policy-names', ','.join(policies), '--event-types',
                      'PROCESS_KPROBE,PROCESS_TRACEPOINT' if self.cfg.get('runtime_events') else 'PROCESS_KPROBE']
         child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             env=dict(os.environ, KUBECONFIG=self.cfg['kubeconfig']), start_new_session=True)
@@ -156,7 +157,8 @@ class Service:
             self.issue('tetragon_rate_limit_or_throttle', node=node)
             return None
         if self.cfg.get('runtime_events'):
-            edge = normalize_runtime_event(raw, self.index, policy_names=(self.cfg['connect_policy'],))
+            edge = normalize_runtime_event(raw, self.index,
+                policy_names=self.cfg.get('runtime_policies', [self.cfg['connect_policy']]))
         else:
             edge = normalize_connect_event(raw, self.index, policy_name=self.cfg['connect_policy'])
         if edge is None or edge['source']['namespace'] != 'production':

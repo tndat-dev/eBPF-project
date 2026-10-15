@@ -48,6 +48,7 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
         nodes[oid] = dict(id=oid, kind=kind, **scope)
         return oid
 
+    fork_nodes = {}
     for event in selected:
         h = event['raw_event_sha256']; source = event['source']; operation = event.get('operation', 'connect')
         caller = proc(source, h)
@@ -100,10 +101,28 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
             # is bound to the particular fork event, never a global PID alias.
             target = object_node('fork_child', dict(host_pid=details.get('child_pid'),
                 fork_evidence=h, exec_identity='not_available_in_fork_tracepoint'))
+            fork_nodes[h] = target
         elif operation == 'exec':
             target = object_node('executable', dict(path=source.get('binary')))
         if target:
             links.append(dict(source=eid, target=target, relation='target_object'))
+    # A child is resolved only with corroborating parent exec identity, the
+    # same container and a later native exec; a PID alone never merges nodes.
+    forks = [e for e in selected if e.get('operation') == 'fork']
+    for fork in forks:
+        child_pid = fork['details'].get('child_pid')
+        if sum(f['details'].get('child_pid') == child_pid for f in forks) != 1:
+            continue
+        candidates = [e for e in selected if e.get('operation') == 'exec'
+            and e['source'].get('pid') == child_pid and e['source'].get('exec_id')
+            and e['source'].get('parent_exec_id') == fork['source'].get('exec_id')
+            and event_time(e['observed_at']) >= event_time(fork['observed_at'])]
+        if len(candidates) == 1:
+            child = candidates[0]
+            links.append(dict(source=fork_nodes[fork['raw_event_sha256']],
+                target=proc(child['source'], child['raw_event_sha256']), relation='observed_child_exec',
+                evidence='host_pid + parent_exec_id + exact_container + bounded_time',
+                evidence_sha256=[fork['raw_event_sha256'], child['raw_event_sha256']]))
     unique = {json.dumps(e, sort_keys=True): e for e in links}
     tree.update(schema='sentinel-pulse-rca-evidence-tree-v2', nodes=list(nodes.values()), edges=list(unique.values()),
         matched_connect_events=sum(e.get('operation') == 'connect' or 'connection' in e for e in matching),

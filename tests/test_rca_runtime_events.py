@@ -122,3 +122,38 @@ def test_mutated_connect_success_claim_is_rejected_by_audit():
     connect = next(n for n in tree['nodes'] if n['kind'] == 'connect_attempt')
     connect['success'] = 'success'
     assert 'connection_result_differs_from_kernel_return' in validate(tree, 'model', 'policy')
+
+
+def test_fork_exec_link_requires_parent_identity_not_just_same_pid():
+    fork = dict(time=97., node_name='worker1', process_tracepoint=dict(process=process(),
+        policy_name=POLICY, subsys='sched', event='sched_process_fork',
+        args=[dict(label='child_pid', int_arg=22)]))
+    child = process(pid=22, eid='grandchild'); child['parent_exec_id'] = 'child'
+    executed = dict(time=98., node_name='worker1', process_exec=dict(process=child))
+    tree = build_runtime_tree(trigger(), [normalize_runtime_event(r) for r in (fork, executed)])
+    assert any(e['relation'] == 'observed_child_exec' for e in tree['edges'])
+    executed['process_exec']['process']['parent_exec_id'] = 'other-parent'
+    tree = build_runtime_tree(trigger(), [normalize_runtime_event(r) for r in (fork, executed)])
+    assert not any(e['relation'] == 'observed_child_exec' for e in tree['edges'])
+
+
+def test_runtime_service_stores_all_categories_and_exports_v2(tmp_path, monkeypatch):
+    from sentinel_pulse.rca_service import Service
+    config = tmp_path/'CONFIG.json'
+    config.write_text(json.dumps(dict(output=str(tmp_path/'rca'), model_hash='model',
+        policy_hash='policy', case_cooldown_seconds=300, before_seconds=30, after_seconds=5,
+        ring_seconds=180, max_ring_events=1000, max_cases=10, workers=[],
+        runtime_events=True, connect_policy=POLICY)))
+    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: 110.)
+    service = Service(config)
+    for raw in [record('sys_openat'), record('sys_setns', ret=-1), record('sys_ptrace', ret=-3)]:
+        service.ingest_event(raw, 'worker1')
+    service.observe_trigger(trigger(), 100.)
+    service.emit_cases()
+    result = json.loads(next((service.root/'cases').glob('*.json')).read_text())
+    assert result['schema'] == 'sentinel-pulse-rca-evidence-tree-v2'
+    assert result['event_categories'] == dict(file=1, namespace=1, ptrace=1)
+    assert validate(result, 'model', 'policy') == []
+    assert service.counts['runtime_events'] == 3
+    assert service.counts.get('connect_events', 0) == 0
+    service.db.close(); service.lock.close()
