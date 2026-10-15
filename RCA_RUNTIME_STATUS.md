@@ -29,19 +29,25 @@ RCA runtime mới đã qua kiểm chứng trên pod cô lập, chưa bật polic
 trên production. Dự kiến đợi normal holdout kết thúc lúc **12:38 ngày
 16/10/2026 UTC+7** rồi mới mở rộng, để không đổi điều kiện capture giữa chừng.
 
-### Vì sao bản R3 phải đợi tối thiểu khoảng 7 giây?
+### Vì sao R3 đợi hậu ngữ cảnh, và RCA đầu tiên có cần đợi không?
 
 R3 cấu hình `after_seconds=5`; `emit_cases()` còn đợi thêm 2 giây trước khi
-đóng case. Hai giây là khoảng đệm để Tetragon stream chuyển hết event hậu
-ngữ cảnh tới subscriber. Vì vậy ngưỡng sớm nhất là 5+2=7 giây **tính từ lúc
-subscriber đọc preview**; nó không bảo đảm case sẵn sàng đúng giây thứ 7.
-Backlog khiến mẫu 495 case có p50 15,00 giây và p95 22,63 giây.
+đóng case. Khoảng này chỉ gom sự kiện xảy ra **sau** preview và cho stream thời
+gian chuyển event tới subscriber. Nó không cần thiết để biết workload: preview
+đã mang namespace/pod/container. Nhưng identity của pod chỉ trả lời “tín hiệu
+đến từ đâu”, không chỉ ra process/syscall nào tạo tín hiệu hay process đó đã
+làm gì. RCA cần ghép alert với event buffer theo pod/container và thời gian.
+Mốc sớm nhất là 5+2=7 giây tính từ lúc
+subscriber đọc preview, không phải từ lúc kernel phát hiện; backlog khiến mẫu
+495 case có p50 15,00 giây và p95 22,63 giây.
 
-Candidate runtime mới đăng ký mục tiêu case đầu trong 5 giây: lấy 3 giây hậu
-ngữ cảnh và thêm 2 giây grace. Mốc này cũng tính từ lúc subscriber nhận
-preview, chưa phải SLO đã đo. Nó rút ngắn phần dữ liệu hậu ngữ cảnh; cần đo
-event đến trễ, backlog và độ đầy đủ sau holdout trước khi kết luận có đạt 5 giây
-trong production hay không. Pulse không cần đợi RCA mới phát hiện.
+Candidate runtime đổi RCA đầu tiên thành snapshot ngay tại preview: ghép ring
+buffer trước alert với event đã nhận đến `window_end`, không chờ hậu ngữ cảnh.
+`case_ready_grace_seconds=2` chỉ là grace để drain event đang trên stream,
+không phải cửa sổ post-context. Đây là mục tiêu thiết kế, chưa phải SLO 5 giây
+đã đo; backlog vẫn có thể làm trễ hơn. Nếu cần sự kiện xảy ra sau alert, chúng
+phải tạo một bản enrichment/update riêng, không trì hoãn RCA đầu tiên; cơ chế
+enrichment đó chưa được triển khai. Pulse không cần đợi RCA mới phát hiện.
 
 ## 2. Mục tiêu và những gì thực sự đã triển khai
 
@@ -92,7 +98,7 @@ connect trên node này đã được kiểm tra enabled; số normalized event 
 | Connect attempt | Lần gọi connect ở entry hook; chưa có return receipt để biết thành công |
 | Destination/inventory | IP/port đích / thông tin Pod, Service, EndpointSlice từ Kubernetes API |
 | Identity/time join | Ghép cùng node, Pod UID, container và khoảng thời gian, không chỉ trùng PID/IP |
-| Pre/post context | Dữ liệu trước/sau tín hiệu để điều tra; ở đây 30 giây trước và 5 giây sau |
+| Pre/post context | RCA đầu tiên dùng ring buffer trước preview và event đến `window_end`; post-context chỉ dành cho enrichment riêng, hiện chưa triển khai |
 | Subscriber | Consumer riêng nhận event/decision; không nằm trong bước tính score |
 | JSONL | Mỗi dòng là một JSON; chỉ xử lý dòng hoàn chỉnh để tránh đọc partial write |
 | Cursor/checkpoint | Vị trí đọc / trạng thái đã lưu để resume sau restart |
@@ -212,8 +218,8 @@ Stream reconnect được log, transport loss chưa được đo exact. Subscrip
 đã bắt đầu trước pre-window cũng không bảo đảm không mất event.
 
 Reader NFS còn có thể bị hard-mount stall; đây là rủi ro của consumer RCA.
-Bước đợi 5 giây post-context không cộng vào **mốc tính preview của ML**, nhưng
-cây RCA hoàn tất muộn hơn; latency tới khi người dùng nhận alert/cây cần đo riêng.
+Thời gian dựng RCA không cộng vào **mốc tính preview của ML**, nhưng latency
+tới khi người dùng nhận alert/cây cần đo riêng.
 Không có cơ sở claim RCA hoàn tất trong 1–2 giây.
 
 ## 7. Tiến độ hoàn thiện

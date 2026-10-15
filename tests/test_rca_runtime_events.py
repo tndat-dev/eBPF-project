@@ -179,6 +179,30 @@ def test_case_ready_grace_is_explicit_and_bounded_by_config(tmp_path, monkeypatc
     service.db.close(); service.lock.close()
 
 
+def test_initial_case_uses_pre_alert_buffer_without_post_context(tmp_path, monkeypatch):
+    from sentinel_pulse.rca_service import Service
+    root = tmp_path/'rca'
+    config = tmp_path/'CONFIG.json'
+    config.write_text(json.dumps(dict(output=str(root), model_hash='model', policy_hash='policy',
+        connect_policy=POLICY, case_cooldown_seconds=300, before_seconds=30, after_seconds=0,
+        case_ready_grace_seconds=2, ring_seconds=180, max_ring_events=1000,
+        max_cases=10, workers=[], runtime_events=True)))
+    service = Service(config)
+    now = [100.]
+    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: now[0])
+    service.ingest_event(record('sys_openat', at=99.), 'worker1')
+    service.observe_trigger(trigger(), 100.)
+    service.ingest_event(record('sys_mount', at=101.), 'worker1')
+    now[0] = 102.
+    service.emit_cases()
+    result = json.loads(next((root/'cases').glob('*.json')).read_text())
+    assert result['retained_runtime_events'] == 1
+    assert result['event_categories'] == dict(file=1)
+    assert result['coverage']['post_context_seconds'] == 0
+    assert result['coverage']['case_ready_grace_seconds'] == 2
+    service.db.close(); service.lock.close()
+
+
 def test_manual_observability_fixture_is_not_an_ml_alert():
     signal = trigger()
     signal.update(candidate_alert_preview=False, alert=False, policy_evaluated=False,

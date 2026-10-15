@@ -14,7 +14,7 @@
     {"node_name": "k8s-worker3.local", "output": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local"}
   ],
   "before_seconds": 30,
-  "after_seconds": 3,
+  "after_seconds": 0,
   "case_ready_grace_seconds": 2,
   "ring_seconds": 180,
   "max_ring_events": 40000,
