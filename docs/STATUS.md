@@ -198,9 +198,36 @@ cửa sổ được chấm vì collector theo dõi cả container ngoài 21 work
 ### 5.6 RCA
 
 Run r2 từ 15/10 15:37: 19.152 case đã sinh (giữ 500 gần nhất theo cấu hình), 43,17 triệu
-decision đã đọc. 19.142 case (99,9%) thiếu ngữ cảnh connect và 1.693 thiếu ngữ cảnh
-runtime. Audit trước đây chỉ kiểm tra cấu trúc của 107 case; chưa có nhãn để đo độ đúng.
-Đồ thị là bằng chứng liên quan theo thời gian/định danh, chưa chứng minh nhân quả.
+decision đã đọc; không có tín hiệu mới từ khi soak Pulse dừng. 19.142 case (99,9%) thiếu
+ngữ cảnh connect và 1.693 thiếu ngữ cảnh runtime.
+
+**Nguyên nhân thiếu connect (18/10):** không phải lỗi join. Không case nào chạm giới hạn
+truy vấn; trong ring 180 s chỉ có 50 sự kiện connect trên toàn bộ pod production (so với
+4.222 exec, 4.817 exit), chủ yếu từ pod phát tải. Service dùng connection pool nên hầu như
+không gọi `connect()`. **Đã sửa trong code:** policy riêng `sentinel-rca-flow-v1` lấy mẫu
+`tcp_sendmsg`/`udp_sendmsg` tối đa 1 lần / process+socket / 10 s, sinh node `active_flow` và
+danh sách `network_destinations` cho mỗi case. Đã kiểm tra schema bằng server dry-run; sẽ
+áp dụng cùng lượt chạy Pulse live kế tiếp (RCA chỉ có case khi Pulse chạy).
+
+Audit trước đây chỉ kiểm tra cấu trúc; chưa có nhãn để đo độ đúng. Đồ thị là bằng chứng
+liên quan theo thời gian/định danh, chưa chứng minh nhân quả.
+
+### 5.7 Chuẩn bị lượt Pulse live kế tiếp (18/10)
+
+- Candidate đã hiệu chỉnh lại: `/mnt/sentinel-pulse-archive/runtime-recal-c1-20261018/model-bundle`,
+  manifest `ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4`; estimator giữ
+  nguyên, chỉ thay mảng calibration (dữ liệu normal 15/10 00:30–07:30 UTC).
+- Policy preview v2 (hệ số alpha + xác nhận k-of-n) đã có trong code; tham số sẽ chọn sau
+  khi có số đợt cảnh báo của lưới c2.
+- Còn thiếu trước khi chạy: chọn và đăng ký policy, snapshot source lên NFS làm
+  `frozen_source`, đối chứng chạy binary vô hại, blind attack mới.
+
+### 5.8 Thí nghiệm syscall — xuất điểm đầy đủ (đang chạy)
+
+Job `pulse-r4-score-dump-*` chấm lại 147 segment holdout bằng đúng 693 model R4 và lưu điểm
+tree/support của mọi cửa sổ, kèm đối chiếu số đếm từng segment với evaluator đã đăng ký
+(chưa có segment nào lệch). Khi xong, 11 cấu hình sẽ được so sánh dưới cùng phương pháp
+hiệu chỉnh lại/chính sách như Pulse, không phải chấm lại.
 
 ## 6. Đánh giá thẳng
 

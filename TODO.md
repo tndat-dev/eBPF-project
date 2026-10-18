@@ -48,7 +48,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Chứng minh code refactor chấm điểm trùng khớp bản đóng băng (receipt
       `validation-evidence/results-20261018/scorer-equivalence-0117901.json`).
 - [ ] Snapshot commit mới lên NFS làm `frozen_source` cho lượt chạy live kế tiếp.
-- [ ] Triển khai chính sách đã chọn vào `detector/` + `pipeline/matched_worker.py` (vẫn shadow).
+- [x] Bundle candidate đã hiệu chỉnh lại (`ec72d9ea…`) và policy preview v2 (alpha + k-of-n) trong live path.
+- [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
 - [ ] Đối chứng "chạy binary vô hại" (benign-exec) để tách hiệu ứng khởi chạy process khỏi tấn công.
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật (hiện mới đo đến lúc ghi preview).
@@ -58,6 +59,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 - [x] R4 holdout: không cấu hình nào đạt ngân sách cảnh báo; khác biệt giữa các cấu hình
       (18,6–20,8 đợt/giờ) nằm trong dao động giữa các seed → chưa chọn được bộ syscall.
+- [~] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`, ~2,5 giờ).
 - [ ] Áp dụng cùng phương pháp hiệu chỉnh lại/ngưỡng của Pulse cho 11 cấu hình trên cùng
       holdout (development) để so sánh khi cảnh báo nhầm đã thấp hơn.
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
@@ -68,7 +70,9 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 - [ ] **(cần bạn quyết)** Dừng hay giữ `pulse-rca-runtime-events.service`: đang không nhận
       tín hiệu mới từ 16/10 (Pulse đã dừng) nhưng vẫn dùng ~966 MB / giới hạn 1 GB.
-- [ ] 19.142/19.152 case thiếu ngữ cảnh connect: kiểm tra policy connect, selector, cách join.
+- [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
+- [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
+- [ ] Áp dụng policy flow + chạy subscriber r3 cùng lượt Pulse live kế tiếp.
 - [ ] Bộ dữ liệu có nhãn để đo độ đúng RCA; thử reboot, mất NFS, backlog.
 
 ## Ưu tiên 3 — Dọn cụm **(cần bạn quyết)**
@@ -78,6 +82,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
       các thư mục còn được service/evidence tham chiếu, xóa phần còn lại.
 - [ ] ~40 unit lỗi trên .234, ~90 unit lỗi mỗi worker (thế hệ cũ) → `reset-failed` và gỡ unit file.
+- [ ] 3 TracingPolicy cũ thời v8/AIMS vẫn gắn kprobe vào production (`aims-sensitive-exec`,
+      `sentinel-aims-syscalls`, `sentinel-syscalls`, 65–81 ngày) → đề xuất gỡ vì thêm overhead lên pod mà Pulse đo.
 - [ ] `/home/dat/eBPF-project` trên .234: nhánh main cũ, chậm 14 commit, có sửa chưa commit.
 - [ ] Ổ đĩa worker4 85%, worker1 80% → kiểm tra dữ liệu thô có thể chuyển sang NFS.
 
