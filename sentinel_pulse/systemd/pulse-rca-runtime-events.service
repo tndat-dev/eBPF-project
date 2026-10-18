@@ -9,7 +9,7 @@ Type=simple
 User=dat
 EnvironmentFile=/etc/sentinel-pulse-rca/rca-runtime-events.env
 Environment=PYTHONDONTWRITEBYTECODE=1
-ExecStart=/usr/bin/env PYTHONPATH=${PULSE_RCA_SOURCE} /usr/bin/python3 -u -m sentinel_pulse.rca_service --config ${PULSE_RCA_CONFIG}
+ExecStart=/usr/bin/env PYTHONPATH=${PULSE_RCA_SOURCE} /usr/bin/python3 -u -m sentinel_pulse.rca.service --config ${PULSE_RCA_CONFIG}
 Restart=always
 RestartSec=10
 TimeoutStopSec=35

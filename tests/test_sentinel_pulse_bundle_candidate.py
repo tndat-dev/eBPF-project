@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from sentinel_pulse.bundle_candidate import bundle_candidate
-from sentinel_pulse.idle_candidate import SCHEMA
+from sentinel_pulse.detector.bundle_candidate import bundle_candidate
+from sentinel_pulse.detector.idle_candidate import SCHEMA
 
 
 def _candidate(tmp_path, *, artifact=b"frozen model bytes"):

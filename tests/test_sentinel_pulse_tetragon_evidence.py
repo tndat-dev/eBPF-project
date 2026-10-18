@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from sentinel_pulse.tetragon_evidence import find_exec_event, find_execve_kprobe_event
+from sentinel_pulse.attack.tetragon_evidence import find_exec_event, find_execve_kprobe_event
 
 
 def marker():

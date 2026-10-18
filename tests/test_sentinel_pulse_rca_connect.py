@@ -1,4 +1,4 @@
-from sentinel_pulse.rca_connect import (
+from sentinel_pulse.rca.connect import (
     kubernetes_target_index,
     materialize_connect_edges,
     normalize_connect_event,

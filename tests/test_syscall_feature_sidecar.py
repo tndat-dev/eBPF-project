@@ -3,7 +3,7 @@ import sys
 import time
 from types import SimpleNamespace
 
-from sentinel_pulse.syscall_histogram_pilot import FeatureSidecar
+from sentinel_pulse.syscall_study.syscall_histogram_pilot import FeatureSidecar
 
 
 def make_sidecar(tmp_path):
@@ -26,7 +26,7 @@ def test_sidecar_drains_and_seals_raw_and_feature_outputs(tmp_path, monkeypatch)
             dest.flush()
             count += 1
         return dict(emitted=count, malformed=0, unresolved=0)
-    monkeypatch.setitem(sys.modules, 'sentinel_pulse.capture', SimpleNamespace(run=capture))
+    monkeypatch.setitem(sys.modules, 'sentinel_pulse.collector.capture', SimpleNamespace(run=capture))
     sidecar = make_sidecar(tmp_path)
     sidecar.start()
     deadline = time.monotonic() + 3
@@ -45,7 +45,7 @@ def test_sidecar_retains_parser_failure_instead_of_calling_it_valid(tmp_path, mo
     def capture(source, dest, *args):
         next(source)
         raise ValueError('invalid feature snapshot')
-    monkeypatch.setitem(sys.modules, 'sentinel_pulse.capture', SimpleNamespace(run=capture))
+    monkeypatch.setitem(sys.modules, 'sentinel_pulse.collector.capture', SimpleNamespace(run=capture))
     sidecar = make_sidecar(tmp_path)
     sidecar.start()
     sidecar.thread.join(timeout=3)

@@ -5,10 +5,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from sentinel_pulse.syscall_histogram_analysis import summarize, verify_seals
-from sentinel_pulse.syscall_histogram_cohort import aggregate
-from sentinel_pulse import syscall_histogram_pilot as pilot
-from sentinel_pulse.syscall_histogram_pilot import read_traffic_receipt
+from sentinel_pulse.syscall_study.syscall_histogram_analysis import summarize, verify_seals
+from sentinel_pulse.syscall_study.syscall_histogram_cohort import aggregate
+from sentinel_pulse.syscall_study import syscall_histogram_pilot as pilot
+from sentinel_pulse.syscall_study.syscall_histogram_pilot import read_traffic_receipt
 
 
 def seal_capture(root: Path) -> None:

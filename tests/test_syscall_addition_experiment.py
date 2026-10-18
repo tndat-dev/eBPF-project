@@ -1,6 +1,6 @@
 import unittest
 
-from sentinel_pulse.syscall_addition_experiment import (
+from sentinel_pulse.syscall_study.syscall_addition_experiment import (
     build_contexts, choose_variants, histogram_vector, phase_for,
 )
 

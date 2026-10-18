@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from sentinel_pulse.capture import run
+from sentinel_pulse.collector.capture import run
 
 
 def capture(tmp_path, times, **kwargs):

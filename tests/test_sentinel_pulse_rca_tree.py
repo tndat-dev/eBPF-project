@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from sentinel_pulse.rca_connect import normalize_connect_event
-from sentinel_pulse.rca_tree import build_tree, case_id, event_time, render_markdown, trigger_kind
-from sentinel_pulse.rca_service import Service, initial_offset, read_complete
+from sentinel_pulse.rca.connect import normalize_connect_event
+from sentinel_pulse.rca.tree import build_tree, case_id, event_time, render_markdown, trigger_kind
+from sentinel_pulse.rca.service import Service, initial_offset, read_complete
 
 
 def trigger(**extra):
@@ -118,7 +118,7 @@ def service(tmp_path, monkeypatch):
         policy_hash='policy', case_cooldown_seconds=300, before_seconds=30, after_seconds=5,
         ring_seconds=180, max_ring_events=1000, max_cases=10, workers=[],
         connect_policy='sentinel-aims-syscalls')))
-    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: 100.)
+    monkeypatch.setattr('sentinel_pulse.rca.service.time.time', lambda: 100.)
     return Service(config), config
 
 
@@ -160,7 +160,7 @@ def test_case_generation_is_idempotent_and_records_empty_context(tmp_path, monke
     assert doc['matched_connect_events']==0
     assert doc['coverage']['connect_policy_selected'] is None
     assert doc['nodes'][0]['trigger']['policy_evaluated'] is True
-    from sentinel_pulse.audit_rca_cases import validate
+    from sentinel_pulse.rca.audit_cases import validate
     assert validate(doc, 'model', 'policy') == []
     srv.db.close(); srv.lock.close()
 

@@ -1,8 +1,8 @@
 from collections import Counter
 import numpy as np
-from sentinel_pulse.matched_study import arm_specs, contexts, SECURITY
-from sentinel_pulse.matched_study import sealed_selection_files
-from sentinel_pulse.features import TRACKED_SYSCALLS
+from sentinel_pulse.syscall_study.matched_study import arm_specs, contexts, SECURITY
+from sentinel_pulse.syscall_study.matched_study import sealed_selection_files
+from sentinel_pulse.collector.features import TRACKED_SYSCALLS
 
 
 def rows():

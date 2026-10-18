@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from sentinel_pulse.cgroup_resolver import infer_role, infer_workload_name, resolve_cgroups, workload_revision
+from sentinel_pulse.collector.cgroup_resolver import infer_role, infer_workload_name, resolve_cgroups, workload_revision
 
 
 class PulseResolverTests(unittest.TestCase):

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from sentinel_pulse.derive_matched_coordinator_run import derive
+from sentinel_pulse.pipeline.derive_matched_coordinator_run import derive
 from sentinel_pulse.integrity import sha256_file
 
 

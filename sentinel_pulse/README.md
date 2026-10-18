@@ -1,65 +1,58 @@
-# Sentinel Pulse — hướng dẫn tra code
+# sentinel_pulse — bản đồ mã nguồn
 
-README này là điểm vào source, không phải báo cáo tiến độ. Trạng thái runtime,
-số liệu và việc còn lại chỉ cập nhật trong ba file:
+README này chỉ hướng dẫn tìm code. Trạng thái thí nghiệm và số liệu nằm ở
+[../docs/STATUS.md](../docs/STATUS.md).
 
-- [Sentinel Pulse](../SENTINEL_PULSE_STATUS.md).
-- [Chọn feature/syscall](../SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
-- [RCA](../RCA_RUNTIME_STATUS.md).
+## Luồng dữ liệu
 
-[Báo cáo tổng hợp giữ nguyên](../SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md)
-là tài liệu tham khảo, không thay thế timestamp của ba báo cáo trên.
+```
+eBPF đếm syscall theo container ──► collector/ ──► vector 249 số / 500 ms
+                                                     │
+                     detector/ (model đã đóng băng) ◄┘
+                                                     │
+                 pipeline/matched_worker: thu + chấm điểm trong 1 tiến trình
+                                                     │
+                  "cảnh báo thử" (preview) ──────────┼──► rca/: dựng đồ thị bằng chứng
+                                                     │
+        attack/: chạy tấn công/đối chứng để đo   ◄───┘
+        syscall_study/: thí nghiệm chọn syscall (chạy offline, tách biệt)
+```
 
-## Nhánh telemetry và ML
+## Các package
 
-| Bước | Source |
-|---|---|
-| Pod/container → cgroup/revision | [cgroup_resolver.py](cgroup_resolver.py) |
-| Kernel counters/transition | [ebpf/pulse_counter.bpf.c](ebpf/pulse_counter.bpf.c) |
-| Feature 249 chiều | [features.py](features.py), [encoding.py](encoding.py) |
-| Extended/idle capture | [extended_capture.py](extended_capture.py) |
-| Temporal ExtraTrees | [model.py](model.py), [extended_reference_experiment.py](extended_reference_experiment.py) |
-| Normal support branch | [support_model.py](support_model.py) |
-| Manifest/artifact loading | [idle_candidate.py](idle_candidate.py), [integrity.py](integrity.py) |
-| History, batch, preview policy | [candidate_shadow.py](candidate_shadow.py), [idle_batch.py](idle_batch.py), [candidate_policy.py](candidate_policy.py) |
-| Matched 500 ms worker | [matched_worker.py](matched_worker.py) |
-| Paired development evaluation | [preview_campaign.py](preview_campaign.py), [preview_evaluation.py](preview_evaluation.py) |
+| Package | Làm gì | File chính |
+|---|---|---|
+| [collector/](collector/) | Ánh xạ pod → cgroup, đọc counter eBPF, tạo vector đặc trưng | `cgroup_resolver.py`, `capture.py`, `extended_capture.py`, `features.py`, `telemetry_recovery.py` |
+| [detector/](detector/) | Model ExtraTrees + nhánh "vùng normal" (support), chấm điểm theo lô, chính sách preview | `idle_candidate.py`, `idle_batch.py`, `candidate_policy.py`, `support_model.py`, `model.py` |
+| [pipeline/](pipeline/) | Worker 500 ms chạy trên từng node, sinh unit systemd, lập kế hoạch một lượt chạy, phát tải | `matched_worker.py`, `matched_services.py`, `plan_matched_run.py`, `matched_traffic.py` |
+| [attack/](attack/) | Chạy cặp tấn công/đối chứng trên pod thật, chấm TP/FP/FN/TN, đo độ trễ | `preview_campaign.py`, `preview_evaluation.py`, `cluster.py`, `tetragon_evidence.py` |
+| [syscall_study/](syscall_study/) | So sánh các bộ syscall (thêm/bớt kênh) trên cùng dữ liệu, chấm holdout | `matched_study.py`, `matched_holdout.py`, `audit_matched_fits.py` |
+| [rca/](rca/) | Nhận preview, ghép sự kiện Tetragon (process/file/network) thành đồ thị điều tra | `service.py`, `tree.py`, `runtime_tree.py`, `connect.py` |
 
-## Nhánh nghiên cứu feature/syscall
+File dùng chung ở gốc package: `common.py` (ghi JSON an toàn, theo dõi file
+JSONL, kiểm tra source sạch), `integrity.py` (SHA-256), `encoding.py` (nén vector).
 
-- [matched_study.py](matched_study.py): selection có seal, split/embargo,
-  explicit additions/group ablation, nhiều seed và artifact theo arm.
-- [syscall_frequency_report.py](syscall_frequency_report.py): frequency
-  descriptive, không tự chứng minh utility hoặc feature tối ưu.
-- [syscall_addition_experiment.py](syscall_addition_experiment.py):
-  exploratory entry-only generation; không nhầm observable với matched worker.
-- [protocol v2](protocol/syscall-selection-evaluation-v2.json): metric,
-  ngân sách false alert và yêu cầu validation prospective.
+Thư mục không phải Python: `ebpf/` (chương trình kernel + loader C),
+`protocol/` (giao thức/ngưỡng đã đăng ký — **được băm SHA-256, không sửa**),
+`systemd/` (unit cho collector, resolver, RCA), `k8s/` (TracingPolicy Tetragon
+cho RCA). Tài sản của cụm thử nghiệm (script phát tải, binary tấn công,
+policy exec-provenance) nằm ở [../testbed/](../testbed/).
 
-## Nhánh RCA
+## Chạy test
 
-- [rca_connect.py](rca_connect.py): normalize process/parent/socket/destination.
-- [rca_tree.py](rca_tree.py): identity/time join và graph bằng chứng.
-- [rca_service.py](rca_service.py): subscriber, local context, case/cursor
-  checkpoint và bounded retention.
-- [systemd expanded subscriber](systemd/pulse-rca-runtime-events.service): đọc
-  policy+lifecycle events, không enforce. `pulse-rca-context.service` là
-  connect-only legacy unit và hiện được giữ làm artifact nhưng không chạy.
+```bash
+# venv có numpy/scikit-learn đúng phiên bản trong requirements-lock.txt
+~/.venvs/sentinel-pulse/bin/python -m pytest -q -p no:cacheprovider tests
+```
 
-## Kiểm thử và contract
+## Lưu ý khi deploy
 
-Chạy từ repo root bằng Python environment tương ứng với manifest/source
-cần kiểm chứng; không trộn sklearn/NumPy khác generation rồi gọi là replay
-đồng nhất. Ví dụ test RCA chỉ cần standard library và pytest:
-
-    PYTHONDONTWRITEBYTECODE=1 python3 -m pytest -q -p no:cacheprovider tests/test_sentinel_pulse_rca_tree.py tests/test_sentinel_pulse_rca_connect.py
-
-Các entrypoint/module khác nhau có thể thuộc generation khác. Trước deploy
-phải kiểm tra source/model/policy/schema/kernel binding; không chạy toàn bộ
-installer trong thư mục như một pipeline duy nhất. JSON protocol kỳ vọng
-không phải số đo; preview không phải operational alert; connect entry
-không chứng minh thành công hoặc nội dung L7.
-
-Không sửa raw/seal hay xóa miss/unknown để làm đẹp báo cáo. Dữ liệu và receipt
-ở ../validation-evidence/ là hồ sơ thí nghiệm, được giữ độc lập với việc
-dọn Markdown tiến độ.
+- Service đang chạy trên cụm dùng **bản source đã đóng băng** (snapshot trên
+  NFS hoặc `/opt/sentinel-pulse`), không chạy trực tiếp từ checkout này.
+- `pipeline/matched_worker.py` từ chối chấm điểm nếu các file toán học của
+  scorer khác bản đóng băng. Sau đợt tái cấu trúc 18/10/2026 các file này đã
+  đổi dòng import, nên lượt chạy live mới cần đóng băng lại source và kiểm tra
+  điểm số trùng khớp với bản cũ trước.
+- Code của các thế hệ thí nghiệm trước (v8/AIMS, lifecycle 500 ms B1–B7,
+  recovery coordinator, A/B overhead…) đã gỡ khỏi nhánh này; xem tag Git
+  `archive/pre-refactor-20261018`.
