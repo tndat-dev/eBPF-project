@@ -74,11 +74,12 @@ AIMS). Code: [../sentinel_pulse/README.md](../sentinel_pulse/README.md).
 | Soak Pulse 48 giờ (3 worker) | **Đã kết thúc bình thường** 17/10 00:56–01:06; `NRestarts=0` |
 | Chấm holdout R4 (thí nghiệm syscall) | **Đã kết thúc** 16/10 13:03; 147 segment |
 | `pulse-r4-score-dump-k8s-worker{1,4,3}-20261018` (.234) | Đang chạy từ 15:19 (UTC+7), ETA ~18:00 |
-| `pulse-r4-arm-attack-replay-20261018` (.234) | Đang chạy từ 15:45, alpha×1/5/10 |
-| RCA subscriber r2 (`pulse-rca-runtime-events`, .234) | Vẫn chạy nhưng không có tín hiệu mới; sẽ thay bằng subscriber R6 |
+| `pulse-r4-arm-attack-replay-20261018` (.234) | **Xong** (mục 5.8) |
+| `pulse-r4-arm-budget-20261019` (.234) | Đang chạy từ 19/10 02:40 (chờ dump worker1 rồi tính) |
+| RCA subscriber | r2 **đã dừng** 19/10 02:13; r6 `pulse-rca-runtime-events-r6` chạy từ 02:14 |
 | Collector + resolver trên worker | Chạy (luồng đối chứng 1 s, có xoay vòng hằng ngày) |
 | Detector v8 cũ | **Đã gỡ** (mục 5c) |
-| Lượt live R6 | Đang khởi động (mục 5.9) |
+| Lượt live R6 | **Đang chạy** từ 19/10 02:04 (mục 5.9) |
 | NFS `/mnt/sentinel-pulse-archive` | 242/344 GB dùng (71%), còn 102 GB |
 | Ổ đĩa worker | worker1 80%, worker4 84%, worker3 55% — dữ liệu thô cũ chờ xóa tay (mục 5c) |
 
@@ -233,12 +234,59 @@ liên quan theo thời gian/định danh, chưa chứng minh nhân quả.
 - Còn thiếu trước khi chạy: chọn và đăng ký policy, snapshot source lên NFS làm
   `frozen_source`, đối chứng chạy binary vô hại, blind attack mới.
 
-### 5.8 Thí nghiệm syscall — xuất điểm đầy đủ (đang chạy)
+### 5.8 Thí nghiệm syscall — xuất điểm đầy đủ và replay attack
 
 Job `pulse-r4-score-dump-*` chấm lại 147 segment holdout bằng đúng 693 model R4 và lưu điểm
 tree/support của mọi cửa sổ, kèm đối chiếu số đếm từng segment với evaluator đã đăng ký
 (chưa có segment nào lệch). Khi xong, 11 cấu hình sẽ được so sánh dưới cùng phương pháp
 hiệu chỉnh lại/chính sách như Pulse, không phải chấm lại.
+
+**Replay attack cho mọi cấu hình (xong 18/10, `arm-attack-replay-r3r5-20261018`):** 693 model × 630
+interval R3/R5 (315 attack + 315 control), p-value hiệu chỉnh gốc của từng model (development, nhãn kỳ vọng):
+
+| Alpha | Recall | Control dương | p95 độ trễ (≈ kernel → cửa sổ dương) |
+|---|---|---|---|
+| ×1 | 0,93–0,96 (`drop_exec_pair` 0,87) | 3–4% | 2,1–3,4 s — **vượt 2 s** |
+| ×5 | 0,98–1,00 | 12–16% | 0,9–1,5 s |
+| ×10 | 0,99–1,00 | 22–27% | 0,79–1,1 s |
+
+- Bỏ cặp transition exec (`drop_exec_pair`) làm recall giảm rõ nhất → tín hiệu "có process mới" đóng góp
+  lớn; đối chứng binary vô hại của R6 sẽ cho biết bao nhiêu trong đó là hành vi tấn công thật.
+- `plus_all_defined_native` / `plus_all_observed` có control dương thấp nhất và p95 nhanh nhất ở ×5/×10.
+- Các cấu hình gần nhau ở cùng alpha; so sánh quyết định phải ở **cùng ngân sách cảnh báo** sau hiệu chỉnh
+  lại → job `pulse-r4-arm-budget-20261019` (`sentinel_pulse/syscall_study/arm_budget.py`, `a9cc061`):
+  hiệu chỉnh từng model bằng 20% đầu holdout, đếm đợt cảnh báo trên 80% còn lại, chọn alpha lỏng nhất
+  trong ngân sách 0,1 / 1 / 5 / 18 đợt mỗi replica-giờ rồi so recall, control dương, p95.
+
+### 5.9 Lượt live R6 (đang chạy từ 19/10 02:04)
+
+| Thành phần | Giá trị |
+|---|---|
+| Candidate / policy | `ec72d9ea…` (hiệu chỉnh lại c1) / `recalibrated-preview-policy-r6.json` (`f6107351…`, 1 cửa sổ, alpha×3) |
+| Capture | 3 worker, `pulse-matched-worker-r6-20261018`, 24 giờ (đến ~20/10 02:04), **không ghi `raw.jsonl`** (NFS chỉ còn ~100 GB) |
+| Source worker | snapshot `4ba303a` (`runtime-r6-4ba303a-20261018`); kiểm tra tương đương lại: 27.840 dòng có điểm, 0 sai khác |
+| Campaign | 315 cặp (21 workload × 5 kịch bản × 3 tốc độ), mỗi cặp: control 15 s → binary vô hại 15 s → attack 15 s; fixture `runtime_attack_r6.c`; coordinator `d791d24`; attack bắt đầu **03:47**, dự kiến xong ~09:45 |
+| Traffic | `pulse-matched-traffic-r6-20261018`: 2 vòng steady/toolmix/peak/burst/recovery rồi steady |
+| RCA | `pulse-rca-runtime-events-r6` (source `d791d24`): policy runtime + fork + **flow** (`sentinel-rca-flow-v1` đã apply), baseline binary đóng băng 2 phút trước attack đầu tiên; r2 đã dừng |
+| Thư mục | `/mnt/sentinel-pulse-archive/matched-r6-20261018/` |
+
+**Sự cố lúc khởi động và cách xử lý (19/10 02:04–02:20):** worker1/worker3 báo `cadence_gap` khoảng
+mỗi 5 s (history bị reset liên tục, cửa sổ khởi động bị gắn cờ ~40%). Nguyên nhân không nằm ở Pulse:
+trên worker có **301 (worker1), 18 (worker4), 59 (worker3) tiến trình `tetra getevents` mồ côi** bên trong
+container Tetragon, đã chạy 10 giờ đến 25 ngày, mỗi tiến trình 25–50% CPU. Chúng được tạo bởi
+`kubectl exec` của campaign cũ (`timeout 23s kubectl exec …`: timeout chỉ giết kubectl phía .234),
+của subscriber RCA khi nối lại stream, và của v8 (`sentinel-aims-syscalls`). Tetragon worker1 vì vậy tốn
+5,3 core và 11,5 GB RAM; worker3 7,0 core.
+
+- Sửa code (`d791d24`): lệnh trong container được bọc `timeout` (campaign 24 s; RCA xoay vòng stream
+  mỗi 900 s và nối lại ngay khi hết hạn), nên không thể rò quá 15 phút.
+- Dừng RCA r2, `pkill -KILL` toàn bộ `tetra getevents` trên 3 worker (lúc đó không còn client hợp lệ).
+- Sau dọn: Tetragon worker1 0,6 core / 2,8 GB, worker3 0,64 core; CPU node worker1 62% → 35%;
+  `cadence_gap` = 0 trong các phút tiếp theo.
+- Khoảng 02:04–02:20 được coi là **không phải normal** khi phân tích (đã có issue `not_normal` trong
+  segment; prefix sạch 1,5 giờ của campaign được tính lại từ lúc derive coordinator 02:15).
+- Hệ quả cho các kết quả cũ: tải này có thể đã làm lệch đo overhead và một phần cảnh báo/độ trễ của
+  các lượt trước (worker4 từng có 7–9 cadence gap mỗi segment trong 6 giờ đầu soak 48 h). Cần nêu trong báo cáo.
 
 ## 5b. Chiến lược đã điều chỉnh (18/10)
 
@@ -361,3 +409,19 @@ cập nhật liên tục trong lúc làm.
 | 16:03 | Nạp thử candidate R6 + policy R6 bằng runtime-venv của worker1 (sklearn 1.9.0, numpy 2.5.2): 21 model, hash policy khớp, 4,6 s | — |
 | 16:05 | Kiểm tra tương đương chấm điểm lại trên snapshot R6 (2 file chấm điểm đã đổi sau lần kiểm tra trước: policy v2, lưới alpha) | `runtime-r6-4ba303a-20261018/SCORER_EQUIVALENCE.json` |
 | 16:10 | Thêm `--put` (SFTP) cho `scripts/ssh_lab.py`; script khởi chạy R6 `scripts/launch_r6.sh` | — |
+
+### 19/10/2026
+
+| Giờ | Việc đã làm | Kết quả / bằng chứng |
+|---|---|---|
+| 02:03 | Kiểm tra lại: score-dump worker4/3 và arm-replay đã xong, worker1 còn chạy; kiểm tra tương đương snapshot R6: 27.840 dòng, 0 sai khác | `runtime-r6-4ba303a-20261018/SCORER_EQUIVALENCE.json` |
+| 02:03 | `launch_r6.sh plan`: CONFIG R6 (315 cặp, 24 h, benign control, không raw) | `matched-r6-20261018/CONFIG.json` |
+| 02:04 | `launch_r6.sh workers`: cài `pulse-matched-worker-r6-20261018` trên 3 worker | chạy |
+| 02:05–02:10 | Phát hiện `cadence_gap` ~5 s/lần ở worker1/3; truy ra 301/18/59 tiến trình `tetra getevents` mồ côi làm Tetragon tốn 5–7 core | mục 5.9 |
+| 02:10 | Sửa campaign + RCA (timeout trong container, xoay vòng stream); 283 test pass; snapshot `d791d24` | `d791d24` |
+| 02:13 | Dừng RCA r2; `pkill -KILL` mọi `tetra getevents` trên worker | còn 0; CPU Tetragon giảm ~9 lần |
+| 02:14 | `launch_r6.sh derive` (coordinator trên `d791d24`) và `rca` (apply `sentinel-rca-flow-v1`, subscriber r6) | 6 stream, case đầu tiên sau < 1 phút |
+| 02:15 | `launch_r6.sh master`: traffic + campaign | campaign thu prefix sạch, attack từ 03:47 |
+| 02:16 | Sửa `launch_r6.sh`: `cp -a` lỗi ACL trên NFS, unit file bị rỗng do stdin của sudo | `a9cc061` |
+| 02:25 | Đọc replay attack 11 cấu hình syscall | mục 5.8 |
+| 02:40 | Viết `arm_budget.py` (so cấu hình ở cùng ngân sách cảnh báo), 286 test pass, snapshot `a9cc061`, chạy `pulse-r4-arm-budget-20261019` | `a9cc061` |

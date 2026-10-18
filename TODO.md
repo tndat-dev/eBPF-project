@@ -61,9 +61,10 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 - [x] R4 holdout: không cấu hình nào đạt ngân sách cảnh báo; khác biệt giữa các cấu hình
       (18,6–20,8 đợt/giờ) nằm trong dao động giữa các seed → chưa chọn được bộ syscall.
-- [~] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`, ~2,5 giờ).
-- [ ] Áp dụng cùng phương pháp hiệu chỉnh lại/ngưỡng của Pulse cho 11 cấu hình trên cùng
-      holdout (development) để so sánh khi cảnh báo nhầm đã thấp hơn.
+- [~] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`): worker4/3 xong, worker1 48/49 segment.
+- [x] Replay attack R3/R5 cho cả 11 cấu hình (`arm-attack-replay-r3r5-20261018`): ở alpha×1 p95 2,1–3,4 s; `drop_exec_pair` kém nhất.
+- [~] Áp dụng cùng phương pháp hiệu chỉnh lại/ngưỡng của Pulse cho 11 cấu hình và so ở cùng ngân sách
+      cảnh báo (`arm_budget.py`, job `pulse-r4-arm-budget-20261019`).
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
       kernel → cảnh báo cho từng cấu hình (feature nhiều hơn có thể chậm hơn).
 - [ ] Đưa bộ syscall được chọn vào candidate Pulse kế tiếp (fit lại, đóng băng, blind test).
@@ -74,7 +75,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
       tín hiệu mới từ 16/10 (Pulse đã dừng) nhưng vẫn dùng ~966 MB / giới hạn 1 GB.
 - [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
-- [ ] Áp dụng policy flow + chạy subscriber r3 cùng lượt Pulse live kế tiếp.
+- [x] Áp dụng policy flow + chạy subscriber r6 (`pulse-rca-runtime-events-r6`) cùng lượt R6 (19/10 02:14).
+- [x] Sửa rò tiến trình `tetra getevents` trong container Tetragon (campaign + RCA), dọn 378 tiến trình mồ côi (19/10).
 - [ ] Chạy `rca.evaluate_ranking` trên case của lượt R6 (top-1/3/5).
 - ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 
