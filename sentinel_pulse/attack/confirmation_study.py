@@ -22,7 +22,7 @@ from pathlib import Path
 import time
 
 from ..common import atomic_json
-from ..detector.confirmation import IDENTITY, SCORED, ConfirmationState, apply, default_grid
+from ..detector.confirmation import IDENTITY, SCORED, ConfirmationState, apply, default_grid, looser_grid
 from ..integrity import sha256_file
 from .preview_evaluation import evaluate_interval, summarize
 
@@ -218,6 +218,7 @@ def main():
             p.add_argument('--exclude', type=span, action='append', default=[])
         if name != 'calibrate':
             p.add_argument('--calibration', type=Path)
+            p.add_argument('--grid', choices=('default', 'looser'), default='default')
     sub.choices['normal'].add_argument('--worker-root', type=Path, required=True)
     sub.choices['calibrate'].add_argument('--worker-root', type=Path, action='append', required=True)
     sub.choices['attack'].add_argument('--campaign', type=Path, action='append', required=True)
@@ -240,7 +241,7 @@ def main():
     recalibrator, calibration = None, None
     if args.calibration is not None:
         recalibrator, calibration = load_calibration(args.calibration)
-    policies = default_grid()
+    policies = looser_grid() if args.grid == 'looser' else default_grid()
     if args.command == 'normal':
         result = normal_burden(args.worker_root, policies, since=args.since, until=args.until,
                                exclude=args.exclude, recalibrator=recalibrator)

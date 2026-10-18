@@ -61,6 +61,9 @@ def test_invalid_policies_rejected():
         ConfirmationPolicy(k=3, n=2)
     with pytest.raises(ValueError):
         ConfirmationPolicy(alpha_scale=0)
+    with pytest.raises(ValueError):
+        ConfirmationPolicy(alpha_scale=21)
+    assert ConfirmationPolicy(alpha_scale=5).name == 'k1of1_a5'
 
 
 def test_apply_keeps_unscored_rows_and_audit_field():

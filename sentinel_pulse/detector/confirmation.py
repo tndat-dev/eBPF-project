@@ -3,7 +3,8 @@
 The frozen preview policy raises a signal whenever one 500 ms window has
 ``joint_p <= alpha``. A confirmation policy instead requires at least ``k`` of
 the last ``n`` consecutive scored windows of the same container to pass a
-(possibly stricter) threshold ``alpha * alpha_scale``. It never refits the
+threshold ``alpha * alpha_scale`` (stricter below 1, looser above 1 —
+only meaningful after recalibration has restored p-value validity). It never refits the
 model or recalibrates p-values; it only changes how per-window evidence is
 turned into a signal. Development use only until frozen and blind-tested.
 """
@@ -29,8 +30,8 @@ class ConfirmationPolicy:
     def __post_init__(self):
         if not 1 <= self.k <= self.n:
             raise ValueError('confirmation requires 1 <= k <= n')
-        if not 0 < self.alpha_scale <= 1:
-            raise ValueError('alpha_scale must be in (0, 1]')
+        if not 0 < self.alpha_scale <= 20:
+            raise ValueError('alpha_scale must be in (0, 20]')
 
     @property
     def name(self):
@@ -76,6 +77,13 @@ def apply(rows, policy: ConfirmationPolicy):
                        candidate_alert_preview=state.update(row), confirmation_policy=policy.name)
         out.append(row)
     return out
+
+
+def looser_grid():
+    """Second development grid (registered 2026-10-18 after the recalibration
+    result showed lost recall): looser per-window alpha on recalibrated p-values."""
+    return [ConfirmationPolicy(k=k, n=n, alpha_scale=scale)
+            for scale in (1.0, 2.0, 3.0, 5.0, 10.0) for k, n in ((1, 1), (2, 2), (2, 3))]
 
 
 def default_grid():
