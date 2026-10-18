@@ -219,3 +219,27 @@ def test_live_v161_tracepoint_omits_labels_and_proto_omits_empty_capabilities():
     assert normalize_runtime_event(raw)['details'] == dict(parent_pid=21, child_pid=22)
     assert credentials({'caps': {}})['capabilities'] == dict(effective=[], permitted=[], inheritable=[])
     assert 'capabilities' not in credentials({})
+
+
+def test_rate_limited_send_gives_live_destination_without_faking_connect():
+    from sentinel_pulse.rca.runtime_events import FLOW_POLICY
+    sock = dict(label='socket', sock_arg=dict(family='AF_INET', daddr='10.0.0.7', dport=5432))
+    raw = record('tcp_sendmsg', [sock], ret=128)
+    raw['process_kprobe']['policy_name'] = FLOW_POLICY
+    event = normalize_runtime_event(raw, {'10.0.0.7': dict(kind='Service', name='aims-postgres-cnpg-rw')},
+                                    policy_names=(POLICY, FLOW_POLICY))
+    assert event['category'] == 'network' and event['operation'] == 'send'
+    assert event['destination']['port'] == 5432 and event['destination']['kubernetes']['name'] == 'aims-postgres-cnpg-rw'
+    assert event['sampling']['exhaustive'] is False and 'connection' not in event
+    tree = build_runtime_tree(trigger(), [event])
+    assert tree['matched_connect_events'] == 0 and tree['matched_flow_events'] == 1
+    assert tree['network_destinations'] == ['["10.0.0.7", 5432]']
+    assert any(n['kind'] == 'active_flow' for n in tree['nodes'])
+    assert validate(tree, 'model', 'policy') == []
+    assert '10.0.0.7' in render_runtime_markdown(tree)
+
+
+def test_send_from_unlisted_policy_is_ignored():
+    raw = record('tcp_sendmsg', [dict(label='socket', sock_arg=dict(daddr='10.0.0.7', dport=1))])
+    raw['process_kprobe']['policy_name'] = 'someone-else'
+    assert normalize_runtime_event(raw) is None

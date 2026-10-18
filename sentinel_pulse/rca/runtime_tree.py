@@ -26,7 +26,7 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
                 'network': 2, 'file': 3}
     selected = sorted(sorted(matching, key=lambda e: priority.get(e.get('category'), 4))[:max_events],
                       key=lambda e: (event_time(e['observed_at']), e['raw_event_sha256']))
-    connects = [e for e in selected if e.get('operation') == 'connect' or 'connection' in e]
+    connects = [e for e in selected if e.get('operation') == 'connect']
     tree = build_tree(trigger, connects, before_seconds=before_seconds, after_seconds=after_seconds,
                       max_edges=max_events, coverage=coverage)
     nodes = {n['id']: n for n in tree['nodes']}; links = tree['edges']
@@ -62,6 +62,16 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
             child = proc(relative, h)
             parent = proc(by_exec.get(parent_id, {'exec_id': parent_id}), h)
             links.append(dict(source=parent, target=child, relation='parent_of', evidence='tetragon_exec_identity'))
+        if operation == 'send':
+            dest = event.get('destination') or {}
+            dest_id = 'destination:'+json.dumps([dest.get('family'), dest.get('address'), dest.get('port')])
+            nodes.setdefault(dest_id, dict(id=dest_id, kind='destination', **dest))
+            fid = 'flow:'+h
+            nodes[fid] = dict(id=fid, kind='active_flow', protocol=event['flow']['protocol'],
+                observed_at=event['observed_at'], sampling=event.get('sampling'), evidence_sha256=h)
+            links.extend([dict(source=caller, target=fid, relation='sent_on_socket'),
+                          dict(source=fid, target=dest_id, relation='flow_destination')])
+            continue
         if operation == 'connect':
             connect = nodes.get('connect:'+h)
             if connect and event.get('outcome'):
@@ -125,7 +135,10 @@ def build_runtime_tree(trigger, events, *, before_seconds=30, after_seconds=5,
                 evidence_sha256=[fork['raw_event_sha256'], child['raw_event_sha256']]))
     unique = {json.dumps(e, sort_keys=True): e for e in links}
     tree.update(schema='sentinel-pulse-rca-evidence-tree-v2', nodes=list(nodes.values()), edges=list(unique.values()),
-        matched_connect_events=sum(e.get('operation') == 'connect' or 'connection' in e for e in matching),
+        matched_connect_events=sum(e.get('operation') == 'connect' for e in matching),
+        matched_flow_events=sum(e.get('operation') == 'send' for e in matching),
+        network_destinations=sorted({json.dumps([e['destination'].get('address'), e['destination'].get('port')])
+            for e in selected if e.get('operation') in ('connect', 'send') and e.get('destination')}),
         matched_runtime_events=len(matching), retained_runtime_events=len(selected),
         event_categories=dict(Counter(e.get('category', 'network') for e in selected)),
         truncated=len(matching)>len(selected),
@@ -150,5 +163,8 @@ def render_runtime_markdown(tree):
     for n in tree['nodes']:
         if n['kind'] == 'runtime_event':
             lines.append(f"| {n['category']} | {n['operation']} | {safe(n['outcome'])} | {safe(n['details'])} |")
+    if tree.get('network_destinations'):
+        lines.extend(['', f"## Đích mạng đang hoạt động ({tree.get('matched_flow_events', 0)} lần gửi, lấy mẫu 10 s/socket)", ''])
+        lines.extend(f"- {safe(d)}" for d in tree['network_destinations'])
     lines.extend(['', 'Cây chứa bằng chứng quan sát; chưa phải kết luận nguyên nhân gốc.', ''])
     return '\n'.join(lines)

@@ -1,0 +1,25 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicyNamespaced
+metadata:
+  name: sentinel-rca-flow-v1
+  namespace: production
+  labels:
+    app.kubernetes.io/part-of: sentinel-pulse
+    sentinel.hust.vn/purpose: rca-evidence
+spec:
+  # Pooled service connections almost never call connect(), so RCA cases had
+  # no network context. A send on an established socket shows the live peer.
+  # Observation-only; at most one event per process+socket every 10 seconds.
+  kprobes:
+    - call: tcp_sendmsg
+      syscall: false
+      args:
+        - {index: 0, type: sock, label: socket}
+      selectors: &flowSample
+        - matchActions:
+            - {action: Post, rateLimit: 10s, rateLimitScope: process}
+    - call: udp_sendmsg
+      syscall: false
+      args:
+        - {index: 0, type: sock, label: socket}
+      selectors: *flowSample

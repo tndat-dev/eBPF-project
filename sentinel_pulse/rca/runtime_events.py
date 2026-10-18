@@ -10,8 +10,12 @@ from .connect import _socket_address
 SCHEMA = 'sentinel-pulse-rca-runtime-event-v1'
 POLICY = 'sentinel-rca-runtime-v1'
 FORK_POLICY = 'sentinel-rca-fork-v1'
+FLOW_POLICY = 'sentinel-rca-flow-v1'
+FLOW_RATE_LIMIT_MS = 10_000
 SYSCALLS = {
     'sys_connect': ('network', 'connect'),
+    # Pooled connections rarely call connect(); rate-limited sends show live peers.
+    'tcp_sendmsg': ('network', 'send'), 'udp_sendmsg': ('network', 'send'),
     'sys_open': ('file', 'open'), 'sys_openat': ('file', 'open'),
     'sys_openat2': ('file', 'open'),
     'vfs_write': ('file', 'write'), 'vfs_writev': ('file', 'write'),
@@ -137,6 +141,12 @@ def normalize_runtime_event(record, target_index=None, *, policy_names=(POLICY, 
         result['outcome'] = dict(status='child_created', return_observed=False, return_value=None)
     if category == 'file' and operation in ('open', 'write'):
         result['sampling'] = dict(rate_limit_ms=1000, scope='process', exhaustive=False)
+    if operation == 'send':
+        address, port, family = _socket_address(args)
+        result['flow'] = dict(protocol='tcp' if function == 'tcp_sendmsg' else 'udp')
+        result['destination'] = dict(address=address, port=port, family=family,
+                                    kubernetes=(target_index or {}).get(address))
+        result['sampling'] = dict(rate_limit_ms=FLOW_RATE_LIMIT_MS, scope='process+socket', exhaustive=False)
     if operation == 'connect':
         address, port, family = _socket_address(args)
         result['connection'] = dict(socket_fd=details.get('socket_fd'))

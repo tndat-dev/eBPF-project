@@ -92,6 +92,7 @@ def audit(config):
         counts['cases_with_errors'] += bool(errors)
         counts['cases_without_connect_context'] += not tree.get('matched_connect_events')
         counts['cases_with_connect_context'] += bool(tree.get('matched_connect_events'))
+        counts['cases_with_network_destination'] += bool(tree.get('network_destinations'))
         counts['cases_with_runtime_context'] += bool(tree.get('matched_runtime_events'))
         counts['cases_truncated'] += tree.get('truncated') is True
         counts['cases_outside_connect_selector'] += tree.get('coverage', {}).get('connect_policy_selected') is False
