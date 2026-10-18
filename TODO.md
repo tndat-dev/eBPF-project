@@ -52,7 +52,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Bundle candidate đã hiệu chỉnh lại (`ec72d9ea…`) và policy preview v2 (alpha + k-of-n) trong live path.
 - [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
-- [ ] Chạy lượt live R6: normal soak mới + campaign attack có `benign_exec_control: true` (fixture R6),
+- [~] Chạy lượt live R6 (profile `r6`, 24 h, không ghi raw.jsonl — xem STATUS mục 5.9): normal soak mới + campaign attack có `benign_exec_control: true` (fixture R6),
       bật policy RCA flow và subscriber r3 có `binary_baseline_frozen_at`.
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật (hiện mới đo đến lúc ghi preview).
 - [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận, không chỉ nhãn kỳ vọng.
@@ -75,13 +75,17 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
 - [ ] Áp dụng policy flow + chạy subscriber r3 cùng lượt Pulse live kế tiếp.
-- [ ] Chạy `rca.evaluate_ranking` trên case của lượt R6 (top-1/3/5); thử reboot, mất NFS, backlog.
+- [ ] Chạy `rca.evaluate_ranking` trên case của lượt R6 (top-1/3/5).
+- ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 
-## Ưu tiên 3 — Dọn cụm **(cần bạn quyết)**
+## Ưu tiên 3 — Dọn cụm (bạn đã cho phép tự quyết 18/10)
 
 - [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).
 - [ ] **(chạy tay)** Gỡ admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`,
       workload baseline v8 (`nginx/redis/loadgen/redis-loadgen`, `postgres/postgres-loadgen`).
+      Bộ kiểm duyệt quyền của Claude Code chặn 2 lần → chạy `bash /home/dat/cleanup-manual-20261018.sh` trên .234.
+- [ ] **(chạy tay, cùng script)** Xóa dữ liệu thô cũ trên worker (~117–194 GB/node trong `/var/lib/sentinel-pulse-*`),
+      checkout/bundle cũ trong `/home/dat`, 5 oneshot cũ còn `enabled` và ~90 unit lỗi mỗi worker.
 - [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
       các thư mục còn được service/evidence tham chiếu, xóa phần còn lại.
 - [ ] ~40 unit lỗi trên .234, ~90 unit lỗi mỗi worker (thế hệ cũ) → `reset-failed` và gỡ unit file.

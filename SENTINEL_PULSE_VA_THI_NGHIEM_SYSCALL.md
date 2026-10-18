@@ -1,5 +1,8 @@
 # Sentinel Pulse và thí nghiệm lựa chọn syscall
 
+> **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
+> từng bước nằm ở [docs/STATUS.md](docs/STATUS.md) (mục 9 — Nhật ký làm việc) và [TODO.md](TODO.md).
+
 ## 1. Phạm vi và cách đọc báo cáo
 
 - **Sentinel Pulse:** phát hiện bất thường hành vi runtime của workload Kubernetes bằng telemetry eBPF và mô hình học máy.

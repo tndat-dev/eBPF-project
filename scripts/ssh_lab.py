@@ -5,6 +5,7 @@ Cách dùng:
   python3 scripts/ssh_lab.py COMMAND               # mặc định host=10.1.16.234
   python3 scripts/ssh_lab.py --host HOST COMMAND   # host chỉ định
   python3 scripts/ssh_lab.py --list               # liệt kê 6 node + kiểm tra kết nối
+  python3 scripts/ssh_lab.py --put LOCAL REMOTE   # upload một file qua SFTP
 
 CHỈ dùng trong môi trường lab tin cậy nơi mật khẩu yếu được chủ sở hữu cung cấp.
 """
@@ -56,10 +57,23 @@ def run(host, cmd, timeout=TIMEOUT * 10):
     return code, out
 
 
+def put(host, local, remote):
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(host, port=PORT, username=USER, password=PASSWORD, timeout=TIMEOUT,
+                   look_for_keys=PASSWORD is None, allow_agent=PASSWORD is None)
+    with client.open_sftp() as sftp:
+        sftp.put(local, remote)
+    client.close()
+    print(f"{local} -> {host}:{remote}")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", choices=tuple(HOSTS), default="10.1.16.234")
     parser.add_argument("--list", action="store_true")
+    parser.add_argument("--put", nargs=2, metavar=("LOCAL", "REMOTE"))
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     if args.list:
@@ -68,6 +82,8 @@ def main():
             status = "OK" if code == 0 else "FAIL"
             print(f"{name} ({host}): {status}")
         return 0
+    if args.put:
+        return put(args.host, *args.put)
     command = shlex.join(args.command) if args.command else "hostname; whoami; pwd; uname -a"
     code, _ = run(args.host, command)
     return code

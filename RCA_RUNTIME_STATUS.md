@@ -1,5 +1,8 @@
 # Dựng cây RCA sau alert — thuật ngữ, triển khai và tiến độ
 
+> **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
+> từng bước nằm ở [docs/STATUS.md](docs/STATUS.md) (mục 9 — Nhật ký làm việc) và [TODO.md](TODO.md).
+
 Cập nhật bằng SSH **15:44 ngày 15/10/2026, UTC+7**. Nhánh RCA chạy độc lập
 với [Pulse ML](SENTINEL_PULSE_STATUS.md) và [thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 Đây là một trong ba báo cáo tiến độ hiện hành, không thêm nhật ký checkpoint.

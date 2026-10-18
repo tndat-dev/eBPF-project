@@ -1,5 +1,8 @@
 # Thí nghiệm chọn feature/syscall — thuật ngữ, triển khai và tiến độ
 
+> **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
+> từng bước nằm ở [docs/STATUS.md](docs/STATUS.md) (mục 9 — Nhật ký làm việc) và [TODO.md](TODO.md).
+
 Cập nhật bằng SSH **15:19 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
 chọn feature, chạy song song nhưng không đổi model [Pulse realtime](SENTINEL_PULSE_STATUS.md)
 hoặc [RCA](RCA_RUNTIME_STATUS.md). Chỉ cập nhật trạng thái hiện hành, không

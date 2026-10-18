@@ -1,5 +1,8 @@
 # Sentinel Pulse — thuật ngữ, triển khai và tiến độ
 
+> **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
+> từng bước nằm ở [docs/STATUS.md](docs/STATUS.md) (mục 9 — Nhật ký làm việc) và [TODO.md](TODO.md).
+
 Cập nhật từ SSH lúc **15:12 ngày 15/10/2026, UTC+7**. Bảng worker là snapshot
 15:06 UTC+7. Đây là báo cáo
 hiện hành của nhánh phát hiện ML, không phải nhật ký checkpoint.
