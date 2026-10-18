@@ -75,7 +75,7 @@ AIMS). Code: [../sentinel_pulse/README.md](../sentinel_pulse/README.md).
 | Chấm holdout R4 (thí nghiệm syscall) | **Đã kết thúc** 16/10 13:03; 147 segment |
 | `pulse-r4-score-dump-k8s-worker{1,4,3}-20261018` (.234) | Đang chạy từ 15:19 (UTC+7), ETA ~18:00 |
 | `pulse-r4-arm-attack-replay-20261018` (.234) | **Xong** (mục 5.8) |
-| `pulse-r4-arm-budget-20261019` (.234) | Đang chạy từ 19/10 02:40 (chờ dump worker1 rồi tính) |
+| `pulse-r4-arm-budget-20261019` (.234) | Đang chạy từ 19/10 02:18 (chờ dump worker1 rồi tính) |
 | RCA subscriber | r2 **đã dừng** 19/10 02:13; r6 `pulse-rca-runtime-events-r6` chạy từ 02:14 |
 | Collector + resolver trên worker | Chạy (luồng đối chứng 1 s, có xoay vòng hằng ngày) |
 | Detector v8 cũ | **Đã gỡ** (mục 5c) |
@@ -285,6 +285,10 @@ của subscriber RCA khi nối lại stream, và của v8 (`sentinel-aims-syscal
   `cadence_gap` = 0 trong các phút tiếp theo.
 - Khoảng 02:04–02:20 được coi là **không phải normal** khi phân tích (đã có issue `not_normal` trong
   segment; prefix sạch 1,5 giờ của campaign được tính lại từ lúc derive coordinator 02:15).
+- **Số đo đầu tiên sau dọn (02:07–02:20, ~7,3 replica-giờ, chưa có attack):** cửa sổ dương 0,95%,
+  **17,2 đợt cảnh báo/replica-giờ** (dự đoán development của R6: 18), cuối cửa sổ → preview p50 0,48 s,
+  p99 0,64 s. Ồn nhất: `aims-kafka-entity-operator` (user/topic-operator, >100 đợt/giờ), `notification-service` 58,
+  `auth-service` 30 (cửa sổ dương 8,4%).
 - Hệ quả cho các kết quả cũ: tải này có thể đã làm lệch đo overhead và một phần cảnh báo/độ trễ của
   các lượt trước (worker4 từng có 7–9 cadence gap mỗi segment trong 6 giờ đầu soak 48 h). Cần nêu trong báo cáo.
 
@@ -423,5 +427,6 @@ cập nhật liên tục trong lúc làm.
 | 02:14 | `launch_r6.sh derive` (coordinator trên `d791d24`) và `rca` (apply `sentinel-rca-flow-v1`, subscriber r6) | 6 stream, case đầu tiên sau < 1 phút |
 | 02:15 | `launch_r6.sh master`: traffic + campaign | campaign thu prefix sạch, attack từ 03:47 |
 | 02:16 | Sửa `launch_r6.sh`: `cp -a` lỗi ACL trên NFS, unit file bị rỗng do stdin của sudo | `a9cc061` |
-| 02:25 | Đọc replay attack 11 cấu hình syscall | mục 5.8 |
-| 02:40 | Viết `arm_budget.py` (so cấu hình ở cùng ngân sách cảnh báo), 286 test pass, snapshot `a9cc061`, chạy `pulse-r4-arm-budget-20261019` | `a9cc061` |
+| 02:17 | Đọc replay attack 11 cấu hình syscall | mục 5.8 |
+| 02:18 | Viết `arm_budget.py` (so cấu hình ở cùng ngân sách cảnh báo), 286 test pass, snapshot `a9cc061`, chạy `pulse-r4-arm-budget-20261019` | `a9cc061` |
+| 02:20 | Đo R6 sau dọn: 17,2 đợt/replica-giờ, p99 cuối cửa sổ → preview 0,64 s | mục 5.9 |
