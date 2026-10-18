@@ -430,3 +430,6 @@ cập nhật liên tục trong lúc làm.
 | 02:17 | Đọc replay attack 11 cấu hình syscall | mục 5.8 |
 | 02:18 | Viết `arm_budget.py` (so cấu hình ở cùng ngân sách cảnh báo), 286 test pass, snapshot `a9cc061`, chạy `pulse-r4-arm-budget-20261019` | `a9cc061` |
 | 02:20 | Đo R6 sau dọn: 17,2 đợt/replica-giờ, p99 cuối cửa sổ → preview 0,64 s | mục 5.9 |
+| 02:21 | Score-dump worker1 xong (49/49 segment, khớp số đếm evaluator đã đăng ký); arm-budget bắt đầu tính | `score-dump-20261018/` |
+| 02:22 | Viết `attack/rolling_recalibration.py`: so calibration tĩnh (c1) với làm mới mỗi 1 giờ bằng 3/6/12 giờ trước đó, và biến thể "guarded" (bỏ cửa sổ đã dương khỏi calibration sau); 289 test pass; snapshot `5f9a705`; chạy `pulse-rolling-recalibration-20261019` | `confirmation-study-20261018/rolling-recalibration-20261019/` |
+| 02:23 | Arm-budget sơ bộ (4/11 cấu hình): sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ, ×0,5 cho 2,8–4; `plus_all_observed` thấp nhất | đang chạy |
