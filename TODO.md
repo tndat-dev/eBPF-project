@@ -16,31 +16,38 @@ xóa/dừng trên máy chung hoặc công khai lên GitHub.
 - [x] Gọn `validation-evidence/`: 59 → 11 thư mục, nhóm theo pulse/syscall/rca.
 - [x] Nghiên cứu "xác nhận k-of-n" trên dữ liệu development: replay R3/R5 đã tái lập
       đúng ma trận công bố; có bảng recall/độ trễ cho 21 chính sách.
-- [~] Đo số đợt cảnh báo trên soak normal cho 21 chính sách (job đang chạy trên .234).
-- [~] Nghiên cứu hiệu chỉnh lại p-value (recalibration) — job đang chạy trên .234.
+- [x] Đo số đợt cảnh báo trên soak 48 h cho 21 chính sách k-of-n: tốt nhất vẫn 12 đợt/giờ.
+- [x] Hiệu chỉnh lại p-value (c1): cửa sổ normal bị gắn cờ 8,1% → 0,35%, precision R3
+      79,8% → 97,8%, recall 99,3% → 91,3%, p95 1,61 → 2,91 s.
+- [x] Kiểm tra tương đương sau refactor: 214.449 cửa sổ, 0 sai khác.
+- [~] Lưới alpha nới rộng sau hiệu chỉnh (c2): R3 xong, số đợt cảnh báo trên normal đang
+      chạy (`pulse-recalibration-looser-c2-20261018`).
 
 ## Ưu tiên 0 — Giảm cảnh báo trên dữ liệu bình thường
 
 Đây là điểm nghẽn chung: candidate hiện tại bật cờ ở ~8% cửa sổ normal (mức danh
 nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh báo/giờ (ngân sách 0,1).
 
-- [ ] Đọc kết quả recalibration + confirmation, chọn **một** chính sách trên dữ liệu
-      development; ghi thành file protocol (JSON, có SHA-256) **trước** khi thử mới.
+- [ ] Khi c2 xong: chọn **một** chính sách trên dữ liệu development (ứng viên gần nhất:
+      2 of 3 + alpha×10: precision 96,9%, recall 99,0%, p95 2,32 s); ghi thành file protocol (JSON, có SHA-256) **trước** khi thử mới.
       Ràng buộc: p95 kernel → cảnh báo < 2 s (càng thấp càng tốt) → ưu tiên hiệu chỉnh
       lại p-value; k-of-n tối đa 2 cửa sổ.
 - [ ] Giảm độ trễ đuôi: p99 hiện 4,75 s (p95 1,61 s) — tìm nguyên nhân (backlog chấm điểm,
       cửa sổ warming sau reset, độ trễ ghi NFS).
 - [ ] Tìm nguyên nhân p-value lệch: theo workload, theo chế độ tải (steady/peak/burst…),
       theo thời gian (drift), theo node; so với thời điểm calibration gốc.
-- [ ] Nếu recalibration chưa đủ: calibration theo chế độ tải hoặc làm mới định kỳ,
-      tăng cỡ tập calibration, hoặc fit lại model với normal đa dạng hơn.
+- [ ] Thiết kế cơ chế làm mới calibration trong vận hành (cửa sổ trượt bao lâu, loại
+      khoảng nghi tấn công thế nào), vì hiệu chỉnh lại là đòn bẩy lớn nhất đã đo được.
+- [ ] Cải thiện độ trễ và recall với tấn công tốc độ thấp (seccomp probe, mprotect churn
+      6 lần/giây): xem đặc trưng nào phản ứng chậm, cân nhắc kênh tường minh từ thí nghiệm syscall.
+- [ ] Nếu vẫn chưa đủ: calibration theo chế độ tải, tăng cỡ tập calibration, hoặc fit lại
+      model với normal đa dạng hơn (model R4 fit lại chỉ gắn cờ 0,64% cửa sổ).
 
 ## Ưu tiên 1 — Chuẩn bị lượt chạy live tiếp theo
 
-- [~] Đóng băng lại source sau refactor (đã sửa lỗi nạp pickle cũ; job
-      `pulse-scorer-equivalence-20261018` đang replay 3 segment): chạy scorer mới và scorer đóng băng
-      (`runtime-2c1a72d`) trên cùng tập context, chứng minh điểm số trùng khớp,
-      lưu receipt rồi dùng commit mới làm `frozen_source`. (Worker sẽ từ chối chạy nếu chưa làm.)
+- [x] Chứng minh code refactor chấm điểm trùng khớp bản đóng băng (receipt
+      `validation-evidence/results-20261018/scorer-equivalence-0117901.json`).
+- [ ] Snapshot commit mới lên NFS làm `frozen_source` cho lượt chạy live kế tiếp.
 - [ ] Triển khai chính sách đã chọn vào `detector/` + `pipeline/matched_worker.py` (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
 - [ ] Đối chứng "chạy binary vô hại" (benign-exec) để tách hiệu ứng khởi chạy process khỏi tấn công.

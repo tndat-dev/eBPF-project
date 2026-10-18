@@ -1,0 +1,121 @@
+{
+  "equivalent": true,
+  "finished_at_unix": 1792304659.9485977,
+  "mismatched_rows": 0,
+  "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+  "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+  "schema": "pulse-scorer-equivalence-v1",
+  "scored_rows_compared": 214449,
+  "segments": [
+    {
+      "counts": {
+        "both_unscored": 179484,
+        "cadence_resets": 4,
+        "compared": 271912,
+        "exact_scored_match": 92428
+      },
+      "max_abs_difference": {
+        "joint_p": 0.0,
+        "support_p": 0.0,
+        "support_score": 0.0,
+        "tree_p": 0.0,
+        "tree_score": 0.0
+      },
+      "sample_mismatches": [],
+      "segment": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker1.local/segments/s00050"
+    },
+    {
+      "counts": {
+        "both_unscored": 177505,
+        "cadence_resets": 8,
+        "compared": 271094,
+        "exact_scored_match": 93589
+      },
+      "max_abs_difference": {
+        "joint_p": 0.0,
+        "support_p": 0.0,
+        "support_score": 0.0,
+        "tree_p": 0.0,
+        "tree_score": 0.0
+      },
+      "sample_mismatches": [],
+      "segment": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker4.local/segments/s00050"
+    },
+    {
+      "counts": {
+        "both_unscored": 56936,
+        "compared": 85368,
+        "exact_scored_match": 28432
+      },
+      "max_abs_difference": {
+        "joint_p": 0.0,
+        "support_p": 0.0,
+        "support_score": 0.0,
+        "tree_p": 0.0,
+        "tree_score": 0.0
+      },
+      "sample_mismatches": [],
+      "segment": "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local/segments/s00050"
+    }
+  ],
+  "source_sha256": {
+    "__init__.py": "9fbbadf0452ee25b11d560193d1b39efe702c6c80bf417aa35fa423a28eee1ff",
+    "attack/__init__.py": "8157c21e2a20b7d98ec1666c1d56ba2f2ddfb5120cf8866c8e7cc5a786aaaa62",
+    "attack/cluster.py": "e50a60e42ddf774d5590c885c0bc73f916e6180a90b1cc23515f6a90e0110122",
+    "attack/confirmation_study.py": "625d0a0ca4dfd934901c48950eb182f0bb0f728186ca3b2575e28547b0027dd7",
+    "attack/preview_campaign.py": "cbc943701b015d7bfbfcb9384af93934c1b89e2ad7a1dc227d99f91e0d4091a7",
+    "attack/preview_evaluation.py": "884c8bea03dd09c2d3457d4b0265b88f9217a049ac249c69c128dced2ae4af47",
+    "attack/preview_read_tail.py": "ff7b1d933ee651b4e0ae0bba6dca16ebdd5bd3a0ff9e6aae2c51d78ad95869ed",
+    "attack/preview_target.py": "f78ed559d7fd7724bc0b46dedb2446bcb270cfc21663532a8de3972b78cfae93",
+    "attack/replay_preview_campaign.py": "71a369f7bff39bb3326c8432faef13fee62fb094cca420ab52a492bc0bdc3988",
+    "attack/tetragon_evidence.py": "7b76567136342c4ae628dd42c8b55e205f1c04cd1a59eb3d793b1587b96c0f6a",
+    "collector/__init__.py": "49a91ffaa4bafad64926df312be06989e4ef6fd7ece99c86e403128a7d7cd2ef",
+    "collector/capture.py": "d0fca6467616261ba473733c73c03b910863ff264368d18f6cb70a1822507ec0",
+    "collector/cgroup_resolver.py": "74762acc805dd898d05a2a110631339ba2521ee96d9dca62d4a9825d3d73df06",
+    "collector/extended_capture.py": "01ef2c38ea5e7e199f1d20032e89e42f22beaeb2569f62dd7181ac398ffcc623",
+    "collector/extended_collection.py": "63f57bc2181926646f95cbcc7c2b388418d1ad5ab6fa535ddfe84ca27f104047",
+    "collector/features.py": "9089a3bc44cca8fe6e4f7fc0576fa8aad692eab757cee8f0aa77ff7e89b57029",
+    "collector/telemetry_recovery.py": "c78083818b49887068d813bb280ebb791f8dc63407001a1580df734d66a91f41",
+    "common.py": "871df88cb377bca6803e3f5a497712af766bc92ddb84f1ca26a4ca10e08791da",
+    "detector/__init__.py": "2f08f8365fb27eb7d056ac24c88ee8587dbeab1a69fe692b627789e64e77936b",
+    "detector/bundle_candidate.py": "08fe907c8a4a7e8552366bb4329d4eb544982cd73125c4116646516686349899",
+    "detector/candidate_policy.py": "71619cb7376b46569a70c84e167de32889cb3862f6c421c9ffe3a7b462d34401",
+    "detector/candidate_shadow.py": "60f6633e713ab6dbc1a22fb6b2b8db855c5fbb6842594fa5e3ac4286f700899a",
+    "detector/confirmation.py": "6b6f34f0a6ec3b145dc24db77d3afba2131b732762d5e94bc8731054f244e6fa",
+    "detector/extended_reference_experiment.py": "dcd2629c790d7f79510d9afe5dd10e72ce186fe3483de0ace26c343767093e01",
+    "detector/freeze_idle_reference_candidate.py": "a9957bf859cdbb7294fabd8739d09f1e76a02e2793ea9e8dea3c44ce100f70c9",
+    "detector/idle_batch.py": "ad7fbe40d7b3d36bf3a5fece95eb258dbcdcad2e38b33abbed7c3a7b90419659",
+    "detector/idle_candidate.py": "358f4f7c06a399a621ae7c005a3c83c06791b9c3cd99bee673a485bc1048ee93",
+    "detector/model.py": "d00ca4959b149557d12aac236e23e567b62234a8f8ae6d0a8b3ef8cd8b00e6a2",
+    "detector/recalibration.py": "a1100eb9ff9dd1ab0aa67dfe3085e6220eee46fe345afbf141b1060f098e7d28",
+    "detector/support_model.py": "8a7c1969e373d4fc9e50b7444f8b049abfea98dd5af6e3be058113e02141d9a4",
+    "encoding.py": "c92630924d6c154bf2da7f104cf1dd90e07481260feffcdd57998a4ecd8d279e",
+    "integrity.py": "d6d51ea8ec204cda3d5f5744eb9978e3ba99092b4615a9f34767b05a1e29b7b4",
+    "pipeline/__init__.py": "b970f35f35eecfbc83493da53a273959ee557497150dff106223e0152661f568",
+    "pipeline/derive_matched_coordinator_run.py": "7d0c880a4f4d9ce8d44e4ddc1b8ca778b6f7c32ffb649c5065bac2c876e18fa8",
+    "pipeline/matched_services.py": "eca9b52e3b233ce212aa4e636c94b97e0e1dbdae2117b8e90e5de3f3f7973de5",
+    "pipeline/matched_traffic.py": "640ee2f51e2fb5df723206c0fad4df11ec18d0db1f35402362f646c39eeb8e24",
+    "pipeline/matched_worker.py": "db2bada220c4c75e0ed7602e853cbaea37512e8be0d9f203646f829bfb30277c",
+    "pipeline/plan_matched_run.py": "30c87d9476fcaf659e6ea07e25c1625de3cc60414da66d9c77467d18fe7d37eb",
+    "pipeline/scorer_equivalence.py": "34f0052d033d0f8635b736a9fc66a9615a96d335b6e3ca2646a2bec78d16db8b",
+    "rca/__init__.py": "c5113622abf36cb8894441de89684d173ae8854b6b875dd15f08afe2259f2591",
+    "rca/audit_cases.py": "f16b97a1a12e1183a66bb4eb5f40c821e5ede14ce3e4096649ca5327bf7e4060",
+    "rca/connect.py": "3b2a8e5f6fcaf671f2e55b0ea4cb496362b0e74d2636c7d46360c63263a58444",
+    "rca/runtime_events.py": "6daed23545aaf190297403e5bd62fceba5ac9706a018aa4b5df62221c5b2848b",
+    "rca/runtime_tree.py": "9bdf3f98b537771c66e5c29df867f2d9b719cb042bf6ce21efd146d3e1234a81",
+    "rca/service.py": "0f66d3a543eee053d003cfedf7572a03fabb8dd1503838357db9a7a6767af749",
+    "rca/tree.py": "fb1654a80cf81389cd49d9a32da52c3a24d69d40919305277f53bd4e65b944f2",
+    "rca/validate_runtime.py": "d340cb769019d89a4a9ca2d42b7ec54af4cb7682582fcfa20c5938acc8c3bfeb",
+    "syscall_study/__init__.py": "8720b5b7e7c3d7ad2650881f3f2fc69f24500bc420c4a70122c7903633dbce6c",
+    "syscall_study/audit_matched_fits.py": "191a702aaf19573c9fc3b54947260bd94649ff050d4585420dd8a90584519f97",
+    "syscall_study/matched_holdout.py": "31afd826956348be16b19d7d69f60aff92a6f04a0ea15f73d18c4372239548d1",
+    "syscall_study/matched_study.py": "f19141ed4030b3aff0faef5dc8434a26398ce03094ae1c54acd25e401de3fa67",
+    "syscall_study/syscall_addition_experiment.py": "ff563f663f894f6d4e5736abe6c0455f30ed22980d15bb55fd3287a218b2d6cf",
+    "syscall_study/syscall_capture_campaign.py": "5b161c4bc4894b1fe51ef54d8e39ac601f55bd90e2a3e1562486b7ed9f22105d",
+    "syscall_study/syscall_frequency_report.py": "f741326e155879f66ba39f35038909a4f7f91d17e4133dbcdfc4f410bead2831",
+    "syscall_study/syscall_histogram_analysis.py": "520202071f527b23c8b6556605acf3b0b0d962b7301e8e985f86455647e09484",
+    "syscall_study/syscall_histogram_cohort.py": "b542ceeba1e37e299cd5badc3dc0567d58ed63581acb4d693405252830be7c2c",
+    "syscall_study/syscall_histogram_pilot.py": "12c9443bd536b4a540a561068cc9242d86021921955797edd91b97c3009158cb"
+  },
+  "started_at_unix": 1792300274.5718474
+}

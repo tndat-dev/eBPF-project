@@ -15,8 +15,10 @@ duy nhất được cập nhật; việc cần làm nằm ở [../TODO.md](../TO
   1:1, khoảng 8% cửa sổ của dữ liệu bình thường bị gắn cờ (mức thiết kế 0,17%), và
   ~19–20 đợt cảnh báo mỗi workload-giờ so với ngân sách 0,1.
 - **Kết luận chính:** nút thắt là **hiệu chỉnh ngưỡng (calibration) không theo kịp
-  dữ liệu bình thường thay đổi**, không phải model thiếu nhạy. Chưa đạt kỳ vọng
-  precision/recall ≥ 95%, tỷ lệ cảnh báo nhầm theo khoảng ≤ 5%, p95 ≤ 2 s.
+  dữ liệu bình thường thay đổi**, không phải model thiếu nhạy. Chỉ tính lại p-value bằng
+  dữ liệu normal gần hơn (không đổi model) đã đưa precision R3 lên 97,8% và giảm cửa sổ
+  normal bị gắn cờ từ 8,1% xuống 0,35%, đổi lại recall 91,3% và p95 2,9 s. Chưa có cấu
+  hình đạt đồng thời precision/recall ≥ 95%, cảnh báo nhầm theo khoảng ≤ 5%, p95 < 2 s.
 - **Phiên 18/10:** dọn và tổ chức lại code; thu kết quả soak 48 giờ và holdout R4;
   chạy nghiên cứu "xác nhận nhiều cửa sổ" và "hiệu chỉnh lại p-value" trên dữ liệu phát triển.
 
@@ -72,7 +74,7 @@ AIMS). Code: [../sentinel_pulse/README.md](../sentinel_pulse/README.md).
 | RCA subscriber (`pulse-rca-runtime-events`, .234) | Vẫn chạy nhưng **không có tín hiệu mới** từ khi Pulse dừng; RAM ~966 MB / giới hạn 1 GB |
 | Collector + resolver trên worker | Chạy (luồng đối chứng 1 s, có xoay vòng hằng ngày) |
 | Detector v8 cũ (`sentinel-detector`) | Vẫn chạy dry-run trên .234 và worker1 từ 01/10 (~750 MB) — đề xuất dừng |
-| Job nghiên cứu 18/10 | `pulse-confirmation-normal-*`, `pulse-recalibration-study-c1-20261018` trên .234 |
+| Job nghiên cứu 18/10 | Đã xong: xác nhận k-of-n, hiệu chỉnh lại c1, kiểm tra tương đương. Đang chạy: `pulse-recalibration-looser-c2-20261018` |
 | NFS `/mnt/sentinel-pulse-archive` | 242/344 GB dùng (71%) |
 
 ## 5. Kết quả
@@ -124,32 +126,74 @@ chọn feature cho nó: mọi cải tiến ngưỡng/hiệu chỉnh của Pulse 
 cấu hình trên cùng holdout để so sánh trong điều kiện cảnh báo nhầm thấp hơn.
 Workload ồn nhất: Kafka (43,6/giờ), search-recommendation (38,6), istio waypoint (38,2).
 
-### 5.4 Nghiên cứu xác nhận k-of-n (phát triển, 18/10)
+Đáng chú ý: model base29 của R4 dùng cùng 29 syscall với Pulse nhưng fit lại trên dữ liệu
+15/10; trên normal chúng chỉ gắn cờ **0,64%** cửa sổ, so với 8% của candidate đóng băng
+(khoảng thời gian gần nhau nhưng không trùng hoàn toàn). Đây là bằng chứng thứ hai cho thấy
+nguyên nhân chính là calibration/drift, không phải bộ syscall.
+
+### 5.4 Xác nhận k-of-n trên p-value gốc (phát triển, 18/10)
 
 Không đổi model; chỉ yêu cầu k trong n cửa sổ liên tiếp vượt ngưỡng (có thể kèm alpha chặt hơn).
-Công cụ tái lập đúng ma trận R3/R5 với chính sách hiện tại trước khi thử chính sách khác.
+Công cụ tái lập đúng ma trận R3/R5 và đúng số cảnh báo thử của soak với chính sách hiện tại
+trước khi thử chính sách khác. "Đợt/giờ" tính trên toàn bộ soak 48 giờ (3.199,7 replica-giờ).
 
-| Chính sách (R3) | Precision | Recall | Control dương | p95 | p99 |
+| Chính sách | Đợt/giờ normal | Precision R3 | Recall R3 | Control dương | p95 | p99 |
+|---|---:|---:|---:|---:|---:|---:|
+| hiện tại (1 cửa sổ) | 37,1 | 79,8% | 99,3% | 23,3% | 1,61 s | 4,75 s |
+| 2 of 2 | 22,3 | 87,3% | 98,3% | 13,3% | 2,25 s | 5,05 s |
+| 3 of 4 | 20,2 | 89,8% | 98,3% | 10,4% | 2,91 s | 5,40 s |
+| 4 of 6 | 19,5 | 90,6% | 98,3% | 9,4% | 3,42 s | 5,95 s |
+| 4 of 6, alpha/4 | 12,0 | 94,7% | 69,2% | 3,6% | 5,94 s | 8,74 s |
+
+Xác nhận nhiều cửa sổ giảm control dương nhưng không hạ cảnh báo nhầm xuống gần ngân sách
+(tốt nhất vẫn 12 đợt/giờ, gấp 120 lần) và làm p95 vượt 2 s. **Riêng k-of-n không giải quyết
+được vấn đề.**
+
+### 5.5 Hiệu chỉnh lại p-value (phát triển, 18/10)
+
+Thiết kế (đăng ký trước khi xem kết quả): tập hiệu chỉnh = điểm tree/support của chính
+model đóng băng trên soak 15/10 00:30–07:30 UTC (sau R3, trước can thiệp RCA, bỏ khoảng R5
+03:00–03:25), 42–88 nghìn cửa sổ mỗi workload, đủ 21 workload. Kiểm tra trên phần soak
+từ 15/10 08:40 UTC đến hết (2.206,6 replica-giờ, trùng thời gian bật policy Tetragon cho
+RCA) và trên R3/R5. Model không đổi, chỉ tính lại p-value.
+
+Cùng khoảng kiểm tra, chính sách một cửa sổ:
+
+| | P-value gốc | Hiệu chỉnh lại |
+|---|---:|---:|
+| Cửa sổ normal bị gắn cờ | 8,11% | **0,35%** |
+| Đợt cảnh báo / replica-giờ | 36,3 | **9,1** |
+| R3 precision | 79,8% | **97,8%** |
+| R3 recall | 99,3% | 91,3% |
+| R3 control dương | 23,3% | **1,9%** |
+| p95 / p99 kernel → cảnh báo | 1,61 / 4,75 s | 2,91 / 5,87 s |
+| R5 (15 cặp) | TP 13, FP 1 | TP 13, FP 0 |
+
+- **Cảnh báo nhầm giảm mạnh** (cửa sổ dương giảm 23 lần, đợt cảnh báo giảm 4 lần) → củng cố
+  kết luận nút thắt là calibration. Vẫn còn ~9 đợt/giờ, gấp ~90 lần ngân sách 0,1.
+- **Recall mất 25 attack**, toàn bộ thuộc hai kịch bản `seccomp_api_probe` (14) và
+  `anonymous_mprotect_churn` (11) trên các app service; ba kịch bản còn lại vẫn bắt đủ.
+- **Độ trễ tăng chủ yếu ở tốc độ tấn công thấp (6 lần/giây):** trước ~1–2 s, nay ~4–6 s.
+  Cách hiểu: với calibration cũ, mỗi interval 15 s có ~23% khả năng bị gắn cờ ngẫu nhiên,
+  nên một phần "phát hiện sớm" là trùng hợp.
+
+Lưới thứ hai (alpha nới rộng sau hiệu chỉnh, R3, phát triển):
+
+| Chính sách | Precision | Recall | Control dương | p95 | p99 |
 |---|---:|---:|---:|---:|---:|
-| hiện tại (1 cửa sổ) | 79,8% | 99,3% | 23,3% | 1,61 s | 4,75 s |
-| 2 of 2 | 87,3% | 98,3% | 13,3% | 2,25 s | 5,05 s |
-| 3 of 4 | 89,8% | 98,3% | 10,4% | 2,91 s | 5,40 s |
-| 4 of 6 | 90,6% | 98,3% | 9,4% | 3,42 s | 5,95 s |
-| 1 cửa sổ, alpha/2 | 86,9% | 88,5% | 12,3% | 2,05 s | 5,05 s |
-| 4 of 6, alpha/2 | 94,3% | 87,4% | 4,9% | 4,63 s | 7,75 s |
+| 1 cửa sổ, alpha×3 | 94,3% | 93,4% | 5,2% | 1,97 s | 5,50 s |
+| 1 cửa sổ, alpha×5 | 89,2% | 97,9% | 11,0% | 1,99 s | 4,95 s |
+| 2 of 3, alpha×5 | 98,9% | 97,9% | 1,0% | 3,39 s | 6,04 s |
+| 2 of 3, alpha×10 | 96,9% | 99,0% | 2,9% | 2,32 s | 3,54 s |
 
-Xác nhận nhiều cửa sổ giảm một nửa control dương với chi phí ~1 điểm recall, nhưng làm
-p95 vượt 2 s. Vì độ trễ kernel → cảnh báo là ràng buộc cứng (dưới 2 s, càng thấp càng
-tốt), k-of-n chỉ là phương án phụ (tối đa 2 cửa sổ); hướng chính là hiệu chỉnh lại
-p-value (5.5) vì không cộng thêm độ trễ. Siết alpha làm mất recall nhanh. **Không chính
-sách nào đạt đồng thời cả bốn kỳ vọng.** Số đợt cảnh báo trên soak cho từng chính sách: *đang tính (xem 5.6)*.
+Chưa có chính sách đạt đồng thời precision/recall ≥ 95%, control dương ≤ 5% và p95 < 2 s;
+gần nhất là "2 of 3, alpha×10" (chỉ lệch p95 0,32 s). Số đợt cảnh báo trên normal của lưới
+này: *job `pulse-recalibration-looser-c2-20261018` đang chạy.*
 
-### 5.5 Hiệu chỉnh lại p-value (phát triển, 18/10) — *đang chạy*
-
-Thiết kế (đăng ký trước khi xem kết quả): tập hiệu chỉnh = điểm của dữ liệu soak
-15/10 00:30–07:30 UTC (sau R3, trước can thiệp RCA, bỏ khoảng R5 03:00–03:25); kiểm tra
-trên phần soak từ 15/10 08:40 UTC đến hết và trên R3/R5. Lưu ý: phần kiểm tra trùng
-thời gian bật policy Tetragon cho RCA.
+**Kiểm tra tương đương sau refactor: đạt.** Replay 3 segment soak (s00050 của mỗi worker)
+qua code mới: 214.449 cửa sổ có điểm, 0 sai khác, chênh lệch tuyệt đối lớn nhất = 0
+(`validation-evidence/results-20261018/scorer-equivalence-0117901.json`). Lưu ý: chỉ ~34%
+cửa sổ được chấm vì collector theo dõi cả container ngoài 21 workload có model (loadgen…).
 
 ### 5.6 RCA
 
