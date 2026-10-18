@@ -22,6 +22,7 @@ from .connect import kubernetes_target_index, normalize_connect_event
 from .tree import build_tree, case_id, event_time, identity, render_markdown, trigger_kind
 from .runtime_events import normalize_runtime_event
 from .runtime_tree import build_runtime_tree, render_runtime_markdown
+from .ranking import rank_suspects, workload_of
 
 
 def atomic(path, value):
@@ -45,6 +46,8 @@ def database(path):
         identity text, trigger text);
       create index if not exists case_identity on cases(identity,created);
       create table if not exists metadata(key text primary key, value text);
+      create table if not exists binaries(workload text, binary text, first_seen real,
+        primary key(workload, binary));
     ''')
     return db
 
@@ -170,6 +173,11 @@ class Service:
         self.db.execute('insert or ignore into events values(?,?,?,?,?,?)',
             (edge['raw_event_sha256'], at, node, edge['source']['pod_uid'],
              edge['source']['container_name'], json.dumps(edge, separators=(',', ':'))))
+        if edge.get('operation') == 'exec' and edge['source'].get('binary'):
+            # Never expires with the ring: first sighting per workload feeds suspect ranking.
+            self.db.execute('insert or ignore into binaries values(?,?,?)', (workload_of(
+                edge['source']['namespace'], edge['source'].get('pod_name'), edge['source']['container_name']),
+                edge['source']['binary'], at))
         if edge.get('operation', 'connect') == 'connect':
             self.count('connect_events')
         self.count('runtime_events')
@@ -300,6 +308,13 @@ class Service:
             tree = builder(row, [json.loads(e[0]) for e in source],
                 before_seconds=self.cfg['before_seconds'], after_seconds=self.cfg['after_seconds'], coverage=coverage)
             tree['created_at'] = now
+            if self.cfg.get('runtime_events'):
+                baseline = dict(self.db.execute('select binary, first_seen from binaries where workload=?',
+                                                (row['workload_key'],)).fetchall())
+                frozen = self.cfg.get('binary_baseline_frozen_at')
+                tree['suspects'] = rank_suspects(tree, baseline, frozen)[:20]
+                tree['suspect_ranking'] = dict(method='heuristic_triage_order_not_probability',
+                    binary_baseline_frozen_at=frozen, baseline_binaries=len(baseline))
             out = self.root/'cases'; out.mkdir(exist_ok=True)
             atomic(out/(cid+'.json'), tree)
             md = out/(cid+'.md'); temp = md.with_suffix('.md.tmp')

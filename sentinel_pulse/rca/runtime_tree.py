@@ -163,6 +163,11 @@ def render_runtime_markdown(tree):
     for n in tree['nodes']:
         if n['kind'] == 'runtime_event':
             lines.append(f"| {n['category']} | {n['operation']} | {safe(n['outcome'])} | {safe(n['details'])} |")
+    if tree.get('suspects'):
+        lines.extend(['', '## Process nghi vấn (thứ tự ưu tiên điều tra, không phải kết luận)', '',
+                      '| Hạng | Binary | Điểm | Lý do |', '|---|---|---|---|'])
+        lines.extend(f"| {s['rank']} | {safe(s['binary'])} | {s['score']} | {', '.join(s['reasons']) or '-'} |"
+                     for s in tree['suspects'][:5])
     if tree.get('network_destinations'):
         lines.extend(['', f"## Đích mạng đang hoạt động ({tree.get('matched_flow_events', 0)} lần gửi, lấy mẫu 10 s/socket)", ''])
         lines.extend(f"- {safe(d)}" for d in tree['network_destinations'])
