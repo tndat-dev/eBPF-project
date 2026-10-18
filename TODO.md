@@ -13,6 +13,7 @@ xóa/dừng trên máy chung hoặc công khai lên GitHub.
       `archive/pre-refactor-20261018` giữ nguyên cây cũ. Test: 257 pass (local và trên .234).
 - [x] Thu kết quả soak Pulse 48 giờ (cả 3 worker đã kết thúc bình thường 16/10).
 - [x] Thu kết quả chấm holdout R4 của thí nghiệm syscall (147 segment, 500,8 workload-giờ).
+- [x] Gọn `validation-evidence/`: 59 → 11 thư mục, nhóm theo pulse/syscall/rca.
 - [x] Nghiên cứu "xác nhận k-of-n" trên dữ liệu development: replay R3/R5 đã tái lập
       đúng ma trận công bố; có bảng recall/độ trễ cho 21 chính sách.
 - [~] Đo số đợt cảnh báo trên soak normal cho 21 chính sách (job đang chạy trên .234).
@@ -36,7 +37,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 ## Ưu tiên 1 — Chuẩn bị lượt chạy live tiếp theo
 
-- [ ] Đóng băng lại source sau refactor: chạy scorer mới và scorer đóng băng
+- [~] Đóng băng lại source sau refactor (đã sửa lỗi nạp pickle cũ; job
+      `pulse-scorer-equivalence-20261018` đang replay 3 segment): chạy scorer mới và scorer đóng băng
       (`runtime-2c1a72d`) trên cùng tập context, chứng minh điểm số trùng khớp,
       lưu receipt rồi dùng commit mới làm `frozen_source`. (Worker sẽ từ chối chạy nếu chưa làm.)
 - [ ] Triển khai chính sách đã chọn vào `detector/` + `pipeline/matched_worker.py` (vẫn shadow).
@@ -74,7 +76,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 ## Ưu tiên 3 — GitHub và chất lượng
 
-- [ ] **(cần bạn quyết)** Push nhánh `refactor/repo-cleanup` và tag lưu trữ; mở PR vào `main`.
+- [x] Push nhánh `refactor/repo-cleanup` và tag `archive/pre-refactor-20261018` (18/10).
+- [ ] **(cần bạn quyết)** Mở PR `refactor/repo-cleanup` → `main`.
 - [ ] `origin/main` đang lệch: 2 commit tài liệu trên nền cũ, thiếu 107 commit của nhánh
       thí nghiệm → hợp nhất qua PR ở trên.
 - [ ] CI (GitHub Actions) chạy pytest với `requirements-lock.txt`.
