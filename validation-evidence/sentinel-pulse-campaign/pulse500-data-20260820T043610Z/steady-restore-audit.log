@@ -1,3 +1,0 @@
-deployment "aims-sentinel-loadgen" successfully rolled out
-deployment "aims-sentinel-dependency-loadgen" successfully rolled out
-AIMS traffic regime=steady base_replicas=1 readmix_replicas=0 dependency_replicas=1 sleep=1s
