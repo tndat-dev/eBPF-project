@@ -66,7 +66,10 @@ rca() {
   wait_for_workers
   kubectl apply -f "$RCA_SOURCE/sentinel_pulse/k8s/tetragon-rca-flow-policy.yaml"
   as_root mkdir -p "/opt/sentinel-pulse-rca/$RCA_NAME"
-  as_root cp -a "$RCA_SOURCE" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
+  # NFS ACLs cannot be preserved on local disk; plain mode/timestamps are enough.
+  as_root test -d "/opt/sentinel-pulse-rca/$RCA_NAME/source/.git" ||
+    as_root cp -r --preserve=mode,timestamps "$RCA_SOURCE" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
+  as_root git -C "/opt/sentinel-pulse-rca/$RCA_NAME/source" -c safe.directory='*' rev-parse HEAD
   python3 - "$CAMPAIGN_CONFIG" >"/tmp/$RCA_NAME.json" <<'PY'
 import json, sys
 run = json.load(open(sys.argv[1]))
@@ -86,8 +89,9 @@ PY
   as_root install -m 0640 -o root -g dat "/tmp/$RCA_NAME.json" "/etc/sentinel-pulse-rca/$RCA_NAME.json"
   rm -f "/tmp/$RCA_NAME.json"
   unit=/etc/systemd/system/pulse-rca-runtime-events-r6.service
-  [ -e "$unit" ] && { echo "$unit exists" >&2; return 1; }
-  as_root tee "$unit" >/dev/null <<UNIT
+  systemctl is-active --quiet pulse-rca-runtime-events-r6.service && { echo "$unit already running" >&2; return 1; }
+  # Write via a temp file: as_root feeds the password on stdin, so it cannot also carry a heredoc.
+  cat >/tmp/pulse-rca-r6.service <<UNIT
 [Unit]
 Description=Pulse RCA runtime-event subscriber ($RUN, read-only)
 After=network-online.target
@@ -108,6 +112,8 @@ Nice=10
 [Install]
 WantedBy=multi-user.target
 UNIT
+  as_root install -m 0644 -o root -g root /tmp/pulse-rca-r6.service "$unit"
+  rm -f /tmp/pulse-rca-r6.service
   as_root systemctl daemon-reload
   as_root systemctl disable --now pulse-rca-runtime-events.service
   as_root systemctl enable --now pulse-rca-runtime-events-r6.service
