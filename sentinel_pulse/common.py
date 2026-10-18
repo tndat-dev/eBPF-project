@@ -8,11 +8,36 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import pickle
 import subprocess
 import tempfile
 import time
 
 from .integrity import sha256_file
+
+# Frozen artifacts were pickled before the 2026-10-18 package split and name
+# classes by their flat module path; map those onto the current layout.
+LEGACY_MODULES = {
+    'sentinel_pulse.model': 'sentinel_pulse.detector.model',
+    'sentinel_pulse.support_model': 'sentinel_pulse.detector.support_model',
+    'sentinel_pulse.extended_reference_experiment': 'sentinel_pulse.detector.extended_reference_experiment',
+    'sentinel_pulse.idle_candidate': 'sentinel_pulse.detector.idle_candidate',
+    'sentinel_pulse.features': 'sentinel_pulse.collector.features',
+    'sentinel_pulse.matched_study': 'sentinel_pulse.syscall_study.matched_study',
+}
+
+
+class _ArtifactUnpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        return super().find_class(LEGACY_MODULES.get(module, module), name)
+
+
+def load_artifact(stream):
+    """Unpickle a hash-verified model artifact written by any package layout.
+
+    Pickle executes code: callers must verify the artifact digest first.
+    """
+    return _ArtifactUnpickler(stream).load()
 
 
 def atomic_json(path: Path, value: dict) -> None:

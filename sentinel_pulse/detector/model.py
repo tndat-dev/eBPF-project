@@ -13,6 +13,8 @@ import time
 
 import numpy as np
 
+from ..common import load_artifact
+
 
 MAX_CONTIGUOUS_GAP_SECONDS = 1.5
 
@@ -237,7 +239,7 @@ class PulseExtraTrees:
     @classmethod
     def load(cls, path: str | Path) -> "PulseExtraTrees":
         with open(path, "rb") as handle:
-            model = pickle.load(handle)
+            model = load_artifact(handle)
         if not isinstance(model, cls):
             raise TypeError("artifact is not a Sentinel Pulse model")
         return model

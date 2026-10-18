@@ -102,7 +102,7 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
                         tree_score=np.full(n, .8), support_score=np.zeros(n),
                         joint_p=np.full(n, .02), anomalous=np.ones(n, dtype=bool))
 
-    monkeypatch.setattr('sentinel_pulse.syscall_study.matched_holdout.pickle.load', lambda stream: Model())
+    monkeypatch.setattr('sentinel_pulse.syscall_study.matched_holdout.load_artifact', lambda stream: Model())
     segment = tmp_path/'source'; segment.mkdir()
     columns = ['f'+str(i) for i in range(249)]
     with (segment/'features.jsonl').open('w') as stream:

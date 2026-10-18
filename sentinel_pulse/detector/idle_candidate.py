@@ -10,10 +10,10 @@ import json
 import math
 import __main__
 from pathlib import Path
-import pickle
 
 import numpy as np
 
+from ..common import load_artifact
 from ..integrity import contained_artifact, sha256_file, verify_sha256
 
 
@@ -77,7 +77,7 @@ class IdleCandidateScorer:
             from .extended_reference_experiment import PulseExtendedReferenceTree
             __main__.PulseExtendedReferenceTree = PulseExtendedReferenceTree
             with artifact.open("rb") as stream:
-                model = pickle.load(stream)
+                model = load_artifact(stream)
             base = getattr(model, "base", None)
             if (
                 getattr(base, "feature_dim", None) != FEATURE_DIM
