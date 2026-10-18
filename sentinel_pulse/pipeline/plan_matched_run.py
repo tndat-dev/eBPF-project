@@ -1,4 +1,9 @@
-"""Create a prospective matched run; the resulting JSON is immutable input."""
+"""Create a prospective matched run; the resulting JSON is immutable input.
+
+Profiles pin the candidate, preview policy, attack fixture and run length:
+``r1`` is the original 48 h frozen-candidate run (15/10), ``r6`` the
+recalibrated candidate + R6 policy with benign-exec controls (18/10).
+"""
 import argparse
 import json
 from pathlib import Path
@@ -9,33 +14,50 @@ import time
 
 from ..integrity import sha256_file
 
-MODEL_HASH='747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08'
-POLICY_HASH='fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401'
+PROFILES={
+    'r1':dict(candidate='/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle',
+        model_hash='747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08',
+        policy='sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json',
+        policy_hash='fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401',
+        fixture='testbed/attack/runtime_attack_blind_b1.c',seconds=172800,
+        benign_exec_control=False,write_raw_frames=True),
+    # 24 h without raw.jsonl: the 48 h r1 layout (~4.9 GB/h) no longer fits the NFS share.
+    'r6':dict(candidate='/mnt/sentinel-pulse-archive/runtime-recal-c1-20261018/model-bundle',
+        model_hash='ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4',
+        policy='sentinel_pulse/protocol/recalibrated-preview-policy-r6.json',
+        policy_hash='f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb',
+        fixture='testbed/attack/runtime_attack_r6.c',seconds=86400,
+        benign_exec_control=True,write_raw_frames=False),
+}
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
-def plan(source,root,run_id,smoke=False):
+def plan(source,root,run_id,smoke=False,profile='r1',frozen_source=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
-    root.mkdir(parents=True,exist_ok=False)
-    candidate=Path('/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle')
-    policy=source/'sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json'
+    spec=PROFILES[profile]
+    candidate=Path(spec['candidate'])
+    policy=source/spec['policy']
     exec_policy=source/'testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
-    if sha256_file(candidate/'CANDIDATE_MANIFEST.json')!=MODEL_HASH or sha256_file(policy)!=POLICY_HASH:
+    if sha256_file(candidate/'CANDIDATE_MANIFEST.json')!=spec['model_hash'] or sha256_file(policy)!=spec['policy_hash']:
         raise ValueError('candidate or preview policy differs')
     keys=sorted(json.loads((candidate/'CANDIDATE_MANIFEST.json').read_text())['workloads'])
     if len(keys)!=21:raise ValueError('expected 21 frozen workload keys')
+    root.mkdir(parents=True,exist_ok=False)
     binary=root/'runtime-attack-development'
     subprocess.run(['gcc','-O2','-Wall','-Wextra','-Werror','-static',
-        str(source/'testbed/attack/runtime_attack_blind_b1.c'),'-o',str(binary)],check=True)
+        str(source/spec['fixture']),'-o',str(binary)],check=True)
     binary.chmod(0o555)
     header=Path('/usr/include/x86_64-linux-gnu/asm/unistd_64.h')
     native=[int(value) for value in re.findall(r'^#define __NR_\w+\s+(\d+)$',header.read_text(),re.M)]
-    cfg=dict(run_id=run_id,source=str(source),frozen_source='/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source',
-        candidate=str(candidate),model_hash=MODEL_HASH,policy=str(policy),policy_hash=POLICY_HASH,
+    cfg=dict(run_id=run_id,profile=profile,source=str(source),
+        frozen_source=str(frozen_source or '/mnt/sentinel-pulse-archive/runtime-2c1a72d-20261013/source'),
+        candidate=str(candidate),model_hash=spec['model_hash'],policy=str(policy),policy_hash=spec['policy_hash'],
         exec_provenance_policy=str(exec_policy),exec_provenance_policy_sha256=sha256_file(exec_policy),
-        seconds=90 if smoke else 172800,minimum_free_bytes=4*1024**3,workload_keys=keys,
+        seconds=90 if smoke else spec['seconds'],minimum_free_bytes=4*1024**3,workload_keys=keys,
         campaign_output=str(root/'pulse-development-matrix'),study_output=str(root/'syscall-matched-study'),
         traffic_output=str(root/'traffic'),binary=str(binary),binary_hash=sha256_file(binary),
+        fixture_source=spec['fixture'],benign_exec_control=spec['benign_exec_control'],
+        write_raw_frames=spec['write_raw_frames'],
         native_syscall_ids=sorted(set(native)),native_syscall_header=dict(path=str(header),sha256=sha256_file(header)),
         created_at=time.time(),source_commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip(),
         matched_observable='500ms full-ID + 249 baseline + transitions + rolling10 + history3 + tree/support',
@@ -70,4 +92,6 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('source','root'):p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--run-id',required=True);p.add_argument('--smoke',action='store_true')
-    a=p.parse_args();plan(a.source,a.root,a.run_id,a.smoke)
+    p.add_argument('--profile',choices=sorted(PROFILES),default='r1')
+    p.add_argument('--frozen-source',type=Path,help='source snapshot whose scorer bytes the worker must match')
+    a=p.parse_args();plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source)

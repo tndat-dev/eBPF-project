@@ -38,6 +38,14 @@ def scorer_file(source, name):
     return nested if nested.is_file() else source/'sentinel_pulse'/name
 
 
+class NullSink:
+    """Stands in for raw.jsonl when a run registers ``write_raw_frames: false``."""
+    def write(self, _): pass
+    def flush(self): pass
+    def __enter__(self): return self
+    def __exit__(self, *_): return False
+
+
 def full_delta(row, previous):
     current = {int(k): int(v) for k,v in row['full_counts'].items()}
     if any(not 0<=k<1024 or v<0 for k,v in current.items()):
@@ -107,7 +115,10 @@ def run(config_path):
             state['issues']+=1
             issues.write(json.dumps(dict(at=time.time(),reason=reason,not_normal=True))+'\n');issues.flush()
         child=None
-        with (segment/'raw.jsonl').open('x') as raw,(segment/'features.jsonl').open('x') as features,\
+        # raw.jsonl duplicates features.jsonl (full_counts_delta + features) at ~30% of the
+        # bytes; a run may skip it when shared storage is tight.
+        raw_path=segment/'raw.jsonl' if cfg.get('write_raw_frames',True) else None
+        with (raw_path.open('x') if raw_path else NullSink()) as raw,(segment/'features.jsonl').open('x') as features,\
              (segment/'decisions.jsonl').open('x') as decisions,(segment/'issues.jsonl').open('x') as issues,\
              (segment/'loader.log').open('x') as errors:
             schemas=set()
@@ -186,7 +197,9 @@ def run(config_path):
                     child.terminate()
                     try:child.wait(timeout=5)
                     except subprocess.TimeoutExpired:child.kill();child.wait()
-                for sink in (raw,features,decisions,issues):sink.flush();os.fsync(sink.fileno())
+                for sink in (raw,features,decisions,issues):
+                    sink.flush()
+                    if not isinstance(sink,NullSink):os.fsync(sink.fileno())
                 atomic_json(segment/'TERMINAL.json',dict(finished_at_unix=time.time(),
                     trailing_bytes=len(buffer),trailing_snapshots=len(pending),
                     seals={p.name:sha256_file(p) for p in segment.iterdir() if p.is_file()}))
