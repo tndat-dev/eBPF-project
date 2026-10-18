@@ -925,17 +925,7 @@ PY
 
 Muốn chạy từ đầu, cần cấp đúng kernel/BTF/cgroup v2/quyền, build sensor, kiểm chứng visibility trên fixture, đăng ký source/observable, thu normal theo nhiều regime, split/fit/calibrate/freeze, rồi canary → normal/control → blind. Các script trong repo có nhiều thế hệ contract; không chạy đồng loạt hoặc ghi đè checkout frozen. Báo cáo không đưa một lệnh “deploy tất cả” chưa kiểm chứng cho môi trường bất kỳ.
 
-## 19. RCA, Agent/MCP và MLOps liên quan thế nào?
-
-RCA là phân tích nguyên nhân gốc: nối evidence từ process cha/con, syscall, connection và workload để tìm chuỗi liên quan. Counter Pulse chỉ hỗ trợ tín hiệu định lượng; không tự trả lời process nào connect tới đâu và gửi nội dung gì.
-
-[rca_connect.py](sentinel_pulse/rca_connect.py) chuẩn hóa detailed connect events và inventory. Từ 15/10/2026, [RCA subscriber độc lập](RCA_RUNTIME_STATUS.md) đã triển khai trên `.234`, chạy song song Pulse và thí nghiệm feature/syscall: đọc candidate preview, join node/Pod UID/container với context 30 giây trước + 5 giây sau, xuất cây process/parent/connect/destination. Snapshot 11:06 có 52 case, 27 case có connect context; có [cây thật và receipt](validation-evidence/pulse-rca-context-20261015/README.md). Đây chưa phải thuật toán xác nhận root cause nhân quả, chưa bao phủ connect detail mọi dependency, và chưa có alert production. Không thu payload/argv; syscall `connect` cũng không cho biết nội dung TLS hoặc bảo đảm kết nối thành công.
-
-MCP là giao thức tích hợp tool/ngữ cảnh cho agent, không phải điều kiện để ExtraTrees hoạt động. LSTM/GAT, agent graph và policy legacy có thể nằm trong repo nhưng không thuộc inference path của candidate đang báo cáo. RBAC hạn chế quyền, runtime security quan sát hành vi thực thi: hai lớp bổ sung nhau, không thay thế nhau.
-
-Dự án có nhiều thực hành **MLOps**: versioning dữ liệu/model, feature contract, freeze/checksum, môi trường runtime, shadow/canary, giám sát drift/lag, checkpoint/recovery, evaluation và audit. Tuy vậy đây là framework nghiên cứu đang phát triển, không mặc nhiên đã có đầy đủ model registry, CI/CD promotion và production SLO được chứng minh.
-
-## 21. Thuật ngữ tra cứu
+## 19. Thuật ngữ tra cứu
 
 | Thuật ngữ | Giải thích trong dự án |
 |---|---|

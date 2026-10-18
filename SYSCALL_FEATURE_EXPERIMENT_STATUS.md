@@ -56,15 +56,6 @@ holdout đã chạy khoảng **2 giờ 41 phút (11,2% thời gian đăng ký)**
 window độc lập hay confusion matrix. Cần chốt segment seal và kiểm tra
 coverage/health sau mốc 24 giờ.
 
-**Vì sao vẫn chấm normal holdout sau khi fit R4?** Fit chỉ tạo và audit
-artifact của 693 model; nó không cho biết model có gắn cờ nhầm trên normal mới
-hay không. Evaluator chấm artifact đã khóa trên capture độc lập, không refit
-và không đổi ngưỡng. Kết quả giúp so sánh raw-positive/episode burden giữa các
-arm và seed trong cùng điều kiện. Positive chưa adjudicate nên chưa tự gọi là
-false positive. Normal holdout cũng không đo recall; bước đó cần blind attack
-có ground truth. Trình tự này giảm nguy cơ chọn feature chỉ theo attack set.
-Holdout này phục vụ so sánh phát triển; sau khi xem kết quả, nó không còn là
-blind để tiếp tục tune.
 
 Đây mới là thời gian quan sát, chưa phải 24 valid workload-hours: workload
 coverage và telemetry/infrastructure intervals phải kiểm tra từ feature records
