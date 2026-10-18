@@ -6,7 +6,7 @@ import time
 
 from .integrity import sha256_file
 from .preview_evaluation import evaluate_interval, summarize
-from .syscall_histogram_pilot import atomic_json
+from .common import atomic_json
 
 
 def replay(config, output):

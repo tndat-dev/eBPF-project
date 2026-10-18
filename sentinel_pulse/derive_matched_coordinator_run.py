@@ -39,7 +39,7 @@ def derive(capture_config, source, root, run_id, *, selection_delay=180,
     binary=Path(base['binary'])
     if sha256_file(binary)!=base['binary_hash']:
         raise ValueError('attack fixture differs from registered capture')
-    exec_policy=source/'sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
+    exec_policy=source/'testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
     now=time.time()
     start=now+selection_delay if selection_start_at is None else float(selection_start_at)
     if not math.isfinite(start) or start<=0 or selection_seconds<=0 or attack_delay<0:

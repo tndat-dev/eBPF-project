@@ -1,7 +1,7 @@
 import json
 from types import SimpleNamespace
 import pytest
-from sentinel_pulse.attack_trial import select_target
+from sentinel_pulse.attack_runtime import select_target
 
 
 def pod(name, uid, container):

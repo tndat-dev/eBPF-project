@@ -7,7 +7,7 @@ import json
 import math
 from pathlib import Path
 
-from .observation_campaign import atomic_json
+from .common import atomic_json
 from .syscall_histogram_analysis import summarize
 
 

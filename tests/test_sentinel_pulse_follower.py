@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 
-from sentinel_pulse.detect import RotatingJsonlFollower
+from sentinel_pulse.common import RotatingJsonlFollower
 
 
 class PulseFollowerTests(unittest.TestCase):

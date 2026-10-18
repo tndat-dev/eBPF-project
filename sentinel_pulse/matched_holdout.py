@@ -21,7 +21,7 @@ import numpy as np
 from .encoding import decode_vector, schema_digest
 from .features import TRACKED_SYSCALLS
 from .integrity import contained_artifact, sha256_file
-from .syscall_histogram_pilot import atomic_json
+from .common import atomic_json
 
 IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgroup_id')
 

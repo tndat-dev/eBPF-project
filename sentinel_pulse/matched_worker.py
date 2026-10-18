@@ -22,7 +22,7 @@ from .features import TRACKED_SYSCALLS
 from .idle_batch import IdleBatchRuntime
 from .idle_candidate import IdleCandidateScorer
 from .integrity import sha256_file
-from .syscall_histogram_pilot import atomic_json
+from .common import atomic_json
 
 
 def full_delta(row, previous):

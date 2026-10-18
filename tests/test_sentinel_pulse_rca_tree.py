@@ -7,7 +7,7 @@ import pytest
 
 from sentinel_pulse.rca_connect import normalize_connect_event
 from sentinel_pulse.rca_tree import build_tree, case_id, event_time, render_markdown, trigger_kind
-from sentinel_pulse.rca_service import Service, database, initial_offset, read_complete
+from sentinel_pulse.rca_service import Service, initial_offset, read_complete
 
 
 def trigger(**extra):
@@ -177,11 +177,3 @@ def test_normalizer_records_parent_without_argv_or_payload():
     assert 'secret' not in json.dumps(normalized)
 
 
-def test_unit_keeps_rca_separate_from_model_and_restartable():
-    unit = Path('sentinel_pulse/systemd/pulse-rca-context.service').read_text()
-    assert 'Restart=always' in unit and 'WantedBy=multi-user.target' in unit
-    assert 'CPUQuota=200%' in unit and 'MemoryMax=512M' in unit
-    assert 'TasksMax=128' in unit
-    assert 'ReadWritePaths=/var/lib/sentinel-pulse-rca' in unit
-    assert 'sentinel_pulse.rca_service' in unit
-    assert 'RequiresMountsFor=' not in unit

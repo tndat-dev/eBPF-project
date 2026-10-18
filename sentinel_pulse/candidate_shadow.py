@@ -11,7 +11,7 @@ import time
 
 import numpy as np
 
-from .detect import RotatingJsonlFollower
+from .common import RotatingJsonlFollower
 from .encoding import decode_vector, schema_digest
 from .idle_candidate import FEATURE_CONTRACT, FEATURE_DIM, IdleCandidateScorer
 from .candidate_policy import CandidatePreviewPolicy

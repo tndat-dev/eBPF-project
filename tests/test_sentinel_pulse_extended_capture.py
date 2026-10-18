@@ -1,4 +1,3 @@
-import math
 import pytest
 from sentinel_pulse.extended_capture import ExtendedFeatureStream,CONTRACT,SCHEMA,IDLE_SCHEMA,IDLE_CONTRACT
 from sentinel_pulse.features import TRACKED_SYSCALLS

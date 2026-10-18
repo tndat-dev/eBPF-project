@@ -23,7 +23,7 @@ from .syscall_histogram_analysis import (
     interval_regime, latest_metadata, load_metadata, load_traffic_receipt,
     read_jsonl, summarize, workload_identity,
 )
-from .syscall_histogram_pilot import atomic_json
+from .common import atomic_json
 
 
 PROFILE = 'histogram-entry-only-1000ms-rolling10-no-transition-v1'
@@ -198,7 +198,7 @@ def run(selection, selection_hash, holdout, holdout_hash, output):
     import numpy as np
     from .extended_reference_experiment import PulseExtendedReferenceTree
     from .features import SENSITIVE_IDS
-    from .syscall_analysis import pvalues
+    from .support_model import pvalues
     source = Path(__file__).resolve().parent
     baseline = tracked_from_source(source/'features.py')
     selection_inputs = cohort_paths(selection, selection_hash, 'selection')

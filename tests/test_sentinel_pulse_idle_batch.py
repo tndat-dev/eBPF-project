@@ -37,7 +37,7 @@ class IdleBatchTests(unittest.TestCase):
             window_end=(index+1)*.5, vector=np.full(249, value, dtype=np.float32).tolist())
 
     def test_scores_match_scalar_and_batch_is_one_model_call(self):
-        from sentinel_pulse.idle_batch import score_batch, SCORE_FIELDS
+        from sentinel_pulse.idle_batch import score_batch
         x = np.zeros((8,996),np.float32);x[4:,-249:]=1
         scalar = [self.scorer.score_context('production/a:app', row) for row in x]
         before = self.scorer.models['production/a:app'].calls

@@ -6,24 +6,21 @@ called a fresh blind set. No outcome changes a model, alpha or policy.
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 import fcntl
 import json
-import os
 from pathlib import Path
 import shlex
 import subprocess
 import time
 
-from .attack_trial import select_target
 from .integrity import sha256_file
-from .observation_attack import AttackRuntime
+from .attack_runtime import Runtime, binary_path_for_controller, select_target
+from .common import append_jsonl, atomic_json
 from .preview_evaluation import evaluate_interval, summarize
-from .run_500ms_blind_matrix import append_jsonl, atomic_json, binary_path_for_controller
 from .tetragon_evidence import EXEC_PROVENANCE_POLICY, find_execve_kprobe_event
 
 
-class PreviewRuntime(AttackRuntime):
+class PreviewRuntime(Runtime):
     def remote_sudo(self,host,command,*,payload=b'',timeout=30):
         return self.run(['sshpass','-e','ssh','-o','StrictHostKeyChecking=yes',
             '-o','UserKnownHostsFile=/home/dat/.ssh/known_hosts','-o','ConnectTimeout=8',

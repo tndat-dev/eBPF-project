@@ -1,6 +1,5 @@
 """Create a prospective matched run; the resulting JSON is immutable input."""
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import random
@@ -20,14 +19,14 @@ def plan(source,root,run_id,smoke=False):
     root.mkdir(parents=True,exist_ok=False)
     candidate=Path('/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle')
     policy=source/'sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json'
-    exec_policy=source/'sentinel/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
+    exec_policy=source/'testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
     if sha256_file(candidate/'CANDIDATE_MANIFEST.json')!=MODEL_HASH or sha256_file(policy)!=POLICY_HASH:
         raise ValueError('candidate or preview policy differs')
     keys=sorted(json.loads((candidate/'CANDIDATE_MANIFEST.json').read_text())['workloads'])
     if len(keys)!=21:raise ValueError('expected 21 frozen workload keys')
     binary=root/'runtime-attack-development'
     subprocess.run(['gcc','-O2','-Wall','-Wextra','-Werror','-static',
-        str(source/'sentinel/benchmarks/runtime_attack_blind_b1.c'),'-o',str(binary)],check=True)
+        str(source/'testbed/attack/runtime_attack_blind_b1.c'),'-o',str(binary)],check=True)
     binary.chmod(0o555)
     header=Path('/usr/include/x86_64-linux-gnu/asm/unistd_64.h')
     native=[int(value) for value in re.findall(r'^#define __NR_\w+\s+(\d+)$',header.read_text(),re.M)]

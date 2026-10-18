@@ -9,7 +9,7 @@ import math
 from pathlib import Path
 import re
 
-from .observation_campaign import atomic_json
+from .common import atomic_json
 
 
 SCHEMA = "sentinel-pulse-syscall-id-histogram-v1"

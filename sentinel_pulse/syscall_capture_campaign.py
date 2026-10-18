@@ -16,7 +16,7 @@ import shlex
 import subprocess
 import time
 
-from .syscall_histogram_pilot import atomic_json, append_jsonl
+from .common import append_jsonl, atomic_json
 
 WORKERS = {"10.1.16.237": "k8s-worker1.local", "10.1.16.238": "k8s-worker4.local",
            "10.1.16.239": "k8s-worker3.local"}
@@ -176,7 +176,7 @@ def traffic_identity(snap):
 def set_regime(source, regime, log):
     env = {**os.environ, "KUBECONFIG": "/home/dat/.kube/config", "NAMESPACE": "production"}
     with log.open("a") as stream:
-        subprocess.run(["bash", str(source / "ml-service/set_aims_traffic_regime.sh"), regime],
+        subprocess.run(["bash", str(source / "testbed/traffic/set_aims_traffic_regime.sh"), regime],
                        env=env, stdout=stream, stderr=stream, check=True, timeout=600)
 
 
@@ -214,7 +214,7 @@ def run(args):
     remote = Remote(args.credential, source=source)
     start_path = root / "START.json"
     contract = dict(schema="pulse-syscall-multiregime-campaign-v1", source_commit=args.source_commit,
-        controller_sha256=digest(__file__), traffic_script_sha256=digest(source / "ml-service/set_aims_traffic_regime.sh"),
+        controller_sha256=digest(__file__), traffic_script_sha256=digest(source / "testbed/traffic/set_aims_traffic_regime.sh"),
         protected_soak=SOAK_ROOT, phases=phases(), workers=WORKERS, baseline_seconds=300,
         probe_seconds=600, post_seconds=300, histogram_interval_ms=1000, feature_interval_ms=500,
         feature_schema="sentinel-pulse-feature-v1", feature_rolling_windows=10,
