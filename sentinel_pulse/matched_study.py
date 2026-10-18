@@ -8,7 +8,6 @@ import hashlib
 import json
 from pathlib import Path
 import pickle
-import re
 import time
 
 import numpy as np
@@ -18,7 +17,7 @@ from .extended_reference_experiment import PulseExtendedReferenceTree
 from .features import TRACKED_SYSCALLS
 from .integrity import sha256_file
 from .support_model import PulseSupportEnsemble
-from .syscall_histogram_pilot import atomic_json
+from .common import atomic_json
 
 SEEDS=(73021,73022,73023)
 SECURITY=(175,176,246,248,249,250,265,310,311,313,321,323,425,426,427)

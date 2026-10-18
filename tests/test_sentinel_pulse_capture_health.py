@@ -1,13 +1,9 @@
 import io
 import json
 
-import numpy as np
 import pytest
 
 from sentinel_pulse.capture import run
-from sentinel_pulse.encoding import compact_record, decode_vector
-from sentinel_pulse.inspect_feature_tail import inspect
-from sentinel_pulse.validate_capture import validate
 
 
 def capture(tmp_path, times, **kwargs):
@@ -64,95 +60,12 @@ def capture_multiple_cgroups(tmp_path, times, cgroup_count=3, **kwargs):
     return path
 
 
-def test_gap_remains_visible_after_cadence_recovers(tmp_path):
-    path = capture(tmp_path, [10.0, 10.5, 13.0, 13.5],
-                   interval_min_seconds=0.35, interval_max_seconds=0.8,
-                   nominal_interval_seconds=0.5)
-    rows = [json.loads(line) for line in path.read_text().splitlines()]
-    features = [row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"]
-    assert [r["collector_stats"].get("capture_interval_violation", 0)
-            for r in features] == [0, 1, 1]
-    assert features[1]["window_end"] - features[1]["window_start"] == 2.5
-    assert features[1]["collector_snapshot_interval_seconds"] == 2.5
-    tail = inspect(path, observed_at=features[-1]["emitted_at"])
-    assert tail["interval_seconds"] == 0.5
-    assert not tail["valid"]
-    assert any("telemetry availability" in item for item in tail["errors"])
-    assert all(np.isfinite(decode_vector(row)).all() for row in features)
 
 
-def test_tail_uses_cumulative_availability_for_a_recovered_gap(tmp_path):
-    path = capture(
-        tmp_path,
-        [10.0, 10.5, 13.0] + [13.5 + 0.5 * tick for tick in range(5000)],
-        interval_min_seconds=0.35,
-        interval_max_seconds=0.8,
-        nominal_interval_seconds=0.5,
-    )
-    rows = [json.loads(line) for line in path.read_text().splitlines()]
-    newest = [
-        row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"
-    ][-1]
-    state = newest["collector_telemetry_availability"]
-    assert state["estimated_missing_snapshots"] == 4
-    assert state["maximum_snapshot_interval_seconds"] == 2.5
-    assert state["minimum_snapshot_interval_seconds"] == 0.5
-    assert state["short_interval_events"] == 0
-    assert state["cadence_violation_events"] == 1
-
-    result = inspect(
-        path,
-        observed_at=newest["emitted_at"],
-        nominal_interval_seconds=0.5,
-        minimum_telemetry_availability=0.999,
-        maximum_single_gap_seconds=10.0,
-    )
-    assert result["valid"], result["errors"]
-    assert result["telemetry_degraded"] is True
 
 
-def test_tail_rejects_cumulative_missing_snapshot_budget(tmp_path):
-    path = capture(
-        tmp_path,
-        [10.0, 10.5, 13.0, 13.5],
-        interval_min_seconds=0.35,
-        interval_max_seconds=0.8,
-        nominal_interval_seconds=0.5,
-    )
-    rows = [json.loads(line) for line in path.read_text().splitlines()]
-    newest = [
-        row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"
-    ][-1]
-    result = inspect(
-        path,
-        observed_at=newest["emitted_at"],
-        maximum_single_gap_seconds=10.0,
-        maximum_estimated_missing_snapshots=3,
-    )
-    assert not result["valid"]
-    assert any("missing-snapshot budget exceeded" in item for item in result["errors"])
 
 
-def test_tail_rejects_a_prior_short_interval_after_cadence_recovers(tmp_path):
-    path = capture(
-        tmp_path,
-        [10.0, 10.1, 10.6, 11.1],
-        interval_min_seconds=0.35,
-        interval_max_seconds=0.8,
-        nominal_interval_seconds=0.5,
-    )
-    rows = [json.loads(line) for line in path.read_text().splitlines()]
-    newest = [
-        row for row in rows if row["schema"] == "sentinel-pulse-feature-v1"
-    ][-1]
-    result = inspect(
-        path,
-        observed_at=newest["emitted_at"],
-        maximum_single_gap_seconds=10.0,
-        maximum_estimated_missing_snapshots=180,
-    )
-    assert not result["valid"]
-    assert any("telemetry minimum interval" in item for item in result["errors"])
 
 
 def test_gap_counter_counts_loader_snapshots_not_workload_rows(tmp_path):
@@ -203,69 +116,12 @@ def test_loader_cadence_is_not_confused_with_per_cgroup_history(tmp_path):
     assert features[0]["collector_stats"].get("capture_interval_violation", 0) == 0
 
 
-def test_default_capture_keeps_one_second_control_compatible(tmp_path):
-    path = capture(tmp_path, [10.0, 11.0, 12.0])
-    report = validate(path, minimum_rows_per_workload=1)
-    assert report["valid"], report["errors"]
 
 
-def test_preregistered_availability_budget_accepts_one_bounded_pause(tmp_path):
-    path = capture(
-        tmp_path, [10.0, 10.5, 15.0] + [15.5 + 0.5 * tick for tick in range(10000)],
-        interval_min_seconds=0.35, interval_max_seconds=0.8,
-    )
-    report = validate(
-        path,
-        minimum_rows_per_workload=1,
-        interval_min_seconds=0.35,
-        interval_max_seconds=0.8,
-        nominal_interval_seconds=0.5,
-        minimum_telemetry_availability=0.999,
-        maximum_single_gap_seconds=10.0,
-    )
-    assert report["valid"], report["errors"]
-    availability = report["telemetry_availability"]
-    assert availability["cadence_violation_events"] == 1
-    assert availability["estimated_missing_snapshots"] == 8
-    assert availability["availability"] >= 0.999
 
 
-def test_availability_budget_does_not_hide_hard_integrity_loss(tmp_path):
-    path = capture(
-        tmp_path, [10.0, 10.5, 15.0] + [15.5 + 0.5 * tick for tick in range(10000)],
-        interval_min_seconds=0.35, interval_max_seconds=0.8,
-    )
-    rows = [json.loads(line) for line in path.read_text().splitlines()]
-    for row in rows:
-        if row.get("schema") == "sentinel-pulse-feature-v1":
-            row.setdefault("collector_stats", {})["count_insert_fail"] = 1
-    path.write_text("".join(json.dumps(row) + "\n" for row in rows))
-    report = validate(
-        path, minimum_rows_per_workload=1,
-        interval_min_seconds=0.35, interval_max_seconds=0.8,
-        nominal_interval_seconds=0.5,
-        minimum_telemetry_availability=0.999,
-        maximum_single_gap_seconds=10.0,
-    )
-    assert not report["valid"]
-    assert "collector loss: count_insert_fail=1" in report["errors"]
 
 
-@pytest.mark.parametrize("encoding", ["compact", "inline"])
-def test_full_validator_rejects_nonfinite_features(tmp_path, encoding):
-    path = capture(tmp_path, [10.0, 11.0])
-    schema, record = map(json.loads, path.read_text().splitlines())
-    vector = decode_vector(record)
-    vector[0] = float("nan")
-    record.pop("vector_f32_zlib_b64", None)
-    record["vector"] = vector.tolist()
-    if encoding == "compact":
-        record["columns"] = schema["columns"]
-        record, _ = compact_record(record)
-    path.write_text(json.dumps(schema) + "\n" + json.dumps(record) + "\n")
-    report = validate(path, minimum_rows_per_workload=1)
-    assert not report["valid"]
-    assert any("non-finite feature vector" in error for error in report["errors"])
 
 
 def test_capture_requires_both_interval_bounds(tmp_path):

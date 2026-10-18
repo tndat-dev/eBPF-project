@@ -1,7 +1,6 @@
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from sentinel_pulse.cgroup_resolver import infer_role, infer_workload_name, resolve_cgroups, workload_revision
 

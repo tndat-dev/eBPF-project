@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 import time
 
-from .run_500ms_blind_matrix import append_jsonl, atomic_json
+from .common import append_jsonl, atomic_json
 
 
 def run(config):
@@ -26,7 +26,7 @@ def run(config):
             append_jsonl(root/'PHASES.jsonl',dict(phase,index=i,state='missed_during_outage',not_normal=True))
             finished.add(i);continue
         with (root/f'phase-{i:02d}.log').open('a') as log:
-            result=subprocess.run(['bash',cfg['source']+'/ml-service/set_aims_traffic_regime.sh',phase['regime']],
+            result=subprocess.run(['bash',cfg['source']+'/testbed/traffic/set_aims_traffic_regime.sh',phase['regime']],
                                   stdout=log,stderr=log,timeout=600,check=False)
         append_jsonl(root/'PHASES.jsonl',dict(phase,index=i,actual_applied_at=time.time(),
             returncode=result.returncode,state='applied' if result.returncode==0 else 'apply_error',

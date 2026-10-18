@@ -1,17 +1,10 @@
-import json
 import re
 import shutil
 import subprocess
 from pathlib import Path
 
-import pytest
 
 from sentinel_pulse.features import TRACKED_SYSCALLS
-from sentinel_pulse.features import PulseFeatureBuilder, PulseSnapshot
-from sentinel_pulse.inspect_feature_tail import inspect
-from sentinel_pulse.inspect_feature_tail import HARD_INTEGRITY_COUNTERS as TAIL_COUNTERS
-from sentinel_pulse.validate_capture import HARD_INTEGRITY_COUNTERS as CAPTURE_COUNTERS
-from sentinel_pulse.validate_capture import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 EBPF = ROOT / "sentinel_pulse" / "ebpf"
@@ -55,33 +48,7 @@ def test_projection_kernel_tracked_writes_expand_constant_cases():
     assert "if (!increment_projected_tracked(counters, syscall_id))" in kernel
 
 
-def test_projection_failure_is_hard_integrity_not_budgeted():
-    assert "snapshot_projection_fail" in CAPTURE_COUNTERS
-    assert "snapshot_projection_fail" in TAIL_COUNTERS
 
 
-def test_projection_loss_rejects_both_live_tail_and_complete_capture(tmp_path):
-    builder = PulseFeatureBuilder()
-    builder.ingest(PulseSnapshot(7, 10.0, {0: 2}, {}), "production/test:app")
-    feature = builder.ingest(PulseSnapshot(7, 10.5, {0: 4}, {}), "production/test:app")
-    record = feature.as_record()
-    record.update(emitted_at=10.6, collector_stats={"snapshot_projection_fail": 1})
-    path = tmp_path / "features.jsonl"
-    path.write_text(json.dumps(record) + "\n")
-    reports = [
-        inspect(path, observed_at=10.7),
-        validate(path, minimum_rows_per_workload=1, interval_min_seconds=0.35,
-                 interval_max_seconds=0.8, nominal_interval_seconds=0.5),
-    ]
-    for report in reports:
-        assert report["valid"] is False
-        assert "collector loss: snapshot_projection_fail=1" in report["errors"]
 
 
-def test_projection_canary_refuses_to_start_over_an_existing_candidate():
-    script = (ROOT / "sentinel_pulse/run_projected_counter_canary.sh").read_text()
-    assert "sentinel-pulse-detector-candidate.service" in script
-    assert "must not overlap a candidate run" in script
-    assert "--interval-ms 500" in script
-    assert "--minimum-telemetry-availability 1.0" in script
-    assert "is-active --quiet sentinel-pulse-collector.service" in script

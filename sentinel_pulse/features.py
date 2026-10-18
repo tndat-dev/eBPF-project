@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, Dict, Mapping, Sequence, Tuple
+from typing import Deque, Dict, Mapping, Tuple
 import math
 
 import numpy as np
@@ -19,7 +19,7 @@ import numpy as np
 # Stable x86_64 syscall identifiers used for explicit, interpretable features.
 # ABI names/IDs: Linux arch/x86/entry/syscalls/syscall_64.tbl (v6.8).
 # The selection below is an engineering hypothesis, not an empirical optimal
-# subset; evaluate with sentinel_pulse.syscall_analysis/syscall_ablation.
+# subset; evaluate with sentinel_pulse.matched_study (addition/ablation arms).
 # Every other syscall remains represented by total/other and transition bins.
 TRACKED_SYSCALLS: Mapping[int, str] = {
     0: "read",

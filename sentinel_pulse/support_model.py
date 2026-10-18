@@ -11,7 +11,10 @@ from __future__ import annotations
 import math
 import numpy as np
 
-from .syscall_analysis import pvalues
+
+def pvalues(scores, calibration):
+    """Conformal p-values of ``scores`` against a sorted calibration array."""
+    return (len(calibration)-np.searchsorted(calibration,scores,side='left')+1)/(len(calibration)+1)
 
 
 class PulseSupportEnsemble:

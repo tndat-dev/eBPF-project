@@ -17,9 +17,11 @@ import re
 import signal
 import subprocess
 import sys
-import tempfile
 import threading
 import time
+
+from .common import append_jsonl, atomic_json
+from .integrity import sha256_file
 
 
 SCHEMA = "sentinel-pulse-syscall-histogram-pilot-v1"
@@ -29,14 +31,6 @@ _stop = False
 
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def read_allowlist(path: Path) -> list[int]:
@@ -264,27 +258,6 @@ def proc_sample(phase: str, observed_at: float) -> dict:
         "pulse_collector_cpu_stat": collector_cpu,
         "pulse_collector_memory_current_bytes": collector_memory,
     }
-
-
-def append_jsonl(path: Path, value: dict) -> None:
-    with path.open("a", encoding="utf-8") as stream:
-        stream.write(json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n")
-        stream.flush()
-        os.fsync(stream.fileno())
-
-
-def atomic_json(path: Path, value: dict) -> None:
-    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as stream:
-            json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
-            stream.write("\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
 
 
 def metadata_sample(allowlist_path: Path, metadata_path: Path, output: Path,
