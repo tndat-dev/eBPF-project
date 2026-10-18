@@ -181,11 +181,11 @@ chỉ học từ dữ liệu bình thường; ngưỡng dựa trên p-value có 
 | Nơi | Trạng thái |
 |---|---|
 | GitHub `experiment/syscall-id-histogram-pilot` | = `bb52293`, trùng local trước refactor |
-| GitHub `main` | Lệch: 2 commit tài liệu trên nền cũ `69fcd33`, thiếu 107 commit của nhánh thí nghiệm |
-| Local `refactor/repo-cleanup` | 4 commit mới (dọn code, chia package, nghiên cứu xác nhận/hiệu chỉnh); **chưa push** |
+| GitHub `main` | Nhánh chính: đã hợp nhất nhánh thí nghiệm, đợt tái cấu trúc và 2 commit tài liệu cũ của `main` (`57b94f0`); từ nay push thẳng lên `main` |
+| GitHub tag `archive/pre-refactor-20261018` | Cây code đầy đủ trước đợt dọn 18/10 |
 | Cụm `/home/dat/eBPF-project-current` | `bb52293`, sạch — trùng GitHub |
 | Cụm `/home/dat/eBPF-project` | `main` cũ, chậm 14 commit, có sửa chưa commit |
-| Cụm `/home/dat/eBPF-project-refactor-*` | Bản clone nhánh refactor để chạy nghiên cứu 18/10 |
+| Cụm `/home/dat/eBPF-project-refactor-*` | Bản clone dùng cho các job nghiên cứu 18/10 (`0117901` clone thẳng từ GitHub) |
 | Service đang chạy | Dùng snapshot source đóng băng (`/opt/...`, NFS), không phụ thuộc checkout |
 
 ## 8. Lệnh kiểm tra
