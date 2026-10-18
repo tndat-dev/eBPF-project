@@ -77,6 +77,6 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 ## Ưu tiên 3 — GitHub và chất lượng
 
 - [x] Push nhánh `refactor/repo-cleanup` và tag `archive/pre-refactor-20261018` (18/10).
-- [x] Hợp nhất vào `main` (push thẳng, không dùng PR) — `57b94f0`, 18/10.
+- [x] Hợp nhất vào `main` (push thẳng, không dùng PR) — `22f365a`, 18/10. Đã bỏ dòng Co-Authored-By khỏi 10 commit ngày 18/10 (force-push).
 - [ ] CI (GitHub Actions) chạy pytest với `requirements-lock.txt`.
 - [ ] Lặp lại đo overhead A/B; kiểm tra trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
