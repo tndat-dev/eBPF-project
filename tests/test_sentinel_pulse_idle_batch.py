@@ -25,7 +25,7 @@ class IdleBatchTests(unittest.TestCase):
             def score_context(self, k, context): return score_batch(self, k, np.asarray(context).reshape(1,-1))[0]
         class Policy:
             def __init__(self, scorer): self.scorer = scorer
-            def evaluate(self, score):
+            def evaluate(self, score, context=None):
                 return dict(policy_evaluated=True, policy_sha256='policy',
                             candidate_alert_preview=score['raw_model_anomaly'])
         self.scorer, self.Policy = Scorer(), Policy

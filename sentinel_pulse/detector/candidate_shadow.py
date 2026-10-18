@@ -14,7 +14,7 @@ import numpy as np
 from ..common import RotatingJsonlFollower
 from ..encoding import decode_vector, schema_digest
 from .idle_candidate import FEATURE_CONTRACT, FEATURE_DIM, IdleCandidateScorer
-from .candidate_policy import CandidatePreviewPolicy
+from .candidate_policy import CandidatePreviewPolicy, load_preview_policy
 
 
 EXTENDED_SCHEMA = "sentinel-pulse-extended-feature-v2"
@@ -249,7 +249,7 @@ class CandidateShadowRuntime:
         base.update(score)
         base["status"] = score["status"]
         if self.policy is not None:
-            base.update(self.policy.evaluate(score))
+            base.update(self.policy.evaluate(score, dict(base, window_start=record.get("window_start"))))
         else:
             base.update(policy_evaluated=False, candidate_alert_preview=None,
                         preview_reason="no_policy_registered")
@@ -267,7 +267,7 @@ def run(features: Path, output: Path, candidate_dir: Path,
         max_gap_seconds: float = 0.8, policy_path: Path | None = None,
         segmented: bool = False) -> None:
     scorer = IdleCandidateScorer(candidate_dir, manifest_sha256)
-    policy = CandidatePreviewPolicy.load(policy_path, scorer) if policy_path else None
+    policy = load_preview_policy(policy_path, scorer) if policy_path else None
     runtime = CandidateShadowRuntime(scorer, max_gap_seconds=max_gap_seconds,
                                      policy=policy)
     output.parent.mkdir(parents=True, exist_ok=True)

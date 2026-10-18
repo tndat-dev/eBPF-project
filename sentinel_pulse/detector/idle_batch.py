@@ -62,7 +62,7 @@ class IdleBatchRuntime:
         if len(records) > 256:
             raise ValueError('bounded runtime batch accepts at most 256 records')
         self.deferred.requests.clear()
-        out, requests = [], defaultdict(list)
+        out, requests, windows = [], defaultdict(list), {}
         for record in records:
             try:
                 if is_valid_feature_schema_record(record):
@@ -71,6 +71,7 @@ class IdleBatchRuntime:
                 if decision['status'] == 'batch-pending':
                     key, context = self.deferred.requests[-1]
                     requests[key].append((len(out), context))
+                    windows[len(out)] = record.get('window_start')
             except (KeyError, TypeError, ValueError) as exc:
                 decision = dict(schema='sentinel-pulse-candidate-shadow-score-v1', status='record_rejected',
                     reason=type(exc).__name__, processed_at=time.time(), alert=False,
@@ -84,7 +85,8 @@ class IdleBatchRuntime:
                 decision = out[index]
                 decision.update(score)
                 if self.policy is not None:
-                    decision.update(self.policy.evaluate(score))
+                    decision.update(self.policy.evaluate(
+                        score, dict(decision, window_start=windows.get(index))))
                 completed = time.time()
                 decision.update(processed_at=completed, inference_ms=elapsed_ms,
                     batch_inference_ms=elapsed_ms, batch_contexts=len(pending),

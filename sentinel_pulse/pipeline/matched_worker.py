@@ -16,7 +16,7 @@ import signal
 import subprocess
 import time
 
-from ..detector.candidate_policy import CandidatePreviewPolicy
+from ..detector.candidate_policy import load_preview_policy
 from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
 from ..detector.idle_batch import IdleBatchRuntime
@@ -85,7 +85,7 @@ def run(config_path):
         if sha256_file(scorer_file(Path(cfg['source']),name))!=sha256_file(scorer_file(Path(cfg['frozen_source']),name)):
             raise ValueError('frozen scorer/preprocessor differs: '+name)
     scorer=IdleCandidateScorer(Path(cfg['candidate']),cfg['model_hash'])
-    policy=CandidatePreviewPolicy.load(Path(cfg['policy']),scorer)
+    policy=load_preview_policy(Path(cfg['policy']),scorer)
     if policy.sha256!=cfg['policy_hash']:raise ValueError('policy hash changed')
     stop=False
     def stopped(*_):

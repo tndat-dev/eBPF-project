@@ -67,7 +67,7 @@ class CandidatePreviewPolicy:
         digest = hashlib.sha256(raw).hexdigest()
         return cls(policy, digest, scorer)
 
-    def evaluate(self, score: dict) -> dict:
+    def evaluate(self, score: dict, context: dict | None = None) -> dict:
         workload = score.get("workload_key")
         model = self.scorer.models.get(workload)
         if model is None or score.get("status") != "candidate-raw-score-only":
@@ -94,3 +94,66 @@ class CandidatePreviewPolicy:
             "policy_applied": False,
             "serving_compatible": False,
         }
+
+
+SCHEMA_V2 = "sentinel-pulse-candidate-preview-policy-v2"
+
+
+class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
+    """Preview after k-of-n consecutive windows pass ``alpha * alpha_scale``.
+
+    Uses the same ``ConfirmationState`` as the offline confirmation study so
+    live and replayed decisions follow one definition. Still shadow-only.
+    """
+
+    def __init__(self, policy: dict, policy_sha256: str, scorer):
+        from .confirmation import ConfirmationPolicy, ConfirmationState
+        if policy.get("schema") != SCHEMA_V2:
+            raise ValueError("unsupported candidate preview policy schema")
+        rule = dict(policy.get("rule") or {})
+        confirmation = rule.pop("temporal_confirmation", None)
+        scale = rule.pop("alpha_scale", None)
+        if rule != {
+            "score": "joint_p",
+            "comparison": "less_than_or_equal",
+            "threshold_source": "per_workload_model_calibrated_alpha",
+            "semantic_gate": False,
+        } or not isinstance(confirmation, dict) or not isinstance(scale, (int, float)):
+            raise ValueError("candidate preview v2 rule differs from the registered form")
+        self.confirmation = ConfirmationPolicy(k=int(confirmation["k"]), n=int(confirmation["n"]),
+                                               alpha_scale=float(scale),
+                                               max_gap_seconds=float(confirmation["max_gap_seconds"]))
+        self.state = ConfirmationState(self.confirmation)
+        super().__init__(dict(policy, schema=SCHEMA, rule={
+            "score": "joint_p", "comparison": "less_than_or_equal",
+            "threshold_source": "per_workload_model_calibrated_alpha",
+            "semantic_gate": False, "temporal_confirmation": False}), policy_sha256, scorer)
+        self.policy = policy
+
+    def evaluate(self, score: dict, context: dict | None = None) -> dict:
+        result = super().evaluate(score)
+        if not result["policy_evaluated"]:
+            return result
+        if not context or context.get("window_start") is None or context.get("window_end") is None:
+            raise ValueError("temporal confirmation needs the window identity and bounds")
+        alpha = result["candidate_policy_alpha"]
+        row = dict(context, joint_p=float(score["joint_p"]), candidate_policy_alpha=alpha)
+        preview = self.state.update(row)
+        passed = float(score["joint_p"]) <= alpha * self.confirmation.alpha_scale
+        result.update(candidate_alert_preview=preview, window_passed=passed,
+                      confirmation_policy=self.confirmation.name,
+                      preview_reason="confirmed_k_of_n" if preview else
+                      ("awaiting_confirmation" if passed else "below_threshold_not_met"))
+        return result
+
+
+def load_preview_policy(path: Path, scorer):
+    """Load a v1 (single window) or v2 (confirmed) preview policy by schema."""
+    raw = path.read_bytes()
+    try:
+        policy = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("candidate preview policy is not valid JSON") from exc
+    digest = hashlib.sha256(raw).hexdigest()
+    cls = ConfirmedPreviewPolicy if policy.get("schema") == SCHEMA_V2 else CandidatePreviewPolicy
+    return cls(policy, digest, scorer)

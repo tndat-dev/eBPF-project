@@ -22,7 +22,7 @@ class _PreviewPolicy:
     def __init__(self, scorer):
         self.scorer = scorer
 
-    def evaluate(self, _score):
+    def evaluate(self, _score, context=None):
         return {"policy_evaluated": True, "candidate_alert_preview": True,
                 "alert": False, "policy_applied": False, "serving_compatible": False}
 

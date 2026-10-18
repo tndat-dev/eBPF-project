@@ -16,7 +16,7 @@ from pathlib import Path
 import time
 
 from ..common import atomic_json
-from ..detector.candidate_policy import CandidatePreviewPolicy
+from ..detector.candidate_policy import load_preview_policy
 from ..detector.idle_batch import SCORE_FIELDS, IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
 from ..integrity import sha256_file
@@ -112,7 +112,7 @@ def main():
         raise SystemExit('output exists; choose a new path')
     started = time.time()
     scorer = IdleCandidateScorer(args.candidate, args.model_hash)
-    policy = CandidatePreviewPolicy.load(args.policy, scorer)
+    policy = load_preview_policy(args.policy, scorer)
     if policy.sha256 != args.policy_hash:
         raise SystemExit('policy hash differs')
     segments = [replay_segment(s, scorer, policy, args.limit_per_segment) for s in args.segment]
