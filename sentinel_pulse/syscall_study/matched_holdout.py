@@ -122,8 +122,12 @@ def validate_row(row, node, run, keys):
 
 
 def score_segment(segment, node, registration, index, terminal, study, output, batch_size=512,
-                  progress=None):
-    """One sealed segment; all arm/seed models see the same admitted contexts."""
+                  progress=None, score_sink=None):
+    """One sealed segment; all arm/seed models see the same admitted contexts.
+
+    ``score_sink(tag, rows, predictions)``, when given, receives every scored
+    batch so raw scores can be kept for offline recalibration.
+    """
     seal_path = segment/'TERMINAL.json'
     seal = json.loads(seal_path.read_text())
     hashes = {}
@@ -155,6 +159,8 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
         contexts = np.stack([context for _, context in batch])
         model = models[key]
         predictions = model.predict_contexts(contexts)
+        if score_sink is not None:
+            score_sink(key, meta, predictions)
         entry = totals.setdefault(key, dict(scored_windows=0, raw_positive_windows=0,
             tree_positive_windows=0, support_positive_windows=0, candidate_preview_positive_windows=0))
         entry['scored_windows'] += len(batch)
