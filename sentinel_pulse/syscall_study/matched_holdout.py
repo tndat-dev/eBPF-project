@@ -13,7 +13,6 @@ import json
 import math
 import os
 from pathlib import Path
-import pickle
 import time
 
 import numpy as np
@@ -21,7 +20,7 @@ import numpy as np
 from ..encoding import decode_vector, schema_digest
 from ..collector.features import TRACKED_SYSCALLS
 from ..integrity import contained_artifact, sha256_file
-from ..common import atomic_json
+from ..common import atomic_json, load_artifact
 
 IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgroup_id')
 
@@ -218,7 +217,7 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
                         if sha256_file(path) != item['sha256']:
                             raise ValueError('frozen model hash mismatch: '+tag)
                         with path.open('rb') as model_file:
-                            models[tag] = pickle.load(model_file)
+                            models[tag] = load_artifact(model_file)
                         models[tag].base.estimator.n_jobs = 1
                         if models[tag].base.feature_dim*4 != len(context):
                             raise ValueError('matched model dimension mismatch')
