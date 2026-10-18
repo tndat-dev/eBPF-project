@@ -20,16 +20,17 @@ xóa/dừng trên máy chung hoặc công khai lên GitHub.
 - [x] Hiệu chỉnh lại p-value (c1): cửa sổ normal bị gắn cờ 8,1% → 0,35%, precision R3
       79,8% → 97,8%, recall 99,3% → 91,3%, p95 1,61 → 2,91 s.
 - [x] Kiểm tra tương đương sau refactor: 214.449 cửa sổ, 0 sai khác.
-- [~] Lưới alpha nới rộng sau hiệu chỉnh (c2): R3 xong, số đợt cảnh báo trên normal đang
-      chạy (`pulse-recalibration-looser-c2-20261018`).
+- [x] Lưới alpha nới rộng sau hiệu chỉnh (c2): không chính sách nào đạt đủ 4 kỳ vọng.
+- [x] Đăng ký policy R6 (1 cửa sổ, alpha×3, p95 1,97 s) gắn với candidate `ec72d9ea…`.
+- [x] Đối chứng chạy binary vô hại (fixture R6 + campaign), xếp hạng nghi phạm RCA + đánh giá top-k,
+      replay attack cho mọi cấu hình syscall (đang chạy `pulse-r4-arm-attack-replay-20261018`).
 
 ## Ưu tiên 0 — Giảm cảnh báo trên dữ liệu bình thường
 
 Đây là điểm nghẽn chung: candidate hiện tại bật cờ ở ~8% cửa sổ normal (mức danh
 nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh báo/giờ (ngân sách 0,1).
 
-- [ ] Khi c2 xong: chọn **một** chính sách trên dữ liệu development (ứng viên gần nhất:
-      2 of 3 + alpha×10: precision 96,9%, recall 99,0%, p95 2,32 s); ghi thành file protocol (JSON, có SHA-256) **trước** khi thử mới.
+- [x] Chọn chính sách trên dữ liệu development (R6: 1 cửa sổ, alpha×3); ghi thành file protocol (JSON, có SHA-256) **trước** khi thử mới.
       Ràng buộc: p95 kernel → cảnh báo < 2 s (càng thấp càng tốt) → ưu tiên hiệu chỉnh
       lại p-value; k-of-n tối đa 2 cửa sổ.
 - [ ] Giảm độ trễ đuôi: p99 hiện 4,75 s (p95 1,61 s) — tìm nguyên nhân (backlog chấm điểm,
@@ -51,7 +52,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Bundle candidate đã hiệu chỉnh lại (`ec72d9ea…`) và policy preview v2 (alpha + k-of-n) trong live path.
 - [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
-- [ ] Đối chứng "chạy binary vô hại" (benign-exec) để tách hiệu ứng khởi chạy process khỏi tấn công.
+- [ ] Chạy lượt live R6: normal soak mới + campaign attack có `benign_exec_control: true` (fixture R6),
+      bật policy RCA flow và subscriber r3 có `binary_baseline_frozen_at`.
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật (hiện mới đo đến lúc ghi preview).
 - [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận, không chỉ nhãn kỳ vọng.
 
@@ -73,17 +75,16 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
 - [ ] Áp dụng policy flow + chạy subscriber r3 cùng lượt Pulse live kế tiếp.
-- [ ] Bộ dữ liệu có nhãn để đo độ đúng RCA; thử reboot, mất NFS, backlog.
+- [ ] Chạy `rca.evaluate_ranking` trên case của lượt R6 (top-1/3/5); thử reboot, mất NFS, backlog.
 
 ## Ưu tiên 3 — Dọn cụm **(cần bạn quyết)**
 
-- [ ] `sentinel-detector.service` (detector v8 cũ, dry-run) vẫn chạy trên .234 và worker1
-      từ 01/10, ~750 MB RAM → đề xuất dừng + disable.
+- [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).
+- [ ] **(chạy tay)** Gỡ admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`,
+      workload baseline v8 (`nginx/redis/loadgen/redis-loadgen`, `postgres/postgres-loadgen`).
 - [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
       các thư mục còn được service/evidence tham chiếu, xóa phần còn lại.
 - [ ] ~40 unit lỗi trên .234, ~90 unit lỗi mỗi worker (thế hệ cũ) → `reset-failed` và gỡ unit file.
-- [ ] 3 TracingPolicy cũ thời v8/AIMS vẫn gắn kprobe vào production (`aims-sensitive-exec`,
-      `sentinel-aims-syscalls`, `sentinel-syscalls`, 65–81 ngày) → đề xuất gỡ vì thêm overhead lên pod mà Pulse đo.
 - [ ] `/home/dat/eBPF-project` trên .234: nhánh main cũ, chậm 14 commit, có sửa chưa commit.
 - [ ] Ổ đĩa worker4 85%, worker1 80% → kiểm tra dữ liệu thô có thể chuyển sang NFS.
 

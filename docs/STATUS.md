@@ -186,9 +186,15 @@ Lưới thứ hai (alpha nới rộng sau hiệu chỉnh, R3, phát triển):
 | 2 of 3, alpha×5 | 98,9% | 97,9% | 1,0% | 3,39 s | 6,04 s |
 | 2 of 3, alpha×10 | 96,9% | 99,0% | 2,9% | 2,32 s | 3,54 s |
 
-Chưa có chính sách đạt đồng thời precision/recall ≥ 95%, control dương ≤ 5% và p95 < 2 s;
-gần nhất là "2 of 3, alpha×10" (chỉ lệch p95 0,32 s). Số đợt cảnh báo trên normal của lưới
-này: *job `pulse-recalibration-looser-c2-20261018` đang chạy.*
+Số đợt cảnh báo trên normal (khoảng test) của lưới này: 1 cửa sổ alpha×3 = 18,0/giờ;
+2 of 3 alpha×5 = 9,9/giờ; 2 of 3 alpha×10 = 17,1/giờ; thấp nhất trong mọi cấu hình đã thử là
+3,5/giờ (2 of 2, alpha×1, nhưng recall 89,9% và p95 5,6 s).
+
+Chưa có chính sách đạt đồng thời precision/recall ≥ 95%, control dương ≤ 5% và p95 < 2 s.
+**Đã đăng ký cho lượt live R6** (`protocol/recalibrated-preview-policy-r6.json`, SHA-256
+`f6107351…`): 1 cửa sổ, alpha×3 trên candidate đã hiệu chỉnh lại — chính sách duy nhất giữ p95
+dưới 2 s (1,97 s), precision 94,3%, recall 93,4%. Số đợt cảnh báo (18/giờ) vẫn là khoảng trống
+lớn; cần cải thiện ở model/đặc trưng cho vài workload ồn (2 Kafka entity-operator ~43–52/giờ).
 
 **Kiểm tra tương đương sau refactor: đạt.** Replay 3 segment soak (s00050 của mỗi worker)
 qua code mới: 214.449 cửa sổ có điểm, 0 sai khác, chênh lệch tuyệt đối lớn nhất = 0
@@ -228,6 +234,28 @@ Job `pulse-r4-score-dump-*` chấm lại 147 segment holdout bằng đúng 693 m
 tree/support của mọi cửa sổ, kèm đối chiếu số đếm từng segment với evaluator đã đăng ký
 (chưa có segment nào lệch). Khi xong, 11 cấu hình sẽ được so sánh dưới cùng phương pháp
 hiệu chỉnh lại/chính sách như Pulse, không phải chấm lại.
+
+## 5b. Chiến lược đã điều chỉnh (18/10)
+
+| Thí nghiệm | Điểm yếu cũ | Điều chỉnh |
+|---|---|---|
+| Pulse | Calibration tĩnh lệch theo thời gian | Hiệu chỉnh lại bằng normal gần đây (đã chứng minh hiệu quả); bước tiếp: làm mới định kỳ |
+| Pulse | Mọi attack đều khởi chạy binary mới, không có đối chứng tương ứng → recall có thể bị thổi phồng | Fixture R6 + interval "chạy binary vô hại" trong campaign, báo cáo tách riêng |
+| Pulse | Precision đo trong thiết kế 1:1 | Báo cáo song song số đợt cảnh báo/giờ trên normal độc lập (chỉ số chính cho vận hành) |
+| Syscall | So sánh các cấu hình ở cùng alpha trong khi cảnh báo nhầm do drift chi phối như nhau | Xuất điểm đầy đủ để so sau hiệu chỉnh lại và ở cùng ngân sách cảnh báo |
+| Syscall | Kế hoạch chạy attack riêng cho từng cấu hình (2.520 interval) | Một campaign có thu đầy đủ syscall ID, chấm mọi cấu hình offline; đang replay 693 model trên R3/R5 |
+| RCA | Hook `connect` không thấy kết nối pool | Policy lấy mẫu `tcp/udp_sendmsg` 10 s/socket |
+| RCA | Case là đồ thị thô, không đo được độ đúng | Xếp hạng process nghi vấn + đánh giá top-k bằng nhãn thật từ campaign attack |
+
+## 5c. Dọn tài nguyên v8 (18/10)
+
+Đã gỡ: `sentinel-detector` (.234, worker1), unit/timer `agent-runtime-gat-trainer`, `aims-blind-attack`,
+`aims-normal-matrix`, `aims-split-evaluation@*`; TracingPolicy `aims-sensitive-exec`,
+`sentinel-aims-syscalls`; namespace `sentinel-system` + RBAC `sentinel-detector`; thư mục
+`ml-service*`, `v8-*-staging`, `aims-training-fit-*` (~6,3 GB). Còn lại (bị bộ kiểm duyệt quyền
+chặn, chờ chạy tay): ValidatingAdmissionPolicy `sentinel-experiment-resource-lock`, 2 TracingPolicy
+`sentinel-syscalls` (default, production) và workload baseline v8 (`nginx`, `redis`, `loadgen`,
+`redis-loadgen` trong production; `postgres`, `postgres-loadgen` trong default).
 
 ## 6. Đánh giá thẳng
 
