@@ -289,6 +289,15 @@ của subscriber RCA khi nối lại stream, và của v8 (`sentinel-aims-syscal
   **17,2 đợt cảnh báo/replica-giờ** (dự đoán development của R6: 18), cuối cửa sổ → preview p50 0,48 s,
   p99 0,64 s. Ồn nhất: `aims-kafka-entity-operator` (user/topic-operator, >100 đợt/giờ), `notification-service` 58,
   `auth-service` 30 (cửa sổ dương 8,4%).
+- **RCA r6 sau ~20 phút (73 case):** 58 case có danh sách nghi phạm; chỉ 9 case (12%) có `active_flow`.
+  Lỗi xếp hạng: nghi phạm số 1 thường là `containerd-shim-runc-v2` (cha phía host, luôn "unknown_binary") →
+  sửa `54f4635`: tiến trình container runtime không bao giờ là ứng viên; `evaluate_ranking --rerank-db`
+  xếp hạng lại offline từ bảng `binaries` (chỉ dùng binary thấy trước lúc tạo case), service live không cần khởi động lại.
+- **Tranh chấp IO trên .234 (02:30):** job rolling recalibration đọc ~200 GB decisions từ NFS, cùng lúc arm-budget →
+  IO pressure "full" ~32%, subscriber RCA kẹt trạng thái D, ngừng nạp sự kiện ~2,5 phút và nối lại stream.
+  Đã dừng job rolling và hẹn chạy lại 10:30 (sau campaign, timer `pulse-rolling-recalibration-20261019b`);
+  RCA hồi phục ngay (STATUS 3,5 s, ring 34.858 sự kiện). Worker R6 không bị ảnh hưởng (0 cadence gap).
+  Quy tắc từ giờ: không chạy phân tích đọc NFS nặng trên .234 trong lúc có lượt live.
 - Hệ quả cho các kết quả cũ: tải này có thể đã làm lệch đo overhead và một phần cảnh báo/độ trễ của
   các lượt trước (worker4 từng có 7–9 cadence gap mỗi segment trong 6 giờ đầu soak 48 h). Cần nêu trong báo cáo.
 
@@ -433,3 +442,5 @@ cập nhật liên tục trong lúc làm.
 | 02:21 | Score-dump worker1 xong (49/49 segment, khớp số đếm evaluator đã đăng ký); arm-budget bắt đầu tính | `score-dump-20261018/` |
 | 02:22 | Viết `attack/rolling_recalibration.py`: so calibration tĩnh (c1) với làm mới mỗi 1 giờ bằng 3/6/12 giờ trước đó, và biến thể "guarded" (bỏ cửa sổ đã dương khỏi calibration sau); 289 test pass; snapshot `5f9a705`; chạy `pulse-rolling-recalibration-20261019` | `confirmation-study-20261018/rolling-recalibration-20261019/` |
 | 02:23 | Arm-budget sơ bộ (4/11 cấu hình): sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ, ×0,5 cho 2,8–4; `plus_all_observed` thấp nhất | đang chạy |
+| 02:26 | RCA r6: 73 case, 12% có flow; sửa xếp hạng (loại `containerd-shim`/`runc` khỏi ứng viên) + xếp hạng lại offline; 291 test pass | `54f4635` |
+| 02:30 | Phát hiện RCA kẹt IO do job rolling đọc NFS nặng; dừng job, hẹn 10:30; RCA hồi phục | mục 5.9 |
