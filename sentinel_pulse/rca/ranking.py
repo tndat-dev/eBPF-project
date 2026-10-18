@@ -12,6 +12,10 @@ Reasons and weights:
 - credential / namespace / mount / ptrace operations (``security_operation``, 3 each, max 9)
 - failed syscalls (``failed_syscall``, 1 each, max 3)
 - parent of another suspect process in the window (``spawned_children``, 1)
+
+Container-runtime processes (containerd shim, runc, crun, conmon) are host-side
+context for every ``kubectl exec`` and container start; they are never
+candidates and do not earn ``spawned_children``.
 """
 from __future__ import annotations
 
@@ -19,6 +23,11 @@ from collections import defaultdict
 import re
 
 SECURITY = {'credential', 'namespace', 'mount', 'ptrace'}
+CONTAINER_RUNTIME = re.compile(r'(^|/)(containerd-shim[^/]*|runc|crun|conmon)$')
+
+
+def is_container_runtime(binary) -> bool:
+    return bool(binary) and CONTAINER_RUNTIME.search(str(binary)) is not None
 
 
 def workload_of(namespace, pod_name, container):
@@ -39,7 +48,8 @@ def workload_of(namespace, pod_name, container):
 def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | None = None) -> list[dict]:
     """``baseline`` maps binary path -> first time seen in this workload."""
     nodes = {n['id']: n for n in tree['nodes']}
-    processes = {nid: n for nid, n in nodes.items() if n['kind'] in ('process', 'process_parent')}
+    processes = {nid: n for nid, n in nodes.items() if n['kind'] in ('process', 'process_parent')
+                 and not is_container_runtime(n.get('binary'))}
     reasons = defaultdict(list)
     children = defaultdict(set)
     for edge in tree['edges']:

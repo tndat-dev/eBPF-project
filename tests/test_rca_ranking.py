@@ -62,3 +62,43 @@ def test_evaluator_matches_case_to_attack_and_reports_rank(tmp_path):
     result = evaluate(cases, [tmp_path / 'campaign'])
     assert result['trials_with_case'] == 1 and result['rows'][0]['rank'] == 2
     assert result['ranking']['top1'] == 0 and result['ranking']['top3'] == 1
+
+
+def test_container_runtime_parent_is_never_a_suspect():
+    from sentinel_pulse.rca.ranking import is_container_runtime
+    assert is_container_runtime('/usr/bin/containerd-shim-runc-v2') and is_container_runtime('/usr/sbin/runc')
+    assert not is_container_runtime('/usr/local/bin/python') and not is_container_runtime(None)
+    tree = dict(nodes=[dict(id='shim', kind='process_parent', binary='/usr/bin/containerd-shim-runc-v2'),
+                       dict(id='p', kind='process', binary='/tmp/x'),
+                       dict(id='e', kind='runtime_event', operation='exec', category='process')],
+                edges=[dict(source='shim', target='p', relation='parent_of'),
+                       dict(source='p', target='e', relation='performed')])
+    ranked = rank_suspects(tree, {}, frozen_at=0.)
+    assert [r['binary'] for r in ranked] == ['/tmp/x']
+
+
+def test_offline_rerank_uses_binaries_seen_before_the_case(tmp_path):
+    import json, sqlite3
+    from sentinel_pulse.rca.evaluate_ranking import evaluate
+    db = tmp_path / 'context.sqlite3'
+    with sqlite3.connect(db) as conn:
+        conn.execute('create table binaries(workload text, binary text, first_seen real)')
+        conn.executemany('insert into binaries values(?,?,?)', [
+            ('production/app:app', '/app/worker', 10.), ('production/app:app', '/tmp/sentinel-runtime-attack-blind', 119.)])
+    cases = tmp_path / 'cases'; cases.mkdir()
+    trig = dict(trigger(), window_end=121., workload_key='production/app:app')
+    tree = dict(case_id='c1', created_at=125., edges=[dict(source='a', target='e', relation='performed'),
+                                                       dict(source='w', target='e2', relation='performed')],
+                nodes=[dict(id='s', kind='signal', trigger=trig),
+                       dict(id='a', kind='process', binary='/tmp/sentinel-runtime-attack-blind', exec_id='a'),
+                       dict(id='w', kind='process', binary='/app/worker', exec_id='w'),
+                       dict(id='e', kind='runtime_event', operation='exec', category='process'),
+                       dict(id='e2', kind='runtime_event', operation='exec', category='process')],
+                suspects=[])
+    (cases / 'c1.json').write_text(json.dumps(tree))
+    trial = tmp_path / 'campaign' / 'trials' / '0001'; trial.mkdir(parents=True)
+    attack = dict(trial_id='1:attack', scenario='s', workload_key='production/app:app', node_name='worker1',
+                  pod_uid='pod1', container_name='app', start_at=120., binary_path='/tmp/sentinel-runtime-attack-blind')
+    (trial / 'EVALUATION_INPUT.json').write_text(json.dumps(dict(attack=attack)))
+    result = evaluate(cases, [tmp_path / 'campaign'], rerank_db=db, frozen_at=50.)
+    assert result['reranked'] and result['rows'][0]['rank'] == 1
