@@ -112,3 +112,15 @@ def test_writer_side_tail_keeps_identity_rotation_and_ignores_partial_line(tmp_p
             json.dumps(dict(base,pod_uid='wrong'))+'\n'+json.dumps(base)[:12])
     result=list(read(tmp_path,99,'uid',42))
     assert result==[base,base]
+
+
+def test_benign_exec_controls_are_reported_apart_from_idle_controls():
+    from sentinel_pulse.attack.preview_evaluation import summarize
+    rows = [dict(label='attack', outcome='TP', kernel_to_preview_seconds=1.0),
+            dict(label='expected_normal', outcome='TN_expected'),
+            dict(label='expected_normal', outcome='FP_expected', control_kind='benign_exec'),
+            dict(label='expected_normal', outcome='TN_expected', control_kind='benign_exec')]
+    report = summarize(rows)
+    assert report['confusion_matrix_expected_control_labels'] == dict(TP=1, FN=0, FP=0, TN=1)
+    assert report['benign_exec_control']['FP'] == 1 and report['benign_exec_control']['positive_rate'] == .5
+    assert summarize(rows[:2])['benign_exec_control'] is None

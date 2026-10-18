@@ -97,6 +97,8 @@ def evaluate_interval(rows, trial, model_hash, policy_hash):
 
 def summarize(outcomes):
     from collections import Counter
+    benign = Counter(row['outcome'] for row in outcomes if row.get('control_kind') == 'benign_exec')
+    outcomes = [row for row in outcomes if row.get('control_kind') != 'benign_exec']
     counts = Counter(row['outcome'] for row in outcomes)
     tp, fn = counts['TP'], counts['FN']
     fp, tn = counts['FP_expected'], counts['TN_expected']
@@ -115,4 +117,8 @@ def summarize(outcomes):
             p50=float(np.percentile(latencies,50)),p95=float(np.percentile(latencies,95)),
             p99=float(np.percentile(latencies,99))),
         latency_conditional_on_detected_trials=True, kernel_to_alert=None,
+        benign_exec_control=None if not benign else dict(FP=benign['FP_expected'], TN=benign['TN_expected'],
+            unknown=benign['unknown'], positive_rate=benign['FP_expected']/(benign['FP_expected']+benign['TN_expected'])
+            if benign['FP_expected']+benign['TN_expected'] else None,
+            meaning='detections on an attack-free launch of the same binary; high values mean a launch artifact'),
         alert=False, policy_applied=False, automatic_promotion=False)

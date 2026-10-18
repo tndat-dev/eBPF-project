@@ -184,7 +184,9 @@ def attack_replay(campaign_roots, policies, model_hash=MODEL_HASH, policy_hash=P
         outcomes = list(preserved)
         for _campaign, key, _path, data in inputs:
             rows = apply(prepared(data['decisions']), policy)
-            for label in ('control', 'attack'):
+            for label in ('control', 'benign', 'attack'):
+                if label not in data:
+                    continue
                 trial = data[label]
                 if trial['trial_id'] != f'{key}:{label}':
                     raise ValueError('saved trial identity differs')

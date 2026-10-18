@@ -67,7 +67,7 @@ def one_pair(runtime,cfg,root,item,index):
     prefix=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
             '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.attack.preview_target']
     runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*args]))
-    sensor=None;capture=None;staged=True;injection=None
+    sensor=None;capture=None;staged=True;injection=None;benign=None
     try:
         sensors=runtime.kubectl_json('get','pods','-n','kube-system','-l','app.kubernetes.io/name=tetragon','-o','json')
         sensor=next(p['metadata']['name'] for p in sensors['items'] if p['spec'].get('nodeName')==pod['node_name'])
@@ -79,6 +79,17 @@ def one_pair(runtime,cfg,root,item,index):
                 '-c','tetragon','--','tetra','getevents','-o','json','--policy-names',EXEC_PROVENANCE_POLICY],
                 stdout=out,stderr=err,env=runtime.environment)
             time.sleep(1)
+            if cfg.get('benign_exec_control'):
+                # Same launch path and binary, attack-free body: isolates the
+                # effect of "a new process ran" from attack behaviour.
+                benign=dict(identity,**item,label='expected_normal',control_kind='benign_exec',
+                    start_at=time.time(),trial_id=f'{index}:benign',binary_path=path,duration_seconds=15)
+                append_jsonl(root/'INTERVALS.jsonl',benign)
+                result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
+                    path,'benign_exec_control','15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
+                (trial_dir/'benign.stderr').write_bytes(result.stderr)
+                if result.returncode or b'done' not in result.stderr:benign['infrastructure_issue']='benign_fixture_failed'
+                time.sleep(5)  # keep benign windows out of the attack interval's 3-window history
             injection=dict(identity,**item,label='attack',start_at=time.time(),trial_id=f'{index}:attack',
                 injection_id=f"{cfg['run_id']}:{index:04d}",pod_name=pod['name'],binary_path=path,duration_seconds=15)
             injection['injected_at']=injection['start_at']
@@ -100,8 +111,15 @@ def one_pair(runtime,cfg,root,item,index):
         rows=[r for r in tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg)
               if r.get('pod_uid')==pod['uid'] and str(r.get('cgroup_id'))==str(cg)
               and r.get('window_end',0)<=injection['start_at']+17]
-        atomic_json(trial_dir/'EVALUATION_INPUT.json',dict(control=control,attack=injection,decisions=rows))
-        return [ctl,outcome]
+        evidence=dict(control=control,attack=injection,decisions=rows)
+        if benign is None:
+            atomic_json(trial_dir/'EVALUATION_INPUT.json',evidence)
+            return [ctl,outcome]
+        evidence['benign']=benign
+        atomic_json(trial_dir/'EVALUATION_INPUT.json',evidence)
+        benign_outcome=evaluate_interval(rows,benign,cfg['model_hash'],cfg['policy_hash'])
+        atomic_json(trial_dir/'BENIGN.json',benign_outcome)
+        return [ctl,benign_outcome,outcome]
     finally:
         if capture is not None:
             capture.terminate()
