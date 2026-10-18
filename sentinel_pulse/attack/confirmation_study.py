@@ -1,13 +1,17 @@
-"""Development study: how temporal confirmation trades alert burden for recall.
+"""Development study: alert burden vs recall under confirmation and recalibration.
 
-``normal``  streams one worker's sealed 48 h soak decisions and counts, per
-            policy, positive windows and alert episodes per scored hour.
-``attack``  replays recorded attack/control pairs (R3, R5) through the same
-            interval evaluator used for the published matrix.
+``calibrate``  collects per-workload normal tree/support scores from sealed
+               soak decisions inside a registered time span.
+``normal``     streams one worker's sealed soak decisions and counts, per
+               policy, positive windows and alert episodes per scored hour.
+``attack``     replays recorded attack/control pairs (R3, R5) through the same
+               interval evaluator used for the published matrix.
 
-Both inputs were already used to develop the current candidate, so results
-are development evidence only. The chosen policy must be frozen and then
-tested on fresh blind attacks and independent normal data.
+``normal`` and ``attack`` optionally recompute p-values against a calibration
+file before applying each confirmation policy. All inputs were already used
+while developing the current candidate, so results are development evidence
+only. A chosen policy must be frozen and then tested on fresh blind attacks
+and independent normal data.
 """
 from __future__ import annotations
 
@@ -18,7 +22,7 @@ from pathlib import Path
 import time
 
 from ..common import atomic_json
-from ..detector.confirmation import IDENTITY, SCORED, ConfirmationPolicy, ConfirmationState, apply, default_grid
+from ..detector.confirmation import IDENTITY, SCORED, ConfirmationState, apply, default_grid
 from ..integrity import sha256_file
 from .preview_evaluation import evaluate_interval, summarize
 
@@ -44,15 +48,16 @@ class EpisodeCounter:
         self.last[key] = at
 
 
-def normal_burden(worker_root: Path, policies, model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
-    segments = sorted(p for p in (worker_root / 'segments').iterdir() if p.is_dir())
-    states = {p.name: ConfirmationState(p) for p in policies}
-    counters = {p.name: EpisodeCounter() for p in policies}
-    scored_seconds = defaultdict(float)
-    scored_windows = defaultdict(int)
-    frozen_positive = defaultdict(int)
-    mismatched_binding = 0
-    for segment in segments:
+def in_spans(begin, end, spans):
+    return any(end > a and begin < b for a, b in spans)
+
+
+def scored_rows(worker_root: Path, model_hash=MODEL_HASH, policy_hash=POLICY_HASH,
+                since=None, until=None, exclude=(), stats=None):
+    """Yield bound, policy-evaluated scored rows of one worker in segment order."""
+    stats = stats if stats is not None else defaultdict(int)
+    for segment in sorted(p for p in (worker_root / 'segments').iterdir() if p.is_dir()):
+        stats['segments'] += 1
         path = segment / 'decisions.jsonl'
         if not path.exists():
             continue
@@ -64,17 +69,40 @@ def normal_burden(worker_root: Path, policies, model_hash=MODEL_HASH, policy_has
                 if row.get('status') != SCORED or row.get('policy_evaluated') is not True:
                     continue
                 if row.get('candidate_manifest_sha256') != model_hash or row.get('policy_sha256') != policy_hash:
-                    mismatched_binding += 1
+                    stats['mismatched_binding_rows'] += 1
                     continue
-                workload = row['workload_key']
-                key = tuple(str(row.get(name)) for name in IDENTITY)
                 begin, end = float(row['window_start']), float(row['window_end'])
-                scored_windows[workload] += 1
-                scored_seconds[workload] += max(0.0, end - begin)
-                frozen_positive[workload] += row.get('candidate_alert_preview') is True
-                for name, state in states.items():
-                    if state.update(row):
-                        counters[name].add(workload, key, end)
+                if (since is not None and begin < since) or (until is not None and end > until):
+                    continue
+                if in_spans(begin, end, exclude):
+                    stats['excluded_rows'] += 1
+                    continue
+                yield row
+
+
+def normal_burden(worker_root: Path, policies, model_hash=MODEL_HASH, policy_hash=POLICY_HASH,
+                  since=None, until=None, exclude=(), recalibrator=None):
+    states = {p.name: ConfirmationState(p) for p in policies}
+    counters = {p.name: EpisodeCounter() for p in policies}
+    scored_seconds = defaultdict(float)
+    scored_windows = defaultdict(int)
+    frozen_positive = defaultdict(int)
+    stats = defaultdict(int)
+    for row in scored_rows(worker_root, model_hash, policy_hash, since, until, exclude, stats):
+        if recalibrator is not None:
+            row = recalibrator.rewrite(row)
+            if row is None:
+                stats['uncalibrated_rows'] += 1
+                continue
+        workload = row['workload_key']
+        key = tuple(str(row.get(name)) for name in IDENTITY)
+        begin, end = float(row['window_start']), float(row['window_end'])
+        scored_windows[workload] += 1
+        scored_seconds[workload] += max(0.0, end - begin)
+        frozen_positive[workload] += row.get('candidate_alert_preview') is True
+        for name, state in states.items():
+            if state.update(row):
+                counters[name].add(workload, key, end)
     hours = {w: s / 3600 for w, s in scored_seconds.items()}
     results = {}
     for policy in policies:
@@ -87,16 +115,49 @@ def normal_burden(worker_root: Path, policies, model_hash=MODEL_HASH, policy_has
     baseline = results.get('k1of1_a1')
     return dict(
         schema='pulse-confirmation-normal-burden-v1', worker_root=str(worker_root),
-        node_name=worker_root.name, segments=len(segments), model_hash=model_hash, policy_hash=policy_hash,
+        node_name=worker_root.name, model_hash=model_hash, policy_hash=policy_hash,
+        since_unix=since, until_unix=until, excluded_spans=[list(s) for s in exclude],
+        recalibrated=recalibrator is not None, stats=dict(stats),
         scored_windows=dict(scored_windows), scored_hours=hours, total_scored_hours=sum(hours.values()),
-        frozen_positive_windows=dict(frozen_positive), mismatched_binding_rows=mismatched_binding,
-        baseline_reproduces_frozen_previews=None if baseline is None
+        frozen_positive_windows=dict(frozen_positive),
+        baseline_reproduces_frozen_previews=None if baseline is None or recalibrator is not None
             else baseline['total_positive_windows'] == sum(frozen_positive.values()),
         episode_quiet_seconds=EPISODE_QUIET_SECONDS, labels='unadjudicated normal soak; positives are not confirmed FP',
         policies=results)
 
 
-def attack_replay(campaign_roots, policies, model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
+def calibration_scores(worker_roots, since, until, exclude=(), model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
+    """Per-workload normal tree/support scores pooled over workers."""
+    tree, support = defaultdict(list), defaultdict(list)
+    stats = defaultdict(int)
+    for root in worker_roots:
+        for row in scored_rows(root, model_hash, policy_hash, since, until, exclude, stats):
+            if row.get('eligible_for_normal_review') is not True:
+                stats['ineligible_rows'] += 1
+                continue
+            tree[row['workload_key']].append(float(row['tree_score']))
+            support[row['workload_key']].append(float(row['support_score']))
+    return dict(tree), dict(support), dict(stats)
+
+
+def save_calibration(path: Path, tree, support, metadata):
+    import numpy as np
+    arrays = {f'tree::{k}': np.asarray(v, dtype=np.float64) for k, v in tree.items()}
+    arrays.update({f'support::{k}': np.asarray(v, dtype=np.float64) for k, v in support.items()})
+    with path.open('xb') as stream:
+        np.savez_compressed(stream, metadata=np.array(json.dumps(metadata, sort_keys=True)), **arrays)
+
+
+def load_calibration(path: Path, minimum_examples=1200):
+    import numpy as np
+    from ..detector.recalibration import Recalibrator
+    data = np.load(path, allow_pickle=False)
+    tree = {k.split('::', 1)[1]: data[k] for k in data.files if k.startswith('tree::')}
+    support = {k.split('::', 1)[1]: data[k] for k in data.files if k.startswith('support::')}
+    return Recalibrator(tree, support, minimum_examples), json.loads(str(data['metadata']))
+
+
+def attack_replay(campaign_roots, policies, model_hash=MODEL_HASH, policy_hash=POLICY_HASH, recalibrator=None):
     inputs, preserved = [], []
     for root in campaign_roots:
         results = json.loads((root / 'RESULTS.json').read_text())
@@ -107,11 +168,22 @@ def attack_replay(campaign_roots, policies, model_hash=MODEL_HASH, policy_hash=P
             else:
                 # No saved rows: keep the recorded (unknown/infrastructure) outcomes.
                 preserved.extend(pair)
+
+    def prepared(rows):
+        if recalibrator is None:
+            return rows
+        out = []
+        for row in rows:
+            if row.get('status') == SCORED and row.get('joint_p') is not None:
+                # Missing calibration removes scored exposure, so the interval becomes unknown.
+                row = recalibrator.rewrite(row) or dict(row, status='uncalibrated')
+            out.append(row)
+        return out
     report = {}
     for policy in policies:
         outcomes = list(preserved)
         for _campaign, key, _path, data in inputs:
-            rows = apply(data['decisions'], policy)
+            rows = apply(prepared(data['decisions']), policy)
             for label in ('control', 'attack'):
                 trial = data[label]
                 if trial['trial_id'] != f'{key}:{label}':
@@ -123,32 +195,65 @@ def attack_replay(campaign_roots, policies, model_hash=MODEL_HASH, policy_hash=P
     return dict(schema='pulse-confirmation-attack-replay-v1', campaigns=[str(r) for r in campaign_roots],
                 replayed_pairs=len(inputs), preserved_outcomes_without_rows=len(preserved),
                 evaluation_inputs_sha256={str(p): sha256_file(p) for _c, _k, p, _d in inputs},
-                fresh_blind=False, evidence_class='development_replay_of_exposed_scenarios',
-                policies=report)
+                recalibrated=recalibrator is not None, fresh_blind=False,
+                evidence_class='development_replay_of_exposed_scenarios', policies=report)
+
+
+def span(text):
+    begin, end = (float(x) for x in text.split(':'))
+    if not begin < end:
+        raise argparse.ArgumentTypeError('span must be START:END unix seconds')
+    return begin, end
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='command', required=True)
-    normal = sub.add_parser('normal')
-    normal.add_argument('--worker-root', type=Path, required=True)
-    normal.add_argument('--output', type=Path, required=True)
-    attack = sub.add_parser('attack')
-    attack.add_argument('--campaign', type=Path, action='append', required=True)
-    attack.add_argument('--output', type=Path, required=True)
+    for name in ('normal', 'attack', 'calibrate'):
+        p = sub.add_parser(name)
+        p.add_argument('--output', type=Path, required=True)
+        if name != 'attack':
+            p.add_argument('--since', type=float)
+            p.add_argument('--until', type=float)
+            p.add_argument('--exclude', type=span, action='append', default=[])
+        if name != 'calibrate':
+            p.add_argument('--calibration', type=Path)
+    sub.choices['normal'].add_argument('--worker-root', type=Path, required=True)
+    sub.choices['calibrate'].add_argument('--worker-root', type=Path, action='append', required=True)
+    sub.choices['attack'].add_argument('--campaign', type=Path, action='append', required=True)
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit('output exists; choose a new path')
-    policies = default_grid()
     started = time.time()
+    if args.command == 'calibrate':
+        if args.since is None or args.until is None:
+            raise SystemExit('calibration requires --since and --until')
+        tree, support, stats = calibration_scores(args.worker_root, args.since, args.until, args.exclude)
+        metadata = dict(schema='pulse-recalibration-scores-v1', worker_roots=[str(r) for r in args.worker_root],
+                        since_unix=args.since, until_unix=args.until, excluded_spans=[list(s) for s in args.exclude],
+                        sizes={k: len(v) for k, v in tree.items()}, stats=stats, model_hash=MODEL_HASH,
+                        policy_hash=POLICY_HASH, source_sha256=sha256_file(Path(__file__)),
+                        started_at_unix=started, finished_at_unix=time.time())
+        save_calibration(args.output, tree, support, metadata)
+        print(json.dumps(metadata)[:2000])
+        return
+    recalibrator, calibration = None, None
+    if args.calibration is not None:
+        recalibrator, calibration = load_calibration(args.calibration)
+    policies = default_grid()
     if args.command == 'normal':
-        result = normal_burden(args.worker_root, policies)
+        result = normal_burden(args.worker_root, policies, since=args.since, until=args.until,
+                               exclude=args.exclude, recalibrator=recalibrator)
     else:
-        result = attack_replay(args.campaign, policies)
+        result = attack_replay(args.campaign, policies, recalibrator=recalibrator)
+    if args.calibration is not None:
+        result.update(calibration_file=str(args.calibration), calibration_sha256=sha256_file(args.calibration),
+                      calibration_metadata=calibration, usable_calibrated_workloads=sorted(recalibrator.usable))
     result.update(source_sha256=sha256_file(Path(__file__)), grid=[p.name for p in policies],
                   started_at_unix=started, finished_at_unix=time.time(), automatic_promotion=False)
     atomic_json(args.output, result)
-    print(json.dumps({k: v for k, v in result.items() if k not in ('policies', 'evaluation_inputs_sha256')})[:2000])
+    print(json.dumps({k: v for k, v in result.items()
+                      if k not in ('policies', 'evaluation_inputs_sha256', 'calibration_metadata')})[:2000])
 
 
 if __name__ == '__main__':

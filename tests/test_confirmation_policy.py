@@ -111,3 +111,45 @@ def test_attack_replay_detects_only_inside_interval(tmp_path):
     base, strict = report['policies']['k1of1_a1'], report['policies']['k3of3_a1']
     assert base['confusion_matrix_expected_control_labels'] == dict(TP=1, FN=0, FP=0, TN=1)
     assert strict['confusion_matrix_expected_control_labels'] == dict(TP=0, FN=1, FP=0, TN=1)
+
+
+def test_recalibrator_matches_conformal_formula_and_skips_small_sets():
+    import numpy as np
+    from sentinel_pulse.detector.recalibration import Recalibrator
+    cal = Recalibrator({'production/app:app': np.arange(2000.), 'small': [1.]},
+                       {'production/app:app': np.arange(2000.) / 10, 'small': [1.]})
+    out = cal.rewrite(row(100., .9, tree_score=1999.5, support_score=0.))
+    assert out['tree_p'] == pytest.approx(1 / 2001) and out['support_p'] == 1.0
+    assert out['joint_p'] == pytest.approx(2 / 2001) and out['frozen_joint_p'] == .9
+    assert cal.rewrite(row(100., .9, workload_key='small', tree_score=0, support_score=0)) is None
+
+
+def test_calibration_respects_time_span_exclusions_and_roundtrip(tmp_path):
+    from sentinel_pulse.attack.confirmation_study import calibration_scores, load_calibration, save_calibration
+    seg = tmp_path / 'w1' / 'segments' / 's00001'
+    seg.mkdir(parents=True)
+    rows = [row(100 + i * .5, .5, tree_score=float(i), support_score=float(-i)) for i in range(20)]
+    rows[3]['eligible_for_normal_review'] = False
+    (seg / 'decisions.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    tree, support, stats = calibration_scores([tmp_path / 'w1'], since=101., until=108., exclude=[(104., 105.)])
+    assert tree['production/app:app'] == [2., 4., 5., 6., 7., 10., 11., 12., 13., 14., 15.]
+    assert stats['ineligible_rows'] == 1 and stats['excluded_rows'] == 2
+    save_calibration(tmp_path / 'cal.npz', tree, support, {'note': 'x'})
+    recal, meta = load_calibration(tmp_path / 'cal.npz', minimum_examples=1)
+    assert meta == {'note': 'x'} and recal.sizes() == {'production/app:app': 11}
+    with pytest.raises(FileExistsError):
+        save_calibration(tmp_path / 'cal.npz', tree, support, {})
+
+
+def test_recalibrated_replay_without_calibration_is_unknown(tmp_path):
+    from sentinel_pulse.detector.recalibration import Recalibrator
+    campaign = tmp_path / 'campaign'
+    trial_dir = campaign / 'trials' / '0001'
+    trial_dir.mkdir(parents=True)
+    control = dict(IDENTITY, trial_id='1:control', label='expected_normal', start_at=100.)
+    attack = dict(IDENTITY, trial_id='1:attack', label='attack', start_at=120., kernel_event_at=121.)
+    decisions = [row(100 + i * .5, .5, tree_score=0., support_score=0.) for i in range(70)]
+    (trial_dir / 'EVALUATION_INPUT.json').write_text(json.dumps(dict(control=control, attack=attack, decisions=decisions)))
+    (campaign / 'RESULTS.json').write_text(json.dumps(dict(completed={'1': []})))
+    report = attack_replay([campaign], [ConfirmationPolicy()], recalibrator=Recalibrator({}, {}))
+    assert report['policies']['k1of1_a1']['unknown'] == 2
