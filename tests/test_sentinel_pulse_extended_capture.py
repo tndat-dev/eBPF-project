@@ -1,6 +1,6 @@
 import pytest
-from sentinel_pulse.extended_capture import ExtendedFeatureStream,CONTRACT,SCHEMA,IDLE_SCHEMA,IDLE_CONTRACT
-from sentinel_pulse.features import TRACKED_SYSCALLS
+from sentinel_pulse.collector.extended_capture import ExtendedFeatureStream,CONTRACT,SCHEMA,IDLE_SCHEMA,IDLE_CONTRACT
+from sentinel_pulse.collector.features import TRACKED_SYSCALLS
 from sentinel_pulse.encoding import decode_vector
 
 

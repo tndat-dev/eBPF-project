@@ -1,4 +1,4 @@
-from sentinel_pulse.candidate_shadow import SegmentedJsonlFollower
+from sentinel_pulse.detector.candidate_shadow import SegmentedJsonlFollower
 
 
 def test_segmented_follower_reads_segments_in_order(tmp_path):

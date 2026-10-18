@@ -1,7 +1,7 @@
 import pytest
-from sentinel_pulse.preview_evaluation import evaluate_interval, summarize
-from sentinel_pulse.matched_worker import full_delta
-from sentinel_pulse.features import TRACKED_SYSCALLS
+from sentinel_pulse.attack.preview_evaluation import evaluate_interval, summarize
+from sentinel_pulse.pipeline.matched_worker import full_delta
+from sentinel_pulse.collector.features import TRACKED_SYSCALLS
 
 
 def fixtures(label='attack'):
@@ -104,7 +104,7 @@ def test_full_id_native_projection_matches_every_id_and_bin(tmp_path):
 
 def test_writer_side_tail_keeps_identity_rotation_and_ignores_partial_line(tmp_path):
     import json
-    from sentinel_pulse.preview_read_tail import read
+    from sentinel_pulse.attack.preview_read_tail import read
     base=dict(window_end=100.,pod_uid='uid',cgroup_id=42)
     for n in (1,2):
         folder=tmp_path/'segments'/f's{n:05d}';folder.mkdir(parents=True)

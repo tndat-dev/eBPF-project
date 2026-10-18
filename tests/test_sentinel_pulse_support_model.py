@@ -2,7 +2,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from sentinel_pulse.support_model import PulseSupportEnsemble
+from sentinel_pulse.detector.support_model import PulseSupportEnsemble
 
 
 class ConstantTree:

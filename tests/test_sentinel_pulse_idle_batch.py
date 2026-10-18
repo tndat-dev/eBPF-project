@@ -9,7 +9,7 @@ except ImportError:
 @unittest.skipIf(np is None, 'NumPy required; execute with the worker runtime venv')
 class IdleBatchTests(unittest.TestCase):
     def setUp(self):
-        from sentinel_pulse.idle_batch import score_batch
+        from sentinel_pulse.detector.idle_batch import score_batch
         class Model:
             def __init__(self): self.calls = 0
             def predict_contexts(self, values):
@@ -37,7 +37,7 @@ class IdleBatchTests(unittest.TestCase):
             window_end=(index+1)*.5, vector=np.full(249, value, dtype=np.float32).tolist())
 
     def test_scores_match_scalar_and_batch_is_one_model_call(self):
-        from sentinel_pulse.idle_batch import score_batch
+        from sentinel_pulse.detector.idle_batch import score_batch
         x = np.zeros((8,996),np.float32);x[4:,-249:]=1
         scalar = [self.scorer.score_context('production/a:app', row) for row in x]
         before = self.scorer.models['production/a:app'].calls
@@ -46,8 +46,8 @@ class IdleBatchTests(unittest.TestCase):
         self.assertEqual(scalar,batch)
 
     def test_history_policy_order_and_outputs_match_scalar_runtime(self):
-        from sentinel_pulse.idle_batch import IdleBatchRuntime
-        from sentinel_pulse.candidate_shadow import CandidateShadowRuntime
+        from sentinel_pulse.detector.idle_batch import IdleBatchRuntime
+        from sentinel_pulse.detector.candidate_shadow import CandidateShadowRuntime
         policy = self.Policy(self.scorer)
         scalar = CandidateShadowRuntime(self.scorer, policy=policy)
         batched = IdleBatchRuntime(self.scorer, policy=policy)
@@ -61,7 +61,7 @@ class IdleBatchTests(unittest.TestCase):
         self.assertEqual(actual[-1]['batch_contexts'],2)
 
     def test_gap_and_new_pod_reset_history(self):
-        from sentinel_pulse.idle_batch import IdleBatchRuntime
+        from sentinel_pulse.detector.idle_batch import IdleBatchRuntime
         runtime = IdleBatchRuntime(self.scorer)
         runtime.observe_many([self.row(index=i) for i in range(4)])
         rows = runtime.observe_many([self.row(index=8),self.row(pod='new',index=9)])
@@ -69,7 +69,7 @@ class IdleBatchTests(unittest.TestCase):
         self.assertEqual(rows[0]['reset_reason'],'non_contiguous_window')
 
     def test_unknown_model_invalid_row_and_workload_groups_remain_distinct(self):
-        from sentinel_pulse.idle_batch import IdleBatchRuntime
+        from sentinel_pulse.detector.idle_batch import IdleBatchRuntime
         runtime = IdleBatchRuntime(self.scorer)
         rows = [self.row(key=k,index=i,value=v) for i in range(4)
                 for k,v in [('production/a:app',0.),('production/b:app',1.)]]

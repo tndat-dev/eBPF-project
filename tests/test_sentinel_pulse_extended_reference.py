@@ -1,8 +1,8 @@
 import json
 import numpy as np
 import pytest
-from sentinel_pulse import extended_reference_experiment as exp
-from sentinel_pulse.extended_reference_experiment import phase_for,partitions_for,PulseExtendedReferenceTree
+from sentinel_pulse.detector import extended_reference_experiment as exp
+from sentinel_pulse.detector.extended_reference_experiment import phase_for,partitions_for,PulseExtendedReferenceTree
 
 
 @pytest.mark.parametrize('begin,end,expected',[(7,7.5,'train'),(7.5,8,None),(12,12.5,None),

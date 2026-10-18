@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 
-from sentinel_pulse.features import TRACKED_SYSCALLS
+from sentinel_pulse.collector.features import TRACKED_SYSCALLS
 
 ROOT = Path(__file__).resolve().parents[1]
 EBPF = ROOT / "sentinel_pulse" / "ebpf"

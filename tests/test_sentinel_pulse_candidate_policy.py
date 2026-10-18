@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from sentinel_pulse.candidate_policy import CandidatePreviewPolicy
+from sentinel_pulse.detector.candidate_policy import CandidatePreviewPolicy
 
 
 class _Model:

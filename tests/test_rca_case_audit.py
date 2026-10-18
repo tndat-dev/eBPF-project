@@ -1,7 +1,7 @@
 import copy
 
-from sentinel_pulse.audit_rca_cases import validate
-from sentinel_pulse.rca_tree import build_tree
+from sentinel_pulse.rca.audit_cases import validate
+from sentinel_pulse.rca.tree import build_tree
 
 
 def case():

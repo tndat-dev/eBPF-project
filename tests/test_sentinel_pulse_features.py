@@ -2,8 +2,8 @@ import unittest
 
 import numpy as np
 
-from sentinel_pulse.features import PulseFeatureBuilder, PulseSnapshot
-from sentinel_pulse.capture import SnapshotAssembler
+from sentinel_pulse.collector.features import PulseFeatureBuilder, PulseSnapshot
+from sentinel_pulse.collector.capture import SnapshotAssembler
 
 
 class PulseFeatureBuilderTests(unittest.TestCase):

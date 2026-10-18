@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from sentinel_pulse.capture import run
-from sentinel_pulse.model import PulseDecision
-from sentinel_pulse.telemetry_recovery import HARD_COUNTERS, RecoveryTracker, load_profile, validate_profile
+from sentinel_pulse.collector.capture import run
+from sentinel_pulse.detector.model import PulseDecision
+from sentinel_pulse.collector.telemetry_recovery import HARD_COUNTERS, RecoveryTracker, load_profile, validate_profile
 
 PROFILE = Path(__file__).resolve().parents[1] / "sentinel_pulse/protocol/telemetry-recovery-v1.json"
 ZERO_STATS = {name: 0 for name in HARD_COUNTERS}
@@ -25,7 +25,7 @@ def make_capture(tmp_path, monkeypatch, profile, times, counters=None, lag_at=No
         "workload_revision": "revision-a",
     }}}))
     clock = [times[0]]
-    monkeypatch.setattr("sentinel_pulse.capture.time.time", lambda: clock[0])
+    monkeypatch.setattr("sentinel_pulse.collector.capture.time.time", lambda: clock[0])
 
     def source():
         for index, end in enumerate(times):

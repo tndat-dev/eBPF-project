@@ -1,5 +1,5 @@
 import pytest
-from sentinel_pulse.syscall_frequency_report import describe
+from sentinel_pulse.syscall_study.syscall_frequency_report import describe
 
 
 def cohort():

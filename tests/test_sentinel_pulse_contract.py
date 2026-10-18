@@ -12,7 +12,7 @@ class PulseContractTests(unittest.TestCase):
                 "-c",
                 "import sentinel_pulse,sys; "
                 "assert 'numpy' not in sys.modules; "
-                "assert 'sentinel_pulse.features' not in sys.modules",
+                "assert 'sentinel_pulse.collector.features' not in sys.modules",
             ],
             check=False,
         )

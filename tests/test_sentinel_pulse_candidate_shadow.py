@@ -1,6 +1,6 @@
 import numpy as np
 
-from sentinel_pulse.candidate_shadow import CandidateShadowRuntime, is_valid_feature_schema_record
+from sentinel_pulse.detector.candidate_shadow import CandidateShadowRuntime, is_valid_feature_schema_record
 from sentinel_pulse.encoding import compact_record, schema_digest
 
 
@@ -132,7 +132,7 @@ def test_collector_integrity_error_resets_history_and_is_not_scored():
 
 
 def test_unmodeled_workload_is_retained_as_coverage_without_vector_decode():
-    import sentinel_pulse.candidate_shadow as shadow
+    import sentinel_pulse.detector.candidate_shadow as shadow
 
     scorer = _Scorer()
     scorer.models = {}

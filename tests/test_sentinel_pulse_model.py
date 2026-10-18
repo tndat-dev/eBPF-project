@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from sentinel_pulse.model import PulseExtraTrees
+from sentinel_pulse.detector.model import PulseExtraTrees
 
 
 class _FakeEstimator:

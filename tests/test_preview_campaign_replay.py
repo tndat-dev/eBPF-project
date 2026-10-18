@@ -3,7 +3,7 @@ import json
 import pytest
 
 from sentinel_pulse.integrity import sha256_file
-from sentinel_pulse.replay_preview_campaign import replay
+from sentinel_pulse.attack.replay_preview_campaign import replay
 
 
 def test_replay_preserves_dispatch_failure_and_parent_evidence(tmp_path):

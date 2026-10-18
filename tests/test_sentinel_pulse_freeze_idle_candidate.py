@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from sentinel_pulse.freeze_idle_reference_candidate import freeze
+from sentinel_pulse.detector.freeze_idle_reference_candidate import freeze
 from sentinel_pulse.integrity import sha256_file
 
 

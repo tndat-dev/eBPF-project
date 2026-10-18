@@ -3,7 +3,7 @@ from pathlib import Path
 import platform
 from types import SimpleNamespace
 import pytest
-from sentinel_pulse import extended_collection as ec
+from sentinel_pulse.collector import extended_collection as ec
 from sentinel_pulse.integrity import sha256_file
 from test_sentinel_pulse_extended_capture import raw,META
 

@@ -2,8 +2,8 @@ import copy
 import numpy as np
 import pytest
 
-from sentinel_pulse.matched_holdout import ContextBuilder, aggregate, merged, validate_row
-from sentinel_pulse.matched_study import contexts
+from sentinel_pulse.syscall_study.matched_holdout import ContextBuilder, aggregate, merged, validate_row
+from sentinel_pulse.syscall_study.matched_study import contexts
 
 
 def rows(n=200):
@@ -90,7 +90,7 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
     from types import SimpleNamespace
     from sentinel_pulse.integrity import sha256_file
     from sentinel_pulse.encoding import compact_record, schema_digest
-    from sentinel_pulse.matched_holdout import score_segment
+    from sentinel_pulse.syscall_study.matched_holdout import score_segment
 
     class Model:
         alpha = .05
@@ -102,7 +102,7 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
                         tree_score=np.full(n, .8), support_score=np.zeros(n),
                         joint_p=np.full(n, .02), anomalous=np.ones(n, dtype=bool))
 
-    monkeypatch.setattr('sentinel_pulse.matched_holdout.pickle.load', lambda stream: Model())
+    monkeypatch.setattr('sentinel_pulse.syscall_study.matched_holdout.pickle.load', lambda stream: Model())
     segment = tmp_path/'source'; segment.mkdir()
     columns = ['f'+str(i) for i in range(249)]
     with (segment/'features.jsonl').open('w') as stream:

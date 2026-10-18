@@ -6,9 +6,9 @@ import pickle
 import numpy as np
 import pytest
 
-from sentinel_pulse.idle_candidate import IdleCandidateScorer
-from sentinel_pulse.extended_reference_experiment import PulseExtendedReferenceTree
-from sentinel_pulse.support_model import PulseSupportEnsemble
+from sentinel_pulse.detector.idle_candidate import IdleCandidateScorer
+from sentinel_pulse.detector.extended_reference_experiment import PulseExtendedReferenceTree
+from sentinel_pulse.detector.support_model import PulseSupportEnsemble
 
 
 class _Estimator:

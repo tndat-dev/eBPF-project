@@ -3,9 +3,9 @@ import json
 
 import pytest
 
-from sentinel_pulse.audit_rca_cases import validate
-from sentinel_pulse.rca_runtime_events import POLICY, normalize_runtime_event
-from sentinel_pulse.rca_runtime_tree import build_runtime_tree, render_runtime_markdown
+from sentinel_pulse.rca.audit_cases import validate
+from sentinel_pulse.rca.runtime_events import POLICY, normalize_runtime_event
+from sentinel_pulse.rca.runtime_tree import build_runtime_tree, render_runtime_markdown
 
 
 def process(pid=21, eid='child'):
@@ -138,13 +138,13 @@ def test_fork_exec_link_requires_parent_identity_not_just_same_pid():
 
 
 def test_runtime_service_stores_all_categories_and_exports_v2(tmp_path, monkeypatch):
-    from sentinel_pulse.rca_service import Service
+    from sentinel_pulse.rca.service import Service
     config = tmp_path/'CONFIG.json'
     config.write_text(json.dumps(dict(output=str(tmp_path/'rca'), model_hash='model',
         policy_hash='policy', case_cooldown_seconds=300, before_seconds=30, after_seconds=5,
         ring_seconds=180, max_ring_events=1000, max_cases=10, workers=[],
         runtime_events=True, connect_policy=POLICY)))
-    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: 110.)
+    monkeypatch.setattr('sentinel_pulse.rca.service.time.time', lambda: 110.)
     service = Service(config)
     for raw in [record('sys_openat'), record('sys_setns', ret=-1), record('sys_ptrace', ret=-3)]:
         service.ingest_event(raw, 'worker1')
@@ -160,7 +160,7 @@ def test_runtime_service_stores_all_categories_and_exports_v2(tmp_path, monkeypa
 
 
 def test_case_ready_grace_is_explicit_and_bounded_by_config(tmp_path, monkeypatch):
-    from sentinel_pulse.rca_service import Service
+    from sentinel_pulse.rca.service import Service
     root = tmp_path/'rca'
     config = tmp_path/'CONFIG.json'
     config.write_text(json.dumps(dict(output=str(root), model_hash='model', policy_hash='policy',
@@ -169,7 +169,7 @@ def test_case_ready_grace_is_explicit_and_bounded_by_config(tmp_path, monkeypatc
         max_cases=10, workers=[])))
     service = Service(config)
     now = [104.99]
-    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: now[0])
+    monkeypatch.setattr('sentinel_pulse.rca.service.time.time', lambda: now[0])
     service.observe_trigger(trigger(), 100.)
     service.emit_cases()
     assert not list((root/'cases').glob('*.json'))
@@ -180,7 +180,7 @@ def test_case_ready_grace_is_explicit_and_bounded_by_config(tmp_path, monkeypatc
 
 
 def test_initial_case_uses_pre_alert_buffer_without_post_context(tmp_path, monkeypatch):
-    from sentinel_pulse.rca_service import Service
+    from sentinel_pulse.rca.service import Service
     root = tmp_path/'rca'
     config = tmp_path/'CONFIG.json'
     config.write_text(json.dumps(dict(output=str(root), model_hash='model', policy_hash='policy',
@@ -189,7 +189,7 @@ def test_initial_case_uses_pre_alert_buffer_without_post_context(tmp_path, monke
         max_cases=10, workers=[], runtime_events=True)))
     service = Service(config)
     now = [100.]
-    monkeypatch.setattr('sentinel_pulse.rca_service.time.time', lambda: now[0])
+    monkeypatch.setattr('sentinel_pulse.rca.service.time.time', lambda: now[0])
     service.ingest_event(record('sys_openat', at=99.), 'worker1')
     service.observe_trigger(trigger(), 100.)
     service.ingest_event(record('sys_mount', at=101.), 'worker1')
@@ -212,7 +212,7 @@ def test_manual_observability_fixture_is_not_an_ml_alert():
 
 
 def test_live_v161_tracepoint_omits_labels_and_proto_omits_empty_capabilities():
-    from sentinel_pulse.rca_runtime_events import FORK_POLICY, credentials
+    from sentinel_pulse.rca.runtime_events import FORK_POLICY, credentials
     raw = dict(node_name='worker1', time=99., process_tracepoint=dict(process=process(),
         policy_name=FORK_POLICY, subsys='sched', event='sched_process_fork',
         args=[dict(int_arg=21), dict(int_arg=22)]))
