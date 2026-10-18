@@ -75,8 +75,10 @@ def one_pair(runtime,cfg,root,item,index):
         if not any(EXEC_PROVENANCE_POLICY in line and 'enabled' in line for line in policies.splitlines()):
             raise RuntimeError('node-local exec provenance policy unavailable')
         with (trial_dir/'kernel.jsonl').open('wb') as out,(trial_dir/'kernel.stderr').open('wb') as err:
+            # The inner timeout bounds the process inside the sensor container: the
+            # outer one only kills kubectl and leaked one event client per trial.
             capture=subprocess.Popen(['timeout','23s','kubectl','exec','-n','kube-system',sensor,
-                '-c','tetragon','--','tetra','getevents','-o','json','--policy-names',EXEC_PROVENANCE_POLICY],
+                '-c','tetragon','--','timeout','24','tetra','getevents','-o','json','--policy-names',EXEC_PROVENANCE_POLICY],
                 stdout=out,stderr=err,env=runtime.environment)
             time.sleep(1)
             if cfg.get('benign_exec_control'):

@@ -24,6 +24,8 @@ from .runtime_events import normalize_runtime_event
 from .runtime_tree import build_runtime_tree, render_runtime_markdown
 from .ranking import rank_suspects, workload_of
 
+STREAM_ROTATE_SECONDS = 900  # upper bound on any orphaned in-container event client
+
 
 def atomic(path, value):
     temporary = path.with_suffix(path.suffix+'.tmp')
@@ -137,7 +139,12 @@ class Service:
 
     def start_stream(self, node, sensor, channel='policy'):
         now = time.time()
+        # Killing the local kubectl does not stop the process inside the sensor
+        # container; without a remote bound, every reconnect leaked a full event
+        # client (hundreds per node, several cores of Tetragon CPU). The remote
+        # side now exits on its own and the stream is rotated.
         args = ['kubectl', 'exec', '-n', 'kube-system', sensor, '-c', 'tetragon', '--',
+            'timeout', str(int(self.cfg.get('stream_rotate_seconds', STREAM_ROTATE_SECONDS))),
             'tetra', 'getevents', '-o', 'json']
         if self.cfg.get('runtime_events') and channel == 'lifecycle':
             args += ['--namespace', 'production', '--event-types', 'PROCESS_EXEC,PROCESS_EXIT']
@@ -371,8 +378,10 @@ class Service:
                         key = node if channel == 'policy' else node+'/lifecycle'
                         stream = self.streams.get(key)
                         if stream and (stream['child'].poll() is not None or sensor and stream['sensor']!=sensor):
-                            self.issue('tetragon_stream_disconnected', node=node, channel=channel)
-                            self.stop_stream(stream); del self.streams[key]; retry[key] = now+5
+                            rotated = stream['child'].poll() == 124  # remote `timeout` expired
+                            self.issue('tetragon_stream_rotated' if rotated else 'tetragon_stream_disconnected',
+                                       node=node, channel=channel)
+                            self.stop_stream(stream); del self.streams[key]; retry[key] = now if rotated else now+5
                         if key not in self.streams and sensor and now>=retry.get(key, 0):
                             self.start_stream(node, sensor, channel)
                 self.drain_streams()

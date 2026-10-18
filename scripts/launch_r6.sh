@@ -2,6 +2,11 @@
 # Launch the R6 live run (shadow preview only) from k8s-master (.234) as user dat.
 #
 #   LAB_SSH_PASSWORD=... bash launch_r6.sh [plan|workers|rca|master|all]
+#   LAB_SSH_PASSWORD=... COORDINATOR_SOURCE=/mnt/.../source bash launch_r6.sh [derive|rca|master]
+#
+# COORDINATOR_SOURCE (optional) moves the campaign and RCA onto a newer source
+# snapshot through derive_matched_coordinator_run, keeping the worker capture.
+# 19/10: used to bound in-container `tetra getevents` clients that leaked.
 #
 # R6 = recalibrated candidate ec72d9ea... + policy recalibrated-preview-policy-r6
 # (k1of1, alpha x3), fixture runtime_attack_r6.c with benign-exec controls, 24 h
@@ -15,6 +20,10 @@ RUN=r6-20261018
 CREDENTIAL=/home/dat/.pulse-recovery-credential-20261005
 RCA_NAME=runtime-events-20261018-r6
 WORKERS=(10.1.16.237 10.1.16.238 10.1.16.239)
+COORDINATOR_SOURCE=${COORDINATOR_SOURCE:-}
+COORD=$ROOT/coordinator-$(basename "$(dirname "${COORDINATOR_SOURCE:-/none/x}")")
+CAMPAIGN_CONFIG=$ROOT/CONFIG.json; RCA_SOURCE=$SNAP
+if [ -n "$COORDINATOR_SOURCE" ]; then CAMPAIGN_CONFIG=$COORD/CONFIG.json; RCA_SOURCE=$COORDINATOR_SOURCE; fi
 export SSHPASS=$LAB_SSH_PASSWORD
 
 as_root() { printf '%s\n' "$LAB_SSH_PASSWORD" | sudo -S -p '' "$@"; }
@@ -33,6 +42,13 @@ workers() {
   done
 }
 
+derive() {
+  [ -n "$COORDINATOR_SOURCE" ] || { echo 'COORDINATOR_SOURCE required' >&2; return 1; }
+  cd /tmp
+  PYTHONPATH=$COORDINATOR_SOURCE /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.derive_matched_coordinator_run \
+    --capture-config "$ROOT/CONFIG.json" --source "$COORDINATOR_SOURCE" --root "$COORD" --run-id "$RUN-coordinator"
+}
+
 wait_for_workers() {
   for _ in $(seq 60); do
     ready=0
@@ -48,10 +64,10 @@ wait_for_workers() {
 
 rca() {
   wait_for_workers
-  kubectl apply -f "$SNAP/sentinel_pulse/k8s/tetragon-rca-flow-policy.yaml"
+  kubectl apply -f "$RCA_SOURCE/sentinel_pulse/k8s/tetragon-rca-flow-policy.yaml"
   as_root mkdir -p "/opt/sentinel-pulse-rca/$RCA_NAME"
-  as_root cp -a "$SNAP" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
-  python3 - "$ROOT/CONFIG.json" >"/tmp/$RCA_NAME.json" <<'PY'
+  as_root cp -a "$RCA_SOURCE" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
+  python3 - "$CAMPAIGN_CONFIG" >"/tmp/$RCA_NAME.json" <<'PY'
 import json, sys
 run = json.load(open(sys.argv[1]))
 print(json.dumps(dict(
@@ -102,11 +118,11 @@ master() {
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
     --config "$ROOT/CONFIG.json" --role traffic
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
-    --config "$ROOT/CONFIG.json" --role campaign --credential "$CREDENTIAL"
+    --config "$CAMPAIGN_CONFIG" --role campaign --credential "$CREDENTIAL"
 }
 
 case "${1:-all}" in
-  plan) plan ;; workers) workers ;; rca) rca ;; master) master ;;
+  plan) plan ;; workers) workers ;; derive) derive ;; rca) rca ;; master) master ;;
   all) plan; workers; rca; master ;;
   *) echo "unknown step $1" >&2; exit 2 ;;
 esac
