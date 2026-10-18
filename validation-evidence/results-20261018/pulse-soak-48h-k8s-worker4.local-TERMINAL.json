@@ -1,0 +1,19 @@
+{
+  "automatic_promotion": false,
+  "completed_seconds": 172800.14616823196,
+  "config_sha256": "f9d7f96ce9d211095912d4dffc9cff6c087beed55bb947cae0c7dc9daf7b6ccf",
+  "current_segment": "s00098",
+  "feature_rows": 23279625,
+  "finished_at_unix": 1792173977.0240164,
+  "frames": 318875,
+  "issues": 381,
+  "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+  "node_name": "k8s-worker4.local",
+  "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+  "preview_positive": 950765,
+  "scored_rows": 8051218,
+  "segments": 98,
+  "started_at_unix": 1791999530.8417902,
+  "state": "completed_capture",
+  "updated_at_unix": 1792173977.0173442
+}

@@ -1,25 +1,27 @@
-# Tài liệu đang dùng
+# Danh mục tài liệu
 
-Chỉ có **ba báo cáo tiến độ hiện hành**:
+## Đang dùng
 
-1. [Sentinel Pulse](SENTINEL_PULSE_STATUS.md): thuật ngữ eBPF/ML, 249 feature,
-   996 chiều temporal context, candidate preview, soak/canary, matrix,
-   latency và phần còn thiếu trước production.
-2. [Thí nghiệm feature/syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md): nguồn
-   syscall, frequency, arm/seed, addition/ablation, split/calibration/blind,
-   matched study và tiêu chí thống kê để kết luận giữ/bỏ/thêm kênh.
-3. [RCA sau alert/preview](RCA_RUNTIME_STATUS.md): exec identity, parent/child,
-   connect và đích K8s, context/case/checkpoint, coverage và giới hạn causal claim.
+1. [docs/STATUS.md](docs/STATUS.md) — báo cáo trạng thái duy nhất được cập nhật:
+   kiến trúc, thuật ngữ, trạng thái cụm, kết quả, vấn đề chính, cách kiểm tra.
+2. [TODO.md](TODO.md) — danh sách việc theo mức ưu tiên.
+3. README trong từng thư mục (`sentinel_pulse/`, `testbed/`) — hướng dẫn code,
+   không phải báo cáo tiến độ.
 
-[SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md](SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md)
-được giữ nguyên riêng theo yêu cầu. Không tiếp tục tạo báo cáo tổng hợp mới.
-Các link lịch sử trong file giữ nguyên không nhất thiết còn là điểm vào hợp lệ.
+## Báo cáo chi tiết cũ (snapshot 15–16/10/2026)
 
-Báo cáo cũ đã xóa, không archive Markdown. Có thể tra lịch sử bằng Git khi
-cần nhưng không dùng trạng thái “đang chạy” trong commit cũ làm trạng thái live.
-[README](README.md) và README trong module là hướng dẫn code, không phải
-báo cáo tiến độ bổ sung.
+Các file ở thư mục gốc dưới đây là ảnh chụp trạng thái trước khi soak 48 giờ và
+holdout R4 kết thúc. Chúng giữ chi tiết kỹ thuật đầy đủ nhưng số liệu "đang chạy"
+trong đó đã cũ; dùng docs/STATUS.md cho trạng thái hiện tại. Link tới evidence
+trong các file này dùng đường dẫn trước ngày 18/10 (nay nằm dưới
+`validation-evidence/{pulse,syscall,rca}/` hoặc trong tag `archive/pre-refactor-20261018`).
 
-Bằng chứng gốc trong validation-evidence/ và artifact trên VM/NFS giữ nguyên.
-README hoặc report nằm trong thư mục evidence là một phần hồ sơ thí nghiệm,
-không thuộc đợt xóa báo cáo này. Không đổi hash/seal để sửa đường dẫn lịch sử.
+- `SENTINEL_PULSE_STATUS.md` — nhánh phát hiện ML.
+- `SYSCALL_FEATURE_EXPERIMENT_STATUS.md` — thí nghiệm chọn syscall.
+- `RCA_RUNTIME_STATUS.md` — nhánh dựng đồ thị điều tra.
+- `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` — bản tổng hợp dài (giữ theo yêu cầu).
+
+## Bằng chứng
+
+`validation-evidence/` chứa biên nhận, checksum và kết quả từng lượt chạy. Không
+sửa file đã niêm phong để chỉnh báo cáo; dữ liệu thô lớn nằm trên NFS của cụm.
