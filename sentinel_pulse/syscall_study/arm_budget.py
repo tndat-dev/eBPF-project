@@ -31,7 +31,7 @@ import numpy as np
 from ..common import atomic_json
 from ..detector.support_model import pvalues
 from ..integrity import sha256_file
-from .arm_attack_replay import interval_outcome, load_trials
+from .arm_attack_replay import interval_outcome, load_trials, trial_key
 from .score_dump import load_study
 
 EPISODE_QUIET_SECONDS = 15.0
@@ -84,16 +84,22 @@ def load_holdout(dump_root: Path, arm: str):
 
 
 def load_replay(replay: Path):
-    """tag -> trial_id -> windows (with tree/support scores and the model alpha)."""
+    """tag -> trial key -> windows (with tree/support scores and the model alpha).
+
+    Replays written before 19/10 18:00 keyed trials by bare trial_id, which repeats across
+    campaigns; they are refused rather than silently mis-joined."""
     out = defaultdict(dict)
     with (replay/'windows.jsonl').open() as stream:
         for line in stream:
             row = json.loads(line)
-            out[row['tag']][row['trial_id']] = row['windows']
+            if 'trial_key' not in row:
+                raise ValueError('replay keyed by bare trial_id (ambiguous across campaigns); re-run arm_attack_replay')
+            out[row['tag']][row['trial_key']] = row['windows']
     return out
 
 
-def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES):
+def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None):
+    """``outcomes``, if a list, receives one row per (seed, scale, trial) for paired bootstrap."""
     rows = defaultdict(lambda: dict(episodes=0, windows=0, positive=0, counts=defaultdict(int), delays=[]))
     calibrated_models, skipped = 0, []
     for tag, h in sorted(holdout.items()):
@@ -110,11 +116,11 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES):
         calibrated_models += 1
         seed = tag.split('|')[2]
         rescored = {}
-        for trial_id, windows in trial_windows.items():
+        for key, windows in trial_windows.items():
             if windows:
                 jp = joint_p(np.array([w['tree_score'] for w in windows]), np.array([w['support_score'] for w in windows]),
                              cal_tree, cal_support)
-                rescored[trial_id] = [dict(w, joint_p=float(j)) for w, j in zip(windows, jp)]
+                rescored[key] = [dict(w, joint_p=float(j)) for w, j in zip(windows, jp)]
         workload = tag.split('|')[0]
         for scale in scales:
             r = rows[scale, seed]
@@ -124,9 +130,12 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES):
             for trial in trials:
                 if trial['workload_key'] != workload:
                     continue
-                result = interval_outcome(rescored.get(trial['trial_id'], []), trial, lambda w: alpha*scale)
+                result = interval_outcome(rescored.get(trial_key(trial), []), trial, lambda w: alpha*scale)
                 kind = 'benign' if trial.get('control_kind') == 'benign_exec' else trial['label']
                 r['counts'][f"{kind}:{result['outcome']}"] += 1
+                if outcomes is not None:
+                    outcomes.append(dict(arm=arm, seed=seed, scale=scale, trial_key=trial_key(trial),
+                                         workload=workload, kind=kind, outcome=result['outcome'], delay=result['delay']))
                 if result['delay'] is not None:
                     r['delays'].append(result['delay'])
     table = {}
@@ -177,6 +186,8 @@ def matched(arms, budgets=BUDGETS):
 
 
 def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, calibration_fraction=0.2):
+    if output.exists():
+        raise ValueError('output exists; choose a new path')
     registration, index, _ = load_study(study)
     begin, finish = registration['holdout_start_unix'], registration['planned_end_unix']
     split_at = begin + calibration_fraction*(finish-begin)
@@ -184,7 +195,11 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
     windows = load_replay(replay)
     arms = {}
     for arm in sorted(index['arms']):
-        arms[arm] = evaluate_arm(arm, load_holdout(dump_root, arm), windows, trials, split_at)
+        rows = []
+        arms[arm] = evaluate_arm(arm, load_holdout(dump_root, arm), windows, trials, split_at, outcomes=rows)
+        output.mkdir(parents=True, exist_ok=True)
+        with (output/'TRIAL_OUTCOMES.jsonl').open('a') as stream:
+            stream.writelines(json.dumps(r) + '\n' for r in rows)
         print(arm, {s: round(v['episodes_per_replica_hour'] or -1, 2) for s, v in arms[arm]['scales'].items()}, flush=True)
     result = dict(schema='pulse-r4-arm-budget-v1', study=str(study), dump_root=str(dump_root), replay=str(replay),
                   campaigns=[str(c) for c in campaigns], calibration_fraction=calibration_fraction,
@@ -194,7 +209,6 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
                   arms=arms, matched_budget=matched(arms),
                   source_sha256=sha256_file(Path(__file__)), finished_at_unix=time.time())
-    output.mkdir(parents=True, exist_ok=False)
     atomic_json(output/'RESULTS.json', result)
     return result
 

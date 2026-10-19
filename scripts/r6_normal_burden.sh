@@ -49,3 +49,5 @@ for grid in default looser; do
   run attack --campaign "$MAIN" --campaign "$FOLLOW" --grid $grid \
     --calibration "$OUT/calibration-r6-1300-1900.npz" --output "$OUT/attack-refreshed-$grid.json"
 done
+# D. apply the pre-registered selection rule (SENTINEL_PULSE_STATUS 5.7)
+/home/dat/ml-venv/bin/python -m sentinel_pulse.attack.select_policy --selection-dir "$OUT" --output "$OUT/SELECTION.json"

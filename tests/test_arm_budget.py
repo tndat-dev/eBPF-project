@@ -27,9 +27,9 @@ def test_evaluate_arm_and_matched_budget():
     attack = [dict(start=100.0+0.5*i, end=100.5+0.5*i, alpha=0.01, tree_score=10.0, support_score=10.0, joint_p=1.0)
               for i in range(30)]
     control = [dict(w, start=w['start']+100, end=w['end']+100, tree_score=0.0, support_score=0.0) for w in attack]
-    replay = {'ns/w:c|armA|1': {'1:attack': attack, '1:control': control}}
-    trials = [dict(trial_id='1:attack', workload_key='ns/w:c', label='attack', start_at=100.0, kernel_event_at=100.2),
-              dict(trial_id='1:control', workload_key='ns/w:c', label='expected_normal', start_at=200.0)]
+    replay = {'ns/w:c|armA|1': {'/c/1:attack': attack, '/c/1:control': control}}
+    trials = [dict(trial_id='1:attack', campaign_path='/c', workload_key='ns/w:c', label='attack', start_at=100.0, kernel_event_at=100.2),
+              dict(trial_id='1:control', campaign_path='/c', workload_key='ns/w:c', label='expected_normal', start_at=200.0)]
     result = ab.evaluate_arm('armA', holdout, replay, trials, split_at=end[n//2], scales=(1, 5))
     s1 = result['scales']['1']
     assert result['calibrated_models'] == 1

@@ -29,6 +29,11 @@ HISTORY_LEAD_SECONDS = 30.0   # rolling-10 + history-3 need ~6.5 s; keep margin
 INTERVAL_SECONDS = 15.0
 
 
+def trial_key(trial):
+    """Trial IDs ('12:attack') restart in every campaign; qualify them by campaign path."""
+    return f"{trial.get('campaign_path', trial.get('campaign', ''))}/{trial['trial_id']}"
+
+
 def load_trials(campaigns):
     trials = []
     for campaign in campaigns:
@@ -36,7 +41,8 @@ def load_trials(campaigns):
             data = json.loads(path.read_text())
             for label in ('control', 'benign', 'attack'):
                 if label in data:
-                    trials.append(dict(data[label], campaign=campaign.name, evidence=str(path)))
+                    trials.append(dict(data[label], campaign=campaign.name, campaign_path=str(campaign),
+                                       evidence=str(path)))
     return trials
 
 
@@ -68,7 +74,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
     by_node = defaultdict(list)
     for t in trials:
         by_node[t['node_name']].append(t)
-    models, scored = {}, defaultdict(list)   # (tag, trial_id) -> windows
+    models, scored = {}, defaultdict(list)   # (tag, trial_key) -> windows
     for node, node_trials in by_node.items():
         # A later capture (e.g. R6) records the same full-ID deltas under its own worker root.
         worker = dict(output=str(workers_root/node)) if workers_root else registration['workers'][node]
@@ -120,7 +126,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
                                 models[tag].base.estimator.n_jobs = 1
                             pred = models[tag].predict_contexts(np.stack(contexts))
                             alpha = float(models[tag].alpha)
-                            scored[tag, trial['trial_id']] = [
+                            scored[tag, trial_key(trial)] = [
                                 dict(start=float(r['window_start']), end=float(r['window_end']), alpha=alpha,
                                      joint_p=float(pred['joint_p'][i]), tree_score=float(pred['tree_score'][i]),
                                      support_score=float(pred['support_score'][i]))
@@ -134,7 +140,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
             for arm in index['arms']:
                 for seed in registration['seeds']:
                     tag = f'{workload}|{arm}|{seed}'
-                    windows = scored.get((tag, trial['trial_id']), [])
+                    windows = scored.get((tag, trial_key(trial)), [])
                     result = interval_outcome(windows, trial, lambda w: w['alpha'] * scale)
                     kind = 'benign' if trial.get('control_kind') == 'benign_exec' else trial['label']
                     arms[arm][seed][f"{kind}:{result['outcome']}"] += 1
@@ -160,8 +166,8 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
         report[f'a{scale:g}'] = summary
     output.mkdir(parents=True, exist_ok=False)
     with (output/'windows.jsonl').open('w') as stream:
-        for (tag, trial_id), windows in scored.items():
-            stream.write(json.dumps(dict(tag=tag, trial_id=trial_id, windows=windows)) + '\n')
+        for (tag, key), windows in scored.items():
+            stream.write(json.dumps(dict(tag=tag, trial_key=key, windows=windows)) + '\n')
     result = dict(schema='pulse-r4-arm-attack-replay-v1', study=str(study), campaigns=[str(c) for c in campaigns],
                   workers_root=str(workers_root) if workers_root else None,
                   trials=len(trials), scored_tag_trials=len(scored), alpha_scales=list(alpha_scales),
