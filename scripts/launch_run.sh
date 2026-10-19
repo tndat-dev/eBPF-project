@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Launch a matched live run (shadow preview only) from k8s-master (.234) as user dat.
-# Generalises launch_r6.sh; every pinned value comes from the environment:
+# Generalises launch_pulse_live_recalibrated.sh; every pinned value comes from the environment:
 #
-#   LAB_SSH_PASSWORD=... RUN=r7-20261020 SNAP=/mnt/.../source \
+#   LAB_SSH_PASSWORD=... RUN=pulse-stable-candidate SNAP=/mnt/.../source \
 #   CANDIDATE=/mnt/.../model-bundle MODEL_HASH=... POLICY=sentinel_pulse/protocol/x.json POLICY_HASH=... \
 #   [FIXTURE=testbed/attack/runtime_attack_r6.c] [SECONDS_TOTAL=86400] [FAST=1] \
-#   [RCA_PREV_UNIT=pulse-rca-runtime-events-r6c] bash launch_run.sh [plan|workers|rca|master|all]
+#   [RCA_PREV_UNIT=rca-subscriber] bash launch_run.sh [plan|workers|rca|master|all]
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
 set -euo pipefail
@@ -13,11 +13,11 @@ set -euo pipefail
 FIXTURE=${FIXTURE:-testbed/attack/runtime_attack_r6.c}
 SECONDS_TOTAL=${SECONDS_TOTAL:-86400}
 FAST=${FAST:-1}
-ROOT=/mnt/sentinel-pulse-archive/matched-$RUN
+ROOT=/mnt/sentinel-pulse-archive/$RUN
 CREDENTIAL=/home/dat/.pulse-recovery-credential-20261005
-RCA_NAME=runtime-events-$RUN
-RCA_UNIT=pulse-rca-runtime-events-$RUN
-RCA_PREV_UNIT=${RCA_PREV_UNIT:-pulse-rca-runtime-events-r6c}
+RCA_NAME=rca-$RUN                  # e.g. rca-pulse-stable-candidate
+RCA_UNIT=$RCA_NAME
+RCA_PREV_UNIT=${RCA_PREV_UNIT:-rca-subscriber}
 WORKERS=(10.1.16.237 10.1.16.238 10.1.16.239)
 export SSHPASS=$LAB_SSH_PASSWORD
 
@@ -63,7 +63,7 @@ rca() {
 import json, os, sys
 run = json.load(open(sys.argv[1]))
 print(json.dumps(dict(
-    output='/var/lib/sentinel-pulse-rca/runtime-events-' + os.environ['RUN'],
+    output='/var/lib/sentinel-pulse-rca/rca-' + os.environ['RUN'],
     registration_reason='live run ' + os.environ['RUN'] + ': runtime + fork + flow policies, follow-up cases on '
                         'novel execs (15-min exec log), 20000-case retention, binary baseline frozen before attacks',
     kubeconfig='/home/dat/.kube/config', model_hash=run['model_hash'], policy_hash=run['policy_hash'],
@@ -79,7 +79,7 @@ print(json.dumps(dict(
 PY
   as_root install -m 0640 -o root -g dat "/tmp/$RCA_NAME.json" "/etc/sentinel-pulse-rca/$RCA_NAME.json"
   rm -f "/tmp/$RCA_NAME.json"
-  # As launch_rca_followup.sh: write via a temp file, as_root owns stdin for the password.
+  # As launch_rca_subscriber.sh: write via a temp file, as_root owns stdin for the password.
   cat >"/tmp/$RCA_UNIT.service" <<UNIT
 [Unit]
 Description=Pulse RCA runtime-event subscriber ($RUN, read-only)

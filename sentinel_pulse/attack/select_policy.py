@@ -1,8 +1,8 @@
-"""Apply the pre-registered R7 selection rule to the R6 evidence (SENTINEL_PULSE_STATUS 5.7).
+"""Apply the pre-registered selection rule for pulse-stable-candidate to the pulse-live-recalibrated evidence.
 
 Rule, fixed before the numbers existed (19/10 10:52):
 
-1. Calibration: use the refreshed calibration (R6 normal 13:00-19:00) if, for the R6 policy
+1. Calibration: use the refreshed calibration (pulse-live-recalibrated normal) if, for the run policy
    k1of1_a3, it lowers normal alert episodes per hour and costs at most 2 recall points.
 2. Policy: among both grids under that calibration, keep policies with replay p95 <= 2.3 s
    (the fast scorer is expected to remove ~0.35 s), precision >= 0.95, recall >= 0.95 and
@@ -10,7 +10,7 @@ Rule, fixed before the numbers existed (19/10 10:52):
 3. Otherwise choose the lowest p95 among policies with precision >= 0.95 and record that the
    expectations are not met.
 
-Inputs are the files written by scripts/r6_normal_burden.sh; nothing here is tuned afterwards.
+Inputs are the files written by scripts/pulse_stable_candidate_selection.sh; nothing here is tuned afterwards.
 """
 from __future__ import annotations
 
@@ -96,15 +96,15 @@ def write_policy(selection: dict, template: Path, output: Path, candidate_hash: 
     """A v2 preview policy file for the selected rule, bound to the R7 candidate."""
     doc = json.loads(template.read_text())
     spec = selection['metrics']['policy']
-    doc.update(policy_name=f"r7-{selection['policy'].replace('_', '-')}-{selection['calibration']}",
+    doc.update(policy_name=f"stable-candidate-{selection['policy'].replace('_', '-')}-{selection['calibration']}",
                candidate_name=candidate_name, candidate_manifest_sha256=candidate_hash,
                created_at=time.strftime('%Y-%m-%d'))
     doc['rule']['alpha_scale'] = float(spec['alpha_scale'])
     doc['rule']['temporal_confirmation'] = dict(k=int(spec['k']), n=int(spec['n']), max_gap_seconds=1.0)
     m = selection['metrics']
     doc['selection_basis'] = dict(
-        data='development: R6 live campaigns (420 pairs) and R6 normal 19:00-02:04 (19-20/10)',
-        rule='pre-registered R7 rule, SENTINEL_PULSE_STATUS 5.7; applied by sentinel_pulse.attack.select_policy',
+        data='development: pulse-live-recalibrated campaigns (420 pairs) and its normal tail',
+        rule='pre-registered stable-candidate rule (SENTINEL_PULSE_STATUS); applied by sentinel_pulse.attack.select_policy',
         calibration=selection['calibration'], meets_registered_expectations=selection['meets_registered_expectations'],
         development_result=dict(precision_expected=m['precision'], recall_observed=m['recall'],
                                 control_positive_rate=m['control'], benign_exec_positive_rate=m['benign_positive_rate'],

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# RCA follow-up on the running R6 capture (run on .234 as dat):
-#   LAB_SSH_PASSWORD=... SRC=/mnt/.../source bash launch_rca_followup.sh [derive|rca|campaign|all]
+# RCA follow-up on the running pulse-live-recalibrated capture (run on .234 as dat):
+#   LAB_SSH_PASSWORD=... SRC=/mnt/.../source bash launch_rca_subscriber.sh [derive|rca|campaign|all]
 #
-# - derive: a 7-workload coordinator (105 pairs, benign controls) on the R6 capture;
+# - derive: a 7-workload coordinator (105 pairs, benign controls) on the pulse-live-recalibrated capture;
 # - rca: replace subscriber r6 with r6b: follow-up cases on new execs, 20000-case
 #   retention, binary baseline seeded from r6 (same freeze time);
 # - campaign: install the coordinator campaign service.
@@ -46,7 +46,7 @@ if os.environ.get('DECISION_STREAM') == '1':
     old['decision_stream'] = dict(user='dat', credential='/home/dat/.pulse-recovery-credential-20261005', rotate_seconds=3600)
 old.update(output='/var/lib/sentinel-pulse-rca/' + os.environ['NAME'],
            previous_output=os.environ['OLD'],
-           registration_reason='R6 RCA follow-up: bounded follow-up cases on new execs inside the cooldown, '
+           registration_reason='RCA follow-up on pulse-live-recalibrated: bounded follow-up cases on new execs inside the cooldown, '
                                '20000-case retention, binary baseline seeded from r6 with the same freeze time',
            follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,
            follow_up_novelty_seconds=300,

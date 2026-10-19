@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Launch the R6 live run (shadow preview only) from k8s-master (.234) as user dat.
+# Launch the pulse-live-recalibrated live run (shadow preview only) from k8s-master (.234) as user dat.
 #
-#   LAB_SSH_PASSWORD=... bash launch_r6.sh [plan|workers|rca|master|all]
-#   LAB_SSH_PASSWORD=... COORDINATOR_SOURCE=/mnt/.../source bash launch_r6.sh [derive|rca|master]
+#   LAB_SSH_PASSWORD=... bash launch_pulse_live_recalibrated.sh [plan|workers|rca|master|all]
+#   LAB_SSH_PASSWORD=... COORDINATOR_SOURCE=/mnt/.../source bash launch_pulse_live_recalibrated.sh [derive|rca|master]
 #
 # COORDINATOR_SOURCE (optional) moves the campaign and RCA onto a newer source
 # snapshot through derive_matched_coordinator_run, keeping the worker capture.
 # 19/10: used to bound in-container `tetra getevents` clients that leaked.
 #
-# R6 = recalibrated candidate ec72d9ea... + policy recalibrated-preview-policy-r6
+# pulse-live-recalibrated = recalibrated candidate ec72d9ea... + policy recalibrated-preview-policy-r6
 # (k1of1, alpha x3), fixture runtime_attack_r6.c with benign-exec controls, 24 h
 # capture without raw.jsonl, RCA subscriber with the flow policy and a frozen
 # binary baseline. Every step refuses to overwrite an existing run/unit.
@@ -76,7 +76,7 @@ run = json.load(open(sys.argv[1]))
 print(json.dumps(dict(
     output='/var/lib/sentinel-pulse-rca/runtime-events-20261018-r6',
     previous_output='/var/lib/sentinel-pulse-rca/runtime-events-20261015-r2',
-    registration_reason='R6 live run: recalibrated candidate + R6 policy; adds the sampled '
+    registration_reason='pulse-live-recalibrated live run: recalibrated candidate + policy-1win-a3; adds the sampled '
                         'tcp/udp_sendmsg flow policy and a binary baseline frozen before the first attack',
     kubeconfig='/home/dat/.kube/config', model_hash=run['model_hash'], policy_hash=run['policy_hash'],
     runtime_events=True, connect_policy='sentinel-rca-runtime-v1',

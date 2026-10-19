@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Evidence for the R7 candidate and policy (run on .234 as dat after the R6 capture ends).
-#   A. normal alert burden of every policy on the R6 normal tail with the R6 candidate as run;
-#   B. recalibrate the R6 candidate on R6 normal 13:00-19:00 (19/10 UTC+7) = periodic refresh;
-#   C. burden on 19:00-end and replay of both R6 campaigns under that new calibration.
+# Evidence for the pulse-stable-candidate candidate and policy (run on .234 as dat after pulse-live-recalibrated ends).
+#   A. normal alert burden of every policy on the pulse-live-recalibrated normal tail with the pulse-live-recalibrated candidate as run;
+#   B. recalibrate the pulse-live-recalibrated candidate on pulse-live-recalibrated normal 13:00-19:00 (19/10 UTC+7) = periodic refresh;
+#   C. burden on 19:00-end and replay of both pulse-live-recalibrated campaigns under that new calibration.
 # Spans exclude the Tetragon-contention start and both campaigns (+-60 s).
 set -euo pipefail
 SRC=${SRC:?source snapshot with confirmation_study --model-hash on calibrate}
 ROOT=/mnt/sentinel-pulse-archive/matched-r6-20261018
-OUT=$ROOT/analysis-20261019/r7-selection
+OUT=$ROOT/analysis-20261019/pulse-stable-candidate-selection
 MAIN=$ROOT/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
 FOLLOW=$ROOT/coordinator-rca-followup-20261019/pulse-development-matrix
 MODEL=ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4
@@ -29,13 +29,13 @@ print(f"{min(starts) - 60}:{json.loads((root/'TERMINAL.json').read_text())['fini
 PY
 }
 # 18:25-19:20 (19/10): cluster incident (heavy analysis jobs, master2 NotReady, Longhorn rebuild,
-# monitored pods restarted); excluded before any R6 normal result was looked at.
+# monitored pods restarted); excluded before any pulse-live-recalibrated normal result was looked at.
 INCIDENT=1792409100:1792412400
 EXCL=(--exclude "$(span "$MAIN")" --exclude "$(span "$FOLLOW")" --exclude "$INCIDENT")
 cd /tmp
 export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 run() { /home/dat/ml-venv/bin/python -m sentinel_pulse.attack.confirmation_study "$@" --model-hash $MODEL --policy-hash $POLICY; }
-# A + C(normal): same evaluation span, R6 calibration as run vs. refreshed calibration
+# A + C(normal): same evaluation span, pulse-live-recalibrated calibration as run vs. refreshed calibration
 run calibrate --worker-root "$ROOT/workers/${NODES[0]}" --worker-root "$ROOT/workers/${NODES[1]}" \
   --worker-root "$ROOT/workers/${NODES[2]}" --since $CAL_START --until $CAL_END "${EXCL[@]}" \
   --output "$OUT/calibration-r6-1300-1900.npz"
