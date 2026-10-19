@@ -227,16 +227,44 @@ class Service:
         if kind is None: return
         self.count('positive_decisions_observed')
         key = json.dumps(identity(row))
-        recent = self.db.execute('select created from cases where identity=? order by created desc limit 1', (key,)).fetchone()
+        recent = self.db.execute('select created, trigger from cases where identity=? order by created desc limit 1',
+                                 (key,)).fetchone()
+        follow_up_of = None
         if recent and now-recent[0] < self.cfg['case_cooldown_seconds']:
-            self.count('positive_decisions_grouped_by_cooldown'); return
+            if not self.follow_up_allowed(row, key, recent, now):
+                self.count('positive_decisions_grouped_by_cooldown'); return
+            follow_up_of = case_id(json.loads(recent[1]))
+            self.count('follow_up_cases_on_new_exec')
         safe = {k: row.get(k) for k in ('schema', 'status', 'run_id', 'capture_segment', 'node_name',
             'workload_key', 'pod_uid', 'container_name', 'cgroup_id', 'window_start', 'window_end',
             'preview_emitted_at', 'candidate_manifest_sha256', 'policy_sha256', 'candidate_alert_preview',
             'policy_evaluated', 'serving_compatible', 'container_id',
             'joint_p', 'tree_p', 'support_p', 'candidate_policy_alpha', 'alert', 'policy_applied')}
+        if follow_up_of:
+            safe['follow_up_of'] = follow_up_of
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',
             (case_id(row), now, 0, key, json.dumps(safe)))
+
+    def follow_up_allowed(self, row, key, recent, now):
+        """Within the cooldown, a new process exec since the previous case opens a follow-up case.
+
+        With a fixed per-container cooldown, a second process started shortly after
+        a first (e.g. an attack after a benign launch) never got its own case
+        (R6: 218 of 315 attacks). Bounded: >= 10 s apart, <= 5 follow-ups per cooldown.
+        """
+        if not self.cfg.get('follow_up_on_new_exec'):
+            return False
+        if now - recent[0] < self.cfg.get('follow_up_min_seconds', 10):
+            return False
+        followups = self.db.execute("select count(*) from cases where identity=? and created>? and instr(trigger, 'follow_up_of')>0",
+                                    (key, now - self.cfg['case_cooldown_seconds'])).fetchone()[0]
+        if followups >= self.cfg.get('follow_up_max_per_cooldown', 5):
+            return False
+        since = event_time(json.loads(recent[1])['window_end'])
+        node, pod, container = identity(row)
+        return self.db.execute("select 1 from events where node=? and pod=? and container=? and at>? and at<=? "
+                               "and instr(document, '\"operation\":\"exec\"')>0 limit 1",
+                               (node, pod, container, since, event_time(row['window_end']))).fetchone() is not None
 
     def tail_decisions(self):
         for worker in self.cfg['workers']:
