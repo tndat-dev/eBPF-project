@@ -42,7 +42,8 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 | `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
 | `pulse-compress-raw-48h-20261020` | Timer 20/10 02:05: nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc (`scripts/compress_raw_frames.py`) |
 | `pulse-rolling-recalibration-20261020b` | Timer 20/10 02:15, trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
-| `pulse-r7-selection-20261020` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7 |
+| `pulse-r7-selection-20261020b` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
+| `pulse-syscall-bootstrap-20261020` | Timer 20/10 02:15: chạy lại replay syscall với khóa trial đã sửa, rồi bootstrap (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)) |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
 | NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. R6 cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi R7 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
@@ -284,7 +285,9 @@ Job `pulse-r7-selection-20261020` chạy sau khi R6 kết thúc. Mỗi khoảng 
 - Trong các chính sách có p95 replay ≤ 2,3 s (đường nhanh dự kiến bớt ~0,35 s), precision và recall ≥ 95%, control ≤ 5%, chọn chính sách có **ít đợt cảnh báo/giờ nhất**.
 - Nếu không chính sách nào đạt các điều kiện trên, chọn chính sách đạt p95 thấp nhất trong số có precision ≥ 95%, và ghi rõ là không đạt kỳ vọng.
 
-Sau đó: đăng ký file chính sách R7, tạo bundle bằng `detector/recalibrate_bundle.py`, rồi chạy `scripts/launch_run.sh` với `FAST=1` (chấm điểm nhanh) và RCA cấu hình đầy đủ.
+- **Luật chọn đã viết thành code** (`attack/select_policy.py`, `3e2d2e4`, có test). Code đọc output của job, ghi `SELECTION.json` gồm calibration, chính sách, số liệu, cờ đạt kỳ vọng và hash đầu vào, rồi sinh file chính sách v2 gắn với hash candidate R7. Nhờ vậy việc chọn tái lập được, không có phán đoán thủ công sau khi đã xem số.
+
+Sau đó: tạo bundle bằng `detector/recalibrate_bundle.py` (nếu chọn calibration làm mới), sinh file chính sách, rồi chạy `scripts/launch_run.sh` với `FAST=1` (chấm điểm nhanh) và RCA cấu hình đầy đủ.
 
 ## 6. Tiến độ và việc còn lại
 
@@ -429,3 +432,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 16:35 | Policy RCA thu hẹp: lưu lượng Tetragon worker1 giảm ~8× (17.393 → 2.096 sự kiện / 10 s), giảm cả overhead trên node đang chạy R6 | [RCA](RCA_RUNTIME_STATUS.md) mục 5.8 |
 | 17:16 | Kiểm tra sức khỏe: 3 worker R6 cập nhật đều; RCA r6c 2.453 case; NFS còn 52 GB → không đủ cho R7 | mục 2 |
 | 17:18 | Hẹn nén `raw.jsonl` soak 48 giờ lúc 02:05 (kiểm tra seal, không mất dữ liệu); dời rolling sang 02:15 để không chạy cùng R7; bật watcher kiểm tra 5 phút/lần (heartbeat, cadence gap, RCA, NFS) | `scripts/compress_raw_frames.py` |
+| 17:53 | Luật chọn R7 thành code + test; job chọn gọi nó ở bước cuối; sửa watcher (dấu hiệu xong = `SELECTION.json`) | `3e2d2e4` |

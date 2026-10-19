@@ -162,6 +162,18 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 - Ở ngân sách ≤ 8, p95 của hầu hết cấu hình > 2 s.
 - Từ 13:00, worker R6 ghi thêm 17/5/18 cadence gap trùng lúc job này đọc NFS. Các cửa sổ đó đã tự động không tính là normal.
 
+### 5.6 Lỗi khóa trial và kế hoạch khoảng tin cậy (19/10 17:53)
+
+- **Lỗi khóa trial (của mình).** `arm_attack_replay` dùng khóa `(tag, trial_id)`, mà `trial_id` (ví dụ `"12:attack"`) đánh số lại từ đầu trong mỗi campaign. R3 với R5, và campaign R6 chính với campaign tiếp nối, có thể trùng khóa trên cùng workload. Khi đó cửa sổ của trial này ghi đè trial kia, trial bị chấm sai hoặc thành unknown.
+  - Ước tính ảnh hưởng ~5% số trial của các workload trùng. Kết luận ở 5.3–5.5 khó thay đổi, nhưng sẽ được chạy lại.
+  - **Sửa:** khóa gồm cả đường dẫn campaign (`trial_key`); `arm_budget` từ chối replay cũ dùng khóa trần.
+- **Khoảng tin cậy** (`syscall_study/arm_bootstrap.py`):
+  - Ở mỗi ngân sách, mỗi cấu hình dùng hệ số alpha của riêng nó.
+  - Kết quả mỗi trial lấy trung bình 3 seed, so ghép cặp theo trial với base29.
+  - Bootstrap lấy mẫu lại theo **workload**, 10.000 lần.
+  - Báo cáo: recall, tỉ lệ binary vô hại, khoảng cách recall − benign, chênh lệch so với base29 kèm CI 95%, và cận dưới một phía 95% của chênh recall. Cận dưới này là điều kiện "không kém hơn −3 điểm" của protocol v2.
+- **Lịch:** job `pulse-syscall-bootstrap-20261020` chạy 20/10 02:15, sau khi R6 kết thúc. Nó chạy lại hai replay (R3/R5, R6), `arm_budget` có ghi kết quả từng trial, rồi bootstrap. Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -182,6 +194,7 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Replay attack R3/R5 cho mọi cấu hình | Có (5.3) |
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
 | Replay mọi cấu hình trên campaign R6 + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
+| Khoảng tin cậy bootstrap theo protocol v2 | Đã hẹn (5.6), cùng với replay đã sửa khóa trial |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
@@ -225,3 +238,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
 | 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
 | 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
+| 19/10 17:53 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
