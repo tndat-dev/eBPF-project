@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **19/10/2026 10:45 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **19/10/2026 10:41 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -30,7 +30,7 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
   - Dù vậy vẫn còn 6–17 đợt mỗi replica-giờ, xa ngân sách 0,1.
   - Thí nghiệm syscall cho thấy thay bộ syscall không giải quyết được vấn đề này.
 
-## 2. Trạng thái cụm và job (10:45 ngày 19/10)
+## 2. Trạng thái cụm và job (10:41 ngày 19/10)
 
 | Thành phần | Trạng thái |
 |---|---|
@@ -390,4 +390,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:22 | Kiểm tra tương đương đường nhanh trên R6: 0 sai khác, CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-*.json` |
 | 10:27 | Hẹn job `pulse-r6-normal-burden-20261020` (02:10 ngày 20/10) | `scripts/r6_normal_burden.sh` |
 | 10:33 | Dừng job rolling (lần chạy theo timer) để ưu tiên RCA live | sẽ chạy lại sau campaign tiếp nối |
-| 10:45 | Chuyển báo cáo về 3 file theo thí nghiệm; xóa `docs/STATUS.md` | file này |
+| 10:41 | Chuyển báo cáo về 3 file theo thí nghiệm; xóa `docs/STATUS.md` | file này |
