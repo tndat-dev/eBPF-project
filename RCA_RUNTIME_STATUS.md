@@ -146,6 +146,31 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
   - Tắt case tiếp nối trong 330 s đầu sau khi subscriber khởi động.
   - Chuyển sang r6c lúc 10:48. Campaign tiếp nối đã chạy từ 10:46, nên khi đánh giá r6c chỉ tính các trial bắt đầu sau ~10:54.
 
+### 5.7 Kết quả r6c trên campaign tiếp nối (xong 19/10 ~12:50)
+
+- **Phạm vi đánh giá:** chỉ tính 99 trial bắt đầu sau khi r6c hết 330 s khởi động (10:54:15).
+- **Bằng chứng:** `matched-r6-20261018/rca-r6c-copy-20261019/`, gồm 2.140 case, `context.sqlite3` và `RANKING-{stored,reranked}.json`.
+
+| Chỉ số | R6 (r6, không có case tiếp nối) | Campaign tiếp nối (r6c) |
+|---|---|---|
+| Attack có case của chính nó | 36/315 (11%) | **71/99 (72%)**; 57 trong số đó là case tiếp nối |
+| Gộp cooldown, không có case tiếp nối | 218 | 19 |
+| Không có case | 13 | 9 |
+| Bị xóa do giới hạn lưu | 48 | 0 |
+| Top-1, xếp hạng lưu sẵn | 100% (36) | 56% (73 case) — lỗi baseline, xem dưới |
+| **Top-1 / top-5, xếp hạng lại với baseline đúng** | 100% | **98,6% / 98,6%** (72/73; 1 case không có binary tấn công) |
+| Case có `active_flow` | 12% (mẫu sớm) | **3%** (2/71) |
+| Preview → case p50 / p95 | chưa đo | 7,0 / 14,5 s |
+
+- **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ r6 sang r6b/r6c không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
+  - Mọi binary đều có `first_seen` sau mốc đóng băng, nên probe định kỳ (`sh`, `hostname`, `bash`, `pg_isready`, script readiness/liveness của Kafka) được +4 điểm `novel_binary` và đứng trên binary tấn công.
+- **Cách đánh giá đúng.** Gộp baseline của r6 vào bản sao rồi xếp hạng lại offline. `--rerank-db` chỉ dùng binary đã thấy trước lúc tạo case, nên đây đúng là kết quả live đáng lẽ đạt được.
+- **Đã sửa:**
+  - DB live của r6c đã được gộp baseline lúc 16:33, nên các case từ thời điểm đó xếp hạng đúng.
+  - Script chạy bước chép qua file tạm, và báo lỗi nếu không chép được dòng nào.
+- **Flow rất thấp (3%) — việc cần điều tra tiếp.** Có thể do giới hạn lấy mẫu 10 s/process, hoặc do service gửi qua sidecar mesh nên `tcp_sendmsg` thuộc container khác.
+- **Một giới hạn còn lại:** attack `setns`/`mount` không để lại sự kiện bảo mật, vì seccomp chặn trước kprobe. Binary tấn công vẫn đứng đầu nhờ `novel_binary` + `started_in_window`.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -156,7 +181,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2 đo p50 11 s / p95 17 s. **Chưa đo lại trên r6/r6b** |
+| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; **r6c: p50 7,0 s / p95 14,5 s** |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
@@ -168,8 +193,9 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Stream không rò tiến trình trong container | Có (`d791d24`) |
 | Xếp hạng nghi phạm + đánh giá top-k theo nhãn campaign | Có; R6: top-1 100% trên 36 case |
 | Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
-| Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | Đang chạy thử (r6c + campaign 105 cặp); r6b có lỗi tham chiếu, đã sửa |
-| Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | Sau khi campaign tiếp nối xong (~12:50) |
+| Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | **Hiệu quả**: tỉ lệ attack có case từ 11% lên 72% |
+| Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | **Có (5.7)**: 72% attack có case, top-1 98,6% (xếp hạng lại), flow 3%, p50 7 s |
+| Flow coverage thấp | Chưa: điều tra giới hạn lấy mẫu và sidecar mesh |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
 | Chứng minh nhân quả | Ngoài phạm vi hiện tại |
 
@@ -214,3 +240,6 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 10:46 | r6b mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
 | 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang r6c | `ea5a3ee` |
 | 19/10 10:52 | Campaign tiếp nối 5/105 cặp; r6c 30 case, chưa có case tiếp nối (đang trong 330 s khởi động) | — |
+| 19/10 16:25 | Chép 2.140 case + DB của r6c; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
+| 19/10 16:30 | Phát hiện baseline chưa được chép (lỗi stdin sudo) → probe bị coi là `novel_binary` | mục 5.7 |
+| 19/10 16:33 | Gộp baseline r6 vào bản sao + DB live r6c; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |

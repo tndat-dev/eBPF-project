@@ -50,16 +50,23 @@ print(json.dumps(old, indent=2))
 PY
   as_root install -m 0640 -o root -g dat "/tmp/$NAME.json" "/etc/sentinel-pulse-rca/$NAME.json"
   rm -f "/tmp/$NAME.json"
-  # Seed the never-expiring first-seen table from r6 so the freeze time keeps its meaning.
-  as_root env PYTHONPATH="$SRC" python3 - "$OLD/context.sqlite3" "/var/lib/sentinel-pulse-rca/$NAME/context.sqlite3" <<'PY'
+  # Seed the never-expiring first-seen table so the freeze time keeps its meaning. The script
+  # goes through a temp file: as_root feeds the password on stdin, so `python3 -` with a
+  # heredoc ran an empty program and r6b/r6c started unseeded (found 19/10 16:30).
+  cat >/tmp/seed-binaries.py <<'PY'
 import sqlite3, sys
 from sentinel_pulse.rca.service import database
 src = sqlite3.connect(f'file:{sys.argv[1]}?mode=ro', uri=True)
 dst = database(sys.argv[2])
 rows = src.execute('select workload, binary, first_seen from binaries').fetchall()
-dst.executemany('insert or ignore into binaries values(?,?,?)', rows); dst.commit()
+dst.executemany('insert into binaries values(?,?,?) on conflict(workload, binary) do update set '
+                'first_seen=min(first_seen, excluded.first_seen)', rows); dst.commit()
+if not rows:
+    sys.exit('no baseline rows to seed')
 print('seeded binaries', len(rows))
 PY
+  as_root env PYTHONPATH="$SRC" python3 /tmp/seed-binaries.py "$OLD/context.sqlite3" "/var/lib/sentinel-pulse-rca/$NAME/context.sqlite3"
+  rm -f /tmp/seed-binaries.py
   cat >/tmp/$UNIT.service <<UNIT
 [Unit]
 Description=Pulse RCA runtime-event subscriber ($NAME, follow-up cases, read-only)

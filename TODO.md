@@ -74,7 +74,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Replay attack R3/R5 cho cả 11 cấu hình (`arm-attack-replay-r3r5-20261018`): ở alpha×1 p95 2,1–3,4 s; `drop_exec_pair` kém nhất.
 - [x] So 11 cấu hình ở cùng ngân sách cảnh báo sau hiệu chỉnh lại (`arm-budget-20261019`): không cấu hình nào
       đạt ≤ 1 đợt/giờ; khác biệt trong nhiễu; giữ `base29` cho Pulse.
-- [~] Replay 11 cấu hình trên R6 (có binary vô hại): job `pulse-r6-syscall-arms-20261019` sau campaign tiếp nối.
+- [x] Replay 11 cấu hình trên R6 (có binary vô hại): không cấu hình nào tách attack khỏi process vô hại; `plus_all_*` tệ nhất → giữ `base29`.
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
       kernel → cảnh báo cho từng cấu hình (feature nhiều hơn có thể chậm hơn).
 - [ ] Đưa bộ syscall được chọn vào candidate Pulse kế tiếp (fit lại, đóng băng, blind test).
@@ -88,7 +88,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Áp dụng policy flow + chạy subscriber r6 (`pulse-rca-runtime-events-r6`) cùng lượt R6 (19/10 02:14).
 - [x] Sửa rò tiến trình `tetra getevents` trong container Tetragon (campaign + RCA), dọn 378 tiến trình mồ côi (19/10).
 - [x] Chạy `rca.evaluate_ranking` trên case R6: 36/315 attack có case, top-1 100%.
-- [~] RCA: case tiếp nối + lưu 20.000 case đang chạy thử (r6c + campaign tiếp nối 105 cặp, xong ~12:50); đo lại độ phủ, top-k, flow, độ trễ.
+- [x] RCA case tiếp nối + lưu 20.000: 72% attack có case (R6: 11%), top-1 98,6% sau khi sửa baseline, preview → case p50 7 s.
+- [ ] RCA: flow chỉ có ở 3% case → điều tra giới hạn lấy mẫu 10 s/process và sidecar mesh.
 - ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 
 ## Ưu tiên 3 — Dọn cụm (bạn đã cho phép tự quyết 18/10)

@@ -34,12 +34,12 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live R6: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, kết thúc 20/10 02:04; chấm điểm bằng đường sklearn cũ |
+| Lượt live R6: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
 | Campaign R6 (315 cặp) | **Xong** 09:52 (mục 5.5) |
 | Traffic R6 | Đã xong lịch các chế độ tải; hiện ở steady |
-| Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | Đang chạy: 5/105 cặp lúc 10:52, dự kiến xong ~12:50 |
+| Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
 | RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
-| `pulse-r6-syscall-arms-20261019` | Chờ campaign tiếp nối xong rồi replay 11 cấu hình syscall trên R6 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)) |
+| `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
 | `pulse-rolling-recalibration-20261020` | Timer 20/10 03:30, sau khi R6 kết thúc (đọc ~200 GB từ NFS, không chạy khi đang thu dữ liệu đánh giá) |
 | `pulse-r7-selection-20261020` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7 |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
@@ -217,6 +217,21 @@ Tỉ lệ dương theo kịch bản:
 
 - Với attack, trung vị **100%** cửa sổ trong 15 s là dương. Với binary vô hại là 33%, với control là ~0%. Tín hiệu bền là dấu hiệu tách mạnh, nhưng đợi tín hiệu bền thì chậm.
 - Precision 1:1 ở trên chỉ tính control idle. Nếu coi binary vô hại là âm tính thì precision thấp hơn nhiều. Báo cáo đồ án phải trình bày cả hai cách tính.
+
+**Campaign tiếp nối (105 cặp, 7 workload, xong ~12:50):**
+- Precision 93,0%, recall 89,4%, control idle 6,7%, **binary vô hại 70,6%** (72/102).
+- Cùng xu hướng với campaign chính.
+
+**Cadence gap trong thời gian chạy:**
+
+| Khoảng | worker1 | worker4 | worker3 | Nguyên nhân |
+|---|---:|---:|---:|---|
+| 02:00–03:00 | 230 | 0 | 296 | Tranh chấp CPU do client Tetragon mồ côi |
+| 03:00–04:00 | 36 | 0 | 25 | Phần còn lại của sự cố trên |
+| 13:00–14:00 | 17 | 5 | 18 | Job syscall đọc NFS |
+| Các giờ khác | 0–5 | 0–5 | 0–5 | — |
+
+Các cửa sổ sau gap tự động không tính là normal.
 
 **Replay chính sách trên R6** (`analysis-20261019/attack-r6-{default,looser}.json`).
 - Replay k1of1_a3 tái lập đúng kết quả live.
@@ -408,3 +423,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:33 | Dừng job rolling (lần chạy theo timer) để ưu tiên RCA live | sẽ chạy lại sau campaign tiếp nối |
 | 10:41 | Chuyển báo cáo về 3 file theo thí nghiệm; xóa `docs/STATUS.md` | file này |
 | 10:52 | `calibrate --model-hash`; job chọn R7 (calibration như đã chạy so với làm mới trên normal R6) thay cho job đo gánh cảnh báo; profile `custom` cho `plan_matched_run`; `scripts/launch_run.sh`; dời job rolling sang 20/10 03:30 | `6f0e6be`, `a4a8529`; mục 5.7 |
+| 16:23 | Kiểm tra sau khi phiên khởi động lại: campaign tiếp nối và job syscall đã xong; R6 vẫn chạy | mục 2, 5.5 |
+| 16:35 | Ghi quy tắc: soak/lượt live phải chạy hết chu kỳ, không dừng hay đánh fail giữa chừng | mục 2 |

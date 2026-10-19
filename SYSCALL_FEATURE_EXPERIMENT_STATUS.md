@@ -129,6 +129,39 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   - R3/R5 chưa có đối chứng binary vô hại. R6 cho thấy phần lớn recall đến từ "có process mới", nên recall tuyệt đối ở trên là lạc quan.
   - So sánh tương đối giữa các cấu hình vẫn có giá trị.
 
+### 5.5 Trên campaign R6 có binary vô hại (xong 19/10 ~13:40)
+
+- **Dữ liệu:** replay 693 model trên 420 cặp của R6 (315 cặp chính + 105 cặp tiếp nối), tổng 1.260 interval gồm attack, binary vô hại và control. Dùng full-ID delta mà worker R6 đã ghi.
+- **So sánh ở cùng ngân sách:** calibration lấy từ holdout R4 như mục 5.4.
+- **Đầu ra:** `matched-r6-20261018/analysis-20261019/arm-{replay,budget}-r6/`.
+
+Ở cùng ngân sách (đợt/replica-giờ), mỗi ô ghi: recall / control dương / **binary vô hại dương** / p95.
+
+| Cấu hình | B=5 | B=12 | B=18 |
+|---|---|---|---|
+| `base29` | 0,894 / 2,4% / **0,617** / 2,58 s | 0,913 / 5,9% / **0,728** / 1,74 s | 0,916 / 9,2% / 0,764 / 1,66 s |
+| `drop_clone_pair` | 0,891 / 1,9% / 0,613 / 2,22 s | 0,918 / 4,5% / 0,725 / 1,47 s | 0,927 / 7,8% / 0,785 / 1,10 s |
+| `plus_security` | 0,891 / 2,2% / 0,619 / 2,53 s | 0,914 / 5,7% / 0,730 / 1,68 s | 0,916 / 8,5% / 0,767 / 1,32 s |
+| `plus_top8` | 0,881 / 2,4% / 0,588 / 2,77 s | 0,909 / 6,4% / 0,693 / 2,06 s | 0,913 / 9,0% / 0,745 / 1,39 s |
+| `plus_all_defined_native` | 0,877 / 4,8% / **0,830** / 3,05 s | 0,991 / 8,1% / **0,973** / 1,74 s | 0,992 / 11,2% / 0,984 / 0,94 s |
+| `plus_all_observed` | 0,882 / 5,2% / 0,849 / 3,81 s | 0,989 / 8,6% / 0,975 / 3,31 s | 0,990 / 10,9% / 0,983 / 1,02 s |
+| `drop_exec_pair` | 0,798 / 2,6% / 0,575 / 2,50 s | 0,845 / 5,9% / 0,708 / 1,84 s | 0,857 / 8,6% / 0,752 / 1,75 s |
+
+- **Không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn.** Ở mọi cấu hình, tỉ lệ dương của binary vô hại tăng theo recall.
+- Khoảng cách recall − binary vô hại ở B=5:
+
+  | Cấu hình | recall − benign |
+  |---|---|
+  | `plus_top8` | 0,29 |
+  | `base29`, `drop_clone_pair`, `plus_security` | ~0,28 |
+  | `drop_exec_pair` | 0,22 |
+  | `plus_all_*` | **0,03–0,05** |
+
+  Thêm toàn bộ syscall chỉ làm model nhạy hơn với *mọi* process mới, kể cả process vô hại. Đây là bằng chứng để **không** chọn `plus_all_*`, dù recall của chúng cao hơn.
+- Kết luận củng cố mục 1: giữ `base29`. Việc tách ác ý khỏi bất thường không giải được bằng chọn syscall; cần đặc trưng khác (tham số syscall, độ bền tín hiệu) hoặc tầng RCA.
+- Ở ngân sách ≤ 8, p95 của hầu hết cấu hình > 2 s.
+- Từ 13:00, worker R6 ghi thêm 17/5/18 cadence gap trùng lúc job này đọc NFS. Các cửa sổ đó đã tự động không tính là normal.
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -148,7 +181,7 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Xuất điểm đầy đủ | Có (5.2) |
 | Replay attack R3/R5 cho mọi cấu hình | Có (5.3) |
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
-| Replay mọi cấu hình trên campaign R6 + campaign tiếp nối (420 cặp, có binary vô hại) | **Đã hẹn**: `pulse-r6-syscall-arms-20261019` tự chạy khi campaign tiếp nối xong (~12:50): replay 693 model → so ở cùng ngân sách, thêm tỉ lệ dương của binary vô hại |
+| Replay mọi cấu hình trên campaign R6 + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
@@ -190,3 +223,5 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 10:15 | Job xong; nội suy ở cùng ngân sách → giữ base29, kết quả inconclusive theo protocol v2 | mục 5.4, 6 |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
 | 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
+| 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
+| 19/10 16:35 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
