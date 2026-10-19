@@ -95,6 +95,9 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 ## Ưu tiên 3 — Dọn cụm
 
+- [ ] **(chạy tay)** `bash /home/dat/cleanup-k8s-20261019.sh` trên .234: bản ghi pod chết, Bookinfo, `default/keycloak` (không phục vụ AIMS, giữ PVC).
+- [x] Tài nguyên v8 trên k8s đã không còn (19/10).
+
 - [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) — đang chạy trên `.236` từ 18:36.
 - [x] Công cụ đọc `.gz` đã kiểm tra seal (`3bb0e74`).
 - [~] Nén `features`/`decisions` soak 48 giờ: job `pulse-compress-48h-rest-20261019` (.236), chạy sau các bước phụ thuộc.
