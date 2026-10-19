@@ -190,6 +190,21 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 - **Đánh đổi.** Không còn thấy mọi lần mở file, nhất là đường dẫn tương đối, và không còn snapshot credential mỗi lần exec. Ưu tiên của RCA là cây process, thao tác bảo mật, mạng và file nhạy cảm.
 - **Thêm (`c233a42`).** `kubectl` không chuyển mã thoát 124 của `timeout`, nên mỗi lần xoay vòng stream bị coi là mất kết nối và chờ thêm 5 s. Giờ stream thoát ở tuổi xoay vòng được coi là xoay vòng và nối lại ngay; áp dụng từ lần đăng ký subscriber tiếp theo.
 
+### 5.9 Độ trễ preview → case nằm ở đâu (19/10 18:03)
+
+Biên nhận: `receipts/rca-latency-{r6,r6c}.json` (`scripts/analysis/rca_latency.py`).
+
+| Đoạn | r6 (1.998 case) p50 / p95 | r6c (2.140 case) p50 / p95 |
+|---|---|---|
+| Preview ghi trên worker → subscriber thấy decision | 5,0 / 11,5 s | 5,5 / 24,7 s |
+| Thấy decision → ghi xong case | 2,1 / 2,7 s | 2,1 / 3,0 s |
+| Tổng | 7,1 / 13,6 s | 7,7 / 26,9 s |
+
+- **Phần dựng case** gần đúng bằng thời gian chờ 2 s để nhận nốt sự kiện.
+- **Phần lớn nằm ở bước decision của worker hiện ra trên `.234` qua NFS.** Worker chỉ `flush` (không `fsync`) mỗi frame, nên NFS client ghi trễ; subscriber đọc lại mỗi 1 s.
+- Đuôi p95 của r6c dài hơn. Nhiều khả năng do các job đọc NFS nặng trên `.234` lúc 12:50–13:40; chưa tách riêng.
+- **Hướng sửa (chưa làm trước R7, vì đụng vòng lặp của worker vốn quyết định độ trễ phát hiện của Pulse):** worker gửi riêng các preview dương qua kênh nhanh (socket hoặc file local rồi chuyển đi), hoặc chạy subscriber ngay trên từng worker.
+
 Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) (`rca/`, `receipts/rca-*.json`).
 
 ## 6. Coverage, hiệu năng, giới hạn
@@ -269,3 +284,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 16:40 | Sự kiện policy chỉ còn trễ 0,2–1,5 s; nhận diện xoay vòng stream theo tuổi | `c233a42` |
 | 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
 | 19/10 17:57 | Biên nhận JSON cho độ phủ (r6: 36/315; r6c: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của r6 (p50 8,4 s) | `validation-evidence/results-20261019/` |
+| 19/10 18:03 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |

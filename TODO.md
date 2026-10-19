@@ -89,6 +89,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Sửa rò tiến trình `tetra getevents` trong container Tetragon (campaign + RCA), dọn 378 tiến trình mồ côi (19/10).
 - [x] Chạy `rca.evaluate_ranking` trên case R6: 36/315 attack có case, top-1 100%.
 - [x] RCA case tiếp nối + lưu 20.000: 72% attack có case (R6: 11%), top-1 98,6% sau khi sửa baseline, preview → case p50 7 s.
+- [ ] RCA: độ trễ preview → case p50 ~7 s, chủ yếu ~5 s do decision hiện ra chậm qua NFS → kênh nhanh cho preview dương hoặc subscriber trên từng worker (sau R7).
 - [x] RCA flow 3% → 78%: nguyên nhân là backlog ~80 s do hook file quá rộng; đã thu hẹp policy (19/10 16:35).
 - ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 

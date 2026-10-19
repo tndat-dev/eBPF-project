@@ -1,0 +1,20 @@
+{
+  "schema": "rca-latency-split-v1",
+  "copy_dir": "/mnt/sentinel-pulse-archive/matched-r6-20261018/rca-r6c-copy-20261019",
+  "preview_to_subscriber_seen": {
+    "p50": 5.522239565849304,
+    "p95": 24.65461540222168,
+    "n": 2140
+  },
+  "seen_to_case_written": {
+    "p50": 2.072942852973938,
+    "p95": 3.0465362071990967,
+    "n": 2140
+  },
+  "preview_to_case": {
+    "p50": 7.674345016479492,
+    "p95": 26.897437572479248,
+    "n": 2140
+  },
+  "computed_at_unix": 1792407587.350982
+}
