@@ -11,8 +11,12 @@ set -euo pipefail
 ROOT=/mnt/sentinel-pulse-archive/matched-r6-20261018
 COORD=$ROOT/coordinator-rca-followup-20261019
 CREDENTIAL=/home/dat/.pulse-recovery-credential-20261005
-OLD=/var/lib/sentinel-pulse-rca/runtime-events-20261018-r6
-NAME=runtime-events-20261019-r6b
+# r6b (10:36) used a ring-limited novelty check that let periodic probes open follow-ups;
+# r6c (19/10 ~10:55) uses a 15-min exec log. Override with OLD/NAME/OLD_UNIT/UNIT.
+OLD=${OLD:-/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b}
+NAME=${NAME:-runtime-events-20261019-r6c}
+OLD_UNIT=${OLD_UNIT:-pulse-rca-runtime-events-r6b}
+UNIT=${UNIT:-pulse-rca-runtime-events-r6c}
 WORKLOADS=(production/api-gateway:app production/payment-service:app production/notification-service:app
            production/aims-redis:aims-redis production/aims-rabbitmq-server:rabbitmq
            production/aims-postgres-cnpg:postgres production/aims-kafka-dual-role:kafka)
@@ -31,14 +35,16 @@ rca() {
   as_root mkdir -p "/opt/sentinel-pulse-rca/$NAME" "/var/lib/sentinel-pulse-rca/$NAME"
   as_root test -d "/opt/sentinel-pulse-rca/$NAME/source/.git" ||
     as_root cp -r "$SRC" "/opt/sentinel-pulse-rca/$NAME/source"
-  python3 - "$OLD" >"/tmp/$NAME.json" <<'PY'
+  NAME=$NAME OLD=$OLD python3 - >"/tmp/$NAME.json" <<'PY'
 import json, sys
 old = json.load(open('/etc/sentinel-pulse-rca/runtime-events-20261018-r6.json'))
-old.update(output='/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b',
-           previous_output='/var/lib/sentinel-pulse-rca/runtime-events-20261018-r6',
+import os
+old.update(output='/var/lib/sentinel-pulse-rca/' + os.environ['NAME'],
+           previous_output=os.environ['OLD'],
            registration_reason='R6 RCA follow-up: bounded follow-up cases on new execs inside the cooldown, '
                                '20000-case retention, binary baseline seeded from r6 with the same freeze time',
            follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,
+           follow_up_novelty_seconds=300,
            max_cases=20000, stream_rotate_seconds=900)
 print(json.dumps(old, indent=2))
 PY
@@ -54,9 +60,9 @@ rows = src.execute('select workload, binary, first_seen from binaries').fetchall
 dst.executemany('insert or ignore into binaries values(?,?,?)', rows); dst.commit()
 print('seeded binaries', len(rows))
 PY
-  cat >/tmp/pulse-rca-r6b.service <<UNIT
+  cat >/tmp/$UNIT.service <<UNIT
 [Unit]
-Description=Pulse RCA runtime-event subscriber (r6b follow-up cases, read-only)
+Description=Pulse RCA runtime-event subscriber ($NAME, follow-up cases, read-only)
 After=network-online.target
 Wants=network-online.target
 RequiresMountsFor=/mnt/sentinel-pulse-archive
@@ -75,11 +81,11 @@ Nice=10
 [Install]
 WantedBy=multi-user.target
 UNIT
-  as_root install -m 0644 -o root -g root /tmp/pulse-rca-r6b.service /etc/systemd/system/pulse-rca-runtime-events-r6b.service
-  rm -f /tmp/pulse-rca-r6b.service
+  as_root install -m 0644 -o root -g root /tmp/$UNIT.service /etc/systemd/system/$UNIT.service
+  rm -f /tmp/$UNIT.service
   as_root systemctl daemon-reload
-  as_root systemctl disable --now pulse-rca-runtime-events-r6.service
-  as_root systemctl enable --now pulse-rca-runtime-events-r6b.service
+  as_root systemctl disable --now "$OLD_UNIT.service"
+  as_root systemctl enable --now "$UNIT.service"
 }
 
 campaign() {

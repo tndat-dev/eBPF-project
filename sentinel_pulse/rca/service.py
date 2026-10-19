@@ -25,6 +25,7 @@ from .runtime_tree import build_runtime_tree, render_runtime_markdown
 from .ranking import rank_suspects, workload_of
 
 STREAM_ROTATE_SECONDS = 900  # upper bound on any orphaned in-container event client
+EXEC_LOG_SECONDS = 900       # exec history kept for follow-up novelty (longer than the 180 s ring)
 
 
 def atomic(path, value):
@@ -50,6 +51,8 @@ def database(path):
       create table if not exists metadata(key text primary key, value text);
       create table if not exists binaries(workload text, binary text, first_seen real,
         primary key(workload, binary));
+      create table if not exists exec_log(node text, pod text, container text, binary text, at real);
+      create index if not exists exec_log_identity on exec_log(node,pod,container,at);
     ''')
     return db
 
@@ -100,7 +103,7 @@ class Service:
                 previous_output=self.cfg.get('previous_output'),
                 registration_reason=self.cfg.get('registration_reason')))
         self.streams = {}; self.index = {}; self.inventory = {}; self.target_inventory = {}
-        self.inventory_at = None; self.stop = False; self.counts = {}
+        self.inventory_at = None; self.stop = False; self.counts = {}; self.started_at = time.time()
         status = self.root/'STATUS.json'
         if status.exists(): self.counts = json.loads(status.read_text()).get('counts', {})
         self.issue('subscriber_started_or_resumed', pre_restart_stream_continuity='unknown')
@@ -185,6 +188,9 @@ class Service:
             self.db.execute('insert or ignore into binaries values(?,?,?)', (workload_of(
                 edge['source']['namespace'], edge['source'].get('pod_name'), edge['source']['container_name']),
                 edge['source']['binary'], at))
+            # Longer than the ring: follow-up cases compare against execs up to ~6 min old.
+            self.db.execute('insert into exec_log values(?,?,?,?,?)', (node, edge['source']['pod_uid'],
+                edge['source']['container_name'], edge['source']['binary'], at))
         if edge.get('operation', 'connect') == 'connect':
             self.count('connect_events')
         self.count('runtime_events')
@@ -261,17 +267,19 @@ class Service:
         if followups >= self.cfg.get('follow_up_max_per_cooldown', 5):
             return False
         since = event_time(json.loads(recent[1])['window_end'])
+        window_start = since - self.cfg.get('before_seconds', 30)
+        lookback = self.cfg.get('follow_up_novelty_seconds', 300)
+        # The exec log must cover the whole novelty lookback before a follow-up can be judged.
+        if now - getattr(self, 'started_at', 0) < lookback + self.cfg.get('before_seconds', 30):
+            return False
         node, pod, container = identity(row)
 
-        def exec_binaries(lo, hi):
-            rows = self.db.execute("select document from events where node=? and pod=? and container=? and at>? and at<=? "
-                                   "and instr(document, '\"operation\":\"exec\"')>0", (node, pod, container, lo, hi))
-            return {json.loads(d)['source'].get('binary') for (d,) in rows}
-        new = exec_binaries(since, event_time(row['window_end']))
-        # Periodic probes (kafka/redis exec 36-72 times/min) re-run the same binaries:
-        # only a binary absent from the ring before the previous case's window counts.
-        reference = exec_binaries(float('-inf'), since - self.cfg.get('before_seconds', 30))
-        return bool(new - reference)
+        def execs(lo, hi):
+            return {b for (b,) in self.db.execute('select distinct binary from exec_log where node=? and pod=? and container=? '
+                                                 'and at>? and at<=?', (node, pod, container, lo, hi))}
+        # Periodic probes (python health checks, redis-cli, pg_isready) re-run within minutes;
+        # a binary counts as new only if it did not run in the lookback before the previous case.
+        return bool(execs(since, event_time(row['window_end'])) - execs(window_start - lookback, window_start))
 
     def tail_decisions(self):
         for worker in self.cfg['workers']:
@@ -369,6 +377,7 @@ class Service:
     def maintenance(self):
         now = time.time()
         self.db.execute('delete from events where at<?', (now-self.cfg['ring_seconds'],))
+        self.db.execute('delete from exec_log where at<?', (now-EXEC_LOG_SECONDS,))
         # Explicit, bounded retention only for this new service's own derived cases.
         expired = self.db.execute('select id from cases where emitted=1 order by created desc limit -1 offset ?',
                                  (self.cfg['max_cases'],)).fetchall()

@@ -31,6 +31,7 @@ def _service(**cfg):
     svc.cfg = dict(model_hash='m', policy_hash='p', case_cooldown_seconds=300, **cfg)
     svc.db = service.database(':memory:')
     svc.counts = {}
+    svc.started_at = -1e9   # exec log long since warm
     return svc
 
 
@@ -43,6 +44,7 @@ def _row(window_end):
 def _exec_event(svc, at, binary='/tmp/x'):
     svc.db.execute('insert into events values(?,?,?,?,?,?)', (f'h{at}', at, 'n1', 'u1', 'app',
                    '{"operation":"exec","source":{"binary":"%s"}}' % binary))
+    svc.db.execute('insert into exec_log values(?,?,?,?,?)', ('n1', 'u1', 'app', binary, at))
 
 
 def test_new_exec_inside_cooldown_opens_a_bounded_follow_up_case():
@@ -77,3 +79,22 @@ def test_periodic_probe_binaries_do_not_open_follow_ups():
     _exec_event(svc, 120.0, '/tmp/benign')                # same path as the benign launch -> still new
     svc.observe_trigger(_row(124.0), now=125.0)
     assert svc.db.execute('select count(*) from cases').fetchone()[0] == 2
+
+
+def test_probe_older_than_the_ring_still_counts_as_seen():
+    svc = _service(follow_up_on_new_exec=True, before_seconds=30)
+    _exec_event(svc, 0.0, '/usr/local/bin/python')       # health probe, long before; only in exec_log
+    svc.db.execute('delete from events')                  # ring expired, exec log kept
+    svc.observe_trigger(_row(250.0), now=251.0)
+    _exec_event(svc, 400.0, '/usr/local/bin/python')     # probe again 150 s after the first case
+    svc.observe_trigger(_row(402.0), now=403.0)
+    assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
+
+
+def test_no_follow_up_while_exec_log_is_warming_up():
+    svc = _service(follow_up_on_new_exec=True)
+    svc.started_at = 0.0
+    svc.observe_trigger(_row(100.0), now=101.0)
+    _exec_event(svc, 110.0)
+    svc.observe_trigger(_row(112.0), now=113.0)
+    assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
