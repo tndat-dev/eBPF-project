@@ -74,7 +74,9 @@ AIMS). Code: [../sentinel_pulse/README.md](../sentinel_pulse/README.md).
 | Chấm holdout R4 (thí nghiệm syscall) | **Đã kết thúc** 16/10 13:03; 147 segment |
 | `pulse-r4-score-dump-k8s-worker{1,4,3}-20261018` (.234) | Đang chạy từ 15:19 (UTC+7), ETA ~18:00 |
 | `pulse-r4-arm-attack-replay-20261018` (.234) | **Xong** (mục 5.8) |
-| `pulse-r4-arm-budget-20261019` (.234) | Đang chạy từ 19/10 02:18 (chờ dump worker1 rồi tính) |
+| `pulse-r4-arm-budget-20261019` (.234) | **Xong** (mục 5.8) |
+| `pulse-rolling-recalibration-20261019b` (.234) | Timer 19/10 10:30 (sau campaign R6) |
+| `pulse-r6-normal-burden-20261020` (.234) | Timer 20/10 02:10: gánh cảnh báo normal R6 cho mọi chính sách → chọn chính sách R7 |
 | RCA subscriber | r2 **đã dừng** 19/10 02:13; r6 `pulse-rca-runtime-events-r6` chạy từ 02:14 |
 | Collector + resolver trên worker | Chạy (luồng đối chứng 1 s, có xoay vòng hằng ngày) |
 | Detector v8 cũ | **Đã gỡ** (mục 5c) |
@@ -551,3 +553,4 @@ cập nhật liên tục trong lúc làm.
 | 10:22 | Kiểm tra tương đương đường nhanh trên segment R6: 13.505 dòng, 0 sai khác; CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-{fast,slow}-r6.json` |
 | 10:23 | RCA: case tiếp nối khi có exec mới trong cooldown (opt-in, có giới hạn); 295 test pass | `5436d11` |
 | 10:24 | Đo tần suất exec trong container được giám sát (ring RCA): Kafka 72/phút, Redis 36/phút (probe) → siết điều kiện case tiếp nối; 296 test pass | `3e457fe` |
+| 10:27 | Hẹn job `pulse-r6-normal-burden-20261020` (02:10 ngày 20/10, sau khi R6 kết thúc) | `scripts/r6_normal_burden.sh` |
