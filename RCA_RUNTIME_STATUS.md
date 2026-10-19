@@ -190,7 +190,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 - **Đánh đổi.** Không còn thấy mọi lần mở file, nhất là đường dẫn tương đối, và không còn snapshot credential mỗi lần exec. Ưu tiên của RCA là cây process, thao tác bảo mật, mạng và file nhạy cảm.
 - **Thêm (`c233a42`).** `kubectl` không chuyển mã thoát 124 của `timeout`, nên mỗi lần xoay vòng stream bị coi là mất kết nối và chờ thêm 5 s. Giờ stream thoát ở tuổi xoay vòng được coi là xoay vòng và nối lại ngay; áp dụng từ lần đăng ký subscriber tiếp theo.
 
-### 5.9 Độ trễ preview → case nằm ở đâu (19/10 18:03)
+### 5.9 Độ trễ preview → case nằm ở đâu (19/10 18:00)
 
 Biên nhận: `receipts/rca-latency-{r6,r6c}.json` (`scripts/analysis/rca_latency.py`).
 
@@ -284,4 +284,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 16:40 | Sự kiện policy chỉ còn trễ 0,2–1,5 s; nhận diện xoay vòng stream theo tuổi | `c233a42` |
 | 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
 | 19/10 17:57 | Biên nhận JSON cho độ phủ (r6: 36/315; r6c: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của r6 (p50 8,4 s) | `validation-evidence/results-20261019/` |
-| 19/10 18:03 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
+| 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
