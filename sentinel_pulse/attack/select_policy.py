@@ -118,9 +118,20 @@ def write_policy(selection: dict, template: Path, output: Path, candidate_hash: 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--selection-dir', type=Path, required=True)
+    parser.add_argument('--selection-dir', type=Path)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--from-selection', type=Path, help='write the policy file for an existing SELECTION.json')
+    parser.add_argument('--template', type=Path, help='policy file to copy the registered fields from (R6 policy)')
+    parser.add_argument('--candidate-hash'); parser.add_argument('--candidate-name')
     args = parser.parse_args()
+    if args.from_selection:
+        if not (args.template and args.candidate_hash and args.candidate_name):
+            parser.error('--from-selection needs --template --candidate-hash --candidate-name')
+        print(write_policy(json.loads(args.from_selection.read_text()), args.template, args.output,
+                           args.candidate_hash, args.candidate_name))
+        return
+    if not args.selection_dir:
+        parser.error('--selection-dir required')
     result = select(args.selection_dir)
     atomic_json(args.output, result)
     print(json.dumps({k: result[k] for k in ('calibration', 'policy', 'metrics', 'meets_registered_expectations', 'eligible')},
