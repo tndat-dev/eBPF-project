@@ -364,6 +364,23 @@ Xác nhận 2 cửa sổ đạt 3/4 kỳ vọng (precision, recall ≥ 95%, cont
 full-ID, tính feature tuần tự từng container) + chấm điểm batch (~0,1–0,2 s). Rút phần này về ~0,1 s sẽ đưa
 k2of2_a10 về khoảng 1,9–2,0 s → hướng cải tiến kỹ thuật trực tiếp cho ràng buộc < 2 s.
 
+**Tăng tốc chấm điểm (19/10, `0913446`):** profile trên frame thật (worker1, 82 container) cho thấy ~85% thời gian
+mỗi frame nằm ở `predict_proba` của sklearn, chủ yếu là overhead Python theo từng cây (kiểm tra fitted, bộ lọc warning,
+joblib) vì mỗi frame gọi ~18 lần cho vài dòng × ~190 cây. `detector/fast_forest.py` làm đúng phép tính của sklearn
+(cộng `tree_.predict` từng cây theo thứ tự trong float64 rồi chia số cây) nhưng bỏ overhead; mỗi model được so với
+đường chuẩn ở batch đầu tiên, lệch là tự quay về đường cũ. Bật bằng `fast_scoring: true` trong config worker.
+
+| Kiểm tra trên 2 segment R6 (40.000 dòng) | Dòng có điểm | Sai khác | CPU replay |
+|---|---|---|---|
+| Đường sklearn (như lượt R6 đang chạy) | 13.505 | 0 | 208,9 s |
+| Đường nhanh | 13.505 | **0** | **42,4 s** (nhanh ~4,9×) |
+
+Ước tính cuối cửa sổ → preview giảm từ ~0,46 s xuống ~0,1 s ở worker1/3 → p95 của k2of2_a10 có thể về ~1,95 s.
+Phải đo live ở lượt kế tiếp; R6 vẫn chạy đường cũ để không đổi điều kiện giữa lượt.
+
+**RCA — case tiếp nối (`5436d11`, bật bằng `follow_up_on_new_exec`):** trong cooldown 300 s, nếu container có exec mới
+kể từ cửa sổ của case trước thì mở case tiếp nối (cách ≥ 10 s, tối đa 5 case/cooldown), ghi `follow_up_of`.
+
 **RCA trong campaign R6** (`rca-r6-copy-20261019/`, 2.001 case + `context.sqlite3`):
 
 | 315 attack | Số trial |
@@ -527,3 +544,7 @@ cập nhật liên tục trong lúc làm.
 | 10:12 | `confirmation_study` nhận `--model-hash/--policy-hash`; replay lưới k-of-n trên R6 (khớp live) | `f0b18af`; `analysis-20261019/` |
 | 10:15 | Arm-budget xong; nội suy ở cùng ngân sách: giữ `base29`, chọn syscall không phải nút thắt | mục 5.8 |
 | 10:16 | Phân rã độ trễ xử lý cuối cửa sổ → preview theo node | mục 5.9 |
+| 10:20 | Profile frame thật: 85% thời gian ở overhead sklearn theo từng cây | mục 5.9 |
+| 10:25 | `fast_forest.py` (bit-identical, tự kiểm tra từng model), tùy chọn `fast_scoring`/`--fast`; 293 test pass | `0913446` |
+| 10:35 | Kiểm tra tương đương đường nhanh trên segment R6: 13.505 dòng, 0 sai khác; CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-{fast,slow}-r6.json` |
+| 10:40 | RCA: case tiếp nối khi có exec mới trong cooldown (opt-in, có giới hạn); 295 test pass | `5436d11` |

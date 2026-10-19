@@ -27,8 +27,10 @@ xóa/dừng trên máy chung hoặc công khai lên GitHub.
 
 ## Ưu tiên 0 — Giảm cảnh báo trên dữ liệu bình thường
 
-- [ ] **Mới (19/10):** giảm độ trễ xử lý cuối cửa sổ → preview (0,25–0,5 s/frame, tỉ lệ với số container) để
-      xác nhận 2 cửa sổ (k2of2, đạt 3/4 kỳ vọng trên R6) vào được p95 < 2 s.
+- [x] Giảm độ trễ xử lý: chấm điểm forest nhanh ~4,9× và khớp từng bit (`fast_forest.py`, 19/10).
+- [ ] Lượt R7 (sau khi R6 kết thúc 20/10 02:04): `fast_scoring: true`, policy 2 cửa sổ đăng ký **trước** khi chạy
+      (ứng viên k2of2_a10 — chọn trên R6 nên R7 mới là kiểm tra thật), RCA bật case tiếp nối + giới hạn lưu 20.000,
+      đo lại kernel → preview.
 - [ ] **Mới (19/10):** đặc trưng/luật tách attack khỏi process vô hại mới (binary vô hại bị gắn cờ 80,7%);
       độ bền tín hiệu trong 15 s là dấu hiệu mạnh nhưng chậm.
 
