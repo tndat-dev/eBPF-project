@@ -7,13 +7,14 @@ import time
 import numpy as np
 
 from .candidate_shadow import CandidateShadowRuntime, is_valid_feature_schema_record
+from .fast_forest import VerifiedFastScorer
 from .idle_candidate import FEATURE_DIM
 
 
 SCORE_FIELDS = ('tree_score', 'tree_p', 'support_score', 'support_p', 'joint_p')
 
 
-def score_batch(scorer, workload, contexts):
+def score_batch(scorer, workload, contexts, predictor=None):
     values = np.asarray(contexts, dtype=np.float32)
     width = (scorer.manifest['history_windows'] + 1) * FEATURE_DIM
     if values.ndim != 2 or values.shape[1] != width or not len(values) or not np.isfinite(values).all():
@@ -22,7 +23,7 @@ def score_batch(scorer, workload, contexts):
     if model is None:
         return [dict(status='candidate-model-unavailable', workload_key=workload,
                      candidate_manifest_sha256=scorer.manifest_sha256, alert=False) for _ in values]
-    raw = model.predict_contexts(values)
+    raw = model.predict_contexts(values) if predictor is None else predictor(workload, model, values)
     arrays = {name: np.asarray(raw[name]).reshape(-1) for name in (*SCORE_FIELDS, 'anomalous')}
     if any(len(a) != len(values) for a in arrays.values()):
         raise ValueError('batch result cardinality differs from contexts')
@@ -50,10 +51,12 @@ class DeferredScorer:
 
 class IdleBatchRuntime:
     """Group prepared contexts by workload; keep output ordering and policy."""
-    def __init__(self, scorer, policy=None, max_gap_seconds=.8, max_identities=10000):
+    def __init__(self, scorer, policy=None, max_gap_seconds=.8, max_identities=10000, fast=False):
         if policy is not None and policy.scorer is not scorer:
             raise ValueError('policy must bind the supplied frozen scorer')
         self.scorer, self.policy = scorer, policy
+        # fast: bit-identical low-overhead forest scoring, verified per model (fast_forest.py)
+        self.predictor = VerifiedFastScorer() if fast else None
         self.deferred = DeferredScorer(scorer.manifest, scorer.manifest_sha256)
         self.history = CandidateShadowRuntime(self.deferred, max_gap_seconds=max_gap_seconds,
                                              max_identities=max_identities)
@@ -79,7 +82,7 @@ class IdleBatchRuntime:
             out.append(decision)
         for key, pending in requests.items():
             begin = time.perf_counter()
-            scores = score_batch(self.scorer, key, np.stack([context for _, context in pending]))
+            scores = score_batch(self.scorer, key, np.stack([context for _, context in pending]), self.predictor)
             elapsed_ms = (time.perf_counter() - begin) * 1000
             for (index, _), score in zip(pending, scores):
                 decision = out[index]

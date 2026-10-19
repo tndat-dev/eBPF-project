@@ -29,7 +29,10 @@ FROZEN_SCORER_FILES = {
     'features.py': 'collector', 'extended_capture.py': 'collector', 'idle_candidate.py': 'detector',
     'model.py': 'detector', 'candidate_policy.py': 'detector', 'candidate_shadow.py': 'detector',
     'support_model.py': 'detector', 'extended_reference_experiment.py': 'detector', 'encoding.py': '',
+    # added 19/10 with the fast scoring path; a frozen_source older than that lacks them
+    'fast_forest.py': 'detector', 'idle_batch.py': 'detector',
 }
+OPTIONAL_SCORER_FILES = {'fast_forest.py', 'idle_batch.py'}
 
 
 def scorer_file(source, name):
@@ -90,7 +93,10 @@ def run(config_path):
         raise ValueError('collector proof does not bind this kernel/build')
     # Verify the frozen model's mathematical/preprocessing implementation.
     for name in FROZEN_SCORER_FILES:
-        if sha256_file(scorer_file(Path(cfg['source']),name))!=sha256_file(scorer_file(Path(cfg['frozen_source']),name)):
+        frozen=scorer_file(Path(cfg['frozen_source']),name)
+        if name in OPTIONAL_SCORER_FILES and not frozen.is_file() and not cfg.get('fast_scoring'):
+            continue
+        if sha256_file(scorer_file(Path(cfg['source']),name))!=sha256_file(frozen):
             raise ValueError('frozen scorer/preprocessor differs: '+name)
     scorer=IdleCandidateScorer(Path(cfg['candidate']),cfg['model_hash'])
     policy=load_preview_policy(Path(cfg['policy']),scorer)
@@ -108,7 +114,8 @@ def run(config_path):
         while segment.exists():
             state['segments']+=1;segment=root/'segments'/f"s{state['segments']:05d}"
         segment.mkdir(parents=True)
-        stream=ExtendedFeatureStream(include_idle=True);runtime=IdleBatchRuntime(scorer,policy)
+        stream=ExtendedFeatureStream(include_idle=True)
+        runtime=IdleBatchRuntime(scorer,policy,fast=bool(cfg.get('fast_scoring',False)))
         previous={};metadata={};mtime=None;pending=[];buffer=b'';last=None
         segment_begin=time.monotonic();last_data=segment_begin;checkpoint=segment_begin
         def issue(reason):

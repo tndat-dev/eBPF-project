@@ -49,7 +49,7 @@ def frames(path: Path):
         yield boundary, current
 
 
-def replay_segment(segment: Path, scorer, policy, limit=None):
+def replay_segment(segment: Path, scorer, policy, limit=None, fast=False):
     recorded = {}
     with (segment / 'decisions.jsonl').open(encoding='utf-8') as stream:
         for line in stream:
@@ -57,7 +57,7 @@ def replay_segment(segment: Path, scorer, policy, limit=None):
                 row = json.loads(line)
                 if 'window_end' in row:
                     recorded[key_of(row)] = row
-    runtime = IdleBatchRuntime(scorer, policy)
+    runtime = IdleBatchRuntime(scorer, policy, fast=fast)
     counts = defaultdict(int)
     max_diff = defaultdict(float)
     mismatches = []
@@ -107,6 +107,7 @@ def main():
     parser.add_argument('--policy-hash', required=True)
     parser.add_argument('--limit-per-segment', type=int)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--fast', action='store_true', help='score with the verified fast forest path')
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit('output exists; choose a new path')
@@ -115,13 +116,15 @@ def main():
     policy = load_preview_policy(args.policy, scorer)
     if policy.sha256 != args.policy_hash:
         raise SystemExit('policy hash differs')
-    segments = [replay_segment(s, scorer, policy, args.limit_per_segment) for s in args.segment]
+    started_cpu = time.process_time()
+    segments = [replay_segment(s, scorer, policy, args.limit_per_segment, args.fast) for s in args.segment]
     scored = sum(s['counts'].get('exact_scored_match', 0) + s['counts'].get('mismatched', 0) for s in segments)
     mismatched = sum(s['counts'].get('mismatched', 0) for s in segments)
     package = Path(__file__).resolve().parents[1]
     result = dict(schema='pulse-scorer-equivalence-v1', model_hash=args.model_hash, policy_hash=args.policy_hash,
                   scored_rows_compared=scored, mismatched_rows=mismatched,
-                  equivalent=scored > 0 and mismatched == 0, segments=segments,
+                  equivalent=scored > 0 and mismatched == 0, segments=segments, fast_scoring=args.fast,
+                  replay_cpu_seconds=time.process_time() - started_cpu,
                   source_sha256={str(p.relative_to(package)): sha256_file(p)
                                  for p in sorted(package.rglob('*.py'))},
                   started_at_unix=started, finished_at_unix=time.time())
