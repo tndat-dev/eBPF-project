@@ -380,6 +380,8 @@ Phải đo live ở lượt kế tiếp; R6 vẫn chạy đường cũ để kh�
 
 **RCA — case tiếp nối (`5436d11`, bật bằng `follow_up_on_new_exec`):** trong cooldown 300 s, nếu container có exec mới
 kể từ cửa sổ của case trước thì mở case tiếp nối (cách ≥ 10 s, tối đa 5 case/cooldown), ghi `follow_up_of`.
+Chỉ tính binary **chưa có** trong các exec còn ở ring trước cửa sổ của case trước (`3e457fe`): Kafka/Redis chạy probe
+36–72 exec/phút (`grep`, `readlink`, `sh`, `redis-cli`) nên điều kiện "exec bất kỳ" sẽ luôn mở case mới.
 
 **RCA trong campaign R6** (`rca-r6-copy-20261019/`, 2.001 case + `context.sqlite3`):
 
@@ -548,3 +550,4 @@ cập nhật liên tục trong lúc làm.
 | 10:19 | `fast_forest.py` (bit-identical, tự kiểm tra từng model), tùy chọn `fast_scoring`/`--fast`; 293 test pass | `0913446` |
 | 10:22 | Kiểm tra tương đương đường nhanh trên segment R6: 13.505 dòng, 0 sai khác; CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-{fast,slow}-r6.json` |
 | 10:23 | RCA: case tiếp nối khi có exec mới trong cooldown (opt-in, có giới hạn); 295 test pass | `5436d11` |
+| 10:24 | Đo tần suất exec trong container được giám sát (ring RCA): Kafka 72/phút, Redis 36/phút (probe) → siết điều kiện case tiếp nối; 296 test pass | `3e457fe` |
