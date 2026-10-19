@@ -224,4 +224,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
 | 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
 | 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
-| 19/10 16:35 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
+| 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |

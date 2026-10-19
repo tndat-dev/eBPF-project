@@ -166,7 +166,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
   - Mọi binary đều có `first_seen` sau mốc đóng băng, nên probe định kỳ (`sh`, `hostname`, `bash`, `pg_isready`, script readiness/liveness của Kafka) được +4 điểm `novel_binary` và đứng trên binary tấn công.
 - **Cách đánh giá đúng.** Gộp baseline của r6 vào bản sao rồi xếp hạng lại offline. `--rerank-db` chỉ dùng binary đã thấy trước lúc tạo case, nên đây đúng là kết quả live đáng lẽ đạt được.
 - **Đã sửa:**
-  - DB live của r6c đã được gộp baseline lúc 16:33, nên các case từ thời điểm đó xếp hạng đúng.
+  - DB live của r6c đã được gộp baseline lúc 16:26, nên các case từ thời điểm đó xếp hạng đúng.
   - Script chạy bước chép qua file tạm, và báo lỗi nếu không chép được dòng nào.
 - **Flow rất thấp (3%) — việc cần điều tra tiếp.** Có thể do giới hạn lấy mẫu 10 s/process, hoặc do service gửi qua sidecar mesh nên `tcp_sendmsg` thuộc container khác.
 - **Một giới hạn còn lại:** attack `setns`/`mount` không để lại sự kiện bảo mật, vì seccomp chặn trước kprobe. Binary tấn công vẫn đứng đầu nhờ `novel_binary` + `started_in_window`.
@@ -240,6 +240,6 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 10:46 | r6b mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
 | 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang r6c | `ea5a3ee` |
 | 19/10 10:52 | Campaign tiếp nối 5/105 cặp; r6c 30 case, chưa có case tiếp nối (đang trong 330 s khởi động) | — |
-| 19/10 16:25 | Chép 2.140 case + DB của r6c; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
-| 19/10 16:30 | Phát hiện baseline chưa được chép (lỗi stdin sudo) → probe bị coi là `novel_binary` | mục 5.7 |
-| 19/10 16:33 | Gộp baseline r6 vào bản sao + DB live r6c; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |
+| 19/10 16:24 | Chép 2.140 case + DB của r6c; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
+| 19/10 16:25 | Phát hiện baseline chưa được chép (lỗi stdin sudo) → probe bị coi là `novel_binary` | mục 5.7 |
+| 19/10 16:26 | Gộp baseline r6 vào bản sao + DB live r6c; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |

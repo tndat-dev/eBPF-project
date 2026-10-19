@@ -52,7 +52,7 @@ PY
   rm -f "/tmp/$NAME.json"
   # Seed the never-expiring first-seen table so the freeze time keeps its meaning. The script
   # goes through a temp file: as_root feeds the password on stdin, so `python3 -` with a
-  # heredoc ran an empty program and r6b/r6c started unseeded (found 19/10 16:30).
+  # heredoc ran an empty program and r6b/r6c started unseeded (found 19/10 16:25).
   cat >/tmp/seed-binaries.py <<'PY'
 import sqlite3, sys
 from sentinel_pulse.rca.service import database
