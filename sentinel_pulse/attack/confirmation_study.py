@@ -221,9 +221,9 @@ def main():
         if name != 'calibrate':
             p.add_argument('--calibration', type=Path)
             p.add_argument('--grid', choices=('default', 'looser'), default='default')
-            # defaults: the frozen 15/10 candidate; R6 rows carry ec72d9ea.../f6107351...
-            p.add_argument('--model-hash', default=MODEL_HASH)
-            p.add_argument('--policy-hash', default=POLICY_HASH)
+        # defaults: the frozen 15/10 candidate; R6 rows carry ec72d9ea.../f6107351...
+        p.add_argument('--model-hash', default=MODEL_HASH)
+        p.add_argument('--policy-hash', default=POLICY_HASH)
     sub.choices['normal'].add_argument('--worker-root', type=Path, required=True)
     sub.choices['calibrate'].add_argument('--worker-root', type=Path, action='append', required=True)
     sub.choices['attack'].add_argument('--campaign', type=Path, action='append', required=True)
@@ -234,11 +234,12 @@ def main():
     if args.command == 'calibrate':
         if args.since is None or args.until is None:
             raise SystemExit('calibration requires --since and --until')
-        tree, support, stats = calibration_scores(args.worker_root, args.since, args.until, args.exclude)
+        tree, support, stats = calibration_scores(args.worker_root, args.since, args.until, args.exclude,
+                                                  args.model_hash, args.policy_hash)
         metadata = dict(schema='pulse-recalibration-scores-v1', worker_roots=[str(r) for r in args.worker_root],
                         since_unix=args.since, until_unix=args.until, excluded_spans=[list(s) for s in args.exclude],
-                        sizes={k: len(v) for k, v in tree.items()}, stats=stats, model_hash=MODEL_HASH,
-                        policy_hash=POLICY_HASH, source_sha256=sha256_file(Path(__file__)),
+                        sizes={k: len(v) for k, v in tree.items()}, stats=stats, model_hash=args.model_hash,
+                        policy_hash=args.policy_hash, source_sha256=sha256_file(Path(__file__)),
                         started_at_unix=started, finished_at_unix=time.time())
         save_calibration(args.output, tree, support, metadata)
         print(json.dumps(metadata)[:2000])
