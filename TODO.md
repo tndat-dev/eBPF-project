@@ -96,7 +96,9 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 ## Ưu tiên 3 — Dọn cụm
 
 - [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) — đang chạy trên `.236` từ 18:36.
-- [ ] NFS: cho công cụ đọc `.gz`, rồi nén `features`/`decisions` của các lượt đã niêm phong (~200 GB) sau các job đêm 20/10.
+- [x] Công cụ đọc `.gz` đã kiểm tra seal (`3bb0e74`).
+- [~] Nén `features`/`decisions` soak 48 giờ: job `pulse-compress-48h-rest-20261019` (.236), chạy sau các bước phụ thuộc.
+- [ ] Nén segment R6 đã niêm phong sau khi các phân tích R6 xong (sau 20/10).
 - [x] Dọn ổ worker (19/10 18:30): ~530 GB dữ liệu thô/checkout cũ, 15 unit cũ. (bạn đã cho phép tự quyết 18/10)
 
 - [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).

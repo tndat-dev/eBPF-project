@@ -41,7 +41,8 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 | RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
 | `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
 | `pulse-compress-raw-48h-20261019` (**.236**) | **Đang chạy từ 18:36** (dời từ 02:05 sang node rảnh): nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc. Tỉ lệ 4,4×, dự kiến thu lại ~53 GB |
-| `pulse-rolling-recalibration-20261020b` | Timer 20/10 02:15, trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
+| `pulse-compress-48h-rest-20261019` (**.236**) | Chờ nén `raw` xong và job syscall replay xong R3/R5, rồi nén `features`/`decisions` của soak 48 giờ (~150 GB → ~35 GB) |
+| `pulse-rolling-recalibration-20261020c` | Timer 20/10 02:15 (snapshot `3bb0e74`, đọc được file `.gz`), trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
 | `pulse-r7-selection-20261020b` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
 | `pulse-syscall-bootstrap-20261019` (**.235**) | **Đang chạy từ 18:30** (không cần chờ R6; chạy trên node rảnh để không tranh IO với `.234`): replay syscall với khóa trial đã sửa, rồi bootstrap |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
@@ -361,7 +362,12 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
 - Soak 48 giờ cũ chiếm 218 GB.
 - Biện pháp:
   1. Nén `raw.jsonl` cũ (đang chạy).
-  2. Cho công cụ đọc file `.gz`, rồi nén `features`/`decisions` của các lượt đã niêm phong sau khi các job đêm nay xong.
+  2. **Đã làm (`3bb0e74`, có test):**
+     - `common.open_sealed` / `sealed_sha256` đọc trong suốt file `.gz` đã kiểm tra seal;
+     - `bounds()` lấy mốc thời gian từ biên nhận;
+     - bộ nén tổng quát ghi `COMPRESSION.json`.
+
+     Job trên `.236` nén `features`/`decisions` của soak 48 giờ khi không còn job nào đọc chúng bằng code cũ.
   3. Lượt mới không ghi `raw.jsonl`.
 
 **Đồng bộ code:**
@@ -451,3 +457,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:59 | `prepare_r7.sh` + chế độ `--from-selection`; thử sinh chính sách và nạp với loader thật trên `ec72d9ea…` | `89f606e` |
 | 18:30 | Dọn ổ worker theo yêu cầu: ~530 GB dữ liệu thô và checkout cũ, 15 unit cũ; `kubectl delete` phần v8 vẫn bị chặn | mục 8 |
 | 18:36 | Chạy nén `raw.jsonl` trên `.236` ngay (tỉ lệ 4,4×); chạy job syscall trên `.235` (venv đúng sklearn 1.9.0) | mục 2 |
+| 18:45 | Đọc trong suốt file nén đã kiểm tra seal (`open_sealed`, `sealed_sha256`, `bounds`) + bộ nén tổng quát, 305 test pass; xếp job nén `features`/`decisions` 48 giờ sau các bước phụ thuộc; job rolling dùng snapshot mới | `3bb0e74` |
