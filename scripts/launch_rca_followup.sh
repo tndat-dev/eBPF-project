@@ -35,10 +35,15 @@ rca() {
   as_root mkdir -p "/opt/sentinel-pulse-rca/$NAME" "/var/lib/sentinel-pulse-rca/$NAME"
   as_root test -d "/opt/sentinel-pulse-rca/$NAME/source/.git" ||
     as_root cp -r "$SRC" "/opt/sentinel-pulse-rca/$NAME/source"
-  NAME=$NAME OLD=$OLD python3 - >"/tmp/$NAME.json" <<'PY'
+  NAME=$NAME OLD=$OLD DECISION_STREAM=${DECISION_STREAM:-0} python3 - >"/tmp/$NAME.json" <<'PY'
 import json, sys
 old = json.load(open('/etc/sentinel-pulse-rca/runtime-events-20261018-r6.json'))
 import os
+# worker hosts for the SSH decision stream come from the capture registration
+capture = json.load(open('/mnt/sentinel-pulse-archive/matched-r6-20261018/CONFIG.json'))
+old['workers'] = [dict(node_name=w['node_name'], output=w['output'], host=host) for host, w in capture['workers'].items()]
+if os.environ.get('DECISION_STREAM') == '1':
+    old['decision_stream'] = dict(user='dat', credential='/home/dat/.pulse-recovery-credential-20261005', rotate_seconds=3600)
 old.update(output='/var/lib/sentinel-pulse-rca/' + os.environ['NAME'],
            previous_output=os.environ['OLD'],
            registration_reason='R6 RCA follow-up: bounded follow-up cases on new execs inside the cooldown, '
