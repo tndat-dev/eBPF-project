@@ -171,11 +171,30 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 - **Flow rất thấp (3%) — việc cần điều tra tiếp.** Có thể do giới hạn lấy mẫu 10 s/process, hoặc do service gửi qua sidecar mesh nên `tcp_sendmsg` thuộc container khác.
 - **Một giới hạn còn lại:** attack `setns`/`mount` không để lại sự kiện bảo mật, vì seccomp chặn trước kprobe. Binary tấn công vẫn đứng đầu nhờ `novel_binary` + `started_in_window`.
 
+### 5.8 Vì sao case thiếu flow: stream policy trễ ~80 s (sửa 19/10 16:35)
+
+- **Triệu chứng.** Lúc dựng, case chỉ có ~16 sự kiện (lifecycle). Vài chục giây sau, cùng cửa sổ đó trong DB đã có 135–226 sự kiện, gồm cả flow.
+- **Đo độ trễ.**
+  - Sự kiện policy (runtime/flow) mới nhất trong DB cũ hơn hiện tại **~80 s** trên cả 3 worker; lifecycle chỉ < 5 s.
+  - Tetragon tự giao sự kiện gần như tức thì (client thử có `timeout`: p50 0 s, max ~29 s do bộ đệm chờ thông tin process).
+  - Subscriber gần như nhàn rỗi (`py-spy`: MainThread idle).
+- **Nguyên nhân.** Lưu lượng policy runtime quá lớn: worker1 ~1.740 sự kiện/s, gồm `openat` ~976/s, `commit_creds` ~352/s, `vfs_write` ~160/s. `rateLimit: 1s` của Tetragon chỉ gộp các sự kiện *giống hệt nhau*, nên mỗi tên file vẫn sinh một sự kiện. `kubectl exec` không chuyển kịp lượng JSON này, backlog đẩy sự kiện đến sau lúc dựng case (case dựng sau trigger ~2 s + độ trễ subscriber).
+- **Sửa (cập nhật tại chỗ policy `sentinel-rca-runtime-v1`, nhãn `revision: sensitive-paths-20261019`, `c233a42`):**
+  - `openat`/`openat2` chỉ theo dõi đường dẫn nhạy cảm: `/etc/shadow`, `/etc/passwd`, `/etc/sudoers`, `/etc/ssh/`, `/root/`, secret của service account, `/proc/1/`…
+  - `vfs_write` chỉ theo dõi `/etc`, `/root`, `/usr`, `/bin`, `/sbin`, `/lib`, cron, secret.
+  - Bỏ hook `commit_creds`, vì mỗi exec đều gọi nó. `set*id`, `capset`, namespace/mount/ptrace, connect và flow giữ nguyên.
+- **Kết quả:**
+  - Lưu lượng worker1: 17.393 → **2.096** sự kiện / 10 s.
+  - Sự kiện policy mới nhất chỉ còn trễ 0,2–1,5 s.
+  - **Case có flow: 3% → 78%** (42/54 case tạo trong 7 phút sau khi sửa).
+- **Đánh đổi.** Không còn thấy mọi lần mở file, nhất là đường dẫn tương đối, và không còn snapshot credential mỗi lần exec. Ưu tiên của RCA là cây process, thao tác bảo mật, mạng và file nhạy cảm.
+- **Thêm (`c233a42`).** `kubectl` không chuyển mã thoát 124 của `timeout`, nên mỗi lần xoay vòng stream bị coi là mất kết nối và chờ thêm 5 s. Giờ stream thoát ở tuổi xoay vòng được coi là xoay vòng và nối lại ngay; áp dụng từ lần đăng ký subscriber tiếp theo.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
 |---|---|
-| Phạm vi policy | Namespace `production`, mọi pod; file lấy mẫu 1 s / process / hook; flow lấy mẫu 10 s / process |
+| Phạm vi policy | Namespace `production`, mọi pod. File: chỉ đường dẫn nhạy cảm (từ 19/10 16:35). Flow: lấy mẫu 10 s / process. Đã bỏ `commit_creds` |
 | Ring | 180 s, tối đa 120.000 sự kiện |
 | Grouping | Cooldown 300 s; r6b thêm tối đa 5 case tiếp nối mỗi cooldown |
 | Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
@@ -195,7 +214,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
 | Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | **Hiệu quả**: tỉ lệ attack có case từ 11% lên 72% |
 | Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | **Có (5.7)**: 72% attack có case, top-1 98,6% (xếp hạng lại), flow 3%, p50 7 s |
-| Flow coverage thấp | Chưa: điều tra giới hạn lấy mẫu và sidecar mesh |
+| Flow coverage thấp | **Đã sửa (5.8)**: nguyên nhân là backlog sự kiện; sau khi thu hẹp hook file, 78% case có flow |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
 | Chứng minh nhân quả | Ngoài phạm vi hiện tại |
 
@@ -243,3 +262,7 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 16:24 | Chép 2.140 case + DB của r6c; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
 | 19/10 16:25 | Phát hiện baseline chưa được chép (lỗi stdin sudo) → probe bị coi là `novel_binary` | mục 5.7 |
 | 19/10 16:26 | Gộp baseline r6 vào bản sao + DB live r6c; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |
+| 19/10 16:30 | Đo độ trễ nạp: sự kiện policy trễ ~80 s, lifecycle < 5 s; Tetragon giao tức thì; subscriber nhàn rỗi | mục 5.8 |
+| 19/10 16:35 | Thu hẹp hook file về đường dẫn nhạy cảm, bỏ `commit_creds`; dry-run rồi apply tại chỗ | `c233a42` |
+| 19/10 16:40 | Sự kiện policy chỉ còn trễ 0,2–1,5 s; nhận diện xoay vòng stream theo tuổi | `c233a42` |
+| 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
