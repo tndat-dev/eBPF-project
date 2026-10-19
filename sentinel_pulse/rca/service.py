@@ -422,7 +422,10 @@ class Service:
                         key = node if channel == 'policy' else node+'/lifecycle'
                         stream = self.streams.get(key)
                         if stream and (stream['child'].poll() is not None or sensor and stream['sensor']!=sensor):
-                            rotated = stream['child'].poll() == 124  # remote `timeout` expired
+                            # kubectl does not always relay the remote `timeout` exit code (124):
+                            # an exit at the rotation age is a rotation, reconnect without the 5 s pause.
+                            rotate = self.cfg.get('stream_rotate_seconds', STREAM_ROTATE_SECONDS)
+                            rotated = stream['child'].poll() == 124 or now - stream['started_at'] >= rotate - 5
                             self.issue('tetragon_stream_rotated' if rotated else 'tetragon_stream_disconnected',
                                        node=node, channel=channel)
                             self.stop_stream(stream); del self.streams[key]; retry[key] = now if rotated else now+5

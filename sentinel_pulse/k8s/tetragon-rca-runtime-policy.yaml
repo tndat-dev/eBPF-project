@@ -6,9 +6,16 @@ metadata:
   labels:
     app.kubernetes.io/part-of: sentinel-pulse
     sentinel.hust.vn/purpose: rca-evidence
+    sentinel.hust.vn/revision: sensitive-paths-20261019
 spec:
   # Namespace scope includes all production workloads, not only hardened apps.
   # Every action is observation-only; no Override, Signal or Sigkill action.
+  #
+  # Revision 19/10: rateLimit only folds *identical* events, so every distinct file
+  # still produced one event: ~1,000 openat/s plus ~350 commit_creds/s per node, more
+  # than `kubectl exec` could stream (policy events arrived ~80 s late, after cases were
+  # built). File hooks now keep only sensitive paths (user-supplied paths: relative
+  # opens are not seen), commit_creds is dropped (every exec calls it; set*id/capset stay).
   kprobes:
     - call: sys_connect
       syscall: true
@@ -26,8 +33,14 @@ spec:
         - {index: 2, type: int, label: flags}
         - {index: 3, type: int, label: mode}
       returnArg: *result
-      selectors: &fileSample
-        - matchActions:
+      selectors: &sensitiveRead
+        - matchArgs:
+            - index: 1
+              operator: Prefix
+              values: ["/etc/shadow", "/etc/gshadow", "/etc/passwd", "/etc/group", "/etc/sudoers",
+                       "/etc/ssh/", "/etc/cron", "/etc/kubernetes/", "/root/", "/var/run/secrets/",
+                       "/run/secrets/", "/proc/1/", "/proc/kcore", "/dev/mem", "/var/lib/kubelet/"]
+          matchActions:
             - {action: Post, rateLimit: 1s, rateLimitScope: process}
     - call: sys_openat2
       syscall: true
@@ -36,7 +49,7 @@ spec:
         - {index: 0, type: int, label: dirfd}
         - {index: 1, type: string, label: filename}
       returnArg: *result
-      selectors: *fileSample
+      selectors: *sensitiveRead
     - call: vfs_write
       syscall: false
       return: true
@@ -44,7 +57,14 @@ spec:
         - {index: 0, type: file, label: file}
         - {index: 2, type: size_t, label: requested_bytes}
       returnArg: *result
-      selectors: *fileSample
+      selectors: &sensitiveWrite
+        - matchArgs:
+            - index: 0
+              operator: Prefix
+              values: ["/etc/", "/root/", "/usr/", "/bin/", "/sbin/", "/lib/", "/lib64/",
+                       "/var/spool/cron", "/var/run/secrets/", "/run/secrets/"]
+          matchActions:
+            - {action: Post, rateLimit: 1s, rateLimitScope: process}
     - call: vfs_writev
       syscall: false
       return: true
@@ -52,7 +72,7 @@ spec:
         - {index: 0, type: file, label: file}
         - {index: 2, type: size_t, label: iov_count}
       returnArg: *result
-      selectors: *fileSample
+      selectors: *sensitiveWrite
     - call: sys_unlinkat
       syscall: true
       return: true
@@ -112,11 +132,6 @@ spec:
         - {index: 2, type: uint32, label: sgid}
       returnArg: *result
     - {call: sys_capset, syscall: true, return: true, returnArg: *result}
-    - call: commit_creds
-      syscall: false
-      return: true
-      args: [{index: 0, type: cred, label: new_credentials}]
-      returnArg: *result
     - call: sys_setns
       syscall: true
       return: true
