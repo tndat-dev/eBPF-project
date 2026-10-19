@@ -20,7 +20,7 @@ import numpy as np
 from ..encoding import decode_vector, schema_digest
 from ..collector.features import TRACKED_SYSCALLS
 from ..integrity import contained_artifact, sha256_file
-from ..common import atomic_json, load_artifact
+from ..common import atomic_json, load_artifact, compression_receipt, open_sealed, sealed_sha256
 
 IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgroup_id')
 
@@ -83,6 +83,20 @@ def merged(intervals, gap=0.):
 
 def bounds(path):
     """Read only the first and last complete feature records of a sealed file."""
+    if not path.exists():
+        # compressed: the compressor recorded the bounds before removing the original
+        entry = compression_receipt(path)
+        if entry and 'first_window_start' in entry:
+            return entry['first_window_start'], entry['last_window_end']
+        first = last = None
+        with open_sealed(path) as stream:
+            for line in stream:
+                row = json.loads(line)
+                if first is None and 'window_start' in row:
+                    first = float(row['window_start'])
+                if 'window_end' in row:
+                    last = max(last or -math.inf, float(row['window_end']))
+        return first, last
     first = last = None
     with path.open('rb') as stream:
         for line in stream:
@@ -133,7 +147,7 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
     hashes = {}
     for name in ('features.jsonl', 'decisions.jsonl', 'issues.jsonl'):
         path = segment/name
-        digest = sha256_file(path)
+        digest = sealed_sha256(path)
         if seal.get('seals', {}).get(name) != digest:
             raise ValueError('segment checksum mismatch: '+str(path))
         hashes[name] = digest
@@ -183,7 +197,7 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
             sink.write(json.dumps(document, separators=(',', ':'), allow_nan=False)+'\n')
         pending[key].clear()
 
-    with gzip.open(partial, 'wt') as positives, (segment/'features.jsonl').open() as source:
+    with gzip.open(partial, 'wt') as positives, open_sealed(segment/'features.jsonl') as source:
         for line in source:
             row = json.loads(line)
             if 'columns' in row:

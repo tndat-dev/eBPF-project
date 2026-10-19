@@ -19,7 +19,7 @@ import time
 
 import numpy as np
 
-from ..common import atomic_json, load_artifact
+from ..common import atomic_json, load_artifact, open_sealed
 from ..integrity import contained_artifact, sha256_file
 from .matched_holdout import ContextBuilder, bounds
 from .score_dump import load_study
@@ -90,7 +90,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
                 if a < last and b > first:
                     wanted[tuple(str(t[k]) for k in TRIAL_IDENTITY)].append((a, b, t))
             rows = defaultdict(list)
-            with (seal.parent/'features.jsonl').open() as stream:
+            with open_sealed(seal.parent/'features.jsonl') as stream:
                 for line in stream:
                     if '"window_end"' not in line:
                         continue

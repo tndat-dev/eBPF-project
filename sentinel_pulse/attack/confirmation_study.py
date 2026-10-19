@@ -21,7 +21,7 @@ import json
 from pathlib import Path
 import time
 
-from ..common import atomic_json
+from ..common import atomic_json, open_sealed, sealed_path
 from ..detector.confirmation import IDENTITY, SCORED, ConfirmationState, apply, default_grid, looser_grid
 from ..integrity import sha256_file
 from .preview_evaluation import evaluate_interval, summarize
@@ -58,10 +58,10 @@ def scored_rows(worker_root: Path, model_hash=MODEL_HASH, policy_hash=POLICY_HAS
     stats = stats if stats is not None else defaultdict(int)
     for segment in sorted(p for p in (worker_root / 'segments').iterdir() if p.is_dir()):
         stats['segments'] += 1
-        path = segment / 'decisions.jsonl'
+        path = sealed_path(segment / 'decisions.jsonl')
         if not path.exists():
             continue
-        with path.open(encoding='utf-8') as stream:
+        with open_sealed(segment / 'decisions.jsonl') as stream:
             for line in stream:
                 if '"joint_p"' not in line or not line.endswith('\n'):
                     continue

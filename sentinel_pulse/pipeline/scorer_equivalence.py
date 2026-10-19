@@ -15,7 +15,7 @@ import math
 from pathlib import Path
 import time
 
-from ..common import atomic_json
+from ..common import atomic_json, open_sealed
 from ..detector.candidate_policy import load_preview_policy
 from ..detector.idle_batch import SCORE_FIELDS, IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
@@ -32,7 +32,7 @@ def key_of(row):
 def frames(path: Path):
     """Group feature records by snapshot boundary, preserving file order."""
     current, boundary = [], None
-    with path.open(encoding='utf-8') as stream:
+    with open_sealed(path) as stream:
         for line in stream:
             if not line.endswith('\n'):
                 break
@@ -51,7 +51,7 @@ def frames(path: Path):
 
 def replay_segment(segment: Path, scorer, policy, limit=None, fast=False):
     recorded = {}
-    with (segment / 'decisions.jsonl').open(encoding='utf-8') as stream:
+    with open_sealed(segment / 'decisions.jsonl') as stream:
         for line in stream:
             if line.endswith('\n'):
                 row = json.loads(line)

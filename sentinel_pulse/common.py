@@ -151,3 +151,53 @@ class RotatingJsonlFollower:
             self.source.close()
             self.source = None
             self.identity = None
+
+
+# --- sealed segment files that may have been compressed (scripts/compress_raw_frames.py) ---
+COMPRESSION_RECEIPTS = ('COMPRESSION.json', 'RAW_COMPRESSION.json')
+
+
+def compression_receipt(path: Path) -> dict | None:
+    """The receipt entry for ``path`` if it was replaced by ``path.gz`` (None otherwise)."""
+    for name in COMPRESSION_RECEIPTS:
+        receipt = path.parent/name
+        if receipt.exists():
+            doc = json.loads(receipt.read_text())
+            entry = doc.get('files', {}).get(path.name) if 'files' in doc else (
+                doc if doc.get('original') == path.name else None)
+            if entry:
+                return entry
+    return None
+
+
+def sealed_path(path: Path) -> Path:
+    """``path`` if present, else its verified-compressed ``.gz`` sibling (else ``path``)."""
+    if path.exists():
+        return path
+    gz = path.with_name(path.name + '.gz')
+    return gz if gz.exists() else path
+
+
+def open_sealed(path: Path, mode: str = 'r', encoding: str | None = 'utf-8'):
+    """Open a sealed segment file transparently whether it is plain or gzip-compressed."""
+    import gzip
+    real = sealed_path(path)
+    binary = 'b' in mode
+    if real.suffix == '.gz' and path.suffix != '.gz':
+        return gzip.open(real, 'rb' if binary else 'rt', encoding=None if binary else encoding)
+    return real.open('rb' if binary else 'r', encoding=None if binary else encoding)
+
+
+def sealed_sha256(path: Path) -> str:
+    """SHA-256 of the original bytes: hashed directly, or proven via the compression receipt
+    (the receipt's original hash was checked against the seal when the file was compressed,
+    and the .gz must still match the receipt's gzip hash)."""
+    if path.exists():
+        return sha256_file(path)
+    entry = compression_receipt(path)
+    gz = path.with_name(path.name + '.gz')
+    if entry is None or not gz.exists():
+        raise FileNotFoundError(path)
+    if sha256_file(gz) != entry['gzip_sha256']:
+        raise ValueError('compressed file differs from its receipt: ' + str(gz))
+    return entry['original_sha256']
