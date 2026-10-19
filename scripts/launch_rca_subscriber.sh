@@ -3,8 +3,8 @@
 #   LAB_SSH_PASSWORD=... SRC=/mnt/.../source bash launch_rca_subscriber.sh [derive|rca|campaign|all]
 #
 # - derive: a 7-workload coordinator (105 pairs, benign controls) on the pulse-live-recalibrated capture;
-# - rca: replace subscriber r6 with rca-followup-v1: follow-up cases on new execs, 20000-case
-#   retention, binary baseline seeded from r6 (same freeze time);
+# - rca: replace subscriber rca-flow with rca-followup-v1: follow-up cases on new execs, 20000-case
+#   retention, binary baseline seeded from rca-flow (same freeze time);
 # - campaign: install the coordinator campaign service.
 set -euo pipefail
 : "${LAB_SSH_PASSWORD:?}" "${SRC:?}"
@@ -47,7 +47,7 @@ if os.environ.get('DECISION_STREAM') == '1':
 old.update(output='/var/lib/sentinel-pulse-rca/' + os.environ['NAME'],
            previous_output=os.environ['OLD'],
            registration_reason='RCA follow-up on pulse-live-recalibrated: bounded follow-up cases on new execs inside the cooldown, '
-                               '20000-case retention, binary baseline seeded from r6 with the same freeze time',
+                               '20000-case retention, binary baseline seeded from rca-flow with the same freeze time',
            follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,
            follow_up_novelty_seconds=300,
            max_cases=20000, stream_rotate_seconds=900)
@@ -57,7 +57,7 @@ PY
   rm -f "/tmp/$NAME.json"
   # Seed the never-expiring first-seen table so the freeze time keeps its meaning. The script
   # goes through a temp file: as_root feeds the password on stdin, so `python3 -` with a
-  # heredoc ran an empty program and r6b/r6c started unseeded (found 19/10 16:25).
+  # heredoc ran an empty program and rca-followup-v1/rca-followup started unseeded (found 19/10 16:25).
   cat >/tmp/seed-binaries.py <<'PY'
 import sqlite3, sys
 from sentinel_pulse.rca.service import database

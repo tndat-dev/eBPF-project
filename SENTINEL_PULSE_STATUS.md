@@ -9,6 +9,25 @@ Cập nhật **19/10/2026 10:41 (UTC+7)** từ SSH vào cụm. Giờ trong file 
 
 Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 
+
+## Tên gọi và đường dẫn thật trên cụm
+
+Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên cũ trên đĩa, vì config và hash bằng chứng tham chiếu tới chúng. Trên NFS có symlink tên mô tả trỏ tới từng thư mục, nên đường dẫn trong báo cáo dùng được trực tiếp.
+
+| Tên trong báo cáo | Là gì | Thư mục / unit thật |
+|---|---|---|
+| `pulse-soak-baseline` | Soak 48 giờ của candidate gốc | `/mnt/sentinel-pulse-archive/matched-parallel-20261015` |
+| `pulse-attack-dev` | Ma trận tấn công development 315 cặp | `matched-parallel-r3-20261015` |
+| `pulse-attack-dev-rabbitmq` | 15 cặp RabbitMQ bổ sung | `matched-parallel-r5-rabbit-20261015` |
+| `syscall-arms` | Thí nghiệm 11 cấu hình syscall (693 model) | `matched-parallel-r4-20261015` |
+| `pulse-candidate-baseline` / `pulse-candidate-recalibrated` | Candidate gốc / candidate hiệu chỉnh lại | `runtime-f95867d-20261012` / `runtime-recal-c1-20261018` |
+| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (đang chạy) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
+| `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
+| `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
+| `pulse-stable-candidate` | Lượt kế tiếp, ứng viên cho bản stable | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` (tạo khi chạy) |
+| `rca-subscriber` | Bản RCA tốt nhất, đang chạy | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
+| `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
+
 ## 1. Tóm tắt
 
 - **Pulse làm gì.** Pulse đếm syscall của từng container Kubernetes bằng eBPF. Cứ 0,5 giây, nó tạo một vector 249 số cho mỗi container. Một model riêng cho từng workload chấm điểm xem cửa sổ đó "lạ hay không" so với lúc bình thường. Toàn bộ chạy ở chế độ **shadow**: chỉ ghi `candidate_alert_preview` (cảnh báo thử), không phát cảnh báo vận hành, không cách ly pod.
@@ -34,10 +53,10 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live pulse-live-recalibrated: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
+| Lượt live pulse-live-recalibrated: `pulse-live-recalibrated (unit `pulse-matched-worker-r6-20261018`)` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
 | Campaign pulse-live-recalibrated (315 cặp) | **Xong** 09:52 (mục 5.5) |
 | Traffic pulse-live-recalibrated | Đã xong lịch các chế độ tải; hiện ở steady |
-| Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
+| Campaign tiếp nối cho RCA `campaign-rca (unit `pulse-matched-campaign-r6-rca-followup-20261019`)` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
 | RCA | rca-followup đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
 | `syscall-arms-on-pulse-live (job)` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
 | `pulse-compress-raw-48h-20261019` (**.236**) | **Đang chạy từ 18:36** (dời từ 02:05 sang node rảnh): nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc. Tỉ lệ 4,4×, dự kiến thu lại ~53 GB |
@@ -171,7 +190,7 @@ Lưới alpha nới rộng (pulse-attack-dev):
 | 2 of 3, alpha×5 | 98,9% | 97,9% | 1,0% | 3,39 s | 9,9 |
 | 2 of 3, alpha×10 | 96,9% | 99,0% | 2,9% | 2,32 s | 17,1 |
 
-- Kết quả này tạo ra candidate `ec72d9ea…` (`runtime-recal-c1-20261018/model-bundle`).
+- Kết quả này tạo ra candidate `ec72d9ea…` (`pulse-candidate-recalibrated/model-bundle`).
 - Chính sách `policy-1win-a3` (`policy-1win-a3.json`, SHA-256 `f6107351…`) là 1 cửa sổ, alpha×3: chính sách duy nhất có p95 < 2 s.
 - Kiểm tra tương đương sau refactor: 214.449 cửa sổ, 0 sai khác (`scorer-equivalence-0117901.json`).
 
@@ -183,7 +202,7 @@ Lưới alpha nới rộng (pulse-attack-dev):
 | Capture | 3 worker, 24 giờ, không ghi `raw.jsonl` (NFS không đủ chỗ cho kiểu 48 giờ ~4,9 GB/giờ) |
 | Source worker | snapshot `4ba303a`; kiểm tra tương đương trên snapshot này: 27.840 dòng, 0 sai khác |
 | Campaign | 315 cặp control → binary vô hại → attack; fixture `testbed/attack/runtime_attack_with_benign_control.c`; coordinator `d791d24` |
-| Thư mục | `/mnt/sentinel-pulse-archive/matched-r6-20261018/` |
+| Thư mục | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/` |
 
 **Sự cố khi khởi động (02:04–02:20).**
 - **Triệu chứng.** Worker1/worker3 báo `cadence_gap` khoảng mỗi 5 s.
@@ -238,7 +257,7 @@ Tỉ lệ dương theo kịch bản:
 
 Các cửa sổ sau gap tự động không tính là normal.
 
-**Replay chính sách trên pulse-live-recalibrated** (`analysis-20261019/attack-r6-{default,looser}.json`).
+**Replay chính sách trên pulse-live-recalibrated** (`analysis/policy-replay-{default,looser}.json`).
 - Replay k1of1_a3 tái lập đúng kết quả live.
 - Các chính sách khác được chọn sau khi đã xem pulse-live-recalibrated, nên chỉ là development.
 
@@ -453,8 +472,8 @@ Tài nguyên v8 (admission lock, 2 `sentinel-syscalls`, nginx/redis/loadgen/post
 ```bash
 export LAB_SSH_PASSWORD=...      # mật khẩu lab
 python3 scripts/ssh_lab.py --list
-python3 scripts/ssh_lab.py --host 10.1.16.237 systemctl show pulse-matched-worker-r6-20261018 -p ActiveState -p NRestarts
-python3 scripts/ssh_lab.py python3 -m json.tool /mnt/sentinel-pulse-archive/matched-r6-20261018/workers/k8s-worker1.local/STATUS.json
+python3 scripts/ssh_lab.py --host 10.1.16.237 systemctl show pulse-live-recalibrated (unit `pulse-matched-worker-r6-20261018`) -p ActiveState -p NRestarts
+python3 scripts/ssh_lab.py python3 -m json.tool /mnt/sentinel-pulse-archive/pulse-live-recalibrated/workers/k8s-worker1.local/STATUS.json
 python3 scripts/ssh_lab.py --put LOCAL REMOTE   # upload qua SFTP
 ```
 
@@ -480,7 +499,7 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:56 | `kubectl delete` phần v8 còn sót | Bị bộ kiểm duyệt quyền chặn (lần 2) → chạy tay |
 | 16:00 | Xóa dữ liệu thô cũ và unit cũ trên worker | Bị chặn 2 lần → soạn script chạy tay |
 | 16:00 | Đo dung lượng: 48 giờ tốn 219 GB, NFS còn 102 GB | pulse-live-recalibrated chạy 24 giờ, không ghi `raw.jsonl` |
-| 16:01 | Profile `r6` trong `plan_matched_run` + cờ `write_raw_frames` | `4ba303a` |
+| 16:01 | Profile `pulse-live-recalibrated` trong `plan_matched_run` + cờ `write_raw_frames` | `4ba303a` |
 | 16:05 | Snapshot `4ba303a` lên NFS; nạp thử candidate pulse-live-recalibrated bằng runtime-venv của worker | 21 model, hash khớp |
 | 16:10 | Thêm `--put` cho `ssh_lab.py`; viết `scripts/launch_pulse_live_recalibrated.sh` | `ee69863` |
 
@@ -488,7 +507,7 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 
 | Giờ | Việc đã làm | Kết quả / bằng chứng |
 |---|---|---|
-| 02:03 | Kiểm tra tương đương trên snapshot pulse-live-recalibrated: 27.840 dòng, 0 sai khác; `launch_pulse_live_recalibrated.sh plan` | `matched-r6-20261018/CONFIG.json` |
+| 02:03 | Kiểm tra tương đương trên snapshot pulse-live-recalibrated: 27.840 dòng, 0 sai khác; `launch_pulse_live_recalibrated.sh plan` | `pulse-live-recalibrated/CONFIG.json` |
 | 02:04 | Cài matched worker pulse-live-recalibrated trên 3 worker | chạy |
 | 02:05–02:10 | Phát hiện cadence gap; truy ra 301/18/59 client `tetra getevents` mồ côi | mục 5.5 |
 | 02:10 | Bọc lệnh trong container bằng `timeout` (campaign + RCA); snapshot `d791d24` | `d791d24` |

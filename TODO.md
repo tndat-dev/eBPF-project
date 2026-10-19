@@ -61,7 +61,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 - [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
 - [x] Campaign pulse-live-recalibrated xong 19/10 09:52 (capture chạy đến 20/10 02:04): precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s.
-- [~] Chạy lượt live pulse-live-recalibrated (profile `r6`, 24 h, không ghi raw.jsonl — xem STATUS mục 5.9): normal soak mới + campaign attack có `benign_exec_control: true` (fixture pulse-live-recalibrated),
+- [~] Chạy lượt live pulse-live-recalibrated (profile `pulse-live-recalibrated`, 24 h, không ghi raw.jsonl — xem STATUS mục 5.9): normal soak mới + campaign attack có `benign_exec_control: true` (fixture pulse-live-recalibrated),
       bật policy RCA flow và subscriber r3 có `binary_baseline_frozen_at`.
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật (hiện mới đo đến lúc ghi preview).
 - [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận, không chỉ nhãn kỳ vọng.
@@ -71,8 +71,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 - [x] syscall-arms holdout: không cấu hình nào đạt ngân sách cảnh báo; khác biệt giữa các cấu hình
       (18,6–20,8 đợt/giờ) nằm trong dao động giữa các seed → chưa chọn được bộ syscall.
 - [x] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`), khớp evaluator đã đăng ký.
-- [x] Replay attack pulse-attack-dev cho cả 11 cấu hình (`arm-attack-replay-r3r5-20261018`): ở alpha×1 p95 2,1–3,4 s; `drop_exec_pair` kém nhất.
-- [x] So 11 cấu hình ở cùng ngân sách cảnh báo sau hiệu chỉnh lại (`arm-budget-20261019`): không cấu hình nào
+- [x] Replay attack pulse-attack-dev cho cả 11 cấu hình (`arm-replay-pulse-attack-dev`): ở alpha×1 p95 2,1–3,4 s; `drop_exec_pair` kém nhất.
+- [x] So 11 cấu hình ở cùng ngân sách cảnh báo sau hiệu chỉnh lại (`arm-budget-holdout`): không cấu hình nào
       đạt ≤ 1 đợt/giờ; khác biệt trong nhiễu; giữ `base29` cho Pulse.
 - [x] Replay 11 cấu hình trên pulse-live-recalibrated (có binary vô hại): không cấu hình nào tách attack khỏi process vô hại; `plus_all_*` tệ nhất → giữ `base29`.
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
@@ -85,7 +85,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
       tín hiệu mới từ 16/10 (Pulse đã dừng) nhưng vẫn dùng ~966 MB / giới hạn 1 GB.
 - [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
-- [x] Áp dụng policy flow + chạy subscriber rca-flow (`pulse-rca-runtime-events-r6`) cùng lượt pulse-live-recalibrated (19/10 02:14).
+- [x] Áp dụng policy flow + chạy subscriber rca-flow (`rca-flow (unit cũ)`) cùng lượt pulse-live-recalibrated (19/10 02:14).
 - [x] Sửa rò tiến trình `tetra getevents` trong container Tetragon (campaign + RCA), dọn 378 tiến trình mồ côi (19/10).
 - [x] Chạy `rca.evaluate_ranking` trên case pulse-live-recalibrated: 36/315 attack có case, top-1 100%.
 - [x] RCA case tiếp nối + lưu 20.000: 72% attack có case (pulse-live-recalibrated: 11%), top-1 98,6% sau khi sửa baseline, preview → case p50 7 s.

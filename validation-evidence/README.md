@@ -6,10 +6,10 @@ và mẫu nhỏ. Không sửa nội dung đã niêm phong; nếu cần sửa bá
 
 | Thư mục | Nội dung |
 |---|---|
-| `pulse/` | Soak normal A1 24 h, canary chấm theo lô B1/B2, ma trận attack/control R3/R5 (kèm audit fit R4), kiểm tra live 15/10 |
+| `pulse/` | Soak normal A1 24 h, canary chấm theo lô B1/B2, ma trận attack/control pulse-attack-dev/R5 (kèm audit fit syscall-arms), kiểm tra live 15/10 |
 | `syscall/` | Đối chiếu ID/tên syscall, phân tích tần suất C3, sửa tiền xử lý C6 |
 | `rca/` | Cây RCA thật + input chuẩn hóa, kiểm chứng runtime C3 trong production |
-| `results-20261018/` | Kết quả thu ngày 18/10: terminal soak 48 h, holdout R4, nghiên cứu xác nhận/hiệu chỉnh lại |
+| `results-20261018/` | Kết quả thu ngày 18/10: terminal soak 48 h, holdout syscall-arms, nghiên cứu xác nhận/hiệu chỉnh lại |
 
 Evidence của các thế hệ đã gỡ code (AIMS/v8, lifecycle R9/R10, projected
 counter/pressure, recovery coordinator, soak inspection 06–07/10…) đã được gỡ

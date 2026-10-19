@@ -2,6 +2,25 @@
 
 Cập nhật **19/10/2026 10:41 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
+
+## Tên gọi và đường dẫn thật trên cụm
+
+Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên cũ trên đĩa, vì config và hash bằng chứng tham chiếu tới chúng. Trên NFS có symlink tên mô tả trỏ tới từng thư mục, nên đường dẫn trong báo cáo dùng được trực tiếp.
+
+| Tên trong báo cáo | Là gì | Thư mục / unit thật |
+|---|---|---|
+| `pulse-soak-baseline` | Soak 48 giờ của candidate gốc | `/mnt/sentinel-pulse-archive/matched-parallel-20261015` |
+| `pulse-attack-dev` | Ma trận tấn công development 315 cặp | `matched-parallel-r3-20261015` |
+| `pulse-attack-dev-rabbitmq` | 15 cặp RabbitMQ bổ sung | `matched-parallel-r5-rabbit-20261015` |
+| `syscall-arms` | Thí nghiệm 11 cấu hình syscall (693 model) | `matched-parallel-r4-20261015` |
+| `pulse-candidate-baseline` / `pulse-candidate-recalibrated` | Candidate gốc / candidate hiệu chỉnh lại | `runtime-f95867d-20261012` / `runtime-recal-c1-20261018` |
+| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (đang chạy) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
+| `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
+| `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
+| `pulse-stable-candidate` | Lượt kế tiếp, ứng viên cho bản stable | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` (tạo khi chạy) |
+| `rca-subscriber` | Bản RCA tốt nhất, đang chạy | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
+| `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
+
 ## 1. Câu hỏi nghiên cứu và kết luận hiện tại
 
 **Câu hỏi:** bộ 29 syscall tường minh của Pulse có nên thêm, bớt hay thay nhóm nào để phát hiện tốt hơn, khi giữ cùng ngân sách cảnh báo nhầm và cùng độ trễ?
@@ -88,12 +107,12 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 
 - **Job:** `pulse-r4-score-dump-*` chấm lại 147 segment bằng đúng 693 model. Job lưu điểm tree/support của **mọi** cửa sổ (evaluator đã đăng ký chỉ giữ cửa sổ dương).
 - **Kiểm chứng:** số đếm của từng segment khớp evaluator đã đăng ký; 0 segment lệch.
-- **Đầu ra:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/score-dump-20261018/` (2,7 GB).
+- **Đầu ra:** `/mnt/sentinel-pulse-archive/syscall-arms/score-dump/` (2,7 GB).
 
 ### 5.3 Replay attack pulse-attack-dev cho mọi cấu hình (xong 18/10)
 
 - **Dữ liệu:** 693 model × 630 interval (315 attack + 315 control) của pulse-attack-dev, dựng lại từ full-ID delta mà matched worker đã ghi. Mọi cấu hình được chấm trên cùng interval, không phải chạy attack riêng cho từng cấu hình.
-- **Đầu ra:** `arm-attack-replay-r3r5-20261018/`.
+- **Đầu ra:** `arm-replay-pulse-attack-dev/`.
 
 | Alpha | Recall | Control dương | p95 (≈ kernel → cửa sổ dương) |
 |---|---|---|---|
@@ -103,7 +122,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 
 ### 5.4 So sánh ở cùng ngân sách cảnh báo (xong 19/10 10:15)
 
-**Phương pháp** (`syscall_study/arm_budget.py`, job `pulse-r4-arm-budget-20261019`, đầu ra `arm-budget-20261019/`):
+**Phương pháp** (`syscall_study/arm_budget.py`, job `pulse-r4-arm-budget-holdout`, đầu ra `arm-budget-holdout/`):
 1. Hiệu chỉnh lại p-value của từng model bằng 20% đầu holdout.
 2. Đếm số đợt cảnh báo trên 80% còn lại với các hệ số alpha từ 0,5 đến 30.
 3. Chấm pulse-attack-dev với cùng calibration.
@@ -133,7 +152,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 
 - **Dữ liệu:** replay 693 model trên 420 cặp của pulse-live-recalibrated (315 cặp chính + 105 cặp tiếp nối), tổng 1.260 interval gồm attack, binary vô hại và control. Dùng full-ID delta mà worker pulse-live-recalibrated đã ghi.
 - **So sánh ở cùng ngân sách:** calibration lấy từ holdout syscall-arms như mục 5.4.
-- **Đầu ra:** `matched-r6-20261018/analysis-20261019/arm-{replay,budget}-r6/`.
+- **Đầu ra:** `pulse-live-recalibrated/analysis/arm-{replay,budget}/`.
 
 Ở cùng ngân sách (đợt/replica-giờ), mỗi ô ghi: recall / control dương / **binary vô hại dương** / p95.
 
@@ -175,7 +194,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 - **Lịch:** chạy trên `.235` lúc 18:30–18:55 thì **phải dừng**: tải lên NFS server làm worker pulse-live-recalibrated tăng cadence gap, và replay 693 model làm master2 treo (xem [Pulse](SENTINEL_PULSE_STATUS.md) mục 8b). Đã dời sang **20/10 02:20 trên `.234`** (`syscall-arms-bootstrap`, MemoryMax 32 GB, ghi vào `bootstrap-20261020b/`), sau khi pulse-live-recalibrated kết thúc. Thư mục `bootstrap-20261020/` chỉ chứa replay dở, không dùng.
   - Thư viện: thư mục `/home/dat/pylib-sklearn19` (numpy 2.5.2, scikit-learn 1.9.0, scipy 1.18.0, giống hệt `.234`). Venv sẵn có trên `.235` là sklearn 1.8.0 nên không dùng.
   - Các bước: chạy lại hai replay (pulse-attack-dev, pulse-live-recalibrated), `arm_budget` có ghi kết quả từng trial, rồi bootstrap.
-  - Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
+  - Đầu ra: `syscall-arms/bootstrap-20261020/`.
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
@@ -213,17 +232,17 @@ Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ đượ
   - `score_dump.py` — xuất điểm;
   - `arm_attack_replay.py` — replay attack;
   - `arm_budget.py` — so ở cùng ngân sách; cả hai đã báo thêm tỉ lệ dương của binary vô hại (`6ab3dd4`).
-- **Dữ liệu trên NFS:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/`:
+- **Dữ liệu trên NFS:** `/mnt/sentinel-pulse-archive/syscall-arms/`:
   - `syscall-matched-study/` — model;
   - `normal-holdout-evaluation/`;
-  - `score-dump-20261018/`;
-  - `arm-attack-replay-r3r5-20261018/`;
-  - `arm-budget-20261019/`.
+  - `score-dump/`;
+  - `arm-replay-pulse-attack-dev/`;
+  - `arm-budget-holdout/`.
 - **Bằng chứng cũ:** `validation-evidence/syscall/` (chọn syscall, C6).
 
 ```bash
 python3 scripts/ssh_lab.py python3 -m json.tool \
-  /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/arm-budget-20261019/RESULTS.json | head
+  /mnt/sentinel-pulse-archive/syscall-arms/arm-budget-holdout/RESULTS.json | head
 ```
 
 ## 9. Nhật ký
@@ -241,7 +260,7 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 10:15 | Job xong; nội suy ở cùng ngân sách → giữ base29, kết quả inconclusive theo protocol v2 | mục 5.4, 6 |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
 | 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác syscall-arms) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `syscall-arms-on-pulse-live (job)` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/syscall_arms_on_pulse_live.sh` |
-| 19/10 ~12:50–13:40 | Job `syscall-arms-on-pulse-live (job)` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
+| 19/10 ~12:50–13:40 | Job `syscall-arms-on-pulse-live (job)` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}/` |
 | 19/10 16:27 | Đọc kết quả trên pulse-live-recalibrated kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
 | 19/10 17:52 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
 | 19/10 17:57 | Đưa kết quả replay/arm-budget và bảng nội suy (biên nhận JSON) vào repo | `validation-evidence/results-20261019/` |

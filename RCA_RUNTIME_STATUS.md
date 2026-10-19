@@ -2,6 +2,25 @@
 
 Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
+
+## Tên gọi và đường dẫn thật trên cụm
+
+Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên cũ trên đĩa, vì config và hash bằng chứng tham chiếu tới chúng. Trên NFS có symlink tên mô tả trỏ tới từng thư mục, nên đường dẫn trong báo cáo dùng được trực tiếp.
+
+| Tên trong báo cáo | Là gì | Thư mục / unit thật |
+|---|---|---|
+| `pulse-soak-baseline` | Soak 48 giờ của candidate gốc | `/mnt/sentinel-pulse-archive/matched-parallel-20261015` |
+| `pulse-attack-dev` | Ma trận tấn công development 315 cặp | `matched-parallel-r3-20261015` |
+| `pulse-attack-dev-rabbitmq` | 15 cặp RabbitMQ bổ sung | `matched-parallel-r5-rabbit-20261015` |
+| `syscall-arms` | Thí nghiệm 11 cấu hình syscall (693 model) | `matched-parallel-r4-20261015` |
+| `pulse-candidate-baseline` / `pulse-candidate-recalibrated` | Candidate gốc / candidate hiệu chỉnh lại | `runtime-f95867d-20261012` / `runtime-recal-c1-20261018` |
+| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (đang chạy) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
+| `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
+| `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
+| `pulse-stable-candidate` | Lượt kế tiếp, ứng viên cho bản stable | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` (tạo khi chạy) |
+| `rca-subscriber` | Bản RCA tốt nhất, đang chạy | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
+| `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
+
 ## 1. Mục tiêu và trạng thái hiện hành
 
 **Mục tiêu.** Pulse chỉ cho biết **container nào** bất thường, không cho biết process nào. Sau mỗi tín hiệu, RCA trả lời:
@@ -13,12 +32,12 @@ Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentin
 
 | Thành phần (10:41 ngày 19/10) | Trạng thái |
 |---|---|
-| Subscriber | **rca-followup** `pulse-rca-runtime-events-r6c` (.234), chạy từ 10:48 trên source `ea5a3ee` (rca-followup-v1 10:36–10:48 bị lỗi điều kiện case tiếp nối, mục 5.6) |
+| Subscriber | **rca-followup** `rca-followup (unit cũ)` (.234), chạy từ 10:48 trên source `ea5a3ee` (rca-followup-v1 10:36–10:48 bị lỗi điều kiện case tiếp nối, mục 5.6) |
 | Cấu hình rca-followup | Gồm:<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s có **case tiếp nối**;<br>• tính binary mới bằng nhật ký exec 15 phút;<br>• giữ 20.000 case;<br>• stream xoay vòng 900 s;<br>• baseline binary lấy từ rca-followup-v1 (bắt nguồn từ rca-flow), đóng băng 19/10 03:45:45 |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1`, `sentinel-rca-fork-v1`, **`sentinel-rca-flow-v1`** (apply 19/10 02:14) |
-| Campaign kiểm chứng | `pulse-matched-campaign-r6-rca-followup-20261019`: 7 workload × 15 = 105 cặp, attack từ 10:46, dự kiến xong ~12:50 |
+| Campaign kiểm chứng | `campaign-rca (unit `pulse-matched-campaign-r6-rca-followup-20261019`)`: 7 workload × 15 = 105 cặp, attack từ 10:46, dự kiến xong ~12:50 |
 | Subscriber trước | rca-runtime-v1 dừng 19/10 02:13; rca-flow dừng 10:36; rca-followup-v1 dừng 10:48. Output được giữ nguyên |
-| Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/matched-r6-20261018/rca-r6-copy-20261019/`: 2.001 case + `context.sqlite3` |
+| Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/rca-flow-copy/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
 
@@ -100,7 +119,7 @@ Code: `sentinel_pulse/rca/ranking.py`. Điểm là heuristic để sắp thứ t
 
 ### 5.3 Run rca-flow trong campaign pulse-live-recalibrated (19/10 02:14 → 10:36)
 
-Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 case. Bằng chứng: `rca-r6-copy-20261019/RANKING-{stored,reranked}.json`.
+Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 case. Bằng chứng: `rca-flow-copy/RANKING-{stored,reranked}.json`.
 
 | 315 attack của campaign pulse-live-recalibrated | Số trial |
 |---|---:|
@@ -111,8 +130,8 @@ Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 
 | Không có case | 13 |
 
 - **Xếp hạng:** trong **36/36 case**, binary tấn công đứng **hạng 1** (top-1 = top-3 = top-5 = 100%), với cả xếp hạng đã lưu lẫn xếp hạng lại offline. Mẫu 36 còn nhỏ, chưa có khoảng tin cậy.
-- **Độ phủ** bị chi phối bởi cooldown theo container và giới hạn lưu, không phải bởi chất lượng xếp hạng. Đây là lý do có case tiếp nối và giới hạn 20.000 case trong r6b.
-- **Thông tin mạng:** mẫu 73 case đầu cho thấy chỉ 12% case có `active_flow`. Mẫu lấy trong lúc subscriber bị kẹt IO (5.4), nên cần đo lại trên r6b.
+- **Độ phủ** bị chi phối bởi cooldown theo container và giới hạn lưu, không phải bởi chất lượng xếp hạng. Đây là lý do có case tiếp nối và giới hạn 20.000 case trong rca-followup-v1 (sau đó là rca-followup, rca-subscriber).
+- **Thông tin mạng:** mẫu 73 case đầu cho thấy chỉ 12% case có `active_flow`. Mẫu lấy trong lúc subscriber bị kẹt IO (5.4), nên cần đo lại (đã đo lại ở mục 5.8: 87% case có flow).
 
 ### 5.4 Tranh chấp IO trên .234 (19/10 02:30)
 
@@ -149,7 +168,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 ### 5.7 Kết quả rca-followup trên campaign tiếp nối (xong 19/10 ~12:50)
 
 - **Phạm vi đánh giá:** chỉ tính 99 trial bắt đầu sau khi rca-followup hết 330 s khởi động (10:54:15).
-- **Bằng chứng:** `matched-r6-20261018/rca-r6c-copy-20261019/`, gồm 2.140 case, `context.sqlite3` và `RANKING-{stored,reranked}.json`.
+- **Bằng chứng:** `pulse-live-recalibrated/rca-followup-copy/`, gồm 2.140 case, `context.sqlite3` và `RANKING-{stored,reranked}.json`.
 
 | Chỉ số | pulse-live-recalibrated (rca-flow, không có case tiếp nối) | Campaign tiếp nối (rca-followup) |
 |---|---|---|
@@ -162,7 +181,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Case có `active_flow` | 12% (mẫu sớm) | **3%** (2/71) |
 | Preview → case p50 / p95 | 8,4 / 16,6 s | 7,0 / 14,5 s |
 
-- **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ rca-flow sang r6b/r6c không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
+- **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ rca-flow sang rca-followup-v1/rca-followup không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
   - Mọi binary đều có `first_seen` sau mốc đóng băng, nên probe định kỳ (`sh`, `hostname`, `bash`, `pg_isready`, script readiness/liveness của Kafka) được +4 điểm `novel_binary` và đứng trên binary tấn công.
 - **Cách đánh giá đúng.** Gộp baseline của rca-flow vào bản sao rồi xếp hạng lại offline. `--rerank-db` chỉ dùng binary đã thấy trước lúc tạo case, nên đây đúng là kết quả live đáng lẽ đạt được.
 - **Đã sửa:**
@@ -225,7 +244,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Phạm vi policy | Namespace `production`, mọi pod. File: chỉ đường dẫn nhạy cảm (từ 19/10 16:35). Flow: lấy mẫu 10 s / process. Đã bỏ `commit_creds` |
 | Ring | 180 s, tối đa 120.000 sự kiện |
 | Grouping | Cooldown 300 s; rca-followup-v1 thêm tối đa 5 case tiếp nối mỗi cooldown |
-| Lưu case | rca-runtime-v1: 500; rca-flow: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
+| Lưu case | rca-runtime-v1: 500; rca-flow: 2.000 (đã xóa mất 48 trial campaign); rca-followup-v1/rca-followup: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
 | Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
@@ -254,13 +273,13 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - `runtime_tree.py` — dựng đồ thị;
   - `ranking.py`, `evaluate_ranking.py` — xếp hạng và đánh giá.
 - **Policy Tetragon:** `sentinel_pulse/k8s/tetragon-rca-*.yaml`.
-- **Khởi chạy:** `scripts/launch_rca_subscriber.sh` (r6b/r6c + campaign tiếp nối), `scripts/launch_run.sh` (lượt live kế tiếp: Pulse + RCA cấu hình đầy đủ), `scripts/launch_pulse_live_recalibrated.sh` (rca-flow).
-- **Cấu hình:** `/etc/sentinel-pulse-rca/runtime-events-20261019-r6c.json`.
-- **Đầu ra:** `/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/`.
+- **Khởi chạy:** `scripts/launch_rca_subscriber.sh` (rca-followup-v1/rca-followup + campaign tiếp nối), `scripts/launch_run.sh` (lượt live kế tiếp: Pulse + RCA cấu hình đầy đủ), `scripts/launch_pulse_live_recalibrated.sh` (rca-flow).
+- **Cấu hình:** `/etc/sentinel-pulse-rca/rca-followup.json`.
+- **Đầu ra:** `/var/lib/sentinel-pulse-rca/rca-followup/`.
 
 ```bash
-python3 scripts/ssh_lab.py systemctl show pulse-rca-runtime-events-r6c -p ActiveState -p NRestarts
-python3 scripts/ssh_lab.py bash -c 'echo $PW | sudo -S python3 -m json.tool /var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/STATUS.json | head -40'
+python3 scripts/ssh_lab.py systemctl show rca-followup (unit cũ) -p ActiveState -p NRestarts
+python3 scripts/ssh_lab.py bash -c 'echo $PW | sudo -S python3 -m json.tool /var/lib/sentinel-pulse-rca/rca-followup/STATUS.json | head -40'
 PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --cases <cases> --campaign <campaign> \
   --rerank-db <context.sqlite3> --frozen-at <binary_baseline_frozen_at> --output RANKING.json
 ```
@@ -277,12 +296,12 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 02:16 | Sửa script khởi chạy (chép từ NFS lỗi ACL; unit file rỗng do stdin của sudo) | `a9cc061` |
 | 19/10 02:26 | rca-flow: 73 case, 12% có flow; `containerd-shim` đứng hạng 1 sai → loại container runtime; thêm `--rerank-db` | `54f4635` |
 | 19/10 02:30 | Subscriber kẹt IO do job NFS nặng; dừng job; RCA hồi phục | mục 5.4 |
-| 19/10 10:06 | Chép 2.001 case + `context.sqlite3` của rca-flow sang NFS (giới hạn 2.000 đang xóa case campaign) | `rca-r6-copy-20261019/` |
+| 19/10 10:06 | Chép 2.001 case + `context.sqlite3` của rca-flow sang NFS (giới hạn 2.000 đang xóa case campaign) | `rca-flow-copy/` |
 | 19/10 10:08 | Đánh giá xếp hạng pulse-live-recalibrated: 36/315 attack có case, top-1 100%; phân rã nguyên nhân thiếu case | mục 5.3 |
 | 19/10 10:23–10:24 | Case tiếp nối cho exec mới trong cooldown; siết điều kiện để bỏ qua probe định kỳ | `5436d11`, `3e457fe` |
 | 19/10 10:33 | Dừng job rolling recalibration của Pulse để không tranh IO trong campaign tiếp nối | — |
 | 19/10 10:36 | Chạy rca-followup-v1 (baseline binary lấy từ rca-flow, giữ 20.000 case, case tiếp nối); dừng rca-flow | `15dab8a`, `scripts/launch_rca_subscriber.sh` |
-| 19/10 10:36 | Cài campaign tiếp nối 105 cặp trên capture pulse-live-recalibrated (attack từ 10:46) | `coordinator-rca-followup-20261019/` |
+| 19/10 10:36 | Cài campaign tiếp nối 105 cặp trên capture pulse-live-recalibrated (attack từ 10:46) | `campaign-rca/` |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
 | 19/10 10:46 | rca-followup-v1 mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
 | 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang rca-followup | `ea5a3ee` |

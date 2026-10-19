@@ -4,7 +4,7 @@ Các file nhỏ chép từ NFS (`/mnt/sentinel-pulse-archive/...`) và các biê
 `scripts/analysis/`. Mọi con số trong 3 báo cáo đều phải tìm được ở đây hoặc trên NFS theo đường dẫn ghi trong file.
 Nhãn đều là **nhãn kỳ vọng**, chưa review; dữ liệu là **development** (chính sách `policy-1win-a3` được chọn trên pulse-attack-dev, không phải blind).
 
-## Pulse — lượt live pulse-live-recalibrated (`pulse-r6/`)
+## Pulse — lượt live pulse-live-recalibrated (`pulse-live-recalibrated/`)
 
 | Con số trong báo cáo | File |
 |---|---|
