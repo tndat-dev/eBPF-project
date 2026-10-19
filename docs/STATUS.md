@@ -544,7 +544,7 @@ cập nhật liên tục trong lúc làm.
 | 10:12 | `confirmation_study` nhận `--model-hash/--policy-hash`; replay lưới k-of-n trên R6 (khớp live) | `f0b18af`; `analysis-20261019/` |
 | 10:15 | Arm-budget xong; nội suy ở cùng ngân sách: giữ `base29`, chọn syscall không phải nút thắt | mục 5.8 |
 | 10:16 | Phân rã độ trễ xử lý cuối cửa sổ → preview theo node | mục 5.9 |
-| 10:20 | Profile frame thật: 85% thời gian ở overhead sklearn theo từng cây | mục 5.9 |
-| 10:25 | `fast_forest.py` (bit-identical, tự kiểm tra từng model), tùy chọn `fast_scoring`/`--fast`; 293 test pass | `0913446` |
-| 10:35 | Kiểm tra tương đương đường nhanh trên segment R6: 13.505 dòng, 0 sai khác; CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-{fast,slow}-r6.json` |
-| 10:40 | RCA: case tiếp nối khi có exec mới trong cooldown (opt-in, có giới hạn); 295 test pass | `5436d11` |
+| 10:17 | Profile frame thật: 85% thời gian ở overhead sklearn theo từng cây | mục 5.9 |
+| 10:19 | `fast_forest.py` (bit-identical, tự kiểm tra từng model), tùy chọn `fast_scoring`/`--fast`; 293 test pass | `0913446` |
+| 10:22 | Kiểm tra tương đương đường nhanh trên segment R6: 13.505 dòng, 0 sai khác; CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-{fast,slow}-r6.json` |
+| 10:23 | RCA: case tiếp nối khi có exec mới trong cooldown (opt-in, có giới hạn); 295 test pass | `5436d11` |
