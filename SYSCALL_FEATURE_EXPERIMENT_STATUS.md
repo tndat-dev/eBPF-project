@@ -174,6 +174,8 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   - Báo cáo: recall, tỉ lệ binary vô hại, khoảng cách recall − benign, chênh lệch so với base29 kèm CI 95%, và cận dưới một phía 95% của chênh recall. Cận dưới này là điều kiện "không kém hơn −3 điểm" của protocol v2.
 - **Lịch:** job `pulse-syscall-bootstrap-20261020` chạy 20/10 02:15, sau khi R6 kết thúc. Nó chạy lại hai replay (R3/R5, R6), `arm_budget` có ghi kết quả từng trial, rồi bootstrap. Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
 
+Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -239,3 +241,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
 | 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
 | 19/10 17:52 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
+| 19/10 17:57 | Đưa kết quả replay/arm-budget và bảng nội suy (biên nhận JSON) vào repo | `validation-evidence/results-20261019/` |
