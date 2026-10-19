@@ -162,7 +162,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 - Ở ngân sách ≤ 8, p95 của hầu hết cấu hình > 2 s.
 - Từ 13:00, worker R6 ghi thêm 17/5/18 cadence gap trùng lúc job này đọc NFS. Các cửa sổ đó đã tự động không tính là normal.
 
-### 5.6 Lỗi khóa trial và kế hoạch khoảng tin cậy (19/10 17:53)
+### 5.6 Lỗi khóa trial và kế hoạch khoảng tin cậy (19/10 17:52)
 
 - **Lỗi khóa trial (của mình).** `arm_attack_replay` dùng khóa `(tag, trial_id)`, mà `trial_id` (ví dụ `"12:attack"`) đánh số lại từ đầu trong mỗi campaign. R3 với R5, và campaign R6 chính với campaign tiếp nối, có thể trùng khóa trên cùng workload. Khi đó cửa sổ của trial này ghi đè trial kia, trial bị chấm sai hoặc thành unknown.
   - Ước tính ảnh hưởng ~5% số trial của các workload trùng. Kết luận ở 5.3–5.5 khó thay đổi, nhưng sẽ được chạy lại.
@@ -238,4 +238,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
 | 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
 | 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
-| 19/10 17:53 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
+| 19/10 17:52 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
