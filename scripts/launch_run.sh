@@ -69,7 +69,9 @@ print(json.dumps(dict(
     kubeconfig='/home/dat/.kube/config', model_hash=run['model_hash'], policy_hash=run['policy_hash'],
     runtime_events=True, connect_policy='sentinel-rca-runtime-v1',
     runtime_policies=['sentinel-rca-runtime-v1', 'sentinel-rca-fork-v1', 'sentinel-rca-flow-v1'],
-    workers=[dict(node_name=w['node_name'], output=w['output']) for w in run['workers'].values()],
+    workers=[dict(node_name=w['node_name'], output=w['output'], host=host) for host, w in run['workers'].items()],
+    # read decisions on each worker over SSH: NFS write-back made them visible ~5 s late on .234
+    decision_stream=dict(user='dat', credential='/home/dat/.pulse-recovery-credential-20261005', rotate_seconds=3600),
     before_seconds=30, after_seconds=0, case_ready_grace_seconds=2, ring_seconds=180,
     max_ring_events=120000, max_cases=20000, case_cooldown_seconds=300, stream_rotate_seconds=900,
     follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,

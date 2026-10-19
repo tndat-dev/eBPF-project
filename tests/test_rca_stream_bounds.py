@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from sentinel_pulse.rca import service
@@ -98,3 +99,35 @@ def test_no_follow_up_while_exec_log_is_warming_up():
     _exec_event(svc, 110.0)
     svc.observe_trigger(_row(112.0), now=113.0)
     assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
+
+
+def test_decision_follower_streams_only_new_lines_across_segments(tmp_path):
+    import subprocess, sys, time
+    seg1 = tmp_path/'segments'/'s00001'; seg1.mkdir(parents=True)
+    (seg1/'decisions.jsonl').write_text('{"old": 1}\n')
+    child = subprocess.Popen([sys.executable, '-u', '-c', service.DECISION_FOLLOWER, str(tmp_path)],
+                             stdout=subprocess.PIPE)
+    try:
+        time.sleep(0.8)
+        with (seg1/'decisions.jsonl').open('a') as f:
+            f.write('{"n": 1}\n{"n": 2}\n')
+        time.sleep(0.5)
+        seg2 = tmp_path/'segments'/'s00002'; seg2.mkdir()
+        with (seg1/'decisions.jsonl').open('a') as f:
+            f.write('{"n": 3}\n')          # last line of the old segment written before switching
+        (seg2/'decisions.jsonl').write_text('{"n": 4}\n')
+        time.sleep(1.0)
+    finally:
+        child.terminate()
+    out = child.stdout.read().decode().split()
+    assert out == ['{"n":', '1}', '{"n":', '2}', '{"n":', '3}', '{"n":', '4}']
+
+
+def test_streamed_decision_lines_feed_the_trigger_path():
+    svc = _service()
+    svc.ingest_decision_line(json.dumps(_row(100.0)).encode(), 'n1', 101.0)
+    assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
+    assert svc.counts['decision_rows_read'] == 1
+    import pytest
+    with pytest.raises(ValueError):
+        svc.ingest_decision_line(json.dumps(_row(102.0)).encode(), 'other-node', 103.0)

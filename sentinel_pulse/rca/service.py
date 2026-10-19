@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import select
+import shlex
 import signal
 import sqlite3
 import subprocess
@@ -26,6 +27,39 @@ from .ranking import rank_suspects, workload_of
 
 STREAM_ROTATE_SECONDS = 900  # upper bound on any orphaned in-container event client
 EXEC_LOG_SECONDS = 900       # exec history kept for follow-up novelty (longer than the 180 s ring)
+
+# Runs on a worker (system python3) and prints new decision lines of the newest segment as the
+# matched worker writes them. Reading on the writer's own NFS client sees appended bytes at once;
+# reading from .234 waited ~5 s for NFS write-back (19/10 measurement). No backfill: starts at
+# the end of the current file; drains a segment fully before following its successor.
+DECISION_FOLLOWER = r'''
+import glob, sys, time
+root = sys.argv[1]
+def newest():
+    paths = sorted(glob.glob(root + "/segments/s*/decisions.jsonl"))
+    return paths[-1] if paths else None
+path = None
+while path is None:
+    path = newest(); time.sleep(0.5) if path is None else None
+stream = open(path, "rb"); stream.seek(0, 2); buf = b""
+while True:
+    chunk = stream.read(1 << 20)
+    if chunk:
+        buf += chunk
+        *lines, buf = buf.split(b"\n")
+        if lines:
+            sys.stdout.buffer.write(b"\n".join(lines) + b"\n"); sys.stdout.flush()
+        continue
+    latest = newest()
+    if latest != path:
+        rest = stream.read()
+        if rest:
+            buf += rest
+            continue
+        path, stream, buf = latest, open(latest, "rb"), b""
+        continue
+    time.sleep(0.05)
+'''
 
 
 def atomic(path, value):
@@ -103,6 +137,7 @@ class Service:
                 previous_output=self.cfg.get('previous_output'),
                 registration_reason=self.cfg.get('registration_reason')))
         self.streams = {}; self.index = {}; self.inventory = {}; self.target_inventory = {}
+        self.decision_streams = {}
         self.inventory_at = None; self.stop = False; self.counts = {}; self.started_at = time.time()
         status = self.root/'STATUS.json'
         if status.exists(): self.counts = json.loads(status.read_text()).get('counts', {})
@@ -281,6 +316,49 @@ class Service:
         # a binary counts as new only if it did not run in the lookback before the previous case.
         return bool(execs(since, event_time(row['window_end'])) - execs(window_start - lookback, window_start))
 
+    def start_decision_stream(self, worker):
+        """Follow a worker's decisions on the worker itself (cfg 'decision_stream')."""
+        spec = self.cfg['decision_stream']
+        remote = ['timeout', str(int(spec.get('rotate_seconds', 3600))), 'python3', '-u', '-c',
+                  DECISION_FOLLOWER, worker['output']]
+        args = ['sshpass', '-f', spec['credential'], 'ssh', '-o', 'StrictHostKeyChecking=yes',
+                '-o', 'UserKnownHostsFile=' + spec.get('known_hosts', '/home/dat/.ssh/known_hosts'),
+                '-o', 'ServerAliveInterval=10', f"{spec.get('user', 'dat')}@{worker['host']}",
+                ' '.join(shlex.quote(a) for a in remote)]
+        child = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, start_new_session=True)
+        self.decision_streams[worker['node_name']] = dict(child=child, buffer=b'', started_at=time.time())
+        self.issue('decision_stream_started', node=worker['node_name'], host=worker['host'],
+                   continuity='no backfill; decisions written while disconnected are not seen')
+
+    def ingest_decision_line(self, line, node, now):
+        row = json.loads(line)
+        if row.get('node_name') != node:
+            raise ValueError('decision node identity differs from configured worker')
+        self.observe_trigger(row, now)
+        self.count('decision_rows_read')
+
+    def drain_decision_streams(self):
+        for worker in self.cfg['workers']:
+            node = worker['node_name']; stream = self.decision_streams.get(node)
+            if stream and stream['child'].poll() is not None:
+                self.issue('decision_stream_disconnected', node=node)
+                self.stop_stream(stream); del self.decision_streams[node]; stream = None
+            if stream is None:
+                self.start_decision_stream(worker); continue
+        lookup = {s['child'].stdout: (n, s) for n, s in self.decision_streams.items()}
+        for pipe in (select.select(list(lookup), [], [], 0)[0] if lookup else []):
+            node, stream = lookup[pipe]
+            chunk = os.read(pipe.fileno(), 1 << 20)
+            if not chunk:
+                continue
+            *lines, stream['buffer'] = (stream['buffer'] + chunk).split(b'\n')
+            now = time.time()
+            for line in lines:
+                try:
+                    self.ingest_decision_line(line, node, now)
+                except (ValueError, TypeError, KeyError):
+                    self.count('invalid_decisions')
+
     def tail_decisions(self):
         for worker in self.cfg['workers']:
             root = Path(worker['output'])
@@ -432,15 +510,20 @@ class Service:
                         if key not in self.streams and sensor and now>=retry.get(key, 0):
                             self.start_stream(node, sensor, channel)
                 self.drain_streams()
+                if self.cfg.get('decision_stream'):
+                    self.drain_decision_streams()
                 if now>=tail:
-                    try: self.tail_decisions(); self.emit_cases()
+                    try:
+                        if not self.cfg.get('decision_stream'): self.tail_decisions()
+                        self.emit_cases()
                     except OSError as exc: self.issue('decision_or_case_storage_unavailable', error_type=type(exc).__name__)
-                    tail = now+1
+                    # streamed decisions arrive continuously; check case readiness more often
+                    tail = now + (.25 if self.cfg.get('decision_stream') else 1)
                 if now>=checkpoint:
                     self.maintenance(); checkpoint = now+5
                 time.sleep(.05)
         finally:
-            for stream in self.streams.values(): self.stop_stream(stream)
+            for stream in [*self.streams.values(), *self.decision_streams.values()]: self.stop_stream(stream)
             self.db.commit(); self.db.close(); pool.shutdown(wait=True)
 
 
