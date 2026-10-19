@@ -92,7 +92,9 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] RCA flow 3% → 78%: nguyên nhân là backlog ~80 s do hook file quá rộng; đã thu hẹp policy (19/10 16:35).
 - ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 
-## Ưu tiên 3 — Dọn cụm (bạn đã cho phép tự quyết 18/10)
+## Ưu tiên 3 — Dọn cụm
+
+- [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) lúc 20/10 02:05 để R7 đủ chỗ. (bạn đã cho phép tự quyết 18/10)
 
 - [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).
 - [ ] **(chạy tay)** Gỡ admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`,

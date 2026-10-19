@@ -40,11 +40,12 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 | Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
 | RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
 | `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
-| `pulse-rolling-recalibration-20261020` | Timer 20/10 03:30, sau khi R6 kết thúc (đọc ~200 GB từ NFS, không chạy khi đang thu dữ liệu đánh giá) |
+| `pulse-compress-raw-48h-20261020` | Timer 20/10 02:05: nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc (`scripts/compress_raw_frames.py`) |
+| `pulse-rolling-recalibration-20261020b` | Timer 20/10 02:15, trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
 | `pulse-r7-selection-20261020` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7 |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
-| NFS `/mnt/sentinel-pulse-archive` | ~245/344 GB (72%) |
+| NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. R6 cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi R7 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
 | Ổ đĩa worker | worker1 80%, worker4 84%, worker3 55%; dữ liệu thô cũ chờ xóa tay (mục 8) |
 
 ## 3. Thuật ngữ
@@ -426,3 +427,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 16:23 | Kiểm tra sau khi phiên khởi động lại: campaign tiếp nối và job syscall đã xong; R6 vẫn chạy | mục 2, 5.5 |
 | 16:27 | Ghi quy tắc: soak/lượt live phải chạy hết chu kỳ, không dừng hay đánh fail giữa chừng | mục 2 |
 | 16:35 | Policy RCA thu hẹp: lưu lượng Tetragon worker1 giảm ~8× (17.393 → 2.096 sự kiện / 10 s), giảm cả overhead trên node đang chạy R6 | [RCA](RCA_RUNTIME_STATUS.md) mục 5.8 |
+| 17:16 | Kiểm tra sức khỏe: 3 worker R6 cập nhật đều; RCA r6c 2.453 case; NFS còn 52 GB → không đủ cho R7 | mục 2 |
+| 17:20 | Hẹn nén `raw.jsonl` soak 48 giờ lúc 02:05 (kiểm tra seal, không mất dữ liệu); dời rolling sang 02:15 để không chạy cùng R7; bật watcher kiểm tra 5 phút/lần (heartbeat, cadence gap, RCA, NFS) | `scripts/compress_raw_frames.py` |
