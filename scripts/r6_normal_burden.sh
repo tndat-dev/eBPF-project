@@ -28,7 +28,10 @@ starts = [float(json.loads(l)['start_at']) for l in (root/'INTERVALS.jsonl').rea
 print(f"{min(starts) - 60}:{json.loads((root/'TERMINAL.json').read_text())['finished_at_unix'] + 60}")
 PY
 }
-EXCL=(--exclude "$(span "$MAIN")" --exclude "$(span "$FOLLOW")")
+# 18:25-19:20 (19/10): cluster incident (heavy analysis jobs, master2 NotReady, Longhorn rebuild,
+# monitored pods restarted); excluded before any R6 normal result was looked at.
+INCIDENT=1792409100:1792412400
+EXCL=(--exclude "$(span "$MAIN")" --exclude "$(span "$FOLLOW")" --exclude "$INCIDENT")
 cd /tmp
 export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 run() { /home/dat/ml-venv/bin/python -m sentinel_pulse.attack.confirmation_study "$@" --model-hash $MODEL --policy-hash $POLICY; }

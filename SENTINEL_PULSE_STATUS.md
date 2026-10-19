@@ -300,6 +300,9 @@ Job `pulse-r7-selection-20261020` chạy sau khi R6 kết thúc. Mỗi khoảng 
 2. **Làm mới calibration:** hiệu chỉnh lại candidate `ec72d9ea…` bằng normal R6 13:00–19:00 (19/10). Đây chính là bước "làm mới định kỳ" trong vận hành thật.
 3. **Đo với calibration mới:** gánh cảnh báo trên 19:00–02:04, và replay cả hai campaign R6.
 
+**Sửa đổi 19/10 19:17** (do sự cố hạ tầng, đưa ra trước khi xem bất kỳ kết quả normal nào của R6):
+- Loại khoảng **18:25–19:20** khỏi cả khoảng hiệu chỉnh (thực tế còn 13:00–18:25) lẫn khoảng đánh giá (thực tế 19:20–02:04). Xem mục 8b.
+
 **Luật chọn, đăng ký trước khi có số:**
 - Ưu tiên calibration làm mới nếu nó giảm số đợt cảnh báo mà không làm giảm recall quá 2 điểm phần trăm.
 - Trong các chính sách có p95 replay ≤ 2,3 s (đường nhanh dự kiến bớt ~0,35 s), precision và recall ≥ 95%, control ≤ 5%, chọn chính sách có **ít đợt cảnh báo/giờ nhất**.
@@ -415,7 +418,13 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
 - `redis-ha` tự hồi phục.
 - Cadence gap của R6 đứng lại; R6 tiếp tục chạy hết chu kỳ, không bị dừng.
 
-**Hệ quả cho dữ liệu:** các cửa sổ sau cadence gap tự động không được tính là normal. Khoảng 18:30–19:15 sẽ được ghi rõ khi phân tích normal của R6.
+**Ảnh hưởng tới R6:**
+- **Không ảnh hưởng:** kết quả hai campaign (03:47–12:50) và tính liên tục của capture 24 giờ (worker không dừng).
+- **Ảnh hưởng:** normal 18:30–19:15.
+  - ~200 cadence gap thêm, mỗi lần reset history của node.
+  - Workload đang giám sát khởi động lại hoặc đổi pod: `aims-kafka-entity-operator` và pod mới `aims-kafka-dual-role-0` (18:51); `cart-service` và pod mới `aims-redis-2` (18:52); `aims-postgres-cnpg-1/2` (19:00).
+  - Hành vi ứng dụng lúc cụm đang hồi phục không phải normal.
+- **Xử lý:** loại khoảng **18:25–19:20** khỏi mọi phân tích normal của R6, kể cả job chọn R7 (mục 5.7).
 
 **Đã đổi:**
 - Mọi job phân tích nặng (đọc NFS hoặc tốn RAM) chạy sau khi R6 kết thúc: 20/10 02:20, trên `.234`, MemoryMax 32 GB.
@@ -515,3 +524,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 18:55 | Phát hiện cadence gap tăng do 3 job nặng chạy cùng lúc (NFS server dùng chung) → dừng cả 3 | mục 8b |
 | 19:01–19:09 | Master2 NotReady (kernel dồn bộ nhớ, soft lockup) → `drop_caches`, Ready lúc 19:09:48; Longhorn tự rebuild | mục 8b |
 | 19:11 | Kiểm kê: v8 đã không còn; còn Bookinfo, `default/keycloak` (không phục vụ AIMS) và bản ghi pod chết → script chạy tay (`kubectl delete` bị chặn); dời các job nặng sang `.234` lúc 02:20, MemoryMax 32 GB | mục 8b |
+| 19:17 | Đánh giá ảnh hưởng sự cố tới R6 (campaign không bị ảnh hưởng; normal 18:30–19:15 bị) → thêm loại trừ 18:25–19:20 vào job chọn R7 | mục 5.7, 8b |
