@@ -7,19 +7,19 @@
 #     holdout score dump), now including the benign-launch positive rate.
 set -euo pipefail
 SRC=${SRC:?source snapshot}
-R4=/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015
-pulse-live-recalibrated=/mnt/sentinel-pulse-archive/matched-r6-20261018
-MAIN=$pulse-live-recalibrated/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
-FOLLOW=$pulse-live-recalibrated/coordinator-rca-followup-20261019/pulse-development-matrix
+SYSCALL_ROOT=/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015
+LIVE_ROOT=/mnt/sentinel-pulse-archive/matched-r6-20261018
+MAIN=$LIVE_ROOT/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
+FOLLOW=$LIVE_ROOT/coordinator-rca-followup-20261019/pulse-development-matrix
 until [ -f "$FOLLOW/TERMINAL.json" ]; do sleep 120; done
 cd /tmp
 export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 /home/dat/ml-venv/bin/python -u -m sentinel_pulse.syscall_study.arm_attack_replay \
-  --study "$R4/syscall-matched-study" --workers-root "$pulse-live-recalibrated/workers" \
+  --study "$SYSCALL_ROOT/syscall-matched-study" --workers-root "$LIVE_ROOT/workers" \
   --campaign "$MAIN" --campaign "$FOLLOW" \
   --alpha-scale 1 --alpha-scale 3 --alpha-scale 5 --alpha-scale 10 \
-  --output "$pulse-live-recalibrated/analysis-20261019/arm-replay-r6"
+  --output "$LIVE_ROOT/analysis-20261019/arm-replay-r6"
 /home/dat/ml-venv/bin/python -u -m sentinel_pulse.syscall_study.arm_budget \
-  --study "$R4/syscall-matched-study" --dump-root "$R4/score-dump-20261018" \
-  --replay "$pulse-live-recalibrated/analysis-20261019/arm-replay-r6" --campaign "$MAIN" --campaign "$FOLLOW" \
-  --output "$pulse-live-recalibrated/analysis-20261019/arm-budget-r6"
+  --study "$SYSCALL_ROOT/syscall-matched-study" --dump-root "$SYSCALL_ROOT/score-dump-20261018" \
+  --replay "$LIVE_ROOT/analysis-20261019/arm-replay-r6" --campaign "$MAIN" --campaign "$FOLLOW" \
+  --output "$LIVE_ROOT/analysis-20261019/arm-budget-r6"

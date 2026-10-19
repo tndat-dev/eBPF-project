@@ -8,25 +8,26 @@
 # then the paired workload-clustered bootstrap of protocol v2.
 set -euo pipefail
 SRC=${SRC:?source snapshot}
-R4=/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015
-pulse-live-recalibrated=/mnt/sentinel-pulse-archive/matched-r6-20261018
-R3C=/mnt/sentinel-pulse-archive/matched-parallel-r3-20261015/pulse-development-matrix
-R5C=/mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-development-matrix
-MAIN=$pulse-live-recalibrated/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
-FOLLOW=$pulse-live-recalibrated/coordinator-rca-followup-20261019/pulse-development-matrix
-OUT=$R4/bootstrap-20261020b   # bootstrap-20261020 holds a replay stopped at 18:55 (IO contention), not used
+SYSCALL_ROOT=/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015
+LIVE_ROOT=/mnt/sentinel-pulse-archive/matched-r6-20261018
+DEV_CAMPAIGN=/mnt/sentinel-pulse-archive/matched-parallel-r3-20261015/pulse-development-matrix
+DEV_RABBITMQ_CAMPAIGN=/mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-development-matrix
+MAIN=$LIVE_ROOT/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
+FOLLOW=$LIVE_ROOT/coordinator-rca-followup-20261019/pulse-development-matrix
+OUT=$SYSCALL_ROOT/syscall-arms-bootstrap   # bootstrap-20261020/ holds a replay stopped at 18:55 (IO contention), not used
 mkdir -p "$OUT"
 cd /tmp
 PY=${PY:-/home/dat/ml-venv/bin/python}
 export PYTHONPATH=${PYLIB:+$PYLIB:}$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 py() { "$PY" -u -m "$@"; }
-py sentinel_pulse.syscall_study.arm_attack_replay --study "$R4/syscall-matched-study" \
-  --campaign "$R3C" --campaign "$R5C" --alpha-scale 1 --output "$OUT/replay-r3r5"
-py sentinel_pulse.syscall_study.arm_attack_replay --study "$R4/syscall-matched-study" --workers-root "$pulse-live-recalibrated/workers" \
-  --campaign "$MAIN" --campaign "$FOLLOW" --alpha-scale 1 --output "$OUT/replay-r6"
-for set in r3r5 r6; do
-  campaigns=(--campaign "$R3C" --campaign "$R5C"); [ $set = r6 ] && campaigns=(--campaign "$MAIN" --campaign "$FOLLOW")
-  py sentinel_pulse.syscall_study.arm_budget --study "$R4/syscall-matched-study" --dump-root "$R4/score-dump-20261018" \
+py sentinel_pulse.syscall_study.arm_attack_replay --study "$SYSCALL_ROOT/syscall-matched-study" \
+  --campaign "$DEV_CAMPAIGN" --campaign "$DEV_RABBITMQ_CAMPAIGN" --alpha-scale 1 --output "$OUT/replay-pulse-attack-dev"
+py sentinel_pulse.syscall_study.arm_attack_replay --study "$SYSCALL_ROOT/syscall-matched-study" --workers-root "$LIVE_ROOT/workers" \
+  --campaign "$MAIN" --campaign "$FOLLOW" --alpha-scale 1 --output "$OUT/replay-pulse-live-recalibrated"
+for set in pulse-attack-dev pulse-live-recalibrated; do
+  campaigns=(--campaign "$DEV_CAMPAIGN" --campaign "$DEV_RABBITMQ_CAMPAIGN")
+  [ $set = pulse-live-recalibrated ] && campaigns=(--campaign "$MAIN" --campaign "$FOLLOW")
+  py sentinel_pulse.syscall_study.arm_budget --study "$SYSCALL_ROOT/syscall-matched-study" --dump-root "$SYSCALL_ROOT/score-dump-20261018" \
     --replay "$OUT/replay-$set" "${campaigns[@]}" --output "$OUT/budget-$set"
   py sentinel_pulse.syscall_study.arm_bootstrap --budget-dir "$OUT/budget-$set" --output "$OUT/BOOTSTRAP-$set.json"
 done
