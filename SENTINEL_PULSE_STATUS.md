@@ -268,6 +268,23 @@ Profile trên frame thật cho thấy ~85% thời gian nằm ở `predict_proba`
   - CPU **42,4 s so với 208,9 s** (nhanh ~4,9×).
 - **Ước tính.** Thời gian từ cuối cửa sổ đến preview giảm xuống ~0,1 s, nên p95 của k2of2_a10 có thể còn ~1,95 s. Con số thật phải đo live ở R7.
 
+### 5.5b Giả thuyết "syscall chưa từng thấy" (đăng ký tiêu chí 19/10 18:48, trước khi có kết quả)
+
+- **Câu hỏi.** Gắn cờ khi container gọi một syscall ID không có trong normal của workload đó: cách này có tách attack khỏi process vô hại mới không? Binary vô hại chỉ gọi `getpid`/`nanosleep`; attack `ptrace`/`setns`/`execveat` dùng các syscall mà thí nghiệm C3 thấy bằng 0 trên normal.
+- **Dữ liệu.**
+  - Normal tham chiếu: tập ID theo workload trên R6 13:00–~18:30 (các segment đã niêm phong; không có campaign).
+  - Interval: hai campaign R6 (420 cặp).
+  - Script: `scripts/analysis/novel_syscalls.py`; job `pulse-novel-syscalls-20261019` trên `.235`.
+- **Tiêu chí "hữu ích", ghi trước:**
+  1. Tỉ lệ binary vô hại có ID mới ≤ 10%.
+  2. Tỉ lệ attack có ID mới ≥ 90% với ít nhất 2/3 kịch bản `ptrace`/`setns`/`execveat`.
+  3. Tỉ lệ control idle có ID mới ≤ 5%.
+
+  Không đạt cả ba thì ghi là không hữu ích như một bộ dò riêng.
+- **Giới hạn biết trước.**
+  - Tham chiếu và interval cùng lấy từ một lượt capture (khác khoảng thời gian), nên đây là development.
+  - Kịch bản không dùng syscall lạ (`mprotect`, `seccomp`) dự kiến không bị bắt.
+
 ### 5.6 Hiệu chỉnh lại định kỳ (đang chờ chạy)
 
 - **Module:** `attack/rolling_recalibration.py`.
@@ -458,3 +475,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 18:30 | Dọn ổ worker theo yêu cầu: ~530 GB dữ liệu thô và checkout cũ, 15 unit cũ; `kubectl delete` phần v8 vẫn bị chặn | mục 8 |
 | 18:36 | Chạy nén `raw.jsonl` trên `.236` ngay (tỉ lệ 4,4×); chạy job syscall trên `.235` (venv đúng sklearn 1.9.0) | mục 2 |
 | 18:41 | Đọc trong suốt file nén đã kiểm tra seal (`open_sealed`, `sealed_sha256`, `bounds`) + bộ nén tổng quát, 305 test pass; xếp job nén `features`/`decisions` 48 giờ sau các bước phụ thuộc; job rolling dùng snapshot mới | `3bb0e74` |
+| 18:48 | Đăng ký tiêu chí cho giả thuyết "syscall chưa từng thấy" trước khi có số; chạy phân tích trên `.235` | mục 5.5b, `5471a5d` |
