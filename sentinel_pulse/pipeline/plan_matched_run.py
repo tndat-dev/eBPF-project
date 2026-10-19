@@ -32,9 +32,10 @@ PROFILES={
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
-def plan(source,root,run_id,smoke=False,profile='r1',frozen_source=None):
+def plan(source,root,run_id,smoke=False,profile='r1',frozen_source=None,custom=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
-    spec=PROFILES[profile]
+    # custom: every pinned value comes from the command line (later runs need no code change)
+    spec=dict(custom) if profile=='custom' else PROFILES[profile]
     candidate=Path(spec['candidate'])
     policy=source/spec['policy']
     exec_policy=source/'testbed/k8s/tetragon-sentinel-pulse-exec-provenance.yaml'
@@ -92,6 +93,17 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('source','root'):p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--run-id',required=True);p.add_argument('--smoke',action='store_true')
-    p.add_argument('--profile',choices=sorted(PROFILES),default='r1')
+    p.add_argument('--profile',choices=sorted(PROFILES)+['custom'],default='r1')
     p.add_argument('--frozen-source',type=Path,help='source snapshot whose scorer bytes the worker must match')
-    a=p.parse_args();plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source)
+    for key in ('candidate','model-hash','policy','policy-hash','fixture'):p.add_argument('--'+key)
+    p.add_argument('--seconds',type=int,default=86400)
+    for key in ('benign-exec-control','no-raw-frames','fast-scoring'):p.add_argument('--'+key,action='store_true')
+    a=p.parse_args()
+    custom=None
+    if a.profile=='custom':
+        if not all((a.candidate,a.model_hash,a.policy,a.policy_hash,a.fixture)):
+            p.error('custom profile needs --candidate --model-hash --policy --policy-hash --fixture')
+        custom=dict(candidate=a.candidate,model_hash=a.model_hash,policy=a.policy,policy_hash=a.policy_hash,
+                    fixture=a.fixture,seconds=a.seconds,benign_exec_control=a.benign_exec_control,
+                    write_raw_frames=not a.no_raw_frames,fast_scoring=a.fast_scoring)
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom)
