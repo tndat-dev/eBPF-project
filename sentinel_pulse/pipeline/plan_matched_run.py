@@ -20,14 +20,14 @@ PROFILES={
         policy='sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json',
         policy_hash='fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401',
         fixture='testbed/attack/runtime_attack_blind_b1.c',seconds=172800,
-        benign_exec_control=False,write_raw_frames=True),
+        benign_exec_control=False,write_raw_frames=True,fast_scoring=False),
     # 24 h without raw.jsonl: the 48 h r1 layout (~4.9 GB/h) no longer fits the NFS share.
     'r6':dict(candidate='/mnt/sentinel-pulse-archive/runtime-recal-c1-20261018/model-bundle',
         model_hash='ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4',
         policy='sentinel_pulse/protocol/recalibrated-preview-policy-r6.json',
         policy_hash='f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb',
         fixture='testbed/attack/runtime_attack_r6.c',seconds=86400,
-        benign_exec_control=True,write_raw_frames=False),
+        benign_exec_control=True,write_raw_frames=False,fast_scoring=False),
 }
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
@@ -57,7 +57,7 @@ def plan(source,root,run_id,smoke=False,profile='r1',frozen_source=None):
         campaign_output=str(root/'pulse-development-matrix'),study_output=str(root/'syscall-matched-study'),
         traffic_output=str(root/'traffic'),binary=str(binary),binary_hash=sha256_file(binary),
         fixture_source=spec['fixture'],benign_exec_control=spec['benign_exec_control'],
-        write_raw_frames=spec['write_raw_frames'],
+        write_raw_frames=spec['write_raw_frames'],fast_scoring=spec.get('fast_scoring',False),
         native_syscall_ids=sorted(set(native)),native_syscall_header=dict(path=str(header),sha256=sha256_file(header)),
         created_at=time.time(),source_commit=subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'],text=True).strip(),
         matched_observable='500ms full-ID + 249 baseline + transitions + rolling10 + history3 + tree/support',

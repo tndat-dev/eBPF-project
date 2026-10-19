@@ -40,9 +40,9 @@ def _row(window_end):
                 workload_key='production/app:app', window_end=window_end, candidate_alert_preview=True)
 
 
-def _exec_event(svc, at):
+def _exec_event(svc, at, binary='/tmp/x'):
     svc.db.execute('insert into events values(?,?,?,?,?,?)', (f'h{at}', at, 'n1', 'u1', 'app',
-                   '{"operation":"exec","source":{"binary":"/tmp/x"}}'))
+                   '{"operation":"exec","source":{"binary":"%s"}}' % binary))
 
 
 def test_new_exec_inside_cooldown_opens_a_bounded_follow_up_case():
@@ -65,3 +65,15 @@ def test_follow_up_is_off_unless_registered():
     _exec_event(svc, 110.0)
     svc.observe_trigger(_row(112.0), now=113.0)
     assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
+
+
+def test_periodic_probe_binaries_do_not_open_follow_ups():
+    svc = _service(follow_up_on_new_exec=True, before_seconds=30)
+    _exec_event(svc, 40.0, '/bin/sh')                     # probe seen before the first case window
+    _exec_event(svc, 95.0, '/tmp/benign')                 # launched inside the first case window
+    svc.observe_trigger(_row(100.0), now=101.0)
+    _exec_event(svc, 110.0, '/bin/sh')                    # probe again -> not new
+    svc.observe_trigger(_row(112.0), now=113.0)
+    _exec_event(svc, 120.0, '/tmp/benign')                # same path as the benign launch -> still new
+    svc.observe_trigger(_row(124.0), now=125.0)
+    assert svc.db.execute('select count(*) from cases').fetchone()[0] == 2

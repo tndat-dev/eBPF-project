@@ -262,9 +262,16 @@ class Service:
             return False
         since = event_time(json.loads(recent[1])['window_end'])
         node, pod, container = identity(row)
-        return self.db.execute("select 1 from events where node=? and pod=? and container=? and at>? and at<=? "
-                               "and instr(document, '\"operation\":\"exec\"')>0 limit 1",
-                               (node, pod, container, since, event_time(row['window_end']))).fetchone() is not None
+
+        def exec_binaries(lo, hi):
+            rows = self.db.execute("select document from events where node=? and pod=? and container=? and at>? and at<=? "
+                                   "and instr(document, '\"operation\":\"exec\"')>0", (node, pod, container, lo, hi))
+            return {json.loads(d)['source'].get('binary') for (d,) in rows}
+        new = exec_binaries(since, event_time(row['window_end']))
+        # Periodic probes (kafka/redis exec 36-72 times/min) re-run the same binaries:
+        # only a binary absent from the ring before the previous case's window counts.
+        reference = exec_binaries(float('-inf'), since - self.cfg.get('before_seconds', 30))
+        return bool(new - reference)
 
     def tail_decisions(self):
         for worker in self.cfg['workers']:
