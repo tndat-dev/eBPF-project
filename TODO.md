@@ -27,6 +27,11 @@ xóa/dừng trên máy chung hoặc công khai lên GitHub.
 
 ## Ưu tiên 0 — Giảm cảnh báo trên dữ liệu bình thường
 
+- [ ] **Mới (19/10):** giảm độ trễ xử lý cuối cửa sổ → preview (0,25–0,5 s/frame, tỉ lệ với số container) để
+      xác nhận 2 cửa sổ (k2of2, đạt 3/4 kỳ vọng trên R6) vào được p95 < 2 s.
+- [ ] **Mới (19/10):** đặc trưng/luật tách attack khỏi process vô hại mới (binary vô hại bị gắn cờ 80,7%);
+      độ bền tín hiệu trong 15 s là dấu hiệu mạnh nhưng chậm.
+
 Đây là điểm nghẽn chung: candidate hiện tại bật cờ ở ~8% cửa sổ normal (mức danh
 nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh báo/giờ (ngân sách 0,1).
 
@@ -52,6 +57,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Bundle candidate đã hiệu chỉnh lại (`ec72d9ea…`) và policy preview v2 (alpha + k-of-n) trong live path.
 - [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
+- [x] Campaign R6 xong 19/10 09:52 (capture chạy đến 20/10 02:04): precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s.
 - [~] Chạy lượt live R6 (profile `r6`, 24 h, không ghi raw.jsonl — xem STATUS mục 5.9): normal soak mới + campaign attack có `benign_exec_control: true` (fixture R6),
       bật policy RCA flow và subscriber r3 có `binary_baseline_frozen_at`.
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật (hiện mới đo đến lúc ghi preview).
@@ -61,10 +67,10 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 - [x] R4 holdout: không cấu hình nào đạt ngân sách cảnh báo; khác biệt giữa các cấu hình
       (18,6–20,8 đợt/giờ) nằm trong dao động giữa các seed → chưa chọn được bộ syscall.
-- [~] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`): worker4/3 xong, worker1 48/49 segment.
+- [x] Xuất điểm đầy đủ của 693 model trên holdout (`pulse-r4-score-dump-*`), khớp evaluator đã đăng ký.
 - [x] Replay attack R3/R5 cho cả 11 cấu hình (`arm-attack-replay-r3r5-20261018`): ở alpha×1 p95 2,1–3,4 s; `drop_exec_pair` kém nhất.
-- [~] Áp dụng cùng phương pháp hiệu chỉnh lại/ngưỡng của Pulse cho 11 cấu hình và so ở cùng ngân sách
-      cảnh báo (`arm_budget.py`, job `pulse-r4-arm-budget-20261019`).
+- [x] So 11 cấu hình ở cùng ngân sách cảnh báo sau hiệu chỉnh lại (`arm-budget-20261019`): không cấu hình nào
+      đạt ≤ 1 đợt/giờ; khác biệt trong nhiễu; giữ `base29` cho Pulse.
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
       kernel → cảnh báo cho từng cấu hình (feature nhiều hơn có thể chậm hơn).
 - [ ] Đưa bộ syscall được chọn vào candidate Pulse kế tiếp (fit lại, đóng băng, blind test).
@@ -77,7 +83,8 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
 - [x] Áp dụng policy flow + chạy subscriber r6 (`pulse-rca-runtime-events-r6`) cùng lượt R6 (19/10 02:14).
 - [x] Sửa rò tiến trình `tetra getevents` trong container Tetragon (campaign + RCA), dọn 378 tiến trình mồ côi (19/10).
-- [ ] Chạy `rca.evaluate_ranking` trên case của lượt R6 (top-1/3/5).
+- [x] Chạy `rca.evaluate_ranking` trên case R6: 36/315 attack có case, top-1 100%.
+- [ ] RCA: mở case tiếp nối khi có exec mới trong cooldown 300 s; tăng giới hạn lưu cho lượt 24 h; điều tra flow chỉ có ở 12% case.
 - ~~Thử reboot, mất NFS, backlog~~ — **bỏ theo quyết định của bạn (18/10)**: không thử bất kỳ thao tác nào tác động vào infra.
 
 ## Ưu tiên 3 — Dọn cụm (bạn đã cho phép tự quyết 18/10)

@@ -10,15 +10,14 @@ duy nhất được cập nhật; việc cần làm nằm ở [../TODO.md](../TO
   Khi có tín hiệu, một dịch vụ riêng dựng đồ thị bằng chứng (process, file, mạng) để điều tra.
 - **Đang ở đâu:** pipeline chạy được end-to-end trên 3 worker thật, ở chế độ shadow
   (chỉ ghi "cảnh báo thử", không cảnh báo thật, không cách ly pod).
-- **Kết quả mới nhất:** phát hiện tốt (recall ~98–99% trên tập attack phát triển,
-  độ trễ p95 ~1,6 s) nhưng **cảnh báo nhầm quá nhiều**: precision 79,8% trong thiết kế
-  1:1, khoảng 8% cửa sổ của dữ liệu bình thường bị gắn cờ (mức thiết kế 0,17%), và
-  ~19–20 đợt cảnh báo mỗi workload-giờ so với ngân sách 0,1.
-- **Kết luận chính:** nút thắt là **hiệu chỉnh ngưỡng (calibration) không theo kịp
-  dữ liệu bình thường thay đổi**, không phải model thiếu nhạy. Chỉ tính lại p-value bằng
-  dữ liệu normal gần hơn (không đổi model) đã đưa precision R3 lên 97,8% và giảm cửa sổ
-  normal bị gắn cờ từ 8,1% xuống 0,35%, đổi lại recall 91,3% và p95 2,9 s. Chưa có cấu
-  hình đạt đồng thời precision/recall ≥ 95%, cảnh báo nhầm theo khoảng ≤ 5%, p95 < 2 s.
+- **Kết quả mới nhất (lượt live R6, 19/10):** precision 89,1%, recall 92,8%, control idle dương 11,2%,
+  p95 kernel → preview 1,90 s, ~17 đợt cảnh báo mỗi replica-giờ trên normal. **Một binary vô hại chạy cùng
+  đường khởi chạy bị gắn cờ 80,7%** → Pulse phát hiện "process bất thường", chỉ tách rõ attack dùng syscall
+  hiếm (ptrace, setns, execveat). Xác nhận 2 cửa sổ (replay) đạt precision/recall ≥ 95% và control ≤ 5%
+  nhưng p95 2,3–2,9 s; độ trễ xử lý 0,25–0,5 s/frame là đòn bẩy tiếp theo.
+- **Kết luận chính:** (1) gánh cảnh báo do calibration lệch theo thời gian: hiệu chỉnh lại giảm cửa sổ normal
+  bị gắn cờ 8,1% → 0,35% nhưng vẫn ~6–17 đợt/replica-giờ, xa ngân sách 0,1; (2) chọn syscall không phải
+  nút thắt (11 cấu hình ngang nhau ở cùng ngân sách); (3) đánh giá phải có đối chứng binary vô hại.
 - **Phiên 18/10:** dọn và tổ chức lại code; thu kết quả soak 48 giờ và holdout R4;
   chạy nghiên cứu "xác nhận nhiều cửa sổ" và "hiệu chỉnh lại p-value" trên dữ liệu phát triển;
   chọn policy R6 và khởi động **lượt live R6** (mục 5.9). Mọi thao tác được ghi theo thứ tự
@@ -253,8 +252,23 @@ interval R3/R5 (315 attack + 315 control), p-value hiệu chỉnh gốc của t�
 - Bỏ cặp transition exec (`drop_exec_pair`) làm recall giảm rõ nhất → tín hiệu "có process mới" đóng góp
   lớn; đối chứng binary vô hại của R6 sẽ cho biết bao nhiêu trong đó là hành vi tấn công thật.
 - `plus_all_defined_native` / `plus_all_observed` có control dương thấp nhất và p95 nhanh nhất ở ×5/×10.
-- Các cấu hình gần nhau ở cùng alpha; so sánh quyết định phải ở **cùng ngân sách cảnh báo** sau hiệu chỉnh
-  lại → job `pulse-r4-arm-budget-20261019` (`sentinel_pulse/syscall_study/arm_budget.py`, `a9cc061`):
+- **Kết quả so ở cùng ngân sách cảnh báo (`arm-budget-20261019`, nội suy theo số đợt/replica-giờ):**
+
+  | Cấu hình | B=5: recall / control / p95 | B=12: recall / control / p95 | B=18: recall / control / p95 |
+  |---|---|---|---|
+  | `base29` (bộ hiện tại của Pulse) | 0,900 / 1,8% / 2,05 s | 0,927 / 4,8% / 1,53 s | 0,930 / 6,9% / 1,52 s |
+  | `drop_clone_pair` | 0,897 / 1,8% / **1,30 s** | 0,934 / 4,7% / 1,23 s | 0,941 / 7,8% / 1,14 s |
+  | `plus_security` | 0,900 / 1,9% / 1,94 s | 0,926 / 4,8% / 1,53 s | 0,932 / 7,9% / 1,35 s |
+  | `plus_all_defined_native` | 0,888 / 4,2% / 3,18 s | **0,987** / 8,2% / 1,22 s | 0,990 / 11,0% / 0,99 s |
+  | `plus_all_observed` | 0,885 / 3,9% / 3,81 s | 0,981 / 8,5% / 1,99 s | 0,984 / 11,5% / 1,27 s |
+  | `drop_exec_pair` | 0,806 / 1,8% / 1,87 s | 0,852 / 4,6% / 1,50 s | 0,875 / 7,4% / 1,46 s |
+
+  - **Không cấu hình nào đạt ngân sách 0,1 hay 1 đợt/replica-giờ** bằng ngưỡng (thấp nhất 2,8 đợt ở alpha×0,5).
+  - Mở rộng toàn bộ syscall (`plus_all_*`) tăng recall khi ngân sách rộng, nhưng tăng control dương và chậm
+    ở ngân sách chặt; các cấu hình 29 syscall khác nhau trong phạm vi nhiễu; bỏ cặp exec luôn kém nhất.
+  - **Kết luận cho Pulse:** giữ `base29` cho candidate kế tiếp; chọn syscall không phải nút thắt. Gánh cảnh báo
+    phải giải bằng hiệu chỉnh/gộp theo thời gian và xử lý workload ồn.
+- Job `pulse-r4-arm-budget-20261019` (`sentinel_pulse/syscall_study/arm_budget.py`, `a9cc061`):
   hiệu chỉnh từng model bằng 20% đầu holdout, đếm đợt cảnh báo trên 80% còn lại, chọn alpha lỏng nhất
   trong ngân sách 0,1 / 1 / 5 / 18 đợt mỗi replica-giờ rồi so recall, control dương, p95.
 
@@ -300,6 +314,68 @@ của subscriber RCA khi nối lại stream, và của v8 (`sentinel-aims-syscal
   Quy tắc từ giờ: không chạy phân tích đọc NFS nặng trên .234 trong lúc có lượt live.
 - Hệ quả cho các kết quả cũ: tải này có thể đã làm lệch đo overhead và một phần cảnh báo/độ trễ của
   các lượt trước (worker4 từng có 7–9 cadence gap mỗi segment trong 6 giờ đầu soak 48 h). Cần nêu trong báo cáo.
+
+#### Kết quả campaign R6 (xong 19/10 09:52, 315/315 cặp)
+
+Live, shadow, policy R6 đúng như đăng ký (không chỉnh sau khi xem kết quả). Nhãn là nhãn kỳ vọng, chưa review.
+
+| Chỉ số | R6 live | Dự đoán development |
+|---|---|---|
+| Precision (1 attack : 1 control idle) | **89,1%** | 94,3% |
+| Recall | **92,8%** (TP 285 / FN 22; unknown 11) | 93,4% |
+| Control idle dương | 11,2% (35/312) | 5,2% |
+| **Binary vô hại dương** | **80,7%** (251/311) | — |
+| Kernel → preview p50 / p95 / p99 | 1,03 / **1,90** / 5,39 s | p95 1,97 s |
+| Đợt cảnh báo normal (02:07–02:20) | 17,2 / replica-giờ | 18 |
+
+**Phát hiện chính — Pulse phát hiện "process bất thường", chưa phân biệt ác ý.** Binary vô hại (cùng đường
+khởi chạy, chỉ gọi `getpid` 6–24 lần/giây trong 15 s) bị gắn cờ 80,7%, gần bằng recall attack 92,8%.
+
+| Kịch bản | Attack dương | Binary vô hại dương | Control idle |
+|---|---|---|---|
+| `child_ptrace_handshake` | 1,00 | 0,81 | 0,10 |
+| `execveat_resolution_probe` | 1,00 | 0,79 | 0,11 |
+| `invalid_setns_burst` | 1,00 | 0,81 | 0,11 |
+| `anonymous_mprotect_churn` | 0,84 | 0,83 | 0,11 |
+| `seccomp_api_probe` | 0,80 | 0,81 | 0,15 |
+
+- Với syscall hiếm, mang tính bảo mật (ptrace, setns, execveat): attack bền hơn hẳn — trung vị **100%**
+  cửa sổ trong 15 s dương, so với **33%** ở binary vô hại và ~0% ở control.
+- `mprotect` churn và probe seccomp: không tách được khỏi một process vô hại mới.
+- Hệ quả: precision 1:1 ở trên chỉ tính control idle; nếu tính binary vô hại là âm tính thì precision
+  thấp hơn nhiều. Báo cáo đồ án phải trình bày cả hai.
+
+**Replay chính sách trên dữ liệu R6** (`analysis-20261019/attack-r6-{default,looser}.json`; replay
+k1of1_a3 tái lập đúng kết quả live). Development, chọn sau khi xem R6 → không phải kết quả blind:
+
+| Chính sách | Precision | Recall | Control | Benign | p95 |
+|---|---|---|---|---|---|
+| k1of1_a1 | 94,9% | 91,2% | 4,8% | 72% | 2,54 s |
+| k1of1_a3 (R6) | 89,1% | 92,8% | 11,2% | 81% | 1,90 s |
+| k1of1_a5 | 85,7% | 97,7% | 16,0% | 93% | 1,67 s |
+| **k2of2_a5** | **97,4%** | **95,8%** | **2,6%** | 82% | 2,88 s |
+| k2of2_a10 | 95,0% | 98,0% | 5,1% | 89% | 2,30 s |
+| k2of3_a10 | 94,4% | 98,7% | 5,8% | 94% | 2,27 s |
+
+Xác nhận 2 cửa sổ đạt 3/4 kỳ vọng (precision, recall ≥ 95%, control ≤ 5%) nhưng p95 2,3–2,9 s.
+
+**Độ trễ xử lý (cuối cửa sổ → preview, p50/p95):** worker1 0,46/0,54 s (82 container/frame), worker3 0,50/0,58 s
+(85), worker4 0,25/0,30 s (28). Gồm thời gian tới khi feature sẵn sàng (0,24/0,29/0,15 s: parse JSON, kiểm tra
+full-ID, tính feature tuần tự từng container) + chấm điểm batch (~0,1–0,2 s). Rút phần này về ~0,1 s sẽ đưa
+k2of2_a10 về khoảng 1,9–2,0 s → hướng cải tiến kỹ thuật trực tiếp cho ràng buộc < 2 s.
+
+**RCA trong campaign R6** (`rca-r6-copy-20261019/`, 2.001 case + `context.sqlite3`):
+
+| 315 attack | Số trial |
+|---|---|
+| Có case của chính attack | 36 → nghi phạm hạng 1 là binary tấn công ở **36/36** (top-1 = 100%, cả xếp hạng lưu sẵn và xếp hạng lại) |
+| Gộp vào cooldown do case của binary vô hại 5 s trước | 88 |
+| Gộp vào cooldown do case khác trong 300 s | 130 |
+| Case đã bị xóa do giới hạn 2.000 case (50 phút đầu campaign) | 48 |
+| Không có case | 13 |
+
+→ Độ phủ RCA bị chi phối bởi **cooldown 300 s/container** và **giới hạn 2.000 case**, không phải bởi xếp hạng.
+Cần: mở case tiếp nối khi có exec mới trong cooldown, tăng giới hạn lưu cho lượt 24 h.
 
 ## 5b. Chiến lược đã điều chỉnh (18/10)
 
@@ -444,3 +520,10 @@ cập nhật liên tục trong lúc làm.
 | 02:23 | Arm-budget sơ bộ (4/11 cấu hình): sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ, ×0,5 cho 2,8–4; `plus_all_observed` thấp nhất | đang chạy |
 | 02:26 | RCA r6: 73 case, 12% có flow; sửa xếp hạng (loại `containerd-shim`/`runc` khỏi ứng viên) + xếp hạng lại offline; 291 test pass | `54f4635` |
 | 02:30 | Phát hiện RCA kẹt IO do job rolling đọc NFS nặng; dừng job, hẹn 10:30; RCA hồi phục | mục 5.9 |
+| 10:04 | Campaign R6 xong (315/315): precision 89,1%, recall 92,8%, control 11,2%, **binary vô hại 80,7%**, p95 1,90 s | mục 5.9 |
+| 10:06 | Chép 2.001 case RCA + `context.sqlite3` sang NFS (giới hạn 2.000 case đang xóa case campaign) | `rca-r6-copy-20261019/` |
+| 10:08 | Đánh giá xếp hạng RCA: 36/315 attack có case, top-1 100%; phân rã nguyên nhân thiếu case (cooldown, giới hạn lưu) | `RANKING-{stored,reranked}.json` |
+| 10:10 | Phân tích attack vs binary vô hại theo kịch bản và theo độ bền tín hiệu | mục 5.9 |
+| 10:12 | `confirmation_study` nhận `--model-hash/--policy-hash`; replay lưới k-of-n trên R6 (khớp live) | `f0b18af`; `analysis-20261019/` |
+| 10:15 | Arm-budget xong; nội suy ở cùng ngân sách: giữ `base29`, chọn syscall không phải nút thắt | mục 5.8 |
+| 10:16 | Phân rã độ trễ xử lý cuối cửa sổ → preview theo node | mục 5.9 |
