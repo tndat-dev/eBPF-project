@@ -19,8 +19,8 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
   | Precision | 89,1% |
   | Recall | 92,8% |
   | Control idle dương | 11,2% |
-  | p95 kernel → preview | 1,90 s |
-  | Đợt cảnh báo trên normal | ~17 mỗi replica-giờ |
+  | p95 kernel → preview | 1,90 s (campaign tiếp nối 105 cặp: 2,17 s) |
+  | Đợt cảnh báo trên normal | ~17 mỗi replica-giờ (**sơ bộ**, mẫu 7,3 replica-giờ; số chính thức từ job 20/10 02:10) |
 
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80,7%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
 - **Hướng gần nhất.** Replay trên R6 cho thấy chính sách xác nhận 2 cửa sổ (k2of2) đạt precision và recall ≥ 95%, control ≤ 5%, nhưng p95 là 2,3–2,9 s. Chấm điểm đã được tăng tốc ~4,9× và cho kết quả khớp từng bit, để lượt R7 thử đưa k2of2 xuống dưới 2 s.
