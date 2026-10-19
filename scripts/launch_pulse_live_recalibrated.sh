@@ -9,7 +9,7 @@
 # 19/10: used to bound in-container `tetra getevents` clients that leaked.
 #
 # pulse-live-recalibrated = recalibrated candidate ec72d9ea... + policy recalibrated-preview-policy-r6
-# (k1of1, alpha x3), fixture runtime_attack_r6.c with benign-exec controls, 24 h
+# (k1of1, alpha x3), fixture runtime_attack_with_benign_control.c with benign-exec controls, 24 h
 # capture without raw.jsonl, RCA subscriber with the flow policy and a frozen
 # binary baseline. Every step refuses to overwrite an existing run/unit.
 set -euo pipefail
@@ -31,7 +31,7 @@ as_root() { printf '%s\n' "$LAB_SSH_PASSWORD" | sudo -S -p '' "$@"; }
 plan() {
   cd /tmp
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \
-    --source "$SNAP" --root "$ROOT" --run-id "$RUN" --profile r6 --frozen-source "$SNAP"
+    --source "$SNAP" --root "$ROOT" --run-id "$RUN" --profile pulse-live-recalibrated --frozen-source "$SNAP"
 }
 
 workers() {

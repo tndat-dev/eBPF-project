@@ -12,7 +12,7 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 ## 1. Tóm tắt
 
 - **Pulse làm gì.** Pulse đếm syscall của từng container Kubernetes bằng eBPF. Cứ 0,5 giây, nó tạo một vector 249 số cho mỗi container. Một model riêng cho từng workload chấm điểm xem cửa sổ đó "lạ hay không" so với lúc bình thường. Toàn bộ chạy ở chế độ **shadow**: chỉ ghi `candidate_alert_preview` (cảnh báo thử), không phát cảnh báo vận hành, không cách ly pod.
-- **Kết quả mới nhất — lượt live R6 (19/10), dữ liệu mới, nhãn kỳ vọng:**
+- **Kết quả mới nhất — lượt live pulse-live-recalibrated (19/10), dữ liệu mới, nhãn kỳ vọng:**
 
   | Chỉ số | Kết quả |
   |---|---|
@@ -23,7 +23,7 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
   | Đợt cảnh báo trên normal | ~17 mỗi replica-giờ (**sơ bộ**, mẫu 7,3 replica-giờ; số chính thức từ job 20/10 02:10) |
 
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80,7%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
-- **Hướng gần nhất.** Replay trên R6 cho thấy chính sách xác nhận 2 cửa sổ (k2of2) đạt precision và recall ≥ 95%, control ≤ 5%, nhưng p95 là 2,3–2,9 s. Chấm điểm đã được tăng tốc ~4,9× và cho kết quả khớp từng bit, để lượt R7 thử đưa k2of2 xuống dưới 2 s.
+- **Hướng gần nhất.** Replay trên pulse-live-recalibrated cho thấy chính sách xác nhận 2 cửa sổ (k2of2) đạt precision và recall ≥ 95%, control ≤ 5%, nhưng p95 là 2,3–2,9 s. Chấm điểm đã được tăng tốc ~4,9× và cho kết quả khớp từng bit, để lượt pulse-stable-candidate thử đưa k2of2 xuống dưới 2 s.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.**
   - Calibration lệch dần theo thời gian.
   - Hiệu chỉnh lại p-value giảm tỉ lệ cửa sổ bị gắn cờ từ 8,1% xuống 0,35%.
@@ -34,20 +34,20 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live R6: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
-| Campaign R6 (315 cặp) | **Xong** 09:52 (mục 5.5) |
-| Traffic R6 | Đã xong lịch các chế độ tải; hiện ở steady |
+| Lượt live pulse-live-recalibrated: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
+| Campaign pulse-live-recalibrated (315 cặp) | **Xong** 09:52 (mục 5.5) |
+| Traffic pulse-live-recalibrated | Đã xong lịch các chế độ tải; hiện ở steady |
 | Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
-| RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
-| `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
+| RCA | rca-followup đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
+| `syscall-arms-on-pulse-live (job)` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
 | `pulse-compress-raw-48h-20261019` (**.236**) | **Đang chạy từ 18:36** (dời từ 02:05 sang node rảnh): nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc. Tỉ lệ 4,4×, dự kiến thu lại ~53 GB |
-| `pulse-compress-48h-rest-20261019` (**.236**) | Chờ nén `raw` xong và job syscall replay xong R3/R5, rồi nén `features`/`decisions` của soak 48 giờ (~150 GB → ~35 GB) |
-| `pulse-rolling-recalibration-20261020c` | Timer 20/10 02:15 (snapshot `3bb0e74`, đọc được file `.gz`), trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
-| `pulse-r7-selection-20261020b` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
-| `pulse-syscall-bootstrap-20261019` (**.235**) | **Đang chạy từ 18:30** (không cần chờ R6; chạy trên node rảnh để không tranh IO với `.234`): replay syscall với khóa trial đã sửa, rồi bootstrap |
+| `pulse-compress-48h-rest-20261019` (**.236**) | Chờ nén `raw` xong và job syscall replay xong pulse-attack-dev, rồi nén `features`/`decisions` của soak 48 giờ (~150 GB → ~35 GB) |
+| `pulse-calibration-refresh-study` | Timer 20/10 02:15 (snapshot `3bb0e74`, đọc được file `.gz`), trong khoảng không có lượt live; pulse-stable-candidate chỉ khởi chạy sau khi job này xong |
+| `pulse-stable-candidate-selection` | Timer 20/10 02:10 (`scripts/pulse_stable_candidate_selection.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
+| `pulse-syscall-bootstrap-20261019` (**.235**) | **Đang chạy từ 18:30** (không cần chờ pulse-live-recalibrated; chạy trên node rảnh để không tranh IO với `.234`): replay syscall với khóa trial đã sửa, rồi bootstrap |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
-| NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. R6 cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi R7 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
+| NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. pulse-live-recalibrated cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi pulse-stable-candidate 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
 | Ổ đĩa worker | **Đã dọn 19/10 18:30**: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29% (~530 GB) |
 
 ## 3. Thuật ngữ
@@ -121,9 +121,9 @@ flowchart TD
 
 **Lưu ý (phát hiện ngày 19/10, mục 5.5).** Trong thời gian soak, Tetragon trên worker1/worker3 đang gánh hàng trăm client mồ côi. Điều này có thể đã gây cadence gap và làm lệch một phần số đo; worker4 có 7–9 gap mỗi segment trong 6 giờ đầu.
 
-### 5.2 Ma trận attack/control phát triển R3 + R5 (14–15/10)
+### 5.2 Ma trận attack/control phát triển pulse-attack-dev (+ rabbitmq) (14–15/10)
 
-R3 gồm 315 cặp (21 key × 5 kịch bản × 3 tốc độ):
+pulse-attack-dev gồm 315 cặp (21 key × 5 kịch bản × 3 tốc độ):
 
 | | Bắt được | Không bắt | Unknown |
 |---|---:|---:|---:|
@@ -132,14 +132,14 @@ R3 gồm 315 cặp (21 key × 5 kịch bản × 3 tốc độ):
 
 - Precision 79,8%, recall 99,3% (cận dưới khi tính cả unknown: 90,2%), control dương 23,3%.
 - Kernel → preview p50 / p95 / p99 = 1,07 / 1,61 / 4,75 s.
-- R5 (RabbitMQ, 15 cặp): TP 13, FN 0, FP 1, TN 14, unknown 2.
-- Đây là dữ liệu development, thiết kế 1:1. R3/R5 **chưa có** đối chứng binary vô hại.
+- pulse-attack-dev-rabbitmq (RabbitMQ, 15 cặp): TP 13, FN 0, FP 1, TN 14, unknown 2.
+- Đây là dữ liệu development, thiết kế 1:1. pulse-attack-dev **chưa có** đối chứng binary vô hại.
 
 ### 5.3 Xác nhận k-of-n trên p-value gốc (18/10, development)
 
 Số đợt mỗi giờ tính trên toàn bộ soak 48 giờ (3.199,7 replica-giờ):
 
-| Chính sách | Đợt/giờ normal | Precision R3 | Recall R3 | Control dương | p95 |
+| Chính sách | Đợt/giờ normal | Precision pulse-attack-dev | Recall pulse-attack-dev | Control dương | p95 |
 |---|---:|---:|---:|---:|---:|
 | 1 cửa sổ | 37,1 | 79,8% | 99,3% | 23,3% | 1,61 s |
 | 2 of 2 | 22,3 | 87,3% | 98,3% | 13,3% | 2,25 s |
@@ -150,20 +150,20 @@ Chỉ dùng k-of-n thì không đưa gánh cảnh báo về gần ngân sách, v
 
 ### 5.4 Hiệu chỉnh lại p-value (18/10, development)
 
-- **Tập hiệu chỉnh:** điểm của chính model đóng băng trên normal 15/10 00:30–07:30 UTC (bỏ khoảng R5); model giữ nguyên.
-- **Tập kiểm tra:** soak từ 15/10 08:40 UTC (2.206,6 replica-giờ) và R3/R5.
+- **Tập hiệu chỉnh:** điểm của chính model đóng băng trên normal 15/10 00:30–07:30 UTC (bỏ khoảng pulse-attack-dev-rabbitmq); model giữ nguyên.
+- **Tập kiểm tra:** soak từ 15/10 08:40 UTC (2.206,6 replica-giờ) và pulse-attack-dev.
 - Bằng chứng: `validation-evidence/results-20261018/confirmation-study/recalibrated-c1/`.
 
 | | P-value gốc | Hiệu chỉnh lại |
 |---|---:|---:|
 | Cửa sổ normal bị gắn cờ | 8,11% | **0,35%** |
 | Đợt cảnh báo / replica-giờ | 36,3 | **9,1** |
-| Precision R3 | 79,8% | **97,8%** |
-| Recall R3 | 99,3% | 91,3% (mất `seccomp_api_probe` 14, `anonymous_mprotect_churn` 11) |
-| Control dương R3 | 23,3% | **1,9%** |
+| Precision pulse-attack-dev | 79,8% | **97,8%** |
+| Recall pulse-attack-dev | 99,3% | 91,3% (mất `seccomp_api_probe` 14, `anonymous_mprotect_churn` 11) |
+| Control dương pulse-attack-dev | 23,3% | **1,9%** |
 | p95 / p99 | 1,61 / 4,75 s | 2,91 / 5,87 s |
 
-Lưới alpha nới rộng (R3):
+Lưới alpha nới rộng (pulse-attack-dev):
 
 | Chính sách | Precision | Recall | Control | p95 | Đợt/giờ |
 |---|---:|---:|---:|---:|---:|
@@ -172,17 +172,17 @@ Lưới alpha nới rộng (R3):
 | 2 of 3, alpha×10 | 96,9% | 99,0% | 2,9% | 2,32 s | 17,1 |
 
 - Kết quả này tạo ra candidate `ec72d9ea…` (`runtime-recal-c1-20261018/model-bundle`).
-- Chính sách R6 (`recalibrated-preview-policy-r6.json`, SHA-256 `f6107351…`) là 1 cửa sổ, alpha×3: chính sách duy nhất có p95 < 2 s.
+- Chính sách `policy-1win-a3` (`policy-1win-a3.json`, SHA-256 `f6107351…`) là 1 cửa sổ, alpha×3: chính sách duy nhất có p95 < 2 s.
 - Kiểm tra tương đương sau refactor: 214.449 cửa sổ, 0 sai khác (`scorer-equivalence-0117901.json`).
 
-### 5.5 Lượt live R6 (19/10)
+### 5.5 Lượt live pulse-live-recalibrated (19/10)
 
 | Thành phần | Giá trị |
 |---|---|
-| Candidate / chính sách | `ec72d9ea…` / R6 (`f6107351…`) |
+| Candidate / chính sách | `ec72d9ea…` / pulse-live-recalibrated (`f6107351…`) |
 | Capture | 3 worker, 24 giờ, không ghi `raw.jsonl` (NFS không đủ chỗ cho kiểu 48 giờ ~4,9 GB/giờ) |
 | Source worker | snapshot `4ba303a`; kiểm tra tương đương trên snapshot này: 27.840 dòng, 0 sai khác |
-| Campaign | 315 cặp control → binary vô hại → attack; fixture `testbed/attack/runtime_attack_r6.c`; coordinator `d791d24` |
+| Campaign | 315 cặp control → binary vô hại → attack; fixture `testbed/attack/runtime_attack_with_benign_control.c`; coordinator `d791d24` |
 | Thư mục | `/mnt/sentinel-pulse-archive/matched-r6-20261018/` |
 
 **Sự cố khi khởi động (02:04–02:20).**
@@ -199,7 +199,7 @@ Lưới alpha nới rộng (R3):
 
 **Kết quả campaign (xong 09:52, 315/315 cặp).** Chính sách đúng như đăng ký, không chỉnh sau khi xem kết quả.
 
-| Chỉ số | R6 live | Dự đoán development |
+| Chỉ số | pulse-live-recalibrated live | Dự đoán development |
 |---|---|---|
 | Precision (attack : control idle = 1:1) | **89,1%** | 94,3% |
 | Recall | **92,8%** (TP 285, FN 22, unknown 11) | 93,4% |
@@ -238,14 +238,14 @@ Tỉ lệ dương theo kịch bản:
 
 Các cửa sổ sau gap tự động không tính là normal.
 
-**Replay chính sách trên R6** (`analysis-20261019/attack-r6-{default,looser}.json`).
+**Replay chính sách trên pulse-live-recalibrated** (`analysis-20261019/attack-r6-{default,looser}.json`).
 - Replay k1of1_a3 tái lập đúng kết quả live.
-- Các chính sách khác được chọn sau khi đã xem R6, nên chỉ là development.
+- Các chính sách khác được chọn sau khi đã xem pulse-live-recalibrated, nên chỉ là development.
 
 | Chính sách | Precision | Recall | Control | Binary vô hại | p95 |
 |---|---|---|---|---|---|
 | k1of1_a1 | 94,9% | 91,2% | 4,8% | 72% | 2,54 s |
-| k1of1_a3 (R6) | 89,1% | 92,8% | 11,2% | 81% | 1,90 s |
+| k1of1_a3 (`policy-1win-a3`) | 89,1% | 92,8% | 11,2% | 81% | 1,90 s |
 | k1of1_a5 | 85,7% | 97,7% | 16,0% | 93% | 1,67 s |
 | **k2of2_a5** | **97,4%** | **95,8%** | **2,6%** | 82% | 2,88 s |
 | k2of2_a10 | 95,0% | 98,0% | 5,1% | 89% | 2,30 s |
@@ -263,17 +263,17 @@ Profile trên frame thật cho thấy ~85% thời gian nằm ở `predict_proba`
 
 **Tăng tốc chấm điểm (`0913446`).**
 - **Cách làm.** `fast_forest.py` cộng `tree_.predict` của từng cây theo đúng thứ tự trong float64 như sklearn, nhưng bỏ phần overhead.
-- **Kiểm chứng.** Replay 2 segment R6 (40.000 dòng):
+- **Kiểm chứng.** Replay 2 segment pulse-live-recalibrated (40.000 dòng):
   - 13.505 dòng có điểm, **0 sai khác**;
   - CPU **42,4 s so với 208,9 s** (nhanh ~4,9×).
-- **Ước tính.** Thời gian từ cuối cửa sổ đến preview giảm xuống ~0,1 s, nên p95 của k2of2_a10 có thể còn ~1,95 s. Con số thật phải đo live ở R7.
+- **Ước tính.** Thời gian từ cuối cửa sổ đến preview giảm xuống ~0,1 s, nên p95 của k2of2_a10 có thể còn ~1,95 s. Con số thật phải đo live ở pulse-stable-candidate.
 
 ### 5.5b Giả thuyết "syscall chưa từng thấy" (đăng ký tiêu chí 19/10 18:47, trước khi có kết quả)
 
 - **Câu hỏi.** Gắn cờ khi container gọi một syscall ID không có trong normal của workload đó: cách này có tách attack khỏi process vô hại mới không? Binary vô hại chỉ gọi `getpid`/`nanosleep`; attack `ptrace`/`setns`/`execveat` dùng các syscall mà thí nghiệm C3 thấy bằng 0 trên normal.
 - **Dữ liệu.**
-  - Normal tham chiếu: tập ID theo workload trên R6 13:00–~18:30 (các segment đã niêm phong; không có campaign).
-  - Interval: hai campaign R6 (420 cặp).
+  - Normal tham chiếu: tập ID theo workload trên pulse-live-recalibrated 13:00–~18:30 (các segment đã niêm phong; không có campaign).
+  - Interval: hai campaign pulse-live-recalibrated (420 cặp).
   - Script: `scripts/analysis/novel_syscalls.py`; job `pulse-novel-syscalls-20261019` trên `.235`.
 - **Tiêu chí "hữu ích", ghi trước:**
   1. Tỉ lệ binary vô hại có ID mới ≤ 10%.
@@ -289,18 +289,18 @@ Profile trên frame thật cho thấy ~85% thời gian nằm ở `predict_proba`
 
 - **Module:** `attack/rolling_recalibration.py`.
 - **Cách làm:** replay soak 48 giờ, so calibration tĩnh (c1) với làm mới mỗi giờ bằng 3 / 6 / 12 giờ trước đó. Biến thể "guarded" bỏ các cửa sổ đã dương khỏi những lần calibration sau.
-- **Đầu ra:** gánh cảnh báo theo từng giờ, cùng recall và độ trễ trên R3/R5.
+- **Đầu ra:** gánh cảnh báo theo từng giờ, cùng recall và độ trễ trên pulse-attack-dev.
 - **Trạng thái:** job đọc ~200 GB từ NFS, nên phải chạy khi không có lượt live cần RCA.
 
-### 5.7 Kế hoạch chọn candidate và chính sách R7 (đăng ký trước, 19/10 10:52)
+### 5.7 Kế hoạch chọn candidate và chính sách pulse-stable-candidate (đăng ký trước, 19/10 10:52)
 
-Job `pulse-r7-selection-20261020` chạy sau khi R6 kết thúc. Mỗi khoảng thời gian đều loại trừ hai campaign (±60 s) và đoạn tranh chấp lúc khởi động.
+Job `pulse-stable-candidate-selection` chạy sau khi pulse-live-recalibrated kết thúc. Mỗi khoảng thời gian đều loại trừ hai campaign (±60 s) và đoạn tranh chấp lúc khởi động.
 
-1. **Gánh cảnh báo như R6 đã chạy:** normal 19:00–02:04, mọi chính sách trong 2 lưới.
-2. **Làm mới calibration:** hiệu chỉnh lại candidate `ec72d9ea…` bằng normal R6 13:00–19:00 (19/10). Đây chính là bước "làm mới định kỳ" trong vận hành thật.
-3. **Đo với calibration mới:** gánh cảnh báo trên 19:00–02:04, và replay cả hai campaign R6.
+1. **Gánh cảnh báo như pulse-live-recalibrated đã chạy:** normal 19:00–02:04, mọi chính sách trong 2 lưới.
+2. **Làm mới calibration:** hiệu chỉnh lại candidate `ec72d9ea…` bằng normal pulse-live-recalibrated 13:00–19:00 (19/10). Đây chính là bước "làm mới định kỳ" trong vận hành thật.
+3. **Đo với calibration mới:** gánh cảnh báo trên 19:00–02:04, và replay cả hai campaign pulse-live-recalibrated.
 
-**Sửa đổi 19/10 19:17** (do sự cố hạ tầng, đưa ra trước khi xem bất kỳ kết quả normal nào của R6):
+**Sửa đổi 19/10 19:17** (do sự cố hạ tầng, đưa ra trước khi xem bất kỳ kết quả normal nào của pulse-live-recalibrated):
 - Loại khoảng **18:25–19:20** khỏi cả khoảng hiệu chỉnh (thực tế còn 13:00–18:25) lẫn khoảng đánh giá (thực tế 19:20–02:04). Xem mục 8b.
 
 **Luật chọn, đăng ký trước khi có số:**
@@ -308,22 +308,22 @@ Job `pulse-r7-selection-20261020` chạy sau khi R6 kết thúc. Mỗi khoảng 
 - Trong các chính sách có p95 replay ≤ 2,3 s (đường nhanh dự kiến bớt ~0,35 s), precision và recall ≥ 95%, control ≤ 5%, chọn chính sách có **ít đợt cảnh báo/giờ nhất**.
 - Nếu không chính sách nào đạt các điều kiện trên, chọn chính sách đạt p95 thấp nhất trong số có precision ≥ 95%, và ghi rõ là không đạt kỳ vọng.
 
-- **Luật chọn đã viết thành code** (`attack/select_policy.py`, `3e2d2e4`, có test). Code đọc output của job, ghi `SELECTION.json` gồm calibration, chính sách, số liệu, cờ đạt kỳ vọng và hash đầu vào, rồi sinh file chính sách v2 gắn với hash candidate R7. Nhờ vậy việc chọn tái lập được, không có phán đoán thủ công sau khi đã xem số.
+- **Luật chọn đã viết thành code** (`attack/select_policy.py`, `3e2d2e4`, có test). Code đọc output của job, ghi `SELECTION.json` gồm calibration, chính sách, số liệu, cờ đạt kỳ vọng và hash đầu vào, rồi sinh file chính sách v2 gắn với hash candidate pulse-stable-candidate. Nhờ vậy việc chọn tái lập được, không có phán đoán thủ công sau khi đã xem số.
 
-Sau đó chạy `scripts/prepare_r7.sh`. Script tạo bundle bằng `detector/recalibrate_bundle.py` (nếu chọn calibration làm mới), sinh file chính sách, và kiểm tra file đó nạp được với candidate qua loader thật. Đã thử với một lựa chọn giả lập trên candidate `ec72d9ea…`: nạp đúng `ConfirmedPreviewPolicy(k=2, n=2, alpha_scale=5.0)`. Cuối cùng commit file chính sách vào `sentinel_pulse/protocol/`, tạo snapshot, rồi chạy `scripts/launch_run.sh` với `FAST=1` (chấm điểm nhanh) và RCA cấu hình đầy đủ.
+Sau đó chạy `scripts/prepare_pulse_stable_candidate.sh`. Script tạo bundle bằng `detector/recalibrate_bundle.py` (nếu chọn calibration làm mới), sinh file chính sách, và kiểm tra file đó nạp được với candidate qua loader thật. Đã thử với một lựa chọn giả lập trên candidate `ec72d9ea…`: nạp đúng `ConfirmedPreviewPolicy(k=2, n=2, alpha_scale=5.0)`. Cuối cùng commit file chính sách vào `sentinel_pulse/protocol/`, tạo snapshot, rồi chạy `scripts/launch_run.sh` với `FAST=1` (chấm điểm nhanh) và RCA cấu hình đầy đủ.
 
 ## 6. Tiến độ và việc còn lại
 
 | Việc | Trạng thái |
 |---|---|
 | Capture chính xác, 249 feature, chấm điểm batch, preview | Chạy trên 3 worker |
-| Soak 48 giờ, development attack R3/R5 | Có kết quả |
-| Hiệu chỉnh lại p-value, chính sách v2 (alpha×k, k-of-n) | Có; dùng trong R6 |
-| Đối chứng binary vô hại | **Có (R6)**: 80,7% bị gắn cờ |
-| Lượt live R6 | Campaign xong; capture chạy đến 20/10 02:04 |
+| Soak 48 giờ, development attack pulse-attack-dev | Có kết quả |
+| Hiệu chỉnh lại p-value, chính sách v2 (alpha×k, k-of-n) | Có; dùng trong pulse-live-recalibrated |
+| Đối chứng binary vô hại | **Có (pulse-live-recalibrated)**: 80,7% bị gắn cờ |
+| Lượt live pulse-live-recalibrated | Campaign xong; capture chạy đến 20/10 02:04 |
 | Chấm điểm nhanh, khớp từng bit | Có; chưa chạy live |
-| Chọn và đăng ký chính sách R7 trên normal R6 | Chờ job 20/10 02:10 |
-| Lượt R7: chấm điểm nhanh + 2 cửa sổ + RCA case tiếp nối | Chưa chạy |
+| Chọn và đăng ký chính sách pulse-stable-candidate trên normal pulse-live-recalibrated | Chờ job 20/10 02:10 |
+| Lượt pulse-stable-candidate: chấm điểm nhanh + 2 cửa sổ + RCA case tiếp nối | Chưa chạy |
 | Đặc trưng/luật tách attack khỏi process vô hại mới | Chưa có |
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (tốt nhất ~6–9 đợt/giờ khi hiệu chỉnh lại) |
 | Review nhãn, ma trận đã xác nhận, blind attack mới | Chưa |
@@ -350,7 +350,7 @@ Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control d
 | Điểm yếu cũ | Điều chỉnh đã làm |
 |---|---|
 | Calibration tĩnh | Hiệu chỉnh lại (đã chứng minh hiệu quả); đang thử làm mới định kỳ |
-| Recall có thể bị thổi phồng do "có process mới" | Fixture R6 + binary vô hại (R6 xác nhận đúng là bị thổi phồng) |
+| Recall có thể bị thổi phồng do "có process mới" | Fixture pulse-live-recalibrated + binary vô hại (pulse-live-recalibrated xác nhận đúng là bị thổi phồng) |
 | Độ trễ xử lý | Chấm điểm nhanh, khớp từng bit |
 | Chỉ báo precision 1:1 | Báo song song số đợt/giờ và tỉ lệ dương của binary vô hại |
 
@@ -370,7 +370,7 @@ Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control d
 - checkout/bundle cũ trong `/home/dat`;
 - 15 unit file thế hệ cũ (gồm 5 oneshot còn `enabled`) và các unit lỗi.
 
-Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matched worker R6, collector, resolver vẫn `active`.
+Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matched worker pulse-live-recalibrated, collector, resolver vẫn `active`.
 
 **Còn chờ chạy tay** vì `kubectl delete` vẫn bị bộ kiểm duyệt quyền chặn (lần 3): `bash /home/dat/cleanup-manual-20261018.sh` trên `.234`. Script (đã rút gọn chỉ còn phần k8s) xóa:
 - **Tài nguyên v8 trên k8s:**
@@ -378,7 +378,7 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
   - 2 TracingPolicy `sentinel-syscalls`;
   - workload baseline v8: `nginx`, `redis`, `loadgen`, `redis-loadgen` (production) và `postgres`, `postgres-loadgen` (default). Không workload nào trong số này thuộc 21 workload Pulse.
 **Vì sao NFS đầy nhanh.**
-- Lượt live ghi ~3,2 GB/giờ (R6: 53 GB sau 16,5 giờ). Mỗi 0,5 s, mỗi container sinh một dòng `features.jsonl` (249 feature + full-ID delta) và một dòng `decisions.jsonl`, đều là JSON text.
+- Lượt live ghi ~3,2 GB/giờ (pulse-live-recalibrated: 53 GB sau 16,5 giờ). Mỗi 0,5 s, mỗi container sinh một dòng `features.jsonl` (249 feature + full-ID delta) và một dòng `decisions.jsonl`, đều là JSON text.
 - Soak 48 giờ cũ chiếm 218 GB.
 - Biện pháp:
   1. Nén `raw.jsonl` cũ (đang chạy).
@@ -402,7 +402,7 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
   - nén `raw.jsonl` trên `.236`;
   - replay 693 model syscall trên master2 (`.235`, MemoryMax 48 GB);
   - phân tích "syscall chưa từng thấy" cũng trên `.235`.
-- **Cadence gap của worker R6 tăng** (18:40–18:59): worker1 +73, worker4 +23, worker3 +66 (biên nhận `receipts/cadence-gaps-r6.json` sẽ được tính lại). Lý do: tải dồn lên chính NFS server, nên chuyển job sang node khác không cô lập được tải.
+- **Cadence gap của worker pulse-live-recalibrated tăng** (18:40–18:59): worker1 +73, worker4 +23, worker3 +66 (biên nhận `receipts/cadence-gaps-pulse-live-recalibrated.json` sẽ được tính lại). Lý do: tải dồn lên chính NFS server, nên chuyển job sang node khác không cô lập được tải.
 - **Master2 `NotReady` từ 19:01:39:**
   - kernel dồn bộ nhớ liên tục (`kcompactd` ~80% CPU), soft lockup tới 73 s trong `clear_page_orig`;
   - ~90 GB RAM không thuộc tiến trình nào sau khi job đã dừng; etcd 100–180% CPU;
@@ -416,18 +416,18 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
 - **19:09:48: master2 `Ready`.**
 - Longhorn tự rebuild (degraded 11 → 8 lúc 19:11).
 - `redis-ha` tự hồi phục.
-- Cadence gap của R6 đứng lại; R6 tiếp tục chạy hết chu kỳ, không bị dừng.
+- Cadence gap của pulse-live-recalibrated đứng lại; pulse-live-recalibrated tiếp tục chạy hết chu kỳ, không bị dừng.
 
-**Ảnh hưởng tới R6:**
+**Ảnh hưởng tới pulse-live-recalibrated:**
 - **Không ảnh hưởng:** kết quả hai campaign (03:47–12:50) và tính liên tục của capture 24 giờ (worker không dừng).
 - **Ảnh hưởng:** normal 18:30–19:15.
   - ~200 cadence gap thêm, mỗi lần reset history của node.
   - Workload đang giám sát khởi động lại hoặc đổi pod: `aims-kafka-entity-operator` và pod mới `aims-kafka-dual-role-0` (18:51); `cart-service` và pod mới `aims-redis-2` (18:52); `aims-postgres-cnpg-1/2` (19:00).
   - Hành vi ứng dụng lúc cụm đang hồi phục không phải normal.
-- **Xử lý:** loại khoảng **18:25–19:20** khỏi mọi phân tích normal của R6, kể cả job chọn R7 (mục 5.7).
+- **Xử lý:** loại khoảng **18:25–19:20** khỏi mọi phân tích normal của pulse-live-recalibrated, kể cả job chọn pulse-stable-candidate (mục 5.7).
 
 **Đã đổi:**
-- Mọi job phân tích nặng (đọc NFS hoặc tốn RAM) chạy sau khi R6 kết thúc: 20/10 02:20, trên `.234`, MemoryMax 32 GB.
+- Mọi job phân tích nặng (đọc NFS hoặc tốn RAM) chạy sau khi pulse-live-recalibrated kết thúc: 20/10 02:20, trên `.234`, MemoryMax 32 GB.
 - Không bao giờ chạy job nặng trên master2/master3. Đã ghi vào bộ nhớ làm việc.
 
 **Còn lại (chờ chạy tay, `kubectl delete` bị chặn):** `bash /home/dat/cleanup-k8s-20261019.sh` trên `.234` xóa:
@@ -448,7 +448,7 @@ Tài nguyên v8 (admission lock, 2 `sentinel-syscalls`, nginx/redis/loadgen/post
   - `sentinel_pulse/detector/` — model, chính sách, hiệu chỉnh lại, chấm điểm nhanh;
   - `sentinel_pulse/pipeline/` — matched worker, plan/derive run, kiểm tra tương đương;
   - `sentinel_pulse/attack/` — campaign, đánh giá, nghiên cứu xác nhận và hiệu chỉnh.
-- **Khởi chạy:** `scripts/launch_r6.sh`, `scripts/launch_rca_followup.sh`, `scripts/r6_normal_burden.sh`.
+- **Khởi chạy:** `scripts/launch_pulse_live_recalibrated.sh`, `scripts/launch_rca_subscriber.sh`, `scripts/pulse_stable_candidate_selection.sh`.
 
 ```bash
 export LAB_SSH_PASSWORD=...      # mật khẩu lab
@@ -474,49 +474,49 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 12:13–12:18 | Hợp nhất vào `main`, push thẳng; viết lại 10 commit để bỏ dòng Co-Authored-By | `22f365a`, `4d6dfbf` |
 | ~15:07 | Lưới alpha nới rộng sau hiệu chỉnh (c2) | `e2807ec` |
 | ~15:26 | Bundle candidate hiệu chỉnh lại `ec72d9ea…` và chính sách preview v2 | `ae25e6c` |
-| ~15:41 | Đối chứng binary vô hại (fixture R6 + campaign) | `3a1c04f` |
-| ~15:46 | Đăng ký chính sách R6 (1 cửa sổ, alpha×3), SHA-256 `f6107351…` | `51f019b` |
+| ~15:41 | Đối chứng binary vô hại (fixture pulse-live-recalibrated + campaign) | `3a1c04f` |
+| ~15:46 | Đăng ký chính sách `policy-1win-a3` (1 cửa sổ, alpha×3), SHA-256 `f6107351…` | `51f019b` |
 | chiều | Gỡ tài nguyên v8 | mục 8 |
 | 15:56 | `kubectl delete` phần v8 còn sót | Bị bộ kiểm duyệt quyền chặn (lần 2) → chạy tay |
 | 16:00 | Xóa dữ liệu thô cũ và unit cũ trên worker | Bị chặn 2 lần → soạn script chạy tay |
-| 16:00 | Đo dung lượng: 48 giờ tốn 219 GB, NFS còn 102 GB | R6 chạy 24 giờ, không ghi `raw.jsonl` |
+| 16:00 | Đo dung lượng: 48 giờ tốn 219 GB, NFS còn 102 GB | pulse-live-recalibrated chạy 24 giờ, không ghi `raw.jsonl` |
 | 16:01 | Profile `r6` trong `plan_matched_run` + cờ `write_raw_frames` | `4ba303a` |
-| 16:05 | Snapshot `4ba303a` lên NFS; nạp thử candidate R6 bằng runtime-venv của worker | 21 model, hash khớp |
-| 16:10 | Thêm `--put` cho `ssh_lab.py`; viết `scripts/launch_r6.sh` | `ee69863` |
+| 16:05 | Snapshot `4ba303a` lên NFS; nạp thử candidate pulse-live-recalibrated bằng runtime-venv của worker | 21 model, hash khớp |
+| 16:10 | Thêm `--put` cho `ssh_lab.py`; viết `scripts/launch_pulse_live_recalibrated.sh` | `ee69863` |
 
 ### 19/10/2026
 
 | Giờ | Việc đã làm | Kết quả / bằng chứng |
 |---|---|---|
-| 02:03 | Kiểm tra tương đương trên snapshot R6: 27.840 dòng, 0 sai khác; `launch_r6.sh plan` | `matched-r6-20261018/CONFIG.json` |
-| 02:04 | Cài matched worker R6 trên 3 worker | chạy |
+| 02:03 | Kiểm tra tương đương trên snapshot pulse-live-recalibrated: 27.840 dòng, 0 sai khác; `launch_pulse_live_recalibrated.sh plan` | `matched-r6-20261018/CONFIG.json` |
+| 02:04 | Cài matched worker pulse-live-recalibrated trên 3 worker | chạy |
 | 02:05–02:10 | Phát hiện cadence gap; truy ra 301/18/59 client `tetra getevents` mồ côi | mục 5.5 |
 | 02:10 | Bọc lệnh trong container bằng `timeout` (campaign + RCA); snapshot `d791d24` | `d791d24` |
 | 02:13 | `pkill -KILL` mọi `tetra getevents` trên worker | CPU Tetragon giảm ~9 lần |
 | 02:15 | Derive coordinator trên `d791d24`; cài traffic + campaign | attack từ 03:47 |
-| 02:16 | Sửa `launch_r6.sh` (`cp -a` lỗi ACL trên NFS; unit file rỗng do stdin của sudo) | `a9cc061` |
-| 02:20 | Đo R6 sau khi dọn: 17,2 đợt/replica-giờ, p99 cuối cửa sổ → preview 0,64 s | mục 5.5 |
+| 02:16 | Sửa `launch_pulse_live_recalibrated.sh` (`cp -a` lỗi ACL trên NFS; unit file rỗng do stdin của sudo) | `a9cc061` |
+| 02:20 | Đo pulse-live-recalibrated sau khi dọn: 17,2 đợt/replica-giờ, p99 cuối cửa sổ → preview 0,64 s | mục 5.5 |
 | 02:22 | Viết `rolling_recalibration.py` (289 test pass), chạy job | `5f9a705` |
 | 02:30 | Job rolling làm RCA kẹt IO → dừng, hẹn 10:30 | — |
-| 10:04 | Campaign R6 xong: precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s | mục 5.5 |
+| 10:04 | Campaign pulse-live-recalibrated xong: precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s | mục 5.5 |
 | 10:10 | Phân tích attack vs binary vô hại theo kịch bản và theo độ bền tín hiệu | mục 5.5 |
-| 10:12 | `confirmation_study --model-hash/--policy-hash`; replay lưới k-of-n trên R6 (khớp live) | `f0b18af` |
+| 10:12 | `confirmation_study --model-hash/--policy-hash`; replay lưới k-of-n trên pulse-live-recalibrated (khớp live) | `f0b18af` |
 | 10:16 | Phân rã độ trễ xử lý theo node | mục 5.5 |
 | 10:17 | Profile frame thật: 85% thời gian ở overhead sklearn | mục 5.5 |
 | 10:19 | `fast_forest.py` (khớp từng bit, tự kiểm tra từng model); 293 test pass | `0913446` |
-| 10:22 | Kiểm tra tương đương đường nhanh trên R6: 0 sai khác, CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-*.json` |
-| 10:27 | Hẹn job `pulse-r6-normal-burden-20261020` (02:10 ngày 20/10) | `scripts/r6_normal_burden.sh` |
+| 10:22 | Kiểm tra tương đương đường nhanh trên pulse-live-recalibrated: 0 sai khác, CPU 42,4 s so với 208,9 s | `runtime-0913446-20261019/EQUIVALENCE-*.json` |
+| 10:27 | Hẹn job `pulse-stable-candidate-selection` (02:10 ngày 20/10) | `scripts/pulse_stable_candidate_selection.sh` |
 | 10:33 | Dừng job rolling (lần chạy theo timer) để ưu tiên RCA live | sẽ chạy lại sau campaign tiếp nối |
 | 10:41 | Chuyển báo cáo về 3 file theo thí nghiệm; xóa `docs/STATUS.md` | file này |
-| 10:52 | `calibrate --model-hash`; job chọn R7 (calibration như đã chạy so với làm mới trên normal R6) thay cho job đo gánh cảnh báo; profile `custom` cho `plan_matched_run`; `scripts/launch_run.sh`; dời job rolling sang 20/10 03:30 | `6f0e6be`, `a4a8529`; mục 5.7 |
-| 16:23 | Kiểm tra sau khi phiên khởi động lại: campaign tiếp nối và job syscall đã xong; R6 vẫn chạy | mục 2, 5.5 |
+| 10:52 | `calibrate --model-hash`; job chọn pulse-stable-candidate (calibration như đã chạy so với làm mới trên normal pulse-live-recalibrated) thay cho job đo gánh cảnh báo; profile `custom` cho `plan_matched_run`; `scripts/launch_run.sh`; dời job rolling sang 20/10 03:30 | `6f0e6be`, `a4a8529`; mục 5.7 |
+| 16:23 | Kiểm tra sau khi phiên khởi động lại: campaign tiếp nối và job syscall đã xong; pulse-live-recalibrated vẫn chạy | mục 2, 5.5 |
 | 16:27 | Ghi quy tắc: soak/lượt live phải chạy hết chu kỳ, không dừng hay đánh fail giữa chừng | mục 2 |
-| 16:35 | Policy RCA thu hẹp: lưu lượng Tetragon worker1 giảm ~8× (17.393 → 2.096 sự kiện / 10 s), giảm cả overhead trên node đang chạy R6 | [RCA](RCA_RUNTIME_STATUS.md) mục 5.8 |
-| 17:16 | Kiểm tra sức khỏe: 3 worker R6 cập nhật đều; RCA r6c 2.453 case; NFS còn 52 GB → không đủ cho R7 | mục 2 |
-| 17:18 | Hẹn nén `raw.jsonl` soak 48 giờ lúc 02:05 (kiểm tra seal, không mất dữ liệu); dời rolling sang 02:15 để không chạy cùng R7; bật watcher kiểm tra 5 phút/lần (heartbeat, cadence gap, RCA, NFS) | `scripts/compress_raw_frames.py` |
-| 17:52 | Luật chọn R7 thành code + test; job chọn gọi nó ở bước cuối; sửa watcher (dấu hiệu xong = `SELECTION.json`) | `3e2d2e4` |
+| 16:35 | Policy RCA thu hẹp: lưu lượng Tetragon worker1 giảm ~8× (17.393 → 2.096 sự kiện / 10 s), giảm cả overhead trên node đang chạy pulse-live-recalibrated | [RCA](RCA_RUNTIME_STATUS.md) mục 5.8 |
+| 17:16 | Kiểm tra sức khỏe: 3 worker pulse-live-recalibrated cập nhật đều; RCA rca-followup 2.453 case; NFS còn 52 GB → không đủ cho pulse-stable-candidate | mục 2 |
+| 17:18 | Hẹn nén `raw.jsonl` soak 48 giờ lúc 02:05 (kiểm tra seal, không mất dữ liệu); dời rolling sang 02:15 để không chạy cùng pulse-stable-candidate; bật watcher kiểm tra 5 phút/lần (heartbeat, cadence gap, RCA, NFS) | `scripts/compress_raw_frames.py` |
+| 17:52 | Luật chọn pulse-stable-candidate thành code + test; job chọn gọi nó ở bước cuối; sửa watcher (dấu hiệu xong = `SELECTION.json`) | `3e2d2e4` |
 | 17:57 | Gom bằng chứng: 21 file kết quả + 8 biên nhận JSON (`scripts/analysis/*.py`) vào `validation-evidence/results-20261019/`; đối chiếu lại số liệu: bổ sung p95 2,17 s của campaign tiếp nối | mục 9 |
-| 17:59 | `prepare_r7.sh` + chế độ `--from-selection`; thử sinh chính sách và nạp với loader thật trên `ec72d9ea…` | `89f606e` |
+| 17:59 | `prepare_pulse_stable_candidate.sh` + chế độ `--from-selection`; thử sinh chính sách và nạp với loader thật trên `ec72d9ea…` | `89f606e` |
 | 18:30 | Dọn ổ worker theo yêu cầu: ~530 GB dữ liệu thô và checkout cũ, 15 unit cũ; `kubectl delete` phần v8 vẫn bị chặn | mục 8 |
 | 18:36 | Chạy nén `raw.jsonl` trên `.236` ngay (tỉ lệ 4,4×); chạy job syscall trên `.235` (venv đúng sklearn 1.9.0) | mục 2 |
 | 18:41 | Đọc trong suốt file nén đã kiểm tra seal (`open_sealed`, `sealed_sha256`, `bounds`) + bộ nén tổng quát, 305 test pass; xếp job nén `features`/`decisions` 48 giờ sau các bước phụ thuộc; job rolling dùng snapshot mới | `3bb0e74` |
@@ -524,4 +524,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 18:55 | Phát hiện cadence gap tăng do 3 job nặng chạy cùng lúc (NFS server dùng chung) → dừng cả 3 | mục 8b |
 | 19:01–19:09 | Master2 NotReady (kernel dồn bộ nhớ, soft lockup) → `drop_caches`, Ready lúc 19:09:48; Longhorn tự rebuild | mục 8b |
 | 19:11 | Kiểm kê: v8 đã không còn; còn Bookinfo, `default/keycloak` (không phục vụ AIMS) và bản ghi pod chết → script chạy tay (`kubectl delete` bị chặn); dời các job nặng sang `.234` lúc 02:20, MemoryMax 32 GB | mục 8b |
-| 19:17 | Đánh giá ảnh hưởng sự cố tới R6 (campaign không bị ảnh hưởng; normal 18:30–19:15 bị) → thêm loại trừ 18:25–19:20 vào job chọn R7 | mục 5.7, 8b |
+| 19:17 | Đánh giá ảnh hưởng sự cố tới pulse-live-recalibrated (campaign không bị ảnh hưởng; normal 18:30–19:15 bị) → thêm loại trừ 18:25–19:20 vào job chọn pulse-stable-candidate | mục 5.7, 8b |

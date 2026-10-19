@@ -3,7 +3,7 @@
 #   LAB_SSH_PASSWORD=... SRC=/mnt/.../source bash launch_rca_subscriber.sh [derive|rca|campaign|all]
 #
 # - derive: a 7-workload coordinator (105 pairs, benign controls) on the pulse-live-recalibrated capture;
-# - rca: replace subscriber r6 with r6b: follow-up cases on new execs, 20000-case
+# - rca: replace subscriber r6 with rca-followup-v1: follow-up cases on new execs, 20000-case
 #   retention, binary baseline seeded from r6 (same freeze time);
 # - campaign: install the coordinator campaign service.
 set -euo pipefail
@@ -11,8 +11,8 @@ set -euo pipefail
 ROOT=/mnt/sentinel-pulse-archive/matched-r6-20261018
 COORD=$ROOT/coordinator-rca-followup-20261019
 CREDENTIAL=/home/dat/.pulse-recovery-credential-20261005
-# r6b (10:36) used a ring-limited novelty check that let periodic probes open follow-ups;
-# r6c (19/10 ~10:55) uses a 15-min exec log. Override with OLD/NAME/OLD_UNIT/UNIT.
+# rca-followup-v1 (10:36) used a ring-limited novelty check that let periodic probes open follow-ups;
+# rca-followup (19/10 ~10:55) uses a 15-min exec log. Override with OLD/NAME/OLD_UNIT/UNIT.
 OLD=${OLD:-/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b}
 NAME=${NAME:-runtime-events-20261019-r6c}
 OLD_UNIT=${OLD_UNIT:-pulse-rca-runtime-events-r6b}

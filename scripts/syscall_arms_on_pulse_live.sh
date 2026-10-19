@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Syscall experiment on the pulse-live-recalibrated campaigns (run on .234 as dat). Waits for the RCA follow-up
 # campaign to finish so heavy NFS reads never overlap a live campaign, then:
-#  1. replays all 693 R4 models on the pulse-live-recalibrated attack/benign/control intervals (full-ID deltas
+#  1. replays all 693 syscall-arms models on the pulse-live-recalibrated attack/benign/control intervals (full-ID deltas
 #     recorded by the pulse-live-recalibrated workers);
-#  2. compares the 11 arms at matched normal alert budgets (calibration from the R4
+#  2. compares the 11 arms at matched normal alert budgets (calibration from the syscall-arms
 #     holdout score dump), now including the benign-launch positive rate.
 set -euo pipefail
 SRC=${SRC:?source snapshot}

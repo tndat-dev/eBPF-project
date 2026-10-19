@@ -4,13 +4,13 @@
 #
 #   LAB_SSH_PASSWORD=... RUN=pulse-stable-candidate SNAP=/mnt/.../source \
 #   CANDIDATE=/mnt/.../model-bundle MODEL_HASH=... POLICY=sentinel_pulse/protocol/x.json POLICY_HASH=... \
-#   [FIXTURE=testbed/attack/runtime_attack_r6.c] [SECONDS_TOTAL=86400] [FAST=1] \
+#   [FIXTURE=testbed/attack/runtime_attack_with_benign_control.c] [SECONDS_TOTAL=86400] [FAST=1] \
 #   [RCA_PREV_UNIT=rca-subscriber] bash launch_run.sh [plan|workers|rca|master|all]
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
 set -euo pipefail
 : "${LAB_SSH_PASSWORD:?}" "${RUN:?}" "${SNAP:?}" "${CANDIDATE:?}" "${MODEL_HASH:?}" "${POLICY:?}" "${POLICY_HASH:?}"
-FIXTURE=${FIXTURE:-testbed/attack/runtime_attack_r6.c}
+FIXTURE=${FIXTURE:-testbed/attack/runtime_attack_with_benign_control.c}
 SECONDS_TOTAL=${SECONDS_TOTAL:-86400}
 FAST=${FAST:-1}
 ROOT=/mnt/sentinel-pulse-archive/$RUN

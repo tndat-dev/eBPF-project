@@ -24,6 +24,6 @@ def test_control_and_coverage_rules():
 
 def test_trial_keys_do_not_collide_across_campaigns():
     from sentinel_pulse.syscall_study.arm_attack_replay import trial_key
-    a = dict(trial_id='12:attack', campaign_path='/nfs/r6/main')
-    b = dict(trial_id='12:attack', campaign_path='/nfs/r6/follow-up')
+    a = dict(trial_id='12:attack', campaign_path='/nfs/pulse-live-recalibrated/campaign-main')
+    b = dict(trial_id='12:attack', campaign_path='/nfs/pulse-live-recalibrated/campaign-rca')
     assert trial_key(a) != trial_key(b)

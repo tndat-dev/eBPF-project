@@ -13,12 +13,12 @@ Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentin
 
 | Thành phần (10:41 ngày 19/10) | Trạng thái |
 |---|---|
-| Subscriber | **r6c** `pulse-rca-runtime-events-r6c` (.234), chạy từ 10:48 trên source `ea5a3ee` (r6b 10:36–10:48 bị lỗi điều kiện case tiếp nối, mục 5.6) |
-| Cấu hình r6c | Gồm:<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s có **case tiếp nối**;<br>• tính binary mới bằng nhật ký exec 15 phút;<br>• giữ 20.000 case;<br>• stream xoay vòng 900 s;<br>• baseline binary lấy từ r6b (bắt nguồn từ r6), đóng băng 19/10 03:45:45 |
+| Subscriber | **rca-followup** `pulse-rca-runtime-events-r6c` (.234), chạy từ 10:48 trên source `ea5a3ee` (rca-followup-v1 10:36–10:48 bị lỗi điều kiện case tiếp nối, mục 5.6) |
+| Cấu hình rca-followup | Gồm:<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s có **case tiếp nối**;<br>• tính binary mới bằng nhật ký exec 15 phút;<br>• giữ 20.000 case;<br>• stream xoay vòng 900 s;<br>• baseline binary lấy từ rca-followup-v1 (bắt nguồn từ rca-flow), đóng băng 19/10 03:45:45 |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1`, `sentinel-rca-fork-v1`, **`sentinel-rca-flow-v1`** (apply 19/10 02:14) |
 | Campaign kiểm chứng | `pulse-matched-campaign-r6-rca-followup-20261019`: 7 workload × 15 = 105 cặp, attack từ 10:46, dự kiến xong ~12:50 |
-| Subscriber trước | r2 dừng 19/10 02:13; r6 dừng 10:36; r6b dừng 10:48. Output được giữ nguyên |
-| Bản sao bằng chứng r6 | `/mnt/sentinel-pulse-archive/matched-r6-20261018/rca-r6-copy-20261019/`: 2.001 case + `context.sqlite3` |
+| Subscriber trước | rca-runtime-v1 dừng 19/10 02:13; rca-flow dừng 10:36; rca-followup-v1 dừng 10:48. Output được giữ nguyên |
+| Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/matched-r6-20261018/rca-r6-copy-20261019/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
 
@@ -77,16 +77,16 @@ Code: `sentinel_pulse/rca/ranking.py`. Điểm là heuristic để sắp thứ t
 | Syscall thất bại (`failed_syscall`) | 1 mỗi lần, tối đa 3 |
 | Là cha của một nghi phạm khác (`spawned_children`) | 1 |
 
-- **Không xếp hạng tiến trình container runtime** (`containerd-shim*`, `runc`, `crun`, `conmon`). Đây là cha phía host của mọi `kubectl exec`, và từng đứng hạng 1 sai trong r6 (sửa ở `54f4635`).
+- **Không xếp hạng tiến trình container runtime** (`containerd-shim*`, `runc`, `crun`, `conmon`). Đây là cha phía host của mọi `kubectl exec`, và từng đứng hạng 1 sai trong rca-flow (sửa ở `54f4635`).
 - **Đánh giá:** `rca/evaluate_ranking.py`.
   - Nhãn thật là đường dẫn binary của fixture trong campaign.
   - `--rerank-db` xếp hạng lại offline từ bảng `binaries`, chỉ dùng binary đã thấy trước lúc tạo case.
 
 ## 5. Kết quả
 
-### 5.1 Run r2 (15–17/10): vì sao 99,9% case thiếu ngữ cảnh kết nối
+### 5.1 Run rca-runtime-v1 (15–17/10): vì sao 99,9% case thiếu ngữ cảnh kết nối
 
-- r2 có 19.152 case; 99,9% không có sự kiện connect.
+- rca-runtime-v1 có 19.152 case; 99,9% không có sự kiện connect.
 - Nguyên nhân **không phải lỗi ghép**: trong ring 180 s chỉ có 50 lần `connect()` trên toàn bộ production, so với 4.222 exec. Các service dùng connection pool nên gần như không gọi `connect()`.
 - Cách sửa: policy flow `sentinel-rca-flow-v1` (`c71f604`), lấy mẫu lần gửi trên socket đã mở.
 
@@ -94,15 +94,15 @@ Code: `sentinel_pulse/rca/ranking.py`. Điểm là heuristic để sắp thứ t
 
 - **Nguyên nhân.** Subscriber RCA mở stream bằng `kubectl exec … tetra getevents`. Mỗi lần nối lại stream, `kubectl` phía `.234` bị giết nhưng tiến trình bên trong container Tetragon vẫn chạy. Campaign cũ và v8 cũng rò theo cùng cách.
 - **Quy mô.** Có **301 / 18 / 59** client mồ côi trên worker1 / worker4 / worker3, chạy từ 10 giờ đến 25 ngày.
-- **Tác động.** Tetragon tốn 5–7 core và 11,5 GB RAM, làm lượt live R6 của Pulse bị thiếu CPU lúc khởi động.
+- **Tác động.** Tetragon tốn 5–7 core và 11,5 GB RAM, làm lượt live pulse-live-recalibrated của Pulse bị thiếu CPU lúc khởi động.
 - **Sửa (`d791d24`).** Lệnh trong container được bọc `timeout`, và stream RCA xoay vòng mỗi 900 s (nối lại ngay khi hết hạn). Không client nào sống quá 15 phút.
 - **Sau khi dọn.** CPU Tetragon giảm ~9 lần.
 
-### 5.3 Run r6 trong campaign R6 (19/10 02:14 → 10:36)
+### 5.3 Run rca-flow trong campaign pulse-live-recalibrated (19/10 02:14 → 10:36)
 
 Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 case. Bằng chứng: `rca-r6-copy-20261019/RANKING-{stored,reranked}.json`.
 
-| 315 attack của campaign R6 | Số trial |
+| 315 attack của campaign pulse-live-recalibrated | Số trial |
 |---|---:|
 | Có case của chính attack | **36** |
 | Bị gộp cooldown vì case của binary vô hại 5 s trước đó | 88 |
@@ -123,7 +123,7 @@ Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 
 
 ### 5.5 Tần suất exec bình thường (căn cứ thiết kế case tiếp nối)
 
-Đo trên ring 180 s của r6:
+Đo trên ring 180 s của rca-flow:
 
 | Container | Exec/phút | Binary |
 |---|---:|---|
@@ -133,9 +133,9 @@ Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 
 
 Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn mở case mới. Vì vậy case tiếp nối chỉ tính binary chưa có trong ring trước cửa sổ của case trước (`3e457fe`).
 
-### 5.6 Lỗi điều kiện case tiếp nối ở r6b (19/10 10:36–10:48)
+### 5.6 Lỗi điều kiện case tiếp nối ở rca-followup-v1 (19/10 10:36–10:48)
 
-- **Triệu chứng.** Trong 10 phút đầu, trước khi có attack, r6b mở 117 case tiếp nối trên tổng 190 case.
+- **Triệu chứng.** Trong 10 phút đầu, trước khi có attack, rca-followup-v1 mở 117 case tiếp nối trên tổng 190 case.
 - **Nguồn.** Chủ yếu từ probe sức khỏe định kỳ:
   - `python` của các app service (auth 24, search 23, notification 17…);
   - `sh`/`redis-cli` của Redis.
@@ -144,14 +144,14 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
   - Thêm bảng `exec_log` giữ 15 phút.
   - Binary chỉ được coi là mới nếu không chạy trong 300 s trước cửa sổ của case trước.
   - Tắt case tiếp nối trong 330 s đầu sau khi subscriber khởi động.
-  - Chuyển sang r6c lúc 10:48. Campaign tiếp nối đã chạy từ 10:46, nên khi đánh giá r6c chỉ tính các trial bắt đầu sau ~10:54.
+  - Chuyển sang rca-followup lúc 10:48. Campaign tiếp nối đã chạy từ 10:46, nên khi đánh giá rca-followup chỉ tính các trial bắt đầu sau ~10:54.
 
-### 5.7 Kết quả r6c trên campaign tiếp nối (xong 19/10 ~12:50)
+### 5.7 Kết quả rca-followup trên campaign tiếp nối (xong 19/10 ~12:50)
 
-- **Phạm vi đánh giá:** chỉ tính 99 trial bắt đầu sau khi r6c hết 330 s khởi động (10:54:15).
+- **Phạm vi đánh giá:** chỉ tính 99 trial bắt đầu sau khi rca-followup hết 330 s khởi động (10:54:15).
 - **Bằng chứng:** `matched-r6-20261018/rca-r6c-copy-20261019/`, gồm 2.140 case, `context.sqlite3` và `RANKING-{stored,reranked}.json`.
 
-| Chỉ số | R6 (r6, không có case tiếp nối) | Campaign tiếp nối (r6c) |
+| Chỉ số | pulse-live-recalibrated (rca-flow, không có case tiếp nối) | Campaign tiếp nối (rca-followup) |
 |---|---|---|
 | Attack có case của chính nó | 36/315 (11%) | **71/99 (72%)**; 57 trong số đó là case tiếp nối |
 | Gộp cooldown, không có case tiếp nối | 218 | 19 |
@@ -162,11 +162,11 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Case có `active_flow` | 12% (mẫu sớm) | **3%** (2/71) |
 | Preview → case p50 / p95 | 8,4 / 16,6 s | 7,0 / 14,5 s |
 
-- **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ r6 sang r6b/r6c không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
+- **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ rca-flow sang r6b/r6c không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
   - Mọi binary đều có `first_seen` sau mốc đóng băng, nên probe định kỳ (`sh`, `hostname`, `bash`, `pg_isready`, script readiness/liveness của Kafka) được +4 điểm `novel_binary` và đứng trên binary tấn công.
-- **Cách đánh giá đúng.** Gộp baseline của r6 vào bản sao rồi xếp hạng lại offline. `--rerank-db` chỉ dùng binary đã thấy trước lúc tạo case, nên đây đúng là kết quả live đáng lẽ đạt được.
+- **Cách đánh giá đúng.** Gộp baseline của rca-flow vào bản sao rồi xếp hạng lại offline. `--rerank-db` chỉ dùng binary đã thấy trước lúc tạo case, nên đây đúng là kết quả live đáng lẽ đạt được.
 - **Đã sửa:**
-  - DB live của r6c đã được gộp baseline lúc 16:26, nên các case từ thời điểm đó xếp hạng đúng.
+  - DB live của rca-followup đã được gộp baseline lúc 16:26, nên các case từ thời điểm đó xếp hạng đúng.
   - Script chạy bước chép qua file tạm, và báo lỗi nếu không chép được dòng nào.
 - **Flow rất thấp (3%) — việc cần điều tra tiếp.** Có thể do giới hạn lấy mẫu 10 s/process, hoặc do service gửi qua sidecar mesh nên `tcp_sendmsg` thuộc container khác.
 - **Một giới hạn còn lại:** attack `setns`/`mount` không để lại sự kiện bảo mật, vì seccomp chặn trước kprobe. Binary tấn công vẫn đứng đầu nhờ `novel_binary` + `started_in_window`.
@@ -192,9 +192,9 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 
 ### 5.9 Độ trễ preview → case nằm ở đâu (19/10 18:00)
 
-Biên nhận: `receipts/rca-latency-{r6,r6c}.json` (`scripts/analysis/rca_latency.py`).
+Biên nhận: `receipts/rca-latency-{rca-flow,rca-followup}.json` (`scripts/analysis/rca_latency.py`).
 
-| Đoạn | r6 (1.998 case) p50 / p95 | r6c (2.140 case) p50 / p95 |
+| Đoạn | rca-flow (1.998 case) p50 / p95 | rca-followup (2.140 case) p50 / p95 |
 |---|---|---|
 | Preview ghi trên worker → subscriber thấy decision | 5,0 / 11,5 s | 5,5 / 24,7 s |
 | Thấy decision → ghi xong case | 2,1 / 2,7 s | 2,1 / 3,0 s |
@@ -202,19 +202,19 @@ Biên nhận: `receipts/rca-latency-{r6,r6c}.json` (`scripts/analysis/rca_latenc
 
 - **Phần dựng case** gần đúng bằng thời gian chờ 2 s để nhận nốt sự kiện.
 - **Phần lớn nằm ở bước decision của worker hiện ra trên `.234` qua NFS.** Worker chỉ `flush` (không `fsync`) mỗi frame, nên NFS client ghi trễ; subscriber đọc lại mỗi 1 s.
-- Đuôi p95 của r6c dài hơn. Nhiều khả năng do các job đọc NFS nặng trên `.234` lúc 12:50–13:40; chưa tách riêng.
+- Đuôi p95 của rca-followup dài hơn. Nhiều khả năng do các job đọc NFS nặng trên `.234` lúc 12:50–13:40; chưa tách riêng.
 - **Đã sửa (`08be414`), không đụng vòng lặp của worker Pulse.**
   - Subscriber đọc decision **ngay trên worker** qua SSH, bằng script nhỏ `DECISION_FOLLOWER` chạy với python3 hệ thống. Script bám file `decisions.jsonl` của segment mới nhất, không đọc lại dữ liệu cũ, và chuyển sang segment mới sau khi đọc hết segment cũ.
   - Nhịp kiểm tra để dựng case giảm từ 1 s xuống 0,25 s.
-  - Bật bằng `decision_stream` trong config; `scripts/launch_run.sh` đã bật sẵn cho R7.
-- **Đo thật trên R6** (worker1, 20 s; biên nhận `receipts/rca-decision-visibility.json`, script `scripts/analysis/rca_decision_visibility.py`):
+  - Bật bằng `decision_stream` trong config; `scripts/launch_run.sh` đã bật sẵn cho pulse-stable-candidate.
+- **Đo thật trên pulse-live-recalibrated** (worker1, 20 s; biên nhận `receipts/rca-decision-visibility.json`, script `scripts/analysis/rca_decision_visibility.py`):
 
   | Cách đọc | p50 | p95 |
   |---|---|---|
   | Script bám file trên worker, qua SSH | **0,04 s** | **0,10 s** |
   | Mở lại file NFS (cách hiện tại) | 0,06 s | **7,2 s** |
 
-  Qua NFS, decision hiện ra theo đợt: phần lớn nhanh, nhưng nhiều đợt chậm tới vài giây. Với stream, độ trễ preview → case dự kiến còn ~2,3–2,6 s (chờ nhận nốt sự kiện 2 s + nhịp 0,25 s). Phải đo lại trong R7.
+  Qua NFS, decision hiện ra theo đợt: phần lớn nhanh, nhưng nhiều đợt chậm tới vài giây. Với stream, độ trễ preview → case dự kiến còn ~2,3–2,6 s (chờ nhận nốt sự kiện 2 s + nhịp 0,25 s). Phải đo lại trong pulse-stable-candidate.
 
 Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) (`rca/`, `receipts/rca-*.json`).
 
@@ -224,21 +224,21 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 |---|---|
 | Phạm vi policy | Namespace `production`, mọi pod. File: chỉ đường dẫn nhạy cảm (từ 19/10 16:35). Flow: lấy mẫu 10 s / process. Đã bỏ `commit_creds` |
 | Ring | 180 s, tối đa 120.000 sự kiện |
-| Grouping | Cooldown 300 s; r6b thêm tối đa 5 case tiếp nối mỗi cooldown |
-| Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
+| Grouping | Cooldown 300 s; rca-followup-v1 thêm tối đa 5 case tiếp nối mỗi cooldown |
+| Lưu case | rca-runtime-v1: 500; rca-flow: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; r6 (campaign R6): p50 8,4 s / p95 16,6 s; **r6c: p50 7,0 s / p95 14,5 s**. Từ R7 dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
+| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
 
 | Hạng mục | Trạng thái |
 |---|---|
-| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (r6b) |
+| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (rca-followup-v1) |
 | Ngữ cảnh mạng cho service dùng connection pool | Policy flow đã apply; độ phủ cần đo lại |
 | Stream không rò tiến trình trong container | Có (`d791d24`) |
-| Xếp hạng nghi phạm + đánh giá top-k theo nhãn campaign | Có; R6: top-1 100% trên 36 case |
+| Xếp hạng nghi phạm + đánh giá top-k theo nhãn campaign | Có; pulse-live-recalibrated: top-1 100% trên 36 case |
 | Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
 | Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | **Hiệu quả**: tỉ lệ attack có case từ 11% lên 72% |
 | Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | **Có (5.7)**: 72% attack có case, top-1 98,6% (xếp hạng lại), flow 3%, p50 7 s |
@@ -254,7 +254,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - `runtime_tree.py` — dựng đồ thị;
   - `ranking.py`, `evaluate_ranking.py` — xếp hạng và đánh giá.
 - **Policy Tetragon:** `sentinel_pulse/k8s/tetragon-rca-*.yaml`.
-- **Khởi chạy:** `scripts/launch_rca_followup.sh` (r6b/r6c + campaign tiếp nối), `scripts/launch_run.sh` (lượt live kế tiếp: Pulse + RCA cấu hình đầy đủ), `scripts/launch_r6.sh` (r6).
+- **Khởi chạy:** `scripts/launch_rca_subscriber.sh` (r6b/r6c + campaign tiếp nối), `scripts/launch_run.sh` (lượt live kế tiếp: Pulse + RCA cấu hình đầy đủ), `scripts/launch_pulse_live_recalibrated.sh` (rca-flow).
 - **Cấu hình:** `/etc/sentinel-pulse-rca/runtime-events-20261019-r6c.json`.
 - **Đầu ra:** `/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/`.
 
@@ -269,31 +269,31 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 
 | Thời điểm | Việc đã làm | Kết quả / bằng chứng |
 |---|---|---|
-| 18/10 | Tìm nguyên nhân 99,9% case r2 thiếu connect: connection pool | mục 5.1 |
+| 18/10 | Tìm nguyên nhân 99,9% case rca-runtime-v1 thiếu connect: connection pool | mục 5.1 |
 | 18/10 ~15:22 | Viết policy flow `sentinel-rca-flow-v1` + node `active_flow`; server dry-run đạt | `c71f604` |
 | 18/10 ~15:43 | Xếp hạng nghi phạm + `evaluate_ranking` | `52d1a08` |
-| 19/10 02:05–02:13 | Phát hiện 378 client `tetra getevents` mồ côi; sửa bằng `timeout` + xoay vòng stream; dừng r2; dọn client | `d791d24`; mục 5.2 |
-| 19/10 02:14 | Apply `sentinel-rca-flow-v1`; chạy subscriber r6 (6 stream, case đầu tiên sau < 1 phút) | mục 5.3 |
+| 19/10 02:05–02:13 | Phát hiện 378 client `tetra getevents` mồ côi; sửa bằng `timeout` + xoay vòng stream; dừng rca-runtime-v1; dọn client | `d791d24`; mục 5.2 |
+| 19/10 02:14 | Apply `sentinel-rca-flow-v1`; chạy subscriber rca-flow (6 stream, case đầu tiên sau < 1 phút) | mục 5.3 |
 | 19/10 02:16 | Sửa script khởi chạy (chép từ NFS lỗi ACL; unit file rỗng do stdin của sudo) | `a9cc061` |
-| 19/10 02:26 | r6: 73 case, 12% có flow; `containerd-shim` đứng hạng 1 sai → loại container runtime; thêm `--rerank-db` | `54f4635` |
+| 19/10 02:26 | rca-flow: 73 case, 12% có flow; `containerd-shim` đứng hạng 1 sai → loại container runtime; thêm `--rerank-db` | `54f4635` |
 | 19/10 02:30 | Subscriber kẹt IO do job NFS nặng; dừng job; RCA hồi phục | mục 5.4 |
-| 19/10 10:06 | Chép 2.001 case + `context.sqlite3` của r6 sang NFS (giới hạn 2.000 đang xóa case campaign) | `rca-r6-copy-20261019/` |
-| 19/10 10:08 | Đánh giá xếp hạng R6: 36/315 attack có case, top-1 100%; phân rã nguyên nhân thiếu case | mục 5.3 |
+| 19/10 10:06 | Chép 2.001 case + `context.sqlite3` của rca-flow sang NFS (giới hạn 2.000 đang xóa case campaign) | `rca-r6-copy-20261019/` |
+| 19/10 10:08 | Đánh giá xếp hạng pulse-live-recalibrated: 36/315 attack có case, top-1 100%; phân rã nguyên nhân thiếu case | mục 5.3 |
 | 19/10 10:23–10:24 | Case tiếp nối cho exec mới trong cooldown; siết điều kiện để bỏ qua probe định kỳ | `5436d11`, `3e457fe` |
 | 19/10 10:33 | Dừng job rolling recalibration của Pulse để không tranh IO trong campaign tiếp nối | — |
-| 19/10 10:36 | Chạy r6b (baseline binary lấy từ r6, giữ 20.000 case, case tiếp nối); dừng r6 | `15dab8a`, `scripts/launch_rca_followup.sh` |
-| 19/10 10:36 | Cài campaign tiếp nối 105 cặp trên capture R6 (attack từ 10:46) | `coordinator-rca-followup-20261019/` |
+| 19/10 10:36 | Chạy rca-followup-v1 (baseline binary lấy từ rca-flow, giữ 20.000 case, case tiếp nối); dừng rca-flow | `15dab8a`, `scripts/launch_rca_subscriber.sh` |
+| 19/10 10:36 | Cài campaign tiếp nối 105 cặp trên capture pulse-live-recalibrated (attack từ 10:46) | `coordinator-rca-followup-20261019/` |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
-| 19/10 10:46 | r6b mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
-| 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang r6c | `ea5a3ee` |
-| 19/10 10:52 | Campaign tiếp nối 5/105 cặp; r6c 30 case, chưa có case tiếp nối (đang trong 330 s khởi động) | — |
-| 19/10 16:24 | Chép 2.140 case + DB của r6c; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
+| 19/10 10:46 | rca-followup-v1 mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
+| 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang rca-followup | `ea5a3ee` |
+| 19/10 10:52 | Campaign tiếp nối 5/105 cặp; rca-followup 30 case, chưa có case tiếp nối (đang trong 330 s khởi động) | — |
+| 19/10 16:24 | Chép 2.140 case + DB của rca-followup; đánh giá 99 trial sau khởi động: 72% có case, top-1 lưu sẵn 56% | mục 5.7 |
 | 19/10 16:25 | Phát hiện baseline chưa được chép (lỗi stdin sudo) → probe bị coi là `novel_binary` | mục 5.7 |
-| 19/10 16:26 | Gộp baseline r6 vào bản sao + DB live r6c; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |
+| 19/10 16:26 | Gộp baseline rca-flow vào bản sao + DB live rca-followup; xếp hạng lại: top-1 98,6%; sửa script chép baseline | `RANKING-reranked.json` |
 | 19/10 16:30 | Đo độ trễ nạp: sự kiện policy trễ ~80 s, lifecycle < 5 s; Tetragon giao tức thì; subscriber nhàn rỗi | mục 5.8 |
 | 19/10 16:35 | Thu hẹp hook file về đường dẫn nhạy cảm, bỏ `commit_creds`; dry-run rồi apply tại chỗ | `c233a42` |
 | 19/10 16:40 | Sự kiện policy chỉ còn trễ 0,2–1,5 s; nhận diện xoay vòng stream theo tuổi | `c233a42` |
 | 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
-| 19/10 17:57 | Biên nhận JSON cho độ phủ (r6: 36/315; r6c: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của r6 (p50 8,4 s) | `validation-evidence/results-20261019/` |
+| 19/10 17:57 | Biên nhận JSON cho độ phủ (rca-flow: 36/315; rca-followup: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của rca-flow (p50 8,4 s) | `validation-evidence/results-20261019/` |
 | 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
-| 19/10 18:45 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên R6: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
+| 19/10 18:45 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên pulse-live-recalibrated: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |

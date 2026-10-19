@@ -13,8 +13,8 @@ def test_profile_policies_and_fixtures_match_repository():
         assert (ROOT/spec['fixture']).is_file(), name
 
 
-def test_r6_profile_registers_benign_controls_without_raw_frames():
-    spec = PROFILES['r6']
+def test_pulse_live_recalibrated_profile_registers_benign_controls_without_raw_frames():
+    spec = PROFILES['pulse-live-recalibrated']
     assert spec['benign_exec_control'] is True
     assert spec['write_raw_frames'] is False
     assert 'benign_exec_control' in (ROOT/spec['fixture']).read_text()

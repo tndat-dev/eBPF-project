@@ -4,15 +4,15 @@ Các JSON ở đây được sao chép trực tiếp qua SSH/SFTP từ NFS của
 R3 là đánh giá development trên scenario đã biết, dùng frozen candidate preview;
 control mang nhãn expected-normal và còn cần review.
 
-- `r3-campaign-TERMINAL.json`: terminal gốc, 315 cặp attack/control.
-- `r3-campaign-START.json`, `r3-CONFIG.json`: đăng ký và binding gốc.
-- `r3-replay-TERMINAL.json`, `r3-replay-START.json`, `r3-replay-CHANGES.json`:
+- `pulse-attack-dev-campaign-TERMINAL.json`: terminal gốc, 315 cặp attack/control.
+- `pulse-attack-dev-campaign-START.json`, `pulse-attack-dev-CONFIG.json`: đăng ký và binding gốc.
+- `pulse-attack-dev-replay-TERMINAL.json`, `pulse-attack-dev-replay-START.json`, `pulse-attack-dev-replay-CHANGES.json`:
   replay sau sửa evaluator cho warming không có policy hash; terminal gốc được giữ nguyên.
-- `r4-CONFIG.json`: study sửa điều kiện chờ segment đóng, cùng khoảng selection R3.
-- `r4-STATUS-at-inspection.json`: snapshot tiến độ study, có timestamp trong file.
-- `r4-INDEX.json`, `r4-INPUTS.json`: index workload/arm và danh sách input đã seal.
-- `r5-CONFIG.json`, `r5-STATUS-at-inspection.json`: đăng ký và tiến độ follow-up RabbitMQ.
-- `r5-START.json`, `r5-RESULTS.json`, `r5-TERMINAL.json`: đủ 15 cặp RabbitMQ, giữ hai attack unknown.
+- `syscall-arms-CONFIG.json`: study sửa điều kiện chờ segment đóng, cùng khoảng selection R3.
+- `syscall-arms-STATUS-at-inspection.json`: snapshot tiến độ study, có timestamp trong file.
+- `syscall-arms-INDEX.json`, `syscall-arms-INPUTS.json`: index workload/arm và danh sách input đã seal.
+- `pulse-attack-dev-rabbitmq-CONFIG.json`, `pulse-attack-dev-rabbitmq-STATUS-at-inspection.json`: đăng ký và tiến độ follow-up RabbitMQ.
+- `pulse-attack-dev-rabbitmq-START.json`, `pulse-attack-dev-rabbitmq-RESULTS.json`, `pulse-attack-dev-rabbitmq-TERMINAL.json`: đủ 15 cặp RabbitMQ, giữ hai attack unknown.
 
 Nguồn gốc R3: `/mnt/sentinel-pulse-archive/matched-parallel-r3-20261015`.
 Replay: `/mnt/sentinel-pulse-archive/matched-parallel-r3-replay-20261015`.

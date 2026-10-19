@@ -1,4 +1,4 @@
-"""Verify and freeze the completed R4 matched syscall model set.
+"""Verify and freeze the completed syscall-arms matched syscall model set.
 
 This audits fit coverage and artifact integrity only. It does not evaluate a
 normal holdout, an attack, a confusion matrix, or promote any feature arm.
@@ -27,39 +27,39 @@ def audit(root: Path, source_root: Path | None = None, config_path: Path | None 
         for path in (config_path, start_path, index_path, terminal_path)
     ]
     source_root = Path(source_root or Path(__file__).resolve().parents[2])
-    # R4 was frozen with the flat pre-2026-10-18 layout; accept either layout.
+    # syscall-arms was frozen with the flat pre-2026-10-18 layout; accept either layout.
     matched_source = source_root / "sentinel_pulse" / "syscall_study" / "matched_study.py"
     if not matched_source.is_file():
         matched_source = source_root / "sentinel_pulse" / "matched_study.py"
 
     if terminal.get("state") != "completed_matched_fits":
-        raise ValueError("R4 terminal is not a successful complete fit")
+        raise ValueError("syscall-arms terminal is not a successful complete fit")
     workloads = set(config.get("workload_keys", ()))
     arms = index.get("arms", {})
     seeds = start.get("seeds", ())
     if not workloads or len(workloads) != 21 or not arms or len(arms) != 11 or len(seeds) != 3:
-        raise ValueError("registered R4 scope differs from 21 workloads x 11 arms x 3 seeds")
+        raise ValueError("registered syscall-arms scope differs from 21 workloads x 11 arms x 3 seeds")
     if set(index.get("workloads", {})) != workloads or index.get("missing_workloads"):
         raise ValueError("workload coverage is incomplete")
     if set(terminal.get("unknown", {})):
-        raise ValueError("R4 contains fit/coverage unknowns")
+        raise ValueError("syscall-arms contains fit/coverage unknowns")
 
     config_hash = sha256_file(config_path)
     index_hash = sha256_file(index_path)
     if start.get("config_sha256") != config_hash:
-        raise ValueError("R4 START does not bind the current config")
+        raise ValueError("syscall-arms START does not bind the current config")
     if start.get("source_sha256") != sha256_file(matched_source):
-        raise ValueError("R4 matched-study source differs from the fitted source")
+        raise ValueError("syscall-arms matched-study source differs from the fitted source")
     if terminal.get("index_sha256") != index_hash:
-        raise ValueError("R4 terminal does not bind the current arm index")
+        raise ValueError("syscall-arms terminal does not bind the current arm index")
     if index.get("input_manifest_sha256") != sha256_file(inputs_path):
-        raise ValueError("R4 index does not bind the input manifest")
+        raise ValueError("syscall-arms index does not bind the input manifest")
     if terminal.get("completed_models") != 693 or terminal.get("expected_models") != 693:
-        raise ValueError("R4 terminal does not report 693/693 models")
+        raise ValueError("syscall-arms terminal does not report 693/693 models")
     if len(terminal.get("completed", {})) != 693:
-        raise ValueError("R4 completion ledger does not contain 693 entries")
+        raise ValueError("syscall-arms completion ledger does not contain 693 entries")
     if terminal.get("fresh_blind_complete") is not False or terminal.get("precision") is not None or terminal.get("recall") is not None:
-        raise ValueError("R4 fit terminal unexpectedly claims blind evaluation metrics")
+        raise ValueError("syscall-arms fit terminal unexpectedly claims blind evaluation metrics")
 
     expected_tags = {
         f"{workload}|{arm}|{seed}"
@@ -67,7 +67,7 @@ def audit(root: Path, source_root: Path | None = None, config_path: Path | None 
     }
     completed = terminal["completed"]
     if set(completed) != expected_tags:
-        raise ValueError("R4 model ledger differs from registered workload/arm/seed grid")
+        raise ValueError("syscall-arms model ledger differs from registered workload/arm/seed grid")
 
     artifacts = []
     dimensions = {}
@@ -75,16 +75,16 @@ def audit(root: Path, source_root: Path | None = None, config_path: Path | None 
         workload, arm, seed_text = tag.rsplit("|", 2)
         record = completed[tag]
         if record.get("workload") != workload or record.get("seed") != int(seed_text):
-            raise ValueError(f"R4 model identity mismatch: {tag}")
+            raise ValueError(f"syscall-arms model identity mismatch: {tag}")
         spec = arms[arm]
         if record.get("arm") != spec:
-            raise ValueError(f"R4 arm binding mismatch: {tag}")
+            raise ValueError(f"syscall-arms arm binding mismatch: {tag}")
         expected_dim = 249 - 4 * len(spec["drop"]) + 4 * len(spec["add"])
         if record.get("feature_dim") != expected_dim:
-            raise ValueError(f"R4 feature dimension mismatch: {tag}")
+            raise ValueError(f"syscall-arms feature dimension mismatch: {tag}")
         artifact_name = record.get("artifact", "")
         if not re.fullmatch(r"[0-9a-f]{64}\.pkl", artifact_name):
-            raise ValueError(f"unsafe R4 artifact name: {tag}")
+            raise ValueError(f"unsafe syscall-arms artifact name: {tag}")
         artifact_path = contained_artifact(root, artifact_name)
         digest = sha256_file(artifact_path)
         verify_sha256(artifact_path, record.get("sha256", ""))
@@ -92,7 +92,7 @@ def audit(root: Path, source_root: Path | None = None, config_path: Path | None 
             raise ValueError(f"attack data was used or not excluded in fit: {tag}")
         fit = record.get("fit", {})
         if fit.get("feature_dim") != expected_dim or fit.get("train_examples", 0) < 1200 or fit.get("calibration_examples", 0) < 1200:
-            raise ValueError(f"R4 fit metadata invalid: {tag}")
+            raise ValueError(f"syscall-arms fit metadata invalid: {tag}")
         artifacts.append({"tag": tag, "path": artifact_name, "sha256": digest,
                           "bytes": artifact_path.stat().st_size, "feature_dim": expected_dim})
         dimensions[str(expected_dim)] = dimensions.get(str(expected_dim), 0) + 1

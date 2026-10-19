@@ -291,7 +291,7 @@ class Service:
 
         With a fixed per-container cooldown, a second process started shortly after
         a first (e.g. an attack after a benign launch) never got its own case
-        (R6: 218 of 315 attacks). Bounded: >= 10 s apart, <= 5 follow-ups per cooldown.
+        (pulse-live-recalibrated: 218 of 315 attacks). Bounded: >= 10 s apart, <= 5 follow-ups per cooldown.
         """
         if not self.cfg.get('follow_up_on_new_exec'):
             return False

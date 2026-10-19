@@ -5,14 +5,14 @@ windows from 8.1% to 0.35%, but the burden still drifts upward as the normal
 workload changes. This replays the 48 h soak offline under several
 calibration schedules, with the frozen estimators unchanged:
 
-- ``static``: the c1 span for the whole evaluation (the R6 candidate);
+- ``static``: the c1 span for the whole evaluation (the pulse-live-recalibrated candidate);
 - ``rolling-W-B``: every B hours, calibrate on the preceding W hours;
 - ``guarded``: as rolling, but windows that were positive at alpha x1 when
   scored are left out of later calibrations, so an attack (or any burst)
   cannot teach the calibration that it is normal.
 
 Normal burden is measured on the evaluation span with campaign intervals
-excluded. Attack/control trials (R3/R5) are rescored with the calibration
+excluded. Attack/control trials (pulse-attack-dev) are rescored with the calibration
 that was active when each trial started. Evidence class: development,
 unadjudicated normal.
 """
@@ -226,7 +226,7 @@ def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=
                   campaigns=[str(c) for c in campaign_roots], model_hash=MODEL_HASH, policy_hash=POLICY_HASH,
                   static_calibration_span_unix=list(static_span), evaluation_span_unix=[eval_start, eval_end],
                   excluded_spans=len(exclude), minimum_calibration_examples=MINIMUM, scales=list(SCALES),
-                  evidence_class='development; unadjudicated normal; R3/R5 scenarios previously exposed',
+                  evidence_class='development; unadjudicated normal; pulse-attack-dev scenarios previously exposed',
                   strategies=results, estimators_changed=False,
                   source_sha256=sha256_file(Path(__file__)), started_at_unix=started, finished_at_unix=time.time())
     atomic_json(output, result)

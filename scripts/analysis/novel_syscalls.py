@@ -6,7 +6,7 @@ Normal reference: union of syscall IDs (full_counts_delta keys) per workload ove
 span of the capture. For every campaign interval (attack / benign-launch / idle control) the IDs
 seen in its 15 s that are absent from the reference are listed. Reports, per scenario and label,
 the share of intervals with at least one novel ID and the most frequent novel IDs. Development
-evidence: the same R6 capture supplies reference and intervals (disjoint time spans).
+evidence: the same pulse-live-recalibrated capture supplies reference and intervals (disjoint time spans).
 """
 import argparse, collections, glob, json, time
 from pathlib import Path

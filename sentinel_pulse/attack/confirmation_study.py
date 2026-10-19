@@ -4,7 +4,7 @@
                soak decisions inside a registered time span.
 ``normal``     streams one worker's sealed soak decisions and counts, per
                policy, positive windows and alert episodes per scored hour.
-``attack``     replays recorded attack/control pairs (R3, R5) through the same
+``attack``     replays recorded attack/control pairs (pulse-attack-dev, pulse-attack-dev-rabbitmq) through the same
                interval evaluator used for the published matrix.
 
 ``normal`` and ``attack`` optionally recompute p-values against a calibration
@@ -221,7 +221,7 @@ def main():
         if name != 'calibrate':
             p.add_argument('--calibration', type=Path)
             p.add_argument('--grid', choices=('default', 'looser'), default='default')
-        # defaults: the frozen 15/10 candidate; R6 rows carry ec72d9ea.../f6107351...
+        # defaults: the frozen 15/10 candidate; pulse-live-recalibrated rows carry ec72d9ea.../f6107351...
         p.add_argument('--model-hash', default=MODEL_HASH)
         p.add_argument('--policy-hash', default=POLICY_HASH)
     sub.choices['normal'].add_argument('--worker-root', type=Path, required=True)

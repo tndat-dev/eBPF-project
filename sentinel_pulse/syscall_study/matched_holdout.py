@@ -1,4 +1,4 @@
-"""Score sealed, prospective 500 ms normal captures with the frozen R4 arms.
+"""Score sealed, prospective 500 ms normal captures with the frozen syscall-arms arms.
 
 This is an offline comparison. Predictions remain unadjudicated; replay time
 cannot measure live kernel-to-alert latency. No fitting or promotion occurs.
@@ -26,7 +26,7 @@ IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgro
 
 
 class ContextBuilder:
-    """R4 rolling-10/history-3 preprocessing without a train/calibration split."""
+    """syscall-arms rolling-10/history-3 preprocessing without a train/calibration split."""
 
     def __init__(self, spec, begin, finish):
         self.begin, self.finish = begin, finish
@@ -203,13 +203,13 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
             if 'columns' in row:
                 if (row['columns'] != index['columns'] or len(row['columns']) != 249
                         or row.get('feature_schema_sha256') != expected_schema):
-                    raise ValueError('base schema differs from frozen R4 columns')
+                    raise ValueError('base schema differs from frozen syscall-arms columns')
                 schema_seen = True
                 continue
             if row['window_end'] <= begin or row['window_start'] >= finish:
                 continue
             if not schema_seen or row.get('feature_schema_sha256') != expected_schema or row.get('vector_dim') != 249:
-                raise ValueError('feature row is not bound to the frozen R4 schema')
+                raise ValueError('feature row is not bound to the frozen syscall-arms schema')
             if not validate_row(row, node, registration['capture_run_id'], keys):
                 counts['outside_registered_workload'] += 1
                 continue
@@ -297,12 +297,12 @@ def run(study, output, once=False, poll_seconds=30):
     if sha256_file(audit_path) != registration['fit_audit_sha256']:
         raise ValueError('fit audit changed since holdout registration')
     if sha256_file(study/'TERMINAL.json') != registration['r4_terminal_sha256']:
-        raise ValueError('R4 terminal changed since holdout registration')
+        raise ValueError('syscall-arms terminal changed since holdout registration')
     terminal = json.loads((study/'TERMINAL.json').read_text())
     if sha256_file(study/'INDEX.json') != audit['binding']['index_sha256']:
-        raise ValueError('R4 arm index changed')
+        raise ValueError('syscall-arms arm index changed')
     if sha256_file(Path(__file__).with_name('matched_study.py')) != registration['matched_study_source_sha256']:
-        raise ValueError('R4 preprocessing source differs from registration')
+        raise ValueError('syscall-arms preprocessing source differs from registration')
     index = json.loads((study/'INDEX.json').read_text())
     registration = dict(registration, seeds=[73021, 73022, 73023], episode_quiet_seconds=15.)
     output.mkdir(parents=True, exist_ok=True)
@@ -311,7 +311,7 @@ def run(study, output, once=False, poll_seconds=30):
         binding = dict(schema='pulse-r4-prospective-normal-evaluator-v1',
             registration_sha256=sha256_file(registration_path),
             fit_audit_sha256=sha256_file(audit_path), source_sha256=sha256_file(Path(__file__)),
-            preprocessing='R4 rolling10 + history3, reset at sealed segment and continuity gaps',
+            preprocessing='syscall-arms rolling10 + history3, reset at sealed segment and continuity gaps',
             episode_quiet_seconds=15., episode_unit='workload/arm/seed, union across replicas',
             estimator_rule='joint_p <= frozen per-model alpha; tree/support, no semantic gate',
             predictions='unadjudicated normal observations; preserve every positive',

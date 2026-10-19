@@ -1,4 +1,4 @@
-// Sentinel Pulse attack/control generator R6: the frozen B1 scenarios plus a
+// Sentinel Pulse attack/control generator pulse-live-recalibrated: the frozen B1 scenarios plus a
 // benign control that follows the identical launch path (kubectl exec ->
 // execve -> run -> exit) but only calls getpid. Comparing detections on the
 // benign control with detections on attacks separates "a new process ran"

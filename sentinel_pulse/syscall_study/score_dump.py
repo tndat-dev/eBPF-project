@@ -1,4 +1,4 @@
-"""Keep every R4 arm score on the sealed normal holdout for offline analysis.
+"""Keep every syscall-arms arm score on the sealed normal holdout for offline analysis.
 
 The registered holdout evaluator kept only positive windows, so arms cannot
 be compared under recalibrated p-values or other decision policies. This
@@ -31,9 +31,9 @@ def load_study(study: Path):
     if sha256_file(audit_path) != registration['fit_audit_sha256']:
         raise ValueError('fit audit changed since holdout registration')
     if sha256_file(study/'TERMINAL.json') != registration['r4_terminal_sha256']:
-        raise ValueError('R4 terminal changed since holdout registration')
+        raise ValueError('syscall-arms terminal changed since holdout registration')
     if sha256_file(study/'INDEX.json') != audit['binding']['index_sha256']:
-        raise ValueError('R4 arm index changed')
+        raise ValueError('syscall-arms arm index changed')
     terminal = json.loads((study/'TERMINAL.json').read_text())
     index = json.loads((study/'INDEX.json').read_text())
     registration = dict(registration, seeds=[73021, 73022, 73023], episode_quiet_seconds=15.)

@@ -3,7 +3,7 @@
 # from NFS: running it beside the live pulse-live-recalibrated capture (19/10 18:30-18:55, even from the idle .235)
 # raised worker cadence gaps (+63/+18/+46 in 13 min), so it runs only when no live run is active.
 # PY/PYLIB point at a scikit-learn 1.9.0 stack on .235.
-# trial keys are now campaign-qualified (bare '12:attack' repeated across R3/R5 and across the
+# trial keys are now campaign-qualified (bare '12:attack' repeated across pulse-attack-dev and across the
 # two pulse-live-recalibrated campaigns), so both replays are recomputed, then matched-budget outcomes per trial,
 # then the paired workload-clustered bootstrap of protocol v2.
 set -euo pipefail

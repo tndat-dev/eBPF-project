@@ -93,7 +93,7 @@ def select(directory: Path):
 
 
 def write_policy(selection: dict, template: Path, output: Path, candidate_hash: str, candidate_name: str):
-    """A v2 preview policy file for the selected rule, bound to the R7 candidate."""
+    """A v2 preview policy file for the selected rule, bound to the pulse-stable-candidate candidate."""
     doc = json.loads(template.read_text())
     spec = selection['metrics']['policy']
     doc.update(policy_name=f"stable-candidate-{selection['policy'].replace('_', '-')}-{selection['calibration']}",
@@ -110,7 +110,7 @@ def write_policy(selection: dict, template: Path, output: Path, candidate_hash: 
                                 control_positive_rate=m['control'], benign_exec_positive_rate=m['benign_positive_rate'],
                                 kernel_to_preview_p95_seconds=m['p95'],
                                 normal_alert_episodes_per_replica_hour=m['episodes_per_hour']))
-    doc['evaluation_requirements'] = ('fresh R7 normal soak plus fresh attack campaign with benign-exec controls; '
+    doc['evaluation_requirements'] = ('fresh pulse-stable-candidate normal soak plus fresh attack campaign with benign-exec controls; '
                                       'fast scoring; report idle and benign controls separately; do not tune after outcomes')
     output.write_text(json.dumps(doc, indent=2) + '\n')
     return sha256_file(output)
@@ -121,7 +121,7 @@ def main():
     parser.add_argument('--selection-dir', type=Path)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--from-selection', type=Path, help='write the policy file for an existing SELECTION.json')
-    parser.add_argument('--template', type=Path, help='policy file to copy the registered fields from (R6 policy)')
+    parser.add_argument('--template', type=Path, help='policy file to copy the registered fields from (pulse-live-recalibrated policy)')
     parser.add_argument('--candidate-hash'); parser.add_argument('--candidate-name')
     args = parser.parse_args()
     if args.from_selection:

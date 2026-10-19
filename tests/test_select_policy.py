@@ -54,7 +54,7 @@ def test_written_policy_keeps_the_registered_v2_rule_form(tmp_path):
                      metrics=dict(policy=_policy(2, 2, 5.0), precision=0.97, recall=0.96, control=0.03,
                                   benign_positive_rate=0.8, p95=2.2, episodes_per_hour=4.0))
     out = tmp_path/'policy.json'
-    sp.write_policy(selection, ROOT/'sentinel_pulse/protocol/recalibrated-preview-policy-r6.json', out, 'abc', 'cand')
+    sp.write_policy(selection, ROOT/'sentinel_pulse/protocol/policy-1win-a3.json', out, 'abc', 'cand')
     doc = json.loads(out.read_text())
     rule = dict(doc['rule']); conf = rule.pop('temporal_confirmation'); scale = rule.pop('alpha_scale')
     assert rule == {'score': 'joint_p', 'comparison': 'less_than_or_equal',

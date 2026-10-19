@@ -28,7 +28,7 @@ else
 fi
 POLICY=/home/dat/pulse-stable-candidate-policy.json
 PHASH=$(/home/dat/ml-venv/bin/python -m sentinel_pulse.attack.select_policy --from-selection "$SEL/SELECTION.json" \
-  --template "$SRC/sentinel_pulse/protocol/recalibrated-preview-policy-r6.json" \
+  --template "$SRC/sentinel_pulse/protocol/policy-1win-a3.json" \
   --candidate-hash "$HASH" --candidate-name "$NAME" --output "$POLICY" | tail -1)
 # The policy must load against the candidate under the normal checks before it is registered.
 /home/dat/ml-venv/bin/python - "$CANDIDATE" "$HASH" "$POLICY" <<'PY'

@@ -1,8 +1,8 @@
 """Create a prospective matched run; the resulting JSON is immutable input.
 
 Profiles pin the candidate, preview policy, attack fixture and run length:
-``r1`` is the original 48 h frozen-candidate run (15/10), ``r6`` the
-recalibrated candidate + R6 policy with benign-exec controls (18/10).
+``pulse-soak-baseline`` is the original 48 h frozen-candidate run, ``pulse-live-recalibrated`` the
+recalibrated candidate + policy-1win-a3 with benign-exec controls; ``custom`` takes every value from the command line.
 """
 import argparse
 import json
@@ -15,24 +15,24 @@ import time
 from ..integrity import sha256_file
 
 PROFILES={
-    'r1':dict(candidate='/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle',
+    'pulse-soak-baseline':dict(candidate='/mnt/sentinel-pulse-archive/runtime-f95867d-20261012/model-bundle',
         model_hash='747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08',
         policy='sentinel_pulse/protocol/idle-aware-candidate-preview-policy-c1.json',
         policy_hash='fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401',
         fixture='testbed/attack/runtime_attack_blind_b1.c',seconds=172800,
         benign_exec_control=False,write_raw_frames=True,fast_scoring=False),
-    # 24 h without raw.jsonl: the 48 h r1 layout (~4.9 GB/h) no longer fits the NFS share.
-    'r6':dict(candidate='/mnt/sentinel-pulse-archive/runtime-recal-c1-20261018/model-bundle',
+    # 24 h without raw.jsonl: the 48 h pulse-soak-baseline layout (~4.9 GB/h) no longer fits the NFS share.
+    'pulse-live-recalibrated':dict(candidate='/mnt/sentinel-pulse-archive/runtime-recal-c1-20261018/model-bundle',
         model_hash='ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4',
-        policy='sentinel_pulse/protocol/recalibrated-preview-policy-r6.json',
+        policy='sentinel_pulse/protocol/policy-1win-a3.json',
         policy_hash='f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb',
-        fixture='testbed/attack/runtime_attack_r6.c',seconds=86400,
+        fixture='testbed/attack/runtime_attack_with_benign_control.c',seconds=86400,
         benign_exec_control=True,write_raw_frames=False,fast_scoring=False),
 }
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
-def plan(source,root,run_id,smoke=False,profile='r1',frozen_source=None,custom=None):
+def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -93,7 +93,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser(description=__doc__)
     for key in ('source','root'):p.add_argument('--'+key,type=Path,required=True)
     p.add_argument('--run-id',required=True);p.add_argument('--smoke',action='store_true')
-    p.add_argument('--profile',choices=sorted(PROFILES)+['custom'],default='r1')
+    p.add_argument('--profile',choices=sorted(PROFILES)+['custom'],default='pulse-soak-baseline')
     p.add_argument('--frozen-source',type=Path,help='source snapshot whose scorer bytes the worker must match')
     for key in ('candidate','model-hash','policy','policy-hash','fixture'):p.add_argument('--'+key)
     p.add_argument('--seconds',type=int,default=86400)

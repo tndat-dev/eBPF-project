@@ -1,8 +1,8 @@
-"""Replay every frozen R4 syscall arm on recorded attack/control pairs.
+"""Replay every frozen syscall-arms syscall arm on recorded attack/control pairs.
 
 The matched worker records full syscall-ID deltas for every window, so one
 live attack campaign is enough to evaluate all arms offline on identical
-intervals: no per-arm attack runs. This rebuilds each arm's R4 contexts from
+intervals: no per-arm attack runs. This rebuilds each arm's syscall-arms contexts from
 the sealed feature segments around every trial and scores all three seeds.
 
 Detection delay here is ``first positive window_end - kernel_event_at``; it
@@ -76,7 +76,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
         by_node[t['node_name']].append(t)
     models, scored = {}, defaultdict(list)   # (tag, trial_key) -> windows
     for node, node_trials in by_node.items():
-        # A later capture (e.g. R6) records the same full-ID deltas under its own worker root.
+        # A later capture (e.g. pulse-live-recalibrated) records the same full-ID deltas under its own worker root.
         worker = dict(output=str(workers_root/node)) if workers_root else registration['workers'][node]
         spans = [(float(t['start_at']) - HISTORY_LEAD_SECONDS, float(t['start_at']) + INTERVAL_SECONDS + 2)
                  for t in node_trials]
@@ -171,8 +171,8 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_ro
     result = dict(schema='pulse-r4-arm-attack-replay-v1', study=str(study), campaigns=[str(c) for c in campaigns],
                   workers_root=str(workers_root) if workers_root else None,
                   trials=len(trials), scored_tag_trials=len(scored), alpha_scales=list(alpha_scales),
-                  evidence_class='development: R3/R5 scenarios were exposed while building the Pulse candidate, '
-                                 'never used to fit or tune R4 arms; not the protocol v2 fresh blind set',
+                  evidence_class='development: pulse-attack-dev scenarios were exposed while building the Pulse candidate, '
+                                 'never used to fit or tune syscall-arms arms; not the protocol v2 fresh blind set',
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
                   arms=report, source_sha256=sha256_file(Path(__file__)), finished_at_unix=time.time())
     atomic_json(output/'RESULTS.json', result)
@@ -185,7 +185,7 @@ def main():
     parser.add_argument('--campaign', type=Path, action='append', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--alpha-scale', type=float, action='append')
-    parser.add_argument('--workers-root', type=Path, help='capture worker root (default: the R4 registration)')
+    parser.add_argument('--workers-root', type=Path, help='capture worker root (default: the syscall-arms registration)')
     args = parser.parse_args()
     result = replay(args.study.resolve(), args.campaign, args.output, tuple(args.alpha_scale or (1.0,)), args.workers_root)
     print(json.dumps({k: v for k, v in result.items() if k != 'arms'}))

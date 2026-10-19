@@ -1,4 +1,4 @@
-"""Compare R4 syscall arms at a matched normal alert budget after recalibration.
+"""Compare syscall-arms syscall arms at a matched normal alert budget after recalibration.
 
 Under the frozen calibration every arm was dominated by the same drift, so
 the arms could not be told apart (18.6-20.8 episodes/hour, within seed
@@ -8,12 +8,12 @@ noise). This applies the remedy that worked for Pulse to every arm alike:
    ``calibration_fraction`` of the sealed normal holdout (score dump);
 2. count normal alert episodes on the rest of the holdout for a grid of
    alpha scales;
-3. score the R3/R5 attack/control intervals (arm attack replay) with the
+3. score the pulse-attack-dev attack/control intervals (arm attack replay) with the
    same calibration and scales;
 4. for each episode budget, give every arm its loosest scale within budget
    and report recall, control-positive rate and detection delay there.
 
-Evidence class: development (R3/R5 scenarios were exposed while building the
+Evidence class: development (pulse-attack-dev scenarios were exposed while building the
 Pulse candidate; the holdout is unadjudicated normal). Delay is
 ``first positive window_end - kernel_event_at``, a lower bound on
 kernel->alert.
@@ -205,7 +205,7 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
                   campaigns=[str(c) for c in campaigns], calibration_fraction=calibration_fraction,
                   calibration_span_unix=[begin, split_at], evaluation_span_unix=[split_at, finish],
                   episode_quiet_seconds=EPISODE_QUIET_SECONDS, scales=list(SCALES), budgets=list(BUDGETS),
-                  evidence_class='development; unadjudicated normal holdout; R3/R5 scenarios previously exposed',
+                  evidence_class='development; unadjudicated normal holdout; pulse-attack-dev scenarios previously exposed',
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
                   arms=arms, matched_budget=matched(arms),
                   source_sha256=sha256_file(Path(__file__)), finished_at_unix=time.time())

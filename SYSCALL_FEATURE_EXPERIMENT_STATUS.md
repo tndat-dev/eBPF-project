@@ -51,9 +51,9 @@ Hệ quả:
 
 - Các ID khác vẫn đóng góp vào tổng, 64 bin băm syscall và 64 bin băm cặp syscall liền nhau. Vì vậy bỏ một kênh tường minh chỉ đo giá trị *tăng thêm* của kênh đó.
 - **Tần suất trên dữ liệu chọn (C3):** 185.303.624 lượt gọi, 135 ID quan sát được; 29 ID này chiếm 35,7% lượt gọi.
-- Bảy kênh bằng 0 trên normal: ptrace, pivot_root, mount, unshare, recvmmsg, setns, execveat. Không loại chúng chỉ vì hiếm: R6 cho thấy chính các syscall hiếm này (ptrace, setns, execveat) là thứ tách attack khỏi process vô hại.
+- Bảy kênh bằng 0 trên normal: ptrace, pivot_root, mount, unshare, recvmmsg, setns, execveat. Không loại chúng chỉ vì hiếm: pulse-live-recalibrated cho thấy chính các syscall hiếm này (ptrace, setns, execveat) là thứ tách attack khỏi process vô hại.
 
-## 4. Thiết kế R4 (matched với Pulse)
+## 4. Thiết kế syscall-arms (matched với Pulse)
 
 **Luồng:** capture cùng snapshot 500 ms với Pulse → phần dữ liệu chọn đã niêm phong → chia theo thời gian → feature của từng cấu hình → fit ExtraTrees + support theo workload và seed → calibration. Không dùng dữ liệu attack để fit.
 
@@ -70,10 +70,10 @@ Tổng 693 model = 21 workload × 11 cấu hình × 3 seed. Fit xong 15/10 05:22
 
 ## 5. Kết quả
 
-### 5.1 Holdout R4 với calibration gốc (xong 16/10)
+### 5.1 Holdout syscall-arms với calibration gốc (xong 16/10)
 
 - **Dữ liệu:** 24 giờ normal sau khi đóng băng (15/10 05:38 → 16/10 05:38 UTC); 147 segment, 500,8 workload-giờ hợp lệ, đủ 21 workload.
-- **Bằng chứng:** `validation-evidence/results-20261018/r4-normal-holdout-TERMINAL.json`.
+- **Bằng chứng:** `validation-evidence/results-20261018/syscall-arms-normal-holdout-TERMINAL.json`.
 
 | Cấu hình | Đợt / workload-giờ (3 seed) | Trung bình |
 |---|---|---:|
@@ -90,9 +90,9 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 - **Kiểm chứng:** số đếm của từng segment khớp evaluator đã đăng ký; 0 segment lệch.
 - **Đầu ra:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/score-dump-20261018/` (2,7 GB).
 
-### 5.3 Replay attack R3/R5 cho mọi cấu hình (xong 18/10)
+### 5.3 Replay attack pulse-attack-dev cho mọi cấu hình (xong 18/10)
 
-- **Dữ liệu:** 693 model × 630 interval (315 attack + 315 control) của R3/R5, dựng lại từ full-ID delta mà matched worker đã ghi. Mọi cấu hình được chấm trên cùng interval, không phải chạy attack riêng cho từng cấu hình.
+- **Dữ liệu:** 693 model × 630 interval (315 attack + 315 control) của pulse-attack-dev, dựng lại từ full-ID delta mà matched worker đã ghi. Mọi cấu hình được chấm trên cùng interval, không phải chạy attack riêng cho từng cấu hình.
 - **Đầu ra:** `arm-attack-replay-r3r5-20261018/`.
 
 | Alpha | Recall | Control dương | p95 (≈ kernel → cửa sổ dương) |
@@ -106,7 +106,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 **Phương pháp** (`syscall_study/arm_budget.py`, job `pulse-r4-arm-budget-20261019`, đầu ra `arm-budget-20261019/`):
 1. Hiệu chỉnh lại p-value của từng model bằng 20% đầu holdout.
 2. Đếm số đợt cảnh báo trên 80% còn lại với các hệ số alpha từ 0,5 đến 30.
-3. Chấm R3/R5 với cùng calibration.
+3. Chấm pulse-attack-dev với cùng calibration.
 4. Nội suy recall và control dương tại đúng ngân sách B (đợt/replica-giờ).
 
 | Cấu hình | B=5: recall / control / p95 | B=12: recall / control / p95 | B=18: recall / control / p95 |
@@ -124,15 +124,15 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 | `drop_exec_pair` | 0,806 / 1,8% / 1,87 s | 0,852 / 4,6% / 1,50 s | 0,875 / 7,4% / 1,46 s |
 
 - Mức thấp nhất đạt được là 2,8–4,2 đợt/replica-giờ, ở alpha×0,5. Ngân sách 0,1 và 1 không đạt được.
-- Lưu ý về R3/R5:
-  - Các kịch bản R3/R5 đã lộ khi phát triển Pulse, nên đây là development.
-  - R3/R5 chưa có đối chứng binary vô hại. R6 cho thấy phần lớn recall đến từ "có process mới", nên recall tuyệt đối ở trên là lạc quan.
+- Lưu ý về pulse-attack-dev:
+  - Các kịch bản pulse-attack-dev đã lộ khi phát triển Pulse, nên đây là development.
+  - pulse-attack-dev chưa có đối chứng binary vô hại. pulse-live-recalibrated cho thấy phần lớn recall đến từ "có process mới", nên recall tuyệt đối ở trên là lạc quan.
   - So sánh tương đối giữa các cấu hình vẫn có giá trị.
 
-### 5.5 Trên campaign R6 có binary vô hại (xong 19/10 ~13:40)
+### 5.5 Trên campaign pulse-live-recalibrated có binary vô hại (xong 19/10 ~13:40)
 
-- **Dữ liệu:** replay 693 model trên 420 cặp của R6 (315 cặp chính + 105 cặp tiếp nối), tổng 1.260 interval gồm attack, binary vô hại và control. Dùng full-ID delta mà worker R6 đã ghi.
-- **So sánh ở cùng ngân sách:** calibration lấy từ holdout R4 như mục 5.4.
+- **Dữ liệu:** replay 693 model trên 420 cặp của pulse-live-recalibrated (315 cặp chính + 105 cặp tiếp nối), tổng 1.260 interval gồm attack, binary vô hại và control. Dùng full-ID delta mà worker pulse-live-recalibrated đã ghi.
+- **So sánh ở cùng ngân sách:** calibration lấy từ holdout syscall-arms như mục 5.4.
 - **Đầu ra:** `matched-r6-20261018/analysis-20261019/arm-{replay,budget}-r6/`.
 
 Ở cùng ngân sách (đợt/replica-giờ), mỗi ô ghi: recall / control dương / **binary vô hại dương** / p95.
@@ -160,11 +160,11 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   Thêm toàn bộ syscall chỉ làm model nhạy hơn với *mọi* process mới, kể cả process vô hại. Đây là bằng chứng để **không** chọn `plus_all_*`, dù recall của chúng cao hơn.
 - Kết luận củng cố mục 1: giữ `base29`. Việc tách ác ý khỏi bất thường không giải được bằng chọn syscall; cần đặc trưng khác (tham số syscall, độ bền tín hiệu) hoặc tầng RCA.
 - Ở ngân sách ≤ 8, p95 của hầu hết cấu hình > 2 s.
-- Từ 13:00, worker R6 ghi thêm 17/5/18 cadence gap trùng lúc job này đọc NFS. Các cửa sổ đó đã tự động không tính là normal.
+- Từ 13:00, worker pulse-live-recalibrated ghi thêm 17/5/18 cadence gap trùng lúc job này đọc NFS. Các cửa sổ đó đã tự động không tính là normal.
 
 ### 5.6 Lỗi khóa trial và kế hoạch khoảng tin cậy (19/10 17:52)
 
-- **Lỗi khóa trial (của mình).** `arm_attack_replay` dùng khóa `(tag, trial_id)`, mà `trial_id` (ví dụ `"12:attack"`) đánh số lại từ đầu trong mỗi campaign. R3 với R5, và campaign R6 chính với campaign tiếp nối, có thể trùng khóa trên cùng workload. Khi đó cửa sổ của trial này ghi đè trial kia, trial bị chấm sai hoặc thành unknown.
+- **Lỗi khóa trial (của mình).** `arm_attack_replay` dùng khóa `(tag, trial_id)`, mà `trial_id` (ví dụ `"12:attack"`) đánh số lại từ đầu trong mỗi campaign. pulse-attack-dev với pulse-attack-dev-rabbitmq, và campaign pulse-live-recalibrated chính với campaign tiếp nối, có thể trùng khóa trên cùng workload. Khi đó cửa sổ của trial này ghi đè trial kia, trial bị chấm sai hoặc thành unknown.
   - Ước tính ảnh hưởng ~5% số trial của các workload trùng. Kết luận ở 5.3–5.5 khó thay đổi, nhưng sẽ được chạy lại.
   - **Sửa:** khóa gồm cả đường dẫn campaign (`trial_key`); `arm_budget` từ chối replay cũ dùng khóa trần.
 - **Khoảng tin cậy** (`syscall_study/arm_bootstrap.py`):
@@ -172,9 +172,9 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   - Kết quả mỗi trial lấy trung bình 3 seed, so ghép cặp theo trial với base29.
   - Bootstrap lấy mẫu lại theo **workload**, 10.000 lần.
   - Báo cáo: recall, tỉ lệ binary vô hại, khoảng cách recall − benign, chênh lệch so với base29 kèm CI 95%, và cận dưới một phía 95% của chênh recall. Cận dưới này là điều kiện "không kém hơn −3 điểm" của protocol v2.
-- **Lịch:** chạy trên `.235` lúc 18:30–18:55 thì **phải dừng**: tải lên NFS server làm worker R6 tăng cadence gap, và replay 693 model làm master2 treo (xem [Pulse](SENTINEL_PULSE_STATUS.md) mục 8b). Đã dời sang **20/10 02:20 trên `.234`** (`pulse-syscall-bootstrap-20261020c`, MemoryMax 32 GB, ghi vào `bootstrap-20261020b/`), sau khi R6 kết thúc. Thư mục `bootstrap-20261020/` chỉ chứa replay dở, không dùng.
+- **Lịch:** chạy trên `.235` lúc 18:30–18:55 thì **phải dừng**: tải lên NFS server làm worker pulse-live-recalibrated tăng cadence gap, và replay 693 model làm master2 treo (xem [Pulse](SENTINEL_PULSE_STATUS.md) mục 8b). Đã dời sang **20/10 02:20 trên `.234`** (`syscall-arms-bootstrap`, MemoryMax 32 GB, ghi vào `bootstrap-20261020b/`), sau khi pulse-live-recalibrated kết thúc. Thư mục `bootstrap-20261020/` chỉ chứa replay dở, không dùng.
   - Thư viện: thư mục `/home/dat/pylib-sklearn19` (numpy 2.5.2, scikit-learn 1.9.0, scipy 1.18.0, giống hệt `.234`). Venv sẵn có trên `.235` là sklearn 1.8.0 nên không dùng.
-  - Các bước: chạy lại hai replay (R3/R5, R6), `arm_budget` có ghi kết quả từng trial, rồi bootstrap.
+  - Các bước: chạy lại hai replay (pulse-attack-dev, pulse-live-recalibrated), `arm_budget` có ghi kết quả từng trial, rồi bootstrap.
   - Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
@@ -196,9 +196,9 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Fit 693 model matched, audit hash | Có |
 | Holdout 24 giờ với calibration gốc | Có (5.1) |
 | Xuất điểm đầy đủ | Có (5.2) |
-| Replay attack R3/R5 cho mọi cấu hình | Có (5.3) |
+| Replay attack pulse-attack-dev cho mọi cấu hình | Có (5.3) |
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
-| Replay mọi cấu hình trên campaign R6 + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
+| Replay mọi cấu hình trên campaign pulse-live-recalibrated + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
 | Khoảng tin cậy bootstrap theo protocol v2 | Đã hẹn (5.6), cùng với replay đã sửa khóa trial |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
@@ -230,20 +230,20 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 
 | Thời điểm | Việc đã làm | Kết quả / bằng chứng |
 |---|---|---|
-| 15/10 05:22 UTC | Fit xong 693 model R4, audit hash | `R4_FIT_AUDIT.json` |
+| 15/10 05:22 UTC | Fit xong 693 model syscall-arms, audit hash | `R4_FIT_AUDIT.json` |
 | 16/10 13:03 | Holdout 24 giờ chấm xong (147 segment) | mục 5.1 |
 | 18/10 ~15:19 | Khởi động xuất điểm đầy đủ 693 model | `dc781fe` |
-| 18/10 ~15:44 | Replay attack R3/R5 cho mọi cấu hình | `f2f8976` |
+| 18/10 ~15:44 | Replay attack pulse-attack-dev cho mọi cấu hình | `f2f8976` |
 | 19/10 02:17 | Đọc kết quả replay attack | mục 5.3 |
 | 19/10 02:18 | Viết `arm_budget.py` (286 test pass), snapshot `a9cc061`, chạy job | `a9cc061` |
 | 19/10 02:21 | Xuất điểm worker1 xong; khớp evaluator đã đăng ký | mục 5.2 |
 | 19/10 02:23 | Kết quả sơ bộ: sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ | — |
 | 19/10 10:15 | Job xong; nội suy ở cùng ngân sách → giữ base29, kết quả inconclusive theo protocol v2 | mục 5.4, 6 |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
-| 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
-| 19/10 ~12:50–13:40 | Job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
-| 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
+| 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác syscall-arms) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `syscall-arms-on-pulse-live (job)` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/syscall_arms_on_pulse_live.sh` |
+| 19/10 ~12:50–13:40 | Job `syscall-arms-on-pulse-live (job)` chạy sau campaign tiếp nối (37 phút CPU) | `arm-{replay,budget}-r6/` |
+| 19/10 16:27 | Đọc kết quả trên pulse-live-recalibrated kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
 | 19/10 17:52 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
 | 19/10 17:57 | Đưa kết quả replay/arm-budget và bảng nội suy (biên nhận JSON) vào repo | `validation-evidence/results-20261019/` |
-| 19/10 18:30 | Bỏ việc chờ R6 (không phụ thuộc dữ liệu); chạy job chạy lại + bootstrap trên `.235` với thư viện đúng phiên bản | mục 5.6 |
+| 19/10 18:30 | Bỏ việc chờ pulse-live-recalibrated (không phụ thuộc dữ liệu); chạy job chạy lại + bootstrap trên `.235` với thư viện đúng phiên bản | mục 5.6 |
 | 19/10 18:55 | Dừng job trên `.235` (tranh NFS, master2 treo); dời sang 02:20 trên `.234` | mục 5.6 |
