@@ -296,4 +296,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
 | 19/10 17:57 | Biên nhận JSON cho độ phủ (r6: 36/315; r6c: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của r6 (p50 8,4 s) | `validation-evidence/results-20261019/` |
 | 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
-| 19/10 18:52 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên R6: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
+| 19/10 18:45 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên R6: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
