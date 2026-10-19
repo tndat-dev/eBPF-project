@@ -1,7 +1,8 @@
 # sentinel_pulse — bản đồ mã nguồn
 
-README này chỉ hướng dẫn tìm code. Trạng thái thí nghiệm và số liệu nằm ở
-[../docs/STATUS.md](../docs/STATUS.md).
+README này chỉ hướng dẫn tìm code. Trạng thái và số liệu nằm ở 3 báo cáo:
+[Pulse](../SENTINEL_PULSE_STATUS.md), [syscall](../SYSCALL_FEATURE_EXPERIMENT_STATUS.md),
+[RCA](../RCA_RUNTIME_STATUS.md).
 
 ## Luồng dữ liệu
 

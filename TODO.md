@@ -1,6 +1,7 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 18/10/2026. Trạng thái và số liệu chi tiết: [docs/STATUS.md](docs/STATUS.md).
+Cập nhật 19/10/2026. Trạng thái và số liệu chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+[syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md).
 Ký hiệu: `[x]` xong · `[~]` đang làm · `[ ]` chưa làm · **(cần bạn quyết)** là thao tác
 xóa/dừng trên máy chung hoặc công khai lên GitHub.
 

@@ -1,252 +1,191 @@
-# Thí nghiệm chọn feature/syscall — thuật ngữ, triển khai và tiến độ
+# Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-> **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
-> từng bước nằm ở [docs/STATUS.md](docs/STATUS.md) (mục 9 — Nhật ký làm việc) và [TODO.md](TODO.md).
-
-Cập nhật bằng SSH **15:19 ngày 15/10/2026, UTC+7**. Đây là nhánh nghiên cứu
-chọn feature, chạy song song nhưng không đổi model [Pulse realtime](SENTINEL_PULSE_STATUS.md)
-hoặc [RCA](RCA_RUNTIME_STATUS.md). Chỉ cập nhật trạng thái hiện hành, không
-thêm checkpoint theo từng lần kiểm tra.
+Cập nhật **19/10/2026 10:45 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 ## 1. Câu hỏi nghiên cứu và kết luận hiện tại
 
-Tập 29 syscall tường minh có cần bổ sung, bỏ bớt hoặc thay nhóm nào để phát
-hiện tốt hơn trong cùng ngân sách false alert và latency? Không chọn đơn
-thuần theo syscall xuất hiện nhiều hoặc biến thể có ít raw flags nhất.
+**Câu hỏi:** bộ 29 syscall tường minh của Pulse có nên thêm, bớt hay thay nhóm nào để phát hiện tốt hơn, khi giữ cùng ngân sách cảnh báo nhầm và cùng độ trễ?
 
-**Chưa có bằng chứng cuối để kết luận syscall nào tối ưu.** R4 đã fit đủ và
-được audit integrity; hiện đang thu normal exposure sau thời điểm fit freeze.
-Independent normal chưa đủ 24 giờ; fresh paired blind attack và phân tích
-thống kê vẫn chưa chạy.
+**Kết luận hiện tại (development, 19/10):**
 
-## 2. Tiến trình đang chạy ngầm
+- Đặt 11 cấu hình về **cùng số đợt cảnh báo trên normal** (sau khi hiệu chỉnh lại p-value giống Pulse) thì các cấu hình 29 syscall khác nhau chỉ trong phạm vi nhiễu.
+- Mở rộng ra toàn bộ syscall (`plus_all_*`) làm tăng recall khi ngân sách rộng, nhưng đồng thời tăng control dương và chậm hơn khi ngân sách chặt.
+- Bỏ cặp exec (`drop_exec_pair`) luôn kém nhất.
+- **Không cấu hình nào đạt ngân sách 0,1 hay 1 đợt/replica-giờ** chỉ bằng chỉnh ngưỡng.
 
-| Mục | Trạng thái xác minh |
+Hệ quả:
+- **Giữ `base29` cho candidate Pulse kế tiếp.** Chọn syscall không phải nút thắt; gánh cảnh báo phải giải ở calibration và cách gộp theo thời gian.
+- Theo luật chọn của protocol v2 (mục 6), kết quả là **inconclusive**: không có cấu hình nào thỏa ngân sách cảnh báo, nên không có căn cứ chọn bộ nhỏ hơn hay lớn hơn.
+
+## 2. Thuật ngữ
+
+| Thuật ngữ | Nghĩa |
 |---|---|
-| VM | 10.1.16.234 — k8s-master.local |
-| Unit | pulse-matched-study-parallel-r4-20261015.service |
-| Fit systemd | inactive/dead, `Result=success`, `ExecMainStatus=0`, `NRestarts=0` |
-| Pha | matched fits hoàn tất; đang thu và chấm normal holdout |
-| Fit hoàn tất | **693/693** (21 workload × 11 arm × 3 seed) |
-| Audit | `R4_FIT_AUDIT.json`: `fit_set_verified_blind_evaluation_pending`; đã kiểm tra hash 693 artifact |
-| Confusion matrix | **Chưa có**; precision/recall vẫn null, không suy diễn từ fit audit |
-| Phạm vi | 21 workload/container key, gồm notification/payment |
-| Thiết kế | 11 arm × 3 seed × 21 key = 693 model |
-| Source cố định | /mnt/sentinel-pulse-archive/runtime-control-981aef3/source |
-| Output/checkpoint | /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study |
-| Evaluator mới | `pulse-syscall-holdout-r4-20261015.service`, active/running trên .234 |
-| Tiến độ evaluator lúc 15:19 | 11 segment hoàn tất; đang chấm worker1/s00027; 1.858.560 context-model đã chấm; 594/693 model đã nạp |
-| Tình trạng evaluator lúc 15:19 | active/running, `NRestarts=0` |
+| Syscall ID / ABI | Số định danh syscall theo kiến trúc (x86-64); không dùng nguyên cho ARM/Windows |
+| Kênh tường minh (explicit channel) | Feature riêng cho một syscall, ví dụ log-count và tỷ lệ của `connect` |
+| Full-ID histogram/delta | Số đếm của mọi syscall ID, kể cả ngoài 29; dùng để thử thêm kênh offline |
+| Cấu hình (arm) | Một biến thể bộ feature; không phải một attack |
+| Addition / ablation | Thêm kênh / bỏ kênh (bỏ cả nhóm tương đương) để đo đóng góp |
+| Seed | Hạt ngẫu nhiên đã khóa (73021, 73022, 73023); báo cáo đủ cả 3 seed, không chọn seed tốt nhất |
+| Matched / paired | Mọi cấu hình được chấm trên cùng dữ liệu, cùng container, cùng interval |
+| Holdout | Dữ liệu normal sau khi đóng băng, không dùng để fit |
+| Hiệu chỉnh lại | Tính lại p-value bằng normal gần hơn, model giữ nguyên |
+| Ngân sách cảnh báo (budget) | Số đợt cảnh báo trên normal cho phép mỗi replica-giờ |
+| Recall@budget | Recall khi mỗi cấu hình được chỉnh ngưỡng để dùng đúng cùng một ngân sách |
+| Đợt cảnh báo (episode) | Các cửa sổ dương của một container cách nhau < 15 s gộp làm một |
+| Raw positive | Model gắn cờ; chưa có ground truth nên chưa gọi là FP |
+| Block bootstrap / CI | Lấy mẫu lại theo khối để ước lượng bất định, không coi cửa sổ chồng lấn là độc lập |
 
-R4 fit kết thúc lúc **2026-10-15 05:22:03 UTC**. Audit được ghi lúc
-05:32:27 UTC; kết quả audit bind config/index/input/source/terminal và xác minh
-693 artifact. Terminal R4 vẫn ghi `fresh_blind_complete=false`, precision/recall
-null.
+## 3. 29 syscall đến từ đâu?
 
-Tại **05:35 UTC**, capture service trên cả ba worker (`.237`, `.238`, `.239`)
-đang active, `NRestarts=0`; cùng một NFS archive còn khoảng 267 GiB trống.
-Capture bắt đầu 2026-10-14 17:38:49 UTC, chạy 172.800 giây (48 giờ), nên theo
-đăng ký hiện tại vẫn phủ hết khoảng holdout. Do stream đã tồn tại trước khi
-đăng ký, không gán ngược các row cũ cho holdout. `NORMAL_HOLDOUT_START.json`
-được tạo mới theo kiểu no-overwrite trên NFS và bind audit R4, terminal, source
-và protocol. Manifest SHA-256:
-`ad6d376cca418f350d88c4c411cdcd5cede556c8940d845eb8209af96939e920`.
-Mốc bắt đầu là **2026-10-15 05:38:32 UTC**; hết 24 giờ dự kiến
-**2026-10-16 05:38:32 UTC (12:38:32 UTC+7)**. Tại snapshot 15:19 UTC+7,
-holdout đã chạy khoảng **2 giờ 41 phút (11,2% thời gian đăng ký)**. STATUS ghi
-11 segment hoàn tất, đang ở worker1/s00027; 1.858.560 context-model đã chấm và
-594/693 artifact đã nạp vào evaluator. Đây là trạng thái xử lý, không phải số
-window độc lập hay confusion matrix. Cần chốt segment seal và kiểm tra
-coverage/health sau mốc 24 giờ.
+- Danh sách nằm trong `TRACKED_SYSCALLS` ([sentinel_pulse/collector/features.py](sentinel_pulse/collector/features.py)) và được đối chiếu với [sentinel_pulse/ebpf/pulse_counter_ids.h](sentinel_pulse/ebpf/pulse_counter_ids.h).
+- Tên và ID khớp [bảng ABI Linux x86-64 v6.8](https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl). Bảng ABI chỉ chứng minh ánh xạ là đúng, không chứng minh nên chọn đúng 29 syscall này.
 
-
-Đây mới là thời gian quan sát, chưa phải 24 valid workload-hours: workload
-coverage và telemetry/infrastructure intervals phải kiểm tra từ feature records
-đã seal. Alert/issue không bị xoá hay tự gán normal; chúng sẽ được giữ để review.
-Một interval RCA validation trên worker1 (07:36:34–08:09:19 UTC ngày 15/10)
-đã được ghi vào `INSTRUMENTATION_INTERVALS.jsonl` và
-[receipt C3](validation-evidence/rca-runtime-validation-20261015-c3/HOLDOUT_INSTRUMENTATION_INTERVAL.json).
-Holdout vẫn tiếp tục; interval này không bị gán normal hoặc âm thầm loại khỏi
-evidence. Khi tính kết quả cuối, cần báo sensitivity riêng cho phần exposure
-worker1 giao với interval này.
-Evaluator [matched_holdout.py](sentinel_pulse/matched_holdout.py) đã chạy từ
-13:54:41 UTC+7. Đọc các segment đã seal, kiểm tra hash features/decisions/issues,
-đối chiếu thứ tự 249 cột với R4 rồi dựng rolling-10 và history-3 cho từng arm.
-Mỗi arm dùng đủ ba seed; không refit hoặc thay ngưỡng khi thấy prediction.
-Các model chỉ có trên workload thực sự xuất hiện trên node được chấm; coverage
-21 key được tổng hợp trên cả ba node sau khi đọc hết dữ liệu.
-
-Output: `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/normal-holdout-evaluation`.
-`START.json` bind mã evaluator, đăng ký holdout và audit model. `SEGMENTS.json`
-ghi segment đã chấm; từng segment có `RESULTS.json` và
-`positive-windows.jsonl.gz` giữ đủ prediction dương, identity, timestamp,
-tree/support scores và model tag. Thời gian scored được lấy hợp các khoảng
-replica/node; episode prediction gộp theo workload/arm/seed với khoảng yên
-15 giây. Đây là episode **chưa adjudicate**, chưa phải false alert đã xác nhận.
-
-Job evaluator chạy qua systemd, độc lập SSH. Đây là replay offline nên không
-đo kernel→alert live. Capture và Pulse preview vẫn chạy đồng thời; chưa mở
-fresh blind campaign. Code đã qua kiểm thử so context với preprocessing R4,
-reset khi gap/ineligible, chống sai identity/schema/hash, giữ prediction dương
-và không tự biến chúng thành FP/TN. Source/runtime đã được đồng bộ bằng Git.
-
-## 3. Thuật ngữ sử dụng
-
-| Thuật ngữ | Nghĩa và cách hiểu đúng |
-|---|---|
-| Syscall ID/ABI | Số định danh theo kiến trúc/giao diện kernel; không dùng nguyên ID x86-64 cho ARM/Windows |
-| Explicit channel | Feature riêng cho syscall cụ thể, ví dụ log-count/ratio connect |
-| Full-ID histogram/delta | Số đếm theo từng ID ngoài cả tập 29; dùng để thử bổ sung kênh |
-| Entry/count | Lần gọi được hook quan sát, chưa đồng nghĩa syscall thành công |
-| Arm/variant | Một cấu hình feature để so sánh; không phải một attack mới |
-| Addition study | Thêm kênh ngoài tập hiện tại và đo lợi ích tăng thêm |
-| Ablation/grouped ablation | Bỏ kênh / bỏ cả nhóm tương đương để kiểm tra đóng góp |
-| Seed | Hạt ngẫu nhiên đã khóa; phải báo tất cả seed, không chọn seed tốt nhất |
-| Observable | Toàn bộ thứ sensor/feature/runtime thực sự nhìn thấy, không chỉ số chiều vector |
-| Cohort | Nhóm capture thu cho một vai trò: selection hoặc evaluation |
-| Selection/training prefix | Phần normal được phép dùng để rank ID và fit |
-| Calibration | Normal suffix riêng để biến score thành p-value/ngưỡng |
-| Temporal split/embargo | Tách theo thời gian và chừa khoảng cách giữa hai phần để giảm leakage |
-| Holdout | Tập chưa dùng fit/tune; sau khi đã xem để phát triển thì không còn là blind |
-| Blind attack | Case/binary/seed chưa dùng tune, khóa trước evaluation; không chỉ đổi tên attack cũ |
-| Matched/paired | Các arm được chấm cùng observable, workload, interval và trial |
-| Raw positive | Model gắn cờ; chưa có ground truth nên chưa tự gọi là FP |
-| Confusion matrix | TP/FP/TN/FN theo cùng đơn vị interval/trial, unknown báo riêng |
-| Recall@budget | So recall khi thỏa ngân sách false alert đã đăng ký |
-| Non-inferiority | Chấp nhận tập nhỏ hơn nếu recall không kém base quá biên đã định trước |
-| Block bootstrap/CI | Lấy mẫu lại theo khối phụ thuộc để ước lượng khoảng bất định, không coi window chồng lấn là IID |
-| Feature importance | Mức phụ thuộc của model vào feature; không tự chứng minh root cause hay feature tối ưu |
-| SHA-256/seal | Checksum/binding file để phát hiện thay input/artifact, không phải nhãn chất lượng |
-
-## 4. 29 syscall đến từ đâu?
-
-Tên/ID được đối chiếu [bảng ABI Linux x86-64 v6.8](https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl).
-Tập feature nằm trong [TRACKED_SYSCALLS](sentinel_pulse/features.py), đối chiếu
-header [pulse_counter_ids.h](sentinel_pulse/ebpf/pulse_counter_ids.h).
-Bảng ABI chứng minh **ánh xạ**, không chứng minh nên chọn đúng tập 29.
-
-| Nhóm giả thuyết | Syscall tường minh |
+| Nhóm | Syscall tường minh |
 |---|---|
 | File/I/O | read, write, open, close, chmod, openat |
 | Bộ nhớ | mmap, mprotect |
-| Network | socket, connect, accept, sendto, recvfrom, accept4, recvmmsg, sendmmsg |
+| Mạng | socket, connect, accept, sendto, recvfrom, accept4, recvmmsg, sendmmsg |
 | Process | clone, execve, execveat, clone3 |
-| Quyền/namespace/sandbox | ptrace, setuid, setgid, capset, pivot_root, mount, unshare, setns, seccomp |
+| Quyền / namespace / sandbox | ptrace, setuid, setgid, capset, pivot_root, mount, unshare, setns, seccomp |
 
-Các ID khác vẫn góp vào other/total, syscall bins và transition bins.
-Hash collision không cho phép suy ra count riêng của một ID từ bucket.
-Bỏ explicit channel nhưng giữ bins chỉ đo **giá trị tăng thêm của kênh tường minh**,
-không phải loại hết mọi thông tin của syscall đó khỏi model.
+- Các ID khác vẫn đóng góp vào tổng, 64 bin băm syscall và 64 bin băm cặp syscall liền nhau. Vì vậy bỏ một kênh tường minh chỉ đo giá trị *tăng thêm* của kênh đó.
+- **Tần suất trên dữ liệu chọn (C3):** 185.303.624 lượt gọi, 135 ID quan sát được; 29 ID này chiếm 35,7% lượt gọi.
+- Bảy kênh bằng 0 trên normal: ptrace, pivot_root, mount, unshare, recvmmsg, setns, execveat. Không loại chúng chỉ vì hiếm: R6 cho thấy chính các syscall hiếm này (ptrace, setns, execveat) là thứ tách attack khỏi process vô hại.
 
-Frequency C3 selection: **185.303.624 entry, 135 ID quan sát được**; 29 ID
-chiếm **35,7347% lượt gọi**, không phải 35,7% danh mục syscall Linux.
-Bảy kênh bằng 0 trong normal: ptrace, pivot_root, mount, unshare, recvmmsg,
-setns, execveat. Không được loại chúng chỉ vì hiếm: phải đánh giá trên threat
-model và attack. Ngược lại futex/epoll nhiều không bảo đảm giúp recall.
+## 4. Thiết kế R4 (matched với Pulse)
 
-Nguồn: [frequency artifact](validation-evidence/pulse-parallel-completion-20261014/selection-frequency-description.json),
-[kiểm chứng ID/tên](validation-evidence/syscall-selection-20261007/selection-evidence.json).
+**Luồng:** capture cùng snapshot 500 ms với Pulse → phần dữ liệu chọn đã niêm phong → chia theo thời gian → feature của từng cấu hình → fit ExtraTrees + support theo workload và seed → calibration. Không dùng dữ liệu attack để fit.
 
-## 5. Thiết kế R4 matched với Pulse
-
-Luồng: capture cùng snapshot 500 ms → selection đã seal → temporal split →
-feature của từng arm → fit ExtraTrees/support theo workload và seed →
-calibration → manifest/artifact. **Không đưa attack evaluation vào fit.**
-
-- Giữ full-ID delta, transition bins, rolling-10, history 3 và idle handling.
-  Baseline 249 chiều; arm thêm/bớt kênh có thể đổi số chiều, phải bind schema riêng.
-- Selection đăng ký **00:58:40–02:28:40 ngày 15/10, UTC+7**; train/calibration
-  chia theo thời gian, embargo ≥2 giây, reset history tại biên/gap/identity.
-- Tần suất chọn top ID chỉ lấy training prefix. Các arm dùng cùng nguồn và
-  quy tắc lấy context, không rank theo holdout hoặc attack.
-- Ba seed **73021, 73022, 73023**. Cap train 3.000 và calibration 1.500
-  context theo quy tắc đăng ký; không chọn cấu hình dựa trên kết quả test.
-
-| Arm | Vai trò |
+| Cấu hình | Vai trò |
 |---|---|
-| base29 | Mốc tham chiếu tập hiện tại |
-| plus_top8 / plus_top16 / plus_top32 | Thêm syscall ngoài danh sách theo rank training |
-| plus_security | Thêm 15 syscall theo threat model, không phụ thuộc tần suất |
-| plus_all_observed | Thêm toàn bộ ID quan sát trong training prefix |
-| plus_all_defined_native | Xét tập native ABI đã đăng ký, không chỉ ID đã thấy |
-| drop_accept_pair | Bỏ accept và accept4 |
-| drop_open_pair | Bỏ open và openat |
-| drop_exec_pair | Bỏ execve và execveat |
-| drop_clone_pair | Bỏ clone và clone3 |
+| base29 | Bộ hiện tại của Pulse (mốc tham chiếu) |
+| plus_top8 / plus_top16 / plus_top32 | Thêm syscall theo thứ hạng tần suất trên phần training |
+| plus_security | Thêm 15 syscall bảo mật hiếm (module, kexec, keyctl, bpf, userfaultfd, io_uring…) |
+| plus_all_observed | Thêm mọi ID quan sát được trên phần training |
+| plus_all_defined_native | Thêm toàn bộ ID native ABI đã đăng ký |
+| drop_accept_pair / drop_open_pair / drop_exec_pair / drop_clone_pair | Bỏ từng cặp tương đương |
 
-Nhóm rare-security đăng ký gồm init_module, delete_module, kexec_load,
-add_key, request_key, keyctl, open_by_handle_at, process_vm_readv/writev,
-finit_module, bpf, userfaultfd và io_uring_setup/enter/register.
-Việc có arm không có nghĩa đã có blind result hoặc syscall được phép thành công.
+Tổng 693 model = 21 workload × 11 cấu hình × 3 seed. Fit xong 15/10 05:22 UTC; 693 artifact đã được audit hash (`R4_FIT_AUDIT.json`).
 
-R3 đủ index 21 key nhưng fit 627/693: hai Kafka operator chỉ có 678 calibration
-context vì đọc thiếu segment cuối. R4 đã chờ sealed segment phủ hết selection;
-mỗi operator có 5.734 train và 2.741 calibration context trước cap. Giữ nguyên
-R3, không thay unknown cũ bằng kết quả mới.
+## 5. Kết quả
 
-## 6. Kết quả đã có và giới hạn
+### 5.1 Holdout R4 với calibration gốc (xong 16/10)
 
-| Phần | Kết quả | Được kết luận gì? |
-|---|---|---|
-| C2 ablation | 608 model = 19 key × 32 variant | Có artifact/replay; thiếu notification/payment so với Pulse 21 key |
-| C3 normal | 30 capture, selection/holdout × 5 regime × 3 worker | Có coverage qua steady, toolmix, peak, burst, recovery |
-| C4 | Full raw flags 43,57%, rolling-5 khác training rolling-10 | Không hợp lệ để kết luận quality/FPR |
-| C6 | Sửa 781.239 rows và chấm 608 model; full 11.989/334.655 = 3,5825% raw positives | Sửa preprocessing, không chứng minh recall tốt hơn |
-| A2 addition exploratory | 105/105 model, 0 unknown | Pipeline hoàn tất trên histogram 1 s đã lộ; không matched Pulse 500 ms |
-| R4 matched | 693/693 fit; 693 artifact hash đã audit | Bộ fit integrity hợp lệ; chưa có normal metric, chưa chọn arm, chưa có paired blind matrix |
+- **Dữ liệu:** 24 giờ normal sau khi đóng băng (15/10 05:38 → 16/10 05:38 UTC); 147 segment, 500,8 workload-giờ hợp lệ, đủ 21 workload.
+- **Bằng chứng:** `validation-evidence/results-20261018/r4-normal-holdout-TERMINAL.json`.
 
-[Receipt C3/C6](validation-evidence/pulse-parallel-completion-20261014/SUMMARY.json),
-[C6 verification](validation-evidence/pulse-parallel-completion-20261014/c6-verification.json),
-[R3/R4 evidence](validation-evidence/pulse-matched-r3-r4-20261015/README.md).
+| Cấu hình | Đợt / workload-giờ (3 seed) | Trung bình |
+|---|---|---:|
+| plus_top16 | 16,97 · 18,10 · 20,57 | 18,55 |
+| plus_top32 | 17,26 · 20,32 · 18,92 | 18,83 |
+| base29 | 19,77 · 20,17 · 18,48 | 19,47 |
+| drop_exec_pair | 19,87 · 21,80 · 20,80 | 20,82 |
 
-Holdout C3 đã được xem qua C4/C6 nên chỉ còn exploratory. Normal ablation
-không đánh giá được utility bảo mật của kênh luôn bằng 0. Không ghép hàng triệu
-normal windows với vài trăm attack intervals để tạo matrix khác đơn vị.
+Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các cấu hình nhỏ hơn dao động giữa các seed. Calibration lệch theo thời gian chi phối mọi cấu hình như nhau, nên chưa so sánh được.
 
-## 7. Luật chọn và tiến độ hoàn thiện
+### 5.2 Xuất điểm đầy đủ (xong 19/10 02:21)
 
-Protocol [v2](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký:
+- **Job:** `pulse-r4-score-dump-*` chấm lại 147 segment bằng đúng 693 model. Job lưu điểm tree/support của **mọi** cửa sổ (evaluator đã đăng ký chỉ giữ cửa sổ dương).
+- **Kiểm chứng:** số đếm của từng segment khớp evaluator đã đăng ký; 0 segment lệch.
+- **Đầu ra:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/score-dump-20261018/` (2,7 GB).
 
-- Endpoint chính: scenario-trial recall tại ngân sách false alert khác 0.
-- One-sided 95% upper bound ≤ **0,1 false-alert episode/valid workload-hour**.
-  Không nhầm ngân sách này với interval target 5% của development Pulse.
-- Chọn tập explicit nhỏ nhất có paired 95% lower bound chênh recall so base29
-  **> −3 điểm phần trăm**, đồng thời thỏa ngân sách false alert; thiếu power
-  hoặc coverage thì kết luận inconclusive, không ép chọn.
-- CI block bootstrap 10.000 lần, clustered/paired; kiểm soát nhiều so sánh
-  theo protocol. Không coi hàng trăm nghìn context chồng lấn là độc lập.
+### 5.3 Replay attack R3/R5 cho mọi cấu hình (xong 18/10)
+
+- **Dữ liệu:** 693 model × 630 interval (315 attack + 315 control) của R3/R5, dựng lại từ full-ID delta mà matched worker đã ghi. Mọi cấu hình được chấm trên cùng interval, không phải chạy attack riêng cho từng cấu hình.
+- **Đầu ra:** `arm-attack-replay-r3r5-20261018/`.
+
+| Alpha | Recall | Control dương | p95 (≈ kernel → cửa sổ dương) |
+|---|---|---|---|
+| ×1 | 0,93–0,96 (`drop_exec_pair` 0,87) | 3–4% | 2,1–3,4 s — **vượt 2 s** |
+| ×5 | 0,98–1,00 | 12–16% | 0,9–1,5 s |
+| ×10 | 0,99–1,00 | 22–27% | 0,79–1,1 s |
+
+### 5.4 So sánh ở cùng ngân sách cảnh báo (xong 19/10 10:15)
+
+**Phương pháp** (`syscall_study/arm_budget.py`, job `pulse-r4-arm-budget-20261019`, đầu ra `arm-budget-20261019/`):
+1. Hiệu chỉnh lại p-value của từng model bằng 20% đầu holdout.
+2. Đếm số đợt cảnh báo trên 80% còn lại với các hệ số alpha từ 0,5 đến 30.
+3. Chấm R3/R5 với cùng calibration.
+4. Nội suy recall và control dương tại đúng ngân sách B (đợt/replica-giờ).
+
+| Cấu hình | B=5: recall / control / p95 | B=12: recall / control / p95 | B=18: recall / control / p95 |
+|---|---|---|---|
+| `base29` | 0,900 / 1,8% / 2,05 s | 0,927 / 4,8% / 1,53 s | 0,930 / 6,9% / 1,52 s |
+| `drop_clone_pair` | 0,897 / 1,8% / **1,30 s** | 0,934 / 4,7% / 1,23 s | 0,941 / 7,8% / 1,14 s |
+| `plus_security` | 0,900 / 1,9% / 1,94 s | 0,926 / 4,8% / 1,53 s | 0,932 / 7,9% / 1,35 s |
+| `drop_accept_pair` | 0,902 / 1,8% / 2,07 s | 0,925 / 4,9% / 1,53 s | 0,930 / 7,3% / 1,47 s |
+| `drop_open_pair` | 0,895 / 1,8% / 2,10 s | 0,925 / 4,8% / 1,50 s | 0,929 / 7,3% / 1,50 s |
+| `plus_top8` | 0,887 / 1,7% / 2,08 s | 0,919 / 5,3% / 1,87 s | 0,925 / 7,2% / 1,33 s |
+| `plus_top16` | 0,886 / 2,0% / 2,02 s | 0,921 / 5,1% / 1,81 s | 0,928 / 7,6% / 1,33 s |
+| `plus_top32` | 0,883 / 1,8% / 2,33 s | 0,907 / 5,0% / 1,75 s | 0,921 / 7,6% / 1,70 s |
+| `plus_all_defined_native` | 0,888 / 4,2% / 3,18 s | **0,987** / 8,2% / 1,22 s | 0,990 / 11,0% / 0,99 s |
+| `plus_all_observed` | 0,885 / 3,9% / 3,81 s | 0,981 / 8,5% / 1,99 s | 0,984 / 11,5% / 1,27 s |
+| `drop_exec_pair` | 0,806 / 1,8% / 1,87 s | 0,852 / 4,6% / 1,50 s | 0,875 / 7,4% / 1,46 s |
+
+- Mức thấp nhất đạt được là 2,8–4,2 đợt/replica-giờ, ở alpha×0,5. Ngân sách 0,1 và 1 không đạt được.
+- Lưu ý về R3/R5:
+  - Các kịch bản R3/R5 đã lộ khi phát triển Pulse, nên đây là development.
+  - R3/R5 chưa có đối chứng binary vô hại. R6 cho thấy phần lớn recall đến từ "có process mới", nên recall tuyệt đối ở trên là lạc quan.
+  - So sánh tương đối giữa các cấu hình vẫn có giá trị.
+
+## 6. Luật chọn (protocol v2) và đánh giá theo luật
+
+Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
+- **Endpoint chính:** recall theo trial ở ngân sách cảnh báo khác 0.
+- **Ngân sách cảnh báo:** cận trên một phía 95% ≤ **0,1 đợt/workload-giờ hợp lệ**.
+- **Luật chọn:** chọn bộ tường minh nhỏ nhất có cận dưới 95% của chênh recall so với base29 > −3 điểm phần trăm, đồng thời thỏa ngân sách. Nếu thiếu power hoặc coverage thì kết luận **inconclusive**.
+
+**Đánh giá hiện tại:** không cấu hình nào thỏa ngân sách 0,1, kể cả sau khi hiệu chỉnh lại. Vì vậy theo protocol kết quả là **inconclusive** và giữ base29. Chưa chạy blind paired attack cho các cấu hình, vì điều kiện mở bước đó (ngân sách cảnh báo) chưa đạt.
+
+## 7. Tiến độ và việc tiếp theo
 
 | Bước | Trạng thái |
 |---|---|
-| Full-ID capture, frequency, exploratory ablation/addition | Đã có |
-| 21-key matched arms, grouped/threat-model arms, 3 seed | Đã fit đủ 693 model |
-| Xác minh đủ artifact/freeze arm | Đã xác minh 693 SHA-256; freeze phục vụ đánh giá, không promote |
-| Normal holdout mới độc lập, có health/adjudication | Đã đăng ký lúc 15/10 12:38:32 UTC+7; đang thu, đủ 24 giờ dự kiến 16/10 12:38:32 UTC+7; sau đó seal/review |
-| Evaluator mọi arm trên cùng 500 ms | Đang chạy nền; đã có segment đầu, tiếp tục chấm khi segment mới đóng |
-| Blind binary/cases/seed mới và benign-exec controls | Chưa chạy; chỉ mở sau normal review và policy/evaluator binding |
-| Paired attack/control cho mọi arm | Chưa hoàn tất |
-| Matrix, recall@budget, CI, importance trên evaluation tách biệt | Chưa hoàn tất |
-| Kết luận giữ/bỏ/thêm syscall | Chưa đủ bằng chứng |
-| Xác nhận trên đúng live observable rồi cân nhắc đổi Pulse | Chưa thực hiện |
+| Full-ID capture, tần suất, ablation/addition khám phá (C2–C6, A2) | Có |
+| Fit 693 model matched, audit hash | Có |
+| Holdout 24 giờ với calibration gốc | Có (5.1) |
+| Xuất điểm đầy đủ | Có (5.2) |
+| Replay attack R3/R5 cho mọi cấu hình | Có (5.3) |
+| So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
+| Replay mọi cấu hình trên campaign R6 (có binary vô hại) | **Việc tiếp theo**: R6 có full-ID delta, chấm offline được như 5.3, cho biết cấu hình nào tách attack khỏi process vô hại tốt hơn |
+| Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
+| Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
-Kế hoạch prospective có 8 family ×21 key ×3 rate ×5 seed = **2.520 attack
-interval**, đây là **kế hoạch chưa chạy xong**, không phải kết quả đo.
-OS hiện được kiểm chứng là Linux native x86-64 trên cụm Ubuntu; Windows/ARM,
-cross-kernel và cross-distro cần backend/ABI guard và đánh giá riêng.
+Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ được gánh cảnh báo, phải áp lại cùng phương pháp cho cả 11 cấu hình bằng `arm_budget.py` trên điểm đã xuất. Không cần chấm lại model.
 
-## 8. Kiểm tra tiếp và nguồn code
+## 8. Nguồn code, dữ liệu và lệnh kiểm tra
 
-    sudo systemctl show pulse-matched-worker-parallel-20261015.service -p ActiveState -p MainPID -p NRestarts
-    sudo systemctl show pulse-syscall-holdout-r4-20261015.service -p ActiveState -p MainPID -p MemoryCurrent
-    python3 -m json.tool /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/normal-holdout-evaluation/STATUS.json
-    sudo python3 -m json.tool /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study/R4_FIT_AUDIT.json
+- **Code (`sentinel_pulse/syscall_study/`):**
+  - `matched_study.py` — fit;
+  - `matched_holdout.py` — evaluator holdout;
+  - `score_dump.py` — xuất điểm;
+  - `arm_attack_replay.py` — replay attack;
+  - `arm_budget.py` — so ở cùng ngân sách.
+- **Dữ liệu trên NFS:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/`:
+  - `syscall-matched-study/` — model;
+  - `normal-holdout-evaluation/`;
+  - `score-dump-20261018/`;
+  - `arm-attack-replay-r3r5-20261018/`;
+  - `arm-budget-20261019/`.
+- **Bằng chứng cũ:** `validation-evidence/syscall/` (chọn syscall, C6).
 
-Code: [matched_study.py](sentinel_pulse/matched_study.py),
-[frequency](sentinel_pulse/syscall_frequency_report.py),
-[ablation](sentinel_pulse/syscall_ablation.py),
-[addition](sentinel_pulse/syscall_addition_experiment.py).
-Bước kế tiếp là chờ đủ 24 giờ normal sau freeze; evaluator đồng thời chấm dữ
-liệu đã seal. Sau đó xác minh 21 workload keys, valid exposure, alerts và health
-intervals, review nhãn và chạy blind paired trials theo protocol. Không thay candidate Pulse chỉ vì arm có ít
-raw positives hơn. Không thêm recovery job; capture hiện tại chạy độc lập dưới
-systemd và đủ thời gian cho mốc holdout đã đăng ký.
+```bash
+python3 scripts/ssh_lab.py python3 -m json.tool \
+  /mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/arm-budget-20261019/RESULTS.json | head
+```
+
+## 9. Nhật ký
+
+| Thời điểm | Việc đã làm | Kết quả / bằng chứng |
+|---|---|---|
+| 15/10 05:22 UTC | Fit xong 693 model R4, audit hash | `R4_FIT_AUDIT.json` |
+| 16/10 13:03 | Holdout 24 giờ chấm xong (147 segment) | mục 5.1 |
+| 18/10 ~15:19 | Khởi động xuất điểm đầy đủ 693 model | `dc781fe` |
+| 18/10 ~15:44 | Replay attack R3/R5 cho mọi cấu hình | `f2f8976` |
+| 19/10 02:17 | Đọc kết quả replay attack | mục 5.3 |
+| 19/10 02:18 | Viết `arm_budget.py` (286 test pass), snapshot `a9cc061`, chạy job | `a9cc061` |
+| 19/10 02:21 | Xuất điểm worker1 xong; khớp evaluator đã đăng ký | mục 5.2 |
+| 19/10 02:23 | Kết quả sơ bộ: sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ | — |
+| 19/10 10:15 | Job xong; nội suy ở cùng ngân sách → giữ base29, kết quả inconclusive theo protocol v2 | mục 5.4, 6 |
+| 19/10 10:45 | Viết lại báo cáo này theo trạng thái hiện hành | file này |

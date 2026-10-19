@@ -30,7 +30,7 @@ derive() {
 rca() {
   as_root mkdir -p "/opt/sentinel-pulse-rca/$NAME" "/var/lib/sentinel-pulse-rca/$NAME"
   as_root test -d "/opt/sentinel-pulse-rca/$NAME/source/.git" ||
-    as_root cp -r --preserve=mode,timestamps "$SRC" "/opt/sentinel-pulse-rca/$NAME/source"
+    as_root cp -r "$SRC" "/opt/sentinel-pulse-rca/$NAME/source"
   python3 - "$OLD" >"/tmp/$NAME.json" <<'PY'
 import json, sys
 old = json.load(open('/etc/sentinel-pulse-rca/runtime-events-20261018-r6.json'))

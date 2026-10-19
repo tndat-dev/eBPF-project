@@ -16,7 +16,9 @@ gửi cảnh báo thật hay tự cách ly pod.
 
 | Tài liệu | Nội dung |
 |---|---|
-| [docs/STATUS.md](docs/STATUS.md) | Trạng thái hiện tại, kết quả, thuật ngữ, cách kiểm tra |
+| [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md) | Pulse (phát hiện ML): trạng thái cụm, kết quả, thuật ngữ, nhật ký |
+| [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Thí nghiệm chọn syscall: thiết kế, kết quả, nhật ký |
+| [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) | RCA (đồ thị điều tra): triển khai, kết quả, nhật ký |
 | [TODO.md](TODO.md) | Việc đã xong và việc tiếp theo theo mức ưu tiên |
 | [sentinel_pulse/README.md](sentinel_pulse/README.md) | Bản đồ mã nguồn |
 | [testbed/README.md](testbed/README.md) | Tài sản của cụm thử nghiệm (tải, binary tấn công, policy) |

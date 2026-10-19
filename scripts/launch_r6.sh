@@ -68,7 +68,7 @@ rca() {
   as_root mkdir -p "/opt/sentinel-pulse-rca/$RCA_NAME"
   # NFS ACLs cannot be preserved on local disk; plain mode/timestamps are enough.
   as_root test -d "/opt/sentinel-pulse-rca/$RCA_NAME/source/.git" ||
-    as_root cp -r --preserve=mode,timestamps "$RCA_SOURCE" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
+    as_root cp -r "$RCA_SOURCE" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
   as_root git -C "/opt/sentinel-pulse-rca/$RCA_NAME/source" -c safe.directory='*' rev-parse HEAD
   python3 - "$CAMPAIGN_CONFIG" >"/tmp/$RCA_NAME.json" <<'PY'
 import json, sys

@@ -1,27 +1,23 @@
 # Danh mục tài liệu
 
-## Đang dùng
+## Báo cáo hiện hành (cập nhật liên tục, mỗi file có nhật ký làm việc riêng)
 
-1. [docs/STATUS.md](docs/STATUS.md) — báo cáo trạng thái duy nhất được cập nhật:
-   kiến trúc, thuật ngữ, trạng thái cụm, kết quả, vấn đề chính, cách kiểm tra.
-2. [TODO.md](TODO.md) — danh sách việc theo mức ưu tiên.
-3. README trong từng thư mục (`sentinel_pulse/`, `testbed/`) — hướng dẫn code,
-   không phải báo cáo tiến độ.
+1. [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md) — Pulse (phát hiện ML): tóm tắt, trạng thái cụm và job,
+   thuật ngữ, kết quả các lượt (soak 48 giờ, R3/R5, hiệu chỉnh lại, live R6), hạ tầng chung, nhật ký.
+2. [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) — thí nghiệm chọn syscall:
+   thiết kế R4, holdout, replay attack, so sánh ở cùng ngân sách cảnh báo, luật chọn, nhật ký.
+3. [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) — RCA: subscriber, policy Tetragon, xếp hạng nghi phạm,
+   độ phủ trong campaign, sự cố đã xử lý, nhật ký.
+4. [TODO.md](TODO.md) — danh sách việc theo mức ưu tiên.
+5. README trong từng thư mục (`sentinel_pulse/`, `testbed/`) — hướng dẫn code, không phải báo cáo tiến độ.
 
-## Báo cáo chi tiết cũ (snapshot 15–16/10/2026)
+## Tài liệu cũ
 
-Các file ở thư mục gốc dưới đây là ảnh chụp trạng thái trước khi soak 48 giờ và
-holdout R4 kết thúc. Chúng giữ chi tiết kỹ thuật đầy đủ nhưng số liệu "đang chạy"
-trong đó đã cũ; dùng docs/STATUS.md cho trạng thái hiện tại. Link tới evidence
-trong các file này dùng đường dẫn trước ngày 18/10 (nay nằm dưới
-`validation-evidence/{pulse,syscall,rca}/` hoặc trong tag `archive/pre-refactor-20261018`).
-
-- `SENTINEL_PULSE_STATUS.md` — nhánh phát hiện ML.
-- `SYSCALL_FEATURE_EXPERIMENT_STATUS.md` — thí nghiệm chọn syscall.
-- `RCA_RUNTIME_STATUS.md` — nhánh dựng đồ thị điều tra.
-- `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` — bản tổng hợp dài (giữ theo yêu cầu).
+- `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` — bản tổng hợp dài (snapshot 15–16/10, giữ theo yêu cầu).
+- `docs/*.docx` — báo cáo Word cũ.
 
 ## Bằng chứng
 
-`validation-evidence/` chứa biên nhận, checksum và kết quả từng lượt chạy. Không
-sửa file đã niêm phong để chỉnh báo cáo; dữ liệu thô lớn nằm trên NFS của cụm.
+`validation-evidence/` chứa biên nhận, checksum và kết quả nhỏ của từng lượt chạy
+(`pulse/`, `syscall/`, `rca/`, `results-20261018/`). Không sửa file đã niêm phong để chỉnh báo cáo;
+dữ liệu lớn nằm trên NFS của cụm (`/mnt/sentinel-pulse-archive`).
