@@ -233,7 +233,7 @@ Biên nhận: `receipts/rca-latency-{rca-flow,rca-followup}.json` (`scripts/anal
   | Script bám file trên worker, qua SSH | **0,04 s** | **0,10 s** |
   | Mở lại file NFS (cách hiện tại) | 0,06 s | **7,2 s** |
 
-  Qua NFS, decision hiện ra theo đợt: phần lớn nhanh, nhưng nhiều đợt chậm tới vài giây. Với stream, độ trễ preview → case dự kiến còn ~2,3–2,6 s (chờ nhận nốt sự kiện 2 s + nhịp 0,25 s). Phải đo lại trong pulse-stable-candidate.
+  **Đo thật trên `rca-subscriber`** (45 case, chưa có attack; biên nhận `receipts/rca-latency-rca-subscriber.json`): preview → subscriber thấy decision p50 **0,06 s** / p95 0,14 s; preview → case p50 **2,21 s** / p95 **2,36 s** (trước: 7,0 / 14,5 s). Phần còn lại gần đúng bằng thời gian chờ 2 s để nhận nốt sự kiện Tetragon.
 
 Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) (`rca/`, `receipts/rca-*.json`).
 
@@ -247,7 +247,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Lưu case | rca-runtime-v1: 500; rca-flow: 2.000 (đã xóa mất 48 trial campaign); rca-followup-v1/rca-followup: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
+| Độ trễ preview → case | **`rca-subscriber`: p50 2,21 s / p95 2,36 s** (45 case). Trước đó: ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
@@ -316,3 +316,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 17:57 | Biên nhận JSON cho độ phủ (rca-flow: 36/315; rca-followup: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của rca-flow (p50 8,4 s) | `validation-evidence/results-20261019/` |
 | 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
 | 19/10 18:45 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên pulse-live-recalibrated: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
+| 19/10 19:32 | `rca-subscriber` (đọc decision qua SSH) đo trên lượt live: preview → case p50 2,21 s / p95 2,36 s | `receipts/rca-latency-rca-subscriber.json` |
