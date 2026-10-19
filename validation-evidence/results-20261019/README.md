@@ -35,6 +35,7 @@ Số đo console không còn tái lập được (ghi kèm cách đo trong báo 
 | rca-followup (99 trial sau khởi động): 71 có case (57 là case tiếp nối), 14 + 5 gộp, 9 không có case; p50 7,0 s / p95 14,5 s; chỉ 2/71 có flow | `../receipts/rca-coverage-rca-followup-after-warmup.json` |
 | rca-followup: top-1 lưu sẵn 56% (baseline chưa được chép — lỗi script) → xếp hạng lại với baseline đúng 98,6% (72/73) | `rca-followup-RANKING-stored.json`, `rca-followup-RANKING-reranked.json`, cấu hình `rca-followup-config.json` |
 | Sau khi thu hẹp policy: 392/449 case có flow (87%) | `../receipts/rca-flow-coverage-after-policy-change.json` |
+| rca-subscriber (đọc decision qua SSH), cả đêm 19→20/10: 2.364 case; preview → case p50 2,22 s / p95 2,47 s; decision hiện ra p95 0,23 s | `../receipts/rca-latency-rca-subscriber-night.json` |
 
 ## Thí nghiệm syscall (`syscall/`, `receipts/arm-table-*`)
 

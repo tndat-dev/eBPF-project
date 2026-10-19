@@ -247,7 +247,8 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Lưu case | rca-runtime-v1: 500; rca-flow: 2.000 (đã xóa mất 48 trial campaign); rca-followup-v1/rca-followup: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | **`rca-subscriber`: p50 2,21 s / p95 2,36 s** (45 case). Trước đó: ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
+| Độ trễ preview → case | **`rca-subscriber`, cả đêm 19→20/10: p50 2,22 s / p95 2,47 s (2.364 case)**; decision hiện ra p50 0,07 s / p95 0,23 s; dựng case p50 2,14 s / p95 2,30 s (biên nhận `receipts/rca-latency-rca-subscriber-night.json`). Lần đo đầu (45 case): p50 2,21 s / p95 2,36 s. Trước đó: ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; rca-runtime-v1: p50 11 s / p95 17 s; rca-flow (campaign pulse-live-recalibrated): p50 8,4 s / p95 16,6 s; **rca-followup: p50 7,0 s / p95 14,5 s**. Từ pulse-stable-candidate dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
+| Tải case dưới policy-1win-a3 | `rca-subscriber` 19/10 19:24 → 20/10 02:22: 2.364 case, khoảng 330 case mỗi giờ từ 20:00, toàn bộ là case gốc (không có case tiếp nối vì đây là thời gian normal, không có exec mới). Mức này bị chặn trên bởi cooldown 300 s cho mỗi container; về bản chất đó là số preview dương ở normal của policy 1 cửa sổ alpha×3. Policy chặt hơn ở pulse-stable-candidate sẽ giảm con số này |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
@@ -317,3 +318,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
 | 19/10 18:45 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên pulse-live-recalibrated: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
 | 19/10 19:32 | `rca-subscriber` (đọc decision qua SSH) đo trên lượt live: preview → case p50 2,21 s / p95 2,36 s | `receipts/rca-latency-rca-subscriber.json` |
+| 20/10 02:35 | Đo lại độ trễ trên toàn bộ 2.364 case của đêm (sau khi pulse-live-recalibrated kết thúc): preview → case p50 2,22 s / p95 2,47 s; tải khoảng 330 case mỗi giờ dưới policy-1win-a3 | `receipts/rca-latency-rca-subscriber-night.json`; mục 6 |
