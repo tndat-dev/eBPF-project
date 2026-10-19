@@ -1,0 +1,1 @@
+{"schema": "rca-decision-visibility-v1", "node": "k8s-worker1.local", "seconds": 20, "ssh_follower": {"n": 2542, "p50": 0.039, "p95": 0.095}, "nfs_reopen_read": {"n": 3608, "p50": 0.055, "p95": 7.166}, "measured_at_unix": 1792410328.7826073}

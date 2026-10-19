@@ -203,7 +203,18 @@ Biên nhận: `receipts/rca-latency-{r6,r6c}.json` (`scripts/analysis/rca_latenc
 - **Phần dựng case** gần đúng bằng thời gian chờ 2 s để nhận nốt sự kiện.
 - **Phần lớn nằm ở bước decision của worker hiện ra trên `.234` qua NFS.** Worker chỉ `flush` (không `fsync`) mỗi frame, nên NFS client ghi trễ; subscriber đọc lại mỗi 1 s.
 - Đuôi p95 của r6c dài hơn. Nhiều khả năng do các job đọc NFS nặng trên `.234` lúc 12:50–13:40; chưa tách riêng.
-- **Hướng sửa (chưa làm trước R7, vì đụng vòng lặp của worker vốn quyết định độ trễ phát hiện của Pulse):** worker gửi riêng các preview dương qua kênh nhanh (socket hoặc file local rồi chuyển đi), hoặc chạy subscriber ngay trên từng worker.
+- **Đã sửa (`08be414`), không đụng vòng lặp của worker Pulse.**
+  - Subscriber đọc decision **ngay trên worker** qua SSH, bằng script nhỏ `DECISION_FOLLOWER` chạy với python3 hệ thống. Script bám file `decisions.jsonl` của segment mới nhất, không đọc lại dữ liệu cũ, và chuyển sang segment mới sau khi đọc hết segment cũ.
+  - Nhịp kiểm tra để dựng case giảm từ 1 s xuống 0,25 s.
+  - Bật bằng `decision_stream` trong config; `scripts/launch_run.sh` đã bật sẵn cho R7.
+- **Đo thật trên R6** (worker1, 20 s; biên nhận `receipts/rca-decision-visibility.json`, script `scripts/analysis/rca_decision_visibility.py`):
+
+  | Cách đọc | p50 | p95 |
+  |---|---|---|
+  | Script bám file trên worker, qua SSH | **0,04 s** | **0,10 s** |
+  | Mở lại file NFS (cách hiện tại) | 0,06 s | **7,2 s** |
+
+  Qua NFS, decision hiện ra theo đợt: phần lớn nhanh, nhưng nhiều đợt chậm tới vài giây. Với stream, độ trễ preview → case dự kiến còn ~2,3–2,6 s (chờ nhận nốt sự kiện 2 s + nhịp 0,25 s). Phải đo lại trong R7.
 
 Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) (`rca/`, `receipts/rca-*.json`).
 
@@ -217,7 +228,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; r6 (campaign R6): p50 8,4 s / p95 16,6 s; **r6c: p50 7,0 s / p95 14,5 s** |
+| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; r6 (campaign R6): p50 8,4 s / p95 16,6 s; **r6c: p50 7,0 s / p95 14,5 s**. Từ R7 dùng stream decision qua SSH, decision hiện ra p95 0,1 s |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
@@ -285,3 +296,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 16:42 | Case có flow: 78% (42/54) | mục 5.8 |
 | 19/10 17:57 | Biên nhận JSON cho độ phủ (r6: 36/315; r6c: 71/99), xếp hạng, flow (87% trên 449 case) và độ trễ preview → case của r6 (p50 8,4 s) | `validation-evidence/results-20261019/` |
 | 19/10 18:00 | Phân rã độ trễ preview → case: ~5 s là thời gian decision hiện ra qua NFS, ~2 s là dựng case | mục 5.9 |
+| 19/10 18:52 | Subscriber đọc decision trên worker qua SSH (`DECISION_FOLLOWER`), nhịp dựng case 0,25 s; 307 test pass; đo trên R6: p95 0,10 s so với 7,2 s qua NFS | `08be414`; mục 5.9 |
