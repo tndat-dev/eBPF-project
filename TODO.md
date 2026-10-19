@@ -95,13 +95,15 @@ nghĩa 0,17%), mọi cấu hình syscall ở R4 đều ~19–20 đợt cảnh b�
 
 ## Ưu tiên 3 — Dọn cụm
 
-- [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) lúc 20/10 02:05 để R7 đủ chỗ. (bạn đã cho phép tự quyết 18/10)
+- [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) — đang chạy trên `.236` từ 18:36.
+- [ ] NFS: cho công cụ đọc `.gz`, rồi nén `features`/`decisions` của các lượt đã niêm phong (~200 GB) sau các job đêm 20/10.
+- [x] Dọn ổ worker (19/10 18:30): ~530 GB dữ liệu thô/checkout cũ, 15 unit cũ. (bạn đã cho phép tự quyết 18/10)
 
 - [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).
 - [ ] **(chạy tay)** Gỡ admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`,
       workload baseline v8 (`nginx/redis/loadgen/redis-loadgen`, `postgres/postgres-loadgen`).
       Bộ kiểm duyệt quyền của Claude Code chặn 2 lần → chạy `bash /home/dat/cleanup-manual-20261018.sh` trên .234.
-- [ ] **(chạy tay, cùng script)** Xóa dữ liệu thô cũ trên worker (~117–194 GB/node trong `/var/lib/sentinel-pulse-*`),
+- [x] ~~(chạy tay)~~ Đã xóa 19/10 18:30: dữ liệu thô cũ trên worker (~117–194 GB/node trong `/var/lib/sentinel-pulse-*`),
       checkout/bundle cũ trong `/home/dat`, 5 oneshot cũ còn `enabled` và ~90 unit lỗi mỗi worker.
 - [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
       các thư mục còn được service/evidence tham chiếu, xóa phần còn lại.

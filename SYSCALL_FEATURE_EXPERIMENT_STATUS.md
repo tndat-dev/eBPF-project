@@ -172,7 +172,10 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   - Kết quả mỗi trial lấy trung bình 3 seed, so ghép cặp theo trial với base29.
   - Bootstrap lấy mẫu lại theo **workload**, 10.000 lần.
   - Báo cáo: recall, tỉ lệ binary vô hại, khoảng cách recall − benign, chênh lệch so với base29 kèm CI 95%, và cận dưới một phía 95% của chênh recall. Cận dưới này là điều kiện "không kém hơn −3 điểm" của protocol v2.
-- **Lịch:** job `pulse-syscall-bootstrap-20261020` chạy 20/10 02:15, sau khi R6 kết thúc. Nó chạy lại hai replay (R3/R5, R6), `arm_budget` có ghi kết quả từng trial, rồi bootstrap. Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
+- **Lịch:** không cần chờ R6, vì cả hai campaign đã niêm phong. Job `pulse-syscall-bootstrap-20261019` **đang chạy trên `.235` từ 18:30**, là node rảnh, để không tranh IO với `.234` (RCA) và worker.
+  - Thư viện: thư mục `/home/dat/pylib-sklearn19` (numpy 2.5.2, scikit-learn 1.9.0, scipy 1.18.0, giống hệt `.234`). Venv sẵn có trên `.235` là sklearn 1.8.0 nên không dùng.
+  - Các bước: chạy lại hai replay (R3/R5, R6), `arm_budget` có ghi kết quả từng trial, rồi bootstrap.
+  - Đầu ra: `matched-parallel-r4-20261015/bootstrap-20261020/`.
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
@@ -242,3 +245,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 16:27 | Đọc kết quả trên R6 kèm tỉ lệ dương của binary vô hại: giữ `base29`, loại `plus_all_*` | mục 5.5 |
 | 19/10 17:52 | Phát hiện và sửa lỗi khóa trial trùng giữa các campaign; viết `arm_bootstrap.py` (303 test pass); hẹn job chạy lại + bootstrap 02:15 | `3e2d2e4`; mục 5.6 |
 | 19/10 17:57 | Đưa kết quả replay/arm-budget và bảng nội suy (biên nhận JSON) vào repo | `validation-evidence/results-20261019/` |
+| 19/10 18:30 | Bỏ việc chờ R6 (không phụ thuộc dữ liệu); chạy job chạy lại + bootstrap trên `.235` với thư viện đúng phiên bản | mục 5.6 |

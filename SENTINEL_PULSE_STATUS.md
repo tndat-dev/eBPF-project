@@ -40,14 +40,14 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 | Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
 | RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
 | `pulse-r6-syscall-arms-20261019` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
-| `pulse-compress-raw-48h-20261020` | Timer 20/10 02:05: nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc (`scripts/compress_raw_frames.py`) |
+| `pulse-compress-raw-48h-20261019` (**.236**) | **Đang chạy từ 18:36** (dời từ 02:05 sang node rảnh): nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc. Tỉ lệ 4,4×, dự kiến thu lại ~53 GB |
 | `pulse-rolling-recalibration-20261020b` | Timer 20/10 02:15, trong khoảng không có lượt live; R7 chỉ khởi chạy sau khi job này xong |
 | `pulse-r7-selection-20261020b` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
-| `pulse-syscall-bootstrap-20261020` | Timer 20/10 02:15: chạy lại replay syscall với khóa trial đã sửa, rồi bootstrap (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)) |
+| `pulse-syscall-bootstrap-20261019` (**.235**) | **Đang chạy từ 18:30** (không cần chờ R6; chạy trên node rảnh để không tranh IO với `.234`): replay syscall với khóa trial đã sửa, rồi bootstrap |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
 | NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. R6 cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi R7 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
-| Ổ đĩa worker | worker1 80%, worker4 84%, worker3 55%; dữ liệu thô cũ chờ xóa tay (mục 8) |
+| Ổ đĩa worker | **Đã dọn 19/10 18:30**: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29% (~530 GB) |
 
 ## 3. Thuật ngữ
 
@@ -343,18 +343,26 @@ Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control d
 - thư mục `ml-service*`, `v8-*-staging`, `aims-training-fit-*` (~6,3 GB);
 - 378 client `tetra getevents` mồ côi (19/10).
 
-**Chờ chạy tay** vì bộ kiểm duyệt quyền của Claude Code chặn lệnh: `bash /home/dat/cleanup-manual-20261018.sh` trên `.234`. Script xóa:
+**Đã dọn ngày 19/10 18:30** (bạn yêu cầu trực tiếp; lần này lệnh xóa chạy được):
+- `/var/lib/sentinel-pulse-*` thế hệ cũ (`-500ms`, `-detector`, `-normal-normal-a1-20261013`, smoke/canary…);
+- archive 45–50 GB/node của collector 1 s (104 file gzip từ 20/08, không thí nghiệm nào dùng);
+- checkout/bundle cũ trong `/home/dat`;
+- 15 unit file thế hệ cũ (gồm 5 oneshot còn `enabled`) và các unit lỗi.
+
+Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matched worker R6, collector, resolver vẫn `active`.
+
+**Còn chờ chạy tay** vì `kubectl delete` vẫn bị bộ kiểm duyệt quyền chặn (lần 3): `bash /home/dat/cleanup-manual-20261018.sh` trên `.234`. Script (đã rút gọn chỉ còn phần k8s) xóa:
 - **Tài nguyên v8 trên k8s:**
   - ValidatingAdmissionPolicy `sentinel-experiment-resource-lock`;
   - 2 TracingPolicy `sentinel-syscalls`;
   - workload baseline v8: `nginx`, `redis`, `loadgen`, `redis-loadgen` (production) và `postgres`, `postgres-loadgen` (default). Không workload nào trong số này thuộc 21 workload Pulse.
-- **Dữ liệu thô cũ trên worker** (`/var/lib/sentinel-pulse-*`):
-  - worker1 ~171 GB, worker4 ~194 GB, worker3 ~117 GB;
-  - nội dung cũ trong `/var/lib/sentinel-pulse/`;
-  - ~100 checkout/bundle cũ trong `/home/dat`.
-- **Unit thế hệ cũ:** 5 oneshot vẫn `enabled` (sẽ tự chạy lại khi khởi động máy) và ~90 unit lỗi mỗi worker.
-
-Script giữ lại collector, resolver, control-rotate, `/home/dat/pulse-matched-20261015` (loader/proof) và `/opt/sentinel-pulse`.
+**Vì sao NFS đầy nhanh.**
+- Lượt live ghi ~3,2 GB/giờ (R6: 53 GB sau 16,5 giờ). Mỗi 0,5 s, mỗi container sinh một dòng `features.jsonl` (249 feature + full-ID delta) và một dòng `decisions.jsonl`, đều là JSON text.
+- Soak 48 giờ cũ chiếm 218 GB.
+- Biện pháp:
+  1. Nén `raw.jsonl` cũ (đang chạy).
+  2. Cho công cụ đọc file `.gz`, rồi nén `features`/`decisions` của các lượt đã niêm phong sau khi các job đêm nay xong.
+  3. Lượt mới không ghi `raw.jsonl`.
 
 **Đồng bộ code:**
 - GitHub `main` là nguồn chính; push thẳng, commit chỉ mang danh tính tndat-dev.
@@ -441,3 +449,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:52 | Luật chọn R7 thành code + test; job chọn gọi nó ở bước cuối; sửa watcher (dấu hiệu xong = `SELECTION.json`) | `3e2d2e4` |
 | 17:57 | Gom bằng chứng: 21 file kết quả + 8 biên nhận JSON (`scripts/analysis/*.py`) vào `validation-evidence/results-20261019/`; đối chiếu lại số liệu: bổ sung p95 2,17 s của campaign tiếp nối | mục 9 |
 | 17:59 | `prepare_r7.sh` + chế độ `--from-selection`; thử sinh chính sách và nạp với loader thật trên `ec72d9ea…` | `89f606e` |
+| 18:30 | Dọn ổ worker theo yêu cầu: ~530 GB dữ liệu thô và checkout cũ, 15 unit cũ; `kubectl delete` phần v8 vẫn bị chặn | mục 8 |
+| 18:36 | Chạy nén `raw.jsonl` trên `.236` ngay (tỉ lệ 4,4×); chạy job syscall trên `.235` (venv đúng sklearn 1.9.0) | mục 2 |
