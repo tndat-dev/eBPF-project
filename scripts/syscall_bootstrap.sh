@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Syscall experiment, corrected and with CIs (run on .234 as dat after the R6 capture ends):
+# Syscall experiment, corrected and with CIs. Needs only sealed segments (both R6 campaigns
+# ended 19/10 12:50), so it does not wait for the capture. Run on an idle node (19/10: .235,
+# PY/PYLIB point at a scikit-learn 1.9.0 stack) so .234 (RCA) and the workers keep their IO.
 # trial keys are now campaign-qualified (bare '12:attack' repeated across R3/R5 and across the
 # two R6 campaigns), so both replays are recomputed, then matched-budget outcomes per trial,
 # then the paired workload-clustered bootstrap of protocol v2.
@@ -12,13 +14,11 @@ R5C=/mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-develo
 MAIN=$R6/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
 FOLLOW=$R6/coordinator-rca-followup-20261019/pulse-development-matrix
 OUT=$R4/bootstrap-20261020
-for node in k8s-worker1.local k8s-worker4.local k8s-worker3.local; do
-  until [ -f "$R6/workers/$node/TERMINAL.json" ]; do sleep 60; done
-done
 mkdir -p "$OUT"
 cd /tmp
-export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
-py() { /home/dat/ml-venv/bin/python -u -m "$@"; }
+PY=${PY:-/home/dat/ml-venv/bin/python}
+export PYTHONPATH=${PYLIB:+$PYLIB:}$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
+py() { "$PY" -u -m "$@"; }
 py sentinel_pulse.syscall_study.arm_attack_replay --study "$R4/syscall-matched-study" \
   --campaign "$R3C" --campaign "$R5C" --alpha-scale 1 --output "$OUT/replay-r3r5"
 py sentinel_pulse.syscall_study.arm_attack_replay --study "$R4/syscall-matched-study" --workers-root "$R6/workers" \
