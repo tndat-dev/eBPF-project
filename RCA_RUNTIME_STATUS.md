@@ -160,7 +160,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Top-1, xếp hạng lưu sẵn | 100% (36) | 56% (73 case) — lỗi baseline, xem dưới |
 | **Top-1 / top-5, xếp hạng lại với baseline đúng** | 100% | **98,6% / 98,6%** (72/73; 1 case không có binary tấn công) |
 | Case có `active_flow` | 12% (mẫu sớm) | **3%** (2/71) |
-| Preview → case p50 / p95 | chưa đo | 7,0 / 14,5 s |
+| Preview → case p50 / p95 | 8,4 / 16,6 s | 7,0 / 14,5 s |
 
 - **Lỗi bước chép baseline (của mình).** Bước chép bảng `binaries` từ r6 sang r6b/r6c không chạy, vì `printf password | sudo -S python3 -` khiến Python đọc stdin rỗng thay cho heredoc. Hậu quả:
   - Mọi binary đều có `first_seen` sau mốc đóng băng, nên probe định kỳ (`sh`, `hostname`, `bash`, `pg_isready`, script readiness/liveness của Kafka) được +4 điểm `novel_binary` và đứng trên binary tấn công.
@@ -186,7 +186,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 - **Kết quả:**
   - Lưu lượng worker1: 17.393 → **2.096** sự kiện / 10 s.
   - Sự kiện policy mới nhất chỉ còn trễ 0,2–1,5 s.
-  - **Case có flow: 3% → 78%** (42/54 case tạo trong 7 phút sau khi sửa).
+  - **Case có flow: 3% → 78%** (42/54 case trong 7 phút đầu sau khi sửa) **→ 87%** (392/449 case, 16:36–18:00; biên nhận `rca-flow-coverage-after-policy-change.json`).
 - **Đánh đổi.** Không còn thấy mọi lần mở file, nhất là đường dẫn tương đối, và không còn snapshot credential mỗi lần exec. Ưu tiên của RCA là cây process, thao tác bảo mật, mạng và file nhạy cảm.
 - **Thêm (`c233a42`).** `kubectl` không chuyển mã thoát 124 của `timeout`, nên mỗi lần xoay vòng stream bị coi là mất kết nối và chờ thêm 5 s. Giờ stream thoát ở tuổi xoay vòng được coi là xoay vòng và nối lại ngay; áp dụng từ lần đăng ký subscriber tiếp theo.
 
@@ -200,7 +200,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
-| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; **r6c: p50 7,0 s / p95 14,5 s** |
+| Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2: p50 11 s / p95 17 s; r6 (campaign R6): p50 8,4 s / p95 16,6 s; **r6c: p50 7,0 s / p95 14,5 s** |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 ## 7. Tiến độ
@@ -214,7 +214,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
 | Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | **Hiệu quả**: tỉ lệ attack có case từ 11% lên 72% |
 | Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | **Có (5.7)**: 72% attack có case, top-1 98,6% (xếp hạng lại), flow 3%, p50 7 s |
-| Flow coverage thấp | **Đã sửa (5.8)**: nguyên nhân là backlog sự kiện; sau khi thu hẹp hook file, 78% case có flow |
+| Flow coverage thấp | **Đã sửa (5.8)**: nguyên nhân là backlog sự kiện; sau khi thu hẹp hook file, 87% case có flow (392/449) |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
 | Chứng minh nhân quả | Ngoài phạm vi hiện tại |
 

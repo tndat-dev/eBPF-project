@@ -1,0 +1,109 @@
+{
+  "schema": "pulse-attack-vs-benign-v1",
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix"
+  ],
+  "by_scenario": {
+    "anonymous_mprotect_churn": {
+      "attack": 0.8412698412698413,
+      "benign": 0.8253968253968254,
+      "control": 0.1111111111111111,
+      "counts": {
+        "control_neg": 56,
+        "benign_neg": 11,
+        "attack_pos": 53,
+        "benign_pos": 52,
+        "attack_neg": 10,
+        "control_pos": 7
+      }
+    },
+    "child_ptrace_handshake": {
+      "attack": 1.0,
+      "benign": 0.8064516129032258,
+      "control": 0.09523809523809523,
+      "counts": {
+        "control_neg": 57,
+        "benign_pos": 50,
+        "attack_pos": 62,
+        "benign_neg": 12,
+        "control_pos": 6
+      }
+    },
+    "execveat_resolution_probe": {
+      "attack": 1.0,
+      "benign": 0.7903225806451613,
+      "control": 0.11290322580645161,
+      "counts": {
+        "control_neg": 55,
+        "benign_pos": 49,
+        "attack_pos": 61,
+        "benign_neg": 13,
+        "control_pos": 7
+      }
+    },
+    "invalid_setns_burst": {
+      "attack": 1.0,
+      "benign": 0.8095238095238095,
+      "control": 0.1111111111111111,
+      "counts": {
+        "control_neg": 56,
+        "benign_pos": 51,
+        "attack_pos": 63,
+        "benign_neg": 12,
+        "control_pos": 7
+      }
+    },
+    "seccomp_api_probe": {
+      "attack": 0.8032786885245902,
+      "benign": 0.8095238095238095,
+      "control": 0.14516129032258066,
+      "counts": {
+        "control_neg": 53,
+        "benign_pos": 51,
+        "attack_pos": 49,
+        "benign_neg": 12,
+        "attack_neg": 12,
+        "control_pos": 9
+      }
+    }
+  },
+  "positive_window_fraction": {
+    "control": {
+      "n": 313,
+      "mean": 0.011886557413713961,
+      "median": 0.0,
+      "share_at_least_0_5": 0.006389776357827476
+    },
+    "benign": {
+      "n": 313,
+      "mean": 0.39997021193164334,
+      "median": 0.3333333333333333,
+      "share_at_least_0_5": 0.329073482428115
+    },
+    "attack": {
+      "n": 310,
+      "mean": 0.8682706851505515,
+      "median": 1.0,
+      "share_at_least_0_5": 0.896774193548387
+    }
+  },
+  "first_positive_seconds": {
+    "benign": {
+      "p10": 0.6269176959991455,
+      "p50": 0.9101996421813965,
+      "p90": 2.115632295608522
+    },
+    "attack": {
+      "p10": 0.6030203342437744,
+      "p50": 0.8558142185211182,
+      "p90": 1.146268916130066
+    },
+    "control": {
+      "p10": 1.4942904710769653,
+      "p50": 4.967964053153992,
+      "p90": 12.137715697288513
+    }
+  },
+  "note": "intervals with < 20 scored windows skipped; labels are expected labels (not adjudicated)",
+  "computed_at_unix": 1792407380.241927
+}

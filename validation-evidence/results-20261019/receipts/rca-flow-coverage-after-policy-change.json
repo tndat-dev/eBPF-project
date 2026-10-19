@@ -1,0 +1,96 @@
+{
+  "schema": "rca-flow-coverage-v1",
+  "cases_dir": "/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/cases",
+  "since_unix": 1792402560.0,
+  "totals": {
+    "cases": 449,
+    "with_flow": 392
+  },
+  "by_workload": {
+    "production/aims-frontend:web": {
+      "cases": 24,
+      "with_flow": 13
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "cases": 3,
+      "with_flow": 3
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "cases": 15,
+      "with_flow": 15
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "cases": 15,
+      "with_flow": 15
+    },
+    "production/aims-minio-pool-0:minio": {
+      "cases": 20,
+      "with_flow": 9
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "cases": 16,
+      "with_flow": 10
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "cases": 11,
+      "with_flow": 8
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "cases": 27,
+      "with_flow": 18
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "cases": 19,
+      "with_flow": 17
+    },
+    "production/aims-redis:aims-redis": {
+      "cases": 32,
+      "with_flow": 24
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "cases": 13,
+      "with_flow": 11
+    },
+    "production/api-gateway:app": {
+      "cases": 24,
+      "with_flow": 24
+    },
+    "production/auth-service:app": {
+      "cases": 35,
+      "with_flow": 35
+    },
+    "production/cart-service:app": {
+      "cases": 20,
+      "with_flow": 17
+    },
+    "production/catalog-service:app": {
+      "cases": 44,
+      "with_flow": 43
+    },
+    "production/inventory-service:app": {
+      "cases": 13,
+      "with_flow": 13
+    },
+    "production/notification-service:app": {
+      "cases": 41,
+      "with_flow": 41
+    },
+    "production/order-service:app": {
+      "cases": 10,
+      "with_flow": 10
+    },
+    "production/payment-service:app": {
+      "cases": 9,
+      "with_flow": 9
+    },
+    "production/search-recommendation-service:app": {
+      "cases": 21,
+      "with_flow": 21
+    },
+    "production/security-telemetry-service:app": {
+      "cases": 37,
+      "with_flow": 36
+    }
+  },
+  "computed_at_unix": 1792407385.7143507
+}

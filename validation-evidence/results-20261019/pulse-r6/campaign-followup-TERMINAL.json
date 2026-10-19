@@ -1,0 +1,52 @@
+{
+  "alert": false,
+  "automatic_promotion": false,
+  "benign_exec_control": {
+    "FP": 72,
+    "TN": 30,
+    "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+    "positive_rate": 0.7058823529411765,
+    "unknown": 3
+  },
+  "binding": {
+    "automatic_promotion": false,
+    "binary_sha256": "2ed47233b74b2c0fafa223ec19823a9b2e74ed6c1e3e921f731d488a6b23ae54",
+    "config_sha256": "f0e80810549d538796a2221995873799a0191116bbac0e87e531f894dcffdc93",
+    "evidence_class": "development_candidate_preview",
+    "exec_provenance_policy_sha256": "b5d12b64a5a23ea034d21553ea26a5452c99900c2ddffe6c2e383aeffb2f0553",
+    "fresh_blind": false,
+    "model_hash": "ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4",
+    "policy_hash": "f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb",
+    "stop_on_false_positive": false,
+    "stop_on_miss": false
+  },
+  "completed_pairs": 105,
+  "confirmed_FPR": null,
+  "confirmed_precision": null,
+  "confusion_matrix_expected_control_labels": {
+    "FN": 11,
+    "FP": 7,
+    "TN": 98,
+    "TP": 93
+  },
+  "control_labels": "pending_post_run_adjudication",
+  "control_positive_rate": 0.06666666666666667,
+  "expected_pairs": 105,
+  "finished_at_unix": 1792388957.9693992,
+  "intervals": 210,
+  "kernel_to_alert": null,
+  "kernel_to_preview_seconds": {
+    "p50": 1.0213778018951416,
+    "p95": 2.164921712875362,
+    "p99": 5.18779782295227,
+    "samples": 93
+  },
+  "latency_conditional_on_detected_trials": true,
+  "policy_applied": false,
+  "precision_expected": 0.93,
+  "recall_end_to_end_lower_bound": 0.8857142857142857,
+  "recall_observed": 0.8942307692307693,
+  "schema": "pulse-preview-interval-matrix-v1",
+  "state": "completed_development_preview_matrix",
+  "unknown": 1
+}

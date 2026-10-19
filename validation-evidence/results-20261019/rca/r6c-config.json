@@ -1,0 +1,42 @@
+{
+  "output": "/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c",
+  "previous_output": "/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b",
+  "registration_reason": "R6 RCA follow-up: bounded follow-up cases on new execs inside the cooldown, 20000-case retention, binary baseline seeded from r6 with the same freeze time",
+  "kubeconfig": "/home/dat/.kube/config",
+  "model_hash": "ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4",
+  "policy_hash": "f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb",
+  "runtime_events": true,
+  "connect_policy": "sentinel-rca-runtime-v1",
+  "runtime_policies": [
+    "sentinel-rca-runtime-v1",
+    "sentinel-rca-fork-v1",
+    "sentinel-rca-flow-v1"
+  ],
+  "workers": [
+    {
+      "node_name": "k8s-worker1.local",
+      "output": "/mnt/sentinel-pulse-archive/matched-r6-20261018/workers/k8s-worker1.local"
+    },
+    {
+      "node_name": "k8s-worker4.local",
+      "output": "/mnt/sentinel-pulse-archive/matched-r6-20261018/workers/k8s-worker4.local"
+    },
+    {
+      "node_name": "k8s-worker3.local",
+      "output": "/mnt/sentinel-pulse-archive/matched-r6-20261018/workers/k8s-worker3.local"
+    }
+  ],
+  "before_seconds": 30,
+  "after_seconds": 0,
+  "case_ready_grace_seconds": 2,
+  "ring_seconds": 180,
+  "max_ring_events": 120000,
+  "max_cases": 20000,
+  "case_cooldown_seconds": 300,
+  "binary_baseline_frozen_at": 1792356345.3446712,
+  "follow_up_on_new_exec": true,
+  "follow_up_min_seconds": 10,
+  "follow_up_max_per_cooldown": 5,
+  "follow_up_novelty_seconds": 300,
+  "stream_rotate_seconds": 900
+}

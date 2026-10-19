@@ -221,8 +221,10 @@ Tỉ lệ dương theo kịch bản:
 - Precision 1:1 ở trên chỉ tính control idle. Nếu coi binary vô hại là âm tính thì precision thấp hơn nhiều. Báo cáo đồ án phải trình bày cả hai cách tính.
 
 **Campaign tiếp nối (105 cặp, 7 workload, xong ~12:50):**
+- TP 93, FN 11, FP 7, TN 98, unknown 1.
 - Precision 93,0%, recall 89,4%, control idle 6,7%, **binary vô hại 70,6%** (72/102).
-- Cùng xu hướng với campaign chính.
+- **p95 kernel → preview 2,17 s, vượt ngưỡng 2 s** (p50 1,02 s, p99 5,19 s; 93 mẫu).
+- Cùng xu hướng với campaign chính. Mẫu nhỏ hơn và chỉ có 7 workload, nên p95 không so trực tiếp được với 1,90 s của campaign chính.
 
 **Cadence gap trong thời gian chạy:**
 
@@ -359,7 +361,11 @@ Script giữ lại collector, resolver, control-rotate, `/home/dat/pulse-matched
 - Tag `archive/pre-refactor-20261018` giữ cây code trước đợt dọn ngày 18/10.
 - Mỗi job trên cụm chạy từ một snapshot git trên NFS (`/mnt/sentinel-pulse-archive/runtime-<commit>-<ngày>/source`), không chạy từ checkout đang sửa.
 
-## 9. Source, artifact và lệnh kiểm tra
+## 9. Bằng chứng trong repo
+
+[`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) chứa các file kết quả nhỏ và biên nhận JSON cho mọi con số ngày 19/10. README của thư mục nối từng con số trong 3 báo cáo với file tương ứng. Dữ liệu lớn vẫn nằm trên NFS.
+
+## 10. Source, artifact và lệnh kiểm tra
 
 - **Code:**
   - `sentinel_pulse/collector/` — capture, feature;
@@ -376,7 +382,7 @@ python3 scripts/ssh_lab.py python3 -m json.tool /mnt/sentinel-pulse-archive/matc
 python3 scripts/ssh_lab.py --put LOCAL REMOTE   # upload qua SFTP
 ```
 
-## 10. Nhật ký làm việc
+## 11. Nhật ký làm việc
 
 Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall và RCA nằm trong file tương ứng.
 
@@ -433,3 +439,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:16 | Kiểm tra sức khỏe: 3 worker R6 cập nhật đều; RCA r6c 2.453 case; NFS còn 52 GB → không đủ cho R7 | mục 2 |
 | 17:18 | Hẹn nén `raw.jsonl` soak 48 giờ lúc 02:05 (kiểm tra seal, không mất dữ liệu); dời rolling sang 02:15 để không chạy cùng R7; bật watcher kiểm tra 5 phút/lần (heartbeat, cadence gap, RCA, NFS) | `scripts/compress_raw_frames.py` |
 | 17:52 | Luật chọn R7 thành code + test; job chọn gọi nó ở bước cuối; sửa watcher (dấu hiệu xong = `SELECTION.json`) | `3e2d2e4` |
+| 18:05 | Gom bằng chứng: 21 file kết quả + 8 biên nhận JSON (`scripts/analysis/*.py`) vào `validation-evidence/results-20261019/`; đối chiếu lại số liệu: bổ sung p95 2,17 s của campaign tiếp nối | mục 9 |
