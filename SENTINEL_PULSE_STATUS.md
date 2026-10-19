@@ -392,6 +392,42 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
 - Tag `archive/pre-refactor-20261018` giữ cây code trước đợt dọn ngày 18/10.
 - Mỗi job trên cụm chạy từ một snapshot git trên NFS (`/mnt/sentinel-pulse-archive/runtime-<commit>-<ngày>/source`), không chạy từ checkout đang sửa.
 
+### 8b. Sự cố cụm 19/10 18:40–19:12 và cách khôi phục
+
+**Diễn biến:**
+- **Từ 18:30**, ba job phân tích nặng của mình chạy cùng lúc:
+  - nén `raw.jsonl` trên `.236`;
+  - replay 693 model syscall trên master2 (`.235`, MemoryMax 48 GB);
+  - phân tích "syscall chưa từng thấy" cũng trên `.235`.
+- **Cadence gap của worker R6 tăng** (18:40–18:59): worker1 +73, worker4 +23, worker3 +66 (biên nhận `receipts/cadence-gaps-r6.json` sẽ được tính lại). Lý do: tải dồn lên chính NFS server, nên chuyển job sang node khác không cô lập được tải.
+- **Master2 `NotReady` từ 19:01:39:**
+  - kernel dồn bộ nhớ liên tục (`kcompactd` ~80% CPU), soft lockup tới 73 s trong `clear_page_orig`;
+  - ~90 GB RAM không thuộc tiến trình nào sau khi job đã dừng; etcd 100–180% CPU;
+  - đây là hệ quả của job replay cấp phát/giải phóng hàng chục GB.
+- **Cùng lúc:** Longhorn rebuild hàng loạt (11 volume degraded), worker1 load 321, CSI Longhorn khởi động lại 8–11 lần; `aims-postgres-cnpg-2`, `keycloak`, `redis-ha` khởi động lại.
+- **Mười hai pod app AIMS trên worker4 bị evict vì ổ đầy** (ephemeral-storage, ngưỡng ~95 GB còn trống; worker4 lúc đó 85%). Việc này xảy ra *trước* đợt dọn ổ 18:30. Các rollout tự tạo pod thay thế, 10/10 rollout luôn 4/4 available.
+
+**Khôi phục (không khởi động lại node nào):**
+- 18:55: dừng cả 3 job.
+- 19:08: `sync; drop_caches` trên master2 (chỉ bỏ cache sạch).
+- **19:09:48: master2 `Ready`.**
+- Longhorn tự rebuild (degraded 11 → 8 lúc 19:11).
+- `redis-ha` tự hồi phục.
+- Cadence gap của R6 đứng lại; R6 tiếp tục chạy hết chu kỳ, không bị dừng.
+
+**Hệ quả cho dữ liệu:** các cửa sổ sau cadence gap tự động không được tính là normal. Khoảng 18:30–19:15 sẽ được ghi rõ khi phân tích normal của R6.
+
+**Đã đổi:**
+- Mọi job phân tích nặng (đọc NFS hoặc tốn RAM) chạy sau khi R6 kết thúc: 20/10 02:20, trên `.234`, MemoryMax 32 GB.
+- Không bao giờ chạy job nặng trên master2/master3. Đã ghi vào bộ nhớ làm việc.
+
+**Còn lại (chờ chạy tay, `kubectl delete` bị chặn):** `bash /home/dat/cleanup-k8s-20261019.sh` trên `.234` xóa:
+- bản ghi pod đã chết (evicted, debug pod Completed);
+- demo Bookinfo trong `default` (7 deployment đã scale về 0, 5 service, có một LoadBalancer);
+- `default/keycloak`: AIMS dùng Keycloak trong namespace `keycloak`; `default/keycloak` đang crashloop vì DB `postgres` của nó đã bị xóa cùng v8. Script giữ lại PVC.
+
+Tài nguyên v8 (admission lock, 2 `sentinel-syscalls`, nginx/redis/loadgen/postgres) **đã không còn trên cụm**.
+
 ## 9. Bằng chứng trong repo
 
 [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) chứa các file kết quả nhỏ và biên nhận JSON cho mọi con số ngày 19/10. README của thư mục nối từng con số trong 3 báo cáo với file tương ứng. Dữ liệu lớn vẫn nằm trên NFS.
@@ -476,3 +512,6 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 18:36 | Chạy nén `raw.jsonl` trên `.236` ngay (tỉ lệ 4,4×); chạy job syscall trên `.235` (venv đúng sklearn 1.9.0) | mục 2 |
 | 18:41 | Đọc trong suốt file nén đã kiểm tra seal (`open_sealed`, `sealed_sha256`, `bounds`) + bộ nén tổng quát, 305 test pass; xếp job nén `features`/`decisions` 48 giờ sau các bước phụ thuộc; job rolling dùng snapshot mới | `3bb0e74` |
 | 18:47 | Đăng ký tiêu chí cho giả thuyết "syscall chưa từng thấy" trước khi có số; chạy phân tích trên `.235` | mục 5.5b, `5471a5d` |
+| 18:55 | Phát hiện cadence gap tăng do 3 job nặng chạy cùng lúc (NFS server dùng chung) → dừng cả 3 | mục 8b |
+| 19:01–19:09 | Master2 NotReady (kernel dồn bộ nhớ, soft lockup) → `drop_caches`, Ready lúc 19:09:48; Longhorn tự rebuild | mục 8b |
+| 19:11 | Kiểm kê: v8 đã không còn; còn Bookinfo, `default/keycloak` (không phục vụ AIMS) và bản ghi pod chết → script chạy tay (`kubectl delete` bị chặn); dời các job nặng sang `.234` lúc 02:20, MemoryMax 32 GB | mục 8b |
