@@ -13,11 +13,11 @@ Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentin
 
 | Thành phần (10:41 ngày 19/10) | Trạng thái |
 |---|---|
-| Subscriber | **r6b** `pulse-rca-runtime-events-r6b` (.234), chạy từ 10:36 trên source `15dab8a` |
-| Cấu hình r6b | Gồm:<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s có **case tiếp nối**;<br>• giữ 20.000 case;<br>• stream xoay vòng 900 s;<br>• baseline binary lấy từ r6, đóng băng 19/10 03:45:45 |
+| Subscriber | **r6c** `pulse-rca-runtime-events-r6c` (.234), chạy từ 10:48 trên source `ea5a3ee` (r6b 10:36–10:48 bị lỗi điều kiện case tiếp nối, mục 5.6) |
+| Cấu hình r6c | Gồm:<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s có **case tiếp nối**;<br>• tính binary mới bằng nhật ký exec 15 phút;<br>• giữ 20.000 case;<br>• stream xoay vòng 900 s;<br>• baseline binary lấy từ r6b (bắt nguồn từ r6), đóng băng 19/10 03:45:45 |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1`, `sentinel-rca-fork-v1`, **`sentinel-rca-flow-v1`** (apply 19/10 02:14) |
 | Campaign kiểm chứng | `pulse-matched-campaign-r6-rca-followup-20261019`: 7 workload × 15 = 105 cặp, attack từ 10:46, dự kiến xong ~12:50 |
-| Subscriber trước | r2 dừng 19/10 02:13; r6 dừng 10:36. Output được giữ nguyên |
+| Subscriber trước | r2 dừng 19/10 02:13; r6 dừng 10:36; r6b dừng 10:48. Output được giữ nguyên |
 | Bản sao bằng chứng r6 | `/mnt/sentinel-pulse-archive/matched-r6-20261018/rca-r6-copy-20261019/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
@@ -33,7 +33,7 @@ Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentin
 | Ring | Bộ đệm sự kiện gần nhất (180 s), lưu trong SQLite local |
 | Cửa sổ trước (pre-window) | 30 s trước trigger; case đầu tiên không đợi sự kiện sau trigger (chỉ đợi 2 s để nhận nốt sự kiện đang truyền) |
 | Cooldown | Các trigger cùng container trong 300 s được gộp vào một case |
-| Case tiếp nối (follow-up) | Trong cooldown, nếu container exec một binary **mới** (không có trong ring trước case trước) thì mở thêm case. Mỗi case cách nhau ≥ 10 s, tối đa 5 case mỗi cooldown |
+| Case tiếp nối (follow-up) | Trong cooldown, nếu container exec một binary **mới** thì mở thêm case. Binary mới là binary không chạy trong 300 s trước cửa sổ của case trước, tra trong nhật ký exec 15 phút. Mỗi case cách nhau ≥ 10 s, tối đa 5 case mỗi cooldown; tắt trong 330 s đầu sau khi subscriber khởi động |
 | Flow (`active_flow`) | Lần gửi trên socket đã mở (`tcp_sendmsg`/`udp_sendmsg`), lấy mẫu 1 lần / process / 10 s. Cho biết đích đang trao đổi kể cả khi dùng connection pool |
 | Baseline binary | Bảng không hết hạn ghi lần đầu mỗi binary xuất hiện trong mỗi workload |
 | Thời điểm đóng băng baseline | Binary thấy lần đầu sau mốc này được coi là "mới" |
@@ -133,6 +133,19 @@ Cấu hình: 3 policy, cooldown 300 s không có case tiếp nối, giữ 2.000 
 
 Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn mở case mới. Vì vậy case tiếp nối chỉ tính binary chưa có trong ring trước cửa sổ của case trước (`3e457fe`).
 
+### 5.6 Lỗi điều kiện case tiếp nối ở r6b (19/10 10:36–10:48)
+
+- **Triệu chứng.** Trong 10 phút đầu, trước khi có attack, r6b mở 117 case tiếp nối trên tổng 190 case.
+- **Nguồn.** Chủ yếu từ probe sức khỏe định kỳ:
+  - `python` của các app service (auth 24, search 23, notification 17…);
+  - `sh`/`redis-cli` của Redis.
+- **Nguyên nhân (lỗi thiết kế của mình).** Tập tham chiếu "binary đã chạy trước đó" lấy từ ring 180 s. Nếu case trước đã cách hơn 150 s thì phần tham chiếu nằm ngoài ring, tức là rỗng, nên mọi exec đều bị coi là mới.
+- **Sửa (`ea5a3ee`).**
+  - Thêm bảng `exec_log` giữ 15 phút.
+  - Binary chỉ được coi là mới nếu không chạy trong 300 s trước cửa sổ của case trước.
+  - Tắt case tiếp nối trong 330 s đầu sau khi subscriber khởi động.
+  - Chuyển sang r6c lúc 10:48. Campaign tiếp nối đã chạy từ 10:46, nên khi đánh giá r6c chỉ tính các trial bắt đầu sau ~10:54.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -140,7 +153,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Phạm vi policy | Namespace `production`, mọi pod; file lấy mẫu 1 s / process / hook; flow lấy mẫu 10 s / process |
 | Ring | 180 s, tối đa 120.000 sự kiện |
 | Grouping | Cooldown 300 s; r6b thêm tối đa 5 case tiếp nối mỗi cooldown |
-| Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b: 20.000 |
+| Lưu case | r2: 500; r6: 2.000 (đã xóa mất 48 trial campaign); r6b/r6c: 20.000 |
 | Tài nguyên | Subscriber `MemoryMax=2G`, `Nice=10`; 6 stream (policy + lifecycle × 3 worker) |
 | Đã biết thiếu | Syscall namespace/mount bị seccomp `RuntimeDefault` chặn trước kprobe nên không có sự kiện. Chưa đo đầy đủ mất mát khi truyền sự kiện. Ánh xạ IP qua NAT/mesh chưa có lịch sử |
 | Độ trễ preview → case | Ít nhất ~2 s (thời gian chờ nhận nốt sự kiện) cộng độ trễ subscriber; r2 đo p50 11 s / p95 17 s. **Chưa đo lại trên r6/r6b** |
@@ -155,7 +168,7 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
 | Stream không rò tiến trình trong container | Có (`d791d24`) |
 | Xếp hạng nghi phạm + đánh giá top-k theo nhãn campaign | Có; R6: top-1 100% trên 36 case |
 | Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
-| Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | Đang chạy thử (r6b + campaign 105 cặp) |
+| Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | Đang chạy thử (r6c + campaign 105 cặp); r6b có lỗi tham chiếu, đã sửa |
 | Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | Sau khi campaign tiếp nối xong (~12:50) |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
 | Chứng minh nhân quả | Ngoài phạm vi hiện tại |
@@ -168,13 +181,13 @@ Nếu điều kiện chỉ là "có exec bất kỳ" thì Kafka/Redis sẽ luôn
   - `runtime_tree.py` — dựng đồ thị;
   - `ranking.py`, `evaluate_ranking.py` — xếp hạng và đánh giá.
 - **Policy Tetragon:** `sentinel_pulse/k8s/tetragon-rca-*.yaml`.
-- **Khởi chạy:** `scripts/launch_rca_followup.sh` (r6b + campaign tiếp nối), `scripts/launch_r6.sh` (r6).
-- **Cấu hình:** `/etc/sentinel-pulse-rca/runtime-events-20261019-r6b.json`.
-- **Đầu ra:** `/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b/`.
+- **Khởi chạy:** `scripts/launch_rca_followup.sh` (r6b/r6c + campaign tiếp nối), `scripts/launch_run.sh` (lượt live kế tiếp: Pulse + RCA cấu hình đầy đủ), `scripts/launch_r6.sh` (r6).
+- **Cấu hình:** `/etc/sentinel-pulse-rca/runtime-events-20261019-r6c.json`.
+- **Đầu ra:** `/var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/`.
 
 ```bash
-python3 scripts/ssh_lab.py systemctl show pulse-rca-runtime-events-r6b -p ActiveState -p NRestarts
-python3 scripts/ssh_lab.py bash -c 'echo $PW | sudo -S python3 -m json.tool /var/lib/sentinel-pulse-rca/runtime-events-20261019-r6b/STATUS.json | head -40'
+python3 scripts/ssh_lab.py systemctl show pulse-rca-runtime-events-r6c -p ActiveState -p NRestarts
+python3 scripts/ssh_lab.py bash -c 'echo $PW | sudo -S python3 -m json.tool /var/lib/sentinel-pulse-rca/runtime-events-20261019-r6c/STATUS.json | head -40'
 PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --cases <cases> --campaign <campaign> \
   --rerank-db <context.sqlite3> --frozen-at <binary_baseline_frozen_at> --output RANKING.json
 ```
@@ -198,3 +211,6 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 19/10 10:36 | Chạy r6b (baseline binary lấy từ r6, giữ 20.000 case, case tiếp nối); dừng r6 | `15dab8a`, `scripts/launch_rca_followup.sh` |
 | 19/10 10:36 | Cài campaign tiếp nối 105 cặp trên capture R6 (attack từ 10:46) | `coordinator-rca-followup-20261019/` |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
+| 19/10 10:46 | r6b mở 117 case tiếp nối trong 10 phút (probe `python`/`redis-cli`) → phát hiện lỗi tham chiếu dựa trên ring | mục 5.6 |
+| 19/10 10:48 | Nhật ký exec 15 phút + bảo vệ giai đoạn khởi động (298 test pass); chuyển sang r6c | `ea5a3ee` |
+| 19/10 10:52 | Campaign tiếp nối 5/105 cặp; r6c 30 case, chưa có case tiếp nối (đang trong 330 s khởi động) | — |

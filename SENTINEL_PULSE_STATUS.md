@@ -37,10 +37,11 @@ Danh sách việc cần làm nằm ở [TODO.md](TODO.md).
 | Lượt live R6: `pulse-matched-worker-r6-20261018` (3 worker) | Đang chạy từ 02:04, kết thúc 20/10 02:04; chấm điểm bằng đường sklearn cũ |
 | Campaign R6 (315 cặp) | **Xong** 09:52 (mục 5.5) |
 | Traffic R6 | Đã xong lịch các chế độ tải; hiện ở steady |
-| Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | Đang chạy, attack từ 10:46, ~105 cặp |
-| RCA | r6b đang chạy từ 10:36 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
-| `pulse-rolling-recalibration-20261019b` | Đã dừng lúc 10:33 để không tranh IO với RCA; sẽ chạy lại sau campaign tiếp nối |
-| `pulse-r6-normal-burden-20261020` | Timer 20/10 02:10: đo gánh cảnh báo normal của R6 cho mọi chính sách, làm căn cứ chọn chính sách R7 |
+| Campaign tiếp nối cho RCA `pulse-matched-campaign-r6-rca-followup-20261019` | Đang chạy: 5/105 cặp lúc 10:52, dự kiến xong ~12:50 |
+| RCA | r6c đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
+| `pulse-r6-syscall-arms-20261019` | Chờ campaign tiếp nối xong rồi replay 11 cấu hình syscall trên R6 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md)) |
+| `pulse-rolling-recalibration-20261020` | Timer 20/10 03:30, sau khi R6 kết thúc (đọc ~200 GB từ NFS, không chạy khi đang thu dữ liệu đánh giá) |
+| `pulse-r7-selection-20261020` | Timer 20/10 02:10 (`scripts/r6_normal_burden.sh`), mục 5.7 |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
 | NFS `/mnt/sentinel-pulse-archive` | ~245/344 GB (72%) |
@@ -254,6 +255,21 @@ Profile trên frame thật cho thấy ~85% thời gian nằm ở `predict_proba`
 - **Đầu ra:** gánh cảnh báo theo từng giờ, cùng recall và độ trễ trên R3/R5.
 - **Trạng thái:** job đọc ~200 GB từ NFS, nên phải chạy khi không có lượt live cần RCA.
 
+### 5.7 Kế hoạch chọn candidate và chính sách R7 (đăng ký trước, 19/10 10:52)
+
+Job `pulse-r7-selection-20261020` chạy sau khi R6 kết thúc. Mỗi khoảng thời gian đều loại trừ hai campaign (±60 s) và đoạn tranh chấp lúc khởi động.
+
+1. **Gánh cảnh báo như R6 đã chạy:** normal 19:00–02:04, mọi chính sách trong 2 lưới.
+2. **Làm mới calibration:** hiệu chỉnh lại candidate `ec72d9ea…` bằng normal R6 13:00–19:00 (19/10). Đây chính là bước "làm mới định kỳ" trong vận hành thật.
+3. **Đo với calibration mới:** gánh cảnh báo trên 19:00–02:04, và replay cả hai campaign R6.
+
+**Luật chọn, đăng ký trước khi có số:**
+- Ưu tiên calibration làm mới nếu nó giảm số đợt cảnh báo mà không làm giảm recall quá 2 điểm phần trăm.
+- Trong các chính sách có p95 replay ≤ 2,3 s (đường nhanh dự kiến bớt ~0,35 s), precision và recall ≥ 95%, control ≤ 5%, chọn chính sách có **ít đợt cảnh báo/giờ nhất**.
+- Nếu không chính sách nào đạt các điều kiện trên, chọn chính sách đạt p95 thấp nhất trong số có precision ≥ 95%, và ghi rõ là không đạt kỳ vọng.
+
+Sau đó: đăng ký file chính sách R7, tạo bundle bằng `detector/recalibrate_bundle.py`, rồi chạy `scripts/launch_run.sh` với `FAST=1` (chấm điểm nhanh) và RCA cấu hình đầy đủ.
+
 ## 6. Tiến độ và việc còn lại
 
 | Việc | Trạng thái |
@@ -391,3 +407,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:27 | Hẹn job `pulse-r6-normal-burden-20261020` (02:10 ngày 20/10) | `scripts/r6_normal_burden.sh` |
 | 10:33 | Dừng job rolling (lần chạy theo timer) để ưu tiên RCA live | sẽ chạy lại sau campaign tiếp nối |
 | 10:41 | Chuyển báo cáo về 3 file theo thí nghiệm; xóa `docs/STATUS.md` | file này |
+| 10:52 | `calibrate --model-hash`; job chọn R7 (calibration như đã chạy so với làm mới trên normal R6) thay cho job đo gánh cảnh báo; profile `custom` cho `plan_matched_run`; `scripts/launch_run.sh`; dời job rolling sang 20/10 03:30 | `6f0e6be`, `a4a8529`; mục 5.7 |

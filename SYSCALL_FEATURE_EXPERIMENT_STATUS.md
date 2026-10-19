@@ -148,7 +148,7 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Xuất điểm đầy đủ | Có (5.2) |
 | Replay attack R3/R5 cho mọi cấu hình | Có (5.3) |
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
-| Replay mọi cấu hình trên campaign R6 (có binary vô hại) | **Việc tiếp theo**: R6 có full-ID delta, chấm offline được như 5.3, cho biết cấu hình nào tách attack khỏi process vô hại tốt hơn |
+| Replay mọi cấu hình trên campaign R6 + campaign tiếp nối (420 cặp, có binary vô hại) | **Đã hẹn**: `pulse-r6-syscall-arms-20261019` tự chạy khi campaign tiếp nối xong (~12:50): replay 693 model → so ở cùng ngân sách, thêm tỉ lệ dương của binary vô hại |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
@@ -161,7 +161,7 @@ Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ đượ
   - `matched_holdout.py` — evaluator holdout;
   - `score_dump.py` — xuất điểm;
   - `arm_attack_replay.py` — replay attack;
-  - `arm_budget.py` — so ở cùng ngân sách.
+  - `arm_budget.py` — so ở cùng ngân sách; cả hai đã báo thêm tỉ lệ dương của binary vô hại (`6ab3dd4`).
 - **Dữ liệu trên NFS:** `/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/`:
   - `syscall-matched-study/` — model;
   - `normal-holdout-evaluation/`;
@@ -189,3 +189,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 02:23 | Kết quả sơ bộ: sau hiệu chỉnh lại, alpha×1 cho 5,7–7,3 đợt/replica-giờ | — |
 | 19/10 10:15 | Job xong; nội suy ở cùng ngân sách → giữ base29, kết quả inconclusive theo protocol v2 | mục 5.4, 6 |
 | 19/10 10:41 | Viết lại báo cáo này theo trạng thái hiện hành | file này |
+| 19/10 10:50 | `arm_attack_replay --workers-root` (replay trên capture khác R4) + chỉ số binary vô hại trong replay và arm-budget; hẹn job `pulse-r6-syscall-arms-20261019` chạy sau campaign tiếp nối | `6ab3dd4`, `scripts/r6_syscall_arms.sh` |
