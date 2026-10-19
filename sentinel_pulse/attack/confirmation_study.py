@@ -221,6 +221,9 @@ def main():
         if name != 'calibrate':
             p.add_argument('--calibration', type=Path)
             p.add_argument('--grid', choices=('default', 'looser'), default='default')
+            # defaults: the frozen 15/10 candidate; R6 rows carry ec72d9ea.../f6107351...
+            p.add_argument('--model-hash', default=MODEL_HASH)
+            p.add_argument('--policy-hash', default=POLICY_HASH)
     sub.choices['normal'].add_argument('--worker-root', type=Path, required=True)
     sub.choices['calibrate'].add_argument('--worker-root', type=Path, action='append', required=True)
     sub.choices['attack'].add_argument('--campaign', type=Path, action='append', required=True)
@@ -245,10 +248,10 @@ def main():
         recalibrator, calibration = load_calibration(args.calibration)
     policies = looser_grid() if args.grid == 'looser' else default_grid()
     if args.command == 'normal':
-        result = normal_burden(args.worker_root, policies, since=args.since, until=args.until,
-                               exclude=args.exclude, recalibrator=recalibrator)
+        result = normal_burden(args.worker_root, policies, args.model_hash, args.policy_hash, since=args.since,
+                               until=args.until, exclude=args.exclude, recalibrator=recalibrator)
     else:
-        result = attack_replay(args.campaign, policies, recalibrator=recalibrator)
+        result = attack_replay(args.campaign, policies, args.model_hash, args.policy_hash, recalibrator=recalibrator)
     if args.calibration is not None:
         result.update(calibration_file=str(args.calibration), calibration_sha256=sha256_file(args.calibration),
                       calibration_metadata=calibration, usable_calibrated_workloads=sorted(recalibrator.usable))
