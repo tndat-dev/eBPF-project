@@ -62,7 +62,7 @@ def interval_outcome(windows, trial, alpha_of):
     return dict(outcome='TP' if first >= kernel else 'unknown', delay=first - kernel if first >= kernel else None)
 
 
-def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,)):
+def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,), workers_root: Path | None = None):
     registration, index, terminal = load_study(study)
     trials = load_trials(campaigns)
     by_node = defaultdict(list)
@@ -70,7 +70,8 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,)):
         by_node[t['node_name']].append(t)
     models, scored = {}, defaultdict(list)   # (tag, trial_id) -> windows
     for node, node_trials in by_node.items():
-        worker = registration['workers'][node]
+        # A later capture (e.g. R6) records the same full-ID deltas under its own worker root.
+        worker = dict(output=str(workers_root/node)) if workers_root else registration['workers'][node]
         spans = [(float(t['start_at']) - HISTORY_LEAD_SECONDS, float(t['start_at']) + INTERVAL_SECONDS + 2)
                  for t in node_trials]
         for seal in sorted(Path(worker['output']).glob('segments/s*/TERMINAL.json')):
@@ -144,13 +145,17 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,)):
             per_seed = []
             for seed, c in seeds.items():
                 tp, fn = c['attack:TP'], c['attack:FN']; fp, tn = c['expected_normal:FP_expected'], c['expected_normal:TN_expected']
+                bfp, btn = c['benign:FP_expected'], c['benign:TN_expected']
                 per_seed.append(dict(seed=seed, TP=tp, FN=fn, FP=fp, TN=tn, unknown=sum(v for k, v in c.items() if k.endswith('unknown')),
                                      recall=tp/(tp+fn) if tp+fn else None, control_positive_rate=fp/(fp+tn) if fp+tn else None,
-                                     precision=tp/(tp+fp) if tp+fp else None))
+                                     precision=tp/(tp+fp) if tp+fp else None, benign_FP=bfp, benign_TN=btn,
+                                     benign_positive_rate=bfp/(bfp+btn) if bfp+btn else None))
             d = delays[arm]
             summary[arm] = dict(seeds=per_seed,
                 recall_mean=float(np.mean([s['recall'] for s in per_seed if s['recall'] is not None])),
                 control_positive_rate_mean=float(np.mean([s['control_positive_rate'] for s in per_seed if s['control_positive_rate'] is not None])),
+                benign_positive_rate_mean=(float(np.mean([s['benign_positive_rate'] for s in per_seed]))
+                                           if all(s['benign_positive_rate'] is not None for s in per_seed) else None),
                 delay_p50=float(np.percentile(d, 50)) if d else None, delay_p95=float(np.percentile(d, 95)) if d else None)
         report[f'a{scale:g}'] = summary
     output.mkdir(parents=True, exist_ok=False)
@@ -158,6 +163,7 @@ def replay(study: Path, campaigns, output: Path, alpha_scales=(1.0,)):
         for (tag, trial_id), windows in scored.items():
             stream.write(json.dumps(dict(tag=tag, trial_id=trial_id, windows=windows)) + '\n')
     result = dict(schema='pulse-r4-arm-attack-replay-v1', study=str(study), campaigns=[str(c) for c in campaigns],
+                  workers_root=str(workers_root) if workers_root else None,
                   trials=len(trials), scored_tag_trials=len(scored), alpha_scales=list(alpha_scales),
                   evidence_class='development: R3/R5 scenarios were exposed while building the Pulse candidate, '
                                  'never used to fit or tune R4 arms; not the protocol v2 fresh blind set',
@@ -173,8 +179,9 @@ def main():
     parser.add_argument('--campaign', type=Path, action='append', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--alpha-scale', type=float, action='append')
+    parser.add_argument('--workers-root', type=Path, help='capture worker root (default: the R4 registration)')
     args = parser.parse_args()
-    result = replay(args.study.resolve(), args.campaign, args.output, tuple(args.alpha_scale or (1.0,)))
+    result = replay(args.study.resolve(), args.campaign, args.output, tuple(args.alpha_scale or (1.0,)), args.workers_root)
     print(json.dumps({k: v for k, v in result.items() if k != 'arms'}))
     for arm, s in sorted(result['arms'][f"a{(args.alpha_scale or [1.0])[0]:g}"].items()):
         print(arm, round(s['recall_mean'], 3), round(s['control_positive_rate_mean'], 3), s['delay_p95'])

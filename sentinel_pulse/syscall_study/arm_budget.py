@@ -139,17 +139,22 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES):
             c = r['counts']
             tp, fn = c['attack:TP'], c['attack:FN']
             fp, tn = c['expected_normal:FP_expected'], c['expected_normal:TN_expected']
+            bfp, btn = c['benign:FP_expected'], c['benign:TN_expected']
             hours = r['windows']*WINDOW_SECONDS/3600
             per_seed.append(dict(seed=seed, episodes_per_replica_hour=r['episodes']/hours if hours else None,
                                  positive_window_rate=r['positive']/r['windows'] if r['windows'] else None,
                                  recall=tp/(tp+fn) if tp+fn else None,
                                  control_positive_rate=fp/(fp+tn) if fp+tn else None,
-                                 precision_1to1=tp/(tp+fp) if tp+fp else None, TP=tp, FN=fn, FP=fp, TN=tn))
+                                 precision_1to1=tp/(tp+fp) if tp+fp else None, TP=tp, FN=fn, FP=fp, TN=tn,
+                                 benign_positive_rate=bfp/(bfp+btn) if bfp+btn else None))
             delays += r['delays']
-        mean = lambda k: float(np.mean([s[k] for s in per_seed if s[k] is not None])) if per_seed else None
+        def mean(key):
+            values = [s[key] for s in per_seed if s[key] is not None]
+            return float(np.mean(values)) if values else None
         table[f'{scale:g}'] = dict(seeds=per_seed, episodes_per_replica_hour=mean('episodes_per_replica_hour'),
             positive_window_rate=mean('positive_window_rate'), recall=mean('recall'),
             control_positive_rate=mean('control_positive_rate'), precision_1to1=mean('precision_1to1'),
+            benign_positive_rate=mean('benign_positive_rate'),
             delay_p50=float(np.percentile(delays, 50)) if delays else None,
             delay_p95=float(np.percentile(delays, 95)) if delays else None)
     return dict(scales=table, calibrated_models=calibrated_models, skipped_models=skipped)
@@ -166,7 +171,8 @@ def matched(arms, budgets=BUDGETS):
                 out[f'{budget:g}'][arm] = None; continue
             scale, v = max(within, key=lambda sv: sv[0])
             out[f'{budget:g}'][arm] = dict(alpha_scale=scale, **{k: v[k] for k in (
-                'episodes_per_replica_hour', 'recall', 'control_positive_rate', 'precision_1to1', 'delay_p50', 'delay_p95')})
+                'episodes_per_replica_hour', 'recall', 'control_positive_rate', 'precision_1to1',
+                'benign_positive_rate', 'delay_p50', 'delay_p95')})
     return out
 
 

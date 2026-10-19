@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Syscall experiment on the R6 campaigns (run on .234 as dat). Waits for the RCA follow-up
+# campaign to finish so heavy NFS reads never overlap a live campaign, then:
+#  1. replays all 693 R4 models on the R6 attack/benign/control intervals (full-ID deltas
+#     recorded by the R6 workers);
+#  2. compares the 11 arms at matched normal alert budgets (calibration from the R4
+#     holdout score dump), now including the benign-launch positive rate.
+set -euo pipefail
+SRC=${SRC:?source snapshot}
+R4=/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015
+R6=/mnt/sentinel-pulse-archive/matched-r6-20261018
+MAIN=$R6/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix
+FOLLOW=$R6/coordinator-rca-followup-20261019/pulse-development-matrix
+until [ -f "$FOLLOW/TERMINAL.json" ]; do sleep 120; done
+cd /tmp
+export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
+/home/dat/ml-venv/bin/python -u -m sentinel_pulse.syscall_study.arm_attack_replay \
+  --study "$R4/syscall-matched-study" --workers-root "$R6/workers" \
+  --campaign "$MAIN" --campaign "$FOLLOW" \
+  --alpha-scale 1 --alpha-scale 3 --alpha-scale 5 --alpha-scale 10 \
+  --output "$R6/analysis-20261019/arm-replay-r6"
+/home/dat/ml-venv/bin/python -u -m sentinel_pulse.syscall_study.arm_budget \
+  --study "$R4/syscall-matched-study" --dump-root "$R4/score-dump-20261018" \
+  --replay "$R6/analysis-20261019/arm-replay-r6" --campaign "$MAIN" --campaign "$FOLLOW" \
+  --output "$R6/analysis-20261019/arm-budget-r6"
