@@ -266,3 +266,6 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 17:57 | Đưa kết quả replay/arm-budget và bảng nội suy (biên nhận JSON) vào repo | `validation-evidence/results-20261019/` |
 | 19/10 18:30 | Bỏ việc chờ pulse-live-recalibrated (không phụ thuộc dữ liệu); chạy job chạy lại + bootstrap trên `.235` với thư viện đúng phiên bản | mục 5.6 |
 | 19/10 18:55 | Dừng job trên `.235` (tranh NFS, master2 treo); dời sang 02:20 trên `.234` | mục 5.6 |
+| 20/10 02:20–03:18 | Job `syscall-arms-bootstrap` trên `.234`: replay lại cả hai tập với khóa trial theo campaign (xong 02:42 / 03:12), budget pulse-attack-dev xong 03:18, rồi **lỗi** ở bước bootstrap: campaign pulse-attack-dev không có control binary vô hại nên cột `benign_rate` rỗng ở mọi lần lấy mẫu (`IndexError` trong `np.percentile`) | journal `syscall-arms-bootstrap` |
+| 20/10 09:44 | Sửa `arm_bootstrap.py`: cột không có trial thì ghi `None`; thêm tỉ lệ dương của control idle (`control_rate`, `control_diff`) cho cả hai tập; test cho campaign không có binary vô hại (308 test pass) | `6a5c5fa` |
+| 20/10 09:46 | Chạy tiếp từ chỗ lỗi (`syscall-arms-bootstrap-resume`, snapshot `runtime-6a5c5fa-20261020`): bootstrap pulse-attack-dev, rồi budget + bootstrap pulse-live-recalibrated. Hai replay và budget pulse-attack-dev giữ nguyên | đang chạy |
