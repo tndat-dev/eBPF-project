@@ -21,11 +21,13 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `pulse-attack-dev-rabbitmq` | 15 cặp RabbitMQ bổ sung | `matched-parallel-r5-rabbit-20261015` |
 | `syscall-arms` | Thí nghiệm 11 cấu hình syscall (693 model) | `matched-parallel-r4-20261015` |
 | `pulse-candidate-baseline` / `pulse-candidate-recalibrated` | Candidate gốc / candidate hiệu chỉnh lại | `runtime-f95867d-20261012` / `runtime-recal-c1-20261018` |
-| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (đang chạy) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
+| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (xong 20/10 02:22; `features`/`decisions` đã nén gzip có kiểm seal) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
 | `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
-| `pulse-stable-candidate` | Lượt kế tiếp, ứng viên cho bản stable | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` (tạo khi chạy) |
-| `rca-subscriber` | Bản RCA tốt nhất, đang chạy | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
+| `policy-2of2-a10` | Chính sách xác nhận 2/2 cửa sổ, alpha×10 (chọn theo luật 5.7) | `sentinel_pulse/protocol/policy-2of2-a10.json` (SHA-256 `a51e5abc…`) |
+| `pulse-stable-candidate` | Lượt live ứng viên cho bản stable: candidate hiệu chỉnh lại + `policy-2of2-a10`, chấm điểm nhanh (đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate`; unit `pulse-matched-worker-pulse-stable-candidate` (worker), `pulse-matched-{traffic,campaign}-pulse-stable-candidate` (.234) |
+| `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (cấu hình như rca-subscriber, đang chạy) | unit `rca-pulse-stable-candidate`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
+| `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (dừng 20/10 10:16) | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
 ## 1. Tóm tắt
@@ -39,35 +41,33 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | Recall | 92,8% |
   | Control idle dương | 11,2% |
   | p95 kernel → preview | 1,90 s (campaign tiếp nối 105 cặp: 2,17 s) |
-  | Đợt cảnh báo trên normal | ~17 mỗi replica-giờ (**sơ bộ**, mẫu 7,3 replica-giờ; số chính thức từ job 20/10 02:10) |
+  | Đợt cảnh báo trên normal | **13,0** mỗi replica-giờ (467 replica-giờ, 19:20–02:04, job chọn 20/10) |
 
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80,7%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
-- **Hướng gần nhất.** Replay trên pulse-live-recalibrated cho thấy chính sách xác nhận 2 cửa sổ (k2of2) đạt precision và recall ≥ 95%, control ≤ 5%, nhưng p95 là 2,3–2,9 s. Chấm điểm đã được tăng tốc ~4,9× và cho kết quả khớp từng bit, để lượt pulse-stable-candidate thử đưa k2of2 xuống dưới 2 s.
+- **Đang chạy: lượt live pulse-stable-candidate** (20/10 10:15 → 21/10 ~10:20).
+  - Chính sách `policy-2of2-a10` được chọn bằng luật đăng ký trước (mục 5.7a): precision 95,2%, recall 97,3%, control 4,8%, p95 2,43 s và 8,0 đợt/replica-giờ trên dữ liệu development. Chính sách này **không đạt** kỳ vọng p95 ≤ 2,3 s.
+  - Chấm điểm bằng đường nhanh: kết quả khớp từng bit với đường cũ, CPU mỗi worker giảm từ ~94% xuống ~30% một core.
+  - Câu hỏi: trên dữ liệu mới, k2of2 có giữ được precision/recall ≥ 95% không, và chấm nhanh có kéo p95 xuống không.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.**
   - Calibration lệch dần theo thời gian.
   - Hiệu chỉnh lại p-value giảm tỉ lệ cửa sổ bị gắn cờ từ 8,1% xuống 0,35%.
-  - Dù vậy vẫn còn 6–17 đợt mỗi replica-giờ, xa ngân sách 0,1.
+  - Dù vậy vẫn còn 6–17 đợt mỗi replica-giờ, xa ngân sách 0,1. Làm mới calibration mỗi giờ chỉ giảm thêm 16–23% (mục 5.6).
   - Thí nghiệm syscall cho thấy thay bộ syscall không giải quyết được vấn đề này.
 
-## 2. Trạng thái cụm và job (10:41 ngày 19/10)
+## 2. Trạng thái cụm và job (10:18 ngày 20/10)
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live pulse-live-recalibrated: `pulse-live-recalibrated (unit `pulse-matched-worker-r6-20261018`)` (3 worker) | Đang chạy từ 02:04, **chạy hết chu kỳ** đến 20/10 02:04 (không dừng giữa chừng); chấm điểm bằng đường sklearn cũ |
-| Campaign pulse-live-recalibrated (315 cặp) | **Xong** 09:52 (mục 5.5) |
-| Traffic pulse-live-recalibrated | Đã xong lịch các chế độ tải; hiện ở steady |
-| Campaign tiếp nối cho RCA `campaign-rca (unit `pulse-matched-campaign-r6-rca-followup-20261019`)` | **Xong** ~12:50 (105/105 cặp), mục 5.5 |
-| RCA | rca-followup đang chạy từ 10:48 (xem [RCA](RCA_RUNTIME_STATUS.md)) |
-| `syscall-arms-on-pulse-live (job)` | **Xong** ~13:40 (xem [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) mục 5.5) |
-| `pulse-compress-raw-48h-20261019` (**.236**) | **Đang chạy từ 18:36** (dời từ 02:05 sang node rảnh): nén gzip 292 file `raw.jsonl` của soak 48 giờ (68,7 GB), kiểm tra SHA-256 khớp seal trước khi xóa bản gốc. Tỉ lệ 4,4×, dự kiến thu lại ~53 GB |
-| `pulse-compress-48h-rest-20261019` (**.236**) | Chờ nén `raw` xong và job syscall replay xong pulse-attack-dev, rồi nén `features`/`decisions` của soak 48 giờ (~150 GB → ~35 GB) |
-| `pulse-calibration-refresh-study` | Timer 20/10 02:15 (snapshot `3bb0e74`, đọc được file `.gz`), trong khoảng không có lượt live; pulse-stable-candidate chỉ khởi chạy sau khi job này xong |
-| `pulse-stable-candidate-selection` | Timer 20/10 02:10 (`scripts/pulse_stable_candidate_selection.sh`), mục 5.7; bước cuối áp luật chọn bằng code → `SELECTION.json` |
-| `pulse-syscall-bootstrap-20261019` (**.235**) | **Đang chạy từ 18:30** (không cần chờ pulse-live-recalibrated; chạy trên node rảnh để không tranh IO với `.234`): replay syscall với khóa trial đã sửa, rồi bootstrap |
+| Lượt live **pulse-stable-candidate** (3 worker) | **Đang chạy** từ 10:14:53; chạy hết chu kỳ 24 giờ, đến 21/10 khoảng 10:15–10:35. Candidate `ec72d9ea…` + `policy-2of2-a10`, chấm điểm nhanh, không ghi `raw.jsonl`. Pha chọn (traffic, chưa attack) 10:17–11:47; campaign 315 cặp từ 11:49 |
+| Traffic + campaign | Unit `pulse-matched-traffic-pulse-stable-candidate`, `pulse-matched-campaign-pulse-stable-candidate` trên `.234` |
+| RCA | `rca-pulse-stable-candidate` (đọc decision qua SSH, case tiếp nối, baseline binary đóng băng lúc 11:47:29). `rca-subscriber` đã dừng |
+| Lượt pulse-live-recalibrated | **Xong** 20/10 02:12–02:22 (mục 5.5). `features`/`decisions` đã nén gzip có kiểm seal: 296 file, 0 sai seal, thu lại 73,4 GB (80 → 9,9 GB) |
+| Job phân tích 20/10 02:10–03:18 | **Xong**: chọn candidate (5.7a), refresh calibration (5.6), novel-syscall (5.5b), bootstrap syscall (file syscall, mục 5.7; lỗi lúc 03:18 rồi chạy tiếp lúc 09:46) |
+| Theo dõi | Mỗi 5 phút kiểm tra heartbeat worker, số issue, RCA, NFS, số tiến trình `tetra getevents` (`/home/dat/health-run.py`) |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
-| Detector v8 cũ | Đã gỡ; phần còn sót chờ chạy tay (mục 8) |
-| NFS `/mnt/sentinel-pulse-archive` | Còn 52 GB lúc 17:16. pulse-live-recalibrated cần thêm ~32 GB nên sẽ còn ~20 GB lúc kết thúc, trong khi pulse-stable-candidate 24 giờ cần ~82 GB → nén `raw.jsonl` của soak 48 giờ trả lại ~60 GB |
-| Ổ đĩa worker | **Đã dọn 19/10 18:30**: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29% (~530 GB) |
+| NFS `/mnt/sentinel-pulse-archive` | Tổng 344 GB, trống 136 GB lúc 10:17. Lượt 24 giờ dùng khoảng 80 GB. Ổ đĩa server đã được nâng lên 800 GB nhưng filesystem chưa mở rộng (client vẫn thấy 344 GB) |
+| Ổ đĩa worker | 40% / 40% / 29% |
+| Quy tắc | Không chạy job NFS hoặc bộ nhớ nặng trên bất kỳ node nào khi lượt live đang chạy; không chạy trên master 2/3 |
 
 ## 3. Thuật ngữ
 
@@ -442,6 +442,24 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
   3. control ≤ 5%.
 - **Giới hạn biết trước:** `seccomp_api_probe` và `anonymous_mprotect_churn` gần như chắc chắn không đạt, vì syscall của chúng nằm trong E hoặc trong normal. Tiêu chí tổng 90% vì vậy có thể không đạt ngay cả khi các kịch bản dùng syscall lạ đạt 100%. Sẽ báo cáo cả hai mức.
 
+### 5.8 Lượt live pulse-stable-candidate (đang chạy từ 20/10 10:14)
+
+| Thành phần | Giá trị |
+|---|---|
+| Candidate / chính sách | `ec72d9ea…` / `policy-2of2-a10` (`a51e5abc…`): xác nhận 2/2 cửa sổ, alpha×10 |
+| Source | snapshot `runtime-6a3a0b5-20261020` (commit `6a3a0b5`); CONFIG SHA-256 `6da03fa8…` |
+| Chấm điểm | Đường nhanh (`fast_scoring: true`): batch đầu của mỗi model được so với sklearn và tự quay về sklearn nếu lệch |
+| Capture | 3 worker, 86.400 s, không `raw.jsonl` |
+| Lịch | Tạo 10:14:29; pha chọn 10:17:29–11:47:29; attack từ 11:49:29; 315 cặp control → binary vô hại → attack trên 21 workload |
+| RCA | `rca-pulse-stable-candidate`, cấu hình như `rca-subscriber` |
+| Kỳ vọng (ghi trong file chính sách, chỉ để so) | precision ≥ 95%, recall ≥ 95%, control ≤ 5%, p95 ≤ 2,0 s |
+| Phép đo phụ đã đăng ký | 5.7b (calibration làm mới so với as_run), 5.7c (novelty có xét exec) |
+
+- **Khởi chạy:**
+  - 10:14 plan; 10:14:53 worker; 10:16 RCA (`rca-subscriber` dừng, `rca-pulse-stable-candidate` chạy); 10:16 traffic + campaign.
+  - 10:17: cả 3 worker `running`, 0 issue; RCA đã có 12 case, 6 stream Tetragon.
+- **CPU:** sau 90 s, mỗi worker dùng 26 s CPU (28–31% một core). Lượt trước dùng 22,5–23,5 giờ CPU cho 24 giờ (~94%). Đường nhanh đang hoạt động; chưa có bằng chứng model nào phải quay về sklearn. Sẽ kiểm tra lại offline bằng `scorer_equivalence --fast` trên segment đã niêm phong.
+
 ## 6. Tiến độ và việc còn lại
 
 | Việc | Trạng thái |
@@ -670,3 +688,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 09:44 | Phiên bị đóng qua đêm nên watcher không báo; phát hiện `syscall-arms-bootstrap` lỗi lúc 03:18 (xem file syscall) | — |
 | 09:47 | Sinh `policy-2of2-a10.json`, kiểm tra nạp được với candidate qua loader thật; thêm `known_gaps` vào file chính sách (p95 > 2 s, gánh cảnh báo ~80 lần ngân sách, binary vô hại 88%) | `a51e5abc…`; test `test_written_policy_states_known_gaps` |
 | 09:50 | Đăng ký trước phép đo phụ refresh-vs-as_run và giả thuyết novelty có xét exec, sẽ kiểm trên pulse-stable-candidate | mục 5.7b, 5.7c |
+| 09:58–10:14 | Bootstrap syscall xong; nén `features`/`decisions` của pulse-live-recalibrated (296 file, 0 sai seal, thu lại 73,4 GB) để đủ chỗ cho lượt 24 giờ | mục 2 |
+| 10:14–10:16 | Khởi chạy **pulse-stable-candidate** (`scripts/launch_run.sh`, snapshot `6a3a0b5`, `FAST=1`): plan, 3 worker, RCA `rca-pulse-stable-candidate`, traffic + campaign; watcher sức khỏe mỗi 5 phút | mục 5.8 |
