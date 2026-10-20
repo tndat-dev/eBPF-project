@@ -45,8 +45,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
       cửa sổ warming sau reset, độ trễ ghi NFS).
 - [ ] Tìm nguyên nhân p-value lệch: theo workload, theo chế độ tải (steady/peak/burst…),
       theo thời gian (drift), theo node; so với thời điểm calibration gốc.
-- [ ] Thiết kế cơ chế làm mới calibration trong vận hành (cửa sổ trượt bao lâu, loại
-      khoảng nghi tấn công thế nào), vì hiệu chỉnh lại là đòn bẩy lớn nhất đã đo được.
+- [x] Làm mới calibration định kỳ (20/10, Pulse 5.6): rolling 6–12 giờ giảm 16–23% gánh cảnh báo, recall giữ nguyên; `guarded` hỏng. Không đủ để đạt ngân sách.
 - [ ] Cải thiện độ trễ và recall với tấn công tốc độ thấp (seccomp probe, mprotect churn
       6 lần/giây): xem đặc trưng nào phản ứng chậm, cân nhắc kênh tường minh từ thí nghiệm syscall.
 - [ ] Nếu vẫn chưa đủ: calibration theo chế độ tải, tăng cỡ tập calibration, hoặc fit lại
@@ -56,9 +55,9 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 
 - [x] Chứng minh code refactor chấm điểm trùng khớp bản đóng băng (receipt
       `validation-evidence/results-20261018/scorer-equivalence-0117901.json`).
-- [ ] Snapshot commit mới lên NFS làm `frozen_source` cho lượt chạy live kế tiếp.
+- [x] Snapshot `runtime-6a3a0b5-20261020` làm `frozen_source` cho pulse-stable-candidate.
 - [x] Bundle candidate đã hiệu chỉnh lại (`ec72d9ea…`) và policy preview v2 (alpha + k-of-n) trong live path.
-- [ ] Đăng ký tham số policy v2 đã chọn rồi chạy live (vẫn shadow).
+- [x] Chọn bằng luật đăng ký trước (`policy-2of2-a10`, Pulse 5.7a) và chạy live pulse-stable-candidate (20/10 10:14 → 21/10 ~10:30, shadow).
 - [ ] Fresh blind attack + normal độc lập cho candidate + chính sách mới.
 - [x] Campaign pulse-live-recalibrated xong 19/10 09:52 (capture chạy đến 20/10 02:04): precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s.
 - [~] Chạy lượt live pulse-live-recalibrated (profile `pulse-live-recalibrated`, 24 h, không ghi raw.jsonl — xem STATUS mục 5.9): normal soak mới + campaign attack có `benign_exec_control: true` (fixture pulse-live-recalibrated),
@@ -77,12 +76,11 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 - [x] Replay 11 cấu hình trên pulse-live-recalibrated (có binary vô hại): không cấu hình nào tách attack khỏi process vô hại; `plus_all_*` tệ nhất → giữ `base29`.
 - [ ] Paired blind attack cho các cấu hình còn lại theo protocol v2; đo cả độ trễ
       kernel → cảnh báo cho từng cấu hình (feature nhiều hơn có thể chậm hơn).
-- [ ] Đưa bộ syscall được chọn vào candidate Pulse kế tiếp (fit lại, đóng băng, blind test).
+- [x] Kết quả syscall đưa về Pulse (Pulse mục 4b): giữ `base29`, không fit lại. Còn: cập nhật 4b khi có kết quả dưới k2of2 (`syscall-arms-k2of2`, đang chạy).
 
 ## Ưu tiên 2 — RCA
 
-- [ ] **(cần bạn quyết)** Dừng hay giữ `pulse-rca-runtime-events.service`: đang không nhận
-      tín hiệu mới từ 16/10 (Pulse đã dừng) nhưng vẫn dùng ~966 MB / giới hạn 1 GB.
+- [x] `pulse-rca-runtime-events.service` (RCA thế hệ cũ, thay bằng `rca-*`): đã dừng từ trước; unit file đã gỡ 20/10 cùng 46 unit cũ khác. Dữ liệu `/var/lib/sentinel-pulse-rca/runtime-events-*` giữ làm bằng chứng.
 - [x] Tìm nguyên nhân 99,9% case thiếu connect: service dùng connection pool, `connect()` hiếm.
 - [x] Code + policy `sentinel-rca-flow-v1` (lấy mẫu tcp/udp_sendmsg 10 s/socket), đã dry-run.
 - [x] Áp dụng policy flow + chạy subscriber rca-flow (`rca-flow (unit cũ)`) cùng lượt pulse-live-recalibrated (19/10 02:14).
@@ -111,15 +109,14 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 - [x] Admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`, workload baseline v8: đã không còn (19/10).
 - [x] ~~(chạy tay)~~ Đã xóa 19/10 18:30: dữ liệu thô cũ trên worker (~117–194 GB/node trong `/var/lib/sentinel-pulse-*`),
       checkout/bundle cũ trong `/home/dat`, 5 oneshot cũ còn `enabled` và ~90 unit lỗi mỗi worker.
-- [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
-      các thư mục còn được service/evidence tham chiếu, xóa phần còn lại.
-- [ ] ~40 unit lỗi trên .234, ~90 unit lỗi mỗi worker (thế hệ cũ) → `reset-failed` và gỡ unit file.
-- [ ] `/home/dat/eBPF-project` trên .234: nhánh main cũ, chậm 14 commit, có sửa chưa commit.
-- [ ] Ổ đĩa worker4 85%, worker1 80% → kiểm tra dữ liệu thô có thể chuyển sang NFS.
+- [x] Checkout cũ trên .234 (20/10): xóa 28 bản có HEAD trên GitHub và không sửa đổi (3,1 GB); giữ 47 snapshot không có `.git` (có thể chứa output) và 2 bản có sửa đổi chưa commit.
+- [x] Unit cũ (20/10): gỡ 47 unit file thế hệ cũ trên .234 (nhiều cái vẫn `enabled`, sẽ tự chạy lại khi khởi động) và unit worker của pulse-live-recalibrated; không còn unit lỗi.
+- [x] Đồng bộ code (20/10): `/home/dat/eBPF-project` trên .234 và 3 worker = `origin/main`. Sửa đổi cũ lưu ở `/home/dat/old-checkouts/` trên từng node. Sau mỗi lần push chạy `scripts/sync_cluster_checkouts.sh`.
+- [x] Ổ đĩa worker: 40% / 40% / 29% sau đợt dọn 19/10.
 
 ## Ưu tiên 3 — GitHub và chất lượng
 
 - [x] Push nhánh `refactor/repo-cleanup` và tag `archive/pre-refactor-20261018` (18/10).
 - [x] Hợp nhất vào `main` (push thẳng, không dùng PR) — `22f365a`, 18/10. Đã bỏ dòng Co-Authored-By khỏi 10 commit ngày 18/10 (force-push).
-- [ ] CI (GitHub Actions) chạy pytest với `requirements-lock.txt`.
+- [x] CI GitHub Actions (`.github/workflows/tests.yml`) chạy pytest trên bộ thư viện ghim giống cụm (`requirements-test.txt`).
 - [ ] Lặp lại đo overhead A/B; kiểm tra trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
