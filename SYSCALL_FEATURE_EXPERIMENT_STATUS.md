@@ -237,7 +237,7 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
 3. Các cấu hình bỏ một cặp (`drop_accept/open/clone_pair`) và `plus_security` **không kém hơn** base29 (NI ở cả 4 ô) nhưng **cũng không tốt hơn**. `plus_top8/16/32` không đạt NI ở ngân sách 5.
 4. **Theo luật protocol v2:** điều kiện ngân sách 0,1 đợt/workload-giờ không cấu hình nào đạt, nên kết quả vẫn là **inconclusive** và **giữ base29**. Nếu bỏ điều kiện ngân sách (chỉ tham khảo, ngoài protocol), bộ nhỏ hơn đạt NI là bỏ một cặp. Mức tiết kiệm chỉ 2 bin, không đủ lý do để đổi candidate.
 
-### 5.8 Recall theo từng kịch bản tấn công (20/10 11:20)
+### 5.8 Recall theo từng kịch bản tấn công (20/10 11:13)
 
 - **Cách tính:** dùng lại output của `arm_budget` (5.7) cho cả hai tập. Script `scripts/analysis/arm_scenarios.py`.
   - Mỗi cấu hình dùng hệ số alpha khớp ngân sách của nó.
@@ -343,5 +343,5 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 09:44 | Sửa `arm_bootstrap.py`: cột không có trial thì ghi `None`; thêm tỉ lệ dương của control idle (`control_rate`, `control_diff`) cho cả hai tập; test cho campaign không có binary vô hại (308 test pass) | `6a5c5fa` |
 | 20/10 09:46 | Chạy tiếp từ chỗ lỗi (`syscall-arms-bootstrap-resume`, snapshot `runtime-6a5c5fa-20261020`): bootstrap pulse-attack-dev, rồi budget + bootstrap pulse-live-recalibrated. Hai replay và budget pulse-attack-dev giữ nguyên | đang chạy |
 | 20/10 09:55 | Bootstrap xong: `drop_exec_pair` kém có ý nghĩa, `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa, các cấu hình khác không khác base29; theo protocol v2 vẫn inconclusive, giữ base29 | mục 5.7; `syscall/BOOTSTRAP-*.json` |
-| 20/10 11:20 | Bảng recall theo kịch bản (dùng output 5.7, job nhẹ trên `.234`): `drop_exec_pair` chỉ mất recall ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung; `plus_all_*` nhạy với mọi process mới | mục 5.8; `syscall/arm-scenarios-*.json` |
-| 20/10 11:12 | Thêm xác nhận k-of-n vào `arm_budget` (bản vector hóa, khớp `ConfirmationState`, 311 test pass); chạy 11 cấu hình dưới k2of2 như Pulse đang dùng (`syscall-arms-k2of2` trên `.234`: chép score dump và replay về đĩa local với băng thông giới hạn, nice 19, tối đa 2 core) | `aa66def`; đang chạy |
+| 20/10 11:13 | Bảng recall theo kịch bản (dùng output 5.7, job nhẹ trên `.234`): `drop_exec_pair` chỉ mất recall ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung; `plus_all_*` nhạy với mọi process mới | mục 5.8; `syscall/arm-scenarios-*.json` |
+| 20/10 11:10 | Thêm xác nhận k-of-n vào `arm_budget` (bản vector hóa, khớp `ConfirmationState`, 311 test pass); chạy 11 cấu hình dưới k2of2 như Pulse đang dùng (`syscall-arms-k2of2` trên `.234`: chép score dump và replay về đĩa local với băng thông giới hạn, nice 19, tối đa 2 core) | `aa66def`; đang chạy |
