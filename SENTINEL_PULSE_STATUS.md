@@ -593,6 +593,39 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 
 - Gánh cảnh báo normal và các phép đo 5.7b/5.7c chờ giai đoạn final (sau 21/10 ~10:30).
 
+### 5.8b Xác nhận mức 2 bằng độ bền tín hiệu (21/10 02:26)
+
+- **Ý tưởng:**
+  - Mức 1 là preview đang chạy: k2of2_a10, < 2 s.
+  - Mức 2 chờ thêm T giây sau preview đầu tiên, chỉ xác nhận nếu ít nhất f phần cửa sổ trong [preview, preview + T] là dương.
+  - Attack bắn liên tục; binary vô hại chủ yếu bắn quanh lúc khởi chạy.
+- **Cách làm:** `scripts/analysis/persistence_stage.py`; cờ mức 1 được tính lại từ joint p-value lưu sẵn với k2of2_a10.
+  - **Luật chọn (T, f) viết sẵn trong code trước khi chạy:** chỉ dùng dữ liệu development (hai campaign của pulse-live-recalibrated); trong các cặp có tỉ lệ xác nhận attack ≥ 90% và T ≤ 5 s, chọn cặp có khoảng cách attack − vô hại lớn nhất.
+  - Cặp được chọn áp nguyên cho pulse-stable-candidate.
+  - Lượt stable **không phải blind**: mình đã thấy số tổng hợp về độ bền ở 5.8a trước khi viết luật.
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/persistence-stage.json`.
+
+**Cặp được chọn: T = 5 s, f = 0,7.**
+
+| | Mức 1 dev | Mức 2 dev | Mức 1 stable | **Mức 2 stable** |
+|---|---|---|---|---|
+| Attack được xác nhận (recall) | 97,3% | 92,0% | 97,8% | **93,3%** |
+| Binary vô hại bị gắn cờ | 87,3% | 57,8% | 92,0% | **64,6%** |
+| Control idle dương | 5,0% | 1,0% | 8,7% | **2,6%** |
+| Precision (attack / attack + control dương) | | | 91,9% | **97,3%** (293 / 301) |
+| Khoảng cách attack − vô hại | 0,10 | 0,34 | 0,06 | **0,29** |
+| p95 kernel → xác nhận | 1,9 s | 6,6 s | 1,7 s | 6,5 s |
+
+**Đánh đổi theo T** (lượt stable, f = 0,7): T 2,5 s → control 4,5%, vô hại 72%, p95 4,1 s; T 7,5 s → control 0,6%, vô hại 46%, recall 90,8%, p95 9,1 s; T 10 s → vô hại 38%, recall 89,2%, p95 11,4 s. Với T = 5 s, f = 0,5 trên lượt stable: recall 95,9%, control 3,9%, precision ~96%. Cặp này đạt cả 3 kỳ vọng không liên quan độ trễ, nhưng **không** phải cặp mà luật đã chọn.
+
+**Kết luận và đăng ký (21/10 02:26):**
+- Độ bền tín hiệu là đòn bẩy rõ nhất đã đo được cho precision và control, và cho cả việc tách process vô hại mới (khoảng cách tăng 3–5 lần). Cái giá là độ trễ.
+- Đề xuất thiết kế hai mức:
+  - preview < 2 s (mức 1, đúng mục tiêu độ trễ) để RCA và người trực bắt đầu xem;
+  - cảnh báo xác nhận sau ~5 s (mức 2) với precision ~97%.
+- **Đăng ký trước cho lượt live kế tiếp:** đánh giá mức 2 với đúng T = 5 s, f = 0,7 (chính) và f = 0,5 (phụ), không đổi sau khi xem số.
+- Binary vô hại vẫn bị gắn cờ 50–65%, nên chưa giải quyết được hoàn toàn.
+
 ## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:18)
 
 | Việc | Trạng thái |
@@ -859,3 +892,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 |---|---|---|
 | 02:15 | Phát hiện giai đoạn campaign của phân tích bị lỗi lúc ~18:00 (script gọi `python3` hệ thống không có numpy); sửa sang venv, chạy lại, hẹn lại giai đoạn final | `6a08b5f` |
 | 02:17 | Kết quả campaign: precision 92,2%, recall 97,8%, control 8,4%, binary vô hại 92,0%, p95 1,85 s (đạt 2/4 kỳ vọng) | mục 5.8a |
+| 02:26 | Xác nhận mức 2 bằng độ bền tín hiệu: chọn T = 5 s, f = 0,7 trên dev; trên lượt stable precision 97,3%, control 2,6%, recall 93,3%, p95 6,5 s; đăng ký để kiểm trên lượt sau | mục 5.8b |
