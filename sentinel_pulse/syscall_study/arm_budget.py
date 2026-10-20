@@ -13,6 +13,12 @@ noise). This applies the remedy that worked for Pulse to every arm alike:
 4. for each episode budget, give every arm its loosest scale within budget
    and report recall, control-positive rate and detection delay there.
 
+``--confirm-k/--confirm-n`` apply Pulse's k-of-n temporal confirmation
+(``detector/confirmation.py``) to every arm alike, both on the normal holdout and
+on the attack/control windows: a window is positive only if it passes and at least
+k of the last n windows of the same container passed, history restarting after a
+gap. Default 1-of-1 is the single-window rule used before.
+
 Evidence class: development (pulse-attack-dev scenarios were exposed while building the
 Pulse candidate; the holdout is unadjudicated normal). Delay is
 ``first positive window_end - kernel_event_at``, a lower bound on
@@ -54,6 +60,35 @@ def count_episodes(identity, window_end, positive, quiet=EPISODE_QUIET_SECONDS):
     new = np.ones(len(ids), dtype=bool)
     new[1:] = (ids[1:] != ids[:-1]) | (ends[1:]-ends[:-1] >= quiet)
     return int(new.sum())
+
+
+MAX_GAP_SECONDS = 1.0        # as ConfirmationPolicy.max_gap_seconds
+
+
+def confirm(identity, window_end, passed, k=1, n=1, max_gap=MAX_GAP_SECONDS):
+    """Vectorised k-of-n confirmation, aligned with the inputs.
+
+    Mirrors ``ConfirmationState``: windows of one container in time order; the history
+    restarts when the next window starts more than ``max_gap`` after the previous one
+    ended or overlaps it by more than 0.25 s. Window starts are taken as
+    ``window_end - WINDOW_SECONDS`` (score dumps keep only window_end)."""
+    passed = np.asarray(passed, dtype=bool)
+    if k == 1 and n == 1:
+        return passed.copy()
+    order = np.lexsort((window_end, identity))
+    ids, ends, ok = np.asarray(identity)[order], np.asarray(window_end, dtype=np.float64)[order], passed[order]
+    starts = ends - WINDOW_SECONDS
+    new_run = np.ones(len(ids), dtype=bool)
+    if len(ids) > 1:
+        new_run[1:] = (ids[1:] != ids[:-1]) | (starts[1:] - ends[:-1] > max_gap) | (starts[1:] < ends[:-1] - 0.25)
+    run_start = np.maximum.accumulate(np.where(new_run, np.arange(len(ids)), 0))
+    cs = np.concatenate(([0], np.cumsum(ok)))
+    idx = np.arange(len(ids))
+    lo = np.maximum(idx - n + 1, run_start)
+    out_sorted = ok & (cs[idx + 1] - cs[lo] >= k)
+    out = np.empty_like(out_sorted)
+    out[order] = out_sorted
+    return out
 
 
 def load_holdout(dump_root: Path, arm: str):
@@ -98,8 +133,10 @@ def load_replay(replay: Path):
     return out
 
 
-def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None):
-    """``outcomes``, if a list, receives one row per (seed, scale, trial) for paired bootstrap."""
+def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None, confirmation=(1, 1)):
+    """``outcomes``, if a list, receives one row per (seed, scale, trial) for paired bootstrap.
+    ``confirmation`` = (k, n) temporal confirmation applied to holdout and trial windows."""
+    k, n = confirmation
     rows = defaultdict(lambda: dict(episodes=0, windows=0, positive=0, counts=defaultdict(int), delays=[]))
     calibrated_models, skipped = 0, []
     for tag, h in sorted(holdout.items()):
@@ -124,13 +161,14 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes
         workload = tag.split('|')[0]
         for scale in scales:
             r = rows[scale, seed]
-            positive = p <= alpha*scale
+            positive = confirm(h['identity'][ev], h['window_end'][ev], p <= alpha*scale, k, n)
             r['episodes'] += count_episodes(h['identity'][ev], h['window_end'][ev], positive)
             r['windows'] += int(ev.sum()); r['positive'] += int(positive.sum())
+            confirmed = {key: confirmed_windows(windows, alpha*scale, k, n) for key, windows in rescored.items()}
             for trial in trials:
                 if trial['workload_key'] != workload:
                     continue
-                result = interval_outcome(rescored.get(trial_key(trial), []), trial, lambda w: alpha*scale)
+                result = interval_outcome(confirmed.get(trial_key(trial), []), trial, lambda w: alpha*scale)
                 kind = 'benign' if trial.get('control_kind') == 'benign_exec' else trial['label']
                 r['counts'][f"{kind}:{result['outcome']}"] += 1
                 if outcomes is not None:
@@ -169,6 +207,17 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes
     return dict(scales=table, calibrated_models=calibrated_models, skipped_models=skipped)
 
 
+def confirmed_windows(windows, threshold, k=1, n=1):
+    """Trial windows (one container) with ``joint_p`` set to +inf where confirmation fails, so
+    ``interval_outcome`` counts only confirmed positives; the raw value stays in ``raw_joint_p``."""
+    if k == 1 and n == 1 or not windows:
+        return windows
+    ends = np.array([float(w['end']) for w in windows])
+    jp = np.array([w['joint_p'] for w in windows])
+    ok = confirm(np.zeros(len(windows), dtype=np.int64), ends, jp <= threshold, k, n)
+    return [dict(w, raw_joint_p=w['joint_p'], joint_p=w['joint_p'] if c else float('inf')) for w, c in zip(windows, ok)]
+
+
 def matched(arms, budgets=BUDGETS):
     out = {}
     for budget in budgets:
@@ -185,7 +234,8 @@ def matched(arms, budgets=BUDGETS):
     return out
 
 
-def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, calibration_fraction=0.2):
+def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, calibration_fraction=0.2,
+        confirmation=(1, 1)):
     if output.exists():
         raise ValueError('output exists; choose a new path')
     registration, index, _ = load_study(study)
@@ -196,7 +246,8 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
     arms = {}
     for arm in sorted(index['arms']):
         rows = []
-        arms[arm] = evaluate_arm(arm, load_holdout(dump_root, arm), windows, trials, split_at, outcomes=rows)
+        arms[arm] = evaluate_arm(arm, load_holdout(dump_root, arm), windows, trials, split_at, outcomes=rows,
+                                 confirmation=confirmation)
         output.mkdir(parents=True, exist_ok=True)
         with (output/'TRIAL_OUTCOMES.jsonl').open('a') as stream:
             stream.writelines(json.dumps(r) + '\n' for r in rows)
@@ -205,6 +256,7 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
                   campaigns=[str(c) for c in campaigns], calibration_fraction=calibration_fraction,
                   calibration_span_unix=[begin, split_at], evaluation_span_unix=[split_at, finish],
                   episode_quiet_seconds=EPISODE_QUIET_SECONDS, scales=list(SCALES), budgets=list(BUDGETS),
+                  confirmation=dict(k=confirmation[0], n=confirmation[1], max_gap_seconds=MAX_GAP_SECONDS),
                   evidence_class='development; unadjudicated normal holdout; pulse-attack-dev scenarios previously exposed',
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
                   arms=arms, matched_budget=matched(arms),
@@ -221,8 +273,13 @@ def main():
     parser.add_argument('--campaign', type=Path, action='append', required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--calibration-fraction', type=float, default=0.2)
+    parser.add_argument('--confirm-k', type=int, default=1)
+    parser.add_argument('--confirm-n', type=int, default=1)
     args = parser.parse_args()
-    result = run(args.study.resolve(), args.dump_root, args.replay, args.campaign, args.output, args.calibration_fraction)
+    if not 1 <= args.confirm_k <= args.confirm_n:
+        parser.error('need 1 <= k <= n')
+    result = run(args.study.resolve(), args.dump_root, args.replay, args.campaign, args.output, args.calibration_fraction,
+                 confirmation=(args.confirm_k, args.confirm_n))
     for budget, arms in result['matched_budget'].items():
         print('== budget', budget, 'episodes/replica-hour')
         for arm, v in sorted(arms.items(), key=lambda kv: -(kv[1] or {}).get('recall', -1) if kv[1] else 1):

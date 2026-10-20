@@ -37,3 +37,36 @@ def test_evaluate_arm_and_matched_budget():
     assert result['scales']['5']['episodes_per_replica_hour'] >= s1['episodes_per_replica_hour']
     pick = ab.matched({'armA': result}, budgets=(1e9,))['1e+09']['armA']
     assert pick['alpha_scale'] == 5
+
+
+def _reference_confirm(identity, end, passed, k, n):
+    """Row-by-row reference: Pulse's own ConfirmationState."""
+    from sentinel_pulse.detector.confirmation import ConfirmationPolicy, ConfirmationState
+    state = ConfirmationState(ConfirmationPolicy(k=k, n=n, alpha_scale=1.0))
+    out = np.zeros(len(end), dtype=bool)
+    for i in np.lexsort((end, identity)):
+        row = dict(workload_key='w', node_name='n', pod_uid=str(identity[i]), container_name='c',
+                   workload_revision='r', cgroup_id=1, window_start=end[i]-0.5, window_end=end[i],
+                   candidate_policy_alpha=0.5, joint_p=0.1 if passed[i] else 0.9)
+        out[i] = state.update(row)
+    return out
+
+
+def test_vectorised_confirmation_matches_pulse_confirmation_state():
+    rng = np.random.default_rng(7)
+    m = 3000
+    identity = rng.integers(0, 4, m)
+    # mostly 0.5 s cadence with occasional gaps (> 1 s) and overlaps, as in real captures
+    steps = rng.choice([0.5, 0.5, 0.5, 0.5, 2.0, 0.2], size=m)
+    end = np.cumsum(steps)
+    passed = rng.random(m) < 0.4
+    for k, n in ((1, 1), (2, 2), (2, 3), (3, 5)):
+        assert np.array_equal(ab.confirm(identity, end, passed, k, n), _reference_confirm(identity, end, passed, k, n)), (k, n)
+
+
+def test_confirmed_windows_only_keep_confirmed_positives():
+    windows = [dict(start=0.5*i, end=0.5*i+0.5, joint_p=p) for i, p in enumerate([0.001, 0.9, 0.001, 0.001, 0.9])]
+    out = ab.confirmed_windows(windows, 0.01, k=2, n=2)
+    assert [w['joint_p'] <= 0.01 for w in out] == [False, False, False, True, False]
+    assert out[0]['raw_joint_p'] == 0.001
+    assert ab.confirmed_windows(windows, 0.01) is windows
