@@ -14,7 +14,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 ## Việc kế tiếp (theo thứ tự)
 
 1. [x] Kết quả `syscall-arms-k2of2`: base29 giữ nguyên; bảng bằng chứng Pulse 4b và kết luận syscall 5.9 đã cập nhật (20/10 11:50).
-2. [ ] Khi campaign xong (dự kiến tối 20/10): đọc kết quả campaign và đánh giá RCA, ghi vào báo cáo.
+2. [x] Campaign xong: Pulse 5.8a (precision 92,2%, recall 97,8%, control 8,4%, p95 1,85 s); RCA 5.10 (86,7% có case, top-1 99,6% sau khi sửa luật hạ quyền).
 3. [ ] Sáng 21/10, sau khi lượt live kết thúc: đánh giá pulse-stable-candidate theo kỳ vọng ghi trong file chính sách; đọc 5.7b và 5.7c
       theo đúng tiêu chí đã đăng ký; quyết định bản stable.
 4. [ ] Nén `features`/`decisions` của soak 48 giờ (pulse-soak-baseline) và của pulse-stable-candidate. Chỉ chạy khi không có lượt live.
@@ -52,8 +52,9 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## RCA — còn lại
 
-- [~] Đánh giá trên campaign pulse-stable-candidate (coverage, top-k, độ trễ, flow), tự chạy khi campaign xong.
-- [ ] ~28% attack không có case riêng vì gộp do cooldown. Xem lại cách gộp, hoặc nới case tiếp nối.
+- [x] Đánh giá trên campaign pulse-stable-candidate (RCA 5.10).
+- [ ] Kiểm luật `privilege_drop_at_start` trên lượt live kế tiếp (đã sửa sau khi xem số).
+- [ ] 13% attack không có case riêng (31 gộp sau case binary vô hại, 9 gộp sau case khác).
 - [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
 
 ## Hạ tầng

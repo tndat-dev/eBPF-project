@@ -238,6 +238,26 @@ Biên nhận: `receipts/rca-latency-{rca-flow,rca-followup}.json` (`scripts/anal
 
 Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) (`rca/`, `receipts/rca-*.json`).
 
+### 5.10 Đánh giá trên campaign pulse-stable-candidate (21/10 02:17)
+
+- **Subscriber:** `rca-pulse-stable-candidate`; 315 attack trial; baseline binary học trong pha chọn rồi đóng băng 11:47:29.
+- **Biên nhận:** `validation-evidence/results-20261021/pulse-stable-candidate/rca-*.json`.
+
+| Chỉ số | pulse-stable-candidate | Trước đó (rca-followup, 99 trial) |
+|---|---|---|
+| Attack có case riêng | **273/315 (86,7%)**, trong đó 255 là case tiếp nối | 71/99 (72%) |
+| Không có case riêng | 31 gộp sau case binary vô hại, 9 gộp sau case khác, 2 không có case | |
+| Top-1 lưu sẵn (lúc chạy) | 91,9% (251/273) | 56% lưu sẵn → 98,6% xếp hạng lại |
+| **Top-1 với luật hạ quyền lúc khởi chạy** | **99,6% (272/273)**; 1 case không chứa fixture | 98,6% (không đổi) |
+| Case có flow | 89,8% (3.598/4.006) | 87% |
+| Preview → case | p50 2,23 s / p95 2,55 s (4.680 case) | p50 2,22 s / p95 2,47 s |
+
+**Lỗi xếp hạng và cách sửa:**
+- Ở 21 case, các exec của liveness probe redis (`/bin/sh`, `/bin/hostname`) xếp trên fixture (8–9 điểm so với 6).
+- Lý do: lúc khởi chạy, runtime gọi `setuid`/`setgid` để chuyển sang user `redis` (uid/gid 1000, 1 ms sau khi bắt đầu). Luật cũ tính đó là "thao tác bảo mật", 3 điểm mỗi lần. Fixture chỉ có `exec`/`exit`, vì `setns`/`ptrace` bị seccomp chặn trước kprobe.
+- Sửa (`d388b02`, có test): `setuid`/`setgid`/`setre*`/`setres*` về id khác 0 trong vòng 1 s sau khi chính tiến trình khởi động được ghi là `privilege_drop_at_start`, 0 điểm. Nâng lên root, hoặc đổi quyền muộn hơn, vẫn tính 3 điểm.
+- Đây là sửa **sau khi xem kết quả**. Bằng chứng không làm hỏng chỗ khác: trên bộ case rca-followup cũ, top-1 vẫn 98,6%. Lượt live tiếp theo sẽ kiểm luật này trước, trên dữ liệu mới.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -258,11 +278,11 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 |---|---|
 | Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (`rca-pulse-stable-candidate`) |
 | Stream không rò tiến trình; xoay vòng stream | Có. Còn rò khi subscriber bị dừng (tiến trình con của `timeout` sống sót); từ 20/10 có timer `tetra-orphan-reaper` trên worker |
-| Xếp hạng nghi phạm, loại cha container runtime | Có; top-1 100% (rca-flow, 36 case), 98,6% (rca-followup, xếp hạng lại) |
-| Case tiếp nối cho exec mới trong cooldown | Có; tỉ lệ attack có case từ 11% lên 72% (71/99) |
+| Xếp hạng nghi phạm, loại cha container runtime, bỏ qua hạ quyền lúc khởi chạy | Có; top-1 99,6% trên 273 case pulse-stable-candidate (xếp hạng lại với luật mới; 91,9% lúc chạy) |
+| Case tiếp nối cho exec mới trong cooldown | Có; tỉ lệ attack có case 86,7% (273/315) trên pulse-stable-candidate |
 | Ngữ cảnh mạng (flow) | Có; 87% case có flow sau khi thu hẹp hook file |
 | Độ trễ preview → case | **p50 2,22 s / p95 2,47 s** trên 2.364 case (đọc decision qua SSH) |
-| Đánh giá trên campaign pulse-stable-candidate | Đã hẹn, tự chạy khi campaign xong (coverage, top-k, độ trễ, flow) |
+| Đánh giá trên campaign pulse-stable-candidate | **Có (5.10)** |
 | Coverage còn thiếu (~28% attack không có case riêng) | Do cooldown/gộp case; chưa giải quyết |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
 | Chứng minh nhân quả | Ngoài phạm vi |
@@ -323,3 +343,5 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 20/10 10:16 | Dừng `rca-subscriber`; chạy `rca-pulse-stable-candidate` cho lượt live mới (`scripts/launch_run.sh rca`). 10:17: 6 stream nhận sự kiện, đọc 3.601 dòng decision qua SSH, 12 case | mục 1 |
 | 20/10 11:15 | Hẹn đánh giá RCA tự động khi campaign pulse-stable-candidate xong (`pulse-stable-candidate-analysis`, giai đoạn campaign): coverage theo trial, xếp hạng lưu sẵn và xếp hạng lại với baseline đóng băng, độ trễ preview → case, tỉ lệ case có flow | `scripts/pulse_stable_candidate_analysis.sh` |
 | 20/10 15:28 | Phát hiện 9–10 tiến trình `tetra getevents` mồ côi trên mỗi worker (sống 5–29 giờ). Tuổi khớp với các lần dừng subscriber (19/10 ~10:30, 19:24; 20/10 10:16): khi phiên `kubectl exec` đóng, `timeout` trong container nhận SIGKILL, tiến trình con `tetra` bị gán cho init, bỏ qua SIGTERM và chạy mãi. Đã SIGKILL hết (còn đúng 2 stream mỗi worker) và cài timer `tetra-orphan-reaper` (5 phút; giết `tetra getevents` > 1.000 s không có `timeout` làm cha) | `scripts/tetra_orphan_reaper.sh` |
+| 21/10 02:17 | Đánh giá campaign pulse-stable-candidate: 86,7% attack có case, top-1 lưu sẵn 91,9% | mục 5.10 |
+| 21/10 02:23 | Tìm ra probe redis vượt fixture do `setuid`/`setgid` hạ quyền lúc khởi chạy bị tính là thao tác bảo mật; sửa luật (`d388b02`); xếp hạng lại: 99,6% (lượt mới), 98,6% (rca-followup, không đổi) | mục 5.10 |

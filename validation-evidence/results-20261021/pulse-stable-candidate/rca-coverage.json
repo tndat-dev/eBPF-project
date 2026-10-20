@@ -1,0 +1,23 @@
+{
+  "schema": "rca-campaign-coverage-v1",
+  "cases_dir": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate/cases",
+  "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-candidate/pulse-development-matrix",
+  "since_unix": 1792471769.7668884,
+  "trials": 315,
+  "classes": {
+    "attack_case": 273,
+    "grouped_after_benign_case": 31,
+    "grouped_after_other_case": 9,
+    "no_case": 2
+  },
+  "attack_cases": 273,
+  "follow_up_attack_cases": 255,
+  "stored_rank_top1": 0.9194139194139194,
+  "stored_rank_top5": 0.9194139194139194,
+  "cases_with_flow": 228,
+  "preview_to_case_seconds": {
+    "p50": 2.225658893585205,
+    "p95": 2.518752098083496
+  },
+  "computed_at_unix": 1792523798.0572004
+}
