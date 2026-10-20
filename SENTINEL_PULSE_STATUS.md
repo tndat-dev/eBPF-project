@@ -525,11 +525,8 @@ Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control d
 
 Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matched worker pulse-live-recalibrated, collector, resolver vẫn `active`.
 
-**Còn chờ chạy tay** vì `kubectl delete` vẫn bị bộ kiểm duyệt quyền chặn (lần 3): `bash /home/dat/cleanup-manual-20261018.sh` trên `.234`. Script (đã rút gọn chỉ còn phần k8s) xóa:
-- **Tài nguyên v8 trên k8s:**
-  - ValidatingAdmissionPolicy `sentinel-experiment-resource-lock`;
-  - 2 TracingPolicy `sentinel-syscalls`;
-  - workload baseline v8: `nginx`, `redis`, `loadgen`, `redis-loadgen` (production) và `postgres`, `postgres-loadgen` (default). Không workload nào trong số này thuộc 21 workload Pulse.
+**Tài nguyên v8 trên k8s** (admission lock `sentinel-experiment-resource-lock`, 2 `sentinel-syscalls`, nginx/redis/loadgen/postgres): **đã không còn** (kiểm tra 19/10 19:11 và 20/10 10:50).
+
 **Vì sao NFS đầy nhanh.**
 - Lượt live ghi ~3,2 GB/giờ (pulse-live-recalibrated: 53 GB sau 16,5 giờ). Mỗi 0,5 s, mỗi container sinh một dòng `features.jsonl` (249 feature + full-ID delta) và một dòng `decisions.jsonl`, đều là JSON text.
 - Soak 48 giờ cũ chiếm 218 GB.
@@ -585,10 +582,11 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
 - Mọi job phân tích nặng (đọc NFS hoặc tốn RAM) chạy sau khi pulse-live-recalibrated kết thúc: 20/10 02:20, trên `.234`, MemoryMax 32 GB.
 - Không bao giờ chạy job nặng trên master2/master3. Đã ghi vào bộ nhớ làm việc.
 
-**Còn lại (chờ chạy tay, `kubectl delete` bị chặn):** `bash /home/dat/cleanup-k8s-20261019.sh` trên `.234` xóa:
-- bản ghi pod đã chết (evicted, debug pod Completed);
-- demo Bookinfo trong `default` (7 deployment đã scale về 0, 5 service, có một LoadBalancer);
-- `default/keycloak`: AIMS dùng Keycloak trong namespace `keycloak`; `default/keycloak` đang crashloop vì DB `postgres` của nó đã bị xóa cùng v8. Script giữ lại PVC.
+**Kiểm tra lại 20/10 10:50** (sau khi bạn chạy script cũ và nó dừng ở dòng đầu, vì `validatingadmissionpolicybinding` đã bị xóa từ trước):
+- Bookinfo và `default/keycloak` **đã không còn**; namespace `default` chỉ còn service `kubernetes`.
+- Ba deployment `aims-sentinel-*-loadgen` là traffic của AIMS, giữ nguyên.
+- Còn sót **bản ghi pod đã chết**: 12 pod `Completed` cũ (8–23 ngày) của các ReplicaSet trong `production`, và pod `velero-846bbd7474-9w57b` (`Completed`, 41 ngày; ReplicaSet đã có pod Running khác).
+- Hai script cũ đã được xóa và thay bằng `bash /home/dat/cleanup-k8s.sh` (chạy tay trên `.234`). Script chỉ xóa đúng các bản ghi trên; không đụng pod đang chạy hay lịch sử job kopia của velero.
 
 Tài nguyên v8 (admission lock, 2 `sentinel-syscalls`, nginx/redis/loadgen/postgres) **đã không còn trên cụm**.
 
@@ -706,3 +704,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:14–10:16 | Khởi chạy **pulse-stable-candidate** (`scripts/launch_run.sh`, snapshot `6a3a0b5`, `FAST=1`): plan, 3 worker, RCA `rca-pulse-stable-candidate`, traffic + campaign; watcher sức khỏe mỗi 5 phút | mục 5.8 |
 | 10:41 | 4 pod giữ mount hỏng từ sự cố 19/10 19:24 (`aims-redis-0` CrashLoop, `aims-minio-pool-0-0` lỗi I/O, `vault-2`, `tempo-0`) → xóa pod để mount lại; 3 pod Ready ~10:44, `vault-2` chạy nhưng sealed (Shamir, cần unseal bằng tay). Loại 10:41–10:50 của redis/minio khỏi normal | mục 5.8, 8b |
 | 10:46 | Mở rộng NFS online trên `10.1.16.233` sau khi đĩa vSphere được nâng 500 → 800 GB: rescan `sda` → `growpart /dev/sda 3` → `pvresize` → `lvextend -r -l +100%FREE ubuntu-vg/sentinel_pulse_archive` (ext4 resize online). `/srv/nfs` từ 344 GB lên 685 GB, trống 476 GB. Không lỗi trong `dmesg`; cả 4 client thấy dung lượng mới; lượt live vẫn chạy, 0 issue | mục 2, 8 |
+| 10:50 | Script dọn cũ dừng vì tài nguyên đã bị xóa từ trước; kiểm tra: v8, Bookinfo, `default/keycloak` đều đã không còn. Thay 2 script cũ bằng `cleanup-k8s.sh` (chỉ còn bản ghi pod `Completed` cũ) | mục 8 |

@@ -95,19 +95,20 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 
 ## Ưu tiên 3 — Dọn cụm
 
-- [ ] **(chạy tay)** `bash /home/dat/cleanup-k8s-20261019.sh` trên .234: bản ghi pod chết, Bookinfo, `default/keycloak` (không phục vụ AIMS, giữ PVC).
+- [x] Bookinfo, `default/keycloak` đã không còn (kiểm tra 20/10 10:50).
+- [ ] **(chạy tay)** `bash /home/dat/cleanup-k8s.sh` trên .234: chỉ còn 12 bản ghi pod `Completed` cũ trong `production` và 1 pod velero `Completed` 41 ngày.
+- [ ] **(chạy tay)** Unseal `vault-2` sau khi tạo lại pod (Shamir): `kubectl -n vault exec -it vault-2 -- vault operator unseal`.
 - [x] Tài nguyên v8 trên k8s đã không còn (19/10).
 
-- [~] NFS: nén `raw.jsonl` của soak 48 giờ (68,7 GB, kiểm tra seal) — đang chạy trên `.236` từ 18:36.
+- [x] NFS: nén `raw.jsonl` của soak 48 giờ (kiểm tra seal) — xong 20/10.
+- [x] NFS mở rộng online 344 → 685 GB (20/10 10:46).
 - [x] Công cụ đọc `.gz` đã kiểm tra seal (`3bb0e74`).
 - [~] Nén `features`/`decisions` soak 48 giờ: job `pulse-compress-48h-rest-20261019` (.236), chạy sau các bước phụ thuộc.
-- [ ] Nén segment pulse-live-recalibrated đã niêm phong sau khi các phân tích pulse-live-recalibrated xong (sau 20/10).
+- [x] Nén `features`/`decisions` pulse-live-recalibrated: 296 file, 0 sai seal, thu lại 73,4 GB (20/10 10:14).
 - [x] Dọn ổ worker (19/10 18:30): ~530 GB dữ liệu thô/checkout cũ, 15 unit cũ. (bạn đã cho phép tự quyết 18/10)
 
 - [x] Gỡ detector v8, unit/timer cũ, 2 TracingPolicy, namespace `sentinel-system`, thư mục v8 (~6,3 GB).
-- [ ] **(chạy tay)** Gỡ admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`,
-      workload baseline v8 (`nginx/redis/loadgen/redis-loadgen`, `postgres/postgres-loadgen`).
-      Bộ kiểm duyệt quyền của Claude Code chặn 2 lần → chạy `bash /home/dat/cleanup-manual-20261018.sh` trên .234.
+- [x] Admission lock `sentinel-experiment-resource-lock`, 2 policy `sentinel-syscalls`, workload baseline v8: đã không còn (19/10).
 - [x] ~~(chạy tay)~~ Đã xóa 19/10 18:30: dữ liệu thô cũ trên worker (~117–194 GB/node trong `/var/lib/sentinel-pulse-*`),
       checkout/bundle cũ trong `/home/dat`, 5 oneshot cũ còn `enabled` và ~90 unit lỗi mỗi worker.
 - [ ] ~70 thư mục checkout cũ `/home/dat/eBPF-project-*` trên .234 (~12 GB) → giữ lại
