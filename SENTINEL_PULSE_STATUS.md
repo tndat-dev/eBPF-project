@@ -64,6 +64,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | Lượt pulse-live-recalibrated | **Xong** 20/10 02:12–02:22 (mục 5.5). `features`/`decisions` đã nén gzip có kiểm seal: 296 file, 0 sai seal, thu lại 73,4 GB (80 → 9,9 GB) |
 | Job phân tích 20/10 02:10–03:18 | **Xong**: chọn candidate (5.7a), refresh calibration (5.6), novel-syscall (5.5b), bootstrap syscall (file syscall, mục 5.7; lỗi lúc 03:18 rồi chạy tiếp lúc 09:46) |
 | Theo dõi | Mỗi 5 phút kiểm tra heartbeat worker, số issue, RCA, NFS, số tiến trình `tetra getevents` (`/home/dat/health-run.py`) |
+| Phân tích sau lượt (đã hẹn) | Unit `pulse-stable-candidate-analysis` trên `.234` (`scripts/pulse_stable_candidate_analysis.sh`, snapshot `9758e15`) tự chạy theo 2 giai đoạn:<br>• **campaign xong:** kết quả campaign, attack-vs-benign, coverage/xếp hạng/độ trễ/flow RCA. Giai đoạn này nhẹ, chạy được khi capture còn chạy;<br>• **3 worker xong:** gánh cảnh báo normal (as_run so với calibration làm mới, 5.7b), replay campaign với calibration làm mới, cadence gap, novelty có xét exec (5.7c), đối chiếu chấm nhanh trên lượt live với sklearn |
+| Bộ nhớ VM (vSphere) | **Balloon đang giữ RAM của mọi VM** (11:10): 81 GB trên master2/3 và 3 worker, 51 GB trên `.234`, 2/3,9 GB trên NFS server. Hiện chưa có áp lực bộ nhớ hay swap; worker còn 27–33 GB, NFS server còn ~0,9 GB. Xem mục 8 |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
 | NFS `/mnt/sentinel-pulse-archive` | **Tổng 685 GB, trống 476 GB** (mở rộng online 20/10 10:46, không reboot, không gián đoạn lượt live). Lượt 24 giờ dùng khoảng 80 GB |
 | Ổ đĩa worker | 40% / 40% / 29% |
@@ -541,6 +543,13 @@ Kết quả: worker1 81% → 40%, worker4 85% → 41%, worker3 56% → 29%. Matc
   3. Lượt mới không ghi `raw.jsonl`.
   4. 20/10: nén `features`/`decisions` của pulse-live-recalibrated (thu lại 73,4 GB), rồi **mở rộng NFS lên 685 GB** (đĩa vSphere 800 GB; LV `ubuntu-vg/sentinel_pulse_archive` nhận toàn bộ phần trống, LV hệ điều hành giữ 100 GB). Làm online, không reboot. Đủ chỗ cho khoảng 5 lượt 24 giờ không nén.
 - **NFS server:** `10.1.16.233` (hostname `tndat`), export `/srv/nfs` → `10.1.16.233:/sentinel-pulse`. `scripts/ssh_lab.py` đã có host này.
+- **Balloon của vSphere (phát hiện 20/10 11:10):**
+  - `vmw_balloon` trên mọi VM đang giữ RAM: 81 GB trên mỗi VM master2/master3/worker (125 GB), 51 GB trên `.234`, và 2 GB trên NFS server (chỉ có 3,9 GB).
+  - Nghĩa là host ESXi đang thiếu RAM và thu hồi từ các VM. Linux tính phần này là "used", nên `free` trên `.234` báo 66 GB dùng dù tiến trình chỉ chiếm ~9 GB.
+  - Hiện chưa ảnh hưởng: không swap, PSI bộ nhớ và IO bằng 0, lượt live 0 issue.
+  - Rủi ro: NFS server chỉ còn ~0,9 GB khả dụng, gần như không còn page cache cho NFS. Nếu host thiếu thêm RAM, NFS server chậm đi thì cả 3 worker bị ảnh hưởng.
+  - Sự cố master2 ngày 19/10 (kernel dồn bộ nhớ, soft lockup) có thể liên quan đến balloon, nhưng chưa có bằng chứng.
+  - **Đề xuất trong vCenter:** đặt memory reservation cho VM NFS server (và nên tăng lên 8 GB); kiểm tra mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit. Không gỡ `vmw_balloon` trong guest, vì khi đó ESXi sẽ swap VM ở tầng hypervisor, còn tệ hơn.
 
 **Đồng bộ code:**
 - GitHub `main` là nguồn chính; push thẳng, commit chỉ mang danh tính tndat-dev.
@@ -707,3 +716,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:50 | Script dọn cũ dừng vì tài nguyên đã bị xóa từ trước; kiểm tra: v8, Bookinfo, `default/keycloak` đều đã không còn. Thay 2 script cũ bằng `cleanup-k8s.sh` (chỉ còn bản ghi pod `Completed` cũ) | mục 8 |
 | 10:58 | Chạy `cleanup-k8s.sh`: các bản ghi pod `Completed` cũ đã không còn; xóa pod job velero kopia-maintain lỗi lúc 10:40 (lỗi do minio đang hỏng I/O; lần chạy 10:45 thành công, repo `Ready`). Cụm không còn pod lỗi, chỉ `vault-2` chờ unseal bằng tay (Shamir). Xóa script dọn | mục 8 |
 | 11:04 | `vault-2` đã được unseal (bạn chạy tay): Vault 3/3 Ready (1 active, 2 standby). **Toàn cụm không còn pod nào chưa Ready.** Lượt live vẫn chạy, 0 issue | mục 8 |
+| 11:10 | Phát hiện balloon vSphere giữ 51–81 GB RAM trên mọi VM, 2/3,9 GB trên NFS server; hiện chưa có áp lực bộ nhớ | mục 2, 8 |
+| 11:15 | Hẹn `pulse-stable-candidate-analysis` (snapshot `9758e15`): tự chạy giai đoạn campaign khi campaign xong, giai đoạn final khi 3 worker xong | mục 2 |
