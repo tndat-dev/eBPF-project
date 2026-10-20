@@ -1,0 +1,2683 @@
+{
+  "schema": "pulse-burden-by-workload-v1",
+  "inputs": "validation-evidence/results-20261019/pulse-stable-candidate-selection/normal",
+  "sources": {
+    "normal-asrun-default-k8s-worker1.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 195.49163444466063
+    },
+    "normal-asrun-default-k8s-worker3.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 202.8875337963634
+    },
+    "normal-asrun-default-k8s-worker4.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 68.57395524846183
+    },
+    "normal-asrun-looser-k8s-worker1.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 195.49163444466063
+    },
+    "normal-asrun-looser-k8s-worker3.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 202.8875337963634
+    },
+    "normal-asrun-looser-k8s-worker4.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 68.57395524846183
+    },
+    "normal-refreshed-default-k8s-worker1.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 195.49163444466063
+    },
+    "normal-refreshed-default-k8s-worker3.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 202.8875337963634
+    },
+    "normal-refreshed-default-k8s-worker4.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 68.57395524846183
+    },
+    "normal-refreshed-looser-k8s-worker1.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 195.49163444466063
+    },
+    "normal-refreshed-looser-k8s-worker3.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 202.8875337963634
+    },
+    "normal-refreshed-looser-k8s-worker4.local.json": {
+      "since": 1792411200.0,
+      "until": null,
+      "total_scored_hours": 68.57395524846183
+    }
+  },
+  "policies": [
+    "k1of1_a3",
+    "k2of2_a5",
+    "k2of2_a10"
+  ],
+  "labels": "unadjudicated normal; positives are not confirmed false positives",
+  "calibrations": {
+    "asrun": {
+      "k1of1_a3": {
+        "total_episodes": 6075,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 13.009871214913906,
+        "share_of_episodes_top3": 0.4097119341563786,
+        "share_of_episodes_top5": 0.5651028806584362,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 1180,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 42.20928870717661,
+            "positive_windows_per_episode": 1.6254237288135593,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 121,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 8.665332431294058
+              },
+              "k8s-worker3": {
+                "episodes": 1059,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 75.68478808270297
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 797,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 28.523722921464824,
+            "positive_windows_per_episode": 1.6875784190715182,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 426,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 20.338466202376136
+              },
+              "k8s-worker3": {
+                "episodes": 371,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 53.029379374282904
+              }
+            }
+          },
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 512,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 18.314538828876632,
+            "positive_windows_per_episode": 35.44140625,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 38,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.7213440693320177
+              },
+              "k8s-worker3": {
+                "episodes": 474,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 33.875910813221154
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 472,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 22.653794643447284,
+            "positive_windows_per_episode": 1.3241525423728813,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 144,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 20.624923472832133
+              },
+              "k8s-worker3": {
+                "episodes": 205,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 29.301948171773574
+              },
+              "k8s-worker4": {
+                "episodes": 123,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 17.936839074592974
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 472,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 16.883715482870645,
+            "positive_windows_per_episode": 1.6970338983050848,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 262,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 18.762951214868124
+              },
+              "k8s-worker3": {
+                "episodes": 210,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 15.00831491724988
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 442,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 63.17785898499473,
+            "positive_windows_per_episode": 4.262443438914027,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 442,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 63.17785898499473
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 323,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 23.31537840843205,
+            "positive_windows_per_episode": 1.278637770897833,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 173,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 24.72798553032599
+              },
+              "k8s-worker4": {
+                "episodes": 150,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 21.874193993406063
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 227,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 16.40263528645157,
+            "positive_windows_per_episode": 1.1938325991189427,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 95,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 13.606720346660088
+              },
+              "k8s-worker4": {
+                "episodes": 132,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 19.249290714197336
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 227,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 32.44654748776879,
+            "positive_windows_per_episode": 16.035242290748897,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 227,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 32.44654748776879
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 203,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 9.743051509787708,
+            "positive_windows_per_episode": 1.4679802955665024,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 89,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 12.747348535292083
+              },
+              "k8s-worker3": {
+                "episodes": 101,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 14.43656958706893
+              },
+              "k8s-worker4": {
+                "episodes": 13,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.8957634794285256
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 192,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 9.215102905809065,
+            "positive_windows_per_episode": 1.4010416666666667,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 71,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 10.169233101188066
+              },
+              "k8s-worker3": {
+                "episodes": 61,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 8.719116285259453
+              },
+              "k8s-worker4": {
+                "episodes": 60,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 8.749677597362426
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 175,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 6.287843086685162,
+            "positive_windows_per_episode": 2.3314285714285714,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 20,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.8645727045600187
+              },
+              "k8s-worker3": {
+                "episodes": 127,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.076457116622546
+              },
+              "k8s-worker4": {
+                "episodes": 28,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.083182878769132
+              }
+            }
+          },
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 140,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 6.71934586881911,
+            "positive_windows_per_episode": 1.3571428571428572,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 56,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 8.020803572768052
+              },
+              "k8s-worker3": {
+                "episodes": 39,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 5.574516969264241
+              },
+              "k8s-worker4": {
+                "episodes": 45,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 6.562258198021819
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 137,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 4.900569960070505,
+            "positive_windows_per_episode": 3.7445255474452557,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 56,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 4.010401786384026
+              },
+              "k8s-worker3": {
+                "episodes": 81,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.788921468082096
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 133,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 4.755059102259837,
+            "positive_windows_per_episode": 3.082706766917293,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 40,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 5.729145409120037
+              },
+              "k8s-worker3": {
+                "episodes": 93,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 4.431026308902346
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 123,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 8.887771542879044,
+            "positive_windows_per_episode": 1.3333333333333333,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 87,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 12.460891264836082
+              },
+              "k8s-worker4": {
+                "episodes": 36,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 5.249806558417456
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 108,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 3.8804974477828424,
+            "positive_windows_per_episode": 5.194444444444445,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 22,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.1510299750160207
+              },
+              "k8s-worker3": {
+                "episodes": 52,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.7163446461761604
+              },
+              "k8s-worker4": {
+                "episodes": 34,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.958150638505375
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 98,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.505517197714668,
+            "positive_windows_per_episode": 2.7653061224489797,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 31,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.2200438460340144
+              },
+              "k8s-worker3": {
+                "episodes": 67,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.7883671402654375
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 53,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 1.8968096798464689,
+            "positive_windows_per_episode": 3.6226415094339623,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 36,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker3": {
+                "episodes": 17,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 2.429917653269028
+              }
+            }
+          },
+          {
+            "workload": "production/order-service:app",
+            "episodes": 51,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 1.8242997661576332,
+            "positive_windows_per_episode": 4.215686274509804,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 24,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker3": {
+                "episodes": 27,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 1.9296404893606989
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 10,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 0.47995327634422214,
+            "positive_windows_per_episode": 15.0,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 3,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 0.42968590568400283
+              },
+              "k8s-worker3": {
+                "episodes": 3,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 0.42880899763571084
+              },
+              "k8s-worker4": {
+                "episodes": 4,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.5833118398241617
+              }
+            }
+          }
+        ]
+      },
+      "k2of2_a10": {
+        "total_episodes": 3724,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 7.975104593306894,
+        "share_of_episodes_top3": 0.3770139634801289,
+        "share_of_episodes_top5": 0.5139634801288937,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 566,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 20.246150345984713,
+            "positive_windows_per_episode": 46.7226148409894,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 53,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.795558833542025
+              },
+              "k8s-worker3": {
+                "episodes": 513,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 36.66316929785328
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 517,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 73.8980839258875,
+            "positive_windows_per_episode": 3.009671179883946,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 517,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 73.8980839258875
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 321,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 45.88256274702106,
+            "positive_windows_per_episode": 1.5327102803738317,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 321,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 45.88256274702106
+              }
+            }
+          },
+          {
+            "workload": "production/order-service:app",
+            "episodes": 264,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 9.443434083639513,
+            "positive_windows_per_episode": 4.0606060606060606,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 116,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 8.307260843224054
+              },
+              "k8s-worker3": {
+                "episodes": 148,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 10.577288608347533
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 246,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 8.804060023438327,
+            "positive_windows_per_episode": 4.008130081300813,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 170,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 8.11628932958672
+              },
+              "k8s-worker3": {
+                "episodes": 76,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 10.863161273438008
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 216,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 7.7303941669214575,
+            "positive_windows_per_episode": 4.111111111111111,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 151,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 7.209174639809381
+              },
+              "k8s-worker3": {
+                "episodes": 65,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 9.290861615440402
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 189,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 9.071116922905798,
+            "positive_windows_per_episode": 2.232804232804233,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 35,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 5.013002232980033
+              },
+              "k8s-worker3": {
+                "episodes": 139,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 19.868150223787936
+              },
+              "k8s-worker4": {
+                "episodes": 15,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.1874193993406066
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 187,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 13.498376973302765,
+            "positive_windows_per_episode": 1.5401069518716577,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 109,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 15.580060247430827
+              },
+              "k8s-worker4": {
+                "episodes": 78,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 11.374580876571153
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 162,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 5.7948345513242465,
+            "positive_windows_per_episode": 4.185185185185185,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 64,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 4.58331632729603
+              },
+              "k8s-worker3": {
+                "episodes": 98,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 7.003880294716611
+              }
+            }
+          },
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 148,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 5.294046380222151,
+            "positive_windows_per_episode": 5.722972972972973,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 34,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.434886798876016
+              },
+              "k8s-worker3": {
+                "episodes": 114,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 8.147370955078506
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 130,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 4.650175874519458,
+            "positive_windows_per_episode": 4.276923076923077,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 59,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 4.225244739226028
+              },
+              "k8s-worker3": {
+                "episodes": 71,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.074239805355911
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 116,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 4.167941703174164,
+            "positive_windows_per_episode": 10.801724137931034,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 27,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.8671731511560252
+              },
+              "k8s-worker3": {
+                "episodes": 62,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.431026308902346
+              },
+              "k8s-worker4": {
+                "episodes": 27,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 3.9373549188130914
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 112,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 4.004260296639863,
+            "positive_windows_per_episode": 3.5892857142857144,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 19,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.7213440693320177
+              },
+              "k8s-worker3": {
+                "episodes": 93,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 4.431026308902346
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 108,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.8632230342161646,
+            "positive_windows_per_episode": 4.212962962962963,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 35,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.5065011164900164
+              },
+              "k8s-worker3": {
+                "episodes": 73,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.2171761379011485
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 100,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 3.5930531923915208,
+            "positive_windows_per_episode": 3.47,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 19,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.7213440693320177
+              },
+              "k8s-worker3": {
+                "episodes": 66,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.716898973992819
+              },
+              "k8s-worker4": {
+                "episodes": 15,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.1874193993406066
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 86,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 4.12759817656031,
+            "positive_windows_per_episode": 10.255813953488373,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 12,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker3": {
+                "episodes": 12,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 1.7152359905428434
+              },
+              "k8s-worker4": {
+                "episodes": 62,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 9.041333517274508
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 72,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 3.4556635896783994,
+            "positive_windows_per_episode": 1.8888888888888888,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 22,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.1510299750160207
+              },
+              "k8s-worker3": {
+                "episodes": 22,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 3.144599315995213
+              },
+              "k8s-worker4": {
+                "episodes": 28,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.083182878769132
+              }
+            }
+          },
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 67,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 3.2156869515062882,
+            "positive_windows_per_episode": 1.4776119402985075,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 37,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 5.299459503436035
+              },
+              "k8s-worker3": {
+                "episodes": 28,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 4.002217311266635
+              },
+              "k8s-worker4": {
+                "episodes": 2,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.29165591991208084
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 50,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 3.6129152613329447,
+            "positive_windows_per_episode": 1.98,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 26,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.7239445159280242
+              },
+              "k8s-worker4": {
+                "episodes": 24,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 3.49987103894497
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 49,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 2.3517710540866883,
+            "positive_windows_per_episode": 2.7755102040816326,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 18,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.5781154341040167
+              },
+              "k8s-worker3": {
+                "episodes": 25,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 3.5734083136309236
+              },
+              "k8s-worker4": {
+                "episodes": 6,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.8749677597362425
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 18,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 1.30064949407986,
+            "positive_windows_per_episode": 4.333333333333333,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 12,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker4": {
+                "episodes": 6,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.8749677597362425
+              }
+            }
+          }
+        ]
+      },
+      "k2of2_a5": {
+        "total_episodes": 2342,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 5.015492738325657,
+        "share_of_episodes_top3": 0.5081127241673783,
+        "share_of_episodes_top5": 0.601195559350982,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 655,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 23.429732290848033,
+            "positive_windows_per_episode": 31.12213740458015,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 37,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.6497297517180174
+              },
+              "k8s-worker3": {
+                "episodes": 618,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 44.16732675647822
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 380,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 54.31580636719004,
+            "positive_windows_per_episode": 1.9710526315789474,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 380,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 54.31580636719004
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 155,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 5.547273592003824,
+            "positive_windows_per_episode": 3.806451612903226,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 109,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 5.2039737466173674
+              },
+              "k8s-worker3": {
+                "episodes": 46,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 6.5750712970809
+              }
+            }
+          },
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 110,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.934764201516464,
+            "positive_windows_per_episode": 5.1,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 27,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 1.9335865755780126
+              },
+              "k8s-worker3": {
+                "episodes": 83,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.931857800627333
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 108,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 15.437123914885591,
+            "positive_windows_per_episode": 1.1851851851851851,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 108,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 15.437123914885591
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 105,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.7559112832657156,
+            "positive_windows_per_episode": 4.219047619047619,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 44,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.1510299750160207
+              },
+              "k8s-worker3": {
+                "episodes": 61,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.3595581426297265
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 95,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.398205446764219,
+            "positive_windows_per_episode": 4.126315789473685,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 46,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.2942586102440217
+              },
+              "k8s-worker3": {
+                "episodes": 49,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.5019401473583054
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 86,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 3.0746998706341806,
+            "positive_windows_per_episode": 3.453488372093023,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 16,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.291658163648015
+              },
+              "k8s-worker3": {
+                "episodes": 70,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 3.3351810927221957
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 86,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 6.207809731037635,
+            "positive_windows_per_episode": 1.3372093023255813,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 48,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 6.8609439621713735
+              },
+              "k8s-worker4": {
+                "episodes": 38,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 5.541462478329536
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 75,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 2.6947898942936406,
+            "positive_windows_per_episode": 3.4133333333333336,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 16,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.291658163648015
+              },
+              "k8s-worker3": {
+                "episodes": 46,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.28753564854045
+              },
+              "k8s-worker4": {
+                "episodes": 13,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.8957634794285256
+              }
+            }
+          },
+          {
+            "workload": "production/order-service:app",
+            "episodes": 74,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 2.6470231901110757,
+            "positive_windows_per_episode": 3.6621621621621623,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 31,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.2200438460340144
+              },
+              "k8s-worker3": {
+                "episodes": 43,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.0731311497225944
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 73,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 3.5036589173128214,
+            "positive_windows_per_episode": 1.7534246575342465,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 17,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.434886798876016
+              },
+              "k8s-worker3": {
+                "episodes": 46,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 6.5750712970809
+              },
+              "k8s-worker4": {
+                "episodes": 10,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.4582795995604043
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 67,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 2.407345638902319,
+            "positive_windows_per_episode": 10.194029850746269,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 15,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.148429528420014
+              },
+              "k8s-worker3": {
+                "episodes": 34,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 2.429917653269028
+              },
+              "k8s-worker4": {
+                "episodes": 18,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.624903279208728
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 67,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 2.3978537462210077,
+            "positive_windows_per_episode": 3.5522388059701493,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 45,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 2.148429528420014
+              },
+              "k8s-worker3": {
+                "episodes": 22,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 3.144599315995213
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 54,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 1.9316115171080823,
+            "positive_windows_per_episode": 4.444444444444445,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 25,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 1.7903579403500118
+              },
+              "k8s-worker3": {
+                "episodes": 29,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 2.0725768219059355
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 42,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 2.015803760645733,
+            "positive_windows_per_episode": 1.9761904761904763,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 13,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.8619722579640121
+              },
+              "k8s-worker3": {
+                "episodes": 13,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 1.8581723230880802
+              },
+              "k8s-worker4": {
+                "episodes": 16,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.3332473592966467
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 33,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 1.5838458119359329,
+            "positive_windows_per_episode": 2.9393939393939394,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 12,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker3": {
+                "episodes": 15,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 2.144044988178554
+              },
+              "k8s-worker4": {
+                "episodes": 6,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.8749677597362425
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 23,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 1.6619410202131546,
+            "positive_windows_per_episode": 1.608695652173913,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 12,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.7187436227360113
+              },
+              "k8s-worker4": {
+                "episodes": 11,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.6041075595164447
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 22,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 1.0558972079572886,
+            "positive_windows_per_episode": 11.454545454545455,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 8,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.1458290818240076
+              },
+              "k8s-worker3": {
+                "episodes": 5,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 0.7146816627261847
+              },
+              "k8s-worker4": {
+                "episodes": 9,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.312451639604364
+              }
+            }
+          },
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 22,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 1.0558972079572886,
+            "positive_windows_per_episode": 2.272727272727273,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 15,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.148429528420014
+              },
+              "k8s-worker3": {
+                "episodes": 7,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 1.0005543278166587
+              },
+              "k8s-worker4": {
+                "episodes": 0,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.0
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 10,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 0.7225830522665889,
+            "positive_windows_per_episode": 4.2,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 7,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.0026004465960066
+              },
+              "k8s-worker4": {
+                "episodes": 3,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.43748387986812126
+              }
+            }
+          }
+        ]
+      }
+    },
+    "refreshed": {
+      "k1of1_a3": {
+        "total_episodes": 6373,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 13.648050905785402,
+        "share_of_episodes_top3": 0.3108426172916994,
+        "share_of_episodes_top5": 0.44280558606621684,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 886,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 42.52386028409808,
+            "positive_windows_per_episode": 1.2923250564334086,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 320,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 45.8331632729603
+              },
+              "k8s-worker3": {
+                "episodes": 487,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 69.60999394953039
+              },
+              "k8s-worker4": {
+                "episodes": 79,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 11.520408836527194
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 580,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 20.74693851708681,
+            "positive_windows_per_episode": 1.6775862068965517,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 317,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 22.701738683638148
+              },
+              "k8s-worker3": {
+                "episodes": 263,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 18.796127729698657
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 515,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 24.71759373172744,
+            "positive_windows_per_episode": 1.3009708737864079,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 151,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 21.627523919428143
+              },
+              "k8s-worker3": {
+                "episodes": 209,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 29.87369350195452
+              },
+              "k8s-worker4": {
+                "episodes": 155,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 22.603333793186266
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 448,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 16.025221475267053,
+            "positive_windows_per_episode": 1.9933035714285714,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 163,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 11.673133771082076
+              },
+              "k8s-worker3": {
+                "episodes": 285,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 20.368427387696265
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 393,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 28.368246794160356,
+            "positive_windows_per_episode": 1.3689567430025444,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 211,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 30.159566167044996
+              },
+              "k8s-worker4": {
+                "episodes": 182,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 26.54068871199936
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 362,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 26.15750649205052,
+            "positive_windows_per_episode": 1.3756906077348066,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 167,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 23.919182083076155
+              },
+              "k8s-worker4": {
+                "episodes": 195,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 28.436452191427882
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 313,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 44.739072086659164,
+            "positive_windows_per_episode": 1.194888178913738,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 313,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 44.739072086659164
+              }
+            }
+          },
+          {
+            "workload": "production/order-service:app",
+            "episodes": 309,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 11.053110347896249,
+            "positive_windows_per_episode": 2.55663430420712,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 180,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 12.890577170520084
+              },
+              "k8s-worker3": {
+                "episodes": 129,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.219393449167782
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 283,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 10.168340534468005,
+            "positive_windows_per_episode": 2.717314487632509,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 42,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 6.015602679576039
+              },
+              "k8s-worker3": {
+                "episodes": 159,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 11.363438437346337
+              },
+              "k8s-worker4": {
+                "episodes": 82,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 11.957892716395316
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 237,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 11.374892649358063,
+            "positive_windows_per_episode": 3.350210970464135,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 84,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 12.031205359152079
+              },
+              "k8s-worker3": {
+                "episodes": 56,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 8.00443462253327
+              },
+              "k8s-worker4": {
+                "episodes": 97,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 14.145312115735921
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 225,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 10.798948717744997,
+            "positive_windows_per_episode": 1.5955555555555556,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 93,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 13.320263076204087
+              },
+              "k8s-worker3": {
+                "episodes": 110,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 15.722996579976064
+              },
+              "k8s-worker4": {
+                "episodes": 22,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 3.2082151190328894
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 223,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 7.9809162001087275,
+            "positive_windows_per_episode": 2.8520179372197307,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 166,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 7.925317815949386
+              },
+              "k8s-worker3": {
+                "episodes": 57,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 8.147370955078506
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 223,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 31.87480215758784,
+            "positive_windows_per_episode": 1.1614349775784754,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 223,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 31.87480215758784
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 217,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 7.762216652082479,
+            "positive_windows_per_episode": 3.1244239631336406,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 82,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 5.872374044348039
+              },
+              "k8s-worker3": {
+                "episodes": 135,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.648202446803493
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 210,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 10.079018803228664,
+            "positive_windows_per_episode": 1.4333333333333333,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 78,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 11.171833547784074
+              },
+              "k8s-worker3": {
+                "episodes": 66,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 9.433797947985639
+              },
+              "k8s-worker4": {
+                "episodes": 66,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 9.624645357098668
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 176,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 6.298839691565632,
+            "positive_windows_per_episode": 3.835227272727273,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 112,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 5.347202381845369
+              },
+              "k8s-worker3": {
+                "episodes": 64,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 9.147925282895164
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 174,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 6.251912554761246,
+            "positive_windows_per_episode": 2.3160919540229883,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 20,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.8645727045600187
+              },
+              "k8s-worker3": {
+                "episodes": 126,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.004988950349928
+              },
+              "k8s-worker4": {
+                "episodes": 28,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.083182878769132
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 173,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 12.50068680421199,
+            "positive_windows_per_episode": 1.277456647398844,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 124,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 17.760350768272115
+              },
+              "k8s-worker4": {
+                "episodes": 49,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 7.145570037845981
+              }
+            }
+          },
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 168,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 6.009458053225145,
+            "positive_windows_per_episode": 2.25,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 34,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.434886798876016
+              },
+              "k8s-worker3": {
+                "episodes": 134,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.576734280530875
+              }
+            }
+          },
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 143,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 5.115193461971403,
+            "positive_windows_per_episode": 2.8531468531468533,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 39,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.7929583869460184
+              },
+              "k8s-worker3": {
+                "episodes": 104,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 7.432689292352321
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 115,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 4.111517268871288,
+            "positive_windows_per_episode": 3.130434782608696,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 38,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 5.442688138664035
+              },
+              "k8s-worker3": {
+                "episodes": 77,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 3.668699201994415
+              }
+            }
+          }
+        ]
+      },
+      "k2of2_a10": {
+        "total_episodes": 3150,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 6.745859148473877,
+        "share_of_episodes_top3": 0.33904761904761904,
+        "share_of_episodes_top5": 0.4726984126984127,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/order-service:app",
+            "episodes": 393,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 14.057839374508822,
+            "positive_windows_per_episode": 4.9440203562340965,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 179,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 12.818962852906084
+              },
+              "k8s-worker3": {
+                "episodes": 214,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 15.294187582340353
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 388,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 13.886078410951507,
+            "positive_windows_per_episode": 4.641752577319588,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 276,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 13.177034440976087
+              },
+              "k8s-worker3": {
+                "episodes": 112,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 16.00886924506654
+              }
+            }
+          },
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 287,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 13.774659031079175,
+            "positive_windows_per_episode": 1.2822299651567943,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 159,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 22.77335300125215
+              },
+              "k8s-worker3": {
+                "episodes": 125,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 17.86704156815462
+              },
+              "k8s-worker4": {
+                "episodes": 3,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.43748387986812126
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 211,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 7.5514498575019795,
+            "positive_windows_per_episode": 4.04739336492891,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 147,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 7.018203126172046
+              },
+              "k8s-worker3": {
+                "episodes": 64,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 9.147925282895164
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 210,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 15.158605157184924,
+            "positive_windows_per_episode": 1.8333333333333333,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 121,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 17.29529623797367
+              },
+              "k8s-worker4": {
+                "episodes": 89,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 12.978688436087598
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 176,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 6.295622722426343,
+            "positive_windows_per_episode": 4.215909090909091,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 73,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 5.2278451858220345
+              },
+              "k8s-worker3": {
+                "episodes": 103,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 7.361221126079703
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 159,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 7.631257093873131,
+            "positive_windows_per_episode": 1.9685534591194969,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 28,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 4.010401786384026
+              },
+              "k8s-worker3": {
+                "episodes": 116,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 16.580614575247484
+              },
+              "k8s-worker4": {
+                "episodes": 15,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.1874193993406066
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 148,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 5.294046380222151,
+            "positive_windows_per_episode": 4.175675675675675,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 63,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 4.51170200968203
+              },
+              "k8s-worker3": {
+                "episodes": 85,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 6.0747941331725706
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 144,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 5.150964045621553,
+            "positive_windows_per_episode": 4.993055555555555,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 52,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.7239445159280242
+              },
+              "k8s-worker3": {
+                "episodes": 92,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 6.5750712970809
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 142,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 6.815336524087954,
+            "positive_windows_per_episode": 8.077464788732394,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 33,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 4.726544962524031
+              },
+              "k8s-worker3": {
+                "episodes": 32,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 4.573962641447582
+              },
+              "k8s-worker4": {
+                "episodes": 77,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 11.228752916615113
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 132,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 4.7428302139568075,
+            "positive_windows_per_episode": 11.007575757575758,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 31,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 4.440087692068029
+              },
+              "k8s-worker3": {
+                "episodes": 70,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.002771639083293
+              },
+              "k8s-worker4": {
+                "episodes": 31,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.520666758637254
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 111,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 3.988289043554588,
+            "positive_windows_per_episode": 3.5315315315315314,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 20,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.8645727045600187
+              },
+              "k8s-worker3": {
+                "episodes": 76,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.431580636719004
+              },
+              "k8s-worker4": {
+                "episodes": 15,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.1874193993406066
+              }
+            }
+          },
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 102,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.6485995323152665,
+            "positive_windows_per_episode": 3.764705882352941,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 31,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.2200438460340144
+              },
+              "k8s-worker3": {
+                "episodes": 71,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 5.074239805355911
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 100,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 3.5752324077141635,
+            "positive_windows_per_episode": 3.61,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 23,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.2942586102440217
+              },
+              "k8s-worker3": {
+                "episodes": 77,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 3.668699201994415
+              }
+            }
+          },
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 80,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 2.861646692011974,
+            "positive_windows_per_episode": 3.5,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 31,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.2200438460340144
+              },
+              "k8s-worker3": {
+                "episodes": 49,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.5019401473583054
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 74,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 3.5516542449472435,
+            "positive_windows_per_episode": 1.9054054054054055,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 23,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.2942586102440217
+              },
+              "k8s-worker3": {
+                "episodes": 23,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 3.28753564854045
+              },
+              "k8s-worker4": {
+                "episodes": 28,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 4.083182878769132
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 74,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 10.577288608347533,
+            "positive_windows_per_episode": 1.162162162162162,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 74,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 10.577288608347533
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 65,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 4.696789839732828,
+            "positive_windows_per_episode": 2.2,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 30,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 4.296859056840028
+              },
+              "k8s-worker4": {
+                "episodes": 35,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 5.103978598461415
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 62,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 2.975710313334177,
+            "positive_windows_per_episode": 2.661290322580645,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 23,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.2942586102440217
+              },
+              "k8s-worker3": {
+                "episodes": 33,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 4.716898973992819
+              },
+              "k8s-worker4": {
+                "episodes": 6,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.8749677597362425
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 53,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 7.575625624897558,
+            "positive_windows_per_episode": 1.2075471698113207,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 53,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 7.575625624897558
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 39,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 2.818073903839697,
+            "positive_windows_per_episode": 3.1794871794871793,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 29,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 4.153630421612027
+              },
+              "k8s-worker4": {
+                "episodes": 10,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.4582795995604043
+              }
+            }
+          }
+        ]
+      },
+      "k2of2_a5": {
+        "total_episodes": 1796,
+        "total_replica_hours": 466.95,
+        "episodes_per_replica_hour": 3.8462104859235184,
+        "share_of_episodes_top3": 0.3040089086859688,
+        "share_of_episodes_top5": 0.44153674832962136,
+        "workloads_with_zero_episodes": [],
+        "workloads": [
+          {
+            "workload": "production/order-service:app",
+            "episodes": 225,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 8.048381321283676,
+            "positive_windows_per_episode": 3.986666666666667,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 96,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 6.874974490944045
+              },
+              "k8s-worker3": {
+                "episodes": 129,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 9.219393449167782
+              }
+            }
+          },
+          {
+            "workload": "production/payment-service:app",
+            "episodes": 182,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 6.513572862869006,
+            "positive_windows_per_episode": 3.956043956043956,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 123,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 5.872374044348039
+              },
+              "k8s-worker3": {
+                "episodes": 59,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 8.43324362016898
+              }
+            }
+          },
+          {
+            "workload": "production/security-telemetry-service:app",
+            "episodes": 139,
+            "replica_hours": 27.94,
+            "episodes_per_replica_hour": 4.974651801861493,
+            "positive_windows_per_episode": 4.028776978417266,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 98,
+                "replica_hours": 20.95,
+                "episodes_per_replica_hour": 4.678802084114698
+              },
+              "k8s-worker3": {
+                "episodes": 41,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 5.860389634354715
+              }
+            }
+          },
+          {
+            "workload": "production/aims-postgres-cnpg:postgres",
+            "episodes": 136,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 6.527364558281421,
+            "positive_windows_per_episode": 1.3014705882352942,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 90,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 12.890577170520084
+              },
+              "k8s-worker3": {
+                "episodes": 44,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 6.289198631990426
+              },
+              "k8s-worker4": {
+                "episodes": 2,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.29165591991208084
+              }
+            }
+          },
+          {
+            "workload": "production/api-gateway:app",
+            "episodes": 111,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.9705347851666137,
+            "positive_windows_per_episode": 4.27027027027027,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 47,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.365872927858022
+              },
+              "k8s-worker3": {
+                "episodes": 64,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.573962641447582
+              }
+            }
+          },
+          {
+            "workload": "production/catalog-service:app",
+            "episodes": 108,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.8632230342161646,
+            "positive_windows_per_episode": 4.074074074074074,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 55,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 3.938787468770026
+              },
+              "k8s-worker3": {
+                "episodes": 53,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.787812812448779
+              }
+            }
+          },
+          {
+            "workload": "production/inventory-service:app",
+            "episodes": 93,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 3.3266642794639196,
+            "positive_windows_per_episode": 5.225806451612903,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 37,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.6497297517180174
+              },
+              "k8s-worker3": {
+                "episodes": 56,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 4.002217311266635
+              }
+            }
+          },
+          {
+            "workload": "production/aims-frontend:web",
+            "episodes": 93,
+            "replica_hours": 13.85,
+            "episodes_per_replica_hour": 6.7130965696104665,
+            "positive_windows_per_episode": 1.3655913978494623,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 53,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 7.575625624897558
+              },
+              "k8s-worker4": {
+                "episodes": 40,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 5.833118398241617
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-dual-role:kafka",
+            "episodes": 84,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 4.031607521291466,
+            "positive_windows_per_episode": 9.035714285714286,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 21,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.0078013397880197
+              },
+              "k8s-worker3": {
+                "episodes": 20,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 2.858726650904739
+              },
+              "k8s-worker4": {
+                "episodes": 43,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 6.270602278109738
+              }
+            }
+          },
+          {
+            "workload": "production/search-recommendation-service:app",
+            "episodes": 76,
+            "replica_hours": 27.97,
+            "episodes_per_replica_hour": 2.717176629862764,
+            "positive_windows_per_episode": 3.4473684210526314,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 15,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.148429528420014
+              },
+              "k8s-worker3": {
+                "episodes": 61,
+                "replica_hours": 20.99,
+                "episodes_per_replica_hour": 2.9063720950864846
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis:aims-redis",
+            "episodes": 74,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 3.5516542449472435,
+            "positive_windows_per_episode": 1.662162162162162,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 18,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.5781154341040167
+              },
+              "k8s-worker3": {
+                "episodes": 46,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 6.5750712970809
+              },
+              "k8s-worker4": {
+                "episodes": 10,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.4582795995604043
+              }
+            }
+          },
+          {
+            "workload": "production/cart-service:app",
+            "episodes": 74,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 2.6588593623697254,
+            "positive_windows_per_episode": 3.364864864864865,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 16,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.291658163648015
+              },
+              "k8s-worker3": {
+                "episodes": 46,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.28753564854045
+              },
+              "k8s-worker4": {
+                "episodes": 12,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 1.749935519472485
+              }
+            }
+          },
+          {
+            "workload": "production/aims-waypoint:istio-proxy",
+            "episodes": 72,
+            "replica_hours": 27.83,
+            "episodes_per_replica_hour": 2.586998298521895,
+            "positive_windows_per_episode": 11.152777777777779,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 18,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.5781154341040167
+              },
+              "k8s-worker3": {
+                "episodes": 35,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 2.5013858195416465
+              },
+              "k8s-worker4": {
+                "episodes": 19,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.770731239164768
+              }
+            }
+          },
+          {
+            "workload": "production/notification-service:app",
+            "episodes": 71,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 2.5397114391606266,
+            "positive_windows_per_episode": 3.8450704225352115,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 26,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 1.8619722579640121
+              },
+              "k8s-worker3": {
+                "episodes": 45,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 3.2160674822678312
+              }
+            }
+          },
+          {
+            "workload": "production/auth-service:app",
+            "episodes": 68,
+            "replica_hours": 27.96,
+            "episodes_per_replica_hour": 2.4323996882101775,
+            "positive_windows_per_episode": 3.235294117647059,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 29,
+                "replica_hours": 13.96,
+                "episodes_per_replica_hour": 2.0768152108060134
+              },
+              "k8s-worker3": {
+                "episodes": 39,
+                "replica_hours": 13.99,
+                "episodes_per_replica_hour": 2.7872584846321207
+              }
+            }
+          },
+          {
+            "workload": "production/aims-rabbitmq-server:rabbitmq",
+            "episodes": 45,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 2.1597897435489997,
+            "positive_windows_per_episode": 1.9777777777777779,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 13,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 1.8619722579640121
+              },
+              "k8s-worker3": {
+                "episodes": 14,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 2.0011086556333173
+              },
+              "k8s-worker4": {
+                "episodes": 18,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.624903279208728
+              }
+            }
+          },
+          {
+            "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+            "episodes": 42,
+            "replica_hours": 20.84,
+            "episodes_per_replica_hour": 2.015803760645733,
+            "positive_windows_per_episode": 2.7857142857142856,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 16,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 2.291658163648015
+              },
+              "k8s-worker3": {
+                "episodes": 20,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 2.858726650904739
+              },
+              "k8s-worker4": {
+                "episodes": 6,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.8749677597362425
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:minio",
+            "episodes": 38,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 2.745815598613038,
+            "positive_windows_per_episode": 2.026315789473684,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 21,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 3.0078013397880197
+              },
+              "k8s-worker4": {
+                "episodes": 17,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 2.4790753192526873
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:topic-operator",
+            "episodes": 31,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 4.431026308902346,
+            "positive_windows_per_episode": 1.032258064516129,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 31,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 4.431026308902346
+              }
+            }
+          },
+          {
+            "workload": "production/aims-kafka-entity-operator:user-operator",
+            "episodes": 28,
+            "replica_hours": 7.0,
+            "episodes_per_replica_hour": 4.002217311266635,
+            "positive_windows_per_episode": 1.0357142857142858,
+            "per_node": {
+              "k8s-worker3": {
+                "episodes": 28,
+                "replica_hours": 7.0,
+                "episodes_per_replica_hour": 4.002217311266635
+              }
+            }
+          },
+          {
+            "workload": "production/aims-minio-pool-0:sidecar",
+            "episodes": 6,
+            "replica_hours": 13.84,
+            "episodes_per_replica_hour": 0.4335498313599534,
+            "positive_windows_per_episode": 6.333333333333333,
+            "per_node": {
+              "k8s-worker1": {
+                "episodes": 6,
+                "replica_hours": 6.98,
+                "episodes_per_replica_hour": 0.8593718113680057
+              },
+              "k8s-worker4": {
+                "episodes": 0,
+                "replica_hours": 6.86,
+                "episodes_per_replica_hour": 0.0
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "computed_at_unix": 1792471331.2047315
+}

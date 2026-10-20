@@ -1,0 +1,663 @@
+{
+  "automatic_promotion": false,
+  "baseline_reproduces_frozen_previews": false,
+  "episode_quiet_seconds": 15.0,
+  "excluded_spans": [
+    [
+      1792356412.7386138,
+      1792378412.809834
+    ],
+    [
+      1792381537.8095915,
+      1792389017.9693992
+    ],
+    [
+      1792409100.0,
+      1792412400.0
+    ]
+  ],
+  "finished_at_unix": 1792439545.796002,
+  "frozen_positive_windows": {
+    "production/aims-frontend:web": 192,
+    "production/aims-kafka-dual-role:kafka": 13,
+    "production/aims-minio-pool-0:minio": 159,
+    "production/aims-minio-pool-0:sidecar": 36,
+    "production/aims-postgres-cnpg:postgres": 57,
+    "production/aims-rabbitmq-server:rabbitmq": 85,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 37,
+    "production/aims-redis:aims-redis": 151,
+    "production/aims-waypoint:istio-proxy": 170,
+    "production/cart-service:app": 59
+  },
+  "grid": [
+    "k1of1_a1",
+    "k2of2_a1",
+    "k2of3_a1",
+    "k3of3_a1",
+    "k3of4_a1",
+    "k3of5_a1",
+    "k4of6_a1",
+    "k1of1_a0.5",
+    "k2of2_a0.5",
+    "k2of3_a0.5",
+    "k3of3_a0.5",
+    "k3of4_a0.5",
+    "k3of5_a0.5",
+    "k4of6_a0.5",
+    "k1of1_a0.25",
+    "k2of2_a0.25",
+    "k2of3_a0.25",
+    "k3of3_a0.25",
+    "k3of4_a0.25",
+    "k3of5_a0.25",
+    "k4of6_a0.25"
+  ],
+  "labels": "unadjudicated normal soak; positives are not confirmed FP",
+  "model_hash": "ec72d9ea22af7d84ac2e8567e19205f121498ad11e48a9b2ef673697f5843cd4",
+  "node_name": "k8s-worker4.local",
+  "policies": {
+    "k1of1_a0.25": {
+      "episodes": {
+        "production/aims-frontend:web": 33,
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 14,
+        "production/aims-minio-pool-0:sidecar": 2,
+        "production/aims-postgres-cnpg:postgres": 4,
+        "production/aims-rabbitmq-server:rabbitmq": 19,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 16,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 15
+      },
+      "episodes_per_scored_hour": 1.5457763755340286,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 1,
+        "n": 1
+      },
+      "positive_windows": {
+        "production/aims-frontend:web": 33,
+        "production/aims-kafka-dual-role:kafka": 9,
+        "production/aims-minio-pool-0:minio": 15,
+        "production/aims-minio-pool-0:sidecar": 2,
+        "production/aims-postgres-cnpg:postgres": 6,
+        "production/aims-rabbitmq-server:rabbitmq": 24,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+        "production/aims-redis:aims-redis": 23,
+        "production/aims-waypoint:istio-proxy": 3,
+        "production/cart-service:app": 40
+      },
+      "total_episodes": 106,
+      "total_positive_windows": 161
+    },
+    "k1of1_a0.5": {
+      "episodes": {
+        "production/aims-frontend:web": 45,
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 25,
+        "production/aims-minio-pool-0:sidecar": 4,
+        "production/aims-postgres-cnpg:postgres": 5,
+        "production/aims-rabbitmq-server:rabbitmq": 23,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 42,
+        "production/aims-waypoint:istio-proxy": 16,
+        "production/cart-service:app": 28
+      },
+      "episodes_per_scored_hour": 2.785314035160372,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 1,
+        "n": 1
+      },
+      "positive_windows": {
+        "production/aims-frontend:web": 45,
+        "production/aims-kafka-dual-role:kafka": 9,
+        "production/aims-minio-pool-0:minio": 29,
+        "production/aims-minio-pool-0:sidecar": 4,
+        "production/aims-postgres-cnpg:postgres": 8,
+        "production/aims-rabbitmq-server:rabbitmq": 34,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 8,
+        "production/aims-redis:aims-redis": 50,
+        "production/aims-waypoint:istio-proxy": 20,
+        "production/cart-service:app": 54
+      },
+      "total_episodes": 191,
+      "total_positive_windows": 261
+    },
+    "k1of1_a1": {
+      "episodes": {
+        "production/aims-frontend:web": 70,
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 49,
+        "production/aims-minio-pool-0:sidecar": 9,
+        "production/aims-postgres-cnpg:postgres": 14,
+        "production/aims-rabbitmq-server:rabbitmq": 30,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+        "production/aims-redis:aims-redis": 73,
+        "production/aims-waypoint:istio-proxy": 18,
+        "production/cart-service:app": 28
+      },
+      "episodes_per_scored_hour": 4.345673206690005,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 1,
+        "n": 1
+      },
+      "positive_windows": {
+        "production/aims-frontend:web": 73,
+        "production/aims-kafka-dual-role:kafka": 9,
+        "production/aims-minio-pool-0:minio": 55,
+        "production/aims-minio-pool-0:sidecar": 9,
+        "production/aims-postgres-cnpg:postgres": 21,
+        "production/aims-rabbitmq-server:rabbitmq": 45,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 17,
+        "production/aims-redis:aims-redis": 82,
+        "production/aims-waypoint:istio-proxy": 63,
+        "production/cart-service:app": 55
+      },
+      "total_episodes": 298,
+      "total_positive_windows": 429
+    },
+    "k2of2_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 5,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 2,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 9
+      },
+      "episodes_per_scored_hour": 0.29165591991208084,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 2,
+        "n": 2
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 5,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+        "production/aims-redis:aims-redis": 5,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 24
+      },
+      "total_episodes": 20,
+      "total_positive_windows": 49
+    },
+    "k2of2_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 4,
+        "production/aims-rabbitmq-server:rabbitmq": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 2,
+        "production/cart-service:app": 10
+      },
+      "episodes_per_scored_hour": 0.4083182878769132,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 2,
+        "n": 2
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 4,
+        "production/aims-rabbitmq-server:rabbitmq": 11,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+        "production/aims-redis:aims-redis": 6,
+        "production/aims-waypoint:istio-proxy": 2,
+        "production/cart-service:app": 25
+      },
+      "total_episodes": 28,
+      "total_positive_windows": 62
+    },
+    "k2of2_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 5,
+        "production/aims-rabbitmq-server:rabbitmq": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 4,
+        "production/aims-waypoint:istio-proxy": 6,
+        "production/cart-service:app": 10
+      },
+      "episodes_per_scored_hour": 0.5103978598461415,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 2,
+        "n": 2
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 5,
+        "production/aims-rabbitmq-server:rabbitmq": 15,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 10,
+        "production/aims-redis:aims-redis": 7,
+        "production/aims-waypoint:istio-proxy": 42,
+        "production/cart-service:app": 26
+      },
+      "total_episodes": 35,
+      "total_positive_windows": 113
+    },
+    "k2of3_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 5,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 2,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 9
+      },
+      "episodes_per_scored_hour": 0.29165591991208084,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 2,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 5,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+        "production/aims-redis:aims-redis": 5,
+        "production/aims-waypoint:istio-proxy": 2,
+        "production/cart-service:app": 24
+      },
+      "total_episodes": 20,
+      "total_positive_windows": 50
+    },
+    "k2of3_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 4,
+        "production/aims-rabbitmq-server:rabbitmq": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 2,
+        "production/cart-service:app": 10
+      },
+      "episodes_per_scored_hour": 0.4083182878769132,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 2,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 4,
+        "production/aims-rabbitmq-server:rabbitmq": 11,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+        "production/aims-redis:aims-redis": 6,
+        "production/aims-waypoint:istio-proxy": 3,
+        "production/cart-service:app": 25
+      },
+      "total_episodes": 28,
+      "total_positive_windows": 63
+    },
+    "k2of3_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-minio-pool-0:minio": 5,
+        "production/aims-postgres-cnpg:postgres": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 4,
+        "production/aims-waypoint:istio-proxy": 6,
+        "production/cart-service:app": 10
+      },
+      "episodes_per_scored_hour": 0.5249806558417456,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 2,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 8,
+        "production/aims-minio-pool-0:minio": 5,
+        "production/aims-postgres-cnpg:postgres": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 15,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 10,
+        "production/aims-redis:aims-redis": 7,
+        "production/aims-waypoint:istio-proxy": 43,
+        "production/cart-service:app": 26
+      },
+      "total_episodes": 36,
+      "total_positive_windows": 115
+    },
+    "k3of3_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.14582795995604042,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 3,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 4,
+        "production/aims-redis:aims-redis": 3,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 10,
+      "total_positive_windows": 29
+    },
+    "k3of3_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.2041591439384566,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 3,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+        "production/aims-redis:aims-redis": 3,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 14,
+      "total_positive_windows": 34
+    },
+    "k3of3_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 6,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 4,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.3062387159076849,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 3,
+        "n": 3
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 8,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 8,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 36,
+        "production/cart-service:app": 16
+      },
+      "total_episodes": 21,
+      "total_positive_windows": 78
+    },
+    "k3of4_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.16041075595164447,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 3,
+        "n": 4
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 4,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 11,
+      "total_positive_windows": 30
+    },
+    "k3of4_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.21874193993406063,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 3,
+        "n": 4
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 15,
+      "total_positive_windows": 35
+    },
+    "k3of4_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 6,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 5,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.32082151190328895,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 3,
+        "n": 4
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 8,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 8,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 37,
+        "production/cart-service:app": 16
+      },
+      "total_episodes": 22,
+      "total_positive_windows": 79
+    },
+    "k3of5_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.16041075595164447,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 3,
+        "n": 5
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 4,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 11,
+      "total_positive_windows": 30
+    },
+    "k3of5_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 1,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.21874193993406063,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 3,
+        "n": 5
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 4,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 2,
+        "production/cart-service:app": 15
+      },
+      "total_episodes": 15,
+      "total_positive_windows": 36
+    },
+    "k3of5_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 6,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 2,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 5,
+        "production/cart-service:app": 7
+      },
+      "episodes_per_scored_hour": 0.32082151190328895,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 3,
+        "n": 5
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 7,
+        "production/aims-rabbitmq-server:rabbitmq": 8,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 8,
+        "production/aims-redis:aims-redis": 3,
+        "production/aims-waypoint:istio-proxy": 38,
+        "production/cart-service:app": 16
+      },
+      "total_episodes": 22,
+      "total_positive_windows": 80
+    },
+    "k4of6_a0.25": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/cart-service:app": 3
+      },
+      "episodes_per_scored_hour": 0.08749677597362426,
+      "policy": {
+        "alpha_scale": 0.25,
+        "k": 4,
+        "n": 6
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 6,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 3,
+        "production/aims-redis:aims-redis": 2,
+        "production/cart-service:app": 8
+      },
+      "total_episodes": 6,
+      "total_positive_windows": 19
+    },
+    "k4of6_a0.5": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/cart-service:app": 3
+      },
+      "episodes_per_scored_hour": 0.08749677597362426,
+      "policy": {
+        "alpha_scale": 0.5,
+        "k": 4,
+        "n": 6
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 6,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 4,
+        "production/aims-redis:aims-redis": 2,
+        "production/cart-service:app": 8
+      },
+      "total_episodes": 6,
+      "total_positive_windows": 20
+    },
+    "k4of6_a1": {
+      "episodes": {
+        "production/aims-kafka-dual-role:kafka": 1,
+        "production/aims-rabbitmq-server:rabbitmq": 2,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 1,
+        "production/aims-redis:aims-redis": 1,
+        "production/aims-waypoint:istio-proxy": 4,
+        "production/cart-service:app": 3
+      },
+      "episodes_per_scored_hour": 0.17499355194724853,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 4,
+        "n": 6
+      },
+      "positive_windows": {
+        "production/aims-kafka-dual-role:kafka": 6,
+        "production/aims-rabbitmq-server:rabbitmq": 2,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6,
+        "production/aims-redis:aims-redis": 2,
+        "production/aims-waypoint:istio-proxy": 32,
+        "production/cart-service:app": 9
+      },
+      "total_episodes": 12,
+      "total_positive_windows": 57
+    }
+  },
+  "policy_hash": "f61073512035dad4177b0fcce518f6a4b452322250b28b8a563605c2f0a8c9cb",
+  "recalibrated": false,
+  "schema": "pulse-confirmation-normal-burden-v1",
+  "scored_hours": {
+    "production/aims-frontend:web": 6.857395524846183,
+    "production/aims-kafka-dual-role:kafka": 6.857395524846183,
+    "production/aims-minio-pool-0:minio": 6.857395524846183,
+    "production/aims-minio-pool-0:sidecar": 6.857395524846183,
+    "production/aims-postgres-cnpg:postgres": 6.857395524846183,
+    "production/aims-rabbitmq-server:rabbitmq": 6.857395524846183,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 6.857395524846183,
+    "production/aims-redis:aims-redis": 6.857395524846183,
+    "production/aims-waypoint:istio-proxy": 6.857395524846183,
+    "production/cart-service:app": 6.857395524846183
+  },
+  "scored_windows": {
+    "production/aims-frontend:web": 48606,
+    "production/aims-kafka-dual-role:kafka": 48606,
+    "production/aims-minio-pool-0:minio": 48606,
+    "production/aims-minio-pool-0:sidecar": 48606,
+    "production/aims-postgres-cnpg:postgres": 48606,
+    "production/aims-rabbitmq-server:rabbitmq": 48606,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 48606,
+    "production/aims-redis:aims-redis": 48606,
+    "production/aims-waypoint:istio-proxy": 48606,
+    "production/cart-service:app": 48606
+  },
+  "since_unix": 1792411200.0,
+  "source_sha256": "ff70f733fc030626f1cb8bf37505becf387e9d4d36e8f0d6952ebd166d61fcb8",
+  "started_at_unix": 1792439447.7547517,
+  "stats": {
+    "excluded_rows": 23370,
+    "segments": 49
+  },
+  "total_scored_hours": 68.57395524846183,
+  "until_unix": null,
+  "worker_root": "/mnt/sentinel-pulse-archive/matched-r6-20261018/workers/k8s-worker4.local"
+}
