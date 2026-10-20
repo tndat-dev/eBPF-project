@@ -1,0 +1,8 @@
+# Pinned test stack, identical to the cluster runtime (numpy/scikit-learn/scipy on .234 and the workers):
+# bit-for-bit scorer tests depend on the scikit-learn tree implementation.
+numpy==2.5.2
+scikit-learn==1.9.0
+scipy==1.18.0
+joblib==1.5.3
+threadpoolctl==3.6.0
+pytest==9.1.1
