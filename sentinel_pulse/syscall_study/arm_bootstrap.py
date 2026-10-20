@@ -94,9 +94,12 @@ def bootstrap(arm_cells, base_cells, meta, reps=REPS, seed=20261019):
     return out
 
 
-def run(budget_dir: Path, output: Path, budgets=('5', '12', '18'), reps=REPS):
+def run(budget_dir: Path, output: Path, budgets=None, reps=REPS):
+    """``budgets`` default: every budget of the arm_budget run at which base29 has a matched scale."""
     results = json.loads((budget_dir/'RESULTS.json').read_text())
     table, meta = load_outcomes(budget_dir/'TRIAL_OUTCOMES.jsonl')
+    if budgets is None:
+        budgets = [b for b, picks in results['matched_budget'].items() if (picks or {}).get(BASE)]
     report = {}
     for b in budgets:
         picks = results['matched_budget'].get(b) or {}
@@ -126,8 +129,9 @@ def main():
     parser.add_argument('--budget-dir', type=Path, required=True, help='arm_budget output with TRIAL_OUTCOMES.jsonl')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--reps', type=int, default=REPS)
+    parser.add_argument('--budget', action='append', help='budget key(s); default: all with a base29 match')
     args = parser.parse_args()
-    result = run(args.budget_dir, args.output, reps=args.reps)
+    result = run(args.budget_dir, args.output, budgets=args.budget, reps=args.reps)
     for b, arms in result['budgets'].items():
         print('== budget', b)
         key = 'separation' if all(r['separation'] for r in arms.values()) else 'recall'

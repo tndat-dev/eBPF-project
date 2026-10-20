@@ -40,3 +40,13 @@ def test_campaign_without_benign_controls_reports_control_rate(tmp_path):
     assert x['benign_rate'] is None and x['separation'] is None and x['separation_diff'] is None
     assert abs(x['recall_diff']['point'] + 0.25) < 1e-9 and abs(x['control_diff']['point'] + 0.25) < 1e-9
     assert not x['non_inferior_recall']
+
+
+def test_default_budgets_are_those_with_a_base29_match(tmp_path):
+    rows = [dict(arm=arm, seed=1, scale=1.0, trial_key=f'c/{w}:attack', workload=f'w{w}', kind='attack',
+                 outcome='TP', delay=None) for arm in ('base29', 'armX') for w in range(3)]
+    (tmp_path/'TRIAL_OUTCOMES.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    pick = dict(alpha_scale=1.0)
+    (tmp_path/'RESULTS.json').write_text(json.dumps(dict(matched_budget={
+        '0.1': {'base29': None, 'armX': None}, '1': {'base29': pick, 'armX': pick}, '5': {'base29': pick, 'armX': pick}})))
+    assert sorted(boot.run(tmp_path, tmp_path/'out.json', reps=50)['budgets']) == ['1', '5']
