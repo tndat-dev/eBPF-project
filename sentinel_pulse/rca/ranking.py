@@ -10,6 +10,10 @@ Reasons and weights:
   (``novel_binary``, 4) or never recorded at all (``unknown_binary``, 2)
 - exec observed inside the case window (``started_in_window``, 2)
 - credential / namespace / mount / ptrace operations (``security_operation``, 3 each, max 9)
+  except a privilege *drop* at launch: setuid/setgid/setre*/setres* to a non-zero id within
+  ``DROP_AT_START_SECONDS`` of the process's own start (``privilege_drop_at_start``, 0). Every probe or
+  ``kubectl exec`` into a non-root container does this (found 21/10: redis liveness probes outranked
+  the injected binary in 21 of 273 cases). Raising to uid/gid 0, or a change later in life, still counts.
 - failed syscalls (``failed_syscall``, 1 each, max 3)
 - parent of another suspect process in the window (``spawned_children``, 1)
 
@@ -23,6 +27,42 @@ from collections import defaultdict
 import re
 
 SECURITY = {'credential', 'namespace', 'mount', 'ptrace'}
+ID_SETTERS = {'setuid', 'setgid', 'setreuid', 'setregid', 'setresuid', 'setresgid'}
+DROP_AT_START_SECONDS = 1.0
+
+
+def _seconds(stamp):
+    from datetime import datetime
+    if stamp is None:
+        return None
+    try:
+        text = str(stamp).replace('Z', '+00:00')
+        head, _, frac = text.partition('.')
+        if frac:  # Python's fromisoformat takes at most microseconds
+            digits = ''.join(ch for ch in frac if ch.isdigit())
+            zone = frac[len(digits):]
+            text = f'{head}.{digits[:6]}{zone}'
+        return datetime.fromisoformat(text).timestamp()
+    except ValueError:
+        return None
+
+
+def is_privilege_drop_at_start(event: dict, process: dict) -> bool:
+    """setuid/setgid-style call to a non-zero id shortly after the process itself started."""
+    if event.get('category') != 'credential' or event.get('operation') not in ID_SETTERS:
+        return False
+    ids = []
+    for key, value in (event.get('details') or {}).items():
+        if key in ('uid', 'gid', 'ruid', 'euid', 'suid', 'rgid', 'egid', 'sgid'):
+            try:
+                ids.append(int(value))
+            except (TypeError, ValueError):
+                return False
+    ids = [v for v in ids if v not in (-1, 4294967295)]   # -1 = "leave unchanged" for setres*/setre*
+    if not ids or 0 in ids:                              # no target, or a raise to root: keep as security
+        return False
+    began, at = _seconds(process.get('start_time')), _seconds(event.get('observed_at'))
+    return began is not None and at is not None and 0 <= at - began <= DROP_AT_START_SECONDS
 CONTAINER_RUNTIME = re.compile(r'(^|/)(containerd-shim[^/]*|runc|crun|conmon)$')
 
 
@@ -64,7 +104,10 @@ def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | N
         if target['operation'] == 'exec':
             reasons[src].append(('started_in_window', 2))
         if target['category'] in SECURITY:
-            reasons[src].append(('security_operation', 3))
+            if is_privilege_drop_at_start(target, processes[src]):
+                reasons[src].append(('privilege_drop_at_start', 0))
+            else:
+                reasons[src].append(('security_operation', 3))
         if (target.get('outcome') or {}).get('status') == 'failure':
             reasons[src].append(('failed_syscall', 1))
     ranked = []

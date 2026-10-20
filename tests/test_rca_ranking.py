@@ -102,3 +102,29 @@ def test_offline_rerank_uses_binaries_seen_before_the_case(tmp_path):
     (trial / 'EVALUATION_INPUT.json').write_text(json.dumps(dict(attack=attack)))
     result = evaluate(cases, [tmp_path / 'campaign'], rerank_db=db, frozen_at=50.)
     assert result['reranked'] and result['rows'][0]['rank'] == 1
+
+
+def _probe_tree(uid=1000, delay_ms=1):
+    from datetime import datetime, timedelta, timezone
+    start = datetime(2026, 10, 20, 4, 57, 25, 766714, tzinfo=timezone.utc)
+    stamp = lambda ms: (start + timedelta(milliseconds=ms)).strftime('%Y-%m-%dT%H:%M:%S.%f') + '123Z'
+    nodes = [dict(id='p', kind='process', binary='/bin/sh', exec_id='e1', pid=1, start_time=stamp(0)),
+             dict(id='x', kind='runtime_event', category='process', operation='exec'),
+             dict(id='c1', kind='runtime_event', category='credential', operation='setuid', details=dict(uid=uid),
+                  observed_at=stamp(delay_ms), outcome=dict(status='success')),
+             dict(id='c2', kind='runtime_event', category='credential', operation='setgid', details=dict(gid=uid),
+                  observed_at=stamp(delay_ms), outcome=dict(status='success'))]
+    edges = [dict(source='p', target=t, relation='performed') for t in ('x', 'c1', 'c2')]
+    return dict(nodes=nodes, edges=edges)
+
+
+def test_privilege_drop_at_launch_is_not_a_security_operation():
+    from sentinel_pulse.rca.ranking import rank_suspects
+    row = rank_suspects(_probe_tree())[0]
+    assert row['score'] == 2 and 'privilege_drop_at_start' in row['reasons'] and 'security_operation' not in row['reasons']
+
+
+def test_raise_to_root_or_late_change_still_counts():
+    from sentinel_pulse.rca.ranking import rank_suspects
+    assert rank_suspects(_probe_tree(uid=0))[0]['score'] == 2 + 6
+    assert rank_suspects(_probe_tree(delay_ms=5000))[0]['score'] == 2 + 6
