@@ -22,6 +22,7 @@ LIVE_FOLLOW=$LIVE/coordinator-rca-followup-20261019/pulse-development-matrix
 NODES=(k8s-worker1.local k8s-worker4.local k8s-worker3.local)
 # aims-redis-0 and aims-minio-pool-0-0 recreated 20/10 10:41:50 (broken ext4 mounts); excluded for all workloads
 RESTART=1792467710:1792468200
+# analysis scripts need numpy: the system python3 on .234 has none (failed 20/10 ~18:00)
 PY=/home/dat/ml-venv/bin/python
 export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 mkdir -p "$OUT"; cd /tmp
@@ -32,14 +33,14 @@ SELECTION_START=$(cfg selection_start)
 if [ "$STAGE" = campaign ]; then
   test -f "$CAMPAIGN/TERMINAL.json"
   cp "$CAMPAIGN/RESULTS.json" "$OUT/campaign-RESULTS.json"
-  python3 "$SRC/scripts/analysis/attack_vs_benign.py" --campaign "$CAMPAIGN" --output "$OUT/attack-vs-benign.json"
-  python3 "$SRC/scripts/analysis/rca_coverage.py" --cases "$RCA/cases" --campaign "$CAMPAIGN" --since "$ATTACKS_FROM" \
+  $PY "$SRC/scripts/analysis/attack_vs_benign.py" --campaign "$CAMPAIGN" --output "$OUT/attack-vs-benign.json"
+  $PY "$SRC/scripts/analysis/rca_coverage.py" --cases "$RCA/cases" --campaign "$CAMPAIGN" --since "$ATTACKS_FROM" \
     --output "$OUT/rca-coverage.json"
   $PY -m sentinel_pulse.rca.evaluate_ranking --cases "$RCA/cases" --campaign "$CAMPAIGN" --output "$OUT/rca-ranking-stored.json"
   $PY -m sentinel_pulse.rca.evaluate_ranking --cases "$RCA/cases" --campaign "$CAMPAIGN" --output "$OUT/rca-ranking-reranked.json" \
     --rerank-db "$RCA/context.sqlite3" --frozen-at "$(python3 -c "print($ATTACKS_FROM - 120)")"
-  python3 "$SRC/scripts/analysis/rca_latency.py" --copy-dir "$RCA" --output "$OUT/rca-latency.json"
-  python3 "$SRC/scripts/analysis/rca_flow_coverage.py" --cases "$RCA/cases" --since "$ATTACKS_FROM" --output "$OUT/rca-flow-coverage.json"
+  $PY "$SRC/scripts/analysis/rca_latency.py" --copy-dir "$RCA" --output "$OUT/rca-latency.json"
+  $PY "$SRC/scripts/analysis/rca_flow_coverage.py" --cases "$RCA/cases" --since "$ATTACKS_FROM" --output "$OUT/rca-flow-coverage.json"
   chown -R dat:dat "$OUT" 2>/dev/null || true
   exit 0
 fi
@@ -65,9 +66,9 @@ for node in "${NODES[@]}"; do
 done
 run attack --campaign "$CAMPAIGN" --grid looser --output "$OUT/attack-asrun.json"
 run attack --campaign "$CAMPAIGN" --grid looser --calibration "$REFRESHED" --output "$OUT/attack-refreshed.json"
-python3 "$SRC/scripts/analysis/cadence_gaps.py" --workers-root "$RUN/workers" --output "$OUT/cadence-gaps.json"
+$PY "$SRC/scripts/analysis/cadence_gaps.py" --workers-root "$RUN/workers" --output "$OUT/cadence-gaps.json"
 # 5.7c: exec set E frozen from pulse-live-recalibrated only, then tested on this run
-python3 "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$LIVE/workers" --campaign "$LIVE_MAIN" --campaign "$LIVE_FOLLOW" \
+$PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$LIVE/workers" --campaign "$LIVE_MAIN" --campaign "$LIVE_FOLLOW" \
   --reference-span 1792389600:1792411200 --output "$OUT/novel-syscalls-pulse-live-recalibrated-full.json"
 python3 -c "
 import json; d = json.load(open('$OUT/novel-syscalls-pulse-live-recalibrated-full.json'))
@@ -75,9 +76,9 @@ json.dump(sorted(d['novel_ids_by_label'].get('benign', {}), key=int), open('$OUT
 REF_END=$(python3 -c "
 import json
 print(min(json.load(open('$RUN/workers/'+n+'/TERMINAL.json'))['finished_at_unix'] for n in '${NODES[*]}'.split()))")
-python3 "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" --campaign "$CAMPAIGN" \
+$PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" --campaign "$CAMPAIGN" \
   --reference-span "${CAMPAIGN_SPAN#*:}:$REF_END" --exec-set "$OUT/exec-set-E.json" --output "$OUT/novel-syscalls-exec-aware.json"
-python3 "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" --campaign "$CAMPAIGN" \
+$PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" --campaign "$CAMPAIGN" \
   --reference-span "${CAMPAIGN_SPAN#*:}:$REF_END" --output "$OUT/novel-syscalls-plain.json"
 # live fast scoring vs sklearn on stored decisions: 2 sealed segments per worker
 segs=()
