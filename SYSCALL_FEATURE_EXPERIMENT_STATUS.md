@@ -25,12 +25,16 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 **Câu hỏi:** bộ 29 syscall tường minh của Pulse có nên thêm, bớt hay thay nhóm nào để phát hiện tốt hơn, khi giữ cùng ngân sách cảnh báo nhầm và cùng độ trễ?
 
-**Kết luận hiện tại (development, 19/10):**
+**Kết luận hiện tại (development, cập nhật 20/10):**
 
 - Đặt 11 cấu hình về **cùng số đợt cảnh báo trên normal** (sau khi hiệu chỉnh lại p-value giống Pulse) thì các cấu hình 29 syscall khác nhau chỉ trong phạm vi nhiễu.
 - Mở rộng ra toàn bộ syscall (`plus_all_*`) làm tăng recall khi ngân sách rộng, nhưng đồng thời tăng control dương và chậm hơn khi ngân sách chặt.
 - Bỏ cặp exec (`drop_exec_pair`) luôn kém nhất.
 - **Không cấu hình nào đạt ngân sách 0,1 hay 1 đợt/replica-giờ** chỉ bằng chỉnh ngưỡng.
+- **Khoảng tin cậy bootstrap (20/10, mục 5.7)** xác nhận các ý trên:
+  - `drop_exec_pair` kém hơn base29 6,7–10,6 điểm recall, CI loại trừ 0;
+  - `plus_all_*` tăng recall 6–8 điểm ở ngân sách rộng, nhưng khoảng cách với binary vô hại giảm 17–23 điểm, CI loại trừ 0;
+  - các cấu hình 29 syscall khác không phân biệt được với base29.
 
 Hệ quả:
 - **Giữ `base29` cho candidate Pulse kế tiếp.** Chọn syscall không phải nút thắt; gánh cảnh báo phải giải ở calibration và cách gộp theo thời gian.
@@ -191,10 +195,47 @@ Mọi cấu hình đều ~19–20 đợt/giờ, và chênh lệch giữa các c�
   - Kết quả mỗi trial lấy trung bình 3 seed, so ghép cặp theo trial với base29.
   - Bootstrap lấy mẫu lại theo **workload**, 10.000 lần.
   - Báo cáo: recall, tỉ lệ binary vô hại, khoảng cách recall − benign, chênh lệch so với base29 kèm CI 95%, và cận dưới một phía 95% của chênh recall. Cận dưới này là điều kiện "không kém hơn −3 điểm" của protocol v2.
-- **Lịch:** chạy trên `.235` lúc 18:30–18:55 thì **phải dừng**: tải lên NFS server làm worker pulse-live-recalibrated tăng cadence gap, và replay 693 model làm master2 treo (xem [Pulse](SENTINEL_PULSE_STATUS.md) mục 8b). Đã dời sang **20/10 02:20 trên `.234`** (`syscall-arms-bootstrap`, MemoryMax 32 GB, ghi vào `bootstrap-20261020b/`), sau khi pulse-live-recalibrated kết thúc. Thư mục `bootstrap-20261020/` chỉ chứa replay dở, không dùng.
+- **Lịch:** chạy trên `.235` lúc 18:30–18:55 thì **phải dừng**: tải lên NFS server làm worker pulse-live-recalibrated tăng cadence gap, và replay 693 model làm master2 treo (xem [Pulse](SENTINEL_PULSE_STATUS.md) mục 8b). Đã dời sang **20/10 02:20 trên `.234`** (`syscall-arms-bootstrap`, MemoryMax 32 GB, ghi vào `syscall-arms-bootstrap/`), sau khi pulse-live-recalibrated kết thúc. Thư mục `bootstrap-20261020/` chỉ chứa replay dở, không dùng.
   - Thư viện: thư mục `/home/dat/pylib-sklearn19` (numpy 2.5.2, scikit-learn 1.9.0, scipy 1.18.0, giống hệt `.234`). Venv sẵn có trên `.235` là sklearn 1.8.0 nên không dùng.
   - Các bước: chạy lại hai replay (pulse-attack-dev, pulse-live-recalibrated), `arm_budget` có ghi kết quả từng trial, rồi bootstrap.
-  - Đầu ra: `syscall-arms/bootstrap-20261020/`.
+  - Đầu ra: `syscall-arms/syscall-arms-bootstrap/` (kết quả ở mục 5.7).
+
+### 5.7 Khoảng tin cậy bootstrap theo protocol v2 (xong 20/10 09:55)
+
+- **Dữ liệu:**
+  - Replay chạy lại với khóa trial có campaign: pulse-attack-dev 598 trial ghép cặp; pulse-live-recalibrated 1.238 trial ghép cặp, có binary vô hại.
+  - 21 workload, 3 seed.
+  - Bootstrap 10.000 lần, lấy mẫu lại theo workload.
+- **Ngân sách:** `arm_budget` thử 0,1 / 1 / 5 / 18 đợt/replica-giờ. **Không cấu hình nào đạt 0,1 hay 1**, kể cả base29. Chỉ ngân sách 5 và 18 có hệ số alpha cho mọi cấu hình. Ngân sách 12 trong danh sách mặc định của bootstrap không có trong `arm_budget`, nên bị bỏ qua.
+- **Biên nhận:** `validation-evidence/results-20261019/syscall/BOOTSTRAP-pulse-attack-dev.json`, `BOOTSTRAP-pulse-live-recalibrated.json`.
+
+**Chênh recall so với base29** (điểm [CI 95%]; NI = cận dưới một phía 95% > −3 điểm):
+
+| Cấu hình | attack-dev, ngân sách 5 | attack-dev, ngân sách 18 | live, ngân sách 5 | live, ngân sách 18 |
+|---|---|---|---|---|
+| base29 (recall) | 89,5% | 92,9% | 89,1% | 91,3% |
+| drop_accept_pair | +0,5 [−0,7; +1,8] NI | −0,3 [−0,7; 0] NI | −0,2 [−1,0; +0,9] NI | −0,2 [−0,7; 0] NI |
+| drop_open_pair | −0,3 [−1,3; +0,6] NI | 0 NI | −0,7 [−1,6; 0] NI | −0,1 [−0,3; 0] NI |
+| drop_clone_pair | −0,1 [−1,0; +0,9] NI | +0,9 [−0,3; +3,1] NI | −0,2 [−1,3; +0,9] NI | +0,7 [−0,5; +2,6] NI |
+| plus_security | +0,3 [−0,3; +1,2] NI | −0,2 [−0,6; 0] NI | −0,4 [−1,2; +0,2] NI | 0 [−0,2; +0,2] NI |
+| plus_top8 | −1,2 [−3,9; +0,5] | −0,3 [−0,9; 0] NI | −1,7 [−4,2; +0,2] | −0,2 [−0,6; +0,2] NI |
+| plus_top16 | −1,6 [−4,4; +0,2] | −0,1 [−0,3; 0] NI | −1,8 [−4,3; 0] | −0,2 [−0,6; +0,2] NI |
+| plus_top32 | −2,0 [−6,1; +1,5] | −1,1 [−2,9; +0,1] NI | −2,2 [−5,9; +0,8] | −1,1 [−3,0; +0,6] NI |
+| plus_all_defined_native | −7,8 [−19,6; +2,8] | **+6,1 [+0,7; +12,5]** NI | −8,5 [−19,6; +1,7] | **+7,9 [+0,6; +16,1]** NI |
+| plus_all_observed | −9,4 [−21,6; +1,8] | +5,4 [0; +11,9] NI | −9,1 [−20,1; +1,0] | **+7,7 [+0,5; +15,9]** NI |
+| drop_exec_pair | **−9,8 [−14,1; −5,3]** | **−7,4 [−11,4; −3,5]** | **−10,6 [−14,7; −5,9]** | **−6,7 [−10,9; −2,7]** |
+
+**Trên pulse-live-recalibrated có binary vô hại**, chênh khoảng cách (recall − tỉ lệ binary vô hại dương) so với base29:
+- `plus_all_defined_native`: −22,4 [−34,1; −9,2] điểm ở ngân sách 5 và −16,6 [−28,1; −5,7] ở ngân sách 18. `plus_all_observed`: −23,3 [−34,3; −11,0] và −16,7 [−27,9; −6,0].
+  - Ở ngân sách 18, recall tăng 8 điểm nhưng binary vô hại bị gắn cờ tới 98% (base29: 74%). Cấu hình này chỉ nhạy hơn với *mọi* process mới, không bắt attack tốt hơn.
+- Mọi cấu hình 29 syscall khác có CI của chênh khoảng cách chứa 0.
+- Tỉ lệ control idle dương ở ngân sách 18: base29 6,3%, `plus_all_*` 10–11%, `plus_top*` 7,5–8,5%.
+
+**Kết luận:**
+1. **`drop_exec_pair` kém hơn base29 có ý nghĩa thống kê** (CI loại trừ 0 ở cả 4 ô; cận dưới tới −14 điểm). Cặp exec là phần cần thiết của bộ syscall.
+2. **`plus_all_*` không tốt hơn.** Recall tăng ở ngân sách rộng, nhưng khoảng cách với binary vô hại giảm có ý nghĩa thống kê. Ở ngân sách chặt, chúng không đạt NI.
+3. Các cấu hình bỏ một cặp (`drop_accept/open/clone_pair`) và `plus_security` **không kém hơn** base29 (NI ở cả 4 ô) nhưng **cũng không tốt hơn**. `plus_top8/16/32` không đạt NI ở ngân sách 5.
+4. **Theo luật protocol v2:** điều kiện ngân sách 0,1 đợt/workload-giờ không cấu hình nào đạt, nên kết quả vẫn là **inconclusive** và **giữ base29**. Nếu bỏ điều kiện ngân sách (chỉ tham khảo, ngoài protocol), bộ nhỏ hơn đạt NI là bỏ một cặp. Mức tiết kiệm chỉ 2 bin, không đủ lý do để đổi candidate.
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
@@ -218,7 +259,7 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Replay attack pulse-attack-dev cho mọi cấu hình | Có (5.3) |
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
 | Replay mọi cấu hình trên campaign pulse-live-recalibrated + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
-| Khoảng tin cậy bootstrap theo protocol v2 | Đã hẹn (5.6), cùng với replay đã sửa khóa trial |
+| Khoảng tin cậy bootstrap theo protocol v2 | **Có (5.7)**: `drop_exec_pair` kém có ý nghĩa; `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa; các cấu hình 29 syscall khác không phân biệt được với base29 |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
@@ -269,3 +310,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 02:20–03:18 | Job `syscall-arms-bootstrap` trên `.234`: replay lại cả hai tập với khóa trial theo campaign (xong 02:42 / 03:12), budget pulse-attack-dev xong 03:18, rồi **lỗi** ở bước bootstrap: campaign pulse-attack-dev không có control binary vô hại nên cột `benign_rate` rỗng ở mọi lần lấy mẫu (`IndexError` trong `np.percentile`) | journal `syscall-arms-bootstrap` |
 | 20/10 09:44 | Sửa `arm_bootstrap.py`: cột không có trial thì ghi `None`; thêm tỉ lệ dương của control idle (`control_rate`, `control_diff`) cho cả hai tập; test cho campaign không có binary vô hại (308 test pass) | `6a5c5fa` |
 | 20/10 09:46 | Chạy tiếp từ chỗ lỗi (`syscall-arms-bootstrap-resume`, snapshot `runtime-6a5c5fa-20261020`): bootstrap pulse-attack-dev, rồi budget + bootstrap pulse-live-recalibrated. Hai replay và budget pulse-attack-dev giữ nguyên | đang chạy |
+| 20/10 09:55 | Bootstrap xong: `drop_exec_pair` kém có ý nghĩa, `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa, các cấu hình khác không khác base29; theo protocol v2 vẫn inconclusive, giữ base29 | mục 5.7; `syscall/BOOTSTRAP-*.json` |

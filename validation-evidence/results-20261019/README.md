@@ -44,7 +44,17 @@ Số đo console không còn tái lập được (ghi kèm cách đo trong báo 
 | Replay pulse-attack-dev cho 11 cấu hình (recall/control/p95 theo alpha) | `arm-replay-pulse-attack-dev-RESULTS.json` |
 | So ở cùng ngân sách (holdout syscall-arms + pulse-attack-dev) | `arm-budget-syscall-arms-holdout-RESULTS.json`, bảng nội suy `../receipts/arm-table-syscall-arms-holdout-pulse-attack-dev.json` |
 | Trên pulse-live-recalibrated có binary vô hại; khoảng cách recall − benign | `arm-replay-pulse-live-recalibrated-RESULTS.json`, `arm-budget-pulse-live-recalibrated-RESULTS.json`, `../receipts/arm-table-pulse-live-recalibrated.json` |
+| **Bootstrap protocol v2 (khóa trial đã sửa)**: chênh recall/khoảng cách so với base29, CI 95%, cận NI — pulse-attack-dev (598 trial) và pulse-live-recalibrated (1.238 trial) | `BOOTSTRAP-pulse-attack-dev.json`, `BOOTSTRAP-pulse-live-recalibrated.json` |
 
 **Lưu ý trung thực:** các replay trên dùng khóa trial trần (`"12:attack"`), có thể trùng giữa các campaign
 (phát hiện 19/10 17:52, ~5% trial của workload trùng). Job `syscall-arms-bootstrap` chạy lại với khóa đã sửa;
-kết quả mới sẽ thay thế các file này trong báo cáo.
+kết quả mới (file `BOOTSTRAP-*.json`, 20/10) thay thế các file này trong báo cáo; kết luận không đổi.
+
+## Chọn candidate/chính sách pulse-stable-candidate và các phân tích phụ (20/10)
+
+| Con số | File |
+|---|---|
+| Luật chọn: as_run, k2of2_a10, không đạt kỳ vọng; bảng mọi chính sách cho cả hai calibration | `pulse-stable-candidate-selection/SELECTION.json` |
+| Làm mới calibration định kỳ trên soak 48 giờ | `pulse-calibration-refresh-study.json` |
+| Giả thuyết syscall chưa từng thấy (không đạt tiêu chí) | `pulse-live-recalibrated/novel-syscalls.json` |
+| RCA qua đêm: 2.364 case, preview → case p50 2,22 s / p95 2,47 s | `receipts/rca-latency-rca-subscriber-night.json` |
