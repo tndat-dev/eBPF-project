@@ -31,6 +31,11 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 - Mở rộng ra toàn bộ syscall (`plus_all_*`) làm tăng recall khi ngân sách rộng, nhưng đồng thời tăng control dương và chậm hơn khi ngân sách chặt.
 - Bỏ cặp exec (`drop_exec_pair`) luôn kém nhất.
 - **Không cấu hình nào đạt ngân sách 0,1 hay 1 đợt/replica-giờ** chỉ bằng chỉnh ngưỡng.
+- **Dưới k2of2, đúng chính sách Pulse đang chạy (20/10, mục 5.9):**
+  - ngân sách 1 đợt/replica-giờ đạt được cho mọi cấu hình;
+  - base29 ở mức đó: recall 91–93%, control 0–1%, p95 2,3–2,8 s;
+  - không cấu hình nào tốt hơn;
+  - thêm syscall làm chậm phát hiện (p95 tới 5 s).
 - **Khoảng tin cậy bootstrap (20/10, mục 5.7)** xác nhận các ý trên:
   - `drop_exec_pair` kém hơn base29 6,7–10,6 điểm recall, CI loại trừ 0;
   - `plus_all_*` tăng recall 6–8 điểm ở ngân sách rộng, nhưng khoảng cách với binary vô hại giảm 17–23 điểm, CI loại trừ 0;
@@ -269,6 +274,56 @@ pulse-attack-dev cho cùng mẫu hình (ví dụ `drop_exec_pair` ở `execveat`
 4. **`plus_all_*` bắt `mprotect`/`seccomp` gần 98% ở ngân sách 18, nhưng binary vô hại cũng bị gắn cờ 96–100%.** Cấu hình này nhạy với mọi process mới, không riêng attack. Ở ngân sách 5, nó còn **mất** recall ở `ptrace` (82%) và `execveat` (75%), vì tín hiệu của vài syscall hiếm bị loãng giữa ~300 feature.
 5. Tỉ lệ binary vô hại dương gần như không đổi giữa các kịch bản. Binary vô hại giống nhau ở mọi kịch bản; chỉ workload chứa nó thay đổi.
 
+### 5.9 Dưới xác nhận k2of2, đúng chính sách Pulse đang chạy (xong 20/10 11:50)
+
+- **Lý do:** các mục 5.4–5.8 dùng quyết định 1 cửa sổ, trong khi Pulse chạy `policy-2of2-a10`. Để bằng chứng khớp đúng cấu hình Pulse, cả 11 cấu hình được đánh giá lại với cùng luật xác nhận 2/2 cửa sổ trên normal holdout lẫn trên cửa sổ attack/control.
+- **Code:**
+  - `arm_budget.py --confirm-k 2 --confirm-n 2` (bản vector hóa, khớp `ConfirmationState` của Pulse; có test so sánh);
+  - `arm_bootstrap.py` nay chạy mọi ngân sách có điểm khớp của base29.
+- **Job:** `syscall-arms-k2of2` (.234, nice 19, đọc NFS một lần lúc chép 3,5 GB về đĩa local; chạy song song lượt live mà không ảnh hưởng). Cộng thêm bootstrap cho mọi ngân sách.
+- **Biên nhận:** `syscall/k2of2/` (`RESULTS-*`, `BOOTSTRAP-all-*`, `arm-scenarios-k2of2-*`).
+
+**Thay đổi lớn: với k2of2, ngân sách 1 đợt/replica-giờ đạt được cho cả 11 cấu hình.** Dưới quyết định 1 cửa sổ thì không cấu hình nào đạt. Ngân sách 0,1 vẫn không cấu hình nào đạt.
+
+**Ngân sách 1 đợt/replica-giờ, pulse-live-recalibrated** (có binary vô hại; 1.238 trial ghép cặp, 21 workload):
+
+| Cấu hình | α | Đợt/replica-giờ | Recall | Binary vô hại | Control | p95 trễ* | Chênh recall [CI 95%] | Không kém (−3 điểm) |
+|---|---:|---:|---:|---:|---:|---:|---|:-:|
+| **base29** | 3 | 0,95 | **91,2%** | 72,8% | 1,0% | 2,27 s | — | — |
+| drop_clone_pair | 3 | 0,94 | 91,4% | 72,0% | 0,2% | 1,82 s | +0,2 [−0,5; +1,3] | có |
+| drop_open_pair | 3 | 0,87 | 91,3% | 72,3% | 1,0% | 2,27 s | +0,1 [0; +0,3] | có |
+| plus_security | 3 | 0,95 | 91,2% | 72,2% | 1,0% | 2,07 s | 0 [−0,2; +0,2] | có |
+| drop_accept_pair | 3 | 0,95 | 90,9% | 72,9% | 1,0% | 2,08 s | −0,3 [−0,7; 0] | có |
+| plus_top8 | 2 | 0,95 | 90,1% | 63,8% | 0% | 2,93 s | −1,1 [−2,3; −0,1] | có |
+| plus_top16 | 1,5 | 0,74 | 89,1% | 66,8% | 0% | 3,05 s | −2,1 [−4,3; −0,4] | không |
+| plus_top32 | 1,5 | 0,98 | 87,4% | 62,2% | 0,2% | 2,99 s | −3,8 [−7,3; −0,9] | không |
+| plus_all_defined_native | 1 | 0,70 | 89,3% | 84,4% | 0,2% | **5,00 s** | −1,9 [−12,2; +7,8] | không |
+| plus_all_observed | 1 | 0,79 | 88,4% | 84,8% | 0% | **5,04 s** | −2,8 [−13,4; +7,4] | không |
+| drop_exec_pair | 3 | 0,90 | **84,1%** | 69,9% | 1,0% | 2,59 s | **−7,1 [−11,5; −2,7]** | không |
+
+\* p95 của (cửa sổ dương đầu tiên − thời điểm sự kiện kernel), là cận dưới của kernel → preview.
+
+pulse-attack-dev (598 trial) cho cùng thứ tự: base29 recall 92,6%, control 0%, p95 2,76 s; `drop_exec_pair` −6,3 [−10,0; −2,9]; `plus_top16/32` −2,2/−3,4 (CI loại trừ 0); `plus_all_*` không đạt NI, p95 3,9 s.
+
+**Theo kịch bản (ngân sách 1, pulse-live-recalibrated):**
+- base29: `ptrace`/`execveat`/`setns` 100%, `mprotect` 78,7%, `seccomp` 77,4%.
+- `drop_exec_pair` chỉ mất ở `execveat` (64,6%).
+- `plus_top32` làm `seccomp` tụt còn 60,1%.
+- `plus_all_defined_native` nâng `mprotect`/`seccomp` lên ~86%, nhưng làm `ptrace`/`execveat` tụt còn 85–88% và gắn cờ 84% binary vô hại.
+
+**Kết luận (development):**
+1. **Kết luận chọn bộ syscall không đổi dưới chính sách Pulse đang chạy.** Không cấu hình nào tốt hơn base29. Các cấu hình bỏ một cặp và `plus_security` không kém hơn nhưng cũng không tốt hơn.
+2. **`drop_exec_pair` kém có ý nghĩa** ở mọi ngân sách, mọi tập dữ liệu, với cả hai luật quyết định.
+3. **Thêm syscall làm chậm phát hiện.**
+   - `plus_top*` có p95 2,9–3,1 s, `plus_all_*` 5,0 s, so với base29 2,3 s.
+   - Lý do: cấu hình nhiều feature phải dùng α nhỏ hơn mới giữ được ngân sách, nên cần nhiều bằng chứng hơn trước khi đủ 2 cửa sổ dương.
+   - Với ràng buộc p95 < 2 s của Pulse, đây là lý do thứ hai, độc lập, để không mở rộng bộ syscall.
+4. `plus_top8` giảm tỉ lệ binary vô hại dương (63,8% so với 72,8%; khoảng cách tốt hơn +8,0 [+0,7; +19,5] điểm), nhưng recall thấp hơn 1,1 điểm và chậm hơn 0,7 s. Nhận xét này rút ra sau khi xem số, chỉ một tập dữ liệu, chưa kiểm lặp lại; không đủ để đổi bộ syscall.
+5. **Theo luật protocol v2:** điều kiện ngân sách 0,1 vẫn không cấu hình nào đạt, nên kết luận chính thức vẫn là **inconclusive**. Nếu áp luật với ngân sách 1 (chỉ tham khảo, ngoài protocol), bộ nhỏ nhất không kém hơn là bỏ một cặp. Mức tiết kiệm 2 kênh không đáng để fit lại candidate.
+6. **Hệ quả cho Pulse:** giữ `base29`, không fit lại.
+   - Calibration mới (đầu holdout) kết hợp k2of2 đạt ~1 đợt/replica-giờ, trong khi lượt live của Pulse với calibration c1 cũ ở mức ~8.
+   - Đó là bằng chứng rằng **calibration cũ** là nguyên nhân chính của gánh cảnh báo. Phép thử làm mới calibration định kỳ + k2of2 cho Pulse đã được đăng ký ở Pulse 5.7d.
+
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
@@ -293,8 +348,8 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Replay mọi cấu hình trên campaign pulse-live-recalibrated + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
 | Khoảng tin cậy bootstrap theo protocol v2 | **Có (5.7)**: `drop_exec_pair` kém có ý nghĩa; `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa; các cấu hình 29 syscall khác không phân biệt được với base29 |
 | Recall theo kịch bản tấn công | **Có (5.8)**: `drop_exec_pair` chỉ mất ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung |
-| 11 cấu hình dưới xác nhận k2of2 (chính sách Pulse hiện tại) | **Đang chạy** (`syscall-arms-k2of2`, 20/10 11:10) |
-| Kết luận cuối cho báo cáo đồ án | Viết sau khi có kết quả k2of2 |
+| 11 cấu hình dưới xác nhận k2of2 (chính sách Pulse hiện tại) | **Có (5.9)**: ngân sách 1 đạt được; base29 vẫn tốt nhất; thêm syscall làm chậm p95 |
+| Kết luận cuối cho báo cáo đồ án | **Có (5.9, mục 1)** |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 
@@ -349,3 +404,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 11:13 | Bảng recall theo kịch bản (dùng output 5.7, job nhẹ trên `.234`): `drop_exec_pair` chỉ mất recall ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung; `plus_all_*` nhạy với mọi process mới | mục 5.8; `syscall/arm-scenarios-*.json` |
 | 20/10 11:10 | Thêm xác nhận k-of-n vào `arm_budget` (bản vector hóa, khớp `ConfirmationState`, 311 test pass); chạy 11 cấu hình dưới k2of2 như Pulse đang dùng (`syscall-arms-k2of2` trên `.234`: chép score dump và replay về đĩa local với băng thông giới hạn, nice 19, tối đa 2 core) | `aa66def`; đang chạy |
 | 20/10 11:21 | Nối kết quả về Pulse: bảng bằng chứng theo từng thành phần feature trong báo cáo Pulse (mục 4b) | Pulse mục 4b |
+| 20/10 11:50 | k2of2 xong: ngân sách 1 đạt được; base29 không bị cấu hình nào vượt; `drop_exec_pair` kém; thêm syscall làm chậm p95 (5 s với `plus_all_*`). Kết luận cuối ở 5.9 | mục 5.9; `syscall/k2of2/` |

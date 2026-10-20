@@ -154,12 +154,19 @@ Thí nghiệm syscall ([SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EX
 - Development: các kịch bản tấn công đã dùng khi phát triển; normal chưa review nhãn.
 - Theo luật protocol v2, kết quả chính thức là **inconclusive**, vì không cấu hình nào đạt ngân sách 0,1 đợt/giờ. Bằng chứng trên là so sánh ở ngân sách 5 và 18 đợt/giờ.
 - Hai kịch bản dùng syscall phổ biến (`mprotect`, `seccomp`) là điểm yếu chung của mọi bộ syscall (70–83%). Đổi bộ syscall không sửa được; cần thông tin khác ngoài tần suất, ví dụ tham số syscall.
-- Các so sánh trên dùng xác nhận 1 cửa sổ. Pulse hiện chạy k2of2_a10, nên cùng phép so sánh đang được chạy lại dưới k2of2 (`syscall-arms-k2of2`, 20/10). Bảng này sẽ được cập nhật để bằng chứng khớp đúng cấu hình Pulse đang chạy.
+- **Đã kiểm dưới k2of2, đúng chính sách Pulse đang chạy (syscall 5.9, 20/10):**
+  - với k2of2, ngân sách 1 đợt/replica-giờ đạt được cho cả 11 cấu hình;
+  - base29 không bị cấu hình nào vượt: recall 91,2%, control 1,0%, p95 2,27 s;
+  - `drop_exec_pair` vẫn kém có ý nghĩa: −7,1 [−11,5; −2,7] điểm.
+  
+  Kết luận trong bảng giữ nguyên.
+- **Lý do thứ hai không mở rộng bộ syscall: độ trễ.** Ở cùng ngân sách 1, `plus_top*` có p95 2,9–3,1 s và `plus_all_*` 5,0 s, so với base29 2,3 s. Mục tiêu của Pulse là p95 < 2 s.
 
 **Kết quả đưa vào Pulse:**
 - candidate `ec72d9ea…` và lượt pulse-stable-candidate dùng `base29`;
 - không fit lại model, vì không có thay đổi feature nào được chứng minh là tốt hơn;
-- nếu kết quả k2of2 đổi kết luận, sẽ fit lại candidate với bộ mới, đóng băng rồi chạy lượt live.
+- kết quả k2of2 không đổi kết luận, nên không fit lại;
+- phát hiện phụ: calibration mới + k2of2 đạt ~1 đợt/replica-giờ trong thí nghiệm syscall, so với ~8 ở lượt live (calibration cũ). Phép thử làm mới định kỳ + k2of2 cho Pulse đã được đăng ký ở 5.7d.
 
 ## 5. Kết quả
 
@@ -799,3 +806,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 11:21 | Thêm mục 4b: bằng chứng từ thí nghiệm syscall cho từng phần của vector feature Pulse (giữ base29, cặp exec bắt buộc, giữ syscall hiếm, không thêm top-N/security/all-ID), kèm giới hạn và việc cập nhật khi có kết quả k2of2 | mục 4b |
 | 11:42 | Phân tích gánh cảnh báo theo workload và node trên normal pulse-live-recalibrated: phân bố rộng (trung vị 4,65 đợt/replica-giờ, không workload nào bằng 0); worker3 gấp 2,7–4,7 lần với calibration as_run, thu hẹp khi làm mới; giả thuyết calibration theo (workload, node) | mục 5.6b |
 | 11:48 | Kết quả syscall dưới k2of2: calibration mới + k2of2 đạt 1 đợt/replica-giờ. Đăng ký trước phép thử "làm mới định kỳ + k2of2" cho Pulse (5.7d); thêm `confirmation` vào `rolling_recalibration.py` (313 test pass) | mục 5.7d |
+| 11:50 | Bootstrap k2of2 ở ngân sách 1 xong: base29 giữ nguyên; cập nhật bảng bằng chứng 4b (kèm lý do độ trễ) | mục 4b |

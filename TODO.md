@@ -8,13 +8,12 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [~] **Lượt live `pulse-stable-candidate`** (20/10 10:14 → 21/10 ~10:30, shadow). Gồm candidate `ec72d9ea…`, `policy-2of2-a10`,
       chấm điểm nhanh và RCA `rca-pulse-stable-candidate`. Campaign 315 cặp chạy từ 11:49. Không dừng giữa chừng.
-- [~] **`syscall-arms-k2of2`** (.234, job nhẹ): 11 cấu hình syscall dưới k2of2, đúng chính sách Pulse đang chạy.
 - [~] **`pulse-stable-candidate-analysis`** (.234, đã hẹn): giai đoạn *campaign* khi campaign xong (RCA, attack vs binary vô hại);
       giai đoạn *final* khi 3 worker xong (5.7b refresh vs as_run, 5.7c novelty có xét exec, cadence gap, đối chiếu chấm nhanh với sklearn).
 
 ## Việc kế tiếp (theo thứ tự)
 
-1. [ ] Khi có kết quả `syscall-arms-k2of2`: cập nhật bảng bằng chứng feature Pulse (Pulse 4b) và kết luận cuối của thí nghiệm syscall.
+1. [x] Kết quả `syscall-arms-k2of2`: base29 giữ nguyên; bảng bằng chứng Pulse 4b và kết luận syscall 5.9 đã cập nhật (20/10 11:50).
 2. [ ] Khi campaign xong (dự kiến tối 20/10): đọc kết quả campaign và đánh giá RCA, ghi vào báo cáo.
 3. [ ] Sáng 21/10, sau khi lượt live kết thúc: đánh giá pulse-stable-candidate theo kỳ vọng ghi trong file chính sách; đọc 5.7b và 5.7c
       theo đúng tiêu chí đã đăng ký; quyết định bản stable.
@@ -44,8 +43,9 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Thí nghiệm syscall — còn lại
 
-- [~] 11 cấu hình dưới k2of2 (`syscall-arms-k2of2`).
-- [ ] Kết luận cuối và bảng bằng chứng trong Pulse 4b sau khi có kết quả k2of2.
+- [x] 11 cấu hình dưới k2of2 (syscall 5.9): ngân sách 1 đạt được, base29 tốt nhất, thêm syscall làm chậm p95.
+- [x] Kết luận cuối (syscall 5.9) và bảng bằng chứng Pulse 4b.
+- [ ] Pulse 5.7d (làm mới định kỳ + k2of2) chạy sau lượt live 21/10.
 - [ ] Paired blind attack theo protocol v2. Chưa mở được, vì điều kiện ngân sách 0,1 đợt/giờ chưa cấu hình nào đạt; ghi là giới hạn.
 - [ ] Bin băm, tổng hợp và rolling-10 chưa được kiểm chứng riêng; thí nghiệm mới đo phần syscall tường minh.
 
