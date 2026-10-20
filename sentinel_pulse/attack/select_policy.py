@@ -92,6 +92,24 @@ def select(directory: Path):
                 selected_at_unix=time.time())
 
 
+HARD_P95_SECONDS = 2.0       # kernel -> preview target of the thesis
+EPISODE_BUDGET = 0.1         # normal alert episodes per replica-hour (syscall protocol v2)
+
+
+def known_gaps(m: dict) -> list:
+    """Limits the selected policy still has on development data, written into the policy file."""
+    gaps = []
+    if m['p95'] > HARD_P95_SECONDS:
+        gaps.append(f"kernel->preview p95 {m['p95']:.2f} s exceeds the {HARD_P95_SECONDS:g} s target")
+    if m['episodes_per_hour'] > EPISODE_BUDGET:
+        gaps.append(f"normal alert burden {m['episodes_per_hour']:.1f} episodes/replica-hour is "
+                    f"~{m['episodes_per_hour']/EPISODE_BUDGET:.0f}x the {EPISODE_BUDGET:g}/h budget; not solved by thresholds")
+    if m['benign_positive_rate'] > 0.5:
+        gaps.append(f"benign new-process launches are flagged at {m['benign_positive_rate']:.0%}; "
+                    'the detector separates new activity, not malicious activity')
+    return gaps
+
+
 def write_policy(selection: dict, template: Path, output: Path, candidate_hash: str, candidate_name: str):
     """A v2 preview policy file for the selected rule, bound to the pulse-stable-candidate candidate."""
     doc = json.loads(template.read_text())
@@ -109,7 +127,8 @@ def write_policy(selection: dict, template: Path, output: Path, candidate_hash: 
         development_result=dict(precision_expected=m['precision'], recall_observed=m['recall'],
                                 control_positive_rate=m['control'], benign_exec_positive_rate=m['benign_positive_rate'],
                                 kernel_to_preview_p95_seconds=m['p95'],
-                                normal_alert_episodes_per_replica_hour=m['episodes_per_hour']))
+                                normal_alert_episodes_per_replica_hour=m['episodes_per_hour']),
+        known_gaps=known_gaps(m))
     doc['evaluation_requirements'] = ('fresh pulse-stable-candidate normal soak plus fresh attack campaign with benign-exec controls; '
                                       'fast scoring; report idle and benign controls separately; do not tune after outcomes')
     output.write_text(json.dumps(doc, indent=2) + '\n')

@@ -1,0 +1,475 @@
+{
+  "schema": "pulse-novel-syscall-hypothesis-v1",
+  "workers_root": "/mnt/sentinel-pulse-archive/matched-r6-20261018/workers",
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-rca-followup-20261019/pulse-development-matrix"
+  ],
+  "reference_span_unix": [
+    1792389600.0,
+    1792411200.0
+  ],
+  "feature_rows_read": 31764475,
+  "reference_ids_per_workload": {
+    "production/aims-frontend:pod-slice": 0,
+    "production/aims-frontend:web": 14,
+    "production/aims-kafka-dual-role:kafka": 109,
+    "production/aims-kafka-dual-role:pod-slice": 0,
+    "production/aims-kafka-entity-operator:pod-slice": 0,
+    "production/aims-kafka-entity-operator:topic-operator": 42,
+    "production/aims-kafka-entity-operator:user-operator": 55,
+    "production/aims-minio-pool-0:minio": 34,
+    "production/aims-minio-pool-0:pod-slice": 0,
+    "production/aims-minio-pool-0:sidecar": 24,
+    "production/aims-postgres-cnpg:pod-slice": 0,
+    "production/aims-postgres-cnpg:postgres": 108,
+    "production/aims-rabbitmq-server:pod-slice": 0,
+    "production/aims-rabbitmq-server:rabbitmq": 60,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 88,
+    "production/aims-redis-sentinel-sentinel:pod-slice": 0,
+    "production/aims-redis:aims-redis": 94,
+    "production/aims-redis:pod-slice": 0,
+    "production/aims-waypoint:istio-proxy": 33,
+    "production/aims-waypoint:pod-slice": 0,
+    "production/api-gateway:app": 89,
+    "production/api-gateway:pod-slice": 0,
+    "production/auth-service:app": 88,
+    "production/auth-service:pod-slice": 0,
+    "production/cart-service:app": 99,
+    "production/cart-service:pod-slice": 0,
+    "production/catalog-service:app": 91,
+    "production/catalog-service:pod-slice": 0,
+    "production/inventory-service:app": 91,
+    "production/inventory-service:pod-slice": 0,
+    "production/notification-service:app": 86,
+    "production/notification-service:pod-slice": 0,
+    "production/order-service:app": 90,
+    "production/order-service:pod-slice": 0,
+    "production/payment-service:app": 90,
+    "production/payment-service:pod-slice": 0,
+    "production/search-recommendation-service:app": 84,
+    "production/search-recommendation-service:pod-slice": 0,
+    "production/security-telemetry-service:app": 86,
+    "production/security-telemetry-service:pod-slice": 0
+  },
+  "workloads_without_reference": [],
+  "by_scenario": {
+    "anonymous_mprotect_churn": {
+      "attack": {
+        "intervals": 84,
+        "with_novel_id": 32,
+        "share": 0.38095238095238093,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "11",
+            12
+          ],
+          [
+            "10",
+            12
+          ],
+          [
+            "125",
+            11
+          ],
+          [
+            "13",
+            11
+          ],
+          [
+            "250",
+            11
+          ]
+        ]
+      },
+      "benign": {
+        "intervals": 84,
+        "with_novel_id": 36,
+        "share": 0.42857142857142855,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "138",
+            18
+          ],
+          [
+            "317",
+            18
+          ],
+          [
+            "437",
+            18
+          ],
+          [
+            "332",
+            17
+          ],
+          [
+            "125",
+            16
+          ]
+        ]
+      },
+      "control": {
+        "intervals": 84,
+        "with_novel_id": 0,
+        "share": 0.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": []
+      }
+    },
+    "child_ptrace_handshake": {
+      "attack": {
+        "intervals": 84,
+        "with_novel_id": 84,
+        "share": 1.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "101",
+            84
+          ],
+          [
+            "56",
+            63
+          ],
+          [
+            "61",
+            51
+          ],
+          [
+            "230",
+            27
+          ],
+          [
+            "231",
+            18
+          ],
+          [
+            "138",
+            17
+          ]
+        ]
+      },
+      "benign": {
+        "intervals": 84,
+        "with_novel_id": 37,
+        "share": 0.44047619047619047,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "125",
+            14
+          ],
+          [
+            "431",
+            14
+          ],
+          [
+            "138",
+            14
+          ],
+          [
+            "126",
+            14
+          ],
+          [
+            "432",
+            14
+          ]
+        ]
+      },
+      "control": {
+        "intervals": 84,
+        "with_novel_id": 0,
+        "share": 0.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": []
+      }
+    },
+    "execveat_resolution_probe": {
+      "attack": {
+        "intervals": 84,
+        "with_novel_id": 84,
+        "share": 1.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "322",
+            84
+          ],
+          [
+            "230",
+            27
+          ],
+          [
+            "138",
+            16
+          ],
+          [
+            "317",
+            16
+          ],
+          [
+            "437",
+            16
+          ],
+          [
+            "332",
+            14
+          ]
+        ]
+      },
+      "benign": {
+        "intervals": 84,
+        "with_novel_id": 37,
+        "share": 0.44047619047619047,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "138",
+            13
+          ],
+          [
+            "317",
+            13
+          ],
+          [
+            "437",
+            13
+          ],
+          [
+            "105",
+            11
+          ],
+          [
+            "125",
+            11
+          ]
+        ]
+      },
+      "control": {
+        "intervals": 84,
+        "with_novel_id": 0,
+        "share": 0.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": []
+      }
+    },
+    "invalid_setns_burst": {
+      "attack": {
+        "intervals": 84,
+        "with_novel_id": 84,
+        "share": 1.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "308",
+            84
+          ],
+          [
+            "230",
+            27
+          ],
+          [
+            "318",
+            9
+          ],
+          [
+            "138",
+            9
+          ],
+          [
+            "317",
+            9
+          ],
+          [
+            "437",
+            9
+          ]
+        ]
+      },
+      "benign": {
+        "intervals": 84,
+        "with_novel_id": 35,
+        "share": 0.4166666666666667,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "138",
+            17
+          ],
+          [
+            "317",
+            17
+          ],
+          [
+            "437",
+            17
+          ],
+          [
+            "125",
+            15
+          ],
+          [
+            "250",
+            15
+          ]
+        ]
+      },
+      "control": {
+        "intervals": 84,
+        "with_novel_id": 0,
+        "share": 0.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": []
+      }
+    },
+    "seccomp_api_probe": {
+      "attack": {
+        "intervals": 84,
+        "with_novel_id": 39,
+        "share": 0.4642857142857143,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "317",
+            30
+          ],
+          [
+            "230",
+            27
+          ],
+          [
+            "125",
+            9
+          ],
+          [
+            "250",
+            9
+          ],
+          [
+            "431",
+            9
+          ],
+          [
+            "138",
+            9
+          ]
+        ]
+      },
+      "benign": {
+        "intervals": 84,
+        "with_novel_id": 35,
+        "share": 0.4166666666666667,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": [
+          [
+            "230",
+            27
+          ],
+          [
+            "138",
+            16
+          ],
+          [
+            "317",
+            16
+          ],
+          [
+            "437",
+            16
+          ],
+          [
+            "125",
+            15
+          ],
+          [
+            "250",
+            15
+          ]
+        ]
+      },
+      "control": {
+        "intervals": 84,
+        "with_novel_id": 0,
+        "share": 0.0,
+        "skipped": {
+          "no_windows": 0,
+          "no_reference": 0
+        },
+        "top_novel_ids": []
+      }
+    }
+  },
+  "overall": {
+    "attack": 0.7690476190476191,
+    "benign": 0.42857142857142855,
+    "control": 0.0
+  },
+  "note": "development; syscall IDs are x86-64 numbers; a novel ID is absent from the workload reference set",
+  "computed_at_unix": 1792439135.4497476
+}

@@ -61,3 +61,13 @@ def test_written_policy_keeps_the_registered_v2_rule_form(tmp_path):
                     'threshold_source': 'per_workload_model_calibrated_alpha', 'semantic_gate': False}
     assert conf == dict(k=2, n=2, max_gap_seconds=1.0) and scale == 5.0
     assert doc['candidate_manifest_sha256'] == 'abc' and doc['schema'] == 'sentinel-pulse-candidate-preview-policy-v2'
+
+
+def test_written_policy_states_known_gaps(tmp_path):
+    selection = dict(policy='k2of2_a10', calibration='as_run', meets_registered_expectations=False,
+                     metrics=dict(policy=_policy(2, 2, 10.0), precision=0.95, recall=0.97, control=0.05,
+                                  benign_positive_rate=0.88, p95=2.43, episodes_per_hour=7.98))
+    out = tmp_path/'policy.json'
+    sp.write_policy(selection, ROOT/'sentinel_pulse/protocol/policy-1win-a3.json', out, 'abc', 'cand')
+    gaps = json.loads(out.read_text())['selection_basis']['known_gaps']
+    assert len(gaps) == 3 and '2.43 s' in gaps[0] and '~80x' in gaps[1] and '88%' in gaps[2]
