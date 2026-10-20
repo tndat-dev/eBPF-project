@@ -7,17 +7,24 @@ span of the capture. For every campaign interval (attack / benign-launch / idle 
 seen in its 15 s that are absent from the reference are listed. Reports, per scenario and label,
 the share of intervals with at least one novel ID and the most frequent novel IDs. Development
 evidence: the same pulse-live-recalibrated capture supplies reference and intervals (disjoint time spans).
+
+``--exec-set`` (section 5.7c, exec-aware novelty): a JSON list of syscall IDs produced by the exec
+mechanism itself; those IDs never count as novel. The output lists every novel ID per label
+(``novel_ids_by_label``), from which the frozen exec set is the benign-launch union.
+Segment files may be plain or seal-verified gzip (``features.jsonl.gz``).
 """
-import argparse, collections, glob, json, time
+import argparse, collections, glob, gzip, json, time
 from pathlib import Path
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--workers-root', required=True)
 p.add_argument('--campaign', action='append', required=True)
 p.add_argument('--reference-span', required=True, help='START:END unix seconds (attack-free)')
+p.add_argument('--exec-set', help='JSON list of syscall IDs from the exec mechanism; never novel')
 p.add_argument('--output', required=True)
 a = p.parse_args()
 ref_lo, ref_hi = (float(x) for x in a.reference_span.split(':'))
+exec_set = {str(x) for x in json.loads(Path(a.exec_set).read_text())} if a.exec_set else set()
 
 trials = []
 for campaign in a.campaign:
@@ -38,10 +45,12 @@ reference = collections.defaultdict(set)
 seen = collections.defaultdict(set)          # trial index -> IDs
 index = {id(t): i for i, t in enumerate(trials)}
 rows = 0
-for seg in sorted(glob.glob(a.workers_root + '/*/segments/s*/features.jsonl')):
-    if not (Path(seg).parent/'TERMINAL.json').exists():
+for terminal in sorted(glob.glob(a.workers_root + '/*/segments/s*/TERMINAL.json')):
+    seg = Path(terminal).parent/'features.jsonl'
+    opener = (lambda: open(seg)) if seg.exists() else (lambda: gzip.open(str(seg) + '.gz', 'rt'))
+    if not seg.exists() and not Path(str(seg) + '.gz').exists():
         continue
-    with open(seg) as stream:
+    with opener() as stream:
         for line in stream:
             if '"full_counts_delta"' not in line:
                 continue
@@ -55,13 +64,15 @@ for seg in sorted(glob.glob(a.workers_root + '/*/segments/s*/features.jsonl')):
 
 stats = collections.defaultdict(lambda: collections.Counter()); novel_ids = collections.defaultdict(collections.Counter)
 missing_reference = set()
+all_novel = collections.defaultdict(collections.Counter)
 for i, t in enumerate(trials):
     if i not in seen:
         stats[(t['scenario'], t['label'])]['no_windows'] += 1; continue
     ref = reference.get(t['workload'])
     if not ref:
         missing_reference.add(t['workload']); stats[(t['scenario'], t['label'])]['no_reference'] += 1; continue
-    novel = seen[i] - ref
+    novel = seen[i] - ref - exec_set
+    all_novel[t['label']].update(novel)
     stats[(t['scenario'], t['label'])]['novel' if novel else 'none'] += 1
     novel_ids[(t['scenario'], t['label'])].update(novel)
 table = {}
@@ -78,6 +89,8 @@ result = dict(schema='pulse-novel-syscall-hypothesis-v1', workers_root=a.workers
               reference_ids_per_workload={w: len(v) for w, v in sorted(reference.items())},
               workloads_without_reference=sorted(missing_reference),
               by_scenario=table,
+              exec_set=sorted(exec_set, key=int),
+              novel_ids_by_label={label: dict(c.most_common()) for label, c in sorted(all_novel.items())},
               overall={label: overall[label + ':novel'] / max(1, overall[label + ':novel'] + overall[label + ':none'])
                        for label in ('attack', 'benign', 'control')},
               note='development; syscall IDs are x86-64 numbers; a novel ID is absent from the workload reference set',
