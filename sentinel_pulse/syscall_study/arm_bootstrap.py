@@ -6,9 +6,10 @@ matched alpha scale (``matched_budget`` of arm_budget RESULTS). Per trial the ou
 averaged over the three seeds; differences against base29 are paired by trial and the
 bootstrap resamples *workloads* with replacement (trials of one workload stay together).
 
-Reported per arm and budget: recall, benign-launch positive rate, separation
-(recall - benign rate), their differences to base29, and 95% CIs (two-sided percentile plus
-the one-sided 95% lower bound used by the selection rule: recall difference > -3 points).
+Reported per arm and budget: recall, benign-launch positive rate, idle-control positive rate,
+separation (recall - benign rate), their differences to base29, and 95% CIs (two-sided percentile
+plus the one-sided 95% lower bound used by the selection rule: recall difference > -3 points).
+A campaign without benign-launch controls (pulse-attack-dev) reports the benign columns as None.
 """
 from __future__ import annotations
 
@@ -63,7 +64,7 @@ def bootstrap(arm_cells, base_cells, meta, reps=REPS, seed=20261019):
     shared = {k for k in arm_cells if k in base_cells and arm_cells[k]['n'] and base_cells[k]['n']}
     arm = {k: arm_cells[k] for k in shared}; base = {k: base_cells[k] for k in shared}
     groups = {(who, kind): per_workload(cells, meta, kind)
-              for who, cells in (('arm', arm), ('base', base)) for kind in ('attack', 'benign')}
+              for who, cells in (('arm', arm), ('base', base)) for kind in ('attack', 'benign', 'expected_normal')}
     workloads = sorted({meta[k][0] for k in shared})
     rng = np.random.default_rng(seed)
 
@@ -72,15 +73,21 @@ def bootstrap(arm_cells, base_cells, meta, reps=REPS, seed=20261019):
         benign = rate(groups['arm', 'benign'], workloads, weights)
         brecall = rate(groups['base', 'attack'], workloads, weights)
         bbenign = rate(groups['base', 'benign'], workloads, weights)
-        return np.array([recall, benign, recall - benign, recall - brecall, benign - bbenign,
-                         (recall - benign) - (brecall - bbenign)])
+        control = rate(groups['arm', 'expected_normal'], workloads, weights)
+        bcontrol = rate(groups['base', 'expected_normal'], workloads, weights)
+        return np.array([recall, benign, control, recall - benign, recall - brecall, benign - bbenign,
+                         control - bcontrol, (recall - benign) - (brecall - bbenign)])
     point = stats(None)
     draws = np.array([stats(np.bincount(rng.integers(0, len(workloads), len(workloads)), minlength=len(workloads)))
                       for _ in range(reps)])
-    names = ('recall', 'benign_rate', 'separation', 'recall_diff', 'benign_diff', 'separation_diff')
+    names = ('recall', 'benign_rate', 'control_rate', 'separation', 'recall_diff', 'benign_diff', 'control_diff',
+             'separation_diff')
     out = {}
     for i, name in enumerate(names):
         col = draws[:, i][np.isfinite(draws[:, i])]
+        if not np.isfinite(point[i]) or not len(col):
+            out[name] = None   # no trials of that kind (e.g. no benign-launch controls in the campaign)
+            continue
         out[name] = dict(point=float(point[i]), ci95=[float(np.percentile(col, 2.5)), float(np.percentile(col, 97.5))],
                          lower95_one_sided=float(np.percentile(col, 5)))
     out['paired_trials'] = len(shared); out['workloads'] = len(workloads)
@@ -103,7 +110,8 @@ def run(budget_dir: Path, output: Path, budgets=('5', '12', '18'), reps=REPS):
                 continue
             report[b][arm] = dict(alpha_scale=pick['alpha_scale'],
                                   **bootstrap(table[arm, float(pick['alpha_scale'])], base_cells, meta, reps))
-            report[b][arm]['non_inferior_recall'] = report[b][arm]['recall_diff']['lower95_one_sided'] > -0.03
+            diff = report[b][arm]['recall_diff']
+            report[b][arm]['non_inferior_recall'] = diff is not None and diff['lower95_one_sided'] > -0.03
     result = dict(schema='pulse-r4-arm-bootstrap-v1', budget_results=str(budget_dir), reps=reps,
                   cluster='workload', pairing='trial (seed-averaged outcome)', reference=BASE,
                   note='matched budgets use the grid scale with episodes <= B (no interpolation)',
@@ -122,11 +130,16 @@ def main():
     result = run(args.budget_dir, args.output, reps=args.reps)
     for b, arms in result['budgets'].items():
         print('== budget', b)
-        for arm, r in sorted(arms.items(), key=lambda kv: -kv[1]['separation']['point']):
-            print(f"  {arm:26s} recall {r['recall']['point']:.3f} benign {r['benign_rate']['point']:.3f} "
-                  f"sep {r['separation']['point']:.3f} Δrecall {r['recall_diff']['point']:+.3f} "
-                  f"[{r['recall_diff']['ci95'][0]:+.3f},{r['recall_diff']['ci95'][1]:+.3f}] "
-                  f"Δsep {r['separation_diff']['point']:+.3f} [{r['separation_diff']['ci95'][0]:+.3f},{r['separation_diff']['ci95'][1]:+.3f}]")
+        key = 'separation' if all(r['separation'] for r in arms.values()) else 'recall'
+        for arm, r in sorted(arms.items(), key=lambda kv: -kv[1][key]['point']):
+            print(f"  {arm:26s} " + ' '.join(f"{name} {fmt(r[name])}" for name in
+                  ('recall', 'benign_rate', 'control_rate', 'recall_diff', 'separation_diff')))
+
+
+def fmt(stat):
+    if stat is None:
+        return '-'
+    return f"{stat['point']:+.3f}[{stat['ci95'][0]:+.3f},{stat['ci95'][1]:+.3f}]"
 
 
 if __name__ == '__main__':

@@ -21,3 +21,22 @@ def test_bootstrap_pairs_trials_and_clusters_by_workload(tmp_path):
     assert abs(x['recall']['point'] - 1.0) < 1e-9 and abs(x['recall_diff']['point'] - 0.2) < 1e-9
     assert abs(x['separation_diff']['point'] - 0.6) < 1e-9
     assert x['paired_trials'] == 60 and x['workloads'] == 6 and x['non_inferior_recall']
+
+
+def test_campaign_without_benign_controls_reports_control_rate(tmp_path):
+    # pulse-attack-dev has attack and idle-control trials only; the bootstrap must not fail on benign columns
+    rows = []
+    for w in range(4):
+        for t in range(4):
+            for arm, hit_attack, hit_control in (('base29', t < 3, t < 1), ('armX', t < 2, False)):
+                rows.append(dict(arm=arm, seed=1, scale=1.0, trial_key=f'c/{w}-{t}:attack', workload=f'w{w}',
+                                 kind='attack', outcome='TP' if hit_attack else 'FN', delay=None))
+                rows.append(dict(arm=arm, seed=1, scale=1.0, trial_key=f'c/{w}-{t}:control', workload=f'w{w}',
+                                 kind='expected_normal', outcome='FP_expected' if hit_control else 'TN_expected', delay=None))
+    (tmp_path/'TRIAL_OUTCOMES.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    pick = dict(alpha_scale=1.0)
+    (tmp_path/'RESULTS.json').write_text(json.dumps(dict(matched_budget={'5': {'base29': pick, 'armX': pick}})))
+    x = boot.run(tmp_path, tmp_path/'out.json', budgets=('5',), reps=200)['budgets']['5']['armX']
+    assert x['benign_rate'] is None and x['separation'] is None and x['separation_diff'] is None
+    assert abs(x['recall_diff']['point'] + 0.25) < 1e-9 and abs(x['control_diff']['point'] + 0.25) < 1e-9
+    assert not x['non_inferior_recall']
