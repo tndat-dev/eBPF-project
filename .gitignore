@@ -39,3 +39,6 @@ validation-evidence/canary-r10-c1-retry-20261001/
 validation-evidence/projected-operational-c1-20261003/
 validation-evidence/projected-pressure-c1-20261003/
 validation-evidence/projected-pressure-c2-20261003/
+
+# Claude Code local settings (per-machine permissions)
+.claude/settings.local.json
