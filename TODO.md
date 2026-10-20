@@ -43,11 +43,12 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Thí nghiệm syscall — còn lại
 
+- [~] **Thí nghiệm nhóm feature (syscall 5B):** fit đang chạy (20/10 12:03); biến thể p-value theo nhánh đang chạy; chấm holdout + replay sau lượt live (21/10); rồi đưa kết quả vào Pulse 4b.
+
 - [x] 11 cấu hình dưới k2of2 (syscall 5.9): ngân sách 1 đạt được, base29 tốt nhất, thêm syscall làm chậm p95.
 - [x] Kết luận cuối (syscall 5.9) và bảng bằng chứng Pulse 4b.
 - [ ] Pulse 5.7d (làm mới định kỳ + k2of2) chạy sau lượt live 21/10.
 - [ ] Paired blind attack theo protocol v2. Chưa mở được, vì điều kiện ngân sách 0,1 đợt/giờ chưa cấu hình nào đạt; ghi là giới hạn.
-- [ ] Bin băm, tổng hợp và rolling-10 chưa được kiểm chứng riêng; thí nghiệm mới đo phần syscall tường minh.
 
 ## RCA — còn lại
 

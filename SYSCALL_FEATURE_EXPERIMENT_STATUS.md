@@ -326,6 +326,41 @@ pulse-attack-dev (598 trial) cho cùng thứ tự: base29 recall 92,6%, control 
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
+## 5B. Thí nghiệm nhóm feature `feature-groups` (đăng ký 20/10 12:01, đang chạy)
+
+**Vì sao cần.** Thí nghiệm syscall chỉ thay đổi 29 syscall tường minh. Mọi cấu hình đều giữ nguyên bin băm syscall, bin băm cặp syscall, tổng hợp, rolling-10 và 3 cửa sổ lịch sử. Các phần đó, cùng cách gộp p-value, chưa có bằng chứng. Bộ feature Pulse đang dùng phải có bằng chứng cho **từng** phần.
+
+**Thiết kế.** Mỗi cấu hình bỏ đúng một phần, mọi thứ khác giữ nguyên:
+- **Dữ liệu fit:** dữ liệu chọn của syscall-arms, cùng cách chia train/calibration, cùng chỉ số mẫu (context được cắt từ context `base29` của syscall-arms), cùng 3 seed. Không dùng dữ liệu attack.
+- **Đánh giá:** khoảng holdout 24 giờ của syscall-arms; replay hai bộ campaign (pulse-attack-dev, và pulse-live-recalibrated có binary vô hại); xác nhận k2of2 như Pulse; so ở cùng ngân sách (chính là 1, phụ là 5 đợt/replica-giờ); bootstrap ghép cặp theo workload.
+- **Kiểm tự động:** `base29` của thí nghiệm mới phải cho đúng dự đoán như `base29` của syscall-arms (`REFERENCE_CHECK.json`).
+
+| Cấu hình | Bỏ phần nào | Số cột còn lại |
+|---|---|---:|
+| base29 | không bỏ (vector Pulse đầy đủ, mốc tham chiếu) | 249 × 4 |
+| drop_log_counts | log-count của 29 syscall (cột 0–28) | 220 |
+| drop_ratios | tỉ lệ của 29 syscall (29–57) | 220 |
+| drop_aggregates | 5 tổng hợp (58–62) | 244 |
+| drop_syscall_bins | 64 bin băm syscall (63–126) | 185 |
+| drop_transition_bins | 64 bin băm cặp syscall (127–190) | 185 |
+| drop_rolling | rolling-10 mean/std (191–248) | 191 |
+| drop_all_bins | cả hai nhóm bin | 121 |
+| bins_only | chỉ giữ tổng hợp + hai nhóm bin, bỏ toàn bộ kênh syscall tường minh | 133 |
+| history1 / history2 | 1 hoặc 2 cửa sổ lịch sử thay cho 3 | 249 × 2 / × 3 |
+| base29@tree, base29@support | chỉ dùng p-value nhánh tree, hoặc chỉ nhánh support; không cần fit lại. Nhánh support chỉ nhìn vector hiện tại, nên đây cũng là phép thử "không dùng lịch sử" | — |
+
+**Luật quyết định**, đăng ký trước mọi lần fit trong [`feature-group-evaluation-v1.json`](sentinel_pulse/protocol/feature-group-evaluation-v1.json) (SHA-256 `d40153d8…`):
+- **Cần thiết:** khi bỏ đi, recall giảm (CI 95% nằm hẳn dưới 0) trên **cả hai** bộ attack; **hoặc** khoảng cách attack − binary vô hại giảm (CI dưới 0) trên pulse-live-recalibrated; **hoặc** p95 trễ tăng ≥ 0,2 s trên cả hai bộ.
+- **Có thể bỏ:** recall không kém hơn (cận dưới một phía 95% > −3 điểm) trên cả hai bộ, khoảng cách không kém hơn 3 điểm, và p95 không chậm thêm quá 0,2 s.
+- **Chưa kết luận:** không thuộc hai trường hợp trên.
+- **Hệ quả cho Pulse:** giữ bộ hiện tại trừ khi có phần "có thể bỏ". Ngay cả khi đó, phần ấy chỉ là ứng viên rút gọn, phải fit lại, đóng băng và chạy live trước khi đổi.
+- **Không kiểm (ghi là giới hạn):** độ dài cửa sổ 500 ms (cần capture mới), độ dài rolling 10 và số bin 64 (là siêu tham số), họ model.
+
+**Lịch:**
+- Giai đoạn A, fit 33 model × 21 workload = 693 model. Đang chạy từ 12:03 trên `.234`: CPU tối đa 6 core, nice 19, đọc NFS một lần lúc chép 1,3 GB về đĩa local, model ghi ra đĩa local.
+- Biến thể p-value theo nhánh: đang chạy trên điểm sẵn có.
+- Giai đoạn B, chấm holdout và replay attack: phải đọc capture qua NFS, nên chạy sau khi pulse-stable-candidate kết thúc (21/10).
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -405,3 +440,5 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 11:10 | Thêm xác nhận k-of-n vào `arm_budget` (bản vector hóa, khớp `ConfirmationState`, 311 test pass); chạy 11 cấu hình dưới k2of2 như Pulse đang dùng (`syscall-arms-k2of2` trên `.234`: chép score dump và replay về đĩa local với băng thông giới hạn, nice 19, tối đa 2 core) | `aa66def`; đang chạy |
 | 20/10 11:21 | Nối kết quả về Pulse: bảng bằng chứng theo từng thành phần feature trong báo cáo Pulse (mục 4b) | Pulse mục 4b |
 | 20/10 11:50 | k2of2 xong: ngân sách 1 đạt được; base29 không bị cấu hình nào vượt; `drop_exec_pair` kém; thêm syscall làm chậm p95 (5 s với `plus_all_*`). Kết luận cuối ở 5.9 | mục 5.9; `syscall/k2of2/` |
+| 20/10 12:01 | Đăng ký trước thí nghiệm nhóm feature (`feature-group-evaluation-v1.json`): 10 cấu hình fit + 2 biến thể p-value; luật cần thiết / có thể bỏ / chưa kết luận | mục 5B; `740a8b4` |
+| 20/10 12:03 | Bắt đầu fit (`syscall-feature-groups-fit`) và biến thể p-value theo nhánh (`syscall-feature-groups-branches`) trên `.234` | mục 5B |
