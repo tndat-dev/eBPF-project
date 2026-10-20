@@ -97,7 +97,7 @@ nghĩa 0,17%), mọi cấu hình syscall ở syscall-arms đều ~19–20 đợt
 
 - [x] Bookinfo, `default/keycloak` đã không còn (kiểm tra 20/10 10:50).
 - [x] Dọn bản ghi pod chết và pod job velero lỗi (20/10 10:58). Không còn việc dọn chạy tay.
-- [ ] **(chạy tay)** Unseal `vault-2` (Shamir) sau khi tạo lại pod lúc 10:41; `vault-0`/`vault-1` vẫn unseal nên cụm Vault còn quorum.
+- [x] Unseal `vault-2` sau khi tạo lại pod (bạn chạy tay 20/10 ~11:03): 3/3 Vault unsealed, 1 active + 2 standby.
 - [x] Tài nguyên v8 trên k8s đã không còn (19/10).
 
 - [x] NFS: nén `raw.jsonl` của soak 48 giờ (kiểm tra seal) — xong 20/10.
