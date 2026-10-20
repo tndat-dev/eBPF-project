@@ -361,6 +361,29 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 - Biến thể p-value theo nhánh: đang chạy trên điểm sẵn có.
 - Giai đoạn B, chấm holdout và replay attack: phải đọc capture qua NFS, nên chạy sau khi pulse-stable-candidate kết thúc (21/10).
 
+### 5B.1 Kết quả: nhánh p-value (xong 20/10 12:11)
+
+- **Dữ liệu:** điểm đã xuất của base29 (syscall-arms) và replay sẵn có, k2of2.
+- **Biên nhận:** `syscall/feature-groups/branches/` (`RESULTS-*`, `BOOTSTRAP-branches-*`).
+
+| Biến thể | Tập | Ngân sách | Recall (base29 → biến thể) | Chênh recall [CI 95%] | Binary vô hại | p95 trễ |
+|---|---|---:|---|---|---|---|
+| chỉ tree | attack-dev | **1** | 92,6% → 64,4% | **−28,2 [−42,5; −15,2]** | — | 2,76 → 3,83 s |
+| chỉ tree | live-recalibrated | **1** | 91,2% → 60,0% | **−31,2 [−45,4; −17,4]** | 72,8% → 56,7% | 2,27 → 3,87 s |
+| chỉ support | attack-dev | **1** | 92,6% → 87,4% | **−5,2 [−10,6; −1,1]** | — | 2,76 → 2,31 s |
+| chỉ support | live-recalibrated | **1** | 91,2% → 84,1% | **−7,1 [−14,9; −0,8]** | 72,8% → 58,4% | 2,27 → 2,21 s |
+| chỉ tree | cả hai | 5 | 97,1/94,8% → 81,3/79,4% | −15,8 / −15,4 (CI dưới 0) | | +0,9 / +1,3 s |
+| chỉ support | cả hai | 5 | 97,1/94,8% → 96,6/95,8% | −0,5 [−4,1; +2,3] / +1,1 [−2,3; +4,7] | 78,0% → 80,9% | ±0 |
+
+**Theo luật đăng ký, ở ngân sách chính 1 đợt/replica-giờ:**
+- **Nhánh support: cần thiết.** Bỏ nó (chỉ dùng tree), recall giảm 28–31 điểm, CI dưới 0 trên cả hai tập; p95 chậm thêm 1,1–1,6 s.
+- **Nhánh tree, tức lịch sử thời gian: cần thiết.** Bỏ nó (chỉ dùng support), recall giảm 5–7 điểm, CI dưới 0 trên cả hai tập.
+
+**Nói rõ:**
+- Kết luận về nhánh tree **phụ thuộc ngân sách**. Ở ngân sách 5, chỉ dùng support không kém hơn (−0,5 và +1,1 điểm).
+- Ở ngân sách 1, chỉ dùng support gắn cờ binary vô hại ít hơn (58,4% so với 72,8%), nhưng chênh khoảng cách +7,4 [−0,8; +17,6] chưa có ý nghĩa thống kê.
+- Nghĩa là nhánh tree bổ sung tín hiệu đúng ở vùng ngưỡng chặt mà Pulse cần, đổi lại nhạy hơn với process mới.
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -442,3 +465,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 11:50 | k2of2 xong: ngân sách 1 đạt được; base29 không bị cấu hình nào vượt; `drop_exec_pair` kém; thêm syscall làm chậm p95 (5 s với `plus_all_*`). Kết luận cuối ở 5.9 | mục 5.9; `syscall/k2of2/` |
 | 20/10 12:01 | Đăng ký trước thí nghiệm nhóm feature (`feature-group-evaluation-v1.json`): 10 cấu hình fit + 2 biến thể p-value; luật cần thiết / có thể bỏ / chưa kết luận | mục 5B; `740a8b4` |
 | 20/10 12:03 | Bắt đầu fit (`syscall-feature-groups-fit`) và biến thể p-value theo nhánh (`syscall-feature-groups-branches`) trên `.234` | mục 5B |
+| 20/10 12:11 | Biến thể nhánh p-value xong: nhánh support cần thiết (bỏ đi recall −28–31 điểm); nhánh tree/lịch sử cần thiết ở ngân sách 1 (−5–7 điểm), không kém hơn ở ngân sách 5 | mục 5B.1 |
