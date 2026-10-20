@@ -33,17 +33,18 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 ## 1. Tóm tắt
 
 - **Pulse làm gì.** Pulse đếm syscall của từng container Kubernetes bằng eBPF. Cứ 0,5 giây, nó tạo một vector 249 số cho mỗi container. Một model riêng cho từng workload chấm điểm xem cửa sổ đó "lạ hay không" so với lúc bình thường. Toàn bộ chạy ở chế độ **shadow**: chỉ ghi `candidate_alert_preview` (cảnh báo thử), không phát cảnh báo vận hành, không cách ly pod.
-- **Kết quả mới nhất — lượt live pulse-live-recalibrated (19/10), dữ liệu mới, nhãn kỳ vọng:**
+- **Kết quả mới nhất: lượt live pulse-stable-candidate** (campaign 20/10, dữ liệu mới, nhãn kỳ vọng, chính sách `policy-2of2-a10`, chấm điểm nhanh; mục 5.8a):
 
-  | Chỉ số | Kết quả |
-  |---|---|
-  | Precision | 89,1% |
-  | Recall | 92,8% |
-  | Control idle dương | 11,2% |
-  | p95 kernel → preview | 1,90 s (campaign tiếp nối 105 cặp: 2,17 s) |
-  | Đợt cảnh báo trên normal | **13,0** mỗi replica-giờ (467 replica-giờ, 19:20–02:04, job chọn 20/10) |
+  | Chỉ số | Kỳ vọng | Kết quả | Lượt trước |
+  |---|---|---|---|
+  | Precision | ≥ 95% | **92,2%** | 89,1% |
+  | Recall | ≥ 95% | **97,8%** | 92,8% |
+  | Control idle dương | ≤ 5% | **8,4%** | 11,2% |
+  | p95 kernel → preview | ≤ 2 s | **1,85 s** | 1,90 s |
+  | Đợt cảnh báo trên normal | ≤ 0,1/giờ | chờ phân tích final (21/10) | 13,0 |
 
-- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80,7%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
+  Thêm mức xác nhận thứ hai (chờ 5 s, ≥ 70% cửa sổ dương; mục 5.8b) thì đạt precision 97,3%, control 2,6%, recall 93,3%, p95 6,5 s. Số này chưa blind, đã đăng ký để kiểm ở lượt sau.
+- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80–92%** ở mức preview (mức 2 còn 65%). Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
 - **Đang chạy: lượt live pulse-stable-candidate** (20/10 10:15 → 21/10 ~10:20).
   - Chính sách `policy-2of2-a10` được chọn bằng luật đăng ký trước (mục 5.7a): precision 95,2%, recall 97,3%, control 4,8%, p95 2,43 s và 8,0 đợt/replica-giờ trên dữ liệu development. Chính sách này **không đạt** kỳ vọng p95 ≤ 2,3 s.
   - Chấm điểm bằng đường nhanh: kết quả khớp từng bit với đường cũ, CPU mỗi worker giảm từ ~94% xuống ~30% một core.
@@ -625,6 +626,16 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
   - cảnh báo xác nhận sau ~5 s (mức 2) với precision ~97%.
 - **Đăng ký trước cho lượt live kế tiếp:** đánh giá mức 2 với đúng T = 5 s, f = 0,7 (chính) và f = 0,5 (phụ), không đổi sau khi xem số.
 - Binary vô hại vẫn bị gắn cờ 50–65%, nên chưa giải quyết được hoàn toàn.
+
+### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:30)
+
+| Phép kiểm | Đăng ký ở | Tiêu chí |
+|---|---|---|
+| Xác nhận mức 2 bằng độ bền tín hiệu | 5.8b | T = 5 s, f = 0,7 (chính), f = 0,5 (phụ); báo recall, precision, control, binary vô hại, p95 |
+| Luật xếp hạng RCA bỏ qua hạ quyền lúc khởi chạy | RCA 5.10 | top-1 trên attack có case, so với luật cũ |
+| Làm mới calibration định kỳ + k2of2 | 5.7d | nếu đạt tiêu chí trên soak (chạy 21/10) thì bật trong lượt live |
+| Calibration theo (workload, node) | 5.6b (giả thuyết) | cần đăng ký đầy đủ trước khi kiểm |
+| Novelty có xét exec | 5.7c | chạy tự động trong phân tích final 21/10 |
 
 ## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:18)
 
