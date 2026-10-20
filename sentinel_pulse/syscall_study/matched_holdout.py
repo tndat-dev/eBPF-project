@@ -37,6 +37,9 @@ class ContextBuilder:
             i == j + offset for j, number in enumerate(self.ids) if number in drop
             for offset in (0, 29, 191, 220))]
         self.states = {}
+        # feature-group arms (feature_groups.py): kept columns of the 249 vector and history depth;
+        # contexts are emitted at the same windows as base29 and then cut, so arms stay matched
+        self.cut = spec if ('columns' in spec or spec.get('history', 3) != 3) else None
 
     def observe(self, row):
         a, b = float(row['window_start']), float(row['window_end'])
@@ -68,6 +71,9 @@ class ContextBuilder:
             prior['vectors'].append(vector)
         prior['rates'].append(rates)
         prior['end'] = b
+        if result is not None and self.cut is not None:
+            from .feature_groups import transform
+            result = transform(result, self.cut)
         return result
 
 

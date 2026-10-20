@@ -51,6 +51,20 @@ def joint_p(tree, support, cal_tree, cal_support):
     return np.minimum(1.0, 2*np.minimum(pvalues(tree, cal_tree), pvalues(support, cal_support)))
 
 
+PVALUES = ('joint', 'tree', 'support')
+
+
+def combined_p(kind, tree, support, cal_tree, cal_support):
+    """Pulse's joint p-value, or one branch alone (feature-group study: is each branch needed?)."""
+    if kind == 'joint':
+        return joint_p(tree, support, cal_tree, cal_support)
+    if kind == 'tree':
+        return pvalues(tree, cal_tree)
+    if kind == 'support':
+        return pvalues(support, cal_support)
+    raise ValueError(f'unknown p-value kind {kind}')
+
+
 def count_episodes(identity, window_end, positive, quiet=EPISODE_QUIET_SECONDS):
     """Positive windows of one container separated by < quiet merge into one episode."""
     if not positive.any():
@@ -133,7 +147,8 @@ def load_replay(replay: Path):
     return out
 
 
-def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None, confirmation=(1, 1)):
+def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None, confirmation=(1, 1),
+                 pvalue='joint'):
     """``outcomes``, if a list, receives one row per (seed, scale, trial) for paired bootstrap.
     ``confirmation`` = (k, n) temporal confirmation applied to holdout and trial windows."""
     k, n = confirmation
@@ -145,7 +160,7 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes
         if min(cal.sum(), ev.sum()) < MINIMUM_CALIBRATION:
             skipped.append(tag); continue
         cal_tree, cal_support = np.sort(h['tree'][cal]), np.sort(h['support'][cal])
-        p = joint_p(h['tree'][ev], h['support'][ev], cal_tree, cal_support)
+        p = combined_p(pvalue, h['tree'][ev], h['support'][ev], cal_tree, cal_support)
         trial_windows = replay.get(tag, {})
         alpha = next((w[0]['alpha'] for w in trial_windows.values() if w), None)
         if alpha is None:
@@ -155,8 +170,8 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes
         rescored = {}
         for key, windows in trial_windows.items():
             if windows:
-                jp = joint_p(np.array([w['tree_score'] for w in windows]), np.array([w['support_score'] for w in windows]),
-                             cal_tree, cal_support)
+                jp = combined_p(pvalue, np.array([w['tree_score'] for w in windows]),
+                                np.array([w['support_score'] for w in windows]), cal_tree, cal_support)
                 rescored[key] = [dict(w, joint_p=float(j)) for w, j in zip(windows, jp)]
         workload = tag.split('|')[0]
         for scale in scales:
@@ -235,7 +250,7 @@ def matched(arms, budgets=BUDGETS):
 
 
 def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, calibration_fraction=0.2,
-        confirmation=(1, 1)):
+        confirmation=(1, 1), pvalue=('joint',), arms_filter=None):
     if output.exists():
         raise ValueError('output exists; choose a new path')
     registration, index, _ = load_study(study)
@@ -244,19 +259,27 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
     trials = load_trials(campaigns)
     windows = load_replay(replay)
     arms = {}
+    kinds = (pvalue,) if isinstance(pvalue, str) else tuple(pvalue)
     for arm in sorted(index['arms']):
-        rows = []
-        arms[arm] = evaluate_arm(arm, load_holdout(dump_root, arm), windows, trials, split_at, outcomes=rows,
-                                 confirmation=confirmation)
-        output.mkdir(parents=True, exist_ok=True)
-        with (output/'TRIAL_OUTCOMES.jsonl').open('a') as stream:
-            stream.writelines(json.dumps(r) + '\n' for r in rows)
-        print(arm, {s: round(v['episodes_per_replica_hour'] or -1, 2) for s, v in arms[arm]['scales'].items()}, flush=True)
+        if arms_filter and arm not in arms_filter:
+            continue
+        holdout = load_holdout(dump_root, arm)
+        for kind in kinds:
+            # a branch-only p-value is reported as its own arm, e.g. 'base29@tree', paired by trial with 'base29'
+            name = arm if kind == 'joint' else f'{arm}@{kind}'
+            rows = []
+            arms[name] = evaluate_arm(name, holdout, windows, trials, split_at, outcomes=rows,
+                                      confirmation=confirmation, pvalue=kind)
+            output.mkdir(parents=True, exist_ok=True)
+            with (output/'TRIAL_OUTCOMES.jsonl').open('a') as stream:
+                stream.writelines(json.dumps(r) + '\n' for r in rows)
+            print(name, {s: round(v['episodes_per_replica_hour'] or -1, 2) for s, v in arms[name]['scales'].items()}, flush=True)
     result = dict(schema='pulse-r4-arm-budget-v1', study=str(study), dump_root=str(dump_root), replay=str(replay),
                   campaigns=[str(c) for c in campaigns], calibration_fraction=calibration_fraction,
                   calibration_span_unix=[begin, split_at], evaluation_span_unix=[split_at, finish],
                   episode_quiet_seconds=EPISODE_QUIET_SECONDS, scales=list(SCALES), budgets=list(BUDGETS),
                   confirmation=dict(k=confirmation[0], n=confirmation[1], max_gap_seconds=MAX_GAP_SECONDS),
+                  pvalue=list(kinds), arms_evaluated=sorted(arms),
                   evidence_class='development; unadjudicated normal holdout; pulse-attack-dev scenarios previously exposed',
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
                   arms=arms, matched_budget=matched(arms),
@@ -275,11 +298,14 @@ def main():
     parser.add_argument('--calibration-fraction', type=float, default=0.2)
     parser.add_argument('--confirm-k', type=int, default=1)
     parser.add_argument('--confirm-n', type=int, default=1)
+    parser.add_argument('--pvalue', choices=PVALUES, action='append',
+                        help="joint (Pulse) and/or one branch alone; non-joint kinds become arms 'name@kind'")
+    parser.add_argument('--arm', action='append', help='evaluate only these arms')
     args = parser.parse_args()
     if not 1 <= args.confirm_k <= args.confirm_n:
         parser.error('need 1 <= k <= n')
     result = run(args.study.resolve(), args.dump_root, args.replay, args.campaign, args.output, args.calibration_fraction,
-                 confirmation=(args.confirm_k, args.confirm_n))
+                 confirmation=(args.confirm_k, args.confirm_n), pvalue=tuple(args.pvalue or ('joint',)), arms_filter=args.arm)
     for budget, arms in result['matched_budget'].items():
         print('== budget', budget, 'episodes/replica-hour')
         for arm, v in sorted(arms.items(), key=lambda kv: -(kv[1] or {}).get('recall', -1) if kv[1] else 1):

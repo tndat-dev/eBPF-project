@@ -1,0 +1,45 @@
+{
+  "schema": "sentinel-pulse-feature-group-evaluation-v1",
+  "registered_at": "2026-10-20T12:01+07:00",
+  "registered_before_any_fit_or_score": true,
+  "purpose": "Evidence for every part of the Pulse feature vector and scoring, not only the 29 explicit syscalls (syscall-arms). Each arm removes one part with everything else equal.",
+  "reference_arm": "base29 = the full Pulse vector (249 columns x 4 windows) with the joint tree+support p-value",
+  "fitted_arms": {
+    "drop_log_counts": "log-count of the 29 syscalls (columns 0-28)",
+    "drop_ratios": "ratio of the 29 syscalls to all calls (29-57)",
+    "drop_aggregates": "log/ratio of other calls, log total, sensitive ratio, seccomp denials (58-62)",
+    "drop_syscall_bins": "64 hashed syscall-ID bins (63-126)",
+    "drop_transition_bins": "64 hashed syscall-pair bins (127-190)",
+    "drop_rolling": "rolling-10 mean and std of the 29 syscalls (191-248)",
+    "drop_all_bins": "both hashed bin groups",
+    "bins_only": "keep only aggregates and both bin groups (no explicit syscall channel at all)",
+    "history1": "context of current + 1 previous window instead of 3",
+    "history2": "context of current + 2 previous windows instead of 3"
+  },
+  "evaluation_variants_without_refit": {
+    "base29@tree": "tree branch p-value only (no support branch)",
+    "base29@support": "support branch p-value only; the support branch sees only the current vector, so this is also 'no temporal history'"
+  },
+  "not_tested_and_reported_as_limits": [
+    "window length 500 ms (needs a new capture)",
+    "rolling window length 10 and hash bin count 64 (hyperparameters, not groups)",
+    "model family (ExtraTrees + support)"
+  ],
+  "data": {
+    "fit": "syscall-arms normal selection data, same train/calibration split, same capped sample indices, seeds 73021-73023, no attack data",
+    "normal_holdout": "syscall-arms normal holdout span (24 h, never used for fitting); calibration on its first 20 %, burden on the rest",
+    "attacks": ["pulse-attack-dev + pulse-attack-dev-rabbitmq (598 paired trials)", "pulse-live-recalibrated main + follow-up campaigns with benign-launch controls (1238 paired trials)"]
+  },
+  "decision_policy": "k2of2 temporal confirmation (as policy-2of2-a10 run by Pulse), alpha scale matched per arm to the budget",
+  "budgets_episodes_per_replica_hour": {"primary": 1.0, "secondary": 5.0},
+  "statistics": "paired, workload-clustered bootstrap (10000 resamples) of differences to base29; one-sided 95 % bounds",
+  "metrics": ["recall", "benign-launch positive rate", "idle-control positive rate", "separation = recall - benign rate", "p95 of first positive window_end - kernel event"],
+  "rules_per_component": {
+    "needed": "removing it lowers recall with the 95 % CI of the difference entirely below 0 on BOTH attack sets, OR lowers separation with the CI entirely below 0 on pulse-live-recalibrated, OR raises p95 delay by >= 0.2 s on both sets",
+    "removable": "recall non-inferior (one-sided 95 % lower bound > -3 points) on BOTH sets AND separation lower bound > -3 points AND p95 not worse by > 0.2 s on either set",
+    "inconclusive": "neither",
+    "budget_fallback": "rules are applied at the primary budget; if base29 has no matched scale there, at the secondary budget"
+  },
+  "consequence_for_pulse": "The current feature set stays unless a component is 'removable'. A removable component is only a candidate for simplification: it needs a refit, freeze and live test before any change. No automatic promotion.",
+  "evidence_class": "development; normal holdout unadjudicated; pulse-attack-dev scenarios were used while developing Pulse"
+}
