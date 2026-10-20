@@ -17,6 +17,7 @@ import sys
 import paramiko
 
 HOSTS = {
+    "10.1.16.233": "nfs-server",
     "10.1.16.234": "k8s-master.local",
     "10.1.16.235": "k8s-master2.local",
     "10.1.16.236": "k8s-master3.local",
