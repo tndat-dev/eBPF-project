@@ -30,7 +30,7 @@ from ..common import atomic_json
 from ..detector.confirmation import SCORED, ConfirmationPolicy, apply
 from ..detector.recalibration import Recalibrator
 from ..integrity import sha256_file
-from ..syscall_study.arm_budget import joint_p
+from ..syscall_study.arm_budget import confirm, joint_p
 from .confirmation_study import MODEL_HASH, POLICY_HASH, scored_rows
 from .preview_evaluation import evaluate_interval, summarize
 
@@ -154,7 +154,7 @@ def episode_starts(identity, end, positive, quiet=15.0):
     return out
 
 
-def normal_metrics(rows, flags, eval_start, eval_end, exclude, scales=SCALES):
+def normal_metrics(rows, flags, eval_start, eval_end, exclude, scales=SCALES, confirmation=(1, 1)):
     out = {}
     hours_blocks = np.arange(eval_start, eval_end, HOUR)
     for s in scales:
@@ -166,6 +166,9 @@ def normal_metrics(rows, flags, eval_start, eval_end, exclude, scales=SCALES):
             scored = sel & flags['scored'][w]
             uncalibrated += int((sel & ~flags['scored'][w]).sum())
             pos = flags[s][w] & scored
+            if confirmation != (1, 1):
+                # k-of-n over each container's consecutive scored windows, as the live policy does
+                pos = confirm(a['identity'], a['end'], pos, *confirmation)
             starts = episode_starts(a['identity'], a['end'], pos)
             episodes += int(starts.sum())
             windows += int(scored.sum()); positives += int(pos.sum())
@@ -181,14 +184,14 @@ def normal_metrics(rows, flags, eval_start, eval_end, exclude, scales=SCALES):
     return out
 
 
-def attack_metrics(campaign_roots, calibrations, scales=SCALES):
+def attack_metrics(campaign_roots, calibrations, scales=SCALES, confirmation=(1, 1)):
     inputs = []
     for root in campaign_roots:
         for path in sorted(root.glob('trials/*/EVALUATION_INPUT.json')):
             inputs.append(json.loads(path.read_text()))
     out = {}
     for s in scales:
-        policy = ConfirmationPolicy(1, 1, s)
+        policy = ConfirmationPolicy(confirmation[0], confirmation[1], s)
         outcomes = []
         for data in inputs:
             start = float(data['attack']['start_at'])
@@ -207,7 +210,8 @@ def attack_metrics(campaign_roots, calibrations, scales=SCALES):
 
 
 def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=None, extra_exclude=(),
-        strategies=('static', 'rolling-6-1', 'rolling-3-1', 'rolling-12-1', 'guarded-6-1')):
+        strategies=('static', 'rolling-6-1', 'rolling-3-1', 'rolling-12-1', 'guarded-6-1'), scales=SCALES,
+        confirmation=(1, 1)):
     started = time.time()
     rows = load_rows(worker_roots)
     eval_end = eval_end or max(float(a['end'][-1]) for a in rows.values())
@@ -217,15 +221,17 @@ def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=
         kind, *params = name.split('-')
         window, refresh = (float(params[0]), float(params[1])) if params else (None, None)
         blocks = schedule('static' if kind == 'static' else 'rolling', eval_start, eval_end, static_span, window, refresh)
-        flags, calibrations = run_strategy(rows, blocks, exclude, guarded=kind == 'guarded', static_span=static_span)
-        results[name] = dict(normal=normal_metrics(rows, flags, eval_start, eval_end, exclude),
-                             attack=attack_metrics(campaign_roots, calibrations), blocks=len(blocks))
+        flags, calibrations = run_strategy(rows, blocks, exclude, guarded=kind == 'guarded', scales=scales,
+                                           static_span=static_span)
+        results[name] = dict(normal=normal_metrics(rows, flags, eval_start, eval_end, exclude, scales, confirmation),
+                             attack=attack_metrics(campaign_roots, calibrations, scales, confirmation), blocks=len(blocks))
         print(name, {s: round(v['episodes_per_replica_hour'] or -1, 2) for s, v in results[name]['normal'].items()},
               {s: (v['recall_observed'], v['control_positive_rate']) for s, v in results[name]['attack'].items()}, flush=True)
     result = dict(schema='pulse-rolling-recalibration-v1', worker_roots=[str(r) for r in worker_roots],
                   campaigns=[str(c) for c in campaign_roots], model_hash=MODEL_HASH, policy_hash=POLICY_HASH,
                   static_calibration_span_unix=list(static_span), evaluation_span_unix=[eval_start, eval_end],
-                  excluded_spans=len(exclude), minimum_calibration_examples=MINIMUM, scales=list(SCALES),
+                  excluded_spans=len(exclude), minimum_calibration_examples=MINIMUM, scales=list(scales),
+                  confirmation=dict(k=confirmation[0], n=confirmation[1]),
                   evidence_class='development; unadjudicated normal; pulse-attack-dev scenarios previously exposed',
                   strategies=results, estimators_changed=False,
                   source_sha256=sha256_file(Path(__file__)), started_at_unix=started, finished_at_unix=time.time())
@@ -247,11 +253,17 @@ def main():
     parser.add_argument('--eval-end', type=float)
     parser.add_argument('--exclude', type=span, action='append', default=[])
     parser.add_argument('--strategy', action='append')
+    parser.add_argument('--scale', type=float, action='append', help='alpha scales (default 1 and 3)')
+    parser.add_argument('--confirm-k', type=int, default=1)
+    parser.add_argument('--confirm-n', type=int, default=1)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.output.exists():
         raise SystemExit('output exists; choose a new path')
     kwargs = dict(strategies=tuple(args.strategy)) if args.strategy else {}
+    if args.scale:
+        kwargs['scales'] = tuple(args.scale)
+    kwargs['confirmation'] = (args.confirm_k, args.confirm_n)
     run(args.worker_root, args.campaign, args.output, args.static_span, args.eval_start, args.eval_end,
         args.exclude, **kwargs)
 

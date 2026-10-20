@@ -40,3 +40,13 @@ def test_campaign_intervals_are_masked():
     end = np.arange(0, 100, 0.5)
     m = rr.masked(end, [(10.0, 20.0)])
     assert m.sum() == 20 and m[np.searchsorted(end, 10.0)]
+
+
+def test_k_of_n_confirmation_lowers_normal_positives():
+    rows = drifting_rows(hours=6)
+    static = (0.0, 3600.0)
+    blocks = rr.schedule('rolling', 3*3600, 6*3600, static, 1, 1)
+    flags, _ = rr.run_strategy(rows, blocks, [], guarded=False, scales=(3.0,), static_span=static)
+    one = rr.normal_metrics(rows, flags, 3*3600, 6*3600, [], scales=(3.0,))['3']
+    two = rr.normal_metrics(rows, flags, 3*3600, 6*3600, [], scales=(3.0,), confirmation=(2, 2))['3']
+    assert 0 < two['positive_window_rate'] < one['positive_window_rate']
