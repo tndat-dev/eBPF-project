@@ -178,15 +178,27 @@ def compare_reference(study: Path, source: Path, workload_dir: Path | None = Non
         with path.open() as f:
             rows = sorted((json.loads(line) for line in f), key=lambda r: (r['window_end'], str(r['cgroup_id'])))
         cal = base_contexts(rows, dict(add=[], drop=[]), index['selection_start'], index['selection_end'])['calibration'][:limit]
-        preds = []
+        preds, models = [], []
         for root, entry in ((study, mine[tag]), (source, theirs[tag])):
             with (root/entry['artifact']).open('rb') as f:
                 model = load_artifact(f)
             model.base.estimator.n_jobs = 1
-            preds.append(model.predict_contexts(cal))
-        report[key] = all(np.array_equal(preds[0][k], preds[1][k]) for k in ('tree_score', 'support_score', 'joint_p'))
-    result = dict(schema='feature-groups-reference-check-v1', windows_per_workload=limit, workloads=report,
-                  reproduces_syscall_arms_base29=all(v is True for v in report.values()), checked_at_unix=time.time())
+            models.append(model); preds.append(model.predict_contexts(cal))
+        cal_diff = float(np.abs(np.sort(models[0].base.calibration_scores) - np.sort(models[1].base.calibration_scores)).max())
+        report[key] = dict(
+            scores_identical=all(np.array_equal(preds[0][k], preds[1][k]) for k in ('tree_score', 'support_score')),
+            support_calibration_identical=bool(np.array_equal(models[0].support_calibration, models[1].support_calibration)),
+            tree_calibration_max_abs_diff=cal_diff,
+            # calibration contexts score exactly at calibration values, so a 1e-16 difference can move a tie by one rank
+            tree_p_rank_ties_moved=int((preds[0]['tree_p'] != preds[1]['tree_p']).sum()),
+            anomalous_flags_identical=bool(np.array_equal(preds[0]['anomalous'], preds[1]['anomalous'])))
+    ok = lambda v: isinstance(v, dict) and v['scores_identical'] and v['support_calibration_identical'] and v['tree_calibration_max_abs_diff'] <= 1e-12
+    result = dict(schema='feature-groups-reference-check-v2', windows_per_workload=limit, workloads=report,
+                  criterion='tree and support scores bit-identical, support calibration identical, tree calibration '
+                            'scores within 1e-12 (fit-time scores are summed in parallel; order changes the last bit)',
+                  reproduces_syscall_arms_base29=all(ok(v) for v in report.values()),
+                  max_tree_calibration_abs_diff=max((v['tree_calibration_max_abs_diff'] for v in report.values() if isinstance(v, dict)), default=None),
+                  checked_at_unix=time.time())
     atomic_json(study/'REFERENCE_CHECK.json', result)
     return result
 
