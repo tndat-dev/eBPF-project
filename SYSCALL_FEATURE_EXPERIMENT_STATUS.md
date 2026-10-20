@@ -292,6 +292,9 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | So sánh ở cùng ngân sách sau hiệu chỉnh lại | Có (5.4) → giữ base29 |
 | Replay mọi cấu hình trên campaign pulse-live-recalibrated + campaign tiếp nối (420 cặp, có binary vô hại) | **Có (5.5)**: không cấu hình nào tách attack khỏi process vô hại tốt hơn hẳn; `plus_all_*` tách kém nhất |
 | Khoảng tin cậy bootstrap theo protocol v2 | **Có (5.7)**: `drop_exec_pair` kém có ý nghĩa; `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa; các cấu hình 29 syscall khác không phân biệt được với base29 |
+| Recall theo kịch bản tấn công | **Có (5.8)**: `drop_exec_pair` chỉ mất ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung |
+| 11 cấu hình dưới xác nhận k2of2 (chính sách Pulse hiện tại) | **Đang chạy** (`syscall-arms-k2of2`, 20/10 11:10) |
+| Kết luận cuối cho báo cáo đồ án | Viết sau khi có kết quả k2of2 |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 

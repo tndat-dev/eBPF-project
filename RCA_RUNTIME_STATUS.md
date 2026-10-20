@@ -252,20 +252,20 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Tải case dưới policy-1win-a3 | `rca-subscriber` 19/10 19:24 → 20/10 02:22: 2.364 case, khoảng 330 case mỗi giờ từ 20:00, toàn bộ là case gốc (không có case tiếp nối vì đây là thời gian normal, không có exec mới). Mức này bị chặn trên bởi cooldown 300 s cho mỗi container; về bản chất đó là số preview dương ở normal của policy 1 cửa sổ alpha×3. Policy chặt hơn ở pulse-stable-candidate sẽ giảm con số này |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
-## 7. Tiến độ
+## 7. Tiến độ (cập nhật 20/10 11:25)
 
 | Hạng mục | Trạng thái |
 |---|---|
-| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (rca-followup-v1) |
-| Ngữ cảnh mạng cho service dùng connection pool | Policy flow đã apply; độ phủ cần đo lại |
-| Stream không rò tiến trình trong container | Có (`d791d24`) |
-| Xếp hạng nghi phạm + đánh giá top-k theo nhãn campaign | Có; pulse-live-recalibrated: top-1 100% trên 36 case |
-| Loại cha container runtime khỏi xếp hạng | Có (`54f4635`) |
-| Case tiếp nối cho exec mới trong cooldown; lưu 20.000 case | **Hiệu quả**: tỉ lệ attack có case từ 11% lên 72% |
-| Đo lại: tỉ lệ attack có case, top-k, flow coverage, độ trễ preview → case | **Có (5.7)**: 72% attack có case, top-1 98,6% (xếp hạng lại), flow 3%, p50 7 s |
-| Flow coverage thấp | **Đã sửa (5.8)**: nguyên nhân là backlog sự kiện; sau khi thu hẹp hook file, 87% case có flow (392/449) |
+| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (`rca-pulse-stable-candidate`) |
+| Stream không rò tiến trình; xoay vòng stream | Có |
+| Xếp hạng nghi phạm, loại cha container runtime | Có; top-1 100% (rca-flow, 36 case), 98,6% (rca-followup, xếp hạng lại) |
+| Case tiếp nối cho exec mới trong cooldown | Có; tỉ lệ attack có case từ 11% lên 72% (71/99) |
+| Ngữ cảnh mạng (flow) | Có; 87% case có flow sau khi thu hẹp hook file |
+| Độ trễ preview → case | **p50 2,22 s / p95 2,47 s** trên 2.364 case (đọc decision qua SSH) |
+| Đánh giá trên campaign pulse-stable-candidate | Đã hẹn, tự chạy khi campaign xong (coverage, top-k, độ trễ, flow) |
+| Coverage còn thiếu (~28% attack không có case riêng) | Do cooldown/gộp case; chưa giải quyết |
 | Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
-| Chứng minh nhân quả | Ngoài phạm vi hiện tại |
+| Chứng minh nhân quả | Ngoài phạm vi |
 
 ## 8. File, service, lệnh kiểm tra
 

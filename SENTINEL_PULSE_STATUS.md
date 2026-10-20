@@ -467,25 +467,26 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
   - Khi đánh giá normal sẽ **loại 10:41–10:50 cho hai workload này**. Pod mới có định danh mới nên cần cửa sổ khởi động lại.
 - **CPU:** sau 90 s, mỗi worker dùng 26 s CPU (28–31% một core). Lượt trước dùng 22,5–23,5 giờ CPU cho 24 giờ (~94%). Đường nhanh đang hoạt động; chưa có bằng chứng model nào phải quay về sklearn. Sẽ kiểm tra lại offline bằng `scorer_equivalence --fast` trên segment đã niêm phong.
 
-## 6. Tiến độ và việc còn lại
+## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:25)
 
 | Việc | Trạng thái |
 |---|---|
 | Capture chính xác, 249 feature, chấm điểm batch, preview | Chạy trên 3 worker |
-| Soak 48 giờ, development attack pulse-attack-dev | Có kết quả |
-| Hiệu chỉnh lại p-value, chính sách v2 (alpha×k, k-of-n) | Có; dùng trong pulse-live-recalibrated |
-| Đối chứng binary vô hại | **Có (pulse-live-recalibrated)**: 80,7% bị gắn cờ |
-| Lượt live pulse-live-recalibrated | Campaign xong; capture chạy đến 20/10 02:04 |
-| Chấm điểm nhanh, khớp từng bit | Có; chưa chạy live |
-| Chọn và đăng ký chính sách pulse-stable-candidate trên normal pulse-live-recalibrated | Chờ job 20/10 02:10 |
-| Lượt pulse-stable-candidate: chấm điểm nhanh + 2 cửa sổ + RCA case tiếp nối | Chưa chạy |
-| Đặc trưng/luật tách attack khỏi process vô hại mới | Chưa có |
-| Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (tốt nhất ~6–9 đợt/giờ khi hiệu chỉnh lại) |
-| Review nhãn, ma trận đã xác nhận, blind attack mới | Chưa |
+| Soak 48 giờ, development attack pulse-attack-dev | Có kết quả (5.1–5.2) |
+| Hiệu chỉnh lại p-value, chính sách v2 (alpha×k, k-of-n) | Có (5.3–5.4) |
+| Lượt live pulse-live-recalibrated + đối chứng binary vô hại | **Xong** (5.5): precision 89,1%, recall 92,8%, p95 1,90 s; binary vô hại bị gắn cờ 80,7% |
+| Làm mới calibration định kỳ | **Xong** (5.6): giảm 16–23% gánh cảnh báo, không đủ |
+| Giả thuyết "syscall chưa từng thấy" | **Xong, không đạt** (5.5b); bản có xét exec đã đăng ký (5.7c) |
+| Chọn chính sách theo luật đăng ký trước | **Xong** (5.7a): k2of2_a10, không đạt kỳ vọng p95 |
+| Chấm điểm nhanh, khớp từng bit | **Đang chạy live** (CPU worker ~30% so với ~94%) |
+| Lượt pulse-stable-candidate (k2of2_a10, chấm nhanh, RCA) | **Đang chạy** 20/10 10:15 → 21/10 ~10:30; phân tích tự chạy khi xong |
+| Đặc trưng/luật tách attack khỏi process vô hại mới | Chưa có. Mới loại trừ được hai hướng: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b) |
+| Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~8 đợt/replica-giờ với k2of2_a10) |
+| Review nhãn, ma trận đã xác nhận | Chưa |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
 | Thử reboot, mất NFS, backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
-Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control dương ≤ 5%, p95 kernel → alert < 2 s. Chưa có chính sách nào đạt cả bốn điều kiện trên dữ liệu live.
+Kỳ vọng development đã đăng ký: precision và recall ≥ 95%, control dương ≤ 5%, p95 kernel → alert < 2 s. Chưa có chính sách nào đạt cả bốn điều kiện trên dữ liệu live. pulse-stable-candidate là lần kiểm tra k2of2_a10 trên dữ liệu mới.
 
 ## 7. Đánh giá thẳng và chiến lược
 
