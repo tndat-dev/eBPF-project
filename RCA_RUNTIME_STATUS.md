@@ -257,7 +257,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Hạng mục | Trạng thái |
 |---|---|
 | Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (`rca-pulse-stable-candidate`) |
-| Stream không rò tiến trình; xoay vòng stream | Có |
+| Stream không rò tiến trình; xoay vòng stream | Có. Còn rò khi subscriber bị dừng (tiến trình con của `timeout` sống sót); từ 20/10 có timer `tetra-orphan-reaper` trên worker |
 | Xếp hạng nghi phạm, loại cha container runtime | Có; top-1 100% (rca-flow, 36 case), 98,6% (rca-followup, xếp hạng lại) |
 | Case tiếp nối cho exec mới trong cooldown | Có; tỉ lệ attack có case từ 11% lên 72% (71/99) |
 | Ngữ cảnh mạng (flow) | Có; 87% case có flow sau khi thu hẹp hook file |
@@ -322,3 +322,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 20/10 02:35 | Đo lại độ trễ trên toàn bộ 2.364 case của đêm (sau khi pulse-live-recalibrated kết thúc): preview → case p50 2,22 s / p95 2,47 s; tải khoảng 330 case mỗi giờ dưới policy-1win-a3 | `receipts/rca-latency-rca-subscriber-night.json`; mục 6 |
 | 20/10 10:16 | Dừng `rca-subscriber`; chạy `rca-pulse-stable-candidate` cho lượt live mới (`scripts/launch_run.sh rca`). 10:17: 6 stream nhận sự kiện, đọc 3.601 dòng decision qua SSH, 12 case | mục 1 |
 | 20/10 11:15 | Hẹn đánh giá RCA tự động khi campaign pulse-stable-candidate xong (`pulse-stable-candidate-analysis`, giai đoạn campaign): coverage theo trial, xếp hạng lưu sẵn và xếp hạng lại với baseline đóng băng, độ trễ preview → case, tỉ lệ case có flow | `scripts/pulse_stable_candidate_analysis.sh` |
+| 20/10 15:33 | Phát hiện 9–10 tiến trình `tetra getevents` mồ côi trên mỗi worker (sống 5–29 giờ). Tuổi khớp với các lần dừng subscriber (19/10 ~10:30, 19:24; 20/10 10:16): khi phiên `kubectl exec` đóng, `timeout` trong container nhận SIGKILL, tiến trình con `tetra` bị gán cho init, bỏ qua SIGTERM và chạy mãi. Đã SIGKILL hết (còn đúng 2 stream mỗi worker) và cài timer `tetra-orphan-reaper` (5 phút; giết `tetra getevents` > 1.000 s không có `timeout` làm cha) | `scripts/tetra_orphan_reaper.sh` |
