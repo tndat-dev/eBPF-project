@@ -1,0 +1,29 @@
+{
+  "checked_at_unix": 1792474428.4575262,
+  "reproduces_syscall_arms_base29": false,
+  "schema": "feature-groups-reference-check-v1",
+  "windows_per_workload": 300,
+  "workloads": {
+    "production/aims-frontend:web": false,
+    "production/aims-kafka-dual-role:kafka": false,
+    "production/aims-kafka-entity-operator:topic-operator": false,
+    "production/aims-kafka-entity-operator:user-operator": false,
+    "production/aims-minio-pool-0:minio": false,
+    "production/aims-minio-pool-0:sidecar": false,
+    "production/aims-postgres-cnpg:postgres": false,
+    "production/aims-rabbitmq-server:rabbitmq": false,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": false,
+    "production/aims-redis:aims-redis": false,
+    "production/aims-waypoint:istio-proxy": false,
+    "production/api-gateway:app": false,
+    "production/auth-service:app": false,
+    "production/cart-service:app": false,
+    "production/catalog-service:app": false,
+    "production/inventory-service:app": false,
+    "production/notification-service:app": false,
+    "production/order-service:app": false,
+    "production/payment-service:app": true,
+    "production/search-recommendation-service:app": false,
+    "production/security-telemetry-service:app": false
+  }
+}

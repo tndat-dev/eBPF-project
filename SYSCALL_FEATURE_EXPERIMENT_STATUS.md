@@ -326,7 +326,7 @@ pulse-attack-dev (598 trial) cho cùng thứ tự: base29 recall 92,6%, control 
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
-## 5B. Thí nghiệm nhóm feature `feature-groups` (đăng ký 20/10 12:01, đang chạy)
+## 5B. Thí nghiệm nhóm feature `feature-groups` (đăng ký 20/10 12:01; fit xong, chờ chấm điểm)
 
 **Vì sao cần.** Thí nghiệm syscall chỉ thay đổi 29 syscall tường minh. Mọi cấu hình đều giữ nguyên bin băm syscall, bin băm cặp syscall, tổng hợp, rolling-10 và 3 cửa sổ lịch sử. Các phần đó, cùng cách gộp p-value, chưa có bằng chứng. Bộ feature Pulse đang dùng phải có bằng chứng cho **từng** phần.
 
@@ -360,6 +360,19 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 - Giai đoạn A, fit 33 model × 21 workload = 693 model. Đang chạy từ 12:03 trên `.234`: CPU tối đa 6 core, nice 19, đọc NFS một lần lúc chép 1,3 GB về đĩa local, model ghi ra đĩa local.
 - Biến thể p-value theo nhánh: đang chạy trên điểm sẵn có.
 - Giai đoạn B, chấm holdout và replay attack: phải đọc capture qua NFS, nên chạy sau khi pulse-stable-candidate kết thúc (21/10).
+
+### 5B.0 Fit và kiểm tái lập (xong 20/10 12:33; kiểm lại 15:25)
+
+- **Fit:** đủ 693/693 model (11 cấu hình × 21 workload × 3 seed); không workload nào thiếu dữ liệu. Thời gian 12:03–12:33 trên `.234`, 2 giờ 51 phút CPU (giới hạn 6 core, nice 19); lượt live không bị ảnh hưởng. Model nằm trên đĩa local `.234` (`/var/tmp/feature-groups/study`).
+- **Kiểm tái lập base29** (`fit-REFERENCE_CHECK.json`):
+  - *Lần kiểm đầu báo **không khớp*** (`fit-REFERENCE_CHECK-v1-strict.json`, 20/21 workload). Mình điều tra trước khi dùng bất kỳ kết quả nào.
+  - Kết quả điều tra trên cả 63 model base29:
+    - điểm tree và điểm support **trùng khớp từng bit**;
+    - calibration của nhánh support trùng khớp;
+    - mảng điểm calibration của nhánh tree lệch tối đa **3,9e-16**: lúc fit, điểm này được cộng song song (`n_jobs=-1`), thứ tự cộng đổi bit cuối.
+  - Phép kiểm dùng chính các context calibration, nên điểm trùng đúng với giá trị calibration và lệch 1e-16 đẩy điểm hoà sang bậc hạng bên cạnh. Có 421/6.300 p-value tree lệch đúng 1/1501; cờ cảnh báo vẫn trùng hoàn toàn.
+  - Phép kiểm đã sửa (v2) báo riêng từng thành phần. Tiêu chí: điểm trùng từng bit, calibration support trùng, calibration tree lệch ≤ 1e-12. Kết quả: **tái lập đúng** (`reproduces_syscall_arms_base29: true`).
+  - Trên dữ liệu holdout và attack, điểm hầu như không bao giờ trùng đúng giá trị calibration, nên ảnh hưởng thực tế bằng 0.
 
 ### 5B.1 Kết quả: nhánh p-value (xong 20/10 12:11)
 
@@ -466,3 +479,5 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 12:01 | Đăng ký trước thí nghiệm nhóm feature (`feature-group-evaluation-v1.json`): 10 cấu hình fit + 2 biến thể p-value; luật cần thiết / có thể bỏ / chưa kết luận | mục 5B; `740a8b4` |
 | 20/10 12:03 | Bắt đầu fit (`syscall-feature-groups-fit`) và biến thể p-value theo nhánh (`syscall-feature-groups-branches`) trên `.234` | mục 5B |
 | 20/10 12:11 | Biến thể nhánh p-value xong: nhánh support cần thiết (bỏ đi recall −28–31 điểm); nhánh tree/lịch sử cần thiết ở ngân sách 1 (−5–7 điểm), không kém hơn ở ngân sách 5 | mục 5B.1 |
+| 20/10 12:33 | Fit xong 693/693 model nhóm feature; kiểm tái lập lần đầu báo không khớp | mục 5B.0 |
+| 20/10 15:25 | Điều tra: điểm trùng từng bit, chỉ calibration tree lệch ≤ 3,9e-16 do cộng song song; sửa phép kiểm báo riêng từng thành phần → tái lập đúng | mục 5B.0; `650c445` |

@@ -1,0 +1,21 @@
+{
+  "attacks_used_for_fit": false,
+  "automatic_promotion": false,
+  "calibration_context_cap": 1500,
+  "config_sha256": "519a1f53fb91adb2fce45141283d03b098a6421810c00e09479a6bec976782bb",
+  "normal_labels": "expected_normal_unadjudicated",
+  "purpose": "feature-group evidence for Pulse",
+  "sample_rule": "syscall-arms base29 contexts and capped indices, cut per arm",
+  "seeds": [
+    73021,
+    73022,
+    73023
+  ],
+  "source_index_sha256": "1f0ddab36ea0d1c3270aaf326c5e77c49970b0a8d0fb8068506ea188c0159484",
+  "source_sha256": "f64f83d719679c81ebcf13ddead39a61c3d3d27c2be134f2030190b631c2bc7f",
+  "source_study": "/mnt/sentinel-pulse-archive/matched-parallel-r4-20261015/syscall-matched-study",
+  "support_budget": 0.05,
+  "train_context_cap": 3000,
+  "tree_alpha": 0.001,
+  "trees": 192
+}

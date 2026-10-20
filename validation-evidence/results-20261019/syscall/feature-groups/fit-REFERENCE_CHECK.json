@@ -1,0 +1,157 @@
+{
+  "checked_at_unix": 1792484725.3714225,
+  "criterion": "tree and support scores bit-identical, support calibration identical, tree calibration scores within 1e-12 (fit-time scores are summed in parallel; order changes the last bit)",
+  "max_tree_calibration_abs_diff": 3.885780586188048e-16,
+  "reproduces_syscall_arms_base29": true,
+  "schema": "feature-groups-reference-check-v2",
+  "windows_per_workload": 300,
+  "workloads": {
+    "production/aims-frontend:web": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 26
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.7755575615628914e-16,
+      "tree_p_rank_ties_moved": 18
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 40
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 90
+    },
+    "production/aims-minio-pool-0:minio": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.885780586188048e-16,
+      "tree_p_rank_ties_moved": 34
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 25
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 6
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 9
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.7755575615628914e-16,
+      "tree_p_rank_ties_moved": 11
+    },
+    "production/aims-redis:aims-redis": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 16
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.7755575615628914e-16,
+      "tree_p_rank_ties_moved": 19
+    },
+    "production/api-gateway:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 18
+    },
+    "production/auth-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.885780586188048e-16,
+      "tree_p_rank_ties_moved": 2
+    },
+    "production/cart-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 16
+    },
+    "production/catalog-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 3
+    },
+    "production/inventory-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 24
+    },
+    "production/notification-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 21
+    },
+    "production/order-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 21
+    },
+    "production/payment-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 3.3306690738754696e-16,
+      "tree_p_rank_ties_moved": 3
+    },
+    "production/search-recommendation-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 7
+    },
+    "production/security-telemetry-service:app": {
+      "anomalous_flags_identical": true,
+      "scores_identical": true,
+      "support_calibration_identical": true,
+      "tree_calibration_max_abs_diff": 2.220446049250313e-16,
+      "tree_p_rank_ties_moved": 12
+    }
+  }
+}
