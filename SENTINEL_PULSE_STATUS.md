@@ -627,7 +627,7 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 - **Đăng ký trước cho lượt live kế tiếp:** đánh giá mức 2 với đúng T = 5 s, f = 0,7 (chính) và f = 0,5 (phụ), không đổi sau khi xem số.
 - Binary vô hại vẫn bị gắn cờ 50–65%, nên chưa giải quyết được hoàn toàn.
 
-### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:30)
+### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
 |---|---|---|
