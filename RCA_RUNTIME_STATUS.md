@@ -279,7 +279,10 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - attack bắt đầu khoảng 19,4–20,3 s sau binary vô hại (p5–p95), nên điều kiện "≥ 10 s sau case trước" ít khả năng là nguyên nhân;
   - 24/315 attack có một trial trước đó trong cùng container, chạy **cùng đường dẫn binary**, trong vòng 360 s. Với các trial này, binary không còn "mới" theo cửa sổ novelty 300 s, nên case tiếp nối không mở.
   - Phần lớn chỗ hở vì vậy là hệ quả của fixture (binary vô hại và attack dùng cùng một file) cộng với luật novelty. Kẻ tấn công thật dùng binary khác thì không bị gộp kiểu này.
-- Chưa đổi luật. Muốn kiểm chắc thì cần đọc case DB, việc nhẹ, làm sau lượt live.
+- Kiểm bằng case DB (chỉ đọc):
+  - với cả 42 attack, case trước đó tạo ít nhất 10 s trước attack và chưa chạm trần 5 case tiếp nối, nên loại được hai điều kiện này;
+  - không kiểm lại được luật novelty, vì `exec_log` chỉ giữ 900 s và dữ liệu lúc đó đã bị xóa. Giả thuyết "cùng binary trong 300 s" khớp lý thuyết, nhưng chỉ giải thích tối đa 24/42.
+- Từ lượt sau, subscriber đếm từng lý do từ chối case tiếp nối trong STATUS (`follow_up_refused_{too_soon,cap,warming_up,no_exec,binary_not_new}`), có test. Lượt đang chạy vẫn dùng code cũ. Chưa đổi luật.
 
 ## 6. Coverage, hiệu năng, giới hạn
 
@@ -371,3 +374,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 21/10 11:28 | Lượt live kế tiếp `pulse-stable-refreshed` đã hẹn (tự khởi chạy). RCA mới `rca-pulse-stable-refreshed` dùng code có luật `privilege_drop_at_start`; đây là lần kiểm luật này trên dữ liệu mới (đăng ký ở 5.10) | Pulse 5.13 |
 | 21/10 13:55 | Hẹn đánh giá RCA của `pulse-stable-refreshed`. Chạy tự động khi campaign xong (unit `after-stable-refreshed`, giai đoạn campaign): coverage theo trial; xếp hạng lưu sẵn (lượt này chạy live với luật hạ quyền); xếp hạng lại với luật mới; xếp hạng lại **không** có luật (`evaluate_ranking --without-privilege-drop-rule`, có test) để so luật cũ với luật mới trên dữ liệu chưa xem; độ trễ preview → case; tỉ lệ case có flow | `scripts/pulse_stable_refreshed_analysis.sh`, `bf35f5e` |
 | 21/10 20:15 | Kiểm luật hạ quyền trên `pulse-stable-refreshed`: top-1 100% (luật cũ trên cùng case: 91,9%); coverage 86,7%; preview → case p95 2,59 s | mục 5.11 |
+| 21/10 20:17 | 42 attack không có case riêng: loại được điều kiện 10 s và trần 5 case tiếp nối. Không kiểm lại được luật novelty vì `exec_log` chỉ giữ 900 s. Thêm bộ đếm lý do từ chối case tiếp nối cho lượt sau | mục 5.11 |

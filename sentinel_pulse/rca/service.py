@@ -295,18 +295,20 @@ class Service:
         """
         if not self.cfg.get('follow_up_on_new_exec'):
             return False
+        # each refusal is counted by reason (STATUS counts), so grouped attacks can be explained after the
+        # exec log (EXEC_LOG_SECONDS) has rolled over
         if now - recent[0] < self.cfg.get('follow_up_min_seconds', 10):
-            return False
+            self.count('follow_up_refused_too_soon'); return False
         followups = self.db.execute("select count(*) from cases where identity=? and created>? and instr(trigger, 'follow_up_of')>0",
                                     (key, now - self.cfg['case_cooldown_seconds'])).fetchone()[0]
         if followups >= self.cfg.get('follow_up_max_per_cooldown', 5):
-            return False
+            self.count('follow_up_refused_cap'); return False
         since = event_time(json.loads(recent[1])['window_end'])
         window_start = since - self.cfg.get('before_seconds', 30)
         lookback = self.cfg.get('follow_up_novelty_seconds', 300)
         # The exec log must cover the whole novelty lookback before a follow-up can be judged.
         if now - getattr(self, 'started_at', 0) < lookback + self.cfg.get('before_seconds', 30):
-            return False
+            self.count('follow_up_refused_warming_up'); return False
         node, pod, container = identity(row)
 
         def execs(lo, hi):
@@ -314,7 +316,12 @@ class Service:
                                                  'and at>? and at<=?', (node, pod, container, lo, hi))}
         # Periodic probes (python health checks, redis-cli, pg_isready) re-run within minutes;
         # a binary counts as new only if it did not run in the lookback before the previous case.
-        return bool(execs(since, event_time(row['window_end'])) - execs(window_start - lookback, window_start))
+        new = execs(since, event_time(row['window_end']))
+        if not new:
+            self.count('follow_up_refused_no_exec'); return False
+        if not new - execs(window_start - lookback, window_start):
+            self.count('follow_up_refused_binary_not_new'); return False
+        return True
 
     def start_decision_stream(self, worker):
         """Follow a worker's decisions on the worker itself (cfg 'decision_stream')."""

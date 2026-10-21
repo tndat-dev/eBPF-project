@@ -80,6 +80,7 @@ def test_periodic_probe_binaries_do_not_open_follow_ups():
     _exec_event(svc, 120.0, '/tmp/benign')                # same path as the benign launch -> still new
     svc.observe_trigger(_row(124.0), now=125.0)
     assert svc.db.execute('select count(*) from cases').fetchone()[0] == 2
+    assert svc.counts['follow_up_refused_binary_not_new'] == 1
 
 
 def test_probe_older_than_the_ring_still_counts_as_seen():
@@ -90,6 +91,7 @@ def test_probe_older_than_the_ring_still_counts_as_seen():
     _exec_event(svc, 400.0, '/usr/local/bin/python')     # probe again 150 s after the first case
     svc.observe_trigger(_row(402.0), now=403.0)
     assert svc.db.execute('select count(*) from cases').fetchone()[0] == 1
+    assert svc.counts['follow_up_refused_binary_not_new'] == 1
 
 
 def test_no_follow_up_while_exec_log_is_warming_up():

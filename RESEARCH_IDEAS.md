@@ -41,7 +41,7 @@ Kết quả thí nghiệm nằm trong [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_
    - chỉ đếm tần suất thì yếu với attack tần suất thấp;
    - độ bền tín hiệu tách được attack khỏi process vô hại nhưng tốn thời gian.
 7. **Hệ thống trọn vẹn:** eBPF → model theo workload → p-value conformal → alert < 2 s → RCA. RCA có coverage 86,7% và xếp hạng nghi phạm top-1 99,6% (sau khi sửa luật hạ quyền).
-8. **Lần đầu đạt cả 4 kỳ vọng (trên replay):** k2of2_a10 + calibration làm mới cho precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s. Lượt live `pulse-stable-refreshed` đang chờ xác nhận.
+8. **Lần đầu đạt cả 4 kỳ vọng (trên replay):** k2of2_a10 + calibration làm mới cho precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s. **Xác nhận live 21/10 (`pulse-stable-refreshed`):** precision 96,0%, recall 100%, control 4,2%, p95 2,26 s. Đạt cả 4 kỳ vọng ở mức ≤ 3 s; mức < 2 s chưa đạt. CUSUM/Cauchy blind đưa p95 về 1,70 / 1,46 s; chờ gánh cảnh báo để kết luận.
 
 ### Khoảng cách còn lại
 
