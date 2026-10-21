@@ -59,13 +59,13 @@ EXCL=(--exclude "$CAMPAIGN_SPAN" --exclude "$RESTART")
 run() { $PY -m sentinel_pulse.attack.confirmation_study "$@" --model-hash $MODEL --policy-hash $POLICY; }
 # main normal burden (as run) and 5.7b (refreshed calibration of 19/10 13:00-18:25), same spans, looser grid has k2of2_a10
 for node in "${NODES[@]}"; do
-  run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid looser \
+  run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid latency3s \
     --output "$OUT/normal-asrun-$node.json"
-  run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid looser \
+  run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid latency3s \
     --calibration "$REFRESHED" --output "$OUT/normal-refreshed-$node.json"
 done
-run attack --campaign "$CAMPAIGN" --grid looser --output "$OUT/attack-asrun.json"
-run attack --campaign "$CAMPAIGN" --grid looser --calibration "$REFRESHED" --output "$OUT/attack-refreshed.json"
+run attack --campaign "$CAMPAIGN" --grid latency3s --output "$OUT/attack-asrun.json"
+run attack --campaign "$CAMPAIGN" --grid latency3s --calibration "$REFRESHED" --output "$OUT/attack-refreshed.json"
 $PY "$SRC/scripts/analysis/cadence_gaps.py" --workers-root "$RUN/workers" --output "$OUT/cadence-gaps.json"
 # 5.7c: exec set E frozen from pulse-live-recalibrated only, then tested on this run
 $PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$LIVE/workers" --campaign "$LIVE_MAIN" --campaign "$LIVE_FOLLOW" \

@@ -86,6 +86,16 @@ def looser_grid():
             for scale in (1.0, 2.0, 3.0, 5.0, 10.0) for k, n in ((1, 1), (2, 2), (2, 3))]
 
 
+def latency3s_grid():
+    """Third development grid (registered 2026-10-21 before the pulse-stable-candidate final numbers):
+    the looser grid plus 3- and 4-window confirmations, which fit the relaxed latency goal
+    (< 2 s preferred, <= 3 s acceptable); k4of4 approximates "wait 1 s after the first preview"."""
+    extra = [ConfirmationPolicy(k=k, n=n, alpha_scale=scale)
+             for scale in (3.0, 5.0, 10.0, 20.0) for k, n in ((3, 3), (3, 4), (4, 4), (4, 5))]
+    extra += [ConfirmationPolicy(k=k, n=n, alpha_scale=20.0) for k, n in ((1, 1), (2, 2), (2, 3))]
+    return looser_grid() + extra
+
+
 def default_grid():
     """Registered development grid; chosen before looking at any result."""
     grid = []
