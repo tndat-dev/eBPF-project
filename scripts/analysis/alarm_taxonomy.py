@@ -25,7 +25,7 @@ is historically frequent) and of Falco exceptions for known-benign processes:
 - a *probe exec* is an exec whose in-container ancestor chain starts at a process whose parent is the container
   runtime (``runc`` or ``containerd-shim``, the regex of ``rca.ranking.is_container_runtime``) and whose binary
   basename is a declared exec-probe entry of that workload (descendants such as ``redis-cli`` under the probe's
-  ``sh`` count as the probe). Correction 21/10 22:50: the first run required the parent to be ``runc`` and
+  ``sh`` count as the probe). Correction 21/10 22:12: the first run required the parent to be ``runc`` and
   matched no case; Tetragon reports some probe execs with ``containerd-shim`` as parent (``runc exec`` has
   already handed the process over), so the runtime test now accepts both, as the stated intent required;
 - a case is *probe-only* when it has an exec in the trigger window and **every** exec of its 30 s look-back is a
