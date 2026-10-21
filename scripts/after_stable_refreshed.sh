@@ -3,7 +3,8 @@
 #   1. campaign TERMINAL  -> pulse_stable_refreshed_analysis.sh STAGE=campaign (light; capture may still run)
 #   2. workers TERMINAL   -> STAGE=final (main result: normal burden, replay, blind CUSUM/Cauchy verdict)
 #   3. baseline fresh replication (Pulse 5.15b), calibration strategies on fresh data (Pulse 5.17),
-#      then the queued heavy chain as dat (feature groups phase B, Pulse 5.7d)
+#      then the queued heavy chain as dat (feature groups phase B, Pulse 5.7d),
+#   4. lossless compression of the finished runs (retention)
 #   SRC=/mnt/.../source bash after_stable_refreshed.sh
 set -uo pipefail
 SRC=${SRC:?source snapshot}
@@ -33,4 +34,12 @@ if [ ! -f $CAL ]; then
     --output /var/tmp/calibration-strategies-refreshed.json \
     && cp /var/tmp/calibration-strategies-refreshed.json $CAL || echo "calibration strategies FAILED"
 fi
-runuser -u dat -- env SRC=$SRC WAIT_RUN=pulse-stable-refreshed bash $SRC/scripts/after_stable_candidate_chain.sh
+runuser -u dat -- env SRC=$SRC WAIT_RUN=pulse-stable-refreshed bash $SRC/scripts/after_stable_candidate_chain.sh || echo "heavy chain FAILED"
+# retention (Pulse 5.19): once every registered analysis has read them, compress the finished runs losslessly
+# (seal-checked; readers use open_sealed, so nothing changes for them). ~80 GB per 24 h run -> ~10 GB.
+for r in pulse-stable-candidate pulse-stable-refreshed matched-parallel-20261015; do
+  runuser -u dat -- python3 $SRC/scripts/compress_raw_frames.py --run-root /mnt/sentinel-pulse-archive/$r \
+    --files features.jsonl decisions.jsonl || echo "compress $r FAILED"
+done
+echo "retention done $(date -u +%FT%T)"
+

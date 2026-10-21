@@ -22,6 +22,7 @@ from ..collector.features import TRACKED_SYSCALLS
 from ..detector.idle_batch import IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
 from ..integrity import sha256_file
+from .retention import OutputPolicy, ScoreBuffer
 from ..common import atomic_json
 
 # Files whose bytes must match the frozen source before a candidate may score.
@@ -103,6 +104,10 @@ def run(config_path):
     scorer=IdleCandidateScorer(Path(cfg['candidate']),cfg['model_hash'])
     policy=load_preview_policy(Path(cfg['policy']),scorer)
     if policy.sha256!=cfg['policy_hash']:raise ValueError('policy hash changed')
+    # retention (pipeline/retention.py): absent keys keep the experiment behaviour (every row written, no buffer)
+    outputs=OutputPolicy(cfg.get('outputs'))
+    scores=(ScoreBuffer(Path(cfg['score_buffer']['path']),cfg['score_buffer'].get('retention_hours',12))
+            if cfg.get('score_buffer') else None)
     stop=False
     def stopped(*_):
         nonlocal stop
@@ -175,9 +180,11 @@ def run(config_path):
                                 if sum(delta.values())!=record['exact_total']:raise ValueError('full delta/feature total differ')
                                 record['full_counts_delta']=delta
                                 record['capture_segment']=segment.name;record['run_id']=cfg['run_id']
-                                if schema['feature_schema_sha256'] not in schemas:
-                                    features.write(json.dumps(schema,separators=(',',':'))+'\n');schemas.add(schema['feature_schema_sha256'])
-                                features.write(json.dumps(record,separators=(',',':'))+'\n');records.append(record)
+                                if outputs.keep_feature():
+                                    if schema['feature_schema_sha256'] not in schemas:
+                                        features.write(json.dumps(schema,separators=(',',':'))+'\n');schemas.add(schema['feature_schema_sha256'])
+                                    features.write(json.dumps(record,separators=(',',':'))+'\n')
+                                records.append(record)
                             for offset in range(0,len(records),256):
                                 batch=records[offset:offset+256]
                                 for rec,decision in zip(batch,runtime.observe_many(batch)):
@@ -186,12 +193,15 @@ def run(config_path):
                                         'workload_revision','cgroup_id')})
                                     decision.update(run_id=cfg['run_id'],capture_segment=segment.name,
                                         preview_emitted_at=time.time(),interval_ms=500)
-                                    decisions.write(json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n')
+                                    if outputs.keep_decision(decision):
+                                        decisions.write(json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n')
+                                    if scores is not None:scores.add(decision)
                                     state['scored_rows']+=decision['status']=='candidate-raw-score-only'
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
                             state['feature_rows']+=len(records);state['frames']+=1;pending=[]
                             # Frame flush makes each preview available without waiting for later windows.
                             features.flush();decisions.flush();raw.flush()
+                            if scores is not None:scores.flush()
                         except (ValueError,KeyError,TypeError,OverflowError) as exc:
                             issue(str(exc));pending=[];stream.builders.clear();stream.previous.clear()
                             runtime.history.histories.clear();previous.clear();last=None
@@ -202,6 +212,7 @@ def run(config_path):
                         if (time.monotonic()-segment_begin>=1800 or
                             os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<cfg['minimum_free_bytes']):break
             finally:
+                if scores is not None:scores.flush()
                 if child is not None:
                     child.terminate()
                     try:child.wait(timeout=5)
