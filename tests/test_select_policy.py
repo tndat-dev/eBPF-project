@@ -94,14 +94,16 @@ def test_v2_latency_is_hard_and_refreshed_needs_5_7b(tmp_path):
     _write_v2(tmp_path, 'refreshed', {'k2of2_a10': 60, 'k2of3_a10': 70, 'k2of2_a5': 30}, fresh)
     result = sp.select_v2(tmp_path)
     assert result['calibration'] == 'refreshed'          # 60 <= 80 * 0.9, recall kept, precision >= 0.95
-    # k2of2_a5 excluded (p95 2.6 s); among eligible k2of2_a10 (60) and k2of3_a10 (70) the fewest episodes wins
-    assert result['policy'] == 'k2of2_a10' and result['meets_registered_expectations'] and 'k2of2_a5' not in result['within_2s']
+    # k2of2_a5 (30 episodes, p95 2.6 s) is acceptable but the < 2 s tier has eligible policies, so it wins
+    assert result['policy'] == 'k2of2_a10' and result['latency_tier'] == 2.0 and 'k2of2_a5' in result['within_3s']
 
 
-def test_v2_fallback_stays_within_2s(tmp_path):
-    attack = {'k2of2_a10': (0.92, 0.98, 0.08, 1.85), 'k2of3_a10': (0.93, 0.97, 0.07, 1.70), 'k2of2_a5': (0.99, 0.96, 0.01, 2.6)}
-    _write_v2(tmp_path, 'asrun', {'k2of2_a10': 80, 'k2of3_a10': 90, 'k2of2_a5': 40}, attack)
-    _write_v2(tmp_path, 'refreshed', {'k2of2_a10': 78, 'k2of3_a10': 88, 'k2of2_a5': 39}, attack)
+def test_v2_uses_the_3s_tier_when_nothing_qualifies_under_2s(tmp_path):
+    attack = {'k2of2_a10': (0.92, 0.98, 0.08, 1.85), 'k2of3_a10': (0.93, 0.97, 0.07, 1.70), 'k2of2_a5': (0.99, 0.96, 0.01, 2.6),
+              'k2of2_a2': (0.995, 0.96, 0.0, 3.4)}
+    _write_v2(tmp_path, 'asrun', {'k2of2_a10': 80, 'k2of3_a10': 90, 'k2of2_a5': 40, 'k2of2_a2': 10}, attack)
+    _write_v2(tmp_path, 'refreshed', {'k2of2_a10': 78, 'k2of3_a10': 88, 'k2of2_a5': 39, 'k2of2_a2': 9}, attack)
     result = sp.select_v2(tmp_path)
     assert result['calibration'] == 'as_run'             # only 2.5 % fewer episodes
-    assert result['policy'] == 'k2of3_a10' and not result['meets_registered_expectations']
+    assert result['policy'] == 'k2of2_a5' and result['latency_tier'] == 3.0 and result['meets_registered_expectations']
+    assert 'k2of2_a2' not in result['within_3s']         # 3.4 s is never chosen

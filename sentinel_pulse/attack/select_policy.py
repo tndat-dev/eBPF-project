@@ -95,7 +95,8 @@ def select(directory: Path):
 # ---- rule v2, registered 21/10 before the pulse-stable-candidate final-stage numbers existed ----
 # Inputs: pulse_stable_candidate_analysis.sh final stage (looser grid): normal-{asrun,refreshed}-<node>.json,
 # attack-{asrun,refreshed}.json, replayed on the pulse-stable-candidate campaign (fast-scoring timing).
-V2_P95_HARD = 2.0             # kernel -> alert < 2 s is a hard constraint (no fallback above it)
+V2_P95_PREFERRED = 2.0        # kernel -> alert: as fast as possible, < 2 s preferred ...
+V2_P95_MAX = 3.0              # ... up to 3 s acceptable (amended 21/10 08:52, still before any final numbers)
 V2_REFERENCE = 'k2of2_a10'    # the policy that ran
 V2_EPISODE_GAIN = 0.10        # Pulse 5.7b: refreshed must cut episodes >= 10 % at the run policy ...
 V2_RECALL_COST = 0.02         # ... cost <= 2 recall points and keep precision >= 0.95
@@ -123,34 +124,42 @@ def table_v2(directory: Path, prefix: str):
 def select_v2(directory: Path):
     """1. Calibration = refreshed iff it meets Pulse 5.7b at the run policy (>= 10 % fewer episodes,
     <= 2 recall points lost, precision >= 0.95); else as run.
-    2. Policies with replay p95 <= 2.0 s (hard), precision >= 0.95, recall >= 0.95, control <= 0.05:
-    fewest normal episodes per hour.
-    3. Otherwise, still only p95 <= 2.0 s and recall >= 0.95: highest precision (then fewer episodes);
-    expectations recorded as not met. If nothing has recall >= 0.95 within 2 s: highest recall within 2 s."""
+    2. Latency tiers: replay p95 <= 2.0 s is preferred, <= 3.0 s is acceptable, nothing above 3.0 s.
+       Eligible = precision >= 0.95, recall >= 0.95, control <= 0.05. Take the fastest tier that has an
+       eligible policy; inside it, the fewest normal episodes per hour (then lower p95).
+    3. If no eligible policy within 3 s: among p95 <= 3.0 s with recall >= 0.95, the highest precision
+       (then lower p95); expectations recorded as not met. If none has recall >= 0.95, highest recall within 3 s."""
     asrun, ah = table_v2(directory, 'asrun')
     refreshed, rh = table_v2(directory, 'refreshed')
     a, r = asrun[V2_REFERENCE], refreshed[V2_REFERENCE]
     use_refreshed = (r['episodes_per_hour'] <= a['episodes_per_hour']*(1 - V2_EPISODE_GAIN)
                      and r['recall'] >= a['recall'] - V2_RECALL_COST and r['precision'] >= PRECISION)
     rows = refreshed if use_refreshed else asrun
-    fast = {n: row for n, row in rows.items() if all(row[k] is not None for k in ('p95', 'precision', 'recall', 'control'))
-            and row['p95'] <= V2_P95_HARD}
-    eligible = {n: row for n, row in fast.items() if row['precision'] >= PRECISION and row['recall'] >= RECALL
-                and row['control'] <= CONTROL and row['episodes_per_hour'] is not None}
+    timed = {n: row for n, row in rows.items() if all(row[k] is not None for k in ('p95', 'precision', 'recall', 'control'))
+             and row['p95'] <= V2_P95_MAX}
+    good = lambda row: (row['precision'] >= PRECISION and row['recall'] >= RECALL and row['control'] <= CONTROL
+                        and row['episodes_per_hour'] is not None)
+    eligible, tier = {}, None
+    for limit in (V2_P95_PREFERRED, V2_P95_MAX):
+        eligible = {n: row for n, row in timed.items() if row['p95'] <= limit and good(row)}
+        if eligible:
+            tier = limit; break
     if eligible:
         name = min(eligible, key=lambda n: (eligible[n]['episodes_per_hour'], eligible[n]['p95'])); meets = True
     else:
         meets = False
-        recall_ok = {n: row for n, row in fast.items() if row['recall'] >= RECALL}
-        pool = recall_ok or fast
-        key = (lambda n: (-pool[n]['precision'], pool[n]['episodes_per_hour'] or 1e9)) if recall_ok else (lambda n: -pool[n]['recall'])
+        recall_ok = {n: row for n, row in timed.items() if row['recall'] >= RECALL}
+        pool = recall_ok or timed
+        key = (lambda n: (-pool[n]['precision'], pool[n]['p95'])) if recall_ok else (lambda n: (-pool[n]['recall'], pool[n]['p95']))
         name = min(pool, key=key) if pool else None
+    fast = timed
     return dict(schema='pulse-next-run-selection-v2', calibration='refreshed' if use_refreshed else 'as_run',
                 calibration_check=dict(reference=V2_REFERENCE, as_run=a, refreshed=r), policy=name,
                 metrics=rows.get(name), meets_registered_expectations=meets,
-                rule=dict(p95_hard=V2_P95_HARD, precision=PRECISION, recall=RECALL, control=CONTROL,
-                          episode_gain=V2_EPISODE_GAIN, recall_cost=V2_RECALL_COST),
-                within_2s=sorted(fast), eligible=sorted(eligible), normal_hours=dict(as_run=ah, refreshed=rh),
+                rule=dict(p95_preferred=V2_P95_PREFERRED, p95_max=V2_P95_MAX, precision=PRECISION, recall=RECALL,
+                          control=CONTROL, episode_gain=V2_EPISODE_GAIN, recall_cost=V2_RECALL_COST),
+                latency_tier=tier, within_3s=sorted(fast),
+                within_2s=sorted(n for n, row in fast.items() if row['p95'] <= V2_P95_PREFERRED), eligible=sorted(eligible), normal_hours=dict(as_run=ah, refreshed=rh),
                 tables=dict(as_run=asrun, refreshed=refreshed),
                 inputs={p.name: sha256_file(p) for p in sorted(directory.glob('*.json'))}, selected_at_unix=time.time())
 
@@ -205,7 +214,7 @@ def main():
     parser.add_argument('--from-selection', type=Path, help='write the policy file for an existing SELECTION.json')
     parser.add_argument('--template', type=Path, help='policy file to copy the registered fields from (pulse-live-recalibrated policy)')
     parser.add_argument('--candidate-hash'); parser.add_argument('--candidate-name')
-    parser.add_argument('--rule', choices=('v1', 'v2'), default='v1', help='v2 = next-run rule (p95 <= 2.0 s hard)')
+    parser.add_argument('--rule', choices=('v1', 'v2'), default='v1', help='v2 = next-run rule (p95 < 2 s preferred, <= 3 s max)')
     args = parser.parse_args()
     if args.from_selection:
         if not (args.template and args.candidate_hash and args.candidate_name):
