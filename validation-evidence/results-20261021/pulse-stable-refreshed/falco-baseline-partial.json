@@ -1,0 +1,109 @@
+{
+  "schema": "pulse-falco-baseline-v1",
+  "logs": [
+    "/var/tmp/falco-baseline/worker1",
+    "/var/tmp/falco-baseline/worker4",
+    "/var/tmp/falco-baseline/worker3"
+  ],
+  "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix",
+  "events": 201458,
+  "falco_version": "0.44.1 (DaemonSet image falcosecurity/falco:0.44.1), default rules as deployed",
+  "trial_detection": {
+    "control": {
+      "missed": 305,
+      "detected": 10,
+      "rate": 0.031746031746031744
+    },
+    "benign": {
+      "detected": 66,
+      "missed": 249,
+      "rate": 0.20952380952380953
+    },
+    "attack": {
+      "detected": 112,
+      "missed": 203,
+      "rate": 0.35555555555555557
+    }
+  },
+  "attack_by_scenario": {
+    "anonymous_mprotect_churn": {
+      "missed": 51,
+      "detected": 12,
+      "rate": 0.19047619047619047
+    },
+    "child_ptrace_handshake": {
+      "detected": 63,
+      "rate": 1.0
+    },
+    "execveat_resolution_probe": {
+      "detected": 13,
+      "missed": 50,
+      "rate": 0.20634920634920634
+    },
+    "invalid_setns_burst": {
+      "missed": 51,
+      "detected": 12,
+      "rate": 0.19047619047619047
+    },
+    "seccomp_api_probe": {
+      "detected": 12,
+      "missed": 51,
+      "rate": 0.19047619047619047
+    }
+  },
+  "rules_on_trials": {
+    "benign": {
+      "Executing binary not part of base image": 60,
+      "Unexpected connection to K8s API Server from container": 6
+    },
+    "attack": {
+      "Detected potential PTRACE_TRACEME anti-debug attempt": 63,
+      "Executing binary not part of base image": 60,
+      "Unexpected connection to K8s API Server from container": 1
+    },
+    "control": {
+      "Unexpected connection to K8s API Server from container": 10
+    }
+  },
+  "attack_delay": {
+    "p50": 0.002980470657348633,
+    "p95": 0.0048830509185791016,
+    "n": 112,
+    "definition": "first Falco event time in the interval - kernel_event_at"
+  },
+  "drift_rule_coverage": {
+    "trial_containers": 65,
+    "containers_with_drift_alert": 10,
+    "note": "the drift rule sees only executables in the overlayfs upper layer"
+  },
+  "normal": {
+    "window_unix": [
+      1792560282.0,
+      1792605000.0
+    ],
+    "events": 639,
+    "episodes": 520,
+    "episodes_by_rule": {
+      "Unexpected connection to K8s API Server from container": 518,
+      "Shell spawned by untrusted binary": 2
+    },
+    "top_pods": [
+      [
+        "aims-kafka-entity-operator-5455dcf447-g4qxv",
+        518
+      ],
+      [
+        "aims-postgres-cnpg-2",
+        1
+      ],
+      [
+        "aims-postgres-cnpg-1",
+        1
+      ]
+    ],
+    "covered_hours": 6.65153242011865,
+    "episodes_per_hour": 78.17747357393536,
+    "episodes_per_replica_hour": null
+  },
+  "computed_at_unix": 1792605634.2164648
+}

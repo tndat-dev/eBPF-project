@@ -1163,6 +1163,35 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 
 **Lặp lại trên dữ liệu mới:** đã gắn vào giai đoạn final của `pulse-stable-refreshed` (snapshot `57c89b2`).
 
+### 5.15d Baseline luật Falco trên cùng campaign (22/10 00:58–01:00; phần normal là tạm thời)
+
+- **Falco:** 0.44.1, DaemonSet trên cả 6 node từ 84 ngày nay, bộ rule mặc định đúng như đang triển khai, không chỉnh gì. Log stdout, kể cả file đã xoay vòng, được chép khỏi node lúc 22/10 00:50 (5.13, nhật ký 22/10).
+- **Script:** `scripts/analysis/falco_baseline.py`, có test. Định nghĩa cố định trước lần chạy đầu:
+  - một trial được tính là phát hiện khi có event Falco của đúng container trong [bắt đầu, bắt đầu + 15 s];
+  - độ trễ = event đầu tiên − thời điểm sự kiện kernel.
+- **Biên nhận:** `results-20261021/pulse-stable-refreshed/falco-baseline-partial.json`.
+
+| Trial (campaign `pulse-stable-refreshed`) | Falco (mọi rule) | Pulse live (5.13a) |
+|---|---|---|
+| Attack | 35,6% (112/315) | 100% (310/310) |
+| ↳ `ptrace` | **100% (63/63)**, rule "PTRACE_TRACEME anti-debug" | 100% |
+| ↳ `setns`, `execveat`, `mprotect`, `seccomp` | 19–21%, chỉ nhờ rule drift | 100% |
+| Binary vô hại | 21,0% (66/315), rule drift | 94,1% |
+| Control idle | 3,2% (10/315), toàn bộ là rule "API Server" bắn trùng lúc | 4,2% |
+| Độ trễ attack (p50 / p95) | **0,003 / 0,005 s** (thời điểm event) | 0,94 / 2,26 s (tới preview) |
+
+**Đọc kết quả:**
+- **Rule drift** ("Executing binary not part of base image") chỉ bắn ở **10/65** container có trial. Rule chỉ nhận ra file thực thi nằm ở lớp upper của overlayfs (blog Sysdig); ở các container còn lại, binary nhiều khả năng nằm trên volume. Khi bắn, rule drift gắn cờ cả binary vô hại lẫn attack như nhau.
+- **Falco bắt tức thì và gần như không nhiễu** với hành vi có rule riêng (`ptrace`), nhưng **không thấy** các hành vi không có rule (thử namespace, exec bất thường, đổi quyền vùng nhớ, seccomp). Pulse thấy tất cả, đổi lại chậm hơn khoảng 1–2 s và gắn cờ binary vô hại nhiều hơn.
+- Đây là bổ sung cho nhau chứ không thay nhau: rule cho hành vi đã biết, nhanh; Pulse cho hành vi chưa có rule. Điều này ủng hộ kiến trúc tripwire + ML (A1).
+- **Normal (tạm thời):** 6,65 giờ của lượt này (pha chọn và sau campaign tới 17:50 UTC), 520 đợt Falco trong namespace `production` (78 đợt/giờ cho cả cụm). 518 đợt đến từ rule "Unexpected connection to K8s API Server", bắn trên **một pod** là Strimzi entity-operator, một operator K8s hợp lệ.
+- Số theo replica-giờ, trên đúng khoảng normal của Pulse, sẽ tính sau lượt live: chép log lần nữa, dùng replica-giờ của giai đoạn final.
+
+**Giới hạn:**
+- Falco dùng rule mặc định chưa tinh chỉnh cho cụm này; một đội vận hành sẽ thêm exception cho entity-operator.
+- Độ trễ của Falco là thời điểm event, chưa phải lúc cảnh báo tới người nhận.
+- "Phát hiện" tính mọi rule, kể cả rule bắn trùng lúc (control 3,2%).
+
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
 - **Protocol:** `sentinel_pulse/protocol/tripwire-a1-blind-v1.json`.
@@ -1494,3 +1523,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 |---|---|---|
 | 00:50 | Giữ lại log Falco (Falco 0.44.1 chạy DaemonSet trên cả 6 node từ 84 ngày; log xoay vòng nhanh, worker3 chỉ còn log từ 21/10 18:58 qua `kubectl logs`). Đã chép cả file đã xoay vòng trong `/var/log/pods/falco_*` về `/var/tmp/falco-logs-20261022` trên mỗi worker (36 / 8,5 / 12 MB); file còn phủ trọn campaign `pulse-stable-refreshed`. Dùng cho baseline luật Falco (G1) sau lượt live | — |
 | 00:45–00:56 | Research độ phủ của mô phỏng tấn công so với REPLICAWATCHER (13 kịch bản qua mạng), LID-DS (15), ATT&CK for Containers (10 chiến thuật): đủ cho luận văn nếu nêu rõ mô hình đe dọa, chưa đủ cho paper. Thiếu nhất là đường vào qua chính ứng dụng; recall hiện là cận trên vì mọi attack đi qua exec | `RESEARCH_IDEAS.md` mục 5 |
+| 00:58–01:00 | Baseline luật Falco (rule mặc định, như đang chạy) trên campaign `pulse-stable-refreshed`: attack 35,6% (`ptrace` 100%, còn lại 19–21% chỉ nhờ drift), binary vô hại 21%, control 3,2%, trễ p95 5 ms; drift chỉ bắn ở 10/65 container (overlayfs). Normal tạm thời: 518/520 đợt từ một pod Strimzi entity-operator | mục 5.15d; `c2d02a0` |

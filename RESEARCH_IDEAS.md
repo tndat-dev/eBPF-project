@@ -98,7 +98,7 @@ Ba đóng góp:
 | Đánh giá Pulse cho luận văn | ~85% | 4 lượt live; lượt mới đạt 4/4 kỳ vọng ở mức ≤ 3 s (5.13a); baseline (5.15a); Pareto có CI (5.8j); recall theo tốc độ (5.15c); phân loại cảnh báo trên normal (5.18) | Giai đoạn final 22/10 (gánh cảnh báo, CUSUM/Cauchy, tripwire, chiến lược calibration) |
 | Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; 693 model nhóm feature | Giai đoạn B (chạy tự động sau lượt live) |
 | RCA | ~90% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới (RCA 5.11) | Lý do 13% attack không có case (bộ đếm mới, lượt sau) |
-| Baseline (G1) | ~70% | 3 baseline + `tree_ae` có kết quả development kèm CI | Lặp lại trên dữ liệu mới (22/10); luật Falco |
+| Baseline (G1) | ~80% | 3 baseline + `tree_ae` có kết quả development kèm CI; luật Falco trên campaign mới (5.15d) | Lặp lại trên dữ liệu mới (22/10); normal của Falco theo replica-giờ |
 | Hình và bảng cho luận văn | ~40% | 4 hình vi/en từ biên nhận (`docs/figures/`) | Hình gánh cảnh báo theo giờ, RCA, nhóm feature; bảng tổng hợp |
 | **Viết luận văn** | **~10%** | 3 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương |
 | **Luận văn (tổng thể, gồm viết)** | **~72%** | Thí nghiệm gần xong (~90%), số liệu và bằng chứng đầy đủ | Đọc kết quả 22–23/10; viết chương (khối việc lớn nhất còn lại) |
