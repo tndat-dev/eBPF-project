@@ -43,8 +43,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | p95 kernel → preview | ≤ 2 s | **1,85 s** | 1,90 s |
   | Đợt cảnh báo trên normal | ≤ 0,1/giờ | chờ phân tích final (21/10) | 13,0 |
 
-  Thêm mức xác nhận thứ hai (chờ 5 s, ≥ 70% cửa sổ dương; mục 5.8b) thì đạt precision 97,3%, control 2,6%, recall 93,3%, p95 6,5 s. Số này chưa blind, đã đăng ký để kiểm ở lượt sau.
-- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80–92%** ở mức preview (mức 2 còn 65%). Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
+  Mục tiêu alert < 2 s chưa đạt về precision và control. Chỉ báo độ bền tín hiệu sau 5 s (mục 5.8b) chỉ là ngữ cảnh triage sau alert, không tính vào kỳ vọng.
+- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **80–92%** ở alert < 2 s. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Nó chỉ tách rõ các attack dùng syscall hiếm: ptrace, setns, execveat.
 - **Đang chạy: lượt live pulse-stable-candidate** (20/10 10:15 → 21/10 ~10:20).
   - Chính sách `policy-2of2-a10` được chọn bằng luật đăng ký trước (mục 5.7a): precision 95,2%, recall 97,3%, control 4,8%, p95 2,43 s và 8,0 đợt/replica-giờ trên dữ liệu development. Chính sách này **không đạt** kỳ vọng p95 ≤ 2,3 s.
   - Chấm điểm bằng đường nhanh: kết quả khớp từng bit với đường cũ, CPU mỗi worker giảm từ ~94% xuống ~30% một core.
@@ -619,19 +619,28 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 
 **Đánh đổi theo T** (lượt stable, f = 0,7): T 2,5 s → control 4,5%, vô hại 72%, p95 4,1 s; T 7,5 s → control 0,6%, vô hại 46%, recall 90,8%, p95 9,1 s; T 10 s → vô hại 38%, recall 89,2%, p95 11,4 s. Với T = 5 s, f = 0,5 trên lượt stable: recall 95,9%, control 3,9%, precision ~96%. Cặp này đạt cả 3 kỳ vọng không liên quan độ trễ, nhưng **không** phải cặp mà luật đã chọn.
 
-**Kết luận và đăng ký (21/10 02:26):**
-- Độ bền tín hiệu là đòn bẩy rõ nhất đã đo được cho precision và control, và cho cả việc tách process vô hại mới (khoảng cách tăng 3–5 lần). Cái giá là độ trễ.
-- Đề xuất thiết kế hai mức:
-  - preview < 2 s (mức 1, đúng mục tiêu độ trễ) để RCA và người trực bắt đầu xem;
-  - cảnh báo xác nhận sau ~5 s (mức 2) với precision ~97%.
-- **Đăng ký trước cho lượt live kế tiếp:** đánh giá mức 2 với đúng T = 5 s, f = 0,7 (chính) và f = 0,5 (phụ), không đổi sau khi xem số.
-- Binary vô hại vẫn bị gắn cờ 50–65%, nên chưa giải quyết được hoàn toàn.
+**Đính chính theo yêu cầu kernel → alert < 2 s (21/10 08:42):**
+- **Mức 2 ở 5 s (p95 6,5 s) không phải là alert**, và không được dùng để nói precision hay control đã đạt.
+- Các kỳ vọng của Pulse được đánh giá trên alert < 2 s: trên lượt stable, precision 92,2% và control 8,4%, **không đạt** (5.8a).
+- Bản nháp 02:26 đề xuất "cảnh báo xác nhận sau ~5 s" là sai hướng; đã rút lại.
+- **Kiểm trong ngân sách 2 s** (`persistence-stage-2s.json`, chọn trên dev với ràng buộc p95 ≤ 2 s ngay từ đầu):
+  - T = 0,25–1 s: p95 lên 2,15–2,9 s.
+  - Trên dev, mức 1 (k2of2_a10) đã ở p95 1,90 s, nên không còn chỗ chờ thêm. Không cặp (T, f) nào giữ recall ≥ 90% với p95 ≤ 2 s.
+  - Trong 2 s, độ bền tín hiệu chỉ là k-of-n với n ≤ 3, và lưới chọn chính sách (5.7a) đã đo phương án đó.
+- **Vai trò còn lại hợp lệ:** sau alert, chỉ báo độ bền (≥ 70% cửa sổ dương sau 5 s) có thể dùng làm *ngữ cảnh triage* để RCA hay người trực xếp ưu tiên. Nó không thay alert và không tính vào kỳ vọng.
+- **Hướng trong 2 s:**
+  1. làm cho calibration luôn mới (5.7b, 5.7d);
+  2. calibration theo (workload, node) (5.6b);
+  3. tận dụng phần thời gian chấm nhanh đã tiết kiệm (live 1,85 s so với dev 2,43 s), ví dụ k2of3 với calibration làm mới: dev precision 96,2%, recall 99,8%, control 3,8%, p95 2,23 s trước khi chấm nhanh.
+  
+  Hướng 3 là ứng viên đăng ký cho lượt sau, nếu 5.7b xác nhận calibration làm mới tốt hơn trên dữ liệu mới.
 
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
 |---|---|---|
-| Xác nhận mức 2 bằng độ bền tín hiệu | 5.8b | T = 5 s, f = 0,7 (chính), f = 0,5 (phụ); báo recall, precision, control, binary vô hại, p95 |
+| Chỉ báo độ bền (ngữ cảnh triage sau alert, không phải alert) | 5.8b | T = 5 s, f = 0,7; báo riêng, không tính vào kỳ vọng < 2 s |
+| k2of3_a10 hoặc k2of2_a10 với calibration làm mới, chấm nhanh | 5.8b | chỉ đăng ký nếu 5.7b xác nhận calibration làm mới tốt hơn trên dữ liệu mới |
 | Luật xếp hạng RCA bỏ qua hạ quyền lúc khởi chạy | RCA 5.10 | top-1 trên attack có case, so với luật cũ |
 | Làm mới calibration định kỳ + k2of2 | 5.7d | nếu đạt tiêu chí trên soak (chạy 21/10) thì bật trong lượt live |
 | Calibration theo (workload, node) | 5.6b (giả thuyết) | cần đăng ký đầy đủ trước khi kiểm |
@@ -904,3 +913,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 02:15 | Phát hiện giai đoạn campaign của phân tích bị lỗi lúc ~18:00 (script gọi `python3` hệ thống không có numpy); sửa sang venv, chạy lại, hẹn lại giai đoạn final | `6a08b5f` |
 | 02:17 | Kết quả campaign: precision 92,2%, recall 97,8%, control 8,4%, binary vô hại 92,0%, p95 1,85 s (đạt 2/4 kỳ vọng) | mục 5.8a |
 | 02:26 | Xác nhận mức 2 bằng độ bền tín hiệu: chọn T = 5 s, f = 0,7 trên dev; trên lượt stable precision 97,3%, control 2,6%, recall 93,3%, p95 6,5 s; đăng ký để kiểm trên lượt sau | mục 5.8b |
+| 08:42 | Đính chính 5.8b theo yêu cầu kernel → alert < 2 s: mức 2 (p95 6,5 s) không phải alert; trong ngân sách 2 s độ bền tín hiệu không thêm được gì so với k2of2 (`persistence-stage-2s.json`); hướng còn lại là calibration mới + phần thời gian chấm nhanh tiết kiệm được | mục 5.8b |

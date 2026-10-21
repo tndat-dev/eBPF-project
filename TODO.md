@@ -31,8 +31,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   - [ ] Phân rã tiếp theo chế độ tải (steady/peak/burst…) và theo thời gian. Cần đọc decisions, nên chỉ làm khi không có lượt live.
   - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3, trung bình ~23 s mỗi đợt) trước khi coi là báo nhầm.
 - [ ] **Tách attack khỏi process vô hại mới**: 80–92% binary vô hại bị gắn cờ ở mức 1.
-  - [x] Xác nhận mức 2 bằng độ bền tín hiệu (Pulse 5.8b): T = 5 s, f = 0,7 → precision 97,3%, control 2,6%, vô hại 64,6%, p95 6,5 s trên lượt stable (chưa blind).
-  - [ ] Kiểm mức 2 trên lượt live kế tiếp theo đăng ký (T = 5 s, f = 0,7 chính; f = 0,5 phụ).
+  - [x] Độ bền tín hiệu (Pulse 5.8b): sau 5 s tách tốt hơn, nhưng p95 6,5 s nên không phải alert (yêu cầu < 2 s); trong ngân sách 2 s không thêm được gì so với k2of2. Chỉ dùng làm ngữ cảnh triage.
   - Hai hướng đã loại: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b).
   - [~] Novelty có xét exec (5.7c) chạy tự động sau lượt live.
   - [ ] Hướng tiếp: thông tin ngoài tần suất (tham số syscall, quan hệ cha–con của process từ Tetragon).
