@@ -1,0 +1,33 @@
+{
+  "schema": "matched-worker-issues-v1",
+  "workers_root": "/mnt/sentinel-pulse-archive/pulse-stable-candidate/workers",
+  "nodes": {
+    "k8s-worker1.local": {
+      "hourly": {
+        "2026-10-20 11:00 UTC+7": 1,
+        "2026-10-21 01:00 UTC+7": 1
+      },
+      "reasons": {
+        "cadence_gap": 2
+      }
+    },
+    "k8s-worker3.local": {
+      "hourly": {
+        "2026-10-20 15:00 UTC+7": 1
+      },
+      "reasons": {
+        "loader_no_data_or_exit; recover_in_new_segment": 1
+      }
+    },
+    "k8s-worker4.local": {
+      "hourly": {
+        "2026-10-20 21:00 UTC+7": 3,
+        "2026-10-21 00:00 UTC+7": 1
+      },
+      "reasons": {
+        "cadence_gap": 4
+      }
+    }
+  },
+  "computed_at_unix": 1792556141.9318104
+}

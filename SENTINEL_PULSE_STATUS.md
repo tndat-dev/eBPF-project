@@ -769,6 +769,46 @@ c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngư
 2. **Lưới alpha mịn quanh điểm được chọn** (×4, 6, 7, 8, 12, 15) cho các họ đi tiếp. Mục đích là kiểm mức thưa của lưới có che mất điểm tốt hơn không.
 3. **Ổn định giữa các lượt:** cùng một chính sách phải giữ thứ hạng trên dev, lượt stable và lượt kế tiếp. Lượt kế tiếp là phép kiểm thật.
 
+### 5.8g Kết quả luật v2 và phép đo 5.7b trên dữ liệu pulse-stable-candidate (21/10 11:20)
+
+- **Dữ liệu:** replay lưới `latency3s` (34 chính sách) trên campaign pulse-stable-candidate (315 cặp); normal của lượt này 1.210,9 replica-giờ (đã loại campaign và đoạn khởi động lại pod 10:41–10:50).
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/SELECTION-v2.json`, `final/normal-*.json`, `final/attack-*.json`.
+- **Kiểm nhất quán:** với calibration as_run, replay k2of2_a10 cho precision 92,2%, recall 97,8%, control 8,4%, **trùng đúng** số đo trực tiếp của campaign (5.8a).
+
+**5.7b, calibration làm mới so với as_run, ở chính sách đang chạy k2of2_a10:**
+
+| | as_run (c1, 15/10) | làm mới (19/10 13:00–18:25) | Tiêu chí đăng ký | Đạt? |
+|---|---|---|---|---|
+| Đợt/replica-giờ | 8,43 | **6,51** (−22,8%) | giảm ≥ 10% | ✓ |
+| Recall | 97,8% | **99,4%** | mất ≤ 2 điểm | ✓ |
+| Precision | 92,2% | **96,3%** | ≥ 95% | ✓ |
+| Control | 8,4% | 3,9% | (báo cáo) | |
+| p95 | 1,85 s | 1,96 s | (báo cáo) | |
+
+→ **Calibration làm mới tốt hơn trên dữ liệu mới.** Nó cũ hơn dữ liệu này 2 ngày mà vẫn hơn c1 (cũ 6 ngày). Điều này khớp với 5.6, 5.6b và syscall 5.9: độ mới của calibration là đòn bẩy chính.
+
+**Luật v2:**
+- Mức < 2 s có 2 chính sách đạt đủ 4 kỳ vọng, đều với calibration làm mới: **k2of2_a10** (6,51 đợt/replica-giờ, p95 1,96 s) và k2of3_a10 (7,05; p95 1,87 s).
+- Luật chọn **k2of2_a10 + calibration làm mới**: precision **96,3%**, recall **99,4%**, control **3,9%**, p95 **1,96 s**; binary vô hại dương 94,2%.
+
+| Calibration làm mới, chính sách đạt đủ 4 kỳ vọng | p95 | Precision | Recall | Control | Đợt/replica-giờ |
+|---|---|---|---|---|---|
+| k2of3_a10 | 1,87 s | 95,7% | 99,7% | 4,5% | 7,05 |
+| **k2of2_a10** (chọn) | 1,96 s | 96,3% | 99,4% | 3,9% | 6,51 |
+| k3of3_a20 | 2,13 s | 95,4% | 100% | 4,9% | 6,90 |
+| k2of3_a5 | 2,24 s | 97,5% | 99,0% | 2,6% | 4,56 |
+| k3of4_a10 | 2,62 s | 97,2% | 99,4% | 2,9% | **4,02** |
+
+**Nói rõ:**
+- Đây là replay trên **chính campaign đã dùng để chọn**, nên với lượt sau nó là development; lượt live kế tiếp mới là phép kiểm.
+- Mức ≤ 3 s có chính sách ít cảnh báo hơn (k3of4_a10: 4,02 đợt, nhưng p95 2,62 s). Luật ưu tiên mức < 2 s theo mục tiêu "càng nhanh càng tốt".
+- **Gánh cảnh báo vẫn ~65 lần ngân sách 0,1/giờ**, và binary vô hại vẫn bị gắn cờ 94%. Hai vấn đề này không giải được bằng chọn chính sách.
+
+**Kế hoạch lượt live kế tiếp:**
+- candidate hiệu chỉnh lại bằng calibration làm mới (`scripts/prepare_next_run.sh` với `SELECTION-v2.json`) + `policy-2of2-a10-refreshed`;
+- chấm điểm nhanh; RCA có luật hạ quyền;
+- khởi chạy sau khi chuỗi phân tích nặng xong (không đọc NFS nặng song song lượt live).
+
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
@@ -1105,3 +1145,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 11:09 | Phân tích vì sao chỉ số không đổi tuyến tính: trong cùng calibration/họ, recall, precision và control đơn điệu; chỗ gãy ở số đợt là lỗi cộng đôi chính sách α×1 trong `select_policy` v1 (đã sửa, lựa chọn 20/10 không đổi); còn lại là bão hòa theo khoảng 15 s, chọn mẫu ở p95, calibration theo workload, nhiễu mẫu | mục 5.8e |
 | 11:12 | Ghi rõ alpha và p-value là gì; bằng chứng hiện có (cấu trúc 2 nhánh, đơn điệu, luật chọn) và chưa có (alpha gốc là ngân sách thiết kế, lưới thưa, chưa có biên Pareto + CI); đăng ký phân tích Pareto và lưới alpha mịn | mục 5.8f |
 | 11:18 | Research tài liệu cho 5 vấn đề tồn đọng: 8 hướng (ACI/PID, Mondrian, so sánh replica, gộp Cauchy, CUSUM/martingale conformal, FDR, đặc trưng theo tham số/ngữ cảnh, LID-DS); xếp ưu tiên theo chi phí kiểm offline | mục 5.11 |
+| 11:20 | Áp luật v2 trên số final: 5.7b đạt (−22,8% đợt, recall +1,6, precision 96,3%); chọn k2of2_a10 + calibration làm mới, đạt cả 4 kỳ vọng trên replay (precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s); replay as_run khớp đúng số live | mục 5.8g |
