@@ -104,26 +104,44 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
 
     Uses the same ``ConfirmationState`` as the offline confirmation study so
     live and replayed decisions follow one definition. Still shadow-only.
+
+    Optional rule keys (Pulse 5.11a, only used if a stable policy adopts them; absent = unchanged behaviour):
+    - ``"combination": "cauchy"``: k-of-n on the Cauchy combination of tree_p and support_p instead of joint_p;
+    - ``"temporal_rule": {"kind": "cusum", "drift", "threshold", "max_gap_seconds"}`` in place of
+      ``temporal_confirmation`` and ``alpha_scale``: CUSUM on -ln joint_p per container.
     """
 
     def __init__(self, policy: dict, policy_sha256: str, scorer):
-        from .confirmation import ConfirmationPolicy, ConfirmationState
+        from .confirmation import ConfirmationPolicy, ConfirmationState, CusumPolicy, CusumState
         if policy.get("schema") != SCHEMA_V2:
             raise ValueError("unsupported candidate preview policy schema")
         rule = dict(policy.get("rule") or {})
         confirmation = rule.pop("temporal_confirmation", None)
         scale = rule.pop("alpha_scale", None)
-        if rule != {
+        temporal = rule.pop("temporal_rule", None)
+        self.combination = rule.pop("combination", "bonferroni_min")
+        base = {
             "score": "joint_p",
             "comparison": "less_than_or_equal",
             "threshold_source": "per_workload_model_calibrated_alpha",
             "semantic_gate": False,
-        } or not isinstance(confirmation, dict) or not isinstance(scale, (int, float)):
-            raise ValueError("candidate preview v2 rule differs from the registered form")
-        self.confirmation = ConfirmationPolicy(k=int(confirmation["k"]), n=int(confirmation["n"]),
-                                               alpha_scale=float(scale),
-                                               max_gap_seconds=float(confirmation["max_gap_seconds"]))
-        self.state = ConfirmationState(self.confirmation)
+        }
+        if temporal is not None:
+            if (rule != base or confirmation is not None or scale is not None or self.combination != "bonferroni_min"
+                    or not isinstance(temporal, dict) or temporal.get("kind") != "cusum"
+                    or set(temporal) != {"kind", "drift", "threshold", "max_gap_seconds"}):
+                raise ValueError("candidate preview v2 rule differs from the registered form")
+            self.confirmation = CusumPolicy(drift=float(temporal["drift"]), threshold=float(temporal["threshold"]),
+                                            max_gap_seconds=float(temporal["max_gap_seconds"]))
+            self.state = CusumState(self.confirmation)
+        else:
+            if (rule != base or not isinstance(confirmation, dict) or not isinstance(scale, (int, float))
+                    or self.combination not in ("bonferroni_min", "cauchy")):
+                raise ValueError("candidate preview v2 rule differs from the registered form")
+            self.confirmation = ConfirmationPolicy(k=int(confirmation["k"]), n=int(confirmation["n"]),
+                                                   alpha_scale=float(scale),
+                                                   max_gap_seconds=float(confirmation["max_gap_seconds"]))
+            self.state = ConfirmationState(self.confirmation)
         super().__init__(dict(policy, schema=SCHEMA, rule={
             "score": "joint_p", "comparison": "less_than_or_equal",
             "threshold_source": "per_workload_model_calibrated_alpha",
@@ -137,13 +155,24 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
         if not context or context.get("window_start") is None or context.get("window_end") is None:
             raise ValueError("temporal confirmation needs the window identity and bounds")
         alpha = result["candidate_policy_alpha"]
-        row = dict(context, joint_p=float(score["joint_p"]), candidate_policy_alpha=alpha)
+        from .confirmation import CusumPolicy, cauchy_p
+        if isinstance(self.confirmation, CusumPolicy):
+            row = dict(context, joint_p=float(score["joint_p"]), candidate_policy_alpha=alpha)
+            preview = self.state.update(row)
+            result.update(candidate_alert_preview=preview, confirmation_policy=self.confirmation.name,
+                          preview_reason="cusum_at_or_above_threshold" if preview else "cusum_below_threshold")
+            return result
+        p = (cauchy_p(score["tree_p"], score["support_p"]) if self.combination == "cauchy"
+             else float(score["joint_p"]))
+        row = dict(context, joint_p=p, candidate_policy_alpha=alpha)
         preview = self.state.update(row)
-        passed = float(score["joint_p"]) <= alpha * self.confirmation.alpha_scale
+        passed = p <= alpha * self.confirmation.alpha_scale
         result.update(candidate_alert_preview=preview, window_passed=passed,
                       confirmation_policy=self.confirmation.name,
                       preview_reason="confirmed_k_of_n" if preview else
                       ("awaiting_confirmation" if passed else "below_threshold_not_met"))
+        if self.combination == "cauchy":
+            result.update(combined_p=p, combination="cauchy")
         return result
 
 

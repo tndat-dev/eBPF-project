@@ -1223,6 +1223,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - chiến lược calibration: theo 5.17.
 - **Nếu có từ hai thay đổi trở lên:** replay cấu hình gộp trên `pulse-stable-refreshed` trước khi nhận. Chỉ nhận nếu đồng thời đạt cả 4 kỳ vọng, với p95 ≤ 3 s, và gánh cảnh báo không cao hơn điểm xuất phát. Nếu không đạt, bỏ dần thay đổi theo thứ tự calibration → luật thời gian → bộ chấm.
 - **Sau khi chốt:** đóng băng bằng SHA-256, rồi xác nhận bằng một lượt live mới có campaign mới.
+- **Đường live đã sẵn sàng cho mọi lựa chọn** (22/10, có test): chính sách preview v2 nhận thêm `"combination": "cauchy"` và `"temporal_rule": {"kind": "cusum", …}`. Khi file chính sách không có các khóa này, hành vi giữ nguyên. Test so từng cửa sổ: luật live trùng kết quả với cả `ideas_screen.py` (interval) lẫn `ideas_burden.py` (toàn normal), tức đúng định nghĩa đã đánh giá ở 5.11a. `confirmation.py` được thêm vào danh sách file chấm điểm phải khớp bản đóng băng.
 - **Giới hạn nêu trước:**
   - không cấu hình nào được kỳ vọng đạt ngân sách 0,1 đợt/replica-giờ;
   - binary vô hại vẫn bị gắn cờ;
@@ -1544,3 +1545,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 00:45–00:56 | Research độ phủ của mô phỏng tấn công so với REPLICAWATCHER (13 kịch bản qua mạng), LID-DS (15), ATT&CK for Containers (10 chiến thuật): đủ cho luận văn nếu nêu rõ mô hình đe dọa, chưa đủ cho paper. Thiếu nhất là đường vào qua chính ứng dụng; recall hiện là cận trên vì mọi attack đi qua exec | `RESEARCH_IDEAS.md` mục 5 |
 | 00:58–01:00 | Baseline luật Falco (rule mặc định, như đang chạy) trên campaign `pulse-stable-refreshed`: attack 35,6% (`ptrace` 100%, còn lại 19–21% chỉ nhờ drift), binary vô hại 21%, control 3,2%, trễ p95 5 ms; drift chỉ bắn ở 10/65 container (overlayfs). Normal tạm thời: 518/520 đợt từ một pod Strimzi entity-operator | mục 5.15d; `c2d02a0` |
 | 01:07 | Chủ đồ án quyết định: framework theo rule (Falco, tripwire) tích hợp sau cùng, chỉ quyết định song song với ML, không chặn trước ML; hoàn thiện ML ra stable trước. Đăng ký luật chốt cấu hình ML stable (`stable-selection-v1`), không dùng tín hiệu rule | mục 5.19 |
+| 01:12–01:11 | Chuẩn bị đường live cho CUSUM/Cauchy (mặc định tắt). Test: live trùng từng cửa sổ với hai script offline đã dùng để đánh giá. Ghim `confirmation.py` vào tập file chấm điểm đóng băng | mục 5.19 |

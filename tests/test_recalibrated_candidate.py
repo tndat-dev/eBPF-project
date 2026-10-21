@@ -87,3 +87,96 @@ def test_v2_rule_shape_is_strict(tmp_path):
     path.write_text(json.dumps(data))
     with pytest.raises(ValueError, match='registered form'):
         load_preview_policy(path, scorer)
+
+
+def _ideas_module(name):
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location(name, Path(__file__).parents[1] / 'scripts' / 'analysis' / f'{name}.py')
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    return mod
+
+
+def _stream(seed=7, n=400):
+    """Joint/tree/support p-values of one container with a burst, a gap and an overlap."""
+    rng = np.random.default_rng(seed)
+    t, rows = 100.0, []
+    for i in range(n):
+        if i == 150: t += 3.0           # gap > 1 s: history restarts
+        if i == 300: t -= 0.4           # overlap > 0.25 s: history restarts
+        burst = 120 <= i < 140 or 320 <= i < 330
+        tp, sp = (rng.uniform(1e-5, 2e-3), rng.uniform(1e-4, .5)) if burst else (rng.uniform(1e-3, 1), rng.uniform(1e-3, 1))
+        rows.append(dict(start=t, end=t + .5, tree_p=float(tp), support_p=float(sp), joint_p=min(1.0, 2 * min(tp, sp))))
+        t += .5
+    return rows
+
+
+def _live(policy, rows, alpha):
+    out = []
+    for r in rows:
+        score = dict(status='candidate-raw-score-only', workload_key=KEY, joint_p=r['joint_p'], tree_p=r['tree_p'],
+                     support_p=r['support_p'], raw_model_anomaly=r['joint_p'] <= alpha)
+        ctx = dict(workload_key=KEY, pod_uid='u', container_name='app', workload_revision='r', cgroup_id='1',
+                   window_start=r['start'], window_end=r['end'])
+        out.append(policy.evaluate(score, ctx)['candidate_alert_preview'])
+    return out
+
+
+def _write(tmp_path, digest, rule):
+    path = _policy(tmp_path, digest)
+    data = json.loads(path.read_text()); data['rule'] = rule
+    path.write_text(json.dumps(data))
+    return path
+
+
+BASE_RULE = {'score': 'joint_p', 'comparison': 'less_than_or_equal',
+             'threshold_source': 'per_workload_model_calibrated_alpha', 'semantic_gate': False}
+
+
+def test_live_cusum_matches_the_offline_screen_window_for_window(tmp_path):
+    source, digest = _candidate(tmp_path)
+    scorer = IdleCandidateScorer(source, digest)
+    rule = dict(BASE_RULE, temporal_rule={'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0})
+    policy = load_preview_policy(_write(tmp_path, digest, rule), scorer)
+    rows = _stream()
+    live = _live(policy, rows, scorer.models[KEY].alpha)
+    offline = _ideas_module('ideas_screen').alarms_cusum(rows, 3.0, 6.0)
+    assert live == offline and any(live)
+
+
+def test_live_cauchy_k2of2_matches_the_offline_screen_window_for_window(tmp_path):
+    source, digest = _candidate(tmp_path)
+    scorer = IdleCandidateScorer(source, digest)
+    rule = dict(BASE_RULE, alpha_scale=10.0, combination='cauchy',
+                temporal_confirmation={'k': 2, 'n': 2, 'max_gap_seconds': 1.0})
+    policy = load_preview_policy(_write(tmp_path, digest, rule), scorer)
+    alpha = scorer.models[KEY].alpha
+    rows = [dict(r, alpha=alpha) for r in _stream(seed=9)]
+    live = _live(policy, rows, alpha)
+    offline = _ideas_module('ideas_screen').alarms_kofn(rows, 'cauchy', 10.0)
+    assert live == offline and any(live)
+
+
+def test_cusum_rule_shape_is_strict(tmp_path):
+    source, digest = _candidate(tmp_path)
+    scorer = IdleCandidateScorer(source, digest)
+    for rule in (dict(BASE_RULE, alpha_scale=10.0, temporal_rule={'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0}),
+                 dict(BASE_RULE, temporal_rule={'kind': 'sprt', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0}),
+                 dict(BASE_RULE, alpha_scale=10.0, combination='fisher', temporal_confirmation={'k': 2, 'n': 2, 'max_gap_seconds': 1.0})):
+        with pytest.raises(ValueError, match='registered form'):
+            load_preview_policy(_write(tmp_path, digest, rule), scorer)
+
+
+def test_live_rules_also_match_the_whole_normal_burden_script(tmp_path):
+    source, digest = _candidate(tmp_path)
+    scorer = IdleCandidateScorer(source, digest)
+    alpha = scorer.models[KEY].alpha
+    ib = _ideas_module('ideas_burden')
+    rows = _stream(seed=11)
+    for rule, det in ((dict(BASE_RULE, temporal_rule={'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0}), ib.Cusum(3.0, 6.0)),
+                      (dict(BASE_RULE, alpha_scale=10.0, combination='cauchy',
+                            temporal_confirmation={'k': 2, 'n': 2, 'max_gap_seconds': 1.0}), ib.CauchyK2(10.0))):
+        live = _live(load_preview_policy(_write(tmp_path, digest, rule), scorer), rows, alpha)
+        offline = [det.update('c', dict(window_start=r['start'], window_end=r['end'], joint_p=r['joint_p'], tree_p=r['tree_p'],
+                                        support_p=r['support_p'], candidate_policy_alpha=alpha)) for r in rows]
+        assert live == offline

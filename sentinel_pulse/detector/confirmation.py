@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from collections import deque
 from dataclasses import dataclass
+import math
 
 IDENTITY = ('workload_key', 'node_name', 'pod_uid', 'container_name',
             'workload_revision', 'cgroup_id')
@@ -61,6 +62,48 @@ class ConfirmationState:
         window.append(passed)
         self.history[key] = (float(row['window_end']), window)
         return passed and sum(window) >= self.policy.k
+
+
+def cauchy_p(tree_p: float, support_p: float) -> float:
+    """Cauchy combination of the two branch p-values (Liu & Xie, JASA 2020), equal weights; p clipped to
+    [1e-15, 1 - 1e-15]. Same definition as the offline screen (scripts/analysis/ideas_screen.py, Pulse 5.11a)."""
+    clip = lambda p: min(max(float(p), 1e-15), 1 - 1e-15)
+    t = (math.tan((0.5 - clip(tree_p)) * math.pi) + math.tan((0.5 - clip(support_p)) * math.pi)) / 2
+    return 0.5 - math.atan(t) / math.pi
+
+
+@dataclass(frozen=True)
+class CusumPolicy:
+    """CUSUM on s_t = -ln(joint_p) - drift per container; signal while S_t >= threshold (Pulse 5.11a)."""
+    drift: float = 3.0
+    threshold: float = 6.0
+    max_gap_seconds: float = 1.0
+
+    def __post_init__(self):
+        if not (self.drift > 0 and self.threshold > 0 and self.max_gap_seconds > 0):
+            raise ValueError('CUSUM needs positive drift, threshold and gap')
+
+    @property
+    def name(self):
+        return f'cusum_b{self.drift:g}_h{self.threshold:g}'
+
+
+class CusumState:
+    """Streaming CUSUM over many containers; the statistic restarts after a gap (as ConfirmationState)."""
+
+    def __init__(self, policy: CusumPolicy):
+        self.policy = policy
+        self.history = {}
+
+    def update(self, row) -> bool:
+        key = tuple(str(row.get(name)) for name in IDENTITY)
+        last_end, s = self.history.get(key, (None, 0.0))
+        start = float(row['window_start'])
+        if last_end is None or start - last_end > self.policy.max_gap_seconds or start < last_end - 0.25:
+            s = 0.0
+        s = max(0.0, s - math.log(max(float(row['joint_p']), 1e-12)) - self.policy.drift)
+        self.history[key] = (float(row['window_end']), s)
+        return s >= self.policy.threshold
 
 
 def apply(rows, policy: ConfirmationPolicy):

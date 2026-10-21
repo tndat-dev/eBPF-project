@@ -31,8 +31,10 @@ FROZEN_SCORER_FILES = {
     'support_model.py': 'detector', 'extended_reference_experiment.py': 'detector', 'encoding.py': '',
     # added 19/10 with the fast scoring path; a frozen_source older than that lacks them
     'fast_forest.py': 'detector', 'idle_batch.py': 'detector',
+    # added 22/10: k-of-n / CUSUM / Cauchy preview decisions live here (previously not pinned)
+    'confirmation.py': 'detector',
 }
-OPTIONAL_SCORER_FILES = {'fast_forest.py', 'idle_batch.py'}
+OPTIONAL_SCORER_FILES = {'fast_forest.py', 'idle_batch.py', 'confirmation.py'}
 
 
 def scorer_file(source, name):
