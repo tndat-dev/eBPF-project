@@ -89,6 +89,8 @@ def main():
     p.add_argument('--output', required=True)
     p.add_argument('--t-grid', help='comma-separated T values (seconds)')
     p.add_argument('--max-p95', type=float, help='only (T, f) with p95 kernel->decision <= this (alert budget, e.g. 2.0)')
+    p.add_argument('--test-note', default='test campaign aggregate persistence was seen before this rule was written (5.8a); not blind',
+                   help='evidence class of the test campaigns, written into the result')
     a = p.parse_args()
     global T_GRID, MAX_P95
     if a.t_grid:
@@ -105,7 +107,7 @@ def main():
     if a.test_campaign and chosen:
         test = intervals(a.test_campaign, policy)
         result['test'] = dict(stage1=stage1(test), chosen=stage2(test, chosen['T'], chosen['f']), grid=table(test),
-                              note='test campaign aggregate persistence was seen before this rule was written (5.8a); not blind')
+                              note=a.test_note)
     result['computed_at_unix'] = time.time()
     Path(a.output).write_text(json.dumps(result, indent=2))
     print(json.dumps(dict(dev_stage1=result['development']['stage1'], chosen=chosen,

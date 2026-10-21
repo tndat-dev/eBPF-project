@@ -21,7 +21,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 2. [ ] 22/10 ~18:00: đọc lần lặp lại baseline (5.15b) và kết quả luật chọn bộ chấm.
 3. [ ] Chọn cấu hình cho lượt live sau, theo kết quả 1–2. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
 4. [ ] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed. Chỉ chạy khi không có lượt live và chuỗi phân tích nặng đã xong.
-5. [ ] Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Trong repo chưa có bản thảo luận văn.
+5. [~] Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Đã có 4 hình đầu, tiếng Việt và tiếng Anh (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`). Trong repo chưa có bản thảo luận văn.
 
 ## Pulse — vấn đề còn mở
 

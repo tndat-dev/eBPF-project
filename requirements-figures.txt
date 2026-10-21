@@ -1,0 +1,4 @@
+# Figure stack (scripts/figures/), kept apart from the pinned test/cluster stack in requirements-test.txt:
+#   python3 -m venv ~/.venvs/sentinel-figures && ~/.venvs/sentinel-figures/bin/pip install -r requirements-figures.txt
+numpy==2.5.2
+matplotlib==3.11.2

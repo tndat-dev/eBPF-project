@@ -51,8 +51,8 @@ if [ "$STAGE" = campaign ]; then
   try $PY "$SRC/scripts/analysis/ideas_screen.py" "${DEV[@]}" --test-campaign "$CAMPAIGN" --calibration "$REFRESHED" \
     --output "$OUT/ideas-screen-blind.json"
   # 5.8b / 5.9: persistence indicator (T = 5 s, f = 0.7: triage context) and the 1 s wait (<= 3 s alert option)
-  try $PY "$SRC/scripts/analysis/persistence_stage.py" "${DEV[@]}" --test-campaign "$CAMPAIGN" --output "$OUT/persistence-stage.json"
-  try $PY "$SRC/scripts/analysis/persistence_stage.py" "${DEV[@]}" --test-campaign "$CAMPAIGN" \
+  try $PY "$SRC/scripts/analysis/persistence_stage.py" "${DEV[@]}" --test-campaign "$CAMPAIGN" --test-note "blind: rule and (T, f) frozen (5.8b, 5.9) before this run existed" --output "$OUT/persistence-stage.json"
+  try $PY "$SRC/scripts/analysis/persistence_stage.py" "${DEV[@]}" --test-campaign "$CAMPAIGN" --test-note "blind: rule and (T, f) frozen (5.8b, 5.9) before this run existed" \
     --t-grid 0.25,0.5,0.75,1.0,1.5 --max-p95 3.0 --output "$OUT/persistence-stage-3s.json"
   chown -R dat:dat "$OUT" 2>/dev/null || true
   exit 0
