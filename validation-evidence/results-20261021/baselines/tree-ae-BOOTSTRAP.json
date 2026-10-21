@@ -1,0 +1,443 @@
+{
+  "budget_results": "/var/tmp/baselines/tree-ae-budget",
+  "budgets": {
+    "1": {
+      "base29": {
+        "alpha_scale": 3.0,
+        "benign_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "benign_rate": {
+          "ci95": [
+            0.6586326386627592,
+            0.9223040184453226
+          ],
+          "lower95_one_sided": 0.6829228826268846,
+          "point": 0.7949959644874899
+        },
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.013117283950617283
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.005608974358974358
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            0.969329308440593,
+            0.9951574268500564
+          ],
+          "lower95_one_sided": 0.9716111056357692,
+          "point": 0.9828850855745721
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": {
+          "ci95": [
+            0.07111280931931835,
+            0.3123845239541522
+          ],
+          "lower95_one_sided": 0.08766280084475532,
+          "point": 0.18788912108708222
+        },
+        "separation_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "workloads": 21
+      },
+      "tree_ae": {
+        "alpha_scale": 3.0,
+        "benign_diff": {
+          "ci95": [
+            0.0711974110032364,
+            0.3191563238770685
+          ],
+          "lower95_one_sided": 0.08685722980111157,
+          "point": 0.1896690879741728
+        },
+        "benign_rate": {
+          "ci95": [
+            0.952020202020202,
+            1.0
+          ],
+          "lower95_one_sided": 0.9564220183486238,
+          "point": 0.9846650524616627
+        },
+        "control_diff": {
+          "ci95": [
+            -0.009474590869939707,
+            0.0
+          ],
+          "lower95_one_sided": -0.008587242569835101,
+          "point": -0.004006410256410256
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.003728560775540641
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0016025641025641025
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            0.9974811083123426,
+            1.0
+          ],
+          "lower95_one_sided": 0.9976955864667255,
+          "point": 0.9991850040749797
+        },
+        "recall_diff": {
+          "ci95": [
+            0.004727853606316082,
+            0.02932775393419188
+          ],
+          "lower95_one_sided": 0.0062216701173222096,
+          "point": 0.016299918500407573
+        },
+        "separation": {
+          "ci95": [
+            0.0,
+            0.04546090629214061
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.014519951613316984
+        },
+        "separation_diff": {
+          "ci95": [
+            -0.2921335221817407,
+            -0.0645336138468616
+          ],
+          "lower95_one_sided": -0.27199869891953765,
+          "point": -0.17336916947376524
+        },
+        "workloads": 21
+      }
+    },
+    "18": {
+      "base29": {
+        "alpha_scale": 20.0,
+        "benign_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "benign_rate": {
+          "ci95": [
+            0.9549544299544299,
+            0.9934214125302315
+          ],
+          "lower95_one_sided": 0.9584415584415585,
+          "point": 0.9757869249394673
+        },
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.041119566823584044,
+            0.08153493334364768
+          ],
+          "lower95_one_sided": 0.044115290346908,
+          "point": 0.060897435897435896
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": {
+          "ci95": [
+            0.00657858746976848,
+            0.04504557004557013
+          ],
+          "lower95_one_sided": 0.008375209380234505,
+          "point": 0.02421307506053272
+        },
+        "separation_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "workloads": 21
+      },
+      "tree_ae": {
+        "alpha_scale": 30.0,
+        "benign_diff": {
+          "ci95": [
+            0.00657858746976848,
+            0.04504557004557013
+          ],
+          "lower95_one_sided": 0.008375209380234505,
+          "point": 0.02421307506053272
+        },
+        "benign_rate": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "control_diff": {
+          "ci95": [
+            0.007245983841051272,
+            0.049828178694158065
+          ],
+          "lower95_one_sided": 0.009757571472818114,
+          "point": 0.02564102564102564
+        },
+        "control_rate": {
+          "ci95": [
+            0.061631000905797095,
+            0.11225386381093187
+          ],
+          "lower95_one_sided": 0.06566853069346834,
+          "point": 0.08653846153846154
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation_diff": {
+          "ci95": [
+            -0.04504557004557014,
+            -0.006578587469768485
+          ],
+          "lower95_one_sided": -0.04155844155844147,
+          "point": -0.02421307506053272
+        },
+        "workloads": 21
+      }
+    },
+    "5": {
+      "base29": {
+        "alpha_scale": 10.0,
+        "benign_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "benign_rate": {
+          "ci95": [
+            0.8970460821348886,
+            0.9857399815248653
+          ],
+          "lower95_one_sided": 0.9060489194635536,
+          "point": 0.9451170298627926
+        },
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.00971793710549407,
+            0.03849337453311661
+          ],
+          "lower95_one_sided": 0.01160092807424594,
+          "point": 0.023237179487179484
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": {
+          "ci95": [
+            0.014260018475134688,
+            0.10295391786511147
+          ],
+          "lower95_one_sided": 0.019425019425019396,
+          "point": 0.05488297013720744
+        },
+        "separation_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "workloads": 21
+      },
+      "tree_ae": {
+        "alpha_scale": 10.0,
+        "benign_diff": {
+          "ci95": [
+            0.011437209358070927,
+            0.09634903249361082
+          ],
+          "lower95_one_sided": 0.01632302405498276,
+          "point": 0.050040355125100855
+        },
+        "benign_rate": {
+          "ci95": [
+            0.9848484848484849,
+            1.0
+          ],
+          "lower95_one_sided": 0.9862385321100917,
+          "point": 0.9951573849878934
+        },
+        "control_diff": {
+          "ci95": [
+            -0.008291873963515755,
+            0.007462686567164176
+          ],
+          "lower95_one_sided": -0.0071773772204806775,
+          "point": -0.0008012820512820519
+        },
+        "control_rate": {
+          "ci95": [
+            0.01090342679127726,
+            0.0349407418678569
+          ],
+          "lower95_one_sided": 0.01256281407035176,
+          "point": 0.022435897435897433
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 1238,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": {
+          "ci95": [
+            0.0,
+            0.015151515151515138
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.004842615012106588
+        },
+        "separation_diff": {
+          "ci95": [
+            -0.09634903249361083,
+            -0.011437209358070936
+          ],
+          "lower95_one_sided": -0.08835493489107936,
+          "point": -0.050040355125100855
+        },
+        "workloads": 21
+      }
+    }
+  },
+  "cluster": "workload",
+  "finished_at_unix": 1792570070.0194583,
+  "inputs": {
+    "RESULTS.json": "c47ffb7d875260b86d1bc0304c3dbaaa4fedb45aed8fccb75a56eba8fb136f54",
+    "TRIAL_OUTCOMES.jsonl": "92acf1e4fc136f3b4b972636608b38b354d42fb501584d4f4663dab0f5e456a4"
+  },
+  "note": "matched budgets use the grid scale with episodes <= B (no interpolation)",
+  "pairing": "trial (seed-averaged outcome)",
+  "reference": "base29",
+  "reps": 10000,
+  "schema": "pulse-r4-arm-bootstrap-v1",
+  "source_sha256": "b176c49537563111f9b814c6e28d56fda5489ecfa69bf16a6a521f397ef3e6d6"
+}

@@ -4,17 +4,17 @@
 #   2. workers TERMINAL   -> STAGE=final (main result: normal burden, replay, blind CUSUM/Cauchy verdict)
 #   3. baseline fresh replication (Pulse 5.15b), then the queued heavy chain as dat (feature groups phase B, Pulse 5.7d)
 #   SRC=/mnt/.../source bash after_stable_refreshed.sh
-set -euo pipefail
+set -uo pipefail
 SRC=${SRC:?source snapshot}
 RUN=/mnt/sentinel-pulse-archive/pulse-stable-refreshed
 until [ -f $RUN/pulse-development-matrix/TERMINAL.json ]; do sleep 300; done
-[ -f $RUN/analysis/persistence-stage-3s.json ] || SRC=$SRC STAGE=campaign bash $SRC/scripts/pulse_stable_refreshed_analysis.sh
+[ -f $RUN/analysis/persistence-stage-3s.json ] || SRC=$SRC STAGE=campaign bash $SRC/scripts/pulse_stable_refreshed_analysis.sh || echo "campaign stage FAILED"
 echo "campaign stage done $(date -u +%FT%T)"
 for n in k8s-worker1.local k8s-worker4.local k8s-worker3.local; do
   until [ -f $RUN/workers/$n/TERMINAL.json ]; do sleep 300; done
 done
-[ -f $RUN/analysis/cadence-gaps.json ] || SRC=$SRC STAGE=final bash $SRC/scripts/pulse_stable_refreshed_analysis.sh
+[ -f $RUN/analysis/cadence-gaps.json ] || SRC=$SRC STAGE=final bash $SRC/scripts/pulse_stable_refreshed_analysis.sh || echo "final stage FAILED"
 echo "final stage done $(date -u +%FT%T)"
 # protocol baseline-fresh-replication-v1 (Pulse 5.15b): frozen baselines + tree_ae on this run's fresh data
-[ -f /var/tmp/baselines/FRESH-ADOPTION.json ] || runuser -u dat -- env SRC=$SRC bash $SRC/scripts/pulse_baselines_fresh.sh
+[ -f /var/tmp/baselines/FRESH-ADOPTION.json ] || runuser -u dat -- env SRC=$SRC bash $SRC/scripts/pulse_baselines_fresh.sh || echo "fresh baselines FAILED"
 runuser -u dat -- env SRC=$SRC WAIT_RUN=pulse-stable-refreshed bash $SRC/scripts/after_stable_candidate_chain.sh

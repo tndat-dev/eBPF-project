@@ -22,7 +22,7 @@ def main():
     p.add_argument('--bootstrap', required=True); p.add_argument('--budget-results', required=True)
     p.add_argument('--budget', default='1'); p.add_argument('--output', required=True)
     a = p.parse_args()
-    boot = json.loads(Path(a.bootstrap).read_text())['budget_results'][a.budget]
+    boot = json.loads(Path(a.bootstrap).read_text())['budgets'][a.budget]
     matched = json.loads(Path(a.budget_results).read_text())['matched_budget'][a.budget]
     out = {arm: verdict(boot[arm], matched[arm], RULE) for arm in ('autoencoder', 'tree_ae') if arm in boot and matched.get(arm)}
     adopted = sorted((arm for arm, v in out.items() if v['adopt']), key=lambda arm: -out[arm]['separation_diff']['point'])

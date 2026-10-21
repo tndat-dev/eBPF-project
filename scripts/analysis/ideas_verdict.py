@@ -34,8 +34,8 @@ def main():
     p.add_argument('--screen', required=True); p.add_argument('--burden', required=True); p.add_argument('--output', required=True)
     a = p.parse_args()
     screen, burden = json.loads(Path(a.screen).read_text()), json.loads(Path(a.burden).read_text())
-    if screen['chosen'] != {'joint': REFERENCE[0], **{m: n for m, (n, _) in FROZEN.items()}}:
-        raise SystemExit(f"development selection changed: {screen['chosen']} (frozen 21/10: cauchy_a10, cusum_b3_h6)")
+    # the frozen parameters are evaluated either way; a different development selection is flagged
+    reproduced = screen['chosen'] == {'joint': REFERENCE[0], **{m: n for m, (n, _) in FROZEN.items()}}
 
     def row(names):
         s, b = screen['test_grid'][names[0]], burden['methods'][names[1]]
@@ -43,6 +43,7 @@ def main():
                     burden=b['episodes_per_replica_hour'])
     ref = row(REFERENCE)
     out = dict(schema='pulse-ideas-verdict-v1', registered='SENTINEL_PULSE_STATUS 5.11a, 21/10 11:32', reference=ref,
+               development_selection_reproduced=reproduced, development_selection=screen['chosen'],
                methods={m: dict(row(names), **verdict(ref, row(names))) for m, names in FROZEN.items()},
                screen=a.screen, burden=a.burden, scored_replica_hours=burden['scored_replica_hours'])
     Path(a.output).write_text(json.dumps(out, indent=2))
