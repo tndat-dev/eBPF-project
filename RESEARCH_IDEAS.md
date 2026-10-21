@@ -1,6 +1,6 @@
 # Ý tưởng từ tài liệu cho Sentinel Pulse
 
-Tổng hợp research sâu ngày 21/10/2026. File này để dùng **sau khi** hoàn tất hướng hiện tại:
+Tổng hợp research sâu ngày 21/10/2026 (đợt 1 buổi sáng; đợt 2 buổi tối, mục 4). File này để dùng **sau khi** hoàn tất hướng hiện tại:
 - lượt live `pulse-stable-refreshed`, kiểm cấu hình luật v2;
 - kiểm blind CUSUM/Cauchy;
 - thí nghiệm nhóm feature;
@@ -88,26 +88,35 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, 21/10)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 21/10 22:17)
 
-Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
+Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác. Ưu tiên hiện tại (21/10 tối): **hoàn thiện luận văn trước**, cải tiến cho paper làm sau.
 
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
-| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ, 7 issue, CPU 13–31% | Calibration tự làm mới trong live; tripwire |
-| Đánh giá Pulse cho luận văn | ~80% | 3 lượt live, campaign có đối chứng, luật chọn đăng ký trước, đạt 4 kỳ vọng trên replay; baseline trên cùng dữ liệu (5.15a); biên Pareto của lưới chính sách có CI (5.8j); recall theo tốc độ attack (5.15c) | Xác nhận live của cấu hình v2; lặp lại baseline trên dữ liệu mới; review nhãn |
-| Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; fit 693 model nhóm feature | Giai đoạn B nhóm feature (chấm holdout, so ngân sách) |
-| RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
-| **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
-| Baseline (G1) | ~65% | 3 baseline có kết quả development kèm CI; đăng ký lặp lại trên dữ liệu mới với `tree_ae` | Lặp lại trên dữ liệu mới (22/10); luật Falco; STIDE trên LID-DS |
-| Dataset công khai (G3) | 0% (tạm hoãn) | | Toàn bộ; xem lại khi viết paper |
-| Exploit thật, kẻ tấn công thích nghi (G2, G4) | ~5% | Fixture có tham số tốc độ | Campaign mới |
-| Ablation | ~70% | Syscall, nhánh p-value | Nhóm feature giai đoạn B; họ model |
+| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ nhiều lượt; chấm nhanh khớp từng bit; CPU 13–31% | Calibration tự làm mới trong live; tripwire live (chỉ cho paper) |
+| Đánh giá Pulse cho luận văn | ~85% | 4 lượt live; lượt mới đạt 4/4 kỳ vọng ở mức ≤ 3 s (5.13a); baseline (5.15a); Pareto có CI (5.8j); recall theo tốc độ (5.15c); phân loại cảnh báo trên normal (5.18) | Giai đoạn final 22/10 (gánh cảnh báo, CUSUM/Cauchy, tripwire, chiến lược calibration) |
+| Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; 693 model nhóm feature | Giai đoạn B (chạy tự động sau lượt live) |
+| RCA | ~90% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới (RCA 5.11) | Lý do 13% attack không có case (bộ đếm mới, lượt sau) |
+| Baseline (G1) | ~70% | 3 baseline + `tree_ae` có kết quả development kèm CI | Lặp lại trên dữ liệu mới (22/10); luật Falco |
+| Hình và bảng cho luận văn | ~40% | 4 hình vi/en từ biên nhận (`docs/figures/`) | Hình gánh cảnh báo theo giờ, RCA, nhóm feature; bảng tổng hợp |
+| **Viết luận văn** | **~10%** | 3 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương |
+| **Luận văn (tổng thể, gồm viết)** | **~72%** | Thí nghiệm gần xong (~90%), số liệu và bằng chứng đầy đủ | Đọc kết quả 22–23/10; viết chương (khối việc lớn nhất còn lại) |
+| Exploit thật (G2) | ~10% | Hướng khả thi: tái dùng code kịch bản LID-DS (GPL-3.0) | Port và chạy (cần duyệt, cụm rảnh) |
+| Kẻ tấn công chậm, thích nghi (G4) | ~20% | Recall theo tốc độ 6–24/s; planner có `--attack-rates` | Campaign 1–3/s; lập luận mimicry |
+| Dataset công khai (G3) | 0% (tạm hoãn) | | Xem lại khi viết paper |
 | Overhead (G7) | ~30% | CPU worker trong vận hành | A/B có kiểm soát |
-| Blind test, review nhãn (G8) | ~20% | `pulse-stable-refreshed` sắp chạy | Review nhãn; campaign exploit thật |
-| Artifact mở (G9) | ~40% | Repo, script, biên nhận bằng chứng, CI | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
-| Bản thảo paper | 0% | Tài liệu tham khảo (mục 3) | Toàn bộ |
-| **Mức sẵn sàng cho paper hàng đầu** | **~30%** | Hệ thống + đánh giá live mạnh | G1–G5, G7–G9 |
+| Review nhãn (G8) | ~35% | Phân loại tự động 4.765 case normal theo exec/probe (5.18) | Review tay một mẫu |
+| Artifact mở (G9) | ~45% | Repo, script, biên nhận, CI, script vẽ hình | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
+| Bản thảo paper | 0% | Tài liệu tham khảo (mục 3, 4) | Toàn bộ |
+| **Mức sẵn sàng cho paper hàng đầu** | **~35%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe | G2, G4, G5 (lời giải), G7–G9 |
+
+**Đường ngắn nhất để xong luận văn:**
+1. Đọc và ghi kết quả 22–23/10: final, baseline lặp lại, chiến lược calibration, nhóm feature B, 5.7d.
+2. Chốt cấu hình "stable" theo các luật đã đăng ký.
+3. Viết chương: mở đầu, nền tảng, công trình liên quan, thiết kế, cài đặt, đánh giá, thảo luận và giới hạn, kết luận. Dùng hình trong `docs/figures/`.
+
+Lượt live thêm, exploit thật và LID-DS là phần cho paper, làm sau.
 
 ## Trạng thái các ý tưởng (21/10)
 
@@ -115,7 +124,8 @@ Ba đóng góp:
 |---|---|
 | R4 gộp p-value Cauchy, R5/A2 CUSUM thay k-of-n | Đã sàng lọc offline trên khoảng campaign (Pulse 5.11a); tham số đóng băng (`cauchy_a10`, `cusum_b3_h6`); chờ kiểm blind trên `pulse-stable-refreshed`. Script: `scripts/analysis/ideas_screen.py`, `scripts/analysis/ideas_burden.py` |
 | A1 tripwire syscall hiếm | **5.7c xong (21/10, dữ liệu mới, đăng ký trước):** novelty bỏ tập exec E cho attack `ptrace`/`execveat`/`setns` 100% so với binary vô hại 0% (tổng binary vô hại 0,3%, 1/315; control 0%). `mprotect`/`seccomp` không bắt được (0%), nên tiêu chí tổng 90% không đạt (60%). Đây là bằng chứng mạnh nhất cho G5 với lớp attack dùng syscall hiếm: ghép với Pulse ML (bắt `mprotect`/`seccomp`) thành tripwire + ML. **Kiểm blind đã đăng ký 21/10 14:56** (`sentinel_pulse/protocol/tripwire-a1-blind-v1.json`): lặp lại trên pulse-stable-refreshed với cùng E; có thêm độ trễ (p95 ≤ 2 s) và tham chiếu chỉ 90 phút trước attack, tức tham chiếu mà tripwire live có được |
-| B1 calibration tự làm mới | Phần gần nhất là 5.7d (làm mới định kỳ + k2of2), chạy sau lượt live; ACI/PID và Mondrian chưa làm |
+| B1 calibration tự làm mới | **Đã cài đặt và đăng ký (21/10 22:04, Pulse 5.17):** NexCP có trọng số theo thời gian, Mondrian theo (workload, node), ACI, `asrun`. Chạy tự động sau lượt live: bản chính trên `pulse-stable-refreshed` (dữ liệu mới) và bản development trên soak 48 giờ (5.7d) |
+| C1 triage hai tầng | **Một phần (21/10, Pulse 5.18):** 57,9% case trên normal trùng lúc có exec, phần lớn là probe exec của Kubernetes. Luật triage nhận ra probe đã khai báo giữ lại 54% case trên normal, không giữ attack nào (0/273). Đang lặp lại trên dữ liệu mới |
 | Các ý tưởng còn lại | Chưa làm |
 
 ## 1. Ý tưởng theo từng vấn đề tồn đọng
@@ -236,6 +246,55 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
    - baseline cũ đi nhanh trong microservice (REPLICAWATCHER), khớp với 5.6b và 5.7b.
 4. **Khả năng tái lập:** chưa có dataset chung giữa các công trình. Chạy Pulse trên LID-DS (R8), dataset mà CHIDS/REPLICAWATCHER-style work cũng dùng làm chuẩn, sẽ cho một điểm so sánh công bằng.
 
+## 4. Research đợt 2 (21/10 21:20–22:15): áp dụng được gì cho đồ án
+
+**Câu hỏi:** sau kết quả trong ngày (baseline AE ngang Pulse, binary vô hại 94%, gánh cảnh báo 4–7 đợt/replica-giờ, attack chậm, chưa có exploit thật), tài liệu có gì áp dụng được ngay?
+
+**Cách đánh giá nguồn:**
+- paper bình duyệt được ghi venue;
+- blog hay tài liệu của hãng ghi rõ là nguồn công nghiệp;
+- số liệu là kết quả tác giả báo cáo, chưa phải bằng chứng cho Pulse.
+
+### 4.1 Đã áp dụng ngay
+
+| Nguồn | Điều nguồn cho thấy | Áp vào Pulse | Kết quả / trạng thái |
+|---|---|---|---|
+| Alahmadi, Axon, Martinovic, **USENIX Security 2022**, "99% False Positives" | Phần lớn alarm mà SOC gọi là báo nhầm thực ra là **benign trigger**: detector thấy đúng một sự kiện, chỉ là sự kiện vô hại. Đề xuất alarm cần có ngữ cảnh và giải thích được | Chia case RCA trên normal theo có hay không có `exec` trong cửa sổ gây cảnh báo (`scripts/analysis/alarm_taxonomy.py`) | **Pulse 5.18:** 57,9% case trên normal (2.758/4.765) trùng lúc có exec; 23,5% không có exec nào. Binary hay gặp là lệnh của **probe exec của Kubernetes** (`python -c urllib…` mỗi 5 s và 15 s ở 10 service, `redis-cli` qua `sh`, `kafka_*.sh`) |
+| Hassan et al., **NDSS 2019**, NoDoze | Xếp hạng alert theo độ hiếm của đường provenance trong lịch sử; báo cáo giảm 86% báo nhầm trên 364 alert | Luật triage nhận ra probe: case chỉ có exec thuộc cây process của probe exec đã khai báo trong pod spec (cha là container runtime) thì giữ lại, không đưa lên người trực | **Pulse 5.18 (development):** giữ lại 54,0% case trên normal; 0/273 attack và 0/263 binary vô hại có case bị giữ lại. Đã gắn vào giai đoạn final để lặp lại trên dữ liệu mới |
+| Gibbs & Candès, **NeurIPS 2021**, ACI | α_{t+1} = α_t + γ(α − err_t); \|tần suất lỗi trung bình − α\| ≤ (max{α₁, 1−α₁} + γ)/(Tγ), không cần giả định về dữ liệu | Chiến lược `aci-*` trong `rolling_recalibration.py`, γ = 0,01 × α mục tiêu | **Pulse 5.17:** đăng ký 22:04, chạy sau lượt live |
+| Barber, Candès, Ramdas, Tibshirani, **Ann. Stat. 2023**, NexCP | Trọng số cố định w_i ∈ [0, 1] (theo thời gian, không theo điểm); khoảng chênh coverage ≤ Σ w̃_i·d_TV | `weighted-24-6-1`: cửa sổ 24 giờ, nửa đời 6 giờ, làm mới mỗi giờ | Như trên |
+| Mondrian conformal | Hợp lệ riêng trong từng nhóm cố định từ trước | `mondrian-6-1`: calibration theo (workload, node), kiểm giả thuyết 5.6b | Như trên |
+| Arp et al., **USENIX Security 2022**, "Dos and Don'ts of ML in Security" | 10 sai lầm phổ biến trong đánh giá ML cho bảo mật (P1–P10), có ở hầu hết 30 paper được khảo sát | Bảng tự kiểm cho luận văn và paper (mục 4.3) | Xong |
+
+### 4.2 Để sau (ghi nguồn, chưa làm)
+
+| Nguồn | Gợi ý | Vì sao chưa làm |
+|---|---|---|
+| Falco, rule "Drop and execute new binary in container" (blog Sysdig; nguồn công nghiệp) | **Drift:** binary không có trong image, nhận ra qua lớp upper của overlayfs. Fixture của mình chính là binary thả vào `/tmp`, nên trong container bất biến, chính drift đã đáng cảnh báo. Nguồn ghi các nguồn báo nhầm là debug tay của admin và image chạy binary ngoài image | Hữu ích cho triage (C1) và làm baseline luật Falco ở lượt live sau. Không tách được fixture vô hại khỏi attack, vì cả hai cùng là binary thả vào |
+| Podkopaev & Ramdas, **ICLR 2022** | Kiểm tuần tự chỉ báo động khi dịch chuyển làm hỏng chỉ số (confidence sequence), cho phép theo dõi liên tục | Biến thể "làm mới khi cần" của B1; chờ kết quả 5.17 |
+| Barbero et al., **IEEE S&P 2022** (Transcendent); Yang et al., **USENIX Security 2021** (CADE) | Đánh giá conformal và phát hiện drift cho bộ phân loại malware; từ chối mẫu kém tin cậy | Trích ở phần công trình liên quan (conformal + drift trong bảo mật); không đổi thiết kế |
+| Goyal et al., **NDSS 2023**; Wagner & Soto, **CCS 2002** | Tấn công mimicry: chèn syscall vô hại, bắt chước hành vi normal, né được IDS dựa trên provenance và syscall | Mô hình đe dọa cho G4. Lập luận: syscall **vắng mặt** trong hồ sơ workload (`ptrace`, `setns`…) không thể "pha loãng" để giống normal, nên tripwire A1 bền với mimicry; điểm tần suất thì không. Luật triage probe hiện khớp theo binary, nên kẻ tấn công chạy cùng interpreter qua `kubectl exec` sẽ lọt. Bản triển khai thật phải khớp cả argv |
+| Ghavamnia et al., **USENIX Security 2020** (temporal specialization); **RAID 2020** (Confine) | Sau pha khởi tạo, server cần ít syscall hơn nhiều (`execve` là ví dụ chặn được); Confine sinh seccomp cho container, chặn ≥ 145/326 syscall ở hơn nửa trong 150 image | Tripwire A1 là phiên bản "phát hiện" của allowlist syscall. `novel_syscalls.py` nay lưu tập syscall theo workload để sau này đo: một allowlist kiểu seccomp chặn được attack nào, làm hỏng launch vô hại nào |
+| **LID-DS** (code kịch bản, GPL-3.0) | 15 kịch bản mã nguồn mở, mỗi cái có container victim, normal và exploit (ví dụ CVE-2017-7529 nginx, CVE-2020-9484 Tomcat, SQLi, ZipSlip, Heartbleed) | Đường khả thi nhất cho G2: port 3–5 kịch bản vào namespace thử nghiệm, không cần tải dữ liệu ghi sẵn. Cần duyệt, cụm rảnh, và fit model cho workload victim mới |
+| DongTing (Zenodo 2022, 18.966 chuỗi, chương trình kích lỗi kernel); bộ container escape của PES University (IEEE DataPort) | Dataset syscall khác | Ưu tiên thấp; ngoài mô hình đe dọa container ứng dụng |
+| So sánh Falco/Tetragon/Tracee trên K8s (SciTePress 2025) | MTTD khoảng 1,1–1,2 s. CPU (millicore) Falco ~431, Tetragon ~6,5, Tracee ~92. FPR 0% nhưng không có tải vô hại để đo | Tham khảo cách đo overhead (G7); một ví dụ đánh giá thiếu đối chứng vô hại, đối lập với campaign của Pulse |
+| Bài 2025 về eBPF + container: autoencoder có attention trên truy cập file (MDPI Mathematics, recall 82%, FPR 0,79%); cryptojacking với Tetragon (Electronics, có giám sát) | Công trình liên quan mới | Bổ sung vào bảng mục 3 khi viết |
+
+### 4.3 Bảng tự kiểm theo Arp et al. (P1–P10)
+
+| Sai lầm | Pulse hiện tại | Còn phải làm |
+|---|---|---|
+| P1 Lệch mẫu | Normal là ứng dụng AIMS thật 24 giờ/lượt; attack là fixture tự viết | Exploit thật (G2); nêu rõ giới hạn |
+| P2 Nhãn sai | Nhãn kỳ vọng, chưa review; đã phân loại tự động theo exec/probe (5.18) | Review tay một mẫu case |
+| P3 Rò dữ liệu kiểm tra | Đăng ký trước; lượt live mới là dữ liệu chưa xem; tách calibration và đánh giá theo thời gian | Giữ kỷ luật này |
+| P4 Tương quan giả | Phát hiện "bắt exec chứ không bắt ác ý" (binary vô hại 94%; 5.18) chính là dạng này, và đã được đo, không bị che | Tín hiệu theo tham số hoặc ngữ cảnh (R7) |
+| P5 Chọn tham số trên dữ liệu kiểm tra | Luật v2, tham số CUSUM/Cauchy, tripwire, calibration đều đóng băng trước khi có dữ liệu kiểm | — |
+| P6 Baseline không phù hợp | Có 3 baseline đơn giản trên cùng khung (5.15a), kể cả autoencoder, cái ngang Pulse | Luật Falco |
+| P7 Chỉ số không phù hợp | Báo gánh cảnh báo theo replica-giờ, độ trễ, đối chứng vô hại, không chỉ precision/recall | — |
+| P8 Bỏ qua tỉ lệ nền | Precision 96% là trên campaign cân bằng 1:1. Với 6,5 đợt/replica-giờ và ~80 container, cụm có khoảng 12.500 đợt/ngày; nếu có 1 attack/ngày thì precision thực tế cỡ 0,01% | Báo rõ con số này; mục tiêu ngân sách 0,1 |
+| P9 Chỉ đánh giá trong lab | Live trên cụm thật, nhiều lượt; nhưng chỉ một ứng dụng và một cụm | Nêu giới hạn; dataset ngoài (G3) cho paper |
+| P10 Mô hình đe dọa không phù hợp | Chưa có kẻ tấn công thích nghi | G4: tốc độ thấp, mimicry (mục 4.2) |
+
 ## Nguồn
 
 - [ACI cho chuỗi thời gian (Zaffran et al., ICML 2022)](https://proceedings.mlr.press/v162/zaffran22a.html)
@@ -278,3 +337,23 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 - [KubAnomaly](https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/)
 - [sentinel-ebpf](https://github.com/Murashidzi/sentinel-ebpf)
 - [Conformal false-alarm control cho O-RAN](https://icml.cc/virtual/2026/78428)
+- [99% False Positives (USENIX Sec 2022)](https://www.usenix.org/conference/usenixsecurity22/presentation/alahmadi)
+- [NoDoze (NDSS 2019)](https://www.ndss-symposium.org/ndss-paper/nodoze-combatting-threat-alert-fatigue-with-automated-provenance-triage)
+- [Adaptive Conformal Inference (Gibbs & Candès)](https://arxiv.org/abs/2106.00170)
+- [Conformal prediction beyond exchangeability (Ann. Stat. 2023)](https://doi.org/10.1214/23-AOS2276)
+- [Dos and Don'ts of ML in Computer Security (USENIX Sec 2022)](https://arxiv.org/abs/2010.09470)
+- [Falco drift detection (Sysdig blog)](https://www.sysdig.com/blog/container-drift-detection-with-falco)
+- [Tracking the risk of a deployed model (ICLR 2022)](https://arxiv.org/abs/2110.06177)
+- [Transcending Transcend (IEEE S&P 2022)](https://arxiv.org/abs/2010.03856)
+- [CADE (USENIX Sec 2021)](https://www.usenix.org/conference/usenixsecurity21/presentation/yang)
+- [Mimicry attacks against provenance-graph HIDS (NDSS 2023)](https://www.ndss-symposium.org/ndss-paper/sometimes-you-arent-what-you-do-mimicry-attacks-against-provenance-graph-host-intrusion-detection-systems)
+- [Mimicry attacks on host-based IDS (CCS 2002)](https://www.cs.purdue.edu/homes/ninghui/readings/AccessControl/wagner_soto_ccs02.pdf)
+- [Temporal System Call Specialization (USENIX Sec 2020)](https://www.usenix.org/conference/usenixsecurity20/presentation/ghavamnia)
+- [Confine (RAID 2020)](https://usenix.org/conference/raid2020/presentation/ghavanmnia)
+- [LID-DS (code và kịch bản)](https://github.com/LID-DS/LID-DS)
+- [DongTing dataset](https://zenodo.org/records/6627050)
+- [Docker container escape dataset (IEEE DataPort)](https://ieee-dataport.org/documents/docker-container-escape-attack-dataset-capabilities-and-system-call-traces)
+- [So sánh Falco/Tetragon/Tracee trên K8s (SciTePress 2025)](https://www.scitepress.org/PublishedPapers/2025/142727)
+- [Autoencoder có attention cho truy cập file trong container (MDPI 2025)](https://www.mdpi.com/2227-7390/14/6/991)
+- [Phát hiện cryptojacking bằng Tetragon + ML (Electronics 2025)](https://doi.org/10.3390/electronics14061208)
+- [KAIROS (IEEE S&P 2024)](https://arxiv.org/abs/2308.05034)

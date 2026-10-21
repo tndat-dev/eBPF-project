@@ -933,7 +933,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 | Khởi chạy | unit `pulse-stable-refreshed-launcher` chờ `pulse-stable-candidate-analysis` xong rồi chạy `scripts/launch_run.sh all` (snapshot `0c5096d`). Biến môi trường để trong file chỉ root đọc được |
 | Sau lượt live (kế hoạch cũ, thay lúc 13:55) | ~~`after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy~~ |
 | Khởi chạy thật | 21/10 12:22 từ snapshot `0c5096d`; 13:08 khỏe: 0 issue, RCA ok; kết thúc dự kiến 22/10 ~12:25–12:45 |
-| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final; 15:14 `4f36ec5` sửa lỗi và chịu lỗi từng bước, smoke test giai đoạn campaign đạt; 15:51 `399676c` thêm lưới `latency3s_fine` và Pareto 5.8j) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
+| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final; 15:14 `4f36ec5` sửa lỗi và chịu lỗi từng bước, smoke test giai đoạn campaign đạt; 15:51 `399676c` thêm lưới `latency3s_fine` và Pareto 5.8j; 22:06 `d12a961` thêm chiến lược calibration 5.17; 22:14 `57c89b2` thêm phân loại cảnh báo 5.18) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
 
 ### 5.13a Kết quả campaign pulse-stable-refreshed (campaign xong 21/10 ~19:45; phân tích 19:47)
 
@@ -1092,6 +1092,76 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 - freq_profile phụ thuộc mạnh vào tốc độ, đúng như kỳ vọng với một bộ chấm chỉ nhìn tỉ lệ syscall.
 - Mức thấp nhất đã đo là 6/s. Kẻ tấn công chậm thật (1–3/s, hoặc trải dài) chưa được kiểm; cần đưa vào campaign của lượt live sau (G4).
 - Đây là phân tích theo nhóm trên dữ liệu development, không đăng ký trước.
+
+### 5.17 Chiến lược giữ calibration luôn mới, lấy từ tài liệu (đăng ký 21/10 22:04)
+
+- **Protocol:** `sentinel_pulse/protocol/calibration-strategies-v1.json`. Đăng ký trước khi đọc bất kỳ dòng decision nào của `pulse-stable-refreshed`, và trước khi chạy bất kỳ chiến lược mới nào.
+- **Chiến lược** (`sentinel_pulse/attack/rolling_recalibration.py`, có test, kể cả một test end-to-end):
+
+  | Tên | Cách làm | Nguồn |
+  |---|---|---|
+  | `asrun` | p-value ghi lúc chạy live, không hiệu chỉnh lại | tham chiếu trên dữ liệu mới |
+  | `static` | Một lần, trên một khoảng đầu cố định | 5.6 |
+  | `rolling-6-1` | Mỗi giờ, hiệu chỉnh trên 6 giờ trước | 5.6, 5.7d |
+  | `weighted-24-6-1` | Mỗi giờ, 24 giờ trước, trọng số 0,5^(tuổi/6 giờ), điểm test trọng số 1 | NexCP, Barber et al., Ann. Stat. 2023 |
+  | `mondrian-6-1` | Như `rolling-6-1` nhưng theo (workload, node); ô < 1.200 điểm thì dùng cấp workload | Mondrian conformal; giả thuyết 5.6b |
+  | `aci-*` | α_{t+1} = α_t + γ(α* − err_t) theo từng workload, γ = 0,01·α*; cập nhật trên mọi cửa sổ (kể cả campaign, như live) | ACI, Gibbs & Candès, NeurIPS 2021 |
+
+- **Bản chính (dữ liệu mới):** `pulse-stable-refreshed`, đánh giá từ cuối pha chọn tới hết capture.
+  - Chiến lược: asrun, static (pha chọn 90 phút), rolling-6-1, weighted-24-6-1, mondrian-6-1, aci-asrun, aci-rolling-6-1.
+  - Tham chiếu: `asrun`.
+- **Bản development:** soak 48 giờ (5.7d), tham chiếu `static`. Bản này chỉ để báo cùng, không quyết định.
+- **Luật quyết định** (k2of2, α×10): một chiến lược thắng tham chiếu nếu
+  - đợt/replica-giờ thấp hơn ≥ 10%;
+  - recall không giảm quá 2 điểm;
+  - control không tăng quá 1 điểm;
+  - p95 không chậm hơn 0,2 s.
+
+  Trong các chiến lược thắng, chọn gánh thấp nhất. Nếu chênh nhau trong 5% thì chọn cái đơn giản hơn: aci-asrun < rolling < weighted < mondrian.
+- **Chạy:** tự động trong `after-stable-refreshed`, sau lặp lại baseline. Bản soak chạy trong 5.7d.
+- **Không khẳng định gì về live:** muốn áp dụng phải cài vào đường chấm điểm và chạy thêm một lượt live.
+
+### 5.18 Cảnh báo trên normal trùng với gì: phân loại case RCA và triage nhận ra probe (21/10 21:55–22:12)
+
+- **Ý tưởng:** Alahmadi et al. (USENIX Security 2022) cho thấy phần lớn "báo nhầm" là **benign trigger**: detector thấy đúng một sự kiện, chỉ là sự kiện vô hại. Mình dùng cây bằng chứng RCA của từng case (exec từ Tetragon, cùng container) để chia cảnh báo trên normal của `pulse-stable-candidate`.
+- **Script:** `scripts/analysis/alarm_taxonomy.py`, có test. Định nghĩa cố định trước lần chạy đầu.
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/alarm-taxonomy.json`; probe khai báo trong pod spec ở `results-20261021/exec-probe-spec.json`.
+- **Dữ liệu:** 4.765 case ngoài khoảng campaign (mỗi container tối đa một case mỗi 5 phút, nên case là mẫu của các đợt, không phải tổng số đợt).
+
+| Loại | Case | Tỉ lệ |
+|---|---|---|
+| Có exec trong [đầu cửa sổ − 2,5 s, cuối cửa sổ + 0,5 s] | 2.758 | **57,9%** |
+| Chỉ có exec sớm hơn, trong 30 s của case | 888 | 18,6% |
+| Không có exec nào trong case | 1.119 | 23,5% |
+
+**Theo workload:**
+- **10 service Python** có probe `exec: python -c "import urllib.request…"`, readiness mỗi 5 s và liveness mỗi 15 s. Ở đây 54–94% case có exec trong cửa sổ, binary chủ yếu là `python`.
+- **kafka** (`kafka_*.sh` → `bash`/`grep`/`curl`) 93,5%; **redis** (`sh` → `hostname`/`redis-cli`) 73,5%; **sentinel** 65,1%.
+- **postgres** (`pg_isready` do instance manager chạy) và **rabbitmq** (`df`) cũng có exec định kỳ, nhưng là lệnh nội bộ của ứng dụng, không phải probe.
+- **Workload chỉ có probe HTTP/TCP hoặc không có probe** (frontend, istio-proxy, kafka operator, minio) thì 100% case không có exec. Cảnh báo ở đây không có nguyên nhân cấp process nhìn thấy được.
+
+**Triage nhận ra probe** (theo ý NoDoze, NDSS 2019, và exception của Falco). Một case bị giữ lại khi:
+- trong cửa sổ có exec;
+- **mọi** exec trong 30 s nhìn lại thuộc cây process của một probe exec đã khai báo, với binary gốc khớp lệnh probe và cha là container runtime.
+
+| | Bị giữ lại |
+|---|---|
+| Case trên normal | **2.573/4.765 (54,0%)**; theo workload 54–94% ở các workload có probe exec |
+| Attack có case trong campaign | **0/273** |
+| Binary vô hại có case | 0/263 |
+
+**Đọc kết quả:**
+- **Hơn nửa gánh cảnh báo mà người trực thấy** đến từ probe exec mà chính Kubernetes chạy định kỳ. Probe đi đúng đường với binary vô hại của campaign (runtime exec vào container). Điều này giải thích cùng lúc hai hiện tượng: binary vô hại bị gắn cờ 94%, và gánh cảnh báo cao ở các workload có probe exec.
+- **Một bước triage rẻ, dùng dữ liệu RCA sẵn có, bỏ được hơn nửa số case mà không mất attack nào trên campaign này.** Preview vẫn giữ nguyên, nên độ trễ không đổi.
+
+**Giới hạn:**
+- development: chính lượt đã dùng để chọn cấu hình;
+- luật khớp theo binary, không khớp argv (case không lưu tham số). Kẻ tấn công chạy `python` qua `kubectl exec` trong service Python sẽ bị giữ lại theo luật này. Bản triển khai phải khớp đủ dòng lệnh của probe;
+- 23,5% case không có exec cần cách khác (calibration 5.17, so sánh replica).
+
+**Sửa lỗi trong lần chạy đầu:** luật ban đầu đòi cha là `runc` và không khớp case nào. Tetragon ghi cha của một số lần chạy probe là `containerd-shim` (sau khi `runc exec` bàn giao process). Mình đã sửa để chấp nhận cả hai, dùng đúng regex container runtime của `rca.ranking`, đúng như ý định đã nêu. Việc sửa được ghi trong docstring.
+
+**Lặp lại trên dữ liệu mới:** đã gắn vào giai đoạn final của `pulse-stable-refreshed` (snapshot `57c89b2`).
 
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
@@ -1413,3 +1483,7 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 20:13–20:15 | Kết quả campaign `pulse-stable-refreshed`: precision 96,0%, recall 100%, control 4,2%, p95 2,26 s. Đạt 4/4 kỳ vọng ở mức ≤ 3 s, chưa đạt mức ưu tiên < 2 s. CUSUM/Cauchy blind trên interval: p95 1,70 / 1,46 s so với 2,28 s; chờ gánh cảnh báo để kết luận. Luật RCA hạ quyền: 100% so với 91,9% | mục 5.13a; RCA 5.11 |
 | 21:05–21:12 | Quét đồng bộ repo: GitHub = host = 4 VM ở `64d8d81`, không thay đổi cục bộ; gỡ worktree mồ côi. Sửa đường dẫn evidence cũ trong 2 README; mục lục tài liệu thêm `RESEARCH_IDEAS.md` và thư mục evidence 19–21/10; ghi chú bố cục cũ ở snapshot 15–16/10. Viết lại TODO.md và các mục 1, 2, 6 của báo cáo này theo trạng thái hiện tại | commit này |
 | 21:13–21:18 | Hình cho luận văn và paper từ biên nhận đã commit (`docs/figures/{vi,en}`): 3 lượt live có CI, phân bố độ trễ, biên Pareto, baseline theo gánh cảnh báo. Bảng màu đã qua kiểm mù màu; venv vẽ hình tách khỏi bộ thư viện đã pin (`requirements-figures.txt`). `persistence_stage.py --test-note` để biên nhận ghi đúng mức blind | `docs/figures/README.md` |
+| 21:20–22:15 | Research đợt 2 (`RESEARCH_IDEAS.md` mục 4): 20 nguồn; áp dụng ngay chiến lược calibration (5.17) và phân loại/triage cảnh báo (5.18); phần còn lại ghi "để sau" kèm lý do; bảng tự kiểm P1–P10 theo Arp et al. | `RESEARCH_IDEAS.md` |
+| 22:04 | Đăng ký `calibration-strategies-v1` trước khi đọc dữ liệu lượt mới; cài NexCP có trọng số, Mondrian theo node, ACI, `asrun`, có test | mục 5.17; `d12a961` |
+| 21:55–22:12 | Phân loại 4.765 case trên normal: 57,9% trùng exec trong cửa sổ, phần lớn là probe exec của Kubernetes; triage nhận ra probe giữ lại 54% case, 0/273 attack | mục 5.18; `2f04538`, `ddadb23` |
+| 22:17 | Ưu tiên mới: hoàn thiện luận văn trước, cải tiến sau; chỉ research khi cần. Tiến độ ước lượng: luận văn ~72% (thí nghiệm ~90%, viết ~10%), sẵn sàng cho paper hàng đầu ~35% | `RESEARCH_IDEAS.md` |
