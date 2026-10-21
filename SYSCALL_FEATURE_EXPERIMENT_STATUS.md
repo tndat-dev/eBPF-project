@@ -482,3 +482,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 12:33 | Fit xong 693/693 model nhóm feature; kiểm tái lập lần đầu báo không khớp | mục 5B.0 |
 | 20/10 15:25 | Điều tra: điểm trùng từng bit, chỉ calibration tree lệch ≤ 3,9e-16 do cộng song song; sửa phép kiểm báo riêng từng thành phần → tái lập đúng | mục 5B.0; `650c445` |
 | 21/10 11:28 | Giai đoạn B thí nghiệm nhóm feature (chấm holdout + replay + so ngân sách) dời ra sau lượt live `pulse-stable-refreshed` để không đọc NFS nặng song song; unit `after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`) | mục 5B |
+| 21/10 13:55 | Chuỗi sau lượt live gộp thành một unit chạy tuần tự `after-stable-refreshed` (snapshot `bf35f5e`). Thứ tự: phân tích campaign → phân tích final của `pulse-stable-refreshed` → giai đoạn B nhóm feature → 5.7d. Nhờ vậy các job đọc NFS nặng không chạy song song. Unit chờ cũ `after-stable-candidate-chain` đã dừng; nó chưa chạy bước nào | `scripts/after_stable_refreshed.sh` |
