@@ -531,7 +531,7 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 - **Lịch:** job đọc ~200 GB từ NFS, nên chạy sau khi pulse-stable-candidate kết thúc (21/10). Code đã sẵn từ commit thêm `confirmation` vào `rolling_recalibration.py`, có test.
 - **Giới hạn biết trước:** đây là development; các kịch bản pulse-attack-dev đã dùng khi phát triển. Nếu đạt, bước kiểm tiếp theo là bật làm mới định kỳ trong lượt live.
 
-### 5.8 Lượt live pulse-stable-candidate (đang chạy từ 20/10 10:14)
+### 5.8 Lượt live pulse-stable-candidate (20/10 10:14 → 21/10 10:25)
 
 | Thành phần | Giá trị |
 |---|---|
@@ -553,6 +553,18 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
   - Pod mới Ready lúc ~10:44, không còn lỗi I/O.
   - Khi đánh giá normal sẽ **loại 10:41–10:50 cho hai workload này**. Pod mới có định danh mới nên cần cửa sổ khởi động lại.
 - **CPU:** sau 90 s, mỗi worker dùng 26 s CPU (28–31% một core). Lượt trước dùng 22,5–23,5 giờ CPU cho 24 giờ (~94%). Đường nhanh đang hoạt động; chưa có bằng chứng model nào phải quay về sklearn. Sẽ kiểm tra lại offline bằng `scorer_equivalence --fast` trên segment đã niêm phong.
+
+**Kết thúc chu kỳ 24 giờ** (21/10; `STATUS.json` từng worker):
+
+| Worker | Bắt đầu → kết thúc | Segment | Dòng được chấm | Preview dương (thô) | Issue | CPU worker |
+|---|---|---:|---:|---:|---:|---:|
+| worker1 | 20/10 10:14:53 → 21/10 10:23:55 | 48 | 4.621.537 | 113.928 | 2 | 7,3 giờ |
+| worker4 | 20/10 10:14:57 → 21/10 10:18:50 | 48 | 1.699.790 | 22.174 | 4 | 3,1 giờ |
+| worker3 | 20/10 10:15:02 → 21/10 10:25:09 | 49 | 4.788.878 | 154.593 | 1 | 7,5 giờ |
+
+- **Ổn định:** chỉ 7 issue trên cả 3 worker, so với 404/32/430 ở pulse-live-recalibrated (lượt đó có sự cố hạ tầng 19/10 và tiến trình `tetra getevents` mồ côi).
+- **CPU:** 13–31% một core, so với ~94% ở lượt trước. Đường chấm nhanh giảm CPU khoảng 3 lần trong vận hành thật.
+- Preview dương thô là 2,6% số dòng, gồm cả campaign. Gánh cảnh báo normal sạch nằm trong phân tích final.
 
 ### 5.8a Kết quả campaign pulse-stable-candidate (campaign xong 20/10 ~18:00; phân tích 21/10 02:17)
 
@@ -704,7 +716,7 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 | Giả thuyết "syscall chưa từng thấy" | **Xong, không đạt** (5.5b); bản có xét exec đã đăng ký (5.7c) |
 | Chọn chính sách theo luật đăng ký trước | **Xong** (5.7a): k2of2_a10, không đạt kỳ vọng p95 |
 | Chấm điểm nhanh, khớp từng bit | **Đang chạy live** (CPU worker ~30% so với ~94%) |
-| Lượt pulse-stable-candidate (k2of2_a10, chấm nhanh, RCA) | **Đang chạy** 20/10 10:15 → 21/10 ~10:30; phân tích tự chạy khi xong |
+| Lượt pulse-stable-candidate (k2of2_a10, chấm nhanh, RCA) | **Xong** 21/10 10:25; campaign 5.8a; phân tích final đang chạy |
 | Đặc trưng/luật tách attack khỏi process vô hại mới | Chưa có. Mới loại trừ được hai hướng: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b) |
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~8 đợt/replica-giờ với k2of2_a10) |
 | Review nhãn, ma trận đã xác nhận | Chưa |
@@ -964,3 +976,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 08:46 | Đăng ký luật chọn v2 cho lượt sau (p95 ≤ 2,0 s là ràng buộc cứng), code + test (322 test pass), trước khi có số final | mục 5.8d |
 | 08:52 | Mục tiêu độ trễ được làm rõ: < 2 s ưu tiên, ≤ 3 s chấp nhận. Sửa luật v2 thành hai mức (trước khi có số final); kiểm lại độ bền tín hiệu trong 3 s: bước chờ 1 s cho precision 94,9%, control 5,2%, recall 95,5%, p95 2,64 s trên lượt stable | mục 5.8b, 5.8d |
 | 09:55 | Thêm lưới replay `latency3s` (34 chính sách, gồm 3–4 cửa sổ) cho giai đoạn final trước khi có số; khởi động lại unit phân tích trên snapshot `7dcc780` | mục 5.8d |
+| 10:25 | pulse-stable-candidate chạy hết 24 giờ trên cả 3 worker; 7 issue tổng; CPU worker 3,1–7,5 giờ/24 giờ (chấm nhanh) | mục 5.8 |
