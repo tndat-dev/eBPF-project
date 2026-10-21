@@ -481,3 +481,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 12:11 | Biến thể nhánh p-value xong: nhánh support cần thiết (bỏ đi recall −28–31 điểm); nhánh tree/lịch sử cần thiết ở ngân sách 1 (−5–7 điểm), không kém hơn ở ngân sách 5 | mục 5B.1 |
 | 20/10 12:33 | Fit xong 693/693 model nhóm feature; kiểm tái lập lần đầu báo không khớp | mục 5B.0 |
 | 20/10 15:25 | Điều tra: điểm trùng từng bit, chỉ calibration tree lệch ≤ 3,9e-16 do cộng song song; sửa phép kiểm báo riêng từng thành phần → tái lập đúng | mục 5B.0; `650c445` |
+| 21/10 11:28 | Giai đoạn B thí nghiệm nhóm feature (chấm holdout + replay + so ngân sách) dời ra sau lượt live `pulse-stable-refreshed` để không đọc NFS nặng song song; unit `after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`) | mục 5B |
