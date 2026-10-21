@@ -692,6 +692,54 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 
 **Khác luật v1 (5.7):** v1 cho p95 tới 2,3 s, và khi không đạt thì chọn p95 thấp nhất. Bản v2 đầu tiên (08:46) coi 2 s là giới hạn cứng; đã sửa thành hai mức như trên.
 
+### 5.8e Vì sao chỉ số không đổi "tuyến tính" theo alpha và theo calibration (21/10 11:09)
+
+**Câu hỏi:** khi hiệu chỉnh lại p-value hay nới lưới alpha, recall và precision trông như thay đổi không theo quy luật. Kiểm trên bảng của job chọn (`SELECTION.json`): 2 calibration × 8 họ k-of-n, 467 replica-giờ normal, 420 cặp attack.
+
+**1. Có quy luật: trong cùng calibration và cùng dạng k-of-n, các chỉ số đơn điệu.** Trên 40 dãy (5 chỉ số × 8 họ, mỗi calibration):
+- recall, control và tỉ lệ binary vô hại **tăng đơn điệu** theo alpha (40/40);
+- precision **giảm đơn điệu** (39/40; dãy còn lại bằng nhau ở 2 chữ số).
+
+Ví dụ k1of1 với as_run: recall 87,6 → 89,5 → 90,5 → 91,5 → 92,0 → 96,6 → 98,1%; precision 99,4 → 98,7 → 95,6 → 92,4 → 90,0 → 86,9 → 82,1%.
+
+**2. "Gãy" ở số đợt cảnh báo là lỗi đếm của mình, không phải dữ liệu.**
+- Số đợt/replica-giờ gãy đúng tại α 1 → 2 ở mọi họ, cả hai calibration (ví dụ k1of1: 15,03 ở α1 nhưng 8,33 ở α2).
+- Nguyên nhân: các chính sách α×1 có mặt trong cả hai lưới (default và looser), và `select_policy.normal_rates` (luật v1) cộng số đợt trên cả hai lưới. Dòng α1 vì vậy bị nhân đôi.
+- Số đúng của k1of1_a1 là 7,52; dãy k1of1 thành 2,86 → 4,36 → **7,52** → 8,33 → 13,0 → 18,0 → 31,9, tức là đơn điệu.
+- **Lựa chọn 20/10 không bị ảnh hưởng:** k2of2_a10 được chọn theo luật dự phòng (p95 thấp nhất, không dùng số đợt), và bước chọn calibration so ở k1of1_a3, chính sách không bị nhân đôi.
+- Đã sửa (đếm mỗi chính sách một lần mỗi node, có test). Luật v2 đọc một lưới duy nhất nên không mắc lỗi này. Phân tích 5.6b dùng script riêng đã khử trùng, nên đúng.
+
+**3. Quan hệ giữa alpha và tỉ lệ dương không tuyến tính, vì 3 cơ chế:**
+
+a) **Đơn vị đánh giá là khoảng 15 s, không phải cửa sổ.** Một khoảng được tính dương nếu có ít nhất một cửa sổ (hoặc một chuỗi k-of-n) dương. So control idle quan sát với mức danh nghĩa 1 − (1 − α)^28 nếu các cửa sổ độc lập (k1of1, as_run):
+
+| α | α mỗi cửa sổ | Danh nghĩa mỗi khoảng | Quan sát | Tỉ lệ |
+|---|---:|---:|---:|---:|
+| ×0,25 | 0,0004 | 1,2% | 0,5% | 0,41 |
+| ×1 | 0,0017 | 4,6% | 4,1% | 0,89 |
+| ×3 | 0,0050 | 13,1% | 10,1% | 0,77 |
+| ×10 | 0,0167 | 37,5% | 21,1% | 0,56 |
+
+- Ở α lớn, cửa sổ dương **dồn cụm** trong cùng khoảng (các cửa sổ liền nhau tương quan), nên số khoảng dương tăng chậm hơn danh nghĩa: đường cong bão hòa.
+- Recall bão hòa gần 100%, nên tăng α thêm chỉ đẩy control và binary vô hại lên. Precision vì vậy giảm nhanh dần.
+- Ở α rất nhỏ, p-value conformal rời rạc và đuôi calibration thưa, nên tỉ lệ thực thấp hơn danh nghĩa.
+
+b) **p95 độ trễ chỉ tính trên các attack bắt được, nên không đơn điệu ở α nhỏ.** Hạ ngưỡng thêm đưa vào nhóm "bắt được" những attack vốn bắt chậm. p95 có thể tăng dù mọi attack cũ đều được bắt sớm hơn. Các chỗ gãy ở p95 nằm ở α 0,25 → 0,5, nơi p95 đã 5–6 s.
+
+c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngưỡng.** Mỗi workload có calibration riêng, và mỗi workload trôi theo hướng riêng (5.6b: thay calibration thì nhóm workload nặng nhất đổi hẳn).
+- Chỉ số tổng là trung bình có trọng số của 21 đường cong khác nhau, nên đổi calibration có thể làm recall và precision cùng tăng (refreshed ở k2of2: recall +2–7 điểm, precision ≥ 96%), trong khi số đợt lúc giảm lúc tăng.
+- Ví dụ: refreshed ít đợt hơn ở k2of2 α ≥ 2, nhưng nhiều đợt hơn ở k1of1 α ≥ 5.
+
+**4. Nhiễu mẫu lớn hơn nhiều chênh lệch đang so.**
+- Khoảng tin cậy 95% nhị thức: recall ±1,6 điểm (411 attack), control ±2,1 điểm (417 khoảng), precision live ±3,0 điểm.
+- Khi tính tương quan trong cùng workload (bootstrap theo workload, syscall 5.7/5.9), CI của recall rộng tới ±7 điểm.
+- Chênh 1–2 điểm giữa hai chính sách kề nhau, hay giữa dev và live, thường nằm trong nhiễu, nên trông như "không có quy luật".
+
+**Hệ quả:**
+- Tối ưu theo một chỉ số đơn lẻ trên một lưới là không ổn định.
+- Phải so ở cùng ngân sách (số đợt hoặc control) kèm CI, như thí nghiệm syscall đã làm.
+- Lựa chọn nên dựa trên luật đăng ký trước, không dựa trên một ô đẹp nhất của lưới.
+
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
@@ -977,3 +1025,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 08:52 | Mục tiêu độ trễ được làm rõ: < 2 s ưu tiên, ≤ 3 s chấp nhận. Sửa luật v2 thành hai mức (trước khi có số final); kiểm lại độ bền tín hiệu trong 3 s: bước chờ 1 s cho precision 94,9%, control 5,2%, recall 95,5%, p95 2,64 s trên lượt stable | mục 5.8b, 5.8d |
 | 09:55 | Thêm lưới replay `latency3s` (34 chính sách, gồm 3–4 cửa sổ) cho giai đoạn final trước khi có số; khởi động lại unit phân tích trên snapshot `7dcc780` | mục 5.8d |
 | 10:25 | pulse-stable-candidate chạy hết 24 giờ trên cả 3 worker; 7 issue tổng; CPU worker 3,1–7,5 giờ/24 giờ (chấm nhanh) | mục 5.8 |
+| 11:09 | Phân tích vì sao chỉ số không đổi tuyến tính: trong cùng calibration/họ, recall, precision và control đơn điệu; chỗ gãy ở số đợt là lỗi cộng đôi chính sách α×1 trong `select_policy` v1 (đã sửa, lựa chọn 20/10 không đổi); còn lại là bão hòa theo khoảng 15 s, chọn mẫu ở p95, calibration theo workload, nhiễu mẫu | mục 5.8e |

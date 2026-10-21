@@ -107,3 +107,11 @@ def test_v2_uses_the_3s_tier_when_nothing_qualifies_under_2s(tmp_path):
     assert result['calibration'] == 'as_run'             # only 2.5 % fewer episodes
     assert result['policy'] == 'k2of2_a5' and result['latency_tier'] == 3.0 and result['meets_registered_expectations']
     assert 'k2of2_a2' not in result['within_3s']         # 3.4 s is never chosen
+
+
+def test_policy_in_both_grids_is_counted_once(tmp_path):
+    attack = {'k1of1_a1': (0.95, 0.9, 0.04, 3.0), 'k1of1_a3': (0.9, 0.92, 0.1, 1.9), 'k2of2_a10': (0.95, 0.97, 0.05, 2.4)}
+    _write(tmp_path, 'asrun', {'k1of1_a1': 75, 'k1of1_a3': 130, 'k2of2_a10': 80}, attack)
+    _write(tmp_path, 'refreshed', {'k1of1_a1': 75, 'k1of1_a3': 130, 'k2of2_a10': 80}, attack)
+    rates, hours = sp.normal_rates(tmp_path, 'asrun')
+    assert abs(rates['k1of1_a1'] - 75*3/hours) < 1e-12      # not doubled although it is in both grids

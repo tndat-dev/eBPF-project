@@ -30,12 +30,18 @@ P95_LIMIT, PRECISION, RECALL, CONTROL, RECALL_COST = 2.3, 0.95, 0.95, 0.05, 0.02
 
 
 def normal_rates(directory: Path, prefix: str):
-    episodes, hours = defaultdict(int), {}
+    # A policy present in both grids (the alpha x1 ones) must be counted once per node: until 21/10 it was
+    # summed over both grids, doubling k1of1_a1 / k2of2_a1 / k2of3_a1 episodes in the 20/10 SELECTION.json
+    # (the selection itself did not use those rows).
+    episodes, hours, seen = defaultdict(int), {}, set()
     for grid in GRIDS:
         for node in NODES:
             data = json.loads((directory/f'normal-{prefix}-{grid}-{node}.json').read_text())
             hours[node] = data['total_scored_hours']
             for name, policy in data['policies'].items():
+                if (name, node) in seen:
+                    continue
+                seen.add((name, node))
                 episodes[name] += policy['total_episodes']
     total = sum(hours.values())
     return {name: count/total for name, count in episodes.items()}, total
