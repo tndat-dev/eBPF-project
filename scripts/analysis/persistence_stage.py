@@ -69,8 +69,13 @@ def table(items):
     return {f'T{T:g}_f{f:g}': dict(T=T, f=f, **stage2(items, T, f)) for T in T_GRID for f in F_GRID}
 
 
+MAX_T = 5.0
+MAX_P95 = None   # seconds, kernel -> stage-2 decision; set to 2.0 for the alert budget
+
+
 def select(grid):
-    ok = [v for v in grid.values() if (v['attack'] or 0) >= 0.90 and v['T'] <= 5.0]
+    ok = [v for v in grid.values() if (v['attack'] or 0) >= 0.90 and v['T'] <= MAX_T
+          and (MAX_P95 is None or (v['p95_stage2_delay'] is not None and v['p95_stage2_delay'] <= MAX_P95))]
     if not ok:
         return None
     return max(ok, key=lambda v: (round(v['separation'], 6), -v['T'], v['f']))
@@ -82,7 +87,13 @@ def main():
     p.add_argument('--test-campaign', action='append', default=[])
     p.add_argument('--policy', default='2,2,10', help='k,n,alpha_scale of stage 1 (default k2of2_a10)')
     p.add_argument('--output', required=True)
+    p.add_argument('--t-grid', help='comma-separated T values (seconds)')
+    p.add_argument('--max-p95', type=float, help='only (T, f) with p95 kernel->decision <= this (alert budget, e.g. 2.0)')
     a = p.parse_args()
+    global T_GRID, MAX_P95
+    if a.t_grid:
+        T_GRID = tuple(float(x) for x in a.t_grid.split(','))
+    MAX_P95 = a.max_p95
     k, n, scale = a.policy.split(',')
     policy = ConfirmationPolicy(int(k), int(n), float(scale))
     dev = intervals(a.dev_campaign, policy)
