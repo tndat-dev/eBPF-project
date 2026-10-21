@@ -1,0 +1,24 @@
+{
+  "schema": "sentinel-pulse-baseline-evaluation-v1",
+  "registered_at": "2026-10-21T11:55+07:00",
+  "registered_before_any_baseline_fit_or_score": true,
+  "purpose": "Compare Pulse's detector with standard unsupervised baselines on identical data, identical conformal thresholding, identical k-of-n confirmation and matched alert budgets; only the scorer differs.",
+  "reference_arm": "base29 = Pulse scorer (ExtraTrees history->current + support branch, joint p-value), the syscall-arms base29 models",
+  "baseline_arms": {
+    "iforest": "Isolation Forest (200 trees) on the standardized current 249-column vector; score = -score_samples",
+    "autoencoder": "MLP autoencoder (249-64-16-64-249) reconstructing the standardized current vector; score = mean squared reconstruction error (frequency autoencoder in the spirit of CDL)",
+    "freq_profile": "Bag-of-system-calls style frequency deviation: L1 distance of the syscall-frequency part (29 ratios + 64 hashed syscall bins) to the training mean, scaled by training MAD"
+  },
+  "seeds": [73021, 73022, 73023],
+  "fit_data": "syscall-arms normal selection rows, same train/calibration split and capped indices as Pulse's syscall-arms fits (train contexts, current vector)",
+  "evaluation_data": {
+    "normal": "pulse-live-recalibrated normal 19/10 13:00 - capture end, incident 18:25-19:20 removed; first 42 % (to ~18:25) used as calibration, the rest for alert burden",
+    "attacks": "pulse-live-recalibrated main + follow-up campaigns (420 pairs: idle control, benign launch, attack)"
+  },
+  "decision": "joint p-value of each scorer (baselines put the same score in both branches), k2of2 confirmation, alpha scale matched per arm to the budget",
+  "budgets_episodes_per_replica_hour": {"primary": 1.0, "secondary": 5.0},
+  "statistics": "paired workload-clustered bootstrap (10000) of differences to base29",
+  "metrics": ["recall", "benign-launch positive rate", "idle-control positive rate", "separation", "p95 first-alarm delay"],
+  "reported_as": "base29 better / not different / worse per baseline, using 95 % CIs of the recall and separation differences at each budget; no selection of a winner after the fact",
+  "evidence_class": "development: the evaluation run is the same capture used elsewhere for selection; attack scenarios were used while developing Pulse"
+}
