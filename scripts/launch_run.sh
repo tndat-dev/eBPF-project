@@ -5,7 +5,7 @@
 #   LAB_SSH_PASSWORD=... RUN=pulse-stable-candidate SNAP=/mnt/.../source \
 #   CANDIDATE=/mnt/.../model-bundle MODEL_HASH=... POLICY=sentinel_pulse/protocol/x.json POLICY_HASH=... \
 #   [FIXTURE=testbed/attack/runtime_attack_with_benign_control.c] [SECONDS_TOTAL=86400] [FAST=1] \
-#   [RCA_PREV_UNIT=rca-subscriber] bash launch_run.sh [plan|workers|rca|master|all]
+#   [RCA_PREV_UNIT=rca-subscriber] [ATTACK_RATES=1,3,6] bash launch_run.sh [plan|workers|rca|master|all]
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
 set -euo pipefail
@@ -27,6 +27,7 @@ plan() {
   cd /tmp
   flags=(--benign-exec-control --no-raw-frames)
   [ "$FAST" = 1 ] && flags+=(--fast-scoring)
+  [ -n "${ATTACK_RATES:-}" ] && flags+=(--attack-rates "$ATTACK_RATES")   # G4 slow attacker; default 6,12,24
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \
     --source "$SNAP" --root "$ROOT" --run-id "$RUN" --profile custom --frozen-source "$SNAP" \
     --candidate "$CANDIDATE" --model-hash "$MODEL_HASH" --policy "$POLICY" --policy-hash "$POLICY_HASH" \

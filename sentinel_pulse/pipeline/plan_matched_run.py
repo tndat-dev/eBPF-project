@@ -32,7 +32,7 @@ PROFILES={
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
-def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None):
+def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24)):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -76,7 +76,7 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
                'seccomp_api_probe','execveat_resolution_probe']
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
                          scenario=scenario,rate_per_second=rate,seed=seed)
-        for key in keys for scenario in scenarios for rate in (6,12,24) for seed in (61501,)]
+        for key in keys for scenario in scenarios for rate in rates for seed in (61501,)]   # G4: --attack-rates 1,3,6
     random.Random(20261015).shuffle(cfg['schedule'])
     cfg['traffic_schedule']=[]
     t=start
@@ -98,7 +98,10 @@ if __name__=='__main__':
     for key in ('candidate','model-hash','policy','policy-hash','fixture'):p.add_argument('--'+key)
     p.add_argument('--seconds',type=int,default=86400)
     for key in ('benign-exec-control','no-raw-frames','fast-scoring'):p.add_argument('--'+key,action='store_true')
+    p.add_argument('--attack-rates',default='6,12,24',help='fixture attack rates per second (1-100), comma-separated')
     a=p.parse_args()
+    rates=tuple(int(x) for x in a.attack_rates.split(','))
+    if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
     custom=None
     if a.profile=='custom':
         if not all((a.candidate,a.model_hash,a.policy,a.policy_hash,a.fixture)):
@@ -106,4 +109,4 @@ if __name__=='__main__':
         custom=dict(candidate=a.candidate,model_hash=a.model_hash,policy=a.policy,policy_hash=a.policy_hash,
                     fixture=a.fixture,seconds=a.seconds,benign_exec_control=a.benign_exec_control,
                     write_raw_frames=not a.no_raw_frames,fast_scoring=a.fast_scoring)
-    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom)
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates)

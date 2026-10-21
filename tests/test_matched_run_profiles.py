@@ -24,3 +24,13 @@ def test_null_sink_accepts_worker_calls():
     with NullSink() as sink:
         sink.write('{"type":"stat"}\n')
         sink.flush()
+
+
+def test_attack_rates_option_validates_and_defaults():
+    import subprocess, sys
+    r = subprocess.run([sys.executable, '-m', 'sentinel_pulse.pipeline.plan_matched_run', '--source', '/x', '--root', '/y',
+                        '--run-id', 'abc', '--attack-rates', '0,3'], capture_output=True, text=True)
+    assert r.returncode == 2 and 'attack rates' in r.stderr
+    import inspect
+    from sentinel_pulse.pipeline.plan_matched_run import plan
+    assert inspect.signature(plan).parameters['rates'].default == (6, 12, 24)
