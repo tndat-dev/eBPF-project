@@ -57,7 +57,7 @@ Xếp theo mức reviewer sẽ phạt nặng:
 | G6 | **Gánh cảnh báo vẫn ~65 lần ngân sách 0,1/giờ** | Ảnh hưởng tính khả thi khi vận hành | Calibration tự làm mới (B1), CUSUM (A2), so sánh replica (B2), FDR (R6) |
 | G7 | **Overhead mới đo sơ bộ** | Cần cho phần hệ thống | A/B CPU và độ trễ ứng dụng có/không Pulse |
 | G8 | **Chưa có review nhãn và blind test độc lập đầy đủ** | Nhãn hiện là nhãn kỳ vọng; kịch bản attack đã dùng khi phát triển | Review một mẫu cảnh báo normal; campaign mới với exploit thật |
-| G9 | **Chưa có artifact mở và bản thảo** | Huấn luyện artifact evaluation; luận văn | Gói script tái lập + dữ liệu ẩn danh; viết luận văn và paper tiếng Anh |
+| G9 | **Chưa có artifact mở và bản thảo** | Cần cho huy hiệu artifact evaluation và cho luận văn | Gói script tái lập + dữ liệu ẩn danh; viết luận văn và paper tiếng Anh |
 
 ### Đề xuất
 
