@@ -215,13 +215,17 @@ def in_spans(a, b, spans):
     return any(b > x and a < y for x, y in spans)
 
 
-def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, output: Path,
-          holdout: tuple, exclude=(), batch=2048, nodes=()):
+def score(workers_root: Path, pulse_study: Path, baseline_dir: Path | None, campaigns, output: Path,
+          holdout: tuple, exclude=(), batch=2048, nodes=(), study_arms=('base29',)):
     """Stream every sealed segment once; dump holdout scores and campaign replay windows for all arms.
-    ``nodes`` restricts the run to some worker directories (one process per node; ``register`` merges)."""
+    ``nodes`` restricts the run to some worker directories (one process per node; ``register`` merges).
+    ``study_arms``: fitted arms of ``pulse_study`` to score (feature-group study: all of its arms, each with its
+    own ``ContextBuilder`` spec); baselines and combos are computed from the base29 contexts only."""
     terminal = json.loads((pulse_study/'TERMINAL.json').read_text())['completed']
-    keys = set(json.loads((pulse_study/'INDEX.json').read_text())['workloads'])
-    baselines = load_baselines(baseline_dir)
+    index = json.loads((pulse_study/'INDEX.json').read_text())
+    keys = set(index['workloads'])
+    specs = {arm: index.get('arms', {}).get(arm, dict(add=[], drop=[])) for arm in study_arms}
+    baselines = load_baselines(baseline_dir) if baseline_dir else {}
     trials = load_trials(campaigns)
     windows_of = defaultdict(list)   # trial identity -> (first, last, trial key)
     for t in trials:
@@ -233,11 +237,11 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
     fast = VerifiedFastScorer()   # exact-equality check against sklearn on each model's first batch
     base_models, replay, stats = {}, defaultdict(list), defaultdict(int)
 
-    def base29(workload):
-        if workload not in base_models:
-            base_models[workload] = {}
+    def fitted(workload, arm='base29'):
+        if (workload, arm) not in base_models:
+            base_models[workload, arm] = {}
             for seed in SEEDS:
-                item = terminal.get(f'{workload}|base29|{seed}')
+                item = terminal.get(f'{workload}|{arm}|{seed}')
                 if item is None:
                     continue
                 path = contained_artifact(pulse_study, item['artifact'])
@@ -246,19 +250,20 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
                 with path.open('rb') as f:
                     m = load_artifact(f)
                 m.base.estimator.n_jobs = 1
-                base_models[workload][seed] = m
-        return base_models[workload]
+                base_models[workload, arm][seed] = m
+        return base_models[workload, arm]
 
     for node_dir in sorted(p for p in workers_root.iterdir() if p.is_dir() and (not nodes or p.name in nodes)):
-        builder = ContextBuilder(dict(add=[], drop=[]), first, holdout[1])   # continuous across segments
+        builders = {arm: ContextBuilder(spec, first, holdout[1]) for arm, spec in specs.items()}   # continuous across segments
         for seal in sorted((node_dir/'segments').glob('s*/TERMINAL.json')):
             segment = seal.parent; collector = ScoreCollector(); pending = defaultdict(list)
             if (bounds(segment/'features.jsonl')[1] or first) < first:
                 continue   # wholly before the first window that can matter (history state stays empty)
 
-            def flush(workload):
-                items = pending.pop(workload, [])
-                models = base29(workload)
+            def flush(key):
+                workload, study_arm = key
+                items = pending.pop(key, [])
+                models = fitted(workload, study_arm)
                 if not items or not models:
                     return
                 rows = [r for r, _, _ in items]; ctx = np.stack([c for _, c, _ in items])
@@ -266,9 +271,9 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
                 alpha = float(next(iter(models.values())).alpha)
                 scores = {}
                 for seed, m in models.items():
-                    p = fast(workload, m, ctx)
-                    scores['base29', seed] = (np.asarray(p['tree_score']), np.asarray(p['support_score']))
-                if workload in baselines:
+                    p = fast(f'{workload}|{study_arm}', m, ctx)
+                    scores[study_arm, seed] = (np.asarray(p['tree_score']), np.asarray(p['support_score']))
+                if study_arm == 'base29' and workload in baselines:
                     for (arm, seed), s in baseline_scores(baselines[workload], ctx[:, -WIDTH:].astype(np.float64)).items():
                         scores[arm, seed] = (s, s)
                 scores.update(combined(scores))
@@ -290,8 +295,8 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
                     workload = row.get('workload_key')
                     if workload not in keys:
                         continue
-                    ctx = builder.observe(row)
-                    if ctx is None:
+                    contexts = {arm: b.observe(row) for arm, b in builders.items()}
+                    if all(c is None for c in contexts.values()):
                         continue
                     a, b = float(row['window_start']), float(row['window_end'])
                     in_holdout = holdout[0] <= a and b <= holdout[1] and not in_spans(a, b, exclude)
@@ -300,11 +305,14 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
                     if not in_holdout and not tks:
                         continue
                     stats['holdout_rows'] += int(in_holdout); stats['trial_rows'] += int(bool(tks))
-                    pending[workload].append((row, ctx, (in_holdout, tks)))
-                    if len(pending[workload]) >= batch:
-                        flush(workload)
-            for workload in list(pending):
-                flush(workload)
+                    for arm, ctx in contexts.items():
+                        if ctx is None:
+                            continue
+                        pending[workload, arm].append((row, ctx, (in_holdout, tks)))
+                        if len(pending[workload, arm]) >= batch:
+                            flush((workload, arm))
+            for key in list(pending):
+                flush(key)
             if collector.data:
                 target = output/'score-dump'/node_dir.name/segment.name/'scores.npz'
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -357,12 +365,14 @@ def main():
     f = sub.add_parser('fit'); f.add_argument('--source-study', type=Path, required=True)
     f.add_argument('--workload-dir', type=Path, required=True); f.add_argument('--output', type=Path, required=True)
     s = sub.add_parser('score'); s.add_argument('--workers-root', type=Path, required=True)
-    s.add_argument('--pulse-study', type=Path, required=True); s.add_argument('--baselines', type=Path, required=True)
+    s.add_argument('--pulse-study', type=Path, required=True); s.add_argument('--baselines', type=Path)
+    s.add_argument('--study-arm', action='append', help='fitted arms of --pulse-study to score (default base29); "all" = every arm')
     s.add_argument('--campaign', type=Path, action='append', required=True); s.add_argument('--output', type=Path, required=True)
     s.add_argument('--holdout', type=span, required=True); s.add_argument('--exclude', type=span, action='append', default=[])
     s.add_argument('--node', action='append', default=[], help='score only these worker directories')
     r = sub.add_parser('register'); r.add_argument('--output', type=Path, required=True)
     r.add_argument('--pulse-study', type=Path, required=True); r.add_argument('--holdout', type=span, required=True)
+    r.add_argument('--arm', action='append', help='arms to register (default: base29 + baselines + combos); "study" = every arm of --pulse-study')
     c = sub.add_parser('combine'); c.add_argument('--source', type=Path, required=True)
     c.add_argument('--output', type=Path, required=True); c.add_argument('--pulse-study', type=Path, required=True)
     c.add_argument('--holdout', type=span, required=True)
@@ -370,13 +380,20 @@ def main():
     if a.command == 'fit':
         fit(a.source_study, a.workload_dir, a.output)
     elif a.command == 'score':
-        print(score(a.workers_root, a.pulse_study, a.baselines, a.campaign, a.output, a.holdout, a.exclude, nodes=a.node))
+        arms = a.study_arm or ['base29']
+        if arms == ['all']:
+            arms = sorted(json.loads((a.pulse_study/'INDEX.json').read_text())['arms'])
+        print(score(a.workers_root, a.pulse_study, a.baselines, a.campaign, a.output, a.holdout, a.exclude, nodes=a.node,
+                    study_arms=tuple(arms)))
         if not a.node:
             register(a.output, a.pulse_study, a.holdout)
     elif a.command == 'combine':
         combine(a.source, a.output, a.pulse_study, a.holdout)
     else:
-        register(a.output, a.pulse_study, a.holdout)
+        arms = a.arm or list(ARMS)
+        if arms == ['study']:
+            arms = sorted(json.loads((a.pulse_study/'INDEX.json').read_text())['arms'])
+        register(a.output, a.pulse_study, a.holdout, arms=tuple(arms))
 
 
 if __name__ == '__main__':

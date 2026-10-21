@@ -1,0 +1,16 @@
+{
+  "schema": "sentinel-pulse-feature-group-evaluation-v1-amendment",
+  "registered_at": "2026-10-22T01:22+07:00",
+  "registered_before": "any feature-group phase B number (score dump, replay outcome, budget or bootstrap) existed",
+  "amends": "sentinel_pulse/protocol/feature-group-evaluation-v1.json",
+  "change": "adds a second, independent normal holdout; nothing of v1 is changed or dropped",
+  "second_holdout": {
+    "normal": "pulse-live-recalibrated normal 19/10 13:00 - capture end, incident 18:25-19:20 and both campaigns (+-60 s) removed; first 42 % as calibration, the rest for alert burden (as baseline-evaluation-v1)",
+    "capture": "local copy /var/tmp/pulse-live-copy on .234 (read without NFS load during the live run)",
+    "attacks": "pulse-live-recalibrated main + follow-up campaigns (1238 paired trials), as v1"
+  },
+  "same_as_v1": ["fitted arms and models (693, frozen 20/10)", "p-value variants base29@tree and base29@support", "k2of2", "budgets 1 and 5", "paired workload bootstrap", "metrics", "rules_per_component"],
+  "how_results_combine": "v1 rules are applied on each holdout separately. A component keeps its v1 verdict only if the second holdout does not contradict it ('needed' on one and 'removable' on the other => reported as inconclusive). The second holdout alone never changes the feature set.",
+  "why": "the v1 holdout (syscall-arms, 48 h soak) can only be read after the live run; the second holdout gives an earlier and independent replication on a later capture with benign-launch controls",
+  "evidence_class": "development: pulse-live-recalibrated was used to choose earlier Pulse candidates"
+}

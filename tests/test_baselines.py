@@ -126,3 +126,51 @@ def test_score_writes_holdout_dump_and_replay_that_arm_budget_reads(tmp_path, mo
     assert a.keys() == b.keys() and all(np.array_equal(a[k][f], b[k][f]) for k in a for f in a[k])
     again = {json.loads(l)['tag']: json.loads(l)['windows'] for l in (derived/'replay'/'windows.jsonl').read_text().splitlines()}
     assert again[f'{KEY}|tree_ae|73021'] == tree_ae and set(t.split('|')[1] for t in again) == {'base29', 'tree_ae'}
+
+
+def test_score_feature_group_arms_without_baselines(tmp_path, monkeypatch):
+    """Feature-group study: every arm gets its own context (here history1 = 2 windows) at the same windows."""
+    from sentinel_pulse.syscall_study.feature_groups import feature_arms
+    columns = capture(tmp_path)
+    widths = []
+
+    class Model:
+        alpha = .05/30
+        base = SimpleNamespace(estimator=SimpleNamespace(n_jobs=-1))
+
+        def predict_contexts(self, contexts):
+            widths.append(contexts.shape[1])
+            return dict(tree_score=contexts[:, -1].astype(float), support_score=-contexts[:, -1].astype(float))
+
+    class Scorer:
+        disabled = []
+
+        def __call__(self, workload, model, ctx):
+            return model.predict_contexts(ctx)
+
+    monkeypatch.setattr(bl, 'load_artifact', lambda stream: Model())
+    monkeypatch.setattr(bl, 'VerifiedFastScorer', Scorer)
+    arms = feature_arms()
+    study = tmp_path/'study'; study.mkdir()
+    (study/'toy.pkl').write_bytes(b'fixture')
+    item = dict(artifact='toy.pkl', sha256=sha256_file(study/'toy.pkl'))
+    (study/'TERMINAL.json').write_text(json.dumps(dict(completed={f'{KEY}|{a}|73021': item for a in ('base29', 'history1')})))
+    (study/'INDEX.json').write_text(json.dumps(dict(workloads={KEY: {}}, columns=columns,
+                                                    arms={a: arms[a] for a in ('base29', 'history1')})))
+    campaign = tmp_path/'campaign'; (campaign/'trials'/'1').mkdir(parents=True)
+    trial = dict(trial_id='1:attack', label='attack', start_at=300., kernel_event_at=300.2, workload_key=KEY,
+                 node_name='worker', pod_uid='pod', container_name='app', workload_revision='revision', cgroup_id=19)
+    (campaign/'trials'/'1'/'EVALUATION_INPUT.json').write_text(json.dumps(dict(attack=trial)))
+    (campaign/'INTERVALS.jsonl').write_text(json.dumps(dict(start_at=300.)) + '\n')
+    (campaign/'TERMINAL.json').write_text(json.dumps(dict(finished_at_unix=316.)))
+    out = tmp_path/'out'
+    bl.score(tmp_path/'workers', study, None, [campaign], out, holdout=(100., 400.), batch=64, nodes=['worker'],
+             study_arms=('base29', 'history1'))
+    bl.register(out, study, (100., 400.), arms=('base29', 'history1'))
+    load_study(out)
+    assert set(widths) == {249*4, 249*2}
+    a, b = (load_holdout(out/'score-dump', arm)[f'{KEY}|{arm}|73021'] for arm in ('base29', 'history1'))
+    assert np.array_equal(a['window_end'], b['window_end'])          # matched windows across arms
+    np.testing.assert_array_equal(a['tree'], b['tree'])                # same current vector, last column
+    tags = {json.loads(l)['tag'] for l in (out/'replay'/'windows.jsonl').read_text().splitlines()}
+    assert tags == {f'{KEY}|base29|73021', f'{KEY}|history1|73021'}
