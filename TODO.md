@@ -35,6 +35,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   - Hai hướng đã loại: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b).
   - [~] Novelty có xét exec (5.7c) chạy tự động sau lượt live.
   - [ ] Hướng tiếp: thông tin ngoài tần suất (tham số syscall, quan hệ cha–con của process từ Tetragon).
+- [ ] **Bằng chứng gần tối ưu cho alpha/chính sách** (Pulse 5.8f): biên Pareto + CI trên lưới `latency3s`, lưới alpha mịn (×4–15), ổn định giữa các lượt.
 - [ ] **Độ trễ** (mục tiêu: càng nhanh càng tốt, < 2 s ưu tiên, ≤ 3 s chấp nhận): live p95 1,85 s, p99 4,9 s (đuôi do k2of2 liên tiếp, Pulse 5.8c).
   - [ ] Đo lại trên pulse-stable-candidate (chấm nhanh) rồi phân rã đuôi p99: backlog, warming sau reset, ghi NFS.
 - [ ] Recall thấp ở `mprotect` (75–82%) và `seccomp` (70–83%), là điểm yếu chung của mọi bộ syscall (syscall 5.8).

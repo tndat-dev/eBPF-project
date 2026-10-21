@@ -740,6 +740,35 @@ c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngư
 - Phải so ở cùng ngân sách (số đợt hoặc control) kèm CI, như thí nghiệm syscall đã làm.
 - Lựa chọn nên dựa trên luật đăng ký trước, không dựa trên một ô đẹp nhất của lưới.
 
+### 5.8f Alpha và p-value đang dùng: đã có bằng chứng gì, chưa có gì (21/10 11:12)
+
+**Định nghĩa trong code:**
+- **p-value conformal** của một cửa sổ (`detector/support_model.py: pvalues`): p = (1 + số điểm calibration ≥ điểm cửa sổ) / (n + 1).
+  - Tập calibration là điểm của chính model trên normal không dùng để fit.
+  - Có hai p-value: `tree_p` (model ExtraTrees học quan hệ lịch sử → hiện tại) và `support_p` (khoảng cách tới vùng normal của vector hiện tại).
+- **joint_p** = min(1, 2·min(tree_p, support_p)). Lấy p nhỏ hơn rồi nhân 2 là hiệu chỉnh Bonferroni cho hai nhánh.
+- **alpha gốc** = 0,05 / 30 ≈ 0,00167 mỗi cửa sổ (`PulseSupportEnsemble(interval_fpr_budget=.05, horizon_windows=30)`). Ý nghĩa: ngân sách thiết kế 5% báo nhầm cho một khoảng 15 s (30 cửa sổ), chia đều cho từng cửa sổ.
+  - Yêu cầu tối thiểu 1.200 điểm calibration (`ceil(2/alpha) − 1`) để p-value có thể nhỏ tới mức alpha.
+- **Hệ số alpha** (×0,25 … ×20) nới hoặc siết ngưỡng; **k-of-n** đòi k trong n cửa sổ gần nhất cùng qua ngưỡng. Ví dụ `k2of2_a10`: joint_p ≤ 0,0167 ở 2 cửa sổ liên tiếp.
+
+**Đã có bằng chứng:**
+1. **Cấu trúc gộp hai nhánh là cần thiết:** bỏ nhánh support thì recall giảm 28–31 điểm; bỏ nhánh tree thì giảm 5–7 điểm ở ngân sách chặt (syscall 5B.1).
+2. **Quan hệ giữa alpha và chỉ số là đơn điệu** trong mỗi họ (5.8e). Mỗi hệ số alpha là một điểm trên đường đánh đổi recall ↔ precision/control ↔ độ trễ.
+3. **Lựa chọn hệ số theo luật đăng ký trước**, trên lưới rời rạc, với dữ liệu development (5.7, 5.7a), rồi kiểm trên dữ liệu mới (5.8a).
+4. **Mức thiết kế 5% không giữ trên live:** control 8,4% với α×10 trên lượt stable, cao hơn dev 4,8%. p-value chỉ hợp lệ khi normal lúc chạy giống normal lúc calibration, và calibration c1 đã trôi (5.6, 5.6b, syscall 5.9).
+
+**Chưa có bằng chứng tối ưu:**
+- **Alpha gốc 0,05/30** là một ngân sách thiết kế (chia đều kiểu Bonferroni), chưa từng được tối ưu. Trong vận hành, hệ số alpha mới là thứ quyết định.
+- **Hệ số alpha** chỉ là "tốt nhất trong lưới theo luật". Lưới thưa (bước ~2×: 0,25, 0,5, 1, 2, 3, 5, 10), nên giữa các nút chưa đo.
+- **Không có một "tối ưu" duy nhất.** Đây là bài toán nhiều mục tiêu: recall, precision, control, độ trễ, gánh cảnh báo. "Tối ưu" chỉ có nghĩa sau khi cố định mục tiêu, ví dụ: tối thiểu gánh cảnh báo với recall ≥ 95%, precision ≥ 95%, control ≤ 5%, p95 < 2 s ưu tiên / ≤ 3 s chấp nhận. Luật v2 (5.8d) chính là mục tiêu đó.
+- **Cách gộp 2·min** chưa được so với cách khác (Fisher, tích, trọng số), và số cửa sổ calibration (≥ 1.200) chưa được dò.
+- **Nhiễu:** CI ±2–7 điểm, nên các nút kề nhau thường không phân biệt được (5.8e).
+
+**Bằng chứng cần có để nói "gần tối ưu"** (đăng ký 21/10 11:12, chạy khi giai đoạn final có số):
+1. **Biên Pareto** trên dữ liệu pulse-stable-candidate với lưới `latency3s` (34 chính sách) cho cả hai calibration. Xác định chính sách luật v2 chọn có nằm trên biên không, và chính sách kề có tốt hơn có ý nghĩa không (bootstrap theo workload).
+2. **Lưới alpha mịn quanh điểm được chọn** (×4, 6, 7, 8, 12, 15) cho các họ đi tiếp. Mục đích là kiểm mức thưa của lưới có che mất điểm tốt hơn không.
+3. **Ổn định giữa các lượt:** cùng một chính sách phải giữ thứ hạng trên dev, lượt stable và lượt kế tiếp. Lượt kế tiếp là phép kiểm thật.
+
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
@@ -1026,3 +1055,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 09:55 | Thêm lưới replay `latency3s` (34 chính sách, gồm 3–4 cửa sổ) cho giai đoạn final trước khi có số; khởi động lại unit phân tích trên snapshot `7dcc780` | mục 5.8d |
 | 10:25 | pulse-stable-candidate chạy hết 24 giờ trên cả 3 worker; 7 issue tổng; CPU worker 3,1–7,5 giờ/24 giờ (chấm nhanh) | mục 5.8 |
 | 11:09 | Phân tích vì sao chỉ số không đổi tuyến tính: trong cùng calibration/họ, recall, precision và control đơn điệu; chỗ gãy ở số đợt là lỗi cộng đôi chính sách α×1 trong `select_policy` v1 (đã sửa, lựa chọn 20/10 không đổi); còn lại là bão hòa theo khoảng 15 s, chọn mẫu ở p95, calibration theo workload, nhiễu mẫu | mục 5.8e |
+| 11:12 | Ghi rõ alpha và p-value là gì; bằng chứng hiện có (cấu trúc 2 nhánh, đơn điệu, luật chọn) và chưa có (alpha gốc là ngân sách thiết kế, lưới thưa, chưa có biên Pareto + CI); đăng ký phân tích Pareto và lưới alpha mịn | mục 5.8f |
