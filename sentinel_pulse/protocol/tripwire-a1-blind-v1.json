@@ -1,0 +1,20 @@
+{
+  "schema": "sentinel-pulse-tripwire-a1-blind-v1",
+  "registered_at": "2026-10-21T14:56+07:00",
+  "registered_before_reading_any_data_of": "pulse-stable-refreshed (its campaign started 13:56; none of its feature, decision or trial files had been read)",
+  "hypothesis": "A syscall ID that is absent from the workload's normal reference and not produced by the exec mechanism (frozen exec set E) marks the rare-syscall attack class and not a benign new process (Pulse 5.7c, 5.8h replicated on new data).",
+  "exec_set": {"path": "validation-evidence/results-20261021/pulse-stable-candidate/final/exec-set-E.json",
+               "sha256": "a3266613cf8d14d9d68e8d910ff0ae2886ff4a5a62cdd158afd3bd1e03bba2ea", "ids": 59,
+               "learned_on": "pulse-live-recalibrated benign-launch intervals; frozen 21/10 before 5.7c was run"},
+  "primary": {"reference": "this run's normal from campaign end + 60 s to the first worker's end (as 5.7c)",
+              "criteria": {"benign_max": 0.10, "control_max": 0.05,
+                           "rare_syscall_scenarios": ["child_ptrace_handshake", "invalid_setns_burst", "execveat_resolution_probe"],
+                           "rare_syscall_scenario_min": 0.90,
+                           "rare_syscall_delay_p95_max_seconds": 2.0}},
+  "secondary": {"reference": "only this run's selection span (90 min of normal before the first attack): the reference a live tripwire could have had",
+                "use": "descriptive, same numbers reported; decides whether a live tripwire needs a longer reference carried from earlier runs"},
+  "delay_definition": "end of the first 500 ms window carrying a novel ID - kernel_event_at",
+  "not_claimed": "the tripwire does not cover attacks without a rare syscall (anonymous_mprotect_churn, seccomp_api_probe); it is a severity signal next to Pulse, not a replacement",
+  "code": "scripts/analysis/novel_syscalls.py (--exec-set, --secondary-reference-span), scripts/analysis/tripwire_verdict.py",
+  "evidence_class": "blind for the tripwire rule and E; development for the attack scenarios (self-written fixtures)"
+}

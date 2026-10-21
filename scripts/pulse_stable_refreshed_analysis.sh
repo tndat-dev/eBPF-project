@@ -82,5 +82,16 @@ $PY "$SRC/scripts/analysis/ideas_burden.py" "${roots[@]}" --model-hash $MODEL --
   --since "$SELECTION_START" "${EXCL[@]}" --output "$OUT/ideas-burden-blind.json"
 $PY "$SRC/scripts/analysis/ideas_verdict.py" --screen "$OUT/ideas-screen-blind.json" --burden "$OUT/ideas-burden-blind.json" \
   --output "$OUT/ideas-verdict.json"
+# 5.16 / protocol tripwire-a1-blind-v1: novel non-exec syscall tripwire, frozen exec set E, primary reference = normal
+# after the campaign (as 5.7c), secondary = selection span only (what a live tripwire could have had)
+REF_END=$(python3 -c "
+import json
+print(min(json.load(open('$RUN/workers/'+n+'/TERMINAL.json'))['finished_at_unix'] for n in '${NODES[*]}'.split()))")
+$PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" --campaign "$CAMPAIGN" \
+  --reference-span "${CAMPAIGN_SPAN#*:}:$REF_END" --secondary-reference-span "$SELECTION_START:$(cfg selection_end)" \
+  --exec-set "$SRC/validation-evidence/results-20261021/pulse-stable-candidate/final/exec-set-E.json" \
+  --output "$OUT/tripwire-blind.json"
+$PY "$SRC/scripts/analysis/tripwire_verdict.py" --result "$OUT/tripwire-blind.json" \
+  --protocol "$SRC/sentinel_pulse/protocol/tripwire-a1-blind-v1.json" --output "$OUT/tripwire-verdict.json"
 $PY "$SRC/scripts/analysis/cadence_gaps.py" --workers-root "$RUN/workers" --output "$OUT/cadence-gaps.json"
 chown -R dat:dat "$OUT" 2>/dev/null || true

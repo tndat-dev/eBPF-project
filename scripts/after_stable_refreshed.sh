@@ -13,6 +13,6 @@ echo "campaign stage done $(date -u +%FT%T)"
 for n in k8s-worker1.local k8s-worker4.local k8s-worker3.local; do
   until [ -f $RUN/workers/$n/TERMINAL.json ]; do sleep 300; done
 done
-[ -f $RUN/analysis/ideas-verdict.json ] || SRC=$SRC STAGE=final bash $SRC/scripts/pulse_stable_refreshed_analysis.sh
+[ -f $RUN/analysis/cadence-gaps.json ] || SRC=$SRC STAGE=final bash $SRC/scripts/pulse_stable_refreshed_analysis.sh
 echo "final stage done $(date -u +%FT%T)"
 runuser -u dat -- env SRC=$SRC WAIT_RUN=pulse-stable-refreshed bash $SRC/scripts/after_stable_candidate_chain.sh
