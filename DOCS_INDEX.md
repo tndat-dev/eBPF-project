@@ -11,11 +11,6 @@
 4. [TODO.md](TODO.md) — danh sách việc theo mức ưu tiên.
 5. README trong từng thư mục (`sentinel_pulse/`, `testbed/`) — hướng dẫn code, không phải báo cáo tiến độ.
 
-## Tài liệu cũ
-
-- `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` — bản tổng hợp dài (snapshot 15–16/10, giữ theo yêu cầu).
-- `docs/*.docx` — báo cáo Word cũ.
-
 ## Bằng chứng
 
 `validation-evidence/` chứa biên nhận, checksum và kết quả nhỏ của từng lượt chạy
