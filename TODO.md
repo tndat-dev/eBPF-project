@@ -20,7 +20,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 1. [ ] 22/10 ~15:00: đọc giai đoạn final theo đúng tiêu chí đã đăng ký (gánh cảnh báo, CUSUM/Cauchy, tripwire A1, Pareto ổn định giữa 2 lượt, phân loại cảnh báo và triage probe 5.18 trên dữ liệu mới).
 1b. [ ] Sau lặp lại baseline: đọc chiến lược calibration 5.17 (bản dữ liệu mới) theo luật đã đăng ký.
 2. [ ] 22/10 ~18:00: đọc lần lặp lại baseline (5.15b) và kết quả luật chọn bộ chấm.
-3. [ ] Chốt cấu hình **ML stable** theo luật đã đăng ký `stable-selection-v1` (Pulse 5.19), theo kết quả 1–2; rule (Falco, tripwire) chỉ báo song song, tích hợp sau cùng. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
+3. [ ] (Đường live đã sẵn sàng cho CUSUM/Cauchy, `900b85c`; 32 lệnh của chuỗi sau lượt live đã kiểm cờ CLI.) Chốt cấu hình **ML stable** theo luật đã đăng ký `stable-selection-v1` (Pulse 5.19), theo kết quả 1–2; rule (Falco, tripwire) chỉ báo song song, tích hợp sau cùng. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
 4. [ ] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed. Chỉ chạy khi không có lượt live và chuỗi phân tích nặng đã xong.
 5. [~] **Ưu tiên chính:** viết luận văn (khối việc lớn nhất còn lại, ~10%). Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Đã có 4 hình đầu, tiếng Việt và tiếng Anh (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`). Trong repo chưa có bản thảo luận văn.
 
