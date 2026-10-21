@@ -49,7 +49,7 @@ Xếp theo mức reviewer sẽ phạt nặng:
 
 | # | Khoảng cách | Vì sao quan trọng | Hướng xử lý |
 |---|---|---|---|
-| G1 | **Chưa có baseline tái lập trên cùng dữ liệu** (đang chạy từ 21/10) | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | 21/10: protocol `baseline-evaluation-v1` đăng ký trước khi fit. Isolation Forest, autoencoder 249-64-16-64-249 và hồ sơ tần suất kiểu BoSC được so với base29 trên pulse-live-recalibrated: cùng feature, cùng conformal, k2of2, ngân sách 1 và 5 episode/replica-giờ, bootstrap ghép cặp (job `pulse-baselines-1021`). STIDE cần chuỗi syscall mà Pulse chỉ ghi số đếm, nên không tái lập được trên cùng dữ liệu; nó thuộc phần LID-DS (G3). Luật Falco: chưa làm |
+| G1 | **Baseline trên cùng dữ liệu: đã có kết quả development (21/10), chờ lặp lại trên dữ liệu mới** | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | Pulse 5.15a (cùng feature, conformal, k2of2, ngân sách khớp): Isolation Forest kém hẳn; freq_profile kiểu BoSC tách binary vô hại tốt nhất (16%) nhưng bỏ sót 37% attack; **autoencoder bắt attack ngang hoặc hơn Pulse, gánh cảnh báo thấp hơn khoảng 9 lần ở cùng recall, nhanh hơn (p95 1,1 s so với 2,8 s), nhưng gắn cờ binary vô hại khoảng 100%**; base29 chỉ hơn AE ở khả năng tách binary vô hại. Đã đăng ký lặp lại trên `pulse-stable-refreshed`, kèm ứng viên `tree_ae` (tree của Pulse + AE) và luật chọn bộ chấm (5.15b). STIDE không tái lập được vì Pulse chỉ ghi số đếm; nó thuộc phần LID-DS (G3). Luật Falco: chưa làm |
 | G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng |
 | G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms |
 | G4 | **Chưa có kẻ tấn công thích nghi** | Hội nghị top luôn hỏi về né tránh: tấn công chậm, trải dài, bắt chước normal | Thêm tham số tốc độ vào fixture; đo recall theo tốc độ; lập luận về mimicry |
@@ -74,13 +74,15 @@ Ba đóng góp:
    - thêm feature làm chậm phát hiện.
 3. **Cải tiến có bằng chứng** cho gánh cảnh báo và process vô hại: calibration tự làm mới, CUSUM, đặc trưng theo tham số hoặc tripwire, triage. Mỗi cải tiến kiểm blind.
 
+**Điều chỉnh sau G1 (21/10):** trên cùng dữ liệu, bộ chấm ExtraTrees của Pulse không hơn autoencoder về recall và gánh cảnh báo; nó chỉ hơn ở khả năng tách binary vô hại. Vì vậy đóng góp 1 không nên nhấn vào bản thân bộ chấm. Nên nhấn vào: khung đánh giá vận hành, so sánh công bằng nhiều bộ chấm trong cùng khung, và tín hiệu bổ sung (tripwire A1). Bộ chấm sẽ đổi sang AE hoặc `tree_ae` nếu lần lặp lại trên dữ liệu mới (5.15b) đạt luật chọn đã đăng ký.
+
 **Đích nhắm thực tế:**
 - RAID/ACSAC: khả thi nếu xong G1–G4 và G7–G9;
 - top-4: cần thêm G5 (giải được process vô hại), có bằng chứng trên cả LID-DS lẫn live.
 
 **Thứ tự đề xuất** (sau khi xong hướng hiện tại):
 1. Xác nhận cấu hình v2 trên `pulse-stable-refreshed`; kiểm blind CUSUM/Cauchy; xong nhóm feature và 5.7d.
-2. **G1 baseline:** offline, không cần capture mới.
+2. **G1 baseline:** đã có kết quả development (21/10); lặp lại trên dữ liệu mới chạy tự động sau lượt live; còn luật Falco.
 3. **G3 LID-DS** và **G2 exploit thật** + **G4 tốc độ thấp:** đưa vào campaign của lượt live sau.
 4. **G5:** tripwire trừ tập exec (sau 5.7c), rồi đặc trưng theo tham số nếu cần.
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
@@ -97,7 +99,7 @@ Ba đóng góp:
 | Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; fit 693 model nhóm feature | Giai đoạn B nhóm feature (chấm holdout, so ngân sách) |
 | RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
 | **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
-| Baseline (G1) | ~40% | Protocol đăng ký trước; code và test cho 3 baseline; job đang chạy | Kết quả và bootstrap; luật Falco; STIDE trên LID-DS |
+| Baseline (G1) | ~65% | 3 baseline có kết quả development kèm CI; đăng ký lặp lại trên dữ liệu mới với `tree_ae` | Lặp lại trên dữ liệu mới (22/10); luật Falco; STIDE trên LID-DS |
 | Dataset công khai (G3) | 0% | | Toàn bộ |
 | Exploit thật, kẻ tấn công thích nghi (G2, G4) | ~5% | Fixture có tham số tốc độ | Campaign mới |
 | Ablation | ~70% | Syscall, nhánh p-value | Nhóm feature giai đoạn B; họ model |

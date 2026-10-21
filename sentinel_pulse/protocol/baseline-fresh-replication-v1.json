@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-baseline-fresh-replication-v1",
-  "registered_at": "2026-10-21T15:05+07:00",
+  "registered_at": "2026-10-21T15:04+07:00 (commit 094afc4)",
   "registered_before": "reading any pulse-stable-refreshed data (campaign started 13:56, capture ends 22/10 ~12:30) and before any tree_ae number",
   "context": "baseline-evaluation-v1 on pulse-live-recalibrated (development, SENTINEL_PULSE_STATUS 5.15a): the autoencoder matched or beat base29 on recall at every budget with far lower alert burden and latency, but flagged benign launches ~100%; base29 separated benign launches better. This is the fresh-data test.",
   "models": {

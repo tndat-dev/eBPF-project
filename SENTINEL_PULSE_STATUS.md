@@ -909,7 +909,7 @@ Theo kịch bản (trừ E):
 | Khởi chạy | unit `pulse-stable-refreshed-launcher` chờ `pulse-stable-candidate-analysis` xong rồi chạy `scripts/launch_run.sh all` (snapshot `0c5096d`). Biến môi trường để trong file chỉ root đọc được |
 | Sau lượt live (kế hoạch cũ, thay lúc 13:55) | ~~`after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy~~ |
 | Khởi chạy thật | 21/10 12:22 từ snapshot `0c5096d`; 13:08 khỏe: 0 issue, RCA ok; kết thúc dự kiến 22/10 ~12:25–12:45 |
-| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`, từ 14:58 là snapshot `819f46f` có thêm tripwire 5.16) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
+| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
 
 ### 5.14 So sánh với công trình liên quan (research 21/10)
 
@@ -979,6 +979,24 @@ Theo kịch bản (trừ E):
   - lưới α dừng ở 30 nên freq_profile chưa tới ngân sách 5;
   - 3 seed của AE và iforest khác nhau, freq_profile chỉ có 1 model;
   - không có kiểm định nhiều so sánh.
+
+### 5.15b Lặp lại baseline trên dữ liệu mới, kèm ứng viên `tree_ae` (đăng ký 21/10 15:04, commit `094afc4`)
+
+- **Protocol:** `sentinel_pulse/protocol/baseline-fresh-replication-v1.json`.
+- **Thời điểm đăng ký:** trước khi đọc dữ liệu `pulse-stable-refreshed` và trước khi có bất kỳ số nào của `tree_ae`.
+- **Model đóng băng, không fit lại:** base29, iforest, autoencoder, freq_profile. Biên nhận fit có hash (`FIT.json`, sha `ecf76289…`).
+- **Nhánh mới `tree_ae`:** giữ nhánh tree (lịch sử → hiện tại) của Pulse, thay nhánh support bằng điểm AE cùng seed; joint p = min(1, 2·min(tree_p, ae_p)). Ý tưởng này có **sau khi** xem kết quả AE ở 5.15a, nên số development của nó (đang tính, job `pulse-baselines-tree-ae-dev`, ghép từ dump sẵn có, không chấm lại) chỉ để tham khảo.
+- **Dữ liệu:**
+  - normal của `pulse-stable-refreshed` từ lúc campaign xong +60 s tới hết capture, 42% đầu làm calibration;
+  - attack là campaign của lượt đó.
+- **Cách so:** k2of2; ngân sách 1 (chính), 5 (phụ), 0,1 (mô tả); bootstrap ghép cặp so với base29.
+- **Luật chọn bộ chấm cho candidate kế tiếp** (`scripts/analysis/adoption_verdict.py`, có test). Ở ngân sách 1, AE hoặc `tree_ae` chỉ thay base29 khi:
+  - hiệu recall ≥ 0 và cận dưới CI ≥ −0,01;
+  - hiệu tách ≥ 0 và cận dưới CI ≥ −0,05;
+  - p95 ≤ 2 s.
+
+  Nếu cả hai đạt, chọn nhánh tách tốt hơn. Dù được chọn, vẫn phải có một lượt live trước khi nói gì về hành vi live.
+- **Chạy:** `scripts/pulse_baselines_fresh.sh`, trong unit `after-stable-refreshed`, ngay sau giai đoạn final và trước giai đoạn B nhóm feature.
 
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
@@ -1286,3 +1304,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 13:55 | Dựng phân tích cho `pulse-stable-refreshed` (giai đoạn campaign và final) và gộp chuỗi nặng thành một unit tuần tự `after-stable-refreshed` | mục 5.13; `bf35f5e` |
 | 14:05 | Khôi phục báo cáo này từ bản commit (bản đang mở bị ghi đè lúc 11:49 bằng phiên bản cũ; không mất nội dung mới) rồi chèn 5.8h, 5.8i, 5.15, cập nhật 5.13. Bỏ toàn bộ watcher theo yêu cầu: xóa `scripts/watch_live_run.sh`, `scripts/wait_remote.sh` và `health-run.py` trên .234 | `ce3bd2f` và commit này |
 | 14:56–14:58 | Đăng ký kiểm blind tripwire A1 (5.16) trước khi đọc dữ liệu `pulse-stable-refreshed`; thêm độ trễ và tham chiếu chỉ pha chọn vào `novel_syscalls.py` (kết quả cũ không đổi, có test), `tripwire_verdict.py`; khởi động lại `after-stable-refreshed` trên snapshot `819f46f` (unit vẫn đang chờ campaign, chưa chạy bước nào) | mục 5.16; `819f46f` |
+| 14:42 | Job baseline xong (2 giờ CPU). Ở ngân sách 1: iforest kém hẳn; AE recall 100% (+1,7 điểm), p95 1,09 s nhưng binary vô hại 99%; freq_profile tách tốt nhất nhưng bỏ sót 37%; base29 tách binary vô hại tốt hơn AE (79,5% so với 99,3%). Khám phá: AE đạt ngân sách 0,1 với recall 97%, base29 thì không | mục 5.15a |
+| 15:04–15:05 | Đăng ký lặp lại trên dữ liệu mới, kèm `tree_ae` và luật chọn bộ chấm; thêm `combine`; khởi động lại `after-stable-refreshed` trên `094afc4` (vẫn chờ campaign); chạy `pulse-baselines-tree-ae-dev` (nhẹ, dữ liệu local) | mục 5.15b; `094afc4` |
