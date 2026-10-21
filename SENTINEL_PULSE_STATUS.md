@@ -944,6 +944,46 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 | Khởi chạy thật | 21/10 12:22 từ snapshot `0c5096d`; 13:08 khỏe: 0 issue, RCA ok; kết thúc dự kiến 22/10 ~12:25–12:45 |
 | Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final; 15:14 `4f36ec5` sửa lỗi và chịu lỗi từng bước, smoke test giai đoạn campaign đạt; 15:51 `399676c` thêm lưới `latency3s_fine` và Pareto 5.8j) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
 
+### 5.13a Kết quả campaign pulse-stable-refreshed (campaign xong 21/10 ~19:45; phân tích 19:47)
+
+- **Biên nhận:** `validation-evidence/results-20261021/pulse-stable-refreshed/` (11 file của giai đoạn campaign).
+- **Cấu hình:** luật v2 chọn `k2of2_a10` với calibration làm mới (5.8g), chạy live với chấm nhanh. Lượt live chưa kết thúc (capture tới 22/10 ~12:30), nên gánh cảnh báo trên normal chưa có.
+
+| Kỳ vọng (file chính sách) | pulse-stable-refreshed (live) | CI 95% (Wilson) | Dự đoán từ replay (5.8g) | Lượt trước pulse-stable-candidate |
+|---|---|---|---|---|
+| precision ≥ 95% | **96,0%** (310/323) ✓ | 93,2–97,6% | 96,3% | 92,2% |
+| recall ≥ 95% | **100%** (310/310; 5 unknown) ✓ | 98,8–100% | 99,4% | 97,8% |
+| control ≤ 5% | **4,2%** (13/310) ✓ | 2,5–7,0% | 3,9% | 8,4% |
+| p95 kernel → preview < 2 s (ưu tiên) / ≤ 3 s (chấp nhận) | **2,26 s**: ✗ mức ưu tiên, ✓ mức chấp nhận | — | 1,96 s | 1,85 s |
+| Binary vô hại (không phải kỳ vọng) | 94,1% (289/307) | 90,9–96,3% | 94,2% | 92,0% |
+
+- p50 0,94 s, p99 5,49 s.
+- Theo kịch bản: attack 100% ở cả 5 kịch bản; control 3–6%; binary vô hại 92–97%.
+
+**Đọc kết quả:**
+- **Lần đầu đạt cả 4 kỳ vọng trên một lượt live mới**, nếu tính mức ≤ 3 s cho độ trễ. Precision, recall, control và binary vô hại khớp dự đoán từ replay trong vòng 0,5 điểm. Calibration làm mới đưa control từ 8,4% xuống 4,2%, đúng như 5.7b dự đoán.
+- **p95 2,26 s cao hơn dự đoán 1,96 s.** Đây không phải độ trễ do chạy live: replay trên chính dữ liệu lượt này (`ideas-screen-blind.json`, cùng luật, mốc cuối cửa sổ) cũng cho p95 2,28 s. Đuôi độ trễ dao động giữa các lượt. Nguyên nhân như 5.8c: k2of2 đòi 2 cửa sổ liên tiếp, nên attack qua ngưỡng so le bị chờ thêm.
+- **Binary vô hại vẫn 94%.** Vấn đề cốt lõi chưa đổi (G5).
+- Control CI chạm 7,0%: kỳ vọng control ≤ 5% đạt ở điểm ước lượng, chưa đạt chắc chắn về thống kê.
+
+**CUSUM và Cauchy trên khoảng campaign của lượt này** (5.11a, blind; tham số đóng băng; lựa chọn trên dev lặp lại đúng `cauchy_a10`, `cusum_b3_h6`):
+
+| Phương án | Attack | Binary vô hại | Control | p50 | p95 |
+|---|---|---|---|---|---|
+| Chuẩn: joint + k2of2, α×10 | 100% | 94,3% | 4,1% | 0,83 s | 2,28 s |
+| Cauchy + k2of2, α×10 | 100% | 97,1% | 4,4% | 0,81 s | **1,46 s** |
+| CUSUM b = 3, h = 6 | 100% | 98,1% | **2,9%** | **0,59 s** | **1,70 s** |
+
+- Cả hai nhanh hơn chuẩn ≥ 0,2 s ở p95 trên dữ liệu chưa xem, và cả hai đưa p95 về dưới 2 s. Lặp lại hướng của 5.11a.
+- Kết luận theo tiêu chí đã đăng ký phải chờ gánh cảnh báo trên toàn normal (giai đoạn final, 22/10). Điều khoản "p95 nhanh hơn ≥ 0,2 s với gánh không tăng" là điều khoản có khả năng quyết định.
+- Cả hai gắn cờ binary vô hại nhiều hơn chuẩn (97–98%).
+
+**Độ bền tín hiệu** (5.8b/5.9; tham số đóng băng trước lượt này, nên ở đây là blind; ghi chú "not blind" trong file là văn bản cũ của script):
+- **Ngữ cảnh triage T = 5 s, f = 0,7:** attack 94,2%, binary vô hại 58,8%, control 1,6%, p95 6,45 s. Lặp lại đúng lượt trước (93,3% / 57,8% / 2,6%): tín hiệu bền tách được khoảng 35 điểm giữa attack và binary vô hại, nhưng mất 6,5 s.
+- **Chờ 1 s sau preview đầu (T = 1 s, f = 0,9) như một lựa chọn alert ≤ 3 s:** attack 97,4%, binary vô hại 79,4%, control 3,5%, p95 3,23 s. **Không đạt** mức ≤ 3 s.
+
+**RCA:** luật hạ quyền đạt trên dữ liệu mới: top-1 100% (273/273), luật cũ 91,9% (RCA 5.11).
+
 ### 5.14 So sánh với công trình liên quan (research 21/10)
 
 Đã chuyển sang [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md), mục 3: BoSC, CDL, CHIDS, REPLICAWATCHER, FedMon, KubAnomaly, sentinel-ebpf, conformal IDS. Kết luận ngắn: chưa có công trình trùng toàn bộ hướng của Pulse; các kết quả cao trong tài liệu được đo offline trên trace 30 s cân bằng, không có độ trễ, gánh cảnh báo hay đối chứng process vô hại.
@@ -1375,3 +1415,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:14 | Tách recall theo tốc độ attack: Pulse ở 6/s còn 95,6%, p95 3,75 s (ngân sách 1); AE không đổi theo tốc độ; freq_profile phụ thuộc mạnh. Cần mức 1–3/s ở campaign sau (G4) | mục 5.15c |
 | 15:15 | Chuẩn bị G4 cho lượt live sau: `plan_matched_run --attack-rates` (mặc định vẫn 6,12,24) và biến `ATTACK_RATES` trong `launch_run.sh`; có test. Chưa đổi lượt nào đang chạy | mục 5.15c |
 | 15:50 | Biên Pareto 5.8f mục 1: ở mức < 2 s, `k2of2_a10` nằm trên biên, ngang `k2of3_a10`; ở mức ≤ 3 s, `k3of4_a10` giảm gánh 38% (có ý nghĩa), đổi lại p95 2,62 s. Thêm lưới `latency3s_fine` (mục 2) và Pareto vào giai đoạn final của lượt mới | mục 5.8j |
+| 20:13–20:15 | Kết quả campaign `pulse-stable-refreshed`: precision 96,0%, recall 100%, control 4,2%, p95 2,26 s. Đạt 4/4 kỳ vọng ở mức ≤ 3 s, chưa đạt mức ưu tiên < 2 s. CUSUM/Cauchy blind trên interval: p95 1,70 / 1,46 s so với 2,28 s; chờ gánh cảnh báo để kết luận. Luật RCA hạ quyền: 100% so với 91,9% | mục 5.13a; RCA 5.11 |

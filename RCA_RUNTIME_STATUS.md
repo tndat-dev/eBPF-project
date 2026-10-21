@@ -258,6 +258,29 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 - Sửa (`d388b02`, có test): `setuid`/`setgid`/`setre*`/`setres*` về id khác 0 trong vòng 1 s sau khi chính tiến trình khởi động được ghi là `privilege_drop_at_start`, 0 điểm. Nâng lên root, hoặc đổi quyền muộn hơn, vẫn tính 3 điểm.
 - Đây là sửa **sau khi xem kết quả**. Bằng chứng không làm hỏng chỗ khác: trên bộ case rca-followup cũ, top-1 vẫn 98,6%. Lượt live tiếp theo sẽ kiểm luật này trước, trên dữ liệu mới.
 
+### 5.11 Đánh giá trên campaign pulse-stable-refreshed: kiểm luật hạ quyền trên dữ liệu mới (21/10 19:47)
+
+- **Subscriber:** `rca-pulse-stable-refreshed`, chạy live với luật `privilege_drop_at_start` (`d388b02`). Luật đăng ký kiểm ở 5.10 trước khi lượt này có dữ liệu.
+- **Biên nhận:** `validation-evidence/results-20261021/pulse-stable-refreshed/rca-*.json`.
+
+| Chỉ số | pulse-stable-refreshed | pulse-stable-candidate (5.10) |
+|---|---|---|
+| Attack có case riêng | 273/315 (86,7%), trong đó 256 là case tiếp nối | 273/315 (86,7%) |
+| Không có case riêng | 37 gộp sau case binary vô hại, 5 gộp sau case khác | 31 + 9 + 2 |
+| **Top-1 lưu sẵn (luật mới, chạy live)** | **100% (273/273)** | 91,9% (luật cũ) |
+| Top-1 xếp hạng lại không có luật (luật cũ) | 91,9% (251/273) | 91,9% |
+| Case có flow | 85,6% (1.630/1.905) | 89,8% |
+| Preview → case | p50 2,24 s / p95 2,59 s (2.552 case) | p50 2,23 s / p95 2,55 s |
+
+**Kết luận:**
+- Luật hạ quyền đạt trên dữ liệu mới. Top-1 tăng từ 91,9% lên 100%, và không case nào mất fixture khỏi danh sách.
+- Phần còn hở là coverage: 42 attack (13%) không có case riêng, phần lớn vì bị gộp sau case của binary vô hại vừa chạy cùng container.
+- Kiểm nhanh theo giờ của trial (không cần dữ liệu case):
+  - attack bắt đầu khoảng 19,4–20,3 s sau binary vô hại (p5–p95), nên điều kiện "≥ 10 s sau case trước" ít khả năng là nguyên nhân;
+  - 24/315 attack có một trial trước đó trong cùng container, chạy **cùng đường dẫn binary**, trong vòng 360 s. Với các trial này, binary không còn "mới" theo cửa sổ novelty 300 s, nên case tiếp nối không mở.
+  - Phần lớn chỗ hở vì vậy là hệ quả của fixture (binary vô hại và attack dùng cùng một file) cộng với luật novelty. Kẻ tấn công thật dùng binary khác thì không bị gộp kiểu này.
+- Chưa đổi luật. Muốn kiểm chắc thì cần đọc case DB, việc nhẹ, làm sau lượt live.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -347,3 +370,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 21/10 02:23 | Tìm ra probe redis vượt fixture do `setuid`/`setgid` hạ quyền lúc khởi chạy bị tính là thao tác bảo mật; sửa luật (`d388b02`); xếp hạng lại: 99,6% (lượt mới), 98,6% (rca-followup, không đổi) | mục 5.10 |
 | 21/10 11:28 | Lượt live kế tiếp `pulse-stable-refreshed` đã hẹn (tự khởi chạy). RCA mới `rca-pulse-stable-refreshed` dùng code có luật `privilege_drop_at_start`; đây là lần kiểm luật này trên dữ liệu mới (đăng ký ở 5.10) | Pulse 5.13 |
 | 21/10 13:55 | Hẹn đánh giá RCA của `pulse-stable-refreshed`. Chạy tự động khi campaign xong (unit `after-stable-refreshed`, giai đoạn campaign): coverage theo trial; xếp hạng lưu sẵn (lượt này chạy live với luật hạ quyền); xếp hạng lại với luật mới; xếp hạng lại **không** có luật (`evaluate_ranking --without-privilege-drop-rule`, có test) để so luật cũ với luật mới trên dữ liệu chưa xem; độ trễ preview → case; tỉ lệ case có flow | `scripts/pulse_stable_refreshed_analysis.sh`, `bf35f5e` |
+| 21/10 20:15 | Kiểm luật hạ quyền trên `pulse-stable-refreshed`: top-1 100% (luật cũ trên cùng case: 91,9%); coverage 86,7%; preview → case p95 2,59 s | mục 5.11 |
