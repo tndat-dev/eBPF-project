@@ -1,0 +1,388 @@
+{
+  "schema": "syscall-arm-scenarios-v1",
+  "budget_dir": "/var/tmp/baselines/budget",
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-rca-followup-20261019/pulse-development-matrix"
+  ],
+  "grouped_by": "rate",
+  "confirmation": {
+    "k": 2,
+    "max_gap_seconds": 1.0,
+    "n": 2
+  },
+  "matched_alpha_scale": {
+    "0.1|autoencoder": 1.0,
+    "0.1|freq_profile": 4.0,
+    "0.1|iforest": 1.5,
+    "1|autoencoder": 10.0,
+    "1|base29": 3.0,
+    "1|freq_profile": 30.0,
+    "1|iforest": 5.0,
+    "18|autoencoder": 30.0,
+    "18|base29": 20.0,
+    "18|freq_profile": 30.0,
+    "18|iforest": 30.0,
+    "5|autoencoder": 20.0,
+    "5|base29": 10.0,
+    "5|freq_profile": 30.0,
+    "5|iforest": 15.0
+  },
+  "outcome_rows_without_scenario": 0,
+  "budgets": {
+    "0.1": {
+      "autoencoder": {
+        "12/s": {
+          "recall": 0.9782608695652174,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.8920863309352518,
+          "delay_p50": 0.8197855949401855,
+          "delay_p95": 1.1343493461608887
+        },
+        "24/s": {
+          "recall": 0.9852941176470589,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.9197080291970803,
+          "delay_p50": 0.8220584392547607,
+          "delay_p95": 1.21177077293396
+        },
+        "6/s": {
+          "recall": 0.9555555555555556,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.8929440389294404,
+          "delay_p50": 0.8198075294494629,
+          "delay_p95": 2.42368745803833
+        }
+      },
+      "freq_profile": {
+        "12/s": {
+          "recall": 0.463768115942029,
+          "attack_trials": 138,
+          "benign_positive_rate": 0.09352517985611511,
+          "delay_p50": 1.3510961532592773,
+          "delay_p95": 7.838326692581177
+        },
+        "24/s": {
+          "recall": 0.6617647058823529,
+          "attack_trials": 136,
+          "benign_positive_rate": 0.11678832116788321,
+          "delay_p50": 1.343714714050293,
+          "delay_p95": 6.478911638259888
+        },
+        "6/s": {
+          "recall": 0.28888888888888886,
+          "attack_trials": 135,
+          "benign_positive_rate": 0.058394160583941604,
+          "delay_p50": 2.026965379714966,
+          "delay_p95": 8.354848146438599
+        }
+      },
+      "iforest": {
+        "12/s": {
+          "recall": 0.012077294685990338,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.004796163069544364,
+          "delay_p50": 0.4995076656341553,
+          "delay_p95": 2.0046775341033936
+        },
+        "24/s": {
+          "recall": 0.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.009732360097323601,
+          "delay_p50": null,
+          "delay_p95": null
+        },
+        "6/s": {
+          "recall": 0.0049382716049382715,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.0072992700729927005,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.5104527473449707
+        }
+      }
+    },
+    "1": {
+      "autoencoder": {
+        "12/s": {
+          "recall": 1.0,
+          "attack_trials": 414,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.8085379600524902,
+          "delay_p95": 1.0703418254852295
+        },
+        "24/s": {
+          "recall": 1.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.8035643100738525,
+          "delay_p95": 1.0529258251190186
+        },
+        "6/s": {
+          "recall": 1.0,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.9781021897810219,
+          "delay_p50": 0.8088879585266113,
+          "delay_p95": 1.3745243549346924
+        }
+      },
+      "base29": {
+        "12/s": {
+          "recall": 0.9951690821256038,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.7889688249400479,
+          "delay_p50": 0.8552463054656982,
+          "delay_p95": 2.350259780883789
+        },
+        "24/s": {
+          "recall": 0.9975490196078431,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.8759124087591241,
+          "delay_p50": 0.8864090442657471,
+          "delay_p95": 2.2154972553253174
+        },
+        "6/s": {
+          "recall": 0.9555555555555556,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.7201946472019465,
+          "delay_p50": 0.8918471336364746,
+          "delay_p95": 3.7504935264587402
+        }
+      },
+      "freq_profile": {
+        "12/s": {
+          "recall": 0.6376811594202898,
+          "attack_trials": 138,
+          "benign_positive_rate": 0.14388489208633093,
+          "delay_p50": 1.0935776233673096,
+          "delay_p95": 6.2812535762786865
+        },
+        "24/s": {
+          "recall": 0.8235294117647058,
+          "attack_trials": 136,
+          "benign_positive_rate": 0.25547445255474455,
+          "delay_p50": 0.9920265674591064,
+          "delay_p95": 5.2414023876190186
+        },
+        "6/s": {
+          "recall": 0.42962962962962964,
+          "attack_trials": 135,
+          "benign_positive_rate": 0.08759124087591241,
+          "delay_p50": 1.279759168624878,
+          "delay_p95": 6.454967737197876
+        }
+      },
+      "iforest": {
+        "12/s": {
+          "recall": 0.026570048309178744,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.009592326139088728,
+          "delay_p50": 0.4995076656341553,
+          "delay_p95": 6.939974069595337
+        },
+        "24/s": {
+          "recall": 0.024509803921568627,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.014598540145985401,
+          "delay_p50": 0.9001908302307129,
+          "delay_p95": 10.03571629524231
+        },
+        "6/s": {
+          "recall": 0.019753086419753086,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.014598540145985401,
+          "delay_p50": 0.867311954498291,
+          "delay_p95": 4.37080454826355
+        }
+      }
+    },
+    "18": {
+      "autoencoder": {
+        "12/s": {
+          "recall": 1.0,
+          "attack_trials": 414,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.8047468662261963,
+          "delay_p95": 1.0636143684387207
+        },
+        "24/s": {
+          "recall": 1.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.7827298641204834,
+          "delay_p95": 1.04726243019104
+        },
+        "6/s": {
+          "recall": 1.0,
+          "attack_trials": 405,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.8076364994049072,
+          "delay_p95": 1.1744916439056396
+        }
+      },
+      "base29": {
+        "12/s": {
+          "recall": 1.0,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.9904076738609112,
+          "delay_p50": 0.8085379600524902,
+          "delay_p95": 1.2214586734771729
+        },
+        "24/s": {
+          "recall": 1.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.7899680137634277,
+          "delay_p95": 1.058211088180542
+        },
+        "6/s": {
+          "recall": 1.0,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.9367396593673966,
+          "delay_p50": 0.8045253753662109,
+          "delay_p95": 1.5426833629608154
+        }
+      },
+      "freq_profile": {
+        "12/s": {
+          "recall": 0.6376811594202898,
+          "attack_trials": 138,
+          "benign_positive_rate": 0.14388489208633093,
+          "delay_p50": 1.0935776233673096,
+          "delay_p95": 6.2812535762786865
+        },
+        "24/s": {
+          "recall": 0.8235294117647058,
+          "attack_trials": 136,
+          "benign_positive_rate": 0.25547445255474455,
+          "delay_p50": 0.9920265674591064,
+          "delay_p95": 5.2414023876190186
+        },
+        "6/s": {
+          "recall": 0.42962962962962964,
+          "attack_trials": 135,
+          "benign_positive_rate": 0.08759124087591241,
+          "delay_p50": 1.279759168624878,
+          "delay_p95": 6.454967737197876
+        }
+      },
+      "iforest": {
+        "12/s": {
+          "recall": 0.24154589371980675,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.18944844124700239,
+          "delay_p50": 1.888683795928955,
+          "delay_p95": 11.400284767150879
+        },
+        "24/s": {
+          "recall": 0.23774509803921567,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.20437956204379562,
+          "delay_p50": 0.9001908302307129,
+          "delay_p95": 10.65091848373413
+        },
+        "6/s": {
+          "recall": 0.1580246913580247,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.12408759124087591,
+          "delay_p50": 2.099053382873535,
+          "delay_p95": 11.201553583145142
+        }
+      }
+    },
+    "5": {
+      "autoencoder": {
+        "12/s": {
+          "recall": 1.0,
+          "attack_trials": 414,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.8082764148712158,
+          "delay_p95": 1.0703418254852295
+        },
+        "24/s": {
+          "recall": 1.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.7899680137634277,
+          "delay_p95": 1.0520715713500977
+        },
+        "6/s": {
+          "recall": 1.0,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.9975669099756691,
+          "delay_p50": 0.8088879585266113,
+          "delay_p95": 1.1744916439056396
+        }
+      },
+      "base29": {
+        "12/s": {
+          "recall": 1.0,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.9520383693045563,
+          "delay_p50": 0.8417601585388184,
+          "delay_p95": 1.4009120464324951
+        },
+        "24/s": {
+          "recall": 1.0,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.9878345498783455,
+          "delay_p50": 0.8139562606811523,
+          "delay_p95": 1.2388184070587158
+        },
+        "6/s": {
+          "recall": 1.0,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.8953771289537713,
+          "delay_p50": 0.849677562713623,
+          "delay_p95": 2.5874545574188232
+        }
+      },
+      "freq_profile": {
+        "12/s": {
+          "recall": 0.6376811594202898,
+          "attack_trials": 138,
+          "benign_positive_rate": 0.14388489208633093,
+          "delay_p50": 1.0935776233673096,
+          "delay_p95": 6.2812535762786865
+        },
+        "24/s": {
+          "recall": 0.8235294117647058,
+          "attack_trials": 136,
+          "benign_positive_rate": 0.25547445255474455,
+          "delay_p50": 0.9920265674591064,
+          "delay_p95": 5.2414023876190186
+        },
+        "6/s": {
+          "recall": 0.42962962962962964,
+          "attack_trials": 135,
+          "benign_positive_rate": 0.08759124087591241,
+          "delay_p50": 1.279759168624878,
+          "delay_p95": 6.454967737197876
+        }
+      },
+      "iforest": {
+        "12/s": {
+          "recall": 0.12560386473429952,
+          "attack_trials": 414,
+          "benign_positive_rate": 0.06474820143884892,
+          "delay_p50": 0.8417601585388184,
+          "delay_p95": 11.400284767150879
+        },
+        "24/s": {
+          "recall": 0.11274509803921569,
+          "attack_trials": 408,
+          "benign_positive_rate": 0.10218978102189781,
+          "delay_p50": 0.9385402202606201,
+          "delay_p95": 11.862385272979736
+        },
+        "6/s": {
+          "recall": 0.09876543209876543,
+          "attack_trials": 405,
+          "benign_positive_rate": 0.072992700729927,
+          "delay_p50": 0.9501526355743408,
+          "delay_p95": 11.201553583145142
+        }
+      }
+    }
+  },
+  "computed_at_unix": 1792570446.1889727
+}

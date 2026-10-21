@@ -1009,6 +1009,26 @@ Theo kịch bản (trừ E):
   - Nếu áp luật chọn lên số development (chỉ để tham khảo), cả AE lẫn `tree_ae` đều **không đạt**: recall và độ trễ đạt, nhưng khả năng tách kém hơn base29 quá mức cho phép. Lần lặp lại trên dữ liệu mới vẫn chạy như đã đăng ký.
   - Các nhánh này đều nhanh hơn (p95 khoảng 1,1 s so với 2,8 s) và có gánh cảnh báo thấp hơn ở cùng recall. Muốn tận dụng điều đó mà không mất khả năng tách thì nhiều khả năng cần tín hiệu khác cho binary vô hại, chẳng hạn tripwire A1 hay độ bền tín hiệu, chứ không phải thêm một bộ chấm tần suất.
 
+### 5.15c Recall và độ trễ theo tốc độ attack (G4 một phần; 21/10 15:14)
+
+- **Nguồn:** cùng lần đánh giá baseline 5.15a (pulse-live-recalibrated, k2of2, ngân sách khớp), tách theo tốc độ của fixture: 6, 12, 24 lần/giây. Mỗi mức có khoảng 405–414 lượt attack, gộp 3 seed.
+- **Biên nhận:** `baselines/arm-rates.json`, tạo bằng `arm_scenarios.py --by rate`.
+
+| Ngân sách | Nhánh | 6/s: recall / p95 | 12/s: recall / p95 | 24/s: recall / p95 |
+|---|---|---|---|---|
+| 1 | base29 (Pulse) | **95,6% / 3,75 s** | 99,5% / 2,35 s | 99,8% / 2,22 s |
+| 1 | autoencoder | 100% / 1,37 s | 100% / 1,07 s | 100% / 1,05 s |
+| 1 | freq_profile | 43,0% / 6,45 s | 63,8% / 6,28 s | 82,4% / 5,24 s |
+| 5 | base29 | 100% / 2,59 s | 100% / 1,40 s | 100% / 1,24 s |
+| 5 | autoencoder | 100% / 1,17 s | 100% / 1,07 s | 100% / 1,05 s |
+
+**Đọc kết quả:**
+- Pulse nhạy với tốc độ attack. Ở 6/s, recall giảm khoảng 4 điểm ở ngân sách 1, và p95 vượt mức chấp nhận 3 s (3,75 s). Ở ngân sách 5, recall vẫn đủ nhưng p95 là 2,59 s.
+- AE gần như không đổi theo tốc độ.
+- freq_profile phụ thuộc mạnh vào tốc độ, đúng như kỳ vọng với một bộ chấm chỉ nhìn tỉ lệ syscall.
+- Mức thấp nhất đã đo là 6/s. Kẻ tấn công chậm thật (1–3/s, hoặc trải dài) chưa được kiểm; cần đưa vào campaign của lượt live sau (G4).
+- Đây là phân tích theo nhóm trên dữ liệu development, không đăng ký trước.
+
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
 - **Protocol:** `sentinel_pulse/protocol/tripwire-a1-blind-v1.json`.
@@ -1319,3 +1339,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:04–15:05 | Đăng ký lặp lại trên dữ liệu mới, kèm `tree_ae` và luật chọn bộ chấm; thêm `combine`; khởi động lại `after-stable-refreshed` trên `094afc4` (vẫn chờ campaign); chạy `pulse-baselines-tree-ae-dev` (nhẹ, dữ liệu local) | mục 5.15b; `094afc4` |
 | 15:07 | `tree_ae` development: giống AE (recall +1,6 điểm, p95 1,13 s, tách −0,173). Luật chọn áp lên số development: AE và `tree_ae` đều không đạt vì khả năng tách | mục 5.15b |
 | 15:10 | Kiểm lại chuỗi sau lượt live trước khi để nó tự chạy. (1) `adoption_verdict.py` đọc sai khóa trong `BOOTSTRAP.json`; nếu chạy thật sẽ dừng cả giai đoạn B nhóm feature và 5.7d. Đã sửa, test trên biên nhận thật. (2) Một phân tích lỗi không còn chặn các phân tích độc lập phía sau (ghi `FAILED` vào journal). (3) `ideas_verdict.py` ghi cờ thay vì thoát khi lựa chọn trên dev khác bản đóng băng. Smoke test giai đoạn campaign trên dữ liệu `pulse-stable-candidate`: đủ 11 file, 0 lỗi; luật RCA cũ cho lại đúng 91,9% (bằng số lưu lúc chạy), luật mới 99,6%; lựa chọn CUSUM/Cauchy trên dev lặp lại đúng bản đóng băng. Unit `after-stable-refreshed` chạy lại trên `4f36ec5` (vẫn chờ campaign) | `4f36ec5` |
+| 15:14 | Tách recall theo tốc độ attack: Pulse ở 6/s còn 95,6%, p95 3,75 s (ngân sách 1); AE không đổi theo tốc độ; freq_profile phụ thuộc mạnh. Cần mức 1–3/s ở campaign sau (G4) | mục 5.15c |
