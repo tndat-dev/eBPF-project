@@ -24,6 +24,107 @@
   "skipped": {
     "campaign_span": 1871
   },
+  "probe_triage": {
+    "rule": "probe-only cases held back (see docstring)",
+    "normal_cases_held_back": 2573,
+    "normal_share_held_back": 0.5399790136411332,
+    "by_workload": {
+      "production/aims-frontend:web": {
+        "cases": 244,
+        "held_back": 0
+      },
+      "production/aims-kafka-dual-role:kafka": {
+        "cases": 323,
+        "held_back": 302
+      },
+      "production/aims-kafka-entity-operator:topic-operator": {
+        "cases": 109,
+        "held_back": 0
+      },
+      "production/aims-kafka-entity-operator:user-operator": {
+        "cases": 192,
+        "held_back": 0
+      },
+      "production/aims-minio-pool-0:minio": {
+        "cases": 99,
+        "held_back": 0
+      },
+      "production/aims-minio-pool-0:sidecar": {
+        "cases": 56,
+        "held_back": 0
+      },
+      "production/aims-postgres-cnpg:postgres": {
+        "cases": 178,
+        "held_back": 0
+      },
+      "production/aims-rabbitmq-server:rabbitmq": {
+        "cases": 182,
+        "held_back": 0
+      },
+      "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+        "cases": 126,
+        "held_back": 82
+      },
+      "production/aims-redis:aims-redis": {
+        "cases": 226,
+        "held_back": 166
+      },
+      "production/aims-waypoint:istio-proxy": {
+        "cases": 266,
+        "held_back": 0
+      },
+      "production/api-gateway:app": {
+        "cases": 184,
+        "held_back": 118
+      },
+      "production/auth-service:app": {
+        "cases": 600,
+        "held_back": 564
+      },
+      "production/cart-service:app": {
+        "cases": 141,
+        "held_back": 79
+      },
+      "production/catalog-service:app": {
+        "cases": 180,
+        "held_back": 98
+      },
+      "production/inventory-service:app": {
+        "cases": 217,
+        "held_back": 141
+      },
+      "production/notification-service:app": {
+        "cases": 223,
+        "held_back": 145
+      },
+      "production/order-service:app": {
+        "cases": 392,
+        "held_back": 296
+      },
+      "production/payment-service:app": {
+        "cases": 390,
+        "held_back": 292
+      },
+      "production/search-recommendation-service:app": {
+        "cases": 130,
+        "held_back": 73
+      },
+      "production/security-telemetry-service:app": {
+        "cases": 307,
+        "held_back": 217
+      }
+    },
+    "campaign_trials": {
+      "attack": {
+        "with_case": 273,
+        "without_case": 42
+      },
+      "benign": {
+        "with_case": 263,
+        "without_case": 52
+      }
+    }
+  },
   "top_binaries_in_window": [
     [
       "/usr/local/bin/python",
@@ -58,11 +159,11 @@
       247
     ],
     [
-      "/opt/kafka/kafka_liveness.sh",
+      "/usr/bin/readlink",
       212
     ],
     [
-      "/usr/bin/readlink",
+      "/opt/kafka/kafka_liveness.sh",
       212
     ],
     [
@@ -70,11 +171,11 @@
       93
     ],
     [
-      "/usr/lib/postgresql/17/bin/pg_isready",
+      "/usr/bin/pg_isready",
       91
     ],
     [
-      "/usr/bin/pg_isready",
+      "/usr/lib/postgresql/17/bin/pg_isready",
       91
     ],
     [
@@ -113,7 +214,7 @@
           292
         ],
         [
-          "/opt/kafka/kafka_liveness.sh",
+          "/usr/bin/readlink",
           212
         ]
       ]
@@ -153,11 +254,11 @@
       "no_exec": 7,
       "top_binaries": [
         [
-          "/usr/lib/postgresql/17/bin/pg_isready",
+          "/usr/bin/pg_isready",
           91
         ],
         [
-          "/usr/bin/pg_isready",
+          "/usr/lib/postgresql/17/bin/pg_isready",
           91
         ],
         [
@@ -351,5 +452,5 @@
     }
   },
   "note": "descriptive; one case per container per cooldown; normal windows unadjudicated",
-  "computed_at_unix": 1792595333.3379538
+  "computed_at_unix": 1792595638.6240335
 }

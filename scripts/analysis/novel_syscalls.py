@@ -69,6 +69,8 @@ def evaluate(trials, windows, reference, exec_set):
         overall[label + ':novel'] += c['novel']; overall[label + ':none'] += c['none']
     every = [x for d in delays.values() for x in d]
     return dict(reference_ids_per_workload={w: len(v) for w, v in sorted(reference.items())},
+                # the sets themselves, for attack-surface / seccomp analyses (Confine, temporal specialization)
+                reference_ids_by_workload={w: sorted(v, key=int) for w, v in sorted(reference.items())},
                 workloads_without_reference=sorted(missing_reference), by_scenario=table,
                 novel_ids_by_label={label: dict(c.most_common()) for label, c in sorted(all_novel.items())},
                 overall={label: overall[label + ':novel'] / max(1, overall[label + ':novel'] + overall[label + ':none'])

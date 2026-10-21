@@ -46,6 +46,7 @@ def test_end_to_end_with_exec_set_and_secondary_reference(tmp_path):
                     '--output', str(out)], check=True, capture_output=True)
     d = json.loads(out.read_text())
     assert d['overall'] == dict(attack=1.0, benign=0.0, control=0.0)
+    assert d['reference_ids_by_workload']['w'] == ['0', '1']
     assert abs(d['attack_delay']['p50'] - (151.5 - 150.9)) < 1e-9
     # the secondary reference already contains 101 (seen 151..160 s), so nothing is novel against it
     assert d['secondary']['overall']['attack'] == 0.0

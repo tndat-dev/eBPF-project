@@ -100,5 +100,9 @@ try $PY "$SRC/scripts/analysis/novel_syscalls.py" --workers-root "$RUN/workers" 
   --output "$OUT/tripwire-blind.json"
 try $PY "$SRC/scripts/analysis/tripwire_verdict.py" --result "$OUT/tripwire-blind.json" \
   --protocol "$SRC/sentinel_pulse/protocol/tripwire-a1-blind-v1.json" --output "$OUT/tripwire-verdict.json"
+# Pulse 5.18: alarm taxonomy of the RCA cases outside the campaign + probe-aware triage (rule fixed 21/10 22:50,
+# replication of the pulse-stable-candidate development result on this run)
+try $PY "$SRC/scripts/analysis/alarm_taxonomy.py" --cases "$RCA/cases" --campaign "$CAMPAIGN" \
+  --probe-spec "$SRC/validation-evidence/results-20261021/exec-probe-spec.json" --output "$OUT/alarm-taxonomy.json"
 try $PY "$SRC/scripts/analysis/cadence_gaps.py" --workers-root "$RUN/workers" --output "$OUT/cadence-gaps.json"
 chown -R dat:dat "$OUT" 2>/dev/null || true
