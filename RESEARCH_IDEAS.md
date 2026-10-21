@@ -10,6 +10,103 @@ Kết quả thí nghiệm nằm trong [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_
 
 **Độ tin cậy của nguồn:** phần lớn số liệu dưới đây do chính tác giả các paper báo cáo; một số là preprint chưa qua phản biện. Đây là nguồn ý tưởng, chưa phải bằng chứng cho Pulse. Mỗi ý tưởng phải được đăng ký tiêu chí trước, rồi đo trên dữ liệu của Pulse, ở cùng ngân sách cảnh báo, với p95 kernel → alert < 2 s ưu tiên và ≤ 3 s chấp nhận.
 
+## Đánh giá tổng thể đồ án và định hướng paper (21/10 11:46)
+
+**Mục tiêu:** đồ án phục vụ luận văn tốt nghiệp **và** một paper đủ mạnh để xin học bổng thạc sĩ. Hội nghị bảo mật hàng đầu chấm theo bốn tiêu chí: đóng góp mới, độ chặt của đánh giá, baseline và khả năng tái lập. Cụ thể là:
+- top-4: USENIX Security, ACM CCS, NDSS, IEEE S&P;
+- vừa sức hơn: RAID, ACSAC, EuroS&P, DIMVA.
+
+### Đang mạnh ở đâu
+
+1. **Đánh giá live trên ứng dụng thật:** lượt 24 giờ trên ứng dụng AIMS (21 workload, ~80 pod, 3 worker), 315 cặp control → binary vô hại → attack mỗi lượt. Các công trình gần nhất chủ yếu đánh giá offline trên trace 10–30 s (mục 3).
+2. **Đo đúng ràng buộc vận hành:**
+   - độ trễ kernel → alert, p95 1,85–1,96 s;
+   - gánh cảnh báo theo replica-giờ trên toàn bộ normal;
+   - CPU worker 13–31% một core.
+   
+   Hầu như không công trình nào cùng nhóm báo đủ ba thứ này.
+3. **Đối chứng binary vô hại chạy cùng đường exec với attack.** Đối chứng này lộ ra phát hiện quan trọng: detector bắt "hoạt động mới" chứ không bắt "ác ý" (80–94% binary vô hại bị gắn cờ). Các paper khác không đo.
+4. **Phương pháp chặt:**
+   - đăng ký tiêu chí trước mọi lựa chọn (luật v1, v2, 5.7b, 5.7c, 5B);
+   - bootstrap theo workload;
+   - replay khớp đúng số live;
+   - kiểm tái lập từng bit (chấm nhanh, nhóm feature);
+   - ghi lại cả lỗi của mình (đếm đôi α×1, luật hạ quyền).
+5. **Ablation có bằng chứng cho bộ feature:**
+   - 29 syscall: không cấu hình nào thắng; bỏ cặp exec thì kém có ý nghĩa; thêm syscall làm chậm p95 tới 5 s;
+   - hai nhánh p-value đều cần;
+   - nhóm feature: đang chấm.
+6. **Kết quả âm có giá trị đo đạc:**
+   - calibration cũ đi theo ngày; làm mới thì −22,8% cảnh báo và precision từ 92 lên 96%;
+   - chỉ đếm tần suất thì yếu với attack tần suất thấp;
+   - độ bền tín hiệu tách được attack khỏi process vô hại nhưng tốn thời gian.
+7. **Hệ thống trọn vẹn:** eBPF → model theo workload → p-value conformal → alert < 2 s → RCA. RCA có coverage 86,7% và xếp hạng nghi phạm top-1 99,6% (sau khi sửa luật hạ quyền).
+8. **Lần đầu đạt cả 4 kỳ vọng (trên replay):** k2of2_a10 + calibration làm mới cho precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s. Lượt live `pulse-stable-refreshed` đang chờ xác nhận.
+
+### Khoảng cách còn lại
+
+Xếp theo mức reviewer sẽ phạt nặng:
+
+| # | Khoảng cách | Vì sao quan trọng | Hướng xử lý |
+|---|---|---|---|
+| G1 | **Chưa có baseline tái lập trên cùng dữ liệu** | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | Chạy offline trên dữ liệu thí nghiệm syscall đã chép về local, trong cùng khung so ngân sách và độ trễ như Pulse |
+| G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng |
+| G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms |
+| G4 | **Chưa có kẻ tấn công thích nghi** | Hội nghị top luôn hỏi về né tránh: tấn công chậm, trải dài, bắt chước normal | Thêm tham số tốc độ vào fixture; đo recall theo tốc độ; lập luận về mimicry |
+| G5 | **Vấn đề process mới vô hại chưa giải** | Đây là điểm yếu cốt lõi; muốn lên top-4 cần một cải tiến giải được nó | Đặc trưng theo tham số syscall (R7a), tripwire trừ tập exec (A1), triage bằng cây process (C1) |
+| G6 | **Gánh cảnh báo vẫn ~65 lần ngân sách 0,1/giờ** | Ảnh hưởng tính khả thi khi vận hành | Calibration tự làm mới (B1), CUSUM (A2), so sánh replica (B2), FDR (R6) |
+| G7 | **Overhead mới đo sơ bộ** | Cần cho phần hệ thống | A/B CPU và độ trễ ứng dụng có/không Pulse |
+| G8 | **Chưa có review nhãn và blind test độc lập đầy đủ** | Nhãn hiện là nhãn kỳ vọng; kịch bản attack đã dùng khi phát triển | Review một mẫu cảnh báo normal; campaign mới với exploit thật |
+| G9 | **Chưa có artifact mở và bản thảo** | Huấn luyện artifact evaluation; luận văn | Gói script tái lập + dữ liệu ẩn danh; viết luận văn và paper tiếng Anh |
+
+### Đề xuất
+
+**Câu chuyện paper:** *Phát hiện bất thường bằng tần suất syscall cho Kubernetes dưới ràng buộc vận hành thật: độ trễ, gánh cảnh báo và process mới vô hại.*
+
+Ba đóng góp:
+1. **Hệ thống Pulse:**
+   - eBPF đếm syscall theo cgroup, model thời gian theo workload;
+   - p-value conformal kiểm soát báo nhầm, chấm điểm nhanh khớp từng bit;
+   - alert < 2 s, RCA từ Tetragon xếp hạng nghi phạm.
+2. **Đánh giá live chặt chẽ nhất trong nhóm này,** với 3 phát hiện có số liệu và CI:
+   - detector tần suất bắt "mới" chứ không bắt "ác ý";
+   - calibration là đòn bẩy lớn nhất, chọn bộ syscall thì không;
+   - thêm feature làm chậm phát hiện.
+3. **Cải tiến có bằng chứng** cho gánh cảnh báo và process vô hại: calibration tự làm mới, CUSUM, đặc trưng theo tham số hoặc tripwire, triage. Mỗi cải tiến kiểm blind.
+
+**Đích nhắm thực tế:**
+- RAID/ACSAC: khả thi nếu xong G1–G4 và G7–G9;
+- top-4: cần thêm G5 (giải được process vô hại), có bằng chứng trên cả LID-DS lẫn live.
+
+**Thứ tự đề xuất** (sau khi xong hướng hiện tại):
+1. Xác nhận cấu hình v2 trên `pulse-stable-refreshed`; kiểm blind CUSUM/Cauchy; xong nhóm feature và 5.7d.
+2. **G1 baseline:** offline, không cần capture mới.
+3. **G3 LID-DS** và **G2 exploit thật** + **G4 tốc độ thấp:** đưa vào campaign của lượt live sau.
+4. **G5:** tripwire trừ tập exec (sau 5.7c), rồi đặc trưng theo tham số nếu cần.
+5. **G6:** calibration tự làm mới trong live; so sánh replica.
+6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
+
+### Đánh giá tiến độ (% hoàn thiện, 21/10)
+
+Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
+
+| Hạng mục | % | Đã có | Còn thiếu |
+|---|---:|---|---|
+| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ, 7 issue, CPU 13–31% | Calibration tự làm mới trong live; tripwire |
+| Đánh giá Pulse cho luận văn | ~75% | 3 lượt live, campaign có đối chứng, luật chọn đăng ký trước, đạt 4 kỳ vọng trên replay | Xác nhận live của cấu hình v2; review nhãn |
+| Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; fit 693 model nhóm feature | Giai đoạn B nhóm feature (chấm holdout, so ngân sách) |
+| RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
+| **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
+| Baseline (G1) | 0% | | Toàn bộ |
+| Dataset công khai (G3) | 0% | | Toàn bộ |
+| Exploit thật, kẻ tấn công thích nghi (G2, G4) | ~5% | Fixture có tham số tốc độ | Campaign mới |
+| Ablation | ~70% | Syscall, nhánh p-value | Nhóm feature giai đoạn B; họ model |
+| Overhead (G7) | ~30% | CPU worker trong vận hành | A/B có kiểm soát |
+| Blind test, review nhãn (G8) | ~20% | `pulse-stable-refreshed` sắp chạy | Review nhãn; campaign exploit thật |
+| Artifact mở (G9) | ~40% | Repo, script, biên nhận bằng chứng, CI | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
+| Bản thảo paper | 0% | Tài liệu tham khảo (mục 3) | Toàn bộ |
+| **Mức sẵn sàng cho paper hàng đầu** | **~30%** | Hệ thống + đánh giá live mạnh | G1–G5, G7–G9 |
+
 ## Trạng thái các ý tưởng (21/10)
 
 | Ý tưởng | Trạng thái |
