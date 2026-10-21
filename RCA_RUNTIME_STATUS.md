@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **19/10/2026 10:41 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **21/10/2026 21:12 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -17,8 +17,10 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (xong 20/10 02:22) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
 | `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
-| `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, đang chạy từ 20/10 10:14) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
-| `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (đang chạy) | unit `rca-pulse-stable-candidate`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
+| `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, 20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 ~12:30, đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
+| `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (20/10 10:16 → 21/10 12:22) | `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
+| `rca-pulse-stable-refreshed` | RCA của lượt pulse-stable-refreshed, có luật hạ quyền lúc khởi chạy (đang chạy) | unit `rca-pulse-stable-refreshed`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (19/10 19:24 → 20/10 10:16) | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
@@ -31,13 +33,13 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 Đồ thị là bằng chứng liên quan theo định danh và thời gian, **không chứng minh nhân quả**. RCA không tự xử lý pod.
 
-| Thành phần (10:18 ngày 20/10) | Trạng thái |
+| Thành phần (21:12 ngày 21/10) | Trạng thái |
 |---|---|
-| Subscriber | **`rca-pulse-stable-candidate`** (.234), chạy từ 20/10 10:16 trên snapshot `6a3a0b5`, cho lượt live pulse-stable-candidate (`policy-2of2-a10`) |
+| Subscriber | **`rca-pulse-stable-refreshed`** (.234), chạy từ 21/10 12:22 trên snapshot `0c5096d` (có luật `privilege_drop_at_start`), cho lượt live pulse-stable-refreshed (`policy-2of2-a10-refreshed`) |
 | Cấu hình | Giống `rca-subscriber`:<br>• đọc decision trên worker qua SSH, nhịp dựng case 0,25 s;<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s, có case tiếp nối khi có exec mới (nhật ký exec 15 phút);<br>• giữ 20.000 case; stream xoay vòng 900 s.<br>Baseline binary **học từ đầu** trong pha chọn (10:16–11:47) rồi đóng băng lúc 11:47:29, trước attack đầu tiên; không chép từ DB cũ |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1` (chỉ đường dẫn nhạy cảm, không `commit_creds`), `sentinel-rca-fork-v1`, `sentinel-rca-flow-v1` |
-| Campaign kiểm chứng | Campaign 315 cặp của pulse-stable-candidate, attack từ 11:49. Sẽ đo coverage, xếp hạng và độ trễ như với rca-followup |
-| Subscriber trước | `rca-subscriber` 19/10 19:24 → 20/10 10:16 (2.364 case qua đêm, mục 6); rca-followup, rca-followup-v1, rca-flow, rca-runtime-v1 đã dừng. Output được giữ nguyên |
+| Campaign kiểm chứng | Campaign 315 cặp của pulse-stable-refreshed, xong 21/10 ~19:45: coverage 86,7%, top-1 100%, preview → case p95 2,59 s (mục 5.11) |
+| Subscriber trước | `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (2.364 case qua đêm, mục 6); rca-followup, rca-followup-v1, rca-flow, rca-runtime-v1 đã dừng. Output được giữ nguyên |
 | Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/rca-flow-copy/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
@@ -375,3 +377,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 21/10 13:55 | Hẹn đánh giá RCA của `pulse-stable-refreshed`. Chạy tự động khi campaign xong (unit `after-stable-refreshed`, giai đoạn campaign): coverage theo trial; xếp hạng lưu sẵn (lượt này chạy live với luật hạ quyền); xếp hạng lại với luật mới; xếp hạng lại **không** có luật (`evaluate_ranking --without-privilege-drop-rule`, có test) để so luật cũ với luật mới trên dữ liệu chưa xem; độ trễ preview → case; tỉ lệ case có flow | `scripts/pulse_stable_refreshed_analysis.sh`, `bf35f5e` |
 | 21/10 20:15 | Kiểm luật hạ quyền trên `pulse-stable-refreshed`: top-1 100% (luật cũ trên cùng case: 91,9%); coverage 86,7%; preview → case p95 2,59 s | mục 5.11 |
 | 21/10 20:17 | 42 attack không có case riêng: loại được điều kiện 10 s và trần 5 case tiếp nối. Không kiểm lại được luật novelty vì `exec_log` chỉ giữ 900 s. Thêm bộ đếm lý do từ chối case tiếp nối cho lượt sau | mục 5.11 |
+| 21/10 21:12 | Cập nhật đầu báo cáo (bảng tên gọi, trạng thái subscriber) theo lượt `pulse-stable-refreshed` | mục 1 |

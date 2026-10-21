@@ -12,8 +12,8 @@ attack; độ chính xác security và tập syscall tối ưu vẫn chưa đư�
 
 ```bash
 python3 -m sentinel_pulse.verify_syscall_selection \
-  --analysis validation-evidence/syscall-analysis-20261006/analysis-worker4.json \
-  --ablation validation-evidence/syscall-analysis-20261006/ablation.json
+  --analysis validation-evidence/syscall/syscall-analysis-20261006/analysis-worker4.json \
+  --ablation validation-evidence/syscall/syscall-analysis-20261006/ablation.json
 ```
 
 Có thể dùng `--abi-table <bản tải bảng v6.8>` khi offline. Kết quả ghi checksum

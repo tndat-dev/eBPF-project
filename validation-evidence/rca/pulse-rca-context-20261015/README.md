@@ -32,6 +32,6 @@ Case local trên VM bị retention 500 case; bản sao tại đây và input edg
 Kiểm tra integrity và join:
 
 ```bash
-cd validation-evidence/pulse-rca-context-20261015
+cd validation-evidence/rca/pulse-rca-context-20261015
 sha256sum -c SHA256SUMS
 ```

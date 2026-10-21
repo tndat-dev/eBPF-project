@@ -1,107 +1,72 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 20/10/2026 11:43. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
-[syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md).
+Cập nhật 21/10/2026 21:12. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+[syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
 ## Đang chạy
 
-- [~] **`pulse-stable-refreshed`** (đã hẹn): tự khởi chạy khi phân tích final của pulse-stable-candidate xong; kiểm cấu hình luật v2 (k2of2_a10 + calibration làm mới) trên dữ liệu mới, kèm đánh giá blind CUSUM/Cauchy (Pulse 5.11a, 5.13).
-
-- [~] **Lượt live `pulse-stable-candidate`** (20/10 10:14 → 21/10 ~10:30, shadow). Gồm candidate `ec72d9ea…`, `policy-2of2-a10`,
-      chấm điểm nhanh và RCA `rca-pulse-stable-candidate`. Campaign 315 cặp chạy từ 11:49. Không dừng giữa chừng.
-- [~] **`pulse-stable-candidate-analysis`** (.234, đã hẹn): giai đoạn *campaign* khi campaign xong (RCA, attack vs binary vô hại);
-      giai đoạn *final* khi 3 worker xong (5.7b refresh vs as_run, 5.7c novelty có xét exec, cadence gap, đối chiếu chấm nhanh với sklearn).
+- [~] **Lượt live `pulse-stable-refreshed`** (21/10 12:22 → 22/10 ~12:30, shadow). Cấu hình luật v2 chọn: `k2of2_a10` + calibration
+      làm mới (`4bad16dc…`, `policy-2of2-a10-refreshed`), chấm nhanh, RCA `rca-pulse-stable-refreshed`. Không dừng giữa chừng.
+  - [x] Campaign xong (Pulse 5.13a): precision 96,0%, recall 100%, control 4,2%, p95 2,26 s. Đạt 4/4 kỳ vọng ở mức ≤ 3 s, chưa đạt mức < 2 s.
+- [~] **`after-stable-refreshed`** (.234, snapshot `399676c`, chạy tuần tự). Giai đoạn campaign xong 19:47. Khi 3 worker xong:
+  1. giai đoạn final: gánh cảnh báo toàn normal, lưới `latency3s_fine`, biên Pareto, kết luận CUSUM/Cauchy (5.11a), tripwire A1 (5.16), cadence;
+  2. lặp lại baseline trên dữ liệu mới, kèm `tree_ae` và luật chọn bộ chấm (5.15b);
+  3. giai đoạn B nhóm feature (syscall 5B);
+  4. Pulse 5.7d.
 
 ## Việc kế tiếp (theo thứ tự)
 
-1. [x] Kết quả `syscall-arms-k2of2`: base29 giữ nguyên; bảng bằng chứng Pulse 4b và kết luận syscall 5.9 đã cập nhật (20/10 11:50).
-2. [x] Campaign xong: Pulse 5.8a (precision 92,2%, recall 97,8%, control 8,4%, p95 1,85 s); RCA 5.10 (86,7% có case, top-1 99,6% sau khi sửa luật hạ quyền).
-3. [ ] Sáng 21/10, sau khi lượt live kết thúc: đánh giá pulse-stable-candidate theo kỳ vọng ghi trong file chính sách; đọc 5.7b và 5.7c
-      theo đúng tiêu chí đã đăng ký; quyết định bản stable.
-4. [ ] Nén `features`/`decisions` của soak 48 giờ (pulse-soak-baseline) và của pulse-stable-candidate. Chỉ chạy khi không có lượt live.
+1. [ ] 22/10 ~15:00: đọc giai đoạn final theo đúng tiêu chí đã đăng ký (gánh cảnh báo, CUSUM/Cauchy, tripwire A1, Pareto ổn định giữa 2 lượt).
+2. [ ] 22/10 ~18:00: đọc lần lặp lại baseline (5.15b) và kết quả luật chọn bộ chấm.
+3. [ ] Chọn cấu hình cho lượt live sau, theo kết quả 1–2. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
+4. [ ] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed. Chỉ chạy khi không có lượt live và chuỗi phân tích nặng đã xong.
 5. [ ] Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Trong repo chưa có bản thảo luận văn.
 
 ## Pulse — vấn đề còn mở
 
-- [ ] **Ý tưởng kiến trúc (Pulse 5.12):** A1 tripwire syscall hiếm (sau 5.7c), B1 calibration tự làm mới có chống đầu độc, B2 bộ dò so sánh replica, B3 so họ model trong khung matched, C1 triage hai tầng trên case RCA.
-- [ ] **Ý tưởng từ tài liệu (Pulse 5.11), kiểm offline trên điểm đã lưu, đăng ký trước:** R4 gộp p-value Cauchy; R5 CUSUM/martingale conformal thay k-of-n; R1 ACI/PID chỉnh α online; R2 calibration Mondrian theo (workload, node). Sau đó R6 FDR, R3 so sánh replica; để sau R7a đặc trưng theo tham số syscall, R8 blind test LID-DS.
-
-- [ ] **Gánh cảnh báo trên normal**: ~8 đợt/replica-giờ với k2of2_a10, ngân sách 0,1.
-  - Đã biết (Pulse 5.6, 5.6b):
-    - phân bố rộng: trung vị theo workload 4,65, không workload nào bằng 0;
-    - worker3 gấp 2,7–4,7 lần khi calibration cũ;
-    - làm mới calibration mỗi giờ chỉ giảm 16–23%.
-  - [ ] Đăng ký trước và kiểm calibration theo (workload, node) trên dữ liệu pulse-stable-candidate. Ước tính còn ~4–5 đợt/replica-giờ, vẫn xa ngân sách.
-  - [ ] Phân rã tiếp theo chế độ tải (steady/peak/burst…) và theo thời gian. Cần đọc decisions, nên chỉ làm khi không có lượt live.
-  - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3, trung bình ~23 s mỗi đợt) trước khi coi là báo nhầm.
-- [ ] **Tách attack khỏi process vô hại mới**: 80–92% binary vô hại bị gắn cờ ở mức 1.
-  - [x] Độ bền tín hiệu (Pulse 5.8b): trong 3 s, chờ thêm 1 s sau alert đầu (≥ 90% cửa sổ dương) → precision 94,9%, control 5,2%, recall 95,5%, p95 2,64 s trên lượt stable (chưa blind). Bản 5 s (p95 6,5 s) chỉ là ngữ cảnh triage.
-  - Hai hướng đã loại: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b).
-  - [~] Novelty có xét exec (5.7c) chạy tự động sau lượt live.
-  - [ ] Hướng tiếp: thông tin ngoài tần suất (tham số syscall, quan hệ cha–con của process từ Tetragon).
-- [ ] **Bằng chứng gần tối ưu cho alpha/chính sách** (Pulse 5.8f): biên Pareto + CI trên lưới `latency3s`, lưới alpha mịn (×4–15), ổn định giữa các lượt.
-- [ ] **Độ trễ** (mục tiêu: càng nhanh càng tốt, < 2 s ưu tiên, ≤ 3 s chấp nhận): live p95 1,85 s, p99 4,9 s (đuôi do k2of2 liên tiếp, Pulse 5.8c).
-  - [ ] Đo lại trên pulse-stable-candidate (chấm nhanh) rồi phân rã đuôi p99: backlog, warming sau reset, ghi NFS.
-- [ ] Recall thấp ở `mprotect` (75–82%) và `seccomp` (70–83%), là điểm yếu chung của mọi bộ syscall (syscall 5.8).
+- [ ] **Gánh cảnh báo trên normal:** khoảng 4–7 đợt/replica-giờ ở các chính sách khả thi, ngân sách 0,1 (5.8j). Chỉnh ngưỡng không giải được.
+  - [ ] Calibration theo (workload, node) (5.6b): đăng ký trước rồi kiểm.
+  - [ ] Phân rã theo chế độ tải và theo thời gian. Cần đọc decisions, nên chỉ làm khi không có lượt live.
+  - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3) trước khi coi là báo nhầm.
+- [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
+  - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
+  - [x] Novelty có xét exec (5.7c, 5.8h): 100% cho `ptrace`/`execveat`/`setns`, binary vô hại 0,3%.
+  - [~] Tripwire A1 kiểm blind trên lượt mới (5.16).
+  - [ ] Thông tin ngoài tần suất: tham số syscall, quan hệ cha–con của process từ Tetragon.
+- [~] **Độ trễ:** live p95 2,26 s. CUSUM/Cauchy đưa p95 về 1,70 / 1,46 s trên interval; chờ gánh cảnh báo để kết luận.
+- [x] **Bằng chứng gần tối ưu cho chính sách** (5.8j): `k2of2_a10` nằm trên biên ở mức < 2 s. [~] Lưới mịn và độ ổn định giữa các lượt chạy trong giai đoạn final.
+- [x] **Baseline trên cùng dữ liệu (5.15a):** AE ngang hoặc hơn về recall và gánh cảnh báo, nhưng không tách được binary vô hại. [~] Lặp lại trên dữ liệu mới (5.15b). [ ] Luật Falco.
+- [x] Recall theo tốc độ attack (5.15c): Pulse yếu dần ở 6/s. [ ] Campaign 1–3/s.
+- [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
 - [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận.
-- [ ] Blind test thật sự độc lập: kịch bản tấn công mới, chưa dùng khi phát triển.
+- [ ] Kịch bản tấn công thật (G2) **(cần bạn duyệt phạm vi)**: tải rồi chạy, reverse shell trong cụm, đọc token service account, quét port trong namespace, đào coin ngắn.
+- [ ] Dataset công khai LID-DS (G3): tạm hoãn; xem lại khi viết paper.
 
 ## Thí nghiệm syscall — còn lại
 
-- [~] **Thí nghiệm nhóm feature (syscall 5B):** fit đang chạy (20/10 12:03); biến thể p-value theo nhánh đang chạy; chấm holdout + replay sau lượt live (21/10); rồi đưa kết quả vào Pulse 4b.
-
-- [x] 11 cấu hình dưới k2of2 (syscall 5.9): ngân sách 1 đạt được, base29 tốt nhất, thêm syscall làm chậm p95.
-- [x] Kết luận cuối (syscall 5.9) và bảng bằng chứng Pulse 4b.
-- [ ] Pulse 5.7d (làm mới định kỳ + k2of2) chạy sau lượt live 21/10.
-- [ ] Paired blind attack theo protocol v2. Chưa mở được, vì điều kiện ngân sách 0,1 đợt/giờ chưa cấu hình nào đạt; ghi là giới hạn.
+- [~] Giai đoạn B nhóm feature (syscall 5B): chạy trong chuỗi `after-stable-refreshed`, rồi đưa kết quả vào Pulse 4b.
+- [~] Pulse 5.7d (làm mới định kỳ + k2of2) chạy cuối chuỗi.
+- [ ] Paired blind attack theo protocol v2. Chưa mở được, vì chưa cấu hình nào đạt ngân sách 0,1 đợt/giờ; ghi là giới hạn.
 
 ## RCA — còn lại
 
-- [x] Đánh giá trên campaign pulse-stable-candidate (RCA 5.10).
-- [ ] Kiểm luật `privilege_drop_at_start` trên lượt live kế tiếp (đã sửa sau khi xem số).
-- [ ] 13% attack không có case riêng (31 gộp sau case binary vô hại, 9 gộp sau case khác).
+- [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
+- [ ] 13% attack không có case riêng (42/315). Đã loại điều kiện 10 s và trần case tiếp nối. Từ lượt sau, STATUS đếm lý do từ chối case tiếp nối.
 - [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
 
 ## Hạ tầng
 
-- [ ] **(cần bạn)** Memory reservation 4 GB cho VM `k8s-nfs`: lúc 11:33 balloon vẫn giữ 2,5 GB, cần kiểm tra lại trong vCenter.
-      Tăng RAM NFS lên 8 GB sau khi lượt live kết thúc (cần tắt VM).
-- [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: 51–81 GB trên mỗi VM. Xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
-- [ ] Lặp lại đo overhead A/B; kiểm tra trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
+- [ ] **(cần bạn)** RAM NFS (`k8s-nfs`): tăng lên 8 GB và đặt reservation. Cần tắt VM, nên chỉ làm khi không có lượt live.
+- [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
+- [ ] Lặp lại đo overhead A/B (G7); kiểm tra trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
 
 ## Quy tắc đang áp dụng
 
 - Không chạy job đọc NFS nặng hoặc tốn RAM trên bất kỳ node nào khi lượt live đang chạy; không chạy trên master2/master3.
 - Lượt live chạy hết chu kỳ, không dừng giữa chừng; khoảng thời gian xấu được loại trừ khi phân tích.
 - Không thử reboot, mất NFS, backlog hay thao tác nào tác động vào hạ tầng.
+- Không cài watcher; khi có job chạy ngầm, ghi giờ cần nhắc.
 - Code đồng bộ giữa GitHub `main`, máy local và `/home/dat/eBPF-project` trên .234 và 3 worker (`scripts/sync_cluster_checkouts.sh` sau mỗi lần push).
 - Phép đo mới phải đăng ký tiêu chí trước khi có số; không đổi lựa chọn sau khi xem kết quả.
-
-## Đã xong (tóm tắt theo ngày)
-
-**20/10**
-- [x] pulse-live-recalibrated chạy hết 24 giờ; chọn chính sách theo luật đăng ký trước (k2of2_a10, ghi rõ không đạt kỳ vọng p95); khởi chạy pulse-stable-candidate.
-- [x] Refresh calibration định kỳ (Pulse 5.6), novel-syscall (5.5b, không đạt), gánh cảnh báo theo workload/node (5.6b).
-- [x] Syscall: bootstrap protocol v2 (5.7), recall theo kịch bản (5.8), bảng bằng chứng feature trong Pulse 4b, k-of-n trong `arm_budget`.
-- [x] RCA: độ trễ preview → case p50 2,22 s / p95 2,47 s trên 2.364 case.
-- [x] NFS: nén pulse-live-recalibrated (73,4 GB), mở rộng online 344 → 685 GB.
-- [x] Cụm:
-  - sửa 4 pod giữ mount ext4 hỏng (redis, minio, vault-2, tempo), unseal vault-2;
-  - dọn pod chết, 47 unit cũ, 28 checkout cũ;
-  - đồng bộ code trên 4 VM.
-- [x] CI GitHub Actions chạy pytest trên bộ thư viện ghim giống cụm.
-
-**19/10**
-- [x] Lượt live pulse-live-recalibrated + campaign có binary vô hại (precision 89,1%, recall 92,8%, binary vô hại 80,7%, p95 1,90 s).
-- [x] Chấm điểm nhanh khớp từng bit (~4,9×); sửa rò tiến trình `tetra getevents`.
-- [x] RCA: case tiếp nối (11% → 72% attack có case), flow 3% → 87%, đọc decision qua SSH.
-- [x] Sự cố cụm 18:40–19:12 (job nặng làm master2 treo), khôi phục và rút quy tắc.
-- [x] Dọn ổ worker (~530 GB), gỡ detector v8 và tài nguyên v8.
-- [x] Đổi tên mô tả cho mọi lượt chạy, script và báo cáo.
-
-**18/10**
-- [x] Tái cấu trúc repo (gỡ ~580 file cũ, 6 package), kiểm tra tương đương 214.449 cửa sổ, 0 sai khác.
-- [x] Soak 48 giờ, holdout syscall-arms, nghiên cứu xác nhận k-of-n, hiệu chỉnh lại p-value (8,1% → 0,35% cửa sổ bị gắn cờ).
-- [x] Đăng ký `policy-1win-a3`; hợp nhất vào `main` (push thẳng).

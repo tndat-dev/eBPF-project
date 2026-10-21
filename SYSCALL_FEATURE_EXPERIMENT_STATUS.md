@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **19/10/2026 10:41 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **21/10/2026 21:12 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -14,11 +14,13 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `pulse-attack-dev-rabbitmq` | 15 cặp RabbitMQ bổ sung | `matched-parallel-r5-rabbit-20261015` |
 | `syscall-arms` | Thí nghiệm 11 cấu hình syscall (693 model) | `matched-parallel-r4-20261015` |
 | `pulse-candidate-baseline` / `pulse-candidate-recalibrated` | Candidate gốc / candidate hiệu chỉnh lại | `runtime-f95867d-20261012` / `runtime-recal-c1-20261018` |
-| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (đang chạy) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
+| `pulse-live-recalibrated` | Lượt live: candidate hiệu chỉnh lại + `policy-1win-a3` (xong 20/10 02:22) | `matched-r6-20261018`; unit `pulse-matched-worker-r6-20261018` |
 | `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
-| `pulse-stable-candidate` | Lượt kế tiếp, ứng viên cho bản stable | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` (tạo khi chạy) |
-| `rca-subscriber` | Bản RCA tốt nhất, đang chạy | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
+| `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, 20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 ~12:30, đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
+| `feature-groups` | Thí nghiệm nhóm feature (mục 5B, 693 model) | study `/var/tmp/feature-groups/study` trên .234; kết quả `matched-parallel-r4-20261015/feature-groups` |
+| `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (19/10 19:24 → 20/10 10:16) | `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
 ## 1. Câu hỏi nghiên cứu và kết luận hiện tại
@@ -483,3 +485,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 20/10 15:25 | Điều tra: điểm trùng từng bit, chỉ calibration tree lệch ≤ 3,9e-16 do cộng song song; sửa phép kiểm báo riêng từng thành phần → tái lập đúng | mục 5B.0; `650c445` |
 | 21/10 11:28 | Giai đoạn B thí nghiệm nhóm feature (chấm holdout + replay + so ngân sách) dời ra sau lượt live `pulse-stable-refreshed` để không đọc NFS nặng song song; unit `after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`) | mục 5B |
 | 21/10 13:55 | Chuỗi sau lượt live gộp thành một unit chạy tuần tự `after-stable-refreshed` (snapshot `bf35f5e`). Thứ tự: phân tích campaign → phân tích final của `pulse-stable-refreshed` → giai đoạn B nhóm feature → 5.7d. Nhờ vậy các job đọc NFS nặng không chạy song song. Unit chờ cũ `after-stable-candidate-chain` đã dừng; nó chưa chạy bước nào | `scripts/after_stable_refreshed.sh` |
+| 21/10 21:12 | Cập nhật đầu báo cáo (bảng tên gọi) theo các lượt live 20–22/10; giai đoạn B nhóm feature vẫn chờ trong chuỗi `after-stable-refreshed` (snapshot `399676c`) | mục 5B |

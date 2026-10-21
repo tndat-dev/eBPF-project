@@ -10,6 +10,8 @@ và mẫu nhỏ. Không sửa nội dung đã niêm phong; nếu cần sửa bá
 | `syscall/` | Đối chiếu ID/tên syscall, phân tích tần suất C3, sửa tiền xử lý C6 |
 | `rca/` | Cây RCA thật + input chuẩn hóa, kiểm chứng runtime C3 trong production |
 | `results-20261018/` | Kết quả thu ngày 18/10: terminal soak 48 h, holdout syscall-arms, nghiên cứu xác nhận/hiệu chỉnh lại |
+| `results-20261019/` | 19–20/10: lượt live pulse-live-recalibrated (campaign chính + tiếp nối, replay chính sách), chọn candidate cho pulse-stable-candidate, nghiên cứu làm mới calibration, kiểm tương đương, RCA; syscall: so ngân sách, bootstrap, k2of2, nhóm feature |
+| `results-20261021/` | 21/10: lượt pulse-stable-candidate (campaign, RCA, luật v2, final: novelty có xét exec, kiểm chấm nhanh, Pareto), lượt pulse-stable-refreshed (giai đoạn campaign), baseline G1 (iforest/AE/freq_profile/tree_ae, theo tốc độ attack) |
 
 Evidence của các thế hệ đã gỡ code (AIMS/v8, lifecycle R9/R10, projected
 counter/pressure, recovery coordinator, soak inspection 06–07/10…) đã được gỡ

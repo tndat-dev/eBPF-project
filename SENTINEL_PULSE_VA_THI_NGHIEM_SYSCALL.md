@@ -3,6 +3,9 @@
 > **Snapshot cũ (15–16/10/2026), không còn cập nhật.** Trạng thái hiện hành, kết quả mới và nhật ký
 > từng bước nằm ở [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md), [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md),
 > [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) và [TODO.md](TODO.md).
+> Đường dẫn module (`sentinel_pulse/features.py`…) và evidence (`validation-evidence/pulse-…`) trong file này là bố cục
+> trước đợt tái cấu trúc 18/10. Code nay nằm trong các gói con (`collector/`, `detector/`, `pipeline/`, `syscall_study/`…),
+> evidence nằm trong `validation-evidence/{pulse,syscall,rca}/`; bản gốc tra bằng tag `archive/pre-refactor-20261018`.
 
 ## 1. Phạm vi và cách đọc báo cáo
 
