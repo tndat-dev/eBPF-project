@@ -811,6 +811,42 @@ c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngư
 - chấm điểm nhanh; RCA có luật hạ quyền;
 - khởi chạy sau khi chuỗi phân tích nặng xong (không đọc NFS nặng song song lượt live).
 
+### 5.8h Kết quả 5.7c: novelty có xét exec (phân tích final 21/10 11:50)
+
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/final/novel-syscalls-exec-aware.json` (có tập E) và `novel-syscalls-plain.json` (không trừ E, để so).
+- **Tập exec E:** 59 syscall ID. Học trên pulse-live-recalibrated rồi đóng băng trước khi chạy kiểm tra.
+- **Normal tham chiếu:** normal của chính pulse-stable-candidate sau campaign. Đọc 32,4 triệu dòng feature.
+
+| Interval có ít nhất 1 ID mới | Attack | Binary vô hại | Control |
+|---|---|---|---|
+| Novelty thường (không trừ E) | 77,1% | 46,0% | 0% |
+| **Novelty trừ tập exec E** | **60,0%** | **0,3% (1/315)** | **0%** |
+
+Theo kịch bản (trừ E):
+- `ptrace`, `execveat`, `setns`: **100%** mỗi kịch bản (63/63). ID mới là 101 (`ptrace`), 322 (`execveat`), 308 (`setns`), kèm 56 (`clone`) và 61 (`wait4`).
+- `anonymous_mprotect_churn` và `seccomp_api_probe`: 0%. Syscall của hai kịch bản này nằm trong normal hoặc trong E, đúng như giới hạn đã ghi lúc đăng ký.
+- Interval vô hại duy nhất bị bắt có ID 56 (`clone`).
+
+**Đối chiếu tiêu chí đăng ký (5.7c):**
+1. Binary vô hại ≤ 10%: **đạt** (0,3%).
+2. Attack ≥ 90% với ít nhất 2/3 kịch bản `ptrace`/`setns`/`execveat`: **không đạt** ở mức tổng (60%). Ở lớp syscall hiếm thì cả 3/3 kịch bản đạt 100%.
+3. Control ≤ 5%: **đạt** (0%).
+
+**Đọc kết quả:**
+- Trừ tập exec khiến binary vô hại gần như hết bị gắn cờ (46% → 0,3%), trong khi lớp tấn công dùng syscall hiếm vẫn được bắt đủ. Đây là tín hiệu đầu tiên giải được một phần vấn đề "process mới vô hại" (G5 trong `RESEARCH_IDEAS.md`).
+- Tín hiệu này **không thay** detector đếm. Hai kịch bản không dùng syscall lạ vẫn phải dựa vào Pulse.
+- Bước tiếp: dùng nó như một tripwire chạy cạnh detector (A1). Cần đăng ký trước, rồi kiểm trên dữ liệu chưa xem.
+- Giới hạn: kịch bản là fixture tự viết; E học từ một lượt (pulse-live-recalibrated); dữ liệu kiểm tra là development, không blind.
+
+### 5.8i Chấm nhanh khớp từng bit với sklearn trên dữ liệu live (21/10 12:19)
+
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/final/scorer-equivalence-sklearn-vs-live-fast.json`.
+- **Cách làm:** replay feature của 6 segment (s00003 và s00030 trên mỗi worker) qua đường chấm sklearn tham chiếu. Mỗi segment lấy khoảng 20.000 dòng đầu, tức khoảng 2 phút đầu. So từng điểm với decision mà worker (chấm nhanh) đã ghi.
+- **Kết quả:** 41.250 dòng có điểm, **0 dòng lệch**. Chênh tuyệt đối lớn nhất của tree_score, support_score, tree_p, support_p, joint_p đều bằng 0.
+- **Ghi chú:**
+  - hai segment của cùng worker cho số đếm giống hệt nhau. Lý do: tập container cố định, và cả worker lẫn replay đều bắt đầu lịch sử mới ở đầu segment. Đã kiểm hai file khác nhau (khoảng thời gian khác nhau);
+  - phạm vi là phần đầu segment, không phải toàn bộ 24 giờ.
+
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
@@ -860,7 +896,7 @@ c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngư
 
 Đã chuyển sang [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md), mục 2: tripwire, CUSUM, calibration tự làm mới, so sánh replica, so họ model, model dùng chung, triage hai tầng, FDR, LID-DS, kèm sơ đồ kiến trúc đề xuất.
 
-### 5.13 Lượt live pulse-stable-refreshed (đã hẹn 21/10 11:28)
+### 5.13 Lượt live pulse-stable-refreshed (hẹn 21/10 11:28, chạy từ 12:22)
 
 | Thành phần | Giá trị |
 |---|---|
@@ -871,11 +907,36 @@ c) **Hiệu chỉnh lại calibration không phải là dịch đều một ngư
 | Khác lượt trước | calibration làm mới; RCA có luật hạ quyền lúc khởi chạy (`d388b02`); timer dọn `tetra getevents` mồ côi trên worker |
 | Kiểm thêm (đăng ký) | CUSUM và Cauchy blind (5.11a); luật RCA hạ quyền; chỉ báo độ bền làm ngữ cảnh triage |
 | Khởi chạy | unit `pulse-stable-refreshed-launcher` chờ `pulse-stable-candidate-analysis` xong rồi chạy `scripts/launch_run.sh all` (snapshot `0c5096d`). Biến môi trường để trong file chỉ root đọc được |
-| Sau lượt live | `after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy |
+| Sau lượt live (kế hoạch cũ, thay lúc 13:55) | ~~`after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy~~ |
+| Khởi chạy thật | 21/10 12:22 từ snapshot `0c5096d`; 13:08 khỏe: 0 issue, RCA ok; kết thúc dự kiến 22/10 ~12:25–12:45 |
+| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
 
 ### 5.14 So sánh với công trình liên quan (research 21/10)
 
 Đã chuyển sang [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md), mục 3: BoSC, CDL, CHIDS, REPLICAWATCHER, FedMon, KubAnomaly, sentinel-ebpf, conformal IDS. Kết luận ngắn: chưa có công trình trùng toàn bộ hướng của Pulse; các kết quả cao trong tài liệu được đo offline trên trace 30 s cân bằng, không có độ trễ, gánh cảnh báo hay đối chứng process vô hại.
+
+### 5.15 Baseline trên cùng dữ liệu (G1; đăng ký 21/10 11:55, trước khi fit)
+
+- **Protocol:** `sentinel_pulse/protocol/baseline-evaluation-v1.json` (commit `036d784`).
+- **Nguyên tắc:** chỉ khác bộ chấm điểm. Feature, dữ liệu fit, conformal, k2of2 và ngân sách cảnh báo dùng chung với Pulse.
+
+| Nhánh | Bộ chấm điểm |
+|---|---|
+| `base29` (Pulse) | ExtraTrees lịch sử → hiện tại + nhánh support, joint p-value |
+| `iforest` | Isolation Forest 200 cây trên vector 249 cột chuẩn hóa |
+| `autoencoder` | MLP 249-64-16-64-249; điểm = sai số tái tạo |
+| `freq_profile` | Kiểu BoSC: khoảng cách L1 của phần tần suất (29 tỉ lệ + 64 bin) tới trung bình huấn luyện, chia MAD |
+
+- **Fit:** dữ liệu chọn của thí nghiệm syscall, cùng train context và cùng chỉ số giới hạn 3.000 như Pulse. Workload không đủ 1.200 context thì bỏ, như Pulse.
+- **Đánh giá:**
+  - normal là pulse-live-recalibrated từ 19/10 13:00 tới hết capture. Bỏ sự cố 18:25–19:20 và khoảng hai campaign ±60 s, như lúc chọn policy;
+  - 42% đầu làm calibration (tới ~18:25);
+  - attack là 420 trial của hai campaign pulse-live-recalibrated.
+- **So sánh:** k2of2; ngân sách 1 và 5 đợt/replica-giờ; bootstrap ghép cặp theo workload (10.000 lần) cho hiệu với base29. Kết luận theo CI 95%: hơn / không khác / kém. Không chọn người thắng sau khi xem số.
+- **Không tái lập được STIDE trên cùng dữ liệu:** STIDE cần chuỗi syscall, mà Pulse chỉ ghi số đếm mỗi cửa sổ. STIDE thuộc phần LID-DS (G3).
+- **Code:** `sentinel_pulse/syscall_study/baselines.py`, có test end-to-end. base29 được chấm bằng `VerifiedFastScorer`: đường chấm nhanh, tự so khớp từng bit với sklearn ở lô đầu của mỗi model.
+- **Job:** unit `pulse-baselines-1021` trên .234, chỉ đọc bản chép local, CPU 300%. Script: `scripts/pulse_baselines.sh`.
+- Mức bằng chứng: development (cùng capture đã dùng để chọn).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:18)
 
@@ -1158,3 +1219,9 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 11:28 | Dời chuỗi phân tích nặng ra sau lượt live kế tiếp; dựng candidate hiệu chỉnh lại bằng calibration làm mới (`4bad16dc…`, cả 21 workload có ≥ 35.817 điểm calibration nên khớp đúng replay); đăng ký `policy-2of2-a10-refreshed.json` (`9c41ebc0…`); hẹn unit tự khởi chạy `pulse-stable-refreshed` khi phân tích final xong | mục 5.13 |
 | 11:32 | Sàng lọc offline Cauchy và CUSUM trên khoảng campaign: CUSUM giảm control trên dev (1,9% so với 4,3%) và nhanh hơn ở trung vị; Cauchy nhanh hơn ở p95 nhưng control nhích lên; đóng băng tham số để kiểm blind trên lượt live mới | mục 5.11a |
 | 11:39 | So sánh với công trình liên quan: không có công trình trùng toàn bộ; gần nhất là BoSC (2015), CHIDS (CCSW 2022), REPLICAWATCHER (NDSS 2024), FedMon (2025). Kết quả của họ cao nhưng đo offline trên trace 30 s cân bằng, không có độ trễ, gánh cảnh báo hay đối chứng process vô hại | mục 5.14 |
+| 11:50 | 5.7c: novelty trừ tập exec bắt 100% kịch bản `ptrace`/`execveat`/`setns`, binary vô hại 0,3%, control 0%; tổng attack 60% (tiêu chí 90% không đạt vì 2 kịch bản không dùng syscall lạ) | mục 5.8h |
+| 11:55 | Đăng ký protocol baseline (G1) trước mọi fit | mục 5.15; `036d784` |
+| 12:19 | Chấm nhanh khớp từng bit với sklearn: 41.250 dòng, 0 lệch | mục 5.8i |
+| 12:22 | `pulse-stable-refreshed` tự khởi chạy; 13:08 khỏe (0 issue, RCA ok) | mục 5.13 |
+| 13:44 | Code baseline + test (327 test pass); chạy job `pulse-baselines-1021` (fit 21/21 workload xong 13:53, rồi chấm 3 node song song) | mục 5.15; `58a891e` |
+| 13:55 | Dựng phân tích cho `pulse-stable-refreshed` (giai đoạn campaign và final) và gộp chuỗi nặng thành một unit tuần tự `after-stable-refreshed` | mục 5.13; `bf35f5e` |
