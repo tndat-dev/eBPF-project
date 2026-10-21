@@ -42,7 +42,8 @@ import time
 import numpy as np
 
 from ..common import atomic_json
-from ..detector.confirmation import SCORED, ConfirmationPolicy, apply
+from ..detector.confirmation import SCORED, ConfirmationPolicy, CusumPolicy, CusumState, apply, cauchy_p
+from ..detector.support_model import pvalues
 from ..detector.recalibration import Recalibrator
 from ..integrity import sha256_file
 from ..syscall_study.arm_budget import confirm, joint_p
@@ -89,6 +90,8 @@ def load_rows(worker_roots, model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
             c['tree'].append(float(row['tree_score'])); c['support'].append(float(row['support_score']))
             c['eligible'].append(row.get('eligible_for_normal_review') is True)
             c['node'].append(str(row['node_name'])); c['jp'].append(float(row['joint_p']))
+            c['start'].append(float(row['window_start']))
+            c['tp'].append(float(row['tree_p'])); c['sp'].append(float(row['support_p']))
             alpha[w] = float(row['candidate_policy_alpha'])
     out = {}
     for w, c in cols.items():
@@ -96,7 +99,8 @@ def load_rows(worker_roots, model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
         out[w] = dict(identity=np.asarray(c['identity'], dtype=np.int64)[order], end=end[order],
                       tree=np.asarray(c['tree'])[order], support=np.asarray(c['support'])[order],
                       eligible=np.asarray(c['eligible'])[order], alpha=alpha[w],
-                      node=np.asarray(c['node'])[order], jp=np.asarray(c['jp'])[order])
+                      node=np.asarray(c['node'])[order], jp=np.asarray(c['jp'])[order],
+                      start=np.asarray(c['start'])[order], tp=np.asarray(c['tp'])[order], sp=np.asarray(c['sp'])[order])
     return out
 
 
@@ -181,6 +185,15 @@ class Calibration:
         ps = (1.0 + self.support_tail[np.searchsorted(self.support, support, side='left')]) / (1.0 + self.support_tail[0])
         return np.minimum(1.0, 2*np.minimum(pt, ps))
 
+    def branch_p(self, tree, support):
+        """(tree_p, support_p); min(1, 2 min(tree_p, support_p)) equals ``joint_p``."""
+        tree, support = np.asarray(tree, dtype=np.float64), np.asarray(support, dtype=np.float64)
+        if not self.weighted:
+            return pvalues(tree, self.tree), pvalues(support, self.support)
+        pt = (1.0 + self.tree_tail[np.searchsorted(self.tree, tree, side='left')]) / (1.0 + self.tree_tail[0])
+        ps = (1.0 + self.support_tail[np.searchsorted(self.support, support, side='left')]) / (1.0 + self.support_tail[0])
+        return pt, ps
+
 
 def block_calibration(a, lo, hi, usable, block_start, half_life_hours=None, node=None):
     """Calibration from usable windows ending in [lo, hi) (one node if given); None below MINIMUM."""
@@ -198,11 +211,13 @@ def pvalue_strategy(rows, kind, blocks, exclude, half_life_hours=None):
     """p[w] for every row (nan where no usable calibration) and per-block rescorers {w: {node|None: Calibration}}.
 
     kind: 'asrun' (recorded p), 'calibrated' (static/rolling/weighted blocks), 'mondrian' (per node cell)."""
-    p, rescorers = {}, []
+    p, rescorers, pb = {}, [], {}
     for w, a in rows.items():
         p[w] = a['jp'].astype(np.float64) if kind == 'asrun' else np.full(len(a['end']), np.nan)
+        pb[w] = ((a['tp'].astype(np.float64), a['sp'].astype(np.float64)) if kind == 'asrun'
+                 else (np.full(len(a['end']), np.nan), np.full(len(a['end']), np.nan)))
     if kind == 'asrun':
-        return p, None
+        return p, None, pb
     usable = {w: a['eligible'] & ~masked(a['end'], exclude) for w, a in rows.items()}
     for start, end, lo, hi in blocks:
         used = {}
@@ -227,10 +242,12 @@ def pvalue_strategy(rows, kind, blocks, exclude, half_life_hours=None):
                         continue
                     sel = np.flatnonzero(a['node'][i:j] == node) + i
                     p[w][sel] = cal.joint_p(a['tree'][sel], a['support'][sel])
+                    pb[w][0][sel], pb[w][1][sel] = cal.branch_p(a['tree'][sel], a['support'][sel])
             elif None in cells:
                 p[w][i:j] = cells[None].joint_p(a['tree'][i:j], a['support'][i:j])
+                pb[w][0][i:j], pb[w][1][i:j] = cells[None].branch_p(a['tree'][i:j], a['support'][i:j])
         rescorers.append((start, end, used))
-    return p, rescorers
+    return p, rescorers, pb
 
 
 def aci_alpha(p, eligible, target, gamma):
@@ -248,12 +265,42 @@ def aci_alpha(p, eligible, target, gamma):
     return np.asarray(flags, dtype=bool), np.asarray(alpha)
 
 
-def run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, scales=SCALES):
+def parse_temporal(text):
+    """'kofn' (default: the run's k-of-n on joint_p), 'cauchy' (k-of-n on the Cauchy combination) or
+    'cusum-<drift>-<threshold>' (CUSUM on -ln joint_p, no k-of-n); same classes as the live policy (5.19)."""
+    if text in (None, 'kofn'):
+        return 'kofn', None
+    if text == 'cauchy':
+        return 'cauchy', None
+    kind, *params = text.split('-')
+    if kind == 'cusum' and len(params) == 2:
+        return 'cusum', CusumPolicy(drift=float(params[0]), threshold=float(params[1]))
+    raise ValueError('unknown temporal rule: ' + text)
+
+
+def cauchy_array(pt, ps):
+    return np.array([cauchy_p(a, b) if a == a and b == b else np.nan for a, b in zip(pt.tolist(), ps.tolist())])
+
+
+def cusum_flags(a, p, policy):
+    """CUSUM signal per row of one workload (rows in window_end order; nan p = unscored, skipped)."""
+    state, out = CusumState(policy), np.zeros(len(p), dtype=bool)
+    ident, start, end = a['identity'].tolist(), a['start'].tolist(), a['end'].tolist()
+    for i, pi in enumerate(p.tolist()):
+        if pi == pi:
+            out[i] = state.update(dict(node_name=ident[i], window_start=start[i], window_end=end[i], joint_p=pi))
+    return out
+
+
+def run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, scales=SCALES, temporal='kofn'):
     """flags (as run_strategy), rescorers and ACI alphas for the literature strategies."""
+    tkind, tpolicy = parse_temporal(temporal)
     kind, *params = name.split('-')
     aci = kind == 'aci'
     if aci:
         kind, *params = params
+        if tkind != 'kofn':
+            raise ValueError('ACI is registered with k-of-n only')
     half_life = None
     if kind == 'asrun':
         blocks, pkind = [(eval_start, eval_end, None, None)], 'asrun'
@@ -266,7 +313,7 @@ def run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, sca
         pkind = 'mondrian' if kind == 'mondrian' else 'calibrated'
     else:
         raise ValueError('unknown strategy: ' + name)
-    p, rescorers = pvalue_strategy(rows, pkind, blocks, exclude, half_life)
+    p, rescorers, pb = pvalue_strategy(rows, pkind, blocks, exclude, half_life)
     flags = {s: {} for s in scales}; flags['scored'] = {}
     alphas = {s: {} for s in scales}
     for w, a in rows.items():
@@ -274,6 +321,12 @@ def run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, sca
         if pkind == 'asrun':
             scored &= (a['end'] >= eval_start) & (a['end'] < eval_end)
         flags['scored'][w] = scored
+        if tkind == 'cusum':
+            f = cusum_flags(a, np.where(np.isfinite(p[w]), p[w], np.nan), tpolicy) & scored
+            for s in scales:
+                flags[s][w] = f
+            continue
+        pw = cauchy_array(*pb[w]) if tkind == 'cauchy' else p[w]
         for s in scales:
             target = a['alpha']*s
             if aci:
@@ -281,7 +334,7 @@ def run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, sca
                 flags[s][w] = f
                 alphas[s][w] = (a['end'], al)
             else:
-                flags[s][w] = scored & (np.nan_to_num(p[w], nan=2.0) <= target)
+                flags[s][w] = scored & (np.nan_to_num(pw, nan=2.0) <= target)
     return flags, rescorers, (alphas if aci else None), len(blocks)
 
 
@@ -303,7 +356,8 @@ def rescore_trial_rows(decisions, rescorers, start, alphas=None, scale=1.0):
             if cal is None:
                 out.append(dict(r, status='uncalibrated')); continue
             jp = float(cal.joint_p(np.array([float(r['tree_score'])]), np.array([float(r['support_score'])]))[0])
-            r = dict(r, frozen_joint_p=r['joint_p'], joint_p=jp)
+            tp, sp = (float(x[0]) for x in cal.branch_p(np.array([float(r['tree_score'])]), np.array([float(r['support_score'])])))
+            r = dict(r, frozen_joint_p=r['joint_p'], joint_p=jp, tree_p=tp, support_p=sp)
         if alphas is not None and w in alphas:
             ends, al = alphas[w]
             k = max(0, np.searchsorted(ends, start) - 1)
@@ -312,8 +366,20 @@ def rescore_trial_rows(decisions, rescorers, start, alphas=None, scale=1.0):
     return out
 
 
+def apply_cusum(rows, policy):
+    """Rows in window order with candidate_alert_preview from CUSUM (same CusumState as the live policy)."""
+    state, out = CusumState(policy), []
+    for row in sorted(rows, key=lambda r: (float(r.get('window_end', 0)), float(r.get('window_start', 0)))):
+        if row.get('status') == SCORED and row.get('joint_p') is not None:
+            row = dict(row, frozen_candidate_alert_preview=row.get('candidate_alert_preview'),
+                       candidate_alert_preview=state.update(row), confirmation_policy=policy.name)
+        out.append(row)
+    return out
+
+
 def attack_metrics_ext(inputs, rescorers, alphas, scales=SCALES, confirmation=(1, 1),
-                       model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
+                       model_hash=MODEL_HASH, policy_hash=POLICY_HASH, temporal='kofn'):
+    tkind, tpolicy = parse_temporal(temporal)
     out = {}
     for s in scales:
         policy = ConfirmationPolicy(confirmation[0], confirmation[1], s)
@@ -321,7 +387,13 @@ def attack_metrics_ext(inputs, rescorers, alphas, scales=SCALES, confirmation=(1
         for data in inputs:
             start = float(data['attack']['start_at'])
             rows = rescore_trial_rows(data['decisions'], rescorers, start, None if alphas is None else alphas[s], s)
-            rows = apply(rows, policy)
+            if tkind == 'cusum':
+                rows = apply_cusum(rows, tpolicy)
+            else:
+                if tkind == 'cauchy':
+                    rows = [dict(r, joint_p=cauchy_p(r['tree_p'], r['support_p']))
+                            if r.get('status') == SCORED and r.get('joint_p') is not None else r for r in rows]
+                rows = apply(rows, policy)
             for label in ('control', 'benign', 'attack'):
                 if label in data:
                     outcomes.append(evaluate_interval(rows, data[label], model_hash, policy_hash))
@@ -403,8 +475,11 @@ LITERATURE = ('asrun', 'weighted', 'mondrian', 'aci')
 
 def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=None, extra_exclude=(),
         strategies=('static', 'rolling-6-1', 'rolling-3-1', 'rolling-12-1', 'guarded-6-1'), scales=SCALES,
-        confirmation=(1, 1), model_hash=MODEL_HASH, policy_hash=POLICY_HASH):
+        confirmation=(1, 1), model_hash=MODEL_HASH, policy_hash=POLICY_HASH, temporal='kofn'):
     started = time.time()
+    tkind, _ = parse_temporal(temporal)
+    if tkind != 'kofn' and any(n.split('-')[0] == 'guarded' for n in strategies):
+        raise ValueError('cauchy/cusum combinations are not implemented for guarded')
     rows = load_rows(worker_roots, model_hash, policy_hash)
     eval_end = eval_end or max(float(a['end'][-1]) for a in rows.values())
     exclude = sorted(campaign_spans(campaign_roots) + list(extra_exclude))
@@ -412,10 +487,13 @@ def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=
               for path in sorted(root.glob('trials/*/EVALUATION_INPUT.json'))]
     results = {}
     for name in strategies:
-        if name.split('-')[0] in LITERATURE:
-            flags, rescorers, alphas, nblocks = run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, scales)
-            results[name] = dict(normal=normal_metrics(rows, flags, eval_start, eval_end, exclude, scales, confirmation),
-                                 attack=attack_metrics_ext(inputs, rescorers, alphas, scales, confirmation, model_hash, policy_hash),
+        if name.split('-')[0] in LITERATURE or tkind != 'kofn':   # static/rolling go through the same path for combos
+            flags, rescorers, alphas, nblocks = run_strategy_ext(rows, name, eval_start, eval_end, static_span, exclude, scales,
+                                                                 temporal)
+            confirm_normal = (1, 1) if tkind == 'cusum' else confirmation
+            results[name] = dict(normal=normal_metrics(rows, flags, eval_start, eval_end, exclude, scales, confirm_normal),
+                                 attack=attack_metrics_ext(inputs, rescorers, alphas, scales, confirmation, model_hash, policy_hash,
+                                                           temporal),
                                  blocks=nblocks)
             if alphas is not None:
                 results[name]['aci_alpha_over_target'] = {
@@ -436,7 +514,7 @@ def run(worker_roots, campaign_roots, output, static_span, eval_start, eval_end=
               {s: (v['recall_observed'], v['control_positive_rate']) for s, v in results[name]['attack'].items()}, flush=True)
     result = dict(schema='pulse-rolling-recalibration-v1', worker_roots=[str(r) for r in worker_roots],
                   campaigns=[str(c) for c in campaign_roots], model_hash=model_hash, policy_hash=policy_hash,
-                  aci_gamma_relative=ACI_GAMMA,
+                  aci_gamma_relative=ACI_GAMMA, temporal=temporal,
                   static_calibration_span_unix=list(static_span), evaluation_span_unix=[eval_start, eval_end],
                   excluded_spans=len(exclude), minimum_calibration_examples=MINIMUM, scales=list(scales),
                   confirmation=dict(k=confirmation[0], n=confirmation[1]),
@@ -464,6 +542,7 @@ def main():
     parser.add_argument('--scale', type=float, action='append', help='alpha scales (default 1 and 3)')
     parser.add_argument('--confirm-k', type=int, default=1)
     parser.add_argument('--confirm-n', type=int, default=1)
+    parser.add_argument('--temporal', default='kofn', help="kofn | cauchy | cusum-<drift>-<threshold> (combined replay, 5.19)")
     parser.add_argument('--model-hash', default=MODEL_HASH)
     parser.add_argument('--policy-hash', default=POLICY_HASH)
     parser.add_argument('--output', type=Path, required=True)
@@ -474,7 +553,7 @@ def main():
     if args.scale:
         kwargs['scales'] = tuple(args.scale)
     kwargs['confirmation'] = (args.confirm_k, args.confirm_n)
-    kwargs.update(model_hash=args.model_hash, policy_hash=args.policy_hash)
+    kwargs.update(model_hash=args.model_hash, policy_hash=args.policy_hash, temporal=args.temporal)
     run(args.worker_root, args.campaign, args.output, args.static_span, args.eval_start, args.eval_end,
         args.exclude, **kwargs)
 

@@ -60,7 +60,8 @@ def with_nodes(rows, shift_node_b=0.0):
         node = np.where(np.arange(n) % 2 == 0, 'node-a', 'node-b')
         shift = np.where(node == 'node-b', shift_node_b, 0.0)
         out[w] = dict(a, identity=(np.arange(n) % 2).astype(np.int64), node=node,
-                      tree=a['tree'] + shift, support=a['support'] + shift, jp=np.full(n, 0.5))
+                      tree=a['tree'] + shift, support=a['support'] + shift, jp=np.full(n, 0.5),
+                      start=a['end'] - 0.5, tp=np.full(n, 0.5), sp=np.full(n, 0.5))
     return out
 
 
@@ -142,7 +143,8 @@ def test_run_end_to_end_on_a_synthetic_capture_and_campaign(tmp_path):
                              eligible_for_normal_review=True, candidate_policy_alpha=0.002, alert=False,
                              policy_applied=False, serving_compatible=False, preview_emitted_at=b + 0.2,
                              candidate_alert_preview=False, tree_score=float(rng.normal() + (8 if attack else 0)),
-                             support_score=float(rng.normal() + (8 if attack else 0)), joint_p=0.5))
+                             support_score=float(rng.normal() + (8 if attack else 0)), joint_p=0.5,
+                             tree_p=0.5, support_p=0.5))
     seg = tmp_path / 'workers' / 'w1' / 'segments' / 's00001'; seg.mkdir(parents=True)
     (seg / 'decisions.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
     camp = tmp_path / 'campaign'; (camp / 'trials' / '1').mkdir(parents=True)
@@ -156,6 +158,15 @@ def test_run_end_to_end_on_a_synthetic_capture_and_campaign(tmp_path):
     strategies = ('asrun', 'static', 'rolling-1-1', 'weighted-2-1-1', 'mondrian-1-1', 'aci-asrun', 'aci-rolling-1-1')
     result = rr.run([tmp_path / 'workers' / 'w1'], [camp], out, (0.0, 3600.0), 3600.0, strategies=strategies,
                     scales=(5.0,), confirmation=(2, 2), model_hash=M, policy_hash=P)
+    # combined replay (5.19): calibration strategies x Cauchy / CUSUM, same capture and campaign
+    for temporal in ('cauchy', 'cusum-3-6'):
+        combo = rr.run([tmp_path / 'workers' / 'w1'], [camp], tmp_path / f'{temporal}.json', (0.0, 3600.0), 3600.0,
+                       strategies=('rolling-1-1', 'mondrian-1-1', 'weighted-2-1-1'), scales=(5.0,), confirmation=(2, 2),
+                       model_hash=M, policy_hash=P, temporal=temporal)
+        assert combo['temporal'] == temporal
+        for name, r in combo['strategies'].items():
+            cm = r['attack']['5']['confusion_matrix_expected_control_labels']
+            assert cm['TP'] == 1 and cm['FP'] == 0, (temporal, name, cm)
     assert set(result['strategies']) == set(strategies) and out.exists()
     for name in strategies:
         attack = result['strategies'][name]['attack']['5']
@@ -165,3 +176,27 @@ def test_run_end_to_end_on_a_synthetic_capture_and_campaign(tmp_path):
         else:
             assert cm['TP'] == 1 and cm['FP'] == 0, (name, cm)
     assert 'aci_alpha_over_target' in result['strategies']['aci-rolling-1-1']
+
+
+def test_branch_pvalues_reproduce_the_joint_pvalue():
+    rng = np.random.default_rng(4)
+    tree, support, test = rng.normal(size=3000), rng.normal(size=3000), rng.normal(size=(2, 500))
+    for weights in (None, rng.uniform(0.1, 1, size=3000)):
+        cal = rr.Calibration(tree, support, weights)
+        pt, ps = cal.branch_p(*test)
+        np.testing.assert_array_equal(np.minimum(1.0, 2 * np.minimum(pt, ps)), cal.joint_p(*test))
+
+
+def test_cusum_flags_match_the_offline_screen():
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location('ideas_screen', Path(__file__).parents[1] / 'scripts' / 'analysis' / 'ideas_screen.py')
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    rng = np.random.default_rng(8)
+    n = 3000
+    end = 100 + 0.5 * np.arange(n) + np.where(np.arange(n) >= 1500, 3.0, 0.0)   # one gap restarts the statistic
+    p = np.where((np.arange(n) % 400) < 12, rng.uniform(1e-6, 1e-3, n), rng.uniform(1e-3, 1, n))
+    a = dict(identity=np.zeros(n, dtype=np.int64), start=end - 0.5, end=end)
+    live = rr.cusum_flags(a, p, rr.CusumPolicy(3.0, 6.0))
+    offline = mod.alarms_cusum([dict(start=s, end=e, joint_p=q) for s, e, q in zip(a['start'], end, p)], 3.0, 6.0)
+    assert live.tolist() == offline and live.any()
