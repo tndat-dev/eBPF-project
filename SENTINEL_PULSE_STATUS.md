@@ -1373,6 +1373,36 @@ Tài nguyên v8 (admission lock, 2 `sentinel-syscalls`, nginx/redis/loadgen/post
 - Cách sửa: xóa pod để kubelet chạy fsck và mount lại (20/10 10:41). Không cần reboot.
 - Bài học: sau sự cố storage, kiểm tra `dmesg` tìm lỗi EXT4 và log I/O error của pod, không chỉ nhìn trạng thái Ready.
 
+### 8c. Chính sách giữ dữ liệu và dọn tài nguyên (22/10 01:30–01:48)
+
+**Nguyên tắc:** chỉ giữ cái mà một phân tích, protocol, config lượt chạy, unit đang chạy hay mục báo cáo hiện hành còn tham chiếu. Kết quả của các thế hệ cũ đã có biên nhận trong repo; code cũ tra bằng tag `archive/pre-refactor-20261018`.
+
+**Đã dọn** (chủ đồ án cho phép xóa hàng loạt các tài nguyên không còn dùng):
+
+| Chỗ | Đã xóa | Thu lại |
+|---|---|---|
+| NFS | 30 snapshot source của job đã xong (giữ 12 snapshot mà config lượt chạy hoặc unit đang chạy còn tham chiếu); 16 thư mục thế hệ cũ (`syscall-addition-*`, `syscall-variant-*`, `syscall-feature-profile-repair-c6`, `syscall-development-distribution-c5`, `syscall-id-histogram`, `matched-smoke`, `matched-parallel-r2`, `matched-parallel-r3-replay`, `rca-*-validation-*`, `nodes` rỗng) | 8,4 GB |
+| .234 `/home/dat` | 253 mục thế hệ trước 18/10: snapshot `eBPF-project-*`, `old-checkouts`, dữ liệu `sentinel-pulse-*` và `pulse-*` (77 GB `sentinel-pulse-evidence`, 17 GB `sentinel-pulse-terminal`…), bundle git, log và pid cũ, venv cũ, bản sao script đã có trong repo | 141 GB |
+| .234 khác | `/var/tmp/syscall-k2of2` (kết quả đã commit), case RCA thế hệ trước v1 (`parallel-20261015*`, `rca-1019d`), file tạm trong `/tmp`, source chép của job đã xong | 4,8 GB |
+| 3 worker | `old-checkouts`, pilot histogram trong `/var/tmp`, bản log Falco đã chép đủ về .234 | ~1,5 GB |
+
+- **Giữ nguyên:** cấu hình, công cụ và file cá nhân của chủ đồ án (`.kube`, `.ssh`, backup cụm, Vault, Longhorn, source ứng dụng AIMS, YAML cá nhân).
+- **Sự cố khi dọn:** mẫu xóa ban đầu dính 3 file cá nhân trên .234 (`raw_t1.jsonl`, `raw_t2.jsonl`, `ENV_DIR`). Mình đã khôi phục ngay từ bản giống hệt trên worker1 (cùng kích thước, cùng ngày; `raw_tetragon.jsonl` trên hai máy trùng SHA-256).
+- **Sau khi dọn:** .234 dùng 60 GB, trống 506 GB; NFS dùng 325 GB, trống 361 GB.
+
+**Còn lại, có lý do:**
+
+| Tài nguyên | Vì sao còn | Khi nào xử lý |
+|---|---|---|
+| `pulse-stable-candidate` (81 GB), `pulse-stable-refreshed`, soak 48 giờ (168 GB) trên NFS | Các phân tích đã đăng ký còn đọc | **Tự nén** (gzip có kiểm seal, không mất dữ liệu) ở cuối chuỗi `after-stable-refreshed`, thu lại khoảng 200 GB |
+| Collector 1 s trên 3 worker (`sentinel-pulse-collector`, ~6 GB mỗi node, thêm một chương trình eBPF trên mọi syscall) | Không thí nghiệm nào đọc dữ liệu của nó; nhưng dừng giữa lượt live sẽ đổi điều kiện đo | Dừng, tắt và xóa dữ liệu ngay sau khi lượt live kết thúc (22/10 ~12:30) |
+| `/var/tmp/pulse-live-copy` (9,9 GB), `/var/tmp/feature-groups`, `/var/tmp/baselines` trên .234 | Job nhóm feature đang chạy; lặp lại baseline và replay cấu hình gộp còn dùng | Xóa sau khi chốt ML stable (5.19) |
+| `/var/tmp/falco-baseline` (56 MB) | Còn phần normal của baseline Falco | Xóa sau 5.15d |
+
+**Code cho chế độ vận hành** (`sentinel_pulse/pipeline/retention.py`, có test, chỉ bật khi config của lượt chạy có khóa tương ứng):
+- **Bộ đệm điểm vòng** (`score_buffer`): một file mỗi giờ, bản ghi 31 byte, điểm giữ nguyên float64. Bộ đệm tự xóa file quá hạn (1–48 giờ), khoảng 75 MB mỗi worker cho 12 giờ. Calibration dựng từ bộ đệm trùng từng bit với calibration dựng từ `decisions.jsonl` (có test). Đây là nguồn dữ liệu cho recalibration định kỳ khi 5.17 chọn chiến lược.
+- **Chế độ ghi** (`outputs`): `features: off`, `decisions: positives` (chỉ cửa sổ dương, cộng một mẫu mỗi N dòng). Chế độ thí nghiệm hiện tại không đổi.
+
 ## 9. Bằng chứng trong repo
 
 [`validation-evidence/results-20261019/`](validation-evidence/results-20261019/README.md) chứa các file kết quả nhỏ và biên nhận JSON cho mọi con số ngày 19/10. README của thư mục nối từng con số trong 3 báo cáo với file tương ứng. Dữ liệu lớn vẫn nằm trên NFS.
@@ -1546,3 +1576,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 00:58–01:00 | Baseline luật Falco (rule mặc định, như đang chạy) trên campaign `pulse-stable-refreshed`: attack 35,6% (`ptrace` 100%, còn lại 19–21% chỉ nhờ drift), binary vô hại 21%, control 3,2%, trễ p95 5 ms; drift chỉ bắn ở 10/65 container (overlayfs). Normal tạm thời: 518/520 đợt từ một pod Strimzi entity-operator | mục 5.15d; `c2d02a0` |
 | 01:07 | Chủ đồ án quyết định: framework theo rule (Falco, tripwire) tích hợp sau cùng, chỉ quyết định song song với ML, không chặn trước ML; hoàn thiện ML ra stable trước. Đăng ký luật chốt cấu hình ML stable (`stable-selection-v1`), không dùng tín hiệu rule | mục 5.19 |
 | 01:12–01:11 | Chuẩn bị đường live cho CUSUM/Cauchy (mặc định tắt). Test: live trùng từng cửa sổ với hai script offline đã dùng để đánh giá. Ghim `confirmation.py` vào tập file chấm điểm đóng băng | mục 5.19 |
+| 01:30–01:48 | Dọn tài nguyên theo chính sách giữ dữ liệu: thu lại 8,4 GB trên NFS, 146 GB trên .234, ~1,5 GB trên worker. Khôi phục 3 file cá nhân bị xóa nhầm. Thêm bộ đệm điểm vòng và chế độ ghi vận hành vào worker (bật theo config). Gắn bước nén vào cuối chuỗi; chuỗi chạy lại trên snapshot `bd457a7` | mục 8c |

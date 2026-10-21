@@ -21,7 +21,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 1b. [ ] Sau lặp lại baseline: đọc chiến lược calibration 5.17 (bản dữ liệu mới) theo luật đã đăng ký.
 2. [ ] 22/10 ~18:00: đọc lần lặp lại baseline (5.15b) và kết quả luật chọn bộ chấm.
 3. [ ] (Đường live đã sẵn sàng cho CUSUM/Cauchy, `900b85c`; 32 lệnh của chuỗi sau lượt live đã kiểm cờ CLI.) Chốt cấu hình **ML stable** theo luật đã đăng ký `stable-selection-v1` (Pulse 5.19), theo kết quả 1–2; rule (Falco, tripwire) chỉ báo song song, tích hợp sau cùng. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
-4. [ ] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed. Chỉ chạy khi không có lượt live và chuỗi phân tích nặng đã xong.
+4. [~] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed: đã gắn vào cuối chuỗi `after-stable-refreshed` (Pulse 8c).
 5. [~] **Ưu tiên chính:** viết luận văn (khối việc lớn nhất còn lại, ~10%). Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Đã có 4 hình đầu, tiếng Việt và tiếng Anh (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`). Trong repo chưa có bản thảo luận văn.
 
 ## Pulse — vấn đề còn mở
@@ -60,6 +60,10 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
 
 ## Hạ tầng
+
+- [ ] Ngay sau lượt live (22/10 ~12:30): dừng và tắt `sentinel-pulse-collector` trên 3 worker, xóa `/var/lib/sentinel-pulse/{features.jsonl,archive}` (Pulse 8c).
+- [ ] Sau khi chốt ML stable: xóa `/var/tmp/pulse-live-copy`, `/var/tmp/feature-groups`, `/var/tmp/baselines` trên .234; sau 5.15d xóa `/var/tmp/falco-baseline`.
+- [~] Nén `pulse-stable-candidate`, `pulse-stable-refreshed`, soak 48 giờ: tự chạy ở cuối `after-stable-refreshed`.
 
 - [ ] **(cần bạn)** RAM NFS (`k8s-nfs`): tăng lên 8 GB và đặt reservation. Cần tắt VM, nên chỉ làm khi không có lượt live.
 - [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
