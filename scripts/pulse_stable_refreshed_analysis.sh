@@ -6,7 +6,7 @@
 #                   the capture still runs): live campaign result, RCA coverage/ranking with and without the
 #                   privilege-drop rule, blind CUSUM/Cauchy interval rates, persistence indicator (T, f)
 #   STAGE=final     after all three workers are TERMINAL (reads features/decisions: heavy, no live run): normal alert
-#                   burden of the running rule and the latency3s grid, attack replay, blind CUSUM/Cauchy burden and
+#                   burden of the running rule and the latency3s_fine grid (Pareto frontier), attack replay, blind CUSUM/Cauchy burden and
 #                   the registered verdict, cadence gaps
 #
 #   SRC=/mnt/.../source STAGE=campaign|final bash pulse_stable_refreshed_analysis.sh
@@ -75,10 +75,15 @@ EXCL=(--exclude "$CAMPAIGN_SPAN")
 for s in ${EXTRA_EXCLUDE:-}; do EXCL+=(--exclude "$s"); done
 run() { $PY -m sentinel_pulse.attack.confirmation_study "$@" --model-hash $MODEL --policy-hash $POLICY; }
 for node in "${NODES[@]}"; do
-  try run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid latency3s \
+  try run normal --worker-root "$RUN/workers/$node" --since "$SELECTION_START" "${EXCL[@]}" --grid latency3s_fine \
     --output "$OUT/normal-asrun-$node.json"
 done
-try run attack --campaign "$CAMPAIGN" --grid latency3s --output "$OUT/attack-asrun.json"
+try run attack --campaign "$CAMPAIGN" --grid latency3s_fine --output "$OUT/attack-asrun.json"
+# 5.8f items 1-3: Pareto frontier of the grid on this run (latency3s_fine = the 34 registered policies + 24 finer alpha
+# scales), for comparison with pulse-stable-candidate (policy-pareto-refreshed.json)
+try $PY "$SRC/scripts/analysis/policy_pareto.py" --attack "$OUT/attack-asrun.json" \
+  $(for node in "${NODES[@]}"; do printf -- "--normal %s " "$OUT/normal-asrun-$node.json"; done) \
+  --chosen k2of2_a10 --label pulse-stable-refreshed --output "$OUT/policy-pareto.json"
 roots=(); for node in "${NODES[@]}"; do roots+=(--worker-root "$RUN/workers/$node"); done
 try $PY "$SRC/scripts/analysis/ideas_burden.py" "${roots[@]}" --model-hash $MODEL --policy-hash $POLICY \
   --since "$SELECTION_START" "${EXCL[@]}" --output "$OUT/ideas-burden-blind.json"

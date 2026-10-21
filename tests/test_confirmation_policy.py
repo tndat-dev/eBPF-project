@@ -156,3 +156,11 @@ def test_recalibrated_replay_without_calibration_is_unknown(tmp_path):
     (campaign / 'RESULTS.json').write_text(json.dumps(dict(completed={'1': []})))
     report = attack_replay([campaign], [ConfirmationPolicy()], recalibrator=Recalibrator({}, {}))
     assert report['policies']['k1of1_a1']['unknown'] == 2
+
+
+def test_fine_grid_extends_latency3s_with_unique_names():
+    from sentinel_pulse.detector.confirmation import latency3s_fine_grid, latency3s_grid
+    fine, base = latency3s_fine_grid(), latency3s_grid()
+    names = [p.name for p in fine]
+    assert len(names) == len(set(names)) == len(base) + 24
+    assert {p.name for p in base} <= set(names) and {'k2of2_a7', 'k3of4_a15', 'k2of3_a4'} <= set(names)

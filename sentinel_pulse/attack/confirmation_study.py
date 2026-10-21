@@ -22,7 +22,8 @@ from pathlib import Path
 import time
 
 from ..common import atomic_json, open_sealed, sealed_path
-from ..detector.confirmation import IDENTITY, SCORED, ConfirmationState, apply, default_grid, latency3s_grid, looser_grid
+from ..detector.confirmation import (IDENTITY, SCORED, ConfirmationState, apply, default_grid, latency3s_fine_grid,
+                                     latency3s_grid, looser_grid)
 from ..integrity import sha256_file
 from .preview_evaluation import evaluate_interval, summarize
 
@@ -220,7 +221,7 @@ def main():
             p.add_argument('--exclude', type=span, action='append', default=[])
         if name != 'calibrate':
             p.add_argument('--calibration', type=Path)
-            p.add_argument('--grid', choices=('default', 'looser', 'latency3s'), default='default')
+            p.add_argument('--grid', choices=('default', 'looser', 'latency3s', 'latency3s_fine'), default='default')
         # defaults: the frozen 15/10 candidate; pulse-live-recalibrated rows carry ec72d9ea.../f6107351...
         p.add_argument('--model-hash', default=MODEL_HASH)
         p.add_argument('--policy-hash', default=POLICY_HASH)
@@ -247,7 +248,7 @@ def main():
     recalibrator, calibration = None, None
     if args.calibration is not None:
         recalibrator, calibration = load_calibration(args.calibration)
-    policies = {'looser': looser_grid, 'latency3s': latency3s_grid}.get(args.grid, default_grid)()
+    policies = {'looser': looser_grid, 'latency3s': latency3s_grid, 'latency3s_fine': latency3s_fine_grid}.get(args.grid, default_grid)()
     if args.command == 'normal':
         result = normal_burden(args.worker_root, policies, args.model_hash, args.policy_hash, since=args.since,
                                until=args.until, exclude=args.exclude, recalibrator=recalibrator)

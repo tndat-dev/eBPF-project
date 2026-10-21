@@ -847,6 +847,39 @@ Theo kịch bản (trừ E):
   - hai segment của cùng worker cho số đếm giống hệt nhau. Lý do: tập container cố định, và cả worker lẫn replay đều bắt đầu lịch sử mới ở đầu segment. Đã kiểm hai file khác nhau (khoảng thời gian khác nhau);
   - phạm vi là phần đầu segment, không phải toàn bộ 24 giờ.
 
+### 5.8j Biên Pareto của lưới chính sách trên pulse-stable-candidate (5.8f mục 1; 21/10 15:50)
+
+- **Script:** `scripts/analysis/policy_pareto.py` (có test).
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/final/policy-pareto-{refreshed,asrun}.json`.
+- **Cách làm:** với cả 34 chính sách của lưới `latency3s`, ở cả hai calibration:
+  - recall, control và binary vô hại kèm CI Wilson. CI tính ở mức trial, vì file attack không tách theo workload;
+  - gánh cảnh báo kèm CI bootstrap theo workload (10.000 lần), và CI của hiệu so với `k2of2_a10` (ghép cặp theo workload).
+- **Bốn mục tiêu cùng lúc** (gánh, recall, control, p95): gần như chính sách nào cũng nằm trên biên (25/34 và 30/34). Vì vậy kết luận dựa trên tập thỏa ràng buộc luật v2: recall ≥ 95%, precision ≥ 95%, control ≤ 5%, p95 ≤ 3 s.
+
+Calibration làm mới: 9 chính sách thỏa ràng buộc, xếp theo gánh cảnh báo.
+
+| Chính sách | Đợt/replica-giờ (CI) | Hiệu so với k2of2_a10 (CI) | Recall | Precision | Control | Binary vô hại | p95 |
+|---|---|---|---|---|---|---|---|
+| k3of4_a10 | 4,02 (2,36–5,96) | **−2,49 (−3,60; −1,63)** | 99,4% | 97,2% | 2,9% | 93,2% | 2,62 s |
+| k3of3_a10 | 4,10 (2,19–6,37) | — | 99,4% | 97,2% | 2,9% | 91,3% | 2,95 s |
+| k2of2_a5 | 4,40 (2,95–6,45) | −2,11 (−3,44; −0,87) | 98,7% | 97,8% | 2,3% | 89,4% | 2,44 s |
+| k2of3_a5 | 4,56 (3,04–6,61) | −1,95 (−3,11; −0,85) | 99,0% | 97,5% | 2,6% | 94,2% | 2,24 s |
+| k4of4_a20 | 5,67 | (−2,56; +0,67) | 99,7% | 95,7% | 4,5% | 94,9% | 2,84 s |
+| k4of5_a20 | 6,06 | (−2,26; +1,20) | 100% | 95,7% | 4,5% | 96,5% | 2,79 s |
+| **k2of2_a10 (đang chạy)** | **6,51 (4,51–8,80)** | — | 99,4% | 96,3% | 3,9% | 94,2% | **1,96 s** |
+| k3of3_a20 | 6,90 | (−1,68; +2,43) | 100% | 95,4% | 4,9% | 97,7% | 2,13 s |
+| k2of3_a10 | 7,05 | (−0,25; +1,15) | 99,7% | 95,7% | 4,5% | 96,8% | 1,87 s |
+
+Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k2of2_a5`, `k2of3_a5`), cả hai đều có p95 > 2 s.
+
+**Đọc kết quả:**
+- **Ở mức ưu tiên < 2 s:** chỉ `k2of2_a10` và `k2of3_a10` thỏa. Hai cái không khác nhau có ý nghĩa về gánh, vì CI của hiệu chứa 0. Lựa chọn của luật v2 nằm trên biên; ở mức độ trễ này lưới không còn điểm nào tốt hơn.
+- **Nếu chấp nhận mức ≤ 3 s:** `k3of4_a10` giảm gánh cảnh báo 38% (có ý nghĩa thống kê), recall như cũ, control thấp hơn, đổi lại p95 tăng thêm 0,66 s (2,62 s). Đây là đánh đổi thật giữa độ trễ và gánh, và chính luật hai mức của v2 quyết định chọn bên nào.
+- **Calibration làm mới mở rộng tập khả thi từ 2 lên 9 chính sách.** Bằng chứng này nhất quán với 5.7b.
+- **Không chính sách nào đưa gánh xuống gần 0,1 đợt/giờ.** Mức thấp nhất trong tập khả thi là khoảng 4, gấp 40 lần ngân sách. Ngưỡng không giải được gánh cảnh báo, đúng như gap đã ghi.
+- **Mục 2 (lưới alpha mịn ×4, 6, 7, 8, 12, 15 cho `k2of2`/`k2of3`/`k3of3`/`k3of4`):** thêm vào giai đoạn final của `pulse-stable-refreshed` dưới dạng lưới `latency3s_fine`. Lưới này chứa trọn 34 chính sách đã đăng ký, nên không phép đo nào bị đổi.
+- **Mục 3 (ổn định giữa các lượt):** sẽ so biên này với biên của `pulse-stable-refreshed`.
+
 ### 5.9 Đã đăng ký để kiểm ở lượt live kế tiếp (tổng hợp 21/10 02:27)
 
 | Phép kiểm | Đăng ký ở | Tiêu chí |
@@ -1341,3 +1374,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:10 | Kiểm lại chuỗi sau lượt live trước khi để nó tự chạy. (1) `adoption_verdict.py` đọc sai khóa trong `BOOTSTRAP.json`; nếu chạy thật sẽ dừng cả giai đoạn B nhóm feature và 5.7d. Đã sửa, test trên biên nhận thật. (2) Một phân tích lỗi không còn chặn các phân tích độc lập phía sau (ghi `FAILED` vào journal). (3) `ideas_verdict.py` ghi cờ thay vì thoát khi lựa chọn trên dev khác bản đóng băng. Smoke test giai đoạn campaign trên dữ liệu `pulse-stable-candidate`: đủ 11 file, 0 lỗi; luật RCA cũ cho lại đúng 91,9% (bằng số lưu lúc chạy), luật mới 99,6%; lựa chọn CUSUM/Cauchy trên dev lặp lại đúng bản đóng băng. Unit `after-stable-refreshed` chạy lại trên `4f36ec5` (vẫn chờ campaign) | `4f36ec5` |
 | 15:14 | Tách recall theo tốc độ attack: Pulse ở 6/s còn 95,6%, p95 3,75 s (ngân sách 1); AE không đổi theo tốc độ; freq_profile phụ thuộc mạnh. Cần mức 1–3/s ở campaign sau (G4) | mục 5.15c |
 | 15:15 | Chuẩn bị G4 cho lượt live sau: `plan_matched_run --attack-rates` (mặc định vẫn 6,12,24) và biến `ATTACK_RATES` trong `launch_run.sh`; có test. Chưa đổi lượt nào đang chạy | mục 5.15c |
+| 15:50 | Biên Pareto 5.8f mục 1: ở mức < 2 s, `k2of2_a10` nằm trên biên, ngang `k2of3_a10`; ở mức ≤ 3 s, `k3of4_a10` giảm gánh 38% (có ý nghĩa), đổi lại p95 2,62 s. Thêm lưới `latency3s_fine` (mục 2) và Pareto vào giai đoạn final của lượt mới | mục 5.8j |

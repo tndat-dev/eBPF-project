@@ -96,6 +96,14 @@ def latency3s_grid():
     return looser_grid() + extra
 
 
+def latency3s_fine_grid():
+    """latency3s plus the finer alpha scales registered in Pulse 5.8f item 2 (21/10 11:12) for the families on the
+    rule-v2 frontier of pulse-stable-candidate (k2of2, k2of3, k3of3, k3of4): does the coarse grid hide a better point?"""
+    fine = [ConfirmationPolicy(k=k, n=n, alpha_scale=scale)
+            for scale in (4.0, 6.0, 7.0, 8.0, 12.0, 15.0) for k, n in ((2, 2), (2, 3), (3, 3), (3, 4))]
+    return latency3s_grid() + fine
+
+
 def default_grid():
     """Registered development grid; chosen before looking at any result."""
     grid = []
