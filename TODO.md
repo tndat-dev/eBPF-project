@@ -22,6 +22,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Pulse — vấn đề còn mở
 
+- [ ] **Ý tưởng từ tài liệu (Pulse 5.11), kiểm offline trên điểm đã lưu, đăng ký trước:** R4 gộp p-value Cauchy; R5 CUSUM/martingale conformal thay k-of-n; R1 ACI/PID chỉnh α online; R2 calibration Mondrian theo (workload, node). Sau đó R6 FDR, R3 so sánh replica; để sau R7a đặc trưng theo tham số syscall, R8 blind test LID-DS.
+
 - [ ] **Gánh cảnh báo trên normal**: ~8 đợt/replica-giờ với k2of2_a10, ngân sách 0,1.
   - Đã biết (Pulse 5.6, 5.6b):
     - phân bố rộng: trung vị theo workload 4,65, không workload nào bằng 0;
