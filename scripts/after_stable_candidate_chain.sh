@@ -3,7 +3,8 @@
 # so they run one after another and only after the live run and its final analysis stage are done):
 #   1. feature-group study phase B (SYSCALL 5B): holdout score dump for the 693 models, attack replay on
 #      pulse-attack-dev and pulse-live-recalibrated, matched budgets under k2of2, bootstrap, per-scenario recall;
-#   2. Pulse 5.7d: rolling recalibration + k2of2 on the 48 h soak.
+#   2. Pulse 5.7d: rolling recalibration + k2of2 on the 48 h soak, with the literature strategies of
+#      protocol calibration-strategies-v1 (development run).
 #   SRC=/mnt/.../source bash after_stable_candidate_chain.sh
 set -euo pipefail
 SRC=${SRC:?source snapshot}
@@ -61,5 +62,6 @@ mkdir -p $OUT57
   "${DEV[@]}" --static-span 1792024200:1792049400 --eval-start 1792053600 \
   --exclude 1792033200:1792034700 --exclude 1792049794:1792051759 \
   --strategy static --strategy rolling-6-1 --strategy rolling-12-1 \
+  --strategy weighted-24-6-1 --strategy mondrian-6-1 --strategy aci-static --strategy aci-rolling-6-1 \
   --scale 3 --scale 5 --scale 10 --confirm-k 2 --confirm-n 2 --output $OUT57/RESULTS.json
 echo "chain done $(date -u +%FT%T)"

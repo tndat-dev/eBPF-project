@@ -1,0 +1,37 @@
+{
+  "schema": "sentinel-pulse-calibration-strategies-v1",
+  "registered_at": "2026-10-21T22:04+07:00",
+  "registered_before": "any pulse-stable-refreshed decision row was read (its capture ends 22/10 ~12:30) and before any of the new strategies was run on any data",
+  "question": "Which way of keeping the conformal calibration current gives the lowest normal alert burden without losing recall or latency, using only past data (as live)?",
+  "literature": {
+    "weighted": "Barber, Candes, Ramdas, Tibshirani, Conformal prediction beyond exchangeability, Ann. Stat. 2023: fixed weights w_i in [0,1], test weight 1, coverage gap <= sum_i w~_i dTV(Z, Z^i); weights may decay with age",
+    "mondrian": "Mondrian (group-conditional) conformal: validity within each group fixed in advance; group = (workload, node), hypothesis of SENTINEL_PULSE_STATUS 5.6b",
+    "aci": "Gibbs & Candes, Adaptive Conformal Inference Under Distribution Shift, NeurIPS 2021: alpha_{t+1} = alpha_t + gamma (alpha - err_t); |mean err - alpha| <= (max(alpha_1, 1-alpha_1) + gamma) / (T gamma)",
+    "rolling": "SENTINEL_PULSE_STATUS 5.6 / 5.7d (refresh every hour on the preceding window)"
+  },
+  "strategies_fixed_now": {
+    "asrun": "p-values recorded live (calibration of the deployed candidate); reference on fresh data",
+    "static": "calibrate once on a fixed early span (fresh data: the run's own 90 min selection span)",
+    "rolling-6-1": "every 1 h, calibrate on the preceding 6 h",
+    "weighted-24-6-1": "every 1 h, calibrate on the preceding 24 h with weights 0.5^(age / 6 h)",
+    "mondrian-6-1": "as rolling-6-1, one calibration per (workload, node); a cell below 1200 examples falls back to the workload",
+    "aci-asrun / aci-static / aci-rolling-6-1": "ACI on the base p-values; per workload and alpha scale; gamma = 0.01 x target alpha; alpha_1 = target; updates on every scored eligible window in time order, campaign windows included as they would be live; a trial uses the alpha of its workload at the trial start"
+  },
+  "runs": {
+    "fresh_primary": {
+      "data": "pulse-stable-refreshed: worker roots, its campaign; model 4bad16dc..., policy 9c41ebc0...; evaluation from selection end to capture end, campaign intervals (+-20 s) excluded from normal and from every calibration",
+      "strategies": ["asrun", "static", "rolling-6-1", "weighted-24-6-1", "mondrian-6-1", "aci-asrun", "aci-rolling-6-1"],
+      "reference": "asrun"
+    },
+    "development": {
+      "data": "48 h soak (pulse-soak-baseline) with pulse-attack-dev campaigns, inputs and exclusions of 5.6 / 5.7d",
+      "strategies": ["static", "rolling-6-1", "rolling-12-1", "weighted-24-6-1", "mondrian-6-1", "aci-static", "aci-rolling-6-1"],
+      "reference": "static"
+    }
+  },
+  "policy": "k2of2; alpha scales 3, 5, 10; decision at the running alpha x10",
+  "metrics": ["normal episodes per replica-hour (and hourly curve)", "positive window rate", "recall", "idle-control positive rate", "benign-launch positive rate", "precision 1:1", "p50/p95 kernel -> preview", "ACI alpha / target percentiles"],
+  "decision_rule": "On the fresh run at k2of2 alpha x10, a strategy beats the reference if episodes per replica-hour are >= 10 % lower, recall is not lower by more than 2 points, idle control not higher by more than 1 point and p95 not slower by more than 0.2 s. Among those, the lowest burden; within 5 % of each other the simpler one (aci-asrun < rolling < weighted < mondrian). The development run is reported next to it and does not decide.",
+  "not_claimed": "No live claim: adopting a strategy needs it implemented in the scoring path and a live run. Normal windows are unadjudicated.",
+  "code": "sentinel_pulse/attack/rolling_recalibration.py (tests/test_rolling_recalibration.py)"
+}
