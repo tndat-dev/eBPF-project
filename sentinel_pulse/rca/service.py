@@ -24,6 +24,7 @@ from .tree import build_tree, case_id, event_time, identity, render_markdown, tr
 from .runtime_events import normalize_runtime_event
 from .runtime_tree import build_runtime_tree, render_runtime_markdown
 from .ranking import rank_suspects, workload_of
+from .triage import probe_entries, triage
 
 STREAM_ROTATE_SECONDS = 900  # upper bound on any orphaned in-container event client
 EXEC_LOG_SECONDS = 900       # exec history kept for follow-up novelty (longer than the 180 s ring)
@@ -171,7 +172,8 @@ class Service:
             and p.get('status', {}).get('phase')=='Running'}
         targets = {p['metadata']['uid']: dict(name=p['metadata']['name'],
             connect_policy_selected=bool(self.cfg.get('runtime_events') or
-                p['metadata'].get('labels', {}).get('aims.hust.vn/runtime-hardened')=='true'))
+                p['metadata'].get('labels', {}).get('aims.hust.vn/runtime-hardened')=='true'),
+            probe_entries={c: sorted(v) for c, v in probe_entries(p).items()})
             for p in pods['items'] if p['metadata']['namespace']=='production'}
         return sensors, targets, kubernetes_target_index(pods, services, endpoints), time.time()
 
@@ -450,6 +452,13 @@ class Service:
                 tree['suspects'] = rank_suspects(tree, baseline, frozen)[:20]
                 tree['suspect_ranking'] = dict(method='heuristic_triage_order_not_probability',
                     binary_baseline_frozen_at=frozen, baseline_binaries=len(baseline))
+                # Pulse 5.18: label only; the preview and the case stay as they are
+                try:
+                    tree['triage'] = triage(tree, set(target.get('probe_entries', {}).get(row.get('container_name'), ())))
+                except (ValueError, KeyError, TypeError, StopIteration):    # a label must never block a case
+                    tree['triage'] = dict(method='probe_aware_triage_v1', probe_only=False, unavailable='triage_error')
+                    self.count('triage_errors')
+                self.count('cases_probe_only', tree['triage']['probe_only'])
             out = self.root/'cases'; out.mkdir(exist_ok=True)
             atomic(out/(cid+'.json'), tree)
             md = out/(cid+'.md'); temp = md.with_suffix('.md.tmp')
