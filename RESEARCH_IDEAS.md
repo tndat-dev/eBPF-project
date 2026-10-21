@@ -51,7 +51,7 @@ Xếp theo mức reviewer sẽ phạt nặng:
 |---|---|---|---|
 | G1 | **Baseline trên cùng dữ liệu: đã có kết quả development (21/10), chờ lặp lại trên dữ liệu mới** | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | Pulse 5.15a (cùng feature, conformal, k2of2, ngân sách khớp): Isolation Forest kém hẳn; freq_profile kiểu BoSC tách binary vô hại tốt nhất (16%) nhưng bỏ sót 37% attack; **autoencoder bắt attack ngang hoặc hơn Pulse, gánh cảnh báo thấp hơn khoảng 9 lần ở cùng recall, nhanh hơn (p95 1,1 s so với 2,8 s), nhưng gắn cờ binary vô hại khoảng 100%**; base29 chỉ hơn AE ở khả năng tách binary vô hại. Đã đăng ký lặp lại trên `pulse-stable-refreshed`, kèm ứng viên `tree_ae` (tree của Pulse + AE) và luật chọn bộ chấm (5.15b). STIDE không tái lập được vì Pulse chỉ ghi số đếm; nó thuộc phần LID-DS (G3). Luật Falco: chưa làm |
 | G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng |
-| G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms |
+| G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms. **Tạm hoãn (21/10):** máy chủ tải chính thức từ chối kết nối, host còn ~41 GB trống. Không cần cho luận văn; xem lại khi viết paper, vì reviewer thường đòi một dataset công khai để so với tài liệu và chạy STIDE |
 | G4 | **Chưa có kẻ tấn công thích nghi** | Hội nghị top luôn hỏi về né tránh: tấn công chậm, trải dài, bắt chước normal | 21/10 (Pulse 5.15c): trên dữ liệu có sẵn, attack 6/s làm Pulse giảm còn 95,6% và p95 3,75 s ở ngân sách 1, trong khi AE không đổi. Còn thiếu: mức 1–3/s và attack trải dài ở campaign sau; lập luận mimicry |
 | G5 | **Vấn đề process mới vô hại chưa giải** (giải được một phần: novelty bỏ tập exec tách 100%/0% cho lớp syscall hiếm, 5.7c) | Đây là điểm yếu cốt lõi; muốn lên top-4 cần một cải tiến giải được nó | Đặc trưng theo tham số syscall (R7a), tripwire trừ tập exec (A1), triage bằng cây process (C1) |
 | G6 | **Gánh cảnh báo vẫn ~65 lần ngân sách 0,1/giờ** | Ảnh hưởng tính khả thi khi vận hành | Calibration tự làm mới (B1), CUSUM (A2), so sánh replica (B2), FDR (R6) |
@@ -100,7 +100,7 @@ Ba đóng góp:
 | RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
 | **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
 | Baseline (G1) | ~65% | 3 baseline có kết quả development kèm CI; đăng ký lặp lại trên dữ liệu mới với `tree_ae` | Lặp lại trên dữ liệu mới (22/10); luật Falco; STIDE trên LID-DS |
-| Dataset công khai (G3) | 0% | | Toàn bộ |
+| Dataset công khai (G3) | 0% (tạm hoãn) | | Toàn bộ; xem lại khi viết paper |
 | Exploit thật, kẻ tấn công thích nghi (G2, G4) | ~5% | Fixture có tham số tốc độ | Campaign mới |
 | Ablation | ~70% | Syscall, nhánh p-value | Nhóm feature giai đoạn B; họ model |
 | Overhead (G7) | ~30% | CPU worker trong vận hành | A/B có kiểm soát |
