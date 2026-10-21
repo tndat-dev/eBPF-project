@@ -22,20 +22,6 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 4. [ ] Nén `features`/`decisions` của soak 48 giờ (pulse-soak-baseline) và của pulse-stable-candidate. Chỉ chạy khi không có lượt live.
 5. [ ] Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Trong repo chưa có bản thảo luận văn.
 
-## Paper quốc tế + luận văn (mục tiêu 21/10: paper đủ mạnh để xin học bổng thạc sĩ)
-
-Câu chuyện đề xuất: *"Phát hiện bất thường bằng tần suất syscall cho Kubernetes dưới ràng buộc vận hành thật: độ trễ, gánh cảnh báo và process mới vô hại"*. Gồm hệ thống (Pulse + RCA) và **đánh giá live chặt chẽ**; các kết quả âm (process mới bị gắn cờ, calibration cũ đi) là đóng góp đo đạc.
-
-- [ ] **Baseline tái lập** trên cùng dữ liệu (bắt buộc với hội nghị top): STIDE/BoSC, autoencoder tần suất (kiểu CDL), Isolation Forest, luật Falco; nếu có code thì REPLICAWATCHER/CHIDS.
-- [ ] **Dataset công khai:** chạy Pulse và baseline trên LID-DS 2021 (R8) để có điểm so sánh với tài liệu.
-- [ ] **Exploit thật** bên cạnh fixture syscall: vài CVE container có sẵn (Shellshock, Log4Shell, Dirty Pipe trong VM thử…) trong namespace thử nghiệm riêng.
-- [ ] **Kẻ tấn công thích nghi:** attack tốc độ thấp, trải dài, bắt chước normal; đo recall theo tốc độ.
-- [~] **Ablation:** nhóm feature (syscall 5B), nhánh p-value (xong 5B.1), syscall (xong 5.9).
-- [ ] **Overhead:** đo lại A/B CPU, độ trễ ứng dụng với và không có Pulse (trên kernel/distro khác nếu được).
-- [ ] **Blind test thật** (pulse-stable-refreshed là bước đầu) + review nhãn một mẫu cảnh báo normal.
-- [ ] **Artifact mở:** script tái lập, dữ liệu đã ẩn danh, hướng dẫn (đạt huy hiệu artifact evaluation).
-- [ ] Viết paper tiếng Anh (khung 13 trang: intro, threat model, design, implementation, evaluation, discussion/limitations, related work 5.14).
-
 ## Pulse — vấn đề còn mở
 
 - [ ] **Ý tưởng kiến trúc (Pulse 5.12):** A1 tripwire syscall hiếm (sau 5.7c), B1 calibration tự làm mới có chống đầu độc, B2 bộ dò so sánh replica, B3 so họ model trong khung matched, C1 triage hai tầng trên case RCA.
