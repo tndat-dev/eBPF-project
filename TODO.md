@@ -6,6 +6,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Đang chạy
 
+- [~] **`pulse-stable-refreshed`** (đã hẹn): tự khởi chạy khi phân tích final của pulse-stable-candidate xong; kiểm cấu hình luật v2 (k2of2_a10 + calibration làm mới) trên dữ liệu mới, kèm đánh giá blind CUSUM/Cauchy (Pulse 5.11a, 5.13).
+
 - [~] **Lượt live `pulse-stable-candidate`** (20/10 10:14 → 21/10 ~10:30, shadow). Gồm candidate `ec72d9ea…`, `policy-2of2-a10`,
       chấm điểm nhanh và RCA `rca-pulse-stable-candidate`. Campaign 315 cặp chạy từ 11:49. Không dừng giữa chừng.
 - [~] **`pulse-stable-candidate-analysis`** (.234, đã hẹn): giai đoạn *campaign* khi campaign xong (RCA, attack vs binary vô hại);

@@ -26,7 +26,9 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
 | `policy-2of2-a10` | Chính sách xác nhận 2/2 cửa sổ, alpha×10 (chọn theo luật 5.7) | `sentinel_pulse/protocol/policy-2of2-a10.json` (SHA-256 `a51e5abc…`) |
 | `pulse-stable-candidate` | Lượt live ứng viên cho bản stable: candidate hiệu chỉnh lại + `policy-2of2-a10`, chấm điểm nhanh (đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate`; unit `pulse-matched-worker-pulse-stable-candidate` (worker), `pulse-matched-{traffic,campaign}-pulse-stable-candidate` (.234) |
-| `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (cấu hình như rca-subscriber, đang chạy) | unit `rca-pulse-stable-candidate`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2: candidate hiệu chỉnh lại (`4bad16dc…`) + `policy-2of2-a10-refreshed` (đã hẹn, tự khởi chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed`; unit `pulse-stable-refreshed-launcher` |
+| `policy-2of2-a10-refreshed` | k2of2, α×10, gắn với candidate hiệu chỉnh lại bằng calibration làm mới | `sentinel_pulse/protocol/policy-2of2-a10-refreshed.json` (`9c41ebc0…`) |
+| `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (chạy tới khi lượt mới khởi động) | unit `rca-pulse-stable-candidate`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (dừng 20/10 10:16) | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
@@ -869,6 +871,35 @@ Mỗi phép kiểm sẽ được đăng ký tiêu chí trước, rồi so ở c�
 - [LID-DS 2021](https://dbs.uni-leipzig.de/file/CRITIS_2022_Extended_Abstract_LID-DS-2021.pdf)
 - [Weighted conformal under covariate shift](https://arxiv.org/abs/1904.06019)
 
+### 5.11a Sàng lọc offline R4 (gộp Cauchy) và R5 (CUSUM) trên khoảng campaign (21/10 11:32)
+
+- **Script:** `scripts/analysis/ideas_screen.py`. Luật trong code, viết trước khi chạy.
+- **Cách làm:**
+  - mọi phương án dùng cùng điểm từng cửa sổ, tính lại với calibration làm mới (luật v2);
+  - chọn tham số chỉ trên dev (hai campaign pulse-live-recalibrated): lấy recall cao nhất trong các tham số có control idle ≤ mức của cấu hình chuẩn (joint + k2of2_a10);
+  - áp nguyên tham số cho campaign pulse-stable-candidate. Campaign này không blind, vì đã xem số tổng hợp.
+- **Biên nhận:** `results-20261021/pulse-stable-candidate/ideas-screen-v1.json`, có cả lưới đầy đủ.
+
+| Phương án (tham số chọn trên dev) | Dev: attack / vô hại / control / p95 | Stable: attack / vô hại / control | Stable p50 / p95 |
+|---|---|---|---|
+| Chuẩn: joint + k2of2, α×10 | 99,3% / 91,4% / 4,3% / 1,92 s | 99,4% / 94,0% / 4,4% | 0,84 / 1,98 s |
+| Cauchy(tree_p, support_p) + k2of2, α×10 | 99,5% / 94,0% / 4,3% / 1,81 s | 99,7% / 95,9% / 5,1% | 0,84 / **1,59 s** |
+| CUSUM trên −ln joint_p, b = 3, h = 6 | **100% / 93,3% / 1,9%** / 2,23 s | 99,7% / 96,8% / 4,1% | **0,56** / 1,89 s |
+
+**Đọc kết quả:**
+- **CUSUM:**
+  - trên dev, control giảm còn một nửa mà vẫn bắt 100% attack;
+  - trên stable, control tương đương chuẩn và nhanh hơn ở trung vị (0,56 s so với 0,84 s);
+  - đúng như phân tích 5.8c: CUSUM không đòi 2 cửa sổ liên tiếp nên bắt được kiểu qua ngưỡng so le.
+- **Cauchy:** p95 nhanh hơn 0,4 s nhưng control nhích lên 5,1%, sát ngưỡng kỳ vọng.
+- **Cả hai không giúp tách binary vô hại** (94–97%).
+- Chênh lệch control nằm trong nhiễu (±2 điểm), và **chưa đo gánh cảnh báo trên toàn bộ normal**. Gánh cảnh báo mới là chỉ số quyết định.
+
+**Đăng ký (21/10 11:32, đóng băng tham số):**
+- `cusum_b3_h6` và `cauchy_a10` sẽ được đánh giá **blind** trên lượt live `pulse-stable-refreshed` (dữ liệu chưa tồn tại lúc đăng ký), so với cấu hình đang chạy. Đo: attack, binary vô hại, control, p50/p95 và **đợt cảnh báo/replica-giờ trên toàn bộ normal**.
+- Tiêu chí "tốt hơn": gánh cảnh báo thấp hơn ≥ 10% với recall không giảm quá 1 điểm, control không cao hơn, và p95 không chậm hơn 0,2 s; hoặc p95 nhanh hơn ≥ 0,2 s với gánh cảnh báo không tăng.
+- Đánh giá chạy sau lượt live, cùng chuỗi phân tích nặng.
+
 ### 5.12 Ý tưởng tối ưu mô hình và kiến trúc hệ thống (research 21/10)
 
 **Kiến trúc hiện tại:**
@@ -946,6 +977,19 @@ Mỗi bước giữ cách làm cũ: đăng ký tiêu chí trước, so ở cùng
 - [SIR-Bench](https://arxiv.org/pdf/2604.12040)
 - [CNN trong kernel bằng eBPF](https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34)
 - [Dynamic fixed-point trong eBPF](https://dl.acm.org/doi/fullHtml/10.1145/3674213.3674219)
+
+### 5.13 Lượt live pulse-stable-refreshed (đã hẹn 21/10 11:28)
+
+| Thành phần | Giá trị |
+|---|---|
+| Mục đích | Kiểm trên dữ liệu mới cấu hình luật v2 chọn (5.8g), cấu hình đạt cả 4 kỳ vọng trên replay |
+| Candidate | `pulse-candidate-recalibrated` hiệu chỉnh lại bằng calibration làm mới (normal 19/10 13:00–18:25): `/mnt/sentinel-pulse-archive/pulse-next-run-model/model-bundle`, manifest `4bad16dc…`; estimator không đổi |
+| Chính sách | `policy-2of2-a10-refreshed.json` (`9c41ebc0…`): k2of2, α×10 |
+| Kỳ vọng (ghi trong file chính sách) | precision ≥ 95%, recall ≥ 95%, control ≤ 5%, p95 < 2 s ưu tiên / ≤ 3 s chấp nhận |
+| Khác lượt trước | calibration làm mới; RCA có luật hạ quyền lúc khởi chạy (`d388b02`); timer dọn `tetra getevents` mồ côi trên worker |
+| Kiểm thêm (đăng ký) | CUSUM và Cauchy blind (5.11a); luật RCA hạ quyền; chỉ báo độ bền làm ngữ cảnh triage |
+| Khởi chạy | unit `pulse-stable-refreshed-launcher` chờ `pulse-stable-candidate-analysis` xong rồi chạy `scripts/launch_run.sh all` (snapshot `0c5096d`). Biến môi trường để trong file chỉ root đọc được |
+| Sau lượt live | `after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy |
 
 ## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:18)
 
@@ -1225,3 +1269,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 11:18 | Research tài liệu cho 5 vấn đề tồn đọng: 8 hướng (ACI/PID, Mondrian, so sánh replica, gộp Cauchy, CUSUM/martingale conformal, FDR, đặc trưng theo tham số/ngữ cảnh, LID-DS); xếp ưu tiên theo chi phí kiểm offline | mục 5.11 |
 | 11:20 | Áp luật v2 trên số final: 5.7b đạt (−22,8% đợt, recall +1,6, precision 96,3%); chọn k2of2_a10 + calibration làm mới, đạt cả 4 kỳ vọng trên replay (precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s); replay as_run khớp đúng số live | mục 5.8g |
 | 11:22 | Research tối ưu mô hình và kiến trúc: tripwire syscall hiếm, CUSUM, calibration tự làm mới, so sánh replica, so họ model, model dùng chung cho cold start, triage hai tầng, FDR, LID-DS; sơ đồ kiến trúc đề xuất và thứ tự ưu tiên | mục 5.12 |
+| 11:28 | Dời chuỗi phân tích nặng ra sau lượt live kế tiếp; dựng candidate hiệu chỉnh lại bằng calibration làm mới (`4bad16dc…`, cả 21 workload có ≥ 35.817 điểm calibration nên khớp đúng replay); đăng ký `policy-2of2-a10-refreshed.json` (`9c41ebc0…`); hẹn unit tự khởi chạy `pulse-stable-refreshed` khi phân tích final xong | mục 5.13 |
+| 11:32 | Sàng lọc offline Cauchy và CUSUM trên khoảng campaign: CUSUM giảm control trên dev (1,9% so với 4,3%) và nhanh hơn ở trung vị; Cauchy nhanh hơn ở p95 nhưng control nhích lên; đóng băng tham số để kiểm blind trên lượt live mới | mục 5.11a |
