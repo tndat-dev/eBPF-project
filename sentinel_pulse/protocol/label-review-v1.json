@@ -1,0 +1,19 @@
+{
+  "schema": "sentinel-pulse-label-review-v1",
+  "registered_at": "2026-10-22T01:56+07:00",
+  "registered_before": "any label was assigned",
+  "pitfall": "Arp et al. (USENIX Security 2022) P2 label inaccuracy: normal alerts were counted as false positives without review",
+  "population": "every RCA case of rca-pulse-stable-candidate whose trigger window lies outside the campaign span (first interval - 60 s to campaign end + 60 s): the normal alerts of pulse-stable-candidate",
+  "adjudicator": "Claude (assistant that also built the system), not an independent human; reported as such",
+  "evidence_per_case": "the RCA evidence tree: Tetragon exec/fork/exit and security events of the container in the 30 s look-back, process ancestry, connect/flow destinations, suspect ranking against the workload's binary baseline frozen before the campaign, declared exec probes from the pod specs (exec-probe-spec.json)",
+  "rule": {
+    "suspicious": "any of: a security operation other than a privilege drop at process start; a binary absent from the workload's frozen baseline (unknown_binary or novel_binary); a connection to a public (non RFC 1918, non loopback) address",
+    "benign_probe": "not suspicious; probe_only (Pulse 5.18): an exec in the trigger window and every exec of the case belongs to a declared Kubernetes exec probe",
+    "benign_routine_exec": "not suspicious; execs present, not all probes, every executed binary in the workload baseline",
+    "benign_no_process_cause": "not suspicious; no exec in the case: the alert has no process-level trigger (traffic, drift or in-process change)",
+    "unclear": "anything else"
+  },
+  "verification": "the adjudicator reads every case labelled suspicious or unclear, and a seeded random sample of 10 cases from each benign label (seed 20261022), and records agree/disagree with the rule label with a one-line reason",
+  "reported": ["counts and shares per label with Wilson 95 % CI", "share per workload", "agreement of the manual reading with the rule", "consequence: confirmed vs expected false-positive status of the normal alerts"],
+  "limits": ["Tetragon policy scope (exec/fork/exit, selected security hooks and connects) bounds what can be seen; a malicious in-process action without exec, security hook or external connection would look benign", "one case per container per 5 min cooldown: cases sample alert episodes"]
+}
