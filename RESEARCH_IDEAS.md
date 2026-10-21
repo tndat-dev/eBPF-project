@@ -95,7 +95,7 @@ Ba đóng góp:
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
 | Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ, 7 issue, CPU 13–31% | Calibration tự làm mới trong live; tripwire |
-| Đánh giá Pulse cho luận văn | ~75% | 3 lượt live, campaign có đối chứng, luật chọn đăng ký trước, đạt 4 kỳ vọng trên replay | Xác nhận live của cấu hình v2; review nhãn |
+| Đánh giá Pulse cho luận văn | ~80% | 3 lượt live, campaign có đối chứng, luật chọn đăng ký trước, đạt 4 kỳ vọng trên replay; baseline trên cùng dữ liệu (5.15a); biên Pareto của lưới chính sách có CI (5.8j); recall theo tốc độ attack (5.15c) | Xác nhận live của cấu hình v2; lặp lại baseline trên dữ liệu mới; review nhãn |
 | Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; fit 693 model nhóm feature | Giai đoạn B nhóm feature (chấm holdout, so ngân sách) |
 | RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
 | **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
