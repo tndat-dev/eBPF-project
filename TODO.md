@@ -31,11 +31,11 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   - [ ] Phân rã tiếp theo chế độ tải (steady/peak/burst…) và theo thời gian. Cần đọc decisions, nên chỉ làm khi không có lượt live.
   - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3, trung bình ~23 s mỗi đợt) trước khi coi là báo nhầm.
 - [ ] **Tách attack khỏi process vô hại mới**: 80–92% binary vô hại bị gắn cờ ở mức 1.
-  - [x] Độ bền tín hiệu (Pulse 5.8b): sau 5 s tách tốt hơn, nhưng p95 6,5 s nên không phải alert (yêu cầu < 2 s); trong ngân sách 2 s không thêm được gì so với k2of2. Chỉ dùng làm ngữ cảnh triage.
+  - [x] Độ bền tín hiệu (Pulse 5.8b): trong 3 s, chờ thêm 1 s sau alert đầu (≥ 90% cửa sổ dương) → precision 94,9%, control 5,2%, recall 95,5%, p95 2,64 s trên lượt stable (chưa blind). Bản 5 s (p95 6,5 s) chỉ là ngữ cảnh triage.
   - Hai hướng đã loại: thêm syscall (thí nghiệm syscall) và novelty thuần (5.5b).
   - [~] Novelty có xét exec (5.7c) chạy tự động sau lượt live.
   - [ ] Hướng tiếp: thông tin ngoài tần suất (tham số syscall, quan hệ cha–con của process từ Tetragon).
-- [ ] **Độ trễ**: k2of2_a10 có p95 2,43 s trên development, vượt mục tiêu 2 s; p99 4–5 s.
+- [ ] **Độ trễ** (mục tiêu: càng nhanh càng tốt, < 2 s ưu tiên, ≤ 3 s chấp nhận): live p95 1,85 s, p99 4,9 s (đuôi do k2of2 liên tiếp, Pulse 5.8c).
   - [ ] Đo lại trên pulse-stable-candidate (chấm nhanh) rồi phân rã đuôi p99: backlog, warming sau reset, ghi NFS.
 - [ ] Recall thấp ở `mprotect` (75–82%) và `seccomp` (70–83%), là điểm yếu chung của mọi bộ syscall (syscall 5.8).
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
