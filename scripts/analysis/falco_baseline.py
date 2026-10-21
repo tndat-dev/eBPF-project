@@ -9,9 +9,10 @@ were copied off the nodes after the campaign. Definitions fixed before the first
 - a trial is *detected* when at least one Falco event of that container has its event time in
   [start_at, start_at + 15 s] (same unit as Pulse's interval outcome); events are attributed by rule output text;
 - delay = first event time - kernel_event_at (attacks only), comparable to Pulse's kernel -> preview delay;
-- normal burden: events of ``production`` containers outside the campaign span (first interval - 60 s to the
-  campaign end + 60 s), merged per container into episodes when less than 15 s apart, per hour of log coverage;
-  per replica-hour only if ``--replica-hours`` (Pulse's scored replica-hours for the same span) is given.
+- normal burden: events of ``production`` containers inside [--normal-since, --normal-until] and outside the campaign
+  span (first interval - 60 s to the campaign end + 60 s), merged per container into episodes when less than 15 s
+  apart; per hour of that window, and per replica-hour if ``--replica-hours`` (Pulse's scored replica-hours for the
+  same window) is given. ``--normal-until`` must not exceed the time the logs were copied off the nodes.
 
 Falco's event time is printed without a date; the date comes from the kubelet log timestamp of the same line.
 """
@@ -92,6 +93,8 @@ def main():
     p.add_argument('--logs', action='append', required=True, help='directory of Falco pod logs (one per node)')
     p.add_argument('--campaign', type=Path, required=True)
     p.add_argument('--replica-hours', type=float)
+    p.add_argument('--normal-since', type=float, required=True, help='unix start of the normal window (e.g. selection start)')
+    p.add_argument('--normal-until', type=float, required=True, help='unix end (<= when the logs were copied)')
     p.add_argument('--output', required=True)
     a = p.parse_args()
     events = load_events(a.logs)
@@ -112,14 +115,18 @@ def main():
                 if first >= t['kernel']:
                     delays.append(first - t['kernel'])
     lo, hi = campaign_span(a.campaign)
-    normal = [e for e in events if e[3].get('k8s_ns_name') == 'production' and not lo <= e[0] <= hi]
-    covered = (events[-1][0] - events[0][0]) / 3600 - (hi - lo) / 3600 if events else 0.0
-    episodes, rule_episodes, last = 0, Counter(), {}
+    since, until = a.normal_since, a.normal_until
+    normal = [e for e in events if e[3].get('k8s_ns_name') == 'production' and since <= e[0] <= until
+              and not lo <= e[0] <= hi]
+    covered = (until - since - max(0.0, min(hi, until) - max(lo, since))) / 3600
+    episodes, rule_episodes, pod_episodes, last = 0, Counter(), Counter(), {}
     for e in normal:
         key = e[3].get('container_id')
         if key not in last or e[0] - last[key] >= QUIET:
-            episodes += 1; rule_episodes[e[2]] += 1
+            episodes += 1; rule_episodes[e[2]] += 1; pod_episodes[e[3].get('k8s_pod_name')] += 1
         last[key] = e[0]
+    drift_containers = {e[3].get('container_id') for e in events if 'not part of base image' in e[2] and lo <= e[0] <= hi}
+    trial_containers = {t['container'] for t in rows}
     rate = lambda k: outcome[k]['detected'] / sum(outcome[k].values()) if sum(outcome[k].values()) else None
     result = dict(schema='pulse-falco-baseline-v1', logs=a.logs, campaign=str(a.campaign), events=len(events),
                   falco_version='0.44.1 (DaemonSet image falcosecurity/falco:0.44.1), default rules as deployed',
@@ -128,8 +135,12 @@ def main():
                   rules_on_trials={k: dict(v.most_common()) for k, v in by_rule.items()},
                   attack_delay=dict(p50=pct(delays, .5), p95=pct(delays, .95), n=len(delays),
                                     definition='first Falco event time in the interval - kernel_event_at'),
-                  normal=dict(span_note='log coverage outside the campaign span', events=len(normal), episodes=episodes,
-                              episodes_by_rule=dict(rule_episodes.most_common()), covered_hours=covered,
+                  drift_rule_coverage=dict(trial_containers=len(trial_containers),
+                                           containers_with_drift_alert=len(drift_containers & trial_containers),
+                                           note='the drift rule sees only executables in the overlayfs upper layer'),
+                  normal=dict(window_unix=[since, until], events=len(normal), episodes=episodes,
+                              episodes_by_rule=dict(rule_episodes.most_common()), top_pods=pod_episodes.most_common(5),
+                              covered_hours=covered,
                               episodes_per_hour=episodes / covered if covered > 0 else None,
                               episodes_per_replica_hour=episodes / a.replica_hours if a.replica_hours else None),
                   computed_at_unix=time.time())
