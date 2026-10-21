@@ -378,3 +378,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 21/10 20:15 | Kiểm luật hạ quyền trên `pulse-stable-refreshed`: top-1 100% (luật cũ trên cùng case: 91,9%); coverage 86,7%; preview → case p95 2,59 s | mục 5.11 |
 | 21/10 20:17 | 42 attack không có case riêng: loại được điều kiện 10 s và trần 5 case tiếp nối. Không kiểm lại được luật novelty vì `exec_log` chỉ giữ 900 s. Thêm bộ đếm lý do từ chối case tiếp nối cho lượt sau | mục 5.11 |
 | 21/10 21:12 | Cập nhật đầu báo cáo (bảng tên gọi, trạng thái subscriber) theo lượt `pulse-stable-refreshed` | mục 1 |
+| 21/10 22:12 | Dùng case RCA để phân loại cảnh báo trên normal của `pulse-stable-candidate`: 57,9% trùng exec trong cửa sổ, phần lớn là probe exec của Kubernetes. Triage nhận ra probe đã khai báo giữ lại 54% case, 0/273 attack. Đây là bước đầu cho triage hai tầng (C1); sẽ lặp lại trên `pulse-stable-refreshed` | Pulse 5.18 |
