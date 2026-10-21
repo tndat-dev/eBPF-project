@@ -287,7 +287,7 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 | Sai lầm | Pulse hiện tại | Còn phải làm |
 |---|---|---|
 | P1 Lệch mẫu | Normal là ứng dụng AIMS thật 24 giờ/lượt; attack là fixture tự viết | Exploit thật (G2); nêu rõ giới hạn |
-| P2 Nhãn sai | Nhãn kỳ vọng, chưa review; đã phân loại tự động theo exec/probe (5.18) | Review tay một mẫu case |
+| P2 Nhãn sai | Review theo luật đăng ký trước cho 4.766 cảnh báo normal + đọc tay 33 case (5.20): không case nào có dấu hiệu độc hại; người gán là Claude, không độc lập | Một người khác review lại một mẫu |
 | P3 Rò dữ liệu kiểm tra | Đăng ký trước; lượt live mới là dữ liệu chưa xem; tách calibration và đánh giá theo thời gian | Giữ kỷ luật này |
 | P4 Tương quan giả | Phát hiện "bắt exec chứ không bắt ác ý" (binary vô hại 94%; 5.18) chính là dạng này, và đã được đo, không bị che | Tín hiệu theo tham số hoặc ngữ cảnh (R7) |
 | P5 Chọn tham số trên dữ liệu kiểm tra | Luật v2, tham số CUSUM/Cauchy, tripwire, calibration đều đóng băng trước khi có dữ liệu kiểm | — |
