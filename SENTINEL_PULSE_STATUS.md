@@ -909,7 +909,7 @@ Theo kịch bản (trừ E):
 | Khởi chạy | unit `pulse-stable-refreshed-launcher` chờ `pulse-stable-candidate-analysis` xong rồi chạy `scripts/launch_run.sh all` (snapshot `0c5096d`). Biến môi trường để trong file chỉ root đọc được |
 | Sau lượt live (kế hoạch cũ, thay lúc 13:55) | ~~`after-stable-candidate-chain` (`WAIT_RUN=pulse-stable-refreshed`): giai đoạn B nhóm feature + 5.7d; sau đó đánh giá blind CUSUM/Cauchy~~ |
 | Khởi chạy thật | 21/10 12:22 từ snapshot `0c5096d`; 13:08 khỏe: 0 issue, RCA ok; kết thúc dự kiến 22/10 ~12:25–12:45 |
-| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
+| Phân tích sau lượt | unit `after-stable-refreshed` (snapshot `bf35f5e`; 14:58 `819f46f` thêm tripwire 5.16; 15:05 `094afc4` thêm lặp lại baseline 5.15b sau giai đoạn final; 15:14 `4f36ec5` sửa lỗi và chịu lỗi từng bước, smoke test giai đoạn campaign đạt) chạy tuần tự: (1) khi campaign xong: kết quả live, RCA luật mới và luật cũ, CUSUM/Cauchy blind theo interval, độ bền tín hiệu; (2) khi capture xong: gánh cảnh báo toàn normal, replay `latency3s`, gánh cảnh báo CUSUM/Cauchy và kết luận theo tiêu chí 5.11a (`ideas_verdict.py`, có test), cadence; (3) giai đoạn B nhóm feature và 5.7d |
 
 ### 5.14 So sánh với công trình liên quan (research 21/10)
 
@@ -997,6 +997,17 @@ Theo kịch bản (trừ E):
 
   Nếu cả hai đạt, chọn nhánh tách tốt hơn. Dù được chọn, vẫn phải có một lượt live trước khi nói gì về hành vi live.
 - **Chạy:** `scripts/pulse_baselines_fresh.sh`, trong unit `after-stable-refreshed`, ngay sau giai đoạn final và trước giai đoạn B nhóm feature.
+- **Số development của `tree_ae`** (pulse-live-recalibrated, ghép từ dump, xong 15:07; biên nhận `baselines/tree-ae-*.json`; chỉ tham khảo):
+
+| Ngân sách | Nhánh | α× | Đợt/replica-giờ | Recall | Binary vô hại | Control | p95 | Hiệu tách so với base29 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | base29 | 3 | 0,89 | 98,3% | 79,5% | 0,6% | 2,79 s | — |
+| 1 | tree_ae | 3 | 0,71 | 99,9% (+1,6 [+0,5; +2,9]) | 98,5% | 0,2% | 1,13 s | −0,173 [−0,292; −0,065] |
+| 5 | tree_ae | 10 | 3,99 | 100% | 99,5% | 2,2% | 1,06 s | −0,050 [−0,096; −0,011] |
+
+  - `tree_ae` hành xử gần như AE: min của hai p-value bị nhánh AE chi phối.
+  - Nếu áp luật chọn lên số development (chỉ để tham khảo), cả AE lẫn `tree_ae` đều **không đạt**: recall và độ trễ đạt, nhưng khả năng tách kém hơn base29 quá mức cho phép. Lần lặp lại trên dữ liệu mới vẫn chạy như đã đăng ký.
+  - Các nhánh này đều nhanh hơn (p95 khoảng 1,1 s so với 2,8 s) và có gánh cảnh báo thấp hơn ở cùng recall. Muốn tận dụng điều đó mà không mất khả năng tách thì nhiều khả năng cần tín hiệu khác cho binary vô hại, chẳng hạn tripwire A1 hay độ bền tín hiệu, chứ không phải thêm một bộ chấm tần suất.
 
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
@@ -1306,3 +1317,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 14:56–14:58 | Đăng ký kiểm blind tripwire A1 (5.16) trước khi đọc dữ liệu `pulse-stable-refreshed`; thêm độ trễ và tham chiếu chỉ pha chọn vào `novel_syscalls.py` (kết quả cũ không đổi, có test), `tripwire_verdict.py`; khởi động lại `after-stable-refreshed` trên snapshot `819f46f` (unit vẫn đang chờ campaign, chưa chạy bước nào) | mục 5.16; `819f46f` |
 | 14:42 | Job baseline xong (2 giờ CPU). Ở ngân sách 1: iforest kém hẳn; AE recall 100% (+1,7 điểm), p95 1,09 s nhưng binary vô hại 99%; freq_profile tách tốt nhất nhưng bỏ sót 37%; base29 tách binary vô hại tốt hơn AE (79,5% so với 99,3%). Khám phá: AE đạt ngân sách 0,1 với recall 97%, base29 thì không | mục 5.15a |
 | 15:04–15:05 | Đăng ký lặp lại trên dữ liệu mới, kèm `tree_ae` và luật chọn bộ chấm; thêm `combine`; khởi động lại `after-stable-refreshed` trên `094afc4` (vẫn chờ campaign); chạy `pulse-baselines-tree-ae-dev` (nhẹ, dữ liệu local) | mục 5.15b; `094afc4` |
+| 15:07 | `tree_ae` development: giống AE (recall +1,6 điểm, p95 1,13 s, tách −0,173). Luật chọn áp lên số development: AE và `tree_ae` đều không đạt vì khả năng tách | mục 5.15b |
+| 15:10 | Kiểm lại chuỗi sau lượt live trước khi để nó tự chạy. (1) `adoption_verdict.py` đọc sai khóa trong `BOOTSTRAP.json`; nếu chạy thật sẽ dừng cả giai đoạn B nhóm feature và 5.7d. Đã sửa, test trên biên nhận thật. (2) Một phân tích lỗi không còn chặn các phân tích độc lập phía sau (ghi `FAILED` vào journal). (3) `ideas_verdict.py` ghi cờ thay vì thoát khi lựa chọn trên dev khác bản đóng băng. Smoke test giai đoạn campaign trên dữ liệu `pulse-stable-candidate`: đủ 11 file, 0 lỗi; luật RCA cũ cho lại đúng 91,9% (bằng số lưu lúc chạy), luật mới 99,6%; lựa chọn CUSUM/Cauchy trên dev lặp lại đúng bản đóng băng. Unit `after-stable-refreshed` chạy lại trên `4f36ec5` (vẫn chờ campaign) | `4f36ec5` |
