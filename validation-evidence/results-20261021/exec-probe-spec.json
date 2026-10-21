@@ -1,0 +1,280 @@
+{
+  "schema": "pulse-exec-probe-spec-v1",
+  "source": "kubectl get pods -n production -o json on .234, 21/10 22:40",
+  "note": "declared exec probes per workload; entry = basename of command[0]; HTTP/TCP probes omitted",
+  "workloads": {
+    "production/aims-kafka-dual-role:kafka": {
+      "entry_binaries": [
+        "kafka_liveness.sh",
+        "kafka_readiness.sh"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "kafka_liveness.sh",
+          "period_seconds": 10,
+          "command_prefix": "/opt/kafka/kafka_liveness.sh"
+        },
+        "readinessProbe": {
+          "entry": "kafka_readiness.sh",
+          "period_seconds": 10,
+          "command_prefix": "/opt/kafka/kafka_readiness.sh"
+        }
+      }
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "entry_binaries": [
+        "sh"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "sh",
+          "period_seconds": 10,
+          "command_prefix": "sh -ec RESP=\"$(redis-cli -h $(hostname) -p ${SENTINEL_PORT} -a ${REDIS_PASSWORD}"
+        },
+        "readinessProbe": {
+          "entry": "sh",
+          "period_seconds": 10,
+          "command_prefix": "sh -ec RESP=\"$(redis-cli -h $(hostname) -p ${SENTINEL_PORT} -a ${REDIS_PASSWORD}"
+        }
+      }
+    },
+    "production/aims-redis:aims-redis": {
+      "entry_binaries": [
+        "sh"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "sh",
+          "period_seconds": 10,
+          "command_prefix": "sh -ec RESP=\"$(redis-cli -h $(hostname) -p ${REDIS_PORT} -a ${REDIS_PASSWORD} pi"
+        },
+        "readinessProbe": {
+          "entry": "sh",
+          "period_seconds": 10,
+          "command_prefix": "sh -ec RESP=\"$(redis-cli -h $(hostname) -p ${REDIS_PORT} -a ${REDIS_PASSWORD} pi"
+        }
+      }
+    },
+    "production/api-gateway:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/auth-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/cart-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/catalog-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/inventory-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/notification-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/order-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/payment-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/search-recommendation-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    },
+    "production/security-telemetry-service:app": {
+      "entry_binaries": [
+        "python"
+      ],
+      "probes": {
+        "livenessProbe": {
+          "entry": "python",
+          "period_seconds": 15,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "readinessProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        },
+        "startupProbe": {
+          "entry": "python",
+          "period_seconds": 5,
+          "command_prefix": "python -c import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/a"
+        }
+      }
+    }
+  },
+  "captured_at_unix": 1792595465.953223
+}
