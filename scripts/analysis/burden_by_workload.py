@@ -20,8 +20,11 @@ policies = a.policy or ['k1of1_a3', 'k2of2_a5', 'k2of2_a10']
 # (calibration, policy) -> workload -> node -> [episodes, positive windows, replica-hours]
 cells = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(lambda: [0, 0, 0.0])))
 sources = {}
-for path in sorted(glob.glob(f'{a.inputs}/normal-*-*-*.json')):
-    m = re.match(r'normal-(\w+)-(\w+)-(.+)\.json', Path(path).name)
+for path in sorted(glob.glob(f'{a.inputs}/normal-*.json')):
+    # normal-<calibration>-<grid>-<node>.json (job chọn 20/10) or normal-<calibration>-<node>.json (final stage 21/10)
+    m = re.match(r'normal-(asrun|refreshed)-(?:(default|looser|latency3s)-)?(k8s-.+)\.json', Path(path).name)
+    if not m:
+        continue
     cal, grid, node = m.groups()
     d = json.loads(Path(path).read_text())
     sources[Path(path).name] = dict(since=d['since_unix'], until=d['until_unix'], total_scored_hours=d['total_scored_hours'])

@@ -172,7 +172,7 @@ def known_gaps(m: dict) -> list:
     """Limits the selected policy still has on development data, written into the policy file."""
     gaps = []
     if m['p95'] > HARD_P95_SECONDS:
-        gaps.append(f"kernel->preview p95 {m['p95']:.2f} s exceeds the {HARD_P95_SECONDS:g} s target")
+        gaps.append(f"kernel->preview p95 {m['p95']:.2f} s is above the preferred {HARD_P95_SECONDS:g} s (<= 3 s acceptable)")
     if m['episodes_per_hour'] > EPISODE_BUDGET:
         gaps.append(f"normal alert burden {m['episodes_per_hour']:.1f} episodes/replica-hour is "
                     f"~{m['episodes_per_hour']/EPISODE_BUDGET:.0f}x the {EPISODE_BUDGET:g}/h budget; not solved by thresholds")
@@ -186,22 +186,26 @@ def write_policy(selection: dict, template: Path, output: Path, candidate_hash: 
     """A v2 preview policy file for the selected rule, bound to the pulse-stable-candidate candidate."""
     doc = json.loads(template.read_text())
     spec = selection['metrics']['policy']
-    doc.update(policy_name=f"stable-candidate-{selection['policy'].replace('_', '-')}-{selection['calibration']}",
+    v2 = selection.get('schema') == 'pulse-next-run-selection-v2'
+    doc.update(policy_name=f"{'next-run' if v2 else 'stable-candidate'}-{selection['policy'].replace('_', '-')}-{selection['calibration']}",
                candidate_name=candidate_name, candidate_manifest_sha256=candidate_hash,
                created_at=time.strftime('%Y-%m-%d'))
     doc['rule']['alpha_scale'] = float(spec['alpha_scale'])
     doc['rule']['temporal_confirmation'] = dict(k=int(spec['k']), n=int(spec['n']), max_gap_seconds=1.0)
     m = selection['metrics']
     doc['selection_basis'] = dict(
-        data='development: pulse-live-recalibrated campaigns (420 pairs) and its normal tail',
-        rule='pre-registered stable-candidate rule (SENTINEL_PULSE_STATUS); applied by sentinel_pulse.attack.select_policy',
+        data=('pulse-stable-candidate campaign (315 pairs, fast-scoring timing) and its normal, replayed (development for the next run)'
+              if v2 else 'development: pulse-live-recalibrated campaigns (420 pairs) and its normal tail'),
+        rule=('pre-registered rule v2 (SENTINEL_PULSE_STATUS 5.8d: < 2 s preferred, <= 3 s acceptable)' if v2 else
+              'pre-registered stable-candidate rule (SENTINEL_PULSE_STATUS); applied by sentinel_pulse.attack.select_policy'),
+        latency_tier=selection.get('latency_tier'),
         calibration=selection['calibration'], meets_registered_expectations=selection['meets_registered_expectations'],
         development_result=dict(precision_expected=m['precision'], recall_observed=m['recall'],
                                 control_positive_rate=m['control'], benign_exec_positive_rate=m['benign_positive_rate'],
                                 kernel_to_preview_p95_seconds=m['p95'],
                                 normal_alert_episodes_per_replica_hour=m['episodes_per_hour']),
         known_gaps=known_gaps(m))
-    doc['evaluation_requirements'] = ('fresh pulse-stable-candidate normal soak plus fresh attack campaign with benign-exec controls; '
+    doc['evaluation_requirements'] = ('fresh normal soak plus fresh attack campaign with benign-exec controls; '
                                       'fast scoring; report idle and benign controls separately; do not tune after outcomes')
     output.write_text(json.dumps(doc, indent=2) + '\n')
     return sha256_file(output)
