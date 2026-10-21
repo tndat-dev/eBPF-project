@@ -1,0 +1,50 @@
+{
+  "schema": "sentinel-pulse-candidate-preview-policy-v2",
+  "policy_name": "next-run-k2of2-a10-refreshed",
+  "candidate_name": "pulse-candidate-recalibrated-on-pulse-live-recalibrated",
+  "candidate_manifest_sha256": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "created_at": "2026-10-21",
+  "frozen_before_independent_evaluation": true,
+  "blind_outcome_used": false,
+  "automatic_promotion": false,
+  "rule": {
+    "score": "joint_p",
+    "comparison": "less_than_or_equal",
+    "threshold_source": "per_workload_model_calibrated_alpha",
+    "semantic_gate": false,
+    "alpha_scale": 10.0,
+    "temporal_confirmation": {
+      "k": 2,
+      "n": 2,
+      "max_gap_seconds": 1.0
+    }
+  },
+  "nominal_error_budget": {
+    "interval_target": 0.05,
+    "horizon_windows": 30,
+    "interpretation": "design_budget_only; the scaled alpha deliberately exceeds it and drift remains",
+    "is_guarantee": false
+  },
+  "selection_basis": {
+    "data": "pulse-stable-candidate campaign (315 pairs, fast-scoring timing) and its normal, replayed (development for the next run)",
+    "rule": "pre-registered rule v2 (SENTINEL_PULSE_STATUS 5.8d: < 2 s preferred, <= 3 s acceptable)",
+    "latency_tier": 2.0,
+    "calibration": "refreshed",
+    "meets_registered_expectations": true,
+    "development_result": {
+      "precision_expected": 0.9628482972136223,
+      "recall_observed": 0.9936102236421726,
+      "control_positive_rate": 0.038834951456310676,
+      "benign_exec_positive_rate": 0.9421221864951769,
+      "kernel_to_preview_p95_seconds": 1.9556301832199097,
+      "normal_alert_episodes_per_replica_hour": 6.505946069882655
+    },
+    "known_gaps": [
+      "normal alert burden 6.5 episodes/replica-hour is ~65x the 0.1/h budget; not solved by thresholds",
+      "benign new-process launches are flagged at 94%; the detector separates new activity, not malicious activity"
+    ]
+  },
+  "unknown_workload": "unscored_unknown_not_normal_and_not_alerted",
+  "output_mode": "shadow_preview_only; never emits alert or enforcement",
+  "evaluation_requirements": "fresh normal soak plus fresh attack campaign with benign-exec controls; fast scoring; report idle and benign controls separately; do not tune after outcomes"
+}

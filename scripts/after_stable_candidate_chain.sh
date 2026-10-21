@@ -20,9 +20,12 @@ PY=/home/dat/ml-venv/bin/python
 export PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
 cd /tmp
 
-# wait: live run over and its final analysis stage finished
+# wait: no live run active. WAIT_RUN = the live run that must be over first (default pulse-stable-candidate;
+# 21/10 the chain was moved behind the next live run so the heavy NFS reads never overlap a capture)
+WAIT_RUN=${WAIT_RUN:-pulse-stable-candidate}
+until [ -f /mnt/sentinel-pulse-archive/$WAIT_RUN/CONFIG.json ]; do sleep 300; done
 for n in k8s-worker1.local k8s-worker4.local k8s-worker3.local; do
-  until [ -f /mnt/sentinel-pulse-archive/pulse-stable-candidate/workers/$n/TERMINAL.json ]; do sleep 300; done
+  until [ -f /mnt/sentinel-pulse-archive/$WAIT_RUN/workers/$n/TERMINAL.json ]; do sleep 300; done
 done
 while [ "$(systemctl is-active pulse-stable-candidate-analysis)" = active ]; do sleep 300; done
 echo "start chain $(date -u +%FT%T)"
