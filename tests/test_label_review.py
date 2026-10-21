@@ -20,6 +20,7 @@ def test_label_order_and_rules():
     probe = case([(999.8, '/usr/local/bin/python')])
     assert lr.label(probe, [], {'python'})[0] == 'benign_probe'
     assert lr.label(probe, [dict(reasons=['started_in_window', 'unknown_binary'])], {'python'})[0] == 'suspicious'
+    assert lr.label(probe, [dict(reasons=['unknown_binary'])], {'python'})[0] == 'benign_probe'   # long-running, not executed here
     assert lr.label(case([(999.8, '/usr/bin/df')]), [], {'python'})[0] == 'benign_routine_exec'
     assert lr.label(case(), [], set())[0] == 'benign_no_process_cause'
     lab, flags, _, public = lr.label(case(dests=['10.0.5.50', '8.8.8.8']), [], set())

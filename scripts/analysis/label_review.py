@@ -44,7 +44,12 @@ def public_destinations(case):
 
 
 def label(case, suspects, entries):
-    reasons = {r for s in suspects for r in s.get('reasons', [])}
+    # unknown/novel only count for binaries executed in the case: the RCA baseline learns executed binaries only, so a
+    # long-running main process started days earlier (uvicorn, java, redis-server) is always "unknown" without being new.
+    # Correction 22/10 01:58, after the first run labelled 3 679/4 766 cases suspicious through such processes; the
+    # protocol's intent ("a binary absent from the baseline" = new code running) is unchanged.
+    reasons = {r for s in suspects for r in s.get('reasons', []) if r not in ('unknown_binary', 'novel_binary')}
+    reasons |= {r for s in suspects if 'started_in_window' in s.get('reasons', []) for r in s.get('reasons', [])}
     t = triage(case, entries)
     public = public_destinations(case)
     flags = sorted(reasons & {'security_operation', 'unknown_binary', 'novel_binary'}) + (['public_destination'] if public else [])
