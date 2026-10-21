@@ -207,6 +207,8 @@ flowchart LR
     C --> G[C1 triage → hàng đợi người trực]
 ```
 
+**Quyết định của chủ đồ án (22/10):** tầng theo rule (A1 tripwire, Falco) là phần tích hợp **sau cùng**. Nó chỉ quyết định **song song** với ML (mỗi bên báo riêng); không được chặn trước hay lọc trước quyết định của ML. Trước hết hoàn thiện ML ra stable (Pulse 5.19). Có cho rule quyết định trước hay không, chủ đồ án sẽ định sau.
+
 **Thứ tự đề xuất:**
 1. Offline, rẻ: B1 (ACI/Mondrian/rolling), A2, R4. Chạy trên điểm đã lưu sau khi chuỗi phân tích nặng xong.
 2. A1 tripwire: 5.7c đã cho tập exec E. Không cần sửa eBPF, vì worker đã ghi full-ID delta mỗi cửa sổ 500 ms. Kiểm blind (kèm độ trễ) đã đăng ký 21/10 14:56 trên pulse-stable-refreshed; nếu đạt thì mới nối vào luồng live.

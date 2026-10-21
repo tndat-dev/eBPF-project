@@ -1,0 +1,28 @@
+{
+  "schema": "sentinel-pulse-stable-selection-v1",
+  "registered_at": "2026-10-22T01:07+07:00",
+  "registered_before": "the final stage of pulse-stable-refreshed, the fresh baseline replication (5.15b) and the calibration strategies (5.17) have produced any number",
+  "scope": "Pulse ML only. Rule-based signals (Falco, tripwire A1) are reported in parallel and take no part in this decision; they never gate, pre-filter or override an ML decision (decision of the project owner, 22/10).",
+  "starting_point": {
+    "scorer": "base29 (ExtraTrees + support, candidate 4bad16dc...)",
+    "temporal_rule": "k2of2, alpha x10 (policy-2of2-a10-refreshed, 9c41ebc0...)",
+    "calibration": "refreshed once before the run (19/10 13:00-18:25)",
+    "live_result": "pulse-stable-refreshed campaign: precision 96.0 %, recall 100 %, control 4.2 %, p95 2.26 s (SENTINEL_PULSE_STATUS 5.13a)"
+  },
+  "candidate_changes": {
+    "scorer": "autoencoder or tree_ae if it passes the adoption rule of baseline-fresh-replication-v1 (FRESH-ADOPTION.json next_scorer)",
+    "temporal_rule": "cusum_b3_h6 or cauchy_a10 if it passes the 5.11a criteria in ideas-verdict.json (better = true); if both pass, the one with the lower alert burden",
+    "calibration": "the strategy chosen by the decision rule of calibration-strategies-v1, if it beats asrun"
+  },
+  "rule": [
+    "1. Each component changes only if its own registered rule says so on the fresh data; otherwise it stays at the starting point.",
+    "2. If no component changes, the starting point is the stable configuration.",
+    "3. If one or more components change, the combined configuration is replayed offline on pulse-stable-refreshed (normal burden + campaign) before adoption. It is adopted only if, at the same time, recall >= 95 %, precision >= 95 %, idle control <= 5 %, p95 kernel->preview <= 3 s, and the normal alert burden is not higher than the starting point's on the same data. Otherwise drop changes in the order calibration, temporal rule, scorer (the most recently proposed first) until it passes.",
+    "4. The stable configuration is frozen (candidate manifest + policy SHA-256) and confirmed by one more live run with a fresh campaign before any claim about its live behaviour. The live run reports the same four expectations, p95 tier (< 2 s preferred, <= 3 s acceptable), alert burden per replica-hour, benign-launch rate, and probe-only share of the normal cases (5.18)."
+  ],
+  "known_limits_stated_in_advance": [
+    "the 0.1 episodes per replica-hour budget is not expected to be met by any configuration (5.8j); stable means the best registered configuration, not a solved alert burden",
+    "benign launches remain flagged (~94 %); recall is an upper bound for attacks entering through exec (RESEARCH_IDEAS 5)"
+  ],
+  "code": "decision applied by hand from the receipts named above; every step and number logged in SENTINEL_PULSE_STATUS 5.19"
+}
