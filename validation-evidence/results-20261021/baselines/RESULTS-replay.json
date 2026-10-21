@@ -1,0 +1,93 @@
+{
+  "parts": {
+    "RESULTS-k8s-worker1.local.json": {
+      "excluded_unix": [
+        [
+          1792409100.0,
+          1792412400.0
+        ],
+        [
+          1792356412.7386138,
+          1792378412.809834
+        ],
+        [
+          1792381537.8095915,
+          1792389017.9693992
+        ]
+      ],
+      "fast_path_disabled": [],
+      "finished_at_unix": 1792568271.7555523,
+      "holdout_unix": [
+        1792389600.0,
+        1792437742.0
+      ],
+      "schema": "pulse-baselines-replay-v1",
+      "source_sha256": "ebd04ee074c6a73497486d5dd656e2ce316084cec0aed9dad8fa4db6bf489847",
+      "stats": {
+        "holdout_rows": 2338560,
+        "trial_rows": 28903
+      },
+      "trials": 1260
+    },
+    "RESULTS-k8s-worker3.local.json": {
+      "excluded_unix": [
+        [
+          1792409100.0,
+          1792412400.0
+        ],
+        [
+          1792356412.7386138,
+          1792378412.809834
+        ],
+        [
+          1792381537.8095915,
+          1792389017.9693992
+        ]
+      ],
+      "fast_path_disabled": [],
+      "finished_at_unix": 1792568379.3327725,
+      "holdout_unix": [
+        1792389600.0,
+        1792437742.0
+      ],
+      "schema": "pulse-baselines-replay-v1",
+      "source_sha256": "ebd04ee074c6a73497486d5dd656e2ce316084cec0aed9dad8fa4db6bf489847",
+      "stats": {
+        "holdout_rows": 2395168,
+        "trial_rows": 27988
+      },
+      "trials": 1260
+    },
+    "RESULTS-k8s-worker4.local.json": {
+      "excluded_unix": [
+        [
+          1792409100.0,
+          1792412400.0
+        ],
+        [
+          1792356412.7386138,
+          1792378412.809834
+        ],
+        [
+          1792381537.8095915,
+          1792389017.9693992
+        ]
+      ],
+      "fast_path_disabled": [],
+      "finished_at_unix": 1792566599.186907,
+      "holdout_unix": [
+        1792389600.0,
+        1792437742.0
+      ],
+      "schema": "pulse-baselines-replay-v1",
+      "source_sha256": "ebd04ee074c6a73497486d5dd656e2ce316084cec0aed9dad8fa4db6bf489847",
+      "stats": {
+        "holdout_rows": 862720,
+        "trial_rows": 12397
+      },
+      "trials": 1260
+    }
+  },
+  "schema": "pulse-baselines-replay-v1",
+  "tag_trials": 12600
+}

@@ -1,0 +1,125 @@
+{
+  "arms": [
+    "iforest",
+    "autoencoder",
+    "freq_profile"
+  ],
+  "finished_at_unix": 1792565614.5239563,
+  "schema": "pulse-baselines-fit-v1",
+  "seeds": [
+    73021,
+    73022,
+    73023
+  ],
+  "source_sha256": "ebd04ee074c6a73497486d5dd656e2ce316084cec0aed9dad8fa4db6bf489847",
+  "source_study": "/var/tmp/feature-groups/study",
+  "state": "completed",
+  "train_context_cap": 3000,
+  "workloads": {
+    "production/aims-frontend:web": {
+      "seconds": 6.8,
+      "sha256": "33ad04d1dff195d397e9dc52aeca5d2e335f28e99335da9228de23df9067904e",
+      "train_contexts": 3000
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "seconds": 4.1,
+      "sha256": "965e193e6628c06a58da9a6b317cda0e8c711c3f5eb5d7c67d229922bda7d066",
+      "train_contexts": 3000
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "seconds": 6.4,
+      "sha256": "ca7389734742145f50bd9261e1905ff0443ff99d1a7999b9f20708a57301ecd4",
+      "train_contexts": 3000
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "seconds": 6.0,
+      "sha256": "493f1e6cd8577f6e17077a4dc477a460b44dc3163f94d00eed7bd9abc3aaa071",
+      "train_contexts": 3000
+    },
+    "production/aims-minio-pool-0:minio": {
+      "seconds": 4.7,
+      "sha256": "67dc0a591b5388e3a826108cb0337832f202bea8e01d62dbb73f2f0ccd5fbb27",
+      "train_contexts": 3000
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "seconds": 4.8,
+      "sha256": "83a950eb3ae3389384944c95fb832ff2f06ad8ab7e6b4ddb31ac33bf4619965b",
+      "train_contexts": 3000
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "seconds": 29.3,
+      "sha256": "612ef4078aba19df4f0efdde4cb136e6f4af4f0924ff0cf9c1834d831bfc9f09",
+      "train_contexts": 3000
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "seconds": 5.6,
+      "sha256": "0ca6007df0682ee51114d01d303888dfb7ae445c0528e06d3896134346836dcf",
+      "train_contexts": 3000
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "seconds": 41.8,
+      "sha256": "a8ada6c6099b3ab7778276ab560a5fcb9dff89e407ea8cd372a8b189923f3652",
+      "train_contexts": 3000
+    },
+    "production/aims-redis:aims-redis": {
+      "seconds": 36.3,
+      "sha256": "839d84f725889442c0c2d07a9ed6c8ca08e85b2ca754e570df5cb1ef114ed287",
+      "train_contexts": 3000
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "seconds": 5.6,
+      "sha256": "a407881399c8a9791b8e1d258088d40b5b4405dcd37f69b465158faca10e92e6",
+      "train_contexts": 3000
+    },
+    "production/api-gateway:app": {
+      "seconds": 66.2,
+      "sha256": "199834dbaa5f0822065cbfeb44cdf3c4cf602ec758d8653324e6783159eea0eb",
+      "train_contexts": 3000
+    },
+    "production/auth-service:app": {
+      "seconds": 5.6,
+      "sha256": "be890aa99641eeb67de2d1fad54969778bf0dc7d37c7692e5b2752203797f60e",
+      "train_contexts": 3000
+    },
+    "production/cart-service:app": {
+      "seconds": 8.5,
+      "sha256": "05bc9387f98a5b50c14cc4c74d81086456615797a2c9a9ee061fdde2d3566403",
+      "train_contexts": 3000
+    },
+    "production/catalog-service:app": {
+      "seconds": 54.1,
+      "sha256": "b8b673c2947b03a8bec9a09a403bcfb498314fda986aed2ce578397f9b88b3dc",
+      "train_contexts": 3000
+    },
+    "production/inventory-service:app": {
+      "seconds": 5.6,
+      "sha256": "7938ad7fc416aed6208dc36270ea9347b481214816cf6cab7350e9d81a00c9ef",
+      "train_contexts": 3000
+    },
+    "production/notification-service:app": {
+      "seconds": 6.5,
+      "sha256": "4a5faf4c19ea3fcbb380d3c7bb95b176c4ee2007f2bad3af5612bd2c5f94a5cb",
+      "train_contexts": 3000
+    },
+    "production/order-service:app": {
+      "seconds": 4.3,
+      "sha256": "127f62ebf444587f85d9e1efd155be90de9f538ede0733f0b1e1b44fae4d8cee",
+      "train_contexts": 3000
+    },
+    "production/payment-service:app": {
+      "seconds": 5.6,
+      "sha256": "406e4cd99c73a51c9de1116f25a4c32b95cfafaa1370e3f2dc0c04138fecaaad",
+      "train_contexts": 3000
+    },
+    "production/search-recommendation-service:app": {
+      "seconds": 5.4,
+      "sha256": "86d51a69545e6d29f97f30f0de94083e9d5a949970587a835da1d656e7aa01d4",
+      "train_contexts": 3000
+    },
+    "production/security-telemetry-service:app": {
+      "seconds": 22.2,
+      "sha256": "b87e62d06d94a78c998efe1d2a94b1af482369a1422ebf1a2445b324f3a8238e",
+      "train_contexts": 3000
+    }
+  }
+}

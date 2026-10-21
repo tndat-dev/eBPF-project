@@ -15,6 +15,10 @@ contexts with ``ContextBuilder``, scores every arm and writes (1) a holdout scor
 the normal span and (2) replay windows for the campaign trials; ``arm_budget`` / ``arm_bootstrap`` read both
 unchanged. Baselines put the same score in both branch fields, so their joint p-value is min(1, 2p); the matched
 budget absorbs that constant factor.
+
+Combined arms (protocol baseline-fresh-replication-v1): ``tree_ae`` keeps base29's tree score and puts the
+autoencoder score (same seed) in the second branch, i.e. Pulse with the autoencoder in place of the support branch.
+``score`` computes it on the fly; ``combine`` derives it from an existing evaluation's dumps and replay.
 """
 from __future__ import annotations
 
@@ -37,6 +41,8 @@ from .score_dump import ScoreCollector
 
 SEEDS = (73021, 73022, 73023)
 BASELINES = ('iforest', 'autoencoder', 'freq_profile')
+COMBOS = {'tree_ae': ('base29', 'autoencoder')}   # name -> (arm giving the tree score, arm giving the second score)
+ARMS = ('base29', *BASELINES, *COMBOS)
 FREQ_COLUMNS = list(range(29, 58)) + list(range(63, 127))
 WIDTH = 249
 TRAIN_CAP = 3000
@@ -125,6 +131,65 @@ def fit(source_study: Path, workload_dir: Path, output: Path):
     return report
 
 
+def combined(scores):
+    """{(combo, seed): (tree, second)} from per-arm {(arm, seed): (tree, support)} score pairs."""
+    return {(name, seed): (scores[a, seed][0], scores[b, seed][0])
+            for name, (a, b) in COMBOS.items() for seed in SEEDS if (a, seed) in scores and (b, seed) in scores}
+
+
+def combine(source: Path, output: Path, pulse_study: Path, holdout: tuple):
+    """Derive the combined arms from an evaluation written by ``score``; the output holds base29 + combos."""
+    for npz in sorted((source/'score-dump').glob('*/s*/scores.npz')):
+        with np.load(npz, allow_pickle=False) as data:
+            arrays = {k: data[k] for k in data.files}
+        tags = {k.rsplit('::', 1)[0] for k in arrays if '::' in k}
+        out = {'identities': arrays['identities']}
+        for tag in tags:
+            if tag.split('|')[1] == 'base29':
+                out.update({k: v for k, v in arrays.items() if k.startswith(tag + '::')})
+        for tag in tags:
+            workload, arm, seed = tag.split('|')
+            for name, (a, b) in COMBOS.items():
+                other = f'{workload}|{b}|{seed}'
+                if a != arm or other not in tags:
+                    continue
+                for field in ('identity', 'window_end'):
+                    if not np.array_equal(arrays[f'{tag}::{field}'], arrays[f'{other}::{field}']):
+                        raise ValueError(f'rows differ between {tag} and {other}')
+                new = f'{workload}|{name}|{seed}'
+                out[f'{new}::identity'] = arrays[f'{tag}::identity']; out[f'{new}::window_end'] = arrays[f'{tag}::window_end']
+                out[f'{new}::tree_score'] = arrays[f'{tag}::tree_score']; out[f'{new}::support_score'] = arrays[f'{other}::tree_score']
+        target = output/'score-dump'/npz.parent.parent.name/npz.parent.name/'scores.npz'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        partial = target.with_suffix('.partial.npz')
+        with partial.open('wb') as f:
+            np.savez_compressed(f, **out)
+        partial.replace(target)
+    lines = {}
+    with (source/'replay'/'windows.jsonl').open() as f:
+        for line in f:
+            row = json.loads(line)
+            if row['tag'].split('|')[1] in {x for pair in COMBOS.values() for x in pair}:
+                lines[row['tag'], row['trial_key']] = row['windows']
+    rp = output/'replay'; rp.mkdir(parents=True, exist_ok=True)
+    with (rp/'windows-all.jsonl').open('w') as f:
+        for (tag, tk), windows in sorted(lines.items()):
+            workload, arm, seed = tag.split('|')
+            if arm == 'base29':
+                f.write(json.dumps(dict(tag=tag, trial_key=tk, windows=windows)) + '\n')
+            for name, (a, b) in COMBOS.items():
+                other = lines.get((f'{workload}|{b}|{seed}', tk))
+                if a != arm or other is None:
+                    continue
+                if [w['end'] for w in windows] != [w['end'] for w in other]:
+                    raise ValueError(f'replay windows differ for {tag} / {tk}')
+                merged = [dict(w, support_score=o['tree_score']) for w, o in zip(windows, other)]
+                f.write(json.dumps(dict(tag=f'{workload}|{name}|{seed}', trial_key=tk, windows=merged)) + '\n')
+    atomic_json(rp/'RESULTS-all.json', dict(schema='pulse-baselines-combine-v1', source=str(source), combos=COMBOS,
+                                           source_sha256=sha256_file(Path(__file__)), finished_at_unix=time.time()))
+    register(output, pulse_study, holdout, arms=('base29', *COMBOS))
+
+
 def load_baselines(directory: Path):
     """Models written by ``fit`` on this host; FIT.json pins every file's hash before it is unpickled."""
     fitted = json.loads((directory/'FIT.json').read_text())['workloads']
@@ -206,6 +271,7 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
                 if workload in baselines:
                     for (arm, seed), s in baseline_scores(baselines[workload], ctx[:, -WIDTH:].astype(np.float64)).items():
                         scores[arm, seed] = (s, s)
+                scores.update(combined(scores))
                 for (arm, seed), (tree, support) in scores.items():
                     tag = f'{workload}|{arm}|{seed}'
                     if hold.any():
@@ -255,7 +321,7 @@ def score(workers_root: Path, pulse_study: Path, baseline_dir: Path, campaigns, 
     return dict(stats)
 
 
-def register(output: Path, pulse_study: Path, holdout: tuple):
+def register(output: Path, pulse_study: Path, holdout: tuple, arms=ARMS):
     """Merge per-node replay parts and write the study files that ``score_dump.load_study`` / ``arm_budget``
     require for the baseline evaluation. A trial lives on one node, so parts never share a (tag, trial) key."""
     rp = output/'replay'; seen = set()
@@ -269,7 +335,7 @@ def register(output: Path, pulse_study: Path, holdout: tuple):
     atomic_json(rp/'RESULTS.json', dict(schema='pulse-baselines-replay-v1', parts={
         p.name: json.loads(p.read_text()) for p in sorted(rp.glob('RESULTS-*.json'))}, tag_trials=len(seen)))
     workloads = json.loads((pulse_study/'INDEX.json').read_text())['workloads']
-    arms = {name: dict(add=[], drop=[]) for name in ('base29', *BASELINES)}
+    arms = {name: dict(add=[], drop=[]) for name in arms}
     atomic_json(output/'INDEX.json', dict(arms=arms, workloads=workloads, pulse_study=str(pulse_study),
                                          columns=json.loads((pulse_study/'INDEX.json').read_text())['columns']))
     atomic_json(output/'TERMINAL.json', dict(state='baselines_scored', protocol='baseline-evaluation-v1', completed={}))
@@ -297,6 +363,9 @@ def main():
     s.add_argument('--node', action='append', default=[], help='score only these worker directories')
     r = sub.add_parser('register'); r.add_argument('--output', type=Path, required=True)
     r.add_argument('--pulse-study', type=Path, required=True); r.add_argument('--holdout', type=span, required=True)
+    c = sub.add_parser('combine'); c.add_argument('--source', type=Path, required=True)
+    c.add_argument('--output', type=Path, required=True); c.add_argument('--pulse-study', type=Path, required=True)
+    c.add_argument('--holdout', type=span, required=True)
     a = p.parse_args()
     if a.command == 'fit':
         fit(a.source_study, a.workload_dir, a.output)
@@ -304,6 +373,8 @@ def main():
         print(score(a.workers_root, a.pulse_study, a.baselines, a.campaign, a.output, a.holdout, a.exclude, nodes=a.node))
         if not a.node:
             register(a.output, a.pulse_study, a.holdout)
+    elif a.command == 'combine':
+        combine(a.source, a.output, a.pulse_study, a.holdout)
     else:
         register(a.output, a.pulse_study, a.holdout)
 

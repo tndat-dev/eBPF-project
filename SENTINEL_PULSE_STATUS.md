@@ -938,6 +938,48 @@ Theo kịch bản (trừ E):
 - **Job:** unit `pulse-baselines-1021` trên .234, chỉ đọc bản chép local, CPU 300%. Script: `scripts/pulse_baselines.sh`.
 - Mức bằng chứng: development (cùng capture đã dùng để chọn).
 
+### 5.15a Kết quả baseline (job xong 21/10 14:42)
+
+- **Biên nhận:** `validation-evidence/results-20261021/baselines/`. Gồm `RESULTS-budget.json`, `BOOTSTRAP.json`, `arm-scenarios.json`, `FIT.json` (hash 21 model baseline), `RESULTS-replay.json`.
+- **Dữ liệu:** 5,60 triệu cửa sổ holdout (42% đầu làm calibration) và 1.260 interval (420 attack, 420 binary vô hại, 420 control); 63 model mỗi nhánh (freq_profile: 21).
+- **Kiểm chấm nhanh:** đường chấm nhanh không bị tắt ở model nào, tức lô đầu của mọi model base29 trùng từng bit với sklearn.
+
+**Ở ngân sách khớp** (k2of2; số trong ngoặc là CI 95% của hiệu so với base29, bootstrap ghép cặp theo workload):
+
+| Ngân sách | Nhánh | α× | Đợt/replica-giờ | Recall | Binary vô hại | Control | Tách (recall − vô hại) | p95 |
+|---|---|---|---|---|---|---|---|---|
+| 1 | **base29 (Pulse)** | 3 | 0,89 | 98,3% | 79,5% | 0,6% | 0,188 | 2,79 s |
+| 1 | autoencoder | 10 | 0,96 | **100%** (+1,7 [+0,5; +3,1]) | 99,3% | 1,2% | 0,007 (−0,181 [−0,301; −0,068]) | **1,09 s** |
+| 1 | freq_profile | 30 (trần lưới) | 0,99 | 63,1% (−35,2 [−47,0; −22,4]) | **16,2%** | 1,2% | **0,469** (+0,281 [+0,076; +0,467]) | 6,25 s |
+| 1 | iforest | 5 | 0,64 | 2,4% (−95,9) | 1,3% | 0,6% | 0,011 (−0,177 [−0,304; −0,058]) | 8,80 s |
+| 5 | **base29** | 10 | 4,68 | 100% | 94,5% | 2,3% | 0,055 | 1,51 s |
+| 5 | autoencoder | 20 | 2,98 | 100% (0 [0; 0]) | 99,9% | 1,9% | 0,001 (−0,054 [−0,102; −0,014]) | 1,08 s |
+| 5 | freq_profile | 30 (trần lưới) | 0,99 | 63,1% (−36,9) | 16,2% | 1,2% | 0,469 (+0,414 [+0,266; +0,566]) | 6,25 s |
+| 5 | iforest | 15 | 4,61 | 11,2% (−88,8) | 8,0% | 3,8% | 0,033 (−0,022 [−0,091; +0,044]) | 11,3 s |
+
+**Kết luận theo cách đã đăng ký** (dấu so sánh theo CI 95% của hiệu recall và hiệu tách):
+
+| Baseline | Ngân sách 1 (chính) | Ngân sách 5 (phụ) |
+|---|---|---|
+| iforest | base29 **hơn** cả recall lẫn tách | base29 hơn về recall; tách không khác |
+| autoencoder | base29 **kém** về recall (−1,7 điểm), **hơn** về tách | recall không khác; base29 hơn về tách |
+| freq_profile | base29 **hơn** về recall, **kém** về tách | như ngân sách 1 (freq_profile chạm trần lưới α×30, gánh chỉ 0,99) |
+
+**Đọc kết quả** (phần dưới là khám phá sau khi xem số, không thuộc kết luận đăng ký):
+- **Autoencoder mạnh hơn dự kiến ở trục gánh cảnh báo và độ trễ.**
+  - Ở ngân sách 0,1, AE vẫn bắt 97,3% attack với p95 1,38 s. base29 không xuống được 0,1 ở bất kỳ α nào: mức thấp nhất là 0,10 đợt/giờ ở α×0,5, với recall 86,7%.
+  - Ở cùng mức recall khoảng 97–98%, gánh của AE thấp hơn khoảng 9 lần (0,10 so với 0,89 đợt/giờ).
+  - Đổi lại, AE gắn cờ binary vô hại gần như 100%.
+- **base29 tách binary vô hại tốt hơn AE ở ngân sách thấp** (79,5% so với 99,3% ở ngân sách 1). Đây là điểm cộng duy nhất có ý nghĩa thống kê của bộ chấm Pulse so với AE.
+- **freq_profile (kiểu BoSC) tách tốt nhất** (binary vô hại 16%), nhưng bỏ sót 37% attack và chậm (p95 6,3 s). Nó dựa vào phân bố tỉ lệ syscall, ít nhạy với số đếm tuyệt đối.
+- **Isolation Forest gần như không bắt được gì** trên vector 249 chiều chuẩn hóa.
+- **Hệ quả cho paper:** đóng góp của Pulse không nằm ở bản thân bộ chấm điểm. Nó nằm ở khung đánh giá vận hành (độ trễ, gánh cảnh báo, đối chứng binary vô hại) và ở tín hiệu bổ sung (tripwire A1). Bộ chấm điểm cần một ứng viên tốt hơn: AE, hoặc AE thay nhánh support. Ứng viên đó phải được kiểm trên dữ liệu mới (5.15b).
+- **Giới hạn:**
+  - development: cùng capture đã dùng để chọn policy, và các kịch bản attack đã lộ khi phát triển;
+  - lưới α dừng ở 30 nên freq_profile chưa tới ngân sách 5;
+  - 3 seed của AE và iforest khác nhau, freq_profile chỉ có 1 model;
+  - không có kiểm định nhiều so sánh.
+
 ### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
 
 - **Protocol:** `sentinel_pulse/protocol/tripwire-a1-blind-v1.json`.

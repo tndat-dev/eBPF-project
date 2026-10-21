@@ -1,0 +1,31 @@
+{
+  "schema": "sentinel-pulse-baseline-fresh-replication-v1",
+  "registered_at": "2026-10-21T15:05+07:00",
+  "registered_before": "reading any pulse-stable-refreshed data (campaign started 13:56, capture ends 22/10 ~12:30) and before any tree_ae number",
+  "context": "baseline-evaluation-v1 on pulse-live-recalibrated (development, SENTINEL_PULSE_STATUS 5.15a): the autoencoder matched or beat base29 on recall at every budget with far lower alert burden and latency, but flagged benign launches ~100%; base29 separated benign launches better. This is the fresh-data test.",
+  "models": {
+    "frozen": "no refit: base29 = feature-groups study base29 (reproduces syscall-arms base29); iforest / autoencoder / freq_profile = /var/tmp/baselines/models on .234",
+    "fit_receipt": "validation-evidence/results-20261021/baselines/FIT.json",
+    "fit_receipt_sha256": "ecf76289aea777a5126055ef2e34f74a1799cfcbb7127e3142765857e568e645"
+  },
+  "arms": {
+    "base29": "Pulse scorer",
+    "iforest": "as baseline-evaluation-v1",
+    "autoencoder": "as baseline-evaluation-v1",
+    "freq_profile": "as baseline-evaluation-v1",
+    "tree_ae": "new, defined after seeing the development autoencoder result: Pulse's tree branch (history -> current ExtraTrees) with the autoencoder score as the second branch in place of the support branch; joint p = min(1, 2 min(tree_p, ae_p)); seeds paired"
+  },
+  "evaluation_data": {
+    "normal": "pulse-stable-refreshed normal from campaign end + 60 s to capture end (last worker TERMINAL), minus spans listed in analysis/EXTRA_EXCLUDE if that file is written from run-health evidence before any normal number is read; first 42 % calibration, rest alert burden",
+    "attacks": "pulse-stable-refreshed campaign (idle control, benign launch, attack)"
+  },
+  "decision": "k2of2, alpha scale matched per arm to the budget (grid 0.5-30), paired workload-clustered bootstrap (10000) of differences to base29",
+  "budgets_episodes_per_replica_hour": {"primary": 1.0, "secondary": 5.0, "descriptive": 0.1},
+  "reported_as": "per baseline-evaluation-v1: base29 better / not different / worse on recall and separation at budgets 1 and 5",
+  "adoption_rule": {
+    "applies_to": ["autoencoder", "tree_ae"],
+    "rule": "a candidate becomes the next Pulse scorer candidate only if at budget 1 on this fresh data: recall difference to base29 point >= 0 and 95 % CI lower bound >= -0.01; separation (recall - benign rate) difference point >= 0 and 95 % CI lower bound >= -0.05; p95 first-alarm delay <= 2.0 s. If both pass, the larger separation difference wins. Otherwise base29 stays.",
+    "still_required_after_adoption": "a live run with the adopted scorer before any claim about live behaviour"
+  },
+  "evidence_class": "fresh normal and fresh campaign for every arm (models frozen 21/10 13:53); attack scenarios are the same self-written fixtures as in development"
+}

@@ -95,7 +95,7 @@ def test_score_writes_holdout_dump_and_replay_that_arm_budget_reads(tmp_path, mo
 
     load_study(out)   # registration hashes and arms are what arm_budget expects
     replay = [json.loads(line) for line in (out/'replay'/'windows.jsonl').read_text().splitlines()]
-    assert sorted(r['tag'].split('|')[1] for r in replay) == ['autoencoder', 'base29', 'freq_profile', 'iforest']
+    assert sorted(r['tag'].split('|')[1] for r in replay) == ['autoencoder', 'base29', 'freq_profile', 'iforest', 'tree_ae']
     assert {len(r['windows']) for r in replay} == {94}   # 270 .. 317 s, continuous history, every window scored
     assert all(w['alpha'] == Model.alpha for r in replay for w in r['windows'])
     for arm in ('base29', 'iforest'):
@@ -104,3 +104,25 @@ def test_score_writes_holdout_dump_and_replay_that_arm_budget_reads(tmp_path, mo
         assert not ((h['window_end'] > 240) & (h['window_end'] - .5 < 376)).any()
         assert h['window_end'].min() == 107. and h['window_end'].max() == 400.
         assert len(h['window_end']) == stats['holdout_rows']
+
+    tree_ae = next(r for r in replay if '|tree_ae|' in r['tag'])['windows']
+    base = next(r for r in replay if '|base29|' in r['tag'])['windows']
+    ae = next(r for r in replay if '|autoencoder|' in r['tag'])['windows']
+    assert [w['tree_score'] for w in tree_ae] == [w['tree_score'] for w in base]
+    assert [w['support_score'] for w in tree_ae] == [w['tree_score'] for w in ae]
+
+    # combine() on an evaluation without combos reproduces the on-the-fly arm exactly
+    plain = tmp_path/'plain'; (plain/'replay').mkdir(parents=True)
+    (plain/'replay'/'windows.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in replay if '|tree_ae|' not in r['tag']))
+    for npz in (out/'score-dump').glob('*/s*/scores.npz'):
+        with np.load(npz, allow_pickle=False) as d:
+            kept = {k: d[k] for k in d.files if '|tree_ae|' not in k}
+        target = plain/'score-dump'/npz.parent.parent.name/npz.parent.name/'scores.npz'; target.parent.mkdir(parents=True)
+        np.savez(target, **kept)
+    derived = tmp_path/'derived'
+    bl.combine(plain, derived, study, (100., 400.))
+    load_study(derived)
+    a, b = load_holdout(out/'score-dump', 'tree_ae'), load_holdout(derived/'score-dump', 'tree_ae')
+    assert a.keys() == b.keys() and all(np.array_equal(a[k][f], b[k][f]) for k in a for f in a[k])
+    again = {json.loads(l)['tag']: json.loads(l)['windows'] for l in (derived/'replay'/'windows.jsonl').read_text().splitlines()}
+    assert again[f'{KEY}|tree_ae|73021'] == tree_ae and set(t.split('|')[1] for t in again) == {'base29', 'tree_ae'}
