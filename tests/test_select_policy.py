@@ -71,3 +71,37 @@ def test_written_policy_states_known_gaps(tmp_path):
     sp.write_policy(selection, ROOT/'sentinel_pulse/protocol/policy-1win-a3.json', out, 'abc', 'cand')
     gaps = json.loads(out.read_text())['selection_basis']['known_gaps']
     assert len(gaps) == 3 and '2.43 s' in gaps[0] and '~80x' in gaps[1] and '88%' in gaps[2]
+
+
+def _write_v2(tmp, prefix, normal, attack):
+    """normal: name -> episodes per node (10 h each); attack: name -> (precision, recall, control, p95)."""
+    for node in sp.NODES:
+        doc = dict(total_scored_hours=10.0, policies={n: dict(total_episodes=e) for n, e in normal.items()})
+        (tmp/f'normal-{prefix}-{node}.json').write_text(json.dumps(doc))
+    pols = {}
+    for n, (p, r, c, p95) in attack.items():
+        k, rest = n[1:].split('of'); nn, a = rest.split('_a')
+        pols[n] = dict(policy=_policy(int(k), int(nn), float(a)), precision_expected=p, recall_observed=r,
+                       control_positive_rate=c, kernel_to_preview_seconds=dict(p95=p95, p99=p95 + 2),
+                       benign_exec_control=dict(positive_rate=0.9))
+    (tmp/f'attack-{prefix}.json').write_text(json.dumps(dict(policies=pols)))
+
+
+def test_v2_latency_is_hard_and_refreshed_needs_5_7b(tmp_path):
+    attack = {'k2of2_a10': (0.92, 0.98, 0.08, 1.85), 'k2of3_a10': (0.96, 0.98, 0.04, 1.70), 'k2of2_a5': (0.99, 0.96, 0.01, 2.6)}
+    _write_v2(tmp_path, 'asrun', {'k2of2_a10': 80, 'k2of3_a10': 90, 'k2of2_a5': 40}, attack)
+    fresh = dict(attack, k2of2_a10=(0.96, 0.98, 0.04, 1.85))
+    _write_v2(tmp_path, 'refreshed', {'k2of2_a10': 60, 'k2of3_a10': 70, 'k2of2_a5': 30}, fresh)
+    result = sp.select_v2(tmp_path)
+    assert result['calibration'] == 'refreshed'          # 60 <= 80 * 0.9, recall kept, precision >= 0.95
+    # k2of2_a5 excluded (p95 2.6 s); among eligible k2of2_a10 (60) and k2of3_a10 (70) the fewest episodes wins
+    assert result['policy'] == 'k2of2_a10' and result['meets_registered_expectations'] and 'k2of2_a5' not in result['within_2s']
+
+
+def test_v2_fallback_stays_within_2s(tmp_path):
+    attack = {'k2of2_a10': (0.92, 0.98, 0.08, 1.85), 'k2of3_a10': (0.93, 0.97, 0.07, 1.70), 'k2of2_a5': (0.99, 0.96, 0.01, 2.6)}
+    _write_v2(tmp_path, 'asrun', {'k2of2_a10': 80, 'k2of3_a10': 90, 'k2of2_a5': 40}, attack)
+    _write_v2(tmp_path, 'refreshed', {'k2of2_a10': 78, 'k2of3_a10': 88, 'k2of2_a5': 39}, attack)
+    result = sp.select_v2(tmp_path)
+    assert result['calibration'] == 'as_run'             # only 2.5 % fewer episodes
+    assert result['policy'] == 'k2of3_a10' and not result['meets_registered_expectations']

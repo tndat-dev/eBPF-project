@@ -92,6 +92,69 @@ def select(directory: Path):
                 selected_at_unix=time.time())
 
 
+# ---- rule v2, registered 21/10 before the pulse-stable-candidate final-stage numbers existed ----
+# Inputs: pulse_stable_candidate_analysis.sh final stage (looser grid): normal-{asrun,refreshed}-<node>.json,
+# attack-{asrun,refreshed}.json, replayed on the pulse-stable-candidate campaign (fast-scoring timing).
+V2_P95_HARD = 2.0             # kernel -> alert < 2 s is a hard constraint (no fallback above it)
+V2_REFERENCE = 'k2of2_a10'    # the policy that ran
+V2_EPISODE_GAIN = 0.10        # Pulse 5.7b: refreshed must cut episodes >= 10 % at the run policy ...
+V2_RECALL_COST = 0.02         # ... cost <= 2 recall points and keep precision >= 0.95
+
+
+def table_v2(directory: Path, prefix: str):
+    episodes, hours = defaultdict(int), 0.0
+    for node in NODES:
+        data = json.loads((directory/f'normal-{prefix}-{node}.json').read_text())
+        hours += data['total_scored_hours']
+        for name, policy in data['policies'].items():
+            episodes[name] += policy['total_episodes']
+    data = json.loads((directory/f'attack-{prefix}.json').read_text())
+    rows = {}
+    for name, policy in data['policies'].items():
+        latency = policy.get('kernel_to_preview_seconds') or {}
+        benign = policy.get('benign_exec_control') or {}
+        rows[name] = dict(policy=policy['policy'], precision=policy['precision_expected'], recall=policy['recall_observed'],
+                          control=policy['control_positive_rate'], p95=latency.get('p95'), p99=latency.get('p99'),
+                          benign_positive_rate=benign.get('positive_rate'),
+                          episodes_per_hour=episodes[name]/hours if hours and name in episodes else None)
+    return rows, hours
+
+
+def select_v2(directory: Path):
+    """1. Calibration = refreshed iff it meets Pulse 5.7b at the run policy (>= 10 % fewer episodes,
+    <= 2 recall points lost, precision >= 0.95); else as run.
+    2. Policies with replay p95 <= 2.0 s (hard), precision >= 0.95, recall >= 0.95, control <= 0.05:
+    fewest normal episodes per hour.
+    3. Otherwise, still only p95 <= 2.0 s and recall >= 0.95: highest precision (then fewer episodes);
+    expectations recorded as not met. If nothing has recall >= 0.95 within 2 s: highest recall within 2 s."""
+    asrun, ah = table_v2(directory, 'asrun')
+    refreshed, rh = table_v2(directory, 'refreshed')
+    a, r = asrun[V2_REFERENCE], refreshed[V2_REFERENCE]
+    use_refreshed = (r['episodes_per_hour'] <= a['episodes_per_hour']*(1 - V2_EPISODE_GAIN)
+                     and r['recall'] >= a['recall'] - V2_RECALL_COST and r['precision'] >= PRECISION)
+    rows = refreshed if use_refreshed else asrun
+    fast = {n: row for n, row in rows.items() if all(row[k] is not None for k in ('p95', 'precision', 'recall', 'control'))
+            and row['p95'] <= V2_P95_HARD}
+    eligible = {n: row for n, row in fast.items() if row['precision'] >= PRECISION and row['recall'] >= RECALL
+                and row['control'] <= CONTROL and row['episodes_per_hour'] is not None}
+    if eligible:
+        name = min(eligible, key=lambda n: (eligible[n]['episodes_per_hour'], eligible[n]['p95'])); meets = True
+    else:
+        meets = False
+        recall_ok = {n: row for n, row in fast.items() if row['recall'] >= RECALL}
+        pool = recall_ok or fast
+        key = (lambda n: (-pool[n]['precision'], pool[n]['episodes_per_hour'] or 1e9)) if recall_ok else (lambda n: -pool[n]['recall'])
+        name = min(pool, key=key) if pool else None
+    return dict(schema='pulse-next-run-selection-v2', calibration='refreshed' if use_refreshed else 'as_run',
+                calibration_check=dict(reference=V2_REFERENCE, as_run=a, refreshed=r), policy=name,
+                metrics=rows.get(name), meets_registered_expectations=meets,
+                rule=dict(p95_hard=V2_P95_HARD, precision=PRECISION, recall=RECALL, control=CONTROL,
+                          episode_gain=V2_EPISODE_GAIN, recall_cost=V2_RECALL_COST),
+                within_2s=sorted(fast), eligible=sorted(eligible), normal_hours=dict(as_run=ah, refreshed=rh),
+                tables=dict(as_run=asrun, refreshed=refreshed),
+                inputs={p.name: sha256_file(p) for p in sorted(directory.glob('*.json'))}, selected_at_unix=time.time())
+
+
 HARD_P95_SECONDS = 2.0       # kernel -> preview target of the thesis
 EPISODE_BUDGET = 0.1         # normal alert episodes per replica-hour (syscall protocol v2)
 
@@ -142,6 +205,7 @@ def main():
     parser.add_argument('--from-selection', type=Path, help='write the policy file for an existing SELECTION.json')
     parser.add_argument('--template', type=Path, help='policy file to copy the registered fields from (pulse-live-recalibrated policy)')
     parser.add_argument('--candidate-hash'); parser.add_argument('--candidate-name')
+    parser.add_argument('--rule', choices=('v1', 'v2'), default='v1', help='v2 = next-run rule (p95 <= 2.0 s hard)')
     args = parser.parse_args()
     if args.from_selection:
         if not (args.template and args.candidate_hash and args.candidate_name):
@@ -151,7 +215,7 @@ def main():
         return
     if not args.selection_dir:
         parser.error('--selection-dir required')
-    result = select(args.selection_dir)
+    result = select_v2(args.selection_dir) if args.rule == 'v2' else select(args.selection_dir)
     atomic_json(args.output, result)
     print(json.dumps({k: result[k] for k in ('calibration', 'policy', 'metrics', 'meets_registered_expectations', 'eligible')},
                      indent=2))
