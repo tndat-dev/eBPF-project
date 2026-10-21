@@ -41,7 +41,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] Recall theo tốc độ attack (5.15c): Pulse yếu dần ở 6/s. [ ] Campaign 1–3/s.
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
-- [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận.
+- [x] Review nhãn (5.20): 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại; người gán không độc lập.
 - [ ] Luận văn: viết mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
 - [~] Baseline luật Falco (5.15d): phần trial xong. [ ] Sau lượt live: chép log Falco lần nữa, tính normal theo replica-giờ trên đúng khoảng của Pulse.
 - [ ] Kịch bản tấn công thật (G2) **(cần bạn duyệt phạm vi)**: tải rồi chạy, reverse shell trong cụm, đọc token service account, quét port trong namespace, đào coin ngắn.

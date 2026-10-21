@@ -1,0 +1,309 @@
+{
+ "schema": "pulse-label-review-manual-v1",
+ "protocol": "sentinel_pulse/protocol/label-review-v1.json",
+ "adjudicator": "Claude (not independent)",
+ "read": 33,
+ "agree": 30,
+ "cases": [
+  {
+   "case_id": "37069438989f97a07946e267",
+   "rule_label": "suspicious",
+   "manual_label": "benign_maintenance",
+   "agreement": "disagree",
+   "reason": "postgres -> /bin/sh -> /controller/manager (uid 26): CloudNativePG archive_command 'manager wal-archive' / restore_command 'manager wal-restore' (pg_settings checked 22/10); rare, first seen after the baseline froze; no public destination, only file opens",
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "at_utc": "10-20 14:29:55"
+  },
+  {
+   "case_id": "3a460e3308bb44afb7b36756",
+   "rule_label": "suspicious",
+   "manual_label": "benign_maintenance",
+   "agreement": "disagree",
+   "reason": "postgres -> /bin/sh -> /controller/manager (uid 26): CloudNativePG archive_command 'manager wal-archive' / restore_command 'manager wal-restore' (pg_settings checked 22/10); rare, first seen after the baseline froze; no public destination, only file opens",
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "at_utc": "10-20 18:52:46"
+  },
+  {
+   "case_id": "c715eb068b61d00a4baf0308",
+   "rule_label": "suspicious",
+   "manual_label": "benign_maintenance",
+   "agreement": "disagree",
+   "reason": "postgres -> /bin/sh -> /controller/manager (uid 26): CloudNativePG archive_command 'manager wal-archive' / restore_command 'manager wal-restore' (pg_settings checked 22/10); rare, first seen after the baseline froze; no public destination, only file opens",
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "at_utc": "10-20 14:29:55"
+  },
+  {
+   "case_id": "8b2e25767d1bba51628948bd",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/auth-service:app",
+   "at_utc": "10-20 16:20:17"
+  },
+  {
+   "case_id": "e945b7106947260c094d92a5",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/search-recommendation-service:app",
+   "at_utc": "10-20 20:15:16"
+  },
+  {
+   "case_id": "6e67bdbd24710de7841b99f4",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/order-service:app",
+   "at_utc": "10-20 17:57:02"
+  },
+  {
+   "case_id": "435e089ed52a5e07aceaae7f",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/order-service:app",
+   "at_utc": "10-20 16:43:18"
+  },
+  {
+   "case_id": "132e48bf30ad10d6ed579da5",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/security-telemetry-service:app",
+   "at_utc": "10-20 11:56:37"
+  },
+  {
+   "case_id": "5c780d82b1780aec31643a1e",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/notification-service:app",
+   "at_utc": "10-20 19:29:54"
+  },
+  {
+   "case_id": "5836b718497687f89281533a",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/auth-service:app",
+   "at_utc": "10-20 15:23:53"
+  },
+  {
+   "case_id": "5a7ffee6e98117a536112b18",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/notification-service:app",
+   "at_utc": "10-20 14:23:01"
+  },
+  {
+   "case_id": "0145d680b93de5a2c48e7845",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "at_utc": "10-20 23:18:01"
+  },
+  {
+   "case_id": "dc0b849dcea781ced67ab4d2",
+   "rule_label": "benign_probe",
+   "manual_label": "benign_probe",
+   "agreement": "agree",
+   "reason": "declared exec probe tree (python -c urllib / kafka_liveness.sh) started by runc or containerd-shim",
+   "workload": "production/auth-service:app",
+   "at_utc": "10-20 22:52:21"
+  },
+  {
+   "case_id": "3dc1c42045476f199e5f66a0",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/catalog-service:app",
+   "at_utc": "10-21 00:01:37"
+  },
+  {
+   "case_id": "1e7b939842cc3b10de00894e",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/payment-service:app",
+   "at_utc": "10-20 22:52:47"
+  },
+  {
+   "case_id": "5d8dcd1071fd12149b24e7d8",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/security-telemetry-service:app",
+   "at_utc": "10-20 21:42:46"
+  },
+  {
+   "case_id": "5be8a7e4f3eda5b3c83f60aa",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "at_utc": "10-20 21:52:46"
+  },
+  {
+   "case_id": "943336a25aaec9c2aec8607e",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/order-service:app",
+   "at_utc": "10-20 15:19:52"
+  },
+  {
+   "case_id": "3173780b7732bca9eed092e4",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/security-telemetry-service:app",
+   "at_utc": "10-20 13:25:03"
+  },
+  {
+   "case_id": "4575acd78a9c0e6c689acd46",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "at_utc": "10-20 03:25:38"
+  },
+  {
+   "case_id": "f7740d7daee279b5045c9a21",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/notification-service:app",
+   "at_utc": "10-20 20:04:57"
+  },
+  {
+   "case_id": "36b0c901de1c4034c9907794",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/security-telemetry-service:app",
+   "at_utc": "10-20 18:29:19"
+  },
+  {
+   "case_id": "683fd03b392794c94860eea2",
+   "rule_label": "benign_routine_exec",
+   "manual_label": "benign_routine_exec",
+   "agreement": "agree",
+   "reason": "execs are probe processes but the last one is 6-9 s before the trigger window; all binaries in baseline",
+   "workload": "production/notification-service:app",
+   "at_utc": "10-20 16:00:49"
+  },
+  {
+   "case_id": "d6c6ba5b1aee33288ce57042",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/auth-service:app",
+   "at_utc": "10-20 04:06:02"
+  },
+  {
+   "case_id": "026852820d01d42e7320e0c5",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec; 300 file unlinks by minio (storage housekeeping) and failed syscalls: a visible benign in-process cause",
+   "workload": "production/aims-minio-pool-0:minio",
+   "at_utc": "10-20 21:02:23"
+  },
+  {
+   "case_id": "319a6fff91cd82c6b4bfe1c7",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "at_utc": "10-20 21:04:13"
+  },
+  {
+   "case_id": "aac2fda80c41c47c0e9ce6e9",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "at_utc": "10-20 10:47:03"
+  },
+  {
+   "case_id": "3df440e1fcaf4c549e2cfe72",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-frontend:web",
+   "at_utc": "10-20 10:50:44"
+  },
+  {
+   "case_id": "9ee741b0d0d906ff664653cc",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-frontend:web",
+   "at_utc": "10-20 04:43:32"
+  },
+  {
+   "case_id": "e121faba524a222525067a89",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "at_utc": "10-20 11:03:53"
+  },
+  {
+   "case_id": "1a74d1423dfee6fa0b6ae32b",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "at_utc": "10-20 13:55:28"
+  },
+  {
+   "case_id": "1b76fde59cc936e662f7ec99",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "at_utc": "10-21 02:45:37"
+  },
+  {
+   "case_id": "4041af4c6c44ddf426c44106",
+   "rule_label": "benign_no_process_cause",
+   "manual_label": "benign_no_process_cause",
+   "agreement": "agree",
+   "reason": "no exec, no security event, no public destination",
+   "workload": "production/aims-waypoint:istio-proxy",
+   "at_utc": "10-21 00:30:03"
+  }
+ ],
+ "evidence_cnpg": "pg_settings on aims-postgres-cnpg-1: archive_mode on, archive_timeout 300, archive_command '/controller/manager wal-archive ... %p', restore_command '/controller/manager wal-restore ... %f %p'",
+ "conclusion": "0 of 4 766 normal alerts show evidence of malicious activity within the Tetragon policy scope; the 3 rule-suspicious cases are CloudNativePG WAL archiving",
+ "computed_at_unix": 1792609214.014633
+}

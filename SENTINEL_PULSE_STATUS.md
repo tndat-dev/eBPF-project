@@ -920,6 +920,39 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 
 Đã chuyển sang [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md), mục 2: tripwire, CUSUM, calibration tự làm mới, so sánh replica, so họ model, model dùng chung, triage hai tầng, FDR, LID-DS, kèm sơ đồ kiến trúc đề xuất.
 
+### 5.20 Review nhãn cảnh báo trên normal (Arp et al. P2; 22/10 01:55–02:00)
+
+- **Protocol:** `sentinel_pulse/protocol/label-review-v1.json`, đăng ký trước khi gán nhãn.
+- **Người gán nhãn:** Claude, tức chính bên đã làm hệ thống. Vì vậy đây **không phải adjudication độc lập**; một người khác review lại một mẫu sẽ mạnh hơn.
+- **Tập review:** toàn bộ 4.766 case RCA của `pulse-stable-candidate` nằm ngoài khoảng campaign, tức các cảnh báo trên normal.
+- **Script:** `scripts/analysis/label_review.py`, có test.
+- **Biên nhận:** `label-review.json` (nhãn theo luật cho mọi case) và `label-review-manual.json` (33 case đọc tay).
+
+| Nhãn theo luật | Case | Tỉ lệ (CI 95%) | Nghĩa |
+|---|---|---|---|
+| benign_probe | 2.573 | 54,0% (52,6–55,4) | Exec trong cửa sổ, và mọi exec đều là probe exec đã khai báo |
+| benign_routine_exec | 1.071 | 22,5% (21,3–23,7) | Có exec (hầu hết vẫn là probe) nhưng không trùng cửa sổ; mọi binary đều có trong baseline |
+| benign_no_process_cause | 1.119 | 23,5% (22,3–24,7) | Không có exec: do traffic, trôi phân phối hoặc thay đổi bên trong process (ví dụ MinIO xóa 300 file) |
+| suspicious | 3 | 0,06% (0,02–0,18) | Binary mới sau thời điểm đóng băng: khi đọc tay, đều là lưu trữ WAL của CloudNativePG |
+| unclear | 0 | | |
+
+**Đọc tay** (mọi case suspicious, cộng 10 case ngẫu nhiên mỗi nhãn benign, seed 20261022):
+- **30/30 case benign khớp với luật.**
+- **3/3 case suspicious là báo nhầm của luật:** cây process `postgres → sh → /controller/manager` (uid 26) chính là `archive_command`/`restore_command` của CloudNativePG (`manager wal-archive`/`wal-restore`; đã kiểm `pg_settings` trên cụm). Không có đích mạng công cộng, chỉ có thao tác mở file.
+
+**Kết luận:**
+- **Không case nào trong 4.766 cảnh báo trên normal có dấu hiệu hoạt động độc hại**, trong phạm vi quan sát của policy Tetragon. Cận dưới CI 95% của tỉ lệ này là 99,92%.
+- Nhãn "FP kỳ vọng" của cảnh báo trên normal vì vậy được xác nhận là báo nhầm, theo phân loại trên.
+- **Nguyên nhân:** khoảng 54% trùng probe exec của Kubernetes; khoảng 23% có probe trước đó nhưng không trùng cửa sổ; khoảng 23% không có nguyên nhân cấp process.
+
+**Sửa lỗi trong lúc chạy:** lần chạy đầu gắn 3.679 case là suspicious, vì tính `unknown_binary` cho cả process chạy lâu (`uvicorn`, `java`). Baseline RCA chỉ học binary được exec, nên process khởi động từ nhiều ngày trước luôn là "unknown". Luật đã sửa để chỉ xét binary **được exec trong case**, đúng ý định ghi trong protocol. Việc sửa được ghi trong code và có test.
+
+**Hệ quả cho RCA:** binary định kỳ hiếm như WAL archive (khoảng 5 phút một lần khi có ghi) có thể bị xếp đầu danh sách nghi phạm như "binary mới". Pha học baseline 90 phút ngắn hơn chu kỳ của chúng; có thể kéo dài pha học hoặc giữ baseline qua các lượt (RCA 5.11).
+
+**Giới hạn:**
+- hành vi độc hại không qua exec, không chạm hook bảo mật và không kết nối ra ngoài sẽ trông vô hại theo luật này;
+- mỗi container chỉ có một case mỗi 5 phút, nên case là mẫu của các đợt cảnh báo.
+
 ### 5.13 Lượt live pulse-stable-refreshed (hẹn 21/10 11:28, chạy từ 12:22)
 
 | Thành phần | Giá trị |
@@ -1579,3 +1612,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 01:12–01:11 | Chuẩn bị đường live cho CUSUM/Cauchy (mặc định tắt). Test: live trùng từng cửa sổ với hai script offline đã dùng để đánh giá. Ghim `confirmation.py` vào tập file chấm điểm đóng băng | mục 5.19 |
 | 01:30–01:48 | Dọn tài nguyên theo chính sách giữ dữ liệu: thu lại 8,4 GB trên NFS, 146 GB trên .234, ~1,5 GB trên worker. Khôi phục 3 file cá nhân bị xóa nhầm. Thêm bộ đệm điểm vòng và chế độ ghi vận hành vào worker (bật theo config). Gắn bước nén vào cuối chuỗi; chuỗi chạy lại trên snapshot `bd457a7` | mục 8c |
 | 01:50–01:52 | Rà lại việc làm được ngay: viết công cụ replay cấu hình gộp (calibration × Cauchy/CUSUM) cho bước 3 của 5.19, có test; replay giai đoạn B trên `pulse-live-recalibrated` xong (30 phút CPU); job holdout thứ hai đang chạy | mục 5.19 |
+| 01:55–02:00 | Review nhãn (P2): luật đăng ký trước, áp cho 4.766 cảnh báo trên normal, đọc tay 33 case. Không case nào có dấu hiệu độc hại; 3 case luật gắn suspicious là WAL archive của CloudNativePG (đã kiểm cấu hình). Sửa luật `unknown_binary` sau lần chạy đầu (process chạy lâu) | mục 5.20 |

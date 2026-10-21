@@ -1,0 +1,2819 @@
+{
+ "schema": "pulse-label-review-v1",
+ "protocol": "sentinel_pulse/protocol/label-review-v1.json",
+ "cases": 4766,
+ "counts": {
+  "suspicious": 3,
+  "benign_probe": 2573,
+  "benign_routine_exec": 1071,
+  "benign_no_process_cause": 1119,
+  "unclear": 0
+ },
+ "share": {
+  "suspicious": 0.000629458665547629,
+  "benign_probe": 0.5398657154846832,
+  "benign_routine_exec": 0.22471674360050356,
+  "benign_no_process_cause": 0.23478808224926564,
+  "unclear": 0.0
+ },
+ "share_ci95": {
+  "suspicious": [
+   0.00021409144776763888,
+   0.0018492055807961605
+  ],
+  "benign_probe": [
+   0.5256890172615265,
+   0.5539781985219075
+  ],
+  "benign_routine_exec": [
+   0.21309091806383365,
+   0.23678599189476954
+  ],
+  "benign_no_process_cause": [
+   0.2229706902502978,
+   0.24703267422201505
+  ],
+  "unclear": [
+   0.0,
+   0.0008053936214569473
+  ]
+ },
+ "suspicious_flags": {
+  "novel_binary": 3
+ },
+ "by_workload": {
+  "production/aims-frontend:web": {
+   "benign_no_process_cause": 244
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "benign_routine_exec": 12,
+   "benign_probe": 302,
+   "benign_no_process_cause": 9
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "benign_no_process_cause": 109
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "benign_no_process_cause": 192
+  },
+  "production/aims-minio-pool-0:minio": {
+   "benign_no_process_cause": 99
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "benign_no_process_cause": 56
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "benign_routine_exec": 169,
+   "benign_no_process_cause": 7,
+   "suspicious": 3
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "benign_routine_exec": 176,
+   "benign_no_process_cause": 6
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "benign_probe": 82,
+   "benign_routine_exec": 32,
+   "benign_no_process_cause": 12
+  },
+  "production/aims-redis:aims-redis": {
+   "benign_probe": 166,
+   "benign_routine_exec": 44,
+   "benign_no_process_cause": 16
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "benign_no_process_cause": 266
+  },
+  "production/api-gateway:app": {
+   "benign_probe": 118,
+   "benign_no_process_cause": 12,
+   "benign_routine_exec": 54
+  },
+  "production/auth-service:app": {
+   "benign_routine_exec": 24,
+   "benign_probe": 564,
+   "benign_no_process_cause": 12
+  },
+  "production/cart-service:app": {
+   "benign_no_process_cause": 13,
+   "benign_probe": 79,
+   "benign_routine_exec": 49
+  },
+  "production/catalog-service:app": {
+   "benign_no_process_cause": 14,
+   "benign_probe": 98,
+   "benign_routine_exec": 68
+  },
+  "production/inventory-service:app": {
+   "benign_probe": 141,
+   "benign_routine_exec": 62,
+   "benign_no_process_cause": 14
+  },
+  "production/notification-service:app": {
+   "benign_probe": 145,
+   "benign_routine_exec": 68,
+   "benign_no_process_cause": 10
+  },
+  "production/order-service:app": {
+   "benign_routine_exec": 94,
+   "benign_probe": 296,
+   "benign_no_process_cause": 2
+  },
+  "production/payment-service:app": {
+   "benign_probe": 292,
+   "benign_routine_exec": 98
+  },
+  "production/search-recommendation-service:app": {
+   "benign_routine_exec": 45,
+   "benign_no_process_cause": 12,
+   "benign_probe": 73
+  },
+  "production/security-telemetry-service:app": {
+   "benign_probe": 217,
+   "benign_routine_exec": 76,
+   "benign_no_process_cause": 14
+  }
+ },
+ "reading_list": [
+  {
+   "case_id": "37069438989f97a07946e267",
+   "label": "suspicious",
+   "flags": [
+    "novel_binary"
+   ],
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "node": "k8s-worker3.local",
+   "pod": "aims-postgres-cnpg-1",
+   "at_utc": "10-20 14:29:55",
+   "joint_p": 1.513431706394249e-05,
+   "tree_p": 0.0009685962920923194,
+   "support_p": 7.567158531971245e-06,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 10,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -19.6,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -19.6,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -9.6,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -9.6,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -0.2,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -0.2,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ],
+    [
+     -0.1,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -0.1,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ],
+    [
+     0.4,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     0.4,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ]
+   ],
+   "other_events": {
+    "file:open": 7
+   },
+   "public_destinations": [],
+   "destinations": 18,
+   "suspects": [
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/controller/manager",
+     6,
+     [
+      "novel_binary",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "3a460e3308bb44afb7b36756",
+   "label": "suspicious",
+   "flags": [
+    "novel_binary"
+   ],
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "node": "k8s-worker1.local",
+   "pod": "aims-postgres-cnpg-2",
+   "at_utc": "10-20 18:52:46",
+   "joint_p": 1.513431706394249e-05,
+   "tree_p": 0.0007188800605372682,
+   "support_p": 7.567158531971245e-06,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 10,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -26.9,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -26.9,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -16.9,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -16.9,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -2.5,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -2.5,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ],
+    [
+     -2.2,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -2.1,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -2.0,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -2.0,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ]
+   ],
+   "other_events": {
+    "file:open": 10
+   },
+   "public_destinations": [],
+   "destinations": 19,
+   "suspects": [
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/controller/manager",
+     6,
+     [
+      "novel_binary",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "c715eb068b61d00a4baf0308",
+   "label": "suspicious",
+   "flags": [
+    "novel_binary"
+   ],
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "node": "k8s-worker1.local",
+   "pod": "aims-postgres-cnpg-2",
+   "at_utc": "10-20 14:29:55",
+   "joint_p": 0.0003026863412788498,
+   "tree_p": 0.0018917896329928112,
+   "support_p": 0.0001513431706394249,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 10,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -25.3,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -25.2,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -15.3,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -15.2,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -5.3,
+     "/usr/bin/pg_isready",
+     "/controller/manager",
+     26
+    ],
+    [
+     -5.2,
+     "/usr/lib/postgresql/17/bin/pg_isready",
+     "/usr/bin/pg_isready",
+     26
+    ],
+    [
+     -0.4,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -0.4,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ],
+    [
+     -0.2,
+     "/bin/sh",
+     "/usr/lib/postgresql/17/bin/postgres",
+     26
+    ],
+    [
+     -0.2,
+     "/controller/manager",
+     "/bin/sh",
+     26
+    ]
+   ],
+   "other_events": {
+    "file:open": 8
+   },
+   "public_destinations": [],
+   "destinations": 18,
+   "suspects": [
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/bin/sh",
+     7,
+     [
+      "novel_binary",
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/controller/manager",
+     6,
+     [
+      "novel_binary",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "8b2e25767d1bba51628948bd",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/auth-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "auth-service-b5bdfb67b-f7nx2",
+   "at_utc": "10-20 16:20:17",
+   "joint_p": 4.614009285693688e-05,
+   "tree_p": 2.307004642846844e-05,
+   "support_p": 0.009089598292816563,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -25.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.1,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -15.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -10.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -5.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -5.1,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -0.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 14,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "e945b7106947260c094d92a5",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/search-recommendation-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "search-recommendation-service-75bd67f9b9-8b8lf",
+   "at_utc": "10-20 20:15:16",
+   "joint_p": 0.015658346342975086,
+   "tree_p": 0.5275365877902319,
+   "support_p": 0.007829173171487543,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -29.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -24.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -19.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -15.0,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -14.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -9.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -4.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     0.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 13,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "6e67bdbd24710de7841b99f4",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/order-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "order-service-7b4bb44876-8xb79",
+   "at_utc": "10-20 17:57:02",
+   "joint_p": 0.009124203362459267,
+   "tree_p": 0.004562101681229633,
+   "support_p": 0.006298122674971884,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -25.0,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -20.0,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -16.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -15.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -10.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -5.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -1.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -0.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 17,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "435e089ed52a5e07aceaae7f",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/order-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "order-service-7b4bb44876-vpc7x",
+   "at_utc": "10-20 16:43:18",
+   "joint_p": 0.01017389047495458,
+   "tree_p": 0.023865963030250598,
+   "support_p": 0.00508694523747729,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -27.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -26.6,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -21.6,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -16.6,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -12.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -11.6,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -6.6,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -1.6,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 17,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "132e48bf30ad10d6ed579da5",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/security-telemetry-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "security-telemetry-service-6799d88468-469gr",
+   "at_utc": "10-20 11:56:37",
+   "joint_p": 0.014259458413706377,
+   "tree_p": 0.007129729206853189,
+   "support_p": 0.0961290065607165,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -26.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -22.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -21.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -16.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -11.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -7.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -6.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -1.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 12,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "5c780d82b1780aec31643a1e",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/notification-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "notification-service-79797674dd-gjhpk",
+   "at_utc": "10-20 19:29:54",
+   "joint_p": 0.007682325460679989,
+   "tree_p": 0.011638838423162327,
+   "support_p": 0.0038411627303399946,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -26.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -22.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -21.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -16.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -11.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -7.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -6.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -1.7,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 18,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "5836b718497687f89281533a",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/auth-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "auth-service-b5bdfb67b-mtldx",
+   "at_utc": "10-20 15:23:53",
+   "joint_p": 0.004256423566052427,
+   "tree_p": 0.8113908354240563,
+   "support_p": 0.0021282117830262134,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -26.6,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -25.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -15.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -11.6,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -10.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -5.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -0.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 17,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "5a7ffee6e98117a536112b18",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/notification-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "notification-service-79797674dd-q9zgt",
+   "at_utc": "10-20 14:23:01",
+   "joint_p": 0.005479136026761254,
+   "tree_p": 0.6843383222308735,
+   "support_p": 0.002739568013380627,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -29.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -24.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -19.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -15.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -14.3,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -9.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -4.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     0.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 16,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "0145d680b93de5a2c48e7845",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-dual-role-0",
+   "at_utc": "10-20 23:18:01",
+   "joint_p": 0.013777008205977565,
+   "tree_p": 0.3101106677708349,
+   "support_p": 0.006888504102988783,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 36,
+    "probe_execs": 36,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -23.0,
+     "/opt/kafka/kafka_liveness.sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/bash",
+     "/opt/kafka/kafka_liveness.sh",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -23.0,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -20.6,
+     "/opt/kafka/kafka_readiness.sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1001
+    ],
+    [
+     -20.6,
+     "/usr/bin/bash",
+     "/opt/kafka/kafka_readiness.sh",
+     1001
+    ],
+    [
+     -20.6,
+     "/usr/bin/curl",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -20.6,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 29,
+   "suspects": [
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "dc0b849dcea781ced67ab4d2",
+   "label": "benign_probe",
+   "flags": [],
+   "workload": "production/auth-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "auth-service-b5bdfb67b-7w7wx",
+   "at_utc": "10-20 22:52:21",
+   "joint_p": 0.004141073333910085,
+   "tree_p": 0.8500620007497766,
+   "support_p": 0.0020705366669550424,
+   "triage": {
+    "exec_in_window": true,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": true
+   },
+   "execs": [
+    [
+     -25.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -21.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -15.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -10.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -6.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -5.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -0.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 17,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "3dc1c42045476f199e5f66a0",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/catalog-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "catalog-service-6dc97b678f-g2bcp",
+   "at_utc": "10-21 00:01:37",
+   "joint_p": 4.614009285693688e-05,
+   "tree_p": 2.307004642846844e-05,
+   "support_p": 0.0026126827580240505,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -27.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -24.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -22.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -17.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -12.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -9.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -7.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -2.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 25,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "1e7b939842cc3b10de00894e",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/payment-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "payment-service-86bf86b6-jv2jt",
+   "at_utc": "10-20 22:52:47",
+   "joint_p": 4.552101648429809e-05,
+   "tree_p": 2.2760508242149046e-05,
+   "support_p": 0.0033116539492326863,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -27.9,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -22.9,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -19.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -17.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -12.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -7.9,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -4.1,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -2.9,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 20,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "5d8dcd1071fd12149b24e7d8",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/security-telemetry-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "security-telemetry-service-6799d88468-jt742",
+   "at_utc": "10-20 21:42:46",
+   "joint_p": 0.00013656304945289428,
+   "tree_p": 6.828152472644714e-05,
+   "support_p": 0.003909117290589099,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -29.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -24.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.0,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -19.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -14.3,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -9.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -5.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -4.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 16,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "5be8a7e4f3eda5b3c83f60aa",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-dual-role-0",
+   "at_utc": "10-20 21:52:46",
+   "joint_p": 0.0076639313408115636,
+   "tree_p": 0.8455243544380034,
+   "support_p": 0.0038319656704057818,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 36,
+    "probe_execs": 36,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -28.2,
+     "/opt/kafka/kafka_liveness.sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1001
+    ],
+    [
+     -28.2,
+     "/usr/bin/bash",
+     "/opt/kafka/kafka_liveness.sh",
+     1001
+    ],
+    [
+     -28.2,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -28.2,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -28.2,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -28.2,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -28.1,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -28.1,
+     "/usr/bin/readlink",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -25.7,
+     "/opt/kafka/kafka_readiness.sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1001
+    ],
+    [
+     -25.7,
+     "/usr/bin/bash",
+     "/opt/kafka/kafka_readiness.sh",
+     1001
+    ],
+    [
+     -25.7,
+     "/usr/bin/curl",
+     "/usr/bin/bash",
+     1001
+    ],
+    [
+     -25.7,
+     "/usr/bin/grep",
+     "/usr/bin/bash",
+     1001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 22,
+   "suspects": [
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/opt/kafka/kafka_liveness.sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "943336a25aaec9c2aec8607e",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/order-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "order-service-7b4bb44876-g8rn4",
+   "at_utc": "10-20 15:19:52",
+   "joint_p": 3.4605069642702654e-05,
+   "tree_p": 1.7302534821351327e-05,
+   "support_p": 0.0040430256365890935,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -28.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -27.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -22.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -17.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -13.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -12.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -7.8,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -2.8,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 21,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "3173780b7732bca9eed092e4",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/security-telemetry-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "security-telemetry-service-6799d88468-469gr",
+   "at_utc": "10-20 13:25:03",
+   "joint_p": 0.00010242228708967071,
+   "tree_p": 5.1211143544835355e-05,
+   "support_p": 0.003909117290589099,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -28.3,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -23.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -19.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -18.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -13.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -8.3,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -4.1,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -3.3,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 15,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "4575acd78a9c0e6c689acd46",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel",
+   "node": "k8s-worker4.local",
+   "pod": "aims-redis-sentinel-sentinel-1",
+   "at_utc": "10-20 03:25:38",
+   "joint_p": 0.005842053752917263,
+   "tree_p": 0.0029210268764586315,
+   "support_p": 0.18666716856131899,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 18,
+    "probe_execs": 18,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -27.4,
+     "/bin/hostname",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -27.4,
+     "/bin/sh",
+     "/usr/bin/runc",
+     1000
+    ],
+    [
+     -27.4,
+     "/usr/local/bin/redis-cli",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -26.2,
+     "/bin/hostname",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -26.2,
+     "/bin/sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1000
+    ],
+    [
+     -26.2,
+     "/usr/local/bin/redis-cli",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -17.4,
+     "/bin/hostname",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -17.4,
+     "/bin/sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1000
+    ],
+    [
+     -17.4,
+     "/usr/local/bin/redis-cli",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -16.2,
+     "/bin/hostname",
+     "/bin/sh",
+     1000
+    ],
+    [
+     -16.2,
+     "/bin/sh",
+     "/usr/bin/containerd-shim-runc-v2",
+     1000
+    ],
+    [
+     -16.2,
+     "/usr/local/bin/redis-cli",
+     "/bin/sh",
+     1000
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 0,
+   "suspects": [
+    [
+     "/bin/sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/bin/sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ],
+    [
+     "/bin/sh",
+     3,
+     [
+      "spawned_children",
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "f7740d7daee279b5045c9a21",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/notification-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "notification-service-79797674dd-gjhpk",
+   "at_utc": "10-20 20:04:57",
+   "joint_p": 0.007682325460679989,
+   "tree_p": 0.37135853735905644,
+   "support_p": 0.0038411627303399946,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -29.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -25.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -24.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -19.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -14.4,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -10.1,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -9.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -4.4,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 18,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "36b0c901de1c4034c9907794",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/security-telemetry-service:app",
+   "node": "k8s-worker3.local",
+   "pod": "security-telemetry-service-6799d88468-469gr",
+   "at_utc": "10-20 18:29:19",
+   "joint_p": 3.414076236322357e-05,
+   "tree_p": 1.7070381181611785e-05,
+   "support_p": 0.003909117290589099,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -28.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -23.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -19.2,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -18.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -13.5,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -8.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -4.2,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -3.5,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 14,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "683fd03b392794c94860eea2",
+   "label": "benign_routine_exec",
+   "flags": [],
+   "workload": "production/notification-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "notification-service-79797674dd-m5xl9",
+   "at_utc": "10-20 16:00:49",
+   "joint_p": 0.0063211927214003516,
+   "tree_p": 0.07878420855321971,
+   "support_p": 0.0031605963607001758,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 8,
+    "probe_execs": 8,
+    "probe_only": false
+   },
+   "execs": [
+    [
+     -28.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -23.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -20.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -18.7,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -13.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -8.7,
+     "/usr/local/bin/python",
+     "/usr/bin/runc",
+     10001
+    ],
+    [
+     -5.0,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ],
+    [
+     -3.7,
+     "/usr/local/bin/python",
+     "/usr/bin/containerd-shim-runc-v2",
+     10001
+    ]
+   ],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 16,
+   "suspects": [
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ],
+    [
+     "/usr/local/bin/python",
+     2,
+     [
+      "started_in_window"
+     ]
+    ]
+   ]
+  },
+  {
+   "case_id": "d6c6ba5b1aee33288ce57042",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/auth-service:app",
+   "node": "k8s-worker1.local",
+   "pod": "auth-service-b5bdfb67b-mtldx",
+   "at_utc": "10-20 04:06:02",
+   "joint_p": 0.001534158087493151,
+   "tree_p": 0.0007670790437465755,
+   "support_p": 0.009787467197277735,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 0,
+   "suspects": []
+  },
+  {
+   "case_id": "026852820d01d42e7320e0c5",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-minio-pool-0:minio",
+   "node": "k8s-worker1.local",
+   "pod": "aims-minio-pool-0-0",
+   "at_utc": "10-20 21:02:23",
+   "joint_p": 0.0081206095071113,
+   "tree_p": 0.11945601144267703,
+   "support_p": 0.00406030475355565,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {
+    "file:open": 2,
+    "file:unlink": 300
+   },
+   "public_destinations": [],
+   "destinations": 7,
+   "suspects": [
+    [
+     "/usr/bin/minio",
+     3,
+     [
+      "failed_syscall"
+     ]
+    ],
+    [
+     "/usr/bin/docker-entrypoint.sh",
+     1,
+     [
+      "spawned_children"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "319a6fff91cd82c6b4bfe1c7",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-entity-operator-5455dcf447-g4qxv",
+   "at_utc": "10-20 21:04:13",
+   "joint_p": 0.0021343198634035288,
+   "tree_p": 0.0010671599317017644,
+   "support_p": 0.04745304496300512,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 9,
+   "suspects": [
+    [
+     "/usr/bin/java",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     "/usr/bin/tini",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "aac2fda80c41c47c0e9ce6e9",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-entity-operator-5455dcf447-g4qxv",
+   "at_utc": "10-20 10:47:03",
+   "joint_p": 0.006640106241699867,
+   "tree_p": 0.0033200531208499337,
+   "support_p": 0.05959495351925631,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 8,
+   "suspects": [
+    [
+     "/usr/bin/java",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     "/usr/bin/tini",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "3df440e1fcaf4c549e2cfe72",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-frontend:web",
+   "node": "k8s-worker4.local",
+   "pod": "aims-frontend-8cb8dc8b-cxs8l",
+   "at_utc": "10-20 10:50:44",
+   "joint_p": 0.01080346526244267,
+   "tree_p": 0.005401732631221335,
+   "support_p": 0.0354000339731612,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 0,
+   "suspects": []
+  },
+  {
+   "case_id": "9ee741b0d0d906ff664653cc",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-frontend:web",
+   "node": "k8s-worker4.local",
+   "pod": "aims-frontend-8cb8dc8b-cxs8l",
+   "at_utc": "10-20 04:43:32",
+   "joint_p": 0.005050676632127286,
+   "tree_p": 0.002525338316063643,
+   "support_p": 0.02961327218164317,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 0,
+   "suspects": []
+  },
+  {
+   "case_id": "e121faba524a222525067a89",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-entity-operator-5455dcf447-g4qxv",
+   "at_utc": "10-20 11:03:53",
+   "joint_p": 0.002750901157275659,
+   "tree_p": 0.0013754505786378296,
+   "support_p": 0.06836937962435971,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 9,
+   "suspects": [
+    [
+     "/usr/bin/java",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     "/usr/bin/tini",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "1a74d1423dfee6fa0b6ae32b",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "node": "k8s-worker3.local",
+   "pod": "aims-kafka-entity-operator-5455dcf447-g4qxv",
+   "at_utc": "10-20 13:55:28",
+   "joint_p": 0.008679567444507683,
+   "tree_p": 0.004339783722253842,
+   "support_p": 1.0,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {
+    "file:open": 2
+   },
+   "public_destinations": [],
+   "destinations": 9,
+   "suspects": [
+    [
+     "/usr/bin/java",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     "/usr/bin/tini",
+     4,
+     [
+      "novel_binary"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "1b76fde59cc936e662f7ec99",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "node": "k8s-worker1.local",
+   "pod": "aims-minio-pool-0-0",
+   "at_utc": "10-21 02:45:37",
+   "joint_p": 0.007428512105937042,
+   "tree_p": 0.10080398648103077,
+   "support_p": 0.003714256052968521,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {
+    "file:open": 1
+   },
+   "public_destinations": [],
+   "destinations": 32,
+   "suspects": [
+    [
+     "/minio-operator-sidecar",
+     0,
+     []
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  },
+  {
+   "case_id": "4041af4c6c44ddf426c44106",
+   "label": "benign_no_process_cause",
+   "flags": [],
+   "workload": "production/aims-waypoint:istio-proxy",
+   "node": "k8s-worker1.local",
+   "pod": "aims-waypoint-6d558c5d7c-n879w",
+   "at_utc": "10-21 00:30:03",
+   "joint_p": 0.0032072951996736827,
+   "tree_p": 0.9949320265747317,
+   "support_p": 0.0016036475998368414,
+   "triage": {
+    "exec_in_window": false,
+    "execs": 0,
+    "probe_execs": 0,
+    "probe_only": false
+   },
+   "execs": [],
+   "other_events": {},
+   "public_destinations": [],
+   "destinations": 82,
+   "suspects": [
+    [
+     "/usr/local/bin/envoy",
+     2,
+     [
+      "unknown_binary"
+     ]
+    ],
+    [
+     "/usr/local/bin/pilot-agent",
+     2,
+     [
+      "unknown_binary"
+     ]
+    ],
+    [
+     null,
+     0,
+     []
+    ]
+   ]
+  }
+ ],
+ "frozen_at": 1792471649.7668884,
+ "campaign_span_unix": [
+  1792471713.2112956,
+  1792492487.6666007
+ ],
+ "computed_at_unix": 1792609156.6547463
+}
