@@ -42,6 +42,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
 - [ ] Review nhãn (adjudication) để có ma trận nhầm lẫn đã xác nhận.
+- [ ] Luận văn: viết mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
+- [ ] Baseline luật Falco từ log đã giữ (`/var/tmp/falco-logs-20261022` trên worker), sau lượt live.
 - [ ] Kịch bản tấn công thật (G2) **(cần bạn duyệt phạm vi)**: tải rồi chạy, reverse shell trong cụm, đọc token service account, quét port trong namespace, đào coin ngắn.
 - [ ] Dataset công khai LID-DS (G3): tạm hoãn; xem lại khi viết paper.
 

@@ -50,7 +50,7 @@ Xếp theo mức reviewer sẽ phạt nặng:
 | # | Khoảng cách | Vì sao quan trọng | Hướng xử lý |
 |---|---|---|---|
 | G1 | **Baseline trên cùng dữ liệu: đã có kết quả development (21/10), chờ lặp lại trên dữ liệu mới** | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | Pulse 5.15a (cùng feature, conformal, k2of2, ngân sách khớp): Isolation Forest kém hẳn; freq_profile kiểu BoSC tách binary vô hại tốt nhất (16%) nhưng bỏ sót 37% attack; **autoencoder bắt attack ngang hoặc hơn Pulse, gánh cảnh báo thấp hơn khoảng 9 lần ở cùng recall, nhanh hơn (p95 1,1 s so với 2,8 s), nhưng gắn cờ binary vô hại khoảng 100%**; base29 chỉ hơn AE ở khả năng tách binary vô hại. Đã đăng ký lặp lại trên `pulse-stable-refreshed`, kèm ứng viên `tree_ae` (tree của Pulse + AE) và luật chọn bộ chấm (5.15b). STIDE không tái lập được vì Pulse chỉ ghi số đếm; nó thuộc phần LID-DS (G3). Luật Falco: chưa làm |
-| G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng |
+| G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng; độ phủ theo ATT&CK và đường vào phân tích ở mục 5 (22/10): thiếu nhất là tấn công đi qua chính ứng dụng |
 | G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms. **Tạm hoãn (21/10):** máy chủ tải chính thức từ chối kết nối, host còn ~41 GB trống. Không cần cho luận văn; xem lại khi viết paper, vì reviewer thường đòi một dataset công khai để so với tài liệu và chạy STIDE |
 | G4 | **Chưa có kẻ tấn công thích nghi** | Hội nghị top luôn hỏi về né tránh: tấn công chậm, trải dài, bắt chước normal | 21/10 (Pulse 5.15c): trên dữ liệu có sẵn, attack 6/s làm Pulse giảm còn 95,6% và p95 3,75 s ở ngân sách 1, trong khi AE không đổi. Còn thiếu: mức 1–3/s và attack trải dài ở campaign sau; lập luận mimicry |
 | G5 | **Vấn đề process mới vô hại chưa giải** (giải được một phần: novelty bỏ tập exec tách 100%/0% cho lớp syscall hiếm, 5.7c) | Đây là điểm yếu cốt lõi; muốn lên top-4 cần một cải tiến giải được nó | Đặc trưng theo tham số syscall (R7a), tripwire trừ tập exec (A1), triage bằng cây process (C1) |
@@ -294,6 +294,79 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 | P8 Bỏ qua tỉ lệ nền | Precision 96% là trên campaign cân bằng 1:1. Với 6,5 đợt/replica-giờ và ~80 container, cụm có khoảng 12.500 đợt/ngày; nếu có 1 attack/ngày thì precision thực tế cỡ 0,01% | Báo rõ con số này; mục tiêu ngân sách 0,1 |
 | P9 Chỉ đánh giá trong lab | Live trên cụm thật, nhiều lượt; nhưng chỉ một ứng dụng và một cụm | Nêu giới hạn; dataset ngoài (G3) cho paper |
 | P10 Mô hình đe dọa không phù hợp | Chưa có kẻ tấn công thích nghi | G4: tốc độ thấp, mimicry (mục 4.2) |
+
+## 5. Mô phỏng tấn công của đồ án đã đủ toàn diện chưa? (research 22/10 00:45–00:56)
+
+**Kết luận ngắn:**
+- **Cho luận văn: đủ**, với điều kiện trình bày rõ đây là nghiên cứu có kiểm soát ở mức syscall, nêu mô hình đe dọa và giới hạn.
+- **Cho paper hội nghị hàng đầu: chưa đủ.** Thiếu nhất là đường vào qua chính ứng dụng, kèm theo vài nhóm chiến thuật phổ biến ngoài thực tế.
+
+### 5.1 Mô phỏng hiện tại
+
+| Khía cạnh | Pulse (fixture `runtime_attack_with_benign_control`) |
+|---|---|
+| Hành vi | 5 kịch bản ở mức syscall: thử thao tác namespace, ptrace, gọi exec bất thường, đổi quyền vùng nhớ, gọi API seccomp |
+| Tính an toàn | Mọi thao tác chỉ ảnh hưởng chính process hoặc chắc chắn thất bại trước khi đổi trạng thái host, namespace, quyền, file hay mạng |
+| Đường vào | Một process mới chạy trong container qua exec từ bên ngoài, tức mô phỏng giai đoạn **sau khi đã xâm nhập** |
+| Thời lượng, tốc độ | 15 s mỗi lượt; 6, 12, 24 lần/s |
+| Quy mô | 315 lượt/campaign trên 21 workload; mỗi lượt có control idle và binary vô hại cùng đường exec |
+
+### 5.2 So với các nguồn
+
+| Nguồn | Kịch bản | Đường vào | Ghi chú |
+|---|---|---|---|
+| **REPLICAWATCHER** (NDSS 2024, Bảng II) | 13 kịch bản CVE/CWE trên 2 nền tảng microservice: vượt xác thực (SQLi, brute force), lộ thông tin, RCE, file inclusion, command injection, leo thang đặc quyền | **Qua mạng, khai thác dịch vụ public**; tấn công đi vào chính process của dịch vụ | Mô hình đe dọa loại trừ cạn kiệt tài nguyên, flooding, side channel |
+| **LID-DS 2021** (Grimmer et al.) | 15 kịch bản có mã nguồn (GPL-3.0): CVE web, cơ sở dữ liệu, Heartbleed, SQLi, upload file, ZipSlip, brute force, Juice Shop | Container attacker khai thác container victim qua mạng; có container người dùng bình thường | Đã ghi ở mục 4.2: đường khả thi nhất cho G2 |
+| **MITRE ATT&CK for Containers** | 10 chiến thuật, 38 kỹ thuật: initial access, execution, persistence, privilege escalation, stealth, defense impairment, credential access, discovery, lateral movement, impact | — | Khung chuẩn để báo độ phủ |
+| **Threat Matrix for Kubernetes** (Microsoft) | 10 chiến thuật, có thêm collection | — | Có kỹ thuật riêng của K8s |
+| Báo cáo ngành (Aqua 2022, Sysdig 2022; nguồn công nghiệp) | Cryptominer là payload phổ biến nhất (Sysdig: 36% image độc hại); backdoor, rootkit, đánh cắp credential tăng | — | Số liệu cũ (2022); báo cáo 2025 cần tải bản đầy đủ |
+| So sánh Falco/Tetragon/Tracee (SciTePress 2025) | Thoát container, DoS, cryptomining | Thao tác trong pod | Không có tải vô hại để đo báo nhầm |
+
+### 5.3 Độ phủ theo chiến thuật ATT&CK for Containers
+
+| Chiến thuật | Pulse hiện tại |
+|---|---|
+| Initial access (khai thác ứng dụng public) | **Không có** |
+| Execution | Có một phần: process mới qua exec |
+| Persistence | Không có |
+| Privilege escalation / thoát container | Có một phần: chỉ là *thử* gọi syscall liên quan namespace và ptrace, luôn thất bại |
+| Stealth / defense impairment | Có một phần: gọi seccomp, đổi quyền vùng nhớ |
+| Credential access | Không có |
+| Discovery | Không có |
+| Lateral movement | Không có |
+| Impact (gồm chiếm tài nguyên kiểu cryptomining) | Không có |
+
+### 5.4 Vì sao thiếu đường vào qua ứng dụng là quan trọng nhất
+
+- Mọi attack của Pulse đều là một process mới chạy qua exec. Pulse lại bắt được rất mạnh "có process mới": binary vô hại bị gắn cờ 94% (5.13a), và 57,9% cảnh báo trên normal trùng exec, phần lớn là probe (5.18).
+- Vì vậy **recall 100% có thể bị thổi phồng một phần** bởi chính dấu hiệu exec. Đây đúng là dạng tương quan giả (P4) trong Arp et al. Đối chứng binary vô hại đo được mức thổi phồng này, nhưng không cho biết recall khi không có exec.
+- Tấn công đi qua process của dịch vụ có hai dạng, cả hai Pulse chưa từng được đo:
+  - không sinh process mới (lộ thông tin, SQLi): chỉ còn tín hiệu lệch tần suất syscall;
+  - sinh process con từ dịch vụ (command injection, RCE): khác hẳn đường exec từ bên ngoài.
+- Tài liệu cho thấy bộ dò chỉ dựa trên tần suất thường yếu ở loại này (CDL recall < 50% ở nhiều kịch bản theo REPLICAWATCHER, mục 3).
+
+### 5.5 Đề xuất, theo ưu tiên hoàn thiện luận văn
+
+1. **Luận văn (không cần thí nghiệm mới):**
+   - viết mục mô hình đe dọa;
+   - đưa bảng độ phủ 5.3;
+   - nêu giới hạn: chỉ giai đoạn sau xâm nhập, thao tác thất bại có chủ đích, 15 s, tốc độ 6–24/s;
+   - nêu rằng recall là cận trên với đường vào qua exec.
+2. **Mở rộng tối thiểu nếu còn thời gian** (một campaign, cần bạn duyệt và cụm rảnh):
+   - 2–3 kịch bản mã nguồn mở của LID-DS chạy trong namespace thử nghiệm riêng, mỗi loại một kịch bản: không sinh process; sinh process con từ dịch vụ; chiếm tài nguyên kéo dài;
+   - thêm tốc độ thấp 1–3/s (`ATTACK_RATES`).
+
+   Cần thu normal và fit model cho workload victim mới trước.
+3. **Paper:** 10–15 kịch bản phủ các chiến thuật ATT&CK chính, kẻ tấn công thích nghi (mimicry, chậm), so với baseline luật Falco.
+
+**Nguồn:**
+- [REPLICAWATCHER (NDSS 2024)](https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf)
+- [LID-DS (kịch bản)](https://github.com/LID-DS/LID-DS)
+- [MITRE ATT&CK for Containers](https://attack.mitre.org/matrices/enterprise/containers/)
+- [Threat Matrix for Kubernetes](https://github.com/microsoft/Threat-Matrix-for-Kubernetes)
+- [Báo cáo Aqua/Sysdig 2022 (tóm tắt)](https://www.scmagazine.com/news/cryptominers-still-preferred-in-cloud-attacks-but-the-use-of-other-malware-has-increased)
+- [Sysdig 2025 report](https://www.sysdig.com/2025-cloud-native-security-and-usage-report)
+- [So sánh Falco/Tetragon/Tracee (SciTePress 2025)](https://www.scitepress.org/PublishedPapers/2025/142727)
 
 ## Nguồn
 

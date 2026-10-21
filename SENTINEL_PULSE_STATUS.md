@@ -1487,3 +1487,10 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 22:04 | Đăng ký `calibration-strategies-v1` trước khi đọc dữ liệu lượt mới; cài NexCP có trọng số, Mondrian theo node, ACI, `asrun`, có test | mục 5.17; `d12a961` |
 | 21:55–22:12 | Phân loại 4.765 case trên normal: 57,9% trùng exec trong cửa sổ, phần lớn là probe exec của Kubernetes; triage nhận ra probe giữ lại 54% case, 0/273 attack | mục 5.18; `2f04538`, `ddadb23` |
 | 22:17 | Ưu tiên mới: hoàn thiện luận văn trước, cải tiến sau; chỉ research khi cần. Tiến độ ước lượng: luận văn ~72% (thí nghiệm ~90%, viết ~10%), sẵn sàng cho paper hàng đầu ~35% | `RESEARCH_IDEAS.md` |
+
+### 22/10/2026
+
+| Giờ | Việc đã làm | Kết quả / bằng chứng |
+|---|---|---|
+| 00:50 | Giữ lại log Falco (Falco 0.44.1 chạy DaemonSet trên cả 6 node từ 84 ngày; log xoay vòng nhanh, worker3 chỉ còn log từ 21/10 18:58 qua `kubectl logs`). Đã chép cả file đã xoay vòng trong `/var/log/pods/falco_*` về `/var/tmp/falco-logs-20261022` trên mỗi worker (36 / 8,5 / 12 MB); file còn phủ trọn campaign `pulse-stable-refreshed`. Dùng cho baseline luật Falco (G1) sau lượt live | — |
+| 00:45–00:56 | Research độ phủ của mô phỏng tấn công so với REPLICAWATCHER (13 kịch bản qua mạng), LID-DS (15), ATT&CK for Containers (10 chiến thuật): đủ cho luận văn nếu nêu rõ mô hình đe dọa, chưa đủ cho paper. Thiếu nhất là đường vào qua chính ứng dụng; recall hiện là cận trên vì mọi attack đi qua exec | `RESEARCH_IDEAS.md` mục 5 |
