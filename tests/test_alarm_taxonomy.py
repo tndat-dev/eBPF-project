@@ -47,3 +47,4 @@ def test_probe_tree_detection_requires_runc_parent_and_declared_entry():
     assert at.probe_flags(probe_case(child='/usr/local/bin/redis-cli'), {'python'}) == (2, 2)   # child of the probe
     assert at.probe_flags(probe_case(entry='sentinel-runtime-attack'), {'python'}) == (1, 0)
     assert at.probe_flags(probe_case(parent='/usr/local/bin/uvicorn'), {'python'}) == (1, 0)   # spawned by the app
+    assert at.probe_flags(probe_case(parent='/usr/bin/containerd-shim-runc-v2'), {'python'}) == (1, 1)   # handed to the shim

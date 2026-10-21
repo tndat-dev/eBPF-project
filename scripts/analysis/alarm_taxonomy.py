@@ -22,9 +22,12 @@ do not count them. Exec capture relies on the Tetragon exec policy (no sampling 
 fixed before its first run, in the spirit of NoDoze (Hassan et al., NDSS 2019: discount alerts whose provenance
 is historically frequent) and of Falco exceptions for known-benign processes:
 
-- a *probe exec* is an exec whose in-container ancestor chain starts at a process whose parent is ``runc`` and
-  whose binary basename is a declared exec-probe entry of that workload (descendants such as ``redis-cli``
-  under the probe's ``sh`` count as the probe);
+- a *probe exec* is an exec whose in-container ancestor chain starts at a process whose parent is the container
+  runtime (``runc`` or ``containerd-shim``, the regex of ``rca.ranking.is_container_runtime``) and whose binary
+  basename is a declared exec-probe entry of that workload (descendants such as ``redis-cli`` under the probe's
+  ``sh`` count as the probe). Correction 21/10 22:50: the first run required the parent to be ``runc`` and
+  matched no case; Tetragon reports some probe execs with ``containerd-shim`` as parent (``runc exec`` has
+  already handed the process over), so the runtime test now accepts both, as the stated intent required;
 - a case is *probe-only* when it has an exec in the trigger window and **every** exec of its 30 s look-back is a
   probe exec. Probe-only cases are what a probe-aware triage tier would hold back.
 
@@ -39,7 +42,11 @@ from collections import Counter, defaultdict
 from datetime import datetime
 import json
 from pathlib import Path
+import sys
 import time
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from sentinel_pulse.rca.ranking import is_container_runtime  # noqa: E402
 
 LOOKBACK = 2.5
 AFTER = 0.5
@@ -86,7 +93,7 @@ def probe_flags(case, entry_binaries):
             seen.add(node.get('exec_id'))
             parent = by_exec.get(node.get('parent_exec_id'))
             if parent is None or not parent.get('container_name'):
-                if (parent is not None and str(parent.get('binary', '')).rsplit('/', 1)[-1] == 'runc'
+                if (parent is not None and is_container_runtime(parent.get('binary'))
                         and str(node.get('binary', '')).rsplit('/', 1)[-1] in entry_binaries):
                     probes += 1
                 break
