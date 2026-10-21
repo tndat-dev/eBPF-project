@@ -128,3 +128,9 @@ def test_raise_to_root_or_late_change_still_counts():
     from sentinel_pulse.rca.ranking import rank_suspects
     assert rank_suspects(_probe_tree(uid=0))[0]['score'] == 2 + 6
     assert rank_suspects(_probe_tree(delay_ms=5000))[0]['score'] == 2 + 6
+
+
+def test_old_rule_switch_scores_launch_drop_as_security_operation(monkeypatch):
+    from sentinel_pulse.rca import ranking
+    monkeypatch.setattr(ranking, 'DROP_AT_START_SECONDS', -1.0)   # what --without-privilege-drop-rule sets
+    assert ranking.rank_suspects(_probe_tree())[0]['score'] == 2 + 6

@@ -49,7 +49,7 @@ Xếp theo mức reviewer sẽ phạt nặng:
 
 | # | Khoảng cách | Vì sao quan trọng | Hướng xử lý |
 |---|---|---|---|
-| G1 | **Chưa có baseline tái lập trên cùng dữ liệu** | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | Chạy offline trên dữ liệu thí nghiệm syscall đã chép về local, trong cùng khung so ngân sách và độ trễ như Pulse |
+| G1 | **Chưa có baseline tái lập trên cùng dữ liệu** (đang chạy từ 21/10) | Câu hỏi đầu tiên của reviewer: hơn STIDE/BoSC, autoencoder tần suất (CDL), Isolation Forest, luật Falco bao nhiêu? | 21/10: protocol `baseline-evaluation-v1` đăng ký trước khi fit. Isolation Forest, autoencoder 249-64-16-64-249 và hồ sơ tần suất kiểu BoSC được so với base29 trên pulse-live-recalibrated: cùng feature, cùng conformal, k2of2, ngân sách 1 và 5 episode/replica-giờ, bootstrap ghép cặp (job `pulse-baselines-1021`). STIDE cần chuỗi syscall mà Pulse chỉ ghi số đếm, nên không tái lập được trên cùng dữ liệu; nó thuộc phần LID-DS (G3). Luật Falco: chưa làm |
 | G2 | **Tấn công là fixture tự viết** (`ptrace`/`setns`/`execveat`/`mprotect`/`seccomp` theo nhịp) | Dễ bị chê là "tấn công nhân tạo, có lợi cho detector" | Thêm exploit thật (vài CVE container) trong namespace thử nghiệm riêng |
 | G3 | **Chưa có dataset công khai** | Không có điểm so sánh công bằng với tài liệu; chưa chứng minh tổng quát hóa | LID-DS 2021 (R8): bộ chuyển đổi sang khung 500 ms |
 | G4 | **Chưa có kẻ tấn công thích nghi** | Hội nghị top luôn hỏi về né tránh: tấn công chậm, trải dài, bắt chước normal | Thêm tham số tốc độ vào fixture; đo recall theo tốc độ; lập luận về mimicry |
@@ -97,7 +97,7 @@ Ba đóng góp:
 | Thí nghiệm syscall + nhóm feature | ~90% | Kết luận syscall có CI; nhánh p-value; fit 693 model nhóm feature | Giai đoạn B nhóm feature (chấm holdout, so ngân sách) |
 | RCA | ~85% | Coverage 86,7%, top-1 99,6%, preview → case p50 2,2 s | Kiểm luật hạ quyền trên dữ liệu mới; giảm case gộp |
 | **Luận văn (tổng thể, gồm viết)** | **~65–70%** | Số liệu và bằng chứng đầy đủ trong 3 báo cáo | Viết chương; hình; xác nhận live cuối |
-| Baseline (G1) | 0% | | Toàn bộ |
+| Baseline (G1) | ~40% | Protocol đăng ký trước; code và test cho 3 baseline; job đang chạy | Kết quả và bootstrap; luật Falco; STIDE trên LID-DS |
 | Dataset công khai (G3) | 0% | | Toàn bộ |
 | Exploit thật, kẻ tấn công thích nghi (G2, G4) | ~5% | Fixture có tham số tốc độ | Campaign mới |
 | Ablation | ~70% | Syscall, nhánh p-value | Nhóm feature giai đoạn B; họ model |
