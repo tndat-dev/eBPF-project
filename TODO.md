@@ -22,6 +22,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Pulse — vấn đề còn mở
 
+- [ ] **Ý tưởng kiến trúc (Pulse 5.12):** A1 tripwire syscall hiếm (sau 5.7c), B1 calibration tự làm mới có chống đầu độc, B2 bộ dò so sánh replica, B3 so họ model trong khung matched, C1 triage hai tầng trên case RCA.
 - [ ] **Ý tưởng từ tài liệu (Pulse 5.11), kiểm offline trên điểm đã lưu, đăng ký trước:** R4 gộp p-value Cauchy; R5 CUSUM/martingale conformal thay k-of-n; R1 ACI/PID chỉnh α online; R2 calibration Mondrian theo (workload, node). Sau đó R6 FDR, R3 so sánh replica; để sau R7a đặc trưng theo tham số syscall, R8 blind test LID-DS.
 
 - [ ] **Gánh cảnh báo trên normal**: ~8 đợt/replica-giờ với k2of2_a10, ngân sách 0,1.

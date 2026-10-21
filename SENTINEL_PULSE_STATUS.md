@@ -869,6 +869,84 @@ Mỗi phép kiểm sẽ được đăng ký tiêu chí trước, rồi so ở c�
 - [LID-DS 2021](https://dbs.uni-leipzig.de/file/CRITIS_2022_Extended_Abstract_LID-DS-2021.pdf)
 - [Weighted conformal under covariate shift](https://arxiv.org/abs/1904.06019)
 
+### 5.12 Ý tưởng tối ưu mô hình và kiến trúc hệ thống (research 21/10)
+
+**Kiến trúc hiện tại:**
+1. eBPF đếm syscall theo cgroup;
+2. snapshot 0,5 s → vector 249 chiều → context 4 cửa sổ;
+3. mỗi workload có model riêng: ExtraTrees phân biệt (lịch sử → hiện tại) + nhánh support;
+4. p-value conformal → k-of-n;
+5. preview;
+6. RCA (Tetragon) dựng case.
+
+**Các điểm đo được làm cơ sở:**
+- p95 alert 1,85 s, phần lớn là chờ cửa sổ cộng xác nhận (5.8c); chấm điểm không còn là nút thắt (CPU worker 13–31%);
+- gánh cảnh báo do calibration cũ (5.7b, 5.6b, syscall 5.9);
+- binary vô hại bị gắn cờ 92%;
+- 7 syscall bảo mật bằng 0 trên 185 triệu lượt gọi normal (syscall C3); `ptrace`/`setns`/`execveat` bắt được 100% (syscall 5.8, 5.9).
+
+**Nguồn tài liệu:** phần lớn là kết quả do chính tác giả báo cáo; một số là preprint. Đây là nguồn ý tưởng; mỗi ý cần đăng ký trước và đo trên Pulse.
+
+| Tầng | Ý tưởng | Tài liệu | Lợi ích dự kiến cho Pulse | Chi phí / rủi ro |
+|---|---|---|---|---|
+| Độ trễ | **A1. Đường nhanh "tripwire" cho syscall bảo mật hiếm.** Khi container gọi syscall thuộc tập hiếm của chính workload đó, báo ngay qua ring buffer, không chờ cửa sổ 0,5 s và k-of-n | IDS lai signature + anomaly: signature ít báo nhầm, anomaly bắt cái mới (CONDOR; khảo sát hybrid IDS) | Với lớp attack `ptrace`/`setns`/`execveat`: độ trễ từ ~1 s xuống ~ms. Phải loại các syscall do cơ chế exec sinh ra (`seccomp`, `capget`…, 5.5b), vì chúng xuất hiện ở binary vô hại. Kết quả 5.7c (novelty có xét exec) quyết định tập này | Sửa loader eBPF + collector; kiểm trên campaign mới. **Trung bình** |
+| Độ trễ | **A2. CUSUM / martingale conformal thay k-of-n** (= R5) | Vovk et al. 2021; change detection với martingale conformal (2026) | Bỏ được kiểu "qua ngưỡng so le bị lỡ" của k2of2 (5.8c), có giới hạn tần suất báo nhầm | Offline trên `joint_p` đã lưu. **Rẻ** |
+| Độ trễ | **A3. Cửa sổ ngắn hơn hoặc thích nghi** (250 ms, hay cửa sổ theo workload) | Khảo sát cửa sổ trên syscall trong Docker (SBC); cửa sổ động theo process | Cửa sổ ngắn báo nhanh hơn nhưng dễ cắt đôi hành vi, báo nhầm tăng; mỗi process có cửa sổ tối ưu riêng | Cần capture mới ở 250 ms. **Đắt**; chỉ làm nếu A1/A2 chưa đủ |
+| Độ trễ | A4. Biên dịch rừng cây (Treelite, QuickScorer, Hummingbird) | So sánh nền tảng suy luận forest 2023; QuickScorer nhanh ~9 lần | Chấm điểm hiện không phải nút thắt | **Ưu tiên thấp** |
+| Mô hình | **B1. Dịch vụ calibration tự làm mới**, có chống đầu độc: ACI/PID chỉnh α online (R1), calibration theo (workload, node) (R2); chỉ dùng cửa sổ đủ cũ, không bị gắn cờ, có độ trễ an toàn | ACI (Gibbs & Candès 2021); Conformal PID (NeurIPS 2023); Mondrian conformal; nghiên cứu khi nào nên retrain dưới drift (2026: ADWIN quá bảo thủ với drift chậm) | Đòn bẩy lớn nhất đã đo: calibration làm mới −22,8% cảnh báo, precision 92 → 96% (5.8g). Bản `guarded` của 5.6 hỏng, nên phải thiết kế chống đầu độc khác: dùng độ trễ thay cho lọc cửa sổ dương | Offline trên soak và lượt stable trước, rồi bật trong live. **Rẻ → trung bình** |
+| Mô hình | **B2. Bộ dò so sánh replica** chạy song song với model theo workload | REPLICAWATCHER (NDSS 2024): precision 91%, recall 98%, không cần huấn luyện; luận án Twente 2025 về phát hiện không cần huấn luyện cho microservice | Thay đổi chung cho mọi replica (tải, cập nhật, chế độ traffic) tự triệt tiêu, nên bổ sung tốt cho B1 | Paper dùng khoảng 30 s; StatefulSet có vai trò khác nhau; hiệu ứng node; chỉ áp cho workload ≥ 3 replica. **Trung bình** |
+| Mô hình | **B3. So họ model trong khung matched** (Isolation Forest, kNN/LOF, autoencoder, Deep SVDD so với ExtraTrees + support) | Chưa có benchmark nào trên vector đếm syscall container; benchmark chung 2024: Isolation Forest mạnh trên nhiều tập; DeepOD có sẵn cài đặt | Bằng chứng "vì sao chọn ExtraTrees + support" cho luận văn, đúng phần "họ model" đang ghi là giới hạn ở syscall 5B | Fit thêm 21 × K × 3 model trên cùng dữ liệu, cùng calibration, cùng ngân sách. **Trung bình** |
+| Mô hình | **B4. Model dùng chung + calibration riêng** cho workload hoặc revision mới (cold start) | Transfer theo cụm: độ chính xác ngang model riêng, 40% thời gian huấn luyện (ACM TAAS 2025); ShareAD (pre-train dùng chung) | Hiện workload chưa có model thì không được chấm. Model dùng chung giúp có điểm ngay khi deploy | Kiểm leave-one-workload-out. **Trung bình–đắt** |
+| Mô hình | B5. Model ngôn ngữ / Transformer trên chuỗi syscall | LSTM syscall LM; Transformer trên ma trận bigram (SBSeg 2024: F1 0,90 so với 0,92, nhanh hơn nhiều) | Pulse đếm chứ không lưu chuỗi; bin cặp syscall đã là bigram băm. Khó giữ p95 < 2 s | **Ưu tiên thấp** |
+| Quyết định | **C1. Triage hai tầng:** preview < 2 s giữ nguyên; tầng sau (luật xác định hoặc LLM) chấm điểm case RCA để quyết định cái nào lên hàng đợi người trực | LLM triage: SIABench (mẫu nhỏ, 35 alert), CORTEX (NeurIPS 2025, đa agent); chuẩn người: tier-2 loại 70–80% báo nhầm | Giảm gánh cảnh báo *mà người trực thấy*, không làm chậm alert. Tín hiệu đã có: binary mới, thao tác bảo mật (sau khi bỏ hạ quyền lúc khởi chạy), độ bền tín hiệu (5.8b), độ lệch so với replica (B2) | Bắt đầu bằng luật xác định đo được trên 4.006 case. **Trung bình** |
+| Quyết định | C2. Kiểm soát FDR toàn cụm (= R6) | Bates et al. 2023; e-GAI (ICML 2025) | Kiểm soát *tỉ lệ cảnh báo sai trong số cảnh báo* trên ~80 container | **Rẻ–trung bình** |
+| Đánh giá | D1. Blind test bên ngoài trên LID-DS (= R8) | LID-DS 2021 | Kiểm chứng độc lập cho luận văn | **Đắt** |
+
+**Kiến trúc đề xuất** (giữ nguyên lõi đã có bằng chứng: 249 feature, base29, ExtraTrees + support, chấm nhanh):
+
+```mermaid
+flowchart LR
+    K[eBPF đếm syscall/cgroup] --> T[A1 tripwire syscall hiếm: báo ngay]
+    K --> W[Cửa sổ 0,5 s, 249 feature, 4 cửa sổ]
+    W --> M[ExtraTrees + support theo workload]
+    M --> P[p-value: calibration tự làm mới B1]
+    W --> R[B2 lệch so với replica]
+    P --> S[A2 CUSUM / k-of-n]
+    R --> S
+    T --> A[Alert < 2 s]
+    S --> A
+    A --> C[RCA case]
+    C --> G[C1 triage → hàng đợi người trực]
+```
+
+**Thứ tự đề xuất:**
+1. Offline, rẻ: B1 (ACI/Mondrian/rolling), A2, R4. Chạy trên điểm đã lưu sau khi chuỗi phân tích nặng xong.
+2. A1 tripwire: chờ kết quả 5.7c để chọn tập syscall; cần sửa eBPF.
+3. B2, C1, B3.
+4. B4, D1.
+
+Mỗi bước giữ cách làm cũ: đăng ký tiêu chí trước, so ở cùng ngân sách, p95 < 2 s ưu tiên và ≤ 3 s chấp nhận.
+
+**Nguồn bổ sung cho mục này:**
+- [REPLICAWATCHER](https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf)
+- [Training-less IDS in containerized microservices (Twente)](https://www.utwente.nl/en/eemcs/events/2025/11/654945/phd-defence-asbat-el-khairi-training-less-anomaly-based-intrusion-detection-in-containerized-microservices)
+- [CONDOR hybrid IDS](https://shura.shu.ac.uk/5246/)
+- [Cửa sổ syscall trong Docker (SBC)](https://sol.sbc.org.br/index.php/errc/article/download/15203/15047)
+- [So sánh nền tảng suy luận forest](https://ar5iv.labs.arxiv.org/html/2302.04430)
+- [Hummingbird](https://www.microsoft.com/en-us/research/publication/a-tensor-compiler-for-unified-machine-learning-prediction-serving/)
+- [Benchmark anomaly detection 2024](https://arxiv.org/html/2402.07281v3)
+- [DeepOD](https://github.com/xuhongzuo/DeepOD)
+- [Transfer learning cho anomaly detection ở edge](https://arxiv.org/pdf/2408.12855)
+- [ShareAD](https://api.crossref.org/works/10.1145%2F3712195)
+- [Transformer + phân loại syscall (SBSeg)](https://sol.sbc.org.br/index.php/sbseg/article/view/36676)
+- [LSTM system-call LM](https://ar5iv.labs.arxiv.org/html/1611.01726)
+- [Khi nào nên retrain dưới drift](https://arxiv.org/pdf/2608.19488)
+- [SIABench](https://arxiv.org/pdf/2603.06422)
+- [CORTEX](https://neurips.cc/virtual/2025/137134)
+- [SIR-Bench](https://arxiv.org/pdf/2604.12040)
+- [CNN trong kernel bằng eBPF](https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34)
+- [Dynamic fixed-point trong eBPF](https://dl.acm.org/doi/fullHtml/10.1145/3674213.3674219)
+
 ## 6. Tiến độ và việc còn lại (cập nhật 20/10 11:18)
 
 | Việc | Trạng thái |
@@ -1146,3 +1224,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 11:12 | Ghi rõ alpha và p-value là gì; bằng chứng hiện có (cấu trúc 2 nhánh, đơn điệu, luật chọn) và chưa có (alpha gốc là ngân sách thiết kế, lưới thưa, chưa có biên Pareto + CI); đăng ký phân tích Pareto và lưới alpha mịn | mục 5.8f |
 | 11:18 | Research tài liệu cho 5 vấn đề tồn đọng: 8 hướng (ACI/PID, Mondrian, so sánh replica, gộp Cauchy, CUSUM/martingale conformal, FDR, đặc trưng theo tham số/ngữ cảnh, LID-DS); xếp ưu tiên theo chi phí kiểm offline | mục 5.11 |
 | 11:20 | Áp luật v2 trên số final: 5.7b đạt (−22,8% đợt, recall +1,6, precision 96,3%); chọn k2of2_a10 + calibration làm mới, đạt cả 4 kỳ vọng trên replay (precision 96,3%, recall 99,4%, control 3,9%, p95 1,96 s); replay as_run khớp đúng số live | mục 5.8g |
+| 11:24 | Research tối ưu mô hình và kiến trúc: tripwire syscall hiếm, CUSUM, calibration tự làm mới, so sánh replica, so họ model, model dùng chung cho cold start, triage hai tầng, FDR, LID-DS; sơ đồ kiến trúc đề xuất và thứ tự ưu tiên | mục 5.12 |
