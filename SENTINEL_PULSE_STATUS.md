@@ -66,7 +66,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | RCA | `rca-pulse-stable-candidate` (đọc decision qua SSH, case tiếp nối, baseline binary đóng băng lúc 11:47:29). `rca-subscriber` đã dừng |
 | Lượt pulse-live-recalibrated | **Xong** 20/10 02:12–02:22 (mục 5.5). `features`/`decisions` đã nén gzip có kiểm seal: 296 file, 0 sai seal, thu lại 73,4 GB (80 → 9,9 GB) |
 | Job phân tích 20/10 02:10–03:18 | **Xong**: chọn candidate (5.7a), refresh calibration (5.6), novel-syscall (5.5b), bootstrap syscall (file syscall, mục 5.7; lỗi lúc 03:18 rồi chạy tiếp lúc 09:46) |
-| Theo dõi | Mỗi 5 phút kiểm tra heartbeat worker, số issue, RCA, NFS, số tiến trình `tetra getevents` (`/home/dat/health-run.py`) |
+| Theo dõi | Bỏ watcher từ 21/10 14:05 theo yêu cầu (không thấy tác dụng). Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt (issue, cadence, RCA) |
 | Phân tích sau lượt (đã hẹn) | Unit `pulse-stable-candidate-analysis` trên `.234` (`scripts/pulse_stable_candidate_analysis.sh`, snapshot `9758e15`) tự chạy theo 2 giai đoạn:<br>• **campaign xong:** kết quả campaign, attack-vs-benign, coverage/xếp hạng/độ trễ/flow RCA. Giai đoạn này nhẹ, chạy được khi capture còn chạy;<br>• **3 worker xong:** gánh cảnh báo normal (as_run so với calibration làm mới, 5.7b), replay campaign với calibration làm mới, cadence gap, novelty có xét exec (5.7c), đối chiếu chấm nhanh trên lượt live với sklearn |
 | Bộ nhớ VM (vSphere) | **Balloon đang giữ RAM của mọi VM** (11:10): 81 GB trên master2/3 và 3 worker, 51 GB trên `.234`, 2/3,9 GB trên NFS server. Hiện chưa có áp lực bộ nhớ hay swap; worker còn 27–33 GB, NFS server còn ~0,9 GB. Xem mục 8 |
 | Collector 1 s + resolver trên worker | Chạy; resolver bắt buộc phải có cho matched worker |
@@ -1225,3 +1225,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 12:22 | `pulse-stable-refreshed` tự khởi chạy; 13:08 khỏe (0 issue, RCA ok) | mục 5.13 |
 | 13:44 | Code baseline + test (327 test pass); chạy job `pulse-baselines-1021` (fit 21/21 workload xong 13:53, rồi chấm 3 node song song) | mục 5.15; `58a891e` |
 | 13:55 | Dựng phân tích cho `pulse-stable-refreshed` (giai đoạn campaign và final) và gộp chuỗi nặng thành một unit tuần tự `after-stable-refreshed` | mục 5.13; `bf35f5e` |
+| 14:05 | Khôi phục báo cáo này từ bản commit (bản đang mở bị ghi đè lúc 11:49 bằng phiên bản cũ; không mất nội dung mới) rồi chèn 5.8h, 5.8i, 5.15, cập nhật 5.13. Bỏ toàn bộ watcher theo yêu cầu: xóa `scripts/watch_live_run.sh`, `scripts/wait_remote.sh` và `health-run.py` trên .234 | `ce3bd2f` và commit này |
