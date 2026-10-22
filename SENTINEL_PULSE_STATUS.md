@@ -1422,12 +1422,24 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - bảng calibration phải tái lập đúng từng điểm của `calibration-r6-1300-1900.npz`;
   - tham chiếu phải tái lập 5,32 đợt/replica-giờ (5.13b).
 
+**Tầng phân loại sau ML** (bản bổ sung 2, đăng ký 16:03; chủ đồ án cho phép lúc 16:00):
+- **Cách làm:** một đợt cảnh báo của ML không gọi người khi mọi case RCA của cùng container trong vòng 5 s đều là probe-only (định nghĩa của 5.18, probe khai báo trong pod spec). Đợt không có case thì vẫn gọi (fail-open). **Mọi preview của ML vẫn được ghi.**
+- **Không đổi số liệu mức ML:** recall, precision, control, binary vô hại, p95 kernel → preview và số đợt/replica-giờ vẫn là bằng chứng cho detector, và luôn báo trước. Tầng này thêm một mức số liệu thứ hai, **mức gọi người**:
+  - số đợt gọi người/replica-giờ, có hai con số:
+    - fail-open (cận trên, vì RCA chỉ mở tối đa một case cho mỗi container trong mỗi chu kỳ cooldown, cộng các case tiếp nối);
+    - ước tính (đợt không có case được giữ lại theo tỉ lệ của các đợt có case trong cùng workload);
+  - recall, precision, control, binary vô hại sau triage.
+- **Cái giá nêu trước:**
+  - **Độ trễ:** muốn biết probe-only phải chờ case RCA. Hiện preview → case mất p50 2,24 s, p95 2,59 s, nên kernel → gọi người vượt mức 3 s nếu không làm đường triage nhanh hơn. Đường nhanh chỉ cần các exec tới cuối cửa sổ + 0,5 s.
+  - **Né tránh:** khớp theo tên binary, không theo tham số. Kẻ tấn công chạy chính interpreter của probe (`python`, `sh`, `redis-cli`…) qua `kubectl exec` sẽ bị giữ lại. Bản triển khai thật phải khớp cả tham số của probe.
+- **Đã thấy trước ở mức case (5.18, 5.13b):** 50,3% case normal là probe-only; không có trial attack nào mà mọi case đều probe-only.
+
 **Trạng thái:**
 - **Bảng calibration xong (22/10 15:59, 11 phút CPU):** 2.449.183 cửa sổ, 67 container.
   - Lấy riêng các cửa sổ eligible thì tái lập **đúng từng điểm** `calibration-r6-1300-1900.npz`. Phần chênh 11.974 cửa sổ đúng bằng số dòng ineligible mà npz ghi lại.
   - Lớp launch chiếm 21–49% cửa sổ ở 15 workload. Workload có probe exec đủ cửa sổ cho cả hai lớp (≥ 1.200). Sáu workload không có exec (waypoint, frontend, minio, entity-operator) chỉ có một lớp.
   - Trên khoảng này, **93,6%** cửa sổ không có ID mới so với replica khác trong 30 s, và **99,7%** không có ID mới so với lịch sử 5 phút của chính container. L5/L6 vì vậy chỉ giữ bằng chứng ở một phần rất nhỏ cửa sổ; recall theo kịch bản là chỉ số phải xem kỹ.
-- Hai bảng development và phép chọn chạy sau bước nén (unit `pulse-burden-levers-1022`, snapshot `1d2aa37`; đọc NFS khi không có lượt live).
+- Hai bảng development, phép chọn và mức gọi người chạy sau bước nén (unit `pulse-burden-levers-1022`, snapshot `810b62a`; đọc NFS khi không có lượt live).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 22/10 15:25)
 
@@ -1794,3 +1806,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:20 | Máy host có khóa SSH riêng cho lab; public key đặt trên 7 máy, SSH không cần password | — |
 | 15:25–15:40 | Theo yêu cầu giảm control, gánh cảnh báo và false positive: research (Moustakides 1986, Mondrian conformal, ReplicaWatcher, NoDoze, Bates et al. 2023, online FDR, Carbon Filter); đăng ký `burden-reduction-v1` (15:34) và bản bổ sung 1 (15:39) trước khi có số nào | mục 5.22 |
 | 15:40–15:50 | Viết bảng cửa sổ và công cụ đánh giá các hướng, có test (CUSUM vector hóa trùng từng cửa sổ với `ideas_screen.py`). Tăng tốc khoảng 3 lần bằng cách bỏ qua dòng của container ngoài các workload được chấm. Dựng bảng calibration từ bản chép local (`burden-cal-table-1022b`). Hẹn `pulse-burden-levers-1022` chạy sau bước nén | mục 5.22 |
+| 15:59–16:10 | Bảng calibration tái lập đúng npz. Chủ đồ án cho phép tầng phân loại sau ML; đăng ký bản bổ sung 2 (16:03), thêm mức gọi người vào công cụ, có test; khởi chạy lại `pulse-burden-levers-1022` (snapshot `810b62a`) trước khi nó bắt đầu dựng bảng | mục 5.22 |
