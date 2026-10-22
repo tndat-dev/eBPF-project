@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # feature-group-evaluation-v1: base29@tree / base29@support on the primary holdout (feature_groups_primary.sh of 22/10
-# left out the branch-only p-values), k2of2 as the registered v1 rule; run 23/10 01:35 as unit fg-branches-1023 on .234.
+# left out the branch-only p-values), k2of2 as the registered v1 rule; run 23/10 01:22 as unit fg-branches-1023 on .234.
 set -euo pipefail
 FG=/var/tmp/feature-groups; A=/mnt/sentinel-pulse-archive
 export PYTHONPATH=/home/dat/eBPF-project PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1
