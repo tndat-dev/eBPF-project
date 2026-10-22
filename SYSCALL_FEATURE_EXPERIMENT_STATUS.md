@@ -47,7 +47,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - **cần:** các kênh syscall tường minh (`bins_only` mất 13 điểm recall) và 5 tổng hợp (bỏ thì p95 chậm thêm 0,26–0,35 s);
   - **bỏ được trên giấy:** 64 bin syscall. Chỉ là ứng viên rút gọn, chưa đổi;
   - **chưa kết luận:** log-count và lịch sử 2 cửa sổ (hai holdout cho kết luận ngược nhau), tỉ lệ, bin cặp, rolling, mọi bin, lịch sử 1 cửa sổ;
-  - hai biến thể p-value (chỉ nhánh tree / chỉ nhánh support) đang chạy bổ sung trên holdout chính;
+  - **cả hai nhánh p-value đều cần** (23/10): chỉ dùng nhánh tree mất 28–31 điểm recall, chỉ dùng nhánh support mất 5–7 điểm, CI dưới 0 ở cả hai bộ attack và cả hai holdout → giữ joint p-value;
   - bộ feature giữ nguyên.
 
 Hệ quả (bảng bằng chứng theo từng thành phần feature nằm ở [Pulse mục 4b](SENTINEL_PULSE_STATUS.md)):
@@ -445,7 +445,7 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
   - hai bộ attack: `pulse-attack-dev` (598 trial ghép cặp, không có binary vô hại) và `pulse-live-recalibrated` (1.238 trial, có binary vô hại).
 - **Biên nhận:** `matched-parallel-r4-20261015/feature-groups/{RESULTS,BOOTSTRAP,arm-scenarios}-*.json`.
 - **Sửa công cụ khi áp luật (23/10 01:20):** `feature_group_verdict.py` lỗi trên tập không có binary vô hại. Theo protocol, điều kiện "tách" chỉ áp trên tập có binary vô hại (có test).
-- **Thiếu sót của mình:** lần chạy lại 22/10 bỏ sót hai biến thể p-value đã đăng ký (`base29@tree`, `base29@support`). Đang chạy bổ sung: `scripts/feature_groups_branches.sh`, unit `fg-branches-1023`.
+- **Thiếu sót của mình:** lần chạy lại 22/10 bỏ sót hai biến thể p-value đã đăng ký (`base29@tree`, `base29@support`). Chạy bổ sung bằng `scripts/feature_groups_branches.sh`, unit `fg-branches-1023` (xong 23/10 01:27, luật v1 k2of2, cùng holdout và cùng hai bộ attack). Biên nhận: `feature-groups/branches/{RESULTS,BOOTSTRAP}-*.json`, `VERDICT.json` (SHA-256 `e6167da8…`).
 
 | Thành phần bị bỏ | Holdout chính (v1) | Holdout thứ hai (5B.2) | **Kết luận gộp** |
 |---|---|---|---|
@@ -455,11 +455,13 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 | `drop_log_counts` | bỏ được | cần | **chưa kết luận** (ngược nhau) |
 | `history2` | bỏ được | cần | **chưa kết luận** (ngược nhau) |
 | `drop_ratios`, `drop_transition_bins`, `drop_rolling`, `drop_all_bins`, `history1` | chưa kết luận | chưa kết luận / cần | **chưa kết luận** |
-| `base29@tree`, `base29@support` | đang chạy bổ sung | cần | chờ |
+| `base29@tree` (chỉ nhánh tree) | cần (recall −28,2 [−42,5; −15,2] / −31,2 [−45,4; −17,4]; tách −15,2 [−28,0; −3,2]) | cần | **cần** |
+| `base29@support` (chỉ nhánh support) | cần (recall −5,2 [−10,6; −1,1] / −7,1 [−14,9; −0,8]) | cần | **cần** |
 
 **Đọc kết quả:**
 - Trên holdout chính, phần lớn thành phần có recall và tách không phân biệt được với base29. Bỏ bin cặp, rolling hay mọi bin cho tách tốt hơn 13–21 điểm, đổi lại recall có xu hướng giảm (CI chạm 0), nên luật ghi là chưa kết luận.
 - Hai thứ chắc chắn cần: các kênh syscall tường minh, và 5 tổng hợp (vì độ trễ).
+- Gộp hai nhánh bằng joint p-value cũng cần: mỗi nhánh một mình đều mất recall (số trong bảng: bộ `pulse-attack-dev` / `pulse-live-recalibrated`, ngân sách 1). Chỉ nhánh support tách binary vô hại tốt hơn 7,4 điểm, nhưng CI chứa 0.
 - **Bộ feature giữ nguyên.** Protocol không cho đổi chỉ từ phép kiểm này. Ứng viên rút gọn duy nhất (bỏ 64 bin syscall) để cho paper.
 - Kết luận cuối yếu hơn bản tạm thời ở 5B.2, vì holdout thứ hai một mình không được đổi kết luận của v1.
 
@@ -528,7 +530,7 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
 | Kiểm lại dưới luật Pulse stable (CUSUM), 11 cấu hình + nhóm feature | **11 cấu hình xong** (5C): cùng kết luận dưới `keep` và `cap`. Nhóm feature dưới `cap` đang chạy |
-| Nhóm feature trên holdout chính + gộp theo luật bổ sung | **Xong** (5B.3); chờ 2 biến thể p-value bổ sung |
+| Nhóm feature trên holdout chính + gộp theo luật bổ sung | **Xong** (5B.3), kể cả 2 biến thể p-value: cả hai nhánh đều cần |
 
 Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ được gánh cảnh báo, phải áp lại cùng phương pháp cho cả 11 cấu hình bằng `arm_budget.py` trên điểm đã xuất. Không cần chấm lại model.
 
@@ -601,3 +603,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 16:57 | 5C bản `keep` xong cho 11 cấu hình: cùng kết luận với k2of2 (giữ base29) | mục 5C |
 | 22/10 22:51 | Pulse stable đổi sang CUSUM `cap` (5.19 bổ sung 1) → thêm `--cusum-on-alarm` vào `arm_budget` (trùng `CusumState`, có test); đăng ký bổ sung 1 cho 5C; chạy lại 11 cấu hình và nhóm feature với `cap` | mục 5C |
 | 23/10 00:35–01:25 | Holdout chính của nhóm feature xong; sửa `feature_group_verdict.py` (điều kiện tách chỉ áp trên tập có binary vô hại, có test); gộp với holdout thứ hai theo luật bổ sung (5B.3); chạy bổ sung 2 biến thể p-value bị bỏ sót (`fg-branches-1023`). 5C bản `cap` cho 11 cấu hình: cùng kết luận | mục 5B.3, 5C |
+| 23/10 01:27–01:50 | `fg-branches-1023` xong; áp luật v1 (`feature_group_verdict.py`): chỉ nhánh tree và chỉ nhánh support đều **cần**, holdout thứ hai cùng kết luận → giữ joint p-value. Chép biên nhận nhỏ về `feature-groups/branches/` | mục 1, 5B.3 |

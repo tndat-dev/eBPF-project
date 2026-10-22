@@ -9,7 +9,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] **`after-stable-refreshed`**: final, baseline lặp lại, chiến lược calibration (Pulse 5.13b, 5.15b, 5.17) và nén 3 lượt (NFS 291 → 85 GB) xong 16:17.
 - [x] **`pulse-stable-selection-1022`**: replay cấu hình gộp đạt (16:28).
 - [~] **Lượt live xác nhận `pulse-stable-confirm`**: chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478`), kết thúc ~24/10 01:20.
-- [x] **`feature-groups-primary-1022`**: xong 23/10 00:35; gộp ở syscall 5B.3. [~] `fg-branches-1023`: 2 biến thể p-value bổ sung.
+- [x] **`feature-groups-primary-1022`**: xong 23/10 00:35; gộp ở syscall 5B.3. [x] `fg-branches-1023`: xong 23/10 01:27, cả hai nhánh p-value đều cần (5B.3).
 - [~] **`after-stable-confirm`** (snapshot `1e2ae7f`): chờ lượt xác nhận; giai đoạn campaign (kỳ vọng theo tốc độ, RCA) rồi final (gánh live + CI, test blind 5.22, lý do nghi phạm RCA, phân loại cảnh báo), rồi nén.
 - [x] **`pulse-57d-1022`**: 5.7d xong (`rolling-12-1` −37% trên soak 48 giờ).
 - [~] **`syscall-cusum-1022`**: 11 cấu hình syscall + nhóm feature dưới CUSUM `cap` (SYSCALL 5C; bản `keep` xong, cùng kết luận).
@@ -22,7 +22,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt); test blind trên lượt xác nhận.
 3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): chạy từ 23/10 01:19, 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
 3b. [ ] **Ngay sau lượt xác nhận (cần làm tay, trong 1–2 ngày):** chép log Falco khỏi 3 worker (`/var/log/pods/falco_falco-*/falco`) và giữ tới khi so sánh có/không rule xong.
-4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [ ] Còn: 2 biến thể p-value và nhóm feature dưới `cap`.
+4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [ ] Còn: nhóm feature dưới `cap` (`syscall-cusum-1022` đang chạy).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
