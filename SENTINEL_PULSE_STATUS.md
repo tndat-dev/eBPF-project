@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 01:28 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **23/10/2026 01:26 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -1908,4 +1908,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 |---|---|---|
 | 00:35 | `pulse-stable-confirm-launcher` lỗi lúc lập kế hoạch: planner ghi commit của snapshot bằng `git rev-parse`, mà snapshot dựng bằng `git archive` không có `.git`. Không worker nào khởi động; thư mục run dở 780 KB | mục 5.19 |
 | 01:18–01:22 | Dựng snapshot chạy bằng `git clone` (`runtime-cc9bced-20261023`); `launch_when_idle.sh` kiểm `.git` ngay lúc hẹn. Xóa thư mục run dở, khởi chạy lại: **lượt xác nhận chạy từ 01:19**. RCA không lên được (service chạy bằng Python hệ thống, `baseline_seed.py` kéo numpy qua một import); sửa import, thêm test chặn numpy trong chuỗi import của RCA, đưa bản RCA của lượt lên commit `a2e6748`. RCA chạy từ 01:21, trước pha chọn, đã nạp 59 binary seed. 3 worker 0 issue | mục 5.19, RCA 5.12 |
-| 01:20–01:28 | Syscall: holdout chính của nhóm feature xong (00:35), gộp với holdout thứ hai (5B.3: chỉ "kênh syscall tường minh" và "5 tổng hợp" là cần chắc chắn). 5C bản `cap` cho 11 cấu hình: cùng kết luận. Cập nhật 4b | mục 4b |
+| 01:20–01:26 | Syscall: holdout chính của nhóm feature xong (00:35), gộp với holdout thứ hai (5B.3: chỉ "kênh syscall tường minh" và "5 tổng hợp" là cần chắc chắn). 5C bản `cap` cho 11 cấu hình: cùng kết luận. Cập nhật 4b | mục 4b |
