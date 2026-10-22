@@ -370,6 +370,24 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 - [Sysdig 2025 report](https://www.sysdig.com/2025-cloud-native-security-and-usage-report)
 - [So sánh Falco/Tetragon/Tracee (SciTePress 2025)](https://www.scitepress.org/PublishedPapers/2025/142727)
 
+## 6. Research đợt 3 (22/10 15:20–15:40): giảm control, gánh cảnh báo và false positive
+
+**Câu hỏi:** có cách nào giảm control, gánh cảnh báo và false positive mà vẫn đạt kỳ vọng confusion matrix không?
+
+**Kết luận quan trọng nhất:** CUSUM đã là luật dừng tối ưu minimax giữa độ trễ và tần suất báo nhầm, **khi đã cho trước bằng chứng từng cửa sổ** (Lorden 1971, Moustakides 1986). Lưới CUSUM trên campaign (5.13b) cũng cho thấy điều này: siết tham số giảm control xuống 0,6–2% nhưng đẩy p95 lên 3–5 s. Muốn giảm báo nhầm ở cùng độ trễ phải **làm bằng chứng tốt hơn**, không phải đổi ngưỡng.
+
+**Ba nguồn bằng chứng mới, nhắm đúng lớp "benign trigger" (khoảng 50% case là probe, 5.18):**
+1. **Calibration Mondrian theo lớp launch** (Vovk et al.; class-conditional conformal): cửa sổ có exec chỉ so với các cửa sổ có exec lúc bình thường.
+2. **So với replica khác** (ReplicaWatcher, NDSS 2024): hành vi mà replica khác cũng có thì không tính là bằng chứng.
+3. **So với lịch sử của chính container** (NoDoze, NDSS 2019): hành vi lặp lại trong 1–5 phút thì không tính là bằng chứng.
+
+**Không đăng ký, kèm lý do:**
+- **BH trên conformal p-value** (Bates et al., Ann. Stat. 2023): khi không có attack, nó chỉ tương đương một ngưỡng chặt hơn.
+- **Online FDR** (LORD, SAFFRON, ADDIS, e-GAI): ngưỡng co dần khi lâu không có phát hiện, không hợp với giám sát 24/7.
+- **Phân loại cảnh báo theo command line / đồ thị nguồn gốc** (Carbon Filter, NoDoze): hoạt động sau ML, nên do chủ đồ án quyết định.
+
+Thiết kế, luật chọn và kết quả nằm ở [Pulse 5.22](SENTINEL_PULSE_STATUS.md); protocol `burden-reduction-v1` và bản bổ sung 1.
+
 ## Nguồn
 
 - [ACI cho chuỗi thời gian (Zaffran et al., ICML 2022)](https://proceedings.mlr.press/v162/zaffran22a.html)
@@ -432,3 +450,9 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 - [Autoencoder có attention cho truy cập file trong container (MDPI 2025)](https://www.mdpi.com/2227-7390/14/6/991)
 - [Phát hiện cryptojacking bằng Tetragon + ML (Electronics 2025)](https://doi.org/10.3390/electronics14061208)
 - [KAIROS (IEEE S&P 2024)](https://arxiv.org/abs/2308.05034)
+- [CUSUM và Shiryaev-Roberts, tối ưu theo Lorden/Moustakides (so sánh số)](https://arxiv.org/pdf/0908.4119)
+- [Class-conditional conformal cho anomaly detection mất cân bằng (MDPI Make)](https://www.citedrive.com/en/discovery/class-conditional-conformal-prediction-for-reliable-anomaly-detection-under-extreme-class-imbalance/)
+- [Online FDR cho anomaly detection chuỗi thời gian](https://arxiv.org/pdf/2112.03196)
+- [FDR control for online anomaly detection (Krönert et al.)](https://ar5iv.labs.arxiv.org/html/2312.01969)
+- [LORD và SAFFRON dưới phụ thuộc dương](https://arxiv.org/pdf/2110.08161)
+- [Carbon Filter: phân loại cảnh báo EDR](https://arxiv.org/html/2405.04691v1)
