@@ -5,7 +5,8 @@
 #   LAB_SSH_PASSWORD=... RUN=pulse-stable-candidate SNAP=/mnt/.../source \
 #   CANDIDATE=/mnt/.../model-bundle MODEL_HASH=... POLICY=sentinel_pulse/protocol/x.json POLICY_HASH=... \
 #   [FIXTURE=testbed/attack/runtime_attack_with_benign_control.c] [SECONDS_TOTAL=86400] [FAST=1] \
-#   [RCA_PREV_UNIT=rca-subscriber] [ATTACK_RATES=1,3,6] bash launch_run.sh [plan|workers|rca|master|all]
+#   [RCA_PREV_UNIT=rca-subscriber] [ATTACK_RATES=1,3,6] [BASELINE_SEED=/mnt/.../rca-baseline-seed.json] \
+#   bash launch_run.sh [plan|workers|rca|master|all]
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
 set -euo pipefail
@@ -76,7 +77,8 @@ print(json.dumps(dict(
     before_seconds=30, after_seconds=0, case_ready_grace_seconds=2, ring_seconds=180,
     max_ring_events=120000, max_cases=20000, case_cooldown_seconds=300, stream_rotate_seconds=900,
     follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,
-    follow_up_novelty_seconds=300, binary_baseline_frozen_at=run['attack_not_before'] - 120), indent=2))
+    follow_up_novelty_seconds=300, binary_baseline_frozen_at=run['attack_not_before'] - 120,
+    **({'binary_baseline_seed': os.environ['BASELINE_SEED']} if os.environ.get('BASELINE_SEED') else {})), indent=2))
 PY
   as_root install -m 0640 -o root -g dat "/tmp/$RCA_NAME.json" "/etc/sentinel-pulse-rca/$RCA_NAME.json"
   rm -f "/tmp/$RCA_NAME.json"

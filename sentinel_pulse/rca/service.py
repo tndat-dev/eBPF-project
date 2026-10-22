@@ -137,6 +137,15 @@ class Service:
                 telemetry_policy=self.cfg['connect_policy'],
                 previous_output=self.cfg.get('previous_output'),
                 registration_reason=self.cfg.get('registration_reason')))
+        if self.cfg.get('binary_baseline_seed'):
+            # binaries known from earlier runs' normal periods (baseline_seed.py); once, before any event
+            from .baseline_seed import seed
+            path = Path(self.cfg['binary_baseline_seed'])
+            if self.db.execute("select value from metadata where key='baseline_seed'").fetchone() is None:
+                added = seed(self.db, json.loads(path.read_text())['workloads'])
+                self.db.execute("insert into metadata values('baseline_seed',?)", (json.dumps(dict(
+                    path=str(path), sha256=hashlib.sha256(path.read_bytes()).hexdigest(), added=added)),))
+                self.db.commit()
         self.streams = {}; self.index = {}; self.inventory = {}; self.target_inventory = {}
         self.decision_streams = {}
         self.inventory_at = None; self.stop = False; self.counts = {}; self.started_at = time.time()
