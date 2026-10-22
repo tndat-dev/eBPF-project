@@ -1,0 +1,333 @@
+{
+ "schema": "pulse-feature-group-verdict-v1",
+ "protocol": "sentinel_pulse/protocol/feature-group-evaluation-v1.json",
+ "sets": [
+  "pulse-live-recalibrated"
+ ],
+ "components": {
+  "drop_log_counts": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.028698197454110445,
+       -0.0009208103130755568
+      ],
+      "lower95_one_sided": -0.025963149078726773,
+      "point": -0.013854930725346382
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.03570301491211711,
+       0.042649497473828776
+      ],
+      "lower95_one_sided": -0.029173657007059938,
+      "point": 0.0030942218170265656
+     },
+     "p95_diff_seconds": -0.025723361968997605
+    }
+   }
+  },
+  "drop_ratios": {
+   "verdict": "inconclusive",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0146520146520146,
+       0.0021834061135370675
+      ],
+      "lower95_one_sided": -0.012647364870272992,
+      "point": -0.004889975550122272
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.12742787716650353,
+       0.0008356104255965724
+      ],
+      "lower95_one_sided": -0.11283579525741269,
+      "point": -0.05573743317724089
+     },
+     "p95_diff_seconds": -0.049135684967041016
+    }
+   }
+  },
+  "drop_aggregates": {
+   "verdict": "inconclusive",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.006683434948402417,
+       0.0
+      ],
+      "lower95_one_sided": -0.005834064327485394,
+      "point": -0.0024449877750610804
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.0780316250851965,
+       0.02744742426435474
+      ],
+      "lower95_one_sided": -0.06859910052375104,
+      "point": -0.02342965282752274
+     },
+     "p95_diff_seconds": 0.1785013675689675
+    }
+   }
+  },
+  "drop_syscall_bins": {
+   "verdict": "inconclusive",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       0.0007592583005451376,
+       0.013410564868699256
+      ],
+      "lower95_one_sided": 0.0015186028853455547,
+      "point": 0.006519967400163029
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.06376850825826245,
+       0.03575327986208438
+      ],
+      "lower95_one_sided": -0.05491441948700616,
+      "point": -0.012850492648263101
+     },
+     "p95_diff_seconds": -0.049135684967041016
+    }
+   }
+  },
+  "drop_transition_bins": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.05705072786790777,
+       -0.0023805302262749077
+      ],
+      "lower95_one_sided": -0.05200971605226932,
+      "point": -0.027709861450692652
+     },
+     "separation_diff": {
+      "ci95": [
+       0.0205775624261675,
+       0.26755994339093647
+      ],
+      "lower95_one_sided": 0.03805551144206033,
+      "point": 0.1361319464589118
+     },
+     "p95_diff_seconds": 0.1799774169921875
+    }
+   }
+  },
+  "drop_rolling": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.09310376214257665,
+       -0.003949330229862509
+      ],
+      "lower95_one_sided": -0.08270194702862095,
+      "point": -0.04074979625101882
+     },
+     "separation_diff": {
+      "ci95": [
+       0.08307178877501262,
+       0.3018472604977936
+      ],
+      "lower95_one_sided": 0.09773331675094174,
+      "point": 0.18443180181193508
+     },
+     "p95_diff_seconds": -0.20185446739196777
+    }
+   }
+  },
+  "drop_all_bins": {
+   "verdict": "inconclusive",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.04166666666666674,
+       0.0009285699465203125
+      ],
+      "lower95_one_sided": -0.0373073803730738,
+      "point": -0.018744906275468654
+     },
+     "separation_diff": {
+      "ci95": [
+       0.07891424945207104,
+       0.3470953380715507
+      ],
+      "lower95_one_sided": 0.09556441590855211,
+      "point": 0.20159407677537877
+     },
+     "p95_diff_seconds": 0.16521692276000977
+    }
+   }
+  },
+  "bins_only": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.2313631958136788,
+       -0.08025917124277773
+      ],
+      "lower95_one_sided": -0.2165841953398374,
+      "point": -0.15077424612876933
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.13025003426568207,
+       0.0727870345855652
+      ],
+      "lower95_one_sided": -0.11213551696204527,
+      "point": -0.02970887082610585
+     },
+     "p95_diff_seconds": 0.7455546855926514
+    }
+   }
+  },
+  "history1": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0116279069767441,
+       0.0007610785450823159
+      ],
+      "lower95_one_sided": -0.01024428684003143,
+      "point": -0.004889975550122272
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.08338898716436763,
+       -0.013447900391338391
+      ],
+      "lower95_one_sided": -0.07707264106072353,
+      "point": -0.0468593056550457
+     },
+     "p95_diff_seconds": 0.0
+    }
+   }
+  },
+  "history2": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.006880891904870232,
+       0.0045787545787546735
+      ],
+      "lower95_one_sided": -0.005733711768194516,
+      "point": -0.0008149959250203231
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.06570665783374656,
+       -0.004652617968460291
+      ],
+      "lower95_one_sided": -0.0597342757007553,
+      "point": -0.03148489100169505
+     },
+     "p95_diff_seconds": -0.02907991409301891
+    }
+   }
+  },
+  "base29@tree": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.3380720599948137,
+       -0.10986929571383133
+      ],
+      "lower95_one_sided": -0.31812266378123166,
+      "point": -0.21923390383048091
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.2341996836176678,
+       -0.03231153492259636
+      ],
+      "lower95_one_sided": -0.21510946588033314,
+      "point": -0.12883842360449227
+     },
+     "p95_diff_seconds": 1.0945972919464109
+    }
+   }
+  },
+  "base29@support": {
+   "verdict": "needed",
+   "provisional": true,
+   "sets": {
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.19906472122930288,
+       -0.06438467807660975
+      ],
+      "lower95_one_sided": -0.18637302265828895,
+      "point": -0.12713936430317851
+     },
+     "separation_diff": {
+      "ci95": [
+       0.050119381583470624,
+       0.2562249247319763
+      ],
+      "lower95_one_sided": 0.06437746614966193,
+      "point": 0.1472754863828586
+     },
+     "p95_diff_seconds": 1.3508484363555908
+    }
+   }
+  }
+ }
+}

@@ -328,7 +328,7 @@ pulse-attack-dev (598 trial) cho cùng thứ tự: base29 recall 92,6%, control 
 
 Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evidence/results-20261019/README.md); các bảng nội suy là `receipts/arm-table-*.json` (`scripts/analysis/arm_matched_table.py`).
 
-## 5B. Thí nghiệm nhóm feature `feature-groups` (đăng ký 20/10 12:01; fit xong, chờ chấm điểm)
+## 5B. Thí nghiệm nhóm feature `feature-groups` (đăng ký 20/10 12:01; holdout thứ hai có kết quả tạm thời 22/10, holdout chính chạy sau lượt live)
 
 **Vì sao cần.** Thí nghiệm syscall chỉ thay đổi 29 syscall tường minh. Mọi cấu hình đều giữ nguyên bin băm syscall, bin băm cặp syscall, tổng hợp, rolling-10 và 3 cửa sổ lịch sử. Các phần đó, cùng cách gộp p-value, chưa có bằng chứng. Bộ feature Pulse đang dùng phải có bằng chứng cho **từng** phần.
 
@@ -398,6 +398,38 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 - Kết luận về nhánh tree **phụ thuộc ngân sách**. Ở ngân sách 5, chỉ dùng support không kém hơn (−0,5 và +1,1 điểm).
 - Ở ngân sách 1, chỉ dùng support gắn cờ binary vô hại ít hơn (58,4% so với 72,8%), nhưng chênh khoảng cách +7,4 [−0,8; +17,6] chưa có ý nghĩa thống kê.
 - Nghĩa là nhánh tree bổ sung tín hiệu đúng ở vùng ngưỡng chặt mà Pulse cần, đổi lại nhạy hơn với process mới.
+
+### 5B.2 Kết quả trên holdout thứ hai, tạm thời (job xong 22/10 06:40; đọc 09:41)
+
+- **Holdout:** normal của `pulse-live-recalibrated`, theo bổ sung đăng ký `feature-group-evaluation-v1-live-holdout.json`.
+- **Attack:** hai campaign của lượt đó, 1.238 trial ghép cặp.
+- **Cách so:** k2of2, ngân sách 1 đợt/replica-giờ, bootstrap ghép cặp theo workload (10.000 lần).
+- **Luật:** `rules_per_component` của v1, áp bằng `scripts/analysis/feature_group_verdict.py` (có test).
+- **Biên nhận:** `results-20261019/syscall/feature-groups/live-holdout/` (`RESULTS-budget.json`, `BOOTSTRAP.json`, `arm-scenarios.json`, `VERDICT.json`, `replay-pulse-live-recalibrated-RESULTS.json`).
+- **Tạm thời:** v1 cần cả hai tập attack (`pulse-attack-dev` và `pulse-live-recalibrated`) trên holdout chính. Holdout chính chạy sau lượt live. Kết luận cuối là kết quả gộp theo luật kết hợp của bản bổ sung.
+
+| Thành phần bỏ đi | Chênh recall [CI 95%] | Chênh tách attack − vô hại [CI 95%] | Chênh p95 | Theo luật |
+|---|---|---|---|---|
+| log-count 29 syscall | −1,4 [−2,9; −0,1] | +0,3 [−3,6; +4,3] | −0,03 s | **cần thiết** |
+| tỉ lệ 29 syscall | −0,5 [−1,5; +0,2] | −5,6 [−12,7; +0,1] | −0,05 s | chưa kết luận |
+| 5 tổng hợp | −0,2 [−0,7; 0,0] | −2,3 [−7,8; +2,7] | +0,18 s | chưa kết luận |
+| 64 bin syscall | +0,7 [+0,1; +1,3] | −1,3 [−6,4; +3,6] | −0,05 s | chưa kết luận |
+| 64 bin cặp syscall | −2,8 [−5,7; −0,2] | **+13,6 [+2,1; +26,8]** | +0,18 s | **cần thiết** |
+| rolling-10 | −4,1 [−9,3; −0,4] | **+18,4 [+8,3; +30,2]** | −0,20 s | **cần thiết** |
+| cả hai nhóm bin | −1,9 [−4,2; +0,1] | **+20,2 [+7,9; +34,7]** | +0,17 s | chưa kết luận |
+| giữ mỗi bin + tổng hợp | **−15,1 [−23,1; −8,0]** | −3,0 [−13,0; +7,3] | +0,75 s | **cần thiết** |
+| lịch sử 1 cửa sổ | −0,5 [−1,2; +0,1] | **−4,7 [−8,3; −1,3]** | 0 | **cần thiết** |
+| lịch sử 2 cửa sổ | −0,1 [−0,7; +0,5] | **−3,1 [−6,6; −0,5]** | −0,03 s | **cần thiết** |
+| chỉ nhánh tree | **−21,9 [−33,8; −11,0]** | −12,9 [−23,4; −3,2] | +1,09 s | **cần thiết** |
+| chỉ nhánh support | **−12,7 [−19,9; −6,4]** | +14,7 [+5,0; +25,6] | +1,35 s | **cần thiết** |
+
+(Chênh recall và tách tính bằng điểm phần trăm.)
+
+**Đọc kết quả:**
+- **Không thành phần nào "bỏ được".** Theo luật, bộ feature hiện tại giữ nguyên.
+- **Đánh đổi ở bin cặp syscall và rolling:** bỏ chúng làm mất 3–4 điểm recall, nhưng tách binary vô hại tốt hơn 14–20 điểm. Nghĩa là một phần tín hiệu "có process mới" nằm ở hai nhóm này. Luật đặt recall lên trước nên chúng được giữ. Đây là một ứng viên cụ thể nếu sau này muốn giảm việc gắn cờ binary vô hại (G5); muốn đổi phải đăng ký lại và fit lại.
+- **Kết quả nhánh p-value lặp lại 5B.1:** cả hai nhánh đều cần ở ngân sách 1. Chỉ dùng tree mất 22 điểm (5B.1: 28–31); chỉ dùng support mất 13 điểm (5B.1: 5–7).
+- **Ba cửa sổ lịch sử là cần thiết:** rút ngắn lịch sử làm kém khả năng tách, dù recall gần như không đổi.
 
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
@@ -489,3 +521,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 01:16 | Chạy sớm bước replay giai đoạn B trên `pulse-live-recalibrated` từ bản chép local (`feature-groups-replay-live`, CPU 200%); cùng lệnh và đường dẫn output như chuỗi sau lượt live, chuỗi sẽ bỏ qua bước này | mục 5B |
 | 22/10 01:20–01:24 | Đăng ký bổ sung một holdout thứ hai cho nhóm feature (`feature-group-evaluation-v1-live-holdout.json`), trước khi có bất kỳ số nào của giai đoạn B. Holdout này là normal của `pulse-live-recalibrated` (bản local), dùng cùng luật của v1, và không tự đổi bộ feature. `baselines.score` nay chấm được mọi nhánh đã fit với spec ngữ cảnh riêng (có test). Chạy job `feature-groups-live-holdout` (3 node song song, CPU 300%, đọc local). Holdout v1 (soak 48 giờ, ~85 GB trên NFS) vẫn chạy sau lượt live | mục 5B |
 | 22/10 01:49 | Bước replay giai đoạn B trên `pulse-live-recalibrated` (`replay-pulse-live-recalibrated`) xong, 30 phút CPU; chuỗi sau lượt live sẽ bỏ qua bước này. Job holdout thứ hai vẫn đang chấm | mục 5B |
+| 22/10 09:41 | Kết quả tạm thời giai đoạn B trên holdout thứ hai: không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ, cả hai nhánh p-value đều cần; tỉ lệ, tổng hợp, bin syscall chưa kết luận. Bỏ bin cặp/rolling tách binary vô hại tốt hơn 14–20 điểm nhưng mất 3–4 điểm recall | mục 5B.2 |

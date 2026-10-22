@@ -1,0 +1,583 @@
+{
+  "alpha_scales": [
+    1.0
+  ],
+  "arms": {
+    "a1": {
+      "base29": {
+        "benign_positive_rate_mean": 0.7441485068603712,
+        "control_positive_rate_mean": 0.04246794871794871,
+        "delay_p50": 0.6348671913146973,
+        "delay_p95": 2.7652430534362793,
+        "recall_mean": 0.9616951915240423,
+        "seeds": [
+          {
+            "FN": 18,
+            "FP": 17,
+            "TN": 399,
+            "TP": 391,
+            "benign_FP": 301,
+            "benign_TN": 112,
+            "benign_positive_rate": 0.7288135593220338,
+            "control_positive_rate": 0.040865384615384616,
+            "precision": 0.9583333333333334,
+            "recall": 0.9559902200488998,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 16,
+            "FP": 18,
+            "TN": 398,
+            "TP": 393,
+            "benign_FP": 318,
+            "benign_TN": 95,
+            "benign_positive_rate": 0.7699757869249395,
+            "control_positive_rate": 0.04326923076923077,
+            "precision": 0.9562043795620438,
+            "recall": 0.960880195599022,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 13,
+            "FP": 18,
+            "TN": 398,
+            "TP": 396,
+            "benign_FP": 303,
+            "benign_TN": 110,
+            "benign_positive_rate": 0.7336561743341404,
+            "control_positive_rate": 0.04326923076923077,
+            "precision": 0.9565217391304348,
+            "recall": 0.9682151589242054,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "bins_only": {
+        "benign_positive_rate_mean": 0.6594027441485069,
+        "control_positive_rate_mean": 0.03766025641025641,
+        "delay_p50": 0.7445852756500244,
+        "delay_p95": 4.663113117218018,
+        "recall_mean": 0.7750611246943766,
+        "seeds": [
+          {
+            "FN": 86,
+            "FP": 16,
+            "TN": 400,
+            "TP": 323,
+            "benign_FP": 273,
+            "benign_TN": 140,
+            "benign_positive_rate": 0.6610169491525424,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9528023598820059,
+            "recall": 0.7897310513447433,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 90,
+            "FP": 16,
+            "TN": 400,
+            "TP": 319,
+            "benign_FP": 278,
+            "benign_TN": 135,
+            "benign_positive_rate": 0.6731234866828087,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9522388059701492,
+            "recall": 0.7799511002444988,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 100,
+            "FP": 15,
+            "TN": 401,
+            "TP": 309,
+            "benign_FP": 266,
+            "benign_TN": 147,
+            "benign_positive_rate": 0.6440677966101694,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9537037037037037,
+            "recall": 0.7555012224938875,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_aggregates": {
+        "benign_positive_rate_mean": 0.7110573042776432,
+        "control_positive_rate_mean": 0.040865384615384616,
+        "delay_p50": 0.6382296085357666,
+        "delay_p95": 3.940783977508545,
+        "recall_mean": 0.9421352893235534,
+        "seeds": [
+          {
+            "FN": 23,
+            "FP": 21,
+            "TN": 395,
+            "TP": 386,
+            "benign_FP": 302,
+            "benign_TN": 111,
+            "benign_positive_rate": 0.7312348668280871,
+            "control_positive_rate": 0.05048076923076923,
+            "precision": 0.9484029484029484,
+            "recall": 0.9437652811735942,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 29,
+            "FP": 15,
+            "TN": 401,
+            "TP": 380,
+            "benign_FP": 277,
+            "benign_TN": 136,
+            "benign_positive_rate": 0.6707021791767555,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9620253164556962,
+            "recall": 0.9290953545232273,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 19,
+            "FP": 15,
+            "TN": 401,
+            "TP": 390,
+            "benign_FP": 302,
+            "benign_TN": 111,
+            "benign_positive_rate": 0.7312348668280871,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9629629629629629,
+            "recall": 0.9535452322738386,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_all_bins": {
+        "benign_positive_rate_mean": 0.5851493139628733,
+        "control_positive_rate_mean": 0.06971153846153845,
+        "delay_p50": 0.6322159767150879,
+        "delay_p95": 2.064248561859131,
+        "recall_mean": 0.9731051344743277,
+        "seeds": [
+          {
+            "FN": 5,
+            "FP": 33,
+            "TN": 383,
+            "TP": 404,
+            "benign_FP": 241,
+            "benign_TN": 172,
+            "benign_positive_rate": 0.5835351089588378,
+            "control_positive_rate": 0.07932692307692307,
+            "precision": 0.9244851258581236,
+            "recall": 0.9877750611246944,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 13,
+            "FP": 27,
+            "TN": 389,
+            "TP": 396,
+            "benign_FP": 238,
+            "benign_TN": 175,
+            "benign_positive_rate": 0.576271186440678,
+            "control_positive_rate": 0.06490384615384616,
+            "precision": 0.9361702127659575,
+            "recall": 0.9682151589242054,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 15,
+            "FP": 27,
+            "TN": 389,
+            "TP": 394,
+            "benign_FP": 246,
+            "benign_TN": 167,
+            "benign_positive_rate": 0.5956416464891041,
+            "control_positive_rate": 0.06490384615384616,
+            "precision": 0.9358669833729216,
+            "recall": 0.9633251833740831,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_log_counts": {
+        "benign_positive_rate_mean": 0.8175948345439871,
+        "control_positive_rate_mean": 0.041666666666666664,
+        "delay_p50": 0.7086901664733887,
+        "delay_p95": 1.9721980094909668,
+        "recall_mean": 0.9706601466992666,
+        "seeds": [
+          {
+            "FN": 13,
+            "FP": 16,
+            "TN": 400,
+            "TP": 396,
+            "benign_FP": 343,
+            "benign_TN": 70,
+            "benign_positive_rate": 0.8305084745762712,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9611650485436893,
+            "recall": 0.9682151589242054,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 13,
+            "FP": 20,
+            "TN": 396,
+            "TP": 396,
+            "benign_FP": 341,
+            "benign_TN": 72,
+            "benign_positive_rate": 0.8256658595641646,
+            "control_positive_rate": 0.04807692307692308,
+            "precision": 0.9519230769230769,
+            "recall": 0.9682151589242054,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 10,
+            "FP": 16,
+            "TN": 400,
+            "TP": 399,
+            "benign_FP": 329,
+            "benign_TN": 84,
+            "benign_positive_rate": 0.7966101694915254,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9614457831325302,
+            "recall": 0.9755501222493888,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_ratios": {
+        "benign_positive_rate_mean": 0.7820823244552058,
+        "control_positive_rate_mean": 0.03685897435897436,
+        "delay_p50": 0.6372435092926025,
+        "delay_p95": 2.7843710899352963,
+        "recall_mean": 0.9559902200488999,
+        "seeds": [
+          {
+            "FN": 23,
+            "FP": 12,
+            "TN": 404,
+            "TP": 386,
+            "benign_FP": 318,
+            "benign_TN": 95,
+            "benign_positive_rate": 0.7699757869249395,
+            "control_positive_rate": 0.028846153846153848,
+            "precision": 0.9698492462311558,
+            "recall": 0.9437652811735942,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 18,
+            "FP": 19,
+            "TN": 397,
+            "TP": 391,
+            "benign_FP": 326,
+            "benign_TN": 87,
+            "benign_positive_rate": 0.7893462469733656,
+            "control_positive_rate": 0.04567307692307692,
+            "precision": 0.9536585365853658,
+            "recall": 0.9559902200488998,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 13,
+            "FP": 15,
+            "TN": 401,
+            "TP": 396,
+            "benign_FP": 325,
+            "benign_TN": 88,
+            "benign_positive_rate": 0.7869249394673123,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9635036496350365,
+            "recall": 0.9682151589242054,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_rolling": {
+        "benign_positive_rate_mean": 0.5108958837772396,
+        "control_positive_rate_mean": 0.036057692307692304,
+        "delay_p50": 0.618889570236206,
+        "delay_p95": 1.8623063564300526,
+        "recall_mean": 0.8744906275468622,
+        "seeds": [
+          {
+            "FN": 52,
+            "FP": 14,
+            "TN": 402,
+            "TP": 357,
+            "benign_FP": 200,
+            "benign_TN": 213,
+            "benign_positive_rate": 0.48426150121065376,
+            "control_positive_rate": 0.03365384615384615,
+            "precision": 0.9622641509433962,
+            "recall": 0.8728606356968215,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 52,
+            "FP": 16,
+            "TN": 400,
+            "TP": 357,
+            "benign_FP": 219,
+            "benign_TN": 194,
+            "benign_positive_rate": 0.5302663438256658,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9571045576407506,
+            "recall": 0.8728606356968215,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 50,
+            "FP": 15,
+            "TN": 401,
+            "TP": 359,
+            "benign_FP": 214,
+            "benign_TN": 199,
+            "benign_positive_rate": 0.5181598062953995,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9598930481283422,
+            "recall": 0.8777506112469438,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_syscall_bins": {
+        "benign_positive_rate_mean": 0.778046811945117,
+        "control_positive_rate_mean": 0.060096153846153855,
+        "delay_p50": 0.6400279998779297,
+        "delay_p95": 2.4710353851318376,
+        "recall_mean": 0.9755501222493889,
+        "seeds": [
+          {
+            "FN": 11,
+            "FP": 24,
+            "TN": 392,
+            "TP": 398,
+            "benign_FP": 305,
+            "benign_TN": 108,
+            "benign_positive_rate": 0.738498789346247,
+            "control_positive_rate": 0.057692307692307696,
+            "precision": 0.943127962085308,
+            "recall": 0.9731051344743277,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 8,
+            "FP": 24,
+            "TN": 392,
+            "TP": 401,
+            "benign_FP": 343,
+            "benign_TN": 70,
+            "benign_positive_rate": 0.8305084745762712,
+            "control_positive_rate": 0.057692307692307696,
+            "precision": 0.9435294117647058,
+            "recall": 0.980440097799511,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 11,
+            "FP": 27,
+            "TN": 389,
+            "TP": 398,
+            "benign_FP": 316,
+            "benign_TN": 97,
+            "benign_positive_rate": 0.7651331719128329,
+            "control_positive_rate": 0.06490384615384616,
+            "precision": 0.9364705882352942,
+            "recall": 0.9731051344743277,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "drop_transition_bins": {
+        "benign_positive_rate_mean": 0.6481033091202583,
+        "control_positive_rate_mean": 0.03205128205128205,
+        "delay_p50": 0.6392157077789307,
+        "delay_p95": 2.5283021926879883,
+        "recall_mean": 0.9608801955990219,
+        "seeds": [
+          {
+            "FN": 19,
+            "FP": 13,
+            "TN": 403,
+            "TP": 390,
+            "benign_FP": 266,
+            "benign_TN": 147,
+            "benign_positive_rate": 0.6440677966101694,
+            "control_positive_rate": 0.03125,
+            "precision": 0.967741935483871,
+            "recall": 0.9535452322738386,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 15,
+            "FP": 13,
+            "TN": 403,
+            "TP": 394,
+            "benign_FP": 258,
+            "benign_TN": 155,
+            "benign_positive_rate": 0.6246973365617433,
+            "control_positive_rate": 0.03125,
+            "precision": 0.9680589680589681,
+            "recall": 0.9633251833740831,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 14,
+            "FP": 14,
+            "TN": 402,
+            "TP": 395,
+            "benign_FP": 279,
+            "benign_TN": 134,
+            "benign_positive_rate": 0.6755447941888619,
+            "control_positive_rate": 0.03365384615384615,
+            "precision": 0.9657701711491442,
+            "recall": 0.9657701711491442,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "history1": {
+        "benign_positive_rate_mean": 0.7393058918482648,
+        "control_positive_rate_mean": 0.04326923076923076,
+        "delay_p50": 0.6505074501037598,
+        "delay_p95": 3.560117483139038,
+        "recall_mean": 0.9625101874490628,
+        "seeds": [
+          {
+            "FN": 14,
+            "FP": 19,
+            "TN": 397,
+            "TP": 395,
+            "benign_FP": 298,
+            "benign_TN": 115,
+            "benign_positive_rate": 0.7215496368038741,
+            "control_positive_rate": 0.04567307692307692,
+            "precision": 0.9541062801932367,
+            "recall": 0.9657701711491442,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 17,
+            "FP": 18,
+            "TN": 398,
+            "TP": 392,
+            "benign_FP": 309,
+            "benign_TN": 104,
+            "benign_positive_rate": 0.7481840193704601,
+            "control_positive_rate": 0.04326923076923077,
+            "precision": 0.9560975609756097,
+            "recall": 0.9584352078239609,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 15,
+            "FP": 17,
+            "TN": 399,
+            "TP": 394,
+            "benign_FP": 309,
+            "benign_TN": 104,
+            "benign_positive_rate": 0.7481840193704601,
+            "control_positive_rate": 0.040865384615384616,
+            "precision": 0.9586374695863747,
+            "recall": 0.9633251833740831,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      },
+      "history2": {
+        "benign_positive_rate_mean": 0.7489911218724777,
+        "control_positive_rate_mean": 0.03926282051282051,
+        "delay_p50": 0.6400279998779297,
+        "delay_p95": 2.541145086288452,
+        "recall_mean": 0.9559902200488999,
+        "seeds": [
+          {
+            "FN": 20,
+            "FP": 18,
+            "TN": 398,
+            "TP": 389,
+            "benign_FP": 291,
+            "benign_TN": 122,
+            "benign_positive_rate": 0.7046004842615012,
+            "control_positive_rate": 0.04326923076923077,
+            "precision": 0.9557739557739557,
+            "recall": 0.9511002444987775,
+            "seed": 73021,
+            "unknown": 22
+          },
+          {
+            "FN": 21,
+            "FP": 16,
+            "TN": 400,
+            "TP": 388,
+            "benign_FP": 317,
+            "benign_TN": 96,
+            "benign_positive_rate": 0.7675544794188862,
+            "control_positive_rate": 0.038461538461538464,
+            "precision": 0.9603960396039604,
+            "recall": 0.9486552567237164,
+            "seed": 73022,
+            "unknown": 22
+          },
+          {
+            "FN": 13,
+            "FP": 15,
+            "TN": 401,
+            "TP": 396,
+            "benign_FP": 320,
+            "benign_TN": 93,
+            "benign_positive_rate": 0.774818401937046,
+            "control_positive_rate": 0.036057692307692304,
+            "precision": 0.9635036496350365,
+            "recall": 0.9682151589242054,
+            "seed": 73023,
+            "unknown": 22
+          }
+        ]
+      }
+    }
+  },
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-rca-followup-20261019/pulse-development-matrix"
+  ],
+  "delay_definition": "first positive window_end - kernel_event_at (lower bound on kernel->alert)",
+  "evidence_class": "development: pulse-attack-dev scenarios were exposed while building the Pulse candidate, never used to fit or tune syscall-arms arms; not the protocol v2 fresh blind set",
+  "finished_at_unix": 1792608434.696052,
+  "schema": "pulse-r4-arm-attack-replay-v1",
+  "scored_tag_trials": 41580,
+  "source_sha256": "a41107f99a2343db246236f95b11087d98c0fbb8f818aa668c7e268903039de6",
+  "study": "/var/tmp/feature-groups/study",
+  "trials": 1260,
+  "workers_root": "/var/tmp/pulse-live-copy/workers"
+}
