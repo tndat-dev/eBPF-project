@@ -16,6 +16,11 @@ Per development run (a window table from ``sentinel_pulse.attack.window_table`` 
 - campaign: a trial is positive when an alarm window lies in [start, start + 15 s]; delay = first such
   window_end - kernel event (as ideas_screen); trials with < 20 rows in [start - 30 s, start + 15 s] skipped.
 
+Paged level (amendment 2, owner decision 22/10): with ``cases=`` and ``--probe-spec``, the reference and the
+chosen configurations are also scored after a post-ML probe triage tier (an episode is held back when every RCA
+case of its container within 5 s is probe-only, alarm_taxonomy definitions; fail-open otherwise). ML-level
+numbers are unchanged by it and always reported first.
+
 Selection (protocol, fixed before any number): feasible = recall >= 95 %, precision >= 95 %, control <= 5 %,
 p95 within the tier (< 2 s, <= 3 s) on EVERY development run; minimise the max-over-runs burden; within 5 %
 of it the lower max control, then the simpler lever; propose only if burden <= 0.9 x the reference
@@ -28,6 +33,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from sentinel_pulse.attack.window_table import load  # noqa: E402
 from sentinel_pulse.detector.confirmation import IDENTITY  # noqa: E402
 from sentinel_pulse.detector.support_model import pvalues  # noqa: E402
@@ -43,6 +49,8 @@ VARIANT_RANK = {'joint': 0, 'and': 1, 'mjoint': 2, 'mand': 2}
 EPISODE_QUIET, INCIDENT_G, INTERVAL, MIN_ROWS, MIN_CAL = 15.0, (60.0, 300.0), 15.0, 20, 1200
 REFERENCE = 'joint|none|cusum_b3_h6'
 TRIAL_FIELDS = tuple(f for f in IDENTITY if f != 'workload_key')
+CASE_FIELDS = ('node_name', 'pod_uid', 'container_name')
+TRIAGE_MATCH, TRIAL_CASE_SPAN = 5.0, 20.0
 TIERS = {'lt2s': (lambda p95: p95 < 2.0), 'le3s': (lambda p95: p95 <= 3.0)}
 
 
@@ -159,7 +167,7 @@ class Trials:
                     key = tuple(str(t.get(k)) for k in TRIAL_FIELDS)
                     rows.append((label, d['attack'].get('scenario'), float(t['start_at']),
                                  t.get('kernel_event_at'), ident_index.get(key)))
-        self.label, self.scenario, self.lo, self.hi, self.kernel = [], [], [], [], []
+        self.label, self.scenario, self.lo, self.hi, self.kernel, self.start = [], [], [], [], [], []
         self.skipped = defaultdict(int)
         block = {}
         for k in np.unique(ident):
@@ -177,12 +185,13 @@ class Trials:
             if not len(sel):
                 self.skipped[label] += 1
                 continue
-            self.label.append(label); self.scenario.append(scenario)
+            self.label.append(label); self.scenario.append(scenario); self.start.append(ts)
             self.lo.append(b0 + sel[0]); self.hi.append(b0 + sel[-1] + 1)
             self.kernel.append(np.nan if kernel is None else float(kernel))
         self.label, self.scenario = np.array(self.label), np.array(self.scenario)
         self.lo, self.hi = np.array(self.lo, dtype=np.int64), np.array(self.hi, dtype=np.int64)
         self.kernel = np.array(self.kernel, dtype=np.float64)
+        self.start = np.array(self.start, dtype=np.float64)
 
     def outcome(self, alarm, end):
         cs = np.concatenate([[0], np.cumsum(alarm)])
@@ -213,6 +222,71 @@ def metrics(alarm, ctx, trials, by_scenario=False):
     if by_scenario:
         out['recall_by_scenario'] = {str(s): float(hit[att & (trials.scenario == s)].mean())
                                      for s in sorted(set(trials.scenario[att]))}
+    return out
+
+
+# ---------------------------------------------------------------- paged level (amendment 2)
+
+def load_triage(cases_dir, spec_path):
+    """{(node, pod_uid, container): sorted [(trigger window_end, probe-only)]} over every RCA case."""
+    import alarm_taxonomy as at
+    spec = json.loads(Path(spec_path).read_text())['workloads']
+    out, unreadable = defaultdict(list), 0
+    for path in sorted(Path(cases_dir).glob('*.json')):
+        try:
+            case = json.loads(path.read_text())
+            kind, trigger, _ = at.classify(case)
+        except (ValueError, KeyError, StopIteration):
+            unreadable += 1
+            continue
+        execs, probes = at.probe_flags(case, set((spec.get(trigger.get('workload_key')) or {}).get('entry_binaries', ())))
+        held = kind == 'exec_in_window' and execs > 0 and probes == execs
+        out[tuple(str(trigger.get(f)) for f in CASE_FIELDS)].append((float(trigger['window_end']), held))
+    for v in out.values():
+        v.sort()
+    return dict(out), unreadable
+
+
+def _held(cases, lo, hi):
+    """(matched, held): cases with window_end in [lo, hi]; held when there is one and all are probe-only."""
+    if not cases:
+        return False, False
+    ends = [c[0] for c in cases]
+    i, j = np.searchsorted(ends, lo, 'left'), np.searchsorted(ends, hi, 'right')
+    flags = [c[1] for c in cases[i:j]]
+    return bool(flags), bool(flags) and all(flags)
+
+
+def paged_metrics(alarm, a, trials, triage, case_key):
+    """Paged-level metrics after the probe triage tier; ``case_key[ident index]`` = (node, pod_uid, container)."""
+    idx = np.flatnonzero(alarm & a['normal'])
+    per = defaultdict(lambda: dict(episodes=0, matched=0, held=0))
+    if len(idx):
+        ident, end = a['ident'][idx], a['end'][idx]
+        first = np.ones(len(idx), bool)
+        first[1:] = (ident[1:] != ident[:-1]) | (end[1:] - end[:-1] >= EPISODE_QUIET)
+        starts = np.flatnonzero(first); stops = np.append(starts[1:], len(idx))
+        for s0, s1 in zip(starts, stops):
+            k = int(ident[s0]); w = int(a['workload'][idx[s0]])
+            matched, held = _held(triage.get(case_key[k]), end[s0] - TRIAGE_MATCH, end[s1 - 1] + TRIAGE_MATCH)
+            per[w]['episodes'] += 1; per[w]['matched'] += matched; per[w]['held'] += held
+    hours = a['hours']
+    episodes = sum(v['episodes'] for v in per.values()); held = sum(v['held'] for v in per.values())
+    matched = sum(v['matched'] for v in per.values())
+    estimate = sum(v['episodes'] - v['held'] - (v['episodes'] - v['matched']) * (v['held'] / v['matched'] if v['matched'] else 0)
+                   for v in per.values())
+    hit, _ = trials.outcome(alarm, a['end'])
+    held_trial = np.array([_held(triage.get(case_key[int(a['ident'][lo])]), ts, ts + TRIAL_CASE_SPAN)[1]
+                           for lo, ts in zip(trials.lo, trials.start)], dtype=bool)
+    paged = hit & ~held_trial
+    out = dict(episodes=episodes, episodes_with_case=matched, held_back=held,
+               paged_failopen=(episodes - held) / hours, paged_estimate=estimate / hours)
+    for label in ('attack', 'benign', 'control'):
+        m = trials.label == label
+        out[label] = float(paged[m].mean()) if m.any() else None
+        out[f'{label}_held_back'] = int((hit & held_trial)[m].sum())
+    tp, fp = int(paged[trials.label == 'attack'].sum()), int(paged[trials.label == 'control'].sum())
+    out['precision'] = tp / (tp + fp) if tp + fp else None
     return out
 
 
@@ -261,6 +335,8 @@ def prepare(table, run_since, campaigns, tree, support, classes):
     fields = meta.get('identity_fields', list(IDENTITY))
     pos = [fields.index(f) for f in TRIAL_FIELDS]         # trial files carry no workload_key
     index = {tuple(i[j] for j in pos): k for k, i in enumerate(meta['identities'])}
+    cpos = [fields.index(f) for f in CASE_FIELDS]
+    a['case_key'] = [tuple(i[j] for j in cpos) for i in meta['identities']]
     trials = Trials(campaigns, index, a['ident'], a['start'], a['end'])
     asrun_equal = float(np.mean(np.isclose(p['joint'], a['joint_p'], rtol=0, atol=1e-12)))
     info = dict(rows=int(len(a['end'])), dropped_without_calibration=int((~keep).sum()), replica_hours=a['hours'],
@@ -318,6 +394,7 @@ def main():
                     help='name=<n>,table=<npz>,since=<unix selection start>,campaign=<dir>[,campaign=<dir>]')
     ap.add_argument('--calibration', required=True)
     ap.add_argument('--calibration-table', required=True)
+    ap.add_argument('--probe-spec', help='exec-probe-spec.json (paged level; runs need cases=<RCA cases dir>)')
     ap.add_argument('--output', required=True)
     args = ap.parse_args()
     tree, support = load_calibration(args.calibration)
@@ -333,6 +410,11 @@ def main():
         runs[name] = evaluate_run(a, p, trials)
         info['evaluate_seconds'] = time.time() - t0
         infos[name] = info; contexts[name] = (a, p, trials)
+        if kv.get('cases') and args.probe_spec:
+            triage, unreadable = load_triage(kv['cases'][0], args.probe_spec)
+            a['triage'] = triage
+            info['rca_cases'] = dict(dir=kv['cases'][0], containers=len(triage), cases=sum(map(len, triage.values())),
+                                     unreadable=unreadable)
         print(name, json.dumps({k: v for k, v in info.items() if k != 'campaign_spans'}), flush=True)
     chosen = select(runs)
     for tier, c in chosen.items():
@@ -344,6 +426,14 @@ def main():
     for name, (a, p, trials) in contexts.items():
         (_, alarm), = rules('joint', p['joint'], a['alpha'], discount_mask(a, 'none'), a['new'], only='cusum_b3_h6')
         infos[name]['reference_by_scenario'] = metrics(alarm, a, trials, by_scenario=True)['recall_by_scenario']
+        if 'triage' in a:
+            paged = {REFERENCE: paged_metrics(alarm, a, trials, a['triage'], a['case_key'])}
+            for tier, c in chosen.items():
+                if c.get('choice'):
+                    variant, mode, rule = c['choice'].split('|')
+                    (_, alarm_c), = rules(variant, p[variant], a['alpha'], discount_mask(a, mode), a['new'], only=rule)
+                    paged[tier] = dict(choice=c['choice'], **paged_metrics(alarm_c, a, trials, a['triage'], a['case_key']))
+            infos[name]['paged'] = paged
     result = dict(schema='pulse-burden-levers-v1', protocol=['sentinel_pulse/protocol/burden-reduction-v1.json',
                   'sentinel_pulse/protocol/burden-reduction-v1-amendment-1.json'], calibration=args.calibration,
                   calibration_table=args.calibration_table, calibration_reproduced=checks,
