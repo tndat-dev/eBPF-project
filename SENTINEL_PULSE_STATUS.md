@@ -1293,14 +1293,30 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 | 3 | Cấu hình gộp | replay trên `pulse-stable-refreshed` | Đang chạy (xem dưới) |
 
 - **Chỉ một thành phần đổi**, nên cấu hình gộp chính là cấu hình đã đo blind ở 5.13b: recall 100%, precision 97,2%, control 2,9%, p95 1,70 s, gánh 5,32 so với 6,74. Theo số đó, cấu hình đạt cả 4 điều kiện của bước 3.
-- **Bước 3 vẫn chạy bằng công cụ replay cấu hình gộp** (`rolling_recalibration --strategy asrun --temporal cusum-3-6`, so với `--temporal kofn`), để có phép kiểm độc lập với `ideas_burden.py`:
-  - unit `pulse-stable-selection-1022` trên `.234`, script `scripts/stable_selection_replay.sh`, snapshot `9b7c813`;
-  - chạy sau khi bước nén của `after-stable-refreshed` xong, để hai job không cùng đọc NFS;
-  - biên nhận: `pulse-stable-refreshed/analysis/stable-selection-{kofn,cusum-3-6}.json`.
+- **Bước 3, replay cấu hình gộp (xong 22/10 16:28; `stable-selection-{kofn,cusum-3-6}.json`).** Dùng `rolling_recalibration --strategy asrun`, đánh giá từ cuối pha chọn, 1.075,4 replica-giờ:
+
+  | | k2of2 α×10 (điểm xuất phát) | **CUSUM b3/h6** | Điều kiện bước 3 |
+  |---|---|---|---|
+  | Recall | 100% (310/310) | **100%** (310/310) | ≥ 95% ✓ |
+  | Precision | 96,0% (310/323) | **97,2%** (310/319) | ≥ 95% ✓ |
+  | Control | 4,2% (13/310) | **2,9%** (9/310) | ≤ 5% ✓ |
+  | p95 kernel → preview | 2,26 s | **1,68 s** (mức < 2 s) | ≤ 3 s ✓ |
+  | Đợt/replica-giờ | 5,17 | **4,95** | không cao hơn ✓ |
+  | Binary vô hại | 94,1% | 98,1% | (không xét) |
+
+  **Đạt.** Cấu hình **ML stable = base29 + calibration làm mới (không đổi) + CUSUM drift 3, ngưỡng 6**.
+- **Ghi thẳng:**
+  - Trên khoảng này gánh chỉ giảm **4%**, trong khi trên toàn bộ normal tính từ đầu pha chọn là **21%** (5.13b, `ideas_burden.py`). Phần chênh nằm ở 90 phút pha chọn đầu lượt.
+  - Hai công cụ khác nhau ở khoảng tính, chưa tách được nguyên nhân. Bảng của 5.22 tính từ đầu pha chọn và sẽ tái lập lại con số 5,32 như một phép kiểm.
+- **Đóng băng (16:29):** `policy-cusum-b3-h6.json` ghi số replay vào `combined_replay`, SHA-256 `9bf0b216…`. Snapshot `runtime-a45cac2-20261022`. Đã kiểm file nạp đúng với candidate `4bad16dc` qua loader thật (21 model, `CusumPolicy(3, 6, 1 s)`).
 - **Bước 4 (sau khi bước 3 đạt):**
   - file chính sách đã soạn sẵn: `sentinel_pulse/protocol/policy-cusum-b3-h6.json` (candidate `4bad16dc…` giữ nguyên; CUSUM drift 3, ngưỡng 6, khoảng hở tối đa 1 s). Test bảo đảm luật trong file đúng là luật đã kiểm từng cửa sổ với `ideas_screen.py` và `ideas_burden.py`;
-  - đóng băng bằng SHA-256 khi bước 3 đạt, ghi số replay vào `combined_replay` trước khi đóng băng;
-  - xác nhận bằng một lượt live mới có campaign mới, báo đủ các chỉ số của điều 4.
+  - đã đóng băng (xem trên);
+  - **lượt live xác nhận `pulse-stable-confirm`** (protocol `stable-confirmation-v1`, đăng ký 16:29):
+    - 24 giờ, chấm nhanh, binary vô hại đối chứng, tốc độ attack 1, 3, 6, 12, 24/s (525 cặp). Kỳ vọng chính tính trên 6, 12, 24/s, như các lượt trước; 1 và 3/s báo riêng (G4);
+    - RCA có baseline seed (RCA 5.12);
+    - giữ log Falco cho phép so sánh có/không rule.
+  - **Khởi chạy tự động:** unit `pulse-stable-confirm-launcher` chờ cả 4 unit đọc NFS nặng xong (`launch_when_idle.sh`, `WAIT_UNITS`), rồi chạy `launch_run.sh all`. Biến môi trường để trong file chỉ root đọc được.
 
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
 
@@ -1402,7 +1418,7 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~4–7 đợt/replica-giờ ở các chính sách khả thi) |
 | Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
 | Bằng chứng cho bộ feature | Tạm thời (syscall 5B.2): giữ nguyên; holdout chính chạy sau lượt live |
-| Chốt cấu hình ML stable | Bước 1 xong (5.19): base29 + CUSUM b3/h6 + calibration làm mới. Replay cấu hình gộp đang chờ chạy; sau đó đóng băng và lượt live xác nhận |
+| Chốt cấu hình ML stable | **Đã đóng băng** (5.19): base29 + calibration làm mới + CUSUM b3/h6, bước 3 đạt. Lượt live xác nhận `pulse-stable-confirm` tự khởi chạy khi các job nặng xong (~19:30–20:00) |
 | Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
@@ -1751,3 +1767,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 16:05–16:10 | Theo yêu cầu tách đánh giá ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; tầng triage chuyển sang `rule_tier.py` (output riêng, kiểm số ML trùng trước khi áp rule), protocol `rule-integration-v1`. Chuyển 5.15d (Falco), 5.16 (tripwire) và phần triage của 5.22 sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md). Khởi chạy lại `pulse-burden-levers-1022` (snapshot `1f5558a`) trước khi nó dựng bảng | mục 5.22, R1–R5 |
 | 16:10–16:13 | Theo quyết định "hoàn thiện ML trước, rồi tích hợp rule và so sánh có/không rule": unit `pulse-burden-levers-1022` chỉ còn phần ML (snapshot `ab35a23`); thiết kế so sánh đăng ký ở `rule-integration-v1` bổ sung 1 | mục 5.22, [rule](RULE_INTEGRATION_STATUS.md) R6 |
 | 16:17–16:24 | Bước nén xong lúc 16:17 (NFS còn 85 GB). Không có lượt live, nên chia chuỗi nặng thành các unit song song trên `.234` (snapshot `11492a4`): `pulse-stable-selection-1022` (2 replay cấu hình gộp song song), `feature-groups-primary-1022` (dump 3 node + replay `pulse-attack-dev` song song; lần khởi động đầu lỗi vì output dở của lần 14:56, đã xóa rồi chạy lại), `pulse-57d-1022`, cùng `pulse-burden-levers-1022` (2 bảng). Tải ~15/24 core, RAM dùng 39/125 GB. Soạn protocol `stable-confirmation-v1` cho lượt live xác nhận `pulse-stable-confirm` (tốc độ attack 1, 3, 6, 12, 24/s; kỳ vọng chính trên 6, 12, 24/s); `launch_when_idle.sh` chờ được nhiều unit | mục 5.19, 5.22 |
+| 16:28–16:31 | 5.19 bước 3 đạt: CUSUM b3/h6 recall 100%, precision 97,2%, control 2,9%, p95 1,68 s, 4,95 so với 5,17 đợt/replica-giờ. Đóng băng `policy-cusum-b3-h6` (`9bf0b216…`, snapshot `a45cac2`), kiểm nạp qua loader thật; đăng ký `stable-confirmation-v1`; hẹn `pulse-stable-confirm-launcher` chờ 4 unit nặng | mục 5.19 |
