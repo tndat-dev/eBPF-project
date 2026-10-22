@@ -19,6 +19,12 @@ on the attack/control windows: a window is positive only if it passes and at lea
 k of the last n windows of the same container passed, history restarting after a
 gap. Default 1-of-1 is the single-window rule used before.
 
+``--cusum-drift b`` applies Pulse's stable temporal rule instead (CUSUM on -ln p with drift b, alarm at S >= h,
+S restarting after a gap, as ``detector/confirmation.CusumState``; 22/10, Pulse 5.19). The grid is then over the
+CUSUM threshold h instead of the alpha scale, and the matched budget gives every arm its lowest h within budget.
+Output keys stay the same (the grid value is reported as ``alpha_scale`` too) so arm_bootstrap / arm_scenarios
+read it unchanged.
+
 Evidence class: development (pulse-attack-dev scenarios were exposed while building the
 Pulse candidate; the holdout is unadjudicated normal). Delay is
 ``first positive window_end - kernel_event_at``, a lower bound on
@@ -44,6 +50,7 @@ EPISODE_QUIET_SECONDS = 15.0
 WINDOW_SECONDS = 0.5
 SCALES = (0.5, 1, 1.5, 2, 3, 4, 5, 7, 10, 15, 20, 30)
 BUDGETS = (0.1, 1.0, 5.0, 18.0)
+CUSUM_THRESHOLDS = (1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40)
 MINIMUM_CALIBRATION = 1200
 
 
@@ -105,6 +112,40 @@ def confirm(identity, window_end, passed, k=1, n=1, max_gap=MAX_GAP_SECONDS):
     return out
 
 
+def cusum_scores(identity, window_end, x, drift, max_gap=MAX_GAP_SECONDS):
+    """CUSUM statistic S per window, aligned with the inputs: S_t = max(0, S_{t-1} + x_t - drift) over the windows
+    of one container in time order, restarting (S = 0 before the window) on the same gaps as ``confirm``.
+    Vectorised Page recursion: S_t = C_t - min(0, min_{j<=t} C_j), C the within-run cumulative sum."""
+    order = np.lexsort((window_end, identity))
+    ids, ends = np.asarray(identity)[order], np.asarray(window_end, dtype=np.float64)[order]
+    y = np.asarray(x, dtype=np.float64)[order] - drift
+    starts = ends - WINDOW_SECONDS
+    new_run = np.ones(len(ids), dtype=bool)
+    if len(ids) > 1:
+        new_run[1:] = (ids[1:] != ids[:-1]) | (starts[1:] - ends[:-1] > max_gap) | (starts[1:] < ends[:-1] - 0.25)
+    out = np.empty(len(ids))
+    if not len(ids):
+        return out
+    run = np.cumsum(new_run) - 1
+    g = np.cumsum(y)
+    first = np.flatnonzero(new_run)
+    c = g - (g[first] - y[first])[run]
+    k = 2*float(np.max(np.abs(c))) + 10.0
+    m = np.minimum.accumulate(c - run*k) + run*k        # later runs sit far lower: the running min never crosses back
+    out[order] = c - np.minimum(0.0, m)
+    return out
+
+
+def cusum_windows(windows, drift, threshold):
+    """Trial windows with ``joint_p`` 0 where CUSUM alarms and +inf elsewhere (compare against 0.5)."""
+    if not windows:
+        return windows
+    ends = np.array([float(w['end']) for w in windows])
+    x = -np.log(np.maximum(np.array([w['joint_p'] for w in windows], dtype=np.float64), 1e-12))
+    alarm = cusum_scores(np.zeros(len(windows), dtype=np.int64), ends, x, drift) >= threshold
+    return [dict(w, raw_joint_p=w['joint_p'], joint_p=0.0 if a else float('inf')) for w, a in zip(windows, alarm)]
+
+
 def load_holdout(dump_root: Path, arm: str):
     """tag -> dict(identity, window_end, tree, support) for every model of one arm."""
     parts = defaultdict(lambda: defaultdict(list))
@@ -148,9 +189,10 @@ def load_replay(replay: Path):
 
 
 def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes=None, confirmation=(1, 1),
-                 pvalue='joint'):
+                 pvalue='joint', cusum_drift=None):
     """``outcomes``, if a list, receives one row per (seed, scale, trial) for paired bootstrap.
-    ``confirmation`` = (k, n) temporal confirmation applied to holdout and trial windows."""
+    ``confirmation`` = (k, n) temporal confirmation applied to holdout and trial windows.
+    ``cusum_drift``: CUSUM instead of k-of-n; ``scales`` are then CUSUM thresholds."""
     k, n = confirmation
     rows = defaultdict(lambda: dict(episodes=0, windows=0, positive=0, counts=defaultdict(int), delays=[]))
     calibrated_models, skipped = 0, []
@@ -174,16 +216,24 @@ def evaluate_arm(arm, holdout, replay, trials, split_at, scales=SCALES, outcomes
                                 np.array([w['support_score'] for w in windows]), cal_tree, cal_support)
                 rescored[key] = [dict(w, joint_p=float(j)) for w, j in zip(windows, jp)]
         workload = tag.split('|')[0]
+        if cusum_drift is not None:
+            stat = cusum_scores(h['identity'][ev], h['window_end'][ev], -np.log(np.maximum(p, 1e-12)), cusum_drift)
         for scale in scales:
             r = rows[scale, seed]
-            positive = confirm(h['identity'][ev], h['window_end'][ev], p <= alpha*scale, k, n)
+            if cusum_drift is None:
+                positive = confirm(h['identity'][ev], h['window_end'][ev], p <= alpha*scale, k, n)
+                confirmed = {key: confirmed_windows(windows, alpha*scale, k, n) for key, windows in rescored.items()}
+                threshold = alpha*scale
+            else:
+                positive = stat >= scale
+                confirmed = {key: cusum_windows(windows, cusum_drift, scale) for key, windows in rescored.items()}
+                threshold = 0.5
             r['episodes'] += count_episodes(h['identity'][ev], h['window_end'][ev], positive)
             r['windows'] += int(ev.sum()); r['positive'] += int(positive.sum())
-            confirmed = {key: confirmed_windows(windows, alpha*scale, k, n) for key, windows in rescored.items()}
             for trial in trials:
                 if trial['workload_key'] != workload:
                     continue
-                result = interval_outcome(confirmed.get(trial_key(trial), []), trial, lambda w: alpha*scale)
+                result = interval_outcome(confirmed.get(trial_key(trial), []), trial, lambda w: threshold)
                 kind = 'benign' if trial.get('control_kind') == 'benign_exec' else trial['label']
                 r['counts'][f"{kind}:{result['outcome']}"] += 1
                 if outcomes is not None:
@@ -233,7 +283,9 @@ def confirmed_windows(windows, threshold, k=1, n=1):
     return [dict(w, raw_joint_p=w['joint_p'], joint_p=w['joint_p'] if c else float('inf')) for w, c in zip(windows, ok)]
 
 
-def matched(arms, budgets=BUDGETS):
+def matched(arms, budgets=BUDGETS, loosest=max):
+    """Per budget, every arm at its loosest grid value within budget: the largest alpha scale, or (``loosest=min``)
+    the lowest CUSUM threshold."""
     out = {}
     for budget in budgets:
         out[f'{budget:g}'] = {}
@@ -242,7 +294,7 @@ def matched(arms, budgets=BUDGETS):
                       if v['episodes_per_replica_hour'] is not None and v['episodes_per_replica_hour'] <= budget]
             if not within:
                 out[f'{budget:g}'][arm] = None; continue
-            scale, v = max(within, key=lambda sv: sv[0])
+            scale, v = loosest(within, key=lambda sv: sv[0])
             out[f'{budget:g}'][arm] = dict(alpha_scale=scale, **{k: v[k] for k in (
                 'episodes_per_replica_hour', 'recall', 'control_positive_rate', 'precision_1to1',
                 'benign_positive_rate', 'delay_p50', 'delay_p95')})
@@ -250,7 +302,7 @@ def matched(arms, budgets=BUDGETS):
 
 
 def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, calibration_fraction=0.2,
-        confirmation=(1, 1), pvalue=('joint',), arms_filter=None):
+        confirmation=(1, 1), pvalue=('joint',), arms_filter=None, cusum_drift=None):
     if output.exists():
         raise ValueError('output exists; choose a new path')
     registration, index, _ = load_study(study)
@@ -269,7 +321,8 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
             name = arm if kind == 'joint' else f'{arm}@{kind}'
             rows = []
             arms[name] = evaluate_arm(name, holdout, windows, trials, split_at, outcomes=rows,
-                                      confirmation=confirmation, pvalue=kind)
+                                      confirmation=confirmation, pvalue=kind, cusum_drift=cusum_drift,
+                                      scales=SCALES if cusum_drift is None else CUSUM_THRESHOLDS)
             output.mkdir(parents=True, exist_ok=True)
             with (output/'TRIAL_OUTCOMES.jsonl').open('a') as stream:
                 stream.writelines(json.dumps(r) + '\n' for r in rows)
@@ -277,12 +330,15 @@ def run(study: Path, dump_root: Path, replay: Path, campaigns, output: Path, cal
     result = dict(schema='pulse-r4-arm-budget-v1', study=str(study), dump_root=str(dump_root), replay=str(replay),
                   campaigns=[str(c) for c in campaigns], calibration_fraction=calibration_fraction,
                   calibration_span_unix=[begin, split_at], evaluation_span_unix=[split_at, finish],
-                  episode_quiet_seconds=EPISODE_QUIET_SECONDS, scales=list(SCALES), budgets=list(BUDGETS),
-                  confirmation=dict(k=confirmation[0], n=confirmation[1], max_gap_seconds=MAX_GAP_SECONDS),
+                  episode_quiet_seconds=EPISODE_QUIET_SECONDS, budgets=list(BUDGETS),
+                  scales=list(SCALES if cusum_drift is None else CUSUM_THRESHOLDS),
+                  grid='alpha_scale' if cusum_drift is None else 'cusum_threshold',
+                  confirmation=dict(k=confirmation[0], n=confirmation[1], max_gap_seconds=MAX_GAP_SECONDS)
+                  if cusum_drift is None else dict(kind='cusum', drift=cusum_drift, max_gap_seconds=MAX_GAP_SECONDS),
                   pvalue=list(kinds), arms_evaluated=sorted(arms),
                   evidence_class='development; unadjudicated normal holdout; pulse-attack-dev scenarios previously exposed',
                   delay_definition='first positive window_end - kernel_event_at (lower bound on kernel->alert)',
-                  arms=arms, matched_budget=matched(arms),
+                  arms=arms, matched_budget=matched(arms, loosest=max if cusum_drift is None else min),
                   source_sha256=sha256_file(Path(__file__)), finished_at_unix=time.time())
     atomic_json(output/'RESULTS.json', result)
     return result
@@ -301,11 +357,13 @@ def main():
     parser.add_argument('--pvalue', choices=PVALUES, action='append',
                         help="joint (Pulse) and/or one branch alone; non-joint kinds become arms 'name@kind'")
     parser.add_argument('--arm', action='append', help='evaluate only these arms')
+    parser.add_argument('--cusum-drift', type=float, help="Pulse's stable rule: CUSUM on -ln p with this drift (grid over h)")
     args = parser.parse_args()
     if not 1 <= args.confirm_k <= args.confirm_n:
         parser.error('need 1 <= k <= n')
     result = run(args.study.resolve(), args.dump_root, args.replay, args.campaign, args.output, args.calibration_fraction,
-                 confirmation=(args.confirm_k, args.confirm_n), pvalue=tuple(args.pvalue or ('joint',)), arms_filter=args.arm)
+                 confirmation=(args.confirm_k, args.confirm_n), pvalue=tuple(args.pvalue or ('joint',)), arms_filter=args.arm,
+                 cusum_drift=args.cusum_drift)
     for budget, arms in result['matched_budget'].items():
         print('== budget', budget, 'episodes/replica-hour')
         for arm, v in sorted(arms.items(), key=lambda kv: -(kv[1] or {}).get('recall', -1) if kv[1] else 1):

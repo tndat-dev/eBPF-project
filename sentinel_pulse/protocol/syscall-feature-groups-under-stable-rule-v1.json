@@ -1,0 +1,13 @@
+{
+  "schema": "sentinel-pulse-syscall-feature-groups-under-stable-rule-v1",
+  "registered_at": "2026-10-22T16:36+07:00",
+  "registered_before": "any CUSUM-rule number for the syscall arms or the feature-group arms",
+  "why": "Pulse's stable temporal rule changed from k2of2 alpha x10 to CUSUM drift 3 (Pulse 5.19, frozen 22/10 16:29). The syscall report states that a change of Pulse's temporal aggregation must be re-applied to every arm with arm_budget on the exported scores (SYSCALL 7). The registered k2of2 analyses (SYSCALL 5.9, 5B) stay the primary evidence; this is the check that their conclusions hold under the rule Pulse now runs.",
+  "method": "arm_budget --cusum-drift 3: CUSUM on -ln p (vectorised, window-for-window equal to detector/confirmation.CusumState, tested), grid over the threshold h in {1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40}; every arm at its lowest h within each budget (0.1, 1, 5, 18 episodes per replica-hour; primary 1, secondary 5); calibration on the first 20 % of the holdout; paired workload bootstrap (10000) against base29; per-scenario recall",
+  "applies_to": {
+    "syscall_arms": "the 11 syscall-arms configurations, holdout score dump of syscall-arms, replays pulse-attack-dev and pulse-live-recalibrated (same inputs as SYSCALL 5.9)",
+    "feature_groups": "the feature-group arms on the primary holdout (joint, and base29@tree / base29@support), same two attack sets, after feature-groups-primary-1022 finishes"
+  },
+  "decision": "the v2 selection rule (syscall) and the per-component rules (feature-group-evaluation-v1) are applied unchanged at the primary budget. A k2of2 conclusion stands when the CUSUM analysis agrees; where it gives the opposite verdict, that arm or component is reported as inconclusive. No feature change follows from this check alone.",
+  "data_handling": "inputs copied to local disk on .234 before the confirmation live run starts; the analysis then reads no NFS (CPU only, nice 19), as the k2of2 job of SYSCALL 5.9 did"
+}

@@ -70,3 +70,40 @@ def test_confirmed_windows_only_keep_confirmed_positives():
     assert [w['joint_p'] <= 0.01 for w in out] == [False, False, False, True, False]
     assert out[0]['raw_joint_p'] == 0.001
     assert ab.confirmed_windows(windows, 0.01) is windows
+
+
+def test_vectorised_cusum_matches_pulse_cusum_state():
+    from sentinel_pulse.detector.confirmation import CusumPolicy, CusumState
+    rng = np.random.default_rng(11)
+    m = 3000
+    identity = rng.integers(0, 4, m)
+    end = np.cumsum(rng.choice([0.5, 0.5, 0.5, 0.5, 2.0, 0.2], size=m))
+    p = np.clip(rng.uniform(size=m) ** 3, 1e-9, 1)
+    for b, h in ((3.0, 6.0), (2.0, 1.0), (5.0, 12.0)):
+        stat = ab.cusum_scores(identity, end, -np.log(p), b)
+        state = CusumState(CusumPolicy(drift=b, threshold=h))
+        ref = np.zeros(m, dtype=bool)
+        for i in np.lexsort((end, identity)):
+            ref[i] = state.update(dict(workload_key='w', node_name='n', pod_uid=str(identity[i]), container_name='c',
+                                       workload_revision='r', cgroup_id=1, window_start=end[i]-0.5, window_end=end[i],
+                                       joint_p=float(p[i])))
+        assert np.array_equal(stat >= h, ref), (b, h)
+
+
+def test_cusum_grid_matches_lowest_threshold_within_budget():
+    rng = np.random.default_rng(0)
+    n = 4000
+    end = np.arange(n)*0.5
+    holdout = {'ns/w:c|armA|1': dict(identity=np.zeros(n, dtype=np.int64), window_end=end,
+                                       tree=rng.normal(size=n), support=rng.normal(size=n))}
+    attack = [dict(start=100.0+0.5*i, end=100.5+0.5*i, alpha=0.01, tree_score=10.0, support_score=10.0, joint_p=1.0)
+              for i in range(30)]
+    control = [dict(w, start=w['start']+100, end=w['end']+100, tree_score=0.0, support_score=0.0) for w in attack]
+    replay = {'ns/w:c|armA|1': {'/c/1:attack': attack, '/c/1:control': control}}
+    trials = [dict(trial_id='1:attack', campaign_path='/c', workload_key='ns/w:c', label='attack', start_at=100.0, kernel_event_at=100.2),
+              dict(trial_id='1:control', campaign_path='/c', workload_key='ns/w:c', label='expected_normal', start_at=200.0)]
+    result = ab.evaluate_arm('armA', holdout, replay, trials, split_at=end[n//2], scales=(4, 40), cusum_drift=3.0)
+    assert result['scales']['4']['recall'] == 1.0 and result['scales']['4']['control_positive_rate'] == 0.0
+    assert result['scales']['4']['episodes_per_replica_hour'] >= result['scales']['40']['episodes_per_replica_hour']
+    pick = ab.matched({'armA': result}, budgets=(1e9,), loosest=min)['1e+09']['armA']
+    assert pick['alpha_scale'] == 4
