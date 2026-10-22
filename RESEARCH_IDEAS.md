@@ -88,29 +88,35 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 22/10 10:00)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 22/10 16:26)
 
-Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác. Ưu tiên hiện tại (22/10): **hoàn thiện bằng chứng của cả Pulse, syscall và RCA, đưa ML ra stable, rồi mới viết luận văn**; cải tiến cho paper làm sau; rule (Falco, tripwire) tích hợp sau cùng, song song với ML.
+Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
+
+**Ưu tiên hiện tại (22/10):**
+1. Hoàn thiện bằng chứng của cả Pulse ML, syscall và RCA, đưa ML ra stable rồi mới viết luận văn.
+2. Rule chỉ tích hợp **sau khi ML hoàn thiện**, rồi so sánh có/không rule ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6).
+3. Cải tiến cho paper làm sau.
 
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
-| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ nhiều lượt; chấm nhanh khớp từng bit; CPU 13–31% | Calibration tự làm mới trong live; tripwire live (chỉ cho paper) |
-| Đánh giá Pulse ML cho luận văn | ~88% | 4 lượt live; lượt mới đạt 4/4 kỳ vọng ở mức ≤ 3 s (5.13a); baseline (5.15a); Pareto có CI (5.8j); recall theo tốc độ (5.15c); phân loại cảnh báo (5.18); review nhãn 4.766 case (5.20); luật chốt stable đăng ký (5.19) | Giai đoạn final 22/10; chốt ML stable; một lượt live xác nhận |
-| Thí nghiệm syscall + nhóm feature | ~93% | Kết luận syscall có CI; nhánh p-value; nhóm feature trên holdout thứ hai: không thành phần nào bỏ được (5B.2) | Holdout chính + `pulse-attack-dev` (chạy tự động sau lượt live) |
-| RCA | ~90% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới (RCA 5.11); nhãn triage probe trên case (lượt sau) | Lý do 13% attack không có case (bộ đếm mới, lượt sau); baseline binary bỏ sót tác vụ định kỳ hiếm (5.20) |
-| Baseline ML (G1) | ~90% | 3 baseline + `tree_ae` có CI trên development (5.15a) và lặp lại trên dữ liệu mới (5.15b): AE/`tree_ae` không thay base29 | Kiểm định nhiều so sánh |
-| Phần rule, tách khỏi ML ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md)) | ~55% | Falco trên campaign và normal (R2); tripwire A1 đạt blind (R3); tầng triage probe sau ML có protocol và code (R4) | Kết quả triage (tối 22/10); gánh tripwire trên normal dài; đường triage nhanh; triage khớp tham số probe |
-| Hình và bảng cho luận văn | ~40% | 4 hình vi/en từ biên nhận (`docs/figures/`) | Hình gánh cảnh báo theo giờ, RCA, nhóm feature; bảng tổng hợp |
-| **Viết luận văn** | **~10%** | 3 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương |
-| **Luận văn (tổng thể, gồm viết)** | **~74%** | Thí nghiệm gần xong (~90%), số liệu và bằng chứng đầy đủ | Đọc kết quả 22–23/10, chốt stable; viết chương sau khi đủ bằng chứng |
-| Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS (mục 5) | Để mở: Claude không tự dựng phần này (22/10) |
-| Kẻ tấn công chậm, thích nghi (G4) | ~20% | Recall theo tốc độ 6–24/s; planner có `--attack-rates` | Campaign 1–3/s; lập luận mimicry |
+| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~92% | Chạy ổn định 24 giờ nhiều lượt; chấm nhanh khớp từng bit; CPU worker 13–31%; overhead probe đo được (5.21); đường live cho CUSUM có test | Calibration tự làm mới trong live |
+| Đánh giá Pulse ML cho luận văn | ~92% | 4 lượt live; final `pulse-stable-refreshed` (5.13b): CUSUM đạt blind, 4/4 kỳ vọng ở mức < 2 s, gánh −21%; baseline lặp lại (5.15b); chiến lược calibration (5.17); Pareto 2 lượt; review nhãn | Replay cấu hình gộp và đóng băng (tối 22/10); lượt live xác nhận (23/10); kết quả giảm gánh 5.22 |
+| Giảm gánh cảnh báo (Pulse 5.22) | ~50% | Research; protocol + 2 bổ sung đăng ký trước; công cụ có test; bảng calibration tái lập đúng npz | Kết quả trên 2 lượt development (~18:30); test blind trên lượt xác nhận |
+| Thí nghiệm syscall + nhóm feature | ~94% | Kết luận syscall có CI; nhóm feature trên holdout thứ hai (5B.2) | Holdout chính + `pulse-attack-dev` (đang chạy, ~19:30), gộp theo luật bổ sung |
+| RCA | ~92% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới; nhãn triage; baseline binary mang qua các lượt (RCA 5.12) | Lý do 13% attack không có case (bộ đếm chạy ở lượt xác nhận); kiểm baseline seed trên lượt đó |
+| Baseline ML (G1) | ~90% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29 | Kiểm định nhiều so sánh |
+| Phần rule, tách khỏi ML | ~45% | Falco riêng (R2); tripwire riêng đạt blind (R3); tầng triage có protocol và code (R4); thiết kế so sánh có/không rule (R6) | Chạy so sánh sau khi ML hoàn thiện; gánh tripwire trên normal dài; đường triage nhanh |
+| Overhead (G7) | ~80% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi | Kernel/distro khác; độ trễ request ứng dụng thật |
+| Kẻ tấn công chậm (G4) | ~30% | Recall theo tốc độ 6–24/s; lượt xác nhận có thêm 1 và 3/s | Kết quả lượt xác nhận; lập luận mimicry |
+| Hình và bảng cho luận văn | ~40% | 4 hình vi/en từ biên nhận | Hình gánh cảnh báo, RCA, nhóm feature; bảng tổng hợp |
+| **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
+| **Luận văn (tổng thể, gồm viết)** | **~77%** | Thí nghiệm ~92%; số liệu và bằng chứng gần đủ | Lượt xác nhận + kết quả 22–23/10; so sánh có/không rule; viết chương |
+| Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
 | Dataset công khai (G3) | 0% (tạm hoãn) | | Xem lại khi viết paper |
-| Overhead (G7) | ~40% | CPU worker trong vận hành; protocol `overhead-ab-v1`, benchmark và runner sẵn sàng | Đo ngay sau lượt live 22/10 |
-| Review nhãn (G8) | ~75% | Luật đăng ký trước + đọc tay 33 case cho 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
+| Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
 | Artifact mở (G9) | ~45% | Repo, script, biên nhận, CI, script vẽ hình | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
-| Bản thảo paper | 0% | Tài liệu tham khảo (mục 3, 4) | Toàn bộ |
-| **Mức sẵn sàng** | **~35%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe | G2, G4, G5 (lời giải), G7–G9 |
+| Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |
+| **Mức sẵn sàng cho paper** | **~38%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe + CUSUM blind | G2, G5 (lời giải), G8 độc lập, G9 |
 
 **Đường ngắn nhất để xong luận văn:**
 1. Đọc và ghi kết quả 22–23/10: final, baseline lặp lại, chiến lược calibration, nhóm feature B, 5.7d.
