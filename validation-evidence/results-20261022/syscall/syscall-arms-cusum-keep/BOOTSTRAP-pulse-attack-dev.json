@@ -1,0 +1,1409 @@
+{
+  "budget_results": "/var/tmp/syscall-cusum/budget-pulse-attack-dev",
+  "budgets": {
+    "1": {
+      "base29": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9668949771689499,
+            1.0
+          ],
+          "lower95_one_sided": 0.9683615819209038,
+          "point": 0.9886621315192744
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_accept_pair": {
+        "alpha_scale": 15.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0034482758620689724
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0011337868480725266
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_clone_pair": {
+        "alpha_scale": 15.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.009900990099009901,
+            0.0
+          ],
+          "lower95_one_sided": -0.00980392156862745,
+          "point": -0.003289473684210526
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.009966777408637873
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.003289473684210526
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0034482758620689724
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0011337868480725266
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_exec_pair": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": false,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.8832199546485261,
+            0.9792423215496022
+          ],
+          "lower95_one_sided": 0.8919226393629125,
+          "point": 0.9342403628117915
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.09442932161822773,
+            -0.018018018018018157
+          ],
+          "lower95_one_sided": -0.08759954493742883,
+          "point": -0.05442176870748294
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_open_pair": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9655153192634452,
+            1.0
+          ],
+          "lower95_one_sided": 0.9675615212527964,
+          "point": 0.9875283446712018
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.0034129692832763903,
+            0.0
+          ],
+          "lower95_one_sided": -0.0033670033670033517,
+          "point": -0.0011337868480726376
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_defined_native": {
+        "alpha_scale": 25.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.0165016501650165,
+            0.0
+          ],
+          "lower95_one_sided": -0.013333333333333334,
+          "point": -0.006578947368421052
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0331050228310501
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0113378684807256
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_observed": {
+        "alpha_scale": 30.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.0165016501650165,
+            0.0
+          ],
+          "lower95_one_sided": -0.013333333333333334,
+          "point": -0.006578947368421052
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0331050228310501
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0113378684807256
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_security": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9653979238754326,
+            1.0
+          ],
+          "lower95_one_sided": 0.9673659673659672,
+          "point": 0.9875283446712018
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.0034364261168384758,
+            0.0
+          ],
+          "lower95_one_sided": -0.003389830508474523,
+          "point": -0.0011337868480726376
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top16": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9410430839002268,
+            0.9965635738831615
+          ],
+          "lower95_one_sided": 0.946943483275663,
+          "point": 0.973922902494331
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.029240753911806697,
+            -0.0033670033670034627
+          ],
+          "lower95_one_sided": -0.02625570776255704,
+          "point": -0.014739229024943401
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top32": {
+        "alpha_scale": 25.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.009900990099009901,
+            0.0
+          ],
+          "lower95_one_sided": -0.00980392156862745,
+          "point": -0.003289473684210526
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.009966777408637873
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.003289473684210526
+        },
+        "non_inferior_recall": false,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.92932599996773,
+            0.9931972789115646
+          ],
+          "lower95_one_sided": 0.9360707531940408,
+          "point": 0.9648526077097507
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.04498425761401531,
+            -0.0056689342403627415
+          ],
+          "lower95_one_sided": -0.04108061611679195,
+          "point": -0.023809523809523725
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top8": {
+        "alpha_scale": 20.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.0,
+            0.0165016501650165
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006578947368421052
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9480968858131488,
+            1.0
+          ],
+          "lower95_one_sided": 0.9526946862116354,
+          "point": 0.9795918367346939
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.019744483159117143,
+            0.0
+          ],
+          "lower95_one_sided": -0.01807909604519764,
+          "point": -0.009070294784580546
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      }
+    },
+    "18": {
+      "base29": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.046052631578947366,
+            0.0997834697697011
+          ],
+          "lower95_one_sided": 0.05027322404371584,
+          "point": 0.07236842105263158
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9791666666666666,
+            1.0
+          ],
+          "lower95_one_sided": 0.9795221843003413,
+          "point": 0.9931972789115646
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_accept_pair": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.009966777408637877,
+            0.014207650273224057
+          ],
+          "lower95_one_sided": -0.00874460742018985,
+          "point": 0.001096491228070165
+        },
+        "control_rate": {
+          "ci95": [
+            0.046994535519125684,
+            0.10087719298245613
+          ],
+          "lower95_one_sided": 0.05094130675526025,
+          "point": 0.07346491228070175
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9791666666666666,
+            1.0
+          ],
+          "lower95_one_sided": 0.9795221843003413,
+          "point": 0.9931972789115646
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_clone_pair": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.020765027322404372,
+            0.014254385964912256
+          ],
+          "lower95_one_sided": -0.017543859649122806,
+          "point": -0.0021929824561403577
+        },
+        "control_rate": {
+          "ci95": [
+            0.044150110375275935,
+            0.09663409337676437
+          ],
+          "lower95_one_sided": 0.0484048404840484,
+          "point": 0.07017543859649122
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9791666666666666,
+            1.0
+          ],
+          "lower95_one_sided": 0.9795221843003413,
+          "point": 0.9931972789115646
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_exec_pair": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.017372421281216063,
+            0.003278688524590165
+          ],
+          "lower95_one_sided": -0.015300546448087447,
+          "point": -0.006578947368421059
+        },
+        "control_rate": {
+          "ci95": [
+            0.0392156862745098,
+            0.09368191721132899
+          ],
+          "lower95_one_sided": 0.0429042904290429,
+          "point": 0.06578947368421052
+        },
+        "non_inferior_recall": false,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9406372736852188,
+            0.9966216216216216
+          ],
+          "lower95_one_sided": 0.9473654066437571,
+          "point": 0.973922902494331
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.03921733676635656,
+            -0.0033783783783783994
+          ],
+          "lower95_one_sided": -0.03550973654066458,
+          "point": -0.01927437641723362
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_open_pair": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.013157894736842098,
+            0.006514657980456015
+          ],
+          "lower95_one_sided": -0.011904761904761904,
+          "point": -0.0032894736842105227
+        },
+        "control_rate": {
+          "ci95": [
+            0.04097452934662237,
+            0.09823716208880681
+          ],
+          "lower95_one_sided": 0.04540420819490587,
+          "point": 0.06907894736842106
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9791666666666666,
+            1.0
+          ],
+          "lower95_one_sided": 0.9795221843003413,
+          "point": 0.9931972789115646
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_defined_native": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.009868421052631568,
+            0.06885245901639346
+          ],
+          "lower95_one_sided": 0.014394072737673517,
+          "point": 0.039473684210526314
+        },
+        "control_rate": {
+          "ci95": [
+            0.07505518763796909,
+            0.15181518151815182
+          ],
+          "lower95_one_sided": 0.0800438596491228,
+          "point": 0.1118421052631579
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.02083333333333337
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006802721088435382
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_observed": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0010893246187363838,
+            0.0625
+          ],
+          "lower95_one_sided": 0.005500550055005507,
+          "point": 0.03179824561403509
+        },
+        "control_rate": {
+          "ci95": [
+            0.07017105263157894,
+            0.13989071038251366
+          ],
+          "lower95_one_sided": 0.07555555555555554,
+          "point": 0.10416666666666667
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.02083333333333337
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.006802721088435382
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_security": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.015453822064787742,
+            0.006578947368421045
+          ],
+          "lower95_one_sided": -0.014207650273224036,
+          "point": -0.0043859649122807015
+        },
+        "control_rate": {
+          "ci95": [
+            0.042081949058693245,
+            0.09508196721311475
+          ],
+          "lower95_one_sided": 0.0462046204620462,
+          "point": 0.06798245614035088
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9791666666666666,
+            1.0
+          ],
+          "lower95_one_sided": 0.9795221843003413,
+          "point": 0.9931972789115646
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top16": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.020833333333333336,
+            0.013029315960912044
+          ],
+          "lower95_one_sided": -0.018579234972677577,
+          "point": -0.0043859649122807015
+        },
+        "control_rate": {
+          "ci95": [
+            0.03928005545652604,
+            0.10121012101210121
+          ],
+          "lower95_one_sided": 0.04342616720955483,
+          "point": 0.06798245614035088
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.01041666666666663,
+            0.0
+          ],
+          "lower95_one_sided": -0.010238907849829393,
+          "point": -0.003401360544217691
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top32": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.023734396671289865,
+            0.011111111111111113
+          ],
+          "lower95_one_sided": -0.020765027322404372,
+          "point": -0.00548245614035088
+        },
+        "control_rate": {
+          "ci95": [
+            0.039863809377131416,
+            0.09429824561403506
+          ],
+          "lower95_one_sided": 0.04444444444444444,
+          "point": 0.0668859649122807
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.01041666666666663,
+            0.0
+          ],
+          "lower95_one_sided": -0.010238907849829393,
+          "point": -0.003401360544217691
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top8": {
+        "alpha_scale": 3.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.015151515151515166,
+            0.008800880088008799
+          ],
+          "lower95_one_sided": -0.01307189542483661,
+          "point": -0.0032894736842105227
+        },
+        "control_rate": {
+          "ci95": [
+            0.044956140350877194,
+            0.09381898454746135
+          ],
+          "lower95_one_sided": 0.04869448983687395,
+          "point": 0.06907894736842106
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9722222222222222,
+            1.0
+          ],
+          "lower95_one_sided": 0.9726962457337884,
+          "point": 0.9909297052154195
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.00694444444444442,
+            0.0
+          ],
+          "lower95_one_sided": -0.0068259385665528916,
+          "point": -0.0022675736961451642
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      }
+    },
+    "5": {
+      "base29": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.006557377049180328,
+            0.03215434083601285
+          ],
+          "lower95_one_sided": 0.007751937984496123,
+          "point": 0.01864035087719298
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9722222222222222,
+            1.0
+          ],
+          "lower95_one_sided": 0.9726962457337884,
+          "point": 0.9909297052154195
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_accept_pair": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.003311258278145695,
+            0.003267973856209149
+          ],
+          "lower95_one_sided": -0.002222222222222219,
+          "point": 0.0
+        },
+        "control_rate": {
+          "ci95": [
+            0.005518763796909492,
+            0.03366181615606789
+          ],
+          "lower95_one_sided": 0.007650273224043715,
+          "point": 0.01864035087719298
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.00347222222222221,
+            0.0
+          ],
+          "lower95_one_sided": -0.0034129692832765013,
+          "point": -0.0011337868480725266
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_clone_pair": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.01202185792349727,
+            0.003333333333333334
+          ],
+          "lower95_one_sided": -0.010857763300760043,
+          "point": -0.003289473684210528
+        },
+        "control_rate": {
+          "ci95": [
+            0.0033003300330033004,
+            0.029900332225913623
+          ],
+          "lower95_one_sided": 0.005446623093681917,
+          "point": 0.015350877192982454
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9722222222222222,
+            1.0
+          ],
+          "lower95_one_sided": 0.9726962457337884,
+          "point": 0.9909297052154195
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_exec_pair": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.006600660066006604
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0021929824561403508
+        },
+        "control_rate": {
+          "ci95": [
+            0.006578947368421052,
+            0.037530264188563665
+          ],
+          "lower95_one_sided": 0.008743169398907104,
+          "point": 0.020833333333333332
+        },
+        "non_inferior_recall": false,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9200866853832872,
+            0.9932432432432432
+          ],
+          "lower95_one_sided": 0.9277389277389276,
+          "point": 0.961451247165533
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.05807200929152134,
+            -0.006734006734006703
+          ],
+          "lower95_one_sided": -0.05269186712485696,
+          "point": -0.02947845804988647
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "drop_open_pair": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.008918617614269786,
+            0.002164502164502166
+          ],
+          "lower95_one_sided": -0.007803790412486063,
+          "point": -0.0032894736842105244
+        },
+        "control_rate": {
+          "ci95": [
+            0.004415011037527594,
+            0.02741228070175438
+          ],
+          "lower95_one_sided": 0.006557377049180328,
+          "point": 0.015350877192982457
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.96875,
+            1.0
+          ],
+          "lower95_one_sided": 0.9692832764505119,
+          "point": 0.9897959183673469
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.00347222222222221,
+            0.0
+          ],
+          "lower95_one_sided": -0.0034129692832765013,
+          "point": -0.0011337868480725266
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_defined_native": {
+        "alpha_scale": 10.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.013114754098360652,
+            0.015468154426012848
+          ],
+          "lower95_one_sided": -0.01096491228070175,
+          "point": 0.0010964912280701754
+        },
+        "control_rate": {
+          "ci95": [
+            0.006644518272425249,
+            0.03289473684210526
+          ],
+          "lower95_one_sided": 0.009868421052631578,
+          "point": 0.019736842105263157
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.02777777777777779
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.009070294784580546
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_all_observed": {
+        "alpha_scale": 10.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.013114754098360652,
+            0.015468154426012848
+          ],
+          "lower95_one_sided": -0.01096491228070175,
+          "point": 0.0010964912280701754
+        },
+        "control_rate": {
+          "ci95": [
+            0.006644518272425249,
+            0.03289473684210526
+          ],
+          "lower95_one_sided": 0.009868421052631578,
+          "point": 0.019736842105263157
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            1.0,
+            1.0
+          ],
+          "lower95_one_sided": 1.0,
+          "point": 1.0
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.02777777777777779
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.009070294784580546
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_security": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.007751937984496124,
+            0.0021929824561403508
+          ],
+          "lower95_one_sided": -0.0066445182724252485,
+          "point": -0.0021929824561403508
+        },
+        "control_rate": {
+          "ci95": [
+            0.004343105320304017,
+            0.03159041394335512
+          ],
+          "lower95_one_sided": 0.005518763796909492,
+          "point": 0.01644736842105263
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9722222222222222,
+            1.0
+          ],
+          "lower95_one_sided": 0.9726962457337884,
+          "point": 0.9909297052154195
+        },
+        "recall_diff": {
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "lower95_one_sided": 0.0,
+          "point": 0.0
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top16": {
+        "alpha_scale": 8.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            -0.005500550055005497,
+            0.0
+          ],
+          "lower95_one_sided": -0.004429678848283502,
+          "point": -0.0021929824561403508
+        },
+        "control_rate": {
+          "ci95": [
+            0.0055005500550055,
+            0.028697571743929357
+          ],
+          "lower95_one_sided": 0.0066434181866185564,
+          "point": 0.01644736842105263
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9566210045662101,
+            1.0
+          ],
+          "lower95_one_sided": 0.9580498866213151,
+          "point": 0.9852607709750567
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.015981735159817267,
+            0.0
+          ],
+          "lower95_one_sided": -0.014689265536723228,
+          "point": -0.005668934240362744
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top32": {
+        "alpha_scale": 8.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.009933774834437081
+          ],
+          "lower95_one_sided": 0.0010822510822510838,
+          "point": 0.0043859649122807015
+        },
+        "control_rate": {
+          "ci95": [
+            0.008830022075055188,
+            0.0385038503850385
+          ],
+          "lower95_one_sided": 0.011001100110011,
+          "point": 0.023026315789473683
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9652777777777778,
+            1.0
+          ],
+          "lower95_one_sided": 0.9658703071672355,
+          "point": 0.9886621315192744
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.00694444444444442,
+            0.0
+          ],
+          "lower95_one_sided": -0.0068259385665528916,
+          "point": -0.0022675736961450532
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      },
+      "plus_top8": {
+        "alpha_scale": 6.0,
+        "benign_diff": null,
+        "benign_rate": null,
+        "control_diff": {
+          "ci95": [
+            0.0,
+            0.01311475409836066
+          ],
+          "lower95_one_sided": 0.0010893246187363842,
+          "point": 0.005482456140350877
+        },
+        "control_rate": {
+          "ci95": [
+            0.009771986970684038,
+            0.03986827439638456
+          ],
+          "lower95_one_sided": 0.01206140350877193,
+          "point": 0.02412280701754386
+        },
+        "non_inferior_recall": true,
+        "paired_trials": 598,
+        "recall": {
+          "ci95": [
+            0.9583333333333334,
+            1.0
+          ],
+          "lower95_one_sided": 0.9590443686006825,
+          "point": 0.9863945578231292
+        },
+        "recall_diff": {
+          "ci95": [
+            -0.01388888888888884,
+            0.0
+          ],
+          "lower95_one_sided": -0.013651877133105894,
+          "point": -0.0045351473922902175
+        },
+        "separation": null,
+        "separation_diff": null,
+        "workloads": 21
+      }
+    }
+  },
+  "cluster": "workload",
+  "finished_at_unix": 1792662394.2923222,
+  "inputs": {
+    "RESULTS.json": "e73be14216f61afb0701a9b6a478038c42db3ac0eb47f2309f4b43fef393450c",
+    "TRIAL_OUTCOMES.jsonl": "55070cf21a823c60777f9ee1dea6cc400e100c5989e17465c0d5998036ee5cad"
+  },
+  "note": "matched budgets use the grid scale with episodes <= B (no interpolation)",
+  "pairing": "trial (seed-averaged outcome)",
+  "reference": "base29",
+  "reps": 10000,
+  "schema": "pulse-r4-arm-bootstrap-v1",
+  "source_sha256": "b176c49537563111f9b814c6e28d56fda5489ecfa69bf16a6a521f397ef3e6d6"
+}

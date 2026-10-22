@@ -1,0 +1,222 @@
+{
+ "schema": "pulse-feature-group-verdict-v1",
+ "protocol": "sentinel_pulse/protocol/feature-group-evaluation-v1.json",
+ "sets": [
+  "pulse-attack-dev",
+  "pulse-live-recalibrated"
+ ],
+ "components": {
+  "drop_log_counts": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_ratios": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_aggregates": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_syscall_bins": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_transition_bins": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_rolling": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "drop_all_bins": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "bins_only": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "history1": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "history2": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "base29@tree": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.42497347724809154,
+       -0.15192743764172323
+      ],
+      "lower95_one_sided": -0.39865773668405263,
+      "point": -0.2823129251700679
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 1.0697029709816008
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.4543489977647992,
+       -0.1736891443324319
+      ],
+      "lower95_one_sided": -0.4300307232463305,
+      "point": -0.31214343928280364
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.2795986102034088,
+       -0.03182868131001036
+      ],
+      "lower95_one_sided": -0.2568998006081926,
+      "point": -0.15153004138127013
+     },
+     "p95_diff_seconds": 1.5932666659355164
+    }
+   }
+  },
+  "base29@support": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.10580339298342713,
+       -0.01122334455667795
+      ],
+      "lower95_one_sided": -0.09557857682857701,
+      "point": -0.05215419501133778
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -0.45235228538512784
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.14901960784313728,
+       -0.007842676976894135
+      ],
+      "lower95_one_sided": -0.13566739606126899,
+      "point": -0.07090464547677267
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.008225503679365625,
+       0.1757213120740269
+      ],
+      "lower95_one_sided": -7.912487884058092e-07,
+      "point": 0.07356670238440577
+     },
+     "p95_diff_seconds": -0.0679328441619873
+    }
+   }
+  }
+ }
+}

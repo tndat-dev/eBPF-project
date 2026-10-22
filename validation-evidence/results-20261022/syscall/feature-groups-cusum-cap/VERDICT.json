@@ -1,0 +1,502 @@
+{
+ "schema": "pulse-feature-group-verdict-v1",
+ "protocol": "sentinel_pulse/protocol/feature-group-evaluation-v1.json",
+ "sets": [
+  "pulse-attack-dev",
+  "pulse-live-recalibrated"
+ ],
+ "components": {
+  "drop_log_counts": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.003389830508474523,
+       0.003401360544217691
+      ],
+      "lower95_one_sided": -0.002298850574712469,
+      "point": 0.0
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -0.13897386789323019
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.004878048780487809,
+       0.004901960784313708
+      ],
+      "lower95_one_sided": -0.003555555555555534,
+      "point": 0.0
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.09263247689039053,
+       -0.0008703220191472738
+      ],
+      "lower95_one_sided": -0.08296108844280609,
+      "point": -0.036319612590798966
+     },
+     "p95_diff_seconds": -0.04455573558810588
+    }
+   }
+  },
+  "drop_ratios": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.014591580216580365,
+       0.0
+      ],
+      "lower95_one_sided": -0.0126002290950743,
+      "point": -0.005668934240362855
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.013542163372039617
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.007559008451865686,
+       0.0016963528413910245
+      ],
+      "lower95_one_sided": -0.006535947712418277,
+      "point": -0.0024449877750610804
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.11829736448213325,
+       -0.001659479678172699
+      ],
+      "lower95_one_sided": -0.10748022415702971,
+      "point": -0.04441431787998429
+     },
+     "p95_diff_seconds": 0.2010689496993967
+    }
+   }
+  },
+  "drop_aggregates": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.009070294784580324,
+       0.0
+      ],
+      "lower95_one_sided": -0.007909604519774183,
+      "point": -0.003401360544217691
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.3297436833381626
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.00593723494486853,
+       0.0017590149516270054
+      ],
+      "lower95_one_sided": -0.005089336311210518,
+      "point": -0.0016299918500406463
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.04354454333267889,
+       0.015304037273956623
+      ],
+      "lower95_one_sided": -0.037969427455465894,
+      "point": -0.008893914368200417
+     },
+     "p95_diff_seconds": 0.1604672074317941
+    }
+   }
+  },
+  "drop_syscall_bins": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0034129692832763903,
+       0.0
+      ],
+      "lower95_one_sided": -0.0033670033670033517,
+      "point": -0.0011337868480726376
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.1100810647010837
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.004950582637881518,
+       0.014459665144596626
+      ],
+      "lower95_one_sided": -0.003958828186856667,
+      "point": 0.0032599837000816256
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.0015229590748090875,
+       0.04150452344545233
+      ],
+      "lower95_one_sided": 0.0017403339029413935,
+      "point": 0.019402033740436808
+     },
+     "p95_diff_seconds": 0.343084692955018
+    }
+   }
+  },
+  "drop_transition_bins": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.006734006734006703,
+       0.010273972602739767
+      ],
+      "lower95_one_sided": -0.004566210045662267,
+      "point": 0.0011337868480725266
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.20554634332657074
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.005691056910569037,
+       0.006349206349206218
+      ],
+      "lower95_one_sided": -0.004739336492890938,
+      "point": 0.0
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.006934462963888082,
+       0.09449662917553034
+      ],
+      "lower95_one_sided": 0.0016248422497642868,
+      "point": 0.04600484261501214
+     },
+     "p95_diff_seconds": 0.35982078313826094
+    }
+   }
+  },
+  "drop_rolling": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.010309278350515538,
+       0.0033670033670034627
+      ],
+      "lower95_one_sided": -0.009163802978235824,
+      "point": -0.0022675736961451642
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -4.175655233860014
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.01055806938159876,
+       0.018433264684692065
+      ],
+      "lower95_one_sided": -0.008130081300813058,
+      "point": 0.004074979625101949
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.1926366110253514,
+       0.05985480410322265
+      ],
+      "lower95_one_sided": -0.1701893970316119,
+      "point": -0.061300323038336324
+     },
+     "p95_diff_seconds": -4.095605254173278
+    }
+   }
+  },
+  "drop_all_bins": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.009039548022598765,
+       0.008074518614635541
+      ],
+      "lower95_one_sided": -0.007882882882882969,
+      "point": -0.0011337868480726376
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 1.5249298691749607
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.005449644333528752,
+       0.011409942950285083
+      ],
+      "lower95_one_sided": -0.004566210045662045,
+      "point": 0.0016299918500407573
+     },
+     "separation_diff": {
+      "ci95": [
+       0.14232987544320042,
+       0.440656113139081
+      ],
+      "lower95_one_sided": 0.16247854456625951,
+      "point": 0.2792732525441489
+     },
+     "p95_diff_seconds": 1.7165721297264112
+    }
+   }
+  },
+  "bins_only": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.138214147447597,
+       -0.01449154589371978
+      ],
+      "lower95_one_sided": -0.12515325670498081,
+      "point": -0.06916099773242634
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -2.494525086879727
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.14597999980236964,
+       -0.010636568067808215
+      ],
+      "lower95_one_sided": -0.1339421613394216,
+      "point": -0.07416462917685407
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.2857141596443596,
+       -0.0323612377090632
+      ],
+      "lower95_one_sided": -0.26520188790671106,
+      "point": -0.1581032893867007
+     },
+     "p95_diff_seconds": -2.697921872138976
+    }
+   }
+  },
+  "history1": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.013605442176870878,
+       0.0
+      ],
+      "lower95_one_sided": -0.012304250559283969,
+      "point": -0.005668934240362855
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.2168145537376409
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.013245346678707559,
+       0.0
+      ],
+      "lower95_one_sided": -0.011872262307272324,
+      "point": -0.005704971475142595
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.0486043466703734,
+       0.0008355801118958455
+      ],
+      "lower95_one_sided": -0.04375010846203534,
+      "point": -0.021039919013479902
+     },
+     "p95_diff_seconds": 0.1423666477203378
+    }
+   }
+  },
+  "history2": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.00897867564534216,
+       0.0
+      ],
+      "lower95_one_sided": -0.007882882882882969,
+      "point": -0.003401360544217691
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.19052206277847628
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.013245346678707559,
+       0.0
+      ],
+      "lower95_one_sided": -0.011872262307272324,
+      "point": -0.005704971475142595
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.05081329169402829,
+       -0.0008470753327526543
+      ],
+      "lower95_one_sided": -0.04580694389214511,
+      "point": -0.020232816511462137
+     },
+     "p95_diff_seconds": -0.03781604766845614
+    }
+   }
+  },
+  "base29@tree": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.20521541950113364,
+       -0.07070707070707072
+      ],
+      "lower95_one_sided": -0.19406892363513384,
+      "point": -0.13605442176870752
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.20114616155624443
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.18862393597826327,
+       -0.06788407054425366
+      ],
+      "lower95_one_sided": -0.1789490968801314,
+      "point": -0.12795436022819884
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.2961489138121384,
+       -0.04676402663783405
+      ],
+      "lower95_one_sided": -0.2733747539304614,
+      "point": -0.16508107532101557
+     },
+     "p95_diff_seconds": 2.2295118570327768
+    }
+   }
+  },
+  "base29@support": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0331050228310501,
+       -0.0023068050749712687
+      ],
+      "lower95_one_sided": -0.0297823596792669,
+      "point": -0.015873015873015928
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 2.3762436985969577
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.010887772194304816,
+       0.011820930986067615
+      ],
+      "lower95_one_sided": -0.009573542210617791,
+      "point": -0.0008149959250203231
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.02853926686545821,
+       0.03214331997721321
+      ],
+      "lower95_one_sided": -0.022662508120827596,
+      "point": 0.004027619087086265
+     },
+     "p95_diff_seconds": 2.289654517173772
+    }
+   }
+  }
+ }
+}

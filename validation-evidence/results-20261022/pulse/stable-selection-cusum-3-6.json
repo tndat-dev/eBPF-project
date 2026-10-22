@@ -1,0 +1,113 @@
+{
+  "aci_gamma_relative": 0.01,
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix"
+  ],
+  "confirmation": {
+    "k": 2,
+    "n": 2
+  },
+  "estimators_changed": false,
+  "evaluation_span_unix": [
+    1792565682.2194963,
+    1792647090.7107248
+  ],
+  "evidence_class": "development; unadjudicated normal; pulse-attack-dev scenarios previously exposed",
+  "excluded_spans": 945,
+  "finished_at_unix": 1792661324.395125,
+  "minimum_calibration_examples": 1200,
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "policy_hash": "9c41ebc06243461a8abce9ceec3becdb17869db42f51a85b3137b87d030d1540",
+  "scales": [
+    10.0
+  ],
+  "schema": "pulse-rolling-recalibration-v1",
+  "source_sha256": "e9db8dc425f634d1dfd293b12e1f13f726256379aa1bb3bb7e654851d60ca381",
+  "started_at_unix": 1792660722.3667343,
+  "static_calibration_span_unix": [
+    1792560282.2194963,
+    1792565682.2194963
+  ],
+  "strategies": {
+    "asrun": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 301,
+            "TN": 6,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.9804560260586319,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 0,
+            "FP": 9,
+            "TN": 301,
+            "TP": 310
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.02903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.7168322801589966,
+            "p95": 1.6813162207603458,
+            "p99": 3.670984575748445,
+            "samples": 310
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9717868338557993,
+          "recall_end_to_end_lower_bound": 0.9841269841269841,
+          "recall_observed": 1.0,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 4.952638470255265,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            4.069238358893795,
+            5.1045506442668405,
+            4.931238788932978,
+            5.770856128258719,
+            4.932675933195735,
+            4.8372999134643395,
+            5.544611477974044,
+            5.100306018361102,
+            4.497894060925307,
+            4.799874513084625,
+            4.745528227148442,
+            4.838720201134864,
+            5.025101591325655,
+            4.586944515713808,
+            5.0108524973793065,
+            4.8999826056705515,
+            4.820418960836269,
+            4.929268078376241
+          ],
+          "positive_window_rate": 0.0254569998225444,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    }
+  },
+  "temporal": "cusum-3-6",
+  "worker_roots": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker1.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker4.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker3.local"
+  ]
+}

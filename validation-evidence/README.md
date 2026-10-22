@@ -8,10 +8,12 @@ và mẫu nhỏ. Không sửa nội dung đã niêm phong; nếu cần sửa bá
 |---|---|
 | `pulse/` | Soak normal A1 24 h, canary chấm theo lô B1/B2, ma trận attack/control pulse-attack-dev/R5 (kèm audit fit syscall-arms), kiểm tra live 15/10 |
 | `syscall/` | Đối chiếu ID/tên syscall, phân tích tần suất C3, sửa tiền xử lý C6 |
-| `rca/` | Cây RCA thật + input chuẩn hóa, kiểm chứng runtime C3 trong production |
+| `rca/` | Cây RCA thật + input chuẩn hóa 15/10, kiểm chứng runtime C3; ví dụ mới nhất ở `rca/examples-20261023/` |
 | `results-20261018/` | Kết quả thu ngày 18/10: terminal soak 48 h, holdout syscall-arms, nghiên cứu xác nhận/hiệu chỉnh lại |
 | `results-20261019/` | 19–20/10: lượt live pulse-live-recalibrated (campaign chính + tiếp nối, replay chính sách), chọn candidate cho pulse-stable-candidate, nghiên cứu làm mới calibration, kiểm tương đương, RCA; syscall: so ngân sách, bootstrap, k2of2, nhóm feature |
 | `results-20261021/` | 21/10: lượt pulse-stable-candidate (campaign, RCA, luật v2, final: novelty có xét exec, kiểm chấm nhanh, Pareto), lượt pulse-stable-refreshed (giai đoạn campaign), baseline G1 (iforest/AE/freq_profile/tree_ae, theo tốc độ attack) |
+| `results-20261022/` | 22–23/10: chọn ML stable (5.19), giảm gánh cảnh báo (5.22), 5.7d; syscall 5C (CUSUM `keep`/`cap`), nhóm feature trên holdout chính và hai biến thể p-value (5B.3); seed baseline binary RCA (5.12). README trong thư mục ghi script và bản gốc trên cụm của từng file |
+| `rca/examples-20261023/` | Hai cây RCA thật, chép nguyên (attack ptrace có nghi phạm hạng 1 đúng; cảnh báo normal do exec probe), kèm hình SVG và hướng dẫn đọc |
 
 Evidence của các thế hệ đã gỡ code (AIMS/v8, lifecycle R9/R10, projected
 counter/pressure, recovery coordinator, soak inspection 06–07/10…) đã được gỡ

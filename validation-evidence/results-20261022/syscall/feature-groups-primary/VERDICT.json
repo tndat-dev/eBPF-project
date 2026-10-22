@@ -1,0 +1,446 @@
+{
+ "schema": "pulse-feature-group-verdict-v1",
+ "protocol": "sentinel_pulse/protocol/feature-group-evaluation-v1.json",
+ "sets": [
+  "pulse-attack-dev",
+  "pulse-live-recalibrated"
+ ],
+ "components": {
+  "drop_log_counts": {
+   "verdict": "removable",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.010238907849829393,
+       0.0
+      ],
+      "lower95_one_sided": -0.0091324200913242,
+      "point": -0.0045351473922901064
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -0.42389297485351163
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.008090614886731351,
+       -0.0008109807951243033
+      ],
+      "lower95_one_sided": -0.007374631268436521,
+      "point": -0.004074979625101949
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.022596812716551173,
+       0.0572638818020289
+      ],
+      "lower95_one_sided": -0.017345320892103392,
+      "point": 0.015295480423324181
+     },
+     "p95_diff_seconds": -0.25426173210144043
+    }
+   }
+  },
+  "drop_ratios": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.012429378531073287,
+       0.0
+      ],
+      "lower95_one_sided": -0.011223344556677617,
+      "point": -0.0045351473922901064
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.1632370471954383
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.005405614431136421,
+       0.0
+      ],
+      "lower95_one_sided": -0.004845431624896507,
+      "point": -0.0024449877750611915
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.05396896413508935,
+       0.06008659427885527
+      ],
+      "lower95_one_sided": -0.043433004516700874,
+      "point": 0.007240242249151874
+     },
+     "p95_diff_seconds": 0.2241063117980957
+    }
+   }
+  },
+  "drop_aggregates": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.005668934240362855,
+       0.0
+      ],
+      "lower95_one_sided": -0.0046136101499424376,
+      "point": -0.002267573696144942
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.3543097972869913
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0027173913043478937,
+       0.0
+      ],
+      "lower95_one_sided": -0.002450980392156854,
+      "point": -0.0008149959250203231
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.03309558545415214,
+       0.01736111111111116
+      ],
+      "lower95_one_sided": -0.02857313738892666,
+      "point": -0.0072718159411623295
+     },
+     "p95_diff_seconds": 0.25580637454985666
+    }
+   }
+  },
+  "drop_syscall_bins": {
+   "verdict": "removable",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       0.0,
+       0.005688282138794021
+      ],
+      "lower95_one_sided": 0.0,
+      "point": 0.0022675736961452753
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.016726732254032317
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0024390243902439046,
+       0.002450980392156854
+      ],
+      "lower95_one_sided": -0.0017730496453899403,
+      "point": 0.0
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.01529805352798049,
+       0.04301112676770846
+      ],
+      "lower95_one_sided": -0.012795133780299733,
+      "point": 0.008878127522195411
+     },
+     "p95_diff_seconds": -0.25355939865112376
+    }
+   }
+  },
+  "drop_transition_bins": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.022911482403128573,
+       2.220446049250313e-16
+      ],
+      "lower95_one_sided": -0.020408163265306145,
+      "point": -0.009070294784580324
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.1659942150115996
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.039483727312470324,
+       1.1102230246251565e-16
+      ],
+      "lower95_one_sided": -0.035089773614363766,
+      "point": -0.015484922575387139
+     },
+     "separation_diff": {
+      "ci95": [
+       0.009942911027766595,
+       0.2797433971257499
+      ],
+      "lower95_one_sided": 0.02762724914303825,
+      "point": 0.13463614279991565
+     },
+     "p95_diff_seconds": 0.0
+    }
+   }
+  },
+  "drop_rolling": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.02768166089965374,
+       0.05005688282138787
+      ],
+      "lower95_one_sided": -0.022598870056496974,
+      "point": 0.009070294784580657
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": -0.17800641059875089
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.02477757735110673,
+       0.05893186003683237
+      ],
+      "lower95_one_sided": -0.018745427372607305,
+      "point": 0.015484922575387028
+     },
+     "separation_diff": {
+      "ci95": [
+       0.08067304001398895,
+       0.3150981943431131
+      ],
+      "lower95_one_sided": 0.09657371857418261,
+      "point": 0.1906261655132402
+     },
+     "p95_diff_seconds": 0.2478351354598991
+    }
+   }
+  },
+  "drop_all_bins": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.041526374859708115,
+       0.0023068050749710522
+      ],
+      "lower95_one_sided": -0.0360360360360359,
+      "point": -0.014739229024943179
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.15772271156311435
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.03083410493827154,
+       0.0
+      ],
+      "lower95_one_sided": -0.027918781725888242,
+      "point": -0.011409942950285301
+     },
+     "separation_diff": {
+      "ci95": [
+       0.06936057161294566,
+       0.3698405824411668
+      ],
+      "lower95_one_sided": 0.08860246831642533,
+      "point": 0.20650773259450894
+     },
+     "p95_diff_seconds": 0.7752954959869385
+    }
+   }
+  },
+  "bins_only": {
+   "verdict": "needed",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.22110872275232124,
+       -0.06487153299963322
+      ],
+      "lower95_one_sided": -0.2061855670103092,
+      "point": -0.13378684807256225
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.7811214923858683
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.20067264233524476,
+       -0.06045665244949946
+      ],
+      "lower95_one_sided": -0.18844229437929305,
+      "point": -0.1263243683781582
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.13177920383043054,
+       0.08325395154619375
+      ],
+      "lower95_one_sided": -0.11533763457954356,
+      "point": -0.031086273140062848
+     },
+     "p95_diff_seconds": 1.2984521389007568
+    }
+   }
+  },
+  "history1": {
+   "verdict": "inconclusive",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.029279279279279202,
+       0.0
+      ],
+      "lower95_one_sided": -0.026077097505668896,
+      "point": -0.012471655328798015
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.12942570447922153
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.025582886106141896,
+       0.0
+      ],
+      "lower95_one_sided": -0.022820444116957595,
+      "point": -0.009779951100244544
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.009376988289406576,
+       0.15053996796863872
+      ],
+      "lower95_one_sided": -0.007642088970428285,
+      "point": 0.04752432654301619
+     },
+     "p95_diff_seconds": 0.6753673553466797
+    }
+   }
+  },
+  "history2": {
+   "verdict": "removable",
+   "provisional": false,
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.009039548022598765,
+       0.0
+      ],
+      "lower95_one_sided": -0.007909604519774188,
+      "point": -0.00340136054421758
+     },
+     "separation_diff": null,
+     "p95_diff_seconds": 0.026459515094758412
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": true,
+     "recall_diff": {
+      "ci95": [
+       -0.0027173913043478937,
+       0.0
+      ],
+      "lower95_one_sided": -0.002450980392156854,
+      "point": -0.0008149959250203231
+     },
+     "separation_diff": {
+      "ci95": [
+       -0.013958979660430752,
+       0.04407173843187644
+      ],
+      "lower95_one_sided": -0.011774414838067359,
+      "point": 0.008870234099192742
+     },
+     "p95_diff_seconds": -0.0679328441619873
+    }
+   }
+  },
+  "base29@tree": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  },
+  "base29@support": {
+   "verdict": "not_evaluated",
+   "sets": {
+    "pulse-attack-dev": {
+     "budget": "1",
+     "available": false
+    },
+    "pulse-live-recalibrated": {
+     "budget": "1",
+     "available": false
+    }
+   }
+  }
+ }
+}

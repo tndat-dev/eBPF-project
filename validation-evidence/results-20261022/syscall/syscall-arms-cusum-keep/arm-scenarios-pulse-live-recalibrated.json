@@ -1,0 +1,1280 @@
+{
+  "schema": "syscall-arm-scenarios-v1",
+  "budget_dir": "/var/tmp/syscall-cusum/budget-pulse-live-recalibrated",
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-runtime-r6-d791d24-20261019/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-r6-20261018/coordinator-rca-followup-20261019/pulse-development-matrix"
+  ],
+  "grouped_by": "scenario",
+  "confirmation": {
+    "drift": 3.0,
+    "kind": "cusum",
+    "max_gap_seconds": 1.0
+  },
+  "matched_alpha_scale": {
+    "1|base29": 20.0,
+    "1|drop_accept_pair": 15.0,
+    "1|drop_clone_pair": 15.0,
+    "1|drop_exec_pair": 20.0,
+    "1|drop_open_pair": 20.0,
+    "1|plus_all_defined_native": 25.0,
+    "1|plus_all_observed": 30.0,
+    "1|plus_security": 20.0,
+    "1|plus_top16": 20.0,
+    "1|plus_top32": 25.0,
+    "1|plus_top8": 20.0,
+    "18|base29": 3.0,
+    "18|drop_accept_pair": 3.0,
+    "18|drop_clone_pair": 3.0,
+    "18|drop_exec_pair": 3.0,
+    "18|drop_open_pair": 3.0,
+    "18|plus_all_defined_native": 3.0,
+    "18|plus_all_observed": 3.0,
+    "18|plus_security": 3.0,
+    "18|plus_top16": 3.0,
+    "18|plus_top32": 3.0,
+    "18|plus_top8": 3.0,
+    "5|base29": 6.0,
+    "5|drop_accept_pair": 6.0,
+    "5|drop_clone_pair": 6.0,
+    "5|drop_exec_pair": 6.0,
+    "5|drop_open_pair": 6.0,
+    "5|plus_all_defined_native": 10.0,
+    "5|plus_all_observed": 10.0,
+    "5|plus_security": 6.0,
+    "5|plus_top16": 8.0,
+    "5|plus_top32": 8.0,
+    "5|plus_top8": 6.0
+  },
+  "outcome_rows_without_scenario": 0,
+  "budgets": {
+    "1": {
+      "base29": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9116465863453815,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7550200803212851,
+          "delay_p50": 0.6527671813964844,
+          "delay_p95": 7.8918750286102295
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7630522088353414,
+          "delay_p50": 0.6322576999664307,
+          "delay_p95": 2.944091320037842
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.7958333333333333,
+          "delay_p50": 0.7082357406616211,
+          "delay_p95": 3.4515221118927
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7550200803212851,
+          "delay_p50": 0.6954097747802734,
+          "delay_p95": 1.4534013271331787
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9711934156378601,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7222222222222222,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 9.990270376205444
+        }
+      },
+      "drop_accept_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9236947791164659,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7751004016064257,
+          "delay_p50": 0.6583137512207031,
+          "delay_p95": 6.804869890213013
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7951807228915663,
+          "delay_p50": 0.6152217388153076,
+          "delay_p95": 1.9063334465026855
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.825,
+          "delay_p50": 0.6615123748779297,
+          "delay_p95": 2.4326608180999756
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7951807228915663,
+          "delay_p50": 0.6687009334564209,
+          "delay_p95": 0.9413270950317383
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7261904761904762,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 9.00842833518982
+        }
+      },
+      "drop_clone_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8112449799196787,
+          "delay_p50": 0.6442458629608154,
+          "delay_p95": 7.1743152141571045
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8232931726907631,
+          "delay_p50": 0.6070566177368164,
+          "delay_p95": 1.1775012016296387
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8458333333333333,
+          "delay_p50": 0.6505074501037598,
+          "delay_p95": 1.3747801780700684
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8072289156626506,
+          "delay_p50": 0.666541337966919,
+          "delay_p95": 0.9413270950317383
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7658730158730159,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 8.030442714691162
+        }
+      },
+      "drop_exec_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.8955823293172691,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7349397590361446,
+          "delay_p50": 0.6583137512207031,
+          "delay_p95": 7.888108491897583
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7389558232931727,
+          "delay_p50": 0.6392157077789307,
+          "delay_p95": 2.944091320037842
+        },
+        "execveat_resolution_probe": {
+          "recall": 0.7166666666666667,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.7833333333333333,
+          "delay_p50": 0.610060453414917,
+          "delay_p95": 4.468772649765015
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7309236947791165,
+          "delay_p50": 0.6954777240753174,
+          "delay_p95": 1.4534013271331787
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9753086419753086,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7182539682539683,
+          "delay_p50": 0.6963999271392822,
+          "delay_p95": 10.361390113830566
+        }
+      },
+      "drop_open_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9036144578313253,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7469879518072289,
+          "delay_p50": 0.6583137512207031,
+          "delay_p95": 8.398115873336792
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7791164658634538,
+          "delay_p50": 0.6322576999664307,
+          "delay_p95": 2.2252402305603027
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8,
+          "delay_p50": 0.7082357406616211,
+          "delay_p95": 3.0163207054138184
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7630522088353414,
+          "delay_p50": 0.6954097747802734,
+          "delay_p95": 1.4384403228759766
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9670781893004116,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7261904761904762,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 9.268606901168823
+        }
+      },
+      "plus_all_defined_native": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7887866497039795
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_all_observed": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7887866497039795
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_security": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9116465863453815,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7590361445783133,
+          "delay_p50": 0.6527671813964844,
+          "delay_p95": 8.092133522033691
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7630522088353414,
+          "delay_p50": 0.6322576999664307,
+          "delay_p95": 2.2252402305603027
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8,
+          "delay_p50": 0.6690237522125244,
+          "delay_p95": 3.0163207054138184
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7590361445783133,
+          "delay_p50": 0.6954097747802734,
+          "delay_p95": 1.4534013271331787
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9753086419753086,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7301587301587301,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 9.916550874710083
+        }
+      },
+      "plus_top16": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.891566265060241,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7831325301204819,
+          "delay_p50": 0.6527671813964844,
+          "delay_p95": 8.765569686889648
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.7951807228915663,
+          "delay_p50": 0.6256372928619385,
+          "delay_p95": 2.072612762451172
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.825,
+          "delay_p50": 0.6666698455810547,
+          "delay_p95": 3.4515221118927
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7951807228915663,
+          "delay_p50": 0.6852293014526367,
+          "delay_p95": 1.4375584125518799
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9218106995884774,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7619047619047619,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 9.990270376205444
+        }
+      },
+      "plus_top32": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.8875502008032129,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7028112449799196,
+          "delay_p50": 0.6663904190063477,
+          "delay_p95": 10.86323595046997
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.714859437751004,
+          "delay_p50": 0.6527798175811768,
+          "delay_p95": 3.528191566467285
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.7541666666666667,
+          "delay_p50": 0.7082357406616211,
+          "delay_p95": 3.9603188037872314
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7188755020080321,
+          "delay_p50": 0.7212679386138916,
+          "delay_p95": 1.9574055671691895
+        },
+        "seccomp_api_probe": {
+          "recall": 0.8765432098765432,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7103174603174603,
+          "delay_p50": 0.6753299236297607,
+          "delay_p95": 12.977249383926392
+        }
+      },
+      "plus_top8": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.891566265060241,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7389558232931727,
+          "delay_p50": 0.6583137512207031,
+          "delay_p95": 8.247535705566406
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.751004016064257,
+          "delay_p50": 0.6392157077789307,
+          "delay_p95": 2.2252402305603027
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.7916666666666666,
+          "delay_p50": 0.7086901664733887,
+          "delay_p95": 3.4515221118927
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.7550200803212851,
+          "delay_p50": 0.7071490287780762,
+          "delay_p95": 1.4534013271331787
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9382716049382716,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.7261904761904762,
+          "delay_p50": 0.6780834197998047,
+          "delay_p95": 10.436329126358032
+        }
+      }
+    },
+    "18": {
+      "base29": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9196787148594378,
+          "delay_p50": 0.5747566223144531,
+          "delay_p95": 1.799069881439209
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.891566265060241,
+          "delay_p50": 0.553734302520752,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9208333333333333,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9156626506024096,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9166666666666666,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 2.4581520557403564
+        }
+      },
+      "drop_accept_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.927710843373494,
+          "delay_p50": 0.6043086051940918,
+          "delay_p95": 1.9072628021240234
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8875502008032129,
+          "delay_p50": 0.553734302520752,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9208333333333333,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9116465863453815,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9007936507936508,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 2.4581520557403564
+        }
+      },
+      "drop_clone_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9236947791164659,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 1.9657065868377686
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8955823293172691,
+          "delay_p50": 0.5241758823394775,
+          "delay_p95": 0.7887866497039795
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9208333333333333,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9116465863453815,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8968253968253969,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 2.4700255393981934
+        }
+      },
+      "drop_exec_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9156626506024096,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 1.9657065868377686
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8875502008032129,
+          "delay_p50": 0.553734302520752,
+          "delay_p95": 0.867311954498291
+        },
+        "execveat_resolution_probe": {
+          "recall": 0.8541666666666666,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9125,
+          "delay_p50": 0.6044678688049316,
+          "delay_p95": 4.081200838088989
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9076305220883534,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9007936507936508,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 2.4581520557403564
+        }
+      },
+      "drop_open_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9196787148594378,
+          "delay_p50": 0.5747566223144531,
+          "delay_p95": 1.9657065868377686
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8955823293172691,
+          "delay_p50": 0.5427303314208984,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9166666666666666,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9116465863453815,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9007936507936508,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 2.3610358238220215
+        }
+      },
+      "plus_all_defined_native": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7847011089324951
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_all_observed": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7847011089324951
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_security": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9518072289156626,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9317269076305221,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 1.943324327468872
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.891566265060241,
+          "delay_p50": 0.5427303314208984,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9125,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9156626506024096,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8968253968253969,
+          "delay_p50": 0.6630957126617432,
+          "delay_p95": 2.3610358238220215
+        }
+      },
+      "plus_top16": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9196787148594378,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9236947791164659,
+          "delay_p50": 0.5747566223144531,
+          "delay_p95": 1.9072628021240234
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.9076305220883534,
+          "delay_p50": 0.5427303314208984,
+          "delay_p95": 0.8435311317443848
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9166666666666666,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9116465863453815,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9087301587301587,
+          "delay_p50": 0.6607067584991455,
+          "delay_p95": 2.4380106925964355
+        }
+      },
+      "plus_top32": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9558232931726908,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.927710843373494,
+          "delay_p50": 0.6527671813964844,
+          "delay_p95": 4.666272401809692
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.9236947791164659,
+          "delay_p50": 0.553734302520752,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9083333333333333,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8442623615264893
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9076305220883534,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9206349206349206,
+          "delay_p50": 0.6607067584991455,
+          "delay_p95": 2.4686992168426514
+        }
+      },
+      "plus_top8": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9437751004016064,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9156626506024096,
+          "delay_p50": 0.6415796279907227,
+          "delay_p95": 1.9657065868377686
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8995983935742972,
+          "delay_p50": 0.553734302520752,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.9166666666666666,
+          "delay_p50": 0.5817039012908936,
+          "delay_p95": 0.8198075294494629
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9196787148594378,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.9166666666666666,
+          "delay_p50": 0.6630957126617432,
+          "delay_p95": 1.978689432144165
+        }
+      }
+    },
+    "5": {
+      "base29": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8955823293172691,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 3.1662895679473877
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8755020080321285,
+          "delay_p50": 0.5607235431671143,
+          "delay_p95": 0.9161386489868164
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8875,
+          "delay_p50": 0.5930120944976807,
+          "delay_p95": 0.9499061107635498
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8594377510040161,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8412698412698413,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 4.219441652297974
+        }
+      },
+      "drop_accept_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8955823293172691,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 3.1662895679473877
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8634538152610441,
+          "delay_p50": 0.5607235431671143,
+          "delay_p95": 0.8853893280029297
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.875,
+          "delay_p50": 0.5930120944976807,
+          "delay_p95": 0.9499061107635498
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8433734939759037,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8452380952380952,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 4.219441652297974
+        }
+      },
+      "drop_clone_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9357429718875502,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.891566265060241,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 3.6431214809417725
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5427303314208984,
+          "delay_p95": 0.849677562713623
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8833333333333333,
+          "delay_p50": 0.5890424251556396,
+          "delay_p95": 0.8561334609985352
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8571428571428571,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 4.219441652297974
+        }
+      },
+      "drop_exec_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8755020080321285,
+          "delay_p50": 0.6415796279907227,
+          "delay_p95": 3.690239667892456
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8674698795180723,
+          "delay_p50": 0.5607235431671143,
+          "delay_p95": 0.9161386489868164
+        },
+        "execveat_resolution_probe": {
+          "recall": 0.8291666666666667,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8708333333333333,
+          "delay_p50": 0.6044678688049316,
+          "delay_p95": 5.139459609985352
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8594377510040161,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8531746031746031,
+          "delay_p50": 0.6753299236297607,
+          "delay_p95": 4.083709478378296
+        }
+      },
+      "drop_open_pair": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9036144578313253,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 3.595841646194458
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5562515258789062,
+          "delay_p95": 0.8853893280029297
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8791666666666667,
+          "delay_p50": 0.5930120944976807,
+          "delay_p95": 0.9073939323425293
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8554216867469879,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8650793650793651,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 4.219441652297974
+        }
+      },
+      "plus_all_defined_native": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7847011089324951
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_all_observed": {
+        "anonymous_mprotect_churn": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5347833633422852,
+          "delay_p95": 0.8405849933624268
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5104527473449707,
+          "delay_p95": 0.7847011089324951
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5800552368164062,
+          "delay_p95": 0.8035643100738525
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 1.0,
+          "delay_p50": 0.518848180770874,
+          "delay_p95": 0.7789790630340576
+        }
+      },
+      "plus_security": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9317269076305221,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.9036144578313253,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 3.6431214809417725
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5562515258789062,
+          "delay_p95": 0.8853893280029297
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8791666666666667,
+          "delay_p50": 0.5930120944976807,
+          "delay_p95": 0.9073939323425293
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8634538152610441,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 1.0,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8611111111111112,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 4.219441652297974
+        }
+      },
+      "plus_top16": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9036144578313253,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8955823293172691,
+          "delay_p50": 0.6277790069580078,
+          "delay_p95": 4.214909076690674
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8755020080321285,
+          "delay_p50": 0.5607235431671143,
+          "delay_p95": 0.8853893280029297
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8916666666666667,
+          "delay_p50": 0.6044678688049316,
+          "delay_p95": 1.4254226684570312
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8634538152610441,
+          "delay_p50": 0.5778024196624756,
+          "delay_p95": 0.8807392120361328
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8492063492063492,
+          "delay_p50": 0.6612446308135986,
+          "delay_p95": 5.322579622268677
+        }
+      },
+      "plus_top32": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.9357429718875502,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8634538152610441,
+          "delay_p50": 0.6527671813964844,
+          "delay_p95": 5.272190570831299
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8755020080321285,
+          "delay_p50": 0.5672674179077148,
+          "delay_p95": 0.9377021789550781
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.875,
+          "delay_p50": 0.6044678688049316,
+          "delay_p95": 1.6783123016357422
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8473895582329317,
+          "delay_p50": 0.5778024196624756,
+          "delay_p95": 0.8807392120361328
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8174603174603174,
+          "delay_p50": 0.6630957126617432,
+          "delay_p95": 5.261728525161743
+        }
+      },
+      "plus_top8": {
+        "anonymous_mprotect_churn": {
+          "recall": 0.927710843373494,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.891566265060241,
+          "delay_p50": 0.6442458629608154,
+          "delay_p95": 4.164464473724365
+        },
+        "child_ptrace_handshake": {
+          "recall": 1.0,
+          "attack_trials": 246,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5607235431671143,
+          "delay_p95": 0.8853893280029297
+        },
+        "execveat_resolution_probe": {
+          "recall": 1.0,
+          "attack_trials": 240,
+          "benign_positive_rate": 0.8916666666666667,
+          "delay_p50": 0.5930120944976807,
+          "delay_p95": 0.9073939323425293
+        },
+        "invalid_setns_burst": {
+          "recall": 1.0,
+          "attack_trials": 249,
+          "benign_positive_rate": 0.8714859437751004,
+          "delay_p50": 0.5592913627624512,
+          "delay_p95": 0.8220584392547607
+        },
+        "seccomp_api_probe": {
+          "recall": 0.9506172839506173,
+          "attack_trials": 243,
+          "benign_positive_rate": 0.8690476190476191,
+          "delay_p50": 0.66837477684021,
+          "delay_p95": 3.560117483139038
+        }
+      }
+    }
+  },
+  "computed_at_unix": 1792663058.6244335
+}

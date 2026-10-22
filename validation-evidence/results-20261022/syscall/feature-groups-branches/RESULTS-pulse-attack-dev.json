@@ -1,0 +1,2019 @@
+{
+  "arms": {
+    "base29": {
+      "calibrated_models": 63,
+      "scales": {
+        "0.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8775804042816162,
+          "delay_p95": 3.4193379878997803,
+          "episodes_per_replica_hour": 0.2608795059118032,
+          "positive_window_rate": 0.00020270272470893696,
+          "precision_1to1": 1.0,
+          "recall": 0.8684807256235828,
+          "seeds": [
+            {
+              "FN": 37,
+              "FP": 0,
+              "TN": 304,
+              "TP": 257,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3403158498467455,
+              "positive_window_rate": 0.00023742966268377593,
+              "precision_1to1": 1.0,
+              "recall": 0.8741496598639455,
+              "seed": "73021"
+            },
+            {
+              "FN": 38,
+              "FP": 0,
+              "TN": 304,
+              "TP": 256,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.22423912586801062,
+              "positive_window_rate": 0.00016549238319779649,
+              "precision_1to1": 1.0,
+              "recall": 0.8707482993197279,
+              "seed": "73022"
+            },
+            {
+              "FN": 41,
+              "FP": 0,
+              "TN": 304,
+              "TP": 253,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.21808354202065344,
+              "positive_window_rate": 0.00020518612824523845,
+              "precision_1to1": 1.0,
+              "recall": 0.8605442176870748,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8701149225234985,
+          "delay_p95": 3.1172921657562256,
+          "episodes_per_replica_hour": 0.3781287220519394,
+          "positive_window_rate": 0.001209417522178829,
+          "precision_1to1": 1.0,
+          "recall": 0.8956916099773243,
+          "seeds": [
+            {
+              "FN": 31,
+              "FP": 0,
+              "TN": 304,
+              "TP": 263,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3271253130309802,
+              "positive_window_rate": 0.00206383047326669,
+              "precision_1to1": 1.0,
+              "recall": 0.8945578231292517,
+              "seed": "73021"
+            },
+            {
+              "FN": 30,
+              "FP": 0,
+              "TN": 304,
+              "TP": 264,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.45375446646232737,
+              "positive_window_rate": 0.0005419112208476923,
+              "precision_1to1": 1.0,
+              "recall": 0.8979591836734694,
+              "seed": "73022"
+            },
+            {
+              "FN": 31,
+              "FP": 0,
+              "TN": 304,
+              "TP": 263,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.35350638666251083,
+              "positive_window_rate": 0.001022510872422105,
+              "precision_1to1": 1.0,
+              "recall": 0.8945578231292517,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.875469446182251,
+          "delay_p95": 3.004832363128661,
+          "episodes_per_replica_hour": 0.505050998523637,
+          "positive_window_rate": 0.002400392719735616,
+          "precision_1to1": 1.0,
+          "recall": 0.9160997732426304,
+          "seeds": [
+            {
+              "FN": 22,
+              "FP": 0,
+              "TN": 304,
+              "TP": 272,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.49508481515172537,
+              "positive_window_rate": 0.0027286091018612338,
+              "precision_1to1": 1.0,
+              "recall": 0.9251700680272109,
+              "seed": "73021"
+            },
+            {
+              "FN": 26,
+              "FP": 0,
+              "TN": 304,
+              "TP": 268,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5082753519674907,
+              "positive_window_rate": 0.0016457637369670169,
+              "precision_1to1": 1.0,
+              "recall": 0.9115646258503401,
+              "seed": "73022"
+            },
+            {
+              "FN": 26,
+              "FP": 0,
+              "TN": 304,
+              "TP": 268,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5117928284516948,
+              "positive_window_rate": 0.0028268053203785977,
+              "precision_1to1": 1.0,
+              "recall": 0.9115646258503401,
+              "seed": "73023"
+            }
+          ]
+        },
+        "10": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.021929824561403508,
+          "delay_p50": 0.8093950748443604,
+          "delay_p95": 1.8310422658920273,
+          "episodes_per_replica_hour": 5.632652343372146,
+          "positive_window_rate": 0.0075971385328801,
+          "precision_1to1": 0.9775305608638941,
+          "recall": 0.9863945578231292,
+          "seeds": [
+            {
+              "FN": 4,
+              "FP": 6,
+              "TN": 298,
+              "TP": 290,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.019736842105263157,
+              "episodes_per_replica_hour": 5.753712159036837,
+              "positive_window_rate": 0.007568070498045358,
+              "precision_1to1": 0.9797297297297297,
+              "recall": 0.9863945578231292,
+              "seed": "73021"
+            },
+            {
+              "FN": 4,
+              "FP": 7,
+              "TN": 297,
+              "TP": 290,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.023026315789473683,
+              "episodes_per_replica_hour": 5.740521622221071,
+              "positive_window_rate": 0.00767420546557221,
+              "precision_1to1": 0.9764309764309764,
+              "recall": 0.9863945578231292,
+              "seed": "73022"
+            },
+            {
+              "FN": 4,
+              "FP": 7,
+              "TN": 297,
+              "TP": 290,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.023026315789473683,
+              "episodes_per_replica_hour": 5.4037232488585305,
+              "positive_window_rate": 0.007549139635022731,
+              "precision_1to1": 0.9764309764309764,
+              "recall": 0.9863945578231292,
+              "seed": "73023"
+            }
+          ]
+        },
+        "15": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.03728070175438596,
+          "delay_p50": 0.8015730381011963,
+          "delay_p95": 1.5366075515747069,
+          "episodes_per_replica_hour": 9.691820206143664,
+          "positive_window_rate": 0.009241070250844927,
+          "precision_1to1": 0.9625231626152648,
+          "recall": 0.9897959183673469,
+          "seeds": [
+            {
+              "FN": 3,
+              "FP": 10,
+              "TN": 294,
+              "TP": 291,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.03289473684210526,
+              "episodes_per_replica_hour": 10.079328865486813,
+              "positive_window_rate": 0.009252550903258648,
+              "precision_1to1": 0.9667774086378738,
+              "recall": 0.9897959183673469,
+              "seed": "73021"
+            },
+            {
+              "FN": 3,
+              "FP": 12,
+              "TN": 292,
+              "TP": 291,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.039473684210526314,
+              "episodes_per_replica_hour": 9.631729982871844,
+              "positive_window_rate": 0.009344640391768714,
+              "precision_1to1": 0.9603960396039604,
+              "recall": 0.9897959183673469,
+              "seed": "73022"
+            },
+            {
+              "FN": 3,
+              "FP": 12,
+              "TN": 292,
+              "TP": 291,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.039473684210526314,
+              "episodes_per_replica_hour": 9.364401770072334,
+              "positive_window_rate": 0.009126019457507418,
+              "precision_1to1": 0.9603960396039604,
+              "recall": 0.9897959183673469,
+              "seed": "73023"
+            }
+          ]
+        },
+        "2": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.868820071220398,
+          "delay_p95": 2.9255301237106313,
+          "episodes_per_replica_hour": 0.5874185728620827,
+          "positive_window_rate": 0.004918319636345043,
+          "precision_1to1": 1.0,
+          "recall": 0.9229024943310659,
+          "seeds": [
+            {
+              "FN": 22,
+              "FP": 0,
+              "TN": 304,
+              "TP": 272,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5847804654989296,
+              "positive_window_rate": 0.005114142111912422,
+              "precision_1to1": 1.0,
+              "recall": 0.9251700680272109,
+              "seed": "73021"
+            },
+            {
+              "FN": 23,
+              "FP": 0,
+              "TN": 304,
+              "TP": 271,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5856598346199806,
+              "positive_window_rate": 0.00451519403279656,
+              "precision_1to1": 1.0,
+              "recall": 0.9217687074829932,
+              "seed": "73022"
+            },
+            {
+              "FN": 23,
+              "FP": 0,
+              "TN": 304,
+              "TP": 271,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5918154184673378,
+              "positive_window_rate": 0.005125622764326145,
+              "precision_1to1": 1.0,
+              "recall": 0.9217687074829932,
+              "seed": "73023"
+            }
+          ]
+        },
+        "20": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.05263157894736842,
+          "delay_p50": 0.8002818822860718,
+          "delay_p95": 1.4941034913062994,
+          "episodes_per_replica_hour": 13.494505408608633,
+          "positive_window_rate": 0.010810621997320856,
+          "precision_1to1": 0.9480263654301541,
+          "recall": 0.9909297052154195,
+          "seeds": [
+            {
+              "FN": 3,
+              "FP": 12,
+              "TN": 292,
+              "TP": 291,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.039473684210526314,
+              "episodes_per_replica_hour": 14.045283601426924,
+              "positive_window_rate": 0.010925428521458072,
+              "precision_1to1": 0.9603960396039604,
+              "recall": 0.9897959183673469,
+              "seed": "73021"
+            },
+            {
+              "FN": 2,
+              "FP": 18,
+              "TN": 286,
+              "TP": 292,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.05921052631578947,
+              "episodes_per_replica_hour": 13.240660855665238,
+              "positive_window_rate": 0.010849094396366837,
+              "precision_1to1": 0.9419354838709677,
+              "recall": 0.9931972789115646,
+              "seed": "73022"
+            },
+            {
+              "FN": 3,
+              "FP": 18,
+              "TN": 286,
+              "TP": 291,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.05921052631578947,
+              "episodes_per_replica_hour": 13.197571768733738,
+              "positive_window_rate": 0.010657343074137656,
+              "precision_1to1": 0.941747572815534,
+              "recall": 0.9897959183673469,
+              "seed": "73023"
+            }
+          ]
+        },
+        "3": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8541796207427979,
+          "delay_p95": 2.7629823684692343,
+          "episodes_per_replica_hour": 0.9529430041789575,
+          "positive_window_rate": 0.00545481622325293,
+          "precision_1to1": 1.0,
+          "recall": 0.9263038548752834,
+          "seeds": [
+            {
+              "FN": 22,
+              "FP": 0,
+              "TN": 304,
+              "TP": 272,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.003360167119216,
+              "positive_window_rate": 0.005446836762710059,
+              "precision_1to1": 1.0,
+              "recall": 0.9251700680272109,
+              "seed": "73021"
+            },
+            {
+              "FN": 22,
+              "FP": 0,
+              "TN": 304,
+              "TP": 272,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.9303725300719813,
+              "positive_window_rate": 0.005463691337530204,
+              "precision_1to1": 1.0,
+              "recall": 0.9251700680272109,
+              "seed": "73022"
+            },
+            {
+              "FN": 21,
+              "FP": 0,
+              "TN": 304,
+              "TP": 273,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.9250963153456752,
+              "positive_window_rate": 0.005453920569518526,
+              "precision_1to1": 1.0,
+              "recall": 0.9285714285714286,
+              "seed": "73023"
+            }
+          ]
+        },
+        "30": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.08114035087719298,
+          "delay_p50": 0.7935447692871094,
+          "delay_p95": 1.2134883403778076,
+          "episodes_per_replica_hour": 21.617237979756922,
+          "positive_window_rate": 0.015430159690175463,
+          "precision_1to1": 0.9226082963321894,
+          "recall": 1.0,
+          "seeds": [
+            {
+              "FN": 0,
+              "FP": 23,
+              "TN": 281,
+              "TP": 294,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0756578947368421,
+              "episodes_per_replica_hour": 22.32102639963809,
+              "positive_window_rate": 0.015500224239125868,
+              "precision_1to1": 0.9274447949526814,
+              "recall": 1.0,
+              "seed": "73021"
+            },
+            {
+              "FN": 0,
+              "FP": 26,
+              "TN": 278,
+              "TP": 294,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.08552631578947369,
+              "episodes_per_replica_hour": 21.584115076197335,
+              "positive_window_rate": 0.015556528289793163,
+              "precision_1to1": 0.91875,
+              "recall": 1.0,
+              "seed": "73022"
+            },
+            {
+              "FN": 0,
+              "FP": 25,
+              "TN": 279,
+              "TP": 294,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.08223684210526316,
+              "episodes_per_replica_hour": 20.946572463435345,
+              "positive_window_rate": 0.01523372654160735,
+              "precision_1to1": 0.9216300940438872,
+              "recall": 1.0,
+              "seed": "73023"
+            }
+          ]
+        },
+        "4": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0010964912280701754,
+          "delay_p50": 0.8514194488525391,
+          "delay_p95": 2.8075170516967773,
+          "episodes_per_replica_hour": 1.407869962802686,
+          "positive_window_rate": 0.005754127416677333,
+          "precision_1to1": 0.9987834549878345,
+          "recall": 0.9342403628117916,
+          "seeds": [
+            {
+              "FN": 16,
+              "FP": 0,
+              "TN": 304,
+              "TP": 278,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.4896512910604311,
+              "positive_window_rate": 0.005754371685877625,
+              "precision_1to1": 1.0,
+              "recall": 0.9455782312925171,
+              "seed": "73021"
+            },
+            {
+              "FN": 21,
+              "FP": 1,
+              "TN": 303,
+              "TP": 273,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.3814888891711556,
+              "positive_window_rate": 0.005759134935283318,
+              "precision_1to1": 0.9963503649635036,
+              "recall": 0.9285714285714286,
+              "seed": "73022"
+            },
+            {
+              "FN": 21,
+              "FP": 0,
+              "TN": 304,
+              "TP": 273,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.3524697081764718,
+              "positive_window_rate": 0.0057488756288710564,
+              "precision_1to1": 1.0,
+              "recall": 0.9285714285714286,
+              "seed": "73023"
+            }
+          ]
+        },
+        "5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0043859649122807015,
+          "delay_p50": 0.8358159065246582,
+          "delay_p95": 2.288702964782715,
+          "episodes_per_replica_hour": 2.1222108121364665,
+          "positive_window_rate": 0.0061214268708496625,
+          "precision_1to1": 0.9951992606750125,
+          "recall": 0.9421768707482995,
+          "seeds": [
+            {
+              "FN": 14,
+              "FP": 1,
+              "TN": 303,
+              "TP": 280,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.194905326143351,
+              "positive_window_rate": 0.006102211027093363,
+              "precision_1to1": 0.99644128113879,
+              "recall": 0.9523809523809523,
+              "seed": "73021"
+            },
+            {
+              "FN": 20,
+              "FP": 2,
+              "TN": 302,
+              "TP": 274,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.006578947368421052,
+              "episodes_per_replica_hour": 2.1535749774539528,
+              "positive_window_rate": 0.00614263757974168,
+              "precision_1to1": 0.9927536231884058,
+              "recall": 0.9319727891156463,
+              "seed": "73022"
+            },
+            {
+              "FN": 17,
+              "FP": 1,
+              "TN": 303,
+              "TP": 277,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.0181521328120953,
+              "positive_window_rate": 0.006119432005713945,
+              "precision_1to1": 0.9964028776978417,
+              "recall": 0.9421768707482994,
+              "seed": "73023"
+            }
+          ]
+        },
+        "7": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.010964912280701754,
+          "delay_p50": 0.8358159065246582,
+          "delay_p95": 2.3168420791625977,
+          "episodes_per_replica_hour": 3.374725563553472,
+          "positive_window_rate": 0.006722695507368298,
+          "precision_1to1": 0.9884413616087001,
+          "recall": 0.9705215419501133,
+          "seeds": [
+            {
+              "FN": 6,
+              "FP": 3,
+              "TN": 301,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.009868421052631578,
+              "episodes_per_replica_hour": 3.4682318134252306,
+              "positive_window_rate": 0.00669041126139638,
+              "precision_1to1": 0.9896907216494846,
+              "recall": 0.9795918367346939,
+              "seed": "73021"
+            },
+            {
+              "FN": 12,
+              "FP": 4,
+              "TN": 300,
+              "TP": 282,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.013157894736842105,
+              "episodes_per_replica_hour": 3.4154696661621693,
+              "positive_window_rate": 0.006769310213090679,
+              "precision_1to1": 0.986013986013986,
+              "recall": 0.9591836734693877,
+              "seed": "73022"
+            },
+            {
+              "FN": 8,
+              "FP": 3,
+              "TN": 301,
+              "TP": 286,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.009868421052631578,
+              "episodes_per_replica_hour": 3.240475211073016,
+              "positive_window_rate": 0.006708365047617838,
+              "precision_1to1": 0.9896193771626297,
+              "recall": 0.9727891156462585,
+              "seed": "73023"
+            }
+          ]
+        }
+      },
+      "skipped_models": []
+    },
+    "base29@support": {
+      "calibrated_models": 63,
+      "scales": {
+        "0.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8602979183197021,
+          "delay_p95": 3.416064405441278,
+          "episodes_per_replica_hour": 0.12926726079450024,
+          "positive_window_rate": 0.00013740142516422218,
+          "precision_1to1": 1.0,
+          "recall": 0.7278911564625851,
+          "seeds": [
+            {
+              "FN": 80,
+              "FP": 0,
+              "TN": 304,
+              "TP": 214,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.12926726079450024,
+              "positive_window_rate": 0.00013740142516422218,
+              "precision_1to1": 1.0,
+              "recall": 0.7278911564625851,
+              "seed": "73021"
+            },
+            {
+              "FN": 80,
+              "FP": 0,
+              "TN": 304,
+              "TP": 214,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.12926726079450024,
+              "positive_window_rate": 0.00013740142516422218,
+              "precision_1to1": 1.0,
+              "recall": 0.7278911564625851,
+              "seed": "73022"
+            },
+            {
+              "FN": 80,
+              "FP": 0,
+              "TN": 304,
+              "TP": 214,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.12926726079450024,
+              "positive_window_rate": 0.00013740142516422218,
+              "precision_1to1": 1.0,
+              "recall": 0.7278911564625851,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8558636903762817,
+          "delay_p95": 2.5991018295288213,
+          "episodes_per_replica_hour": 0.17499445508915337,
+          "positive_window_rate": 0.0032385210574706804,
+          "precision_1to1": 1.0,
+          "recall": 0.7414965986394558,
+          "seeds": [
+            {
+              "FN": 76,
+              "FP": 0,
+              "TN": 304,
+              "TP": 218,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.17499445508915337,
+              "positive_window_rate": 0.0032385210574706804,
+              "precision_1to1": 1.0,
+              "recall": 0.7414965986394558,
+              "seed": "73021"
+            },
+            {
+              "FN": 76,
+              "FP": 0,
+              "TN": 304,
+              "TP": 218,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.17499445508915337,
+              "positive_window_rate": 0.0032385210574706804,
+              "precision_1to1": 1.0,
+              "recall": 0.7414965986394558,
+              "seed": "73022"
+            },
+            {
+              "FN": 76,
+              "FP": 0,
+              "TN": 304,
+              "TP": 218,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.17499445508915337,
+              "positive_window_rate": 0.0032385210574706804,
+              "precision_1to1": 1.0,
+              "recall": 0.7414965986394558,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8681669235229492,
+          "delay_p95": 3.3308587074279785,
+          "episodes_per_replica_hour": 0.26556947455740865,
+          "positive_window_rate": 0.005124157149124392,
+          "precision_1to1": 1.0,
+          "recall": 0.7925170068027211,
+          "seeds": [
+            {
+              "FN": 61,
+              "FP": 0,
+              "TN": 304,
+              "TP": 233,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.26556947455740865,
+              "positive_window_rate": 0.005124157149124392,
+              "precision_1to1": 1.0,
+              "recall": 0.7925170068027211,
+              "seed": "73021"
+            },
+            {
+              "FN": 61,
+              "FP": 0,
+              "TN": 304,
+              "TP": 233,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.26556947455740865,
+              "positive_window_rate": 0.005124157149124392,
+              "precision_1to1": 1.0,
+              "recall": 0.7925170068027211,
+              "seed": "73022"
+            },
+            {
+              "FN": 61,
+              "FP": 0,
+              "TN": 304,
+              "TP": 233,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.26556947455740865,
+              "positive_window_rate": 0.005124157149124392,
+              "precision_1to1": 1.0,
+              "recall": 0.7925170068027211,
+              "seed": "73023"
+            }
+          ]
+        },
+        "10": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.009868421052631578,
+          "delay_p50": 0.8265023231506348,
+          "delay_p95": 2.4013209342956543,
+          "episodes_per_replica_hour": 3.574635477072404,
+          "positive_window_rate": 0.007683243425983013,
+          "precision_1to1": 0.9895470383275261,
+          "recall": 0.9659863945578232,
+          "seeds": [
+            {
+              "FN": 10,
+              "FP": 3,
+              "TN": 301,
+              "TP": 284,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.009868421052631578,
+              "episodes_per_replica_hour": 3.5746354770724045,
+              "positive_window_rate": 0.007683243425983013,
+              "precision_1to1": 0.9895470383275261,
+              "recall": 0.9659863945578231,
+              "seed": "73021"
+            },
+            {
+              "FN": 10,
+              "FP": 3,
+              "TN": 301,
+              "TP": 284,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.009868421052631578,
+              "episodes_per_replica_hour": 3.5746354770724045,
+              "positive_window_rate": 0.007683243425983013,
+              "precision_1to1": 0.9895470383275261,
+              "recall": 0.9659863945578231,
+              "seed": "73022"
+            },
+            {
+              "FN": 10,
+              "FP": 3,
+              "TN": 301,
+              "TP": 284,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.009868421052631578,
+              "episodes_per_replica_hour": 3.5746354770724045,
+              "positive_window_rate": 0.007683243425983013,
+              "precision_1to1": 0.9895470383275261,
+              "recall": 0.9659863945578231,
+              "seed": "73023"
+            }
+          ]
+        },
+        "15": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.023026315789473683,
+          "delay_p50": 0.8093950748443604,
+          "delay_p95": 2.196560859680176,
+          "episodes_per_replica_hour": 6.43610259697243,
+          "positive_window_rate": 0.010264802469268492,
+          "precision_1to1": 0.9761904761904762,
+          "recall": 0.9761904761904762,
+          "seeds": [
+            {
+              "FN": 7,
+              "FP": 7,
+              "TN": 297,
+              "TP": 287,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.023026315789473683,
+              "episodes_per_replica_hour": 6.43610259697243,
+              "positive_window_rate": 0.010264802469268492,
+              "precision_1to1": 0.9761904761904762,
+              "recall": 0.9761904761904762,
+              "seed": "73021"
+            },
+            {
+              "FN": 7,
+              "FP": 7,
+              "TN": 297,
+              "TP": 287,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.023026315789473683,
+              "episodes_per_replica_hour": 6.43610259697243,
+              "positive_window_rate": 0.010264802469268492,
+              "precision_1to1": 0.9761904761904762,
+              "recall": 0.9761904761904762,
+              "seed": "73022"
+            },
+            {
+              "FN": 7,
+              "FP": 7,
+              "TN": 297,
+              "TP": 287,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.023026315789473683,
+              "episodes_per_replica_hour": 6.43610259697243,
+              "positive_window_rate": 0.010264802469268492,
+              "precision_1to1": 0.9761904761904762,
+              "recall": 0.9761904761904762,
+              "seed": "73023"
+            }
+          ]
+        },
+        "2": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 0.8698523044586182,
+          "delay_p95": 3.79280309677124,
+          "episodes_per_replica_hour": 0.3684556617203782,
+          "positive_window_rate": 0.0053017408577366405,
+          "precision_1to1": 1.0,
+          "recall": 0.8129251700680272,
+          "seeds": [
+            {
+              "FN": 55,
+              "FP": 0,
+              "TN": 304,
+              "TP": 239,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3684556617203782,
+              "positive_window_rate": 0.0053017408577366405,
+              "precision_1to1": 1.0,
+              "recall": 0.8129251700680272,
+              "seed": "73021"
+            },
+            {
+              "FN": 55,
+              "FP": 0,
+              "TN": 304,
+              "TP": 239,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3684556617203782,
+              "positive_window_rate": 0.0053017408577366405,
+              "precision_1to1": 1.0,
+              "recall": 0.8129251700680272,
+              "seed": "73022"
+            },
+            {
+              "FN": 55,
+              "FP": 0,
+              "TN": 304,
+              "TP": 239,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3684556617203782,
+              "positive_window_rate": 0.0053017408577366405,
+              "precision_1to1": 1.0,
+              "recall": 0.8129251700680272,
+              "seed": "73023"
+            }
+          ]
+        },
+        "20": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.03618421052631579,
+          "delay_p50": 0.8002818822860718,
+          "delay_p95": 1.648216962814331,
+          "episodes_per_replica_hour": 9.717028787613794,
+          "positive_window_rate": 0.011573108306032179,
+          "precision_1to1": 0.963210702341137,
+          "recall": 0.9795918367346937,
+          "seeds": [
+            {
+              "FN": 6,
+              "FP": 11,
+              "TN": 293,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.03618421052631579,
+              "episodes_per_replica_hour": 9.717028787613794,
+              "positive_window_rate": 0.011573108306032179,
+              "precision_1to1": 0.9632107023411371,
+              "recall": 0.9795918367346939,
+              "seed": "73021"
+            },
+            {
+              "FN": 6,
+              "FP": 11,
+              "TN": 293,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.03618421052631579,
+              "episodes_per_replica_hour": 9.717028787613794,
+              "positive_window_rate": 0.011573108306032179,
+              "precision_1to1": 0.9632107023411371,
+              "recall": 0.9795918367346939,
+              "seed": "73022"
+            },
+            {
+              "FN": 6,
+              "FP": 11,
+              "TN": 293,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.03618421052631579,
+              "episodes_per_replica_hour": 9.717028787613794,
+              "positive_window_rate": 0.011573108306032179,
+              "precision_1to1": 0.9632107023411371,
+              "recall": 0.9795918367346939,
+              "seed": "73023"
+            }
+          ]
+        },
+        "3": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.003289473684210526,
+          "delay_p50": 0.8541796207427979,
+          "delay_p95": 2.3106300830841064,
+          "episodes_per_replica_hour": 0.8116576987300933,
+          "positive_window_rate": 0.005786859489516454,
+          "precision_1to1": 0.9961240310077519,
+          "recall": 0.8741496598639454,
+          "seeds": [
+            {
+              "FN": 37,
+              "FP": 1,
+              "TN": 303,
+              "TP": 257,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 0.8116576987300933,
+              "positive_window_rate": 0.005786859489516454,
+              "precision_1to1": 0.9961240310077519,
+              "recall": 0.8741496598639455,
+              "seed": "73021"
+            },
+            {
+              "FN": 37,
+              "FP": 1,
+              "TN": 303,
+              "TP": 257,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 0.8116576987300933,
+              "positive_window_rate": 0.005786859489516454,
+              "precision_1to1": 0.9961240310077519,
+              "recall": 0.8741496598639455,
+              "seed": "73022"
+            },
+            {
+              "FN": 37,
+              "FP": 1,
+              "TN": 303,
+              "TP": 257,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 0.8116576987300933,
+              "positive_window_rate": 0.005786859489516454,
+              "precision_1to1": 0.9961240310077519,
+              "recall": 0.8741496598639455,
+              "seed": "73023"
+            }
+          ]
+        },
+        "30": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0756578947368421,
+          "delay_p50": 0.7853704690933228,
+          "delay_p95": 1.2642428874969482,
+          "episodes_per_replica_hour": 18.70681931211839,
+          "positive_window_rate": 0.01603761647976816,
+          "precision_1to1": 0.9269841269841269,
+          "recall": 0.9931972789115647,
+          "seeds": [
+            {
+              "FN": 2,
+              "FP": 23,
+              "TN": 281,
+              "TP": 292,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0756578947368421,
+              "episodes_per_replica_hour": 18.70681931211839,
+              "positive_window_rate": 0.01603761647976816,
+              "precision_1to1": 0.926984126984127,
+              "recall": 0.9931972789115646,
+              "seed": "73021"
+            },
+            {
+              "FN": 2,
+              "FP": 23,
+              "TN": 281,
+              "TP": 292,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0756578947368421,
+              "episodes_per_replica_hour": 18.70681931211839,
+              "positive_window_rate": 0.01603761647976816,
+              "precision_1to1": 0.926984126984127,
+              "recall": 0.9931972789115646,
+              "seed": "73022"
+            },
+            {
+              "FN": 2,
+              "FP": 23,
+              "TN": 281,
+              "TP": 292,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0756578947368421,
+              "episodes_per_replica_hour": 18.70681931211839,
+              "positive_window_rate": 0.01603761647976816,
+              "precision_1to1": 0.926984126984127,
+              "recall": 0.9931972789115646,
+              "seed": "73023"
+            }
+          ]
+        },
+        "4": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.003289473684210526,
+          "delay_p50": 0.8462661504745483,
+          "delay_p95": 1.5407764911651611,
+          "episodes_per_replica_hour": 1.2284786621082777,
+          "positive_window_rate": 0.006095005085684749,
+          "precision_1to1": 0.9962264150943397,
+          "recall": 0.8979591836734694,
+          "seeds": [
+            {
+              "FN": 30,
+              "FP": 1,
+              "TN": 303,
+              "TP": 264,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.2284786621082777,
+              "positive_window_rate": 0.00609500508568475,
+              "precision_1to1": 0.9962264150943396,
+              "recall": 0.8979591836734694,
+              "seed": "73021"
+            },
+            {
+              "FN": 30,
+              "FP": 1,
+              "TN": 303,
+              "TP": 264,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.2284786621082777,
+              "positive_window_rate": 0.00609500508568475,
+              "precision_1to1": 0.9962264150943396,
+              "recall": 0.8979591836734694,
+              "seed": "73022"
+            },
+            {
+              "FN": 30,
+              "FP": 1,
+              "TN": 303,
+              "TP": 264,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.2284786621082777,
+              "positive_window_rate": 0.00609500508568475,
+              "precision_1to1": 0.9962264150943396,
+              "recall": 0.8979591836734694,
+              "seed": "73023"
+            }
+          ]
+        },
+        "5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.003289473684210526,
+          "delay_p50": 0.8408892154693604,
+          "delay_p95": 2.2204568147659285,
+          "episodes_per_replica_hour": 1.680474390328503,
+          "positive_window_rate": 0.006397043951845747,
+          "precision_1to1": 0.9963636363636365,
+          "recall": 0.9319727891156463,
+          "seeds": [
+            {
+              "FN": 20,
+              "FP": 1,
+              "TN": 303,
+              "TP": 274,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.680474390328503,
+              "positive_window_rate": 0.006397043951845747,
+              "precision_1to1": 0.9963636363636363,
+              "recall": 0.9319727891156463,
+              "seed": "73021"
+            },
+            {
+              "FN": 20,
+              "FP": 1,
+              "TN": 303,
+              "TP": 274,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.680474390328503,
+              "positive_window_rate": 0.006397043951845747,
+              "precision_1to1": 0.9963636363636363,
+              "recall": 0.9319727891156463,
+              "seed": "73022"
+            },
+            {
+              "FN": 20,
+              "FP": 1,
+              "TN": 303,
+              "TP": 274,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 1.680474390328503,
+              "positive_window_rate": 0.006397043951845747,
+              "precision_1to1": 0.9963636363636363,
+              "recall": 0.9319727891156463,
+              "seed": "73023"
+            }
+          ]
+        },
+        "7": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.003289473684210526,
+          "delay_p50": 0.8334736824035645,
+          "delay_p95": 2.221714496612549,
+          "episodes_per_replica_hour": 2.5484117128058617,
+          "positive_window_rate": 0.007035563641408906,
+          "precision_1to1": 0.9964539007092199,
+          "recall": 0.95578231292517,
+          "seeds": [
+            {
+              "FN": 13,
+              "FP": 1,
+              "TN": 303,
+              "TP": 281,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.5484117128058617,
+              "positive_window_rate": 0.007035563641408906,
+              "precision_1to1": 0.9964539007092199,
+              "recall": 0.95578231292517,
+              "seed": "73021"
+            },
+            {
+              "FN": 13,
+              "FP": 1,
+              "TN": 303,
+              "TP": 281,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.5484117128058617,
+              "positive_window_rate": 0.007035563641408906,
+              "precision_1to1": 0.9964539007092199,
+              "recall": 0.95578231292517,
+              "seed": "73022"
+            },
+            {
+              "FN": 13,
+              "FP": 1,
+              "TN": 303,
+              "TP": 281,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.5484117128058617,
+              "positive_window_rate": 0.007035563641408906,
+              "precision_1to1": 0.9964539007092199,
+              "recall": 0.95578231292517,
+              "seed": "73023"
+            }
+          ]
+        }
+      },
+      "skipped_models": []
+    },
+    "base29@tree": {
+      "calibrated_models": 63,
+      "scales": {
+        "0.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 1.313377857208252,
+          "delay_p95": 4.432033681869506,
+          "episodes_per_replica_hour": 0.3068998232468067,
+          "positive_window_rate": 0.0011371952619591758,
+          "precision_1to1": 1.0,
+          "recall": 0.4909297052154195,
+          "seeds": [
+            {
+              "FN": 146,
+              "FP": 0,
+              "TN": 304,
+              "TP": 148,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.2594138907100515,
+              "positive_window_rate": 0.0019879848865760395,
+              "precision_1to1": 1.0,
+              "recall": 0.5034013605442177,
+              "seed": "73021"
+            },
+            {
+              "FN": 152,
+              "FP": 0,
+              "TN": 304,
+              "TP": 142,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.3798874602940415,
+              "positive_window_rate": 0.00046508855735587386,
+              "precision_1to1": 1.0,
+              "recall": 0.48299319727891155,
+              "seed": "73022"
+            },
+            {
+              "FN": 151,
+              "FP": 0,
+              "TN": 304,
+              "TP": 143,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.28139811873632703,
+              "positive_window_rate": 0.000958512341945614,
+              "precision_1to1": 1.0,
+              "recall": 0.48639455782312924,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 1.1761384010314941,
+          "delay_p95": 3.97415871620178,
+          "episodes_per_replica_hour": 0.5352426716797221,
+          "positive_window_rate": 0.002614250404591219,
+          "precision_1to1": 1.0,
+          "recall": 0.5997732426303855,
+          "seeds": [
+            {
+              "FN": 112,
+              "FP": 0,
+              "TN": 304,
+              "TP": 182,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5416913785674295,
+              "positive_window_rate": 0.0028062867075540738,
+              "precision_1to1": 1.0,
+              "recall": 0.6190476190476191,
+              "seed": "73021"
+            },
+            {
+              "FN": 124,
+              "FP": 0,
+              "TN": 304,
+              "TP": 170,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5223452579043071,
+              "positive_window_rate": 0.0021605610765823026,
+              "precision_1to1": 1.0,
+              "recall": 0.5782312925170068,
+              "seed": "73022"
+            },
+            {
+              "FN": 117,
+              "FP": 0,
+              "TN": 304,
+              "TP": 177,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.5416913785674295,
+              "positive_window_rate": 0.0028759034296372797,
+              "precision_1to1": 1.0,
+              "recall": 0.6020408163265306,
+              "seed": "73023"
+            }
+          ]
+        },
+        "1.5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 1.0852504968643188,
+          "delay_p95": 3.832685339450835,
+          "episodes_per_replica_hour": 0.8368662802002226,
+          "positive_window_rate": 0.0030276760260853444,
+          "precision_1to1": 1.0,
+          "recall": 0.6439909297052154,
+          "seeds": [
+            {
+              "FN": 99,
+              "FP": 0,
+              "TN": 304,
+              "TP": 195,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.9013533490772976,
+              "positive_window_rate": 0.0030304036988219383,
+              "precision_1to1": 1.0,
+              "recall": 0.6632653061224489,
+              "seed": "73021"
+            },
+            {
+              "FN": 110,
+              "FP": 0,
+              "TN": 304,
+              "TP": 184,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.7940703163090729,
+              "positive_window_rate": 0.0029599320345377106,
+              "precision_1to1": 1.0,
+              "recall": 0.6258503401360545,
+              "seed": "73022"
+            },
+            {
+              "FN": 105,
+              "FP": 0,
+              "TN": 304,
+              "TP": 189,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 0.8151751752142974,
+              "positive_window_rate": 0.003092692344896386,
+              "precision_1to1": 1.0,
+              "recall": 0.6428571428571429,
+              "seed": "73023"
+            }
+          ]
+        },
+        "10": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.024122807017543855,
+          "delay_p50": 0.9393084049224854,
+          "delay_p95": 2.837904548645015,
+          "episodes_per_replica_hour": 9.649610488333215,
+          "positive_window_rate": 0.008405099624379108,
+          "precision_1to1": 0.9728982581604857,
+          "recall": 0.8945578231292517,
+          "seeds": [
+            {
+              "FN": 30,
+              "FP": 5,
+              "TN": 299,
+              "TP": 264,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.01644736842105263,
+              "episodes_per_replica_hour": 10.09251940230258,
+              "positive_window_rate": 0.008632107134517094,
+              "precision_1to1": 0.9814126394052045,
+              "recall": 0.8979591836734694,
+              "seed": "73021"
+            },
+            {
+              "FN": 32,
+              "FP": 8,
+              "TN": 296,
+              "TP": 262,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.02631578947368421,
+              "episodes_per_replica_hour": 9.340658803803956,
+              "positive_window_rate": 0.008042441285012325,
+              "precision_1to1": 0.9703703703703703,
+              "recall": 0.891156462585034,
+              "seed": "73022"
+            },
+            {
+              "FN": 31,
+              "FP": 9,
+              "TN": 295,
+              "TP": 263,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.029605263157894735,
+              "episodes_per_replica_hour": 9.515653258893108,
+              "positive_window_rate": 0.008540750453607904,
+              "precision_1to1": 0.9669117647058824,
+              "recall": 0.8945578231292517,
+              "seed": "73023"
+            }
+          ]
+        },
+        "15": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.04385964912280702,
+          "delay_p50": 0.9002656936645508,
+          "delay_p95": 2.6090576648712154,
+          "episodes_per_replica_hour": 15.627268650197712,
+          "positive_window_rate": 0.011254011307384126,
+          "precision_1to1": 0.954855481649227,
+          "recall": 0.9580498866213151,
+          "seeds": [
+            {
+              "FN": 14,
+              "FP": 11,
+              "TN": 293,
+              "TP": 280,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.03618421052631579,
+              "episodes_per_replica_hour": 16.394957892875254,
+              "positive_window_rate": 0.011886017151606167,
+              "precision_1to1": 0.9621993127147767,
+              "recall": 0.9523809523809523,
+              "seed": "73021"
+            },
+            {
+              "FN": 12,
+              "FP": 14,
+              "TN": 290,
+              "TP": 282,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.046052631578947366,
+              "episodes_per_replica_hour": 15.155047432193312,
+              "positive_window_rate": 0.01088695612241209,
+              "precision_1to1": 0.9527027027027027,
+              "recall": 0.9591836734693877,
+              "seed": "73022"
+            },
+            {
+              "FN": 11,
+              "FP": 15,
+              "TN": 289,
+              "TP": 283,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.049342105263157895,
+              "episodes_per_replica_hour": 15.331800625524568,
+              "positive_window_rate": 0.010989060648134125,
+              "precision_1to1": 0.9496644295302014,
+              "recall": 0.9625850340136054,
+              "seed": "73023"
+            }
+          ]
+        },
+        "2": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 1.077218770980835,
+          "delay_p95": 3.8879137516021713,
+          "episodes_per_replica_hour": 1.2419623219643932,
+          "positive_window_rate": 0.003314285221094567,
+          "precision_1to1": 1.0,
+          "recall": 0.6768707482993198,
+          "seeds": [
+            {
+              "FN": 88,
+              "FP": 0,
+              "TN": 304,
+              "TP": 206,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.3146568359712778,
+              "positive_window_rate": 0.0032862756861277566,
+              "precision_1to1": 1.0,
+              "recall": 0.7006802721088435,
+              "seed": "73021"
+            },
+            {
+              "FN": 103,
+              "FP": 0,
+              "TN": 304,
+              "TP": 191,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.201218219355696,
+              "positive_window_rate": 0.003288351974330238,
+              "precision_1to1": 1.0,
+              "recall": 0.6496598639455783,
+              "seed": "73022"
+            },
+            {
+              "FN": 94,
+              "FP": 0,
+              "TN": 304,
+              "TP": 200,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.2100119105662062,
+              "positive_window_rate": 0.0033682280028257063,
+              "precision_1to1": 1.0,
+              "recall": 0.6802721088435374,
+              "seed": "73023"
+            }
+          ]
+        },
+        "20": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.06030701754385965,
+          "delay_p50": 0.8778283596038818,
+          "delay_p95": 2.454890489578247,
+          "episodes_per_replica_hour": 22.703551967295283,
+          "positive_window_rate": 0.014238125992750742,
+          "precision_1to1": 0.9400751827301087,
+          "recall": 0.9761904761904763,
+          "seeds": [
+            {
+              "FN": 7,
+              "FP": 14,
+              "TN": 290,
+              "TP": 287,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.046052631578947366,
+              "episodes_per_replica_hour": 23.460688780520215,
+              "positive_window_rate": 0.014725524470399947,
+              "precision_1to1": 0.9534883720930233,
+              "recall": 0.9761904761904762,
+              "seed": "73021"
+            },
+            {
+              "FN": 8,
+              "FP": 19,
+              "TN": 285,
+              "TP": 286,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0625,
+              "episodes_per_replica_hour": 21.7696619607391,
+              "positive_window_rate": 0.013556329943202525,
+              "precision_1to1": 0.9377049180327869,
+              "recall": 0.9727891156462585,
+              "seed": "73022"
+            },
+            {
+              "FN": 6,
+              "FP": 22,
+              "TN": 282,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.07236842105263158,
+              "episodes_per_replica_hour": 22.88030516062654,
+              "positive_window_rate": 0.014432523564649751,
+              "precision_1to1": 0.9290322580645162,
+              "recall": 0.9795918367346939,
+              "seed": "73023"
+            }
+          ]
+        },
+        "3": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0,
+          "delay_p50": 1.0368963479995728,
+          "delay_p95": 3.599756777286533,
+          "episodes_per_replica_hour": 1.8812636729684862,
+          "positive_window_rate": 0.004014889999065263,
+          "precision_1to1": 1.0,
+          "recall": 0.7301587301587302,
+          "seeds": [
+            {
+              "FN": 73,
+              "FP": 0,
+              "TN": 304,
+              "TP": 221,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.9434057575227586,
+              "positive_window_rate": 0.003956306102528577,
+              "precision_1to1": 1.0,
+              "recall": 0.7517006802721088,
+              "seed": "73021"
+            },
+            {
+              "FN": 85,
+              "FP": 0,
+              "TN": 304,
+              "TP": 209,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.9759424150016465,
+              "positive_window_rate": 0.00392345189508931,
+              "precision_1to1": 1.0,
+              "recall": 0.7108843537414966,
+              "seed": "73022"
+            },
+            {
+              "FN": 80,
+              "FP": 0,
+              "TN": 304,
+              "TP": 214,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 1.7244428463810542,
+              "positive_window_rate": 0.0041649119995779025,
+              "precision_1to1": 1.0,
+              "recall": 0.7278911564625851,
+              "seed": "73023"
+            }
+          ]
+        },
+        "30": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.10964912280701755,
+          "delay_p50": 0.8514194488525391,
+          "delay_p95": 2.328284978866577,
+          "episodes_per_replica_hour": 36.80423582334843,
+          "positive_window_rate": 0.021272346153558042,
+          "precision_1to1": 0.8966235937299762,
+          "recall": 0.981859410430839,
+          "seeds": [
+            {
+              "FN": 6,
+              "FP": 28,
+              "TN": 276,
+              "TP": 288,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.09210526315789473,
+              "episodes_per_replica_hour": 37.43650222138411,
+              "positive_window_rate": 0.02196334300965059,
+              "precision_1to1": 0.9113924050632911,
+              "recall": 0.9795918367346939,
+              "seed": "73021"
+            },
+            {
+              "FN": 5,
+              "FP": 35,
+              "TN": 269,
+              "TP": 289,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.11513157894736842,
+              "episodes_per_replica_hour": 36.32585902149667,
+              "positive_window_rate": 0.020151109812684607,
+              "precision_1to1": 0.8919753086419753,
+              "recall": 0.9829931972789115,
+              "seed": "73022"
+            },
+            {
+              "FN": 5,
+              "FP": 37,
+              "TN": 267,
+              "TP": 289,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.12171052631578948,
+              "episodes_per_replica_hour": 36.65034622716449,
+              "positive_window_rate": 0.02170258563833893,
+              "precision_1to1": 0.8865030674846626,
+              "recall": 0.9829931972789115,
+              "seed": "73023"
+            }
+          ]
+        },
+        "4": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0010964912280701754,
+          "delay_p50": 1.0135703086853027,
+          "delay_p95": 3.1172921657562256,
+          "episodes_per_replica_hour": 2.7711852234721213,
+          "positive_window_rate": 0.004620270500455481,
+          "precision_1to1": 0.9985693848354793,
+          "recall": 0.7755102040816326,
+          "seeds": [
+            {
+              "FN": 62,
+              "FP": 1,
+              "TN": 303,
+              "TP": 232,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 2.834206677147444,
+              "positive_window_rate": 0.004470737038343425,
+              "precision_1to1": 0.9957081545064378,
+              "recall": 0.7891156462585034,
+              "seed": "73021"
+            },
+            {
+              "FN": 68,
+              "FP": 0,
+              "TN": 304,
+              "TP": 226,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 2.8966418847420665,
+              "positive_window_rate": 0.004439470580706055,
+              "precision_1to1": 1.0,
+              "recall": 0.7687074829931972,
+              "seed": "73022"
+            },
+            {
+              "FN": 68,
+              "FP": 0,
+              "TN": 304,
+              "TP": 226,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.0,
+              "episodes_per_replica_hour": 2.5827071085268516,
+              "positive_window_rate": 0.004950603882316962,
+              "precision_1to1": 1.0,
+              "recall": 0.7687074829931972,
+              "seed": "73023"
+            }
+          ]
+        },
+        "5": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.0043859649122807015,
+          "delay_p50": 0.9907450675964355,
+          "delay_p95": 3.269468212127685,
+          "episodes_per_replica_hour": 3.814703247119333,
+          "positive_window_rate": 0.005220562060172949,
+          "precision_1to1": 0.9944166596027239,
+          "recall": 0.8129251700680271,
+          "seeds": [
+            {
+              "FN": 44,
+              "FP": 1,
+              "TN": 303,
+              "TP": 250,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 3.877138454713956,
+              "positive_window_rate": 0.005018388585397978,
+              "precision_1to1": 0.9960159362549801,
+              "recall": 0.8503401360544217,
+              "seed": "73021"
+            },
+            {
+              "FN": 61,
+              "FP": 2,
+              "TN": 302,
+              "TP": 233,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.006578947368421052,
+              "episodes_per_replica_hour": 3.9386942931875275,
+              "positive_window_rate": 0.0049319172884946276,
+              "precision_1to1": 0.9914893617021276,
+              "recall": 0.7925170068027211,
+              "seed": "73022"
+            },
+            {
+              "FN": 60,
+              "FP": 1,
+              "TN": 303,
+              "TP": 234,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.003289473684210526,
+              "episodes_per_replica_hour": 3.6282769934565167,
+              "positive_window_rate": 0.005711380306626242,
+              "precision_1to1": 0.9957446808510638,
+              "recall": 0.7959183673469388,
+              "seed": "73023"
+            }
+          ]
+        },
+        "7": {
+          "benign_positive_rate": null,
+          "control_positive_rate": 0.014254385964912278,
+          "delay_p50": 0.9720218181610107,
+          "delay_p95": 3.1172921657562256,
+          "episodes_per_replica_hour": 6.14297955662209,
+          "positive_window_rate": 0.006631990210993221,
+          "precision_1to1": 0.9831832000798718,
+          "recall": 0.8616780045351473,
+          "seeds": [
+            {
+              "FN": 35,
+              "FP": 4,
+              "TN": 300,
+              "TP": 259,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.013157894736842105,
+              "episodes_per_replica_hour": 6.355200637835736,
+              "positive_window_rate": 0.006784332768908634,
+              "precision_1to1": 0.9847908745247148,
+              "recall": 0.8809523809523809,
+              "seed": "73021"
+            },
+            {
+              "FN": 47,
+              "FP": 4,
+              "TN": 300,
+              "TP": 247,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.013157894736842105,
+              "episodes_per_replica_hour": 6.16086006208346,
+              "positive_window_rate": 0.006055311340637308,
+              "precision_1to1": 0.9840637450199203,
+              "recall": 0.8401360544217688,
+              "seed": "73022"
+            },
+            {
+              "FN": 40,
+              "FP": 5,
+              "TN": 299,
+              "TP": 254,
+              "benign_positive_rate": null,
+              "control_positive_rate": 0.01644736842105263,
+              "episodes_per_replica_hour": 5.912877969947072,
+              "positive_window_rate": 0.007056326523433722,
+              "precision_1to1": 0.9806949806949807,
+              "recall": 0.8639455782312925,
+              "seed": "73023"
+            }
+          ]
+        }
+      },
+      "skipped_models": []
+    }
+  },
+  "arms_evaluated": [
+    "base29",
+    "base29@support",
+    "base29@tree"
+  ],
+  "budgets": [
+    0.1,
+    1.0,
+    5.0,
+    18.0
+  ],
+  "calibration_fraction": 0.2,
+  "calibration_span_unix": [
+    1792042712.2651455,
+    1792059992.2651455
+  ],
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-parallel-r3-20261015/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-development-matrix"
+  ],
+  "confirmation": {
+    "k": 2,
+    "max_gap_seconds": 1.0,
+    "n": 2
+  },
+  "delay_definition": "first positive window_end - kernel_event_at (lower bound on kernel->alert)",
+  "dump_root": "/var/tmp/feature-groups/score-dump",
+  "episode_quiet_seconds": 15.0,
+  "evaluation_span_unix": [
+    1792059992.2651455,
+    1792129112.2651455
+  ],
+  "evidence_class": "development; unadjudicated normal holdout; pulse-attack-dev scenarios previously exposed",
+  "finished_at_unix": 1792693597.1425958,
+  "grid": "alpha_scale",
+  "matched_budget": {
+    "0.1": {
+      "base29": null,
+      "base29@support": null,
+      "base29@tree": null
+    },
+    "1": {
+      "base29": {
+        "alpha_scale": 3.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.0,
+        "delay_p50": 0.8541796207427979,
+        "delay_p95": 2.7629823684692343,
+        "episodes_per_replica_hour": 0.9529430041789575,
+        "precision_1to1": 1.0,
+        "recall": 0.9263038548752834
+      },
+      "base29@support": {
+        "alpha_scale": 3.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.003289473684210526,
+        "delay_p50": 0.8541796207427979,
+        "delay_p95": 2.3106300830841064,
+        "episodes_per_replica_hour": 0.8116576987300933,
+        "precision_1to1": 0.9961240310077519,
+        "recall": 0.8741496598639454
+      },
+      "base29@tree": {
+        "alpha_scale": 1.5,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.0,
+        "delay_p50": 1.0852504968643188,
+        "delay_p95": 3.832685339450835,
+        "episodes_per_replica_hour": 0.8368662802002226,
+        "precision_1to1": 1.0,
+        "recall": 0.6439909297052154
+      }
+    },
+    "18": {
+      "base29": {
+        "alpha_scale": 20.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.05263157894736842,
+        "delay_p50": 0.8002818822860718,
+        "delay_p95": 1.4941034913062994,
+        "episodes_per_replica_hour": 13.494505408608633,
+        "precision_1to1": 0.9480263654301541,
+        "recall": 0.9909297052154195
+      },
+      "base29@support": {
+        "alpha_scale": 20.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.03618421052631579,
+        "delay_p50": 0.8002818822860718,
+        "delay_p95": 1.648216962814331,
+        "episodes_per_replica_hour": 9.717028787613794,
+        "precision_1to1": 0.963210702341137,
+        "recall": 0.9795918367346937
+      },
+      "base29@tree": {
+        "alpha_scale": 15.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.04385964912280702,
+        "delay_p50": 0.9002656936645508,
+        "delay_p95": 2.6090576648712154,
+        "episodes_per_replica_hour": 15.627268650197712,
+        "precision_1to1": 0.954855481649227,
+        "recall": 0.9580498866213151
+      }
+    },
+    "5": {
+      "base29": {
+        "alpha_scale": 7.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.010964912280701754,
+        "delay_p50": 0.8358159065246582,
+        "delay_p95": 2.3168420791625977,
+        "episodes_per_replica_hour": 3.374725563553472,
+        "precision_1to1": 0.9884413616087001,
+        "recall": 0.9705215419501133
+      },
+      "base29@support": {
+        "alpha_scale": 10.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.009868421052631578,
+        "delay_p50": 0.8265023231506348,
+        "delay_p95": 2.4013209342956543,
+        "episodes_per_replica_hour": 3.574635477072404,
+        "precision_1to1": 0.9895470383275261,
+        "recall": 0.9659863945578232
+      },
+      "base29@tree": {
+        "alpha_scale": 5.0,
+        "benign_positive_rate": null,
+        "control_positive_rate": 0.0043859649122807015,
+        "delay_p50": 0.9907450675964355,
+        "delay_p95": 3.269468212127685,
+        "episodes_per_replica_hour": 3.814703247119333,
+        "precision_1to1": 0.9944166596027239,
+        "recall": 0.8129251700680271
+      }
+    }
+  },
+  "pvalue": [
+    "joint",
+    "tree",
+    "support"
+  ],
+  "replay": "/var/tmp/feature-groups/replay-pulse-attack-dev",
+  "scales": [
+    0.5,
+    1,
+    1.5,
+    2,
+    3,
+    4,
+    5,
+    7,
+    10,
+    15,
+    20,
+    30
+  ],
+  "schema": "pulse-r4-arm-budget-v1",
+  "source_sha256": "fcd3c1a21747873370adfb70c50c9436cd91e2fde46091af9ff1df6b7a0ca985",
+  "study": "/var/tmp/feature-groups/study"
+}

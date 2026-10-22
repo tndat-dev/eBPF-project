@@ -1,0 +1,2375 @@
+{
+  "aci_gamma_relative": 0.01,
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/matched-parallel-r3-20261015/pulse-development-matrix",
+    "/mnt/sentinel-pulse-archive/matched-parallel-r5-rabbit-20261015/pulse-development-matrix"
+  ],
+  "confirmation": {
+    "k": 2,
+    "n": 2
+  },
+  "estimators_changed": false,
+  "evaluation_span_unix": [
+    1792053600.0,
+    1792173976.140616
+  ],
+  "evidence_class": "development; unadjudicated normal; pulse-attack-dev scenarios previously exposed",
+  "excluded_spans": 647,
+  "finished_at_unix": 1792662540.8657727,
+  "minimum_calibration_examples": 1200,
+  "model_hash": "747c4eed2a9a74321d0ac3b716c201c449f946665252baa1ca314b1f18278a08",
+  "policy_hash": "fd0be94a4ca7f2cd64b97bf5c7dc074763405f821ab346e8e19bb5975d10f401",
+  "scales": [
+    3.0,
+    5.0,
+    10.0
+  ],
+  "schema": "pulse-rolling-recalibration-v1",
+  "source_sha256": "e9db8dc425f634d1dfd293b12e1f13f726256379aa1bb3bb7e654851d60ca381",
+  "started_at_unix": 1792660722.252596,
+  "static_calibration_span_unix": [
+    1792024200.0,
+    1792049400.0
+  ],
+  "strategies": {
+    "aci-rolling-6-1": {
+      "aci_alpha_over_target": {
+        "10": {
+          "production/aims-frontend:web": {
+            "last": 1.0770000000218192,
+            "p05": 0.998833333335304,
+            "p50": 1.0900000000215768,
+            "p95": 1.3601666666791876
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.9958333333274724,
+            "p05": 0.7228333333249889,
+            "p50": 1.0,
+            "p95": 2.4499999999811544
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 1.0458333333434853,
+            "p05": 0.6418333333379246,
+            "p50": 1.0,
+            "p95": 1.2051666666728975
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.1058333333434738,
+            "p05": 0.5758333333335752,
+            "p50": 1.0,
+            "p95": 1.3180000000084882
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.1295000000210318,
+            "p05": 0.9276666666726036,
+            "p50": 1.0680000000090037,
+            "p95": 1.6055000000122734
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.0895000000071775,
+            "p05": 0.6993333333347697,
+            "p50": 1.0,
+            "p95": 2.3618333333341877
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 1.0651666666504978,
+            "p05": 0.5593333333457388,
+            "p50": 1.0646666666742395,
+            "p95": 10.219166666671352
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 1.1858333333657778,
+            "p05": 1.0,
+            "p50": 1.0703333333629153,
+            "p95": 1.2870000000149793
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 0.6858333333303241,
+            "p05": 0.6935000000055398,
+            "p50": 1.3555000000142765,
+            "p95": 1.9886666666826192
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.1658333333658697,
+            "p05": 0.7631666666954916,
+            "p50": 1.0,
+            "p95": 1.4160000000140023
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.332166666684166,
+            "p05": 0.7495000000108908,
+            "p50": 1.0866666666752858,
+            "p95": 2.061833333336745
+          },
+          "production/api-gateway:app": {
+            "last": 1.3553333333606676,
+            "p05": 0.6071666666893959,
+            "p50": 1.0,
+            "p95": 1.9088333333506258
+          },
+          "production/auth-service:app": {
+            "last": 1.6490000000347964,
+            "p05": 0.5721666666683881,
+            "p50": 1.0,
+            "p95": 1.771833333355042
+          },
+          "production/cart-service:app": {
+            "last": 1.5191666666855514,
+            "p05": 0.8258333333345388,
+            "p50": 1.1876666666783326,
+            "p95": 2.25983333333928
+          },
+          "production/catalog-service:app": {
+            "last": 1.4893333333640726,
+            "p05": 0.6830000000193382,
+            "p50": 1.0468333333374613,
+            "p95": 1.8258333333443497
+          },
+          "production/inventory-service:app": {
+            "last": 1.3845000000385572,
+            "p05": 0.9416666666669136,
+            "p50": 1.203833333367251,
+            "p95": 1.7093333333482457
+          },
+          "production/notification-service:app": {
+            "last": 1.4896666666858749,
+            "p05": 0.6525000000111685,
+            "p50": 1.0,
+            "p95": 2.050500000015223
+          },
+          "production/order-service:app": {
+            "last": 1.3490000000297797,
+            "p05": 0.8146666666839982,
+            "p50": 1.0725000000287754,
+            "p95": 1.8685000000083416
+          },
+          "production/payment-service:app": {
+            "last": 1.1673333333697362,
+            "p05": 0.7570000000327131,
+            "p50": 1.0016666667020453,
+            "p95": 1.7943333333390645
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.156000000025731,
+            "p05": 0.7876666666693751,
+            "p50": 1.0060000000163114,
+            "p95": 1.9141666666811656
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.4025000000426668,
+            "p05": 0.67550000000488,
+            "p50": 1.0,
+            "p95": 1.5103333333524445
+          }
+        },
+        "3": {
+          "production/aims-frontend:web": {
+            "last": 1.0851000000221944,
+            "p05": 0.9947500000128777,
+            "p50": 1.044150000019202,
+            "p95": 1.174250000002222
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 1.0287500000304688,
+            "p05": 0.8205000000011616,
+            "p50": 1.0,
+            "p95": 2.182650000009658
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 1.1197500000095468,
+            "p05": 0.6816800000040311,
+            "p50": 1.0766500000061616,
+            "p95": 1.2590000000053831
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.1897500000088714,
+            "p05": 0.627730000003699,
+            "p50": 1.0,
+            "p95": 1.2716000000033325
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.0918500000190094,
+            "p05": 0.7558500000173352,
+            "p50": 1.0,
+            "p95": 1.4059500000137846
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.3618500000216165,
+            "p05": 1.0,
+            "p50": 1.3550500000095662,
+            "p95": 1.4864500000050205
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.8445500000259316,
+            "p05": 0.38830000000983034,
+            "p50": 1.036150000004565,
+            "p95": 4.544445000013398
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.1287500000335307,
+            "p05": 1.0,
+            "p50": 1.9547000000064199,
+            "p95": 2.4639000000147986
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 1.068750000031146,
+            "p05": 0.8894000000155147,
+            "p50": 1.3504500000008794,
+            "p95": 3.408322500019251
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.018750000031276,
+            "p05": 0.8424000000287754,
+            "p50": 1.0083000000306028,
+            "p95": 1.453000000014475
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.1156500000361038,
+            "p05": 0.6434000000027572,
+            "p50": 1.0,
+            "p95": 1.6118000000261083
+          },
+          "production/api-gateway:app": {
+            "last": 1.1076000000360884,
+            "p05": 0.7398500000339521,
+            "p50": 1.0535000000022041,
+            "p95": 2.324050000016851
+          },
+          "production/auth-service:app": {
+            "last": 0.9637000000183504,
+            "p05": 0.5882499999997057,
+            "p50": 1.0,
+            "p95": 1.2913975000017377
+          },
+          "production/cart-service:app": {
+            "last": 1.7037500000371675,
+            "p05": 0.7382999999990444,
+            "p50": 1.6491500000056027,
+            "p95": 3.4193500000244805
+          },
+          "production/catalog-service:app": {
+            "last": 1.040800000029723,
+            "p05": 0.6397499999997902,
+            "p50": 1.0,
+            "p95": 1.5697500000164268
+          },
+          "production/inventory-service:app": {
+            "last": 2.049350000040563,
+            "p05": 1.0,
+            "p50": 1.8006000000329332,
+            "p95": 3.2292500000246798
+          },
+          "production/notification-service:app": {
+            "last": 1.4679000000409388,
+            "p05": 0.9630000000350933,
+            "p50": 1.2030000000326448,
+            "p95": 1.7598000000147422
+          },
+          "production/order-service:app": {
+            "last": 0.9737000000366441,
+            "p05": 0.7003500000364713,
+            "p50": 1.0451500000207008,
+            "p95": 2.6887000000149612
+          },
+          "production/payment-service:app": {
+            "last": 1.106200000038032,
+            "p05": 0.7411500000377335,
+            "p50": 1.0469000000030744,
+            "p95": 2.6249500000140533
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.713800000038788,
+            "p05": 0.860242499999627,
+            "p50": 1.5591500000079397,
+            "p95": 3.2883500000173265
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.43475000004138,
+            "p05": 0.8488000000074829,
+            "p50": 1.0,
+            "p95": 1.4903000000167734
+          }
+        },
+        "5": {
+          "production/aims-frontend:web": {
+            "last": 1.108499999964957,
+            "p05": 1.0,
+            "p50": 1.0868333333084463,
+            "p95": 1.2587499999869693
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.9379166666712051,
+            "p05": 0.7245000000169457,
+            "p50": 1.0,
+            "p95": 2.5270833333337674
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.9629166666580036,
+            "p05": 0.7290000000002228,
+            "p50": 1.0,
+            "p95": 1.1870833333317912
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.162916666655034,
+            "p05": 0.6836666666626525,
+            "p50": 1.0,
+            "p95": 1.180583333327418
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.0797499999730866,
+            "p05": 0.7819999999765792,
+            "p50": 1.0040833333095853,
+            "p95": 1.525499999982236
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.0397499999729902,
+            "p05": 0.9048333333335441,
+            "p50": 1.0,
+            "p95": 1.605249999990262
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.8475833333170308,
+            "p05": 0.5017499999858649,
+            "p50": 1.0448333333298807,
+            "p95": 7.059324999976731
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.0479166667106283,
+            "p05": 1.0,
+            "p50": 1.8315833333577165,
+            "p95": 2.1255000000039908
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 0.7779166667023035,
+            "p05": 0.8361666666761938,
+            "p50": 1.439250000007787,
+            "p95": 3.324250000011733
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.0379166666280162,
+            "p05": 0.8114166666674091,
+            "p50": 1.022833333333582,
+            "p95": 1.4467499999868858
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.0760833332968818,
+            "p05": 0.703999999965971,
+            "p50": 1.0304166666566918,
+            "p95": 1.9170833333130866
+          },
+          "production/api-gateway:app": {
+            "last": 1.2626666666314343,
+            "p05": 0.722416666632616,
+            "p50": 1.045333333301328,
+            "p95": 1.873916666644455
+          },
+          "production/auth-service:app": {
+            "last": 1.2094999999680724,
+            "p05": 0.6040833333016223,
+            "p50": 1.0,
+            "p95": 1.4542499999838636
+          },
+          "production/cart-service:app": {
+            "last": 1.9295833333768597,
+            "p05": 0.7767500000007999,
+            "p50": 1.6501666666666748,
+            "p95": 2.5762500000068123
+          },
+          "production/catalog-service:app": {
+            "last": 1.2346666666449502,
+            "p05": 0.6789999999789434,
+            "p50": 1.0,
+            "p95": 1.909083333319716
+          },
+          "production/inventory-service:app": {
+            "last": 2.2722500000129044,
+            "p05": 1.0,
+            "p50": 1.6517499999943726,
+            "p95": 2.613716666668128
+          },
+          "production/notification-service:app": {
+            "last": 1.159833333297888,
+            "p05": 0.6978333333331731,
+            "p50": 1.0,
+            "p95": 1.7625833333200018
+          },
+          "production/order-service:app": {
+            "last": 1.1294999999846649,
+            "p05": 0.7580833333187387,
+            "p50": 1.0522500000032164,
+            "p95": 2.21108333333638
+          },
+          "production/payment-service:app": {
+            "last": 1.0936666666584067,
+            "p05": 0.7630833333252496,
+            "p50": 1.0223333333298972,
+            "p95": 2.1955833333386376
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.773000000001435,
+            "p05": 0.9400833333341283,
+            "p50": 1.4902499999988499,
+            "p95": 2.0684166666702914
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.241249999958445,
+            "p05": 0.769666666667875,
+            "p50": 1.0,
+            "p95": 1.4112499999721775
+          }
+        }
+      },
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 4,
+            "FP": 8,
+            "TN": 301,
+            "TP": 295
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025889967637540454,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3181350231170654,
+            "p95": 2.7165486335754423,
+            "p99": 4.482465000152588,
+            "samples": 295
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9735973597359736,
+          "recall_end_to_end_lower_bound": 0.9365079365079365,
+          "recall_observed": 0.9866220735785953,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 23,
+            "FP": 2,
+            "TN": 307,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.006472491909385114,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3596292734146118,
+            "p95": 3.7741872668266296,
+            "p99": 6.102030038833618,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9928057553956835,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.9230769230769231,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 12,
+            "FP": 3,
+            "TN": 306,
+            "TP": 287
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3463094234466553,
+            "p95": 3.5381239175796493,
+            "p99": 6.031412477493285,
+            "samples": 287
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9896551724137931,
+          "recall_end_to_end_lower_bound": 0.9111111111111111,
+          "recall_observed": 0.959866220735786,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 34,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 10.87595287321451,
+          "hourly_episodes_per_replica_hour": [
+            14.595760943616135,
+            13.171634471071236,
+            13.86534142495341,
+            11.562590845578928,
+            12.15533705878192,
+            11.699926349384492,
+            12.276664829928272,
+            10.835099257957292,
+            11.116669978049126,
+            12.289255543632475,
+            12.065183623132466,
+            11.332173031905162,
+            10.513954616731477,
+            10.07394555871921,
+            8.727571565538968,
+            9.849409665050313,
+            7.254895908206958,
+            8.65455889129046,
+            8.205637606511651,
+            9.263357082696862,
+            10.515626067015749,
+            11.714771916341878,
+            11.145021407399275,
+            9.361744903377788,
+            10.524190362482331,
+            9.63655171358027,
+            11.05063116037336,
+            10.234957574053162,
+            12.252211106914814,
+            10.653115415355687,
+            12.569378011523693,
+            10.035571228196684,
+            11.867207848010894,
+            7.145594918688058
+          ],
+          "positive_window_rate": 0.005996413570224008,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 3.3895379015836307,
+          "hourly_episodes_per_replica_hour": [
+            4.512038511843864,
+            3.1142236540129664,
+            5.728484732642042,
+            1.9918039704792896,
+            3.021857536959751,
+            3.6699049556342724,
+            3.371400327775032,
+            3.5039724444885434,
+            2.61974238242398,
+            5.28904668966461,
+            2.914623010082562,
+            2.955484769870944,
+            2.9196053751116295,
+            3.307612125112807,
+            3.2707848239967126,
+            3.310314837756976,
+            2.778133006424984,
+            2.692529432845921,
+            2.490426977851785,
+            2.944537904293676,
+            3.045249177778316,
+            3.5254981610583522,
+            3.5094961027555165,
+            3.256943184872609,
+            3.9347198202073583,
+            2.9130099134188723,
+            3.667734519608898,
+            2.847437964960694,
+            4.6637448729546715,
+            3.344951417619122,
+            3.999347549121175,
+            2.8808737595138743,
+            4.489866070838346,
+            1.8726386683458358
+          ],
+          "positive_window_rate": 0.0019800237183173553,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 5.585624903810825,
+          "hourly_episodes_per_replica_hour": [
+            7.55424629634465,
+            5.905112611707647,
+            8.274477947149617,
+            4.034247024953816,
+            5.653250335997736,
+            6.1614000631291,
+            5.584945997526315,
+            5.562131016251231,
+            5.015427850561698,
+            7.103915651804427,
+            5.3717179895126295,
+            5.353649554566224,
+            5.282291805837804,
+            5.104132416417733,
+            4.585673195452678,
+            4.908397862881034,
+            3.794135934488978,
+            4.615764742021579,
+            4.230533007248225,
+            4.902257700121363,
+            4.948529913889764,
+            5.9443377065378495,
+            6.56054451641234,
+            5.2551643659297165,
+            5.878376598864005,
+            4.88125985491811,
+            5.96006859436446,
+            5.220302935761272,
+            7.224852226916219,
+            5.294852007036904,
+            6.744931382446426,
+            5.239391287907101,
+            7.139363010166981,
+            3.3510376170399168
+          ],
+          "positive_window_rate": 0.0031167506818147598,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "aci-static": {
+      "aci_alpha_over_target": {
+        "10": {
+          "production/aims-frontend:web": {
+            "last": 1.2070000000219234,
+            "p05": 0.8816666666730694,
+            "p50": 1.0,
+            "p95": 1.3401666666815373
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 2.1958333332508495,
+            "p05": 1.0,
+            "p50": 2.032833333278191,
+            "p95": 2.6751666666207843
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.10583333333714867,
+            "p05": 0.08400000000391204,
+            "p50": 0.5563333333364388,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 0.11583333333731242,
+            "p05": 0.0793333333374208,
+            "p50": 0.5665000000016902,
+            "p95": 1.0
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.2595000000175611,
+            "p05": 1.0,
+            "p50": 1.4188333333392464,
+            "p95": 1.7546666666748354
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.4695000000206642,
+            "p05": 0.4843333333348386,
+            "p50": 1.0,
+            "p95": 1.6233333333469162
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 2.4051666665879075,
+            "p05": 0.1564999999724603,
+            "p50": 2.049166666646053,
+            "p95": 2.637833333300318
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 1.4458333333656725,
+            "p05": 0.9060000000101986,
+            "p50": 1.0155000000015892,
+            "p95": 1.3621666666905823
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 1.2058333333658626,
+            "p05": 0.9173333333562244,
+            "p50": 1.459500000018621,
+            "p95": 1.590166666667315
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.075833333361913,
+            "p05": 0.42650000000648935,
+            "p50": 1.0,
+            "p95": 1.1436666666841824
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 2.6121666665811643,
+            "p05": 1.0,
+            "p50": 1.8353333333340487,
+            "p95": 2.7581666666675084
+          },
+          "production/api-gateway:app": {
+            "last": 1.7053333333591514,
+            "p05": 0.3325000000005941,
+            "p50": 1.0,
+            "p95": 1.7613333333487817
+          },
+          "production/auth-service:app": {
+            "last": 1.3390000000247397,
+            "p05": 0.2265000000000106,
+            "p50": 0.8110000000072624,
+            "p95": 1.0618333333440884
+          },
+          "production/cart-service:app": {
+            "last": 1.7991666666740544,
+            "p05": 0.2791666666668223,
+            "p50": 1.0,
+            "p95": 1.9795000000008143
+          },
+          "production/catalog-service:app": {
+            "last": 1.4693333333693275,
+            "p05": 0.40133333333854004,
+            "p50": 1.0,
+            "p95": 1.459666666687075
+          },
+          "production/inventory-service:app": {
+            "last": 1.034500000041933,
+            "p05": 0.8486666666699741,
+            "p50": 1.0,
+            "p95": 1.1640000000302952
+          },
+          "production/notification-service:app": {
+            "last": 1.7996666666924954,
+            "p05": 0.3033333333349953,
+            "p50": 1.0,
+            "p95": 1.7845000000217013
+          },
+          "production/order-service:app": {
+            "last": 2.4089999999675755,
+            "p05": 0.8370000000102172,
+            "p50": 1.0626666666695121,
+            "p95": 2.431333333307713
+          },
+          "production/payment-service:app": {
+            "last": 1.9973333333344245,
+            "p05": 0.8201666666677944,
+            "p50": 1.0351666666669166,
+            "p95": 2.1540000000150585
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.6759999999901087,
+            "p05": 0.2703333333348141,
+            "p50": 1.0,
+            "p95": 2.226333333324042
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.1725000000326542,
+            "p05": 0.36150000000531607,
+            "p50": 0.8185000000292361,
+            "p95": 1.0353333333658623
+          }
+        },
+        "3": {
+          "production/aims-frontend:web": {
+            "last": 1.025100000022194,
+            "p05": 1.0,
+            "p50": 1.0334500000196116,
+            "p95": 1.1165000000178757
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 2.1187500000315547,
+            "p05": 0.996300000000909,
+            "p50": 2.087450000006924,
+            "p95": 3.5309500000121736
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.20975000000336919,
+            "p05": 0.19575000000326157,
+            "p50": 0.8375000000019509,
+            "p95": 1.0051500000000466
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 0.14974999999873964,
+            "p05": 0.10639999999860027,
+            "p50": 0.6823499999995691,
+            "p95": 1.0
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.601850000020828,
+            "p05": 1.0,
+            "p50": 1.5917500000204958,
+            "p95": 2.0038000000088125
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.4818500000190902,
+            "p05": 0.7909500000045133,
+            "p50": 1.0,
+            "p95": 1.5035500000141677
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 5.164550000027794,
+            "p05": 0.16940000001121813,
+            "p50": 2.2985500000025976,
+            "p95": 5.583650000025842
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 3.03875000003342,
+            "p05": 1.0,
+            "p50": 1.5776500000055247,
+            "p95": 2.9076000000319717
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 3.128750000033162,
+            "p05": 1.0,
+            "p50": 1.9503000000032247,
+            "p95": 4.254050000021671
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.248750000010884,
+            "p05": 0.5317499999970476,
+            "p50": 1.0,
+            "p95": 1.4548000000015615
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 2.385650000044163,
+            "p05": 1.0,
+            "p50": 1.4692000000104137,
+            "p95": 2.960007500037574
+          },
+          "production/api-gateway:app": {
+            "last": 1.6876000000210463,
+            "p05": 0.44629999999599146,
+            "p50": 1.0,
+            "p95": 1.972800000009195
+          },
+          "production/auth-service:app": {
+            "last": 0.30369999999383074,
+            "p05": 0.23194999999541682,
+            "p50": 0.4314999999977551,
+            "p95": 1.0
+          },
+          "production/cart-service:app": {
+            "last": 3.713750000020097,
+            "p05": 0.3384499999978849,
+            "p50": 1.0,
+            "p95": 3.66350000000303
+          },
+          "production/catalog-service:app": {
+            "last": 1.3208000000143727,
+            "p05": 0.4368499999914053,
+            "p50": 1.0,
+            "p95": 1.7471700000044061
+          },
+          "production/inventory-service:app": {
+            "last": 2.839350000040986,
+            "p05": 1.0,
+            "p50": 2.1952500000060278,
+            "p95": 2.84695000001484
+          },
+          "production/notification-service:app": {
+            "last": 0.9979000000176661,
+            "p05": 0.41499999999739556,
+            "p50": 0.9930500000064004,
+            "p95": 1.2151500000028315
+          },
+          "production/order-service:app": {
+            "last": 3.0337000000404815,
+            "p05": 1.0,
+            "p50": 1.8303500000089366,
+            "p95": 3.383450000036109
+          },
+          "production/payment-service:app": {
+            "last": 3.0062000000402986,
+            "p05": 0.9789000000003844,
+            "p50": 1.7854500000029299,
+            "p95": 3.3119000000266725
+          },
+          "production/search-recommendation-service:app": {
+            "last": 3.1238000000210775,
+            "p05": 0.33399999999875984,
+            "p50": 1.0,
+            "p95": 3.1361000000097183
+          },
+          "production/security-telemetry-service:app": {
+            "last": 0.8947499999982697,
+            "p05": 0.5016499999922621,
+            "p50": 0.8095499999965756,
+            "p95": 1.0
+          }
+        },
+        "5": {
+          "production/aims-frontend:web": {
+            "last": 1.0684999999653886,
+            "p05": 1.0,
+            "p50": 1.0704999999932452,
+            "p95": 1.2002499999815277
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 1.447916666706159,
+            "p05": 0.9439166666660287,
+            "p50": 1.7311666667060286,
+            "p95": 3.667416666670476
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.14291666666854075,
+            "p05": 0.13558333333523673,
+            "p50": 0.6233333333341122,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 0.12291666666866438,
+            "p05": 0.0906666666686954,
+            "p50": 0.6343333333349148,
+            "p95": 1.0
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.369749999967697,
+            "p05": 1.0,
+            "p50": 1.464166666635558,
+            "p95": 1.8185833333301822
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.239749999985929,
+            "p05": 0.794166666667891,
+            "p50": 1.0,
+            "p95": 1.302416666657033
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 3.7175833333124872,
+            "p05": 0.156333333358483,
+            "p50": 2.766166666675734,
+            "p95": 4.14074999998895
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.047916666682785,
+            "p05": 1.0,
+            "p50": 1.4601666666499993,
+            "p95": 2.0462500000116077
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 1.8579166667177387,
+            "p05": 1.0,
+            "p50": 1.924000000050666,
+            "p95": 2.9310000000392122
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.0979166666483293,
+            "p05": 0.46575000000118805,
+            "p50": 1.0,
+            "p95": 1.2669166666651097
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 2.4360833333789804,
+            "p05": 1.0,
+            "p50": 1.6904166666537006,
+            "p95": 2.6498333333474653
+          },
+          "production/api-gateway:app": {
+            "last": 1.6726666666455365,
+            "p05": 0.44041666667101487,
+            "p50": 1.0,
+            "p95": 1.7877499999899613
+          },
+          "production/auth-service:app": {
+            "last": 0.7895000000129373,
+            "p05": 0.23475000000573817,
+            "p50": 0.613666666678067,
+            "p95": 1.0
+          },
+          "production/cart-service:app": {
+            "last": 2.299583333397144,
+            "p05": 0.3041666666686238,
+            "p50": 1.0,
+            "p95": 2.211250000023773
+          },
+          "production/catalog-service:app": {
+            "last": 1.4546666666493042,
+            "p05": 0.437666666673793,
+            "p50": 1.0,
+            "p95": 1.8409166666651873
+          },
+          "production/inventory-service:app": {
+            "last": 1.7022499999360305,
+            "p05": 1.0,
+            "p50": 1.6619999999427568,
+            "p95": 1.7241666666467468
+          },
+          "production/notification-service:app": {
+            "last": 1.099833333323877,
+            "p05": 0.3783333333387004,
+            "p50": 1.0,
+            "p95": 1.5408333333297466
+          },
+          "production/order-service:app": {
+            "last": 2.6495000000399322,
+            "p05": 1.0,
+            "p50": 1.4631666666639274,
+            "p95": 2.8547500000231056
+          },
+          "production/payment-service:app": {
+            "last": 2.4636666666954885,
+            "p05": 0.9982499999937317,
+            "p50": 1.4314999999826132,
+            "p95": 2.6850833333273467
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.883000000046009,
+            "p05": 0.3103333333334519,
+            "p50": 1.0,
+            "p95": 1.9745833333384668
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.021250000010528,
+            "p05": 0.42650000000728894,
+            "p50": 0.8371666666781876,
+            "p95": 1.0
+          }
+        }
+      },
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 4,
+            "FP": 9,
+            "TN": 300,
+            "TP": 295
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.02912621359223301,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3184523582458496,
+            "p95": 2.3545907020568877,
+            "p99": 3.9596493005752578,
+            "samples": 295
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9703947368421053,
+          "recall_end_to_end_lower_bound": 0.9365079365079365,
+          "recall_observed": 0.9866220735785953,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 22,
+            "FP": 3,
+            "TN": 306,
+            "TP": 277
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3588159084320068,
+            "p95": 3.752964639663696,
+            "p99": 6.108148126602174,
+            "samples": 277
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9892857142857143,
+          "recall_end_to_end_lower_bound": 0.8793650793650793,
+          "recall_observed": 0.9264214046822743,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 8,
+            "FP": 3,
+            "TN": 306,
+            "TP": 291
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3463094234466553,
+            "p95": 3.507254958152771,
+            "p99": 6.028954553604128,
+            "samples": 291
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9897959183673469,
+          "recall_end_to_end_lower_bound": 0.9238095238095239,
+          "recall_observed": 0.9732441471571907,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 11.477338324349319,
+          "hourly_episodes_per_replica_hour": [
+            14.76667149330719,
+            14.22672663800459,
+            14.398623787451617,
+            13.807590236034399,
+            14.633939308198345,
+            14.52810998491916,
+            14.660483243506578,
+            13.267468479131377,
+            14.92563752091557,
+            13.706581780732142,
+            15.166206941999379,
+            14.70986991175767,
+            14.614903207206194,
+            13.045759498541376,
+            11.455964936310094,
+            11.855166931277447,
+            7.969272967001954,
+            10.33738978681916,
+            9.259279789448945,
+            9.836348242451306,
+            9.643289062964667,
+            9.786024043475875,
+            8.663080469864969,
+            8.559309625945406,
+            9.307429614868008,
+            8.581569744936678,
+            9.422283507271134,
+            8.684685793130116,
+            10.481568985657448,
+            9.162947485231529,
+            10.474481676269743,
+            8.880055929051009,
+            10.217221730105637,
+            6.7020752340798335
+          ],
+          "positive_window_rate": 0.006019509191478165,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 3.449872657284758,
+          "hourly_episodes_per_replica_hour": [
+            4.990588050978819,
+            3.811945893436637,
+            5.642471448368137,
+            2.9370668717236983,
+            3.9895310178963004,
+            4.427454143723915,
+            4.120600400613927,
+            4.167345868445112,
+            3.567675481327394,
+            4.874219498318365,
+            3.8974610018545888,
+            3.833685958632596,
+            4.033443263882541,
+            4.231057134662068,
+            3.1886043007807148,
+            4.337653925336728,
+            2.587632457412985,
+            3.4618235565161837,
+            2.666034008341334,
+            3.0082035887108365,
+            2.696314376157884,
+            2.829884174123072,
+            2.2448128224832584,
+            2.454507907440227,
+            3.0340008252201316,
+            2.3776459293310794,
+            2.79822849125334,
+            2.1988548729418693,
+            3.5729028518229007,
+            3.059600111850666,
+            3.6025868795655027,
+            2.6276101323038636,
+            3.807660272089057,
+            1.9711985982587745
+          ],
+          "positive_window_rate": 0.0019510690309043257,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 5.739159688643774,
+          "hourly_episodes_per_replica_hour": [
+            7.776430010943023,
+            6.9602047786410015,
+            8.36049123142352,
+            6.3636448887346795,
+            6.960458371648865,
+            7.154631220846632,
+            7.10037341758681,
+            6.463638489833236,
+            6.7906480175990005,
+            7.207622449640987,
+            7.676303625391864,
+            6.873613150499852,
+            7.223069945362876,
+            6.598434340961082,
+            5.62114778797425,
+            6.914155129108168,
+            4.079886758006976,
+            5.144654452044884,
+            4.246497282747274,
+            4.997756226747104,
+            4.663037803473046,
+            4.806060273371027,
+            4.01536941486442,
+            4.01217638716191,
+            4.661615851249682,
+            4.030975880190439,
+            4.758569355182234,
+            4.065508649971657,
+            5.849442722010943,
+            4.549768041974825,
+            5.713353641601678,
+            4.447942452875817,
+            5.505242143395428,
+            3.1539177572140393
+          ],
+          "positive_window_rate": 0.003168528475776883,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "mondrian-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 0,
+            "FP": 6,
+            "TN": 303,
+            "TP": 299
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.019417475728155338,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3201580047607422,
+            "p95": 2.8921995639800993,
+            "p99": 5.481131739616392,
+            "samples": 299
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.980327868852459,
+          "recall_end_to_end_lower_bound": 0.9492063492063492,
+          "recall_observed": 1.0,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 24,
+            "FP": 2,
+            "TN": 307,
+            "TP": 275
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.006472491909385114,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.333066463470459,
+            "p95": 3.2763542652130133,
+            "p99": 6.162744688987732,
+            "samples": 275
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9927797833935018,
+          "recall_end_to_end_lower_bound": 0.873015873015873,
+          "recall_observed": 0.919732441471572,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 13,
+            "FP": 5,
+            "TN": 304,
+            "TP": 286
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016181229773462782,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.332377314567566,
+            "p95": 3.3155109882354736,
+            "p99": 6.042690277099607,
+            "samples": 286
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9828178694158075,
+          "recall_end_to_end_lower_bound": 0.9079365079365079,
+          "recall_observed": 0.9565217391304348,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 34,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 9.519647186111943,
+          "hourly_episodes_per_replica_hour": [
+            19.808532709193326,
+            13.409881089411025,
+            17.598317962440866,
+            9.857741684405976,
+            9.693711537101223,
+            9.258934521095641,
+            8.854182679005135,
+            10.784070533037555,
+            8.203930092327727,
+            14.449813831894163,
+            9.133615130433146,
+            8.157137964843805,
+            9.146971753239903,
+            6.850282979929062,
+            7.527735926585399,
+            8.495931184588102,
+            7.683522143483955,
+            9.39179909314113,
+            6.864638464591459,
+            7.305637286869174,
+            6.709064594792853,
+            7.6517538562880825,
+            6.95575804149742,
+            7.631002148131475,
+            8.296096006461298,
+            7.479349777697104,
+            9.532947910880024,
+            8.241750998580676,
+            11.54079239748105,
+            10.114118504459714,
+            10.85537191904319,
+            8.041120163917848,
+            11.248463053796423,
+            6.455675409297487
+          ],
+          "positive_window_rate": 0.006274514826741622,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 2.6944618948478847,
+          "hourly_episodes_per_replica_hour": [
+            5.0760433258243465,
+            3.012117960438771,
+            6.485401634252401,
+            2.2449993904554706,
+            2.682322982245172,
+            2.6598393715147477,
+            1.8389456333318355,
+            3.010694770264428,
+            1.620103841762198,
+            5.306331155970703,
+            2.2029127401786806,
+            1.8746217683181416,
+            2.0420361294133365,
+            1.7629404727758615,
+            2.25174633611834,
+            2.331896659109594,
+            3.5718852939749794,
+            2.964987768312472,
+            2.123248641373637,
+            2.021385480244848,
+            1.9032807361114477,
+            2.21331723115771,
+            1.4701943133165003,
+            2.0768913062955767,
+            2.765365335487099,
+            1.8895199438392685,
+            2.4820444809422284,
+            1.9141110764457998,
+            3.604521461131068,
+            2.8852187583254985,
+            3.316919197485419,
+            2.31103059829135,
+            3.7124687652868307,
+            1.6262388435634891
+          ],
+          "positive_window_rate": 0.0020164044314433735,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 4.509409830572839,
+          "hourly_episodes_per_replica_hour": [
+            8.9386217488422,
+            5.768971686942053,
+            10.029148946337267,
+            4.051126719618894,
+            3.9895310178963004,
+            3.9560902044681376,
+            3.371400327775032,
+            4.898757592294663,
+            2.929975032974188,
+            7.985423433415195,
+            3.728006175686998,
+            2.989261738669469,
+            4.117824922122761,
+            2.8207047564413785,
+            3.862484591151897,
+            4.0115145324542665,
+            5.09588968607097,
+            4.9683578820371155,
+            3.639854813783378,
+            3.533445485152411,
+            3.1879952329866748,
+            3.746829884174123,
+            3.130091118673839,
+            3.587357710874178,
+            4.471990799673423,
+            3.3696438998466953,
+            4.110392134044455,
+            3.527659256590193,
+            5.865252026665027,
+            4.755855096140932,
+            5.5863902273438635,
+            3.798954408150164,
+            6.060525933075082,
+            2.956797897388162
+          ],
+          "positive_window_rate": 0.0032030697146437207,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "rolling-12-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 4,
+            "FP": 9,
+            "TN": 300,
+            "TP": 295
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.02912621359223301,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3184523582458496,
+            "p95": 2.3545907020568877,
+            "p99": 3.9596493005752578,
+            "samples": 295
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9703947368421053,
+          "recall_end_to_end_lower_bound": 0.9365079365079365,
+          "recall_observed": 0.9866220735785953,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 21,
+            "FP": 3,
+            "TN": 306,
+            "TP": 278
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3596292734146118,
+            "p95": 3.7734105229377746,
+            "p99": 6.100608263015748,
+            "samples": 278
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9893238434163701,
+          "recall_end_to_end_lower_bound": 0.8825396825396825,
+          "recall_observed": 0.9297658862876255,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 9,
+            "FP": 3,
+            "TN": 306,
+            "TP": 290
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3467029333114624,
+            "p95": 3.776517498493195,
+            "p99": 6.308449044227616,
+            "samples": 290
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9897610921501706,
+          "recall_end_to_end_lower_bound": 0.9206349206349206,
+          "recall_observed": 0.9698996655518395,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 34,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 9.439691371646221,
+          "hourly_episodes_per_replica_hour": [
+            22.919104713570533,
+            17.851478759888536,
+            21.228078558799638,
+            13.064883670770934,
+            13.224870906132843,
+            12.57531652228808,
+            12.532073945668806,
+            12.587085480201564,
+            9.961915112112239,
+            14.449813831894163,
+            9.472524782768327,
+            8.207803418041593,
+            7.0036776339383024,
+            8.227055539620688,
+            6.623750171209423,
+            7.647968763093704,
+            4.4132627187779745,
+            5.11260053022529,
+            4.086854527756776,
+            4.5520964358269795,
+            5.027833277894407,
+            5.517483669100291,
+            4.7425623010209685,
+            4.76740958945121,
+            6.099605825702973,
+            5.479607837133878,
+            7.793935854168908,
+            6.7231174172683055,
+            10.860992297355455,
+            10.003148552216427,
+            11.902820086670163,
+            9.212464439764148,
+            12.10518661501646,
+            6.652795269123365
+          ],
+          "positive_window_rate": 0.006489324543008168,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 2.6763124154906355,
+          "hourly_episodes_per_replica_hour": [
+            6.545874053167424,
+            3.948086818202231,
+            7.79280355521575,
+            3.0889841237094067,
+            3.4462757303529745,
+            3.299547574790447,
+            2.6051729805534336,
+            3.623039469301261,
+            2.188863701104246,
+            4.94335736354274,
+            2.457094979430067,
+            1.8070678307210915,
+            3.57778230938535,
+            1.7797303820403936,
+            1.9065881386111492,
+            2.168826962668364,
+            1.2541286143289927,
+            1.4584534427915403,
+            1.165392111430643,
+            1.480227162698983,
+            1.237132478472441,
+            1.4386562002525114,
+            1.2804918212756615,
+            1.3688601791493573,
+            2.2913027065464537,
+            1.5273619546034087,
+            2.1342420696000053,
+            1.2971661840376494,
+            3.256716758741228,
+            2.9486301596073776,
+            3.7771615741699986,
+            2.4851493419982322,
+            4.0139085368272145,
+            1.774078738432897
+          ],
+          "positive_window_rate": 0.0018695871340902474,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 4.487336139462671,
+          "hourly_episodes_per_replica_hour": [
+            11.348460499486082,
+            7.828103174021664,
+            11.76661728867014,
+            5.671577407466452,
+            6.0606918016552305,
+            5.387016448637464,
+            4.733582278391206,
+            5.97036081560912,
+            3.877908131877602,
+            7.639734107293325,
+            4.033024862788662,
+            3.073704160665782,
+            3.9659379372903643,
+            3.038973576880295,
+            2.958498835775921,
+            3.8321378663689134,
+            2.3018816338949866,
+            2.5803407064773407,
+            2.1072843658745875,
+            2.5466273766864225,
+            2.2522155377318795,
+            2.529505407037383,
+            2.418706773520694,
+            2.3601037571540644,
+            3.5712718046861966,
+            2.7083119195029512,
+            3.430596511875564,
+            2.6576087672966477,
+            5.48582871496702,
+            4.850972198063751,
+            6.173596018286259,
+            4.558745289780197,
+            6.361965704615466,
+            3.10463779225757
+          ],
+          "positive_window_rate": 0.0031514281780341295,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "rolling-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 4,
+            "FP": 8,
+            "TN": 301,
+            "TP": 295
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025889967637540454,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3181350231170654,
+            "p95": 2.7165486335754423,
+            "p99": 4.482465000152588,
+            "samples": 295
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9735973597359736,
+          "recall_end_to_end_lower_bound": 0.9365079365079365,
+          "recall_observed": 0.9866220735785953,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 23,
+            "FP": 2,
+            "TN": 307,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.006472491909385114,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3596292734146118,
+            "p95": 3.7741872668266296,
+            "p99": 6.102030038833618,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9928057553956835,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.9230769230769231,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 12,
+            "FP": 3,
+            "TN": 306,
+            "TP": 287
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3463094234466553,
+            "p95": 3.5381239175796493,
+            "p99": 6.031412477493285,
+            "samples": 287
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9896551724137931,
+          "recall_end_to_end_lower_bound": 0.9111111111111111,
+          "recall_observed": 0.959866220735786,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 34,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 9.520628239050172,
+          "hourly_episodes_per_replica_hour": [
+            21.17581710672177,
+            15.16269549576805,
+            18.475653462034693,
+            9.80710260041074,
+            9.625804626158308,
+            9.359941079507594,
+            9.739600946905648,
+            10.767060958064311,
+            8.203930092327727,
+            14.674511893873378,
+            9.116669647816387,
+            7.85314524565708,
+            7.290575271955053,
+            7.00139216330985,
+            6.903163950143815,
+            7.599047854161335,
+            4.953014274311971,
+            6.23448779391109,
+            5.475746496174117,
+            6.92364318036621,
+            7.057999396413285,
+            7.5568974035241805,
+            7.256120320562082,
+            7.3477896972729875,
+            8.722752372507879,
+            7.810015767868976,
+            10.22855273356447,
+            8.542313894882081,
+            12.220592497606647,
+            10.986025272085552,
+            12.12500606162134,
+            9.070003649458517,
+            11.756151090074964,
+            6.20927558451514
+          ],
+          "positive_window_rate": 0.006235749609946296,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 2.6532576714422373,
+          "hourly_episodes_per_replica_hour": [
+            5.503319700051986,
+            3.080188422821568,
+            6.5370096048167445,
+            2.2449993904554706,
+            2.6313927990379855,
+            2.6598393715147477,
+            1.9070547308626442,
+            3.1637809450236363,
+            1.6890444307733554,
+            4.563099104808683,
+            2.236803705412199,
+            1.6550714711277286,
+            2.0082834661172484,
+            1.5950413801305414,
+            2.0380769757567454,
+            2.0057572662271332,
+            1.9050054901199889,
+            2.179666683732412,
+            1.9316773353850385,
+            2.3556303234349407,
+            1.7446740081021603,
+            2.21331723115771,
+            1.6282797233505324,
+            1.9667531309617203,
+            2.860177861275228,
+            2.109963937287183,
+            2.6085180850666734,
+            1.8666537770297882,
+            3.983944772829075,
+            3.408362818901001,
+            3.8089024277344525,
+            2.4218334351957296,
+            3.728334016420535,
+            1.6262388435634891
+          ],
+          "positive_window_rate": 0.0019217737001099664,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 4.560424583360784,
+          "hourly_episodes_per_replica_hour": [
+            9.776083442328371,
+            5.939147842899046,
+            10.046351603192049,
+            4.118645498279209,
+            4.176275022989318,
+            4.14126889489005,
+            3.7800549129598844,
+            4.949786317214398,
+            3.13679680000766,
+            7.76072537143598,
+            3.728006175686998,
+            2.8879308322738937,
+            4.505980550027775,
+            2.9382341212931027,
+            3.484454184358307,
+            3.538612412774699,
+            3.063883829942982,
+            3.686201009253344,
+            3.176890824310931,
+            3.549361906256701,
+            3.2672985969913184,
+            3.9997804248778612,
+            3.193325282687452,
+            3.3670813602064653,
+            4.4403866244107135,
+            3.747547888614549,
+            4.679523352604456,
+            3.4960210569795187,
+            6.466005603520205,
+            5.58020331280536,
+            6.252948152197392,
+            4.542916313079571,
+            6.219178444412126,
+            2.956797897388162
+          ],
+          "positive_window_rate": 0.003099309740690676,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "static": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 4,
+            "FP": 9,
+            "TN": 300,
+            "TP": 295
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.02912621359223301,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3184523582458496,
+            "p95": 2.3545907020568877,
+            "p99": 3.9596493005752578,
+            "samples": 295
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9703947368421053,
+          "recall_end_to_end_lower_bound": 0.9365079365079365,
+          "recall_observed": 0.9866220735785953,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 22,
+            "FP": 3,
+            "TN": 306,
+            "TP": 277
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3588159084320068,
+            "p95": 3.752964639663696,
+            "p99": 6.108148126602174,
+            "samples": 277
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9892857142857143,
+          "recall_end_to_end_lower_bound": 0.8793650793650793,
+          "recall_observed": 0.9264214046822743,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 8,
+            "FP": 3,
+            "TN": 306,
+            "TP": 291
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.009708737864077669,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3463094234466553,
+            "p95": 3.507254958152771,
+            "p99": 6.028954553604128,
+            "samples": 291
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9897959183673469,
+          "recall_end_to_end_lower_bound": 0.9238095238095239,
+          "recall_observed": 0.9732441471571907,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 14.98116889323671,
+          "hourly_episodes_per_replica_hour": [
+            24.833302870110355,
+            23.314133366108003,
+            29.03808477087017,
+            23.07454260716262,
+            24.14090684020655,
+            23.517693683582927,
+            26.562548037015404,
+            26.04165928403864,
+            25.92166146819517,
+            29.47001505188941,
+            27.468627321766473,
+            25.450945989688645,
+            22.934934709691934,
+            18.939017650392113,
+            12.853033830982056,
+            13.665240561775104,
+            8.74715020880095,
+            9.407826054050926,
+            7.934244923027802,
+            8.849530133985317,
+            7.295909488427216,
+            7.2723280452324754,
+            6.1020968273136456,
+            5.6485149921220605,
+            6.889710207270716,
+            6.125193817945629,
+            7.398705841280019,
+            5.995438826222794,
+            8.331503552702074,
+            8.243482166644283,
+            9.252458814038274,
+            7.3446451890903175,
+            9.281171913217076,
+            5.026556425559876
+          ],
+          "positive_window_rate": 0.012901391167130748,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 4.433378227860037,
+          "hourly_episodes_per_replica_hour": [
+            7.759338955973917,
+            6.517746773152821,
+            10.82047116165719,
+            6.380524583399758,
+            7.367899837306359,
+            6.666432855188861,
+            7.117400691969512,
+            8.453758761702941,
+            7.480053907710574,
+            11.044773969593743,
+            8.371068412678987,
+            7.650483432865929,
+            7.0880592921785235,
+            5.288821418327585,
+            4.240514997945486,
+            4.989932711101649,
+            2.3018816338949866,
+            2.6604755110263265,
+            2.011498712880288,
+            2.403379586747811,
+            1.6970919896993741,
+            1.9129384640720206,
+            1.5018113953233068,
+            1.258722003815501,
+            2.1174797426015504,
+            1.606091952263378,
+            1.7073936556800042,
+            1.3288043836483239,
+            2.434632916728879,
+            2.1242819429429494,
+            2.332952736987352,
+            1.5670686933619427,
+            2.4432486745904782,
+            1.1334391939987953
+          ],
+          "positive_window_rate": 0.002462647260985357,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 7.6688908181416044,
+          "hourly_episodes_per_replica_hour": [
+            13.125930216273058,
+            12.252683228903475,
+            17.08223825679744,
+            11.410673593593218,
+            12.44394143028931,
+            11.935608319012381,
+            12.821537610174742,
+            14.237014252606363,
+            13.391709415417319,
+            17.336319705011775,
+            14.149477984993833,
+            13.64589539460413,
+            12.539114414496769,
+            9.570248280783249,
+            6.623750171209423,
+            8.023029064908533,
+            3.984636483500977,
+            4.535629937472593,
+            3.4163549567966793,
+            4.154185908219726,
+            3.521069361806178,
+            3.3674040731185158,
+            2.5135580195411134,
+            2.249965581820208,
+            3.286834227321809,
+            2.645327921374976,
+            3.1302217020800076,
+            2.7208851665179963,
+            3.983944772829075,
+            3.9473597297969736,
+            4.491330779370208,
+            3.4348879440357734,
+            4.315348308367597,
+            2.414718282866999
+          ],
+          "positive_window_rate": 0.004688206728565202,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "weighted-24-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 12,
+            "FP": 5,
+            "TN": 304,
+            "TP": 287
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016181229773462782,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3325386047363281,
+            "p95": 3.2647945404052687,
+            "p99": 5.674674186706537,
+            "samples": 287
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9828767123287672,
+          "recall_end_to_end_lower_bound": 0.9111111111111111,
+          "recall_observed": 0.959866220735786,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 37,
+            "FP": 1,
+            "TN": 308,
+            "TP": 262
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.003236245954692557,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3521475791931152,
+            "p95": 4.310415709018705,
+            "p99": 6.111982469558715,
+            "samples": 262
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9961977186311787,
+          "recall_end_to_end_lower_bound": 0.8317460317460318,
+          "recall_observed": 0.8762541806020067,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": null,
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 22,
+            "FP": 1,
+            "TN": 308,
+            "TP": 277
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.003236245954692557,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.3470964431762695,
+            "p95": 3.773798894882202,
+            "p99": 6.101319150924684,
+            "samples": 277
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9964028776978417,
+          "recall_end_to_end_lower_bound": 0.8793650793650793,
+          "recall_observed": 0.9264214046822743,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 22
+        }
+      },
+      "blocks": 34,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 6.9389874320987035,
+          "hourly_episodes_per_replica_hour": [
+            8.78480225412025,
+            7.113363319002295,
+            11.560185406412769,
+            6.684359087371176,
+            7.656504208813751,
+            7.811173850524323,
+            7.832546216043004,
+            8.742921536248113,
+            6.9802346373796835,
+            12.185548745795915,
+            9.2352880261337,
+            8.697569465620207,
+            7.52684391502767,
+            7.639408715362067,
+            6.886727845500616,
+            7.68058270238195,
+            4.508512993283974,
+            5.256843178413464,
+            4.326318660242524,
+            4.902257700121363,
+            5.12299731469998,
+            5.612340121864193,
+            4.347348775935887,
+            4.374058963258866,
+            5.37270979466065,
+            4.582085863810226,
+            5.70712138611557,
+            5.125388336929249,
+            7.651703452576478,
+            7.054518392609049,
+            8.427196621362476,
+            6.632341237562161,
+            9.138384653013736,
+            5.075836390516344
+          ],
+          "positive_window_rate": 0.004902335158069089,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.7148805360255244,
+          "hourly_episodes_per_replica_hour": [
+            1.4698307273430768,
+            0.8508807797849636,
+            2.907249008457973,
+            0.7427065652634639,
+            1.375114946594044,
+            1.6666082137972154,
+            1.0046091885794286,
+            2.143206446628915,
+            1.0513439824201498,
+            3.4741777275247925,
+            1.9317850183105354,
+            1.8746217683181416,
+            2.177046782597689,
+            1.7461505635113297,
+            1.9394603478975483,
+            2.0220642358712566,
+            1.2700036600799927,
+            1.5385882473405261,
+            1.309070590922092,
+            1.703057058159045,
+            1.2529931512733696,
+            1.4702750178404786,
+            1.0275551652212098,
+            1.1643178535293384,
+            1.9120526033939371,
+            1.2124419639635307,
+            1.6283476531022263,
+            0.9966032877362428,
+            2.2923491748421267,
+            2.1242819429429494,
+            2.7138429797607975,
+            1.899477204075082,
+            2.8874757063342016,
+            1.3798390187811422
+          ],
+          "positive_window_rate": 0.001420005999411232,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 3.137407296458597,
+          "hourly_episodes_per_replica_hour": [
+            2.7858419599642037,
+            2.0931667182710103,
+            5.195202370143834,
+            2.025563359809447,
+            2.8351135318667327,
+            3.16487216357451,
+            2.6732820780842426,
+            3.861173518926696,
+            2.257804290115404,
+            5.600167083174292,
+            3.69411521045348,
+            3.360808395453245,
+            5.062899494413231,
+            3.206872669525615,
+            3.221476510067114,
+            3.620147260995314,
+            2.3018816338949866,
+            2.708556393755718,
+            2.2669271208650863,
+            2.6580423244164533,
+            2.1411908281253784,
+            2.576933633419334,
+            2.070918871445823,
+            2.124093381438658,
+            3.1446154386396157,
+            2.3304079307350976,
+            2.6401364860977843,
+            2.0406638748884975,
+            3.857470335596406,
+            3.6620084240285173,
+            4.507201206152435,
+            3.4348879440357734,
+            4.981688855983183,
+            2.3654383179105296
+          ],
+          "positive_window_rate": 0.0023354510223968254,
+          "scored_replica_hours": 2038.6259722222221,
+          "uncalibrated_windows": 0
+        }
+      }
+    }
+  },
+  "temporal": "kofn",
+  "worker_roots": [
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker1.local",
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker4.local",
+    "/mnt/sentinel-pulse-archive/matched-parallel-20261015/workers/k8s-worker3.local"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+ "schema": "rca-binary-baseline-seed-v1",
+ "runs": [
+  {
+   "db": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate/context.sqlite3",
+   "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-candidate/pulse-development-matrix"
+   ]
+  },
+  {
+   "db": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed/context.sqlite3",
+   "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix"
+   ]
+  }
+ ],
+ "rule": "first sighting outside the campaign spans (+- 60 s) of its run",
+ "stats": {
+  "kept": 93,
+  "left_out_first_seen_in_campaign": 57
+ },
+ "binaries": 59,
+ "workloads": {
+  "production/aims-kafka-dual-role:kafka": [
+   "/opt/kafka/kafka_liveness.sh",
+   "/opt/kafka/kafka_readiness.sh",
+   "/usr/bin/bash",
+   "/usr/bin/curl",
+   "/usr/bin/grep",
+   "/usr/bin/readlink"
+  ],
+  "production/aims-kafka-entity-operator:topic-operator": [
+   "/opt/strimzi/bin/launch_java.sh",
+   "/opt/strimzi/bin/topic_operator_run.sh",
+   "/usr/bin/bash",
+   "/usr/bin/java",
+   "/usr/bin/rm",
+   "/usr/bin/tini"
+  ],
+  "production/aims-kafka-entity-operator:user-operator": [
+   "/opt/strimzi/bin/launch_java.sh",
+   "/opt/strimzi/bin/user_operator_run.sh",
+   "/usr/bin/bash",
+   "/usr/bin/java",
+   "/usr/bin/rm",
+   "/usr/bin/tini"
+  ],
+  "production/aims-minio-pool-0:minio": [
+   "/usr/bin/docker-entrypoint.sh",
+   "/usr/bin/minio"
+  ],
+  "production/aims-minio-pool-0:sidecar": [
+   "/minio-operator-sidecar"
+  ],
+  "production/aims-minio-pool-0:validate-arguments": [
+   "/minio-operator-sidecar"
+  ],
+  "production/aims-postgres-cnpg:postgres": [
+   "/bin/sh",
+   "/controller/manager",
+   "/usr/bin/pg_isready",
+   "/usr/bin/psql",
+   "/usr/lib/postgresql/17/bin/pg_isready",
+   "/usr/lib/postgresql/17/bin/psql"
+  ],
+  "production/aims-rabbitmq-server:rabbitmq": [
+   "/usr/bin/df"
+  ],
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": [
+   "/bin/hostname",
+   "/bin/sh",
+   "/usr/local/bin/redis-cli"
+  ],
+  "production/aims-redis:aims-redis": [
+   "/bin/hostname",
+   "/bin/mkdir",
+   "/bin/sh",
+   "/usr/bin/entrypoint.sh",
+   "/usr/local/bin/redis-cli",
+   "/usr/local/bin/redis-server"
+  ],
+  "production/aims-sentinel-dependency-loadgen:dependency-loadgen": [
+   "/bin/nc",
+   "/bin/sh",
+   "/bin/wget"
+  ],
+  "production/aims-sentinel-ingress-loadgen:loadgen": [
+   "/bin/sh",
+   "/bin/wget"
+  ],
+  "production/aims-sentinel-loadgen:loadgen": [
+   "/bin/sh",
+   "/bin/wget"
+  ],
+  "production/aims-sentinel-readmix-loadgen:loadgen": [
+   "/bin/sh",
+   "/bin/wget"
+  ],
+  "production/aims-waypoint:istio-proxy": [
+   "/usr/local/bin/envoy",
+   "/usr/local/bin/pilot-agent"
+  ],
+  "production/api-gateway:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/auth-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/cart-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/catalog-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/inventory-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/notification-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/order-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/payment-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/search-recommendation-service:app": [
+   "/usr/local/bin/python"
+  ],
+  "production/security-telemetry-service:app": [
+   "/usr/local/bin/python"
+  ]
+ }
+}
