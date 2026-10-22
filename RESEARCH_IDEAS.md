@@ -109,7 +109,7 @@ Ba đóng góp:
 | Review nhãn (G8) | ~75% | Luật đăng ký trước + đọc tay 33 case cho 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
 | Artifact mở (G9) | ~45% | Repo, script, biên nhận, CI, script vẽ hình | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
 | Bản thảo paper | 0% | Tài liệu tham khảo (mục 3, 4) | Toàn bộ |
-| **Mức sẵn sàng cho paper hàng đầu** | **~35%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe | G2, G4, G5 (lời giải), G7–G9 |
+| **Mức sẵn sàng** | **~35%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe | G2, G4, G5 (lời giải), G7–G9 |
 
 **Đường ngắn nhất để xong luận văn:**
 1. Đọc và ghi kết quả 22–23/10: final, baseline lặp lại, chiến lược calibration, nhóm feature B, 5.7d.
@@ -207,7 +207,7 @@ flowchart LR
     C --> G[C1 triage → hàng đợi người trực]
 ```
 
-**Quyết định của chủ đồ án (22/10):** tầng theo rule (A1 tripwire, Falco) là phần tích hợp **sau cùng**. Nó chỉ quyết định **song song** với ML (mỗi bên báo riêng); không được chặn trước hay lọc trước quyết định của ML. Trước hết hoàn thiện ML ra stable (Pulse 5.19). Có cho rule quyết định trước hay không, chủ đồ án sẽ định sau.
+**Quyết định(22/10):** tầng theo rule (A1 tripwire, Falco) là phần tích hợp **sau cùng**. Nó chỉ quyết định **song song** với ML (mỗi bên báo riêng); không được chặn trước hay lọc trước quyết định của ML. Trước hết hoàn thiện ML ra stable (Pulse 5.19). Có cho rule quyết định trước hay không, chủ đồ án sẽ định sau.
 
 **Thứ tự đề xuất:**
 1. Offline, rẻ: B1 (ACI/Mondrian/rolling), A2, R4. Chạy trên điểm đã lưu sau khi chuỗi phân tích nặng xong.
