@@ -9,7 +9,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] **`after-stable-refreshed`**: final, baseline lặp lại, chiến lược calibration (Pulse 5.13b, 5.15b, 5.17) và nén 3 lượt (NFS 291 → 85 GB) xong 16:17.
 - [x] **`pulse-stable-selection-1022`**: replay cấu hình gộp đạt (16:28).
 - [~] **`pulse-stable-confirm-launcher`** (chính sách `cap`, `93dd1478`): chờ `feature-groups-primary-1022` rồi khởi chạy lượt live xác nhận.
-- [~] **`feature-groups-primary-1022`**: nhóm feature trên holdout chính, 3 node song song + replay `pulse-attack-dev` (~19:30).
+- [~] **`feature-groups-primary-1022`**: nhóm feature trên holdout chính, 3 node song song + replay `pulse-attack-dev` (chậm hơn dự kiến vì nhiều job cùng đọc NFS; xong ~00:30–01:30 23/10).
+- [~] **`after-stable-confirm`** (snapshot `1e2ae7f`): chờ lượt xác nhận; giai đoạn campaign (kỳ vọng theo tốc độ, RCA) rồi final (gánh live + CI, test blind 5.22, lý do nghi phạm RCA, phân loại cảnh báo), rồi nén.
 - [x] **`pulse-57d-1022`**: 5.7d xong (`rolling-12-1` −37% trên soak 48 giờ).
 - [~] **`syscall-cusum-1022`**: 11 cấu hình syscall + nhóm feature dưới CUSUM `cap` (SYSCALL 5C; bản `keep` xong, cùng kết luận).
 - [x] **CUSUM nhớ alarm sang trial sau** (5.19 bổ sung 1): phát hiện trước khi chạy live, sửa bằng `cap`, đóng băng lại.
@@ -19,16 +20,17 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 1. [x] 16:28: replay cấu hình gộp đạt (5.19 bước 3); đóng băng `policy-cusum-b3-h6.json` (`9bf0b216…`).
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt); test blind trên lượt xác nhận.
-3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1`): `pulse-stable-confirm-launcher` tự khởi chạy khi 4 unit nặng xong (~19:30–20:00), chạy 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
-4. [ ] Sáng 23/10: đọc nhóm feature trên holdout chính (syscall 5B, gộp theo luật bổ sung) và 5.7d.
+3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): tự khởi chạy khi job nhóm feature xong (~00:30–01:30 23/10), chạy 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
+3b. [ ] **Ngay sau lượt xác nhận (cần làm tay, trong 1–2 ngày):** chép log Falco khỏi 3 worker (`/var/log/pods/falco_falco-*/falco`) và giữ tới khi so sánh có/không rule xong.
+4. [ ] Sáng 23/10: đọc nhóm feature trên holdout chính (syscall 5B, gộp theo luật bổ sung) và bản CUSUM `cap` (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở
 
 - [~] **Gánh cảnh báo, control, false positive:** CUSUM b3/h6 giảm còn 5,32 đợt/replica-giờ (−21%, 5.13b), ngân sách 0,1. Chỉnh ngưỡng không giải được (CUSUM đã tối ưu khi bằng chứng cố định). Đang thử bằng chứng tốt hơn: calibration theo lớp launch, so với replica khác, so với lịch sử của chính container (5.22).
-  - [ ] Calibration theo (workload, node) (5.6b): đăng ký trước rồi kiểm.
-  - [ ] Phân rã theo chế độ tải và theo thời gian. Cần đọc decisions, nên chỉ làm khi không có lượt live.
+  - [x] Calibration theo (workload, node) (5.6b): là `mondrian-6-1` của 5.17; không thắng trên dữ liệu mới, không thắng trên soak (p95).
+  - [~] Phân rã theo thời gian (`burden_by_hour.py`, trên bảng cửa sổ local, 22/10).
   - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3) trước khi coi là báo nhầm.
 - [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
   - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
@@ -50,8 +52,9 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 ## Thí nghiệm syscall — còn lại
 
 - [x] Giai đoạn B nhóm feature trên holdout thứ hai (syscall 5B.2, tạm thời): không thành phần nào bỏ được; Pulse 4b đã cập nhật.
-- [~] Giai đoạn B trên holdout chính và `pulse-attack-dev`: lần đầu lỗi do phép kiểm số chiều (đã sửa, `8497505`); chạy lại tối 22/10 trong `pulse-stable-selection-1022`, rồi gộp theo luật bổ sung.
-- [~] Pulse 5.7d (làm mới định kỳ + k2of2) chạy sau nhóm feature trong `pulse-stable-selection-1022`.
+- [~] Giai đoạn B trên holdout chính và `pulse-attack-dev`: chạy lại trong `feature-groups-primary-1022`, rồi gộp theo luật bổ sung.
+- [x] Pulse 5.7d xong (`rolling-12-1` −37% trên soak).
+- [~] 5C: 11 cấu hình + nhóm feature dưới CUSUM `cap` (`syscall-cusum-1022`); bản `keep` xong, cùng kết luận.
 - [ ] Paired blind attack theo protocol v2. Chưa mở được, vì chưa cấu hình nào đạt ngân sách 0,1 đợt/giờ; ghi là giới hạn.
 
 ## RCA — còn lại
@@ -65,8 +68,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 ## Hạ tầng
 
 - [x] Collector 1 s đã dừng, tắt và xóa dữ liệu (22/10 12:47).
-- [ ] Sau khi chốt ML stable: xóa `/var/tmp/pulse-live-copy`, `/var/tmp/feature-groups`, `/var/tmp/baselines` trên .234; sau 5.15d xóa `/var/tmp/falco-baseline`.
-- [~] Nén `pulse-stable-candidate`, `pulse-stable-refreshed`, soak 48 giờ: tự chạy ở cuối `after-stable-refreshed`.
+- [x] Đã xóa `/var/tmp/pulse-live-copy`, `falco-baseline` và 4 snapshot không dùng (22/10). [ ] Sau khi chốt kết luận: `/var/tmp/feature-groups`, `/var/tmp/syscall-cusum`; giữ `/var/tmp/burden-levers` (bảng cửa sổ cho test blind và so sánh rule) và `/var/tmp/baselines` (model baseline).
+- [x] Nén `pulse-stable-candidate`, `pulse-stable-refreshed`, soak 48 giờ (NFS 291 → 85 GB, 22/10 16:17).
 
 - [ ] **(cần bạn)** RAM NFS (`k8s-nfs`): tăng lên 8 GB và đặt reservation. Cần tắt VM, nên chỉ làm khi không có lượt live.
 - [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
