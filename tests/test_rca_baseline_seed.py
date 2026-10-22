@@ -48,3 +48,15 @@ def test_service_seeds_once_and_records_it(tmp_path, monkeypatch):
     service.lock.close(); service.db.close()
     again = Service(config)                                    # a restart does not seed twice
     assert again.db.execute('select count(*) from binaries').fetchone()[0] == 1
+
+
+def test_rca_service_and_seed_import_without_numpy():
+    """The RCA service runs on the system Python (no numpy): its import chain must not pull numpy in."""
+    import subprocess, sys
+    code = ("import sys, builtins; real = builtins.__import__\n"
+            "def guard(name, *a, **k):\n"
+            "    if name == 'numpy' or name.startswith('numpy.'): raise ImportError('numpy not allowed')\n"
+            "    return real(name, *a, **k)\n"
+            "builtins.__import__ = guard\n"
+            "import sentinel_pulse.rca.service, sentinel_pulse.rca.baseline_seed, sentinel_pulse.rca.triage\n")
+    subprocess.run([sys.executable, '-c', code], check=True, cwd=str(__import__('pathlib').Path(__file__).parents[1]))

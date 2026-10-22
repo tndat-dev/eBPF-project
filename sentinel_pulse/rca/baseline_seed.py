@@ -20,7 +20,12 @@ import json
 from pathlib import Path
 import sqlite3
 
-from ..syscall_study.baselines import campaign_span
+
+def campaign_span(campaign: Path, margin=60.0):
+    """First interval start - margin to campaign end + margin. Defined here, not imported from syscall_study: the RCA
+    service runs on the system Python without numpy (the 23/10 launch failed on that import)."""
+    starts = [float(json.loads(l)['start_at']) for l in (campaign/'INTERVALS.jsonl').read_text().splitlines() if l]
+    return min(starts) - margin, float(json.loads((campaign/'TERMINAL.json').read_text())['finished_at_unix']) + margin
 
 
 def build(runs):
