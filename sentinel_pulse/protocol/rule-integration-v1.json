@@ -1,0 +1,23 @@
+{
+  "schema": "sentinel-pulse-rule-integration-v1",
+  "registered_at": "2026-10-22T16:08+07:00",
+  "registered_before": "any paged-level or combined number (the definitions of burden-reduction-v1 amendment 2 are carried over unchanged; it is moved here so that the ML evaluation stays rule-free)",
+  "owner_decisions": [
+    "22/10: rules (Falco, tripwire) never decide before ML; they report in parallel; rule-first ordering is decided by the owner after ML is stable",
+    "22/10: a triage tier after the ML preview may decide which previews page a human",
+    "22/10: keep the ML evaluation separate from applying existing rule-based frameworks"
+  ],
+  "principle": "The ML evaluation (Pulse STATUS, protocols stable-selection-v1, burden-reduction-v1 + amendment 1) uses no rule: no Falco, no tripwire, no declared probe, no pod spec. Everything rule-based is evaluated here, on top of the ML results taken as they are, and reported in RULE_INTEGRATION_STATUS.md. No number in this protocol changes an ML number.",
+  "components": {
+    "falco": "Falco 0.44.1 as deployed (default rules, untuned): a parallel alert stream; per-trial detection and normal burden per replica-hour on the same span as Pulse (scripts/analysis/falco_baseline.py)",
+    "tripwire_a1": "syscall IDs outside the frozen exec set E and the workload's normal reference: a parallel alert stream (tripwire-a1-blind-v1)",
+    "probe_triage": "post-ML paging filter, definitions of burden-reduction-v1 amendment 2 unchanged (an ML episode is held back when every RCA case of its container within 5 s is probe-only; fail-open; trials held back when all cases within [start, start + 20 s] are probe-only)"
+  },
+  "reporting": [
+    "ML-level metrics first, copied from the ML evaluation and re-scored by the rule script as a check (they must match)",
+    "each rule component separately: its own recall / benign / control / delay / normal burden",
+    "combined system: parallel streams add their alerts (total alerts to humans = ML paged + Falco + tripwire, no dedup unless measured); union recall and control bounds when per-trial outcomes are not available",
+    "costs: latency added before paging (the triage waits for the RCA case: preview->case p95 2.59 s on pulse-stable-refreshed), evasion (binary-name matching), maintenance (rules and exceptions)"
+  ],
+  "code": "scripts/analysis/rule_tier.py (probe triage on the ML choices), scripts/analysis/falco_baseline.py, scripts/analysis/novel_syscalls.py + tripwire_verdict.py; run by scripts/burden_levers.sh after the ML step, separate output RULE-TIER.json"
+}

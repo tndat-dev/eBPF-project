@@ -177,20 +177,3 @@ def test_end_to_end_on_a_synthetic_run(tmp_path, monkeypatch):
     assert len(result['candidates']['r1']) == len(bl.VARIANTS) * len(bl.MODES) * (
         len(bl.CUSUM_B) * len(bl.CUSUM_H) + 0) + 2 * len(bl.MODES) * (len(bl.KOFN['joint']) + len(bl.KOFN['and']))
 
-
-def test_paged_metrics_hold_back_probe_only_episodes_and_fail_open():
-    # one container, three normal episodes: probe-only case, normal case, no case
-    end = np.array([10.0, 10.5, 100.0, 100.5, 200.0, 300.0, 300.5])
-    alarm = np.array([1, 1, 1, 1, 1, 0, 1], bool)
-    a = dict(ident=np.zeros(7, int), workload=np.zeros(7, int), end=end, start=end - 0.5,
-             normal=np.array([1, 1, 1, 1, 1, 0, 0], bool), hours=1.0)
-    triage = {('n', 'p', 'c'): [(12.0, True), (101.0, False), (301.0, True)]}
-    tr = bl.Trials.__new__(bl.Trials)
-    tr.label = np.array(['attack', 'control']); tr.scenario = np.array(['x', 'x'])
-    tr.lo, tr.hi = np.array([5, 6]), np.array([7, 7])
-    tr.kernel, tr.start = np.array([299.0, np.nan]), np.array([299.5, 300.2])
-    out = bl.paged_metrics(alarm, a, tr, triage, [('n', 'p', 'c')])
-    assert out['episodes'] == 3 and out['episodes_with_case'] == 2 and out['held_back'] == 1
-    assert out['paged_failopen'] == 2.0                 # the episode without a case pages
-    assert abs(out['paged_estimate'] - 1.5) < 1e-12     # it is held back at the matched share (1 of 2)
-    assert out['attack'] == 0.0 and out['attack_held_back'] == 1   # its only case in [start, start + 20] is probe-only
