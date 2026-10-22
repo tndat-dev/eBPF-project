@@ -1,0 +1,25 @@
+{
+  "schema": "sentinel-pulse-burden-reduction-v1-amendment",
+  "registered_at": "2026-10-22T15:39+07:00",
+  "registered_before": "any number of burden-reduction-v1 (no window table, burden or campaign metric of any lever exists yet)",
+  "amends": "sentinel_pulse/protocol/burden-reduction-v1.json",
+  "change": "adds two evidence-discounting levers from the literature; nothing of v1 is changed or dropped",
+  "levers": {
+    "L5_peer_seen": "ReplicaWatcher (El Khairi et al., NDSS 2024): replicas of one workload run the same code, so behaviour also seen on a peer replica is likely benign (exec probes, config or traffic shifts), while an attack hits one replica. Per window: novel_peer_T = number of syscall IDs in the window's context (current + 3 previous windows of the container) that no OTHER replica of the same workload showed in the last T seconds, T in {30, 60}. A window with novel_peer_T = 0 carries no evidence (CUSUM increment 0, k-of-n window not passed). A workload without another replica in the last T seconds is never discounted.",
+    "L6_self_recurrent": "NoDoze (Hassan et al., NDSS 2019): behaviour that recurs in the host's own history is likely benign. Per window: novel_self_T = number of syscall IDs in the context that the same container did not show in its own windows from T seconds ago up to the start of the context, T in {60, 300}. A window with novel_self_T = 0 carries no evidence. A container with less than T seconds of history is never discounted.",
+    "modes": ["none", "peer30", "peer60", "self60", "self300", "peer30_or_self300 (discount if either is 0)", "peer30_and_self300 (discount only if both are 0)"],
+    "applies_to": "every L1, L2 and L3 rule"
+  },
+  "simpler_order": "L1 < L2 < L3 < L5 < L6 < combinations (used only for ties within 5 %)",
+  "stated_in_advance": [
+    "L5 and L6 look only at which syscall IDs appear, not their counts: an attack made only of syscalls the container or its peers use anyway (count-only anomaly) loses evidence; recall is checked per scenario",
+    "an attacker who repeats an action on the same container is discounted by L6 after the first time (the first alarm opens an incident)",
+    "the campaign attacks run on one replica, which favours L5; a simultaneous attack on all replicas would not be caught by L5 (stated by ReplicaWatcher too)"
+  ],
+  "considered_not_registered": {
+    "BH on conformal p-values across containers (Bates et al., Ann. Stat. 2023)": "under the global null it reduces to a stricter per-window threshold, which the alpha and CUSUM grids already span",
+    "online FDR (LORD, SAFFRON, ADDIS; Kroenert et al. 2023)": "thresholds shrink while no discovery is made (alpha-death), unsuited to a 24/7 monitor without resets",
+    "other stopping rules": "CUSUM is minimax-optimal for delay vs false-alarm run length given the per-window evidence (Lorden 1971, Moustakides 1986), so gains must come from better evidence (L3, L5, L6), not another stopping rule",
+    "command-line / provenance triage (NoDoze graph scoring, Carbon Filter 2024)": "acts after the ML preview on RCA context; left to the owner's decision on the alert pipeline"
+  }
+}
