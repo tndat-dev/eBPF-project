@@ -49,3 +49,26 @@ def test_rule_tier_rescores_the_ml_choices_unchanged(tmp_path, monkeypatch):
     for k in ('burden', 'attack', 'control', 'precision', 'p95'):
         assert ref['ml'][k] == ref['ml_as_chosen'][k]                   # the rule tier sees the same ML alarms
     assert ref['paged']['held_back'] == 0 and ref['paged']['attack'] == ref['ml']['attack']   # no case: fail-open
+
+
+def test_blind_test_scores_reference_stable_and_choices(tmp_path, monkeypatch):
+    import json
+    sys.path.insert(0, str(ROOT/'tests'))
+    import test_burden_levers as tb
+    tb.test_end_to_end_on_a_synthetic_run(tmp_path, monkeypatch)
+    spec = importlib.util.spec_from_file_location('burden_blind_test', ROOT/'scripts'/'analysis'/'burden_blind_test.py')
+    bt = importlib.util.module_from_spec(spec); spec.loader.exec_module(bt)
+    ml = json.loads((tmp_path/'out.json').read_text())
+    ml['selection'] = {'lt2s': dict(choice='joint|none|k2of2_a10', proposed=True), 'le3s': dict(choice=None)}
+    (tmp_path/'ml.json').write_text(json.dumps(ml))
+    out = tmp_path/'blind.json'
+    monkeypatch.setattr(sys, 'argv', ['burden_blind_test', '--run', f'name=r1,table={tmp_path/"r1"}.npz,since=10000.0,campaign={tmp_path/"r1"/"campaign"}',
+                                      '--calibration', str(tmp_path/'calibration.npz'), '--calibration-table', str(tmp_path/'cal.npz'),
+                                      '--ml-results', str(tmp_path/'ml.json'), '--output', str(out)])
+    bt.main()
+    r = json.loads(out.read_text())
+    assert set(r['metrics']) == {'reference', 'stable', 'lt2s'} and set(r['verdict']) == {'lt2s'}
+    assert r['metrics']['stable']['attack'] == 1.0 and r['by_rate']['stable']['6']['attack'] == 1.0
+    assert r['live'] is None                                  # the synthetic table has no live preview column
+    ci = r['burden_ci']['stable']
+    assert ci['ci95'][0] <= ci['point'] <= ci['ci95'][1] and ci['workloads'] == 1

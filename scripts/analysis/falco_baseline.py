@@ -74,7 +74,8 @@ def trials(campaign: Path):
                 t = d[label]
                 kind = 'benign' if label == 'benign' else ('attack' if label == 'attack' else 'control')
                 out.append(dict(kind=kind, start=float(t['start_at']), container=cid, scenario=d['attack'].get('scenario'),
-                                kernel=float(t['kernel_event_at']) if t.get('kernel_event_at') is not None else None))
+                                kernel=float(t['kernel_event_at']) if t.get('kernel_event_at') is not None else None,
+                                trial_id=t.get('trial_id'), rate=d['attack'].get('rate_per_second')))
     return out
 
 
@@ -103,8 +104,12 @@ def main():
         by_container[e[3].get('container_id')].append(e)
     rows = trials(a.campaign)
     outcome = defaultdict(Counter); by_rule = defaultdict(Counter); by_scenario = defaultdict(Counter); delays = []
+    per_trial = []    # rule-integration-v1 amendment 1: per-trial outcomes for the paired with/without-rules comparison
     for t in rows:
         hits = [e for e in by_container.get(t['container'], ()) if t['start'] <= e[0] <= t['start'] + 15.0]
+        per_trial.append(dict(trial_id=t['trial_id'], kind=t['kind'], scenario=t['scenario'], rate=t['rate'],
+                              start=t['start'], detected=bool(hits), first_event=min(e[0] for e in hits) if hits else None,
+                              rules=sorted({e[2] for e in hits})))
         outcome[t['kind']]['detected' if hits else 'missed'] += 1
         for rule in {e[2] for e in hits}:
             by_rule[t['kind']][rule] += 1
@@ -138,6 +143,9 @@ def main():
                   drift_rule_coverage=dict(trial_containers=len(trial_containers),
                                            containers_with_drift_alert=len(drift_containers & trial_containers),
                                            note='the drift rule sees only executables in the overlayfs upper layer'),
+                  trials=per_trial,
+                  normal_events=[dict(time=e[0], container_id=e[3].get('container_id'), pod=e[3].get('k8s_pod_name'), rule=e[2])
+                                 for e in normal],
                   normal=dict(window_unix=[since, until], events=len(normal), episodes=episodes,
                               episodes_by_rule=dict(rule_episodes.most_common()), top_pods=pod_episodes.most_common(5),
                               covered_hours=covered,

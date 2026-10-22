@@ -1,0 +1,68 @@
+{
+ "schema": "rca-suspect-reasons-v1",
+ "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed/cases",
+ "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix",
+ "stats": {
+  "normal_cases": 4873,
+  "without_suspect": 548,
+  "campaign_span": 1899,
+  "top_novel_or_unknown": 612
+ },
+ "share_top_novel_or_unknown": 0.14150289017341042,
+ "top_reasons": {
+  "started_in_window": 0.8277456647398844,
+  "spawned_children": 0.2707514450867052,
+  "unknown_binary": 0.10473988439306359,
+  "privilege_drop_at_start": 0.05479768786127168,
+  "novel_binary": 0.03676300578034682,
+  "failed_syscall": 0.011098265895953757,
+  "security_operation": 0.00023121387283236994
+ },
+ "binaries_behind_novel_or_unknown": [
+  [
+   "/usr/bin/java",
+   182
+  ],
+  [
+   "/usr/local/bin/node",
+   145
+  ],
+  [
+   "/bin/sh",
+   110
+  ],
+  [
+   "/usr/bin/minio",
+   49
+  ],
+  [
+   "/minio-operator-sidecar",
+   47
+  ],
+  [
+   "/usr/bin/dash",
+   47
+  ],
+  [
+   "/usr/bin/docker-entrypoint.sh",
+   12
+  ],
+  [
+   "/controller/manager",
+   11
+  ],
+  [
+   "/usr/local/bin/envoy",
+   6
+  ],
+  [
+   "/opt/strimzi/bin/launch_java.sh",
+   2
+  ],
+  [
+   "/usr/bin/psql",
+   1
+  ]
+ ],
+ "computed_at_unix": 1792684963.592713
+}

@@ -178,13 +178,13 @@ class Trials:
                         continue
                     key = tuple(str(t.get(k)) for k in TRIAL_FIELDS)
                     rows.append((label, d['attack'].get('scenario'), float(t['start_at']),
-                                 t.get('kernel_event_at'), ident_index.get(key)))
-        self.label, self.scenario, self.lo, self.hi, self.kernel, self.start = [], [], [], [], [], []
+                                 t.get('kernel_event_at'), ident_index.get(key), d['attack'].get('rate_per_second')))
+        self.label, self.scenario, self.lo, self.hi, self.kernel, self.start, self.rate = [], [], [], [], [], [], []
         self.skipped = defaultdict(int)
         block = {}
         for k in np.unique(ident):
             block[int(k)] = (int(np.searchsorted(ident, k, 'left')), int(np.searchsorted(ident, k, 'right')))
-        for label, scenario, ts, kernel, k in rows:
+        for label, scenario, ts, kernel, k, rate in rows:
             if k is None or k not in block:
                 self.skipped[label] += 1
                 continue
@@ -197,13 +197,22 @@ class Trials:
             if not len(sel):
                 self.skipped[label] += 1
                 continue
-            self.label.append(label); self.scenario.append(scenario); self.start.append(ts)
+            self.label.append(label); self.scenario.append(scenario); self.start.append(ts); self.rate.append(rate)
             self.lo.append(b0 + sel[0]); self.hi.append(b0 + sel[-1] + 1)
             self.kernel.append(np.nan if kernel is None else float(kernel))
         self.label, self.scenario = np.array(self.label), np.array(self.scenario)
         self.lo, self.hi = np.array(self.lo, dtype=np.int64), np.array(self.hi, dtype=np.int64)
         self.kernel = np.array(self.kernel, dtype=np.float64)
         self.start = np.array(self.start, dtype=np.float64)
+        self.rate = np.array([np.nan if r is None else float(r) for r in self.rate], dtype=np.float64)
+
+    def subset(self, keep):
+        """A Trials view on the trials where ``keep`` is True (e.g. one set of attack rates)."""
+        out = Trials.__new__(Trials)
+        for name in ('label', 'scenario', 'lo', 'hi', 'kernel', 'start', 'rate'):
+            setattr(out, name, getattr(self, name)[keep])
+        out.skipped = self.skipped
+        return out
 
     def outcome(self, alarm, end):
         cs = np.concatenate([[0], np.cumsum(alarm)])

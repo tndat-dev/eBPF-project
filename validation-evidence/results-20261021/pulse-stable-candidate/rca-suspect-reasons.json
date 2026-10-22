@@ -1,0 +1,59 @@
+{
+ "schema": "rca-suspect-reasons-v1",
+ "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate/cases",
+ "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-candidate/pulse-development-matrix",
+ "stats": {
+  "normal_cases": 4766,
+  "campaign_span": 1871,
+  "without_suspect": 419,
+  "top_novel_or_unknown": 966
+ },
+ "share_top_novel_or_unknown": 0.2222222222222222,
+ "top_reasons": {
+  "started_in_window": 0.7596043248217161,
+  "spawned_children": 0.22682309638831377,
+  "unknown_binary": 0.12261329652634001,
+  "novel_binary": 0.09960892569588221,
+  "security_operation": 0.05429031515988038,
+  "failed_syscall": 0.008741660915573959
+ },
+ "binaries_behind_novel_or_unknown": [
+  [
+   "/usr/bin/java",
+   285
+  ],
+  [
+   "/usr/local/bin/envoy",
+   191
+  ],
+  [
+   "/controller/manager",
+   169
+  ],
+  [
+   "/usr/local/bin/node",
+   135
+  ],
+  [
+   "/bin/sh",
+   132
+  ],
+  [
+   "/usr/bin/dash",
+   47
+  ],
+  [
+   "/usr/bin/docker-entrypoint.sh",
+   4
+  ],
+  [
+   "/usr/bin/minio",
+   2
+  ],
+  [
+   "/minio-operator-sidecar",
+   1
+  ]
+ ],
+ "computed_at_unix": 1792684948.2800193
+}

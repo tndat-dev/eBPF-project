@@ -8,7 +8,8 @@ the context signals the levers need:
 - ``novel_peer_T``: syscall IDs of the context that no OTHER replica of the same workload showed in the last
   T seconds (-1: no other replica had a window in that span);
 - ``novel_self_T``: syscall IDs of the context that the container did not show in its own windows from T
-  seconds ago up to the start of the context (-1: the container has less than T seconds of history).
+  seconds ago up to the start of the context (-1: the container has less than T seconds of history);
+- ``preview``: the live policy's ``candidate_alert_preview`` of the window (what the run actually alerted on).
 
 Context = current + up to 3 previous windows of the container, chained while each window starts where the
 previous one ended (as the model's history). Every feature row counts as behaviour (idle and unscored windows
@@ -168,7 +169,7 @@ def worker_rows(root: Path, model_hash, policy_hash, begin, until, stats):
                 key = (tuple(str(r.get(k)) for k in IDENTITY), float(r['window_end']))
                 decisions[key] = (float(r['tree_score']), float(r['support_score']), float(r['tree_p']),
                                   float(r['support_p']), float(r['joint_p']), float(r['candidate_policy_alpha']),
-                                  bool(r.get('eligible_for_normal_review')))
+                                  bool(r.get('eligible_for_normal_review')), bool(r.get('candidate_alert_preview')))
         with open_sealed(segment / 'features.jsonl') as stream:
             for line in stream:
                 if '"full_counts_delta"' not in line:
@@ -194,7 +195,7 @@ def build(roots, model_hash, policy_hash, since=None, until=None):
     streams = [worker_rows(Path(r), model_hash, policy_hash, begin, until, stats) for r in roots]
     idents, workloads = {}, {}
     cols = {name: array('d') for name in FLOATS}
-    cols.update(ident=array('i'), workload=array('h'), eligible=array('b'), launch=array('b'))
+    cols.update(ident=array('i'), workload=array('h'), eligible=array('b'), launch=array('b'), preview=array('b'))
     cols.update({name: array('h') for name in SIGNALS})
     for end, start, ident, workload, mask, dec in heapq.merge(*streams, key=lambda row: row[0]):
         want = dec is not None and (since is None or start >= since)   # same span rule as scored_rows
@@ -206,7 +207,7 @@ def build(roots, model_hash, policy_hash, since=None, until=None):
         cols['workload'].append(workloads.setdefault(workload, len(workloads)))
         for name, value in zip(FLOATS, (start, end, *dec[:6])):
             cols[name].append(value)
-        cols['eligible'].append(dec[6]); cols['launch'].append(s['launch'])
+        cols['eligible'].append(dec[6]); cols['launch'].append(s['launch']); cols['preview'].append(dec[7])
         for name in SIGNALS:
             cols[name].append(s[name])
     arrays = {name: np.frombuffer(col, dtype=col.typecode).copy() for name, col in cols.items()}

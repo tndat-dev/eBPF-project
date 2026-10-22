@@ -158,7 +158,7 @@ def test_end_to_end_on_a_synthetic_run(tmp_path, monkeypatch):
         (camp/'trials'/'1').mkdir(parents=True)
         trial = lambda label, at, k: dict(node_name=idents[k][1], pod_uid=idents[k][2], container_name='app',
                                           workload_revision='r1', cgroup_id='1' if k == 0 else '2',
-                                          start_at=at, kernel_event_at=at + 2, scenario='s')
+                                          start_at=at, kernel_event_at=at + 2, scenario='s', rate_per_second=6)
         doc = dict(attack=trial('attack', start, 0), control=trial('control', start + 100, 0),
                    benign=trial('benign', start + 200, 1))
         (camp/'trials'/'1'/'EVALUATION_INPUT.json').write_text(json.dumps(doc))
