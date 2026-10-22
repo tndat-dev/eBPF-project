@@ -25,3 +25,12 @@ def test_needed_removable_inconclusive():
     v = fgv.verdict(sets('history1', diff(0, -.01, .01, -.008), diff(0, -.02, .02, -.015), .25))
     assert v['history1']['verdict'] == 'needed'          # p95 worse by >= 0.2 s on every set
     assert v['drop_log_counts']['verdict'] == 'not_evaluated'
+
+
+def test_separation_clause_uses_only_the_set_with_benign_launches():
+    live = sets('drop_ratios', diff(0, -.01, .01, -.008), diff(0, -.02, .02, -.015), .1)
+    dev = sets('drop_ratios', diff(0, -.01, .01, -.008), None, .1)['pulse-live-recalibrated']
+    v = fgv.verdict(dict(live, **{'pulse-attack-dev': dev}))
+    assert v['drop_ratios']['verdict'] == 'removable' and not v['drop_ratios']['provisional']
+    only_dev = fgv.verdict({'pulse-attack-dev': dev})
+    assert only_dev['drop_ratios']['verdict'] == 'inconclusive'     # no set can show the separation clause

@@ -48,8 +48,10 @@ def verdict(sets, live='pulse-live-recalibrated'):
         needed = (all(r['recall_diff']['ci95'][1] < 0 for r in avail)
                   or (live_row is not None and live_row['separation_diff']['ci95'][1] < 0)
                   or all(r['p95_diff_seconds'] is not None and r['p95_diff_seconds'] >= 0.2 for r in avail))
+        # separation exists only where the campaign has benign launches (pulse-live-recalibrated)
+        separated = [r for r in avail if r['separation_diff'] is not None]
         removable = (all(r['recall_diff']['lower95_one_sided'] > -0.03 for r in avail)
-                     and all(r['separation_diff']['lower95_one_sided'] > -0.03 for r in avail)
+                     and bool(separated) and all(r['separation_diff']['lower95_one_sided'] > -0.03 for r in separated)
                      and all(r['p95_diff_seconds'] is None or r['p95_diff_seconds'] <= 0.2 for r in avail))
         v = 'needed' if needed else ('removable' if removable else 'inconclusive')
         out[comp] = dict(verdict=v, provisional=len(avail) < 2, sets=rows)
@@ -74,9 +76,10 @@ def main():
         cells = []
         for name, s in r['sets'].items():
             if s.get('available'):
+                sep = s['separation_diff']
                 cells.append(f"{name}@{s['budget']}: rec {s['recall_diff']['point']:+.3f} [{s['recall_diff']['ci95'][0]:+.3f},{s['recall_diff']['ci95'][1]:+.3f}]"
-                             f" sep {s['separation_diff']['point']:+.3f} [{s['separation_diff']['ci95'][0]:+.3f},{s['separation_diff']['ci95'][1]:+.3f}]"
-                             f" p95 {s['p95_diff_seconds'] if s['p95_diff_seconds'] is None else round(s['p95_diff_seconds'], 2)}")
+                             + (f" sep {sep['point']:+.3f} [{sep['ci95'][0]:+.3f},{sep['ci95'][1]:+.3f}]" if sep else ' sep n/a')
+                             + f" p95 {s['p95_diff_seconds'] if s['p95_diff_seconds'] is None else round(s['p95_diff_seconds'], 2)}")
         print(f"{comp:22s} {r['verdict']:13s}{' (provisional)' if r.get('provisional') else ''} | " + ' | '.join(cells))
 
 
