@@ -1423,8 +1423,11 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - tham chiếu phải tái lập 5,32 đợt/replica-giờ (5.13b).
 
 **Trạng thái:**
-- Bảng calibration đang dựng từ bản chép local (`burden-cal-table-1022`).
-- Hai bảng development và phép chọn chạy sau bước nén (đọc NFS khi không có lượt live).
+- **Bảng calibration xong (22/10 15:59, 11 phút CPU):** 2.449.183 cửa sổ, 67 container.
+  - Lấy riêng các cửa sổ eligible thì tái lập **đúng từng điểm** `calibration-r6-1300-1900.npz`. Phần chênh 11.974 cửa sổ đúng bằng số dòng ineligible mà npz ghi lại.
+  - Lớp launch chiếm 21–49% cửa sổ ở 15 workload. Workload có probe exec đủ cửa sổ cho cả hai lớp (≥ 1.200). Sáu workload không có exec (waypoint, frontend, minio, entity-operator) chỉ có một lớp.
+  - Trên khoảng này, **93,6%** cửa sổ không có ID mới so với replica khác trong 30 s, và **99,7%** không có ID mới so với lịch sử 5 phút của chính container. L5/L6 vì vậy chỉ giữ bằng chứng ở một phần rất nhỏ cửa sổ; recall theo kịch bản là chỉ số phải xem kỹ.
+- Hai bảng development và phép chọn chạy sau bước nén (unit `pulse-burden-levers-1022`, snapshot `1d2aa37`; đọc NFS khi không có lượt live).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 22/10 15:25)
 
