@@ -1,0 +1,8 @@
+{
+  "schema": "sentinel-pulse-syscall-feature-groups-under-stable-rule-v1-amendment",
+  "registered_at": "2026-10-22T22:51+07:00",
+  "registered_before": "any on_alarm=cap number for the syscall arms or the feature-group arms",
+  "amends": "sentinel_pulse/protocol/syscall-feature-groups-under-stable-rule-v1.json",
+  "change": "Pulse's stable rule became CUSUM drift 3 with on_alarm=cap (stable-selection-v1 amendment 1, 22/10 22:48). The primary analysis of this protocol now uses on_alarm=cap (arm_budget --cusum-on-alarm cap, window-for-window equal to CusumState, tested). The syscall-arms results already computed with on_alarm=keep (finished 22/10 16:57, before the change) are kept and reported as a second variant; the feature-group arms are run with cap only.",
+  "unchanged": "grid, budgets, calibration fraction, bootstrap, decision rules"
+}

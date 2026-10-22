@@ -107,3 +107,21 @@ def test_cusum_grid_matches_lowest_threshold_within_budget():
     assert result['scales']['4']['episodes_per_replica_hour'] >= result['scales']['40']['episodes_per_replica_hour']
     pick = ab.matched({'armA': result}, budgets=(1e9,), loosest=min)['1e+09']['armA']
     assert pick['alpha_scale'] == 4
+
+
+def test_cusum_alarm_modes_match_pulse_cusum_state():
+    from sentinel_pulse.detector.confirmation import CusumPolicy, CusumState
+    rng = np.random.default_rng(12)
+    m = 2000
+    identity = rng.integers(0, 3, m)
+    end = np.cumsum(rng.choice([0.5, 0.5, 0.5, 2.0, 0.2], size=m))
+    p = np.clip(rng.uniform(size=m) ** 4, 1e-9, 1)
+    for mode in ('keep', 'cap', 'restart'):
+        alarm = ab.cusum_alarms(identity, end, -np.log(p), 3.0, 6.0, mode)
+        state = CusumState(CusumPolicy(drift=3.0, threshold=6.0, on_alarm=mode))
+        ref = np.zeros(m, dtype=bool)
+        for i in np.lexsort((end, identity)):
+            ref[i] = state.update(dict(workload_key='w', node_name='n', pod_uid=str(identity[i]), container_name='c',
+                                       workload_revision='r', cgroup_id=1, window_start=end[i]-0.5, window_end=end[i],
+                                       joint_p=float(p[i])))
+        assert np.array_equal(alarm, ref), mode
