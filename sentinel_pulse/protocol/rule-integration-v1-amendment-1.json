@@ -1,0 +1,32 @@
+{
+  "schema": "sentinel-pulse-rule-integration-v1-amendment",
+  "registered_at": "2026-10-22T16:12+07:00",
+  "registered_before": "any with/without-rules comparison number and any paged-level number (none has been computed)",
+  "amends": "sentinel_pulse/protocol/rule-integration-v1.json",
+  "owner_decision": "22/10: finish ML first, then integrate the rule-based parts and compare the system without and with them",
+  "when": "only after ML is complete: (1) the stable ML configuration is frozen (stable-selection-v1 step 4), (2) burden-reduction-v1 is decided (proposed lever adopted or not after its blind test), (3) the confirmation live run of that configuration is finished. Until then no rule-tier number is computed; rule_tier.py is not run.",
+  "arms": {
+    "A_ml_only": "the stable ML configuration alone (the thesis numbers for the detector)",
+    "B1_ml_plus_falco": "ML and Falco as parallel alert streams",
+    "B2_ml_plus_tripwire": "ML and tripwire A1 as parallel alert streams",
+    "B3_ml_plus_probe_triage": "ML previews filtered for paging by the post-ML probe triage (definitions of rule-integration-v1, unchanged)",
+    "B_all": "ML + Falco + tripwire in parallel, ML part after probe triage",
+    "later": "rule-first orderings only if the owner decides so after ML is stable; registered separately"
+  },
+  "data": {
+    "primary": "the confirmation live run (fresh campaign, blind for every arm)",
+    "secondary": "pulse-stable-candidate and pulse-stable-refreshed (development; Falco only per-arm aggregates there, its raw logs were deleted)"
+  },
+  "metrics_per_arm": [
+    "recall per scenario and overall, precision, idle-control rate, benign-launch rate",
+    "p95 kernel -> first alert of the arm (parallel streams: first alert of any stream; triage: preview time + time to the triage decision)",
+    "alerts to humans per replica-hour on normal: streams added; alerts of one container less than 15 s apart merged across streams",
+    "added cost: rule maintenance (exceptions), evasion notes"
+  ],
+  "comparison": "every B arm against A on the same trials and the same normal span: paired per-trial differences (recall, control, benign) with a workload-clustered bootstrap 95 % CI; burden difference with the same bootstrap; latency difference of p95 with a bootstrap over trials",
+  "capture_requirements_for_the_confirmation_run": [
+    "keep Falco logs until the per-trial and per-event comparison is written (falco_baseline.py must emit per-trial outcomes and event times)",
+    "tripwire A1 on the run's own normal: reference span before the campaign, alerts counted on the normal after it",
+    "RCA running with the triage label on every case; report the share of ML episodes without a case (fail-open)"
+  ]
+}
