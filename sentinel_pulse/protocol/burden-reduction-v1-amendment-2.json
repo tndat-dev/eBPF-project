@@ -1,0 +1,24 @@
+{
+  "schema": "sentinel-pulse-burden-reduction-v1-amendment",
+  "registered_at": "2026-10-22T16:03+07:00",
+  "registered_before": "any episode-level or paged-level number of this tier (case-level shares of 5.18 were seen: 50.3 % of normal cases probe-only on pulse-stable-refreshed, no attack trial whose matched cases were all probe-only)",
+  "amends": "sentinel_pulse/protocol/burden-reduction-v1.json",
+  "owner_decision": "22/10: a triage tier AFTER the ML preview may decide which previews page a human ('Cho phép'); every preview is still recorded",
+  "lever": {
+    "L7_post_ml_probe_triage": "an ML episode is held back from paging when it has at least one RCA case of the same container whose trigger window_end lies within 5 s of the episode, and every such case is probe-only (scripts/analysis/alarm_taxonomy.py definitions, declared exec probes from exec-probe-spec.json); otherwise it pages (fail-open)",
+    "applies_to": "the reference and the configuration chosen per tier by the v1 rule; not used to choose the ML configuration"
+  },
+  "metrics": {
+    "ml_level": "unchanged and always reported first: recall, precision, control, benign, p95 kernel->preview, episodes per replica-hour",
+    "paged_level": [
+      "paged episodes per replica-hour, fail-open (episodes without a matched case page): an upper bound, since the RCA service opens at most one case per container per cooldown plus follow-ups",
+      "paged episodes per replica-hour, estimated: unmatched episodes held back at the held share of matched episodes of the same workload",
+      "paged recall / precision / control / benign: an ML-positive trial is held back when all RCA cases of its container within [start, start + 20 s] are probe-only (as alarm_taxonomy)",
+      "latency to paging: not measured offline; the current RCA path adds preview->case p50 2.24 s / p95 2.59 s (pulse-stable-refreshed rca-latency.json), so kernel->page exceeds the 3 s tier unless a faster triage path is built"
+    ]
+  },
+  "stated_in_advance": [
+    "binaries are matched, not argument vectors: an attacker who runs a probe's interpreter (python, sh, redis-cli, pg_isready) through kubectl exec would be held back; a deployable tier must also match the probe's arguments",
+    "the tier is a rule built from pod specs; ML-level metrics stay the thesis evidence for the detector, paged-level metrics are the evidence for the alerting system"
+  ]
+}
