@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **22/10/2026 09:58 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **22/10/2026 16:24 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -288,6 +288,21 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - không kiểm lại được luật novelty, vì `exec_log` chỉ giữ 900 s và dữ liệu lúc đó đã bị xóa. Giả thuyết "cùng binary trong 300 s" khớp lý thuyết, nhưng chỉ giải thích tối đa 24/42.
 - Từ lượt sau, subscriber đếm từng lý do từ chối case tiếp nối trong STATUS (`follow_up_refused_{too_soon,cap,warming_up,no_exec,binary_not_new}`), có test. Lượt đang chạy vẫn dùng code cũ. Chưa đổi luật.
 
+### 5.12 Baseline binary mang qua các lượt (22/10 16:15–16:24; dùng từ lượt `pulse-stable-confirm`)
+
+- **Vấn đề (Pulse 5.20):** pha học baseline 90 phút ngắn hơn chu kỳ của tác vụ định kỳ hiếm. Ví dụ, WAL archive của CloudNativePG (`/controller/manager`) chạy lần đầu sau khi baseline đóng băng, nên bị đánh `novel_binary` và xếp đầu nghi phạm.
+- **Sửa:** `sentinel_pulse/rca/baseline_seed.py` lấy các binary mà mỗi workload đã chạy trong **khoảng bình thường** của các lượt trước, rồi nạp vào database của lượt mới **một lần lúc khởi động**, với `first_seen = 0` (biết từ trước lượt). Binary lần đầu xuất hiện trong lượt mới không bị ảnh hưởng.
+- **Chống rò rỉ nhãn:**
+  - binary có lần thấy đầu tiên nằm trong campaign của lượt trước (từ interval đầu − 60 s tới cuối campaign + 60 s) **bị loại**, nên fixture attack và binary vô hại của campaign cũ không thể thành "đã biết";
+  - binary thấy lần đầu trong campaign, rồi mới thấy lại lúc bình thường, cũng bị loại (thận trọng).
+- **Seed đã dựng:**
+  - từ `rca-pulse-stable-candidate` và `rca-pulse-stable-refreshed`: giữ 93 dòng (59 binary khác nhau, 25 workload), loại 57 dòng có lần thấy đầu tiên trong campaign;
+  - có `/controller/manager` của Postgres; không có binary nào dưới `/tmp` hay mang tên attack;
+  - file `/mnt/sentinel-pulse-archive/pulse-next-run-model/rca-baseline-seed-20261022.json`, sha256 `a93861ad…`.
+- **Nối vào lượt chạy:** `launch_run.sh` nhận `BASELINE_SEED`; service ghi đường dẫn, sha256 và số dòng nạp vào metadata của database.
+- **Test:** binary trong campaign không vào seed; binary đã seed không còn `novel_binary`/`unknown_binary`; khởi động lại không seed hai lần; tổng test 384/384.
+- **Kiểm ở lượt sau:** trên case normal, tỉ lệ nghi phạm hạng 1 là `novel_binary`/`unknown_binary` phải giảm; top-1 của attack phải giữ 100%.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -385,3 +400,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 22/10 01:24 | Phân rã mức giảm tỉ lệ case có flow (89,8% → 85,6%, từ biên nhận `rca-flow-coverage.json` của hai lượt). Nếu lấy tỉ lệ từng workload của lượt mới, nhân theo cơ cấu case của lượt trước, thì ra 87,4%. Vậy khoảng 1,8 điểm là do cơ cấu thay đổi: `auth-service`, workload 100% có flow, giảm từ 501 xuống 55 case. 2,4 điểm còn lại do tỉ lệ từng workload, gần như toàn bộ ở `aims-waypoint:istio-proxy` (81% → 58%). Số lượt mới tính tới 19:47, chưa hết lượt | mục 5.11 |
 | 22/10 02:00 | Review nhãn (Pulse 5.20) cho thấy binary định kỳ hiếm (`/controller/manager wal-archive` của CloudNativePG) bị đánh `novel_binary` và xếp đầu nghi phạm, vì pha học baseline (90 phút) ngắn hơn chu kỳ của nó. Hướng sửa: học baseline dài hơn hoặc mang baseline qua các lượt. Chưa đổi | Pulse 5.20 |
 | 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và bảng trạng thái (code chờ lượt sau, phát hiện từ review nhãn, case cũ đã xóa) | mục 1 |
+| 22/10 16:15–16:24 | Baseline binary mang qua các lượt (`baseline_seed.py`, có test); seed từ hai lượt trước (59 binary, loại 57 dòng thấy lần đầu trong campaign); `launch_run.sh` nhận `BASELINE_SEED` cho lượt `pulse-stable-confirm` | mục 5.12 |

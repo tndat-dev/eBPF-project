@@ -6,8 +6,10 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Đang chạy
 
-- [~] **`after-stable-refreshed`** (.234): final, baseline lặp lại và chiến lược calibration **xong** (Pulse 5.13b, 5.15b, 5.17). Bước giai đoạn B nhóm feature lỗi do phép kiểm số chiều (đã sửa, `8497505`). Đang nén `features`/`decisions` của 3 lượt (8c).
-- [~] **`pulse-stable-selection-1022`** (snapshot `9b7c813`): chờ bước nén, rồi replay cấu hình gộp (5.19 bước 3: calibration như lúc chạy + CUSUM b3/h6 so với k2of2), rồi chạy lại chuỗi nặng (nhóm feature trên holdout chính, 5.7d).
+- [x] **`after-stable-refreshed`**: final, baseline lặp lại, chiến lược calibration (Pulse 5.13b, 5.15b, 5.17) và nén 3 lượt (NFS 291 → 85 GB) xong 16:17.
+- [~] **`pulse-stable-selection-1022`**: replay cấu hình gộp (5.19 bước 3), 2 replay song song.
+- [~] **`feature-groups-primary-1022`**: nhóm feature trên holdout chính, 3 node song song + replay `pulse-attack-dev` (~19:30).
+- [~] **`pulse-57d-1022`**: Pulse 5.7d trên soak.
 - [~] **`pulse-burden-levers-1022`** (Pulse 5.22, chỉ ML, protocol `burden-reduction-v1` + bổ sung 1): chờ bước nén, rồi dựng bảng cửa sổ cho 2 lượt development và áp luật chọn. Bảng calibration đã xong và tái lập đúng npz.
 
 ## Việc kế tiếp (theo thứ tự)
@@ -53,7 +55,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
 - [ ] 13% attack không có case riêng (42/315). Đã loại điều kiện 10 s và trần case tiếp nối. Từ lượt sau, STATUS đếm lý do từ chối case tiếp nối.
-- [ ] Baseline binary học 90 phút bỏ sót tác vụ định kỳ hiếm (WAL archive CloudNativePG bị xếp đầu nghi phạm, Pulse 5.20): học lâu hơn hoặc mang baseline qua các lượt.
+- [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [ ] Kiểm hiệu quả trên lượt đó.
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
 - [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
 
