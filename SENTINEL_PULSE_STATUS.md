@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **22/10/2026 15:25 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **22/10/2026 22:55 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -48,12 +48,17 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | Đợt cảnh báo trên normal | ≤ 0,1/giờ | chờ giai đoạn final (22/10) | 6,5 (replay, calibration làm mới) |
 
   Đây là lần đầu đạt cả 4 kỳ vọng trên một lượt live mới, ở mức độ trễ ≤ 3 s. CUSUM và Cauchy (kiểm blind) đưa p95 về 1,70 / 1,46 s trên cùng campaign; kết luận chờ gánh cảnh báo (5.11a).
+- **ML stable (chốt 22/10 22:48, Pulse 5.19 + bổ sung 1):** base29 + calibration làm mới + **CUSUM drift 3, ngưỡng 6, chặn trần S (`cap`)**, chính sách `policy-cusum-b3-h6-cap` (`93dd1478…`).
+  - Trên luồng liên tục của `pulse-stable-refreshed`: recall 100%, precision 96,9%, control 3,2%, p95 2,05 s (mức ≤ 3 s), 6,07 đợt/replica-giờ (k2of2: 6,74).
+  - Bản CUSUM đầu tiên (không chặn trần) bị bỏ trước khi chạy live, vì alarm kéo dài sang trial sau (control 5,7%).
+  - Lượt live xác nhận `pulse-stable-confirm` tự khởi chạy khi job nhóm feature xong.
+- **Giảm gánh cảnh báo (5.22, development, chờ test blind):** chiết khấu theo replica (ý tưởng ReplicaWatcher) cho 1,5–2,4 đợt/replica-giờ trong khi vẫn đạt cả 4 kỳ vọng, tức giảm 65–75% so với k2of2.
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h); đang kiểm blind (5.16).
 - **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Đang lặp lại trên dữ liệu mới (5.15b).
 - **Rule (Falco, tripwire A1, triage probe):** đánh giá riêng, không trộn vào số liệu ML; xem [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md).
 - **Cảnh báo trên normal đã được review (5.20):** 4.766 case, không case nào có dấu hiệu độc hại. 54% trùng probe exec của Kubernetes, 23% có probe trước đó, 23% không có nguyên nhân cấp process. Người gán nhãn không độc lập.
 - **Bằng chứng cho bộ feature (syscall 5B.2, tạm thời):** không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ và cả hai nhánh p-value đều cần.
-- **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Các chính sách khả thi cho khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1; chỉnh ngưỡng không giải được (biên Pareto 5.8j). Calibration lệch dần theo thời gian; làm mới calibration giảm khoảng 23% (5.7b). Thí nghiệm syscall cho thấy thay bộ syscall cũng không giải được.
+- **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Chỉ chỉnh ngưỡng và luật thời gian thì còn khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1 (biên Pareto 5.8j, CUSUM tối ưu khi bằng chứng cố định). Bằng chứng tốt hơn, chiết khấu theo replica (5.22), đưa xuống 1,5–2,4 trên development; vẫn gấp 15–24 lần ngân sách.
 
 ## 2. Trạng thái cụm và job (15:25 ngày 22/10)
 
@@ -1027,6 +1032,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 | Cauchy + k2of2, α×10 | 7,84 (+16%) | 100% | — | 4,4% | 97,1% | 0,81 / 1,46 s | **không đạt** (gánh tăng) |
 | **CUSUM b = 3, h = 6** | **5,32 (−21%)** | 100% | 97,2% (315/324) | **2,9%** | 98,1% | **0,59 / 1,70 s** | **đạt cả hai điều khoản** |
 
+- **Lưu ý (22/10 22:44):** cả `ideas_screen` lẫn bước 3 của 5.19 đều khởi động lại CUSUM ở đầu mỗi trial. Trên luồng liên tục (cách live chạy), control của bản này là 5,7%; xem 5.19 bổ sung 1.
 - **CUSUM đạt trên dữ liệu chưa xem:** gánh giảm 21% (ngưỡng 10%), recall giữ 100%, control thấp hơn, p95 nhanh hơn 0,59 s. Đây là cấu hình đầu tiên đạt cả bốn kỳ vọng **ở mức ưu tiên < 2 s**, đồng thời giảm gánh cảnh báo.
 - **Đánh đổi:** gắn cờ binary vô hại nhiều hơn 3,8 điểm (98,1% so với 94,3%). Tiêu chí không xét chỉ số này; G5 vẫn chưa có lời giải.
 - **Cauchy** nhanh nhất ở p95 nhưng tăng gánh 16%, nên bị loại theo đúng luật.
@@ -1214,7 +1220,22 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - **Không chiến lược nào thắng.** Calibration giữ như lúc chạy (làm mới một lần trước lượt live).
   - Hai chiến lược giảm gánh (`static`, `weighted`) đổi lấy mất 6,5 điểm recall và chậm thêm 1,4 s. Chúng tách binary vô hại tốt hơn (68% so với 94%), nhưng vì ngưỡng chặt hơn, không phải vì phân biệt tốt hơn.
   - Số đợt của `asrun` ở đây (5,17) thấp hơn 6,74 ở 5.13b vì khoảng đánh giá bắt đầu sau pha chọn; cả hai đều so đúng với tham chiếu của chính nó.
-  - Bản development trên soak 48 giờ (5.7d) chạy lại sau bước nén (xem 5.19).
+- **Kết quả bản development, soak 48 giờ (5.7d, xong 22/10 16:49; `confirmation-study-20261018/rolling-recalibration-k2of2-20261021/RESULTS.json`), k2of2, α×10, 2.039 replica-giờ, tham chiếu `static`:**
+
+  | Chiến lược | Đợt/replica-giờ | Recall | Control | p95 | Thắng `static`? |
+  |---|---|---|---|---|---|
+  | `static` | 14,98 | 98,7% | 2,9% | 2,35 s | — |
+  | **`rolling-12-1`** | **9,44 (−37%)** | 98,7% | 2,9% | 2,35 s | **có** (gánh thấp nhất trong số thắng) |
+  | `aci-static` | 11,48 (−23%) | 98,7% | 2,9% | 2,35 s | có |
+  | `rolling-6-1` | 9,52 | 98,7% | 2,6% | 2,72 s | không (p95 +0,37 s) |
+  | `mondrian-6-1` | 9,52 | 100% | 1,9% | 2,89 s | không (p95) |
+  | `weighted-24-6-1` | 6,94 | 96,0% | 1,6% | 3,26 s | không (recall −2,7) |
+  | `aci-rolling-6-1` | 10,88 | 98,7% | 2,6% | 2,72 s | không (p95) |
+
+  - **Đọc cùng bản chính:**
+    - trong 24 giờ sau một lần làm mới, không chiến lược định kỳ nào hơn (bản chính);
+    - với calibration đã cũ qua 48 giờ, làm mới mỗi giờ trên 12 giờ trước (`rolling-12-1`) giảm 37% gánh mà không mất gì.
+  - **Khuyến nghị vận hành (chưa kiểm live):** làm mới calibration theo chu kỳ, ví dụ mỗi ngày. Bản development, chỉ báo cùng.
 
 ### 5.18 Cảnh báo trên normal trùng với gì: phân loại case RCA và triage nhận ra probe (21/10 21:55–22:12)
 
@@ -1278,6 +1299,38 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 - **Sau khi chốt:** đóng băng bằng SHA-256, rồi xác nhận bằng một lượt live mới có campaign mới.
 - **Công cụ replay cấu hình gộp (bước 3) đã sẵn sàng** (22/10, có test): `rolling_recalibration --temporal cauchy|cusum-<b>-<h>` ghép mọi chiến lược calibration của 5.17 (asrun, static, rolling, weighted, mondrian) với Cauchy hoặc CUSUM. Công cụ dùng đúng các lớp `cauchy_p` và `CusumState` của chính sách live. Test: CUSUM trùng từng cửa sổ với `ideas_screen.py`, p-value từng nhánh tái tạo đúng joint_p. Chế độ mặc định `kofn` không đổi.
 - **Đường live đã sẵn sàng cho mọi lựa chọn** (22/10, có test): chính sách preview v2 nhận thêm `"combination": "cauchy"` và `"temporal_rule": {"kind": "cusum", …}`. Khi file chính sách không có các khóa này, hành vi giữ nguyên. Test so từng cửa sổ: luật live trùng kết quả với cả `ideas_screen.py` (interval) lẫn `ideas_burden.py` (toàn normal), tức đúng định nghĩa đã đánh giá ở 5.11a. `confirmation.py` được thêm vào danh sách file chấm điểm phải khớp bản đóng băng.
+**Bổ sung 1: CUSUM "nhớ" alarm sang trial sau (phát hiện 22/10 22:44, đăng ký 22:45, chốt 22:48):**
+- **Phát hiện:** khi đánh giá trên luồng liên tục, bằng công cụ của 5.22, control của CUSUM b3/h6 là **5,7%** (18/315) trên `pulse-stable-refreshed` và 6,0% trên `pulse-stable-candidate`.
+  - Ở 13/18 trial control dương, S đã vượt xa ngưỡng ngay trước interval (tới 2.638, ngưỡng là 6).
+  - Lý do: S tích lũy không giới hạn trong một đợt bất thường dài, mà mỗi cửa sổ bình thường chỉ giảm được tối đa 3, nên alarm kéo dài nhiều phút sang trial sau trên cùng container.
+  - `ideas_screen` và bước 3 khởi động lại CUSUM ở mỗi trial, nên không thấy hiện tượng này.
+  - Lượt live xác nhận với chính sách `9bf0b216` **đã bị dừng trước khi khởi chạy**.
+- **Hai biến thể đăng ký trước khi có số** (drift 3, ngưỡng 6):
+  - `cap`: S không vượt ngưỡng; alarm tắt ở cửa sổ đầu tiên có −ln p < 3;
+  - `restart`: S về 0 sau alarm (cách của Page).
+- **Kết quả trên luồng liên tục** (`results-20261021/pulse-stable-refreshed/final/cusum-carryover.json`):
+
+  | `pulse-stable-refreshed` | k2of2 α×10 | CUSUM keep (bản cũ) | **CUSUM cap** | CUSUM restart |
+  |---|---|---|---|---|
+  | Đợt/replica-giờ | 6,74 | 5,32 | **6,07** | 6,30 |
+  | Recall | 100% | 100% | **100%** | 100% |
+  | Precision | 96,0% | 94,6% ✗ | **96,9%** | 97,2% |
+  | Control | 4,1% | 5,7% ✗ | **3,2%** | 2,9% |
+  | Binary vô hại | 94,3% | 98,1% | 98,1% | 98,1% |
+  | p95 | 2,28 s | 1,70 s | **2,05 s** | 2,05 s |
+
+  Trên `pulse-stable-candidate`: k2of2 6,57 đợt, control 4,4%, p95 1,98 s; cap 5,90 đợt, 4,4%, 2,09 s; restart 6,13 đợt, 4,1%, 2,18 s.
+- **Theo luật:**
+  - `cap` và `restart` đều đạt 4 kỳ vọng ở mức ≤ 3 s trên cả hai lượt;
+  - cả hai "tốt hơn" k2of2 trên lượt blind theo điều khoản độ trễ của 5.11a (p95 nhanh hơn ≥ 0,2 s, gánh không cao hơn);
+  - **chọn `cap`** vì gánh thấp hơn.
+- **ML stable mới:** base29 + calibration làm mới + CUSUM b3/h6 `cap`, `policy-cusum-b3-h6-cap.json` (`93dd1478…`, snapshot `16982eb`), kiểm nạp qua loader thật. File cũ `policy-cusum-b3-h6.json` giữ làm lịch sử, không chạy.
+- **Sửa các con số đã báo trước đó:**
+  - p95 1,68 s và "đạt mức < 2 s" là do cách đánh giá khởi động lại ở mỗi trial. Bản đúng ở **mức ≤ 3 s** (2,05 s).
+  - Mức giảm gánh so với k2of2 là **10%**, không phải 21%.
+- **Code:** `CusumPolicy(on_alarm=keep|cap|restart)` trong `detector/confirmation.py` và chính sách live; bản vòng lặp trong `burden_levers.py` và `arm_budget.py`. Cả ba trùng từng cửa sổ với `CusumState` (có test).
+- **Lượt xác nhận:** `stable-confirmation-v1` bổ sung 1 đổi chính sách, phần khác giữ nguyên. Launcher chờ `feature-groups-primary-1022`.
+
 - **Giới hạn nêu trước:**
   - không cấu hình nào được kỳ vọng đạt ngân sách 0,1 đợt/replica-giờ;
   - binary vô hại vẫn bị gắn cờ;
@@ -1391,12 +1444,41 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 
 **Tầng phân loại sau ML** (bản bổ sung 2, chủ đồ án cho phép 16:00): là luật (probe khai báo trong pod spec), nên đã tách hẳn khỏi phần ML. Code `scripts/analysis/rule_tier.py`, protocol `rule-integration-v1`, báo cáo [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R4. Chỉ tích hợp **sau khi ML hoàn thiện**, như một nhánh của phép so sánh có/không rule (R6). Mọi số liệu ở mục này là mức ML, không dùng rule nào.
 
+**Kết quả (xong 22/10 17:26; `BURDEN-LEVERS.json`, 1.414 cấu hình × 2 lượt; chỉ ML):**
+- **Kiểm tái lập:**
+  - tham chiếu CUSUM b3/h6 cho đúng **5,32** đợt/replica-giờ trên `pulse-stable-refreshed`, như `ideas_burden`;
+  - p-value tính lại trùng 100% p-value lúc chạy của lượt đó;
+  - bảng calibration trùng từng điểm.
+- **Cấu hình được đề xuất** (luật: đạt 4 kỳ vọng trên cả hai lượt, gánh lớn nhất thấp nhất, ≤ 0,9 lần tham chiếu):
+
+  | | Tham chiếu k2of2 α×10 | **Mức < 2 s:** Mondrian + replica 60 s + k2of2 α×15 | **Mức ≤ 3 s:** replica 30 s + k2of2 α×5 |
+  |---|---|---|---|
+  | Đợt/replica-giờ (candidate / refreshed) | 6,57 / 6,74 | **2,30 / 2,19** (−65%) | **1,66 / 1,55** (−75%) |
+  | Incident gộp 5 phút | 2,82 / 2,93 | 0,75 / 0,79 | 0,48 / 0,47 |
+  | Recall | 99,4% / 100% | 98,7% / 99,7% | 98,1% / 99,4% |
+  | Precision | 95,7% / 96,0% | 98,7% / 98,4% | 99,0% / 99,1% |
+  | Control | 4,4% / 4,1% | **1,3% / 1,6%** | **0,95% / 0,95%** |
+  | Binary vô hại | 94% / 94% | 95% / 95% | 89% / 84% |
+  | p95 | 1,98 / 2,28 s | 1,97 / 1,97 s | 2,75 / 2,98 s |
+  | Recall thấp nhất theo kịch bản | — | `mprotect`/`seccomp` 96,8% | `seccomp` 92,1% |
+
+- **Đọc kết quả:**
+  - **Hướng đóng góp chính là chiết khấu theo replica (L5, ReplicaWatcher).** Mọi cấu hình khả thi ở mức < 2 s đều có nó. Riêng replica 60 s + k2of2 α×15, không cần Mondrian, đạt 2,40 đợt với p95 1,67 s. Mondrian chỉ thêm khoảng 4%. Không có chiết khấu replica thì không cấu hình nào đạt mức < 2 s; tốt nhất ở mức ≤ 3 s là Mondrian + CUSUM, 3,74 đợt.
+  - Control giảm còn khoảng 1%, precision lên khoảng 99%.
+  - Binary vô hại **vẫn bị gắn cờ 84–95%**. Chiết khấu bỏ được hành vi mà replica khác cũng có (probe); một binary vô hại chạy trên một replica thì vẫn "mới". G5 chưa giải.
+  - Cả hai cấu hình đều dùng k2of2, nên không bị lỗi CUSUM nhớ alarm. Các cấu hình CUSUM trong lưới dùng bản `keep`; CUSUM `cap` + chiết khấu replica chưa có trong lưới đã đăng ký.
+- **Chưa nhận:** theo điều 5, phải đạt lại khi test blind trên lượt `pulse-stable-confirm` (replay offline từ decision và feature của lượt đó, cùng công cụ). Chỉ khi đó mới thành ứng viên cho một lượt live tiếp theo.
+- **Giới hạn:**
+  - chọn trên chính 2 lượt development;
+  - attack trong campaign chỉ chạy trên một replica, nên có lợi cho L5;
+  - attack chạy đồng thời trên mọi replica sẽ không bị L5 bắt.
+
 **Trạng thái:**
 - **Bảng calibration xong (22/10 15:59, 11 phút CPU):** 2.449.183 cửa sổ, 67 container.
   - Lấy riêng các cửa sổ eligible thì tái lập **đúng từng điểm** `calibration-r6-1300-1900.npz`. Phần chênh 11.974 cửa sổ đúng bằng số dòng ineligible mà npz ghi lại.
   - Lớp launch chiếm 21–49% cửa sổ ở 15 workload. Workload có probe exec đủ cửa sổ cho cả hai lớp (≥ 1.200). Sáu workload không có exec (waypoint, frontend, minio, entity-operator) chỉ có một lớp.
   - Trên khoảng này, **93,6%** cửa sổ không có ID mới so với replica khác trong 30 s, và **99,7%** không có ID mới so với lịch sử 5 phút của chính container. L5/L6 vì vậy chỉ giữ bằng chứng ở một phần rất nhỏ cửa sổ; recall theo kịch bản là chỉ số phải xem kỹ.
-- Hai bảng development, phép chọn và mức gọi người chạy sau bước nén (unit `pulse-burden-levers-1022`, snapshot `810b62a`; đọc NFS khi không có lượt live).
+- Hai bảng development dựng xong 17:10 (mỗi lượt 11,1 triệu cửa sổ); phép chọn xong 17:26.
 
 ## 6. Tiến độ và việc còn lại (cập nhật 22/10 15:25)
 
@@ -1415,10 +1497,10 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 | CUSUM / Cauchy (ý tưởng từ tài liệu) | **Xong, blind** (5.13b): CUSUM đạt (gánh −21%, control 2,9%, p95 1,70 s); Cauchy trượt (gánh +16%) |
 | Baseline ML trên cùng dữ liệu (G1) | **Xong**: development (5.15a, 5.15c), lặp lại trên dữ liệu mới (5.15b: AE/`tree_ae` không thay base29). So với Falco (rule): [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R2 |
 | Tách attack khỏi process vô hại mới (ML) | Chưa giải: CUSUM gắn cờ binary vô hại 98% (5.13b). Novelty có xét exec tách lớp syscall hiếm (5.8h, khám phá). Đang thử calibration theo lớp launch (5.22). Tín hiệu rule (tripwire) ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R3 |
-| Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~4–7 đợt/replica-giờ ở các chính sách khả thi) |
+| Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt. Development (5.22): chiết khấu theo replica cho 1,5–2,4 đợt/replica-giờ, control ~1%; chờ test blind trên lượt xác nhận |
 | Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
 | Bằng chứng cho bộ feature | Tạm thời (syscall 5B.2): giữ nguyên; holdout chính chạy sau lượt live |
-| Chốt cấu hình ML stable | **Đã đóng băng** (5.19): base29 + calibration làm mới + CUSUM b3/h6, bước 3 đạt. Lượt live xác nhận `pulse-stable-confirm` tự khởi chạy khi các job nặng xong (~19:30–20:00) |
+| Chốt cấu hình ML stable | **Đã đóng băng** (5.19 + bổ sung 1): base29 + calibration làm mới + CUSUM b3/h6 `cap` (`93dd1478…`). Lượt xác nhận `pulse-stable-confirm` tự khởi chạy khi job nhóm feature xong |
 | Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
@@ -1768,3 +1850,7 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 16:10–16:13 | Theo quyết định "hoàn thiện ML trước, rồi tích hợp rule và so sánh có/không rule": unit `pulse-burden-levers-1022` chỉ còn phần ML (snapshot `ab35a23`); thiết kế so sánh đăng ký ở `rule-integration-v1` bổ sung 1 | mục 5.22, [rule](RULE_INTEGRATION_STATUS.md) R6 |
 | 16:17–16:24 | Bước nén xong lúc 16:17 (NFS còn 85 GB). Không có lượt live, nên chia chuỗi nặng thành các unit song song trên `.234` (snapshot `11492a4`): `pulse-stable-selection-1022` (2 replay cấu hình gộp song song), `feature-groups-primary-1022` (dump 3 node + replay `pulse-attack-dev` song song; lần khởi động đầu lỗi vì output dở của lần 14:56, đã xóa rồi chạy lại), `pulse-57d-1022`, cùng `pulse-burden-levers-1022` (2 bảng). Tải ~15/24 core, RAM dùng 39/125 GB. Soạn protocol `stable-confirmation-v1` cho lượt live xác nhận `pulse-stable-confirm` (tốc độ attack 1, 3, 6, 12, 24/s; kỳ vọng chính trên 6, 12, 24/s); `launch_when_idle.sh` chờ được nhiều unit | mục 5.19, 5.22 |
 | 16:28–16:31 | 5.19 bước 3 đạt: CUSUM b3/h6 recall 100%, precision 97,2%, control 2,9%, p95 1,68 s, 4,95 so với 5,17 đợt/replica-giờ. Đóng băng `policy-cusum-b3-h6` (`9bf0b216…`, snapshot `a45cac2`), kiểm nạp qua loader thật; đăng ký `stable-confirmation-v1`; hẹn `pulse-stable-confirm-launcher` chờ 4 unit nặng | mục 5.19 |
+| 16:49 | 5.7d (soak 48 giờ, development) xong: `rolling-12-1` thắng `static` (−37% gánh, recall/control/p95 không đổi) | mục 5.17 |
+| 17:10–17:26 | 5.22: bảng cửa sổ 2 lượt (11,1 triệu cửa sổ mỗi lượt) và phép chọn xong. Tham chiếu tái lập 5,32. Đề xuất: mức < 2 s Mondrian + replica 60 s + k2of2 α×15 (2,2–2,3 đợt, control 1,3–1,6%); mức ≤ 3 s replica 30 s + k2of2 α×5 (1,5–1,7 đợt, control 0,95%). Chờ test blind | mục 5.22 |
+| 22:42–22:44 | Đọc kết quả: control của tham chiếu CUSUM ở 5.22 là 5,7%, khác 2,9% của `ideas_screen`. Chẩn đoán: 13/18 control dương do S của CUSUM tích lũy không giới hạn từ đợt bất thường trước (tới 2.638). Dừng `pulse-stable-confirm-launcher` trước khi lượt live khởi chạy | mục 5.19 bổ sung 1 |
+| 22:45–22:49 | Đăng ký `stable-selection-v1` bổ sung 1 (22:45). Thêm `on_alarm` (keep/cap/restart) vào `CusumState`, chính sách live, công cụ đánh giá, có test. Trên luồng liên tục: chọn `cap` (control 3,2%, p95 2,05 s, 6,07 đợt). Đóng băng `policy-cusum-b3-h6-cap` (`93dd1478…`), sửa `stable-confirmation-v1` (bổ sung 1), hẹn lại launcher (snapshot `16982eb`; sửa đường dẫn `SNAP` thiếu `/source` trong file môi trường) | mục 5.19 |
