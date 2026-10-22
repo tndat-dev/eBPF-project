@@ -10,9 +10,9 @@ Kết quả thí nghiệm nằm trong [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_
 
 **Độ tin cậy của nguồn:** phần lớn số liệu dưới đây do chính tác giả các paper báo cáo; một số là preprint chưa qua phản biện. Đây là nguồn ý tưởng, chưa phải bằng chứng cho Pulse. Mỗi ý tưởng phải được đăng ký tiêu chí trước, rồi đo trên dữ liệu của Pulse, ở cùng ngân sách cảnh báo, với p95 kernel → alert < 2 s ưu tiên và ≤ 3 s chấp nhận.
 
-## Đánh giá tổng thể đồ án và định hướng paper (21/10 11:46)
+## Đánh giá tổng thể đồ án(21/10 11:46)
 
-**Mục tiêu:** đồ án phục vụ luận văn tốt nghiệp **và** một paper đủ mạnh để xin học bổng thạc sĩ. Hội nghị bảo mật hàng đầu chấm theo bốn tiêu chí: đóng góp mới, độ chặt của đánh giá, baseline và khả năng tái lập. Cụ thể là:
+Hội nghị bảo mật hàng đầu chấm theo bốn tiêu chí: đóng góp mới, độ chặt của đánh giá, baseline và khả năng tái lập. Cụ thể là:
 - top-4: USENIX Security, ACM CCS, NDSS, IEEE S&P;
 - vừa sức hơn: RAID, ACSAC, EuroS&P, DIMVA.
 
