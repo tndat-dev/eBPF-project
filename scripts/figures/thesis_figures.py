@@ -95,7 +95,7 @@ def save(fig, out: Path, name):
     plt.close(fig)
 
 
-def fig_live_metrics(out, t):
+def fig_live_metrics(out, t, ci=True):
     data = [(name, run_counts(path)[0]) for name, path, _ in RUNS]
     panels = [('precision', 95), ('recall', 95), ('control', 5), ('benign', None)]
     fig, axes = plt.subplots(1, 4, figsize=(11, 3.2), sharey=False)
@@ -103,7 +103,10 @@ def fig_live_metrics(out, t):
     for ax, (key, target) in zip(axes, panels):
         for i, (name, m) in enumerate(data):
             k, n = m[key]; lo, hi = wilson(k, n); v = 100*k/n
-            ax.errorbar(i, v, yerr=[[v - 100*lo], [100*hi - v]], fmt='o', color=SERIES[0], ms=6, capsize=3, lw=1.5)
+            if ci:
+                ax.errorbar(i, v, yerr=[[v - 100*lo], [100*hi - v]], fmt='o', color=SERIES[0], ms=6, capsize=3, lw=1.5)
+            else:  # meeting reports and slides carry no interval (owner, 23/10)
+                ax.plot(i, v, 'o', color=SERIES[0], ms=6)
             ax.annotate(f'{v:.1f}', (i, v), textcoords='offset points', xytext=(7, 0), ha='left', va='center', fontsize=8.5, color=INK)
         if target is not None:
             ax.axhline(target, color=INK2, lw=1, ls='--')
@@ -193,10 +196,12 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--lang', choices=sorted(TEXT), default='vi')
     p.add_argument('--output', type=Path, default=ROOT/'docs'/'figures')
+    p.add_argument('--no-ci', action='store_true', help='draw point values only (docx/pptx reports)')
     a = p.parse_args()
     out = a.output/a.lang; out.mkdir(parents=True, exist_ok=True)
     style(); t = TEXT[a.lang]
-    for f in (fig_live_metrics, fig_latency, fig_pareto, fig_baselines):
+    fig_live_metrics(out, t, ci=not a.no_ci)
+    for f in (fig_latency, fig_pareto, fig_baselines):
         f(out, t)
     print(sorted(x.name for x in out.iterdir()))
 
