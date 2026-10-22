@@ -1,0 +1,64 @@
+[
+ {
+  "title": "E. S. Page. Continuous inspection schemes. Biometrika 41(1/2), 1954",
+  "url": "https://doi.org/10.2307/2333009",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.19",
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "CUSUM gốc"
+ },
+ {
+  "title": "G. Lorden. Procedures for reacting to a change in distribution. Annals of Mathematical Statistics 42(6), 1971",
+  "url": "https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-42/issue-6/Procedures-for-Reacting-to-a-Change-in-Distribution/10.1214/aoms/1177693055.full",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "tối ưu minimax của CUSUM"
+ },
+ {
+  "title": "G. V. Moustakides. Optimal stopping times for detecting changes in distributions. Annals of Statistics 14(4), 1986",
+  "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Optimal-Stopping-Times-for-Detecting-Changes-in-Distributions/10.1214/aos/1176350164.full",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.19",
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "CUSUM tối ưu khi bằng chứng từng cửa sổ cố định"
+ },
+ {
+  "title": "D. J. Wilson. The harmonic mean p-value for combining dependent tests. PNAS 116(4), 2019",
+  "url": "https://doi.org/10.1073/pnas.1814092116",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "https://europepmc.org/articles/PMC6347718?pdf=render",
+  "note": "PDF là bản PubMed Central (truy cập mở) của cùng bài"
+ },
+ {
+  "title": "R. F. Barber, E. J. Candès, A. Ramdas, R. J. Tibshirani. Conformal prediction beyond exchangeability. Annals of Statistics 51(2), 2023",
+  "url": "https://doi.org/10.1214/23-AOS2276",
+  "pdf_url": "https://arxiv.org/pdf/2202.13415",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "PDF là bản arXiv của cùng bài"
+ },
+ {
+  "title": "V. Vovk. Testing randomness online. Statistical Science 36(4), 2021",
+  "url": "https://projecteuclid.org/journals/statistical-science/volume-36/issue-4/Testing-Randomness-Online/10.1214/20-STS817.full",
+  "pdf_url": "https://arxiv.org/pdf/1906.09256",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "PDF là bản arXiv của cùng bài"
+ },
+ {
+  "title": "KubAnomaly",
+  "url": "https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/",
+  "pdf_url": "none",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "the PDF linked from the repository page is the library's ACE brochure, not the paper (checked 23/10)"
+ }
+]

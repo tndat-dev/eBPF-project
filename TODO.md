@@ -1,6 +1,6 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 22/10/2026 22:53. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+Cập nhật 23/10/2026 04:20. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
 [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [rule, tách khỏi ML](RULE_INTEGRATION_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
@@ -12,7 +12,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] **`feature-groups-primary-1022`**: xong 23/10 00:35; gộp ở syscall 5B.3. [x] `fg-branches-1023`: xong 23/10 01:27, cả hai nhánh p-value đều cần (5B.3).
 - [~] **`after-stable-confirm`** (snapshot `1e2ae7f`): chờ lượt xác nhận; giai đoạn campaign (kỳ vọng theo tốc độ, RCA) rồi final (gánh live + CI, test blind 5.22, lý do nghi phạm RCA, phân loại cảnh báo), rồi nén.
 - [x] **`pulse-57d-1022`**: 5.7d xong (`rolling-12-1` −37% trên soak 48 giờ).
-- [~] **`syscall-cusum-1022`**: 11 cấu hình syscall + nhóm feature dưới CUSUM `cap` (SYSCALL 5C; bản `keep` xong, cùng kết luận).
+- [x] **`syscall-cusum-1022`**: xong 02:30; 11 cấu hình và nhóm feature dưới CUSUM `cap` không đổi kết luận nào (SYSCALL 5C).
+- [~] **`pulse-alert-bridge-pulse-stable-confirm`** (RCA 5.14): đường cảnh báo vận hành thật, chạy hết lượt xác nhận; chép biên nhận và ghép với thời điểm kernel sau lượt.
 - [x] **CUSUM nhớ alarm sang trial sau** (5.19 bổ sung 1): phát hiện trước khi chạy live, sửa bằng `cap`, đóng băng lại.
 - [x] **`pulse-burden-levers-1022`** (Pulse 5.22): xong 17:26; đề xuất cho cả 2 mức độ trễ (chiết khấu theo replica), chờ test blind.
 
@@ -22,7 +23,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt); test blind trên lượt xác nhận.
 3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): chạy từ 23/10 01:19, 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
 3b. [ ] **Ngay sau lượt xác nhận (cần làm tay, trong 1–2 ngày):** chép log Falco khỏi 3 worker (`/var/log/pods/falco_falco-*/falco`) và giữ tới khi so sánh có/không rule xong.
-4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [ ] Còn: nhóm feature dưới `cap` (`syscall-cusum-1022` đang chạy).
+4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [x] Nhóm feature dưới `cap`: không đổi kết luận (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
@@ -42,7 +43,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] **Baseline trên cùng dữ liệu (5.15a, 5.15b):** AE và `tree_ae` không thay base29 trên dữ liệu mới (tách kém khoảng 26 điểm).
 - [x] Recall theo tốc độ attack (5.15c): Pulse yếu dần ở 6/s. [ ] Campaign 1–3/s.
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
-- [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
+- [~] Đo độ trễ kernel → cảnh báo đến người nhận thật (RCA 5.14): preview → Alertmanager → webhook p95 0,06 s (push); còn ghép với thời điểm kernel từng trial sau lượt xác nhận.
 - [x] Review nhãn (5.20): 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại; người gán không độc lập.
 - [ ] Khi viết luận văn: mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
 - [x] Baseline luật Falco: chuyển sang [phần rule](RULE_INTEGRATION_STATUS.md) R2 (trial và normal xong).
@@ -52,9 +53,9 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 ## Thí nghiệm syscall — còn lại
 
 - [x] Giai đoạn B nhóm feature trên holdout thứ hai (syscall 5B.2, tạm thời): không thành phần nào bỏ được; Pulse 4b đã cập nhật.
-- [~] Giai đoạn B trên holdout chính và `pulse-attack-dev`: chạy lại trong `feature-groups-primary-1022`, rồi gộp theo luật bổ sung.
+- [x] Giai đoạn B trên holdout chính và `pulse-attack-dev`: xong, gộp theo luật bổ sung (5B.3).
 - [x] Pulse 5.7d xong (`rolling-12-1` −37% trên soak).
-- [~] 5C: 11 cấu hình + nhóm feature dưới CUSUM `cap` (`syscall-cusum-1022`); bản `keep` xong, cùng kết luận.
+- [x] 5C: 11 cấu hình + nhóm feature dưới CUSUM `keep`/`cap`: không đổi kết luận nào.
 - [ ] Paired blind attack theo protocol v2. Chưa mở được, vì chưa cấu hình nào đạt ngân sách 0,1 đợt/giờ; ghi là giới hạn.
 
 ## RCA — còn lại
@@ -63,7 +64,15 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] 13% attack không có case riêng (42/315). Đã loại điều kiện 10 s và trần case tiếp nối. Từ lượt sau, STATUS đếm lý do từ chối case tiếp nối.
 - [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [ ] Kiểm hiệu quả trên lượt đó.
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
-- [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
+- [~] Cảnh báo vận hành thật (RCA 5.14): Pulse → Alertmanager/Prometheus/Grafana đang chạy thử. [ ] RCA nhận trigger từ webhook Alertmanager (lượt sau).
+- [x] Ánh xạ IP node (hostNetwork/SNAT) bị gán nhầm cho node-exporter: sửa thành `Node` không xác định (RCA 5.13, áp dụng lượt sau). [ ] Lịch sử inventory theo thời gian. [ ] Backend sau DNAT và client thật sau waypoint (Istio ambient; cần Hubble hoặc access log) — ghi là giới hạn nếu không làm.
+
+## Repo và bằng chứng
+
+- [x] Biên nhận 22–23/10 chép vào `validation-evidence/results-20261022/` (README ghi script và bản gốc của từng file); ví dụ cây RCA thật (`validation-evidence/rca/examples-20261023/`).
+- [x] README gốc: hướng dẫn đọc repo, từ con số đến bằng chứng.
+- [x] `references/`: danh mục 75 nguồn, 46 PDF (ngoài git, repo công khai; bản sao NFS). [ ] **(cần bạn, nếu muốn)** tải tay 16 bài bị chặn tải tự động (danh sách và tên file trong `references/README.md`).
+- [ ] Sau lượt xác nhận: chép biên nhận của lượt, của đường cảnh báo và log Falco vào repo/NFS.
 
 ## Hạ tầng
 

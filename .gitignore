@@ -42,3 +42,9 @@ validation-evidence/projected-pressure-c2-20261003/
 
 # Claude Code local settings (per-machine permissions)
 .claude/settings.local.json
+
+# Paper PDFs: the repository is public and most papers may not be redistributed; references/catalog.json
+# records URL, SHA-256 and size of every local copy (scripts/fetch_references.py).
+references/pdf/
+# LibreOffice lock files of an open document
+.~lock.*#

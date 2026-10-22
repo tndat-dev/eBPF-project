@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 01:26 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **23/10/2026 04:20 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -45,34 +45,34 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | Recall | ≥ 95% | **100%** | 97,8% |
   | Control idle dương | ≤ 5% | **4,2%** | 8,4% |
   | p95 kernel → preview | < 2 s ưu tiên, ≤ 3 s chấp nhận | **2,26 s** (đạt mức chấp nhận) | 1,85 s |
-  | Đợt cảnh báo trên normal | ≤ 0,1/giờ | chờ giai đoạn final (22/10) | 6,5 (replay, calibration làm mới) |
+  | Đợt cảnh báo trên normal | ≤ 0,1/giờ | 6,74 đợt/replica-giờ (final, 5.13b) | 6,5 (replay, calibration làm mới) |
 
-  Đây là lần đầu đạt cả 4 kỳ vọng trên một lượt live mới, ở mức độ trễ ≤ 3 s. CUSUM và Cauchy (kiểm blind) đưa p95 về 1,70 / 1,46 s trên cùng campaign; kết luận chờ gánh cảnh báo (5.11a).
+  Đây là lần đầu đạt cả 4 kỳ vọng campaign trên một lượt live mới, ở mức độ trễ ≤ 3 s. Gánh cảnh báo vẫn xa ngân sách. Sau final, luật thời gian được chọn lại theo luật đăng ký trước: CUSUM chặn trần (5.19).
 - **ML stable (chốt 22/10 22:48, Pulse 5.19 + bổ sung 1):** base29 + calibration làm mới + **CUSUM drift 3, ngưỡng 6, chặn trần S (`cap`)**, chính sách `policy-cusum-b3-h6-cap` (`93dd1478…`).
   - Trên luồng liên tục của `pulse-stable-refreshed`: recall 100%, precision 96,9%, control 3,2%, p95 2,05 s (mức ≤ 3 s), 6,07 đợt/replica-giờ (k2of2: 6,74).
   - Bản CUSUM đầu tiên (không chặn trần) bị bỏ trước khi chạy live, vì alarm kéo dài sang trial sau (control 5,7%).
-  - Lượt live xác nhận `pulse-stable-confirm` tự khởi chạy khi job nhóm feature xong.
+  - Lượt live xác nhận `pulse-stable-confirm` (525 cặp, tốc độ attack 1–24/s) chạy từ 23/10 01:19 đến khoảng 24/10 01:20; phân tích tự chạy sau lượt.
 - **Giảm gánh cảnh báo (5.22, development, chờ test blind):** chiết khấu theo replica (ý tưởng ReplicaWatcher) cho 1,5–2,4 đợt/replica-giờ trong khi vẫn đạt cả 4 kỳ vọng, tức giảm 65–75% so với k2of2.
-- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h); đang kiểm blind (5.16).
-- **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Đang lặp lại trên dữ liệu mới (5.15b).
+- **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h). Nó đã đạt khi kiểm blind; vì là luật nên nằm ở phần rule ([RULE R3](RULE_INTEGRATION_STATUS.md)).
+- **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Lặp lại trên dữ liệu mới (5.15b): AE và `tree_ae` tăng recall 4,9 điểm nhưng tách kém khoảng 26 điểm (CI dưới 0), nên không thay base29.
 - **Rule (Falco, tripwire A1, triage probe):** đánh giá riêng, không trộn vào số liệu ML; xem [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md).
 - **Cảnh báo trên normal đã được review (5.20):** 4.766 case, không case nào có dấu hiệu độc hại. 54% trùng probe exec của Kubernetes, 23% có probe trước đó, 23% không có nguyên nhân cấp process. Người gán nhãn không độc lập.
-- **Bằng chứng cho bộ feature (syscall 5B.3 + 5C, 23/10):** giữ nguyên bộ feature. Chắc chắn cần: kênh syscall tường minh và 5 tổng hợp. Chọn syscall đứng vững dưới k2of2, CUSUM `keep` và `cap`.
+- **Bằng chứng cho bộ feature (syscall 5B.3 + 5C, 23/10):** giữ nguyên bộ feature. Chắc chắn cần: kênh syscall tường minh, 5 tổng hợp và cả hai nhánh p-value (joint p). Chọn syscall và nhóm feature đứng vững dưới k2of2, CUSUM `keep` và `cap`.
+- **Cảnh báo vận hành thật (RCA 5.14, đang chạy):** đẩy preview thẳng vào Alertmanager của cụm thì 163/163 đợt tới người nhận, p95 0,06 s sau preview. Đi đường Prometheus chuẩn (scrape → rule) thì chậm 4,5–54 s (p50); với cấu hình mặc định, 93% đợt không bao giờ tới người nhận.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Chỉ chỉnh ngưỡng và luật thời gian thì còn khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1 (biên Pareto 5.8j, CUSUM tối ưu khi bằng chứng cố định). Bằng chứng tốt hơn, chiết khấu theo replica (5.22), đưa xuống 1,5–2,4 trên development; vẫn gấp 15–24 lần ngân sách.
 
-## 2. Trạng thái cụm và job (15:25 ngày 22/10)
+## 2. Trạng thái cụm và job (04:20 ngày 23/10)
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live **pulse-stable-refreshed** (3 worker) | **Xong** 22/10 12:26–12:31 (đủ 24 giờ). Final đã đọc (5.13b). Không còn loader Pulse nào gắn trên node |
-| RCA | `rca-pulse-stable-refreshed` đã dừng sau lượt live; giữ case (1,4 GB) |
-| Phân tích sau lượt | Unit `after-stable-refreshed` trên `.234` (snapshot `bd457a7`, chạy tuần tự). Giai đoạn campaign xong. Khi 3 worker xong: final → lặp lại baseline (5.15b) → chiến lược calibration (5.17) → giai đoạn B nhóm feature trên holdout chính và 5.7d → nén dữ liệu (8c) |
-| Giai đoạn B nhóm feature, holdout thứ hai | **Xong** 22/10 06:40 (syscall 5B.2) |
-| Ngay sau lượt live (làm tay) | **Xong**: dừng collector 1 s; overhead A/B (5.21); phần rule (Falco) ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) |
-| Chốt ML stable (5.19) | Bước 1 xong: chỉ đổi luật thời gian sang CUSUM b3/h6. Unit `pulse-stable-selection-1022` (snapshot `9b7c813`) chờ bước nén xong rồi chạy replay cấu hình gộp (bước 3), sau đó chạy lại chuỗi nặng (nhóm feature trên holdout chính, 5.7d) |
+| Lượt live **pulse-stable-confirm** (3 worker) | Chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478…`), attack từ khoảng 02:54, kết thúc khoảng 24/10 01:20. Worker không restart lần nào (kiểm 01:55) |
+| RCA | `rca-pulse-stable-confirm` chạy từ 01:21 (seed 59 binary đã nạp, có nhãn triage); 1.924 case lúc 03:58 |
+| Phân tích sau lượt | Unit `after-stable-confirm` (snapshot `1e2ae7f`) chờ lượt kết thúc |
+| Đường cảnh báo vận hành (thử) | Unit `pulse-alert-bridge-pulse-stable-confirm` trên `.234` (commit `e2cbc01`), chỉ đọc decision; Prometheus/Alertmanager/Grafana của cụm (RCA 5.14) |
+| Job phân tích khác | Đã xong: `fg-branches-1023` (01:27), `syscall-cusum-1022` (02:30). Không còn job nặng nào ngoài lượt live |
+| Ngay sau lượt live (làm tay) | Chép log Falco khỏi 3 worker cho so sánh có/không rule |
 | Theo dõi | Không dùng watcher (theo yêu cầu). Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt |
-| Bộ nhớ VM (vSphere) | Balloon trên 3 worker giữ ~84 GB mỗi VM, còn 27–33 GB khả dụng; chưa có áp lực bộ nhớ hay swap. Xem mục 8 |
-| Đĩa | NFS dùng 352 / 685 GB (khoảng 200 GB sẽ được thu lại khi nén). `.234` dùng 61 GB sau khi dọn (8c). Worker 41% / 41% / 29% |
+| Đĩa | NFS 88 / 685 GB (13%); `.234` 62 GB; worker 40% / 41% / 28% |
 | Quy tắc | Không chạy job NFS hoặc bộ nhớ nặng trên bất kỳ node nào khi lượt live đang chạy; không chạy trên master 2/3 |
 
 ## 3. Thuật ngữ
@@ -167,6 +167,7 @@ Thí nghiệm syscall ([SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EX
   
   Kết luận trong bảng giữ nguyên.
 - **Đã kiểm dưới CUSUM, đúng luật Pulse stable (syscall 5C, 22/10):** cả bản `keep` lẫn `cap` cho cùng kết luận. Bỏ cặp exec kém đi (recall −6,8 điểm, CI dưới 0); thêm mọi syscall tách kém hẳn (−21,8 điểm); không cấu hình nào hơn base29.
+- **Nhóm feature dưới CUSUM `cap` (syscall 5C, 23/10):** không thành phần nào đổi kết luận. Kênh syscall tường minh và cả hai nhánh p-value là cần dưới cả hai luật; ứng viên rút gọn (bỏ 64 bin syscall) chưa được CUSUM xác nhận.
 - **Lý do thứ hai không mở rộng bộ syscall: độ trễ.** Ở cùng ngân sách 1, `plus_top*` có p95 2,9–3,1 s và `plus_all_*` 5,0 s, so với base29 2,3 s. Mục tiêu của Pulse là p95 < 2 s.
 
 **Kết quả đưa vào Pulse:**
@@ -1909,3 +1910,8 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 00:35 | `pulse-stable-confirm-launcher` lỗi lúc lập kế hoạch: planner ghi commit của snapshot bằng `git rev-parse`, mà snapshot dựng bằng `git archive` không có `.git`. Không worker nào khởi động; thư mục run dở 780 KB | mục 5.19 |
 | 01:18–01:22 | Dựng snapshot chạy bằng `git clone` (`runtime-cc9bced-20261023`); `launch_when_idle.sh` kiểm `.git` ngay lúc hẹn. Xóa thư mục run dở, khởi chạy lại: **lượt xác nhận chạy từ 01:19**. RCA không lên được (service chạy bằng Python hệ thống, `baseline_seed.py` kéo numpy qua một import); sửa import, thêm test chặn numpy trong chuỗi import của RCA, đưa bản RCA của lượt lên commit `a2e6748`. RCA chạy từ 01:21, trước pha chọn, đã nạp 59 binary seed. 3 worker 0 issue | mục 5.19, RCA 5.12 |
 | 01:20–01:26 | Syscall: holdout chính của nhóm feature xong (00:35), gộp với holdout thứ hai (5B.3: chỉ "kênh syscall tường minh" và "5 tổng hợp" là cần chắc chắn). 5C bản `cap` cho 11 cấu hình: cùng kết luận. Cập nhật 4b | mục 4b |
+| 01:30–01:50 | Báo cáo và slide tiến độ 16/10–23/10 (`docs/`). `fg-branches-1023` xong: cả hai nhánh p-value đều cần (syscall 5B.3) | DOCS_INDEX |
+| 01:53–02:00 | Kiểm lượt xác nhận: 3 worker không restart; RCA chạy từ 01:21 (2 lần lỗi numpy trước đó), seed 59 binary. Đồng bộ checkout 3 worker (lần trước chỉ .234); dọn unit transient `pulse-capture-smoke-b2-20261013` (oneshot 12/10, đã thoát, thư mục dữ liệu không còn) | mục 2 |
+| 03:30–04:12 | **Cảnh báo vận hành thật**: bridge chỉ đọc (`sentinel_pulse/ops/alert_bridge.py`, có test) đưa preview của lượt xác nhận vào Prometheus/Alertmanager/Grafana của cụm theo 3 đường. Push 163/163 đợt, p95 0,06 s; pull-fast 94,5%, p95 7,1 s; pull mặc định 6,7%, p50 54 s. Dashboard `sentinel-pulse-alerts` | RCA 5.14 |
+| 03:55–04:20 | Ví dụ cây RCA vào repo, kèm hình (RCA 5.13). Sửa ánh xạ IP node (hostNetwork/SNAT) trong RCA. Chép biên nhận 22–23/10 vào `validation-evidence/results-20261022/` (có README nguồn gốc). README gốc viết lại thành hướng dẫn đọc repo. `references/`: danh mục 75 nguồn, 46 PDF đã tải (ngoài git vì repo công khai; bản sao NFS khớp SHA-256). Syscall 5C: nhóm feature dưới CUSUM `cap` không đổi kết luận nào | mục 1, 2 |
+

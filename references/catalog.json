@@ -1,0 +1,921 @@
+[
+ {
+  "title": "99% False Positives (USENIX Sec 2022)",
+  "url": "https://www.usenix.org/conference/usenixsecurity22/presentation/alahmadi",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/99-false-positives-usenix-sec-2022.pdf",
+  "bytes": 673242,
+  "sha256": "bf9a559479c56202fa7ff409a5b8e58656d4831cde6ddb28b76b832417083ff7",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "ACI cho chuỗi thời gian (Zaffran et al., ICML 2022)",
+  "url": "https://proceedings.mlr.press/v162/zaffran22a.html",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/aci-cho-chu-i-th-i-gian-zaffran-et-al-icml-2022.pdf",
+  "bytes": 1416052,
+  "sha256": "7f908bcc760fd0bd5192ca7d7b255c861136aa7912638171ad58a50a2ec54cad",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Adaptive Conformal Inference (Gibbs & Candès)",
+  "url": "https://arxiv.org/abs/2106.00170",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/adaptive-conformal-inference-gibbs-cand-s.pdf",
+  "bytes": 1210440,
+  "sha256": "15f35bf6d3ff2abfc21eaff1f1a7df2a51a5c891f2bed752f6fd75d3e47a5ff7",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Autoencoder có attention cho truy cập file trong container (MDPI 2025)",
+  "url": "https://www.mdpi.com/2227-7390/14/6/991",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "Benchmark anomaly detection 2024",
+  "url": "https://arxiv.org/html/2402.07281v3",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/benchmark-anomaly-detection-2024.pdf",
+  "bytes": 552620,
+  "sha256": "45fd32ef636d777bda3a5b238721005744aedd71cb4831341789571cc349898f",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "BoSC trong container",
+  "url": "https://arxiv.org/pdf/1611.03056",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/bosc-trong-container.pdf",
+  "bytes": 372257,
+  "sha256": "15f46940cf6fb63cb1105cada897ef8d85720fc7967357d0b7532ccfc63c6035",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Báo cáo Aqua/Sysdig 2022 (tóm tắt)",
+  "url": "https://www.scmagazine.com/news/cryptominers-still-preferred-in-cloud-attacks-but-the-use-of-other-malware-has-increased",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "web",
+  "status": "link_only"
+ },
+ {
+  "title": "bảng ABI Linux x86-64 v6.8",
+  "url": "https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl",
+  "cited_in": [
+   "SYSCALL_FEATURE_EXPERIMENT_STATUS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "CADE (USENIX Sec 2021)",
+  "url": "https://www.usenix.org/conference/usenixsecurity21/presentation/yang",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/cade-usenix-sec-2021.pdf",
+  "bytes": 2528560,
+  "sha256": "6fd4bf29f359a39fa241823885b7000d264704c9a76c5c89b33979207198717d",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Carbon Filter: phân loại cảnh báo EDR",
+  "url": "https://arxiv.org/html/2405.04691v1",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/carbon-filter-ph-n-lo-i-c-nh-b-o-edr.pdf",
+  "bytes": 723049,
+  "sha256": "fd47c4b00695dbe9db8ff95a3e1b4c5261eee043b58386d81e64193341258f78",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Cauchy combination test",
+  "url": "https://arxiv.org/pdf/1808.09011",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/cauchy-combination-test.pdf",
+  "bytes": 377176,
+  "sha256": "c5a838c5e97c52e8ab342ef0d466e9a5a798536acd4483fd635c774cea368a94",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "Change detection with conformal martingales",
+  "url": "https://arxiv.org/pdf/2609.27179",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/change-detection-with-conformal-martingales.pdf",
+  "bytes": 1206373,
+  "sha256": "3200c6b905f9b154142d78bb0705960a0e24a21b4768d0a5a3876f3352855842",
+  "fetched_at": "2026-10-22T21:05:56+00:00"
+ },
+ {
+  "title": "CHIDS, CCSW 2022",
+  "url": "https://research.utwente.nl/en/publications/contextualizing-system-calls-in-containers-for-anomaly-based-intr/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "Class-conditional conformal cho anomaly detection mất cân bằng (MDPI Make)",
+  "url": "https://www.citedrive.com/en/discovery/class-conditional-conformal-prediction-for-reliable-anomaly-detection-under-extreme-class-imbalance/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "CNN trong kernel bằng eBPF",
+  "url": "https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "CONDOR hybrid IDS",
+  "url": "https://shura.shu.ac.uk/5246/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/condor-hybrid-ids.pdf",
+  "bytes": 678163,
+  "sha256": "d76993d6a92e40a3f29c7c9ef820f39778c2aff49f9d2ac984475ba98461a8b2",
+  "fetched_at": "2026-10-22T21:06:05+00:00"
+ },
+ {
+  "title": "Confine (RAID 2020)",
+  "url": "https://usenix.org/conference/raid2020/presentation/ghavanmnia",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/confine-raid-2020.pdf",
+  "bytes": 703433,
+  "sha256": "6fe4d03cba92c39cc9a8e6e1fb3eabe14d5c2bb6b2c5ebb76860fb79c078f4e0",
+  "fetched_at": "2026-10-22T21:06:05+00:00"
+ },
+ {
+  "title": "Conformal calibration / look-elsewhere",
+  "url": "https://arxiv.org/pdf/2606.13780",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "script",
+  "pdf_url": "https://arxiv.org/pdf/2606.13780",
+  "file": "pdf/conformal-calibration-look-elsewhere.pdf",
+  "bytes": 1128170,
+  "sha256": "b14f32b483a9ff594a7cc2ae8bd5b409a291e725dce10f2a9e321eeac01f8dc3",
+  "fetched_at": "2026-10-22T21:06:05+00:00"
+ },
+ {
+  "title": "Conformal false-alarm control cho O-RAN",
+  "url": "https://icml.cc/virtual/2026/78428",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "Conformal PID control",
+  "url": "https://ar5iv.labs.arxiv.org/html/2307.16895",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/conformal-pid-control.pdf",
+  "bytes": 9492139,
+  "sha256": "4b5ee1458b4debfe164fc3bbca858e4807057b776ccb2587749178d9533deafb",
+  "fetched_at": "2026-10-22T21:06:07+00:00"
+ },
+ {
+  "title": "Contextualizing system calls in containers",
+  "url": "https://www.researchgate.net/publication/365185410_Contextualizing_System_Calls_in_Containers_for_Anomaly-Based_Intrusion_Detection",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "CORTEX",
+  "url": "https://neurips.cc/virtual/2025/137134",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "CUSUM và Shiryaev-Roberts, tối ưu theo Lorden/Moustakides (so sánh số)",
+  "url": "https://arxiv.org/pdf/0908.4119",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/cusum-v-shiryaev-roberts-t-i-u-theo-lorden-moustakides-so-s-nh-s.pdf",
+  "bytes": 208766,
+  "sha256": "7eb86e754ef1d88ec454ae32b9bbaabd8789a4b103afdd98a9e9b938312e54e3",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "title": "Cửa sổ syscall trong Docker (SBC)",
+  "url": "https://sol.sbc.org.br/index.php/errc/article/download/15203/15047",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/c-a-s-syscall-trong-docker-sbc.pdf",
+  "bytes": 173086,
+  "sha256": "7c78c7eaf42ae1766b56282d376b392ebe82c03a2885d85b08b8b8f3a84bcffa",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "title": "D. J. Wilson. The harmonic mean p-value for combining dependent tests. PNAS 116(4), 2019",
+  "url": "https://doi.org/10.1073/pnas.1814092116",
+  "pdf_url": "https://europepmc.org/articles/PMC6347718?pdf=render",
+  "note": "PDF là bản PubMed Central (truy cập mở) của cùng bài",
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "DeepOD",
+  "url": "https://github.com/xuhongzuo/DeepOD",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "Docker container escape dataset (IEEE DataPort)",
+  "url": "https://ieee-dataport.org/documents/docker-container-escape-attack-dataset-capabilities-and-system-call-traces",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "dataset",
+  "status": "link_only"
+ },
+ {
+  "title": "DongTing dataset",
+  "url": "https://zenodo.org/records/6627050",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "dataset",
+  "status": "link_only"
+ },
+ {
+  "title": "Dos and Don'ts of ML in Computer Security (USENIX Sec 2022)",
+  "url": "https://arxiv.org/abs/2010.09470",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/dos-and-don-ts-of-ml-in-computer-security-usenix-sec-2022.pdf",
+  "bytes": 901608,
+  "sha256": "895ab4622260bba9dacd258f69f25d98deaba3826d0f89c8e03cc1c042f4545c",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "title": "Dynamic fixed-point trong eBPF",
+  "url": "https://dl.acm.org/doi/fullHtml/10.1145/3674213.3674219",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "e-GAI online FDR",
+  "url": "https://proceedings.mlr.press/v267/zhang25cd.html",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/e-gai-online-fdr.pdf",
+  "bytes": 1800212,
+  "sha256": "df6aac9ada945aac1171f5c3abfd8eb4259231b9194575650d93b8348be6a6a9",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.19",
+   "RESEARCH_IDEAS.md"
+  ],
+  "title": "E. S. Page. Continuous inspection schemes. Biometrika 41(1/2), 1954",
+  "url": "https://doi.org/10.2307/2333009",
+  "note": "CUSUM gốc",
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "eBPF-PATROL",
+  "url": "https://arxiv.org/pdf/2511.18155v1",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/ebpf-patrol.pdf",
+  "bytes": 1147577,
+  "sha256": "d115a12608986b4e9c25dab6646d329e16dc31c34d71c269c626e95ffbfbe1fe",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "title": "Falco drift detection (Sysdig blog)",
+  "url": "https://www.sysdig.com/blog/container-drift-detection-with-falco",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "web",
+  "status": "link_only"
+ },
+ {
+  "title": "FDR control for online anomaly detection (Krönert et al.)",
+  "url": "https://ar5iv.labs.arxiv.org/html/2312.01969",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/fdr-control-for-online-anomaly-detection-kr-nert-et-al.pdf",
+  "bytes": 2041814,
+  "sha256": "179f24f1f771b8ddb09ff76e52d720c32fbd0ee8d8f27c7517753db3028aaa73",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "title": "FedMon",
+  "url": "https://arxiv.org/html/2510.10126",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/fedmon.pdf",
+  "bytes": 1147616,
+  "sha256": "cae36bed6c667765d5023308ea78b51ab225b94d747d994731c72e825b197bf4",
+  "fetched_at": "2026-10-22T21:06:12+00:00"
+ },
+ {
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "title": "G. Lorden. Procedures for reacting to a change in distribution. Annals of Mathematical Statistics 42(6), 1971",
+  "url": "https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-42/issue-6/Procedures-for-Reacting-to-a-Change-in-Distribution/10.1214/aoms/1177693055.full",
+  "note": "tối ưu minimax của CUSUM",
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.19",
+   "RESEARCH_IDEAS.md"
+  ],
+  "title": "G. V. Moustakides. Optimal stopping times for detecting changes in distributions. Annals of Statistics 14(4), 1986",
+  "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Optimal-Stopping-Times-for-Detecting-Changes-in-Distributions/10.1214/aos/1176350164.full",
+  "note": "CUSUM tối ưu khi bằng chứng từng cửa sổ cố định",
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "Hummingbird",
+  "url": "https://www.microsoft.com/en-us/research/publication/a-tensor-compiler-for-unified-machine-learning-prediction-serving/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/hummingbird.pdf",
+  "bytes": 1434949,
+  "sha256": "add16d657229659904797dd0af9321013ad45a4beec69f1e7e5063aef11422f3",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "KAIROS (IEEE S&P 2024)",
+  "url": "https://arxiv.org/abs/2308.05034",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/kairos-ieee-s-p-2024.pdf",
+  "bytes": 3183604,
+  "sha256": "451feb967312f5be97ff6d1ce8282165f7ba0ba904fa00cc2004105c59610c4d",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "Khi nào nên retrain dưới drift",
+  "url": "https://arxiv.org/pdf/2608.19488",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/khi-n-o-n-n-retrain-d-i-drift.pdf",
+  "bytes": 1301167,
+  "sha256": "f8d0e74790a798768ab5f9eeaad3657047d142471eb4f3af3978857bd0c0201c",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "KubAnomaly",
+  "url": "https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "none",
+  "note": "the PDF linked from the repository page is the library's ACE brochure, not the paper (checked 23/10)",
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "LID-DS (kịch bản)",
+  "url": "https://github.com/LID-DS/LID-DS",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "dataset",
+  "status": "link_only"
+ },
+ {
+  "title": "LID-DS 2021",
+  "url": "https://dbs.uni-leipzig.de/file/CRITIS_2022_Extended_Abstract_LID-DS-2021.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/lid-ds-2021.pdf",
+  "bytes": 318917,
+  "sha256": "20f46e050aeea9e6c8862c67f289dee2c0514140eb4a96c492b9a41dc6ab2723",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "LORD và SAFFRON dưới phụ thuộc dương",
+  "url": "https://arxiv.org/pdf/2110.08161",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/lord-v-saffron-d-i-ph-thu-c-d-ng.pdf",
+  "bytes": 578555,
+  "sha256": "5bed4558e0fa8bbc8bc238a5cdf08735abf0c9bedfb2d38de6587aa55807d8ef",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "LSTM system-call LM",
+  "url": "https://ar5iv.labs.arxiv.org/html/1611.01726",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/lstm-system-call-lm.pdf",
+  "bytes": 1041621,
+  "sha256": "0ee9debfb55cfd91bae758a9f52861590ed389ffdbd3a33cec44ac6b9bcf3e8e",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "METANOIA",
+  "url": "https://arxiv.org/html/2501.00438",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/metanoia.pdf",
+  "bytes": 730946,
+  "sha256": "a3e8c6427b7f92275982f5a72ea7dcddb60b13a0588d35a58a1b27839c561904",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "Mimicry attacks against provenance-graph HIDS (NDSS 2023)",
+  "url": "https://www.ndss-symposium.org/ndss-paper/sometimes-you-arent-what-you-do-mimicry-attacks-against-provenance-graph-host-intrusion-detection-systems",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/mimicry-attacks-against-provenance-graph-hids-ndss-2023.pdf",
+  "bytes": 2580083,
+  "sha256": "ee098b55390fe2adf545c27e3972ffbe752919d606f3dd786ae276f1372a87f6",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "Mimicry attacks on host-based IDS (CCS 2002)",
+  "url": "https://www.cs.purdue.edu/homes/ninghui/readings/AccessControl/wagner_soto_ccs02.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/mimicry-attacks-on-host-based-ids-ccs-2002.pdf",
+  "bytes": 170374,
+  "sha256": "1ce336c0ec4dcaf0e2a0756d05d70d73bfcf5da9de20af3d33d412045d6d6b0a",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "MITRE ATT&CK for Containers",
+  "url": "https://attack.mitre.org/matrices/enterprise/containers/",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "Mondrian conformal (MAPIE)",
+  "url": "https://mapie.readthedocs.io/en/stable/theoretical_description_mondrian.html",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "NODLINK",
+  "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-204-paper.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/nodlink.pdf",
+  "bytes": 701047,
+  "sha256": "3e5f782db02fa12e15d91d4e817fb516369b94726398df7cb2f7a67d889f40c5",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "NoDoze (NDSS 2019)",
+  "url": "https://www.ndss-symposium.org/ndss-paper/nodoze-combatting-threat-alert-fatigue-with-automated-provenance-triage",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/nodoze-ndss-2019.pdf",
+  "bytes": 1330785,
+  "sha256": "15d7c571eac4994a6299f82f863b298d135da28f5bc6df1864f87da157227db9",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "Online FDR cho anomaly detection chuỗi thời gian",
+  "url": "https://arxiv.org/pdf/2112.03196",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/online-fdr-cho-anomaly-detection-chu-i-th-i-gian.pdf",
+  "bytes": 1169635,
+  "sha256": "0f1549ef717e927971b88eb044c0a51666b7a4895008d9e28e6f1d2aa0416e11",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "ORTHRUS",
+  "url": "https://tfjmp.org/publications/2025-usenixsec.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/orthrus.pdf",
+  "bytes": 2301520,
+  "sha256": "e0746a89fce53b5380165fd15972f680767d5af3cf1820328ba337b7963e316f",
+  "fetched_at": "2026-10-22T21:06:14+00:00"
+ },
+ {
+  "title": "Phát hiện cryptojacking bằng Tetragon + ML (Electronics 2025)",
+  "url": "https://doi.org/10.3390/electronics14061208",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "R. F. Barber, E. J. Candès, A. Ramdas, R. J. Tibshirani. Conformal prediction beyond exchangeability. Annals of Statistics 51(2), 2023",
+  "url": "https://doi.org/10.1214/23-AOS2276",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/2202.13415",
+  "note": "PDF là bản arXiv của cùng bài",
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/r-f-barber-e-j-cand-s-a-ramdas-r-j-tibshirani-conformal-prediction-bey.pdf",
+  "bytes": 4176553,
+  "sha256": "7d09be24289de9a91d90e1ce6331ce28e229f067bea9cdb095cebfa067e3416f",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "REPLICAWATCHER (NDSS 2024)",
+  "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/replicawatcher-ndss-2024.pdf",
+  "bytes": 535457,
+  "sha256": "d4c0f0d2009931762ab124c67a6dc8eb9c46dd032444921daf49a51be721ee08",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "sentinel-ebpf",
+  "url": "https://github.com/Murashidzi/sentinel-ebpf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "ShareAD",
+  "url": "https://api.crossref.org/works/10.1145%2F3712195",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "SIABench",
+  "url": "https://arxiv.org/pdf/2603.06422",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/siabench.pdf",
+  "bytes": 2014407,
+  "sha256": "0225d415fa2a5bbedc674a922a2d3538b8291c921a58f2a31b7e28f97616387c",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "SIR-Bench",
+  "url": "https://arxiv.org/pdf/2604.12040",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/sir-bench.pdf",
+  "bytes": 421572,
+  "sha256": "53f792215ed3d27f6e9aa78fabc0dff8106d4b8c8a4686fcd73bdc3dd7f3f797",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "So sánh Falco/Tetragon/Tracee (SciTePress 2025)",
+  "url": "https://www.scitepress.org/PublishedPapers/2025/142727",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/so-s-nh-falco-tetragon-tracee-scitepress-2025.pdf",
+  "bytes": 591635,
+  "sha256": "1555f578b03be6d21951806a026f69b21d0d1be85a9614275cfc75ac804e9f09",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "So sánh nền tảng suy luận forest",
+  "url": "https://ar5iv.labs.arxiv.org/html/2302.04430",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/so-s-nh-n-n-t-ng-suy-lu-n-forest.pdf",
+  "bytes": 1300417,
+  "sha256": "e4dff6970a274a93d0a196d675960b20c2472462a4e125d464743bfc438a88d8",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Sysdig 2025 report",
+  "url": "https://www.sysdig.com/2025-cloud-native-security-and-usage-report",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "web",
+  "status": "link_only"
+ },
+ {
+  "title": "Temporal System Call Specialization (USENIX Sec 2020)",
+  "url": "https://www.usenix.org/conference/usenixsecurity20/presentation/ghavamnia",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/temporal-system-call-specialization-usenix-sec-2020.pdf",
+  "bytes": 856004,
+  "sha256": "25519a29b4425912322c8be5ea5c6f3620914358b1f7928a43de0dc5f58003a3",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Testing for outliers with conformal p-values",
+  "url": "https://arxiv.org/pdf/2104.08279",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/testing-for-outliers-with-conformal-p-values.pdf",
+  "bytes": 3034055,
+  "sha256": "1960e1bc7478ff80e07edb83d3afb66cd2495bf2ccb26bce8e3d69a1f5362ffb",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Threat Matrix for Kubernetes",
+  "url": "https://github.com/microsoft/Threat-Matrix-for-Kubernetes",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "title": "Tracking the risk of a deployed model (ICLR 2022)",
+  "url": "https://arxiv.org/abs/2110.06177",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/tracking-the-risk-of-a-deployed-model-iclr-2022.pdf",
+  "bytes": 4000113,
+  "sha256": "a8bc8f2b9d224338874fd95c1d9626726e73e9349b3d728e8b7796ce7390636a",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Training-less IDS in containerized microservices (Twente)",
+  "url": "https://www.utwente.nl/en/eemcs/events/2025/11/654945/phd-defence-asbat-el-khairi-training-less-anomaly-based-intrusion-detection-in-containerized-microservices",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "web",
+  "status": "link_only"
+ },
+ {
+  "title": "Transcending Transcend (IEEE S&P 2022)",
+  "url": "https://arxiv.org/abs/2010.03856",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/transcending-transcend-ieee-s-p-2022.pdf",
+  "bytes": 2658877,
+  "sha256": "e79d3092a97381c4df288bb77a0c04f77e292ca462ce380f68ceee77d904aa1f",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Transfer learning cho anomaly detection ở edge",
+  "url": "https://arxiv.org/pdf/2408.12855",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/transfer-learning-cho-anomaly-detection-edge.pdf",
+  "bytes": 1521663,
+  "sha256": "6cc23b70ef0c5f11b25f8dcd26759260fe5d53f2dabba3a866ec5581a09ac1ff",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
+ },
+ {
+  "title": "Transformer + phân loại syscall (SBSeg)",
+  "url": "https://sol.sbc.org.br/index.php/sbseg/article/view/36676",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "not_downloaded"
+ },
+ {
+  "title": "V. Vovk. Testing randomness online. Statistical Science 36(4), 2021",
+  "url": "https://projecteuclid.org/journals/statistical-science/volume-36/issue-4/Testing-Randomness-Online/10.1214/20-STS817.full",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/1906.09256",
+  "note": "PDF là bản arXiv của cùng bài",
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/v-vovk-testing-randomness-online-statistical-science-36-4-2021.pdf",
+  "bytes": 608311,
+  "sha256": "0a9a1f2c7e96107f4f573e9aa3dd8f1d79798b84cbbd9923bd3db2ecb81efbe3",
+  "fetched_at": "2026-10-22T21:06:17+00:00"
+ },
+ {
+  "title": "Weighted conformal under covariate shift",
+  "url": "https://arxiv.org/abs/1904.06019",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "type": "paper",
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/weighted-conformal-under-covariate-shift.pdf",
+  "bytes": 423685,
+  "sha256": "d80dba944a136e075bbfe281009152ce42041e0a455f68f73684ace83cfc3fed",
+  "fetched_at": "2026-10-22T21:06:17+00:00"
+ }
+]

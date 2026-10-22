@@ -1,8 +1,8 @@
 # sentinel_pulse — bản đồ mã nguồn
 
-README này chỉ hướng dẫn tìm code. Trạng thái và số liệu nằm ở 3 báo cáo:
+README này chỉ hướng dẫn tìm code. Trạng thái và số liệu nằm ở 4 báo cáo:
 [Pulse](../SENTINEL_PULSE_STATUS.md), [syscall](../SYSCALL_FEATURE_EXPERIMENT_STATUS.md),
-[RCA](../RCA_RUNTIME_STATUS.md).
+[RCA](../RCA_RUNTIME_STATUS.md), [rule](../RULE_INTEGRATION_STATUS.md).
 
 ## Luồng dữ liệu
 
@@ -29,6 +29,7 @@ eBPF đếm syscall theo container ──► collector/ ──► vector 249 s�
 | [attack/](attack/) | Chạy cặp tấn công/đối chứng trên pod thật, chấm TP/FP/FN/TN, đo độ trễ | `preview_campaign.py`, `preview_evaluation.py`, `cluster.py`, `tetragon_evidence.py` |
 | [syscall_study/](syscall_study/) | So sánh các bộ syscall (thêm/bớt kênh) trên cùng dữ liệu, chấm holdout | `matched_study.py`, `matched_holdout.py`, `audit_matched_fits.py` |
 | [rca/](rca/) | Nhận preview, ghép sự kiện Tetragon (process/file/network) thành đồ thị điều tra | `service.py`, `tree.py`, `runtime_tree.py`, `connect.py` |
+| [ops/](ops/) | Đường cảnh báo vận hành (thử nghiệm): preview → Alertmanager (push) và /metrics cho Prometheus (pull), webhook đo độ trễ; chỉ đọc decision | `alert_bridge.py` |
 
 File dùng chung ở gốc package: `common.py` (ghi JSON an toàn, theo dõi file
 JSONL, kiểm tra source sạch), `integrity.py` (SHA-256), `encoding.py` (nén vector).
