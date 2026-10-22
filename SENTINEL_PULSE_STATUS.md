@@ -1380,6 +1380,52 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 - Chi phí đầu-cuối ở tầng user space đã có từ trước: worker Pulse dùng 13–31% một core khi chấm nhanh (5.8).
 - **Dọn:** đã xóa binary benchmark và dữ liệu thô trên worker4; cgroup benchmark không còn.
 
+### 5.22 Giảm control, gánh cảnh báo và false positive (protocol `burden-reduction-v1`, đăng ký 22/10 15:34; bổ sung 15:39)
+
+**Yêu cầu của chủ đồ án (22/10):** giảm control, gánh cảnh báo và false positive càng nhiều càng tốt, mà vẫn đạt kỳ vọng confusion matrix (precision, recall ≥ 95%, control ≤ 5%, p95 < 2 s ưu tiên / ≤ 3 s chấp nhận).
+
+**Research (22/10), cái gì áp dụng được:**
+
+| Tài liệu | Ý chính | Áp dụng cho Pulse |
+|---|---|---|
+| Page 1954; Lorden 1971; **Moustakides 1986** (Ann. Stat.) | CUSUM tối ưu minimax giữa độ trễ phát hiện và tần suất báo nhầm, **khi đã cho trước bằng chứng từng cửa sổ** | Đổi luật dừng không giúp thêm nhiều; muốn giảm báo nhầm ở cùng độ trễ phải **làm bằng chứng tốt hơn**. Lưới CUSUM mịn hơn vẫn thử (L1) |
+| Mondrian conformal (Vovk et al.); class-conditional conformal cho anomaly detection mất cân bằng (MDPI *Make* 2026) | Hiệu chỉnh p-value **theo từng lớp** để mỗi lớp có ngưỡng riêng | **L3:** p-value của cửa sổ có exec chỉ so với các cửa sổ có exec lúc bình thường. Probe chiếm phần lớn các cửa sổ có exec, nên probe hết "hiếm" |
+| **ReplicaWatcher** (El Khairi et al., NDSS 2024) | Các replica cùng workload hành xử giống nhau; hành vi chỉ một replica có là đáng ngờ. Precision 91%, recall 98%, chịu được drift khi cập nhật image. Dùng snapshot 30 s | **L5:** cửa sổ không mang syscall ID nào mới so với replica khác trong 30–60 s thì không tính là bằng chứng. Pulse vẫn chấm 0,5 s, chỉ dùng replica để chiết khấu |
+| **NoDoze** (Hassan et al., NDSS 2019) | Hành vi lặp lại nhiều trong lịch sử thì ít đáng ngờ; giảm 86% báo nhầm | **L6:** cửa sổ không có ID mới so với chính container đó trong 60–300 s thì không tính là bằng chứng (probe chạy mỗi vài giây) |
+| Alahmadi et al. (USENIX Security 2022) | Phần lớn "báo nhầm" là benign trigger: detector thấy đúng sự kiện thật nhưng vô hại | Khớp 5.18: khoảng 50% case là probe. L3/L5/L6 nhắm đúng lớp này |
+| Bates et al. (Ann. Stat. 2023): BH trên conformal p-value | Kiểm soát FDR khi kiểm nhiều điểm cùng lúc | **Không đăng ký:** khi không có attack, BH tương đương một ngưỡng chặt hơn mỗi cửa sổ, mà lưới alpha/CUSUM đã quét |
+| Online FDR: LORD, SAFFRON, ADDIS; Krönert et al. 2023 | Kiểm soát FDR trên luồng | **Không đăng ký:** ngưỡng co dần khi lâu không có phát hiện ("alpha-death"), không hợp với giám sát 24/7 |
+| Carbon Filter (2024); phần chấm đồ thị của NoDoze | Phân loại cảnh báo theo command line / đồ thị nguồn gốc | Hoạt động **sau** ML, dựa trên ngữ cảnh RCA. Để chủ đồ án quyết định cách tổ chức đường cảnh báo |
+
+**Các hướng đã đăng ký** (chi tiết trong hai file protocol):
+- **L1:** lưới CUSUM 8 × 8 (drift 2–6, ngưỡng 1–12).
+- **L2:** p-value "cả hai nhánh" = max(tree_p, support_p), với CUSUM và k2of2.
+- **L3:** calibration Mondrian theo lớp launch (có execve/execveat trong 4 cửa sổ ngữ cảnh).
+- **L5, L6:** chiết khấu theo replica và theo lịch sử của chính container, 7 chế độ.
+- **L4:** gộp cảnh báo thành incident (60 s, 300 s). Chỉ báo cùng, không dùng để chọn.
+
+**Dữ liệu và luật chọn:**
+- Development: `pulse-stable-candidate` và `pulse-stable-refreshed` (normal và campaign).
+- Một cấu hình phải đạt cả 4 kỳ vọng trên **cả hai** lượt. Trong số đó chọn cấu hình có gánh lớn nhất (giữa hai lượt) thấp nhất, cho từng mức độ trễ.
+- Chỉ đề xuất nếu gánh ≤ 0,9 lần tham chiếu (CUSUM b3/h6) trên cả hai lượt.
+- **Test blind:** lượt live xác nhận kế tiếp. Chỉ nhận nếu đạt lại ở đó.
+- **Nêu trước:**
+  - L5/L6 chỉ nhìn tập ID syscall, không nhìn số đếm, nên attack chỉ khác về số đếm có thể mất bằng chứng; recall được kiểm theo từng kịch bản;
+  - L5 không bắt được attack đồng thời trên mọi replica.
+
+**Công cụ (có test):**
+- `sentinel_pulse/attack/window_table.py`: một lượt đọc decision và feature, cho mỗi cửa sổ được chấm: điểm, p-value lúc chạy, cờ launch, số ID mới so với replica/lịch sử.
+- `scripts/analysis/burden_levers.py`: p-value, mọi luật, metric, luật chọn.
+- `scripts/burden_levers.sh`: chạy tuần tự.
+- Test: CUSUM vector hóa trùng từng cửa sổ với `ideas_screen.py`; k2of2 cũng vậy; đếm đợt trùng `EpisodeCounter`; tín hiệu replica/lịch sử đúng định nghĩa.
+- Kiểm tái lập khi chạy:
+  - bảng calibration phải tái lập đúng từng điểm của `calibration-r6-1300-1900.npz`;
+  - tham chiếu phải tái lập 5,32 đợt/replica-giờ (5.13b).
+
+**Trạng thái:**
+- Bảng calibration đang dựng từ bản chép local (`burden-cal-table-1022`).
+- Hai bảng development và phép chọn chạy sau bước nén (đọc NFS khi không có lượt live).
+
 ## 6. Tiến độ và việc còn lại (cập nhật 22/10 15:25)
 
 | Việc | Trạng thái |
