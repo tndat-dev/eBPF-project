@@ -317,7 +317,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Tải case dưới policy-1win-a3 | `rca-subscriber` 19/10 19:24 → 20/10 02:22: 2.364 case, khoảng 330 case mỗi giờ từ 20:00, toàn bộ là case gốc (không có case tiếp nối vì đây là thời gian normal, không có exec mới). Mức này bị chặn trên bởi cooldown 300 s cho mỗi container; về bản chất đó là số preview dương ở normal của policy 1 cửa sổ alpha×3. Policy chặt hơn ở pulse-stable-candidate sẽ giảm con số này |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
-## 7. Tiến độ (cập nhật 22/10 16:40)
+## 7. Tiến độ (cập nhật 22/10 16:38)
 
 | Hạng mục | Trạng thái |
 |---|---|
