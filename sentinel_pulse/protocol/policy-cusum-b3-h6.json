@@ -39,12 +39,35 @@
       "kernel_to_preview_p95_seconds": 1.6969978451728729,
       "normal_alert_episodes_per_replica_hour": 5.323429224781933
     },
-    "combined_replay": "pending: pulse-stable-refreshed/analysis/stable-selection-cusum-3-6.json (5.19 step 3); adopt only if it passes",
+    "combined_replay": {
+      "receipt": "pulse-stable-refreshed/analysis/stable-selection-{kofn,cusum-3-6}.json (rolling_recalibration --strategy asrun --temporal kofn | cusum-3-6, evaluation from selection end, 1075.4 replica-hours)",
+      "starting_point": {
+        "rule": "k2of2 alpha x10",
+        "recall": 1.0,
+        "precision": 0.9597523219814241,
+        "control_positive_rate": 0.041935483870967745,
+        "kernel_to_preview_p95_seconds": 2.255661606788636,
+        "normal_alert_episodes_per_replica_hour": 5.167,
+        "benign_exec_positive_rate": 0.9414
+      },
+      "stable": {
+        "rule": "cusum drift 3 threshold 6",
+        "recall": 1.0,
+        "precision": 0.9717868338557993,
+        "control_positive_rate": 0.02903225806451613,
+        "kernel_to_preview_p95_seconds": 1.6813162207603458,
+        "normal_alert_episodes_per_replica_hour": 4.953,
+        "benign_exec_positive_rate": 0.9805
+      },
+      "step3_passed": true,
+      "note": "on this span (after the selection phase) the burden drop is 4 %; on the whole normal from the selection start (ideas_burden, 5.13b) it is 21 %; the difference sits in the first 90 minutes of the run"
+    },
     "known_gaps": [
       "normal alert burden 5.3 episodes/replica-hour is ~50x the 0.1/h budget; not solved by thresholds",
       "benign new-process launches are flagged at 98%; the detector separates new activity, not malicious activity",
       "rule-based signals (tripwire A1, Falco) report in parallel only and are integrated after ML is stable"
-    ]
+    ],
+    "frozen_at": "2026-10-22T16:29+07:00 (stable-selection-v1 step 4)"
   },
   "unknown_workload": "unscored_unknown_not_normal_and_not_alerted",
   "output_mode": "shadow_preview_only; never emits alert or enforcement",
