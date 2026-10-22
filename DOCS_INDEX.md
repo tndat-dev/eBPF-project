@@ -14,6 +14,7 @@
 5. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md) — đánh giá tổng thể (điểm mạnh, khoảng cách G1–G9, đề xuất, % tiến độ),
    ý tưởng từ tài liệu (R1–R8, A1–D1), công trình liên quan và nguồn.
 6. README trong từng thư mục (`sentinel_pulse/`, `testbed/`) — hướng dẫn code, không phải báo cáo tiến độ.
+   `docs/figures/README.md` — hình cho luận văn và paper, sinh lại từ biên nhận.
 
 ## Bằng chứng
 

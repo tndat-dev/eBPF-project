@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **21/10/2026 21:12 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **22/10/2026 09:58 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -49,20 +49,23 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   Đây là lần đầu đạt cả 4 kỳ vọng trên một lượt live mới, ở mức độ trễ ≤ 3 s. CUSUM và Cauchy (kiểm blind) đưa p95 về 1,70 / 1,46 s trên cùng campaign; kết luận chờ gánh cảnh báo (5.11a).
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h); đang kiểm blind (5.16).
 - **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Đang lặp lại trên dữ liệu mới (5.15b).
+- **So với luật Falco (5.15d):** Falco bắt `ptrace` 100% trong vài mili-giây, nhưng các hành vi khác chỉ 19–21% (nhờ rule drift). Rule nhanh cho hành vi đã biết, Pulse thấy cả hành vi chưa có rule. Tích hợp rule là bước cuối, chạy song song với ML (5.19).
+- **Cảnh báo trên normal đã được review (5.20):** 4.766 case, không case nào có dấu hiệu độc hại. 54% trùng probe exec của Kubernetes, 23% có probe trước đó, 23% không có nguyên nhân cấp process. Người gán nhãn không độc lập.
+- **Bằng chứng cho bộ feature (syscall 5B.2, tạm thời):** không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ và cả hai nhánh p-value đều cần.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Các chính sách khả thi cho khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1; chỉnh ngưỡng không giải được (biên Pareto 5.8j). Calibration lệch dần theo thời gian; làm mới calibration giảm khoảng 23% (5.7b). Thí nghiệm syscall cho thấy thay bộ syscall cũng không giải được.
 
-## 2. Trạng thái cụm và job (21:12 ngày 21/10)
+## 2. Trạng thái cụm và job (09:58 ngày 22/10)
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live **pulse-stable-refreshed** (3 worker) | **Đang chạy** từ 21/10 12:22; chạy hết 24 giờ, đến 22/10 khoảng 12:25–12:45. Candidate `4bad16dc…` + `policy-2of2-a10-refreshed`, chấm nhanh, không ghi `raw.jsonl`. Campaign 315 cặp xong ~19:45; worker1 2 issue, worker3/4 0 |
+| Lượt live **pulse-stable-refreshed** (3 worker) | **Đang chạy** từ 21/10 12:22, kết thúc 22/10 khoảng 12:25–12:45. Candidate `4bad16dc…` + `policy-2of2-a10-refreshed`, chấm nhanh. Campaign xong 21/10 ~19:45 (5.13a). Issue: worker1 4, worker4 5, worker3 3 |
 | RCA | `rca-pulse-stable-refreshed` chạy (luật hạ quyền; case tiếp nối) |
-| Phân tích sau lượt | Unit `after-stable-refreshed` trên `.234` (snapshot `399676c`, chạy tuần tự). Giai đoạn campaign xong 19:47; đang chờ 3 worker xong để chạy final, lặp lại baseline, giai đoạn B nhóm feature, 5.7d (mục 5.13) |
-| Lượt pulse-stable-candidate | **Xong** 21/10 10:25; phân tích campaign + final xong (5.8a–5.8j). `features`/`decisions` chưa nén |
-| Theo dõi | Bỏ watcher từ 21/10 14:05 theo yêu cầu. Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt (issue, cadence, RCA) |
-| Bộ nhớ VM (vSphere) | Balloon trên 3 worker vẫn giữ ~84 GB mỗi VM, còn 27–33 GB khả dụng. `.234` và NFS server: balloon 0 MB. Chưa có áp lực bộ nhớ hay swap. Xem mục 8 |
-| NFS `/mnt/sentinel-pulse-archive` | Tổng 685 GB, **trống 368 GB**. Lượt 24 giờ dùng khoảng 80 GB trước khi nén |
-| Ổ đĩa worker | 41% / 41% / 29% |
+| Phân tích sau lượt | Unit `after-stable-refreshed` trên `.234` (snapshot `bd457a7`, chạy tuần tự). Giai đoạn campaign xong. Khi 3 worker xong: final → lặp lại baseline (5.15b) → chiến lược calibration (5.17) → giai đoạn B nhóm feature trên holdout chính và 5.7d → nén dữ liệu (8c) |
+| Giai đoạn B nhóm feature, holdout thứ hai | **Xong** 22/10 06:40 (syscall 5B.2) |
+| Ngay sau lượt live (làm tay) | Dừng collector 1 s; đo overhead A/B (`overhead-ab-v1`); chép log Falco lần cuối (5.15d) |
+| Theo dõi | Không dùng watcher (theo yêu cầu). Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt |
+| Bộ nhớ VM (vSphere) | Balloon trên 3 worker giữ ~84 GB mỗi VM, còn 27–33 GB khả dụng; chưa có áp lực bộ nhớ hay swap. Xem mục 8 |
+| Đĩa | NFS dùng 352 / 685 GB (khoảng 200 GB sẽ được thu lại khi nén). `.234` dùng 61 GB sau khi dọn (8c). Worker 41% / 41% / 29% |
 | Quy tắc | Không chạy job NFS hoặc bộ nhớ nặng trên bất kỳ node nào khi lượt live đang chạy; không chạy trên master 2/3 |
 
 ## 3. Thuật ngữ
@@ -1263,7 +1266,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - binary vô hại vẫn bị gắn cờ;
   - recall là cận trên với đường vào qua exec.
 
-## 6. Tiến độ và việc còn lại (cập nhật 21/10 21:12)
+## 6. Tiến độ và việc còn lại (cập nhật 22/10 09:58)
 
 | Việc | Trạng thái |
 |---|---|
@@ -1278,10 +1281,14 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 | Lượt pulse-stable-refreshed (luật v2: k2of2_a10 + calibration làm mới) | **Campaign xong** (5.13a): đạt 4/4 kỳ vọng ở mức ≤ 3 s; final 22/10 |
 | Bằng chứng gần tối ưu cho chính sách | **Xong trên lượt stable** (5.8j); lưới mịn và độ ổn định giữa lượt chạy trong final |
 | CUSUM / Cauchy (ý tưởng từ tài liệu) | Sàng lọc (5.11a); blind trên interval: p95 1,70 / 1,46 s; chờ gánh cảnh báo |
-| Baseline trên cùng dữ liệu (G1) | **Xong trên development** (5.15a, 5.15c); lặp lại trên dữ liệu mới (5.15b) chạy sau final |
+| Baseline trên cùng dữ liệu (G1) | **Xong trên development** (5.15a, 5.15c); luật Falco trên campaign mới (5.15d, thiếu phần normal); lặp lại trên dữ liệu mới (5.15b) chạy sau final |
 | Tách attack khỏi process vô hại mới | Novelty có xét exec tách lớp syscall hiếm (5.8h); tripwire A1 kiểm blind (5.16). Lớp `mprotect`/`seccomp` chưa có lời giải |
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~4–7 đợt/replica-giờ ở các chính sách khả thi) |
-| Review nhãn, ma trận đã xác nhận | Chưa |
+| Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
+| Bằng chứng cho bộ feature | Tạm thời (syscall 5B.2): giữ nguyên; holdout chính chạy sau lượt live |
+| Chốt cấu hình ML stable | Luật đăng ký (5.19); đường live cho CUSUM/Cauchy và công cụ replay cấu hình gộp đã sẵn sàng; chờ số 22/10 |
+| Overhead (G7) | Protocol `overhead-ab-v1` đã đăng ký, đo ngay sau lượt live |
+| Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
 | Thử reboot, mất NFS, backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
@@ -1615,3 +1622,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 01:55–02:00 | Review nhãn (P2): luật đăng ký trước, áp cho 4.766 cảnh báo trên normal, đọc tay 33 case. Không case nào có dấu hiệu độc hại; 3 case luật gắn suspicious là WAL archive của CloudNativePG (đã kiểm cấu hình). Sửa luật `unknown_binary` sau lần chạy đầu (process chạy lâu) | mục 5.20 |
 | 09:41 | Bảng 4b: nhóm feature có kết quả tạm thời (syscall 5B.2), bộ feature giữ nguyên | mục 4b |
 | 09:45–09:46 | Chép log Falco lần 2 (đủ; worker4 không có sự kiện Falco mới từ 21/10 20:18 UTC). Đăng ký protocol đo overhead `overhead-ab-v1` (G7), kèm benchmark syscall tĩnh, runner 3 điều kiện (off / filtered / monitored, xoay vòng thứ tự) và script phân tích có test. Đo khi cụm rảnh, ngay sau lượt live và sau khi dừng collector 1 s | protocol `overhead-ab-v1` |
+| 09:58 | Rà đồng bộ: GitHub = host = 4 VM ở `637cafd`, CI xanh. Cập nhật đầu báo cáo và các mục 1, 2, 6 theo trạng thái 22/10 | mục 1, 2, 6 |

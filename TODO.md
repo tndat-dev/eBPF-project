@@ -1,6 +1,6 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 21/10/2026 21:12. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+Cập nhật 22/10/2026 09:58. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
 [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
@@ -9,11 +9,13 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [~] **Lượt live `pulse-stable-refreshed`** (21/10 12:22 → 22/10 ~12:30, shadow). Cấu hình luật v2 chọn: `k2of2_a10` + calibration
       làm mới (`4bad16dc…`, `policy-2of2-a10-refreshed`), chấm nhanh, RCA `rca-pulse-stable-refreshed`. Không dừng giữa chừng.
   - [x] Campaign xong (Pulse 5.13a): precision 96,0%, recall 100%, control 4,2%, p95 2,26 s. Đạt 4/4 kỳ vọng ở mức ≤ 3 s, chưa đạt mức < 2 s.
-- [~] **`after-stable-refreshed`** (.234, snapshot `399676c`, chạy tuần tự). Giai đoạn campaign xong 19:47. Khi 3 worker xong:
-  1. giai đoạn final: gánh cảnh báo toàn normal, lưới `latency3s_fine`, biên Pareto, kết luận CUSUM/Cauchy (5.11a), tripwire A1 (5.16), cadence;
+- [~] **`after-stable-refreshed`** (.234, snapshot `bd457a7`, chạy tuần tự). Giai đoạn campaign xong. Khi 3 worker xong:
+  1. giai đoạn final: gánh cảnh báo toàn normal, lưới `latency3s_fine`, biên Pareto, kết luận CUSUM/Cauchy (5.11a), tripwire A1 (5.16), phân loại cảnh báo + triage probe (5.18), cadence;
   2. lặp lại baseline trên dữ liệu mới, kèm `tree_ae` và luật chọn bộ chấm (5.15b);
-  3. giai đoạn B nhóm feature (syscall 5B);
-  4. Pulse 5.7d.
+  3. chiến lược calibration trên dữ liệu mới (5.17);
+  4. giai đoạn B nhóm feature trên holdout chính (syscall 5B), Pulse 5.7d;
+  5. nén `features`/`decisions` của các lượt đã xong (8c).
+- [ ] **Ngay sau lượt live (~12:45, làm tay):** dừng collector 1 s; đo overhead A/B (`overhead-ab-v1`); chép log Falco lần cuối.
 
 ## Việc kế tiếp (theo thứ tự)
 
@@ -22,7 +24,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 2. [ ] 22/10 ~18:00: đọc lần lặp lại baseline (5.15b) và kết quả luật chọn bộ chấm.
 3. [ ] (Đường live đã sẵn sàng cho CUSUM/Cauchy, `900b85c`; 32 lệnh của chuỗi sau lượt live đã kiểm cờ CLI.) Chốt cấu hình **ML stable** theo luật đã đăng ký `stable-selection-v1` (Pulse 5.19), theo kết quả 1–2; rule (Falco, tripwire) chỉ báo song song, tích hợp sau cùng. Đăng ký trước khi chạy. Đưa vào campaign tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4).
 4. [~] Nén `features`/`decisions` của soak 48 giờ, pulse-stable-candidate và pulse-stable-refreshed: đã gắn vào cuối chuỗi `after-stable-refreshed` (Pulse 8c).
-5. [~] **Ưu tiên chính:** viết luận văn (khối việc lớn nhất còn lại, ~10%). Tổng hợp số liệu và hình cho luận văn từ 3 báo cáo. Đã có 4 hình đầu, tiếng Việt và tiếng Anh (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`). Trong repo chưa có bản thảo luận văn.
+5. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở
 
@@ -42,14 +44,15 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
 - [x] Review nhãn (5.20): 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại; người gán không độc lập.
-- [ ] Luận văn: viết mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
+- [ ] Khi viết luận văn: mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
 - [~] Baseline luật Falco (5.15d): phần trial xong. [ ] Sau lượt live: chép log Falco lần nữa, tính normal theo replica-giờ trên đúng khoảng của Pulse.
-- [ ] Kịch bản tấn công thật (G2) **(cần bạn duyệt phạm vi)**: tải rồi chạy, reverse shell trong cụm, đọc token service account, quét port trong namespace, đào coin ngắn.
+- [ ] Kịch bản tấn công thật (G2): để mở. Claude không tự dựng phần này (22/10); nếu làm cho paper thì chủ đồ án tự triển khai trong môi trường riêng.
 - [ ] Dataset công khai LID-DS (G3): tạm hoãn; xem lại khi viết paper.
 
 ## Thí nghiệm syscall — còn lại
 
-- [~] Giai đoạn B nhóm feature (syscall 5B): chạy trong chuỗi `after-stable-refreshed`, rồi đưa kết quả vào Pulse 4b.
+- [x] Giai đoạn B nhóm feature trên holdout thứ hai (syscall 5B.2, tạm thời): không thành phần nào bỏ được; Pulse 4b đã cập nhật.
+- [~] Giai đoạn B trên holdout chính và `pulse-attack-dev`: chạy trong chuỗi `after-stable-refreshed`, rồi gộp theo luật bổ sung.
 - [~] Pulse 5.7d (làm mới định kỳ + k2of2) chạy cuối chuỗi.
 - [ ] Paired blind attack theo protocol v2. Chưa mở được, vì chưa cấu hình nào đạt ngân sách 0,1 đợt/giờ; ghi là giới hạn.
 
@@ -57,6 +60,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
 - [ ] 13% attack không có case riêng (42/315). Đã loại điều kiện 10 s và trần case tiếp nối. Từ lượt sau, STATUS đếm lý do từ chối case tiếp nối.
+- [ ] Baseline binary học 90 phút bỏ sót tác vụ định kỳ hiếm (WAL archive CloudNativePG bị xếp đầu nghi phạm, Pulse 5.20): học lâu hơn hoặc mang baseline qua các lượt.
+- [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
 - [ ] Trigger từ cảnh báo vận hành thật. Pulse vẫn chạy shadow.
 
 ## Hạ tầng
@@ -77,3 +82,5 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - Không cài watcher; khi có job chạy ngầm, ghi giờ cần nhắc.
 - Code đồng bộ giữa GitHub `main`, máy local và `/home/dat/eBPF-project` trên .234 và 3 worker (`scripts/sync_cluster_checkouts.sh` sau mỗi lần push).
 - Phép đo mới phải đăng ký tiêu chí trước khi có số; không đổi lựa chọn sau khi xem kết quả.
+- Rule (Falco, tripwire) chỉ quyết định song song với ML, tích hợp sau cùng, khi ML đã stable.
+- Chỉ giữ tài nguyên còn được tham chiếu; dọn đồ thừa của job ngay; không đụng file cá nhân và backup của chủ đồ án.

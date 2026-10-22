@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **21/10/2026 21:12 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **22/10/2026 09:58 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -33,13 +33,15 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 Đồ thị là bằng chứng liên quan theo định danh và thời gian, **không chứng minh nhân quả**. RCA không tự xử lý pod.
 
-| Thành phần (21:12 ngày 21/10) | Trạng thái |
+| Thành phần (09:58 ngày 22/10) | Trạng thái |
 |---|---|
 | Subscriber | **`rca-pulse-stable-refreshed`** (.234), chạy từ 21/10 12:22 trên snapshot `0c5096d` (có luật `privilege_drop_at_start`), cho lượt live pulse-stable-refreshed (`policy-2of2-a10-refreshed`) |
 | Cấu hình | Giống `rca-subscriber`:<br>• đọc decision trên worker qua SSH, nhịp dựng case 0,25 s;<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s, có case tiếp nối khi có exec mới (nhật ký exec 15 phút);<br>• giữ 20.000 case; stream xoay vòng 900 s.<br>Baseline binary **học từ đầu** trong pha chọn (10:16–11:47) rồi đóng băng lúc 11:47:29, trước attack đầu tiên; không chép từ DB cũ |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1` (chỉ đường dẫn nhạy cảm, không `commit_creds`), `sentinel-rca-fork-v1`, `sentinel-rca-flow-v1` |
 | Campaign kiểm chứng | Campaign 315 cặp của pulse-stable-refreshed, xong 21/10 ~19:45: coverage 86,7%, top-1 100%, preview → case p95 2,59 s (mục 5.11) |
-| Subscriber trước | `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (2.364 case qua đêm, mục 6); rca-followup, rca-followup-v1, rca-flow, rca-runtime-v1 đã dừng. Output được giữ nguyên |
+| Subscriber trước | `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (2.364 case qua đêm, mục 6); rca-followup, rca-followup-v1, rca-flow, rca-runtime-v1 đã dừng. Output được giữ nguyên, trừ case RCA thế hệ trước v1 (`parallel-20261015*`, `rca-1019d`) đã xóa ngày 22/10 vì không mục nào còn dùng (Pulse 8c) |
+| Code cho lượt sau (đã test, chưa chạy live) | Nhãn triage probe trên mỗi case (`rca/triage.py`, chỉ là nhãn); bộ đếm lý do từ chối case tiếp nối trong STATUS |
+| Phát hiện từ review nhãn (Pulse 5.20) | Tác vụ định kỳ hiếm (WAL archive của CloudNativePG) bị xếp đầu nghi phạm như binary mới, vì pha học baseline 90 phút ngắn hơn chu kỳ của nó; chưa sửa |
 | Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/rca-flow-copy/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
@@ -382,3 +384,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 22/10 01:19 | Case RCA được gắn nhãn triage probe (`sentinel_pulse/rca/triage.py`, Pulse 5.18): exec trong cửa sổ, số exec, số exec của probe đã khai báo trong pod spec, `probe_only`. **Chỉ là nhãn**: preview và case giữ nguyên, lỗi khi gắn nhãn không chặn được case. Định nghĩa trùng với `alarm_taxonomy.py` (có test). Có hiệu lực từ subscriber của lượt sau; STATUS đếm `cases_probe_only` | Pulse 5.18 |
 | 22/10 01:24 | Phân rã mức giảm tỉ lệ case có flow (89,8% → 85,6%, từ biên nhận `rca-flow-coverage.json` của hai lượt). Nếu lấy tỉ lệ từng workload của lượt mới, nhân theo cơ cấu case của lượt trước, thì ra 87,4%. Vậy khoảng 1,8 điểm là do cơ cấu thay đổi: `auth-service`, workload 100% có flow, giảm từ 501 xuống 55 case. 2,4 điểm còn lại do tỉ lệ từng workload, gần như toàn bộ ở `aims-waypoint:istio-proxy` (81% → 58%). Số lượt mới tính tới 19:47, chưa hết lượt | mục 5.11 |
 | 22/10 02:00 | Review nhãn (Pulse 5.20) cho thấy binary định kỳ hiếm (`/controller/manager wal-archive` của CloudNativePG) bị đánh `novel_binary` và xếp đầu nghi phạm, vì pha học baseline (90 phút) ngắn hơn chu kỳ của nó. Hướng sửa: học baseline dài hơn hoặc mang baseline qua các lượt. Chưa đổi | Pulse 5.20 |
+| 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và bảng trạng thái (code chờ lượt sau, phát hiện từ review nhãn, case cũ đã xóa) | mục 1 |

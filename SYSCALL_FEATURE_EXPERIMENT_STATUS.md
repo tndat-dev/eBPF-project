@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **21/10/2026 21:12 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **22/10/2026 09:58 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -27,7 +27,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 **Câu hỏi:** bộ 29 syscall tường minh của Pulse có nên thêm, bớt hay thay nhóm nào để phát hiện tốt hơn, khi giữ cùng ngân sách cảnh báo nhầm và cùng độ trễ?
 
-**Kết luận hiện tại (development, cập nhật 20/10):**
+**Kết luận hiện tại (development, cập nhật 22/10):**
 
 - Đặt 11 cấu hình về **cùng số đợt cảnh báo trên normal** (sau khi hiệu chỉnh lại p-value giống Pulse) thì các cấu hình 29 syscall khác nhau chỉ trong phạm vi nhiễu.
 - Mở rộng ra toàn bộ syscall (`plus_all_*`) làm tăng recall khi ngân sách rộng, nhưng đồng thời tăng control dương và chậm hơn khi ngân sách chặt.
@@ -42,6 +42,13 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - `drop_exec_pair` kém hơn base29 6,7–10,6 điểm recall, CI loại trừ 0;
   - `plus_all_*` tăng recall 6–8 điểm ở ngân sách rộng, nhưng khoảng cách với binary vô hại giảm 17–23 điểm, CI loại trừ 0;
   - các cấu hình 29 syscall khác không phân biệt được với base29.
+
+- **Nhóm feature ngoài 29 syscall (mục 5B.2, tạm thời, holdout thứ hai, ngân sách 1):**
+  - không thành phần nào bỏ được;
+  - **cần thiết:** log-count, bin cặp syscall, rolling-10, lịch sử 3 cửa sổ, cả hai nhánh p-value; chỉ giữ bin + tổng hợp thì mất 15 điểm recall;
+  - **chưa kết luận:** tỉ lệ, 5 tổng hợp, bin syscall;
+  - bỏ bin cặp hoặc rolling tách binary vô hại tốt hơn 14–20 điểm, đổi lại mất 3–4 điểm recall;
+  - holdout chính (soak 48 giờ, kèm `pulse-attack-dev`) chạy sau lượt live 22/10, rồi gộp theo luật của bản bổ sung.
 
 Hệ quả (bảng bằng chứng theo từng thành phần feature nằm ở [Pulse mục 4b](SENTINEL_PULSE_STATUS.md)):
 - **Giữ `base29` cho candidate Pulse kế tiếp.** Chọn syscall không phải nút thắt; gánh cảnh báo phải giải ở calibration và cách gộp theo thời gian.
@@ -522,3 +529,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 01:20–01:24 | Đăng ký bổ sung một holdout thứ hai cho nhóm feature (`feature-group-evaluation-v1-live-holdout.json`), trước khi có bất kỳ số nào của giai đoạn B. Holdout này là normal của `pulse-live-recalibrated` (bản local), dùng cùng luật của v1, và không tự đổi bộ feature. `baselines.score` nay chấm được mọi nhánh đã fit với spec ngữ cảnh riêng (có test). Chạy job `feature-groups-live-holdout` (3 node song song, CPU 300%, đọc local). Holdout v1 (soak 48 giờ, ~85 GB trên NFS) vẫn chạy sau lượt live | mục 5B |
 | 22/10 01:49 | Bước replay giai đoạn B trên `pulse-live-recalibrated` (`replay-pulse-live-recalibrated`) xong, 30 phút CPU; chuỗi sau lượt live sẽ bỏ qua bước này. Job holdout thứ hai vẫn đang chấm | mục 5B |
 | 22/10 09:41 | Kết quả tạm thời giai đoạn B trên holdout thứ hai: không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ, cả hai nhánh p-value đều cần; tỉ lệ, tổng hợp, bin syscall chưa kết luận. Bỏ bin cặp/rolling tách binary vô hại tốt hơn 14–20 điểm nhưng mất 3–4 điểm recall | mục 5B.2 |
+| 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và phần kết luận hiện tại (thêm kết quả tạm thời 5B.2) | mục 1 |
