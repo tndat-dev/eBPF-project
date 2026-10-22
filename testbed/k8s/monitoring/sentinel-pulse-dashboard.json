@@ -1,0 +1,312 @@
+{
+ "uid": "sentinel-pulse-alerts",
+ "title": "Sentinel Pulse – cảnh báo vận hành (thử nghiệm)",
+ "tags": [
+  "sentinel-pulse"
+ ],
+ "timezone": "browser",
+ "schemaVersion": 39,
+ "version": 1,
+ "refresh": "10s",
+ "time": {
+  "from": "now-6h",
+  "to": "now"
+ },
+ "templating": {
+  "list": [
+   {
+    "name": "datasource",
+    "type": "datasource",
+    "query": "prometheus",
+    "label": "Prometheus"
+   }
+  ]
+ },
+ "panels": [
+  {
+   "id": 1,
+   "type": "stat",
+   "title": "Đang cảnh báo (container)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "count(sentinel_pulse_preview_active{pull_profile=\"fast\"}) or vector(0)"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "type": "stat",
+   "title": "Đợt cảnh báo trong khoảng xem",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 6,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[$__range]))"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "type": "stat",
+   "title": "p95 preview → Alertmanager → webhook, push",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "type": "stat",
+   "title": "Luồng decision đang nối",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 18,
+    "y": 0,
+    "w": 6,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(sentinel_pulse_decision_stream_up{pull_profile=\"fast\"})"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "type": "timeseries",
+   "title": "Container đang có cảnh báo, theo workload",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 4,
+    "w": 24,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    }
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "count by (workload) (sentinel_pulse_preview_active{pull_profile=\"fast\"})",
+     "legendFormat": "{{workload}}"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "type": "timeseries",
+   "title": "Độ trễ preview → webhook theo đường (p50 / p95, trong khoảng xem)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 12,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    }
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))",
+     "legendFormat": "p50 push"
+    },
+    {
+     "refId": "B",
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[$__range])))",
+     "legendFormat": "p50 pull-fast"
+    },
+    {
+     "refId": "C",
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[$__range])))",
+     "legendFormat": "p50 pull-default"
+    },
+    {
+     "refId": "D",
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))",
+     "legendFormat": "p95 push"
+    },
+    {
+     "refId": "E",
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[$__range])))",
+     "legendFormat": "p95 pull-fast"
+    },
+    {
+     "refId": "F",
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[$__range])))",
+     "legendFormat": "p95 pull-default"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "type": "timeseries",
+   "title": "Đợt cảnh báo mỗi giờ (toàn cụm)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 12,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "options": {
+    "legend": {
+     "displayMode": "table",
+     "placement": "bottom",
+     "calcs": [
+      "lastNotNull",
+      "max"
+     ]
+    }
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[1h]))",
+     "legendFormat": "đợt/giờ"
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "type": "table",
+   "title": "Cảnh báo Pulse đang firing trong Prometheus (đường pull)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 20,
+    "w": 24,
+    "h": 8
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "ALERTS{alertname=\"SentinelPulseAnomalyPull\",alertstate=\"firing\",path=\"pull-fast\"}",
+     "format": "table",
+     "instant": true
+    }
+   ],
+   "transformations": [
+    {
+     "id": "organize",
+     "options": {
+      "excludeByName": {
+       "Time": true,
+       "Value": true,
+       "__name__": true,
+       "alertstate": true,
+       "namespace": true,
+       "severity": true
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

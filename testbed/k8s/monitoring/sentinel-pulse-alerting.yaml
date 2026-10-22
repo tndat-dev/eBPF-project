@@ -1,0 +1,94 @@
+# Pulse previews in the cluster's kube-prometheus-stack: test of the operational alert path (Pulse itself stays shadow).
+# The bridge (sentinel_pulse/ops/alert_bridge.py) runs on k8s-master 10.1.16.234:9478: /metrics for Prometheus,
+# /alertmanager as the webhook receiver, and it pushes each episode to Alertmanager's API itself (path=push).
+# Paths compared on the same episodes:
+#   push          bridge -> Alertmanager API -> webhook (group_wait 0 s)
+#   pull-fast     scrape 5 s -> rule every 5 s -> Alertmanager (group_wait 0 s) -> webhook
+#   pull-default  scrape 30 s -> rule every 30 s -> Alertmanager (group_wait 30 s), i.e. the stack's defaults
+# Alertmanager's own root route still sends everything else to the "null" receiver; nothing leaves the cluster.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sentinel-pulse
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: pulse-alert-bridge-fast
+  namespace: sentinel-pulse
+  labels: {release: monitoring}
+spec:
+  scrapeInterval: 5s
+  scrapeTimeout: 4s
+  metricsPath: /metrics
+  staticConfigs:
+    - targets: ["10.1.16.234:9478"]
+      labels: {pull_profile: fast}
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: pulse-alert-bridge-default
+  namespace: sentinel-pulse
+  labels: {release: monitoring}
+spec:
+  scrapeInterval: 30s
+  metricsPath: /metrics
+  staticConfigs:
+    - targets: ["10.1.16.234:9478"]
+      labels: {pull_profile: default}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sentinel-pulse-alerts
+  namespace: sentinel-pulse
+  labels: {release: monitoring}
+spec:
+  groups:
+    - name: sentinel-pulse-fast
+      interval: 5s
+      rules:
+        - alert: SentinelPulseAnomalyPull
+          expr: max by (node, target_namespace, workload, pod_uid, container, episode) (sentinel_pulse_preview_active{pull_profile="fast"}) > 0
+          labels: {namespace: sentinel-pulse, severity: warning, path: pull-fast}
+          annotations:
+            summary: "Pulse preview on {{ $labels.workload }} ({{ $labels.node }})"
+            rca_case: "{{ $labels.episode }}"
+    - name: sentinel-pulse-default
+      rules:
+        - alert: SentinelPulseAnomalyPull
+          expr: max by (node, target_namespace, workload, pod_uid, container, episode) (sentinel_pulse_preview_active{pull_profile="default"}) > 0
+          labels: {namespace: sentinel-pulse, severity: warning, path: pull-default}
+          annotations:
+            summary: "Pulse preview on {{ $labels.workload }} ({{ $labels.node }})"
+            rca_case: "{{ $labels.episode }}"
+        - alert: SentinelPulseBridgeDown
+          expr: up{job=~"scrapeConfig/sentinel-pulse/pulse-alert-bridge-.*"} == 0 or max by (node) (sentinel_pulse_decision_stream_up{pull_profile="default"}) == 0
+          for: 2m
+          labels: {namespace: sentinel-pulse, severity: warning, path: health}
+          annotations:
+            summary: "Pulse alert bridge or one of its decision streams is down"
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  name: sentinel-pulse
+  namespace: sentinel-pulse
+spec:
+  route:
+    receiver: pulse-bridge
+    groupBy: [alertname, path, episode]
+    groupWait: 0s
+    groupInterval: 1m
+    repeatInterval: 4h
+    routes:
+      - matchers: [{name: path, value: pull-default}]
+        receiver: pulse-bridge
+        groupWait: 30s
+        groupInterval: 5m
+  receivers:
+    - name: pulse-bridge
+      webhookConfigs:
+        - url: http://10.1.16.234:9478/alertmanager
+          sendResolved: false
