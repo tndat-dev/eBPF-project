@@ -16,7 +16,8 @@ MODES=(getpid read4k openclose mmapunmap)
 for u in $(systemctl list-units --no-legend --plain --state=active 'pulse-matched-worker-*' 'sentinel-pulse-collector*' | awk '{print $1}'); do
   echo "refusing: $u is active (live run or collector); overhead needs a quiet probe-free node" >&2; exit 3
 done
-if pgrep -f pulse_counter >/dev/null; then echo "refusing: a Pulse loader is already attached" >&2; exit 3; fi
+# match the process name, not command lines: a shell that merely mentions the loader path must not count
+if ps -eo comm= | grep -q '^pulse_counter'; then echo "refusing: a Pulse loader is already attached" >&2; exit 3; fi
 CG=/sys/fs/cgroup/pulse-bench
 mkdir -p "$CG"; CGID=$(stat -c %i "$CG")
 ALLOW_MON=$(mktemp); ALLOW_NONE=$(mktemp)
