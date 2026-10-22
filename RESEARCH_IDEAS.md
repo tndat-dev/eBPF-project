@@ -116,7 +116,7 @@ Ba đóng góp:
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
 | Artifact mở (G9) | ~45% | Repo, script, biên nhận, CI, script vẽ hình | Gói tái lập, dữ liệu ẩn danh, hướng dẫn |
 | Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |
-| **Mức sẵn sàng cho paper** | **~38%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe + CUSUM blind | G2, G5 (lời giải), G8 độc lập, G9 |
+| **Mức sẵn sàng** | **~38%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe + CUSUM blind | G2, G5 (lời giải), G8 độc lập, G9 |
 
 **Đường ngắn nhất để xong luận văn:**
 1. Đọc và ghi kết quả 22–23/10: final, baseline lặp lại, chiến lược calibration, nhóm feature B, 5.7d.
