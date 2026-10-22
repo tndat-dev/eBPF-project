@@ -4,6 +4,8 @@
 # LAB_SSH_PASSWORD and the launch_run.sh variables (RUN, SNAP, CANDIDATE, MODEL_HASH, POLICY, POLICY_HASH, FAST,
 # RCA_PREV_UNIT); the file is root-only and read by systemd, not by this script.
 set -euo pipefail
+# the planner records the snapshot's commit (git rev-parse): SNAP must be a git checkout, not a git archive
+git -C "$SNAP" rev-parse HEAD >/dev/null
 # WAIT_UNITS: space-separated units that must all be inactive (WAIT_UNIT kept for the older single-unit form)
 WAIT_UNITS=${WAIT_UNITS:-${WAIT_UNIT:-pulse-stable-candidate-analysis}}
 for unit in $WAIT_UNITS; do
