@@ -25,8 +25,11 @@
 - 16/10: `docs/Bao_cao_Sentinel_Pulse.docx`, `docs/Bao_cao_Thi_nghiem_Syscall_Feature.docx`, `docs/Bao_cao_RCA.docx`,
   `docs/Slide-runtime_security(16_10).pptx`.
 - 23/10: `docs/Bao_cao_tien_do_16_10-23_10.docx` (tiến độ 16/10–23/10 của cả 3 thí nghiệm và phần rule, cùng định dạng
-  với báo cáo 16/10) và `docs/Slide-runtime_security(23_10).pptx` (18 slide). Số liệu lấy từ 4 báo cáo hiện hành lúc
-  23/10 01:50; lượt xác nhận `pulse-stable-confirm` khi đó đang chạy.
+  với báo cáo 16/10; có chỉnh sửa của chủ đồ án; 5 hình: 4 hình từ `docs/figures` bản không CI và cây RCA ví dụ) và
+  `docs/Slide-runtime_security(23_10).pptx` (19 slide, không có hình). Số liệu lấy từ 4 báo cáo hiện hành lúc 23/10 04:20;
+  lượt xác nhận `pulse-stable-confirm` khi đó đang chạy.
+- Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong 4 báo cáo `.md` (quyết định 23/10,
+  áp dụng cả cho các báo cáo docx 16/10).
 
 ## Bằng chứng
 
