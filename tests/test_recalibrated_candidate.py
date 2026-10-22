@@ -209,3 +209,14 @@ def test_live_cusum_on_alarm_modes(tmp_path):
     with pytest.raises(ValueError):
         load_preview_policy(_write(tmp_path, digest, dict(BASE_RULE, temporal_rule={
             'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0, 'on_alarm': 'forever'})), scorer)
+
+
+def test_stable_cap_policy_file_loads(tmp_path):
+    from pathlib import Path
+    from sentinel_pulse.detector.confirmation import CusumPolicy
+    shipped = json.loads((Path(__file__).parents[1]/'sentinel_pulse/protocol/policy-cusum-b3-h6-cap.json').read_text())
+    assert shipped['rule']['temporal_rule']['on_alarm'] == 'cap'
+    source, digest = _candidate(tmp_path)
+    policy = load_preview_policy(_write(tmp_path, digest, shipped['rule']), IdleCandidateScorer(source, digest))
+    assert policy.confirmation == CusumPolicy(3.0, 6.0, 1.0, 'cap')
+

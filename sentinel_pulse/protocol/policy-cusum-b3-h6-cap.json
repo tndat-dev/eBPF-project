@@ -1,0 +1,110 @@
+{
+  "schema": "sentinel-pulse-candidate-preview-policy-v2",
+  "policy_name": "stable-cusum-b3-h6-cap",
+  "candidate_name": "pulse-candidate-recalibrated-on-pulse-live-recalibrated",
+  "candidate_manifest_sha256": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "created_at": "2026-10-22",
+  "frozen_before_independent_evaluation": true,
+  "blind_outcome_used": false,
+  "automatic_promotion": false,
+  "rule": {
+    "score": "joint_p",
+    "comparison": "less_than_or_equal",
+    "threshold_source": "per_workload_model_calibrated_alpha",
+    "semantic_gate": false,
+    "temporal_rule": {
+      "kind": "cusum",
+      "drift": 3.0,
+      "threshold": 6.0,
+      "max_gap_seconds": 1.0,
+      "on_alarm": "cap"
+    }
+  },
+  "nominal_error_budget": {
+    "interval_target": 0.05,
+    "horizon_windows": 30,
+    "interpretation": "design_budget_only; the scaled alpha deliberately exceeds it and drift remains",
+    "is_guarantee": false
+  },
+  "selection_basis": {
+    "data": "pulse-stable-refreshed (campaign 315 pairs + 1219 replica-hours of normal), blind for CUSUM: parameters frozen 21/10 11:32 before the run",
+    "rule": "stable-selection-v1 + amendment 1 (CUSUM carry-over): base29 kept, calibration kept, CUSUM drift 3 threshold 6 with on_alarm=cap chosen by the amendment rule on continuous streams",
+    "latency_tier": 3.0,
+    "calibration": "refreshed once before the run (19/10 13:00-18:25), unchanged",
+    "meets_registered_expectations": true,
+    "development_result": {
+      "precision_expected": 0.9692307692307692,
+      "recall_observed": 1.0,
+      "control_positive_rate": 0.031746031746031744,
+      "benign_exec_positive_rate": 0.9809523809523809,
+      "kernel_to_preview_p95_seconds": 2.0534650921821576,
+      "normal_alert_episodes_per_replica_hour": 6.068102423996536,
+      "evaluation": "continuous per-container stream of pulse-stable-refreshed (cusum-carryover.json)"
+    },
+    "known_gaps": [
+      "normal alert burden 6.1 episodes/replica-hour (continuous) is ~60x the 0.1/h budget; not solved by thresholds",
+      "benign new-process launches are flagged at 98%; the detector separates new activity, not malicious activity",
+      "p95 2.05 s: the <= 3 s tier, not the < 2 s tier",
+      "rule-based signals are integrated only after ML is complete (RULE_INTEGRATION_STATUS)"
+    ],
+    "frozen_at": "2026-10-22T22:48+07:00 (stable-selection-v1 amendment 1, rule 4)",
+    "continuous_evaluation": {
+      "receipt": "results-20261021/pulse-stable-refreshed/final/cusum-carryover.json",
+      "choice": "cusum_b3_h6_cap",
+      "verdict": {
+        "cusum_b3_h6_cap": {
+          "passes": true,
+          "checks": {
+            "pulse-stable-candidate": true,
+            "pulse-stable-refreshed": true,
+            "better_than_k2of2_on_pulse-stable-refreshed": true
+          },
+          "max_burden": 6.068102423996536
+        },
+        "cusum_b3_h6_restart": {
+          "passes": true,
+          "checks": {
+            "pulse-stable-candidate": true,
+            "pulse-stable-refreshed": true,
+            "better_than_k2of2_on_pulse-stable-refreshed": true
+          },
+          "max_burden": 6.300197705249547
+        }
+      },
+      "k2of2_a10_refreshed": {
+        "burden": 6.739784527693409,
+        "attack": 1.0,
+        "precision": 0.9603658536585366,
+        "control": 0.04126984126984127,
+        "p95": 2.2848255276679947
+      }
+    },
+    "supersedes": "policy-cusum-b3-h6.json (9bf0b216...): frozen 22/10 16:29 on per-trial screens, not launched; its unbounded CUSUM state carried alarms across trials (control 5.7 % on continuous streams)",
+    "combined_replay_of_superseded_policy": {
+      "receipt": "pulse-stable-refreshed/analysis/stable-selection-{kofn,cusum-3-6}.json (rolling_recalibration --strategy asrun --temporal kofn | cusum-3-6, evaluation from selection end, 1075.4 replica-hours)",
+      "starting_point": {
+        "rule": "k2of2 alpha x10",
+        "recall": 1.0,
+        "precision": 0.9597523219814241,
+        "control_positive_rate": 0.041935483870967745,
+        "kernel_to_preview_p95_seconds": 2.255661606788636,
+        "normal_alert_episodes_per_replica_hour": 5.167,
+        "benign_exec_positive_rate": 0.9414
+      },
+      "stable": {
+        "rule": "cusum drift 3 threshold 6",
+        "recall": 1.0,
+        "precision": 0.9717868338557993,
+        "control_positive_rate": 0.02903225806451613,
+        "kernel_to_preview_p95_seconds": 1.6813162207603458,
+        "normal_alert_episodes_per_replica_hour": 4.953,
+        "benign_exec_positive_rate": 0.9805
+      },
+      "step3_passed": true,
+      "note": "on this span (after the selection phase) the burden drop is 4 %; on the whole normal from the selection start (ideas_burden, 5.13b) it is 21 %; the difference sits in the first 90 minutes of the run"
+    }
+  },
+  "unknown_workload": "unscored_unknown_not_normal_and_not_alerted",
+  "output_mode": "shadow_preview_only; never emits alert or enforcement",
+  "evaluation_requirements": "fresh normal soak plus fresh attack campaign with benign-exec controls; fast scoring; report idle and benign controls separately; do not tune after outcomes"
+}

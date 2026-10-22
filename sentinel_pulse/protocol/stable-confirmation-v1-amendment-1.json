@@ -1,0 +1,8 @@
+{
+  "schema": "sentinel-pulse-stable-confirmation-v1-amendment",
+  "registered_at": "2026-10-22T22:48+07:00",
+  "registered_before": "the confirmation run starts (the launcher was stopped at 22:44 before any run existed)",
+  "amends": "sentinel_pulse/protocol/stable-confirmation-v1.json",
+  "change": "the run uses sentinel_pulse/protocol/policy-cusum-b3-h6-cap.json (stable-selection-v1 amendment 1: CUSUM with on_alarm=cap) instead of policy-cusum-b3-h6.json; everything else of v1 is unchanged",
+  "expected_from_development": "continuous streams, pulse-stable-refreshed: recall 100 %, precision 96.9 %, control 3.2 %, p95 2.05 s, 6.07 episodes/replica-hour"
+}

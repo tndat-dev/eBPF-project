@@ -1,0 +1,217 @@
+{
+ "schema": "pulse-cusum-carryover-v1",
+ "protocol": "sentinel_pulse/protocol/stable-selection-v1-amendment-1.json",
+ "evaluation": "continuous per-container streams, refreshed calibration",
+ "runs": {
+  "pulse-stable-candidate": {
+   "rows": 11091869,
+   "dropped_without_calibration": 0,
+   "replica_hours": 1219.7823455189334,
+   "campaign_spans": [
+    [
+     1792471713.2112956,
+     1792492487.6666007
+    ]
+   ],
+   "trials": {
+    "attack": 315,
+    "benign": 315,
+    "control": 315
+   },
+   "trials_skipped": {},
+   "recomputed_joint_equals_asrun": 0.35825801765239024,
+   "launch_share": 0.3535183295078584
+  },
+  "pulse-stable-refreshed": {
+   "rows": 11095033,
+   "dropped_without_calibration": 0,
+   "replica_hours": 1219.3268147123522,
+   "campaign_spans": [
+    [
+     1792565744.4659765,
+     1792586516.949264
+    ]
+   ],
+   "trials": {
+    "attack": 315,
+    "benign": 315,
+    "control": 315
+   },
+   "trials_skipped": {},
+   "recomputed_joint_equals_asrun": 1.0,
+   "launch_share": 0.3534694308705526
+  }
+ },
+ "metrics": {
+  "pulse-stable-candidate": {
+   "k2of2_a10": {
+    "burden": 6.567565131131547,
+    "incidents60": 5.2312611536325555,
+    "incidents300": 2.8242743573521634,
+    "attack": 0.9936507936507937,
+    "benign": 0.9396825396825397,
+    "control": 0.044444444444444446,
+    "precision": 0.9571865443425076,
+    "p50": 0.8415164947509766,
+    "p95": 1.9815403461456274,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "cusum_b3_h6_keep": {
+    "burden": 5.15419822486881,
+    "incidents60": 4.545073160278779,
+    "incidents300": 2.707860145815441,
+    "attack": 0.9968253968253968,
+    "benign": 0.9682539682539683,
+    "control": 0.06031746031746032,
+    "precision": 0.9429429429429429,
+    "p50": 0.5569405555725098,
+    "p95": 1.8893441319465614,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9841269841269841
+    }
+   },
+   "cusum_b3_h6_cap": {
+    "burden": 5.9018725975553625,
+    "incidents60": 4.673784647682056,
+    "incidents300": 2.756229430890558,
+    "attack": 0.9968253968253968,
+    "benign": 0.9682539682539683,
+    "control": 0.044444444444444446,
+    "precision": 0.9573170731707317,
+    "p50": 0.6102180480957031,
+    "p95": 2.093783736228942,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9841269841269841
+    }
+   },
+   "cusum_b3_h6_restart": {
+    "burden": 6.128962291891081,
+    "incidents60": 4.702478291370684,
+    "incidents300": 2.7775447090592538,
+    "attack": 0.9968253968253968,
+    "benign": 0.9682539682539683,
+    "control": 0.04126984126984127,
+    "precision": 0.9602446483180428,
+    "p50": 0.6165982484817505,
+    "p95": 2.182651865482323,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9841269841269841
+    }
+   }
+  },
+  "pulse-stable-refreshed": {
+   "k2of2_a10": {
+    "burden": 6.739784527693409,
+    "incidents60": 5.319328601438239,
+    "incidents300": 2.927845067396626,
+    "attack": 1.0,
+    "benign": 0.9428571428571428,
+    "control": 0.04126984126984127,
+    "precision": 0.9603658536585366,
+    "p50": 0.8279684782028198,
+    "p95": 2.2848255276679947,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 1.0
+    }
+   },
+   "cusum_b3_h6_keep": {
+    "burden": 5.323429224781933,
+    "incidents60": 4.664048991116138,
+    "incidents300": 2.8318904811542156,
+    "attack": 1.0,
+    "benign": 0.9809523809523809,
+    "control": 0.05714285714285714,
+    "precision": 0.9459459459459459,
+    "p50": 0.5898559093475342,
+    "p95": 1.6969978451728729,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 1.0
+    }
+   },
+   "cusum_b3_h6_cap": {
+    "burden": 6.068102423996536,
+    "incidents60": 4.8092110574828615,
+    "incidents300": 2.8737168392598815,
+    "attack": 1.0,
+    "benign": 0.9809523809523809,
+    "control": 0.031746031746031744,
+    "precision": 0.9692307692307692,
+    "p50": 0.6443004608154297,
+    "p95": 2.0534650921821576,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 1.0
+    }
+   },
+   "cusum_b3_h6_restart": {
+    "burden": 6.300197705249547,
+    "incidents60": 4.842836168901142,
+    "incidents300": 2.895040080647084,
+    "attack": 1.0,
+    "benign": 0.9809523809523809,
+    "control": 0.02857142857142857,
+    "precision": 0.9722222222222222,
+    "p50": 0.673155665397644,
+    "p95": 2.0534650921821576,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 1.0
+    }
+   }
+  }
+ },
+ "verdict": {
+  "cusum_b3_h6_cap": {
+   "passes": true,
+   "checks": {
+    "pulse-stable-candidate": true,
+    "pulse-stable-refreshed": true,
+    "better_than_k2of2_on_pulse-stable-refreshed": true
+   },
+   "max_burden": 6.068102423996536
+  },
+  "cusum_b3_h6_restart": {
+   "passes": true,
+   "checks": {
+    "pulse-stable-candidate": true,
+    "pulse-stable-refreshed": true,
+    "better_than_k2of2_on_pulse-stable-refreshed": true
+   },
+   "max_burden": 6.300197705249547
+  }
+ },
+ "choice": "cusum_b3_h6_cap",
+ "computed_at_unix": 1792684061.8884072
+}
