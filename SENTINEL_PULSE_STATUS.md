@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 04:20 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **23/10/2026 04:50 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -27,10 +27,14 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
 | `policy-2of2-a10` | Chính sách xác nhận 2/2 cửa sổ, alpha×10 (chọn theo luật 5.7) | `sentinel_pulse/protocol/policy-2of2-a10.json` (SHA-256 `a51e5abc…`) |
 | `pulse-stable-candidate` | Lượt live ứng viên cho bản stable: candidate hiệu chỉnh lại + `policy-2of2-a10`, chấm điểm nhanh (20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate`; unit `pulse-matched-worker-pulse-stable-candidate` (worker), `pulse-matched-{traffic,campaign}-pulse-stable-candidate` (.234) |
-| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2: candidate hiệu chỉnh lại (`4bad16dc…`) + `policy-2of2-a10-refreshed` (đang chạy 21/10 12:22 → 22/10 ~12:30) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed`; unit `pulse-matched-worker-pulse-stable-refreshed` (worker) |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2: candidate hiệu chỉnh lại (`4bad16dc…`) + `policy-2of2-a10-refreshed` (21/10 12:22 → 22/10 12:31, xong) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed`; unit `pulse-matched-worker-pulse-stable-refreshed` (worker) |
 | `policy-2of2-a10-refreshed` | k2of2, α×10, gắn với candidate hiệu chỉnh lại bằng calibration làm mới | `sentinel_pulse/protocol/policy-2of2-a10-refreshed.json` (`9c41ebc0…`) |
 | `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (đã dừng khi lượt mới khởi động) | `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
-| `rca-pulse-stable-refreshed` | RCA của lượt pulse-stable-refreshed, có luật hạ quyền lúc khởi chạy (đang chạy) | unit `rca-pulse-stable-refreshed`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed` |
+| `rca-pulse-stable-refreshed` | RCA của lượt pulse-stable-refreshed, có luật hạ quyền lúc khởi chạy (21/10 12:22 → dừng sau lượt) | unit `rca-pulse-stable-refreshed`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed` |
+| `pulse-stable-confirm` | Lượt live xác nhận ML stable: candidate hiệu chỉnh lại + `policy-cusum-b3-h6-cap`, 525 cặp (23/10 01:19 → ~24/10 01:20) | `/mnt/sentinel-pulse-archive/pulse-stable-confirm`; unit `pulse-matched-worker-pulse-stable-confirm` (worker), `pulse-matched-{traffic,campaign}-pulse-stable-confirm` (.234) |
+| `policy-cusum-b3-h6-cap` | ML stable: CUSUM drift 3, ngưỡng 6, chặn trần (5.19 bổ sung 1) | `sentinel_pulse/protocol/policy-cusum-b3-h6-cap.json` (`93dd1478…`) |
+| `rca-pulse-stable-confirm` | RCA của lượt xác nhận: seed 59 binary, nhãn triage, bộ đếm lý do từ chối (23/10 01:21 →) | unit `rca-pulse-stable-confirm`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-confirm` |
+| `pulse-alert-bridge-pulse-stable-confirm` | Đường cảnh báo vận hành thử, chỉ đọc decision (RCA 5.14; 23/10 03:52 →) | unit cùng tên trên .234, `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (dừng 20/10 10:16) | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
@@ -707,7 +711,7 @@ Theo luật, calibration làm mới chỉ được chọn nếu nó giảm số 
 ### 5.8d Luật chọn chính sách cho lượt live kế tiếp, v2 (đăng ký 21/10 08:46, trước khi có số final)
 
 - **Code:** `attack/select_policy.py --rule v2` (`select_v2`, có test).
-- **Đầu vào:** giai đoạn final của `pulse_stable_candidate_analysis.sh`. Lưới **`latency3s`** (đăng ký 21/10 09:55, trước khi có số final) gồm lưới looser (k1of1/k2of2/k2of3 × α 1–10), thêm k3of3/k3of4/k4of4/k4of5 × α 3/5/10/20 và k1of1/k2of2/k2of3 × α 20; tổng 34 chính sách. k4of4 xấp xỉ "chờ 1 s sau preview đầu" ở 5.8b. Lưới được replay trên campaign pulse-stable-candidate, nên độ trễ đã phản ánh chấm điểm nhanh; kèm normal của lượt này với calibration as_run và calibration làm mới.
+- **Đầu vào:** giai đoạn final của `pulse_stable_candidate_analysis.sh` (chạy qua `pulse_stable_candidate_analysis_wait.sh`, đợi đầu vào của từng giai đoạn). Lưới **`latency3s`** (đăng ký 21/10 09:55, trước khi có số final) gồm lưới looser (k1of1/k2of2/k2of3 × α 1–10), thêm k3of3/k3of4/k4of4/k4of5 × α 3/5/10/20 và k1of1/k2of2/k2of3 × α 20; tổng 34 chính sách. k4of4 xấp xỉ "chờ 1 s sau preview đầu" ở 5.8b. Lưới được replay trên campaign pulse-stable-candidate, nên độ trễ đã phản ánh chấm điểm nhanh; kèm normal của lượt này với calibration as_run và calibration làm mới.
 
 **Luật (sửa 21/10 08:52, vẫn trước khi có số final, theo mục tiêu "< 2 s ưu tiên, ≤ 3 s chấp nhận"):**
 1. **Calibration:** dùng calibration làm mới khi và chỉ khi nó đạt tiêu chí 5.7b ở chính sách đang chạy k2of2_a10, tức là cùng lúc: số đợt cảnh báo giảm ≥ 10%, recall mất ≤ 2 điểm, precision ≥ 95%. Ngược lại dùng as_run.
@@ -1151,7 +1155,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 - **Protocol:** `sentinel_pulse/protocol/baseline-fresh-replication-v1.json`.
 - **Thời điểm đăng ký:** trước khi đọc dữ liệu `pulse-stable-refreshed` và trước khi có bất kỳ số nào của `tree_ae`.
 - **Model đóng băng, không fit lại:** base29, iforest, autoencoder, freq_profile. Biên nhận fit có hash (`FIT.json`, sha `ecf76289…`).
-- **Nhánh mới `tree_ae`:** giữ nhánh tree (lịch sử → hiện tại) của Pulse, thay nhánh support bằng điểm AE cùng seed; joint p = min(1, 2·min(tree_p, ae_p)). Ý tưởng này có **sau khi** xem kết quả AE ở 5.15a, nên số development của nó (đang tính, job `pulse-baselines-tree-ae-dev`, ghép từ dump sẵn có, không chấm lại) chỉ để tham khảo.
+- **Nhánh mới `tree_ae`:** giữ nhánh tree (lịch sử → hiện tại) của Pulse, thay nhánh support bằng điểm AE cùng seed; joint p = min(1, 2·min(tree_p, ae_p)). Ý tưởng này có **sau khi** xem kết quả AE ở 5.15a, nên số development của nó (đang tính, job `pulse-baselines-tree-ae-dev`, `scripts/pulse_baselines_tree_ae_dev.sh`, ghép từ dump sẵn có, không chấm lại) chỉ để tham khảo.
 - **Dữ liệu:**
   - normal của `pulse-stable-refreshed` từ lúc campaign xong +60 s tới hết capture, 42% đầu làm calibration;
   - attack là campaign của lượt đó.
@@ -1371,7 +1375,7 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 | 1 | Bộ chấm | 5.15b (`FRESH-ADOPTION.json`) | Giữ **base29**: AE và `tree_ae` trượt điều khoản tách |
 | 1 | Luật thời gian | 5.11a (`ideas-verdict.json`) | **Đổi sang CUSUM b = 3, h = 6**: đạt cả hai điều khoản. Cauchy trượt |
 | 1 | Calibration | 5.17 | Giữ **làm mới một lần trước lượt chạy** (`asrun`): không chiến lược nào thắng |
-| 3 | Cấu hình gộp | replay trên `pulse-stable-refreshed` | Đang chạy (xem dưới) |
+| 3 | Cấu hình gộp | replay trên `pulse-stable-refreshed` | **Xong** 22/10 16:28; bổ sung 1 (`cap`) đóng băng lại 22:48 (xem dưới) |
 
 - **Chỉ một thành phần đổi**, nên cấu hình gộp chính là cấu hình đã đo blind ở 5.13b: recall 100%, precision 97,2%, control 2,9%, p95 1,70 s, gánh 5,32 so với 6,74. Theo số đó, cấu hình đạt cả 4 điều kiện của bước 3.
 - **Bước 3, replay cấu hình gộp (xong 22/10 16:28; `stable-selection-{kofn,cusum-3-6}.json`).** Dùng `rolling_recalibration --strategy asrun`, đánh giá từ cuối pha chọn, 1.075,4 replica-giờ:
@@ -1914,4 +1918,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 01:53–02:00 | Kiểm lượt xác nhận: 3 worker không restart; RCA chạy từ 01:21 (2 lần lỗi numpy trước đó), seed 59 binary. Đồng bộ checkout 3 worker (lần trước chỉ .234); dọn unit transient `pulse-capture-smoke-b2-20261013` (oneshot 12/10, đã thoát, thư mục dữ liệu không còn) | mục 2 |
 | 03:30–04:12 | **Cảnh báo vận hành thật**: bridge chỉ đọc (`sentinel_pulse/ops/alert_bridge.py`, có test) đưa preview của lượt xác nhận vào Prometheus/Alertmanager/Grafana của cụm theo 3 đường. Push 163/163 đợt, p95 0,06 s; pull-fast 94,5%, p95 7,1 s; pull mặc định 6,7%, p50 54 s. Dashboard `sentinel-pulse-alerts` | RCA 5.14 |
 | 03:55–04:20 | Ví dụ cây RCA vào repo, kèm hình (RCA 5.13). Sửa ánh xạ IP node (hostNetwork/SNAT) trong RCA. Chép biên nhận 22–23/10 vào `validation-evidence/results-20261022/` (có README nguồn gốc). README gốc viết lại thành hướng dẫn đọc repo. `references/`: danh mục 75 nguồn, 46 PDF đã tải (ngoài git vì repo công khai; bản sao NFS khớp SHA-256). Syscall 5C: nhóm feature dưới CUSUM `cap` không đổi kết luận nào | mục 1, 2 |
+| 04:25–04:50 | Quét repo và cụm: link hỏng đã sửa, gỡ snapshot cũ ở gốc repo, bảng tên gọi và trạng thái cập nhật, script job nào cũng được báo cáo nhắc tới, không có bí mật trong repo. Xóa `/var/tmp/syscall-cusum` (bản sao NFS) và `__pycache__` trên .234. Kernel → người nhận sơ bộ: push p95 2,58 s (RCA 5.14) | mục 1, 2 |
 

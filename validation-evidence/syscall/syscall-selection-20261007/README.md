@@ -18,4 +18,4 @@ python3 -m sentinel_pulse.verify_syscall_selection \
 
 Có thể dùng `--abi-table <bản tải bảng v6.8>` khi offline. Kết quả ghi checksum
 bản được đọc; đối chiếu lại checksum nguồn nếu dùng bản do bên khác cung cấp.
-Nguồn và diễn giải đầy đủ: [syscall_analysis.md](../../syscall_analysis.md).
+Nguồn và diễn giải đầy đủ: `syscall_analysis.md` (đã gỡ ngày 18/10; tra bằng tag `archive/pre-refactor-20261018`).

@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 04:12 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **23/10/2026 04:50 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -18,9 +18,11 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
 | `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, 20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
-| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 ~12:30, đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 12:31, xong) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
 | `rca-pulse-stable-candidate` | RCA của lượt pulse-stable-candidate (20/10 10:16 → 21/10 12:22) | `/var/lib/sentinel-pulse-rca/rca-pulse-stable-candidate` |
-| `rca-pulse-stable-refreshed` | RCA của lượt pulse-stable-refreshed, có luật hạ quyền lúc khởi chạy (đang chạy) | unit `rca-pulse-stable-refreshed`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed` |
+| `rca-pulse-stable-refreshed` | RCA của lượt pulse-stable-refreshed, có luật hạ quyền lúc khởi chạy (21/10 12:22 → dừng sau lượt) | unit `rca-pulse-stable-refreshed`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-refreshed` |
+| `rca-pulse-stable-confirm` | RCA của lượt xác nhận: seed 59 binary, nhãn triage, bộ đếm lý do từ chối (23/10 01:21 →) | unit `rca-pulse-stable-confirm`, `/var/lib/sentinel-pulse-rca/rca-pulse-stable-confirm` |
+| `pulse-alert-bridge-pulse-stable-confirm` | Đường cảnh báo vận hành thử, chỉ đọc decision (RCA 5.14; 23/10 03:52 →) | unit cùng tên trên .234, `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (19/10 19:24 → 20/10 10:16) | unit `rca-subscriber`, `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
@@ -33,15 +35,16 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 Đồ thị là bằng chứng liên quan theo định danh và thời gian, **không chứng minh nhân quả**. RCA không tự xử lý pod.
 
-| Thành phần (09:58 ngày 22/10) | Trạng thái |
+| Thành phần (04:50 ngày 23/10) | Trạng thái |
 |---|---|
-| Subscriber | **`rca-pulse-stable-refreshed`** (.234), chạy từ 21/10 12:22 trên snapshot `0c5096d` (có luật `privilege_drop_at_start`), cho lượt live pulse-stable-refreshed (`policy-2of2-a10-refreshed`) |
-| Cấu hình | Giống `rca-subscriber`:<br>• đọc decision trên worker qua SSH, nhịp dựng case 0,25 s;<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s, có case tiếp nối khi có exec mới (nhật ký exec 15 phút);<br>• giữ 20.000 case; stream xoay vòng 900 s.<br>Baseline binary **học từ đầu** trong pha chọn (10:16–11:47) rồi đóng băng lúc 11:47:29, trước attack đầu tiên; không chép từ DB cũ |
+| Subscriber | **`rca-pulse-stable-confirm`** (.234), chạy từ 23/10 01:21 trên bản `a2e6748`, cho lượt xác nhận `pulse-stable-confirm` (chính sách `cap`, `93dd1478…`). 1.924 case lúc 03:58 |
+| Cấu hình | Giống các lượt trước:<br>• đọc decision trên worker qua SSH, nhịp dựng case 0,25 s;<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s, có case tiếp nối khi có exec mới;<br>• giữ 20.000 case.<br>**Mới:** seed 59 binary đã biết từ 2 lượt trước (5.12); nhãn triage probe trên mỗi case; bộ đếm lý do từ chối case tiếp nối |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1` (chỉ đường dẫn nhạy cảm, không `commit_creds`), `sentinel-rca-fork-v1`, `sentinel-rca-flow-v1` |
-| Campaign kiểm chứng | Campaign 315 cặp của pulse-stable-refreshed, xong 21/10 ~19:45: coverage 86,7%, top-1 100%, preview → case p95 2,59 s (mục 5.11) |
-| Subscriber trước | `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (2.364 case qua đêm, mục 6); rca-followup, rca-followup-v1, rca-flow, rca-runtime-v1 đã dừng. Output được giữ nguyên, trừ case RCA thế hệ trước v1 (`parallel-20261015*`, `rca-1019d`) đã xóa ngày 22/10 vì không mục nào còn dùng (Pulse 8c) |
-| Code cho lượt sau (đã test, chưa chạy live) | Nhãn triage probe trên mỗi case (`rca/triage.py`, chỉ là nhãn); bộ đếm lý do từ chối case tiếp nối trong STATUS |
-| Phát hiện từ review nhãn (Pulse 5.20) | Tác vụ định kỳ hiếm (WAL archive của CloudNativePG) bị xếp đầu nghi phạm như binary mới, vì pha học baseline 90 phút ngắn hơn chu kỳ của nó; chưa sửa |
+| Campaign kiểm chứng gần nhất | Campaign 315 cặp của `pulse-stable-refreshed` (21/10): coverage 86,7%, top-1 100%, preview → case p95 2,59 s (mục 5.11). Lượt xác nhận: số liệu sau 24/10 |
+| Subscriber trước | `rca-pulse-stable-refreshed` 21/10 12:22 → sau lượt (mục 5.11); `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (mục 6); các bản cũ hơn đã dừng |
+| Code cho lượt sau (đã test, chưa chạy live) | Ánh xạ IP node thành `Node` không xác định (5.13). Chưa có: RCA nhận trigger từ webhook Alertmanager (5.14) |
+| Phát hiện từ review nhãn (Pulse 5.20) | Tác vụ định kỳ hiếm (WAL archive của CloudNativePG) bị xếp đầu nghi phạm như binary mới: **đã xử lý bằng seed** (5.12), kiểm trên lượt xác nhận |
+| Đường cảnh báo vận hành (5.14) | Bridge chỉ đọc đưa preview của lượt xác nhận vào Alertmanager/Prometheus/Grafana của cụm; mã đợt = mã case RCA |
 | Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/rca-flow-copy/`: 2.001 case + `context.sqlite3` |
 
 ## 2. Thuật ngữ
@@ -356,9 +359,24 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - Đường Prometheus chuẩn (pull) không hợp với tín hiệu của Pulse. Đợt cảnh báo thường ngắn hơn chu kỳ scrape và đánh giá rule, nên với mặc định của stack, 93% đợt **không bao giờ tới người nhận**. Đợt tới được thì trễ gần một phút.
   - Đẩy thẳng vào Alertmanager chỉ thêm khoảng 0,06 s.
   - Ước tính kernel → người nhận = kernel → preview (ML stable p95 2,05 s, replay) + 0,06 s. Số đo thật sẽ có khi ghép với thời điểm kernel của từng trial attack sau lượt (24/10).
-- **Việc tiếp:**
-  1. sau lượt, ghép đợt của trial attack với thời điểm sự kiện kernel để có kernel → người nhận theo từng trial, và recall theo đường giao;
-  2. RCA nhận trigger từ webhook Alertmanager (cảnh báo vận hành làm trigger) thay cho preview: code ở lượt sau, không chạy RCA thứ hai trong lượt xác nhận vì sẽ thêm stream Tetragon trên worker.
+- **Kernel → người nhận theo từng trial (sơ bộ, 04:36; `scripts/analysis/alert_delivery_latency.py`, có test):**
+  - Cách tính: ghép mỗi trial attack của campaign (`kernel_event_at`) với đợt của cùng container bắt đầu trong 15 s của trial. Chỉ tính trial bắt đầu sau 03:53:22, khi cả 3 đường đã chạy.
+
+  | Đường | Trial attack có cảnh báo tới người nhận | p50 | p95 | max |
+  |---|---|---|---|---|
+  | `push` | 36/39 (92,3%) | 0,61 s | **2,58 s** | 3,69 s |
+  | `pull-fast` | 36/39 (92,3%) | 6,17 s | 8,42 s | 9,42 s |
+  | `pull-default` | 6/39 (15,4%) | 54,3 s | 60,2 s | 60,2 s |
+
+  - Ba trial không có cảnh báo mới: 2 FN của Pulse, và 1 trial mà container đã đang có đợt cảnh báo từ trước (`alert_already_active`).
+  - Kernel → preview của cùng các trial: p50 0,75 s, p95 2,54 s. Đường push chỉ thêm khoảng 0,04 s.
+  - Theo tốc độ attack (push): ở 1 lần/giây, 10/12 trial có cảnh báo, p95 3,69 s; ở 3–24 lần/giây, 26/27 trial có cảnh báo, p95 0,99–2,43 s.
+  - Biên nhận tạm: `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/delivery-latency-prelim.json`. Chạy lại trên toàn lượt sau 24/10.
+- **RCA nhận trigger từ cảnh báo vận hành (code 23/10 04:40, có test; dùng từ lượt sau):**
+  - Ở lần giao đầu tiên của mỗi đợt, bridge ghi dòng decision gốc vào `triggers.jsonl`.
+  - RCA có cấu hình `alert_trigger_file` thì đọc file này thay cho luồng decision. Case ghi `trigger_source = alertmanager`, `alert_delivered_at`, `alert_path`; `START.json` ghi `trigger = alertmanager_delivered_alert`.
+  - Không chạy RCA thứ hai trong lượt xác nhận, vì sẽ thêm stream Tetragon trên worker. Bridge đang chạy cũng giữ bản cũ để không đứt chuỗi số đo.
+- **Việc tiếp:** chạy lại `alert_delivery_latency.py` trên toàn lượt; ở lượt sau, chạy RCA ở chế độ `alert_trigger_file`.
 - **Biên nhận:** `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/` trên `.234`, gồm `START.json` (config, commit `e2cbc01`), `episodes.jsonl`, `deliveries.jsonl`, `pushes.jsonl`, `issues.jsonl`, `STATUS.json`. Sẽ chép vào `validation-evidence/` khi lượt xong.
 
 ## 6. Coverage, hiệu năng, giới hạn
@@ -388,7 +406,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Baseline binary mang qua các lượt | **Có code + seed** (5.12); kiểm trên lượt `pulse-stable-confirm` |
 | 13% attack không có case riêng | Bộ đếm lý do từ chối có code; số liệu từ lượt `pulse-stable-confirm` |
 | RCA dưới luật Pulse stable (CUSUM) | Lượt `pulse-stable-confirm` đang chạy (23/10 01:19 → ~24/10 01:20) |
-| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm, push 163/163 đợt, p95 0,06 s; pull mặc định bỏ sót 93%. RCA nhận trigger từ webhook: làm ở lượt sau |
+| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm. Push 163/163 đợt, p95 0,06 s sau preview; kernel → người nhận p95 2,58 s (sơ bộ, 36/39 trial); pull mặc định bỏ sót 93% đợt. RCA nhận trigger từ webhook: có code và test, chạy ở lượt sau |
 | Ánh xạ IP qua NAT/mesh | IP node đã sửa (5.13, lượt sau); lịch sử, backend sau DNAT, client sau waypoint: chưa |
 | Chứng minh nhân quả | Ngoài phạm vi |
 
@@ -465,3 +483,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 01:19–01:22 | `rca-pulse-stable-confirm` không khởi động: service chạy bằng Python hệ thống, `baseline_seed.py` kéo numpy qua import `campaign_span`. Sửa (định nghĩa tại chỗ, test chặn numpy), đưa bản RCA lên `a2e6748`, chạy từ 01:21 (trước pha chọn). Seed nạp 59 binary; bộ đếm `follow_up_refused_*` và `cases_probe_only` đã có số | mục 5.12 |
 | 23/10 03:55–04:10 | Ví dụ cây RCA thật vào repo (`validation-evidence/rca/examples-20261023/`, hình vẽ bằng `scripts/analysis/rca_case_graph.py`). Lấy ví dụ thì thấy IP node bị gán cho pod `node-exporter` (hostNetwork): 75% case, 28% số đích. Sửa `connect.py` thành `Node` không xác định, có test; áp dụng từ lượt sau. Ghi rõ phần chưa làm của NAT/mesh (Istio ambient) | mục 5.13 |
 | 23/10 03:52–04:12 | Thử cảnh báo vận hành thật: bridge chỉ đọc + Prometheus/Alertmanager/Grafana của cụm, 3 đường trên cùng đợt. Push 163/163, p95 0,06 s; pull-fast 94,5%, p95 7,1 s; pull mặc định 6,7%, p50 54 s | mục 5.14 |
+| 23/10 04:30–04:45 | Kernel → người nhận theo từng trial (sơ bộ): push p95 2,58 s, 36/39 trial; pull mặc định 6/39. RCA chế độ `alert_trigger_file` (trigger = cảnh báo đã qua Alertmanager), có test; dùng từ lượt sau. Cập nhật bảng mục 1 và bảng tên gọi | mục 1, 5.14 |

@@ -83,6 +83,6 @@ Các job cần dữ liệu thô (fit model, replay, lượt live) chỉ chạy �
 - master `10.1.16.234` (k8s-master), `.235`, `.236`;
 - worker `.237` (worker1), `.238` (worker4), `.239` (worker3).
 
-NFS `10.1.16.233:/sentinel-pulse` mount tại `/mnt/sentinel-pulse-archive`. Monitoring là kube-prometheus-stack (Prometheus NodePort 32090, Grafana NodePort 32300); dashboard Pulse có uid `sentinel-pulse-alerts`. `scripts/ssh_lab.py` là helper SSH, đọc mật khẩu từ biến môi trường `LAB_SSH_PASSWORD`.
+NFS `10.1.16.233:/sentinel-pulse` mount tại `/mnt/sentinel-pulse-archive`. Monitoring là kube-prometheus-stack (Prometheus NodePort 32090, Grafana NodePort 32300); dashboard Pulse có uid `sentinel-pulse-alerts`. `scripts/ssh_lab.py` là helper SSH, đọc mật khẩu từ biến môi trường `LAB_SSH_PASSWORD`. `scripts/audit_cluster_runtime.py` kiểm kê tiến trình, service và tài nguyên trên các VM, chỉ đọc, không xuất argv hay biến môi trường. `scripts/sync_cluster_checkouts.sh` đưa checkout trên các VM về đúng `origin/main` sau mỗi lần push.
 
 Code của các thế hệ thí nghiệm trước (detector v8/AIMS, agent_runtime, lifecycle 500 ms B1–B7, recovery coordinator…) đã gỡ khỏi nhánh hiện hành; toàn bộ cây cũ còn ở tag Git `archive/pre-refactor-20261018`.

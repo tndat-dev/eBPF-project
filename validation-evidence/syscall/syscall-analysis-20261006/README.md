@@ -1,6 +1,6 @@
 # Bằng chứng thực nghiệm ngày 06/10/2026
 
-Các JSON được lấy từ VM sau khi chạy công cụ; không phải giá trị kỳ vọng. Mô tả phương pháp và giới hạn ở [syscall_analysis.md](../../syscall_analysis.md) và [SOAK_OBSERVATION_STATUS.md](../../SOAK_OBSERVATION_STATUS.md).
+Các JSON được lấy từ VM sau khi chạy công cụ; không phải giá trị kỳ vọng. Mô tả phương pháp và giới hạn ở `syscall_analysis.md` (đã gỡ ngày 18/10; tra bằng tag `archive/pre-refactor-20261018`) và `SOAK_OBSERVATION_STATUS.md` (đã gỡ ngày 18/10; tra bằng tag `archive/pre-refactor-20261018`).
 
 | File | Nguồn và ý nghĩa |
 |---|---|

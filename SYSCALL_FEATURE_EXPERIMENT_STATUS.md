@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 01:25 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **23/10/2026 04:50 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -18,8 +18,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `…/campaign-main`, `…/campaign-rca` | Campaign 315 cặp / campaign 105 cặp đánh giá RCA | `coordinator-runtime-r6-d791d24-20261019` / `coordinator-rca-followup-20261019` |
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
 | `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, 20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
-| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 ~12:30, đang chạy) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
-| `feature-groups` | Thí nghiệm nhóm feature (mục 5B, 693 model) | study `/var/tmp/feature-groups/study` trên .234; kết quả `matched-parallel-r4-20261015/feature-groups` |
+| `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 12:31, xong) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
+| `feature-groups` | Thí nghiệm nhóm feature (mục 5B, 693 model) | study, workloads và score dump ở `/var/tmp/feature-groups/` trên .234 (bản duy nhất; chuyển lên NFS sau lượt xác nhận); kết quả `matched-parallel-r4-20261015/feature-groups` và `validation-evidence/results-20261022/syscall/` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (19/10 19:24 → 20/10 10:16) | `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 
@@ -367,7 +367,7 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 
 **Lịch:**
 - Giai đoạn A, fit 33 model × 21 workload = 693 model. Đang chạy từ 12:03 trên `.234`: CPU tối đa 6 core, nice 19, đọc NFS một lần lúc chép 1,3 GB về đĩa local, model ghi ra đĩa local.
-- Biến thể p-value theo nhánh: đang chạy trên điểm sẵn có.
+- Biến thể p-value theo nhánh: chạy trên điểm sẵn có (kết quả ở 5B.1; trên holdout chính ở 5B.3).
 - Giai đoạn B, chấm holdout và replay attack: phải đọc capture qua NFS, nên chạy sau khi pulse-stable-candidate kết thúc (21/10).
 
 ### 5B.0 Fit và kiểm tái lập (xong 20/10 12:33; kiểm lại 15:25)
@@ -564,6 +564,8 @@ Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ đượ
   - `score-dump/`;
   - `arm-replay-pulse-attack-dev/`;
   - `arm-budget-holdout/`.
+- **Job đã chạy (`scripts/`, dòng đầu mỗi file ghi protocol và cách chạy):** `syscall_arms_bootstrap.sh` (5.6–5.7), `syscall_arms_on_pulse_live.sh` (5.5), `feature_groups_live_holdout.sh` (5B.2), `feature_groups_primary.sh` và `feature_groups_branches.sh` (5B.3), `syscall_cusum.sh` (5C); luật từng thành phần: `scripts/analysis/feature_group_verdict.py`.
+- **Biên nhận trong repo:** `validation-evidence/results-20261019/syscall/` (19–20/10), `validation-evidence/results-20261022/syscall/` (5B.3, 5C; README ghi nguồn từng file).
 - **Bằng chứng cũ:** `validation-evidence/syscall/` (chọn syscall, C6).
 
 ```bash
@@ -594,7 +596,7 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 19/10 18:55 | Dừng job trên `.235` (tranh NFS, master2 treo); dời sang 02:20 trên `.234` | mục 5.6 |
 | 20/10 02:20–03:18 | Job `syscall-arms-bootstrap` trên `.234`: replay lại cả hai tập với khóa trial theo campaign (xong 02:42 / 03:12), budget pulse-attack-dev xong 03:18, rồi **lỗi** ở bước bootstrap: campaign pulse-attack-dev không có control binary vô hại nên cột `benign_rate` rỗng ở mọi lần lấy mẫu (`IndexError` trong `np.percentile`) | journal `syscall-arms-bootstrap` |
 | 20/10 09:44 | Sửa `arm_bootstrap.py`: cột không có trial thì ghi `None`; thêm tỉ lệ dương của control idle (`control_rate`, `control_diff`) cho cả hai tập; test cho campaign không có binary vô hại (308 test pass) | `6a5c5fa` |
-| 20/10 09:46 | Chạy tiếp từ chỗ lỗi (`syscall-arms-bootstrap-resume`, snapshot `runtime-6a5c5fa-20261020`): bootstrap pulse-attack-dev, rồi budget + bootstrap pulse-live-recalibrated. Hai replay và budget pulse-attack-dev giữ nguyên | đang chạy |
+| 20/10 09:46 | Chạy tiếp từ chỗ lỗi (`syscall-arms-bootstrap-resume`, snapshot `runtime-6a5c5fa-20261020`): bootstrap pulse-attack-dev, rồi budget + bootstrap pulse-live-recalibrated. Hai replay và budget pulse-attack-dev giữ nguyên | mục 5.7 |
 | 20/10 09:55 | Bootstrap xong: `drop_exec_pair` kém có ý nghĩa, `plus_all_*` giảm khoảng cách với binary vô hại có ý nghĩa, các cấu hình khác không khác base29; theo protocol v2 vẫn inconclusive, giữ base29 | mục 5.7; `syscall/BOOTSTRAP-*.json` |
 | 20/10 11:13 | Bảng recall theo kịch bản (dùng output 5.7, job nhẹ trên `.234`): `drop_exec_pair` chỉ mất recall ở `execveat`; `mprotect`/`seccomp` là điểm yếu chung; `plus_all_*` nhạy với mọi process mới | mục 5.8; `syscall/arm-scenarios-*.json` |
 | 20/10 11:10 | Thêm xác nhận k-of-n vào `arm_budget` (bản vector hóa, khớp `ConfirmationState`, 311 test pass); chạy 11 cấu hình dưới k2of2 như Pulse đang dùng (`syscall-arms-k2of2` trên `.234`: chép score dump và replay về đĩa local với băng thông giới hạn, nice 19, tối đa 2 core) | `aa66def`; đang chạy |
