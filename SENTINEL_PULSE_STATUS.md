@@ -5,7 +5,8 @@ Cập nhật **22/10/2026 15:25 (UTC+7)** từ SSH vào cụm. Giờ trong file 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
 - [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md);
-- [RCA — dựng đồ thị điều tra](RCA_RUNTIME_STATUS.md).
+- [RCA — dựng đồ thị điều tra](RCA_RUNTIME_STATUS.md);
+- [Tích hợp rule (Falco, tripwire, triage probe)](RULE_INTEGRATION_STATUS.md), tách riêng khỏi kết quả ML.
 
 Danh sách việc cần làm nằm ở [TODO.md](TODO.md); đánh giá tổng thể và ý tưởng ở [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md).
 
@@ -49,7 +50,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   Đây là lần đầu đạt cả 4 kỳ vọng trên một lượt live mới, ở mức độ trễ ≤ 3 s. CUSUM và Cauchy (kiểm blind) đưa p95 về 1,70 / 1,46 s trên cùng campaign; kết luận chờ gánh cảnh báo (5.11a).
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h); đang kiểm blind (5.16).
 - **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Đang lặp lại trên dữ liệu mới (5.15b).
-- **So với luật Falco (5.15d):** Falco bắt `ptrace` 100% trong vài mili-giây, nhưng các hành vi khác chỉ 19–21% (nhờ rule drift). Rule nhanh cho hành vi đã biết, Pulse thấy cả hành vi chưa có rule. Tích hợp rule là bước cuối, chạy song song với ML (5.19).
+- **Rule (Falco, tripwire A1, triage probe):** đánh giá riêng, không trộn vào số liệu ML; xem [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md).
 - **Cảnh báo trên normal đã được review (5.20):** 4.766 case, không case nào có dấu hiệu độc hại. 54% trùng probe exec của Kubernetes, 23% có probe trước đó, 23% không có nguyên nhân cấp process. Người gán nhãn không độc lập.
 - **Bằng chứng cho bộ feature (syscall 5B.2, tạm thời):** không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ và cả hai nhánh p-value đều cần.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Các chính sách khả thi cho khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1; chỉnh ngưỡng không giải được (biên Pareto 5.8j). Calibration lệch dần theo thời gian; làm mới calibration giảm khoảng 23% (5.7b). Thí nghiệm syscall cho thấy thay bộ syscall cũng không giải được.
@@ -62,7 +63,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | RCA | `rca-pulse-stable-refreshed` đã dừng sau lượt live; giữ case (1,4 GB) |
 | Phân tích sau lượt | Unit `after-stable-refreshed` trên `.234` (snapshot `bd457a7`, chạy tuần tự). Giai đoạn campaign xong. Khi 3 worker xong: final → lặp lại baseline (5.15b) → chiến lược calibration (5.17) → giai đoạn B nhóm feature trên holdout chính và 5.7d → nén dữ liệu (8c) |
 | Giai đoạn B nhóm feature, holdout thứ hai | **Xong** 22/10 06:40 (syscall 5B.2) |
-| Ngay sau lượt live (làm tay) | **Xong**: dừng collector 1 s; overhead A/B (5.21); Falco phần normal (5.15d), log Falco đã xóa |
+| Ngay sau lượt live (làm tay) | **Xong**: dừng collector 1 s; overhead A/B (5.21); phần rule (Falco) ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) |
 | Chốt ML stable (5.19) | Bước 1 xong: chỉ đổi luật thời gian sang CUSUM b3/h6. Unit `pulse-stable-selection-1022` (snapshot `9b7c813`) chờ bước nén xong rồi chạy replay cấu hình gộp (bước 3), sau đó chạy lại chuỗi nặng (nhóm feature trên holdout chính, 5.7d) |
 | Theo dõi | Không dùng watcher (theo yêu cầu). Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt |
 | Bộ nhớ VM (vSphere) | Balloon trên 3 worker giữ ~84 GB mỗi VM, còn 27–33 GB khả dụng; chưa có áp lực bộ nhớ hay swap. Xem mục 8 |
@@ -1030,11 +1031,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 - **Đánh đổi:** gắn cờ binary vô hại nhiều hơn 3,8 điểm (98,1% so với 94,3%). Tiêu chí không xét chỉ số này; G5 vẫn chưa có lời giải.
 - **Cauchy** nhanh nhất ở p95 nhưng tăng gánh 16%, nên bị loại theo đúng luật.
 
-**Tripwire A1, kiểm blind** (5.16, `tripwire-verdict.json`): **đạt cả 4 tiêu chí**, ở cả bản chính lẫn bản phụ.
-- `ptrace`, `setns`, `execveat`: bắt 100%, p95 0,76–0,79 s.
-- Binary vô hại 0%, control 0%. Tổng trên mọi attack 60% (không bắt `mprotect`/`seccomp`, như đã nêu trước).
-- Bản phụ chỉ dùng 90 phút pha chọn làm tham chiếu mà vẫn không nhiễu, nên tripwire live dùng được tham chiếu của chính lượt chạy.
-- Theo quyết định của chủ đồ án, tripwire chỉ báo song song và được tích hợp sau khi ML stable (5.19).
+**Tripwire A1** là phần rule, đánh giá riêng ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R3; không thuộc số liệu ML.
 
 **Biên Pareto trên dữ liệu mới** (5.8j mục 3, lưới `latency3s_fine` 58 chính sách, `policy-pareto.json`):
 - Có 20 chính sách thỏa ràng buộc luật v2 (lượt trước 9).
@@ -1261,55 +1258,9 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 
 **Lặp lại trên dữ liệu mới:** đã gắn vào giai đoạn final của `pulse-stable-refreshed` (snapshot `57c89b2`).
 
-### 5.15d Baseline luật Falco trên cùng campaign (22/10 00:58–01:00; phần normal xong 22/10 15:15)
+### 5.15d, 5.16 (đã chuyển)
 
-- **Falco:** 0.44.1, DaemonSet trên cả 6 node từ 84 ngày nay, bộ rule mặc định đúng như đang triển khai, không chỉnh gì. Log stdout, kể cả file đã xoay vòng, được chép khỏi node lúc 22/10 00:50 (5.13, nhật ký 22/10).
-- **Script:** `scripts/analysis/falco_baseline.py`, có test. Định nghĩa cố định trước lần chạy đầu:
-  - một trial được tính là phát hiện khi có event Falco của đúng container trong [bắt đầu, bắt đầu + 15 s];
-  - độ trễ = event đầu tiên − thời điểm sự kiện kernel.
-- **Biên nhận:** `results-20261021/pulse-stable-refreshed/falco-baseline-final.json`. Phần trial trùng đúng bản tạm thời; bản tạm thời đã bỏ khỏi repo.
-
-| Trial (campaign `pulse-stable-refreshed`) | Falco (mọi rule) | Pulse live (5.13a) |
-|---|---|---|
-| Attack | 35,6% (112/315) | 100% (310/310) |
-| ↳ `ptrace` | **100% (63/63)**, rule "PTRACE_TRACEME anti-debug" | 100% |
-| ↳ `setns`, `execveat`, `mprotect`, `seccomp` | 19–21%, chỉ nhờ rule drift | 100% |
-| Binary vô hại | 21,0% (66/315), rule drift | 94,1% |
-| Control idle | 3,2% (10/315), toàn bộ là rule "API Server" bắn trùng lúc | 4,2% |
-| Độ trễ attack (p50 / p95) | **0,003 / 0,005 s** (thời điểm event) | 0,94 / 2,26 s (tới preview) |
-
-**Đọc kết quả:**
-- **Rule drift** ("Executing binary not part of base image") chỉ bắn ở **10/65** container có trial. Rule chỉ nhận ra file thực thi nằm ở lớp upper của overlayfs (blog Sysdig); ở các container còn lại, binary nhiều khả năng nằm trên volume. Khi bắn, rule drift gắn cờ cả binary vô hại lẫn attack như nhau.
-- **Falco bắt tức thì và gần như không nhiễu** với hành vi có rule riêng (`ptrace`), nhưng **không thấy** các hành vi không có rule (thử namespace, exec bất thường, đổi quyền vùng nhớ, seccomp). Pulse thấy tất cả, đổi lại chậm hơn khoảng 1–2 s và gắn cờ binary vô hại nhiều hơn.
-- Đây là bổ sung cho nhau chứ không thay nhau: rule cho hành vi đã biết, nhanh; Pulse cho hành vi chưa có rule. Điều này ủng hộ kiến trúc tripwire + ML (A1).
-- **Normal (tạm thời):** 6,65 giờ của lượt này (pha chọn và sau campaign tới 17:50 UTC), 520 đợt Falco trong namespace `production` (78 đợt/giờ cho cả cụm). 518 đợt đến từ rule "Unexpected connection to K8s API Server", bắn trên **một pod** là Strimzi entity-operator, một operator K8s hợp lệ.
-- **Normal (bản cuối, 22/10 15:15):** đúng khoảng normal của Pulse ở 5.13b (pha chọn tới hết capture, trừ campaign; 18,3 giờ), log chép lần cuối lúc 12:48.
-  - 1.449 đợt Falco, tức **1,19 đợt/replica-giờ** khi chia cho 1.219,3 replica-giờ của Pulse. Pulse trên cùng khoảng: 6,74 (k2of2) hoặc 5,32 (CUSUM).
-  - 1.439/1.449 đợt (99,3%) là rule "Unexpected connection to K8s API Server", trên **một pod** Strimzi entity-operator. 10 đợt còn lại là "Shell spawned by untrusted binary" trên Postgres CNPG.
-  - Nếu thêm một exception cho entity-operator (việc một đội vận hành sẽ làm), Falco còn khoảng 0,01 đợt/replica-giờ.
-  - Phép chia cho replica-giờ của Pulse chỉ gần đúng: Falco xem mọi container `production` trên 3 worker, còn Pulse chỉ tính các container nó chấm.
-
-**Giới hạn:**
-- Falco dùng rule mặc định chưa tinh chỉnh cho cụm này; một đội vận hành sẽ thêm exception cho entity-operator.
-- Độ trễ của Falco là thời điểm event, chưa phải lúc cảnh báo tới người nhận.
-- "Phát hiện" tính mọi rule, kể cả rule bắn trùng lúc (control 3,2%).
-
-### 5.16 Tripwire syscall lạ ngoài tập exec (A1): kiểm blind (đăng ký 21/10 14:56)
-
-- **Protocol:** `sentinel_pulse/protocol/tripwire-a1-blind-v1.json`.
-- **Thời điểm đăng ký:** sau khi campaign của `pulse-stable-refreshed` bắt đầu (13:56), nhưng chưa đọc bất kỳ file feature, decision hay trial nào của lượt này.
-- **Luật:** interval có ít nhất một syscall ID không có trong normal tham chiếu của workload và không thuộc tập exec E đóng băng (59 ID, `exec-set-E.json`, sha `a3266613…`). Giống 5.7c.
-- **Bản chính:** tham chiếu là normal từ lúc campaign xong +60 s tới khi worker đầu tiên kết thúc, như 5.7c. Tiêu chí:
-  1. binary vô hại ≤ 10%;
-  2. control ≤ 5%;
-  3. mỗi kịch bản `ptrace`/`setns`/`execveat` ≥ 90%;
-  4. **mới:** p95 độ trễ của tripwire ≤ 2 s ở 3 kịch bản đó. Độ trễ = cuối cửa sổ 500 ms đầu tiên có ID lạ − thời điểm sự kiện kernel.
-- **Bản phụ (chỉ mô tả):** tham chiếu chỉ gồm 90 phút pha chọn trước attack, tức tham chiếu mà một tripwire live có được. Nếu nhiễu, tripwire live cần tham chiếu dài hơn, mang từ các lượt trước.
-- **Không khẳng định:** tripwire không bắt `mprotect`/`seccomp`. Nó là tín hiệu mức nghiêm trọng đặt cạnh Pulse, không thay Pulse.
-- **Code:**
-  - `scripts/analysis/novel_syscalls.py` thêm độ trễ và `--secondary-reference-span`. Kết quả các trường cũ trùng bản cũ trên dữ liệu thử; có test.
-  - `scripts/analysis/tripwire_verdict.py` áp tiêu chí từ file protocol; có test.
-  - Chạy tự động trong giai đoạn final (unit `after-stable-refreshed`).
+Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuyển sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R2 và R3 (22/10 16:15). Nhật ký bên dưới giữ số mục cũ.
 
 ### 5.19 Chốt cấu hình ML stable (luật đăng ký 22/10 01:07)
 
@@ -1422,17 +1373,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - bảng calibration phải tái lập đúng từng điểm của `calibration-r6-1300-1900.npz`;
   - tham chiếu phải tái lập 5,32 đợt/replica-giờ (5.13b).
 
-**Tầng phân loại sau ML** (bản bổ sung 2, đăng ký 16:03; chủ đồ án cho phép lúc 16:00):
-- **Cách làm:** một đợt cảnh báo của ML không gọi người khi mọi case RCA của cùng container trong vòng 5 s đều là probe-only (định nghĩa của 5.18, probe khai báo trong pod spec). Đợt không có case thì vẫn gọi (fail-open). **Mọi preview của ML vẫn được ghi.**
-- **Không đổi số liệu mức ML:** recall, precision, control, binary vô hại, p95 kernel → preview và số đợt/replica-giờ vẫn là bằng chứng cho detector, và luôn báo trước. Tầng này thêm một mức số liệu thứ hai, **mức gọi người**:
-  - số đợt gọi người/replica-giờ, có hai con số:
-    - fail-open (cận trên, vì RCA chỉ mở tối đa một case cho mỗi container trong mỗi chu kỳ cooldown, cộng các case tiếp nối);
-    - ước tính (đợt không có case được giữ lại theo tỉ lệ của các đợt có case trong cùng workload);
-  - recall, precision, control, binary vô hại sau triage.
-- **Cái giá nêu trước:**
-  - **Độ trễ:** muốn biết probe-only phải chờ case RCA. Hiện preview → case mất p50 2,24 s, p95 2,59 s, nên kernel → gọi người vượt mức 3 s nếu không làm đường triage nhanh hơn. Đường nhanh chỉ cần các exec tới cuối cửa sổ + 0,5 s.
-  - **Né tránh:** khớp theo tên binary, không theo tham số. Kẻ tấn công chạy chính interpreter của probe (`python`, `sh`, `redis-cli`…) qua `kubectl exec` sẽ bị giữ lại. Bản triển khai thật phải khớp cả tham số của probe.
-- **Đã thấy trước ở mức case (5.18, 5.13b):** 50,3% case normal là probe-only; không có trial attack nào mà mọi case đều probe-only.
+**Tầng phân loại sau ML** (bản bổ sung 2, chủ đồ án cho phép 16:00): là luật (probe khai báo trong pod spec), nên đã tách hẳn khỏi phần ML. Code `scripts/analysis/rule_tier.py`, protocol `rule-integration-v1`, báo cáo [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R4. Mọi số liệu ở mục này là mức ML, không dùng rule nào.
 
 **Trạng thái:**
 - **Bảng calibration xong (22/10 15:59, 11 phút CPU):** 2.449.183 cửa sổ, 67 container.
@@ -1456,8 +1397,8 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 | Lượt pulse-stable-refreshed (luật v2: k2of2_a10 + calibration làm mới) | **Xong** (5.13a, 5.13b): đạt 4/4 kỳ vọng ở mức ≤ 3 s; 6,74 đợt/replica-giờ trên normal |
 | Bằng chứng gần tối ưu cho chính sách | **Xong** (5.8j, 5.13b): lưới mịn 58 chính sách trên 2 lượt; gánh thấp nhất trong tập khả thi ổn định (~4 đợt) |
 | CUSUM / Cauchy (ý tưởng từ tài liệu) | **Xong, blind** (5.13b): CUSUM đạt (gánh −21%, control 2,9%, p95 1,70 s); Cauchy trượt (gánh +16%) |
-| Baseline trên cùng dữ liệu (G1) | **Xong**: development (5.15a, 5.15c), lặp lại trên dữ liệu mới (5.15b: AE/`tree_ae` không thay base29), luật Falco đủ cả trial lẫn normal (5.15d: 1,19 đợt/replica-giờ, 99% từ một pod) |
-| Tách attack khỏi process vô hại mới | Tripwire A1 **đạt blind** (5.13b): 3 kịch bản syscall hiếm 100%, p95 ≤ 0,79 s, 0% vô hại và control. Lớp `mprotect`/`seccomp` chưa có lời giải |
+| Baseline ML trên cùng dữ liệu (G1) | **Xong**: development (5.15a, 5.15c), lặp lại trên dữ liệu mới (5.15b: AE/`tree_ae` không thay base29). So với Falco (rule): [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R2 |
+| Tách attack khỏi process vô hại mới (ML) | Chưa giải: CUSUM gắn cờ binary vô hại 98% (5.13b). Novelty có xét exec tách lớp syscall hiếm (5.8h, khám phá). Đang thử calibration theo lớp launch (5.22). Tín hiệu rule (tripwire) ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R3 |
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt (~4–7 đợt/replica-giờ ở các chính sách khả thi) |
 | Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
 | Bằng chứng cho bộ feature | Tạm thời (syscall 5B.2): giữ nguyên; holdout chính chạy sau lượt live |

@@ -95,10 +95,11 @@ Ba đóng góp:
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
 | Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~90% | Chạy ổn định 24 giờ nhiều lượt; chấm nhanh khớp từng bit; CPU 13–31% | Calibration tự làm mới trong live; tripwire live (chỉ cho paper) |
-| Đánh giá Pulse cho luận văn | ~88% | 4 lượt live; lượt mới đạt 4/4 kỳ vọng ở mức ≤ 3 s (5.13a); baseline (5.15a); Falco (5.15d); Pareto có CI (5.8j); recall theo tốc độ (5.15c); phân loại cảnh báo (5.18); review nhãn 4.766 case (5.20); luật chốt stable đăng ký (5.19) | Giai đoạn final 22/10; chốt ML stable; một lượt live xác nhận |
+| Đánh giá Pulse ML cho luận văn | ~88% | 4 lượt live; lượt mới đạt 4/4 kỳ vọng ở mức ≤ 3 s (5.13a); baseline (5.15a); Pareto có CI (5.8j); recall theo tốc độ (5.15c); phân loại cảnh báo (5.18); review nhãn 4.766 case (5.20); luật chốt stable đăng ký (5.19) | Giai đoạn final 22/10; chốt ML stable; một lượt live xác nhận |
 | Thí nghiệm syscall + nhóm feature | ~93% | Kết luận syscall có CI; nhánh p-value; nhóm feature trên holdout thứ hai: không thành phần nào bỏ được (5B.2) | Holdout chính + `pulse-attack-dev` (chạy tự động sau lượt live) |
 | RCA | ~90% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới (RCA 5.11); nhãn triage probe trên case (lượt sau) | Lý do 13% attack không có case (bộ đếm mới, lượt sau); baseline binary bỏ sót tác vụ định kỳ hiếm (5.20) |
-| Baseline (G1) | ~80% | 3 baseline + `tree_ae` có kết quả development kèm CI; luật Falco trên campaign mới (5.15d) | Lặp lại trên dữ liệu mới (22/10); normal của Falco theo replica-giờ |
+| Baseline ML (G1) | ~90% | 3 baseline + `tree_ae` có CI trên development (5.15a) và lặp lại trên dữ liệu mới (5.15b): AE/`tree_ae` không thay base29 | Kiểm định nhiều so sánh |
+| Phần rule, tách khỏi ML ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md)) | ~55% | Falco trên campaign và normal (R2); tripwire A1 đạt blind (R3); tầng triage probe sau ML có protocol và code (R4) | Kết quả triage (tối 22/10); gánh tripwire trên normal dài; đường triage nhanh; triage khớp tham số probe |
 | Hình và bảng cho luận văn | ~40% | 4 hình vi/en từ biên nhận (`docs/figures/`) | Hình gánh cảnh báo theo giờ, RCA, nhóm feature; bảng tổng hợp |
 | **Viết luận văn** | **~10%** | 3 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương |
 | **Luận văn (tổng thể, gồm viết)** | **~74%** | Thí nghiệm gần xong (~90%), số liệu và bằng chứng đầy đủ | Đọc kết quả 22–23/10, chốt stable; viết chương sau khi đủ bằng chứng |

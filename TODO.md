@@ -1,7 +1,7 @@
 # TODO — đồ án Sentinel Pulse
 
 Cập nhật 22/10/2026 15:55. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
-[syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
+[syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [rule, tách khỏi ML](RULE_INTEGRATION_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
 ## Đang chạy
@@ -16,7 +16,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 2. [ ] ~18:00: đọc kết quả `burden-reduction-v1` (5.22): cấu hình đề xuất cho mức < 2 s và ≤ 3 s, recall theo kịch bản.
 3. [ ] Lượt live xác nhận ML stable (5.19 bước 4), campaign mới, kèm tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4). Lượt này cũng là test blind cho cấu hình đề xuất của 5.22. Chỉ chạy sau khi chuỗi nặng đọc NFS xong (sáng 23/10).
 4. [ ] Sáng 23/10: đọc nhóm feature trên holdout chính (syscall 5B, gộp theo luật bổ sung) và 5.7d.
-5. [ ] Tích hợp rule (tripwire A1 đạt blind, Falco) **sau** khi ML stable, chỉ báo song song; thứ tự quyết định do chủ đồ án định.
+5. [ ] Phần rule tách riêng ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md)): tầng triage probe sau ML (`RULE-TIER.json` tối 22/10), gánh tripwire trên normal dài, đường triage nhanh, triage khớp cả tham số probe. Rule không đổi số liệu ML; cho rule quyết định trước hay không do chủ đồ án định sau khi ML stable.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở
@@ -28,7 +28,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
   - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
   - [x] Novelty có xét exec (5.7c, 5.8h): 100% cho `ptrace`/`execveat`/`setns`, binary vô hại 0,3%.
-  - [x] Tripwire A1 đạt blind (5.13b): 100% ở `ptrace`/`setns`/`execveat`, p95 ≤ 0,79 s, 0% vô hại và control.
+  - [x] Tripwire A1 (rule) đạt blind: xem [phần rule](RULE_INTEGRATION_STATUS.md) R3.
   - [ ] Thông tin ngoài tần suất: tham số syscall, quan hệ cha–con của process từ Tetragon.
 - [x] **Độ trễ:** CUSUM b3/h6 đạt blind (5.13b): p95 1,70 s, mức < 2 s, gánh còn giảm. Cauchy trượt (gánh +16%).
 - [x] **Bằng chứng gần tối ưu cho chính sách** (5.8j, 5.13b): lưới mịn trên 2 lượt; gánh thấp nhất trong tập khả thi ổn định (~4 đợt); CUSUM trội mọi k-of-n ở mức < 2 s.
@@ -38,7 +38,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [ ] Đo độ trễ kernel → cảnh báo đến người nhận thật. Hiện mới đo đến lúc ghi preview.
 - [x] Review nhãn (5.20): 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại; người gán không độc lập.
 - [ ] Khi viết luận văn: mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
-- [x] Baseline luật Falco (5.15d): trial và normal xong (1,19 đợt/replica-giờ, 99% từ một pod). Log Falco đã xóa.
+- [x] Baseline luật Falco: chuyển sang [phần rule](RULE_INTEGRATION_STATUS.md) R2 (trial và normal xong).
 - [ ] Kịch bản tấn công thật (G2): để mở. Claude không tự dựng phần này (22/10); nếu làm cho paper thì chủ đồ án tự triển khai trong môi trường riêng.
 - [ ] Dataset công khai LID-DS (G3): tạm hoãn; xem lại khi viết paper.
 
