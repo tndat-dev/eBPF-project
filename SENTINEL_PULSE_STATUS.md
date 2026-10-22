@@ -1382,9 +1382,11 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
   | Binary vô hại | 94,1% | 98,1% | (không xét) |
 
   **Đạt.** Cấu hình **ML stable = base29 + calibration làm mới (không đổi) + CUSUM drift 3, ngưỡng 6**.
-- **Ghi thẳng:**
-  - Trên khoảng này gánh chỉ giảm **4%**, trong khi trên toàn bộ normal tính từ đầu pha chọn là **21%** (5.13b, `ideas_burden.py`). Phần chênh nằm ở 90 phút pha chọn đầu lượt.
-  - Hai công cụ khác nhau ở khoảng tính, chưa tách được nguyên nhân. Bảng của 5.22 tính từ đầu pha chọn và sẽ tái lập lại con số 5,32 như một phép kiểm.
+- **Ghi thẳng (sửa 22/10 23:30):**
+  - Trên khoảng này gánh chỉ giảm **4%**, trong khi trên toàn bộ normal tính từ đầu pha chọn là **21%** (5.13b, `ideas_burden.py`).
+  - Ban đầu mình ghi phần chênh là do 90 phút pha chọn. Kiểm lại với cùng một công cụ (5.23), CUSUM `keep` so với k2of2 giảm 37% ở pha chọn và 18% sau pha chọn, nên đó không phải nguyên nhân chính.
+  - Nguyên nhân là **hai công cụ định nghĩa normal khác nhau**. `rolling_recalibration` chỉ loại từng interval trial (±20 s), nên giữ lại phần còn lại của 6 giờ campaign, và chỉ tính cửa sổ eligible. Bảng cửa sổ loại cả khoảng campaign (±60 s).
+  - Mọi so sánh trong cùng một công cụ vẫn nhất quán. Quyết định cuối (bổ sung 1) dùng bảng cửa sổ, công cụ tái lập được `ideas_burden`.
 - **Đóng băng (16:29):** `policy-cusum-b3-h6.json` ghi số replay vào `combined_replay`, SHA-256 `9bf0b216…`. Snapshot `runtime-a45cac2-20261022`. Đã kiểm file nạp đúng với candidate `4bad16dc` qua loader thật (21 model, `CusumPolicy(3, 6, 1 s)`).
 - **Bước 4 (sau khi bước 3 đạt):**
   - file chính sách đã soạn sẵn: `sentinel_pulse/protocol/policy-cusum-b3-h6.json` (candidate `4bad16dc…` giữ nguyên; CUSUM drift 3, ngưỡng 6, khoảng hở tối đa 1 s). Test bảo đảm luật trong file đúng là luật đã kiểm từng cửa sổ với `ideas_screen.py` và `ideas_burden.py`;
@@ -1394,6 +1396,22 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
     - RCA có baseline seed (RCA 5.12);
     - giữ log Falco cho phép so sánh có/không rule.
   - **Khởi chạy tự động:** unit `pulse-stable-confirm-launcher` chờ cả 4 unit đọc NFS nặng xong (`launch_when_idle.sh`, `WAIT_UNITS`), rồi chạy `launch_run.sh all`. Biến môi trường để trong file chỉ root đọc được.
+
+### 5.23 Gánh cảnh báo theo thời gian trong lượt (22/10 23:30; mô tả, không dùng để quyết định)
+
+- **Công cụ:** `scripts/analysis/burden_by_hour.py`, trên bảng cửa sổ của 5.22 (luồng liên tục, calibration làm mới, campaign loại ±60 s). Mỗi đợt tính vào giờ của cửa sổ đầu tiên.
+- **Biên nhận:** `results-20261021/{pulse-stable-candidate,pulse-stable-refreshed}/burden-by-hour.json`.
+
+| Đợt/replica-giờ | 90 phút đầu (pha chọn) | Sau pha chọn | Toàn lượt | Theo giờ sau pha chọn |
+|---|---|---|---|---|
+| k2of2 α×10, candidate / refreshed | **11,8 / 12,2** | 6,1 / 6,3 | 6,6 / 6,7 | 5,3–8,0, không có xu hướng tăng |
+| CUSUM keep | 7,7 / 7,6 | 4,9 / 5,1 | 5,2 / 5,3 | 4,2–5,9 |
+| **CUSUM cap (stable)** | **10,4 / 10,1** | **5,5 / 5,7** | 5,9 / 6,1 | 4,8–6,7 |
+
+**Đọc kết quả:**
+- **Gánh cảnh báo gấp khoảng 2 lần trong 90 phút đầu, trên cả hai lượt.** Lịch traffic của planner (`plan_matched_run.py`) chia đúng 90 phút này (5 × 756 s + 5 × 324 s = 5.400 s) thành 5 chế độ luân phiên (steady, toolmix, peak, burst, recovery); sau đó chỉ còn `steady`. Gánh cảnh báo vì thế phụ thuộc mạnh vào việc traffic có thay đổi hay không.
+- **Giới hạn phải nêu trong luận văn:** con số "sau pha chọn" là ở traffic ổn định. Traffic thật biến động hơn nên gánh thực tế có thể gần mức 10–12 hơn. Trên dữ liệu đã có không tách được phần do traffic và phần do khởi động lượt; muốn tách cần một lượt có các chế độ traffic rải suốt lượt.
+- **Không thấy drift trong 20 giờ sau một lần làm mới calibration:** gánh theo giờ dao động quanh một mức, không tăng dần. Khớp 5.17: trong 24 giờ, không chiến lược làm mới định kỳ nào thắng.
 
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
 
@@ -1879,3 +1897,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 22:42–22:44 | Đọc kết quả: control của tham chiếu CUSUM ở 5.22 là 5,7%, khác 2,9% của `ideas_screen`. Chẩn đoán: 13/18 control dương do S của CUSUM tích lũy không giới hạn từ đợt bất thường trước (tới 2.638). Dừng `pulse-stable-confirm-launcher` trước khi lượt live khởi chạy | mục 5.19 bổ sung 1 |
 | 22:45–22:49 | Đăng ký `stable-selection-v1` bổ sung 1 (22:45). Thêm `on_alarm` (keep/cap/restart) vào `CusumState`, chính sách live, công cụ đánh giá, có test. Trên luồng liên tục: chọn `cap` (control 3,2%, p95 2,05 s, 6,07 đợt). Đóng băng `policy-cusum-b3-h6-cap` (`93dd1478…`), sửa `stable-confirmation-v1` (bổ sung 1), hẹn lại launcher (snapshot `16982eb`; sửa đường dẫn `SNAP` thiếu `/source` trong file môi trường) | mục 5.19 |
 | 22:58–23:20 | Rà việc làm được ngay. **Dọn:** 4 snapshot không dùng, `/var/tmp/pulse-live-copy` (9,9 GB), 2 file trùng biên nhận. **Chuỗi phân tích lượt xác nhận** (`after-stable-confirm`, snapshot `1e2ae7f`, chờ lượt chạy): kỳ vọng theo tập tốc độ có CI Wilson (`confirm_campaign.py`, tái lập đúng 5.13a trên `pulse-stable-refreshed`); gánh từ preview live + CI bootstrap theo workload; test blind 5.22 theo điều 5 (`burden_blind_test.py`, chạy thử trên `pulse-stable-refreshed` tái lập đúng số của phép chọn); bảng cửa sổ có thêm cột preview live; rồi nén. Chạy thử giai đoạn campaign trên dữ liệu thật: đủ, không lỗi. Phát hiện phụ: p95 theo tốc độ trên `pulse-stable-refreshed` là 4,42 s ở 6/s, 1,58 s ở 12/s, 1,33 s ở 24/s | mục 5.19, 5.22 |
+| 23:20–23:30 | 5.23: gánh cảnh báo theo giờ trên 2 lượt: 90 phút đầu (lịch traffic 5 chế độ luân phiên) gấp ~2 lần phần còn lại; không có drift trong 20 giờ. Sửa nhận định ở 5.19: chênh 4%/21% là do hai công cụ định nghĩa normal khác nhau | mục 5.19, 5.23 |

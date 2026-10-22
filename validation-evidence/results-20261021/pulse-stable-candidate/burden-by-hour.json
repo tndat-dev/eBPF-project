@@ -1,0 +1,359 @@
+{
+ "schema": "pulse-burden-by-hour-v1",
+ "run": "name=pulse-stable-candidate,table=/var/tmp/burden-levers/table-pulse-stable-candidate.npz,since=1792466249.7668884,campaign=/mnt/sentinel-pulse-archive/pulse-stable-candidate/pulse-development-matrix",
+ "split_replica_hours": {
+  "selection": 99.38655681610108,
+  "rest": 1120.3957887028323
+ },
+ "rules": {
+  "k2of2_a10": {
+   "per_hour": {
+    "0": {
+     "episodes": 781,
+     "replica_hours": 66.12191736499469,
+     "per_replica_hour": 11.811514715897603
+    },
+    "1": {
+     "episodes": 401,
+     "replica_hours": 34.44625415305297,
+     "per_replica_hour": 11.64132384956172
+    },
+    "7": {
+     "episodes": 275,
+     "replica_hours": 47.43704250719812,
+     "per_replica_hour": 5.797157357739394
+    },
+    "8": {
+     "episodes": 405,
+     "replica_hours": 66.55956149392658,
+     "per_replica_hour": 6.084775664229029
+    },
+    "9": {
+     "episodes": 373,
+     "replica_hours": 66.56093350509802,
+     "per_replica_hour": 5.6038877515356855
+    },
+    "10": {
+     "episodes": 409,
+     "replica_hours": 66.55587372104327,
+     "per_replica_hour": 6.145212693236489
+    },
+    "11": {
+     "episodes": 439,
+     "replica_hours": 66.52983094904158,
+     "per_replica_hour": 6.598543747033588
+    },
+    "12": {
+     "episodes": 416,
+     "replica_hours": 66.56363579809666,
+     "per_replica_hour": 6.249658616332602
+    },
+    "13": {
+     "episodes": 408,
+     "replica_hours": 66.60062038653427,
+     "per_replica_hour": 6.1260690610997965
+    },
+    "14": {
+     "episodes": 396,
+     "replica_hours": 66.55024269209967,
+     "per_replica_hour": 5.950391523470883
+    },
+    "15": {
+     "episodes": 427,
+     "replica_hours": 66.48604770693514,
+     "per_replica_hour": 6.422400108398379
+    },
+    "16": {
+     "episodes": 404,
+     "replica_hours": 66.55888565182686,
+     "per_replica_hour": 6.069813159333014
+    },
+    "17": {
+     "episodes": 416,
+     "replica_hours": 66.55869713597828,
+     "per_replica_hour": 6.250122341639577
+    },
+    "18": {
+     "episodes": 370,
+     "replica_hours": 66.56185814546214,
+     "per_replica_hour": 5.558739048291199
+    },
+    "19": {
+     "episodes": 401,
+     "replica_hours": 66.56139382441839,
+     "per_replica_hour": 6.024513264517774
+    },
+    "20": {
+     "episodes": 407,
+     "replica_hours": 66.55855554434989,
+     "per_replica_hour": 6.114916357053515
+    },
+    "21": {
+     "episodes": 378,
+     "replica_hours": 66.56288304514355,
+     "per_replica_hour": 5.678840559589899
+    },
+    "22": {
+     "episodes": 438,
+     "replica_hours": 66.56081675430138,
+     "per_replica_hour": 6.5804480978171735
+    },
+    "23": {
+     "episodes": 424,
+     "replica_hours": 66.55616169552009,
+     "per_replica_hour": 6.3705596777005775
+    },
+    "24": {
+     "episodes": 43,
+     "replica_hours": 6.89113344391187,
+     "per_replica_hour": 6.239902383255884
+    }
+   },
+   "selection_phase": {
+    "episodes": 1174,
+    "per_replica_hour": 11.812462747575601
+   },
+   "after_selection": {
+    "episodes": 6837,
+    "per_replica_hour": 6.102307835265711
+   },
+   "whole": {
+    "episodes": 8011,
+    "per_replica_hour": 6.567565131131547
+   }
+  },
+  "cusum_b3_h6_keep": {
+   "per_hour": {
+    "0": {
+     "episodes": 489,
+     "replica_hours": 66.12191736499469,
+     "per_replica_hour": 7.395429828519754
+    },
+    "1": {
+     "episodes": 277,
+     "replica_hours": 34.44625415305297,
+     "per_replica_hour": 8.041512983363084
+    },
+    "7": {
+     "episodes": 221,
+     "replica_hours": 47.43704250719812,
+     "per_replica_hour": 4.658806458401477
+    },
+    "8": {
+     "episodes": 333,
+     "replica_hours": 66.55956149392658,
+     "per_replica_hour": 5.003037768366091
+    },
+    "9": {
+     "episodes": 305,
+     "replica_hours": 66.56093350509802,
+     "per_replica_hour": 4.582267464392451
+    },
+    "10": {
+     "episodes": 331,
+     "replica_hours": 66.55587372104327,
+     "per_replica_hour": 4.9732650402476235
+    },
+    "11": {
+     "episodes": 375,
+     "replica_hours": 66.52983094904158,
+     "per_replica_hour": 5.6365692599945225
+    },
+    "12": {
+     "episodes": 350,
+     "replica_hours": 66.56363579809666,
+     "per_replica_hour": 5.258126239702911
+    },
+    "13": {
+     "episodes": 319,
+     "replica_hours": 66.60062038653427,
+     "per_replica_hour": 4.789745172771655
+    },
+    "14": {
+     "episodes": 315,
+     "replica_hours": 66.55024269209967,
+     "per_replica_hour": 4.733265984579112
+    },
+    "15": {
+     "episodes": 367,
+     "replica_hours": 66.48604770693514,
+     "per_replica_hour": 5.519955128295562
+    },
+    "16": {
+     "episodes": 310,
+     "replica_hours": 66.55888565182686,
+     "per_replica_hour": 4.657529899488204
+    },
+    "17": {
+     "episodes": 342,
+     "replica_hours": 66.55869713597828,
+     "per_replica_hour": 5.13832173279023
+    },
+    "18": {
+     "episodes": 282,
+     "replica_hours": 66.56185814546214,
+     "per_replica_hour": 4.23666057194086
+    },
+    "19": {
+     "episodes": 307,
+     "replica_hours": 66.56139382441839,
+     "per_replica_hour": 4.6122832224612385
+    },
+    "20": {
+     "episodes": 337,
+     "replica_hours": 66.55855554434989,
+     "per_replica_hour": 5.063210841098365
+    },
+    "21": {
+     "episodes": 307,
+     "replica_hours": 66.56288304514355,
+     "per_replica_hour": 4.61218003120132
+    },
+    "22": {
+     "episodes": 347,
+     "replica_hours": 66.56081675430138,
+     "per_replica_hour": 5.21327737429808
+    },
+    "23": {
+     "episodes": 342,
+     "replica_hours": 66.55616169552009,
+     "per_replica_hour": 5.138517475881127
+    },
+    "24": {
+     "episodes": 31,
+     "replica_hours": 6.89113344391187,
+     "per_replica_hour": 4.498534276300753
+    }
+   },
+   "selection_phase": {
+    "episodes": 760,
+    "per_replica_hour": 7.646909444767851
+   },
+   "after_selection": {
+    "episodes": 5527,
+    "per_replica_hour": 4.933078163743394
+   },
+   "whole": {
+    "episodes": 6287,
+    "per_replica_hour": 5.15419822486881
+   }
+  },
+  "cusum_b3_h6_cap": {
+   "per_hour": {
+    "0": {
+     "episodes": 684,
+     "replica_hours": 66.12191736499469,
+     "per_replica_hour": 10.344527612898798
+    },
+    "1": {
+     "episodes": 359,
+     "replica_hours": 34.44625415305297,
+     "per_replica_hour": 10.422033072300891
+    },
+    "7": {
+     "episodes": 251,
+     "replica_hours": 47.43704250719812,
+     "per_replica_hour": 5.29122362470032
+    },
+    "8": {
+     "episodes": 359,
+     "replica_hours": 66.55956149392658,
+     "per_replica_hour": 5.393665341872151
+    },
+    "9": {
+     "episodes": 339,
+     "replica_hours": 66.56093350509802,
+     "per_replica_hour": 5.093077607964068
+    },
+    "10": {
+     "episodes": 367,
+     "replica_hours": 66.55587372104327,
+     "per_replica_hour": 5.514163957011715
+    },
+    "11": {
+     "episodes": 414,
+     "replica_hours": 66.52983094904158,
+     "per_replica_hour": 6.222772463033953
+    },
+    "12": {
+     "episodes": 381,
+     "replica_hours": 66.56363579809666,
+     "per_replica_hour": 5.723845992362311
+    },
+    "13": {
+     "episodes": 359,
+     "replica_hours": 66.60062038653427,
+     "per_replica_hour": 5.390340178761831
+    },
+    "14": {
+     "episodes": 354,
+     "replica_hours": 66.55024269209967,
+     "per_replica_hour": 5.319289392193668
+    },
+    "15": {
+     "episodes": 395,
+     "replica_hours": 66.48604770693514,
+     "per_replica_hour": 5.94109611901021
+    },
+    "16": {
+     "episodes": 347,
+     "replica_hours": 66.55888565182686,
+     "per_replica_hour": 5.213428629427119
+    },
+    "17": {
+     "episodes": 384,
+     "replica_hours": 66.55869713597828,
+     "per_replica_hour": 5.7693436999749945
+    },
+    "18": {
+     "episodes": 320,
+     "replica_hours": 66.56185814546214,
+     "per_replica_hour": 4.807558095819416
+    },
+    "19": {
+     "episodes": 344,
+     "replica_hours": 66.56139382441839,
+     "per_replica_hour": 5.168161004972853
+    },
+    "20": {
+     "episodes": 378,
+     "replica_hours": 66.55855554434989,
+     "per_replica_hour": 5.679209786157809
+    },
+    "21": {
+     "episodes": 344,
+     "replica_hours": 66.56288304514355,
+     "per_replica_hour": 5.168045376981284
+    },
+    "22": {
+     "episodes": 399,
+     "replica_hours": 66.56081675430138,
+     "per_replica_hour": 5.994517787737562
+    },
+    "23": {
+     "episodes": 388,
+     "replica_hours": 66.55616169552009,
+     "per_replica_hour": 5.829663101292038
+    },
+    "24": {
+     "episodes": 33,
+     "replica_hours": 6.89113344391187,
+     "per_replica_hour": 4.788762294126609
+    }
+   },
+   "selection_phase": {
+    "episodes": 1037,
+    "per_replica_hour": 10.434006702926661
+   },
+   "after_selection": {
+    "episodes": 6162,
+    "per_replica_hour": 5.499842164824823
+   },
+   "whole": {
+    "episodes": 7199,
+    "per_replica_hour": 5.9018725975553625
+   }
+  }
+ },
+ "computed_at_unix": 1792685372.7602887
+}
