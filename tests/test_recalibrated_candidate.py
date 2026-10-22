@@ -180,3 +180,13 @@ def test_live_rules_also_match_the_whole_normal_burden_script(tmp_path):
         offline = [det.update('c', dict(window_start=r['start'], window_end=r['end'], joint_p=r['joint_p'], tree_p=r['tree_p'],
                                         support_p=r['support_p'], candidate_policy_alpha=alpha)) for r in rows]
         assert live == offline
+
+
+def test_stable_cusum_policy_file_is_the_rule_tested_window_for_window(tmp_path):
+    from pathlib import Path
+    shipped = json.loads((Path(__file__).parents[1]/'sentinel_pulse/protocol/policy-cusum-b3-h6.json').read_text())
+    assert shipped['rule'] == dict(BASE_RULE, temporal_rule={'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0,
+                                                               'max_gap_seconds': 1.0})
+    assert shipped['candidate_manifest_sha256'].startswith('4bad16dc')
+    source, digest = _candidate(tmp_path)
+    load_preview_policy(_write(tmp_path, digest, shipped['rule']), IdleCandidateScorer(source, digest))

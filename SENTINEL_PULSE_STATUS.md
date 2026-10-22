@@ -1347,7 +1347,8 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
   - chạy sau khi bước nén của `after-stable-refreshed` xong, để hai job không cùng đọc NFS;
   - biên nhận: `pulse-stable-refreshed/analysis/stable-selection-{kofn,cusum-3-6}.json`.
 - **Bước 4 (sau khi bước 3 đạt):**
-  - đóng băng chính sách `policy-cusum-b3-h6` (candidate `4bad16dc…` giữ nguyên) bằng SHA-256;
+  - file chính sách đã soạn sẵn: `sentinel_pulse/protocol/policy-cusum-b3-h6.json` (candidate `4bad16dc…` giữ nguyên; CUSUM drift 3, ngưỡng 6, khoảng hở tối đa 1 s). Test bảo đảm luật trong file đúng là luật đã kiểm từng cửa sổ với `ideas_screen.py` và `ideas_burden.py`;
+  - đóng băng bằng SHA-256 khi bước 3 đạt, ghi số replay vào `combined_replay` trước khi đóng băng;
   - xác nhận bằng một lượt live mới có campaign mới, báo đủ các chỉ số của điều 4.
 
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
