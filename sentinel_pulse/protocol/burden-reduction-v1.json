@@ -1,0 +1,33 @@
+{
+  "schema": "sentinel-pulse-burden-reduction-v1",
+  "registered_at": "2026-10-22T15:34+07:00",
+  "registered_before": "any whole-normal burden of the levers below (campaign-interval rates of the joint_p CUSUM grid on pulse-live-recalibrated and pulse-stable-refreshed were already seen in ideas-screen-blind.json; nothing else)",
+  "goal": "Lower idle-control positives, normal alert burden and false positives as far as possible without leaving the registered expectations (owner request 22/10: as few as possible).",
+  "scope": "Pulse ML and its alert pipeline only. No rule-based signal (Falco, tripwire A1, declared exec probes from pod specs) gates, filters or overrides an ML decision (owner decision 22/10).",
+  "reference": "stable candidate of 5.19: base29 (4bad16dc...), refreshed calibration (calibration-r6-1300-1900.npz), CUSUM on -ln joint_p, drift 3, threshold 6",
+  "levers": {
+    "L1_cusum_grid": "CUSUM on -ln joint_p, drift b in {2, 2.5, 3, 3.5, 4, 4.5, 5, 6}, threshold h in {1, 2, 3, 4, 6, 8, 10, 12}",
+    "L2_both_branches": "p_and = max(tree_p, support_p) (both branches must be unusual; a valid p-value), with CUSUM on -ln p_and (same b x h grid) and with k2of2 at alpha x {1, 3, 5, 10, 20}",
+    "L3_launch_conditional_calibration": "Mondrian conformal by launch class: a window is in the launch class when execve or execveat is > 0 in any of the 4 windows of its context (current + 3 previous of the same container, contiguous as in the model); tree and support p-values are computed against calibration windows of the same workload and class (refreshed calibration span, 19/10 13:00-19:00 of pulse-live-recalibrated); a class with < 1200 calibration windows falls back to the workload; combined with the L1 and L2 rules",
+    "L4_incident_grouping": "descriptive, not selected on: episodes of one container merged into one incident when < G apart, G in {60 s, 300 s}; reported as incidents per replica-hour for every candidate (an attack in an open incident is appended to it, so detection is unchanged; time to human attention is not measured)"
+  },
+  "data": {
+    "development": ["pulse-stable-candidate (normal + campaign 315 pairs)", "pulse-stable-refreshed (normal + campaign 315 pairs)"],
+    "test": "the next live run (confirmation run of 5.19 step 4, fresh campaign), blind: candidates are chosen and frozen before it starts",
+    "windows": "one window table per run (scores, as-run p-values, exec counts of the context) built once from decisions + features; campaign spans (first interval - 60 s to end + 60 s) excluded from normal"
+  },
+  "metrics": ["normal episodes per replica-hour", "incidents per replica-hour (G = 60 s, 300 s)", "recall", "precision (attack TP / (TP + idle-control FP))", "idle-control positive rate", "benign-launch positive rate", "p50 / p95 first alarm window_end - kernel event"],
+  "selection_rule": [
+    "1. Feasible on a development run: recall >= 95 %, precision >= 95 %, idle control <= 5 %, p95 <= the tier.",
+    "2. Tiers: < 2 s (preferred) and <= 3 s (acceptable); one choice per tier.",
+    "3. Among candidates feasible on BOTH development runs, choose the lowest max-over-runs normal burden; within 5 % of it, the lower max control, then the simpler lever (L1 < L2 < L3).",
+    "4. A choice is proposed only if its burden is <= 0.9 x the reference's on both development runs; otherwise the reference stays.",
+    "5. Blind test on the next live run: a proposed choice is adopted only if it is feasible there and its burden is <= 0.9 x the reference's on the same data. Adoption changes the stable policy only after one more live run."
+  ],
+  "stated_in_advance": [
+    "tighter rules trade latency for fewer alarms (seen on the campaign grid): the <= 3 s tier is expected to allow a lower burden than the < 2 s tier",
+    "L3 can lower recall for attacks that look like an ordinary launch; recall is checked per scenario",
+    "no lever is expected to reach 0.1 episodes per replica-hour"
+  ],
+  "code": "sentinel_pulse/attack/window_table.py (table builder), scripts/analysis/burden_levers.py (levers, metrics, selection); tests in tests/test_burden_levers.py"
+}
