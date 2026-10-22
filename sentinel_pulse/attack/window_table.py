@@ -128,13 +128,32 @@ class Signals:
         self.members[workload][ident] = end
 
 
+VECTOR_FIELD = '"vector_f32_zlib_b64":"'
+WORKLOAD_FIELD = '"workload_key":"'
+
+
+def light_row(line, workloads):
+    """A feature line parsed without its (unused) vector; None when its workload is not one being scored.
+    Containers outside the scored workloads are about two thirds of the lines and never matter here."""
+    a = line.find(WORKLOAD_FIELD)
+    if a < 0:
+        return None
+    a += len(WORKLOAD_FIELD)
+    if line[a:line.find('"', a)] not in workloads:
+        return None
+    v = line.find(VECTOR_FIELD)
+    if v >= 0:
+        line = line[:v] + '"_":0' + line[line.find('"', v + len(VECTOR_FIELD)) + 1:]
+    return json.loads(line)
+
+
 def worker_rows(root: Path, model_hash, policy_hash, begin, until, stats):
     """(window_end, window_start, identity, workload, ID mask, decision or None) of one worker, segment order."""
     for segment in sorted(p for p in (root / 'segments').iterdir() if p.is_dir()):
         first, last = bounds(segment / 'features.jsonl')
         if first is None or (until is not None and first > until) or (begin is not None and last < begin):
             continue
-        decisions = {}
+        decisions, workloads = {}, set()
         with open_sealed(segment / 'decisions.jsonl') as stream:
             for line in stream:
                 if '"joint_p"' not in line:
@@ -145,6 +164,7 @@ def worker_rows(root: Path, model_hash, policy_hash, begin, until, stats):
                 if r.get('candidate_manifest_sha256') != model_hash or r.get('policy_sha256') != policy_hash:
                     stats['mismatched_binding_rows'] += 1
                     continue
+                workloads.add(r['workload_key'])
                 key = (tuple(str(r.get(k)) for k in IDENTITY), float(r['window_end']))
                 decisions[key] = (float(r['tree_score']), float(r['support_score']), float(r['tree_p']),
                                   float(r['support_p']), float(r['joint_p']), float(r['candidate_policy_alpha']),
@@ -153,7 +173,9 @@ def worker_rows(root: Path, model_hash, policy_hash, begin, until, stats):
             for line in stream:
                 if '"full_counts_delta"' not in line:
                     continue
-                r = json.loads(line)
+                r = light_row(line, workloads)
+                if r is None:
+                    continue
                 end = float(r['window_end'])
                 if (begin is not None and end < begin) or (until is not None and end > until):
                     continue

@@ -105,3 +105,16 @@ def test_trial_outcome_takes_the_first_alarm_in_the_interval():
     end = np.arange(9, dtype=float)
     hit, delay = tr.outcome(alarm, end)
     assert list(hit) == [True, False] and delay[0] == 3.0
+
+
+def test_light_row_drops_the_vector_and_other_workloads():
+    import json
+    from sentinel_pulse.attack.window_table import light_row
+    row = dict(workload_key='production/a:app', window_end=1.5, vector_f32_zlib_b64='eJzt+/8A==',
+               full_counts_delta={'59': 1}, node_name='n')
+    line = json.dumps(row, separators=(',', ':')) + '\n'
+    parsed = light_row(line, {'production/a:app'})
+    assert parsed['full_counts_delta'] == {'59': 1} and parsed['node_name'] == 'n' and 'vector_f32_zlib_b64' not in parsed
+    assert light_row(line, {'production/b:app'}) is None
+    last = json.dumps(dict(workload_key='production/a:app', vector_f32_zlib_b64='abc'), separators=(',', ':'))
+    assert light_row(last, {'production/a:app'}) == {'workload_key': 'production/a:app', '_': 0}
