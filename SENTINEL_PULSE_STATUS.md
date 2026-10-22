@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **22/10/2026 22:53 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **23/10/2026 01:28 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -57,7 +57,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 - **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Đang lặp lại trên dữ liệu mới (5.15b).
 - **Rule (Falco, tripwire A1, triage probe):** đánh giá riêng, không trộn vào số liệu ML; xem [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md).
 - **Cảnh báo trên normal đã được review (5.20):** 4.766 case, không case nào có dấu hiệu độc hại. 54% trùng probe exec của Kubernetes, 23% có probe trước đó, 23% không có nguyên nhân cấp process. Người gán nhãn không độc lập.
-- **Bằng chứng cho bộ feature (syscall 5B.2, tạm thời):** không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ và cả hai nhánh p-value đều cần.
+- **Bằng chứng cho bộ feature (syscall 5B.3 + 5C, 23/10):** giữ nguyên bộ feature. Chắc chắn cần: kênh syscall tường minh và 5 tổng hợp. Chọn syscall đứng vững dưới k2of2, CUSUM `keep` và `cap`.
 - **Nút thắt kéo dài: gánh cảnh báo trên dữ liệu bình thường.** Chỉ chỉnh ngưỡng và luật thời gian thì còn khoảng 4–7 đợt/replica-giờ, xa ngân sách 0,1 (biên Pareto 5.8j, CUSUM tối ưu khi bằng chứng cố định). Bằng chứng tốt hơn, chiết khấu theo replica (5.22), đưa xuống 1,5–2,4 trên development; vẫn gấp 15–24 lần ngân sách.
 
 ## 2. Trạng thái cụm và job (15:25 ngày 22/10)
@@ -154,7 +154,7 @@ Thí nghiệm syscall ([SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EX
 | Mọi syscall ID (`plus_all_*`, ~300 feature) | **Không dùng** | Ở ngân sách rộng recall tăng 6–8 điểm, nhưng binary vô hại bị gắn cờ 96–100% (base29: 72–78%), nên khoảng cách attack − vô hại giảm 17–23 điểm (CI loại trừ 0). Ở ngân sách chặt mất recall ở `ptrace` (82%) và `execveat` (75%). Mục 5.5, 5.7, 5.8 |
 | Nhánh support (vector hiện tại) | **Bắt buộc giữ** | Chỉ dùng tree: recall −28,2 [−42,5; −15,2] và −31,2 [−45,4; −17,4] điểm ở ngân sách 1, p95 chậm thêm 1,1–1,6 s (syscall 5B.1) |
 | Nhánh tree (lịch sử → hiện tại) | **Giữ** | Chỉ dùng support: recall −5,2 [−10,6; −1,1] và −7,1 [−14,9; −0,8] điểm ở ngân sách 1. Ở ngân sách 5 thì không kém hơn, nên lợi ích nằm ở vùng ngưỡng chặt (syscall 5B.1) |
-| 64 bin băm syscall, 64 bin băm cặp, 5 tổng hợp, rolling-10, log-count/tỉ lệ, số cửa sổ lịch sử | **Giữ** (tạm thời; holdout chính chạy sau lượt live) | Syscall 5B.2, holdout thứ hai, ngân sách 1: không thành phần nào bỏ được. **Cần thiết:** log-count (−1,4 điểm recall), bin cặp (−2,8), rolling (−4,1), lịch sử 3 cửa sổ (bỏ đi kém tách 3–5 điểm). **Chưa kết luận:** tỉ lệ, tổng hợp, bin syscall. Chỉ giữ bin + tổng hợp mất 15 điểm recall. Bỏ bin cặp hoặc rolling tách binary vô hại tốt hơn 14–20 điểm, đổi lại mất recall |
+| 64 bin băm syscall, 64 bin băm cặp, 5 tổng hợp, rolling-10, log-count/tỉ lệ, số cửa sổ lịch sử | **Giữ** (kết luận gộp 2 holdout, syscall 5B.3, 23/10) | Cần: các kênh syscall tường minh (chỉ giữ bin thì recall −13 điểm) và 5 tổng hợp (bỏ thì p95 chậm thêm 0,26–0,35 s). Bin syscall "bỏ được" trên holdout chính, chỉ là ứng viên rút gọn cho paper (phải fit lại, đóng băng, chạy live). Phần còn lại chưa kết luận, kể cả log-count và lịch sử 2 cửa sổ (hai holdout cho kết luận ngược nhau) |
 
 **Giới hạn của bằng chứng (ghi trong báo cáo đồ án):**
 - Development: các kịch bản tấn công đã dùng khi phát triển; normal chưa review nhãn.
@@ -166,6 +166,7 @@ Thí nghiệm syscall ([SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EX
   - `drop_exec_pair` vẫn kém có ý nghĩa: −7,1 [−11,5; −2,7] điểm.
   
   Kết luận trong bảng giữ nguyên.
+- **Đã kiểm dưới CUSUM, đúng luật Pulse stable (syscall 5C, 22/10):** cả bản `keep` lẫn `cap` cho cùng kết luận. Bỏ cặp exec kém đi (recall −6,8 điểm, CI dưới 0); thêm mọi syscall tách kém hẳn (−21,8 điểm); không cấu hình nào hơn base29.
 - **Lý do thứ hai không mở rộng bộ syscall: độ trễ.** Ở cùng ngân sách 1, `plus_top*` có p95 2,9–3,1 s và `plus_all_*` 5,0 s, so với base29 2,3 s. Mục tiêu của Pulse là p95 < 2 s.
 
 **Kết quả đưa vào Pulse:**
@@ -1353,7 +1354,9 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
   - p95 1,68 s và "đạt mức < 2 s" là do cách đánh giá khởi động lại ở mỗi trial. Bản đúng ở **mức ≤ 3 s** (2,05 s).
   - Mức giảm gánh so với k2of2 là **10%**, không phải 21%.
 - **Code:** `CusumPolicy(on_alarm=keep|cap|restart)` trong `detector/confirmation.py` và chính sách live; bản vòng lặp trong `burden_levers.py` và `arm_budget.py`. Cả ba trùng từng cửa sổ với `CusumState` (có test).
-- **Lượt xác nhận:** `stable-confirmation-v1` bổ sung 1 đổi chính sách, phần khác giữ nguyên. Launcher chờ `feature-groups-primary-1022`. Chuỗi phân tích `after-stable-confirm` đã hẹn sẵn.
+- **Lượt xác nhận:** `stable-confirmation-v1` bổ sung 1 đổi chính sách, phần khác giữ nguyên.
+  - **Đã chạy từ 23/10 01:19** (snapshot `runtime-cc9bced-20261023`): 525 cặp; pha chọn 01:22–02:52; attack từ 02:54; kết thúc ~01:20 ngày 24/10.
+  - Chuỗi phân tích `after-stable-confirm` đã hẹn sẵn.
 
 - **Giới hạn nêu trước:**
   - không cấu hình nào được kỳ vọng đạt ngân sách 0,1 đợt/replica-giờ;
@@ -1541,8 +1544,8 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 | Tách attack khỏi process vô hại mới (ML) | Chưa giải: CUSUM gắn cờ binary vô hại 98% (5.13b). Novelty có xét exec tách lớp syscall hiếm (5.8h, khám phá). Đang thử calibration theo lớp launch (5.22). Tín hiệu rule (tripwire) ở [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R3 |
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt. Development (5.22): chiết khấu theo replica cho 1,5–2,4 đợt/replica-giờ, control ~1%; chờ test blind trên lượt xác nhận |
 | Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
-| Bằng chứng cho bộ feature | Tạm thời (syscall 5B.2): giữ nguyên; holdout chính chạy sau lượt live |
-| Chốt cấu hình ML stable | **Đã đóng băng** (5.19 + bổ sung 1): base29 + calibration làm mới + CUSUM b3/h6 `cap` (`93dd1478…`). Lượt xác nhận `pulse-stable-confirm` tự khởi chạy khi job nhóm feature xong |
+| Bằng chứng cho bộ feature | **Gần xong** (syscall 5B.3, 5C): giữ nguyên; chờ 2 biến thể p-value bổ sung và nhóm feature dưới CUSUM `cap` |
+| Chốt cấu hình ML stable | **Đã đóng băng** (5.19 + bổ sung 1): base29 + calibration làm mới + CUSUM b3/h6 `cap` (`93dd1478…`). Lượt xác nhận `pulse-stable-confirm` **đang chạy** (23/10 01:19 → ~24/10 01:20) |
 | Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
@@ -1898,3 +1901,11 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 22:45–22:49 | Đăng ký `stable-selection-v1` bổ sung 1 (22:45). Thêm `on_alarm` (keep/cap/restart) vào `CusumState`, chính sách live, công cụ đánh giá, có test. Trên luồng liên tục: chọn `cap` (control 3,2%, p95 2,05 s, 6,07 đợt). Đóng băng `policy-cusum-b3-h6-cap` (`93dd1478…`), sửa `stable-confirmation-v1` (bổ sung 1), hẹn lại launcher (snapshot `16982eb`; sửa đường dẫn `SNAP` thiếu `/source` trong file môi trường) | mục 5.19 |
 | 22:58–23:15 | Rà việc làm được ngay. **Dọn:** 4 snapshot không dùng, `/var/tmp/pulse-live-copy` (9,9 GB), 2 file trùng biên nhận. **Chuỗi phân tích lượt xác nhận** (`after-stable-confirm`, snapshot `1e2ae7f`, chờ lượt chạy): kỳ vọng theo tập tốc độ có CI Wilson (`confirm_campaign.py`, tái lập đúng 5.13a trên `pulse-stable-refreshed`); gánh từ preview live + CI bootstrap theo workload; test blind 5.22 theo điều 5 (`burden_blind_test.py`, chạy thử trên `pulse-stable-refreshed` tái lập đúng số của phép chọn); bảng cửa sổ có thêm cột preview live; rồi nén. Chạy thử giai đoạn campaign trên dữ liệu thật: đủ, không lỗi. Phát hiện phụ: p95 theo tốc độ trên `pulse-stable-refreshed` là 4,42 s ở 6/s, 1,58 s ở 12/s, 1,33 s ở 24/s | mục 5.19, 5.22 |
 | 23:15–23:21 | 5.23: gánh cảnh báo theo giờ trên 2 lượt: 90 phút đầu (lịch traffic 5 chế độ luân phiên) gấp ~2 lần phần còn lại; không có drift trong 20 giờ. Sửa nhận định ở 5.19: chênh 4%/21% là do hai công cụ định nghĩa normal khác nhau | mục 5.19, 5.23 |
+
+### 23/10/2026
+
+| Giờ | Việc | Mục |
+|---|---|---|
+| 00:35 | `pulse-stable-confirm-launcher` lỗi lúc lập kế hoạch: planner ghi commit của snapshot bằng `git rev-parse`, mà snapshot dựng bằng `git archive` không có `.git`. Không worker nào khởi động; thư mục run dở 780 KB | mục 5.19 |
+| 01:18–01:22 | Dựng snapshot chạy bằng `git clone` (`runtime-cc9bced-20261023`); `launch_when_idle.sh` kiểm `.git` ngay lúc hẹn. Xóa thư mục run dở, khởi chạy lại: **lượt xác nhận chạy từ 01:19**. RCA không lên được (service chạy bằng Python hệ thống, `baseline_seed.py` kéo numpy qua một import); sửa import, thêm test chặn numpy trong chuỗi import của RCA, đưa bản RCA của lượt lên commit `a2e6748`. RCA chạy từ 01:21, trước pha chọn, đã nạp 59 binary seed. 3 worker 0 issue | mục 5.19, RCA 5.12 |
+| 01:20–01:28 | Syscall: holdout chính của nhóm feature xong (00:35), gộp với holdout thứ hai (5B.3: chỉ "kênh syscall tường minh" và "5 tổng hợp" là cần chắc chắn). 5C bản `cap` cho 11 cấu hình: cùng kết luận. Cập nhật 4b | mục 4b |

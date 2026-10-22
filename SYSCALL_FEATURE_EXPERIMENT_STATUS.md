@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **22/10/2026 22:53 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **23/10/2026 01:25 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -43,12 +43,12 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - `plus_all_*` tăng recall 6–8 điểm ở ngân sách rộng, nhưng khoảng cách với binary vô hại giảm 17–23 điểm, CI loại trừ 0;
   - các cấu hình 29 syscall khác không phân biệt được với base29.
 
-- **Nhóm feature ngoài 29 syscall (mục 5B.2, tạm thời, holdout thứ hai, ngân sách 1):**
-  - không thành phần nào bỏ được;
-  - **cần thiết:** log-count, bin cặp syscall, rolling-10, lịch sử 3 cửa sổ, cả hai nhánh p-value; chỉ giữ bin + tổng hợp thì mất 15 điểm recall;
-  - **chưa kết luận:** tỉ lệ, 5 tổng hợp, bin syscall;
-  - bỏ bin cặp hoặc rolling tách binary vô hại tốt hơn 14–20 điểm, đổi lại mất 3–4 điểm recall;
-  - holdout chính (soak 48 giờ, kèm `pulse-attack-dev`): lần chạy 22/10 14:56 lỗi do phép kiểm số chiều (đã sửa, `8497505`); chạy lại từ 16:20 trong unit riêng `feature-groups-primary-1022` (3 node song song, cùng replay `pulse-attack-dev`; dự kiến xong ~19:30), rồi gộp theo luật của bản bổ sung.
+- **Nhóm feature ngoài 29 syscall (mục 5B.3, kết luận gộp hai holdout, ngân sách 1, 23/10):**
+  - **cần:** các kênh syscall tường minh (`bins_only` mất 13 điểm recall) và 5 tổng hợp (bỏ thì p95 chậm thêm 0,26–0,35 s);
+  - **bỏ được trên giấy:** 64 bin syscall. Chỉ là ứng viên rút gọn, chưa đổi;
+  - **chưa kết luận:** log-count và lịch sử 2 cửa sổ (hai holdout cho kết luận ngược nhau), tỉ lệ, bin cặp, rolling, mọi bin, lịch sử 1 cửa sổ;
+  - hai biến thể p-value (chỉ nhánh tree / chỉ nhánh support) đang chạy bổ sung trên holdout chính;
+  - bộ feature giữ nguyên.
 
 Hệ quả (bảng bằng chứng theo từng thành phần feature nằm ở [Pulse mục 4b](SENTINEL_PULSE_STATUS.md)):
 - **Giữ `base29` cho candidate Pulse kế tiếp.** Chọn syscall không phải nút thắt; gánh cảnh báo phải giải ở calibration và cách gộp theo thời gian.
@@ -438,6 +438,31 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 - **Kết quả nhánh p-value lặp lại 5B.1:** cả hai nhánh đều cần ở ngân sách 1. Chỉ dùng tree mất 22 điểm (5B.1: 28–31); chỉ dùng support mất 13 điểm (5B.1: 5–7).
 - **Ba cửa sổ lịch sử là cần thiết:** rút ngắn lịch sử làm kém khả năng tách, dù recall gần như không đổi.
 
+### 5B.3 Holdout chính và kết luận gộp (job xong 23/10 00:35; luật v1, k2of2)
+
+- **Dữ liệu:**
+  - holdout 24 giờ của `syscall-arms`, 20% đầu dùng làm calibration;
+  - hai bộ attack: `pulse-attack-dev` (598 trial ghép cặp, không có binary vô hại) và `pulse-live-recalibrated` (1.238 trial, có binary vô hại).
+- **Biên nhận:** `matched-parallel-r4-20261015/feature-groups/{RESULTS,BOOTSTRAP,arm-scenarios}-*.json`.
+- **Sửa công cụ khi áp luật (23/10 01:20):** `feature_group_verdict.py` lỗi trên tập không có binary vô hại. Theo protocol, điều kiện "tách" chỉ áp trên tập có binary vô hại (có test).
+- **Thiếu sót của mình:** lần chạy lại 22/10 bỏ sót hai biến thể p-value đã đăng ký (`base29@tree`, `base29@support`). Đang chạy bổ sung: `scripts/feature_groups_branches.sh`, unit `fg-branches-1023`.
+
+| Thành phần bị bỏ | Holdout chính (v1) | Holdout thứ hai (5B.2) | **Kết luận gộp** |
+|---|---|---|---|
+| `bins_only` (không còn kênh syscall tường minh) | cần (recall −13 điểm, CI dưới 0 ở cả hai bộ) | cần | **cần** |
+| `drop_aggregates` (5 tổng hợp) | cần (p95 chậm thêm 0,35 / 0,26 s) | chưa kết luận | **cần** |
+| `drop_syscall_bins` | bỏ được | chưa kết luận | **bỏ được** (chỉ là ứng viên rút gọn: phải fit lại, đóng băng và chạy live mới được đổi) |
+| `drop_log_counts` | bỏ được | cần | **chưa kết luận** (ngược nhau) |
+| `history2` | bỏ được | cần | **chưa kết luận** (ngược nhau) |
+| `drop_ratios`, `drop_transition_bins`, `drop_rolling`, `drop_all_bins`, `history1` | chưa kết luận | chưa kết luận / cần | **chưa kết luận** |
+| `base29@tree`, `base29@support` | đang chạy bổ sung | cần | chờ |
+
+**Đọc kết quả:**
+- Trên holdout chính, phần lớn thành phần có recall và tách không phân biệt được với base29. Bỏ bin cặp, rolling hay mọi bin cho tách tốt hơn 13–21 điểm, đổi lại recall có xu hướng giảm (CI chạm 0), nên luật ghi là chưa kết luận.
+- Hai thứ chắc chắn cần: các kênh syscall tường minh, và 5 tổng hợp (vì độ trễ).
+- **Bộ feature giữ nguyên.** Protocol không cho đổi chỉ từ phép kiểm này. Ứng viên rút gọn duy nhất (bỏ 64 bin syscall) để cho paper.
+- Kết luận cuối yếu hơn bản tạm thời ở 5B.2, vì holdout thứ hai một mình không được đổi kết luận của v1.
+
 ## 5C. Kiểm lại dưới luật Pulse stable mới: CUSUM (đăng ký 22/10 16:36, protocol `syscall-feature-groups-under-stable-rule-v1`)
 
 - **Lý do:** Pulse stable đổi luật thời gian từ k2of2 α×10 sang **CUSUM drift 3** (Pulse 5.19, đóng băng 22/10 16:29). Mục 7 của báo cáo này đã ghi trước: khi Pulse đổi cách gộp theo thời gian thì phải áp lại cùng phương pháp cho mọi cấu hình.
@@ -464,7 +489,13 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
   - **Cùng hướng với k2of2 (5.9):** bỏ cặp exec kém đi; thêm mọi syscall tăng recall nhưng tách binary vô hại kém hẳn; không cấu hình nào hơn base29 cả về recall lẫn tách.
   - Trên `pulse-attack-dev`: `drop_exec_pair` −5,4 điểm, `plus_top16`/`plus_top32` −1,5/−2,4 điểm (CI dưới 0); các cấu hình khác không khác.
   - Với CUSUM, ngân sách 1 cần ngưỡng cao (h = 15–30) nên p95 lên 5–8 s. Ở ngân sách 5, base29 dùng đúng h = 6 của Pulse stable (p95 2,5 s) và kết luận giống hệt.
-- **Bản `cap`** (luật stable sau bổ sung 1 của 5.19; protocol bổ sung 1 đăng ký 22:51 trước khi có số): đang chạy cho 11 cấu hình syscall, rồi tới nhóm feature trên holdout chính.
+- **Bản `cap`** (luật stable hiện tại; protocol bổ sung 1 đăng ký 22:51 trước khi có số; xong 22/10 23:29; `syscall-arms-cusum-cap/`): **cùng kết luận**. Ở ngân sách 1 trên `pulse-live-recalibrated`:
+  - `drop_exec_pair`: recall **−6,8 [−11,4; −2,4]**, tách −5,2 [−8,9; −1,6];
+  - `plus_all_*`: recall +2,4 [+0,1; +6,4], tách **−21,8 [−36,7; −7,4]**;
+  - `plus_top8`/`16`/`32`: recall −1,1 / −1,4 / −3,8 (CI dưới 0);
+  - các cấu hình còn lại không khác base29.
+- **Kết luận 5C:** kết luận chọn syscall (giữ base29; bỏ cặp exec làm kém; thêm syscall tăng recall nhưng tách kém và chậm hơn) **đứng vững dưới cả ba luật thời gian:** k2of2, CUSUM `keep`, CUSUM `cap`.
+- Nhóm feature dưới CUSUM `cap`: đang chạy (`syscall-cusum-1022`, sau holdout chính).
 - **Chạy:**
   - unit `syscall-cusum-1022` (snapshot `4216aa3`, từ 22:51 `9d1e477`, nice 19);
   - chép score dump và replay về đĩa local trước khi lượt live xác nhận bắt đầu, sau đó chỉ dùng CPU, như job 5.9;
@@ -496,8 +527,8 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Kết luận cuối cho báo cáo đồ án | **Có (5.9, mục 1)** |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
-| Kiểm lại dưới luật Pulse stable (CUSUM), 11 cấu hình + nhóm feature | Bản `keep` xong: cùng kết luận với k2of2 (5C). Bản `cap` (luật stable hiện tại) đang chạy |
-| Nhóm feature trên holdout chính + gộp theo luật bổ sung | **Đang chạy** (5B, dự kiến ~19:30) |
+| Kiểm lại dưới luật Pulse stable (CUSUM), 11 cấu hình + nhóm feature | **11 cấu hình xong** (5C): cùng kết luận dưới `keep` và `cap`. Nhóm feature dưới `cap` đang chạy |
+| Nhóm feature trên holdout chính + gộp theo luật bổ sung | **Xong** (5B.3); chờ 2 biến thể p-value bổ sung |
 
 Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ được gánh cảnh báo, phải áp lại cùng phương pháp cho cả 11 cấu hình bằng `arm_budget.py` trên điểm đã xuất. Không cần chấm lại model.
 
@@ -569,3 +600,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 16:30–16:38 | Pulse stable đổi sang CUSUM → thêm CUSUM vào `arm_budget` (trùng từng cửa sổ với `CusumState`, có test); đăng ký `syscall-feature-groups-under-stable-rule-v1` (16:36) trước khi có số; chạy `syscall-cusum-1022` | mục 5C |
 | 22/10 16:57 | 5C bản `keep` xong cho 11 cấu hình: cùng kết luận với k2of2 (giữ base29) | mục 5C |
 | 22/10 22:51 | Pulse stable đổi sang CUSUM `cap` (5.19 bổ sung 1) → thêm `--cusum-on-alarm` vào `arm_budget` (trùng `CusumState`, có test); đăng ký bổ sung 1 cho 5C; chạy lại 11 cấu hình và nhóm feature với `cap` | mục 5C |
+| 23/10 00:35–01:25 | Holdout chính của nhóm feature xong; sửa `feature_group_verdict.py` (điều kiện tách chỉ áp trên tập có binary vô hại, có test); gộp với holdout thứ hai theo luật bổ sung (5B.3); chạy bổ sung 2 biến thể p-value bị bỏ sót (`fg-branches-1023`). 5C bản `cap` cho 11 cấu hình: cùng kết luận | mục 5B.3, 5C |

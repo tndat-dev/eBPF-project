@@ -334,7 +334,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Nhãn triage probe trên case | Có (chỉ là nhãn); dùng cho phần rule sau khi ML hoàn thiện |
 | Baseline binary mang qua các lượt | **Có code + seed** (5.12); kiểm trên lượt `pulse-stable-confirm` |
 | 13% attack không có case riêng | Bộ đếm lý do từ chối có code; số liệu từ lượt `pulse-stable-confirm` |
-| RCA dưới luật Pulse stable (CUSUM) | Lượt `pulse-stable-confirm` (tự khởi chạy ~19:30–20:00 22/10, xong ~20:00 23/10) |
+| RCA dưới luật Pulse stable (CUSUM) | Lượt `pulse-stable-confirm` đang chạy (23/10 01:19 → ~24/10 01:20) |
 | Cảnh báo vận hành thật làm trigger | Ngoài phạm vi (Pulse chạy shadow); ghi là giới hạn |
 | Chứng minh nhân quả | Ngoài phạm vi |
 
@@ -408,3 +408,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và bảng trạng thái (code chờ lượt sau, phát hiện từ review nhãn, case cũ đã xóa) | mục 1 |
 | 22/10 16:15–16:24 | Baseline binary mang qua các lượt (`baseline_seed.py`, có test); seed từ hai lượt trước (59 binary, loại 57 dòng thấy lần đầu trong campaign); `launch_run.sh` nhận `BASELINE_SEED` cho lượt `pulse-stable-confirm` | mục 5.12 |
 | 22/10 23:10 | Mốc trước khi có seed: nghi phạm hạng 1 của case normal là binary mới/chưa biết ở 22,2% / 14,2% (2 lượt trước); script đưa vào chuỗi phân tích của lượt xác nhận | mục 5.12 |
+| 23/10 01:19–01:22 | `rca-pulse-stable-confirm` không khởi động: service chạy bằng Python hệ thống, `baseline_seed.py` kéo numpy qua import `campaign_span`. Sửa (định nghĩa tại chỗ, test chặn numpy), đưa bản RCA lên `a2e6748`, chạy từ 01:21 (trước pha chọn). Seed nạp 59 binary; bộ đếm `follow_up_refused_*` và `cases_probe_only` đã có số | mục 5.12 |
