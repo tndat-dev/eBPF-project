@@ -245,7 +245,8 @@ def score_segment(segment, node, registration, index, terminal, study, output, b
                         with path.open('rb') as model_file:
                             models[tag] = load_artifact(model_file)
                         models[tag].base.estimator.n_jobs = 1
-                        if models[tag].base.feature_dim*4 != len(context):
+                        # feature-group history arms keep 1 or 2 previous vectors instead of 3
+                        if models[tag].base.feature_dim*(spec.get('history', 3)+1) != len(context):
                             raise ValueError('matched model dimension mismatch')
                     pending[tag].append((row, context))
                     if len(pending[tag]) >= batch_size:

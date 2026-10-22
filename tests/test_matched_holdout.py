@@ -134,3 +134,48 @@ def test_segment_scoring_keeps_positive_evidence_and_never_invents_ground_truth(
     with pytest.raises(ValueError, match='checksum'):
         score_segment(segment, 'worker', registration, dict(arms={}), terminal,
                       tmp_path, tmp_path/'tampered')
+
+
+@pytest.mark.parametrize('history,dim,ok', [(1, 249, True), (2, 249, True), (3, 249, True), (1, 200, False)])
+def test_segment_scoring_accepts_feature_group_history_arms(tmp_path, monkeypatch, history, dim, ok):
+    import json
+    from types import SimpleNamespace
+    from sentinel_pulse.integrity import sha256_file
+    from sentinel_pulse.encoding import compact_record, schema_digest
+    from sentinel_pulse.syscall_study.matched_holdout import score_segment
+
+    class Model:
+        alpha = .05
+        base = SimpleNamespace(feature_dim=dim, estimator=SimpleNamespace(n_jobs=-1))
+
+        def predict_contexts(self, contexts):
+            assert contexts.shape[1] == 249*(history+1)
+            n = len(contexts)
+            return dict(tree_p=np.ones(n), support_p=np.ones(n), tree_score=np.zeros(n), support_score=np.zeros(n),
+                        joint_p=np.ones(n), anomalous=np.zeros(n, dtype=bool))
+
+    monkeypatch.setattr('sentinel_pulse.syscall_study.matched_holdout.load_artifact', lambda stream: Model())
+    segment = tmp_path/'source'; segment.mkdir()
+    columns = ['f'+str(i) for i in range(249)]
+    with (segment/'features.jsonl').open('w') as stream:
+        stream.write(json.dumps(dict(columns=columns, feature_schema_sha256=schema_digest(columns)))+'\n')
+        for row in rows(40):
+            row['columns'] = columns
+            stream.write(json.dumps(compact_record(row)[0])+'\n')
+    for name in ('issues.jsonl', 'decisions.jsonl'):
+        (segment/name).write_text('')
+    (segment/'TERMINAL.json').write_text(json.dumps(dict(seals={
+        name: sha256_file(segment/name) for name in ('features.jsonl', 'decisions.jsonl', 'issues.jsonl')})))
+    (tmp_path/'toy.pkl').write_bytes(b'fixture')
+    tag = 'production/test:app|history|73021'
+    terminal = dict(completed={tag: dict(artifact='toy.pkl', sha256=sha256_file(tmp_path/'toy.pkl'))})
+    registration = dict(holdout_start_unix=100, planned_end_unix=120, workload_keys=['production/test:app'],
+                        capture_run_id='r', seeds=[73021], episode_quiet_seconds=15.)
+    spec = dict(add=[], drop=[], columns=list(range(249)), history=history)
+    run = lambda: score_segment(segment, 'worker', registration, dict(arms={'history': spec}, columns=columns),
+                                terminal, tmp_path, tmp_path/'out', batch_size=8)
+    if ok:
+        assert run()['model_counts'][tag]['scored_windows'] == 27
+    else:
+        with pytest.raises(ValueError, match='dimension mismatch'):
+            run()
