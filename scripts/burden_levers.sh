@@ -25,6 +25,7 @@ for r in "${RUNS[@]}"; do
   pids+=($!)
 done
 for p in "${pids[@]}"; do wait $p; done
+until [ -f $B/cal-pulse-live-recalibrated.npz ]; do sleep 60; done   # calibration-span table (local copy)
 args=(); for r in "${RUNS[@]}"; do
   args+=(--run "name=$r,table=$B/table-$r.npz,since=$(cfg $r selection_start),campaign=$A/$r/pulse-development-matrix")
 done
