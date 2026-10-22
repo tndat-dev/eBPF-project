@@ -8,15 +8,15 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [~] **`after-stable-refreshed`** (.234): final, baseline lặp lại và chiến lược calibration **xong** (Pulse 5.13b, 5.15b, 5.17). Bước giai đoạn B nhóm feature lỗi do phép kiểm số chiều (đã sửa, `8497505`). Đang nén `features`/`decisions` của 3 lượt (8c).
 - [~] **`pulse-stable-selection-1022`** (snapshot `9b7c813`): chờ bước nén, rồi replay cấu hình gộp (5.19 bước 3: calibration như lúc chạy + CUSUM b3/h6 so với k2of2), rồi chạy lại chuỗi nặng (nhóm feature trên holdout chính, 5.7d).
-- [~] **`pulse-burden-levers-1022`** (Pulse 5.22, protocol `burden-reduction-v1` + bổ sung 1): chờ bước nén, rồi dựng bảng cửa sổ cho 2 lượt development và áp luật chọn. Bảng calibration đang dựng từ bản chép local.
+- [~] **`pulse-burden-levers-1022`** (Pulse 5.22, chỉ ML, protocol `burden-reduction-v1` + bổ sung 1): chờ bước nén, rồi dựng bảng cửa sổ cho 2 lượt development và áp luật chọn. Bảng calibration đã xong và tái lập đúng npz.
 
 ## Việc kế tiếp (theo thứ tự)
 
 1. [ ] ~16:45: đọc replay cấu hình gộp (5.19 bước 3). Đạt thì đóng băng `policy-cusum-b3-h6.json` (ghi số replay vào file trước khi đóng băng).
-2. [ ] ~18:00: đọc kết quả `burden-reduction-v1` (5.22): cấu hình đề xuất cho mức < 2 s và ≤ 3 s, recall theo kịch bản.
+2. [ ] ~18:30: đọc kết quả `burden-reduction-v1` (5.22, chỉ ML): cấu hình đề xuất cho mức < 2 s và ≤ 3 s, recall theo kịch bản.
 3. [ ] Lượt live xác nhận ML stable (5.19 bước 4), campaign mới, kèm tốc độ attack thấp (`ATTACK_RATES=1,3,6`, G4). Lượt này cũng là test blind cho cấu hình đề xuất của 5.22. Chỉ chạy sau khi chuỗi nặng đọc NFS xong (sáng 23/10).
 4. [ ] Sáng 23/10: đọc nhóm feature trên holdout chính (syscall 5B, gộp theo luật bổ sung) và 5.7d.
-5. [ ] Phần rule tách riêng ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md)): tầng triage probe sau ML (`RULE-TIER.json` tối 22/10), gánh tripwire trên normal dài, đường triage nhanh, triage khớp cả tham số probe. Rule không đổi số liệu ML; cho rule quyết định trước hay không do chủ đồ án định sau khi ML stable.
+5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở

@@ -1,8 +1,12 @@
 # Tích hợp rule — Falco, tripwire A1, triage probe (tách riêng khỏi kết quả ML)
 
-Cập nhật **22/10/2026 16:15 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
+
+**Trạng thái: chưa tích hợp.** Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (thiết kế ở mục R6).
+- Các số ở R2 (Falco) và R3 (tripwire) là đánh giá **riêng lẻ** từng rule, đo trên cùng campaign với Pulse. Chúng chưa phải kết quả tích hợp.
+- `rule_tier.py` chưa chạy và sẽ không chạy trước khi ML hoàn thiện.
 
 ## R1. Nguyên tắc tách
 
@@ -91,9 +95,9 @@ Cập nhật **22/10/2026 16:15 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
   - **Độ trễ:** muốn biết probe-only phải chờ case RCA. Hiện preview → case mất p50 2,24 s, p95 2,59 s, nên kernel → gọi người vượt mức 3 s nếu không làm đường triage nhanh hơn. Đường nhanh chỉ cần các exec tới cuối cửa sổ + 0,5 s.
   - **Né tránh:** khớp theo tên binary, không theo tham số. Kẻ tấn công chạy chính interpreter của probe (`python`, `sh`, `redis-cli`…) qua `kubectl exec` sẽ bị giữ lại. Bản triển khai thật phải khớp cả tham số của probe.
 - **Đã thấy trước ở mức case (Pulse 5.18, 5.13b):** 50,3% case normal là probe-only; không có trial attack nào mà mọi case đều probe-only.
-- **Chạy:** `scripts/analysis/rule_tier.py`, bước riêng sau phần ML trong `scripts/burden_levers.sh` (unit `pulse-burden-levers-1022`). Output riêng `RULE-TIER.json`, chép sang `pulse-stable-refreshed/analysis/rule-tier.json`.
+- **Chạy:** `scripts/analysis/rule_tier.py` (có test), output riêng `RULE-TIER.json`. **Chỉ chạy sau khi ML hoàn thiện**, như một nhánh của phép so sánh ở R6; đã gỡ khỏi unit tối 22/10.
 
-## R5. Hệ thống gộp (ML + rule)
+## R5. Từng rule đứng riêng, đặt cạnh ML (chưa phải tích hợp)
 
 - **Cách báo:** các luồng song song cộng cảnh báo lại. Tổng cảnh báo tới người = ML (sau triage) + Falco + tripwire, không khử trùng lặp trừ khi đo được.
 - Khi không có kết quả từng trial của rule, recall và control của hợp được báo bằng cận.
@@ -104,12 +108,43 @@ Cập nhật **22/10/2026 16:15 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | ML (CUSUM b3/h6, Pulse 5.13b) | 100% | 2,9% | 98,1% | 5,32 | 1,70 s (tới preview) |
 | Falco, rule mặc định (R2) | 35,6% | 3,2% | 21,0% | 1,19 (99% từ một pod; ~0,01 nếu thêm exception) | 0,005 s (thời điểm event) |
 | Tripwire A1 (R3) | 60% (100% ở 3 kịch bản syscall hiếm) | 0% | 0% | chưa đo trên normal dài | 0,76–0,79 s |
-| ML sau triage probe (R4) | chờ `RULE-TIER.json` | | | | cộng độ trễ chờ case RCA |
+| ML sau triage probe (R4) | chờ ML hoàn thiện (R6) | | | | cộng độ trễ chờ case RCA |
 
 - **Hợp ML ∪ Falco:**
   - recall = 100% (ML đã 100%);
   - control ≤ 2,9% + 3,2% = 6,1% (cận trên, chưa có kết quả từng trial của Falco; log Falco đã xóa theo chính sách giữ dữ liệu);
   - gánh = 5,32 + 1,19 đợt/replica-giờ nếu không khử trùng lặp.
+
+## R6. So sánh không có rule với có rule (sau khi ML hoàn thiện; protocol `rule-integration-v1` + bổ sung 1, đăng ký 22/10 16:12)
+
+- **Khi nào:** chỉ sau khi:
+  1. cấu hình ML stable đã đóng băng (Pulse 5.19 bước 4);
+  2. hướng giảm gánh của Pulse 5.22 đã được nhận hoặc bỏ sau test blind;
+  3. lượt live xác nhận đã xong.
+- **Các nhánh, cùng một dữ liệu:**
+
+| Nhánh | Gồm |
+|---|---|
+| A — không có rule | Cấu hình ML stable đứng một mình (số liệu luận văn cho detector) |
+| B1 | ML + Falco, hai luồng song song |
+| B2 | ML + tripwire A1, song song |
+| B3 | ML, rồi triage probe trước khi gọi người |
+| B — đủ | ML (sau triage) + Falco + tripwire |
+| Sau này | Thứ tự rule quyết định trước: chỉ nếu chủ đồ án quyết định, đăng ký riêng |
+
+- **Dữ liệu:**
+  - chính: lượt live xác nhận (campaign mới, blind cho mọi nhánh);
+  - phụ: `pulse-stable-candidate`, `pulse-stable-refreshed` (development; Falco ở đó chỉ còn số tổng hợp vì log đã xóa).
+- **Metric mỗi nhánh:**
+  - recall theo kịch bản và tổng, precision, control, binary vô hại;
+  - p95 kernel → cảnh báo đầu tiên của nhánh (luồng song song: cảnh báo sớm nhất của bất kỳ luồng nào; triage: cộng thời gian chờ quyết định triage);
+  - cảnh báo tới người/replica-giờ trên normal: cộng các luồng, gộp cảnh báo cùng container cách nhau < 15 s;
+  - chi phí: bảo trì rule (exception), khả năng bị né.
+- **So sánh:** mỗi nhánh B với A trên cùng trial và cùng khoảng normal. Hiệu ghép cặp theo trial, CI 95% bằng bootstrap theo workload; hiệu p95 bằng bootstrap theo trial.
+- **Cần chuẩn bị cho lượt live xác nhận:**
+  - giữ log Falco tới khi so sánh xong; `falco_baseline.py` phải xuất kết quả từng trial và thời điểm từng event;
+  - tripwire chạy trên normal của chính lượt đó (tham chiếu trước campaign, đếm cảnh báo trên normal sau đó);
+  - RCA gắn nhãn triage cho mọi case, và báo tỉ lệ đợt ML không có case.
 
 **Còn thiếu:**
 - [ ] Gánh của tripwire trên normal dài (tham chiếu một khoảng, đo trên khoảng sau).
@@ -125,4 +160,6 @@ Cập nhật **22/10/2026 16:15 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | 15:15 | Falco: phần normal theo replica-giờ; xóa log Falco | R2 |
 | 15:20 | Tripwire A1 đạt blind cả 4 tiêu chí | R3 |
 | 16:00–16:03 | Chủ đồ án cho phép tầng triage sau ML; đăng ký (bản bổ sung 2 của `burden-reduction-v1`) | R4 |
-| 16:08–16:15 | Theo yêu cầu tách ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; `rule_tier.py` riêng, kiểm số ML trùng trước khi áp rule; protocol `rule-integration-v1`; chuyển Falco và tripwire từ báo cáo Pulse sang file này | R1–R5 |
+| 16:05–16:10 | Theo yêu cầu tách ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; `rule_tier.py` riêng, kiểm số ML trùng trước khi áp rule; protocol `rule-integration-v1`; chuyển Falco và tripwire từ báo cáo Pulse sang file này | R1–R5 |
+
+| 16:10–16:13 | Theo quyết định "hoàn thiện ML rồi mới tích hợp rule và so sánh có/không rule": gỡ bước `rule_tier.py` khỏi unit tối nay; đăng ký thiết kế so sánh (`rule-integration-v1` bổ sung 1, 16:12) | R6 |

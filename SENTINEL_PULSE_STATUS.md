@@ -1260,7 +1260,7 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 
 ### 5.15d, 5.16 (đã chuyển)
 
-Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuyển sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R2 và R3 (22/10 16:15). Nhật ký bên dưới giữ số mục cũ.
+Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuyển sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R2 và R3 (22/10 16:10). Nhật ký bên dưới giữ số mục cũ.
 
 ### 5.19 Chốt cấu hình ML stable (luật đăng ký 22/10 01:07)
 
@@ -1373,7 +1373,7 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
   - bảng calibration phải tái lập đúng từng điểm của `calibration-r6-1300-1900.npz`;
   - tham chiếu phải tái lập 5,32 đợt/replica-giờ (5.13b).
 
-**Tầng phân loại sau ML** (bản bổ sung 2, chủ đồ án cho phép 16:00): là luật (probe khai báo trong pod spec), nên đã tách hẳn khỏi phần ML. Code `scripts/analysis/rule_tier.py`, protocol `rule-integration-v1`, báo cáo [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R4. Mọi số liệu ở mục này là mức ML, không dùng rule nào.
+**Tầng phân loại sau ML** (bản bổ sung 2, chủ đồ án cho phép 16:00): là luật (probe khai báo trong pod spec), nên đã tách hẳn khỏi phần ML. Code `scripts/analysis/rule_tier.py`, protocol `rule-integration-v1`, báo cáo [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) mục R4. Chỉ tích hợp **sau khi ML hoàn thiện**, như một nhánh của phép so sánh có/không rule (R6). Mọi số liệu ở mục này là mức ML, không dùng rule nào.
 
 **Trạng thái:**
 - **Bảng calibration xong (22/10 15:59, 11 phút CPU):** 2.449.183 cửa sổ, 67 container.
@@ -1748,4 +1748,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 15:25–15:40 | Theo yêu cầu giảm control, gánh cảnh báo và false positive: research (Moustakides 1986, Mondrian conformal, ReplicaWatcher, NoDoze, Bates et al. 2023, online FDR, Carbon Filter); đăng ký `burden-reduction-v1` (15:34) và bản bổ sung 1 (15:39) trước khi có số nào | mục 5.22 |
 | 15:40–15:50 | Viết bảng cửa sổ và công cụ đánh giá các hướng, có test (CUSUM vector hóa trùng từng cửa sổ với `ideas_screen.py`). Tăng tốc khoảng 3 lần bằng cách bỏ qua dòng của container ngoài các workload được chấm. Dựng bảng calibration từ bản chép local (`burden-cal-table-1022b`). Hẹn `pulse-burden-levers-1022` chạy sau bước nén | mục 5.22 |
 | 15:59–16:10 | Bảng calibration tái lập đúng npz. Chủ đồ án cho phép tầng phân loại sau ML; đăng ký bản bổ sung 2 (16:03), thêm mức gọi người vào công cụ, có test; khởi chạy lại `pulse-burden-levers-1022` (snapshot `810b62a`) trước khi nó bắt đầu dựng bảng | mục 5.22 |
-| 16:08–16:20 | Theo yêu cầu tách đánh giá ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; tầng triage chuyển sang `rule_tier.py` (output riêng, kiểm số ML trùng trước khi áp rule), protocol `rule-integration-v1`. Chuyển 5.15d (Falco), 5.16 (tripwire) và phần triage của 5.22 sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md). Khởi chạy lại `pulse-burden-levers-1022` (snapshot `1f5558a`) trước khi nó dựng bảng | mục 5.22, R1–R5 |
+| 16:05–16:10 | Theo yêu cầu tách đánh giá ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; tầng triage chuyển sang `rule_tier.py` (output riêng, kiểm số ML trùng trước khi áp rule), protocol `rule-integration-v1`. Chuyển 5.15d (Falco), 5.16 (tripwire) và phần triage của 5.22 sang [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md). Khởi chạy lại `pulse-burden-levers-1022` (snapshot `1f5558a`) trước khi nó dựng bảng | mục 5.22, R1–R5 |
+| 16:10–16:13 | Theo quyết định "hoàn thiện ML trước, rồi tích hợp rule và so sánh có/không rule": unit `pulse-burden-levers-1022` chỉ còn phần ML (snapshot `ab35a23`); thiết kế so sánh đăng ký ở `rule-integration-v1` bổ sung 1 | mục 5.22, [rule](RULE_INTEGRATION_STATUS.md) R6 |
