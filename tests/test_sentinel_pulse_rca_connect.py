@@ -139,3 +139,25 @@ def test_materializer_writes_immutable_checksumed_edges(tmp_path):
         pass
     else:
         raise AssertionError("existing RCA evidence was overwritten")
+
+
+def test_node_ip_of_host_network_pods_resolves_to_the_node_not_to_one_pod():
+    def pod(ns, name, ip, host_network=False, node="k8s-worker4.local"):
+        return {"metadata": {"namespace": ns, "name": name, "uid": name},
+                "spec": {"hostNetwork": host_network, "nodeName": node},
+                "status": {"podIP": ip, "podIPs": [{"ip": ip}], "hostIP": "10.1.16.238"}}
+    index = kubernetes_target_index(
+        {"items": [pod("monitoring", "node-exporter-5t4tl", "10.1.16.238", True),
+                   pod("kube-system", "cilium-x2k", "10.1.16.238"),          # podIP == hostIP also means host network
+                   pod("production", "catalog-abc", "10.0.4.12")]},
+        {"items": []},
+        {"items": [{"metadata": {"namespace": "monitoring",
+                                 "labels": {"kubernetes.io/service-name": "node-exporter"}},
+                    "endpoints": [{"addresses": ["10.1.16.238"]}]}]},
+    )
+    assert index["10.1.16.238"] == {
+        "kind": "Node", "name": "k8s-worker4.local", "ambiguous": True,
+        "reason": "node IP shared by hostNetwork pods and SNAT-ed traffic; the real peer is unknown",
+        "host_network_pods": ["kube-system/cilium-x2k", "monitoring/node-exporter-5t4tl"],
+        "host_network_services": ["monitoring/node-exporter"]}
+    assert index["10.0.4.12"]["kind"] == "Pod" and index["10.0.4.12"]["name"] == "catalog-abc"

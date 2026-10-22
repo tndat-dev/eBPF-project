@@ -63,10 +63,26 @@ def _labeled_integer(arguments: list, label: str) -> int | None:
 def kubernetes_target_index(
     pods: Mapping, services: Mapping, endpoint_slices: Mapping
 ) -> dict[str, dict]:
-    """Index Pod IP, Service ClusterIP and EndpointSlice addresses."""
+    """Index Pod IP, Service ClusterIP and EndpointSlice addresses.
+
+    A hostNetwork pod's IP is its node's IP: every hostNetwork pod of that node shares it, and SNAT-ed traffic
+    (NodePort, masquerade) carries it as source. Such an address resolves to the Node, marked ambiguous, never to
+    one of those pods (before 23/10 it named whichever hostNetwork pod came last, e.g. node-exporter)."""
     result: dict[str, dict] = {}
     for item in pods.get("items", []):
-        metadata, status = item.get("metadata", {}), item.get("status", {})
+        metadata, status, spec = item.get("metadata", {}), item.get("status", {}), item.get("spec", {})
+        if spec.get("hostNetwork") or (status.get("podIP") and status.get("podIP") == status.get("hostIP")):
+            ips = {str(e.get("ip")) for e in status.get("podIPs") or [] if e.get("ip")}
+            ips |= {str(status["podIP"])} if status.get("podIP") else set()
+            for ip in ips:
+                node = result.setdefault(ip, {
+                    "kind": "Node", "name": spec.get("nodeName"), "ambiguous": True,
+                    "reason": "node IP shared by hostNetwork pods and SNAT-ed traffic; the real peer is unknown",
+                    "host_network_pods": [],
+                })
+                node["host_network_pods"] = sorted(
+                    node["host_network_pods"] + [f"{metadata.get('namespace')}/{metadata.get('name')}"])
+            continue
         for entry in status.get("podIPs") or []:
             ip = entry.get("ip")
             if ip:
@@ -102,7 +118,10 @@ def kubernetes_target_index(
         for endpoint in item.get("endpoints") or []:
             for ip in endpoint.get("addresses") or []:
                 existing = result.get(str(ip), {})
-                if existing.get("kind") == "Pod":
+                if existing.get("kind") == "Node":
+                    existing["host_network_services"] = sorted(
+                        set(existing.get("host_network_services", [])) | {f"{metadata.get('namespace')}/{service}"})
+                elif existing.get("kind") == "Pod":
                     existing = dict(existing)
                     existing["service"] = service
                     result[str(ip)] = existing
