@@ -118,3 +118,61 @@ def test_light_row_drops_the_vector_and_other_workloads():
     assert light_row(line, {'production/b:app'}) is None
     last = json.dumps(dict(workload_key='production/a:app', vector_f32_zlib_b64='abc'), separators=(',', ':'))
     assert light_row(last, {'production/a:app'}) == {'workload_key': 'production/a:app', '_': 0}
+
+
+def test_end_to_end_on_a_synthetic_run(tmp_path, monkeypatch):
+    import json, sys
+    from sentinel_pulse.attack.window_table import save
+    rng = np.random.default_rng(7)
+    from sentinel_pulse.detector.confirmation import IDENTITY
+    idents = [['production/w:app', 'n1', 'pod-a', 'app', 'r1', '1'], ['production/w:app', 'n2', 'pod-b', 'app', 'r1', '2']]
+
+    def table(n, path, t0, attack_at=None):
+        rows = {k: [] for k in ('ident', 'workload', 'start', 'end', 'tree_score', 'support_score', 'tree_p',
+                                'support_p', 'joint_p', 'alpha', 'eligible', 'launch', 'novel_peer30',
+                                'novel_peer60', 'novel_self60', 'novel_self300')}
+        for k in range(2):
+            for i in range(n):
+                s = t0 + i * 0.5
+                bump = attack_at is not None and k == 0 and attack_at <= s < attack_at + 3
+                for name, v in (('ident', k), ('workload', 0), ('start', s), ('end', s + 0.5),
+                                ('tree_score', rng.normal() + (8 if bump else 0)), ('support_score', rng.normal()),
+                                ('tree_p', .5), ('support_p', .5), ('joint_p', 1.0), ('alpha', 0.05 / 30),
+                                ('eligible', 1), ('launch', int(i % 20 == 0)), ('novel_peer30', 1 if bump else 0),
+                                ('novel_peer60', 0), ('novel_self60', 0), ('novel_self300', 1 if bump else 0)):
+                    rows[name].append(v)
+        dtypes = dict(ident='i4', workload='i2', eligible='i1', launch='i1', novel_peer30='i2', novel_peer60='i2',
+                      novel_self60='i2', novel_self300='i2')
+        arrays = {k: np.array(v, dtype=dtypes.get(k, 'f8')) for k, v in rows.items()}
+        save(path, arrays, dict(workloads=['production/w:app'], identities=idents, identity_fields=list(IDENTITY)))
+        return arrays
+
+    cal = table(1500, tmp_path/'cal.npz', 0.0)
+    np.savez(tmp_path/'calibration.npz', **{'tree::production/w:app': cal['tree_score'],
+                                            'support::production/w:app': cal['support_score']})
+    runs = []
+    for r in ('r1', 'r2'):
+        camp = tmp_path/r/'campaign'
+        t0, start = 10000.0, 10600.0
+        table(3000, tmp_path/f'{r}.npz', t0, attack_at=start + 2)
+        (camp/'trials'/'1').mkdir(parents=True)
+        trial = lambda label, at, k: dict(node_name=idents[k][1], pod_uid=idents[k][2], container_name='app',
+                                          workload_revision='r1', cgroup_id='1' if k == 0 else '2',
+                                          start_at=at, kernel_event_at=at + 2, scenario='s')
+        doc = dict(attack=trial('attack', start, 0), control=trial('control', start + 100, 0),
+                   benign=trial('benign', start + 200, 1))
+        (camp/'trials'/'1'/'EVALUATION_INPUT.json').write_text(json.dumps(doc))
+        (camp/'INTERVALS.jsonl').write_text(json.dumps(dict(start_at=start)) + '\n')
+        (camp/'TERMINAL.json').write_text(json.dumps(dict(finished_at_unix=start + 300)))
+        runs += ['--run', f'name={r},table={tmp_path/r}.npz,since={t0},campaign={camp}']
+    out = tmp_path/'out.json'
+    monkeypatch.setattr(sys, 'argv', ['burden_levers', *runs, '--calibration', str(tmp_path/'calibration.npz'),
+                                      '--calibration-table', str(tmp_path/'cal.npz'), '--output', str(out)])
+    bl.main()
+    result = json.loads(out.read_text())
+    assert result['calibration_reproduced']['all'] is True
+    ref = result['candidates']['r1'][bl.REFERENCE]
+    assert ref['attack'] == 1.0 and ref['p95'] is not None
+    assert set(result['selection']) == {'lt2s', 'le3s'}
+    assert len(result['candidates']['r1']) == len(bl.VARIANTS) * len(bl.MODES) * (
+        len(bl.CUSUM_B) * len(bl.CUSUM_H) + 0) + 2 * len(bl.MODES) * (len(bl.KOFN['joint']) + len(bl.KOFN['and']))

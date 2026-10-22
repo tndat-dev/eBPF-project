@@ -42,6 +42,7 @@ MODE_RANK = dict(none=0, peer30=3, peer60=3, self60=4, self300=4, peer30_or_self
 VARIANT_RANK = {'joint': 0, 'and': 1, 'mjoint': 2, 'mand': 2}
 EPISODE_QUIET, INCIDENT_G, INTERVAL, MIN_ROWS, MIN_CAL = 15.0, (60.0, 300.0), 15.0, 20, 1200
 REFERENCE = 'joint|none|cusum_b3_h6'
+TRIAL_FIELDS = tuple(f for f in IDENTITY if f != 'workload_key')
 TIERS = {'lt2s': (lambda p95: p95 < 2.0), 'le3s': (lambda p95: p95 <= 3.0)}
 
 
@@ -155,7 +156,7 @@ class Trials:
                     t = d.get(label)
                     if not t:
                         continue
-                    key = tuple(str(t.get(k)) for k in IDENTITY)
+                    key = tuple(str(t.get(k)) for k in TRIAL_FIELDS)
                     rows.append((label, d['attack'].get('scenario'), float(t['start_at']),
                                  t.get('kernel_event_at'), ident_index.get(key)))
         self.label, self.scenario, self.lo, self.hi, self.kernel = [], [], [], [], []
@@ -180,7 +181,8 @@ class Trials:
             self.lo.append(b0 + sel[0]); self.hi.append(b0 + sel[-1] + 1)
             self.kernel.append(np.nan if kernel is None else float(kernel))
         self.label, self.scenario = np.array(self.label), np.array(self.scenario)
-        self.lo, self.hi, self.kernel = np.array(self.lo), np.array(self.hi), np.array(self.kernel)
+        self.lo, self.hi = np.array(self.lo, dtype=np.int64), np.array(self.hi, dtype=np.int64)
+        self.kernel = np.array(self.kernel, dtype=np.float64)
 
     def outcome(self, alarm, end):
         cs = np.concatenate([[0], np.cumsum(alarm)])
@@ -256,7 +258,9 @@ def prepare(table, run_since, campaigns, tree, support, classes):
     a['normal'] = normal
     a['hours'] = float(np.sum((a['end'] - a['start'])[normal])) / 3600
     a['new'] = segments(a['ident'], a['start'], a['end'])
-    index = {tuple(i): k for k, i in enumerate(meta['identities'])}
+    fields = meta.get('identity_fields', list(IDENTITY))
+    pos = [fields.index(f) for f in TRIAL_FIELDS]         # trial files carry no workload_key
+    index = {tuple(i[j] for j in pos): k for k, i in enumerate(meta['identities'])}
     trials = Trials(campaigns, index, a['ident'], a['start'], a['end'])
     asrun_equal = float(np.mean(np.isclose(p['joint'], a['joint_p'], rtol=0, atol=1e-12)))
     info = dict(rows=int(len(a['end'])), dropped_without_calibration=int((~keep).sum()), replica_hours=a['hours'],
