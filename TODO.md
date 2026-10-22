@@ -67,7 +67,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [ ] **(cần bạn)** RAM NFS (`k8s-nfs`): tăng lên 8 GB và đặt reservation. Cần tắt VM, nên chỉ làm khi không có lượt live.
 - [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
-- [ ] Lặp lại đo overhead A/B (G7); kiểm tra trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
+- [ ] Đo overhead A/B (G7) theo `overhead-ab-v1` ngay sau lượt live (sau khi dừng collector 1 s), ~10 phút trên worker4. [ ] Kiểm trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
 
 ## Quy tắc đang áp dụng
 

@@ -1,0 +1,19 @@
+{
+  "schema": "sentinel-pulse-overhead-ab-v1",
+  "registered_at": "2026-10-22T09:46+07:00",
+  "registered_before": "any overhead measurement of the current probe (the earlier overhead code was retired 18/10)",
+  "question": "What does Pulse's eBPF counting cost per syscall, for monitored and for unmonitored processes on the same node?",
+  "probe": "pulse_counter_extended (raw_tp/sys_enter on every syscall of the node, per-cgroup counters, 64 syscall bins, 64 transition bins, per-thread last syscall; fexit/__seccomp_filter), the object the live workers attach",
+  "conditions": {
+    "off": "no Pulse probe attached",
+    "filtered": "probe attached, benchmark cgroup not in the allow list",
+    "monitored": "probe attached, benchmark cgroup in the allow list"
+  },
+  "workload": "testbed/bench/syscall_bench.c, static: getpid (near-null), read4k (/dev/zero), openclose (/tmp), mmapunmap; 10 s per mode, in a dedicated cgroup /sys/fs/cgroup/pulse-bench",
+  "design": "5 rounds on one worker; the three conditions rotate their order every round; 3 s settle after attaching",
+  "preconditions": "no live run, the 1 s collector stopped, no other Pulse loader attached (the runner refuses otherwise); Tetragon and the cluster stay as in normal operation",
+  "metrics": ["median ns/op per condition and mode", "relative overhead filtered/off and monitored/off as the median of per-round paired ratios with a bootstrap 95 % CI over rounds", "added ns per syscall"],
+  "complements": "end-to-end cost already measured in live runs: worker CPU 13-31 % of one core with fast scoring (SENTINEL_PULSE_STATUS 5.8), RCA/Tetragon cost (RCA report)",
+  "limits": "microbenchmark: a lower bound on the share for syscall-light applications and an upper bound for syscall-heavy ones; one worker, one kernel (Ubuntu 24.04, 6.8.0)",
+  "code": "scripts/overhead_ab.sh (runner), scripts/analysis/overhead_ab.py (analysis, tested)"
+}
