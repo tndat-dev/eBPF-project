@@ -438,6 +438,23 @@ Bằng chứng: [`validation-evidence/results-20261019/syscall/`](validation-evi
 - **Kết quả nhánh p-value lặp lại 5B.1:** cả hai nhánh đều cần ở ngân sách 1. Chỉ dùng tree mất 22 điểm (5B.1: 28–31); chỉ dùng support mất 13 điểm (5B.1: 5–7).
 - **Ba cửa sổ lịch sử là cần thiết:** rút ngắn lịch sử làm kém khả năng tách, dù recall gần như không đổi.
 
+## 5C. Kiểm lại dưới luật Pulse stable mới: CUSUM (đăng ký 22/10 16:36, protocol `syscall-feature-groups-under-stable-rule-v1`)
+
+- **Lý do:** Pulse stable đổi luật thời gian từ k2of2 α×10 sang **CUSUM drift 3** (Pulse 5.19, đóng băng 22/10 16:29). Mục 7 của báo cáo này đã ghi trước: khi Pulse đổi cách gộp theo thời gian thì phải áp lại cùng phương pháp cho mọi cấu hình.
+- **Cách làm:**
+  - `arm_budget --cusum-drift 3`: CUSUM trên −ln p, quét ngưỡng h ∈ {1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 40};
+  - mỗi cấu hình lấy ngưỡng thấp nhất vẫn trong ngân sách (chính 1, phụ 5 đợt/replica-giờ);
+  - bootstrap ghép cặp theo workload; recall theo kịch bản;
+  - bản vector hóa trùng từng cửa sổ với `CusumState` của Pulse (có test).
+- **Áp cho:**
+  - 11 cấu hình syscall (cùng input với 5.9);
+  - các nhánh nhóm feature trên holdout chính (sau `feature-groups-primary-1022`).
+- **Luật:** giữ nguyên luật chọn v2 và luật từng thành phần của 5B. Kết luận k2of2 vẫn là bằng chứng chính. Nếu CUSUM cho kết luận ngược thì cấu hình hoặc thành phần đó ghi là chưa kết luận. Không đổi feature chỉ vì phép kiểm này.
+- **Chạy:**
+  - unit `syscall-cusum-1022` (snapshot `4216aa3`, nice 19);
+  - chép score dump và replay về đĩa local trước khi lượt live xác nhận bắt đầu, sau đó chỉ dùng CPU, như job 5.9;
+  - output `matched-parallel-r4-20261015/syscall-arms-cusum/` và `feature-groups/cusum/`.
+
 ## 6. Luật chọn (protocol v2) và đánh giá theo luật
 
 Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-selection-evaluation-v2.json) đăng ký các điều kiện:
@@ -464,6 +481,8 @@ Protocol [syscall-selection-evaluation-v2.json](sentinel_pulse/protocol/syscall-
 | Kết luận cuối cho báo cáo đồ án | **Có (5.9, mục 1)** |
 | Blind paired attack theo protocol v2 | Chưa (điều kiện ngân sách chưa đạt) |
 | Đưa thay đổi feature vào Pulse | Không đổi: giữ base29 |
+| Kiểm lại dưới luật Pulse stable (CUSUM), 11 cấu hình + nhóm feature | **Đang chạy** (5C, 22/10) |
+| Nhóm feature trên holdout chính + gộp theo luật bổ sung | **Đang chạy** (5B, dự kiến ~19:30) |
 
 Nếu cải tiến calibration hoặc gộp thời gian của Pulse hạ được gánh cảnh báo, phải áp lại cùng phương pháp cho cả 11 cấu hình bằng `arm_budget.py` trên điểm đã xuất. Không cần chấm lại model.
 
@@ -532,3 +551,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và phần kết luận hiện tại (thêm kết quả tạm thời 5B.2) | mục 1 |
 | 22/10 14:56–15:20 | Giai đoạn B trên holdout chính lỗi ngay ở segment đầu: `score_segment` kiểm số chiều với giả định context 4 cửa sổ, nên nhánh `history1`/`history2` (2 và 3 cửa sổ) bị từ chối. Holdout thứ hai không gặp lỗi vì đi qua `baselines score`. Sửa phép kiểm theo độ sâu lịch sử của từng nhánh, thêm test (`8497505`). Xóa output dở; chạy lại sau bước nén trong unit `pulse-stable-selection-1022` (snapshot `9b7c813`) | mục 5B |
 | 22/10 16:17–16:20 | Giai đoạn B trên holdout chính chạy lại trong unit riêng `feature-groups-primary-1022` (`scripts/feature_groups_primary.sh`, snapshot `11492a4`): dump 3 node song song và replay `pulse-attack-dev` cùng lúc; xóa output dở của lần 14:56 trước khi chạy | mục 5B |
+| 22/10 16:30–16:40 | Pulse stable đổi sang CUSUM → thêm CUSUM vào `arm_budget` (trùng từng cửa sổ với `CusumState`, có test); đăng ký `syscall-feature-groups-under-stable-rule-v1` (16:36) trước khi có số; chạy `syscall-cusum-1022` | mục 5C |

@@ -317,19 +317,20 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Tải case dưới policy-1win-a3 | `rca-subscriber` 19/10 19:24 → 20/10 02:22: 2.364 case, khoảng 330 case mỗi giờ từ 20:00, toàn bộ là case gốc (không có case tiếp nối vì đây là thời gian normal, không có exec mới). Mức này bị chặn trên bởi cooldown 300 s cho mỗi container; về bản chất đó là số preview dương ở normal của policy 1 cửa sổ alpha×3. Policy chặt hơn ở pulse-stable-candidate sẽ giảm con số này |
 | Thử reboot / mất NFS / backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
-## 7. Tiến độ (cập nhật 20/10 11:18)
+## 7. Tiến độ (cập nhật 22/10 16:40)
 
 | Hạng mục | Trạng thái |
 |---|---|
-| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Chạy (`rca-pulse-stable-candidate`) |
-| Stream không rò tiến trình; xoay vòng stream | Có. Còn rò khi subscriber bị dừng (tiến trình con của `timeout` sống sót); từ 20/10 có timer `tetra-orphan-reaper` trên worker |
-| Xếp hạng nghi phạm, loại cha container runtime, bỏ qua hạ quyền lúc khởi chạy | Có; top-1 99,6% trên 273 case pulse-stable-candidate (xếp hạng lại với luật mới; 91,9% lúc chạy) |
-| Case tiếp nối cho exec mới trong cooldown | Có; tỉ lệ attack có case 86,7% (273/315) trên pulse-stable-candidate |
-| Ngữ cảnh mạng (flow) | Có; 87% case có flow sau khi thu hẹp hook file |
-| Độ trễ preview → case | **p50 2,22 s / p95 2,47 s** trên 2.364 case (đọc decision qua SSH) |
-| Đánh giá trên campaign pulse-stable-candidate | **Có (5.10)** |
-| Coverage còn thiếu (~28% attack không có case riêng) | Do cooldown/gộp case; chưa giải quyết |
-| Cảnh báo vận hành thật làm trigger | Chưa có (Pulse vẫn chạy shadow) |
+| Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Có; chạy theo từng lượt live (`rca-<run>`) |
+| Xếp hạng nghi phạm, luật hạ quyền lúc khởi chạy | **Có:** top-1 100% (273/273) trên dữ liệu mới `pulse-stable-refreshed`, luật cũ 91,9% (5.11) |
+| Case tiếp nối cho exec mới trong cooldown | Có; 86,7% attack có case riêng |
+| Ngữ cảnh mạng (flow) | Có; 85,6–89,8% case có flow |
+| Độ trễ preview → case | p50 2,24 s / p95 2,59 s (`pulse-stable-refreshed`) |
+| Nhãn triage probe trên case | Có (chỉ là nhãn); dùng cho phần rule sau khi ML hoàn thiện |
+| Baseline binary mang qua các lượt | **Có code + seed** (5.12); kiểm trên lượt `pulse-stable-confirm` |
+| 13% attack không có case riêng | Bộ đếm lý do từ chối có code; số liệu từ lượt `pulse-stable-confirm` |
+| RCA dưới luật Pulse stable (CUSUM) | Lượt `pulse-stable-confirm` (tự khởi chạy ~19:30–20:00 22/10, xong ~20:00 23/10) |
+| Cảnh báo vận hành thật làm trigger | Ngoài phạm vi (Pulse chạy shadow); ghi là giới hạn |
 | Chứng minh nhân quả | Ngoài phạm vi |
 
 ## 8. File, service, lệnh kiểm tra

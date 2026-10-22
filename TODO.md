@@ -11,6 +11,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [~] **`pulse-stable-confirm-launcher`**: chờ 4 unit nặng rồi khởi chạy lượt live xác nhận.
 - [~] **`feature-groups-primary-1022`**: nhóm feature trên holdout chính, 3 node song song + replay `pulse-attack-dev` (~19:30).
 - [~] **`pulse-57d-1022`**: Pulse 5.7d trên soak.
+- [~] **`syscall-cusum-1022`**: 11 cấu hình syscall + nhóm feature dưới luật CUSUM stable (SYSCALL 5C).
 - [~] **`pulse-burden-levers-1022`** (Pulse 5.22, chỉ ML, protocol `burden-reduction-v1` + bổ sung 1): chờ bước nén, rồi dựng bảng cửa sổ cho 2 lượt development và áp luật chọn. Bảng calibration đã xong và tái lập đúng npz.
 
 ## Việc kế tiếp (theo thứ tự)
