@@ -178,6 +178,30 @@ Thí nghiệm syscall ([SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EX
 
 ### 5.1 Soak 48 giờ của candidate đóng băng (15–17/10, normal chưa review nhãn)
 
+**Vì sao 48 giờ, không phải 12 hay 24 giờ** (ghi bổ sung 22/10, suy từ mốc thời gian và protocol lúc đó):
+- **Một capture phục vụ ba việc cùng lúc** (matched, cùng snapshot 500 ms):
+  - thí nghiệm `syscall-arms`;
+  - soak của candidate Pulse;
+  - campaign `pulse-attack-dev`.
+- **Ràng buộc của protocol syscall v2:**
+  - normal để test phải là capture mới **sau khi** model đã đóng băng;
+  - dài ít nhất **24 giờ** sau mốc đóng băng (`normal_test_exposure.wall_duration`).
+- **Mốc thời gian thật:**
+  - capture bắt đầu 14/10 17:38 UTC;
+  - 693 model fit xong 15/10 05:22 UTC, khoảng 11,7 giờ sau. Các row trước mốc đóng băng không được gán ngược vào holdout;
+  - holdout 24 giờ: 15/10 05:38 → 16/10 05:38 UTC;
+  - còn khoảng 12 giờ dự phòng cho fit chậm, sự cố hay phục hồi segment (các lượt trước đó đã gặp phải).
+
+  Tối thiểu là khoảng 36 giờ, nên chọn 48 giờ.
+- **12 giờ là không đủ:**
+  - không chứa nổi cả thời gian fit lẫn holdout 24 giờ;
+  - một campaign đã chiếm 6–10 giờ;
+  - drift của calibration và tác vụ định kỳ hiếm chỉ lộ ra sau nhiều giờ. Ví dụ 5.7d: calibration tĩnh trên soak 48 giờ cho 14,98 đợt/replica-giờ, còn làm mới định kỳ cho 9,44.
+- **Từ 18/10 các lượt live chỉ chạy 24 giờ:**
+  - capture 48 giờ kèm `raw.jsonl` (~4,9 GB/giờ) không còn vừa NFS (ghi chú trong `plan_matched_run.py`);
+  - 24 giờ đủ cho pha chọn 90 phút, một campaign và phần normal còn lại;
+  - lặp nhanh hơn.
+
 | Worker | Cửa sổ đã chấm | Cảnh báo thử | Tỷ lệ | Issue |
 |---|---:|---:|---:|---:|
 | worker1 (.237) | 9.011.856 | 673.825 | 7,5% | 146 |
