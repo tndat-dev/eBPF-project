@@ -1,0 +1,20 @@
+{
+  "schema": "sentinel-pulse-stable-selection-v1-amendment",
+  "registered_at": "2026-10-22T22:45+07:00",
+  "registered_before": "any number of the CUSUM variants below under continuous evaluation; the confirmation launcher was stopped before any run started",
+  "amends": "sentinel_pulse/protocol/stable-selection-v1.json",
+  "finding": "The 5.11a screen and the step-3 combined replay restarted the CUSUM statistic at the start of each trial's rows; the live CusumState runs continuously per container. With continuous evaluation (window tables, burden-reduction-v1 tool) the frozen cusum_b3_h6 has idle-control 5.7 % (18/315) on pulse-stable-refreshed and 6.0 % on pulse-stable-candidate: in 13 of the 18 control hits S was already far above the threshold before the interval (up to 2638), because S grows without bound during a long anomaly and decays by at most the drift (3) per window, so an alarm can last minutes into the next trial on the same container. The frozen policy (9bf0b216) is therefore not confirmed and is not launched.",
+  "variants": {
+    "keep": "as frozen: S_t = max(0, S_{t-1} + y_t), alarm while S_t >= h (reported only)",
+    "cap": "S_t = min(max(0, S_{t-1} + y_t), h): the alarm lasts while evidence keeps S at h and stops at the first window with y_t < 0",
+    "restart": "S_t = max(0, S_{t-1} + y_t); after an alarm window S is set to 0 (Page's restart after a signal)",
+    "common": "y_t = -ln(joint_p) - 3, h = 6, S = 0 after a gap > 1 s, as CusumState; refreshed calibration"
+  },
+  "evaluation": "continuous per-container streams of pulse-stable-candidate and pulse-stable-refreshed (window tables already built for burden-reduction-v1; nothing restarts at trial boundaries); same trial, episode and normal-span definitions as burden_levers.py; reference k2of2 alpha x10 on the same streams",
+  "rule": [
+    "1. A variant (cap, restart) passes when, on BOTH runs, recall >= 95 %, precision >= 95 %, control <= 5 %, p95 <= 3 s, and on pulse-stable-refreshed it is 'better' than k2of2 alpha x10 by the 5.11a criteria (burden >= 10 % lower with recall not more than 1 point lower, control not higher and p95 not more than 0.2 s slower; or p95 >= 0.2 s faster with burden not higher).",
+    "2. If both pass, the one with the lower max-over-runs burden (within 5 %: cap, the simpler alarm semantics).",
+    "3. If neither passes, the temporal rule reverts to the starting point k2of2 alpha x10, which becomes the stable configuration.",
+    "4. The result is frozen and confirmed by the confirmation live run under stable-confirmation-v1 (policy and its hash updated before launch)."
+  ]
+}
