@@ -1353,7 +1353,7 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
   - p95 1,68 s và "đạt mức < 2 s" là do cách đánh giá khởi động lại ở mỗi trial. Bản đúng ở **mức ≤ 3 s** (2,05 s).
   - Mức giảm gánh so với k2of2 là **10%**, không phải 21%.
 - **Code:** `CusumPolicy(on_alarm=keep|cap|restart)` trong `detector/confirmation.py` và chính sách live; bản vòng lặp trong `burden_levers.py` và `arm_budget.py`. Cả ba trùng từng cửa sổ với `CusumState` (có test).
-- **Lượt xác nhận:** `stable-confirmation-v1` bổ sung 1 đổi chính sách, phần khác giữ nguyên. Launcher chờ `feature-groups-primary-1022`.
+- **Lượt xác nhận:** `stable-confirmation-v1` bổ sung 1 đổi chính sách, phần khác giữ nguyên. Launcher chờ `feature-groups-primary-1022`. Chuỗi phân tích `after-stable-confirm` đã hẹn sẵn.
 
 - **Giới hạn nêu trước:**
   - không cấu hình nào được kỳ vọng đạt ngân sách 0,1 đợt/replica-giờ;
@@ -1878,3 +1878,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:10–17:26 | 5.22: bảng cửa sổ 2 lượt (11,1 triệu cửa sổ mỗi lượt) và phép chọn xong. Tham chiếu tái lập 5,32. Đề xuất: mức < 2 s Mondrian + replica 60 s + k2of2 α×15 (2,2–2,3 đợt, control 1,3–1,6%); mức ≤ 3 s replica 30 s + k2of2 α×5 (1,5–1,7 đợt, control 0,95%). Chờ test blind | mục 5.22 |
 | 22:42–22:44 | Đọc kết quả: control của tham chiếu CUSUM ở 5.22 là 5,7%, khác 2,9% của `ideas_screen`. Chẩn đoán: 13/18 control dương do S của CUSUM tích lũy không giới hạn từ đợt bất thường trước (tới 2.638). Dừng `pulse-stable-confirm-launcher` trước khi lượt live khởi chạy | mục 5.19 bổ sung 1 |
 | 22:45–22:49 | Đăng ký `stable-selection-v1` bổ sung 1 (22:45). Thêm `on_alarm` (keep/cap/restart) vào `CusumState`, chính sách live, công cụ đánh giá, có test. Trên luồng liên tục: chọn `cap` (control 3,2%, p95 2,05 s, 6,07 đợt). Đóng băng `policy-cusum-b3-h6-cap` (`93dd1478…`), sửa `stable-confirmation-v1` (bổ sung 1), hẹn lại launcher (snapshot `16982eb`; sửa đường dẫn `SNAP` thiếu `/source` trong file môi trường) | mục 5.19 |
+| 22:58–23:20 | Rà việc làm được ngay. **Dọn:** 4 snapshot không dùng, `/var/tmp/pulse-live-copy` (9,9 GB), 2 file trùng biên nhận. **Chuỗi phân tích lượt xác nhận** (`after-stable-confirm`, snapshot `1e2ae7f`, chờ lượt chạy): kỳ vọng theo tập tốc độ có CI Wilson (`confirm_campaign.py`, tái lập đúng 5.13a trên `pulse-stable-refreshed`); gánh từ preview live + CI bootstrap theo workload; test blind 5.22 theo điều 5 (`burden_blind_test.py`, chạy thử trên `pulse-stable-refreshed` tái lập đúng số của phép chọn); bảng cửa sổ có thêm cột preview live; rồi nén. Chạy thử giai đoạn campaign trên dữ liệu thật: đủ, không lỗi. Phát hiện phụ: p95 theo tốc độ trên `pulse-stable-refreshed` là 4,42 s ở 6/s, 1,58 s ở 12/s, 1,33 s ở 24/s | mục 5.19, 5.22 |

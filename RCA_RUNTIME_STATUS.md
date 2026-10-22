@@ -302,6 +302,11 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 - **Nối vào lượt chạy:** `launch_run.sh` nhận `BASELINE_SEED`; service ghi đường dẫn, sha256 và số dòng nạp vào metadata của database.
 - **Test:** binary trong campaign không vào seed; binary đã seed không còn `novel_binary`/`unknown_binary`; khởi động lại không seed hai lần; tổng test 384/384.
 - **Kiểm ở lượt sau:** trên case normal, tỉ lệ nghi phạm hạng 1 là `novel_binary`/`unknown_binary` phải giảm; top-1 của attack phải giữ 100%.
+- **Mốc trước khi có seed (`scripts/analysis/rca_suspect_reasons.py`, 22/10 23:10):**
+  - nghi phạm hạng 1 của case normal mang `novel_binary`/`unknown_binary` ở **22,2%** (`pulse-stable-candidate`, 966/4.347) và **14,2%** (`pulse-stable-refreshed`, 612/4.325);
+  - binary đứng sau: `java` (entity-operator khởi động lại trong lượt), `node`, `sh`, `envoy`, `/controller/manager`, `minio`, `dash`;
+  - seed bao `java`, `envoy`, `/controller/manager`, `minio`, sidecar của minio và `sh` ở 7 workload, tức khoảng 400/612 case của `pulse-stable-refreshed`. Không bao `node` và `dash`;
+  - biên nhận: `results-20261021/{pulse-stable-candidate,pulse-stable-refreshed}/rca-suspect-reasons.json`. Lượt xác nhận chạy cùng script trong giai đoạn final.
 
 ## 6. Coverage, hiệu năng, giới hạn
 
@@ -402,3 +407,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 22/10 02:00 | Review nhãn (Pulse 5.20) cho thấy binary định kỳ hiếm (`/controller/manager wal-archive` của CloudNativePG) bị đánh `novel_binary` và xếp đầu nghi phạm, vì pha học baseline (90 phút) ngắn hơn chu kỳ của nó. Hướng sửa: học baseline dài hơn hoặc mang baseline qua các lượt. Chưa đổi | Pulse 5.20 |
 | 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và bảng trạng thái (code chờ lượt sau, phát hiện từ review nhãn, case cũ đã xóa) | mục 1 |
 | 22/10 16:15–16:24 | Baseline binary mang qua các lượt (`baseline_seed.py`, có test); seed từ hai lượt trước (59 binary, loại 57 dòng thấy lần đầu trong campaign); `launch_run.sh` nhận `BASELINE_SEED` cho lượt `pulse-stable-confirm` | mục 5.12 |
+| 22/10 23:10 | Mốc trước khi có seed: nghi phạm hạng 1 của case normal là binary mới/chưa biết ở 22,2% / 14,2% (2 lượt trước); script đưa vào chuỗi phân tích của lượt xác nhận | mục 5.12 |

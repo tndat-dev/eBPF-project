@@ -163,3 +163,4 @@ Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | 16:05–16:10 | Theo yêu cầu tách ML khỏi rule: `burden_levers.py` bỏ hẳn phần rule; `rule_tier.py` riêng, kiểm số ML trùng trước khi áp rule; protocol `rule-integration-v1`; chuyển Falco và tripwire từ báo cáo Pulse sang file này | R1–R5 |
 
 | 16:10–16:13 | Theo quyết định "hoàn thiện ML rồi mới tích hợp rule và so sánh có/không rule": gỡ bước `rule_tier.py` khỏi unit tối nay; đăng ký thiết kế so sánh (`rule-integration-v1` bổ sung 1, 16:12) | R6 |
+| 23:15 | Chuẩn bị dữ liệu (không tính số rule): `falco_baseline.py` xuất kết quả từng trial và từng event normal (có test), để so sánh ghép cặp có/không rule ở R6 sau khi ML hoàn thiện. Log Falco của lượt xác nhận sẽ được chép tay ngay sau lượt chạy | R6 |
