@@ -1,12 +1,10 @@
 {
   "schema": "pulse-falco-baseline-v1",
   "logs": [
-    "/var/tmp/falco-baseline/worker1",
-    "/var/tmp/falco-baseline/worker4",
-    "/var/tmp/falco-baseline/worker3"
+    "/var/tmp/falco-baseline"
   ],
   "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix",
-  "events": 201458,
+  "events": 202693,
   "falco_version": "0.44.1 (DaemonSet image falcosecurity/falco:0.44.1), default rules as deployed",
   "trial_detection": {
     "control": {
@@ -78,32 +76,32 @@
   },
   "normal": {
     "window_unix": [
-      1792560282.0,
-      1792605000.0
+      1792560282.2194963,
+      1792647091.0724208
     ],
-    "events": 639,
-    "episodes": 520,
+    "events": 1773,
+    "episodes": 1449,
     "episodes_by_rule": {
-      "Unexpected connection to K8s API Server from container": 518,
-      "Shell spawned by untrusted binary": 2
+      "Unexpected connection to K8s API Server from container": 1439,
+      "Shell spawned by untrusted binary": 10
     },
     "top_pods": [
       [
         "aims-kafka-entity-operator-5455dcf447-g4qxv",
-        518
-      ],
-      [
-        "aims-postgres-cnpg-2",
-        1
+        1439
       ],
       [
         "aims-postgres-cnpg-1",
-        1
+        6
+      ],
+      [
+        "aims-postgres-cnpg-2",
+        4
       ]
     ],
-    "covered_hours": 6.65153242011865,
-    "episodes_per_hour": 78.17747357393536,
-    "episodes_per_replica_hour": null
+    "covered_hours": 18.343436010281245,
+    "episodes_per_hour": 78.99283423170311,
+    "episodes_per_replica_hour": 1.18836064500216
   },
-  "computed_at_unix": 1792605634.2164648
+  "computed_at_unix": 1792657247.9503405
 }

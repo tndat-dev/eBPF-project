@@ -1,0 +1,64 @@
+{
+  "schema": "pulse-adoption-verdict-v1",
+  "budget": "1",
+  "rule": {
+    "recall_point_min": 0.0,
+    "recall_lower_min": -0.01,
+    "separation_point_min": 0.0,
+    "separation_lower_min": -0.05,
+    "p95_max_seconds": 2.0
+  },
+  "candidates": {
+    "autoencoder": {
+      "adopt": false,
+      "checks": {
+        "recall": true,
+        "separation": false,
+        "latency": true
+      },
+      "recall_diff": {
+        "ci95": [
+          0.01980198019801982,
+          0.0841320553780619
+        ],
+        "lower95_one_sided": 0.023809523809523947,
+        "point": 0.04870129870129869
+      },
+      "separation_diff": {
+        "ci95": [
+          -0.38901902812258854,
+          -0.13343914766383574
+        ],
+        "lower95_one_sided": -0.36559139784946226,
+        "point": -0.25857340271021056
+      },
+      "delay_p95": 1.0751574873924232
+    },
+    "tree_ae": {
+      "adopt": false,
+      "checks": {
+        "recall": true,
+        "separation": false,
+        "latency": true
+      },
+      "recall_diff": {
+        "ci95": [
+          0.01980198019801982,
+          0.0841320553780619
+        ],
+        "lower95_one_sided": 0.023809523809523947,
+        "point": 0.04870129870129869
+      },
+      "separation_diff": {
+        "ci95": [
+          -0.38551679268638245,
+          -0.13169459529569652
+        ],
+        "lower95_one_sided": -0.36363636363636376,
+        "point": -0.25640185005005844
+      },
+      "delay_p95": 1.0790016651153564
+    }
+  },
+  "next_scorer": "base29"
+}

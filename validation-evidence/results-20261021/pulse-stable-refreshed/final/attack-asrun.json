@@ -1,0 +1,2830 @@
+{
+  "automatic_promotion": false,
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix"
+  ],
+  "evaluation_inputs_sha256": {
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0001/EVALUATION_INPUT.json": "2b6740039fb4891a5bfee7d8e5658d1f1442be0255f8254b5bc15779ffbc2a49",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0002/EVALUATION_INPUT.json": "c03f7b6f92672e4be3b18b32b0438aecb5d860111f97014bcc667ea2b5f87e10",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0003/EVALUATION_INPUT.json": "23ddd18671490441f9687cfcb98576f5c9384e2f7ff107d322376a6fcf78645f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0004/EVALUATION_INPUT.json": "a94a162a3828624fb9ce8aacd86279dbe3d0d55d660879055ba601b7975b66b7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0005/EVALUATION_INPUT.json": "c0cbf8947e625310a358b6c0bb6f9a5c427004258ca8983c8a4485f667da8349",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0006/EVALUATION_INPUT.json": "b98756d69361657d4ee7268bcca73a20f5eb6bb8e298f65388a1e756adee2487",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0007/EVALUATION_INPUT.json": "9655fc162a529448e0492fb9a076b53bdc9d84119cfd5db658318d693dd0917d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0008/EVALUATION_INPUT.json": "1b1f12c966b81545232a27e8ce5ea50b910364cc926a76c7642cfa5b54a9d07e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0009/EVALUATION_INPUT.json": "f681f4556e7b361b5d6822d291528e5fe24203a062301853919c46f0649eb9af",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0010/EVALUATION_INPUT.json": "efbfa28cd1e1cf21e59608e18ad5c515b14c8cd1634756ae089abd06672f2913",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0011/EVALUATION_INPUT.json": "d27917bd247c5e120f387df1bc68146478b4435110e22b9b212a130ccc395991",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0012/EVALUATION_INPUT.json": "d16586eb8a51a98adc90ed21ec577cf251f4d17b1d8212dfc822ca6e94168e83",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0013/EVALUATION_INPUT.json": "0ecc6a360c7c9481401c0a9575511e9c577d8bd17ca508db816515a7229a316d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0014/EVALUATION_INPUT.json": "023af871992100478c2bbd86d3c0d75548c409fa92e944db600a1aeae9405e0d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0015/EVALUATION_INPUT.json": "6e8b49dbdb53c33fc9269754c690f20bb07467b888204f7bb536891979d3e022",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0016/EVALUATION_INPUT.json": "d25e13d22f6ae787f8db3fd9db2cabdcdfa75b3b7367d2dab180862b8484582d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0017/EVALUATION_INPUT.json": "1b21dc73d630030dfc7f9c31e8a44fb1755c925dd1aefd2544576c2a750e2dc5",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0018/EVALUATION_INPUT.json": "0045e9c9c34f0f77e124b2e04c85284ef5528fb90004e3914c2473648f3e69cf",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0019/EVALUATION_INPUT.json": "4c32f60a41fb6fac578ad521f2b05cd242f18e5a70e56ff2331bce613be84f63",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0020/EVALUATION_INPUT.json": "41d13234c53f43fb93537336e93399dbd3041efc2502a8cc001f2179c8488528",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0021/EVALUATION_INPUT.json": "f4c49bd1a111e4a8776b8c658a2ba30972a52f774eece2655534f719fe08449a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0022/EVALUATION_INPUT.json": "aa9356e3c40bb7d42c6f888b6102590b27f64764f9a809c2e3f1886ae1463b78",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0023/EVALUATION_INPUT.json": "5f2a80d67275ad479d4be6ce7d0faeb8fd9de2194ff6b2cd2be0388d81107f2f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0024/EVALUATION_INPUT.json": "1707f88ec5f902ada2ecd07199a2018815157a45074b66bde6f2f1ac2239d64d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0025/EVALUATION_INPUT.json": "c22606f7aad5a94c19992b8e52d2abc48228f07d1628c29ab6ff071353d37435",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0026/EVALUATION_INPUT.json": "bca26929c221c413477ee2476bfb62f6eb529be19b1dddbbb79687048a16ecbe",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0027/EVALUATION_INPUT.json": "7b838a7dd87c3f5b8c5e10dc0a8add3a7126d3c339732cc1d04786ec705a3a23",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0028/EVALUATION_INPUT.json": "0955d38f98b1733392b272f7f1bd0bab7d203cc6402c7b2f4facf205bc67c04a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0029/EVALUATION_INPUT.json": "a46f37d61f420bca6c6d9f48df6ed67caf59a17fb76cfeea6aae8000887faf43",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0030/EVALUATION_INPUT.json": "f1785757850da5abef3eb0bccc195f5242cac4894ec58a3bee7bc61b6ed83eed",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0031/EVALUATION_INPUT.json": "1c575030279abf59108885719d665c8913facd7383c3bc7cce1224d888349bf6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0032/EVALUATION_INPUT.json": "7d41aac513a5f1d43916aa027c325f50178669cc6bd36f580cfed73bdc076a56",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0033/EVALUATION_INPUT.json": "b2447be5c172f68bfde70b586a91be58c6d18e14bcc0441974f555ce4c177551",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0034/EVALUATION_INPUT.json": "0bfe938a8e9a43668b746e0d247d16f7f76cb4d29f79dadef33e1dda093367bf",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0035/EVALUATION_INPUT.json": "9c4d4be3ec64370ef4abb685495651e5eb35362fe4a46e8970f9348030ff6f92",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0036/EVALUATION_INPUT.json": "5f23b80a454136fc6478b0848f6aa7c9e61dcc849740c3d99eb0405a27b50d82",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0037/EVALUATION_INPUT.json": "a1cf2ab8ba542be2c89981476fe317cf50cb9a931a85fe3f3660bac26454de68",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0038/EVALUATION_INPUT.json": "66692c5bedb3deb678d86d3974abd136cfd5b3ec0f7ed8d15f56d397bd880680",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0039/EVALUATION_INPUT.json": "707b787594d2d4d5c0188905d20556612890f2ed80e139af3f1a17f3d0e74654",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0040/EVALUATION_INPUT.json": "1e798b2b52a9cdd8de2328c0bcdd93166703569567f30e1888efa0b84385a375",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0041/EVALUATION_INPUT.json": "a7809141412cf7128bfe03fdee26cd020fbe11321690c39881382b424e0bbe87",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0042/EVALUATION_INPUT.json": "053be38975bd3b06d091765a78039cb329344a9f216893dfdb87de22a4f43208",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0043/EVALUATION_INPUT.json": "cf92d53c29cc4e2149321f87e11b0f3a13b10677f9c38a36377cdb88c181d70b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0044/EVALUATION_INPUT.json": "2b85f0877c12f914befa9e8063415906ae0df05203aa8670fe7fcaafac9ccb17",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0045/EVALUATION_INPUT.json": "044dbd57f111ae54636f8631a6536e330fb38b4fa1e28a4faaee71cd2905b5fa",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0046/EVALUATION_INPUT.json": "00ddcdff19ec27114ef3a6de737374cf79311930f92575f5b6f77fc5955301f5",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0047/EVALUATION_INPUT.json": "bfbdfe37c2c09e53e58017512e7f733c6f707bf0fe773ae8c72950ece7e93a35",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0048/EVALUATION_INPUT.json": "f97382e5b4c92777dd60ff856cdcfc88c5e8bcb50b3d9cf3e580975fd643e6aa",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0049/EVALUATION_INPUT.json": "91d677ab03c7ab1e419ee329adc70caf7ea42d7ae71f403981d6d810e0c41341",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0050/EVALUATION_INPUT.json": "f0bf1bbb17ff12f72a361715ff693e931d1b51ca62ab4ffc1fbfa66b772597a6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0051/EVALUATION_INPUT.json": "ef0633de45b5bc8c6a214af69f353c585cd266e8d45767d6c31efcc7012b796c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0052/EVALUATION_INPUT.json": "a6150ba7c219503c79da6ebf6a73c40c0811bec263a058622865a55537baee6d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0053/EVALUATION_INPUT.json": "3b126cc3c35c35a8dac0d9d3e1a976c79ada4e865b1c4e11342a70cf2f87cc02",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0054/EVALUATION_INPUT.json": "45cc382df6ceffde077e93c2feb42b80701e7174c76af2f6534c7435dbc5e1a3",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0055/EVALUATION_INPUT.json": "6553a9760d6e5474ea0807397c96c3b3f84848ff42af53629c9b1892628f0636",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0056/EVALUATION_INPUT.json": "90f6ee5d3db085da22b06270910f1403818137e057e6e6e716c7199fb0f3b91c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0057/EVALUATION_INPUT.json": "8643b8d971930b17d1ebe92cf73353d71138ed76db47e0862182e21a46102662",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0058/EVALUATION_INPUT.json": "c41e12b52fb944251a2664f3a934e7f37977638685a23e4220f6d75e81af4550",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0059/EVALUATION_INPUT.json": "1ba143672fd03f3329b1eea02cbe48eaf007f07101399f5dc4a6ec9c92c626fe",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0060/EVALUATION_INPUT.json": "8817fbb9ae43c8e7596d0a7c46255db35bdbb1181a5fbb04e75fcdc435e3500b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0061/EVALUATION_INPUT.json": "fd3d0e960b2d5536647d188732edd3c4f960095eb701ed84494471ae20ac6b87",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0062/EVALUATION_INPUT.json": "315d5c67f2b4d32286c5201ceea3124601acdd729ed09a0289f9a4ebbc7ee8a4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0063/EVALUATION_INPUT.json": "ff7dac21983286922c73a14f4840b5f72001e19ecad8e6851b890890f5936148",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0064/EVALUATION_INPUT.json": "b936e530a060330205163ce1421e0e1666c224611e4c544a0fa26250a1e14b06",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0065/EVALUATION_INPUT.json": "5daa04396bc6d7a80b50d34e94060fc3b4d09d4e622e77206ca61d86ae352823",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0066/EVALUATION_INPUT.json": "247543406c29cb48cd016e7dde1c3831525f7f843bf0365abe6890db2fc958ab",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0067/EVALUATION_INPUT.json": "e2008e7edc43b06ec426678049484880be76b9d297396cb71da6c82e7afa2e88",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0068/EVALUATION_INPUT.json": "b7c5006ce73d8f8834997e902fa97e0a5fddee4bd796c428fe779418f83660b9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0069/EVALUATION_INPUT.json": "47ad9ffbc0260699108087f7308f42b1b3329e47ad6fe107744451c995d9281d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0070/EVALUATION_INPUT.json": "60d485ae95328c79b2cecadae33c71b5d517b2f3aac343139a1ecfc486f8fccf",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0071/EVALUATION_INPUT.json": "f8ed87c7b32e3df372991666a46c42d90850d696229a61314ad59906320130aa",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0072/EVALUATION_INPUT.json": "7f158dc1316210c42251ee90ff4c9816e1c0a51a0ae4b3c9719ba1e02b24092d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0073/EVALUATION_INPUT.json": "14d38e034c93041cfd755ef1d3fbd50158fa88204e6f052483d42da7e4b48243",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0074/EVALUATION_INPUT.json": "1de3242f0531f245649d5041702ff16dc8d815ef1c8c551cb467b0ff574f091e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0075/EVALUATION_INPUT.json": "20b24c666425c6350e31b9a2894ea72e00faea5c82252b3047c6aeadc4ebe201",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0076/EVALUATION_INPUT.json": "918937264b5396ef716c0601f65e85c639fb20a1dc172d8c2924787d0b4f85a6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0077/EVALUATION_INPUT.json": "c506b7a53cd567fe327f957f9f2e380e40cc8d2c00e37c9550b941cc291023aa",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0078/EVALUATION_INPUT.json": "7f4326d19c298b3fc8fb901cf55757765bdc8642b7c6a92528ed6f1ae27bbeb6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0079/EVALUATION_INPUT.json": "c4c2b44afa9f7066f139975eb2056ff234fd185c23e8f9db73f4df8fd062c741",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0080/EVALUATION_INPUT.json": "30db024ab056599d831f208c1ffe4858f7a10ec442fddd7cab0fe48288df1398",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0081/EVALUATION_INPUT.json": "1b21397e1f7ae2d79234232d5820c2d415c465210c35123de9f3cdbcc82205dc",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0082/EVALUATION_INPUT.json": "8fc56cd4774b557806ea194a3a67c78541f86996fe6a8ef09ec11270e893ec9a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0083/EVALUATION_INPUT.json": "14e2b5e65940c156329af62fd766e8000fd0b8d593edf8843fe533803ec03d6a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0084/EVALUATION_INPUT.json": "ad9a62ec5167515b94bfb2d8b6c52ed7b3cd30cc75fa27c6d52d6d2deccbad89",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0085/EVALUATION_INPUT.json": "74fca2e05802b5cc0e09cd438342fcc6705b2cc87cd93a5e077483915202a246",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0086/EVALUATION_INPUT.json": "1a1067f462a6e2cb86e9f0d2eb197dc632e028735013ff0262bfbee5feb6319b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0087/EVALUATION_INPUT.json": "5a4d1d0bba0f6351b5c47bcac96954b4decf4fc47903cd8549c75ba3fc992f48",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0088/EVALUATION_INPUT.json": "4712bd6608d062e0570616c585936bd3c50c5ead70e14180fc13806265be1045",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0089/EVALUATION_INPUT.json": "f7d0f959f27785fdecb4268003939ac5d3f602cc29247574a1b4c58c14db2cf2",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0090/EVALUATION_INPUT.json": "409e375b30d2241acf7b3fe794d33462257d52f29b5f82c8ebcc1d482d94f6b8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0091/EVALUATION_INPUT.json": "98233574add5271bbe49215e1521fe6409640ee82c8ff11abaa28cce36727e9c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0092/EVALUATION_INPUT.json": "89980b91ba1d3a500553b5b0830041160099db30d1f26dfe5e2b42cc5b1a6593",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0093/EVALUATION_INPUT.json": "b589a1ee08e50568a2e89736ec9a7a0764643e147555a3e93af0efb012974730",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0094/EVALUATION_INPUT.json": "53b242780d958ea1a6a279083b855a57893dc83dd9963eab16d35b0c4954b8a9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0095/EVALUATION_INPUT.json": "7c2da2e409446e9664ebc943bf75d9de2102d8b72114fcbfed48b26675348572",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0096/EVALUATION_INPUT.json": "4bcc1730c485b0e7000f0da68eb4c4ba73dcfb5199efef7e133ba8e41ac7af71",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0097/EVALUATION_INPUT.json": "11f3a1f597283620cbf5ebeaf868ef508bdc78e886783723be92e33d5a66133e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0098/EVALUATION_INPUT.json": "464c1f7928b8dd13c941f5b22c644027a3b79ffdc5369f9efd5e72abc97646c6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0099/EVALUATION_INPUT.json": "b1a9d42769d56750cea5c81698903e781422648faf6d1de39c6c45804c54f825",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0100/EVALUATION_INPUT.json": "4590871172289270497d24732dc718d8d491b45aa232292f282e69cba0472911",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0101/EVALUATION_INPUT.json": "f69706455ad2291b2654078ee89a13536f1467a2ad0b60751f5b96497d245e73",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0102/EVALUATION_INPUT.json": "8d211758700a75c844517a0884cd447e8920f4d6b23e32ff1e99b1149892dd70",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0103/EVALUATION_INPUT.json": "70ba5ed2e00aa6044473c44821ea58f09fe1408775e4e552a9e9c4d93f144b63",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0104/EVALUATION_INPUT.json": "2cb6dc906174ef4537e50fe9c6d3a04568502526e2d9fd864950538e4d92fd4f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0105/EVALUATION_INPUT.json": "a2de8462c5a22493d1de33d1cc4decb9afcbbf46cbbfffbe65c41a9af0c93253",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0106/EVALUATION_INPUT.json": "08aa32e8ea59a5d2e35477c6c24f99eeacd202a4cb9d92570c6196507c0f5f6d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0107/EVALUATION_INPUT.json": "1cc0ba7f2f6c6323814ca533a9b1e38700a16d130cea8730495f425120d24eb4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0108/EVALUATION_INPUT.json": "bf566431c77a8a2be8a3a653d395902432e6ae5c580cdd312e18c83f951e4dc1",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0109/EVALUATION_INPUT.json": "87e1c5a7bf424758cece9c631637f81e36f2ca930cf7258d1b357d6a6a1e261e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0110/EVALUATION_INPUT.json": "ca7de823535acc1a1e1e1671c5b7939d91979b1765cc7e44f60adfd7ac1f5cb7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0111/EVALUATION_INPUT.json": "55474e649230dc0e899ce96f345ff3ca97c69a8025cd64827816383c4ef1cebc",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0112/EVALUATION_INPUT.json": "aa70e76e24690ee4174e8cbc473ce329cfa8cdef2210fb6ffbb229949af6e02a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0113/EVALUATION_INPUT.json": "09ccd9c891abbecf488371ec74948bfbfdf7cbd69a28f4046dc24ccfbb10a75e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0114/EVALUATION_INPUT.json": "eed6af897c1bbff12da05dbd168b121ffe9f207ee8f03ac36a82bd64e57fcfdc",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0115/EVALUATION_INPUT.json": "94ca7cd75867b280772ae4e6c936c6fcf91e3985b9a58ab97b4581b609a740b4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0116/EVALUATION_INPUT.json": "148b24ee54917a746e38e745c5737873bc68346281ced1cc7aca9c6b3d79ce42",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0117/EVALUATION_INPUT.json": "88cac6be7dd31f53f510b77e8ebadbeb56879b45bb2d8918ddf1a360bed9dc80",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0118/EVALUATION_INPUT.json": "eb19e18617b844ce676055befca836bc362b3fd68267aeac0a348cfad7a9e860",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0119/EVALUATION_INPUT.json": "eb414d5fd62268e08611f43ba0970eab942b1c26012eeed6b26055b5b3d2d002",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0120/EVALUATION_INPUT.json": "cef1fe45332bd098c541e79baef8d475659a32acb7d8ed98ee0da61cfa253a19",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0121/EVALUATION_INPUT.json": "54204e7bc3afc65437326a1b58ce8e4187f57405bfce92382d8f8ec5e2a65f01",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0122/EVALUATION_INPUT.json": "ab497e8fe54b5711f9ebde2999859384acb9485a5f109c776de43691d432ddf9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0123/EVALUATION_INPUT.json": "003f54c18b632f68668f97861f868b19d8c17c3e0a59d052004f201c272cc4ff",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0124/EVALUATION_INPUT.json": "06d1c1ce11a52aac141c32ef5421fd861b74c86bb556018dd283aeae35d2c5c2",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0125/EVALUATION_INPUT.json": "12d4acb495f52810714e26e0f57a40477187bd10125bd5ac821ee26b0e90e9a8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0126/EVALUATION_INPUT.json": "e2d1fc4bd0b3e2cc972694f1705f4b53031bf82ffab752b2ca75e6f23646bdaa",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0127/EVALUATION_INPUT.json": "40554afbce9af1cb1382d3602debd073fe3a4f4f3a8d7c2ddd0015972baad4d9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0128/EVALUATION_INPUT.json": "adac8e266c48b02a50daa1be2c86c5997934778f9870f70367e7e5bedea97c31",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0129/EVALUATION_INPUT.json": "d74dd32cb74b0cca049e40f23417f50ef40417f511fe939b8ee0b9b40a0dce00",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0130/EVALUATION_INPUT.json": "2f1818e60c888ee755d885492d48017b784436c67dc455baa27528e34b8e7ac8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0131/EVALUATION_INPUT.json": "1ea29b83a75f11b937cc73aa1fb13ed8a786a9d9dc2976fceb432a0858f9ad64",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0132/EVALUATION_INPUT.json": "05d6f084cd104e8cdbc3a856678472dd9325b6f421efcd3c7ad74cba1a850fef",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0133/EVALUATION_INPUT.json": "7844a6223f721360246e51948b808fe8b5d2b75e99a47bccee9efa1d0acdc4b6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0134/EVALUATION_INPUT.json": "a9cb77b7970ab0640bf4d357614b9aa1bf27a265ff48f9048c53a35080c482fd",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0135/EVALUATION_INPUT.json": "9af3399973a3e5e33f3a3ee2cd54a40872324cc8eba03140660baeec147dbd6a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0136/EVALUATION_INPUT.json": "ae50a788e4af362814f015ac99b77534501972237ee1294ee9f1f1c2ca8a8cc9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0137/EVALUATION_INPUT.json": "7a27062e2d0f2b448fd632895b96e660220cd73d0dcd2ad8d9abc5617ac8910f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0138/EVALUATION_INPUT.json": "bad07d04d087fd05d0f0f42e3caf2b303a6f7ff395b80c1567b7114769f3ecec",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0139/EVALUATION_INPUT.json": "0dfd614bf01405773f9af3f963322141836d42b68f530e8588e5fe59fac47128",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0140/EVALUATION_INPUT.json": "3361d074ae3190f39f1f02c1ed61559ffdfcd0a61aa6ecb21ac4694ca735063c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0141/EVALUATION_INPUT.json": "8bb9b756f98fed5cebf06dcae2af27407049a2503f42c27c569e19d265134b44",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0142/EVALUATION_INPUT.json": "c34d2d556170a7f0f68689ddf85fa7fb51a0c21ce039aedf88d28454afe492d8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0143/EVALUATION_INPUT.json": "8d9f9d5a79d3a313eb49846b2d5bf1574bec667267ac21fefe4fbe133a7d5f4e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0144/EVALUATION_INPUT.json": "49965ca055831f4c941d4a8c7a690b8dfffcac8b81cd2305ca607ad9f49e5f35",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0145/EVALUATION_INPUT.json": "5ca287cee0db0279b99ca6e03f69c9dd130979af6008aa2d10cb1ca91b66b7ca",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0146/EVALUATION_INPUT.json": "150181c71eb25126b30076da886f3b73266a878e8ce5bb762988d04906638fa9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0147/EVALUATION_INPUT.json": "f5d51fdd97237364628dc308d864fcbcef9c4938e19e0a03808260dd246768e4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0148/EVALUATION_INPUT.json": "5f0c48cc8c2f366938bc53687e2b7d23d237e524aa03739e9271c5f546b57edd",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0149/EVALUATION_INPUT.json": "7950e723a54badcc5c383ba8405cfefbf1b86371924f5fb25650076a2b7424cb",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0150/EVALUATION_INPUT.json": "dc11b8e64aa1b2d5a50057a7b261ba3b30cadd9e35734d11eee5d3ba5c9ce70d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0151/EVALUATION_INPUT.json": "21156cb140640af0ff970af196c2cecbc25eb3c9c744020128ba3cb8c7d73cf8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0152/EVALUATION_INPUT.json": "c03c6c0b372475000b08c0749315a17a5426abc912d413b88a52eaf92f238f96",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0153/EVALUATION_INPUT.json": "fc26ba0283302e0c5e776fa13b620ba8acb39dfc5d4c54d389bef3384cc33096",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0154/EVALUATION_INPUT.json": "02ef967b3848c21f68179f4bc6403e6f6801411aa6c4179cf8df5287a1927f48",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0155/EVALUATION_INPUT.json": "0aa3a606c7aad7caaf1afdc36a415e20df4d52dc9052bc03e19d5b12aa1d2848",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0156/EVALUATION_INPUT.json": "57cabc9b2012c13f4bbd72939e288fcbea9046f0e6ce1029ea1e82453ba67d2d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0157/EVALUATION_INPUT.json": "26ac4db1db2d0076efa6d2eb6d9988bdd7d4d38fbda624bd76b98c99148e88c5",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0158/EVALUATION_INPUT.json": "2619d9c914600c5e4724e234e8f99ccd6f3f4dac958ca15faca4cdf3ca6d0f09",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0159/EVALUATION_INPUT.json": "6d624ef3c4f6455b3b25da369ae7609d04e91498899f541cabcca45f0cd7cd90",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0160/EVALUATION_INPUT.json": "74127dd029989a9ef31e41fb8b840e50add849027372a7c247e80086e9df28bb",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0161/EVALUATION_INPUT.json": "70e708fed6bdd68feaf5f8c05e77d749adb0fcccbd7e1cb775ccbd29cf055f0a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0162/EVALUATION_INPUT.json": "d2fa55ec1345e08663f2b4039f9d76efbefbfce6d7c1a8aaf8371e3cf2ed5801",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0163/EVALUATION_INPUT.json": "b36b172562c955e348cc32684938ba89e0eb6440f3aad08514a6c66ed770d811",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0164/EVALUATION_INPUT.json": "269262e46af2ee8e6bfb8718fe4d71a6267f556435107d9a5fed4c7bd490aa5f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0165/EVALUATION_INPUT.json": "9518bc844916a8b666c83effec54bf166ac30907aa05696ec3e5d82dc1de670e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0166/EVALUATION_INPUT.json": "02e0561ee07c2843cd55109d2c519334973bc62f37ee5ea372513a93e292af9e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0167/EVALUATION_INPUT.json": "772834af95001af4e9dfa55d58bf66fda2518e9dba485317681b3e7ced6454cb",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0168/EVALUATION_INPUT.json": "fd5d41db524734a53f978359e8c32456ca35fc12514482f03960733cd44bebd6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0169/EVALUATION_INPUT.json": "fb901d00d1ebd985f7bdff896d978474456497e887ce84e0cac1314e829fa0bf",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0170/EVALUATION_INPUT.json": "b7e903ce40525d404445d9240accc8052105287ebdff6a81326668ac031a7324",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0171/EVALUATION_INPUT.json": "891d6e50939abd2f0e1ba17b82699652a3d9d7df2babf0580af79a27bba72543",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0172/EVALUATION_INPUT.json": "f4758cd6f6370fe0a9e8762c9e2ef612988c92a08326c0e9c3c1fe003b0634da",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0173/EVALUATION_INPUT.json": "0dbc3ff7c76a80e8331eb525238d6ea7c6d44c1241dbd9415fbe05ebb014ad52",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0174/EVALUATION_INPUT.json": "94e68df2a74cb4ea46b4e9574991203b8a64ab0e15206e9f917c80fcb1a79d6b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0175/EVALUATION_INPUT.json": "58c9335861abf8e74ffb140e57b549ad9397d77f5c98c0e7feb44abb5c126c28",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0176/EVALUATION_INPUT.json": "0e6c00604802e975945cbf42b12b1180b909df3baadca05c3870ad52de64381d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0177/EVALUATION_INPUT.json": "72b557d04b64a23329315f919e262df719471791fa1f4996d7036d45e9c31528",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0178/EVALUATION_INPUT.json": "00af6d6eb9287f0389848bc355f9515480b703739cfca841cf256d270ab98c89",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0179/EVALUATION_INPUT.json": "df75a6822b28f294a43882835436b8951b184e11658da826583823a996cd0eb0",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0180/EVALUATION_INPUT.json": "de1ae14755eae7ff78072515af98e32e51b1607e547b0370dd599bdc6b4e6dca",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0181/EVALUATION_INPUT.json": "31974d4dc46867f7d1a7fe41ebf68aa276da332d5077ca796df1a6e014bf45c5",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0182/EVALUATION_INPUT.json": "2bc6abbee9225783a3f7aefc81a4a278f1e5199be62cb1eac4ce774b5bc7b4f0",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0183/EVALUATION_INPUT.json": "20c6a7277b81c6fd2ee520287bb24794e6cc9d9e1976ad8b2ef08ec5ed373901",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0184/EVALUATION_INPUT.json": "5d505780435c79f941f1734b4058c91f3b04254d9f140eefc94f4f9a9dd4e779",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0185/EVALUATION_INPUT.json": "47add63fb3d8a8531c8dda54778700ee4c9e33496a1bad3e5601d26c8f0fdfaf",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0186/EVALUATION_INPUT.json": "d451c63fe145b4d66aca0b859b5c52917d1c0944526a396076636397b6baeb16",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0187/EVALUATION_INPUT.json": "68503cb025e66b4ed5500f91ef27eab43b8e6115697d91cc0c0f61620ed5f74e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0188/EVALUATION_INPUT.json": "7a18837402ba54c20f502152f6d89b7b54a4d4e0a4cdcbc6f3dabb7042895b3a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0189/EVALUATION_INPUT.json": "cd11be15274389367acc6e533400d7ddb0762594765b723a81ab9ff0eccb9185",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0190/EVALUATION_INPUT.json": "a5e13756ff702e4c6964c58d5bc68dffcdd6163565d473656a0875b2653e7f7a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0191/EVALUATION_INPUT.json": "03d958a9c9ed7211ac70628fb6fe0d18f3a4d613b075ee4f586adc93a514dba7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0192/EVALUATION_INPUT.json": "53d2deb62f6733362002ebba8ae4bfe4cc4b5a837ad702962984d3b92fe7cdf6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0193/EVALUATION_INPUT.json": "f976b12542559a1a1efe9f893721a3c5593c7c496751be46e2efe39245145b9f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0194/EVALUATION_INPUT.json": "5bbfa4565ad09cb6a7d4714ec7ccc937de8f580dd6c075702625e09ed9a16f80",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0195/EVALUATION_INPUT.json": "3ca52a179bc9c730219e114b780c3215240b17bbb2adefeb0129ae321a3e5e1a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0196/EVALUATION_INPUT.json": "d4a08b28a7b6e0cf0ab4b674a8d09fb366235ce782fca69f520eb5e32530f213",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0197/EVALUATION_INPUT.json": "e40f779342a505a0f5fdafca44aa6d024bf1e8fbeb013f1e821b99a194afd28d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0198/EVALUATION_INPUT.json": "40870e6ae3e5ab34c5412f63e65c68265ca54679b62f37db5deef770fb650d47",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0199/EVALUATION_INPUT.json": "9733013fd1267f52687ef24983d6fc02fde491e369f11f018ae20d9b4d52cc87",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0200/EVALUATION_INPUT.json": "af6f1121c6c7e8d099cbab9b8e128437f13311f291824790287b14f0a6321419",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0201/EVALUATION_INPUT.json": "94b3e92e792cef630584bb7195a85ee13cfd45054ce7cdd2608ba7fe615e8818",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0202/EVALUATION_INPUT.json": "4f98340dccc7408c075057eb2a64e1f17c7b612490d0483c1ab970591cedb7e7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0203/EVALUATION_INPUT.json": "04e31cc2ac0b838591431c3b661df468eca8fd5d2c108b9faf0329e5e826ee88",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0204/EVALUATION_INPUT.json": "15325739ff40877c1c6b7dc3c9a658acafae7d0cd3425ed457c397c589590dbc",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0205/EVALUATION_INPUT.json": "11d4278ee46abdaeaa521f713f9b588d4583294c0817988a812b1faa30cae913",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0206/EVALUATION_INPUT.json": "53ad2c5b2901c56d67ba421428d12b9c51cb6f4fde48373298b16c99b7210f2d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0207/EVALUATION_INPUT.json": "ce1b8a69209ff1b4c3a997863d754321b3537678d4f08574698a06cf4004b40d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0208/EVALUATION_INPUT.json": "84e17040990ebcaa9535fcc9b5c4761eceeee0518d0f53cbacd7a8245dd705f7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0209/EVALUATION_INPUT.json": "565ee2c09bee204e8a12880f986d250d564914e846e7069bddb5f0dcb8bf2527",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0210/EVALUATION_INPUT.json": "738382d8bee7532bbcf5d5a49e590026f61c1a9e1674f948c9466f716d6be6ee",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0211/EVALUATION_INPUT.json": "3e40124ea82cbfe94e4d9b4114c9fecdde00eaaa8bb39f5436d13a5fc04df79e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0212/EVALUATION_INPUT.json": "5e0fa1ae55451f9cf51e660eae0e1ba19dacd9bd80f9f7fd2b9770624dbb3d57",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0213/EVALUATION_INPUT.json": "d554bd3cd53b7d378c3e250b388485ab3ad7095f0f91c0fbaa852b5d68504b11",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0214/EVALUATION_INPUT.json": "ca3f58db3c6b3a3e088ee133f19555ce0076be8c2d1fd21a0ba555ed2f616574",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0215/EVALUATION_INPUT.json": "16316f4896f652b2ed4471a58383fc2e59a92658f16d5cd8878469596845cbb4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0216/EVALUATION_INPUT.json": "8500dba6e10ced8eaa422b6778ce2165345e8c64d084cf5300e515331214fcd0",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0217/EVALUATION_INPUT.json": "bb4669ff5ca8e1b6c09bfdbab542dfa33492a89fafff32244d8e365c398a8fc1",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0218/EVALUATION_INPUT.json": "7be33c2c65757327f7818448a1aee979097c6c7de0d05c0402e375ed0094381d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0219/EVALUATION_INPUT.json": "d43d55122130a3f6491cf7acdc9f7e3a3ace23f8506420be116ce82f05e97486",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0220/EVALUATION_INPUT.json": "2ebe933bdb6fe2a1545a5c339836e1b509c97a3a4ce7db4515fcc9cd1195e4e9",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0221/EVALUATION_INPUT.json": "5d485f1b0a96373507af8617280bb44603607f82c6a2b96b61de7a5ad968b89b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0222/EVALUATION_INPUT.json": "8c6cde397e3fe957e786a02308cafb32bbf85a0450a92caf5c8ba25d99a66eb8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0223/EVALUATION_INPUT.json": "94ef3d9292f7dd49d78d328d77a35338b0c36833a55cd1f78427a54ee4cbe447",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0224/EVALUATION_INPUT.json": "13f76c573328099cb2324bc546c74498af81845e6cb59c672c19739097d9db5b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0225/EVALUATION_INPUT.json": "48e2f71d8e3f073d648ac3f5aae288b80710a801b0d67337373a4b7600f6eace",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0226/EVALUATION_INPUT.json": "338009a33c3ca47653dab40899c45585b634ed48bee7b2b0ee77927d926da35d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0227/EVALUATION_INPUT.json": "5317b056f470ad0caceda34f8d2b377ba5a3252c264a347c8b6c4f5c2aabac33",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0228/EVALUATION_INPUT.json": "b24c3595fa62f6e2e276e40845a518cfba7ca1980e9981bf809adef8243352f4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0229/EVALUATION_INPUT.json": "43606fb2c0309c6c09be5727f2fac155773fbff334af2afd04af880ab0d2005f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0230/EVALUATION_INPUT.json": "c29614cb90024f95de6abacd55b0e1568a689f7941970f855ce4e61c68fe851f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0231/EVALUATION_INPUT.json": "7d733ff5165cfe7ab441cb4530a955b61cfa2f98da61f2a901f2ca9730cf2425",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0232/EVALUATION_INPUT.json": "0afed329705933fddbcb287537fbb7f1bb990332bfc100a33761b2e48954456a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0233/EVALUATION_INPUT.json": "145141b8b701b7c9d56476f72148c1d3ee1e33dc2a3ab8a17b31d5cd5e63bcd6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0234/EVALUATION_INPUT.json": "0d3057eb85ad5a05ce7338044f33a4eb803687d11f127a64a57ab59c6357432f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0235/EVALUATION_INPUT.json": "c99cd35484d47df78bbc655ffdd3a53f25e426270863905f500c6e2f415da582",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0236/EVALUATION_INPUT.json": "393147028ae6f55f77dd5965039ecdf8ef0d9908826f76f22ae6585447e0f319",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0237/EVALUATION_INPUT.json": "190deea404f40e1d033dad1f185d143fdbb3e2adf726498780987781a4aeb412",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0238/EVALUATION_INPUT.json": "fedb439c9d640a9dcd70a4347348cec9b5a7f0d1095b90a3dc5d5f19d677af6e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0239/EVALUATION_INPUT.json": "145d38f4de6b841d1b6590c6fc3545c0b5ee5a7a42d8eaec83ff9b20184fcd5b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0240/EVALUATION_INPUT.json": "5afe6f85353dfb8f49e30d03cab9cb374526f97adc6b8eb0cb94286bb336a3a8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0241/EVALUATION_INPUT.json": "a08413bda8d9959b15620e103d9e19f2fcb8112c6bdf4f75162a70250640f5f3",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0242/EVALUATION_INPUT.json": "38f1c5556896d247f1edde7fac60903fa64c6911201840a526a608221997a1a5",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0243/EVALUATION_INPUT.json": "3445c0401906326ec383e13f1072b465c86e823dc0f1065630ac005bfa88dbf7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0244/EVALUATION_INPUT.json": "80b8403ea18d3e5c6dae9ae83344999898903c580d310ac007afb80c1a0a1072",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0245/EVALUATION_INPUT.json": "c7e1c1499316eb22178142478124750a08df6e92285cb621e31974e45fdf60a4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0246/EVALUATION_INPUT.json": "d3d0d50d105b0f0cbc26ace5d680dbe31bdcd37786da3f29948030f2862e73ce",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0247/EVALUATION_INPUT.json": "2475b1363f2ad24abbb03384f5d1f2659808fbefe9256170d13f08bf9f54a6b7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0248/EVALUATION_INPUT.json": "372c5255ed7275970bff33e8cef5ba6023077d028d4e51fce973516aa4e169a2",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0249/EVALUATION_INPUT.json": "e33f802af06ddde406387c4f4f7863638cea4774465d7992d83c2f7b0785da6f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0250/EVALUATION_INPUT.json": "7e6009f899ffbb1c94b9208d9daee7aaf23fa02d5cf66368c4efe23792aa0fe4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0251/EVALUATION_INPUT.json": "6fe40817409c3a90b015a5fb0a76c44dd0852e3c7951036822d7b835bddbc86d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0252/EVALUATION_INPUT.json": "e2b6d02f1c98ad3cbf6f0584a0cecd15af25f190791f4d155c7b615c159f79c7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0253/EVALUATION_INPUT.json": "0b998fd7f664ba33def40b79ca24cd7cf062d4b952ce099ed21951e47c58a546",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0254/EVALUATION_INPUT.json": "048ed403ab0383dfd526c3c1fb46bdbd2bbbc53da1ece4c7c8c071d2b389fe8a",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0255/EVALUATION_INPUT.json": "3734028358ec7ec8529600554806d181708cf052d4a8572a8c0a315e1aa346a0",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0256/EVALUATION_INPUT.json": "8e73c4c3827944c0ee162c5a9e11405aa60a444c53bb5a48976ef136fc550507",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0257/EVALUATION_INPUT.json": "76ee505fad6c10ba90dd716e89bc5d17f2331e98b08115d1a2312a41c8aad21b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0258/EVALUATION_INPUT.json": "af25bafa6b6a402285eca4244c7fbf2d7806a44b9fe7af0523e216a67e1760e7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0259/EVALUATION_INPUT.json": "42bab7ef810077aa882acce70178a0117ed91c56a44b9769beb2b80599216e77",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0260/EVALUATION_INPUT.json": "ea0313319f605dab014b900994303b0453a66b20eaacb7e760f8afb0407c275c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0261/EVALUATION_INPUT.json": "6bdda47763895cb6958ad015fb52cef5234c82e5cc2c122f6b79a9c9a2082dd6",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0262/EVALUATION_INPUT.json": "587590d5022ecddb539f4fc0f36442e203205abbcb2779cfed5827ace0a525bc",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0263/EVALUATION_INPUT.json": "3ff4421cabe17a4d29944636a93f04bd95fa57d21544c775dc988151bfde126c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0264/EVALUATION_INPUT.json": "e7be1dfbbb91071b77d912d58959c239d50a7a39de61aef5b87c11929ec47376",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0265/EVALUATION_INPUT.json": "6a04c356c01867ccd52470e0cd99563c6d28ebb61f3da41d0dfd345eb13f5069",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0266/EVALUATION_INPUT.json": "b97a4e921be286efa07c9e4d4b5bf3e2fafcd2b548a83bc3d6b45b329e4b16a4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0267/EVALUATION_INPUT.json": "e606d30d19c8a64aeeff75e52cbb19f51b02226415c82e7861bf7d527ea28f6c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0268/EVALUATION_INPUT.json": "c59a4ea915b9ebf29ff0d471810e121a4d60628f24e308bf7573d13f5b2fdc55",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0269/EVALUATION_INPUT.json": "4b14c9d45d04938edadae940c0a2eb8dcc699ebc940079e72e3451e2d5bdc5df",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0270/EVALUATION_INPUT.json": "3e5926d291bbc3b6c0d663d28d87affd8bf6c613080637f356e2bb8441042ff3",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0271/EVALUATION_INPUT.json": "6c568702ff316124fd9deba86fe81e19d1a88085a8197f0174ea5c2fc9fa6b76",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0272/EVALUATION_INPUT.json": "acbf5dcd6973fe768860c1606413d1565687d79e10efb4135861ac812fa7a701",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0273/EVALUATION_INPUT.json": "c83951e2d6d5165b33df34127145357dfb28e0c5fda590fe5dca89b70d54bf01",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0274/EVALUATION_INPUT.json": "7f09ffb3fededae7f0afafa5c17e3a2cab5f8c2b67b867bc675ab9876b8c55d4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0275/EVALUATION_INPUT.json": "dc44019f1051dd88a0d361c20099606145086d931df5fd97416791b0dc0198e1",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0276/EVALUATION_INPUT.json": "c74c27ff61ed96374bb0c418e7c3ef10fc4148d4fcc878a49cf34921d4c464ba",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0277/EVALUATION_INPUT.json": "44068932c3de529a25ae6e249dd8611bdc8ee883a2e69e399fd30357cc4ff2fe",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0278/EVALUATION_INPUT.json": "bfea48758d52a5a51688edf6f52394e79f9ed8002473406e2b5b17de2a28b710",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0279/EVALUATION_INPUT.json": "ef2a627dd2fca77c6a64b897a2b3b7ca004bde38b00692b5e06b69b935d6de1e",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0280/EVALUATION_INPUT.json": "b48d8e028e1c8a6437d6b044e94a27de906c0c8552ea587a750f1b43419e4a77",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0281/EVALUATION_INPUT.json": "1e9258e3fc432cf675d00a07264f0d3eedcfdbbb785f6dadd991f3c750b2d57c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0282/EVALUATION_INPUT.json": "ab94e26f3bcbc8664a7bd422c7f51ffd7ff18b23ba4df31f5b0bd2aeb9c01d6c",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0283/EVALUATION_INPUT.json": "c2043b1b89911274bb930b937e9ad7198fe41211b45a6030ae4d64aa70aa5e39",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0284/EVALUATION_INPUT.json": "d7cd4189d48de0a722764282ad029b63fbe329dce81939bc6d71fa9c4e0a2200",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0285/EVALUATION_INPUT.json": "f5b6453eded6c1e1b535bc3ae6e5749df094082c98e75fdfc464b83c06dfbeb7",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0286/EVALUATION_INPUT.json": "677547fc9197cd328a94e1559a6c48f4edd068073990e5e003e5d6bb143b43f0",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0287/EVALUATION_INPUT.json": "282c9c2d122397f511b0a38f65ec1b933e77d2bd35dc5962a1518c9c85b2765b",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0288/EVALUATION_INPUT.json": "8f0e455d9bbe763eb359bc1b0afd2a6e484df1766e4f0c6cbc4281a3c3b256e8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0289/EVALUATION_INPUT.json": "3f7bd582f5f1f3dece2255b243e64186e470b37263940ad166ab9364013696e2",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0290/EVALUATION_INPUT.json": "d1d78ebf7c2753ae43802c4889007f9102927133559a77fa8485343acf82f6af",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0291/EVALUATION_INPUT.json": "0b6b316f51d9a0b8373ccf115b6653e8e5eb3af8103d18f0266cb9c3b26592f4",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0292/EVALUATION_INPUT.json": "4eb1b4b3f6653fdea6e54f4a15e63f5f6400ad722fad8a443eb9cfc29b4dcead",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0293/EVALUATION_INPUT.json": "2268139e3bc90e5e31e47167fc03e8c8f7af3651ccc0b31db844964107339cfe",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0294/EVALUATION_INPUT.json": "ef3c1d79beea2d5292918796dfc9799dcf3a2ca275f7dea4f9b99e6a8fdb5598",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0295/EVALUATION_INPUT.json": "14a3c6a2e13743690dc604373b341d0d59373f318a2d28dac287dc0f02110b3d",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0296/EVALUATION_INPUT.json": "23d0f7052415e80464d5cfc847f5be89f3869fe28f42045ca4db96356c0f87b8",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0297/EVALUATION_INPUT.json": "7d3933edadec2182433bef699ef59a51f9892c26e56ff51d0ef5037c336d6ea3",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0298/EVALUATION_INPUT.json": "e07a6939f7a4a0eaa31b52ffff5b08a06fd95c8c322ff74737fa9183740a9bd3",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0299/EVALUATION_INPUT.json": "e552b2eedf4ccee1abb2f45fcb0129b734d90ff4587610f768e1ced811ebe312",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0300/EVALUATION_INPUT.json": "f8dba866552ae554323c848d4cc27ddfbea730c21aa2a391751be420ceb5c829",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0301/EVALUATION_INPUT.json": "ebee935a1d2c34ee315603f04f3f12a6711cfbc5ad914a27444619af8377e074",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0302/EVALUATION_INPUT.json": "235c208d6b9ec14393b4707470ab3f99ab4d423ce10757975f4eebb59a5ea151",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0303/EVALUATION_INPUT.json": "8b73218a08bc297fd33cee399d88c70fe9844bd5f5f6a5fdbde09a30aa326360",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0304/EVALUATION_INPUT.json": "3669f059477936b5c2a4f46f577799a4b1d540e5122aad0943c7144d626ebf46",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0305/EVALUATION_INPUT.json": "cc53c9abce5f4944aff97db0607188d48111d22d4b6a458b755a78fe5f4e3099",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0306/EVALUATION_INPUT.json": "c3fed995fabd516f535a7316cbd3080ade5e65435fa790a0aef02225c06811d1",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0307/EVALUATION_INPUT.json": "6ac6469f1fe623618ef93e17ed827717766b8670a0727eb616d13717104a9337",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0308/EVALUATION_INPUT.json": "b4c7e5f445b9674ab0300d7e8fc4726b7046e99343ee66988351cc4ea1979a87",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0309/EVALUATION_INPUT.json": "0eb30917b6a389bdb8a06fb458f70123fd7db6a138915374473e442b9e699827",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0310/EVALUATION_INPUT.json": "6425ea1aefdabec775ebfb7bcd3cd56bafafc02bd8930c6eee5065796aa4aa85",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0311/EVALUATION_INPUT.json": "8ced6faaa6b5b171bd8b631db8d8b5f27ee1a1d9368f9800b25428e0c73ba32f",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0312/EVALUATION_INPUT.json": "942ac4e6fbd7293330e4e2261462d3d10b295cb00c5e49b3613fda4bc5fae809",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0313/EVALUATION_INPUT.json": "19282881f0aff23c6cdd778396d31f45b88182cf5914828844d802bc46900ced",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0314/EVALUATION_INPUT.json": "0233ff9de95d4262878f89fb11ec636d1e2a8c6e93c68a9388e4bc5ddbfc2174",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix/trials/0315/EVALUATION_INPUT.json": "f3df390730a787f2720f711ee67810783519d545ca92ef7de3da8150c39f25f1"
+  },
+  "evidence_class": "development_replay_of_exposed_scenarios",
+  "finished_at_unix": 1792649130.710968,
+  "fresh_blind": false,
+  "grid": [
+    "k1of1_a1",
+    "k2of2_a1",
+    "k2of3_a1",
+    "k1of1_a2",
+    "k2of2_a2",
+    "k2of3_a2",
+    "k1of1_a3",
+    "k2of2_a3",
+    "k2of3_a3",
+    "k1of1_a5",
+    "k2of2_a5",
+    "k2of3_a5",
+    "k1of1_a10",
+    "k2of2_a10",
+    "k2of3_a10",
+    "k3of3_a3",
+    "k3of4_a3",
+    "k4of4_a3",
+    "k4of5_a3",
+    "k3of3_a5",
+    "k3of4_a5",
+    "k4of4_a5",
+    "k4of5_a5",
+    "k3of3_a10",
+    "k3of4_a10",
+    "k4of4_a10",
+    "k4of5_a10",
+    "k3of3_a20",
+    "k3of4_a20",
+    "k4of4_a20",
+    "k4of5_a20",
+    "k1of1_a20",
+    "k2of2_a20",
+    "k2of3_a20",
+    "k2of2_a4",
+    "k2of3_a4",
+    "k3of3_a4",
+    "k3of4_a4",
+    "k2of2_a6",
+    "k2of3_a6",
+    "k3of3_a6",
+    "k3of4_a6",
+    "k2of2_a7",
+    "k2of3_a7",
+    "k3of3_a7",
+    "k3of4_a7",
+    "k2of2_a8",
+    "k2of3_a8",
+    "k3of3_a8",
+    "k3of4_a8",
+    "k2of2_a12",
+    "k2of3_a12",
+    "k3of3_a12",
+    "k3of4_a12",
+    "k2of2_a15",
+    "k2of3_a15",
+    "k3of3_a15",
+    "k3of4_a15"
+  ],
+  "policies": {
+    "k1of1_a1": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 210,
+        "TN": 97,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.6840390879478827,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 15,
+        "FP": 7,
+        "TN": 303,
+        "TP": 295
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.7446601390838623,
+        "p95": 3.6848734855651863,
+        "p99": 5.4766516637802125,
+        "samples": 295
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9768211920529801,
+      "recall_end_to_end_lower_bound": 0.9365079365079365,
+      "recall_observed": 0.9516129032258065,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k1of1_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 306,
+        "TN": 1,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.996742671009772,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 71,
+        "TN": 239,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.22903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.7025907039642334,
+        "p95": 1.0501495242118835,
+        "p99": 1.7023965239524852,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.8136482939632546,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k1of1_a2": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 286,
+        "TN": 21,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9315960912052117,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 3,
+        "FP": 13,
+        "TN": 297,
+        "TP": 307
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.041935483870967745,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.7349915504455566,
+        "p95": 2.008568906784054,
+        "p99": 5.486346621513366,
+        "samples": 307
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 2.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.959375,
+      "recall_end_to_end_lower_bound": 0.9746031746031746,
+      "recall_observed": 0.9903225806451613,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k1of1_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 307,
+        "TN": 0,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 1.0,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 133,
+        "TN": 177,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.4290322580645161,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.6860066652297974,
+        "p95": 0.9444856643676758,
+        "p99": 1.2530033087730441,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.6997742663656885,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k1of1_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 292,
+        "TN": 15,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9511400651465798,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 27,
+        "TN": 283,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.08709677419354839,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.7269909381866455,
+        "p95": 1.6848800301551812,
+        "p99": 5.0911954140663145,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9194029850746268,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k1of1_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 300,
+        "TN": 7,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9771986970684039,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 39,
+        "TN": 271,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.12580645161290321,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.7255496978759766,
+        "p95": 1.1617829084396367,
+        "p99": 3.9791472482681525,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.0,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 1,
+        "n": 1
+      },
+      "policy_applied": false,
+      "precision_expected": 0.8882521489971347,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a1": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 183,
+        "TN": 124,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.5960912052117264,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 26,
+        "FP": 1,
+        "TN": 309,
+        "TP": 284
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.0032258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9982306957244873,
+        "p95": 4.827368605136858,
+        "p99": 6.002485609054566,
+        "samples": 284
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9964912280701754,
+      "recall_end_to_end_lower_bound": 0.9015873015873016,
+      "recall_observed": 0.9161290322580645,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 289,
+        "TN": 18,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9413680781758957,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 13,
+        "TN": 297,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.041935483870967745,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9352829456329346,
+        "p95": 2.255661606788636,
+        "p99": 5.489984164238002,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9597523219814241,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a12": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 293,
+        "TN": 14,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9543973941368078,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 14,
+        "TN": 296,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.04516129032258064,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9246768951416016,
+        "p95": 1.9031711101532032,
+        "p99": 5.489984164238002,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 12.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9567901234567902,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a15": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 297,
+        "TN": 10,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9674267100977199,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 17,
+        "TN": 293,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.054838709677419356,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9165775775909424,
+        "p95": 1.5889250040054321,
+        "p99": 3.6023543953895594,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 15.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9480122324159022,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a2": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 226,
+        "TN": 81,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7361563517915309,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 6,
+        "FP": 4,
+        "TN": 306,
+        "TP": 304
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.012903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.004449725151062,
+        "p95": 4.932805132865891,
+        "p99": 6.030813550949095,
+        "samples": 304
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 2.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.987012987012987,
+      "recall_end_to_end_lower_bound": 0.9650793650793651,
+      "recall_observed": 0.9806451612903225,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 303,
+        "TN": 4,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9869706840390879,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 22,
+        "TN": 288,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.07096774193548387,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9112313985824585,
+        "p95": 1.5250733494758608,
+        "p99": 2.792080273628238,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9337349397590361,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 239,
+        "TN": 68,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7785016286644951,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 5,
+        "FP": 4,
+        "TN": 306,
+        "TP": 305
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.012903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9953017234802246,
+        "p95": 3.5922496318817148,
+        "p99": 6.030459451675414,
+        "samples": 305
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9870550161812298,
+      "recall_end_to_end_lower_bound": 0.9682539682539683,
+      "recall_observed": 0.9838709677419355,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a4": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 250,
+        "TN": 57,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8143322475570033,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 6,
+        "TN": 304,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9771580696105957,
+        "p95": 3.578470408916471,
+        "p99": 6.016157515048982,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 4.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9808917197452229,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 261,
+        "TN": 46,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8501628664495114,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 6,
+        "TN": 304,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9520608186721802,
+        "p95": 2.918411672115319,
+        "p99": 5.580339379310608,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9808917197452229,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a6": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 268,
+        "TN": 39,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8729641693811075,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 6,
+        "TN": 304,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9504907131195068,
+        "p95": 2.548651885986318,
+        "p99": 5.711968679428103,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 6.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9809523809523809,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a7": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 271,
+        "TN": 36,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8827361563517915,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 8,
+        "TN": 302,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.025806451612903226,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9455842971801758,
+        "p95": 2.33934459686279,
+        "p99": 5.580231981277466,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 7.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9747634069400631,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of2_a8": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 278,
+        "TN": 29,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9055374592833876,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 8,
+        "TN": 302,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.025806451612903226,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.945340633392334,
+        "p95": 2.533953166007999,
+        "p99": 5.5464046239853,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 8.0,
+        "k": 2,
+        "n": 2
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9748427672955975,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a1": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 185,
+        "TN": 122,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.6026058631921825,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 25,
+        "FP": 1,
+        "TN": 309,
+        "TP": 285
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.0032258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9984195232391357,
+        "p95": 4.245749092102051,
+        "p99": 5.835968856811528,
+        "samples": 285
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 1.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9965034965034965,
+      "recall_end_to_end_lower_bound": 0.9047619047619048,
+      "recall_observed": 0.9193548387096774,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 298,
+        "TN": 9,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9706840390879479,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 13,
+        "TN": 297,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.041935483870967745,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9318588972091675,
+        "p95": 1.7943341374397286,
+        "p99": 4.567857849597931,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9597523219814241,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a12": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 301,
+        "TN": 6,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9804560260586319,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 15,
+        "TN": 295,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.04838709677419355,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9218063354492188,
+        "p95": 1.6315913796424872,
+        "p99": 4.228571302890784,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 12.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9538461538461539,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a15": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 305,
+        "TN": 2,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.993485342019544,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 17,
+        "TN": 293,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.054838709677419356,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9152350425720215,
+        "p95": 1.581919610500336,
+        "p99": 3.483271276950846,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 15.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9480122324159022,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a2": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 248,
+        "TN": 59,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8078175895765473,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 6,
+        "FP": 4,
+        "TN": 306,
+        "TP": 304
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.012903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.004449725151062,
+        "p95": 3.797651088237756,
+        "p99": 5.9907917904853765,
+        "samples": 304
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 2.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.987012987012987,
+      "recall_end_to_end_lower_bound": 0.9650793650793651,
+      "recall_observed": 0.9806451612903225,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 307,
+        "TN": 0,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 1.0,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 25,
+        "TN": 285,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.08064516129032258,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9041452407836914,
+        "p95": 1.5108526945114136,
+        "p99": 2.2854754567146323,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9253731343283582,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 263,
+        "TN": 44,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8566775244299675,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 3,
+        "FP": 4,
+        "TN": 306,
+        "TP": 307
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.012903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9980418682098389,
+        "p95": 3.5830634832382193,
+        "p99": 6.219640574455261,
+        "samples": 307
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9871382636655949,
+      "recall_end_to_end_lower_bound": 0.9746031746031746,
+      "recall_observed": 0.9903225806451613,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a4": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 274,
+        "TN": 33,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8925081433224755,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 6,
+        "TN": 304,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9773874282836914,
+        "p95": 3.398953580856313,
+        "p99": 6.013912038803104,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 4.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9809523809523809,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 282,
+        "TN": 25,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9185667752442996,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 6,
+        "TN": 304,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9542760848999023,
+        "p95": 2.887598574161533,
+        "p99": 5.580124583244324,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9810126582278481,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a6": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 286,
+        "TN": 21,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9315960912052117,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 6,
+        "TN": 304,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.9520608186721802,
+        "p95": 2.291395843029022,
+        "p99": 5.580124583244324,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 6.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9810126582278481,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a7": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 290,
+        "TN": 17,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9446254071661238,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 8,
+        "TN": 302,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.025806451612903226,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.947390079498291,
+        "p95": 2.255661606788636,
+        "p99": 5.213068280220035,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 7.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9748427672955975,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k2of3_a8": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 291,
+        "TN": 16,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9478827361563518,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 8,
+        "TN": 302,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.025806451612903226,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 0.945340633392334,
+        "p95": 2.255661606788636,
+        "p99": 5.053622777462016,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 0.5,
+      "policy": {
+        "alpha_scale": 8.0,
+        "k": 2,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9748427672955975,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 277,
+        "TN": 30,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9022801302931596,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 10,
+        "TN": 300,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03225806451612903,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4562902450561523,
+        "p95": 3.610802066326142,
+        "p99": 6.072480273246765,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.96875,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a12": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 286,
+        "TN": 21,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9315960912052117,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 10,
+        "TN": 300,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03225806451612903,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4453314542770386,
+        "p95": 3.277182006835938,
+        "p99": 6.072480273246765,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 12.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.96875,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a15": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 294,
+        "TN": 13,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9576547231270358,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 10,
+        "TN": 300,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03225806451612903,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4351396560668945,
+        "p95": 3.0941297292709367,
+        "p99": 5.051165668964394,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 15.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.96875,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 302,
+        "TN": 5,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9837133550488599,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 11,
+        "TN": 299,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.035483870967741936,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4262938499450684,
+        "p95": 2.107878935337067,
+        "p99": 4.7025939464569255,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9657320872274143,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 221,
+        "TN": 86,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7198697068403909,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 8,
+        "FP": 3,
+        "TN": 307,
+        "TP": 302
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.00967741935483871,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.5165255069732666,
+        "p95": 4.110117590427397,
+        "p99": 6.560077676773072,
+        "samples": 302
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9901639344262295,
+      "recall_end_to_end_lower_bound": 0.9587301587301588,
+      "recall_observed": 0.9741935483870968,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a4": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 231,
+        "TN": 76,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.752442996742671,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 5,
+        "TN": 305,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.016129032258064516,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.497901201248169,
+        "p95": 4.12591712474823,
+        "p99": 6.5430802702903765,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 4.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9840255591054313,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 246,
+        "TN": 61,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8013029315960912,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 6,
+        "TN": 304,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.487639307975769,
+        "p95": 3.963796043395996,
+        "p99": 6.0725419282913204,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9808917197452229,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a6": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 256,
+        "TN": 51,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8338762214983714,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 6,
+        "TN": 304,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4826215505599976,
+        "p95": 3.963796043395996,
+        "p99": 6.0725419282913204,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 6.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9808917197452229,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a7": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 260,
+        "TN": 47,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8469055374592834,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 7,
+        "TN": 303,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4790695905685425,
+        "p95": 3.5664074540138238,
+        "p99": 6.045432174205782,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 7.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9777777777777777,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of3_a8": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 268,
+        "TN": 39,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8729641693811075,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 7,
+        "TN": 303,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4773530960083008,
+        "p95": 3.740703487396231,
+        "p99": 6.072511100769043,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 8.0,
+        "k": 3,
+        "n": 3
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9778481012658228,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 286,
+        "TN": 21,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9315960912052117,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 10,
+        "TN": 300,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03225806451612903,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.454807162284851,
+        "p95": 2.8396222114563,
+        "p99": 5.981665961742426,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.96875,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a12": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 290,
+        "TN": 17,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9446254071661238,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 10,
+        "TN": 300,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03225806451612903,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4411320686340332,
+        "p95": 2.614023077487946,
+        "p99": 5.980593464374567,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 12.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.96875,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a15": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 296,
+        "TN": 11,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9641693811074918,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 11,
+        "TN": 299,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.035483870967741936,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4346022605895996,
+        "p95": 2.4400417327880866,
+        "p99": 4.99293255090716,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 15.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9657320872274143,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 304,
+        "TN": 3,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.990228013029316,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 12,
+        "TN": 298,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.03870967741935484,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.417317271232605,
+        "p95": 2.092290771007538,
+        "p99": 4.032642295360567,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9627329192546584,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 226,
+        "TN": 81,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7361563517915309,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 6,
+        "FP": 3,
+        "TN": 307,
+        "TP": 304
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.00967741935483871,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.5179662704467773,
+        "p95": 4.102767932415006,
+        "p99": 6.55914261817932,
+        "samples": 304
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.990228013029316,
+      "recall_end_to_end_lower_bound": 0.9650793650793651,
+      "recall_observed": 0.9806451612903225,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a4": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 235,
+        "TN": 72,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7654723127035831,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 5,
+        "TN": 305,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.016129032258064516,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.497901201248169,
+        "p95": 4.12591712474823,
+        "p99": 6.5430802702903765,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 4.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9840255591054313,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 252,
+        "TN": 55,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8208469055374593,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 2,
+        "FP": 6,
+        "TN": 304,
+        "TP": 308
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.487639307975769,
+        "p95": 3.963796043395996,
+        "p99": 6.0725419282913204,
+        "samples": 308
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9808917197452229,
+      "recall_end_to_end_lower_bound": 0.9777777777777777,
+      "recall_observed": 0.9935483870967742,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a6": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 260,
+        "TN": 47,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8469055374592834,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 6,
+        "TN": 304,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4828736782073975,
+        "p95": 3.963139152526855,
+        "p99": 6.072511100769043,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 6.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9809523809523809,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a7": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 264,
+        "TN": 43,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8599348534201955,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 7,
+        "TN": 303,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4807860851287842,
+        "p95": 3.4327731132507227,
+        "p99": 6.04804523468018,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 7.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9778481012658228,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k3of4_a8": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 273,
+        "TN": 34,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8892508143322475,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 7,
+        "TN": 303,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02258064516129032,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.4790695905685425,
+        "p95": 3.446840357780459,
+        "p99": 6.027278685569775,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.0,
+      "policy": {
+        "alpha_scale": 8.0,
+        "k": 3,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9779179810725552,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of4_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 254,
+        "TN": 53,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8273615635179153,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 9,
+        "TN": 301,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9698474407196045,
+        "p95": 4.293101739883415,
+        "p99": 6.557966308593755,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 4,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9716981132075472,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of4_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 292,
+        "TN": 15,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9511400651465798,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 1,
+        "FP": 11,
+        "TN": 299,
+        "TP": 309
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.035483870967741936,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9446148872375488,
+        "p95": 2.958821868896467,
+        "p99": 5.253810749053957,
+        "samples": 309
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 4,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.965625,
+      "recall_end_to_end_lower_bound": 0.9809523809523809,
+      "recall_observed": 0.9967741935483871,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of4_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 203,
+        "TN": 104,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.6612377850162866,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 9,
+        "FP": 3,
+        "TN": 307,
+        "TP": 301
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.00967741935483871,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 2.035112142562866,
+        "p95": 5.235456228256226,
+        "p99": 7.051889419555664,
+        "samples": 301
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 4,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9901315789473685,
+      "recall_end_to_end_lower_bound": 0.9555555555555556,
+      "recall_observed": 0.9709677419354839,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of4_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 230,
+        "TN": 77,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.749185667752443,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 4,
+        "FP": 6,
+        "TN": 304,
+        "TP": 306
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9954363107681274,
+        "p95": 4.663826286792755,
+        "p99": 6.624453127384185,
+        "samples": 306
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 4,
+        "n": 4
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9807692307692307,
+      "recall_end_to_end_lower_bound": 0.9714285714285714,
+      "recall_observed": 0.9870967741935484,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of5_a10": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 266,
+        "TN": 41,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.8664495114006515,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 9,
+        "TN": 301,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.02903225806451613,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9695371389389038,
+        "p95": 4.021779990196231,
+        "p99": 6.5451790237426986,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 10.0,
+        "k": 4,
+        "n": 5
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9717868338557993,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of5_a20": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 299,
+        "TN": 8,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.9739413680781759,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 0,
+        "FP": 11,
+        "TN": 299,
+        "TP": 310
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.035483870967741936,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9351153373718262,
+        "p95": 2.653481125831604,
+        "p99": 4.751120278835299,
+        "samples": 310
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 20.0,
+        "k": 4,
+        "n": 5
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9657320872274143,
+      "recall_end_to_end_lower_bound": 0.9841269841269841,
+      "recall_observed": 1.0,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of5_a3": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 211,
+        "TN": 96,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.6872964169381107,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 6,
+        "FP": 3,
+        "TN": 307,
+        "TP": 304
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.00967741935483871,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 2.038109064102173,
+        "p95": 5.243799138069148,
+        "p99": 7.0980006265640245,
+        "samples": 304
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 3.0,
+        "k": 4,
+        "n": 5
+      },
+      "policy_applied": false,
+      "precision_expected": 0.990228013029316,
+      "recall_end_to_end_lower_bound": 0.9650793650793651,
+      "recall_observed": 0.9806451612903225,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    },
+    "k4of5_a5": {
+      "alert": false,
+      "automatic_promotion": false,
+      "benign_exec_control": {
+        "FP": 240,
+        "TN": 67,
+        "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+        "positive_rate": 0.7817589576547231,
+        "unknown": 8
+      },
+      "confirmed_FPR": null,
+      "confirmed_precision": null,
+      "confusion_matrix_expected_control_labels": {
+        "FN": 4,
+        "FP": 6,
+        "TN": 304,
+        "TP": 306
+      },
+      "control_labels": "pending_post_run_adjudication",
+      "control_positive_rate": 0.01935483870967742,
+      "intervals": 630,
+      "kernel_to_alert": null,
+      "kernel_to_preview_seconds": {
+        "p50": 1.9954363107681274,
+        "p95": 4.502552151679993,
+        "p99": 6.624453127384185,
+        "samples": 306
+      },
+      "latency_conditional_on_detected_trials": true,
+      "minimum_added_delay_seconds": 1.5,
+      "policy": {
+        "alpha_scale": 5.0,
+        "k": 4,
+        "n": 5
+      },
+      "policy_applied": false,
+      "precision_expected": 0.9807692307692307,
+      "recall_end_to_end_lower_bound": 0.9714285714285714,
+      "recall_observed": 0.9870967741935484,
+      "schema": "pulse-preview-interval-matrix-v1",
+      "unknown": 10
+    }
+  },
+  "preserved_outcomes_without_rows": 0,
+  "recalibrated": false,
+  "replayed_pairs": 315,
+  "schema": "pulse-confirmation-attack-replay-v1",
+  "source_sha256": "0d24ba4ae97662c7f7276b3b911f1c15545c1feecb9179db761bee8b532353ae",
+  "started_at_unix": 1792649099.1527689
+}

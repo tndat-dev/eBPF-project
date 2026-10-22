@@ -1,0 +1,52 @@
+{
+  "schema": "pulse-tripwire-verdict-v1",
+  "protocol": "/mnt/sentinel-pulse-archive/runtime-bd457a7-20261022/source/sentinel_pulse/protocol/tripwire-a1-blind-v1.json",
+  "primary": {
+    "passed": true,
+    "checks": {
+      "benign": true,
+      "control": true,
+      "rare_syscall_scenarios": true,
+      "rare_syscall_delay": true
+    },
+    "rare_syscall_shares": {
+      "child_ptrace_handshake": 1.0,
+      "invalid_setns_burst": 1.0,
+      "execveat_resolution_probe": 1.0
+    },
+    "rare_syscall_delay_p95": [
+      0.7570698261260986,
+      0.7902338027954101,
+      0.763550090789795
+    ],
+    "overall": {
+      "attack": 0.6,
+      "benign": 0.0,
+      "control": 0.0
+    }
+  },
+  "secondary_descriptive": {
+    "passed": true,
+    "checks": {
+      "benign": true,
+      "control": true,
+      "rare_syscall_scenarios": true,
+      "rare_syscall_delay": true
+    },
+    "rare_syscall_shares": {
+      "child_ptrace_handshake": 1.0,
+      "invalid_setns_burst": 1.0,
+      "execveat_resolution_probe": 1.0
+    },
+    "rare_syscall_delay_p95": [
+      0.7570698261260986,
+      0.7902338027954101,
+      0.763550090789795
+    ],
+    "overall": {
+      "attack": 0.6,
+      "benign": 0.0,
+      "control": 0.0
+    }
+  }
+}

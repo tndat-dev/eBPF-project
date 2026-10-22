@@ -1,0 +1,110 @@
+{
+  "schema": "pulse-ideas-burden-v1",
+  "worker_roots": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker1.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker4.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker3.local"
+  ],
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "policy_hash": "9c41ebc06243461a8abce9ceec3becdb17869db42f51a85b3137b87d030d1540",
+  "since_unix": 1792560282.2194963,
+  "until_unix": null,
+  "excluded_spans": [
+    [
+      1792565744.4659765,
+      1792586516.949264
+    ]
+  ],
+  "scored_replica_hours": 1219.3268147123522,
+  "stats": {
+    "segments": 146,
+    "excluded_rows": 2658773
+  },
+  "methods": {
+    "joint_k2of2_a10": {
+      "total_episodes": 8218,
+      "total_positive_windows": 176241,
+      "episodes_per_replica_hour": 6.739784527693409,
+      "episodes": {
+        "production/api-gateway:app": 259,
+        "production/aims-kafka-dual-role:kafka": 1012,
+        "production/payment-service:app": 1127,
+        "production/order-service:app": 984,
+        "production/inventory-service:app": 587,
+        "production/aims-minio-pool-0:minio": 149,
+        "production/aims-postgres-cnpg:postgres": 617,
+        "production/aims-redis:aims-redis": 297,
+        "production/security-telemetry-service:app": 408,
+        "production/aims-rabbitmq-server:rabbitmq": 199,
+        "production/catalog-service:app": 277,
+        "production/aims-minio-pool-0:sidecar": 93,
+        "production/aims-waypoint:istio-proxy": 438,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 160,
+        "production/auth-service:app": 154,
+        "production/search-recommendation-service:app": 169,
+        "production/cart-service:app": 159,
+        "production/notification-service:app": 270,
+        "production/aims-frontend:web": 553,
+        "production/aims-kafka-entity-operator:user-operator": 150,
+        "production/aims-kafka-entity-operator:topic-operator": 156
+      }
+    },
+    "cauchy_k2of2_a10": {
+      "total_episodes": 9555,
+      "total_positive_windows": 192861,
+      "episodes_per_replica_hour": 7.836291209796852,
+      "episodes": {
+        "production/api-gateway:app": 274,
+        "production/aims-kafka-dual-role:kafka": 1045,
+        "production/payment-service:app": 1425,
+        "production/order-service:app": 1160,
+        "production/inventory-service:app": 797,
+        "production/aims-minio-pool-0:minio": 175,
+        "production/aims-postgres-cnpg:postgres": 724,
+        "production/aims-redis:aims-redis": 317,
+        "production/security-telemetry-service:app": 442,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 200,
+        "production/aims-rabbitmq-server:rabbitmq": 278,
+        "production/catalog-service:app": 376,
+        "production/aims-waypoint:istio-proxy": 480,
+        "production/aims-minio-pool-0:sidecar": 116,
+        "production/notification-service:app": 327,
+        "production/search-recommendation-service:app": 178,
+        "production/auth-service:app": 163,
+        "production/cart-service:app": 161,
+        "production/aims-frontend:web": 607,
+        "production/aims-kafka-entity-operator:user-operator": 159,
+        "production/aims-kafka-entity-operator:topic-operator": 151
+      }
+    },
+    "cusum_b3_h6": {
+      "total_episodes": 6491,
+      "total_positive_windows": 415569,
+      "episodes_per_replica_hour": 5.323429224781933,
+      "episodes": {
+        "production/api-gateway:app": 226,
+        "production/aims-kafka-dual-role:kafka": 308,
+        "production/payment-service:app": 998,
+        "production/inventory-service:app": 732,
+        "production/order-service:app": 798,
+        "production/auth-service:app": 341,
+        "production/aims-minio-pool-0:sidecar": 42,
+        "production/notification-service:app": 290,
+        "production/aims-postgres-cnpg:postgres": 232,
+        "production/aims-rabbitmq-server:rabbitmq": 194,
+        "production/security-telemetry-service:app": 333,
+        "production/aims-waypoint:istio-proxy": 509,
+        "production/catalog-service:app": 224,
+        "production/aims-minio-pool-0:minio": 88,
+        "production/aims-redis:aims-redis": 122,
+        "production/search-recommendation-service:app": 197,
+        "production/cart-service:app": 161,
+        "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 138,
+        "production/aims-frontend:web": 335,
+        "production/aims-kafka-entity-operator:user-operator": 146,
+        "production/aims-kafka-entity-operator:topic-operator": 77
+      }
+    }
+  },
+  "computed_at_unix": 1792649579.5354536
+}

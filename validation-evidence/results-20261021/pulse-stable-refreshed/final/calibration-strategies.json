@@ -1,0 +1,2268 @@
+{
+  "aci_gamma_relative": 0.01,
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/pulse-development-matrix"
+  ],
+  "confirmation": {
+    "k": 2,
+    "n": 2
+  },
+  "estimators_changed": false,
+  "evaluation_span_unix": [
+    1792565682.2194963,
+    1792647090.7107248
+  ],
+  "evidence_class": "development; unadjudicated normal; pulse-attack-dev scenarios previously exposed",
+  "excluded_spans": 945,
+  "finished_at_unix": 1792655786.7984476,
+  "minimum_calibration_examples": 1200,
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "policy_hash": "9c41ebc06243461a8abce9ceec3becdb17869db42f51a85b3137b87d030d1540",
+  "scales": [
+    3.0,
+    5.0,
+    10.0
+  ],
+  "schema": "pulse-rolling-recalibration-v1",
+  "source_sha256": "092b3ff60dae06f8327d245955a690768837879d355f5d38fd89bebf43511a68",
+  "started_at_unix": 1792655116.2151778,
+  "static_calibration_span_unix": [
+    1792560282.2194963,
+    1792565682.2194963
+  ],
+  "strategies": {
+    "aci-asrun": {
+      "aci_alpha_over_target": {
+        "10": {
+          "production/aims-frontend:web": {
+            "last": 1.168000000013331,
+            "p05": 0.21683333333475024,
+            "p50": 1.050333333340732,
+            "p95": 1.261333333342938
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.13383333333295316,
+            "p05": 0.10116666666645624,
+            "p50": 0.14399999999968832,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.9198333333401307,
+            "p05": 0.28916666666731733,
+            "p50": 1.0,
+            "p95": 1.3768333333349911
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.3998333333392425,
+            "p05": 0.09500000000051195,
+            "p50": 1.0,
+            "p95": 1.4351666666718728
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.1620000000139894,
+            "p05": 0.2925000000009317,
+            "p50": 1.132666666666821,
+            "p95": 1.6320000000051245
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.6820000000135529,
+            "p05": 0.3520000000002721,
+            "p50": 1.503333333340963,
+            "p95": 1.8351666666778887
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.293833333342288,
+            "p05": 0.16500000000108603,
+            "p50": 0.4391666666674765,
+            "p95": 1.0
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.013833333343799,
+            "p05": 0.8070000000041466,
+            "p50": 1.4526666666749466,
+            "p95": 1.9820000000118905
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 2.8838333332835493,
+            "p05": 1.0,
+            "p50": 2.229666666655513,
+            "p95": 2.7776666666315877
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.3238333333550494,
+            "p05": 0.49533333333652313,
+            "p50": 1.251166666681825,
+            "p95": 1.5195000000181385
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.3501666666962877,
+            "p05": 0.5318333333336274,
+            "p50": 1.0,
+            "p95": 1.3266666666753841
+          },
+          "production/api-gateway:app": {
+            "last": 2.1449999999368567,
+            "p05": 0.8786666666705658,
+            "p50": 2.068499999968817,
+            "p95": 2.1861666666471384
+          },
+          "production/auth-service:app": {
+            "last": 1.56500000002872,
+            "p05": 1.0,
+            "p50": 1.6308333333517155,
+            "p95": 1.8080000000228214
+          },
+          "production/cart-service:app": {
+            "last": 2.3454999999378656,
+            "p05": 1.0,
+            "p50": 2.0871666666213726,
+            "p95": 2.500333333274301
+          },
+          "production/catalog-service:app": {
+            "last": 1.6750000000286187,
+            "p05": 0.9219916666690199,
+            "p50": 1.6435000000129016,
+            "p95": 1.815000000014477
+          },
+          "production/inventory-service:app": {
+            "last": 0.9850000000291931,
+            "p05": 0.5841666666691703,
+            "p50": 0.9811666666871448,
+            "p95": 1.002166666694953
+          },
+          "production/notification-service:app": {
+            "last": 2.1349999999868223,
+            "p05": 1.0,
+            "p50": 1.650333333339118,
+            "p95": 2.349666666670833
+          },
+          "production/order-service:app": {
+            "last": 1.6850000000298817,
+            "p05": 0.7521666666728203,
+            "p50": 1.3161666666946679,
+            "p95": 1.656666666693717
+          },
+          "production/payment-service:app": {
+            "last": 1.5191666666956574,
+            "p05": 0.6791666666852512,
+            "p50": 1.1840000000172604,
+            "p95": 1.6743333333539614
+          },
+          "production/search-recommendation-service:app": {
+            "last": 2.7808333332477106,
+            "p05": 1.0,
+            "p50": 2.9421666666156012,
+            "p95": 3.079666666612097
+          },
+          "production/security-telemetry-service:app": {
+            "last": 2.1191666666055746,
+            "p05": 1.0,
+            "p50": 2.090833333288182,
+            "p95": 2.293333333317983
+          }
+        },
+        "3": {
+          "production/aims-frontend:web": {
+            "last": 0.9744000000075764,
+            "p05": 0.05860000000084859,
+            "p50": 0.8755500000033045,
+            "p95": 1.0
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.3061500000027077,
+            "p05": 0.08865000000047109,
+            "p50": 0.2879500000014241,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.8389500000029496,
+            "p05": 0.08115000000036245,
+            "p50": 0.8252999999997978,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 0.35894999999923244,
+            "p05": 0.03455000000001814,
+            "p50": 0.35404999999919406,
+            "p95": 1.0
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 0.896600000005136,
+            "p05": 0.05570000000514179,
+            "p50": 0.8042000000051978,
+            "p95": 1.2631500000024702
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.7466000000108832,
+            "p05": 0.08044499999988114,
+            "p50": 1.7200000000036828,
+            "p95": 1.7662000000056164
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.36614999998996134,
+            "p05": 0.07914999999872532,
+            "p50": 0.4547999999922139,
+            "p95": 1.0
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 3.406150000014775,
+            "p05": 0.1898999999998802,
+            "p50": 2.740950000002547,
+            "p95": 3.438100000014689
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 3.946150000018625,
+            "p05": 0.3353075000008968,
+            "p50": 2.333250000004208,
+            "p95": 3.6793000000182112
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.5161500000152233,
+            "p05": 0.12784999999945199,
+            "p50": 1.2256500000033226,
+            "p95": 1.6359500000137568
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 0.9110500000060605,
+            "p05": 0.15044999999891326,
+            "p50": 0.77885000000525,
+            "p95": 1.02975000000089
+          },
+          "production/api-gateway:app": {
+            "last": 1.0225000000237552,
+            "p05": 0.40515000000063833,
+            "p50": 1.00485000000145,
+            "p95": 1.163150000014664
+          },
+          "production/auth-service:app": {
+            "last": 4.632500000030283,
+            "p05": 1.0,
+            "p50": 4.641800000013937,
+            "p95": 4.652150000017841
+          },
+          "production/cart-service:app": {
+            "last": 4.495650000030524,
+            "p05": 1.0,
+            "p50": 4.4898500000174915,
+            "p95": 4.501500000021589
+          },
+          "production/catalog-service:app": {
+            "last": 2.262500000023796,
+            "p05": 0.22169750000172542,
+            "p50": 1.8210500000139318,
+            "p95": 2.134800000008687
+          },
+          "production/inventory-service:app": {
+            "last": 2.112500000020024,
+            "p05": 0.38770000000911176,
+            "p50": 1.2640500000005457,
+            "p95": 2.0066000000182336
+          },
+          "production/notification-service:app": {
+            "last": 3.282500000030136,
+            "p05": 1.0,
+            "p50": 3.2808500000142176,
+            "p95": 3.2935000000258743
+          },
+          "production/order-service:app": {
+            "last": 2.092500000026189,
+            "p05": 0.589400000003463,
+            "p50": 1.5768500000112393,
+            "p95": 2.0958500000251385
+          },
+          "production/payment-service:app": {
+            "last": 1.914750000024892,
+            "p05": 0.5175000000032077,
+            "p50": 1.4126500000022515,
+            "p95": 1.9948000000222599
+          },
+          "production/search-recommendation-service:app": {
+            "last": 2.880250000029768,
+            "p05": 0.9442500000052841,
+            "p50": 2.4851000000127916,
+            "p95": 2.875150000021196
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.4947500000219514,
+            "p05": 0.28060000000015084,
+            "p50": 1.4767500000188778,
+            "p95": 1.6059500000167906
+          }
+        },
+        "5": {
+          "production/aims-frontend:web": {
+            "last": 1.123999999986102,
+            "p05": 0.09108333333227418,
+            "p50": 1.0,
+            "p95": 1.117333333325384
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.19691666666658555,
+            "p05": 0.12058333333339817,
+            "p50": 0.1900833333332588,
+            "p95": 1.0
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.7149166666688241,
+            "p05": 0.16174999999964187,
+            "p50": 0.7274166666687042,
+            "p95": 1.0329999999995854
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 0.7949166666694757,
+            "p05": 0.04824999999988356,
+            "p50": 0.6655833333347445,
+            "p95": 1.0
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.0609999999923945,
+            "p05": 0.10600000000065905,
+            "p50": 0.9250833333344224,
+            "p95": 1.602999999996778
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.5809999999835296,
+            "p05": 0.2171583333334776,
+            "p50": 1.102916666663162,
+            "p95": 1.5562499999855426
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.296916666676526,
+            "p05": 0.11608333333800547,
+            "p50": 0.3707500000064806,
+            "p95": 1.0
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.0569166667010386,
+            "p05": 0.7478333333332039,
+            "p50": 2.049333333345504,
+            "p95": 2.070833333356002
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 3.9469166666684106,
+            "p05": 0.6457624999989232,
+            "p50": 2.6706666666670884,
+            "p95": 3.950083333338444
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.5169166666424714,
+            "p05": 0.20583333333386297,
+            "p50": 1.3026666666612632,
+            "p95": 1.7230833333103601
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.2550833333208464,
+            "p05": 0.2905000000007878,
+            "p50": 0.9106666666561268,
+            "p95": 1.2560000000001939
+          },
+          "production/api-gateway:app": {
+            "last": 1.3474999999666717,
+            "p05": 0.5053291666667741,
+            "p50": 1.2689999999750219,
+            "p95": 1.5104166666557894
+          },
+          "production/auth-service:app": {
+            "last": 2.777500000075838,
+            "p05": 1.0,
+            "p50": 2.7870833333662617,
+            "p95": 2.801666666722082
+          },
+          "production/cart-service:app": {
+            "last": 2.6927500000743643,
+            "p05": 1.0,
+            "p50": 2.6975000000595064,
+            "p95": 2.722000000045616
+          },
+          "production/catalog-service:app": {
+            "last": 1.9775000000382177,
+            "p05": 0.5174166666622948,
+            "p50": 1.9005000000370504,
+            "p95": 2.0920000000121317
+          },
+          "production/inventory-service:app": {
+            "last": 1.8274999999642056,
+            "p05": 0.6134166666481891,
+            "p50": 1.5657499999884936,
+            "p95": 1.8289999999869633
+          },
+          "production/notification-service:app": {
+            "last": 1.967500000062685,
+            "p05": 1.0,
+            "p50": 1.9725833333493201,
+            "p95": 2.000916666718403
+          },
+          "production/order-service:app": {
+            "last": 1.8474999999654922,
+            "p05": 0.6895833333322422,
+            "p50": 1.4555416666506902,
+            "p95": 1.8634166666491647
+          },
+          "production/payment-service:app": {
+            "last": 1.6845833332994267,
+            "p05": 0.6330833333171874,
+            "p50": 1.345583333323063,
+            "p95": 1.7892499999744156
+          },
+          "production/search-recommendation-service:app": {
+            "last": 4.950416666585854,
+            "p05": 0.8852499999965555,
+            "p50": 3.7187500000076756,
+            "p95": 4.81008333326224
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.794583333299566,
+            "p05": 0.6371666666644278,
+            "p50": 1.6078333333058752,
+            "p95": 1.8551666666492843
+          }
+        }
+      },
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 273,
+            "TN": 34,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.8892508143322475,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 5,
+            "FP": 6,
+            "TN": 304,
+            "TP": 305
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.01935483870967742,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9408543109893799,
+            "p95": 2.211867380142212,
+            "p99": 4.5560732650756774,
+            "samples": 305
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9807073954983923,
+          "recall_end_to_end_lower_bound": 0.9682539682539683,
+          "recall_observed": 0.9838709677419355,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 182,
+            "TN": 125,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5928338762214984,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 38,
+            "FP": 1,
+            "TN": 309,
+            "TP": 272
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.0032258064516129032,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.061684489250183,
+            "p95": 5.436904561519623,
+            "p99": 8.949927167892493,
+            "samples": 272
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9963369963369964,
+          "recall_end_to_end_lower_bound": 0.8634920634920635,
+          "recall_observed": 0.8774193548387097,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 236,
+            "TN": 71,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.7687296416938111,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 23,
+            "FP": 3,
+            "TN": 307,
+            "TP": 287
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.00967741935483871,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.0042405128479004,
+            "p95": 3.0571509122848504,
+            "p99": 5.571854934692382,
+            "samples": 287
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9896551724137931,
+          "recall_end_to_end_lower_bound": 0.9111111111111111,
+          "recall_observed": 0.9258064516129032,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 7.525667131013116,
+          "hourly_episodes_per_replica_hour": [
+            6.565848468728627,
+            null,
+            null,
+            null,
+            null,
+            4.758939775655456,
+            6.92089381830044,
+            7.686470620209817,
+            7.531989333612878,
+            7.485139987516067,
+            7.38901475454747,
+            7.350929664849441,
+            7.360133915727252,
+            6.4882513631466106,
+            7.168440040783247,
+            7.126123245387923,
+            7.406843544132008,
+            8.594332628155094,
+            7.702309562222502,
+            8.314883362838787,
+            8.657157766568098,
+            7.76275261225581,
+            7.723398646867587
+          ],
+          "positive_window_rate": 0.003205695317264518,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.548280708406875,
+          "hourly_episodes_per_replica_hour": [
+            2.7357701953035947,
+            null,
+            null,
+            null,
+            null,
+            0.34485070838083015,
+            1.3152829880932964,
+            1.5967820840354405,
+            1.9026528379272616,
+            1.2684023828217603,
+            1.7689802272539494,
+            1.7277826135329883,
+            2.1185886537807654,
+            1.206752065126302,
+            1.5058429844971373,
+            1.033679415814512,
+            1.644225311065245,
+            1.5811067312270755,
+            1.3933039655239892,
+            1.87906968651724,
+            1.5185249608627587,
+            1.4868175366215766,
+            1.6606625076882524
+          ],
+          "positive_window_rate": 0.0009486254423797545,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 3.0007818895068983,
+          "hourly_episodes_per_replica_hour": [
+            3.8300782734250323,
+            null,
+            null,
+            null,
+            null,
+            1.6552834002279846,
+            2.8967541999673787,
+            2.97439799967386,
+            3.3178491636582828,
+            2.818671961826134,
+            3.506651069954732,
+            3.110008704359379,
+            3.2171161038893104,
+            2.2567830828336035,
+            2.870513189197668,
+            2.396256827570005,
+            3.28845062213049,
+            3.099595374088722,
+            2.833573233256652,
+            3.460620006002584,
+            3.1779439902591755,
+            2.9579843623313473,
+            3.189526403655215
+          ],
+          "positive_window_rate": 0.0014818963003220289,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "aci-rolling-6-1": {
+      "aci_alpha_over_target": {
+        "10": {
+          "production/aims-frontend:web": {
+            "last": 1.198000000011707,
+            "p05": 0.8570000000022103,
+            "p50": 1.1666666666752807,
+            "p95": 1.8703333333337497
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.9538333333496138,
+            "p05": 0.599166666665868,
+            "p50": 1.1710000000086347,
+            "p95": 1.9449999999969867
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 1.0698333333395917,
+            "p05": 0.12016666666849075,
+            "p50": 1.0,
+            "p95": 1.2396666666704503
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.3898333333394144,
+            "p05": 0.12683333333396343,
+            "p50": 1.1876666666681868,
+            "p95": 1.6480000000033566
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.682000000013659,
+            "p05": 0.23716666666792008,
+            "p50": 1.0035000000078012,
+            "p95": 1.5351666666793309
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.0920000000141485,
+            "p05": 0.37333333333508617,
+            "p50": 1.0930000000074132,
+            "p95": 1.2708333333368973
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.8438333333442465,
+            "p05": 0.701833333342158,
+            "p50": 1.0658333333424217,
+            "p95": 2.3073333333295456
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 1.0638333333554475,
+            "p05": 0.5885000000037666,
+            "p50": 1.0811666666880329,
+            "p95": 1.2756666666822671
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 1.6638333333540927,
+            "p05": 0.4110000000018602,
+            "p50": 1.1668333333522911,
+            "p95": 1.6941416666756715
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 0.9338333333645383,
+            "p05": 0.9053333333514267,
+            "p50": 1.240833333362461,
+            "p95": 5.924500000013618
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.7101666667117383,
+            "p05": 0.7128333333596947,
+            "p50": 1.1848333333695373,
+            "p95": 5.290166666681962
+          },
+          "production/api-gateway:app": {
+            "last": 1.0350000000063255,
+            "p05": 0.8829999999920213,
+            "p50": 1.0614999999912167,
+            "p95": 3.2138416666607057
+          },
+          "production/auth-service:app": {
+            "last": 1.645000000010388,
+            "p05": 1.0,
+            "p50": 1.7211666666736463,
+            "p95": 2.0898333333243695
+          },
+          "production/cart-service:app": {
+            "last": 1.3755000000168818,
+            "p05": 1.0,
+            "p50": 1.3786666666768843,
+            "p95": 2.158833333327956
+          },
+          "production/catalog-service:app": {
+            "last": 1.1949999999800918,
+            "p05": 1.0,
+            "p50": 1.1853333333068137,
+            "p95": 10.13950833331197
+          },
+          "production/inventory-service:app": {
+            "last": 1.7950000000047825,
+            "p05": 1.0,
+            "p50": 1.8041666666560316,
+            "p95": 2.030499999990594
+          },
+          "production/notification-service:app": {
+            "last": 1.345000000004012,
+            "p05": 1.0,
+            "p50": 1.3646666666594678,
+            "p95": 2.3206666666599944
+          },
+          "production/order-service:app": {
+            "last": 1.4850000000293073,
+            "p05": 0.7403333333554937,
+            "p50": 1.1775000000165938,
+            "p95": 1.5395000000268133
+          },
+          "production/payment-service:app": {
+            "last": 1.3591666666948188,
+            "p05": 0.5971666666733652,
+            "p50": 1.101000000023498,
+            "p95": 1.5905000000223593
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.050833333301905,
+            "p05": 0.9383333332892415,
+            "p50": 1.152999999957367,
+            "p95": 12.131091666634918
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.159166666689313,
+            "p05": 0.9991666666757494,
+            "p50": 1.3158333333397592,
+            "p95": 4.533999999997092
+          }
+        },
+        "3": {
+          "production/aims-frontend:web": {
+            "last": 1.2644000000104139,
+            "p05": 0.09197000000126519,
+            "p50": 1.0012000000026455,
+            "p95": 1.2177000000002534
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.8661500000178207,
+            "p05": 0.20800000000371888,
+            "p50": 1.2494000000023582,
+            "p95": 1.867542500007105
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 1.1089500000037575,
+            "p05": 0.07600000000035809,
+            "p50": 1.0,
+            "p95": 1.29225000000138
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.1589500000034945,
+            "p05": 0.06575000000008976,
+            "p50": 1.0,
+            "p95": 1.5165500000012022
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.3766000000063008,
+            "p05": 0.06234999999995166,
+            "p50": 0.8402499999995995,
+            "p95": 1.1532500000023864
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.316600000010712,
+            "p05": 0.09599999999987482,
+            "p50": 1.3492000000103097,
+            "p95": 1.930000000005718
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.6861500000093823,
+            "p05": 0.12720000000067477,
+            "p50": 0.9160500000012973,
+            "p95": 1.500892500006011
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 2.116150000014987,
+            "p05": 0.1927500000000873,
+            "p50": 1.8263500000099149,
+            "p95": 2.2142000000030473
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 2.6961500000146406,
+            "p05": 0.20165000000040414,
+            "p50": 1.4604000000087995,
+            "p95": 2.6646500000073194
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 1.066150000015023,
+            "p05": 0.164649999999071,
+            "p50": 1.0821000000117267,
+            "p95": 1.3763500000110502
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.3310500000149796,
+            "p05": 0.24014999999998723,
+            "p50": 0.9458500000077428,
+            "p95": 1.2868500000110008
+          },
+          "production/api-gateway:app": {
+            "last": 1.8425000000310214,
+            "p05": 1.0,
+            "p50": 1.8386500000310075,
+            "p95": 2.1688500000087405
+          },
+          "production/auth-service:app": {
+            "last": 1.8325000000308689,
+            "p05": 1.0,
+            "p50": 1.9341500000201595,
+            "p95": 3.5343000000075797
+          },
+          "production/cart-service:app": {
+            "last": 2.145650000030997,
+            "p05": 1.0,
+            "p50": 2.1155500000229983,
+            "p95": 4.180900000005267
+          },
+          "production/catalog-service:app": {
+            "last": 1.0325000000255962,
+            "p05": 0.6754000000047953,
+            "p50": 1.0013000000049403,
+            "p95": 1.4742000000010185
+          },
+          "production/inventory-service:app": {
+            "last": 2.1325000000295664,
+            "p05": 1.0,
+            "p50": 2.1717500000153662,
+            "p95": 3.7932025000073586
+          },
+          "production/notification-service:app": {
+            "last": 2.0625000000308895,
+            "p05": 1.0,
+            "p50": 2.059100000029412,
+            "p95": 3.268100000007068
+          },
+          "production/order-service:app": {
+            "last": 1.4125000000175523,
+            "p05": 0.28255000000263353,
+            "p50": 1.0282750000040062,
+            "p95": 1.5107000000094755
+          },
+          "production/payment-service:app": {
+            "last": 1.0647500000138508,
+            "p05": 0.2788500000011498,
+            "p50": 0.9979500000008157,
+            "p95": 1.6706500000068811
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.1002500000306061,
+            "p05": 0.9634500000176635,
+            "p50": 1.173950000029078,
+            "p95": 2.202800000003036
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.3047500000297925,
+            "p05": 1.0,
+            "p50": 1.2897500000276616,
+            "p95": 1.574200000003074
+          }
+        },
+        "5": {
+          "production/aims-frontend:web": {
+            "last": 1.1939999999835726,
+            "p05": 0.22041666666539297,
+            "p50": 1.0868333333314193,
+            "p95": 1.5929999999990778
+          },
+          "production/aims-kafka-dual-role:kafka": {
+            "last": 0.8769166666457547,
+            "p05": 0.4554999999962241,
+            "p50": 1.1996666666587399,
+            "p95": 1.8259999999990113
+          },
+          "production/aims-kafka-entity-operator:topic-operator": {
+            "last": 0.9549166666613556,
+            "p05": 0.08216666666653698,
+            "p50": 1.0,
+            "p95": 1.2749166666654639
+          },
+          "production/aims-kafka-entity-operator:user-operator": {
+            "last": 1.144916666661059,
+            "p05": 0.07275000000011526,
+            "p50": 1.010166666666629,
+            "p95": 1.5809166666655379
+          },
+          "production/aims-minio-pool-0:minio": {
+            "last": 1.6809999999939098,
+            "p05": 0.09083333333339501,
+            "p50": 0.8747499999966394,
+            "p95": 1.2887583333285477
+          },
+          "production/aims-minio-pool-0:sidecar": {
+            "last": 1.0909999999835516,
+            "p05": 0.22541666666796262,
+            "p50": 1.1479166666547174,
+            "p95": 1.3828333333265872
+          },
+          "production/aims-postgres-cnpg:postgres": {
+            "last": 0.7769166666528362,
+            "p05": 0.2874999999981262,
+            "p50": 1.0,
+            "p95": 1.3454999999904806
+          },
+          "production/aims-rabbitmq-server:rabbitmq": {
+            "last": 1.9669166666922193,
+            "p05": 0.44650000000042744,
+            "p50": 1.8749166666821147,
+            "p95": 2.0450000000004023
+          },
+          "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+            "last": 2.0369166666790757,
+            "p05": 0.328166666663925,
+            "p50": 1.4376666666759734,
+            "p95": 2.0925000000045846
+          },
+          "production/aims-redis:aims-redis": {
+            "last": 0.9969166666421991,
+            "p05": 0.3143333333333652,
+            "p50": 1.1267499999867072,
+            "p95": 1.4160833333316383
+          },
+          "production/aims-waypoint:istio-proxy": {
+            "last": 1.495083333317085,
+            "p05": 0.5684166666667201,
+            "p50": 1.0,
+            "p95": 1.8235833333315012
+          },
+          "production/api-gateway:app": {
+            "last": 1.1574999999601026,
+            "p05": 1.0,
+            "p50": 1.16708333332233,
+            "p95": 1.8876666666637236
+          },
+          "production/auth-service:app": {
+            "last": 1.7675000000536263,
+            "p05": 1.0,
+            "p50": 1.9700000000443336,
+            "p95": 3.5345833333376206
+          },
+          "production/cart-service:app": {
+            "last": 2.482750000052343,
+            "p05": 1.0,
+            "p50": 2.196583333363881,
+            "p95": 2.8056666666691132
+          },
+          "production/catalog-service:app": {
+            "last": 1.0274999999684078,
+            "p05": 0.9076666666522653,
+            "p50": 1.048083333302476,
+            "p95": 2.088583333332322
+          },
+          "production/inventory-service:app": {
+            "last": 2.0775000000451955,
+            "p05": 1.0,
+            "p50": 2.1585833333515096,
+            "p95": 3.7088333333426386
+          },
+          "production/notification-service:app": {
+            "last": 2.1075000000517994,
+            "p05": 1.0,
+            "p50": 2.1805416666881587,
+            "p95": 3.2265000000117543
+          },
+          "production/order-service:app": {
+            "last": 1.3774999999665576,
+            "p05": 0.4564958333161468,
+            "p50": 1.1161666666361825,
+            "p95": 1.4249999999884422
+          },
+          "production/payment-service:app": {
+            "last": 1.2445833333093432,
+            "p05": 0.4124999999978259,
+            "p50": 1.0305833333226637,
+            "p95": 1.5654166666498348
+          },
+          "production/search-recommendation-service:app": {
+            "last": 1.1604166666452076,
+            "p05": 0.9360000000066496,
+            "p50": 1.1515833333281962,
+            "p95": 3.025000000004288
+          },
+          "production/security-telemetry-service:app": {
+            "last": 1.0745833332942059,
+            "p05": 0.8720833333021456,
+            "p50": 1.0928333333065916,
+            "p95": 1.4626666666647887
+          }
+        }
+      },
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 227,
+            "TN": 80,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.739413680781759,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 17,
+            "FP": 8,
+            "TN": 302,
+            "TP": 293
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025806451612903226,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.930382251739502,
+            "p95": 3.182298040390012,
+            "p99": 4.938008880615234,
+            "samples": 293
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.973421926910299,
+          "recall_end_to_end_lower_bound": 0.9301587301587302,
+          "recall_observed": 0.9451612903225807,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 113,
+            "TN": 194,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.36807817589576547,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 62,
+            "FP": 2,
+            "TN": 308,
+            "TP": 248
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.0064516129032258064,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 1.002387285232544,
+            "p95": 5.580516886711121,
+            "p99": 8.509867713451385,
+            "samples": 248
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.992,
+          "recall_end_to_end_lower_bound": 0.7873015873015873,
+          "recall_observed": 0.8,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 180,
+            "TN": 127,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5863192182410424,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 32,
+            "FP": 3,
+            "TN": 307,
+            "TP": 278
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.00967741935483871,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9714570045471191,
+            "p95": 3.7025700211524866,
+            "p99": 5.808219707012181,
+            "samples": 278
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9893238434163701,
+          "recall_end_to_end_lower_bound": 0.8825396825396825,
+          "recall_observed": 0.896774193548387,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 23,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 10.531098512136852,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            3.6554175088367993,
+            19.290817158701678,
+            10.754796977768114,
+            9.65478382220941,
+            9.1137060099045,
+            10.222514056609107,
+            10.53947394255123,
+            10.624329767478358,
+            8.353231827432714,
+            9.866408721340619,
+            9.678998166263158,
+            10.350789815372638,
+            10.613765977940169,
+            10.175815478545989,
+            10.460154588279302,
+            10.692294312054269,
+            9.7973450307906,
+            10.543888937703189
+          ],
+          "positive_window_rate": 0.003971311603503754,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 2.081112447696448,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            0.34485070838083015,
+            2.708856630239765,
+            2.44213730499538,
+            2.5630777899350714,
+            1.2684023828217603,
+            2.082074072785622,
+            2.356067200272257,
+            2.5109198859623887,
+            1.6769152073833027,
+            1.8823037306214216,
+            1.534857314391245,
+            1.9417517959246702,
+            2.066396916059148,
+            2.0038528942367484,
+            2.536744076798274,
+            2.0977561315011304,
+            2.1441473949174314,
+            1.897900008786574
+          ],
+          "positive_window_rate": 0.0011477786666342924,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 4.03110923179808,
+          "hourly_episodes_per_replica_hour": [
+            2.1886161562428756,
+            null,
+            null,
+            null,
+            null,
+            1.2414625501709884,
+            4.9792855977817645,
+            4.2737402837419145,
+            4.434281820623866,
+            3.2258134674232424,
+            3.991946530528824,
+            4.397992107174879,
+            4.39410980043418,
+            2.9933720057029047,
+            3.717549867977308,
+            3.429936243384517,
+            3.9304814578797758,
+            4.195411920483725,
+            4.352118004670438,
+            4.494108333587065,
+            4.101582883979822,
+            4.131787680716802,
+            4.270275019769792
+          ],
+          "positive_window_rate": 0.0018424902057167566,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "asrun": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 289,
+            "TN": 18,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.9413680781758957,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 0,
+            "FP": 13,
+            "TN": 297,
+            "TP": 310
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.041935483870967745,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9352829456329346,
+            "p95": 2.255661606788636,
+            "p99": 5.489984164238002,
+            "samples": 310
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9597523219814241,
+          "recall_end_to_end_lower_bound": 0.9841269841269841,
+          "recall_observed": 1.0,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 239,
+            "TN": 68,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.7785016286644951,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 5,
+            "FP": 4,
+            "TN": 306,
+            "TP": 305
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.012903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9953017234802246,
+            "p95": 3.5922496318817148,
+            "p99": 6.030459451675414,
+            "samples": 305
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9870550161812298,
+          "recall_end_to_end_lower_bound": 0.9682539682539683,
+          "recall_observed": 0.9838709677419355,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 261,
+            "TN": 46,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.8501628664495114,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 2,
+            "FP": 6,
+            "TN": 304,
+            "TP": 308
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.01935483870967742,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9520608186721802,
+            "p95": 2.918411672115319,
+            "p99": 5.580339379310608,
+            "samples": 308
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9808917197452229,
+          "recall_end_to_end_lower_bound": 0.9777777777777777,
+          "recall_observed": 0.9935483870967742,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 5.167444982953156,
+          "hourly_episodes_per_replica_hour": [
+            6.018694429667908,
+            null,
+            null,
+            null,
+            null,
+            4.68996963397929,
+            4.6661229815690755,
+            4.978202967875197,
+            6.258312640454959,
+            4.963994510549359,
+            5.275631297208681,
+            5.246176299272892,
+            5.398477754819136,
+            4.827008260505208,
+            5.3018221745836716,
+            4.588910133843212,
+            4.9796537992261705,
+            5.635627952888585,
+            4.759150623812277,
+            5.480619919008617,
+            5.557488258827622,
+            5.102131757248779,
+            4.744750021966436
+          ],
+          "positive_window_rate": 0.00877229915552317,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.9155905461370346,
+          "hourly_episodes_per_replica_hour": [
+            2.7357701953035947,
+            null,
+            null,
+            null,
+            null,
+            1.4483729751994865,
+            1.863317566465503,
+            1.75332934717617,
+            2.358660542885035,
+            1.6755438884188687,
+            2.1133834573387893,
+            1.8377324162123603,
+            2.1185886537807654,
+            1.9903573022213032,
+            2.070534103683564,
+            1.534857314391245,
+            1.738181043126116,
+            1.8315790846887903,
+            1.831646786138278,
+            2.317519280037929,
+            1.8785875804487737,
+            1.9406881530639526,
+            1.7133819523767682
+          ],
+          "positive_window_rate": 0.002155168516949076,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 2.77016710531176,
+          "hourly_episodes_per_replica_hour": [
+            4.377232312485751,
+            null,
+            null,
+            null,
+            null,
+            2.207044533637313,
+            2.7558310226716687,
+            2.70826765233462,
+            3.522266410708319,
+            2.4585083222594615,
+            2.9274274557211375,
+            2.7330379523158177,
+            2.9660241152930715,
+            2.7739625393163045,
+            2.870513189197668,
+            2.2553005435952986,
+            2.599441920350768,
+            2.7865049322615785,
+            2.5048161177959356,
+            3.1631006389706875,
+            2.7552617846582015,
+            2.7858265423014803,
+            2.5041736227045073
+          ],
+          "positive_window_rate": 0.004354765509347932,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "mondrian-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 216,
+            "TN": 91,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.7035830618892508,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 20,
+            "FP": 8,
+            "TN": 302,
+            "TP": 290
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025806451612903226,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9318588972091675,
+            "p95": 3.8748889565467883,
+            "p99": 5.991341981887818,
+            "samples": 290
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9731543624161074,
+          "recall_end_to_end_lower_bound": 0.9206349206349206,
+          "recall_observed": 0.9354838709677419,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 160,
+            "TN": 147,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5211726384364821,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 34,
+            "FP": 4,
+            "TN": 306,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.012903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9436635971069336,
+            "p95": 3.9783122539520264,
+            "p99": 5.997718095779419,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9857142857142858,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.8903225806451613,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 182,
+            "TN": 125,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5928338762214984,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 29,
+            "FP": 5,
+            "TN": 305,
+            "TP": 281
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016129032258064516,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9408543109893799,
+            "p95": 4.0687477588653564,
+            "p99": 5.84312901496887,
+            "samples": 281
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9825174825174825,
+          "recall_end_to_end_lower_bound": 0.8920634920634921,
+          "recall_observed": 0.9064516129032258,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 23,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 7.003064273280586,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            2.758805667046641,
+            8.079595498287391,
+            7.357721367614285,
+            9.135878502774702,
+            6.107122583956624,
+            7.075920909015798,
+            7.727900416893002,
+            7.799544895770669,
+            6.22182558253431,
+            6.337089226425453,
+            6.092443829573411,
+            6.060144717926188,
+            6.88798972019716,
+            6.011558682710246,
+            7.531937660123271,
+            7.530005218298834,
+            7.074121332136344,
+            7.0644055882611365
+          ],
+          "positive_window_rate": 0.0034047193889741438,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.537121928526465,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            0.7586715584378263,
+            2.3643777524058063,
+            1.6750557156058052,
+            2.7832194406043413,
+            1.080490918700018,
+            1.5498145353817787,
+            1.6806612695275431,
+            1.977349410195381,
+            1.4104894267710022,
+            1.4587853912316018,
+            1.0806648438060806,
+            1.1431280734072655,
+            1.0645075022122883,
+            1.0645468500632727,
+            1.8634107724629296,
+            1.2523917202991823,
+            1.5963725130042192,
+            1.080748616114577
+          ],
+          "positive_window_rate": 0.0011657308703770816,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 2.7878351734557425,
+          "hourly_episodes_per_replica_hour": [
+            2.1886161562428756,
+            null,
+            null,
+            null,
+            null,
+            1.3104326918471545,
+            3.8675583102267166,
+            3.1152905365005163,
+            4.3713842061469315,
+            2.0357075279855414,
+            2.8961180711679706,
+            3.094301589690897,
+            3.2485026024638404,
+            2.429176234994504,
+            2.541110036338919,
+            1.7541226450185656,
+            2.3019154354913427,
+            2.6299597113480067,
+            2.2073692038076684,
+            3.0378293265362046,
+            2.7552617846582015,
+            2.9266829405077353,
+            2.372375010983218
+          ],
+          "positive_window_rate": 0.0017828217299673424,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "rolling-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 207,
+            "TN": 100,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.6742671009771987,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 20,
+            "FP": 8,
+            "TN": 302,
+            "TP": 290
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025806451612903226,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9318588972091675,
+            "p95": 3.6774348258972203,
+            "p99": 5.991341981887818,
+            "samples": 290
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9731543624161074,
+          "recall_end_to_end_lower_bound": 0.9206349206349206,
+          "recall_observed": 0.9354838709677419,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 158,
+            "TN": 149,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5146579804560261,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 34,
+            "FP": 4,
+            "TN": 306,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.012903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9520608186721802,
+            "p95": 5.417385697364807,
+            "p99": 6.0053184032440186,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9857142857142858,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.8903225806451613,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 172,
+            "TN": 135,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5602605863192183,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 28,
+            "FP": 5,
+            "TN": 305,
+            "TP": 282
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016129032258064516,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9477938413619995,
+            "p95": 4.0566020488738985,
+            "p99": 5.994985475540161,
+            "samples": 282
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9825783972125436,
+          "recall_end_to_end_lower_bound": 0.8952380952380953,
+          "recall_observed": 0.9096774193548387,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 23,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 7.166726378193265,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            3.172626517103637,
+            8.032621105855489,
+            7.889982062292765,
+            9.151602906393936,
+            6.529923378230544,
+            7.1541943703987165,
+            7.743607531561484,
+            7.658305652185286,
+            6.441235048920911,
+            6.5096337350657505,
+            6.296047350870209,
+            6.248056182047931,
+            7.185425639932947,
+            6.512521906269432,
+            7.610232230394822,
+            7.780483562358671,
+            6.933264933930089,
+            7.090765310605395
+          ],
+          "positive_window_rate": 0.0032777624373254988,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.4701692492440057,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            0.8966118417901583,
+            2.3174033599739032,
+            1.6437462629776594,
+            2.531628982696604,
+            1.1431280734072655,
+            1.330648843509608,
+            1.633539925522098,
+            1.757643920173672,
+            1.4104894267710022,
+            1.4117277979660663,
+            0.8927231318398058,
+            1.0021944753159588,
+            1.1427801126690742,
+            1.0175815478545989,
+            1.7537983740827574,
+            1.283701513306662,
+            1.549420380268801,
+            1.186187505491609
+          ],
+          "positive_window_rate": 0.0011099369709750319,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 2.8259610047138097,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            1.3104326918471545,
+            3.977165225901158,
+            3.2718377996412458,
+            4.528628242339267,
+            2.1296632600464123,
+            2.880463378891387,
+            2.8115735256582264,
+            3.232809353176575,
+            2.538880968187804,
+            2.446994849807848,
+            1.9420643569848406,
+            2.2705968581377194,
+            2.473414490434435,
+            2.332610009697465,
+            3.194418467079308,
+            2.8022264741694207,
+            2.911032229595929,
+            2.5832527897372812
+          ],
+          "positive_window_rate": 0.0016687800328099125,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "static": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 208,
+            "TN": 99,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.6775244299674267,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 20,
+            "FP": 8,
+            "TN": 302,
+            "TP": 290
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025806451612903226,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9318588972091675,
+            "p95": 3.6774348258972203,
+            "p99": 5.991341981887818,
+            "samples": 290
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9731543624161074,
+          "recall_end_to_end_lower_bound": 0.9206349206349206,
+          "recall_observed": 0.9354838709677419,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 155,
+            "TN": 152,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.504885993485342,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 34,
+            "FP": 4,
+            "TN": 306,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.012903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9520608186721802,
+            "p95": 5.558967053890228,
+            "p99": 6.672410309314728,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9857142857142858,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.8903225806451613,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 173,
+            "TN": 134,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5635179153094463,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 28,
+            "FP": 5,
+            "TN": 305,
+            "TP": 282
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016129032258064516,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9436635971069336,
+            "p95": 4.060352170467374,
+            "p99": 5.994985475540161,
+            "samples": 282
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9825783972125436,
+          "recall_end_to_end_lower_bound": 0.8952380952380953,
+          "recall_observed": 0.9096774193548387,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 1,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 4.403998459468444,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            3.1036563754274713,
+            4.22769531887131,
+            4.148502473229331,
+            5.236226405204778,
+            4.321963674800072,
+            4.993846836230176,
+            4.602184597865142,
+            4.409803049721445,
+            4.215796175571107,
+            4.266555122741889,
+            4.479277468529552,
+            4.55685300495225,
+            4.461538796036797,
+            3.804189478902577,
+            4.807286614673273,
+            4.445990607062098,
+            4.256993368011251,
+            3.5585625164748262
+          ],
+          "positive_window_rate": 0.002444470217552296,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.2125874136712103,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            0.6897014167616603,
+            1.2369923340401239,
+            1.1271402946132523,
+            1.6982355908772253,
+            0.986535186639147,
+            1.330648843509608,
+            1.0994980267937198,
+            1.3653126879920487,
+            1.206752065126302,
+            1.2862408825913048,
+            1.018017606483989,
+            1.1744466507608893,
+            1.189743678943146,
+            1.0332366485908235,
+            1.40930226488793,
+            1.1897721342842233,
+            1.31465971659171,
+            0.948950004393287
+          ],
+          "positive_window_rate": 0.0009484962898348423,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 2.119238278954515,
+          "hourly_episodes_per_replica_hour": [
+            2.1886161562428756,
+            null,
+            null,
+            null,
+            null,
+            1.2414625501709884,
+            2.1764801826781928,
+            1.8472577050606078,
+            2.9561878804159107,
+            1.8947739298942345,
+            2.3482038414875435,
+            2.073339136239586,
+            2.0401224073444406,
+            2.084389930672703,
+            2.2901362055893966,
+            1.863755310332226,
+            2.1296632600464123,
+            1.988124305602362,
+            1.7846814839296041,
+            2.5054262486896532,
+            2.222995303531049,
+            2.1128459730938194,
+            1.7661013970652841
+          ],
+          "positive_window_rate": 0.0013575223995716268,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    },
+    "weighted-24-6-1": {
+      "attack": {
+        "10": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 208,
+            "TN": 99,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.6775244299674267,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 20,
+            "FP": 8,
+            "TN": 302,
+            "TP": 290
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.025806451612903226,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9318588972091675,
+            "p95": 3.6774348258972203,
+            "p99": 5.991341981887818,
+            "samples": 290
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9731543624161074,
+          "recall_end_to_end_lower_bound": 0.9206349206349206,
+          "recall_observed": 0.9354838709677419,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "3": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 156,
+            "TN": 151,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.50814332247557,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 34,
+            "FP": 4,
+            "TN": 306,
+            "TP": 276
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.012903225806451613,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9520608186721802,
+            "p95": 5.417385697364807,
+            "p99": 6.0053184032440186,
+            "samples": 276
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9857142857142858,
+          "recall_end_to_end_lower_bound": 0.8761904761904762,
+          "recall_observed": 0.8903225806451613,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        },
+        "5": {
+          "alert": false,
+          "automatic_promotion": false,
+          "benign_exec_control": {
+            "FP": 173,
+            "TN": 134,
+            "meaning": "detections on an attack-free launch of the same binary; high values mean a launch artifact",
+            "positive_rate": 0.5635179153094463,
+            "unknown": 8
+          },
+          "confirmed_FPR": null,
+          "confirmed_precision": null,
+          "confusion_matrix_expected_control_labels": {
+            "FN": 28,
+            "FP": 5,
+            "TN": 305,
+            "TP": 282
+          },
+          "control_labels": "pending_post_run_adjudication",
+          "control_positive_rate": 0.016129032258064516,
+          "intervals": 630,
+          "kernel_to_alert": null,
+          "kernel_to_preview_seconds": {
+            "p50": 0.9436635971069336,
+            "p95": 4.0566020488738985,
+            "p99": 5.994985475540161,
+            "samples": 282
+          },
+          "latency_conditional_on_detected_trials": true,
+          "policy_applied": false,
+          "precision_expected": 0.9825783972125436,
+          "recall_end_to_end_lower_bound": 0.8952380952380953,
+          "recall_observed": 0.9096774193548387,
+          "schema": "pulse-preview-interval-matrix-v1",
+          "unknown": 10
+        }
+      },
+      "blocks": 23,
+      "normal": {
+        "10": {
+          "episodes_per_replica_hour": 4.423526324259162,
+          "hourly_episodes_per_replica_hour": [
+            5.471540390607189,
+            null,
+            null,
+            null,
+            null,
+            3.034686233751305,
+            4.2903278421138475,
+            4.054574115344893,
+            5.424919248635581,
+            3.6172956843435387,
+            4.555515452485834,
+            4.099556928473727,
+            4.048858316114352,
+            3.9963867091845064,
+            4.109696478523437,
+            3.962437760622296,
+            4.2593265200928245,
+            4.727665671589869,
+            4.195566997308192,
+            5.605891231443099,
+            5.166115846234128,
+            4.836069671748076,
+            4.612951410245145
+          ],
+          "positive_window_rate": 0.0025028471678525885,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "3": {
+          "episodes_per_replica_hour": 1.046135613788429,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            0.6897014167616603,
+            1.3152829880932964,
+            1.0019024841006685,
+            1.8083064162118603,
+            0.8299422998710284,
+            0.954936228871601,
+            1.036669568119793,
+            1.2711531922684591,
+            1.0186868082235017,
+            1.1136963739510077,
+            0.6577959918819621,
+            0.767305145163781,
+            0.9079622812987166,
+            0.8766856412285775,
+            1.362325522724999,
+            0.9079839972169073,
+            1.1425018965618432,
+            0.7644319479834812
+          ],
+          "positive_window_rate": 0.0009085881534569875,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        },
+        "5": {
+          "episodes_per_replica_hour": 1.912800851166932,
+          "hourly_episodes_per_replica_hour": [
+            1.6414621171821568,
+            null,
+            null,
+            null,
+            null,
+            1.2414625501709884,
+            2.2077964442994618,
+            1.768984073490243,
+            3.0033610912736113,
+            1.4719731356203145,
+            2.035109995955871,
+            1.7434897282014699,
+            1.993042659482646,
+            1.802292045318503,
+            1.8352461373558862,
+            1.1589738904586953,
+            1.628566022388433,
+            1.988124305602362,
+            1.5811651743586843,
+            2.474108420581033,
+            2.0351365454861714,
+            2.1284966840056256,
+            1.7661013970652841
+          ],
+          "positive_window_rate": 0.001358555619930924,
+          "scored_replica_hours": 1075.3863888888889,
+          "uncalibrated_windows": 0
+        }
+      }
+    }
+  },
+  "worker_roots": [
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker1.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker4.local",
+    "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/workers/k8s-worker3.local"
+  ]
+}

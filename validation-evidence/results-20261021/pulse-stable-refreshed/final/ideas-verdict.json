@@ -1,0 +1,45 @@
+{
+  "schema": "pulse-ideas-verdict-v1",
+  "registered": "SENTINEL_PULSE_STATUS 5.11a, 21/10 11:32",
+  "reference": {
+    "attack": 1.0,
+    "benign": 0.9428571428571428,
+    "control": 0.04126984126984127,
+    "p50": 0.8279684782028198,
+    "p95": 2.2848255276679947,
+    "burden": 6.739784527693409
+  },
+  "development_selection_reproduced": true,
+  "development_selection": {
+    "joint": "joint_a10",
+    "cauchy": "cauchy_a10",
+    "cusum": "cusum_b3_h6"
+  },
+  "methods": {
+    "cauchy": {
+      "attack": 1.0,
+      "benign": 0.9714285714285714,
+      "control": 0.044444444444444446,
+      "p50": 0.8074300289154053,
+      "p95": 1.4628870844841,
+      "burden": 7.836291209796852,
+      "better": false,
+      "clause_a": false,
+      "clause_b": false
+    },
+    "cusum": {
+      "attack": 1.0,
+      "benign": 0.9809523809523809,
+      "control": 0.02857142857142857,
+      "p50": 0.5898559093475342,
+      "p95": 1.6969978451728729,
+      "burden": 5.323429224781933,
+      "better": true,
+      "clause_a": true,
+      "clause_b": true
+    }
+  },
+  "screen": "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/analysis/ideas-screen-blind.json",
+  "burden": "/mnt/sentinel-pulse-archive/pulse-stable-refreshed/analysis/ideas-burden-blind.json",
+  "scored_replica_hours": 1219.3268147123522
+}

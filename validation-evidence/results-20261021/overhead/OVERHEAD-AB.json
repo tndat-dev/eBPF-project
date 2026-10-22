@@ -1,0 +1,108 @@
+{
+ "schema": "pulse-overhead-ab-v1",
+ "protocol": "sentinel_pulse/protocol/overhead-ab-v1.json",
+ "nodes": {
+  "k8s-worker4.local": {
+   "getpid": {
+    "median_ns_per_op": {
+     "off": 1068.562,
+     "filtered": 1201.49,
+     "monitored": 1318.82
+    },
+    "filtered_overhead": {
+     "relative": 0.1563119407203326,
+     "ci95": [
+      0.05310352424472842,
+      0.18511477188978676
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 132.9280000000001
+    },
+    "monitored_overhead": {
+     "relative": 0.2395596836554681,
+     "ci95": [
+      0.17042999481206156,
+      0.3111396755329692
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 250.25800000000004
+    }
+   },
+   "mmapunmap": {
+    "median_ns_per_op": {
+     "off": 11377.523,
+     "filtered": 11754.363,
+     "monitored": 12178.372
+    },
+    "filtered_overhead": {
+     "relative": 0.03312144479954027,
+     "ci95": [
+      -0.011293133007011513,
+      0.13704753722689245
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 376.84000000000015
+    },
+    "monitored_overhead": {
+     "relative": 0.08798396436821632,
+     "ci95": [
+      0.012765996074400654,
+      0.1053525456822133
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 800.8490000000002
+    }
+   },
+   "openclose": {
+    "median_ns_per_op": {
+     "off": 8133.581,
+     "filtered": 8586.616,
+     "monitored": 9036.258
+    },
+    "filtered_overhead": {
+     "relative": 0.06285966932567488,
+     "ci95": [
+      0.004633628589082894,
+      0.10781673779395384
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 453.03499999999985
+    },
+    "monitored_overhead": {
+     "relative": 0.09449858355652929,
+     "ci95": [
+      0.0459013968264812,
+      0.17024568241402505
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 902.6769999999997
+    }
+   },
+   "read4k": {
+    "median_ns_per_op": {
+     "off": 1531.4,
+     "filtered": 1613.03,
+     "monitored": 1784.082
+    },
+    "filtered_overhead": {
+     "relative": 0.05537416429684283,
+     "ci95": [
+      -0.0015816810453885832,
+      0.08883345873697635
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 81.62999999999988
+    },
+    "monitored_overhead": {
+     "relative": 0.166864569290738,
+     "ci95": [
+      0.11206934830873694,
+      0.1918429668725843
+     ],
+     "rounds": 5,
+     "added_ns_per_op": 252.68200000000002
+    }
+   }
+  }
+ }
+}

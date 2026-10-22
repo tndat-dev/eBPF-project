@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **22/10/2026 09:58 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **22/10/2026 15:25 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -48,7 +48,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - **cần thiết:** log-count, bin cặp syscall, rolling-10, lịch sử 3 cửa sổ, cả hai nhánh p-value; chỉ giữ bin + tổng hợp thì mất 15 điểm recall;
   - **chưa kết luận:** tỉ lệ, 5 tổng hợp, bin syscall;
   - bỏ bin cặp hoặc rolling tách binary vô hại tốt hơn 14–20 điểm, đổi lại mất 3–4 điểm recall;
-  - holdout chính (soak 48 giờ, kèm `pulse-attack-dev`) chạy sau lượt live 22/10, rồi gộp theo luật của bản bổ sung.
+  - holdout chính (soak 48 giờ, kèm `pulse-attack-dev`): lần chạy 22/10 14:56 lỗi do phép kiểm số chiều (đã sửa, `8497505`); chạy lại tối 22/10 trong unit `pulse-stable-selection-1022`, rồi gộp theo luật của bản bổ sung.
 
 Hệ quả (bảng bằng chứng theo từng thành phần feature nằm ở [Pulse mục 4b](SENTINEL_PULSE_STATUS.md)):
 - **Giữ `base29` cho candidate Pulse kế tiếp.** Chọn syscall không phải nút thắt; gánh cảnh báo phải giải ở calibration và cách gộp theo thời gian.
@@ -530,3 +530,4 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 22/10 01:49 | Bước replay giai đoạn B trên `pulse-live-recalibrated` (`replay-pulse-live-recalibrated`) xong, 30 phút CPU; chuỗi sau lượt live sẽ bỏ qua bước này. Job holdout thứ hai vẫn đang chấm | mục 5B |
 | 22/10 09:41 | Kết quả tạm thời giai đoạn B trên holdout thứ hai: không thành phần nào bỏ được; log-count, bin cặp, rolling, lịch sử 3 cửa sổ, cả hai nhánh p-value đều cần; tỉ lệ, tổng hợp, bin syscall chưa kết luận. Bỏ bin cặp/rolling tách binary vô hại tốt hơn 14–20 điểm nhưng mất 3–4 điểm recall | mục 5B.2 |
 | 22/10 09:58 | Rà đồng bộ; cập nhật đầu báo cáo và phần kết luận hiện tại (thêm kết quả tạm thời 5B.2) | mục 1 |
+| 22/10 14:56–15:20 | Giai đoạn B trên holdout chính lỗi ngay ở segment đầu: `score_segment` kiểm số chiều với giả định context 4 cửa sổ, nên nhánh `history1`/`history2` (2 và 3 cửa sổ) bị từ chối. Holdout thứ hai không gặp lỗi vì đi qua `baselines score`. Sửa phép kiểm theo độ sâu lịch sử của từng nhánh, thêm test (`8497505`). Xóa output dở; chạy lại sau bước nén trong unit `pulse-stable-selection-1022` (snapshot `9b7c813`) | mục 5B |
