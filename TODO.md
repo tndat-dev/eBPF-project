@@ -15,7 +15,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   3. chiến lược calibration trên dữ liệu mới (5.17);
   4. giai đoạn B nhóm feature trên holdout chính (syscall 5B), Pulse 5.7d;
   5. nén `features`/`decisions` của các lượt đã xong (8c).
-- [ ] **Ngay sau lượt live (~12:45, làm tay):** dừng collector 1 s; đo overhead A/B (`overhead-ab-v1`); chép log Falco lần cuối.
+- [x] Sau lượt live (22/10 12:45): dừng RCA subscriber; dừng và tắt collector 1 s (kèm timer), xóa dữ liệu của nó; chép log Falco lần cuối. [~] Đo overhead trên worker4.
 
 ## Việc kế tiếp (theo thứ tự)
 
@@ -66,7 +66,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 ## Hạ tầng
 
-- [ ] Ngay sau lượt live (22/10 ~12:30): dừng và tắt `sentinel-pulse-collector` trên 3 worker, xóa `/var/lib/sentinel-pulse/{features.jsonl,archive}` (Pulse 8c).
+- [x] Collector 1 s đã dừng, tắt và xóa dữ liệu (22/10 12:47).
 - [ ] Sau khi chốt ML stable: xóa `/var/tmp/pulse-live-copy`, `/var/tmp/feature-groups`, `/var/tmp/baselines` trên .234; sau 5.15d xóa `/var/tmp/falco-baseline`.
 - [~] Nén `pulse-stable-candidate`, `pulse-stable-refreshed`, soak 48 giờ: tự chạy ở cuối `after-stable-refreshed`.
 
