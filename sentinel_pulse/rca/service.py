@@ -132,7 +132,8 @@ class Service:
         if not (self.root/'START.json').exists():
             atomic(self.root/'START.json', dict(binding=binding, registered_at=time.time(),
                 model_hash=self.cfg['model_hash'], policy_hash=self.cfg['policy_hash'],
-                trigger='candidate_alert_preview', automatic_response=False,
+                trigger='alertmanager_delivered_alert' if self.cfg.get('alert_trigger_file') else 'candidate_alert_preview',
+                automatic_response=False,
                 runtime_events=self.cfg.get('runtime_events', False),
                 telemetry_policy=self.cfg['connect_policy'],
                 previous_output=self.cfg.get('previous_output'),
@@ -291,7 +292,8 @@ class Service:
             'workload_key', 'pod_uid', 'container_name', 'cgroup_id', 'window_start', 'window_end',
             'preview_emitted_at', 'candidate_manifest_sha256', 'policy_sha256', 'candidate_alert_preview',
             'policy_evaluated', 'serving_compatible', 'container_id',
-            'joint_p', 'tree_p', 'support_p', 'candidate_policy_alpha', 'alert', 'policy_applied')}
+            'joint_p', 'tree_p', 'support_p', 'candidate_policy_alpha', 'alert', 'policy_applied',
+            'trigger_source', 'alert_delivered_at', 'alert_path')}
         if follow_up_of:
             safe['follow_up_of'] = follow_up_of
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',
@@ -376,6 +378,33 @@ class Service:
                     self.ingest_decision_line(line, node, now)
                 except (ValueError, TypeError, KeyError):
                     self.count('invalid_decisions')
+
+    def tail_alert_triggers(self):
+        """Operational-alert mode (cfg 'alert_trigger_file'): a trigger is a Pulse alert that Alertmanager has already
+        delivered to a recipient, written by sentinel_pulse/ops/alert_bridge.py; no backfill at the first start."""
+        path = Path(self.cfg['alert_trigger_file'])
+        if not path.exists():
+            return
+        st = path.stat()
+        known = self.db.execute('select offset, inode from cursors where path=?', (str(path),)).fetchone()
+        if known is None:
+            self.db.execute('insert into cursors values(?,?,?)', (str(path), st.st_size, st.st_ino))
+            self.issue('initial_alert_trigger_tail_no_backfill', path=str(path), skipped_bytes=st.st_size)
+            return
+        off, ino = known
+        if st.st_ino != ino or st.st_size < off:
+            self.issue('alert_trigger_file_replaced_or_truncated', path=str(path)); return
+        if st.st_size == off:
+            return
+        lines, end = read_complete(path, off)
+        for line in lines:
+            try:
+                rec = json.loads(line)
+                self.observe_trigger(dict(rec['row'], trigger_source='alertmanager', alert_delivered_at=rec['delivered_at'],
+                                          alert_path=rec['path']), time.time())
+                self.count('alert_triggers_read')
+            except (ValueError, TypeError, KeyError): self.count('invalid_alert_triggers')
+        self.db.execute('insert or replace into cursors values(?,?,?)', (str(path), end, ino))
 
     def tail_decisions(self):
         for worker in self.cfg['workers']:
@@ -535,15 +564,16 @@ class Service:
                         if key not in self.streams and sensor and now>=retry.get(key, 0):
                             self.start_stream(node, sensor, channel)
                 self.drain_streams()
-                if self.cfg.get('decision_stream'):
+                if self.cfg.get('decision_stream') and not self.cfg.get('alert_trigger_file'):
                     self.drain_decision_streams()
                 if now>=tail:
                     try:
-                        if not self.cfg.get('decision_stream'): self.tail_decisions()
+                        if self.cfg.get('alert_trigger_file'): self.tail_alert_triggers()
+                        elif not self.cfg.get('decision_stream'): self.tail_decisions()
                         self.emit_cases()
                     except OSError as exc: self.issue('decision_or_case_storage_unavailable', error_type=type(exc).__name__)
                     # streamed decisions arrive continuously; check case readiness more often
-                    tail = now + (.25 if self.cfg.get('decision_stream') else 1)
+                    tail = now + (.25 if self.cfg.get('decision_stream') or self.cfg.get('alert_trigger_file') else 1)
                 if now>=checkpoint:
                     self.maintenance(); checkpoint = now+5
                 time.sleep(.05)

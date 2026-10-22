@@ -60,3 +60,30 @@ def test_rca_service_and_seed_import_without_numpy():
             "builtins.__import__ = guard\n"
             "import sentinel_pulse.rca.service, sentinel_pulse.rca.baseline_seed, sentinel_pulse.rca.triage\n")
     subprocess.run([sys.executable, '-c', code], check=True, cwd=str(__import__('pathlib').Path(__file__).parents[1]))
+
+
+def test_service_in_alert_mode_builds_cases_from_alertmanager_delivered_alerts(tmp_path):
+    from sentinel_pulse.rca.service import Service
+    triggers = tmp_path/'triggers.jsonl'
+    old = dict(delivered_at=1.0, path='push', episode='old', row={})
+    triggers.write_text(json.dumps(old) + '\n')                     # written before the service started: not replayed
+    config = tmp_path/'CONFIG.json'
+    config.write_text(json.dumps(dict(output=str(tmp_path/'rca'), model_hash='m', policy_hash='p',
+        case_cooldown_seconds=300, before_seconds=30, after_seconds=5, ring_seconds=180, max_ring_events=1000,
+        max_cases=10, workers=[], runtime_events=True, connect_policy='x', alert_trigger_file=str(triggers))))
+    service = Service(config)
+    assert json.loads((tmp_path/'rca'/'START.json').read_text())['trigger'] == 'alertmanager_delivered_alert'
+    service.tail_alert_triggers()
+    row = dict(schema='s', status='candidate-raw-score-only', policy_evaluated=True, candidate_alert_preview=True,
+               alert=False, run_id='r', capture_segment='s1', node_name='w1', pod_uid='u', container_name='c',
+               cgroup_id=1, workload_key='production/db:postgres', window_start=99.5, window_end=100.0,
+               preview_emitted_at=100.1, candidate_manifest_sha256='m', policy_sha256='p')
+    with triggers.open('a') as handle:
+        handle.write(json.dumps(dict(delivered_at=100.2, path='push', episode='e1', row=row)) + '\n')
+    service.tail_alert_triggers()
+    service.tail_alert_triggers()                                     # nothing new: no second case
+    cases = service.db.execute('select trigger from cases').fetchall()
+    assert len(cases) == 1
+    trigger = json.loads(cases[0][0])
+    assert trigger['trigger_source'] == 'alertmanager' and trigger['alert_delivered_at'] == 100.2 and trigger['alert_path'] == 'push'
+    assert service.counts['alert_triggers_read'] == 1

@@ -11,7 +11,9 @@ the paths is compared on the same alerts:
   turned into alerts by a PrometheusRule (``testbed/k8s/monitoring/``), i.e. the standard Prometheus path.
 
 The same HTTP server is Alertmanager's webhook receiver. The first delivery of each (path, episode) is logged with its
-latency from the decision's ``preview_emitted_at`` (Pulse wrote the preview, worker clock) and ``window_end``.
+latency from the decision's ``preview_emitted_at`` (Pulse wrote the preview, worker clock) and ``window_end``. The
+first delivery of an episode on any path also appends the episode's first decision row to ``triggers.jsonl``: an RCA
+service with ``alert_trigger_file`` builds its case from that operational alert instead of from the preview stream.
 """
 from __future__ import annotations
 
@@ -140,11 +142,11 @@ class Bridge:
                           container=row['container_name'], workload_key=row['workload_key'],
                           window_end=float(row['window_end']), preview_emitted_at=float(row['preview_emitted_at']),
                           joint_p=row.get('joint_p'), bridge_received_at=received_at, rows=0, first_push_at=None,
-                          last_push=received_at, ended_at=None)
+                          last_push=received_at, ended_at=None, row=row, triggered=False)
                 self.active[key] = ep; self.episodes[ep['episode']] = ep
                 self.count('episodes_started')
                 self.lag.observe({}, received_at - ep['preview_emitted_at'])
-                self.log('episodes', dict(event='start', **ep))
+                self.log('episodes', dict(event='start', **{k: v for k, v in ep.items() if k != 'row'}))
                 self.pushes.put((ep['episode'], [self.alert(ep, received_at + 3 * self.refresh)]))
             ep['rows'] += 1; ep['last_seen'] = received_at; ep['last_window_end'] = float(row['window_end'])
             return ep
@@ -208,6 +210,10 @@ class Bridge:
                                   latency_from_preview=received_at - ep['preview_emitted_at'],
                                   latency_from_window_end=received_at - ep['window_end'])
                     self.delivery.observe({'path': key[0]}, record['latency_from_preview'])
+                    if not ep['triggered']:             # the operational alert reached a recipient: RCA trigger
+                        ep['triggered'] = True
+                        self.log('triggers', dict(delivered_at=received_at, path=key[0], episode=key[1], row=ep['row']))
+                        self.count('rca_triggers_written')
                 self.count(f'deliveries_{key[0]}')
                 self.log('deliveries', record)
                 records.append(record)

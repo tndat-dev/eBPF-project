@@ -156,3 +156,16 @@ def test_worker_follower_prints_only_positive_rows_from_the_newest_segment(tmp_p
     finally:
         child.kill()
     assert [l['a'] for l in lines] == [2, 3]
+
+
+def test_first_delivery_of_an_episode_writes_one_rca_trigger_with_the_original_row(tmp_path):
+    bridge = Bridge(CFG, tmp_path)
+    first = row(100.0)
+    ep = bridge.ingest(first, 100.3)
+    alert = lambda path: dict(status='firing', labels=dict(alertname='SentinelPulseAnomaly', path=path, episode=ep['episode']))
+    bridge.webhook(dict(alerts=[alert('push')]), 100.4)
+    bridge.webhook(dict(alerts=[alert('pull-fast')]), 105.0)               # a later path does not trigger again
+    triggers = [json.loads(l) for l in (tmp_path/'triggers.jsonl').read_text().splitlines()]
+    assert len(triggers) == 1 and triggers[0]['path'] == 'push' and triggers[0]['delivered_at'] == 100.4
+    assert triggers[0]['row'] == first
+    assert 'row' not in json.loads((tmp_path/'episodes.jsonl').read_text().splitlines()[0])
