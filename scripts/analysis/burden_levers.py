@@ -131,6 +131,23 @@ def cusum(y, new):
     return c - np.minimum(0.0, m)
 
 
+def cusum_alarms(y, new, h, on_alarm='keep'):
+    """Alarms of CUSUM with the live CusumState semantics, including ``on_alarm`` = cap / restart
+    (stable-selection-v1 amendment 1); a plain loop, since cap and restart are not a running-min recursion."""
+    if on_alarm == 'keep':
+        return cusum(y, new) >= h
+    out = np.zeros(len(y), bool)
+    s = 0.0
+    for i, (yi, ni) in enumerate(zip(y.tolist(), new.tolist())):
+        if ni:
+            s = 0.0
+        s = max(0.0, s + yi)
+        if s >= h:
+            out[i] = True
+            s = h if on_alarm == 'cap' else 0.0
+    return out
+
+
 def kofn2(passed, new):
     out = passed.copy()
     out[0] = False

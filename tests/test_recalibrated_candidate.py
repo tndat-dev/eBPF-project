@@ -190,3 +190,22 @@ def test_stable_cusum_policy_file_is_the_rule_tested_window_for_window(tmp_path)
     assert shipped['candidate_manifest_sha256'].startswith('4bad16dc')
     source, digest = _candidate(tmp_path)
     load_preview_policy(_write(tmp_path, digest, shipped['rule']), IdleCandidateScorer(source, digest))
+
+
+def test_live_cusum_on_alarm_modes(tmp_path):
+    from sentinel_pulse.detector.confirmation import CusumPolicy, CusumState
+    source, digest = _candidate(tmp_path)
+    scorer = IdleCandidateScorer(source, digest)
+    rows = _stream(seed=13)
+    for mode in ('cap', 'restart'):
+        rule = dict(BASE_RULE, temporal_rule={'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0,
+                                              'on_alarm': mode})
+        policy = load_preview_policy(_write(tmp_path, digest, rule), scorer)
+        assert policy.confirmation == CusumPolicy(3.0, 6.0, 1.0, mode)
+        live = _live(policy, rows, scorer.models[KEY].alpha)
+        state = CusumState(CusumPolicy(3.0, 6.0, 1.0, mode))
+        ref = [state.update(dict(node_name='n', window_start=r['start'], window_end=r['end'], joint_p=r['joint_p'])) for r in rows]
+        assert live == ref
+    with pytest.raises(ValueError):
+        load_preview_policy(_write(tmp_path, digest, dict(BASE_RULE, temporal_rule={
+            'kind': 'cusum', 'drift': 3.0, 'threshold': 6.0, 'max_gap_seconds': 1.0, 'on_alarm': 'forever'})), scorer)

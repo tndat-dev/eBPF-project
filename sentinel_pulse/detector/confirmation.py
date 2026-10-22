@@ -72,20 +72,30 @@ def cauchy_p(tree_p: float, support_p: float) -> float:
     return 0.5 - math.atan(t) / math.pi
 
 
+ON_ALARM = ('keep', 'cap', 'restart')
+
+
 @dataclass(frozen=True)
 class CusumPolicy:
-    """CUSUM on s_t = -ln(joint_p) - drift per container; signal while S_t >= threshold (Pulse 5.11a)."""
+    """CUSUM on s_t = -ln(joint_p) - drift per container; signal while S_t >= threshold (Pulse 5.11a).
+
+    ``on_alarm`` (stable-selection-v1 amendment 1): ``keep`` lets S grow without bound, so an alarm can outlast
+    the anomaly by minutes; ``cap`` holds S at the threshold (the alarm stops at the first window with
+    -ln p < drift); ``restart`` sets S to 0 after an alarm window (Page's restart after a signal)."""
     drift: float = 3.0
     threshold: float = 6.0
     max_gap_seconds: float = 1.0
+    on_alarm: str = 'keep'
 
     def __post_init__(self):
         if not (self.drift > 0 and self.threshold > 0 and self.max_gap_seconds > 0):
             raise ValueError('CUSUM needs positive drift, threshold and gap')
+        if self.on_alarm not in ON_ALARM:
+            raise ValueError('CUSUM on_alarm must be one of ' + ', '.join(ON_ALARM))
 
     @property
     def name(self):
-        return f'cusum_b{self.drift:g}_h{self.threshold:g}'
+        return f'cusum_b{self.drift:g}_h{self.threshold:g}' + ('' if self.on_alarm == 'keep' else '_' + self.on_alarm)
 
 
 class CusumState:
@@ -102,8 +112,13 @@ class CusumState:
         if last_end is None or start - last_end > self.policy.max_gap_seconds or start < last_end - 0.25:
             s = 0.0
         s = max(0.0, s - math.log(max(float(row['joint_p']), 1e-12)) - self.policy.drift)
+        alarm = s >= self.policy.threshold
+        if self.policy.on_alarm == 'cap':
+            s = min(s, self.policy.threshold)
+        elif self.policy.on_alarm == 'restart' and alarm:
+            s = 0.0
         self.history[key] = (float(row['window_end']), s)
-        return s >= self.policy.threshold
+        return alarm
 
 
 def apply(rows, policy: ConfirmationPolicy):

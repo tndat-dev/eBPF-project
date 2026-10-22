@@ -107,7 +107,7 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
 
     Optional rule keys (Pulse 5.11a, only used if a stable policy adopts them; absent = unchanged behaviour):
     - ``"combination": "cauchy"``: k-of-n on the Cauchy combination of tree_p and support_p instead of joint_p;
-    - ``"temporal_rule": {"kind": "cusum", "drift", "threshold", "max_gap_seconds"}`` in place of
+    - ``"temporal_rule": {"kind": "cusum", "drift", "threshold", "max_gap_seconds"[, "on_alarm"]}`` in place of
       ``temporal_confirmation`` and ``alpha_scale``: CUSUM on -ln joint_p per container.
     """
 
@@ -129,10 +129,12 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
         if temporal is not None:
             if (rule != base or confirmation is not None or scale is not None or self.combination != "bonferroni_min"
                     or not isinstance(temporal, dict) or temporal.get("kind") != "cusum"
-                    or set(temporal) != {"kind", "drift", "threshold", "max_gap_seconds"}):
+                    or not {"kind", "drift", "threshold", "max_gap_seconds"} <= set(temporal)
+                    or not set(temporal) <= {"kind", "drift", "threshold", "max_gap_seconds", "on_alarm"}):
                 raise ValueError("candidate preview v2 rule differs from the registered form")
             self.confirmation = CusumPolicy(drift=float(temporal["drift"]), threshold=float(temporal["threshold"]),
-                                            max_gap_seconds=float(temporal["max_gap_seconds"]))
+                                            max_gap_seconds=float(temporal["max_gap_seconds"]),
+                                            on_alarm=str(temporal.get("on_alarm", "keep")))
             self.state = CusumState(self.confirmation)
         else:
             if (rule != base or not isinstance(confirmation, dict) or not isinstance(scale, (int, float))
