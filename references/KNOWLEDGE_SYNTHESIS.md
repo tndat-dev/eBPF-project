@@ -160,8 +160,10 @@ Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối 
 ### 4.3 Né tránh (mimicry)
 
 - **[Đ][TB] Wagner 2002:** mô hình hóa IDS và tập chuỗi độc hại bằng automat hữu hạn; kẻ tấn công chèn syscall "không làm gì" (no-op) hoặc thay syscall tương đương (`read` ↔ `mmap`, gộp nhiều `read`) để chuỗi độc hại khớp mô hình normal mà vẫn giữ tác dụng.
+  - Thực nghiệm (mục 6 của bài): pH 0.17, chuỗi con độ dài 6, huấn luyện trên wuftpd; exploit `autowux` (format string, rồi `setreuid`, thoát chroot, `execve("/bin/sh")`). pH bắt được exploit gốc.
+  - Tìm kiếm trên automat tích cho thấy **không có cách giấu chuỗi gốc**, vì cơ sở dữ liệu normal không có đường nào tới `dup2()`, `mkdir()` hay `execve()`. Muốn né, kẻ tấn công phải bỏ hẳn các syscall đó: dùng thư mục có sẵn thay cho `mkdir`, không mở shell mà gắn hành động vào shellcode (ví dụ thêm tài khoản root vào file mật khẩu) chỉ bằng syscall có trong hồ sơ.
 - **[TB] Goyal 2023:** với 5 IDS dựa trên đồ thị provenance, chiến thuật mimicry né được **100%** mà không đổi hành vi tấn công.
-- **[ĐA] Mô hình đe dọa của Pulse** (RESEARCH_IDEAS 4.2): điểm tần suất có thể bị "pha loãng"; syscall **vắng mặt** trong hồ sơ (`ptrace`, `setns`…) thì không pha loãng được, nên tripwire bền hơn. Luật triage probe hiện khớp theo binary nên kẻ tấn công dùng cùng interpreter qua `kubectl exec` sẽ lọt; bản thật phải khớp cả argv.
+- **[ĐA] Mô hình đe dọa của Pulse** (RESEARCH_IDEAS 4.2): điểm tần suất có thể bị "pha loãng"; syscall **vắng mặt** trong hồ sơ (`ptrace`, `setns`…) thì không pha loãng được, nên tripwire bền hơn. Thực nghiệm của Wagner 2002 ủng hộ đúng điểm này: syscall không có trong hồ sơ normal thì không giấu được. Nhưng nó cũng chỉ ra giới hạn: kẻ tấn công vẫn gây hại được nếu chọn payload chỉ dùng syscall có sẵn trong hồ sơ. Vì vậy tripwire chỉ phủ các kỹ thuật **buộc** phải dùng syscall lạ (`ptrace`, `setns`, `execveat`…), không phủ mọi tấn công. Luật triage probe hiện khớp theo binary nên kẻ tấn công dùng cùng interpreter qua `kubectl exec` sẽ lọt; bản thật phải khớp cả argv.
 
 ### 4.4 Dataset và khung tấn công
 
@@ -279,7 +281,7 @@ Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối 
 2. **Cỡ nhóm Mondrian:** đã kiểm (Pulse 5.22), mỗi lớp ≥ 1.200 cửa sổ ở workload có probe exec. Còn mở: nhóm theo (workload, node) như gợi ý của kafka worker1 ở Pulse 5.25 sẽ nhỏ hơn nhiều, phải kiểm lại cỡ nhóm nếu dùng.
 3. **Ý nghĩa toàn cụm** (look-elsewhere, Araz 2026): tỉ lệ báo nhầm cho cả cụm thay vì từng container.
 4. **Bản dựng lại:** lấy bản gốc của 10 bài qua thư viện trước khi trích chi tiết. Năm bài kinh điển (Page, Wilson, Efron, Vovk 2005, Forrest) chỉ dùng cho định nghĩa chuẩn; năm bài còn lại (CDL, KubAnomaly, ShareAD, O-RAN, CNN trong kernel) chỉ dùng số trong tóm tắt.
-5. **Wagner 2002:** mới đọc phần khung (automat, chèn no-op, syscall tương đương); đọc phần thực nghiệm trước khi nêu detector cụ thể bị né.
+5. **Wagner 2002:** đã đọc phần thực nghiệm (pH, wuftpd, mục 4.3). Chưa đọc phụ lục về số lần lệch cho phép trước khi pH phản ứng.
 6. **Chưa thấy công trình trùng toàn bộ hướng của Pulse** trong 70 bài này (eBPF đếm syscall theo cgroup, model theo workload, p-value conformal, chạy live K8s, đo độ trễ và gánh cảnh báo, đối chứng vô hại). Câu này chỉ đúng với tập đã đọc; cần một lượt tìm có hệ thống trước khi viết paper.
 
 ## Bảng tra khóa → file
