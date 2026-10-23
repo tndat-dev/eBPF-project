@@ -17,6 +17,7 @@
    ý tưởng từ tài liệu (R1–R8, A1–D1), công trình liên quan và nguồn.
 7. [README.md](README.md) gốc — hướng dẫn đọc repo: thứ tự đọc, cách đánh số mục, từ con số trong báo cáo tới biên nhận, script và luật đăng ký trước; những gì không nằm trong git.
 8. [references/README.md](references/README.md) — danh mục bài báo và nguồn đã trích (`catalog.json`, SHA-256 của bản PDF đã tải).
+   [references/KNOWLEDGE_SYNTHESIS.md](references/KNOWLEDGE_SYNTHESIS.md) — tri thức tổng hợp từ 70 bài theo chủ đề luận văn (CUSUM, conformal, gộp p-value/FDR, HIDS syscall, mô hình, provenance/RCA, eBPF, phương pháp đánh giá): bảo đảm lý thuyết, số liệu tác giả báo cáo, chỗ đồ án dùng, câu được nói và giới hạn.
 9. README trong từng thư mục (`sentinel_pulse/`, `testbed/`, `validation-evidence/` và các thư mục `results-*`) — hướng dẫn code và nguồn gốc biên nhận, không phải báo cáo tiến độ.
    `docs/figures/README.md` — hình cho luận văn và paper, sinh lại từ biên nhận.
 

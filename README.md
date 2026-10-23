@@ -20,7 +20,7 @@ Mục tiêu đăng ký trước: precision và recall ≥ 95%, control dương �
    | [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) | Cây bằng chứng sau cảnh báo: độ trễ, độ phủ, xếp hạng nghi phạm, ánh xạ IP, đường cảnh báo vận hành | `RCA 5.x` |
    | [RULE_INTEGRATION_STATUS.md](RULE_INTEGRATION_STATUS.md) | Phần rule (Falco, tripwire), **tách riêng** khỏi số liệu ML | `R1`–`R6` |
 
-3. [TODO.md](TODO.md): việc đang chạy và việc tiếp theo. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md): đánh giá tổng thể, khoảng cách so với công trình liên quan, ý tưởng từ tài liệu. [references/](references/README.md): danh mục bài báo đã dùng.
+3. [TODO.md](TODO.md): việc đang chạy và việc tiếp theo. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md): đánh giá tổng thể, khoảng cách so với công trình liên quan, ý tưởng từ tài liệu. [references/](references/README.md): danh mục bài báo đã dùng; [references/KNOWLEDGE_SYNTHESIS.md](references/KNOWLEDGE_SYNTHESIS.md): tri thức tổng hợp từ tài liệu theo chủ đề luận văn.
 4. [docs/](docs/): báo cáo và slide của từng buổi họp (bản chụp, không cập nhật). [DOCS_INDEX.md](DOCS_INDEX.md) liệt kê mọi tài liệu.
 
 ## Từ một con số trong báo cáo đến bằng chứng

@@ -9,6 +9,8 @@
 
 Mỗi bài có thông tin thư mục (tiêu đề, tác giả, năm, nơi công bố, DOI hoặc arXiv), nguồn gốc file (`how`), kích thước và **SHA-256**.
 
+Tri thức rút ra từ các bài, theo chủ đề luận văn và chỗ đồ án dùng: [`KNOWLEDGE_SYNTHESIS.md`](KNOWLEDGE_SYNTHESIS.md).
+
 ## Tên file
 
 `<năm>-<họ tác giả đầu>-<tiêu đề>.pdf`. Hậu tố `--reconstructed` đánh dấu bản dựng lại.
@@ -32,16 +34,16 @@ Mọi trang đều ghi "BẢN DỰNG LẠI — không phải bản gốc". Khi t
 
 | File | Bài | DOI / trang gốc |
 |---|---|---|
-| `pdf/1993-efron-an-introduction-to-the-bootstrap--reconstructed.pdf` | An Introduction to the Bootstrap | reconstructed |
-| `pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf` | In-Kernel CNN Inference for Edge Devices: An eBPF-Based Approach to Low-Latency and Resource-Efficient Processing | kept |
-| `pdf/2026-rheey-toward-reliable-intrusion-monitoring-for-o-ran-based--reconstructed.pdf` | Toward Reliable Intrusion Monitoring for O-RAN Based Networks with Conformal False Alarm Control | reconstructed |
-| `pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf` | Probable Inference, the Law of Succession, and Statistical Inference | kept |
-| `pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf` | Continuous Inspection Schemes | kept |
-| `pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf` | KubAnomaly: Anomaly detection for the Docker orchestration platform with neural network approaches | kept |
-| `pdf/1996-forrest-a-sense-of-self-for-unix-processes--reconstructed.pdf` | A sense of self for Unix processes | reconstructed |
-| `pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf` | On the Practicability of Deep Learning Based Anomaly Detection for Modern Online Software Systems: A Pre-Train-and-Align Framework | kept |
-| `pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf` | Algorithmic Learning in a Random World | kept |
-| `pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf` | CDL: Classified Distributed Learning for Detecting Security Attacks in Containerized Applications | kept |
+| `pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf` | Probable Inference, the Law of Succession, and Statistical Inference | [10.1080/01621459.1927.10502953](https://doi.org/10.1080/01621459.1927.10502953) |
+| `pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf` | Continuous Inspection Schemes | [10.2307/2333009](https://doi.org/10.2307/2333009) |
+| `pdf/1993-efron-an-introduction-to-the-bootstrap--reconstructed.pdf` | An Introduction to the Bootstrap | [10.1201/9780429246593](https://doi.org/10.1201/9780429246593) |
+| `pdf/1996-forrest-a-sense-of-self-for-unix-processes--reconstructed.pdf` | A sense of self for Unix processes | [10.1109/SECPRI.1996.502675](https://doi.org/10.1109/SECPRI.1996.502675) |
+| `pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf` | Algorithmic Learning in a Random World | [10.1007/b106715](https://doi.org/10.1007/b106715) |
+| `pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf` | KubAnomaly: Anomaly detection for the Docker orchestration platform with neural network approaches | [10.1002/eng2.12080](https://doi.org/10.1002/eng2.12080) |
+| `pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf` | CDL: Classified Distributed Learning for Detecting Security Attacks in Containerized Applications | [10.1145/3427228.3427236](https://doi.org/10.1145/3427228.3427236) |
+| `pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf` | On the Practicability of Deep Learning Based Anomaly Detection for Modern Online Software Systems: A Pre-Train-and-Align Framework | [10.1145/3712195](https://doi.org/10.1145/3712195) |
+| `pdf/2026-rheey-toward-reliable-intrusion-monitoring-for-o-ran-based--reconstructed.pdf` | Toward Reliable Intrusion Monitoring for O-RAN Based Networks with Conformal False Alarm Control | [trang gốc](https://icml.cc/virtual/2026/78428) |
+| `pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf` | In-Kernel CNN Inference for Edge Devices: An eBPF-Based Approach to Low-Latency and Resource-Efficient Processing | [10.1007/978-981-95-8417-8_34](https://doi.org/10.1007/978-981-95-8417-8_34) |
 
 ## Lấy lại và kiểm tra
 
@@ -67,14 +69,14 @@ Repo này **công khai**, và phần lớn bài báo không cho phép phát tán
 
 | File | Nơi công bố | Nguồn gốc |
 |---|---|---|
-| `pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf` | Journal of the American Statistical Association | kept |
-| `pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf` | Biometrika | kept |
+| `pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf` | Journal of the American Statistical Association | reconstructed |
+| `pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf` | Biometrika | reconstructed |
 | `pdf/1971-lorden-procedures-for-reacting-to-a-change-in-distribution.pdf` | The Annals of Mathematical Statistics | placed_by_hand |
 | `pdf/1986-moustakides-optimal-stopping-times-for-detecting-changes-in.pdf` | The Annals of Statistics | placed_by_hand |
 | `pdf/1993-efron-an-introduction-to-the-bootstrap--reconstructed.pdf` | Chapman & Hall/CRC | reconstructed |
 | `pdf/1996-forrest-a-sense-of-self-for-unix-processes--reconstructed.pdf` | IEEE Symposium on Security and Privacy 1996 | reconstructed |
 | `pdf/2002-wagner-mimicry-attacks-on-host-based-intrusion-detection-systems.pdf` | ACM CCS 2002 | script |
-| `pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf` | Springer | kept |
+| `pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf` | Springer | reconstructed |
 | `pdf/2006-geurts-extremely-randomized-trees.pdf` | Machine Learning | script |
 | `pdf/2008-liu-isolation-forest.pdf` | 2008 Eighth IEEE International Conference on Data Mining | script |
 | `pdf/2009-moustakides-numerical-comparison-of-cusum-and-shiryaev-roberts.pdf` | arXiv | script |
@@ -85,7 +87,7 @@ Repo này **công khai**, và phần lớn bài báo không cho phép phát tán
 | `pdf/2018-liu-cauchy-combination-test-a-powerful-test-with-analytic-p.pdf` | arXiv | script |
 | `pdf/2019-hassan-nodoze-combatting-threat-alert-fatigue-with-automated.pdf` | NDSS 2019 | script |
 | `pdf/2019-tibshirani-conformal-prediction-under-covariate-shift.pdf` | arXiv | script |
-| `pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf` | Engineering Reports | kept |
+| `pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf` | Engineering Reports | reconstructed |
 | `pdf/2019-vovk-testing-randomness.pdf` | arXiv | script |
 | `pdf/2019-wilson-the-harmonic-mean-p-value-for-combining-dependent-tests.pdf` | Proceedings of the National Academy of Sciences | script |
 | `pdf/2020-arp-dos-and-don-ts-of-machine-learning-in-computer-security.pdf` | arXiv | script |
@@ -93,10 +95,10 @@ Repo này **công khai**, và phần lớn bài báo không cho phép phát tán
 | `pdf/2020-castanhel-sliding-window-the-impact-of-trace-size-in-anomaly-detection.pdf` | ERRC 2020 (SBC) | script |
 | `pdf/2020-ghavamnia-confine-automated-system-call-policy-generation-for.pdf` | 23rd International Symposium on Research in Attacks, Intrusions and Defenses (RAID 2020) | script |
 | `pdf/2020-ghavamnia-temporal-system-call-specialization-for-attack-surface.pdf` | 29th USENIX Security Symposium (USENIX Security 20) | script |
-| `pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf` | Annual Computer Security Applications Conference | kept |
+| `pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf` | Annual Computer Security Applications Conference | reconstructed |
 | `pdf/2020-nakandala-a-tensor-compiler-for-unified-machine-learning-prediction.pdf` | Symposium on Operating Systems Design and Implementation (OSDI) | script |
 | `pdf/2021-bates-testing-for-outliers-with-conformal-p-values.pdf` | arXiv | script |
-| `pdf/2021-fisher-online-false-discovery-rate-control-for-lord-amp-saffron.pdf` | arXiv | script |
+| `pdf/2021-fisher-online-false-discovery-rate-control-for-lord-saffron-under.pdf` | arXiv | script |
 | `pdf/2021-gibbs-adaptive-conformal-inference-under-distribution-shift.pdf` | arXiv | script |
 | `pdf/2021-podkopaev-tracking-the-risk-of-a-deployed-model-and-detecting-harmful.pdf` | arXiv | script |
 | `pdf/2021-rebjock-online-false-discovery-rate-control-for-anomaly-detection-in.pdf` | arXiv | script |
@@ -120,7 +122,7 @@ Repo này **công khai**, và phần lớn bài báo không cho phép phát tán
 | `pdf/2024-osaki-dynamic-fixed-point-values-in-ebpf-a-case-for-fully-in.pdf` | Proceedings of the 19th Asian Internet Engineering Conference | placed_by_hand |
 | `pdf/2025-bortolini-deteccao-eficiente-de-anomalias-em-hosts-usando-transformer.pdf` | Anais do XXV Simpósio Brasileiro de Cibersegurança (SBSeg 2025) | script |
 | `pdf/2025-ghimire-ebpf-patrol-protective-agent-for-threat-recognition-and.pdf` | arXiv | script |
-| `pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf` | ACM Transactions on Software Engineering and Methodology | kept |
+| `pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf` | ACM Transactions on Software Engineering and Methodology | reconstructed |
 | `pdf/2025-jiang-orthrus-achieving-high-quality-of-attribution-in-provenance.pdf` | USENIX Security 2025 | script |
 | `pdf/2025-kim-detecting-cryptojacking-containers-using-ebpf-based-security.pdf` | Electronics | placed_by_hand |
 | `pdf/2025-syairozi-comparative-analysis-of-ebpf-based-runtime-security.pdf` | Proceedings of the 1st International Conference on Research and Innovations in Information and Engineering Technology | script |
@@ -135,7 +137,7 @@ Repo này **công khai**, và phần lớn bài báo không cho phép phát tán
 | `pdf/2026-dasari-when-to-retrain-an-empirical-study-of-retraining-policies.pdf` | arXiv | script |
 | `pdf/2026-jajodia-before-you-hand-over-the-wheel-evaluating-llms-for-security.pdf` | arXiv | script |
 | `pdf/2026-rheey-toward-reliable-intrusion-monitoring-for-o-ran-based--reconstructed.pdf` | ICML 2026 | reconstructed |
-| `pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf` | Lecture Notes in Computer Science | kept |
+| `pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf` | Lecture Notes in Computer Science | reconstructed |
 | `pdf/2026-zhou-an-abnormal-file-access-detection-model-for-containers-based.pdf` | Mathematics 14(6), 991 | placed_by_hand |
 
 ## Dataset, công cụ, trang web (chỉ lưu link)
