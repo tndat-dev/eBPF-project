@@ -1498,7 +1498,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - log broker 30 phút gần nhất chỉ có các dòng từ chối CREATE; CPU và RAM ngang hai broker kia; pod restart một lần, 3 ngày trước;
   - probe giống hệt chạy trên cả ba broker, nhưng chỉ broker ở worker1 báo.
   
-  Giả thuyết (chưa kiểm): calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống. Kiểm sau lượt bằng cách so `tree_p`/`support_p` của ba broker trên decision.
+  Giả thuyết (chưa kiểm): calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống. Kiểm sau lượt bằng `scripts/analysis/replica_compare.py` (có test) trên bảng cửa sổ của giai đoạn final: phân vị `tree_p`/`support_p`/`joint_p`, phần cửa sổ bị gắn cờ khi có và không có exec, nhánh nào cho p nhỏ hơn, cho từng broker, ngoài khoảng campaign. Chỉ mô tả, không dùng để chọn.
 - **Ý nghĩa:**
   - Cấu hình stable đạt trên development nhưng không đạt trên lượt mới. Phần trượt là control dương, tập trung ở một node, trong đó có một sự cố vận hành thật.
   - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 (chiết khấu theo replica) chạy trên chính lượt này ở giai đoạn final. Theo `stable-confirmation-v1`, đề xuất đó chỉ được áp dụng nếu đạt rule 5 của nó ở đây.
