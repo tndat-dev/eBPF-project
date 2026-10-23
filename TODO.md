@@ -8,7 +8,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] **`after-stable-refreshed`**: final, baseline lặp lại, chiến lược calibration (Pulse 5.13b, 5.15b, 5.17) và nén 3 lượt (NFS 291 → 85 GB) xong 16:17.
 - [x] **`pulse-stable-selection-1022`**: replay cấu hình gộp đạt (16:28).
-- [~] **Lượt live xác nhận `pulse-stable-confirm`**: chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478`), kết thúc ~24/10 01:20. [x] Campaign xong 12:29: **không đạt luật** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; Pulse 5.25). [ ] Final: gánh cảnh báo, test blind 5.22, so sánh có/không rule.
+- [~] **Lượt live xác nhận `pulse-stable-confirm`**: 23/10 01:19 → 24/10 01:29 (chính sách `cap`, `93dd1478`), 3 worker success. [x] Campaign xong 12:29: **không đạt luật** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; Pulse 5.25). [ ] Final: gánh cảnh báo, test blind 5.22, so sánh có/không rule.
 - [x] **`feature-groups-primary-1022`**: xong 23/10 00:35; gộp ở syscall 5B.3. [x] `fg-branches-1023`: xong 23/10 01:27, cả hai nhánh p-value đều cần (5B.3).
 - [~] **`after-stable-confirm`** (snapshot `1e2ae7f`): [x] giai đoạn campaign xong 12:33 (Pulse 5.25, RCA 5.15); [ ] final (gánh live + CI, test blind 5.22, lý do nghi phạm RCA, phân loại cảnh báo), rồi nén.
 - [x] **`pulse-57d-1022`**: 5.7d xong (`rolling-12-1` −37% trên soak 48 giờ).
@@ -22,7 +22,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 1. [x] 16:28: replay cấu hình gộp đạt (5.19 bước 3); đóng băng `policy-cusum-b3-h6.json` (`9bf0b216…`).
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt); test blind trên lượt xác nhận.
 3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): chạy từ 23/10 01:19, 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
-3b. [~] Log Falco của lượt xác nhận: [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [x] Lần 2 (13:05, `cp -u`): đã có file xoay vòng 05:15 UTC của worker1; file xoay vòng còn được giữ ~16 giờ nên lần chép cuối sau lượt là đủ. [ ] Ngay sau lượt: chép bổ sung file mới rồi chuyển lên NFS; giữ tới khi so sánh có/không rule xong.
+3b. [x] Log Falco của lượt xác nhận (xong 24/10 01:45, trên NFS `pulse-stable-confirm/falco-logs/`, SHA khớp, bản local đã xóa): [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [x] Lần 2 (13:05, `cp -u`): đã có file xoay vòng 05:15 UTC của worker1; file xoay vòng còn được giữ ~16 giờ nên lần chép cuối sau lượt là đủ. [ ] Ngay sau lượt: chép bổ sung file mới rồi chuyển lên NFS; giữ tới khi so sánh có/không rule xong.
 4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [x] Nhóm feature dưới `cap`: không đổi kết luận (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
@@ -33,7 +33,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   - [x] Calibration theo (workload, node) (5.6b): là `mondrian-6-1` của 5.17; không thắng trên dữ liệu mới, không thắng trên soak (p95).
   - [x] Phân rã theo thời gian (5.23): 90 phút traffic thay đổi gấp ~2 lần traffic ổn định; không drift trong 20 giờ. [ ] Một lượt có chế độ traffic rải suốt lượt để đo gánh dưới traffic biến động (cho paper).
   - [x] Review các đợt kéo dài trên lượt xác nhận (5.24): postgres worker1 báo 96% thời gian do replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC (sự cố thật, không phải tấn công). [~] Kafka worker1 (67,7% thời gian, 6/18 control dương; 5.25): ổn định từ giờ đầu, case chủ yếu là probe liveness, log và tài nguyên bình thường. [ ] Sau lượt (khi giai đoạn final đã dựng bảng cửa sổ): `python3 scripts/analysis/replica_compare.py --table /var/tmp/burden-levers/table-pulse-stable-confirm.npz --workload production/aims-kafka-dual-role:kafka --exclude 1792698877,1792733344 --output /mnt/sentinel-pulse-archive/pulse-stable-confirm/analysis/kafka-replicas.json` (so `tree_p`/`support_p`, phần cửa sổ bị gắn cờ có/không exec của 3 broker, ngoài khoảng campaign; chỉ mô tả). Chạy tương tự cho `aims-postgres-cnpg:postgres` và `inventory-service:app`.
-  - [ ] **Sau lượt:** sửa replica `cnpg-2` (dựng lại từ primary) trước lượt live kế tiếp; báo cáo lượt xác nhận tách riêng đóng góp của container này (post-hoc).
+  - [x] Sửa replica `cnpg-2` (24/10 01:38, dựng lại từ primary, stream trên timeline 9; Pulse 5.25). [x] Báo cáo lượt xác nhận tách riêng đóng góp của container này (post-hoc, 5.25).
 - [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
   - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
   - [x] Novelty có xét exec (5.7c, 5.8h): 100% cho `ptrace`/`execveat`/`setns`, binary vô hại 0,3%.
@@ -78,6 +78,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [~] 1,3 GB dữ liệu thô cũ (pulse500, projected, canary 08–10/2026), bị gitignore trong `validation-evidence/` trên máy host, không còn được tham chiếu. Chủ đồ án đồng ý chuyển lên NFS rồi xóa ở host (23/10). [x] Đã chép sang đĩa local `.234` `/var/tmp/host-evidence-pre-refactor/`, 642/642 file khớp `SHA256SUMS` (23/10 11:35). [ ] **Sau lượt live:** chuyển lên `/mnt/sentinel-pulse-archive/host-evidence-pre-refactor-20261023/`, kiểm lại `SHA256SUMS` trên NFS, rồi xóa bản ở host, bản tạm trên `.234` và 5 dòng tương ứng trong `.gitignore`.
 
 ## Hạ tầng
+
+- [x] `.234`: `mask` `unattended-upgrades`, `apt-daily-upgrade.timer`, `apt-daily.timer` như worker (24/10), sau khi tự nâng cấp `zlib1g` đã khởi động lại bridge và subscriber RCA giữa lượt (Pulse 5.25). Nâng cấp gói làm tay khi không có lượt live.
 
 - [x] Collector 1 s đã dừng, tắt và xóa dữ liệu (22/10 12:47).
 - [x] Đã xóa `/var/tmp/pulse-live-copy`, `falco-baseline` và 4 snapshot không dùng (22/10). [x] `/var/tmp/syscall-cusum` (4 GB, bản sao NFS, đã đối chiếu danh sách file) xóa 23/10. [ ] `/var/tmp/feature-groups` (7,6 GB): `study`, `workloads`, `score-dump` là bản duy nhất → chuyển lên NFS sau lượt live rồi xóa. Giữ `/var/tmp/burden-levers` (bảng cửa sổ cho test blind và so sánh rule) và `/var/tmp/baselines` (model baseline).

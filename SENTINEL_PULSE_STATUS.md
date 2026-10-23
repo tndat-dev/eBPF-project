@@ -1499,6 +1499,12 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - probe giống hệt chạy trên cả ba broker, nhưng chỉ broker ở worker1 báo.
   
   Giả thuyết (chưa kiểm): calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống. Kiểm sau lượt bằng `scripts/analysis/replica_compare.py` (có test) trên bảng cửa sổ của giai đoạn final: phân vị `tree_p`/`support_p`/`joint_p`, phần cửa sổ bị gắn cờ khi có và không có exec, nhánh nào cho p nhỏ hơn, cho từng broker, ngoài khoảng campaign. Chỉ mô tả, không dùng để chọn.
+- **Sau lượt (24/10 01:30–02:00):**
+  - capture kết thúc 18:23–18:29 UTC trên cả 3 worker, unit success; mỗi worker chỉ khởi động một lần (journal), capture liên tục;
+  - **khởi động lại ngoài kế hoạch trên `.234`:** lúc 23/10 06:19:47 UTC (13:19), `unattended-upgrades` nâng cấp `zlib1g`, và `needrestart` khởi động lại mọi service dùng zlib, gồm bridge cảnh báo (RCA 5.14) và subscriber RCA của lượt. Lúc đó campaign đã xong (05:29 UTC), nên số campaign không bị ảnh hưởng. Bộ đếm của RCA được giữ (6.677 case, tăng tiếp từ 3.671), chỉ ring 180 s mất ngay sau lần khởi động lại. Worker không bị ảnh hưởng, vì trên worker các unit tự nâng cấp đã bị `mask` từ trước;
+  - **đã áp cùng cấu hình cho `.234`** (24/10 01:50): `systemctl mask --now unattended-upgrades.service apt-daily-upgrade.timer apt-daily.timer`. Đảo lại bằng `systemctl unmask`;
+  - **replica CNPG `cnpg-2` đã sửa** (18:38 UTC): xóa PVC và pod, operator clone lại từ primary trong khoảng 25 s; replica mới đạt trạng thái nhất quán tại `0/A3000120`, stream WAL trên timeline 9, không còn lỗi `could not start WAL streaming`; primary thấy cả `cnpg-2` và `cnpg-3` đang stream. Lượt live sau dùng replica mới (pod UID khác);
+  - log Falco đã chép lần cuối và chuyển lên `/mnt/sentinel-pulse-archive/pulse-stable-confirm/falco-logs/<node>/` (21 file, SHA-256 khớp), bản local trên worker đã xóa.
 - **Ý nghĩa:**
   - Cấu hình stable đạt trên development nhưng không đạt trên lượt mới. Phần trượt là control dương, tập trung ở một node, trong đó có một sự cố vận hành thật.
   - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 (chiết khấu theo replica) chạy trên chính lượt này ở giai đoạn final. Theo `stable-confirmation-v1`, đề xuất đó chỉ được áp dụng nếu đạt rule 5 của nó ở đây.
@@ -2007,3 +2013,8 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 12:40–13:15 | References: bản gốc Barber 2022 và Rebjock 2021 thay hai file nhầm; tổng hợp tri thức `references/KNOWLEDGE_SYNTHESIS.md`. Đồng bộ checkout 4 VM (`fe82291`). Campaign lượt xác nhận xong 12:29; giai đoạn campaign của `after-stable-confirm` 12:33: **không đạt** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s); 14/18 control dương ở worker1; post-hoc bỏ postgres `cnpg-2`: 96,3% / 4,0%. Kafka worker1: 67,7% thời gian đang báo, ổn định từ giờ đầu, case chủ yếu là probe liveness. Kernel → người nhận trên toàn campaign (RCA 5.14). Chép log Falco lần 2 (`cp -u`, worker1 đã xoay vòng 05:15 UTC). Sửa NoDoze 86% → 84% (5.22) | 5.25 |
 | 13:20–14:05 | Biên nhận giai đoạn campaign vào `validation-evidence/results-20261023/` (SHA khớp NFS); `confirm_campaign.py` thêm control dương theo container và `--exclude-container` (post-hoc, có test). `alert_delivery_latency.py` đánh dấu đợt mở từ cửa sổ vắt qua lúc tiêm (108/446 trial; push p95 tập chính 2,89 s, 3,04 s theo quy tắc cửa sổ của campaign; RCA 5.14). Hình: thêm lượt xác nhận vào `live-runs-metrics`/`live-latency-cdf`, hình mới `feature-groups`, `alert-delivery-cdf` (`docs/figures/`) | 5.25 |
 
+### 24/10/2026
+
+| Giờ | Việc | Mục |
+|---|---|---|
+| 01:23–02:00 | Lượt xác nhận kết thúc (3 worker success, capture liên tục). Giai đoạn final của `after-stable-confirm` bắt đầu 01:33. Log Falco chép lần cuối và chuyển lên NFS (SHA khớp, xóa bản local). Replica CNPG `cnpg-2` dựng lại từ primary, stream trên timeline 9. Phát hiện `unattended-upgrades` trên `.234` đã khởi động lại bridge và subscriber RCA lúc 13:19 ngày 23/10 (sau campaign); `mask` các unit tự nâng cấp trên `.234` như worker | 5.25 |

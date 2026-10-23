@@ -426,6 +426,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - **Giả thuyết của 5.11 đã kiểm trên dữ liệu (`campaign-RESULTS.json`, 13:50):** trong **mọi** cặp, binary vô hại và attack dùng cùng một đường dẫn: `/tmp/sentinel-runtime-attack-blind` 450 cặp; `/operator/…`, `/run/…`, `/etc/istio/proxy/…` mỗi đường 25 cặp. Binary vô hại chạy trước attack khoảng 20 s trong cùng container, nên khi attack chạy, đường dẫn đó không còn mới trong cửa sổ novelty 300 s và case tiếp nối không mở.
   - Đây là hệ quả của thiết kế fixture, không phải giới hạn của RCA với kẻ tấn công thật. **Đề xuất cho campaign sau** (chưa làm, phải đăng ký trước lượt): đặt tên file khác cho binary vô hại, cùng thư mục. Pulse chỉ thấy số đếm syscall, không thấy đường dẫn, nên đối chứng của Pulse không đổi; chỉ RCA và luật dựa trên đường dẫn (Falco drift) bị ảnh hưởng. Khi đó coverage của RCA đo đúng hơn.
   - Tác dụng của seed lên case normal (nghi phạm hạng 1 là binary mới/chưa biết) đo ở giai đoạn final.
+- **Subscriber và bridge bị khởi động lại một lần** lúc 23/10 06:19:47 UTC (13:19), sau campaign, do `unattended-upgrades` nâng cấp `zlib1g` rồi `needrestart` khởi động lại service (Pulse 5.25). Bộ đếm và case được giữ (6.677 case lúc 01:40 ngày 24/10); chỉ ring 180 s mất, nên vài case đầu sau mốc đó có thể thiếu ngữ cảnh trước. Bridge mất các đợt đang mở trong bộ nhớ (không có sự kiện `end` cho chúng). Từ 24/10, `.234` đã `mask` các unit tự nâng cấp như worker.
 
 ## 6. Coverage, hiệu năng, giới hạn
 
