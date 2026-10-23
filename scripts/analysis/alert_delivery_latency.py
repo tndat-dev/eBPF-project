@@ -8,6 +8,11 @@ that episode on each path (push, pull-fast, pull-default) minus the trial's kern
 recipient. A trial whose container already had an episode running when the attack started is reported apart
 (``alert_already_active``): its alert reached the recipient before the attack and no new alert was sent.
 
+An episode can start from a preview whose 0.5 s window began before the injection (it straddles the exec of the
+attack binary). The campaign never credits such a window (``preview_evaluation``: the window must lie inside the
+trial), so these trials are flagged (``episode_window_starts_before_attack``) and the push latency is also reported
+without them (``push_window_inside_trial``), on the campaign's footing.
+
 Only trials that start after ``--since`` count, so that every path was live for every counted trial.
 Standard library only (runs on the system Python of .234).
 """
@@ -17,6 +22,7 @@ import json
 from pathlib import Path
 
 HORIZON = 15.0
+WINDOW = 0.5                     # Pulse feature window; the bridge keeps only its end
 PATHS = ('push', 'pull-fast', 'pull-default')
 
 
@@ -49,7 +55,8 @@ def join(outcomes, episodes, deliveries, since):
             row['match'] = 'no_episode'
         else:
             ep = inside[0]
-            row.update(match='episode', episode=ep['episode'])
+            row.update(match='episode', episode=ep['episode'],
+                       episode_window_starts_before_attack=ep.get('window_end') is not None and ep['window_end'] - WINDOW < begin)
             for path in PATHS:
                 at = delivered.get((path, ep['episode']))
                 row[f'{path}_kernel_to_recipient_seconds'] = (at - kernel) if at is not None and kernel is not None else None
@@ -66,6 +73,11 @@ def summarize(rows):
         v = [r[f'{path}_kernel_to_recipient_seconds'] for r in rows if r.get(f'{path}_kernel_to_recipient_seconds') is not None]
         out[path] = dict(trials_alerted=len(v), share_of_attack_trials=len(v) / len(rows) if rows else None,
                          p50=quantile(v, .5), p95=quantile(v, .95), max=max(v) if v else None)
+    inside = [r['push_kernel_to_recipient_seconds'] for r in rows
+              if r.get('push_kernel_to_recipient_seconds') is not None and not r.get('episode_window_starts_before_attack')]
+    out['episodes_from_window_before_attack'] = sum(bool(r.get('episode_window_starts_before_attack')) for r in rows)
+    out['push_window_inside_trial'] = dict(trials_alerted=len(inside), p50=quantile(inside, .5), p95=quantile(inside, .95),
+                                           max=max(inside) if inside else None)
     by_rate = defaultdict(list)
     for r in rows:
         by_rate[r['rate_per_second']].append(r)

@@ -32,3 +32,17 @@ def test_trials_join_the_episode_started_inside_their_horizon_and_get_one_latenc
     assert s['push']['trials_alerted'] == 1 and round(s['push']['share_of_attack_trials'], 3) == 0.333
     assert s['match'] == {'episode': 1, 'no_episode': 1, 'alert_already_active': 1}
     assert s['push_by_rate']['1'] == dict(trials=1, alerted=0, p95=None)
+
+
+def test_an_episode_opened_by_a_window_straddling_the_injection_is_flagged_and_left_out_of_the_strict_latency():
+    outcomes = [attack('1:attack', 'a', 100.0, 100.3), attack('2:attack', 'b', 200.0, 200.3)]
+    episodes = [dict(event='start', episode='e1', node='w1', pod_uid='a', container='app', preview_emitted_at=100.2, window_end=100.1),
+                dict(event='start', episode='e2', node='w1', pod_uid='b', container='app', preview_emitted_at=201.2, window_end=201.1)]
+    deliveries = [dict(path='push', episode='e1', received_at=100.25), dict(path='push', episode='e2', received_at=201.3)]
+    rows = {r['trial_id']: r for r in lat.join(outcomes, episodes, deliveries, since=0.0)}
+    assert rows['1:attack']['episode_window_starts_before_attack'] is True     # window 99.6-100.1 straddles 100.0
+    assert rows['2:attack']['episode_window_starts_before_attack'] is False
+    s = lat.summarize(list(rows.values()))
+    assert s['episodes_from_window_before_attack'] == 1
+    assert s['push']['trials_alerted'] == 2 and s['push_window_inside_trial']['trials_alerted'] == 1
+    assert round(s['push_window_inside_trial']['p95'], 3) == 1.0
