@@ -88,40 +88,41 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 23/10 04:55)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 24/10 02:10)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
-**Ưu tiên hiện tại (22/10):**
+**Ưu tiên hiện tại (22/10, vẫn giữ 24/10):**
 1. Hoàn thiện bằng chứng của cả Pulse ML, syscall và RCA, đưa ML ra stable rồi mới viết luận văn.
 2. Rule chỉ tích hợp **sau khi ML hoàn thiện**, rồi so sánh có/không rule ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6).
 3. Cải tiến cho paper làm sau.
 
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
-| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~93% | Chạy ổn định 24 giờ nhiều lượt; chấm nhanh khớp từng bit; CPU worker 13–31%; overhead probe đo được (5.21); đường live cho CUSUM có test; đường cảnh báo vận hành thử qua Alertmanager/Prometheus/Grafana (RCA 5.14: push p95 0,06 s sau preview) | Calibration tự làm mới trong live; độ trễ kernel → người nhận theo từng trial (sau lượt xác nhận) |
-| Đánh giá Pulse ML cho luận văn | ~90% | 4 lượt live; final `pulse-stable-refreshed` (5.13b); ML stable chốt lại sau khi phát hiện CUSUM nhớ alarm (5.19 bổ sung 1): CUSUM `cap`, 4/4 kỳ vọng ở mức ≤ 3 s trên luồng liên tục; baseline lặp lại (5.15b); chiến lược calibration (5.17); Pareto 2 lượt; review nhãn | Lượt xác nhận `pulse-stable-confirm`: campaign **không đạt** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; 14/18 control dương ở worker1, Pulse 5.25); chờ final (gánh, test blind 5.22) |
+| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~94% | Chạy ổn định 24 giờ nhiều lượt (lượt xác nhận: 3 worker, capture liên tục); chấm nhanh khớp từng bit; CPU worker 13–31%; overhead probe (5.21); CUSUM `cap` chạy live; đường cảnh báo thật qua Alertmanager: kernel → người nhận p95 2,89 s trên tập chính (RCA 5.14); `.234` đã tắt tự nâng cấp gói | Calibration tự làm mới trong live |
+| Đánh giá Pulse ML cho luận văn | ~88% | 4 lượt live; final `pulse-stable-refreshed` (5.13b); ML stable chốt lại sau khi phát hiện CUSUM nhớ alarm (5.19 bổ sung 1): CUSUM `cap`, 4/4 kỳ vọng ở mức ≤ 3 s trên luồng liên tục; baseline lặp lại (5.15b); chiến lược calibration (5.17); Pareto 2 lượt; review nhãn | Lượt xác nhận `pulse-stable-confirm`: campaign **không đạt** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; 14/18 control dương ở worker1, Pulse 5.25); chờ final (gánh, test blind 5.22, ~03:00 24/10). Nếu 5.22 đạt blind: thêm một lượt live 24 giờ; nếu không: báo "đạt trên development, không đạt trên lượt xác nhận" |
 | Giảm gánh cảnh báo (Pulse 5.22) | ~70% | Kết quả development: chiết khấu theo replica cho 1,5–2,4 đợt/replica-giờ (−65–75%), control ~1%, đạt 4 kỳ vọng ở cả 2 mức độ trễ | Test blind trên lượt xác nhận; nếu đạt, một lượt live với cấu hình đó |
 | Thí nghiệm syscall + nhóm feature | ~98% | Kết luận syscall có CI dưới k2of2 và dưới CUSUM (5C); nhóm feature trên hai holdout, gộp theo luật bổ sung (5B.3), cả hai nhánh p-value cần; dưới CUSUM `cap` không đổi kết luận nào (5C) | Chỉ còn viết vào luận văn; đổi feature (bỏ 64 bin syscall) cần lượt live riêng, không làm |
-| RCA | ~92% | Coverage 86,7%; top-1 100% với luật hạ quyền trên dữ liệu mới; nhãn triage; baseline binary mang qua các lượt (RCA 5.12); sửa ánh xạ IP node (5.13); ví dụ cây thật trong repo | Lý do 13% attack không có case và hiệu quả seed (lượt xác nhận); trigger từ Alertmanager; lịch sử inventory, backend sau DNAT, client sau waypoint (giới hạn nếu không làm) |
+| RCA | ~94% | Lượt xác nhận (525 cặp): coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (RCA 5.15); 13% không có case riêng đã rõ nguyên nhân (fixture dùng chung đường dẫn binary); nhãn triage; seed binary (5.12); ánh xạ IP node và probe Istio (5.13); ví dụ cây thật trong repo | Hiệu quả seed trên normal (final); RCA nhận trigger từ Alertmanager chạy live; backend sau DNAT, client sau waypoint (ghi là giới hạn) |
 | Baseline ML (G1) | ~97% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29; Holm trên 24 so sánh (24/10): mọi kết luận ở ngân sách 1 đứng vững, chỉ lật 2 hiệu tách ở ngân sách 18 (Pulse 5.15b) | Luật Falco đặt cạnh ML (phần rule, R2 đã có số; so sánh R6 sau) |
 | Phần rule, tách khỏi ML | ~45% | Falco riêng (R2); tripwire riêng đạt blind (R3); tầng triage có protocol và code (R4); thiết kế so sánh có/không rule (R6) | Chạy so sánh sau khi ML hoàn thiện; gánh tripwire trên normal dài; đường triage nhanh |
 | Overhead (G7) | ~80% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi | Kernel/distro khác; độ trễ request ứng dụng thật |
-| Kẻ tấn công chậm (G4) | ~30% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25) | Lập luận mimicry |
+| Kẻ tấn công chậm (G4) | ~55% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
 | Hình và bảng cho luận văn | ~60% | 6 hình vi/en từ biên nhận: 4 lượt live (kể cả lượt xác nhận), độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo (23/10); hình cây RCA (`scripts/analysis/rca_case_graph.py`) | Hình gánh cảnh báo (sau final lượt xác nhận); bảng tổng hợp |
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
-| **Luận văn (tổng thể, gồm viết)** | **~80%** | Thí nghiệm ~93%; số liệu và bằng chứng gần đủ, biên nhận 22–23/10 đã vào repo | Lượt xác nhận (24/10); so sánh có/không rule; viết chương |
+| **Luận văn (tổng thể, gồm viết)** | **~82%** | Thí nghiệm ~94%; lượt xác nhận đã chạy hết và campaign đã đọc; biên nhận 22–24/10 trong repo; 6 hình | Final lượt xác nhận và quyết định 5.22 (có thể thêm 1 lượt live); so sánh có/không rule; viết chương |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
 | Dataset công khai (G3) | 0% (tạm hoãn) | | Xem lại khi viết paper |
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
-| Artifact mở (G9) | ~55% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`) | Gói tái lập, dữ liệu ẩn danh |
+| Artifact mở (G9) | ~58% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`) | Gói tái lập, dữ liệu ẩn danh |
 | Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |
 | **Mức sẵn sàng** | **~40%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe + CUSUM blind | G2, G5 (lời giải), G8 độc lập, G9 |
 
-**Đường ngắn nhất để xong luận văn:**
-1. Đọc và ghi kết quả 22–23/10: final, baseline lặp lại, chiến lược calibration, nhóm feature B, 5.7d.
-2. Chốt cấu hình "stable" theo các luật đã đăng ký.
-3. Viết chương: mở đầu, nền tảng, công trình liên quan, thiết kế, cài đặt, đánh giá, thảo luận và giới hạn, kết luận. Dùng hình trong `docs/figures/`.
+**Đường ngắn nhất để xong luận văn (24/10):**
+1. Đọc final của lượt xác nhận (gánh cảnh báo, test blind 5.22, seed RCA, phân loại cảnh báo, so sánh 3 broker kafka).
+2. Áp luật đã đăng ký: nếu đề xuất 5.22 đạt rule 5 trên lượt này, đóng băng cấu hình đó và chạy một lượt live 24 giờ để xác nhận; nếu không, ghi ML stable là "đạt trên development, không đạt trên lượt xác nhận", kèm phân tích độ nhạy (`cnpg-2`).
+3. So sánh có/không rule (R6) trên dữ liệu lượt xác nhận.
+4. Viết chương: mở đầu, nền tảng, công trình liên quan, thiết kế, cài đặt, đánh giá, thảo luận và giới hạn, kết luận. Dùng hình trong `docs/figures/` và `references/KNOWLEDGE_SYNTHESIS.md`.
 
 Lượt live thêm, exploit thật và LID-DS là phần cho paper, làm sau.
 
@@ -303,6 +304,27 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 | P8 Bỏ qua tỉ lệ nền | Precision 96% là trên campaign cân bằng 1:1. Với 6,5 đợt/replica-giờ và ~80 container, cụm có khoảng 12.500 đợt/ngày; nếu có 1 attack/ngày thì precision thực tế cỡ 0,01% | Báo rõ con số này; mục tiêu ngân sách 0,1 |
 | P9 Chỉ đánh giá trong lab | Live trên cụm thật, nhiều lượt; nhưng chỉ một ứng dụng và một cụm | Nêu giới hạn; dataset ngoài (G3) cho paper |
 | P10 Mô hình đe dọa không phù hợp | Chưa có kẻ tấn công thích nghi | G4: tốc độ thấp, mimicry (mục 4.2) |
+
+### 4.4 Lập luận mimicry cho G4 (24/10; lập luận, chưa phải thí nghiệm)
+
+**Mô hình đe dọa:** kẻ tấn công biết Pulse đang chạy, biết nó đếm syscall theo cửa sổ 0,5 s cho từng container, và có thể chỉnh nhịp cũng như payload. Có bốn cách né, xếp từ dễ tới khó đối với kẻ tấn công.
+
+1. **Chạy chậm (pha loãng theo thời gian).**
+   - Đã có số (Pulse 5.25, lượt xác nhận): recall 93,1% ở 1/s và 99,0% ở 3/s, so với 100% ở 6–24/s. p95 tới cảnh báo 3,4–4,3 s ở 1–6/s, so với 1,6 s ở 24/s.
+   - Nghĩa là chạy chậm làm Pulse vừa trễ hơn vừa bỏ sót nhiều hơn, nhưng ở 1/s vẫn bắt được 9/10. Chưa đo dưới 1/s; tấn công rải trong nhiều phút là việc của campaign sau.
+2. **Độn syscall bình thường vào (pha loãng theo nội dung).**
+   - Wagner 2002 chèn syscall "không làm gì" để chuỗi độc hại khớp mô hình normal. Với detector đếm tần suất, cách tương ứng là độn thêm syscall bình thường cho tỉ lệ trông như thường.
+   - Cách này **không xóa được** một syscall vốn vắng mặt trong hồ sơ workload: `ptrace`, `setns`, `execveat` vẫn có số đếm ≥ 1. Base29 có kênh riêng cho từng syscall (bỏ kênh này thì mất 13 điểm recall, syscall 5B.3). Tripwire A1 báo theo đúng sự vắng mặt đó, nên không bị pha loãng (rule R3).
+   - Thực nghiệm của Wagner xác nhận điểm này cho pH: syscall không có trong cơ sở dữ liệu normal (`dup2`, `mkdir`, `execve`) thì **không giấu được**.
+3. **Đổi payload để chỉ dùng syscall có sẵn trong hồ sơ.**
+   - Đây là cách Wagner thực sự dùng để né pH: không mở shell, mà gắn hành động vào shellcode, ví dụ thêm tài khoản root vào file mật khẩu.
+   - Với cách này, cả Pulse lẫn tripwire đều có thể không thấy gì, nếu tần suất nằm trong vùng normal. Phải có tín hiệu theo **tham số** (đường dẫn file, đích kết nối; CHIDS, Zhou 2026) hoặc **ngữ cảnh process** (cây process từ Tetragon). Đây chính là các hướng R7a và C1, chưa làm.
+4. **Không exec gì cả** (khai thác ngay trong process đang chạy).
+   - Mọi fixture của đồ án đi vào bằng exec. Recall đo được vì vậy là **cận trên** cho tấn công vào qua exec (mục 5.4). Tấn công qua chính ứng dụng (G2) chưa được đo.
+
+**Né RCA và tầng triage:** luật triage probe khớp theo binary, nên kẻ tấn công chạy cùng interpreter qua `kubectl exec` sẽ được dán nhãn "probe". Bản triển khai thật phải khớp cả argv và cây process cha (là container runtime). Goyal 2023 né được 100% năm IDS dựa trên đồ thị provenance bằng cách hòa hành vi vào process bình thường; RCA của Pulse xếp hạng nghi phạm theo độ mới của binary, nên cũng chịu cùng loại rủi ro nếu kẻ tấn công dùng binary đã có trong image.
+
+**Luận văn được nói:** Pulse bắt được attack chậm tới 1/s với recall 93%; syscall vắng mặt trong hồ sơ không thể pha loãng (Wagner 2002 và tripwire A1); kẻ tấn công thích nghi vẫn né được bằng payload chỉ dùng syscall có sẵn hoặc không exec. **Không được nói:** Pulse bền với kẻ tấn công thích nghi.
 
 ## 5. Mô phỏng tấn công của đồ án đã đủ toàn diện chưa? (research 22/10 00:45–00:56)
 
