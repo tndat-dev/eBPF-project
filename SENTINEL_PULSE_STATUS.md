@@ -56,6 +56,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - Trên luồng liên tục của `pulse-stable-refreshed`: recall 100%, precision 96,9%, control 3,2%, p95 2,05 s (mức ≤ 3 s), 6,07 đợt/replica-giờ (k2of2: 6,74).
   - Bản CUSUM đầu tiên (không chặn trần) bị bỏ trước khi chạy live, vì alarm kéo dài sang trial sau (control 5,7%).
   - Lượt live xác nhận `pulse-stable-confirm` (525 cặp, tốc độ attack 1–24/s) chạy từ 23/10 01:19 đến khoảng 24/10 01:20; phân tích tự chạy sau lượt.
+- **Lượt xác nhận, kết quả campaign (5.25, đọc 23/10 13:10): không đạt luật đăng ký trước.** Recall 100%, precision 94,6%, control 5,8% (18/309), p95 2,53 s. Precision và control trượt vì cùng 18 control dương; 14/18 nằm ở worker1, trong đó 6 ở postgres có replica `cnpg-2` hỏng (sự cố thật, 5.24) và 6 ở kafka. Post-hoc bỏ container postgres đó: precision 96,3%, control 4,0% (chỉ báo kèm, không thay kết luận). Gánh cảnh báo và test blind 5.22 chờ giai đoạn final (sau 24/10 01:20).
 - **Giảm gánh cảnh báo (5.22, development, chờ test blind):** chiết khấu theo replica (ý tưởng ReplicaWatcher) cho 1,5–2,4 đợt/replica-giờ trong khi vẫn đạt cả 4 kỳ vọng, tức giảm 65–75% so với k2of2.
 - **Phát hiện quan trọng nhất.** Một binary vô hại chạy cùng đường khởi chạy với attack bị gắn cờ **khoảng 94%**. Nghĩa là Pulse phát hiện "process bất thường", chưa phân biệt được ác ý. Tín hiệu bổ sung có triển vọng là syscall lạ ngoài tập exec: tách 100% / 0,3% cho các attack dùng `ptrace`/`setns`/`execveat` (5.8h). Nó đã đạt khi kiểm blind; vì là luật nên nằm ở phần rule ([RULE R3](RULE_INTEGRATION_STATUS.md)).
 - **So với baseline trên cùng dữ liệu (5.15a):** autoencoder bắt attack ngang hoặc hơn, với gánh cảnh báo thấp hơn và nhanh hơn, nhưng gắn cờ binary vô hại khoảng 100%. Bộ chấm của Pulse chỉ hơn ở khả năng tách binary vô hại. Lặp lại trên dữ liệu mới (5.15b): AE và `tree_ae` tăng recall 4,9 điểm nhưng tách kém khoảng 26 điểm (CI dưới 0), nên không thay base29.
@@ -69,12 +70,12 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live **pulse-stable-confirm** (3 worker) | Chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478…`), attack từ khoảng 02:54, kết thúc khoảng 24/10 01:20. Worker không restart lần nào (kiểm 01:55) |
+| Lượt live **pulse-stable-confirm** (3 worker) | Chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478…`), attack từ khoảng 02:54, kết thúc khoảng 24/10 01:20. Campaign 525 cặp xong 12:29 (success); capture vẫn chạy. Worker không restart lần nào (kiểm 13:00) |
 | RCA | `rca-pulse-stable-confirm` chạy từ 01:21 (seed 59 binary đã nạp, có nhãn triage); 1.924 case lúc 03:58 |
-| Phân tích sau lượt | Unit `after-stable-confirm` (snapshot `1e2ae7f`) chờ lượt kết thúc |
+| Phân tích sau lượt | Unit `after-stable-confirm` (snapshot `1e2ae7f`): giai đoạn campaign xong 12:33 (5.25); giai đoạn final chờ capture kết thúc |
 | Đường cảnh báo vận hành (thử) | Unit `pulse-alert-bridge-pulse-stable-confirm` trên `.234` (commit `e2cbc01`), chỉ đọc decision; Prometheus/Alertmanager/Grafana của cụm (RCA 5.14) |
 | Job phân tích khác | Đã xong: `fg-branches-1023` (01:27), `syscall-cusum-1022` (02:30). Không còn job nặng nào ngoài lượt live |
-| Ngay sau lượt live (làm tay) | Chép log Falco khỏi 3 worker cho so sánh có/không rule |
+| Ngay sau lượt live (làm tay) | Chép log Falco lần cuối khỏi 3 worker cho so sánh có/không rule (đã chép giữa lượt 11:40 và 13:05, đủ tới 05:15 UTC xoay vòng của worker1) |
 | Theo dõi | Không dùng watcher (theo yêu cầu). Sức khỏe lượt live được kiểm khi được nhắc và trong phân tích sau lượt |
 | Đĩa | NFS 88 / 685 GB (13%); `.234` 62 GB; worker 40% / 41% / 28% |
 | Quy tắc | Không chạy job NFS hoặc bộ nhớ nặng trên bất kỳ node nào khi lượt live đang chạy; không chạy trên master 2/3 |
@@ -1448,6 +1449,61 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   2. trong báo cáo lượt xác nhận, tách riêng đóng góp của container này vào control, gánh cảnh báo và precision;
   3. ghi vào luận văn như một ví dụ: Pulse thấy được sự cố vận hành thật mà trạng thái của operator không phản ánh.
 
+### 5.25 Lượt xác nhận `pulse-stable-confirm`: kết quả campaign (đọc 23/10 13:10; `stable-confirmation-v1` + bổ sung 1)
+
+- **Nguồn:**
+  - campaign kết thúc 05:29 UTC (12:29), unit success;
+  - giai đoạn campaign của `after-stable-confirm` chạy xong 05:33 UTC;
+  - biên nhận ở `validation-evidence/results-20261023/pulse-stable-confirm/` (bản gốc `/mnt/sentinel-pulse-archive/pulse-stable-confirm/analysis/`): `confirm-campaign.json`, `confirm-campaign-by-container.json`, `confirm-campaign-posthoc-without-cnpg2.json`, `attack-vs-benign.json`, `campaign-RESULTS.json`, các file RCA;
+  - capture còn chạy tới khoảng 24/10 01:20. Gánh cảnh báo trên normal, test blind 5.22 và so sánh có/không rule thuộc giai đoạn final.
+- **Kết luận theo luật: không xác nhận.** Tập chính là tốc độ 6, 12, 24/s (315 cặp):
+
+  | Chỉ số | Kỳ vọng | Kết quả (CI Wilson 95%) | Kỳ vọng ghi trong bổ sung 1 | Đạt |
+  |---|---|---|---|---|
+  | Recall | ≥ 95% | **100%** (314/314) [98,8; 100] | 100% | ✓ |
+  | Precision | ≥ 95% | **94,6%** (314/332) [91,6; 96,5] | 96,9% | ✗ |
+  | Control idle dương | ≤ 5% | **5,8%** (18/309) [3,7; 9,0] | 3,2% | ✗ |
+  | p95 kernel → preview | < 2 s / ≤ 3 s | **2,53 s** (p50 0,77 s) | 2,05 s | mức ≤ 3 s |
+  | Binary vô hại bị gắn cờ | báo, không ngưỡng | 95,1% (293/308) | — | — |
+  | Không xác định (bỏ ra, có đếm) | — | 1 attack, 6 control, 7 vô hại | — | — |
+
+  - Precision và control trượt vì **cùng 18 control dương**. Khoảng tin cậy của control (3,7–9,0%) chứa 5%, nhưng luật xét ước lượng điểm.
+- **Theo tốc độ attack** (mọi tốc độ; tốc độ 1 và 3/s không có kỳ vọng, G4):
+
+  | Tốc độ | Recall | Precision | Control | p95 |
+  |---|---|---|---|---|
+  | 1/s | 93,1% (95/102) [86,5; 96,6] | 96,0% | 3,9% | 3,42 s |
+  | 3/s | 99,0% (102/103) | 95,3% | 4,9% | 4,30 s |
+  | 6/s | 100% | 93,8% | 6,9% | 3,50 s |
+  | 12/s | 100% | 95,4% | 4,8% | 2,40 s |
+  | 24/s | 100% | 94,6% | 5,8% | 1,61 s |
+  | Mọi tốc độ | 98,5% (511/519) | 95,0% | 5,3% | 3,17 s |
+
+  - Attack chậm: ở 1/s Pulse bỏ sót 7/102; ở 1–6/s p95 vượt 3 s. Đây là số đầu tiên cho tốc độ 1 và 3/s (trước đây chỉ có 6–24/s, 5.15c).
+- **Theo kịch bản (tập chính):**
+  - recall 100% ở cả 5 kịch bản;
+  - p95: `invalid_setns_burst` 0,92 s, `child_ptrace_handshake` 1,56 s, `execveat_resolution_probe` 1,90 s, `anonymous_mprotect_churn` 2,87 s, `seccomp_api_probe` 3,77 s.
+- **18 control dương nằm ở đâu:**
+  - 6 ở postgres worker1 (pod `aims-postgres-cnpg-2`, replica hỏng, 5.24);
+  - 6 ở kafka worker1 (`aims-kafka-dual-role-2`);
+  - 2 ở inventory worker1;
+  - 4 container khác, mỗi container 1.
+  
+  Tức 14/18 nằm ở worker1.
+- **Độ nhạy post-hoc** (đã định từ 5.24, chỉ báo kèm, không thay kết luận): bỏ container postgres worker1 thì recall 100%, precision 96,3% [93,6; 97,8], control 4,0% (12/303) [2,3; 6,8], p95 2,53 s. Mức này sẽ đạt cả 4 kỳ vọng ở mức ≤ 3 s. Ở container đó, cả 6 attack, 6 control và 6 binary vô hại đều dương.
+- **Thời gian đang báo theo container** (bridge RCA 5.14, 20:52–06:05 UTC, 9,2 giờ): postgres worker1 97,8%, kafka worker1 67,7%, inventory worker1 19,6%; mọi container khác ≤ 6,7%.
+  - Theo từng giờ, tỉ lệ này ổn định ngay từ giờ đầu (kafka 66–71%, postgres 99%, inventory 14–23%). Đây là trạng thái thường trực, không phải một sự kiện trong lượt.
+- **Kafka worker1** (review 13:00, mô tả):
+  - 153 case RCA có trigger là container này: 103 case chỉ có probe (định nghĩa 5.18); nghi phạm hạng 1 là `kafka_liveness.sh` ở 132 case; 16 case thuộc trial attack;
+  - log broker 30 phút gần nhất chỉ có các dòng từ chối CREATE; CPU và RAM ngang hai broker kia; pod restart một lần, 3 ngày trước;
+  - probe giống hệt chạy trên cả ba broker, nhưng chỉ broker ở worker1 báo.
+  
+  Giả thuyết (chưa kiểm): calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống. Kiểm sau lượt bằng cách so `tree_p`/`support_p` của ba broker trên decision.
+- **Ý nghĩa:**
+  - Cấu hình stable đạt trên development nhưng không đạt trên lượt mới. Phần trượt là control dương, tập trung ở một node, trong đó có một sự cố vận hành thật.
+  - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 (chiết khấu theo replica) chạy trên chính lượt này ở giai đoạn final. Theo `stable-confirmation-v1`, đề xuất đó chỉ được áp dụng nếu đạt rule 5 của nó ở đây.
+  - Với luận văn, đây là kết quả âm có giá trị: một sự cố vận hành thật (replica CNPG hỏng mà operator vẫn báo khỏe) cùng sự khác biệt giữa các replica đủ đẩy control vượt ngưỡng. Gánh cảnh báo và calibration là phần cần làm tiếp.
+
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
 
 - **Cách đo:** microbenchmark syscall tĩnh (`testbed/bench/syscall_bench.c`) trên worker4, trong cgroup riêng. Ba điều kiện luân phiên thứ tự, 5 vòng, 10 s mỗi chế độ:
@@ -1488,7 +1544,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 | Page 1954; Lorden 1971; **Moustakides 1986** (Ann. Stat.) | CUSUM tối ưu minimax giữa độ trễ phát hiện và tần suất báo nhầm, **khi đã cho trước bằng chứng từng cửa sổ** | Đổi luật dừng không giúp thêm nhiều; muốn giảm báo nhầm ở cùng độ trễ phải **làm bằng chứng tốt hơn**. Lưới CUSUM mịn hơn vẫn thử (L1) |
 | Mondrian conformal (Vovk et al.); class-conditional conformal cho anomaly detection mất cân bằng (MDPI *Make* 2026) | Hiệu chỉnh p-value **theo từng lớp** để mỗi lớp có ngưỡng riêng | **L3:** p-value của cửa sổ có exec chỉ so với các cửa sổ có exec lúc bình thường. Probe chiếm phần lớn các cửa sổ có exec, nên probe hết "hiếm" |
 | **ReplicaWatcher** (El Khairi et al., NDSS 2024) | Các replica cùng workload hành xử giống nhau; hành vi chỉ một replica có là đáng ngờ. Precision 91%, recall 98%, chịu được drift khi cập nhật image. Dùng snapshot 30 s | **L5:** cửa sổ không mang syscall ID nào mới so với replica khác trong 30–60 s thì không tính là bằng chứng. Pulse vẫn chấm 0,5 s, chỉ dùng replica để chiết khấu |
-| **NoDoze** (Hassan et al., NDSS 2019) | Hành vi lặp lại nhiều trong lịch sử thì ít đáng ngờ; giảm 86% báo nhầm | **L6:** cửa sổ không có ID mới so với chính container đó trong 60–300 s thì không tính là bằng chứng (probe chạy mỗi vài giây) |
+| **NoDoze** (Hassan et al., NDSS 2019) | Hành vi lặp lại nhiều trong lịch sử thì ít đáng ngờ; giảm 84% báo nhầm | **L6:** cửa sổ không có ID mới so với chính container đó trong 60–300 s thì không tính là bằng chứng (probe chạy mỗi vài giây) |
 | Alahmadi et al. (USENIX Security 2022) | Phần lớn "báo nhầm" là benign trigger: detector thấy đúng sự kiện thật nhưng vô hại | Khớp 5.18: khoảng 50% case là probe. L3/L5/L6 nhắm đúng lớp này |
 | Bates et al. (Ann. Stat. 2023): BH trên conformal p-value | Kiểm soát FDR khi kiểm nhiều điểm cùng lúc | **Không đăng ký:** khi không có attack, BH tương đương một ngưỡng chặt hơn mỗi cửa sổ, mà lưới alpha/CUSUM đã quét |
 | Online FDR: LORD, SAFFRON, ADDIS; Krönert et al. 2023 | Kiểm soát FDR trên luồng | **Không đăng ký:** ngưỡng co dần khi lâu không có phát hiện ("alpha-death"), không hợp với giám sát 24/7 |
@@ -1577,7 +1633,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 | Giảm gánh cảnh báo về gần 0,1 đợt/giờ | Chưa đạt. Development (5.22): chiết khấu theo replica cho 1,5–2,4 đợt/replica-giờ, control ~1%; chờ test blind trên lượt xác nhận |
 | Review nhãn cảnh báo trên normal | **Xong** (5.20): 4.766 case, không case nào có dấu hiệu độc hại; người gán không độc lập |
 | Bằng chứng cho bộ feature | **Gần xong** (syscall 5B.3, 5C): giữ nguyên; chờ 2 biến thể p-value bổ sung và nhóm feature dưới CUSUM `cap` |
-| Chốt cấu hình ML stable | **Đã đóng băng** (5.19 + bổ sung 1): base29 + calibration làm mới + CUSUM b3/h6 `cap` (`93dd1478…`). Lượt xác nhận `pulse-stable-confirm` **đang chạy** (23/10 01:19 → ~24/10 01:20) |
+| Chốt cấu hình ML stable | **Đã đóng băng** (5.19 + bổ sung 1): base29 + calibration làm mới + CUSUM b3/h6 `cap` (`93dd1478…`). Lượt xác nhận `pulse-stable-confirm` (23/10 01:19 → ~24/10 01:20): campaign **không đạt** (5.25); final chờ capture kết thúc |
 | Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | Chưa đo |
@@ -1948,4 +2004,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 04:25–04:50 | Quét repo và cụm: link hỏng đã sửa, gỡ snapshot cũ ở gốc repo, bảng tên gọi và trạng thái cập nhật, script job nào cũng được báo cáo nhắc tới, không có bí mật trong repo. Xóa `/var/tmp/syscall-cusum` (bản sao NFS) và `__pycache__` trên .234. Kernel → người nhận sơ bộ: push p95 2,58 s (RCA 5.14) | mục 1, 2 |
 | 11:20–11:35 | Dữ liệu thô cũ trên host (1,3 GB, 642 file, thế hệ trước 18/10): chủ đồ án đồng ý chuyển lên NFS rồi xóa ở host. Chép sang đĩa local `.234` (không qua NFS, vì lượt live đang chạy), khớp `SHA256SUMS`; chuyển lên NFS và xóa ở host sau lượt | TODO |
 | 11:35–12:05 | Rà việc làm ngay. Log Falco: worker1 xoay vòng 4 giờ/lần, lần tới sẽ mất đầu lượt → chép ngay về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 40 / 12 / 18 MB). Seed RCA (tạm, trước campaign): nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (RCA 5.12). Review đợt dài: replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC, báo 96% thời gian, 8/25 control dương (5.24) | 5.24 |
+| 12:40–13:15 | References: bản gốc Barber 2022 và Rebjock 2021 thay hai file nhầm; tổng hợp tri thức `references/KNOWLEDGE_SYNTHESIS.md`. Đồng bộ checkout 4 VM (`fe82291`). Campaign lượt xác nhận xong 12:29; giai đoạn campaign của `after-stable-confirm` 12:33: **không đạt** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s); 14/18 control dương ở worker1; post-hoc bỏ postgres `cnpg-2`: 96,3% / 4,0%. Kafka worker1: 67,7% thời gian đang báo, ổn định từ giờ đầu, case chủ yếu là probe liveness. Kernel → người nhận trên toàn campaign (RCA 5.14). Chép log Falco lần 2 (`cp -u`, worker1 đã xoay vòng 05:15 UTC). Sửa NoDoze 86% → 84% (5.22) | 5.25 |
 

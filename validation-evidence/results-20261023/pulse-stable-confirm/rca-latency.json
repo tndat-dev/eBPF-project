@@ -1,0 +1,20 @@
+{
+  "schema": "rca-latency-split-v1",
+  "copy_dir": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-confirm",
+  "preview_to_subscriber_seen": {
+    "p50": 0.0803903341293335,
+    "p95": 0.3587000370025635,
+    "n": 3668
+  },
+  "seen_to_case_written": {
+    "p50": 2.1497966051101685,
+    "p95": 2.4195878505706787,
+    "n": 3668
+  },
+  "preview_to_case": {
+    "p50": 2.2469414472579956,
+    "p95": 2.6494948863983154,
+    "n": 3668
+  },
+  "computed_at_unix": 1792733616.8892076
+}

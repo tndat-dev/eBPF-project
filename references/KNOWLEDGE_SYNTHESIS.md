@@ -97,7 +97,7 @@ Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối 
 
 - **[ĐA] Hoán đổi bị phá là cơ chế giải thích calibration "đi theo ngày"** (Pulse 5.6b, 5.7b): làm mới calibration giảm 22,8% đợt cảnh báo/replica-giờ và đưa precision từ 92 lên 96% (Pulse 5.8g). Sự cố vận hành (bản sao CNPG `cnpg-2` hỏng từ 22/10 09:41 UTC, Pulse 5.24) là trường hợp cực đoan: phân bố normal đổi thật, p-value không còn hợp lệ, alarm liên tục.
 - **[ĐA] Các chiến lược calibration của Pulse 5.17 ánh xạ thẳng vào tài liệu:** `weighted-24-6-1` là NexCP (Barber 2022); `aci-*` là ACI (Gibbs 2021); `mondrian-6-1` là Mondrian theo (workload, node). Dasari 2026 ủng hộ làm mới định kỳ hơn làm mới theo phát hiện drift khi model tĩnh, đúng trường hợp của Pulse.
-- **[ĐA] Mondrian theo lớp launch** (Pulse 5.22): cửa sổ có exec chỉ so với cửa sổ có exec lúc bình thường. Althani 2026 cảnh báo nhóm nhỏ thì coverage dễ vỡ: **phải kiểm số điểm calibration của lớp có exec ≥ 1/α** trước khi tin p-value của lớp đó.
+- **[ĐA] Mondrian theo lớp launch** (Pulse 5.22): cửa sổ có exec chỉ so với cửa sổ có exec lúc bình thường. Althani 2026 cảnh báo nhóm nhỏ thì coverage dễ vỡ. Điều kiện này đã được kiểm (Pulse 5.22): lớp launch chiếm 21–49% cửa sổ ở 15 workload, và workload có probe exec đủ ≥ 1.200 cửa sổ cho cả hai lớp; 6 workload không có exec chỉ có một lớp.
 - **[ĐA] Điểm rời rạc:** p-value dùng "≥" nên điểm trùng nhau làm p bảo thủ, không làm p sai về phía báo nhầm.
 
 **Luận văn được nói:** "p-value conformal hợp lệ biên khi dữ liệu calibration và dữ liệu mới hoán đổi được (Vovk 2005; Bates 2021); khi môi trường đổi, giả thiết này bị phá, và đồ án đo được hệ quả." **Không được nói:** "Pulse bảo đảm tỉ lệ báo nhầm 5%".
@@ -276,7 +276,7 @@ Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối 
 ## 10. Khoảng trống và việc đọc thêm
 
 1. **CUSUM trên p-value conformal phụ thuộc:** các bảo đảm (Vovk 2019, Bhattacharyya 2026) cần quan sát độc lập hoặc hoán đổi được; cửa sổ của Pulse phụ thuộc qua feature lịch sử. Hướng mở: e-detector khởi động lại trên p-value conformal và đo ARL thực nghiệm.
-2. **Cỡ nhóm Mondrian:** kiểm số điểm calibration của lớp có exec trước khi đọc kết quả 5.22 trên lượt xác nhận.
+2. **Cỡ nhóm Mondrian:** đã kiểm (Pulse 5.22), mỗi lớp ≥ 1.200 cửa sổ ở workload có probe exec. Còn mở: nhóm theo (workload, node) như gợi ý của kafka worker1 ở Pulse 5.25 sẽ nhỏ hơn nhiều, phải kiểm lại cỡ nhóm nếu dùng.
 3. **Ý nghĩa toàn cụm** (look-elsewhere, Araz 2026): tỉ lệ báo nhầm cho cả cụm thay vì từng container.
 4. **Bản dựng lại:** lấy bản gốc của 10 bài qua thư viện trước khi trích chi tiết. Năm bài kinh điển (Page, Wilson, Efron, Vovk 2005, Forrest) chỉ dùng cho định nghĩa chuẩn; năm bài còn lại (CDL, KubAnomaly, ShareAD, O-RAN, CNN trong kernel) chỉ dùng số trong tóm tắt.
 5. **Wagner 2002:** mới đọc phần khung (automat, chèn no-op, syscall tương đương); đọc phần thực nghiệm trước khi nêu detector cụ thể bị né.

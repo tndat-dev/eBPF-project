@@ -15,8 +15,6 @@ Các file dưới đây là output của job chạy trên cụm, chép nguyên t
 | `syscall/feature-groups-cusum-cap/*` (+ `VERDICT.json` sinh tại repo) | Syscall 5C: nhóm feature dưới CUSUM `cap`; không đổi kết luận nào của 5B.3 | `scripts/syscall_cusum.sh` bước 3, rồi `feature_group_verdict.py` | `$A/matched-parallel-r4-20261015/feature-groups/cusum-cap/` (tên file `CUSUM-CAP-BOOTSTRAP-*`, `cusum-cap-arm-scenarios-*` đổi thành `BOOTSTRAP-*`, `arm-scenarios-*`) |
 | `rca/rca-baseline-seed-20261022.json` | RCA 5.12: 59 binary đã biết, mang từ khoảng normal của 2 lượt trước sang lượt `pulse-stable-confirm` | `python3 -m sentinel_pulse.rca.baseline_seed --run db=…,campaign=… --output …` (đầu vào: database RCA và campaign của 2 lượt trước; RCA 5.12) | `$A/pulse-next-run-model/rca-baseline-seed-20261022.json` |
 
-Còn thiếu và sẽ thêm khi job xong:
-- toàn bộ kết quả của lượt xác nhận `pulse-stable-confirm` (chuỗi `scripts/after_stable_confirm.sh`);
-- log độ trễ của đường cảnh báo vận hành (`sentinel_pulse/ops/alert_bridge.py`).
+Kết quả của lượt xác nhận `pulse-stable-confirm` nằm ở [`../results-20261023/`](../results-20261023/README.md): giai đoạn campaign và độ trễ của đường cảnh báo vận hành đã có; giai đoạn final thêm sau lượt.
 
 Không đưa vào git: dữ liệu thô (`features.jsonl`, `decisions.jsonl`, score dump, bảng cửa sổ `.npz`). Một lượt 24 giờ chiếm vài chục GB, vượt giới hạn của GitHub. Chúng nằm trên NFS, đường dẫn ghi trong biên nhận; `.gitignore` liệt kê các mẫu bị loại.

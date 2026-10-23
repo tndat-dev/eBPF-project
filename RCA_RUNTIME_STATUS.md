@@ -40,7 +40,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | Subscriber | **`rca-pulse-stable-confirm`** (.234), chạy từ 23/10 01:21 trên bản `a2e6748`, cho lượt xác nhận `pulse-stable-confirm` (chính sách `cap`, `93dd1478…`). 1.924 case lúc 03:58 |
 | Cấu hình | Giống các lượt trước:<br>• đọc decision trên worker qua SSH, nhịp dựng case 0,25 s;<br>• 3 policy (runtime, fork, flow);<br>• ring 180 s / 120.000 sự kiện;<br>• cooldown 300 s, có case tiếp nối khi có exec mới;<br>• giữ 20.000 case.<br>**Mới:** seed 59 binary đã biết từ 2 lượt trước (5.12); nhãn triage probe trên mỗi case; bộ đếm lý do từ chối case tiếp nối |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1` (chỉ đường dẫn nhạy cảm, không `commit_creds`), `sentinel-rca-fork-v1`, `sentinel-rca-flow-v1` |
-| Campaign kiểm chứng gần nhất | Campaign 315 cặp của `pulse-stable-refreshed` (21/10): coverage 86,7%, top-1 100%, preview → case p95 2,59 s (mục 5.11). Lượt xác nhận: số liệu sau 24/10 |
+| Campaign kiểm chứng gần nhất | Campaign 525 cặp của lượt xác nhận `pulse-stable-confirm` (xong 23/10 12:29): coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (mục 5.15). Trước đó: `pulse-stable-refreshed` 86,7% / 100% / 2,59 s (5.11) |
 | Subscriber trước | `rca-pulse-stable-refreshed` 21/10 12:22 → sau lượt (mục 5.11); `rca-pulse-stable-candidate` 20/10 10:16 → 21/10 12:22 (mục 5.10); `rca-subscriber` 19/10 19:24 → 20/10 10:16 (mục 6); các bản cũ hơn đã dừng |
 | Code cho lượt sau (đã test, chưa chạy live) | Ánh xạ IP node thành `Node` không xác định (5.13). Chưa có: RCA nhận trigger từ webhook Alertmanager (5.14) |
 | Phát hiện từ review nhãn (Pulse 5.20) | Tác vụ định kỳ hiếm (WAL archive của CloudNativePG) bị xếp đầu nghi phạm như binary mới: **đã xử lý bằng seed** (5.12), kiểm trên lượt xác nhận |
@@ -378,13 +378,49 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - Ba trial không có cảnh báo mới: 2 FN của Pulse, và 1 trial mà container đã đang có đợt cảnh báo từ trước (`alert_already_active`).
   - Kernel → preview của cùng các trial: p50 0,75 s, p95 2,54 s. Đường push chỉ thêm khoảng 0,04 s.
   - Theo tốc độ attack (push): ở 1 lần/giây, 10/12 trial có cảnh báo, p95 3,69 s; ở 3–24 lần/giây, 26/27 trial có cảnh báo, p95 0,99–2,43 s.
-  - Biên nhận tạm: `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/delivery-latency-prelim.json`. Chạy lại trên toàn lượt sau 24/10.
+  - Biên nhận tạm: `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/delivery-latency-prelim.json`.
+- **Kernel → người nhận trên toàn campaign** (23/10 13:05, sau khi campaign xong; cùng script, cùng mốc 03:53:22; biên nhận `validation-evidence/results-20261023/pulse-stable-confirm/delivery-latency-campaign.json`):
+
+  | Tập trial | Trial attack | Có cảnh báo mới qua `push` | p50 | p95 | max |
+  |---|---|---|---|---|---|
+  | Tập chính (6, 12, 24/s) | 282 | 268 (95,0%) | 0,61 s | **2,80 s** | 6,42 s |
+  | Mọi tốc độ | 471 | 446 (94,7%) | 0,61 s | 3,56 s | 14,36 s |
+
+  - Trial không có cảnh báo mới: 8 FN của Pulse; 17 trial mà container đã đang có đợt cảnh báo từ trước (`alert_already_active`; 14 trong tập chính, chủ yếu container báo liên tục ở worker1, Pulse 5.25).
+  - Kernel → preview của tập chính: p95 2,61 s. Đường push chỉ thêm khoảng 0,2 s ở p95.
+  - Push theo tốc độ: 24/s p95 1,77 s; 12/s 2,34 s; 6/s 3,84 s; 3/s 4,33 s; 1/s 4,09 s. Pull nhanh: p95 9,4 s (tập chính); pull mặc định: 23% trial, p50 63 s.
+  - Bridge: 27 lần mất kết nối luồng decision (mỗi lần segment xoay vòng), nối lại ngay, khoảng hở tổng cộng ~0 s.
+  - Phần sau campaign (đợt trên normal, `episodes.jsonl`, `deliveries.jsonl`) chép vào repo sau lượt.
 - **RCA nhận trigger từ cảnh báo vận hành (code 23/10 04:40, có test; dùng từ lượt sau):**
   - Ở lần giao đầu tiên của mỗi đợt, bridge ghi dòng decision gốc vào `triggers.jsonl`.
   - RCA có cấu hình `alert_trigger_file` thì đọc file này thay cho luồng decision. Case ghi `trigger_source = alertmanager`, `alert_delivered_at`, `alert_path`; `START.json` ghi `trigger = alertmanager_delivered_alert`.
   - Không chạy RCA thứ hai trong lượt xác nhận, vì sẽ thêm stream Tetragon trên worker. Bridge đang chạy cũng giữ bản cũ để không đứt chuỗi số đo.
 - **Việc tiếp:** chạy lại `alert_delivery_latency.py` trên toàn lượt; ở lượt sau, chạy RCA ở chế độ `alert_trigger_file`.
 - **Biên nhận:** `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/` trên `.234`, gồm `START.json` (config, commit `e2cbc01`), `episodes.jsonl`, `deliveries.jsonl`, `pushes.jsonl`, `issues.jsonl`, `STATUS.json`. Sẽ chép vào `validation-evidence/` khi lượt xong.
+
+### 5.15 Lượt xác nhận `pulse-stable-confirm`: kết quả campaign (đọc 23/10 13:10)
+
+- **Subscriber:** `rca-pulse-stable-confirm`, với seed 59 binary (5.12), nhãn triage probe, bộ đếm lý do từ chối case tiếp nối. Luật Pulse của lượt là CUSUM `cap` (Pulse 5.25).
+- **Biên nhận:** `validation-evidence/results-20261023/pulse-stable-confirm/rca-*.json` (giai đoạn campaign của `after-stable-confirm`, 05:33 UTC; bản gốc `/mnt/sentinel-pulse-archive/pulse-stable-confirm/analysis/`).
+
+| Chỉ số | pulse-stable-confirm (525 cặp, tốc độ 1–24/s) | pulse-stable-refreshed (5.11, 315 cặp) |
+|---|---|---|
+| Attack có case riêng | 456/525 (86,9%), trong đó 408 là case tiếp nối | 273/315 (86,7%) |
+| Không có case riêng | 56 gộp sau case binary vô hại, 7 gộp sau case khác, 6 không có case | 37 + 5 |
+| **Top-1 lưu sẵn (luật hạ quyền, chạy live)** | **99,8% (455/456)**; xếp hạng lại cho cùng kết quả | 100% (273/273) |
+| Case có flow (case attack) | 80,9% (369/456) | 85,6% (mọi case) |
+| Case có flow (mọi case sau mốc campaign) | 85,1% (2.569/3.020) | 85,6% |
+| Preview → case | p50 2,23 s / p95 2,50 s | p50 2,24 s / p95 2,59 s |
+
+- **Độ trễ tách theo chặng** (3.668 case): preview → subscriber thấy p95 0,36 s; thấy → ghi case p95 2,42 s; tổng p95 2,65 s. Gần như toàn bộ nằm ở bước chờ đủ ngữ cảnh để ghi case, như 5.9.
+- **Bộ đếm của subscriber** (cả lượt tới 05:33 UTC, gồm normal):
+  - 3.671 case, 1.187 (32%) chỉ có probe;
+  - 558 case tiếp nối mở vì có exec mới;
+  - lý do từ chối case tiếp nối: binary không mới 219.374, không có exec 42.387, quá sớm 30.952, đang khởi động 888. Bộ đếm "chạm trần 5 case" không xuất hiện, tức bằng 0 (bộ đếm chỉ được ghi khi tăng lần đầu, `service.py`).
+- **Kết luận:**
+  - Xếp hạng đứng vững trên lượt mới, với số trial lớn hơn: top-1 99,8%.
+  - Coverage giữ nguyên ~87%. Phần hở vẫn chủ yếu là attack bị gộp sau case của binary vô hại chạy ngay trước trong cùng container (56/69). Bộ đếm cho thấy lý do từ chối nhiều nhất là "binary không mới", khớp giả thuyết ở 5.11: fixture vô hại và attack dùng cùng một file, nên binary không còn mới trong cửa sổ novelty. Bộ đếm là tổng toàn lượt, chưa tách theo từng trial.
+  - Tác dụng của seed lên case normal (nghi phạm hạng 1 là binary mới/chưa biết) đo ở giai đoạn final.
 
 ## 6. Coverage, hiệu năng, giới hạn
 
@@ -405,15 +441,15 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Hạng mục | Trạng thái |
 |---|---|
 | Subscriber 3 worker × (policy + lifecycle), case JSON/Markdown | Có; chạy theo từng lượt live (`rca-<run>`) |
-| Xếp hạng nghi phạm, luật hạ quyền lúc khởi chạy | **Có:** top-1 100% (273/273) trên dữ liệu mới `pulse-stable-refreshed`, luật cũ 91,9% (5.11) |
-| Case tiếp nối cho exec mới trong cooldown | Có; 86,7% attack có case riêng |
+| Xếp hạng nghi phạm, luật hạ quyền lúc khởi chạy | **Có:** top-1 100% (273/273) trên `pulse-stable-refreshed`, luật cũ 91,9% (5.11); **99,8% (455/456)** trên lượt xác nhận (5.15) |
+| Case tiếp nối cho exec mới trong cooldown | Có; 86,7–86,9% attack có case riêng (5.11, 5.15) |
 | Ngữ cảnh mạng (flow) | Có; 85,6–89,8% case có flow |
-| Độ trễ preview → case | p50 2,24 s / p95 2,59 s (`pulse-stable-refreshed`) |
+| Độ trễ preview → case | p50 2,23 s / p95 2,50 s (lượt xác nhận, 5.15); 2,59 s ở `pulse-stable-refreshed` |
 | Nhãn triage probe trên case | Có (chỉ là nhãn); dùng cho phần rule sau khi ML hoàn thiện |
 | Baseline binary mang qua các lượt | **Có code + seed** (5.12); kiểm trên lượt `pulse-stable-confirm` |
-| 13% attack không có case riêng | Bộ đếm lý do từ chối có code; số liệu từ lượt `pulse-stable-confirm` |
-| RCA dưới luật Pulse stable (CUSUM) | Lượt `pulse-stable-confirm` đang chạy (23/10 01:19 → ~24/10 01:20) |
-| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm. Push 163/163 đợt, p95 0,06 s sau preview; kernel → người nhận p95 2,58 s (sơ bộ, 36/39 trial); pull mặc định bỏ sót 93% đợt. RCA nhận trigger từ webhook: có code và test, chạy ở lượt sau |
+| 13% attack không có case riêng | Lượt xác nhận: 69/525, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất là "binary không mới" (5.15). Hệ quả của fixture dùng chung file; chưa đổi luật |
+| RCA dưới luật Pulse stable (CUSUM) | Campaign lượt xác nhận xong (5.15); capture chạy tới ~24/10 01:20 |
+| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm. Push 163/163 đợt, p95 0,06 s sau preview; kernel → người nhận p95 2,80 s trên tập chính của toàn campaign (268/282 trial có cảnh báo mới), 3,56 s trên mọi tốc độ; pull mặc định bỏ sót 93% đợt. RCA nhận trigger từ webhook: có code và test, chạy ở lượt sau |
 | Ánh xạ IP qua NAT/mesh | IP node đã sửa (5.13, lượt sau); lịch sử, backend sau DNAT, client sau waypoint: chưa |
 | Chứng minh nhân quả | Ngoài phạm vi |
 
@@ -493,4 +529,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 04:30–04:45 | Kernel → người nhận theo từng trial (sơ bộ): push p95 2,58 s, 36/39 trial; pull mặc định 6/39. RCA chế độ `alert_trigger_file` (trigger = cảnh báo đã qua Alertmanager), có test; dùng từ lượt sau. Cập nhật bảng mục 1 và bảng tên gọi | mục 1, 5.14 |
 | 23/10 11:45 | Số tạm của seed trên lượt xác nhận: nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (case normal trước campaign); bộ đếm lý do từ chối case tiếp nối | mục 5.12 |
 | 23/10 12:10 | Đích "ngoài cụm" là socket Unix và địa chỉ probe kubelet của Istio ambient (`169.254.7.127`): ánh xạ thành `KubeletProbe` từ lượt sau, có test. Lịch sử inventory: không làm (chỉ 0,9% IP trong cụm không ánh xạ được; ánh xạ lúc nhận sự kiện dùng ảnh chụp ≤ 60 s) | mục 5.13 |
-
+| 23/10 13:00–13:15 | Campaign lượt xác nhận xong: coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (5.15). Kernel → người nhận trên toàn campaign: push p95 2,80 s tập chính, 3,56 s mọi tốc độ (5.14) |

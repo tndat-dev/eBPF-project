@@ -164,3 +164,4 @@ Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 
 | 16:10–16:13 | Theo quyết định "hoàn thiện ML rồi mới tích hợp rule và so sánh có/không rule": gỡ bước `rule_tier.py` khỏi unit tối nay; đăng ký thiết kế so sánh (`rule-integration-v1` bổ sung 1, 16:12) | R6 |
 | 23:15 | Chuẩn bị dữ liệu (không tính số rule): `falco_baseline.py` xuất kết quả từng trial và từng event normal (có test), để so sánh ghép cặp có/không rule ở R6 sau khi ML hoàn thiện. Log Falco của lượt xác nhận sẽ được chép tay ngay sau lượt chạy | R6 |
+| 23/10 11:40, 13:05 | Log Falco của lượt xác nhận chép về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, `cp -u`, gồm file đã xoay vòng): worker1 xoay vòng 4 giờ/lần, lần 2 đã có file 05:15 UTC. Lần chép cuối và chuyển lên NFS sau lượt. Campaign của lượt (Pulse 5.25) là dữ liệu cho R6 | R2, R6 |
