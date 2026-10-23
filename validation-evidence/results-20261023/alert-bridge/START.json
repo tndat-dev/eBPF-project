@@ -1,0 +1,38 @@
+{
+ "code_commit": "e2cbc01",
+ "config": {
+  "alertmanager_url": "http://10.97.164.76:9093",
+  "listen": [
+   "0.0.0.0",
+   9478
+  ],
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "output": "/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm",
+  "policy_hash": "93dd1478951c78414c81c8a39001d6a2e3e385cc9683a061a7ab1b7f992e2e5b",
+  "refresh_seconds": 5,
+  "resolve_after_seconds": 3,
+  "run": "pulse-stable-confirm",
+  "ssh": {
+   "rotate_seconds": 3600,
+   "user": "dat"
+  },
+  "workers": [
+   {
+    "host": "10.1.16.237",
+    "node_name": "k8s-worker1.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-stable-confirm/workers/k8s-worker1.local"
+   },
+   {
+    "host": "10.1.16.238",
+    "node_name": "k8s-worker4.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-stable-confirm/workers/k8s-worker4.local"
+   },
+   {
+    "host": "10.1.16.239",
+    "node_name": "k8s-worker3.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-stable-confirm/workers/k8s-worker3.local"
+   }
+  ]
+ },
+ "started_at": 1792736387.8013365
+}

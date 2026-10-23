@@ -1,0 +1,132 @@
+{"at": 1792702344.1180537, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792702344.119342, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792702344.12033, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792705945.335025, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792705945.3398862, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792705945.3415422, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792705945.3588884, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792705945.3599014, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792705945.3658028, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792709545.8612754, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792709545.8648942, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792709545.9261947, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792709545.927852, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792709546.4552183, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792709546.4570177, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792713146.2938838, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792713146.29714, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792713146.3577113, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792713146.3591049, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792713146.9362743, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792713146.9377491, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792716746.8049715, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792716746.8072839, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792716747.3681333, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792716747.370332, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792716747.4137697, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792716747.415928, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792720347.2838705, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792720347.2872133, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792720347.8124511, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792720347.8139908, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792720347.9255314, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792720347.9273152, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792723947.7450273, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792723947.7477841, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792723948.2881548, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792723948.2901976, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792723948.392762, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792723948.3946948, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792727548.2351851, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792727548.2385936, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792727548.8937767, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792727548.8953028, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792727549.429193, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792727549.430522, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792731149.3132434, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792731149.3158581, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792731149.8901997, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792731149.8920043, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792731150.0923383, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792731150.0949018, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792734749.7960694, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792734749.7991369, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792734750.567051, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792734750.5696607, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792734750.9935894, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792734750.995137, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792736387.8113172, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792736387.813039, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792736387.8150415, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792739988.9683917, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792739988.9709804, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792739989.0566154, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792739989.0638132, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792739989.1088867, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792739989.1104858, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792743590.2380588, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792743590.2406018, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792743590.2480574, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792743590.249397, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792743590.2774682, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792743590.2790103, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792747192.0503926, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792747192.0526133, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792747192.2050383, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792747192.2067494, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792747192.2157617, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792747192.2175303, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792750793.31582, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792750793.3181572, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792750793.5096993, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792750793.5117934, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792750793.5244074, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792750793.525903, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792754395.154177, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792754395.1568704, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792754395.2953682, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792754395.296937, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792754395.3333464, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792754395.3349166, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792757996.4517386, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792757996.4538019, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792757996.9828515, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792757996.9858963, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792757997.163019, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792757997.165987, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792761598.188874, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792761598.1910079, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792761598.4064934, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792761598.408595, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792761598.4606981, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792761598.4625564, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792765200.2307892, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792765200.2329137, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792765200.2546012, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792765200.2563274, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792765200.263675, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792765200.2653766, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792768801.4632745, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792768801.4661071, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792768801.4994543, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792768801.50154, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792768802.1342318, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792768802.1363952, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792772403.3122623, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792772403.3151255, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792772403.437968, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792772403.439478, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792772403.460544, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792772403.4619832, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792776004.5802205, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792776004.5823119, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792776004.7017922, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792776004.7041185, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}
+{"at": 1792776005.1885028, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792776005.1907394, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792779606.4195452, "issue": "decision_stream_disconnected", "node": "k8s-worker4.local"}
+{"at": 1792779606.4216437, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker4.local"}
+{"at": 1792779606.5684285, "issue": "decision_stream_disconnected", "node": "k8s-worker3.local"}
+{"at": 1792779606.5739634, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker3.local"}
+{"at": 1792779606.707508, "issue": "decision_stream_disconnected", "node": "k8s-worker1.local"}
+{"at": 1792779606.7091625, "continuity": "no backfill; rows written while disconnected are not seen", "issue": "decision_stream_started", "node": "k8s-worker1.local"}

@@ -1,0 +1,20 @@
+{
+ "active": 0,
+ "at": 1792781114.5483563,
+ "counters": {
+  "deliveries_pull-default": 907,
+  "deliveries_pull-fast": 7841,
+  "deliveries_push": 8255,
+  "episodes_started": 8255,
+  "positive_rows": 144428,
+  "pushes_ok": 31224,
+  "webhook_requests": 17003
+ },
+ "episodes_known": 433,
+ "stopped": true,
+ "stream_up": {
+  "k8s-worker1.local": true,
+  "k8s-worker3.local": true,
+  "k8s-worker4.local": true
+ }
+}

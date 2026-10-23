@@ -15,6 +15,8 @@ Code chạy giai đoạn campaign là snapshot `runtime-1e2ae7f-20261022/source`
 | `rca-coverage.json`, `rca-flow-coverage.json`, `rca-latency.json`, `rca-ranking-stored.json`, `rca-ranking-reranked.json`, `rca-status-after-campaign.json` | RCA 5.15: coverage, flow, độ trễ theo chặng, xếp hạng nghi phạm, bộ đếm của subscriber | `scripts/analysis/rca_coverage.py`, `rca_flow_coverage.py`, `rca_latency.py`, `python3 -m sentinel_pulse.rca.evaluate_ranking` | `$A/analysis/` (case ở `/var/lib/sentinel-pulse-rca/rca-pulse-stable-confirm/` trên `.234`) |
 | `delivery-latency-campaign.json` | RCA 5.14: kernel → người nhận theo từng trial attack, theo đường push / pull (sinh 13:05) | `scripts/analysis/alert_delivery_latency.py --since 1792702402` | `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/` trên `.234` |
 
+| `alert-bridge/episodes.jsonl.gz`, `deliveries.jsonl.gz`, `pushes.jsonl.gz`, `issues.jsonl`, `STATUS.json`, `START.json` | RCA 5.14: đường cảnh báo vận hành của cả lượt (đợt cảnh báo, lần giao tới Alertmanager/Prometheus, lỗi luồng). Bridge bị khởi động lại một lần lúc 23/10 06:19:47 UTC do `unattended-upgrades` (Pulse 5.25) | `python3 -m sentinel_pulse.ops.alert_bridge` (commit `e2cbc01`); nén gzip (mtime 0); `START.json` đã bỏ đường dẫn credential, `config.json` không đưa vào repo | `$A/alert-bridge/` (= `/var/lib/sentinel-pulse-alert-bridge/pulse-stable-confirm/` trên `.234`, unit đã dừng 24/10 01:47) |
+
 SHA-256 của hai file chính, kiểm khi chép (khớp bản trên NFS):
 - `confirm-campaign.json`: `7ff52b5ee76bd80c8db78bd7b3161b4645284d04dbe0709f71d2429e6cf3b617`
 - `campaign-RESULTS.json`: `1fedebcec4805c85b4d4cd6c95848039c42c78710df82477bff7d9edf46df2d6`
