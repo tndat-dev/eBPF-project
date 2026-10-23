@@ -60,6 +60,15 @@ def _labeled_integer(arguments: list, label: str) -> int | None:
     return None
 
 
+# Istio ambient SNATs every kubelet health probe to fixed link-local addresses so ztunnel can tell probes apart
+# (https://istio.io/latest/docs/ambient/usage/networkpolicy/): a peer with one of them is a kubelet probe.
+ISTIO_AMBIENT_PROBE = {
+    address: {"kind": "KubeletProbe", "name": "kubelet health probe (SNAT by Istio ambient)",
+              "reason": "fixed link-local source of probes in Istio ambient mode"}
+    for address in ("169.254.7.127", "fd16:9254:7127:1337:ffff:ffff:ffff:ffff")
+}
+
+
 def kubernetes_target_index(
     pods: Mapping, services: Mapping, endpoint_slices: Mapping
 ) -> dict[str, dict]:
@@ -68,7 +77,7 @@ def kubernetes_target_index(
     A hostNetwork pod's IP is its node's IP: every hostNetwork pod of that node shares it, and SNAT-ed traffic
     (NodePort, masquerade) carries it as source. Such an address resolves to the Node, marked ambiguous, never to
     one of those pods (before 23/10 it named whichever hostNetwork pod came last, e.g. node-exporter)."""
-    result: dict[str, dict] = {}
+    result: dict[str, dict] = {ip: dict(entry) for ip, entry in ISTIO_AMBIENT_PROBE.items()}
     for item in pods.get("items", []):
         metadata, status, spec = item.get("metadata", {}), item.get("status", {}), item.get("spec", {})
         if spec.get("hostNetwork") or (status.get("podIP") and status.get("podIP") == status.get("hostIP")):

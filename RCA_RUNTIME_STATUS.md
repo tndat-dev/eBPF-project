@@ -332,11 +332,13 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - Chiều đi: `connect()` của app thấy ClusterIP của Service, ánh xạ đúng thành Service. Pod backend nào nhận kết nối (sau DNAT của kube-proxy, rồi qua ztunnel và waypoint) thì **không thấy** từ container nguồn.
   - Chiều về: với kết nối đến server, peer nhìn thấy là pod waypoint (ví dụ `aims-waypoint-…`), **không phải client thật**.
   - Hai việc này cần nguồn ngoài kernel probe của container: Hubble của Cilium (đã bật trên cụm) hoặc access log của waypoint/ztunnel. Ghép với case theo 5-tuple và thời gian.
-- **Chưa làm:**
-  1. lịch sử inventory theo thời gian (IP được tái dùng giữa hai lần làm mới có thể bị gán sai);
-  2. backend sau DNAT;
-  3. client thật sau waypoint.
-  Cả ba ghi là giới hạn; (1) rẻ nhất và nên làm trước nếu RCA cần dùng tên đích làm bằng chứng.
+- **Đích "ngoài cụm" (23/10 12:10, mẫu 600 case):** thực ra là socket Unix (`AF_UNIX`, không có địa chỉ) và `169.254.7.127`.
+  - `169.254.7.127` (và `fd16:9254:7127:1337:ffff:ffff:ffff:ffff`) là địa chỉ link-local cố định mà Istio ambient dùng để SNAT mọi health probe của kubelet ([tài liệu Istio](https://istio.io/latest/docs/ambient/usage/networkpolicy/)).
+  - Từ lượt sau, hai địa chỉ này ánh xạ thành `KubeletProbe` (`connect.py`, có test). Hình vẽ case ghi rõ socket Unix.
+- **Lịch sử inventory theo thời gian: không làm, có lý do.**
+  - RCA ánh xạ IP ngay lúc nhận sự kiện, theo ảnh chụp inventory chụp không quá 60 s trước. Case được dựng 2 s sau trigger, nên lịch sử chỉ có ích khi phân tích lại offline.
+  - Trên `pulse-stable-refreshed`, chỉ 389/43.455 đích trong dải IP của cụm (0,9%) không ánh xạ được. Ghi là giới hạn nhỏ.
+- **Chưa làm (ghi là giới hạn):** backend sau DNAT; client thật sau waypoint của Istio ambient. Cả hai cần Hubble hoặc access log của waypoint.
 
 ### 5.14 Cảnh báo vận hành thật: Prometheus / Alertmanager / Grafana (23/10 03:52 →, đang chạy)
 
@@ -490,4 +492,5 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 03:52–04:12 | Thử cảnh báo vận hành thật: bridge chỉ đọc + Prometheus/Alertmanager/Grafana của cụm, 3 đường trên cùng đợt. Push 163/163, p95 0,06 s; pull-fast 94,5%, p95 7,1 s; pull mặc định 6,7%, p50 54 s | mục 5.14 |
 | 23/10 04:30–04:45 | Kernel → người nhận theo từng trial (sơ bộ): push p95 2,58 s, 36/39 trial; pull mặc định 6/39. RCA chế độ `alert_trigger_file` (trigger = cảnh báo đã qua Alertmanager), có test; dùng từ lượt sau. Cập nhật bảng mục 1 và bảng tên gọi | mục 1, 5.14 |
 | 23/10 11:45 | Số tạm của seed trên lượt xác nhận: nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (case normal trước campaign); bộ đếm lý do từ chối case tiếp nối | mục 5.12 |
+| 23/10 12:10 | Đích "ngoài cụm" là socket Unix và địa chỉ probe kubelet của Istio ambient (`169.254.7.127`): ánh xạ thành `KubeletProbe` từ lượt sau, có test. Lịch sử inventory: không làm (chỉ 0,9% IP trong cụm không ánh xạ được; ánh xạ lúc nhận sự kiện dùng ảnh chụp ≤ 60 s) | mục 5.13 |
 

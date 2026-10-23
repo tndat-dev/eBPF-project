@@ -66,7 +66,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [ ] Kiểm hiệu quả trên lượt đó.
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
 - [~] Cảnh báo vận hành thật (RCA 5.14): Pulse → Alertmanager/Prometheus/Grafana đang chạy thử. [x] RCA nhận trigger từ webhook Alertmanager: code + test (chế độ `alert_trigger_file`). [ ] Chạy ở lượt sau.
-- [x] Ánh xạ IP node (hostNetwork/SNAT) bị gán nhầm cho node-exporter: sửa thành `Node` không xác định (RCA 5.13, áp dụng lượt sau). [ ] Lịch sử inventory theo thời gian. [ ] Backend sau DNAT và client thật sau waypoint (Istio ambient; cần Hubble hoặc access log) — ghi là giới hạn nếu không làm.
+- [x] Ánh xạ IP node (hostNetwork/SNAT) bị gán nhầm cho node-exporter: sửa thành `Node` không xác định (RCA 5.13, áp dụng lượt sau). [x] Lịch sử inventory: không làm, có lý do (0,9% IP trong cụm không ánh xạ được, RCA 5.13). [x] Địa chỉ probe kubelet của Istio ambient → `KubeletProbe`. [ ] Backend sau DNAT và client thật sau waypoint (Istio ambient; cần Hubble hoặc access log) — ghi là giới hạn nếu không làm.
 
 ## Repo và bằng chứng
 

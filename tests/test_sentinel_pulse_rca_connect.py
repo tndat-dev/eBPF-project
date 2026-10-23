@@ -108,7 +108,7 @@ def test_target_index_accepts_empty_endpoint_slice_fields():
             {"metadata": {"name": "empty-b"}, "endpoints": [{"addresses": None}]},
         ]},
     )
-    assert index == {}
+    assert set(index) == {"169.254.7.127", "fd16:9254:7127:1337:ffff:ffff:ffff:ffff"}
 
 
 def test_materializer_writes_immutable_checksumed_edges(tmp_path):
@@ -161,3 +161,9 @@ def test_node_ip_of_host_network_pods_resolves_to_the_node_not_to_one_pod():
         "host_network_pods": ["kube-system/cilium-x2k", "monitoring/node-exporter-5t4tl"],
         "host_network_services": ["monitoring/node-exporter"]}
     assert index["10.0.4.12"]["kind"] == "Pod" and index["10.0.4.12"]["name"] == "catalog-abc"
+
+
+def test_istio_ambient_probe_source_resolves_to_a_kubelet_probe():
+    index = kubernetes_target_index({"items": []}, {"items": []}, {"items": []})
+    assert index["169.254.7.127"]["kind"] == "KubeletProbe"
+    assert index["fd16:9254:7127:1337:ffff:ffff:ffff:ffff"]["kind"] == "KubeletProbe"

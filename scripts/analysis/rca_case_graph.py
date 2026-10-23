@@ -21,6 +21,10 @@ def q(text):
 def destination_group(node):
     k = node.get('kubernetes') or {}
     addr = str(node.get('address'))
+    if node.get('family') == 'AF_UNIX':
+        return 'socket Unix (cục bộ)'
+    if k.get('kind') == 'KubeletProbe':
+        return 'health probe của kubelet (Istio ambient)'
     if k.get('kind') == 'Node':
         return f"Node {k.get('name')} (IP dùng chung, peer thật không rõ)"
     if k:
