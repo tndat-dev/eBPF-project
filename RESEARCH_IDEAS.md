@@ -88,7 +88,7 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 24/10 02:10)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 24/10 01:57)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
