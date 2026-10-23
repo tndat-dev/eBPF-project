@@ -4,11 +4,16 @@
     ~/.venvs/sentinel-figures/bin/python scripts/figures/thesis_figures.py [--lang vi|en] [--output docs/figures]
 
 Figures (PNG at 200 dpi + PDF):
-  live-runs-metrics   precision / recall / idle control / benign launch flagged, three live runs, Wilson 95 % CI
-  live-latency-cdf    kernel -> preview delay of detected attacks, three live runs, 2 s / 3 s marks
+  live-runs-metrics   precision / recall / idle control / benign launch flagged, four live runs, Wilson 95 % CI
+                      (the confirmation run on its registered subset, attack rates 6, 12, 24 per second)
+  live-latency-cdf    kernel -> preview delay of detected attacks, four live runs, 2 s / 3 s marks
   policy-pareto       34 confirmation policies (pulse-stable-candidate, refreshed calibration): burden vs p95,
                       rule-v2 feasible set filled
   baselines-budget    recall and benign-launch flag rate against normal alert burden for Pulse and three baselines
+  feature-groups      syscall 5B.3: change against base29 when a feature group or a p-value branch is removed
+                      (recall and separation with bootstrap 95 % CI, p95), main holdout, two attack sets
+  alert-delivery-cdf  confirmation run: kernel -> recipient per delivery path (Alertmanager push, Prometheus pull
+                      fast / default), registered subset, share of all attack trials
 
 Colours: the validated categorical order (blue, orange, aqua, yellow); every series also has its own marker and
 line style and a direct label, so identity never rests on colour alone (print, colour-vision deficiency).
@@ -33,9 +38,12 @@ SERIES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100']
 MARKERS = ['o', 's', '^', 'D']
 STYLES = ['-', '--', '-.', ':']
 INK, INK2, MUTED, GRID, SURFACE = '#0b0b0b', '#52514e', '#8a8984', '#e4e3df', '#fcfcfb'
-RUNS = [('pulse-live-recalibrated', EV/'results-20261019/pulse-live-recalibrated/campaign-main-RESULTS.json.gz', 'policy-1win-a3'),
-        ('pulse-stable-candidate', EV/'results-20261021/pulse-stable-candidate/campaign-RESULTS.json', 'k2of2, α×10'),
-        ('pulse-stable-refreshed', EV/'results-20261021/pulse-stable-refreshed/campaign-RESULTS.json', 'k2of2, α×10 + calib. mới')]
+CONFIRM = EV/'results-20261023/pulse-stable-confirm'
+PRIMARY_RATES = (6, 12, 24)        # stable-confirmation-v1: the composition of the earlier runs
+RUNS = [('pulse-live-recalibrated', EV/'results-20261019/pulse-live-recalibrated/campaign-main-RESULTS.json.gz', 'policy-1win-a3', None),
+        ('pulse-stable-candidate', EV/'results-20261021/pulse-stable-candidate/campaign-RESULTS.json', 'k2of2, α×10', None),
+        ('pulse-stable-refreshed', EV/'results-20261021/pulse-stable-refreshed/campaign-RESULTS.json', 'k2of2, α×10 + {refreshed}', None),
+        ('pulse-stable-confirm', CONFIRM/'campaign-RESULTS.json', 'CUSUM b3/h6 cap, 6–24/s', PRIMARY_RATES)]
 
 TEXT = {
     'vi': dict(precision='Precision', recall='Recall', control='Control idle dương', benign='Binary vô hại bị gắn cờ',
@@ -43,13 +51,29 @@ TEXT = {
                cdf='Tỉ lệ attack đã phát hiện (%)', burden='Đợt cảnh báo trên normal / replica-giờ',
                p95='p95 độ trễ (s)', feasible='thỏa luật v2 (recall, precision ≥ 95%, control ≤ 5%)',
                infeasible='không thỏa', running='đang chạy', preferred='2 s (ưu tiên)', acceptable='3 s (chấp nhận)',
-               budget='ngân sách', benign_rate='Binary vô hại bị gắn cờ (%)'),
+               budget='ngân sách', benign_rate='Binary vô hại bị gắn cờ (%)',
+               d_recall='Δ recall (điểm %)', d_sep='Δ tách binary vô hại (điểm %)', d_p95='Δ p95 (s)',
+               recipient='Độ trễ kernel → người nhận (s, thang log)', delivered='Trial attack có cảnh báo mới (%)',
+               preview_ref='kernel → preview (tham chiếu)', push='push vào Alertmanager', pull_fast='Prometheus pull nhanh',
+               pull_default='Prometheus pull mặc định', refreshed='calib. mới', strict='chỉ đợt mở từ cửa sổ trong trial',
+               groups=dict(tree='chỉ nhánh tree', support='chỉ nhánh support', bins_only='chỉ bin (bỏ kênh syscall)',
+                           drop_aggregates='bỏ 5 tổng hợp', drop_all_bins='bỏ mọi bin', drop_transition_bins='bỏ bin cặp',
+                           drop_rolling='bỏ rolling', history1='lịch sử 1 cửa sổ', history2='lịch sử 2 cửa sổ',
+                           drop_log_counts='bỏ log-count', drop_ratios='bỏ tỉ lệ', drop_syscall_bins='bỏ 64 bin syscall')),
     'en': dict(precision='Precision', recall='Recall', control='Idle control positive', benign='Benign launch flagged',
                expectation='target', share='Rate (%)', delay='Kernel → preview delay (s)',
                cdf='Detected attacks (%)', burden='Normal alert episodes / replica-hour',
                p95='p95 delay (s)', feasible='meets rule v2 (recall, precision ≥ 95%, control ≤ 5%)',
                infeasible='does not', running='running', preferred='2 s (preferred)', acceptable='3 s (acceptable)',
-               budget='budget', benign_rate='Benign launch flagged (%)'),
+               budget='budget', benign_rate='Benign launch flagged (%)',
+               d_recall='Δ recall (points)', d_sep='Δ benign separation (points)', d_p95='Δ p95 (s)',
+               recipient='Kernel → recipient delay (s, log scale)', delivered='Attack trials with a new alert (%)',
+               preview_ref='kernel → preview (reference)', push='Alertmanager push', pull_fast='Prometheus pull, fast',
+               pull_default='Prometheus pull, default', refreshed='refreshed calib.', strict='episodes opened inside the trial only',
+               groups=dict(tree='tree branch only', support='support branch only', bins_only='bins only (no syscall channels)',
+                           drop_aggregates='drop 5 aggregates', drop_all_bins='drop all bins', drop_transition_bins='drop pair bins',
+                           drop_rolling='drop rolling', history1='history 1 window', history2='history 2 windows',
+                           drop_log_counts='drop log counts', drop_ratios='drop ratios', drop_syscall_bins='drop 64 syscall bins')),
 }
 
 
@@ -75,10 +99,18 @@ def load(path: Path):
         return json.load(f)
 
 
-def run_counts(path):
+def run_counts(path, rates=None):
+    """Counts and detected-attack delays of one campaign; ``rates`` keeps only trials at those attack rates (the
+    trial table sits next to the results)."""
+    keep = None
+    if rates is not None:
+        trials = load(path.parent/'campaign-trials.json')['trials']
+        keep = {i for i, tr in trials.items() if tr['rate_per_second'] in rates}
     c, delays = {}, []
     for rows in load(path)['completed'].values():
         for r in rows:
+            if keep is not None and str(r['trial_id']).split(':')[0] not in keep:
+                continue
             kind = 'benign' if r.get('control_kind') == 'benign_exec' else r['label']
             c[kind, r['outcome']] = c.get((kind, r['outcome']), 0) + 1
             if r['label'] == 'attack' and r.get('kernel_to_preview_seconds') is not None:
@@ -90,15 +122,16 @@ def run_counts(path):
 
 
 def save(fig, out: Path, name):
-    for ext in ('png', 'pdf'):
-        fig.savefig(out/f'{name}.{ext}', dpi=200, bbox_inches='tight')
+    for ext in ('png', 'pdf'):          # no creation date: an unchanged figure redraws byte-identical
+        fig.savefig(out/f'{name}.{ext}', dpi=200, bbox_inches='tight',
+                    metadata={'CreationDate': None} if ext == 'pdf' else {'Software': None})
     plt.close(fig)
 
 
 def fig_live_metrics(out, t, ci=True):
-    data = [(name, run_counts(path)[0]) for name, path, _ in RUNS]
+    data = [(name, run_counts(path, rates)[0]) for name, path, _, rates in RUNS]
     panels = [('precision', 95), ('recall', 95), ('control', 5), ('benign', None)]
-    fig, axes = plt.subplots(1, 4, figsize=(11, 3.2), sharey=False)
+    fig, axes = plt.subplots(1, 4, figsize=(13, 3.4), sharey=False)
     x = np.arange(len(data))
     for ax, (key, target) in zip(axes, panels):
         for i, (name, m) in enumerate(data):
@@ -113,8 +146,8 @@ def fig_live_metrics(out, t, ci=True):
             ax.annotate(f"{t['expectation']} {'≥' if target > 50 else '≤'} {target}%", (-0.45, target),
                         textcoords='offset points', xytext=(0, -11), ha='left', fontsize=8, color=INK2)
         ax.set_title(t[key]); ax.set_xticks(x)
-        ax.set_xticklabels([n.replace('pulse-', '').replace('-', '-\n', 1) for n, _ in data], fontsize=8)
-        ax.set_xlim(-0.5, len(data) - 0.5)
+        ax.set_xticklabels([n.replace('pulse-', '').replace('-', '-\n', 1) for n, _ in data], fontsize=7.5)
+        ax.set_xlim(-0.5, len(data) - 0.15)        # room for the value label of the last run
         lo_y = {'precision': 85, 'recall': 85, 'control': 0, 'benign': 70}[key]
         ax.set_ylim(lo_y, {'control': 16}.get(key, 101.5))
     axes[0].set_ylabel(t['share'])
@@ -123,14 +156,14 @@ def fig_live_metrics(out, t, ci=True):
 
 def fig_latency(out, t):
     fig, ax = plt.subplots(figsize=(6.4, 3.8))
-    for i, (name, path, policy) in enumerate(RUNS):
-        d = np.sort(run_counts(path)[1])
+    for i, (name, path, policy, rates) in enumerate(RUNS):
+        d = np.sort(run_counts(path, rates)[1])
         y = 100*np.arange(1, len(d) + 1)/len(d)
         p95 = float(np.percentile(d, 95))
         ax.step(d, y, where='post', color=SERIES[i], ls=STYLES[i], lw=2)
         ax.plot([p95], [95], marker=MARKERS[i], color=SERIES[i], ms=7, mec=SURFACE, mew=1.5)
         ax.plot([], [], color=SERIES[i], ls=STYLES[i], marker=MARKERS[i], ms=6, lw=2,
-                label=f'{name} ({policy}): p95 {p95:.2f} s, n = {len(d)}')
+                label=f"{name} ({policy.format(refreshed=t['refreshed'])}): p95 {p95:.2f} s, n = {len(d)}")
     ax.axhline(95, color=GRID, lw=1)
     ax.legend(loc='lower right', fontsize=8.5, handlelength=3)
     for x, label in ((2, t['preferred']), (3, t['acceptable'])):
@@ -192,6 +225,72 @@ def fig_baselines(out, t):
     fig.tight_layout(); save(fig, out, 'baselines-budget')
 
 
+def fig_feature_groups(out, t):
+    base = EV/'results-20261022/syscall'
+    comps = {**load(base/'feature-groups-primary/VERDICT.json')['components'],
+             **{k: v for k, v in load(base/'feature-groups-branches/VERDICT.json')['components'].items() if k.startswith('base29@')}}
+    order = ['base29@tree', 'base29@support', 'bins_only', 'drop_aggregates', 'drop_all_bins', 'drop_transition_bins',
+             'drop_rolling', 'history1', 'history2', 'drop_log_counts', 'drop_ratios', 'drop_syscall_bins']
+    names = [t['groups'][k.split('@')[-1]] if k.startswith('base29@') else t['groups'][k] for k in order]
+    sets = [('pulse-attack-dev', 0), ('pulse-live-recalibrated', 1)]
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4.6), sharey=True, gridspec_kw=dict(width_ratios=[1.3, 1.1, 0.8]))
+    y = np.arange(len(order))[::-1]
+    for ax, key in zip(axes, ('recall_diff', 'separation_diff', 'p95_diff_seconds')):
+        ax.axvline(0, color=INK2, lw=1)
+        for name, i in sets:
+            off = 0.15 if i == 0 else -0.15
+            for yy, comp in zip(y, order):
+                r = comps[comp]['sets'][name].get(key)
+                if r is None:
+                    continue
+                if key == 'p95_diff_seconds':
+                    ax.plot(r, yy + off, MARKERS[i], color=SERIES[i], ms=6, mec=SURFACE, mew=1)
+                else:
+                    lo, hi = 100*r['ci95'][0], 100*r['ci95'][1]; v = 100*r['point']
+                    ax.plot([lo, hi], [yy + off]*2, color=SERIES[i], lw=2, solid_capstyle='round')
+                    ax.plot(v, yy + off, MARKERS[i], color=SERIES[i], ms=6, mec=SURFACE, mew=1)
+    axes[0].set_yticks(y); axes[0].set_yticklabels(names); axes[0].set_ylim(-0.6, len(order) - 0.4)
+    for ax, label in zip(axes, (t['d_recall'], t['d_sep'], t['d_p95'])):
+        ax.set_xlabel(label); ax.grid(axis='y', visible=False)
+    for name, i in sets:
+        axes[0].plot([], [], MARKERS[i], color=SERIES[i], ls='-', lw=2, ms=6, label=name)
+    fig.legend(loc='upper center', ncol=2, fontsize=9, bbox_to_anchor=(0.5, 1.04), handlelength=2.5)
+    fig.tight_layout(); save(fig, out, 'feature-groups')
+
+
+def fig_alert_delivery(out, t):
+    rows = [r for r in load(CONFIRM/'delivery-latency-campaign.json')['trials'] if r['rate_per_second'] in PRIMARY_RATES]
+    n = len(rows)
+    q = lambda v, x: float(np.percentile(v, 100*x, method='nearest'))     # as alert_delivery_latency.quantile
+    fig, ax = plt.subplots(figsize=(6.6, 4.6))
+    ref = np.sort([r['kernel_to_preview_seconds'] for r in rows if r.get('kernel_to_preview_seconds') is not None])
+    ax.step(ref, 100*np.arange(1, len(ref) + 1)/n, where='post', color=MUTED, ls=':', lw=1.6,
+            label=f"{t['preview_ref']}: p95 {q(ref, .95):.2f} s")
+    paths = (('push', t['push'], (-8, 0), 'right'), ('pull-fast', t['pull_fast'], (6, -13), 'left'),
+             ('pull-default', t['pull_default'], (-6, 6), 'right'))
+    for i, (path, label, offset, ha) in enumerate(paths):
+        d = np.sort([r[f'{path}_kernel_to_recipient_seconds'] for r in rows if r.get(f'{path}_kernel_to_recipient_seconds') is not None])
+        share = 100*np.arange(1, len(d) + 1)/n
+        ax.step(d, share, where='post', color=SERIES[i], ls=STYLES[i], lw=2)
+        text = f'{label}: {len(d)}/{n}, p50 {q(d, .5):.2f} s, p95 {q(d, .95):.2f} s'
+        if path == 'push':
+            strict = [r['push_kernel_to_recipient_seconds'] for r in rows if r.get('push_kernel_to_recipient_seconds') is not None
+                      and not r.get('episode_window_starts_before_attack')]
+            text += f' ({t["strict"]}: {len(strict)}, p95 {q(strict, .95):.2f} s)'
+        ax.plot([], [], color=SERIES[i], ls=STYLES[i], lw=2, label=text)
+        at = len(d)//2 if path == 'push' else -1          # push: beside its steep middle, clear of the 2 s / 3 s marks
+        ax.annotate(label, (d[at], share[at]), textcoords='offset points', xytext=offset, ha=ha, va='center' if path == 'push' else 'baseline',
+                    fontsize=8, color=INK)
+    for x in (2, 3):
+        ax.axvline(x, color=INK2, lw=1, ls='--')
+        ax.annotate(f'{x} s', (x, 2), textcoords='offset points', xytext=(3, 0), fontsize=8, color=INK2)
+    ax.set_xscale('log'); ax.set_xlim(0.1, 100); ax.set_ylim(0, 101)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{v:g}'))
+    ax.set_xlabel(t['recipient']); ax.set_ylabel(t['delivered'])
+    ax.legend(loc='upper center', bbox_to_anchor=(0.45, -0.17), fontsize=7.8, handlelength=2.8)
+    fig.tight_layout(); save(fig, out, 'alert-delivery-cdf')
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--lang', choices=sorted(TEXT), default='vi')
@@ -201,7 +300,7 @@ def main():
     out = a.output/a.lang; out.mkdir(parents=True, exist_ok=True)
     style(); t = TEXT[a.lang]
     fig_live_metrics(out, t, ci=not a.no_ci)
-    for f in (fig_latency, fig_pareto, fig_baselines):
+    for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_alert_delivery):
         f(out, t)
     print(sorted(x.name for x in out.iterdir()))
 

@@ -44,7 +44,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] **Baseline trên cùng dữ liệu (5.15a, 5.15b):** AE và `tree_ae` không thay base29 trên dữ liệu mới (tách kém khoảng 26 điểm).
 - [x] Recall theo tốc độ attack (5.15c): Pulse yếu dần ở 6/s. [x] Campaign 1–3/s (5.25): recall 93,1% ở 1/s, 99,0% ở 3/s; p95 3,4–4,3 s.
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
-- [x] Đo độ trễ kernel → cảnh báo đến người nhận thật (RCA 5.14): trên toàn campaign, push p95 2,80 s tập chính (268/282 trial có cảnh báo mới), 3,56 s mọi tốc độ. [ ] Chép biên nhận vào repo sau lượt.
+- [x] Đo độ trễ kernel → cảnh báo đến người nhận thật (RCA 5.14): trên toàn campaign, push p95 2,89 s tập chính (268/282 trial có cảnh báo mới; 3,04 s nếu chỉ tính đợt mở từ cửa sổ nằm trọn trong trial), 3,56 s mọi tốc độ. [ ] Chép biên nhận vào repo sau lượt.
 - [x] Review nhãn (5.20): 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại; người gán không độc lập.
 - [ ] Khi viết luận văn: mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
 - [x] Baseline luật Falco: chuyển sang [phần rule](RULE_INTEGRATION_STATUS.md) R2 (trial và normal xong).

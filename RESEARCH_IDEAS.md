@@ -108,7 +108,7 @@ Ba đóng góp:
 | Phần rule, tách khỏi ML | ~45% | Falco riêng (R2); tripwire riêng đạt blind (R3); tầng triage có protocol và code (R4); thiết kế so sánh có/không rule (R6) | Chạy so sánh sau khi ML hoàn thiện; gánh tripwire trên normal dài; đường triage nhanh |
 | Overhead (G7) | ~80% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi | Kernel/distro khác; độ trễ request ứng dụng thật |
 | Kẻ tấn công chậm (G4) | ~30% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25) | Lập luận mimicry |
-| Hình và bảng cho luận văn | ~45% | 4 hình vi/en từ biên nhận (có bản không CI cho báo cáo); hình cây RCA (`scripts/analysis/rca_case_graph.py`) | Hình gánh cảnh báo, nhóm feature, đường cảnh báo; bảng tổng hợp |
+| Hình và bảng cho luận văn | ~60% | 6 hình vi/en từ biên nhận: 4 lượt live (kể cả lượt xác nhận), độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo (23/10); hình cây RCA (`scripts/analysis/rca_case_graph.py`) | Hình gánh cảnh báo (sau final lượt xác nhận); bảng tổng hợp |
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
 | **Luận văn (tổng thể, gồm viết)** | **~80%** | Thí nghiệm ~93%; số liệu và bằng chứng gần đủ, biên nhận 22–23/10 đã vào repo | Lượt xác nhận (24/10); so sánh có/không rule; viết chương |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |

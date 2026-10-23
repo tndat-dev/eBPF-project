@@ -383,11 +383,14 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 
   | Tập trial | Trial attack | Có cảnh báo mới qua `push` | p50 | p95 | max |
   |---|---|---|---|---|---|
-  | Tập chính (6, 12, 24/s) | 282 | 268 (95,0%) | 0,61 s | **2,80 s** | 6,42 s |
+  | Tập chính (6, 12, 24/s) | 282 | 268 (95,0%) | 0,61 s | **2,89 s** | 6,42 s |
+  | Tập chính, chỉ đợt mở từ cửa sổ nằm trọn trong trial | 282 | 201 | 0,77 s | 3,04 s | 6,42 s |
   | Mọi tốc độ | 471 | 446 (94,7%) | 0,61 s | 3,56 s | 14,36 s |
 
   - Trial không có cảnh báo mới: 8 FN của Pulse; 17 trial mà container đã đang có đợt cảnh báo từ trước (`alert_already_active`; 14 trong tập chính, chủ yếu container báo liên tục ở worker1, Pulse 5.25).
-  - Kernel → preview của tập chính: p95 2,61 s. Đường push chỉ thêm khoảng 0,2 s ở p95.
+  - Kernel → preview của tập chính: p95 2,61 s. Đường push thêm khoảng 0,3 s ở p95.
+  - Phân vị theo hạng gần nhất, như trong script (`quantile`).
+  - **Đợt mở từ cửa sổ vắt qua lúc tiêm:** 108/446 trial (67 trong tập chính) có đợt cảnh báo mở từ một cửa sổ 0,5 s bắt đầu trước lúc tiêm attack. Lệnh exec binary tấn công nằm trong cửa sổ đó, nên cảnh báo tới người nhận sớm hơn preview mà campaign công nhận (tới 0,55 s); campaign không bao giờ tính công cho cửa sổ như vậy. Script đánh dấu các trial này (`episode_window_starts_before_attack`); bỏ chúng ra thì push p95 tập chính là 3,04 s (dòng thứ hai của bảng). Số vận hành là dòng đầu; dòng thứ hai cùng quy tắc với campaign.
   - Push theo tốc độ: 24/s p95 1,77 s; 12/s 2,34 s; 6/s 3,84 s; 3/s 4,33 s; 1/s 4,09 s. Pull nhanh: p95 9,4 s (tập chính); pull mặc định: 23% trial, p50 63 s.
   - Bridge: 27 lần mất kết nối luồng decision (mỗi lần segment xoay vòng), nối lại ngay, khoảng hở tổng cộng ~0 s.
   - Phần sau campaign (đợt trên normal, `episodes.jsonl`, `deliveries.jsonl`) chép vào repo sau lượt.
@@ -449,7 +452,7 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 | Baseline binary mang qua các lượt | **Có code + seed** (5.12); kiểm trên lượt `pulse-stable-confirm` |
 | 13% attack không có case riêng | Lượt xác nhận: 69/525, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất là "binary không mới" (5.15). Hệ quả của fixture dùng chung file; chưa đổi luật |
 | RCA dưới luật Pulse stable (CUSUM) | Campaign lượt xác nhận xong (5.15); capture chạy tới ~24/10 01:20 |
-| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm. Push 163/163 đợt, p95 0,06 s sau preview; kernel → người nhận p95 2,80 s trên tập chính của toàn campaign (268/282 trial có cảnh báo mới), 3,56 s trên mọi tốc độ; pull mặc định bỏ sót 93% đợt. RCA nhận trigger từ webhook: có code và test, chạy ở lượt sau |
+| Cảnh báo vận hành thật | **Đang thử (5.14):** preview → Alertmanager/Prometheus/Grafana của cụm. Push 163/163 đợt, p95 0,06 s sau preview; kernel → người nhận p95 2,89 s trên tập chính của toàn campaign (268/282 trial có cảnh báo mới; 3,04 s theo quy tắc cửa sổ của campaign), 3,56 s trên mọi tốc độ; pull mặc định bỏ sót 93% đợt. RCA nhận trigger từ webhook: có code và test, chạy ở lượt sau |
 | Ánh xạ IP qua NAT/mesh | IP node đã sửa (5.13, lượt sau); lịch sử, backend sau DNAT, client sau waypoint: chưa |
 | Chứng minh nhân quả | Ngoài phạm vi |
 
@@ -529,4 +532,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 04:30–04:45 | Kernel → người nhận theo từng trial (sơ bộ): push p95 2,58 s, 36/39 trial; pull mặc định 6/39. RCA chế độ `alert_trigger_file` (trigger = cảnh báo đã qua Alertmanager), có test; dùng từ lượt sau. Cập nhật bảng mục 1 và bảng tên gọi | mục 1, 5.14 |
 | 23/10 11:45 | Số tạm của seed trên lượt xác nhận: nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (case normal trước campaign); bộ đếm lý do từ chối case tiếp nối | mục 5.12 |
 | 23/10 12:10 | Đích "ngoài cụm" là socket Unix và địa chỉ probe kubelet của Istio ambient (`169.254.7.127`): ánh xạ thành `KubeletProbe` từ lượt sau, có test. Lịch sử inventory: không làm (chỉ 0,9% IP trong cụm không ánh xạ được; ánh xạ lúc nhận sự kiện dùng ảnh chụp ≤ 60 s) | mục 5.13 |
-| 23/10 13:00–13:15 | Campaign lượt xác nhận xong: coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (5.15). Kernel → người nhận trên toàn campaign: push p95 2,80 s tập chính, 3,56 s mọi tốc độ (5.14) |
+| 23/10 13:00–13:15 | Campaign lượt xác nhận xong: coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (5.15). Kernel → người nhận trên toàn campaign: push p95 2,89 s tập chính (3,04 s nếu chỉ tính đợt mở từ cửa sổ nằm trọn trong trial), 3,56 s mọi tốc độ (5.14) |
