@@ -1,85 +1,201 @@
 [
  {
-  "title": "99% False Positives (USENIX Sec 2022)",
+  "label": "99% False Positives (USENIX Sec 2022)",
   "url": "https://www.usenix.org/conference/usenixsecurity22/presentation/alahmadi",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "99% False Positives: A Qualitative Study of {SOC} Analysts' Perspectives on Security Alarms",
+   "authors": [
+    "Bushra A. Alahmadi",
+    "Louise Axon",
+    "Ivan Martinovic"
+   ],
+   "year": 2022,
+   "venue": "31st USENIX Security Symposium (USENIX Security 22)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/99-false-positives-usenix-sec-2022.pdf",
+  "how": "script",
+  "file": "pdf/2022-alahmadi-99-false-positives-a-qualitative-study-of-soc-analysts.pdf",
   "bytes": 673242,
   "sha256": "bf9a559479c56202fa7ff409a5b8e58656d4831cde6ddb28b76b832417083ff7",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "ACI cho chuỗi thời gian (Zaffran et al., ICML 2022)",
+  "label": "ACI cho chuỗi thời gian (Zaffran et al., ICML 2022)",
   "url": "https://proceedings.mlr.press/v162/zaffran22a.html",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Adaptive Conformal Predictions for Time Series",
+   "authors": [
+    "Margaux Zaffran",
+    "Olivier Feron",
+    "Yannig Goude",
+    "Julie Josse",
+    "Aymeric Dieuleveut"
+   ],
+   "year": 2022,
+   "venue": "International Conference on Machine Learning",
+   "abstract": "Uncertainty quantification of predictive models is crucial in decision-making problems. Conformal prediction is a general and theoretically sound answer. However, it requires exchangeable data, exc...",
+   "abstract_source": "https://proceedings.mlr.press/v162/zaffran22a.html"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/aci-cho-chu-i-th-i-gian-zaffran-et-al-icml-2022.pdf",
+  "how": "script",
+  "file": "pdf/2022-zaffran-adaptive-conformal-predictions-for-time-series.pdf",
   "bytes": 1416052,
   "sha256": "7f908bcc760fd0bd5192ca7d7b255c861136aa7912638171ad58a50a2ec54cad",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Adaptive Conformal Inference (Gibbs & Candès)",
+  "label": "Adaptive Conformal Inference (Gibbs & Candès)",
   "url": "https://arxiv.org/abs/2106.00170",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Adaptive Conformal Inference Under Distribution Shift",
+   "authors": [
+    "Gibbs, Isaac",
+    "Candès, Emmanuel"
+   ],
+   "year": 2021,
+   "venue": "arXiv",
+   "arxiv": "2106.00170",
+   "abstract": "We develop methods for forming prediction sets in an online setting where the data generating distribution is allowed to vary over time in an unknown fashion. Our framework builds on ideas from conformal inference to provide a general wrapper that can be combined with any black box method that produces point predictions of the unseen label or estimated quantiles of its distribution. While previous conformal inference methods rely on the assumption that the data points are exchangeable, our adaptive approach provably achieves the desired coverage frequency over long-time intervals irrespective of the true data generating process. We accomplish this by modelling the distribution shift as a learning problem in a single parameter whose optimal value is varying over time and must be continuously re-estimated. We test our method, adaptive conformal inference, on two real world datasets and find that its predictions are robust to visible and significant distribution shifts.",
+   "abstract_source": "arXiv 2106.00170 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/adaptive-conformal-inference-gibbs-cand-s.pdf",
+  "how": "script",
+  "file": "pdf/2021-gibbs-adaptive-conformal-inference-under-distribution-shift.pdf",
   "bytes": 1210440,
   "sha256": "15f35bf6d3ff2abfc21eaff1f1a7df2a51a5c891f2bed752f6fd75d3e47a5ff7",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Autoencoder có attention cho truy cập file trong container (MDPI 2025)",
+  "label": "Autoencoder có attention cho truy cập file trong container (MDPI 2025)",
   "url": "https://www.mdpi.com/2227-7390/14/6/991",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "An Abnormal File Access Detection Model for Containers Based on eBPF Listening",
+   "authors": [
+    "Naqin Zhou",
+    "Hao Chen",
+    "Zeyu Chen",
+    "Chao Li",
+    "Fan Li"
+   ],
+   "year": 2026,
+   "venue": "Mathematics 14(6), 991",
+   "doi": "10.3390/math14060991",
+   "abstract": "With the widespread adoption of container technology, its shared kernel architecture has made abnormal file access behavior a key precursor to container escape and lateral attacks, necessitating precise and efficient runtime detection mechanisms. However, existing monitoring methods typically suffer from issues such as insufficient granularity in data collection, limited path semantic modeling capabilities, and low anomaly detection accuracy. To address these challenges, this paper proposes an eBPF-based method for detecting abnormal file access in containers. A lightweight kernel-level monitoring mechanism is constructed to capture access behavior in real time at the system call level, effectively enhancing both the granularity of data collection and the completeness of context. At the feature modeling layer, a multimodal path semantic representation method is designed, combining risk-layer rules and semantic vectorization strategies to enhance the hierarchical expression of path structures and improve context modeling ability. In the detection layer, an attention-enhanced autoencoder model is introduced, achieving high-precision identification of abnormal access behavior and low false-positive monitoring under unsupervised conditions through a path segment attention mechanism and weighted reconstruction loss function. Experiments in real container environments show that the proposed method achieves a recall rate of 82.0%, a false-positive rate of 0.79%, and a Matthews correlation coefficient of 0.852, significantly outperforming mainstream unsupervised detection methods such as Isolation Forest, One-Class SVM, and Local Outlier Factor. These results verify the advantages of the proposed method in terms of detection accuracy, real-time performance, and system friendliness, providing an efficient and feasible solution for enhancing the detection of unknown attacks in container runtimes.",
+   "abstract_source": "Crossref 10.3390/math14060991"
+  },
   "type": "paper",
-  "status": "not_downloaded"
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/2026-zhou-an-abnormal-file-access-detection-model-for-containers-based.pdf",
+  "bytes": 4511586,
+  "sha256": "122541fe795da0cc3fe949f4667ebec31a35aadb29b684edbb29ba0ecd47320a",
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "html_url": "https://www.mdpi.com/2227-7390/14/6/991/htm"
  },
  {
-  "title": "Benchmark anomaly detection 2024",
+  "label": "B. Efron, R. J. Tibshirani. An Introduction to the Bootstrap. Chapman & Hall/CRC, 1993",
+  "url": "https://doi.org/10.1201/9780429246593",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md",
+   "SYSCALL_FEATURE_EXPERIMENT_STATUS.md"
+  ],
+  "note": "bootstrap (sách)",
+  "bib": {
+   "title": "An Introduction to the Bootstrap",
+   "authors": [
+    "Bradley Efron",
+    "Robert J. Tibshirani"
+   ],
+   "year": 1993,
+   "venue": "Chapman & Hall/CRC",
+   "doi": "10.1201/9780429246593",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "type": "paper",
+  "status": "reconstructed",
+  "how": "reconstructed",
+  "file": "pdf/1993-efron-an-introduction-to-the-bootstrap--reconstructed.pdf",
+  "bytes": 52727,
+  "sha256": "114246cf04c47bcc3b2b24e7f16ff9cbcdce192f7103dbcad1e55e84576e7333",
+  "fetched_at": "2026-10-23T05:33:12+00:00",
+  "reconstructed_from": "2026-10-23"
+ },
+ {
+  "label": "Benchmark anomaly detection 2024",
   "url": "https://arxiv.org/html/2402.07281v3",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Benchmarking Anomaly Detection Algorithms: Deep Learning and Beyond",
+   "authors": [
+    "Mehta, Shanay",
+    "Mehendale, Shlok",
+    "Fernandes, Nicole",
+    "Sarkar, Jyotirmoy",
+    "Sarkar, Santonu",
+    "Saha, Snehanshu"
+   ],
+   "year": 2024,
+   "venue": "arXiv",
+   "arxiv": "2402.07281",
+   "abstract": "Detection of anomalous situations for complex mission-critical systems hold paramount importance when their service continuity needs to be ensured. A major challenge in detecting anomalies from the operational data arises due to the imbalanced class distribution problem since the anomalies are supposed to be rare events. This paper evaluates a diverse array of Machine Learning (ML)-based anomaly detection algorithms through a comprehensive benchmark study. The paper contributes significantly by conducting an unbiased comparison of various anomaly detection algorithms, spanning classical ML, including various tree-based approaches to Deep Learning (DL) and outlier detection methods. The inclusion of 104 publicly available enhances the diversity of the study, allowing a more realistic evaluation of algorithm performance and emphasizing the importance of adaptability to real-world scenarios. The paper evaluates the general notion of DL as a universal solution, showing that, while powerful, it is not always the best fit for every scenario. The findings reveal that recently proposed tree-based evolutionary algorithms match DL methods and sometimes outperform them in many instances of univariate data where the size of the data is small and number of anomalies are less than 10%. Specifically, tree-based approaches successfully detect singleton anomalies in datasets where DL falls short. To the best of the authors' knowledge, such a study on a large number of state-of-the-art algorithms using diverse data sets, with the objective of guiding researchers and practitioners in making informed algorithmic choices, has not been attempted earlier.",
+   "abstract_source": "arXiv 2402.07281 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/benchmark-anomaly-detection-2024.pdf",
+  "how": "script",
+  "file": "pdf/2024-mehta-benchmarking-anomaly-detection-algorithms-deep-learning-and.pdf",
   "bytes": 552620,
   "sha256": "45fd32ef636d777bda3a5b238721005744aedd71cb4831341789571cc349898f",
-  "fetched_at": "2026-10-22T21:05:56+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2402.07281"
  },
  {
-  "title": "BoSC trong container",
+  "label": "BoSC trong container",
   "url": "https://arxiv.org/pdf/1611.03056",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Intrusion Detection System for Applications using Linux Containers",
+   "authors": [
+    "Abed, Amr S.",
+    "Clancy, Charles",
+    "Levy, David S."
+   ],
+   "year": 2016,
+   "venue": "arXiv",
+   "arxiv": "1611.03056",
+   "abstract": "Linux containers are gaining increasing traction in both individual and industrial use, and as these containers get integrated into mission-critical systems, real-time detection of malicious cyber attacks becomes a critical operational requirement. This paper introduces a real-time host-based intrusion detection system that can be used to passively detect malfeasance against applications within Linux containers running in a standalone or in a cloud multi-tenancy environment. The demonstrated intrusion detection system uses bags of system calls monitored from the host kernel for learning the behavior of an application running within a Linux container and determining anomalous container behavior. Performance of the approach using a database application was measured and results are discussed.",
+   "abstract_source": "arXiv 1611.03056 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/bosc-trong-container.pdf",
+  "how": "script",
+  "file": "pdf/2016-abed-intrusion-detection-system-for-applications-using-linux.pdf",
   "bytes": 372257,
   "sha256": "15f46940cf6fb63cb1105cada897ef8d85720fc7967357d0b7532ccfc63c6035",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Báo cáo Aqua/Sysdig 2022 (tóm tắt)",
+  "label": "Báo cáo Aqua/Sysdig 2022 (tóm tắt)",
   "url": "https://www.scmagazine.com/news/cryptominers-still-preferred-in-cloud-attacks-but-the-use-of-other-malware-has-increased",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -88,7 +204,7 @@
   "status": "link_only"
  },
  {
-  "title": "bảng ABI Linux x86-64 v6.8",
+  "label": "bảng ABI Linux x86-64 v6.8",
   "url": "https://raw.githubusercontent.com/torvalds/linux/v6.8/arch/x86/entry/syscalls/syscall_64.tbl",
   "cited_in": [
    "SYSCALL_FEATURE_EXPERIMENT_STATUS.md"
@@ -97,213 +213,472 @@
   "status": "link_only"
  },
  {
-  "title": "CADE (USENIX Sec 2021)",
+  "label": "CADE (USENIX Sec 2021)",
   "url": "https://www.usenix.org/conference/usenixsecurity21/presentation/yang",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "{CADE}: Detecting and Explaining Concept Drift Samples for Security Applications",
+   "authors": [
+    "Limin Yang",
+    "Wenbo Guo",
+    "Qingying Hao",
+    "Arridhana Ciptadi",
+    "Ali Ahmadzadeh",
+    "Xinyu Xing",
+    "Gang Wang"
+   ],
+   "year": 2021,
+   "venue": "30th USENIX Security Symposium (USENIX Security 21)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/cade-usenix-sec-2021.pdf",
+  "how": "script",
+  "file": "pdf/2021-yang-cade-detecting-and-explaining-concept-drift-samples-for.pdf",
   "bytes": 2528560,
   "sha256": "6fd4bf29f359a39fa241823885b7000d264704c9a76c5c89b33979207198717d",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Carbon Filter: phân loại cảnh báo EDR",
+  "label": "Carbon Filter: phân loại cảnh báo EDR",
   "url": "https://arxiv.org/html/2405.04691v1",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Carbon Filter: Real-time Alert Triage Using Large Scale Clustering and Fast Search",
+   "authors": [
+    "Oliver, Jonathan",
+    "Batta, Raghav",
+    "Bates, Adam",
+    "Inam, Muhammad Adil",
+    "Mehta, Shelly",
+    "Xia, Shugao"
+   ],
+   "year": 2024,
+   "venue": "arXiv",
+   "arxiv": "2405.04691",
+   "abstract": "\"Alert fatigue\" is one of the biggest challenges faced by the Security Operations Center (SOC) today, with analysts spending more than half of their time reviewing false alerts. Endpoint detection products raise alerts by pattern matching on event telemetry against behavioral rules that describe potentially malicious behavior, but can suffer from high false positives that distract from actual attacks. While alert triage techniques based on data provenance may show promise, these techniques can take over a minute to inspect a single alert, while EDR customers may face tens of millions of alerts per day; the current reality is that these approaches aren't nearly scalable enough for production environments. We present Carbon Filter, a statistical learning based system that dramatically reduces the number of alerts analysts need to manually review. Our approach is based on the observation that false alert triggers can be efficiently identified and separated from suspicious behaviors by examining the process initiation context (e.g., the command line) that launched the responsible process. Through the use of fast-search algorithms for training and inference, our approach scales to millions of alerts per day. Through batching queries to the model, we observe a theoretical maximum throughput of 20 million alerts per hour. Based on the analysis of tens of million alerts from customer deployments, our solution resulted in a 6-fold improvement in the Signal-to-Noise ratio without compromising on alert triage performance.",
+   "abstract_source": "arXiv 2405.04691 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/carbon-filter-ph-n-lo-i-c-nh-b-o-edr.pdf",
+  "how": "script",
+  "file": "pdf/2024-oliver-carbon-filter-real-time-alert-triage-using-large-scale.pdf",
   "bytes": 723049,
   "sha256": "fd47c4b00695dbe9db8ff95a3e1b4c5261eee043b58386d81e64193341258f78",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Cauchy combination test",
+  "label": "Cauchy combination test",
   "url": "https://arxiv.org/pdf/1808.09011",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Cauchy combination test: a powerful test with analytic p-value calculation under arbitrary dependency structures",
+   "authors": [
+    "Liu, Yaowu",
+    "Xie, Jun"
+   ],
+   "year": 2018,
+   "venue": "arXiv",
+   "arxiv": "1808.09011",
+   "abstract": "Combining individual p-values to aggregate multiple small effects has a long-standing interest in statistics, dating back to the classic Fisher's combination test. In modern large-scale data analysis, correlation and sparsity are common features and efficient computation is a necessary requirement for dealing with massive data. To overcome these challenges, we propose a new test that takes advantage of the Cauchy distribution. Our test statistic has a very simple form and is defined as a weighted sum of Cauchy transformation of individual p-values. We prove a non-asymptotic result that the tail of the null distribution of our proposed test statistic can be well approximated by a Cauchy distribution under arbitrary dependency structures. Based on this theoretical result, the p-value calculation of our proposed test is not only accurate, but also as simple as the classic z-test or t-test, making our test well suited for analyzing massive data. We further show that the power of the proposed test is asymptotically optimal in a strong sparsity setting. Extensive simulations demonstrate that the proposed test has both strong power against sparse alternatives and a good accuracy with respect to p-value calculations, especially for very small p-values. The proposed test has also been applied to a genome-wide association study of Crohn's disease and compared with several existing tests.",
+   "abstract_source": "arXiv 1808.09011 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/cauchy-combination-test.pdf",
+  "how": "script",
+  "file": "pdf/2018-liu-cauchy-combination-test-a-powerful-test-with-analytic-p.pdf",
   "bytes": 377176,
   "sha256": "c5a838c5e97c52e8ab342ef0d466e9a5a798536acd4483fd635c774cea368a94",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "Change detection with conformal martingales",
+  "label": "Change detection with conformal martingales",
   "url": "https://arxiv.org/pdf/2609.27179",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Change detection with conformal martingales: new optimal constructions, and suboptimality of existing methods",
+   "authors": [
+    "Bhattacharyya, Swapnaneel",
+    "Ramdas, Aaditya"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "arxiv": "2609.27179",
+   "abstract": "We study distribution-free sequential changepoint detection for independent observations with unknown and unrestricted pre- and post-change laws. We build on the conformal test martingales and associated e-detectors of Vovk(2021), which control the probability of false alarm (PFA) and the average run length (ARL) respectively. The majority of these works focus on validity, with statistical efficiency usually left for simulations. We develop a comprehensive theory of how conformal p-values behave under non-exchangeable data with a changepoint at an unknown time $T$. We use this to analyze the post-change growth and resulting detection delay of conformal martingale methods, and prove that the standard existing methods are suboptimal for PFA and ARL control, and can lead to delays that are $Ω(T)$ and $Ω(\\sqrt{\\text{ARL}})$ respectively. We propose different conformal e-processes and e-detectors that are provably minimax optimal, with delays $Θ(\\log T)$ and $Θ(\\log \\text{ARL})$ respectively, and have much shorter delays in simulations.",
+   "abstract_source": "arXiv 2609.27179 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/change-detection-with-conformal-martingales.pdf",
+  "how": "script",
+  "file": "pdf/2026-bhattacharyya-change-detection-with-conformal-martingales-new-optimal.pdf",
   "bytes": 1206373,
   "sha256": "3200c6b905f9b154142d78bb0705960a0e24a21b4768d0a5a3876f3352855842",
   "fetched_at": "2026-10-22T21:05:56+00:00"
  },
  {
-  "title": "CHIDS, CCSW 2022",
+  "label": "CHIDS, CCSW 2022",
   "url": "https://research.utwente.nl/en/publications/contextualizing-system-calls-in-containers-for-anomaly-based-intr/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "also_cited_as": [
+   "https://www.researchgate.net/publication/365185410_Contextualizing_System_Calls_in_Containers_for_Anomaly-Based_Intrusion_Detection"
+  ],
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Contextualizing System Calls in Containers for Anomaly-Based Intrusion Detection",
+   "authors": [
+    "Asbat El Khairi",
+    "Marco Caselli",
+    "Christian Knierim",
+    "Andreas Peter",
+    "Andrea Continella"
+   ],
+   "year": 2022,
+   "venue": "Proceedings of the 2022 on Cloud Computing Security Workshop",
+   "doi": "10.1145/3560810.3564266",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/2022-khairi-contextualizing-system-calls-in-containers-for-anomaly-based.pdf",
+  "bytes": 1477909,
+  "sha256": "711ed193c1a46270eb8033f5558176eff4548be3a81b3b493e0dc9efde47b186",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "Class-conditional conformal cho anomaly detection mất cân bằng (MDPI Make)",
+  "label": "Class-conditional conformal cho anomaly detection mất cân bằng (MDPI Make)",
   "url": "https://www.citedrive.com/en/discovery/class-conditional-conformal-prediction-for-reliable-anomaly-detection-under-extreme-class-imbalance/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Class-Conditional Conformal Prediction for Reliable Anomaly Detection Under Extreme Class Imbalance",
+   "authors": [
+    "Bashair Althani"
+   ],
+   "year": 2026,
+   "venue": "Machine Learning and Knowledge Extraction 8, 190",
+   "doi": "10.3390/make8070190",
+   "abstract": "Anomaly detection systems deployed in critical applications require not only high accuracy but also reliable uncertainty quantification and coverage guarantees. This paper is an empirical study—rather than a contribution of new conformal-prediction machinery—of class-conditional (Mondrian) conformal prediction for anomaly detection under extreme class imbalance, characterizing where standard conformal prediction fails and how class-conditional calibration restores valid coverage. Class-conditional conformal prediction constructs prediction sets that, under exchangeability, contain the true label with user-specified confidence (e.g., 90%), enabling systems to abstain on uncertain predictions. Unlike standard conformal prediction that fails catastrophically under extreme imbalance—achieving only 52.94% anomaly coverage at a 1:345 imbalance ratio—class-conditional calibration maintains 90.59% anomaly coverage by computing quantiles separately for each class. We apply the standard softmax-based nonconformity score s=1−fy(x) within each class, ensuring valid coverage for both normal and anomalous instances with coverage gaps ranging from 0.50% to 5.18% depending on dataset characteristics. Extensive experiments on three real-world datasets (Microsoft Azure KPI, Yahoo, NAB) demonstrate that the method achieves empirical coverage within 0.06–0.33% of theoretical targets at confidence levels α≤0.05; on the most imbalanced benchmark (Microsoft Azure KPI at a 1:345 ratio and α=0.10), this corresponds to a 37.65 percentage point improvement in anomaly coverage over standard conformal prediction. We restate finite-sample coverage bounds and exchangeability conditions in the binary anomaly detection setting and validate them empirically through Monte Carlo simulation. Multi-model evaluation across XGBoost, Random Forest, and Neural Networks demonstrates the model-agnostic property of the framework, while also identifying conditions (poor base-classifier discrimination, small minority calibration sets) under which coverage may be marginally violated. Comparison with alternative uncertainty quantification methods (isotonic probability calibration, Monte Carlo dropout) shows that only conformal prediction provides formal guarantees while maintaining 90.59% anomaly coverage versus 76.47% and 84.71% for alternatives. The abstention mechanism identifies 34–66% of predictions as uncertain at high confidence levels (99%), enabling safety-critical systems to defer difficult cases to human experts while preserving baseline discrimination (ROC-AUC unchanged).",
+   "abstract_source": "Crossref 10.3390/make8070190"
+  },
   "type": "paper",
-  "status": "not_downloaded"
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/2026-althani-class-conditional-conformal-prediction-for-reliable-anomaly.pdf",
+  "bytes": 1888098,
+  "sha256": "38c9d4ed850af2ebfae2844a18e64974414d8c94cbb9dc3a48cf32fe076919fe",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "CNN trong kernel bằng eBPF",
+  "label": "CNN trong kernel bằng eBPF",
   "url": "https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "In-Kernel CNN Inference for Edge Devices: An eBPF-Based Approach to Low-Latency and Resource-Efficient Processing",
+   "authors": [
+    "Yaodong Zheng",
+    "Junxing Zhang"
+   ],
+   "year": 2026,
+   "venue": "Lecture Notes in Computer Science",
+   "doi": "10.1007/978-981-95-8417-8_34",
+   "abstract": "With the rapid proliferation of application scenarios such as the Internet of Things (IoT), industrial automation, smart homes, and vehicular networks, edge devices are facing increasing demands for low-latency and high-performance intelligent data processing....",
+   "abstract_source": "https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34"
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf",
+  "bytes": 45898,
+  "sha256": "6d8215e954f5feaddb79080e2194751f437bb2bc7244ed21a03c5071fd64d3f0",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
  },
  {
-  "title": "CONDOR hybrid IDS",
+  "label": "CONDOR hybrid IDS",
   "url": "https://shura.shu.ac.uk/5246/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "CONDOR: A Hybrid IDS to Offer Improved Intrusion Detection",
+   "authors": [
+    "David Day",
+    "Denys Flores"
+   ],
+   "year": 2012,
+   "venue": "IEEE TrustCom 2012"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/condor-hybrid-ids.pdf",
+  "how": "script",
+  "file": "pdf/2012-day-condor-a-hybrid-ids-to-offer-improved-intrusion-detection.pdf",
   "bytes": 678163,
   "sha256": "d76993d6a92e40a3f29c7c9ef820f39778c2aff49f9d2ac984475ba98461a8b2",
-  "fetched_at": "2026-10-22T21:06:05+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "Confine (RAID 2020)",
+  "label": "Confine (RAID 2020)",
   "url": "https://usenix.org/conference/raid2020/presentation/ghavanmnia",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Confine: Automated System Call Policy Generation for Container Attack Surface Reduction",
+   "authors": [
+    "Seyedhamed Ghavamnia",
+    "Tapti Palit",
+    "Azzedine Benameur",
+    "Michalis Polychronakis"
+   ],
+   "year": 2020,
+   "venue": "23rd International Symposium on Research in Attacks, Intrusions and Defenses (RAID 2020)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/confine-raid-2020.pdf",
+  "how": "script",
+  "file": "pdf/2020-ghavamnia-confine-automated-system-call-policy-generation-for.pdf",
   "bytes": 703433,
   "sha256": "6fe4d03cba92c39cc9a8e6e1fb3eabe14d5c2bb6b2c5ebb76860fb79c078f4e0",
   "fetched_at": "2026-10-22T21:06:05+00:00"
  },
  {
-  "title": "Conformal calibration / look-elsewhere",
+  "label": "Conformal calibration / look-elsewhere",
   "url": "https://arxiv.org/pdf/2606.13780",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Conformal calibration and look-elsewhere effect in anomaly detection for new-physics searches",
+   "authors": [
+    "Araz, Jack Y.",
+    "Spannowsky, Michael"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "arxiv": "2606.13780",
+   "abstract": "Machine-learned anomaly detection is reshaping searches for new physics, but it has outrun the statistics used to interpret it. A raw anomaly score has no calibrated meaning, a model that scans many regions inflates the look-elsewhere effect, and the asymptotic significances the field relies on are blind to the background mismodelling that anomaly detectors are especially prone to. We propose a calibration layer, built on conformal prediction, that turns any anomaly score into a defensible significance with distribution-free, finite-sample guarantees. Conformal prediction converts scores into valid local p-values, weighted and Mondrian variants repair the sideband-to-signal-region exchangeability failures that resonant searches suffer, and a Gross-Vitells step carries the result through to a look-elsewhere-aware global significance. The layer does two things at once. It exposes miscalibration that the standard pipeline cannot see, and it corrects it without retraining the detector. On public LHC Olympics data, a classifier develops a substructure-mass correlation that makes sideband-calibrated background p-values anti-conservative. Taken at face value, this manufactures a $\\sim 46σ$ excess from background sculpting alone, which the label-free weighted correction removes, restoring an honest null. When run as a blind wide-mass bump hunt, the standard asymptotic and unweighted procedures fabricate $\\gtrsim10σ$ excesses and $\\approx5σ$ excesses even in signal-free windows, while the conformal layer raises no false alarms and its global false-positive rate is verified on background-only pseudoexperiments. The result is an auditable, detector-agnostic path from an uncalibrated score to a trials-factor-aware significance, ready to be folded into experimental anomaly searches.",
+   "abstract_source": "arXiv 2606.13780 (DataCite)"
+  },
   "status": "downloaded",
   "how": "script",
-  "pdf_url": "https://arxiv.org/pdf/2606.13780",
-  "file": "pdf/conformal-calibration-look-elsewhere.pdf",
+  "file": "pdf/2026-araz-conformal-calibration-and-look-elsewhere-effect-in-anomaly.pdf",
   "bytes": 1128170,
   "sha256": "b14f32b483a9ff594a7cc2ae8bd5b409a291e725dce10f2a9e321eeac01f8dc3",
-  "fetched_at": "2026-10-22T21:06:05+00:00"
+  "fetched_at": "2026-10-22T21:06:05+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2606.13780"
  },
  {
-  "title": "Conformal false-alarm control cho O-RAN",
+  "label": "Conformal false-alarm control cho O-RAN",
   "url": "https://icml.cc/virtual/2026/78428",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Toward Reliable Intrusion Monitoring for O-RAN Based Networks with Conformal False Alarm Control",
+   "year": 2026,
+   "venue": "ICML 2026",
+   "authors": [
+    "Joohong Rheey",
+    "Hyunggon Park"
+   ]
+  },
   "type": "paper",
-  "status": "not_downloaded"
+  "status": "reconstructed",
+  "how": "reconstructed",
+  "file": "pdf/2026-rheey-toward-reliable-intrusion-monitoring-for-o-ran-based--reconstructed.pdf",
+  "bytes": 49376,
+  "sha256": "e37b17e4cf3e788e90db93bc6f7224f604cfb514583ea0cc93a94e39e507dfac",
+  "fetched_at": "2026-10-23T05:33:12+00:00",
+  "reconstructed_from": "2026-10-23"
  },
  {
-  "title": "Conformal PID control",
+  "label": "Conformal PID control",
   "url": "https://ar5iv.labs.arxiv.org/html/2307.16895",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Conformal PID Control for Time Series Prediction",
+   "authors": [
+    "Angelopoulos, Anastasios N.",
+    "Candes, Emmanuel J.",
+    "Tibshirani, Ryan J."
+   ],
+   "year": 2023,
+   "venue": "arXiv",
+   "arxiv": "2307.16895",
+   "abstract": "We study the problem of uncertainty quantification for time series prediction, with the goal of providing easy-to-use algorithms with formal guarantees. The algorithms we present build upon ideas from conformal prediction and control theory, are able to prospectively model conformal scores in an online setting, and adapt to the presence of systematic errors due to seasonality, trends, and general distribution shifts. Our theory both simplifies and strengthens existing analyses in online conformal prediction. Experiments on 4-week-ahead forecasting of statewide COVID-19 death counts in the U.S. show an improvement in coverage over the ensemble forecaster used in official CDC communications. We also run experiments on predicting electricity demand, market returns, and temperature using autoregressive, Theta, Prophet, and Transformer models. We provide an extendable codebase for testing our methods and for the integration of new algorithms, data sets, and forecasting rules.",
+   "abstract_source": "arXiv 2307.16895 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/conformal-pid-control.pdf",
+  "how": "script",
+  "file": "pdf/2023-angelopoulos-conformal-pid-control-for-time-series-prediction.pdf",
   "bytes": 9492139,
   "sha256": "4b5ee1458b4debfe164fc3bbca858e4807057b776ccb2587749178d9533deafb",
   "fetched_at": "2026-10-22T21:06:07+00:00"
  },
  {
-  "title": "Contextualizing system calls in containers",
-  "url": "https://www.researchgate.net/publication/365185410_Contextualizing_System_Calls_in_Containers_for_Anomaly-Based_Intrusion_Detection",
+  "label": "Conformal prediction beyond exchangeability (Ann. Stat. 2023)",
+  "url": "https://doi.org/10.1214/23-AOS2276",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "pdf_url": "https://arxiv.org/pdf/2202.13415",
+  "note": "PDF là bản arXiv của cùng bài",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Conformal prediction beyond exchangeability",
+   "authors": [
+    "Barber, Rina Foygel",
+    "Candes, Emmanuel J.",
+    "Ramdas, Aaditya",
+    "Tibshirani, Ryan J."
+   ],
+   "year": 2022,
+   "venue": "arXiv",
+   "doi": "10.1214/23-AOS2276",
+   "abstract": "Conformal prediction is a popular, modern technique for providing valid predictive inference for arbitrary machine learning models. Its validity relies on the assumptions of exchangeability of the data, and symmetry of the given model fitting algorithm as a function of the data. However, exchangeability is often violated when predictive models are deployed in practice. For example, if the data distribution drifts over time, then the data points are no longer exchangeable; moreover, in such settings, we might want to use a nonsymmetric algorithm that treats recent observations as more relevant. This paper generalizes conformal prediction to deal with both aspects: we employ weighted quantiles to introduce robustness against distribution drift, and design a new randomization technique to allow for algorithms that do not treat data points symmetrically. Our new methods are provably robust, with substantially less loss of coverage when exchangeability is violated due to distribution drift or other challenging features of real data, while also achieving the same coverage guarantees as existing conformal prediction methods if the data points are in fact exchangeable. We demonstrate the practical utility of these new tools with simulations and real-data experiments on electricity and election forecasting.",
+   "abstract_source": "arXiv 2202.13415 (DataCite)",
+   "arxiv": "2202.13415"
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2022-barber-conformal-prediction-beyond-exchangeability.pdf",
+  "bytes": 423685,
+  "sha256": "d80dba944a136e075bbfe281009152ce42041e0a455f68f73684ace83cfc3fed",
+  "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "CORTEX",
+  "label": "CORTEX",
   "url": "https://neurips.cc/virtual/2025/137134",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "CORTEX: Collaborative LLM Agents for High-Stakes Alert Triage",
+   "authors": [
+    "Wei, Bowen",
+    "Tay, Yuan Shen",
+    "Liu, Howard",
+    "Pan, Jinhao",
+    "Luo, Kun",
+    "Zhu, Ziwei",
+    "Jordan, Chris"
+   ],
+   "year": 2025,
+   "venue": "NeurIPS 2025",
+   "arxiv": "2510.00311",
+   "abstract": "Security Operations Centers (SOCs) are overwhelmed by tens of thousands of daily alerts, with only a small fraction corresponding to genuine attacks. This overload creates alert fatigue, leading to overlooked threats and analyst burnout. Classical detection pipelines are brittle and context-poor, while recent LLM-based approaches typically rely on a single model to interpret logs, retrieve context, and adjudicate alerts end-to-end -- an approach that struggles with noisy enterprise data and offers limited transparency. We propose CORTEX, a multi-agent LLM architecture for high-stakes alert triage in which specialized agents collaborate over real evidence: a behavior-analysis agent inspects activity sequences, evidence-gathering agents query external systems, and a reasoning agent synthesizes findings into an auditable decision. To support training and evaluation, we release a dataset of fine-grained SOC investigations from production environments, capturing step-by-step analyst actions and linked tool outputs. Across diverse enterprise scenarios, CORTEX substantially reduces false positives and improves investigation quality over state-of-the-art single-agent LLMs.",
+   "abstract_source": "arXiv 2510.00311 (DataCite)"
+  },
+  "pdf_url": "https://arxiv.org/pdf/2510.00311",
   "type": "paper",
-  "status": "not_downloaded"
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2025-wei-cortex-collaborative-llm-agents-for-high-stakes-alert-triage.pdf",
+  "bytes": 378689,
+  "sha256": "e045ebce5a085a8e67d991e94dc8798673f1a4f88c9517f7b0771daa77e5d772",
+  "fetched_at": "2026-10-23T05:31:14+00:00"
  },
  {
-  "title": "CUSUM và Shiryaev-Roberts, tối ưu theo Lorden/Moustakides (so sánh số)",
+  "label": "CUSUM và Shiryaev-Roberts, tối ưu theo Lorden/Moustakides (so sánh số)",
   "url": "https://arxiv.org/pdf/0908.4119",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Numerical Comparison of Cusum and Shiryaev-Roberts Procedures for Detecting Changes in Distributions",
+   "authors": [
+    "Moustakides, George V.",
+    "Polunchenko, Aleksey S.",
+    "Tartakovsky, Alexander G."
+   ],
+   "year": 2009,
+   "venue": "arXiv",
+   "arxiv": "0908.4119",
+   "abstract": "The CUSUM procedure is known to be optimal for detecting a change in distribution under a minimax scenario, whereas the Shiryaev-Roberts procedure is optimal for detecting a change that occurs at a distant time horizon. As a simpler alternative to the conventional Monte Carlo approach, we propose a numerical method for the systematic comparison of the two detection schemes in both settings, i.e., minimax and for detecting changes that occur in the distant future. Our goal is accomplished by deriving a set of exact integral equations for the performance metrics, which are then solved numerically. We present detailed numerical results for the problem of detecting a change in the mean of a Gaussian sequence, which show that the difference between the two procedures is significant only when detecting small changes.",
+   "abstract_source": "arXiv 0908.4119 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/cusum-v-shiryaev-roberts-t-i-u-theo-lorden-moustakides-so-s-nh-s.pdf",
+  "how": "script",
+  "file": "pdf/2009-moustakides-numerical-comparison-of-cusum-and-shiryaev-roberts.pdf",
   "bytes": 208766,
   "sha256": "7eb86e754ef1d88ec454ae32b9bbaabd8789a4b103afdd98a9e9b938312e54e3",
   "fetched_at": "2026-10-22T21:06:12+00:00"
  },
  {
-  "title": "Cửa sổ syscall trong Docker (SBC)",
+  "label": "Cửa sổ syscall trong Docker (SBC)",
   "url": "https://sol.sbc.org.br/index.php/errc/article/download/15203/15047",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Sliding Window: The Impact of Trace Size in Anomaly Detection System for Containers Through Machine Learning",
+   "authors": [
+    "Gabriel Ruschel Castanhel",
+    "Tiago Heinrich",
+    "Fabrício Ceschin",
+    "Carlos A. Maziero"
+   ],
+   "year": 2020,
+   "venue": "ERRC 2020 (SBC)",
+   "doi": "10.5753/errc.2020.15203",
+   "abstract": "Anomaly intrusion detection in Host-based Intrusion Detection System (HIDS) is a process intended to monitor operations on a host to identify behaviors that differ from a “normal ” system behavior. System call based HIDS uses traces of calls to represent the behavior of a system. Due to the volume of data generated by applications and the operating system, sliding windows are applied in order to asses an online environment, allowing intrusions to be detected in real time while being still executed. The respective study explores the impact that the size of the observation window has on Machine Learning (ML) one-class algorithms.",
+   "abstract_source": "Crossref 10.5753/errc.2020.15203"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/c-a-s-syscall-trong-docker-sbc.pdf",
+  "how": "script",
+  "file": "pdf/2020-castanhel-sliding-window-the-impact-of-trace-size-in-anomaly-detection.pdf",
   "bytes": 173086,
   "sha256": "7c78c7eaf42ae1766b56282d376b392ebe82c03a2885d85b08b8b8f3a84bcffa",
-  "fetched_at": "2026-10-22T21:06:12+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
+  "label": "D. J. Wilson. The harmonic mean p-value for combining dependent tests. PNAS 116(4), 2019",
+  "url": "https://doi.org/10.1073/pnas.1814092116",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
-  "title": "D. J. Wilson. The harmonic mean p-value for combining dependent tests. PNAS 116(4), 2019",
-  "url": "https://doi.org/10.1073/pnas.1814092116",
   "pdf_url": "https://europepmc.org/articles/PMC6347718?pdf=render",
   "note": "PDF là bản PubMed Central (truy cập mở) của cùng bài",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "The harmonic mean p -value for combining dependent tests",
+   "authors": [
+    "Daniel J. Wilson"
+   ],
+   "year": 2019,
+   "venue": "Proceedings of the National Academy of Sciences",
+   "doi": "10.1073/pnas.1814092116",
+   "abstract": "Significance The widespread use of Bonferroni correction encumbers the scientific process and wastes opportunities for discovery presented by big data, because it discourages exploratory analyses by overpenalizing the total number of statistical tests performed. In this paper, I introduce the harmonic mean p -value (HMP), a simple to use and widely applicable alternative to Bonferroni correction motivated by Bayesian model averaging that greatly improves statistical power while maintaining control of the gold standard false positive rate. The HMP has a range of desirable properties and offers a different way to think about large-scale exploratory data analysis in classical statistics.",
+   "abstract_source": "Crossref 10.1073/pnas.1814092116"
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2019-wilson-the-harmonic-mean-p-value-for-combining-dependent-tests.pdf",
+  "bytes": 1552524,
+  "sha256": "7cbaf10b0002cf1cc30c479c8b39714ce0d5070000db3694b5e09e6dd655dacb",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "DeepOD",
+  "label": "DeepOD",
   "url": "https://github.com/xuhongzuo/DeepOD",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -312,7 +687,7 @@
   "status": "link_only"
  },
  {
-  "title": "Docker container escape dataset (IEEE DataPort)",
+  "label": "Docker container escape dataset (IEEE DataPort)",
   "url": "https://ieee-dataport.org/documents/docker-container-escape-attack-dataset-capabilities-and-system-call-traces",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -321,7 +696,7 @@
   "status": "link_only"
  },
  {
-  "title": "DongTing dataset",
+  "label": "DongTing dataset",
   "url": "https://zenodo.org/records/6627050",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -330,69 +705,258 @@
   "status": "link_only"
  },
  {
-  "title": "Dos and Don'ts of ML in Computer Security (USENIX Sec 2022)",
+  "label": "Dos and Don'ts of ML in Computer Security (USENIX Sec 2022)",
   "url": "https://arxiv.org/abs/2010.09470",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Dos and Don'ts of Machine Learning in Computer Security",
+   "authors": [
+    "Arp, Daniel",
+    "Quiring, Erwin",
+    "Pendlebury, Feargus",
+    "Warnecke, Alexander",
+    "Pierazzi, Fabio",
+    "Wressnegger, Christian",
+    "Cavallaro, Lorenzo",
+    "Rieck, Konrad"
+   ],
+   "year": 2020,
+   "venue": "arXiv",
+   "arxiv": "2010.09470",
+   "abstract": "With the growing processing power of computing systems and the increasing availability of massive datasets, machine learning algorithms have led to major breakthroughs in many different areas. This development has influenced computer security, spawning a series of work on learning-based security systems, such as for malware detection, vulnerability discovery, and binary code analysis. Despite great potential, machine learning in security is prone to subtle pitfalls that undermine its performance and render learning-based systems potentially unsuitable for security tasks and practical deployment. In this paper, we look at this problem with critical eyes. First, we identify common pitfalls in the design, implementation, and evaluation of learning-based security systems. We conduct a study of 30 papers from top-tier security conferences within the past 10 years, confirming that these pitfalls are widespread in the current security literature. In an empirical analysis, we further demonstrate how individual pitfalls can lead to unrealistic performance and interpretations, obstructing the understanding of the security problem at hand. As a remedy, we propose actionable recommendations to support researchers in avoiding or mitigating the pitfalls where possible. Furthermore, we identify open problems when applying machine learning in security and provide directions for further research.",
+   "abstract_source": "arXiv 2010.09470 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/dos-and-don-ts-of-ml-in-computer-security-usenix-sec-2022.pdf",
+  "how": "script",
+  "file": "pdf/2020-arp-dos-and-don-ts-of-machine-learning-in-computer-security.pdf",
   "bytes": 901608,
   "sha256": "895ab4622260bba9dacd258f69f25d98deaba3826d0f89c8e03cc1c042f4545c",
-  "fetched_at": "2026-10-22T21:06:12+00:00"
+  "fetched_at": "2026-10-23T05:21:43+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2010.09470"
  },
  {
-  "title": "Dynamic fixed-point trong eBPF",
+  "label": "Dynamic fixed-point trong eBPF",
   "url": "https://dl.acm.org/doi/fullHtml/10.1145/3674213.3674219",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Dynamic Fixed-point Values in eBPF: a Case for Fully In-kernel Anomaly Detection",
+   "authors": [
+    "Atsuya Osaki",
+    "Manuel Poisson",
+    "Seiki Makino",
+    "Ryusei Shiiba",
+    "Kensuke Fukuda",
+    "Tadashi Okoshi",
+    "Jin Nakazawa"
+   ],
+   "year": 2024,
+   "venue": "Proceedings of the 19th Asian Internet Engineering Conference",
+   "doi": "10.1145/3674213.3674219",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/2024-osaki-dynamic-fixed-point-values-in-ebpf-a-case-for-fully-in.pdf",
+  "bytes": 683289,
+  "sha256": "5cba024519aca37e82314ac9ba643ad5f5aac22d0e626f7ca7c4b6f79af27e9c",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "e-GAI online FDR",
+  "label": "e-GAI online FDR",
   "url": "https://proceedings.mlr.press/v267/zhang25cd.html",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "e-GAI: e-value-based Generalized $α$-Investing for Online False Discovery Rate Control",
+   "authors": [
+    "Yifan Zhang",
+    "Zijian Wei",
+    "Haojie Ren",
+    "Changliang Zou"
+   ],
+   "year": 2025,
+   "venue": "International Conference on Machine Learning",
+   "abstract": "Online multiple hypothesis testing has attracted a lot of attention in many applications, e.g., anomaly status detection and stock market price monitoring. The state-of-the-art generalized $\\alpha$...",
+   "abstract_source": "https://proceedings.mlr.press/v267/zhang25cd.html"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/e-gai-online-fdr.pdf",
+  "how": "script",
+  "file": "pdf/2025-zhang-e-gai-e-value-based-generalized-investing-for-online-false.pdf",
   "bytes": 1800212,
   "sha256": "df6aac9ada945aac1171f5c3abfd8eb4259231b9194575650d93b8348be6a6a9",
-  "fetched_at": "2026-10-22T21:06:12+00:00"
+  "fetched_at": "2026-10-23T05:21:43+00:00"
  },
  {
+  "label": "E. B. Wilson. Probable inference, the law of succession, and statistical inference. JASA 22(158), 1927",
+  "url": "https://doi.org/10.1080/01621459.1927.10502953",
   "cited_in": [
-   "SENTINEL_PULSE_STATUS.md 5.19",
-   "RESEARCH_IDEAS.md"
+   "SENTINEL_PULSE_STATUS.md"
   ],
-  "title": "E. S. Page. Continuous inspection schemes. Biometrika 41(1/2), 1954",
+  "note": "khoảng tin cậy Wilson cho tỉ lệ",
+  "type": "paper",
+  "bib": {
+   "title": "Probable Inference, the Law of Succession, and Statistical Inference",
+   "authors": [
+    "Edwin B. Wilson"
+   ],
+   "year": 1927,
+   "venue": "Journal of the American Statistical Association",
+   "doi": "10.1080/01621459.1927.10502953",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf",
+  "bytes": 50421,
+  "sha256": "6a7feef8035e399ea8f4db093b4cf76cd19716b6aaebf7a8164305edd286857f",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
+ },
+ {
+  "label": "E. S. Page. Continuous inspection schemes. Biometrika 41(1/2), 1954",
   "url": "https://doi.org/10.2307/2333009",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md 5.19"
+  ],
   "note": "CUSUM gốc",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Continuous Inspection Schemes",
+   "authors": [
+    "E. S. Page"
+   ],
+   "year": 1954,
+   "venue": "Biometrika",
+   "doi": "10.2307/2333009",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf",
+  "bytes": 45998,
+  "sha256": "817926ab8f92aeb1693cf7038a1a6d52b5f0e722e1626f41c8862c86841bd08a",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
  },
  {
-  "title": "eBPF-PATROL",
+  "label": "eBPF-PATROL",
   "url": "https://arxiv.org/pdf/2511.18155v1",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "eBPF-PATROL: Protective Agent for Threat Recognition and Overreach Limitation using eBPF in Containerized and Virtualized Environments",
+   "authors": [
+    "Ghimire, Sangam",
+    "Bhurtel, Nirjal",
+    "Sahani, Roshan",
+    "Jha, Sudan"
+   ],
+   "year": 2025,
+   "venue": "arXiv",
+   "arxiv": "2511.18155",
+   "abstract": "With the increasing use and adoption of cloud and cloud-native computing, the underlying technologies (i.e., containerization and virtualization) have become foundational. However, strict isolation and maintaining runtime security in these environments has become increasingly challenging. Existing approaches like seccomp and Mandatory Access Control (MAC) frameworks offer some protection up to a limit, but often lack context awareness, syscall argument filtering, and adaptive enforcement, providing the ability to adjust decisions at runtime based on observed application behavior, workload changes, or detected anomalies rather than relying solely on static or predefined rules.This paper introduces eBPF-PATROL (eBPF-Protective Agent for Threat Recognition and Overreach Limitation), an extensible lightweight runtime security agent that uses extended Berkeley Packet Filter (eBPF) technology to monitor and enforce policies in containerized and virtualized environments. By intercepting system calls, analyzing execution context, and applying user-defined rules, eBPF-PATROL detects and prevents real-time boundary violations, such as reverse shells, privilege escalation, and container escape attempts. We describe the architecture, implementation, and evaluation of eBPF-PATROL, demonstrating its low overhead (&lt; 2.5 percent) and high detection accuracy across real-world attack scenarios.",
+   "abstract_source": "arXiv 2511.18155 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/ebpf-patrol.pdf",
+  "how": "script",
+  "file": "pdf/2025-ghimire-ebpf-patrol-protective-agent-for-threat-recognition-and.pdf",
   "bytes": 1147577,
   "sha256": "d115a12608986b4e9c25dab6646d329e16dc31c34d71c269c626e95ffbfbe1fe",
   "fetched_at": "2026-10-22T21:06:12+00:00"
  },
  {
-  "title": "Falco drift detection (Sysdig blog)",
+  "label": "F. Pedregosa et al. Scikit-learn: Machine Learning in Python. JMLR 12, 2011",
+  "url": "https://www.jmlr.org/papers/v12/pedregosa11a.html",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "pdf_url": "https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf",
+  "note": "thư viện ExtraTrees dùng trong Pulse",
+  "type": "paper",
+  "bib": {
+   "title": "Scikit-learn: Machine Learning in Python",
+   "authors": [
+    "Fabian Pedregosa",
+    "Gaël Varoquaux",
+    "Alexandre Gramfort",
+    "Vincent Michel",
+    "Bertrand Thirion",
+    "Olivier Grisel",
+    "Mathieu Blondel",
+    "Peter Prettenhofer",
+    "Ron Weiss",
+    "Vincent Dubourg",
+    "Jake Vanderplas",
+    "Alexandre Passos",
+    "David Cournapeau",
+    "Matthieu Brucher",
+    "Matthieu Perrot",
+    "Édouard Duchesnay"
+   ],
+   "year": 2011,
+   "venue": "Journal of Machine Learning Research"
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2011-pedregosa-scikit-learn-machine-learning-in-python.pdf",
+  "bytes": 42310,
+  "sha256": "1c338a6b3c6c1dcafda3990a8098b8b50dd6c77616361396fb75f6822c6e0778",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
+ },
+ {
+  "label": "F. T. Liu, K. M. Ting, Z.-H. Zhou. Isolation Forest. ICDM 2008",
+  "url": "https://doi.org/10.1109/ICDM.2008.17",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.15"
+  ],
+  "pdf_url": "https://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/icdm08b.pdf",
+  "note": "baseline Isolation Forest; PDF là bản tác giả",
+  "type": "paper",
+  "bib": {
+   "title": "Isolation Forest",
+   "authors": [
+    "Fei Tony Liu",
+    "Kai Ming Ting",
+    "Zhi-Hua Zhou"
+   ],
+   "year": 2008,
+   "venue": "2008 Eighth IEEE International Conference on Data Mining",
+   "doi": "10.1109/ICDM.2008.17",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2008-liu-isolation-forest.pdf",
+  "bytes": 258040,
+  "sha256": "188a224c40786174ae6c9037d4a64e2ead1bf5bd1eb6da6334b42d3271021862",
+  "fetched_at": "2026-10-23T05:25:08+00:00"
+ },
+ {
+  "label": "Falco (tài liệu dự án)",
+  "url": "https://falco.org/docs/",
+  "cited_in": [
+   "RULE_INTEGRATION_STATUS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "label": "Falco drift detection (Sysdig blog)",
   "url": "https://www.sysdig.com/blog/container-drift-detection-with-falco",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -401,109 +965,234 @@
   "status": "link_only"
  },
  {
-  "title": "FDR control for online anomaly detection (Krönert et al.)",
+  "label": "FDR control for online anomaly detection (Krönert et al.)",
   "url": "https://ar5iv.labs.arxiv.org/html/2312.01969",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "FDR Control for Online Anomaly Detection",
+   "authors": [
+    "Krönert, Etienne",
+    "Célisse, Alain",
+    "Hattab, Dalila"
+   ],
+   "year": 2023,
+   "venue": "arXiv",
+   "arxiv": "2312.01969",
+   "abstract": "A new online multiple testing procedure is described in the context of anomaly detection, which controls the False Discovery Rate (FDR). An accurate anomaly detector must control the false positive rate at a prescribed level while keeping the false negative rate as low as possible. However in the online context, such a constraint remains highly challenging due to the usual lack of FDR control: the online framework makes it impossible to use classical multiple testing approaches such as the Benjamini-Hochberg (BH) procedure, which would require knowing the entire time series. The developed strategy relies on exploiting the local control of the ``modified FDR'' (mFDR) criterion. It turns out that the local control of mFDR enables global control of the FDR over the full series up to additional modifications of the multiple testing procedures. An important ingredient in this control is the cardinality of the calibration dataset used to compute the empirical p-values. A dedicated strategy for tuning this parameter is designed for achieving the prescribed FDR control over the entire time series. The good statistical performance of the full strategy is analyzed by theoretical guarantees. Its practical behavior is assessed by several simulation experiments which support our conclusions.",
+   "abstract_source": "arXiv 2312.01969 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/fdr-control-for-online-anomaly-detection-kr-nert-et-al.pdf",
+  "how": "script",
+  "file": "pdf/2023-kronert-fdr-control-for-online-anomaly-detection.pdf",
   "bytes": 2041814,
   "sha256": "179f24f1f771b8ddb09ff76e52d720c32fbd0ee8d8f27c7517753db3028aaa73",
-  "fetched_at": "2026-10-22T21:06:12+00:00"
+  "fetched_at": "2026-10-23T05:21:43+00:00"
  },
  {
-  "title": "FedMon",
+  "label": "FedMon",
   "url": "https://arxiv.org/html/2510.10126",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "FedMon: Federated eBPF Monitoring for Distributed Anomaly Detection in Multi-Cluster Cloud Environments",
+   "authors": [
+    "Zehra, Sehar",
+    "Syed, Hassan Jamil",
+    "Faseeha, Ummay"
+   ],
+   "year": 2025,
+   "venue": "arXiv",
+   "arxiv": "2510.10126",
+   "abstract": "Kubernetes multi-cluster deployments demand scalable and privacy-preserving anomaly detection. Existing eBPF-based monitors provide low-overhead system and network visibility but are limited to single clusters, while centralized approaches incur bandwidth, privacy, and heterogeneity challenges. We propose FedMon, a federated eBPF framework that unifies kernel-level telemetry with federated learning (FL) for cross-cluster anomaly detection. Lightweight eBPF agents capture syscalls and network events, extract local statistical and sequence features, and share only model updates with a global server. A hybrid detection engine combining Variational Autoencoders (VAEs) with Isolation Forests enables both temporal pattern modeling and outlier detection. Deployed across three Kubernetes clusters, FedMon achieves 94% precision, 91% recall, and an F1-score of 0.92, while cutting bandwidth usage by 60% relative to centralized baselines. Results demonstrate that FedMon enhances accuracy, scalability, and privacy, providing an effective defense for large-scale, multi-tenant cloud-native environments.",
+   "abstract_source": "arXiv 2510.10126 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/fedmon.pdf",
+  "how": "script",
+  "file": "pdf/2025-zehra-fedmon-federated-ebpf-monitoring-for-distributed-anomaly.pdf",
   "bytes": 1147616,
   "sha256": "cae36bed6c667765d5023308ea78b51ab225b94d747d994731c72e825b197bf4",
-  "fetched_at": "2026-10-22T21:06:12+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2510.10126"
  },
  {
+  "label": "G. Lorden. Procedures for reacting to a change in distribution. Annals of Mathematical Statistics 42(6), 1971",
+  "url": "https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-42/issue-6/Procedures-for-Reacting-to-a-Change-in-Distribution/10.1214/aoms/1177693055.full",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
-  "title": "G. Lorden. Procedures for reacting to a change in distribution. Annals of Mathematical Statistics 42(6), 1971",
-  "url": "https://projecteuclid.org/journals/annals-of-mathematical-statistics/volume-42/issue-6/Procedures-for-Reacting-to-a-Change-in-Distribution/10.1214/aoms/1177693055.full",
   "note": "tối ưu minimax của CUSUM",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Procedures for Reacting to a Change in Distribution",
+   "authors": [
+    "G. Lorden"
+   ],
+   "year": 1971,
+   "venue": "The Annals of Mathematical Statistics",
+   "doi": "10.1214/aoms/1177693055",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/1971-lorden-procedures-for-reacting-to-a-change-in-distribution.pdf",
+  "bytes": 1063457,
+  "sha256": "bec65c82c65885471823c18a10c8590a4ccdd3bc874cb504755cad1837d47cb2",
+  "fetched_at": "2026-10-23T05:33:12+00:00"
  },
  {
-  "cited_in": [
-   "SENTINEL_PULSE_STATUS.md 5.19",
-   "RESEARCH_IDEAS.md"
-  ],
-  "title": "G. V. Moustakides. Optimal stopping times for detecting changes in distributions. Annals of Statistics 14(4), 1986",
+  "label": "G. V. Moustakides. Optimal stopping times for detecting changes in distributions. Annals of Statistics 14(4), 1986",
   "url": "https://projecteuclid.org/journals/annals-of-statistics/volume-14/issue-4/Optimal-Stopping-Times-for-Detecting-Changes-in-Distributions/10.1214/aos/1176350164.full",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md 5.19"
+  ],
   "note": "CUSUM tối ưu khi bằng chứng từng cửa sổ cố định",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "Optimal Stopping Times for Detecting Changes in Distributions",
+   "authors": [
+    "George V. Moustakides"
+   ],
+   "year": 1986,
+   "venue": "The Annals of Statistics",
+   "doi": "10.1214/aos/1176350164",
+   "abstract": "It is shown that Page's stopping time is optimal for the detection of changes in distributions, in a well defined sense. This work is a generalization of an existing result where it was shown that Page's stopping time is optimal asymptotically.",
+   "abstract_source": "Crossref 10.1214/aos/1176350164"
+  },
+  "status": "downloaded",
+  "how": "placed_by_hand",
+  "file": "pdf/1986-moustakides-optimal-stopping-times-for-detecting-changes-in.pdf",
+  "bytes": 758569,
+  "sha256": "7d020b58ea2eddf04bd90a78f97786737b848f38dcc246628a97f7bfa189cf2d",
+  "fetched_at": "2026-10-23T05:33:12+00:00"
  },
  {
-  "title": "Hummingbird",
+  "label": "Hummingbird",
   "url": "https://www.microsoft.com/en-us/research/publication/a-tensor-compiler-for-unified-machine-learning-prediction-serving/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "A Tensor Compiler for Unified Machine Learning Prediction Serving",
+   "authors": [
+    "Supun Nakandala",
+    "Karla Saur",
+    "Gyeong-In Yu",
+    "Konstantinos Karanasos",
+    "Carlo Curino",
+    "Markus Weimer",
+    "Matteo Interlandi"
+   ],
+   "year": 2020,
+   "venue": "Symposium on Operating Systems Design and Implementation (OSDI)",
+   "abstract": "Machine Learning (ML) adoption in the enterprise requires simpler and more efficient software infrastructure—the bespoke solutions typical in large web companies are simply untenable. Model scoring, the process of obtaining predictions from a trained model over new data, is a primary contributor to infrastructure complexity and cost as models are trained once but used many […]",
+   "abstract_source": "https://www.microsoft.com/en-us/research/publication/a-tensor-compiler-for-unified-machine-learning-prediction-serving/"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/hummingbird.pdf",
+  "how": "script",
+  "file": "pdf/2020-nakandala-a-tensor-compiler-for-unified-machine-learning-prediction.pdf",
   "bytes": 1434949,
   "sha256": "add16d657229659904797dd0af9321013ad45a4beec69f1e7e5063aef11422f3",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "KAIROS (IEEE S&P 2024)",
+  "label": "KAIROS (IEEE S&P 2024)",
   "url": "https://arxiv.org/abs/2308.05034",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Kairos: Practical Intrusion Detection and Investigation using Whole-system Provenance",
+   "authors": [
+    "Cheng, Zijun",
+    "Lv, Qiujian",
+    "Liang, Jinyuan",
+    "Wang, Yan",
+    "Sun, Degang",
+    "Pasquier, Thomas",
+    "Han, Xueyuan"
+   ],
+   "year": 2023,
+   "venue": "arXiv",
+   "arxiv": "2308.05034",
+   "abstract": "Provenance graphs are structured audit logs that describe the history of a system's execution. Recent studies have explored a variety of techniques to analyze provenance graphs for automated host intrusion detection, focusing particularly on advanced persistent threats. Sifting through their design documents, we identify four common dimensions that drive the development of provenance-based intrusion detection systems (PIDSes): scope (can PIDSes detect modern attacks that infiltrate across application boundaries?), attack agnosticity (can PIDSes detect novel attacks without a priori knowledge of attack characteristics?), timeliness (can PIDSes efficiently monitor host systems as they run?), and attack reconstruction (can PIDSes distill attack activity from large provenance graphs so that sysadmins can easily understand and quickly respond to system intrusion?). We present KAIROS, the first PIDS that simultaneously satisfies the desiderata in all four dimensions, whereas existing approaches sacrifice at least one and struggle to achieve comparable detection performance. Kairos leverages a novel graph neural network-based encoder-decoder architecture that learns the temporal evolution of a provenance graph's structural changes to quantify the degree of anomalousness for each system event. Then, based on this fine-grained information, Kairos reconstructs attack footprints, generating compact summary graphs that accurately describe malicious activity over a stream of system audit logs. Using state-of-the-art benchmark datasets, we demonstrate that Kairos outperforms previous approaches.",
+   "abstract_source": "arXiv 2308.05034 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/kairos-ieee-s-p-2024.pdf",
+  "how": "script",
+  "file": "pdf/2023-cheng-kairos-practical-intrusion-detection-and-investigation-using.pdf",
   "bytes": 3183604,
   "sha256": "451feb967312f5be97ff6d1ce8282165f7ba0ba904fa00cc2004105c59610c4d",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "Khi nào nên retrain dưới drift",
+  "label": "Khi nào nên retrain dưới drift",
   "url": "https://arxiv.org/pdf/2608.19488",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "When to Retrain: An Empirical Study of Retraining Policies for Streaming ML Under Concept Drift, Budget, and Latency Constraints",
+   "authors": [
+    "Dasari, Sawan"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "arxiv": "2608.19488",
+   "abstract": "Production machine learning systems degrade under concept drift, yet practitioners have little principled guidance on when to retrain. Retraining is costly, retraining budgets are finite, and a retrained model does not take effect instantly: training and deployment latency leave a stale model serving predictions while the data continues to move. We present a controlled empirical study of three practical model-refresh policies (periodic retraining, error-threshold triggering, and statistical drift-triggered retraining with ADWIN) against a no-retrain baseline, evaluated under a unified system model that makes retraining budgets and training-plus-deployment latency explicit. Across 3,933 experiment runs spanning three drift regimes, three budget levels, up to five latency levels, three datasets, and two learning modes, we find that the single most consequential design decision is not the retraining policy but whether the deployed model learns incrementally. With per-sample incremental updates, and for the linear online learner with immediate labels studied here, no policy differs from the no-retrain baseline by a practically significant margin in any of 54 paired comparisons, even at extreme latency. Without incremental updates, policy choice separates outcomes by 15-55 percentage points of post-drift accuracy, and simple periodic retraining significantly outperforms both reactive policies under abrupt and gradual drift, while reactive policies retain an advantage only under recurring drift. We document systematic failure modes of reactive policies and a latency-budget queueing interaction that silently halves effective retraining budgets, and release the full simulator, dataset pipelines, and per-run artifacts for reproducibility.",
+   "abstract_source": "arXiv 2608.19488 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/khi-n-o-n-n-retrain-d-i-drift.pdf",
+  "how": "script",
+  "file": "pdf/2026-dasari-when-to-retrain-an-empirical-study-of-retraining-policies.pdf",
   "bytes": 1301167,
   "sha256": "f8d0e74790a798768ab5f9eeaad3657047d142471eb4f3af3978857bd0c0201c",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "KubAnomaly",
+  "label": "KubAnomaly",
   "url": "https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
-  "pdf_url": "none",
-  "note": "the PDF linked from the repository page is the library's ACE brochure, not the paper (checked 23/10)",
+  "pdf_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/eng2.12080",
+  "note": "the repository page links the library ACE brochure, not the paper (checked 23/10); the paper is open access at Wiley",
+  "html_url": "https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12080",
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "KubAnomaly: Anomaly detection for the Docker orchestration platform with neural network approaches",
+   "authors": [
+    "Chin‐Wei Tien",
+    "Tse‐Yung Huang",
+    "Chia‐Wei Tien",
+    "Ting‐Chun Huang",
+    "Sy‐Yen Kuo"
+   ],
+   "year": 2019,
+   "venue": "Engineering Reports",
+   "doi": "10.1002/eng2.12080",
+   "abstract": "Kubernetes, which is the most popular orchestration platform for Docker containers, is used widely for developing microservices and automating Docker instance life cycle administration. Because of advancements in containerization technology, a single server can run multiple services and use hardware resources more efficiently. However, containerized environments also bring new challenges in terms of complete monitoring and security provision. Thus, hackers can exploit the security vulnerabilities of containers to gain remote control permissions and cause extensive damage to company assets. Therefore, in this study, we propose KubAnomaly, a system that provides security monitoring capabilities for anomaly detection on the Kubernetes orchestration platform. We develop a container monitoring module for Kubernetes and implement neural network approaches to create classification models that strengthen its ability to find abnormal behaviors such as web service attacks and common vulnerabilities and exposures attacks. We use three types of datasets to evaluate our system, including privately collected and publicly available datasets as well as real‐world experiment data. Furthermore, we demonstrate the effectiveness of KubAnomaly by comparing its accuracy with that of other machine learning algorithms. KubAnomaly is shown to achieve an overall accuracy of up to 96% for anomaly detection. It successfully identifies four real attacks carried out by hackers in September 2018. Moreover, its performance overhead is only 5% greater than that of current methods. In summary, KubAnomaly significantly improves container security by avoiding anomaly attacks.",
+   "abstract_source": "Crossref 10.1002/eng2.12080"
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf",
+  "bytes": 51193,
+  "sha256": "dd63a9d6b975488eea769b702a7ba61a2030e206bf8c2b89778be90f59482c85",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
  },
  {
-  "title": "LID-DS (kịch bản)",
+  "label": "LID-DS (kịch bản)",
   "url": "https://github.com/LID-DS/LID-DS",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -512,91 +1201,170 @@
   "status": "link_only"
  },
  {
-  "title": "LID-DS 2021",
+  "label": "LID-DS 2021",
   "url": "https://dbs.uni-leipzig.de/file/CRITIS_2022_Extended_Abstract_LID-DS-2021.pdf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Extended Abstract: LID-DS 2021",
+   "authors": [
+    "Martin Grimmer",
+    "Tim Kaelble",
+    "Felix Nirsberger",
+    "Emmely Schulze",
+    "Toni Rucks",
+    "Jörn Hoffmann",
+    "Erhard Rahm"
+   ],
+   "year": 2022,
+   "venue": "CRITIS 2022"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/lid-ds-2021.pdf",
+  "how": "script",
+  "file": "pdf/2022-grimmer-extended-abstract-lid-ds-2021.pdf",
   "bytes": 318917,
   "sha256": "20f46e050aeea9e6c8862c67f289dee2c0514140eb4a96c492b9a41dc6ab2723",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "LORD và SAFFRON dưới phụ thuộc dương",
+  "label": "LORD và SAFFRON dưới phụ thuộc dương",
   "url": "https://arxiv.org/pdf/2110.08161",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Online False Discovery Rate Control for LORD &amp; SAFFRON Under Positive, Local Dependence",
+   "authors": [
+    "Fisher, Aaron"
+   ],
+   "year": 2021,
+   "venue": "arXiv",
+   "arxiv": "2110.08161",
+   "abstract": "Online testing procedures assume that hypotheses are observed in sequence, and allow the significance thresholds for upcoming tests to depend on the test statistics observed so far. Some of the most popular online methods include alpha investing, LORD++ (hereafter, LORD), and SAFFRON. These three methods have been shown to provide online control of the \"modified\" false discovery rate (mFDR) under a condition known as conditional superuniformity. However, to our knowledge, LORD &amp; SAFFRON have only been shown to control the traditional false discovery rate (FDR) under an independence condition on the test statistics. Our work bolsters these results by showing that SAFFRON and LORD additionally ensure online control of the FDR under a \"local\" form of nonnegative dependence. Further, FDR control is maintained under certain types of adaptive stopping rules, such as stopping after a certain number of rejections have been observed. Because alpha investing can be recovered as a special case of the SAFFRON framework, our results immediately apply to alpha investing as well. In the process of deriving these results, we also formally characterize how the conditional superuniformity assumption implicitly limits the allowed p-value dependencies. This implicit limitation is important not only to our proposed FDR result, but also to many existing mFDR results.",
+   "abstract_source": "arXiv 2110.08161 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/lord-v-saffron-d-i-ph-thu-c-d-ng.pdf",
+  "how": "script",
+  "file": "pdf/2021-fisher-online-false-discovery-rate-control-for-lord-amp-saffron.pdf",
   "bytes": 578555,
   "sha256": "5bed4558e0fa8bbc8bc238a5cdf08735abf0c9bedfb2d38de6587aa55807d8ef",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "LSTM system-call LM",
+  "label": "LSTM system-call LM",
   "url": "https://ar5iv.labs.arxiv.org/html/1611.01726",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "LSTM-Based System-Call Language Modeling and Robust Ensemble Method for Designing Host-Based Intrusion Detection Systems",
+   "authors": [
+    "Kim, Gyuwan",
+    "Yi, Hayoon",
+    "Lee, Jangho",
+    "Paek, Yunheung",
+    "Yoon, Sungroh"
+   ],
+   "year": 2016,
+   "venue": "arXiv",
+   "arxiv": "1611.01726",
+   "abstract": "In computer security, designing a robust intrusion detection system is one of the most fundamental and important problems. In this paper, we propose a system-call language-modeling approach for designing anomaly-based host intrusion detection systems. To remedy the issue of high false-alarm rates commonly arising in conventional methods, we employ a novel ensemble method that blends multiple thresholding classifiers into a single one, making it possible to accumulate 'highly normal' sequences. The proposed system-call language model has various advantages leveraged by the fact that it can learn the semantic meaning and interactions of each system call that existing methods cannot effectively consider. Through diverse experiments on public benchmark datasets, we demonstrate the validity and effectiveness of the proposed method. Moreover, we show that our model possesses high portability, which is one of the key aspects of realizing successful intrusion detection systems.",
+   "abstract_source": "arXiv 1611.01726 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/lstm-system-call-lm.pdf",
+  "how": "script",
+  "file": "pdf/2016-kim-lstm-based-system-call-language-modeling-and-robust-ensemble.pdf",
   "bytes": 1041621,
   "sha256": "0ee9debfb55cfd91bae758a9f52861590ed389ffdbd3a33cec44ac6b9bcf3e8e",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "METANOIA",
+  "label": "METANOIA",
   "url": "https://arxiv.org/html/2501.00438",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "METANOIA: A Lifelong Intrusion Detection and Investigation System for Mitigating Concept Drift",
+   "authors": [
+    "Ying, Jie",
+    "Zheng, Mengce",
+    "Chen, Jungan",
+    "Chen, Ruoxi",
+    "Zhua, Zhongjie",
+    "Zhu, Tiantian"
+   ],
+   "year": 2025,
+   "venue": "arXiv",
+   "arxiv": "2501.00438",
+   "abstract": "As Advanced Persistent Threat (APT) complexity increases, provenance data is increasingly used for detection. Anomaly-based systems are gaining attention due to their attack-knowledge-agnostic nature and ability to counter zero-day vulnerabilities. However, traditional detection paradigms, which train on offline, limited-size data, often overlook concept drift - unpredictable changes in streaming data distribution over time. This leads to high false positive rates. We propose incremental learning as a new paradigm to mitigate this issue. However, we identify FOUR CHALLENGES while integrating incremental learning as a new paradigm. First, the long-running incremental system must combat catastrophic forgetting (C1) and avoid learning malicious behaviors (C2). Then, the system needs to achieve precise alerts (C3) and reconstruct attack scenarios (C4). We present METANOIA, the first lifelong detection system that mitigates the high false positives due to concept drift. It connects pseudo edges to combat catastrophic forgetting, transfers suspicious states to avoid learning malicious behaviors, filters nodes at the path-level to achieve precise alerts, and constructs mini-graphs to reconstruct attack scenarios. Using state-of-the-art benchmarks, we demonstrate that METANOIA improves precision performance at the window-level, graph-level, and node-level by 30%, 54%, and 29%, respectively, compared to previous approaches.",
+   "abstract_source": "arXiv 2501.00438 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/metanoia.pdf",
+  "how": "script",
+  "file": "pdf/2025-ying-metanoia-a-lifelong-intrusion-detection-and-investigation.pdf",
   "bytes": 730946,
   "sha256": "a3e8c6427b7f92275982f5a72ea7dcddb60b13a0588d35a58a1b27839c561904",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "Mimicry attacks against provenance-graph HIDS (NDSS 2023)",
+  "label": "Mimicry attacks against provenance-graph HIDS (NDSS 2023)",
   "url": "https://www.ndss-symposium.org/ndss-paper/sometimes-you-arent-what-you-do-mimicry-attacks-against-provenance-graph-host-intrusion-detection-systems",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Sometimes, You Aren't What You Do: Mimicry Attacks against Provenance Graph Host Intrusion Detection Systems",
+   "authors": [
+    "Akul Goyal",
+    "Xueyuan Han",
+    "Gang Wang",
+    "Adam Bates"
+   ],
+   "year": 2023,
+   "venue": "NDSS 2023"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/mimicry-attacks-against-provenance-graph-hids-ndss-2023.pdf",
+  "how": "script",
+  "file": "pdf/2023-goyal-sometimes-you-aren-t-what-you-do-mimicry-attacks-against.pdf",
   "bytes": 2580083,
   "sha256": "ee098b55390fe2adf545c27e3972ffbe752919d606f3dd786ae276f1372a87f6",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "Mimicry attacks on host-based IDS (CCS 2002)",
+  "label": "Mimicry attacks on host-based IDS (CCS 2002)",
   "url": "https://www.cs.purdue.edu/homes/ninghui/readings/AccessControl/wagner_soto_ccs02.pdf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "Mimicry Attacks on Host-Based Intrusion Detection Systems",
+   "authors": [
+    "David Wagner",
+    "Paolo Soto"
+   ],
+   "year": 2002,
+   "venue": "ACM CCS 2002",
+   "doi": "10.1145/586110.586145",
+   "abstract": null,
+   "abstract_source": null
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/mimicry-attacks-on-host-based-ids-ccs-2002.pdf",
+  "how": "script",
+  "file": "pdf/2002-wagner-mimicry-attacks-on-host-based-intrusion-detection-systems.pdf",
   "bytes": 170374,
   "sha256": "1ce336c0ec4dcaf0e2a0756d05d70d73bfcf5da9de20af3d33d412045d6d6b0a",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "MITRE ATT&CK for Containers",
+  "label": "MITRE ATT&CK for Containers",
   "url": "https://attack.mitre.org/matrices/enterprise/containers/",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -605,7 +1373,7 @@
   "status": "link_only"
  },
  {
-  "title": "Mondrian conformal (MAPIE)",
+  "label": "Mondrian conformal (MAPIE)",
   "url": "https://mapie.readthedocs.io/en/stable/theoretical_description_mondrian.html",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -614,102 +1382,248 @@
   "status": "link_only"
  },
  {
-  "title": "NODLINK",
+  "label": "NODLINK",
   "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-204-paper.pdf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "NODLINK: An Online System for Fine-Grained APT Attack Detection and Investigation",
+   "authors": [
+    "Shaofei Li",
+    "Feng Dong",
+    "Xusheng Xiao",
+    "Haoyu Wang",
+    "Fei Shao",
+    "Jiedong Chen",
+    "Yao Guo",
+    "Xiangqun Chen",
+    "Ding Li"
+   ],
+   "year": 2024,
+   "venue": "NDSS 2024"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/nodlink.pdf",
+  "how": "script",
+  "file": "pdf/2024-li-nodlink-an-online-system-for-fine-grained-apt-attack.pdf",
   "bytes": 701047,
   "sha256": "3e5f782db02fa12e15d91d4e817fb516369b94726398df7cb2f7a67d889f40c5",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "NoDoze (NDSS 2019)",
+  "label": "NoDoze (NDSS 2019)",
   "url": "https://www.ndss-symposium.org/ndss-paper/nodoze-combatting-threat-alert-fatigue-with-automated-provenance-triage",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
+   "authors": [
+    "Wajih Ul Hassan",
+    "Shengjian Guo",
+    "Ding Li",
+    "Zhengzhang Chen",
+    "Kangkook Jee",
+    "Zhichun Li",
+    "Adam Bates"
+   ],
+   "year": 2019,
+   "venue": "NDSS 2019"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/nodoze-ndss-2019.pdf",
+  "how": "script",
+  "file": "pdf/2019-hassan-nodoze-combatting-threat-alert-fatigue-with-automated.pdf",
   "bytes": 1330785,
   "sha256": "15d7c571eac4994a6299f82f863b298d135da28f5bc6df1864f87da157227db9",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "Online FDR cho anomaly detection chuỗi thời gian",
+  "label": "Online FDR cho anomaly detection chuỗi thời gian",
   "url": "https://arxiv.org/pdf/2112.03196",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Online false discovery rate control for anomaly detection in time series",
+   "authors": [
+    "Rebjock, Quentin",
+    "Kurt, Barış",
+    "Januschowski, Tim",
+    "Callot, Laurent"
+   ],
+   "year": 2021,
+   "venue": "arXiv",
+   "arxiv": "2112.03196",
+   "abstract": "This article proposes novel rules for false discovery rate control (FDRC) geared towards online anomaly detection in time series. Online FDRC rules allow to control the properties of a sequence of statistical tests. In the context of anomaly detection, the null hypothesis is that an observation is normal and the alternative is that it is anomalous. FDRC rules allow users to target a lower bound on precision in unsupervised settings. The methods proposed in this article overcome short-comings of previous FDRC rules in the context of anomaly detection, in particular ensuring that power remains high even when the alternative is exceedingly rare (typical in anomaly detection) and the test statistics are serially dependent (typical in time series). We show the soundness of these rules in both theory and experiments.",
+   "abstract_source": "arXiv 2112.03196 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/online-fdr-cho-anomaly-detection-chu-i-th-i-gian.pdf",
-  "bytes": 1169635,
-  "sha256": "0f1549ef717e927971b88eb044c0a51666b7a4895008d9e28e6f1d2aa0416e11",
+  "how": "script",
+  "file": "pdf/2021-rebjock-online-false-discovery-rate-control-for-anomaly-detection-in.pdf",
+  "bytes": 2041814,
+  "sha256": "179f24f1f771b8ddb09ff76e52d720c32fbd0ee8d8f27c7517753db3028aaa73",
   "fetched_at": "2026-10-22T21:06:14+00:00"
  },
  {
-  "title": "ORTHRUS",
+  "label": "ORTHRUS",
   "url": "https://tfjmp.org/publications/2025-usenixsec.pdf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "ORTHRUS: Achieving High Quality of Attribution in Provenance-based Intrusion Detection Systems",
+   "authors": [
+    "Baoxiang Jiang",
+    "Tristan Bilot",
+    "Nour El Madhoun",
+    "Khaldoun Al Agha",
+    "Anis Zouaoui",
+    "Shahrear Iqbal",
+    "Xueyuan Han",
+    "Thomas Pasquier"
+   ],
+   "year": 2025,
+   "venue": "USENIX Security 2025"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/orthrus.pdf",
+  "how": "script",
+  "file": "pdf/2025-jiang-orthrus-achieving-high-quality-of-attribution-in-provenance.pdf",
   "bytes": 2301520,
   "sha256": "e0746a89fce53b5380165fd15972f680767d5af3cf1820328ba337b7963e316f",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://tfjmp.org/publications/2025-usenixsec.pdf"
  },
  {
-  "title": "Phát hiện cryptojacking bằng Tetragon + ML (Electronics 2025)",
+  "label": "P. Geurts, D. Ernst, L. Wehenkel. Extremely randomized trees. Machine Learning 63(1), 2006",
+  "url": "https://doi.org/10.1007/s10994-006-6226-1",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "pdf_url": "https://orbi.uliege.be/bitstream/2268/9357/1/geurts-mlj-advance.pdf",
+  "note": "bộ chấm điểm ExtraTrees của Pulse; PDF là bản tác giả",
+  "type": "paper",
+  "bib": {
+   "title": "Extremely randomized trees",
+   "authors": [
+    "Pierre Geurts",
+    "Damien Ernst",
+    "Louis Wehenkel"
+   ],
+   "year": 2006,
+   "venue": "Machine Learning",
+   "doi": "10.1007/s10994-006-6226-1",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2006-geurts-extremely-randomized-trees.pdf",
+  "bytes": 3073482,
+  "sha256": "4f8c5da12c57a375b3535c2df05954e6fc76ffbc3a6078ae00ae1e1c6afe2703",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
+ },
+ {
+  "label": "Phát hiện cryptojacking bằng Tetragon + ML (Electronics 2025)",
   "url": "https://doi.org/10.3390/electronics14061208",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
-  "status": "not_downloaded"
- },
- {
-  "title": "R. F. Barber, E. J. Candès, A. Ramdas, R. J. Tibshirani. Conformal prediction beyond exchangeability. Annals of Statistics 51(2), 2023",
-  "url": "https://doi.org/10.1214/23-AOS2276",
-  "cited_in": [
-   "RESEARCH_IDEAS.md"
-  ],
-  "pdf_url": "https://arxiv.org/pdf/2202.13415",
-  "note": "PDF là bản arXiv của cùng bài",
-  "type": "paper",
+  "bib": {
+   "title": "Detecting Cryptojacking Containers Using eBPF-Based Security Runtime and Machine Learning",
+   "authors": [
+    "Riyeong Kim",
+    "Jeongeun Ryu",
+    "Sumin Kim",
+    "Soomin Lee",
+    "Seongmin Kim"
+   ],
+   "year": 2025,
+   "venue": "Electronics",
+   "doi": "10.3390/electronics14061208",
+   "abstract": "As the use of containers has become mainstream in the cloud environment, various security threats targeting containers have also been increasing. Among them, a notable malicious activity is a cryptojacking attack that steals resources without the consent of an instance owner to mine cryptocurrency. However, detecting such anomalies in a containerized environment is more complex because containers share the host kernel, making it challenging to pinpoint resource usage and anomalies at the container granularity without introducing significant overhead. To this end, this study proposes a runtime detection framework for identifying malicious mining behaviors in the cloud-native environment. By leveraging Tetragon, a runtime security tool based on the extended Berkeley Packet Filter (eBPF), we capture system call traces and flow-level information of cryptojacking containers to extract rich feature representations for training and evaluating various machine learning models. As a result of the experiment, our framework delivers up to 99.75% classification accuracy with moderate runtime monitoring overhead.",
+   "abstract_source": "Crossref 10.3390/electronics14061208"
+  },
   "status": "downloaded",
   "how": "placed_by_hand",
-  "file": "pdf/r-f-barber-e-j-cand-s-a-ramdas-r-j-tibshirani-conformal-prediction-bey.pdf",
-  "bytes": 4176553,
-  "sha256": "7d09be24289de9a91d90e1ce6331ce28e229f067bea9cdb095cebfa067e3416f",
-  "fetched_at": "2026-10-22T21:06:15+00:00"
+  "file": "pdf/2025-kim-detecting-cryptojacking-containers-using-ebpf-based-security.pdf",
+  "bytes": 888791,
+  "sha256": "befcceedbdaed42ce1793eaf034f4c106a75c4075a111f80f8013261b344c34e",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  },
  {
-  "title": "REPLICAWATCHER (NDSS 2024)",
+  "label": "Prometheus Alertmanager (tài liệu)",
+  "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+  "cited_in": [
+   "RCA_RUNTIME_STATUS.md 5.14"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "label": "REPLICAWATCHER (NDSS 2024)",
   "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
+  "bib": {
+   "title": "REPLICAWATCHER: Training-less Anomaly Detection in Containerized Microservices",
+   "authors": [
+    "Asbat El Khairi",
+    "Marco Caselli",
+    "Andreas Peter",
+    "Andrea Continella"
+   ],
+   "year": 2024,
+   "venue": "NDSS 2024"
+  },
   "type": "paper",
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/replicawatcher-ndss-2024.pdf",
+  "how": "script",
+  "file": "pdf/2024-khairi-replicawatcher-training-less-anomaly-detection-in.pdf",
   "bytes": 535457,
   "sha256": "d4c0f0d2009931762ab124c67a6dc8eb9c46dd032444921daf49a51be721ee08",
-  "fetched_at": "2026-10-22T21:06:15+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf"
  },
  {
-  "title": "sentinel-ebpf",
+  "label": "S. Forrest, S. A. Hofmeyr, A. Somayaji, T. A. Longstaff. A sense of self for Unix processes. IEEE S&P 1996",
+  "url": "https://doi.org/10.1109/SECPRI.1996.502675",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "pdf_url": "https://www.cs.unm.edu/~immsec/publications/ieee-sp-96-unix.pdf",
+  "note": "STIDE",
+  "bib": {
+   "title": "A sense of self for Unix processes",
+   "authors": [
+    "S. Forrest",
+    "S.A. Hofmeyr",
+    "A. Somayaji",
+    "T.A. Longstaff"
+   ],
+   "year": 1996,
+   "venue": "IEEE Symposium on Security and Privacy 1996",
+   "doi": "10.1109/SECPRI.1996.502675",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "type": "paper",
+  "status": "reconstructed",
+  "how": "reconstructed",
+  "file": "pdf/1996-forrest-a-sense-of-self-for-unix-processes--reconstructed.pdf",
+  "bytes": 49454,
+  "sha256": "ab56065ee390d8952d6e5bb793af53e4bb889b0cdab119ef2abd21e43426e09e",
+  "fetched_at": "2026-10-23T05:33:12+00:00",
+  "reconstructed_from": "2026-10-23"
+ },
+ {
+  "label": "sentinel-ebpf",
   "url": "https://github.com/Murashidzi/sentinel-ebpf",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -718,72 +1632,149 @@
   "status": "link_only"
  },
  {
-  "title": "ShareAD",
+  "label": "ShareAD",
   "url": "https://api.crossref.org/works/10.1145%2F3712195",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
-  "status": "not_downloaded"
+  "bib": {
+   "title": "On the Practicability of Deep Learning Based Anomaly Detection for Modern Online Software Systems: A Pre-Train-and-Align Framework",
+   "authors": [
+    "Zilong He",
+    "Pengfei Chen",
+    "Zibin Zheng"
+   ],
+   "year": 2025,
+   "venue": "ACM Transactions on Software Engineering and Methodology",
+   "doi": "10.1145/3712195",
+   "abstract": "Operation and maintenance are critical activities in the whole lifecycle of modern online software systems, and anomaly detection is a crucial step of these activities. Recent studies mainly develop deep learning techniques to complete this task. Notably, though these techniques have achieved promising results in experimental evaluations, there are still several practicality gaps for them to be successfully applied in a real-world online system, including the scalability gap, availability gap, and alignment gap. To bridge these gaps, we propose an anomaly detection framework, namely ShareAD , based on a pre-train-and-align paradigm. Specifically, we argue that pre-training a shared model for anomaly detection is an effective way to bridge the scalability gap and the availability gap. To support this argument, we systematically study the necessity and feasibility of model sharing for online system maintenance. We further propose a novel model based upon Transformer encoder layers and Base layers, which works well for anomaly detection pre-training. Then, to bridge the alignment gap, we propose ShareAD alignment to align the pre-trained model with operator preference by jointly considering the local observation context and sensitivity of each monitor entity. Extensive experiments on two real-world large-scale datasets demonstrate the effectiveness and practicality of ShareAD .",
+   "abstract_source": "Crossref 10.1145/3712195"
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf",
+  "bytes": 49130,
+  "sha256": "8cf14315a715cef9552d7cf52e9b0b66865219c540257f97f71e00f6f20a7201",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
  },
  {
-  "title": "SIABench",
+  "label": "SIABench",
   "url": "https://arxiv.org/pdf/2603.06422",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Before You Hand Over the Wheel: Evaluating LLMs for Security Incident Analysis",
+   "authors": [
+    "Jajodia, Sourov",
+    "Sultana, Madeena",
+    "Majumdar, Suryadipta",
+    "Taylor, Adrian",
+    "Vandenberghe, Grant"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "arxiv": "2603.06422",
+   "abstract": "Security incident analysis (SIA) poses a major challenge for security operations centers, which must manage overwhelming alert volumes, large and diverse data sources, complex toolchains, and limited analyst expertise. These difficulties intensify because incidents evolve dynamically and require multi-step, multifaceted reasoning. Although organizations are eager to adopt Large Language Models (LLMs) to support SIA, the absence of rigorous benchmarking creates significant risks for assessing their effectiveness and guiding design decisions. Benchmarking is further complicated by: (i) the lack of an LLM-ready dataset covering a wide spectrum of SIA tasks; (ii) the continual emergence of new tasks reflecting the diversity of analyst responsibilities; and (iii) the rapid release of new LLMs that must be incorporated into evaluations. In this paper, we address these challenges by introducing SIABENCH, an agentic evaluation framework for security incident analysis. First, we construct a first-of-its-kind dataset comprising two major SIA task categories: (i) deep analysis workflows for security incidents (25 scenarios) and (ii) alert-triage tasks (135 scenarios). Second, we implement an agent capable of autonomously performing a broad spectrum of SIA tasks (including network and memory forensics, malware analysis across binary/code/PDF formats, phishing email and kit analysis, log analysis, and false-alert detection). Third, we benchmark 11 major LLMs (spanning both open- and closed-weight models) on these tasks, with extensibility to support emerging models and newly added analysis scenarios.",
+   "abstract_source": "arXiv 2603.06422 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/siabench.pdf",
+  "how": "script",
+  "file": "pdf/2026-jajodia-before-you-hand-over-the-wheel-evaluating-llms-for-security.pdf",
   "bytes": 2014407,
   "sha256": "0225d415fa2a5bbedc674a922a2d3538b8291c921a58f2a31b7e28f97616387c",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "SIR-Bench",
+  "label": "SIR-Bench",
   "url": "https://arxiv.org/pdf/2604.12040",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "SIR-Bench: Evaluating Investigation Depth in Security Incident Response Agents",
+   "authors": [
+    "Begimher, Daniel",
+    "Leo, Cristian",
+    "Huang, Jack",
+    "Gaw, Pat",
+    "Zheng, Bonan"
+   ],
+   "year": 2026,
+   "venue": "arXiv",
+   "arxiv": "2604.12040",
+   "abstract": "We present SIR-Bench, a benchmark of 794 test cases for evaluating autonomous security incident response agents that distinguishes genuine forensic investigation from alert parroting. Derived from 129 anonymized incident patterns with expert-validated ground truth, SIR-Bench measures not only whether agents reach correct triage decisions, but whether they discover novel evidence through active investigation. To construct SIR-Bench, we develop Once Upon A Threat (OUAT), a framework that replays real incident patterns in controlled cloud environments, producing authentic telemetry with measurable investigation outcomes. Our evaluation methodology introduces three complementary metrics: triage accuracy (M1), novel finding discovery (M2), and tool usage appropriateness (M3), assessed through an adversarial LLM-as-Judge that inverts the burden of proof -- requiring concrete forensic evidence to credit investigations. Evaluating our SIR agent on the benchmark demonstrates 97.1% true positive (TP) detection, 73.4% false positive (FP) rejection, and 5.67 novel key findings per case, establishing a baseline against which future investigation agents can be measured.",
+   "abstract_source": "arXiv 2604.12040 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/sir-bench.pdf",
+  "how": "script",
+  "file": "pdf/2026-begimher-sir-bench-evaluating-investigation-depth-in-security.pdf",
   "bytes": 421572,
   "sha256": "53f792215ed3d27f6e9aa78fabc0dff8106d4b8c8a4686fcd73bdc3dd7f3f797",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "So sánh Falco/Tetragon/Tracee (SciTePress 2025)",
+  "label": "So sánh Falco/Tetragon/Tracee (SciTePress 2025)",
   "url": "https://www.scitepress.org/PublishedPapers/2025/142727",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Comparative Analysis of eBPF-Based Runtime Security Monitoring Tools in Monitoring and Threat Detection on Kubernetes",
+   "authors": [
+    "Aldien Asy Syairozi",
+    ". Arizal"
+   ],
+   "year": 2025,
+   "venue": "Proceedings of the 1st International Conference on Research and Innovations in Information and Engineering Technology",
+   "doi": "10.5220/0014272700004928",
+   "abstract": "The rapid adoption of Kubernetes for managing cloud-native applications has increased the importance of runtime security. Extended Berkeley Packet Filter (eBPF)-based monitoring tools, such as Falco, Tetragon, and Tracee, offer real-time visibility and effective threat detection. This study evaluates and compares the Key Performance Indicator (KPI) and efficiency of these tools in addressing Container Escape, Denial of Service (DoS), and Cloud Cryptomining attacks based on the OWASP Kubernetes Top 10. Evaluation metrics include Mean Time to Detect (MTTD), Detection Rate (DR), False Positive Rate (FPR), as well as CPU and memory usage. The results show that Tetragon excels in detection time for Container Escape and Cryptomining threats, Falco excels in detecting DoS attacks, while Tracee has relatively lower detection speed. All tools can detect attacks with full accuracy without false positives. Resource usage analysis revealed minimal differences between baseline and attack conditions, indicating that detection activities did not significantly increase system load. Among the tools, Tetragon was the most efficient in CPU usage, Falco in memory consumption, while Tracee offered balanced resource utilization.",
+   "abstract_source": "https://www.scitepress.org/PublishedPapers/2025/142727"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/so-s-nh-falco-tetragon-tracee-scitepress-2025.pdf",
+  "how": "script",
+  "file": "pdf/2025-syairozi-comparative-analysis-of-ebpf-based-runtime-security.pdf",
   "bytes": 591635,
   "sha256": "1555f578b03be6d21951806a026f69b21d0d1be85a9614275cfc75ac804e9f09",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "So sánh nền tảng suy luận forest",
+  "label": "So sánh nền tảng suy luận forest",
   "url": "https://ar5iv.labs.arxiv.org/html/2302.04430",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "A Comparison of Decision Forest Inference Platforms from A Database Perspective",
+   "authors": [
+    "Guan, Hong",
+    "Dwarampudi, Mahidhar Reddy",
+    "Gunda, Venkatesh",
+    "Min, Hong",
+    "Yu, Lei",
+    "Zou, Jia"
+   ],
+   "year": 2023,
+   "venue": "arXiv",
+   "arxiv": "2302.04430",
+   "abstract": "Decision forest, including RandomForest, XGBoost, and LightGBM, is one of the most popular machine learning techniques used in many industrial scenarios, such as credit card fraud detection, ranking, and business intelligence. Because the inference process is usually performance-critical, a number of frameworks were developed and dedicated for decision forest inference, such as ONNX, TreeLite from Amazon, TensorFlow Decision Forest from Google, HummingBird from Microsoft, Nvidia FIL, and lleaves. However, these frameworks are all decoupled with data management frameworks. It is unclear whether in-database inference will improve the overall performance. In addition, these frameworks used different algorithms, optimization techniques, and parallelism models. It is unclear how these implementations will affect the overall performance and how to make design decisions for an in-database inference framework. In this work, we investigated the above questions by comprehensively comparing the end-to-end performance of the aforementioned inference frameworks and netsDB, an in-database inference framework we implemented. Through this study, we identified that netsDB is best suited for handling small-scale models on large-scale datasets and all-scale models on small-scale datasets, for which it achieved up to hundreds of times of speedup. In addition, the relation-centric representation we proposed significantly improved netsDB's performance in handling large-scale models, while the model reuse optimization we proposed further improved netsDB's performance in handling small-scale datasets.",
+   "abstract_source": "arXiv 2302.04430 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/so-s-nh-n-n-t-ng-suy-lu-n-forest.pdf",
+  "how": "script",
+  "file": "pdf/2023-guan-a-comparison-of-decision-forest-inference-platforms-from-a.pdf",
   "bytes": 1300417,
   "sha256": "e4dff6970a274a93d0a196d675960b20c2472462a4e125d464743bfc438a88d8",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "Sysdig 2025 report",
+  "label": "Sysdig 2025 report",
   "url": "https://www.sysdig.com/2025-cloud-native-security-and-usage-report",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -792,35 +1783,97 @@
   "status": "link_only"
  },
  {
-  "title": "Temporal System Call Specialization (USENIX Sec 2020)",
+  "label": "Temporal System Call Specialization (USENIX Sec 2020)",
   "url": "https://www.usenix.org/conference/usenixsecurity20/presentation/ghavamnia",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Temporal System Call Specialization for Attack Surface Reduction",
+   "authors": [
+    "Seyedhamed Ghavamnia",
+    "Tapti Palit",
+    "Shachee Mishra",
+    "Michalis Polychronakis"
+   ],
+   "year": 2020,
+   "venue": "29th USENIX Security Symposium (USENIX Security 20)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/temporal-system-call-specialization-usenix-sec-2020.pdf",
+  "how": "script",
+  "file": "pdf/2020-ghavamnia-temporal-system-call-specialization-for-attack-surface.pdf",
   "bytes": 856004,
   "sha256": "25519a29b4425912322c8be5ea5c6f3620914358b1f7928a43de0dc5f58003a3",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "Testing for outliers with conformal p-values",
+  "label": "Testing for outliers with conformal p-values",
   "url": "https://arxiv.org/pdf/2104.08279",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Testing for Outliers with Conformal p-values",
+   "authors": [
+    "Bates, Stephen",
+    "Candès, Emmanuel",
+    "Lei, Lihua",
+    "Romano, Yaniv",
+    "Sesia, Matteo"
+   ],
+   "year": 2021,
+   "venue": "arXiv",
+   "arxiv": "2104.08279",
+   "abstract": "This paper studies the construction of p-values for nonparametric outlier detection, taking a multiple-testing perspective. The goal is to test whether new independent samples belong to the same distribution as a reference data set or are outliers. We propose a solution based on conformal inference, a broadly applicable framework which yields p-values that are marginally valid but mutually dependent for different test points. We prove these p-values are positively dependent and enable exact false discovery rate control, although in a relatively weak marginal sense. We then introduce a new method to compute p-values that are both valid conditionally on the training data and independent of each other for different test points; this paves the way to stronger type-I error guarantees. Our results depart from classical conformal inference as we leverage concentration inequalities rather than combinatorial arguments to establish our finite-sample guarantees. Furthermore, our techniques also yield a uniform confidence bound for the false positive rate of any outlier detection algorithm, as a function of the threshold applied to its raw statistics. Finally, the relevance of our results is demonstrated by numerical experiments on real and simulated data.",
+   "abstract_source": "arXiv 2104.08279 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/testing-for-outliers-with-conformal-p-values.pdf",
+  "how": "script",
+  "file": "pdf/2021-bates-testing-for-outliers-with-conformal-p-values.pdf",
   "bytes": 3034055,
   "sha256": "1960e1bc7478ff80e07edb83d3afb66cd2495bf2ccb26bce8e3d69a1f5362ffb",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "Threat Matrix for Kubernetes",
+  "label": "Testing randomness online (Vovk 2021)",
+  "url": "https://projecteuclid.org/journals/statistical-science/volume-36/issue-4/Testing-Randomness-Online/10.1214/20-STS817.full",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "https://arxiv.org/pdf/1906.09256",
+  "note": "PDF là bản arXiv của cùng bài",
+  "type": "paper",
+  "bib": {
+   "title": "Testing randomness",
+   "authors": [
+    "Vovk, Vladimir"
+   ],
+   "year": 2019,
+   "venue": "arXiv",
+   "arxiv": "1906.09256",
+   "abstract": "The hypothesis of randomness is fundamental in statistical machine learning and in many areas of nonparametric statistics; it says that the observations are assumed to be independent and coming from the same unknown probability distribution. This hypothesis is close, in certain respects, to the hypothesis of exchangeability, which postulates that the distribution of the observations is invariant with respect to their permutations. This paper reviews known methods of testing the two hypotheses concentrating on the online mode of testing, when the observations arrive sequentially. All known online methods for testing these hypotheses are based on conformal martingales, which are defined and studied in detail. The paper emphasizes conceptual and practical aspects and states two kinds of results. Validity results limit the probability of a false alarm or the frequency of false alarms for various procedures based on conformal martingales, including conformal versions of the CUSUM and Shiryaev-Roberts procedures. Efficiency results establish connections between randomness, exchangeability, and conformal martingales.",
+   "abstract_source": "arXiv 1906.09256 (DataCite)"
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2019-vovk-testing-randomness.pdf",
+  "bytes": 608311,
+  "sha256": "0a9a1f2c7e96107f4f573e9aa3dd8f1d79798b84cbbd9923bd3db2ecb81efbe3",
+  "fetched_at": "2026-10-22T21:06:17+00:00"
+ },
+ {
+  "label": "Tetragon (tài liệu dự án)",
+  "url": "https://tetragon.io/docs/",
+  "cited_in": [
+   "RCA_RUNTIME_STATUS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "label": "Threat Matrix for Kubernetes",
   "url": "https://github.com/microsoft/Threat-Matrix-for-Kubernetes",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -829,21 +1882,33 @@
   "status": "link_only"
  },
  {
-  "title": "Tracking the risk of a deployed model (ICLR 2022)",
+  "label": "Tracking the risk of a deployed model (ICLR 2022)",
   "url": "https://arxiv.org/abs/2110.06177",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Tracking the risk of a deployed model and detecting harmful distribution shifts",
+   "authors": [
+    "Podkopaev, Aleksandr",
+    "Ramdas, Aaditya"
+   ],
+   "year": 2021,
+   "venue": "arXiv",
+   "arxiv": "2110.06177",
+   "abstract": "When deployed in the real world, machine learning models inevitably encounter changes in the data distribution, and certain -- but not all -- distribution shifts could result in significant performance degradation. In practice, it may make sense to ignore benign shifts, under which the performance of a deployed model does not degrade substantially, making interventions by a human expert (or model retraining) unnecessary. While several works have developed tests for distribution shifts, these typically either use non-sequential methods, or detect arbitrary shifts (benign or harmful), or both. We argue that a sensible method for firing off a warning has to both (a) detect harmful shifts while ignoring benign ones, and (b) allow continuous monitoring of model performance without increasing the false alarm rate. In this work, we design simple sequential tools for testing if the difference between source (training) and target (test) distributions leads to a significant increase in a risk function of interest, like accuracy or calibration. Recent advances in constructing time-uniform confidence sequences allow efficient aggregation of statistical evidence accumulated during the tracking process. The designed framework is applicable in settings where (some) true labels are revealed after the prediction is performed, or when batches of labels become available in a delayed fashion. We demonstrate the efficacy of the proposed framework through an extensive empirical study on a collection of simulated and real datasets.",
+   "abstract_source": "arXiv 2110.06177 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/tracking-the-risk-of-a-deployed-model-iclr-2022.pdf",
+  "how": "script",
+  "file": "pdf/2021-podkopaev-tracking-the-risk-of-a-deployed-model-and-detecting-harmful.pdf",
   "bytes": 4000113,
   "sha256": "a8bc8f2b9d224338874fd95c1d9626726e73e9349b3d728e8b7796ce7390636a",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "Training-less IDS in containerized microservices (Twente)",
+  "label": "Training-less IDS in containerized microservices (Twente)",
   "url": "https://www.utwente.nl/en/eemcs/events/2025/11/654945/phd-defence-asbat-el-khairi-training-less-anomaly-based-intrusion-detection-in-containerized-microservices",
   "cited_in": [
    "RESEARCH_IDEAS.md"
@@ -852,70 +1917,213 @@
   "status": "link_only"
  },
  {
-  "title": "Transcending Transcend (IEEE S&P 2022)",
+  "label": "Transcending Transcend (IEEE S&P 2022)",
   "url": "https://arxiv.org/abs/2010.03856",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Transcending Transcend: Revisiting Malware Classification in the Presence of Concept Drift",
+   "authors": [
+    "Barbero, Federico",
+    "Pendlebury, Feargus",
+    "Pierazzi, Fabio",
+    "Cavallaro, Lorenzo"
+   ],
+   "year": 2020,
+   "venue": "arXiv",
+   "arxiv": "2010.03856",
+   "abstract": "Machine learning for malware classification shows encouraging results, but real deployments suffer from performance degradation as malware authors adapt their techniques to evade detection. This phenomenon, known as concept drift, occurs as new malware examples evolve and become less and less like the original training examples. One promising method to cope with concept drift is classification with rejection in which examples that are likely to be misclassified are instead quarantined until they can be expertly analyzed. We propose TRANSCENDENT, a rejection framework built on Transcend, a recently proposed strategy based on conformal prediction theory. In particular, we provide a formal treatment of Transcend, enabling us to refine conformal evaluation theory -- its underlying statistical engine -- and gain a better understanding of the theoretical reasons for its effectiveness. In the process, we develop two additional conformal evaluators that match or surpass the performance of the original while significantly decreasing the computational overhead. We evaluate TRANSCENDENT on a malware dataset spanning 5 years that removes sources of experimental bias present in the original evaluation. TRANSCENDENT outperforms state-of-the-art approaches while generalizing across different malware domains and classifiers. To further assist practitioners, we determine the optimal operational settings for a TRANSCENDENT deployment and show how it can be applied to many popular learning algorithms. These insights support both old and new empirical findings, making Transcend a sound and practical solution for the first time. To this end, we release TRANSCENDENT as open source, to aid the adoption of rejection strategies by the security community.",
+   "abstract_source": "arXiv 2010.03856 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/transcending-transcend-ieee-s-p-2022.pdf",
+  "how": "script",
+  "file": "pdf/2020-barbero-transcending-transcend-revisiting-malware-classification-in.pdf",
   "bytes": 2658877,
   "sha256": "e79d3092a97381c4df288bb77a0c04f77e292ca462ce380f68ceee77d904aa1f",
-  "fetched_at": "2026-10-22T21:06:15+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2010.03856"
  },
  {
-  "title": "Transfer learning cho anomaly detection ở edge",
+  "label": "Transfer learning cho anomaly detection ở edge",
   "url": "https://arxiv.org/pdf/2408.12855",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Efficient Training Approaches for Performance Anomaly Detection Models in Edge Computing Environments",
+   "authors": [
+    "Fernando, Duneesha",
+    "Rodriguez, Maria A.",
+    "Arroba, Patricia",
+    "Ismail, Leila",
+    "Buyya, Rajkumar"
+   ],
+   "year": 2024,
+   "venue": "arXiv",
+   "arxiv": "2408.12855",
+   "abstract": "Microservice architectures are increasingly used to modularize IoT applications and deploy them in distributed and heterogeneous edge computing environments. Over time, these microservice-based IoT applications are susceptible to performance anomalies caused by resource hogging (e.g., CPU or memory), resource contention, etc., which can negatively impact their Quality of Service and violate their Service Level Agreements. Existing research on performance anomaly detection for edge computing environments focuses on model training approaches that either achieve high accuracy at the expense of a time-consuming and resource-intensive training process or prioritize training efficiency at the cost of lower accuracy. To address this gap, while considering the resource constraints and the large number of devices in modern edge platforms, we propose two clustering-based model training approaches : (1) intra-cluster parameter transfer learning-based model training (ICPTL) and (2) cluster-level model training (CM). These approaches aim to find a trade-off between the training efficiency of anomaly detection models and their accuracy. We compared the models trained under ICPTL and CM to models trained for specific devices (most accurate, least efficient) and a single general model trained for all devices (least accurate, most efficient). Our findings show that the model accuracy of ICPTL is comparable to that of the model per device approach while requiring only 40% of the training time. In addition, CM further improves training efficiency by requiring 23% less training time and reducing the number of trained models by approximately 66% compared to ICPTL, yet achieving a higher accuracy than a single general model.",
+   "abstract_source": "arXiv 2408.12855 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/transfer-learning-cho-anomaly-detection-edge.pdf",
+  "how": "script",
+  "file": "pdf/2024-fernando-efficient-training-approaches-for-performance-anomaly.pdf",
   "bytes": 1521663,
   "sha256": "6cc23b70ef0c5f11b25f8dcd26759260fe5d53f2dabba3a866ec5581a09ac1ff",
   "fetched_at": "2026-10-22T21:06:15+00:00"
  },
  {
-  "title": "Transformer + phân loại syscall (SBSeg)",
+  "label": "Transformer + phân loại syscall (SBSeg)",
   "url": "https://sol.sbc.org.br/index.php/sbseg/article/view/36676",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
-  "status": "not_downloaded"
- },
- {
-  "title": "V. Vovk. Testing randomness online. Statistical Science 36(4), 2021",
-  "url": "https://projecteuclid.org/journals/statistical-science/volume-36/issue-4/Testing-Randomness-Online/10.1214/20-STS817.full",
-  "cited_in": [
-   "RESEARCH_IDEAS.md"
-  ],
-  "pdf_url": "https://arxiv.org/pdf/1906.09256",
-  "note": "PDF là bản arXiv của cùng bài",
-  "type": "paper",
+  "bib": {
+   "title": "Detecção Eficiente de Anomalias em Hosts usando Transformer com Categorização de Chamadas de Sistema",
+   "authors": [
+    "Diogo Bortolini",
+    "Rafael R. Obelheiro",
+    "Carlos A. Maziero"
+   ],
+   "year": 2025,
+   "venue": "Anais do XXV Simpósio Brasileiro de Cibersegurança (SBSeg 2025)",
+   "doi": "10.5753/sbseg.2025.10695",
+   "abstract": "Este trabalho propõe uma abordagem eficiente para detecção de anomalias em hosts, baseada na análise de sequências de chamadas de sistema (syscalls). As syscalls são agrupadas por nível de ameaça e funcionalidade, gerando representações compactas analisadas por um modelo Transformer sobre matrizes de frequência de bigramas. Quatro representações foram avaliadas, e a combinação de ameaça e funcionalidade obteve F1-score de 0,90, próxima ao modelo original (0,92), com redução superior a 86% no tempo de execução, mantendo desempenho competitivo com menor custo computacional.",
+   "abstract_source": "Crossref 10.5753/sbseg.2025.10695"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/v-vovk-testing-randomness-online-statistical-science-36-4-2021.pdf",
-  "bytes": 608311,
-  "sha256": "0a9a1f2c7e96107f4f573e9aa3dd8f1d79798b84cbbd9923bd3db2ecb81efbe3",
-  "fetched_at": "2026-10-22T21:06:17+00:00"
+  "how": "script",
+  "file": "pdf/2025-bortolini-deteccao-eficiente-de-anomalias-em-hosts-usando-transformer.pdf",
+  "bytes": 287446,
+  "sha256": "5e8cc4d959f3bc8ed683f4187f5d4ed2847289963c044c44a3579fc7f878e2b5",
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://sol.sbc.org.br/index.php/sbseg/article/download/36676/36463"
  },
  {
-  "title": "Weighted conformal under covariate shift",
+  "label": "tài liệu Istio",
+  "url": "https://istio.io/latest/docs/ambient/usage/networkpolicy/",
+  "cited_in": [
+   "RCA_RUNTIME_STATUS.md"
+  ],
+  "type": "tool",
+  "status": "link_only"
+ },
+ {
+  "label": "V. Vovk, A. Gammerman, G. Shafer. Algorithmic Learning in a Random World. Springer, 2005",
+  "url": "https://doi.org/10.1007/b106715",
+  "cited_in": [
+   "docs/Bao_cao_tien_do_16_10-23_10.docx"
+  ],
+  "note": "nền tảng conformal prediction, Mondrian conformal (sách)",
+  "bib": {
+   "title": "Algorithmic Learning in a Random World",
+   "authors": [
+    "Vladimir Vovk",
+    "Alexander Gammerman",
+    "Glenn Shafer"
+   ],
+   "year": 2005,
+   "venue": "Springer",
+   "doi": "10.1007/b106715",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "type": "paper",
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf",
+  "bytes": 54958,
+  "sha256": "61ea5a36f584480ff67dc4a1eed10f379b62a3612fe155199de0c1e22d75ad5d",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
+ },
+ {
+  "label": "Weighted conformal under covariate shift",
   "url": "https://arxiv.org/abs/1904.06019",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
   "type": "paper",
+  "bib": {
+   "title": "Conformal Prediction Under Covariate Shift",
+   "authors": [
+    "Tibshirani, Ryan J.",
+    "Barber, Rina Foygel",
+    "Candes, Emmanuel J.",
+    "Ramdas, Aaditya"
+   ],
+   "year": 2019,
+   "venue": "arXiv",
+   "arxiv": "1904.06019",
+   "abstract": "We extend conformal prediction methodology beyond the case of exchangeable data. In particular, we show that a weighted version of conformal prediction can be used to compute distribution-free prediction intervals for problems in which the test and training covariate distributions differ, but the likelihood ratio between these two distributions is known---or, in practice, can be estimated accurately with access to a large set of unlabeled data (test covariate points). Our weighted extension of conformal prediction also applies more generally, to settings in which the data satisfies a certain weighted notion of exchangeability. We discuss other potential applications of our new conformal methodology, including latent variable and missing data problems.",
+   "abstract_source": "arXiv 1904.06019 (DataCite)"
+  },
   "status": "downloaded",
-  "how": "placed_by_hand",
-  "file": "pdf/weighted-conformal-under-covariate-shift.pdf",
+  "how": "script",
+  "file": "pdf/2019-tibshirani-conformal-prediction-under-covariate-shift.pdf",
   "bytes": 423685,
   "sha256": "d80dba944a136e075bbfe281009152ce42041e0a455f68f73684ace83cfc3fed",
-  "fetched_at": "2026-10-22T21:06:17+00:00"
+  "fetched_at": "2026-10-23T05:14:51+00:00",
+  "pdf_url": "https://arxiv.org/pdf/1904.06019"
+ },
+ {
+  "label": "Y. Lin, O. Tunde-Onadele, X. Gu. CDL: Classified Distributed Learning for Detecting Security Attacks in Containerized Applications. ACSAC 2020",
+  "url": "https://doi.org/10.1145/3427228.3427236",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "autoencoder trên tần suất syscall trong container (CDL)",
+  "type": "paper",
+  "bib": {
+   "title": "CDL: Classified Distributed Learning for Detecting Security Attacks in Containerized Applications",
+   "authors": [
+    "Yuhang Lin",
+    "Olufogorehan Tunde-Onadele",
+    "Xiaohui Gu"
+   ],
+   "year": 2020,
+   "venue": "Annual Computer Security Applications Conference",
+   "doi": "10.1145/3427228.3427236",
+   "abstract": null,
+   "abstract_source": null
+  },
+  "status": "reconstructed",
+  "how": "kept",
+  "file": "pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf",
+  "bytes": 53547,
+  "sha256": "0265d8aeb75820f45f0c1eb09cb673a384edaa2a646026a5ddc30f30e5cf1488",
+  "fetched_at": "2026-10-23T05:31:14+00:00",
+  "reconstructed_from": "2026-10-23"
+ },
+ {
+  "label": "Z. Chen. Robust tests for combining p-values under arbitrary dependency structures. Scientific Reports 12, 2022",
+  "url": "https://doi.org/10.1038/s41598-022-07094-7",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "pdf_url": "https://www.nature.com/articles/s41598-022-07094-7.pdf",
+  "note": "minP có thể mạnh hơn Cauchy combination",
+  "type": "paper",
+  "bib": {
+   "title": "Robust tests for combining p-values under arbitrary dependency structures",
+   "authors": [
+    "Zhongxue Chen"
+   ],
+   "year": 2022,
+   "venue": "Scientific Reports",
+   "doi": "10.1038/s41598-022-07094-7",
+   "abstract": "Abstract Recently Liu and Xie proposed a p -value combination test based on the Cauchy distribution (CCT). They showed that when the significance levels are small, CCT can control type I error rate and the resulting p -value can be simply approximated using a Cauchy distribution. One very special and attractive property of CCT is that it is applicable to situations where the p -values to be combined are dependent. However, in this paper, we show that under some conditions the commonly used MinP test is much more powerful than CCT. In addition, under some other situations, CCT is powerless at all. Therefore, we should use CCT with caution. We also proposed new robust p -value combination tests using a second MinP/CCT to combine the dependent p -values obtained from CCT and MinP applied to the original p -values. We call the new tests MinP-CCT-MinP (MCM) and CCT-MinP-CCT (CMC). We study the performance of the new tests by comparing them with CCT and MinP using comprehensive simulation study. Our study shows that the proposed tests, MCM and CMC, are robust and powerful under many conditions, and can be considered as alternatives of CCT or MinP.",
+   "abstract_source": "Crossref 10.1038/s41598-022-07094-7"
+  },
+  "status": "downloaded",
+  "how": "script",
+  "file": "pdf/2022-chen-robust-tests-for-combining-p-values-under-arbitrary.pdf",
+  "bytes": 1312449,
+  "sha256": "47f1e01082b4e046a23618f928a36eb5ec8ea099f68f6339837e3a86a32540af",
+  "fetched_at": "2026-10-23T05:14:51+00:00"
  }
 ]

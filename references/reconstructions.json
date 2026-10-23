@@ -1,0 +1,167 @@
+{
+ "https://doi.org/10.2307/2333009": {
+  "context_terms": [
+   "Page 1954",
+   "Page, 1954",
+   "(Page 1954)"
+  ],
+  "basis": "nội dung kinh điển của bài, không có tóm tắt công khai",
+  "how_to_get": "JSTOR (DOI 10.2307/2333009), cần tài khoản thư viện.",
+  "reading": [
+   "Đề xuất sơ đồ kiểm soát CUSUM (tổng tích lũy): cộng dồn độ lệch của từng quan sát so với một mức tham chiếu và báo động khi tổng vượt ngưỡng; dạng đệ quy thường viết S_n = max(0, S_{n−1} + x_n − k), báo khi S_n ≥ h.",
+   "Mục tiêu gốc là kiểm soát chất lượng sản xuất: phát hiện sớm khi trung bình của quá trình dịch chuyển.",
+   "Đánh giá bằng độ dài chạy trung bình (ARL): ARL khi quá trình còn bình thường càng dài thì càng ít báo nhầm; ARL sau thay đổi càng ngắn thì phát hiện càng nhanh. Chọn k và h là đánh đổi giữa hai đại lượng này.",
+   "Trong Pulse: CUSUM chạy trên −ln p của từng cửa sổ 0,5 s, k tương ứng với drift 3 và h với ngưỡng 6 (Pulse 5.19); biến thể chặn trần S ≤ h là của đồ án, không có trong bài này."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://doi.org/10.1080/01621459.1927.10502953": {
+  "context_terms": [
+   "Wilson"
+  ],
+  "basis": "nội dung kinh điển của bài, không có tóm tắt công khai",
+  "how_to_get": "Taylor & Francis / JSTOR (DOI 10.1080/01621459.1927.10502953), cần tài khoản thư viện.",
+  "abstract": null,
+  "reading": [
+   "Đưa ra khoảng tin cậy cho một tỉ lệ nhị thức bằng cách đảo phép kiểm định xấp xỉ chuẩn (nay gọi là khoảng Wilson hay score interval), thay vì cộng trừ sai số chuẩn quanh tỉ lệ quan sát.",
+   "Khoảng luôn nằm trong [0, 1] và hành xử tốt khi tỉ lệ gần 0 hoặc 1 hay cỡ mẫu nhỏ, là chỗ khoảng Wald thông thường sai nhiều.",
+   "Trong đồ án: CI 95% Wilson cho precision, recall, control dương và tỉ lệ binary vô hại bị gắn cờ trong các báo cáo .md và hình live-runs-metrics; các tỉ lệ này thường gần 100% hoặc vài phần trăm nên khoảng Wilson phù hợp hơn khoảng Wald."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://doi.org/10.1007/b106715": {
+  "context_terms": [
+   "Vovk",
+   "Mondrian"
+  ],
+  "abstract": "Algorithmic Learning in a Random World describes recent theoretical and experimental developments in building computable approximations to Kolmogorov's algorithmic notion of randomness. Based on these approximations, a new set of machine learning algorithms have been developed that can be used to make predictions and to estimate their confidence and credibility in high-dimensional spaces under the usual assumption that the data are independent and identically distributed (assumption of randomness).",
+  "abstract_source": "mô tả sách trên trang Springer (link.springer.com/book/10.1007/b106715)",
+  "basis": "mô tả sách và nội dung đã biết của conformal prediction",
+  "how_to_get": "Springer (DOI 10.1007/b106715; bản 2 năm 2022: DOI 10.1007/978-3-031-06649-8), cần tài khoản thư viện.",
+  "reading": [
+   "Sách nền tảng của conformal prediction: từ một độ đo \"bất thường\" (nonconformity) bất kỳ, dựng p-value và tập dự đoán có bảo đảm tần suất sai không quá mức chọn trước, chỉ với giả thiết dữ liệu hoán đổi được (exchangeable), không cần giả thiết phân phối.",
+   "Mondrian conformal: hiệu chỉnh riêng trong từng nhóm định trước (theo lớp, theo loại đối tượng), nên bảo đảm đúng trong từng nhóm chứ không chỉ trung bình toàn bộ.",
+   "Trong đồ án: p-value conformal của hai nhánh (tree, support) và joint p của Pulse; calibration theo lớp có/không exec ở hướng giảm gánh cảnh báo (Pulse 5.22) là một dạng Mondrian. Giả thiết hoán đổi cũng giải thích vì sao calibration cũ bị trôi khi môi trường đổi (Pulse 5.6, 5.24)."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://doi.org/10.1201/9780429246593": {
+  "context_terms": [
+   "bootstrap ghép cặp",
+   "Bootstrap"
+  ],
+  "abstract": "An Introduction to the Bootstrap arms scientists and engineers as well as statisticians with the computational techniques they need to analyze and understand complicated data sets. The bootstrap is a computer-based method of statistical inference that answers statistical questions without formulas and gives a direct appreciation of variance, bias, coverage, and other probabilistic phenomena. This book presents an overview of the bootstrap and related methods for assessing statistical accuracy, concentrating on the ideas rather than their mathematical justification. Not just for beginners, the presentation starts off slowly, but builds in both scope and depth to ideas that are quite sophisticated.",
+  "abstract_source": "mô tả sách (OpenAlex, DOI 10.1201/9780429246593)",
+  "basis": "mô tả sách và phương pháp bootstrap đã biết",
+  "how_to_get": "CRC Press (DOI 10.1201/9780429246593), cần tài khoản thư viện.",
+  "reading": [
+   "Bootstrap ước lượng độ bất định (sai số chuẩn, độ chệch, khoảng tin cậy) bằng cách lấy mẫu lại có hoàn lại từ chính dữ liệu rồi tính lại đại lượng cần đo trên từng mẫu.",
+   "Khoảng tin cậy percentile lấy trực tiếp các phân vị của phân bố bootstrap; khi dữ liệu phụ thuộc theo nhóm thì lấy mẫu lại theo cả nhóm để giữ tương quan bên trong nhóm.",
+   "Trong đồ án: bootstrap ghép cặp theo workload, 10.000 lần, để so mỗi cấu hình với base29 trên cùng mẫu (syscall 5.7, 5B, 5C; baseline Pulse 5.15)."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34": {
+  "context_terms": [
+   "CNN trong kernel"
+  ],
+  "abstract": "With the rapid proliferation of application scenarios such as the Internet of Things (IoT), industrial automation, smart homes, and vehicular networks, edge devices are facing increasing demands for low-latency and high-performance intelligent data processing.",
+  "abstract_source": "đoạn mở đầu công khai trên trang Springer (phần còn lại cần đăng nhập)",
+  "basis": "chỉ tiêu đề và đoạn mở đầu công khai",
+  "how_to_get": "Springer (DOI 10.1007/978-981-95-8417-8_34), cần tài khoản thư viện.",
+  "reading": [
+   "Theo tiêu đề và đoạn mở đầu: chạy suy luận mạng CNN ngay trong kernel bằng eBPF trên thiết bị biên, nhằm giảm độ trễ và tài nguyên so với việc chuyển dữ liệu lên user space để suy luận.",
+   "Phần công khai không cho biết kiến trúc, cách lượng tử hóa hay số liệu đo; bản này không suy diễn các chi tiết đó.",
+   "Trong đồ án: dẫn chứng cho hướng đưa phần chấm điểm vào kernel để giảm độ trễ (RESEARCH_IDEAS), cùng nhóm với bài dynamic fixed-point trong eBPF."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://icml.cc/virtual/2026/78428": {
+  "context_terms": [
+   "O-RAN"
+  ],
+  "abstract": "Autoencoder-based intrusion detectors provide a practical option for Open Radio Access Network (O-RAN) environments because they can be trained from benign traffic and deployed as monitoring components, such as eXtended Applications. However, alarm thresholds of the intrusion detectors are typically determined by heuristic rules, which makes them difficult to integrate into confidence-gated closed-loop management. In this type of management, uncontrolled false alarms may trigger disruptive mitigation actions. In this paper, we propose a covariance-aware conformal detector for unsupervised intrusion detection with a false alarm rate (FAR) constraint. The method uses a Mahalanobis distance in the reconstruction error space of the autoencoder as the nonconformity score and calibrates the threshold by split conformal prediction. Under exchangeability between the benign calibration samples and future benign test samples, the proposed detector controls the FAR within a user-specified budget. For 5th Generation traffic, the proposed score increases the detection rate compared to the conformal baseline at the same target FAR. The quadratic score also decomposes exactly into feature-wise diagnostic terms, providing low-cost per-alarm triage without post-hoc explanation models. The online detector operates with microsecond-scale latency, which enables deployment to Near-Real-Time RAN Intelligent Controller.",
+  "abstract_source": "trang bài trên icml.cc (ICML 2026)",
+  "basis": "tóm tắt công khai trên trang ICML",
+  "how_to_get": "Bản PDF trên OpenReview (forum zMogeI2Sbk) mở bằng trình duyệt; công cụ tải tự động bị chặn.",
+  "reading": [
+   "Bộ phát hiện xâm nhập autoencoder cho mạng O-RAN, huấn luyện chỉ trên lưu lượng bình thường; điểm bất thường là khoảng cách Mahalanobis trên véc-tơ sai số tái tạo.",
+   "Ngưỡng báo động hiệu chỉnh bằng split conformal, nên tỉ lệ báo nhầm (FAR) nằm trong ngân sách chọn trước, với điều kiện dữ liệu bình thường dùng hiệu chỉnh và dữ liệu bình thường tương lai hoán đổi được.",
+   "Điểm bậc hai phân rã được theo từng feature, cho phép giải thích từng cảnh báo mà không cần mô hình giải thích riêng; độ trễ cỡ micro-giây.",
+   "Trong đồ án: cùng hướng với Pulse (p-value conformal, ngân sách báo nhầm). Khác biệt quan trọng: Pulse cho thấy giả thiết hoán đổi bị phá khi môi trường đổi (calibration trôi, sự cố vận hành), nên FAR thiết kế 5% không giữ trên live (Pulse 4, 5.6)."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://api.crossref.org/works/10.1145%2F3712195": {
+  "context_terms": [
+   "ShareAD"
+  ],
+  "abstract": "Operation and maintenance are critical activities in the whole lifecycle of modern online software systems, and anomaly detection is a crucial step of these activities. Recent studies mainly develop deep learning techniques to complete this task. Notably, though these techniques have achieved promising results in experimental evaluations, there are still several practicality gaps for them to be successfully applied in a real-world online system, including the scalability gap, availability gap, and alignment gap. To bridge these gaps, we propose an anomaly detection framework, namely ShareAD , based on a pre-train-and-align paradigm. Specifically, we argue that pre-training a shared model for anomaly detection is an effective way to bridge the scalability gap and the availability gap. To support this argument, we systematically study the necessity and feasibility of model sharing for online system maintenance. We further propose a novel model based upon Transformer encoder layers and Base layers, which works well for anomaly detection pre-training. Then, to bridge the alignment gap, we propose ShareAD alignment to align the pre-trained model with operator preference by jointly considering the local observation context and sensitivity of each monitor entity. Extensive experiments on two real-world large-scale datasets demonstrate the effectiveness and practicality of ShareAD .",
+  "abstract_source": "OpenAlex / Semantic Scholar (DOI 10.1145/3712195)",
+  "basis": "tóm tắt công khai",
+  "how_to_get": "ACM Digital Library (DOI 10.1145/3712195); thư viện trường hoặc liên hệ tác giả.",
+  "reading": [
+   "Khung phát hiện bất thường cho hệ thống phần mềm trực tuyến theo hướng pre-train-and-align: huấn luyện trước một mô hình dùng chung (Transformer encoder kết hợp Base layers) cho nhiều thực thể giám sát.",
+   "Sau đó căn chỉnh mô hình theo sở thích người vận hành, xét ngữ cảnh quan sát cục bộ và độ nhạy của từng thực thể.",
+   "Mục tiêu là lấp ba khoảng cách khi đưa học sâu vào vận hành: khả năng mở rộng (quá nhiều mô hình riêng), tính sẵn có (thiếu dữ liệu cho thực thể mới) và căn chỉnh (cảnh báo không khớp với người vận hành).",
+   "Trong đồ án: đối lập với cách Pulse dùng một mô hình riêng cho mỗi workload (21 mô hình); là hướng tham khảo nếu cần mở rộng nhiều workload (RESEARCH_IDEAS)."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://doi.org/10.1145/3427228.3427236": {
+  "context_terms": [
+   "CDL"
+  ],
+  "abstract": "Containers have been widely adopted in production computing environments for its efficiency and low overhead of isolation. However, recent studies have shown that containerized applications are prone to various security attacks. Moreover, containerized applications are often highly dynamic and short-lived, which further exacerbates the problem. In this paper, we present CDL, a classified distributed learning framework to achieve efficient security attack detection for containerized applications. CDL integrates online application classification and anomaly detection to overcome the challenge of lacking sufficient training data for dynamic short-lived containers while considering diversified normal behaviors in different applications. We have implemented a prototype of CDL and evaluated it over 33 real world vulnerability attacks in 24 commonly used server applications. Our experimental results show that CDL can reduce the false positive rate from over 12% to 0.24% compared to traditional anomaly detection schemes without aggregating training data. By introducing application classification into container behavior learning, CDL can improve the detection rate from catching 20 attacks to 31 attacks before those attacks succeed. CDL is light-weight, which can complete application classification and anomaly detection for each data sample within a few milliseconds.",
+  "abstract_source": "OpenAlex (DOI 10.1145/3427228.3427236)",
+  "basis": "tóm tắt công khai",
+  "how_to_get": "ACM Digital Library (DOI 10.1145/3427228.3427236); thư viện trường hoặc liên hệ tác giả.",
+  "reading": [
+   "Phát hiện tấn công cho ứng dụng chạy trong container bằng cách kết hợp phân loại ứng dụng trực tuyến với phát hiện bất thường theo từng lớp ứng dụng, để xử lý việc container sống ngắn và thiếu dữ liệu huấn luyện riêng.",
+   "Theo tóm tắt: đánh giá trên 33 tấn công dùng lỗ hổng thật ở 24 ứng dụng máy chủ phổ biến; tỉ lệ báo nhầm giảm từ hơn 12% xuống 0,24% so với phát hiện bất thường không gộp dữ liệu huấn luyện; bắt 31 thay vì 20 tấn công trước khi tấn công thành công; mỗi mẫu xử lý trong vài mili-giây.",
+   "Phần công khai không mô tả chi tiết kiến trúc mô hình; bản này không suy diễn thêm.",
+   "Trong đồ án: công trình liên quan và là baseline \"autoencoder trên tần suất syscall\" được nhắc ở RESEARCH_IDEAS; Pulse cũng dùng mô hình theo workload nhưng đo thêm độ trễ, gánh cảnh báo và đối chứng binary vô hại."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://doi.org/10.1109/SECPRI.1996.502675": {
+  "context_terms": [
+   "STIDE"
+  ],
+  "abstract": "A method for anomaly detection is introduced in which \"normal\" is defined by short-range correlations in a process' system calls. Initial experiments suggest that the definition is stable during normal behaviour for standard UNIX programs. Further; it is able to detect several common intrusions involving sendmail and 1pr. This work is part of a research program aimed at building computer security systems that incorporate the mechanisms and algorithms used by natural immune systems.",
+  "abstract_source": "OpenAlex (DOI 10.1109/SECPRI.1996.502675)",
+  "basis": "tóm tắt công khai và nội dung kinh điển của phương pháp",
+  "how_to_get": "IEEE Xplore (DOI 10.1109/SECPRI.1996.502675); bản của tác giả từng có tại cs.unm.edu (máy chủ không phản hồi lúc tải, 23/10).",
+  "reading": [
+   "Định nghĩa \"bản thể\" (self) bình thường của một chương trình bằng tập các chuỗi syscall ngắn liên tiếp (cửa sổ trượt độ dài cố định) quan sát được lúc chạy bình thường; chuỗi không có trong tập đó bị coi là bất thường. Phương pháp này về sau thường gọi là STIDE.",
+   "Theo tóm tắt: định nghĩa ổn định với các chương trình UNIX chuẩn và phát hiện được một số xâm nhập phổ biến vào sendmail và lpr; là một phần của hướng xây hệ thống bảo mật theo cơ chế miễn dịch tự nhiên.",
+   "Trong đồ án: Pulse chỉ ghi số đếm syscall theo cửa sổ 0,5 s, không giữ thứ tự syscall, nên không tái lập STIDE trên dữ liệu của Pulse được; STIDE để dành cho phần đánh giá trên LID-DS (G3)."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ },
+ "https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/": {
+  "context_terms": [
+   "KubAnomaly"
+  ],
+  "abstract": "Kubernetes, which is the most popular orchestration platform for Docker containers, is used widely for developing microservices and automating Docker instance life cycle administration. Because of advancements in containerization technology, a single server can run multiple services and use hardware resources more efficiently. However, containerized environments also bring new challenges in terms of complete monitoring and security provision. Thus, hackers can exploit the security vulnerabilities of containers to gain remote control permissions and cause extensive damage to company assets. Therefore, in this study, we propose KubAnomaly, a system that provides security monitoring capabilities for anomaly detection on the Kubernetes orchestration platform. We develop a container monitoring module for Kubernetes and implement neural network approaches to create classification models that strengthen its ability to find abnormal behaviors such as web service attacks and common vulnerabilities and exposures attacks. We use three types of datasets to evaluate our system, including privately collected and publicly available datasets as well as real‐world experiment data. Furthermore, we demonstrate the effectiveness of KubAnomaly by comparing its accuracy with that of other machine learning algorithms. KubAnomaly is shown to achieve an overall accuracy of up to 96% for anomaly detection. It successfully identifies four real attacks carried out by hackers in September 2018. Moreover, its performance overhead is only 5% greater than that of current methods. In summary, KubAnomaly significantly improves container security by avoiding anomaly attacks.",
+  "abstract_source": "OpenAlex (DOI 10.1002/eng2.12080)",
+  "basis": "tóm tắt công khai",
+  "how_to_get": "Bài truy cập mở trên Wiley (DOI 10.1002/eng2.12080) — tải bằng trình duyệt; công cụ tải tự động bị chặn (403).",
+  "reading": [
+   "Hệ thống giám sát bảo mật trên Kubernetes: module giám sát container kết hợp mô hình mạng nơ-ron phân loại hành vi bất thường như tấn công dịch vụ web và tấn công khai thác CVE.",
+   "Theo tóm tắt: đánh giá trên ba loại dữ liệu (thu riêng, công khai, thực nghiệm thật); độ chính xác tới 96%; phát hiện bốn tấn công thật vào tháng 9/2018; overhead thêm khoảng 5%.",
+   "Trong đồ án: công trình liên quan (RESEARCH_IDEAS mục 3). Khác Pulse ở chỗ dùng phân loại có giám sát và đo độ chính xác, không đo độ trễ phát hiện, gánh cảnh báo hay đối chứng process vô hại."
+  ],
+  "compiled_by": "Claude, cho đồ án Sentinel Pulse",
+  "compiled_at": "2026-10-23"
+ }
+}

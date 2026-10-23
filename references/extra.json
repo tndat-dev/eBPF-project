@@ -55,10 +55,358 @@
  {
   "title": "KubAnomaly",
   "url": "https://pure.lib.cgu.edu.tw/en/publications/kubanomaly-anomaly-detection-for-the-docker-orchestration-platfor/",
-  "pdf_url": "none",
+  "pdf_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/eng2.12080",
   "cited_in": [
    "RESEARCH_IDEAS.md"
   ],
-  "note": "the PDF linked from the repository page is the library's ACE brochure, not the paper (checked 23/10)"
+  "note": "the repository page links the library ACE brochure, not the paper (checked 23/10); the paper is open access at Wiley",
+  "html_url": "https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12080"
+ },
+ {
+  "title": "P. Geurts, D. Ernst, L. Wehenkel. Extremely randomized trees. Machine Learning 63(1), 2006",
+  "url": "https://doi.org/10.1007/s10994-006-6226-1",
+  "pdf_url": "https://orbi.uliege.be/bitstream/2268/9357/1/geurts-mlj-advance.pdf",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "bộ chấm điểm ExtraTrees của Pulse; PDF là bản tác giả"
+ },
+ {
+  "title": "F. T. Liu, K. M. Ting, Z.-H. Zhou. Isolation Forest. ICDM 2008",
+  "url": "https://doi.org/10.1109/ICDM.2008.17",
+  "pdf_url": "https://cs.nju.edu.cn/zhouzh/zhouzh.files/publication/icdm08b.pdf",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md 5.15"
+  ],
+  "note": "baseline Isolation Forest; PDF là bản tác giả"
+ },
+ {
+  "title": "S. Forrest, S. A. Hofmeyr, A. Somayaji, T. A. Longstaff. A sense of self for Unix processes. IEEE S&P 1996",
+  "url": "https://doi.org/10.1109/SECPRI.1996.502675",
+  "pdf_url": "https://www.cs.unm.edu/~immsec/publications/ieee-sp-96-unix.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "STIDE",
+  "bib": {
+   "year": 1996,
+   "venue": "IEEE Symposium on Security and Privacy 1996"
+  }
+ },
+ {
+  "title": "Y. Lin, O. Tunde-Onadele, X. Gu. CDL: Classified Distributed Learning for Detecting Security Attacks in Containerized Applications. ACSAC 2020",
+  "url": "https://doi.org/10.1145/3427228.3427236",
+  "cited_in": [
+   "RESEARCH_IDEAS.md",
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "autoencoder trên tần suất syscall trong container (CDL)"
+ },
+ {
+  "title": "E. B. Wilson. Probable inference, the law of succession, and statistical inference. JASA 22(158), 1927",
+  "url": "https://doi.org/10.1080/01621459.1927.10502953",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "khoảng tin cậy Wilson cho tỉ lệ"
+ },
+ {
+  "title": "B. Efron, R. J. Tibshirani. An Introduction to the Bootstrap. Chapman & Hall/CRC, 1993",
+  "url": "https://doi.org/10.1201/9780429246593",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md",
+   "SYSCALL_FEATURE_EXPERIMENT_STATUS.md"
+  ],
+  "note": "bootstrap (sách)",
+  "bib": {
+   "title": "An Introduction to the Bootstrap",
+   "authors": [
+    "Bradley Efron",
+    "Robert J. Tibshirani"
+   ],
+   "year": 1993,
+   "venue": "Chapman & Hall/CRC"
+  }
+ },
+ {
+  "title": "V. Vovk, A. Gammerman, G. Shafer. Algorithmic Learning in a Random World. Springer, 2005",
+  "url": "https://doi.org/10.1007/b106715",
+  "cited_in": [
+   "docs/Bao_cao_tien_do_16_10-23_10.docx"
+  ],
+  "note": "nền tảng conformal prediction, Mondrian conformal (sách)",
+  "bib": {
+   "title": "Algorithmic Learning in a Random World",
+   "authors": [
+    "Vladimir Vovk",
+    "Alexander Gammerman",
+    "Glenn Shafer"
+   ],
+   "year": 2005,
+   "venue": "Springer"
+  }
+ },
+ {
+  "title": "F. Pedregosa et al. Scikit-learn: Machine Learning in Python. JMLR 12, 2011",
+  "url": "https://www.jmlr.org/papers/v12/pedregosa11a.html",
+  "pdf_url": "https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf",
+  "cited_in": [
+   "SENTINEL_PULSE_STATUS.md"
+  ],
+  "note": "thư viện ExtraTrees dùng trong Pulse"
+ },
+ {
+  "title": "Z. Chen. Robust tests for combining p-values under arbitrary dependency structures. Scientific Reports 12, 2022",
+  "url": "https://doi.org/10.1038/s41598-022-07094-7",
+  "pdf_url": "https://www.nature.com/articles/s41598-022-07094-7.pdf",
+  "cited_in": [
+   "RESEARCH_IDEAS.md"
+  ],
+  "note": "minP có thể mạnh hơn Cauchy combination"
+ },
+ {
+  "title": "Falco (tài liệu dự án)",
+  "url": "https://falco.org/docs/",
+  "cited_in": [
+   "RULE_INTEGRATION_STATUS.md"
+  ],
+  "type": "tool"
+ },
+ {
+  "title": "Tetragon (tài liệu dự án)",
+  "url": "https://tetragon.io/docs/",
+  "cited_in": [
+   "RCA_RUNTIME_STATUS.md"
+  ],
+  "type": "tool"
+ },
+ {
+  "title": "Prometheus Alertmanager (tài liệu)",
+  "url": "https://prometheus.io/docs/alerting/latest/alertmanager/",
+  "cited_in": [
+   "RCA_RUNTIME_STATUS.md 5.14"
+  ],
+  "type": "tool"
+ },
+ {
+  "title": "NODLINK",
+  "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-204-paper.pdf",
+  "cited_in": [],
+  "bib": {
+   "title": "NODLINK: An Online System for Fine-Grained APT Attack Detection and Investigation",
+   "authors": [
+    "Shaofei Li",
+    "Feng Dong",
+    "Xusheng Xiao",
+    "Haoyu Wang",
+    "Fei Shao",
+    "Jiedong Chen",
+    "Yao Guo",
+    "Xiangqun Chen",
+    "Ding Li"
+   ],
+   "year": 2024,
+   "venue": "NDSS 2024"
+  }
+ },
+ {
+  "title": "REPLICAWATCHER",
+  "url": "https://www.ndss-symposium.org/wp-content/uploads/2024-286-paper.pdf",
+  "cited_in": [],
+  "bib": {
+   "title": "REPLICAWATCHER: Training-less Anomaly Detection in Containerized Microservices",
+   "authors": [
+    "Asbat El Khairi",
+    "Marco Caselli",
+    "Andreas Peter",
+    "Andrea Continella"
+   ],
+   "year": 2024,
+   "venue": "NDSS 2024"
+  }
+ },
+ {
+  "title": "ORTHRUS",
+  "url": "https://tfjmp.org/publications/2025-usenixsec.pdf",
+  "cited_in": [],
+  "bib": {
+   "title": "ORTHRUS: Achieving High Quality of Attribution in Provenance-based Intrusion Detection Systems",
+   "authors": [
+    "Baoxiang Jiang",
+    "Tristan Bilot",
+    "Nour El Madhoun",
+    "Khaldoun Al Agha",
+    "Anis Zouaoui",
+    "Shahrear Iqbal",
+    "Xueyuan Han",
+    "Thomas Pasquier"
+   ],
+   "year": 2025,
+   "venue": "USENIX Security 2025"
+  }
+ },
+ {
+  "title": "NoDoze",
+  "url": "https://www.ndss-symposium.org/ndss-paper/nodoze-combatting-threat-alert-fatigue-with-automated-provenance-triage",
+  "cited_in": [],
+  "bib": {
+   "title": "NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage",
+   "authors": [
+    "Wajih Ul Hassan",
+    "Shengjian Guo",
+    "Ding Li",
+    "Zhengzhang Chen",
+    "Kangkook Jee",
+    "Zhichun Li",
+    "Adam Bates"
+   ],
+   "year": 2019,
+   "venue": "NDSS 2019"
+  }
+ },
+ {
+  "title": "Mimicry NDSS 2023",
+  "url": "https://www.ndss-symposium.org/ndss-paper/sometimes-you-arent-what-you-do-mimicry-attacks-against-provenance-graph-host-intrusion-detection-systems",
+  "cited_in": [],
+  "bib": {
+   "title": "Sometimes, You Aren't What You Do: Mimicry Attacks against Provenance Graph Host Intrusion Detection Systems",
+   "authors": [
+    "Akul Goyal",
+    "Xueyuan Han",
+    "Gang Wang",
+    "Adam Bates"
+   ],
+   "year": 2023,
+   "venue": "NDSS 2023"
+  }
+ },
+ {
+  "title": "Mimicry CCS 2002",
+  "url": "https://www.cs.purdue.edu/homes/ninghui/readings/AccessControl/wagner_soto_ccs02.pdf",
+  "cited_in": [],
+  "bib": {
+   "title": "Mimicry Attacks on Host-Based Intrusion Detection Systems",
+   "authors": [
+    "David Wagner",
+    "Paolo Soto"
+   ],
+   "year": 2002,
+   "venue": "ACM CCS 2002",
+   "doi": "10.1145/586110.586145"
+  }
+ },
+ {
+  "title": "LID-DS 2021",
+  "url": "https://dbs.uni-leipzig.de/file/CRITIS_2022_Extended_Abstract_LID-DS-2021.pdf",
+  "cited_in": [],
+  "bib": {
+   "title": "Extended Abstract: LID-DS 2021",
+   "authors": [
+    "Martin Grimmer",
+    "Tim Kaelble",
+    "Felix Nirsberger",
+    "Emmely Schulze",
+    "Toni Rucks",
+    "Jörn Hoffmann",
+    "Erhard Rahm"
+   ],
+   "year": 2022,
+   "venue": "CRITIS 2022"
+  }
+ },
+ {
+  "title": "CONDOR",
+  "url": "https://shura.shu.ac.uk/5246/",
+  "cited_in": [],
+  "bib": {
+   "title": "CONDOR: A Hybrid IDS to Offer Improved Intrusion Detection",
+   "authors": [
+    "David Day",
+    "Denys Flores"
+   ],
+   "year": 2012,
+   "venue": "IEEE TrustCom 2012"
+  }
+ },
+ {
+  "title": "Sliding window SBC",
+  "url": "https://sol.sbc.org.br/index.php/errc/article/download/15203/15047",
+  "cited_in": [],
+  "bib": {
+   "title": "Sliding Window: The Impact of Trace Size in Anomaly Detection System for Containers Through Machine Learning",
+   "authors": [
+    "Gabriel Ruschel Castanhel",
+    "Tiago Heinrich",
+    "Fabrício Ceschin",
+    "Carlos A. Maziero"
+   ],
+   "year": 2020,
+   "venue": "ERRC 2020 (SBC)",
+   "doi": "10.5753/errc.2020.15203"
+  }
+ },
+ {
+  "title": "MDPI Mathematics",
+  "url": "https://www.mdpi.com/2227-7390/14/6/991",
+  "cited_in": [],
+  "bib": {
+   "title": "An Abnormal File Access Detection Model for Containers Based on eBPF Listening",
+   "authors": [
+    "Naqin Zhou",
+    "Hao Chen",
+    "Zeyu Chen",
+    "Chao Li",
+    "Fan Li"
+   ],
+   "year": 2026,
+   "venue": "Mathematics 14(6), 991",
+   "doi": "10.3390/math14060991"
+  }
+ },
+ {
+  "title": "MDPI MAKE",
+  "url": "https://www.citedrive.com/en/discovery/class-conditional-conformal-prediction-for-reliable-anomaly-detection-under-extreme-class-imbalance/",
+  "cited_in": [],
+  "bib": {
+   "title": "Class-Conditional Conformal Prediction for Reliable Anomaly Detection Under Extreme Class Imbalance",
+   "authors": [
+    "Bashair Althani"
+   ],
+   "year": 2026,
+   "venue": "Machine Learning and Knowledge Extraction 8, 190",
+   "doi": "10.3390/make8070190"
+  }
+ },
+ {
+  "title": "O-RAN ICML 2026",
+  "url": "https://icml.cc/virtual/2026/78428",
+  "cited_in": [],
+  "bib": {
+   "title": "Toward Reliable Intrusion Monitoring for O-RAN Based Networks with Conformal False Alarm Control",
+   "year": 2026,
+   "venue": "ICML 2026",
+   "authors": [
+    "Joohong Rheey",
+    "Hyunggon Park"
+   ]
+  }
+ },
+ {
+  "title": "CORTEX NeurIPS 2025",
+  "url": "https://neurips.cc/virtual/2025/137134",
+  "cited_in": [],
+  "bib": {
+   "title": "CORTEX: Collaborative LLM Agents for High-Stakes Alert Triage",
+   "year": 2025,
+   "venue": "NeurIPS 2025"
+  },
+  "pdf_url": "https://arxiv.org/pdf/2510.00311"
+ },
+ {
+  "title": "CHIDS (ResearchGate)",
+  "url": "https://www.researchgate.net/publication/365185410_Contextualizing_System_Calls_in_Containers_for_Anomaly-Based_Intrusion_Detection",
+  "cited_in": [],
+  "alias_of": "https://research.utwente.nl/en/publications/contextualizing-system-calls-in-containers-for-anomaly-based-intr/"
  }
 ]
