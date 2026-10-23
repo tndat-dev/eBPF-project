@@ -1,6 +1,6 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 23/10/2026 04:50. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+Cập nhật 23/10/2026 11:40. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
 [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [rule, tách khỏi ML](RULE_INTEGRATION_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
@@ -74,7 +74,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] `references/`: danh mục 75 nguồn, 46 PDF (ngoài git, repo công khai; bản sao NFS). [ ] **(cần bạn, nếu muốn)** tải tay 16 bài bị chặn tải tự động (danh sách và tên file trong `references/README.md`).
 - [ ] Sau lượt xác nhận: chép biên nhận của lượt, của đường cảnh báo (kèm `alert_delivery_latency.py` trên toàn lượt) và log Falco vào repo/NFS.
 - [x] Quét repo 23/10: link hỏng trong mọi `.md` đã sửa; gỡ snapshot cũ `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` (bản gốc qua `git show 5e1ed2f:…`); không có bí mật trong file tracked; mọi script job đều được báo cáo nhắc tới; bảng tên gọi và trạng thái cập nhật.
-- [ ] **(cần bạn quyết)** 1,3 GB dữ liệu thô cũ (pulse500, projected, canary 08–10/2026) bị gitignore trong `validation-evidence/` trên máy host, không còn được tham chiếu; đề xuất chuyển lên NFS sau lượt live rồi xóa ở host.
+- [~] 1,3 GB dữ liệu thô cũ (pulse500, projected, canary 08–10/2026), bị gitignore trong `validation-evidence/` trên máy host, không còn được tham chiếu. Chủ đồ án đồng ý chuyển lên NFS rồi xóa ở host (23/10). [x] Đã chép sang đĩa local `.234` `/var/tmp/host-evidence-pre-refactor/`, 642/642 file khớp `SHA256SUMS` (23/10 11:35). [ ] **Sau lượt live:** chuyển lên `/mnt/sentinel-pulse-archive/host-evidence-pre-refactor-20261023/`, kiểm lại `SHA256SUMS` trên NFS, rồi xóa bản ở host, bản tạm trên `.234` và 5 dòng tương ứng trong `.gitignore`.
 
 ## Hạ tầng
 
