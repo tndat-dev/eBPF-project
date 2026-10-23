@@ -2024,3 +2024,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | Giờ | Việc | Mục |
 |---|---|---|
 | 01:23–02:00 | Lượt xác nhận kết thúc (3 worker success, capture liên tục). Giai đoạn final của `after-stable-confirm` bắt đầu 01:33. Log Falco chép lần cuối và chuyển lên NFS (SHA khớp, xóa bản local). Replica CNPG `cnpg-2` dựng lại từ primary, stream trên timeline 9. Phát hiện `unattended-upgrades` trên `.234` đã khởi động lại bridge và subscriber RCA lúc 13:19 ngày 23/10 (sau campaign); `mask` các unit tự nâng cấp trên `.234` như worker | 5.25 |
+| 01:48–02:05 | G1: p-value bootstrap + Holm trên 24 so sánh baseline, kết luận ngân sách 1 đứng vững (5.15b). Dữ liệu thô cũ 1,3 GB chuyển lên NFS (`host-evidence-pre-refactor-20261023/`, 642 file khớp `SHA256SUMS`), xóa bản host và bản tạm `.234`, bỏ 5 dòng `.gitignore`. Bridge dừng, biên nhận lên NFS và repo | 5.15b, 5.25 |

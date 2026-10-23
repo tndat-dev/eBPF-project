@@ -32,14 +32,6 @@ validation-evidence/**/FAILURE_PRODUCTION_PODS.json
 validation-evidence/**/workload-pods-start.json
 validation-evidence/**/WORKLOAD_FINGERPRINT_OBSERVED.json
 
-# Retired evidence removed from the branch on 2026-10-18 (still in Git history,
-# tag archive/pre-refactor-20261018). Local copies with raw data are kept as-is.
-validation-evidence/sentinel-pulse-campaign/
-validation-evidence/canary-r10-c1-retry-20261001/
-validation-evidence/projected-operational-c1-20261003/
-validation-evidence/projected-pressure-c1-20261003/
-validation-evidence/projected-pressure-c2-20261003/
-
 # Claude Code local settings (per-machine permissions)
 .claude/settings.local.json
 
