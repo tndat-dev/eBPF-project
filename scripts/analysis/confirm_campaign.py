@@ -10,6 +10,10 @@ composition of earlier runs); every rate and every scenario is reported too (rat
 - control = idle-control positive rate; benign = benign-launch positive rate;
 - p50 / p95 of kernel_to_preview_seconds over detected attacks;
 - Wilson 95 % intervals for the rates.
+
+Idle-control positives are also counted per container (workload@node). ``--exclude-container`` drops containers
+for a sensitivity analysis decided after seeing data (Pulse 5.24/5.25); its output is marked ``post_hoc`` and never
+replaces the registered verdict.
 """
 import argparse, glob, json, math, time
 from collections import Counter, defaultdict
@@ -51,7 +55,7 @@ def load(campaign: Path):
     for o in json.loads((campaign / 'RESULTS.json').read_text())['outcomes']:
         rate, scenario = meta.get(str(o['trial_id']).split(':')[0], (None, None))
         rows.append(dict(kind=kind_of(o), outcome=o['outcome'], delay=o.get('kernel_to_preview_seconds'),
-                         rate=rate, scenario=scenario))
+                         rate=rate, scenario=scenario, container=f"{o.get('workload_key')}@{o.get('node_name')}"))
     return rows
 
 
@@ -70,6 +74,11 @@ def summarize(rows):
                 p50=pct(delays, 0.5), p95=pct(delays, 0.95), p99=pct(delays, 0.99), detected_with_delay=len(delays))
 
 
+def control_fp_by_container(rows):
+    c = Counter(r['container'] for r in rows if r['kind'] == 'control' and r['outcome'] == 'FP_expected')
+    return dict(sorted(c.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
 def verdict(s):
     base = (s['precision'] is not None and s['precision'] >= 0.95 and s['recall'] is not None and s['recall'] >= 0.95
             and s['control'] is not None and s['control'] <= 0.05 and s['p95'] is not None)
@@ -85,9 +94,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--campaign', type=Path, required=True)
     ap.add_argument('--primary-rates', default='6,12,24')
+    ap.add_argument('--exclude-container', action='append', default=[], metavar='WORKLOAD_KEY@NODE',
+                    help='post-hoc sensitivity: leave this container out (repeatable)')
     ap.add_argument('--output', required=True)
     a = ap.parse_args()
-    rows = load(a.campaign)
+    rows = [r for r in load(a.campaign) if r['container'] not in set(a.exclude_container)]
     primary = {int(x) for x in a.primary_rates.split(',')}
     prim = [r for r in rows if r['rate'] in primary]
     by_rate = defaultdict(list); by_scenario = defaultdict(list)
@@ -100,6 +111,8 @@ def main():
                   primary_rates=sorted(primary), primary=p, verdict=verdict(p), all_rates=summarize(rows),
                   by_rate={str(k): summarize(v) for k, v in sorted(by_rate.items(), key=lambda kv: (kv[0] is None, kv[0] or 0))},
                   primary_by_scenario={str(k): summarize(v) for k, v in sorted(by_scenario.items(), key=lambda kv: str(kv[0]))},
+                  primary_control_fp_by_container=control_fp_by_container(prim),
+                  excluded_containers=sorted(a.exclude_container), post_hoc=bool(a.exclude_container),
                   trials=len(rows), computed_at_unix=time.time())
     Path(a.output).write_text(json.dumps(result, indent=1))
     print(json.dumps(dict(verdict=result['verdict'], primary={k: p[k] for k in ('recall', 'precision', 'control', 'benign', 'p95')},
