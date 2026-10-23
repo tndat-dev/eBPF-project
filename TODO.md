@@ -62,7 +62,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 ## RCA — còn lại
 
 - [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
-- [~] 13% attack không có case riêng: 42/315 (5.11); 69/525 trên lượt xác nhận, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất "binary không mới" (RCA 5.15). Hệ quả của fixture dùng chung file; ghi là giới hạn của thiết kế campaign, chưa đổi luật.
+- [~] 13% attack không có case riêng: 42/315 (5.11); 69/525 trên lượt xác nhận, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất "binary không mới" (RCA 5.15). Đã xác nhận trên dữ liệu: mọi cặp dùng chung đường dẫn binary (RCA 5.15). [ ] Campaign sau: đặt tên file khác cho binary vô hại (đăng ký trước lượt; Pulse không bị ảnh hưởng vì không thấy đường dẫn).
 - [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [ ] Kiểm hiệu quả trên lượt đó.
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
 - [~] Cảnh báo vận hành thật (RCA 5.14): Pulse → Alertmanager/Prometheus/Grafana đang chạy thử. [x] RCA nhận trigger từ webhook Alertmanager: code + test (chế độ `alert_trigger_file`). [ ] Chạy ở lượt sau.

@@ -422,7 +422,9 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - lý do từ chối case tiếp nối: binary không mới 219.374, không có exec 42.387, quá sớm 30.952, đang khởi động 888. Bộ đếm "chạm trần 5 case" không xuất hiện, tức bằng 0 (bộ đếm chỉ được ghi khi tăng lần đầu, `service.py`).
 - **Kết luận:**
   - Xếp hạng đứng vững trên lượt mới, với số trial lớn hơn: top-1 99,8%.
-  - Coverage giữ nguyên ~87%. Phần hở vẫn chủ yếu là attack bị gộp sau case của binary vô hại chạy ngay trước trong cùng container (56/69). Bộ đếm cho thấy lý do từ chối nhiều nhất là "binary không mới", khớp giả thuyết ở 5.11: fixture vô hại và attack dùng cùng một file, nên binary không còn mới trong cửa sổ novelty. Bộ đếm là tổng toàn lượt, chưa tách theo từng trial.
+  - Coverage giữ nguyên ~87%. Phần hở vẫn chủ yếu là attack bị gộp sau case của binary vô hại chạy ngay trước trong cùng container (56/69). Bộ đếm cho thấy lý do từ chối nhiều nhất là "binary không mới". Bộ đếm là tổng toàn lượt, chưa tách theo từng trial.
+  - **Giả thuyết của 5.11 đã kiểm trên dữ liệu (`campaign-RESULTS.json`, 13:50):** trong **mọi** cặp, binary vô hại và attack dùng cùng một đường dẫn: `/tmp/sentinel-runtime-attack-blind` 450 cặp; `/operator/…`, `/run/…`, `/etc/istio/proxy/…` mỗi đường 25 cặp. Binary vô hại chạy trước attack khoảng 20 s trong cùng container, nên khi attack chạy, đường dẫn đó không còn mới trong cửa sổ novelty 300 s và case tiếp nối không mở.
+  - Đây là hệ quả của thiết kế fixture, không phải giới hạn của RCA với kẻ tấn công thật. **Đề xuất cho campaign sau** (chưa làm, phải đăng ký trước lượt): đặt tên file khác cho binary vô hại, cùng thư mục. Pulse chỉ thấy số đếm syscall, không thấy đường dẫn, nên đối chứng của Pulse không đổi; chỉ RCA và luật dựa trên đường dẫn (Falco drift) bị ảnh hưởng. Khi đó coverage của RCA đo đúng hơn.
   - Tác dụng của seed lên case normal (nghi phạm hạng 1 là binary mới/chưa biết) đo ở giai đoạn final.
 
 ## 6. Coverage, hiệu năng, giới hạn
