@@ -90,6 +90,9 @@ def bootstrap(arm_cells, base_cells, meta, reps=REPS, seed=20261019):
             continue
         out[name] = dict(point=float(point[i]), ci95=[float(np.percentile(col, 2.5)), float(np.percentile(col, 97.5))],
                          lower95_one_sided=float(np.percentile(col, 5)))
+        if name.endswith('_diff'):   # percentile-bootstrap test of "no difference", +1 so it is never 0 (Monte Carlo)
+            tail = min(int((col <= 0).sum()), int((col >= 0).sum()))
+            out[name]['p_two_sided'] = min(1.0, 2 * (tail + 1) / (len(col) + 1))
     out['paired_trials'] = len(shared); out['workloads'] = len(workloads)
     return out
 

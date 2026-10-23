@@ -21,6 +21,8 @@ def test_bootstrap_pairs_trials_and_clusters_by_workload(tmp_path):
     assert abs(x['recall']['point'] - 1.0) < 1e-9 and abs(x['recall_diff']['point'] - 0.2) < 1e-9
     assert abs(x['separation_diff']['point'] - 0.6) < 1e-9
     assert x['paired_trials'] == 60 and x['workloads'] == 6 and x['non_inferior_recall']
+    assert x['separation_diff']['p_two_sided'] < 0.02                       # every draw is above 0: p = 2/(reps+1)
+    assert result['budgets']['5']['base29']['recall_diff']['p_two_sided'] == 1.0   # the reference against itself
 
 
 def test_campaign_without_benign_controls_reports_control_rate(tmp_path):
