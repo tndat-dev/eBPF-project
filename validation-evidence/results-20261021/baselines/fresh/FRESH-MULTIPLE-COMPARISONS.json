@@ -1,0 +1,376 @@
+{
+ "schema": "pulse-multiple-comparisons-v1",
+ "bootstrap": "/var/tmp/baselines/FRESH-BOOTSTRAP-P.json",
+ "reps": 10000,
+ "method": "Holm step-down over every candidate x budget x metric",
+ "alpha": 0.05,
+ "tests": 24,
+ "changed": [
+  {
+   "budget": "18",
+   "arm": "autoencoder",
+   "metric": "separation_diff",
+   "point": -0.058635447071929137,
+   "ci95": [
+    -0.1446947914090197,
+    -0.004237529716763358
+   ],
+   "p": 0.008999100089991,
+   "ci_excludes_zero": true,
+   "p_holm": 0.080991900809919,
+   "significant_holm": false
+  },
+  {
+   "budget": "18",
+   "arm": "tree_ae",
+   "metric": "separation_diff",
+   "point": -0.058635447071929137,
+   "ci95": [
+    -0.1446947914090197,
+    -0.004237529716763358
+   ],
+   "p": 0.008999100089991,
+   "ci_excludes_zero": true,
+   "p_holm": 0.080991900809919,
+   "significant_holm": false
+  }
+ ],
+ "rows": [
+  {
+   "budget": "1",
+   "arm": "autoencoder",
+   "metric": "recall_diff",
+   "point": 0.04870129870129869,
+   "ci95": [
+    0.019801980198019813,
+    0.08413205537806168
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "autoencoder",
+   "metric": "separation_diff",
+   "point": -0.2585734027102107,
+   "ci95": [
+    -0.38901902812258865,
+    -0.13343914766383597
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "freq_profile",
+   "metric": "recall_diff",
+   "point": -0.3311688311688312,
+   "ci95": [
+    -0.4392935982339956,
+    -0.22363390688188672
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "freq_profile",
+   "metric": "separation_diff",
+   "point": 0.18457492561727085,
+   "ci95": [
+    -0.010264076864395292,
+    0.37790339135692186
+   ],
+   "p": 0.06679332066793321,
+   "ci_excludes_zero": false,
+   "p_holm": 0.4675532446755325,
+   "significant_holm": false
+  },
+  {
+   "budget": "1",
+   "arm": "iforest",
+   "metric": "recall_diff",
+   "point": -0.9253246753246753,
+   "ci95": [
+    -0.9590079992258813,
+    -0.8874458874458875
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "iforest",
+   "metric": "separation_diff",
+   "point": -0.2597437849880847,
+   "ci95": [
+    -0.39635976638749787,
+    -0.12510594526183572
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "tree_ae",
+   "metric": "recall_diff",
+   "point": 0.04870129870129869,
+   "ci95": [
+    0.019801980198019813,
+    0.08413205537806168
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "1",
+   "arm": "tree_ae",
+   "metric": "separation_diff",
+   "point": -0.25640185005005856,
+   "ci95": [
+    -0.38551679268638245,
+    -0.13169459529569674
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "5",
+   "arm": "autoencoder",
+   "metric": "recall_diff",
+   "point": 0.005411255411255422,
+   "ci95": [
+    0.0,
+    0.015102481121898714
+   ],
+   "p": 0.26477352264773524,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "5",
+   "arm": "autoencoder",
+   "metric": "separation_diff",
+   "point": -0.11293836456702899,
+   "ci95": [
+    -0.22004545449713772,
+    -0.027600990046286022
+   ],
+   "p": 0.0029997000299970002,
+   "ci_excludes_zero": true,
+   "p_holm": 0.032996700329967,
+   "significant_holm": true
+  },
+  {
+   "budget": "5",
+   "arm": "freq_profile",
+   "metric": "recall_diff",
+   "point": -0.3225108225108225,
+   "ci95": [
+    -0.4362272240085744,
+    -0.21505376344086036
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "5",
+   "arm": "freq_profile",
+   "metric": "separation_diff",
+   "point": 0.37347180506789635,
+   "ci95": [
+    0.18010364326921446,
+    0.5549007667429814
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "5",
+   "arm": "iforest",
+   "metric": "recall_diff",
+   "point": -0.8798701298701299,
+   "ci95": [
+    -0.9380341880341879,
+    -0.8032209188660804
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "5",
+   "arm": "iforest",
+   "metric": "separation_diff",
+   "point": -0.06445210598305054,
+   "ci95": [
+    -0.1927840153614351,
+    0.04431670246654421
+   ],
+   "p": 0.3033696630336966,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "5",
+   "arm": "tree_ae",
+   "metric": "recall_diff",
+   "point": 0.005411255411255422,
+   "ci95": [
+    0.0,
+    0.015102481121898714
+   ],
+   "p": 0.26477352264773524,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "5",
+   "arm": "tree_ae",
+   "metric": "separation_diff",
+   "point": -0.10750948291664886,
+   "ci95": [
+    -0.2151221023600055,
+    -0.0220004807048866
+   ],
+   "p": 0.0029997000299970002,
+   "ci_excludes_zero": true,
+   "p_holm": 0.032996700329967,
+   "significant_holm": true
+  },
+  {
+   "budget": "18",
+   "arm": "autoencoder",
+   "metric": "recall_diff",
+   "point": 0.0010822510822510178,
+   "ci95": [
+    0.0,
+    0.0032679738562091387
+   ],
+   "p": 0.7317268273172682,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "18",
+   "arm": "autoencoder",
+   "metric": "separation_diff",
+   "point": -0.058635447071929137,
+   "ci95": [
+    -0.1446947914090197,
+    -0.004237529716763358
+   ],
+   "p": 0.008999100089991,
+   "ci_excludes_zero": true,
+   "p_holm": 0.080991900809919,
+   "significant_holm": false
+  },
+  {
+   "budget": "18",
+   "arm": "freq_profile",
+   "metric": "recall_diff",
+   "point": -0.32683982683982693,
+   "ci95": [
+    -0.4451616440294284,
+    -0.21612903225806457
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "18",
+   "arm": "freq_profile",
+   "metric": "separation_diff",
+   "point": 0.4277747225629962,
+   "ci95": [
+    0.25026934334858564,
+    0.5900700575747184
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "18",
+   "arm": "iforest",
+   "metric": "recall_diff",
+   "point": -0.8041125541125542,
+   "ci95": [
+    -0.8802588996763754,
+    -0.7015193956370429
+   ],
+   "p": 0.00019998000199980003,
+   "ci_excludes_zero": true,
+   "p_holm": 0.0047995200479952005,
+   "significant_holm": true
+  },
+  {
+   "budget": "18",
+   "arm": "iforest",
+   "metric": "separation_diff",
+   "point": -0.024525149117982953,
+   "ci95": [
+    -0.17307795698924724,
+    0.0794909833480893
+   ],
+   "p": 0.8117188281171883,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "18",
+   "arm": "tree_ae",
+   "metric": "recall_diff",
+   "point": 0.0010822510822510178,
+   "ci95": [
+    0.0,
+    0.0032679738562091387
+   ],
+   "p": 0.7317268273172682,
+   "ci_excludes_zero": false,
+   "p_holm": 1.0,
+   "significant_holm": false
+  },
+  {
+   "budget": "18",
+   "arm": "tree_ae",
+   "metric": "separation_diff",
+   "point": -0.058635447071929137,
+   "ci95": [
+    -0.1446947914090197,
+    -0.004237529716763358
+   ],
+   "p": 0.008999100089991,
+   "ci_excludes_zero": true,
+   "p_holm": 0.080991900809919,
+   "significant_holm": false
+  }
+ ]
+}

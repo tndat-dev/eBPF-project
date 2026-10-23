@@ -41,7 +41,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
   - [ ] Thông tin ngoài tần suất: tham số syscall, quan hệ cha–con của process từ Tetragon.
 - [x] **Độ trễ:** CUSUM b3/h6 đạt blind (5.13b): p95 1,70 s, mức < 2 s, gánh còn giảm. Cauchy trượt (gánh +16%).
 - [x] **Bằng chứng gần tối ưu cho chính sách** (5.8j, 5.13b): lưới mịn trên 2 lượt; gánh thấp nhất trong tập khả thi ổn định (~4 đợt); CUSUM trội mọi k-of-n ở mức < 2 s.
-- [x] **Baseline trên cùng dữ liệu (5.15a, 5.15b):** AE và `tree_ae` không thay base29 trên dữ liệu mới (tách kém khoảng 26 điểm).
+- [x] **Baseline trên cùng dữ liệu (5.15a, 5.15b):** AE và `tree_ae` không thay base29 trên dữ liệu mới (tách kém khoảng 26 điểm). [x] Kiểm định nhiều so sánh (Holm, 24 phép kiểm, 24/10): kết luận ở ngân sách 1 đứng vững.
 - [x] Recall theo tốc độ attack (5.15c): Pulse yếu dần ở 6/s. [x] Campaign 1–3/s (5.25): recall 93,1% ở 1/s, 99,0% ở 3/s; p95 3,4–4,3 s.
 - [ ] Recall thấp ở `mprotect` và `seccomp` khi ngân sách chặt (syscall 5.8).
 - [x] Đo độ trễ kernel → cảnh báo đến người nhận thật (RCA 5.14): trên toàn campaign, push p95 2,89 s tập chính (268/282 trial có cảnh báo mới; 3,04 s nếu chỉ tính đợt mở từ cửa sổ nằm trọn trong trial), 3,56 s mọi tốc độ. [ ] Chép biên nhận vào repo sau lượt.

@@ -1177,6 +1177,12 @@ Calibration như lúc chạy (cũ): chỉ 2 chính sách thỏa ràng buộc (`k
 
   - Lặp lại đúng 5.15a trên dữ liệu mới: AE bắt nhiều attack hơn và nhanh hơn, nhưng gắn cờ binary vô hại nhiều hơn hẳn, nên khoảng cách attack − vô hại tụt khoảng 26 điểm.
   - `tree_ae` cho kết quả gần như trùng AE: nhánh AE quyết định joint p, nhánh tree không cứu được phần tách.
+- **Kiểm định nhiều so sánh (G1, 24/10 01:50; kiểm độ bền, không chọn gì):**
+  - `arm_bootstrap` thêm p-value bootstrap hai phía cho mỗi hiệu số so với base29 (+1 kiểu Monte Carlo nên p ≥ 2/10.001), chạy lại cùng seed và cùng đầu vào (SHA trùng). Điểm và CI trùng biên nhận cũ tới sai số làm tròn ~10⁻¹⁶.
+  - Holm trên cả họ: 4 ứng viên × 3 ngân sách (1, 5, 18) × 2 chỉ số (hiệu recall, hiệu tách) = 24 phép kiểm, FWER 5% dưới mọi phụ thuộc (`scripts/analysis/multiple_comparisons.py`, có test).
+  - **Mọi kết luận ở ngân sách 1 đứng vững** (p Holm 0,005): AE và `tree_ae` tăng recall +4,9 điểm và tách kém −25,9 / −25,6 điểm; freq_profile mất recall −33 điểm; Isolation Forest mất recall −93 điểm và tách kém −26 điểm. Hiệu tách +18,5 điểm của freq_profile vốn đã có CI chứa 0, Holm cũng vậy. Quyết định giữ base29 không đổi.
+  - Holm chỉ lật 2/18 kết luận có CI loại trừ 0: hiệu tách của AE và `tree_ae` ở ngân sách 18 (−5,9 điểm, p 0,009 → Holm 0,081). Ngân sách 5: hiệu tách −11,3 / −10,8 điểm vẫn có ý nghĩa (Holm 0,033).
+  - Biên nhận: `results-20261021/baselines/fresh/FRESH-BOOTSTRAP-P.json`, `FRESH-MULTIPLE-COMPARISONS.json` (bản gốc `/var/tmp/baselines/` trên `.234`).
 - **Số development của `tree_ae`** (pulse-live-recalibrated, ghép từ dump, xong 15:07; biên nhận `baselines/tree-ae-*.json`; chỉ tham khảo):
 
 | Ngân sách | Nhánh | α× | Đợt/replica-giờ | Recall | Binary vô hại | Control | p95 | Hiệu tách so với base29 |
