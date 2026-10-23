@@ -399,7 +399,7 @@
    "abstract_source": "https://link.springer.com/chapter/10.1007/978-981-95-8417-8_34"
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/2026-zheng-in-kernel-cnn-inference-for-edge-devices-an-ebpf-based--reconstructed.pdf",
   "bytes": 45898,
   "sha256": "6d8215e954f5feaddb79080e2194751f437bb2bc7244ed21a03c5071fd64d3f0",
@@ -559,9 +559,9 @@
   "status": "downloaded",
   "how": "script",
   "file": "pdf/2022-barber-conformal-prediction-beyond-exchangeability.pdf",
-  "bytes": 423685,
-  "sha256": "d80dba944a136e075bbfe281009152ce42041e0a455f68f73684ace83cfc3fed",
-  "fetched_at": "2026-10-22T21:06:15+00:00"
+  "bytes": 4176553,
+  "sha256": "7d09be24289de9a91d90e1ce6331ce28e229f067bea9cdb095cebfa067e3416f",
+  "fetched_at": "2026-10-23T05:40:50+00:00"
  },
  {
   "label": "CORTEX",
@@ -815,7 +815,7 @@
    "abstract_source": null
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/1927-wilson-probable-inference-the-law-of-succession-and-statistical--reconstructed.pdf",
   "bytes": 50421,
   "sha256": "6a7feef8035e399ea8f4db093b4cf76cd19716b6aaebf7a8164305edd286857f",
@@ -843,7 +843,7 @@
    "abstract_source": null
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/1954-page-continuous-inspection-schemes--reconstructed.pdf",
   "bytes": 45998,
   "sha256": "817926ab8f92aeb1693cf7038a1a6d52b5f0e722e1626f41c8862c86841bd08a",
@@ -868,7 +868,7 @@
    "year": 2025,
    "venue": "arXiv",
    "arxiv": "2511.18155",
-   "abstract": "With the increasing use and adoption of cloud and cloud-native computing, the underlying technologies (i.e., containerization and virtualization) have become foundational. However, strict isolation and maintaining runtime security in these environments has become increasingly challenging. Existing approaches like seccomp and Mandatory Access Control (MAC) frameworks offer some protection up to a limit, but often lack context awareness, syscall argument filtering, and adaptive enforcement, providing the ability to adjust decisions at runtime based on observed application behavior, workload changes, or detected anomalies rather than relying solely on static or predefined rules.This paper introduces eBPF-PATROL (eBPF-Protective Agent for Threat Recognition and Overreach Limitation), an extensible lightweight runtime security agent that uses extended Berkeley Packet Filter (eBPF) technology to monitor and enforce policies in containerized and virtualized environments. By intercepting system calls, analyzing execution context, and applying user-defined rules, eBPF-PATROL detects and prevents real-time boundary violations, such as reverse shells, privilege escalation, and container escape attempts. We describe the architecture, implementation, and evaluation of eBPF-PATROL, demonstrating its low overhead (&lt; 2.5 percent) and high detection accuracy across real-world attack scenarios.",
+   "abstract": "With the increasing use and adoption of cloud and cloud-native computing, the underlying technologies (i.e., containerization and virtualization) have become foundational. However, strict isolation and maintaining runtime security in these environments has become increasingly challenging. Existing approaches like seccomp and Mandatory Access Control (MAC) frameworks offer some protection up to a limit, but often lack context awareness, syscall argument filtering, and adaptive enforcement, providing the ability to adjust decisions at runtime based on observed application behavior, workload changes, or detected anomalies rather than relying solely on static or predefined rules.This paper introduces eBPF-PATROL (eBPF-Protective Agent for Threat Recognition and Overreach Limitation), an extensible lightweight runtime security agent that uses extended Berkeley Packet Filter (eBPF) technology to monitor and enforce policies in containerized and virtualized environments. By intercepting system calls, analyzing execution context, and applying user-defined rules, eBPF-PATROL detects and prevents real-time boundary violations, such as reverse shells, privilege escalation, and container escape attempts. We describe the architecture, implementation, and evaluation of eBPF-PATROL, demonstrating its low overhead (< 2.5 percent) and high detection accuracy across real-world attack scenarios.",
    "abstract_source": "arXiv 2511.18155 (DataCite)"
   },
   "status": "downloaded",
@@ -1043,7 +1043,7 @@
   "file": "pdf/1971-lorden-procedures-for-reacting-to-a-change-in-distribution.pdf",
   "bytes": 1063457,
   "sha256": "bec65c82c65885471823c18a10c8590a4ccdd3bc874cb504755cad1837d47cb2",
-  "fetched_at": "2026-10-23T05:33:12+00:00"
+  "fetched_at": "2026-10-23T05:42:14+00:00"
  },
  {
   "label": "G. V. Moustakides. Optimal stopping times for detecting changes in distributions. Annals of Statistics 14(4), 1986",
@@ -1070,7 +1070,7 @@
   "file": "pdf/1986-moustakides-optimal-stopping-times-for-detecting-changes-in.pdf",
   "bytes": 758569,
   "sha256": "7d020b58ea2eddf04bd90a78f97786737b848f38dcc246628a97f7bfa189cf2d",
-  "fetched_at": "2026-10-23T05:33:12+00:00"
+  "fetched_at": "2026-10-23T05:42:14+00:00"
  },
  {
   "label": "Hummingbird",
@@ -1184,7 +1184,7 @@
    "abstract_source": "Crossref 10.1002/eng2.12080"
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/2019-tien-kubanomaly-anomaly-detection-for-the-docker-orchestration--reconstructed.pdf",
   "bytes": 51193,
   "sha256": "dd63a9d6b975488eea769b702a7ba61a2030e206bf8c2b89778be90f59482c85",
@@ -1236,19 +1236,19 @@
   ],
   "type": "paper",
   "bib": {
-   "title": "Online False Discovery Rate Control for LORD &amp; SAFFRON Under Positive, Local Dependence",
+   "title": "Online False Discovery Rate Control for LORD & SAFFRON Under Positive, Local Dependence",
    "authors": [
     "Fisher, Aaron"
    ],
    "year": 2021,
    "venue": "arXiv",
    "arxiv": "2110.08161",
-   "abstract": "Online testing procedures assume that hypotheses are observed in sequence, and allow the significance thresholds for upcoming tests to depend on the test statistics observed so far. Some of the most popular online methods include alpha investing, LORD++ (hereafter, LORD), and SAFFRON. These three methods have been shown to provide online control of the \"modified\" false discovery rate (mFDR) under a condition known as conditional superuniformity. However, to our knowledge, LORD &amp; SAFFRON have only been shown to control the traditional false discovery rate (FDR) under an independence condition on the test statistics. Our work bolsters these results by showing that SAFFRON and LORD additionally ensure online control of the FDR under a \"local\" form of nonnegative dependence. Further, FDR control is maintained under certain types of adaptive stopping rules, such as stopping after a certain number of rejections have been observed. Because alpha investing can be recovered as a special case of the SAFFRON framework, our results immediately apply to alpha investing as well. In the process of deriving these results, we also formally characterize how the conditional superuniformity assumption implicitly limits the allowed p-value dependencies. This implicit limitation is important not only to our proposed FDR result, but also to many existing mFDR results.",
+   "abstract": "Online testing procedures assume that hypotheses are observed in sequence, and allow the significance thresholds for upcoming tests to depend on the test statistics observed so far. Some of the most popular online methods include alpha investing, LORD++ (hereafter, LORD), and SAFFRON. These three methods have been shown to provide online control of the \"modified\" false discovery rate (mFDR) under a condition known as conditional superuniformity. However, to our knowledge, LORD & SAFFRON have only been shown to control the traditional false discovery rate (FDR) under an independence condition on the test statistics. Our work bolsters these results by showing that SAFFRON and LORD additionally ensure online control of the FDR under a \"local\" form of nonnegative dependence. Further, FDR control is maintained under certain types of adaptive stopping rules, such as stopping after a certain number of rejections have been observed. Because alpha investing can be recovered as a special case of the SAFFRON framework, our results immediately apply to alpha investing as well. In the process of deriving these results, we also formally characterize how the conditional superuniformity assumption implicitly limits the allowed p-value dependencies. This implicit limitation is important not only to our proposed FDR result, but also to many existing mFDR results.",
    "abstract_source": "arXiv 2110.08161 (DataCite)"
   },
   "status": "downloaded",
   "how": "script",
-  "file": "pdf/2021-fisher-online-false-discovery-rate-control-for-lord-amp-saffron.pdf",
+  "file": "pdf/2021-fisher-online-false-discovery-rate-control-for-lord-saffron-under.pdf",
   "bytes": 578555,
   "sha256": "5bed4558e0fa8bbc8bc238a5cdf08735abf0c9bedfb2d38de6587aa55807d8ef",
   "fetched_at": "2026-10-22T21:06:14+00:00"
@@ -1463,9 +1463,10 @@
   "status": "downloaded",
   "how": "script",
   "file": "pdf/2021-rebjock-online-false-discovery-rate-control-for-anomaly-detection-in.pdf",
-  "bytes": 2041814,
-  "sha256": "179f24f1f771b8ddb09ff76e52d720c32fbd0ee8d8f27c7517753db3028aaa73",
-  "fetched_at": "2026-10-22T21:06:14+00:00"
+  "bytes": 1169635,
+  "sha256": "0f1549ef717e927971b88eb044c0a51666b7a4895008d9e28e6f1d2aa0416e11",
+  "fetched_at": "2026-10-23T05:40:50+00:00",
+  "pdf_url": "https://arxiv.org/pdf/2112.03196"
  },
  {
   "label": "ORTHRUS",
@@ -1652,7 +1653,7 @@
    "abstract_source": "Crossref 10.1145/3712195"
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/2025-he-on-the-practicability-of-deep-learning-based-anomaly--reconstructed.pdf",
   "bytes": 49130,
   "sha256": "8cf14315a715cef9552d7cf52e9b0b66865219c540257f97f71e00f6f20a7201",
@@ -2033,7 +2034,7 @@
   },
   "type": "paper",
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/2005-vovk-algorithmic-learning-in-a-random-world--reconstructed.pdf",
   "bytes": 54958,
   "sha256": "61ea5a36f584480ff67dc4a1eed10f379b62a3612fe155199de0c1e22d75ad5d",
@@ -2092,7 +2093,7 @@
    "abstract_source": null
   },
   "status": "reconstructed",
-  "how": "kept",
+  "how": "reconstructed",
   "file": "pdf/2020-lin-cdl-classified-distributed-learning-for-detecting-security--reconstructed.pdf",
   "bytes": 53547,
   "sha256": "0265d8aeb75820f45f0c1eb09cb673a384edaa2a646026a5ddc30f30e5cf1488",

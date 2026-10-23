@@ -205,22 +205,29 @@ def title_score(text, title):
     if not title or not text:
         return 0.0
     flat = lambda s: re.sub(r'[^a-z0-9]', '', ascii_slug(s, 100000))
-    head = ascii_slug(text, 100000)[:4000]
-    if flat(title)[:40] and flat(title)[:40] in flat(head):
+    slug = ascii_slug(text, 100000)
+    if flat(title)[:40] and flat(title)[:40] in flat(slug[:1500]):
         return 1.0
-    words, pos, found = [w for w in ascii_slug(title, 400).split('-') if len(w) >= 3], 0, 0
-    page = head.split('-')
+    # fallback: title words in order, but only where a title sits (the first lines); across a whole abstract the
+    # words of another paper's title can all occur in order (Barber 2022 vs Tibshirani 2019, Rebjock vs Krönert)
+    words, hits = [w for w in ascii_slug(title, 400).split('-') if len(w) >= 3], []
+    page = slug[:400].split('-')
     for w in words:
-        if w in page[pos:]:
-            pos = page.index(w, pos) + 1; found += 1
-    return found / len(words) if words else 0.0
+        start = hits[-1] + 1 if hits else 0
+        if w in page[start:]:
+            hits.append(page.index(w, start))
+    if not words or not hits:
+        return 0.0
+    share = len(hits) / len(words)
+    compact = hits[-1] - hits[0] + 1 <= 2 * len(words) + 3    # a title is one run of words, not words spread out
+    return share if compact else share / 2
 
 
 def title_position(text, title):
     """Where the title starts in the text (letters and digits only); the paper's own title comes first on its first
     page, a title quoted in the abstract comes later."""
     flat = lambda s: re.sub(r'[^a-z0-9]', '', ascii_slug(s, 100000))
-    pos = flat(ascii_slug(text, 100000)[:4000]).find(flat(title or '')[:40])
+    pos = flat(ascii_slug(text, 100000)[:1500]).find(flat(title or '')[:40])
     return pos if pos >= 0 else 10 ** 6
 
 
@@ -449,6 +456,7 @@ def main():
         if not bib or not bib.get('title') or not bib.get('year') or not bib.get('authors'):
             bib, landings[url] = bibliography(e, log)
         bib = {**bib, **{k: v for k, v in override.items() if v}}
+        bib = {k: html.unescape(v) if isinstance(v, str) else v for k, v in bib.items()}   # "LORD &amp; SAFFRON"
         e['bib'] = {k: v for k, v in bib.items() if k != 'pdf_url'}
         papers[url] = e
         print(f"bib  {e['bib'].get('year')} {(e['bib'].get('authors') or ['?'])[0][:20]:20s} {e['bib'].get('title', '')[:70]}", flush=True)
@@ -469,7 +477,8 @@ def main():
                 raise RuntimeError(f'refusing to overwrite {dest.name} with {f.name}')
             f.rename(dest)
             status = {'--web': 'printed_from_web', '--reconstructed': 'reconstructed'}.get(suffix, 'downloaded')
-            how = prev['how'] if prev.get('how') not in (None, 'kept') else 'placed_by_hand'   # origin survives later runs
+            how = {'--web': 'printed_from_web', '--reconstructed': 'reconstructed'}.get(suffix) or (   # origin survives later runs
+                prev['how'] if prev.get('how') not in (None, 'kept', 'reconstructed', 'printed_from_web') else 'placed_by_hand')
             e.update(register(dest, how), status=status, fetched_at=prev.get('fetched_at') or now)
             for k in ('pdf_url', 'html_url', 'reconstructed_from'):
                 if prev.get(k):

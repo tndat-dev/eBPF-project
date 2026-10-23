@@ -35,3 +35,16 @@ def test_identical_extra_copy_is_removed_and_manual_matches_win(tmp_path, monkey
     chosen, removed = fr.adopt(papers, tmp_path, {'scan.pdf': 'lorden'})
     assert chosen['lorden'].name == 'scan.pdf' and chosen['kronert'].name in ('k1.pdf', 'k2.pdf')
     assert len(removed) == 1 and sorted(p.name for p in tmp_path.iterdir()) in (['k1.pdf', 'scan.pdf'], ['k2.pdf', 'scan.pdf'])
+
+
+def test_another_papers_title_words_spread_over_an_abstract_do_not_match():
+    tibshirani = ('Conformal Prediction Under Covariate Shift\nRyan J. Tibshirani Rina Foygel Barber Emmanuel J. Candes '
+                  'Aaditya Ramdas\nAbstract We extend conformal prediction methodology beyond the case of exchangeable data. '
+                  'In particular, we show that a weighted version of conformal prediction can be used to compute '
+                  'distribution-free prediction intervals ... a certain weighted notion of exchangeability.')
+    assert fr.title_score(tibshirani, 'Conformal prediction beyond exchangeability') < 0.9
+    assert fr.title_score(tibshirani, 'Conformal Prediction Under Covariate Shift') == 1.0
+    kronert = ('arXiv:2312.01969v2 FDR control for Online Anomaly Detection Etienne Kronert Alain Celisse Dalila Hattab '
+               'Abstract The goal of anomaly detection is to identify observations ... online setting, false discovery '
+               'rate control ... time series')
+    assert fr.title_score(kronert, 'Online false discovery rate control for anomaly detection in time series') < 0.9
