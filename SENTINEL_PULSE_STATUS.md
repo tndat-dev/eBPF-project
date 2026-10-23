@@ -1421,6 +1421,33 @@ Baseline luật Falco (5.15d) và tripwire A1 (5.16) là phần rule, đã chuy�
 - **Giới hạn phải nêu trong luận văn:** con số "sau pha chọn" là ở traffic ổn định. Traffic thật biến động hơn nên gánh thực tế có thể gần mức 10–12 hơn. Trên dữ liệu đã có không tách được phần do traffic và phần do khởi động lượt; muốn tách cần một lượt có các chế độ traffic rải suốt lượt.
 - **Không thấy drift trong 20 giờ sau một lần làm mới calibration:** gánh theo giờ dao động quanh một mức, không tăng dần. Khớp 5.17: trong 24 giờ, không chiến lược làm mới định kỳ nào thắng.
 
+### 5.24 Lượt xác nhận giữa chừng: các đợt cảnh báo kéo dài và replica CNPG hỏng (23/10 11:40–12:05; mô tả, không dùng để quyết định)
+
+Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stable-confirmation-v1` + bổ sung 1) áp lên toàn lượt sau 24/10; mục này chỉ giải thích những gì đang thấy.
+
+- **Đợt cảnh báo trên normal** (bridge RCA 5.14, 03:52 → 11:40, 5.315 đợt đã đóng ngoài khoảng trial): độ dài p50 7,2 s, p90 8,8 s, p99 15,6 s. Có 9 đợt dài hơn 60 s.
+- **Tỉ lệ thời gian đang báo theo container** (7,8 giờ): ba container dẫn đầu đều ở worker1. Mọi container khác ≤ 3,9%.
+
+  | Container | Thời gian đang báo | Số đợt |
+  |---|---|---|
+  | `aims-postgres-cnpg:postgres` (pod `aims-postgres-cnpg-2`) | **96,1%** | 15 (mỗi đợt khoảng 30 phút) |
+  | `aims-kafka-dual-role:kafka` (pod `aims-kafka-dual-role-2`) | 67,6% | 2.349 |
+  | `inventory-service:app` | 19,5% | 787 |
+
+- **Nguyên nhân của postgres: replica hỏng sau failover, là sự cố vận hành thật, không phải tấn công.**
+  - Log operator: lúc 22/10 09:41:03 UTC, CNPG thấy primary `cnpg-3` (worker4) không khỏe và failover sang `cnpg-1` (worker3). Đây là trước lượt xác nhận (18:19 UTC) và sau khoảng calibration làm mới.
+  - Replica `cnpg-2` (worker1) từ đó không theo được primary mới: mỗi khoảng 5 s lại báo `could not start WAL streaming: requested starting point 0/A2000000 on timeline 8 is not in this server` và `new timeline 9 forked off current database system timeline 8 before current recovery point`. Có 120 lần trong 10 phút, mỗi lần kèm `wal-restore`.
+  - Trong khi đó CNPG vẫn báo cluster "healthy". Case RCA của container này chỉ có process của Postgres/CNPG (`postgres`, `/controller/manager`, `pg_isready`), ngoài các trial của campaign.
+  - Nhịp 30 phút của các đợt nhiều khả năng do segment capture xoay vòng (lịch sử và trạng thái CUSUM bị reset), chứ không phải cảnh báo ngắt thật.
+- **Ảnh hưởng lên số campaign tạm:** cả 8/8 trial control trên container này đều dương, chiếm 8 trong 25 control dương. Control tạm 5,4% (25/468); không tính container này thì 3,7% (17/460).
+  - Đây là phân tích độ nhạy **sau khi xem dữ liệu**, không thay số chính.
+  - Kết luận theo luật vẫn tính trên toàn lượt; số không tính container này chỉ báo kèm, ghi rõ là post-hoc.
+- **Kafka (worker1):** log broker 2 trong 10 phút gần như trống (4 dòng từ chối quyền CREATE), cluster Ready. Chưa rõ nguyên nhân; review sau lượt.
+- **Việc sau lượt:**
+  1. sửa replica `cnpg-2` (dựng lại từ primary) trước lượt live kế tiếp;
+  2. trong báo cáo lượt xác nhận, tách riêng đóng góp của container này vào control, gánh cảnh báo và precision;
+  3. ghi vào luận văn như một ví dụ: Pulse thấy được sự cố vận hành thật mà trạng thái của operator không phản ánh.
+
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
 
 - **Cách đo:** microbenchmark syscall tĩnh (`testbed/bench/syscall_bench.c`) trên worker4, trong cgroup riêng. Ba điều kiện luân phiên thứ tự, 5 vòng, 10 s mỗi chế độ:
@@ -1920,4 +1947,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 03:55–04:20 | Ví dụ cây RCA vào repo, kèm hình (RCA 5.13). Sửa ánh xạ IP node (hostNetwork/SNAT) trong RCA. Chép biên nhận 22–23/10 vào `validation-evidence/results-20261022/` (có README nguồn gốc). README gốc viết lại thành hướng dẫn đọc repo. `references/`: danh mục 75 nguồn, 46 PDF đã tải (ngoài git vì repo công khai; bản sao NFS khớp SHA-256). Syscall 5C: nhóm feature dưới CUSUM `cap` không đổi kết luận nào | mục 1, 2 |
 | 04:25–04:50 | Quét repo và cụm: link hỏng đã sửa, gỡ snapshot cũ ở gốc repo, bảng tên gọi và trạng thái cập nhật, script job nào cũng được báo cáo nhắc tới, không có bí mật trong repo. Xóa `/var/tmp/syscall-cusum` (bản sao NFS) và `__pycache__` trên .234. Kernel → người nhận sơ bộ: push p95 2,58 s (RCA 5.14) | mục 1, 2 |
 | 11:20–11:35 | Dữ liệu thô cũ trên host (1,3 GB, 642 file, thế hệ trước 18/10): chủ đồ án đồng ý chuyển lên NFS rồi xóa ở host. Chép sang đĩa local `.234` (không qua NFS, vì lượt live đang chạy), khớp `SHA256SUMS`; chuyển lên NFS và xóa ở host sau lượt | TODO |
+| 11:35–12:05 | Rà việc làm ngay. Log Falco: worker1 xoay vòng 4 giờ/lần, lần tới sẽ mất đầu lượt → chép ngay về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 40 / 12 / 18 MB). Seed RCA (tạm, trước campaign): nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (RCA 5.12). Review đợt dài: replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC, báo 96% thời gian, 8/25 control dương (5.24) | 5.24 |
 

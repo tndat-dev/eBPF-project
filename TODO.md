@@ -1,6 +1,6 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 23/10/2026 11:40. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+Cập nhật 23/10/2026 12:05. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
 [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [rule, tách khỏi ML](RULE_INTEGRATION_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
@@ -22,7 +22,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 1. [x] 16:28: replay cấu hình gộp đạt (5.19 bước 3); đóng băng `policy-cusum-b3-h6.json` (`9bf0b216…`).
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt); test blind trên lượt xác nhận.
 3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): chạy từ 23/10 01:19, 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
-3b. [ ] **Ngay sau lượt xác nhận (cần làm tay, trong 1–2 ngày):** chép log Falco khỏi 3 worker (`/var/log/pods/falco_falco-*/falco`) và giữ tới khi so sánh có/không rule xong.
+3b. [~] Log Falco của lượt xác nhận: [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [ ] Ngay sau lượt: chép bổ sung file mới rồi chuyển lên NFS; giữ tới khi so sánh có/không rule xong.
 4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [x] Nhóm feature dưới `cap`: không đổi kết luận (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
 6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
@@ -32,7 +32,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [~] **Gánh cảnh báo, control, false positive:** CUSUM b3/h6 giảm còn 5,32 đợt/replica-giờ (−21%, 5.13b), ngân sách 0,1. Chỉnh ngưỡng không giải được (CUSUM đã tối ưu khi bằng chứng cố định). Đang thử bằng chứng tốt hơn: calibration theo lớp launch, so với replica khác, so với lịch sử của chính container (5.22).
   - [x] Calibration theo (workload, node) (5.6b): là `mondrian-6-1` của 5.17; không thắng trên dữ liệu mới, không thắng trên soak (p95).
   - [x] Phân rã theo thời gian (5.23): 90 phút traffic thay đổi gấp ~2 lần traffic ổn định; không drift trong 20 giờ. [ ] Một lượt có chế độ traffic rải suốt lượt để đo gánh dưới traffic biến động (cho paper).
-  - [ ] Review nhãn các đợt kéo dài (ví dụ `auth-service` trên worker3) trước khi coi là báo nhầm.
+  - [x] Review các đợt kéo dài trên lượt xác nhận (5.24): postgres worker1 báo 96% thời gian do replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC (sự cố thật, không phải tấn công). [ ] Kafka worker1 (67,6% thời gian): chưa rõ, review sau lượt.
+  - [ ] **Sau lượt:** sửa replica `cnpg-2` (dựng lại từ primary) trước lượt live kế tiếp; báo cáo lượt xác nhận tách riêng đóng góp của container này (post-hoc).
 - [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
   - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
   - [x] Novelty có xét exec (5.7c, 5.8h): 100% cho `ptrace`/`execveat`/`setns`, binary vô hại 0,3%.

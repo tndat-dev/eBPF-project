@@ -310,6 +310,11 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - binary đứng sau: `java` (entity-operator khởi động lại trong lượt), `node`, `sh`, `envoy`, `/controller/manager`, `minio`, `dash`;
   - seed bao `java`, `envoy`, `/controller/manager`, `minio`, sidecar của minio và `sh` ở 7 workload, tức khoảng 400/612 case của `pulse-stable-refreshed`. Không bao `node` và `dash`;
   - biên nhận: `results-20261021/{pulse-stable-candidate,pulse-stable-refreshed}/rca-suspect-reasons.json`. Lượt xác nhận chạy cùng script trong giai đoạn final.
+- **Số tạm trên lượt xác nhận (23/10 11:45; cùng khoảng: case normal trước campaign; mô tả):** nghi phạm hạng 1 là binary mới/chưa biết **11,3% (45/397) ở `pulse-stable-refreshed` → 5,1% (21/410) ở `pulse-stable-confirm`**.
+  - `/controller/manager`, `java` và `envoy` biến mất khỏi danh sách.
+  - Còn lại `sh` (10), `node` (4), `dash` (4): `node` và `dash` không có trong seed, đúng dự đoán; `sh` còn ở các workload seed không bao.
+  - Top-1 của attack: chờ đánh giá sau lượt.
+- **Bộ đếm lý do từ chối case tiếp nối (11:35, trên mọi decision dương trong cooldown):** `binary_not_new` 208.867, `no_exec` 42.004, `too_soon` 28.604, `warming_up` 888; đã mở 512 case tiếp nối. Gắn lý do cho từng attack chưa có case: sau lượt.
 
 ### 5.13 Ánh xạ IP qua NAT và mesh (23/10 03:55–04:10)
 
@@ -484,3 +489,5 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 03:55–04:10 | Ví dụ cây RCA thật vào repo (`validation-evidence/rca/examples-20261023/`, hình vẽ bằng `scripts/analysis/rca_case_graph.py`). Lấy ví dụ thì thấy IP node bị gán cho pod `node-exporter` (hostNetwork): 75% case, 28% số đích. Sửa `connect.py` thành `Node` không xác định, có test; áp dụng từ lượt sau. Ghi rõ phần chưa làm của NAT/mesh (Istio ambient) | mục 5.13 |
 | 23/10 03:52–04:12 | Thử cảnh báo vận hành thật: bridge chỉ đọc + Prometheus/Alertmanager/Grafana của cụm, 3 đường trên cùng đợt. Push 163/163, p95 0,06 s; pull-fast 94,5%, p95 7,1 s; pull mặc định 6,7%, p50 54 s | mục 5.14 |
 | 23/10 04:30–04:45 | Kernel → người nhận theo từng trial (sơ bộ): push p95 2,58 s, 36/39 trial; pull mặc định 6/39. RCA chế độ `alert_trigger_file` (trigger = cảnh báo đã qua Alertmanager), có test; dùng từ lượt sau. Cập nhật bảng mục 1 và bảng tên gọi | mục 1, 5.14 |
+| 23/10 11:45 | Số tạm của seed trên lượt xác nhận: nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (case normal trước campaign); bộ đếm lý do từ chối case tiếp nối | mục 5.12 |
+
