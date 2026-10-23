@@ -32,11 +32,6 @@
 - Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong 4 báo cáo `.md` (quyết định 23/10,
   áp dụng cả cho các báo cáo docx 16/10).
 
-## Tài liệu đã gỡ khỏi nhánh chính
-
-- `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md`: báo cáo tổng hợp 15–16/10 (snapshot, đường dẫn theo bố cục trước 18/10). Gỡ ngày 23/10, vì nội dung đã nằm trong 4 báo cáo hiện hành và các docx 16/10, còn 57 link trỏ tới file không còn tồn tại. Bản gốc: `git show 5e1ed2f:SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md`.
-- Báo cáo và evidence của các thế hệ trước 18/10: tag `archive/pre-refactor-20261018`.
-
 ## Bằng chứng
 
 `validation-evidence/` chứa biên nhận, checksum và kết quả nhỏ của từng lượt chạy
