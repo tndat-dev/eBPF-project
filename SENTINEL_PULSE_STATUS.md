@@ -1504,16 +1504,45 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - log broker 30 phút gần nhất chỉ có các dòng từ chối CREATE; CPU và RAM ngang hai broker kia; pod restart một lần, 3 ngày trước;
   - probe giống hệt chạy trên cả ba broker, nhưng chỉ broker ở worker1 báo.
   
-  Giả thuyết (chưa kiểm): calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống. Kiểm sau lượt bằng `scripts/analysis/replica_compare.py` (có test) trên bảng cửa sổ của giai đoạn final: phân vị `tree_p`/`support_p`/`joint_p`, phần cửa sổ bị gắn cờ khi có và không có exec, nhánh nào cho p nhỏ hơn, cho từng broker, ngoài khoảng campaign. Chỉ mô tả, không dùng để chọn.
+  Giả thuyết: calibration gộp theo workload, trong khi broker này khác hai broker kia một cách hệ thống.
+  - **Kiểm sau lượt (24/10 10:30, `scripts/analysis/replica_compare.py` trên bảng cửa sổ, ngoài khoảng campaign; chỉ mô tả):** giả thuyết đúng.
+
+    | Replica | Preview (luật live) | Cửa sổ joint_p ≤ α | Trung vị tree_p / support_p | Tỉ lệ cửa sổ có exec |
+    |---|---|---|---|---|
+    | kafka worker3 | 3,6% | 0,05% | 0,37 / 1,00 | 42% |
+    | kafka worker4 | 4,3% | 0,12% | 0,67 / 1,00 | 41% |
+    | **kafka worker1** | **46,5%** | **2,67%** (8,7% ở cửa sổ có exec) | **0,05 / 0,03** | 24% |
+    | postgres worker1 (`cnpg-2` hỏng) | 99,97% | 99,97% (nhánh support) | 0,000 / 0,000 | 62% |
+    | inventory worker1 (`c508a65e`) | 14,8% | 0,36% | 0,02 / 0,13 | 47% |
+    | inventory, 3 replica khác | 4,6–5,5% | 0,20–0,33% | 0,03–0,08 / 0,13–0,44 | 47% |
+
+  - Ở kafka worker1, cả hai nhánh đều cho p thấp thường trực. Trung vị joint p khoảng 0,07, tức −ln p ≈ 2,7, sát drift 3, nên CUSUM hiếm khi về 0 và preview bật gần nửa thời gian, dù rất ít cửa sổ đơn lẻ qua ngưỡng α. Ở các cửa sổ bị gắn cờ, nhánh tree cho p nhỏ hơn 2.632/2.645 lần.
+  - Hệ quả: calibration gộp cho cả workload không phù hợp với một replica lệch hệ thống. Chiết khấu theo replica (5.22) xử lý được đúng trường hợp này, vì cửa sổ của broker worker1 không có syscall nào mà broker khác không có.
+  - Biên nhận: `results-20261023/pulse-stable-confirm/replicas-{aims-kafka-dual-role,aims-postgres-cnpg,inventory-service}.json`.
 - **Sau lượt (24/10 01:30–02:00):**
   - capture kết thúc 18:23–18:29 UTC trên cả 3 worker, unit success; mỗi worker chỉ khởi động một lần (journal), capture liên tục;
   - **khởi động lại ngoài kế hoạch trên `.234`:** lúc 23/10 06:19:47 UTC (13:19), `unattended-upgrades` nâng cấp `zlib1g`, và `needrestart` khởi động lại mọi service dùng zlib, gồm bridge cảnh báo (RCA 5.14) và subscriber RCA của lượt. Lúc đó campaign đã xong (05:29 UTC), nên số campaign không bị ảnh hưởng. Bộ đếm của RCA được giữ (6.677 case, tăng tiếp từ 3.671), chỉ ring 180 s mất ngay sau lần khởi động lại. Worker không bị ảnh hưởng, vì trên worker các unit tự nâng cấp đã bị `mask` từ trước;
   - **đã áp cùng cấu hình cho `.234`** (24/10 01:50): `systemctl mask --now unattended-upgrades.service apt-daily-upgrade.timer apt-daily.timer`. Đảo lại bằng `systemctl unmask`;
   - **replica CNPG `cnpg-2` đã sửa** (18:38 UTC): xóa PVC và pod, operator clone lại từ primary trong khoảng 25 s; replica mới đạt trạng thái nhất quán tại `0/A3000120`, stream WAL trên timeline 9, không còn lỗi `could not start WAL streaming`; primary thấy cả `cnpg-2` và `cnpg-3` đang stream. Lượt live sau dùng replica mới (pod UID khác);
   - log Falco đã chép lần cuối và chuyển lên `/mnt/sentinel-pulse-archive/pulse-stable-confirm/falco-logs/<node>/` (21 file, SHA-256 khớp), bản local trên worker đã xóa.
+- **Giai đoạn final (02:29 ngày 24/10; nén dữ liệu thô xong 02:50, tiết kiệm 75 GB):**
+  - **Test blind 5.22 (`burden-reduction-v1` rule 5, tập chính 6/12/24/s, toàn bộ normal 964 replica-giờ):**
+
+    | Cấu hình | Gánh (đợt/replica-giờ) | Recall | Precision | Control | p95 | Rule 5 |
+    |---|---|---|---|---|---|---|
+    | Tham chiếu k2of2 α×10 | 4,41 | 100% | 93,2% | 7,3% | 2,03 s | — |
+    | Stable (CUSUM `cap`, tính lại; live 5,83, khớp 99,9999% cửa sổ) | 5,82 [4,02; 8,01] | 100% | 94,6% | 5,7% | 2,41 s | — |
+    | Mức < 2 s: Mondrian + replica 60 s + k2of2 α×15 | 2,30 | 99,7% | 96,6% | 3,5% | 2,16 s | không khả thi (p95 > 2 s) |
+    | **Mức ≤ 3 s: replica 30 s + k2of2 α×5** | **1,74** (0,40 × tham chiếu; 0,30 × stable) | 99,0% | 97,2% | 2,9% | 2,68 s | **đạt, được áp dụng** |
+
+    - Theo rule 5, cấu hình mức ≤ 3 s chỉ thay stable **sau thêm một lượt live**. Đường live hiện **chưa có** chiết khấu theo replica: 5.22 chỉ chạy offline trên bảng cửa sổ, mà phép so giữa các node cần dữ liệu của mọi worker. Phải xây phần này trước lượt live đó.
+    - Giới hạn đã đăng ký: attack chạy đồng thời trên mọi replica sẽ bị chiết khấu mất; campaign chỉ tấn công một replica.
+  - **RCA, tác dụng của seed (5.12):** nghi phạm hạng 1 là binary mới/chưa biết ở 6,8% case normal có nghi phạm (220/3.230), so với 11,3% trước khi có seed.
+  - **Phân loại cảnh báo (5.18) trên 3.666 case normal:** 50,7% trùng exec trong cửa sổ, 27,4% chỉ có exec trong case, 21,9% không có exec; luật triage probe giữ lại 45,4%.
+  - **Khoảng hở nhịp chấm:** mỗi worker đúng một lần, cùng lúc 23/10 06:10:15 UTC (13:10), cửa sổ đã đánh dấu `not_normal`. Nguyên nhân chung khả dĩ là NFS khựng: lúc 06:09 UTC tôi đọc 525 file trial và ghi hai file kết quả lên NFS từ `.234` (`confirm_campaign`). Chưa chứng minh; thêm một lý do để nâng RAM NFS.
 - **Ý nghĩa:**
   - Cấu hình stable đạt trên development nhưng không đạt trên lượt mới. Phần trượt là control dương, tập trung ở một node, trong đó có một sự cố vận hành thật.
-  - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 (chiết khấu theo replica) chạy trên chính lượt này ở giai đoạn final. Theo `stable-confirmation-v1`, đề xuất đó chỉ được áp dụng nếu đạt rule 5 của nó ở đây.
+  - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 chạy trên chính lượt này ở giai đoạn final: đề xuất mức ≤ 3 s **đạt** rule 5 (gánh 1,74, control 2,9%, precision 97,2%), mức < 2 s không đạt. Bước tiếp theo theo protocol: xây chiết khấu theo replica trong đường live, rồi chạy một lượt live xác nhận cấu hình đó.
   - Với luận văn, đây là kết quả âm có giá trị: một sự cố vận hành thật (replica CNPG hỏng mà operator vẫn báo khỏe) cùng sự khác biệt giữa các replica đủ đẩy control vượt ngưỡng. Gánh cảnh báo và calibration là phần cần làm tiếp.
 
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
@@ -2025,3 +2054,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 |---|---|---|
 | 01:23–02:00 | Lượt xác nhận kết thúc (3 worker success, capture liên tục). Giai đoạn final của `after-stable-confirm` bắt đầu 01:33. Log Falco chép lần cuối và chuyển lên NFS (SHA khớp, xóa bản local). Replica CNPG `cnpg-2` dựng lại từ primary, stream trên timeline 9. Phát hiện `unattended-upgrades` trên `.234` đã khởi động lại bridge và subscriber RCA lúc 13:19 ngày 23/10 (sau campaign); `mask` các unit tự nâng cấp trên `.234` như worker | 5.25 |
 | 01:48–02:05 | G1: p-value bootstrap + Holm trên 24 so sánh baseline, kết luận ngân sách 1 đứng vững (5.15b). Dữ liệu thô cũ 1,3 GB chuyển lên NFS (`host-evidence-pre-refactor-20261023/`, 642 file khớp `SHA256SUMS`), xóa bản host và bản tạm `.234`, bỏ 5 dòng `.gitignore`. Bridge dừng, biên nhận lên NFS và repo | 5.15b, 5.25 |
+| 10:08–10:35 | Final lượt xác nhận đọc xong (02:29; nén xong 02:50, −75 GB): test blind 5.22 mức ≤ 3 s **đạt** (replica 30 s + k2of2 α×5: gánh 1,74, control 2,9%), mức < 2 s không đạt; seed RCA 11,3% → 6,8%; phân loại cảnh báo; một khoảng hở nhịp chấm đồng thời 06:10 UTC. So sánh replica: kafka worker1 lệch hệ thống (preview 46,5% so với ~4%). `feature-groups` (7,6 GB, 1.201 file) lên NFS, SHA khớp, xóa bản local; dừng subscriber RCA. Không còn job nào dùng NFS | 5.22, 5.25 |

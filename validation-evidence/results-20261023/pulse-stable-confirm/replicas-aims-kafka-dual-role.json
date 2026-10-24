@@ -1,0 +1,154 @@
+{
+ "schema": "pulse-replica-compare-v1",
+ "workload": "production/aims-kafka-dual-role:kafka",
+ "excluded": [
+  [
+   1792698822.0,
+   1792733405.0
+  ]
+ ],
+ "table_built_at_unix": 1792783695.3856637,
+ "replicas": {
+  "k8s-worker3.local/c4530bcc": {
+   "identity": {
+    "workload_key": "production/aims-kafka-dual-role:kafka",
+    "node_name": "k8s-worker3.local",
+    "pod_uid": "c4530bcc-c897-499c-9dd7-6950ef6ffcec",
+    "container_name": "kafka",
+    "workload_revision": "strimzi-fec8050f",
+    "cgroup_id": "12109555"
+   },
+   "windows": 99244,
+   "launch_share": 0.42145620893958324,
+   "tree_p": {
+    "p05": 0.0415427307022635,
+    "p25": 0.15172482588508415,
+    "p50": 0.3732769878119559,
+    "p75": 0.6670868398142774
+   },
+   "support_p": {
+    "p05": 0.02527024085896694,
+    "p25": 0.2155125507835171,
+    "p50": 1.0,
+    "p75": 1.0
+   },
+   "joint_p": {
+    "p05": 0.04160621009866512,
+    "p25": 0.250272054556007,
+    "p50": 0.545433110853163,
+    "p75": 0.8388212782936739
+   },
+   "flagged": {
+    "n": 99244,
+    "share": 0.0004735802668171376
+   },
+   "flagged_launch": {
+    "n": 41827,
+    "share": 0.0006933320582398929
+   },
+   "flagged_no_launch": {
+    "n": 57417,
+    "share": 0.0003134960029259627
+   },
+   "preview_share": 0.036264157027125064,
+   "flagged_smaller_branch": {
+    "tree": 32,
+    "support": 15
+   }
+  },
+  "k8s-worker4.local/a0bafbf3": {
+   "identity": {
+    "workload_key": "production/aims-kafka-dual-role:kafka",
+    "node_name": "k8s-worker4.local",
+    "pod_uid": "a0bafbf3-4b01-457c-9c9e-f6a39365fc5b",
+    "container_name": "kafka",
+    "workload_revision": "strimzi-ae9505e5",
+    "cgroup_id": "32811"
+   },
+   "windows": 101670,
+   "launch_share": 0.40993410052129436,
+   "tree_p": {
+    "p05": 0.06445788595473013,
+    "p25": 0.445468931369704,
+    "p50": 0.6698890017411492,
+    "p75": 0.825701447330238
+   },
+   "support_p": {
+    "p05": 0.020449434126523506,
+    "p25": 0.33828397054556003,
+    "p50": 1.0,
+    "p75": 1.0
+   },
+   "joint_p": {
+    "p05": 0.036999419616947186,
+    "p25": 0.5265117164828788,
+    "p50": 0.8479396401625072,
+    "p75": 1.0
+   },
+   "flagged": {
+    "n": 101670,
+    "share": 0.0012294678862988099
+   },
+   "flagged_launch": {
+    "n": 41678,
+    "share": 0.0010557128461058593
+   },
+   "flagged_no_launch": {
+    "n": 59992,
+    "share": 0.0013501800240032003
+   },
+   "preview_share": 0.043395298514802796,
+   "flagged_smaller_branch": {
+    "tree": 111,
+    "support": 14
+   }
+  },
+  "k8s-worker1.local/69c4a376": {
+   "identity": {
+    "workload_key": "production/aims-kafka-dual-role:kafka",
+    "node_name": "k8s-worker1.local",
+    "pod_uid": "69c4a376-76f4-41a1-9898-ee1f3417e754",
+    "container_name": "kafka",
+    "workload_revision": "strimzi-80e3e646",
+    "cgroup_id": "7727149"
+   },
+   "windows": 99161,
+   "launch_share": 0.24035659180524602,
+   "tree_p": {
+    "p05": 0.0011063551944283227,
+    "p25": 0.004860708067324434,
+    "p50": 0.05095581834010447,
+    "p75": 0.5809725043528728
+   },
+   "support_p": {
+    "p05": 0.006665336622170633,
+    "p25": 0.007254788160185722,
+    "p50": 0.033671285548461986,
+    "p75": 0.3438497533372026
+   },
+   "joint_p": {
+    "p05": 0.002194573418456181,
+    "p25": 0.009358676726639582,
+    "p50": 0.015017411491584446,
+    "p75": 0.4198164538595473
+   },
+   "flagged": {
+    "n": 99161,
+    "share": 0.026673793124312985
+   },
+   "flagged_launch": {
+    "n": 23834,
+    "share": 0.08672484685743057
+   },
+   "flagged_no_launch": {
+    "n": 75327,
+    "share": 0.007673211464680659
+   },
+   "preview_share": 0.4651526305704864,
+   "flagged_smaller_branch": {
+    "tree": 2632,
+    "support": 13
+   }
+  }
+ }
+}

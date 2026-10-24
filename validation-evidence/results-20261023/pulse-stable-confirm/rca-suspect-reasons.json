@@ -1,0 +1,46 @@
+{
+ "schema": "rca-suspect-reasons-v1",
+ "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-stable-confirm/cases",
+ "campaign": "/mnt/sentinel-pulse-archive/pulse-stable-confirm/pulse-development-matrix",
+ "stats": {
+  "campaign_span": 3011,
+  "normal_cases": 3666,
+  "top_novel_or_unknown": 220,
+  "without_suspect": 436
+ },
+ "share_top_novel_or_unknown": 0.06811145510835913,
+ "top_reasons": {
+  "started_in_window": 0.8470588235294118,
+  "spawned_children": 0.24272445820433436,
+  "unknown_binary": 0.06811145510835913,
+  "privilege_drop_at_start": 0.03281733746130031,
+  "failed_syscall": 0.001238390092879257
+ },
+ "binaries_behind_novel_or_unknown": [
+  [
+   "/bin/sh",
+   94
+  ],
+  [
+   "/usr/local/bin/node",
+   84
+  ],
+  [
+   "/usr/bin/dash",
+   34
+  ],
+  [
+   "/usr/local/bin/docker-entrypoint.sh",
+   5
+  ],
+  [
+   "/usr/local/bin/uvicorn",
+   2
+  ],
+  [
+   "/usr/lib/postgresql/17/bin/postgres",
+   1
+  ]
+ ],
+ "computed_at_unix": 1792783787.9805279
+}

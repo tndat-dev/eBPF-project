@@ -1,0 +1,154 @@
+{
+ "schema": "pulse-replica-compare-v1",
+ "workload": "production/aims-postgres-cnpg:postgres",
+ "excluded": [
+  [
+   1792698822.0,
+   1792733405.0
+  ]
+ ],
+ "table_built_at_unix": 1792783695.3856637,
+ "replicas": {
+  "k8s-worker3.local/05afe226": {
+   "identity": {
+    "workload_key": "production/aims-postgres-cnpg:postgres",
+    "node_name": "k8s-worker3.local",
+    "pod_uid": "05afe226-5cbd-4710-bfad-fd231a36d440",
+    "container_name": "postgres",
+    "workload_revision": "cnpg-13f2a629d9ff764f",
+    "cgroup_id": "12115723"
+   },
+   "windows": 99244,
+   "launch_share": 0.21325218653016806,
+   "tree_p": {
+    "p05": 0.06247415481717934,
+    "p25": 0.09993470690655833,
+    "p50": 0.1277386825304701,
+    "p75": 0.2454657573998839
+   },
+   "support_p": {
+    "p05": 0.13511136099825885,
+    "p25": 0.2060903946604759,
+    "p50": 0.2549876668601277,
+    "p75": 0.2699325304701103
+   },
+   "joint_p": {
+    "p05": 0.1153357153221126,
+    "p25": 0.1997968659315148,
+    "p50": 0.2552415844457342,
+    "p75": 0.3913232733604179
+   },
+   "flagged": {
+    "n": 99244,
+    "share": 0.010156785296844141
+   },
+   "flagged_launch": {
+    "n": 21164,
+    "share": 0.0071347571347571345
+   },
+   "flagged_no_launch": {
+    "n": 78080,
+    "share": 0.010975922131147542
+   },
+   "preview_share": 0.039176171859255975,
+   "flagged_smaller_branch": {
+    "tree": 908,
+    "support": 100
+   }
+  },
+  "k8s-worker4.local/eb803b98": {
+   "identity": {
+    "workload_key": "production/aims-postgres-cnpg:postgres",
+    "node_name": "k8s-worker4.local",
+    "pod_uid": "eb803b98-fc49-4fb7-8059-5ccbecb17f9f",
+    "container_name": "postgres",
+    "workload_revision": "cnpg-4fbb2b494070f224",
+    "cgroup_id": "7149482"
+   },
+   "windows": 101670,
+   "launch_share": 0.20778990852758927,
+   "tree_p": {
+    "p05": 0.10815483531630878,
+    "p25": 0.2956507544979687,
+    "p50": 0.4623567179338363,
+    "p75": 0.5647308473592572
+   },
+   "support_p": {
+    "p05": 0.10527105702263495,
+    "p25": 0.2927125652930934,
+    "p50": 1.0,
+    "p75": 1.0
+   },
+   "joint_p": {
+    "p05": 0.12489117817759722,
+    "p25": 0.4042730702263494,
+    "p50": 0.7518318340104468,
+    "p75": 1.0
+   },
+   "flagged": {
+    "n": 101670,
+    "share": 0.001396675518835448
+   },
+   "flagged_launch": {
+    "n": 21126,
+    "share": 0.003834138028969043
+   },
+   "flagged_no_launch": {
+    "n": 80544,
+    "share": 0.0007573500198649186
+   },
+   "preview_share": 0.0014458542342874004,
+   "flagged_smaller_branch": {
+    "tree": 25,
+    "support": 117
+   }
+  },
+  "k8s-worker1.local/f7d85fab": {
+   "identity": {
+    "workload_key": "production/aims-postgres-cnpg:postgres",
+    "node_name": "k8s-worker1.local",
+    "pod_uid": "f7d85fab-0857-4847-bc7a-584beb0e961f",
+    "container_name": "postgres",
+    "workload_revision": "cnpg-42b36feb6549c758",
+    "cgroup_id": "7721286"
+   },
+   "windows": 99161,
+   "launch_share": 0.619386654027289,
+   "tree_p": {
+    "p05": 6.347939640162507e-05,
+    "p25": 9.975333720255369e-05,
+    "p50": 0.00014509576320371445,
+    "p75": 0.00016323273360417876
+   },
+   "support_p": {
+    "p05": 9.068485200232153e-06,
+    "p25": 5.441091120139292e-05,
+    "p50": 5.441091120139292e-05,
+    "p75": 5.441091120139292e-05
+   },
+   "joint_p": {
+    "p05": 1.8136970400464307e-05,
+    "p25": 0.00010882182240278584,
+    "p50": 0.00010882182240278584,
+    "p75": 0.00010882182240278584
+   },
+   "flagged": {
+    "n": 99161,
+    "share": 0.9997075463135708
+   },
+   "flagged_launch": {
+    "n": 61419,
+    "share": 0.9999674367866621
+   },
+   "flagged_no_launch": {
+    "n": 37742,
+    "share": 0.999284616607493
+   },
+   "preview_share": 0.9996772924839402,
+   "flagged_smaller_branch": {
+    "tree": 394,
+    "support": 98738
+   }
+  }
+ }
+}
