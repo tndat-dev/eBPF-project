@@ -20,10 +20,9 @@ from __future__ import annotations
 
 import argparse
 from array import array
-from collections import defaultdict, deque
+from collections import defaultdict
 import heapq
 import json
-import math
 from pathlib import Path
 import time
 
@@ -33,100 +32,10 @@ from ..common import open_sealed
 from ..detector.confirmation import IDENTITY, SCORED
 from ..syscall_study.matched_holdout import bounds
 
-EXEC_IDS = (59, 322)
-EXEC_MASK = sum(1 << i for i in EXEC_IDS)
-CONTEXT = 4
-BUCKET = 2.0
-PEER_T = (30.0, 60.0)
-SELF_T = (60.0, 300.0)
+from ..detector.novelty import (BUCKET, CONTEXT, EXEC_IDS, EXEC_MASK, PEER_T, SELF_T,  # noqa: F401  (re-export)
+                               Signals, id_mask)
 FLOATS = ('start', 'end', 'tree_score', 'support_score', 'tree_p', 'support_p', 'joint_p', 'alpha')
 SIGNALS = tuple(f'novel_peer{t:g}' for t in PEER_T) + tuple(f'novel_self{t:g}' for t in SELF_T)
-
-
-def id_mask(counts: dict) -> int:
-    mask = 0
-    for key, value in counts.items():
-        if value:
-            mask |= 1 << int(key)
-    return mask
-
-
-class Signals:
-    """Context and novelty signals over a stream of windows in (approximate) window_end order."""
-
-    def __init__(self, bucket=BUCKET, peer=PEER_T, self_=SELF_T, context=CONTEXT):
-        self.bucket, self.peer, self.self_, self.context = bucket, tuple(sorted(peer)), tuple(sorted(self_)), context
-        self.horizon = max(self.peer + self.self_) + 2 * bucket
-        self.ctx = {}                      # ident -> deque of (start, mask)
-        self.prev_end = {}
-        self.first = {}
-        self.buckets = defaultdict(dict)   # ident -> {bucket index: mask}, presence even when the mask is 0
-        self.order = defaultdict(deque)    # ident -> bucket indices in insertion order (pruning)
-        self.members = defaultdict(dict)   # workload -> {ident: last window_end}
-
-    def observe(self, ident, workload, start, end, mask, want=True):
-        ctx = self.ctx.get(ident)
-        if ctx is None or abs(start - self.prev_end[ident]) > 1e-3:
-            ctx = self.ctx[ident] = deque(maxlen=self.context)
-        ctx.append((start, mask))
-        self.prev_end[ident] = end
-        self.first.setdefault(ident, end)
-        result = None
-        if want:
-            union = 0
-            for _, m in ctx:
-                union |= m
-            result = dict(launch=bool(union & EXEC_MASK), **self._peer(ident, workload, end, union),
-                          **self._self(ident, end, ctx[0][0], union))
-        self._add(ident, workload, end, mask)
-        return result
-
-    def _peer(self, ident, workload, end, union):
-        out, b = {}, self.bucket
-        newest = math.floor(end / b)
-        peers = self.members[workload]
-        for t in self.peer:
-            oldest = math.ceil((end - t) / b)
-            seen, present = 0, False
-            for other, last in list(peers.items()):
-                if other == ident:
-                    continue
-                if last < end - self.horizon:
-                    del peers[other]
-                    continue
-                buckets = self.buckets[other]
-                for k in range(oldest, newest + 1):
-                    m = buckets.get(k)
-                    if m is not None:
-                        present = True
-                        seen |= m
-            out[f'novel_peer{t:g}'] = (union & ~seen).bit_count() if present else -1
-        return out
-
-    def _self(self, ident, end, ctx_start, union):
-        out, b = {}, self.bucket
-        buckets = self.buckets[ident]
-        top = math.floor(ctx_start / b) - 1          # last whole bucket before the context starts
-        seen, k = 0, top
-        for t in self.self_:
-            oldest = math.ceil((end - t) / b)
-            while k >= oldest:
-                seen |= buckets.get(k, 0)
-                k -= 1
-            out[f'novel_self{t:g}'] = (union & ~seen).bit_count() if self.first[ident] <= end - t else -1
-        return out
-
-    def _add(self, ident, workload, end, mask):
-        k = math.floor(end / self.bucket)
-        buckets, order = self.buckets[ident], self.order[ident]
-        if k not in buckets:
-            buckets[k] = 0
-            order.append(k)
-            cutoff = math.floor((end - self.horizon) / self.bucket)
-            while order and order[0] < cutoff:
-                del buckets[order.popleft()]
-        buckets[k] |= mask
-        self.members[workload][ident] = end
 
 
 VECTOR_FIELD = '"vector_f32_zlib_b64":"'

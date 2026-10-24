@@ -109,6 +109,9 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
     - ``"combination": "cauchy"``: k-of-n on the Cauchy combination of tree_p and support_p instead of joint_p;
     - ``"temporal_rule": {"kind": "cusum", "drift", "threshold", "max_gap_seconds"[, "on_alarm"]}`` in place of
       ``temporal_confirmation`` and ``alpha_scale``: CUSUM on -ln joint_p per container.
+    - ``"evidence_discount": {"kind": "peer_novelty", "seconds": T}`` (k-of-n only; Pulse 5.22 lever L5, adopted
+      blind in 5.25): a window whose context has no syscall ID that the other replicas of its workload did not show
+      within T s does not pass (context key ``novel_peer`` == 0; -1, i.e. no other replica seen, keeps the window).
     """
 
     def __init__(self, policy: dict, policy_sha256: str, scorer):
@@ -120,6 +123,12 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
         scale = rule.pop("alpha_scale", None)
         temporal = rule.pop("temporal_rule", None)
         self.combination = rule.pop("combination", "bonferroni_min")
+        discount = rule.pop("evidence_discount", None)
+        if discount is not None and (temporal is not None or not isinstance(discount, dict)
+                                     or discount.get("kind") != "peer_novelty" or set(discount) != {"kind", "seconds"}
+                                     or not 0 < float(discount["seconds"]) <= 300):
+            raise ValueError("evidence_discount differs from the registered form")
+        self.discount = None if discount is None else dict(kind="peer_novelty", seconds=float(discount["seconds"]))
         base = {
             "score": "joint_p",
             "comparison": "less_than_or_equal",
@@ -166,13 +175,21 @@ class ConfirmedPreviewPolicy(CandidatePreviewPolicy):
             return result
         p = (cauchy_p(score["tree_p"], score["support_p"]) if self.combination == "cauchy"
              else float(score["joint_p"]))
-        row = dict(context, joint_p=p, candidate_policy_alpha=alpha)
+        discounted = False
+        if self.discount is not None:
+            novel = context.get("novel_peer")
+            if novel is None:
+                raise ValueError("evidence discount needs the window's peer novelty")
+            discounted = int(novel) == 0
+            result.update(novel_peer=int(novel), evidence_discounted=discounted)
+        row = dict(context, joint_p=p, candidate_policy_alpha=alpha, evidence_discounted=discounted)
         preview = self.state.update(row)
-        passed = p <= alpha * self.confirmation.alpha_scale
+        passed = p <= alpha * self.confirmation.alpha_scale and not discounted
         result.update(candidate_alert_preview=preview, window_passed=passed,
                       confirmation_policy=self.confirmation.name,
                       preview_reason="confirmed_k_of_n" if preview else
-                      ("awaiting_confirmation" if passed else "below_threshold_not_met"))
+                      ("awaiting_confirmation" if passed else
+                       "discounted_no_new_syscall_vs_peers" if discounted else "below_threshold_not_met"))
         if self.combination == "cauchy":
             result.update(combined_p=p, combination="cauchy")
         return result

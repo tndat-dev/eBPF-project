@@ -54,7 +54,9 @@ class ConfirmationState:
         """Return the confirmed signal for one scored decision row."""
         key = tuple(str(row.get(name)) for name in IDENTITY)
         alpha = float(row['candidate_policy_alpha']) * self.policy.alpha_scale
-        passed = float(row['joint_p']) <= alpha
+        # evidence discount (Pulse 5.22, adopted blind 5.25): a window whose context brings no syscall ID new to the
+        # other replicas carries no evidence; absent key = no discount (the behaviour before 24/10)
+        passed = float(row['joint_p']) <= alpha and not row.get('evidence_discounted', False)
         last_end, window = self.history.get(key, (None, None))
         start = float(row['window_start'])
         if window is None or last_end is None or start - last_end > self.policy.max_gap_seconds or start < last_end - 0.25:

@@ -21,6 +21,8 @@ from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
 from ..detector.idle_batch import IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
+from ..detector.novelty import PeerNovelty
+from .peer_exchange import PeerExchange
 from ..integrity import sha256_file
 from .retention import OutputPolicy, ScoreBuffer
 from ..common import atomic_json
@@ -34,8 +36,10 @@ FROZEN_SCORER_FILES = {
     'fast_forest.py': 'detector', 'idle_batch.py': 'detector',
     # added 22/10: k-of-n / CUSUM / Cauchy preview decisions live here (previously not pinned)
     'confirmation.py': 'detector',
+    # added 24/10: peer novelty for the evidence discount (Pulse 5.22 / 5.25)
+    'novelty.py': 'detector',
 }
-OPTIONAL_SCORER_FILES = {'fast_forest.py', 'idle_batch.py', 'confirmation.py'}
+OPTIONAL_SCORER_FILES = {'fast_forest.py', 'idle_batch.py', 'confirmation.py', 'novelty.py'}
 
 
 def scorer_file(source, name):
@@ -104,6 +108,13 @@ def run(config_path):
     scorer=IdleCandidateScorer(Path(cfg['candidate']),cfg['model_hash'])
     policy=load_preview_policy(Path(cfg['policy']),scorer)
     if policy.sha256!=cfg['policy_hash']:raise ValueError('policy hash changed')
+    # evidence discount (policy key evidence_discount): peer novelty across segments, masks exchanged with the
+    # other workers of the run (cfg peer_exchange: listen [host, port], peers [[host, port], ...])
+    novelty=exchange=None
+    if getattr(policy,'discount',None):
+        if not cfg.get('peer_exchange'):raise ValueError('policy needs peer_exchange in the worker config')
+        novelty=PeerNovelty(set(scorer.models),seconds=policy.discount['seconds'])
+        exchange=PeerExchange(cfg['peer_exchange']['listen'],cfg['peer_exchange']['peers']).start()
     # retention (pipeline/retention.py): absent keys keep the experiment behaviour (every row written, no buffer)
     outputs=OutputPolicy(cfg.get('outputs'))
     scores=(ScoreBuffer(Path(cfg['score_buffer']['path']),cfg['score_buffer'].get('retention_hours',12))
@@ -122,7 +133,7 @@ def run(config_path):
             state['segments']+=1;segment=root/'segments'/f"s{state['segments']:05d}"
         segment.mkdir(parents=True)
         stream=ExtendedFeatureStream(include_idle=True)
-        runtime=IdleBatchRuntime(scorer,policy,fast=bool(cfg.get('fast_scoring',False)))
+        runtime=IdleBatchRuntime(scorer,policy,fast=bool(cfg.get('fast_scoring',False)),novelty=novelty)
         previous={};metadata={};mtime=None;pending=[];buffer=b'';last=None
         segment_begin=time.monotonic();last_data=segment_begin;checkpoint=segment_begin
         def issue(reason):
@@ -168,6 +179,8 @@ def run(config_path):
                             if len(pending)!=int(row['targets']) or len(pending)!=int(row['snapshots']):
                                 raise ValueError('frame target cardinality differs')
                             if len({p['cgroup_id'] for p in pending})!=len(pending):raise ValueError('duplicate cgroup')
+                            if exchange is not None:
+                                for message in exchange.drain():novelty.remote(message)
                             records=[]
                             for snap in pending:
                                 cg=str(snap['cgroup_id']);meta_row=metadata.get(cg,{})
@@ -198,6 +211,7 @@ def run(config_path):
                                     if scores is not None:scores.add(decision)
                                     state['scored_rows']+=decision['status']=='candidate-raw-score-only'
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
+                            if exchange is not None:exchange.publish(novelty.drain_outbox())
                             state['feature_rows']+=len(records);state['frames']+=1;pending=[]
                             # Frame flush makes each preview available without waiting for later windows.
                             features.flush();decisions.flush();raw.flush()
@@ -208,6 +222,7 @@ def run(config_path):
                     if time.monotonic()-checkpoint>=5:
                         state.update(state='running',updated_at_unix=time.time(),current_segment=segment.name,
                                      node_name=platform.node(),model_hash=cfg['model_hash'],policy_hash=cfg['policy_hash'])
+                        if exchange is not None:state['peer_exchange']=exchange.stats()
                         atomic_json(state_path,state);checkpoint=time.monotonic()
                         if (time.monotonic()-segment_begin>=1800 or
                             os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<cfg['minimum_free_bytes']):break
@@ -225,6 +240,7 @@ def run(config_path):
                     seals={p.name:sha256_file(p) for p in segment.iterdir() if p.is_file()}))
                 state.update(state='segment_closed',updated_at_unix=time.time());atomic_json(state_path,state)
         if not stop and state['completed_seconds']<cfg['seconds']:time.sleep(2)
+    if exchange is not None:exchange.close()
     if not stop:
         state.update(state='completed_capture',finished_at_unix=time.time(),automatic_promotion=False)
         atomic_json(state_path,state);atomic_json(root/'TERMINAL.json',state)

@@ -51,13 +51,15 @@ class DeferredScorer:
 
 class IdleBatchRuntime:
     """Group prepared contexts by workload; keep output ordering and policy."""
-    def __init__(self, scorer, policy=None, max_gap_seconds=.8, max_identities=10000, fast=False):
+    def __init__(self, scorer, policy=None, max_gap_seconds=.8, max_identities=10000, fast=False, novelty=None):
         if policy is not None and policy.scorer is not scorer:
             raise ValueError('policy must bind the supplied frozen scorer')
         self.scorer, self.policy = scorer, policy
         # fast: bit-identical low-overhead forest scoring, verified per model (fast_forest.py)
         self.predictor = VerifiedFastScorer() if fast else None
         self.deferred = DeferredScorer(scorer.manifest, scorer.manifest_sha256)
+        # peer novelty (detector/novelty.py): every feature row of a modelled workload counts as behaviour
+        self.novelty = novelty
         self.history = CandidateShadowRuntime(self.deferred, max_gap_seconds=max_gap_seconds,
                                              max_identities=max_identities)
 
@@ -65,11 +67,13 @@ class IdleBatchRuntime:
         if len(records) > 256:
             raise ValueError('bounded runtime batch accepts at most 256 records')
         self.deferred.requests.clear()
-        out, requests, windows = [], defaultdict(list), {}
+        out, requests, windows, novel = [], defaultdict(list), {}, {}
         for record in records:
             try:
                 if is_valid_feature_schema_record(record):
                     continue
+                if self.novelty is not None:
+                    novel[len(out)] = self.novelty.local(record)
                 decision = self.history.observe(record, processed_at=prepared_at)
                 if decision['status'] == 'batch-pending':
                     key, context = self.deferred.requests[-1]
@@ -89,7 +93,7 @@ class IdleBatchRuntime:
                 decision.update(score)
                 if self.policy is not None:
                     decision.update(self.policy.evaluate(
-                        score, dict(decision, window_start=windows.get(index))))
+                        score, dict(decision, window_start=windows.get(index), novel_peer=novel.get(index))))
                 completed = time.time()
                 decision.update(processed_at=completed, inference_ms=elapsed_ms,
                     batch_inference_ms=elapsed_ms, batch_contexts=len(pending),
