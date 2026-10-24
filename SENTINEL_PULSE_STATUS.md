@@ -70,7 +70,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live **pulse-stable-confirm** (3 worker) | Chạy từ 23/10 01:19 (chính sách `cap`, `93dd1478…`), attack từ khoảng 02:54, kết thúc khoảng 24/10 01:20. Campaign 525 cặp xong 12:29 (success); capture vẫn chạy. Worker không restart lần nào (kiểm 13:00) |
+| Lượt live **pulse-peer-discount-confirm** (3 worker) | Chạy từ 24/10 10:55 (chính sách `policy-k2of2-a5-peer30`, `f64c31c0…`; chiết khấu theo replica, 5.26), attack từ khoảng 12:29, capture tới khoảng 25/10 11:00 |
+| Lượt **pulse-stable-confirm** | Xong 24/10 01:29; campaign không đạt, test blind 5.22 mức ≤ 3 s đạt (5.25) |
 | RCA | `rca-pulse-stable-confirm` chạy từ 01:21 (seed 59 binary đã nạp, có nhãn triage); 1.924 case lúc 03:58 |
 | Phân tích sau lượt | Unit `after-stable-confirm` (snapshot `1e2ae7f`): giai đoạn campaign xong 12:33 (5.25); giai đoạn final chờ capture kết thúc |
 | Đường cảnh báo vận hành (thử) | Unit `pulse-alert-bridge-pulse-stable-confirm` trên `.234` (commit `e2cbc01`), chỉ đọc decision; Prometheus/Alertmanager/Grafana của cụm (RCA 5.14) |
@@ -1545,6 +1546,29 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 chạy trên chính lượt này ở giai đoạn final: đề xuất mức ≤ 3 s **đạt** rule 5 (gánh 1,74, control 2,9%, precision 97,2%), mức < 2 s không đạt. Bước tiếp theo theo protocol: xây chiết khấu theo replica trong đường live, rồi chạy một lượt live xác nhận cấu hình đó.
   - Với luận văn, đây là kết quả âm có giá trị: một sự cố vận hành thật (replica CNPG hỏng mà operator vẫn báo khỏe) cùng sự khác biệt giữa các replica đủ đẩy control vượt ngưỡng. Gánh cảnh báo và calibration là phần cần làm tiếp.
 
+### 5.26 Chiết khấu theo replica trong đường live và lượt xác nhận `pulse-peer-discount-confirm` (24/10; protocol `peer-discount-confirmation-v1`)
+
+- **Lý do:** đề xuất mức ≤ 3 s của 5.22 đạt rule 5 trên `pulse-stable-confirm` (5.25). Theo rule 5, nó chỉ thay stable sau một lượt live nữa. Đường live trước đó chưa có chiết khấu theo replica.
+- **Thiết kế** (mỗi worker tự quyết preview như cũ, không thêm chặng nào vào đường kernel → preview):
+  - `sentinel_pulse/detector/novelty.py`: lớp `Signals` chuyển nguyên văn từ `window_table.py`, nên bảng offline và worker dùng **một định nghĩa**. `PeerNovelty` quan sát cửa sổ local lúc chấm và cửa sổ của worker khác khi nhận được.
+  - `sentinel_pulse/pipeline/peer_exchange.py`: mỗi worker phát mặt nạ syscall ID của từng cửa sổ (JSON qua TCP, cổng 9479) và nhận của hai worker còn lại. Hỏng theo một phía: mất peer chỉ làm bớt chiết khấu, nên detector báo **nhiều hơn**, không bao giờ ít hơn.
+  - Chính sách: khóa `evidence_discount: {kind: peer_novelty, seconds: 30}` trên dạng k-of-n. Cửa sổ chỉ "đạt" khi joint p ≤ α×5 **và** `novel_peer ≠ 0` (−1 nghĩa là không thấy replica khác thì vẫn giữ). Decision ghi thêm `novel_peer` và `evidence_discounted`.
+  - Khác biệt duy nhất so với offline: cửa sổ của peer tới sau khi nó kết thúc khoảng 20 ms, nên bucket 2 s mới nhất có thể chưa đủ lúc quyết định. Đo trên lượt bằng độ khớp từng cửa sổ giữa preview live và bản tính lại.
+- **Kiểm:**
+  - test (`tests/test_peer_discount.py`): hai worker trao đổi ngay lập tức cho **đúng từng giá trị** `novel_peer` như `Signals` offline trên luồng đã gộp; chính sách có chiết khấu trùng `kofn2` của `burden_levers` trên luồng ngẫu nhiên; trao đổi TCP thật trên localhost. Toàn bộ 425 test đạt;
+  - mạng thật worker1 → worker3: 200/200 bản tin, độ trễ một chiều p50 18 ms, p95 20 ms (gồm lệch đồng hồ); 4 node đồng bộ NTP;
+  - thử khói đường live trên 10 phút đã ghi của worker3 (candidate thật, chấm nhanh): 33.516 cửa sổ được chấm, 50 ms/frame kể cả giải nén và parse; khi chỉ có một worker, `novel_peer` là −1 với workload có replica ở node khác, đúng như thiết kế.
+- **Chính sách đóng băng:** `policy-k2of2-a5-peer30.json` (`f64c31c0…`), cùng candidate `4bad16dc…` và calibration làm mới. Protocol `peer-discount-confirmation-v1` đăng ký 11:35, trước khi lượt có dữ liệu:
+  - kỳ vọng trên tập chính 6/12/24/s: precision, recall ≥ 95%, control ≤ 5%, p95 ≤ 3 s. Đạt thì chính sách này thành ML stable; không đạt thì giữ `policy-cusum-b3-h6-cap` và không chọn lại trên dữ liệu lượt này;
+  - gánh cảnh báo chỉ được nói là giảm khi gánh live ≤ 0,9 lần của cả k2of2 α×10 và CUSUM `cap`, tính lại trên cùng bảng cửa sổ;
+  - kiểm cài đặt: độ khớp preview live với bản tính lại ≥ 0,999.
+- **Khởi chạy (10:54–11:00):** snapshot `runtime-60093dd-20261024` (git clone), launcher `pulse-peer-discount-confirm-launch`. Thành phần lượt giữ nguyên như `pulse-stable-confirm`: 525 cặp, tốc độ 1–24/s, cùng fixture, RCA với seed và nhãn triage, bridge cảnh báo vận hành.
+  - pha chọn từ 10:57, attack từ khoảng 12:29, capture tới khoảng 11:00 ngày 25/10;
+  - kiểm lúc 11:00: 3 worker chạy, mỗi worker nối đủ 2 peer và 2 bên nhận, chưa mất bản tin nào; 94/97 cửa sổ được chấm gần nhất của worker1 bị chiết khấu (`novel_peer = 0`);
+  - unit phân tích `after-peer-discount-confirm` (`after_stable_confirm.sh`, `RUN` mới, `LIVE_RULE=le3s`); bridge `pulse-alert-bridge-pulse-peer-discount-confirm`.
+- **Giữ lại cho lượt sau, không đưa vào lượt này** (để lượt chỉ đổi đúng chính sách ML): đổi tên binary vô hại (RCA 5.15), RCA nhận trigger từ Alertmanager.
+- **Rủi ro độ trễ đã thấy khi rà code:** vòng lặp worker `flush` feature và decision lên NFS sau mỗi frame. NFS khựng thì preview trễ theo; khoảng hở nhịp chấm đồng thời của lượt trước (5.25) nhiều khả năng là vậy. Chưa sửa, vì sửa là đổi đường live giữa hai lượt xác nhận.
+
 ### 5.21 Overhead của probe eBPF (G7; protocol `overhead-ab-v1`, đo 22/10 12:47–12:58, đọc 15:15)
 
 - **Cách đo:** microbenchmark syscall tĩnh (`testbed/bench/syscall_bench.c`) trên worker4, trong cgroup riêng. Ba điều kiện luân phiên thứ tự, 5 vòng, 10 s mỗi chế độ:
@@ -2056,3 +2080,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 01:48–02:05 | G1: p-value bootstrap + Holm trên 24 so sánh baseline, kết luận ngân sách 1 đứng vững (5.15b). Dữ liệu thô cũ 1,3 GB chuyển lên NFS (`host-evidence-pre-refactor-20261023/`, 642 file khớp `SHA256SUMS`), xóa bản host và bản tạm `.234`, bỏ 5 dòng `.gitignore`. Bridge dừng, biên nhận lên NFS và repo | 5.15b, 5.25 |
 | 10:08–10:35 | Final lượt xác nhận đọc xong (02:29; nén xong 02:50, −75 GB): test blind 5.22 mức ≤ 3 s **đạt** (replica 30 s + k2of2 α×5: gánh 1,74, control 2,9%), mức < 2 s không đạt; seed RCA 11,3% → 6,8%; phân loại cảnh báo; một khoảng hở nhịp chấm đồng thời 06:10 UTC. So sánh replica: kafka worker1 lệch hệ thống (preview 46,5% so với ~4%). `feature-groups` (7,6 GB, 1.201 file) lên NFS, SHA khớp, xóa bản local; dừng subscriber RCA. Không còn job nào dùng NFS | 5.22, 5.25 |
 | 10:35–10:40 | Chủ đồ án nâng cấu hình VM NFS và khởi động lại (31 GiB RAM, 8 CPU). Kiểm: `nfs-server` active, 6 node đọc được `/mnt/sentinel-pulse-archive`, ghi thử 64 MiB 307 MB/s | 8 |
+| 10:40–11:05 | Chiết khấu theo replica trong đường live (`novelty.py`, `peer_exchange.py`, khóa chính sách `evidence_discount`), test và thử trên mạng thật; đóng băng `policy-k2of2-a5-peer30` (`f64c31c0…`), đăng ký `peer-discount-confirmation-v1`; khởi chạy `pulse-peer-discount-confirm` (snapshot `60093dd`), bridge và unit phân tích sau lượt | 5.26 |
