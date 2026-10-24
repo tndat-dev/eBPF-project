@@ -1,0 +1,9 @@
+{
+  "schema": "sentinel-pulse-peer-discount-confirmation-v1-amendment",
+  "registered_at": "2026-10-24T11:06+07:00",
+  "registered_before": "any result of pulse-peer-discount-confirm is read (capture started 10:55; no analysis has run)",
+  "amends": "sentinel_pulse/protocol/peer-discount-confirmation-v1.json",
+  "change": "burden_claim: the comparison rules are those the registered analysis computes on the run's window table: the burden-reduction-v1 reference (CUSUM b3/h6, on_alarm=keep, 'reference' in burden_blind_test.py) and the current stable (CUSUM b3/h6 cap). The v1 text named 'k2of2 alpha x10' by mistake (a mislabel in Pulse 5.25, corrected the same day); k2of2 alpha x10 is reported, not used for the claim",
+  "claimed_when": "live burden <= 0.9 x the burden of each of CUSUM b3/h6 keep and CUSUM b3/h6 cap, recomputed on this run's window table with the same calibration",
+  "everything_else": "unchanged"
+}

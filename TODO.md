@@ -8,12 +8,13 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] **`after-stable-refreshed`**: final, baseline lặp lại, chiến lược calibration (Pulse 5.13b, 5.15b, 5.17) và nén 3 lượt (NFS 291 → 85 GB) xong 16:17.
 - [x] **`pulse-stable-selection-1022`**: replay cấu hình gộp đạt (16:28).
-- [~] **Lượt live xác nhận `pulse-stable-confirm`**: 23/10 01:19 → 24/10 01:29 (chính sách `cap`, `93dd1478`), 3 worker success. [x] Campaign xong 12:29: **không đạt luật** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; Pulse 5.25). [ ] Final: gánh cảnh báo, test blind 5.22, so sánh có/không rule.
+- [~] **Lượt live `pulse-peer-discount-confirm`** (Pulse 5.26, `peer-discount-confirmation-v1`): từ 24/10 10:55, campaign xong khoảng 22:00, capture tới khoảng 25/10 11:00; unit `after-peer-discount-confirm` tự chạy phân tích; bridge `pulse-alert-bridge-pulse-peer-discount-confirm`.
+- [x] **Lượt live xác nhận `pulse-stable-confirm`**: 23/10 01:19 → 24/10 01:29, 3 worker success. Campaign **không đạt luật** (precision 94,6%, control 5,8%); test blind 5.22 mức ≤ 3 s **đạt** (Pulse 5.25).
 - [x] **`feature-groups-primary-1022`**: xong 23/10 00:35; gộp ở syscall 5B.3. [x] `fg-branches-1023`: xong 23/10 01:27, cả hai nhánh p-value đều cần (5B.3).
 - [x] **`after-stable-confirm`** (snapshot `1e2ae7f`): [x] giai đoạn campaign xong 12:33 (Pulse 5.25, RCA 5.15); [x] final xong 24/10 02:29, nén xong 02:50 (gánh live + CI, test blind 5.22, lý do nghi phạm RCA, phân loại cảnh báo), rồi nén.
 - [x] **`pulse-57d-1022`**: 5.7d xong (`rolling-12-1` −37% trên soak 48 giờ).
 - [x] **`syscall-cusum-1022`**: xong 02:30; 11 cấu hình và nhóm feature dưới CUSUM `cap` không đổi kết luận nào (SYSCALL 5C).
-- [~] **`pulse-alert-bridge-pulse-stable-confirm`** (RCA 5.14): đường cảnh báo vận hành thật, chạy hết lượt xác nhận; chép biên nhận và ghép với thời điểm kernel sau lượt.
+- [x] **`pulse-alert-bridge-pulse-stable-confirm`** (RCA 5.14): chạy hết lượt, dừng 24/10 01:47; biên nhận trên NFS và trong `results-20261023/alert-bridge/`.
 - [x] **CUSUM nhớ alarm sang trial sau** (5.19 bổ sung 1): phát hiện trước khi chạy live, sửa bằng `cap`, đóng băng lại.
 - [x] **`pulse-burden-levers-1022`** (Pulse 5.22): xong 17:26; đề xuất cho cả 2 mức độ trễ (chiết khấu theo replica), chờ test blind.
 
@@ -21,15 +22,15 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 1. [x] 16:28: replay cấu hình gộp đạt (5.19 bước 3); đóng băng `policy-cusum-b3-h6.json` (`9bf0b216…`).
 2. [x] Kết quả `burden-reduction-v1` (5.22): đề xuất mức < 2 s (2,2–2,3 đợt) và ≤ 3 s (1,5–1,7 đợt). [x] Test blind trên lượt xác nhận: mức ≤ 3 s **đạt** (replica 30 s + k2of2 α×5: gánh 1,74, control 2,9%, precision 97,2%, p95 2,68 s), mức < 2 s không đạt (p95 2,16 s). [x] Chiết khấu theo replica trong đường live (5.26). [~] Lượt live xác nhận `pulse-peer-discount-confirm` (protocol `peer-discount-confirmation-v1`): chạy từ 24/10 10:55, campaign xong khoảng 22:00, capture tới khoảng 25/10 11:00; [ ] chép log Falco giữa lượt (khoảng 22:00) và sau lượt.
-3. [~] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4, `stable-confirmation-v1` + bổ sung 1, chính sách `cap`): chạy từ 23/10 01:19, 24 giờ. Kèm tốc độ 1, 3/s (G4); test blind cho 5.22; dữ liệu cho so sánh có/không rule.
-3b. [x] Log Falco của lượt xác nhận (xong 24/10 01:45, trên NFS `pulse-stable-confirm/falco-logs/`, SHA khớp, bản local đã xóa): [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [x] Lần 2 (13:05, `cp -u`): đã có file xoay vòng 05:15 UTC của worker1; file xoay vòng còn được giữ ~16 giờ nên lần chép cuối sau lượt là đủ. [ ] Ngay sau lượt: chép bổ sung file mới rồi chuyển lên NFS; giữ tới khi so sánh có/không rule xong.
+3. [x] Lượt live xác nhận `pulse-stable-confirm` (5.19 bước 4): xong 24/10 01:29; không đạt; tốc độ 1, 3/s (G4) có số; test blind 5.22 đạt mức ≤ 3 s; dữ liệu cho so sánh có/không rule.
+3b. [x] Log Falco của lượt xác nhận (xong 24/10 01:45, trên NFS `pulse-stable-confirm/falco-logs/`, SHA khớp, bản local đã xóa): [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [x] Lần 2 (13:05, `cp -u`): đã có file xoay vòng 05:15 UTC của worker1; file xoay vòng còn được giữ ~16 giờ nên lần chép cuối sau lượt là đủ. [x] Sau lượt: chép lần cuối, chuyển lên NFS (24/10 01:45); giữ tới khi so sánh có/không rule xong.
 4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [x] Nhóm feature dưới `cap`: không đổi kết luận (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
-6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 4 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
+6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 6 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở
 
-- [~] **Gánh cảnh báo, control, false positive:** CUSUM b3/h6 giảm còn 5,32 đợt/replica-giờ (−21%, 5.13b), ngân sách 0,1. Chỉnh ngưỡng không giải được (CUSUM đã tối ưu khi bằng chứng cố định). Đang thử bằng chứng tốt hơn: calibration theo lớp launch, so với replica khác, so với lịch sử của chính container (5.22).
+- [~] **Gánh cảnh báo, control, false positive:** CUSUM b3/h6 giảm còn 5,32 đợt/replica-giờ (−21%, 5.13b), ngân sách 0,1. Chỉnh ngưỡng không giải được (CUSUM đã tối ưu khi bằng chứng cố định). Bằng chứng tốt hơn: chiết khấu theo replica đạt test blind (1,74 đợt/replica-giờ, 5.25), đang xác nhận live (5.26).
   - [x] Calibration theo (workload, node) (5.6b): là `mondrian-6-1` của 5.17; không thắng trên dữ liệu mới, không thắng trên soak (p95).
   - [x] Phân rã theo thời gian (5.23): 90 phút traffic thay đổi gấp ~2 lần traffic ổn định; không drift trong 20 giờ. [ ] Một lượt có chế độ traffic rải suốt lượt để đo gánh dưới traffic biến động (cho paper).
   - [x] Review các đợt kéo dài trên lượt xác nhận (5.24): postgres worker1 báo 96% thời gian do replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC (sự cố thật, không phải tấn công). [x] Kafka worker1 (67,7% thời gian, 6/18 control dương; 5.25): replica lệch hệ thống so với 2 broker kia (trung vị tree_p 0,05 so với 0,37–0,67; preview 46,5% so với ~4%), calibration gộp theo workload không phù hợp; chiết khấu theo replica xử lý được. [ ] Sau lượt (khi giai đoạn final đã dựng bảng cửa sổ): `python3 scripts/analysis/replica_compare.py --table /var/tmp/burden-levers/table-pulse-stable-confirm.npz --workload production/aims-kafka-dual-role:kafka --exclude 1792698877,1792733344 --output /mnt/sentinel-pulse-archive/pulse-stable-confirm/analysis/kafka-replicas.json` (so `tree_p`/`support_p`, phần cửa sổ bị gắn cờ có/không exec của 3 broker, ngoài khoảng campaign; chỉ mô tả). Chạy tương tự cho `aims-postgres-cnpg:postgres` và `inventory-service:app`.
@@ -63,7 +64,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
 - [~] 13% attack không có case riêng: 42/315 (5.11); 69/525 trên lượt xác nhận, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất "binary không mới" (RCA 5.15). Đã xác nhận trên dữ liệu: mọi cặp dùng chung đường dẫn binary (RCA 5.15). [ ] Campaign sau: đặt tên file khác cho binary vô hại (đăng ký trước lượt; Pulse không bị ảnh hưởng vì không thấy đường dẫn).
-- [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [ ] Kiểm hiệu quả trên lượt đó.
+- [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [x] Hiệu quả trên lượt đó: binary mới/chưa biết ở hạng 1 giảm 11,3% → 6,8% case normal (RCA 5.15).
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
 - [~] Cảnh báo vận hành thật (RCA 5.14): Pulse → Alertmanager/Prometheus/Grafana đang chạy thử. [x] RCA nhận trigger từ webhook Alertmanager: code + test (chế độ `alert_trigger_file`). [ ] Chạy ở lượt sau.
 - [x] Ánh xạ IP node (hostNetwork/SNAT) bị gán nhầm cho node-exporter: sửa thành `Node` không xác định (RCA 5.13, áp dụng lượt sau). [x] Lịch sử inventory: không làm, có lý do (0,9% IP trong cụm không ánh xạ được, RCA 5.13). [x] Địa chỉ probe kubelet của Istio ambient → `KubeletProbe`. [ ] Backend sau DNAT và client thật sau waypoint (Istio ambient; cần Hubble hoặc access log) — ghi là giới hạn nếu không làm.
@@ -73,7 +74,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] Biên nhận 22–23/10 chép vào `validation-evidence/results-20261022/` (README ghi script và bản gốc của từng file); ví dụ cây RCA thật (`validation-evidence/rca/examples-20261023/`).
 - [x] README gốc: hướng dẫn đọc repo, từ con số đến bằng chứng.
 - [x] `references/`: danh mục 87 nguồn; 70 bài, mỗi bài một PDF tên `năm-tác giả-tiêu đề` (60 bản gốc, 10 bản dựng lại; ngoài git, bản sao NFS). [x] Tổng hợp tri thức theo chủ đề cho luận văn: `references/KNOWLEDGE_SYNTHESIS.md` (23/10). [ ] **(cần bạn, nếu muốn)** lấy bản gốc của 10 bài dựng lại qua thư viện (danh sách trong `references/README.md`).
-- [~] Biên nhận lượt xác nhận: [x] giai đoạn campaign và độ trễ đường cảnh báo trên toàn campaign đã vào `validation-evidence/results-20261023/` (13:30). [ ] Sau lượt: giai đoạn final, file đợt/giao của bridge, log Falco lên NFS.
+- [x] Biên nhận lượt `pulse-stable-confirm`: campaign, final, so sánh replica, bridge trong `validation-evidence/results-20261023/`; log Falco trên NFS.
 - [x] Quét repo 23/10: link hỏng trong mọi `.md` đã sửa; gỡ snapshot cũ `SENTINEL_PULSE_VA_THI_NGHIEM_SYSCALL.md` (bản gốc qua `git show 5e1ed2f:…`); không có bí mật trong file tracked; mọi script job đều được báo cáo nhắc tới; bảng tên gọi và trạng thái cập nhật.
 - [x] 1,3 GB dữ liệu thô cũ (pulse500, projected, canary 08–10/2026; 642 file): đã chuyển lên `/mnt/sentinel-pulse-archive/host-evidence-pre-refactor-20261023/` (24/10 01:58, `SHA256SUMS` khớp trên NFS và khớp bản host trước khi xóa); đã xóa bản ở host, bản tạm trên `.234` và 5 dòng trong `.gitignore`.
 

@@ -67,7 +67,8 @@ def test_blind_test_scores_reference_stable_and_choices(tmp_path, monkeypatch):
                                       '--ml-results', str(tmp_path/'ml.json'), '--output', str(out)])
     bt.main()
     r = json.loads(out.read_text())
-    assert set(r['metrics']) == {'reference', 'stable', 'lt2s'} and set(r['verdict']) == {'lt2s'}
+    assert set(r['metrics']) == {'reference', 'stable', 'k2of2_a10', 'lt2s'} and set(r['verdict']) == {'lt2s'}
+    assert r['metrics']['k2of2_a10'] == r['metrics']['lt2s']           # the choice here is joint|none|k2of2_a10
     assert r['metrics']['stable']['attack'] == 1.0 and r['by_rate']['stable']['6']['attack'] == 1.0
     assert r['live'] is None                                  # the synthetic table has no live preview column
     ci = r['burden_ci']['stable']

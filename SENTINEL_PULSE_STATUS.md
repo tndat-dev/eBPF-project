@@ -1531,11 +1531,12 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 
     | Cấu hình | Gánh (đợt/replica-giờ) | Recall | Precision | Control | p95 | Rule 5 |
     |---|---|---|---|---|---|---|
-    | Tham chiếu k2of2 α×10 | 4,41 | 100% | 93,2% | 7,3% | 2,03 s | — |
+    | Tham chiếu CUSUM b3/h6 `keep` (tham chiếu của `burden-reduction-v1`) | 4,41 | 100% | 93,2% | 7,3% | 2,03 s | — |
     | Stable (CUSUM `cap`, tính lại; live 5,83, khớp 99,9999% cửa sổ) | 5,82 [4,02; 8,01] | 100% | 94,6% | 5,7% | 2,41 s | — |
     | Mức < 2 s: Mondrian + replica 60 s + k2of2 α×15 | 2,30 | 99,7% | 96,6% | 3,5% | 2,16 s | không khả thi (p95 > 2 s) |
     | **Mức ≤ 3 s: replica 30 s + k2of2 α×5** | **1,74** (0,40 × tham chiếu; 0,30 × stable) | 99,0% | 97,2% | 2,9% | 2,68 s | **đạt, được áp dụng** |
 
+    - Sửa 24/10 11:06: dòng tham chiếu trước đó ghi nhầm nhãn "k2of2 α×10"; trong `burden_blind_test.py` tham chiếu là CUSUM b3/h6 `keep`.
     - Theo rule 5, cấu hình mức ≤ 3 s chỉ thay stable **sau thêm một lượt live**. Đường live hiện **chưa có** chiết khấu theo replica: 5.22 chỉ chạy offline trên bảng cửa sổ, mà phép so giữa các node cần dữ liệu của mọi worker. Phải xây phần này trước lượt live đó.
     - Giới hạn đã đăng ký: attack chạy đồng thời trên mọi replica sẽ bị chiết khấu mất; campaign chỉ tấn công một replica.
   - **RCA, tác dụng của seed (5.12):** nghi phạm hạng 1 là binary mới/chưa biết ở 6,8% case normal có nghi phạm (220/3.230), so với 11,3% trước khi có seed.
@@ -1560,7 +1561,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - thử khói đường live trên 10 phút đã ghi của worker3 (candidate thật, chấm nhanh): 33.516 cửa sổ được chấm, 50 ms/frame kể cả giải nén và parse; khi chỉ có một worker, `novel_peer` là −1 với workload có replica ở node khác, đúng như thiết kế.
 - **Chính sách đóng băng:** `policy-k2of2-a5-peer30.json` (`f64c31c0…`), cùng candidate `4bad16dc…` và calibration làm mới. Protocol `peer-discount-confirmation-v1` đăng ký 11:35, trước khi lượt có dữ liệu:
   - kỳ vọng trên tập chính 6/12/24/s: precision, recall ≥ 95%, control ≤ 5%, p95 ≤ 3 s. Đạt thì chính sách này thành ML stable; không đạt thì giữ `policy-cusum-b3-h6-cap` và không chọn lại trên dữ liệu lượt này;
-  - gánh cảnh báo chỉ được nói là giảm khi gánh live ≤ 0,9 lần của cả k2of2 α×10 và CUSUM `cap`, tính lại trên cùng bảng cửa sổ;
+  - gánh cảnh báo chỉ được nói là giảm khi gánh live ≤ 0,9 lần của cả CUSUM b3/h6 `keep` (tham chiếu của `burden-reduction-v1`) và CUSUM `cap` (stable), tính lại trên cùng bảng cửa sổ. **Bổ sung 1** (11:06, trước khi đọc bất kỳ kết quả nào): bản v1 ghi nhầm "k2of2 α×10" thay cho tham chiếu CUSUM `keep`; k2of2 α×10 chỉ báo cáo kèm (`burden_blind_test.py` giờ tính thêm);
   - kiểm cài đặt: độ khớp preview live với bản tính lại ≥ 0,999.
 - **Khởi chạy (10:54–11:00):** snapshot `runtime-60093dd-20261024` (git clone), launcher `pulse-peer-discount-confirm-launch`. Thành phần lượt giữ nguyên như `pulse-stable-confirm`: 525 cặp, tốc độ 1–24/s, cùng fixture, RCA với seed và nhãn triage, bridge cảnh báo vận hành.
   - pha chọn từ 10:57, attack từ khoảng 12:29, capture tới khoảng 11:00 ngày 25/10;
@@ -2081,3 +2082,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:08–10:35 | Final lượt xác nhận đọc xong (02:29; nén xong 02:50, −75 GB): test blind 5.22 mức ≤ 3 s **đạt** (replica 30 s + k2of2 α×5: gánh 1,74, control 2,9%), mức < 2 s không đạt; seed RCA 11,3% → 6,8%; phân loại cảnh báo; một khoảng hở nhịp chấm đồng thời 06:10 UTC. So sánh replica: kafka worker1 lệch hệ thống (preview 46,5% so với ~4%). `feature-groups` (7,6 GB, 1.201 file) lên NFS, SHA khớp, xóa bản local; dừng subscriber RCA. Không còn job nào dùng NFS | 5.22, 5.25 |
 | 10:35–10:40 | Chủ đồ án nâng cấu hình VM NFS và khởi động lại (31 GiB RAM, 8 CPU). Kiểm: `nfs-server` active, 6 node đọc được `/mnt/sentinel-pulse-archive`, ghi thử 64 MiB 307 MB/s | 8 |
 | 10:40–11:05 | Chiết khấu theo replica trong đường live (`novelty.py`, `peer_exchange.py`, khóa chính sách `evidence_discount`), test và thử trên mạng thật; đóng băng `policy-k2of2-a5-peer30` (`f64c31c0…`), đăng ký `peer-discount-confirmation-v1`; khởi chạy `pulse-peer-discount-confirm` (snapshot `60093dd`), bridge và unit phân tích sau lượt | 5.26 |
+| 11:05–11:20 | Rà việc làm ngay. Phát hiện nhãn sai ở 5.25 ("tham chiếu k2of2 α×10" thực ra là CUSUM b3/h6 `keep`) và cùng lỗi trong điều kiện gánh của `peer-discount-confirmation-v1`; sửa nhãn, đăng ký bổ sung 1 trước khi đọc kết quả, `burden_blind_test.py` báo thêm k2of2 α×10. RCA 5.15: số seed và phân loại cảnh báo final. Dọn TODO, README code | 5.25, 5.26 |

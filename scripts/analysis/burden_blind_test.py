@@ -6,6 +6,7 @@ calibration-span table), scores with the metrics of burden_levers.py:
 
 - ``reference``: CUSUM b3/h6 as registered by burden-reduction-v1 (on_alarm=keep);
 - ``stable``: the running ML stable rule, CUSUM b3/h6 with on_alarm=cap (stable-selection-v1 amendment 1);
+- ``k2of2_a10``: k2of2 at alpha x10 without discount, reported only;
 - the choice per latency tier written in BURDEN-LEVERS.json by the development selection.
 
 Rule 5 (registered 22/10 15:34): a choice is adopted only if, on this run, it is feasible (recall >= 95 %,
@@ -72,7 +73,9 @@ def main():
     primary = trials.subset(np.isin(trials.rate, PRIMARY_RATES))
     x = -np.log(np.maximum(p['joint'], 1e-12))
     alarms = {'reference': bl.cusum_alarms(x - 3.0, arr['new'], 6.0, 'keep'),
-              'stable': bl.cusum_alarms(x - 3.0, arr['new'], 6.0, 'cap')}
+              'stable': bl.cusum_alarms(x - 3.0, arr['new'], 6.0, 'cap'),
+              # reported only (peer-discount-confirmation-v1 amendment 1): the k-of-n starting point of 5.8g
+              'k2of2_a10': bl.kofn2(p['joint'] <= arr['alpha'] * 10.0, arr['new'])}
     choices = {tier: c['choice'] for tier, c in ml['selection'].items() if c.get('choice') and c.get('proposed')}
     for tier, config in choices.items():
         variant, mode, rule = config.split('|')

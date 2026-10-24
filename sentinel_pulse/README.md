@@ -24,8 +24,8 @@ eBPF đếm syscall theo container ──► collector/ ──► vector 249 s�
 | Package | Làm gì | File chính |
 |---|---|---|
 | [collector/](collector/) | Ánh xạ pod → cgroup, đọc counter eBPF, tạo vector đặc trưng | `cgroup_resolver.py`, `capture.py`, `extended_capture.py`, `features.py`, `telemetry_recovery.py` |
-| [detector/](detector/) | Model ExtraTrees + nhánh "vùng normal" (support), chấm điểm theo lô, chính sách preview | `idle_candidate.py`, `idle_batch.py`, `candidate_policy.py`, `support_model.py`, `model.py` |
-| [pipeline/](pipeline/) | Worker 500 ms chạy trên từng node, sinh unit systemd, lập kế hoạch một lượt chạy, phát tải | `matched_worker.py`, `matched_services.py`, `plan_matched_run.py`, `matched_traffic.py` |
+| [detector/](detector/) | Model ExtraTrees + nhánh "vùng normal" (support), chấm điểm theo lô, chính sách preview (k-of-n, CUSUM, chiết khấu theo replica) | `idle_candidate.py`, `idle_batch.py`, `candidate_policy.py`, `confirmation.py`, `novelty.py`, `support_model.py`, `model.py` |
+| [pipeline/](pipeline/) | Worker 500 ms chạy trên từng node, trao đổi mặt nạ syscall giữa các worker (chiết khấu theo replica), sinh unit systemd, lập kế hoạch một lượt chạy, phát tải | `matched_worker.py`, `peer_exchange.py`, `matched_services.py`, `plan_matched_run.py`, `matched_traffic.py` |
 | [attack/](attack/) | Chạy cặp tấn công/đối chứng trên pod thật, chấm TP/FP/FN/TN, đo độ trễ | `preview_campaign.py`, `preview_evaluation.py`, `cluster.py`, `tetragon_evidence.py` |
 | [syscall_study/](syscall_study/) | So sánh các bộ syscall (thêm/bớt kênh) trên cùng dữ liệu, chấm holdout | `matched_study.py`, `matched_holdout.py`, `audit_matched_fits.py` |
 | [rca/](rca/) | Nhận preview, ghép sự kiện Tetragon (process/file/network) thành đồ thị điều tra | `service.py`, `tree.py`, `runtime_tree.py`, `connect.py` |
