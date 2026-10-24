@@ -1567,6 +1567,14 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - pha chọn từ 10:57, attack từ khoảng 12:29, capture tới khoảng 11:00 ngày 25/10;
   - kiểm lúc 11:00: 3 worker chạy, mỗi worker nối đủ 2 peer và 2 bên nhận, chưa mất bản tin nào; 94/97 cửa sổ được chấm gần nhất của worker1 bị chiết khấu (`novel_peer = 0`);
   - unit phân tích `after-peer-discount-confirm` (`after_stable_confirm.sh`, `RUN` mới, `LIVE_RULE=le3s`); bridge `pulse-alert-bridge-pulse-peer-discount-confirm`.
+- **Giữa lượt (24/10 22:05, chỉ mô tả, không đọc kết quả):**
+  - 11,1 giờ capture; campaign 396/525 trial (chậm hơn lượt trước, dự kiến xong khoảng 01:00 ngày 25/10);
+  - trao đổi mặt nạ: cả 3 worker đủ 2 peer, 0 bản tin mất, 0 lần mất kết nối;
+  - log Falco chép giữa lượt về `/var/tmp/falco-logs-pulse-peer-discount-confirm/` trên từng worker (worker1 đủ chuỗi xoay vòng từ trước lúc lượt bắt đầu);
+  - **khoảng hở nhịp chấm nhiều hơn lượt trước:** 5 / 7 / 5 lần (worker1 / worker4 / worker3) trong 11 giờ, rải rác, không đồng thời; lượt trước chỉ 1 lần mỗi worker trong 24 giờ, đồng thời.
+    - Bộ nhớ cgroup của unit worker chạm `MemoryMax` 3 GB: tiến trình chỉ khoảng 224 MB, còn khoảng 2,8 GB là page cache của file ghi lên NFS. `memory.events max` 24.006 / 5.526 / 24.420 lần, thu hồi trực tiếp khoảng 3,9 / 0,9 / 3,8 triệu trang, tổng thời gian kẹt vì áp lực bộ nhớ (`memory.pressure full`) 2,9 / 0,6 / 2,7 s, xếp theo đúng thứ tự số khoảng hở. Throttle CPU nhỏ (69–254 chu kỳ).
+    - Giả thuyết (chưa chứng minh): thu hồi page cache trong cgroup làm vòng lặp kẹt quá 0,3 s, loader phải chờ, sinh khoảng hở. Không can thiệp giữa lượt để giữ điều kiện giống lượt trước. Các cửa sổ bị ảnh hưởng đã được đánh dấu `not_normal`, không vào phép tính gánh cảnh báo.
+    - **Đề xuất cho lượt sau:** thả page cache sau mỗi lần ghi (`posix_fadvise(DONTNEED)`) hoặc nâng `MemoryMax`, cùng với việc bỏ ghi NFS khỏi vòng chấm điểm.
 - **Giữ lại cho lượt sau, không đưa vào lượt này** (để lượt chỉ đổi đúng chính sách ML): đổi tên binary vô hại (RCA 5.15), RCA nhận trigger từ Alertmanager.
 - **Rủi ro độ trễ đã thấy khi rà code:** vòng lặp worker `flush` feature và decision lên NFS sau mỗi frame. NFS khựng thì preview trễ theo; khoảng hở nhịp chấm đồng thời của lượt trước (5.25) nhiều khả năng là vậy. Chưa sửa, vì sửa là đổi đường live giữa hai lượt xác nhận.
 
@@ -2083,3 +2091,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:35–10:40 | Chủ đồ án nâng cấu hình VM NFS và khởi động lại (31 GiB RAM, 8 CPU). Kiểm: `nfs-server` active, 6 node đọc được `/mnt/sentinel-pulse-archive`, ghi thử 64 MiB 307 MB/s | 8 |
 | 10:40–11:05 | Chiết khấu theo replica trong đường live (`novelty.py`, `peer_exchange.py`, khóa chính sách `evidence_discount`), test và thử trên mạng thật; đóng băng `policy-k2of2-a5-peer30` (`f64c31c0…`), đăng ký `peer-discount-confirmation-v1`; khởi chạy `pulse-peer-discount-confirm` (snapshot `60093dd`), bridge và unit phân tích sau lượt | 5.26 |
 | 11:05–11:20 | Rà việc làm ngay. Phát hiện nhãn sai ở 5.25 ("tham chiếu k2of2 α×10" thực ra là CUSUM b3/h6 `keep`) và cùng lỗi trong điều kiện gánh của `peer-discount-confirmation-v1`; sửa nhãn, đăng ký bổ sung 1 trước khi đọc kết quả, `burden_blind_test.py` báo thêm k2of2 α×10. RCA 5.15: số seed và phân loại cảnh báo final. Dọn TODO, README code | 5.25, 5.26 |
+| 22:03–22:15 | Giữa lượt `pulse-peer-discount-confirm`: chép log Falco; khoảng hở nhịp chấm 5–7 lần mỗi worker, cgroup worker chạm `MemoryMax` do page cache file NFS (giả thuyết, không can thiệp); RCA 1.201 case, bridge 2.966 đợt (chỉ ghi nhận) | 5.26 |
