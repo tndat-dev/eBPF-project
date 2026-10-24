@@ -1,0 +1,90 @@
+{
+  "schema": "sentinel-pulse-candidate-preview-policy-v2",
+  "policy_name": "stable-k2of2-a5-peer30",
+  "candidate_name": "pulse-candidate-recalibrated-on-pulse-live-recalibrated",
+  "candidate_manifest_sha256": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "created_at": "2026-10-24",
+  "frozen_before_independent_evaluation": true,
+  "blind_outcome_used": false,
+  "automatic_promotion": false,
+  "rule": {
+    "score": "joint_p",
+    "comparison": "less_than_or_equal",
+    "threshold_source": "per_workload_model_calibrated_alpha",
+    "semantic_gate": false,
+    "alpha_scale": 5.0,
+    "temporal_confirmation": {
+      "k": 2,
+      "n": 2,
+      "max_gap_seconds": 1.0
+    },
+    "evidence_discount": {
+      "kind": "peer_novelty",
+      "seconds": 30
+    }
+  },
+  "nominal_error_budget": {
+    "interval_target": 0.05,
+    "horizon_windows": 30,
+    "interpretation": "design_budget_only; the scaled alpha deliberately exceeds it and drift remains",
+    "is_guarantee": false
+  },
+  "selection_basis": {
+    "rule": "burden-reduction-v1 (+ amendment 1) rules 1-4 on two development runs, then rule 5 blind on pulse-stable-confirm; adoption changes the stable policy only after one more live run (this policy's run)",
+    "lever": "L5 replica (peer) discount, 30 s: a window whose 4-window context has no syscall ID that the other replicas of its workload did not show within 30 s carries no evidence; joint p, k2of2 at alpha x5",
+    "latency_tier": 3.0,
+    "calibration": "the refreshed calibration of pulse-next-run-model (unchanged since pulse-stable-confirm)",
+    "development_result": {
+      "runs": "pulse-stable-candidate / pulse-stable-refreshed",
+      "episodes_per_replica_hour": [
+        1.66,
+        1.55
+      ],
+      "recall": [
+        0.981,
+        0.994
+      ],
+      "precision": [
+        0.99,
+        0.991
+      ],
+      "control_positive_rate": [
+        0.0095,
+        0.0095
+      ],
+      "benign_exec_positive_rate": [
+        0.89,
+        0.84
+      ],
+      "kernel_to_preview_p95_seconds": [
+        2.75,
+        2.98
+      ],
+      "receipt": "results-20261022/pulse/burden-levers.json"
+    },
+    "blind_result": {
+      "run": "pulse-stable-confirm (rates 6, 12, 24 per second, 964 replica-hours of normal)",
+      "episodes_per_replica_hour": 1.7435277592036527,
+      "recall": 0.9904761904761905,
+      "precision": 0.9719626168224299,
+      "control_positive_rate": 0.02857142857142857,
+      "benign_exec_positive_rate": 0.8666666666666667,
+      "kernel_to_preview_p95_seconds": 2.678590083122252,
+      "burden_ratio_to_reference": 0.395343367826905,
+      "burden_ratio_to_stable": 0.29932336182336183,
+      "receipt": "results-20261023/pulse-stable-confirm/burden-blind-test.json"
+    },
+    "live_implementation": "detector/novelty.py (Signals, the offline definition) + pipeline/peer_exchange.py: each worker decides its own windows; the peers' window masks arrive over TCP (~20 ms), so the newest peer bucket can be incomplete at decision time; a lost peer means less discount, never less detection",
+    "known_gaps": [
+      "p95 2.68-2.98 s: the <= 3 s tier with little margin; the < 2 s tier is not met",
+      "an attack running on every replica at once is discounted (the campaign attacks one replica)",
+      "benign new-process launches are still flagged at 84-89 %; the discount removes only behaviour the other replicas share",
+      "burden ~1.7 episodes/replica-hour is still ~17x the 0.1/h budget",
+      "workloads with one replica (or replicas without a peer window in 30 s) are never discounted"
+    ],
+    "frozen_at": "2026-10-24T11:20+07:00"
+  },
+  "unknown_workload": "unscored_unknown_not_normal_and_not_alerted",
+  "output_mode": "shadow_preview_only; never emits alert or enforcement",
+  "evaluation_requirements": "fresh normal soak plus fresh attack campaign with benign-exec controls; fast scoring; report idle and benign controls separately; do not tune after outcomes; the worker config must carry peer_exchange (planner adds it)"
+}

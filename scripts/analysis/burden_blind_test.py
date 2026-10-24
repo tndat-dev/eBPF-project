@@ -12,7 +12,8 @@ Rule 5 (registered 22/10 15:34): a choice is adopted only if, on this run, it is
 precision >= 95 %, control <= 5 %, p95 within its tier) and its burden is <= 0.9 x the reference's. The trial
 metrics use the primary attack rates (6, 12, 24 per second, the composition of the development runs); every rate is
 reported. When the table carries the live ``preview`` column, the burden of what the run actually alerted on and
-the window agreement between the live previews and the recomputed stable rule are reported too.
+the window agreement between the live previews and the recomputed rule the run ran (``--live-rule``: ``stable``
+by default; ``le3s`` for the run of the adopted replica-discount choice) are reported too.
 """
 import argparse, json, sys, time
 from collections import defaultdict
@@ -58,6 +59,7 @@ def main():
     ap.add_argument('--calibration', required=True)
     ap.add_argument('--calibration-table', required=True)
     ap.add_argument('--ml-results', required=True, help='BURDEN-LEVERS.json of the development selection')
+    ap.add_argument('--live-rule', default='stable', help='recomputed rule the live previews followed')
     ap.add_argument('--output', required=True)
     a = ap.parse_args()
     kv = defaultdict(list)
@@ -83,14 +85,17 @@ def main():
                           vs_stable_burden_ratio=metrics[tier]['burden'] / metrics['stable']['burden']
                           if metrics['stable']['burden'] else None)
                for tier, config in choices.items()}
-    burden_cis = {name: burden_ci(arr, alarms[name]) for name in ('stable',)}
+    burden_cis = {name: burden_ci(arr, alarm) for name, alarm in alarms.items()}
     live = None
     if 'preview' in arr:
-        prev = arr['preview'].astype(bool)
+        prev, rule = arr['preview'].astype(bool), alarms[a.live_rule]
         live = dict(burden_live_previews=bl.episodes(arr['ident'], arr['end'], prev & arr['normal'], bl.EPISODE_QUIET) / arr['hours'],
-                    window_agreement_with_recomputed_stable=float(np.mean(prev == alarms['stable'])),
-                    live_preview_windows=int(prev.sum()), recomputed_stable_windows=int(alarms['stable'].sum()),
+                    live_rule=a.live_rule, window_agreement=float(np.mean(prev == rule)),
+                    live_only_windows=int((prev & ~rule).sum()), recomputed_only_windows=int((rule & ~prev).sum()),
+                    live_preview_windows=int(prev.sum()), recomputed_windows=int(rule.sum()),
                     burden_live_ci=burden_ci(arr, prev))
+        if a.live_rule == 'stable':      # key of the 23/10 receipt
+            live['window_agreement_with_recomputed_stable'] = live['window_agreement']
     result = dict(schema='pulse-burden-blind-test-v1', protocol='sentinel_pulse/protocol/burden-reduction-v1.json (rule 5)',
                   run=a.run, ml_results=a.ml_results, calibration_reproduced=checks, run_info=info,
                   primary_rates=list(PRIMARY_RATES), metrics=metrics, by_rate=by_rate, verdict=verdict, live=live,

@@ -2,10 +2,12 @@
 # After pulse-stable-confirm, on .234 as root (one unit, sequential): campaign stage when the campaign is TERMINAL
 # (light), final stage when all three workers are TERMINAL (heavy, no live run), then lossless compression of the run.
 # Falco logs are copied off the nodes by hand right after the run (capture requirement of rule-integration-v1
-# amendment 1); nothing here computes a rule number.   SRC=/mnt/.../source bash after_stable_confirm.sh
+# amendment 1); nothing here computes a rule number.
+#   SRC=/mnt/.../source [RUN=/mnt/.../<run> LIVE_RULE=le3s] bash after_stable_confirm.sh
 set -uo pipefail
 SRC=${SRC:?source snapshot}
-RUN=/mnt/sentinel-pulse-archive/pulse-stable-confirm
+RUN=${RUN:-/mnt/sentinel-pulse-archive/pulse-stable-confirm}
+export RUN LIVE_RULE=${LIVE_RULE:-stable}
 until [ -f $RUN/pulse-development-matrix/TERMINAL.json ]; do sleep 300; done
 [ -f $RUN/analysis/confirm-campaign.json ] || SRC=$SRC STAGE=campaign bash $SRC/scripts/pulse_stable_confirm_analysis.sh || echo "campaign stage FAILED"
 echo "campaign stage done $(date -u +%FT%T)"

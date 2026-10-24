@@ -1,0 +1,75 @@
+{
+  "schema": "sentinel-pulse-peer-discount-confirmation-v1",
+  "registered_at": "2026-10-24T11:35+07:00",
+  "registered_before": "the run starts; no data of it exists",
+  "purpose": "burden-reduction-v1 rule 5: the <= 3 s choice adopted blind on pulse-stable-confirm (Pulse 5.25) changes the ML stable policy only after one more live run; this is that run",
+  "run": {
+    "name": "pulse-peer-discount-confirm",
+    "candidate": "/mnt/sentinel-pulse-archive/pulse-next-run-model/model-bundle (manifest 4bad16dc..., unchanged)",
+    "policy": "sentinel_pulse/protocol/policy-k2of2-a5-peer30.json (sha256 f64c31c0...; joint p, k2of2 alpha x5, evidence discount peer_novelty 30 s)",
+    "live_implementation": "detector/novelty.py + pipeline/peer_exchange.py (port 9479, every worker follows the two others)",
+    "duration_seconds": 86400,
+    "fast_scoring": true,
+    "benign_exec_controls": true,
+    "attack_rates_per_second": [
+      1,
+      3,
+      6,
+      12,
+      24
+    ],
+    "pairs": "21 workloads x 5 scenarios x 5 rates = 525 attack/control pairs, each with a benign launch (same composition as pulse-stable-confirm)",
+    "unchanged_from_pulse_stable_confirm": [
+      "candidate and calibration",
+      "fixture and campaign composition",
+      "RCA subscriber (decision-stream trigger, seed, triage labels)",
+      "operational alert bridge"
+    ],
+    "infrastructure_since_pulse_stable_confirm": [
+      "CNPG replica cnpg-2 re-cloned (24/10 01:38)",
+      "NFS VM 31 GiB RAM (24/10 10:35)",
+      "unattended upgrades masked on .234"
+    ]
+  },
+  "primary_expectations": {
+    "subset": "rates 6, 12, 24 per second (315 pairs)",
+    "precision": ">= 0.95",
+    "recall": ">= 0.95",
+    "idle_control_positive_rate": "<= 0.05",
+    "kernel_to_preview_p95_seconds": "<= 3 (the policy's tier); < 2 reported if met",
+    "confirmed_when": "all four hold; then policy-k2of2-a5-peer30 becomes the ML stable policy",
+    "if_not_confirmed": "the stable policy stays policy-cusum-b3-h6-cap; report the run as is, no re-selection on its data"
+  },
+  "burden_claim": {
+    "statistic": "normal alert episodes per replica-hour of the live previews (selection start to capture end, campaign excluded), workload bootstrap 95 % CI",
+    "claimed_when": "live burden <= 0.9 x the burden of each of k2of2 alpha x10 (no discount) and CUSUM b3/h6 cap, both recomputed on this run's window table with the same calibration",
+    "not_claimed": "the 0.1 episodes/replica-hour budget"
+  },
+  "implementation_check": {
+    "statistic": "window agreement between the live previews and the offline recomputation of the same rule (burden_blind_test.py --live-rule le3s) on this run's window table",
+    "expected": ">= 0.999; the only known source of difference is a peer window arriving after the local decision (newest 2 s bucket)",
+    "also_reported": "peer exchange counters per worker (connects, disconnects, dropped messages), share of windows discounted, live-only / recomputed-only preview windows"
+  },
+  "reported_without_threshold": [
+    "benign-launch positive rate",
+    "recall and p95 per scenario and per rate; rates 1 and 3 per second separately (G4)",
+    "Wilson CIs for the rates",
+    "RCA coverage, ranking, latency, probe-only share, seed effect, alarm taxonomy",
+    "per-replica comparison of the workloads that dominated pulse-stable-confirm (kafka, postgres, inventory; replica_compare.py)",
+    "cadence gaps per worker",
+    "kernel -> recipient latency of the operational alert path"
+  ],
+  "analysis": "scripts/after_stable_confirm.sh with RUN=/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm LIVE_RULE=le3s (campaign stage, final stage, compression); replica_compare.py and alert_delivery_latency.py by hand after the run",
+  "capture_requirements": [
+    "experiment output mode (full decisions and features) so every offline replay is possible",
+    "decisions carry novel_peer and evidence_discounted; worker STATUS carries the peer exchange counters",
+    "Falco logs copied off the nodes during and after the run",
+    "no heavy NFS or memory job on any node while the run is active; nothing on masters 2/3"
+  ],
+  "not_claimed": [
+    "detection of an attack running on every replica of a workload at once (it would be discounted; the campaign attacks one replica)",
+    "separation of attacks from benign launches (G5)",
+    "attacks entering through an application exploit (recall is an upper bound for attacks entering through exec)",
+    "workloads with a single replica gain nothing from the discount"
+  ]
+}

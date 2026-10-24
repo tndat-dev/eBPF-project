@@ -10,7 +10,8 @@
 #                   live burden + workload CI, blind test of the 5.22 choices, RCA suspect reasons (baseline seed),
 #                   alarm taxonomy (5.18 replication), cadence gaps
 #
-#   SRC=/mnt/.../source STAGE=campaign|final bash pulse_stable_confirm_analysis.sh
+#   SRC=/mnt/.../source STAGE=campaign|final [RUN=/mnt/.../<run>] [LIVE_RULE=stable|le3s] bash pulse_stable_confirm_analysis.sh
+#   LIVE_RULE names the recomputed rule the live previews followed (le3s: the replica-discount run, 24/10)
 set -uo pipefail
 SRC=${SRC:?source snapshot}
 STAGE=${STAGE:?campaign or final}
@@ -57,7 +58,8 @@ mkdir -p "$B"
 try $PY "$SRC/scripts/analysis/burden_blind_test.py" \
   --run "name=pulse-stable-confirm,table=$B/table-pulse-stable-confirm.npz,since=$SELECTION_START,campaign=$CAMPAIGN" \
   --calibration "$REFRESHED" --calibration-table "$B/cal-pulse-live-recalibrated.npz" \
-  --ml-results /mnt/sentinel-pulse-archive/pulse-stable-refreshed/analysis/burden-levers.json --output "$OUT/burden-blind-test.json"
+  --ml-results /mnt/sentinel-pulse-archive/pulse-stable-refreshed/analysis/burden-levers.json --live-rule "${LIVE_RULE:-stable}" \
+  --output "$OUT/burden-blind-test.json"
 try $PY "$SRC/scripts/analysis/rca_suspect_reasons.py" --cases "$RCA/cases" --campaign "$CAMPAIGN" --output "$OUT/rca-suspect-reasons.json"
 try $PY "$SRC/scripts/analysis/alarm_taxonomy.py" --cases "$RCA/cases" --campaign "$CAMPAIGN" \
   --probe-spec "$SRC/validation-evidence/results-20261021/exec-probe-spec.json" --output "$OUT/alarm-taxonomy.json"

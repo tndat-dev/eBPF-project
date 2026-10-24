@@ -32,6 +32,9 @@ PROFILES={
 WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10.1.16.239':'k8s-worker3.local'}
 
 
+PEER_PORT = 9479
+
+
 def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24)):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
@@ -72,6 +75,11 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         loader='/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader',
         object='/home/dat/pulse-matched-20261015/build/pulse_counter_extended.bpf.o',
         proof='/home/dat/pulse-matched-20261015/proof') for host,node in WORKERS.items()}
+    # evidence discount (policy rule key evidence_discount): every worker serves its window masks on PEER_PORT and
+    # follows the other workers (pipeline/peer_exchange.py)
+    if json.loads(policy.read_text())['rule'].get('evidence_discount'):
+        for host,worker in cfg['workers'].items():
+            worker['peer_exchange']=dict(listen=[host,PEER_PORT],peers=[[other,PEER_PORT] for other in WORKERS if other!=host])
     scenarios=['anonymous_mprotect_churn','child_ptrace_handshake','invalid_setns_burst',
                'seccomp_api_probe','execveat_resolution_probe']
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
