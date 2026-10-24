@@ -26,7 +26,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 3b. [x] Log Falco của lượt xác nhận (xong 24/10 01:45, trên NFS `pulse-stable-confirm/falco-logs/`, SHA khớp, bản local đã xóa): [x] chép lần 1 về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, 23/10 11:40; worker1 xoay vòng 4 giờ/lần nên phải chép giữa lượt). [x] Lần 2 (13:05, `cp -u`): đã có file xoay vòng 05:15 UTC của worker1; file xoay vòng còn được giữ ~16 giờ nên lần chép cuối sau lượt là đủ. [x] Sau lượt: chép lần cuối, chuyển lên NFS (24/10 01:45); giữ tới khi so sánh có/không rule xong.
 4. [x] Nhóm feature trên holdout chính đã gộp (5B.3); 5C bản `cap` cho 11 cấu hình xong. [x] 2 biến thể p-value (cần cả hai). [x] Nhóm feature dưới `cap`: không đổi kết luận (5C).
 5. [ ] **Sau khi ML hoàn thiện** (stable đóng băng, 5.22 quyết xong, lượt live xác nhận xong): tích hợp rule và **so sánh không có rule với có rule** trên cùng dữ liệu ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trong lượt live xác nhận: giữ log Falco, chạy tripwire trên normal, RCA gắn nhãn triage mọi case.
-6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 6 hình (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
+6. [ ] Viết luận văn **chỉ sau khi** bằng chứng của cả Pulse, thí nghiệm syscall và RCA đầy đủ (quyết định 22/10). Đã có 7 hình và bảng tổng hợp lượt live (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
 ## Pulse — vấn đề còn mở
 

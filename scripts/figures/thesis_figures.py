@@ -12,6 +12,9 @@ Figures (PNG at 200 dpi + PDF):
   baselines-budget    recall and benign-launch flag rate against normal alert burden for Pulse and three baselines
   feature-groups      syscall 5B.3: change against base29 when a feature group or a p-value branch is removed
                       (recall and separation with bootstrap 95 % CI, p95), main holdout, two attack sets
+  burden-levers       normal alert burden of the 5.22 levers: two development runs and the blind test on the confirmation
+                      run (rule 5), with the 0.1/h budget
+  live-runs-table.md  the numbers of live-runs-metrics as a table (counts, Wilson CI, p50/p95)
   alert-delivery-cdf  confirmation run: kernel -> recipient per delivery path (Alertmanager push, Prometheus pull
                       fast / default), registered subset, share of all attack trials
 
@@ -55,7 +58,8 @@ TEXT = {
                d_recall='Δ recall (điểm %)', d_sep='Δ tách binary vô hại (điểm %)', d_p95='Δ p95 (s)',
                recipient='Độ trễ kernel → người nhận (s, thang log)', delivered='Trial attack có cảnh báo mới (%)',
                preview_ref='kernel → preview (tham chiếu)', push='push vào Alertmanager', pull_fast='Prometheus pull nhanh',
-               pull_default='Prometheus pull mặc định', refreshed='calib. mới', strict='chỉ đợt mở từ cửa sổ trong trial',
+               pull_default='Prometheus pull mặc định', refreshed='calib. mới', blind='test blind',
+               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(tham chiếu)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(đạt test blind)'), strict='chỉ đợt mở từ cửa sổ trong trial',
                groups=dict(tree='chỉ nhánh tree', support='chỉ nhánh support', bins_only='chỉ bin (bỏ kênh syscall)',
                            drop_aggregates='bỏ 5 tổng hợp', drop_all_bins='bỏ mọi bin', drop_transition_bins='bỏ bin cặp',
                            drop_rolling='bỏ rolling', history1='lịch sử 1 cửa sổ', history2='lịch sử 2 cửa sổ',
@@ -69,7 +73,8 @@ TEXT = {
                d_recall='Δ recall (points)', d_sep='Δ benign separation (points)', d_p95='Δ p95 (s)',
                recipient='Kernel → recipient delay (s, log scale)', delivered='Attack trials with a new alert (%)',
                preview_ref='kernel → preview (reference)', push='Alertmanager push', pull_fast='Prometheus pull, fast',
-               pull_default='Prometheus pull, default', refreshed='refreshed calib.', strict='episodes opened inside the trial only',
+               pull_default='Prometheus pull, default', refreshed='refreshed calib.', blind='blind test',
+               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(reference)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(passes the blind test)'), strict='episodes opened inside the trial only',
                groups=dict(tree='tree branch only', support='support branch only', bins_only='bins only (no syscall channels)',
                            drop_aggregates='drop 5 aggregates', drop_all_bins='drop all bins', drop_transition_bins='drop pair bins',
                            drop_rolling='drop rolling', history1='history 1 window', history2='history 2 windows',
@@ -152,6 +157,27 @@ def fig_live_metrics(out, t, ci=True):
         ax.set_ylim(lo_y, {'control': 16}.get(key, 101.5))
     axes[0].set_ylabel(t['share'])
     fig.tight_layout(); save(fig, out, 'live-runs-metrics')
+
+
+def table_live_runs(out, t):
+    """The numbers behind live-runs-metrics and live-latency-cdf, one row per run (same counting)."""
+    head = {'vi': '| Lượt | Luật | Precision | Recall | Control idle dương | Binary vô hại bị gắn cờ | p50 / p95 (s) |',
+            'en': '| Run | Rule | Precision | Recall | Idle control positive | Benign launch flagged | p50 / p95 (s) |'}
+    lang = 'vi' if t is TEXT['vi'] else 'en'
+    rows = [head[lang], '|---|---|---|---|---|---|---|']
+    num = lambda v, d: f'{v:.{d}f}'.replace('.', ',') if lang == 'vi' else f'{v:.{d}f}'
+    fmt = lambda v: num(v, 1)
+    for name, path, policy, rates in RUNS:
+        m, delays = run_counts(path, rates)
+        cells = []
+        for key in ('precision', 'recall', 'control', 'benign'):
+            k, n = m[key]; lo, hi = wilson(k, n)
+            cells.append(f'{fmt(100 * k / n)}% ({k}/{n}) [{fmt(100 * lo)}; {fmt(100 * hi)}]')
+        p50, p95 = np.percentile(delays, 50), np.percentile(delays, 95)
+        rows.append(f"| {name} | {policy.format(refreshed=t['refreshed'])} | {' | '.join(cells)} | {num(p50, 2)} / {num(p95, 2)} |")
+    note = {'vi': 'Lượt xác nhận chỉ tính tập chính (tốc độ 6, 12, 24/s). CI 95% Wilson. Nhãn kỳ vọng, chưa review.',
+            'en': 'The confirmation run counts its registered subset (6, 12, 24 per second). Wilson 95 % CI. Expected labels, not adjudicated.'}
+    (out/'live-runs-table.md').write_text('\n'.join(rows) + '\n\n' + note[lang] + '\n')
 
 
 def fig_latency(out, t):
@@ -258,6 +284,43 @@ def fig_feature_groups(out, t):
     fig.tight_layout(); save(fig, out, 'feature-groups')
 
 
+def fig_burden(out, t):
+    dev = load(EV/'results-20261022/pulse/burden-levers.json')['candidates']
+    cap = load(EV/'results-20261021/pulse-stable-refreshed/final/cusum-carryover.json')['metrics']
+    blind = load(CONFIRM/'burden-blind-test.json')
+    names = {'k2of2': 'joint|none|k2of2_a10', 'keep': 'joint|none|cusum_b3_h6', 'lt2s': 'mjoint|peer60|k2of2_a15',
+             'le3s': 'joint|peer30|k2of2_a5'}
+    order = ['k2of2', 'keep', 'cap', 'lt2s', 'le3s']
+    blind_key = {'keep': 'reference', 'cap': 'stable', 'lt2s': 'lt2s', 'le3s': 'le3s'}
+    series = []
+    for run in ('pulse-stable-candidate', 'pulse-stable-refreshed'):
+        series.append((run, {k: (cap[run]['cusum_b3_h6_cap']['burden'] if k == 'cap' else dev[run][names[k]]['burden'])
+                             for k in order}))
+    series.append((f"pulse-stable-confirm ({t['blind']})", {k: blind['metrics'][blind_key[k]]['burden'] for k in blind_key}))
+    fig, ax = plt.subplots(figsize=(7.4, 4.2))
+    y = np.arange(len(order))[::-1]
+    for i, (name, values) in enumerate(series):
+        off = (1 - i) * 0.18
+        xs = [values.get(k) for k in order]
+        ax.plot([v for v in xs if v is not None], [yy + off for yy, v in zip(y, xs) if v is not None], MARKERS[i],
+                color=SERIES[i], ms=7, mec=SURFACE, mew=1, ls='none', label=name)
+        if i == 2:
+            for yy, v in zip(y, xs):
+                if v is not None:
+                    ax.annotate(f'{v:.2f}', (v, yy + off), textcoords='offset points', xytext=(0, -12), ha='center',
+                                va='center', fontsize=8, color=INK)
+    ci = blind['burden_ci']['stable']['ci95']
+    ax.plot(ci, [y[order.index('cap')] - 0.18] * 2, color=SERIES[2], lw=2, solid_capstyle='round')
+    ax.axvline(0.1, color=INK2, lw=1, ls='--')
+    ax.annotate(f"{t['budget']} 0,1" if t is TEXT['vi'] else f"{t['budget']} 0.1", (0.1, y[0] + 0.45), textcoords='offset points',
+                xytext=(4, 0), fontsize=8, color=INK2)
+    ax.set_yticks(y); ax.set_yticklabels([t['levers'][k] for k in order], fontsize=8.5)
+    ax.set_xlim(0, 8.5); ax.set_ylim(-0.6, len(order) - 0.2); ax.grid(axis='y', visible=False)
+    ax.set_xlabel(t['burden'])
+    ax.legend(loc='lower right', fontsize=8)
+    fig.tight_layout(); save(fig, out, 'burden-levers')
+
+
 def fig_alert_delivery(out, t):
     rows = [r for r in load(CONFIRM/'delivery-latency-campaign.json')['trials'] if r['rate_per_second'] in PRIMARY_RATES]
     n = len(rows)
@@ -300,7 +363,7 @@ def main():
     out = a.output/a.lang; out.mkdir(parents=True, exist_ok=True)
     style(); t = TEXT[a.lang]
     fig_live_metrics(out, t, ci=not a.no_ci)
-    for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_alert_delivery):
+    for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_burden, fig_alert_delivery, table_live_runs):
         f(out, t)
     print(sorted(x.name for x in out.iterdir()))
 
