@@ -85,7 +85,7 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 - [x] Đã xóa `/var/tmp/pulse-live-copy`, `falco-baseline` và 4 snapshot không dùng (22/10). [x] `/var/tmp/syscall-cusum` (4 GB, bản sao NFS, đã đối chiếu danh sách file) xóa 23/10. [ ] `/var/tmp/feature-groups` (7,6 GB): `study`, `workloads`, `score-dump` là bản duy nhất → chuyển lên NFS sau lượt live rồi xóa. Giữ `/var/tmp/burden-levers` (bảng cửa sổ cho test blind và so sánh rule) và `/var/tmp/baselines` (model baseline).
 - [x] Nén `pulse-stable-candidate`, `pulse-stable-refreshed`, soak 48 giờ (NFS 291 → 85 GB, 22/10 16:17).
 
-- [ ] **(cần bạn)** RAM NFS (`k8s-nfs`): tăng lên 8 GB và đặt reservation. Cần tắt VM, nên chỉ làm khi không có lượt live.
+- [x] RAM NFS (`k8s-nfs`): chủ đồ án nâng cấu hình và khởi động lại 24/10 10:35 (31 GiB RAM, 8 CPU); cả 6 node đọc được mount, ghi thử 64 MiB đạt 307 MB/s.
 - [ ] **(cần bạn)** Host ESXi đang thu hồi RAM qua balloon: xem mức dùng RAM của host; đặt reservation cho 3 worker nếu host vẫn overcommit.
 - [x] Đo overhead A/B (G7, Pulse 5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không (microbenchmark, worker4). [ ] Kiểm trên kernel/distro khác (hiện chỉ Ubuntu x86-64).
 
