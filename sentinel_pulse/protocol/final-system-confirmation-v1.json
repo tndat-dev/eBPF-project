@@ -1,0 +1,48 @@
+{
+  "schema": "sentinel-pulse-final-system-confirmation-v1",
+  "registered_at": "2026-10-25T18:20+07:00",
+  "registered_before": "the run is planned; no data of it exists",
+  "owner_decisions": [
+    "25/10 17:30: final system = Pulse ML + tripwire A1 as parallel alert streams (RULE_INTEGRATION_STATUS R6, arm B2)",
+    "25/10 18:00: run one 24 h live run of the final system with ML frozen; calibration self-refresh is not part of it"
+  ],
+  "run": "pulse-final-system-confirm",
+  "frozen": {
+    "model": "pulse-next-run-model/model-bundle, CANDIDATE_MANIFEST sha256 4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+    "policy": "sentinel_pulse/protocol/policy-k2of2-a5-peer30.json, sha256 f64c31c067bff2421b6d360cd1b9e9ea2ca04d8d3cdcd0a6d1285b4360f35a33",
+    "frozen_source": "/mnt/sentinel-pulse-archive/runtime-60093dd-20261024/source (the source of pulse-peer-discount-confirm): the 13 pinned scorer files of the new code are byte-identical to it (checked 25/10 on commit 55d4673, 18:10-18:12), and the worker refuses to start otherwise",
+    "tripwire": "exec set E validation-evidence/results-20261021/pulse-stable-candidate/final/exec-set-E.json (sha256 a3266613cf8d14d9d68e8d910ff0ae2886ff4a5a62cdd158afd3bd1e03bba2ea); reference = the run's selection span (90 min, the same span the ML burden starts from); windows judged from selection end + 60 s"
+  },
+  "campaign": "as pulse-peer-discount-confirm: 21 workloads x 5 scenarios x attack rates 1, 3, 6, 12, 24 per second, 525 trials, each control (15 s idle) -> benign exec (15 s) -> attack (15 s) on one container; fresh campaign on fresh traffic. Changed: the benign-exec control runs the same binary from its own file name (attack/cluster.py benign_path_for); Pulse never sees file paths",
+  "primary_set": "attack rates 6, 12, 24 per second (as stable-confirmation-v1)",
+  "system_changes_under_test": {
+    "tripwire_live": "tripwire A1 inside the worker (sentinel_pulse/rules/tripwire.py), masks of the other workers over the peer exchange",
+    "shared_writes_off_loop": "NFS writes of the worker from background threads (pipeline/async_sink.py), fdatasync + POSIX_FADV_DONTNEED every 30 s, STATUS written asynchronously",
+    "local_decision_stream": "decisions also on each worker's local disk; the alert bridge, RCA and campaign read that copy",
+    "bridge_retry": "a failed episode push is retried (3 attempts, 0.5 s apart)",
+    "rca_from_alertmanager": "RCA builds a case per alert episode that Alertmanager delivered (bridge triggers.jsonl), ML or tripwire",
+    "benign_distinct_path": "see campaign",
+    "tetragon_reaping": "Tetragon DaemonSet with shareProcessNamespace (25/10)"
+  },
+  "arms": {
+    "A_ml": "the live previews of the ML (decision column candidate_alert_preview)",
+    "T_tripwire": "the live tripwire alerts (decision column tripwire_alert, tripwire_status = judged)",
+    "S_system": "A and T as parallel streams, definitions of rule-integration-v1 amendment 2 (trial detected when any stream alerts inside [start, start + 15 s]; alert time = earliest stream alert; normal alerts of one container (pod_uid, container) merged across streams into episodes when less than 15 s apart)"
+  },
+  "expectations": {
+    "S_system_primary": "recall >= 95 %, precision >= 95 %, idle-control positive <= 5 %, p95 kernel -> first alert (window end) <= 3 s. Met = all four. Wilson 95 % CI reported",
+    "A_ml_primary": "the same four, reported as the replication of Pulse 5.27",
+    "S_burden": "normal span = selection end -> capture end, campaign span excluded (burden_levers.campaign_span); episodes per replica-hour of the ML window table; reported with a workload-clustered bootstrap 95 % CI (10,000 draws). The claim 'the tripwire adds little burden' needs the upper 95 % bound of S - A <= 0.25 episodes/replica-hour (R6 primary: +0.066 [+0.020; +0.133])",
+    "tripwire_live_vs_offline": "scripts/analysis/novel_syscalls.py on the same run with the same reference span and exec set; per judged window, live alert == offline alert in >= 99.9 % of windows; every disagreement attributed (late peer reference window, pending window, other)"
+  },
+  "reported_without_threshold": [
+    "kernel -> recipient on the push path for S (episodes opened by either stream), registered subset and all rates; same join as alert_delivery_latency.py",
+    "frame lag (preview_emitted_at - window_end) p50 / p95 / p99 / max per worker, cadence gaps per worker, shared-writer waits and longest write; against pulse-peer-discount-confirm (8-10 cadence gaps per worker)",
+    "bridge: failed pushes, retries, episodes never delivered by push (previous run: 13 failed pushes, 6 of 5,181 episodes)",
+    "RCA: attack trials with a case, top-1 ranking, kernel -> case latency, cases opened by tripwire alerts, attack trials grouped after the benign case (previous runs 56/525 and 44/524; expected near 0 with the distinct path)",
+    "zombie processes under Tetragon after the run (expected 0)",
+    "recall by attack rate for A, T and S"
+  ],
+  "statistics": "Wilson 95 % CI for rates; workload-clustered bootstrap 10,000 draws for burden and paired differences; percentile p95 as in rule_comparison.py for arms, nearest rank as in alert_delivery_latency.py for delivery",
+  "not_in_this_run": "calibration self-refresh (changes the ML; needs its own confirmation), Falco, probe triage, real exploits"
+}

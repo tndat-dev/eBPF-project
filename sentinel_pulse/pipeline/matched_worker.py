@@ -282,6 +282,7 @@ def run(config_path):
         if not stop and state['completed_seconds']<cfg['seconds']:time.sleep(2)
     if exchange is not None:exchange.close()
     if status_writer is not None:status_writer.close()
+    if tripwire is not None:state['tripwire']=dict(tripwire.stats)      # final counts (checkpoints lag up to 5 s)
     if not stop:
         state.update(state='completed_capture',finished_at_unix=time.time(),automatic_promotion=False)
         atomic_json(state_path,state);atomic_json(root/'TERMINAL.json',state)

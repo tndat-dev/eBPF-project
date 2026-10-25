@@ -1,0 +1,173 @@
+{
+ "schema": "pulse-final-system-smoke-v1",
+ "run": "final-system-smoke-1025",
+ "code": "55d4673",
+ "frozen_source": "runtime-60093dd-20261024 (13 pinned scorer files byte-identical)",
+ "note": "90 s smoke of the final-system worker on the cluster, 25/10 18:12 UTC+7; tripwire reference span shortened to 30 s (+10 s grace) so that windows are judged inside the run; not a result",
+ "workers": [
+  {
+   "node": "k8s-worker1.local",
+   "state": "completed_capture",
+   "frames": 174,
+   "issues": 0,
+   "preview_positive": 12,
+   "decisions_rows": 14186,
+   "decisions_sha256_nfs": "677ac3c2dc029e8572fc598bb658fa552a0d1d3aeac4cbb43cf37173fa6fbcd7",
+   "decisions_sha256_local": "677ac3c2dc029e8572fc598bb658fa552a0d1d3aeac4cbb43cf37173fa6fbcd7",
+   "segment_seals_match": true,
+   "tripwire_status": {
+    "None": 9342,
+    "reference_pending": 3948,
+    "judged": 896
+   },
+   "tripwire_alert_rows": 0,
+   "tripwire_checkpoint_stats": {
+    "alerts": 0,
+    "judged": 728,
+    "late_reference_windows": 0,
+    "no_reference": 0,
+    "pending": 3948,
+    "reference_windows": 3774,
+    "remote_reference_windows": 2206
+   },
+   "shared_writes": {
+    "decisions.jsonl": {
+     "cache_drops": 2,
+     "lines": 13694,
+     "max_queue": 82,
+     "max_write_seconds": 0.01997945923358202,
+     "waits": 0
+    },
+    "features.jsonl": {
+     "cache_drops": 2,
+     "lines": 13695,
+     "max_queue": 37,
+     "max_write_seconds": 0.03513587638735771,
+     "waits": 0
+    }
+   },
+   "peer_exchange": {
+    "connects": 2,
+    "disconnects": 0,
+    "published": 4676,
+    "received": 6568,
+    "received_dropped": 0,
+    "sent_dropped": 0,
+    "subscribers": 2,
+    "subscribers_accepted": 2
+   }
+  },
+  {
+   "node": "k8s-worker4.local",
+   "state": "completed_capture",
+   "frames": 179,
+   "issues": 0,
+   "preview_positive": 1,
+   "decisions_rows": 5518,
+   "decisions_sha256_nfs": "f41cdc2f97351585cc6e6ec52479532b7981231642ce9fa0333799e53dd830fe",
+   "decisions_sha256_local": "f41cdc2f97351585cc6e6ec52479532b7981231642ce9fa0333799e53dd830fe",
+   "segment_seals_match": true,
+   "tripwire_status": {
+    "reference_pending": 1595,
+    "None": 3560,
+    "judged": 363
+   },
+   "tripwire_alert_rows": 0,
+   "tripwire_checkpoint_stats": {
+    "alerts": 0,
+    "judged": 352,
+    "late_reference_windows": 0,
+    "no_reference": 0,
+    "pending": 1595,
+    "reference_windows": 3774,
+    "remote_reference_windows": 3136
+   },
+   "shared_writes": {
+    "decisions.jsonl": {
+     "cache_drops": 2,
+     "lines": 5487,
+     "max_queue": 31,
+     "max_write_seconds": 0.010397758334875107,
+     "waits": 0
+    },
+    "features.jsonl": {
+     "cache_drops": 3,
+     "lines": 5488,
+     "max_queue": 18,
+     "max_write_seconds": 0.01770517509430647,
+     "waits": 0
+    }
+   },
+   "peer_exchange": {
+    "connects": 2,
+    "disconnects": 0,
+    "published": 1947,
+    "received": 9576,
+    "received_dropped": 0,
+    "sent_dropped": 0,
+    "subscribers": 2,
+    "subscribers_accepted": 2
+   }
+  },
+  {
+   "node": "k8s-worker3.local",
+   "state": "completed_capture",
+   "frames": 174,
+   "issues": 0,
+   "preview_positive": 9,
+   "decisions_rows": 14186,
+   "decisions_sha256_nfs": "3993549426c0ac6f3e89a5ad2488b4a744ef523b5b925c29751c95aa66203c97",
+   "decisions_sha256_local": "3993549426c0ac6f3e89a5ad2488b4a744ef523b5b925c29751c95aa66203c97",
+   "segment_seals_match": true,
+   "tripwire_status": {
+    "None": 9342,
+    "reference_pending": 3920,
+    "judged": 924
+   },
+   "tripwire_alert_rows": 2,
+   "tripwire_checkpoint_stats": {
+    "alerts": 1,
+    "judged": 756,
+    "late_reference_windows": 0,
+    "no_reference": 0,
+    "pending": 3920,
+    "reference_windows": 3774,
+    "remote_reference_windows": 2206
+   },
+   "shared_writes": {
+    "decisions.jsonl": {
+     "cache_drops": 2,
+     "lines": 13694,
+     "max_queue": 82,
+     "max_write_seconds": 0.022274778224527836,
+     "waits": 0
+    },
+    "features.jsonl": {
+     "cache_drops": 2,
+     "lines": 13695,
+     "max_queue": 34,
+     "max_write_seconds": 0.03269367851316929,
+     "waits": 0
+    }
+   },
+   "peer_exchange": {
+    "connects": 2,
+    "disconnects": 0,
+    "published": 4676,
+    "received": 6579,
+    "received_dropped": 0,
+    "sent_dropped": 0,
+    "subscribers": 2,
+    "subscribers_accepted": 2
+   }
+  }
+ ],
+ "benign_distinct_path_check": {
+  "container": "production/order-service:app on k8s-worker3.local",
+  "path": "/tmp/sentinel-benign-exec-control",
+  "stage": "ok",
+  "run": "exit 0, 9 iterations (benign_exec_control, 2 s)",
+  "tetragon_exec_binary": "/tmp/sentinel-benign-exec-control",
+  "cleanup": "ok"
+ }
+}
