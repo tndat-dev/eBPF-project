@@ -137,7 +137,7 @@ Ba đóng góp:
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
 | **Luận văn (tổng thể, gồm viết)** | **~90%** | Thí nghiệm ~98%; ML stable xác nhận live, cả 4 kỳ vọng và điều kiện gánh (Pulse 5.27); so sánh có/không rule xong (R6); syscall, RCA, baseline gần xong; biên nhận 22–25/10 trong repo; 7 hình + bảng | Viết chương; hình/bảng R6 |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
-| Dataset công khai (G3) | ~5% | Đang tải LID-DS 2021 (15 kịch bản lỗ hổng thật, 86,7 GB) trên `.234` | Bộ chuyển đổi sang cửa sổ 0,5 s, fit và đánh giá offline |
+| Dataset công khai (G3) | ~15% | LID-DS 2021 đã tải (15 kịch bản lỗ hổng thật, 87 GB); bộ chuyển đổi sang cửa sổ 0,5 s xong, có test | Đăng ký protocol, fit và đánh giá offline (sau lượt live), STIDE |
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
 | Artifact mở (G9) | ~65% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`); kiểm toán số liệu tự động (`scripts/audit/`, docs/AUDIT.md) | Gói tái lập, dữ liệu ẩn danh |
 | Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |

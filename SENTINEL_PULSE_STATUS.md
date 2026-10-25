@@ -79,8 +79,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live | Chưa chạy. `pulse-final-system-confirm` (hệ thống cuối, 5.28) tự khởi chạy khi tải LID-DS xong (khoảng 23:00). Lượt trước `pulse-peer-discount-confirm` xong 25/10 11:06 |
-| Job | `lid-ds-fetch` trên `.234` (tải 15 file LID-DS 2021, 86,7 GB, vào `/var/tmp/lid-ds-2021`, kiểm từng zip); launcher và chuỗi phân tích của 5.28 đang chờ |
+| Lượt live | **`pulse-final-system-confirm`** (hệ thống cuối, 5.28) chạy từ 25/10 22:05 (khởi chạy tự động khi tải LID-DS xong); capture tới khoảng 26/10 22:10 |
+| Job | `after-final-system` chờ campaign rồi capture kết thúc. LID-DS 2021 đã tải xong (15/15 file, 87 GB, `/var/tmp/lid-ds-2021` trên `.234`); chuyển đổi để sau lượt live |
 | RCA, bridge | Đã dừng sau lượt cuối; biên nhận trong repo và trên NFS |
 | Dịch vụ còn chạy | `sentinel-pulse-resolver` trên 3 worker (ánh xạ cgroup cho lượt sau), timer `tetra-orphan-reaper` |
 | Dọn tài nguyên (25/10 17:10–17:40) | Zombie về 0 trên 7 máy (Tetragon chạy với `shareProcessNamespace`); gỡ unit và config của các lượt đã xong; dọn `/var/tmp`, bản sao trùng, snapshot không dùng (chi tiết trong TODO) |
@@ -2185,4 +2185,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:10–17:40 | Dọn tài nguyên cụm khi không còn job (yêu cầu của chủ đồ án): zombie về 0 trên 7 máy (Tetragon `shareProcessNamespace`, khởi động lại container redis tại chỗ); gỡ unit và config của 4 lượt đã xong (các unit này vẫn enabled, sẽ tự chạy lại khi máy khởi động lại); dọn `/var/tmp`, bản sao trùng NFS, 3 snapshot không config nào trỏ tới. Chi tiết và những gì giữ lại có chủ đích: TODO | — |
 | 17:40–17:50 | Rà soát toàn repo: tóm tắt (mục 1), trạng thái cụm (2) và tiến độ (6) viết lại theo trạng thái cuối; kiểm toán số liệu `scripts/audit/headline_numbers.py` (31/31 số chủ chốt khớp biên nhận, chạy trong bộ test) và `literature_numbers.py` (86/87 số trích từ tài liệu có trong PDF; số còn lại là của đồ án); docs/AUDIT.md | 5.27 |
 | 18:00–18:28 | Hệ thống cuối: code (tripwire trong worker, ghi NFS nền, decision local, bridge/RCA nhận tripwire, binary vô hại đường dẫn riêng), smoke 90 s đạt, đăng ký `final-system-confirmation-v1` (18:19), launcher chờ tải LID-DS xong, chuỗi phân tích chờ | 5.28 |
+| 22:05–22:58 | `pulse-final-system-confirm` khởi chạy 22:05 (launcher, sau khi tải LID-DS xong). Sau 53 phút: 3 worker chạy, 0 issue; tripwire đang dựng tham chiếu (khoảng 382.000 cửa sổ mỗi worker, 223–318 nghìn từ peer, 0 đến muộn); ghi nền chưa phải chờ lần nào, lần ghi lâu nhất 108 ms; bridge 624/624 đợt tới qua push, 0 push lỗi; RCA đọc 625 trigger từ Alertmanager, 98 case; 0 zombie dưới Tetragon sau 18 lần xoay vòng | 5.28 |
 
