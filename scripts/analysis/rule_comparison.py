@@ -236,7 +236,8 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
     for k, dur in zip(a['ident'][normal], (a['end'] - a['start'])[normal]):
         hours[cluster_of(key_of_ident[int(k)])] += dur / 3600
     lo_c, hi_c = campaign_span
-    in_normal = lambda x: x >= normal_from and x <= float(a['end'][normal].max()) and not lo_c < x < hi_c
+    normal_end = float(a['end'][normal].max())
+    in_normal = lambda x: normal_from <= x <= normal_end and not lo_c < x < hi_c
     ml_ev, tri_ev = defaultdict(list), defaultdict(list)
     idx = np.flatnonzero(ml_alarm & normal)
     held_episodes = episodes_total = matched_episodes = 0
