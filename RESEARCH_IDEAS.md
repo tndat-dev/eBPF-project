@@ -88,7 +88,7 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 24/10 11:25)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 25/10 12:05)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
@@ -107,10 +107,10 @@ Ba đóng góp:
 | Baseline ML (G1) | ~97% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29; Holm trên 24 so sánh (24/10): mọi kết luận ở ngân sách 1 đứng vững, chỉ lật 2 hiệu tách ở ngân sách 18 (Pulse 5.15b) | Luật Falco đặt cạnh ML (phần rule, R2 đã có số; so sánh R6 sau) |
 | Phần rule, tách khỏi ML | ~45% | Falco riêng (R2); tripwire riêng đạt blind (R3); tầng triage có protocol và code (R4); thiết kế so sánh có/không rule (R6) | Chạy so sánh sau khi ML hoàn thiện; gánh tripwire trên normal dài; đường triage nhanh |
 | Overhead (G7) | ~80% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi | Kernel/distro khác; độ trễ request ứng dụng thật |
-| Kẻ tấn công chậm (G4) | ~55% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
-| Hình và bảng cho luận văn | ~75% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng tổng hợp RCA và syscall |
+| Kẻ tấn công chậm (G4) | ~60% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
+| Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng tổng hợp RCA và syscall |
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
-| **Luận văn (tổng thể, gồm viết)** | **~83%** | Thí nghiệm ~95%; lượt xác nhận và test blind 5.22 đã đọc; lượt live cuối của ML (`pulse-peer-discount-confirm`) đang chạy; biên nhận 22–24/10 trong repo; 7 hình + bảng | Kết quả lượt live cuối (25/10 ~11:00); so sánh có/không rule; viết chương |
+| **Luận văn (tổng thể, gồm viết)** | **~86%** | Thí nghiệm ~96%; ML stable đã xác nhận live (`policy-k2of2-a5-peer30`, Pulse 5.27); syscall, RCA, baseline gần xong; biên nhận 22–25/10 trong repo; 7 hình + bảng | Số gánh cảnh báo của lượt cuối (đang chạy lại); so sánh có/không rule (R6); viết chương |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
 | Dataset công khai (G3) | 0% (tạm hoãn) | | Xem lại khi viết paper |
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
