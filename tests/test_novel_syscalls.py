@@ -63,3 +63,31 @@ def test_tripwire_verdict_against_registered_criteria():
     assert not tv.verdict(slow, criteria)['passed']
     noisy = dict(good, overall=dict(attack=0.6, benign=0.2, control=0.0))
     assert tv.verdict(noisy, criteria)['checks']['benign'] is False
+
+
+def test_normal_span_judges_windows_against_the_complete_reference_and_lists_alerts(tmp_path):
+    # worker 'a' sorts first and holds only normal windows; worker 'b' holds the reference: a one-pass reader would
+    # judge a's windows before b's reference IDs are known
+    def segment(node, rows):
+        seg = tmp_path/'workers'/node/'segments'/'s00001'; seg.mkdir(parents=True); (seg/'TERMINAL.json').write_text('{}')
+        (seg/'features.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+    base = lambda node, t, ids: dict(node_name=node, pod_uid=f'pod-{node}', cgroup_id=1, container_name='app',
+                                     workload_key='w', window_start=t, window_end=t + .5, full_counts_delta=ids)
+    segment('a', [base('a', 100 + .5 * i, {'0': 1, '5': 1, **({'200': 1} if i == 10 else {}), **({'59': 1} if i == 20 else {})})
+                  for i in range(60)])
+    segment('b', [base('b', .5 * i, {'0': 1, '5': 1}) for i in range(120)])
+    camp = tmp_path/'campaign'; (camp/'trials'/'1').mkdir(parents=True)
+    t = dict(node_name='a', pod_uid='pod-a', cgroup_id=1, workload_key='w', trial_id='1:attack')
+    (camp/'trials'/'1'/'EVALUATION_INPUT.json').write_text(json.dumps(dict(
+        attack=dict(t, scenario='child_ptrace_handshake', start_at=104.0, kernel_event_at=104.2))))
+    (tmp_path/'E.json').write_text(json.dumps([59]))
+    out = tmp_path/'out.json'
+    subprocess.run([sys.executable, str(SCRIPT), '--workers-root', str(tmp_path/'workers'), '--campaign', str(camp),
+                    '--reference-span', '0:60', '--normal-span', '100:130', '--exec-set', str(tmp_path/'E.json'),
+                    '--output', str(out)], check=True, capture_output=True)
+    d = json.loads(out.read_text())
+    alerts = d['normal']['alerts']
+    assert [(x['end'], x['ids'], x['pod_uid']) for x in alerts] == [(105.5, ['200'], 'pod-a')]   # '5' known, '59' exec
+    assert d['normal']['windows_judged'] == 60 and d['normal']['alert_windows'] == 1
+    (row,) = d['trials']
+    assert row['trial_id'] == '1:attack' and row['novel'] is True and row['first_novel_end'] == 105.5

@@ -144,7 +144,8 @@ def main():
                                            containers_with_drift_alert=len(drift_containers & trial_containers),
                                            note='the drift rule sees only executables in the overlayfs upper layer'),
                   trials=per_trial,
-                  normal_events=[dict(time=e[0], container_id=e[3].get('container_id'), pod=e[3].get('k8s_pod_name'), rule=e[2])
+                  normal_events=[dict(time=e[0], container_id=e[3].get('container_id'), pod=e[3].get('k8s_pod_name'),
+                                      container_name=e[3].get('container_name'), rule=e[2])
                                  for e in normal],
                   normal=dict(window_unix=[since, until], events=len(normal), episodes=episodes,
                               episodes_by_rule=dict(rule_episodes.most_common()), top_pods=pod_episodes.most_common(5),

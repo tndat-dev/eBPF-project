@@ -17,8 +17,13 @@ end of the first window carrying one (same unit as the preview delay). ``--secon
 from the same pass, the result against a second reference (e.g. only the pre-attack selection span, the
 reference a live tripwire could have had).
 Segment files may be plain or seal-verified gzip (``features.jsonl.gz``).
+
+``--normal-span START:END`` (rule-integration-v1 amendment 2, tripwire burden on normal): every window ending in
+the span that carries a novel ID (primary reference, exec set applied) is listed under ``normal.alerts``. The
+reference is then built in a first pass over the segments that overlap the reference span, so that it is complete
+before any normal window is judged. ``trials`` lists every interval with its first novel window.
 """
-import argparse, collections, glob, gzip, json, time
+import argparse, collections, glob, gzip, json, sys, time
 from pathlib import Path
 
 import numpy as np
@@ -79,6 +84,31 @@ def evaluate(trials, windows, reference, exec_set):
                                   definition='end of first window with a novel ID - kernel_event_at'))
 
 
+def per_trial(trials, windows, reference, exec_set):
+    """One row per interval: does it carry a novel ID, and the end of its first window with one."""
+    out = []
+    for i, t in enumerate(trials):
+        ref = reference.get(t['workload'])
+        row = dict(trial_id=t.get('trial_id'), label=t['label'], scenario=t['scenario'], start=t['start'],
+                   kernel=t['kernel'], novel=None, first_novel_end=None)
+        if i in windows and ref:
+            ends = sorted(end for end, ids in windows[i] if set(ids) - ref - exec_set)
+            row.update(novel=bool(ends), first_novel_end=ends[0] if ends else None)
+        out.append(row)
+    return out
+
+
+def segment_files(workers_root):
+    for terminal in sorted(glob.glob(workers_root + '/*/segments/s*/TERMINAL.json')):
+        seg = Path(terminal).parent/'features.jsonl'
+        if seg.exists() or Path(str(seg) + '.gz').exists():
+            yield seg
+
+
+def open_features(seg):
+    return open(seg) if seg.exists() else gzip.open(str(seg) + '.gz', 'rt')
+
+
 def span(text):
     lo, hi = (float(x) for x in text.split(':'))
     return lo, hi
@@ -91,6 +121,7 @@ def main():
     p.add_argument('--reference-span', type=span, required=True, help='START:END unix seconds (attack-free)')
     p.add_argument('--secondary-reference-span', type=span, help='a second reference span evaluated in the same pass')
     p.add_argument('--exec-set', help='JSON list of syscall IDs from the exec mechanism; never novel')
+    p.add_argument('--normal-span', type=span, help='START:END: list the novel-ID windows of normal ending in it')
     p.add_argument('--output', required=True)
     a = p.parse_args()
     exec_set = {str(x) for x in json.loads(Path(a.exec_set).read_text())} if a.exec_set else set()
@@ -104,6 +135,7 @@ def main():
                 if label in d:
                     t = d[label]
                     trials.append(dict(label=label, scenario=d['attack']['scenario'], workload=t['workload_key'],
+                                       trial_id=t.get('trial_id'),
                                        ident=(t['node_name'], str(t['pod_uid']), str(t['cgroup_id'])),
                                        start=float(t['start_at']), end=float(t['start_at']) + 15,
                                        kernel=float(t['kernel_event_at']) if t.get('kernel_event_at') is not None else None))
@@ -114,31 +146,58 @@ def main():
 
     references = {name: collections.defaultdict(set) for name in spans}
     windows = collections.defaultdict(list)          # trial index -> [(window_end, IDs)]
-    rows = 0
-    for terminal in sorted(glob.glob(a.workers_root + '/*/segments/s*/TERMINAL.json')):
-        seg = Path(terminal).parent/'features.jsonl'
-        opener = (lambda: open(seg)) if seg.exists() else (lambda: gzip.open(str(seg) + '.gz', 'rt'))
-        if not seg.exists() and not Path(str(seg) + '.gz').exists():
-            continue
-        with opener() as stream:
+    alerts, normal_rows, rows = [], 0, 0
+    if a.normal_span:
+        # first pass: the reference must be complete before a normal window is judged
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+        from sentinel_pulse.syscall_study.matched_holdout import bounds
+        for seg in segment_files(a.workers_root):
+            first, last = bounds(seg)
+            if first is None or not any(lo < last and first < hi for lo, hi in spans.values()):
+                continue
+            with open_features(seg) as stream:
+                for line in stream:
+                    if '"full_counts_delta"' not in line:
+                        continue
+                    row = json.loads(line)
+                    for name, (lo, hi) in spans.items():
+                        if lo <= row['window_start'] and float(row['window_end']) <= hi:
+                            references[name][row['workload_key']].update(row['full_counts_delta'])
+    for seg in segment_files(a.workers_root):
+        with open_features(seg) as stream:
             for line in stream:
                 if '"full_counts_delta"' not in line:
                     continue
                 row = json.loads(line); end = float(row['window_end']); rows += 1
-                for name, (lo, hi) in spans.items():
-                    if lo <= row['window_start'] and end <= hi:
-                        references[name][row['workload_key']].update(row['full_counts_delta'])
+                if not a.normal_span:
+                    for name, (lo, hi) in spans.items():
+                        if lo <= row['window_start'] and end <= hi:
+                            references[name][row['workload_key']].update(row['full_counts_delta'])
                 if t_lo <= end <= t_hi:
                     for i in by_ident.get((row['node_name'], str(row['pod_uid']), str(row['cgroup_id'])), ()):
                         if trials[i]['start'] <= row['window_start'] and end <= trials[i]['end']:
                             windows[i].append((end, tuple(row['full_counts_delta'])))
+                if a.normal_span and a.normal_span[0] <= end <= a.normal_span[1]:
+                    ref = references['primary'].get(row['workload_key'])
+                    if ref is None:
+                        continue
+                    normal_rows += 1
+                    novel = set(row['full_counts_delta']) - ref - exec_set
+                    if novel:
+                        alerts.append(dict(end=end, node_name=row['node_name'], pod_uid=str(row['pod_uid']),
+                                           container_name=row.get('container_name'), workload=row['workload_key'],
+                                           ids=sorted(novel, key=int)))
 
     primary = evaluate(trials, windows, references['primary'], exec_set)
     result = dict(schema='pulse-novel-syscall-hypothesis-v1', workers_root=a.workers_root, campaigns=a.campaign,
                   reference_span_unix=list(a.reference_span), feature_rows_read=rows, **primary,
                   exec_set=sorted(exec_set, key=int),
                   note='development; syscall IDs are x86-64 numbers; a novel ID is absent from the workload reference set',
+                  trials=per_trial(trials, windows, references['primary'], exec_set),
                   computed_at_unix=time.time())
+    if a.normal_span:
+        result['normal'] = dict(span_unix=list(a.normal_span), windows_judged=normal_rows, alert_windows=len(alerts),
+                                alerts=alerts)
     if 'secondary' in spans:
         result['secondary'] = dict(reference_span_unix=list(spans['secondary']),
                                    **evaluate(trials, windows, references['secondary'], exec_set))
