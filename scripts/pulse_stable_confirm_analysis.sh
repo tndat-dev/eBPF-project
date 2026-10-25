@@ -16,6 +16,7 @@ set -uo pipefail
 SRC=${SRC:?source snapshot}
 STAGE=${STAGE:?campaign or final}
 RUN=${RUN:-/mnt/sentinel-pulse-archive/pulse-stable-confirm}
+NAME=$(basename "$RUN")   # window table and blind-test run name follow RUN (fixed 25/10: was pinned to pulse-stable-confirm)
 CAMPAIGN=$RUN/pulse-development-matrix
 OUT=${OUT:-$RUN/analysis}
 RCA=${RCA:-/var/lib/sentinel-pulse-rca/rca-$(basename "$RUN")}
@@ -52,11 +53,11 @@ fi
 for node in "${NODES[@]}"; do test -f "$RUN/workers/$node/TERMINAL.json" || exit 1; done
 roots=(); for node in "${NODES[@]}"; do roots+=(--worker-root "$RUN/workers/$node"); done
 mkdir -p "$B"
-[ -f "$B/table-pulse-stable-confirm.npz" ] || try runuser -u dat -- env PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 $PY -u \
+[ -f "$B/table-$NAME.npz" ] || try runuser -u dat -- env PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1 $PY -u \
   -m sentinel_pulse.attack.window_table "${roots[@]}" --model-hash "$(cfg model_hash)" --policy-hash "$(cfg policy_hash)" \
-  --since "$SELECTION_START" --output "$B/table-pulse-stable-confirm.npz"
+  --since "$SELECTION_START" --output "$B/table-$NAME.npz"
 try $PY "$SRC/scripts/analysis/burden_blind_test.py" \
-  --run "name=pulse-stable-confirm,table=$B/table-pulse-stable-confirm.npz,since=$SELECTION_START,campaign=$CAMPAIGN" \
+  --run "name=$NAME,table=$B/table-$NAME.npz,since=$SELECTION_START,campaign=$CAMPAIGN" \
   --calibration "$REFRESHED" --calibration-table "$B/cal-pulse-live-recalibrated.npz" \
   --ml-results /mnt/sentinel-pulse-archive/pulse-stable-refreshed/analysis/burden-levers.json --live-rule "${LIVE_RULE:-stable}" \
   --output "$OUT/burden-blind-test.json"
