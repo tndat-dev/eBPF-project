@@ -61,8 +61,8 @@ TEXT = {
                d_recall='Δ recall (điểm %)', d_sep='Δ tách binary vô hại (điểm %)', d_p95='Δ p95 (s)',
                recipient='Độ trễ kernel → người nhận (s, thang log)', delivered='Trial attack có cảnh báo mới (%)',
                preview_ref='kernel → preview (tham chiếu)', push='push vào Alertmanager', pull_fast='Prometheus pull nhanh',
-               pull_default='Prometheus pull mặc định', refreshed='calib. mới', blind='test blind',
-               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(tham chiếu)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(đạt test blind)'), strict='chỉ đợt mở từ cửa sổ trong trial',
+               pull_default='Prometheus pull mặc định', refreshed='calib. mới', blind='test blind', live_run='live, xác nhận',
+               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(tham chiếu)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(stable từ 25/10)'), strict='chỉ đợt mở từ cửa sổ trong trial',
                groups=dict(tree='chỉ nhánh tree', support='chỉ nhánh support', bins_only='chỉ bin (bỏ kênh syscall)',
                            drop_aggregates='bỏ 5 tổng hợp', drop_all_bins='bỏ mọi bin', drop_transition_bins='bỏ bin cặp',
                            drop_rolling='bỏ rolling', history1='lịch sử 1 cửa sổ', history2='lịch sử 2 cửa sổ',
@@ -76,8 +76,8 @@ TEXT = {
                d_recall='Δ recall (points)', d_sep='Δ benign separation (points)', d_p95='Δ p95 (s)',
                recipient='Kernel → recipient delay (s, log scale)', delivered='Attack trials with a new alert (%)',
                preview_ref='kernel → preview (reference)', push='Alertmanager push', pull_fast='Prometheus pull, fast',
-               pull_default='Prometheus pull, default', refreshed='refreshed calib.', blind='blind test',
-               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(reference)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(passes the blind test)'), strict='episodes opened inside the trial only',
+               pull_default='Prometheus pull, default', refreshed='refreshed calib.', blind='blind test', live_run='live confirmation',
+               levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(reference)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(stable since 25/10)'), strict='episodes opened inside the trial only',
                groups=dict(tree='tree branch only', support='support branch only', bins_only='bins only (no syscall channels)',
                            drop_aggregates='drop 5 aggregates', drop_all_bins='drop all bins', drop_transition_bins='drop pair bins',
                            drop_rolling='drop rolling', history1='history 1 window', history2='history 2 windows',
@@ -300,27 +300,33 @@ def fig_burden(out, t):
         series.append((run, {k: (cap[run]['cusum_b3_h6_cap']['burden'] if k == 'cap' else dev[run][names[k]]['burden'])
                              for k in order}))
     series.append((f"pulse-stable-confirm ({t['blind']})", {k: blind['metrics'][blind_key[k]]['burden'] for k in blind_key}))
-    fig, ax = plt.subplots(figsize=(7.4, 4.2))
+    final = load(EV/'results-20261025/pulse-peer-discount-confirm/burden-blind-test.json')
+    last = {k: final['metrics'][{**blind_key, 'k2of2': 'k2of2_a10'}[k]]['burden'] for k in order}
+    last['le3s'] = final['live']['burden_live_previews']          # what the run alerted on (equals the recomputation)
+    series.append((f"pulse-peer-discount-confirm ({t['live_run']})", last))
+    fig, ax = plt.subplots(figsize=(7.8, 4.8))
     y = np.arange(len(order))[::-1]
+    off = lambda i: (1.5 - i) * 0.15
+    cis = {(2, 'cap'): blind['burden_ci']['stable']['ci95'], (3, 'le3s'): final['live']['burden_live_ci']['ci95']}
+    for (i, k), (lo, hi) in cis.items():
+        ax.plot([lo, hi], [y[order.index(k)] + off(i)] * 2, color=SERIES[i], lw=2, solid_capstyle='round')
     for i, (name, values) in enumerate(series):
-        off = (1 - i) * 0.18
         xs = [values.get(k) for k in order]
-        ax.plot([v for v in xs if v is not None], [yy + off for yy, v in zip(y, xs) if v is not None], MARKERS[i],
+        ax.plot([v for v in xs if v is not None], [yy + off(i) for yy, v in zip(y, xs) if v is not None], MARKERS[i],
                 color=SERIES[i], ms=7, mec=SURFACE, mew=1, ls='none', label=name)
-        if i == 2:
-            for yy, v in zip(y, xs):
+        if i >= 2:                  # the two low-contrast colours carry their values (validator WARN)
+            for k, yy, v in zip(order, y, xs):
                 if v is not None:
-                    ax.annotate(f'{v:.2f}', (v, yy + off), textcoords='offset points', xytext=(0, -12), ha='center',
-                                va='center', fontsize=8, color=INK)
-    ci = blind['burden_ci']['stable']['ci95']
-    ax.plot(ci, [y[order.index('cap')] - 0.18] * 2, color=SERIES[2], lw=2, solid_capstyle='round')
+                    at = cis[(i, k)][1] if (i, k) in cis else v
+                    ax.annotate(f'{v:.2f}', (at, yy + off(i)), textcoords='offset points', xytext=(8, 0), ha='left',
+                                va='center', fontsize=7.5, color=INK)
     ax.axvline(0.1, color=INK2, lw=1, ls='--')
     ax.annotate(f"{t['budget']} 0,1" if t is TEXT['vi'] else f"{t['budget']} 0.1", (0.1, y[0] + 0.45), textcoords='offset points',
                 xytext=(4, 0), fontsize=8, color=INK2)
     ax.set_yticks(y); ax.set_yticklabels([t['levers'][k] for k in order], fontsize=8.5)
     ax.set_xlim(0, 8.5); ax.set_ylim(-0.6, len(order) - 0.2); ax.grid(axis='y', visible=False)
     ax.set_xlabel(t['burden'])
-    ax.legend(loc='lower right', fontsize=8)
+    ax.legend(loc='center left', bbox_to_anchor=(0.03, 0.58), fontsize=8)
     fig.tight_layout(); save(fig, out, 'burden-levers')
 
 

@@ -10,4 +10,8 @@ Lượt xác nhận chính sách `policy-k2of2-a5-peer30` (chiết khấu theo r
 | `pulse-peer-discount-confirm/delivery-latency-campaign.json` | RCA 5.14 / Pulse 5.27: kernel → người nhận theo đường cảnh báo (`--since` = lúc bridge khởi động) | `scripts/analysis/alert_delivery_latency.py` (`97412a2`, bỏ qua trial lỗi hạ tầng) | `$A/alert-bridge/` |
 | `alert-bridge/episodes.jsonl.gz`, `deliveries.jsonl.gz`, `pushes.jsonl.gz`, `issues.jsonl`, `STATUS.json`, `START.json` | Đường cảnh báo vận hành của cả lượt | `python3 -m sentinel_pulse.ops.alert_bridge` (`60093dd`); gzip mtime 0; `START.json` bỏ đường dẫn credential | `$A/alert-bridge/` |
 
-Giai đoạn final (bảng cửa sổ, gánh cảnh báo, test kiểm cài đặt, lý do nghi phạm, phân loại cảnh báo, khoảng hở nhịp chấm) đang chạy lại bằng code đã sửa (`0a173f8`, unit `final-peer-discount-confirm-rerun`); sẽ thêm khi xong.
+| `pulse-peer-discount-confirm/burden-blind-test.json` | Pulse 5.27: gánh cảnh báo live và của các luật tính lại trên cùng bảng cửa sổ, kiểm cài đặt (`--live-rule le3s`) | `scripts/pulse_stable_confirm_analysis.sh` `STAGE=final` chạy lại bằng `0a173f8` (unit `final-peer-discount-confirm-rerun`, 25/10 11:52–12:46): `window_table` rồi `burden_blind_test.py` | `$A/analysis/`; bảng cửa sổ `/var/tmp/burden-levers/table-pulse-peer-discount-confirm.npz` trên `.234` |
+| `pulse-peer-discount-confirm/rca-suspect-reasons.json`, `alarm-taxonomy.json`, `cadence-gaps.json`, `rca-status-final.json` | RCA 5.16, Pulse 5.27 (cùng lần chạy lại) | như trên | `$A/analysis/` |
+| `pulse-peer-discount-confirm/replicas-{aims-kafka-dual-role,aims-postgres-cnpg,inventory-service}.json` | Pulse 5.27: so sánh replica ngoài khoảng campaign | `scripts/analysis/replica_compare.py --exclude <attack_not_before − 60>,<trial cuối + 20>` | `$A/analysis/` |
+
+Lần final đầu (snapshot `60093dd`) dùng nhầm bảng cửa sổ của lượt trước vì tên bảng gắn cứng (sửa ở `0a173f8`); các file trên là của lần chạy lại.

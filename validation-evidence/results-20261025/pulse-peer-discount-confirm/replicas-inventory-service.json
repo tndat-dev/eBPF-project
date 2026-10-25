@@ -1,0 +1,201 @@
+{
+ "schema": "pulse-replica-compare-v1",
+ "workload": "production/inventory-service:app",
+ "excluded": [
+  [
+   1792819721.0261967,
+   1792862815.136482
+  ]
+ ],
+ "table_built_at_unix": 1792907103.3280878,
+ "replicas": {
+  "k8s-worker3.local/4d96628e": {
+   "identity": {
+    "workload_key": "production/inventory-service:app",
+    "node_name": "k8s-worker3.local",
+    "pod_uid": "4d96628e-3d2d-41c6-99ad-6857f975a757",
+    "container_name": "app",
+    "workload_revision": "695bf6f445",
+    "cgroup_id": "11781355"
+   },
+   "windows": 83112,
+   "launch_share": 0.4684642410241602,
+   "tree_p": {
+    "p05": 0.005724225393107367,
+    "p25": 0.045313896839201936,
+    "p50": 0.07824032044574114,
+    "p75": 0.13625874053181242
+   },
+   "support_p": {
+    "p05": 0.017824101345123668,
+    "p25": 0.13393717212177492,
+    "p50": 0.403239107686124,
+    "p75": 0.6864843138206086
+   },
+   "joint_p": {
+    "p05": 0.011185108697911974,
+    "p25": 0.08436648902625798,
+    "p50": 0.1489546012099876,
+    "p75": 0.2581029667565264
+   },
+   "flagged": {
+    "n": 83112,
+    "share": 0.0022981037635961114
+   },
+   "flagged_launch": {
+    "n": 38935,
+    "share": 0.0025683832027738537
+   },
+   "flagged_no_launch": {
+    "n": 44177,
+    "share": 0.0020598954206940264
+   },
+   "preview_share": 0.00022860718067186446,
+   "flagged_smaller_branch": {
+    "tree": 167,
+    "support": 24
+   }
+  },
+  "k8s-worker3.local/a786afb7": {
+   "identity": {
+    "workload_key": "production/inventory-service:app",
+    "node_name": "k8s-worker3.local",
+    "pod_uid": "a786afb7-f9c9-4568-b2ab-1f47f4a968af",
+    "container_name": "app",
+    "workload_revision": "695bf6f445",
+    "cgroup_id": "11751484"
+   },
+   "windows": 83112,
+   "launch_share": 0.46509529309846953,
+   "tree_p": {
+    "p05": 0.005433163084983264,
+    "p25": 0.044941406385352635,
+    "p50": 0.07407535741758432,
+    "p75": 0.12455387771225025
+   },
+   "support_p": {
+    "p05": 0.015862895792763638,
+    "p25": 0.13554494487141283,
+    "p50": 0.3914233639872764,
+    "p75": 0.6773227811696547
+   },
+   "joint_p": {
+    "p05": 0.010264104394347849,
+    "p25": 0.08006985495394979,
+    "p50": 0.138850581085108,
+    "p75": 0.233598292434459
+   },
+   "flagged": {
+    "n": 83112,
+    "share": 0.0025868707286553086
+   },
+   "flagged_launch": {
+    "n": 38655,
+    "share": 0.0031043849437330227
+   },
+   "flagged_no_launch": {
+    "n": 44457,
+    "share": 0.0021368963267876825
+   },
+   "preview_share": 0.0002526710944267976,
+   "flagged_smaller_branch": {
+    "tree": 160,
+    "support": 55
+   }
+  },
+  "k8s-worker1.local/b41ce3d7": {
+   "identity": {
+    "workload_key": "production/inventory-service:app",
+    "node_name": "k8s-worker1.local",
+    "pod_uid": "b41ce3d7-5598-454e-ace2-6397160b45ec",
+    "container_name": "app",
+    "workload_revision": "695bf6f445",
+    "cgroup_id": "3846336"
+   },
+   "windows": 82930,
+   "launch_share": 0.46670686120824795,
+   "tree_p": {
+    "p05": 0.006091518305740165,
+    "p25": 0.02212073541743186,
+    "p50": 0.03253660801530156,
+    "p75": 0.044905023596837124
+   },
+   "support_p": {
+    "p05": 0.01609470613101962,
+    "p25": 0.06397133729270472,
+    "p50": 0.13083943755673982,
+    "p75": 0.13214921794329829
+   },
+   "joint_p": {
+    "p05": 0.01183653386371354,
+    "p25": 0.041441728632908056,
+    "p50": 0.06266155690614626,
+    "p75": 0.08681972848044685
+   },
+   "flagged": {
+    "n": 82930,
+    "share": 0.0027613650066320994
+   },
+   "flagged_launch": {
+    "n": 38704,
+    "share": 0.0036430343116990492
+   },
+   "flagged_no_launch": {
+    "n": 44226,
+    "share": 0.0019897797675575454
+   },
+   "preview_share": 0.0002894006993850235,
+   "flagged_smaller_branch": {
+    "tree": 138,
+    "support": 91
+   }
+  },
+  "k8s-worker1.local/c508a65e": {
+   "identity": {
+    "workload_key": "production/inventory-service:app",
+    "node_name": "k8s-worker1.local",
+    "pod_uid": "c508a65e-b967-493a-9f99-60e5189f0ea0",
+    "container_name": "app",
+    "workload_revision": "695bf6f445",
+    "cgroup_id": "3847403"
+   },
+   "windows": 82930,
+   "launch_share": 0.4706258290124201,
+   "tree_p": {
+    "p05": 0.0024424978690081,
+    "p25": 0.01629948925494979,
+    "p50": 0.024172031684211257,
+    "p75": 0.034192891149626814
+   },
+   "support_p": {
+    "p05": 0.020589193272302648,
+    "p25": 0.06399905751252608,
+    "p50": 0.1308325075017845,
+    "p75": 0.13214921794329829
+   },
+   "joint_p": {
+    "p05": 0.0048849957380162,
+    "p25": 0.03241879708106085,
+    "p50": 0.047858959521549005,
+    "p75": 0.0671799527370252
+   },
+   "flagged": {
+    "n": 82930,
+    "share": 0.0031834076932352588
+   },
+   "flagged_launch": {
+    "n": 39029,
+    "share": 0.0030490148351226013
+   },
+   "flagged_no_launch": {
+    "n": 43901,
+    "share": 0.003302886039042391
+   },
+   "preview_share": 8.440853732063186e-05,
+   "flagged_smaller_branch": {
+    "tree": 264,
+    "support": 0
+   }
+  }
+ }
+}

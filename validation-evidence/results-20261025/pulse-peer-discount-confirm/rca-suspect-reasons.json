@@ -1,0 +1,42 @@
+{
+ "schema": "rca-suspect-reasons-v1",
+ "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-peer-discount-confirm/cases",
+ "campaign": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/pulse-development-matrix",
+ "stats": {
+  "campaign_span": 1362,
+  "normal_cases": 575,
+  "top_novel_or_unknown": 55,
+  "without_suspect": 119
+ },
+ "share_top_novel_or_unknown": 0.1206140350877193,
+ "top_reasons": {
+  "started_in_window": 0.7412280701754386,
+  "spawned_children": 0.4934210526315789,
+  "unknown_binary": 0.1206140350877193,
+  "privilege_drop_at_start": 0.06798245614035088,
+  "failed_syscall": 0.017543859649122806
+ },
+ "binaries_behind_novel_or_unknown": [
+  [
+   "/usr/lib/jvm/java-21-openjdk-21.0.11.0.10-2.el9.x86_64/bin/java",
+   51
+  ],
+  [
+   "/usr/local/bin/uvicorn",
+   1
+  ],
+  [
+   "/usr/bin/dash",
+   1
+  ],
+  [
+   "/bin/sh",
+   1
+  ],
+  [
+   "/usr/local/bin/node",
+   1
+  ]
+ ],
+ "computed_at_unix": 1792907179.021568
+}

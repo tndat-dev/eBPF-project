@@ -52,7 +52,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | Đợt cảnh báo trên normal | ≤ 0,1/giờ | 6,74 đợt/replica-giờ (final, 5.13b) | 6,5 (replay, calibration làm mới) |
 
   Đây là lần đầu đạt cả 4 kỳ vọng campaign trên một lượt live mới, ở mức độ trễ ≤ 3 s. Gánh cảnh báo vẫn xa ngân sách. Sau final, luật thời gian được chọn lại theo luật đăng ký trước: CUSUM chặn trần (5.19).
-- **ML stable mới (25/10, Pulse 5.27):** base29 + calibration làm mới + **k2of2 α×5 với chiết khấu theo replica 30 s**, chính sách `policy-k2of2-a5-peer30` (`f64c31c0…`). Lượt xác nhận `pulse-peer-discount-confirm` đạt 4 kỳ vọng ở mức ≤ 3 s: recall 98,7%, precision 98,7%, control 1,3%, p95 2,88 s; binary vô hại 86,1%. Đánh đổi: recall ở 1/s còn 80,8%.
+- **ML stable mới (25/10, Pulse 5.27):** base29 + calibration làm mới + **k2of2 α×5 với chiết khấu theo replica 30 s**, chính sách `policy-k2of2-a5-peer30` (`f64c31c0…`). Lượt xác nhận `pulse-peer-discount-confirm` đạt 4 kỳ vọng ở mức ≤ 3 s: recall 98,7%, precision 98,7%, control 1,3%, p95 2,88 s; binary vô hại 86,1%. Gánh cảnh báo live 1,69 đợt/replica-giờ, giảm 63% so với CUSUM `keep` và 72% so với stable cũ trên cùng dữ liệu. Đánh đổi: recall ở 1/s còn 80,8%.
 - **ML stable trước đó (22/10 22:48 → 25/10, Pulse 5.19 + bổ sung 1):** base29 + calibration làm mới + **CUSUM drift 3, ngưỡng 6, chặn trần S (`cap`)**, chính sách `policy-cusum-b3-h6-cap` (`93dd1478…`).
   - Trên luồng liên tục của `pulse-stable-refreshed`: recall 100%, precision 96,9%, control 3,2%, p95 2,05 s (mức ≤ 3 s), 6,07 đợt/replica-giờ (k2of2: 6,74).
   - Bản CUSUM đầu tiên (không chặn trần) bị bỏ trước khi chạy live, vì alarm kéo dài sang trial sau (control 5,7%).
@@ -1579,7 +1579,24 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 - **Đường cảnh báo vận hành** (RCA 5.14, bridge, trial từ lúc bridge chạy): push tới người nhận ở 309/315 trial của tập chính, p50 1,03 s, **p95 3,17 s**; chỉ 2 trial gặp container đang báo sẵn (lượt trước 14) và 1 đợt mở từ cửa sổ vắt qua lúc tiêm (lượt trước 67). Mọi tốc độ: 493/524, p95 3,91 s. Bridge có 13 lần đẩy Alertmanager thất bại.
 - **Một trial mất vì lỗi hạ tầng:** SSH đọc tail decision từ worker4 lỗi (exit 255); attack và control của trial đó là `unknown`.
 - **Lỗi của mình ở phân tích sau lượt:** giai đoạn final dùng lại bảng cửa sổ của lượt trước, vì tên bảng gắn cứng `table-pulse-stable-confirm.npz`, nên test gánh lỗi chia cho 0. Đã sửa (`0a173f8`) và chạy lại giai đoạn final bằng code đã sửa (unit `final-peer-discount-confirm-rerun`, 25/10 11:52). Phần campaign và RCA không bị ảnh hưởng.
-- **Gánh cảnh báo và kiểm cài đặt:** chờ bảng cửa sổ (dự kiến khoảng 12:50).
+- **Gánh cảnh báo trên toàn normal** (bảng cửa sổ dựng lại, 806,6 replica-giờ, khoảng campaign loại ra; CI bootstrap theo workload). Điều kiện đăng ký: gánh live ≤ 0,9 lần cả CUSUM `keep` và CUSUM `cap` → **đạt**:
+
+  | Luật trên cùng dữ liệu | Đợt/replica-giờ (CI 95%) | Gánh live / luật này |
+  |---|---|---|
+  | **Preview live `policy-k2of2-a5-peer30`** | **1,69** [0,52; 3,85] | — |
+  | CUSUM b3/h6 `keep` (tham chiếu `burden-reduction-v1`), tính lại | 4,52 [3,70; 5,39] | **0,37** (−63%) |
+  | CUSUM b3/h6 `cap` (stable cũ), tính lại | 6,10 [4,35; 8,29] | **0,28** (−72%) |
+  | k2of2 α×10 (chỉ báo cáo), tính lại | 6,62 [5,07; 8,41] | 0,26 |
+
+  - Vẫn gấp khoảng 17 lần ngân sách 0,1/giờ. CI rộng vì phần lớn gánh còn lại tập trung ở vài workload (bên dưới).
+  - Chiết khấu áp lên 93,7% cửa sổ normal (`novel_peer30 = 0`).
+- **Kiểm cài đặt (đăng ký ≥ 0,999): đạt.** Preview live khớp luật tính lại offline ở **99,9999%** cửa sổ (11,09 triệu). Chênh 14 cửa sổ, cả 14 đều là live báo còn bản tính lại không (28.000 cửa sổ live dương); ngược lại 0. Đúng hướng hỏng đã thiết kế: cửa sổ của peer tới muộn thì chiết khấu ít đi, nên báo nhiều hơn. p-value tính lại trùng 100% lúc chạy.
+- **So sánh replica ngoài khoảng campaign** (`replicas-*.json`):
+  - postgres worker1 (`cnpg-2` dựng lại 24/10): preview 0,00%, p-value như hai replica kia. Sửa replica có tác dụng;
+  - kafka worker1: vẫn lệch hệ thống (trung vị `tree_p` / `support_p` 0,05 / 0,03). Chiết khấu đưa preview từ 46,5% xuống 4,25%, nhưng vẫn gấp 70–80 lần hai broker kia (0,05–0,06%). Đây là nguồn gánh lớn nhất còn lại; calibration theo replica hoặc dựng lại broker là việc tiếp;
+  - inventory: 0,01–0,03% ở cả 4 replica (lượt trước replica lệch nhất 14,8%).
+- **Khoảng hở nhịp chấm cả lượt:** 8 / 9 / 10 lần (worker1 / worker4 / worker3), lượt trước 1 lần mỗi worker. Giả thuyết page cache chạm `MemoryMax` (5.26) vẫn chưa kiểm.
+- Biên nhận final: `burden-blind-test.json`, `alarm-taxonomy.json`, `rca-suspect-reasons.json`, `cadence-gaps.json`, `rca-status-final.json`, `replicas-*.json` trong `results-20261025/pulse-peer-discount-confirm/` (unit `final-peer-discount-confirm-rerun`, code `0a173f8`).
 
 ### 5.26 Chiết khấu theo replica trong đường live và lượt xác nhận `pulse-peer-discount-confirm` (24/10; protocol `peer-discount-confirmation-v1`)
 
@@ -2132,3 +2149,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | Giờ | Việc | Mục |
 |---|---|---|
 | 11:50–12:05 | Lượt `pulse-peer-discount-confirm` xong (3 worker success). Campaign **xác nhận** ở mức ≤ 3 s (recall 98,7%, precision 98,7%, control 1,3%, p95 2,88 s): `policy-k2of2-a5-peer30` thành ML stable. Final lỗi vì bảng cửa sổ gắn cứng tên lượt cũ: sửa, chạy lại. Log Falco lên NFS, bridge dừng, độ trễ kernel → người nhận (push p95 3,17 s), biên nhận campaign vào repo; hình 5 lượt live | 5.27 |
+| 12:46–13:05 | Final chạy lại xong: gánh live 1,69 đợt/replica-giờ, bằng 0,37 lần CUSUM `keep` và 0,28 lần CUSUM `cap` (điều kiện gánh **đạt**); kiểm cài đặt 99,9999% (đạt); kafka worker1 vẫn lệch nhưng preview 46,5% → 4,25%; postgres `cnpg-2` bình thường. Dừng subscriber RCA; hình gánh cảnh báo thêm lượt live | 5.27 |

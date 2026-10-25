@@ -1,0 +1,47 @@
+{
+  "schema": "matched-worker-issues-v1",
+  "workers_root": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/workers",
+  "nodes": {
+    "k8s-worker1.local": {
+      "hourly": {
+        "2026-10-24 17:00 UTC+7": 1,
+        "2026-10-24 18:00 UTC+7": 3,
+        "2026-10-24 20:00 UTC+7": 1,
+        "2026-10-25 08:00 UTC+7": 1,
+        "2026-10-25 09:00 UTC+7": 2
+      },
+      "reasons": {
+        "cadence_gap": 8
+      }
+    },
+    "k8s-worker3.local": {
+      "hourly": {
+        "2026-10-24 16:00 UTC+7": 2,
+        "2026-10-24 17:00 UTC+7": 1,
+        "2026-10-24 21:00 UTC+7": 2,
+        "2026-10-24 22:00 UTC+7": 1,
+        "2026-10-24 23:00 UTC+7": 1,
+        "2026-10-25 02:00 UTC+7": 1,
+        "2026-10-25 07:00 UTC+7": 1,
+        "2026-10-25 08:00 UTC+7": 1
+      },
+      "reasons": {
+        "cadence_gap": 10
+      }
+    },
+    "k8s-worker4.local": {
+      "hourly": {
+        "2026-10-24 15:00 UTC+7": 2,
+        "2026-10-24 17:00 UTC+7": 1,
+        "2026-10-24 18:00 UTC+7": 3,
+        "2026-10-24 20:00 UTC+7": 1,
+        "2026-10-24 22:00 UTC+7": 1,
+        "2026-10-24 23:00 UTC+7": 1
+      },
+      "reasons": {
+        "cadence_gap": 9
+      }
+    }
+  },
+  "computed_at_unix": 1792907190.8328383
+}
