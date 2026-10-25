@@ -138,6 +138,37 @@ def test_push_worker_posts_to_the_alertmanager_v2_api_and_records_the_first_push
     assert ep['first_push_at'] is not None and bridge.counters['pushes_ok'] == 1
 
 
+def test_push_worker_retries_a_failed_episode_push(tmp_path):
+    received = []
+
+    class Alertmanager(BaseHTTPRequestHandler):
+        def do_POST(self):
+            received.append(json.loads(self.rfile.read(int(self.headers['Content-Length']))))
+            self.send_response(503 if len(received) == 1 else 200)       # first attempt fails
+            self.send_header('Content-Length', '0'); self.end_headers()
+
+        def log_message(self, format, *args):
+            pass
+
+    server = ThreadingHTTPServer(('127.0.0.1', 0), Alertmanager)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    bridge, stop = Bridge(CFG, tmp_path), threading.Event()
+    ep = bridge.ingest(row(100.0), 100.3)
+    worker = threading.Thread(target=push_worker, args=(bridge, f'http://127.0.0.1:{server.server_address[1]}', stop))
+    worker.start()
+    try:
+        deadline = time.time() + 5
+        while ep['first_push_at'] is None and time.time() < deadline:
+            time.sleep(0.02)
+    finally:
+        stop.set(); worker.join(); server.shutdown()
+    assert len(received) == 2 and received[0] == received[1]
+    assert ep['first_push_at'] is not None
+    assert [bridge.counters[k] for k in ('pushes_failed', 'pushes_retried', 'pushes_ok')] == [1, 1, 1]
+    issue = json.loads((tmp_path/'issues.jsonl').read_text())
+    assert issue['episode'] == ep['episode'] and issue['attempt'] == 1 and issue['retry'] is True
+
+
 def test_worker_follower_prints_only_positive_rows_from_the_newest_segment(tmp_path):
     seg = tmp_path/'segments'/'s00001'; seg.mkdir(parents=True)
     log = seg/'decisions.jsonl'

@@ -18,7 +18,7 @@ service with ``alert_trigger_file`` builds its case from that operational alert 
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
+from collections import defaultdict, deque
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -38,6 +38,7 @@ from ..rca.tree import case_id, identity, trigger_kind
 NEEDLE = '"candidate_alert_preview":true'
 ALERTNAMES = ('SentinelPulseAnomaly', 'SentinelPulseAnomalyPull')
 BUCKETS = (0.25, 0.5, 1, 1.5, 2, 3, 5, 10, 20, 30, 45, 60, 90, 120)
+PUSH_ATTEMPTS, PUSH_RETRY_SECONDS = 3, 0.5
 
 # Runs on the worker: follow the newest decision segment from its end, print only the lines holding the needle.
 FOLLOWER = r'''
@@ -161,8 +162,8 @@ class Bridge:
                     self.log('episodes', dict(event='end', episode=ep['episode'], ended_at=now, rows=ep['rows'],
                                               last_window_end=ep['last_window_end']))
                 elif now - ep['last_push'] >= self.refresh:
-                    ep['last_push'] = now
-                    self.pushes.put((None, [self.alert(ep, ep['last_seen'] + 3 * self.refresh)]))
+                    ep['last_push'] = now           # a refresh also counts as the first push if the start push failed
+                    self.pushes.put((ep['episode'], [self.alert(ep, ep['last_seen'] + 3 * self.refresh)]))
             for eid, ep in list(self.episodes.items()):
                 if ep['ended_at'] is not None and now - ep['ended_at'] > 3600:
                     del self.episodes[eid]
@@ -239,11 +240,20 @@ class Bridge:
 
 
 def push_worker(bridge: Bridge, url, stop: threading.Event):
+    """POST each queued alert; a failed push of an episode alert is tried again (``PUSH_ATTEMPTS`` in all,
+    ``PUSH_RETRY_SECONDS`` apart). An episode shorter than the refresh period has no other push before it resolves:
+    on pulse-peer-discount-confirm 13 pushes timed out (3 s) and 6 of 5,181 episodes never arrived by push (25/10)."""
+    retries = deque()                                   # (due, episode, alerts, attempt), due in order
     while not stop.is_set():
-        try:
-            episode, alerts = bridge.pushes.get(timeout=0.5)
-        except queue.Empty:
-            continue
+        if retries and retries[0][0] <= time.time():
+            _, episode, alerts, attempt = retries.popleft()
+        else:
+            wait = 0.5 if not retries else min(0.5, max(0.01, retries[0][0] - time.time()))
+            try:
+                episode, alerts = bridge.pushes.get(timeout=wait)
+            except queue.Empty:
+                continue
+            attempt = 1
         request = urllib.request.Request(url.rstrip('/') + '/api/v2/alerts', data=json.dumps(alerts).encode(),
                                          headers={'Content-Type': 'application/json'}, method='POST')
         try:
@@ -254,9 +264,15 @@ def push_worker(bridge: Bridge, url, stop: threading.Event):
             with bridge.lock:
                 bridge.count('pushes_ok')
         except OSError as error:
+            retry = bool(episode) and attempt < PUSH_ATTEMPTS
             with bridge.lock:
                 bridge.count('pushes_failed')
-            bridge.log('issues', dict(at=time.time(), issue='push_failed', error=str(error)[:200]))
+                if retry:
+                    bridge.count('pushes_retried')
+            bridge.log('issues', dict(at=time.time(), issue='push_failed', error=str(error)[:200], episode=episode,
+                                      attempt=attempt, retry=retry))
+            if retry:
+                retries.append((time.time() + PUSH_RETRY_SECONDS, episode, alerts, attempt + 1))
 
 
 def serve(bridge: Bridge, host, port):
