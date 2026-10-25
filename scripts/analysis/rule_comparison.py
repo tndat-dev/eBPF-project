@@ -327,17 +327,28 @@ def main():
     ap.add_argument('--falco', required=True)
     ap.add_argument('--tripwire', required=True)
     ap.add_argument('--workers-root', required=True)
+    ap.add_argument('--ml-rule', default='preview',
+                    help="arm A: 'preview' (the run's live previews) or a latency tier of --ml-results recomputed on the "
+                         "table (secondary data of amendment 2: pulse-stable-confirm, tier le3s)")
+    ap.add_argument('--ml-results', help='BURDEN-LEVERS.json whose selection names the rule of --ml-rule')
     ap.add_argument('--output', required=True)
     x = ap.parse_args()
     tree, support = bl.load_calibration(x.calibration)
     classes, _ = bl.calibration_classes(x.calibration_table, tree, support)
-    a, _, trials, _ = bl.prepare(x.table, x.since, [x.campaign], tree, support, classes)
+    a, p, trials, _ = bl.prepare(x.table, x.since, [x.campaign], tree, support, classes)
+    if x.ml_rule == 'preview':
+        ml_alarm, ml_config = a['preview'].astype(bool), 'live previews'
+    else:
+        ml_config = json.loads(Path(x.ml_results).read_text())['selection'][x.ml_rule]['choice']
+        variant, mode, rule = ml_config.split('|')
+        (_, ml_alarm), = bl.rules(variant, p[variant], a['alpha'], bl.discount_mask(a, mode), a['new'], only=rule)
     names, workloads = load_resolver(x.workers_root)   # pod name -> {pod_uid}, (pod_uid, container) -> workload key
-    result = compare(a, trials, x.normal_from, a['preview'].astype(bool), json.loads(Path(x.falco).read_text()),
+    result = compare(a, trials, x.normal_from, ml_alarm, json.loads(Path(x.falco).read_text()),
                      json.loads(Path(x.tripwire).read_text()), load_cases(x.cases, x.probe_spec), names, workloads,
                      bl.campaign_span(Path(x.campaign)))
     result.update(schema='pulse-rule-comparison-v1',
                   protocol='sentinel_pulse/protocol/rule-integration-v1.json + amendments 1 and 2',
+                  ml_arm=dict(rule=x.ml_rule, config=ml_config, ml_results=x.ml_results),
                   inputs=dict(table=x.table, falco=x.falco, tripwire=x.tripwire, cases=x.cases), computed_at_unix=time.time())
     Path(x.output).write_text(json.dumps(result, indent=1, default=str))
     print(json.dumps({arm: dict(burden=round(r['burden'], 3), **{k: r['primary'][k] for k in ('attack', 'control', 'benign', 'precision', 'p95')})

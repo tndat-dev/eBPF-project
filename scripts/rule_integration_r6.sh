@@ -7,7 +7,8 @@
 #   2. novel_syscalls.py   tripwire A1: reference = selection span, exec set E, per-trial outcome + normal alerts
 #   3. rule_comparison.py  arms A, B1, B2, B3, B_all against A (workload-clustered bootstrap, 10,000 draws)
 #
-#   SRC=/var/tmp/.../source-<sha> [RUN=/mnt/.../<run>] bash rule_integration_r6.sh
+#   SRC=/var/tmp/.../source-<sha> [RUN=/mnt/.../<run>] [ML_RULE=le3s ML_RESULTS=.../burden-levers.json] bash rule_integration_r6.sh
+#   ML_RULE (default preview: the run's live previews) recomputes arm A instead: the secondary data of amendment 2
 set -uo pipefail
 SRC=${SRC:?source snapshot}
 RUN=${RUN:-/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm}
@@ -38,5 +39,6 @@ try $PY -u "$SRC/scripts/analysis/rule_comparison.py" --table "$B/table-$NAME.np
   --normal-from "$SEL_END" --campaign "$CAMPAIGN" --calibration "$REFRESHED" \
   --calibration-table "$B/cal-pulse-live-recalibrated.npz" --cases "$RCA/cases" \
   --probe-spec "$SRC/validation-evidence/results-20261021/exec-probe-spec.json" --falco "$OUT/falco-baseline.json" \
-  --tripwire "$OUT/tripwire-a1.json" --workers-root "$RUN/workers" --output "$OUT/rule-comparison.json"
+  --tripwire "$OUT/tripwire-a1.json" --workers-root "$RUN/workers" --ml-rule "${ML_RULE:-preview}" \
+  ${ML_RESULTS:+--ml-results "$ML_RESULTS"} --output "$OUT/rule-comparison.json"
 chown -R dat:dat "$OUT" 2>/dev/null || true
