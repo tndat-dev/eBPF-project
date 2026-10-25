@@ -30,8 +30,9 @@ Mỗi kết quả đi qua cùng một chuỗi:
 1. **Báo cáo:** mục kết quả ghi số, giờ chạy, dòng "Biên nhận" (tên file) và luật chọn.
 2. **Biên nhận trong repo:** `validation-evidence/results-<ngày>/…`. README của từng thư mục ghi file nào là kết quả của mục nào, script nào sinh ra, bản gốc nằm đâu trên cụm (ví dụ [results-20261022/README.md](validation-evidence/results-20261022/README.md)).
 3. **Lệnh đã chạy:** `scripts/*.sh`. Mỗi job trên cụm là một script, dòng đầu ghi giao thức, đầu vào, máy chạy và cách gọi. Script gọi module trong `sentinel_pulse/` hoặc `scripts/analysis/*.py`. Code chạy là một snapshot git đóng băng, commit nằm trong tên thư mục (`runtime-<commit>-<ngày>/source`) hoặc trong biên nhận.
-4. **Luật đăng ký trước:** `sentinel_pulse/protocol/*.json`. Luật được băm SHA-256 và đăng ký **trước khi có số**; báo cáo ghi giờ đăng ký và mọi bản bổ sung. Không đổi lựa chọn sau khi xem kết quả.
-5. **Dữ liệu thô:** trên NFS của cụm `/mnt/sentinel-pulse-archive`, không có trong git (mục dưới).
+4. **Kiểm toán:** `scripts/audit/headline_numbers.py` tính lại mọi số chủ chốt của phần tóm tắt từ biên nhận và chạy trong bộ test; kết quả và giới hạn ở [docs/AUDIT.md](docs/AUDIT.md).
+5. **Luật đăng ký trước:** `sentinel_pulse/protocol/*.json`. Luật được băm SHA-256 và đăng ký **trước khi có số**; báo cáo ghi giờ đăng ký và mọi bản bổ sung. Không đổi lựa chọn sau khi xem kết quả.
+6. **Dữ liệu thô:** trên NFS của cụm `/mnt/sentinel-pulse-archive`, không có trong git (mục dưới).
 
 Ví dụ cây RCA thật có hình vẽ: [validation-evidence/rca/examples-20261023/](validation-evidence/rca/examples-20261023/README.md).
 

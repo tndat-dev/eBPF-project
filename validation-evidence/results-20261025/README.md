@@ -18,7 +18,7 @@ Lần final đầu (snapshot `60093dd`) dùng nhầm bảng cửa sổ của lư
 
 ## So sánh không có / có rule (RULE_INTEGRATION_STATUS R6, 25/10)
 
-Protocol `rule-integration-v1` + bổ sung 1, 2. Driver `scripts/rule_integration_r6.sh` chạy trên `.234` bằng root (case RCA thuộc root). Mã nguồn chụp ở `/var/tmp/rule-integration/source-<sha>` trên `.234`.
+Protocol `rule-integration-v1` + bổ sung 1, 2. Driver `scripts/rule_integration_r6.sh` chạy trên `.234` bằng root (case RCA thuộc root). Mã nguồn của mỗi lần chạy là `git archive <sha>` của commit ghi trong bảng (bản chụp tạm trên `.234` đã xóa 25/10 sau khi chạy xong).
 
 | File | Kết quả cho | Script / lệnh | Bản gốc trên cụm |
 |---|---|---|---|

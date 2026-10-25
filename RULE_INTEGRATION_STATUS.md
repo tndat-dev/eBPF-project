@@ -4,7 +4,7 @@ Cập nhật **25/10/2026 17:10 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
 
-**Trạng thái: R6 xong (25/10 16:02), kết quả ở mục R6.** ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
+**Trạng thái: R6 xong (25/10 16:02). Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 song song (nhánh B2, 25/10 17:30).** Falco mặc định và triage chờ case RCA không vào hệ thống cuối (lý do ở R6). Tripwire hiện mới chạy offline trên feature đã ghi; muốn có bằng chứng của hệ thống cuối chạy live thì cần cài tripwire vào worker (TODO). ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
 - Các số ở R2 (Falco) và R3 (tripwire) là đánh giá **riêng lẻ** từng rule, đo trên cùng campaign với Pulse. Chúng chưa phải kết quả tích hợp.
 - `rule_tier.py` chưa chạy riêng; định nghĩa triage của nó được dùng nguyên trong nhánh B3 của R6.
 
@@ -219,6 +219,8 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 5. **B3 (triage chờ case RCA đầy đủ):** giảm gánh 23% mà không mất attack, nhưng không dùng được ở thời điểm gọi người vì làm hỏng mức độ trễ. Chỉ dùng được nếu có đường triage nhanh (mục "Còn thiếu").
 6. **B_all:** tệ nhất về control và p95, vì cộng nhiễu của Falco với độ trễ của triage.
 
+**Quyết định (chủ đồ án, 25/10 17:30):** nhận đề xuất, hệ thống cuối = **B2 (ML + tripwire A1 song song)**. Falco chỉ cân nhắc lại nếu có exception cho rule API server (phải đăng ký như một nhánh mới); triage chỉ khi có đường triage nhanh.
+
 **Biên nhận:** `validation-evidence/results-20261025/rule-integration/` (`falco-baseline.json`, `tripwire-a1.json.gz`, `rule-comparison.json`; SHA-256 khớp bản gốc trên NFS `pulse-peer-discount-confirm/analysis/rule-integration/`).
 - Code: Falco và tripwire chạy trên snapshot `be481a5` (13:09–13:35). Bước ghép chạy lại trên `ae9af77` (15:57–16:02) để thêm số từng rule đứng riêng, tỉ lệ đợt có case và phép kiểm gánh ML; mọi số đã có trước đó giữ nguyên từng trường.
 
@@ -261,3 +263,4 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 | 25/10 15:57–16:02 | Bước ghép chạy lại trên `ae9af77` để thêm phần còn thiếu theo danh sách báo cáo của protocol: từng rule đứng riêng, tỉ lệ đợt ML có case, kiểm gánh ML. Số cũ giữ nguyên từng trường | R6 |
 | 25/10 16:03–16:10 | Biên nhận vào repo (SHA khớp NFS); kết quả R6 ghi ở trên | R6 |
 | 25/10 16:06–17:02 | Dữ liệu phụ của bổ sung 2 trên `pulse-stable-confirm` (nhánh A = luật ≤ 3 s tính lại, `--ml-rule le3s`): cùng hướng với dữ liệu chính; biên nhận vào repo | R6 |
+| 25/10 17:30 | Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 (B2) | R6 |

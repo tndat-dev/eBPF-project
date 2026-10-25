@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **23/10/2026 04:50 (UTC+7)**. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **25/10/2026 17:45 (UTC+7)**. Thí nghiệm đã xong (23/10); kết luận cuối ở mục 1, 5B.3 và 5C. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -19,7 +19,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | `policy-1win-a3` | Chính sách 1 cửa sổ, alpha×3 | `sentinel_pulse/protocol/policy-1win-a3.json` (SHA-256 `f6107351…`) |
 | `pulse-stable-candidate` | Lượt live ứng viên bản stable (`policy-2of2-a10`, 20/10 10:14 → 21/10 10:25) | `/mnt/sentinel-pulse-archive/pulse-stable-candidate` |
 | `pulse-stable-refreshed` | Lượt live kiểm cấu hình luật v2 (21/10 12:22 → 22/10 12:31, xong) | `/mnt/sentinel-pulse-archive/pulse-stable-refreshed` |
-| `feature-groups` | Thí nghiệm nhóm feature (mục 5B, 693 model) | study, workloads và score dump ở `/var/tmp/feature-groups/` trên .234 (bản duy nhất; chuyển lên NFS sau lượt xác nhận); kết quả `matched-parallel-r4-20261015/feature-groups` và `validation-evidence/results-20261022/syscall/` |
+| `feature-groups` | Thí nghiệm nhóm feature (mục 5B, 693 model) | study, workloads và score dump trên NFS `matched-parallel-r4-20261015/feature-groups/` (7,6 GB; bản ở `/var/tmp/feature-groups/` trên .234 không còn); kết quả `matched-parallel-r4-20261015/feature-groups` và `validation-evidence/results-20261022/syscall/` |
 | `rca-subscriber` | RCA đọc decision qua SSH trên pulse-live-recalibrated (19/10 19:24 → 20/10 10:16) | `/var/lib/sentinel-pulse-rca/rca-subscriber` |
 | `rca-followup`, `rca-followup-v1`, `rca-flow`, `rca-runtime-v1` | Các bản RCA cũ (lịch sử) | `/var/lib/sentinel-pulse-rca/runtime-events-…` (có symlink cùng tên) |
 

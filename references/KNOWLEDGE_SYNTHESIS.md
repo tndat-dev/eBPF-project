@@ -303,7 +303,7 @@ File nằm trong `references/pdf/` (ngoài git; bản sao trên NFS `/mnt/sentin
 | Moustakides 2009 | Numerical Comparison of Cusum and Shiryaev-Roberts Procedures for Detecting Changes in Distributions | arXiv | `2009-moustakides-numerical-comparison-of-cusum-and-shiryaev-roberts.pdf` |
 | Pedregosa 2011 | Scikit-learn: Machine Learning in Python | Journal of Machine Learning Research | `2011-pedregosa-scikit-learn-machine-learning-in-python.pdf` |
 | Day 2012 | CONDOR: A Hybrid IDS to Offer Improved Intrusion Detection | IEEE TrustCom 2012 | `2012-day-condor-a-hybrid-ids-to-offer-improved-intrusion-detection.pdf` |
-| Abed 2016 | Intrusion Detection System for Applications using Linux Containers | arXiv | `2016-abed-intrusion-detection-system-for-applications-using-linux.pdf` |
+| Abed 2016 | Intrusion Detection System for Applications using Linux Containers | STM 2015, LNCS 9331, tr. 123–135 (DOI 10.1007/978-3-319-24858-5_8, theo trang arXiv 1611.03056); file là bản arXiv 2016 | `2016-abed-intrusion-detection-system-for-applications-using-linux.pdf` |
 | Kim 2016 | LSTM-Based System-Call Language Modeling and Robust Ensemble Method for Designing Host-Based Intrusion Detection Systems | arXiv | `2016-kim-lstm-based-system-call-language-modeling-and-robust-ensemble.pdf` |
 | Liu 2018 | Cauchy combination test: a powerful test with analytic p-value calculation under arbitrary dependency structures | arXiv | `2018-liu-cauchy-combination-test-a-powerful-test-with-analytic-p.pdf` |
 | Hassan 2019 | NoDoze: Combatting Threat Alert Fatigue with Automated Provenance Triage | NDSS 2019 | `2019-hassan-nodoze-combatting-threat-alert-fatigue-with-automated.pdf` |
