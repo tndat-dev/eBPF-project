@@ -1,0 +1,38 @@
+{
+ "code_commit": "60093dd",
+ "config": {
+  "alertmanager_url": "http://10.97.164.76:9093",
+  "listen": [
+   "0.0.0.0",
+   9478
+  ],
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "output": "/var/lib/sentinel-pulse-alert-bridge/pulse-peer-discount-confirm",
+  "policy_hash": "f64c31c067bff2421b6d360cd1b9e9ea2ca04d8d3cdcd0a6d1285b4360f35a33",
+  "refresh_seconds": 5,
+  "resolve_after_seconds": 3,
+  "run": "pulse-peer-discount-confirm",
+  "ssh": {
+   "rotate_seconds": 3600,
+   "user": "dat"
+  },
+  "workers": [
+   {
+    "host": "10.1.16.237",
+    "node_name": "k8s-worker1.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/workers/k8s-worker1.local"
+   },
+   {
+    "host": "10.1.16.238",
+    "node_name": "k8s-worker4.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/workers/k8s-worker4.local"
+   },
+   {
+    "host": "10.1.16.239",
+    "node_name": "k8s-worker3.local",
+    "output": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/workers/k8s-worker3.local"
+   }
+  ]
+ },
+ "started_at": 1792814187.6843376
+}

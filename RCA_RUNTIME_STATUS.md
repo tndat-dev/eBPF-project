@@ -429,6 +429,22 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - **Phân loại cảnh báo (lặp lại Pulse 5.18):** 50,7% case normal trùng exec trong cửa sổ, 27,4% chỉ có exec trong case, 21,9% không có exec. Luật triage probe giữ lại 45,4% case normal (1.663/3.666). Biên nhận: `alarm-taxonomy.json` cùng thư mục.
 - **Subscriber và bridge bị khởi động lại một lần** lúc 23/10 06:19:47 UTC (13:19), sau campaign, do `unattended-upgrades` nâng cấp `zlib1g` rồi `needrestart` khởi động lại service (Pulse 5.25). Bộ đếm và case được giữ (6.677 case lúc 01:40 ngày 24/10); chỉ ring 180 s mất, nên vài case đầu sau mốc đó có thể thiếu ngữ cảnh trước. Bridge mất các đợt đang mở trong bộ nhớ (không có sự kiện `end` cho chúng). Từ 24/10, `.234` đã `mask` các unit tự nâng cấp như worker.
 
+### 5.16 Lượt `pulse-peer-discount-confirm`: RCA dưới ML stable mới (đọc 25/10 12:00)
+
+- Subscriber `rca-pulse-peer-discount-confirm`, cấu hình như 5.15 (seed, nhãn triage). Luật Pulse của lượt là k2of2 α×5 + chiết khấu theo replica (Pulse 5.26, 5.27). Biên nhận: `validation-evidence/results-20261025/pulse-peer-discount-confirm/rca-*.json`.
+
+| Chỉ số | pulse-peer-discount-confirm (524 trial attack) | pulse-stable-confirm (5.15) |
+|---|---|---|
+| Attack có case riêng | 459/524 (87,6%) | 456/525 (86,9%) |
+| Không có case riêng | 44 gộp sau case binary vô hại, 5 gộp sau case khác, 16 không có case | 56 + 7 + 6 |
+| Top-1 / top-3 | **99,8% / 100%** (459 case) | 99,8% / 99,8% |
+| Preview → case | p95 2,59 s | p95 2,50 s |
+| Case normal (ngoài campaign) | **575** | 3.666 |
+
+- **Gánh cho người trực giảm mạnh:** 575 case normal so với 3.666, vì chiết khấu bớt preview. Luật triage probe giữ lại 50,4% số đó; 51,7% trùng exec trong cửa sổ, 40,7% không có exec.
+- **Seed:** nghi phạm hạng 1 là binary mới/chưa biết ở 12,1% case normal có nghi phạm (55/456). Gần như toàn bộ là `java-21-openjdk-21.0.11…` của `aims-kafka-entity-operator` (`topic-operator`, `user-operator`), workload **một replica** nên không bao giờ được chiết khấu, và binary Java của nó không có trong seed. Tỉ lệ cao hơn lượt trước (6,8%) vì mẫu số nhỏ đi nhiều, không phải vì seed kém đi.
+- 16 trial không có case (lượt trước 6): một phần do Pulse bỏ sót nhiều hơn ở tốc độ thấp (20 FN ở 1/s, Pulse 5.27).
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -537,3 +553,4 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 23/10 11:45 | Số tạm của seed trên lượt xác nhận: nghi phạm hạng 1 là binary mới/chưa biết 11,3% → 5,1% (case normal trước campaign); bộ đếm lý do từ chối case tiếp nối | mục 5.12 |
 | 23/10 12:10 | Đích "ngoài cụm" là socket Unix và địa chỉ probe kubelet của Istio ambient (`169.254.7.127`): ánh xạ thành `KubeletProbe` từ lượt sau, có test. Lịch sử inventory: không làm (chỉ 0,9% IP trong cụm không ánh xạ được; ánh xạ lúc nhận sự kiện dùng ảnh chụp ≤ 60 s) | mục 5.13 |
 | 23/10 13:00–13:15 | Campaign lượt xác nhận xong: coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (5.15). Kernel → người nhận trên toàn campaign: push p95 2,89 s tập chính (3,04 s nếu chỉ tính đợt mở từ cửa sổ nằm trọn trong trial), 3,56 s mọi tốc độ (5.14) |
+| 25/10 12:00 | Lượt `pulse-peer-discount-confirm`: coverage 87,6%, top-1 99,8%, top-3 100%; case normal 575 (lượt trước 3.666); seed 12,1% do workload một replica `kafka-entity-operator` (5.16) |

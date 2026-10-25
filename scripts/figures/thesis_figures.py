@@ -4,9 +4,9 @@
     ~/.venvs/sentinel-figures/bin/python scripts/figures/thesis_figures.py [--lang vi|en] [--output docs/figures]
 
 Figures (PNG at 200 dpi + PDF):
-  live-runs-metrics   precision / recall / idle control / benign launch flagged, four live runs, Wilson 95 % CI
-                      (the confirmation run on its registered subset, attack rates 6, 12, 24 per second)
-  live-latency-cdf    kernel -> preview delay of detected attacks, four live runs, 2 s / 3 s marks
+  live-runs-metrics   precision / recall / idle control / benign launch flagged, five live runs, Wilson 95 % CI
+                      (the two confirmation runs on their registered subset, attack rates 6, 12, 24 per second)
+  live-latency-cdf    kernel -> preview delay of detected attacks, the four latest live runs, 2 s / 3 s marks
   policy-pareto       34 confirmation policies (pulse-stable-candidate, refreshed calibration): burden vs p95,
                       rule-v2 feasible set filled
   baselines-budget    recall and benign-launch flag rate against normal alert burden for Pulse and three baselines
@@ -46,7 +46,10 @@ PRIMARY_RATES = (6, 12, 24)        # stable-confirmation-v1: the composition of 
 RUNS = [('pulse-live-recalibrated', EV/'results-20261019/pulse-live-recalibrated/campaign-main-RESULTS.json.gz', 'policy-1win-a3', None),
         ('pulse-stable-candidate', EV/'results-20261021/pulse-stable-candidate/campaign-RESULTS.json', 'k2of2, α×10', None),
         ('pulse-stable-refreshed', EV/'results-20261021/pulse-stable-refreshed/campaign-RESULTS.json', 'k2of2, α×10 + {refreshed}', None),
-        ('pulse-stable-confirm', CONFIRM/'campaign-RESULTS.json', 'CUSUM b3/h6 cap, 6–24/s', PRIMARY_RATES)]
+        ('pulse-stable-confirm', CONFIRM/'campaign-RESULTS.json', 'CUSUM b3/h6 cap, 6–24/s', PRIMARY_RATES),
+        ('pulse-peer-discount-confirm', EV/'results-20261025/pulse-peer-discount-confirm/campaign-RESULTS.json',
+         'k2of2 α×5 + replica 30 s, 6–24/s', PRIMARY_RATES)]
+LATENCY_RUNS = RUNS[-4:]           # four validated colours; the first run (policy-1win-a3) is in the table and metrics
 
 TEXT = {
     'vi': dict(precision='Precision', recall='Recall', control='Control idle dương', benign='Binary vô hại bị gắn cờ',
@@ -136,7 +139,7 @@ def save(fig, out: Path, name):
 def fig_live_metrics(out, t, ci=True):
     data = [(name, run_counts(path, rates)[0]) for name, path, _, rates in RUNS]
     panels = [('precision', 95), ('recall', 95), ('control', 5), ('benign', None)]
-    fig, axes = plt.subplots(1, 4, figsize=(13, 3.4), sharey=False)
+    fig, axes = plt.subplots(1, 4, figsize=(15, 3.5), sharey=False)
     x = np.arange(len(data))
     for ax, (key, target) in zip(axes, panels):
         for i, (name, m) in enumerate(data):
@@ -151,7 +154,7 @@ def fig_live_metrics(out, t, ci=True):
             ax.annotate(f"{t['expectation']} {'≥' if target > 50 else '≤'} {target}%", (-0.45, target),
                         textcoords='offset points', xytext=(0, -11), ha='left', fontsize=8, color=INK2)
         ax.set_title(t[key]); ax.set_xticks(x)
-        ax.set_xticklabels([n.replace('pulse-', '').replace('-', '-\n', 1) for n, _ in data], fontsize=7.5)
+        ax.set_xticklabels(['-\n'.join(n.replace('pulse-', '').rsplit('-', 1)) for n, _ in data], fontsize=7.5)
         ax.set_xlim(-0.5, len(data) - 0.15)        # room for the value label of the last run
         lo_y = {'precision': 85, 'recall': 85, 'control': 0, 'benign': 70}[key]
         ax.set_ylim(lo_y, {'control': 16}.get(key, 101.5))
@@ -182,7 +185,7 @@ def table_live_runs(out, t):
 
 def fig_latency(out, t):
     fig, ax = plt.subplots(figsize=(6.4, 3.8))
-    for i, (name, path, policy, rates) in enumerate(RUNS):
+    for i, (name, path, policy, rates) in enumerate(LATENCY_RUNS):
         d = np.sort(run_counts(path, rates)[1])
         y = 100*np.arange(1, len(d) + 1)/len(d)
         p95 = float(np.percentile(d, 95))
@@ -191,7 +194,7 @@ def fig_latency(out, t):
         ax.plot([], [], color=SERIES[i], ls=STYLES[i], marker=MARKERS[i], ms=6, lw=2,
                 label=f"{name} ({policy.format(refreshed=t['refreshed'])}): p95 {p95:.2f} s, n = {len(d)}")
     ax.axhline(95, color=GRID, lw=1)
-    ax.legend(loc='lower right', fontsize=8.5, handlelength=3)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.45, -0.17), fontsize=8.5, handlelength=3)
     for x, label in ((2, t['preferred']), (3, t['acceptable'])):
         ax.axvline(x, color=INK2, lw=1, ls='--')
         ax.annotate(label, (x, 50), textcoords='offset points', xytext=(3, 0), fontsize=8, color=INK2)

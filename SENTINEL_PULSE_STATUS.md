@@ -52,7 +52,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   | Đợt cảnh báo trên normal | ≤ 0,1/giờ | 6,74 đợt/replica-giờ (final, 5.13b) | 6,5 (replay, calibration làm mới) |
 
   Đây là lần đầu đạt cả 4 kỳ vọng campaign trên một lượt live mới, ở mức độ trễ ≤ 3 s. Gánh cảnh báo vẫn xa ngân sách. Sau final, luật thời gian được chọn lại theo luật đăng ký trước: CUSUM chặn trần (5.19).
-- **ML stable (chốt 22/10 22:48, Pulse 5.19 + bổ sung 1):** base29 + calibration làm mới + **CUSUM drift 3, ngưỡng 6, chặn trần S (`cap`)**, chính sách `policy-cusum-b3-h6-cap` (`93dd1478…`).
+- **ML stable mới (25/10, Pulse 5.27):** base29 + calibration làm mới + **k2of2 α×5 với chiết khấu theo replica 30 s**, chính sách `policy-k2of2-a5-peer30` (`f64c31c0…`). Lượt xác nhận `pulse-peer-discount-confirm` đạt 4 kỳ vọng ở mức ≤ 3 s: recall 98,7%, precision 98,7%, control 1,3%, p95 2,88 s; binary vô hại 86,1%. Đánh đổi: recall ở 1/s còn 80,8%.
+- **ML stable trước đó (22/10 22:48 → 25/10, Pulse 5.19 + bổ sung 1):** base29 + calibration làm mới + **CUSUM drift 3, ngưỡng 6, chặn trần S (`cap`)**, chính sách `policy-cusum-b3-h6-cap` (`93dd1478…`).
   - Trên luồng liên tục của `pulse-stable-refreshed`: recall 100%, precision 96,9%, control 3,2%, p95 2,05 s (mức ≤ 3 s), 6,07 đợt/replica-giờ (k2of2: 6,74).
   - Bản CUSUM đầu tiên (không chặn trần) bị bỏ trước khi chạy live, vì alarm kéo dài sang trial sau (control 5,7%).
   - Lượt live xác nhận `pulse-stable-confirm` (525 cặp, tốc độ attack 1–24/s) chạy từ 23/10 01:19 đến khoảng 24/10 01:20; phân tích tự chạy sau lượt.
@@ -1547,6 +1548,39 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Không đổi cấu hình sau khi xem số.** Test blind 5.22 chạy trên chính lượt này ở giai đoạn final: đề xuất mức ≤ 3 s **đạt** rule 5 (gánh 1,74, control 2,9%, precision 97,2%), mức < 2 s không đạt. Bước tiếp theo theo protocol: xây chiết khấu theo replica trong đường live, rồi chạy một lượt live xác nhận cấu hình đó.
   - Với luận văn, đây là kết quả âm có giá trị: một sự cố vận hành thật (replica CNPG hỏng mà operator vẫn báo khỏe) cùng sự khác biệt giữa các replica đủ đẩy control vượt ngưỡng. Gánh cảnh báo và calibration là phần cần làm tiếp.
 
+### 5.27 Lượt `pulse-peer-discount-confirm`: kết quả campaign, **xác nhận** (đọc 25/10 11:50; `peer-discount-confirmation-v1` + bổ sung 1)
+
+- **Lượt:** 24/10 10:55 → 25/10 11:06, 3 worker success, capture liên tục. Campaign xong 25/10 khoảng 00:30 (giai đoạn campaign của `after-peer-discount-confirm` 00:32). Biên nhận: `validation-evidence/results-20261025/pulse-peer-discount-confirm/`.
+- **Kết luận theo luật: xác nhận ở mức ≤ 3 s.** Tập chính 6/12/24/s:
+
+  | Chỉ số | Kỳ vọng | Kết quả (CI Wilson 95%) | Test blind trên `pulse-stable-confirm` (5.25) |
+  |---|---|---|---|
+  | Recall | ≥ 95% | **98,7%** (306/310) [96,7; 99,5] | 99,0% |
+  | Precision | ≥ 95% | **98,7%** (306/310) [96,7; 99,5] | 97,2% |
+  | Control idle dương | ≤ 5% | **1,3%** (4/311) [0,5; 3,3] | 2,9% |
+  | p95 kernel → preview | ≤ 3 s | **2,88 s** (p50 0,98 s) | 2,68 s |
+  | Binary vô hại bị gắn cờ | báo, không ngưỡng | 86,1% (266/309) | 86,7% |
+  | Không xác định | — | 5 attack, 4 control, 6 vô hại | — |
+
+  - Theo protocol, **`policy-k2of2-a5-peer30` (`f64c31c0…`) thành chính sách ML stable**, thay `policy-cusum-b3-h6-cap`. Điều kiện về gánh cảnh báo được xét riêng, khi có bảng cửa sổ (bên dưới).
+  - p95 2,88 s chỉ cách ngưỡng 0,12 s; mức < 2 s không đạt.
+- **Theo tốc độ** (mọi tốc độ: recall 94,4%, precision 99,0%, control 1,0%, p95 3,80 s, binary vô hại 76,9%):
+
+  | Tốc độ | Recall | Precision | Control | p95 | Binary vô hại |
+  |---|---|---|---|---|---|
+  | 1/s | **80,8%** (84/104) | 98,8% | 1,0% | 6,17 s | 56% |
+  | 3/s | 95,2% (99/104) | 100% | 0% | 3,75 s | 70% |
+  | 6/s | 98,1% | 98,1% | 2,0% | 4,47 s | 79% |
+  | 12/s | 99,0% | 99,0% | 1,0% | 2,03 s | 85% |
+  | 24/s | 99,0% | 99,0% | 1,0% | 2,35 s | 94% |
+
+  - So với stable cũ (5.25), chiết khấu đổi một phần recall ở attack chậm lấy control thấp hơn: 1/s giảm từ 93,1% xuống 80,8%, 3/s từ 99,0% xuống 95,2%. Cửa sổ của attack chậm có ít syscall lạ hơn, nên dễ trùng với hành vi các replica khác vẫn có trong 30 s.
+- **Theo kịch bản (tập chính):** recall 100% với `ptrace`, `execveat`, `setns`; 96,8% với `mprotect`, 96,7% với `seccomp`. p95 1,2 s (`setns`) tới 3,9 s (`seccomp`).
+- **Đường cảnh báo vận hành** (RCA 5.14, bridge, trial từ lúc bridge chạy): push tới người nhận ở 309/315 trial của tập chính, p50 1,03 s, **p95 3,17 s**; chỉ 2 trial gặp container đang báo sẵn (lượt trước 14) và 1 đợt mở từ cửa sổ vắt qua lúc tiêm (lượt trước 67). Mọi tốc độ: 493/524, p95 3,91 s. Bridge có 13 lần đẩy Alertmanager thất bại.
+- **Một trial mất vì lỗi hạ tầng:** SSH đọc tail decision từ worker4 lỗi (exit 255); attack và control của trial đó là `unknown`.
+- **Lỗi của mình ở phân tích sau lượt:** giai đoạn final dùng lại bảng cửa sổ của lượt trước, vì tên bảng gắn cứng `table-pulse-stable-confirm.npz`, nên test gánh lỗi chia cho 0. Đã sửa (`0a173f8`) và chạy lại giai đoạn final bằng code đã sửa (unit `final-peer-discount-confirm-rerun`, 25/10 11:52). Phần campaign và RCA không bị ảnh hưởng.
+- **Gánh cảnh báo và kiểm cài đặt:** chờ bảng cửa sổ (dự kiến khoảng 12:50).
+
 ### 5.26 Chiết khấu theo replica trong đường live và lượt xác nhận `pulse-peer-discount-confirm` (24/10; protocol `peer-discount-confirmation-v1`)
 
 - **Lý do:** đề xuất mức ≤ 3 s của 5.22 đạt rule 5 trên `pulse-stable-confirm` (5.25). Theo rule 5, nó chỉ thay stable sau một lượt live nữa. Đường live trước đó chưa có chiết khấu theo replica.
@@ -2092,3 +2126,9 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 10:40–11:05 | Chiết khấu theo replica trong đường live (`novelty.py`, `peer_exchange.py`, khóa chính sách `evidence_discount`), test và thử trên mạng thật; đóng băng `policy-k2of2-a5-peer30` (`f64c31c0…`), đăng ký `peer-discount-confirmation-v1`; khởi chạy `pulse-peer-discount-confirm` (snapshot `60093dd`), bridge và unit phân tích sau lượt | 5.26 |
 | 11:05–11:20 | Rà việc làm ngay. Phát hiện nhãn sai ở 5.25 ("tham chiếu k2of2 α×10" thực ra là CUSUM b3/h6 `keep`) và cùng lỗi trong điều kiện gánh của `peer-discount-confirmation-v1`; sửa nhãn, đăng ký bổ sung 1 trước khi đọc kết quả, `burden_blind_test.py` báo thêm k2of2 α×10. RCA 5.15: số seed và phân loại cảnh báo final. Dọn TODO, README code | 5.25, 5.26 |
 | 22:03–22:15 | Giữa lượt `pulse-peer-discount-confirm`: chép log Falco; khoảng hở nhịp chấm 5–7 lần mỗi worker, cgroup worker chạm `MemoryMax` do page cache file NFS (giả thuyết, không can thiệp); RCA 1.201 case, bridge 2.966 đợt (chỉ ghi nhận) | 5.26 |
+
+### 25/10/2026
+
+| Giờ | Việc | Mục |
+|---|---|---|
+| 11:50–12:05 | Lượt `pulse-peer-discount-confirm` xong (3 worker success). Campaign **xác nhận** ở mức ≤ 3 s (recall 98,7%, precision 98,7%, control 1,3%, p95 2,88 s): `policy-k2of2-a5-peer30` thành ML stable. Final lỗi vì bảng cửa sổ gắn cứng tên lượt cũ: sửa, chạy lại. Log Falco lên NFS, bridge dừng, độ trễ kernel → người nhận (push p95 3,17 s), biên nhận campaign vào repo; hình 5 lượt live | 5.27 |

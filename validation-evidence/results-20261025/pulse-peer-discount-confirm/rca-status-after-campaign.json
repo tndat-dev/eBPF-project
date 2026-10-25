@@ -1,0 +1,84 @@
+{
+  "automatic_response": false,
+  "causal_root_confirmed": false,
+  "counts": {
+    "cases_emitted": 1520,
+    "cases_probe_only": 319,
+    "cases_without_connect_context": 596,
+    "cases_without_runtime_context": 130,
+    "connect_events": 6199709,
+    "decision_rows_read": 18202439,
+    "follow_up_cases_on_new_exec": 414,
+    "follow_up_refused_binary_not_new": 9508,
+    "follow_up_refused_no_exec": 2038,
+    "follow_up_refused_too_soon": 11184,
+    "follow_up_refused_warming_up": 22,
+    "issues": 795,
+    "positive_decisions_grouped_by_cooldown": 22752,
+    "positive_decisions_observed": 24272,
+    "runtime_category_credential": 1512892,
+    "runtime_category_file": 318294,
+    "runtime_category_network": 15186637,
+    "runtime_category_process": 7164281,
+    "runtime_category_ptrace": 11625,
+    "runtime_events": 24193729
+  },
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "pending_cases": 0,
+  "policy_hash": "f64c31c067bff2421b6d360cd1b9e9ea2ca04d8d3cdcd0a6d1285b4360f35a33",
+  "retained_cases": 1520,
+  "ring_events": 74378,
+  "state": "running",
+  "streams": {
+    "k8s-worker1.local": {
+      "channel": "policy",
+      "last_event_at": 1792863125.0194607,
+      "node_name": "k8s-worker1.local",
+      "normalized_events": 19683,
+      "sensor": "tetragon-6mzj8",
+      "started_at": 1792862931.201889
+    },
+    "k8s-worker1.local/lifecycle": {
+      "channel": "lifecycle",
+      "last_event_at": 1792863125.0151403,
+      "node_name": "k8s-worker1.local",
+      "normalized_events": 4616,
+      "sensor": "tetragon-6mzj8",
+      "started_at": 1792862830.9301457
+    },
+    "k8s-worker3.local": {
+      "channel": "policy",
+      "last_event_at": 1792863125.0148368,
+      "node_name": "k8s-worker3.local",
+      "normalized_events": 97002,
+      "sensor": "tetragon-sfv2g",
+      "started_at": 1792862315.7074425
+    },
+    "k8s-worker3.local/lifecycle": {
+      "channel": "lifecycle",
+      "last_event_at": 1792863125.0115862,
+      "node_name": "k8s-worker3.local",
+      "normalized_events": 24376,
+      "sensor": "tetragon-sfv2g",
+      "started_at": 1792862305.4630826
+    },
+    "k8s-worker4.local": {
+      "channel": "policy",
+      "last_event_at": 1792863125.0231664,
+      "node_name": "k8s-worker4.local",
+      "normalized_events": 5961,
+      "sensor": "tetragon-rrc79",
+      "started_at": 1792863086.7497115
+    },
+    "k8s-worker4.local/lifecycle": {
+      "channel": "lifecycle",
+      "last_event_at": 1792863125.0154111,
+      "node_name": "k8s-worker4.local",
+      "normalized_events": 10152,
+      "sensor": "tetragon-rrc79",
+      "started_at": 1792862912.9824812
+    }
+  },
+  "trigger": "candidate_alert_preview",
+  "updated_at_unix": 1792863125.025297
+}
