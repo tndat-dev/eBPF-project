@@ -1,12 +1,12 @@
 # Tích hợp rule — Falco, tripwire A1, triage probe (tách riêng khỏi kết quả ML)
 
-Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **25/10/2026 13:12 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
 
-**Trạng thái: chưa tích hợp.** Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (thiết kế ở mục R6).
+**Trạng thái: đang chạy R6 (25/10).** ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
 - Các số ở R2 (Falco) và R3 (tripwire) là đánh giá **riêng lẻ** từng rule, đo trên cùng campaign với Pulse. Chúng chưa phải kết quả tích hợp.
-- `rule_tier.py` chưa chạy và sẽ không chạy trước khi ML hoàn thiện.
+- `rule_tier.py` chưa chạy riêng; định nghĩa triage của nó được dùng nguyên trong nhánh B3 của R6.
 
 ## R1. Nguyên tắc tách
 
@@ -117,6 +117,15 @@ Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 
 ## R6. So sánh không có rule với có rule (sau khi ML hoàn thiện; protocol `rule-integration-v1` + bổ sung 1, đăng ký 22/10 16:12)
 
+**Bổ sung 2 (`sentinel_pulse/protocol/rule-integration-v1-amendment-2.json`, đăng ký 25/10 12:56, trước mọi số rule của lượt):**
+- dữ liệu chính: `pulse-peer-discount-confirm`; nhánh A = preview live của `policy-k2of2-a5-peer30` (cột `preview` của bảng cửa sổ);
+- một khoảng normal chung cho mọi nhánh: từ cuối khoảng selection tới hết capture, bỏ khoảng campaign; replica-giờ lấy từ bảng cửa sổ ML;
+- tripwire B2: tham chiếu = hợp các syscall ID theo workload trên khoảng selection của lượt, tập exec E đóng băng (sha256 `a3266613…`);
+- Falco B1 và triage B3: giữ nguyên định nghĩa của `falco_baseline.py` và `rule_tier.py`; khóa container = (pod_uid, container), tên pod của Falco map sang pod_uid bằng metadata resolver của worker;
+- độ trễ B3: thời điểm tạo case RCA (quyết định triage), không có case thì lấy thời điểm preview (fail-open);
+- so sánh: hiệu ghép cặp theo trial, bootstrap theo workload 10.000 lần; hiệu gánh cùng bootstrap; hiệu p95 bootstrap theo trial.
+- **Code:** `scripts/analysis/rule_comparison.py` (có test), `novel_syscalls.py --normal-span` (tham chiếu đủ trước khi xét normal, kết quả từng trial), `falco_baseline.py` (tên container trên event normal); driver `scripts/rule_integration_r6.sh` (commit `be481a5`).
+
 - **Khi nào:** chỉ sau khi:
   1. cấu hình ML stable đã đóng băng (Pulse 5.19 bước 4);
   2. hướng giảm gánh của Pulse 5.22 đã được nhận hoặc bỏ sau test blind;
@@ -147,10 +156,10 @@ Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
   - RCA gắn nhãn triage cho mọi case, và báo tỉ lệ đợt ML không có case.
 
 **Còn thiếu:**
-- [ ] Gánh của tripwire trên normal dài (tham chiếu một khoảng, đo trên khoảng sau).
+- [ ] Gánh của tripwire trên normal dài (tham chiếu một khoảng, đo trên khoảng sau): đang chạy trong R6 (25/10).
 - [ ] Đường triage nhanh (không chờ case RCA đầy đủ) để giữ kernel → gọi người ≤ 3 s.
 - [ ] Triage khớp cả tham số của probe, không chỉ tên binary (chống né).
-- [ ] Kết quả từng trial cho Falco ở lượt live sau, để tính hợp chính xác.
+- [x] Kết quả từng trial cho Falco ở lượt live sau, để tính hợp chính xác (`pulse-peer-discount-confirm`, 25/10).
 
 ## Nhật ký
 
@@ -165,3 +174,6 @@ Cập nhật **22/10/2026 16:13 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | 16:10–16:13 | Theo quyết định "hoàn thiện ML rồi mới tích hợp rule và so sánh có/không rule": gỡ bước `rule_tier.py` khỏi unit tối nay; đăng ký thiết kế so sánh (`rule-integration-v1` bổ sung 1, 16:12) | R6 |
 | 23:15 | Chuẩn bị dữ liệu (không tính số rule): `falco_baseline.py` xuất kết quả từng trial và từng event normal (có test), để so sánh ghép cặp có/không rule ở R6 sau khi ML hoàn thiện. Log Falco của lượt xác nhận sẽ được chép tay ngay sau lượt chạy | R6 |
 | 23/10 11:40, 13:05 | Log Falco của lượt xác nhận chép về đĩa local từng worker (`/var/tmp/falco-logs-pulse-stable-confirm/`, `cp -u`, gồm file đã xoay vòng): worker1 xoay vòng 4 giờ/lần, lần 2 đã có file 05:15 UTC. Lần chép cuối và chuyển lên NFS sau lượt. Campaign của lượt (Pulse 5.25) là dữ liệu cho R6 | R2, R6 |
+| 25/10 12:56 | Đăng ký bổ sung 2 của `rule-integration-v1` (dữ liệu chính `pulse-peer-discount-confirm`, nhánh A = preview live, một khoảng normal chung, khóa container, độ trễ B3) trước mọi số rule của lượt | R6 |
+| 25/10 13:07–13:08 | Code R6: `rule_comparison.py` + test (428 test pass), `novel_syscalls.py --normal-span`, tên container trong event Falco; driver `rule_integration_r6.sh`; đồng bộ GitHub, .234 và 3 worker (`be481a5`) | R6 |
+| 25/10 13:09 | Chạy R6 trên .234 (unit `rule-integration-r6`, root vì case RCA thuộc root, MemoryMax 24G, mã nguồn chụp `be481a5`). Không có lượt live nào đang chạy. Bước Falco xong 13:10; tripwire đọc toàn bộ feature (11 GB), ước tính 2–3 giờ | R6 |
