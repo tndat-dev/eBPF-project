@@ -1,0 +1,565 @@
+{
+ "arms": {
+  "A": {
+   "primary": {
+    "attack": 0.9873015873015873,
+    "benign": 0.8571428571428571,
+    "control": 0.012698412698412698,
+    "TP": 311,
+    "FN": 4,
+    "control_FP": 4,
+    "precision": 0.9873015873015873,
+    "p50": 0.8555190563201904,
+    "p95": 2.906821608543396,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9682539682539683,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9446564885496184,
+    "benign": 0.7652671755725191,
+    "control": 0.009541984732824428,
+    "TP": 495,
+    "FN": 29,
+    "control_FP": 5,
+    "precision": 0.99,
+    "p50": 0.8609178066253662,
+    "p95": 3.7211644172668414,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9238095238095239,
+     "child_ptrace_handshake": 0.9619047619047619,
+     "execveat_resolution_probe": 0.9333333333333333,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9047619047619048
+    }
+   },
+   "burden": 1.4175645796647685,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 697,
+    "production/aims-waypoint:istio-proxy": 91,
+    "production/aims-kafka-entity-operator:topic-operator": 42,
+    "production/security-telemetry-service:app": 25,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 24,
+    "production/aims-kafka-entity-operator:user-operator": 21,
+    "production/aims-minio-pool-0:minio": 21,
+    "production/aims-redis:aims-redis": 17,
+    "production/order-service:app": 11,
+    "production/auth-service:app": 8,
+    "production/aims-postgres-cnpg:postgres": 8,
+    "production/payment-service:app": 6,
+    "production/notification-service:app": 5,
+    "production/search-recommendation-service:app": 5,
+    "production/catalog-service:app": 5,
+    "production/cart-service:app": 4,
+    "production/inventory-service:app": 4,
+    "production/api-gateway:app": 3,
+    "production/aims-rabbitmq-server:rabbitmq": 2,
+    "production/aims-minio-pool-0:sidecar": 2,
+    "production/aims-frontend:web": 1
+   }
+  },
+  "B1": {
+   "primary": {
+    "attack": 0.9873015873015873,
+    "benign": 0.8603174603174604,
+    "control": 0.02857142857142857,
+    "TP": 311,
+    "FN": 4,
+    "control_FP": 9,
+    "precision": 0.971875,
+    "p50": 0.7061798572540283,
+    "p95": 2.4755626916885376,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9682539682539683,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9522900763358778,
+    "benign": 0.7709923664122137,
+    "control": 0.02480916030534351,
+    "TP": 499,
+    "FN": 25,
+    "control_FP": 13,
+    "precision": 0.974609375,
+    "p50": 0.6790635585784912,
+    "p95": 3.20385119915008,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9238095238095239,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 0.9333333333333333,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9047619047619048
+    }
+   },
+   "burden": 2.538034786345903,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 697,
+    "production/aims-kafka-entity-operator:user-operator": 502,
+    "production/aims-kafka-entity-operator:topic-operator": 350,
+    "production/aims-waypoint:istio-proxy": 91,
+    "production/security-telemetry-service:app": 25,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 24,
+    "production/aims-minio-pool-0:minio": 21,
+    "production/aims-redis:aims-redis": 17,
+    "production/order-service:app": 11,
+    "production/aims-postgres-cnpg:postgres": 11,
+    "production/auth-service:app": 8,
+    "production/payment-service:app": 6,
+    "production/search-recommendation-service:app": 5,
+    "production/catalog-service:app": 5,
+    "production/notification-service:app": 5,
+    "production/inventory-service:app": 4,
+    "production/cart-service:app": 4,
+    "production/api-gateway:app": 3,
+    "production/aims-rabbitmq-server:rabbitmq": 2,
+    "production/aims-minio-pool-0:sidecar": 2,
+    "production/aims-frontend:web": 1
+   }
+  },
+  "B2": {
+   "primary": {
+    "attack": 0.9873015873015873,
+    "benign": 0.8571428571428571,
+    "control": 0.015873015873015872,
+    "TP": 311,
+    "FN": 4,
+    "control_FP": 5,
+    "precision": 0.9841772151898734,
+    "p50": 0.6790635585784912,
+    "p95": 2.4397112131118774,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9682539682539683,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9656488549618321,
+    "benign": 0.7652671755725191,
+    "control": 0.011450381679389313,
+    "TP": 506,
+    "FN": 18,
+    "control_FP": 6,
+    "precision": 0.98828125,
+    "p50": 0.6683127880096436,
+    "p95": 2.6083613634109497,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9238095238095239,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9047619047619048
+    }
+   },
+   "burden": 1.4840571298087248,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 703,
+    "production/aims-waypoint:istio-proxy": 91,
+    "production/aims-kafka-entity-operator:topic-operator": 42,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 34,
+    "production/security-telemetry-service:app": 27,
+    "production/aims-minio-pool-0:minio": 23,
+    "production/aims-kafka-entity-operator:user-operator": 21,
+    "production/aims-rabbitmq-server:rabbitmq": 20,
+    "production/aims-redis:aims-redis": 17,
+    "production/order-service:app": 11,
+    "production/aims-postgres-cnpg:postgres": 11,
+    "production/search-recommendation-service:app": 8,
+    "production/auth-service:app": 8,
+    "production/notification-service:app": 7,
+    "production/payment-service:app": 6,
+    "production/catalog-service:app": 5,
+    "production/inventory-service:app": 4,
+    "production/cart-service:app": 4,
+    "production/aims-minio-pool-0:sidecar": 3,
+    "production/api-gateway:app": 3,
+    "production/aims-frontend:web": 1
+   }
+  },
+  "B3": {
+   "primary": {
+    "attack": 0.9873015873015873,
+    "benign": 0.8571428571428571,
+    "control": 0.012698412698412698,
+    "TP": 311,
+    "FN": 4,
+    "control_FP": 4,
+    "precision": 0.9873015873015873,
+    "p50": 3.2325570583343506,
+    "p95": 5.901808142662048,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9682539682539683,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9446564885496184,
+    "benign": 0.7652671755725191,
+    "control": 0.009541984732824428,
+    "TP": 495,
+    "FN": 29,
+    "control_FP": 5,
+    "precision": 0.99,
+    "p50": 3.2479629516601562,
+    "p95": 6.520859527587886,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9238095238095239,
+     "child_ptrace_handshake": 0.9619047619047619,
+     "execveat_resolution_probe": 0.9333333333333333,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9047619047619048
+    }
+   },
+   "burden": 1.0879312991638792,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 563,
+    "production/aims-waypoint:istio-proxy": 91,
+    "production/aims-kafka-entity-operator:topic-operator": 42,
+    "production/aims-kafka-entity-operator:user-operator": 21,
+    "production/aims-minio-pool-0:minio": 21,
+    "production/aims-postgres-cnpg:postgres": 8,
+    "production/aims-redis:aims-redis": 5,
+    "production/order-service:app": 5,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 5,
+    "production/aims-rabbitmq-server:rabbitmq": 2,
+    "production/security-telemetry-service:app": 2,
+    "production/aims-minio-pool-0:sidecar": 2,
+    "production/aims-frontend:web": 1,
+    "production/payment-service:app": 1
+   }
+  },
+  "B_all": {
+   "primary": {
+    "attack": 0.9873015873015873,
+    "benign": 0.8603174603174604,
+    "control": 0.031746031746031744,
+    "TP": 311,
+    "FN": 4,
+    "control_FP": 10,
+    "precision": 0.9688473520249221,
+    "p50": 0.5390100479125977,
+    "p95": 4.820567846298218,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9682539682539683,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9656488549618321,
+    "benign": 0.7709923664122137,
+    "control": 0.026717557251908396,
+    "TP": 506,
+    "FN": 18,
+    "control_FP": 14,
+    "precision": 0.9730769230769231,
+    "p50": 0.5287772417068481,
+    "p95": 4.882182002067566,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9238095238095239,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9047619047619048
+    }
+   },
+   "burden": 2.2777235262078617,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 572,
+    "production/aims-kafka-entity-operator:user-operator": 502,
+    "production/aims-kafka-entity-operator:topic-operator": 350,
+    "production/aims-waypoint:istio-proxy": 91,
+    "production/aims-minio-pool-0:minio": 23,
+    "production/aims-rabbitmq-server:rabbitmq": 20,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 17,
+    "production/aims-postgres-cnpg:postgres": 11,
+    "production/aims-redis:aims-redis": 5,
+    "production/order-service:app": 5,
+    "production/security-telemetry-service:app": 4,
+    "production/search-recommendation-service:app": 3,
+    "production/aims-minio-pool-0:sidecar": 3,
+    "production/notification-service:app": 2,
+    "production/aims-frontend:web": 1,
+    "production/payment-service:app": 1
+   }
+  }
+ },
+ "standalone": {
+  "falco": {
+   "primary": {
+    "attack": 0.3619047619047619,
+    "benign": 0.2126984126984127,
+    "control": 0.015873015873015872,
+    "TP": 114,
+    "FN": 201,
+    "control_FP": 5,
+    "precision": 0.957983193277311,
+    "p50": 0.002850770950317383,
+    "p95": 0.006456732749938949,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.19047619047619047,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 0.19047619047619047,
+     "invalid_setns_burst": 0.2222222222222222,
+     "seccomp_api_probe": 0.20634920634920634
+    }
+   },
+   "all_rates": {
+    "attack": 0.36450381679389315,
+    "benign": 0.20801526717557253,
+    "control": 0.015267175572519083,
+    "TP": 191,
+    "FN": 333,
+    "control_FP": 8,
+    "precision": 0.9597989949748744,
+    "p50": 0.002846956253051758,
+    "p95": 0.025563716888427734,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.19047619047619047,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 0.20952380952380953,
+     "invalid_setns_burst": 0.21153846153846154,
+     "seccomp_api_probe": 0.20952380952380953
+    }
+   },
+   "burden": 1.1954511674817658
+  },
+  "tripwire": {
+   "primary": {
+    "attack": 0.6,
+    "benign": 0.006349206349206349,
+    "control": 0.0031746031746031746,
+    "TP": 189,
+    "FN": 126,
+    "control_FP": 1,
+    "precision": 0.9947368421052631,
+    "p50": 0.5562524795532227,
+    "p95": 0.7864276885986328,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.0
+    }
+   },
+   "all_rates": {
+    "attack": 0.5992366412213741,
+    "benign": 0.0057251908396946565,
+    "control": 0.003816793893129771,
+    "TP": 314,
+    "FN": 210,
+    "control_FP": 2,
+    "precision": 0.9936708860759493,
+    "p50": 0.5573837757110596,
+    "p95": 1.16094958782196,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.0
+    }
+   },
+   "burden": 0.09903145766121138
+  }
+ },
+ "check": {
+  "ml_burden_window_table_episodes": 1.4175645796647685,
+  "note": "arm A merges episodes per (pod_uid, container); burden_levers merges per window-table identity"
+ },
+ "comparison_primary": {
+  "B1": {
+   "attack_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "control_diff": {
+    "point": 0.015873015873015872,
+    "ci95": [
+     0.0,
+     0.04126984126984127
+    ]
+   },
+   "benign_diff": {
+    "point": 0.0031746031746031746,
+    "ci95": [
+     0.0,
+     0.009523809523809525
+    ]
+   },
+   "burden_diff": {
+    "point": 1.1204702066811347,
+    "ci95": [
+     0.0,
+     3.252375031508331
+    ]
+   },
+   "p95_diff_seconds": {
+    "ci95": [
+     -1.3467079016566332,
+     -0.010556113719940363
+    ]
+   }
+  },
+  "B2": {
+   "attack_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "control_diff": {
+    "point": 0.0031746031746031746,
+    "ci95": [
+     0.0,
+     0.009523809523809525
+    ]
+   },
+   "benign_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "burden_diff": {
+    "point": 0.06649255014395623,
+    "ci95": [
+     0.02031393143030328,
+     0.13274526319022734
+    ]
+   },
+   "p95_diff_seconds": {
+    "ci95": [
+     -1.6159834864735638,
+     -0.03850821048021416
+    ]
+   }
+  },
+  "B3": {
+   "attack_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "control_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "benign_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "burden_diff": {
+    "point": -0.3296332805008894,
+    "ci95": [
+     -0.7512883472047149,
+     -0.0918806204899844
+    ]
+   },
+   "p95_diff_seconds": {
+    "ci95": [
+     2.270302592217923,
+     3.6031271418929167
+    ]
+   }
+  },
+  "B_all": {
+   "attack_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "control_diff": {
+    "point": 0.01904761904761905,
+    "ci95": [
+     0.0,
+     0.044444444444444446
+    ]
+   },
+   "benign_diff": {
+    "point": 0.0031746031746031746,
+    "ci95": [
+     0.0,
+     0.009523809523809525
+    ]
+   },
+   "burden_diff": {
+    "point": 0.8601589465430933,
+    "ci95": [
+     -0.4090985786822865,
+     3.0183441787142797
+    ]
+   },
+   "p95_diff_seconds": {
+    "ci95": [
+     0.8356923621892928,
+     2.3935220524668677
+    ]
+   }
+  }
+ },
+ "streams": {
+  "falco_normal_events": 1018,
+  "falco_unmapped_pods": [],
+  "falco_pod_names_with_several_pods": [],
+  "falco_episodes_outside_window_table": 0,
+  "tripwire_normal_alert_windows": 182,
+  "tripwire_episodes_outside_window_table": 0,
+  "ml_normal_episodes": 1002,
+  "ml_normal_episodes_held_back": 233,
+  "ml_normal_episodes_with_case": 421,
+  "triage_failopen_trials": 44,
+  "trials_unmatched": {
+   "falco": 0,
+   "tripwire": 0
+  }
+ },
+ "normal": {
+  "from_unix": 1792819661.0261967,
+  "replica_hours": 706.8461037852378
+ },
+ "trials": {
+  "n": 1572,
+  "attack": 524
+ },
+ "schema": "pulse-rule-comparison-v1",
+ "protocol": "sentinel_pulse/protocol/rule-integration-v1.json + amendments 1 and 2",
+ "inputs": {
+  "table": "/var/tmp/burden-levers/table-pulse-peer-discount-confirm.npz",
+  "falco": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/analysis/rule-integration/falco-baseline.json",
+  "tripwire": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/analysis/rule-integration/tripwire-a1.json",
+  "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-peer-discount-confirm/cases"
+ },
+ "computed_at_unix": 1792918946.8588448
+}

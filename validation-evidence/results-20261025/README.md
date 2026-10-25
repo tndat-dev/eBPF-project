@@ -15,3 +15,13 @@ Lượt xác nhận chính sách `policy-k2of2-a5-peer30` (chiết khấu theo r
 | `pulse-peer-discount-confirm/replicas-{aims-kafka-dual-role,aims-postgres-cnpg,inventory-service}.json` | Pulse 5.27: so sánh replica ngoài khoảng campaign | `scripts/analysis/replica_compare.py --exclude <attack_not_before − 60>,<trial cuối + 20>` | `$A/analysis/` |
 
 Lần final đầu (snapshot `60093dd`) dùng nhầm bảng cửa sổ của lượt trước vì tên bảng gắn cứng (sửa ở `0a173f8`); các file trên là của lần chạy lại.
+
+## So sánh không có / có rule (RULE_INTEGRATION_STATUS R6, 25/10)
+
+Protocol `rule-integration-v1` + bổ sung 1, 2. Driver `scripts/rule_integration_r6.sh` chạy trên `.234` bằng root (case RCA thuộc root). Mã nguồn chụp ở `/var/tmp/rule-integration/source-<sha>` trên `.234`.
+
+| File | Kết quả cho | Script / lệnh | Bản gốc trên cụm |
+|---|---|---|---|
+| `rule-integration/falco-baseline.json` | Falco từng trial và event normal, từ hết khoảng selection tới hết capture | `scripts/analysis/falco_baseline.py` (`be481a5`, unit `rule-integration-r6`, 13:09) | `$A/analysis/rule-integration/`; log Falco ở `$A/falco-logs/` |
+| `rule-integration/tripwire-a1.json.gz` | Tripwire A1: tham chiếu = khoảng selection, tập exec E, kết quả từng trial, cửa sổ cảnh báo trên normal (gzip mtime 0) | `scripts/analysis/novel_syscalls.py --normal-span` (`be481a5`, 13:10–13:30) | như trên |
+| `rule-integration/rule-comparison.json` | 5 nhánh A, B1, B2, B3, B_all; từng rule đứng riêng; hiệu so với A có CI | `scripts/analysis/rule_comparison.py` (`ae9af77`, unit `rule-integration-r6b`, 15:57–16:02) | như trên; bảng cửa sổ `/var/tmp/burden-levers/table-pulse-peer-discount-confirm.npz` |

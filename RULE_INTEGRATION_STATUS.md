@@ -1,10 +1,10 @@
 # Tích hợp rule — Falco, tripwire A1, triage probe (tách riêng khỏi kết quả ML)
 
-Cập nhật **25/10/2026 13:12 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **25/10/2026 16:10 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
 
-**Trạng thái: đang chạy R6 (25/10).** ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
+**Trạng thái: R6 xong (25/10 16:02), kết quả ở mục R6.** ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
 - Các số ở R2 (Falco) và R3 (tripwire) là đánh giá **riêng lẻ** từng rule, đo trên cùng campaign với Pulse. Chúng chưa phải kết quả tích hợp.
 - `rule_tier.py` chưa chạy riêng; định nghĩa triage của nó được dùng nguyên trong nhánh B3 của R6.
 
@@ -108,7 +108,9 @@ Cập nhật **25/10/2026 13:12 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | ML (CUSUM b3/h6, Pulse 5.13b) | 100% | 2,9% | 98,1% | 5,32 | 1,70 s (tới preview) |
 | Falco, rule mặc định (R2) | 35,6% | 3,2% | 21,0% | 1,19 (99% từ một pod; ~0,01 nếu thêm exception) | 0,005 s (thời điểm event) |
 | Tripwire A1 (R3) | 60% (100% ở 3 kịch bản syscall hiếm) | 0% | 0% | chưa đo trên normal dài | 0,76–0,79 s |
-| ML sau triage probe (R4) | chờ ML hoàn thiện (R6) | | | | cộng độ trễ chờ case RCA |
+| ML sau triage probe (R4) | xem R6 | | | | cộng độ trễ chờ case RCA |
+
+- **Trên lượt xác nhận `pulse-peer-discount-confirm`** (kết quả từng trial, cùng khoảng normal với ML): xem bảng "từng rule đứng riêng" ở R6.
 
 - **Hợp ML ∪ Falco:**
   - recall = 100% (ML đã 100%);
@@ -156,10 +158,70 @@ Cập nhật **25/10/2026 13:12 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
   - RCA gắn nhãn triage cho mọi case, và báo tỉ lệ đợt ML không có case.
 
 **Còn thiếu:**
-- [ ] Gánh của tripwire trên normal dài (tham chiếu một khoảng, đo trên khoảng sau): đang chạy trong R6 (25/10).
-- [ ] Đường triage nhanh (không chờ case RCA đầy đủ) để giữ kernel → gọi người ≤ 3 s.
+- [x] Gánh của tripwire trên normal dài (tham chiếu một khoảng, đo trên khoảng sau): 0,099 đợt/replica-giờ trên 10,6 giờ normal (R6, 25/10).
+- [ ] Đường triage nhanh (không chờ case RCA đầy đủ) để giữ kernel → gọi người ≤ 3 s. R6 cho thấy cần thật: chờ case làm p95 tăng thêm 2,3–3,6 s, và 58% đợt ML trên normal không có case nào để triage.
 - [ ] Triage khớp cả tham số của probe, không chỉ tên binary (chống né).
 - [x] Kết quả từng trial cho Falco ở lượt live sau, để tính hợp chính xác (`pulse-peer-discount-confirm`, 25/10).
+
+### R6 — kết quả (25/10, `pulse-peer-discount-confirm`, bổ sung 2)
+
+**Dữ liệu:**
+- 1.572 trial, trong đó 524 attack. Tập chính (6, 12, 24/s) có 315 attack, 315 control, 315 binary vô hại.
+- Khoảng normal chung: từ hết campaign tới hết capture, 10,6 giờ, 706,8 replica-giờ. Khoảng campaign bị loại (gồm lề 60 s) bắt đầu 65 s sau khi hết khoảng selection, nên trên thực tế khoảng normal của R6 là phần sau campaign.
+- Ghép cặp đủ: mọi trial ML đều có kết quả Falco và tripwire; mọi pod của Falco đều map được sang pod_uid; không event nào của rule rơi ngoài bảng cửa sổ.
+
+**Kiểm số ML (bắt buộc theo protocol):** nhánh A khớp Pulse 5.27: recall 98,7%, precision 98,7%, control 1,3%.
+- p95 ở đây là 2,91 s, so với 2,88 s của campaign. Hai số khác nhau vì định nghĩa: ở đây độ trễ = cuối cửa sổ cảnh báo − `kernel_event_at`, đo trên 315 trial của bảng cửa sổ; campaign tính tới lúc ghi preview, trên 310 trial coordinator chấm được. Mọi nhánh R6 dùng cùng một định nghĩa.
+- Gánh của A trên khoảng normal R6 là 1,42 đợt/replica-giờ, so với 1,69 của Pulse 5.27. Khác vì khoảng normal khác (1,69 tính từ đầu khoảng selection). Cách gộp đợt không làm đổi số: gộp theo (pod_uid, container) hay theo định danh bảng cửa sổ đều ra 1,418.
+
+**Từng rule đứng riêng, cùng trial và cùng khoảng normal:**
+
+| Luồng | Recall attack, tập chính (mọi tốc độ) | Theo kịch bản | Control | Binary vô hại | Precision | Đợt/replica-giờ | p95 |
+|---|---|---|---|---|---|---|---|
+| ML (A) | 98,7% (94,5%) | 96,8–100% | 1,3% | 85,7% | 98,7% | 1,42 | 2,91 s |
+| Falco, rule mặc định | 36,2% (36,5%) | ptrace 100%, còn lại 19–22% | 1,6% | 21,3% | 95,8% | 1,20 | 0,007 s |
+| Tripwire A1 | 60,0% (59,9%) | ptrace, execveat, setns 100%; mprotect, seccomp 0% | 0,3% | 0,6% | 99,5% | **0,099** | 0,79 s |
+
+- **Tripwire lặp lại kết quả blind của R3 trên một lượt mới**, và lần đầu có gánh trên normal dài: 0,099 đợt/replica-giờ, nằm trong ngân sách 0,1.
+- **Falco:** 839/845 đợt normal đến từ một rule ("Unexpected connection to K8s API Server") trên một workload (`aims-kafka-entity-operator`, operator Strimzi gọi API server là hành vi hợp lệ). Mọi control dương của Falco cũng đến từ rule này (5 ở tập chính, 8 trên mọi tốc độ).
+
+**Các nhánh, tập chính:**
+
+| Nhánh | Recall (mọi tốc độ) | Control | Binary vô hại | Precision | p50 | p95 (mọi tốc độ) | Đợt/replica-giờ |
+|---|---|---|---|---|---|---|---|
+| A — ML | 98,7% (94,5%) | 1,3% (4) | 85,7% | 98,7% | 0,86 s | 2,91 s (3,72 s) | 1,42 |
+| B1 — ML + Falco | 98,7% (95,2%) | 2,9% (9) | 86,0% | 97,2% | 0,71 s | 2,48 s (3,20 s) | 2,54 |
+| B2 — ML + tripwire | 98,7% (96,6%) | 1,6% (5) | 85,7% | 98,4% | 0,68 s | 2,44 s (2,61 s) | 1,48 |
+| B3 — ML rồi triage probe | 98,7% (94,5%) | 1,3% (4) | 85,7% | 98,7% | 3,23 s | 5,90 s (6,52 s) | 1,09 |
+| B_all | 98,7% (96,6%) | 3,2% (10) | 86,0% | 96,9% | 0,54 s | 4,82 s (4,88 s) | 2,28 |
+
+**Hiệu so với A (tập chính, CI 95%; bootstrap theo workload 10.000 lần, p95 bootstrap theo trial):**
+
+| Nhánh | Recall | Control | Binary vô hại | Đợt/replica-giờ | p95 |
+|---|---|---|---|---|---|
+| B1 | 0 [0; 0] | +1,6 điểm [0; +4,1] | +0,3 điểm [0; +1,0] | +1,12 [0; +3,25] | −0,43 s [−1,35; −0,01] |
+| B2 | 0 [0; 0] | +0,3 điểm [0; +1,0] | 0 [0; 0] | **+0,066 [+0,020; +0,133]** | **−0,47 s [−1,62; −0,04]** |
+| B3 | 0 [0; 0] | 0 [0; 0] | 0 [0; 0] | **−0,33 [−0,75; −0,09]** | **+2,3 s đến +3,6 s** (CI của hiệu) |
+| B_all | 0 [0; 0] | +1,9 điểm [0; +4,4] | +0,3 điểm [0; +1,0] | +0,86 [−0,41; +3,02] | +0,84 s đến +2,39 s |
+
+CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm của Falco nằm ở một workload: các lần lấy mẫu không có workload đó cho hiệu 0.
+
+**Triage (B3):**
+- Giữ lại 233/1.002 đợt ML trên normal (−23% gánh); không giữ attack hay control nào.
+- Chỉ 421 đợt (42%) có case RCA; 581 đợt còn lại đi qua theo luật fail-open. 44 trial ML dương không có case, nên dùng thời điểm preview.
+- Chờ case RCA đẩy p95 lên 5,90 s, quá mức ≤ 3 s.
+
+**Đọc kết quả (mô tả; protocol không có luật nhận/bỏ, chủ đồ án quyết định):**
+1. Ở tập chính, không rule nào tăng recall. ML đã bắt 98,7%; 4 trial bỏ sót là `mprotect`/`seccomp`, và cả Falco lẫn tripwire đều không bắt được hai kịch bản này.
+2. Ở tốc độ chậm (1, 3/s), tripwire thêm 2,1 điểm recall (94,5% → 96,6%), Falco thêm 0,8 điểm.
+3. **B2 (ML + tripwire) là nhánh duy nhất** vừa giữ mọi số ML, vừa ở mức ≤ 3 s, vừa nhanh hơn (p95 −0,47 s), với chi phí gánh nhỏ nhưng có ý nghĩa: +0,066 đợt/replica-giờ (+4,7%) và 1 control dương thêm.
+4. **B1 (Falco mặc định):** gánh +79% và control gấp đôi, đều do một rule trên một workload hợp lệ. Muốn dùng phải thêm exception cho rule đó (chi phí bảo trì). Lợi ích: p95 nhanh hơn nhờ phát hiện ptrace trong vài ms.
+5. **B3 (triage chờ case RCA đầy đủ):** giảm gánh 23% mà không mất attack, nhưng không dùng được ở thời điểm gọi người vì làm hỏng mức độ trễ. Chỉ dùng được nếu có đường triage nhanh (mục "Còn thiếu").
+6. **B_all:** tệ nhất về control và p95, vì cộng nhiễu của Falco với độ trễ của triage.
+
+**Biên nhận:** `validation-evidence/results-20261025/rule-integration/` (`falco-baseline.json`, `tripwire-a1.json.gz`, `rule-comparison.json`; SHA-256 khớp bản gốc trên NFS `pulse-peer-discount-confirm/analysis/rule-integration/`).
+- Code: Falco và tripwire chạy trên snapshot `be481a5` (13:09–13:35). Bước ghép chạy lại trên `ae9af77` (15:57–16:02) để thêm số từng rule đứng riêng, tỉ lệ đợt có case và phép kiểm gánh ML; mọi số đã có trước đó giữ nguyên từng trường.
+- Dữ liệu phụ của bổ sung 2 (`pulse-stable-confirm`, nhánh A tính lại) chưa chạy; chỉ để báo cáo, không dùng cho kết luận.
 
 ## Nhật ký
 
@@ -177,3 +239,6 @@ Cập nhật **25/10/2026 13:12 (UTC+7)**. Giờ trong file là UTC+7, trừ khi
 | 25/10 12:56 | Đăng ký bổ sung 2 của `rule-integration-v1` (dữ liệu chính `pulse-peer-discount-confirm`, nhánh A = preview live, một khoảng normal chung, khóa container, độ trễ B3) trước mọi số rule của lượt | R6 |
 | 25/10 13:07–13:08 | Code R6: `rule_comparison.py` + test (428 test pass), `novel_syscalls.py --normal-span`, tên container trong event Falco; driver `rule_integration_r6.sh`; đồng bộ GitHub, .234 và 3 worker (`be481a5`) | R6 |
 | 25/10 13:09 | Chạy R6 trên .234 (unit `rule-integration-r6`, root vì case RCA thuộc root, MemoryMax 24G, mã nguồn chụp `be481a5`). Không có lượt live nào đang chạy. Bước Falco xong 13:10; tripwire đọc toàn bộ feature (11 GB), ước tính 2–3 giờ | R6 |
+| 25/10 13:35 | R6 xong lần đầu (Falco, tripwire, ghép 5 nhánh); tripwire đọc toàn bộ feature chỉ mất 21 phút, nhanh hơn nhiều so với ước tính 2–3 giờ | R6 |
+| 25/10 15:57–16:02 | Bước ghép chạy lại trên `ae9af77` để thêm phần còn thiếu theo danh sách báo cáo của protocol: từng rule đứng riêng, tỉ lệ đợt ML có case, kiểm gánh ML. Số cũ giữ nguyên từng trường | R6 |
+| 25/10 16:03–16:10 | Biên nhận vào repo (SHA khớp NFS); kết quả R6 ghi ở trên | R6 |

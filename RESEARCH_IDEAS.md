@@ -88,7 +88,7 @@ Ba đóng góp:
 5. **G6:** calibration tự làm mới trong live; so sánh replica.
 6. **G7, G8, G9:** overhead, review nhãn, artifact, viết.
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 25/10 12:05)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 25/10 16:15)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
@@ -99,18 +99,18 @@ Ba đóng góp:
 
 | Hạng mục | % | Đã có | Còn thiếu |
 |---|---:|---|---|
-| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~95% | Chạy ổn định 24 giờ nhiều lượt (lượt xác nhận: 3 worker, capture liên tục); chấm nhanh khớp từng bit; CPU worker 13–31%; overhead probe (5.21); CUSUM `cap` chạy live; đường cảnh báo thật qua Alertmanager: kernel → người nhận p95 2,89 s trên tập chính (RCA 5.14); `.234` đã tắt tự nâng cấp gói; chiết khấu theo replica chạy live, các worker trao đổi mặt nạ syscall (5.26) | Calibration tự làm mới trong live; bỏ ghi NFS khỏi đường chấm điểm (rủi ro độ trễ, 5.26) |
+| Hệ thống Pulse (thu thập, model, chấm nhanh, alert) | ~95% | Chạy ổn định 24 giờ nhiều lượt (lượt xác nhận: 3 worker, capture liên tục); chấm nhanh khớp từng bit; CPU worker 13–31%; overhead probe (5.21); CUSUM `cap` chạy live; đường cảnh báo thật qua Alertmanager: kernel → người nhận p95 2,89 s trên tập chính (RCA 5.14); `.234` đã tắt tự nâng cấp gói; chiết khấu theo replica chạy live, các worker trao đổi mặt nạ syscall (5.26) | Calibration tự làm mới trong live; bỏ ghi NFS khỏi đường chấm điểm (rủi ro độ trễ, 5.26). Bridge thử lại push lỗi (25/10, áp dụng lượt sau) |
 | Đánh giá Pulse ML cho luận văn | ~97% | 4 lượt live; final `pulse-stable-refreshed` (5.13b); ML stable chốt lại sau khi phát hiện CUSUM nhớ alarm (5.19 bổ sung 1): CUSUM `cap`, 4/4 kỳ vọng ở mức ≤ 3 s trên luồng liên tục; baseline lặp lại (5.15b); chiến lược calibration (5.17); Pareto 2 lượt; review nhãn | Lượt xác nhận `pulse-stable-confirm`: campaign **không đạt** (precision 94,6%, control 5,8%, recall 100%, p95 2,53 s; 14/18 control dương ở worker1, Pulse 5.25); chờ final (gánh, test blind 5.22, ~03:00 24/10). Nếu 5.22 đạt blind: thêm một lượt live 24 giờ; nếu không: báo "đạt trên development, không đạt trên lượt xác nhận" |
 | Giảm gánh cảnh báo (Pulse 5.22) | ~97% | Kết quả development: chiết khấu theo replica cho 1,5–2,4 đợt/replica-giờ (−65–75%), control ~1%, đạt 4 kỳ vọng ở cả 2 mức độ trễ | Test blind đạt (5.25); lượt live xác nhận đạt 4 kỳ vọng và điều kiện gánh: 1,69 đợt/replica-giờ, −63% / −72% (5.27). Còn: kafka worker1 lệch (nguồn gánh lớn nhất); vẫn gấp ~17 lần ngân sách 0,1 |
 | Thí nghiệm syscall + nhóm feature | ~98% | Kết luận syscall có CI dưới k2of2 và dưới CUSUM (5C); nhóm feature trên hai holdout, gộp theo luật bổ sung (5B.3), cả hai nhánh p-value cần; dưới CUSUM `cap` không đổi kết luận nào (5C) | Chỉ còn viết vào luận văn; đổi feature (bỏ 64 bin syscall) cần lượt live riêng, không làm |
 | RCA | ~95% | Lượt xác nhận (525 cặp): coverage 86,9%, top-1 99,8%, preview → case p95 2,50 s (RCA 5.15); 13% không có case riêng đã rõ nguyên nhân (fixture dùng chung đường dẫn binary); nhãn triage; seed binary (5.12); ánh xạ IP node và probe Istio (5.13); ví dụ cây thật trong repo | RCA nhận trigger từ Alertmanager chạy live; đổi tên binary vô hại cho campaign; backend sau DNAT, client sau waypoint (ghi là giới hạn). Seed đã đo: 11,3% → 6,8% (RCA 5.15) |
-| Baseline ML (G1) | ~97% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29; Holm trên 24 so sánh (24/10): mọi kết luận ở ngân sách 1 đứng vững, chỉ lật 2 hiệu tách ở ngân sách 18 (Pulse 5.15b) | Luật Falco đặt cạnh ML (phần rule, R2 đã có số; so sánh R6 sau) |
-| Phần rule, tách khỏi ML | ~45% | Falco riêng (R2); tripwire riêng đạt blind (R3); tầng triage có protocol và code (R4); thiết kế so sánh có/không rule (R6) | Chạy so sánh sau khi ML hoàn thiện; gánh tripwire trên normal dài; đường triage nhanh |
+| Baseline ML (G1) | ~99% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29; Holm trên 24 so sánh (24/10): mọi kết luận ở ngân sách 1 đứng vững, chỉ lật 2 hiệu tách ở ngân sách 18 (Pulse 5.15b) | Xong cả phần Falco đặt cạnh ML trên cùng trial (R6); còn viết |
+| Phần rule, tách khỏi ML | ~90% | So sánh có/không rule R6 xong trên lượt xác nhận (25/10): không rule nào tăng recall ở tập chính; ML + tripwire giữ mọi số ML ở mức ≤ 3 s, p95 −0,47 s, gánh +0,066; tripwire riêng 0,099 đợt/replica-giờ (trong ngân sách 0,1); Falco mặc định +79% gánh; triage chờ case −23% gánh nhưng p95 5,90 s | Chủ đồ án chọn nhánh; dữ liệu phụ (chỉ báo cáo); đường triage nhanh; triage khớp tham số probe |
 | Overhead (G7) | ~80% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi | Kernel/distro khác; độ trễ request ứng dụng thật |
 | Kẻ tấn công chậm (G4) | ~60% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
-| Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng tổng hợp RCA và syscall |
+| Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng R6; bảng tổng hợp RCA và syscall |
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
-| **Luận văn (tổng thể, gồm viết)** | **~87%** | Thí nghiệm ~97%; ML stable xác nhận live, cả 4 kỳ vọng và điều kiện gánh (Pulse 5.27); syscall, RCA, baseline gần xong; biên nhận 22–25/10 trong repo; 7 hình + bảng | So sánh có/không rule (R6); viết chương |
+| **Luận văn (tổng thể, gồm viết)** | **~90%** | Thí nghiệm ~98%; ML stable xác nhận live, cả 4 kỳ vọng và điều kiện gánh (Pulse 5.27); so sánh có/không rule xong (R6); syscall, RCA, baseline gần xong; biên nhận 22–25/10 trong repo; 7 hình + bảng | Viết chương; hình/bảng R6 |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
 | Dataset công khai (G3) | 0% (tạm hoãn) | | Xem lại khi viết paper |
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
@@ -121,7 +121,7 @@ Ba đóng góp:
 **Đường ngắn nhất để xong luận văn (24/10):**
 1. Đọc final của lượt xác nhận (gánh cảnh báo, test blind 5.22, seed RCA, phân loại cảnh báo, so sánh 3 broker kafka).
 2. Áp luật đã đăng ký: nếu đề xuất 5.22 đạt rule 5 trên lượt này, đóng băng cấu hình đó và chạy một lượt live 24 giờ để xác nhận; nếu không, ghi ML stable là "đạt trên development, không đạt trên lượt xác nhận", kèm phân tích độ nhạy (`cnpg-2`).
-3. So sánh có/không rule (R6) trên dữ liệu lượt xác nhận.
+3. [x] So sánh có/không rule (R6) trên dữ liệu lượt xác nhận (25/10 16:02).
 4. Viết chương: mở đầu, nền tảng, công trình liên quan, thiết kế, cài đặt, đánh giá, thảo luận và giới hạn, kết luận. Dùng hình trong `docs/figures/` và `references/KNOWLEDGE_SYNTHESIS.md`.
 
 Lượt live thêm, exploit thật và LID-DS là phần cho paper, làm sau.
