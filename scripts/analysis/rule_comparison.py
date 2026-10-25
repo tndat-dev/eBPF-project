@@ -239,7 +239,7 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
     in_normal = lambda x: x >= normal_from and x <= float(a['end'][normal].max()) and not lo_c < x < hi_c
     ml_ev, tri_ev = defaultdict(list), defaultdict(list)
     idx = np.flatnonzero(ml_alarm & normal)
-    held_episodes = episodes_total = 0
+    held_episodes = episodes_total = matched_episodes = 0
     if len(idx):
         ident, end = a['ident'][idx], a['end'][idx]
         first = np.ones(len(idx), bool)
@@ -250,7 +250,8 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
             times = end[s0:s1].tolist()
             ml_ev[key] += times
             episodes_total += 1
-            _, held, _ = triage(cases.get(key), end[s0] - TRIAGE_MATCH, end[s1 - 1] + TRIAGE_MATCH)
+            matched, held, _ = triage(cases.get(key), end[s0] - TRIAGE_MATCH, end[s1 - 1] + TRIAGE_MATCH)
+            matched_episodes += matched
             if held:
                 held_episodes += 1
             else:
@@ -292,7 +293,14 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
                          all_rates=trial_metrics(t, hits[arm], ats[arm], every),
                          burden=sum(episodes[arm].values()) / total_hours,
                          normal_episodes_by_workload=dict(sorted(episodes[arm].items(), key=lambda kv: -kv[1])))
-    return dict(arms=arms,
+    standalone = {}                              # each rule stream alone (reporting list of rule-integration-v1)
+    for name, (h, tm), ev in (('falco', (f_hit, f_at), f_ev), ('tripwire', (w_hit, w_at), w_ev)):
+        hit, at = arm_trials(t, [(h, tm)])
+        standalone[name] = dict(primary=trial_metrics(t, hit, at, primary), all_rates=trial_metrics(t, hit, at, every),
+                                burden=sum(episodes_by_cluster(ev, cluster_of).values()) / total_hours)
+    check = dict(ml_burden_window_table_episodes=bl.episodes(a['ident'], a['end'], ml_alarm & normal, QUIET) / total_hours,
+                 note='arm A merges episodes per (pod_uid, container); burden_levers merges per window-table identity')
+    return dict(arms=arms, standalone=standalone, check=check,
                 comparison_primary=bootstrap(t, hits, ats, primary, episodes, hours),
                 streams=dict(falco_normal_events=sum(map(len, f_ev.values())), falco_unmapped_pods=sorted(unmapped),
                              falco_pod_names_with_several_pods=ambiguous_names,
@@ -300,6 +308,7 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
                              tripwire_normal_alert_windows=sum(map(len, w_ev.values())),
                              tripwire_episodes_outside_window_table=outside(w_ev),
                              ml_normal_episodes=episodes_total, ml_normal_episodes_held_back=held_episodes,
+                             ml_normal_episodes_with_case=matched_episodes,
                              triage_failopen_trials=int(failopen), trials_unmatched=unmatched),
                 normal=dict(from_unix=normal_from, replica_hours=total_hours),
                 trials=dict(n=int(n), attack=int((t['label'] == 'attack').sum())))

@@ -70,7 +70,11 @@ def test_arms_combine_streams_per_trial_and_per_container():
     s = out['streams']
     assert s['falco_unmapped_pods'] == ['ghost'] and s['falco_pod_names_with_several_pods'] == ['pod1']
     assert s['falco_normal_events'] == 3 and s['falco_episodes_outside_window_table'] == 1
-    assert s['ml_normal_episodes'] == 2 and s['ml_normal_episodes_held_back'] == 1
+    assert s['ml_normal_episodes'] == 2 and s['ml_normal_episodes_held_back'] == 1 and s['ml_normal_episodes_with_case'] == 1
+    alone = out['standalone']
+    assert alone['falco']['primary']['attack'] == .5 and alone['tripwire']['primary']['attack'] == .5
+    assert round(alone['falco']['burden'] * hours, 6) == 3 and round(alone['tripwire']['burden'] * hours, 6) == 1
+    assert round(out['check']['ml_burden_window_table_episodes'] * hours, 6) == 2
     assert s['triage_failopen_trials'] == 0 and s['trials_unmatched'] == dict(falco=0, tripwire=0)
     cmp_ = out['comparison_primary']
     assert set(cmp_) == {'B1', 'B2', 'B3', 'B_all'}
