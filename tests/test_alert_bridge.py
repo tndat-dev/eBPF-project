@@ -200,3 +200,31 @@ def test_first_delivery_of_an_episode_writes_one_rca_trigger_with_the_original_r
     assert len(triggers) == 1 and triggers[0]['path'] == 'push' and triggers[0]['delivered_at'] == 100.4
     assert triggers[0]['row'] == first
     assert 'row' not in json.loads((tmp_path/'episodes.jsonl').read_text().splitlines()[0])
+
+
+def test_tripwire_rows_open_and_extend_the_same_container_episode(tmp_path):
+    bridge = Bridge(CFG, tmp_path)
+    trip = row(100.0, preview=False, tripwire_alert=True, tripwire_status='judged', tripwire_novel_ids=[308])
+    ep = bridge.ingest(trip, 100.3)
+    assert ep is not None and ep['first_kind'] == 'tripwire_alert'
+    assert bridge.ingest(row(100.5), 100.8) is ep and ep['rows'] == 2            # ML preview joins the episode
+    assert bridge.ingest(row(101.0, preview=False, tripwire_status='reference_pending', tripwire_alert=True), 101.3) is None
+    _, (alert,) = bridge.pushes.get_nowait()
+    assert alert['annotations']['trigger'] == 'tripwire_alert' and alert['labels']['episode'] == case_id(trip)
+    assert bridge.counters['rows_tripwire_alert'] == 1 and bridge.counters['rows_candidate_alert_preview'] == 1
+
+
+def test_follower_passes_preview_and_tripwire_rows(tmp_path):
+    from sentinel_pulse.ops.alert_bridge import NEEDLES
+    seg = tmp_path/'segments'/'s00001'; seg.mkdir(parents=True)
+    log = seg/'decisions.jsonl'; log.write_text('')
+    child = subprocess.Popen([sys.executable, '-u', '-c', FOLLOWER, str(tmp_path), *NEEDLES], stdout=subprocess.PIPE)
+    try:
+        time.sleep(0.5)
+        with open(log, 'a') as handle:
+            handle.write('{"a":1,"candidate_alert_preview":false}\n{"a":2,"candidate_alert_preview":false,"tripwire_alert":true}\n'
+                         '{"a":3,"candidate_alert_preview":true,"tripwire_alert":false}\n')
+        lines = [json.loads(child.stdout.readline()) for _ in range(2)]
+    finally:
+        child.kill()
+    assert [l['a'] for l in lines] == [2, 3]

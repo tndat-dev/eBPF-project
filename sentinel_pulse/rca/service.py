@@ -293,7 +293,7 @@ class Service:
             'preview_emitted_at', 'candidate_manifest_sha256', 'policy_sha256', 'candidate_alert_preview',
             'policy_evaluated', 'serving_compatible', 'container_id',
             'joint_p', 'tree_p', 'support_p', 'candidate_policy_alpha', 'alert', 'policy_applied',
-            'trigger_source', 'alert_delivered_at', 'alert_path')}
+            'trigger_source', 'alert_delivered_at', 'alert_path', 'tripwire_status', 'tripwire_alert', 'tripwire_novel_ids')}
         if follow_up_of:
             safe['follow_up_of'] = follow_up_of
         self.db.execute('insert or ignore into cases values(?,?,?,?,?)',

@@ -36,6 +36,8 @@ import urllib.request
 from ..rca.tree import case_id, identity, trigger_kind
 
 NEEDLE = '"candidate_alert_preview":true'
+NEEDLES = (NEEDLE, '"tripwire_alert":true')     # ML preview and tripwire A1 rows (final system, 25/10)
+TRIGGERS = ('candidate_alert_preview', 'tripwire_alert')
 ALERTNAMES = ('SentinelPulseAnomaly', 'SentinelPulseAnomalyPull')
 BUCKETS = (0.25, 0.5, 1, 1.5, 2, 3, 5, 10, 20, 30, 45, 60, 90, 120)
 PUSH_ATTEMPTS, PUSH_RETRY_SECONDS = 3, 0.5
@@ -43,7 +45,7 @@ PUSH_ATTEMPTS, PUSH_RETRY_SECONDS = 3, 0.5
 # Runs on the worker: follow the newest decision segment from its end, print only the lines holding the needle.
 FOLLOWER = r'''
 import glob, sys, time
-root, needle = sys.argv[1], sys.argv[2].encode()
+root, needles = sys.argv[1], [n.encode() for n in sys.argv[2:]]
 def newest():
     paths = sorted(glob.glob(root + "/segments/s*/decisions.jsonl"))
     return paths[-1] if paths else None
@@ -55,7 +57,7 @@ while True:
     chunk = stream.read(1 << 20)
     if chunk:
         *lines, buf = (buf + chunk).split(b"\n")
-        hits = [line for line in lines if needle in line]
+        hits = [line for line in lines if any(n in line for n in needles)]
         if hits:
             sys.stdout.buffer.write(b"\n".join(hits) + b"\n"); sys.stdout.flush()
         continue
@@ -132,18 +134,19 @@ class Bridge:
         self.counters[name] += amount
 
     def ingest(self, row, received_at):
-        if trigger_kind(row, self.cfg['model_hash'], self.cfg['policy_hash']) != 'candidate_alert_preview':
+        kind = trigger_kind(row, self.cfg['model_hash'], self.cfg['policy_hash'])
+        if kind not in TRIGGERS:
             self.count('rows_ignored'); return None
         key = identity(row)
         with self.lock:
-            self.count('positive_rows')
+            self.count('positive_rows'); self.count(f'rows_{kind}')
             ep = self.active.get(key)
             if ep is None:
                 ep = dict(episode=case_id(row), node=row['node_name'], pod_uid=row['pod_uid'],
                           container=row['container_name'], workload_key=row['workload_key'],
                           window_end=float(row['window_end']), preview_emitted_at=float(row['preview_emitted_at']),
                           joint_p=row.get('joint_p'), bridge_received_at=received_at, rows=0, first_push_at=None,
-                          last_push=received_at, ended_at=None, row=row, triggered=False)
+                          last_push=received_at, ended_at=None, row=row, triggered=False, first_kind=kind)
                 self.active[key] = ep; self.episodes[ep['episode']] = ep
                 self.count('episodes_started')
                 self.lag.observe({}, received_at - ep['preview_emitted_at'])
@@ -181,6 +184,7 @@ class Bridge:
                     annotations=dict(summary=f"Pulse preview on {labels['workload']} ({ep['node']})",
                                      window_end=str(ep['window_end']), preview_emitted_at=str(ep['preview_emitted_at']),
                                      joint_p=str(ep['joint_p']), rca_case=ep['episode'],
+                                     trigger=ep.get('first_kind', 'candidate_alert_preview'),
                                      stage='shadow preview of the frozen model and policy; not an automatic response'))
 
     def pushed(self, episode, at):
@@ -318,7 +322,7 @@ class Streams:
     def start(self, worker):
         spec = self.cfg['ssh']
         remote = ['timeout', str(int(spec.get('rotate_seconds', 3600))), 'python3', '-u', '-c', FOLLOWER,
-                  worker['output'], NEEDLE]
+                  worker.get('stream_root', worker['output']), *NEEDLES]
         args = ['sshpass', '-f', spec['credential'], 'ssh', '-o', 'StrictHostKeyChecking=yes',
                 '-o', 'UserKnownHostsFile=' + spec.get('known_hosts', '/home/dat/.ssh/known_hosts'),
                 '-o', 'ServerAliveInterval=10', f"{spec.get('user', 'dat')}@{worker['host']}",

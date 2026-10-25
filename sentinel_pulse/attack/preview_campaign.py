@@ -14,7 +14,7 @@ import subprocess
 import time
 
 from ..integrity import sha256_file
-from .cluster import Runtime, binary_path_for_controller, select_target
+from .cluster import Runtime, benign_path_for, binary_path_for_controller, select_target
 from ..common import append_jsonl, atomic_json
 from .preview_evaluation import evaluate_interval, summarize
 from .tetragon_evidence import EXEC_PROVENANCE_POLICY, find_execve_kprobe_event
@@ -33,7 +33,7 @@ def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
     # can temporarily hide appended rows even after Python flushes on worker.
     args=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
         '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.attack.preview_read_tail',
-        '--root',worker['output'],'--since',str(begin),'--pod-uid',pod_uid,'--cgroup-id',str(cgroup_id)]
+        '--root',worker.get('stream_root',worker['output']),'--since',str(begin),'--pod-uid',pod_uid,'--cgroup-id',str(cgroup_id)]
     result=runtime.remote_sudo(worker['host'],shlex.join(args))
     return [json.loads(line) for line in result.stdout.splitlines()]
 
@@ -67,7 +67,12 @@ def one_pair(runtime,cfg,root,item,index):
     prefix=['/usr/bin/env','PYTHONPATH='+cfg['source'],'PYTHONDONTWRITEBYTECODE=1',
             '/opt/sentinel-pulse/runtime-venv/bin/python','-m','sentinel_pulse.attack.preview_target']
     runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*args]))
-    sensor=None;capture=None;staged=True;injection=None;benign=None
+    sensor=None;capture=None;staged=True;injection=None;benign=None;benign_args=None
+    benign_path=path
+    if cfg.get('benign_exec_control') and cfg.get('benign_binary_distinct'):
+        benign_path=benign_path_for(path)
+        benign_args=[*args[:-1],benign_path]
+        runtime.remote_sudo(worker['host'],shlex.join([*prefix,'stage',*benign_args]))
     try:
         sensors=runtime.kubectl_json('get','pods','-n','kube-system','-l','app.kubernetes.io/name=tetragon','-o','json')
         sensor=next(p['metadata']['name'] for p in sensors['items'] if p['spec'].get('nodeName')==pod['node_name'])
@@ -85,10 +90,10 @@ def one_pair(runtime,cfg,root,item,index):
                 # Same launch path and binary, attack-free body: isolates the
                 # effect of "a new process ran" from attack behaviour.
                 benign=dict(identity,**item,label='expected_normal',control_kind='benign_exec',
-                    start_at=time.time(),trial_id=f'{index}:benign',binary_path=path,duration_seconds=15)
+                    start_at=time.time(),trial_id=f'{index}:benign',binary_path=benign_path,duration_seconds=15)
                 append_jsonl(root/'INTERVALS.jsonl',benign)
                 result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',
-                    path,'benign_exec_control','15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
+                    benign_path,'benign_exec_control','15',str(item['rate_per_second']),str(item['seed'])],timeout=45,check=False)
                 (trial_dir/'benign.stderr').write_bytes(result.stderr)
                 if result.returncode or b'done' not in result.stderr:benign['infrastructure_issue']='benign_fixture_failed'
                 time.sleep(5)  # keep benign windows out of the attack interval's 3-window history
@@ -129,6 +134,8 @@ def one_pair(runtime,cfg,root,item,index):
             except subprocess.TimeoutExpired:capture.kill();capture.wait()
         if staged:
             runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*args]))
+        if benign_args is not None:
+            runtime.remote_sudo(worker['host'],shlex.join([*prefix,'cleanup',*benign_args]))
 
 
 def run(config,credential):

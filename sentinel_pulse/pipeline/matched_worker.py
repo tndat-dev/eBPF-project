@@ -21,7 +21,9 @@ from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
 from ..detector.idle_batch import IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
-from ..detector.novelty import PeerNovelty
+from ..detector.novelty import PeerNovelty, id_mask
+from ..rules.tripwire import Tripwire, load_exec_set
+from .async_sink import AsyncSink, AsyncState
 from .peer_exchange import PeerExchange
 from ..integrity import sha256_file
 from .retention import OutputPolicy, ScoreBuffer
@@ -110,11 +112,29 @@ def run(config_path):
     if policy.sha256!=cfg['policy_hash']:raise ValueError('policy hash changed')
     # evidence discount (policy key evidence_discount): peer novelty across segments, masks exchanged with the
     # other workers of the run (cfg peer_exchange: listen [host, port], peers [[host, port], ...])
-    novelty=exchange=None
+    novelty=exchange=tripwire=None
     if getattr(policy,'discount',None):
         if not cfg.get('peer_exchange'):raise ValueError('policy needs peer_exchange in the worker config')
         novelty=PeerNovelty(set(scorer.models),seconds=policy.discount['seconds'])
+    # tripwire A1 beside ML (rules/tripwire.py; cfg tripwire: exec_set, exec_set_sha256, reference_span, grace_seconds):
+    # the other workers' windows come over the same peer exchange; it never changes an ML field
+    if cfg.get('tripwire'):
+        if novelty is None:raise ValueError('tripwire needs the peer exchange of the evidence discount')
+        tw=cfg['tripwire']
+        tripwire=Tripwire(set(scorer.models),load_exec_set(Path(tw['exec_set']),tw['exec_set_sha256']),
+                          tw['reference_span'],tw.get('grace_seconds',60.))
+    if novelty is not None:
         exchange=PeerExchange(cfg['peer_exchange']['listen'],cfg['peer_exchange']['peers']).start()
+    # shared storage off the scoring loop (pipeline/async_sink.py; cfg async_shared_writes) and a local copy of the
+    # decisions that the alert bridge, RCA and campaign read on the worker (cfg stream_root)
+    shared=bool(cfg.get('async_shared_writes'))
+    stream_root=Path(cfg['stream_root']) if cfg.get('stream_root') else None
+    status_writer=AsyncState(state_path,atomic_json) if shared else None
+    def save_state():
+        if status_writer is not None:status_writer.put(state)
+        else:atomic_json(state_path,state)
+    def shared_sink(path):
+        return AsyncSink(path) if shared else path.open('x')
     # retention (pipeline/retention.py): absent keys keep the experiment behaviour (every row written, no buffer)
     outputs=OutputPolicy(cfg.get('outputs'))
     scores=(ScoreBuffer(Path(cfg['score_buffer']['path']),cfg['score_buffer'].get('retention_hours',12))
@@ -127,7 +147,7 @@ def run(config_path):
     while not stop and state['completed_seconds']<cfg['seconds']:
         if os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<cfg['minimum_free_bytes']:
             state.update(state='waiting_for_storage_recovery',updated_at_unix=time.time())
-            atomic_json(state_path,state);time.sleep(15);continue
+            save_state();time.sleep(15);continue
         state['segments']+=1;segment=root/'segments'/f"s{state['segments']:05d}"
         while segment.exists():
             state['segments']+=1;segment=root/'segments'/f"s{state['segments']:05d}"
@@ -143,9 +163,13 @@ def run(config_path):
         # raw.jsonl duplicates features.jsonl (full_counts_delta + features) at ~30% of the
         # bytes; a run may skip it when shared storage is tight.
         raw_path=segment/'raw.jsonl' if cfg.get('write_raw_frames',True) else None
-        with (raw_path.open('x') if raw_path else NullSink()) as raw,(segment/'features.jsonl').open('x') as features,\
-             (segment/'decisions.jsonl').open('x') as decisions,(segment/'issues.jsonl').open('x') as issues,\
-             (segment/'loader.log').open('x') as errors:
+        local_segment=None
+        if stream_root is not None:
+            local_segment=stream_root/'segments'/segment.name;local_segment.mkdir(parents=True,exist_ok=True)
+        with (shared_sink(raw_path) if raw_path else NullSink()) as raw,shared_sink(segment/'features.jsonl') as features,\
+             shared_sink(segment/'decisions.jsonl') as decisions,(segment/'issues.jsonl').open('x') as issues,\
+             (segment/'loader.log').open('x') as errors,\
+             ((local_segment/'decisions.jsonl').open('x') if local_segment else NullSink()) as local:
             schemas=set()
             try:
                 child=subprocess.Popen([cfg['loader'],'--object',cfg['object'],'--allow-cgroup-file',
@@ -180,8 +204,12 @@ def run(config_path):
                                 raise ValueError('frame target cardinality differs')
                             if len({p['cgroup_id'] for p in pending})!=len(pending):raise ValueError('duplicate cgroup')
                             if exchange is not None:
-                                for message in exchange.drain():novelty.remote(message)
-                            records=[]
+                                for message in exchange.drain():
+                                    novelty.remote(message)
+                                    if tripwire is not None:
+                                        tripwire.observe(message['i'][0],float(message['s']),float(message['e']),
+                                                         int(message['m'],16),boundary,remote=True)
+                            records=[];masks=[]
                             for snap in pending:
                                 cg=str(snap['cgroup_id']);meta_row=metadata.get(cg,{})
                                 ident=(cg,meta_row.get('pod_uid'),meta_row.get('workload_revision'),meta_row.get('container_name'))
@@ -198,23 +226,31 @@ def run(config_path):
                                         features.write(json.dumps(schema,separators=(',',':'))+'\n');schemas.add(schema['feature_schema_sha256'])
                                     features.write(json.dumps(record,separators=(',',':'))+'\n')
                                 records.append(record)
+                                if tripwire is not None:
+                                    masks.append(id_mask(delta))
+                                    tripwire.observe(record['workload_key'],float(record['window_start']),
+                                                     float(record['window_end']),masks[-1],boundary)
                             for offset in range(0,len(records),256):
                                 batch=records[offset:offset+256]
-                                for rec,decision in zip(batch,runtime.observe_many(batch)):
+                                for j,(rec,decision) in enumerate(zip(batch,runtime.observe_many(batch))):
                                     decision.update({key:rec[key] for key in ('node_name','window_start','window_end',
                                         'eligible_for_normal_review','workload_key','pod_uid','container_name',
                                         'workload_revision','cgroup_id')})
                                     decision.update(run_id=cfg['run_id'],capture_segment=segment.name,
                                         preview_emitted_at=time.time(),interval_ms=500)
+                                    if tripwire is not None:
+                                        fields=tripwire.judge(rec['workload_key'],float(rec['window_end']),masks[offset+j])
+                                        if fields:decision.update(fields)
                                     if outputs.keep_decision(decision):
-                                        decisions.write(json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n')
+                                        line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
+                                        decisions.write(line);local.write(line)
                                     if scores is not None:scores.add(decision)
                                     state['scored_rows']+=decision['status']=='candidate-raw-score-only'
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
                             if exchange is not None:exchange.publish(novelty.drain_outbox())
                             state['feature_rows']+=len(records);state['frames']+=1;pending=[]
                             # Frame flush makes each preview available without waiting for later windows.
-                            features.flush();decisions.flush();raw.flush()
+                            features.flush();decisions.flush();raw.flush();local.flush()
                             if scores is not None:scores.flush()
                         except (ValueError,KeyError,TypeError,OverflowError) as exc:
                             issue(str(exc));pending=[];stream.builders.clear();stream.previous.clear()
@@ -223,7 +259,10 @@ def run(config_path):
                         state.update(state='running',updated_at_unix=time.time(),current_segment=segment.name,
                                      node_name=platform.node(),model_hash=cfg['model_hash'],policy_hash=cfg['policy_hash'])
                         if exchange is not None:state['peer_exchange']=exchange.stats()
-                        atomic_json(state_path,state);checkpoint=time.monotonic()
+                        if tripwire is not None:state['tripwire']=dict(tripwire.stats)
+                        if shared:state['shared_writes']={s.path.name:dict(s.stats) for s in (raw,features,decisions)
+                                                          if isinstance(s,AsyncSink)}
+                        save_state();checkpoint=time.monotonic()
                         if (time.monotonic()-segment_begin>=1800 or
                             os.statvfs(root).f_bavail*os.statvfs(root).f_frsize<cfg['minimum_free_bytes']):break
             finally:
@@ -232,15 +271,17 @@ def run(config_path):
                     child.terminate()
                     try:child.wait(timeout=5)
                     except subprocess.TimeoutExpired:child.kill();child.wait()
-                for sink in (raw,features,decisions,issues):
+                for sink in (raw,features,decisions,issues,local):
+                    if isinstance(sink,AsyncSink):sink.close();continue
                     sink.flush()
                     if not isinstance(sink,NullSink):os.fsync(sink.fileno())
                 atomic_json(segment/'TERMINAL.json',dict(finished_at_unix=time.time(),
                     trailing_bytes=len(buffer),trailing_snapshots=len(pending),
                     seals={p.name:sha256_file(p) for p in segment.iterdir() if p.is_file()}))
-                state.update(state='segment_closed',updated_at_unix=time.time());atomic_json(state_path,state)
+                state.update(state='segment_closed',updated_at_unix=time.time());save_state()
         if not stop and state['completed_seconds']<cfg['seconds']:time.sleep(2)
     if exchange is not None:exchange.close()
+    if status_writer is not None:status_writer.close()
     if not stop:
         state.update(state='completed_capture',finished_at_unix=time.time(),automatic_promotion=False)
         atomic_json(state_path,state);atomic_json(root/'TERMINAL.json',state)

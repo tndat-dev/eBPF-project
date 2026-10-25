@@ -28,6 +28,16 @@ def binary_path_for_controller(controller: str) -> str:
     return CONTROLLER_BINARY_PATHS.get(controller, DEFAULT_BINARY_IN_CONTAINER)
 
 
+# Benign-exec control from its own file name (cfg benign_binary_distinct, registered 25/10): the same binary, staged
+# beside the attack copy. RCA saw benign and attack as one binary path, refused a follow-up case for the attack
+# ("binary not new") and grouped it after the benign case (RCA 5.15). Pulse never sees the path.
+BENIGN_BASENAME = "sentinel-benign-exec-control"
+
+
+def benign_path_for(attack_path: str) -> str:
+    return attack_path.rsplit("/", 1)[0] + "/" + BENIGN_BASENAME
+
+
 def ready_pods(payload: dict, controller: str) -> list[dict]:
     result = []
     for pod in payload.get("items", []):

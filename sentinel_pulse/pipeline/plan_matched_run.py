@@ -35,7 +35,8 @@ WORKERS={'10.1.16.237':'k8s-worker1.local','10.1.16.238':'k8s-worker4.local','10
 PEER_PORT = 9479
 
 
-def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24)):
+def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24),
+         final_system=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -80,6 +81,19 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
     if json.loads(policy.read_text())['rule'].get('evidence_discount'):
         for host,worker in cfg['workers'].items():
             worker['peer_exchange']=dict(listen=[host,PEER_PORT],peers=[[other,PEER_PORT] for other in WORKERS if other!=host])
+    # final system (ML + tripwire A1, owner 25/10): tripwire in the worker with the run's selection span as reference,
+    # shared-storage writes off the scoring loop, decisions also on the worker's local disk for the alert bridge, RCA
+    # and campaign, and the benign-exec control from its own file name
+    if final_system:
+        if not all('peer_exchange' in w for w in cfg['workers'].values()):
+            raise ValueError('tripwire needs the peer exchange of the evidence discount')
+        exec_set=Path(final_system['exec_set'])
+        cfg['tripwire']=dict(exec_set=str(exec_set),exec_set_sha256=sha256_file(exec_set),
+                             reference_span=[cfg['selection_start'],cfg['selection_end']],grace_seconds=60.)
+        cfg['async_shared_writes']=True
+        cfg['benign_binary_distinct']=True
+        for worker in cfg['workers'].values():
+            worker['stream_root']=str(Path(final_system['stream_root'])/run_id)
     scenarios=['anonymous_mprotect_churn','child_ptrace_handshake','invalid_setns_burst',
                'seccomp_api_probe','execveat_resolution_probe']
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
@@ -107,6 +121,8 @@ if __name__=='__main__':
     p.add_argument('--seconds',type=int,default=86400)
     for key in ('benign-exec-control','no-raw-frames','fast-scoring'):p.add_argument('--'+key,action='store_true')
     p.add_argument('--attack-rates',default='6,12,24',help='fixture attack rates per second (1-100), comma-separated')
+    p.add_argument('--tripwire-exec-set',type=Path,help='final system: tripwire A1 in the worker with this frozen exec set')
+    p.add_argument('--stream-root',default='/var/lib/sentinel-pulse-live',help='final system: local decision copy on each worker')
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
     if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
@@ -117,4 +133,5 @@ if __name__=='__main__':
         custom=dict(candidate=a.candidate,model_hash=a.model_hash,policy=a.policy,policy_hash=a.policy_hash,
                     fixture=a.fixture,seconds=a.seconds,benign_exec_control=a.benign_exec_control,
                     write_raw_frames=not a.no_raw_frames,fast_scoring=a.fast_scoring)
-    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates)
+    final=dict(exec_set=a.tripwire_exec_set,stream_root=a.stream_root) if a.tripwire_exec_set else None
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final)

@@ -22,16 +22,21 @@ def event_time(value):
 def trigger_kind(row, model_hash, policy_hash):
     if row.get('candidate_manifest_sha256') != model_hash or row.get('policy_sha256') != policy_hash:
         return None
-    if row.get('status') != 'candidate-raw-score-only' or row.get('policy_evaluated') is not True:
+    scored = row.get('status') == 'candidate-raw-score-only' and row.get('policy_evaluated') is True
+    tripwire = row.get('tripwire_alert') is True and row.get('tripwire_status') == 'judged'
+    if not (scored or tripwire):
         return None
     if not all(row.get(k) for k in ('node_name', 'pod_uid', 'container_name', 'workload_key')):
         return None
     event_time(row.get('window_end'))
     # A preview is not relabeled as an operational alert, even if both flags exist.
-    if row.get('candidate_alert_preview') is True:
+    if scored and row.get('candidate_alert_preview') is True:
         return 'candidate_alert_preview'
-    if row.get('alert') is True:
+    if scored and row.get('alert') is True:
         return 'operational_alert'
+    # tripwire A1 (rules/tripwire.py) beside ML: it judges every window of a modelled workload, warming ones too
+    if tripwire:
+        return 'tripwire_alert'
     return None
 
 
