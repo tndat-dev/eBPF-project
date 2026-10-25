@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-final-system-confirmation-v1",
-  "registered_at": "2026-10-25T18:20+07:00",
+  "registered_at": "2026-10-25T18:19+07:00",
   "registered_before": "the run is planned; no data of it exists",
   "owner_decisions": [
     "25/10 17:30: final system = Pulse ML + tripwire A1 as parallel alert streams (RULE_INTEGRATION_STATUS R6, arm B2)",
