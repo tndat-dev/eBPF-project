@@ -17,7 +17,10 @@ end, campaign excluded). Every B arm is compared with A: per-trial differences w
 bootstrap 95 % CI, burden difference with the same bootstrap, p95 difference with a bootstrap over attack trials.
 
 Inputs come from falco_baseline.py (per trial, normal events), novel_syscalls.py --normal-span (per trial, normal
-alerts), the RCA cases and the run's resolver metadata (pod name -> pod_uid for Falco events).
+alerts), the RCA cases and the run's resolver metadata (pod name -> pod_uid for Falco events). Without --falco the
+arms that use Falco (B1, B_all) are left out, without --cases those that use triage (B3, B_all): the final-system run
+(protocol final-system-confirmation-v1) compares A with B2, the tripwire stream taken from the live decisions
+(live_tripwire.py).
 """
 import argparse
 from collections import defaultdict
@@ -179,9 +182,13 @@ def bootstrap(t, hits, ats, keep, episodes, hours, reps=10000, seed=20261025):
 
 
 def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_of_name, resolver_workloads, campaign_span):
-    """All arms; ``a``/``trials`` from burden_levers.prepare, ``ml_alarm`` per table row. Bootstrap clusters are
+    """All arms the inputs allow (``falco`` / ``cases`` may be None); ``a``/``trials`` from burden_levers.prepare,
+    ``ml_alarm`` per table row. Bootstrap clusters are
     workload keys (as burden_blind_test.burden_ci); a container outside the window table gets its workload key from
     the resolver metadata, else its own key."""
+    have_falco, have_cases = falco is not None, cases is not None
+    falco, cases = falco or dict(trials=[], normal_events=[]), cases or {}
+    used = [arm for arm in ARMS if (have_falco or arm not in ('B1', 'B_all')) and (have_cases or arm not in ('B3', 'B_all'))]
     fields = a['identity_fields']
     pu, cn, wk = fields.index('pod_uid'), fields.index('container_name'), fields.index('workload_key')
     key_of_ident = [(str(i[pu]), str(i[cn])) for i in a['identities']]
@@ -217,7 +224,7 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
         k = (str(t['label'][i]), round(float(t['start'][i]), 3))
         r = fz.get(k)
         if r is None:
-            unmatched['falco'] += 1
+            unmatched['falco'] += have_falco
         elif r['detected']:
             f_hit[i], f_at[i] = True, float(r['first_event'])
         r = tw.get(k)
@@ -229,7 +236,8 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
                    B3=[(ml_hit & ~held_t, tri_at)], B_all=[(ml_hit & ~held_t, tri_at), (f_hit, f_at), (w_hit, w_at)])
     hits, ats = {}, {}
     for arm, s in streams.items():
-        hits[arm], ats[arm] = arm_trials(t, s)
+        if arm in used:
+            hits[arm], ats[arm] = arm_trials(t, s)
     # normal span
     normal = a['normal'] & (a['start'] >= normal_from)
     hours = defaultdict(float)
@@ -282,20 +290,22 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
             w_ev[(str(e['pod_uid']), str(e['container_name']))].append(float(e['end']))
     union = lambda *ds: {k: sum((d.get(k, []) for d in ds), []) for k in set().union(*ds)}
     events = dict(A=ml_ev, B1=union(ml_ev, f_ev), B2=union(ml_ev, w_ev), B3=tri_ev, B_all=union(tri_ev, f_ev, w_ev))
-    episodes = {arm: episodes_by_cluster(ev, cluster_of) for arm, ev in events.items()}
+    episodes = {arm: episodes_by_cluster(ev, cluster_of) for arm, ev in events.items() if arm in used}
     in_table = set(key_of_ident)
     outside = lambda ev: sum(episodes_by_cluster({k: v for k, v in ev.items() if k not in in_table}, cluster_of).values())
     total_hours = sum(hours.values())
     primary = np.isin(t['rate'], PRIMARY_RATES)
     every = np.ones(n, bool)
     arms = {}
-    for arm in ARMS:
+    for arm in used:
         arms[arm] = dict(primary=trial_metrics(t, hits[arm], ats[arm], primary),
                          all_rates=trial_metrics(t, hits[arm], ats[arm], every),
                          burden=sum(episodes[arm].values()) / total_hours,
                          normal_episodes_by_workload=dict(sorted(episodes[arm].items(), key=lambda kv: -kv[1])))
     standalone = {}                              # each rule stream alone (reporting list of rule-integration-v1)
     for name, (h, tm), ev in (('falco', (f_hit, f_at), f_ev), ('tripwire', (w_hit, w_at), w_ev)):
+        if name == 'falco' and not have_falco:
+            continue
         hit, at = arm_trials(t, [(h, tm)])
         standalone[name] = dict(primary=trial_metrics(t, hit, at, primary), all_rates=trial_metrics(t, hit, at, every),
                                 burden=sum(episodes_by_cluster(ev, cluster_of).values()) / total_hours)
@@ -310,7 +320,8 @@ def compare(a, trials, normal_from, ml_alarm, falco, tripwire, cases, pod_uids_o
                              tripwire_episodes_outside_window_table=outside(w_ev),
                              ml_normal_episodes=episodes_total, ml_normal_episodes_held_back=held_episodes,
                              ml_normal_episodes_with_case=matched_episodes,
-                             triage_failopen_trials=int(failopen), trials_unmatched=unmatched),
+                             triage_failopen_trials=int(failopen) if have_cases else None, trials_unmatched=unmatched,
+                             arms_used=used),
                 normal=dict(from_unix=normal_from, replica_hours=total_hours),
                 trials=dict(n=int(n), attack=int((t['label'] == 'attack').sum())))
 
@@ -323,9 +334,9 @@ def main():
     ap.add_argument('--campaign', required=True)
     ap.add_argument('--calibration', required=True)
     ap.add_argument('--calibration-table', required=True)
-    ap.add_argument('--cases', required=True)
-    ap.add_argument('--probe-spec', required=True)
-    ap.add_argument('--falco', required=True)
+    ap.add_argument('--cases', help='RCA cases directory (arms B3, B_all)')
+    ap.add_argument('--probe-spec', help='declared exec probes (with --cases)')
+    ap.add_argument('--falco', help='falco_baseline.py output (arms B1, B_all)')
     ap.add_argument('--tripwire', required=True)
     ap.add_argument('--workers-root', required=True)
     ap.add_argument('--ml-rule', default='preview',
@@ -344,8 +355,8 @@ def main():
         variant, mode, rule = ml_config.split('|')
         (_, ml_alarm), = bl.rules(variant, p[variant], a['alpha'], bl.discount_mask(a, mode), a['new'], only=rule)
     names, workloads = load_resolver(x.workers_root)   # pod name -> {pod_uid}, (pod_uid, container) -> workload key
-    result = compare(a, trials, x.normal_from, ml_alarm, json.loads(Path(x.falco).read_text()),
-                     json.loads(Path(x.tripwire).read_text()), load_cases(x.cases, x.probe_spec), names, workloads,
+    result = compare(a, trials, x.normal_from, ml_alarm, json.loads(Path(x.falco).read_text()) if x.falco else None,
+                     json.loads(Path(x.tripwire).read_text()), load_cases(x.cases, x.probe_spec) if x.cases else None, names, workloads,
                      bl.campaign_span(Path(x.campaign)))
     result.update(schema='pulse-rule-comparison-v1',
                   protocol='sentinel_pulse/protocol/rule-integration-v1.json + amendments 1 and 2',

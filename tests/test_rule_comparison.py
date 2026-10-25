@@ -91,3 +91,15 @@ def test_triage_and_trial_keys():
     assert rc.triage(None, 0, 100) == (False, False, None)
     with pytest.raises(ValueError, match='share'):
         rc.by_trial([dict(kind='attack', start=1.0), dict(label='attack', start=1.0004)])
+
+
+def test_without_falco_and_cases_only_ml_and_the_tripwire_system_remain():
+    a, tr, alarm, falco, tripwire, cases, names = _setup()
+    full = rc.compare(a, tr, 50.0, alarm, falco, tripwire, cases, names, {}, (300.0, 600.0))
+    final = rc.compare(a, tr, 50.0, alarm, None, tripwire, None, names, {}, (300.0, 600.0))
+    assert set(final['arms']) == {'A', 'B2'} and set(final['comparison_primary']) == {'B2'}
+    assert final['streams']['arms_used'] == ['A', 'B2'] and final['streams']['triage_failopen_trials'] is None
+    assert set(final['standalone']) == {'tripwire'} and final['streams']['trials_unmatched'] == dict(falco=0, tripwire=0)
+    for arm in ('A', 'B2'):
+        assert final['arms'][arm] == full['arms'][arm]
+    assert final['comparison_primary']['B2']['burden_diff']['point'] == full['comparison_primary']['B2']['burden_diff']['point']
