@@ -1,6 +1,6 @@
 # Tích hợp rule — Falco, tripwire A1, triage probe (tách riêng khỏi kết quả ML)
 
-Cập nhật **25/10/2026 16:10 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **25/10/2026 17:10 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
 
@@ -221,7 +221,25 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 
 **Biên nhận:** `validation-evidence/results-20261025/rule-integration/` (`falco-baseline.json`, `tripwire-a1.json.gz`, `rule-comparison.json`; SHA-256 khớp bản gốc trên NFS `pulse-peer-discount-confirm/analysis/rule-integration/`).
 - Code: Falco và tripwire chạy trên snapshot `be481a5` (13:09–13:35). Bước ghép chạy lại trên `ae9af77` (15:57–16:02) để thêm số từng rule đứng riêng, tỉ lệ đợt có case và phép kiểm gánh ML; mọi số đã có trước đó giữ nguyên từng trường.
-- Dữ liệu phụ của bổ sung 2 (`pulse-stable-confirm`, nhánh A tính lại) chưa chạy; chỉ để báo cáo, không dùng cho kết luận.
+
+**Dữ liệu phụ (`pulse-stable-confirm`, chỉ báo cáo, không dùng cho kết luận):**
+- Nhánh A là luật ≤ 3 s (`joint|peer30|k2of2_a5`) tính lại trên bảng cửa sổ, vì preview live của lượt này là CUSUM `cap`.
+- Phép kiểm khớp test blind 5.22 trên cùng lượt: control 2,9%, precision 97,2%, p95 2,68 s.
+- Khoảng normal: từ hết campaign tới hết capture, 864,3 replica-giờ.
+- Lượt này còn có replica `cnpg-2` hỏng (Pulse 5.24).
+
+| Nhánh | Recall (mọi tốc độ) | Control | Precision | p95 | Đợt/replica-giờ | Hiệu gánh so với A [CI] | Hiệu p95 [CI] |
+|---|---|---|---|---|---|---|---|
+| A | 99,0% (94,1%) | 2,9% | 97,2% | 2,68 s | 1,50 | — | — |
+| B1 + Falco | 99,0% (95,0%) | 4,1% | 96,0% | 2,40 s | 2,55 | +1,05 [−0,03; +3,08] | [−1,20; +0,01] s |
+| B2 + tripwire | 99,0% (96,2%) | 2,9% | 97,2% | 2,13 s | 1,54 | **+0,045 [+0,004; +0,113]** | **[−1,96; −0,08] s** |
+| B3 + triage | 99,0% (94,1%) | 2,5% | 97,5% | 5,93 s | 1,35 | **−0,15 [−0,32; −0,03]** | **[+1,82; +8,14] s** |
+| B_all | 99,0% (96,2%) | 3,8% | 96,3% | 4,88 s | 2,45 | +0,95 [−0,19; +2,99] | [+0,80; +3,18] s |
+
+- Từng rule đứng riêng: Falco gánh 1,16 (gần hết từ `aims-kafka-entity-operator`), recall 38,7%, control 3,2%; tripwire gánh 0,050, recall 60,3%, control 0%, binary vô hại 0%.
+- Triage giữ lại 126/1.292 đợt ML; chỉ 352 đợt có case RCA.
+- **Cùng hướng với dữ liệu chính:** rule không thêm recall ở tập chính; tripwire thêm recall ở tốc độ chậm (+2,1 điểm) và nhanh hơn với gánh rất nhỏ; Falco mặc định tăng gánh khoảng 70%; triage giảm gánh nhưng quá mức ≤ 3 s.
+- Biên nhận: `validation-evidence/results-20261025/rule-integration-secondary/` (SHA-256 khớp NFS `pulse-stable-confirm/analysis/rule-integration/`). Code `43cc1fc` (unit `rule-integration-r6-secondary`, 16:06–17:02). Bước ghép mất 34 phút vì `in_normal` tính lại `max` trên cả bảng cho mỗi event (38.655 event Falco); đã sửa ở `ea3edeb`, số không đổi.
 
 ## Nhật ký
 
@@ -242,3 +260,4 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 | 25/10 13:35 | R6 xong lần đầu (Falco, tripwire, ghép 5 nhánh); tripwire đọc toàn bộ feature chỉ mất 21 phút, nhanh hơn nhiều so với ước tính 2–3 giờ | R6 |
 | 25/10 15:57–16:02 | Bước ghép chạy lại trên `ae9af77` để thêm phần còn thiếu theo danh sách báo cáo của protocol: từng rule đứng riêng, tỉ lệ đợt ML có case, kiểm gánh ML. Số cũ giữ nguyên từng trường | R6 |
 | 25/10 16:03–16:10 | Biên nhận vào repo (SHA khớp NFS); kết quả R6 ghi ở trên | R6 |
+| 25/10 16:06–17:02 | Dữ liệu phụ của bổ sung 2 trên `pulse-stable-confirm` (nhánh A = luật ≤ 3 s tính lại, `--ml-rule le3s`): cùng hướng với dữ liệu chính; biên nhận vào repo | R6 |
