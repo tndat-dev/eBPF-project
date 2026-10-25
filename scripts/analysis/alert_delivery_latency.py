@@ -40,7 +40,8 @@ def join(outcomes, episodes, deliveries, since):
     delivered = {(d['path'], d['episode']): d['received_at'] for d in deliveries}
     rows = []
     for o in outcomes:
-        if o.get('label') != 'attack' or float(o['start_at']) < since:
+        # a trial lost to an infrastructure error carries no start_at (outcome unknown): nothing to time
+        if o.get('label') != 'attack' or o.get('start_at') is None or float(o['start_at']) < since:
             continue
         key = (o['node_name'], o['pod_uid'], o['container_name'])
         begin, kernel = float(o['start_at']), o.get('kernel_event_at')

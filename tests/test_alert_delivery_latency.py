@@ -14,7 +14,8 @@ def attack(trial, pod, start, kernel, rate=12):
 def test_trials_join_the_episode_started_inside_their_horizon_and_get_one_latency_per_path():
     outcomes = [attack('1:attack', 'a', 100.0, 100.5), attack('2:attack', 'b', 200.0, 200.4, rate=1),
                 attack('3:attack', 'c', 300.0, 300.2), attack('0:attack', 'a', 10.0, 10.5),
-                dict(label='expected_normal', trial_id='1:control', start_at=90.0)]
+                dict(label='expected_normal', trial_id='1:control', start_at=90.0),
+                dict(label='attack', outcome='unknown', rate_per_second=1, reason='ssh failed')]   # no start_at
     episodes = [dict(event='start', episode='e1', node='w1', pod_uid='a', container='app', preview_emitted_at=101.5),
                 dict(event='end', episode='e1', ended_at=110.0),
                 dict(event='start', episode='e0', node='w1', pod_uid='c', container='app', preview_emitted_at=295.0),
