@@ -79,8 +79,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live | Không có lượt nào chạy. Lượt cuối `pulse-peer-discount-confirm` xong 25/10 11:06 |
-| Job phân tích | Không còn job. So sánh có/không rule (R6) xong 16:02, dữ liệu phụ xong 17:02 |
+| Lượt live | Chưa chạy. `pulse-final-system-confirm` (hệ thống cuối, 5.28) tự khởi chạy khi tải LID-DS xong (khoảng 23:00). Lượt trước `pulse-peer-discount-confirm` xong 25/10 11:06 |
+| Job | `lid-ds-fetch` trên `.234` (tải 15 file LID-DS 2021, 86,7 GB, vào `/var/tmp/lid-ds-2021`, kiểm từng zip); launcher và chuỗi phân tích của 5.28 đang chờ |
 | RCA, bridge | Đã dừng sau lượt cuối; biên nhận trong repo và trên NFS |
 | Dịch vụ còn chạy | `sentinel-pulse-resolver` trên 3 worker (ánh xạ cgroup cho lượt sau), timer `tetra-orphan-reaper` |
 | Dọn tài nguyên (25/10 17:10–17:40) | Zombie về 0 trên 7 máy (Tetragon chạy với `shareProcessNamespace`); gỡ unit và config của các lượt đã xong; dọn `/var/tmp`, bản sao trùng, snapshot không dùng (chi tiết trong TODO) |
@@ -1743,7 +1743,31 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - Trên khoảng này, **93,6%** cửa sổ không có ID mới so với replica khác trong 30 s, và **99,7%** không có ID mới so với lịch sử 5 phút của chính container. L5/L6 vì vậy chỉ giữ bằng chứng ở một phần rất nhỏ cửa sổ; recall theo kịch bản là chỉ số phải xem kỹ.
 - Hai bảng development dựng xong 17:10 (mỗi lượt 11,1 triệu cửa sổ); phép chọn xong 17:26.
 
-## 6. Tiến độ và việc còn lại (cập nhật 25/10 17:45)
+### 5.28 Lượt live của hệ thống cuối `pulse-final-system-confirm`: chuẩn bị và đăng ký (25/10 18:00–18:28)
+
+- **Quyết định của chủ đồ án (25/10):** hệ thống cuối = ML + tripwire A1 (RULE R6); chạy một lượt live 24 giờ, giữ ML đóng băng, không gộp calibration tự làm mới.
+- **Protocol:** `sentinel_pulse/protocol/final-system-confirmation-v1.json`, đăng ký 18:19 (`1b081b1`, giờ đăng ký = giờ commit ở `445d77e`), trước khi có bất kỳ dữ liệu nào của lượt.
+  - Nhánh: A (ML, preview live), T (tripwire live), S (A và T song song, định nghĩa của R6).
+  - Kỳ vọng cho S và A trên tập chính: recall, precision ≥ 95%, control ≤ 5%, p95 ≤ 3 s.
+  - Gánh: cận trên CI 95% của S − A ≤ 0,25 đợt/replica-giờ.
+  - Tripwire live so với tính lại offline: khớp ≥ 99,9% cửa sổ đã xét.
+  - Báo kèm, không ngưỡng: độ trễ frame và khoảng hở nhịp so với lượt trước; push lỗi và thử lại của bridge; RCA dựng từ cảnh báo Alertmanager; số trial attack bị gộp sau case binary vô hại; zombie dưới Tetragon.
+- **ML đóng băng ở mức byte:** 13 file chấm điểm được ghim của code mới trùng từng byte với `runtime-60093dd-20261024` (source của lượt 5.27); worker dùng snapshot đó làm `frozen_source` và từ chối chạy nếu có file lệch. Model `4bad16dc…` và chính sách `f64c31c0…` không đổi.
+- **Thay đổi đưa vào lượt (code `55d4673`, `8251f56`, có test, 445 test pass):**
+  - tripwire trong worker (`sentinel_pulse/rules/tripwire.py`): tham chiếu theo workload dựng trong khoảng selection từ cửa sổ local và mặt nạ ID các worker khác gửi qua kênh trao đổi sẵn có; xét từ hết khoảng selection + 60 s; chỉ thêm trường vào dòng decision, không đổi trường ML nào. Test hai worker trao đổi mặt nạ cho đúng các cảnh báo của định nghĩa offline;
+  - ghi NFS qua luồng nền (`pipeline/async_sink.py`): `fdatasync` và `POSIX_FADV_DONTNEED` mỗi 30 s, STATUS ghi nền;
+  - decision ghi thêm ra đĩa local của worker; bridge, RCA và campaign đọc bản đó;
+  - bridge và RCA nhận dòng `tripwire_alert`; RCA dựng case từ cảnh báo mà Alertmanager đã giao;
+  - binary vô hại chạy từ đường dẫn riêng `…/sentinel-benign-exec-control`.
+- **Smoke 90 s trên cụm (18:12; biên nhận `validation-evidence/results-20261025/final-system-smoke/SMOKE.json`):**
+  - 3 worker xong, 0 issue;
+  - decision trên NFS trùng từng byte bản local; seal khớp;
+  - tripwire nhận 2.206–3.136 cửa sổ tham chiếu từ peer, 0 cửa sổ đến muộn; worker3 có 2 cửa sổ cảnh báo (tham chiếu smoke chỉ 30 s);
+  - ghi nền lâu nhất 35 ms, không lần nào phải chờ hàng đợi.
+  - Riêng đường dẫn binary vô hại: stage, chạy và dọn trên `order-service` thật; Tetragon ghi exec với đường dẫn mới.
+- **Lịch chạy:** launcher `pulse-final-system-confirm-launcher` trên `.234` khởi chạy `launch_run.sh all` (`FINAL=1`, code `8251f56`) ngay khi việc tải LID-DS (`lid-ds-fetch`, dự kiến xong khoảng 23:00) kết thúc, để không có job nặng nào chạy cùng lượt live. Chuỗi phân tích `after-final-system` (code `4b18839`) chờ campaign rồi capture kết thúc.
+
+## 6. Tiến độ và việc còn lại (cập nhật 25/10 18:28)
 
 | Việc | Trạng thái |
 |---|---|
@@ -1768,7 +1792,8 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 | Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | **Xong** (RCA 5.14, Pulse 5.27): push qua Alertmanager p95 3,17 s ở tập chính; đường Prometheus chuẩn chậm hơn nhiều. Bridge thử lại push lỗi từ lượt sau |
-| Ghi NFS trong vòng chấm điểm, calibration tự làm mới khi live, tripwire live | **Chưa làm** (cần cho một lượt live của hệ thống cuối) |
+| Ghi NFS trong vòng chấm điểm, tripwire live | **Code xong, smoke đạt** (5.28); chờ lượt live |
+| Calibration tự làm mới khi live | Chưa làm, có chủ đích: đổi ML, cần lượt xác nhận riêng |
 | Thử reboot, mất NFS, backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
 Kỳ vọng đã đăng ký: precision và recall ≥ 95%, control dương ≤ 5%, p95 kernel → alert < 2 s ưu tiên / ≤ 3 s chấp nhận. `pulse-stable-refreshed` là lượt live đầu tiên đạt cả bốn ở mức ≤ 3 s; `pulse-peer-discount-confirm` đạt lại trên campaign blind với gánh thấp hơn nhiều. Mức < 2 s chưa có chính sách nào đạt trên live cùng với ba kỳ vọng còn lại.
@@ -2159,4 +2184,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 12:46–13:05 | Final chạy lại xong: gánh live 1,69 đợt/replica-giờ, bằng 0,37 lần CUSUM `keep` và 0,28 lần CUSUM `cap` (điều kiện gánh **đạt**); kiểm cài đặt 99,9999% (đạt); kafka worker1 vẫn lệch nhưng preview 46,5% → 4,25%; postgres `cnpg-2` bình thường. Dừng subscriber RCA; hình gánh cảnh báo thêm lượt live | 5.27 |
 | 17:10–17:40 | Dọn tài nguyên cụm khi không còn job (yêu cầu của chủ đồ án): zombie về 0 trên 7 máy (Tetragon `shareProcessNamespace`, khởi động lại container redis tại chỗ); gỡ unit và config của 4 lượt đã xong (các unit này vẫn enabled, sẽ tự chạy lại khi máy khởi động lại); dọn `/var/tmp`, bản sao trùng NFS, 3 snapshot không config nào trỏ tới. Chi tiết và những gì giữ lại có chủ đích: TODO | — |
 | 17:40–17:50 | Rà soát toàn repo: tóm tắt (mục 1), trạng thái cụm (2) và tiến độ (6) viết lại theo trạng thái cuối; kiểm toán số liệu `scripts/audit/headline_numbers.py` (31/31 số chủ chốt khớp biên nhận, chạy trong bộ test) và `literature_numbers.py` (86/87 số trích từ tài liệu có trong PDF; số còn lại là của đồ án); docs/AUDIT.md | 5.27 |
+| 18:00–18:28 | Hệ thống cuối: code (tripwire trong worker, ghi NFS nền, decision local, bridge/RCA nhận tripwire, binary vô hại đường dẫn riêng), smoke 90 s đạt, đăng ký `final-system-confirmation-v1` (18:19), launcher chờ tải LID-DS xong, chuỗi phân tích chờ | 5.28 |
 

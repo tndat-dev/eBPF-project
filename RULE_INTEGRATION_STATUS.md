@@ -264,3 +264,5 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 | 25/10 16:03–16:10 | Biên nhận vào repo (SHA khớp NFS); kết quả R6 ghi ở trên | R6 |
 | 25/10 16:06–17:02 | Dữ liệu phụ của bổ sung 2 trên `pulse-stable-confirm` (nhánh A = luật ≤ 3 s tính lại, `--ml-rule le3s`): cùng hướng với dữ liệu chính; biên nhận vào repo | R6 |
 | 25/10 17:30 | Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 (B2) | R6 |
+| 25/10 18:00–18:28 | Hệ thống cuối chạy live: tripwire A1 cài vào worker (định nghĩa giữ nguyên R3, R6), protocol `final-system-confirmation-v1` (18:19), lượt `pulse-final-system-confirm` chờ khởi chạy (Pulse 5.28) | R6 |
+
