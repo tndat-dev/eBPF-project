@@ -1,0 +1,21 @@
+{
+  "schema": "sentinel-pulse-rule-integration-v1-amendment",
+  "registered_at": "2026-10-25T13:20+07:00",
+  "registered_before": "any with/without-rules number on pulse-peer-discount-confirm (no Falco, tripwire or triage number of that run has been computed)",
+  "amends": "sentinel_pulse/protocol/rule-integration-v1.json (+ amendment 1)",
+  "why": "ML is complete (Pulse 5.27): the stable ML is policy-k2of2-a5-peer30, confirmed live on pulse-peer-discount-confirm. Amendment 1 named 'the confirmation live run' as primary data; this fixes which one and the details amendment 1 left open.",
+  "data": {
+    "primary": "pulse-peer-discount-confirm (the live run of the final stable ML; campaign blind for every arm)",
+    "secondary": "pulse-stable-confirm with arm A = the stable rule recomputed on its window table (blind test of 5.22); reported, not used for any conclusion",
+    "development": "pulse-stable-candidate / pulse-stable-refreshed as in amendment 1 (aggregates only)"
+  },
+  "arm_A": "the live previews of policy-k2of2-a5-peer30 (window table column 'preview'; agreement with the offline rule 99.9999 %, Pulse 5.27)",
+  "normal_span": "the same for every arm: from the end of the run's selection span (the tripwire reference) to the end of the capture, campaign span excluded (burden_levers.campaign_span); replica-hours from the ML window table on that span",
+  "tripwire_B2": "rule of R3 (tripwire-a1-blind-v1): a window has an alert when it carries a syscall ID absent from its workload's reference and outside the frozen exec set E (validation-evidence/results-20261021/pulse-stable-candidate/final/exec-set-E.json, sha256 a3266613...); reference = the union of IDs per workload over the run's selection span; trial detected when a window inside [start, start + 15 s] has an alert",
+  "falco_B1": "falco_baseline.py definitions unchanged (event of the trial container inside [start, start + 15 s]; normal events of production containers)",
+  "triage_B3": "rule_tier.py definitions unchanged (episode held back when every RCA case of its container with trigger window_end within 5 s is probe-only; trial held back when all cases within [start, start + 20 s] are probe-only; fail-open); declared probes: validation-evidence/results-20261021/exec-probe-spec.json",
+  "container_key": "(pod_uid, container_name); Falco's pod name is mapped to pod_uid with the run's resolver metadata (worker issues.jsonl); Falco events of unmapped containers count under (pod name, container name)",
+  "latency": "first alert of the arm - kernel_event_at, attacks only; for B3 the alert time of a paged trial is the creation time of its RCA case (the triage decision) when it has one, else the preview time (fail-open), and the number of fail-open trials is reported",
+  "comparison": "unchanged from amendment 1: every B arm against A on the same trials and normal span; paired per-trial differences with a workload-clustered bootstrap 95 % CI (10,000 draws); burden difference with the same bootstrap; p95 difference with a bootstrap over attack trials",
+  "code": "scripts/analysis/rule_comparison.py (new), novel_syscalls.py --normal-span and per-trial output, falco_baseline.py container names on normal events"
+}
