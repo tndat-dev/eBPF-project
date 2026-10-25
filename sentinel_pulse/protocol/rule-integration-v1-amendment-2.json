@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-rule-integration-v1-amendment",
-  "registered_at": "2026-10-25T13:20+07:00",
+  "registered_at": "2026-10-25T12:56+07:00",
   "registered_before": "any with/without-rules number on pulse-peer-discount-confirm (no Falco, tripwire or triage number of that run has been computed)",
   "amends": "sentinel_pulse/protocol/rule-integration-v1.json (+ amendment 1)",
   "why": "ML is complete (Pulse 5.27): the stable ML is policy-k2of2-a5-peer30, confirmed live on pulse-peer-discount-confirm. Amendment 1 named 'the confirmation live run' as primary data; this fixes which one and the details amendment 1 left open.",
