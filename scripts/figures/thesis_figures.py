@@ -17,6 +17,7 @@ Figures (PNG at 200 dpi + PDF):
   live-runs-table.md  the numbers of live-runs-metrics as a table (counts, Wilson CI, p50/p95)
   alert-delivery-cdf  confirmation run: kernel -> recipient per delivery path (Alertmanager push, Prometheus pull
                       fast / default), registered subset, share of all attack trials
+  rule-comparison-table.md  RULE_INTEGRATION_STATUS R6: system without / with rules, B - A with bootstrap 95 % CI
 
 Colours: the validated categorical order (blue, orange, aqua, yellow); every series also has its own marker and
 line style and a direct label, so identity never rests on colour alone (print, colour-vision deficiency).
@@ -181,6 +182,38 @@ def table_live_runs(out, t):
     note = {'vi': 'Lượt xác nhận chỉ tính tập chính (tốc độ 6, 12, 24/s). CI 95% Wilson. Nhãn kỳ vọng, chưa review.',
             'en': 'The confirmation run counts its registered subset (6, 12, 24 per second). Wilson 95 % CI. Expected labels, not adjudicated.'}
     (out/'live-runs-table.md').write_text('\n'.join(rows) + '\n\n' + note[lang] + '\n')
+
+
+def table_rule_comparison(out, t):
+    """RULE_INTEGRATION_STATUS R6: every arm on the same trials and normal span, B - A with bootstrap 95 % CI."""
+    r = load(EV/'results-20261025/rule-integration/rule-comparison.json')
+    lang = 'vi' if t is TEXT['vi'] else 'en'
+    num = lambda v, d: f'{v:.{d}f}'.replace('.', ',') if lang == 'vi' else f'{v:.{d}f}'
+    pct = lambda v: num(100 * v, 1) + '%'
+    ci = lambda c, d, scale=1: f'[{num(scale * c[0], d)}; {num(scale * c[1], d)}]'
+    names = {'vi': dict(A='A — chỉ ML', B1='B1 — ML + Falco', B2='B2 — ML + tripwire', B3='B3 — ML rồi triage probe',
+                        B_all='B_all — tất cả'),
+             'en': dict(A='A — ML only', B1='B1 — ML + Falco', B2='B2 — ML + tripwire', B3='B3 — ML, then probe triage',
+                        B_all='B_all — all')}[lang]
+    head = {'vi': '| Nhánh | Recall | Recall mọi tốc độ | Control | Binary vô hại | Precision | p95 (s) | Đợt/replica-giờ | Δ đợt [CI] | Δ p95 (s) [CI] |',
+            'en': '| Arm | Recall | Recall, all rates | Control | Benign launch | Precision | p95 (s) | Episodes/replica-hour | Δ episodes [CI] | Δ p95 (s) [CI] |'}
+    rows = [head[lang], '|---|---|---|---|---|---|---|---|---|---|']
+    for arm, v in r['arms'].items():
+        m, c = v['primary'], r['comparison_primary'].get(arm)
+        delta = (f"{num(c['burden_diff']['point'], 3)} {ci(c['burden_diff']['ci95'], 3)} | {ci(c['p95_diff_seconds']['ci95'], 2)}"
+                 if c else '— | —')
+        rows.append(f"| {names[arm]} | {pct(m['attack'])} | {pct(v['all_rates']['attack'])} | {pct(m['control'])} | "
+                    f"{pct(m['benign'])} | {pct(m['precision'])} | {num(m['p95'], 2)} | {num(v['burden'], 2)} | {delta} |")
+    hours = r['normal']['replica_hours']
+    note = {'vi': f"`pulse-peer-discount-confirm`, tập chính (6, 12, 24/s; {r['trials']['attack']} trial attack mọi tốc độ). "
+                  f"Normal: từ hết campaign tới hết capture, {num(hours, 1)} replica-giờ, chung cho mọi nhánh. Độ trễ = cảnh báo "
+                  "đầu tiên của nhánh − kernel_event_at (B3: lúc tạo case RCA). Δ so với A: bootstrap theo workload 10.000 lần; "
+                  "Δ p95: bootstrap theo trial. Protocol rule-integration-v1 + bổ sung 1, 2.",
+            'en': f"`pulse-peer-discount-confirm`, registered subset (6, 12, 24 per second; {r['trials']['attack']} attack trials "
+                  f"at all rates). Normal: campaign end to capture end, {num(hours, 1)} replica-hours, the same for every arm. "
+                  "Delay = the arm's first alert − kernel_event_at (B3: RCA case creation). Δ against A: workload-clustered "
+                  "bootstrap, 10,000 draws; Δ p95: trial bootstrap. Protocol rule-integration-v1 + amendments 1, 2."}
+    (out/'rule-comparison-table.md').write_text('\n'.join(rows) + '\n\n' + note[lang] + '\n')
 
 
 def fig_latency(out, t):
@@ -372,7 +405,8 @@ def main():
     out = a.output/a.lang; out.mkdir(parents=True, exist_ok=True)
     style(); t = TEXT[a.lang]
     fig_live_metrics(out, t, ci=not a.no_ci)
-    for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_burden, fig_alert_delivery, table_live_runs):
+    for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_burden, fig_alert_delivery, table_live_runs,
+              table_rule_comparison):
         f(out, t)
     print(sorted(x.name for x in out.iterdir()))
 
