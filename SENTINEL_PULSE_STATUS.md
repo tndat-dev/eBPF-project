@@ -1823,7 +1823,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - calibration mới có hiệu lực sau giờ tròn 300 s, không phải đúng giờ tròn;
   - workload dưới 1.200 cửa sổ giữ calibration cũ thay vì không được chấm;
   - giờ của một worker chưa có trên NFS lúc làm mới thì bị bỏ khỏi lần đó và được ghi log.
-- **Câu hỏi mở cho lượt xác nhận:** có loại khoảng campaign khỏi calibration không (bản offline có loại). Hệ thống vận hành thật không biết lúc nào bị tấn công. Không loại thì cửa sổ attack đi vào phần đuôi của calibration và có thể nới ngưỡng tới 12 giờ.
+- **Quyết định của chủ đồ án (29/10):** lượt xác nhận chạy đúng như bản offline, tức loại khoảng campaign khỏi calibration (`RECAL_EXCLUDE_CAMPAIGN=1`). Điều này được ghi là giới hạn: hệ thống vận hành thật không biết lúc nào bị tấn công; không loại thì cửa sổ attack đi vào phần đuôi của calibration và có thể nới ngưỡng tới 12 giờ.
 - **Test** (`tests/test_live_recalibration.py`, 6 test):
   - tập calibration trùng từng giá trị với `rolling_recalibration.calibration` trên cùng dữ liệu, kể cả khi loại khoảng campaign;
   - p-value sau khi thay trùng `Recalibrator`;
