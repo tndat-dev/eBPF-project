@@ -1899,7 +1899,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Tiêu chí:** H1 recall ≥ 90% với báo nhầm ≤ 3,0%; H2 ≥ 95%; H3 không thụt lùi ở 9 kịch bản đang 100%.
   - **Xác nhận:** chạy một lần trên LID-DS 2019 và CB-DS, mỗi bộ có protocol riêng.
   - **Code:** `sentinel_pulse/lidds/signals.py`, `scripts/analysis/lidds_evaluate_v2.py` (lưu kết quả từng bản ghi, `--merge`), 7 test.
-  - **Lịch:** unit `lid-ds-v2` trên `.234` (snapshot `1e9133c`) chờ unit `after-recal-confirm` xong, rồi chuyển đổi lại (alias) và chấm 4 phần song song. Lượt này gộp luôn lượt chạy lại của amendment 1 (nhánh `ml`/`tripwire`/`system` trên bản alias).
+  - **Lịch:** unit `lid-ds-v2` trên `.234` (snapshot `e48b23b`; dùng lại bản chuyển đổi v1 của 3 kịch bản không gặp tên alias) chờ unit `after-recal-confirm` xong, rồi chuyển đổi lại (alias) và chấm 4 phần song song. Lượt này gộp luôn lượt chạy lại của amendment 1 (nhánh `ml`/`tripwire`/`system` trên bản alias).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
