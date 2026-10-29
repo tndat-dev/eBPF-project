@@ -28,14 +28,14 @@ def load_binaries(db: Path):
         return conn.execute('select workload, binary, first_seen from binaries').fetchall()
 
 
-def rerank(tree, binaries, frozen_at):
+def rerank(tree, binaries, frozen_at, tie_break='name'):
     workload = next(n['trigger'] for n in tree['nodes'] if n['kind'] == 'signal')['workload_key']
     baseline = {b: t for w, b, t in binaries if w == workload and t <= tree['created_at']}
-    return rank_suspects(tree, baseline, frozen_at)[:20]
+    return rank_suspects(tree, baseline, frozen_at, tie_break)[:20]
 
 
 def evaluate(case_dir: Path, campaigns: list[Path], rerank_db: Path | None = None, frozen_at: float | None = None,
-             privilege_drop_rule: bool = True):
+             privilege_drop_rule: bool = True, tie_break: str = 'name'):
     binaries = load_binaries(rerank_db) if rerank_db else None
     if not privilege_drop_rule and binaries is None:
         raise ValueError('the old ranking rule needs --rerank-db')
@@ -47,7 +47,7 @@ def evaluate(case_dir: Path, campaigns: list[Path], rerank_db: Path | None = Non
         for path in case_dir.glob('*.json'):
             tree = json.loads(path.read_text())
             if binaries is not None:
-                tree['suspects'] = rerank(tree, binaries, frozen_at)
+                tree['suspects'] = rerank(tree, binaries, frozen_at, tie_break)
             trigger = next(n['trigger'] for n in tree['nodes'] if n['kind'] == 'signal')
             cases.append((event_time(trigger['window_end']), trigger, tree))
     finally:
@@ -68,6 +68,7 @@ def evaluate(case_dir: Path, campaigns: list[Path], rerank_db: Path | None = Non
     return dict(schema='pulse-rca-ranking-evaluation-v1', trials=len(rows), trials_with_case=len(with_case),
                 ranking=hit_rates(with_case), rows=rows, reranked=binaries is not None,
                 privilege_drop_rule=privilege_drop_rule if binaries is not None else 'as stored',
+                tie_break=tie_break if binaries is not None else 'as stored',
                 binary_baseline_frozen_at=frozen_at,
                 note='ground truth = fixture binary path; ranking is a triage heuristic, not causal proof')
 
@@ -80,9 +81,10 @@ def main():
     parser.add_argument('--rerank-db', type=Path, help="subscriber context.sqlite3 (read-only)")
     parser.add_argument('--frozen-at', type=float, help='binary_baseline_frozen_at of the subscriber config')
     parser.add_argument('--without-privilege-drop-rule', action='store_true', help='rerank with the rule before RCA 5.10')
+    parser.add_argument('--tie-break', choices=('name', 'recency'), default='name', help='equal scores: binary path or latest start first (RCA 5.19)')
     args = parser.parse_args()
     result = evaluate(args.cases, args.campaign, args.rerank_db, args.frozen_at,
-                      privilege_drop_rule=not args.without_privilege_drop_rule)
+                      privilege_drop_rule=not args.without_privilege_drop_rule, tie_break=args.tie_break)
     atomic_json(args.output, result)
     print(json.dumps({k: v for k, v in result.items() if k != 'rows'}))
 

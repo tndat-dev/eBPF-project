@@ -20,11 +20,18 @@ Reasons and weights:
 Container-runtime processes (containerd shim, runc, crun, conmon) are host-side
 context for every ``kubectl exec`` and container start; they are never
 candidates and do not earn ``spawned_children``.
+
+Ties (equal score): ``tie_break='name'`` orders them by binary path, the rule of every run up to
+pulse-live-recal-confirm; ``'recency'`` puts the process that started latest first, since an alarm follows the
+behaviour that raised it (RCA 5.19: with distinct benign and attack paths, the alphabetical order put the benign
+launch, 15 s earlier, first in most cases).
 """
 from __future__ import annotations
 
 from collections import defaultdict
 import re
+
+from .tree import event_time
 
 SECURITY = {'credential', 'namespace', 'mount', 'ptrace'}
 ID_SETTERS = {'setuid', 'setgid', 'setreuid', 'setregid', 'setresuid', 'setresgid'}
@@ -85,8 +92,18 @@ def workload_of(namespace, pod_name, container):
     return f'{namespace}/{name}:{container}'
 
 
-def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | None = None) -> list[dict]:
+def started(node) -> float:
+    try:
+        return event_time(node.get('start_time'))
+    except (TypeError, ValueError):
+        return float('-inf')                             # unknown start: last among equals
+
+
+def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | None = None,
+                  tie_break: str = 'name') -> list[dict]:
     """``baseline`` maps binary path -> first time seen in this workload."""
+    if tie_break not in ('name', 'recency'):
+        raise ValueError('tie_break is name or recency')
     nodes = {n['id']: n for n in tree['nodes']}
     processes = {nid: n for nid, n in nodes.items() if n['kind'] in ('process', 'process_parent')
                  and not is_container_runtime(n.get('binary'))}
@@ -128,7 +145,11 @@ def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | N
             score += 1; why.append('spawned_children')
         ranked.append(dict(process=pid, exec_id=node.get('exec_id'), binary=binary, pid=node.get('pid'),
                            score=score, reasons=sorted(why)))
-    ranked.sort(key=lambda r: (-r['score'], str(r['binary']), str(r['exec_id'])))
+    if tie_break == 'recency':
+        start = {pid: started(node) for pid, node in processes.items()}
+        ranked.sort(key=lambda r: (-r['score'], -start[r['process']], str(r['binary']), str(r['exec_id'])))
+    else:
+        ranked.sort(key=lambda r: (-r['score'], str(r['binary']), str(r['exec_id'])))
     for i, row in enumerate(ranked, 1):
         row['rank'] = i
     return ranked

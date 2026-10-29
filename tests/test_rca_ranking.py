@@ -134,3 +134,21 @@ def test_old_rule_switch_scores_launch_drop_as_security_operation(monkeypatch):
     from sentinel_pulse.rca import ranking
     monkeypatch.setattr(ranking, 'DROP_AT_START_SECONDS', -1.0)   # what --without-privilege-drop-rule sets
     assert ranking.rank_suspects(_probe_tree())[0]['score'] == 2 + 6
+
+
+def test_recency_tie_break_puts_the_later_launch_first():
+    benign = _exec('/operator/sentinel-benign-exec-control', 'ben', at=85.)
+    attack = _exec('/operator/sentinel-runtime-attack-blind', 'atk', at=99.)
+    tree = build_runtime_tree(trigger(), [benign, attack])
+    for node in tree['nodes']:                              # Tetragon's process start time, as in live cases
+        if node['kind'] == 'process':
+            node['start_time'] = {'ben': '2026-10-25T16:41:18.957048Z', 'atk': '2026-10-25T16:41:33.571360Z'}.get(node['exec_id'])
+    baseline = {'/operator/sentinel-benign-exec-control': 60., '/operator/sentinel-runtime-attack-blind': 70.}
+    by_name = rank_suspects(tree, baseline, frozen_at=50.)
+    by_time = rank_suspects(tree, baseline, frozen_at=50., tie_break='recency')
+    assert by_name[0]['score'] == by_name[1]['score']                                 # a tie: both novel, both started in the window
+    assert by_name[0]['binary'] == '/operator/sentinel-benign-exec-control'           # the alphabetical order
+    assert ground_truth_rank(by_time, binary='/operator/sentinel-runtime-attack-blind') == 1
+    assert 'started_at' not in by_time[0]
+    with pytest.raises(ValueError):
+        rank_suspects(tree, baseline, 50., tie_break='random')
