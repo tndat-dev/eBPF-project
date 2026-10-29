@@ -1,0 +1,24 @@
+{
+  "schema": "sentinel-pulse-app-overhead-v1",
+  "registered_at": "2026-10-29T10:30+07:00",
+  "registered_before": "any application-latency measurement with the Pulse probe",
+  "question": "G7: how much does the Pulse probe add to the request latency of the real application (AIMS) as a user sees it, and how much node CPU does it take?",
+  "probe": "the final system's loader and object (/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader sha 36db2aca..., pulse_counter_extended.bpf.o sha 099c9cbf...), attached exactly as matched_worker.py attaches them (--allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 500, i.e. every production container monitored), on all three workers at once; frames go to /dev/null instead of the scorer",
+  "conditions": {
+    "off": "no Pulse probe on any worker",
+    "probe": "probe attached on the three workers (kernel counting on every syscall of every node, user-space map reads every 500 ms)"
+  },
+  "not_measured_here": "the user-space scorer (tree + support ensemble + tripwire); its CPU is already measured in live runs (13-31 % of one core per worker with fast scoring, SENTINEL_PULSE_STATUS 5.8). Running it needs a 90-minute selection span per start, so it cannot alternate in 5-minute blocks",
+  "client": "scripts/app_overhead_ab.py on k8s-master (.234, not a worker, so the probe never runs on the client); open loop at 8 requests/s (request k scheduled at t0 + k/8 regardless of earlier replies, 32 threads, new connection per request, 5 s timeout), endpoints in turn: /, /api/health/, /api/products/, /api/products/?page=1, through the Istio ingress NodePort 31088 of the three workers in turn (the user path: ingress gateway -> waypoint -> frontend/api-gateway -> services -> databases)",
+  "background": "the normal AIMS traffic generators keep running in their current regime, as in every live run",
+  "design": "60 s warm-up, then 12 rounds; each round one 300 s block per condition, order off-probe in odd rounds and probe-off in even rounds; requests scheduled in the first 30 s of a block are discarded (attach/detach settle)",
+  "latency": "completion - scheduled time (open loop, no coordinated omission); service time completion - send reported as well",
+  "metrics": {
+    "primary": "paired ratio probe/off of the block p95 over all requests: median over rounds - 1, percentile bootstrap 95 % CI over rounds (10,000 draws)",
+    "secondary": "same for p50 and p99 and per endpoint; median paired difference in ms; error rate per condition; probe CPU per worker (systemd CPUUsageNSec of the loader unit / block length, in cores); node busy CPU off vs probe from /proc/stat"
+  },
+  "expectation": "descriptive, no pass mark. Microbenchmark 5.21 predicts ~0.25-0.45 us per syscall of a monitored container. The added latency is called 'below 5 %' only when the upper CI bound of the primary metric is below +5 %",
+  "safety": "the runner refuses to start while a live worker or another Pulse loader is active; before every block it checks MemAvailable >= 4 GiB on each worker and stops (probe detached) otherwise; it stops when more than 20 % of a block's requests fail; the probe is detached on every exit path",
+  "limits": "one application, one cluster, one kernel (Ubuntu 24.04, 6.8.0); probe only, scorer CPU taken from live runs; the client shares k8s-master with the LID-DS evaluation (4 cores of 24, the same in both conditions)",
+  "code": "scripts/app_overhead_ab.py (runner), scripts/analysis/app_overhead.py (analysis, tested)"
+}
