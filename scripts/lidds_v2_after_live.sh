@@ -14,7 +14,17 @@ for unit in ${WAIT_UNITS:-after-recal-confirm}; do
 done
 mkdir -p "$OUT" && cd /tmp
 echo "conversion start $(date -u +%FT%T)"
-ls $D/*.zip | xargs -P 6 -I{} $PY -m sentinel_pulse.lidds.convert {} --output $D/converted-v2 >> $OUT/convert.log 2>&1
+# a scenario whose v1 conversion met none of the sysdig spellings converts byte-identically: reuse it
+todo=()
+for z in $D/*.zip; do
+  s=$(basename "$z" .zip)
+  if [ -f "$D/converted/$s/SUMMARY.json" ] && python3 -c "import json,sys; u=json.load(open(sys.argv[1]))['unmapped_names']; sys.exit(1 if set(u) & {'pread','pwrite','sigreturn','prlimit'} else 0)" "$D/converted/$s/SUMMARY.json"; then
+    mkdir -p $D/converted-v2 && cp -r "$D/converted/$s" "$D/converted-v2/$s" && echo "reused v1 conversion of $s (no aliased name)" >> $OUT/convert.log
+  else
+    todo+=("$z")
+  fi
+done
+printf '%s\n' "${todo[@]}" | xargs -P 6 -I{} $PY -m sentinel_pulse.lidds.convert {} --output $D/converted-v2 >> $OUT/convert.log 2>&1
 echo "conversion done $(date -u +%FT%T)"
 names=($(ls $D/converted-v2 | sort))
 pids=()
