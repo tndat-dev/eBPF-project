@@ -1,0 +1,27 @@
+{
+  "schema": "sentinel-pulse-lidds-evaluation-v1",
+  "registered_at": "2026-10-29T09:17+07:00",
+  "registered_before": "any model is fitted on LID-DS and any LID-DS score of Pulse or of a baseline is computed",
+  "purpose": "G3 (public dataset) and part of G2 (real exploits): Pulse's final system evaluated on LID-DS 2021 with every parameter taken from the live system, nothing tuned on LID-DS",
+  "data": {
+    "dataset": "LID-DS 2021 (Grimmer et al. 2022), 15 scenarios, recordings of the public Proton Drive share linked from github.com/LID-DS/LID-DS, downloaded 25/10/2026 (15 archives, 87 GB, every zip passed testzip)",
+    "conversion": "sentinel_pulse/lidds/convert.py: syscall entries replayed into the eBPF loader's cumulative frames (full-ID counts, ID and per-thread transition bins as pulse_counter.bpf.c), 0.5 s windows, Pulse's ExtendedFeatureStream unchanged; seccomp skips not recorded by LID-DS (0)",
+    "splits": "the dataset's own: training (fit), validation (calibration), test/normal and test/normal_and_attack (evaluation only)",
+    "unit": "one scenario = one workload; one recording = one container"
+  },
+  "ml": {
+    "model": "per scenario, PulseExtendedReferenceTree(history=3, alpha=0.001, random_state=73021) fitted on the training recordings' sequences of eligible windows (decode_vector of the 249 features), calibrated on the validation recordings; PulseSupportEnsemble (interval budget 0.05, horizon 30 windows) fitted on the training current windows, calibrated on the validation current windows. All windows used, no cap",
+    "decision": "the live rule of policy-k2of2-a5-peer30 without the evidence discount (a recording has no replica): window passes when joint_p <= 5 x 0.05/30; alarm when two consecutive contiguous windows pass",
+    "scored_windows": "windows with three contiguous eligible windows before them, as the live scorer"
+  },
+  "tripwire": "reference = union of syscall IDs of every window of the scenario's training recordings; exec set E (validation-evidence/results-20261021/pulse-stable-candidate/final/exec-set-E.json); a test window alerts when it carries an ID outside both",
+  "system": "ML alarm or tripwire alert in a window (the final system, owner 25/10)",
+  "metrics": {
+    "per_recording": "an attack recording (test/normal_and_attack) is detected when an alarm window ends after the recording's first exploit time; latency = that window's end - exploit time. A normal test recording (test/normal) is a false-alarm recording when any window alarms; alarm windows of an attack recording ending before the exploit are counted as false alarms too",
+    "reported": "per scenario and over all scenarios: detection rate (Wilson 95 % CI), false-alarm recording rate on test/normal (Wilson 95 % CI), alarm episodes (windows less than 15 s apart merged) per hour of test/normal windows, latency p50/p95, for ML, tripwire and system",
+    "no_threshold": "LID-DS has no registered pass mark here; results are compared with the published LID-DS 2021 results only where the cited paper states the same metric, and with STIDE below"
+  },
+  "baseline": "STIDE (Forrest et al. 1996) on the same splits: database of syscall-name 7-grams of each thread's entry sequence in the training recordings; a test window alarms when one of its threads completes a 7-gram not in the database (any-mismatch variant, no tuning); same per-recording metrics",
+  "statistics": "Wilson 95 % CI for recording rates; scenarios as clusters for a bootstrap 95 % CI of the pooled differences system - ML and system - STIDE (10,000 draws)",
+  "code": "sentinel_pulse/lidds/convert.py, scripts/analysis/lidds_evaluate.py (written before any fit)"
+}
