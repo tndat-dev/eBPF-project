@@ -21,7 +21,7 @@ Mục tiêu đăng ký trước: precision và recall ≥ 95%, control dương �
    | [RULE_INTEGRATION_STATUS.md](RULE_INTEGRATION_STATUS.md) | Phần rule (Falco, tripwire), **tách riêng** khỏi số liệu ML | `R1`–`R6` |
 
 3. [TODO.md](TODO.md): việc đang chạy và việc tiếp theo. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md): đánh giá tổng thể, khoảng cách so với công trình liên quan, ý tưởng từ tài liệu. [references/](references/README.md): danh mục bài báo đã dùng; [references/KNOWLEDGE_SYNTHESIS.md](references/KNOWLEDGE_SYNTHESIS.md): tri thức tổng hợp từ tài liệu theo chủ đề luận văn.
-4. [docs/](docs/): báo cáo và slide của từng buổi họp (bản chụp, không cập nhật). [DOCS_INDEX.md](DOCS_INDEX.md) liệt kê mọi tài liệu.
+4. [thesis/](thesis/README.md): luận văn bằng LaTeX, số liệu lấy từ 4 báo cáo trên. [docs/](docs/): báo cáo và slide của từng buổi họp (bản chụp, không cập nhật). [reports/](reports/): báo cáo nghiên cứu theo chủ đề (ghi chú nguồn trong `research_notes/`). [DOCS_INDEX.md](DOCS_INDEX.md) liệt kê mọi tài liệu.
 
 ## Từ một con số trong báo cáo đến bằng chứng
 
@@ -30,7 +30,7 @@ Mỗi kết quả đi qua cùng một chuỗi:
 1. **Báo cáo:** mục kết quả ghi số, giờ chạy, dòng "Biên nhận" (tên file) và luật chọn.
 2. **Biên nhận trong repo:** `validation-evidence/results-<ngày>/…`. README của từng thư mục ghi file nào là kết quả của mục nào, script nào sinh ra, bản gốc nằm đâu trên cụm (ví dụ [results-20261022/README.md](validation-evidence/results-20261022/README.md)).
 3. **Lệnh đã chạy:** `scripts/*.sh`. Mỗi job trên cụm là một script, dòng đầu ghi giao thức, đầu vào, máy chạy và cách gọi. Script gọi module trong `sentinel_pulse/` hoặc `scripts/analysis/*.py`. Code chạy là một snapshot git đóng băng, commit nằm trong tên thư mục (`runtime-<commit>-<ngày>/source`) hoặc trong biên nhận.
-4. **Kiểm toán:** `scripts/audit/headline_numbers.py` tính lại mọi số chủ chốt của phần tóm tắt từ biên nhận và chạy trong bộ test; kết quả và giới hạn ở [docs/AUDIT.md](docs/AUDIT.md).
+4. **Kiểm toán:** `scripts/audit/headline_numbers.py` tính lại mọi số chủ chốt của phần tóm tắt và của luận văn từ biên nhận và chạy trong bộ test; kết quả và giới hạn ở [docs/AUDIT.md](docs/AUDIT.md).
 5. **Luật đăng ký trước:** `sentinel_pulse/protocol/*.json`. Luật được băm SHA-256 và đăng ký **trước khi có số**; báo cáo ghi giờ đăng ký và mọi bản bổ sung. Không đổi lựa chọn sau khi xem kết quả.
 6. **Dữ liệu thô:** trên NFS của cụm `/mnt/sentinel-pulse-archive`, không có trong git (mục dưới).
 
@@ -48,6 +48,8 @@ testbed/               tải, binary tấn công, microbenchmark, manifest K8s (
 tests/                 pytest
 docs/                  báo cáo, slide buổi họp; figures/
 references/            danh mục bài báo (PDF chỉ giữ ngoài git, xem references/README.md)
+thesis/                luận văn LaTeX (tectonic main.tex)
+reports/, research_notes/  báo cáo nghiên cứu theo chủ đề và ghi chú nguồn
 ```
 
 Bản đồ mã nguồn chi tiết: [sentinel_pulse/README.md](sentinel_pulse/README.md). Tài sản cụm thử nghiệm: [testbed/README.md](testbed/README.md).

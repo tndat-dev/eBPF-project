@@ -15,6 +15,8 @@ và mẫu nhỏ. Không sửa nội dung đã niêm phong; nếu cần sửa bá
 | `results-20261022/` | 22–23/10: chọn ML stable (5.19), giảm gánh cảnh báo (5.22), 5.7d; syscall 5C (CUSUM `keep`/`cap`), nhóm feature trên holdout chính và hai biến thể p-value (5B.3); seed baseline binary RCA (5.12). README trong thư mục ghi script và bản gốc trên cụm của từng file |
 | `results-20261023/` | Lượt xác nhận `pulse-stable-confirm` (Pulse 5.25, RCA 5.14, 5.15): giai đoạn campaign, độ trễ kernel → người nhận, biên nhận bridge cảnh báo; giai đoạn final thêm sau. README trong thư mục ghi script và bản gốc của từng file |
 | `results-20261025/` | Lượt `pulse-peer-discount-confirm` (Pulse 5.26, 5.27; RCA 5.16): giai đoạn campaign, độ trễ đường cảnh báo, biên nhận bridge; giai đoạn final thêm sau khi chạy lại |
+| `results-20261026/` | Lượt `pulse-final-system-confirm`, hệ thống cuối ML + tripwire (Pulse 5.29; RCA 5.17–5.19): campaign, gánh, tripwire live so với offline, độ trễ đường cảnh báo, RCA (kể cả xếp hạng lại với luật phá hoà theo thời điểm khởi chạy) |
+| `results-20261029/` | 29/10: G7 độ trễ request có/không probe (`app-overhead/`, Pulse 5.30), smoke calibration tự làm mới (`recal-smoke/`, Pulse 5.31), LID-DS 2021 v1 (`lidds/`, Pulse 5.32). Mỗi thư mục con có README |
 | `rca/examples-20261023/` | Hai cây RCA thật, chép nguyên (attack ptrace có nghi phạm hạng 1 đúng; cảnh báo normal do exec probe), kèm hình SVG và hướng dẫn đọc |
 
 Evidence của các thế hệ đã gỡ code (AIMS/v8, lifecycle R9/R10, projected

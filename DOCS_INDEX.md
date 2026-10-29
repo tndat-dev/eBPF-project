@@ -21,8 +21,20 @@
    [references/KNOWLEDGE_SYNTHESIS.md](references/KNOWLEDGE_SYNTHESIS.md) — tri thức tổng hợp từ 70 bài theo chủ đề luận văn (CUSUM, conformal, gộp p-value/FDR, HIDS syscall, mô hình, provenance/RCA, eBPF, phương pháp đánh giá): bảo đảm lý thuyết, số liệu tác giả báo cáo, chỗ đồ án dùng, câu được nói và giới hạn.
 9. README trong từng thư mục (`sentinel_pulse/`, `testbed/`, `validation-evidence/` và các thư mục `results-*`) — hướng dẫn code và nguồn gốc biên nhận, không phải báo cáo tiến độ.
    `docs/figures/README.md` — hình cho luận văn và paper, sinh lại từ biên nhận.
-10. [docs/AUDIT.md](docs/AUDIT.md) — rà soát số liệu (25/10): số chủ chốt tính lại từ biên nhận (`scripts/audit/headline_numbers.py`,
-   chạy trong bộ test) và số trích từ tài liệu so với PDF (`scripts/audit/literature_numbers.py`).
+10. [docs/AUDIT.md](docs/AUDIT.md) — rà soát số liệu (25/10, mở rộng 29/10): số chủ chốt của báo cáo và luận văn tính lại từ biên nhận
+   (`scripts/audit/headline_numbers.py`, chạy trong bộ test) và số trích từ tài liệu so với PDF (`scripts/audit/literature_numbers.py`).
+
+## Luận văn
+
+- [thesis/](thesis/README.md) — luận văn bằng LaTeX (từ 29/10; build: `cd thesis && tectonic main.tex`, PDF không đưa vào git).
+  8 chương, tài liệu tham khảo sinh từ `references/catalog.json`, hình lấy từ `docs/figures/`. Số liệu chỉ lấy từ 4 báo cáo hiện hành.
+  Bản nháp trên Claude Docs trước đó đã ngừng cập nhật.
+
+## Nghiên cứu theo chủ đề
+
+- [reports/Cải thiện Pulse trên LID DS.md](reports/Cải%20thiện%20Pulse%20trên%20LID%20DS.md) (29/10) — vì sao Pulse bỏ sót trên LID-DS 2021,
+  kết quả đã công bố, kỹ thuật cải thiện và lộ trình 4 bậc; là cơ sở của protocol `lidds-evaluation-v2` (Pulse 5.32).
+  Ghi chú nguồn từng phần: [research_notes/Cải thiện Pulse trên LID DS/](research_notes/Cải%20thiện%20Pulse%20trên%20LID%20DS/).
 
 ## Báo cáo buổi họp (bản chụp tại ngày họp, không cập nhật)
 
@@ -38,5 +50,5 @@
 ## Bằng chứng
 
 `validation-evidence/` chứa biên nhận, checksum và kết quả nhỏ của từng lượt chạy
-(`pulse/`, `syscall/`, `rca/`, `results-20261018/` … `results-20261025/`). Không sửa file đã niêm phong để chỉnh báo cáo;
+(`pulse/`, `syscall/`, `rca/`, `results-20261018/` … `results-20261029/`). Không sửa file đã niêm phong để chỉnh báo cáo;
 dữ liệu lớn nằm trên NFS của cụm (`/mnt/sentinel-pulse-archive`).

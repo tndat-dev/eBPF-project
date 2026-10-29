@@ -13,6 +13,7 @@ Protocol `sentinel_pulse/protocol/final-system-confirmation-v1.json` (đăng ký
 | `pulse-final-system-confirm/burden-blind-test.json` | Gánh ML live từ đầu khoảng selection, kiểm cài đặt | `burden_blind_test.py --live-rule le3s` |
 | `pulse-final-system-confirm/delivery-latency-campaign.json.gz`, `bridge-status-*.json` | Kernel → người nhận theo đường cảnh báo; bộ đếm bridge (push lỗi, thử lại) | `alert_delivery_latency.py` |
 | `pulse-final-system-confirm/rca-*.json`, `alarm-taxonomy.json` | RCA 5.17 (trigger từ Alertmanager) | như các lượt trước |
+| `pulse-final-system-confirm/rca-ranking-reranked-recency.json.gz` | RCA 5.19: xếp hạng lại cùng case với luật phá hoà theo thời điểm khởi chạy (development; top-1 100%, 469 case) | `evaluate_ranking.py --tie-break recency` (code `0a50f90`, 29/10) |
 | `pulse-final-system-confirm/cadence-gaps.json`, `tetragon-zombies.json` | Khoảng hở nhịp theo worker; zombie sau lượt | `cadence_gaps.py`; đếm trong `final_system_analysis.sh` |
 
 Trạng thái bridge của cả lượt nằm trên NFS `pulse-final-system-confirm/alert-bridge/` (bản local trên `.234` trùng từng byte, đã xóa 29/10).
