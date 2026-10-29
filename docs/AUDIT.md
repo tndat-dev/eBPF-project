@@ -10,7 +10,7 @@ Mục đích: bảo đảm không có con số nào trong phần tóm tắt và 
 python3 scripts/audit/headline_numbers.py --markdown /tmp/AUDIT-table.md   # bảng như mục dưới
 ```
 
-**Kết quả 25/10:** 31/31 câu khớp biên nhận. Hai số trước đây chỉ có trong báo cáo mà không có trong file biên nhận nào (push tới người nhận ở tập chính: 309/315 trial, p95 3,17 s) nay được tính lại trực tiếp từ log bridge và kết quả campaign trong repo; kết quả khớp.
+**Kết quả 29/10:** 54/54 câu khớp biên nhận (thêm G7, LID-DS 2021, luật phá hoà RCA, các dòng tương ứng trong luận văn). Lần thêm này bắt được một lỗi làm tròn hai lần ở bảng G7: Δ p95 của `/`, `/api/health/`, `/api/products/` là 5,845%, 3,145%, 8,145% nhưng báo cáo và luận văn ghi +5,9 / +3,2 / +8,2%; đã sửa thành +5,8 / +3,1 / +8,1% (kết luận không đổi). **Kết quả 25/10:** 31/31 câu khớp biên nhận. Hai số trước đây chỉ có trong báo cáo mà không có trong file biên nhận nào (push tới người nhận ở tập chính: 309/315 trial, p95 3,17 s) nay được tính lại trực tiếp từ log bridge và kết quả campaign trong repo; kết quả khớp.
 
 | Mã | Báo cáo | Câu được kiểm (tính lại từ biên nhận) | Biên nhận | Khớp |
 |---|---|---|---|---|
@@ -45,8 +45,31 @@ python3 scripts/audit/headline_numbers.py --markdown /tmp/AUDIT-table.md   # b�
 | `label-review-shares` | SENTINEL_PULSE_STATUS.md | ¦ benign_probe ¦ 2.573 ¦ 54,0% (52,6–55,4) | `results-20261021/pulse-stable-candidate/label-review.json` | có |
 | `rca-final` | RCA_RUNTIME_STATUS.md | Attack có case riêng 459/524 (87,6%); top-1 99,8%, top-3 100%; preview → case p95 2,59 s (case attack); 575 case normal | `results-20261025/pulse-peer-discount-confirm/rca-coverage.json, rca-ranking-reranked.json, alarm-taxonomy.json` | có |
 | `rca-confirm` | RCA_RUNTIME_STATUS.md | `pulse-stable-confirm` 86,9% / 99,8% / 2,50 s (5.15) | `results-20261023/pulse-stable-confirm/rca-coverage.json, rca-ranking-reranked.json` | có |
+| `final-system-summary` | SENTINEL_PULSE_STATUS.md | tập chính recall 99,4% (313/315), precision 99,4%, control 0,6% (2/314), **p95 1,97 s** | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-system-burden` | SENTINEL_PULSE_STATUS.md | S − A = +0,049 [+0,005; +0,124] | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-system-agreement` | SENTINEL_PULSE_STATUS.md | 10.417.205 cửa sổ đã xét, 8.482 cửa sổ cảnh báo ở cả hai, **0 cửa sổ khác nhau** | `results-20261026/pulse-final-system-confirm/live-tripwire.json.gz` | có |
+| `final-system-ml` | SENTINEL_PULSE_STATUS.md | recall 99,4% (308/310), precision 99,4%, control 0,6% (2/311), p95 2,38 s | `results-20261026/pulse-final-system-confirm/confirm-campaign.json` | có |
+| `rca-final-system` | RCA_RUNTIME_STATUS.md | ¦ Attack có case riêng ¦ **469/525 (89,3%)** ¦ | `results-20261026/pulse-final-system-confirm/rca-coverage.json` | có |
+| `rca-final-system-rank` | RCA_RUNTIME_STATUS.md | ¦ Top-1 / top-3 (binary attack là nghi phạm hạng 1 / trong 3 hạng đầu) ¦ **14,1% / 100%** ¦ | `results-20261026/pulse-final-system-confirm/rca-ranking-reranked.json.gz` | có |
+| `rca-recency-dev` | RCA_RUNTIME_STATUS.md | top-1 **14,1% → 100%** (469/469), top-3 vẫn 100% | `results-20261026/pulse-final-system-confirm/rca-ranking-reranked.json.gz, rca-ranking-reranked-recency.json.gz` | có |
+| `g7-/` | SENTINEL_PULSE_STATUS.md | ¦ `/` ¦ 11,5 / 12,1 ¦ +5,8% [−1,4; +14,5] ¦ +0,5% [−0,8; +3,2] ¦ 0,04 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-thesis-/` | thesis/chapters/evaluation.tex |  & 11,5 / 12,1 & +5,8\% [−1,4; +14,5] & +0,5\% [−0,8; +3,2] & 0,04 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-/api/health/` | SENTINEL_PULSE_STATUS.md | ¦ `/api/health/` ¦ 25,1 / 24,3 ¦ +3,1% [−8,1; +21,2] ¦ +2,0% [+0,2; +4,4] ¦ 0,14 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-thesis-/api/health/` | thesis/chapters/evaluation.tex |  & 25,1 / 24,3 & +3,1\% [−8,1; +21,2] & +2,0\% [+0,2; +4,4] & 0,14 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-/api/products/` | SENTINEL_PULSE_STATUS.md | ¦ `/api/products/` ¦ 306,4 / 318,2 ¦ +8,1% [+0,7; +18,3] ¦ +3,0% [+1,2; +4,3] ¦ 5,9 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-thesis-/api/products/` | thesis/chapters/evaluation.tex |  & 306,4 / 318,2 & +8,1\% [+0,7; +18,3] & +3,0\% [+1,2; +4,3] & 5,9 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-/api/products/?page=1` | SENTINEL_PULSE_STATUS.md | ¦ `/api/products/?page=1` ¦ 309,3 / 320,4 ¦ +5,8% [+1,4; +17,9] ¦ +2,6% [+0,4; +5,2] ¦ 5,3 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `g7-thesis-/api/products/?page=1` | thesis/chapters/evaluation.tex |  & 309,3 / 320,4 & +5,8\% [+1,4; +17,9] & +2,6\% [+0,4; +5,2] & 5,3 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
+| `lidds-ml` | SENTINEL_PULSE_STATUS.md | ¦ ML ¦ 63,6% (1.154) [61,3; 65,8] ¦ 2,9% (333) [2,6; 3,3] ¦ 2,46 ¦ 1,33 / 4,13 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-thesis-ml` | thesis/chapters/evaluation.tex | ML & 63,6\% (1154/1815) [61,3; 65,8] & 2,9\% (333/11341) [2,6; 3,3] & 2,46 & 1,33 / 4,13 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-tripwire` | SENTINEL_PULSE_STATUS.md | ¦ Tripwire ¦ 63,5% (1.153) [61,3; 65,7] ¦ 0,1% (7) [0,0; 0,1] ¦ 0,05 ¦ 0,79 / 2,94 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-thesis-tripwire` | thesis/chapters/evaluation.tex | Tripwire & 63,5\% (1153/1815) [61,3; 65,7] & 0,1\% (7/11341) [0,0; 0,1] & 0,05 & 0,79 / 2,94 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-system` | SENTINEL_PULSE_STATUS.md | ¦ **Hệ thống** ¦ **77,3%** (1.403) [75,3; 79,2] ¦ **3,0%** (336) [2,7; 3,3] ¦ 2,48 ¦ 0,77 / 2,71 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-thesis-system` | thesis/chapters/evaluation.tex | Hệ thống (ML hoặc tripwire) & 77,3\% (1403/1815) [75,3; 79,2] & 3,0\% (336/11341) [2,7; 3,3] & 2,48 & 0,77 / 2,71 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
+| `lidds-macro` | SENTINEL_PULSE_STATUS.md | hệ thống tính cùng cách đạt 0,77 (trung bình 15 kịch bản; gộp theo bản ghi 77,3%) | `results-20261029/lidds/lidds-evaluation.json (mean over scenarios)` | có |
+| `lidds-macro-thesis` | thesis/chapters/evaluation.tex | Tính cùng cách (trung bình của 15 kịch bản), hệ thống của luận văn đạt 0,77. | `results-20261029/lidds/lidds-evaluation.json (mean over scenarios)` | có |
 
-Ngoài 31 câu trên, đã đọc lại bằng tay trong lúc rà soát: review nhãn (cận dưới 99,92% = 1 − cận trên Wilson của 0/4.766), overhead tính trên mỗi syscall (mmap+munmap và open+close là 2 syscall mỗi phép đo), RCA (2,50 s là p95 của case attack, 2,65 s là của mọi case; hai định nghĩa đều ghi trong báo cáo).
+Ngoài các câu trên, đã đọc lại bằng tay trong lúc rà soát: review nhãn (cận dưới 99,92% = 1 − cận trên Wilson của 0/4.766), overhead tính trên mỗi syscall (mmap+munmap và open+close là 2 syscall mỗi phép đo), RCA (2,50 s là p95 của case attack, 2,65 s là của mọi case; hai định nghĩa đều ghi trong báo cáo).
 
 ## 2. Số của tài liệu: so với PDF của bài được trích
 

@@ -61,6 +61,11 @@ def thousands(n):
     return f'{n:,}'.replace(',', '.')
 
 
+def signed(x, digits=1):
+    """+5,8 / −1,4 (the reports write the minus sign U+2212)."""
+    return ('+' if x >= 0 else '−') + num(abs(x), digits)
+
+
 # ------------------------------------------------------------------ derived values
 
 def final_push():
@@ -211,6 +216,37 @@ def claims():
         f'{FS}/rca-coverage.json')
     add('rca-final-system-rank', rca, f"| Top-1 / top-3 (binary attack là nghi phạm hạng 1 / trong 3 hạng đầu) | **{pct(rk5['top1'])} / {pct(rk5['top3'], 0)}** |", [],
         f'{FS}/rca-ranking-reranked.json.gz')
+    rr = receipt(f'{FS}/rca-ranking-reranked-recency.json.gz')['ranking']
+    add('rca-recency-dev', rca, f"top-1 **{pct(rk5['top1'])} → {pct(rr['top1'], 0)}** ({round(rr['top1'] * rr['cases'])}/{rr['cases']}), "
+        f"top-3 vẫn {pct(rr['top3'], 0)}", [], f'{FS}/rca-ranking-reranked.json.gz, rca-ranking-reranked-recency.json.gz')
+    thesis = 'thesis/chapters/evaluation.tex'
+    AO = 'results-20261029/app-overhead/APP-OVERHEAD.json'
+    ao = receipt(AO)['per_endpoint']
+    for e in ao['p95']:
+        p95, p50 = ao['p95'][e], ao['p50'][e]
+        added = p50['added_ms']
+        cells = [f"{num(p95['off_ms'], 1)} / {num(p95['probe_ms'], 1)}",
+                 *(f"{signed(100 * r['overhead'])}% [{signed(100 * r['ci95'][0])}; {signed(100 * r['ci95'][1])}]" for r in (p95, p50)),
+                 num(added, 2 if added < 1 else 1)]
+        add(f'g7-{e}', pulse, f"| `{e}` | {' | '.join(cells)} |", [], AO)
+        add(f'g7-thesis-{e}', thesis, ' & '.join([''] + cells).replace('%', r'\%') + r' \\', [], AO)
+    LD = 'results-20261029/lidds/lidds-evaluation.json'
+    ld = receipt(LD)
+    for arm, label, tex in (('ml', 'ML', 'ML'), ('tripwire', 'Tripwire', 'Tripwire'), ('system', '**Hệ thống**', 'Hệ thống (ML hoặc tripwire)')):
+        p = ld['pooled'][arm]
+        det = (pct(p['detection_rate']), ci(p['detection_ci95'], 1))
+        fa = (pct(p['false_alarm_rate']), ci(p['false_alarm_ci95'], 1))
+        tail = [num(p['false_alarm_episodes_per_hour'], 2), f"{num(p['latency_p50'], 2)} / {num(p['latency_p95'], 2)}"]
+        bold = (lambda x: f'**{x}**') if arm == 'system' else (lambda x: x)
+        add(f'lidds-{arm}', pulse, f"| {label} | {bold(det[0])} ({thousands(p['detected'])}) {det[1]} | {bold(fa[0])} "
+            f"({thousands(p['false_alarm_recordings'])}) {fa[1]} | {' | '.join(tail)} |", [], LD)
+        add(f'lidds-thesis-{arm}', thesis, f"{tex} & {det[0]} ({p['detected']}/{p['attack_recordings']}) {det[1]} & {fa[0]} "
+            f"({p['false_alarm_recordings']}/{p['normal_recordings']}) {fa[1]} & {' & '.join(tail)}".replace('%', r'\%') + r' \\', [], LD)
+    macro = [s['arms']['system']['detection_rate'] for s in ld['scenarios'].values()]
+    add('lidds-macro', pulse, f"hệ thống tính cùng cách đạt {num(sum(macro) / len(macro), 2)} (trung bình {len(macro)} kịch bản; "
+        f"gộp theo bản ghi {pct(ld['pooled']['system']['detection_rate'])})", [], f'{LD} (mean over scenarios)')
+    add('lidds-macro-thesis', thesis, f"Tính cùng cách (trung bình của {len(macro)} kịch bản), hệ thống của luận văn đạt "
+        f"{num(sum(macro) / len(macro), 2)}.", [], f'{LD} (mean over scenarios)')
     return out
 
 

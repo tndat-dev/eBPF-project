@@ -467,9 +467,9 @@ Endpoint & p95 không probe / có probe (ms) & Thay đổi p95 [CI 95\%] & Thay 
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\texttt{/} & 11,5 / 12,1 & +5,9\% [−1,4; +14,5] & +0,5\% [−0,8; +3,2] & 0,04 \\
-\texttt{/api/\allowbreak{}health/} & 25,1 / 24,3 & +3,2\% [−8,1; +21,2] & +2,0\% [+0,2; +4,4] & 0,14 \\
-\texttt{/api/\allowbreak{}products/} & 306,4 / 318,2 & +8,2\% [+0,7; +18,3] & +3,0\% [+1,2; +4,3] & 5,9 \\
+\texttt{/} & 11,5 / 12,1 & +5,8\% [−1,4; +14,5] & +0,5\% [−0,8; +3,2] & 0,04 \\
+\texttt{/api/\allowbreak{}health/} & 25,1 / 24,3 & +3,1\% [−8,1; +21,2] & +2,0\% [+0,2; +4,4] & 0,14 \\
+\texttt{/api/\allowbreak{}products/} & 306,4 / 318,2 & +8,1\% [+0,7; +18,3] & +3,0\% [+1,2; +4,3] & 5,9 \\
 \texttt{/api/\allowbreak{}products/\allowbreak{}?page=1} & 309,3 / 320,4 & +5,8\% [+1,4; +17,9] & +2,6\% [+0,4; +5,2] & 5,3 \\
 \end{longtable}
 
@@ -510,7 +510,7 @@ Trên 15 kịch bản lỗ hổng thật của LID-DS 2021, hệ thống cuối 
 \end{itemize}
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.25\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.12\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}@{}}
-\caption{LID-DS 2021, gộp 15 kịch bản: 1.815 bản ghi tấn công, 11.341 bản ghi normal (137,5 giờ normal).}\\
+\caption{LID-DS 2021, gộp 15 kịch bản: 1.815 bản ghi tấn công, 11.341 bản ghi normal (137,5 giờ normal).}\label{tab:lidds-pooled}\\
 \toprule\noalign{}
 Nhánh & Phát hiện [CI 95\%] & Bản ghi normal bị báo nhầm [CI 95\%] & Đợt/giờ normal & Độ trễ p50 / p95 (s) \\
 \midrule\noalign{}
@@ -573,7 +573,7 @@ Kịch bản & ML phát hiện & Tripwire phát hiện & Hệ thống phát hi�
 \item
   \textbf{Giới hạn đã phát hiện sau khi chạy:} bộ chuyển đổi đã bỏ bốn syscall thật vì sysdig ghi tên khác với bảng ABI: \texttt{pread}, \texttt{pwrite}, \texttt{sigreturn}, \texttt{prlimit}. Tổng cộng khoảng 15 triệu lượt gọi ở 12/15 kịch bản. Lỗi này giống nhau giữa train và test nên không làm rò nhãn, nhưng Pulse thấy ít thông tin hơn STIDE (STIDE đọc tên thô). Bộ chuyển đổi đã được sửa, và một lượt chạy lại đã được đăng ký là phân tích độ nhạy (amendment 1). Bảng trên là kết quả của lượt đã đăng ký.
 \item
-  \textbf{Đặt cạnh số đã công bố:} kết quả duy nhất trên đủ 15 kịch bản LID-DS 2021 mà tác giả dataset công bố là STIDE (chuỗi 7 syscall, cửa sổ 100 syscall, ngưỡng là điểm cao nhất trên validation), với tỉ lệ phát hiện trung bình 0,59 \citep{grimmer2022}. Hệ thống của luận văn đạt 0,773. Báo nhầm của bài đó được đếm theo số cụm báo động chứ không theo bản ghi, nên chỉ so được tỉ lệ phát hiện. LID-DS chưa có ngưỡng đạt nào được đăng ký.
+  \textbf{Đặt cạnh số đã công bố:} kết quả duy nhất trên đủ 15 kịch bản LID-DS 2021 mà tác giả dataset công bố là STIDE (chuỗi 7 syscall, cửa sổ 100 syscall, ngưỡng là điểm cao nhất trên validation), với tỉ lệ phát hiện trung bình theo kịch bản 0,59 \citep{grimmer2022}. Tính cùng cách (trung bình của 15 kịch bản), hệ thống của luận văn đạt 0,77. Báo nhầm của bài đó được đếm theo số cụm báo động chứ không theo bản ghi, nên chỉ so được tỉ lệ phát hiện. Nhánh STIDE ở Bảng~\ref{tab:lidds-pooled} khác bản đã công bố: nó báo động ngay khi gặp chuỗi lạ đầu tiên, chưa dùng ngưỡng validation. LID-DS chưa có ngưỡng đạt nào được đăng ký.
 \item
   \textbf{Lượt v2 đã đăng ký} (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm các tín hiệu theo tham số và giá trị trả về (đường dẫn mới, lỗi theo errno, số byte) và chuỗi syscall theo thread, với ngưỡng là điểm cao nhất trên validation. Protocol ghi rõ thiết kế được làm sau khi đã thấy kết quả trên, nên bằng chứng độc lập chỉ đến từ lượt xác nhận trên LID-DS 2019 và CB-DS.
 \end{itemize}

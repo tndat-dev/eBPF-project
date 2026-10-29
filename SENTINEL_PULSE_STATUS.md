@@ -1811,9 +1811,9 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 
   | Endpoint | p95 off / probe (ms) | Δ p95 [CI 95%] | Δ p50 [CI 95%] | p50 thêm (ms) |
   |---|---|---|---|---|
-  | `/` | 11,5 / 12,1 | +5,9% [−1,4; +14,5] | +0,5% [−0,8; +3,2] | 0,04 |
-  | `/api/health/` | 25,1 / 24,3 | +3,2% [−8,1; +21,2] | +2,0% [+0,2; +4,4] | 0,14 |
-  | `/api/products/` | 306,4 / 318,2 | +8,2% [+0,7; +18,3] | +3,0% [+1,2; +4,3] | 5,9 |
+  | `/` | 11,5 / 12,1 | +5,8% [−1,4; +14,5] | +0,5% [−0,8; +3,2] | 0,04 |
+  | `/api/health/` | 25,1 / 24,3 | +3,1% [−8,1; +21,2] | +2,0% [+0,2; +4,4] | 0,14 |
+  | `/api/products/` | 306,4 / 318,2 | +8,1% [+0,7; +18,3] | +3,0% [+1,2; +4,3] | 5,9 |
   | `/api/products/?page=1` | 309,3 / 320,4 | +5,8% [+1,4; +17,9] | +2,6% [+0,4; +5,2] | 5,3 |
 
   - **Theo luật đăng ký: không được nói "dưới 5%"**. Cận trên CI là +14,5% đến +21,2%, không cận nào dưới +5%.
@@ -1821,6 +1821,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - CPU: tiến trình loader 0,016–0,041 core mỗi worker. Tỉ lệ CPU bận của node +0,4–0,9 điểm phần trăm, khoảng 0,09–0,21 core trên 24 core, gồm cả phần chạy trong kernel.
   - Lỗi 0,57% (off) và 0,55% (probe); phần lớn rơi vào đợt timeout ~60 s ở block off đầu tiên.
   - Giới hạn: chỉ probe, scorer không đo ở đây; một cụm VM, một kernel.
+  - **Sửa 29/10 (rà soát số liệu):** Δ p95 của `/`, `/api/health/`, `/api/products/` trước ghi +5,9 / +3,2 / +8,2% do làm tròn hai lần (biên nhận: 5,845 / 3,145 / 8,145%); đúng là +5,8 / +3,1 / +8,1%. Kết luận không đổi. Bảng trên nay được `scripts/audit/headline_numbers.py` kiểm tự động.
 
 ### 5.31 Calibration tự làm mới trong worker live (code xong; smoke 29/10 14:57; lượt xác nhận đã đăng ký)
 
@@ -1883,7 +1884,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 
   Cách giải thích khả dĩ (chưa kiểm riêng): ở các kịch bản yếu, exploit chạy trong chính process của dịch vụ và không cần syscall mới.
 - **Giới hạn phát hiện sau khi chạy:** bộ chuyển đổi bỏ `pread`, `pwrite`, `sigreturn`, `prlimit` (sysdig ghi tên không có hậu tố ABI), khoảng 15 triệu lượt gọi ở 12/15 kịch bản. Lỗi giống nhau giữa train và test nên không rò nhãn, nhưng Pulse thấy ít hơn STIDE. Sửa bằng bảng alias (`SYSDIG_ALIASES`, có test); amendment 1 (đăng ký 15:17, sau khi đọc kết quả) chạy lại như phân tích độ nhạy, báo cả hai.
-- **Không có ngưỡng đạt** đăng ký cho LID-DS; không so trực tiếp với số đã công bố vì chưa có bài báo cùng chỉ số theo bản ghi.
+- **Không có ngưỡng đạt** đăng ký cho LID-DS. Chỉ so được tỉ lệ phát hiện với số đã công bố: STIDE của tác giả dataset (n = 7, cửa sổ 100, ngưỡng max-validation) đạt trung bình theo kịch bản 0,59 (CRITIS 2022); hệ thống tính cùng cách đạt 0,77 (trung bình 15 kịch bản; gộp theo bản ghi 77,3%). Báo nhầm của bài đó đếm theo cụm báo động nên không so được. (Cập nhật 29/10 sau nghiên cứu.)
 - **Nghiên cứu cải thiện (29/10, `reports/Cải thiện Pulse trên LID DS.md`):**
   - 407/412 bản ghi bỏ sót là exploit chỉ đổi dữ liệu (đường dẫn, số byte, errno), không đổi tập syscall;
   - chưa nguồn nào đạt 90–95% với báo nhầm thấp trên đủ 15 kịch bản LID-DS 2021; kết quả duy nhất đủ 15 kịch bản đã công bố là STIDE của tác giả dataset (DR 0,59);
