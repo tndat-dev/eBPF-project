@@ -36,7 +36,7 @@ PEER_PORT = 9479
 
 
 def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24),
-         final_system=None):
+         final_system=None,recalibration=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -94,6 +94,16 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         cfg['benign_binary_distinct']=True
         for worker in cfg['workers'].values():
             worker['stream_root']=str(Path(final_system['stream_root'])/run_id)
+    # rolling calibration in the worker (pipeline/live_recalibration.py): score buffer on the worker's local disk,
+    # finished hours copied under the run root for the other workers; the campaign's intervals optionally left out
+    if recalibration:
+        if not final_system:raise ValueError('live recalibration needs the local stream root of the final system')
+        cfg['recalibration']=dict(shared=str(root/'score-buffer-shared'),window_hours=recalibration['window_hours'],
+            refresh_hours=recalibration['refresh_hours'],publish_delay_seconds=60,refresh_delay_seconds=300,
+            minimum_examples=1200,**({'exclude_intervals':cfg['campaign_output']+'/INTERVALS.jsonl'}
+                                     if recalibration.get('exclude_campaign') else {}))
+        for worker in cfg['workers'].values():
+            worker['score_buffer']=dict(path=worker['stream_root']+'/score-buffer',retention_hours=recalibration['window_hours']+2)
     scenarios=['anonymous_mprotect_churn','child_ptrace_handshake','invalid_setns_burst',
                'seccomp_api_probe','execveat_resolution_probe']
     cfg['schedule']=[dict(workload_key=key,workload_controller=key.split('/',1)[1].split(':')[0],
@@ -123,6 +133,8 @@ if __name__=='__main__':
     p.add_argument('--attack-rates',default='6,12,24',help='fixture attack rates per second (1-100), comma-separated')
     p.add_argument('--tripwire-exec-set',type=Path,help='final system: tripwire A1 in the worker with this frozen exec set')
     p.add_argument('--stream-root',default='/var/lib/sentinel-pulse-live',help='final system: local decision copy on each worker')
+    p.add_argument('--recalibration',help='rolling-W-R: every R hours recalibrate on the preceding W hours of all workers')
+    p.add_argument('--recalibration-exclude-campaign',action='store_true',help="leave the campaign's intervals out of it")
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
     if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
@@ -134,4 +146,9 @@ if __name__=='__main__':
                     fixture=a.fixture,seconds=a.seconds,benign_exec_control=a.benign_exec_control,
                     write_raw_frames=not a.no_raw_frames,fast_scoring=a.fast_scoring)
     final=dict(exec_set=a.tripwire_exec_set,stream_root=a.stream_root) if a.tripwire_exec_set else None
-    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final)
+    recal=None
+    if a.recalibration:
+        m=re.fullmatch(r'rolling-(\d+)-(\d+)',a.recalibration)
+        if not m:p.error('recalibration must be rolling-W-R')
+        recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal)

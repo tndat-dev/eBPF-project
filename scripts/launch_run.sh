@@ -7,6 +7,7 @@
 #   [FIXTURE=testbed/attack/runtime_attack_with_benign_control.c] [SECONDS_TOTAL=86400] [FAST=1] \
 #   [RCA_PREV_UNIT=rca-subscriber] [ATTACK_RATES=1,3,6] [BASELINE_SEED=/mnt/.../rca-baseline-seed.json] [FINAL=1] \
 #   [FROZEN_SOURCE=/mnt/.../source whose pinned scorer bytes the workers must match; default SNAP] \
+#   [RECAL=rolling-12-1 [RECAL_EXCLUDE_CAMPAIGN=1]: rolling calibration in the workers, needs FINAL=1] \
 #   bash launch_run.sh [plan|workers|rca|bridge|master|all]
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
@@ -39,6 +40,8 @@ plan() {
   [ "$FAST" = 1 ] && flags+=(--fast-scoring)
   [ -n "${ATTACK_RATES:-}" ] && flags+=(--attack-rates "$ATTACK_RATES")   # G4 slow attacker; default 6,12,24
   [ "$FINAL" = 1 ] && flags+=(--tripwire-exec-set "$SNAP/$EXEC_SET" --stream-root "$STREAM_ROOT")
+  [ -n "${RECAL:-}" ] && flags+=(--recalibration "$RECAL")
+  [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \
     --source "$SNAP" --root "$ROOT" --run-id "$RUN" --profile custom --frozen-source "${FROZEN_SOURCE:-$SNAP}" \
     --candidate "$CANDIDATE" --model-hash "$MODEL_HASH" --policy "$POLICY" --policy-hash "$POLICY_HASH" \

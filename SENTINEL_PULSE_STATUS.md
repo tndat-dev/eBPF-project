@@ -1,6 +1,6 @@
 # Sentinel Pulse — trạng thái, kết quả và nhật ký
 
-Cập nhật **29/10/2026 09:40 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **29/10/2026 10:05 (UTC+7)** từ SSH vào cụm. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là một trong ba báo cáo hiện hành:
 - Sentinel Pulse — phát hiện bằng ML (file này; gồm cả hạ tầng chung và nhật ký);
@@ -71,18 +71,19 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - gánh cảnh báo vẫn gấp khoảng 17 lần ngân sách; kafka worker1 lệch hệ thống so với 2 broker kia và là nguồn gánh lớn nhất;
   - attack chậm (1/s);
   - phân biệt process vô hại mới (G5);
-  - calibration tự làm mới khi live chưa cài (chỉ có bằng chứng offline, 5.7d, 5.17; đổi ML nên cần lượt xác nhận riêng);
+  - calibration tự làm mới khi live: code xong, có test (5.31), chưa chạy; đổi ML nên cần lượt xác nhận riêng;
   - RCA: luật xếp hạng không tách được binary attack với binary vô hại chạy ngay trước nó (top-1 14,1%, top-3 100%, RCA 5.17);
   - attack là fixture tự viết, chưa có exploit thật hay dataset công khai.
 
-## 2. Trạng thái cụm và job (25/10 17:45)
+## 2. Trạng thái cụm và job (29/10 10:05)
 
 | Thành phần | Trạng thái |
 |---|---|
 | Lượt live | Không có. `pulse-final-system-confirm` (hệ thống cuối) xong 26/10 khoảng 22:15, **đạt** (5.29) |
-| Job | Không có. LID-DS 2021 đã tải (15/15 file, 87 GB, `/var/tmp/lid-ds-2021` trên `.234`), chờ chuyển đổi |
+| Job | Trên `.234`: `lid-ds-convert` rồi `lid-ds-evaluate` (LID-DS 2021, protocol `lidds-evaluation-v1`; từ 29/10 09:10, 4 tiến trình song song, đĩa local). `app-overhead-ab` (G7, 5.30; 29/10 09:52 → khoảng 12:05): client mở 8 request/s trên `.234`, gắn/gỡ probe trên 3 worker theo block 5 phút |
 | RCA, bridge | Đã dừng sau lượt cuối; biên nhận trong repo và trên NFS |
 | Dịch vụ còn chạy | `sentinel-pulse-resolver` trên 3 worker (ánh xạ cgroup cho lượt sau), timer `tetra-orphan-reaper` |
+| Dọn tài nguyên (29/10 09:40) | Zombie `timeout` cuối cùng (dưới redis trong `redis-ha-node-0`, replica) hết sau khi khởi động lại pod này; replica đồng bộ lại (`master_link_status:up`); 0 zombie trên 7 máy. Xóa script/bundle cũ (28/9–14/10) của Pulse trong `/tmp` của 3 worker và `.234`, venv và trình duyệt Playwright dùng để tải LID-DS (683 MB), 2 file lock rỗng. Giữ: file trong `/tmp` không rõ là của dự án (`aims_*`, file tạm không tên), mọi file cá nhân trong `/home/dat` |
 | Dọn tài nguyên (25/10 17:10–17:40) | Zombie về 0 trên 7 máy (Tetragon chạy với `shareProcessNamespace`); gỡ unit và config của các lượt đã xong; dọn `/var/tmp`, bản sao trùng, snapshot không dùng (chi tiết trong TODO) |
 | Đĩa | NFS 115 / 685 GB (17%); `.234` 50 GB (9%); worker 40% / 41% / 28% |
 | Quy tắc | Không chạy job NFS hoặc bộ nhớ nặng khi có lượt live; không chạy trên master 2/3 |
@@ -1794,7 +1795,45 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - RCA: xem RCA 5.17.
 - **Giới hạn:** cùng thành phần campaign, cùng cụm, cùng ứng dụng; attack là fixture tự viết; nhãn kỳ vọng, chưa review độc lập.
 
-## 6. Tiến độ và việc còn lại (cập nhật 29/10 09:05)
+### 5.30 Độ trễ request của ứng dụng có/không probe (G7; protocol `app-overhead-v1` + amendment 1, đang đo)
+
+- **Câu hỏi:** probe của Pulse làm request của ứng dụng thật (AIMS) chậm thêm bao nhiêu khi người dùng gọi, và tốn bao nhiêu CPU của node?
+- **Protocol:** `sentinel_pulse/protocol/app-overhead-v1.json` (đăng ký 09:50, trước mọi phép đo). Amendment 1 (09:51) được đăng ký sau một lượt chạy thử 40 s, trước phép đo thật. Bản thử cho thấy độ trễ gộp mọi endpoint có hai đỉnh: `/` và `/api/health/` khoảng 8 ms, hai lệnh đọc `/api/products/` khoảng 200 ms. Vì vậy p50 gộp dao động theo tỉ lệ request trong block. Chỉ số chính chuyển sang p95 theo từng endpoint.
+- **Cách đo:**
+  - **Probe:** loader và object của hệ thống cuối (sha khớp config `pulse-final-system-confirm`), gắn đúng như `matched_worker.py` (mọi container production được theo dõi), trên cả 3 worker cùng lúc.
+  - **Hai điều kiện:** `off` (không có probe) và `probe`. 12 vòng; mỗi vòng có một block 300 s cho mỗi điều kiện, thứ tự off-probe ở vòng lẻ, probe-off ở vòng chẵn. Bỏ 30 s đầu của mỗi block.
+  - **Client:** `scripts/app_overhead_ab.py` trên `.234`, mở 8 request/s, không chờ phản hồi trước. 4 endpoint gọi lần lượt qua NodePort ingress Istio của 3 worker, đúng đường người dùng đi: ingress → waypoint → frontend/api-gateway → service → database. Tải normal của AIMS vẫn chạy như mọi lượt live.
+  - **Không đo ở đây:** scorer ở user space. Mỗi lần khởi động, nó cần 90 phút pha chọn nên không xen kẽ theo block 5 phút được; CPU của nó đã có từ live (13–31% một core, 5.8).
+- **An toàn:** runner từ chối chạy khi có worker live hoặc loader khác. Trước mỗi block, nó dừng và gỡ probe nếu RAM trống của bất kỳ worker nào dưới 4 GiB; nó cũng dừng khi hơn 20% request của một block lỗi. Probe được gỡ trên mọi đường thoát. Bản chạy thử xác nhận gắn/gỡ sạch (0 process `pulse_counter` sau đó). Probe tốn khoảng 0,04–0,11 core mỗi worker (block 20 s, chỉ để kiểm).
+- **Đã thấy khi chạy:** ở phút thứ 2–3 (block `off` đầu tiên) có một đợt timeout khoảng 60 s trên mọi endpoint (97 request), sau đó ổn định (p95 `/api/products/` khoảng 0,3 s). Các pod ứng dụng dùng khoảng 0,2 core, nên client 8 request/s không gây quá tải. Lỗi được tính theo điều kiện, như protocol quy định.
+- **Kết quả:** chờ lượt đo xong (khoảng 12:05), rồi chạy `scripts/analysis/app_overhead.py` (có test).
+
+### 5.31 Calibration tự làm mới trong worker live (code, chưa chạy)
+
+- **Cơ sở:** 5.6, 5.7d, 5.17.
+  - Trên soak 48 giờ với calibration đã cũ, `rolling-12-1` giảm 37% gánh mà không mất recall hay độ trễ (development).
+  - Trên dữ liệu mới, trong 24 giờ sau một lần làm mới, không chiến lược nào thắng `asrun`.
+  - Vì vậy giá trị của tính năng này nằm ở lượt chạy dài, khi calibration cũ dần.
+- **Code:** `sentinel_pulse/pipeline/live_recalibration.py`, nối vào `matched_worker.py`; planner có `--recalibration rolling-W-R` và `--recalibration-exclude-campaign`; launcher có `RECAL=` và `RECAL_EXCLUDE_CAMPAIGN=1`. Khoá `recalibration` không có trong config thì worker chạy y như trước.
+  - **Đổi gì:** mỗi giờ, hai mảng calibration của từng workload (`model.base.calibration_scores`, `model.support_calibration`) được thay bằng điểm của các cửa sổ eligible trong 12 giờ trước, gộp cả 3 worker, như bản offline. Model, policy và 13 file scorer ghim sha không đổi.
+  - **Đường chấm điểm:** cả đường thường lẫn đường nhanh đọc hai mảng này ở mỗi lần gọi, nên một lần thay giữa hai frame đổi p-value của các cửa sổ sau và không đổi gì khác. Mỗi decision ghi `calibration_epoch` (0 là calibration của bundle).
+  - **Dữ liệu, ngoài vòng chấm điểm:** `ScoreBuffer` ghi theo giờ trên đĩa local. Một thread nền chép giờ vừa xong lên NFS (`score-buffer-shared/<node>/`, sau 60 s) và đọc 12 giờ của mọi worker (sau 300 s; giờ đã đọc giữ trong cache). Log của bản làm mới cũng do thread này ghi.
+  - **Bộ nhớ:** cache 12 giờ × 3 worker ước khoảng 200–350 MB, trong giới hạn `MemoryMax=3G` của unit worker. Vượt thì systemd giết riêng worker, không làm sập node.
+- **Lệch so với bản offline** (phải đăng ký khi chạy):
+  - calibration mới có hiệu lực sau giờ tròn 300 s, không phải đúng giờ tròn;
+  - workload dưới 1.200 cửa sổ giữ calibration cũ thay vì không được chấm;
+  - giờ của một worker chưa có trên NFS lúc làm mới thì bị bỏ khỏi lần đó và được ghi log.
+- **Câu hỏi mở cho lượt xác nhận:** có loại khoảng campaign khỏi calibration không (bản offline có loại). Hệ thống vận hành thật không biết lúc nào bị tấn công. Không loại thì cửa sổ attack đi vào phần đuôi của calibration và có thể nới ngưỡng tới 12 giờ.
+- **Test** (`tests/test_live_recalibration.py`, 6 test):
+  - tập calibration trùng từng giá trị với `rolling_recalibration.calibration` trên cùng dữ liệu, kể cả khi loại khoảng campaign;
+  - p-value sau khi thay trùng `Recalibrator`;
+  - trên một model thật, đường thường và đường nhanh cho p-value giống hệt nhau, đúng bằng p-value của mảng mới;
+  - lịch chạy, giờ bị thiếu, giới hạn dung lượng bản sao.
+
+  Toàn bộ test: 463 pass.
+- **Chưa làm:** smoke trên cụm. Phải đợi G7 xong, vì một loader thứ hai sẽ làm nhiễu phép đo. Sau đó là lượt xác nhận live với protocol riêng.
+
+## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
 | Việc | Trạng thái |
 |---|---|
@@ -1816,14 +1855,14 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 | Bằng chứng cho bộ feature | **Xong** (syscall 5B.3, 5C): giữ nguyên; cả hai nhánh p-value đều cần; dưới CUSUM `cap` không đổi kết luận |
 | Chốt cấu hình ML stable | **Xong** (5.27): `policy-k2of2-a5-peer30` xác nhận live, 4/4 kỳ vọng ở mức ≤ 3 s và điều kiện gánh. Stable trước (CUSUM `cap`) không đạt trên `pulse-stable-confirm` (5.25) |
 | So sánh có/không rule | **Xong** (RULE R6): hệ thống cuối = ML + tripwire A1 (chủ đồ án chọn 25/10) |
-| Overhead (G7) | **Xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không theo dõi (microbenchmark, một worker) |
+| Overhead (G7) | Microbenchmark **xong** (5.21): ~250–450 ns mỗi syscall khi theo dõi, ~80–230 ns khi không. Độ trễ request của ứng dụng thật có/không probe: **đang đo** (5.30, xong khoảng 12:05) |
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | **Xong** (RCA 5.14, Pulse 5.27): push qua Alertmanager p95 3,17 s ở tập chính; đường Prometheus chuẩn chậm hơn nhiều. Bridge thử lại push lỗi từ lượt sau |
-| Ghi NFS trong vòng chấm điểm, tripwire live | **Code xong, smoke đạt** (5.28); chờ lượt live |
-| Calibration tự làm mới khi live | Chưa làm, có chủ đích: đổi ML, cần lượt xác nhận riêng |
+| Ghi NFS trong vòng chấm điểm, tripwire live | **Xong, live** (5.29): độ trễ frame lớn nhất 31,7 → 2,4 s; tripwire live khớp offline 100% |
+| Calibration tự làm mới khi live | **Code xong, có test, chưa chạy** (5.31): `rolling-12-1` trong worker; đổi ML nên cần protocol và lượt xác nhận riêng |
 | Thử reboot, mất NFS, backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 
-Kỳ vọng đã đăng ký: precision và recall ≥ 95%, control dương ≤ 5%, p95 kernel → alert < 2 s ưu tiên / ≤ 3 s chấp nhận. `pulse-stable-refreshed` là lượt live đầu tiên đạt cả bốn ở mức ≤ 3 s; `pulse-peer-discount-confirm` đạt lại trên campaign blind với gánh thấp hơn nhiều. Mức < 2 s chưa có chính sách nào đạt trên live cùng với ba kỳ vọng còn lại.
+Kỳ vọng đã đăng ký: precision và recall ≥ 95%, control dương ≤ 5%, p95 kernel → alert < 2 s ưu tiên / ≤ 3 s chấp nhận. `pulse-stable-refreshed` là lượt live đầu tiên đạt cả bốn ở mức ≤ 3 s; `pulse-peer-discount-confirm` đạt lại trên campaign blind với gánh thấp hơn nhiều. Mức < 2 s lần đầu đạt cùng ba kỳ vọng còn lại ở hệ thống cuối (ML + tripwire, p95 1,97 s, 5.29); riêng ML trên cùng lượt là 2,25 s.
 
 ## 7. Đánh giá thẳng và chiến lược
 
@@ -2213,5 +2252,6 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:40–17:50 | Rà soát toàn repo: tóm tắt (mục 1), trạng thái cụm (2) và tiến độ (6) viết lại theo trạng thái cuối; kiểm toán số liệu `scripts/audit/headline_numbers.py` (31/31 số chủ chốt khớp biên nhận, chạy trong bộ test) và `literature_numbers.py` (86/87 số trích từ tài liệu có trong PDF; số còn lại là của đồ án); docs/AUDIT.md | 5.27 |
 | 18:00–18:28 | Hệ thống cuối: code (tripwire trong worker, ghi NFS nền, decision local, bridge/RCA nhận tripwire, binary vô hại đường dẫn riêng), smoke 90 s đạt, đăng ký `final-system-confirmation-v1` (18:19), launcher chờ tải LID-DS xong, chuỗi phân tích chờ | 5.28 |
 | 22:05–22:58 | `pulse-final-system-confirm` khởi chạy 22:05 (launcher, sau khi tải LID-DS xong). Sau 53 phút: 3 worker chạy, 0 issue; tripwire đang dựng tham chiếu (khoảng 382.000 cửa sổ mỗi worker, 223–318 nghìn từ peer, 0 đến muộn); ghi nền chưa phải chờ lần nào, lần ghi lâu nhất 108 ms; bridge 624/624 đợt tới qua push, 0 push lỗi; RCA đọc 625 trigger từ Alertmanager, 98 case; 0 zombie dưới Tetragon sau 18 lần xoay vòng | 5.28 |
+| 29/10 09:40–10:05 | Dọn cụm (zombie cuối cùng trong `redis-ha-node-0`, file tạm cũ, Playwright); G7: đăng ký `app-overhead-v1` (09:50) và amendment 1 (09:51), chạy thử 40 s, đo thật từ 09:52 (5.30); calibration tự làm mới: code, nối vào worker và planner, 6 test (5.31) | 2, 5.30, 5.31 |
 | 29/10 09:00 | Đọc kết quả `pulse-final-system-confirm`: hệ thống cuối **đạt** cả 4 kỳ vọng (recall 99,4%, precision 99,4%, control 0,6%, p95 1,97 s), gánh S − A +0,049 [+0,005; +0,124] đạt, tripwire live khớp offline 100% trên 10,4 triệu cửa sổ; độ trễ frame lớn nhất giảm (31,7 → 2,4 s), khoảng hở nhịp 4/2/1; 0 đợt mất push | 5.29 |
 

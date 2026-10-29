@@ -26,6 +26,7 @@ from ..rules.tripwire import Tripwire, load_exec_set
 from .async_sink import AsyncSink, AsyncState
 from .peer_exchange import PeerExchange
 from ..integrity import sha256_file
+from .live_recalibration import LiveRecalibration
 from .retention import OutputPolicy, ScoreBuffer
 from ..common import atomic_json
 
@@ -139,6 +140,16 @@ def run(config_path):
     outputs=OutputPolicy(cfg.get('outputs'))
     scores=(ScoreBuffer(Path(cfg['score_buffer']['path']),cfg['score_buffer'].get('retention_hours',12))
             if cfg.get('score_buffer') else None)
+    # rolling calibration (pipeline/live_recalibration.py; cfg recalibration: shared, window_hours, refresh_hours, ...):
+    # the models' two calibration arrays are swapped between frames; absent key = the bundle's calibration all run
+    recal=None
+    if cfg.get('recalibration'):
+        if scores is None:raise ValueError('live recalibration needs the score buffer')
+        rc=cfg['recalibration']
+        recal=LiveRecalibration(scorer.models,Path(cfg['score_buffer']['path']),Path(rc['shared']),cfg['node_name'],
+            rc.get('window_hours',12),rc.get('refresh_hours',1),rc.get('publish_delay_seconds',60),
+            rc.get('refresh_delay_seconds',300),rc.get('minimum_examples',1200),rc.get('exclude_intervals'),
+            root/'recalibration.jsonl').start()
     stop=False
     def stopped(*_):
         nonlocal stop
@@ -230,6 +241,7 @@ def run(config_path):
                                     masks.append(id_mask(delta))
                                     tripwire.observe(record['workload_key'],float(record['window_start']),
                                                      float(record['window_end']),masks[-1],boundary)
+                            epoch=recal.apply() if recal is not None else None
                             for offset in range(0,len(records),256):
                                 batch=records[offset:offset+256]
                                 for j,(rec,decision) in enumerate(zip(batch,runtime.observe_many(batch))):
@@ -238,6 +250,7 @@ def run(config_path):
                                         'workload_revision','cgroup_id')})
                                     decision.update(run_id=cfg['run_id'],capture_segment=segment.name,
                                         preview_emitted_at=time.time(),interval_ms=500)
+                                    if recal is not None:decision['calibration_epoch']=epoch
                                     if tripwire is not None:
                                         fields=tripwire.judge(rec['workload_key'],float(rec['window_end']),masks[offset+j])
                                         if fields:decision.update(fields)
@@ -260,6 +273,7 @@ def run(config_path):
                                      node_name=platform.node(),model_hash=cfg['model_hash'],policy_hash=cfg['policy_hash'])
                         if exchange is not None:state['peer_exchange']=exchange.stats()
                         if tripwire is not None:state['tripwire']=dict(tripwire.stats)
+                        if recal is not None:state['recalibration']=dict(recal.stats,epoch=recal.epoch)
                         if shared:state['shared_writes']={s.path.name:dict(s.stats) for s in (raw,features,decisions)
                                                           if isinstance(s,AsyncSink)}
                         save_state();checkpoint=time.monotonic()
@@ -281,6 +295,7 @@ def run(config_path):
                 state.update(state='segment_closed',updated_at_unix=time.time());save_state()
         if not stop and state['completed_seconds']<cfg['seconds']:time.sleep(2)
     if exchange is not None:exchange.close()
+    if recal is not None:recal.close();state['recalibration']=dict(recal.stats,epoch=recal.epoch)
     if status_writer is not None:status_writer.close()
     if tripwire is not None:state['tripwire']=dict(tripwire.stats)      # final counts (checkpoints lag up to 5 s)
     if not stop:
