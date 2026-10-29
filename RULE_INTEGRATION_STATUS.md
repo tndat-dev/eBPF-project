@@ -1,10 +1,10 @@
 # Tích hợp rule — Falco, tripwire A1, triage probe (tách riêng khỏi kết quả ML)
 
-Cập nhật **25/10/2026 17:10 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
+Cập nhật **29/10/2026 09:40 (UTC+7)**. Giờ trong file là UTC+7, trừ khi ghi UTC.
 
 Đây là báo cáo thứ tư, bên cạnh [Sentinel Pulse — ML](SENTINEL_PULSE_STATUS.md), [thí nghiệm syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA](RCA_RUNTIME_STATUS.md). Chủ đồ án yêu cầu (22/10) **tách phần đánh giá ML khỏi việc áp thêm rule**, nên mọi thứ dựa trên luật nằm ở đây.
 
-**Trạng thái: R6 xong (25/10 16:02). Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 song song (nhánh B2, 25/10 17:30).** Falco mặc định và triage chờ case RCA không vào hệ thống cuối (lý do ở R6). Tripwire hiện mới chạy offline trên feature đã ghi; muốn có bằng chứng của hệ thống cuối chạy live thì cần cài tripwire vào worker (TODO). ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
+**Trạng thái: R6 xong (25/10 16:02). Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 song song (nhánh B2, 25/10 17:30).** Falco mặc định và triage chờ case RCA không vào hệ thống cuối (lý do ở R6). Hệ thống cuối đã chạy live và đạt (`pulse-final-system-confirm`, Pulse 5.29): tripwire chạy trong worker, khớp tính lại offline 100%. ML đã hoàn thiện (Pulse 5.27: stable `policy-k2of2-a5-peer30`, xác nhận live trên `pulse-peer-discount-confirm`). Quyết định của chủ đồ án (22/10): **hoàn thiện ML trước**, rồi mới tích hợp rule và **so sánh hệ thống không có rule với có rule** trên cùng dữ liệu (mục R6). Bổ sung 2 của protocol (25/10 12:56) chốt dữ liệu và định nghĩa trước khi có bất kỳ số rule nào của lượt đó.
 - Các số ở R2 (Falco) và R3 (tripwire) là đánh giá **riêng lẻ** từng rule, đo trên cùng campaign với Pulse. Chúng chưa phải kết quả tích hợp.
 - `rule_tier.py` chưa chạy riêng; định nghĩa triage của nó được dùng nguyên trong nhánh B3 của R6.
 

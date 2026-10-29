@@ -221,6 +221,40 @@ def table_rule_comparison(out, t):
     (out/'rule-comparison-table.md').write_text('\n'.join(rows) + '\n\n' + note[lang] + '\n')
 
 
+RCA_RUNS = [('pulse-stable-candidate', EV/'results-20261021/pulse-stable-candidate'),
+            ('pulse-stable-refreshed', EV/'results-20261021/pulse-stable-refreshed'),
+            ('pulse-stable-confirm', CONFIRM),
+            ('pulse-peer-discount-confirm', EV/'results-20261025/pulse-peer-discount-confirm'),
+            ('pulse-final-system-confirm', EV/'results-20261026/pulse-final-system-confirm')]
+
+
+def table_rca_runs(out, t):
+    """RCA across the live runs, from the receipts (coverage, reranked ranking, latency of attack cases, normal cases)."""
+    lang = 'vi' if t is TEXT['vi'] else 'en'
+    num = lambda v, d: f'{v:.{d}f}'.replace('.', ',') if lang == 'vi' else f'{v:.{d}f}'
+    pct = lambda k, n: f'{num(100 * k / n, 1)}% ({k}/{n})'
+    head = {'vi': '| Lượt | Attack có case riêng | Gộp sau case binary vô hại | Top-1 / top-3 | Preview → case p95 (s) | Case normal |',
+            'en': '| Run | Attacks with their own case | Grouped after the benign case | Top-1 / top-3 | Preview → case p95 (s) | Normal cases |'}[lang]
+    rows = [head, '|---|---|---|---|---|---|']
+    for name, d in RCA_RUNS:
+        cov = load(d/'rca-coverage.json')
+        # the privilege-drop rule (RCA 5.11) in every run: pulse-stable-candidate keeps it in a separate receipt
+        candidates = [d/'rca-ranking-reranked-privdrop.json', d/'rca-ranking-reranked.json', d/'rca-ranking-reranked.json.gz']
+        rank = load(next(c for c in candidates if c.exists()))['ranking']
+        tax_path = d/'alarm-taxonomy.json' if (d/'alarm-taxonomy.json').exists() else d/'final'/'alarm-taxonomy.json'
+        normal = load(tax_path)['cases']
+        grouped = cov['classes'].get('grouped_after_benign_case', 0)
+        rows.append(f"| {name} | {pct(cov['attack_cases'], cov['trials'])} | {grouped} | "
+                    f"{num(100 * rank['top1'], 1)}% / {num(100 * rank['top3'], 1)}% | {num(cov['preview_to_case_seconds']['p95'], 2)} | {normal} |")
+    note = {'vi': 'Top-1 / top-3: binary của fixture attack là nghi phạm hạng 1 / trong 3 hạng đầu (xếp hạng tính lại với baseline binary đóng băng, có luật hạ quyền lúc khởi chạy ở mọi lượt). '
+                  'Ở 4 lượt đầu, binary vô hại và binary attack dùng chung một đường dẫn, nên top-1 bị thổi phồng; lượt cuối chạy binary vô hại '
+                  'từ tên riêng (RCA 5.17). Lượt cuối dựng case từ cảnh báo Alertmanager đã giao, các lượt trước từ preview.',
+            'en': 'Top-1 / top-3: the attack fixture binary is the first / among the first three suspects (ranking recomputed with the frozen binary '
+                  'baseline, privilege-drop rule in every run). In the first four runs the benign and the attack binary shared one path, which inflates top-1; the last run ran the '
+                  'benign binary under its own name (RCA 5.17). The last run built cases from alerts Alertmanager delivered, the earlier ones from previews.'}[lang]
+    (out/'rca-runs-table.md').write_text('\n'.join(rows) + '\n\n' + note + '\n')
+
+
 def fig_latency(out, t):
     fig, ax = plt.subplots(figsize=(6.4, 3.8))
     for i, (name, path, policy, rates) in enumerate(LATENCY_RUNS):
@@ -411,7 +445,7 @@ def main():
     style(); t = TEXT[a.lang]
     fig_live_metrics(out, t, ci=not a.no_ci)
     for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_burden, fig_alert_delivery, table_live_runs,
-              table_rule_comparison):
+              table_rule_comparison, table_rca_runs):
         f(out, t)
     print(sorted(x.name for x in out.iterdir()))
 

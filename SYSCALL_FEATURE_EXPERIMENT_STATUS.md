@@ -1,6 +1,6 @@
 # Thí nghiệm chọn syscall — trạng thái, kết quả và nhật ký
 
-Cập nhật **25/10/2026 17:45 (UTC+7)**. Thí nghiệm đã xong (23/10); kết luận cuối ở mục 1, 5B.3 và 5C. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
+Cập nhật **29/10/2026 09:40 (UTC+7)**. Thí nghiệm đã xong (23/10); kết luận cuối ở mục 1, 5B.3 và 5C. Thí nghiệm này chạy song song với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và là đầu vào để chọn feature cho Pulse. Nó không tự đổi candidate đang chạy. RCA nằm ở [báo cáo riêng](RCA_RUNTIME_STATUS.md).
 
 
 ## Tên gọi và đường dẫn thật trên cụm

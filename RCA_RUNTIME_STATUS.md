@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **25/10/2026 17:45 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **29/10/2026 09:40 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -35,7 +35,7 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 
 Đồ thị là bằng chứng liên quan theo định danh và thời gian, **không chứng minh nhân quả**. RCA không tự xử lý pod.
 
-| Thành phần (25/10 17:45) | Trạng thái |
+| Thành phần (29/10 09:40) | Trạng thái |
 |---|---|
 | Subscriber | Không chạy. Lượt cuối `rca-pulse-peer-discount-confirm` (5.16) đã dừng sau lượt live 25/10; dữ liệu case trong `/var/lib/sentinel-pulse-rca/` trên `.234`, biên nhận trong repo |
 | Cấu hình đã dùng ở 2 lượt cuối | Đọc decision trên worker qua SSH, nhịp dựng case 0,25 s; 3 policy (runtime, fork, flow); ring 180 s / 120.000 sự kiện; cooldown 300 s, có case tiếp nối khi có exec mới; giữ 20.000 case; seed binary đã biết (5.12); nhãn triage probe trên mỗi case |
@@ -462,7 +462,17 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - Ở 403/469 case, binary attack đứng hạng 2; hạng 1 là binary vô hại chạy 5 giây trước nó trong cùng container.
   - Trước đây hai binary dùng chung một đường dẫn, nên xếp bản nào lên đầu cũng được tính là đúng; top-1 99,8% ở các lượt trước vì vậy bị thổi phồng.
   - Đúng ra: luật xếp hạng không tách được hai process mới cùng xuất hiện trong khoảng nhìn lại; nó chỉ bảo đảm binary attack nằm trong 3 hạng đầu (100%).
-- **Đường dẫn riêng không giải được chuyện gộp case:** vẫn có 40 attack bị gộp sau case binary vô hại (lượt trước 44). Giả thuyết ở 5.15 ("cùng đường dẫn nên bị coi là binary không mới") vì vậy không đủ để giải thích. Lý do từ chối case tiếp nối nhiều nhất vẫn là `follow_up_refused_binary_not_new` (3.400), sau đó `too_soon` (215). Chưa quy được từng trial cho một lý do; việc này còn mở.
+- **Đường dẫn riêng không giải được chuyện gộp case:** vẫn có 40 attack bị gộp sau case binary vô hại (lượt trước 44). Giả thuyết ở 5.15 ("cùng đường dẫn nên bị coi là binary không mới") vì vậy không đủ để giải thích. Lý do từ chối case tiếp nối nhiều nhất vẫn là `follow_up_refused_binary_not_new` (3.400), sau đó `too_soon` (215).
+- **Quy từng trial bị gộp cho một nguyên nhân** (29/10, `scripts/analysis/rca_grouping_causes.py`, theo episode của bridge trên cùng container; biên nhận `rca-grouping-causes.json` của cả hai lượt):
+
+  | Nguyên nhân | pulse-final-system-confirm (40) | pulse-peer-discount-confirm (44) |
+  |---|---|---|
+  | Trigger đã tới, RCA từ chối ở bước kiểm exec (binary không mới hoặc không thấy exec từ case trước) | **25** | 34 |
+  | Không có episode mới trong [start, start + 20 s] | 8 | 10 |
+  | Trigger tới < 10 s sau case trước (`too_soon`) | 5 | 0 |
+  | Đợt cảnh báo của binary vô hại kéo dài sang attack | 2 | 0 |
+
+  - Nguyên nhân chính là bước kiểm exec, dù binary attack giờ có tên riêng. Giả thuyết: lúc trigger tới, sự kiện exec của attack chưa vào exec log của RCA (luồng Tetragon trễ hơn cảnh báo), nên RCA không thấy exec mới. Chưa kiểm được trên dữ liệu đã có: exec log chỉ giữ 15 phút. Cách kiểm ở lượt sau: ghi lại thời điểm sự kiện exec vào exec log so với lúc ra quyết định case tiếp nối; cách sửa khả dĩ: hoãn quyết định đến khi luồng exec đã qua thời điểm của trigger.
 - Case normal: 744; 51,9% bị luật triage probe giữ lại; 53,9% có exec trong cửa sổ, 36,3% không có exec.
 
 ## 6. Coverage, hiệu năng, giới hạn

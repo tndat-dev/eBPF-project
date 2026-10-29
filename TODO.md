@@ -1,6 +1,6 @@
 # TODO — đồ án Sentinel Pulse
 
-Cập nhật 25/10/2026 17:50. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
+Cập nhật 29/10/2026 09:40. Số liệu và bằng chứng chi tiết: [Pulse](SENTINEL_PULSE_STATUS.md) ·
 [syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) · [RCA](RCA_RUNTIME_STATUS.md) · [rule, tách khỏi ML](RULE_INTEGRATION_STATUS.md) · [đánh giá tổng thể và ý tưởng](RESEARCH_IDEAS.md).
 Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần bạn)** là việc chỉ bạn làm được.
 
@@ -40,7 +40,7 @@ Không có lượt live hay job nào đang chạy (25/10 17:50). Các mục dư�
   - [x] Phân rã theo thời gian (5.23): 90 phút traffic thay đổi gấp ~2 lần traffic ổn định; không drift trong 20 giờ. [ ] Một lượt có chế độ traffic rải suốt lượt để đo gánh dưới traffic biến động (cho paper).
   - [x] Review các đợt kéo dài trên lượt xác nhận (5.24): postgres worker1 báo 96% thời gian do replica CNPG `cnpg-2` hỏng sau failover 22/10 09:41 UTC (sự cố thật, không phải tấn công). [x] Kafka worker1 (67,7% thời gian, 6/18 control dương; 5.25): replica lệch hệ thống so với 2 broker kia (trung vị tree_p 0,05 so với 0,37–0,67; preview 46,5% so với ~4%), calibration gộp theo workload không phù hợp; chiết khấu theo replica xử lý được. [ ] Sau lượt (khi giai đoạn final đã dựng bảng cửa sổ): `python3 scripts/analysis/replica_compare.py --table /var/tmp/burden-levers/table-pulse-stable-confirm.npz --workload production/aims-kafka-dual-role:kafka --exclude 1792698877,1792733344 --output /mnt/sentinel-pulse-archive/pulse-stable-confirm/analysis/kafka-replicas.json` (so `tree_p`/`support_p`, phần cửa sổ bị gắn cờ có/không exec của 3 broker, ngoài khoảng campaign; chỉ mô tả). Chạy tương tự cho `aims-postgres-cnpg:postgres` và `inventory-service:app`.
   - [x] Sửa replica `cnpg-2` (24/10 01:38, dựng lại từ primary, stream trên timeline 9; Pulse 5.25). [x] Báo cáo lượt xác nhận tách riêng đóng góp của container này (post-hoc, 5.25).
-- [ ] **Tách attack khỏi process vô hại mới (G5):** 94% binary vô hại vẫn bị gắn cờ.
+- [ ] **Tách attack khỏi process vô hại mới (G5):** ML vẫn gắn cờ 80,7–95,1% binary vô hại qua 6 lượt live (89,7% ở lượt cuối); tripwire (trong hệ thống cuối) chỉ tách được lớp syscall hiếm.
   - [x] Độ bền tín hiệu: T = 5 s, f = 0,7 lặp lại trên lượt mới (tách khoảng 35 điểm, p95 6,5 s, chỉ dùng làm triage). Chờ 1 s: p95 3,23 s, không đạt.
   - [x] Novelty có xét exec (5.7c, 5.8h): 100% cho `ptrace`/`execveat`/`setns`, binary vô hại 0,3%.
   - [x] Tripwire A1 (rule) đạt blind: xem [phần rule](RULE_INTEGRATION_STATUS.md) R3.
@@ -55,7 +55,7 @@ Không có lượt live hay job nào đang chạy (25/10 17:50). Các mục dư�
 - [ ] Khi viết luận văn: mục mô hình đe dọa + bảng độ phủ ATT&CK (RESEARCH_IDEAS mục 5); nêu recall là cận trên với đường vào qua exec.
 - [x] Baseline luật Falco: chuyển sang [phần rule](RULE_INTEGRATION_STATUS.md) R2 (trial và normal xong).
 - [ ] Kịch bản tấn công thật (G2): để mở. Claude không tự dựng phần này (22/10); nếu làm cho paper thì chủ đồ án tự triển khai trong môi trường riêng.
-- [ ] Dataset công khai LID-DS (G3): tạm hoãn; xem lại khi viết paper.
+- [~] Dataset công khai LID-DS (G3): đã tải, đã có bộ chuyển đổi, protocol `lidds-evaluation-v1` đăng ký; chuyển đổi và đánh giá đang chạy (29/10, mục "Việc kế tiếp" 8).
 
 ## Thí nghiệm syscall — còn lại
 
@@ -68,10 +68,10 @@ Không có lượt live hay job nào đang chạy (25/10 17:50). Các mục dư�
 ## RCA — còn lại
 
 - [x] Luật `privilege_drop_at_start` trên dữ liệu mới (RCA 5.11): top-1 100%, luật cũ 91,9%.
-- [~] 13% attack không có case riêng: 42/315 (5.11); 69/525 trên lượt xác nhận, 56 gộp sau case binary vô hại; lý do từ chối nhiều nhất "binary không mới" (RCA 5.15). Đã xác nhận trên dữ liệu: mọi cặp dùng chung đường dẫn binary (RCA 5.15). [ ] Campaign sau: đặt tên file khác cho binary vô hại (đăng ký trước lượt; Pulse không bị ảnh hưởng vì không thấy đường dẫn).
+- [~] Attack không có case riêng: 42/315 (5.11); 69/525 ở `pulse-stable-confirm` (56 gộp sau case binary vô hại, 5.15); 65/524 ở `pulse-peer-discount-confirm`; 56/525 ở lượt cuối (40 gộp sau case binary vô hại, RCA 5.17). [x] Đặt tên file khác cho binary vô hại (lượt cuối): **không** giảm số bị gộp. [x] Quy nguyên nhân từng trial (29/10, `rca_grouping_causes.py`): 25/40 do bước kiểm exec của case tiếp nối, 8 không có episode mới, 5 quá gần case trước, 2 đợt cảnh báo kéo dài. [ ] Lượt sau: đo độ trễ sự kiện exec vào exec log so với lúc quyết định (giả thuyết: exec chưa vào log khi trigger tới).
 - [x] Baseline binary mang qua các lượt (RCA 5.12): seed từ khoảng normal của 2 lượt trước, dùng từ lượt `pulse-stable-confirm`. [x] Hiệu quả trên lượt đó: binary mới/chưa biết ở hạng 1 giảm 11,3% → 6,8% case normal (RCA 5.15).
 - [x] Nhãn triage probe trên mỗi case (chỉ là nhãn), chạy từ lượt sau.
-- [~] Cảnh báo vận hành thật (RCA 5.14): Pulse → Alertmanager/Prometheus/Grafana đang chạy thử. [x] RCA nhận trigger từ webhook Alertmanager: code + test (chế độ `alert_trigger_file`). [ ] Chạy ở lượt sau.
+- [x] Cảnh báo vận hành thật (RCA 5.14, 5.17): Pulse → Alertmanager/Prometheus/Grafana chạy hết 3 lượt cuối; RCA dựng case từ cảnh báo Alertmanager đã giao (chế độ `alert_trigger_file`) chạy live ở lượt cuối; kernel → người nhận qua push p95 2,31 s (mọi tốc độ, ML + tripwire).
 - [x] Ánh xạ IP node (hostNetwork/SNAT) bị gán nhầm cho node-exporter: sửa thành `Node` không xác định (RCA 5.13, áp dụng lượt sau). [x] Lịch sử inventory: không làm, có lý do (0,9% IP trong cụm không ánh xạ được, RCA 5.13). [x] Địa chỉ probe kubelet của Istio ambient → `KubeletProbe`. [ ] Backend sau DNAT và client thật sau waypoint (Istio ambient; cần Hubble hoặc access log) — ghi là giới hạn nếu không làm.
 
 - [x] **Zombie dưới Tetragon (25/10, đã sửa, xem mục dọn tài nguyên):** mỗi lần luồng `tetra getevents` của RCA xoay vòng (`timeout 900` qua `kubectl exec`) để lại một process `timeout` zombie. Tetragon là PID 1 trong namespace PID riêng và không thu dọn chúng. Đếm 25/10 16:45: worker1 1.983, worker4 1.523, worker3 425 (khoảng 300/ngày trên worker1 từ 18/10); `pids.max` 154.589 nên chưa hại. Sửa trước lượt RCA sau: `shareProcessNamespace: true` trên DaemonSet `tetragon` (pause container làm PID 1, thu dọn zombie); khởi động lại pod Tetragon thì xóa được số đã có. Sự kiện cùng đợt: `cnpg-2` khởi động lại sạch (exit 0) lúc 25/10 04:25 UTC, lúc containerd trên worker1 bị nghẽn ("context deadline exceeded"); cụm CNPG khỏe, 3/3.

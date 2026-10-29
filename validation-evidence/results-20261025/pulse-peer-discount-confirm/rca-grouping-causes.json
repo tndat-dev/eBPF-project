@@ -1,0 +1,323 @@
+{
+ "schema": "rca-grouping-causes-v1",
+ "cases": "/var/lib/sentinel-pulse-rca/rca-pulse-peer-discount-confirm/cases",
+ "campaign": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/pulse-development-matrix",
+ "episodes": "/mnt/sentinel-pulse-archive/pulse-peer-discount-confirm/alert-bridge/episodes.jsonl",
+ "since_unix": 1792819781.0261967,
+ "grouped_after_benign": 44,
+ "causes": {
+  "trigger_refused_exec_check": 34,
+  "no_new_episode": 10
+ },
+ "trials": [
+  {
+   "trial_id": "1:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.79642391204834
+  },
+  {
+   "trial_id": "5:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/aims-waypoint:istio-proxy",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.281686067581177
+  },
+  {
+   "trial_id": "23:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.293766021728516
+  },
+  {
+   "trial_id": "65:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-waypoint:istio-proxy",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.390089511871338
+  },
+  {
+   "trial_id": "76:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/aims-minio-pool-0:minio",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.223575592041016
+  },
+  {
+   "trial_id": "83:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.623281002044678
+  },
+  {
+   "trial_id": "86:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/catalog-service:app",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.53670048713684
+  },
+  {
+   "trial_id": "103:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.245208978652954
+  },
+  {
+   "trial_id": "138:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/aims-minio-pool-0:minio",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.369665384292603
+  },
+  {
+   "trial_id": "139:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/inventory-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.253159761428833
+  },
+  {
+   "trial_id": "140:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/security-telemetry-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.222778797149658
+  },
+  {
+   "trial_id": "142:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.950971603393555
+  },
+  {
+   "trial_id": "161:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/inventory-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.28935217857361
+  },
+  {
+   "trial_id": "168:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/api-gateway:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 19.583903312683105
+  },
+  {
+   "trial_id": "174:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/notification-service:app",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.67660689353943
+  },
+  {
+   "trial_id": "190:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.351807117462158
+  },
+  {
+   "trial_id": "199:attack",
+   "scenario": "execveat_resolution_probe",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.731362104415894
+  },
+  {
+   "trial_id": "200:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/aims-minio-pool-0:minio",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.610509872436523
+  },
+  {
+   "trial_id": "203:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/order-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 19.582594871520996
+  },
+  {
+   "trial_id": "205:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.40191674232483
+  },
+  {
+   "trial_id": "216:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.962807178497314
+  },
+  {
+   "trial_id": "221:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-frontend:web",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.952629804611206
+  },
+  {
+   "trial_id": "256:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.3008234500885
+  },
+  {
+   "trial_id": "264:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/inventory-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.27231001853943
+  },
+  {
+   "trial_id": "275:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.802958965301514
+  },
+  {
+   "trial_id": "289:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-waypoint:istio-proxy",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.286405324935913
+  },
+  {
+   "trial_id": "295:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/cart-service:app",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.917253971099854
+  },
+  {
+   "trial_id": "296:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.435747623443604
+  },
+  {
+   "trial_id": "325:attack",
+   "scenario": "execveat_resolution_probe",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.262287139892578
+  },
+  {
+   "trial_id": "330:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.311604976654053
+  },
+  {
+   "trial_id": "341:attack",
+   "scenario": "execveat_resolution_probe",
+   "workload": "production/aims-waypoint:istio-proxy",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.264318466186523
+  },
+  {
+   "trial_id": "346:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/aims-kafka-entity-operator:user-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.634531497955322
+  },
+  {
+   "trial_id": "349:attack",
+   "scenario": "execveat_resolution_probe",
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.479900598526
+  },
+  {
+   "trial_id": "365:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/aims-postgres-cnpg:postgres",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.54592537879944
+  },
+  {
+   "trial_id": "391:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-rabbitmq-server:rabbitmq",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.96205759048462
+  },
+  {
+   "trial_id": "396:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.958131313323975
+  },
+  {
+   "trial_id": "413:attack",
+   "scenario": "execveat_resolution_probe",
+   "workload": "production/notification-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.25856614112854
+  },
+  {
+   "trial_id": "425:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/payment-service:app",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.301239252090454
+  },
+  {
+   "trial_id": "449:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/aims-kafka-entity-operator:topic-operator",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.947824001312256
+  },
+  {
+   "trial_id": "455:attack",
+   "scenario": "invalid_setns_burst",
+   "workload": "production/aims-minio-pool-0:sidecar",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 20.00226068496704
+  },
+  {
+   "trial_id": "463:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/inventory-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.249991178512573
+  },
+  {
+   "trial_id": "474:attack",
+   "scenario": "anonymous_mprotect_churn",
+   "workload": "production/aims-kafka-dual-role:kafka",
+   "cause": "trigger_refused_exec_check",
+   "seconds_benign_to_attack": 19.4967143535614
+  },
+  {
+   "trial_id": "479:attack",
+   "scenario": "child_ptrace_handshake",
+   "workload": "production/cart-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 20.266677379608154
+  },
+  {
+   "trial_id": "491:attack",
+   "scenario": "seccomp_api_probe",
+   "workload": "production/notification-service:app",
+   "cause": "no_new_episode",
+   "seconds_benign_to_attack": 19.768935918807983
+  }
+ ],
+ "computed_at_unix": 1793240825.6778126
+}
