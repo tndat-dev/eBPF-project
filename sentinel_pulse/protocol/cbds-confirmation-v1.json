@@ -1,0 +1,28 @@
+{
+  "schema": "sentinel-pulse-cbds-confirmation-v1",
+  "registered_at": "2026-10-29T22:22+07:00",
+  "registered_before": "any CB-DS attack recording is decoded and any Pulse arm is run on any CB-DS recording",
+  "seen_before_registration": "the CHIDS paper's description of CB-DS (El Khairi et al., CCSW 2022, section 2.1 and Table 1); the release's file list (CB-DS/NORMAL 1,701 .scap; 9 attack folders x 100 .scap: CVE-2016-9962, CVE-2019-5736, CVE-2022-0492, M-MKNOD, M-NET, M-SYS_ADMIN, M-SYS_MOD, M_SOCKET, M_UHELPER; Dirty Pipe CVE-2022-0847 of the paper is absent; no metadata, no split, no exploit times); two NORMAL recordings (1346, 1679) decoded to check the sysdig line format (one apache2 container, about 30 s, 20-21 event types). No attack recording was opened",
+  "owner_decision": "29/10: confirmation of lidds-evaluation-v2 on LID-DS 2019 and CB-DS, each under its own protocol (lidds-evaluation-v2 'confirmation'); the owner downloaded CB-DS to the host",
+  "question": "Does the frozen v2 configuration of lidds-evaluation-v2, unchanged, detect container breakouts on data never used for its design, at a false-alarm rate no higher than its LID-DS 2021 level?",
+  "data": {
+    "release": "CB-DS.zip, sha256 f47a792e61416cba820d77f2947f365492352e5cc71e465fe00e3bf8f52b40da (2,602 entries, 27.45 GiB uncompressed, no unsafe paths or links)",
+    "conversion": "sentinel_pulse/lidds/cbds.py: each .scap decoded by sysdig -r (image sysdig/sysdig:0.41.4, sha256:740a122ba3ab923467c09a25725cdc5b530d93345f00cc1ced1b4a32bd9c52a9, no network, read-only input) into the LID-DS 2021 line format; one archive CB-DS.zip in the LID-DS 2021 layout; then sentinel_pulse/lidds/convert.py with SYSDIG_ALIASES, as v2",
+    "container_rule": "Pulse counts per container: only the events of the recording's main container (the non-host container id with the most events) are kept; events of other containers (for example a container started through the docker socket) and of the host are counted in SUMMARY and never scored. Their share per attack type is reported",
+    "workload": "one workload lid-ds-cb-ds (the E-shop Apache container); one fit for all 9 attack types, as CB-DS shares its normal recordings across scenarios"
+  },
+  "split": "NORMAL names sorted numerically, numpy default_rng(20261031) permutation: first 210 training, next 60 validation (the usual LID-DS 2021 counts per scenario, so the frozen configuration sees the same amount of reference data), the remaining 1,431 test/normal; all 900 attack recordings in test/normal_and_attack",
+  "labels": "an attack recording's exploit time is its first kept event: detected = any alarm window in the recording (per recording, as CHIDS 'a trace is malicious if one of its sequences is malicious'); a test/normal recording with any alarm is a false-alarm recording. No detection latency is measured (no exploit times); the time from a recording's start to its first alarm is descriptive only",
+  "arms": "every arm of scripts/analysis/lidds_evaluate_v2.py unchanged (ml, tripwire, system, ml_support_first, tripwire_no_exec_set, step1, path, errno, bytes, step2, ngram, step3), exec set E of the live system as v2; the v2 fixed values and the max-validation thresholds are learnt from CB-DS's own training and validation recordings",
+  "primary": "step3 (the v2 system) on subset 'all' (no CB-DS recording was used for any design; the 30 % 'development' label that the v2 script assigns is reported only for completeness)",
+  "criteria": {
+    "C1_primary": "step3: recall >= 90 % AND false-alarm recording rate <= 3.0 % (the H1 levels of lidds-evaluation-v2)",
+    "C2_target": "step3: recall >= 95 % AND false-alarm recording rate <= 3.0 %",
+    "comparison": "step3 - system (the v1 arms) and the step increments, with a paired bootstrap 95 % CI over recordings (10,000 draws, seed 20261031); a claim that the v2 signals add detection on CB-DS needs the CI of step3 - system above 0",
+    "reporting": "every arm, every attack type (Wilson 95 % CI), the share of other-container events per attack type, the conversion summary"
+  },
+  "if_v2_code_changes": "if the LID-DS 2021 v2 run reveals a defect in the v2 code that changes its outputs, CB-DS is run again with the corrected code and both runs are reported; no other re-run",
+  "not_claimed": "no live claim (E-shop under Docker, not AIMS on Kubernetes; attacks launched with docker exec or through Shellshock, not through the cluster's exec path); no detection latency; Dirty Pipe absent from the release; the CHIDS AUC (99.97 % for container breakout) uses another protocol (4-fold cross-validation, trace AUC) and is not compared",
+  "code": "sentinel_pulse/lidds/cbds.py (tests/test_lidds_cbds.py), scripts/analysis/cbds_confirmation.py (tests/test_cbds_confirmation.py), scripts/analysis/lidds_evaluate_v2.py and sentinel_pulse/lidds/convert.py unchanged",
+  "schedule": "the CB-DS archive is built on the host (docker; the cluster is untouched), copied to .234 local disk, then converted and evaluated there after pulse-live-recal-confirm and its analysis have finished (scripts/cbds_after_live.sh)"
+}
