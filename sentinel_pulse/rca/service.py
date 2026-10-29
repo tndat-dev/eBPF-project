@@ -86,9 +86,12 @@ def database(path):
       create table if not exists metadata(key text primary key, value text);
       create table if not exists binaries(workload text, binary text, first_seen real,
         primary key(workload, binary));
-      create table if not exists exec_log(node text, pod text, container text, binary text, at real);
+      create table if not exists exec_log(node text, pod text, container text, binary text, at real, received real);
       create index if not exists exec_log_identity on exec_log(node,pod,container,at);
     ''')
+    # received (arrival at the subscriber) came later: a database created before it gets the column
+    if 'received' not in {c[1] for c in db.execute('pragma table_info(exec_log)')}:
+        db.execute('alter table exec_log add column received real')
     return db
 
 
@@ -236,8 +239,8 @@ class Service:
                 edge['source']['namespace'], edge['source'].get('pod_name'), edge['source']['container_name']),
                 edge['source']['binary'], at))
             # Longer than the ring: follow-up cases compare against execs up to ~6 min old.
-            self.db.execute('insert into exec_log values(?,?,?,?,?)', (node, edge['source']['pod_uid'],
-                edge['source']['container_name'], edge['source']['binary'], at))
+            self.db.execute('insert into exec_log values(?,?,?,?,?,?)', (node, edge['source']['pod_uid'],
+                edge['source']['container_name'], edge['source']['binary'], at, time.time()))
         if edge.get('operation', 'connect') == 'connect':
             self.count('connect_events')
         self.count('runtime_events')
@@ -308,20 +311,39 @@ class Service:
         """
         if not self.cfg.get('follow_up_on_new_exec'):
             return False
+        verdict = self._follow_up_verdict(row, key, recent, now)
+        if self.cfg.get('follow_up_audit'):
+            self.audit_follow_up(row, key, recent, now, verdict)
+        return verdict == 'allowed'
+
+    def audit_follow_up(self, row, key, recent, now, verdict):
+        """One line per follow-up decision (cfg follow_up_audit): what the exec log held at that moment, so a grouped
+        attack can be traced to an exec that arrived after the trigger (RCA 5.17 hypothesis)."""
+        node, pod, container = identity(row)
+        last = self.db.execute('select binary, at, received from exec_log where node=? and pod=? and container=? '
+                               'order by at desc limit 1', (node, pod, container)).fetchone()
+        line = dict(at=now, verdict=verdict, identity=key, window_end=event_time(row['window_end']),
+                    previous_case_created=recent[0], previous_window_end=event_time(json.loads(recent[1])['window_end']),
+                    trigger_source=row.get('trigger_source'),
+                    latest_exec=dict(binary=last[0], at=last[1], received=last[2]) if last else None)
+        with (self.root / 'follow_up_audit.jsonl').open('a') as f:
+            f.write(json.dumps(line) + '\n')
+
+    def _follow_up_verdict(self, row, key, recent, now):
         # each refusal is counted by reason (STATUS counts), so grouped attacks can be explained after the
         # exec log (EXEC_LOG_SECONDS) has rolled over
         if now - recent[0] < self.cfg.get('follow_up_min_seconds', 10):
-            self.count('follow_up_refused_too_soon'); return False
+            self.count('follow_up_refused_too_soon'); return 'too_soon'
         followups = self.db.execute("select count(*) from cases where identity=? and created>? and instr(trigger, 'follow_up_of')>0",
                                     (key, now - self.cfg['case_cooldown_seconds'])).fetchone()[0]
         if followups >= self.cfg.get('follow_up_max_per_cooldown', 5):
-            self.count('follow_up_refused_cap'); return False
+            self.count('follow_up_refused_cap'); return 'cap'
         since = event_time(json.loads(recent[1])['window_end'])
         window_start = since - self.cfg.get('before_seconds', 30)
         lookback = self.cfg.get('follow_up_novelty_seconds', 300)
         # The exec log must cover the whole novelty lookback before a follow-up can be judged.
         if now - getattr(self, 'started_at', 0) < lookback + self.cfg.get('before_seconds', 30):
-            self.count('follow_up_refused_warming_up'); return False
+            self.count('follow_up_refused_warming_up'); return 'warming_up'
         node, pod, container = identity(row)
 
         def execs(lo, hi):
@@ -331,10 +353,10 @@ class Service:
         # a binary counts as new only if it did not run in the lookback before the previous case.
         new = execs(since, event_time(row['window_end']))
         if not new:
-            self.count('follow_up_refused_no_exec'); return False
+            self.count('follow_up_refused_no_exec'); return 'no_exec'
         if not new - execs(window_start - lookback, window_start):
-            self.count('follow_up_refused_binary_not_new'); return False
-        return True
+            self.count('follow_up_refused_binary_not_new'); return 'binary_not_new'
+        return 'allowed'
 
     def start_decision_stream(self, worker):
         """Follow a worker's decisions on the worker itself (cfg 'decision_stream')."""

@@ -42,10 +42,10 @@ def _row(window_end):
                 workload_key='production/app:app', window_end=window_end, candidate_alert_preview=True)
 
 
-def _exec_event(svc, at, binary='/tmp/x'):
+def _exec_event(svc, at, binary='/tmp/x', received=None):
     svc.db.execute('insert into events values(?,?,?,?,?,?)', (f'h{at}', at, 'n1', 'u1', 'app',
                    '{"operation":"exec","source":{"binary":"%s"}}' % binary))
-    svc.db.execute('insert into exec_log values(?,?,?,?,?)', ('n1', 'u1', 'app', binary, at))
+    svc.db.execute('insert into exec_log values(?,?,?,?,?,?)', ('n1', 'u1', 'app', binary, at, at if received is None else received))
 
 
 def test_new_exec_inside_cooldown_opens_a_bounded_follow_up_case():
@@ -133,3 +133,26 @@ def test_streamed_decision_lines_feed_the_trigger_path():
     import pytest
     with pytest.raises(ValueError):
         svc.ingest_decision_line(json.dumps(_row(102.0)).encode(), 'other-node', 103.0)
+
+
+def test_follow_up_audit_records_each_decision_with_the_latest_exec(tmp_path):
+    svc = _service(follow_up_on_new_exec=True, follow_up_audit=True)
+    svc.root = tmp_path
+    svc.observe_trigger(_row(100.0), now=101.0)
+    svc.observe_trigger(_row(105.0), now=106.0)                  # too soon
+    svc.observe_trigger(_row(112.0), now=113.0)                  # the attack exec has not arrived yet
+    _exec_event(svc, 111.0, '/tmp/attack', received=114.0)       # event time before the trigger, arrival after
+    svc.observe_trigger(_row(124.0), now=125.0)                  # now it is in the log -> follow-up
+    lines = [json.loads(l) for l in (tmp_path / 'follow_up_audit.jsonl').read_text().splitlines()]
+    assert [l['verdict'] for l in lines] == ['too_soon', 'no_exec', 'allowed']
+    assert lines[1]['latest_exec'] is None and lines[2]['latest_exec'] == dict(binary='/tmp/attack', at=111.0, received=114.0)
+    assert lines[1]['window_end'] == 112.0 and lines[1]['previous_window_end'] == 100.0
+
+
+def test_an_older_exec_log_gets_the_arrival_column(tmp_path):
+    import sqlite3
+    path = tmp_path / 'context.sqlite3'
+    db = sqlite3.connect(path)
+    db.execute('create table exec_log(node text, pod text, container text, binary text, at real)'); db.commit(); db.close()
+    db = service.database(str(path))
+    assert [c[1] for c in db.execute('pragma table_info(exec_log)')][-1] == 'received'

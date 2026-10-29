@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **29/10/2026 09:40 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **29/10/2026 16:25 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -474,6 +474,16 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 
   - Nguyên nhân chính là bước kiểm exec, dù binary attack giờ có tên riêng. Giả thuyết: lúc trigger tới, sự kiện exec của attack chưa vào exec log của RCA (luồng Tetragon trễ hơn cảnh báo), nên RCA không thấy exec mới. Chưa kiểm được trên dữ liệu đã có: exec log chỉ giữ 15 phút. Cách kiểm ở lượt sau: ghi lại thời điểm sự kiện exec vào exec log so với lúc ra quyết định case tiếp nối; cách sửa khả dĩ: hoãn quyết định đến khi luồng exec đã qua thời điểm của trigger.
 - Case normal: 744; 51,9% bị luật triage probe giữ lại; 53,9% có exec trong cửa sổ, 36,3% không có exec.
+
+### 5.18 Ghi vết quyết định case tiếp nối (code 29/10; bật từ lượt sau `pulse-live-recal-confirm`)
+
+- **Vì sao:** 25/40 attack bị gộp ở lượt cuối bị từ chối ở bước kiểm exec (5.17). Giả thuyết là khi trigger tới, sự kiện exec của attack chưa vào nhật ký exec. Lượt cuối không kiểm được giả thuyết này: nhật ký exec chỉ có thời điểm sự kiện kernel (`at`), không có lúc subscriber nhận; bộ đếm lý do từ chối là tổng cả lượt, gồm cả normal.
+- **Code** (`sentinel_pulse/rca/service.py`, có test):
+  - `exec_log` có thêm cột `received` (lúc subscriber ghi). Cơ sở dữ liệu cũ được thêm cột khi mở;
+  - khóa cấu hình `follow_up_audit`: mỗi quyết định case tiếp nối ghi một dòng vào `follow_up_audit.jsonl` (kết quả, `window_end` của trigger, case trước, exec mới nhất của container với `at` và `received`);
+  - `launch_run.sh` bật khóa này cho các lượt sau.
+- **Không đổi RCA đang chạy:** lượt `pulse-live-recal-confirm` (khởi chạy 16:16) dùng code của snapshot `d6dbe11`, chưa có phần này, để không làm nhiễu số liệu RCA của lượt.
+- **Lượt sau:** với mỗi attack bị gộp vì `no_exec`, so `received` của exec attack với thời điểm quyết định. `received` > thời điểm quyết định mà `at` ≤ `window_end` thì giả thuyết đúng, và cách sửa là chờ thêm trước khi xét (giống thời gian chờ 2 s của case đầu).
 
 ## 6. Coverage, hiệu năng, giới hạn
 

@@ -94,6 +94,8 @@ print(json.dumps(dict(
     max_ring_events=120000, max_cases=20000, case_cooldown_seconds=300, stream_rotate_seconds=900,
     follow_up_on_new_exec=True, follow_up_min_seconds=10, follow_up_max_per_cooldown=5,
     follow_up_novelty_seconds=300, binary_baseline_frozen_at=run['attack_not_before'] - 120,
+    # one line per follow-up decision with the exec log's latest entry and its arrival time (RCA 5.18)
+    follow_up_audit=True,
     **({'binary_baseline_seed': os.environ['BASELINE_SEED']} if os.environ.get('BASELINE_SEED') else {}),
     # final system: a case per alert that Alertmanager delivered (bridge triggers.jsonl), ML or tripwire
     **({'alert_trigger_file': os.environ['BRIDGE_OUT'] + '/triggers.jsonl'} if os.environ.get('FINAL') == '1' else {})), indent=2))
