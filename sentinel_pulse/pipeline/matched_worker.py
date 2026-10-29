@@ -149,7 +149,7 @@ def run(config_path):
         recal=LiveRecalibration(scorer.models,Path(cfg['score_buffer']['path']),Path(rc['shared']),cfg['node_name'],
             rc.get('window_hours',12),rc.get('refresh_hours',1),rc.get('publish_delay_seconds',60),
             rc.get('refresh_delay_seconds',300),rc.get('minimum_examples',1200),rc.get('exclude_intervals'),
-            root/'recalibration.jsonl').start()
+            root/'recalibration.jsonl',keep_shared_hours=rc.get('keep_shared_hours')).start()
     stop=False
     def stopped(*_):
         nonlocal stop

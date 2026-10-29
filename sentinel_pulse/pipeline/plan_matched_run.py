@@ -100,7 +100,7 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         if not final_system:raise ValueError('live recalibration needs the local stream root of the final system')
         cfg['recalibration']=dict(shared=str(root/'score-buffer-shared'),window_hours=recalibration['window_hours'],
             refresh_hours=recalibration['refresh_hours'],publish_delay_seconds=60,refresh_delay_seconds=300,
-            minimum_examples=1200,**({'exclude_intervals':cfg['campaign_output']+'/INTERVALS.jsonl'}
+            minimum_examples=1200,keep_shared_hours=48,**({'exclude_intervals':cfg['campaign_output']+'/INTERVALS.jsonl'}
                                      if recalibration.get('exclude_campaign') else {}))
         for worker in cfg['workers'].values():
             worker['score_buffer']=dict(path=worker['stream_root']+'/score-buffer',retention_hours=recalibration['window_hours']+2)

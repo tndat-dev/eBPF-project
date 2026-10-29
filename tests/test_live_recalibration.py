@@ -165,3 +165,14 @@ def test_swap_reaches_both_scoring_paths_of_a_real_model(tmp_path):
         np.testing.assert_array_equal(ref[k], fast[k])
     np.testing.assert_array_equal(ref['tree_p'], pvalues(ref['tree_score'], tree))
     np.testing.assert_array_equal(ref['support_p'], pvalues(ref['support_score'], support))
+
+
+def test_an_evaluation_run_keeps_every_shared_hour(tmp_path):
+    write_buffers(tmp_path)
+    r = lr.LiveRecalibration({}, tmp_path / 'local' / 'n1', tmp_path / 'shared', 'n1', keep_shared_hours=48)
+    for h in range(100, 114):
+        r.publish(h)
+    r.publish(120)
+    assert len(list((tmp_path / 'shared' / 'n1').glob('*.json'))) == 14
+    with pytest.raises(ValueError):
+        lr.LiveRecalibration({}, tmp_path, tmp_path / 's2', 'n', keep_shared_hours=5)

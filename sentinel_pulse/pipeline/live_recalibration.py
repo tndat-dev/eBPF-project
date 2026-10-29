@@ -64,7 +64,7 @@ class LiveRecalibration:
     def __init__(self, models: dict, buffer_dir: Path, shared: Path, node: str, window_hours: int = 12,
                  refresh_hours: int = 1, publish_delay_seconds: float = 60, refresh_delay_seconds: float = 300,
                  minimum_examples: int = 1200, exclude_intervals: Path | None = None, log: Path | None = None,
-                 clock=time.time):
+                 clock=time.time, keep_shared_hours: int | None = None):
         if not (1 <= int(window_hours) <= 47 and 1 <= int(refresh_hours) <= 24
                 and 0 <= publish_delay_seconds < refresh_delay_seconds < HOUR):
             raise ValueError('invalid live recalibration schedule')
@@ -72,6 +72,11 @@ class LiveRecalibration:
         self.window, self.every = int(window_hours), int(refresh_hours)
         self.publish_delay, self.refresh_delay = float(publish_delay_seconds), float(refresh_delay_seconds)
         self.minimum = int(minimum_examples)
+        # hours of this worker's shared copy kept: the window by default; an evaluation run keeps the whole run so
+        # that every refresh can be rebuilt afterwards (scripts/analysis/live_recalibration_check.py)
+        self.keep = int(keep_shared_hours) if keep_shared_hours else self.window + 1
+        if self.keep < self.window + 1:
+            raise ValueError('the shared copy must keep at least the calibration window')
         self.intervals = Path(exclude_intervals) if exclude_intervals else None
         self.log_path, self.clock = (Path(log) if log else None), clock
         self.cache = {}                       # (node, hour) -> {workload: (end, tree, support)} eligible windows
@@ -122,12 +127,12 @@ class LiveRecalibration:
                 shutil.copyfile(base.with_suffix(suffix), tmp); tmp.replace(dest / (hour_name(hour) + suffix))
             self.stats['published'] += 1
         self.published.add(hour)
-        for old in dest.glob('*.json'):       # keep the shared copy bounded like the local ring
+        for old in dest.glob('*.json'):       # keep the shared copy bounded (keep_shared_hours)
             try:
                 h = int(time.mktime(time.strptime(old.stem + 'UTC', '%Y%m%d%H%Z')) - time.timezone) // HOUR
             except ValueError:
                 continue
-            if h < hour - self.window - 1:
+            if h < hour - self.keep:
                 old.unlink(missing_ok=True); old.with_suffix('.bin').unlink(missing_ok=True)
 
     def _read(self, node: str, hour: int):
