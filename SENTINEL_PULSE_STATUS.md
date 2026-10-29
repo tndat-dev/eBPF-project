@@ -1901,6 +1901,14 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Xác nhận:** chạy một lần trên LID-DS 2019 và CB-DS, mỗi bộ có protocol riêng.
   - **Code:** `sentinel_pulse/lidds/signals.py`, `scripts/analysis/lidds_evaluate_v2.py` (lưu kết quả từng bản ghi, `--merge`), 7 test.
   - **Lịch:** unit `lid-ds-v2` trên `.234` (snapshot `e48b23b`; dùng lại bản chuyển đổi v1 của 3 kịch bản không gặp tên alias) chờ unit `after-recal-confirm` xong, rồi chuyển đổi lại (alias) và chấm 4 phần song song. Lượt này gộp luôn lượt chạy lại của amendment 1 (nhánh `ml`/`tripwire`/`system` trên bản alias).
+- **Xác nhận trên CB-DS (protocol `cbds-confirmation-v1`, đăng ký 29/10 22:22, trước khi giải mã bản ghi tấn công nào):**
+  - **Dữ liệu:** chủ đồ án tải `CB-DS.zip` về host (sha256 `f47a792e…`). Gồm 1.701 bản ghi normal của một container E-shop (Apache) và 9 kịch bản thoát container × 100 bản ghi. Không có Dirty Pipe như trong bài CHIDS. Không có metadata, không chia tập, không có thời điểm exploit.
+  - **Trước khi đăng ký mới chỉ xem:** mô tả CB-DS trong bài CHIDS, danh sách file, và 2 bản ghi normal (định dạng sysdig).
+  - **Chuyển đổi** (`sentinel_pulse/lidds/cbds.py`, có test): `sysdig -r` 0.41.4 chạy trong container không có mạng, ra một archive bố cục LID-DS 2021 để `convert.py` và `lidds_evaluate_v2.py` chạy nguyên. Chỉ giữ event của container chính; event của container khác và của host được đếm riêng, không chấm.
+  - **Chia tập:** normal theo seed 20261031, gồm 210 train, 60 validation và 1.431 test. Nhãn theo bản ghi: bản ghi tấn công được phát hiện nếu có cửa sổ nào báo. Không đo độ trễ.
+  - **Tiêu chí cho step3** (tập `all`): C1 recall ≥ 90% với báo nhầm ≤ 3,0%; C2 ≥ 95%. Báo mọi nhánh, mọi loại tấn công, và hiệu step3 − system với CI bootstrap ghép cặp (`scripts/analysis/cbds_confirmation.py`, có test).
+  - **Lịch:** dựng archive trên host bằng Docker (không đụng cụm), chép về đĩa local của `.234`, rồi `scripts/cbds_after_live.sh` chạy sau khi phân tích lượt live xong.
+- **LID-DS 2019:** chủ đồ án đang tải (29/10 tối). Protocol riêng sẽ đăng ký trước khi chạy.
 
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
@@ -2324,4 +2332,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 22:05–22:58 | `pulse-final-system-confirm` khởi chạy 22:05 (launcher, sau khi tải LID-DS xong). Sau 53 phút: 3 worker chạy, 0 issue; tripwire đang dựng tham chiếu (khoảng 382.000 cửa sổ mỗi worker, 223–318 nghìn từ peer, 0 đến muộn); ghi nền chưa phải chờ lần nào, lần ghi lâu nhất 108 ms; bridge 624/624 đợt tới qua push, 0 push lỗi; RCA đọc 625 trigger từ Alertmanager, 98 case; 0 zombie dưới Tetragon sau 18 lần xoay vòng | 5.28 |
 | 29/10 09:40–10:05 | Dọn cụm (zombie cuối cùng trong `redis-ha-node-0`, file tạm cũ, Playwright); G7: đăng ký `app-overhead-v1` (09:50) và amendment 1 (09:51), chạy thử 40 s, đo thật từ 09:52 (5.30); calibration tự làm mới: code, nối vào worker và planner, 6 test (5.31) | 2, 5.30, 5.31 |
 | 29/10 09:00 | Đọc kết quả `pulse-final-system-confirm`: hệ thống cuối **đạt** cả 4 kỳ vọng (recall 99,4%, precision 99,4%, control 0,6%, p95 1,97 s), gánh S − A +0,049 [+0,005; +0,124] đạt, tripwire live khớp offline 100% trên 10,4 triệu cửa sổ; độ trễ frame lớn nhất giảm (31,7 → 2,4 s), khoảng hở nhịp 4/2/1; 0 đợt mất push | 5.29 |
+| 29/10 21:55–22:25 | Rà soát repo: luận văn (bảng ATT&CK, RCA phá hoà, so với STIDE đã công bố theo cùng cách tính), kiểm toán số liệu mở rộng lên 54 câu (bắt lỗi làm tròn hai lần ở bảng G7, đã sửa), TODO/DOCS_INDEX/README; CB-DS: bộ chuyển đổi, đăng ký `cbds-confirmation-v1` (22:22), bắt đầu dựng archive trên host (5.32) |
 
