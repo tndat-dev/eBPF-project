@@ -35,6 +35,9 @@
 - [reports/Cải thiện Pulse trên LID DS.md](reports/Cải%20thiện%20Pulse%20trên%20LID%20DS.md) (29/10) — vì sao Pulse bỏ sót trên LID-DS 2021,
   kết quả đã công bố, kỹ thuật cải thiện và lộ trình 4 bậc; là cơ sở của protocol `lidds-evaluation-v2` (Pulse 5.32).
   Ghi chú nguồn từng phần: [research_notes/Cải thiện Pulse trên LID DS/](research_notes/Cải%20thiện%20Pulse%20trên%20LID%20DS/).
+- [reports/Giảm gắn cờ binary vô hại.md](reports/Giảm%20gắn%20cờ%20binary%20vô%20hại.md) (30/10) — hướng giảm việc Pulse gắn cờ process vô hại mới
+  (truy vết process, đặc trưng hành vi, thực hành của công cụ runtime, phương pháp học và đánh giá) và kế hoạch xếp hạng;
+  ghi chú nguồn: [research_notes/Giảm gắn cờ binary vô hại/](research_notes/Giảm%20gắn%20cờ%20binary%20vô%20hại/).
 
 ## Báo cáo buổi họp (bản chụp tại ngày họp, không cập nhật)
 
@@ -44,6 +47,7 @@
   với báo cáo 16/10; có chỉnh sửa của chủ đồ án; 5 hình: 4 hình từ `docs/figures` bản không CI và cây RCA ví dụ) và
   `docs/Slide-runtime_security(23_10).pptx` (19 slide, không có hình). Số liệu lấy từ 4 báo cáo hiện hành lúc 23/10 04:20;
   lượt xác nhận `pulse-stable-confirm` khi đó đang chạy.
+- 30/10: `docs/Bao_cao_tien_do_23_10-30_10.docx` (21 trang, cùng mẫu với báo cáo 23/10; nội dung đi theo bản luận văn `thesis/`: bài toán, thiết kế, đánh giá theo 6 câu hỏi nghiên cứu, mục "Đọc đúng các con số" trả lời câu hỏi về overfitting, độ phủ 5 kịch bản, 5 chế độ tải, ADFA-LD, binary vô hại 89,5%, precision 1:1; hướng giảm gắn cờ binary vô hại theo nghiên cứu 30/10) và `docs/Slide-runtime_security(30_10).pptx` (19 slide). Số liệu lấy từ 4 báo cáo hiện hành và biên nhận lúc 30/10 01:40; lượt `pulse-live-recal-confirm` khi đó đang chạy.
 - Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong 4 báo cáo `.md` (quyết định 23/10,
   áp dụng cả cho các báo cáo docx 16/10).
 

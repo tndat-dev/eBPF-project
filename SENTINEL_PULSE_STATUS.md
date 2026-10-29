@@ -1911,6 +1911,21 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Lịch:** archive chép về đĩa local của `.234` (`/var/tmp/cb-ds/archives/`), `scripts/cbds_after_live.sh` (snapshot `8e538a4`) chạy sau khi phân tích lượt live xong.
 - **LID-DS 2019:** chủ đồ án đang tải (29/10 tối). Protocol riêng sẽ đăng ký trước khi chạy.
 
+### 5.33 Binary vô hại: phân tích mô tả trên lượt cuối và nghiên cứu hướng giảm (30/10 01:15–01:45; mô tả, không dùng để quyết định)
+
+- **Câu hỏi của chủ đồ án:** recall 99,4% có bị thổi phồng vì mọi tấn công đều là process mới qua exec không; precision 99,4% có dùng được trong vận hành không.
+- **Phân tích mô tả, post hoc** (biên nhận `results-20261026/pulse-final-system-confirm/campaign-RESULTS.json.gz`, `campaign-trials.json`, `attack-vs-benign.json`; ML, cách đếm của bộ điều phối):
+  - tập chính, bỏ 8 trial có đoạn không xác định (307 trial): binary vô hại và tấn công cùng bị gắn cờ 275, chỉ tấn công 30, chỉ binary vô hại 2, không cái nào 0. Ở 30 trial mà binary vô hại không bị gắn cờ, tấn công vẫn bị bắt cả 30;
+  - trong đoạn 15 s (mọi tốc độ), tỉ lệ cửa sổ dương: tấn công trung bình 75% (trung vị 96%), binary vô hại 30% (trung vị 25%); 19,4% đoạn vô hại dương ít nhất nửa thời gian. Cửa sổ dương đầu tiên p50 1,09 s (tấn công) và 1,19 s (vô hại), nên không tách được theo thời điểm;
+  - coi binary vô hại là âm tính: precision của hệ thống cuối = 313 / (313 + 282) = 52,6%.
+  - Đọc: recall là cận trên cho tấn công đi qua exec (luận văn mục 7.1); tín hiệu tấn công kéo dài hơn tín hiệu khởi chạy, nhưng ở thời điểm cảnh báo hai bên giống nhau.
+- **Nghiên cứu** (`reports/Giảm gắn cờ binary vô hại.md`, 4 nhóm nguồn):
+  - binary vô hại và tấn công là cùng một chương trình, cùng đường `kubectl exec`, cùng danh tính, nên tín hiệu danh tính hay ngữ cảnh khởi chạy (drift, allow-list đường dẫn, `in_init_tree`, audit log) tách bằng không; Falco drift đã đo đúng như vậy (vô hại 21,0%, tấn công 19–21%, RULE R2);
+  - hướng duy nhất tách được là chấm hành vi của chính process sau khởi chạy: đếm theo đời process, tách pha khởi động và ổn định theo vị trí syscall sau `execve`, khối ý đồ từ danh mục ngoài kèm errno, calibration riêng cho process do exec tạo;
+  - lọc benign trigger (probe exec, 5.18) chỉ giảm gánh, phải báo riêng;
+  - chưa nguồn nào đã đọc đo tỉ lệ báo nhầm trên process exec vô hại.
+  - **Kế hoạch đề xuất (chưa làm, chờ chủ đồ án):** phân rã offline → protocol `exec-intent-v1` → probe đếm theo process + errno, đo lại overhead → mở rộng đối chứng bằng lệnh quản trị thật → lượt live blind.
+
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
 | Việc | Trạng thái |
@@ -2334,4 +2349,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 29/10 09:40–10:05 | Dọn cụm (zombie cuối cùng trong `redis-ha-node-0`, file tạm cũ, Playwright); G7: đăng ký `app-overhead-v1` (09:50) và amendment 1 (09:51), chạy thử 40 s, đo thật từ 09:52 (5.30); calibration tự làm mới: code, nối vào worker và planner, 6 test (5.31) | 2, 5.30, 5.31 |
 | 29/10 09:00 | Đọc kết quả `pulse-final-system-confirm`: hệ thống cuối **đạt** cả 4 kỳ vọng (recall 99,4%, precision 99,4%, control 0,6%, p95 1,97 s), gánh S − A +0,049 [+0,005; +0,124] đạt, tripwire live khớp offline 100% trên 10,4 triệu cửa sổ; độ trễ frame lớn nhất giảm (31,7 → 2,4 s), khoảng hở nhịp 4/2/1; 0 đợt mất push | 5.29 |
 | 29/10 21:55–22:25 | Rà soát repo: luận văn (bảng ATT&CK, RCA phá hoà, so với STIDE đã công bố theo cùng cách tính), kiểm toán số liệu mở rộng lên 54 câu (bắt lỗi làm tròn hai lần ở bảng G7, đã sửa), TODO/DOCS_INDEX/README; CB-DS: bộ chuyển đổi, đăng ký `cbds-confirmation-v1` (22:22), bắt đầu dựng archive trên host (5.32) |
+| 30/10 01:10–01:50 | Báo cáo và slide buổi 30/10 theo bản luận văn (`docs/Bao_cao_tien_do_23_10-30_10.docx`, `docs/Slide-runtime_security(30_10).pptx`); trả lời câu hỏi về overfitting, độ phủ kịch bản, 5 chế độ tải, ADFA-LD, recall và precision; phân tích mô tả binary vô hại và nghiên cứu hướng giảm (5.33); script tải LID-DS 2019 chờ cả lượt live xong (quy tắc của chủ đồ án) |
 
