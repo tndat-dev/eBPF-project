@@ -6,6 +6,7 @@
 Figures (PNG at 200 dpi + PDF):
   live-runs-metrics   precision / recall / idle control / benign launch flagged, five live runs, Wilson 95 % CI
                       (the two confirmation runs on their registered subset, attack rates 6, 12, 24 per second)
+  live-runs-metrics-2x2  the same four panels as 2 x 2 for a portrait page (thesis)
   live-latency-cdf    kernel -> preview delay of detected attacks, the four latest live runs, 2 s / 3 s marks
   policy-pareto       34 confirmation policies (pulse-stable-candidate, refreshed calibration): burden vs p95,
                       rule-v2 feasible set filled
@@ -142,10 +143,12 @@ def save(fig, out: Path, name):
     plt.close(fig)
 
 
-def fig_live_metrics(out, t, ci=True):
+def fig_live_metrics(out, t, ci=True, rows=1, filename='live-runs-metrics'):
+    """rows=1: the four panels side by side (slides); rows=2: 2 x 2 for a portrait page (thesis)."""
     data = [(name, run_counts(path, rates)[0]) for name, path, _, rates in RUNS]
     panels = [('precision', 95), ('recall', 95), ('control', 5), ('benign', None)]
-    fig, axes = plt.subplots(1, 4, figsize=(15, 3.5), sharey=False)
+    fig, axes = plt.subplots(rows, 4 // rows, figsize=(15, 3.5) if rows == 1 else (9, 7), sharey=False)
+    axes = np.ravel(axes)
     x = np.arange(len(data))
     for ax, (key, target) in zip(axes, panels):
         for i, (name, m) in enumerate(data):
@@ -164,8 +167,9 @@ def fig_live_metrics(out, t, ci=True):
         ax.set_xlim(-0.5, len(data) - 0.15)        # room for the value label of the last run
         lo_y = {'precision': 85, 'recall': 85, 'control': 0, 'benign': 70}[key]
         ax.set_ylim(lo_y, {'control': 16}.get(key, 101.5))
-    axes[0].set_ylabel(t['share'])
-    fig.tight_layout(); save(fig, out, 'live-runs-metrics')
+    for ax in axes[::4 // rows]:
+        ax.set_ylabel(t['share'])
+    fig.tight_layout(); save(fig, out, filename)
 
 
 def table_live_runs(out, t):
@@ -444,6 +448,7 @@ def main():
     out = a.output/a.lang; out.mkdir(parents=True, exist_ok=True)
     style(); t = TEXT[a.lang]
     fig_live_metrics(out, t, ci=not a.no_ci)
+    fig_live_metrics(out, t, ci=not a.no_ci, rows=2, filename='live-runs-metrics-2x2')   # portrait page (thesis)
     for f in (fig_latency, fig_pareto, fig_baselines, fig_feature_groups, fig_burden, fig_alert_delivery, table_live_runs,
               table_rule_comparison, table_rca_runs):
         f(out, t)
