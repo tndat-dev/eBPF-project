@@ -1,0 +1,60 @@
+{
+ "schema": "live-recalibration-check-v1",
+ "run": "pulse-recal-smoke",
+ "workers": {
+  "k8s-worker1.local": {
+   "events": {
+    "unchanged": 2,
+    "applied": 1
+   },
+   "epochs": [
+    1
+   ],
+   "rows_per_epoch": {
+    "1": 26012
+   },
+   "compared": 26012,
+   "equal": 26012,
+   "agreement": 1.0,
+   "sizes_match_rebuild": true,
+   "first_difference": null
+  },
+  "k8s-worker4.local": {
+   "events": {
+    "unchanged": 2,
+    "applied": 1
+   },
+   "epochs": [
+    1
+   ],
+   "rows_per_epoch": {
+    "1": 10219
+   },
+   "compared": 10219,
+   "equal": 10219,
+   "agreement": 1.0,
+   "sizes_match_rebuild": true,
+   "first_difference": null
+  },
+  "k8s-worker3.local": {
+   "events": {
+    "unchanged": 2,
+    "applied": 1
+   },
+   "epochs": [
+    1
+   ],
+   "rows_per_epoch": {
+    "1": 26656
+   },
+   "compared": 26656,
+   "equal": 26656,
+   "agreement": 1.0,
+   "sizes_match_rebuild": true,
+   "first_difference": null
+  }
+ },
+ "same_sizes_on_every_worker": {
+  "2026102909": true
+ }
+}

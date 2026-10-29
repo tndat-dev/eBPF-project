@@ -1,0 +1,65 @@
+{
+  "automatic_promotion": false,
+  "completed_seconds": 4500.332341909409,
+  "config_sha256": "bd8a0ae9328a1860826d4b4b85cf610c79e0625d395bae178f57097cf2e7df57",
+  "current_segment": "s00003",
+  "feature_rows": 707004,
+  "finished_at_unix": 1793265204.3468745,
+  "frames": 8625,
+  "issues": 0,
+  "model_hash": "4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc",
+  "node_name": "k8s-worker3.local",
+  "peer_exchange": {
+    "connects": 2,
+    "disconnects": 2,
+    "peers_connected": {
+      "10.1.16.237:9479": false,
+      "10.1.16.238:9479": false
+    },
+    "published": 241360,
+    "received": 337972,
+    "received_dropped": 0,
+    "sent_dropped": 0,
+    "subscribers": 0,
+    "subscribers_accepted": 2
+  },
+  "policy_hash": "f64c31c067bff2421b6d360cd1b9e9ea2ca04d8d3cdcd0a6d1285b4360f35a33",
+  "preview_positive": 29,
+  "recalibration": {
+    "epoch": 1,
+    "failures": 0,
+    "published": 2,
+    "refreshes_applied": 1,
+    "refreshes_built": 3
+  },
+  "scored_rows": 241164,
+  "segments": 3,
+  "shared_writes": {
+    "decisions.jsonl": {
+      "cache_drops": 29,
+      "lines": 140794,
+      "max_queue": 82,
+      "max_write_seconds": 0.01572029758244753,
+      "waits": 0
+    },
+    "features.jsonl": {
+      "cache_drops": 29,
+      "lines": 140795,
+      "max_queue": 16,
+      "max_write_seconds": 0.018011512234807014,
+      "waits": 0
+    }
+  },
+  "started_at_unix": 1793260664.0947435,
+  "state": "completed_capture",
+  "tripwire": {
+    "alerts": 0,
+    "judged": 0,
+    "late_reference_windows": 0,
+    "no_reference": 0,
+    "pending": 241416,
+    "reference_windows": 559083,
+    "remote_reference_windows": 326067
+  },
+  "updated_at_unix": 1793265204.3370821
+}

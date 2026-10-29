@@ -1851,7 +1851,9 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 - **Smoke `pulse-recal-smoke`** (snapshot `b440850`, chỉ worker, không campaign; `rolling-1-1`, có cờ loại campaign; 4.500 s từ 14:57):
   - 3 worker chạy, 0 issue, khoảng 386 MB RAM mỗi worker;
   - lần làm mới lúc khởi động và lúc 15:05 ghi `unchanged` (21 workload giữ calibration cũ: chưa đủ 1.200 cửa sổ trong giờ trước), đúng thiết kế;
-  - lần làm mới thật lúc 16:05 dùng cả giờ 15:00–16:00; kiểm bằng `live_recalibration_check.py`.
+  - **16:05: cả 3 worker áp dụng epoch 1** (21/21 workload được thay, dùng giờ 15:00–16:00 của 3 worker), 0 lỗi làm mới, 0 issue; kết thúc bình thường 16:13;
+  - **kiểm cài đặt đạt:** 62.887 dòng decision dưới epoch 1 được tính lại từ bản dựng độc lập, khớp **100%** (`tree_p`, `support_p`, `joint_p`) trên cả 3 worker; kích thước mảng khớp bản dựng và giống nhau trên 3 worker;
+  - biên nhận `validation-evidence/results-20261029/recal-smoke/`; thư mục lượt (4,3 GB), snapshot `b440850`, unit, config và bản local đã xóa.
 - **Kiểm cài đặt:** `scripts/analysis/live_recalibration_check.py` (có test) dựng lại từng calibration đã áp dụng chỉ bằng các mảnh offline (`read_buffer`, `campaign_spans`/`masked`, `Recalibrator`), rồi so mọi `tree_p`, `support_p`, `joint_p` live dưới epoch đó.
 - **Lượt xác nhận:** protocol `live-recalibration-confirmation-v1` (đăng ký 15:18, trước lượt):
   - lượt `pulse-live-recal-confirm`, 24 giờ, hệ thống cuối + `rolling-12-1`, loại khoảng campaign (quyết định của chủ đồ án 29/10, ghi là giới hạn);
@@ -1859,7 +1861,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - luật thắng của `calibration-strategies-v1`: gánh thấp hơn ≥ 10%, recall không kém quá 2 điểm, control không cao quá 1 điểm, p95 không chậm quá 0,2 s;
   - F phải tái tạo live ≥ 99,9% trước lần thay đầu tiên, nếu không thì không kết luận;
   - chuỗi phân tích `scripts/after_recal_confirm.sh`.
-- **Lịch:** khởi chạy sau khi smoke đạt. Lượt chạy lại LID-DS (5.32) để sau lượt này, vì không chạy job nặng khi có lượt live.
+- **Lượt xác nhận đang chạy:** `pulse-live-recal-confirm` khởi chạy 29/10 16:16 (snapshot `d6dbe11`, 13 file scorer trùng bản đóng băng); pha chọn tới 17:49, sau đó campaign 525 trial; capture 24 giờ. Unit `after-recal-confirm` tự chạy phân tích theo protocol. Lượt chạy lại LID-DS (5.32) để sau lượt này, vì không chạy job nặng khi có lượt live.
 
 ### 5.32 LID-DS 2021: Pulse trên dataset công khai (protocol `lidds-evaluation-v1`; chạy 29/10 09:10–15:01, đọc 15:15)
 
@@ -1909,7 +1911,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
 | Chính sách giữ dữ liệu | Bộ đệm điểm vòng và chế độ ghi vận hành (bật theo config); dọn tài nguyên 22/10 (8c) |
 | Độ trễ tới người nhận cảnh báo (không chỉ preview) | **Xong** (RCA 5.14, Pulse 5.27): push qua Alertmanager p95 3,17 s ở tập chính; đường Prometheus chuẩn chậm hơn nhiều. Bridge thử lại push lỗi từ lượt sau |
 | Ghi NFS trong vòng chấm điểm, tripwire live | **Xong, live** (5.29): độ trễ frame lớn nhất 31,7 → 2,4 s; tripwire live khớp offline 100% |
-| Calibration tự làm mới khi live | **Code xong, smoke đang chạy, protocol xác nhận đã đăng ký** (5.31) |
+| Calibration tự làm mới khi live | **Smoke đạt (kiểm cài đặt khớp 100%), lượt xác nhận 24 giờ đang chạy từ 16:16** (5.31) |
 | Dataset công khai LID-DS (G3) | **Có kết quả** (5.32): hệ thống 77,3% phát hiện, 3,0% bản ghi normal bị báo nhầm; STIDE 100% / 60,8%. Chạy lại độ nhạy (sửa alias tên syscall) sau lượt live |
 | Thử reboot, mất NFS, backlog | **Không làm** theo quyết định của bạn (không tác động infra) |
 

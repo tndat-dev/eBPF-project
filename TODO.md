@@ -8,7 +8,8 @@ Ký hiệu: `[x]` xong · `[~]` đang chạy · `[ ]` chưa làm · **(cần b�
 
 - [x] **LID-DS** (Pulse 5.32, xong 29/10 15:01): hệ thống 77,3% phát hiện, 3,0% bản ghi normal bị báo nhầm; STIDE 100% / 60,8%; biên nhận `results-20261029/lidds/`. [ ] Chạy lại độ nhạy với alias tên syscall (`lidds-evaluation-v1` amendment 1) **sau** lượt live calibration; xong thì xóa `/var/tmp/lid-ds-2021/converted*` trên `.234` (giữ 15 file zip).
 - [x] **G7, độ trễ request của ứng dụng có/không probe** (Pulse 5.30): p50 +0,5–3%, p95 +3–8% ở trung vị; CI quá rộng để nói dưới 5% (luật đăng ký); probe 0,09–0,21 core mỗi node; biên nhận `results-20261029/app-overhead/`, dữ liệu thô trên `.234` đã xóa.
-- [~] **Smoke calibration tự làm mới** `pulse-recal-smoke` (14:57 → 16:12): kiểm lần làm mới 16:05 bằng `live_recalibration_check.py`, rồi khởi chạy `pulse-live-recal-confirm` (protocol `live-recalibration-confirmation-v1`, đăng ký 15:18) và unit chuỗi phân tích `after_recal_confirm.sh`.
+- [x] **Smoke calibration tự làm mới** `pulse-recal-smoke` (14:57 → 16:13): epoch 1 áp dụng lúc 16:05 trên 3 worker, kiểm cài đặt khớp 100% (62.887 dòng); biên nhận `results-20261029/recal-smoke/`; đã dọn.
+- [~] **Lượt `pulse-live-recal-confirm`** (protocol `live-recalibration-confirmation-v1`): khởi chạy 29/10 16:16, pha chọn tới 17:49, capture 24 giờ; unit `after-recal-confirm` tự phân tích. Đọc kết quả khoảng 18:30 ngày 30/10; sau đó chạy lại LID-DS (amendment 1).
 
 Các mục dưới là việc đã xong gần đây.
 
