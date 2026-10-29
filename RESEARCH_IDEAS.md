@@ -100,11 +100,11 @@ Ba đóng góp:
 |---|---|---|---|
 | G1 | Baseline trên cùng dữ liệu | **Xong**: Isolation Forest, autoencoder, freq_profile, `tree_ae`, lặp lại trên dữ liệu mới, Holm 24 phép kiểm; Falco và tripwire đặt cạnh trên cùng trial (R6) | Baseline theo chuỗi (STIDE, CHIDS) chỉ làm được trên dữ liệu có chuỗi syscall, tức LID-DS |
 | G2 | Attack là fixture tự viết | **Chưa**: 5 hành vi theo nhịp; độ phủ ATT&CK phân tích ở mục 5 | Bắt buộc. Exploit thật trong môi trường riêng (chủ đồ án tự dựng, quyết định 22/10), hoặc ít nhất 15 kịch bản lỗ hổng thật của LID-DS |
-| G3 | Chưa có dataset công khai | **Đang chạy** (29/10): LID-DS 2021 đã tải, protocol `lidds-evaluation-v1` đăng ký trước mọi fit, chuyển đổi và đánh giá đang chạy trên `.234` | Rất nên có: CHIDS dùng LID-DS và CB-DS; là điểm so sánh công bằng duy nhất với tài liệu |
+| G3 | Chưa có dataset công khai | **Có kết quả** (29/10, Pulse 5.32): LID-DS 2021, 15 kịch bản; hệ thống 77,3% phát hiện, 3,0% báo nhầm; STIDE 100% / 60,8%. Chạy lại độ nhạy (alias tên syscall) đang chờ | So với số đã công bố khi có cùng chỉ số |
 | G4 | Kẻ tấn công thích nghi | **Một phần**: recall theo tốc độ 1–24/s; lập luận mimicry (mục 4.4) | Một thí nghiệm né tránh thật (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
 | G5 | Process vô hại mới | **Một phần**: ML gắn cờ 80,7–95,1% binary vô hại; tripwire tách được lớp syscall hiếm (binary vô hại 0,6%) | Hội nghị top-4 cần một lời giải cho cả lớp `mprotect`/`seccomp`; RAID/ACSAC chấp nhận nếu trình bày như phát hiện đo đạc |
 | G6 | Gánh cảnh báo | **Cải thiện mạnh**: 6,74 → 1,69 đợt/replica-giờ, vẫn gấp khoảng 17 lần ngân sách 0,1 | Trình bày trung thực như giới hạn; không cần đạt ngân sách |
-| G7 | Overhead | **Một phần**: microbenchmark trên một node, một kernel; độ trễ request của ứng dụng thật có/không probe đang đo (29/10, Pulse 5.30). Kernel/distro khác: không làm (chủ đồ án, 29/10) | Kết quả 5.30; nêu giới hạn một kernel |
+| G7 | Overhead | **Xong cho luận văn** (29/10, Pulse 5.30): microbenchmark + độ trễ request AIMS (p50 +0,5–3%, p95 +3–8% ở trung vị, CI rộng). Kernel/distro khác: không làm (chủ đồ án) | Nêu giới hạn một kernel, chỉ probe |
 | G8 | Review nhãn | **Một phần**: 4.766 case, người gán không độc lập. Review độc lập: không làm (chủ đồ án, 29/10) | Nêu rõ như giới hạn |
 | G9 | Artifact | **Phần lớn**: repo, script, biên nhận, kiểm toán số liệu | Gói tái lập và dữ liệu ẩn danh |
 | Mới | Hệ thống cuối chạy live | **Xong 29/10** (Pulse 5.29): S đạt 4 kỳ vọng, p95 1,97 s, tripwire live khớp offline 100% | — |
@@ -113,7 +113,7 @@ Ba đóng góp:
 
 **LID-DS còn cần không:** không cần cho luận văn. Cho paper thì **nên làm**: nó lấp G3 và một phần G2 cùng lúc (15 kịch bản lỗ hổng thật, syscall có tham số và giá trị trả về, mỗi vai trò là một container Docker, theo bài LID-DS 2021), và cho phép so với STIDE và CHIDS trên cùng dữ liệu. Chi phí: một bộ chuyển đổi từ trace sang cửa sổ đếm 0,5 s của Pulse, rồi fit và đánh giá offline; không cần cụm. Cần tải lại dataset (lần thử 21/10 bị máy chủ từ chối).
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 29/10 10:05)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 29/10 15:25)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
@@ -131,17 +131,17 @@ Ba đóng góp:
 | RCA | ~96% | 5 lượt live; lượt cuối dựng case từ cảnh báo Alertmanager giao (cả ML và tripwire): top-1 14,1%, top-3 100% khi binary vô hại có tên riêng (top-1 99,8% trước đó bị thổi phồng vì hai binary chung đường dẫn; RCA 5.17); 40 attack bị gộp, quy cho từng bước từ chối (25 ở bước kiểm exec); nhãn triage; seed binary; ánh xạ IP node và probe Istio; ví dụ cây thật trong repo | Đo độ trễ exec log so với case theo sau (lượt sau); luật xếp hạng cho hai process mới gần nhau; backend sau DNAT, client sau waypoint (giới hạn) |
 | Baseline ML (G1) | ~99% | 3 baseline + `tree_ae` có CI, lặp lại trên dữ liệu mới: không thay base29; Holm trên 24 so sánh (24/10): mọi kết luận ở ngân sách 1 đứng vững, chỉ lật 2 hiệu tách ở ngân sách 18 (Pulse 5.15b) | Xong cả phần Falco đặt cạnh ML trên cùng trial (R6); còn viết |
 | Phần rule, tách khỏi ML | ~98% | So sánh có/không rule R6 xong trên lượt xác nhận (25/10): không rule nào tăng recall ở tập chính; ML + tripwire giữ mọi số ML ở mức ≤ 3 s, p95 −0,47 s, gánh +0,066; tripwire riêng 0,099 đợt/replica-giờ (trong ngân sách 0,1); Falco mặc định +79% gánh; triage chờ case −23% gánh nhưng p95 5,90 s | Chủ đồ án đã chọn ML + tripwire (25/10); dữ liệu phụ xong, cùng hướng. Còn: tripwire chạy live trong worker; đường triage nhanh nếu muốn dùng triage |
-| Overhead (G7) | ~90% | A/B 3 điều kiện trên worker4 (5.21): ~250–450 ns mỗi syscall khi theo dõi; độ trễ request của AIMS có/không probe đang đo (5.30, protocol đăng ký trước) | Đọc kết quả 5.30. Kernel/distro khác: không làm (chủ đồ án, 29/10) |
+| Overhead (G7) | ~98% | Microbenchmark (5.21) và độ trễ request của AIMS có/không probe (5.30), protocol đăng ký trước | Kernel/distro khác: không làm (chủ đồ án, 29/10) |
 | Kẻ tấn công chậm (G4) | ~60% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
 | Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng R6; bảng tổng hợp RCA và syscall |
-| **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
-| **Luận văn (tổng thể, gồm viết)** | **~90%** | Thí nghiệm ~98%; hệ thống cuối (ML + tripwire) chạy live đạt cả 4 kỳ vọng, p95 1,97 s (Pulse 5.29); so sánh có/không rule xong (R6); syscall, RCA, baseline gần xong; biên nhận trong repo; 7 hình + bảng lượt live, bảng RCA | Viết chương (chờ chủ đồ án cho bắt đầu) |
+| **Viết luận văn** | **~55%** | Bản LaTeX `thesis/` đủ 8 chương (58 trang), trích dẫn natbib, 7 hình, kết quả G7 và LID-DS | Trang bìa (thông tin của bạn); kết quả calibration tự làm mới; đọc lại, chỉnh văn; lời cam đoan, phụ lục |
+| **Luận văn (tổng thể, gồm viết)** | **~94%** | Thí nghiệm ~98%; hệ thống cuối đạt live (5.29); G7 (5.30) và LID-DS (5.32) xong; bản LaTeX đủ 8 chương | Kết quả calibration tự làm mới; trang bìa; đọc lại và chỉnh văn |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở|
-| Dataset công khai (G3) | ~40% | LID-DS 2021 đã tải (15 kịch bản lỗ hổng thật, 87 GB); bộ chuyển đổi có test; protocol `lidds-evaluation-v1` đăng ký trước mọi fit; chuyển đổi và đánh giá đang chạy (29/10) | Đọc kết quả, so với số đã công bố của LID-DS và STIDE |
+| Dataset công khai (G3) | ~85% | LID-DS 2021: 15 kịch bản, protocol đăng ký trước mọi fit, kết quả ML/tripwire/hệ thống/STIDE (5.32) | Chạy lại độ nhạy (alias tên syscall); so với số đã công bố |
 | Review nhãn (G8) | ~75% (đóng) | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Review độc lập: không làm (chủ đồ án, 29/10), nêu là giới hạn |
 | Artifact mở (G9) | ~65% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`); kiểm toán số liệu tự động (`scripts/audit/`, docs/AUDIT.md) | Gói tái lập, dữ liệu ẩn danh |
 | Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |
-| **Mức sẵn sàng** | **~42%** | Hệ thống + đánh giá live mạnh + baseline + phát hiện về probe + CUSUM blind | G2, G5 (lời giải), G9; G3 chờ kết quả |
+| **Mức sẵn sàng** | **~50%** | Hệ thống + đánh giá live mạnh + baseline + dataset công khai (LID-DS) + overhead ứng dụng + phát hiện về probe | G2 (exploit thật trên cụm), G5 (lời giải), G9 |
 
 **Đường ngắn nhất để xong luận văn (24/10):**
 1. Đọc final của lượt xác nhận (gánh cảnh báo, test blind 5.22, seed RCA, phân loại cảnh báo, so sánh 3 broker kafka).
