@@ -15,7 +15,7 @@ RQ1: đạt bốn kỳ vọng trên cụm thật? & Có. Hệ thống cuối đ�
 RQ2: feature nào mang tín hiệu? & Cặp exec, kênh syscall tường minh, 5 tổng hợp và cả hai nhánh p-value. Thêm syscall không giúp, và còn làm chậm \\
 RQ3: giảm được gánh cảnh báo? & Một phần. Gánh giảm từ 6,74 xuống khoảng 1,5 đợt/replica-giờ nhờ chiết khấu theo replica, nhưng vẫn gấp khoảng 15 lần ngân sách \\
 RQ4: tách được process vô hại mới? & ML thì không: 80,7--95,1\% binary vô hại bị gắn cờ. Tripwire tách được lớp tấn công buộc dùng syscall lạ, và gần như không thêm gánh \\
-RQ5: RCA chỉ ra process gây ra? & Process tấn công luôn nằm trong 3 nghi phạm đầu; top-1 chỉ 14,1\% khi có một binary vô hại chạy ngay trước \\
+RQ5: RCA chỉ ra process gây ra? & Process tấn công luôn nằm trong 3 nghi phạm đầu. Top-1 14,1\% là do luật phá hoà theo tên; phá hoà theo thời điểm khởi chạy cho 100\% trên cùng lượt (development, chờ kiểm blind) \\
 RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được theo dõi, và 13--31\% một core mỗi worker cho phần chấm điểm. Trên ứng dụng thật, probe làm p50 của request tăng 0,5--3\% và p95 tăng 3--8\% ở trung vị; CI quá rộng để nói mức tăng dưới 5\% \\
 \end{longtable}
 

@@ -397,7 +397,9 @@ Top-1 là tỉ lệ case có binary tấn công đứng hạng 1 trong danh sác
 \item
   top-1 còn 14,1\%, top-3 vẫn 100\%;
 \item
-  luật xếp hạng hiện tại không tách được hai process mới chạy gần nhau.
+  nguyên nhân là luật phá hoà: hai binary thường bằng điểm (6 = binary mới + exec trong cửa sổ), và khi hoà, luật cũ xếp theo thứ tự bảng chữ cái của đường dẫn, nên \texttt{sentinel-\allowbreak{}benign-\allowbreak{}exec-\allowbreak{}control} luôn đứng trước \texttt{sentinel-\allowbreak{}runtime-\allowbreak{}attack-\allowbreak{}blind};
+\item
+  khi hoà mà xếp process khởi chạy gần cảnh báo nhất lên trước, top-1 trên chính lượt này lên 100\% (469/469). Đây là kết quả development; kiểm blind đã được đăng ký trên lượt kế tiếp. Trong campaign, binary vô hại luôn chạy trước tấn công 15 s, nên luật mới thắng một phần nhờ thiết kế campaign; nó chỉ chứng minh luật cũ là artifact, chưa chứng minh luật mới tốt trong mọi trường hợp.
 \end{itemize}
 
 Với 40 tấn công không có case riêng ở lượt cuối, nguyên nhân được quy cho từng bước:
@@ -571,5 +573,7 @@ Kịch bản & ML phát hiện & Tripwire phát hiện & Hệ thống phát hi�
 \item
   \textbf{Giới hạn đã phát hiện sau khi chạy:} bộ chuyển đổi đã bỏ bốn syscall thật vì sysdig ghi tên khác với bảng ABI: \texttt{pread}, \texttt{pwrite}, \texttt{sigreturn}, \texttt{prlimit}. Tổng cộng khoảng 15 triệu lượt gọi ở 12/15 kịch bản. Lỗi này giống nhau giữa train và test nên không làm rò nhãn, nhưng Pulse thấy ít thông tin hơn STIDE (STIDE đọc tên thô). Bộ chuyển đổi đã được sửa, và một lượt chạy lại đã được đăng ký là phân tích độ nhạy (amendment 1). Bảng trên là kết quả của lượt đã đăng ký.
 \item
-  LID-DS chưa có ngưỡng đạt nào được đăng ký. Luận văn không so trực tiếp với số đã công bố, vì chưa có bài nào báo cùng chỉ số theo bản ghi trên cùng cách chia.
+  \textbf{Đặt cạnh số đã công bố:} kết quả duy nhất trên đủ 15 kịch bản LID-DS 2021 mà tác giả dataset công bố là STIDE (chuỗi 7 syscall, cửa sổ 100 syscall, ngưỡng là điểm cao nhất trên validation), với tỉ lệ phát hiện trung bình 0,59 \citep{grimmer2022}. Hệ thống của luận văn đạt 0,773. Báo nhầm của bài đó được đếm theo số cụm báo động chứ không theo bản ghi, nên chỉ so được tỉ lệ phát hiện. LID-DS chưa có ngưỡng đạt nào được đăng ký.
+\item
+  \textbf{Lượt v2 đã đăng ký} (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm các tín hiệu theo tham số và giá trị trả về (đường dẫn mới, lỗi theo errno, số byte) và chuỗi syscall theo thread, với ngưỡng là điểm cao nhất trên validation. Protocol ghi rõ thiết kế được làm sau khi đã thấy kết quả trên, nên bằng chứng độc lập chỉ đến từ lượt xác nhận trên LID-DS 2019 và CB-DS.
 \end{itemize}

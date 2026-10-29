@@ -37,7 +37,28 @@ Trên mỗi worker, ML và tripwire cùng đọc một luồng feature và cùng
   \end{itemize}
 \end{itemize}
 
-Độ phủ theo MITRE ATT\&CK for Containers chỉ có một phần ở các chiến thuật execution, privilege escalation và defense impairment. Chương 7 bàn về hệ quả của giới hạn này.
+Độ phủ theo MITRE ATT\&CK for Containers chỉ có một phần (Bảng~\ref{tab:attack-coverage}). Chương 7 bàn về hệ quả của giới hạn này.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.42\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.58\linewidth-2\tabcolsep\relax}@{}}
+\caption{Độ phủ của campaign đánh giá theo chiến thuật MITRE ATT\&CK for Containers.}\label{tab:attack-coverage}\\
+\toprule\noalign{}
+Chiến thuật & Campaign của luận văn \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Initial access (khai thác ứng dụng public) & Không có \\
+Execution & Một phần: binary mới chạy qua \texttt{kubectl exec}; \texttt{execveat} với fd không hợp lệ (luôn thất bại) \\
+Persistence & Không có \\
+Privilege escalation / thoát container & Một phần: \texttt{setns} với fd không hợp lệ (luôn thất bại); \texttt{ptrace(PTRACE\_TRACEME)} trên process con của chính nó \\
+Stealth / defense impairment & Một phần: \texttt{seccomp} với thao tác không hợp lệ (luôn thất bại); \texttt{mprotect} trên trang nhớ ẩn danh của chính nó \\
+Credential access & Không có \\
+Discovery & Không có \\
+Lateral movement & Không có \\
+Impact (gồm chiếm tài nguyên kiểu đào coin) & Không có \\
+\end{longtable}
+
+LID-DS 2021 (mục 6.12) bù một phần cho initial access, vì nó gồm 15 exploit thật đi qua ứng dụng, nhưng chỉ đánh giá offline.
 
 \section{Biểu diễn: 249 feature mỗi cửa sổ}
 
