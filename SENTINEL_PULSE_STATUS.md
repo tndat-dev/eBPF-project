@@ -1884,6 +1884,22 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   Cách giải thích khả dĩ (chưa kiểm riêng): ở các kịch bản yếu, exploit chạy trong chính process của dịch vụ và không cần syscall mới.
 - **Giới hạn phát hiện sau khi chạy:** bộ chuyển đổi bỏ `pread`, `pwrite`, `sigreturn`, `prlimit` (sysdig ghi tên không có hậu tố ABI), khoảng 15 triệu lượt gọi ở 12/15 kịch bản. Lỗi giống nhau giữa train và test nên không rò nhãn, nhưng Pulse thấy ít hơn STIDE. Sửa bằng bảng alias (`SYSDIG_ALIASES`, có test); amendment 1 (đăng ký 15:17, sau khi đọc kết quả) chạy lại như phân tích độ nhạy, báo cả hai.
 - **Không có ngưỡng đạt** đăng ký cho LID-DS; không so trực tiếp với số đã công bố vì chưa có bài báo cùng chỉ số theo bản ghi.
+- **Nghiên cứu cải thiện (29/10, `reports/Cải thiện Pulse trên LID DS.md`):**
+  - 407/412 bản ghi bỏ sót là exploit chỉ đổi dữ liệu (đường dẫn, số byte, errno), không đổi tập syscall;
+  - chưa nguồn nào đạt 90–95% với báo nhầm thấp trên đủ 15 kịch bản LID-DS 2021; kết quả duy nhất đủ 15 kịch bản đã công bố là STIDE của tác giả dataset (DR 0,59);
+  - lộ trình 4 bậc, trần cộng dồn: 87% → 93,5% → 100%.
+- **v2 (protocol `lidds-evaluation-v2`, đăng ký 21:30, chủ đồ án cho làm 29/10):**
+  - **Khai báo:** thiết kế sau khi đã đọc kết quả v1 và mã exploit.
+  - **Các nhánh:**
+    - bậc 1: nhánh support chấm ngay từ cửa sổ đầu; tripwire không trừ tập exec;
+    - bậc 2: tiền tố/đường dẫn mới tách đọc/ghi, cặp (syscall, errno), histogram log2 số byte;
+    - bậc 3: 7-gram theo thread.
+  - **Ngưỡng:** điểm cao nhất trên validation (quy ước của thư viện LID-DS), một cửa sổ là đủ. Không chỉnh gì trên bản ghi attack.
+  - **Tập chính thức:** 70% bản ghi attack mỗi kịch bản (seed ghi trong protocol).
+  - **Tiêu chí:** H1 recall ≥ 90% với báo nhầm ≤ 3,0%; H2 ≥ 95%; H3 không thụt lùi ở 9 kịch bản đang 100%.
+  - **Xác nhận:** chạy một lần trên LID-DS 2019 và CB-DS, mỗi bộ có protocol riêng.
+  - **Code:** `sentinel_pulse/lidds/signals.py`, `scripts/analysis/lidds_evaluate_v2.py` (lưu kết quả từng bản ghi, `--merge`), 7 test.
+  - **Lịch:** unit `lid-ds-v2` trên `.234` (snapshot `1e9133c`) chờ unit `after-recal-confirm` xong, rồi chuyển đổi lại (alias) và chấm 4 phần song song. Lượt này gộp luôn lượt chạy lại của amendment 1 (nhánh `ml`/`tripwire`/`system` trên bản alias).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
