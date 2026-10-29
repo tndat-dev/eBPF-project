@@ -1,0 +1,134 @@
+\chapter{Cài đặt}
+
+Pulse chạy trên cụm Kubernetes 6 node của phòng lab. Mỗi worker có một loader eBPF viết bằng C và một worker Python chấm điểm. Bridge cảnh báo và RCA chạy trên master đầu tiên. Code, protocol và biên nhận nằm trong cùng một repo git.
+
+\section{Cụm thử nghiệm}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.271\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.729\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Thành phần & Cấu hình \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Node & 3 master (control plane), 3 worker; VM trên ESXi \\
+Phần mềm & Kubernetes v1.34.10, Ubuntu 24.04, kernel 6.8.0, Cilium, Istio ambient \\
+Ứng dụng & AIMS (An Internet Media Store): frontend, API gateway, các service Python, PostgreSQL (CloudNativePG), Kafka, RabbitMQ, Redis, MinIO; 21 workload, khoảng 80 pod \\
+Tải normal & Bốn generator trong namespace \texttt{production}, chuyển qua các chế độ steady, toolmix, peak, burst, recovery theo lịch đăng ký \\
+Công cụ runtime có sẵn & Tetragon (nguồn sự kiện cho RCA), Falco (baseline luật) \\
+Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
+\end{longtable}
+
+\section{Thu thập trong kernel}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Loader eBPF} (\texttt{pulse\_\allowbreak{}counter\_\allowbreak{}extended}) gắn chương trình vào \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}enter} và \texttt{fexit/\allowbreak{}\_\allowbreak{}\_\allowbreak{}seccomp\_\allowbreak{}filter}. Nhờ vậy nó đếm cả syscall bị seccomp từ chối.
+\item
+  \textbf{Map theo cgroup} giữ ba loại bộ đếm: số đếm theo từng ID syscall (0--1023), 64 bin ID và 64 bin cặp syscall. Bin cặp dùng syscall trước đó của từng thread, nên kernel phải nhớ syscall cuối của mỗi thread.
+\item
+  \textbf{Danh sách cgroup cho phép} do dịch vụ resolver ghi. Resolver ánh xạ Pod UID → container → cgroup → phiên bản workload.
+\item
+  \textbf{Cứ 500 ms,} loader đọc map và in một frame JSON ra stdout. Mỗi frame có bộ đếm tích lũy của mọi cgroup được theo dõi.
+\item
+  \textbf{Khóa bằng proof:} loader và object được khóa bằng SHA-256 cùng một “proof” gắn với phiên bản kernel. Worker từ chối chạy trên kernel khác.
+\end{itemize}
+
+\section{Worker chấm điểm}
+
+Worker (\texttt{pipeline/\allowbreak{}matched\_\allowbreak{}worker.\allowbreak{}py}) chạy như một unit systemd trên mỗi worker, giới hạn 3 core và 3 GB RAM. Mỗi frame đi qua các bước:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Kiểm tính toàn vẹn: tổng theo ID phải bằng tổng của probe, và bin băm phải bằng phép chiếu của số đếm theo ID. Frame sai bị ghi vào \texttt{issues} và lịch sử được xóa.
+\item
+  Tính hiệu số với frame trước, dựng 249 feature và ngữ cảnh 4 cửa sổ.
+\item
+  Chấm theo batch: gom mọi ngữ cảnh cùng workload trong một frame, tối đa 256 bản ghi.
+\item
+  Áp chính sách, chiết khấu theo replica và tripwire, rồi ghi decision.
+\end{enumerate}
+
+\textbf{Đường chấm nhanh} (\texttt{detector/\allowbreak{}fast\_\allowbreak{}forest.\allowbreak{}py}) làm đúng phép tính của scikit-learn: cộng xác suất của từng cây theo thứ tự, bắt đầu từ số 0 float64, nhưng bỏ phần chi phí Python của mỗi cây.
+
+\begin{itemize}
+\tightlist
+\item
+  Batch đầu tiên của mỗi model được chấm bằng cả hai đường. Chỉ cần lệch một giá trị là model đó quay về đường cũ suốt tiến trình.
+\item
+  Replay 41.250 dòng feature live qua đường tham chiếu cho 0 dòng lệch.
+\item
+  CPU của worker giảm từ khoảng 94\% xuống 13--31\% một core.
+\end{itemize}
+
+\textbf{Khóa bản đóng băng.} Trước khi chấm, worker so SHA-256 của 13 file code chấm điểm với một snapshot đóng băng, và kiểm hash của model bundle cùng chính sách. Nhờ vậy mọi kết quả live gắn với đúng một phiên bản code.
+
+\section{Trao đổi giữa worker}
+
+Mỗi worker mở một cổng TCP (9479), phát mặt nạ ID syscall của từng cửa sổ và nhận mặt nạ của hai worker còn lại. Tin của peer tới sau khoảng 20 ms, nên bucket mới nhất có thể chưa đủ lúc quyết định.
+
+Cùng kênh này mang cửa sổ tham chiếu cho tripwire. Trong lượt cuối, không cửa sổ tham chiếu nào của peer đến muộn.
+
+\section{Ghi dữ liệu ngoài vòng chấm điểm}
+
+Các lượt đầu ghi feature và decision thẳng lên NFS trong vòng chấm điểm. Mỗi lần NFS chậm là một lần frame bị trễ; có frame trễ tới 31,7 s. Hệ thống cuối sửa theo ba cách:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Ghi nền:} mỗi file chia sẻ được ghi qua một hàng đợi và thread riêng. Thread này \texttt{fdatasync} và bỏ page cache mỗi 30 s.
+\item
+  \textbf{Bản decision trên đĩa local} của worker cho bridge, RCA và campaign đọc.
+\item
+  \textbf{Trạng thái ghi không đồng bộ.}
+\end{itemize}
+
+Kết quả ở lượt cuối:
+
+\begin{itemize}
+\tightlist
+\item
+  độ trễ frame lớn nhất còn 2,4 s;
+\item
+  lần ghi nền lâu nhất 35 ms, không lần nào phải chờ hàng đợi;
+\item
+  số lần cách nhịp còn 4, 2 và 1 trên ba worker, so với 8--10 ở lượt trước.
+\end{itemize}
+
+\section{Bridge và RCA}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Bridge cảnh báo} chạy trên master, bám file decision local của ba worker và đẩy đợt cảnh báo vào Alertmanager. Ở lượt cuối có 3 push lỗi, cả 3 được thử lại thành công; 5.840/5.840 đợt tới nơi.
+\item
+  \textbf{Subscriber RCA} đọc luồng sự kiện Tetragon của ba worker vào ring SQLite local, dựng case theo nhịp 0,25 s và giữ tối đa 20.000 case.
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Luồng \texttt{tetra\ getevents} được xoay vòng có giới hạn thời gian sống.
+  \item
+    DaemonSet Tetragon chạy với \texttt{shareProcessNamespace} để các process \texttt{timeout} kết thúc được thu dọn. Trước khi sửa có 3.931 process zombie trên ba worker.
+  \end{itemize}
+\end{itemize}
+
+\section{Quy trình một lượt live}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Planner} tạo một file \texttt{CONFIG.\allowbreak{}json} bất biến. File này chứa hash của model, chính sách và fixture, lịch tải, lịch trial đã xáo trộn bằng seed cố định, và cấu hình từng worker.
+\item
+  \textbf{Launcher} cài worker lên ba node, khởi động RCA và bridge, rồi đến traffic và campaign.
+\item
+  \textbf{90 phút đầu là pha chọn:} tham chiếu của tripwire và baseline binary của RCA được dựng ra rồi đóng băng. Tấn công chỉ bắt đầu sau mốc này 120 s.
+\item
+  \textbf{Sau khi capture kết thúc,} một chuỗi phân tích tự chạy theo protocol đã commit. Biên nhận JSON được chép vào repo.
+\end{enumerate}
+
+Không job nặng nào chạy cùng lúc với lượt live, để điều kiện đo không đổi giữa các lượt.

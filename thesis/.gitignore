@@ -1,0 +1,10 @@
+# build outputs (tectonic main.tex)
+main.pdf
+*.log
+*.blg
+*.aux
+*.bbl
+*.toc
+*.lof
+*.lot
+*.out

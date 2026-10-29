@@ -1,0 +1,126 @@
+\chapter{Nền tảng}
+
+Pulse ghép ba mảnh. eBPF đếm syscall trong kernel. P-value conformal biến điểm của model thành bằng chứng có thang chung. Một luật dừng chọn lúc báo. Chương này nêu điều kiện để từng mảnh đúng, và điều kiện nào Pulse không giữ được.
+
+\section{Syscall là điểm quan sát}
+
+Mọi tác động của một process lên hệ thống đều đi qua syscall: mở file, cấp phát bộ nhớ, tạo process, đổi namespace, kết nối mạng. Trên kernel Linux 6.8 x86-64 của cụm, header \texttt{unistd\_\allowbreak{}64.\allowbreak{}h} định nghĩa 373 ID syscall.
+
+Một ứng dụng ổn định chỉ dùng một phần nhỏ trong số đó, và dùng theo nhịp khá đều. \citet{ghavamnia2020b} cho thấy server có pha khởi tạo và pha phục vụ cần hai tập syscall khác nhau. Sau pha khởi tạo, có thể tắt nhiều syscall nguy hiểm như \texttt{execve}. Đây là cơ sở để coi một syscall lạ trong pha phục vụ là đáng ngờ.
+
+\section{eBPF}
+
+eBPF cho phép nạp chương trình nhỏ vào kernel sau khi bộ kiểm tra (verifier) xác nhận chương trình kết thúc và chỉ truy cập bộ nhớ hợp lệ. Chương trình gắn vào điểm móc của kernel và ghi kết quả vào map, một cấu trúc khóa--giá trị mà user space đọc được.
+
+Pulse dùng ba đặc điểm của eBPF:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Điểm móc \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}enter}} chạy trước mọi syscall của node. Vì vậy cả process không được theo dõi cũng trả một phần chi phí: probe phải chạy rồi mới lọc được theo cgroup.
+\item
+  \textbf{Map theo cgroup:} bộ đếm được gom theo ID cgroup của container. User space chỉ cần đọc map theo chu kỳ, không phải nhận từng sự kiện.
+\item
+  \textbf{Không có số thực dấu phẩy động} trong eBPF (\citealp{osaki2024}). Pulse để mọi phép tính của model ở user space, kernel chỉ đếm.
+\end{itemize}
+
+\section{Kubernetes, cgroup và workload}
+
+Kubernetes chạy mỗi container trong một cgroup riêng, nên ID cgroup xác định duy nhất container trên node. Một controller (Deployment, StatefulSet) tạo nhiều Pod giống nhau gọi là replica, thường trải trên nhiều node.
+
+Luận văn gọi một cặp (controller, tên container) là \textbf{workload}, ví dụ \texttt{production/\allowbreak{}aims-\allowbreak{}redis:aims-\allowbreak{}redis}. Các replica của cùng workload chạy cùng image và cùng code, nên chúng là đối chứng tự nhiên của nhau. ReplicaWatcher (\citealp{elkhairi2024}) dùng ý này để phát hiện mà không cần huấn luyện. Pulse dùng nó để chiết khấu bằng chứng (Chương 4).
+
+\section{P-value conformal}
+
+Conformal prediction dựng p-value hợp lệ từ một điểm bất thường bất kỳ, chỉ với giả thiết dữ liệu hoán đổi được (\citealp{vovk2005}). Cho n điểm calibration s\_1, \ldots, s\_n tính trên dữ liệu normal không dùng để fit, p-value của điểm mới s là (\citealp{bates2021}):
+
+\[
+p(s) = \frac{1 + \#\{i : s_i \ge s\}}{n + 1}
+\]
+
+Ba hệ quả chi phối thiết kế của Pulse:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Hợp lệ biên:} khi điểm mới và tập calibration hoán đổi được, P(p ≤ α) ≤ α. Môi trường đổi (tải khác, phiên bản khác, sự cố) thì giả thiết bị phá và bảo đảm không còn.
+\item
+  \textbf{p không bao giờ nhỏ hơn 1/(n + 1).} Muốn đạt ngưỡng α thì cần n ≥ 1/α − 1 điểm calibration.
+\item
+  \textbf{Các p-value dùng chung tập calibration phụ thuộc dương.} Vì vậy phép gộp Fisher không dùng được, còn Bonferroni thì vẫn hợp lệ.
+\end{enumerate}
+
+Pulse có hai nhánh điểm (tree và support), mỗi nhánh cho một p-value. Chúng được gộp bằng Bonferroni, hợp lệ với mọi cấu trúc phụ thuộc:
+
+\[
+p_{joint} = \min\left(1,\ 2 \cdot \min(p_{tree},\ p_{support})\right)
+\]
+
+Vì hệ số 2, Pulse đòi ít nhất 1.200 điểm calibration mỗi nhánh. Khi giả thiết hoán đổi bị phá, tài liệu có ba hướng sửa; cả ba đều được thử trên dữ liệu của Pulse ở Chương 6:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Trọng số giảm theo tuổi dữ liệu} (NexCP, \citealp{barber2023}).
+\item
+  \textbf{Điều chỉnh α trực tuyến} (ACI, \citealp{gibbs2021}).
+\item
+  \textbf{Hiệu chỉnh riêng theo nhóm} (Mondrian).
+\end{itemize}
+
+\section{Luật dừng: k-of-n và CUSUM}
+
+Mỗi cửa sổ 0,5 s của mỗi container là một kiểm định. Nếu báo ngay khi một cửa sổ qua ngưỡng thì số cảnh báo nhầm tỉ lệ với số kiểm định. Hai cách đòi bằng chứng lặp lại được xét:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{k-of-n:} báo khi k trong n cửa sổ liên tiếp qua ngưỡng. Pulse dùng k = n = 2.
+\item
+  \textbf{CUSUM} (\citealp{page1954}): tích lũy bằng chứng và khởi động lại khi tổng chạm 0.
+\end{itemize}
+
+CUSUM có bước tăng là log tỉ số hợp lý:
+
+\[
+T_n = \max\left(0,\ T_{n-1} + \log \frac{f_1(X_n)}{f_0(X_n)}\right), \quad \text{báo khi } T_n > \gamma
+\]
+
+CUSUM tối ưu minimax giữa độ trễ và tần suất báo nhầm (\citealp{lorden1971}; \citealp{moustakides1986}), nhưng chỉ khi các quan sát độc lập và biết cả hai phân bố. Pulse không có các điều kiện đó. Nó không biết phân bố của tấn công, và các cửa sổ phụ thuộc nhau qua feature lịch sử.
+
+Vì vậy Pulse \textbf{không có bảo đảm về tần suất báo nhầm}; gánh cảnh báo được đo thực nghiệm theo đợt/replica-giờ. Kết quả lý thuyết vẫn cho một hướng dẫn quan trọng: khi bằng chứng từng cửa sổ đã cho trước, đổi luật dừng không giúp nhiều. Muốn giảm báo nhầm ở cùng độ trễ thì phải làm bằng chứng tốt hơn.
+
+\section{Luật runtime: Falco và Tetragon}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Falco} khớp luật trên luồng sự kiện syscall, ví dụ mở shell trong container hoặc chạy binary không có trong image.
+\item
+  \textbf{Tetragon} gắn policy kprobe vào hàm kernel và xuất sự kiện process có \texttt{exec\_\allowbreak{}id}. Pulse dùng Tetragon làm nguồn sự kiện exec, fork và kết nối cho RCA.
+\end{itemize}
+
+Một so sánh ba công cụ trên Kubernetes (\citealp{syairozi2025}) cho biết cỡ độ trễ của luật:
+
+\begin{itemize}
+\tightlist
+\item
+  thời gian phát hiện trung bình khoảng 1,12--1,18 s cho thoát container và DoS;
+\item
+  Tetragon tốn khoảng 6,5 millicore, Falco khoảng 431,5 millicore;
+\item
+  bài này không có tải vô hại để đo báo nhầm.
+\end{itemize}
+
+\section{Thống kê dùng trong đánh giá}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Khoảng Wilson} (\citealp{wilson1927}) cho tỉ lệ nhị thức như recall, precision và tỉ lệ control. Khoảng này luôn nằm trong {[}0, 1{]} và ổn định khi tỉ lệ gần 0 hoặc 1.
+\item
+  \textbf{Bootstrap theo cụm} (\citealp{efron1993}) cho đại lượng phụ thuộc theo nhóm, như gánh cảnh báo và hiệu giữa hai cấu hình. Lấy mẫu lại theo workload, 10.000 lần.
+\item
+  \textbf{Tỉ lệ nền:} campaign cân bằng 1:1 giữa tấn công và control, nên precision trên campaign không phản ánh precision ở tỉ lệ tấn công thật (\citealp{arp2022}). Luận văn luôn báo kèm gánh cảnh báo trên toàn bộ normal.
+\end{itemize}

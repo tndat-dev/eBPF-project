@@ -1,0 +1,103 @@
+\chapter{Mở đầu}
+
+Luận văn xây dựng và đánh giá live một hệ thống phát hiện bất thường runtime cho container. Hệ thống chỉ dùng số đếm syscall và báo đủ nhanh để người vận hành kịp phản ứng.
+
+\section{Bối cảnh}
+
+Kubernetes chạy nhiều container của nhiều ứng dụng trên cùng một kernel. Một container bị chiếm quyền có thể dò kernel, đổi namespace, chạy binary lạ hoặc theo dõi process khác. Mọi hành vi đó đều phải đi qua syscall, nên syscall là điểm quan sát chung cho mọi loại tấn công ở tầng process.
+
+Hai hướng giám sát đang có:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Luật runtime} (Falco, Tetragon): khớp sự kiện với mẫu đã biết. Chúng nhanh và dễ giải thích, nhưng chỉ bắt được hành vi mà người viết luật đã lường trước.
+\item
+  \textbf{Phát hiện bất thường từ syscall:} học hành vi bình thường rồi báo khi lệch, nên bắt được cả hành vi chưa có luật.
+\end{itemize}
+
+Hướng thứ hai có ba khoảng trống khi đưa vào vận hành (Chương 3 trình bày chi tiết):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Phần lớn công trình đánh giá offline trên trace ghi sẵn, nên không đo độ trễ từ kernel tới người nhận cảnh báo.
+\item
+  Hiếm công trình đo gánh cảnh báo trên tải thật kéo dài nhiều giờ, trong khi gánh này mới quyết định người vận hành có dùng hệ thống hay không.
+\item
+  Gần như không công trình nào có đối chứng là một process vô hại mới chạy cùng đường exec với tấn công. Thiếu đối chứng này, không thể biết detector bắt ác ý hay chỉ bắt sự mới lạ.
+\end{enumerate}
+
+\section{Mục tiêu}
+
+Sentinel Pulse phải đạt đồng thời bốn kỳ vọng trên cụm thật. Bốn kỳ vọng này được đặt trước mọi lượt live:
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+Kỳ vọng & Ngưỡng \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Precision & ≥ 95\% \\
+Recall & ≥ 95\% \\
+Tỉ lệ control idle bị báo & ≤ 5\% \\
+p95 độ trễ kernel → cảnh báo & \textless{} 2 s ưu tiên, ≤ 3 s chấp nhận \\
+\end{longtable}
+
+Ngoài bốn kỳ vọng, gánh cảnh báo trên normal cần thấp nhất có thể, với ngân sách tham chiếu là 0,1 đợt/replica-giờ.
+
+\section{Câu hỏi nghiên cứu}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{RQ1.} Số đếm syscall theo cửa sổ 0,5 s có đủ để đạt bốn kỳ vọng trên cụm thật không?
+\item
+  \textbf{RQ2.} Syscall và nhóm feature nào mang tín hiệu? Bỏ đi thì mất gì?
+\item
+  \textbf{RQ3.} Có giảm được gánh cảnh báo mà không mất recall hay độ trễ không?
+\item
+  \textbf{RQ4.} Detector phân biệt được tấn công với một process vô hại mới đến đâu? Một luật đơn giản chạy cạnh ML có bù được không?
+\item
+  \textbf{RQ5.} Từ một cảnh báo, hệ thống có chỉ ra được process gây ra nó không?
+\item
+  \textbf{RQ6.} Probe eBPF tốn bao nhiêu cho syscall và cho request của ứng dụng?
+\end{enumerate}
+
+\section{Đóng góp}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Hệ thống Sentinel Pulse} chạy trên cụm thật. Nó gồm probe eBPF đếm syscall theo cgroup, worker chấm điểm theo workload, chính sách quyết định có chiết khấu theo replica, luật tripwire, đường cảnh báo qua Alertmanager và RCA từ Tetragon. Đường chấm nhanh cho kết quả khớp từng bit với scikit-learn, dùng 13--31\% một core mỗi worker.
+\item
+  \textbf{Phương pháp đánh giá live có đăng ký trước.} Mỗi lượt chạy 24 giờ trên tải thật, kèm campaign có control idle và binary vô hại. Protocol, kỳ vọng và luật chọn được commit trước khi đọc dữ liệu. Khoảng tin cậy dùng Wilson và bootstrap theo workload.
+\item
+  \textbf{Phát hiện thực nghiệm: detector tần suất phát hiện sự mới lạ, không phải ác ý.} Binary vô hại chạy cùng đường exec bị gắn cờ 80,7--95,1\% qua 6 lượt live. Autoencoder gắn cờ binary vô hại khoảng 100\%. Hồ sơ tần suất kiểu BoSC tách binary vô hại tốt hơn (16\%) nhưng bỏ sót 37\% attack.
+\item
+  \textbf{Chiết khấu bằng chứng theo replica.} Cảnh báo bị giảm trọng số khi hành vi đó cũng xuất hiện ở replica khác của cùng workload trong 30 s. Cách này giảm gánh cảnh báo còn 0,37 lần so với CUSUM và đã được xác nhận live.
+\item
+  \textbf{Hệ thống cuối ML + tripwire A1} đạt cả bốn kỳ vọng live, với p95 1,97 s. Bản tripwire live khớp bản offline 100\% trên 10,4 triệu cửa sổ.
+\end{enumerate}
+
+\section{Cấu trúc luận văn}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Chương 2} trình bày nền tảng: syscall, eBPF, p-value conformal và luật dừng.
+\item
+  \textbf{Chương 3} đặt Pulse cạnh các công trình liên quan.
+\item
+  \textbf{Chương 4 và 5} mô tả thiết kế và cài đặt.
+\item
+  \textbf{Chương 6} đánh giá theo từng câu hỏi nghiên cứu.
+\item
+  \textbf{Chương 7} thảo luận giới hạn.
+\item
+  \textbf{Chương 8} kết luận.
+\end{itemize}

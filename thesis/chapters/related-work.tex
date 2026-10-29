@@ -1,0 +1,72 @@
+\chapter{Công trình liên quan}
+
+Phát hiện xâm nhập từ syscall đã có gần 30 năm. Chỗ Pulse khác không nằm ở biểu diễn hay model, mà ở cách đánh giá: trên cụm thật, đo độ trễ tới cảnh báo và gánh cảnh báo theo giờ, với đối chứng là process vô hại mới.
+
+\section{Phát hiện bất thường từ syscall}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.261\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.227\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.266\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.246\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Công trình & Biểu diễn & Mô hình & Kết quả tác giả báo cáo \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\citealp{forrest1996} (STIDE) & Chuỗi syscall ngắn liên tiếp & Tập “self” của các chuỗi & Phát hiện xâm nhập vào sendmail, lpr \\
+\citealp{abed2016} & Túi tần suất syscall (BoSC) theo epoch, thu từ kernel host & So khớp với túi normal & MySQL trong container: phát hiện 100\%, FPR khoảng 2\% \\
+\citealp{kim2016} & Chuỗi syscall & Mô hình ngôn ngữ LSTM + ensemble ngưỡng & Dataset công khai \\
+\citealp{castanhel2020} & Cửa sổ syscall trong Docker & Bộ phân loại một lớp & Cửa sổ nhỏ đã cho F1 chấp nhận được \\
+\citealp{elkhairi2022} (CHIDS) & Syscall, tham số, tần suất trong đồ thị ngữ cảnh & Mô hình đồ thị & 11.700 trace normal, 1.980 attack, 20 kịch bản \\
+\citealp{elkhairi2024} (ReplicaWatcher) & Sự kiện kernel theo replica & So sánh các replica, không huấn luyện & Precision 91,08\%, recall 98,35\% \\
+\citealp{bortolini2025} & Syscall gom theo mức đe dọa, ma trận bigram & Transformer & F1 0,90 so với 0,92 của bản đầy đủ \\
+\citealp{zehra2025} (FedMon) & Syscall + mạng qua eBPF, nhiều cụm & VAE + Isolation Forest, học liên kết & Precision 94\%, recall 91\% \\
+\citealp{zhou2026} & Mở file, ngữ nghĩa đường dẫn & Autoencoder có attention & Recall 82,0\%, FPR 0,79\% \\
+\textbf{Sentinel Pulse} & Đếm syscall theo cgroup, cửa sổ 0,5 s, 249 feature & Tree + support, p-value conformal, k2of2 + chiết khấu replica & Live 24 giờ: recall 99,4\%, precision 99,4\%, p95 1,97 s \\
+\end{longtable}
+
+Bảng không dùng để so con số giữa các dòng. Đơn vị đánh giá khác nhau (trace, epoch, cửa sổ 0,5 s), tỉ lệ normal/attack khác nhau, và định nghĩa báo nhầm cũng khác nhau.
+
+Ba bài học từ dòng công trình này khớp với kết quả của Pulse:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Chỉ đếm tần suất thì yếu với tấn công tần suất thấp.} Pulse cũng thấy điều này ở hành vi \texttt{mprotect}, \texttt{seccomp} và khi tốc độ tấn công xuống 1/s.
+\item
+  \textbf{Tham số syscall và ngữ cảnh process tách được hành vi tốt hơn số đếm} (CHIDS; \citealp{zhou2026}). Đây là hướng phát triển của Pulse.
+\item
+  \textbf{Baseline cũ đi nhanh trong microservice} (ReplicaWatcher). Kết quả này khớp với việc calibration của Pulse phải làm mới theo ngày.
+\end{itemize}
+
+\section{Dataset công khai}
+
+LID-DS 2021 (\citealp{grimmer2022}) ghi syscall kèm tham số và giá trị trả về cho 15 kịch bản lỗ hổng thật. Mỗi kịch bản có ba vai là container Docker: kẻ tấn công, nạn nhân và người dùng. Dataset chia sẵn thành training, validation, test normal và test có tấn công.
+
+Luận văn chuyển LID-DS sang đúng khung cửa sổ 0,5 s của Pulse và đánh giá với tham số lấy nguyên từ hệ thống live (mục 6.10). Đây là điểm so sánh công khai duy nhất với tài liệu.
+
+\section{Né tránh}
+
+\citet{wagner2002} cho thấy kẻ tấn công có thể chèn syscall vô tác dụng hoặc thay syscall tương đương, để chuỗi độc hại khớp mô hình normal. Thực nghiệm của họ cũng cho thấy một giới hạn của kẻ tấn công: syscall không có trong hồ sơ normal thì không giấu được. Muốn né, kẻ tấn công phải bỏ hẳn các syscall đó.
+
+Với IDS dựa trên đồ thị provenance, \citet{goyal2023} né được 100\% trên 5 hệ thống mà không đổi hành vi tấn công. Đây là cơ sở của luật tripwire trong Pulse: luật này báo khi một syscall vắng mặt trong hồ sơ xuất hiện.
+
+\section{Thu hẹp bề mặt tấn công}
+
+Confine (\citealp{ghavamnia2020a}) phân tích tĩnh image Docker để sinh hồ sơ seccomp. Với 150 image công khai, nó tắt được ít nhất 145/326 syscall ở hơn nửa số container. Tripwire A1 của Pulse là phiên bản \emph{phát hiện} của cùng ý tưởng: thay vì chặn syscall ngoài hồ sơ, nó báo khi syscall đó xuất hiện.
+
+\section{Gánh cảnh báo và truy nguyên}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{\citet{alahmadi2022}} khảo sát người làm SOC. Phần lớn cái gọi là báo nhầm là \emph{benign trigger}: detector thấy đúng một sự kiện có thật, chỉ là sự kiện hợp lệ. Pulse thấy đúng dạng này: 57,9\% case trên normal trùng lúc có exec, phần lớn là probe exec của Kubernetes.
+\item
+  \textbf{NoDoze} (\citealp{hassan2019}) chấm độ bất thường của từng cạnh trong đồ thị phụ thuộc theo tần suất lịch sử, giảm 84\% báo nhầm trên 364 alert.
+\item
+  \textbf{Kairos} (\citealp{cheng2023}) đưa bốn tiêu chí cho IDS provenance: phạm vi, không cần biết trước tấn công, kịp thời và tái dựng tấn công. Luận văn dùng bốn tiêu chí này làm khung cho RCA.
+\item
+  \textbf{ORTHRUS} (\citealp{jiang2025}) đo chất lượng quy kết bằng công sức analyst cần để điều tra. Luận văn dùng thứ hạng của process nghi phạm như một đại lượng theo tinh thần đó.
+\end{itemize}
+
+\section{Khoảng trống Pulse nhắm tới}
+
+Không công trình nào ở mục 3.1 có đối chứng là một process vô hại mới. Hầu như không công trình nào báo độ trễ từ kernel tới cảnh báo, hay gánh cảnh báo theo giờ trên tải thật. Pulse đóng góp ở ba chỗ này: đánh giá live, đối chứng binary vô hại, và đo độ trễ cùng gánh cảnh báo với protocol đăng ký trước.

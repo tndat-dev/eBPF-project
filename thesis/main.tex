@@ -1,0 +1,83 @@
+% Luận văn Sentinel Pulse. Biên dịch: tectonic main.tex (hoặc xelatex + bibtex).
+\documentclass[a4paper,fontsize=13pt,oneside,listof=totoc,bibliography=totoc,numbers=noenddot]{scrreprt}
+
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmonofont{texgyrecursor}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,
+  ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.95]
+\usepackage[vietnamese]{babel}
+% tiếng Việt không ngắt âm tiết; tectonic không nạp mẫu ngắt từ tiếng Việt (babel sẽ dùng mẫu tiếng Anh)
+\usepackage[none]{hyphenat}
+\emergencystretch=3em
+\addto\captionsvietnamese{%
+  \renewcommand{\contentsname}{Mục lục}%
+  \renewcommand{\listfigurename}{Danh mục hình}%
+  \renewcommand{\listtablename}{Danh mục bảng}%
+  \renewcommand{\bibname}{Tài liệu tham khảo}%
+  \renewcommand{\chaptername}{Chương}%
+  \renewcommand{\figurename}{Hình}%
+  \renewcommand{\tablename}{Bảng}}
+\renewcommand*{\chapterformat}{\chaptername~\thechapter\autodot\enskip}
+
+% Lề và giãn dòng theo thông lệ luận văn: trái 3,5 cm, phải 2 cm, trên 2,5 cm, dưới 3 cm; giãn 1,5 dòng
+\usepackage[top=2.5cm,bottom=3cm,left=3.5cm,right=2cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{figures/}{../docs/figures/vi/}}
+\usepackage{longtable,booktabs,array,calc}
+\usepackage{caption}
+\captionsetup{font=small,labelfont=bf}
+\usepackage[authoryear,round]{natbib}
+\setcitestyle{aysep={,}}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+
+% các macro pandoc dùng trong bảng và danh sách
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\newcommand{\real}[1]{#1}
+
+\begin{document}
+
+\pagenumbering{alph}
+\begin{titlepage}
+  \centering
+  {\large [TÊN TRƯỜNG]\par}
+  {\large [TÊN KHOA]\par}
+  \vspace{3cm}
+  {\large [HỌ VÀ TÊN HỌC VIÊN]\par}
+  \vspace{2cm}
+  {\LARGE\bfseries Sentinel Pulse: phát hiện bất thường runtime của container Kubernetes từ tần suất syscall eBPF\par}
+  \vspace{1.5cm}
+  {\large LUẬN VĂN THẠC SĨ\par}
+  {\large Ngành: [NGÀNH]\par}
+  \vspace{1.5cm}
+  {\large Người hướng dẫn: [HỌ VÀ TÊN NGƯỜI HƯỚNG DẪN]\par}
+  \vfill
+  {\large [NƠI], [NĂM]\par}
+\end{titlepage}
+
+\pagenumbering{roman}
+\input{chapters/abstract}
+\tableofcontents
+\listoffigures
+\listoftables
+\cleardoublepage
+\pagenumbering{arabic}
+
+\input{chapters/introduction}
+\input{chapters/background}
+\input{chapters/related-work}
+\input{chapters/design}
+\input{chapters/implementation}
+\input{chapters/evaluation}
+\input{chapters/discussion}
+\input{chapters/conclusion}
+
+\bibliographystyle{vnplainnat}
+\bibliography{references}
+
+\end{document}

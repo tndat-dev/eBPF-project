@@ -1,0 +1,65 @@
+\chapter*{Tóm tắt}
+\addcontentsline{toc}{chapter}{Tóm tắt}
+
+Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes trong khoảng 2 giây, chỉ từ số đếm syscall do eBPF thu ở kernel. Trên một cụm thật, hệ thống cuối đạt recall 99,4\% và precision 99,4\%, với p95 độ trễ từ kernel tới cảnh báo là 1,97 s.
+
+\textbf{Bài toán.} Công cụ runtime dựa trên luật (Falco, Tetragon) chỉ bắt được hành vi đã biết trước. Phát hiện bất thường từ syscall thì có từ thập niên 1990, nhưng phần lớn công trình đánh giá offline trên trace đã ghi sẵn. Chúng hiếm khi đo độ trễ tới người nhận, gánh cảnh báo trên tải thật, hay khả năng tách tấn công khỏi một process vô hại mới.
+
+\textbf{Cách làm.}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Thu thập:} cứ 0,5 s, một chương trình eBPF gắn vào \texttt{sys\_\allowbreak{}enter} đếm syscall theo từng cgroup. Từ đó hệ thống dựng một vector 249 feature cho mỗi container.
+\item
+  \textbf{Chấm điểm:} mỗi workload có một model riêng, gồm một cây quyết định trên ngữ cảnh 4 cửa sổ và một nhánh support, cùng cho p-value conformal.
+\item
+  \textbf{Quyết định:} chính sách k2of2 ở mức α×5, có chiết khấu bằng chứng khi các replica khác của cùng workload cũng thấy hành vi đó trong 30 s.
+\item
+  \textbf{Luật tripwire A1} chạy song song: báo khi một syscall chưa từng thấy ở workload trong khoảng tham chiếu xuất hiện, trừ tập syscall do exec gây ra.
+\item
+  \textbf{Truy nguyên (RCA):} dựng cây bằng chứng từ sự kiện exec, fork và kết nối của Tetragon.
+\end{itemize}
+
+\textbf{Đánh giá.} Hệ thống được đánh giá trong 6 lượt live 24 giờ trên cụm 3 worker chạy ứng dụng AIMS (21 workload). Lượt cuối có một campaign 525 trial: tấn công, control idle và khởi chạy một binary vô hại. Mọi kỳ vọng và luật chọn được đăng ký trước khi đọc dữ liệu.
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.472\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.230\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.201\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.097\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Chỉ số, tập chính (6, 12, 24 hành vi/s) & Kỳ vọng & Hệ thống cuối & Chỉ ML \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Recall & ≥ 95\% & 99,4\% (313/315) & 99,4\% \\
+Precision & ≥ 95\% & 99,4\% & 99,4\% \\
+Control idle dương & ≤ 5\% & 0,6\% (2/314) & 0,6\% \\
+p95 kernel → cảnh báo đầu tiên & ≤ 3 s, ưu tiên \textless{} 2 s & 1,97 s & 2,25 s \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Gánh cảnh báo:} trên normal là 1,55 đợt/replica-giờ; tripwire thêm +0,049 {[}+0,005; +0,124{]} đợt.
+\item
+  \textbf{Tripwire:} bản live khớp bản tính lại offline trên 10,4 triệu cửa sổ, không lệch cửa sổ nào.
+\item
+  \textbf{Dataset công khai LID-DS 2021} (15 kịch bản lỗ hổng thật, tham số lấy nguyên từ live): hệ thống phát hiện 77,3\% bản ghi tấn công và báo nhầm trên 3,0\% bản ghi normal; STIDE phát hiện 100\% nhưng báo nhầm trên 60,8\%.
+\item
+  \textbf{Chi phí probe:} khoảng 250--450 ns mỗi syscall của container được theo dõi; trên ứng dụng thật, p50 của request tăng 0,5--3\% và p95 tăng 3--8\% (trung vị, CI rộng).
+\end{itemize}
+
+\textbf{Giới hạn chính.}
+
+\begin{itemize}
+\tightlist
+\item
+  Detector tần suất bắt “process mới” chứ chưa phân biệt được ác ý: binary vô hại vẫn bị gắn cờ 89,5\%.
+\item
+  Gánh cảnh báo còn gấp khoảng 15 lần ngân sách 0,1 đợt/replica-giờ.
+\item
+  Tấn công là fixture tự viết, trên một cụm và một ứng dụng.
+\item
+  Nhãn chưa được người độc lập review.
+\end{itemize}
+
+\textbf{Từ khóa:} eBPF, syscall, phát hiện bất thường, Kubernetes, conformal prediction, an ninh runtime.

@@ -59,16 +59,24 @@ def check(run_root):
             e = json.loads(line); events[e['event']] += 1
             if e['event'] == 'applied':
                 applied[e['epoch']] = e; sizes[e['hour']][node] = e['swapped']
-        cals = {ep: rebuild(rc['shared'], e['span'], intervals) for ep, e in applied.items()}
+        cals = {}                             # rebuilt lazily, at most two epochs held (rows come in time order)
+        def cal(ep):
+            if ep not in cals:
+                while len(cals) >= 2:
+                    cals.pop(min(cals))
+                cals[ep] = rebuild(rc['shared'], applied[ep]['span'], intervals)
+            return cals[ep]
         n = equal = 0; per_epoch = Counter(); size_ok = True; first_diff = None
         for ep, e in applied.items():
+            c = cal(ep)
             for w, (nt, ns) in e['swapped'].items():
-                size_ok &= (len(cals[ep].tree.get(w, ())), len(cals[ep].support.get(w, ()))) == (nt, ns)
+                size_ok &= (len(c.tree.get(w, ())), len(c.support.get(w, ()))) == (nt, ns)
+        cals.clear()
         for row in decision_rows(root):
             ep = row['calibration_epoch']; per_epoch[ep] += 1
-            if ep not in cals or row['workload_key'] not in applied[ep]['swapped']:
+            if ep not in applied or row['workload_key'] not in applied[ep]['swapped']:
                 continue                      # workload kept the earlier arrays in that refresh
-            got = cals[ep].rewrite(row)
+            got = cal(ep).rewrite(row)
             n += 1
             same = all(got[k] == row[k] for k in ('tree_p', 'support_p')) and got['joint_p'] == row['joint_p']
             equal += same

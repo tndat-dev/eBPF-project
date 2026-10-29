@@ -1,0 +1,65 @@
+\chapter{Kết luận và hướng phát triển}
+
+Số đếm syscall theo cửa sổ 0,5 s đủ để phát hiện hành vi sau xâm nhập trong container với p95 dưới 2 s trên cụm thật. Tuy vậy, chúng chưa đủ để phân biệt ác ý với một process vô hại mới.
+
+\section{Trả lời các câu hỏi nghiên cứu}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.374\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.626\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Câu hỏi & Trả lời \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+RQ1: đạt bốn kỳ vọng trên cụm thật? & Có. Hệ thống cuối đạt recall 99,4\%, precision 99,4\%, control 0,6\% và p95 1,97 s trên một campaign mới. Trên LID-DS 2021, cùng tham số, hệ thống phát hiện 77,3\% bản ghi tấn công với 3,0\% bản ghi normal bị báo nhầm; yếu ở các exploit chạy trong chính process của dịch vụ \\
+RQ2: feature nào mang tín hiệu? & Cặp exec, kênh syscall tường minh, 5 tổng hợp và cả hai nhánh p-value. Thêm syscall không giúp, và còn làm chậm \\
+RQ3: giảm được gánh cảnh báo? & Một phần. Gánh giảm từ 6,74 xuống khoảng 1,5 đợt/replica-giờ nhờ chiết khấu theo replica, nhưng vẫn gấp khoảng 15 lần ngân sách \\
+RQ4: tách được process vô hại mới? & ML thì không: 80,7--95,1\% binary vô hại bị gắn cờ. Tripwire tách được lớp tấn công buộc dùng syscall lạ, và gần như không thêm gánh \\
+RQ5: RCA chỉ ra process gây ra? & Process tấn công luôn nằm trong 3 nghi phạm đầu; top-1 chỉ 14,1\% khi có một binary vô hại chạy ngay trước \\
+RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được theo dõi, và 13--31\% một core mỗi worker cho phần chấm điểm. Trên ứng dụng thật, probe làm p50 của request tăng 0,5--3\% và p95 tăng 3--8\% ở trung vị; CI quá rộng để nói mức tăng dưới 5\% \\
+\end{longtable}
+
+\section{Đóng góp}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Một hệ thống chạy live trên Kubernetes, từ kernel tới Alertmanager và cây bằng chứng RCA, với đường chấm điểm khớp từng bit.
+\item
+  Một cách đánh giá live có đăng ký trước, đối chứng binary vô hại, đo độ trễ và gánh cảnh báo theo giờ.
+\item
+  Bằng chứng thực nghiệm rằng detector tần suất, kể cả autoencoder, phát hiện sự mới lạ chứ không phải ác ý.
+\item
+  Chiết khấu bằng chứng theo replica và tripwire A1, cả hai đều đã được xác nhận live.
+\end{enumerate}
+
+\section{Hướng phát triển}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Thông tin ngoài tần suất:} tham số syscall và cây process từ Tetragon, để tách hành vi của process mới khỏi việc nó là process mới.
+\item
+  \textbf{Exploit thật trên cụm:} port một số kịch bản của LID-DS vào một namespace thử nghiệm, gồm tấn công không sinh process mới và tấn công sinh process con từ dịch vụ.
+\item
+  \textbf{Calibration tự làm mới trong worker:} code đã có. Cần một lượt xác nhận riêng, và một cách loại cửa sổ tấn công không dựa vào lịch campaign.
+\item
+  \textbf{Calibration theo replica} cho các workload có replica lệch hệ thống, như Kafka.
+\item
+  \textbf{Thí nghiệm kẻ tấn công thích nghi:} payload chỉ dùng syscall có sẵn, tốc độ dưới 1 lần/s.
+\item
+  \textbf{RCA:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    đo độ trễ của nhật ký exec so với case theo sau;
+  \item
+    luật xếp hạng tách được hai process mới chạy gần nhau;
+  \item
+    xếp hạng có hỗ trợ của LLM trên bằng chứng thật, theo hướng của CORTEX (\citealp{wei2025}).
+  \end{itemize}
+\item
+  \textbf{Đưa một phần việc chấm điểm vào kernel} bằng số cố định (\citealp{osaki2024}), để giảm độ trễ và chi phí user space.
+\end{itemize}

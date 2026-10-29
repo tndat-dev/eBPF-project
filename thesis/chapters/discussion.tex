@@ -1,0 +1,99 @@
+\chapter{Thảo luận và giới hạn}
+
+Kết quả mạnh nhất của luận văn là độ trễ và độ tin cậy của việc đo trên cụm thật. Giới hạn lớn nhất là recall đo được chỉ là cận trên cho tấn công đi vào qua exec, và detector chưa phân biệt được ác ý với sự mới lạ.
+
+\section{Detector phát hiện sự mới lạ, không phải ác ý}\label{sec:limits-novelty}
+
+Mọi tấn công trong campaign đều là một process mới chạy qua exec, và Pulse bắt “có process mới” rất mạnh. Hai quan sát cho thấy điều này:
+
+\begin{itemize}
+\tightlist
+\item
+  binary vô hại bị gắn cờ 80,7--95,1\%;
+\item
+  57,9\% cảnh báo trên normal trùng lúc có exec.
+\end{itemize}
+
+Vì vậy recall gần 100\% có thể bị thổi phồng một phần bởi chính dấu hiệu exec. Đây là dạng tương quan giả mà \citet{arp2022} cảnh báo. Đối chứng binary vô hại đo được mức thổi phồng, nhưng không cho biết recall khi tấn công không sinh process mới.
+
+Tripwire tách được một lớp: tấn công buộc phải dùng syscall lạ. Hai kịch bản \texttt{mprotect} và \texttt{seccomp} thì chỉ còn tín hiệu tần suất. Muốn tiến xa hơn cần thông tin ngoài số đếm, ví dụ tham số syscall hay quan hệ cha--con của process (Chương 8).
+
+\section{Gánh cảnh báo}
+
+Gánh 1,50--1,55 đợt/replica-giờ còn gấp khoảng 15 lần ngân sách 0,1. Với khoảng 80 container, con số này tương đương cỡ 2.900 đợt cảnh báo mỗi ngày (ước tính 1,5 × 80 × 24).
+
+Precision 99,4\% đo trên campaign cân bằng 1:1. Ở tỉ lệ tấn công thật, precision sẽ thấp hơn rất nhiều. Vì vậy luận văn báo gánh cảnh báo như một giới hạn, không coi precision là bằng chứng dùng được trong vận hành.
+
+Phần lớn cảnh báo còn lại là benign trigger có cấu trúc, nên có thể xử lý ở tầng sau:
+
+\begin{itemize}
+\tightlist
+\item
+  probe exec của Kubernetes;
+\item
+  một replica Kafka lệch so với hai broker còn lại.
+\end{itemize}
+
+Lọc probe đã giảm 23\% gánh, nhưng phải chờ RCA nên chậm. Calibration riêng theo replica cho Kafka chưa được thử.
+
+\section{Tính thực tế của tấn công}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Giai đoạn:} fixture tự viết mô phỏng giai đoạn sau xâm nhập. Mọi thao tác cố ý thất bại hoặc chỉ ảnh hưởng chính process, kéo dài 15 s, với tốc độ 1--24 lần/s.
+\item
+  \textbf{Độ phủ ATT\&CK for Containers:} chưa có initial access qua ứng dụng, persistence, credential access, discovery, lateral movement hay impact (ví dụ đào coin).
+\item
+  \textbf{Tấn công đi qua process của dịch vụ} (SQL injection, command injection) chưa được đo trên cụm.
+\item
+  \textbf{Exploit thật:} đánh giá trên LID-DS (mục 6.12) bù một phần với 15 kịch bản lỗ hổng thật, nhưng đó là đánh giá offline trên trace ghi sẵn, không phải trên cụm.
+\end{itemize}
+
+\section{Kẻ tấn công thích nghi}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Dùng syscall có sẵn:} kẻ tấn công chỉ dùng syscall đã có trong hồ sơ normal thì tránh được tripwire, và có thể “pha loãng” tín hiệu tần suất (\citealp{wagner2002}).
+\item
+  \textbf{Chạy chậm:} ở 1 lần/s, recall còn 79,0\%.
+\item
+  \textbf{Tấn công mọi replica cùng lúc:} chiết khấu theo replica sẽ xoá bằng chứng.
+\end{itemize}
+
+Luận văn chưa làm thí nghiệm né tránh có chủ đích.
+
+\section{Calibration và giả thiết hoán đổi}
+
+P-value conformal chỉ hợp lệ khi normal lúc chạy giống normal lúc hiệu chỉnh. Trên cụm thật giả thiết này bị phá:
+
+\begin{itemize}
+\tightlist
+\item
+  calibration cũ dần theo ngày;
+\item
+  một sự cố thật (replica CloudNativePG hỏng sau failover) tạo ra cảnh báo liên tục.
+\end{itemize}
+
+Vì vậy ngân sách 5\% chỉ là ngân sách thiết kế, không phải bảo đảm.
+
+Calibration tự làm mới đã có code nhưng chưa chạy live. Khi chạy, nó sẽ loại khoảng campaign khỏi calibration như bản offline. Một hệ thống vận hành thật không biết lúc nào bị tấn công. Nếu không loại, các cửa sổ tấn công đi vào phần đuôi của calibration và có thể nới ngưỡng tới 12 giờ.
+
+\section{Phạm vi của bằng chứng}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Một cụm, một ứng dụng, một kernel:} Ubuntu 24.04, kernel 6.8, x86-64, chạy trên VM. Overhead và độ trễ có thể khác trên phần cứng hay kernel khác. Luận văn không kiểm trên kernel hoặc distro khác.
+\item
+  \textbf{Nhãn:} là nhãn kỳ vọng theo thiết kế trial. Cảnh báo trên normal được review, nhưng không có người review độc lập.
+\item
+  \textbf{Kết quả development:} một số kết quả (nhóm feature, baseline) là development và được ghi rõ như vậy. Chỉ kết quả blind được dùng để kết luận cuối.
+\item
+  \textbf{Đoạn normal ngắn:} mỗi lượt live chỉ có 24 giờ, và các chế độ tải biến động tập trung trong 90 phút đầu.
+\end{itemize}
+
+\section{Truy nguyên nguyên nhân}
+
+Cây bằng chứng cho thấy liên quan theo định danh và thời gian, không chứng minh nhân quả. Khi hai process mới chạy gần nhau, luật xếp hạng hiện tại đặt process vô hại lên trước trong phần lớn case. Khoảng 11\% tấn công không có case riêng, và nguyên nhân chính còn là giả thuyết chưa kiểm chứng.
