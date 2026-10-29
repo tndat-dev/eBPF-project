@@ -1,6 +1,6 @@
 # RCA — đồ thị điều tra sau tín hiệu Pulse: trạng thái, kết quả và nhật ký
 
-Cập nhật **29/10/2026 16:21 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
+Cập nhật **29/10/2026 21:53 (UTC+7)**. RCA chạy độc lập với [Sentinel Pulse](SENTINEL_PULSE_STATUS.md) và [thí nghiệm chọn syscall](SYSCALL_FEATURE_EXPERIMENT_STATUS.md). Nó nhận cảnh báo thử của Pulse rồi ghép sự kiện Tetragon thành đồ thị bằng chứng.
 
 
 ## Tên gọi và đường dẫn thật trên cụm
@@ -484,6 +484,14 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - `launch_run.sh` bật khóa này cho các lượt sau.
 - **Không đổi RCA đang chạy:** lượt `pulse-live-recal-confirm` (khởi chạy 16:16) dùng code của snapshot `d6dbe11`, chưa có phần này, để không làm nhiễu số liệu RCA của lượt.
 - **Lượt sau:** với mỗi attack bị gộp vì `no_exec`, so `received` của exec attack với thời điểm quyết định. `received` > thời điểm quyết định mà `at` ≤ `window_end` thì giả thuyết đúng, và cách sửa là chờ thêm trước khi xét (giống thời gian chờ 2 s của case đầu).
+
+### 5.19 Luật phá hoà khi xếp hạng: theo tên → theo thời điểm khởi chạy (29/10 21:53; protocol `rca-ranking-recency-v1`)
+
+- **Phát hiện:** ở lượt cuối, binary vô hại và binary tấn công thường **bằng điểm** (6 = `novel_binary` + `started_in_window`). Kịch bản `mprotect`/`seccomp` không sinh thao tác bảo mật nào mà policy Tetragon ghi, nên không có gì phân biệt hai binary. Khi hoà, luật cũ xếp theo **thứ tự bảng chữ cái** của đường dẫn. `/operator/sentinel-benign-exec-control` đứng trước `/operator/sentinel-runtime-attack-blind`, nên top-1 chỉ còn 14,1% (5.17). Thứ tự theo tên là tuỳ tiện, và kẻ tấn công có thể chọn tên để lách.
+- **Luật mới** (`ranking.py`, `tie_break='recency'`, có test): khi hoà, process khởi chạy gần nhất đứng trước, vì cảnh báo đến sau hành vi gây ra nó. Mặc định vẫn là luật cũ cho tới khi kiểm blind xong.
+- **Development (lượt cuối, xếp hạng lại offline):** top-1 **14,1% → 100%** (469/469), top-3 vẫn 100%. Biên nhận: `results-20261026/pulse-final-system-confirm/rca-ranking-reranked-recency.json.gz`.
+- **Kiểm blind:** trên các case của `pulse-live-recal-confirm`, đăng ký trước khi đọc case nào. Kỳ vọng top-1 ≥ 95%, top-3 không thấp hơn luật cũ. Đạt thì luật mới thành mặc định cho RCA live từ lượt sau.
+- **Giới hạn ghi từ trước:** campaign luôn chạy binary vô hại 15 s trước tấn công, nên luật mới thắng một phần là nhờ thiết kế campaign. Kết quả chứng minh luật cũ có artifact; nó không chứng minh luật mới tốt trong mọi trường hợp. Nếu tấn công khởi chạy trước một process mới vô hại thì nó sẽ bị xếp thứ 2. Muốn kết luận chung thì cần một lượt có thứ tự chạy ngẫu nhiên.
 
 ## 6. Coverage, hiệu năng, giới hạn
 

@@ -1,0 +1,12 @@
+{
+  "schema": "sentinel-pulse-rca-ranking-recency-v1",
+  "registered_at": "2026-10-29T21:53+07:00",
+  "registered_before": "any RCA case of pulse-live-recal-confirm is read or reranked",
+  "finding": "with distinct benign and attack binary paths (pulse-final-system-confirm), benign and attack binaries tie at score 6 (novel_binary + started_in_window) in most cases, and the tie was broken by binary path, alphabetically: /operator/sentinel-benign-exec-control < /operator/sentinel-runtime-attack-blind, hence top-1 14.1 % (RCA 5.17). An alphabetical tie-break is arbitrary and lets an attacker pick a name",
+  "rule": "sentinel_pulse/rca/ranking.py tie_break='recency': among equal scores, the process with the latest start_time first (an alarm follows the behaviour that raised it); then binary path and exec id",
+  "development_result": "pulse-final-system-confirm, offline rerank (evaluate_ranking --tie-break recency, privilege-drop rule, baseline frozen at attack_not_before - 120): top-1 100 % (469/469), top-3 100 %; with tie_break='name' the same code gives 14.1 %, as the stored receipt. validation-evidence/results-20261026/pulse-final-system-confirm/rca-ranking-reranked-recency.json.gz",
+  "blind_test": "pulse-live-recal-confirm (campaign of the same design, RCA run with the alphabetical rule): offline rerank of its cases with both tie-breaks once its campaign is TERMINAL; expectation: top-1 under recency >= 95 % of attack trials with a case and top-3 not lower than under the alphabetical rule",
+  "adoption": "if the blind test meets the expectation, 'recency' becomes the default of rank_suspects (live RCA from the next run)",
+  "limitation_stated_in_advance": "in the campaign the benign launch always runs 15 s before the attack, so recency favours the attack by design; the result shows that the alphabetical rule was an artefact, not that recency ranks well in general: an attack started before an unrelated new process would be ranked second. A run where the order of benign and attack launches is randomised is needed for a general claim",
+  "code": "sentinel_pulse/rca/ranking.py, sentinel_pulse/rca/evaluate_ranking.py --tie-break (tests/test_rca_ranking.py)"
+}
