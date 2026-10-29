@@ -100,7 +100,7 @@ Ba đóng góp:
 |---|---|---|---|
 | G1 | Baseline trên cùng dữ liệu | **Xong**: Isolation Forest, autoencoder, freq_profile, `tree_ae`, lặp lại trên dữ liệu mới, Holm 24 phép kiểm; Falco và tripwire đặt cạnh trên cùng trial (R6) | Baseline theo chuỗi (STIDE, CHIDS) chỉ làm được trên dữ liệu có chuỗi syscall, tức LID-DS |
 | G2 | Attack là fixture tự viết | **Chưa**: 5 hành vi theo nhịp; độ phủ ATT&CK phân tích ở mục 5 | Bắt buộc. Exploit thật trong môi trường riêng (chủ đồ án tự dựng, quyết định 22/10), hoặc ít nhất 15 kịch bản lỗ hổng thật của LID-DS |
-| G3 | Chưa có dataset công khai | **Có kết quả** (29/10, Pulse 5.32): LID-DS 2021, 15 kịch bản; hệ thống 77,3% phát hiện, 3,0% báo nhầm; STIDE 100% / 60,8%. Chạy lại độ nhạy (alias tên syscall) đang chờ | So với số đã công bố khi có cùng chỉ số |
+| G3 | Chưa có dataset công khai | **Có kết quả** (29/10, Pulse 5.32): LID-DS 2021, 15 kịch bản; hệ thống 77,3% phát hiện, 3,0% báo nhầm; STIDE 100% / 60,8%; trung bình theo kịch bản 0,77 so với STIDE đã công bố 0,59. v2 (tín hiệu tham số/giá trị trả về/n-gram, gồm chạy lại độ nhạy alias) đã đăng ký, chờ chạy; xác nhận trên CB-DS đã đăng ký (`cbds-confirmation-v1`), LID-DS 2019 đang tải | Đọc v2; xác nhận CB-DS và LID-DS 2019 |
 | G4 | Kẻ tấn công thích nghi | **Một phần**: recall theo tốc độ 1–24/s; lập luận mimicry (mục 4.4) | Một thí nghiệm né tránh thật (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
 | G5 | Process vô hại mới | **Một phần**: ML gắn cờ 80,7–95,1% binary vô hại; tripwire tách được lớp syscall hiếm (binary vô hại 0,6%) | Hội nghị top-4 cần một lời giải cho cả lớp `mprotect`/`seccomp`; RAID/ACSAC chấp nhận nếu trình bày như phát hiện đo đạc |
 | G6 | Gánh cảnh báo | **Cải thiện mạnh**: 6,74 → 1,69 đợt/replica-giờ, vẫn gấp khoảng 17 lần ngân sách 0,1 | Trình bày trung thực như giới hạn; không cần đạt ngân sách |
@@ -113,7 +113,7 @@ Ba đóng góp:
 
 **LID-DS còn cần không:** không cần cho luận văn. Cho paper thì **nên làm**: nó lấp G3 và một phần G2 cùng lúc (15 kịch bản lỗ hổng thật, syscall có tham số và giá trị trả về, mỗi vai trò là một container Docker, theo bài LID-DS 2021), và cho phép so với STIDE và CHIDS trên cùng dữ liệu. Chi phí: một bộ chuyển đổi từ trace sang cửa sổ đếm 0,5 s của Pulse, rồi fit và đánh giá offline; không cần cụm. Cần tải lại dataset (lần thử 21/10 bị máy chủ từ chối).
 
-### Đánh giá tiến độ (% hoàn thiện, cập nhật 29/10 15:25)
+### Đánh giá tiến độ (% hoàn thiện, cập nhật 29/10 22:30)
 
 Đây là ước lượng chủ quan, dựa trên khối việc còn lại; không phải đo chính xác.
 
@@ -134,10 +134,10 @@ Ba đóng góp:
 | Overhead (G7) | ~98% | Microbenchmark (5.21) và độ trễ request của AIMS có/không probe (5.30), protocol đăng ký trước | Kernel/distro khác: không làm (chủ đồ án, 29/10) |
 | Kẻ tấn công chậm (G4) | ~60% | Recall theo tốc độ 1–24/s: 93,1% ở 1/s, 99,0% ở 3/s, 100% ở 6–24/s; p95 3,4–4,3 s ở 1–6/s (Pulse 5.25); lập luận mimicry 4 cách né, có bằng chứng Wagner (mục 4.4) | Thí nghiệm kẻ tấn công thích nghi (payload chỉ dùng syscall có sẵn, tốc độ < 1/s) |
 | Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng R6; bảng tổng hợp RCA và syscall |
-| **Viết luận văn** | **~55%** | Bản LaTeX `thesis/` đủ 8 chương (58 trang), trích dẫn natbib, 7 hình, kết quả G7 và LID-DS | Trang bìa (thông tin của bạn); kết quả calibration tự làm mới; đọc lại, chỉnh văn; lời cam đoan, phụ lục |
+| **Viết luận văn** | **~58%** | Bản LaTeX `thesis/` đủ 8 chương (62 trang), trích dẫn natbib, 7 hình, kết quả G7 và LID-DS, bảng ATT&CK, số liệu được kiểm tự động so với biên nhận | Trang bìa (thông tin của bạn); kết quả calibration tự làm mới; đọc lại, chỉnh văn; lời cam đoan, phụ lục |
 | **Luận văn (tổng thể, gồm viết)** | **~94%** | Thí nghiệm ~98%; hệ thống cuối đạt live (5.29); G7 (5.30) và LID-DS (5.32) xong; bản LaTeX đủ 8 chương | Kết quả calibration tự làm mới; trang bìa; đọc lại và chỉnh văn |
 | Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở|
-| Dataset công khai (G3) | ~85% | LID-DS 2021: 15 kịch bản, protocol đăng ký trước mọi fit, kết quả ML/tripwire/hệ thống/STIDE (5.32) | Chạy lại độ nhạy (alias tên syscall); so với số đã công bố |
+| Dataset công khai (G3) | ~87% | LID-DS 2021: 15 kịch bản, protocol đăng ký trước mọi fit, kết quả ML/tripwire/hệ thống/STIDE (5.32); so với STIDE đã công bố (cùng cách tính trung bình); v2 và xác nhận CB-DS đã đăng ký, có code và test | Chạy v2 (gồm alias); chạy CB-DS; protocol + bộ chuyển đổi LID-DS 2019 |
 | Review nhãn (G8) | ~75% (đóng) | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Review độc lập: không làm (chủ đồ án, 29/10), nêu là giới hạn |
 | Artifact mở (G9) | ~65% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`); kiểm toán số liệu tự động (`scripts/audit/`, docs/AUDIT.md) | Gói tái lập, dữ liệu ẩn danh |
 | Bản thảo paper | 0% | Tài liệu tham khảo | Toàn bộ |
