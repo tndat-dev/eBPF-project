@@ -1,0 +1,39 @@
+{
+  "schema": "sentinel-pulse-lidds-evaluation-v2",
+  "registered_at": "2026-10-29T21:30+07:00",
+  "registered_before": "any v2 signal is computed on any LID-DS 2021 test recording",
+  "declared_post_hoc": "designed AFTER the v1 results per scenario were read (29/10 15:15) and after the exploit code of the hard scenarios was studied (reports/Cải thiện Pulse trên LID DS.md, research_notes/). v1 kept its advantage of no tuning on LID-DS; v2 does not have it. Evidence that does not depend on this design comes only from the confirmations below",
+  "owner_decision": "29/10: implement the four-step plan of the research report; primary H1 recall >= 90 % at <= 3.0 % false-alarm recordings, target H2 recall >= 95 %",
+  "question": "Do argument, return-value and per-thread sequence signals, learnt from each workload's own normal recordings, raise Pulse's detection on LID-DS 2021 to >= 90-95 % at a false-alarm rate no higher than v1?",
+  "data": "LID-DS 2021, the 15 scenario archives of v1; windows from sentinel_pulse/lidds/convert.py WITH SYSDIG_ALIASES (amendment 1); raw syscall lines of the same archives for the new signals; the dataset's own splits",
+  "subsets": {
+    "official": "every test/normal recording + 70 % of the test/normal_and_attack recordings of each scenario",
+    "development": "the other 30 %: names sorted, numpy default_rng(20261030 + crc32(scenario)) permutation, first round(0.3 n); used only for diagnostics that need attack labels; reported apart",
+    "all": "both, for comparison with v1"
+  },
+  "arms": {
+    "ml / tripwire / system": "the v1 arms unchanged on the alias conversion = the sensitivity re-run of lidds-evaluation-v1 amendment 1",
+    "ml_support_first": "as ml, but the first 3 windows of every contiguous run (no history) are scored by the support branch alone (support p-value <= 5 x 0.05/30); same two-consecutive-window rule",
+    "tripwire_no_exec_set": "tripwire A1 without the exec set E (LID-DS has no Kubernetes exec probes for E to absorb)",
+    "step1": "ml_support_first OR tripwire_no_exec_set",
+    "path": "per window, opens (open, openat, openat2, creat) whose (mode, directory prefix of 3 levels) or (mode, normalised path) was never seen in the training recordings, read and write counted apart (4 counts); mode w = O_WRONLY|O_RDWR|O_CREAT|O_TRUNC|O_APPEND or creat",
+    "errno": "per window, failed exits as (syscall, errno): count of pairs unseen in training, and number of pairs whose count exceeds their per-window maximum over the training and validation windows",
+    "bytes": "per window, read-like and write-like exits with res > 0 in 16 log2 size buckets per direction (32 counts): number of buckets whose count exceeds their per-window maximum over the training and validation windows",
+    "ngram": "per window, per-thread 7-grams of syscall entry names (as the v1 STIDE arm) unseen in the training recordings",
+    "step2": "step1 OR path OR errno OR bytes",
+    "step3": "step2 OR ngram: the v2 system (primary arm)"
+  },
+  "fixed_values": "n = 7 (v1 STIDE), prefix 3 directory levels (ReplicaWatcher-style prefixes), 16 log2 buckets, window 0.5 s; none chosen on any LID-DS outcome",
+  "thresholds": "every new score: alarm when the window's score exceeds the maximum of that score over the scenario's validation windows (the LID-DS library's max-validation-score rule); one window suffices. ML keeps the live rule (joint p <= 5 x 0.05/30, two consecutive windows). Nothing is tuned on attack recordings",
+  "metrics": "as v1 per recording (detected = an alarm window ending after the first exploit time; false-alarm recording = any alarm in a test/normal recording; alarms before the exploit are false), plus detection within 3 s of the exploit, precision at 1:1 and at the subset's base rate; per scenario and pooled; Wilson 95 % CI; scenario-clustered bootstrap 95 % CI (10,000 draws) of step3 - system, step1 - system, step2 - step1, step3 - step2",
+  "criteria": {
+    "H1_primary": "step3 on the official subset: pooled recall >= 90 % AND false-alarm recording rate <= 3.0 % (the v1 level)",
+    "H2_target": "step3: pooled recall >= 95 % AND no scenario above 5 % false-alarm recordings",
+    "H3_no_regression": "every scenario where the alias system detects 100 % keeps >= 99 % under step3 and its false-alarm rate rises by at most 1 point",
+    "reporting": "every arm and every scenario is reported, including arms that lose, next to v1 and amendment 1; the statistical note: a Wilson lower bound >= 95 % needs about 96 % observed"
+  },
+  "confirmation": "the frozen v2 configuration, unchanged, once on data never used for this design: LID-DS 2019 (10 scenarios) and CB-DS (container breakout, El Khairi et al. 2022), each under its own protocol registered before its run; a claim that Pulse 'improved' live also needs the new signals in the eBPF probe and a live run under the live protocol (with the replica discount extended to the new signals)",
+  "not_claimed": "no live claim from this replay; the new branches are not yet in the eBPF probe",
+  "code": "sentinel_pulse/lidds/signals.py, scripts/analysis/lidds_evaluate_v2.py (tests: tests/test_lidds_signals.py, tests/test_lidds_evaluate_v2.py), sentinel_pulse/lidds/convert.py with SYSDIG_ALIASES",
+  "schedule": "after pulse-live-recal-confirm and its analysis have finished (no heavy job during a live run): alias conversion of the 15 archives, then the v2 evaluation in parallel parts merged with --merge"
+}
