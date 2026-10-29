@@ -117,8 +117,8 @@ class DockerSysdig:
 def build_archive(release: Path, output: Path, decoder=None, batch=40, workers=4, log=print):
     """CB-DS release zip -> LID-DS 2021 layout archive ``output`` + ``output``.SUMMARY.json."""
     decoder = decoder or DockerSysdig()
-    src = zipfile.ZipFile(release)
-    recs = release_recordings(src.namelist())
+    with zipfile.ZipFile(release) as src:
+        recs = release_recordings(src.namelist())
     split = normal_split([n for g, n in recs if g == 'NORMAL'])
     plan = []
     for (group, number), entry in sorted(recs.items()):
@@ -133,10 +133,11 @@ def build_archive(release: Path, output: Path, decoder=None, batch=40, workers=4
         try:
             (work / 'in').mkdir()
             files = []
-            for i, (entry, *_rest) in enumerate(chunk):
-                f = f'{i}.scap'
-                (work / 'in' / f).write_bytes(src.read(entry))
-                files.append(f)
+            with zipfile.ZipFile(release) as own:              # a ZipFile shared by threads mixes up its reads
+                for i, (entry, *_) in enumerate(chunk):
+                    f = f'{i}.scap'
+                    (work / 'in' / f).write_bytes(own.read(entry))
+                    files.append(f)
             text = decoder(work, files)
             return [(item, main_container(text[f])) for item, f in zip(chunk, files)]
         finally:
@@ -180,5 +181,5 @@ if __name__ == '__main__':
     ap.add_argument('--batch', type=int, default=40)
     ap.add_argument('--workers', type=int, default=4)
     a = ap.parse_args()
-    s = build_archive(a.release, a.output, DockerSysdig(a.image), a.batch, a.workers)
+    s = build_archive(a.release, a.output, DockerSysdig(a.image), a.batch, a.workers, log=lambda m: print(m, flush=True))
     print(json.dumps({k: v for k, v in s.items() if k != 'recordings'}, indent=1))
