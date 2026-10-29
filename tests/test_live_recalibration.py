@@ -108,6 +108,17 @@ def test_schedule_publishes_then_refreshes_once_per_period(tmp_path):
     assert r.ready.qsize() == 1 and r.apply() == 1
 
 
+def test_a_refresh_that_swaps_nothing_keeps_the_epoch(tmp_path):
+    models = {W_A: fake_model()}
+    r = lr.LiveRecalibration(models, tmp_path / 'b', tmp_path / 's', 'n1', minimum_examples=10, log=tmp_path / 'log.jsonl')
+    before = models[W_A].base.calibration_scores
+    r.ready.put(r.build(114))                  # no shared hour yet: nothing to calibrate from
+    assert r.apply() == 0 and models[W_A].base.calibration_scores is before
+    r.write_logs()
+    row = json.loads((tmp_path / 'log.jsonl').read_text())
+    assert row['event'] == 'unchanged' and row['kept'] == [W_A] and len(row['missing']) == 12
+
+
 def test_missing_worker_hour_is_left_out_and_logged(tmp_path):
     write_buffers(tmp_path)
     _, rc = recalibrators(tmp_path)

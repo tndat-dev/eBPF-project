@@ -184,8 +184,10 @@ class LiveRecalibration:
                 model.base.calibration_scores = np.asarray(c[0], dtype=np.float64)
                 model.support_calibration = np.asarray(c[1], dtype=np.float64)
                 swapped[w] = [len(c[0]), len(c[1])]
-            self.epoch += 1; self.stats['refreshes_applied'] += 1
-            self._log(event='applied', epoch=self.epoch, hour=hour_name(hour), swapped=swapped, kept=kept, **info)
+            if swapped:                       # the epoch names a calibration state: it moves only when one changed
+                self.epoch += 1; self.stats['refreshes_applied'] += 1
+            self._log(event='applied' if swapped else 'unchanged', epoch=self.epoch, hour=hour_name(hour), swapped=swapped,
+                      kept=kept, **info)
 
     def _log(self, **row):
         self.logs.put(dict(row, node=self.node, at=self.clock()))
