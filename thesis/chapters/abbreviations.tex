@@ -1,0 +1,36 @@
+\chapter*{Danh mục từ viết tắt và thuật ngữ}
+\addcontentsline{toc}{chapter}{Danh mục từ viết tắt và thuật ngữ}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.76\linewidth-2\tabcolsep\relax}@{}}
+\toprule\noalign{}
+Từ & Nghĩa trong luận văn \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+ACI & Adaptive Conformal Inference: điều chỉnh mức α trực tuyến theo lỗi quan sát \citep{gibbs2021} \\
+AIMS & An Internet Media Store, ứng dụng microservice chạy trên cụm thử nghiệm (21 workload) \\
+benign trigger & cảnh báo đúng về một sự kiện có thật nhưng hợp lệ trong môi trường \citep{alahmadi2022} \\
+binary vô hại & đối chứng: một binary chỉ gọi \texttt{getpid}, chạy qua cùng đường \texttt{kubectl exec} với tấn công \\
+calibration & tập điểm normal dùng để tính p-value conformal; làm mới calibration là thay tập này, giữ nguyên model \\
+cgroup & nhóm tài nguyên của kernel; mỗi container có một cgroup riêng \\
+CI & khoảng tin cậy (95\% nếu không ghi khác) \\
+control idle & đối chứng: 15 s không làm gì trên container của trial \\
+CUSUM & luật dừng tích lũy bằng chứng, khởi động lại khi tổng chạm 0 \citep{page1954} \\
+đợt cảnh báo & các cửa sổ báo của cùng container cách nhau dưới 15 s, gộp thành một \\
+eBPF & cơ chế nạp chương trình nhỏ, đã kiểm, vào kernel Linux \\
+gánh cảnh báo & số đợt cảnh báo trên mỗi replica-giờ của dữ liệu normal \\
+joint p & p-value gộp hai nhánh: $\min(1, 2\min(p_{tree}, p_{support}))$ \\
+k2of2 & chính sách báo khi 2 cửa sổ liên tiếp cùng đạt ngưỡng \\
+LID-DS & Leipzig Intrusion Detection Data Set, dataset syscall công khai có exploit thật \citep{grimmer2022} \\
+ML & học máy; ở đây là model theo workload của Pulse \\
+p50, p95 & phân vị 50\% và 95\% (của độ trễ) \\
+preview & cờ cảnh báo của Pulse trong decision; chưa phải cảnh báo tới người nhận \\
+RCA & truy nguyên nguyên nhân: cây bằng chứng process quanh một cảnh báo \\
+replica & một Pod trong nhiều Pod giống nhau của cùng controller \\
+replica-giờ & một giờ dữ liệu đã chấm của một container \\
+STIDE & phát hiện bằng tập chuỗi syscall ngắn đã thấy \citep{forrest1996} \\
+syscall & lời gọi hệ thống; Pulse đếm ở lúc vào syscall \\
+tripwire A1 & luật báo khi có ID syscall ngoài tham chiếu của workload và ngoài tập exec E \\
+workload & cặp (controller, tên container), ví dụ \texttt{production/\allowbreak{}aims-\allowbreak{}redis:aims-\allowbreak{}redis} \\
+\end{longtable}

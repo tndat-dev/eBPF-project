@@ -3,7 +3,7 @@
 
     ~/.venvs/sentinel-figures/bin/python scripts/figures/thesis_figures.py [--lang vi|en] [--output docs/figures]
 
-Figures (PNG at 200 dpi + PDF):
+Figures (PNG at 200 dpi):
   live-runs-metrics   precision / recall / idle control / benign launch flagged, five live runs, Wilson 95 % CI
                       (the two confirmation runs on their registered subset, attack rates 6, 12, 24 per second)
   live-runs-metrics-2x2  the same four panels as 2 x 2 for a portrait page (thesis)
@@ -137,9 +137,8 @@ def run_counts(path, rates=None):
 
 
 def save(fig, out: Path, name):
-    for ext in ('png', 'pdf'):          # no creation date: an unchanged figure redraws byte-identical
-        fig.savefig(out/f'{name}.{ext}', dpi=200, bbox_inches='tight',
-                    metadata={'CreationDate': None} if ext == 'pdf' else {'Software': None})
+    # PNG only (owner 29/10: no PDF figures); no software tag, so an unchanged figure redraws byte-identical
+    fig.savefig(out/f'{name}.png', dpi=200, bbox_inches='tight', metadata={'Software': None})
     plt.close(fig)
 
 

@@ -117,7 +117,7 @@ CUSUM \texttt{cap} không đạt ở lượt xác nhận của nó: control 5,8\
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=0.85\linewidth]{live-runs-metrics-2x2.pdf}
+  \includegraphics[width=0.85\linewidth]{live-runs-metrics-2x2.png}
   \caption{Precision, recall, control idle dương và binary vô hại bị gắn cờ qua 6 lượt live (phần ML, tập chính), khoảng tin cậy Wilson 95\%. Nhãn kỳ vọng.}
   \label{fig:live-runs-metrics}
 \end{figure}
@@ -182,7 +182,7 @@ Chênh lệch nhỏ của ML đúng chiều hỏng đã thiết kế: cửa sổ
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{live-latency-cdf.pdf}
+  \includegraphics[width=\linewidth]{live-latency-cdf.png}
   \caption{Phân bố độ trễ kernel → preview của các attack được phát hiện, bốn lượt live gần nhất (phần ML, tập chính).}
   \label{fig:live-latency-cdf}
 \end{figure}
@@ -234,7 +234,7 @@ Hai kịch bản dùng syscall phổ biến (\texttt{mprotect}, \texttt{seccomp}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{feature-groups.pdf}
+  \includegraphics[width=\linewidth]{feature-groups.png}
   \caption{Thay đổi so với base29 khi bỏ một nhóm feature hoặc một nhánh p-value: hiệu recall, hiệu tách binary vô hại (CI bootstrap 95\% theo workload) và hiệu p95. Holdout chính, k2of2, ngân sách 1 (development).}
   \label{fig:feature-groups}
 \end{figure}
@@ -302,7 +302,7 @@ Hệ quả là đóng góp của Pulse không nằm ở bản thân bộ chấm,
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{baselines-budget.pdf}
+  \includegraphics[width=\linewidth]{baselines-budget.png}
   \caption{Recall và tỉ lệ binary vô hại bị gắn cờ theo gánh cảnh báo, Pulse so với ba baseline; mỗi điểm là một hệ số α (development).}
   \label{fig:baselines-budget}
 \end{figure}
@@ -323,7 +323,7 @@ Preview trong decision chưa phải là lúc người vận hành biết. Ở l�
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{alert-delivery-cdf.pdf}
+  \includegraphics[width=\linewidth]{alert-delivery-cdf.png}
   \caption{Độ trễ kernel → người nhận theo từng đường cảnh báo trên lượt \texttt{pulse-\allowbreak{}stable-\allowbreak{}confirm}: push vào Alertmanager, Prometheus pull nhanh và mặc định.}
   \label{fig:alert-delivery-cdf}
 \end{figure}
@@ -367,7 +367,7 @@ Calibration tự làm mới trong worker đã có code và test, nhưng chưa ch
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{burden-levers.pdf}
+  \includegraphics[width=\linewidth]{burden-levers.png}
   \caption{Gánh cảnh báo trên normal (đợt/replica-giờ) của các cấu hình giảm gánh trên hai lượt development và test blind, kèm ngân sách 0,1.}
   \label{fig:burden-levers}
 \end{figure}

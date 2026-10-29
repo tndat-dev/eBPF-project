@@ -7,7 +7,7 @@ python3 -m venv ~/.venvs/sentinel-figures && ~/.venvs/sentinel-figures/bin/pip i
 ~/.venvs/sentinel-figures/bin/python scripts/figures/thesis_figures.py --lang vi   # hoặc --lang en
 ```
 
-Mỗi hình có bản PNG (200 dpi) và PDF trong `vi/` (tiếng Việt) và `en/` (tiếng Anh).
+Mỗi hình là một file PNG (200 dpi) trong `vi/` (tiếng Việt) và `en/` (tiếng Anh); không xuất PDF (chủ đồ án, 29/10).
 
 | Hình | Nội dung | Nguồn | Lưu ý khi viết chú thích |
 |---|---|---|---|
