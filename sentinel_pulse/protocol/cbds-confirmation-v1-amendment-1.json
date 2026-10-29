@@ -1,0 +1,9 @@
+{
+  "schema": "sentinel-pulse-cbds-confirmation-v1-amendment-1",
+  "amends": "sentinel_pulse/protocol/cbds-confirmation-v1.json",
+  "registered_at": "2026-10-29T22:33+07:00",
+  "registered_before": "any Pulse arm is run on any CB-DS recording",
+  "kind": "factual correction of counts; no rule, split procedure, arm, threshold or criterion changes",
+  "correction": "the release holds 1,700 NORMAL and 9 x 99 = 891 attack .scap files (2,591; the paper's counts), not 1,701 and 9 x 100: the registration counted each folder's directory entry as a file. With the registered split rule (numpy default_rng(20261031) permutation, first 210 training, next 60 validation, the rest test) the test/normal set has 1,430 recordings, not 1,431",
+  "observed_while_building": "the archive build (sentinel_pulse/lidds/cbds.py, 29/10 22:22-22:32) decoded every recording: no empty recording; events outside the main container in 9 attack recordings (M-MKNOD 2, M-NET 6, M_SOCKET 1), at most 0.14 % of an attack type's events (M_SOCKET); none in NORMAL. These shares are reported as the protocol requires; no detection outcome was computed"
+}

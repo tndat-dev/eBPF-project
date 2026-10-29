@@ -1,8 +1,8 @@
 """CB-DS (container breakout dataset, El Khairi et al., CCSW 2022) as one LID-DS 2021 scenario archive
 (protocol cbds-confirmation-v1), so convert.py and scripts/analysis/lidds_evaluate_v2.py run on it unchanged.
 
-The release (``CB-DS/NORMAL/*.scap``: 1,701 recordings of an E-shop Apache container; ``CB-DS/<attack>/*.scap``:
-9 breakout scenarios x 100) has no split and no exploit time. The archive ``CB-DS.zip`` holds:
+The release (``CB-DS/NORMAL/*.scap``: 1,700 recordings of an E-shop Apache container; ``CB-DS/<attack>/*.scap``:
+9 breakout scenarios x 99) has no split and no exploit time. The archive ``CB-DS.zip`` holds:
 
 - ``CB-DS/training``, ``CB-DS/validation``, ``CB-DS/test/normal``: the NORMAL recordings, names sorted
   numerically, numpy ``default_rng(SPLIT_SEED)`` permutation, first 210 training, next 60 validation (the usual

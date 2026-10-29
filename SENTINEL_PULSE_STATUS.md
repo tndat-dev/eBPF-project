@@ -1902,12 +1902,13 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Code:** `sentinel_pulse/lidds/signals.py`, `scripts/analysis/lidds_evaluate_v2.py` (lưu kết quả từng bản ghi, `--merge`), 7 test.
   - **Lịch:** unit `lid-ds-v2` trên `.234` (snapshot `e48b23b`; dùng lại bản chuyển đổi v1 của 3 kịch bản không gặp tên alias) chờ unit `after-recal-confirm` xong, rồi chuyển đổi lại (alias) và chấm 4 phần song song. Lượt này gộp luôn lượt chạy lại của amendment 1 (nhánh `ml`/`tripwire`/`system` trên bản alias).
 - **Xác nhận trên CB-DS (protocol `cbds-confirmation-v1`, đăng ký 29/10 22:22, trước khi giải mã bản ghi tấn công nào):**
-  - **Dữ liệu:** chủ đồ án tải `CB-DS.zip` về host (sha256 `f47a792e…`). Gồm 1.701 bản ghi normal của một container E-shop (Apache) và 9 kịch bản thoát container × 100 bản ghi. Không có Dirty Pipe như trong bài CHIDS. Không có metadata, không chia tập, không có thời điểm exploit.
+  - **Dữ liệu:** chủ đồ án tải `CB-DS.zip` về host (sha256 `f47a792e…`). Gồm 1.700 bản ghi normal của một container E-shop (Apache) và 9 kịch bản thoát container × 99 bản ghi (891). Lúc đăng ký ghi nhầm 1.701 và × 100 vì đếm cả entry thư mục; amendment 1 (22:33, trước khi chạy nhánh nào) chỉ đính chính số đếm, luật không đổi. Không có Dirty Pipe như trong bài CHIDS. Không có metadata, không chia tập, không có thời điểm exploit.
   - **Trước khi đăng ký mới chỉ xem:** mô tả CB-DS trong bài CHIDS, danh sách file, và 2 bản ghi normal (định dạng sysdig).
   - **Chuyển đổi** (`sentinel_pulse/lidds/cbds.py`, có test): `sysdig -r` 0.41.4 chạy trong container không có mạng, ra một archive bố cục LID-DS 2021 để `convert.py` và `lidds_evaluate_v2.py` chạy nguyên. Chỉ giữ event của container chính; event của container khác và của host được đếm riêng, không chấm.
-  - **Chia tập:** normal theo seed 20261031, gồm 210 train, 60 validation và 1.431 test. Nhãn theo bản ghi: bản ghi tấn công được phát hiện nếu có cửa sổ nào báo. Không đo độ trễ.
+  - **Chia tập:** normal theo seed 20261031, gồm 210 train, 60 validation và 1.430 test. Nhãn theo bản ghi: bản ghi tấn công được phát hiện nếu có cửa sổ nào báo. Không đo độ trễ.
   - **Tiêu chí cho step3** (tập `all`): C1 recall ≥ 90% với báo nhầm ≤ 3,0%; C2 ≥ 95%. Báo mọi nhánh, mọi loại tấn công, và hiệu step3 − system với CI bootstrap ghép cặp (`scripts/analysis/cbds_confirmation.py`, có test).
-  - **Lịch:** dựng archive trên host bằng Docker (không đụng cụm), chép về đĩa local của `.234`, rồi `scripts/cbds_after_live.sh` chạy sau khi phân tích lượt live xong.
+  - **Dựng archive (22:22–22:32, trên host):** 2.591 bản ghi, không bản nào rỗng, 681 MB; event ngoài container chính ở 9 bản ghi tấn công (M-MKNOD 2, M-NET 6, M_SOCKET 1), tối đa 0,14% event của một loại (M_SOCKET), normal 0. Biên nhận: `validation-evidence/results-20261029/cbds/`.
+  - **Lịch:** archive chép về đĩa local của `.234` (`/var/tmp/cb-ds/archives/`), `scripts/cbds_after_live.sh` (snapshot `8e538a4`) chạy sau khi phân tích lượt live xong.
 - **LID-DS 2019:** chủ đồ án đang tải (29/10 tối). Protocol riêng sẽ đăng ký trước khi chạy.
 
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)

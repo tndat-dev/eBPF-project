@@ -48,10 +48,10 @@ def release(tmp_path, monkeypatch):
 
 
 def test_split_is_seeded_and_sized():
-    a = cbds.normal_split(range(1, 1702))
-    assert a == cbds.normal_split(list(reversed(range(1, 1702))))
+    a = cbds.normal_split(range(1, 1701))
+    assert a == cbds.normal_split(list(reversed(range(1, 1701))))
     c = {s: sum(v == s for v in a.values()) for s in ('training', 'validation', 'test/normal')}
-    assert c == {'training': 210, 'validation': 60, 'test/normal': 1431}
+    assert c == {'training': 210, 'validation': 60, 'test/normal': 1430}
 
 
 def test_release_entries_outside_the_known_layout_are_refused():
