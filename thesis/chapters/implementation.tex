@@ -116,6 +116,26 @@ Kết quả ở lượt cuối:
   \end{itemize}
 \end{itemize}
 
+\section{Calibration tự làm mới trong worker}\label{sec:live-recal}
+
+Calibration của bundle cũ dần theo ngày (mục~\ref{sec:limits-calibration}). Worker vì vậy có thêm một chế độ làm mới theo chu kỳ, \texttt{rolling-\allowbreak{}12-\allowbreak{}1}: mỗi giờ, hai mảng calibration của từng workload được thay bằng điểm của các cửa sổ eligible trong 12 giờ trước, gộp cả ba worker. Đây đúng là chiến lược đã cho kết quả tốt nhất trên soak 48 giờ ở phân tích offline.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Không đổi file chấm điểm:} cả đường chấm thường lẫn đường chấm nhanh đọc hai mảng \texttt{calibration\_scores} và \texttt{support\_calibration} của model ở mỗi lần gọi. Vì vậy chỉ cần thay hai mảng giữa hai frame; estimator, ranh giới support, chính sách và 13 file bị ghim SHA-256 giữ nguyên.
+\item
+  \textbf{Dữ liệu đi ngoài vòng chấm điểm:} mỗi worker ghi điểm thô của mọi cửa sổ vào một bộ đệm theo giờ trên đĩa local (31 byte mỗi cửa sổ). Một thread nền chép giờ vừa xong lên NFS sau 60 s, rồi sau 300 s đọc 12 giờ của cả ba worker và dựng mảng mới. Vòng chấm điểm chỉ nhận mảng đã dựng và thay vào giữa hai frame.
+\item
+  \textbf{Ghi vết:} mỗi decision mang số \texttt{calibration\_epoch}; epoch chỉ tăng khi có ít nhất một workload được thay. Workload chưa đủ 1.200 cửa sổ giữ mảng cũ.
+\item
+  \textbf{Khoảng campaign:} trong lượt đánh giá, các khoảng của campaign được loại khỏi calibration, đúng như bản offline. Hệ thống vận hành thật không biết lúc nào bị tấn công, nên đây là một giới hạn (mục~\ref{sec:limits-calibration}).
+\item
+  \textbf{Kiểm cài đặt:} một script dựng lại từng calibration đã áp dụng chỉ bằng các thành phần offline, rồi so mọi p-value live dưới epoch đó. Trong lượt smoke 75 phút (29/10), cả ba worker áp dụng epoch 1 cho 21/21 workload; 62.887 dòng decision khớp bản dựng lại 100\%, và kích thước mảng giống nhau trên ba worker.
+\end{itemize}
+
+Lượt xác nhận 24 giờ theo protocol \texttt{live-\allowbreak{}recalibration-\allowbreak{}confirmation-\allowbreak{}v1} so nhánh live R với chính các dòng đó tính lại bằng calibration của bundle (F). Luật thắng: gánh thấp hơn ít nhất 10\%, recall không kém quá 2 điểm, control không cao quá 1 điểm và p95 không chậm quá 0,2 s.
+
 \section{Quy trình một lượt live}
 
 \begin{enumerate}
