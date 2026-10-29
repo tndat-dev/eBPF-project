@@ -136,7 +136,7 @@ Ba đóng góp:
 | Hình và bảng cho luận văn | ~78% | 7 hình vi/en từ biên nhận: 4 lượt live, độ trễ, Pareto, baseline, nhóm feature, đường cảnh báo, gánh cảnh báo các cấu hình (24/10); bảng tổng hợp lượt live; hình cây RCA | Cập nhật khi lượt `pulse-peer-discount-confirm` xong; bảng R6; bảng tổng hợp RCA và syscall |
 | **Viết luận văn** | **~10%** | 4 báo cáo chi tiết, mục lục tài liệu | Toàn bộ các chương (chỉ viết sau khi đủ bằng chứng) |
 | **Luận văn (tổng thể, gồm viết)** | **~90%** | Thí nghiệm ~98%; ML stable xác nhận live, cả 4 kỳ vọng và điều kiện gánh (Pulse 5.27); so sánh có/không rule xong (R6); syscall, RCA, baseline gần xong; biên nhận 22–25/10 trong repo; 7 hình + bảng | Viết chương; hình/bảng R6 |
-| Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở: Claude không tự dựng phần này |
+| Exploit thật (G2) | ~10% | Đánh giá độ phủ so với ATT&CK, REPLICAWATCHER, LID-DS | Để mở|
 | Dataset công khai (G3) | ~40% | LID-DS 2021 đã tải (15 kịch bản lỗ hổng thật, 87 GB); bộ chuyển đổi có test; protocol `lidds-evaluation-v1` đăng ký trước mọi fit; chuyển đổi và đánh giá đang chạy (29/10) | Đọc kết quả, so với số đã công bố của LID-DS và STIDE |
 | Review nhãn (G8) | ~75% | 4.766 cảnh báo normal: không case nào có dấu hiệu độc hại (5.20) | Người review độc lập cho một mẫu |
 | Artifact mở (G9) | ~65% | Repo, script, biên nhận có ghi nguồn từng file, test, script vẽ hình; README hướng dẫn đọc từ con số tới bằng chứng; danh mục 87 nguồn, 70 bài có PDF và SHA-256, bản tổng hợp tri thức (`references/KNOWLEDGE_SYNTHESIS.md`); kiểm toán số liệu tự động (`scripts/audit/`, docs/AUDIT.md) | Gói tái lập, dữ liệu ẩn danh |
@@ -320,7 +320,7 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 | Sai lầm | Pulse hiện tại | Còn phải làm |
 |---|---|---|
 | P1 Lệch mẫu | Normal là ứng dụng AIMS thật 24 giờ/lượt; attack là fixture tự viết | Exploit thật (G2); nêu rõ giới hạn |
-| P2 Nhãn sai | Review theo luật đăng ký trước cho 4.766 cảnh báo normal + đọc tay 33 case (5.20): không case nào có dấu hiệu độc hại; người gán là Claude, không độc lập | Một người khác review lại một mẫu |
+| P2 Nhãn sai | Review theo luật đăng ký trước cho 4.766 cảnh báo normal + đọc tay 33 case (5.20): không case nào có dấu hiệu độc hại| Một người khác review lại một mẫu |
 | P3 Rò dữ liệu kiểm tra | Đăng ký trước; lượt live mới là dữ liệu chưa xem; tách calibration và đánh giá theo thời gian | Giữ kỷ luật này |
 | P4 Tương quan giả | Phát hiện "bắt exec chứ không bắt ác ý" (binary vô hại 94%; 5.18) chính là dạng này, và đã được đo, không bị che | Tín hiệu theo tham số hoặc ngữ cảnh (R7) |
 | P5 Chọn tham số trên dữ liệu kiểm tra | Luật v2, tham số CUSUM/Cauchy, tripwire, calibration đều đóng băng trước khi có dữ liệu kiểm | — |

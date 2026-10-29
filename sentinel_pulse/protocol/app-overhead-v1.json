@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-app-overhead-v1",
-  "registered_at": "2026-10-29T10:30+07:00",
+  "registered_at": "2026-10-29T09:50+07:00",
   "registered_before": "any application-latency measurement with the Pulse probe",
   "question": "G7: how much does the Pulse probe add to the request latency of the real application (AIMS) as a user sees it, and how much node CPU does it take?",
   "probe": "the final system's loader and object (/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader sha 36db2aca..., pulse_counter_extended.bpf.o sha 099c9cbf...), attached exactly as matched_worker.py attaches them (--allow-cgroup-file /run/sentinel-pulse/allowed-cgroups --interval-ms 500, i.e. every production container monitored), on all three workers at once; frames go to /dev/null instead of the scorer",

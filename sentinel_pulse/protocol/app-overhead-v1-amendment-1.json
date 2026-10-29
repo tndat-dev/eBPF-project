@@ -1,7 +1,7 @@
 {
   "schema": "sentinel-pulse-app-overhead-v1-amendment-1",
   "amends": "sentinel_pulse/protocol/app-overhead-v1.json",
-  "registered_at": "2026-10-29T10:50+07:00",
+  "registered_at": "2026-10-29T09:51+07:00",
   "registered_before": "the measurement; after a 40 s smoke run only (1 round, 20 s blocks, /var/tmp/app-overhead-smoke on .234, deleted) that checked attach/detach and the client",
   "reason": "the latency of all requests together is bimodal (/ and /api/health/ ~8 ms, the two /api/products/ reads ~200 ms), so its p50 falls between the modes and swings with the mix of a block (smoke: -41 % in one 20 s pair); a pooled quantile is therefore not a usable primary metric",
   "change": {
