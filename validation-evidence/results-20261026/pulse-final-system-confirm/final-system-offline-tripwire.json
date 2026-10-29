@@ -1,0 +1,253 @@
+{
+ "arms": {
+  "A": {
+   "primary": {
+    "attack": 0.9936507936507937,
+    "benign": 0.8952380952380953,
+    "control": 0.006369426751592357,
+    "TP": 313,
+    "FN": 2,
+    "control_FP": 2,
+    "precision": 0.9936507936507937,
+    "p50": 0.8526856899261475,
+    "p95": 2.2509390830993645,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9352380952380952,
+    "benign": 0.8038095238095239,
+    "control": 0.003816793893129771,
+    "TP": 491,
+    "FN": 34,
+    "control_FP": 2,
+    "precision": 0.9959432048681541,
+    "p50": 0.8545366525650024,
+    "p95": 2.830077552795409,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9333333333333333,
+     "child_ptrace_handshake": 0.9333333333333333,
+     "execveat_resolution_probe": 0.9238095238095239,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.8857142857142857
+    }
+   },
+   "burden": 1.499664289050749,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 858,
+    "production/aims-waypoint:istio-proxy": 115,
+    "production/order-service:app": 57,
+    "production/security-telemetry-service:app": 47,
+    "production/aims-kafka-entity-operator:topic-operator": 45,
+    "production/aims-kafka-entity-operator:user-operator": 24,
+    "production/inventory-service:app": 19,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 19,
+    "production/aims-redis:aims-redis": 16,
+    "production/payment-service:app": 11,
+    "production/cart-service:app": 10,
+    "production/aims-minio-pool-0:minio": 9,
+    "production/aims-postgres-cnpg:postgres": 7,
+    "production/notification-service:app": 7,
+    "production/aims-frontend:web": 6,
+    "production/search-recommendation-service:app": 5,
+    "production/catalog-service:app": 5,
+    "production/auth-service:app": 5,
+    "production/api-gateway:app": 4,
+    "production/aims-minio-pool-0:sidecar": 3,
+    "production/aims-rabbitmq-server:rabbitmq": 2
+   }
+  },
+  "B2": {
+   "primary": {
+    "attack": 0.9936507936507937,
+    "benign": 0.8952380952380953,
+    "control": 0.006369426751592357,
+    "TP": 313,
+    "FN": 2,
+    "control_FP": 2,
+    "precision": 0.9936507936507937,
+    "p50": 0.6307768821716309,
+    "p95": 1.9741094589233372,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "all_rates": {
+    "attack": 0.9638095238095238,
+    "benign": 0.8038095238095239,
+    "control": 0.003816793893129771,
+    "TP": 506,
+    "FN": 19,
+    "control_FP": 2,
+    "precision": 0.9960629921259843,
+    "p50": 0.642505407333374,
+    "p95": 2.1792861938476533,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9333333333333333,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.8857142857142857
+    }
+   },
+   "burden": 1.549103771107367,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 860,
+    "production/aims-waypoint:istio-proxy": 115,
+    "production/order-service:app": 57,
+    "production/security-telemetry-service:app": 47,
+    "production/aims-kafka-entity-operator:topic-operator": 45,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 28,
+    "production/aims-rabbitmq-server:rabbitmq": 28,
+    "production/aims-kafka-entity-operator:user-operator": 24,
+    "production/inventory-service:app": 19,
+    "production/aims-redis:aims-redis": 16,
+    "production/payment-service:app": 11,
+    "production/aims-postgres-cnpg:postgres": 10,
+    "production/cart-service:app": 10,
+    "production/aims-minio-pool-0:minio": 9,
+    "production/notification-service:app": 8,
+    "production/aims-frontend:web": 6,
+    "production/search-recommendation-service:app": 6,
+    "production/catalog-service:app": 5,
+    "production/auth-service:app": 5,
+    "production/api-gateway:app": 4,
+    "production/aims-minio-pool-0:sidecar": 3
+   }
+  }
+ },
+ "standalone": {
+  "tripwire": {
+   "primary": {
+    "attack": 0.6,
+    "benign": 0.0,
+    "control": 0.0,
+    "TP": 189,
+    "FN": 126,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.5397775173187256,
+    "p95": 0.7714977264404297,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.0
+    }
+   },
+   "all_rates": {
+    "attack": 0.6,
+    "benign": 0.0,
+    "control": 0.0,
+    "TP": 315,
+    "FN": 210,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.5273348093032837,
+    "p95": 1.1733442068099975,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.0
+    }
+   },
+   "burden": 0.0623879178333514
+  }
+ },
+ "check": {
+  "ml_burden_window_table_episodes": 1.499664289050749,
+  "note": "arm A merges episodes per (pod_uid, container); burden_levers merges per window-table identity"
+ },
+ "comparison_primary": {
+  "B2": {
+   "attack_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "control_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "benign_diff": {
+    "point": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ]
+   },
+   "burden_diff": {
+    "point": 0.0494394820566181,
+    "ci95": [
+     0.00525746532307873,
+     0.12377561452060032
+    ]
+   },
+   "p95_diff_seconds": {
+    "ci95": [
+     -0.8493618381023389,
+     -0.02062577694654505
+    ]
+   }
+  }
+ },
+ "streams": {
+  "falco_normal_events": 0,
+  "falco_unmapped_pods": [],
+  "falco_pod_names_with_several_pods": [],
+  "falco_episodes_outside_window_table": 0,
+  "tripwire_normal_alert_windows": 149,
+  "tripwire_episodes_outside_window_table": 0,
+  "ml_normal_episodes": 1274,
+  "ml_normal_episodes_held_back": 0,
+  "ml_normal_episodes_with_case": 0,
+  "triage_failopen_trials": null,
+  "trials_unmatched": {
+   "falco": 0,
+   "tripwire": 0
+  },
+  "arms_used": [
+   "A",
+   "B2"
+  ]
+ },
+ "normal": {
+  "from_unix": 1792946336.9937785,
+  "replica_hours": 849.5234628854242
+ },
+ "trials": {
+  "n": 1574,
+  "attack": 525
+ },
+ "schema": "pulse-rule-comparison-v1",
+ "protocol": "sentinel_pulse/protocol/rule-integration-v1.json + amendments 1 and 2",
+ "ml_arm": {
+  "rule": "preview",
+  "config": "live previews",
+  "ml_results": null
+ },
+ "inputs": {
+  "table": "/var/tmp/burden-levers/table-pulse-final-system-confirm.npz",
+  "falco": null,
+  "tripwire": "/mnt/sentinel-pulse-archive/pulse-final-system-confirm/analysis/tripwire-a1-offline.json",
+  "cases": null
+ },
+ "computed_at_unix": 1793033636.987217
+}

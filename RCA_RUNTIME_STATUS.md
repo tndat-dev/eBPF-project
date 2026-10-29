@@ -40,9 +40,10 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
 | Subscriber | Không chạy. Lượt cuối `rca-pulse-peer-discount-confirm` (5.16) đã dừng sau lượt live 25/10; dữ liệu case trong `/var/lib/sentinel-pulse-rca/` trên `.234`, biên nhận trong repo |
 | Cấu hình đã dùng ở 2 lượt cuối | Đọc decision trên worker qua SSH, nhịp dựng case 0,25 s; 3 policy (runtime, fork, flow); ring 180 s / 120.000 sự kiện; cooldown 300 s, có case tiếp nối khi có exec mới; giữ 20.000 case; seed binary đã biết (5.12); nhãn triage probe trên mỗi case |
 | Policy Tetragon (`production`, chỉ quan sát) | `sentinel-rca-runtime-v1` (chỉ đường dẫn nhạy cảm, không `commit_creds`), `sentinel-rca-fork-v1`, `sentinel-rca-flow-v1`. Từ 25/10 DaemonSet Tetragon chạy với `shareProcessNamespace: true`: luồng `tetra getevents` xoay vòng không còn để lại zombie (đã có 3.931 zombie trên 3 worker) |
-| Kết quả cuối (5.16, lượt `pulse-peer-discount-confirm`) | Attack có case riêng 459/524 (87,6%); top-1 99,8%, top-3 100%; preview → case p95 2,59 s (case attack); 575 case normal (lượt trước 3.666) |
+| Kết quả cuối (5.17, lượt `pulse-final-system-confirm`, RCA từ Alertmanager) | Attack có case riêng 469/525 (89,3%); top-1 14,1%, top-3 100% (binary vô hại tên riêng giờ đứng hạng 1, xem 5.17); preview → case p95 2,67 s (case attack); 744 case normal |
+| Lượt trước (5.16, lượt `pulse-peer-discount-confirm`) | Attack có case riêng 459/524 (87,6%); top-1 99,8%, top-3 100%; preview → case p95 2,59 s (case attack); 575 case normal (lượt trước 3.666) |
 | Các lượt trước | `pulse-stable-confirm` 86,9% / 99,8% / 2,50 s (5.15); `pulse-stable-refreshed` 86,7% / 100% / 2,59 s (5.11) |
-| Lượt sau `pulse-final-system-confirm` (Pulse 5.28, chờ khởi chạy) | RCA dựng case từ cảnh báo Alertmanager đã giao (`alert_trigger_file`), cả cảnh báo ML lẫn tripwire; binary vô hại chạy từ đường dẫn riêng (kỳ vọng: gần như không còn attack bị gộp sau case binary vô hại); bridge thử lại push lỗi; ánh xạ IP node (5.13) |
+| Lượt `pulse-final-system-confirm` (Pulse 5.28, 5.29; RCA 5.17) | RCA dựng case từ cảnh báo Alertmanager đã giao (`alert_trigger_file`), cả cảnh báo ML lẫn tripwire; binary vô hại chạy từ đường dẫn riêng (kỳ vọng: gần như không còn attack bị gộp sau case binary vô hại); bridge thử lại push lỗi; ánh xạ IP node (5.13) |
 | Phát hiện từ review nhãn (Pulse 5.20) | Tác vụ định kỳ hiếm (WAL archive của CloudNativePG) bị xếp đầu nghi phạm như binary mới: đã xử lý bằng seed (5.12) |
 | Đường cảnh báo vận hành (5.14) | Bridge chỉ đọc, đưa preview vào Alertmanager/Prometheus/Grafana của cụm; mã đợt = mã case RCA. Đã chạy hết 2 lượt cuối; hiện dừng |
 | Bản sao bằng chứng rca-flow | `/mnt/sentinel-pulse-archive/pulse-live-recalibrated/rca-flow-copy/`: 2.001 case + `context.sqlite3` |
@@ -445,6 +446,25 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 - **Seed:** nghi phạm hạng 1 là binary mới/chưa biết ở 12,1% case normal có nghi phạm (55/456). Gần như toàn bộ là `java-21-openjdk-21.0.11…` của `aims-kafka-entity-operator` (`topic-operator`, `user-operator`), workload **một replica** nên không bao giờ được chiết khấu, và binary Java của nó không có trong seed. Tỉ lệ cao hơn lượt trước (6,8%) vì mẫu số nhỏ đi nhiều, không phải vì seed kém đi.
 - 16 trial không có case (lượt trước 6): một phần do Pulse bỏ sót nhiều hơn ở tốc độ thấp (20 FN ở 1/s, Pulse 5.27).
 
+### 5.17 Lượt `pulse-final-system-confirm`: RCA dựng từ cảnh báo Alertmanager, binary vô hại tên riêng (đọc 29/10 09:00)
+
+- Subscriber `rca-pulse-final-system-confirm`: lần đầu chạy live ở chế độ `alert_trigger_file`. Mỗi đợt cảnh báo mà Alertmanager đã giao (ML hoặc tripwire, bridge `triggers.jsonl`) là một trigger. Đọc 5.839 trigger, dựng 2.074 case. Biên nhận: `validation-evidence/results-20261026/pulse-final-system-confirm/rca-*.json`.
+
+| Chỉ số | pulse-final-system-confirm (525 trial attack) | pulse-peer-discount-confirm (5.16) |
+|---|---|---|
+| Attack có case riêng | **469/525 (89,3%)** | 459/524 (87,6%) |
+| Không có case riêng | 40 gộp sau case binary vô hại, 6 gộp sau case khác, 10 không có case | 44 + 5 + 16 |
+| Top-1 / top-3 (binary attack là nghi phạm hạng 1 / trong 3 hạng đầu) | **14,1% / 100%** | 99,8% / 100% |
+| Preview → case, p95 (case attack / mọi case) | 2,67 s / 2,71 s | 2,59 s / 2,63 s |
+| Case normal (ngoài campaign) | 744 | 575 |
+
+- **Top-1 tụt từ 99,8% xuống 14,1% là phát hiện, không phải hồi quy.**
+  - Ở 403/469 case, binary attack đứng hạng 2; hạng 1 là binary vô hại chạy 5 giây trước nó trong cùng container.
+  - Trước đây hai binary dùng chung một đường dẫn, nên xếp bản nào lên đầu cũng được tính là đúng; top-1 99,8% ở các lượt trước vì vậy bị thổi phồng.
+  - Đúng ra: luật xếp hạng không tách được hai process mới cùng xuất hiện trong khoảng nhìn lại; nó chỉ bảo đảm binary attack nằm trong 3 hạng đầu (100%).
+- **Đường dẫn riêng không giải được chuyện gộp case:** vẫn có 40 attack bị gộp sau case binary vô hại (lượt trước 44). Giả thuyết ở 5.15 ("cùng đường dẫn nên bị coi là binary không mới") vì vậy không đủ để giải thích. Lý do từ chối case tiếp nối nhiều nhất vẫn là `follow_up_refused_binary_not_new` (3.400), sau đó `too_soon` (215). Chưa quy được từng trial cho một lý do; việc này còn mở.
+- Case normal: 744; 51,9% bị luật triage probe giữ lại; 53,9% có exec trong cửa sổ, 36,3% không có exec.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |
@@ -556,4 +576,5 @@ PYTHONPATH=<snapshot>/source python3 -m sentinel_pulse.rca.evaluate_ranking --ca
 | 25/10 12:00 | Lượt `pulse-peer-discount-confirm`: coverage 87,6%, top-1 99,8%, top-3 100%; case normal 575 (lượt trước 3.666); seed 12,1% do workload một replica `kafka-entity-operator` (5.16) |
 | 25/10 16:45–17:30 | 3.931 process `timeout` zombie dưới Tetragon trên 3 worker (khoảng 300/ngày trên worker1 từ 18/10): mỗi lần luồng `tetra getevents` của RCA xoay vòng để lại một zombie, vì Tetragon là PID 1 trong namespace PID riêng. Sửa: DaemonSet `tetragon` chạy với `shareProcessNamespace: true` (pause container làm PID 1); kiểm 3 lệnh `timeout … tetra getevents` qua `kubectl exec` không còn để lại zombie. DaemonSet do Helm quản lý: `helm upgrade` sau này sẽ ghi đè | 1 |
 | 25/10 18:00–18:28 | Chuẩn bị lượt `pulse-final-system-confirm`: RCA nhận trigger từ Alertmanager (case cho cảnh báo ML và tripwire), `trigger_kind` nhận dòng tripwire, binary vô hại có đường dẫn riêng (đã thử stage/chạy/dọn trên container thật, Tetragon thấy đường dẫn mới) | 1 |
+| 29/10 09:00 | Kết quả RCA của lượt hệ thống cuối (5.17): chế độ trigger từ Alertmanager chạy live; attack có case 89,3%; top-1 14,1% vì binary vô hại tên riêng giờ được xếp trên binary attack (top-1 cũ bị thổi phồng do chung đường dẫn); đường dẫn riêng không giảm số attack bị gộp (40 so với 44) | 5.17 |
 

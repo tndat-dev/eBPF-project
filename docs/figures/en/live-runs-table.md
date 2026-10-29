@@ -5,5 +5,6 @@
 | pulse-stable-refreshed | k2of2, α×10 + refreshed calib. | 96.0% (310/323) [93.2; 97.6] | 100.0% (310/310) [98.8; 100.0] | 4.2% (13/310) [2.5; 7.0] | 94.1% (289/307) [90.9; 96.3] | 0.94 / 2.26 |
 | pulse-stable-confirm | CUSUM b3/h6 cap, 6–24/s | 94.6% (314/332) [91.6; 96.5] | 100.0% (314/314) [98.8; 100.0] | 5.8% (18/309) [3.7; 9.0] | 95.1% (293/308) [92.1; 97.0] | 0.77 / 2.53 |
 | pulse-peer-discount-confirm | k2of2 α×5 + replica 30 s, 6–24/s | 98.7% (306/310) [96.7; 99.5] | 98.7% (306/310) [96.7; 99.5] | 1.3% (4/311) [0.5; 3.3] | 86.1% (266/309) [81.8; 89.5] | 0.98 / 2.88 |
+| pulse-final-system-confirm | k2of2 α×5 + replica 30 s, ML of the final system, 6–24/s | 99.4% (308/310) [97.7; 99.8] | 99.4% (308/310) [97.7; 99.8] | 0.6% (2/311) [0.2; 2.3] | 89.7% (280/312) [85.9; 92.6] | 1.00 / 2.38 |
 
 The confirmation run counts its registered subset (6, 12, 24 per second). Wilson 95 % CI. Expected labels, not adjudicated.

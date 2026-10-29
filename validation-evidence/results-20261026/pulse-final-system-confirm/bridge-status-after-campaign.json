@@ -1,0 +1,23 @@
+{
+ "active": 0,
+ "at": 1792982040.7917104,
+ "counters": {
+  "deliveries_pull-default": 526,
+  "deliveries_pull-fast": 3390,
+  "deliveries_push": 3689,
+  "episodes_started": 3689,
+  "positive_rows": 25892,
+  "pushes_ok": 9532,
+  "rca_triggers_written": 3689,
+  "rows_candidate_alert_preview": 24586,
+  "rows_ignored": 8,
+  "rows_tripwire_alert": 1306,
+  "webhook_requests": 7606
+ },
+ "episodes_known": 264,
+ "stream_up": {
+  "k8s-worker1.local": true,
+  "k8s-worker3.local": true,
+  "k8s-worker4.local": true
+ }
+}

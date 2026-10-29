@@ -221,6 +221,8 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 
 **Quyết định (chủ đồ án, 25/10 17:30):** nhận đề xuất, hệ thống cuối = **B2 (ML + tripwire A1 song song)**. Falco chỉ cân nhắc lại nếu có exception cho rule API server (phải đăng ký như một nhánh mới); triage chỉ khi có đường triage nhanh.
 
+**Hệ thống cuối chạy live (`pulse-final-system-confirm`, Pulse 5.29):** tripwire chạy trong worker, khớp tính lại offline 100% (10,4 triệu cửa sổ, 0 khác). Hệ thống ML + tripwire trên tập chính: recall 99,4%, precision 99,4%, control 0,6%, p95 1,97 s; gánh S − A +0,049 [+0,005; +0,124] đợt/replica-giờ; tripwire riêng 0,062 đợt/replica-giờ. Cùng hướng với R6: tripwire không đổi trial nào ở tập chính, nhưng nhanh hơn và thêm recall ở tốc độ chậm (mọi tốc độ 93,5% → 96,4%).
+
 **Biên nhận:** `validation-evidence/results-20261025/rule-integration/` (`falco-baseline.json`, `tripwire-a1.json.gz`, `rule-comparison.json`; SHA-256 khớp bản gốc trên NFS `pulse-peer-discount-confirm/analysis/rule-integration/`).
 - Code: Falco và tripwire chạy trên snapshot `be481a5` (13:09–13:35). Bước ghép chạy lại trên `ae9af77` (15:57–16:02) để thêm số từng rule đứng riêng, tỉ lệ đợt có case và phép kiểm gánh ML; mọi số đã có trước đó giữ nguyên từng trường.
 
@@ -265,4 +267,4 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 | 25/10 16:06–17:02 | Dữ liệu phụ của bổ sung 2 trên `pulse-stable-confirm` (nhánh A = luật ≤ 3 s tính lại, `--ml-rule le3s`): cùng hướng với dữ liệu chính; biên nhận vào repo | R6 |
 | 25/10 17:30 | Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 (B2) | R6 |
 | 25/10 18:00–18:28 | Hệ thống cuối chạy live: tripwire A1 cài vào worker (định nghĩa giữ nguyên R3, R6), protocol `final-system-confirmation-v1` (18:19), lượt `pulse-final-system-confirm` chờ khởi chạy (Pulse 5.28) | R6 |
-
+| 29/10 09:00 | Lượt live của hệ thống cuối đạt (Pulse 5.29): tripwire live khớp offline 100%, S đạt 4 kỳ vọng với p95 1,97 s, gánh tripwire thêm +0,049 | R6 |

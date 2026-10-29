@@ -49,7 +49,12 @@ RUNS = [('pulse-live-recalibrated', EV/'results-20261019/pulse-live-recalibrated
         ('pulse-stable-refreshed', EV/'results-20261021/pulse-stable-refreshed/campaign-RESULTS.json', 'k2of2, α×10 + {refreshed}', None),
         ('pulse-stable-confirm', CONFIRM/'campaign-RESULTS.json', 'CUSUM b3/h6 cap, 6–24/s', PRIMARY_RATES),
         ('pulse-peer-discount-confirm', EV/'results-20261025/pulse-peer-discount-confirm/campaign-RESULTS.json',
-         'k2of2 α×5 + replica 30 s, 6–24/s', PRIMARY_RATES)]
+         'k2of2 α×5 + replica 30 s, 6–24/s', PRIMARY_RATES),
+        ('pulse-final-system-confirm', EV/'results-20261026/pulse-final-system-confirm/campaign-RESULTS.json.gz',
+         'k2of2 α×5 + replica 30 s, {final}, 6–24/s', PRIMARY_RATES)]
+SHORT = {'pulse-live-recalibrated': 'live-\nrecal.', 'pulse-stable-candidate': 'stable-\ncand.',
+         'pulse-stable-refreshed': 'stable-\nrefr.', 'pulse-stable-confirm': 'stable-\nconfirm',
+         'pulse-peer-discount-confirm': 'peer-\ndiscount', 'pulse-final-system-confirm': 'final\nsystem'}   # tick labels of six runs
 LATENCY_RUNS = RUNS[-4:]           # four validated colours; the first run (policy-1win-a3) is in the table and metrics
 
 TEXT = {
@@ -62,7 +67,7 @@ TEXT = {
                d_recall='Δ recall (điểm %)', d_sep='Δ tách binary vô hại (điểm %)', d_p95='Δ p95 (s)',
                recipient='Độ trễ kernel → người nhận (s, thang log)', delivered='Trial attack có cảnh báo mới (%)',
                preview_ref='kernel → preview (tham chiếu)', push='push vào Alertmanager', pull_fast='Prometheus pull nhanh',
-               pull_default='Prometheus pull mặc định', refreshed='calib. mới', blind='test blind', live_run='live, xác nhận',
+               pull_default='Prometheus pull mặc định', refreshed='calib. mới', final='ML của hệ thống cuối', blind='test blind', live_run='live, xác nhận',
                levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(tham chiếu)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(stable từ 25/10)'), strict='chỉ đợt mở từ cửa sổ trong trial',
                groups=dict(tree='chỉ nhánh tree', support='chỉ nhánh support', bins_only='chỉ bin (bỏ kênh syscall)',
                            drop_aggregates='bỏ 5 tổng hợp', drop_all_bins='bỏ mọi bin', drop_transition_bins='bỏ bin cặp',
@@ -77,7 +82,7 @@ TEXT = {
                d_recall='Δ recall (points)', d_sep='Δ benign separation (points)', d_p95='Δ p95 (s)',
                recipient='Kernel → recipient delay (s, log scale)', delivered='Attack trials with a new alert (%)',
                preview_ref='kernel → preview (reference)', push='Alertmanager push', pull_fast='Prometheus pull, fast',
-               pull_default='Prometheus pull, default', refreshed='refreshed calib.', blind='blind test', live_run='live confirmation',
+               pull_default='Prometheus pull, default', refreshed='refreshed calib.', final='ML of the final system', blind='blind test', live_run='live confirmation',
                levers=dict(k2of2='k2of2 α×10', keep='CUSUM b3/h6 keep\n(reference)', cap='CUSUM b3/h6 cap\n(stable)', lt2s='< 2 s: Mondrian + replica 60 s\n+ k2of2 α×15', le3s='≤ 3 s: replica 30 s + k2of2 α×5\n(stable since 25/10)'), strict='episodes opened inside the trial only',
                groups=dict(tree='tree branch only', support='support branch only', bins_only='bins only (no syscall channels)',
                            drop_aggregates='drop 5 aggregates', drop_all_bins='drop all bins', drop_transition_bins='drop pair bins',
@@ -155,7 +160,7 @@ def fig_live_metrics(out, t, ci=True):
             ax.annotate(f"{t['expectation']} {'≥' if target > 50 else '≤'} {target}%", (-0.45, target),
                         textcoords='offset points', xytext=(0, -11), ha='left', fontsize=8, color=INK2)
         ax.set_title(t[key]); ax.set_xticks(x)
-        ax.set_xticklabels(['-\n'.join(n.replace('pulse-', '').rsplit('-', 1)) for n, _ in data], fontsize=7.5)
+        ax.set_xticklabels([SHORT.get(n, n) for n, _ in data], fontsize=7.5)
         ax.set_xlim(-0.5, len(data) - 0.15)        # room for the value label of the last run
         lo_y = {'precision': 85, 'recall': 85, 'control': 0, 'benign': 70}[key]
         ax.set_ylim(lo_y, {'control': 16}.get(key, 101.5))
@@ -178,7 +183,7 @@ def table_live_runs(out, t):
             k, n = m[key]; lo, hi = wilson(k, n)
             cells.append(f'{fmt(100 * k / n)}% ({k}/{n}) [{fmt(100 * lo)}; {fmt(100 * hi)}]')
         p50, p95 = np.percentile(delays, 50), np.percentile(delays, 95)
-        rows.append(f"| {name} | {policy.format(refreshed=t['refreshed'])} | {' | '.join(cells)} | {num(p50, 2)} / {num(p95, 2)} |")
+        rows.append(f"| {name} | {policy.format(refreshed=t['refreshed'], final=t['final'])} | {' | '.join(cells)} | {num(p50, 2)} / {num(p95, 2)} |")
     note = {'vi': 'Lượt xác nhận chỉ tính tập chính (tốc độ 6, 12, 24/s). CI 95% Wilson. Nhãn kỳ vọng, chưa review.',
             'en': 'The confirmation run counts its registered subset (6, 12, 24 per second). Wilson 95 % CI. Expected labels, not adjudicated.'}
     (out/'live-runs-table.md').write_text('\n'.join(rows) + '\n\n' + note[lang] + '\n')
@@ -225,7 +230,7 @@ def fig_latency(out, t):
         ax.step(d, y, where='post', color=SERIES[i], ls=STYLES[i], lw=2)
         ax.plot([p95], [95], marker=MARKERS[i], color=SERIES[i], ms=7, mec=SURFACE, mew=1.5)
         ax.plot([], [], color=SERIES[i], ls=STYLES[i], marker=MARKERS[i], ms=6, lw=2,
-                label=f"{name} ({policy.format(refreshed=t['refreshed'])}): p95 {p95:.2f} s, n = {len(d)}")
+                label=f"{name} ({policy.format(refreshed=t['refreshed'], final=t['final'])}): p95 {p95:.2f} s, n = {len(d)}")
     ax.axhline(95, color=GRID, lw=1)
     ax.legend(loc='upper center', bbox_to_anchor=(0.45, -0.17), fontsize=8.5, handlelength=3)
     for x, label in ((2, t['preferred']), (3, t['acceptable'])):

@@ -192,6 +192,25 @@ def claims():
     cc = receipt(f'{CONFIRM}/rca-coverage.json'); ck = receipt(f'{CONFIRM}/rca-ranking-reranked.json')['ranking']
     add('rca-confirm', rca, f"`pulse-stable-confirm` {pct(cc['attack_cases'] / cc['trials'])} / {pct(ck['top1'])} / "
         f"{num(cc['preview_to_case_seconds']['p95'], 2)} s (5.15)", [], f'{CONFIRM}/rca-coverage.json, rca-ranking-reranked.json')
+    FS = 'results-20261026/pulse-final-system-confirm'
+    fs = receipt(f'{FS}/final-system.json')
+    S, A2 = fs['arms']['B2']['primary'], fs['arms']['A']['primary']
+    n_ctl = round(S['control_FP'] / S['control'])
+    add('final-system-summary', pulse, f"tập chính recall {pct(S['attack'])} ({S['TP']}/{S['TP'] + S['FN']}), precision {pct(S['precision'])}, "
+        f"control {pct(S['control'])} ({S['control_FP']}/{n_ctl}), **p95 {num(S['p95'], 2)} s**", [], f'{FS}/final-system.json')
+    d = fs['comparison_primary']['B2']['burden_diff']
+    add('final-system-burden', pulse, f"S − A = +{num(d['point'], 3)} [+{num(d['ci95'][0], 3)}; +{num(d['ci95'][1], 3)}]", [], f'{FS}/final-system.json')
+    ag = receipt(f'{FS}/live-tripwire.json.gz')['agreement']
+    add('final-system-agreement', pulse, f"{thousands(ag['judged_windows'])} cửa sổ đã xét, {thousands(ag['live_alert_windows'])} cửa sổ cảnh báo "
+        f"ở cả hai, **{ag['live_only'] + ag['offline_only']} cửa sổ khác nhau**", [], f'{FS}/live-tripwire.json.gz')
+    cc = receipt(f'{FS}/confirm-campaign.json')['primary']
+    add('final-system-ml', pulse, f"recall {pct(cc['recall'])} ({cc['TP']}/{cc['TP'] + cc['FN']}), precision {pct(cc['precision'])}, "
+        f"control {pct(cc['control'])} ({cc['control_FP']}/{cc['control_FP'] + cc['control_TN']}), p95 {num(cc['p95'], 2)} s", [], f'{FS}/confirm-campaign.json')
+    rc5 = receipt(f'{FS}/rca-coverage.json'); rk5 = receipt(f'{FS}/rca-ranking-reranked.json.gz')['ranking']
+    add('rca-final-system', rca, f"| Attack có case riêng | **{rc5['attack_cases']}/{rc5['trials']} ({pct(rc5['attack_cases'] / rc5['trials'])})** |", [],
+        f'{FS}/rca-coverage.json')
+    add('rca-final-system-rank', rca, f"| Top-1 / top-3 (binary attack là nghi phạm hạng 1 / trong 3 hạng đầu) | **{pct(rk5['top1'])} / {pct(rk5['top3'], 0)}** |", [],
+        f'{FS}/rca-ranking-reranked.json.gz')
     return out
 
 

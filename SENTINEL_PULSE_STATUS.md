@@ -55,7 +55,8 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - Preview live khớp luật tính lại offline ở 99,9999% cửa sổ (14 cửa sổ chỉ live có, 0 theo chiều ngược lại).
   - Đánh đổi: attack chậm. Recall 80,8% (84/104) ở 1/s và 95,2% (99/104) ở 3/s.
   - Kernel → người nhận qua Alertmanager (push): tập chính 309/315 trial, p50 1,03 s, p95 3,17 s; mọi tốc độ 493/524, p95 3,91 s. Đường Prometheus chuẩn chậm hơn nhiều: pull nhanh p50 6,4 s; pull mặc định chỉ tới người nhận ở 130/524 trial (p50 61 s).
-- **Hệ thống cuối = ML + tripwire A1 song song** (chủ đồ án chọn 25/10 theo so sánh có/không rule, [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trên cùng lượt: không rule nào tăng recall ở tập chính; tripwire thêm 2,1 điểm recall ở mọi tốc độ (94,5% → 96,6%), p95 nhanh hơn 0,47 s, gánh chỉ +0,066 đợt/replica-giờ. Tripwire hiện chạy offline trên feature đã ghi, chưa chạy trong worker live.
+- **Hệ thống cuối = ML + tripwire A1 song song** (chủ đồ án chọn 25/10 theo so sánh có/không rule, [RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6). Trên cùng lượt: không rule nào tăng recall ở tập chính; tripwire thêm 2,1 điểm recall ở mọi tốc độ (94,5% → 96,6%), p95 nhanh hơn 0,47 s, gánh chỉ +0,066 đợt/replica-giờ.
+- **Hệ thống cuối chạy live, đạt (29/10, mục 5.29; `pulse-final-system-confirm`, campaign mới, ML đóng băng):** tập chính recall 99,4% (313/315), precision 99,4%, control 0,6% (2/314), **p95 1,97 s**; gánh tripwire thêm +0,049 [+0,005; +0,124] đợt/replica-giờ; tripwire trong worker khớp tính lại offline 100% trên 10,4 triệu cửa sổ. ML riêng lặp lại 5.27: recall 99,4%, precision 99,4%, control 0,6%, p95 2,38 s (định nghĩa coordinator).
 - **Lịch sử chọn stable (5 lượt live, bảng `docs/figures/vi/live-runs-table.md`):**
   - `pulse-live-recalibrated` (`policy-1win-a3`): precision 89,1%, recall 92,8%, control 11,2%.
   - `pulse-stable-candidate` (k2of2 α×10): precision 92,2%, recall 97,8%, control 8,4%.
@@ -70,17 +71,16 @@ Báo cáo dùng tên mô tả. Thư mục và unit có từ trước giữ tên 
   - gánh cảnh báo vẫn gấp khoảng 17 lần ngân sách; kafka worker1 lệch hệ thống so với 2 broker kia và là nguồn gánh lớn nhất;
   - attack chậm (1/s);
   - phân biệt process vô hại mới (G5);
-  - worker ghi đồng bộ lên NFS trong vòng chấm điểm (rủi ro độ trễ);
-  - calibration tự làm mới khi live chưa cài (chỉ có bằng chứng offline, 5.7d, 5.17);
-  - tripwire chưa chạy live;
+  - calibration tự làm mới khi live chưa cài (chỉ có bằng chứng offline, 5.7d, 5.17; đổi ML nên cần lượt xác nhận riêng);
+  - RCA: luật xếp hạng không tách được binary attack với binary vô hại chạy ngay trước nó (top-1 14,1%, top-3 100%, RCA 5.17);
   - attack là fixture tự viết, chưa có exploit thật hay dataset công khai.
 
 ## 2. Trạng thái cụm và job (25/10 17:45)
 
 | Thành phần | Trạng thái |
 |---|---|
-| Lượt live | **`pulse-final-system-confirm`** (hệ thống cuối, 5.28) chạy từ 25/10 22:05 (khởi chạy tự động khi tải LID-DS xong); capture tới khoảng 26/10 22:10 |
-| Job | `after-final-system` chờ campaign rồi capture kết thúc. LID-DS 2021 đã tải xong (15/15 file, 87 GB, `/var/tmp/lid-ds-2021` trên `.234`); chuyển đổi để sau lượt live |
+| Lượt live | Không có. `pulse-final-system-confirm` (hệ thống cuối) xong 26/10 khoảng 22:15, **đạt** (5.29) |
+| Job | Không có. LID-DS 2021 đã tải (15/15 file, 87 GB, `/var/tmp/lid-ds-2021` trên `.234`), chờ chuyển đổi |
 | RCA, bridge | Đã dừng sau lượt cuối; biên nhận trong repo và trên NFS |
 | Dịch vụ còn chạy | `sentinel-pulse-resolver` trên 3 worker (ánh xạ cgroup cho lượt sau), timer `tetra-orphan-reaper` |
 | Dọn tài nguyên (25/10 17:10–17:40) | Zombie về 0 trên 7 máy (Tetragon chạy với `shareProcessNamespace`); gỡ unit và config của các lượt đã xong; dọn `/var/tmp`, bản sao trùng, snapshot không dùng (chi tiết trong TODO) |
@@ -1767,7 +1767,34 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - Riêng đường dẫn binary vô hại: stage, chạy và dọn trên `order-service` thật; Tetragon ghi exec với đường dẫn mới.
 - **Lịch chạy:** launcher `pulse-final-system-confirm-launcher` trên `.234` khởi chạy `launch_run.sh all` (`FINAL=1`, code `8251f56`) ngay khi việc tải LID-DS (`lid-ds-fetch`, dự kiến xong khoảng 23:00) kết thúc, để không có job nặng nào chạy cùng lượt live. Chuỗi phân tích `after-final-system` (code `4b18839`) chờ campaign rồi capture kết thúc.
 
-## 6. Tiến độ và việc còn lại (cập nhật 25/10 18:28)
+### 5.29 Lượt `pulse-final-system-confirm`: hệ thống cuối chạy live, **đạt** (đọc 29/10 09:00; `final-system-confirmation-v1`)
+
+- **Lượt:** 25/10 22:05 → 26/10 khoảng 22:15, 3 worker xong, 525 trial; phân tích tự chạy (campaign 26/10 09:34, final 27/10 00:05, nén 00:27). Biên nhận: `validation-evidence/results-20261026/pulse-final-system-confirm/`.
+- **Kỳ vọng đăng ký trước, tập chính (6, 12, 24/s), định nghĩa của `rule_comparison.py`:**
+
+  | Chỉ số | Kỳ vọng | Hệ thống S (ML + tripwire) | ML A |
+  |---|---|---|---|
+  | Recall | ≥ 95% | **99,4%** (313/315) [97,7; 99,8] | 99,4% (313/315) |
+  | Precision | ≥ 95% | **99,4%** [97,7; 99,8] | 99,4% |
+  | Control idle dương | ≤ 5% | **0,6%** (2/314) [0,2; 2,3] | 0,6% |
+  | p95 kernel → cảnh báo đầu tiên (cuối cửa sổ) | ≤ 3 s | **1,97 s** | 2,25 s |
+  | Binary vô hại bị gắn cờ | báo kèm | 89,5% (282/315) | 89,5% |
+
+  - **S đạt cả 4 kỳ vọng**, và p95 1,97 s còn dưới mức ưu tiên 2 s. Đây là lần đầu một cấu hình live vừa đạt ba kỳ vọng kia vừa có p95 dưới 2 s (protocol chỉ đăng ký ngưỡng ≤ 3 s; mức < 2 s ở đây là mô tả).
+  - **ML (A) lặp lại 5.27:** theo `confirm_campaign.py` (định nghĩa của coordinator, tới lúc ghi preview): recall 99,4% (308/310), precision 99,4%, control 0,6% (2/311), p95 2,38 s → **xác nhận** ở mức ≤ 3 s. Preview live khớp luật tính lại offline ở 99,9999% cửa sổ (13 cửa sổ chỉ live có, 0 theo chiều ngược lại).
+  - Tripwire không thêm hay bớt trial nào ở tập chính; nó làm p95 nhanh hơn 0,02–0,85 s (CI) và thêm recall ở mọi tốc độ: 93,5% → 96,4%.
+  - Theo tốc độ (ML, `confirm_campaign`): 1/s 79,0% (83/105), 3/s 90,2% (92/102), 6/s 99,0%, 12/s 99,0%, 24/s 100%.
+- **Gánh cảnh báo trên normal** (từ hết khoảng selection tới hết capture, trừ campaign; 849,5 replica-giờ): A 1,50, S 1,55 đợt/replica-giờ; S − A = +0,049 [+0,005; +0,124]. Cận trên 0,124 ≤ 0,25 → **điều kiện "tripwire thêm rất ít gánh" đạt**. Gánh ML trên toàn normal tính từ đầu khoảng selection: 1,77 [0,57; 4,01] (lượt trước 1,69). Tripwire riêng: 0,062 đợt/replica-giờ, control 0%, binary vô hại 0%, recall 60,0%, p95 0,77 s.
+- **Tripwire live so với tính lại offline:** 10.417.205 cửa sổ đã xét, 8.482 cửa sổ cảnh báo ở cả hai, **0 cửa sổ khác nhau** (khớp 100%; kỳ vọng ≥ 99,9%). Không cửa sổ tham chiếu nào của peer đến muộn. 715.574 cửa sổ trong thời gian chờ (`reference_pending`) không được xét, đúng thiết kế.
+- **Các sửa đổi mới (báo kèm, so với `pulse-peer-discount-confirm`):**
+  - độ trễ frame (preview_emitted_at − window_end): p50 / p95 gần như không đổi (worker1 0,154 / 0,191 s so với 0,143 / 0,179 s), nhưng **giá trị lớn nhất giảm mạnh**: worker3 2,43 s so với 31,7 s, worker4 0,39 s so với 18,5 s, worker1 0,67 s so với 2,29 s. Ghi nền không lần nào phải chờ;
+  - khoảng hở nhịp: 4 / 2 / 1 mỗi worker (lượt trước 8–10);
+  - bridge: 3 push lỗi, cả 3 được thử lại thành công; 5.840/5.840 đợt tới qua push (lượt trước 6 đợt mất). Kernel → người nhận qua push, mọi tốc độ: 497/525 trial, p50 0,61 s, p95 2,31 s (lượt trước 3,91 s, chỉ có ML);
+  - zombie dưới Tetragon sau lượt: 0 trên cả 3 worker;
+  - RCA: xem RCA 5.17.
+- **Giới hạn:** cùng thành phần campaign, cùng cụm, cùng ứng dụng; attack là fixture tự viết; nhãn kỳ vọng, chưa review độc lập.
+
+## 6. Tiến độ và việc còn lại (cập nhật 29/10 09:05)
 
 | Việc | Trạng thái |
 |---|---|
@@ -2186,4 +2213,5 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 17:40–17:50 | Rà soát toàn repo: tóm tắt (mục 1), trạng thái cụm (2) và tiến độ (6) viết lại theo trạng thái cuối; kiểm toán số liệu `scripts/audit/headline_numbers.py` (31/31 số chủ chốt khớp biên nhận, chạy trong bộ test) và `literature_numbers.py` (86/87 số trích từ tài liệu có trong PDF; số còn lại là của đồ án); docs/AUDIT.md | 5.27 |
 | 18:00–18:28 | Hệ thống cuối: code (tripwire trong worker, ghi NFS nền, decision local, bridge/RCA nhận tripwire, binary vô hại đường dẫn riêng), smoke 90 s đạt, đăng ký `final-system-confirmation-v1` (18:19), launcher chờ tải LID-DS xong, chuỗi phân tích chờ | 5.28 |
 | 22:05–22:58 | `pulse-final-system-confirm` khởi chạy 22:05 (launcher, sau khi tải LID-DS xong). Sau 53 phút: 3 worker chạy, 0 issue; tripwire đang dựng tham chiếu (khoảng 382.000 cửa sổ mỗi worker, 223–318 nghìn từ peer, 0 đến muộn); ghi nền chưa phải chờ lần nào, lần ghi lâu nhất 108 ms; bridge 624/624 đợt tới qua push, 0 push lỗi; RCA đọc 625 trigger từ Alertmanager, 98 case; 0 zombie dưới Tetragon sau 18 lần xoay vòng | 5.28 |
+| 29/10 09:00 | Đọc kết quả `pulse-final-system-confirm`: hệ thống cuối **đạt** cả 4 kỳ vọng (recall 99,4%, precision 99,4%, control 0,6%, p95 1,97 s), gánh S − A +0,049 [+0,005; +0,124] đạt, tripwire live khớp offline 100% trên 10,4 triệu cửa sổ; độ trễ frame lớn nhất giảm (31,7 → 2,4 s), khoảng hở nhịp 4/2/1; 0 đợt mất push | 5.29 |
 
