@@ -64,3 +64,11 @@ def test_a_scenario_archive_converts_to_split_files(tmp_path):
     rows = [json.loads(l) for l in gzip.open(tmp_path/'out'/'test-normal_and_attack.jsonl.gz', 'rt')]
     assert doc['counts']['test-normal_and_attack:recordings'] == 1 and len(rows) == doc['counts']['test-normal_and_attack:windows']
     assert rows[0]['lidds'] == dict(scenario='CVE-X', split='test/normal_and_attack', recording='rec_1', exploit=True, exploit_at=101.0)
+
+
+def test_sysdig_spellings_map_to_their_abi_numbers():
+    ids = c.syscall_ids()
+    assert (ids['pread'], ids['pwrite'], ids['sigreturn'], ids['prlimit']) == (17, 18, 15, 302)
+    assert 'pread' not in c.syscall_ids(aliases=False) and ids['pread64'] == 17
+    events, unmapped = c.entries(['1000000000 0 1 p 7 pread > fd=3', '1000000001 0 1 p 7 procexit > x'], ids)
+    assert events == [(1_000_000_000, 7, 17)] and unmapped == {'procexit': 1}

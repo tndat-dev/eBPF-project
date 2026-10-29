@@ -1,0 +1,1871 @@
+{
+ "schema": "pulse-lidds-evaluation-v1",
+ "protocol": "sentinel_pulse/protocol/lidds-evaluation-v1.json",
+ "scenarios": {
+  "Bruteforce_CWE-307": {
+   "scenario": "Bruteforce_CWE-307",
+   "fit": {
+    "train_examples": 15955,
+    "calibration_examples": 4547,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021987686895338611,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 127129440,
+    "train_seconds": 4.98827129136771,
+    "calibration_score_p99": 0.4799876844373785,
+    "support": {
+     "training_rows": 15955,
+     "calibration_rows": 4547,
+     "constant_training_coordinates": 119,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 38,
+   "stide_database_ngrams": 537,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 768,
+    "test-normal_and_attack": 139
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 139,
+     "detected": 134,
+     "detection_rate": 0.9640287769784173,
+     "detection_ci95": [
+      0.9185588702004348,
+      0.9845393868899366
+     ],
+     "normal_recordings": 768,
+     "false_alarm_recordings": 21,
+     "false_alarm_rate": 0.02734375,
+     "false_alarm_ci95": [
+      0.01795283079261608,
+      0.04143966632078128
+     ],
+     "false_alarm_episodes_per_hour": 2.212888023768057,
+     "false_alarms_before_exploit": 2,
+     "normal_hours": 9.48986111111111,
+     "latency_p50": 0.8647068738937378,
+     "latency_p95": 2.9780057549476617
+    },
+    "tripwire": {
+     "attack_recordings": 139,
+     "detected": 0,
+     "detection_rate": 0.0,
+     "detection_ci95": [
+      -1.734723475976807e-18,
+      0.026894126080917603
+     ],
+     "normal_recordings": 768,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.004977187029048447
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48986111111111,
+     "latency_p50": null,
+     "latency_p95": null
+    },
+    "system": {
+     "attack_recordings": 139,
+     "detected": 134,
+     "detection_rate": 0.9640287769784173,
+     "detection_ci95": [
+      0.9185588702004348,
+      0.9845393868899366
+     ],
+     "normal_recordings": 768,
+     "false_alarm_recordings": 21,
+     "false_alarm_rate": 0.02734375,
+     "false_alarm_ci95": [
+      0.01795283079261608,
+      0.04143966632078128
+     ],
+     "false_alarm_episodes_per_hour": 2.212888023768057,
+     "false_alarms_before_exploit": 2,
+     "normal_hours": 9.48986111111111,
+     "latency_p50": 0.8647068738937378,
+     "latency_p95": 2.9780057549476617
+    },
+    "stide": {
+     "attack_recordings": 139,
+     "detected": 139,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9731058739190823,
+      1.0
+     ],
+     "normal_recordings": 768,
+     "false_alarm_recordings": 82,
+     "false_alarm_rate": 0.10677083333333333,
+     "false_alarm_ci95": [
+      0.08685316089849235,
+      0.13060285598372803
+     ],
+     "false_alarm_episodes_per_hour": 8.746176474892795,
+     "false_alarms_before_exploit": 6,
+     "normal_hours": 9.48986111111111,
+     "latency_p50": 0.2858726978302002,
+     "latency_p95": 0.46967804431915283
+    }
+   },
+   "seconds": 84.5406847000122
+  },
+  "CVE-2012-2122": {
+   "scenario": "CVE-2012-2122",
+   "fit": {
+    "train_examples": 16081,
+    "calibration_examples": 4588,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021791239921551536,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 128133408,
+    "train_seconds": 5.569017278030515,
+    "calibration_score_p99": 0.5456717305284448,
+    "support": {
+     "training_rows": 16081,
+     "calibration_rows": 4588,
+     "constant_training_coordinates": 124,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 29,
+   "stide_database_ngrams": 1342,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 762,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 762,
+     "false_alarm_recordings": 8,
+     "false_alarm_rate": 0.010498687664041995,
+     "false_alarm_ci95": [
+      0.005329185736368517,
+      0.020579043850533003
+     ],
+     "false_alarm_episodes_per_hour": 0.8436470157451482,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48263888888889,
+     "latency_p50": 0.976747989654541,
+     "latency_p95": 82.64145792722697
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 762,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005016180891714421
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48263888888889,
+     "latency_p50": 0.2557879686355591,
+     "latency_p95": 0.4730809211730957
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 762,
+     "false_alarm_recordings": 8,
+     "false_alarm_rate": 0.010498687664041995,
+     "false_alarm_ci95": [
+      0.005329185736368517,
+      0.020579043850533003
+     ],
+     "false_alarm_episodes_per_hour": 0.8436470157451482,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48263888888889,
+     "latency_p50": 0.2557879686355591,
+     "latency_p95": 0.4730809211730957
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 762,
+     "false_alarm_recordings": 277,
+     "false_alarm_rate": 0.36351706036745407,
+     "false_alarm_ci95": [
+      0.33012713936664134,
+      0.39827622759592635
+     ],
+     "false_alarm_episodes_per_hour": 31.109483705602344,
+     "false_alarms_before_exploit": 24,
+     "normal_hours": 9.48263888888889,
+     "latency_p50": 0.2557879686355591,
+     "latency_p95": 0.4730809211730957
+    }
+   },
+   "seconds": 155.8437511920929
+  },
+  "CVE-2014-0160": {
+   "scenario": "CVE-2014-0160",
+   "fit": {
+    "train_examples": 15974,
+    "calibration_examples": 4563,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021910604732690623,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 127280832,
+    "train_seconds": 5.1521236365661025,
+    "calibration_score_p99": 0.48421268564259773,
+    "support": {
+     "training_rows": 15974,
+     "calibration_rows": 4563,
+     "constant_training_coordinates": 124,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 38,
+   "stide_database_ngrams": 414,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 758,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 7,
+     "detection_rate": 0.058333333333333334,
+     "detection_ci95": [
+      0.02854064663137293,
+      0.1155272594680315
+     ],
+     "normal_recordings": 758,
+     "false_alarm_recordings": 118,
+     "false_alarm_rate": 0.15567282321899736,
+     "false_alarm_ci95": [
+      0.13160605387207372,
+      0.183212144556576
+     ],
+     "false_alarm_episodes_per_hour": 12.908961593172119,
+     "false_alarms_before_exploit": 2,
+     "normal_hours": 9.373333333333333,
+     "latency_p50": 0.4172661304473877,
+     "latency_p95": 6.455489468574518
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 0,
+     "detection_rate": 0.0,
+     "detection_ci95": [
+      -3.469446951953614e-18,
+      0.031020271055929513
+     ],
+     "normal_recordings": 758,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      4.336808689942018e-19,
+      0.005042518024744251
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.373333333333333,
+     "latency_p50": null,
+     "latency_p95": null
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 7,
+     "detection_rate": 0.058333333333333334,
+     "detection_ci95": [
+      0.02854064663137293,
+      0.1155272594680315
+     ],
+     "normal_recordings": 758,
+     "false_alarm_recordings": 118,
+     "false_alarm_rate": 0.15567282321899736,
+     "false_alarm_ci95": [
+      0.13160605387207372,
+      0.183212144556576
+     ],
+     "false_alarm_episodes_per_hour": 12.908961593172119,
+     "false_alarms_before_exploit": 2,
+     "normal_hours": 9.373333333333333,
+     "latency_p50": 0.4172661304473877,
+     "latency_p95": 6.455489468574518
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 758,
+     "false_alarm_recordings": 23,
+     "false_alarm_rate": 0.030343007915567283,
+     "false_alarm_ci95": [
+      0.02030275042197421,
+      0.045119773105226205
+     ],
+     "false_alarm_episodes_per_hour": 2.453769559032717,
+     "false_alarms_before_exploit": 1,
+     "normal_hours": 9.373333333333333,
+     "latency_p50": 0.26472902297973633,
+     "latency_p95": 0.4860693454742432
+    }
+   },
+   "seconds": 45.88661575317383
+  },
+  "CVE-2017-12635_6": {
+   "scenario": "CVE-2017-12635_6",
+   "fit": {
+    "train_examples": 15668,
+    "calibration_examples": 4414,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00022650056625141563,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 124842624,
+    "train_seconds": 4.964552567340434,
+    "calibration_score_p99": 0.5141298561751633,
+    "support": {
+     "training_rows": 15668,
+     "calibration_rows": 4414,
+     "constant_training_coordinates": 133,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 22,
+   "stide_database_ngrams": 112280,
+   "recordings": {
+    "training": 208,
+    "validation": 58,
+    "test-normal": 753,
+    "test-normal_and_attack": 119
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 119,
+     "detected": 119,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9687272064186726,
+      1.0
+     ],
+     "normal_recordings": 753,
+     "false_alarm_recordings": 16,
+     "false_alarm_rate": 0.021248339973439574,
+     "false_alarm_ci95": [
+      0.013120633371373265,
+      0.03423617153998467
+     ],
+     "false_alarm_episodes_per_hour": 1.7192746809939556,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.30625,
+     "latency_p50": 1.6544890403747559,
+     "latency_p95": 2.655295848846435
+    },
+    "tripwire": {
+     "attack_recordings": 119,
+     "detected": 119,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9687272064186726,
+      1.0
+     ],
+     "normal_recordings": 753,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005075830926841231
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.30625,
+     "latency_p50": 1.178926944732666,
+     "latency_p95": 1.6863614320755003
+    },
+    "system": {
+     "attack_recordings": 119,
+     "detected": 119,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9687272064186726,
+      1.0
+     ],
+     "normal_recordings": 753,
+     "false_alarm_recordings": 16,
+     "false_alarm_rate": 0.021248339973439574,
+     "false_alarm_ci95": [
+      0.013120633371373265,
+      0.03423617153998467
+     ],
+     "false_alarm_episodes_per_hour": 1.7192746809939556,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.30625,
+     "latency_p50": 1.1572809219360352,
+     "latency_p95": 1.6775606155395508
+    },
+    "stide": {
+     "attack_recordings": 119,
+     "detected": 119,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9687272064186726,
+      1.0
+     ],
+     "normal_recordings": 753,
+     "false_alarm_recordings": 753,
+     "false_alarm_rate": 1.0,
+     "false_alarm_ci95": [
+      0.9949241690731588,
+      1.0
+     ],
+     "false_alarm_episodes_per_hour": 82.09536601746139,
+     "false_alarms_before_exploit": 117,
+     "normal_hours": 9.30625,
+     "latency_p50": 0.596627950668335,
+     "latency_p95": 1.1940052986145018
+    }
+   },
+   "seconds": 4034.283014535904
+  },
+  "CVE-2017-7529": {
+   "scenario": "CVE-2017-7529",
+   "fit": {
+    "train_examples": 8049,
+    "calibration_examples": 2185,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.0004574565416285453,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 64134432,
+    "train_seconds": 1.9196993121877313,
+    "calibration_score_p99": 0.5150131984008822,
+    "support": {
+     "training_rows": 8049,
+     "calibration_rows": 2185,
+     "constant_training_coordinates": 190,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 13,
+   "stide_database_ngrams": 362,
+   "recordings": {
+    "training": 200,
+    "validation": 52,
+    "test-normal": 729,
+    "test-normal_and_attack": 119
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 119,
+     "detected": 83,
+     "detection_rate": 0.6974789915966386,
+     "detection_ci95": [
+      0.6098369413698579,
+      0.7727696023417185
+     ],
+     "normal_recordings": 729,
+     "false_alarm_recordings": 12,
+     "false_alarm_rate": 0.01646090534979424,
+     "false_alarm_ci95": [
+      0.009440879220685957,
+      0.02855041385001309
+     ],
+     "false_alarm_episodes_per_hour": 2.1611886537595675,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 5.5525,
+     "latency_p50": 0.857367753982544,
+     "latency_p95": 3.8156773328781113
+    },
+    "tripwire": {
+     "attack_recordings": 119,
+     "detected": 0,
+     "detection_rate": 0.0,
+     "detection_ci95": [
+      3.469446951953614e-18,
+      0.03127279358132749
+     ],
+     "normal_recordings": 729,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      -4.336808689942018e-19,
+      0.005242060494382415
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 5.5525,
+     "latency_p50": null,
+     "latency_p95": null
+    },
+    "system": {
+     "attack_recordings": 119,
+     "detected": 83,
+     "detection_rate": 0.6974789915966386,
+     "detection_ci95": [
+      0.6098369413698579,
+      0.7727696023417185
+     ],
+     "normal_recordings": 729,
+     "false_alarm_recordings": 12,
+     "false_alarm_rate": 0.01646090534979424,
+     "false_alarm_ci95": [
+      0.009440879220685957,
+      0.02855041385001309
+     ],
+     "false_alarm_episodes_per_hour": 2.1611886537595675,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 5.5525,
+     "latency_p50": 0.857367753982544,
+     "latency_p95": 3.8156773328781113
+    },
+    "stide": {
+     "attack_recordings": 119,
+     "detected": 119,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9687272064186726,
+      1.0
+     ],
+     "normal_recordings": 729,
+     "false_alarm_recordings": 111,
+     "false_alarm_rate": 0.1522633744855967,
+     "false_alarm_ci95": [
+      0.1280101118301202,
+      0.18016234999519107
+     ],
+     "false_alarm_episodes_per_hour": 20.35119315623593,
+     "false_alarms_before_exploit": 13,
+     "normal_hours": 5.5525,
+     "latency_p50": 0.26716041564941406,
+     "latency_p95": 0.4854597806930542
+    }
+   },
+   "seconds": 56.83077669143677
+  },
+  "CVE-2018-3760": {
+   "scenario": "CVE-2018-3760",
+   "fit": {
+    "train_examples": 15859,
+    "calibration_examples": 4532,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00022060445621001543,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 126364512,
+    "train_seconds": 5.453485533595085,
+    "calibration_score_p99": 0.5286522717565804,
+    "support": {
+     "training_rows": 15859,
+     "calibration_rows": 4532,
+     "constant_training_coordinates": 119,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 37,
+   "stide_database_ngrams": 28985,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 737,
+    "test-normal_and_attack": 122
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 122,
+     "detected": 5,
+     "detection_rate": 0.040983606557377046,
+     "detection_ci95": [
+      0.017630459445038327,
+      0.09236178477308984
+     ],
+     "normal_recordings": 737,
+     "false_alarm_recordings": 19,
+     "false_alarm_rate": 0.025780189959294438,
+     "false_alarm_ci95": [
+      0.016565223509026582,
+      0.039913246382512986
+     ],
+     "false_alarm_episodes_per_hour": 2.0972588458944013,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.059444444444445,
+     "latency_p50": 0.5545194149017334,
+     "latency_p95": 1.44843111038208
+    },
+    "tripwire": {
+     "attack_recordings": 122,
+     "detected": 122,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9694727339766817,
+      0.9999999999999999
+     ],
+     "normal_recordings": 737,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.0051854539485903595
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.059444444444445,
+     "latency_p50": 0.2598158121109009,
+     "latency_p95": 0.49326769113540647
+    },
+    "system": {
+     "attack_recordings": 122,
+     "detected": 122,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9694727339766817,
+      0.9999999999999999
+     ],
+     "normal_recordings": 737,
+     "false_alarm_recordings": 19,
+     "false_alarm_rate": 0.025780189959294438,
+     "false_alarm_ci95": [
+      0.016565223509026582,
+      0.039913246382512986
+     ],
+     "false_alarm_episodes_per_hour": 2.0972588458944013,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.059444444444445,
+     "latency_p50": 0.2598158121109009,
+     "latency_p95": 0.49326769113540647
+    },
+    "stide": {
+     "attack_recordings": 122,
+     "detected": 122,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9694727339766817,
+      0.9999999999999999
+     ],
+     "normal_recordings": 737,
+     "false_alarm_recordings": 727,
+     "false_alarm_rate": 0.9864314789687924,
+     "false_alarm_ci95": [
+      0.9752047089064073,
+      0.9926135129645026
+     ],
+     "false_alarm_episodes_per_hour": 102.1033911817011,
+     "false_alarms_before_exploit": 102,
+     "normal_hours": 9.059444444444445,
+     "latency_p50": 0.2598158121109009,
+     "latency_p95": 0.49326769113540647
+    }
+   },
+   "seconds": 417.45075249671936
+  },
+  "CVE-2019-5418": {
+   "scenario": "CVE-2019-5418",
+   "fit": {
+    "train_examples": 16375,
+    "calibration_examples": 4665,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.0002143163309044149,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 130476000,
+    "train_seconds": 5.512995338998735,
+    "calibration_score_p99": 0.49886810601839776,
+    "support": {
+     "training_rows": 16375,
+     "calibration_rows": 4665,
+     "constant_training_coordinates": 122,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 40,
+   "stide_database_ngrams": 26994,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 760,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 20,
+     "detection_rate": 0.16666666666666666,
+     "detection_ci95": [
+      0.11055912012704824,
+      0.24345439391023813
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 5,
+     "false_alarm_rate": 0.006578947368421052,
+     "false_alarm_ci95": [
+      0.0028132693774153266,
+      0.015307765140736082
+     ],
+     "false_alarm_episodes_per_hour": 0.520517046933287,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.605833333333333,
+     "latency_p50": 0.7850551605224609,
+     "latency_p95": 2.5514003157615663
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 0,
+     "detection_rate": 0.0,
+     "detection_ci95": [
+      -3.469446951953614e-18,
+      0.031020271055929513
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005029314978393426
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.605833333333333,
+     "latency_p50": null,
+     "latency_p95": null
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 20,
+     "detection_rate": 0.16666666666666666,
+     "detection_ci95": [
+      0.11055912012704824,
+      0.24345439391023813
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 5,
+     "false_alarm_rate": 0.006578947368421052,
+     "false_alarm_ci95": [
+      0.0028132693774153266,
+      0.015307765140736082
+     ],
+     "false_alarm_episodes_per_hour": 0.520517046933287,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.605833333333333,
+     "latency_p50": 0.7850551605224609,
+     "latency_p95": 2.5514003157615663
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 736,
+     "false_alarm_rate": 0.968421052631579,
+     "false_alarm_ci95": [
+      0.9534416243002782,
+      0.9786888069304901
+     ],
+     "false_alarm_episodes_per_hour": 112.43168213759002,
+     "false_alarms_before_exploit": 90,
+     "normal_hours": 9.605833333333333,
+     "latency_p50": 0.24997150897979736,
+     "latency_p95": 0.4782389163970947
+    }
+   },
+   "seconds": 1364.9422492980957
+  },
+  "CVE-2020-13942": {
+   "scenario": "CVE-2020-13942",
+   "fit": {
+    "train_examples": 16351,
+    "calibration_examples": 4649,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021505376344086021,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 130284768,
+    "train_seconds": 5.066492998972535,
+    "calibration_score_p99": 0.49175077845927856,
+    "support": {
+     "training_rows": 16351,
+     "calibration_rows": 4649,
+     "constant_training_coordinates": 95,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 49,
+   "stide_database_ngrams": 55326,
+   "recordings": {
+    "training": 211,
+    "validation": 60,
+    "test-normal": 756,
+    "test-normal_and_attack": 118
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 118,
+     "detected": 116,
+     "detection_rate": 0.9830508474576272,
+     "detection_ci95": [
+      0.9403013738539171,
+      0.9953396551542378
+     ],
+     "normal_recordings": 756,
+     "false_alarm_recordings": 8,
+     "false_alarm_rate": 0.010582010582010581,
+     "false_alarm_ci95": [
+      0.005371555593143592,
+      0.02074125528743994
+     ],
+     "false_alarm_episodes_per_hour": 0.8418714099884536,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.502638888888889,
+     "latency_p50": 1.0445040464401245,
+     "latency_p95": 2.442928969860077
+    },
+    "tripwire": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 756,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005055790575298851
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.502638888888889,
+     "latency_p50": 0.37293505668640137,
+     "latency_p95": 0.5969758749008178
+    },
+    "system": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 756,
+     "false_alarm_recordings": 8,
+     "false_alarm_rate": 0.010582010582010581,
+     "false_alarm_ci95": [
+      0.005371555593143592,
+      0.02074125528743994
+     ],
+     "false_alarm_episodes_per_hour": 0.8418714099884536,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.502638888888889,
+     "latency_p50": 0.37293505668640137,
+     "latency_p95": 0.5969758749008178
+    },
+    "stide": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 756,
+     "false_alarm_recordings": 754,
+     "false_alarm_rate": 0.9973544973544973,
+     "false_alarm_ci95": [
+      0.9904057314438118,
+      0.999274222904568
+     ],
+     "false_alarm_episodes_per_hour": 90.60641050000731,
+     "false_alarms_before_exploit": 118,
+     "normal_hours": 9.502638888888889,
+     "latency_p50": 0.30977559089660645,
+     "latency_p95": 0.558106255531311
+    }
+   },
+   "seconds": 3228.9426498413086
+  },
+  "CVE-2020-23839": {
+   "scenario": "CVE-2020-23839",
+   "fit": {
+    "train_examples": 16136,
+    "calibration_examples": 4370,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00022878059940517045,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 128571648,
+    "train_seconds": 4.9299429608508945,
+    "calibration_score_p99": 0.505466806174145,
+    "support": {
+     "training_rows": 16136,
+     "calibration_rows": 4370,
+     "constant_training_coordinates": 78,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 52,
+   "stide_database_ngrams": 4092,
+   "recordings": {
+    "training": 210,
+    "validation": 57,
+    "test-normal": 760,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 62,
+     "detection_rate": 0.5166666666666667,
+     "detection_ci95": [
+      0.42813421852868033,
+      0.6041651057694554
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 19,
+     "false_alarm_rate": 0.025,
+     "false_alarm_ci95": [
+      0.016062119530635036,
+      0.03871572969883873
+     ],
+     "false_alarm_episodes_per_hour": 2.1104467112205416,
+     "false_alarms_before_exploit": 26,
+     "normal_hours": 9.476666666666667,
+     "latency_p50": 0.8168598413467407,
+     "latency_p95": 8.36996737718582
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 4,
+     "false_alarm_rate": 0.005263157894736842,
+     "false_alarm_ci95": [
+      0.00204855307511719,
+      0.01345413753508262
+     ],
+     "false_alarm_episodes_per_hour": 0.4220893422441083,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.476666666666667,
+     "latency_p50": 1.5927987098693848,
+     "latency_p95": 3.661995995044708
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 19,
+     "false_alarm_rate": 0.025,
+     "false_alarm_ci95": [
+      0.016062119530635036,
+      0.03871572969883873
+     ],
+     "false_alarm_episodes_per_hour": 2.1104467112205416,
+     "false_alarms_before_exploit": 26,
+     "normal_hours": 9.476666666666667,
+     "latency_p50": 1.1359864473342896,
+     "latency_p95": 3.4965148329734803
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 302,
+     "false_alarm_rate": 0.3973684210526316,
+     "false_alarm_ci95": [
+      0.3631769488661984,
+      0.43259222631357713
+     ],
+     "false_alarm_episodes_per_hour": 36.51072810411537,
+     "false_alarms_before_exploit": 33,
+     "normal_hours": 9.476666666666667,
+     "latency_p50": 0.26503241062164307,
+     "latency_p95": 0.47715096473693847
+    }
+   },
+   "seconds": 164.72363662719727
+  },
+  "CVE-2020-9484": {
+   "scenario": "CVE-2020-9484",
+   "fit": {
+    "train_examples": 16436,
+    "calibration_examples": 4696,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021290185224611454,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 130962048,
+    "train_seconds": 5.2449374590069056,
+    "calibration_score_p99": 0.5224715458733944,
+    "support": {
+     "training_rows": 16436,
+     "calibration_rows": 4696,
+     "constant_training_coordinates": 126,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 29,
+   "stide_database_ngrams": 22990,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 759,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 18,
+     "false_alarm_rate": 0.023715415019762844,
+     "false_alarm_ci95": [
+      0.015052779950620552,
+      0.03717510064739612
+     ],
+     "false_alarm_episodes_per_hour": 1.975736568457539,
+     "false_alarms_before_exploit": 1,
+     "normal_hours": 9.616666666666667,
+     "latency_p50": 2.782616376876831,
+     "latency_p95": 3.020310413837433
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005035907847710454
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.616666666666667,
+     "latency_p50": 2.2962933778762817,
+     "latency_p95": 2.5486892580986025
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 18,
+     "false_alarm_rate": 0.023715415019762844,
+     "false_alarm_ci95": [
+      0.015052779950620552,
+      0.03717510064739612
+     ],
+     "false_alarm_episodes_per_hour": 1.975736568457539,
+     "false_alarms_before_exploit": 1,
+     "normal_hours": 9.616666666666667,
+     "latency_p50": 2.279196262359619,
+     "latency_p95": 2.515740692615509
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 750,
+     "false_alarm_rate": 0.9881422924901185,
+     "false_alarm_ci95": [
+      0.9776187451278279,
+      0.9937493606493083
+     ],
+     "false_alarm_episodes_per_hour": 101.49046793760832,
+     "false_alarms_before_exploit": 96,
+     "normal_hours": 9.616666666666667,
+     "latency_p50": 1.5632786750793457,
+     "latency_p95": 2.444463849067688
+    }
+   },
+   "seconds": 806.9842019081116
+  },
+  "CWE-89-SQL-injection": {
+   "scenario": "CWE-89-SQL-injection",
+   "fit": {
+    "train_examples": 16156,
+    "calibration_examples": 4624,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021621621621621621,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 128731008,
+    "train_seconds": 6.063132046721876,
+    "calibration_score_p99": 0.47949550923983036,
+    "support": {
+     "training_rows": 16156,
+     "calibration_rows": 4624,
+     "constant_training_coordinates": 78,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 59,
+   "stide_database_ngrams": 2709,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 760,
+    "test-normal_and_attack": 120
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 15,
+     "false_alarm_rate": 0.019736842105263157,
+     "false_alarm_ci95": [
+      0.01199655892743024,
+      0.03230791467023713
+     ],
+     "false_alarm_episodes_per_hour": 1.5797326156276512,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.495277777777778,
+     "latency_p50": 2.404333710670471,
+     "latency_p95": 2.8464752793312074
+    },
+    "tripwire": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005029314978393426
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.495277777777778,
+     "latency_p50": 2.8525242805480957,
+     "latency_p95": 3.1641847610473635
+    },
+    "system": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 15,
+     "false_alarm_rate": 0.019736842105263157,
+     "false_alarm_ci95": [
+      0.01199655892743024,
+      0.03230791467023713
+     ],
+     "false_alarm_episodes_per_hour": 1.5797326156276512,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.495277777777778,
+     "latency_p50": 2.404333710670471,
+     "latency_p95": 2.8464752793312074
+    },
+    "stide": {
+     "attack_recordings": 120,
+     "detected": 120,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9689797289440706,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 358,
+     "false_alarm_rate": 0.4710526315789474,
+     "false_alarm_ci95": [
+      0.43579856130044814,
+      0.5065978727246168
+     ],
+     "false_alarm_episodes_per_hour": 43.07404265278062,
+     "false_alarms_before_exploit": 24,
+     "normal_hours": 9.495277777777778,
+     "latency_p50": 0.9332704544067383,
+     "latency_p95": 1.2569402575492858
+    }
+   },
+   "seconds": 371.8036720752716
+  },
+  "EPS_CWE-434": {
+   "scenario": "EPS_CWE-434",
+   "fit": {
+    "train_examples": 15895,
+    "calibration_examples": 4549,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021978021978021978,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 126651360,
+    "train_seconds": 5.007814352400601,
+    "calibration_score_p99": 0.4880676328402861,
+    "support": {
+     "training_rows": 15895,
+     "calibration_rows": 4549,
+     "constant_training_coordinates": 105,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 47,
+   "stide_database_ngrams": 1447,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 759,
+    "test-normal_and_attack": 121
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 121,
+     "detected": 121,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.969228205982621,
+      0.9999999999999999
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 16,
+     "false_alarm_rate": 0.021080368906455864,
+     "false_alarm_ci95": [
+      0.013016588423922278,
+      0.033967739646282594
+     ],
+     "false_alarm_episodes_per_hour": 1.7132149549388773,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.339166666666667,
+     "latency_p50": 1.747513771057129,
+     "latency_p95": 2.2624011039733887
+    },
+    "tripwire": {
+     "attack_recordings": 121,
+     "detected": 121,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.969228205982621,
+      0.9999999999999999
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005035907847710454
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.339166666666667,
+     "latency_p50": 1.151803970336914,
+     "latency_p95": 1.489912509918213
+    },
+    "system": {
+     "attack_recordings": 121,
+     "detected": 121,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.969228205982621,
+      0.9999999999999999
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 16,
+     "false_alarm_rate": 0.021080368906455864,
+     "false_alarm_ci95": [
+      0.013016588423922278,
+      0.033967739646282594
+     ],
+     "false_alarm_episodes_per_hour": 1.7132149549388773,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.339166666666667,
+     "latency_p50": 1.151803970336914,
+     "latency_p95": 1.489912509918213
+    },
+    "stide": {
+     "attack_recordings": 121,
+     "detected": 121,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.969228205982621,
+      0.9999999999999999
+     ],
+     "normal_recordings": 759,
+     "false_alarm_recordings": 285,
+     "false_alarm_rate": 0.37549407114624506,
+     "false_alarm_ci95": [
+      0.34175095622393625,
+      0.41049118683695596
+     ],
+     "false_alarm_episodes_per_hour": 32.22985633978763,
+     "false_alarms_before_exploit": 6,
+     "normal_hours": 9.339166666666667,
+     "latency_p50": 1.1487741470336914,
+     "latency_p95": 1.489912509918213
+    }
+   },
+   "seconds": 1127.9163043498993
+  },
+  "Juice-Shop": {
+   "scenario": "Juice-Shop",
+   "fit": {
+    "train_examples": 16065,
+    "calibration_examples": 4557,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00021939447125932427,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 128005920,
+    "train_seconds": 4.9213433759287,
+    "calibration_score_p99": 0.5147228578838593,
+    "support": {
+     "training_rows": 16065,
+     "calibration_rows": 4557,
+     "constant_training_coordinates": 129,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 30,
+   "stide_database_ngrams": 71903,
+   "recordings": {
+    "training": 210,
+    "validation": 60,
+    "test-normal": 760,
+    "test-normal_and_attack": 121
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 121,
+     "detected": 5,
+     "detection_rate": 0.04132231404958678,
+     "detection_ci95": [
+      0.01777722390103202,
+      0.0930960747430097
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 5,
+     "false_alarm_rate": 0.006578947368421052,
+     "false_alarm_ci95": [
+      0.0028132693774153266,
+      0.015307765140736082
+     ],
+     "false_alarm_episodes_per_hour": 0.528052805280528,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.46875,
+     "latency_p50": 76.89864826202393,
+     "latency_p95": 159.88764619827268
+    },
+    "tripwire": {
+     "attack_recordings": 121,
+     "detected": 75,
+     "detection_rate": 0.6198347107438017,
+     "detection_ci95": [
+      0.530914251456063,
+      0.7013801119612595
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 1,
+     "false_alarm_rate": 0.0013157894736842105,
+     "false_alarm_ci95": [
+      0.00023230094764458992,
+      0.007415357938700432
+     ],
+     "false_alarm_episodes_per_hour": 0.10561056105610561,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.46875,
+     "latency_p50": 0.2905855178833008,
+     "latency_p95": 7.386934709548919
+    },
+    "system": {
+     "attack_recordings": 121,
+     "detected": 77,
+     "detection_rate": 0.6363636363636364,
+     "detection_ci95": [
+      0.5476787056920082,
+      0.7166562595759794
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 6,
+     "false_alarm_rate": 0.007894736842105263,
+     "false_alarm_ci95": [
+      0.0036230570140165915,
+      0.017116321412086414
+     ],
+     "false_alarm_episodes_per_hour": 0.6336633663366337,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.46875,
+     "latency_p50": 0.3004610538482666,
+     "latency_p95": 38.47156057357793
+    },
+    "stide": {
+     "attack_recordings": 121,
+     "detected": 121,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.969228205982621,
+      0.9999999999999999
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 759,
+     "false_alarm_rate": 0.9986842105263158,
+     "false_alarm_ci95": [
+      0.9925846420612998,
+      0.9997676990523556
+     ],
+     "false_alarm_episodes_per_hour": 89.55775577557756,
+     "false_alarms_before_exploit": 125,
+     "normal_hours": 9.46875,
+     "latency_p50": 0.2620556354522705,
+     "latency_p95": 0.4790029525756836
+    }
+   },
+   "seconds": 1620.9633660316467
+  },
+  "PHP_CWE-434": {
+   "scenario": "PHP_CWE-434",
+   "fit": {
+    "train_examples": 16157,
+    "calibration_examples": 4537,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.00022036139268400177,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 128738976,
+    "train_seconds": 5.044715843163431,
+    "calibration_score_p99": 0.4849437270038085,
+    "support": {
+     "training_rows": 16157,
+     "calibration_rows": 4537,
+     "constant_training_coordinates": 78,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 59,
+   "stide_database_ngrams": 2583,
+   "recordings": {
+    "training": 210,
+    "validation": 59,
+    "test-normal": 760,
+    "test-normal_and_attack": 118
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 9,
+     "false_alarm_rate": 0.011842105263157895,
+     "false_alarm_ci95": [
+      0.006242398796923367,
+      0.022352011353034426
+     ],
+     "false_alarm_episodes_per_hour": 0.9487554904831625,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48611111111111,
+     "latency_p50": 1.0964282751083374,
+     "latency_p95": 3.1139209032058712
+    },
+    "tripwire": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 2,
+     "false_alarm_rate": 0.002631578947368421,
+     "false_alarm_ci95": [
+      0.0007219556438160324,
+      0.009544047150480586
+     ],
+     "false_alarm_episodes_per_hour": 0.2108345534407028,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48611111111111,
+     "latency_p50": 0.5987772941589355,
+     "latency_p95": 0.8674745798110962
+    },
+    "system": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 11,
+     "false_alarm_rate": 0.014473684210526316,
+     "false_alarm_ci95": [
+      0.008100684176050954,
+      0.02573041378981003
+     ],
+     "false_alarm_episodes_per_hour": 1.1595900439238653,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.48611111111111,
+     "latency_p50": 0.5987772941589355,
+     "latency_p95": 0.8674745798110962
+    },
+    "stide": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 239,
+     "false_alarm_rate": 0.3144736842105263,
+     "false_alarm_ci95": [
+      0.2824660460342305,
+      0.34834746294459434
+     ],
+     "false_alarm_episodes_per_hour": 28.67349926793558,
+     "false_alarms_before_exploit": 15,
+     "normal_hours": 9.48611111111111,
+     "latency_p50": 0.5900264978408813,
+     "latency_p95": 0.8674745798110962
+    }
+   },
+   "seconds": 389.8458294868469
+  },
+  "ZipSlip": {
+   "scenario": "ZipSlip",
+   "fit": {
+    "train_examples": 15752,
+    "calibration_examples": 4437,
+    "minimum_calibration_examples": 999,
+    "minimum_conformal_p": 0.0002253267237494367,
+    "feature_dim": 249,
+    "fit_matrix_bytes": 125511936,
+    "train_seconds": 5.107402155175805,
+    "calibration_score_p99": 0.5047893216600178,
+    "support": {
+     "training_rows": 15752,
+     "calibration_rows": 4437,
+     "constant_training_coordinates": 89,
+     "alpha_per_window_combined": 0.0016666666666666668,
+     "minimum_calibration_examples_per_branch": 1199,
+     "fitted_from_attack_data": false
+    }
+   },
+   "tripwire_reference_ids": 57,
+   "stide_database_ngrams": 19596,
+   "recordings": {
+    "training": 210,
+    "validation": 59,
+    "test-normal": 760,
+    "test-normal_and_attack": 118
+   },
+   "arms": {
+    "ml": {
+     "attack_recordings": 118,
+     "detected": 4,
+     "detection_rate": 0.03389830508474576,
+     "detection_ci95": [
+      0.01325961911756434,
+      0.08392886166404062
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 44,
+     "false_alarm_rate": 0.05789473684210526,
+     "false_alarm_ci95": [
+      0.04340722411646942,
+      0.07682922281179425
+     ],
+     "false_alarm_episodes_per_hour": 4.741379310344828,
+     "false_alarms_before_exploit": 1,
+     "normal_hours": 9.28,
+     "latency_p50": 5.062732577323914,
+     "latency_p95": 5.619328784942627
+    },
+    "tripwire": {
+     "attack_recordings": 118,
+     "detected": 0,
+     "detection_rate": 0.0,
+     "detection_ci95": [
+      0.0,
+      0.03152946120208532
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 0,
+     "false_alarm_rate": 0.0,
+     "false_alarm_ci95": [
+      0.0,
+      0.005029314978393426
+     ],
+     "false_alarm_episodes_per_hour": 0.0,
+     "false_alarms_before_exploit": 0,
+     "normal_hours": 9.28,
+     "latency_p50": null,
+     "latency_p95": null
+    },
+    "system": {
+     "attack_recordings": 118,
+     "detected": 4,
+     "detection_rate": 0.03389830508474576,
+     "detection_ci95": [
+      0.01325961911756434,
+      0.08392886166404062
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 44,
+     "false_alarm_rate": 0.05789473684210526,
+     "false_alarm_ci95": [
+      0.04340722411646942,
+      0.07682922281179425
+     ],
+     "false_alarm_episodes_per_hour": 4.741379310344828,
+     "false_alarms_before_exploit": 1,
+     "normal_hours": 9.28,
+     "latency_p50": 5.062732577323914,
+     "latency_p95": 5.619328784942627
+    },
+    "stide": {
+     "attack_recordings": 118,
+     "detected": 118,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9684705387979147,
+      1.0
+     ],
+     "normal_recordings": 760,
+     "false_alarm_recordings": 743,
+     "false_alarm_rate": 0.9776315789473684,
+     "false_alarm_ci95": [
+      0.9644706179145618,
+      0.9859882206718676
+     ],
+     "false_alarm_episodes_per_hour": 102.26293103448276,
+     "false_alarms_before_exploit": 88,
+     "normal_hours": 9.28,
+     "latency_p50": 0.5448921918869019,
+     "latency_p95": 1.467260229587555
+    }
+   },
+   "seconds": 446.79933309555054
+  }
+ },
+ "pooled": {
+  "ml": {
+   "attack_recordings": 1815,
+   "detected": 1154,
+   "detection_rate": 0.6358126721763085,
+   "detection_ci95": [
+    0.6134090266482439,
+    0.6576426141323497
+   ],
+   "normal_recordings": 11341,
+   "false_alarm_recordings": 333,
+   "false_alarm_rate": 0.029362490080239837,
+   "false_alarm_ci95": [
+    0.026411197746685565,
+    0.03263251776891934
+   ],
+   "false_alarm_episodes_per_hour": 2.4575537766611157,
+   "false_alarms_before_exploit": 32,
+   "normal_hours": 137.5351388888889,
+   "latency_p50": 1.3305331468582153,
+   "latency_p95": 4.132185673713683
+  },
+  "tripwire": {
+   "attack_recordings": 1815,
+   "detected": 1153,
+   "detection_rate": 0.6352617079889807,
+   "detection_ci95": [
+    0.612852110931502,
+    0.657099928872294
+   ],
+   "normal_recordings": 11341,
+   "false_alarm_recordings": 7,
+   "false_alarm_rate": 0.0006172295212062428,
+   "false_alarm_ci95": [
+    0.0002990188504209426,
+    0.0012736430367225496
+   ],
+   "false_alarm_episodes_per_hour": 0.05089608413203494,
+   "false_alarms_before_exploit": 0,
+   "normal_hours": 137.5351388888889,
+   "latency_p50": 0.7915821075439453,
+   "latency_p95": 2.944256019592285
+  },
+  "system": {
+   "attack_recordings": 1815,
+   "detected": 1403,
+   "detection_rate": 0.7730027548209366,
+   "detection_ci95": [
+    0.7531662358944714,
+    0.7916860481087095
+   ],
+   "normal_recordings": 11341,
+   "false_alarm_recordings": 336,
+   "false_alarm_rate": 0.029627017017899656,
+   "false_alarm_ci95": [
+    0.026662120421324247,
+    0.03291046982092293
+   ],
+   "false_alarm_episodes_per_hour": 2.4793663841462736,
+   "false_alarms_before_exploit": 32,
+   "normal_hours": 137.5351388888889,
+   "latency_p50": 0.7741937637329102,
+   "latency_p95": 2.7121107101440423
+  },
+  "stide": {
+   "attack_recordings": 1815,
+   "detected": 1815,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9978878864437674,
+    1.0
+   ],
+   "normal_recordings": 11341,
+   "false_alarm_recordings": 6899,
+   "false_alarm_rate": 0.6083237809716956,
+   "false_alarm_ci95": [
+    0.5993047192572108,
+    0.617269481302804
+   ],
+   "false_alarm_episodes_per_hour": 59.94831623837544,
+   "false_alarms_before_exploit": 858,
+   "normal_hours": 137.5351388888889,
+   "latency_p50": 0.3667447566986084,
+   "latency_p95": 1.4365471363067626
+  }
+ },
+ "pooled_differences": {
+  "system-ml": {
+   "detection_diff": 0.13719008264462806,
+   "detection_ci95": [
+    0.0021917808219177326,
+    0.3003846113223489
+   ],
+   "false_alarm_diff": 0.0002645269376598189,
+   "false_alarm_ci95": [
+    0.0,
+    0.0007037313155165375
+   ]
+  },
+  "system-stide": {
+   "detection_diff": -0.2269972451790634,
+   "detection_ci95": [
+    -0.42117578558053304,
+    -0.06465991661703398
+   ],
+   "false_alarm_diff": -0.578696763953796,
+   "false_alarm_ci95": [
+    -0.7664223723900266,
+    -0.3888700627167245
+   ]
+  },
+  "ml-stide": {
+   "detection_diff": -0.36418732782369145,
+   "detection_ci95": [
+    -0.5826727642276422,
+    -0.16094371675452623
+   ],
+   "false_alarm_diff": -0.5789612908914558,
+   "false_alarm_ci95": [
+    -0.7667355640868092,
+    -0.3891358221787144
+   ]
+  }
+ },
+ "computed_at_unix": 1793260884.332046
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "sentinel-pulse-lidds-evaluation-v1-amendment-1",
+  "amends": "sentinel_pulse/protocol/lidds-evaluation-v1.json",
+  "registered_at": "2026-10-29T15:17+07:00",
+  "registered_after": "the registered run's results were read (29/10 15:15, validation-evidence/results-20261029/lidds/); this is a sensitivity re-run, not a replacement",
+  "finding": "the converter dropped four real syscalls that sysdig spells without the unistd_64.h suffix: pread (pread64), pwrite (pwrite64), sigreturn (rt_sigreturn), prlimit (prlimit64), about 15.0 M entries in 12 of 15 scenarios (convert.log). The test on 200 recordings before registration met none of them. The omission is the same in training and test, so it leaks no label, but Pulse saw less than STIDE, which reads the raw names",
+  "change": "sentinel_pulse/lidds/convert.py SYSDIG_ALIASES maps the four names to their numbers; sysdig pseudo-events (procexit, signaldeliver, <unknown>) stay unmapped as registered",
+  "rerun": "conversion and evaluation of all 15 scenarios with the same evaluation code and parameters into a separate output, after the next live run (no heavy job during a live run)",
+  "reporting": "both runs are reported: the registered run as the registered result, the re-run as its sensitivity analysis; neither is chosen by its numbers"
+}

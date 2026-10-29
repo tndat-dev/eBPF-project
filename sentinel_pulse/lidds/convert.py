@@ -34,12 +34,18 @@ HEADER = Path('/usr/include/x86_64-linux-gnu/asm/unistd_64.h')
 WINDOW = 0.5
 TRANSITION_GAP_NS = 5_000_000_000
 NODE = 'lid-ds'
+# sysdig spells four syscalls without the ABI suffix of unistd_64.h (lidds-evaluation-v1 amendment 1, 29/10:
+# the registered run dropped them as unmapped, ~15 M entries in 12 of 15 scenarios)
+SYSDIG_ALIASES = {'pread': 'pread64', 'pwrite': 'pwrite64', 'sigreturn': 'rt_sigreturn', 'prlimit': 'prlimit64'}
 
 
-def syscall_ids(header: Path = HEADER) -> dict[str, int]:
+def syscall_ids(header: Path = HEADER, aliases: bool = True) -> dict[str, int]:
+    """unistd_64.h names -> numbers; ``aliases`` adds sysdig's spellings (False = the registered v1 conversion)."""
     ids = {name: int(nr) for name, nr in re.findall(r'^#define __NR_(\w+)\s+(\d+)$', Path(header).read_text(), re.M)}
     if len(ids) < 300:
         raise ValueError('unexpected syscall header')
+    if aliases:
+        ids.update({alias: ids[name] for alias, name in SYSDIG_ALIASES.items() if name in ids})
     return ids
 
 

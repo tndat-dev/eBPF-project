@@ -267,9 +267,9 @@ def fig_latency(out, t):
                 label=f"{name} ({policy.format(refreshed=t['refreshed'], final=t['final'])}): p95 {p95:.2f} s, n = {len(d)}")
     ax.axhline(95, color=GRID, lw=1)
     ax.legend(loc='upper center', bbox_to_anchor=(0.45, -0.17), fontsize=8.5, handlelength=3)
-    for x, label in ((2, t['preferred']), (3, t['acceptable'])):
+    for x, label, y in ((2, t['preferred'], 50), (3, t['acceptable'], 38)):   # staggered: the two labels overlapped
         ax.axvline(x, color=INK2, lw=1, ls='--')
-        ax.annotate(label, (x, 50), textcoords='offset points', xytext=(3, 0), fontsize=8, color=INK2)
+        ax.annotate(label, (x, y), textcoords='offset points', xytext=(3, 0), fontsize=8, color=INK2)
     ax.set_xlim(0, 6); ax.set_ylim(0, 101); ax.set_xlabel(t['delay']); ax.set_ylabel(t['cdf'])
     fig.tight_layout(); save(fig, out, 'live-latency-cdf')
 
