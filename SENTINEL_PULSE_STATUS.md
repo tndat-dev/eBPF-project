@@ -1977,6 +1977,17 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - Tỉ lệ cửa sổ dương của binary vô hại theo vị trí sau lúc khởi chạy: 0,27 ở cửa sổ đầu, rồi đứng ở khoảng 0,51–0,58 suốt 15 s (lượt cuối). **Cờ của binary vô hại không chỉ do đợt khởi chạy:** vòng lặp `getpid` của nó làm lệch vector của container suốt đoạn. Vì vậy bỏ qua theo thời gian không giải được G5, và còn làm chậm phát hiện.
   - Hệ quả cho exec-intent: hướng đúng là tách hành vi **theo process** (bộ đếm pha ổn định chỉ gồm syscall đã theo dõi, `getpid` không nằm trong đó) cộng khối ý đồ, không phải bỏ qua cửa sổ đầu.
 - **P1, nạp thử** (worker4, 31/10 02:15): probe `PULSE_EXEC_INTENT` qua verifier của kernel 6.8, loader gắn được `sys_enter`, `fexit/__seccomp_filter`, `tp/sched/sched_process_exec`, `raw_tp/sys_exit`. Bộ đếm có giá trị: 4 lần exec (4 chế độ benchmark), 2.048 lời gọi pha khởi chạy (4 × 512), phần còn lại ở pha ổn định theo từng syscall. Đo overhead đang chạy (`overhead_ab.sh` thêm điều kiện `monitored2`).
+- **P1, overhead** (worker4, 5 vòng, 4 điều kiện xoay vòng; biên nhận `validation-evidence/results-20261031/exec-intent/OVERHEAD-EXEC-INTENT.json`, dữ liệu thô `overhead-ab-k8s-worker4.jsonl`):
+
+  | Chế độ | Probe hiện tại, thêm so với không probe (ns/syscall) | Probe exec-intent | exec-intent − hiện tại (ns/syscall) [CI 95% tương đối] |
+  |---|---|---|---|
+  | getpid | 249 | 351 | **+102** (+3,9% [+1,4; +14,0]) |
+  | read 4 KB | 230 | 307 | +76 (+4,6% [−2,0; +9,9]) |
+  | open + close | 271 | 300 | +29 (+3,4% [−1,8; +9,1]) |
+  | mmap + munmap | 179 | 376 | **+197** (+4,7% [−1,9; +21,6]) |
+
+  - **Tiêu chí đăng ký (thêm ≤ 150 ns mỗi syscall): không đạt** ở mmap + munmap (điểm 197 ns, CI rộng). Theo protocol, hook `raw_tp/sys_exit` (đếm errno trên mọi syscall) bị bỏ; chỉ giữ bộ đếm pha khởi chạy/ổn định theo process. Đếm lỗi của syscall nhạy cảm, nếu cần, phải làm bằng hook riêng cho từng syscall đó (fexit), chứ không móc mọi lần thoát syscall; cách này cần amendment và đo lại.
+  - Probe hiện tại trong phép đo này: 179–271 ns/syscall, cùng khoảng với phép đo 22/10 (250–450 ns, 5.21).
 
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
