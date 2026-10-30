@@ -3,7 +3,9 @@
 
 Per node and syscall mode: median ns/op per condition over the rounds; overhead of ``filtered`` and
 ``monitored`` relative to ``off`` as the median of the per-round paired ratios, with a percentile bootstrap
-95 % CI over rounds (rounds are the unit: conditions rotate within a round).
+95 % CI over rounds (rounds are the unit: conditions rotate within a round). With a second probe build
+(``monitored2``, exec-intent-v1 P1) also its overhead against ``off`` and against ``monitored`` (the extra cost of
+the second build on the same monitored path).
 """
 import argparse
 from collections import defaultdict
@@ -13,12 +15,12 @@ import random
 import statistics
 
 
-def paired_overhead(rows, condition, reps=10000, seed=7):
+def paired_overhead(rows, condition, reps=10000, seed=7, base='off'):
     """rows: [(round, condition, ns_per_op)] of one node+mode -> (median ratio - 1, [lo, hi]) or None."""
     by_round = defaultdict(dict)
     for r, c, ns in rows:
         by_round[r][c] = ns
-    ratios = [v[condition] / v['off'] for v in by_round.values() if condition in v and 'off' in v]
+    ratios = [v[condition] / v[base] for v in by_round.values() if condition in v and base in v]
     if not ratios:
         return None
     rng = random.Random(seed)
@@ -37,14 +39,18 @@ def main():
             data[d['node'], d['mode']].append((d['round'], d['condition'], d['ns_per_op']))
     out = {}
     for (node, mode), rows in sorted(data.items()):
-        med = {c: statistics.median(ns for _, cc, ns in rows if cc == c) for c in ('off', 'filtered', 'monitored')
+        med = {c: statistics.median(ns for _, cc, ns in rows if cc == c) for c in ('off', 'filtered', 'monitored', 'monitored2')
                if any(cc == c for _, cc, _ in rows)}
         res = dict(median_ns_per_op=med)
-        for c in ('filtered', 'monitored'):
+        for c in ('filtered', 'monitored', 'monitored2'):
             o = paired_overhead(rows, c)
             if o:
                 res[f'{c}_overhead'] = dict(relative=o[0], ci95=o[1], rounds=o[2],
                                             added_ns_per_op=med.get(c, 0) - med.get('off', 0))
+        o = paired_overhead(rows, 'monitored2', base='monitored')
+        if o:
+            res['monitored2_vs_monitored'] = dict(relative=o[0], ci95=o[1], rounds=o[2],
+                                                  added_ns_per_op=med['monitored2'] - med['monitored'])
         out.setdefault(node, {})[mode] = res
     Path(a.output).write_text(json.dumps(dict(schema='pulse-overhead-ab-v1', protocol='sentinel_pulse/protocol/overhead-ab-v1.json',
                                               nodes=out), indent=1))

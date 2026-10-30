@@ -1,0 +1,27 @@
+{
+  "schema": "sentinel-pulse-lidds-evaluation-v3",
+  "registered_at": "2026-10-31T02:07+07:00",
+  "registered_before": "the merged LID-DS 2021 v2 output exists (3 scenarios still running), and before any LID-DS 2019 result of any arm is read",
+  "seen_before_registration": "pooled official v2 results of 12/15 LID-DS 2021 scenarios per arm (recall / false-alarm recordings: system 71.9/3.1, step1 72.3/4.9, path 62.5/1.4, errno 61.1/1.4, bytes 83.2/3.7, step2 97.2/9.5, ngram 84.4/0.9, step3 97.3/10.0) and per-scenario rows; CB-DS confirmation results of every v2 arm. Declared: v3 is designed after these were read",
+  "owner_decision": "31/10, supervisor's workflow: improve on the datasets until precision and recall reach >= 95 %, then go live",
+  "question": "Can a fixed combination rule over the v2 branches keep recall >= 95 % while bringing false-alarm recordings back to <= 3.0 % on LID-DS 2021?",
+  "candidates": {
+    "C0_step3": "every v2 branch ORed (the v2 system, reference)",
+    "C1_union_core": "system OR path OR errno OR bytes OR ngram (step3 without the support-first and no-exec-set variants)",
+    "C2_vote2_core": "at least 2 of {system, path, errno, bytes, ngram}",
+    "C3_system_or_vote2": "system OR at least 2 of {path, errno, bytes, ngram}",
+    "C4_system_or_ngram": "system OR ngram",
+    "C5_vote2_all": "at least 2 of {ml, tripwire, path, errno, bytes, ngram}"
+  },
+  "combination_level": "per recording, from the stored per-recording outcome of each branch (recordings in the v2 output): an attack recording is detected by a vote rule when at least k branches detected it after the exploit, with the k-th smallest latency; a normal recording is a false alarm when at least k branches alarmed in it; k = 1 is OR. Window-level voting is not computed (not stored); stated as a limitation",
+  "split": "development = the v2 development attack recordings (30 %, seed 20261030 + crc32(scenario)) plus 30 % of each scenario's test/normal recordings (names sorted, numpy default_rng(20261031 + crc32(scenario)) permutation, first round(0.3 n)); official = the other 70 % of both",
+  "selection": "on LID-DS 2021 development only: the candidate with the highest pooled development recall among those with development false-alarm recordings <= 2.0 %; ties by lower false-alarm rate, then by list order; if none qualifies, the one with the lowest false-alarm rate among those with recall >= 95 %, and v3 is reported as not reaching its goal",
+  "criteria_official": {
+    "H1": "selected candidate on LID-DS 2021 official: pooled recall >= 95 % AND false-alarm recordings <= 3.0 %",
+    "H2": "and no scenario above 5 % false-alarm recordings",
+    "precision": "reported at 1:1 (attack:normal recordings) and at the subset's own base rate"
+  },
+  "confirmation": "the selected candidate unchanged on LID-DS 2019 (lidds2019-confirmation-v1 outputs, read only after this registration) and on CB-DS (seen for v2, so a sensitivity check only); every candidate is reported on every dataset",
+  "code": "scripts/analysis/lidds_v3_combine.py (tests/test_lidds_v3_combine.py), reading lidds_evaluate_v2.py outputs; no branch is recomputed",
+  "next_if_met": "only if H1 holds on 2021 official and the selected rule reaches recall >= 95 % at <= 3.0 % false alarms on LID-DS 2019: port the selected branches into the probe and user space (exec-intent-v1 P2/P3 path) for a live blind run"
+}
