@@ -1,0 +1,17 @@
+{
+ "10.1.16.237": {
+  "node": "k8s-worker1.local",
+  "under_tetragon": 0,
+  "all_zombies": 2
+ },
+ "10.1.16.238": {
+  "node": "k8s-worker4.local",
+  "under_tetragon": 0,
+  "all_zombies": 0
+ },
+ "10.1.16.239": {
+  "node": "k8s-worker3.local",
+  "under_tetragon": 0,
+  "all_zombies": 0
+ }
+}

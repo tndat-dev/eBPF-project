@@ -1,0 +1,96 @@
+{
+  "schema": "rca-flow-coverage-v1",
+  "cases_dir": "/var/lib/sentinel-pulse-rca/rca-pulse-live-recal-confirm/cases",
+  "since_unix": 1793271085.6981053,
+  "totals": {
+    "cases": 1014,
+    "with_flow": 770
+  },
+  "by_workload": {
+    "production/aims-frontend:web": {
+      "cases": 46,
+      "with_flow": 33
+    },
+    "production/aims-kafka-dual-role:kafka": {
+      "cases": 91,
+      "with_flow": 72
+    },
+    "production/aims-kafka-entity-operator:topic-operator": {
+      "cases": 72,
+      "with_flow": 69
+    },
+    "production/aims-kafka-entity-operator:user-operator": {
+      "cases": 49,
+      "with_flow": 48
+    },
+    "production/aims-minio-pool-0:minio": {
+      "cases": 55,
+      "with_flow": 22
+    },
+    "production/aims-minio-pool-0:sidecar": {
+      "cases": 59,
+      "with_flow": 33
+    },
+    "production/aims-postgres-cnpg:postgres": {
+      "cases": 54,
+      "with_flow": 30
+    },
+    "production/aims-rabbitmq-server:rabbitmq": {
+      "cases": 73,
+      "with_flow": 51
+    },
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+      "cases": 65,
+      "with_flow": 45
+    },
+    "production/aims-redis:aims-redis": {
+      "cases": 41,
+      "with_flow": 32
+    },
+    "production/aims-waypoint:istio-proxy": {
+      "cases": 126,
+      "with_flow": 63
+    },
+    "production/api-gateway:app": {
+      "cases": 13,
+      "with_flow": 13
+    },
+    "production/auth-service:app": {
+      "cases": 23,
+      "with_flow": 22
+    },
+    "production/cart-service:app": {
+      "cases": 23,
+      "with_flow": 22
+    },
+    "production/catalog-service:app": {
+      "cases": 29,
+      "with_flow": 29
+    },
+    "production/inventory-service:app": {
+      "cases": 16,
+      "with_flow": 16
+    },
+    "production/notification-service:app": {
+      "cases": 28,
+      "with_flow": 26
+    },
+    "production/order-service:app": {
+      "cases": 59,
+      "with_flow": 56
+    },
+    "production/payment-service:app": {
+      "cases": 35,
+      "with_flow": 33
+    },
+    "production/search-recommendation-service:app": {
+      "cases": 22,
+      "with_flow": 22
+    },
+    "production/security-telemetry-service:app": {
+      "cases": 35,
+      "with_flow": 33
+    }
+  },
+  "computed_at_unix": 1793306510.9889438
+}

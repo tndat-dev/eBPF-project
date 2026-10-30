@@ -1864,6 +1864,25 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - chuỗi phân tích `scripts/after_recal_confirm.sh`.
 - **Lượt xác nhận đang chạy:** `pulse-live-recal-confirm` khởi chạy 29/10 16:16 (snapshot `d6dbe11`, 13 file scorer trùng bản đóng băng); pha chọn tới 17:49, sau đó campaign 525 trial; capture 24 giờ. Unit `after-recal-confirm` tự chạy phân tích theo protocol. Lượt chạy lại LID-DS (5.32) để sau lượt này, vì không chạy job nặng khi có lượt live.
 
+### 5.31b Kết quả lượt `pulse-live-recal-confirm`: calibration tự làm mới **không thắng** calibration cố định (đọc 31/10 01:55; `live-recalibration-confirmation-v1`)
+
+- **Lượt:** 29/10 16:16 → 30/10 khoảng 16:30; campaign 525/525; phân tích `after-recal-confirm` xong 30/10 20:40. Biên nhận: `validation-evidence/results-20261030/pulse-live-recal-confirm/` (`recal-comparison.json`, `live-recalibration-check.json`, `final-system.json`, `confirm-campaign.json`…).
+- **Kiểm cài đặt: đạt.** 24 epoch làm mới trên mỗi worker; mọi p-value live trùng bản dựng lại offline (worker1 4.467.064/4.467.064, worker4 1.804.070/1.804.070, worker3 cùng kết quả). Bản F tính lại (calibration của bundle) khớp live 99,998% trước lần làm mới đầu.
+- **So sánh trên cùng dữ liệu** (R = live có làm mới, F = cùng cửa sổ chấm bằng calibration cố định; tập chính, định nghĩa so sánh nhánh):
+
+  | Chỉ số | R (làm mới) | F (cố định) | R − F [CI 95%] |
+  |---|---|---|---|
+  | Recall ML | 92,1% (280/304) | 99,7% (303/304) | −7,6 điểm [−13,5; −2,6] |
+  | Control | 0% | 1,0% | −1,0 [−3,0; 0] |
+  | Binary vô hại bị gắn cờ | 57,2% | 89,5% | −32,2 [−47,5; −17,5] |
+  | p95 ML | 5,47 s | 2,10 s | +1,4 đến +4,0 s |
+  | Gánh (đợt/replica-giờ, 852,6 replica-giờ) | 0,80 | 1,35 | −0,55 [−2,24; +0,37] |
+  | Hệ thống (ML + tripwire): recall / p95 / gánh | 92,1% / 2,81 s / 0,83 | 99,7% / 1,58 s / 1,38 | |
+
+- **Theo luật đăng ký (thắng khi gánh giảm ≥ 10%, recall không giảm quá 2 điểm, control không tăng quá 1 điểm, p95 không chậm quá 0,2 s): R không thắng F.** Gánh giảm 40% (CI chứa 0), nhưng recall và p95 trượt. Calibration cố định được giữ.
+- **Đọc:** calibration làm mới từ 12 giờ normal gần nhất nới ngưỡng theo hành vi gần đây (gồm cả exec probe và sự kiện lạ của normal), nên hệ thống bớt báo trên normal và trên binary vô hại, nhưng chậm và bỏ sót tấn công nhiều hơn. Đây là đánh đổi gánh/recall đúng như dự đoán của tài liệu (Bashari et al. 2025: nhiễm calibration làm mất recall). Theo quy trình của thầy, nếu muốn dùng thì phải thử trên dataset trước (ví dụ calibration theo nhóm, Label-Trim), không chạy live tiếp.
+- **Lượt này cũng là lượt live thứ 7:** hệ thống ML + tripwire **không đạt** kỳ vọng recall ≥ 95% (92,1%) do calibration làm mới; precision 100%, control 0%, p95 2,81 s.
+
 ### 5.32 LID-DS 2021: Pulse trên dataset công khai (protocol `lidds-evaluation-v1`; chạy 29/10 09:10–15:01, đọc 15:15)
 
 - **Biên nhận:** `validation-evidence/results-20261029/lidds/` (`lidds-evaluation.json`, `convert.log`, `evaluate.log`). Tham số lấy nguyên từ hệ thống live, không chỉnh trên LID-DS; mỗi kịch bản là một workload; bản ghi là đơn vị.
@@ -1909,6 +1928,18 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Tiêu chí cho step3** (tập `all`): C1 recall ≥ 90% với báo nhầm ≤ 3,0%; C2 ≥ 95%. Báo mọi nhánh, mọi loại tấn công, và hiệu step3 − system với CI bootstrap ghép cặp (`scripts/analysis/cbds_confirmation.py`, có test).
   - **Dựng archive (22:22–22:32, trên host):** 2.591 bản ghi, không bản nào rỗng, 681 MB; event ngoài container chính ở 9 bản ghi tấn công (M-MKNOD 2, M-NET 6, M_SOCKET 1), tối đa 0,14% event của một loại (M_SOCKET), normal 0. Biên nhận: `validation-evidence/results-20261029/cbds/`.
   - **Lịch:** archive chép về đĩa local của `.234` (`/var/tmp/cb-ds/archives/`), `scripts/cbds_after_live.sh` (snapshot `8e538a4`) chạy sau khi phân tích lượt live xong.
+- **Kết quả CB-DS (`cbds-confirmation-v1`, chạy 30/10 20:40–20:53; biên nhận `validation-evidence/results-20261029/cbds/`):**
+
+  | Nhánh | Phát hiện (891 bản ghi tấn công) | Báo nhầm (1.410 bản ghi normal) |
+  |---|---|---|
+  | **Hệ thống v1 (ML + tripwire)** | **100%** | **1,5%** (21) |
+  | Tripwire riêng | 100% | 0% |
+  | ML riêng | 99,0% | 1,5% |
+  | step3 (v2 đầy đủ) | 100% | 5,5% (77) |
+
+  - **C1/C2 của v2: không đạt** vì báo nhầm 5,5% > 3%. Tín hiệu v2 không thêm phát hiện nào (step3 − system: phát hiện +0, báo nhầm +4,0 điểm [+3,0; +5,0]).
+  - **Hệ thống v1 đạt precision và recall ≥ 95% trên CB-DS:** recall 100%, precision theo bản ghi 891/912 = 97,7%. Mọi kịch bản thoát container đều dùng syscall lạ (tripwire 100%, 0 báo nhầm).
+- **Kết quả LID-DS v2 tạm (12/15 kịch bản, tập official, 31/10 01:55; 3 kịch bản còn chạy):** step3 recall **97,3%** (992/1.020) nhưng báo nhầm **10,0%** (906/9.073); hệ thống v1 71,9% / 3,1%; riêng nhánh chuỗi 7 syscall (ngram) 84,4% / 0,9%. Heartbleed 8% → 100%, ZipSlip 5% → 100%, CVE-2019-5418 16% → 100%, CVE-2017-7529 70% → 100%. H1 (≥ 90% với ≤ 3,0%) không đạt vì báo nhầm cộng dồn khi ghép OR nhiều nhánh; nhánh support-first (step1) tăng báo nhầm mà gần như không thêm recall.
 - **LID-DS 2019 (protocol `lidds2019-confirmation-v1`, đăng ký 30/10 11:34, trước khi chuyển đổi hay chấm bản ghi nào):**
   - **Dữ liệu:** tải trên `10.1.16.254` (ngoài cụm) 30/10 01:48–02:28, 13,97 GB, sha256 `c87e881d…`, `testzip` sạch; 10 kịch bản `tar.gz` + README. Chép vào `.234` sau lượt live.
   - **Định dạng khác 2021:** dòng `số_event HH:MM:SS.nano cpu uid tên_process tid chiều syscall tham_số` (không có ngày, không có PID); nhãn trong `runs.csv`; thứ tự file trong tar khác thứ tự `runs.csv`.

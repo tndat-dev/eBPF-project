@@ -1,0 +1,1309 @@
+{
+ "schema": "pulse-cbds-confirmation-v1",
+ "protocol": "sentinel_pulse/protocol/cbds-confirmation-v1.json",
+ "subset": "all",
+ "arms": {
+  "ml": {
+   "attack_recordings": 891,
+   "detected": 882,
+   "detection_rate": 0.98989898989899,
+   "detection_ci95": [
+    0.9809147382086153,
+    0.9946769195775226
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 21,
+   "false_alarm_rate": 0.014893617021276596,
+   "false_alarm_ci95": [
+    0.009761704897779163,
+    0.022661729240811754
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 90,
+     "detection_rate": 0.9090909090909091,
+     "detection_ci95": [
+      0.8361842304768151,
+      0.9514347875081247
+     ]
+    }
+   }
+  },
+  "tripwire": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.00271713606389853
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "system": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 21,
+   "false_alarm_rate": 0.014893617021276596,
+   "false_alarm_ci95": [
+    0.009761704897779163,
+    0.022661729240811754
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "ml_support_first": {
+   "attack_recordings": 891,
+   "detected": 882,
+   "detection_rate": 0.98989898989899,
+   "detection_ci95": [
+    0.9809147382086153,
+    0.9946769195775226
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 22,
+   "false_alarm_rate": 0.015602836879432624,
+   "false_alarm_ci95": [
+    0.010326145601439223,
+    0.02351187415975609
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 90,
+     "detection_rate": 0.9090909090909091,
+     "detection_ci95": [
+      0.8361842304768151,
+      0.9514347875081247
+     ]
+    }
+   }
+  },
+  "tripwire_no_exec_set": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.00271713606389853
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "step1": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 22,
+   "false_alarm_rate": 0.015602836879432624,
+   "false_alarm_ci95": [
+    0.010326145601439223,
+    0.02351187415975609
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "path": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 2,
+   "false_alarm_rate": 0.0014184397163120568,
+   "false_alarm_ci95": [
+    0.0003890654090102563,
+    0.005157241900097072
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "errno": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 10,
+   "false_alarm_rate": 0.0070921985815602835,
+   "false_alarm_ci95": [
+    0.0038568358830487672,
+    0.013006156406893754
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "bytes": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 14,
+   "false_alarm_rate": 0.009929078014184398,
+   "false_alarm_ci95": [
+    0.005923635158669201,
+    0.01659769962169092
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "step2": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 44,
+   "false_alarm_rate": 0.031205673758865248,
+   "false_alarm_ci95": [
+    0.023327039976762845,
+    0.041631863481729245
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "ngram": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 38,
+   "false_alarm_rate": 0.02695035460992908,
+   "false_alarm_ci95": [
+    0.01969717242735071,
+    0.03677421729551499
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  },
+  "step3": {
+   "attack_recordings": 891,
+   "detected": 891,
+   "detection_rate": 1.0,
+   "detection_ci95": [
+    0.9957069496992542,
+    1.0000000000000002
+   ],
+   "normal_recordings": 1410,
+   "false_alarm_recordings": 77,
+   "false_alarm_rate": 0.05460992907801419,
+   "false_alarm_ci95": [
+    0.0439144858829304,
+    0.06772574312150688
+   ],
+   "by_attack": {
+    "CVE-2016-9962": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2019-5736": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "CVE-2022-0492": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-MKNOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-NET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_ADMIN": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M-SYS_MOD": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_SOCKET": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    },
+    "M_UHELPER": {
+     "recordings": 99,
+     "detected": 99,
+     "detection_rate": 1.0,
+     "detection_ci95": [
+      0.9626454664260378,
+      1.0
+     ]
+    }
+   }
+  }
+ },
+ "criteria": {
+  "C1": false,
+  "C2": false
+ },
+ "differences": {
+  "step3-system": {
+   "detection": {
+    "diff": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "only_a": 0,
+    "only_b": 0
+   },
+   "false_alarm": {
+    "diff": 0.03971631205673759,
+    "ci95": [
+     0.029787234042553193,
+     0.05035460992907802
+    ],
+    "only_a": 56,
+    "only_b": 0
+   }
+  },
+  "step1-system": {
+   "detection": {
+    "diff": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "only_a": 0,
+    "only_b": 0
+   },
+   "false_alarm": {
+    "diff": 0.0007092198581560284,
+    "ci95": [
+     0.0,
+     0.002127659574468085
+    ],
+    "only_a": 1,
+    "only_b": 0
+   }
+  },
+  "step2-step1": {
+   "detection": {
+    "diff": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "only_a": 0,
+    "only_b": 0
+   },
+   "false_alarm": {
+    "diff": 0.015602836879432624,
+    "ci95": [
+     0.009219858156028368,
+     0.02269503546099291
+    ],
+    "only_a": 22,
+    "only_b": 0
+   }
+  },
+  "step3-step2": {
+   "detection": {
+    "diff": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "only_a": 0,
+    "only_b": 0
+   },
+   "false_alarm": {
+    "diff": 0.023404255319148935,
+    "ci95": [
+     0.015602836879432624,
+     0.031914893617021274
+    ],
+    "only_a": 33,
+    "only_b": 0
+   }
+  }
+ },
+ "fit": {
+  "train_examples": 9354,
+  "calibration_examples": 2632,
+  "minimum_calibration_examples": 999,
+  "minimum_conformal_p": 0.00037979491074819596,
+  "feature_dim": 249,
+  "fit_matrix_bytes": 74532672,
+  "train_seconds": 3.8574257493019104,
+  "calibration_score_p99": 0.5081658293840258,
+  "support": {
+   "training_rows": 9354,
+   "calibration_rows": 2632,
+   "constant_training_coordinates": 95,
+   "alpha_per_window_combined": 0.0016666666666666668,
+   "minimum_calibration_examples_per_branch": 1199,
+   "fitted_from_attack_data": false
+  }
+ },
+ "limits": {
+  "prefix_w": 0,
+  "prefix_r": 0,
+  "path_w": 0,
+  "path_r": 0,
+  "error_new": 0,
+  "ngram_new": 19,
+  "error_over": 0,
+  "bytes_over": 0
+ }
+}

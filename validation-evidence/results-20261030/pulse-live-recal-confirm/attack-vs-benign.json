@@ -1,0 +1,102 @@
+{
+  "schema": "pulse-attack-vs-benign-v1",
+  "campaigns": [
+    "/mnt/sentinel-pulse-archive/pulse-live-recal-confirm/pulse-development-matrix"
+  ],
+  "by_scenario": {
+    "anonymous_mprotect_churn": {
+      "attack": 0.7669902912621359,
+      "benign": 0.5145631067961165,
+      "control": 0.0,
+      "counts": {
+        "control_neg": 103,
+        "benign_pos": 53,
+        "attack_pos": 79,
+        "benign_neg": 50,
+        "attack_neg": 24
+      }
+    },
+    "child_ptrace_handshake": {
+      "attack": 0.883495145631068,
+      "benign": 0.5392156862745098,
+      "control": 0.0,
+      "counts": {
+        "control_neg": 101,
+        "benign_pos": 55,
+        "attack_pos": 91,
+        "benign_neg": 47,
+        "attack_neg": 12
+      }
+    },
+    "execveat_resolution_probe": {
+      "attack": 0.8811881188118812,
+      "benign": 0.5392156862745098,
+      "control": 0.0,
+      "counts": {
+        "control_neg": 103,
+        "benign_pos": 55,
+        "attack_pos": 89,
+        "benign_neg": 47,
+        "attack_neg": 12
+      }
+    },
+    "invalid_setns_burst": {
+      "attack": 0.99,
+      "benign": 0.53,
+      "control": 0.0,
+      "counts": {
+        "control_neg": 101,
+        "benign_pos": 53,
+        "attack_pos": 99,
+        "benign_neg": 47,
+        "attack_neg": 1
+      }
+    },
+    "seccomp_api_probe": {
+      "attack": 0.66,
+      "benign": 0.52,
+      "control": 0.0,
+      "counts": {
+        "control_neg": 99,
+        "benign_neg": 48,
+        "attack_neg": 34,
+        "benign_pos": 52,
+        "attack_pos": 66
+      }
+    }
+  },
+  "positive_window_fraction": {
+    "control": {
+      "n": 507,
+      "mean": 0.0,
+      "median": 0.0,
+      "share_at_least_0_5": 0.0
+    },
+    "benign": {
+      "n": 507,
+      "mean": 0.20351207884364383,
+      "median": 0.07142857142857142,
+      "share_at_least_0_5": 0.11637080867850098
+    },
+    "attack": {
+      "n": 507,
+      "mean": 0.6562628762009841,
+      "median": 0.9642857142857143,
+      "share_at_least_0_5": 0.6706114398422091
+    }
+  },
+  "first_positive_seconds": {
+    "benign": {
+      "p10": 0.8098199367523193,
+      "p50": 1.1041072607040405,
+      "p90": 2.689237046241761
+    },
+    "attack": {
+      "p10": 0.8238226890563966,
+      "p50": 1.13124418258667,
+      "p90": 3.0570198297500597
+    }
+  },
+  "note": "intervals with < 20 scored windows skipped; labels are expected labels (not adjudicated)",
+  "computed_at_unix": 1793306492.6503906
+}

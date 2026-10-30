@@ -1,0 +1,3602 @@
+{
+  "binary_baseline_frozen_at": null,
+  "note": "ground truth = fixture binary path; ranking is a triage heuristic, not causal proof",
+  "privilege_drop_rule": "as stored",
+  "ranking": {
+    "absent": 0,
+    "cases": 426,
+    "top1": 0.15258215962441316,
+    "top3": 1.0,
+    "top5": 1.0
+  },
+  "reranked": false,
+  "rows": [
+    {
+      "case_id": "674089ddc7aa5e6c1f25d81f",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "1:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "4a0f84ceab235ba34c8fb051",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "2:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "3:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "53c6a45b8430b66e9bb84bd4",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "4:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "937dcf74247504846bda6f54",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "5:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "fe11e322e6fcd836b3a25e24",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "6:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "4ee131936934533efc8304ce",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "7:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "8:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "e3b002a1906e5db57444c5ac",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "9:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "10:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "5400ca7dfb36b18d1ff3746b",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "11:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "13dd939b410a5f6b48704998",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "12:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "13:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "1a7dcf9ecd181ef62953cdb5",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "14:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "4ccb98931061df1b259710bf",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "15:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "16:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "fe9c02b327790d0f321aeb49",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "17:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "18:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "2a57745a6577794196cac4eb",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "19:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "e0e3e75ba802488329158ce9",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "20:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "a84504dbeffb8fecfafeaa97",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "21:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "d657703c22fa52d35d3afe17",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "22:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "23:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "e54c0d04c12f67a14e1d0588",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "24:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "1f212772536675017a05acc2",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "25:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "dcdb7c6c72a6f3e596a7518e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "26:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "73ddaf852dba2f483553a45d",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "27:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "36a8828daa7db19479629c8e",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "28:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "c5de1d0f27ed823d8ca4400e",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "29:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "62ee9c9cac6ee3b681b7cdbb",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "30:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "8f37d199796bd83f0164f9d8",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "31:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "3eab993c2eec8c5587211b8f",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "32:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "635e6681207252e4339f1bd9",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "33:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "7b729cd0d641ec0c71e93dff",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "34:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "dbdd2f8c51e07ec8ee3957d1",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "35:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "7a83b76c728a97105cd66417",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "36:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "37:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "ddb57c768b0695e7f6a76a5e",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "38:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "39:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "8c0b1e947cecf2b7eb459f29",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "40:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "41:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "42:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "a3264a04da1b738dd94171c4",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "43:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "bab8237180d9bf9781911453",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "44:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "7a26bc3c374d8453fcfb1bf7",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "45:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "c4227b55925390ac8b690a91",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "46:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "47:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "8454b7882d407688523df14c",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "48:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "bf1e6026e04f39990eb18565",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "49:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "f29aceadc74b2fde653e9500",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "50:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "7c38857f637e40e9cd381cf1",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "51:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "c6703a1cb18c2c05a8dab701",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "52:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "6a0fb28975b59871f24c913b",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "53:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "819c104d2f67dd7dbc383cf4",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "54:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "55:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "3e3133fb750134ea21951f9e",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "56:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "150e9c08e0dbd29a78ee2536",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "57:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "120f18b4e7385f0a38fe0948",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "58:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "72f20f3eb5e431f413e42c98",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "59:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "12e5d473a2ac9da66e86e74c",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "60:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "fa44f3eb36ee87caf8ffa1b4",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "61:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "5a107017a613f196b685de1d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "62:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "b91227f65c9e70d6adbd146e",
+      "rank": 1,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "63:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "a0fc850808833771df086f87",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "64:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "9866fa8783ef98e530eb23f9",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "65:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "eb5bea6aadd8739261111fa7",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "66:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "064cf37457ae042307fd5be8",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "67:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "d733fd13a4e86f1e8e77dfcf",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "68:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "4d022ad7041605923c0c8cb3",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "69:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "70:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "748304274e2e0753ff3f79f8",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "71:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "5bf8993200a7280b75231b2d",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "72:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "5757f082075807b1d726ec20",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "73:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "766e6b71cf45037560922832",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "74:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "e2d27997afee857deee2edfb",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "75:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "76:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "77:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "26b65974bd67414dd2d9f243",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "78:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "b1ce4d57ef4bd391998ab2a9",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "79:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "88248f69a6160ba1440ccf41",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "80:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "03acdb4d22325712eb583088",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "81:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "55e1298e85df9c8a30c5f456",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "82:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "83:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "9cd1952d9b59d5f30b6382e1",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "84:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "33ccecf07cde4fa29f74da9d",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "85:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "86:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "e20b324c1e3730ac4541a2af",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "87:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "de9cd1541bde2a7b2d7669ae",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "88:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "c3d3eb7d2e03759f97752afd",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "89:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "c59b6723d64b075c1cf1aa8f",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "90:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "a05911a08d2c2690b18a6eab",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "91:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "113dfc2ff518301ee1379746",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "92:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "e991366bcaed773b11644986",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "93:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "f4d4190fb63a667fb3345c5a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "94:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "256ff529fa1dca4676d17145",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "95:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "c8e79fcb69fac65e802b2d02",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "96:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "c23fc1846684dde5eb707b23",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "97:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "d33586a0d14be83236e4c853",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "98:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "ff2e1730d09a6ea47619d7ef",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "99:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "7c72d37987ee4c6a6d4743be",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "100:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "1d32472996eac1c0ad260e38",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "101:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "53c2881435e69d826b456d0d",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "102:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "0ae046fbba02abe1841184e9",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "103:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "8223fda3134a5815bc9f22db",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "104:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "0f2ec2d2a343a481414dfdb0",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "105:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "d0eb01468708779fe63c6a41",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "106:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "c59c44553fddd7e5845d7288",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "107:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "3bf156227a750325885684d1",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "108:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "591c7f2c2f06d53797a50c93",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "109:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "0307f41a75a66a7ac9a916ed",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "110:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "e3949aadf52205b0a1165926",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "111:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "0e3be25945c0fab1ffccda0c",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "112:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "378bd534b9e9ccbeaec7dcea",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "113:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "3f4099e4b69c1cde7f9d0981",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "114:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "666f69ad84784ce13badae63",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "115:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "116:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "f401d62bffd5679c1af8ce1b",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "117:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "2fd3d6930153f973c45fd859",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "118:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "0cda861eea13131b15a26322",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "119:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "08f065ca4792014b693cede0",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "120:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "5998e813e2f299e1b352b158",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "121:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "3921368693d7adc501d4a8b4",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "122:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "cdf07c23836189a5ab73e4f4",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "123:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "b8dbcfe0e754e0a3671a0926",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "124:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "14dbd439f9e7480bdff9a506",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "125:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "cfd49f6c966f5f1003d45c45",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "126:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "127:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "28b40248cc1073a1dffb7e77",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "128:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "f648c2d23699bc77f9c961e4",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "129:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "a54a4baf213f8d173b538970",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "130:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "131:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "d8a855825d05e37687c9abae",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "132:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "6fe681b4247f9e29fbfe5f23",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "133:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "f95fabf3fbafe68f6b9b3d06",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "134:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "ce7c554a9e729ed659925de9",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "135:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "7ed379858d0c9cba5df18748",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "136:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "6b108250ab5fc11dfa7969eb",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "137:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "138:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "5ea33a0ac112f6e3e6f537c3",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "139:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "140:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "313938121953df2840671c0d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "141:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "04f9500e84716fde6a72df1d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "142:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "d8d6e3fe7629c4c536b6190c",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "143:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "c15769132b513153c4d507e6",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "144:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "57b9869dce5999d44e3ef035",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "145:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "9343364e78ea733c7a312426",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "146:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "b11e274d1c2d55b15e48bb9d",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "147:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "040a8aa069688cf210b5b407",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "148:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "7da63e511ccf2612c201f901",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "149:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "6e300c408e1c9569d7dae2c6",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "150:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "43c0aba55c5f38a95d9a5f10",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "151:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "5a6938726ec364d1a5a78bf8",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "152:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "808adc976b1b5ff0d8608998",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "153:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "5a7ea961580a5d6c57a5e34e",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "154:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "98ac45494b6b61d06d4d257d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "155:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "f83d60937de53f2e8074a723",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "156:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "a76f23b9af4c3687d9672700",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "157:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "158:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "159:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "72d481d67dd0991aad443eab",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "160:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "161:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "eb07b9f511c5cde78cabefb6",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "162:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "163:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "bf1527728f5a1958a1aa3853",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "164:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "165:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "8b550ce56c5a03a280344999",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "166:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "b62ccbfa5edb81f3d84b52cd",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "167:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "168:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "b381a22993d4f68914e3b7bd",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "169:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "0fcb56c6aebb71396a2c8b3b",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "170:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "e4275e70f636789f3d0d8699",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "171:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "ec82de558104fff7f46dc5f8",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "172:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "173:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "8c7212ed63cfb4651ed35360",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "174:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "079b35c17e62360ff7738f2e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "175:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "f54e7e8b2e38d0cfa044533b",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "176:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "8099e7602b359fd562edfb29",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "177:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "5b5e3ba5323d1c6724b509cb",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "178:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "afec9ade52266c7d79ef900d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "179:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "7ed2158d5659ce16b0c95176",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "180:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "bc45e39ba2b1901268edab8d",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "181:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "31af64380311aad8c9d1314a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "182:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "de732ed7f17771391e8b7adf",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "183:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "9d1731804ef65e6ea7fca9d5",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "184:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "637037a77bdf91498effbcff",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "185:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "27e768ea670ab8b87fa95e96",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "186:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "4d0265cc9401d8146b7d5b0a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "187:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "6cbb5487613cb48f2dc6c2ce",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "188:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "44899023b4775ca4d2cbcf35",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "189:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "64a2f13aa9ef502d4c8d8263",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "190:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "fa12544191b1ec33afe315e0",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "191:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "ae6d43c428021e37520d42fe",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "192:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "4e2b791694ce1b8e40ca340c",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "193:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "1f8caed21a432387996961a4",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "194:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "a6597dabdefd7c6ff05fdb72",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "195:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "a5cdab524190930e1dd83d18",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "196:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "8681eb84628660d36c9d1be9",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "197:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "7ae83bd3905b0e637257afcf",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "198:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "da38d76112920af1032997f8",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "199:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "200:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "9df3f3c21f17076681ee204e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "201:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "12733c7a41ab85a31afca669",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "202:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "532a001202080bb0547339c3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "203:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "543385b46c340b142029c57a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "204:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "6e9fee685ff67cf79c8648cb",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "205:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "085a4f9ee9c3de14c177ccb0",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "206:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "fe208daea79fb92c46ca5f4d",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "207:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "b8f3508328b414b102fac121",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "208:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "209:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "46464bb383eaa8055d0f11ae",
+      "rank": 1,
+      "scenario": "execveat_resolution_probe",
+      "trial": "210:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "0c8b157ac140efebb55c8b8d",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "211:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "00c04c3705c15ef8e4e6b346",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "212:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "514d0267f685c86982efb870",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "213:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "344d209b38edf3085a44b66d",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "214:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "dbbbbd253c85fe3528490da4",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "215:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "216:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "2cab7936572aec589dd901a2",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "217:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "9c10faf2114b14cf5e3301ba",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "218:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "b8f6fb921a9356ab34e5764e",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "219:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "220:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "221:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "8bcd787ded556e9411349e9b",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "222:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "2bc5cf8cb1ce0d706da26482",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "223:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "224:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "3c7552514ebe8298503574b5",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "225:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "226:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "013116d76bcd0f6279341df2",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "227:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "228:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "aacb28aba8a47531549cb00f",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "229:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "e238ca0bf39393b9677ffd6b",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "230:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "158e420b4ce4cf46030b932e",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "231:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "91b91795186ab726ef1e8988",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "232:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "5d2bb6f08234ac2d21b25bff",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "233:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "2b0b3d21747da2216cd034ba",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "234:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "76c93136d4b80f436de7f0d2",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "235:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "9e5dda4dba6469b9e16b9f26",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "236:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "fb8da81bd4483be71063b631",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "237:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "a41dc9f2d5483833e55bbbf5",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "238:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "a1182c0abc35b866503697c5",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "239:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "ca42693e8b162dd9bf81f89e",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "240:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "260a12f5da01cb6d943e44fa",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "241:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "3568ecb63b987e16019168d2",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "242:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "23bd41d6a692a0ef056243ee",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "243:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "205dbeb9fa2dc0b841859465",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "244:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "245:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "e9e0e9872d3a5d2654dccc00",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "246:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "2d7bae0668422a3c1d19f534",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "247:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "6aee7812be20dc9912513ff6",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "248:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "249:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "ff17fbb7aec16edd6da0385a",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "250:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "e65d144d4fa152142cd0d685",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "251:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "1de6f2a16f982169865447e0",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "252:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "2e5cf9333f3e80eec16a465f",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "253:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "3de3e2e75664b258d25820af",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "254:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "bf55e6054373baf09b346c4c",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "255:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "256:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "3f4d534112c4fa122d65d0c9",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "257:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "f494aaead835642c883609d1",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "258:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "8f54fb40c4247c6a508a3a6c",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "259:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "856038751b51719f6f9d6c21",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "260:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "5e153aa3586d29e48590045c",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "261:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "262:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "69bf5e4ab106907774fb006d",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "263:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "264:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "8a5098a1cbc9befe32df5905",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "265:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "da545f71408212bf1f544758",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "266:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "02b6e62d9f74c7330c6eadef",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "267:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "db0fb90dba11b9b2ee8d84b5",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "268:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "2a27d40a7b6d9e9914703c4b",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "269:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "04fc7a08a25b4a24d9caca6d",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "270:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "6abed000bc800320320218f6",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "271:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "44d86bae1b4d193d29209abf",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "272:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "1712c67ab521bd21a2d905c1",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "273:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "1b3f1101281691035a00605f",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "274:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "275:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "42494d007c008599e0b68b5f",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "276:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "d59d63d01dd4fe457b19d8b5",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "277:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "81d1a12f750b50dd72ff9cae",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "278:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "7b8152de0239d9dab75364a2",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "279:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "24e032604114e6ae2b75cbe2",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "280:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "b88f63841c788094fcff8867",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "281:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "282:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "6a797d1f0f29c181cbb6b2e0",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "283:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "284:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "57fb4d7639d2a449eb07b0e4",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "285:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "81d4d8cd1ee5c74950a5243f",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "286:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "dfec38c2a3abea5af6f882d8",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "287:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "1691292a302c2915694c76e7",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "288:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "1c2a6d2bad283d193e7a4778",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "289:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "dd38de5b5c6a17f80e97a777",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "290:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "acc8bf12b36643df0726fd14",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "291:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "292:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "f3c3b810d9895ffa81f23357",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "293:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "294:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "04e0729a0c09a987550e16d3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "295:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "296:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "297:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "99af9d4811b59284ede3edf9",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "298:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "7f7a9db0e3bbb3642363441a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "299:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "a3b0332b555babe50fd85a2c",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "300:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "66793bb4e3a1956ba56959cc",
+      "rank": 1,
+      "scenario": "seccomp_api_probe",
+      "trial": "301:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "f2c5076bb938123accdeb806",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "302:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "eb7710091665b78a2fee7c66",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "303:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "fc819e4fe0d30b308def2e98",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "304:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "cc3ca0b4cddb94ebde979eb2",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "305:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "7afaa01cd733583fe71178be",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "306:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "2c8eb31b3eabc6d733ee9f3b",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "307:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "ff17c3ae105b37a3e05c4c84",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "308:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "ae13bf961f714cb31d7f9d83",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "309:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "f14a6299cbc5b859042fd820",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "310:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "0b9efff8b83f3c0c02138a42",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "311:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "6a20a1a1f1c9c02d7b71b54a",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "312:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "3a5b3db4bfa7ccf19188a1de",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "313:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "314:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "7ee2ba23fa807cc1b0ecda89",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "315:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "a6791b03acf944f544c0c74b",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "316:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "1f467b5bb1198843d8917c0f",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "317:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "318:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "f2b950aa7e31081056fe8140",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "319:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "6eaeacd45f8a9b2d562c8338",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "320:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "13816656f70c942ae043a06e",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "321:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "29e1435e404709c2cd035cab",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "322:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "320f8bfac7231952deae18a2",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "323:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "16b76b2ade87b0fa5e1ab6c8",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "324:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "077f613b8f70dab19ddba83c",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "325:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "71f973880b63d13ad6b18fbf",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "326:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "1ad59fb4ad75736da6fd56be",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "327:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "d98bb0c31abbde97e1da93c1",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "328:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "47fb4b9f2f62de2356bbe889",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "329:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "330:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "331:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "332:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "98e485777267ef669448a8e9",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "333:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "aaed6d44b93a4bfa71770206",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "334:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "395a0d89dbb12074dc439876",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "335:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "c6c5cc3cf5e46d4aa7c6d940",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "336:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "db1eaacb5538360b0d80f813",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "337:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "d8bc626cab19416406250930",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "338:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "339:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "ee97dbe444bdc258f7604065",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "340:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "b6270c1e448ca9ed5e4314ac",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "341:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "1b24ac0080f30397928da74f",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "342:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "db443c67768dccc2db272f34",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "343:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "344:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "9c7022789aa218e92aed93aa",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "345:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "346:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "6a032160531dfcd302249f48",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "347:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "378a9e5061247855ef4a14d9",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "348:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "execveat_resolution_probe",
+      "trial": "349:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "39e9378f9b4888ade339b5ac",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "350:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "b8cbf2851c6d88995f62bede",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "351:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "7c7f21b1d6d0da985d919ac5",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "352:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "86764cb6a51851559f8d759d",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "353:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "354:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "9fd138c35adbc69216fd6e17",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "355:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "d537970f0d4705a56b1c6aee",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "356:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "972e668bca182fdcfc8817cf",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "357:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "5ec61877b16b4ed8383386dd",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "358:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "359:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "360:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "361:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "9610e9f97ac9a024557a9e95",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "362:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "cea98a1f3d5b8bb7fa3b5442",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "363:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "364:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "365:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "87dc2e1ebc8039491dc2a112",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "366:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "8d5f32b55ea23f70f7a11bc6",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "367:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "38bfeeffece7f3df2a2ec347",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "368:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "107fa23cfe37df7aee3e2801",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "369:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "139246c8cb849d9492149477",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "370:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "82ca19ba65a47bfa3a1dfab3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "371:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "c451afb26bfc70fe009939e5",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "372:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "cc70bbdbaa2f5d9a5952d130",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "373:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "de22a29a3f13054f4a3bd2e4",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "374:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "2bb984011c0e981e7cea006c",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "375:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "b9e76b95c1619e9b427a9710",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "376:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "2ff1b5248fad62e8901e8a4e",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "377:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "3d1f4be4540a2929901b65a3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "378:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "2d8b518452b610f4f5eb2e83",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "379:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "e8516b019679ae4262a1e94c",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "380:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "d3a7c2417d76d73b65d39ece",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "381:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "2246a3d563669e506a480c12",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "382:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "1b69b4ceb0483fb7dc955b55",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "383:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "384:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "2bd35d7a8474a35f428bb313",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "385:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "33b3f01694e3da7ab3466830",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "386:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "eb90a034c22ef274c9229c59",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "387:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "7aae531a781c396aa641764e",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "388:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "9f27a56eb9c7505b33a6322b",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "389:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "b31eb862948203e584602137",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "390:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "54a73e8aadb2577f9fc8e4ac",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "391:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "842bb3822b97e0bf9ac7aea5",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "392:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "29b1b69c10c62fcb0e043d8d",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "393:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "bee893ed59635a933948954d",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "394:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "5cb0218524d98fb6f445b409",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "395:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "396:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "5563bdba6eb4ef5416ee9e0a",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "397:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "3bce39cd59dc2302bc73076c",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "398:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "932542a932e41d63b16c7997",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "399:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "400:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "9b69bee81e9ff2af693fcb93",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "401:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "160c3b4e853497084c3dbab2",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "402:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "35a25d36c1158c03f38d069e",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "403:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "2f92bfbc9798702e857e4772",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "404:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "b1eef50f25bef73270073e8e",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "405:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "406:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "505a5c7fc1ebd86ed2a2f4c6",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "407:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "b70b766c9724a2790bbe2deb",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "408:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "6bf8a2bd5a43c3e0d9c36cb2",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "409:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "410:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "411:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "db56c79edd0ca20be539a606",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "412:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "ed81acbb39c24574c127407f",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "413:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "dea91baba203faf2b5bbf7cd",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "414:attack",
+      "workload": "production/inventory-service:app"
+    },
+    {
+      "case_id": "ab9ed3317ea9e1abdaa838be",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "415:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "e6d0b31c674ae621805376be",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "416:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "8cde0550bf0b0aeae915f5cf",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "417:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "418:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "affdcd1a47c5634f87a73a2e",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "419:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "10a1f92777c035be3b392dbd",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "420:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "49eb90fe40457b40d6f18873",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "421:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "95e29551d77b17360da57316",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "422:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "2aba0dab7df6bca52ce5c2ab",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "423:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "7dc5d997401716165683ef83",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "424:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "53b3abfc4c23268f085d7f45",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "425:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "52ceb9c59313331ec745c0d3",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "426:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "f91c75e05cada9bbce10490f",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "427:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "dea22f770263ad65d4da7c13",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "428:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "f66c0c94b8ee50a1798057be",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "429:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "9e5f1c582ed6f44cf8f0cae2",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "430:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "ac78a2ebc00fa43c1d08c858",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "431:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "bdac8d1687db5a958f178c35",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "432:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "28b13e98049932c113da8faf",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "433:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "d2b2b1dcc7b4c460a3af7e20",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "434:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "3a797155061bd110d44f9a6e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "435:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "7a37f60faad08bf0b7b78fee",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "436:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "491da290d50ef861e9c0d130",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "437:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "dbbf5f281239b34957a34313",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "438:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "b83f41abe0c6f59b488f2b1f",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "439:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "5ea4810885f1f9a4e7978a2b",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "440:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "eb5efd82292f7e4d9d3147e4",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "441:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "d432f7c3b1b1251e28a6d9ac",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "442:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "3c2b51386ef20e0293a32711",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "443:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "2cc186d0de5528d469dc87b0",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "444:attack",
+      "workload": "production/aims-postgres-cnpg:postgres"
+    },
+    {
+      "case_id": "667718361e23ee4a9bcaefc2",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "445:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "execveat_resolution_probe",
+      "trial": "446:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "15800a00af7738fb0973d561",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "447:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "448:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "449:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "bdbe9609163de1751d1ac005",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "450:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "451:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "452:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "c355eb565c595b23a4c8c8fa",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "453:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "invalid_setns_burst",
+      "trial": "454:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "87084d7309bdeb61d0125ac9",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "468:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "09c3367a7b0290ea11ab1e6e",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "469:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "5909e6523853fdca2464523e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "470:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "fe219a392d4a0569abdaec7b",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "471:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "9f27d01d1f48ce999145446f",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "472:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "84705a92be82074d4f6171c9",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "473:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "474:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "a34000f5af695ff52101dac6",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "475:attack",
+      "workload": "production/aims-waypoint:istio-proxy"
+    },
+    {
+      "case_id": "e80fd26faa17689574a5b5a9",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "476:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "2917ada572d9a4c357c4a04a",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "477:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "6160b6b1ff4bfd2341e50d6c",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "478:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "1b99c2a3164c8e6e3ad1925d",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "479:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "678007f49a3bb73826e0760b",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "480:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "85a3d45e666d4b31b5cd43c3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "481:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "890a7203bf57007e8a67e266",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "482:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "cbdd0676b840b8bda048cfa3",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "483:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "484:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "0be50673ca3441cec450b960",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "485:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "775af55484ee6d686627e7aa",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "486:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "852e33a019d4273aab76f6a7",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "487:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "4dd17746b2053e6682aeb357",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "488:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "771c7e86eba8d04a69ac54e1",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "489:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "d00ef8b38b28c499f029b58f",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "490:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "491:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "492:attack",
+      "workload": "production/catalog-service:app"
+    },
+    {
+      "case_id": "a521c4e13f2082bf8fc51de9",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "493:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "ab6ffeb2db7707eaf49d1af4",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "494:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": "e00ee8fcf8e85322722c263c",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "495:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "aa3ffd51f1f1d9cbc1ed7cd5",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "496:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "7ac4d1634697998b87b40601",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "497:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "0f95665f26fe8ea579b766ce",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "498:attack",
+      "workload": "production/auth-service:app"
+    },
+    {
+      "case_id": "bb47d395b4942f0c5494fc76",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "499:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "b46c459629c32766271cd0ee",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "500:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "2c638ad5e8e04be8380d0bc3",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "501:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": "404089dc284ff05c9a189486",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "502:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": "5799337b618549876c1be945",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "503:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "8002df281d48e4a59b239288",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "504:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "30d4e64b62181274ce749515",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "505:attack",
+      "workload": "production/aims-minio-pool-0:sidecar"
+    },
+    {
+      "case_id": "253e91d1dc092f6baae3fb4e",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "506:attack",
+      "workload": "production/cart-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "child_ptrace_handshake",
+      "trial": "507:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "af8a896d95f328b665ca3192",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "508:attack",
+      "workload": "production/aims-kafka-entity-operator:user-operator"
+    },
+    {
+      "case_id": "35e1d72acc9ec3ba21012d8f",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "509:attack",
+      "workload": "production/api-gateway:app"
+    },
+    {
+      "case_id": "e294bc0abce635360bf2c5d8",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "510:attack",
+      "workload": "production/aims-minio-pool-0:minio"
+    },
+    {
+      "case_id": "17c35ef086dcc40b77561c9b",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "511:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "f5eee202ab985ef225b239fc",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "512:attack",
+      "workload": "production/aims-kafka-entity-operator:topic-operator"
+    },
+    {
+      "case_id": "52eaf62f84f6a239f067a9a3",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "513:attack",
+      "workload": "production/security-telemetry-service:app"
+    },
+    {
+      "case_id": "915bd657514e5b98a74d4309",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "514:attack",
+      "workload": "production/aims-redis:aims-redis"
+    },
+    {
+      "case_id": "2d1d03752a8cc8caef135fdd",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "515:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "4f8915983f43b2d50b45304c",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "516:attack",
+      "workload": "production/notification-service:app"
+    },
+    {
+      "case_id": "6184f2de466b3eaea00774a0",
+      "rank": 1,
+      "scenario": "child_ptrace_handshake",
+      "trial": "517:attack",
+      "workload": "production/order-service:app"
+    },
+    {
+      "case_id": "887984861fc5df7907bbfae9",
+      "rank": 2,
+      "scenario": "execveat_resolution_probe",
+      "trial": "518:attack",
+      "workload": "production/aims-rabbitmq-server:rabbitmq"
+    },
+    {
+      "case_id": "d42d312f88cf74898f08674f",
+      "rank": 2,
+      "scenario": "child_ptrace_handshake",
+      "trial": "519:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "520:attack",
+      "workload": "production/aims-kafka-dual-role:kafka"
+    },
+    {
+      "case_id": "e638f9529dd3f3fc136b92ce",
+      "rank": 2,
+      "scenario": "invalid_setns_burst",
+      "trial": "521:attack",
+      "workload": "production/aims-frontend:web"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "seccomp_api_probe",
+      "trial": "522:attack",
+      "workload": "production/search-recommendation-service:app"
+    },
+    {
+      "case_id": null,
+      "rank": null,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "523:attack",
+      "workload": "production/payment-service:app"
+    },
+    {
+      "case_id": "cc7f1b0810baf6c328774d8b",
+      "rank": 2,
+      "scenario": "anonymous_mprotect_churn",
+      "trial": "524:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    },
+    {
+      "case_id": "8bf901860af5fd818ec151ec",
+      "rank": 2,
+      "scenario": "seccomp_api_probe",
+      "trial": "525:attack",
+      "workload": "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel"
+    }
+  ],
+  "schema": "pulse-rca-ranking-evaluation-v1",
+  "trials": 512,
+  "trials_with_case": 426
+}

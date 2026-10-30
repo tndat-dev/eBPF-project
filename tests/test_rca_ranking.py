@@ -144,7 +144,7 @@ def test_recency_tie_break_puts_the_later_launch_first():
         if node['kind'] == 'process':
             node['start_time'] = {'ben': '2026-10-25T16:41:18.957048Z', 'atk': '2026-10-25T16:41:33.571360Z'}.get(node['exec_id'])
     baseline = {'/operator/sentinel-benign-exec-control': 60., '/operator/sentinel-runtime-attack-blind': 70.}
-    by_name = rank_suspects(tree, baseline, frozen_at=50.)
+    by_name = rank_suspects(tree, baseline, frozen_at=50., tie_break='name')
     by_time = rank_suspects(tree, baseline, frozen_at=50., tie_break='recency')
     assert by_name[0]['score'] == by_name[1]['score']                                 # a tie: both novel, both started in the window
     assert by_name[0]['binary'] == '/operator/sentinel-benign-exec-control'           # the alphabetical order

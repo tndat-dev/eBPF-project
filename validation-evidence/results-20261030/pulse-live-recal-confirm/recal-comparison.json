@@ -1,0 +1,316 @@
+{
+ "arms": {
+  "F": {
+   "primary": {
+    "attack": 0.9967105263157895,
+    "benign": 0.8947368421052632,
+    "control": 0.009868421052631578,
+    "TP": 303,
+    "FN": 1,
+    "control_FP": 3,
+    "precision": 0.9901960784313726,
+    "p50": 0.8864363431930542,
+    "p95": 2.104591119289398,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9833333333333333
+    }
+   },
+   "all_rates": {
+    "attack": 0.9412915851272016,
+    "benign": 0.796875,
+    "control": 0.005859375,
+    "TP": 481,
+    "FN": 30,
+    "control_FP": 3,
+    "precision": 0.993801652892562,
+    "p50": 0.8886852264404297,
+    "p95": 2.880857372283934,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9320388349514563,
+     "child_ptrace_handshake": 0.9514563106796117,
+     "execveat_resolution_probe": 0.941747572815534,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.8811881188118812
+    }
+   },
+   "burden": 1.3499600440125723
+  },
+  "R": {
+   "primary": {
+    "attack": 0.9210526315789473,
+    "benign": 0.5723684210526315,
+    "control": 0.0,
+    "TP": 280,
+    "FN": 24,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.8906855583190918,
+    "p95": 5.4664954185485835,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.8548387096774194,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.75
+    }
+   },
+   "all_rates": {
+    "attack": 0.8356164383561644,
+    "benign": 0.52734375,
+    "control": 0.0,
+    "TP": 427,
+    "FN": 84,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.8864363431930542,
+    "p95": 5.045331835746765,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.7669902912621359,
+     "child_ptrace_handshake": 0.883495145631068,
+     "execveat_resolution_probe": 0.883495145631068,
+     "invalid_setns_burst": 0.9900990099009901,
+     "seccomp_api_probe": 0.6534653465346535
+    }
+   },
+   "burden": 0.804580877665182
+  },
+  "F_system": {
+   "primary": {
+    "attack": 0.9967105263157895,
+    "benign": 0.8947368421052632,
+    "control": 0.009868421052631578,
+    "TP": 303,
+    "FN": 1,
+    "control_FP": 3,
+    "precision": 0.9901960784313726,
+    "p50": 0.6472033262252808,
+    "p95": 1.582842707633972,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9833333333333333
+    }
+   },
+   "all_rates": {
+    "attack": 0.9628180039138943,
+    "benign": 0.796875,
+    "control": 0.005859375,
+    "TP": 492,
+    "FN": 19,
+    "control_FP": 3,
+    "precision": 0.9939393939393939,
+    "p50": 0.6217727661132812,
+    "p95": 1.8820265531539917,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.9320388349514563,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.8811881188118812
+    }
+   },
+   "burden": 1.3804543629911359,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 846,
+    "production/aims-waypoint:istio-proxy": 114,
+    "production/security-telemetry-service:app": 34,
+    "production/aims-kafka-entity-operator:topic-operator": 29,
+    "production/aims-kafka-entity-operator:user-operator": 28,
+    "production/order-service:app": 23,
+    "production/aims-minio-pool-0:minio": 21,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 14,
+    "production/inventory-service:app": 13,
+    "production/aims-minio-pool-0:sidecar": 12,
+    "production/aims-redis:aims-redis": 9,
+    "production/search-recommendation-service:app": 8,
+    "production/cart-service:app": 6,
+    "production/aims-postgres-cnpg:postgres": 4,
+    "production/notification-service:app": 4,
+    "production/api-gateway:app": 4,
+    "production/catalog-service:app": 2,
+    "production/aims-frontend:web": 2,
+    "production/auth-service:app": 2,
+    "production/payment-service:app": 1,
+    "production/aims-rabbitmq-server:rabbitmq": 1
+   }
+  },
+  "R_system": {
+   "primary": {
+    "attack": 0.9210526315789473,
+    "benign": 0.5723684210526315,
+    "control": 0.0,
+    "TP": 280,
+    "FN": 24,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.6155633926391602,
+    "p95": 2.80895390510559,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.8548387096774194,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.75
+    }
+   },
+   "all_rates": {
+    "attack": 0.8845401174168297,
+    "benign": 0.52734375,
+    "control": 0.0,
+    "TP": 452,
+    "FN": 59,
+    "control_FP": 0,
+    "precision": 1.0,
+    "p50": 0.6022882461547852,
+    "p95": 2.364579916000366,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 0.7669902912621359,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.6534653465346535
+    }
+   },
+   "burden": 0.8315566213769884,
+   "normal_episodes_by_workload": {
+    "production/aims-kafka-dual-role:kafka": 221,
+    "production/aims-waypoint:istio-proxy": 124,
+    "production/aims-kafka-entity-operator:topic-operator": 86,
+    "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": 71,
+    "production/security-telemetry-service:app": 45,
+    "production/notification-service:app": 38,
+    "production/aims-minio-pool-0:sidecar": 21,
+    "production/aims-minio-pool-0:minio": 18,
+    "production/order-service:app": 17,
+    "production/cart-service:app": 13,
+    "production/search-recommendation-service:app": 11,
+    "production/aims-redis:aims-redis": 10,
+    "production/auth-service:app": 9,
+    "production/aims-kafka-entity-operator:user-operator": 7,
+    "production/api-gateway:app": 6,
+    "production/catalog-service:app": 5,
+    "production/aims-postgres-cnpg:postgres": 3,
+    "production/aims-frontend:web": 3,
+    "production/aims-rabbitmq-server:rabbitmq": 1
+   }
+  }
+ },
+ "R_minus_F": {
+  "attack_diff": {
+   "point": -0.0756578947368421,
+   "ci95": [
+    -0.13486842105263158,
+    -0.02588580526332226
+   ]
+  },
+  "control_diff": {
+   "point": -0.009868421052631578,
+   "ci95": [
+    -0.029801324503311258,
+    0.0
+   ]
+  },
+  "benign_diff": {
+   "point": -0.3223684210526316,
+   "ci95": [
+    -0.4750830564784053,
+    -0.17549668874172186
+   ]
+  },
+  "burden_diff": {
+   "point": -0.5453791663473903,
+   "ci95": [
+    -2.241316864055511,
+    0.3655185990580386
+   ]
+  },
+  "p95_diff_seconds": {
+   "ci95": [
+    1.363167921304703,
+    3.983340752124784
+   ]
+  }
+ },
+ "F_check": {
+  "rows": 348240,
+  "agreement": 0.9999827705031014,
+  "passed": true
+ },
+ "normal": {
+  "from_unix": 1793270965.6981053,
+  "replica_hours": 852.6178275460727
+ },
+ "blocks": {
+  "R": [
+   {
+    "from_unix": 1793270965.6981053,
+    "replica_hours": 1.191734606027603,
+    "burden": 1.6782259992151942
+   },
+   {
+    "from_unix": 1793292565.6981053,
+    "replica_hours": 144.7519729825523,
+    "burden": 0.4559523344663172
+   },
+   {
+    "from_unix": 1793314165.6981053,
+    "replica_hours": 398.80976991415025,
+    "burden": 0.8901487044222087
+   },
+   {
+    "from_unix": 1793335765.6981053,
+    "replica_hours": 307.8643500433366,
+    "burden": 0.8542723441768388
+   }
+  ],
+  "F": [
+   {
+    "from_unix": 1793270965.6981053,
+    "replica_hours": 1.191734606027603,
+    "burden": 1.6782259992151942
+   },
+   {
+    "from_unix": 1793292565.6981053,
+    "replica_hours": 144.7519729825523,
+    "burden": 1.402398846919127
+   },
+   {
+    "from_unix": 1793314165.6981053,
+    "replica_hours": 398.80976991415025,
+    "burden": 1.3565364763166616
+   },
+   {
+    "from_unix": 1793335765.6981053,
+    "replica_hours": 307.8643500433366,
+    "burden": 1.3155144463559685
+   }
+  ]
+ },
+ "decision": {
+  "checks": {
+   "burden_10pct_lower": "True",
+   "recall_within_2pt": false,
+   "control_within_1pt": true,
+   "p95_within_0_2s": false
+  },
+  "R_beats_F": false,
+  "burden_diff": {
+   "point": -0.5453791663473903,
+   "ci95": [
+    -2.241316864055511,
+    0.3655185990580386
+   ]
+  }
+ },
+ "schema": "pulse-recal-comparison-v1",
+ "protocol": "sentinel_pulse/protocol/live-recalibration-confirmation-v1.json",
+ "F_config": "joint|peer30|k2of2_a5",
+ "first_applied_refresh_unix": 1793268300.7538908,
+ "computed_at_unix": 1793358915.7691002
+}

@@ -21,10 +21,12 @@ Container-runtime processes (containerd shim, runc, crun, conmon) are host-side
 context for every ``kubectl exec`` and container start; they are never
 candidates and do not earn ``spawned_children``.
 
-Ties (equal score): ``tie_break='name'`` orders them by binary path, the rule of every run up to
-pulse-live-recal-confirm; ``'recency'`` puts the process that started latest first, since an alarm follows the
-behaviour that raised it (RCA 5.19: with distinct benign and attack paths, the alphabetical order put the benign
-launch, 15 s earlier, first in most cases).
+Ties (equal score): ``tie_break='recency'`` (default since 31/10) puts the process that started latest first, since
+an alarm follows the behaviour that raised it; ``'name'`` orders them by binary path, the rule of every run up to
+pulse-live-recal-confirm. RCA 5.19: the alphabetical order put the benign launch, 15 s earlier, first in most cases
+(top-1 14.1 %); the registered blind test (rca-ranking-recency-v1) on pulse-live-recal-confirm gave top-1 100 %
+(426/426) with recency and 15.3 % by name, top-3 100 % with both. Limitation stated before the test: the benign
+launch always precedes the attack in the campaign, so recency is favoured by design.
 """
 from __future__ import annotations
 
@@ -100,7 +102,7 @@ def started(node) -> float:
 
 
 def rank_suspects(tree: dict, baseline: dict | None = None, frozen_at: float | None = None,
-                  tie_break: str = 'name') -> list[dict]:
+                  tie_break: str = 'recency') -> list[dict]:
     """``baseline`` maps binary path -> first time seen in this workload."""
     if tie_break not in ('name', 'recency'):
         raise ValueError('tie_break is name or recency')

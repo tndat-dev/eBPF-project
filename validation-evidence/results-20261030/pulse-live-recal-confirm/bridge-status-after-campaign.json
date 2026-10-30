@@ -1,0 +1,25 @@
+{
+ "active": 0,
+ "at": 1793306504.944098,
+ "counters": {
+  "deliveries_pull-default": 509,
+  "deliveries_pull-fast": 1554,
+  "deliveries_push": 1750,
+  "episodes_started": 1781,
+  "positive_rows": 18250,
+  "pushes_failed": 136,
+  "pushes_ok": 5290,
+  "pushes_retried": 76,
+  "rca_triggers_written": 1773,
+  "rows_candidate_alert_preview": 16613,
+  "rows_ignored": 16,
+  "rows_tripwire_alert": 1637,
+  "webhook_requests": 3814
+ },
+ "episodes_known": 105,
+ "stream_up": {
+  "k8s-worker1.local": true,
+  "k8s-worker3.local": true,
+  "k8s-worker4.local": true
+ }
+}
