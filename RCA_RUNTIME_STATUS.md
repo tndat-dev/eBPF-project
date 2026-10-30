@@ -503,7 +503,12 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
   - **Xem case:** bridge phục vụ `/cases` (danh sách HTML), `/cases.json` (cho Grafana), `/cases/<id>` (trang tiếng Anh: tóm tắt, nghi phạm, cây, giới hạn ghi trong case), `/cases/<id>.json|.md|.svg` (SVG vẽ bằng `rca_case_graph.py` + Graphviz). Mã case được kiểm bằng regex 24 ký tự hex, không đi ra ngoài thư mục case.
   - **Grafana:** dashboard tiếng Anh sinh bằng `scripts/ops/build_pulse_dashboard.py` (14 panel, uid giữ `sentinel-pulse-alerts`): hướng dẫn đọc, container đang báo, số đợt, số báo ngay, độ trễ theo đường (trượt 30 phút thay vì cả khoảng xem), case RCA mỗi giờ theo lớp, bảng **Recent RCA cases** qua plugin Infinity (miễn phí) với link mở case và cây SVG. Datasource `testbed/k8s/monitoring/sentinel-pulse-infinity-datasource.yaml`.
 - **Kiểm trên 2 case thật:** case tấn công ptrace (`2e6d889a…`) → `security_operation`, báo ngay; case probe (`00a0b1e0…`) → `probe_only`, chỉ trên dashboard.
-- **Triển khai (chưa làm, sau lượt live):** `sudo bash scripts/grafana_rca_setup.sh` (Graphviz trên `.234`, plugin Infinity qua helm hoặc `GF_INSTALL_PLUGINS`, Grafana khởi động lại), rồi `scripts/alert_bridge.sh` cho lượt kế tiếp (cấu hình bridge đã có `rca_cases_dir`, `case_base_url`).
+- **Triển khai (31/10 02:10–02:25, không có lượt live):**
+  - `scripts/grafana_rca_setup.sh`: Graphviz 2.43.0 trên `.234`; plugin `yesoreyeram-infinity-datasource` 4.1.5 qua `helm upgrade --reuse-values` của release `monitoring`; Grafana rollout xong, các pod monitoring khác chạy bình thường;
+  - đã áp `sentinel-pulse-alerting.yaml` (route mới), datasource `Sentinel Pulse RCA` (uid `sentinel-pulse-infinity`), dashboard tiếng Anh (14 panel);
+  - bridge chỉ để xem case (`pulse-alert-bridge-rca-viewer`, output riêng `/var/lib/sentinel-pulse-alert-bridge/rca-viewer`, đọc case của `pulse-live-recal-confirm`; worker đã dừng nên không có cảnh báo mới);
+  - kiểm: `/cases.json` 200 (500 case gần nhất: 268 `probe_only`, 224 `other`, 7 `new_binary`, 1 `security_operation`), trang case 200, SVG 200 (94 KB); Grafana `/api/ds/query` qua datasource Infinity trả 500 dòng, nên bảng trên dashboard có dữ liệu. Chưa chụp màn hình dashboard (tạo token xem cho trình duyệt bị chặn); mở `http://10.1.16.234:32300/d/sentinel-pulse-alerts` để xem.
+  - Lượt live kế tiếp dùng `scripts/alert_bridge.sh` như trước; route tách mức báo và làm giàu cảnh báo sẽ được đo trên lượt đó.
 - **Giới hạn:** `new_binary` không báo ngay, nên một tấn công chỉ có binary mới mà không có thao tác bảo mật hay syscall lạ sẽ chỉ hiện trên dashboard. Đây là đánh đổi gánh cảnh báo; ghi vào luận văn.
 
 ## 6. Coverage, hiệu năng, giới hạn

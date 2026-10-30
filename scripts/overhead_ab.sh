@@ -2,6 +2,7 @@
 # Pulse eBPF overhead A/B on one worker (protocol overhead-ab-v1), as root, only when no live run is active.
 #   BENCH=/path/syscall_bench LOADER=.../pulse_counter_extended_loader OBJECT=.../pulse_counter_extended.bpf.o \
 #   OUT=/var/tmp/overhead-ab/<node>.jsonl [ROUNDS=5] [SECONDS_PER_MODE=10] bash overhead_ab.sh
+#   [LOADER2=... OBJECT2=...]  adds a fourth condition, monitored2, with a second probe build (exec-intent-v1 P1)
 # Conditions, rotated each round to cancel drift:
 #   off        - no Pulse probe attached on the node;
 #   filtered   - Pulse loader attached, the benchmark's cgroup is NOT in its allow list (cost every unmonitored
@@ -27,14 +28,17 @@ loader_pid=
 stop_loader() { [ -n "$loader_pid" ] && kill "$loader_pid" 2>/dev/null && wait "$loader_pid" 2>/dev/null; loader_pid=; }
 trap 'stop_loader; rm -f "$ALLOW_MON" "$ALLOW_NONE"; rmdir "$CG" 2>/dev/null || true' EXIT
 CONDS=(off filtered monitored)
+[ -n "${LOADER2:-}" ] && CONDS+=(monitored2)
 for round in $(seq 1 "$ROUNDS"); do
-  shift_by=$(( (round - 1) % 3 ))
+  shift_by=$(( (round - 1) % ${#CONDS[@]} ))
   order=("${CONDS[@]:$shift_by}" "${CONDS[@]:0:$shift_by}")
   for cond in "${order[@]}"; do
     case $cond in
       off) ;;
       filtered) "$LOADER" --object "$OBJECT" --allow-cgroup-file "$ALLOW_NONE" --interval-ms 500 >/dev/null 2>&1 & loader_pid=$!; sleep 3 ;;
       monitored) "$LOADER" --object "$OBJECT" --allow-cgroup-file "$ALLOW_MON" --interval-ms 500 >/dev/null 2>&1 & loader_pid=$!; sleep 3 ;;
+      monitored2) "$LOADER2" --object "$OBJECT2" --allow-cgroup-file "$ALLOW_MON" --interval-ms 500 > "$OUT.monitored2-r$round.jsonl" 2>&1 & loader_pid=$!; sleep 3
+                  kill -0 "$loader_pid" 2>/dev/null || { echo "second probe failed to load: $(tail -3 "$OUT.monitored2-r$round.jsonl")" >&2; exit 4; } ;;
     esac
     for mode in "${MODES[@]}"; do
       line=$(sh -c "echo \$\$ > $CG/cgroup.procs && exec $BENCH $mode $SECS")
