@@ -20,7 +20,7 @@ def rows(n=200):
 
 
 @pytest.mark.parametrize('spec', [dict(add=[], drop=[]), dict(add=[202, 321], drop=[]),
-                                dict(add=[], drop=[43, 288])])
+                                dict(add=[], drop=[43, 288]), dict(add=[], drop=[0], everywhere=True)])
 def test_holdout_context_matches_frozen_fitting_preprocessor(spec):
     data = rows()
     # Restrict to the exact frozen training phase; histories reset at its start.

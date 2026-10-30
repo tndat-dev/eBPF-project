@@ -40,6 +40,7 @@ class ContextBuilder:
         # feature-group arms (feature_groups.py): kept columns of the 249 vector and history depth;
         # contexts are emitted at the same windows as base29 and then cut, so arms stay matched
         self.cut = spec if ('columns' in spec or spec.get('history', 3) != 3) else None
+        self.drop, self.everywhere = sorted(drop), bool(spec.get('everywhere'))
 
     def observe(self, row):
         a, b = float(row['window_start']), float(row['window_end'])
@@ -58,6 +59,9 @@ class ContextBuilder:
         vector = decode_vector(row).copy()
         if len(vector) != 249 or not np.isfinite(vector).all():
             raise ValueError('invalid base feature vector')
+        if self.everywhere:                      # syscall-ablation-loo-v1 amendment 1: also out of the hashed bins
+            from .matched_study import remove_from_bins
+            vector = remove_from_bins(vector, row, self.drop)
         result = None
         if len(prior['rates']) == 10:
             history = np.asarray(prior['rates'])
