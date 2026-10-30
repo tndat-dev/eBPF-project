@@ -242,6 +242,21 @@ static int print_snapshots(
             }
             printf("}");
 #endif
+#ifdef PULSE_EXEC_INTENT
+            printf(",\"exec_intent\":{\"contract\":\"exec-intent-v1\",\"execs\":%llu,\"young_startup_calls\":%llu,\"young_steady_calls\":%llu,\"young_steady\":{",
+                   (unsigned long long)sum.execs, (unsigned long long)sum.young_startup_calls,
+                   (unsigned long long)sum.young_steady_calls);
+            for (int slot = 0, sep = 0; slot < PULSE_TRACKED; slot++) {
+                if (!sum.young_steady_tracked[slot]) continue;
+                printf("%s\"%u\":%llu", sep++ ? "," : "", tracked_ids[slot], (unsigned long long)sum.young_steady_tracked[slot]);
+            }
+            printf("},\"failed\":{");
+            for (int slot = 0, sep = 0; slot < PULSE_TRACKED; slot++) {
+                if (!sum.failed_tracked[slot]) continue;
+                printf("%s\"%u\":%llu", sep++ ? "," : "", tracked_ids[slot], (unsigned long long)sum.failed_tracked[slot]);
+            }
+            printf("}}");
+#endif
             printf("}\n");
             printed++;
         }
@@ -305,6 +320,15 @@ int main(int argc, char **argv)
         if (!error) bpf_link__destroy(seccomp_link);
         bpf_link__destroy(link); bpf_object__close(object); return 1;
     }
+#endif
+#ifdef PULSE_EXEC_INTENT
+    struct bpf_link *exec_link = NULL, *exit_link = NULL;
+    program = bpf_object__find_program_by_name(object, "pulse_process_exec");
+    exec_link = program ? bpf_program__attach(program) : NULL;
+    if (!program || libbpf_get_error(exec_link)) { fprintf(stderr, "exec-intent: sched_process_exec hook unavailable\n"); return 1; }
+    program = bpf_object__find_program_by_name(object, "pulse_sys_exit");
+    exit_link = program ? bpf_program__attach_raw_tracepoint(program, "sys_exit") : NULL;
+    if (!program || libbpf_get_error(exit_link)) { fprintf(stderr, "exec-intent: sys_exit hook unavailable\n"); return 1; }
 #endif
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;

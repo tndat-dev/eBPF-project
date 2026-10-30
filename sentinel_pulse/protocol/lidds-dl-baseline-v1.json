@@ -1,0 +1,18 @@
+{
+  "schema": "sentinel-pulse-lidds-dl-baseline-v1",
+  "registered_at": "2026-10-30T11:43+07:00",
+  "registered_before": "any deep-learning baseline is trained or scored on any dataset",
+  "owner_decision": "30/10, supervisor: the thesis/paper needs at least one published deep-learning syscall HIDS as a baseline, starting on LID-DS where published numbers exist",
+  "question": "How do published deep-learning syscall HIDS with public code compare with Pulse (v1 system and v2 step3) on the same recordings, splits and per-recording metric?",
+  "arms": {
+    "chids": "CHIDS (El Khairi et al., CCSW 2022), code github.com/Asbatel/ContainerHIDS (MIT, master as of 2023-05-15, commit recorded at run time): unseen syscalls, unseen arguments and frequency over 1 s scaps into an autoencoder; its published settings (beta = 5, tau = 1 s, threshold gamma = 1.4 x max training reconstruction error), no tuning",
+    "lidds_mlp": "LID-DS library (github.com/LID-DS/LID-DS, GPL-3.0, commit recorded at run time): MLP next-syscall predictor on thread-aware n-grams with the configuration the library documents as default; threshold = max score over validation (library rule)",
+    "lidds_lstm": "LID-DS library LSTM next-syscall predictor, same rules as lidds_mlp; dropped and reported if one scenario's training exceeds 8 CPU-hours on .234",
+    "reference_arms": "Pulse v1 system, v2 step3 and the project's STIDE, from the v2 / confirmation runs on the same recordings"
+  },
+  "data": "LID-DS 2021 (lidds-evaluation-v2 official subset, every test/normal recording), LID-DS 2019 (lidds2019-confirmation-v1 splits) and CB-DS (cbds-confirmation-v1 split); raw sysdig lines of the converted archives, no relabelling",
+  "metric": "as lidds-evaluation-v2: per recording, detected = an alarm after the first exploit time; a test/normal recording with any alarm is a false-alarm recording; pooled and per scenario, Wilson 95 % CIs; detection rate also averaged per scenario for the comparison with published LID-DS numbers. For CHIDS the trace-level rule of its paper (a trace is malicious if one of its scaps is) is the same per-recording rule. Each arm's published numbers are listed next to ours with their metric differences",
+  "fairness": "no arm is tuned on test recordings; seeds fixed (20261030); every arm trained on the same training recordings and thresholded on the same validation recordings (CHIDS keeps its own training-error threshold as published and is also reported with max-validation); CPU only, wall time per arm reported",
+  "not_claimed": "no live comparison; a live deep-learning baseline would need its own run",
+  "schedule": "after the LID-DS v2, CB-DS and LID-DS 2019 runs on .234; runner scripts/analysis/lidds_dl_baselines.py written before the first training and committed"
+}

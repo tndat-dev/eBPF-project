@@ -23,9 +23,20 @@ SEEDS=(73021,73022,73023)
 SECURITY=(175,176,246,248,249,250,265,310,311,313,321,323,425,426,427)
 GROUPS=dict(drop_accept_pair=(43,288),drop_open_pair=(2,257),
             drop_exec_pair=(59,322),drop_clone_pair=(56,435))
+# protocol syscall-ablation-loo-v1 (30/10): every tracked syscall dropped alone, and every functional pair
+LOO_PAIRS=dict(GROUPS,drop_sendrecv_pair=(44,45),drop_mmsg_pair=(299,307),drop_setid_pair=(105,106))
 
 
-def arm_specs(counts, defined):
+def loo_arm_specs():
+    arms={'base29':dict(add=[],drop=[])}
+    arms.update({f'drop_{name}':dict(add=[],drop=[nr]) for nr,name in TRACKED_SYSCALLS.items()})
+    arms.update({k:dict(add=[],drop=list(v)) for k,v in LOO_PAIRS.items()})
+    return arms
+
+
+def arm_specs(counts, defined, arm_set='additions'):
+    if arm_set=='loo':
+        return loo_arm_specs()
     ranked=[i for i,v in sorted(counts.items(),key=lambda item:(-item[1],item[0]))
             if v and i not in TRACKED_SYSCALLS]
     arms={'base29':dict(add=[],drop=[])}
@@ -100,7 +111,7 @@ def run(config_path):
     cfg=json.loads(config_path.read_text());root=Path(cfg['study_output']);root.mkdir(parents=True,exist_ok=True)
     lock=(root/'study.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     binding=dict(config_sha256=sha256_file(config_path),source_sha256=sha256_file(Path(__file__)),
-        seeds=list(SEEDS),train_context_cap=3000,calibration_context_cap=1500,
+        seeds=list(cfg.get('seeds',SEEDS)),**({'arm_set':cfg['arm_set']} if cfg.get('arm_set') else {}),train_context_cap=3000,calibration_context_cap=1500,
         sample_rule='equally spaced ordered contexts; same indices for every arm and seed',
         trees=192,tree_alpha=.001,support_budget=.05,horizon_windows=30,
         raw_observable='same full-ID 500ms frames, idle v2, transition64, rolling10, history3',
@@ -177,7 +188,7 @@ def run(config_path):
         finally:
             for f in handles.values():f.close()
         defined=cfg['native_syscall_ids']
-        index=dict(arms=arm_specs(counts,defined),training_counts={str(k):v for k,v in counts.items()},
+        index=dict(arms=arm_specs(counts,defined,cfg.get('arm_set','additions')),training_counts={str(k):v for k,v in counts.items()},
             workloads={k:dict(path=str(Path(f.name).resolve()),sha256=sha256_file(Path(f.name))) for k,f in handles.items()},
             missing_workloads=sorted(set(cfg['workload_keys'])-set(handles)),
             input_manifest_sha256=sha256_file(index_path),columns=columns,
@@ -188,7 +199,7 @@ def run(config_path):
     status_path=root/'STATUS.json'
     existing=json.loads(status_path.read_text()) if status_path.exists() else {}
     state=dict(state='fitting_matched_variants',completed=existing.get('completed',{}),
-               unknown=existing.get('unknown',{}),expected_models=len(cfg['workload_keys'])*len(index['arms'])*3,
+               unknown=existing.get('unknown',{}),expected_models=len(cfg['workload_keys'])*len(index['arms'])*len(cfg.get('seeds',SEEDS)),
                index_sha256=sha256_file(root/'INDEX.json'),fresh_blind_complete=False)
     for key,item in sorted(index['workloads'].items()):
         path=Path(item['path'])
@@ -202,7 +213,7 @@ def run(config_path):
             for p,cap in (('train',3000),('calibration',1500)):
                 if len(parts[p])>cap:parts[p]=parts[p][np.linspace(0,len(parts[p])-1,cap,dtype=int)]
             width=parts['train'].shape[1]//4
-            for seed in SEEDS:
+            for seed in cfg.get('seeds',SEEDS):
                 tag=f'{key}|{arm}|{seed}'
                 if tag in state['completed']:
                     saved=state['completed'][tag]

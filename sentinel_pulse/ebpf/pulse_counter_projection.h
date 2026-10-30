@@ -18,6 +18,13 @@ struct pulse_counters {
 #ifdef PULSE_SECCOMP_EXTENDED
     uint64_t seccomp_skipped_or_emulated;
 #endif
+#ifdef PULSE_EXEC_INTENT
+    uint64_t execs;
+    uint64_t young_startup_calls;
+    uint64_t young_steady_calls;
+    uint64_t young_steady_tracked[PULSE_TRACKED];
+    uint64_t failed_tracked[PULSE_TRACKED];
+#endif
 };
 
 struct pulse_snapshot {
@@ -31,9 +38,19 @@ struct pulse_snapshot {
 #ifdef PULSE_SECCOMP_EXTENDED
     uint64_t seccomp_skipped_or_emulated;
 #endif
+#ifdef PULSE_EXEC_INTENT
+    uint64_t execs;
+    uint64_t young_startup_calls;
+    uint64_t young_steady_calls;
+    uint64_t young_steady_tracked[PULSE_TRACKED];
+    uint64_t failed_tracked[PULSE_TRACKED];
+#endif
 };
 
-#ifdef PULSE_FULL_IDS
+#ifdef PULSE_EXEC_INTENT
+_Static_assert(sizeof(struct pulse_counters) == (1024 + 64 + 1 + 3 + 2 * 29) * 8,
+               "exec-intent counter map ABI changed");
+#elif defined(PULSE_FULL_IDS)
 _Static_assert(sizeof(struct pulse_counters) == (1024 + 64 + 1) * 8,
                "full-ID extended counter map ABI changed");
 #elif defined(PULSE_SECCOMP_EXTENDED)
@@ -94,6 +111,16 @@ static inline int pulse_project_cpu(
 #ifdef PULSE_SECCOMP_EXTENDED
     if (pulse_add_u64(&sum->seccomp_skipped_or_emulated, raw->seccomp_skipped_or_emulated))
         return -1;
+#endif
+#ifdef PULSE_EXEC_INTENT
+    if (pulse_add_u64(&sum->execs, raw->execs) ||
+        pulse_add_u64(&sum->young_startup_calls, raw->young_startup_calls) ||
+        pulse_add_u64(&sum->young_steady_calls, raw->young_steady_calls))
+        return -1;
+    for (int slot = 0; slot < PULSE_TRACKED; slot++)
+        if (pulse_add_u64(&sum->young_steady_tracked[slot], raw->young_steady_tracked[slot]) ||
+            pulse_add_u64(&sum->failed_tracked[slot], raw->failed_tracked[slot]))
+            return -1;
 #endif
     return 0;
 }

@@ -64,3 +64,12 @@ def test_selection_waits_for_sealed_tail_and_skips_later_segments(tmp_path):
 
 def test_empty_selection_coverage_is_json_null(tmp_path):
     assert sealed_selection_files(tmp_path,200)==([],None)
+
+
+def test_leave_one_out_arms_drop_every_tracked_syscall_and_pair():
+    arms=arm_specs(Counter({0:1}),range(400),'loo')
+    assert len(arms)==1+29+7 and arms['base29']==dict(add=[],drop=[])
+    assert {tuple(a['drop']) for k,a in arms.items() if k.startswith('drop_') and len(a['drop'])==1}=={(n,) for n in TRACKED_SYSCALLS}
+    assert arms['drop_mprotect']['drop']==[10] and arms['drop_sendrecv_pair']['drop']==[44,45]
+    assert not any(a['add'] for a in arms.values())
+    assert contexts(rows(),arms['drop_read'],10,90)['train'].shape[1]==4*(249-4)

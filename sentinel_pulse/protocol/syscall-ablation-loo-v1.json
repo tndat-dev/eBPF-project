@@ -1,0 +1,30 @@
+{
+  "schema": "sentinel-pulse-syscall-ablation-loo-v1",
+  "registered_at": "2026-10-30T11:40+07:00",
+  "registered_before": "any leave-one-out model is fitted or scored",
+  "owner_decision": "30/10, supervisor's request: the ablation must drop every pair and every feature of base29 and evaluate all of them, not only four chosen pairs",
+  "question": "Which of the 29 tracked syscalls (alone) and which functional pairs carry detection signal in Pulse, measured as the loss in recall and in attack-minus-benign separation when only that syscall's explicit channels are removed?",
+  "arms": {
+    "base29": "reference, the deployed feature set",
+    "drop_<syscall>": "29 arms: one tracked syscall's explicit channels removed (log-count, ratio, rolling mean, rolling std: 4 of 249 columns per context window)",
+    "pairs": "7 arms: accept/accept4, open/openat, execve/execveat, clone/clone3 (the 4 pairs of the earlier study, refitted here), sendto/recvfrom, recvmmsg/sendmmsg, setuid/setgid",
+    "what_stays": "the dropped syscall still contributes to the 64 hashed syscall bins, the 64 syscall-pair bins and the 5 aggregates (sensitive-syscall share included); the ablation measures the explicit channel, not every trace of the syscall. Removing it from the pair bins is impossible from stored counts (pair order is not stored); this is reported as a limitation"
+  },
+  "data_and_fit": "exactly the syscall-arms study inputs (pulse-soak-baseline selection capture, matched-parallel-r4-20261015, sealed feature segments and attack-interval exclusions) and its fit settings (sentinel_pulse/syscall_study/matched_study.py with arm_set=loo: ExtraTrees 192 trees + support branch, train cap 3000, calibration cap 1500, same context indices for every arm), 21 workloads",
+  "stages": {
+    "stage_1_screening": "every arm with one seed (73021): 37 x 21 = 777 models",
+    "stage_2_confirmation": "seeds 73021-73023 for base29, every arm whose stage-1 recall or separation difference to base29 has a 95 % CI excluding 0 or a point estimate beyond +-2 points, and the 11 sensitive syscalls regardless (mprotect, chmod, ptrace, setuid, setgid, capset, pivot_root, mount, unshare, setns, seccomp, plus execve and execveat)",
+    "conclusions": "only from stage 2; stage-1-only arms are reported as screening"
+  },
+  "evaluation": "the syscall study's chain unchanged: matched normal holdout with recalibration as Pulse (matched_holdout.py), budget matching under k2of2 (arm_budget.py) at 1 and 5 episodes per replica-hour, attack replay on pulse-attack-dev and on pulse-live-recalibrated (the campaign with benign-binary controls) (arm_attack_replay.py), paired workload-clustered bootstrap 95 % CIs vs base29 (arm_bootstrap.py, 10,000 draws)",
+  "metrics": "recall, benign-binary flag rate and separation (recall - benign rate), control rate, p95 latency, per scenario and pooled, at matched budget",
+  "criteria": {
+    "needed": "an arm whose recall or separation difference to base29 is below 0 with the upper 95 % CI bound < 0 after Holm correction over the stage-2 arms",
+    "removable": "recall and separation differences with 95 % CI lower bounds >= -2 points AND p95 not slower by more than 0.2 s at both budgets",
+    "inconclusive": "neither",
+    "no_change_to_pulse": "no feature-set change follows from this study alone; a removable set would need its own registered live confirmation"
+  },
+  "known_dependence": "these are development data: the same captures selected base29 and the earlier arms; the 5 attack scenarios are exposed (as in the syscall study). LID-DS 2021 can be used as an external check of any removable set",
+  "schedule": "after pulse-live-recal-confirm, its analysis and the queued LID-DS/CB-DS jobs on .234 (MemoryMax 32 GB, no live run active)",
+  "code": "sentinel_pulse/syscall_study/matched_study.py (arm_set=loo, seeds configurable; tests/test_matched_study.py) and the unchanged evaluation scripts"
+}

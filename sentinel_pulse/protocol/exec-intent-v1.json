@@ -1,0 +1,24 @@
+{
+  "schema": "sentinel-pulse-exec-intent-v1",
+  "registered_at": "2026-10-30T11:43+07:00",
+  "registered_before": "the exec-intent probe is loaded anywhere and any exec-intent feature is computed on any data",
+  "owner_decision": "30/10: implement the plan of reports/Giảm gắn cờ binary vô hại.md (protocol exec-intent-v1, per-process counting in the probe); follow the supervisor's order: improve on datasets first, then live",
+  "question": "Do counts of a new process's own behaviour after its startup phase, and counts of failed sensitive syscalls, separate attacks from benign new processes (benign binary flagged 80.7-95.1 % in 6 live runs) without losing recall or the <= 3 s latency?",
+  "why": "the benign binary and the attacks are the same program launched through the same kubectl exec path; identity and launch-context signals separate them by zero (Falco drift: benign 21.0 %, attacks 19-21 %); only behaviour after startup differs (benign positive in median 25 % of its windows, attacks 96 %)",
+  "probe": {
+    "build": "sentinel_pulse/ebpf (make exec-intent): the live matched full-ID observable unchanged plus tp/sched/sched_process_exec and raw_tp/sys_exit, compile flag PULSE_EXEC_INTENT; the live build is byte-identical without the flag",
+    "counters_per_cgroup_window": "execs; young_startup_calls; young_steady_calls; young_steady_tracked[29] (tracked syscalls of processes younger than 30 s after their startup phase); failed_tracked[29] (tracked syscalls returning -errno, any process)",
+    "fixed_values": "young = within 30 s of the process's exec; startup = its first 512 syscalls or first 2 s, whichever ends first; chosen from the startup lengths measured with strace on the host (static binary 16, dynamic getpid binary 31, python3 353, Go about 2,400 syscalls), not on any attack outcome",
+    "state": "LRU hash of 65,536 processes (tgid); a re-exec restarts the phases"
+  },
+  "intent_catalogue": "frozen now, from external sources only (Docker default seccomp profile, Falco and Tracee rules, Temporal System Call Specialization): ptrace, setns, unshare, mount, pivot_root, capset, setuid, setgid, seccomp, execveat, chmod, mprotect in the steady phase; failures (-EPERM, -EACCES, -EINVAL, -EBADF, -ENOENT) of the same syscalls. Not chosen by looking at the 5 fixtures' Pulse outputs; that the fixtures use these syscalls is a known circularity, reported",
+  "steps": {
+    "P0_offline_decomposition": "on existing receipts only (campaign-RESULTS, attack-vs-benign, decision streams of pulse-final-system-confirm on NFS after the live run): positive windows of benign and attack segments by window index after the launch; how much of the benign flagging lies in the first 2 windows (startup) vs later",
+    "P1_probe_checks": "after the live run: verifier load on one worker, then a microbenchmark A/B as overhead-ab-v1 (getpid, read 4 KB, open+close, mmap+munmap; matched probe vs exec-intent probe, 5 rounds alternating). Criterion: added cost <= 150 ns per monitored syscall over the matched probe; otherwise the sys_exit hook is dropped and only exec phases kept",
+    "P2_dataset_development": "LID-DS 2021 (official/development subsets of lidds-evaluation-v2) and CB-DS: the same counters derived from the recordings (exec events, per-process call index, return values); a separate intent branch with its own conformal p-value (max-validation limits) added to step3; development subset only for any choice",
+    "P3_live_blind": "only if P2 reaches step3 + intent recall >= 95 % at <= 3.0 % false-alarm recordings on LID-DS official and CB-DS: a live run with the exec-intent probe, the benign binary plus at least 5 real admin commands (ls, ps, cat, python -c, the pod's own exec probe) as controls, a new campaign, the final-system policy unchanged for the ML branch"
+  },
+  "live_criteria": "on the P3 campaign's main set (6, 12, 24 /s): recall >= 95 %, control <= 5 %, p95 <= 3 s (as now), AND benign-binary plus admin-command flag rate <= 20 % for the system with the intent branch; precision reported at 1:1, 1:10, 1:100 with the benign controls counted as negatives",
+  "not_claimed": "nothing about attacks that run inside the service's own process without exec; nothing live before P3",
+  "code": "sentinel_pulse/ebpf/pulse_counter.bpf.c, pulse_counter_projection.h, pulse_counter_loader.c, Makefile target exec-intent (build checked on .234 30/10, clang and gcc -Werror)"
+}

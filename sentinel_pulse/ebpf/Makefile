@@ -76,3 +76,13 @@ matched: check-deps
 	$(CLANG) $(BPF_CFLAGS) -I"$(MATCHED_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -c pulse_counter.bpf.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended.bpf.o"
 	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS pulse_counter_loader.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended_loader" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(MATCHED_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
+
+# protocol exec-intent-v1 (30/10): the matched full-ID observable plus per-process exec phases and syscall failures
+# (sched_process_exec, raw_tp/sys_exit). Build only; the live matched build above is unchanged.
+.PHONY: exec-intent
+exec-intent: check-deps
+	@test -n "$(EXEC_INTENT_BUILD_DIR)" || { echo 'explicit EXEC_INTENT_BUILD_DIR required' >&2; exit 2; }
+	mkdir -p "$(EXEC_INTENT_BUILD_DIR)"
+	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(EXEC_INTENT_BUILD_DIR)/vmlinux.h"
+	$(CLANG) $(BPF_CFLAGS) -I"$(EXEC_INTENT_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT -c pulse_counter.bpf.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT pulse_counter_loader.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent_loader" -lbpf -lelf -lz
