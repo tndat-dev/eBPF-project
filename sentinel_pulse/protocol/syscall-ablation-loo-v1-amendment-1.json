@@ -1,0 +1,23 @@
+{
+  "schema": "sentinel-pulse-syscall-ablation-loo-v1-amendment-1",
+  "amends": "sentinel_pulse/protocol/syscall-ablation-loo-v1.json",
+  "registered_at": "2026-10-31T02:19+07:00",
+  "registered_before": "any model of the study is fitted",
+  "owner_decision": "31/10: approved; leave-one-out and pairs alone underestimate syscalls that substitute for each other, so functional groups and an 'everywhere' variant are added",
+  "added_arms": {
+    "drop_group_network": "socket, connect, accept, accept4, sendto, recvfrom, recvmmsg, sendmmsg",
+    "drop_group_process": "clone, clone3, execve, execveat",
+    "drop_group_basic_io": "read, write, open, openat, close, mmap",
+    "drop_group_basic_io_no_mmap": "read, write, open, openat, close",
+    "drop_group_namespace": "unshare, setns, mount, pivot_root",
+    "drop_group_identity": "setuid, setgid, capset",
+    "drop_group_sensitive": "the 11 sensitive syscalls of base29: mprotect, chmod, ptrace, setuid, setgid, capset, pivot_root, mount, unshare, setns, seccomp",
+    "drop_everywhere_sensitive": "the same 11, explicit channels removed AND their counts taken out of their hashed syscall bin and of the sensitive-share aggregate (from the stored full-ID counts; totals kept)",
+    "drop_everywhere_namespace": "the 4 namespace syscalls, same 'everywhere' removal"
+  },
+  "arms_total": "46 = base29 + 29 single drops + 7 pairs + 7 groups + 2 everywhere; stage 1 screening 46 x 21 = 966 models (one seed)",
+  "stage_2_addition": "every group and everywhere arm goes to stage 2 (3 seeds) regardless of its screening result",
+  "still_not_covered": "the syscall-pair (transition) bins keep every dropped syscall (pair order is not stored); interactions beyond the listed groups; 2^29 subsets are not searched",
+  "unchanged": "data, fit settings, evaluation chain, metrics, criteria (needed / removable / inconclusive with Holm over stage-2 arms) and the rule that no feature-set change follows from this study alone",
+  "code": "sentinel_pulse/syscall_study/matched_study.py (LOO_GROUPS, LOO_EVERYWHERE, remove_from_bins; tests/test_matched_study.py)"
+}

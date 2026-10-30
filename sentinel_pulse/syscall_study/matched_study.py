@@ -25,12 +25,41 @@ GROUPS=dict(drop_accept_pair=(43,288),drop_open_pair=(2,257),
             drop_exec_pair=(59,322),drop_clone_pair=(56,435))
 # protocol syscall-ablation-loo-v1 (30/10): every tracked syscall dropped alone, and every functional pair
 LOO_PAIRS=dict(GROUPS,drop_sendrecv_pair=(44,45),drop_mmsg_pair=(299,307),drop_setid_pair=(105,106))
+# amendment 1 (31/10): functional groups, and 'everywhere' drops that also remove the IDs from the hashed syscall bins
+LOO_GROUPS=dict(drop_group_network=(41,42,43,288,44,45,299,307),drop_group_process=(56,435,59,322),
+                drop_group_basic_io=(0,1,2,257,3,9),drop_group_basic_io_no_mmap=(0,1,2,257,3),
+                drop_group_namespace=(272,308,165,155),drop_group_identity=(105,106,126),
+                drop_group_sensitive=(10,90,101,105,106,126,155,165,272,308,317))
+LOO_EVERYWHERE=dict(drop_everywhere_sensitive=LOO_GROUPS['drop_group_sensitive'],
+                    drop_everywhere_namespace=LOO_GROUPS['drop_group_namespace'])
+SYSCALL_BIN_OFFSET,SENSITIVE_RATIO_INDEX=63,61
+SENSITIVE_IDS=frozenset({10,59,101,105,106,126,155,165,272,308,317,322})
+
+
+def syscall_bin(nr):
+    return ((nr*2654435761)&0xFFFFFFFF)>>26
+
+
+def remove_from_bins(vector, row, ids):
+    """Take the dropped IDs' counts out of their hashed syscall bin and out of the sensitive share (totals kept)."""
+    total=max(int(row.get('exact_total') or 0),1)
+    delta=row.get('full_counts_delta') or {}
+    for nr in ids:
+        count=int(delta.get(str(nr),0))
+        if not count:continue
+        b=SYSCALL_BIN_OFFSET+syscall_bin(nr)
+        vector[b]=max(0.,vector[b]-count/total)
+        if nr in SENSITIVE_IDS:
+            vector[SENSITIVE_RATIO_INDEX]=max(0.,vector[SENSITIVE_RATIO_INDEX]-count/total)
+    return vector
 
 
 def loo_arm_specs():
     arms={'base29':dict(add=[],drop=[])}
     arms.update({f'drop_{name}':dict(add=[],drop=[nr]) for nr,name in TRACKED_SYSCALLS.items()})
     arms.update({k:dict(add=[],drop=list(v)) for k,v in LOO_PAIRS.items()})
+    arms.update({k:dict(add=[],drop=list(v)) for k,v in LOO_GROUPS.items()})
+    arms.update({k:dict(add=[],drop=list(v),everywhere=True) for k,v in LOO_EVERYWHERE.items()})
     return arms
 
 
@@ -67,6 +96,7 @@ def contexts(rows, spec, start, stop):
             state[ident]=prior
         rates=np.array([row['full_counts_delta'].get(str(n),0)/(b-a) for n in ids+added])
         vector=decode_vector(row)
+        if spec.get('everywhere'):vector=remove_from_bins(vector,row,drop)
         if len(prior['rates'])==10:
             history=np.asarray(prior['rates'])
             mean,std=np.log1p(history.mean(0)),np.log1p(history.std(0))

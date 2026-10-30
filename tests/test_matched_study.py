@@ -68,8 +68,21 @@ def test_empty_selection_coverage_is_json_null(tmp_path):
 
 def test_leave_one_out_arms_drop_every_tracked_syscall_and_pair():
     arms=arm_specs(Counter({0:1}),range(400),'loo')
-    assert len(arms)==1+29+7 and arms['base29']==dict(add=[],drop=[])
+    assert len(arms)==1+29+7+7+2 and arms['base29']==dict(add=[],drop=[])
     assert {tuple(a['drop']) for k,a in arms.items() if k.startswith('drop_') and len(a['drop'])==1}=={(n,) for n in TRACKED_SYSCALLS}
     assert arms['drop_mprotect']['drop']==[10] and arms['drop_sendrecv_pair']['drop']==[44,45]
     assert not any(a['add'] for a in arms.values())
     assert contexts(rows(),arms['drop_read'],10,90)['train'].shape[1]==4*(249-4)
+
+
+def test_everywhere_drop_removes_the_ids_from_their_hashed_bin_and_sensitive_share():
+    from sentinel_pulse.syscall_study.matched_study import remove_from_bins, syscall_bin, SYSCALL_BIN_OFFSET
+    v=np.zeros(249,dtype=np.float32); b=SYSCALL_BIN_OFFSET+syscall_bin(101)
+    v[b]=0.5; v[61]=0.5
+    out=remove_from_bins(v.copy(),dict(exact_total=10,full_counts_delta={'101':5,'0':5}),[101])
+    assert out[b]==0 and out[61]==0
+    arms=arm_specs(Counter({0:1}),range(400),'loo')
+    assert arms['drop_everywhere_sensitive']['everywhere'] is True and len(arms['drop_group_network']['drop'])==8
+    plain=contexts(rows(),arms['drop_group_sensitive'],10,90)['train']
+    every=contexts(rows(),arms['drop_everywhere_sensitive'],10,90)['train']
+    assert plain.shape==every.shape==(plain.shape[0],4*(249-44))
