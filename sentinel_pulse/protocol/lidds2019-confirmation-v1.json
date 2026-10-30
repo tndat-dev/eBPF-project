@@ -1,0 +1,25 @@
+{
+  "schema": "sentinel-pulse-lidds2019-confirmation-v1",
+  "registered_at": "2026-10-30T11:34+07:00",
+  "registered_before": "any LID-DS 2019 recording is converted to windows or scored by any Pulse arm",
+  "seen_before_registration": "the release README; the archive list (10 scenarios: Bruteforce_CWE-307, CVE-2012-2122, CVE-2014-0160, CVE-2017-7529, CVE-2018-3760, CVE-2019-5418, EPS_CWE-434, PHP_CWE-434, SQL_Injection_CWE-89, ZipSlip); for CVE-2017-7529 only: runs.csv, the first 5 lines of one recording, and the first/last timestamps of its recordings (to fix the exploit-time convention). No label was matched to any Pulse output",
+  "question": "Does the frozen configuration of lidds-evaluation-v2 (every arm, unchanged) reach its H1/H2 levels on LID-DS 2019 recordings it was not designed on?",
+  "independence": "PARTIAL: the 10 vulnerabilities are among the 15 of LID-DS 2021, whose exploit code was read when v2 was designed (29/10); the recordings, OS (Ubuntu 18.04), sysdig version and workload generators differ. CB-DS (cbds-confirmation-v1) is the independent confirmation; this one tests transfer across recordings and recording setups",
+  "data": {
+    "release": "LID-DS-2019.zip from the dataset's public share (Proton Drive link in the LID-DS README), 13,970,229,196 bytes, sha256 c87e881d5de9f237fe33b1474d68d9887257bd7ed2c9921c500e7ef9241656cf, testzip clean; downloaded on 10.1.16.254 (outside the cluster) 30/10 01:48-02:28",
+    "conversion": "sentinel_pulse/lidds/lidds2019.py: one LID-DS 2021 layout archive per scenario (2019 sysdig text -> 2021 line format; timestamps = seconds of the day in ns with a midnight-wrap correction; process id = thread id since 2019 records none), then sentinel_pulse/lidds/convert.py with SYSDIG_ALIASES as v2",
+    "splits": "runs.csv order (dataset README and LID-DS library): first 200 normal recordings training, next 50 validation, remaining normal test/normal, all exploit recordings test/normal_and_attack",
+    "exploit_time": "primary: first event + exploit_start_time (seconds from the recording start; the recordings' durations match recording_time, and exploit_start_time always falls inside them). Sensitivity: the LID-DS library's convention, first event + warmup_time - 2 s (earlier, so more lenient), reported apart"
+  },
+  "arms": "every arm of scripts/analysis/lidds_evaluate_v2.py unchanged (ml, tripwire, system, ml_support_first, tripwire_no_exec_set, step1, path, errno, bytes, step2, ngram, step3), exec set E of the live system, v2 fixed values and max-validation thresholds learnt from each scenario's own training and validation recordings",
+  "primary": "step3, subset 'all' (no LID-DS 2019 recording was used for any design); the 30 % development label the v2 script assigns is reported for completeness only",
+  "criteria": {
+    "C1_primary": "step3 pooled over the 10 scenarios: recall >= 90 % AND false-alarm recording rate <= 3.0 % (the H1 levels of lidds-evaluation-v2)",
+    "C2_target": "step3: recall >= 95 % AND no scenario above 5 % false-alarm recordings (the H2 levels)",
+    "reporting": "every arm and every scenario, both exploit-time conventions, Wilson 95 % CIs, scenario-clustered bootstrap of step3 - system; next to the published LID-DS 2019 numbers of the dataset authors (EISA 2021, STIDE and other engines, max-validation threshold, DR and consecutive false alarms) and CHIDS (CCSW 2022), with the metric differences stated"
+  },
+  "if_v2_code_changes": "if the LID-DS 2021 v2 run reveals a defect in the v2 code that changes its outputs, LID-DS 2019 is run with the corrected code and both runs are reported; no other re-run",
+  "not_claimed": "no live claim; no independence from the 2021 scenario design (see independence)",
+  "code": "sentinel_pulse/lidds/lidds2019.py (tests/test_lidds2019.py), scripts/analysis/lidds_evaluate_v2.py and sentinel_pulse/lidds/convert.py unchanged, scripts/lidds2019_after_live.sh",
+  "schedule": "after pulse-live-recal-confirm and its analysis: copy the release from .254 to .234 local disk (sha256 checked), build the 10 archives, convert, evaluate in parallel parts, merge"
+}

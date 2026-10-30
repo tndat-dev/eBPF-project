@@ -1909,7 +1909,13 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Tiêu chí cho step3** (tập `all`): C1 recall ≥ 90% với báo nhầm ≤ 3,0%; C2 ≥ 95%. Báo mọi nhánh, mọi loại tấn công, và hiệu step3 − system với CI bootstrap ghép cặp (`scripts/analysis/cbds_confirmation.py`, có test).
   - **Dựng archive (22:22–22:32, trên host):** 2.591 bản ghi, không bản nào rỗng, 681 MB; event ngoài container chính ở 9 bản ghi tấn công (M-MKNOD 2, M-NET 6, M_SOCKET 1), tối đa 0,14% event của một loại (M_SOCKET), normal 0. Biên nhận: `validation-evidence/results-20261029/cbds/`.
   - **Lịch:** archive chép về đĩa local của `.234` (`/var/tmp/cb-ds/archives/`), `scripts/cbds_after_live.sh` (snapshot `8e538a4`) chạy sau khi phân tích lượt live xong.
-- **LID-DS 2019:** chủ đồ án đang tải (29/10 tối). Protocol riêng sẽ đăng ký trước khi chạy.
+- **LID-DS 2019 (protocol `lidds2019-confirmation-v1`, đăng ký 30/10 11:34, trước khi chuyển đổi hay chấm bản ghi nào):**
+  - **Dữ liệu:** tải trên `10.1.16.254` (ngoài cụm) 30/10 01:48–02:28, 13,97 GB, sha256 `c87e881d…`, `testzip` sạch; 10 kịch bản `tar.gz` + README. Chép vào `.234` sau lượt live.
+  - **Định dạng khác 2021:** dòng `số_event HH:MM:SS.nano cpu uid tên_process tid chiều syscall tham_số` (không có ngày, không có PID); nhãn trong `runs.csv`; thứ tự file trong tar khác thứ tự `runs.csv`.
+  - **Chuyển đổi** (`sentinel_pulse/lidds/lidds2019.py`, có test): archive bố cục 2021 cho mỗi kịch bản, thời gian theo giây trong ngày có sửa qua nửa đêm, PID = TID; chia theo thứ tự `runs.csv`: 200 normal đầu train, 50 tiếp validation, còn lại test.
+  - **Thời điểm exploit:** chính = event đầu + `exploit_start_time` (độ dài bản ghi khớp `recording_time`, exploit 13–39 s luôn nằm trong bản ghi). Quy ước của thư viện LID-DS (event đầu + warmup − 2 s, sớm hơn nên dễ dãi hơn) báo như độ nhạy.
+  - **Độc lập một phần:** 10 lỗ hổng trùng với bộ 2021 mà mã exploit đã được đọc khi thiết kế v2; CB-DS mới là xác nhận độc lập.
+  - **Lịch:** `scripts/lidds2019_after_live.sh` (dựng archive, chuyển đổi, chấm 4 phần, gộp) sau phân tích lượt live.
 
 ### 5.33 Binary vô hại: phân tích mô tả trên lượt cuối và nghiên cứu hướng giảm (30/10 01:15–01:45; mô tả, không dùng để quyết định)
 

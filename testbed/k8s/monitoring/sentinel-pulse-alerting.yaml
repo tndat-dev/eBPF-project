@@ -6,6 +6,8 @@
 #   pull-fast     scrape 5 s -> rule every 5 s -> Alertmanager (group_wait 0 s) -> webhook
 #   pull-default  scrape 30 s -> rule every 30 s -> Alertmanager (group_wait 30 s), i.e. the stack's defaults
 # Alertmanager's own root route still sends everything else to the "null" receiver; nothing leaves the cluster.
+# RCA integration (30/10): the bridge also pushes SentinelPulseTriage (labels rca_class, notify) and serves the RCA
+# cases on http://10.1.16.234:9478/cases; routing below.
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -76,6 +78,12 @@ metadata:
   name: sentinel-pulse
   namespace: sentinel-pulse
 spec:
+  # Measured path (unchanged): SentinelPulseAnomaly / SentinelPulseAnomalyPull -> pulse-bridge webhook (latency
+  # receipts and RCA triggers). Delivery split (30/10): SentinelPulseTriage, pushed by the bridge with the RCA class,
+  #   notify=immediate (tripwire hit, or an RCA case with a credential/namespace/mount/ptrace operation) -> pulse-immediate
+  #   notify=dashboard (probe-only, new binary, other)                                                   -> pulse-dashboard
+  # pulse-immediate is the bridge's /alertmanager/notify webhook, the stand-in for a person (no external receiver);
+  # pulse-dashboard sends nothing, the alert is only shown (Alertmanager UI, Grafana table).
   route:
     receiver: pulse-bridge
     groupBy: [alertname, path, episode]
@@ -83,6 +91,15 @@ spec:
     groupInterval: 1m
     repeatInterval: 4h
     routes:
+      - matchers: [{name: alertname, value: SentinelPulseTriage}, {name: notify, value: immediate}]
+        receiver: pulse-immediate
+        groupBy: [alertname, episode]
+        groupWait: 0s
+        groupInterval: 1m
+        repeatInterval: 12h
+      - matchers: [{name: alertname, value: SentinelPulseTriage}, {name: notify, value: dashboard}]
+        receiver: pulse-dashboard
+        groupBy: [alertname, episode]
       - matchers: [{name: path, value: pull-default}]
         receiver: pulse-bridge
         groupWait: 30s
@@ -92,3 +109,8 @@ spec:
       webhookConfigs:
         - url: http://10.1.16.234:9478/alertmanager
           sendResolved: false
+    - name: pulse-immediate
+      webhookConfigs:
+        - url: http://10.1.16.234:9478/alertmanager/notify
+          sendResolved: false
+    - name: pulse-dashboard

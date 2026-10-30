@@ -3,6 +3,7 @@
 # Prometheus / Grafana of the cluster. Read-only towards Pulse and RCA. Run on .234 as root:
 #   sudo bash scripts/alert_bridge.sh RUN        (RUN = live run whose RCA config names workers and frozen hashes)
 # Stop: systemctl stop pulse-alert-bridge-RUN; kubectl delete -f testbed/k8s/monitoring/sentinel-pulse-alerting.yaml
+# One-time before the RCA views work: sudo bash scripts/grafana_rca_setup.sh (Graphviz on .234, Infinity plugin in Grafana).
 set -euo pipefail
 RUN=${1:?run name, e.g. pulse-stable-confirm}
 REPO=/home/dat/eBPF-project
@@ -23,7 +24,10 @@ cfg = dict(run=sys.argv[1].split('rca-', 1)[1][:-5], workers=rca['workers'],
                     rotate_seconds=3600),
            model_hash=rca['model_hash'], policy_hash=rca['policy_hash'],
            alertmanager_url='http://monitoring-kube-prometheus-alertmanager.monitoring.svc:9093',
-           listen=['0.0.0.0', 9478], resolve_after_seconds=3, refresh_seconds=5, output=out)
+           listen=['0.0.0.0', 9478], resolve_after_seconds=3, refresh_seconds=5, output=out,
+           # RCA integration (30/10): enrich alerts from the run's RCA cases, triage routing, case pages
+           rca_cases_dir=f"/var/lib/sentinel-pulse-rca/rca-{sys.argv[1].split('rca-', 1)[1][:-5]}/cases",
+           case_base_url='http://10.1.16.234:9478')
 open(out + '/config.json', 'w').write(json.dumps(cfg, indent=1))
 EOF
 chown dat:dat $OUT/config.json
@@ -34,6 +38,9 @@ systemd-run --unit pulse-alert-bridge-$RUN --uid dat --gid dat -p Nice=10 -p Mem
   --setenv=PYTHONPATH=$SRC --setenv=PYTHONDONTWRITEBYTECODE=1 --setenv=CODE_COMMIT=$COMMIT \
   /usr/bin/python3 -u -m sentinel_pulse.ops.alert_bridge --config $OUT/config.json
 kc apply -f $SRC/testbed/k8s/monitoring/sentinel-pulse-alerting.yaml
+kc apply -f $SRC/testbed/k8s/monitoring/sentinel-pulse-infinity-datasource.yaml
+python3 $SRC/scripts/ops/build_pulse_dashboard.py > $OUT/sentinel-pulse-dashboard.json   # same as the committed JSON
+cmp -s $OUT/sentinel-pulse-dashboard.json $SRC/testbed/k8s/monitoring/sentinel-pulse-dashboard.json || echo "warning: dashboard JSON differs from the generator"
 kc -n sentinel-pulse create configmap sentinel-pulse-dashboard \
   --from-file=sentinel-pulse-alerts.json=$SRC/testbed/k8s/monitoring/sentinel-pulse-dashboard.json \
   --dry-run=client -o yaml | kc label --local -f - grafana_dashboard=1 -o yaml | kc apply -f -

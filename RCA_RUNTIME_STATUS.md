@@ -493,6 +493,18 @@ Bằng chứng cho mục 5: [`validation-evidence/results-20261019/`](validation
 - **Kiểm blind:** trên các case của `pulse-live-recal-confirm`, đăng ký trước khi đọc case nào. Kỳ vọng top-1 ≥ 95%, top-3 không thấp hơn luật cũ. Đạt thì luật mới thành mặc định cho RCA live từ lượt sau.
 - **Giới hạn ghi từ trước:** campaign luôn chạy binary vô hại 15 s trước tấn công, nên luật mới thắng một phần là nhờ thiết kế campaign. Kết quả chứng minh luật cũ có artifact; nó không chứng minh luật mới tốt trong mọi trường hợp. Nếu tấn công khởi chạy trước một process mới vô hại thì nó sẽ bị xếp thứ 2. Muốn kết luận chung thì cần một lượt có thứ tự chạy ngẫu nhiên.
 
+### 5.20 Tích hợp RCA với Alertmanager và Grafana (code 30/10; triển khai sau lượt `pulse-live-recal-confirm`)
+
+- **Yêu cầu của chủ đồ án (30/10):** cảnh báo mang tóm tắt RCA; xem cây RCA trên Grafana; tách mức báo khi gửi; dashboard tiếng Anh; không cần người nhận thật (Telegram, email).
+- **Code** (`sentinel_pulse/ops/rca_view.py`, `sentinel_pulse/ops/alert_bridge.py`; test `tests/test_rca_view.py`, 502 test đạt):
+  - **Làm giàu cảnh báo:** bridge quét thư mục case của RCA mỗi giây. Khi case của một đợt xuất hiện (khoảng 2,7 s sau cảnh báo), bridge đẩy lại **cùng** cảnh báo `SentinelPulseAnomaly` (nhãn giữ nguyên nên vẫn là một cảnh báo, đường đo độ trễ không đổi), thêm annotation: nghi phạm hạng 1, lý do, điểm, số nghi phạm có thao tác bảo mật, số đích mạng, link case và link cây SVG. Các lần làm mới sau giữ annotation đó. Case có trước khi bridge khởi động chỉ được đánh chỉ mục, không đẩy.
+  - **Lọc nhiễu khi gửi:** cảnh báo thứ hai `SentinelPulseTriage` mang nhãn `rca_class` và `notify`. `tripwire` (đẩy ngay khi đợt bắt đầu, không chờ case) và `security_operation` → `notify=immediate`; `probe_only`, `new_binary`, `other` → `notify=dashboard`. Route Alertmanager (`testbed/k8s/monitoring/sentinel-pulse-alerting.yaml`): `immediate` → webhook `/alertmanager/notify` của bridge (thay cho người nhận, ghi `notifications.jsonl`); `dashboard` → receiver không gửi gì. Đây chỉ là quyết định gửi; mọi chỉ số đánh giá vẫn tính trên `SentinelPulseAnomaly`.
+  - **Xem case:** bridge phục vụ `/cases` (danh sách HTML), `/cases.json` (cho Grafana), `/cases/<id>` (trang tiếng Anh: tóm tắt, nghi phạm, cây, giới hạn ghi trong case), `/cases/<id>.json|.md|.svg` (SVG vẽ bằng `rca_case_graph.py` + Graphviz). Mã case được kiểm bằng regex 24 ký tự hex, không đi ra ngoài thư mục case.
+  - **Grafana:** dashboard tiếng Anh sinh bằng `scripts/ops/build_pulse_dashboard.py` (14 panel, uid giữ `sentinel-pulse-alerts`): hướng dẫn đọc, container đang báo, số đợt, số báo ngay, độ trễ theo đường (trượt 30 phút thay vì cả khoảng xem), case RCA mỗi giờ theo lớp, bảng **Recent RCA cases** qua plugin Infinity (miễn phí) với link mở case và cây SVG. Datasource `testbed/k8s/monitoring/sentinel-pulse-infinity-datasource.yaml`.
+- **Kiểm trên 2 case thật:** case tấn công ptrace (`2e6d889a…`) → `security_operation`, báo ngay; case probe (`00a0b1e0…`) → `probe_only`, chỉ trên dashboard.
+- **Triển khai (chưa làm, sau lượt live):** `sudo bash scripts/grafana_rca_setup.sh` (Graphviz trên `.234`, plugin Infinity qua helm hoặc `GF_INSTALL_PLUGINS`, Grafana khởi động lại), rồi `scripts/alert_bridge.sh` cho lượt kế tiếp (cấu hình bridge đã có `rca_cases_dir`, `case_base_url`).
+- **Giới hạn:** `new_binary` không báo ngay, nên một tấn công chỉ có binary mới mà không có thao tác bảo mật hay syscall lạ sẽ chỉ hiện trên dashboard. Đây là đánh đổi gánh cảnh báo; ghi vào luận văn.
+
 ## 6. Coverage, hiệu năng, giới hạn
 
 | Mục | Giá trị / giới hạn |

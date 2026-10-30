@@ -1,0 +1,19 @@
+# Grafana datasource for the RCA case table of the Sentinel Pulse dashboard: the free Infinity plugin
+# (yesoreyeram-infinity-datasource) reading the alert bridge's /cases.json. Picked up by the Grafana sidecar of
+# kube-prometheus-stack (label grafana_datasource=1). The plugin itself is installed by scripts/alert_bridge.sh.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sentinel-pulse-infinity-datasource
+  namespace: monitoring
+  labels: {grafana_datasource: "1"}
+data:
+  sentinel-pulse-infinity.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Sentinel Pulse RCA
+        uid: sentinel-pulse-infinity
+        type: yesoreyeram-infinity-datasource
+        access: proxy
+        jsonData:
+          allowedHosts: ["http://10.1.16.234:9478"]

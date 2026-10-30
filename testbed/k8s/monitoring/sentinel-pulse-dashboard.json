@@ -1,12 +1,12 @@
 {
  "uid": "sentinel-pulse-alerts",
- "title": "Sentinel Pulse – cảnh báo vận hành (thử nghiệm)",
+ "title": "Sentinel Pulse – operational alerts and RCA",
  "tags": [
   "sentinel-pulse"
  ],
  "timezone": "browser",
  "schemaVersion": 39,
- "version": 1,
+ "version": 2,
  "refresh": "10s",
  "time": {
   "from": "now-6h",
@@ -25,8 +25,9 @@
  "panels": [
   {
    "id": 1,
-   "type": "stat",
-   "title": "Đang cảnh báo (container)",
+   "type": "text",
+   "title": "How to read this dashboard",
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "${datasource}"
@@ -34,7 +35,7 @@
    "gridPos": {
     "x": 0,
     "y": 0,
-    "w": 6,
+    "w": 24,
     "h": 4
    },
    "fieldConfig": {
@@ -43,98 +44,17 @@
     },
     "overrides": []
    },
-   "targets": [
-    {
-     "refId": "A",
-     "expr": "count(sentinel_pulse_preview_active{pull_profile=\"fast\"}) or vector(0)"
-    }
-   ]
+   "targets": [],
+   "options": {
+    "mode": "markdown",
+    "content": "Sentinel Pulse runs in **shadow mode**: an alert is a preview of the frozen model and policy, never an automatic response. *Containers alerting* counts open alert episodes; an *episode* is consecutive alerting windows of one container (gap > 3 s ends it). *Immediate* alerts are tripwire hits or RCA cases with a credential, namespace, mount or ptrace operation; probe-only and other cases stay on this dashboard. Episode counts here include attack-campaign trials and Kubernetes exec probes, so they are not the thesis burden metric (normal time only, per replica-hour). Click a case id to open its evidence tree (association by identity and time, not proven causality)."
+   }
   },
   {
    "id": 2,
    "type": "stat",
-   "title": "Đợt cảnh báo trong khoảng xem",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "${datasource}"
-   },
-   "gridPos": {
-    "x": 6,
-    "y": 0,
-    "w": 6,
-    "h": 4
-   },
-   "fieldConfig": {
-    "defaults": {
-     "unit": "short"
-    },
-    "overrides": []
-   },
-   "targets": [
-    {
-     "refId": "A",
-     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[$__range]))"
-    }
-   ]
-  },
-  {
-   "id": 3,
-   "type": "stat",
-   "title": "p95 preview → Alertmanager → webhook, push",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "${datasource}"
-   },
-   "gridPos": {
-    "x": 12,
-    "y": 0,
-    "w": 6,
-    "h": 4
-   },
-   "fieldConfig": {
-    "defaults": {
-     "unit": "s"
-    },
-    "overrides": []
-   },
-   "targets": [
-    {
-     "refId": "A",
-     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))"
-    }
-   ]
-  },
-  {
-   "id": 4,
-   "type": "stat",
-   "title": "Luồng decision đang nối",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "${datasource}"
-   },
-   "gridPos": {
-    "x": 18,
-    "y": 0,
-    "w": 6,
-    "h": 4
-   },
-   "fieldConfig": {
-    "defaults": {
-     "unit": "short"
-    },
-    "overrides": []
-   },
-   "targets": [
-    {
-     "refId": "A",
-     "expr": "sum(sentinel_pulse_decision_stream_up{pull_profile=\"fast\"})"
-    }
-   ]
-  },
-  {
-   "id": 5,
-   "type": "timeseries",
-   "title": "Container đang có cảnh báo, theo workload",
+   "title": "Containers alerting now",
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "${datasource}"
@@ -142,6 +62,186 @@
    "gridPos": {
     "x": 0,
     "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "count(sentinel_pulse_preview_active{pull_profile=\"fast\"}) or vector(0)",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "type": "stat",
+   "title": "Alert episodes in range",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[$__range]))",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "type": "stat",
+   "title": "Immediate notifications in range",
+   "description": "Triage alerts routed to the immediate receiver (tripwire or security operation).",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=~\"notifications_.*\"}[$__range])) or vector(0)",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "type": "stat",
+   "title": "p95 preview → Alertmanager → webhook (push)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "s"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "type": "stat",
+   "title": "Decision streams connected",
+   "description": "One per worker node; 3 expected.",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(sentinel_pulse_decision_stream_up{pull_profile=\"fast\"})",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "type": "stat",
+   "title": "RCA cases in range",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 20,
+    "y": 4,
+    "w": 4,
+    "h": 4
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=~\"rca_cases_.*\"}[$__range])) or vector(0)",
+     "legendFormat": "",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "type": "timeseries",
+   "title": "Containers alerting, by workload",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 8,
     "w": 24,
     "h": 8
    },
@@ -151,35 +251,27 @@
     },
     "overrides": []
    },
-   "options": {
-    "legend": {
-     "displayMode": "table",
-     "placement": "bottom",
-     "calcs": [
-      "lastNotNull",
-      "max"
-     ]
-    }
-   },
    "targets": [
     {
      "refId": "A",
      "expr": "count by (workload) (sentinel_pulse_preview_active{pull_profile=\"fast\"})",
-     "legendFormat": "{{workload}}"
+     "legendFormat": "{{workload}}",
+     "instant": false
     }
    ]
   },
   {
-   "id": 6,
+   "id": 9,
    "type": "timeseries",
-   "title": "Độ trễ preview → webhook theo đường (p50 / p95, trong khoảng xem)",
+   "title": "Preview → webhook latency by path (p50 / p95, trailing 30 min)",
+   "description": "From the decision preview to the webhook receipt; not kernel → recipient.",
    "datasource": {
     "type": "prometheus",
     "uid": "${datasource}"
    },
    "gridPos": {
     "x": 0,
-    "y": 12,
+    "y": 16,
     "w": 12,
     "h": 8
    },
@@ -189,60 +281,57 @@
     },
     "overrides": []
    },
-   "options": {
-    "legend": {
-     "displayMode": "table",
-     "placement": "bottom",
-     "calcs": [
-      "lastNotNull",
-      "max"
-     ]
-    }
-   },
    "targets": [
     {
      "refId": "A",
-     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))",
-     "legendFormat": "p50 push"
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[30m])))",
+     "legendFormat": "p50 push",
+     "instant": false
     },
     {
      "refId": "B",
-     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[$__range])))",
-     "legendFormat": "p50 pull-fast"
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[30m])))",
+     "legendFormat": "p95 push",
+     "instant": false
     },
     {
      "refId": "C",
-     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[$__range])))",
-     "legendFormat": "p50 pull-default"
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[30m])))",
+     "legendFormat": "p50 pull-fast",
+     "instant": false
     },
     {
      "refId": "D",
-     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"push\"}[$__range])))",
-     "legendFormat": "p95 push"
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[30m])))",
+     "legendFormat": "p95 pull-fast",
+     "instant": false
     },
     {
      "refId": "E",
-     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-fast\"}[$__range])))",
-     "legendFormat": "p95 pull-fast"
+     "expr": "histogram_quantile(0.5, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[30m])))",
+     "legendFormat": "p50 pull-default",
+     "instant": false
     },
     {
      "refId": "F",
-     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[$__range])))",
-     "legendFormat": "p95 pull-default"
+     "expr": "histogram_quantile(0.95, sum by (le) (increase(sentinel_pulse_alert_delivery_seconds_bucket{pull_profile=\"fast\",path=\"pull-default\"}[30m])))",
+     "legendFormat": "p95 pull-default",
+     "instant": false
     }
    ]
   },
   {
-   "id": 7,
+   "id": 10,
    "type": "timeseries",
-   "title": "Đợt cảnh báo mỗi giờ (toàn cụm)",
+   "title": "RCA cases per hour, by triage class",
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "${datasource}"
    },
    "gridPos": {
     "x": 12,
-    "y": 12,
+    "y": 16,
     "w": 12,
     "h": 8
    },
@@ -252,61 +341,325 @@
     },
     "overrides": []
    },
-   "options": {
-    "legend": {
-     "displayMode": "table",
-     "placement": "bottom",
-     "calcs": [
-      "lastNotNull",
-      "max"
-     ]
-    }
-   },
    "targets": [
     {
      "refId": "A",
-     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[1h]))",
-     "legendFormat": "đợt/giờ"
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"rca_cases_tripwire\"}[1h]))",
+     "legendFormat": "tripwire",
+     "instant": false
+    },
+    {
+     "refId": "B",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"rca_cases_security_operation\"}[1h]))",
+     "legendFormat": "security_operation",
+     "instant": false
+    },
+    {
+     "refId": "C",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"rca_cases_new_binary\"}[1h]))",
+     "legendFormat": "new_binary",
+     "instant": false
+    },
+    {
+     "refId": "D",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"rca_cases_probe_only\"}[1h]))",
+     "legendFormat": "probe_only",
+     "instant": false
+    },
+    {
+     "refId": "E",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"rca_cases_other\"}[1h]))",
+     "legendFormat": "other",
+     "instant": false
     }
    ]
   },
   {
-   "id": 8,
-   "type": "table",
-   "title": "Cảnh báo Pulse đang firing trong Prometheus (đường pull)",
+   "id": 11,
+   "type": "timeseries",
+   "title": "Alert episodes per hour (whole cluster)",
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "${datasource}"
    },
    "gridPos": {
     "x": 0,
-    "y": 20,
+    "y": 24,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"episodes_started\"}[1h]))",
+     "legendFormat": "episodes/hour",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "type": "timeseries",
+   "title": "Immediate notifications per hour, by class",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 24,
+    "w": 12,
+    "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"notifications_tripwire\"}[1h]))",
+     "legendFormat": "tripwire",
+     "instant": false
+    },
+    {
+     "refId": "B",
+     "expr": "sum(increase(sentinel_pulse_bridge_events_total{pull_profile=\"fast\",event=\"notifications_security_operation\"}[1h]))",
+     "legendFormat": "security_operation",
+     "instant": false
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "type": "table",
+   "title": "Recent RCA cases (last 6 h)",
+   "description": "From the alert bridge (/cases.json). Case opens the English case page; Tree opens the SVG drawing.",
+   "datasource": {
+    "type": "yesoreyeram-infinity-datasource",
+    "uid": "sentinel-pulse-infinity"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 32,
+    "w": 24,
+    "h": 12
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": [
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "Case"
+      },
+      "properties": [
+       {
+        "id": "links",
+        "value": [
+         {
+          "title": "Open RCA case",
+          "url": "http://10.1.16.234:9478/cases/${__value.raw}",
+          "targetBlank": true
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "Tree"
+      },
+      "properties": [
+       {
+        "id": "links",
+        "value": [
+         {
+          "title": "Open evidence tree (SVG)",
+          "url": "${__value.raw}",
+          "targetBlank": true
+         }
+        ]
+       },
+       {
+        "id": "mappings",
+        "value": [
+         {
+          "type": "regex",
+          "options": {
+           "pattern": ".*",
+           "result": {
+            "text": "open tree"
+           }
+          }
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "Notify"
+      },
+      "properties": [
+       {
+        "id": "custom.cellOptions",
+        "value": {
+         "type": "color-background"
+        }
+       },
+       {
+        "id": "mappings",
+        "value": [
+         {
+          "type": "value",
+          "options": {
+           "immediate": {
+            "color": "red",
+            "index": 0
+           },
+           "dashboard": {
+            "color": "transparent",
+            "index": 1
+           }
+          }
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "yesoreyeram-infinity-datasource",
+      "uid": "sentinel-pulse-infinity"
+     },
+     "type": "json",
+     "source": "url",
+     "format": "table",
+     "parser": "backend",
+     "url": "http://10.1.16.234:9478/cases.json?hours=6",
+     "url_options": {
+      "method": "GET"
+     },
+     "columns": [
+      {
+       "selector": "created_at",
+       "text": "Created",
+       "type": "timestamp_epoch_s"
+      },
+      {
+       "selector": "case_id",
+       "text": "Case",
+       "type": "string"
+      },
+      {
+       "selector": "rca_class",
+       "text": "Class",
+       "type": "string"
+      },
+      {
+       "selector": "notify",
+       "text": "Notify",
+       "type": "string"
+      },
+      {
+       "selector": "workload",
+       "text": "Workload",
+       "type": "string"
+      },
+      {
+       "selector": "node",
+       "text": "Node",
+       "type": "string"
+      },
+      {
+       "selector": "top_binary",
+       "text": "Top suspect",
+       "type": "string"
+      },
+      {
+       "selector": "top_reasons",
+       "text": "Reasons",
+       "type": "string"
+      },
+      {
+       "selector": "top_score",
+       "text": "Score",
+       "type": "number"
+      },
+      {
+       "selector": "connections",
+       "text": "Network destinations",
+       "type": "number"
+      },
+      {
+       "selector": "svg_url",
+       "text": "Tree",
+       "type": "string"
+      }
+     ]
+    }
+   ],
+   "options": {
+    "showHeader": true,
+    "sortBy": [
+     {
+      "displayName": "Created",
+      "desc": true
+     }
+    ]
+   }
+  },
+  {
+   "id": 14,
+   "type": "table",
+   "title": "Pulse alerts firing in Prometheus (pull path)",
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${datasource}"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 44,
     "w": 24,
     "h": 8
+   },
+   "fieldConfig": {
+    "defaults": {
+     "unit": "short"
+    },
+    "overrides": []
    },
    "targets": [
     {
      "refId": "A",
      "expr": "ALERTS{alertname=\"SentinelPulseAnomalyPull\",alertstate=\"firing\",path=\"pull-fast\"}",
-     "format": "table",
+     "legendFormat": "",
      "instant": true
     }
    ],
-   "transformations": [
-    {
-     "id": "organize",
-     "options": {
-      "excludeByName": {
-       "Time": true,
-       "Value": true,
-       "__name__": true,
-       "alertstate": true,
-       "namespace": true,
-       "severity": true
-      }
-     }
-    }
-   ]
+   "options": {
+    "showHeader": true
+   }
   }
  ]
 }
