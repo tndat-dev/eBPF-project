@@ -1963,6 +1963,21 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - chưa nguồn nào đã đọc đo tỉ lệ báo nhầm trên process exec vô hại.
   - **Kế hoạch đề xuất (chưa làm, chờ chủ đồ án):** phân rã offline → protocol `exec-intent-v1` → probe đếm theo process + errno, đo lại overhead → mở rộng đối chứng bằng lệnh quản trị thật → lượt live blind.
 
+### 5.34 exec-intent-v1: P0 phân rã cờ theo thời gian và nạp thử probe (31/10 02:20–02:45; mô tả, không dùng để quyết định)
+
+- **P0** (`scripts/analysis/exec_phase_decomposition.py`, có test; biên nhận `validation-evidence/results-20261031/exec-intent/p0-*.json`; mọi tốc độ, nhãn kỳ vọng): nếu không cho k cửa sổ đầu sau lúc khởi chạy bật preview:
+
+  | Bỏ qua | Binary vô hại bị gắn cờ: lượt cuối / lượt calibration làm mới | Recall tấn công: lượt cuối / lượt làm mới | Trung vị lúc tấn công bị báo (lượt cuối) |
+  |---|---|---|---|
+  | 0 (như chạy) | 80,6% (420/521) / 52,9% | 93,4% / 83,6% | 1,09 s |
+  | 1 s | 78,5% / 52,3% | 93,1% / 83,0% | 1,81 s |
+  | 2 s | 75,8% / 48,9% | 91,9% / 82,2% | 2,79 s |
+  | 4 s | 66,4% / 44,4% | 89,6% / 79,7% | 4,78 s |
+
+  - Tỉ lệ cửa sổ dương của binary vô hại theo vị trí sau lúc khởi chạy: 0,27 ở cửa sổ đầu, rồi đứng ở khoảng 0,51–0,58 suốt 15 s (lượt cuối). **Cờ của binary vô hại không chỉ do đợt khởi chạy:** vòng lặp `getpid` của nó làm lệch vector của container suốt đoạn. Vì vậy bỏ qua theo thời gian không giải được G5, và còn làm chậm phát hiện.
+  - Hệ quả cho exec-intent: hướng đúng là tách hành vi **theo process** (bộ đếm pha ổn định chỉ gồm syscall đã theo dõi, `getpid` không nằm trong đó) cộng khối ý đồ, không phải bỏ qua cửa sổ đầu.
+- **P1, nạp thử** (worker4, 31/10 02:15): probe `PULSE_EXEC_INTENT` qua verifier của kernel 6.8, loader gắn được `sys_enter`, `fexit/__seccomp_filter`, `tp/sched/sched_process_exec`, `raw_tp/sys_exit`. Bộ đếm có giá trị: 4 lần exec (4 chế độ benchmark), 2.048 lời gọi pha khởi chạy (4 × 512), phần còn lại ở pha ổn định theo từng syscall. Đo overhead đang chạy (`overhead_ab.sh` thêm điều kiện `monitored2`).
+
 ## 6. Tiến độ và việc còn lại (cập nhật 29/10 10:05)
 
 | Việc | Trạng thái |
