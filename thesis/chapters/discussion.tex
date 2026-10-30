@@ -36,6 +36,8 @@ Phần lớn cảnh báo còn lại là benign trigger có cấu trúc, nên có
 
 Lọc probe đã giảm 23\% gánh, nhưng phải chờ RCA nên chậm. Calibration riêng theo replica cho Kafka chưa được thử.
 
+Về độ lớn: muốn về ngân sách 0,1 thì phải giảm thêm khoảng 93,5\%. Mức giảm báo nhầm tốt nhất đã công bố bằng cách xếp hạng cảnh báo theo ngữ cảnh, khoảng 84--86\% (\citealp{hassan2019}), vẫn để lại 2--2,5 lần ngân sách. Khoảng cách này là hệ quả của việc đo sự mới lạ, không phải của việc chỉnh tham số. Nghiên cứu về SOC cũng cho thấy phần lớn cảnh báo bị coi là ``sai'' thực ra là benign trigger: hệ thống thấy đúng sự kiện, chỉ là sự kiện vô hại (\citealp{alahmadi2022}). Gom các đợt cảnh báo thành sự cố và tương quan với sự kiện của Kubernetes là đòn bẩy còn lại cho vận hành, nhưng không thay đổi tỉ lệ binary vô hại bị gắn cờ.
+
 \section{Tính thực tế của tấn công}
 
 \begin{itemize}
@@ -50,19 +52,23 @@ Lọc probe đã giảm 23\% gánh, nhưng phải chờ RCA nên chậm. Calibra
   \textbf{Exploit thật:} đánh giá trên LID-DS (mục 6.12) bù một phần với 15 kịch bản lỗ hổng thật, nhưng đó là đánh giá offline trên trace ghi sẵn, không phải trên cụm.
 \end{itemize}
 
+Về quy mô, campaign của luận văn không nhỏ so với các đánh giá đã công bố: một so sánh gần đây giữa Falco, Tetragon và Tracee dùng 3 tấn công, mỗi tấn công lặp 20 lần, và báo tỉ lệ báo nhầm 0\% mà không mô tả tải vô hại (\citealp{syairozi2025}); ReplicaWatcher dùng 13 kịch bản CVE/CWE trên hai ứng dụng (\citealp{elkhairi2024}). Khoảng trống thật của luận văn không nằm ở số kịch bản mà ở loại kịch bản: chưa có exploit chạy trong chính process của dịch vụ trên cụm, đúng loại mà LID-DS cho thấy Pulse yếu nhất.
+
 \section{Kẻ tấn công thích nghi}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Dùng syscall có sẵn:} kẻ tấn công chỉ dùng syscall đã có trong hồ sơ normal thì tránh được tripwire, và có thể “pha loãng” tín hiệu tần suất (\citealp{wagner2002}).
+  \textbf{Dùng syscall có sẵn:} kẻ tấn công chỉ dùng syscall đã có trong hồ sơ normal thì tránh được tripwire, và có thể “pha loãng” tín hiệu tần suất (\citealp{wagner2002}). Theo khung của \citet{tan2002}, một detector chuỗi chỉ thấy một chuỗi lạ khi cửa sổ của nó dài ít nhất bằng chuỗi đó. Tripwire là trường hợp cửa sổ dài 1: nó chỉ thấy ID syscall lạ, nên mọi tấn công ghép từ syscall quen đều lọt. Né tránh kiểu pha loãng đã được làm tự động với độ thành công 100\% trên năm hệ phát hiện dựa trên provenance (\citealp{goyal2023}).
 \item
-  \textbf{Chạy chậm:} ở 1 lần/s, recall còn 79,0\%.
+  \textbf{Chạy chậm:} ở 1 lần/s, recall còn 79,0\% ở lượt cuối, so với 93,1\% ở lượt \texttt{pulse-\allowbreak{}stable-\allowbreak{}confirm} trước khi có chiết khấu theo replica. Hai số đến từ hai lượt khác nhau, nên chiết khấu là nguyên nhân khả dĩ, chưa được tách riêng trên cùng dữ liệu.
 \item
-  \textbf{Tấn công mọi replica cùng lúc:} chiết khấu theo replica sẽ xoá bằng chứng.
+  \textbf{Tấn công mọi replica cùng lúc:} chiết khấu chỉ áp vào nhánh ML. Tripwire vẫn báo nếu tấn công dùng ID syscall lạ. Với quyền \texttt{kubectl\ exec}, chạy cùng một lệnh trên mọi replica là việc rẻ, khác giả định của ReplicaWatcher rằng kẻ tấn công khó làm điều đó (\citealp{elkhairi2024}).
+\item
+  \textbf{Đi vòng tầng syscall:} thao tác gửi qua \texttt{io\_\allowbreak{}uring} không đi qua \texttt{sys\_\allowbreak{}enter}, nên công cụ chỉ móc syscall không thấy chúng (\citealp{armo2025}). Pulse đếm mọi ID syscall, nên lời gọi \texttt{io\_\allowbreak{}uring\_\allowbreak{}setup} sẽ bị tripwire bắt nếu workload chưa từng dùng nó; các thao tác sau đó thì Pulse không thấy. Điều này chưa được kiểm trên cụm.
 \end{itemize}
 
-Luận văn chưa làm thí nghiệm né tránh có chủ đích.
+Luận văn chưa làm thí nghiệm né tránh có chủ đích. Một thí nghiệm tối thiểu cần chia kẻ tấn công theo mức hiểu biết về detector (không biết, biết tập syscall, biết cả chính sách chiết khấu) và đo cả tỉ lệ đạt mục tiêu của tấn công, không chỉ tỉ lệ bị bắt.
 
 \section{Calibration và giả thiết hoán đổi}\label{sec:limits-calibration}
 
@@ -78,7 +84,17 @@ P-value conformal chỉ hợp lệ khi normal lúc chạy giống normal lúc hi
 
 Vì vậy ngân sách 5\% chỉ là ngân sách thiết kế, không phải bảo đảm.
 
-Calibration tự làm mới đã chạy smoke đạt và đang được xác nhận live (mục~\ref{sec:live-recal}). Khi chạy, nó sẽ loại khoảng campaign khỏi calibration như bản offline. Một hệ thống vận hành thật không biết lúc nào bị tấn công. Nếu không loại, các cửa sổ tấn công đi vào phần đuôi của calibration và có thể nới ngưỡng tới 12 giờ.
+Calibration tự làm mới đã chạy smoke đạt và đang được xác nhận live (mục~\ref{sec:live-recal}). Khi chạy, nó sẽ loại khoảng campaign khỏi calibration như bản offline. Một hệ thống vận hành thật không biết lúc nào bị tấn công, nên câu hỏi là điều gì xảy ra khi cửa sổ tấn công lọt vào calibration:
+
+\begin{itemize}
+\tightlist
+\item
+  nếu điểm của cửa sổ tấn công cao hơn điểm normal, p-value conformal trở nên bảo thủ: tỉ lệ báo nhầm vẫn giữ, cái mất là recall (\citealp{bashari2025}). Với ngân sách α = 0,00167 mỗi cửa sổ, chỉ cần một tấn công khoảng 10 phút trong 12 giờ calibration là đủ thay phần đuôi của phân phối (suy luận, chưa đo);
+\item
+  ngược lại, tự bỏ các cửa sổ đã báo khỏi calibration mà không có nhãn làm tỉ lệ báo nhầm phình 1,7--3,6 lần mức danh nghĩa trong thí nghiệm của cùng nhóm tác giả; chỉ bỏ các cửa sổ đã được xác nhận là tấn công thì mức phình bị chặn ở khoảng $1/(n_0+1)$;
+\item
+  các bộ điều khiển tần suất báo như ACI (\citealp{gibbs2021}) hay conformal PID (\citealp{angelopoulos2023}) giữ tỉ lệ báo trung bình đúng ngân sách với mọi chuỗi điểm, nhưng vì thế sẽ nâng dần ngưỡng trong một tấn công kéo dài và che nó đi.
+\end{itemize}
 
 \section{Phạm vi của bằng chứng}
 
@@ -96,4 +112,4 @@ Calibration tự làm mới đã chạy smoke đạt và đang được xác nh�
 
 \section{Truy nguyên nguyên nhân}
 
-Cây bằng chứng cho thấy liên quan theo định danh và thời gian, không chứng minh nhân quả. Khi hai process mới chạy gần nhau và bằng điểm, luật cũ phá hoà theo tên binary, nên kết quả phụ thuộc cách đặt tên; luật phá hoà theo thời điểm khởi chạy sửa được artifact này trên campaign, nhưng sẽ xếp sai khi tấn công khởi chạy trước một process mới vô hại. Khoảng 11\% tấn công không có case riêng, và nguyên nhân chính còn là giả thuyết chưa kiểm chứng.
+Cây bằng chứng cho thấy phụ thuộc theo định danh và thời gian, yếu hơn phụ thuộc theo luồng thông tin mà các hệ provenance dùng, và không chứng minh nhân quả. Khi hai process mới chạy gần nhau và bằng điểm, luật cũ phá hoà theo tên binary, nên kết quả phụ thuộc cách đặt tên; luật phá hoà theo thời điểm khởi chạy sửa được artifact này trên campaign, nhưng sẽ xếp sai khi tấn công khởi chạy trước một process mới vô hại. Khoảng 11\% tấn công không có case riêng, và nguyên nhân chính còn là giả thuyết chưa kiểm chứng: sự kiện exec của tấn công tới RCA sau cảnh báo. Tetragon tự ghi trong mã nguồn rằng sự kiện có thể tới trước sự kiện exec của chính process, và giữ lại để thử lại mỗi 2 s, tối đa 15 lần (\citealp{tetragon_eventcache}), nên một sự kiện có thể trễ tới khoảng 30 s. Đây là cơ chế ứng viên, chưa đo trên cụm.

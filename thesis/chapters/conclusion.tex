@@ -36,30 +36,55 @@ RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được the
 
 \section{Hướng phát triển}
 
+Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (Chương 7). Những việc đã có protocol đăng ký trước được ghi tên protocol.
+
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Thông tin ngoài tần suất:} tham số syscall và cây process từ Tetragon, để tách hành vi của process mới khỏi việc nó là process mới.
-\item
-  \textbf{Exploit thật trên cụm:} port một số kịch bản của LID-DS vào một namespace thử nghiệm, gồm tấn công không sinh process mới và tấn công sinh process con từ dịch vụ.
-\item
-  \textbf{Calibration tự làm mới trong worker:} code đã có. Cần một lượt xác nhận riêng, và một cách loại cửa sổ tấn công không dựa vào lịch campaign.
-\item
-  \textbf{Calibration theo replica} cho các workload có replica lệch hệ thống, như Kafka.
-\item
-  \textbf{Thí nghiệm kẻ tấn công thích nghi:} payload chỉ dùng syscall có sẵn, tốc độ dưới 1 lần/s.
-\item
-  \textbf{RCA:}
-
+  \textbf{Sự mới lạ không phải ác ý} (mục~\ref{sec:limits-novelty}):
   \begin{itemize}
   \tightlist
   \item
-    đo độ trễ của nhật ký exec so với case theo sau;
+    chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã viết, biên dịch được, chưa nạp);
   \item
-    luật xếp hạng tách được hai process mới chạy gần nhau;
+    tham số và giá trị trả về của syscall (đường dẫn mới, errno, số byte) và chuỗi syscall theo thread, đang thử trên LID-DS (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}), xác nhận trên CB-DS và LID-DS 2019;
   \item
-    xếp hạng có hỗ trợ của LLM trên bằng chứng thật, theo hướng của CORTEX (\citealp{wei2025}).
+    đưa vào campaign các lệnh quản trị thật (\texttt{ls}, \texttt{ps}, \texttt{python -c}, probe của chính pod) làm đối chứng vô hại, và báo precision ở tỉ lệ 1:1, 1:10, 1:100 với binary vô hại tính là âm tính.
   \end{itemize}
 \item
-  \textbf{Đưa một phần việc chấm điểm vào kernel} bằng số cố định (\citealp{osaki2024}), để giảm độ trễ và chi phí user space.
+  \textbf{Tính thực tế của tấn công:} exploit thật vào process của dịch vụ trên cụm, trong một namespace cô lập, ưu tiên các CVE có cả trong LID-DS 2021 và ReplicaWatcher; một ứng dụng thứ hai có tải thay đổi suốt lượt chạy.
+\item
+  \textbf{Kẻ tấn công thích nghi:} thí nghiệm chia theo mức hiểu biết về detector, với tốc độ dưới 1 lần/s, chạy ngắt quãng, và chạy cùng lúc trên mọi replica; một trial \texttt{io\_\allowbreak{}uring}. Một đường tích luỹ chậm (martingale hoặc CUSUM trên p-value sẵn có) chạy song song với đường báo nhanh để lấy lại recall ở tấn công chậm mà không làm chậm đường chính.
+\item
+  \textbf{Gánh cảnh báo và calibration:}
+  \begin{itemize}
+  \tightlist
+  \item
+    kết quả lượt xác nhận calibration tự làm mới (\texttt{live-\allowbreak{}recalibration-\allowbreak{}confirmation-\allowbreak{}v1});
+  \item
+    chỉ bỏ khỏi calibration các cửa sổ đã được xác nhận là tấn công (\citealp{bashari2025}), thay vì bỏ theo lịch campaign hoặc bỏ mọi cửa sổ đã báo;
+  \item
+    calibration theo nhóm chồng lấp workload và replica cho các replica lệch hệ thống như Kafka;
+  \item
+    gom đợt cảnh báo thành sự cố và tương quan với sự kiện của Kubernetes, báo thêm số sự cố mỗi ngày.
+  \end{itemize}
+\item
+  \textbf{Bằng chứng cho bộ feature:} ablation bỏ lần lượt từng syscall và từng cặp của base29 (\texttt{syscall-\allowbreak{}ablation-\allowbreak{}loo-\allowbreak{}v1}).
+\item
+  \textbf{Baseline học sâu:} CHIDS và các mô hình MLP, LSTM của thư viện LID-DS trên cùng bản ghi và cùng cách đo (\texttt{lidds-\allowbreak{}dl-\allowbreak{}baseline-\allowbreak{}v1}).
+\item
+  \textbf{RCA:}
+  \begin{itemize}
+  \tightlist
+  \item
+    đo độ trễ của nhật ký exec so với cảnh báo, và nếu cần thì chờ có giới hạn trước khi kiểm exec;
+  \item
+    gán phần bất thường cho từng process (bỏ lần lượt từng process mới rồi chấm lại), và kiểm với thứ tự khởi chạy ngẫu nhiên giữa binary vô hại và tấn công;
+  \item
+    LLM chạy cục bộ chỉ để chú thích case một cách bất đồng bộ, ngoài đường cảnh báo: CORTEX mất trung vị 152,4 s mỗi cảnh báo (\citealp{wei2025}), quá chậm cho đường chính;
+  \item
+    cảnh báo đã mang tóm tắt RCA và tách mức báo khi gửi (RCA 5.20), cần đo trên một lượt live.
+  \end{itemize}
+\item
+  \textbf{Chấm một phần trong kernel} bằng số cố định (\citealp{osaki2024}): lợi ích chính là bớt sự kiện phải chuyển lên user space và bớt CPU, không phải giảm độ trễ, vì phần lớn độ trễ hiện nằm ở cửa sổ 0,5 s và luật hai cửa sổ.
 \end{itemize}
