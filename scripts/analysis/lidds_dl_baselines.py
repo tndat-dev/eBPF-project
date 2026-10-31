@@ -10,7 +10,9 @@ stored as ``threshold``), and run over every test recording; ``--library-check``
 - an attack recording is detected when an alarm falls on a syscall after the first exploit time (latency = that
   syscall's time minus the exploit time); alarms before it count as false-alarm episodes;
 - a normal recording with any alarm is a false-alarm recording;
-- an episode is a run of alarming syscalls; a new episode starts after QUIET seconds without one (as Pulse).
+- an episode is a run of alarming syscalls; a new episode starts after QUIET seconds without one (as Pulse);
+- training CPU time (user + system of this process, every torch thread) is stored; an LSTM part above 8 CPU-hours
+  is flagged ``lstm_over_cap`` and left out of the comparison (protocol).
 
 Outcomes are written as the v2 rows ``(split, detected, latency, false_episodes, syscalls, subset, name)``, with the
 subset (development / official) of the same recording in the lidds-evaluation-v2 output, so lidds_v3_combine.py
@@ -25,12 +27,14 @@ import gzip
 import json
 import multiprocessing
 import os
+import resource
 from pathlib import Path
 import subprocess
 import sys
 import time
 
 SEED, QUIET = 20261030, 3.0
+LSTM_CAP_CPU_HOURS = 8.0                                   # protocol: LSTM dropped and reported above this
 ARMS = ('mlp', 'lstm')
 STATE = {}
 
@@ -114,10 +118,11 @@ def run(a):
     a.models.mkdir(parents=True, exist_ok=True)
     direction = Direction.BOTH if a.arm == 'mlp' else Direction.CLOSE
     loader = dataloader_factory(str(a.scenario_dir), direction=direction)
-    t0 = time.time()
+    cpu = lambda: (lambda r: r.ru_utime + r.ru_stime)(resource.getrusage(resource.RUSAGE_SELF))
+    t0, c0 = time.time(), cpu()
     decider, cfg = build(a.arm, loader, a.models)
     ids = IDS(data_loader=loader, resulting_building_block=decider, create_alarms=False, plot_switch=False)
-    t1 = time.time()
+    t1, c1 = time.time(), cpu()
     ids.determine_threshold()
     t2 = time.time()
     STATE['ids'], STATE['tests'] = ids, list(loader.test_data())
@@ -134,7 +139,8 @@ def run(a):
     commit = subprocess.run(['git', '-C', str(a.lib), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
     out = dict(schema='pulse-lidds-dl-baseline-part-v1', protocol='sentinel_pulse/protocol/lidds-dl-baseline-v1.json',
                scenario=scenario, arm=a.arm, library_commit=commit, seed=SEED, config=cfg, threshold=decider._threshold,
-               seconds=dict(train=t1 - t0, threshold=t2 - t1, detect=t3 - t2), workers=a.workers, library_check=check,
+               seconds=dict(train=t1 - t0, threshold=t2 - t1, detect=t3 - t2), train_cpu_hours=(c1 - c0) / 3600,
+               lstm_over_cap=a.arm == 'lstm' and (c1 - c0) / 3600 > LSTM_CAP_CPU_HOURS, workers=a.workers, library_check=check,
                unmatched=sorted(r[6] for r in rows if r[5] is None and r[0] == 'test-normal_and_attack'),
                recordings=rows)
     a.output.write_text(json.dumps(out))
@@ -151,7 +157,8 @@ def merge(paths, output):
     for p in paths:
         part = json.loads(Path(p).read_text())
         doc['parts'][f"{part['scenario']}/{part['arm']}"] = {k: part[k] for k in part if k != 'recordings'}
-        doc['recordings'].setdefault(part['scenario'], {})[part['arm']] = part['recordings']
+        if not part.get('lstm_over_cap'):
+            doc['recordings'].setdefault(part['scenario'], {})[part['arm']] = part['recordings']
     doc['summary'] = {}
     for arm in ARMS:
         for sub in ('official', 'development'):
