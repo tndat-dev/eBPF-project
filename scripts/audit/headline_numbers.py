@@ -247,6 +247,14 @@ def claims():
         f"gộp theo bản ghi {pct(ld['pooled']['system']['detection_rate'])})", [], f'{LD} (mean over scenarios)')
     add('lidds-macro-thesis', thesis, f"Tính cùng cách (trung bình của {len(macro)} kịch bản), hệ thống của luận văn đạt "
         f"{num(sum(macro) / len(macro), 2)}.", [], f'{LD} (mean over scenarios)')
+    V2 = 'results-20261031/lidds-v2/lidds-evaluation-v2.json.gz'
+    v2 = receipt(V2)['recordings']
+    for arm, tex in (('system', 'Hệ thống v1 (ML hoặc tripwire)'), ('path', r'\texttt{path}'), ('errno', r'\texttt{errno}'),
+                     ('bytes', r'\texttt{bytes}'), ('ngram', r'\texttt{ngram}'), ('step3', 'OR mọi nhánh (hệ thống v2)')):
+        att = [o for s in v2.values() for o in s[arm] if o[0] == 'test-normal_and_attack' and o[5] == 'official']
+        nor = [o for s in v2.values() for o in s[arm] if o[0] == 'test-normal']
+        add(f'lidds-v2-thesis-{arm}', thesis, f"{tex} & {pct(sum(o[1] for o in att) / len(att))} & "
+            f"{pct(sum(o[3] > 0 for o in nor) / len(nor), 2)} \\\\".replace('%', r'\%'), [], V2)
     V3 = 'results-20261031/lidds-v3-with-cbds.json'
     v3 = receipt(V3)
     off = v3['official'][v3['selected']]['pooled']

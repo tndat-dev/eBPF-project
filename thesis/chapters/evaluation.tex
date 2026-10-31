@@ -578,11 +578,85 @@ Kịch bản & ML phát hiện & Tripwire phát hiện & Hệ thống phát hi�
   \textbf{Lượt v2 đã đăng ký} (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm các tín hiệu theo tham số và giá trị trả về (đường dẫn mới, lỗi theo errno, số byte) và chuỗi syscall theo thread, với ngưỡng là điểm cao nhất trên validation. Protocol ghi rõ thiết kế được làm sau khi đã thấy kết quả trên, nên bằng chứng độc lập chỉ đến từ lượt xác nhận trên LID-DS 2019 và CB-DS.
 \end{itemize}
 
-\subsection{Tín hiệu theo tham số và luật bỏ phiếu (v2, v3)}
+\subsection{Từ 77\% lên 97,5\%: tín hiệu theo tham số và luật bỏ phiếu}\label{sec:lidds-v2-v3}
 
-Lượt v2 tách bản ghi tấn công thành 30\% development và 70\% official (seed ghi trong protocol), và thêm bốn nhánh: \texttt{path} (đường dẫn hay tiền tố thư mục chưa thấy khi train), \texttt{errno} (cặp syscall--errno mới hoặc vượt khoảng bình thường), \texttt{bytes} (số lần đọc ghi theo cỡ vượt khoảng bình thường) và \texttt{ngram} (chuỗi 7 syscall theo thread chưa thấy). Ghép OR mọi nhánh nâng recall official lên 97,8\%, nhưng báo nhầm cũng tăng lên 9,7\%, nên v2 không đạt tiêu chí của nó.
+Kết quả v1 cho thấy Pulse yếu ở đúng những kịch bản mà exploit chạy bên trong process của dịch vụ và không cần syscall mới. Hai lượt tiếp theo, mỗi lượt có protocol đăng ký trước, đưa recall lên 97,5\% mà vẫn giữ báo nhầm dưới 3\%:
 
-Lượt v3 (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}, đăng ký trước khi có bản gộp v2) chỉ chọn luật ghép, trên development, và chạy official một lần:
+\begin{enumerate}
+\tightlist
+\item
+  \textbf{v2} (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm bốn nhánh đọc tham số, giá trị trả về và chuỗi syscall, rồi ghép OR với hệ thống v1. Recall lên 97,8\%, nhưng báo nhầm cũng lên 9,7\%.
+\item
+  \textbf{v3} (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}): không thêm tín hiệu nào, chỉ thay OR bằng luật bỏ phiếu chọn trên tập development. Báo nhầm về 1,47\%, recall giữ 97,5\%.
+\end{enumerate}
+
+\paragraph{Chia tập.} Từ v2, bản ghi tấn công của mỗi kịch bản được chia theo seed ghi trong protocol: 30\% là development, dùng để xem và chọn; 70\% là official, chỉ chấm một lần. v3 chia thêm 30\% bản ghi normal vào development. Vì vậy số v1 ở Bảng~\ref{tab:lidds-pooled} (toàn tập test) và số dưới đây (official) không cùng mẫu. Trên cùng phần official, hệ thống v1 đạt 77,4\%, gần như bằng con số toàn tập. Hệ thống v1 ở đây chạy trên bản chuyển đổi đã sửa tên syscall (amendment 1); bản sửa chỉ đổi kết quả từ 77,3\% lên 77,4\%.
+
+\paragraph{Bốn nhánh mới của v2} (\texttt{sentinel\_pulse/lidds/signals.py}). Mọi nhánh dùng cùng lưới cửa sổ 0,5 s với Pulse và học riêng trên bản ghi normal của từng kịch bản, không có quy tắc nào viết cho một kịch bản cụ thể:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{path}: mỗi lần mở file (\texttt{open}, \texttt{openat}, \texttt{openat2}, \texttt{creat}) cho ra (chế độ đọc hay ghi, đường dẫn) và tiền tố thư mục 3 cấp. Điểm của cửa sổ là số đường dẫn hay tiền tố chưa xuất hiện trong bản ghi train;
+\item
+  \texttt{errno}: cặp (syscall, mã lỗi) chưa thấy khi train, hoặc số lần trong cửa sổ vượt mức lớn nhất trên normal;
+\item
+  \texttt{bytes}: số lần đọc ghi theo cỡ (16 nhóm theo $\log_2$ số byte) vượt mức lớn nhất trên normal;
+\item
+  \texttt{ngram}: số chuỗi 7 syscall theo từng thread chưa thấy khi train, giống STIDE nhưng có ngưỡng.
+\end{itemize}
+
+Ngưỡng của mỗi nhánh là điểm lớn nhất trên các cửa sổ validation, đúng quy tắc của thư viện LID-DS; vượt ngưỡng ở một cửa sổ là đủ để báo. v2 cũng thử hai biến thể của nhánh cũ: ML chấm sớm bằng nhánh support, và tripwire không cần tập exec. Hai biến thể này thêm báo nhầm (4,33\% so với 2,72\%) mà gần như không thêm recall (77,7\% so với 77,4\%).
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}@{}}
+\caption{Từng nhánh trên LID-DS 2021, v2: 1.271 bản ghi tấn công official, 11.341 bản ghi normal.}\label{tab:lidds-v2-branches}\\
+\toprule\noalign{}
+Nhánh & Phát hiện & Bản ghi normal bị báo nhầm \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Hệ thống v1 (ML hoặc tripwire) & 77,4\% & 2,72\% \\
+\texttt{path} & 69,9\% & 1,47\% \\
+\texttt{errno} & 68,8\% & 1,45\% \\
+\texttt{bytes} & 80,0\% & 3,71\% \\
+\texttt{ngram} & 87,5\% & 1,04\% \\
+OR mọi nhánh (hệ thống v2) & 97,8\% & 9,70\% \\
+\end{longtable}
+
+Mỗi nhánh riêng lẻ báo nhầm 1--4\%, nhưng ở những bản ghi normal khác nhau, nên ghép OR cộng dồn báo nhầm lên 9,7\% và v2 không đạt tiêu chí của nó. Nhưng các nhánh lại bổ sung cho nhau đúng ở những kịch bản v1 yếu (Bảng~\ref{tab:lidds-v3-scenarios}):
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} (Heartbleed): v1 8,3\%; \texttt{bytes} và \texttt{ngram} đều 100\%;
+\item
+  \texttt{ZipSlip}: v1 4,8\%; \texttt{path} và \texttt{bytes} 97,6\%;
+\item
+  \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418}: v1 15,5\%; \texttt{path} và \texttt{bytes} 100\%, \texttt{ngram} 0\%;
+\item
+  \texttt{CVE-\allowbreak{}2017-\allowbreak{}7529}: v1 69,9\%; \texttt{errno}, \texttt{bytes} và \texttt{ngram} 100\%.
+\end{itemize}
+
+Ở hầu hết kịch bản, tấn công được ít nhất hai nhánh cùng thấy, còn báo nhầm của từng nhánh thì rơi vào những bản ghi khác nhau. Đó là lý do để thử bỏ phiếu thay cho OR.
+
+\paragraph{v3: chọn luật ghép trên development.} Protocol v3 được đăng ký trước khi có bản gộp v2 của cả 15 kịch bản. Nó liệt kê sáu luật, tính ở mức bản ghi từ kết quả từng nhánh đã lưu, không tính lại nhánh nào:
+
+\begin{itemize}
+\tightlist
+\item
+  OR mọi nhánh (v2), và OR của 5 nhánh lõi (hệ thống v1, \texttt{path}, \texttt{errno}, \texttt{bytes}, \texttt{ngram});
+\item
+  ít nhất 2 trong 5 nhánh lõi;
+\item
+  hệ thống v1, hoặc ít nhất 2 trong 4 nhánh mới;
+\item
+  hệ thống v1 hoặc \texttt{ngram};
+\item
+  ít nhất 2 trong 6 nhánh (ML, tripwire và 4 nhánh mới).
+\end{itemize}
+
+Quy tắc chọn: recall development cao nhất trong các luật có báo nhầm development $\leq$ 2\%. Trên development, OR mọi nhánh đạt 98,0\% recall nhưng báo nhầm 9,87\%. Luật ``ít nhất 2 trong 5'' đạt 97,4\% với 1,85\% báo nhầm và được chọn; luật bỏ phiếu trong 6 nhánh cho cùng số. Sau đó tập official được chấm một lần:
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.36\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}@{}}
 \caption{LID-DS 2021 official (1.271 bản ghi tấn công, 7.938 bản ghi normal).}\label{tab:lidds-v3}\\
@@ -597,14 +671,43 @@ Hệ thống hoặc ngram & 90,7\% & 3,68\% & 79,8\% \\
 \textbf{Ít nhất 2 trong 5 nhánh (chọn trên development)} & \textbf{97,5\%} [96,5; 98,2] & \textbf{1,47\%} [1,23; 1,76] & \textbf{91,4\%} \\
 \end{longtable}
 
+\begingroup\small
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.27\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.13\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.1\linewidth-2\tabcolsep\relax}@{}}
+\caption{LID-DS 2021 official theo kịch bản: phát hiện của từng nhánh (\%) và của luật được chọn; báo nhầm của luật được chọn (\%).}\label{tab:lidds-v3-scenarios}\\
+\toprule\noalign{}
+Kịch bản & v1 & \texttt{path} & \texttt{errno} & \texttt{bytes} & \texttt{ngram} & Luật v3 & Báo nhầm v3 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{Bruteforce\_CWE-\allowbreak{}307} & 96,9 & 0,0 & 100,0 & 100,0 & 100,0 & 100,0 & 0,9 \\
+\texttt{CVE-\allowbreak{}2012-\allowbreak{}2122} & 100,0 & 0,0 & 64,3 & 66,7 & 100,0 & 100,0 & 0,2 \\
+\texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} & 8,3 & 0,0 & 0,0 & 100,0 & 100,0 & 100,0 & 1,5 \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 2,3 \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 69,9 & 0,0 & 100,0 & 100,0 & 100,0 & 100,0 & 0,6 \\
+\texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 100,0 & 100,0 & 0,0 & 0,0 & 100,0 & 100,0 & 1,2 \\
+\texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 15,5 & 100,0 & 0,0 & 100,0 & 0,0 & 100,0 & 4,9 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}13942} & 100,0 & 100,0 & 100,0 & 0,0 & 100,0 & 100,0 & 1,1 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 100,0 & 100,0 & 100,0 & 97,6 & 100,0 & 100,0 & 2,3 \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 2,1 \\
+\texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 0,4 \\
+\texttt{EPS\_CWE-\allowbreak{}434} & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 0,9 \\
+\texttt{Juice-\allowbreak{}Shop} & 62,4 & 61,2 & 61,2 & 36,5 & 30,6 & 63,5 & 1,5 \\
+\texttt{PHP\_CWE-\allowbreak{}434} & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 100,0 & 1,1 \\
+\texttt{ZipSlip} & 4,8 & 97,6 & 2,4 & 97,6 & 80,7 & 98,8 & 1,1 \\
+\end{longtable}
+\endgroup
+
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Đạt tiêu chí đã đăng ký:} recall $\geq$ 95\% với báo nhầm $\leq$ 3,0\%, và không kịch bản nào báo nhầm quá 5\% (cao nhất \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418}, 4,9\%). Độ trễ p50 0,45 s, p95 2,42 s.
+  \textbf{Đạt tiêu chí đã đăng ký:} recall $\geq$ 95\% với báo nhầm $\leq$ 3,0\%, và không kịch bản nào báo nhầm quá 5\% (cao nhất \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418}, 4,9\%). Độ trễ p50 0,45 s, p95 2,42 s; với luật bỏ phiếu, độ trễ là thời điểm nhánh thứ hai báo.
+\item
+  \textbf{Đóng góp của từng bước} (official): v1 77,4\% / 2,72\% → v2 (OR) 97,8\% / 9,70\% → v3 (bỏ phiếu) 97,5\% / 1,47\%. Nhánh \texttt{ngram} một mình mạnh nhất (87,5\% / 1,04\%), nhưng nó bỏ sót toàn bộ \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418}, nên không nhánh đơn nào đủ.
 \item
   \textbf{CB-DS, cùng luật, không chỉnh} (kiểm tra độ nhạy, vì kết quả v2 trên CB-DS đã được đọc trước khi đăng ký v3): recall 100\% (891/891), báo nhầm 0,50\% (7/1.410), precision 99,2\%.
 \item
   \textbf{Chỗ hụt duy nhất là Juice-Shop} (63,5\%). Tách theo tên exploit trong metadata của dataset, hai loại \texttt{SQLInjectionCred} và \texttt{SQLInjectionSchema} được phát hiện ở 75/78 bản ghi. Loại \texttt{SQLInjectionUser} chỉ được phát hiện ở 2/43 bản ghi. Trong các bản ghi đã xem, exploit này là một request đăng nhập dài hơn bình thường (thân 444 byte so với 55 byte) tới cùng endpoint mà client bình thường gọi. Process \texttt{node} xử lý nó như mọi lần đăng nhập: không có process mới, không có đường dẫn mới, không có lỗi mới, không có cỡ đọc ghi vượt khoảng bình thường. Bỏ riêng loại này, recall official là 99,8\% (1.237/1.239). Đây là giới hạn của mọi detector chỉ đọc syscall với tấn công chỉ đổi ngữ nghĩa câu truy vấn trong process (mục~\ref{sec:limits-novelty}), không phải lỗi của luật ghép.
 \item
-  \textbf{Giới hạn:} luật bỏ phiếu ở mức bản ghi, từ kết quả từng nhánh đã lưu, không ở mức cửa sổ. v3 được thiết kế sau khi đã đọc kết quả v2 của 12/15 kịch bản, nên bằng chứng độc lập cho luật này phải đến từ LID-DS 2019. Các nhánh mới chưa chạy trên cụm thật: probe hiện chỉ đếm syscall, không đọc tham số.
+  \textbf{Giới hạn:} luật bỏ phiếu ở mức bản ghi, từ kết quả từng nhánh đã lưu, không ở mức cửa sổ. v2 và v3 được thiết kế sau khi đã thấy kết quả v1, và v3 sau khi đã đọc kết quả v2 của 12/15 kịch bản; tập official chỉ được chấm một lần, nhưng bằng chứng độc lập cho luật này phải đến từ LID-DS 2019. Các nhánh mới chưa chạy trên cụm thật: probe hiện chỉ đếm syscall, không đọc tham số.
 \end{itemize}
