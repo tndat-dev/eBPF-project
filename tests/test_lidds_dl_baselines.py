@@ -73,3 +73,18 @@ def test_merge_uses_the_v2_subsets_and_reports_both_parts(tmp_path):
     assert (off['attack_recordings'], off['detected']) == (2, 1) and (dev['attack_recordings'], dev['detected']) == (1, 1)
     assert off['normal_recordings'] + dev['normal_recordings'] == 10
     assert doc['parts']['SCN/mlp']['threshold'] == 1.0 and 'recordings' not in doc['parts']['SCN/mlp']
+
+
+def test_merge_leaves_out_an_lstm_part_stopped_at_the_cap(tmp_path):
+    over = dict(scenario='SCN', arm='lstm', lstm_over_cap=True, stopped_during_training=True, recordings=[])
+    ok = dict(scenario='SCN', arm='mlp', threshold=1.0,
+              recordings=[['test-normal_and_attack', True, 0.5, 0, 9, 'official', 'a0'],
+                          ['test-normal', False, None, 0, 9, None, 'n0']])
+    paths = []
+    for i, part in enumerate((over, ok)):
+        p = tmp_path / f'p{i}.json'; p.write_text(json.dumps(part)); paths.append(str(p))
+    out = tmp_path / 'm.json'
+    dl.merge(paths, out)
+    doc = json.loads(out.read_text())
+    assert set(doc['summary']) == {'mlp'} and doc['parts']['SCN/lstm']['lstm_over_cap'] is True
+

@@ -12,7 +12,8 @@ stored as ``threshold``), and run over every test recording; ``--library-check``
 - a normal recording with any alarm is a false-alarm recording;
 - an episode is a run of alarming syscalls; a new episode starts after QUIET seconds without one (as Pulse);
 - training CPU time (user + system of this process, every torch thread) is stored; an LSTM part above 8 CPU-hours
-  is flagged ``lstm_over_cap`` and left out of the comparison (protocol).
+  is flagged ``lstm_over_cap`` and left out of the comparison (protocol); a watcher thread stops the part as soon as
+  training passes the cap, writing the flag without recordings.
 
 Outcomes are written as the v2 rows ``(split, detected, latency, false_episodes, syscalls, subset, name)``, with the
 subset (development / official) of the same recording in the lidds-evaluation-v2 output, so lidds_v3_combine.py
@@ -103,6 +104,24 @@ def outcome(i):
             None, rec.name]
 
 
+def cap_watch(a, cpu, c0, t0):
+    """Stop an LSTM part as soon as its training passes the protocol's cap (it would be left out anyway)."""
+    import threading
+
+    def watch():
+        while not STATE.get('trained'):
+            time.sleep(60)
+            used = (cpu() - c0) / 3600
+            if used > LSTM_CAP_CPU_HOURS and not STATE.get('trained'):
+                a.output.write_text(json.dumps(dict(
+                    schema='pulse-lidds-dl-baseline-part-v1', protocol='sentinel_pulse/protocol/lidds-dl-baseline-v1.json',
+                    scenario=a.scenario_dir.name, arm=a.arm, seed=SEED, train_cpu_hours=used, lstm_over_cap=True,
+                    stopped_during_training=True, seconds=dict(train=time.time() - t0), recordings=[])))
+                print(json.dumps(dict(scenario=a.scenario_dir.name, arm=a.arm, lstm_over_cap=True, train_cpu_hours=used)), flush=True)
+                os._exit(0)
+    threading.Thread(target=watch, daemon=True).start()
+
+
 def run(a):
     sys.path.insert(0, str(a.lib))
     os.chdir(a.lib)
@@ -120,8 +139,11 @@ def run(a):
     loader = dataloader_factory(str(a.scenario_dir), direction=direction)
     cpu = lambda: (lambda r: r.ru_utime + r.ru_stime)(resource.getrusage(resource.RUSAGE_SELF))
     t0, c0 = time.time(), cpu()
+    if a.arm == 'lstm':
+        cap_watch(a, cpu, c0, t0)
     decider, cfg = build(a.arm, loader, a.models)
     ids = IDS(data_loader=loader, resulting_building_block=decider, create_alarms=False, plot_switch=False)
+    STATE['trained'] = True
     t1, c1 = time.time(), cpu()
     ids.determine_threshold()
     t2 = time.time()
