@@ -1,0 +1,55 @@
+{
+ "schema": "sentinel-pulse-lidds-evaluation-v4",
+ "supersedes": "the selections of lidds-evaluation-v3 amendments 1 and 2 (their outputs are still written and reported, not used to choose)",
+ "registered_at": "see the git commit that adds this file (31/10 evening, +0700)",
+ "registered_before": "the LID-DS 2021 and CB-DS reruns with alarm times finish, and before any time-horizon result (development, official or CB-DS) is read; the unit lidds-v3-window will also write the amendment 1 output, which is not read before this selection is done",
+ "owner_decisions": [
+  "31/10: the extended Pulse is the system to bring live",
+  "31/10: choose the branches optimally on LID-DS 2021 and CB-DS first",
+  "31/10: LID-DS 2019 is the last dataset and runs last, after the live run (this replaces the v3 rule that put LID-DS 2019 before the probe work)",
+  "31/10: priority, the configuration brought live keeps the LID-DS 2021 result (97.5 % recall, 1.47 % false alarms on official) or does better"
+ ],
+ "seen_before_registration": "every v1, v2 and v3 result on LID-DS 2021 (development and official, per scenario, per recording, per-recording vote), every v1 and v2 result and the per-recording v3 vote on CB-DS, the development-only leave-one-branch-out of the v3 vote, the Juice-Shop development diagnosis",
+ "configuration": "fires at a window end t when at least k branches of a voting set S have an alarm window ending in (t - H, t], or, with tripwire_alone, whenever the tripwire alarms",
+ "search_space": {
+  "S": "every subset of {system, path, errno, bytes, ngram} with at least 2 branches (26)",
+  "k": "1..|S|",
+  "H": [
+   0.5,
+   2,
+   5,
+   10,
+   30
+  ],
+  "tripwire_alone": [
+   false,
+   true
+  ],
+  "total": 750,
+  "excluded": "the per-recording rule (no recordings live)"
+ },
+ "data": {
+  "selection": [
+   "LID-DS 2021 development (v2 development attacks + v3 30 % of test/normal), from the rerun with alarm times (lidds-evaluation-v3 amendment 1, checked recording by recording against the v2 receipt)",
+   "CB-DS, every recording, from a rerun of the v2 branches with alarm times (same conversion; checked against the cbds-confirmation-v1 receipt recording by recording)"
+  ],
+  "scored_once": "LID-DS 2021 official",
+  "last": "LID-DS 2019 (lidds2019-confirmation-v1 data), after the live run"
+ },
+ "constraints": {
+  "lidds2021_development_false_alarm_recordings": "<= 2.0 %",
+  "lidds2021_development_latency_p95": "<= 3.0 s (Pulse goal: kernel to alert <= 3 s)",
+  "cbds_recall": ">= 95 %",
+  "cbds_false_alarm_recordings": "<= 2.0 %"
+ },
+ "objective": "the highest LID-DS 2021 development recall; ties to fewer development false alarms, then fewer new probe hooks (path, errno, bytes, ngram one each; system none), then the shorter horizon, then the smaller k, then without tripwire_alone",
+ "criteria_official": {
+  "H1": "recall >= 95 % and false-alarm recordings <= 3.0 %",
+  "H2": "and no scenario above 5 %",
+  "owner_keep_or_better": "recall >= 97.5 % and false-alarm recordings <= 1.47 % (the v3 per-recording result)"
+ },
+ "if_owner_criterion_fails": "reported as is; the official data is not used to choose again; a later version may choose on development again, with LID-DS 2019 as its only unseen check",
+ "selection_bias": "750 configurations on 544 development attack and 3,403 development normal recordings: the selected development numbers are optimistic; the official numbers are the estimate",
+ "next": "if H1 holds: implement the selected branches in the probe and user space, measure overhead, a blind live run against the stable system on the same data; then LID-DS 2019 once",
+ "code": "scripts/analysis/lidds_v4_select.py (tests/test_lidds_v4_select.py), scripts/cbds_alarms_run.sh"
+}
