@@ -47,7 +47,7 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
   \item
     chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã viết, biên dịch được, chưa nạp);
   \item
-    tham số và giá trị trả về của syscall (đường dẫn mới, errno, số byte) và chuỗi syscall theo thread, đang thử trên LID-DS (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}), xác nhận trên CB-DS và LID-DS 2019;
+    tham số và giá trị trả về của syscall (đường dẫn mới, errno, số byte) và chuỗi syscall theo thread: trên LID-DS 2021 official, luật bỏ phiếu đã đăng ký đạt recall 97,5\% với 1,47\% báo nhầm (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}); còn phải xác nhận trên LID-DS 2019 và đưa các nhánh vào probe, vì probe hiện không đọc tham số;
   \item
     đưa vào campaign các lệnh quản trị thật (\texttt{ls}, \texttt{ps}, \texttt{python -c}, probe của chính pod) làm đối chứng vô hại, và báo precision ở tỉ lệ 1:1, 1:10, 1:100 với binary vô hại tính là âm tính.
   \end{itemize}

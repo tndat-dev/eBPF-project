@@ -577,3 +577,34 @@ Kịch bản & ML phát hiện & Tripwire phát hiện & Hệ thống phát hi�
 \item
   \textbf{Lượt v2 đã đăng ký} (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm các tín hiệu theo tham số và giá trị trả về (đường dẫn mới, lỗi theo errno, số byte) và chuỗi syscall theo thread, với ngưỡng là điểm cao nhất trên validation. Protocol ghi rõ thiết kế được làm sau khi đã thấy kết quả trên, nên bằng chứng độc lập chỉ đến từ lượt xác nhận trên LID-DS 2019 và CB-DS.
 \end{itemize}
+
+\subsection{Tín hiệu theo tham số và luật bỏ phiếu (v2, v3)}
+
+Lượt v2 tách bản ghi tấn công thành 30\% development và 70\% official (seed ghi trong protocol), và thêm bốn nhánh: \texttt{path} (đường dẫn hay tiền tố thư mục chưa thấy khi train), \texttt{errno} (cặp syscall--errno mới hoặc vượt khoảng bình thường), \texttt{bytes} (số lần đọc ghi theo cỡ vượt khoảng bình thường) và \texttt{ngram} (chuỗi 7 syscall theo thread chưa thấy). Ghép OR mọi nhánh nâng recall official lên 97,8\%, nhưng báo nhầm cũng tăng lên 9,7\%, nên v2 không đạt tiêu chí của nó.
+
+Lượt v3 (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}, đăng ký trước khi có bản gộp v2) chỉ chọn luật ghép, trên development, và chạy official một lần:
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.36\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.2\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.24\linewidth-2\tabcolsep\relax}@{}}
+\caption{LID-DS 2021 official (1.271 bản ghi tấn công, 7.938 bản ghi normal).}\label{tab:lidds-v3}\\
+\toprule\noalign{}
+Luật & Recall [CI 95\%] & Báo nhầm [CI 95\%] & Precision theo tỉ lệ của dataset \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+OR mọi nhánh (v2) & 97,8\% & 9,62\% & 61,9\% \\
+Hệ thống hoặc ngram & 90,7\% & 3,68\% & 79,8\% \\
+\textbf{Ít nhất 2 trong 5 nhánh (chọn trên development)} & \textbf{97,5\%} [96,5; 98,2] & \textbf{1,47\%} [1,23; 1,76] & \textbf{91,4\%} \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Đạt tiêu chí đã đăng ký:} recall $\geq$ 95\% với báo nhầm $\leq$ 3,0\%, và không kịch bản nào báo nhầm quá 5\% (cao nhất \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418}, 4,9\%). Độ trễ p50 0,45 s, p95 2,42 s.
+\item
+  \textbf{CB-DS, cùng luật, không chỉnh} (kiểm tra độ nhạy, vì kết quả v2 trên CB-DS đã được đọc trước khi đăng ký v3): recall 100\% (891/891), báo nhầm 0,50\% (7/1.410), precision 99,2\%.
+\item
+  \textbf{Chỗ hụt duy nhất là Juice-Shop} (63,5\%). Tách theo tên exploit trong metadata của dataset, hai loại \texttt{SQLInjectionCred} và \texttt{SQLInjectionSchema} được phát hiện ở 75/78 bản ghi. Loại \texttt{SQLInjectionUser} chỉ được phát hiện ở 2/43 bản ghi. Trong các bản ghi đã xem, exploit này là một request đăng nhập dài hơn bình thường (thân 444 byte so với 55 byte) tới cùng endpoint mà client bình thường gọi. Process \texttt{node} xử lý nó như mọi lần đăng nhập: không có process mới, không có đường dẫn mới, không có lỗi mới, không có cỡ đọc ghi vượt khoảng bình thường. Bỏ riêng loại này, recall official là 99,8\% (1.237/1.239). Đây là giới hạn của mọi detector chỉ đọc syscall với tấn công chỉ đổi ngữ nghĩa câu truy vấn trong process (mục~\ref{sec:limits-novelty}), không phải lỗi của luật ghép.
+\item
+  \textbf{Giới hạn:} luật bỏ phiếu ở mức bản ghi, từ kết quả từng nhánh đã lưu, không ở mức cửa sổ. v3 được thiết kế sau khi đã đọc kết quả v2 của 12/15 kịch bản, nên bằng chứng độc lập cho luật này phải đến từ LID-DS 2019. Các nhánh mới chưa chạy trên cụm thật: probe hiện chỉ đếm syscall, không đọc tham số.
+\end{itemize}

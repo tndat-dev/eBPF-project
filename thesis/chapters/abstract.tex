@@ -43,7 +43,7 @@ p95 kernel → cảnh báo đầu tiên & ≤ 3 s, ưu tiên \textless{} 2 s & 1
 \item
   \textbf{Tripwire:} bản live khớp bản tính lại offline trên 10,4 triệu cửa sổ, không lệch cửa sổ nào.
 \item
-  \textbf{Dataset công khai LID-DS 2021} (15 kịch bản lỗ hổng thật, tham số lấy nguyên từ live): hệ thống phát hiện 77,3\% bản ghi tấn công và báo nhầm trên 3,0\% bản ghi normal; STIDE phát hiện 100\% nhưng báo nhầm trên 60,8\%.
+  \textbf{Dataset công khai LID-DS 2021} (15 kịch bản lỗ hổng thật, tham số lấy nguyên từ live): hệ thống phát hiện 77,3\% bản ghi tấn công và báo nhầm trên 3,0\% bản ghi normal; STIDE phát hiện 100\% nhưng báo nhầm trên 60,8\%. Thêm tín hiệu theo tham số, giá trị trả về và chuỗi syscall, với luật bỏ phiếu ít nhất 2 nhánh chọn trên tập development, đạt recall 97,5\% với 1,47\% bản ghi normal bị báo nhầm trên tập official (offline, chưa chạy trên cụm); chỗ hụt gần như chỉ là một loại SQL injection không để lại dấu vết ở mức syscall.
 \item
   \textbf{Chi phí probe:} khoảng 250--450 ns mỗi syscall của container được theo dõi; trên ứng dụng thật, p50 của request tăng 0,5--3\% và p95 tăng 3--8\% (trung vị, CI rộng).
 \end{itemize}

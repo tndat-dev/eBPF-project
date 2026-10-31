@@ -247,6 +247,16 @@ def claims():
         f"gộp theo bản ghi {pct(ld['pooled']['system']['detection_rate'])})", [], f'{LD} (mean over scenarios)')
     add('lidds-macro-thesis', thesis, f"Tính cùng cách (trung bình của {len(macro)} kịch bản), hệ thống của luận văn đạt "
         f"{num(sum(macro) / len(macro), 2)}.", [], f'{LD} (mean over scenarios)')
+    V3 = 'results-20261031/lidds-v3-with-cbds.json'
+    v3 = receipt(V3)
+    off = v3['official'][v3['selected']]['pooled']
+    add('lidds-v3-thesis', thesis, r"\textbf{Ít nhất 2 trong 5 nhánh (chọn trên development)} & "
+        f"\\textbf{{{pct(off['recall'])}}} {ci(off['recall_ci95'], 1)} & \\textbf{{{pct(off['false_alarm_rate'], 2)}}} "
+        f"{ci(off['false_alarm_ci95'], 2)} & \\textbf{{{pct(off['precision_base_rate'])}}} \\\\".replace('%', r'\%'), [], V3)
+    cb = v3['confirmations']['CB-DS']['selected']['pooled']
+    add('lidds-v3-cbds-thesis', thesis, f"recall {pct(cb['recall'], 0)} ({cb['detected']}/{cb['attack_recordings']}), báo nhầm "
+        f"{pct(cb['false_alarm_rate'], 2)} ({cb['false_alarm_recordings']}/{thousands(cb['normal_recordings'])}), precision "
+        f"{pct(cb['precision_base_rate'])}".replace('%', r'\%'), [], V3)
     return out
 
 
