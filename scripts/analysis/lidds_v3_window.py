@@ -88,10 +88,11 @@ def label(h):
 
 
 def select(dev):
-    """Highest development recall with development false alarms <= 2 %; ties to the earlier candidate (fewer
-    branches before more under amendment 2, then the shorter horizon)."""
-    order = sorted(dev, key=lambda c: (len(dev[c]['branches']), dev[c]['horizon_seconds'] is None,
-                                       dev[c]['horizon_seconds'] or 0))
+    """Highest development recall with development false alarms <= 2 %, among finite horizons; ties to the earlier
+    candidate (fewer branches before more under amendment 2, then the shorter horizon)."""
+    # the per-recording rule is a reference only: live has no recordings, so it is never selected (amendment 2 rev.)
+    order = sorted((c for c in dev if dev[c]['horizon_seconds'] is not None),
+                   key=lambda c: (len(dev[c]['branches']), dev[c]['horizon_seconds']))
     ok = [c for c in order if dev[c]['pooled']['false_alarm_rate'] <= v3.DEV_FA_LIMIT]
     if ok:
         return max(ok, key=lambda c: (dev[c]['pooled']['recall'], -order.index(c))), True

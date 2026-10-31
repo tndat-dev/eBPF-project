@@ -24,9 +24,10 @@
   "k": 2,
   "horizons": "as amendment 1 (0.5, 2, 5, 10, 30 s, per recording)"
  },
- "selection": "on LID-DS 2021 development only, over the 12 (set, horizon) pairs: the highest pooled development recall among pairs with development false-alarm recordings <= 2.0 %; ties to the smaller branch set (fewer probe hooks), then to the shorter horizon",
+ "selection": "on LID-DS 2021 development only, over the 10 (set, finite horizon) pairs: the highest pooled development recall among pairs with development false-alarm recordings <= 2.0 %; ties to the smaller branch set (fewer probe hooks), then to the shorter horizon; the per-recording rule is reported, never selected",
  "criteria_official": "as amendment 1 (H1, H2), for the selected pair, scored once; every pair reported on every part",
  "confirmation": "as amendment 1: the selected pair unchanged on LID-DS 2019 (independent) and CB-DS (sensitivity)",
  "supersedes": "the selection of amendment 1 (horizon only); amendment 1 output is still written by the running unit and reported, but the system carried forward is the amendment 2 selection",
- "code": "scripts/analysis/lidds_v3_window.py --amendment 2 (BRANCH_SETS; tests/test_lidds_v3_window.py)"
+ "code": "scripts/analysis/lidds_v3_window.py --amendment 2 (BRANCH_SETS; tests/test_lidds_v3_window.py)",
+ "revision_1": "31/10 23:10 +0700, before any part of the rerun had finished (0/15 parts written) and before any time-horizon result was read: the per-recording rule (H = inf) is reported as the v3 reference but is never selected, because a live detector has no recordings (H = inf live would accumulate alarms since container start); selection is over the 10 (set, finite horizon) pairs. Owner priority recorded at the same time: the system carried forward must keep the LID-DS 2021 result (97.5 % recall, 1.47 % false alarms on official) or do better"
 }
