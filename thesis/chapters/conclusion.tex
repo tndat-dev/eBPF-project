@@ -45,9 +45,11 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
   \begin{itemize}
   \tightlist
   \item
-    chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã viết, biên dịch được, chưa nạp);
+    chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã qua verifier; hook \texttt{sys\_exit} toàn cục bị bỏ vì thêm 29--197 ns mỗi syscall; phân rã offline cho thấy chỉ bỏ qua 1--4 s đầu vẫn còn 66--79\% binary vô hại bị gắn cờ, nên cần chấm hành vi sau pha khởi động chứ không chỉ chờ);
   \item
     tham số và giá trị trả về của syscall (đường dẫn mới, errno, số byte) và chuỗi syscall theo thread: trên LID-DS 2021 official, luật bỏ phiếu đã đăng ký đạt recall 97,5\% với 1,47\% báo nhầm (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}); còn phải xác nhận trên LID-DS 2019 và đưa các nhánh vào probe, vì probe hiện không đọc tham số;
+  \item
+    giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, so cấu trúc câu truy vấn với khi bình thường, làm lớp bổ trợ cho Pulse;
   \item
     đưa vào campaign các lệnh quản trị thật (\texttt{ls}, \texttt{ps}, \texttt{python -c}, probe của chính pod) làm đối chứng vô hại, và báo precision ở tỉ lệ 1:1, 1:10, 1:100 với binary vô hại tính là âm tính.
   \end{itemize}
