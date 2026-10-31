@@ -18,7 +18,7 @@ import numpy as np
 
 from ..common import atomic_json
 from ..integrity import sha256_file
-from .matched_holdout import bounds, score_segment
+from .matched_holdout import bounds, score_segment, study_seeds
 
 IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgroup_id')
 
@@ -36,7 +36,7 @@ def load_study(study: Path):
         raise ValueError('syscall-arms arm index changed')
     terminal = json.loads((study/'TERMINAL.json').read_text())
     index = json.loads((study/'INDEX.json').read_text())
-    registration = dict(registration, seeds=[73021, 73022, 73023], episode_quiet_seconds=15.)
+    registration = dict(registration, seeds=study_seeds(study), episode_quiet_seconds=15.)
     return registration, index, terminal
 
 

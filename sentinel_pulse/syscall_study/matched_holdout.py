@@ -25,6 +25,13 @@ from ..common import atomic_json, load_artifact, compression_receipt, open_seale
 IDENTITY = ('node_name', 'pod_uid', 'container_name', 'workload_revision', 'cgroup_id')
 
 
+def study_seeds(study):
+    """Seeds a study was fitted with (START.json binding; the syscall studies used three, a screening study one)."""
+    start = Path(study)/'START.json'
+    seeds = json.loads(start.read_text()).get('seeds') if start.exists() else None
+    return list(seeds) if seeds else [73021, 73022, 73023]
+
+
 class ContextBuilder:
     """syscall-arms rolling-10/history-3 preprocessing without a train/calibration split."""
 
@@ -315,7 +322,7 @@ def run(study, output, once=False, poll_seconds=30):
     if sha256_file(Path(__file__).with_name('matched_study.py')) != registration['matched_study_source_sha256']:
         raise ValueError('syscall-arms preprocessing source differs from registration')
     index = json.loads((study/'INDEX.json').read_text())
-    registration = dict(registration, seeds=[73021, 73022, 73023], episode_quiet_seconds=15.)
+    registration = dict(registration, seeds=study_seeds(study), episode_quiet_seconds=15.)
     output.mkdir(parents=True, exist_ok=True)
     with (output/'evaluation.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
