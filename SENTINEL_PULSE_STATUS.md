@@ -1940,6 +1940,23 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **C1/C2 của v2: không đạt** vì báo nhầm 5,5% > 3%. Tín hiệu v2 không thêm phát hiện nào (step3 − system: phát hiện +0, báo nhầm +4,0 điểm [+3,0; +5,0]).
   - **Hệ thống v1 đạt precision và recall ≥ 95% trên CB-DS:** recall 100%, precision theo bản ghi 891/912 = 97,7%. Mọi kịch bản thoát container đều dùng syscall lạ (tripwire 100%, 0 báo nhầm).
 - **Kết quả LID-DS v2 tạm (12/15 kịch bản, tập official, 31/10 01:55; 3 kịch bản còn chạy):** step3 recall **97,3%** (992/1.020) nhưng báo nhầm **10,0%** (906/9.073); hệ thống v1 71,9% / 3,1%; riêng nhánh chuỗi 7 syscall (ngram) 84,4% / 0,9%. Heartbleed 8% → 100%, ZipSlip 5% → 100%, CVE-2019-5418 16% → 100%, CVE-2017-7529 70% → 100%. H1 (≥ 90% với ≤ 3,0%) không đạt vì báo nhầm cộng dồn khi ghép OR nhiều nhánh; nhánh support-first (step1) tăng báo nhầm mà gần như không thêm recall.
+- **Kết quả LID-DS v2 đủ 15 kịch bản (gộp 31/10 04:39; official 1.271 bản ghi tấn công, 7.938 normal; biên nhận `validation-evidence/results-20261031/lidds-v2/lidds-evaluation-v2.json.gz`):** hệ thống v1 trên bản alias 77,4% / 2,72%; path 69,9 / 1,47; errno 68,8 / 1,45; bytes 80,0 / 3,71; ngram 87,5 / 1,04; step2 97,7 / 9,06; **step3 97,8% / 9,70%**. H1, H2, H3 của v2 **không đạt** (báo nhầm). Amendment 1 của v1 (bản alias) nâng hệ thống từ 77,3% lên 77,4%: lỗi bỏ tên sysdig gần như không ảnh hưởng.
+- **v3 (protocol `lidds-evaluation-v3`, đăng ký 31/10 02:40 trước khi có bản gộp và trước khi đọc LID-DS 2019; chạy 07:20; biên nhận `validation-evidence/results-20261031/lidds-v3.json`):**
+  - Chọn trên development (30% bản ghi tấn công + 30% bản ghi normal, 3.403 normal): **C2 bỏ phiếu ≥ 2 trong {hệ thống, path, errno, bytes, ngram}**, recall 97,4%, báo nhầm 1,85% (giới hạn chọn 2,0%).
+  - **Official (chạy một lần):**
+
+    | Luật | Recall | Báo nhầm | Precision theo tỉ lệ thật | p95 |
+    |---|---|---|---|---|
+    | C0 OR mọi nhánh (v2) | 97,8% | 9,62% | 61,9% | 2,17 s |
+    | C1 OR 5 nhánh lõi | 97,8% | 8,25% | 65,5% | 2,17 s |
+    | **C2 bỏ phiếu ≥ 2 (được chọn)** | **97,5%** [96,5; 98,2] | **1,47%** [1,23; 1,76] | **91,4%** (1:1 98,5%) | 2,42 s |
+    | C3 hệ thống hoặc bỏ phiếu ≥ 2 | 97,5% | 3,97% | 79,7% | 2,18 s |
+    | C4 hệ thống hoặc ngram | 90,7% | 3,68% | 79,8% | 2,44 s |
+    | C5 bỏ phiếu ≥ 2 trong 6 nhánh | 97,5% | 1,47% | 91,4% | 2,42 s |
+
+  - **H1 đạt** (recall ≥ 95% với báo nhầm ≤ 3,0%), **H2 đạt** (kịch bản báo nhầm cao nhất CVE-2019-5418 4,9%).
+  - Theo kịch bản: 14/15 kịch bản recall ≥ 98,8%; **Juice-Shop 63,5%** là chỗ duy nhất kéo recall gộp xuống dưới mục tiêu 98% của chủ đồ án.
+  - Giới hạn: bỏ phiếu ở mức bản ghi (từ kết quả từng nhánh đã lưu), không ở mức cửa sổ; độ trễ là của nhánh thứ hai báo. v3 được thiết kế sau khi đã đọc kết quả v2 gộp của 12/15 kịch bản; bằng chứng độc lập cho luật này phải đến từ LID-DS 2019 (đã có dữ liệu, chủ đồ án hoãn chạy 31/10).
 - **LID-DS 2019 (protocol `lidds2019-confirmation-v1`, đăng ký 30/10 11:34, trước khi chuyển đổi hay chấm bản ghi nào):**
   - **Dữ liệu:** tải trên `10.1.16.254` (ngoài cụm) 30/10 01:48–02:28, 13,97 GB, sha256 `c87e881d…`, `testzip` sạch; 10 kịch bản `tar.gz` + README. Chép vào `.234` sau lượt live.
   - **Định dạng khác 2021:** dòng `số_event HH:MM:SS.nano cpu uid tên_process tid chiều syscall tham_số` (không có ngày, không có PID); nhãn trong `runs.csv`; thứ tự file trong tar khác thứ tự `runs.csv`.
