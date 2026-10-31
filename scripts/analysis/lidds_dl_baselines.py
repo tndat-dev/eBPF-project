@@ -3,8 +3,9 @@
 
 Each arm is the library's own pipeline with the configuration of its example main (algorithms/ids_mlp_main.py,
 algorithms/ids_lstm_main.py at the commit recorded in the output), trained on the scenario's training recordings
-by the library, thresholded by the library (max anomaly score over the validation recordings), and run over every
-test recording. Only the seed (protocol: 20261030) and the outcome bookkeeping are ours:
+by the library, thresholded by the library (MaxScoreThreshold: max anomaly score over the validation recordings,
+stored as ``threshold``), and run over every test recording; ``--library-check`` also runs the library's own serial
+``IDS.detect()`` and stores its results next to ours. Only the seed (protocol: 20261030) and the outcome bookkeeping are ours:
 
 - an attack recording is detected when an alarm falls on a syscall after the first exploit time (latency = that
   syscall's time minus the exploit time); alarms before it count as false-alarm episodes;
@@ -123,17 +124,21 @@ def run(a):
     with multiprocessing.get_context('fork').Pool(a.workers, initializer=worker_init) as pool:
         rows = pool.map(outcome, range(len(STATE['tests'])), chunksize=1)
     t3 = time.time()
+    check = None
+    if a.library_check:                                    # the library's own serial detection, as a cross-check
+        perf = ids.detect().get_results()
+        check = {k: v for k, v in perf.items() if isinstance(v, (int, float, str))}
     subsets = {o[6]: o[5] for o in json.load(gzip.open(a.v2, 'rt'))['recordings'][scenario]['ngram']}
     for r in rows:
         r[5] = subsets.get(r[6])
     commit = subprocess.run(['git', '-C', str(a.lib), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
     out = dict(schema='pulse-lidds-dl-baseline-part-v1', protocol='sentinel_pulse/protocol/lidds-dl-baseline-v1.json',
-               scenario=scenario, arm=a.arm, library_commit=commit, seed=SEED, config=cfg, threshold=ids.threshold,
-               seconds=dict(train=t1 - t0, threshold=t2 - t1, detect=t3 - t2), workers=a.workers,
+               scenario=scenario, arm=a.arm, library_commit=commit, seed=SEED, config=cfg, threshold=decider._threshold,
+               seconds=dict(train=t1 - t0, threshold=t2 - t1, detect=t3 - t2), workers=a.workers, library_check=check,
                unmatched=sorted(r[6] for r in rows if r[5] is None and r[0] == 'test-normal_and_attack'),
                recordings=rows)
     a.output.write_text(json.dumps(out))
-    print(json.dumps(dict(scenario=scenario, arm=a.arm, threshold=ids.threshold, seconds=out['seconds'],
+    print(json.dumps(dict(scenario=scenario, arm=a.arm, threshold=out['threshold'], seconds=out['seconds'], library_check=check,
                           attacks=sum(r[0] == 'test-normal_and_attack' for r in rows),
                           detected=sum(r[1] for r in rows), false_alarm_recordings=sum(r[0] == 'test-normal' and r[3] > 0 for r in rows))))
 
@@ -171,6 +176,7 @@ def main():
     ap.add_argument('--v2', type=Path, help='lidds-evaluation-v2 output (development/official subsets)')
     ap.add_argument('--models', type=Path)
     ap.add_argument('--workers', type=int, default=8)
+    ap.add_argument('--library-check', action='store_true', help="also run the library's serial detect() and store its results")
     ap.add_argument('--merge', nargs='+')
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
