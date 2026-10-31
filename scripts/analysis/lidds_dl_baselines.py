@@ -160,7 +160,7 @@ def merge(paths, output):
         if not part.get('lstm_over_cap'):
             doc['recordings'].setdefault(part['scenario'], {})[part['arm']] = part['recordings']
     doc['summary'] = {}
-    for arm in ARMS:
+    for arm in sorted({arm for arms in doc['recordings'].values() for arm in arms}):   # mlp, lstm, chids, chids_maxval
         for sub in ('official', 'development'):
             pooled, per = [], {}
             for scenario, arms in doc['recordings'].items():
