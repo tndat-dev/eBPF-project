@@ -45,3 +45,14 @@ def test_horizon_trades_recall_against_false_alarms_and_latency_is_the_second_br
 def test_selection_prefers_the_shortest_horizon_at_the_highest_recall():
     chosen, ok = w.select(w.evaluate(doc(), 'development'))
     assert ok and chosen == 'H5s'
+
+
+def test_amendment_2_prefers_the_smaller_branch_set_at_equal_recall():
+    dev = w.evaluate(doc(), 'development', w.BRANCH_SETS)
+    assert set(dev) == {f'{s}/{w.label(h)}' for s in w.BRANCH_SETS for h in w.HORIZONS}
+    chosen, ok = w.select(dev)
+    assert ok and chosen == 'core4_no_errno/H5s'
+    errno_only = dict(scenarios={'SCN': dict(alarms={'a0': dict(split='test-normal_and_attack', subset='development',
+                                                                 exploit=1.0, arms=dict(errno=[2.0], path=[2.0]))})})
+    got = w.evaluate(errno_only, 'development', w.BRANCH_SETS)
+    assert got['core5/H0.5s']['pooled']['recall'] == 1.0 and got['core4_no_errno/H0.5s']['pooled']['recall'] == 0.0

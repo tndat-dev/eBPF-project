@@ -1,0 +1,32 @@
+{
+ "schema": "sentinel-pulse-lidds-evaluation-v3-amendment-2",
+ "amends": "sentinel_pulse/protocol/lidds-evaluation-v3-amendment-1.json",
+ "registered_at": "see the git commit that adds this file (owner approval 31/10, evening)",
+ "registered_before": "the rerun with alarm times finishes and before any time-horizon result (development or official) of either branch set is read",
+ "owner_decision": "31/10: approve choosing the branch set on development as well",
+ "seen_before_registration": "a development-only leave-one-branch-out of the per-recording v3 vote (SENTINEL_PULSE_STATUS 5.32b): five branches 97.4 % recall / 1.85 % false alarms; without errno 97.4 % / 1.32 %; without system 96.1 / 1.50, path 90.6 / 1.38, bytes 83.6 / 0.82, ngram 89.2 / 1.59. Declared: the second candidate set was proposed after seeing these development numbers; no official number of any set was looked at for this purpose",
+ "candidates": {
+  "branch_sets": {
+   "core5": [
+    "system",
+    "path",
+    "errno",
+    "bytes",
+    "ngram"
+   ],
+   "core4_no_errno": [
+    "system",
+    "path",
+    "bytes",
+    "ngram"
+   ]
+  },
+  "k": 2,
+  "horizons": "as amendment 1 (0.5, 2, 5, 10, 30 s, per recording)"
+ },
+ "selection": "on LID-DS 2021 development only, over the 12 (set, horizon) pairs: the highest pooled development recall among pairs with development false-alarm recordings <= 2.0 %; ties to the smaller branch set (fewer probe hooks), then to the shorter horizon",
+ "criteria_official": "as amendment 1 (H1, H2), for the selected pair, scored once; every pair reported on every part",
+ "confirmation": "as amendment 1: the selected pair unchanged on LID-DS 2019 (independent) and CB-DS (sensitivity)",
+ "supersedes": "the selection of amendment 1 (horizon only); amendment 1 output is still written by the running unit and reported, but the system carried forward is the amendment 2 selection",
+ "code": "scripts/analysis/lidds_v3_window.py --amendment 2 (BRANCH_SETS; tests/test_lidds_v3_window.py)"
+}

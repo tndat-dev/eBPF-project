@@ -11,6 +11,8 @@ An attack recording is detected when the rule fires after the first exploit time
 the exploit time); a normal recording with any firing is a false alarm. Development/official parts, metrics and
 criteria are those of lidds_v3_combine.py.
 
+Amendment 2 (default) also chooses the branch set on development: the five core branches, or the four without errno.
+
     python3 lidds_v3_window.py --select lidds-evaluation-v2-alarms.json [--confirm NAME=other.json ...] --output out.json
 """
 from __future__ import annotations
@@ -28,6 +30,8 @@ import lidds_v3_combine as v3  # noqa: E402
 
 BRANCHES, K = v3.CORE, 2
 HORIZONS = (0.5, 2.0, 5.0, 10.0, 30.0, math.inf)
+# amendment 2: the branch set is chosen on development too (errno added no development recall, 31/10)
+BRANCH_SETS = {'core5': v3.CORE, 'core4_no_errno': ('system', 'path', 'bytes', 'ngram')}
 FAST_SECONDS = 3.0
 
 
@@ -43,13 +47,13 @@ def firings(arms, horizon, branches=BRANCHES, k=K):
     return out
 
 
-def rows(doc, horizon):
+def rows(doc, horizon, branches=BRANCHES):
     """{scenario: {name: (split, detected, latency, false_alarm, subset)}} under one horizon."""
     out = {}
     for scenario, res in doc['scenarios'].items():
         per = {}
         for name, rec in res.get('alarms', {}).items():
-            fire, exploit = firings(rec['arms'], horizon), rec['exploit']
+            fire, exploit = firings(rec['arms'], horizon, branches), rec['exploit']
             after = [t for t in fire if exploit is not None and t > exploit]
             per[name] = (rec['split'], bool(after), after[0] - exploit if after else None,
                          bool(fire) if exploit is None else any(t <= exploit for t in fire), rec['subset'])
@@ -57,19 +61,26 @@ def rows(doc, horizon):
     return out
 
 
-def evaluate(doc, part):
+def evaluate(doc, part, sets=None):
+    """{candidate: ...}; candidates are horizons (amendment 1) or set/horizon pairs (amendment 2, ``sets``)."""
     res = {}
-    for h in HORIZONS:
+    for name, branches, h in candidates(sets):
         pooled, per = [], {}
-        for scenario, r in rows(doc, h).items():
+        for scenario, r in rows(doc, h, branches).items():
             keep = list(v3.subset_of(scenario, r, part).values())
             per[scenario] = v3.metrics(keep)
             pooled.extend(keep)
         m = v3.metrics(pooled)
         att = [x for x in pooled if x[0] == 'test-normal_and_attack']
         m['detected_within_3s'] = sum(1 for x in att if x[2] is not None and x[2] <= FAST_SECONDS)
-        res[label(h)] = dict(horizon_seconds=None if math.isinf(h) else h, pooled=m, scenarios=per)
+        res[name] = dict(branches=list(branches), horizon_seconds=None if math.isinf(h) else h, pooled=m, scenarios=per)
     return res
+
+
+def candidates(sets=None):
+    if sets is None:
+        return [(label(h), BRANCHES, h) for h in HORIZONS]
+    return [(f'{s}/{label(h)}', sets[s], h) for s in sets for h in HORIZONS]
 
 
 def label(h):
@@ -77,8 +88,10 @@ def label(h):
 
 
 def select(dev):
-    """Highest development recall with development false alarms <= 2 %; ties to the shorter horizon."""
-    order = [label(h) for h in HORIZONS]
+    """Highest development recall with development false alarms <= 2 %; ties to the earlier candidate (fewer
+    branches before more under amendment 2, then the shorter horizon)."""
+    order = sorted(dev, key=lambda c: (len(dev[c]['branches']), dev[c]['horizon_seconds'] is None,
+                                       dev[c]['horizon_seconds'] or 0))
     ok = [c for c in order if dev[c]['pooled']['false_alarm_rate'] <= v3.DEV_FA_LIMIT]
     if ok:
         return max(ok, key=lambda c: (dev[c]['pooled']['recall'], -order.index(c))), True
@@ -96,17 +109,19 @@ def main():
     ap.add_argument('--select', required=True, help='LID-DS 2021 v2 output with alarm times')
     ap.add_argument('--confirm', action='append', default=[], help='NAME=path of another v2 output with alarm times')
     ap.add_argument('--output', type=Path, required=True)
+    ap.add_argument('--amendment', type=int, choices=(1, 2), default=2)
     a = ap.parse_args()
+    sets = BRANCH_SETS if a.amendment == 2 else None
     base = load(a.select)
-    dev, official = evaluate(base, 'development'), evaluate(base, 'official')
+    dev, official = evaluate(base, 'development', sets), evaluate(base, 'official', sets)
     chosen, qualified = select(dev)
-    out = dict(schema='pulse-lidds-v3-window', protocol='sentinel_pulse/protocol/lidds-evaluation-v3-amendment-1.json',
-               branches=list(BRANCHES), k=K, horizons=[label(h) for h in HORIZONS], selected=chosen,
+    out = dict(schema='pulse-lidds-v3-window', protocol=f'sentinel_pulse/protocol/lidds-evaluation-v3-amendment-{a.amendment}.json',
+               k=K, candidates=list(dev), selected=chosen,
                selection_qualified=qualified, development=dev, official=official,
                criteria=v3.criteria(official[chosen]), confirmations={})
     for item in a.confirm:
         name, path = item.split('=', 1)
-        res = evaluate(load(path), 'all')
+        res = evaluate(load(path), 'all', sets)
         out['confirmations'][name] = dict(results=res, selected=res[chosen], criteria=v3.criteria(res[chosen]))
     a.output.write_text(json.dumps(out, indent=1, default=float))
     brief = lambda m: {k: m[k] for k in ('recall', 'false_alarm_rate', 'latency_p50', 'latency_p95', 'detected_within_3s')}
