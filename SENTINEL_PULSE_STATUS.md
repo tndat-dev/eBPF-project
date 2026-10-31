@@ -1978,7 +1978,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Độc lập một phần:** 10 lỗ hổng trùng với bộ 2021 mà mã exploit đã được đọc khi thiết kế v2; CB-DS mới là xác nhận độc lập.
   - **Lịch:** `scripts/lidds2019_after_live.sh` (dựng archive, chuyển đổi, chấm 4 phần, gộp) sau phân tích lượt live.
 
-### 5.32b Pulse mở rộng thay Pulse stable làm hệ thống đưa lên live (chủ đồ án, 31/10 22:40)
+### 5.32b Pulse mở rộng thay Pulse stable làm hệ thống đưa lên live (chủ đồ án, tối 31/10)
 
 - **Quyết định:** hệ thống mục tiêu là **Pulse mở rộng** = luật v3 (ít nhất 2 trong {hệ thống stable (ML + tripwire), `path`, `errno`, `bytes`, `ngram`}), không còn là Pulse stable. Stable vẫn chạy bên trong như một nhánh bỏ phiếu.
 - **Vì sao chưa lên live được ngay:** (1) luật v3 tính trên cả bản ghi, live không có khái niệm bản ghi; (2) probe chỉ đếm syscall, chưa thu tham số, giá trị trả về hay chuỗi theo thread; (3) theo protocol v3, phải đạt trên LID-DS 2019 trước.
@@ -2456,4 +2456,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 31/10 18:40–19:10 | LID-DS 2021 chốt ở v3 theo quyết định của chủ đồ án; luận văn: giới hạn `SQLInjectionUser` (7.1), hướng uprobe driver CSDL và cập nhật exec-intent (8), trang bìa theo báo cáo 23/10 (ĐHBK Hà Nội, Trường CNTT&TT, đồ án, Nguyễn Tuấn Đạt, MSSV 20235907, GVHD Nguyễn Đức Toàn); cài TensorFlow CPU trên `.234` cho CHIDS | mục 5.32 |
 | 31/10 23:00–23:30 | Luận văn mục 6.12.1 viết lại thành đường đi đầy đủ từ 77% lên 97,5%: chia tập, thiết kế 4 nhánh v2, bảng từng nhánh, nhánh nào cứu kịch bản nào, 6 luật v3 và quy tắc chọn, bảng theo kịch bản; kiểm toán số thêm 6 dòng bảng nhánh (62/62) | mục 5.32 |
 | 31/10 23:40–23:55 | CB-DS: tìm ra 20 bản ghi normal chỉ có một event (1.430 đọc, 1.410 chấm); luận văn thêm mục 6.12.1 Xác nhận trên CB-DS (bảng nhánh, đọc kết quả) | mục 5.32 |
-| 31/10 22:40–23:00 | Chủ đồ án chọn Pulse mở rộng làm hệ thống đưa lên live; amendment 1 của v3 (bỏ phiếu trong H giây) đăng ký, code + test; chạy lại nhánh v2 có lưu thời điểm báo (`lidds-v3-window`), xếp `lidds2019-confirm` chạy sau; tóm tắt luận văn tách rõ 77,3% (probe hiện tại) và 97,5% (Pulse mở rộng, offline) | mục 5.32b |
+| 31/10 khoảng 22:30–23:00 | Chủ đồ án chọn Pulse mở rộng làm hệ thống đưa lên live; amendment 1 của v3 (bỏ phiếu trong H giây) đăng ký, code + test; chạy lại nhánh v2 có lưu thời điểm báo (`lidds-v3-window`), xếp `lidds2019-confirm` chạy sau; tóm tắt luận văn tách rõ 77,3% (probe hiện tại) và 97,5% (Pulse mở rộng, offline) | mục 5.32b |
