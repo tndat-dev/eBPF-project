@@ -578,6 +578,46 @@ Kịch bản & ML phát hiện & Tripwire phát hiện & Hệ thống phát hi�
   \textbf{Lượt v2 đã đăng ký} (protocol \texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v2}): thêm các tín hiệu theo tham số và giá trị trả về (đường dẫn mới, lỗi theo errno, số byte) và chuỗi syscall theo thread, với ngưỡng là điểm cao nhất trên validation. Protocol ghi rõ thiết kế được làm sau khi đã thấy kết quả trên, nên bằng chứng độc lập chỉ đến từ lượt xác nhận trên LID-DS 2019 và CB-DS.
 \end{itemize}
 
+\subsection{Xác nhận trên CB-DS}\label{sec:cbds}
+
+CB-DS là bộ Container Breakout của bài CHIDS (\citealp{elkhairi2022}). Nó gồm 1.700 bản ghi normal của một container E-shop (Apache) và 9 kịch bản thoát container, mỗi kịch bản 99 bản ghi (891 bản ghi tấn công). Dataset không chia tập, không có metadata và không có thời điểm exploit. Protocol \texttt{cbds-\allowbreak{}confirmation-\allowbreak{}v1} được đăng ký ngày 29/10 lúc 22:22, trước khi giải mã bản ghi tấn công nào:
+
+\begin{itemize}
+\tightlist
+\item
+  bản ghi \texttt{.scap} được giải mã bằng sysdig 0.41.4 thành cùng định dạng LID-DS, rồi chạy nguyên bộ chuyển đổi và các nhánh của v1 và v2. Chỉ giữ event của container chính;
+\item
+  normal chia theo seed: 210 train, 60 validation, 1.430 test. 20 bản ghi test chỉ có đúng một event nên không có cửa sổ nào và không được chấm, như quy ước của v1; tính chúng vào thì báo nhầm chỉ đổi từ 1,49\% thành 1,47\%;
+\item
+  vì không có thời điểm exploit, một bản ghi tấn công được tính là phát hiện khi có bất kỳ cửa sổ nào báo; không đo độ trễ.
+\end{itemize}
+
+\begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.3\linewidth-2\tabcolsep\relax}@{}}
+\caption{CB-DS: 891 bản ghi tấn công, 1.410 bản ghi normal được chấm.}\label{tab:cbds}\\
+\toprule\noalign{}
+Nhánh & Phát hiện & Bản ghi normal bị báo nhầm \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Hệ thống v1 (ML hoặc tripwire)} & \textbf{100\%} (891/891) & \textbf{1,5\%} (21) \\
+Tripwire & 100\% (891/891) & 0\% (0) \\
+ML & 99,0\% (882/891) & 1,5\% (21) \\
+OR mọi nhánh (v2) & 100\% (891/891) & 5,5\% (77) \\
+\end{longtable}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Hệ thống v1, không chỉnh gì, đạt cả recall và precision trên 95\%:} recall 100\%, precision ở tỉ lệ của dataset 891/912 = 97,7\%. Cả 9 kịch bản thoát container đều dùng syscall mà container không bao giờ gọi khi bình thường, nên riêng tripwire đã bắt 100\% mà không báo nhầm bản ghi nào.
+\item
+  \textbf{Các nhánh v2 không thêm phát hiện nào} trên CB-DS, chỉ thêm báo nhầm: +4,0 điểm [+3,0; +5,0] (bootstrap ghép cặp). Vì vậy v2 không đạt tiêu chí của chính nó ở đây (báo nhầm 5,5\% > 3\%).
+\item
+  \textbf{Luật bỏ phiếu v3} (mục~\ref{sec:lidds-v2-v3}) đưa báo nhầm về 0,50\% mà vẫn giữ 100\%. Con số này chỉ là kiểm tra độ nhạy, vì kết quả v2 trên CB-DS đã được đọc trước khi đăng ký v3.
+\item
+  \textbf{Đọc:} CB-DS dễ hơn LID-DS với Pulse, vì tấn công thoát container để lại syscall lạ, đúng loại tín hiệu Pulse mạnh nhất. Nó xác nhận tripwire và hệ thống v1 trên dữ liệu chưa nhìn, nhưng không kiểm được các nhánh mới của v2.
+\end{itemize}
+
 \subsection{Từ 77\% lên 97,5\%: tín hiệu theo tham số và luật bỏ phiếu}\label{sec:lidds-v2-v3}
 
 Kết quả v1 cho thấy Pulse yếu ở đúng những kịch bản mà exploit chạy bên trong process của dịch vụ và không cần syscall mới. Hai lượt tiếp theo, mỗi lượt có protocol đăng ký trước, đưa recall lên 97,5\% mà vẫn giữ báo nhầm dưới 3\%:

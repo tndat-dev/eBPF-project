@@ -255,6 +255,18 @@ def claims():
         nor = [o for s in v2.values() for o in s[arm] if o[0] == 'test-normal']
         add(f'lidds-v2-thesis-{arm}', thesis, f"{tex} & {pct(sum(o[1] for o in att) / len(att))} & "
             f"{pct(sum(o[3] > 0 for o in nor) / len(nor), 2)} \\\\".replace('%', r'\%'), [], V2)
+    CB = 'results-20261029/cbds/cbds-confirmation.json'
+    cb_arms = receipt(CB)['arms']
+    for arm, tex in (('system', r'\textbf{Hệ thống v1 (ML hoặc tripwire)}'), ('tripwire', 'Tripwire'), ('ml', 'ML'),
+                     ('step3', 'OR mọi nhánh (v2)')):
+        m = cb_arms[arm]
+        det, fa = m['detected'] / m['attack_recordings'], m['false_alarm_recordings'] / m['normal_recordings']
+        dtxt = pct(det, 0) if det in (0, 1) else pct(det)
+        ftxt = pct(fa, 0) if fa == 0 else pct(fa)
+        if arm == 'system':
+            dtxt, ftxt = r'\textbf{' + dtxt + '}', r'\textbf{' + ftxt + '}'
+        add(f'cbds-thesis-{arm}', thesis, f"{tex} & {dtxt} ({m['detected']}/{m['attack_recordings']}) & {ftxt} "
+            f"({m['false_alarm_recordings']}) \\\\".replace('%', r'\%'), [], CB)
     V3 = 'results-20261031/lidds-v3-with-cbds.json'
     v3 = receipt(V3)
     off = v3['official'][v3['selected']]['pooled']

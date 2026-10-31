@@ -1937,6 +1937,7 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   | ML riêng | 99,0% | 1,5% |
   | step3 (v2 đầy đủ) | 100% | 5,5% (77) |
 
+  - **Số bản ghi normal được chấm (kiểm 31/10):** bộ chuyển đổi đọc 1.430 bản ghi normal test, nhưng 20 bản ghi (`normal_61`, `normal_92`, `normal_249`, …, `normal_1640`) chỉ có đúng một event nên không có cửa sổ nào và không được chấm, như quy ước v1. Bảng dùng 1.410; tính cả 20 bản ghi này thì báo nhầm hệ thống là 21/1.430 = 1,47% thay vì 1,49%.
   - **C1/C2 của v2: không đạt** vì báo nhầm 5,5% > 3%. Tín hiệu v2 không thêm phát hiện nào (step3 − system: phát hiện +0, báo nhầm +4,0 điểm [+3,0; +5,0]).
   - **Hệ thống v1 đạt precision và recall ≥ 95% trên CB-DS:** recall 100%, precision theo bản ghi 891/912 = 97,7%. Mọi kịch bản thoát container đều dùng syscall lạ (tripwire 100%, 0 báo nhầm).
 - **Kết quả LID-DS v2 tạm (12/15 kịch bản, tập official, 31/10 01:55; 3 kịch bản còn chạy):** step3 recall **97,3%** (992/1.020) nhưng báo nhầm **10,0%** (906/9.073); hệ thống v1 71,9% / 3,1%; riêng nhánh chuỗi 7 syscall (ngram) 84,4% / 0,9%. Heartbleed 8% → 100%, ZipSlip 5% → 100%, CVE-2019-5418 16% → 100%, CVE-2017-7529 70% → 100%. H1 (≥ 90% với ≤ 3,0%) không đạt vì báo nhầm cộng dồn khi ghép OR nhiều nhánh; nhánh support-first (step1) tăng báo nhầm mà gần như không thêm recall.
@@ -2445,3 +2446,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 31/10 07:00–07:45 | LID-DS 2021: chẩn đoán Juice-Shop theo tên exploit (`SQLInjectionUser` 2/43, phần còn lại 99,8%); luật v3 không đổi trên CB-DS (100% / 0,50%); luận văn mục 6.12 thêm v2/v3/CB-DS và chẩn đoán, tóm tắt và kết luận cập nhật, kiểm toán số 56/56; runner baseline học sâu (MLP/LSTM của thư viện LID-DS) và chạy thử MLP | mục 5.32 |
 | 31/10 18:40–19:10 | LID-DS 2021 chốt ở v3 theo quyết định của chủ đồ án; luận văn: giới hạn `SQLInjectionUser` (7.1), hướng uprobe driver CSDL và cập nhật exec-intent (8), trang bìa theo báo cáo 23/10 (ĐHBK Hà Nội, Trường CNTT&TT, đồ án, Nguyễn Tuấn Đạt, MSSV 20235907, GVHD Nguyễn Đức Toàn); cài TensorFlow CPU trên `.234` cho CHIDS | mục 5.32 |
 | 31/10 23:00–23:30 | Luận văn mục 6.12.1 viết lại thành đường đi đầy đủ từ 77% lên 97,5%: chia tập, thiết kế 4 nhánh v2, bảng từng nhánh, nhánh nào cứu kịch bản nào, 6 luật v3 và quy tắc chọn, bảng theo kịch bản; kiểm toán số thêm 6 dòng bảng nhánh (62/62) | mục 5.32 |
+| 31/10 23:40–23:55 | CB-DS: tìm ra 20 bản ghi normal chỉ có một event (1.430 đọc, 1.410 chấm); luận văn thêm mục 6.12.1 Xác nhận trên CB-DS (bảng nhánh, đọc kết quả) | mục 5.32 |
