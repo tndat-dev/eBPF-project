@@ -1,7 +1,7 @@
 {
  "schema": "sentinel-pulse-lidds-evaluation-v3-amendment-1",
  "amends": "sentinel_pulse/protocol/lidds-evaluation-v3.json",
- "registered_at": "2026-11-01T00:30+07:00",
+ "registered_at": "2026-10-31T22:54+07:00", "registered_at_note": "first written as 2026-11-01T00:30 by mistake; the commit 08cee94 (2026-10-31 22:54:30 +0700) that registered it precedes the rerun (started 22:54 local) and every result",
  "registered_before": "the v2 branches are rerun with alarm times kept, and before any time-horizon result of any dataset is computed",
  "owner_decision": "31/10 (owner): the extended Pulse (the v3 rule over the v2 branches) replaces the stable system as the system to bring live; the v3 vote was counted per recording, which a live detector cannot do",
  "seen_before_registration": "every v3 result on LID-DS 2021 (development and official, per scenario, per recording), the CB-DS v2 and v3 results, the Juice-Shop development diagnosis; declared: the official LID-DS 2021 recordings are no longer unseen for the per-recording rule, only the time-horizon rule is scored on them for the first time",
