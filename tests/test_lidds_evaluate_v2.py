@@ -73,6 +73,13 @@ def test_end_to_end_in_process_exploit_is_found_by_the_argument_branches(tmp_pat
     assert len(result['development_recordings']) == 3                    # 30 % of 10 attack recordings
     assert result['arms']['step3']['official']['attack_recordings'] == 7
     assert result['limits']['prefix_w'] == 0 and result['reference']['prefixes'] >= 1
+    # the kept alarm times give back every per-recording outcome of the window arms
+    for arm in ev2.WINDOW_ARMS:
+        for split, det, lat, fa, _, subset, name in raw[arm]:
+            kept = result['alarms'][name]
+            assert (kept['split'], kept['subset']) == (split, subset)
+            d, l, f = ev2.v1.recording_outcome(kept['arms'][arm], kept['exploit'])
+            assert (d, l, f) == (det, lat, fa)
 
 
 def test_development_set_is_seeded_and_scenario_specific():

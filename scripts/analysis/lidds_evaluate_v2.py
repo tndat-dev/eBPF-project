@@ -21,7 +21,9 @@ precision at 1:1 and at the dataset's base rate.
     python3 lidds_evaluate_v2.py --converted DIR --archives DIR --exec-set E.json --output part.json [--scenario NAME ...]
     python3 lidds_evaluate_v2.py --merge part1.json part2.json ... --output lidds-evaluation-v2.json
 
-Every output keeps the outcome of every recording and arm (``recordings``), so parts run in parallel merge exactly.
+Every output keeps the outcome of every recording and arm (``recordings``), so parts run in parallel merge exactly,
+and, per scenario, the alarm window ends of the arms in WINDOW_ARMS for every test recording (``alarms``, for the
+time-horizon vote of lidds-evaluation-v3 amendment 1).
 """
 import argparse
 from collections import defaultdict
@@ -44,6 +46,7 @@ from sentinel_pulse.lidds import convert, signals  # noqa: E402
 SPLIT_SEED, DEV_SHARE, FAST_SECONDS = 20261030, 0.3, 3.0
 ARMS = ('ml', 'tripwire', 'system', 'ml_support_first', 'tripwire_no_exec_set', 'step1',
         'path', 'errno', 'bytes', 'step2', 'ngram', 'step3')
+WINDOW_ARMS = ('ml', 'tripwire', 'system', 'path', 'errno', 'bytes', 'ngram')   # alarm window ends kept per recording
 
 
 def split_recordings(archive, wanted):
@@ -124,7 +127,7 @@ def evaluate_scenario(scenario, converted, archive, exec_set):
     limits = signals.thresholds(ref, validation)
     attack_names = list(recs.get('test-normal_and_attack', {}))
     dev = development_set(scenario, attack_names)
-    outcomes = defaultdict(list)
+    outcomes, alarms = defaultdict(list), {}
     for split, name, blob in split_recordings(archive, {'test-normal', 'test-normal_and_attack'}):
         rows = recs.get(split, {}).get(name)
         if not rows:
@@ -138,6 +141,8 @@ def evaluate_scenario(scenario, converted, archive, exec_set):
         a['step2'] = union(a['step1'], br['path'], br['errno'], br['bytes'])
         a['step3'] = union(a['step2'], br['ngram'])
         subset = 'development' if name in dev else 'official'
+        alarms[name] = dict(split=split, subset=subset, exploit=exploit,
+                            arms={arm: sorted(e for e, x in a[arm].items() if x) for arm in WINDOW_ARMS})
         for arm in ARMS:
             d, lat, fa = v1.recording_outcome([e for e, x in a[arm].items() if x], exploit)
             outcomes[arm].append((split, d, lat, fa, len(rows), subset, name))
@@ -145,7 +150,7 @@ def evaluate_scenario(scenario, converted, archive, exec_set):
     return dict(scenario=scenario, fit=fit, tripwire_reference_ids=len(reference_ids),
                 reference=dict(prefixes=len(ref.prefixes), paths=len(ref.paths), error_pairs=len(ref.errors),
                                ngrams=len(ref.ngrams)),
-                limits=dict(limits), development_recordings=sorted(dev),
+                limits=dict(limits), development_recordings=sorted(dev), alarms=alarms,
                 arms={arm: dict(official=summarize(pick(arm, 'official')), development=summarize(pick(arm, 'development')),
                                 all=summarize(outcomes[arm])) for arm in ARMS}), outcomes
 

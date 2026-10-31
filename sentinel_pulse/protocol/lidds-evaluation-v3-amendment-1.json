@@ -1,0 +1,29 @@
+{
+ "schema": "sentinel-pulse-lidds-evaluation-v3-amendment-1",
+ "amends": "sentinel_pulse/protocol/lidds-evaluation-v3.json",
+ "registered_at": "2026-11-01T00:30+07:00",
+ "registered_before": "the v2 branches are rerun with alarm times kept, and before any time-horizon result of any dataset is computed",
+ "owner_decision": "31/10 (owner): the extended Pulse (the v3 rule over the v2 branches) replaces the stable system as the system to bring live; the v3 vote was counted per recording, which a live detector cannot do",
+ "seen_before_registration": "every v3 result on LID-DS 2021 (development and official, per scenario, per recording), the CB-DS v2 and v3 results, the Juice-Shop development diagnosis; declared: the official LID-DS 2021 recordings are no longer unseen for the per-recording rule, only the time-horizon rule is scored on them for the first time",
+ "question": "Does the v3 rule (at least 2 of {system, path, errno, bytes, ngram}) keep recall >= 95 % with <= 3.0 % false-alarm recordings when it must fire within a horizon of H seconds, as it would live?",
+ "rule": "at a window end t the rule fires when at least 2 of the 5 branches have an alarm window ending in (t - H, t]; an attack recording is detected when it fires after the first exploit time (latency = window end - exploit time); a normal recording with any firing is a false-alarm recording",
+ "horizons": [
+  "0.5 s (same window)",
+  "2 s",
+  "5 s",
+  "10 s",
+  "30 s",
+  "per recording (H = inf, the v3 reference)"
+ ],
+ "data": "lidds_evaluate_v2.py rerun on .234 with the same alias conversion, archives, exec set and code except that it keeps, per scenario and test recording, the alarm window ends of ml, tripwire, system, path, errno, bytes and ngram; reproducibility check: every per-recording outcome of every arm must equal the merged v2 receipt (validation-evidence/results-20261031/lidds-v2/lidds-evaluation-v2.json.gz), otherwise the run is reported as not reproducible and not used",
+ "split": "as v3: development = the v2 development attacks + the v3 30 % of test/normal recordings; official = the rest",
+ "selection": "on LID-DS 2021 development only: the horizon with the highest pooled development recall among those with development false-alarm recordings <= 2.0 %; ties to the shorter horizon; if none qualifies, the lowest false-alarm rate, reported as not reaching the goal",
+ "criteria_official": {
+  "H1": "selected horizon on LID-DS 2021 official: pooled recall >= 95 % AND false-alarm recordings <= 3.0 %",
+  "H2": "and no scenario above 5 % false-alarm recordings",
+  "reported": "latency p50/p95 and attack recordings detected within 3 s; precision at 1:1 and at the base rate; every horizon on every part"
+ },
+ "confirmation": "the selected horizon unchanged on LID-DS 2019 (lidds2019-confirmation-v1 run with alarm times kept, the independent check) and on CB-DS (sensitivity only, seen before)",
+ "next_if_met": "only if H1 holds on LID-DS 2021 official and on LID-DS 2019: implement the branches in the probe and user space with this horizon and run a blind live confirmation against the stable system on the same data",
+ "code": "scripts/analysis/lidds_evaluate_v2.py (WINDOW_ARMS alarm times), scripts/analysis/lidds_v3_window.py (tests/test_lidds_v3_window.py), scripts/lidds_v3_window_run.sh"
+}
