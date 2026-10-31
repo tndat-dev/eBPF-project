@@ -61,6 +61,7 @@ def test_amendment_2_prefers_the_smaller_branch_set_at_equal_recall():
 def test_the_per_recording_rule_is_never_selected():
     alarms = {f'a{i}': dict(split='test-normal_and_attack', subset='development', exploit=1.0,
                             arms=dict(path=[2.0], ngram=[60.0])) for i in range(3)}   # 58 s apart: only H = inf
+    alarms.update({f'n{i}': dict(split='test-normal', subset='official', exploit=None, arms={}) for i in range(10)})
     dev = w.evaluate(dict(scenarios={'SCN': dict(alarms=alarms)}), 'development', w.BRANCH_SETS)
     assert dev['core5/per_recording']['pooled']['recall'] == 1.0
     chosen, _ = w.select(dev)
