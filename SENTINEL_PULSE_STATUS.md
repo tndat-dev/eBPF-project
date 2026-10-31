@@ -2464,4 +2464,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 31/10 22:58–23:03 | exec-intent tạm dừng (chủ đồ án); bỏ lần lượt từng nhánh khỏi luật bỏ phiếu trên development: `errno` thừa (97,4% / 1,32% khi bỏ) | mục 5.32b, 5.34 |
 | 31/10 23:03–23:05 | Amendment 2 của v3 (chọn tập nhánh cùng H trên development), code `--amendment 2` + test | mục 5.32b |
 | 31/10 23:08–23:12 | Sửa amendment 2: luật "cả bản ghi" chỉ là tham chiếu, không được chọn (trước khi có kết quả); ghi ưu tiên của chủ đồ án: giữ 97,5% / 1,47% hoặc tốt hơn | mục 5.32b |
-| 31/10 23:15–23:35 | Dừng `lidds2019-confirm` (chưa chạy); protocol v4: chọn cấu hình Pulse mở rộng trên LID-DS 2021 dev + CB-DS (750 cấu hình), LID-DS 2019 chạy cuối, sau live; code + test; CB-DS chạy lại có thời điểm báo | mục 5.32b |
+| 31/10 23:13–23:22 | Dừng `lidds2019-confirm` (chưa chạy); protocol v4: chọn cấu hình Pulse mở rộng trên LID-DS 2021 dev + CB-DS (750 cấu hình), LID-DS 2019 chạy cuối, sau live; code + test; CB-DS chạy lại có thời điểm báo | mục 5.32b |
