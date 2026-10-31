@@ -363,7 +363,7 @@ Cảnh báo còn lại chủ yếu là \emph{benign trigger}:
   một replica Kafka lệch hệ thống so với hai broker kia và là nguồn gánh lớn nhất.
 \end{itemize}
 
-Calibration tự làm mới trong worker (mục~\ref{sec:live-recal}) đã qua smoke với kiểm cài đặt khớp 100\%; lượt xác nhận 24 giờ đang chạy (29--30/10), kết quả sẽ được bổ sung. Lượt này loại khoảng campaign khỏi calibration như bản offline; đây là một giới hạn, vì hệ thống vận hành thật không biết lúc nào bị tấn công.
+Calibration tự làm mới trong worker (mục~\ref{sec:live-recal}) được kiểm trên lượt live \texttt{pulse-\allowbreak{}live-\allowbreak{}recal-\allowbreak{}confirm} (29--30/10, protocol \texttt{live-\allowbreak{}recalibration-\allowbreak{}confirmation-\allowbreak{}v1}). Cài đặt đúng: 24 lần làm mới trên mỗi worker, và mọi p-value live trùng bản dựng lại offline. So với cùng các cửa sổ chấm bằng calibration cố định, bản làm mới giảm gánh 40\% (0,80 so với 1,35 đợt/replica-giờ, CI chứa 0) và giảm binary vô hại bị gắn cờ từ 89,5\% xuống 57,2\%. Đổi lại, recall ML giảm từ 99,7\% xuống 92,1\% ($-$7,6 điểm [$-$13,5; $-$2,6]) và p95 tăng từ 2,10 s lên 5,47 s. Theo luật đã đăng ký, bản làm mới không thắng, nên calibration cố định được giữ. Làm mới từ 12 giờ normal gần nhất nới ngưỡng theo hành vi gần đây, nên hệ thống bớt báo trên normal và trên binary vô hại, nhưng cũng chậm hơn và bỏ sót tấn công nhiều hơn. Lượt này loại khoảng campaign khỏi calibration như bản offline; đây là một giới hạn, vì hệ thống vận hành thật không biết lúc nào bị tấn công.
 
 \begin{figure}[htbp]
   \centering
@@ -399,7 +399,7 @@ Top-1 là tỉ lệ case có binary tấn công đứng hạng 1 trong danh sác
 \item
   nguyên nhân là luật phá hoà: hai binary thường bằng điểm (6 = binary mới + exec trong cửa sổ), và khi hoà, luật cũ xếp theo thứ tự bảng chữ cái của đường dẫn, nên \texttt{sentinel-\allowbreak{}benign-\allowbreak{}exec-\allowbreak{}control} luôn đứng trước \texttt{sentinel-\allowbreak{}runtime-\allowbreak{}attack-\allowbreak{}blind};
 \item
-  khi hoà mà xếp process khởi chạy gần cảnh báo nhất lên trước, top-1 trên chính lượt này lên 100\% (469/469). Đây là kết quả development; kiểm blind đã được đăng ký trên lượt kế tiếp. Trong campaign, binary vô hại luôn chạy trước tấn công 15 s, nên luật mới thắng một phần nhờ thiết kế campaign; nó chỉ chứng minh luật cũ là artifact, chưa chứng minh luật mới tốt trong mọi trường hợp.
+  khi hoà mà xếp process khởi chạy gần cảnh báo nhất lên trước, top-1 trên chính lượt này lên 100\% (469/469). Đây là kết quả development. Kiểm blind trên các case của lượt kế tiếp (\texttt{pulse-\allowbreak{}live-\allowbreak{}recal-\allowbreak{}confirm}, đăng ký trước khi đọc case nào) cho top-1 100\% (426/426) theo thời điểm khởi chạy và 15,3\% theo tên, top-3 100\% ở cả hai; luật mới thành mặc định của RCA. Trong campaign, binary vô hại luôn chạy trước tấn công 15 s, nên luật mới thắng một phần nhờ thiết kế campaign; nó chỉ chứng minh luật cũ là artifact, chưa chứng minh luật mới tốt trong mọi trường hợp.
 \end{itemize}
 
 Với 40 tấn công không có case riêng ở lượt cuối, nguyên nhân được quy cho từng bước:
