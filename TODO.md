@@ -40,6 +40,13 @@ Các mục dưới là việc đã xong gần đây.
 8. [ ] Cho paper (RESEARCH_IDEAS, mục "Đủ bằng chứng để viết paper chưa?"): LID-DS (G3, một phần G2; [x] đã tải 15/15 file, 87 GB, mỗi zip qua `testzip`, headless Chromium trên `.234` vì Proton Drive giải mã trong trình duyệt; [x] bộ chuyển đổi `sentinel_pulse/lidds/convert.py` dựng lại frame của loader eBPF rồi chạy qua đúng `ExtendedFeatureStream`, có test, thử trên 200 bản ghi thật: 249 feature, 0 tên syscall không ánh xạ; [x] protocol `lidds-evaluation-v1` đăng ký 29/10 09:17 trước mọi fit (tham số lấy nguyên từ hệ thống live, không chỉnh trên LID-DS); [x] script `lidds_evaluate.py` có test đầu-cuối; [x] 29/10 09:10–15:01: `lid-ds-convert` rồi `lid-ds-evaluate` trên `.234` (ML, tripwire, hệ thống, STIDE; Pulse 5.32); [~] v2 (mục "Đang chạy")), exploit thật (G2, chủ đồ án tự dựng), [x] độ trễ ứng dụng (G7, Pulse 5.30). Chủ đồ án quyết định 29/10: **không làm** review nhãn độc lập (G8), bản gốc của 10 tài liệu dựng lại, balloon ESXi và kiểm overhead trên kernel/distro khác; các điểm này ghi là giới hạn.
 9. [x] **Calibration tự làm mới khi live: code** (Pulse 5.31; `pipeline/live_recalibration.py`, `rolling-12-1`, 6 test, chưa chạy). [x] Smoke trên cụm (`pulse-recal-smoke`, 29/10). [x] Protocol `live-recalibration-confirmation-v1`; [~] lượt xác nhận `pulse-live-recal-confirm` (mục "Đang chạy"). Chủ đồ án quyết định 29/10: loại khoảng campaign như bản offline, ghi là giới hạn. Đã có 7 hình và bảng tổng hợp lượt live (`docs/figures/`, sinh lại bằng `scripts/figures/thesis_figures.py`).
 
+## Quyết định 01/11: chỉ phát triển ML (rule tạm bỏ)
+
+- [~] Nghiên cứu sâu cải thiện ML trên LID-DS 2021 (`reports/Cải thiện ML Pulse LID DS.md`).
+- [ ] Đăng ký protocol ML mới (feature từ tham số/chuỗi syscall cho ML hoặc model con học từ normal; chọn trên LID-DS 2021 development + CB-DS, official một lần; số báo là ML riêng).
+- [ ] Luận văn: số chính LID-DS là ML riêng; mục v2–v4 chuyển thành so sánh rule (sau khi ML chốt).
+- [x] Huỷ kế hoạch live của v4; kết quả v2–v4 chuyển sang RULE_INTEGRATION_STATUS R7.
+
 ## Việc mới đăng ký 30/10 (chạy sau lượt `pulse-live-recal-confirm`, theo quy trình của thầy: cải thiện trên dataset tới khi precision và recall ≥ 95% rồi mới chạy live)
 
 - [x] **Tích hợp RCA với Alertmanager và Grafana** (RCA 5.20): code, test, dashboard tiếng Anh, route tách mức báo. [x] Triển khai (30/10, sau lượt live): Graphviz, plugin Infinity, datasource, dashboard; bridge `pulse-alert-bridge-rca-viewer` phục vụ case trên `.234:9478`. [ ] Đo trên một lượt live (cảnh báo được làm giàu, route tách mức báo).

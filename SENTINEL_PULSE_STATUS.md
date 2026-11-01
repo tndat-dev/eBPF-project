@@ -1979,7 +1979,13 @@ Số tạm lúc 11:35, campaign 476/525 cặp. Luật đăng ký trước (`stab
   - **Độc lập một phần:** 10 lỗ hổng trùng với bộ 2021 mà mã exploit đã được đọc khi thiết kế v2; CB-DS mới là xác nhận độc lập.
   - **Lịch:** `scripts/lidds2019_after_live.sh` (dựng archive, chuyển đổi, chấm 4 phần, gộp) sau phân tích lượt live.
 
-### 5.32b Pulse mở rộng thay Pulse stable làm hệ thống đưa lên live (chủ đồ án, tối 31/10)
+### 5.32c Quyết định của chủ đồ án 01/11: chỉ phát triển ML; mọi đường quyết định bằng rule tạm bỏ
+
+- **Nguyên văn:** "Mục tiêu của đồ án là phát triển mô hình ML runtime security phát hiện blind attack, không phải là thiết lập rule để fit dataset! Hãy tạm bỏ mọi đường quyết định bằng rule như tripwire... rồi khi quyết định xong phần ML hẵng tích hợp thêm rule để nâng cao hiệu suất!" Trước đó: "bắt buộc phải có ML, tao bảo cải thiện ML trên lid-ds 2021, không phải tích hợp thêm rule".
+- **Đánh giá lại phần đã làm:** v2–v4 (mục 5.32, 5.32b) nâng recall LID-DS bằng tripwire và các nhánh novelty (đường dẫn mới, cặp errno mới, nhóm byte vượt max, 7-gram chưa thấy) cùng luật bỏ phiếu: đó là **rule**, đi ngược quy tắc đã có từ 22/10 (ML trước, rule sau, báo riêng). ML không được cải thiện: trên LID-DS 2021 official, **ML riêng 63,9%** (812/1.271), báo nhầm 2,70% (306/11.341); trên CB-DS, ML riêng 99,0% / 1,5%.
+- **Hệ quả:** (1) số chính của LID-DS là số của ML; kết quả v2–v4 (97,5% / 1,47%; 97,40% / 0,73%) chỉ còn là phép so sánh rule, tính lại sau khi ML chốt, ghi ở RULE_INTEGRATION_STATUS; (2) kế hoạch đưa cấu hình v4 lên live **huỷ**; probe cho nhánh rule không làm; (3) thông tin mới (đường dẫn, errno, cỡ I/O, chuỗi dài) chỉ được vào ML dưới dạng feature hoặc model con học từ normal, quyết định bằng điểm học được và ngưỡng hiệu chỉnh; (4) đang nghiên cứu sâu `reports/Cải thiện ML Pulse LID DS.md` trước khi đăng ký protocol ML mới.
+
+### 5.32b Pulse mở rộng thay Pulse stable làm hệ thống đưa lên live (**đã huỷ 01/11, xem 5.32c**) (chủ đồ án, tối 31/10)
 
 - **Quyết định:** hệ thống mục tiêu là **Pulse mở rộng** = luật v3 (ít nhất 2 trong {hệ thống stable (ML + tripwire), `path`, `errno`, `bytes`, `ngram`}), không còn là Pulse stable. Stable vẫn chạy bên trong như một nhánh bỏ phiếu.
 - **Vì sao chưa lên live được ngay:** (1) luật v3 tính trên cả bản ghi, live không có khái niệm bản ghi; (2) probe chỉ đếm syscall, chưa thu tham số, giá trị trả về hay chuỗi theo thread; (3) theo protocol v3, phải đạt trên LID-DS 2019 trước.
@@ -2479,3 +2485,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 31/10 23:13–23:22 | Dừng `lidds2019-confirm` (chưa chạy); protocol v4: chọn cấu hình Pulse mở rộng trên LID-DS 2021 dev + CB-DS (750 cấu hình), LID-DS 2019 chạy cuối, sau live; code + test; CB-DS chạy lại có thời điểm báo | mục 5.32b |
 | 31/10 23:25–23:30 | Baseline: LSTM dừng ngay khi train vượt trần 8 CPU-giờ của protocol (luồng theo dõi trong runner, test) | mục 5.32 |
 | 01/11 08:45–09:10 | Đọc v4 (chọn tripwire hoặc ≥ 2/{path, bytes, ngram} trong 5 s; official 97,40% / 0,73%), ablation vòng 1 xong; phát hiện sự cố hết RAM 23:44–23:51 trên `.234` (pod hệ thống bị giết, đã tự hồi); chạy lại baseline với giới hạn RAM | mục 5.32b |
+| 01/11 09:30 | Chủ đồ án: mục tiêu là ML phát hiện blind attack; tạm bỏ mọi đường quyết định bằng rule (tripwire, nhánh novelty, bỏ phiếu); kế hoạch live của v4 huỷ; nghiên cứu sâu cải thiện ML trên LID-DS đang chạy | mục 5.32c |

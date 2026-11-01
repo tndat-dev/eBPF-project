@@ -268,3 +268,12 @@ CI của gánh B1 có cận dưới đúng 0 vì gần như mọi đợt thêm c
 | 25/10 17:30 | Chủ đồ án chọn hệ thống cuối = ML + tripwire A1 (B2) | R6 |
 | 25/10 18:00–18:28 | Hệ thống cuối chạy live: tripwire A1 cài vào worker (định nghĩa giữ nguyên R3, R6), protocol `final-system-confirmation-v1` (18:19), lượt `pulse-final-system-confirm` chờ khởi chạy (Pulse 5.28) | R6 |
 | 29/10 09:00 | Lượt live của hệ thống cuối đạt (Pulse 5.29): tripwire live khớp offline 100%, S đạt 4 kỳ vọng với p95 1,97 s, gánh tripwire thêm +0,049 | R6 |
+
+## R7. Kết quả kiểu rule trên LID-DS 2021 và CB-DS (chuyển từ SENTINEL_PULSE_STATUS 5.32, 01/11)
+
+- Theo quyết định của chủ đồ án 01/11 (SENTINEL_PULSE_STATUS 5.32c), các kết quả sau là **rule**, không phải ML, và chỉ dùng cho phép so sánh không có / có rule sau khi ML chốt:
+  - v2 (OR tripwire + nhánh novelty `path`, `errno`, `bytes`, `ngram`): official 97,8% / 9,70%;
+  - v3 (≥ 2 trong 5 nhánh, theo bản ghi): official 97,48% / 1,47%; CB-DS 100% / 0,50%;
+  - v4 (tripwire một mình hoặc ≥ 2 trong {`path`, `bytes`, `ngram`} trong 5 s): official 97,40% / 0,73%; CB-DS 100% / 0,21%.
+- Biên nhận: `validation-evidence/results-20261031/lidds-v2/`, `lidds-v3*.json`, `validation-evidence/results-20261101/lidds-v4/`. Protocol: `lidds-evaluation-v2`, `-v3` (+ amendment 1, 2), `-v4`.
+- Khi tính lại cho phép so sánh: dùng cùng tập official và cùng ML đã chốt, báo ML riêng (A) cạnh ML + rule (B).
