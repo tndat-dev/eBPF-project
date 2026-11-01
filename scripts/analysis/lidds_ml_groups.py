@@ -182,6 +182,20 @@ def alarms(scored, p):
     return out
 
 
+def recording_outcomes(per_cfg, exploit, split, subset, name):
+    """{config: v2 row} of one recording; one without a scored window is a row too, with no alarm (as the v1 arm),
+    so it stays in the denominators."""
+    out = {}
+    for fix in FIX_A:
+        for groups in GROUP_SETS:
+            for fusion in FUSIONS:
+                cfg = config_name(fix, groups, fusion)
+                a = per_cfg.get(cfg, {})
+                d, lat, fa = v1.recording_outcome([e for e, x in a.items() if x], exploit)
+                out[cfg] = [split, d, lat, fa, len(a), subset, name]
+    return out
+
+
 def evaluate(scenario, converted, archive, fix_fraction, dev_names=None):
     recs = {s: v1.recordings(converted / f'{s}.jsonl.gz') for s in v1.SPLITS if (converted / f'{s}.jsonl.gz').exists()}
     raw, lm = {}, NgramLM()
@@ -246,9 +260,8 @@ def evaluate(scenario, converted, archive, fix_fraction, dev_names=None):
                 stack.append(np.column_stack([[r['window_end'] for r in scored], tp[False], tp[True], sp]
                                              + [gp[g, f] for g in TREE_GROUPS for f in FIX_A] + [g2p]))
             kept[name] = np.concatenate(stack) if stack else np.empty((0, 11))
-            for cfg, a in per_cfg.items():
-                d, lat, fa = v1.recording_outcome([e for e, x in a.items() if x], exploit)
-                outcomes[cfg].append([split, d, lat, fa, len(a), subset, name])
+            for cfg, row in recording_outcomes(per_cfg, exploit, split, subset, name).items():
+                outcomes[cfg].append(row)
     return dict(scenario=scenario, fits=fits, fix_a_fraction=fix_fraction, development_recordings=sorted(dev)), outcomes, kept
 
 

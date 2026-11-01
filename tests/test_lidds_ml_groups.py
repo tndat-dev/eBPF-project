@@ -41,3 +41,12 @@ def test_end_to_end_reproduces_the_v1_ml_arm_and_scores_every_configuration(tmp_
     assert old == new                                   # G0, no fix, Bonferroni = the current ML
     assert all(v.shape[1] == 11 for v in kept.values() if len(v))
     assert {'g0_tree_0', 'g0_tree_1', 'g0_support', 'g1_tree_1', 'g2_lm'} <= set(info['fits'])
+
+
+def test_a_recording_without_a_scored_window_is_a_row_of_every_configuration():
+    rows = mlg.recording_outcomes({}, 100.0, 'test-normal_and_attack', 'official', 'short')
+    assert set(rows) == {mlg.config_name(f, g, u) for f in mlg.FIX_A for g in mlg.GROUP_SETS for u in mlg.FUSIONS}
+    assert all(r == ['test-normal_and_attack', False, None, 0, 0, 'official', 'short'] for r in rows.values())
+    cfg = mlg.config_name(False, ('g0',), 'bonferroni')
+    one = mlg.recording_outcomes({cfg: {101.0: True, 99.0: False}}, 100.0, 'test-normal_and_attack', 'official', 'long')
+    assert one[cfg] == ['test-normal_and_attack', True, 1.0, 0, 2, 'official', 'long']
