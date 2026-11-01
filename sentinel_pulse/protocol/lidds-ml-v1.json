@@ -1,0 +1,85 @@
+{
+ "schema": "sentinel-pulse-lidds-ml-v1",
+ "registered_at": "see the git commit that adds this file (01/11, +0700)",
+ "registered_before": "any branch of this protocol is fitted or scored on any dataset",
+ "owner_decisions": [
+  "01/11: the goal is an ML model that detects blind attacks; rule decision paths (tripwire, novelty checks, votes) are set aside until the ML is decided",
+  "01/11: approve every proposal of reports/Cải thiện ML Pulse LID DS.md, including dropping the peer-novelty gate from the ML",
+  "01/11: expectations unchanged: recall >= 95 %, precision >= 95 %, latency <= 3 s; benign-binary flagging and alert burden as low as possible",
+  "31/10: process: design and select on LID-DS 2021 development + CB-DS, LID-DS 2021 official once, live run, LID-DS 2019 last"
+ ],
+ "seen_before_registration": "every v1-v4 result on LID-DS 2021 and CB-DS, the per-scenario ML misses (official ML 63.9 %), the Juice-Shop diagnosis, the deep research report; declared: the official recordings are not unseen for the dataset, only for these configurations",
+ "model": "per scenario, every branch fitted on the training recordings and calibrated (conformal) on the validation recordings, normal data only: G0 = the current ML (reference tree history 3 + support interval model on the 249 count features); G1 file access (128 hashed directory-prefix bins, read/write, log1p) with a reference tree (history 1); G2 per-thread 5-gram language model of syscall names (Witten-Bell interpolation to an add-one unigram), window score = mean of the 10 highest per-event negative log-probabilities; G3 log2 I/O size buckets (32, log1p) with a reference tree; G4 errno (32 hashed (syscall, errno) bins) with a reference tree. Fix A: trees fitted with activate_fraction 0.05 (a share of the corrupted training rows moves one training-constant coordinate) or 0",
+ "decision": "branches combined by Bonferroni (min(1, K min p)) or Cauchy; pass at p <= 5 x 0.05/30; alarm on two consecutive contiguous passes (the v1 ML decision); no tripwire, no novelty gate, no vote",
+ "configurations": {
+  "fix_a": [
+   false,
+   true
+  ],
+  "groups": [
+   [
+    "g0"
+   ],
+   [
+    "g0",
+    "g1"
+   ],
+   [
+    "g0",
+    "g2"
+   ],
+   [
+    "g0",
+    "g1",
+    "g2"
+   ],
+   [
+    "g0",
+    "g1",
+    "g2",
+    "g3"
+   ],
+   [
+    "g0",
+    "g1",
+    "g2",
+    "g3",
+    "g4"
+   ]
+  ],
+  "fusion": [
+   "bonferroni",
+   "cauchy"
+  ],
+  "total": 24
+ },
+ "reproducibility": "the configuration g0 / no fix A / Bonferroni must reproduce the ml arm of the v2 receipts recording by recording on LID-DS 2021 and CB-DS; otherwise the run is not used",
+ "split": "as lidds-evaluation-v3: development = v2 development attacks + 30 % of test/normal; official = the rest; CB-DS every recording",
+ "eligibility": {
+  "lidds2021_development": [
+   "precision at the base rate >= 95 %",
+   "latency p95 <= 3.0 s",
+   "false-alarm recordings <= 2.0 %"
+  ],
+  "cbds": [
+   "recall >= 95 %",
+   "false-alarm recordings <= 2.0 %"
+  ]
+ },
+ "selection": "the highest development recall among eligible configurations; ties to fewer development false alarms, fewer groups, without fix A, Bonferroni; if none is eligible, the highest development recall with development false alarms <= 2 %, reported as not qualified",
+ "criteria_official": {
+  "recall": ">= 95 %",
+  "precision_base_rate": ">= 95 %",
+  "latency_p95": "<= 3 s",
+  "reported": [
+   "false-alarm recordings",
+   "detection within 3 s",
+   "per scenario",
+   "baseline (current ML) on the same split"
+  ]
+ },
+ "known_ceiling": "Juice-Shop SQLInjectionUser has no syscall footprint: with Juice-Shop unchanged the ML ceiling is about 93.5 % pooled (report), so the recall criterion may be unreachable",
+ "not_measured_here": "benign-binary flagging and alert burden: live only (next step), with the peer-novelty gate removed from the ML",
+ "next": "live: implement the selected branches in the probe (overhead A/B), blind live run vs the current ML on the same data, then LID-DS 2019 once; rules (tripwire, Falco) are integrated and compared only after",
+ "code": "sentinel_pulse/detector/model.py (activate_fraction), scripts/analysis/lidds_ml_groups.py, scripts/analysis/lidds_ml_select.py, scripts/lidds_ml_v1_run.sh; tests test_model_activation.py, test_lidds_ml_groups.py, test_lidds_ml_select.py"
+}

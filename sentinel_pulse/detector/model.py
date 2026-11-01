@@ -35,7 +35,8 @@ class PulseExtraTrees:
     into a conformal p-value; blind attacks never alter model or threshold.
     """
 
-    def __init__(self, history: int = 3, alpha: float = 1e-4, random_state: int = 73021):
+    def __init__(self, history: int = 3, alpha: float = 1e-4, random_state: int = 73021,
+                 activate_fraction: float = 0.0):
         if history < 1:
             raise ValueError("history must be positive")
         if not 0.0 < alpha < 1.0:
@@ -43,6 +44,12 @@ class PulseExtraTrees:
         self.history = history
         self.alpha = alpha
         self.random_state = random_state
+        # lidds-ml-v1 fix A: share of corrupted rows in which one coordinate that is constant over the training rows
+        # is set to a value drawn from the training rows' positive values, so the classifier can learn that such a
+        # coordinate moving is abnormal (swaps and scalings never move a constant coordinate). 0 = the live model.
+        if not 0.0 <= activate_fraction < 1.0:
+            raise ValueError("activate_fraction must be in [0, 1)")
+        self.activate_fraction = activate_fraction
         self.estimator = None
         self.calibration_scores: np.ndarray | None = None
         self.feature_dim: int | None = None
@@ -121,7 +128,21 @@ class PulseExtraTrees:
                     rng.uniform(np.log(0.25), np.log(4.0), size=factor_count)
                 ).astype(np.float32)
                 target[scale_mask] *= factors
+        if getattr(self, "activate_fraction", 0.0) > 0:
+            self._activate_inactive(current, corrupted)
         return corrupted.astype(np.float32)
+
+    def _activate_inactive(self, current: np.ndarray, corrupted: np.ndarray) -> None:
+        """Fix A: move one training-constant coordinate in a share of the corrupted rows (own RNG stream, so the
+        swap/scale corruption stays identical to the model without it)."""
+        inactive = np.flatnonzero(np.ptp(current, axis=0) == 0)
+        positive = current[current > 0]
+        if not len(inactive) or not len(positive):
+            return
+        rng = np.random.default_rng(self.random_state + 7919)
+        rows = np.flatnonzero(rng.random(len(current)) < self.activate_fraction)
+        cols = inactive[rng.integers(0, len(inactive), size=len(rows))]
+        corrupted[rows, cols] = current[rows, cols] + rng.choice(positive, size=len(rows))
 
     def _raw_scores(
         self, x: np.ndarray, y: np.ndarray, batch_rows: int = 8192
