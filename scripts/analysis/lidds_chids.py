@@ -82,17 +82,21 @@ def sequences(df):
 
 
 def seen(member):
+    df, _ = table(STATE['archive'], member)
+    if df.empty:                                        # some LID-DS recordings have an empty trace
+        return set(), set(), 0
     from chids.utils.seen_args import SeenArgs
     from chids.utils.seen_syscalls import SeenSyscalls
-    df, _ = table(STATE['archive'], member)
     lengths = [len(q) for _, q in sequences(df)]
     return set(SeenSyscalls([df])._syscalls_per_scap(df)), SeenArgs([df])._get_args(df), max(lengths) if lengths else 0
 
 
 def vectors(member):
     """[(interval end, anomaly vector)] of one recording, empty sequences dropped as chids' _format_input does."""
-    from chids.utils.anomaly_vector import AnomalyVector
     df, exploit = table(STATE['archive'], member)
+    if df.empty:
+        return [], exploit
+    from chids.utils.anomaly_vector import AnomalyVector
     seqs = sequences(df)
     av = AnomalyVector([], STATE['seen_syscalls'], STATE['seen_args'], STATE['max_freq'])
     out = av.construct_anomaly_vector([q for _, q in seqs])
