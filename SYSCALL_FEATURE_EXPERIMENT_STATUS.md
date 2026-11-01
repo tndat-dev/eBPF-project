@@ -623,3 +623,11 @@ python3 scripts/ssh_lab.py python3 -m json.tool \
 | 23/10 00:35–01:25 | Holdout chính của nhóm feature xong; sửa `feature_group_verdict.py` (điều kiện tách chỉ áp trên tập có binary vô hại, có test); gộp với holdout thứ hai theo luật bổ sung (5B.3); chạy bổ sung 2 biến thể p-value bị bỏ sót (`fg-branches-1023`). 5C bản `cap` cho 11 cấu hình: cùng kết luận | mục 5B.3, 5C |
 | 23/10 01:27–01:50 | `fg-branches-1023` xong; áp luật v1 (`feature_group_verdict.py`): chỉ nhánh tree và chỉ nhánh support đều **cần**, holdout thứ hai cùng kết luận → giữ joint p-value. Chép biên nhận nhỏ về `feature-groups/branches/` | mục 1, 5B.3 |
 | 23/10 04:15 | `syscall-cusum-1022` xong (02:30): nhóm feature dưới CUSUM `cap`. Áp luật v1 rồi luật 5C với kết luận gộp 5B.3: không thành phần nào đổi kết luận; nhiều thành phần chưa kết luận nghiêng về cần. Chép biên nhận 22–23/10 vào `validation-evidence/results-20261022/` | mục 1, 5C |
+
+## Ablation đủ base29, vòng 1 (protocol `syscall-ablation-loo-v1` + amendment 1; xong 01/11 03:44; biên nhận `validation-evidence/results-20261101/syscall-loo-stage1/`)
+
+- 46 cấu hình × 21 workload, 1 seed (73021); chuỗi chấm như thí nghiệm syscall (dump holdout, replay, ngân sách k2of2 ở 1, 5, 18 đợt/replica-giờ, bootstrap 10.000 lần, theo workload). base29: recall 92,5 / 98,0 / 99,0% (pulse-attack-dev) và 91,2 / 95,6 / 98,5% (pulse-live-recalibrated).
+- **Bỏ thì recall giảm rõ (CI không chứa 0 ở cả hai tập):** `execveat` (−6,1 đến −7,3 điểm ở ngân sách 1), cặp exec, nhóm process, 11 syscall nhạy cảm (nhóm và bỏ khắp nơi: −5,8 đến −8,2 điểm ở ngân sách 5). Đây là phần lõi của base29.
+- **Bỏ nhóm network (8 syscall) lại tăng recall ở ngân sách chặt nhất:** +5,1 điểm [+0,7; +10,3] (dev) và +5,9 [+1,1; +11,9] (live-recalibrated) ở 1 đợt/replica-giờ; tách binary vô hại −2,8 [−11,6; +4,8] (CI chứa 0). Ứng viên chính cho vòng 3 seed.
+- Bỏ từng syscall khác: phần lớn −1 đến −2 điểm ở ngân sách 5 với CI chạm 0 (không qua được kiểm tra không-kém-hơn, nhưng cũng không chắc kém hơn); cần 3 seed mới kết luận.
+- **Việc tiếp (vòng 2 theo protocol):** 3 seed cho các cấu hình có khác biệt và mọi cấu hình nhóm/bỏ khắp nơi. Lưu ý: cấu hình Pulse mở rộng được chọn ở v4 không dùng nhánh ML, nên ablation này là bằng chứng cho bộ feature của Pulse stable (yêu cầu của thầy), không quyết định gì cho hệ thống đưa lên live.
