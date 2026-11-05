@@ -58,7 +58,7 @@ class Teacher:
     def fit(self, grams, epochs=6, seconds=7200, batch=2048):
         torch.manual_seed(self.seed)
         started = time.time()
-        counts = Counter(tuple(g[-(CONTEXT + 1):]) for g in grams)
+        counts = grams if isinstance(grams, Counter) else Counter(tuple(g[-(CONTEXT + 1):]) for g in grams)    # a Counter saves memory on long scenarios
         tokens = Counter()
         for g, c in counts.items():
             tokens[g[-1]] += c
@@ -118,10 +118,10 @@ def cpu_hours():
 
 
 def evaluate(archive, epochs=6, seconds=7200, hidden=64, embedding=32):
-    grams = []
+    grams = Counter()
     for _, _, blob in v2.split_recordings(archive, {'training'}):
         for g in tk.window_tokens(convert.recording(blob)[1], n=CONTEXT + 1).values():
-            grams.extend(g)
+            grams.update(tuple(x[-(CONTEXT + 1):]) for x in g)
     teacher = Teacher(hidden=hidden, embedding=embedding)
     c0 = cpu_hours()
     report = teacher.fit(grams, epochs=epochs, seconds=seconds)
@@ -142,11 +142,14 @@ def main():
     ap.add_argument('--scenario', required=True)
     ap.add_argument('--seconds', type=int, default=7200)
     ap.add_argument('--threads', type=int, default=4)
+    ap.add_argument('--epochs', type=int, default=6)
+    ap.add_argument('--hidden', type=int, default=64)
+    ap.add_argument('--embedding', type=int, default=32)
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
     torch.set_num_threads(a.threads)
     t0 = time.time()
-    out, meta, report = evaluate(a.archives / f'{a.scenario}.zip', seconds=a.seconds)
+    out, meta, report = evaluate(a.archives / f'{a.scenario}.zip', seconds=a.seconds, epochs=a.epochs, hidden=a.hidden, embedding=a.embedding)
     np.savez_compressed(a.output, **out)
     a.output.with_suffix('.json').write_text(json.dumps(dict(scenario=a.scenario, columns=COLUMNS, recordings=meta, report=report,
                                                              seconds=time.time() - t0)))
