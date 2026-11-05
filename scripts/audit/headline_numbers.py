@@ -267,6 +267,24 @@ def claims():
             dtxt, ftxt = r'\textbf{' + dtxt + '}', r'\textbf{' + ftxt + '}'
         add(f'cbds-thesis-{arm}', thesis, f"{tex} & {dtxt} ({m['detected']}/{m['attack_recordings']}) & {ftxt} "
             f"({m['false_alarm_recordings']}) \\\\".replace('%', r'\%'), [], CB)
+    MLV2 = 'results-20261105/lidds-ml-v2/lidds-ml-v2.json'
+    mlv2 = receipt(MLV2)
+    MLV1 = 'results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz'
+    mlv1 = receipt(MLV1)
+
+    def ml_row(name, m, bold=False):
+        cells = [f"{pct(m['recall'], 2)} ({thousands(m['detected'])})", f"{pct(m['false_alarm_rate'], 2)} ({m['false_alarm_recordings']})",
+                 pct(m['precision_base_rate']), f"{num(m['latency_p95'], 2)} s"]
+        return ' & '.join([name] + [rf'\textbf{{{c}}}' if bold else c for c in cells]).replace('%', r'\%') + r' \\'
+    add('ml-v2-thesis-baseline', thesis, ml_row('ML ban đầu', mlv1['baseline_official']['pooled']), [], MLV1)
+    add('ml-v2-thesis-v1', thesis, ml_row(r'\texttt{lidds-\allowbreak{}ml-\allowbreak{}v1}', mlv1['official']['pooled']), [], MLV1)
+    add('ml-v2-thesis-v2', thesis, ml_row(r'\textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}}', mlv2['official']['pooled'], True), [], MLV2)
+    add('ml-v2-thesis-token', thesis, ml_row('Chỉ token (chỉ báo, không dùng để chọn)', mlv2['comparators_official']['token model alone (reported only)']), [], MLV2)
+    add('ml-v2-thesis-trees', thesis, ml_row('Chỉ cây và support (chỉ báo)', mlv2['comparators_official']['current ML branches (reported only)']), [], MLV2)
+    for s, m in mlv2['official']['scenarios'].items():
+        tex = s.replace('_', r'\_').replace('-', r'-\allowbreak{}')
+        add(f'ml-v2-thesis-{s}', thesis, f"\\texttt{{{tex}}} & {m['detected']}/{m['attack_recordings']} & {pct(m['recall'])} & "
+            f"{m['false_alarm_recordings']}/{m['normal_recordings']} & {pct(m['false_alarm_rate'], 2)} \\\\".replace('%', r'\%'), [], MLV2)
     V3 = 'results-20261031/lidds-v3-with-cbds.json'
     v3 = receipt(V3)
     off = v3['official'][v3['selected']]['pooled']

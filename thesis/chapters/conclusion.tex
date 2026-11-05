@@ -11,7 +11,7 @@ Câu hỏi & Trả lời \\
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-RQ1: đạt bốn kỳ vọng trên cụm thật? & Có. Hệ thống cuối đạt recall 99,4\%, precision 99,4\%, control 0,6\% và p95 1,97 s trên một campaign mới. Trên LID-DS 2021, cùng tham số, hệ thống phát hiện 77,3\% bản ghi tấn công với 3,0\% bản ghi normal bị báo nhầm; yếu ở các exploit chạy trong chính process của dịch vụ \\
+RQ1: đạt bốn kỳ vọng trên cụm thật? & Có. Hệ thống cuối đạt recall 99,4\%, precision 99,4\%, control 0,6\% và p95 1,97 s trên một campaign mới. Trên LID-DS 2021, cùng tham số, hệ thống phát hiện 77,3\% bản ghi tấn công với 3,0\% bản ghi normal bị báo nhầm; yếu ở các exploit chạy trong chính process của dịch vụ. ML cải thiện trên dataset đạt 95,99\% với 0,57\% trên official (offline, chưa chạy trên cụm) \\
 RQ2: feature nào mang tín hiệu? & Cặp exec, kênh syscall tường minh, 5 tổng hợp và cả hai nhánh p-value. Thêm syscall không giúp, và còn làm chậm \\
 RQ3: giảm được gánh cảnh báo? & Một phần. Gánh giảm từ 6,74 xuống khoảng 1,5 đợt/replica-giờ nhờ chiết khấu theo replica, nhưng vẫn gấp khoảng 15 lần ngân sách \\
 RQ4: tách được process vô hại mới? & ML thì không: 80,7--95,1\% binary vô hại bị gắn cờ. Tripwire tách được lớp tấn công buộc dùng syscall lạ, và gần như không thêm gánh \\
@@ -32,6 +32,8 @@ RQ6: chi phí? & Khoảng 250--450 ns mỗi syscall của container được the
   Bằng chứng thực nghiệm rằng detector tần suất, kể cả autoencoder, phát hiện sự mới lạ chứ không phải ác ý.
 \item
   Chiết khấu bằng chứng theo replica và tripwire A1, cả hai đều đã được xác nhận live.
+\item
+  Một ML học từ normal đạt khoảng 96\% recall và 0,6\% báo nhầm trên đủ 15 kịch bản LID-DS 2021, offline, cùng chẩn đoán vì sao các lớp trước trượt. Trong các nguồn đọc được, chưa thấy mô hình học nào đạt mức này trên đủ 15 kịch bản; tuy vậy, trên dataset này nó chưa hơn luật đếm novelty trên cùng token.
 \end{enumerate}
 
 \section{Hướng phát triển}
@@ -47,7 +49,7 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
   \item
     chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã qua verifier; hook \texttt{sys\_exit} toàn cục bị bỏ vì thêm 29--197 ns mỗi syscall; phân rã offline cho thấy chỉ bỏ qua 1--4 s đầu vẫn còn 66--79\% binary vô hại bị gắn cờ, nên cần chấm hành vi sau pha khởi động chứ không chỉ chờ);
   \item
-    tham số và giá trị trả về của syscall (đường dẫn mới, errno, số byte) và chuỗi syscall theo thread: trên LID-DS 2021 official, luật bỏ phiếu đã đăng ký đạt recall 97,5\% với 1,47\% báo nhầm (\texttt{lidds-\allowbreak{}evaluation-\allowbreak{}v3}); còn phải xác nhận trên LID-DS 2019 và đưa các nhánh vào probe, vì probe hiện không đọc tham số;
+    đưa token kèm tham số và giá trị trả về vào probe (mục~\ref{sec:lidds-ml}): trên LID-DS 2021 official, ML đạt 95,99\% với 0,57\% (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}); còn phải đo overhead, chạy một lượt live blind so với hệ thống hiện tại, và xác nhận trên LID-DS 2019;
   \item
     giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, so cấu trúc câu truy vấn với khi bình thường, làm lớp bổ trợ cho Pulse;
   \item

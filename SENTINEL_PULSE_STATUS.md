@@ -2546,3 +2546,4 @@ Ghi theo thứ tự thời gian. Nhật ký riêng của thí nghiệm syscall v
 | 05/11 16:15–17:00 | Bỏ cổng + token: development 97,2% / 0,65% (không rò rỉ); phép thử novelty; đăng ký `lidds-ml-v2`, chọn α 0,0005: dev 95,96% / 0,56%, precision 96,5%, p95 2,37 s; chờ duyệt chấm official | mục 5.32c |
 | 05/11 17:10–17:30 | Chấm official `lidds-ml-v2` một lần: 95,99% / 0,57% / precision 96,44% / p95 2,32 s; 3/3 tiêu chí theo điểm ước lượng, cận dưới recall 94,76% | mục 5.32c |
 | 05/11 17:40–18:10 | Kiểm tra dư địa trên development; CVE-2012-2122 phát hiện muộn đáng ngờ, recall trong 3 s 93,3%; biến thể token | mục 5.32c |
+| 05/11 18:20–19:00 | Cập nhật luận văn: mục 6.12.2 ML học từ normal (v1 thất bại, bốn nguyên nhân, thiết kế `lidds-ml-v2`, Bảng 6.14 và 6.15, kiểm tra, giới hạn); mục luật đổi thành đối chứng 6.12.3, thêm v4; sửa abstract, discussion, conclusion; luận văn 74 trang, audit 86/86. Chưa có kết quả biến thể token và LSTM vì còn chạy | mục 5.32c |

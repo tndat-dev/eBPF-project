@@ -46,7 +46,7 @@ Các mục dưới là việc đã xong gần đây.
 - [x] Protocol `lidds-ml-v2`: official 95,99% / 0,57% / precision 96,44% / p95 2,32 s (05/11).
 - [ ] LSTM tham chiếu (`lidds-ml-teacher`, đang chạy); kiểm tra các phát hiện muộn của CVE-2012-2122.
 - [ ] Đưa token vào probe, đo overhead, lượt live blind (đo cả binary vô hại, gánh), rồi LID-DS 2019.
-- [ ] Luận văn: số chính LID-DS là ML riêng; mục v2–v4 chuyển thành so sánh rule (sau khi ML chốt).
+- [x] Luận văn: số chính LID-DS là ML riêng (mục 6.12.2, `lidds-ml-v2`); mục v2–v4 chuyển thành đối chứng rule (6.12.3). [ ] Thêm biến thể token và LSTM nếu đổi kết luận; [ ] cập nhật sau live và LID-DS 2019.
 - [x] Huỷ kế hoạch live của v4; kết quả v2–v4 chuyển sang RULE_INTEGRATION_STATUS R7.
 
 ## Việc mới đăng ký 30/10 (chạy sau lượt `pulse-live-recal-confirm`, theo quy trình của thầy: cải thiện trên dataset tới khi precision và recall ≥ 95% rồi mới chạy live)
