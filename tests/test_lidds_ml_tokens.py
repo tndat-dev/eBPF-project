@@ -54,3 +54,11 @@ def test_end_to_end_writes_validation_and_test_matrices(tmp_path):
     before = out[attack][out[attack][:, 0] <= meta[attack]['exploit'], 1].max()
     after = out[attack][out[attack][:, 0] > meta[attack]['exploit'], 1].max()
     assert after > before                                       # the /etc write and the 64 KiB send stand out
+
+
+def test_base_name_only_reads_the_head_of_a_token():
+    assert tk.base_name('openat:r:/a|b@c') == 'openat'
+    assert tk.base_name('nginx|read@4t#3') == 'read'
+    assert tk.base_name('futex') == 'futex'
+    assert tk.base_name('connect!ENOENT') == 'connect'
+

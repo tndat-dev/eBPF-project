@@ -55,10 +55,8 @@ def token(name, args):
 
 
 def base_name(tok):
-    for sep in ('!', ':', '#'):
-        if sep in tok:
-            return tok.split(sep, 1)[0]
-    return tok
+    cut = min((tok.index(sep) for sep in ('!', ':', '#') if sep in tok), default=len(tok))
+    return tok[:cut].split('|', 1)[-1].split('@', 1)[0]   # process prefix and fd type of the alphabet variants
 
 
 class TokenLM:

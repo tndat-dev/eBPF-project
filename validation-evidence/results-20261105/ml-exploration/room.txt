@@ -1,0 +1,27 @@
+== residual misses of the selected configuration and of the token model alone
+  selected T+tree+support a=0.0005: 522/544 95.96%, FA 19/3403 0.56%, p95 2.37; missed {'CVE-2012-2122': 1, 'CVE-2019-5418': 3, 'CVE-2020-13942': 1, 'Juice-Shop': 13, 'ZipSlip': 4}; false alarms {'CVE-2017-12635_6': 1, 'CVE-2017-7529': 4, 'CVE-2020-13942': 4, 'CVE-2020-23839': 2, 'CVE-2020-9484': 3, 'EPS_CWE-434': 2, 'Juice-Shop': 1, 'PHP_CWE-434': 1, 'ZipSlip': 1}
+  token alone a=0.002: 527/544 96.88%, FA 20/3403 0.59%, p95 1.52; missed {'CVE-2019-5418': 1, 'CVE-2020-13942': 1, 'Juice-Shop': 13, 'ZipSlip': 2}; false alarms {'CVE-2014-0160': 1, 'CVE-2017-12635_6': 1, 'CVE-2018-3760': 2, 'CVE-2019-5418': 2, 'CVE-2020-13942': 2, 'CVE-2020-23839': 1, 'CVE-2020-9484': 2, 'EPS_CWE-434': 4, 'Juice-Shop': 1, 'ZipSlip': 4}
+
+== alpha shares: token gets most of the budget, the frequency branches stay
+  T share 0.33: 0.003:96.5/1.18 0.002:96.3/0.85 0.001:96.1/0.65 0.0005:96.0/0.56
+  T share 0.60: 0.003:96.7/1.03 0.002:96.7/0.91 0.001:96.3/0.68 0.0005:96.1/0.53
+  T share 0.80: 0.003:97.1/1.00 0.002:96.7/0.88 0.001:96.3/0.71 0.0005:96.1/0.53
+  T share 0.90: 0.003:97.1/0.91 0.002:96.7/0.85 0.001:96.3/0.68 0.0005:96.3/0.59
+  T share 0.95: 0.003:97.2/0.91 0.002:96.7/0.82 0.001:96.5/0.68 0.0005:96.3/0.53
+
+== sensitivity of the token threshold to validation size (development only)
+  K=15: recall 97.0% (sd 0.38), FA 1.04% (sd 0.44)
+  K=30: recall 96.9% (sd 0.36), FA 0.76% (sd 0.16)
+  K=45: recall 96.9% (sd 0.29), FA 0.66% (sd 0.10)
+  K=60: recall 96.9% (sd 0.00), FA 0.59% (sd 0.00)
+
+== LSTM reference versus token n-gram on finished scenarios (each alone, same recordings, alpha 0.002 and 0.0005)
+  Bruteforce_CWE-307     train 0.0 CPU-h, pairs 1308, stopped False | a=0.002 LSTM 42/5 n-gram 42/0 | a=0.0005 LSTM 42/0 n-gram 42/0
+  CVE-2012-2122          train 0.0 CPU-h, pairs 5026, stopped False | a=0.002 LSTM 36/0 n-gram 36/0 | a=0.0005 LSTM 36/0 n-gram 36/0
+  CVE-2014-0160          train 0.0 CPU-h, pairs 1399, stopped False | a=0.002 LSTM 36/1 n-gram 36/1 | a=0.0005 LSTM 36/0 n-gram 36/0
+  CVE-2017-7529          train 0.0 CPU-h, pairs 1021, stopped False | a=0.002 LSTM 36/0 n-gram 36/0 | a=0.0005 LSTM 36/0 n-gram 36/0
+  CVE-2018-3760          train 0.0 CPU-h, pairs 165557, stopped False | a=0.002 LSTM 0/0 n-gram 37/2 | a=0.0005 LSTM 0/0 n-gram 37/0
+  CVE-2020-23839         train 0.0 CPU-h, pairs 7726, stopped False | a=0.002 LSTM 34/1 n-gram 36/1 | a=0.0005 LSTM 0/1 n-gram 36/1
+  CWE-89-SQL-injection   train 0.0 CPU-h, pairs 5863, stopped False | a=0.002 LSTM 36/0 n-gram 36/0 | a=0.0005 LSTM 36/0 n-gram 36/0
+  PHP_CWE-434            train 0.0 CPU-h, pairs 5800, stopped False | a=0.002 LSTM 35/0 n-gram 35/0 | a=0.0005 LSTM 0/0 n-gram 35/0
+  total at 0.002: {'Ldet': 255, 'Lfa': 7, 'Ndet': 294, 'Nfa': 4}

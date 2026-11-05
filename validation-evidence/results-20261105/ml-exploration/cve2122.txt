@@ -1,0 +1,13 @@
+threshold 14.92 validation max 10.92
+dev attacks 36 latency quantiles [1.000e-01 3.000e-01 1.600e+01 2.816e+02 1.012e+03] recording seconds after exploit, median 14.7
+  first firing 0.056436777114868164 recording lasts after exploit 12.6 cool_mirzakhani_7284 firing windows 7 max 31.2
+  first firing 0.0576629638671875 recording lasts after exploit 8.1 few_mcclintock_3374 firing windows 6 max 31.2
+  first firing 295.6409685611725 recording lasts after exploit 5014.1 thundering_fermi_5677 firing windows 25 max 18.2
+  first firing 350.54672408103943 recording lasts after exploit 5014.0 squeaking_maxwell_4910 firing windows 9 max 16.9
+  first firing 366.86730670928955 recording lasts after exploit 1010.4 powerful_archimedes_8259 firing windows 1 max 15.8
+  first firing 1011.9818019866943 recording lasts after exploit 5019.0 clean_newton_6260 firing windows 2 max 15.0
+  first firing None recording lasts after exploit 1014.2 miniature_snyder_2373 firing windows 0 max 14.7
+powerful_archimedes_8259 exploit entries 1 name slow-no-extract recording_time 1016 first exploit {'absolute': 1631632021.6326933, 'name': 'attack', 'source': 'SYSDIG'} container roles ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'attacker', 'victim']
+   tokens in the firing window never seen earlier in this recording: [] | window size 117
+clean_newton_6260 exploit entries 1 name very-slow-no-extract recording_time 5027 first exploit {'absolute': 1631650967.518198, 'name': 'attack', 'source': 'SYSDIG'} container roles ['normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'normal', 'attacker', 'victim']
+   tokens in the firing window never seen earlier in this recording: [] | window size 304
