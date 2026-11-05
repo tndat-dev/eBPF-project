@@ -48,7 +48,7 @@
   `docs/Slide-runtime_security(23_10).pptx` (19 slide, không có hình). Số liệu lấy từ 4 báo cáo hiện hành lúc 23/10 04:20;
   lượt xác nhận `pulse-stable-confirm` khi đó đang chạy.
 - 30/10: `docs/Bao_cao_tien_do_23_10-30_10.docx` (21 trang, cùng mẫu với báo cáo 23/10; nội dung đi theo bản luận văn `thesis/`: bài toán, thiết kế, đánh giá theo 6 câu hỏi nghiên cứu, mục "Đọc đúng các con số" trả lời câu hỏi về overfitting, độ phủ 5 kịch bản, 5 chế độ tải, ADFA-LD, binary vô hại 89,5%, precision 1:1; hướng giảm gắn cờ binary vô hại theo nghiên cứu 30/10) và `docs/Slide-runtime_security(30_10).pptx` (19 slide). Số liệu lấy từ 4 báo cáo hiện hành và biên nhận lúc 30/10 01:40; lượt `pulse-live-recal-confirm` khi đó đang chạy.
-- 06/11: `docs/Bao_cao_tien_do_30_10-06_11.docx` (15 trang) và `docs/Slide-runtime_security(06_11).pptx` (18 slide), cùng mẫu các buổi trước, không ghi CI: đổi hướng sang ML, `lidds-ml-v2`, calibration tự làm mới, RCA, bỏ cổng replica, rào cản ở probe. Số liệu đến 06/11 00:10; chưa có kết quả bảng chữ token, LSTM lớn, biến thể token.
+- 06/11: `docs/Bao_cao_tien_do_30_10-06_11.docx` (15 trang) và `docs/Slide-runtime_security(06_11).pptx` (18 slide), cùng mẫu các buổi trước, không ghi CI, không có hình biểu đồ (theo yêu cầu 06/11, chỉ bảng và gạch đầu dòng): đổi hướng sang ML, `lidds-ml-v2`, calibration tự làm mới, RCA, bỏ cổng replica, rào cản ở probe. Số liệu đến 06/11 00:10; chưa có kết quả bảng chữ token, LSTM lớn, biến thể token.
 - Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong 4 báo cáo `.md` (quyết định 23/10,
   áp dụng cả cho các báo cáo docx 16/10).
 
