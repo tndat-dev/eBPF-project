@@ -43,7 +43,9 @@ Các mục dưới là việc đã xong gần đây.
 ## Quyết định 01/11: chỉ phát triển ML (rule tạm bỏ)
 
 - [~] Nghiên cứu sâu cải thiện ML trên LID-DS 2021 (`reports/Cải thiện ML Pulse LID DS.md`).
-- [ ] Đăng ký protocol ML mới (feature từ tham số/chuỗi syscall cho ML hoặc model con học từ normal; chọn trên LID-DS 2021 development + CB-DS, official một lần; số báo là ML riêng).
+- [x] Protocol `lidds-ml-v2`: official 95,99% / 0,57% / precision 96,44% / p95 2,32 s (05/11).
+- [ ] LSTM tham chiếu (`lidds-ml-teacher`, đang chạy); kiểm tra các phát hiện muộn của CVE-2012-2122.
+- [ ] Đưa token vào probe, đo overhead, lượt live blind (đo cả binary vô hại, gánh), rồi LID-DS 2019.
 - [ ] Luận văn: số chính LID-DS là ML riêng; mục v2–v4 chuyển thành so sánh rule (sau khi ML chốt).
 - [x] Huỷ kế hoạch live của v4; kết quả v2–v4 chuyển sang RULE_INTEGRATION_STATUS R7.
 

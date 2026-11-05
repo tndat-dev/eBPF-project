@@ -1,0 +1,16 @@
+{'<=1s': 899, '>60s': 21, '10-60s': 7, '3-10s': 6, '1-3s': 287}
+Bruteforce_CWE-307     detected  97, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CVE-2012-2122          detected  83, later than 3 s  27, largest [691.1, 736.2, 1332.4], recordings with a firing before the exploit 0
+CVE-2014-0160          detected  84, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CVE-2017-12635_6       detected  83, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CVE-2017-7529          detected  83, later than 3 s   0, largest [], recordings with a firing before the exploit 1
+CVE-2018-3760          detected  85, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CVE-2019-5418          detected  70, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CVE-2020-13942         detected  83, later than 3 s   0, largest [], recordings with a firing before the exploit 1
+CVE-2020-23839         detected  84, later than 3 s   0, largest [], recordings with a firing before the exploit 1
+CVE-2020-9484          detected  84, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+CWE-89-SQL-injection   detected  84, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+EPS_CWE-434            detected  85, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+Juice-Shop             detected  52, later than 3 s   3, largest [4.1, 15.0, 34.8], recordings with a firing before the exploit 0
+PHP_CWE-434            detected  83, later than 3 s   0, largest [], recordings with a firing before the exploit 0
+ZipSlip                detected  80, later than 3 s   4, largest [6.1, 7.0, 7.1], recordings with a firing before the exploit 0
