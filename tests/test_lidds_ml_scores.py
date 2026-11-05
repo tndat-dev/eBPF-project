@@ -40,3 +40,16 @@ def test_end_to_end_keeps_scores_that_give_back_the_v1_p_values(tmp_path):
         p = (len(cal) - np.searchsorted(cal, out[n][:, sc.COLUMNS.index('support')], side='left') + 1.0) / (len(cal) + 1.0)
         assert np.allclose(p, kept[n][:, 3], atol=2 / len(cal))   # same support p-values as lidds_ml_groups
         assert np.array_equal(out[n][:, 0], kept[n][:, 0])
+
+
+def test_all_windows_scores_the_start_that_the_live_warmup_gate_hides(tmp_path):
+    archive = base._archive(tmp_path)
+    header = tmp_path / 'unistd.h'
+    header.write_text('\n'.join(f'#define __NR_{n} {i}' for i, n in enumerate(base.NAMES + [f'x{j}' for j in range(320)])) + '\n')
+    base.convert.convert_scenario(archive, tmp_path / 'conv' / 'SCN', header=header)
+    gated, meta = sc.evaluate(tmp_path / 'conv' / 'SCN', archive, 0.05)
+    every, _ = sc.evaluate(tmp_path / 'conv' / 'SCN', archive, 0.05, all_windows=True)
+    for n in meta:
+        assert len(every[n]) >= len(gated[n]) + 8                 # history >= 10 windows no longer needed
+        assert every[n][0, 0] < gated[n][0, 0]
+        assert set(gated[n][:, 0]) <= set(every[n][:, 0])

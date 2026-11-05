@@ -12,7 +12,9 @@ the training recordings:
   statistic is to a novelty rule.
 
 Writes <scenario>.npz: test recordings under their names, validation recordings as val/<name>; columns in COLUMNS.
-No decision, selection or metric is computed here.
+No decision, selection or metric is computed here. The live warm-up gate (a window is eligible after 10 windows of
+history, 5 s) hides the start of a 10-60 s recording, where many exploits fall; ``--all-windows`` lifts it for
+training, calibration and scoring. The 3 windows of G0's history still apply.
 
     python3 lidds_ml_scores.py --converted DIR --archives DIR --scenario NAME --output out.npz
 """
@@ -108,8 +110,13 @@ def matrix(rows, vec, g0, support, trees):
     return np.concatenate(parts) if parts else np.empty((0, len(COLUMNS)))
 
 
-def evaluate(converted, archive, fix_fraction):
+def evaluate(converted, archive, fix_fraction, all_windows=False):
     recs = {s: v1.recordings(converted / f'{s}.jsonl.gz') for s in v1.SPLITS if (converted / f'{s}.jsonl.gz').exists()}
+    if all_windows:                 # no live warm-up gate (history >= 10 windows): a recording lasts 10-60 s
+        for split in recs.values():
+            for rows in split.values():
+                for r in rows:
+                    r['eligible_for_normal_review'] = True
     lm, files, errs, raw = g.NgramLM(), Multinomial(), Multinomial(), {}
     for split, name, blob in v2.split_recordings(archive, {'training'}):
         if name in recs.get(split, {}):
@@ -152,13 +159,14 @@ def main():
     ap.add_argument('--archives', type=Path, required=True)
     ap.add_argument('--scenario', required=True)
     ap.add_argument('--fix-a', type=float, default=0.05)
+    ap.add_argument('--all-windows', action='store_true', help='train, calibrate and score the first 5 s of a recording too')
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
     t0 = time.time()
-    out, meta = evaluate(a.converted / a.scenario, a.archives / f'{a.scenario}.zip', a.fix_a)
+    out, meta = evaluate(a.converted / a.scenario, a.archives / f'{a.scenario}.zip', a.fix_a, a.all_windows)
     np.savez_compressed(a.output, **out)
     a.output.with_suffix('.json').write_text(json.dumps(dict(scenario=a.scenario, columns=COLUMNS, recordings=meta,
-                                                             fix_a_fraction=a.fix_a, seconds=time.time() - t0)))
+                                                             fix_a_fraction=a.fix_a, all_windows=a.all_windows, seconds=time.time() - t0)))
     print(json.dumps(dict(scenario=a.scenario, seconds=round(time.time() - t0), matrices=len(out))))
 
 
