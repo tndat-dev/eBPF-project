@@ -1,0 +1,20 @@
+token model top10, alpha 0.003
+scenario                 K    thr | normal FA | attack: fired before exploit, fired after, detected but pre-fired too | median s to first post-exploit firing | firing windows after exploit with no unseen gram / no unseen token (of detected recordings: all their firing windows)
+Bruteforce_CWE-307      60    8.5 |   0/230  0.00% | pre   0/ 42   0.0%  post  42  both   0 |  0.33s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2012-2122           60   11.3 |   0/229  0.00% | pre   0/ 36   0.0%  post  36  both   0 |  0.29s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2014-0160           60    5.2 |   1/227  0.44% | pre   0/ 36   0.0%  post  36  both   0 |  0.27s | any non-novel firing window: no unseen gram   0, no unseen token  36
+CVE-2017-12635_6        58   19.5 |   1/226  0.44% | pre   0/ 36   0.0%  post  36  both   0 |  1.15s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2017-7529           52    6.6 |   0/219  0.00% | pre   0/ 36   0.0%  post  36  both   0 |  0.30s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2018-3760           60   16.4 |   2/221  0.90% | pre   0/ 37   0.0%  post  37  both   0 |  0.35s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2019-5418           60   20.0 |   2/228  0.88% | pre   0/ 36   0.0%  post  35  both   0 |  0.24s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2020-13942          60   16.3 |   2/227  0.88% | pre   0/ 35   0.0%  post  34  both   0 |  0.37s | any non-novel firing window: no unseen gram   0, no unseen token   0
+CVE-2020-23839          57   12.9 |   1/228  0.44% | pre   0/ 36   0.0%  post  36  both   0 |  0.29s | any non-novel firing window: no unseen gram   0, no unseen token  25
+CVE-2020-9484           60   16.0 |   3/228  1.32% | pre   1/ 36   2.8%  post  36  both   1 |  0.25s | any non-novel firing window: no unseen gram   0, no unseen token  36
+CWE-89-SQL-injection    60   12.1 |   1/228  0.44% | pre   0/ 36   0.0%  post  36  both   0 |  1.17s | any non-novel firing window: no unseen gram   0, no unseen token  36
+EPS_CWE-434             60   10.5 |   4/228  1.75% | pre   1/ 36   2.8%  post  36  both   1 |  1.23s | any non-novel firing window: no unseen gram   0, no unseen token   2
+Juice-Shop              60   20.7 |   1/228  0.44% | pre   0/ 36   0.0%  post  23  both   0 |  0.34s | any non-novel firing window: no unseen gram   0, no unseen token   1
+PHP_CWE-434             59   10.9 |   0/228  0.00% | pre   0/ 35   0.0%  post  35  both   0 |  0.58s | any non-novel firing window: no unseen gram   0, no unseen token   1
+ZipSlip                 59   13.9 |   4/228  1.75% | pre   0/ 35   0.0%  post  35  both   0 |  1.21s | any non-novel firing window: no unseen gram   0, no unseen token  28
+
+pooled {'fa': 22, 'n': 3403, 'natt': 544, 'pre': 2, 'post': 529, 'both': 2, 'nog': 0, 'noT': 165} normal FA 0.65%  pre-exploit firing in attack recordings 0.37%
+first firing window of detected recordings: {'first firing window has an unseen token': 417, 'first firing window has an unseen gram only': 112}

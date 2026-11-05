@@ -1,0 +1,27 @@
+Bruteforce_CWE-307     val recordings with unseen token  2/60, gram  3/60 | dev normals with unseen token   0, gram  25 of 230; of these fired   0,   0 | normal windows with unseen gram:    30, fired   0; attack:   159, fired  111
+CVE-2012-2122          val recordings with unseen token  0/60, gram 10/60 | dev normals with unseen token   0, gram  39 of 229; of these fired   0,   0 | normal windows with unseen gram:    41, fired   0; attack: 10246, fired 10160
+CVE-2014-0160          val recordings with unseen token  0/60, gram  6/60 | dev normals with unseen token   0, gram  17 of 227; of these fired   0,   1 | normal windows with unseen gram:    19, fired   1; attack:    36, fired   36
+CVE-2017-12635_6       val recordings with unseen token  0/58, gram 53/58 | dev normals with unseen token   0, gram 223 of 226; of these fired   0,   1 | normal windows with unseen gram:  1721, fired   1; attack:   360, fired  242
+CVE-2017-7529          val recordings with unseen token  0/52, gram  4/52 | dev normals with unseen token   0, gram  17 of 219; of these fired   0,   0 | normal windows with unseen gram:    17, fired   0; attack:    69, fired   47
+CVE-2018-3760          val recordings with unseen token  1/60, gram 50/60 | dev normals with unseen token   0, gram 209 of 221; of these fired   0,   2 | normal windows with unseen gram:   814, fired   2; attack:    81, fired   39
+CVE-2019-5418          val recordings with unseen token  0/60, gram 41/60 | dev normals with unseen token   1, gram 209 of 228; of these fired   0,   2 | normal windows with unseen gram:   641, fired   2; attack:    60, fired   35
+CVE-2020-13942         val recordings with unseen token  0/60, gram 59/60 | dev normals with unseen token   0, gram 225 of 227; of these fired   0,   2 | normal windows with unseen gram:  1498, fired   2; attack:    94, fired   42
+CVE-2020-23839         val recordings with unseen token  0/57, gram 15/57 | dev normals with unseen token   1, gram  61 of 228; of these fired   1,   1 | normal windows with unseen gram:   106, fired   2; attack:   539, fired  344
+CVE-2020-9484          val recordings with unseen token  0/60, gram 51/60 | dev normals with unseen token   0, gram 210 of 228; of these fired   0,   2 | normal windows with unseen gram:   683, fired   2; attack:   343, fired  158
+CWE-89-SQL-injection   val recordings with unseen token  0/60, gram 22/60 | dev normals with unseen token   0, gram  82 of 228; of these fired   0,   0 | normal windows with unseen gram:   121, fired   0; attack:   296, fired  241
+EPS_CWE-434            val recordings with unseen token  0/60, gram 14/60 | dev normals with unseen token   0, gram  76 of 228; of these fired   0,   4 | normal windows with unseen gram:   104, fired   4; attack:    63, fired   58
+Juice-Shop             val recordings with unseen token  0/60, gram 54/60 | dev normals with unseen token   0, gram 228 of 228; of these fired   0,   1 | normal windows with unseen gram:  2127, fired   1; attack:   176, fired   24
+PHP_CWE-434            val recordings with unseen token  0/59, gram 13/59 | dev normals with unseen token   0, gram  58 of 228; of these fired   0,   0 | normal windows with unseen gram:    69, fired   0; attack:    63, fired   54
+ZipSlip                val recordings with unseen token  1/59, gram 29/59 | dev normals with unseen token   8, gram 139 of 228; of these fired   1,   4 | normal windows with unseen gram:   269, fired   4; attack:   167, fired  140
+
+pooled {'nn': 3403, 'new': np.int64(10), 'gram': np.int64(1818), 'fnew': 2, 'fgram': 20, 'wg': 8260, 'wgf': 21, 'awg': 12752, 'awf': 11731, 'degenerate': 0}
+dev normal recordings holding an unseen token 0.3%, an unseen gram 53.4%; of those the model fired on 20.0%, 1.1%
+windows with an unseen gram: normal 8260 fired 0.25%; attack after exploit 12752 fired 91.99%
+
+oracle (per-scenario threshold set with attack-free dev normals, FA about 0.8 % each): recall 96.3% (524/544), FA 0.44%  ; information ceiling on development 533/544
+
+recall / FA at each alpha:
+  top10                      0.1:98.9/9.14 0.05:98.0/4.82 0.02:97.6/2.38 0.01:97.4/1.41 0.005:97.4/0.88 0.003:97.2/0.65 0.002:96.9/0.59 0.001:96.5/0.47 0.0005:96.3/0.35 0.0002:96.1/0.24
+  unseen grams               0.1:98.0/13.99 0.05:97.1/7.35 0.02:95.4/2.47 0.01:94.3/1.76 0.005:89.0/1.18 0.003:87.7/0.41 0.002:84.4/0.21 0.001:80.5/0.03 0.0005:78.9/0.03 0.0002:71.3/0.03
+  unseen tokens              0.1:90.6/0.29 0.05:90.6/0.29 0.02:90.6/0.29 0.01:90.6/0.29 0.005:90.6/0.29 0.003:90.6/0.29 0.002:90.6/0.29 0.001:90.6/0.29 0.0005:90.6/0.29 0.0002:90.6/0.29
+  grams OR tokens (rules)    0.1:97.8/7.38 0.05:97.6/3.56 0.02:97.6/2.00 0.01:97.6/1.44 0.005:97.6/0.56 0.003:97.4/0.41 0.002:97.4/0.29 0.001:97.4/0.29 0.0005:90.8/0.29 0.0002:90.6/0.29

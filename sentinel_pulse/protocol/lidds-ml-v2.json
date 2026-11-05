@@ -1,0 +1,57 @@
+{
+ "schema": "sentinel-pulse-lidds-ml-v2",
+ "registered_at": "see the git commit that adds this file (05/11, +0700)",
+ "registered_before": "any score of this model or of its rule baselines on the official recordings of LID-DS 2021 is computed",
+ "owner_decisions": [
+  "01/11: the goal is an ML model that detects blind attacks; rule paths set aside until the ML is decided",
+  "01/11: recall >= 95 %, precision >= 95 %, latency <= 3 s; benign-binary flagging and burden as low as possible",
+  "05/11: where published work falls short, reason and show the solution; decide on branches failing the novelty test; keep p95 <= 3 s"
+ ],
+ "seen_before_registration": "lidds-ml-v1 official result (65.2 %, a different model); all development and CB-DS results of the exploration in validation-evidence/results-20261105/ml-exploration, about 30 decision and branch variants were tried on development with attack labels, so the development numbers are optimistic; every rule-branch official result of v2-v4 on the same recordings, whose design informed the token alphabet. Declared: the official LID-DS 2021 recordings are not unseen for the project; the unseen evidence is the live run and LID-DS 2019",
+ "model": {
+  "token_language_model": "per-thread 4-grams over syscall exit tokens: name, plus errno, open mode and first directory, or log2 size / 2 (scripts/analysis/lidds_ml_tokens.py); Witten-Bell backoff to P(name) x P(token | name); window score = mean of the 10 highest per-event negative log-probabilities; every window with events",
+  "current_ml": "reference tree (history 3) and support model of the 249 count features, without fix A, with the live warm-up gate lifted for these 10-60 s recordings (lidds_ml_scores.py --all-windows)"
+ },
+ "why_the_frequency_branches_stay": "they add nothing on LID-DS development (about 1 recall point lost) but they are the only branches that see an attack doing more of what is usual, as in the mprotect and seccomp scenarios of the live campaign; decided before the official split is read",
+ "decision": "per branch, threshold = moment-Gumbel quantile of the per-recording maximum over the validation recordings at alpha / 3; one window above it fires; no tripwire, novelty gate, vote or two-window rule",
+ "candidates": {
+  "alpha": [
+   0.001,
+   0.0005,
+   0.0002
+  ]
+ },
+ "eligibility": {
+  "lidds2021_development": [
+   "false-alarm recordings <= 0.6 %",
+   "latency p95 <= 3 s"
+  ],
+  "cbds": [
+   "recall >= 95 %",
+   "false-alarm recordings <= 2 %"
+  ]
+ },
+ "selection": "the highest development recall among eligible; ties to fewer false alarms. Result, before the official split: alpha 0.0005, development 95.96 % (522/544), 0.56 % (19/3,403), precision 96.5 %, p95 2.37 s; CB-DS 891/891, 2/1,410",
+ "criteria_official": {
+  "recall": ">= 95 %",
+  "precision_base_rate": ">= 95 %",
+  "latency_p95": "<= 3 s"
+ },
+ "verification_levels": "to claim recall >= 95 % by the Wilson lower bound the official split needs at least 1,223/1,271; to claim false alarms <= 0.8 % by the upper bound, at most about 50/7,938",
+ "reported_only": [
+  "token model alone, alpha 0.002",
+  "current ML branches alone, alpha 0.001",
+  "per scenario",
+  "detection within 3 s",
+  "rule baselines (unseen grams or tokens counts) on development only"
+ ],
+ "novelty_finding": "on development the token model fires on 1.1 % of the 53.4 % of normal recordings holding an unseen 4-gram (0.25 % of such windows; 92 % of such attack windows), so it is not an any-mismatch rule; but calibrated counts of unseen grams or tokens reach 97.4 % / 0.41 %, as good as the model, and every first firing window holds an unseen gram: on LID-DS the gain comes from the tokens rather than from probability smoothing. Kept by the owner-delegated decision: a learned, graded model with no hand-written condition, and it stays comparable with the rule baseline in the report",
+ "limits": [
+  "thresholds use 60 validation recordings per scenario: scenario-level false alarms are not verifiable, only pooled",
+  "CB-DS has no exploit time: its latency is not meaningful",
+  "the tokens need syscall exits, errno, sizes and open paths per thread: not in the live probe; overhead unmeasured; a kernel implementation hashes grams, to be replayed before live",
+  "a score is computed in user space from traces"
+ ],
+ "next": "official once, then probe and overhead, a blind live run against the stable system with benign-binary flagging and burden measured, then LID-DS 2019 once",
+ "code": "scripts/analysis/lidds_ml_v2.py (tests/test_lidds_ml_v2.py): development only by default; --official refuses an existing output"
+}

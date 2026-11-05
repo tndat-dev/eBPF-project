@@ -1,0 +1,41 @@
+scenarios 15 dev attacks 544 dev normals 3403 branches 13
+
+== single branch: best recall at FA<=0.8% | at FA<=2%
+  A.tree_plain            32.9%/0.73% p95 15.06 |  40.6%/1.88% p95 2.78
+  A.support               45.8%/0.41% p95 13.16 |  57.4%/1.91% p95 13.14
+  A.g1_plain              27.8%/0.68% p95 2.28 |  32.7%/1.85% p95 2.25
+  A.g1_fix                55.9%/0.76% p95 2.46 |  56.1%/1.82% p95 2.46
+  A.g3_plain              48.2%/0.62% p95 7.68 |  52.2%/1.47% p95 7.68
+  A.g3_fix                70.4%/0.68% p95 2.31 |  73.3%/1.70% p95 2.32
+  A.g4_plain              28.3%/0.56% p95 7.75 |  30.0%/1.62% p95 12.44
+  A.g4_fix                46.0%/0.71% p95 2.46 |  61.0%/1.79% p95 2.45
+  A.g2_top10              88.6%/0.79% p95 2.44 |  90.8%/2.00% p95 2.27
+  A.g2_mass               75.0%/0.79% p95 2.44 |  75.6%/1.91% p95 2.29
+  T.top10                 97.2%/0.65% p95 1.53 |  97.4%/1.88% p95 1.49
+  T.unseen_grams          87.7%/0.41% p95 2.79 |  94.3%/1.76% p95 2.23
+  T.unseen_tokens         90.6%/0.29% p95 2.76 |  90.6%/0.29% p95 2.76
+
+== greedy on learned branches, FA<=0.6%, p95<=3 s
+  +T.top10                alpha 0.002    recall 96.9% (527) FA 0.59% (20) p95 1.52s precision 96.3%
+  per scenario: Bruteforce_CWE:42/42,0 CVE-2012-2122:36/36,0 CVE-2014-0160:36/36,1 CVE-2017-12635:36/36,1 CVE-2017-7529:36/36,0 CVE-2018-3760:37/37,2 CVE-2019-5418:35/36,2 CVE-2020-13942:34/35,2 CVE-2020-23839:36/36,1 CVE-2020-9484:36/36,2 CWE-89-SQL-inj:36/36,0 EPS_CWE-434:36/36,4 Juice-Shop:23/36,1 PHP_CWE-434:35/35,0 ZipSlip:33/35,4
+  CB-DS: 891/891, normals 3/1430
+
+== greedy on learned branches, FA<=0.8%, p95<=3 s
+  +T.top10                alpha 0.003    recall 97.2% (529) FA 0.65% (22) p95 1.53s precision 96.0%
+  per scenario: Bruteforce_CWE:42/42,0 CVE-2012-2122:36/36,0 CVE-2014-0160:36/36,1 CVE-2017-12635:36/36,1 CVE-2017-7529:36/36,0 CVE-2018-3760:37/37,2 CVE-2019-5418:35/36,2 CVE-2020-13942:34/35,2 CVE-2020-23839:36/36,1 CVE-2020-9484:36/36,3 CWE-89-SQL-inj:36/36,1 EPS_CWE-434:36/36,4 Juice-Shop:23/36,1 PHP_CWE-434:35/35,0 ZipSlip:35/35,4
+  CB-DS: 891/891, normals 3/1430
+
+== greedy on learned branches, FA<=2%, p95<=3 s
+  +T.top10                alpha 0.015    recall 97.4% (530) FA 1.88% (64) p95 1.49s precision 89.2%
+  +A.g3_fix               alpha 0.015    recall 97.6% (531) FA 1.70% (58) p95 1.52s precision 90.2%
+  per scenario: Bruteforce_CWE:42/42,1 CVE-2012-2122:36/36,1 CVE-2014-0160:36/36,2 CVE-2017-12635:36/36,2 CVE-2017-7529:36/36,6 CVE-2018-3760:37/37,2 CVE-2019-5418:36/36,3 CVE-2020-13942:34/35,6 CVE-2020-23839:36/36,1 CVE-2020-9484:36/36,7 CWE-89-SQL-inj:36/36,9 EPS_CWE-434:36/36,7 Juice-Shop:24/36,2 PHP_CWE-434:35/35,3 ZipSlip:35/35,6
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-tndat-Downloads-eBPF-project/d1d13a88-05e8-4b39-9713-6ed9238ff484/scratchpad/ml_branches.py", line 102, in <module>
+    cb = ev(cur, a, ['CB-DS']); print(f"  CB-DS: {cb[0]}/{len(data['CB-DS']['att_names'])}, normals {cb[1]}/{len(data['CB-DS']['nor_names'])}")
+  File "/tmp/claude-1000/-home-tndat-Downloads-eBPF-project/d1d13a88-05e8-4b39-9713-6ed9238ff484/scratchpad/ml_branches.py", line 71, in ev
+    if any(len(d['nor'][n][b]) and (d['nor'][n][b] > t[b]).any() for b in bs): ff += 1
+       ^^^
+  File "/tmp/claude-1000/-home-tndat-Downloads-eBPF-project/d1d13a88-05e8-4b39-9713-6ed9238ff484/scratchpad/ml_branches.py", line 71, in <genexpr>
+    if any(len(d['nor'][n][b]) and (d['nor'][n][b] > t[b]).any() for b in bs): ff += 1
+               ~~~~~~~~~~~^^^
+KeyError: 'A.g3_fix'
