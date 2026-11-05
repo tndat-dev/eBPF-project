@@ -1,0 +1,69 @@
+scenarios 16 dev attacks 544 dev normals 3403
+
+== dev normal recordings above the validation maximum, per branch (expected n/(K+1) if exchangeable)
+  Bruteforce_CWE-307     K= 60 n=230 expected  3.8  g2_top10=3 g3_fix=0 support=3
+  CVE-2012-2122          K= 60 n=229 expected  3.8  g2_top10=1 g3_fix=3 support=0
+  CVE-2014-0160          K= 60 n=227 expected  3.7  g2_top10=13 g3_fix=1 support=0
+  CVE-2017-12635_6       K= 58 n=226 expected  3.8  g2_top10=7 g3_fix=5 support=0
+  CVE-2017-7529          K= 50 n=219 expected  4.3  g2_top10=5 g3_fix=3 support=7
+  CVE-2018-3760          K= 60 n=221 expected  3.6  g2_top10=12 g3_fix=1 support=1
+  CVE-2019-5418          K= 60 n=228 expected  3.7  g2_top10=12 g3_fix=0 support=1
+  CVE-2020-13942         K= 60 n=227 expected  3.7  g2_top10=5 g3_fix=0 support=1
+  CVE-2020-23839         K= 57 n=228 expected  3.9  g2_top10=4 g3_fix=1 support=0
+  CVE-2020-9484          K= 60 n=228 expected  3.7  g2_top10=2 g3_fix=5 support=2
+  CWE-89-SQL-injection   K= 60 n=228 expected  3.7  g2_top10=1 g3_fix=1 support=0
+  EPS_CWE-434            K= 60 n=228 expected  3.7  g2_top10=10 g3_fix=4 support=2
+  Juice-Shop             K= 60 n=228 expected  3.7  g2_top10=3 g3_fix=0 support=5
+  PHP_CWE-434            K= 59 n=228 expected  3.8  g2_top10=0 g3_fix=7 support=0
+  ZipSlip                K= 59 n=228 expected  3.8  g2_top10=7 g3_fix=1 support=0
+  total expected per branch 57: g2_top10=85 g3_fix=32 support=22
+
+pooled GEV shape per branch {'g2_top10': -0.2, 'g3_fix': 0.037, 'support': 0.3}
+
+== Bonferroni, moment Gumbel (reference): alpha recall/FA/p95
+   0.2:90.3/22.48/2.4 0.1:86.0/8.26/2.4 0.05:85.3/4.76/2.4 0.03:84.6/3.06/2.4 0.02:84.4/2.47/2.4 0.015:84.4/2.26/2.4 0.01:82.9/2.00/2.4 0.007:82.7/1.82/2.4 0.005:82.5/1.23/2.4 0.003:81.6/1.06/2.4 0.002:81.4/0.76/2.4 0.0015:81.4/0.76/2.4 0.001:78.7/0.68/2.4 0.0007:77.2/0.41/2.4 0.0005:77.0/0.41/2.4 0.0003:76.3/0.21/2.4 0.0002:76.1/0.21/2.4 0.0001:72.4/0.18/2.4 5e-05:70.8/0.15/2.5
+   FA<=0.6%: alpha 0.0007 recall 77.2% (420) FA 0.41% (14) p95 2.42s precision 96.8%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:5/36 CVE-2020-1394:29/35 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:11/35
+   FA<=0.8%: alpha 0.002 recall 81.4% (443) FA 0.76% (26) p95 2.44s precision 94.5%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:5/36 CVE-2020-1394:29/35 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:31/35
+   FA<=2%: alpha 0.01 recall 82.9% (451) FA 2.00% (68) p95 2.42s precision 86.9%  | Bruteforce_CW:37/42 CVE-2014-0160:26/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:7/36 CVE-2020-1394:29/35 Juice-Shop:16/36 PHP_CWE-434:28/35
+
+== Bonferroni, pooled shape + censor top 2: alpha recall/FA/p95
+   0.2:90.6/25.30/2.4 0.1:86.6/15.69/2.4 0.05:85.1/11.84/2.4 0.03:84.4/11.02/2.4 0.02:84.2/8.58/2.4 0.015:82.7/8.17/2.4 0.01:82.7/6.79/2.4 0.007:82.7/5.94/2.4 0.005:82.5/5.70/2.4 0.003:81.2/5.35/2.4 0.002:80.9/4.94/2.4 0.0015:80.3/4.88/2.4 0.001:79.0/1.50/2.4 0.0007:79.0/1.38/2.4 0.0005:79.0/1.29/2.4 0.0003:78.3/1.23/2.5 0.0002:78.3/1.18/2.5 0.0001:78.3/1.18/2.5 5e-05:78.3/1.03/2.5
+   FA<=2%: alpha 0.001 recall 79.0% (430) FA 1.50% (51) p95 2.43s precision 89.4%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:0/36 CVE-2020-1394:29/35 EPS_CWE-434:31/36 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:31/35
+
+== joint minP (moment marginals), calibrated on validation recordings: alpha recall/FA/p95
+   0.2:90.6/25.60/2.4 0.1:89.5/16.28/2.4 0.05:85.7/5.38/2.4 0.03:85.3/3.76/2.4 0.02:84.9/2.85/2.4 0.015:84.7/2.53/2.4 0.01:84.4/2.15/2.4 0.007:84.4/2.00/2.4 0.005:83.1/1.94/2.4 0.003:82.7/1.23/2.4 0.002:82.2/1.09/2.4 0.0015:81.4/0.82/2.4 0.001:81.1/0.73/2.4 0.0007:81.1/0.65/2.4 0.0005:78.9/0.44/2.4 0.0003:77.2/0.29/2.4 0.0002:77.0/0.26/2.4 0.0001:77.0/0.24/2.4 5e-05:75.0/0.18/2.4
+   FA<=0.6%: alpha 0.0005 recall 78.9% (429) FA 0.44% (15) p95 2.37s precision 96.6%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:6/36 CVE-2020-1394:29/35 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:19/35
+   FA<=0.8%: alpha 0.001 recall 81.1% (441) FA 0.73% (25) p95 2.44s precision 94.6%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:6/36 CVE-2020-1394:29/35 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:31/35
+   FA<=2%: alpha 0.007 recall 84.4% (459) FA 2.00% (68) p95 2.45s precision 87.1%  | Bruteforce_CW:37/42 CVE-2014-0160:26/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:8/36 CVE-2020-1394:29/35 Juice-Shop:16/36
+
+== joint minP (pooled marginals), calibrated on validation recordings: alpha recall/FA/p95
+   0.2:89.2/23.01/2.4 0.1:88.6/14.58/2.3 0.05:86.9/8.55/2.4 0.03:84.4/3.38/2.4 0.02:84.0/2.85/2.4 0.015:82.7/2.62/2.4 0.01:82.4/2.20/2.4 0.007:81.8/2.09/2.4 0.005:81.1/1.50/2.4 0.003:81.1/1.38/2.4 0.002:80.1/1.15/2.5 0.0015:80.1/1.12/2.5 0.001:80.1/1.03/2.5 0.0007:79.8/0.94/2.4 0.0005:72.4/0.76/2.5 0.0003:71.7/0.71/2.5 0.0002:71.5/0.71/2.5 0.0001:71.5/0.71/2.5 5e-05:71.5/0.65/2.5
+   FA<=0.8%: alpha 0.0005 recall 72.4% (394) FA 0.76% (26) p95 2.53s precision 93.8%  | Bruteforce_CW:0/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:5/36 CVE-2020-1394:29/35 EPS_CWE-434:31/36 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:27/35
+   FA<=2%: alpha 0.005 recall 81.1% (441) FA 1.50% (51) p95 2.41s precision 89.6%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:28/36 CVE-2018-3760:26/37 CVE-2019-5418:6/36 CVE-2020-1394:29/35 Juice-Shop:15/36 PHP_CWE-434:28/35 ZipSlip:31/35
+
+== Shewhart-CUSUM on log evidence, k=1.0: alpha recall/FA/p95
+   0.2:91.9/20.78/2.5 0.1:90.8/11.99/2.4 0.05:87.1/6.11/2.5 0.03:84.9/4.61/2.6 0.02:82.5/4.00/2.6 0.015:81.8/3.70/2.8 0.01:81.2/3.32/3.1 0.007:81.2/2.73/3.1 0.005:81.2/2.41/3.1 0.003:80.9/1.76/3.2 0.002:80.7/1.53/3.3 0.0015:80.1/1.26/3.5 0.001:80.0/0.94/3.9 0.0007:79.4/0.91/3.6 0.0005:79.2/0.82/3.6 0.0003:79.2/0.62/4.0 0.0002:79.2/0.53/4.0 0.0001:78.1/0.38/4.1 5e-05:77.8/0.35/4.4
+   FA<=0.6%: alpha 0.0002 recall 79.2% (431) FA 0.53% (18) p95 4.03s precision 96.0%  | Bruteforce_CW:37/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:6/36 CVE-2020-1394:34/35 Juice-Shop:15/36 ZipSlip:31/35
+   FA<=0.8%: alpha 0.0003 recall 79.2% (431) FA 0.62% (21) p95 3.99s precision 95.4%  | Bruteforce_CW:37/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:6/36 CVE-2020-1394:34/35 Juice-Shop:15/36 ZipSlip:31/35
+   FA<=2%: alpha 0.003 recall 80.9% (440) FA 1.76% (60) p95 3.16s precision 88.0%  | Bruteforce_CW:40/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:8/36 CVE-2020-1394:34/35 Juice-Shop:15/36
+
+== Shewhart-CUSUM on log evidence, k=2.0: alpha recall/FA/p95
+   0.2:90.3/19.66/2.4 0.1:89.5/13.58/2.4 0.05:87.7/6.55/2.4 0.03:85.7/5.00/2.4 0.02:85.5/4.14/2.5 0.015:85.3/3.47/2.5 0.01:85.1/2.94/2.5 0.007:85.1/2.67/2.5 0.005:82.9/2.50/2.5 0.003:80.5/2.17/2.8 0.002:80.0/2.06/2.8 0.0015:79.6/1.85/2.8 0.001:79.6/1.18/2.9 0.0007:79.6/1.09/2.9 0.0005:79.4/1.03/3.3 0.0003:79.4/0.91/3.3 0.0002:79.4/0.79/3.3 0.0001:79.4/0.68/3.3 5e-05:79.0/0.44/3.8
+   FA<=0.6%: alpha 5e-05 recall 79.0% (430) FA 0.44% (15) p95 3.79s precision 96.6%  | Bruteforce_CW:37/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:7/36 CVE-2020-1394:29/35 CVE-2020-9484:35/36 Juice-Shop:15/36
+   FA<=0.8%: alpha 0.0002 recall 79.4% (432) FA 0.79% (27) p95 3.32s precision 94.1%  | Bruteforce_CW:37/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:8/36 CVE-2020-1394:29/35 Juice-Shop:15/36
+   FA<=2%: alpha 0.0015 recall 79.6% (433) FA 1.85% (63) p95 2.83s precision 87.3%  | Bruteforce_CW:37/42 CVE-2014-0160:0/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:8/36 CVE-2020-1394:29/35 Juice-Shop:16/36
+
+== Shewhart-CUSUM on log evidence, k=3.0: alpha recall/FA/p95
+   0.2:89.0/11.61/2.4 0.1:87.9/7.11/2.4 0.05:87.3/5.91/2.4 0.03:86.6/5.44/2.4 0.02:86.2/4.29/2.4 0.015:85.7/4.23/2.4 0.01:85.7/3.85/2.4 0.007:85.7/3.61/2.5 0.005:85.3/3.14/2.5 0.003:85.3/2.94/2.5 0.002:85.1/2.35/2.5 0.0015:85.1/2.35/2.5 0.001:85.1/2.29/2.8 0.0007:84.9/2.17/2.8 0.0005:84.9/1.62/2.8 0.0003:84.9/1.47/2.8 0.0002:84.9/1.38/2.8 0.0001:84.9/1.03/3.2 5e-05:84.7/0.97/3.3
+   FA<=2%: alpha 0.0005 recall 84.9% (462) FA 1.62% (55) p95 2.79s precision 89.4%  | Bruteforce_CW:37/42 CVE-2014-0160:25/36 CVE-2017-7529:31/36 CVE-2018-3760:26/37 CVE-2019-5418:12/36 CVE-2020-1394:29/35 Juice-Shop:16/36
+
+== missed attacks of the reference at FA about 0.76 % that lie within the normal band (branch max <= dev normal p99 for every branch)
+  Bruteforce_CWE-307     missed   5, inside the normal band   5
+  CVE-2014-0160          missed  11, inside the normal band  11
+  CVE-2017-7529          missed   5, inside the normal band   5
+  CVE-2018-3760          missed  11, inside the normal band  11
+  CVE-2019-5418          missed  31, inside the normal band   6
+  CVE-2020-13942         missed   6, inside the normal band   6
+  Juice-Shop             missed  21, inside the normal band  19
+  PHP_CWE-434            missed   7, inside the normal band   0
+  ZipSlip                missed   4, inside the normal band   0
