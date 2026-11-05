@@ -1,0 +1,103 @@
+{
+ "schema": "pulse-ml-live-no-gate-v1",
+ "run": "pulse-final-system-confirm",
+ "variant": "joint",
+ "rule": "k2of2_a5",
+ "gate": "peer30",
+ "info": {
+  "rows": 11101848,
+  "dropped_without_calibration": 0,
+  "replica_hours": 949.0356831691,
+  "campaign_spans": [
+   [
+    1792946401.708388,
+    1792981839.3299305
+   ]
+  ],
+  "trials": {
+   "attack": 525,
+   "benign": 525,
+   "control": 524
+  },
+  "trials_skipped": {
+   "control": 1
+  },
+  "recomputed_joint_equals_asrun": 1.0,
+  "launch_share": 0.35439721386925854,
+  "discount_share": {
+   "none": 0.0,
+   "peer30": 0.9298980553166091,
+   "peer60": 0.9389747565473402,
+   "self60": 0.9801348596747896,
+   "self300": 0.9943461656082409,
+   "peer30_or_self300": 0.9979070979200825,
+   "peer30_and_self300": 0.9263371230047674
+  }
+ },
+ "arms": {
+  "with_gate": {
+   "mode": "peer30",
+   "primary": {
+    "burden": 1.7638957414225331,
+    "incidents60": 0.8145109964872271,
+    "incidents300": 0.539494993792316,
+    "attack": 0.9936507936507937,
+    "benign": 0.8952380952380953,
+    "control": 0.006369426751592357,
+    "precision": 0.9936507936507937,
+    "p50": 0.8526856899261475,
+    "p95": 2.2509390830993645,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "burden_ci": {
+    "point": 1.7638957414225334,
+    "ci95": [
+     0.5656517722374387,
+     4.005821733060225
+    ],
+    "workloads": 21,
+    "reps": 10000
+   },
+   "alarm_windows": 29712,
+   "windows": 11101848
+  },
+  "no_gate": {
+   "mode": "none",
+   "primary": {
+    "burden": 5.604636468713533,
+    "incidents60": 3.3486622856874613,
+    "incidents300": 2.2570278841858222,
+    "attack": 0.9936507936507937,
+    "benign": 0.9015873015873016,
+    "control": 0.025477707006369428,
+    "precision": 0.9750778816199377,
+    "p50": 0.8267650604248047,
+    "p95": 2.1737426757812477,
+    "recall_by_scenario": {
+     "anonymous_mprotect_churn": 1.0,
+     "child_ptrace_handshake": 1.0,
+     "execveat_resolution_probe": 1.0,
+     "invalid_setns_burst": 1.0,
+     "seccomp_api_probe": 0.9682539682539683
+    }
+   },
+   "burden_ci": {
+    "point": 5.604636468713534,
+    "ci95": [
+     3.3471325104963436,
+     8.545981877267488
+    ],
+    "workloads": 21,
+    "reps": 10000
+   },
+   "alarm_windows": 151034,
+   "windows": 11101848
+  }
+ }
+}

@@ -45,6 +45,8 @@ Các mục dưới là việc đã xong gần đây.
 - [~] Nghiên cứu sâu cải thiện ML trên LID-DS 2021 (`reports/Cải thiện ML Pulse LID DS.md`).
 - [x] Protocol `lidds-ml-v2`: official 95,99% / 0,57% / precision 96,44% / p95 2,32 s (05/11).
 - [ ] LSTM tham chiếu (`lidds-ml-teacher`, đang chạy); kiểm tra các phát hiện muộn của CVE-2012-2122.
+- [x] Số ML live không cổng replica (replay `pulse-final-system-confirm`): 3 tiêu chí đạt, gánh 5,60 so với 1,76 đợt/replica-giờ.
+- [~] Chọn bảng chữ token theo chi phí probe (`lidds-ml-alphabets`, development); LSTM lớn (`lidds-ml-teacher-big`).
 - [ ] Đưa token vào probe, đo overhead, lượt live blind (đo cả binary vô hại, gánh), rồi LID-DS 2019.
 - [x] Luận văn: số chính LID-DS là ML riêng (mục 6.12.2, `lidds-ml-v2`); mục v2–v4 chuyển thành đối chứng rule (6.12.3). [ ] Thêm biến thể token và LSTM nếu đổi kết luận; [ ] cập nhật sau live và LID-DS 2019.
 - [x] Huỷ kế hoạch live của v4; kết quả v2–v4 chuyển sang RULE_INTEGRATION_STATUS R7.
