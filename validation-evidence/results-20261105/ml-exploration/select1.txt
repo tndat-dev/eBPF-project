@@ -1,0 +1,25 @@
+scenarios done 16 ['Bruteforce_CWE-307', 'CB-DS', 'CVE-2012-2122', 'CVE-2014-0160', 'CVE-2017-12635_6', 'CVE-2017-7529', 'CVE-2018-3760', 'CVE-2019-5418', 'CVE-2020-13942', 'CVE-2020-23839', 'CVE-2020-9484', 'CWE-89-SQL-injection', 'EPS_CWE-434', 'Juice-Shop', 'PHP_CWE-434', 'ZipSlip']
+gate Bruteforce_CWE-307: 21100 windows compared, largest difference 0.00e+00
+gate CVE-2012-2122: 56863 windows compared, largest difference 0.00e+00
+gate CVE-2014-0160: 16302 windows compared, largest difference 0.00e+00
+gate CVE-2017-12635_6: 27112 windows compared, largest difference 0.00e+00
+gate CVE-2017-7529: 3154 windows compared, largest difference 0.00e+00
+gate CVE-2018-3760: 23126 windows compared, largest difference 0.00e+00
+gate CVE-2019-5418: 20740 windows compared, largest difference 0.00e+00
+gate CVE-2020-13942: 27421 windows compared, largest difference 0.00e+00
+gate CVE-2020-23839: 26500 windows compared, largest difference 0.00e+00
+gate CVE-2020-9484: 28269 windows compared, largest difference 0.00e+00
+gate CWE-89-SQL-injection: 28460 windows compared, largest difference 0.00e+00
+gate EPS_CWE-434: 17781 windows compared, largest difference 0.00e+00
+gate Juice-Shop: 24518 windows compared, largest difference 0.00e+00
+gate PHP_CWE-434: 27198 windows compared, largest difference 0.00e+00
+gate ZipSlip: 21309 windows compared, largest difference 0.00e+00
+alphabet | alone a=.002: recall, FA, p95 | with tree+support a=.0005: recall, FA, p95 | CB-DS with tree+support det/att FA/n
+full          | 527/544 96.88% 0.59% 1.52s | 522/544 95.96% 19/3403 0.56% 2.37s | 891/891 2/1410
+   per scenario with tree+support: {'CVE-2012-2122': '35/36,0', 'CVE-2017-7529': '36/36,4', 'CVE-2019-5418': '33/36,0', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'Juice-Shop': '23/36,1', 'ZipSlip': '31/35,1'}
+full1         | 530/544 97.43% 0.56% 1.45s | 530/544 97.43% 19/3403 0.56% 2.10s | 891/891 2/1410
+   per scenario with tree+support: {'CVE-2017-7529': '36/36,4', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'Juice-Shop': '23/36,1'}
+select1       | 530/544 97.43% 0.44% 1.44s | 505/544 92.83% 20/3403 0.59% 2.18s | 891/891 2/1410
+   per scenario with tree+support: {'CVE-2017-7529': '36/36,4', 'CVE-2019-5418': '11/36,0', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'Juice-Shop': '23/36,1'}
+select1f      | 530/544 97.43% 0.56% 1.45s | 530/544 97.43% 19/3403 0.56% 2.10s | 891/891 2/1410
+   per scenario with tree+support: {'CVE-2017-7529': '36/36,4', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'Juice-Shop': '23/36,1'}

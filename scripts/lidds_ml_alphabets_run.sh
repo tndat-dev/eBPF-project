@@ -7,12 +7,12 @@ SRC=${SRC:?source snapshot}
 OUT=${OUT:-/var/tmp/lid-ds-2021/ml-alphabets}
 PY=/home/dat/ml-venv/bin/python
 ALARMS=$SRC/validation-evidence/results-20261101/lidds-v4/lidds-evaluation-v2-alarms.json.gz
-export ALPHABETS=${ALPHABETS:-}
+export ALPHABETS=${ALPHABETS:-} ALL=${ALL:-}
 export SRC OUT PY ALARMS PYTHONPATH=$SRC PYTHONDONTWRITEBYTECODE=1
 mkdir -p $OUT && cd /tmp
 one() {
   [ -f $OUT/$2.json ] && return 0
-  local filter=(); [ "$2" = CB-DS ] || filter=(--alarms $ALARMS)
+  local filter=(); [ "$2" = CB-DS ] || [ -n "${ALL:-}" ] || filter=(--alarms $ALARMS)    # ALL=1: every recording, official too
   $PY -u $SRC/scripts/analysis/lidds_ml_token_alphabets.py --archives $1 --scenario $2 "${filter[@]}" ${ALPHABETS:+--alphabets $ALPHABETS} --output $OUT/$2.npz > $OUT/$2.log 2>&1 || echo "FAILED $2"
   echo "done $2 $(date -u +%FT%T)"
 }

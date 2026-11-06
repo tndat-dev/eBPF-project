@@ -11,6 +11,9 @@ Selection reads development only. Without --official nothing of the official spl
 file must not exist yet, so the official split is scored once.
 
     python3 lidds_ml_v2.py --scores DIR --tokens DIR --lidds-alarms a.json.gz --cbds-alarms c.json.gz --output out.json [--official]
+
+lidds-ml-v3 is the same rule with another token alphabet: --tokens points at lidds_ml_token_alphabets.py output and
+--token-column names the alphabet (select1f), --protocol names the registered protocol.
 """
 import argparse
 import gzip
@@ -117,7 +120,12 @@ def select(results):
     return max(fallback, key=lambda r: (r['development']['detected'], -r['development']['false_alarm_recordings'])), False
 
 
-def run(lidds, cbds, score_dir, token_dir, official, scenarios=None, cb_name='CB-DS'):
+def set_token_column(column):
+    """The token branch reads this column of the token matrices (top10 for lidds-ml-v2, an alphabet name for v3)."""
+    BRANCH['T'] = ('tokens', column)
+
+
+def run(lidds, cbds, score_dir, token_dir, official, scenarios=None, cb_name='CB-DS', protocol='sentinel_pulse/protocol/lidds-ml-v2.json'):
     dirs = dict(scores=score_dir, tokens=token_dir)
     names = scenarios or sorted(lidds['scenarios'])
     lid = {s: Scenario(s, dirs) for s in names}
@@ -130,7 +138,7 @@ def run(lidds, cbds, score_dir, token_dir, official, scenarios=None, cb_name='CB
               and c['recall'] >= CB_RECALL and c['false_alarm_rate'] <= CB_FA)
         results.append(dict(config=cfg, eligible=ok, development=dev, development_scenarios=per, cbds=c))
     chosen, qualified = select(results)
-    out = dict(schema='pulse-lidds-ml-v2', protocol='sentinel_pulse/protocol/lidds-ml-v2.json', qualified=qualified, selected=chosen, screening=results)
+    out = dict(schema='pulse-lidds-ml-v2', protocol=protocol, token_branch=BRANCH['T'], qualified=qualified, selected=chosen, screening=results)
     if official:
         branches, alpha = CANDIDATES[chosen['config']]
         m, per = score(lid, lidds, branches, alpha, 'official')
@@ -159,10 +167,13 @@ def main():
     ap.add_argument('--cbds-alarms', required=True)
     ap.add_argument('--output', required=True)
     ap.add_argument('--official', action='store_true')
+    ap.add_argument('--token-column', default='top10')
+    ap.add_argument('--protocol', default='sentinel_pulse/protocol/lidds-ml-v2.json')
     a = ap.parse_args()
+    set_token_column(a.token_column)
     if a.official and Path(a.output).exists():
         raise SystemExit(f'{a.output} exists: the official split is scored once')
-    out = run(load(a.lidds_alarms), load(a.cbds_alarms), a.scores, a.tokens, a.official)
+    out = run(load(a.lidds_alarms), load(a.cbds_alarms), a.scores, a.tokens, a.official, protocol=a.protocol)
     (write_once(a.output, out) if a.official else Path(a.output).write_text(json.dumps(out, indent=1, default=float)))
     brief = lambda m: {k: m[k] for k in ('recall', 'detected', 'attack_recordings', 'false_alarm_rate', 'false_alarm_recordings', 'precision_base_rate', 'latency_p50', 'latency_p95')}
     print(json.dumps(dict(qualified=out['qualified'], selected=out['selected']['config'], development=brief(out['selected']['development']),

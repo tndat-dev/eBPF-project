@@ -1,0 +1,81 @@
+{
+ "schema": "sentinel-pulse-lidds-ml-v3",
+ "registered_at": "see the git commit that adds this file (06/11, +0700)",
+ "registered_before": "any score of this token alphabet on the official recordings of LID-DS 2021 is computed; the alphabet runs so far read development recordings only",
+ "owner_decisions": [
+  "01/11: the goal is an ML model that detects blind attacks; rule paths set aside until the ML is decided",
+  "01/11: recall >= 95 %, precision >= 95 %, latency <= 3 s; benign-binary flagging and burden as low as possible",
+  "05/11: the official split may be scored a second time without a separate request; it is recorded here as such"
+ ],
+ "seen_before_registration": "lidds-ml-v2 official result (95.99 % recall, 0.57 % false alarms; the same official recordings, scored once on 05/11); on development with attack labels: the token alphabet study (9 alphabets), the inventory of syscall exits, the token variants on 6 weak scenarios (log2 size without halving best) and the full-resolution alphabets full1, select1, select1f (validation-evidence/results-20261105/ml-exploration/alphabets.txt, inventory.txt, variants.txt, select.txt, select1.txt). The errno set and the size resolution were chosen there, so the development numbers are optimistic. This is the second official scoring of an ML on LID-DS 2021; the official split is not unseen; the unseen evidence remains the live run and LID-DS 2019",
+ "model": {
+  "token_alphabet": "select1f (scripts/analysis/lidds_ml_token_alphabets.py): every syscall exit is a token; errno only for the listed syscalls; open mode and first directory for open, openat, openat2, creat; log2 of the returned byte count, not halved, for reads and writes; otherwise the name",
+  "errno_syscalls": [
+   "access",
+   "close",
+   "connect",
+   "creat",
+   "execve",
+   "faccessat",
+   "fcntl",
+   "fstat",
+   "futex",
+   "ioctl",
+   "kill",
+   "lstat",
+   "mkdir",
+   "newfstatat",
+   "open",
+   "openat",
+   "read",
+   "recvfrom",
+   "rename",
+   "renameat",
+   "sendfile",
+   "shutdown",
+   "stat",
+   "unlink",
+   "unlinkat",
+   "write",
+   "writev"
+  ],
+  "why_this_alphabet": "on development it equals the full alphabet at full size resolution (full1: 97.43 %, 19/3,403) while it needs exit information of these syscalls, the opens, the reads and the writes only, which a probe can hook per syscall instead of on every exit (a hook on every exit failed the overhead limit on 31/10)",
+  "language_model_and_score": "as lidds-ml-v2: per-thread 4-grams, Witten-Bell backoff to P(name) x P(token | name), window score = mean of the 10 highest per-event negative log-probabilities",
+  "current_ml": "as lidds-ml-v2: reference tree and support model of the 249 count features, warm-up gate lifted (lidds_ml_scores.py --all-windows)"
+ },
+ "decision": "as lidds-ml-v2: per branch, moment-Gumbel quantile of the per-recording maximum over the validation recordings at alpha / 3; one window above it fires; no tripwire, novelty gate, vote or two-window rule",
+ "candidates": {
+  "alpha": [
+   0.001,
+   0.0005,
+   0.0002
+  ]
+ },
+ "eligibility": {
+  "lidds2021_development": [
+   "false-alarm recordings <= 0.6 %",
+   "latency p95 <= 3 s"
+  ],
+  "cbds": [
+   "recall >= 95 %",
+   "false-alarm recordings <= 2 %"
+  ]
+ },
+ "selection": "the highest development recall among eligible; ties to fewer false alarms (lidds_ml_v2.py --token-column select1f)",
+ "criteria_official": {
+  "recall": ">= 95 %",
+  "precision_base_rate": ">= 95 %",
+  "latency_p95": "<= 3 s"
+ },
+ "verification_levels": "as lidds-ml-v2: recall >= 95 % by the Wilson lower bound needs at least 1,223/1,271; false alarms <= 0.8 % by the upper bound needs at most about 50/7,938",
+ "reported_only": [
+  "the same rule with the full1 alphabet (errno of every syscall), to show what the reduced hook set costs",
+  "lidds-ml-v2 official numbers from validation-evidence/results-20261105/lidds-ml-v2/"
+ ],
+ "limits": [
+  "offline on sysdig traces; the probe does not collect these tokens yet and its overhead is unmeasured; futex is a hot syscall and its exit hook may cost most",
+  "the errno set and the size resolution were chosen on development with attack labels"
+ ],
+ "code": "scripts/analysis/lidds_ml_token_alphabets.py (tokens, ALL=1 run of scripts/lidds_ml_alphabets_run.sh), scripts/analysis/lidds_ml_v2.py --token-column select1f --protocol sentinel_pulse/protocol/lidds-ml-v3.json; --official refuses an existing output",
+ "next": "official once; then the probe with per-syscall exit hooks, overhead A/B, thresholds per container time block, a blind live run, then LID-DS 2019 once"
+}

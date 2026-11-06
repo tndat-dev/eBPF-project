@@ -62,3 +62,13 @@ def test_official_is_scored_once(tmp_path):
         v2.write_once(target, dict(a=2))
     out = v2.run(doc, doc, sc, to, official=True, scenarios=['SCN'], cb_name='SCN')
     assert out['official']['pooled']['detected'] == 28 and set(out['comparators_official']) == set(v2.COMPARATORS)
+
+
+def test_token_column_switches_the_token_branch_only():
+    import lidds_ml_v2 as mm
+    before = dict(mm.BRANCH)
+    try:
+        mm.set_token_column('select1f')
+        assert mm.BRANCH['T'] == ('tokens', 'select1f') and mm.BRANCH['tree'] == before['tree']
+    finally:
+        mm.BRANCH.update(before)
