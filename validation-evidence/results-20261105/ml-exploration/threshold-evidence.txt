@@ -1,0 +1,51 @@
+/home/tndat/Downloads/eBPF-project/validation-evidence/results-20261105/ml-exploration/ml_threshold_evidence.py:68: RuntimeWarning: overflow encountered in exp
+  return -np.expm1(-np.exp(-z))
+development: 544 attack, 3403 normal recordings, 15 scenarios
+
+== 2. label-free fits, same rule (alpha/3 per branch, one window): best development recall at a false-alarm budget
+  gumbel_moments  0.4%: 94.7% (515, FA 13) | 0.6%: 96.1% (523, FA 20) | 0.8%: 96.3% (524, FA 25) | 1.0%: 96.3% (524, FA 31) | 2.0%: 97.1% (528, FA 66)
+  gumbel_mle      0.4%: 78.7% (428, FA 13) | 0.6%: 83.1% (452, FA 16) | 0.8%: 83.5% (454, FA 26) | 1.0%: 88.6% (482, FA 34) | 2.0%: 89.5% (487, FA 62)
+  gev_mle         0.4%: none | 0.6%: none | 0.8%: none | 1.0%: 80.9% (440, FA 33) | 2.0%: 93.0% (506, FA 66)
+  normal          0.4%: none | 0.6%: none | 0.8%: none | 1.0%: 96.3% (524, FA 30) | 2.0%: 97.1% (528, FA 65)
+  exp_tail        0.4%: 91.5% (498, FA 13) | 0.6%: 93.2% (507, FA 15) | 0.8%: 96.5% (525, FA 27) | 1.0%: 96.5% (525, FA 34) | 2.0%: 96.9% (527, FA 42)
+  val_max         0.4%: none | 0.6%: none | 0.8%: none | 1.0%: none | 2.0%: none | single point recall 97.1% FA 3.76%
+  registered point (gumbel_moments, alpha 0.0005): 95.96% (522), FA 0.56% (19)
+
+== 1. oracle frontiers with attack labels (development; recall at a false-alarm budget)
+  FA <= 0.4% (13): a token alone, per-scenario 97.6% (531) | b three branches, per-scenario level 97.4% (530) | c one level for all 95.0% (517) | label-free Gumbel rule 94.7% (515)
+  FA <= 0.6% (20): a token alone, per-scenario 97.6% (531) | b three branches, per-scenario level 97.4% (530) | c one level for all 96.1% (523) | label-free Gumbel rule 96.1% (523)
+  FA <= 0.8% (27): a token alone, per-scenario 98.3% (535) | b three branches, per-scenario level 97.6% (531) | c one level for all 96.3% (524) | label-free Gumbel rule 96.3% (524)
+  FA <= 1.0% (34): a token alone, per-scenario 98.7% (537) | b three branches, per-scenario level 98.0% (533) | c one level for all 96.3% (524) | label-free Gumbel rule 96.3% (524)
+  FA <= 2.0% (68): a token alone, per-scenario 99.3% (540) | b three branches, per-scenario level 98.3% (535) | c one level for all 97.1% (528) | label-free Gumbel rule 97.1% (528)
+
+== 3a. calibration on validation itself, leave one recording out (pure normal, no test shift)
+  branch T        level 0.05  : expected  44.25 of 885, observed 43
+  branch tree     level 0.05  : expected  44.25 of 885, observed 48
+  branch support  level 0.05  : expected  44.25 of 885, observed 51
+  branch T        level 0.01  : expected   8.85 of 885, observed 19
+  branch tree     level 0.01  : expected   8.85 of 885, observed 14
+  branch support  level 0.01  : expected   8.85 of 885, observed 14
+  branch T        level 0.003 : expected   2.66 of 885, observed 5
+  branch tree     level 0.003 : expected   2.66 of 885, observed 4
+  branch support  level 0.003 : expected   2.66 of 885, observed 7
+  branch T        level 0.001 : expected   0.89 of 885, observed 1
+  branch tree     level 0.001 : expected   0.89 of 885, observed 1
+  branch support  level 0.001 : expected   0.89 of 885, observed 5
+
+== 3b. calibration on the development normals (test shift included), fused rule
+  alpha 0.05   : designed FA <= 5.000%, observed 6.85% (233); recall 97.6%
+  alpha 0.01   : designed FA <= 1.000%, observed 2.62% (89); recall 97.2%
+  alpha 0.005  : designed FA <= 0.500%, observed 1.32% (45); recall 96.7%
+  alpha 0.002  : designed FA <= 0.200%, observed 0.85% (29); recall 96.3%
+  alpha 0.001  : designed FA <= 0.100%, observed 0.65% (22); recall 96.1%
+  alpha 0.0005 : designed FA <= 0.050%, observed 0.56% (19); recall 96.0%
+  alpha 0.0002 : designed FA <= 0.020%, observed 0.47% (16); recall 95.2%
+
+== 3c. GEV shape xi of the validation maxima (xi = 0 is Gumbel; >0 heavier tail, <0 bounded)
+  T        median -0.03, range -0.55 to +0.56, scenarios with xi > 0.3: 2/15, xi < -0.3: 4/15
+  tree     median -0.06, range -0.26 to +1.16, scenarios with xi > 0.3: 1/15, xi < -0.3: 0/15
+  support  median +1.06, range -2.07 to +5.26, scenarios with xi > 0.3: 13/15, xi < -0.3: 1/15
+
+== 3d. which branch raises the development false alarms and detections at the registered point (alpha 0.0005)
+  false-alarm recordings by firing branches: {('T',): 7, ('tree',): 6, ('tree', 'support'): 3, ('support',): 2, ('T', 'support'): 1}
+  detected attack recordings by firing branches: {('T',): 293, ('T', 'tree'): 53, ('T', 'tree', 'support'): 21, ('T', 'support'): 155}
