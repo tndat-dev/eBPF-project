@@ -4,7 +4,8 @@ oracle threshold with normal false alarms at most 1 %. Official matrices are nev
 import glob, json, os, sys
 from collections import Counter
 import numpy as np
-ROOT = '/home/tndat/Downloads/eBPF-project/'
+from pathlib import Path as _P
+ROOT = str(_P(__file__).resolve().parents[3]) + '/'   # repository root, on any machine
 sys.path.insert(0, ROOT + 'scripts/analysis')
 import lidds_ml_v2 as m
 S = sys.argv[1]

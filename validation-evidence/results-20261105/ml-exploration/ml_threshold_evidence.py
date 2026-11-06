@@ -14,7 +14,8 @@ import math, sys
 from collections import defaultdict
 import numpy as np
 from scipy import stats
-ROOT = '/home/tndat/Downloads/eBPF-project/'
+from pathlib import Path as _P
+ROOT = str(_P(__file__).resolve().parents[3]) + '/'   # repository root, on any machine
 sys.path.insert(0, ROOT + 'scripts/analysis')
 import lidds_ml_v2 as m
 S = sys.argv[1]
