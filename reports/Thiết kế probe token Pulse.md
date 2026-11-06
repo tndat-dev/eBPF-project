@@ -49,7 +49,9 @@ Theo cách đo 31/10 (`overhead_ab.sh`, benchmark syscall tĩnh, xoay vòng đi�
 - C: B + `futex`;
 - D: C + map 4-gram.
 
-Ghi thêm độ trễ request của ứng dụng thật (`app-overhead-v1`). Giới hạn đề xuất: giữ mức 150 ns mỗi syscall như 31/10; nếu C hoặc D vượt, chủ đồ án quyết nới giới hạn hay dùng `select1` (không `futex`, 92,83% trên development).
+Ghi thêm độ trễ request của ứng dụng thật (`app-overhead-v1`).
+
+**Quyết định của chủ đồ án (06/11): nới giới hạn.** Probe dùng `select1f` (có `futex`) kể cả khi vượt 150 ns mỗi syscall; không đổi sang `select1`. Overhead vẫn được đo và báo đầy đủ cho từng điều kiện A–D, kể cả độ trễ request của ứng dụng thật, nhưng không còn là điều kiện đạt/không đạt.
 
 ## 6. Rủi ro đã biết
 
