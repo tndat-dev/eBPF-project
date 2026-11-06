@@ -1,0 +1,17 @@
+Bruteforce_CWE-307 967 recordings 61248 windows, largest difference 0
+CB-DS 2381 recordings 95382 windows, largest difference 0
+CVE-2012-2122 942 recordings 213881 windows, largest difference 0
+CVE-2014-0160 938 recordings 47554 windows, largest difference 0
+CVE-2017-12635_6 930 recordings 78358 windows, largest difference 0
+CVE-2017-7529 900 recordings 9222 windows, largest difference 0
+CVE-2018-3760 919 recordings 66706 windows, largest difference 0
+CVE-2019-5418 940 recordings 59846 windows, largest difference 0
+CVE-2020-13942 934 recordings 78647 windows, largest difference 0
+CVE-2020-23839 937 recordings 77925 windows, largest difference 0
+CVE-2020-9484 939 recordings 81200 windows, largest difference 0
+CWE-89-SQL-injection 940 recordings 82203 windows, largest difference 0
+EPS_CWE-434 940 recordings 51202 windows, largest difference 0
+Juice-Shop 941 recordings 69987 windows, largest difference 0
+PHP_CWE-434 937 recordings 78338 windows, largest difference 0
+ZipSlip 937 recordings 61219 windows, largest difference 0
+ALL 1212918 windows, largest difference 0

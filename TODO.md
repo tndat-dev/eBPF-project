@@ -44,6 +44,7 @@ Các mục dưới là việc đã xong gần đây.
 
 - [~] Nghiên cứu sâu cải thiện ML trên LID-DS 2021 (`reports/Cải thiện ML Pulse LID DS.md`).
 - [x] Protocol `lidds-ml-v2`: official 95,99% / 0,57% / precision 96,44% / p95 2,32 s (05/11).
+- [x] Protocol `lidds-ml-v3` (bảng chữ `select1f`): official 97,32% / 0,44% / precision 97,3% / p95 2,09 s, trong 3 s 96,2% (07/11). [ ] Cập nhật bản LaTeX và slide.
 - [ ] LSTM tham chiếu (`lidds-ml-teacher`, đang chạy); kiểm tra các phát hiện muộn của CVE-2012-2122.
 - [x] Số ML live không cổng replica (replay `pulse-final-system-confirm`): 3 tiêu chí đạt, gánh 5,60 so với 1,76 đợt/replica-giờ.
 - [~] Chọn bảng chữ token theo chi phí probe (`lidds-ml-alphabets`, development); LSTM lớn (`lidds-ml-teacher-big`).

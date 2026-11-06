@@ -1,0 +1,80 @@
+{
+ "qualified": true,
+ "selected": "T+tree+support|a0.0002",
+ "development": {
+  "recall": 0.9742647058823529,
+  "detected": 530,
+  "attack_recordings": 544,
+  "false_alarm_rate": 0.004995592124595945,
+  "false_alarm_recordings": 17,
+  "precision_base_rate": 0.9689213893967094,
+  "latency_p50": 0.43020009994506836,
+  "latency_p95": 2.1583189368247955
+ },
+ "cbds": {
+  "recall": 1.0,
+  "detected": 891,
+  "attack_recordings": 891,
+  "false_alarm_rate": 0.0014184397163120568,
+  "false_alarm_recordings": 2,
+  "precision_base_rate": 0.9977603583426652,
+  "latency_p50": 3.941499948501587,
+  "latency_p95": 6.190679430961609
+ },
+ "screening": {
+  "T+tree+support|a0.001": [
+   false,
+   {
+    "recall": 0.9742647058823529,
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_rate": 0.006464883925947693,
+    "false_alarm_recordings": 22,
+    "precision_base_rate": 0.9601449275362319,
+    "latency_p50": 0.4205890893936157,
+    "latency_p95": 2.1011455297470074
+   }
+  ],
+  "T+tree+support|a0.0005": [
+   true,
+   {
+    "recall": 0.9742647058823529,
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_rate": 0.005583308845136644,
+    "false_alarm_recordings": 19,
+    "precision_base_rate": 0.9653916211293261,
+    "latency_p50": 0.4281132221221924,
+    "latency_p95": 2.1011455297470074
+   }
+  ],
+  "T+tree+support|a0.0002": [
+   true,
+   {
+    "recall": 0.9742647058823529,
+    "detected": 530,
+    "attack_recordings": 544,
+    "false_alarm_rate": 0.004995592124595945,
+    "false_alarm_recordings": 17,
+    "precision_base_rate": 0.9689213893967094,
+    "latency_p50": 0.43020009994506836,
+    "latency_p95": 2.1583189368247955
+   }
+  ]
+ },
+ "official": {
+  "recall": 0.973249409913454,
+  "detected": 1237,
+  "attack_recordings": 1271,
+  "false_alarm_rate": 0.004409171075837742,
+  "false_alarm_recordings": 35,
+  "precision_base_rate": 0.9724842767295597,
+  "latency_p50": 0.4327082633972168,
+  "latency_p95": 2.0875319004058848
+ },
+ "criteria": {
+  "recall": true,
+  "precision_base_rate": true,
+  "latency_p95": true
+ }
+}
