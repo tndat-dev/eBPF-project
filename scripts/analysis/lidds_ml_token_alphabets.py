@@ -16,6 +16,7 @@ lidds_ml_tokens.py; only the tokens change:
     name          the syscall name only                                              : none, the current probe's id
     select        errno of SELECT_ERR, open, returned I/O size                       : exit of SELECT_ERR, opens, reads, writes
     full1, select1  as full and select with log2 size not halved; select1f adds futex errno (futex is a hot syscall)
+    probe1f       select1f in the order the planned probe emits: unhooked syscalls at entry, hooked ones at exit
 
 SELECT_ERR comes from the development inventory (lidds_ml_token_inventory.py: syscalls whose errno token is new in
 many attack recordings and rare in normal ones), so `select` is chosen with attack labels and its numbers are optimistic.
@@ -56,6 +57,10 @@ ALPHABETS['select'] = dict(err=SELECT_ERR, open=True, size='exit')
 ALPHABETS['full1'] = dict(err='all', open=True, size='exit', halve=False)
 ALPHABETS['select1'] = dict(err=SELECT_ERR, open=True, size='exit', halve=False)
 ALPHABETS['select1f'] = dict(err=SELECT_ERR | {'futex'}, open=True, size='exit', halve=False)
+# what the planned probe emits: select1f tokens, but a syscall without an exit hook gives its token at entry (the
+# existing sys_enter counter), so tokens of blocking unhooked calls come earlier than in the offline exit order
+HOOKED = frozenset(SELECT_ERR | {'futex'} | signals.OPENS | signals.READS | signals.WRITES)
+ALPHABETS['probe1f'] = dict(err=SELECT_ERR | {'futex'}, open=True, size='exit', halve=False, at_entry_unhooked=True)
 REQUESTED = re.compile(r'\bsize=(\d+)')
 
 
@@ -103,6 +108,17 @@ def alphabet_windows(lines, names, n=tk.N):
         if parts[6] == '>':
             m = REQUESTED.search(args)
             requested[parts[4]] = int(m.group(1)) if m and int(m.group(1)) > 0 else None    # as byte_count: no size token for 0
+            if parts[5] not in HOOKED and any(ALPHABETS[k].get('at_entry_unhooked') for k in names):
+                try:
+                    ts = int(parts[0])
+                except ValueError:
+                    continue
+                w = signals.window_end(ts)
+                for k in names:
+                    if ALPHABETS[k].get('at_entry_unhooked'):
+                        q = threads[k][parts[4]]
+                        q.append(parts[5])
+                        out[k][w].append(tuple(q))
             continue
         if parts[6] != '<':
             continue
@@ -113,6 +129,8 @@ def alphabet_windows(lines, names, n=tk.N):
         fact = facts(parts[5], args, requested.get(parts[4]))
         w = signals.window_end(ts)
         for k in names:
+            if ALPHABETS[k].get('at_entry_unhooked') and parts[5] not in HOOKED:
+                continue                            # already emitted at entry
             q = threads[k][parts[4]]
             q.append(atoken(parts[5], fact, ALPHABETS[k]))
             out[k][w].append(tuple(q))

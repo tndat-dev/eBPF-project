@@ -71,3 +71,19 @@ def test_select_keeps_errno_only_for_its_syscalls():
 def test_full_size_resolution_alphabets():
     assert last_tokens('full1') == ['openat:r:/etc', 'openat!ENOENT', 'read#6', 'mmap!ENOMEM']
     assert last_tokens('select1')[2] == 'read#6' and last_tokens('select1')[3] == 'mmap'
+
+
+def test_probe_order_emits_unhooked_calls_at_entry():
+    lines = ['1000000000 0 1 p 7 openat > dirfd=-100 name=/etc/x flags=1(O_RDONLY) mode=0',
+             '1000000100 0 1 p 7 mmap > addr=0 length=10',
+             '1000000200 0 1 p 7 mmap < res=-12(ENOMEM)',
+             '1000000300 0 1 p 7 openat < fd=4(<f>/etc/x) dirfd=-100 name=/etc/x flags=1(O_RDONLY) mode=0']
+    per = ta.alphabet_windows(lines, ('select1f', 'probe1f'))
+    exit_order = [g[-1] for v in per['select1f'].values() for g in v]
+    probe_order = [g[-1] for v in per['probe1f'].values() for g in v]
+    assert exit_order == ['mmap', 'openat:r:/etc'] and probe_order == ['mmap', 'openat:r:/etc']
+    lines2 = ['1000000000 0 1 p 7 mmap > addr=0', '1000000100 0 1 p 7 openat > dirfd=-100 name=/etc/x flags=1(O_RDONLY) mode=0',
+              '1000000200 0 1 p 7 openat < fd=4(<f>/etc/x) dirfd=-100 name=/etc/x flags=1(O_RDONLY) mode=0', '1000000300 0 1 p 7 mmap < res=0']
+    per = ta.alphabet_windows(lines2, ('select1f', 'probe1f'))
+    assert [g[-1] for v in per['select1f'].values() for g in v] == ['openat:r:/etc', 'mmap']
+    assert [g[-1] for v in per['probe1f'].values() for g in v] == ['mmap', 'openat:r:/etc']
