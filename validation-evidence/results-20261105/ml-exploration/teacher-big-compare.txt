@@ -1,0 +1,7 @@
+scenario | train s, epochs, vocabulary, unique pairs | a=.0005 det/FA LSTM, n-gram | AUC LSTM, n-gram | oracle recall at FA<=1% LSTM, n-gram | attacks, normals
+CVE-2017-12635_6      | 1510 20   42  460823 |  36/ 0  36/ 1 | 1.000 1.000 |  36  36 | 36 226
+CVE-2018-3760         |  645 20   69  165557 |   0/ 0  37/ 0 | 1.000 1.000 |  37  37 | 37 221
+CVE-2019-5418         |  811 20   73  201253 |   0/ 0  34/ 1 | 0.956 0.999 |   0  36 | 36 228
+Juice-Shop            | 1400 20   67  350520 |  13/ 0  23/ 1 | 0.896 0.940 |  24  23 | 36 228
+ZipSlip               |  412 20   98  107871 |   0/ 0  31/ 2 | 0.999 0.998 |  34  31 | 35 228
+total {'Ldet': 49, 'Lfa': 0, 'Ndet': 161, 'Nfa': 5, 'Lo': 131, 'No': 163, 'att': 180, 'nor': 1131}

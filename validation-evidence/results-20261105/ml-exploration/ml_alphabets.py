@@ -36,6 +36,17 @@ def run(alphabet, alpha, others, source, scenarios):
         det += d0; fa += f0; att += a0; nor += n0; per[s] = (d0, a0, f0, n0)
     return det, att, fa, nor, float(np.percentile(lat, 95)) if lat else float('nan'), per
 ds = [s for s in done if s != 'CB-DS']
+# gate: the column `full` must equal the registered token branch on every development and validation recording
+for s in ds:
+    z = np.load(f'{A}/{s}.npz'); j = names.index('full') + 1
+    zt, col, it, et, _ = m.Scenario(s, dict(scores=S + '/allwin', tokens=S + '/tokens')).branch['T']
+    worst = 0.0; n = 0
+    for k in z.files:
+        if k not in zt.files or not len(zt[k]): continue
+        ref = {float(w): float(x) for w, x in zip(zt[k][:, et], zt[k][:, it])}
+        for w, x in zip(z[k][:, 0], z[k][:, j]):
+            if float(w) in ref: worst = max(worst, abs(ref[float(w)] - float(x))); n += 1
+    print(f'gate {s}: {n} windows compared, largest difference {worst:.2e}')
 print('alphabet | alone a=.002: recall, FA, p95 | with tree+support a=.0005: recall, FA, p95 | CB-DS with tree+support det/att FA/n')
 for a in names:
     x = run(a, .002, (), doc, ds); y = run(a, .0005, ('tree', 'support'), doc, ds)
