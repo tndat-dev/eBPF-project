@@ -1,0 +1,22 @@
+scenarios done 6 ['CVE-2012-2122', 'CVE-2019-5418', 'CVE-2020-13942', 'EPS_CWE-434', 'Juice-Shop', 'ZipSlip']
+gate CVE-2012-2122: 213881 windows compared, largest difference 0.00e+00
+gate CVE-2019-5418: 59846 windows compared, largest difference 0.00e+00
+gate CVE-2020-13942: 78647 windows compared, largest difference 0.00e+00
+gate EPS_CWE-434: 51202 windows compared, largest difference 0.00e+00
+gate Juice-Shop: 69987 windows compared, largest difference 0.00e+00
+gate ZipSlip: 61219 windows compared, largest difference 0.00e+00
+alphabet | alone a=.002: recall, FA, p95 | with tree+support a=.0005: recall, FA, p95 | CB-DS with tree+support det/att FA/n
+base          | 197/214 92.06% 0.95% 1.52s | 192/214 89.72% 8/1368 0.58% 41.26s | -
+   per scenario with tree+support: {'CVE-2012-2122': '35/36,0', 'CVE-2019-5418': '33/36,0', 'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,1', 'ZipSlip': '31/35,1'}
+path2         | 197/214 92.06% 0.95% 1.52s | 192/214 89.72% 8/1368 0.58% 41.26s | -
+   per scenario with tree+support: {'CVE-2012-2122': '35/36,0', 'CVE-2019-5418': '33/36,0', 'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,1', 'ZipSlip': '31/35,1'}
+size1         | 200/214 93.46% 0.88% 1.43s | 200/214 93.46% 8/1368 0.58% 1.52s | -
+   per scenario with tree+support: {'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,1'}
+fd            | 193/214 90.19% 0.80% 1.52s | 142/214 66.36% 8/1368 0.58% 11.03s | -
+   per scenario with tree+support: {'CVE-2012-2122': '31/36,0', 'CVE-2019-5418': '7/36,0', 'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,2', 'ZipSlip': '11/35,0'}
+proc          | 195/214 91.12% 1.24% 1.49s | 194/214 90.65% 16/1368 1.17% 61.86s | -
+   per scenario with tree+support: {'CVE-2019-5418': '34/36,1', 'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,1', 'ZipSlip': '31/35,9'}
+n3            | 195/214 91.12% 0.58% 1.52s | 164/214 76.64% 7/1368 0.51% 28.87s | -
+   per scenario with tree+support: {'CVE-2012-2122': '33/36,0', 'CVE-2019-5418': '7/36,0', 'CVE-2020-13942': '34/35,4', 'Juice-Shop': '23/36,1', 'ZipSlip': '31/35,1'}
+n5            | 196/214 91.59% 1.02% 1.52s | 192/214 89.72% 10/1368 0.73% 4.17s | -
+   per scenario with tree+support: {'CVE-2012-2122': '35/36,0', 'CVE-2019-5418': '33/36,2', 'CVE-2020-13942': '34/35,5', 'Juice-Shop': '23/36,0', 'ZipSlip': '31/35,1'}

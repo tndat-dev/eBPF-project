@@ -66,3 +66,8 @@ def test_requested_size_zero_gives_no_size_token():
 
 def test_select_keeps_errno_only_for_its_syscalls():
     assert last_tokens('select') == ['openat:r:/etc', 'openat!ENOENT', 'read#3', 'mmap']
+
+
+def test_full_size_resolution_alphabets():
+    assert last_tokens('full1') == ['openat:r:/etc', 'openat!ENOENT', 'read#6', 'mmap!ENOMEM']
+    assert last_tokens('select1')[2] == 'read#6' and last_tokens('select1')[3] == 'mmap'

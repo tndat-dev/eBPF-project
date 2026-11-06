@@ -15,6 +15,7 @@ lidds_ml_tokens.py; only the tokens change:
     open_err_req  plus the requested I/O size at entry                               : exit of the opens
     name          the syscall name only                                              : none, the current probe's id
     select        errno of SELECT_ERR, open, returned I/O size                       : exit of SELECT_ERR, opens, reads, writes
+    full1, select1  as full and select with log2 size not halved; select1f adds futex errno (futex is a hot syscall)
 
 SELECT_ERR comes from the development inventory (lidds_ml_token_inventory.py: syscalls whose errno token is new in
 many attack recordings and rare in normal ones), so `select` is chosen with attack labels and its numbers are optimistic.
@@ -51,6 +52,10 @@ SELECT_ERR = frozenset({'stat', 'lstat', 'fstat', 'newfstatat', 'access', 'facce
                         'writev', 'ioctl', 'connect', 'execve', 'fcntl', 'close', 'rename', 'renameat', 'sendfile', 'unlink',
                         'unlinkat', 'mkdir', 'kill', 'recvfrom', 'shutdown'})
 ALPHABETS['select'] = dict(err=SELECT_ERR, open=True, size='exit')
+# the variant study (lidds_ml_token_variants.py, 6 weak scenarios) found log2 size without halving better: same alphabets at full size resolution
+ALPHABETS['full1'] = dict(err='all', open=True, size='exit', halve=False)
+ALPHABETS['select1'] = dict(err=SELECT_ERR, open=True, size='exit', halve=False)
+ALPHABETS['select1f'] = dict(err=SELECT_ERR | {'futex'}, open=True, size='exit', halve=False)
 REQUESTED = re.compile(r'\bsize=(\d+)')
 
 
@@ -67,9 +72,9 @@ def facts(name, args, requested):
             opened = f"{name}:{'w' if name == 'creat' else mode}:{top}"
     elif err is None and (name in signals.READS or name in signals.WRITES):
         size = signals.byte_count(args)
-        returned = None if size is None else signals.bucket(size) // 2
+        returned = None if size is None else signals.bucket(size)
     if name in signals.READS or name in signals.WRITES:
-        wanted = None if requested is None else signals.bucket(requested) // 2
+        wanted = None if requested is None else signals.bucket(requested)
     return err, opened, returned, wanted
 
 
@@ -81,6 +86,8 @@ def atoken(name, fact, a):
     if a['open'] and opened:
         return opened
     size = returned if a['size'] == 'exit' else wanted if a['size'] == 'entry' else None
+    if size is not None and a.get('halve', True):
+        size //= 2                                  # log2 size / 2, as lidds_ml_tokens.token
     return name if size is None else f'{name}#{size}'
 
 
