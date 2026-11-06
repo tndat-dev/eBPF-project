@@ -86,7 +86,7 @@ def alphabet_windows(lines, names, n=tk.N):
         args = parts[7] if len(parts) > 7 else ''
         if parts[6] == '>':
             m = REQUESTED.search(args)
-            requested[parts[4]] = int(m.group(1)) if m else None
+            requested[parts[4]] = int(m.group(1)) if m and int(m.group(1)) > 0 else None    # as byte_count: no size token for 0
             continue
         if parts[6] != '<':
             continue

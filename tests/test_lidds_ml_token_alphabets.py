@@ -55,3 +55,10 @@ def test_full_scores_equal_the_token_model(tmp_path):
     i = tk.COLUMNS.index('top10'); e = tk.COLUMNS.index('window_end')
     for k, a in ref.items():
         assert {float(w): round(float(x), 9) for w, x in zip(a[:, e], a[:, i]) if x} == {float(w): round(float(x), 9) for w, x in out[k] if x}
+
+
+def test_requested_size_zero_gives_no_size_token():
+    lines = ['1000000000 0 1 p 7 read > fd=4(<f>/etc/x) size=0', '1000000100 0 1 p 7 read < res=0 data=']
+    per = ta.alphabet_windows(lines, ('req', 'full'))
+    assert [g[-1] for v in per['req'].values() for g in v] == ['read']
+    assert [g[-1] for v in per['full'].values() for g in v] == ['read']
