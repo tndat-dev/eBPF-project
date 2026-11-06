@@ -1,0 +1,55 @@
+544 attack, 3403 normal development recordings
+attack recordings whose novel items are of one kind only: {}
+
+(syscall|kind): attack recordings, normal recordings (top 40 by attack count, excluding name)
+  write|size                    491 ( 90.3%)  normal  820 ( 24.1%)
+  read|size                     411 ( 75.6%)  normal  536 ( 15.8%)
+  open|open                     346 ( 63.6%)  normal  265 (  7.8%)
+  writev|size                   319 ( 58.6%)  normal  432 ( 12.7%)
+  stat|err                      272 ( 50.0%)  normal  117 (  3.4%)
+  open|err                      236 ( 43.4%)  normal   20 (  0.6%)
+  recvfrom|size                 219 ( 40.3%)  normal  234 (  6.9%)
+  access|err                    213 ( 39.2%)  normal   13 (  0.4%)
+  read|err                      191 ( 35.1%)  normal   57 (  1.7%)
+  ioctl|err                     177 ( 32.5%)  normal   25 (  0.7%)
+  openat|open                   149 ( 27.4%)  normal   55 (  1.6%)
+  futex|err                     143 ( 26.3%)  normal  840 ( 24.7%)
+  connect|err                   143 ( 26.3%)  normal    3 (  0.1%)
+  openat|err                    109 ( 20.0%)  normal    5 (  0.1%)
+  lstat|err                     108 ( 19.9%)  normal   15 (  0.4%)
+  execve|err                    104 ( 19.1%)  normal    0 (  0.0%)
+  pread|size                     91 ( 16.7%)  normal  215 (  6.3%)
+  sendto|size                    72 ( 13.2%)  normal   30 (  0.9%)
+  fcntl|err                      71 ( 13.1%)  normal    0 (  0.0%)
+  pwrite|size                    67 ( 12.3%)  normal    8 (  0.2%)
+  shutdown|err                   48 (  8.8%)  normal   47 (  1.4%)
+  recvfrom|err                   43 (  7.9%)  normal  126 (  3.7%)
+  close|err                      36 (  6.6%)  normal    0 (  0.0%)
+  rename|err                     36 (  6.6%)  normal    0 (  0.0%)
+  write|err                      36 (  6.6%)  normal   12 (  0.4%)
+  sendfile|err                   36 (  6.6%)  normal    3 (  0.1%)
+  unlink|err                     36 (  6.6%)  normal    0 (  0.0%)
+  mkdir|err                      36 (  6.6%)  normal   14 (  0.4%)
+  recvmsg|size                   36 (  6.6%)  normal    0 (  0.0%)
+  sendmsg|size                   35 (  6.4%)  normal    0 (  0.0%)
+  kill|err                       29 (  5.3%)  normal    0 (  0.0%)
+  writev|err                     13 (  2.4%)  normal    9 (  0.3%)
+
+syscalls whose exit (err or size) appears most in attack novelty: [('read', 602), ('write', 527), ('writev', 332), ('stat', 272), ('recvfrom', 262), ('open', 236), ('access', 213), ('ioctl', 177), ('futex', 143), ('connect', 143), ('openat', 109), ('lstat', 108), ('execve', 104), ('pread', 91), ('sendto', 72), ('fcntl', 71), ('pwrite', 67), ('shutdown', 48), ('close', 36), ('rename', 36)]
+
+per scenario, top exit items:
+  Bruteforce_CWE-307     shutdown|err 42, write|size 42, writev|size 42, open|err 42, read|size 42
+  CVE-2012-2122          read|err 36, write|size 36, pwrite|size 8, read|size 8, futex|err 3
+  CVE-2014-0160          read|size 36, writev|size 36
+  CVE-2017-12635_6       openat|err 36, access|err 36, write|size 36, writev|size 36, open|open 36
+  CVE-2017-7529          writev|size 36, recvfrom|size 36, open|open 36, sendfile|err 36, write|size 36
+  CVE-2018-3760          stat|err 37, recvfrom|size 37, write|size 37, ioctl|err 37, open|open 37
+  CVE-2019-5418          open|open 36, write|size 36, ioctl|err 33, read|size 8, openat|open 7
+  CVE-2020-13942         read|size 35, stat|err 34, access|err 34, write|size 34, execve|err 34
+  CVE-2020-23839         openat|err 36, stat|err 36, write|size 36, access|err 36, writev|size 36
+  CVE-2020-9484          openat|err 36, unlink|err 36, stat|err 36, access|err 36, write|size 36
+  CWE-89-SQL-injection   pwrite|size 36, recvfrom|size 36, write|size 36, sendto|size 36, writev|size 36
+  EPS_CWE-434            stat|err 36, recvfrom|size 36, access|err 36, write|size 36, sendto|size 36
+  Juice-Shop             read|size 31, open|open 27, writev|size 26, pwrite|size 23, read|err 23
+  PHP_CWE-434            stat|err 35, sendmsg|size 35, access|err 35, recvfrom|size 35, write|size 35
+  ZipSlip                recvfrom|size 35, write|size 35, open|err 35, read|size 35, open|open 33

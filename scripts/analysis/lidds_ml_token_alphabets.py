@@ -14,6 +14,10 @@ lidds_ml_tokens.py; only the tokens change:
     open_err      plus errno of the opens                                            : exit of the opens
     open_err_req  plus the requested I/O size at entry                               : exit of the opens
     name          the syscall name only                                              : none, the current probe's id
+    select        errno of SELECT_ERR, open, returned I/O size                       : exit of SELECT_ERR, opens, reads, writes
+
+SELECT_ERR comes from the development inventory (lidds_ml_token_inventory.py: syscalls whose errno token is new in
+many attack recordings and rare in normal ones), so `select` is chosen with attack labels and its numbers are optimistic.
 
 Official recordings are not read at all when --alarms is given.
 
@@ -43,6 +47,10 @@ ALPHABETS = dict(full=dict(err='all', open=True, size='exit'),
                  open_err=dict(err='opens', open=True, size=None),
                  open_err_req=dict(err='opens', open=True, size='entry'),
                  name=dict(err=None, open=False, size=None))
+SELECT_ERR = frozenset({'stat', 'lstat', 'fstat', 'newfstatat', 'access', 'faccessat', 'open', 'openat', 'creat', 'read', 'write',
+                        'writev', 'ioctl', 'connect', 'execve', 'fcntl', 'close', 'rename', 'renameat', 'sendfile', 'unlink',
+                        'unlinkat', 'mkdir', 'kill', 'recvfrom', 'shutdown'})
+ALPHABETS['select'] = dict(err=SELECT_ERR, open=True, size='exit')
 REQUESTED = re.compile(r'\bsize=(\d+)')
 
 
@@ -67,7 +75,8 @@ def facts(name, args, requested):
 
 def atoken(name, fact, a):
     err, opened, returned, wanted = fact
-    if err is not None and (a['err'] == 'all' or (a['err'] == 'opens' and name in signals.OPENS)):
+    if err is not None and (a['err'] == 'all' or (a['err'] == 'opens' and name in signals.OPENS)
+                            or (isinstance(a['err'], frozenset) and name in a['err'])):
         return f'{name}!{err}'
     if a['open'] and opened:
         return opened
@@ -142,12 +151,14 @@ def main():
     ap.add_argument('--archives', type=Path, required=True)
     ap.add_argument('--scenario', required=True)
     ap.add_argument('--alarms', type=Path, help='keep development recordings only; without it every recording (CB-DS)')
+    ap.add_argument('--alphabets', default=','.join(ALPHABETS), help='comma-separated subset')
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
+    names = tuple(a.alphabets.split(','))
     t0 = time.time()
-    out, meta = evaluate(a.archives / f'{a.scenario}.zip', wanted=development_only(a.alarms, a.scenario) if a.alarms else lambda n, s: True)
+    out, meta = evaluate(a.archives / f'{a.scenario}.zip', names, wanted=development_only(a.alarms, a.scenario) if a.alarms else lambda n, s: True)
     np.savez_compressed(a.output, **out)
-    a.output.with_suffix('.json').write_text(json.dumps(dict(scenario=a.scenario, columns=['window_end', *ALPHABETS], recordings=meta,
+    a.output.with_suffix('.json').write_text(json.dumps(dict(scenario=a.scenario, columns=['window_end', *names], recordings=meta,
                                                              seconds=time.time() - t0)))
     print(json.dumps(dict(scenario=a.scenario, recordings=len(out), seconds=round(time.time() - t0))))
 

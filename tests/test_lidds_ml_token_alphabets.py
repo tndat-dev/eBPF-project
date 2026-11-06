@@ -62,3 +62,7 @@ def test_requested_size_zero_gives_no_size_token():
     per = ta.alphabet_windows(lines, ('req', 'full'))
     assert [g[-1] for v in per['req'].values() for g in v] == ['read']
     assert [g[-1] for v in per['full'].values() for g in v] == ['read']
+
+
+def test_select_keeps_errno_only_for_its_syscalls():
+    assert last_tokens('select') == ['openat:r:/etc', 'openat!ENOENT', 'read#3', 'mmap']
