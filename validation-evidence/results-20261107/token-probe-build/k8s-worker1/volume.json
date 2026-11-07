@@ -1,0 +1,335 @@
+{
+ "seconds": 150.0,
+ "loader_bytes": 68879799,
+ "token_line_bytes": 43517513,
+ "token_bytes_per_second": 290116.75333333336,
+ "drain_seconds": {
+  "median": 0.006812,
+  "p95": 0.011273,
+  "max": 0.014647
+ },
+ "last_drain": {
+  "type": "token_drain",
+  "observed_at": 1794042810.977466,
+  "lines": 28,
+  "drain_seconds": 0.004658,
+  "entries_cumulative": 968174,
+  "grams_cumulative": 2904465,
+  "insert_fail_cumulative": 0,
+  "dir_fail_cumulative": 0
+ },
+ "events_by_kind": {
+  "name": 2129115,
+  "size": 390307,
+  "errno": 268630,
+  "open": 115756
+ },
+ "top_tokens": [
+  [
+   "newfstatat",
+   285065
+  ],
+  [
+   "futex",
+   175883
+  ],
+  [
+   "epoll_pwait",
+   163502
+  ],
+  [
+   "fstat",
+   160973
+  ],
+  [
+   "close",
+   134425
+  ],
+  [
+   "nanosleep",
+   132347
+  ],
+  [
+   "epoll_ctl",
+   130734
+  ],
+  [
+   "epoll_wait",
+   120310
+  ],
+  [
+   "mmap",
+   114106
+  ],
+  [
+   "lseek",
+   109520
+  ],
+  [
+   "openat:r:dir1aa31",
+   85076
+  ],
+  [
+   "read#12",
+   74524
+  ],
+  [
+   "rt_sigaction",
+   67723
+  ],
+  [
+   "openat!2",
+   66695
+  ],
+  [
+   "futex!110",
+   66356
+  ],
+  [
+   "read",
+   60160
+  ],
+  [
+   "ioctl!25",
+   55798
+  ],
+  [
+   "getpid",
+   51779
+  ],
+  [
+   "getcwd",
+   46720
+  ],
+  [
+   "brk",
+   42437
+  ],
+  [
+   "prctl",
+   40585
+  ],
+  [
+   "recvfrom#2",
+   38749
+  ],
+  [
+   "fcntl",
+   29915
+  ],
+  [
+   "newfstatat!2",
+   27530
+  ],
+  [
+   "read#9",
+   26636
+  ],
+  [
+   "mprotect",
+   26163
+  ],
+  [
+   "pread64#4",
+   26160
+  ],
+  [
+   "recvfrom!11",
+   19850
+  ],
+  [
+   "getdents64",
+   19524
+  ],
+  [
+   "ioctl",
+   17852
+  ],
+  [
+   "timerfd_settime",
+   14408
+  ],
+  [
+   "read#13",
+   13214
+  ],
+  [
+   "recvfrom#5",
+   12536
+  ],
+  [
+   "getsockname",
+   12153
+  ],
+  [
+   "recvfrom#6",
+   11362
+  ],
+  [
+   "read#15",
+   11174
+  ],
+  [
+   "stat!2",
+   10632
+  ],
+  [
+   "read#14",
+   10347
+  ],
+  [
+   "rt_sigreturn",
+   9913
+  ],
+  [
+   "read#6",
+   9797
+  ]
+ ],
+ "workloads": {
+  "production/aims-kafka-dual-role:kafka": {
+   "windows": 300,
+   "events_median": 643.5,
+   "events_max": 2586,
+   "grams_median": 94.0,
+   "grams_max": 813,
+   "bytes": 2105390
+  },
+  "production/aims-minio-pool-0:minio": {
+   "windows": 278,
+   "events_median": 49.0,
+   "events_max": 2407,
+   "grams_median": 34.0,
+   "grams_max": 604,
+   "bytes": 579331
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "windows": 236,
+   "events_median": 49.0,
+   "events_max": 156,
+   "grams_median": 41.0,
+   "grams_max": 102,
+   "bytes": 351015
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "windows": 299,
+   "events_median": 65,
+   "events_max": 1437,
+   "grams_median": 27,
+   "grams_max": 562,
+   "bytes": 889237
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "windows": 300,
+   "events_median": 150.5,
+   "events_max": 1258,
+   "grams_median": 49.0,
+   "grams_max": 284,
+   "bytes": 782346
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "windows": 300,
+   "events_median": 87.0,
+   "events_max": 805,
+   "grams_median": 41.0,
+   "grams_max": 470,
+   "bytes": 1104631
+  },
+  "production/aims-redis:aims-redis": {
+   "windows": 300,
+   "events_median": 46.0,
+   "events_max": 1471,
+   "grams_median": 30.5,
+   "grams_max": 507,
+   "bytes": 724983
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "windows": 300,
+   "events_median": 556.0,
+   "events_max": 1394,
+   "grams_median": 111.0,
+   "grams_max": 197,
+   "bytes": 1543347
+  },
+  "production/api-gateway:app": {
+   "windows": 600,
+   "events_median": 132.5,
+   "events_max": 2004,
+   "grams_median": 77.5,
+   "grams_max": 766,
+   "bytes": 3612079
+  },
+  "production/auth-service:app": {
+   "windows": 600,
+   "events_median": 20.0,
+   "events_max": 2046,
+   "grams_median": 7.5,
+   "grams_max": 653,
+   "bytes": 2583903
+  },
+  "production/cart-service:app": {
+   "windows": 300,
+   "events_median": 31.0,
+   "events_max": 1856,
+   "grams_median": 17.5,
+   "grams_max": 625,
+   "bytes": 1286890
+  },
+  "production/catalog-service:app": {
+   "windows": 600,
+   "events_median": 39.0,
+   "events_max": 2302,
+   "grams_median": 23.0,
+   "grams_max": 764,
+   "bytes": 3801515
+  },
+  "production/inventory-service:app": {
+   "windows": 600,
+   "events_median": 260.0,
+   "events_max": 2288,
+   "grams_median": 155.0,
+   "grams_max": 789,
+   "bytes": 5188847
+  },
+  "production/notification-service:app": {
+   "windows": 600,
+   "events_median": 43.0,
+   "events_max": 1928,
+   "grams_median": 21.0,
+   "grams_max": 556,
+   "bytes": 2842223
+  },
+  "production/order-service:app": {
+   "windows": 599,
+   "events_median": 242,
+   "events_max": 2238,
+   "grams_median": 142,
+   "grams_max": 788,
+   "bytes": 4497675
+  },
+  "production/payment-service:app": {
+   "windows": 900,
+   "events_median": 243.0,
+   "events_max": 1872,
+   "grams_median": 142.0,
+   "grams_max": 676,
+   "bytes": 6678668
+  },
+  "production/search-recommendation-service:app": {
+   "windows": 300,
+   "events_median": 17.0,
+   "events_max": 1852,
+   "grams_median": 7.0,
+   "grams_max": 613,
+   "bytes": 1241789
+  },
+  "production/security-telemetry-service:app": {
+   "windows": 900,
+   "events_median": 19.0,
+   "events_max": 1914,
+   "grams_median": 7.0,
+   "grams_max": 599,
+   "bytes": 3703644
+  }
+ }
+}

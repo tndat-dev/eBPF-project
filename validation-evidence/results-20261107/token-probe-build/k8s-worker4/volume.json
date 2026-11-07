@@ -1,0 +1,271 @@
+{
+ "seconds": 150.0,
+ "loader_bytes": 20030171,
+ "token_line_bytes": 11187186,
+ "token_bytes_per_second": 74581.24,
+ "drain_seconds": {
+  "median": 0.002102,
+  "p95": 0.003725,
+  "max": 0.005471
+ },
+ "last_drain": {
+  "type": "token_drain",
+  "observed_at": 1794042811.0475683,
+  "lines": 11,
+  "drain_seconds": 0.001908,
+  "entries_cumulative": 240946,
+  "grams_cumulative": 961989,
+  "insert_fail_cumulative": 0,
+  "dir_fail_cumulative": 0
+ },
+ "events_by_kind": {
+  "name": 616363,
+  "size": 233676,
+  "open": 14363,
+  "errno": 97384
+ },
+ "top_tokens": [
+  [
+   "epoll_wait",
+   232214
+  ],
+  [
+   "futex",
+   127673
+  ],
+  [
+   "recvfrom#2",
+   44832
+  ],
+  [
+   "recvfrom!11",
+   37451
+  ],
+  [
+   "futex!110",
+   36002
+  ],
+  [
+   "nanosleep",
+   33097
+  ],
+  [
+   "epoll_ctl",
+   26584
+  ],
+  [
+   "epoll_pwait",
+   26337
+  ],
+  [
+   "pread64#4",
+   26082
+  ],
+  [
+   "close",
+   18363
+  ],
+  [
+   "newfstatat",
+   16200
+  ],
+  [
+   "mmap",
+   15471
+  ],
+  [
+   "timerfd_settime",
+   15314
+  ],
+  [
+   "fstat",
+   13141
+  ],
+  [
+   "recvfrom#5",
+   12714
+  ],
+  [
+   "sendto#5",
+   11756
+  ],
+  [
+   "sendto#7",
+   9602
+  ],
+  [
+   "read#3",
+   9343
+  ],
+  [
+   "write#0",
+   9090
+  ],
+  [
+   "write#3",
+   9048
+  ],
+  [
+   "recvfrom#7",
+   8847
+  ],
+  [
+   "sendto#6",
+   8167
+  ],
+  [
+   "recvfrom#6",
+   7869
+  ],
+  [
+   "write#6",
+   7158
+  ],
+  [
+   "recvfrom#4",
+   6564
+  ],
+  [
+   "rt_sigaction",
+   6508
+  ],
+  [
+   "prctl",
+   6353
+  ],
+  [
+   "lseek",
+   6286
+  ],
+  [
+   "read!11",
+   6023
+  ],
+  [
+   "openat:r:dir1aa31",
+   5880
+  ],
+  [
+   "fcntl",
+   5723
+  ],
+  [
+   "recvfrom#10",
+   5607
+  ],
+  [
+   "read#7",
+   4797
+  ],
+  [
+   "brk",
+   4647
+  ],
+  [
+   "openat!2",
+   4584
+  ],
+  [
+   "read#8",
+   4482
+  ],
+  [
+   "read#0",
+   4397
+  ],
+  [
+   "read",
+   4277
+  ],
+  [
+   "read#12",
+   4208
+  ],
+  [
+   "getpid",
+   4094
+  ]
+ ],
+ "workloads": {
+  "production/aims-frontend:web": {
+   "windows": 249,
+   "events_median": 8,
+   "events_max": 1850,
+   "grams_median": 6,
+   "grams_max": 132,
+   "bytes": 163699
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "windows": 300,
+   "events_median": 741.5,
+   "events_max": 2728,
+   "grams_median": 95.0,
+   "grams_max": 824,
+   "bytes": 2105230
+  },
+  "production/aims-minio-pool-0:minio": {
+   "windows": 278,
+   "events_median": 38.0,
+   "events_max": 2186,
+   "grams_median": 31.0,
+   "grams_max": 530,
+   "bytes": 536562
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "windows": 254,
+   "events_median": 50.0,
+   "events_max": 157,
+   "grams_median": 42.0,
+   "grams_max": 114,
+   "bytes": 361558
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "windows": 300,
+   "events_median": 52.0,
+   "events_max": 1584,
+   "grams_median": 23.0,
+   "grams_max": 592,
+   "bytes": 855517
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "windows": 300,
+   "events_median": 161.0,
+   "events_max": 1265,
+   "grams_median": 51.0,
+   "grams_max": 178,
+   "bytes": 798158
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "windows": 300,
+   "events_median": 85.0,
+   "events_max": 972,
+   "grams_median": 40.0,
+   "grams_max": 472,
+   "bytes": 1080990
+  },
+  "production/aims-redis:aims-redis": {
+   "windows": 300,
+   "events_median": 29.0,
+   "events_max": 757,
+   "grams_median": 18.0,
+   "grams_max": 446,
+   "bytes": 820125
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "windows": 600,
+   "events_median": 587.0,
+   "events_max": 1667,
+   "grams_median": 114.0,
+   "grams_max": 556,
+   "bytes": 3207325
+  },
+  "production/cart-service:app": {
+   "windows": 300,
+   "events_median": 22.0,
+   "events_max": 1927,
+   "grams_median": 8.0,
+   "grams_max": 569,
+   "bytes": 1258022
+  }
+ }
+}

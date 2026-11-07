@@ -1,0 +1,17 @@
+{
+  "artifact_sha256": {
+    "pulse_counter_tokens.bpf.o": "02dc3605e05ff70f5240857b5d23a78888dbb83c34cff241fca0a63161c1a802",
+    "pulse_counter_tokens_loader": "4b196a6610ae230a492d46ed7bf1482d0816477d809bfab463707c8e25c1b211",
+    "seccomp_fixture": "18f796ba394942a30da6414ea1da2dbc6eb95fb8b6b8d0ca32b2b785263536c0",
+    "syscall_bench": "f70dba01f0e95ac0c6ee7a413339c20696a79ac82b60991c3075aabbe4667fa1"
+  },
+  "cgroup_id": 8082788,
+  "cgroup_path": "/sys/fs/cgroup/pulse-token-proof",
+  "isolated_cgroup_only": true,
+  "kernel": "6.8.0-138-generic",
+  "modifies_production_policies": false,
+  "schema": "pulse-token-proof-start-v1",
+  "source_commit": "46e9039ae172c2fb60888085dded82cbe00cabd8",
+  "started_at_unix": 1794042640.989781,
+  "token_exit": "sys_exit"
+}

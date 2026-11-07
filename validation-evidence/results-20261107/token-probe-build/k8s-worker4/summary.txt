@@ -1,0 +1,25 @@
+{
+ "seconds": 150.0,
+ "token_bytes_per_second": 74581.24,
+ "drain_seconds": {
+  "median": 0.002102,
+  "p95": 0.003725,
+  "max": 0.005471
+ },
+ "events_by_kind": {
+  "name": 616363,
+  "size": 233676,
+  "open": 14363,
+  "errno": 97384
+ }
+}
+production/aims-frontend:web                            win   249 events med        8 max     1850 grams med      6 max    132
+production/aims-kafka-dual-role:kafka                   win   300 events med      742 max     2728 grams med     95 max    824
+production/aims-minio-pool-0:minio                      win   278 events med       38 max     2186 grams med     31 max    530
+production/aims-minio-pool-0:sidecar                    win   254 events med       50 max      157 grams med     42 max    114
+production/aims-postgres-cnpg:postgres                  win   300 events med       52 max     1584 grams med     23 max    592
+production/aims-rabbitmq-server:rabbitmq                win   300 events med      161 max     1265 grams med     51 max    178
+production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel win   300 events med       85 max      972 grams med     40 max    472
+production/aims-redis:aims-redis                        win   300 events med       29 max      757 grams med     18 max    446
+production/aims-waypoint:istio-proxy                    win   600 events med      587 max     1667 grams med    114 max    556
+production/cart-service:app                             win   300 events med       22 max     1927 grams med      8 max    569

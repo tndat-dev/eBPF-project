@@ -1,0 +1,33 @@
+{
+ "seconds": 150.0,
+ "token_bytes_per_second": 290116.75333333336,
+ "drain_seconds": {
+  "median": 0.006812,
+  "p95": 0.011273,
+  "max": 0.014647
+ },
+ "events_by_kind": {
+  "name": 2129115,
+  "size": 390307,
+  "errno": 268630,
+  "open": 115756
+ }
+}
+production/aims-kafka-dual-role:kafka                   win   300 events med      644 max     2586 grams med     94 max    813
+production/aims-minio-pool-0:minio                      win   278 events med       49 max     2407 grams med     34 max    604
+production/aims-minio-pool-0:sidecar                    win   236 events med       49 max      156 grams med     41 max    102
+production/aims-postgres-cnpg:postgres                  win   299 events med       65 max     1437 grams med     27 max    562
+production/aims-rabbitmq-server:rabbitmq                win   300 events med      150 max     1258 grams med     49 max    284
+production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel win   300 events med       87 max      805 grams med     41 max    470
+production/aims-redis:aims-redis                        win   300 events med       46 max     1471 grams med     30 max    507
+production/aims-waypoint:istio-proxy                    win   300 events med      556 max     1394 grams med    111 max    197
+production/api-gateway:app                              win   600 events med      132 max     2004 grams med     78 max    766
+production/auth-service:app                             win   600 events med       20 max     2046 grams med      8 max    653
+production/cart-service:app                             win   300 events med       31 max     1856 grams med     18 max    625
+production/catalog-service:app                          win   600 events med       39 max     2302 grams med     23 max    764
+production/inventory-service:app                        win   600 events med      260 max     2288 grams med    155 max    789
+production/notification-service:app                     win   600 events med       43 max     1928 grams med     21 max    556
+production/order-service:app                            win   599 events med      242 max     2238 grams med    142 max    788
+production/payment-service:app                          win   900 events med      243 max     1872 grams med    142 max    676
+production/search-recommendation-service:app            win   300 events med       17 max     1852 grams med      7 max    613
+production/security-telemetry-service:app               win   900 events med       19 max     1914 grams med      7 max    599

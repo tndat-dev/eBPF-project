@@ -45,8 +45,8 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    `token-probe-overhead-v1`). Worker: `tokens.jsonl`, chấm token (`TokenBranch`), nhánh đếm v3 (`v3_counts`). Proof:
    `scripts/token_probe_proof.py` (đúng 1 token/syscall). Overhead 3 lần trong `results-20261107/token-probe-overhead/`;
    bản cuối so với A: getpid +127–174 ns, open + close +0,94–1,23 µs, futex +216–298 ns. Sơ đồ kiến trúc: `docs/architecture/`.
-2. Sau lần đo 3: build `/home/dat/pulse-tokens-20261107/{build,proof}` trên 3 worker từ commit, proof; kiểm lưu lượng trên pod thật
-   (`token_probe_volume.py`).
+2. Bản build chính thức `/home/dat/pulse-tokens-20261107/{build,proof}` (46e9039, proof đạt 3 worker); lưu lượng trên pod thật
+   75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
 3. `pulse-live-v3-v1`: lượt thu normal 12 h (`pulse-token-capture-<MMDD>`) → fit (`token_branch_fit.py`, `count_branch_fit.py`)
    → lượt live blind 24 h. Không chạy chồng ablation vòng 2 (đang dump điểm trên `.234`, ước xong khoảng tối 08/11).
 4. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
