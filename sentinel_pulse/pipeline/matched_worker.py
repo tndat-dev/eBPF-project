@@ -19,6 +19,8 @@ import time
 from ..detector.candidate_policy import load_preview_policy
 from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
+from ..collector.token_capture import token_window
+from ..detector.token_model import TokenBranch
 from ..detector.idle_batch import IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
 from ..detector.novelty import PeerNovelty, id_mask
@@ -150,6 +152,14 @@ def run(config_path):
             rc.get('window_hours',12),rc.get('refresh_hours',1),rc.get('publish_delay_seconds',60),
             rc.get('refresh_delay_seconds',300),rc.get('minimum_examples',1200),rc.get('exclude_intervals'),
             root/'recalibration.jsonl',keep_shared_hours=rc.get('keep_shared_hours')).start()
+    # token probe of lidds-ml-v3 (cfg tokens: {"mode": "grams", "models": {...}}; loader and object from make tokens):
+    # the loader adds token_grams / token_drain lines to each frame, written to tokens.jsonl per segment; with models
+    # (detector/token_model.py TokenBranch) each window is scored at once and also written as a decision, branch token
+    tokens_cfg=cfg.get('tokens')
+    loader_args=['--tokens',tokens_cfg.get('mode','grams')] if tokens_cfg else []
+    token_branch=TokenBranch(tokens_cfg['models'],sha256_file) if tokens_cfg and tokens_cfg.get('models') else None
+    if tokens_cfg:
+        state.setdefault('token_windows',0);state.setdefault('token_scored',0);state.setdefault('token_alerts',0)
     stop=False
     def stopped(*_):
         nonlocal stop
@@ -165,7 +175,7 @@ def run(config_path):
         segment.mkdir(parents=True)
         stream=ExtendedFeatureStream(include_idle=True)
         runtime=IdleBatchRuntime(scorer,policy,fast=bool(cfg.get('fast_scoring',False)),novelty=novelty)
-        previous={};metadata={};mtime=None;pending=[];buffer=b'';last=None
+        previous={};metadata={};mtime=None;pending=[];token_pending=[];buffer=b'';last=None
         segment_begin=time.monotonic();last_data=segment_begin;checkpoint=segment_begin
         def issue(reason):
             state['issues']+=1
@@ -180,11 +190,12 @@ def run(config_path):
         with (shared_sink(raw_path) if raw_path else NullSink()) as raw,shared_sink(segment/'features.jsonl') as features,\
              shared_sink(segment/'decisions.jsonl') as decisions,(segment/'issues.jsonl').open('x') as issues,\
              (segment/'loader.log').open('x') as errors,\
-             ((local_segment/'decisions.jsonl').open('x') if local_segment else NullSink()) as local:
+             ((local_segment/'decisions.jsonl').open('x') if local_segment else NullSink()) as local,\
+             (shared_sink(segment/'tokens.jsonl') if tokens_cfg else NullSink()) as tokens:
             schemas=set()
             try:
                 child=subprocess.Popen([cfg['loader'],'--object',cfg['object'],'--allow-cgroup-file',
-                    '/run/sentinel-pulse/allowed-cgroups','--interval-ms','500'],stdout=subprocess.PIPE,stderr=errors)
+                    '/run/sentinel-pulse/allowed-cgroups','--interval-ms','500',*loader_args],stdout=subprocess.PIPE,stderr=errors)
                 while not stop and state['completed_seconds']<cfg['seconds']:
                     if not select.select([child.stdout],[],[],1)[0]:
                         if child.poll() is not None or time.monotonic()-last_data>30:
@@ -195,11 +206,16 @@ def run(config_path):
                     buffer+=chunk;last_data=time.monotonic()
                     if len(buffer)>8*1024**2:issue('oversized_frame');break
                     while b'\n' in buffer:
-                        line,buffer=buffer.split(b'\n',1);raw.write(line.decode()+'\n')
+                        line,buffer=buffer.split(b'\n',1)
+                        if not line.startswith(b'{"type":"token_grams"'):raw.write(line.decode()+'\n')   # tokens.jsonl keeps them
                         try:
                             row=json.loads(line)
                             if row['type']=='cgroup_snapshot_extended':pending.append(row);continue
                             if row['type']=='stat':stream.stats[row['name']]=int(row['cumulative']);continue
+                            if tokens_cfg and row['type']=='token_grams':token_pending.append(row);continue
+                            if tokens_cfg and row['type']=='token_drain':
+                                state['token_drain']={k:row[k] for k in ('drain_seconds','entries_cumulative',
+                                    'grams_cumulative','insert_fail_cumulative','path_fail_cumulative')};continue
                             if row['type']!='snapshot_end':raise ValueError('unexpected frame record')
                             boundary=float(row['observed_at']);now=time.time()
                             if last is not None:
@@ -261,12 +277,31 @@ def run(config_path):
                                     state['scored_rows']+=decision['status']=='candidate-raw-score-only'
                                     state['preview_positive']+=decision.get('candidate_alert_preview') is True
                             if exchange is not None:exchange.publish(novelty.drain_outbox())
+                            for token_row in token_pending:
+                                window=token_window(token_row,metadata)
+                                if window is None:continue
+                                window.update(run_id=cfg['run_id'],capture_segment=segment.name,emitted_at=now)
+                                scored=token_branch.score(window) if token_branch is not None else None
+                                if scored is not None:
+                                    window.update(scored,token_scored_at=time.time())
+                                    decision=dict(status='token-score',branch='token',
+                                        candidate_alert_preview=scored['token_alert'],
+                                        window_start=window['window_end']-.5,interval_ms=500,
+                                        preview_emitted_at=window['token_scored_at'],
+                                        **{k:window[k] for k in ('node_name','window_end','workload_key','pod_uid',
+                                            'container_name','workload_revision','cgroup_id','run_id','capture_segment',
+                                            'token_score','token_threshold','events')})
+                                    line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
+                                    decisions.write(line);local.write(line)
+                                    state['token_scored']+=1;state['token_alerts']+=scored['token_alert']
+                                tokens.write(json.dumps(window,separators=(',',':'))+'\n');state['token_windows']+=1
+                            token_pending=[]
                             state['feature_rows']+=len(records);state['frames']+=1;pending=[]
                             # Frame flush makes each preview available without waiting for later windows.
-                            features.flush();decisions.flush();raw.flush();local.flush()
+                            features.flush();decisions.flush();raw.flush();local.flush();tokens.flush()
                             if scores is not None:scores.flush()
                         except (ValueError,KeyError,TypeError,OverflowError) as exc:
-                            issue(str(exc));pending=[];stream.builders.clear();stream.previous.clear()
+                            issue(str(exc));pending=[];token_pending=[];stream.builders.clear();stream.previous.clear()
                             runtime.history.histories.clear();previous.clear();last=None
                     if time.monotonic()-checkpoint>=5:
                         state.update(state='running',updated_at_unix=time.time(),current_segment=segment.name,
@@ -274,7 +309,7 @@ def run(config_path):
                         if exchange is not None:state['peer_exchange']=exchange.stats()
                         if tripwire is not None:state['tripwire']=dict(tripwire.stats)
                         if recal is not None:state['recalibration']=dict(recal.stats,epoch=recal.epoch)
-                        if shared:state['shared_writes']={s.path.name:dict(s.stats) for s in (raw,features,decisions)
+                        if shared:state['shared_writes']={s.path.name:dict(s.stats) for s in (raw,features,decisions,tokens)
                                                           if isinstance(s,AsyncSink)}
                         save_state();checkpoint=time.monotonic()
                         if (time.monotonic()-segment_begin>=1800 or
@@ -285,7 +320,7 @@ def run(config_path):
                     child.terminate()
                     try:child.wait(timeout=5)
                     except subprocess.TimeoutExpired:child.kill();child.wait()
-                for sink in (raw,features,decisions,issues,local):
+                for sink in (raw,features,decisions,issues,local,tokens):
                     if isinstance(sink,AsyncSink):sink.close();continue
                     sink.flush()
                     if not isinstance(sink,NullSink):os.fsync(sink.fileno())

@@ -86,3 +86,15 @@ exec-intent: check-deps
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(EXEC_INTENT_BUILD_DIR)/vmlinux.h"
 	$(CLANG) $(BPF_CFLAGS) -I"$(EXEC_INTENT_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT -c pulse_counter.bpf.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent.bpf.o"
 	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT pulse_counter_loader.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent_loader" -lbpf -lelf -lz
+
+# Token probe of lidds-ml-v3 (reports/Thiết kế probe token Pulse.md): the matched full-ID observable plus fexit token
+# hooks and the per-window 4-gram map. Build only; the live matched build above is unchanged.
+.PHONY: tokens
+tokens: check-deps
+	@test -n "$(TOKENS_BUILD_DIR)" || { echo 'explicit TOKENS_BUILD_DIR required' >&2; exit 2; }
+	mkdir -p "$(TOKENS_BUILD_DIR)"
+	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(TOKENS_BUILD_DIR)/vmlinux.h"
+	$(CLANG) $(BPF_CFLAGS) -I"$(TOKENS_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_TOKENS -c pulse_counter.bpf.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_TOKENS pulse_counter_loader.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens_loader" -lbpf -lelf -lz
+	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(TOKENS_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
+	$(CC) -O2 -Wall -Wextra -Werror ../../testbed/bench/syscall_bench.c -o "$(TOKENS_BUILD_DIR)/syscall_bench"

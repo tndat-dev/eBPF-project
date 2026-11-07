@@ -17,6 +17,10 @@
 #define PULSE_SNAPSHOT_RETRY_DELAY_US 50
 #define PULSE_TARGET_REFRESH_RETRIES 5
 
+#ifdef PULSE_TOKENS
+#include <linux/types.h>
+#include "pulse_token_ids.h"
+#endif
 #ifdef PULSE_PROJECTED_COUNTERS
 #include "pulse_counter_projection.h"
 #else
@@ -50,6 +54,21 @@ static int contains(const uint64_t *values, size_t count, uint64_t candidate)
     return 0;
 }
 
+#ifdef PULSE_TOKENS
+static uint64_t *token_targets;
+static size_t token_target_count;
+
+static void remember_targets(const uint64_t *ids, size_t count)
+{
+    uint64_t *copy = malloc(count * sizeof(*copy));
+    if (!copy) return;   /* keep the previous list */
+    memcpy(copy, ids, count * sizeof(*copy));
+    free(token_targets);
+    token_targets = copy;
+    token_target_count = count;
+}
+#endif
+
 static int refresh_targets(int map_fd, const char *path, int cpu_count)
 {
     FILE *handle = fopen(path, "r");
@@ -75,6 +94,9 @@ static int refresh_targets(int map_fd, const char *path, int cpu_count)
     }
     fclose(handle);
     if (count == 0) { free(desired); free(per_cpu); return 0; }
+#ifdef PULSE_TOKENS
+    remember_targets(desired, count);
+#endif
 
     for (size_t index = 0; index < count; index++) {
         if (bpf_map_lookup_elem(map_fd, &desired[index], per_cpu) < 0 &&
@@ -266,23 +288,173 @@ static int print_snapshots(
     return printed;
 }
 
+#ifdef PULSE_TOKENS
+#define PULSE_GRAM_ENTRIES 262144
+#define PULSE_DRAIN_GUARD_NS 20000000ULL   /* BPF programs run with migration off: a gram is in its map microseconds after its ktime */
+static struct pulse_gram_key *gram_keys, *old_keys;
+static uint64_t *gram_values;
+static uint32_t *old_index;
+static const struct pulse_gram_key *sort_keys;
+
+static uint64_t mono_ns(void)
+{
+    struct timespec value;
+    clock_gettime(CLOCK_MONOTONIC, &value);
+    return (uint64_t)value.tv_sec * 1000000000ULL + (uint64_t)value.tv_nsec;
+}
+
+static int by_cgroup_window(const void *left, const void *right)
+{
+    const struct pulse_gram_key *a = &sort_keys[*(const uint32_t *)left], *b = &sort_keys[*(const uint32_t *)right];
+    if (a->cgroup_id != b->cgroup_id) return a->cgroup_id < b->cgroup_id ? -1 : 1;
+    if (a->window != b->window) return a->window < b->window ? -1 : 1;
+    return 0;
+}
+
+static int is_target(uint64_t cgroup_id)
+{
+    for (size_t index = 0; index < token_target_count; index++)
+        if (token_targets[index] == cgroup_id) return 1;
+    return 0;
+}
+
+/* Print and delete every gram of a window that has closed (window < now_window). One line per (cgroup, window):
+ * {"type":"token_grams","window":W,"window_end":wall end,"events":sum,"grams":[[t0,t1,t2,t3,count],...]}. */
+static long drain_grams(int map_fd, uint64_t now_window, double wall_minus_mono, uint64_t *drained_total)
+{
+    uint32_t batch = 0, count = 0, total = 0;
+    int first = 1;
+    for (;;) {
+        count = PULSE_GRAM_ENTRIES - total;
+        if (count == 0) break;
+        if (count > 8192) count = 8192;
+        int result = bpf_map_lookup_batch(map_fd, first ? NULL : &batch, &batch,
+                                          gram_keys + total, gram_values + total, &count, NULL);
+        int error = result < 0 ? errno : 0;
+        total += count;
+        first = 0;
+        if (error == ENOENT) break;
+        if (error) { fprintf(stderr, "gram batch lookup: %s\n", strerror(error)); return -error; }
+    }
+    uint32_t old = 0;
+    for (uint32_t index = 0; index < total; index++)
+        if (gram_keys[index].window < now_window) old_index[old++] = index;
+    sort_keys = gram_keys;
+    qsort(old_index, old, sizeof(*old_index), by_cgroup_window);
+    long lines = 0;
+    for (uint32_t start = 0; start < old;) {
+        const struct pulse_gram_key *head = &gram_keys[old_index[start]];
+        uint32_t end = start;
+        uint64_t events = 0;
+        while (end < old && gram_keys[old_index[end]].cgroup_id == head->cgroup_id &&
+               gram_keys[old_index[end]].window == head->window)
+            events += gram_values[old_index[end++]];
+        if (is_target(head->cgroup_id)) {
+            printf("{\"type\":\"token_grams\",\"contract\":\"pulse-token-select1f-v1\",\"cgroup_id\":%llu,\"window\":%u,"
+                   "\"window_end\":%.3f,\"events\":%llu,\"grams\":[",
+                   (unsigned long long)head->cgroup_id, head->window,
+                   (double)(head->window + 1) * 0.5 + wall_minus_mono, (unsigned long long)events);
+            for (uint32_t index = start; index < end; index++) {
+                const struct pulse_gram_key *key = &gram_keys[old_index[index]];
+                printf("%s[%u,%u,%u,%u,%llu]", index > start ? "," : "", key->tok[0], key->tok[1], key->tok[2],
+                       key->tok[3], (unsigned long long)gram_values[old_index[index]]);
+            }
+            printf("]}\n");
+            lines++;
+        }
+        start = end;
+    }
+    for (uint32_t index = 0; index < old; index++)
+        old_keys[index] = gram_keys[old_index[index]];
+    for (uint32_t done = 0; done < old;) {
+        uint32_t chunk = old - done;
+        if (bpf_map_delete_batch(map_fd, old_keys + done, &chunk, NULL) < 0) {
+            if (errno != ENOENT) { fprintf(stderr, "gram batch delete: %s\n", strerror(errno)); return -errno; }
+            chunk++;   /* the key at done + chunk is already gone: skip it */
+        }
+        done += chunk;
+    }
+    *drained_total += old;
+    return lines;
+}
+
+static uint64_t tok_stat_sum(int fd, uint32_t index, int cpu_count, uint64_t *scratch)
+{
+    uint64_t sum = 0;
+    if (bpf_map_lookup_elem(fd, &index, scratch) == 0)
+        for (int cpu = 0; cpu < cpu_count; cpu++) sum += scratch[cpu];
+    return sum;
+}
+#endif
+
 int main(int argc, char **argv)
 {
     const char *object_path = NULL, *allow_file = NULL;
     unsigned interval_ms = 1000;
+#ifdef PULSE_TOKENS
+    const char *token_mode = "grams", *token_exit = "sys_exit";
+#endif
     for (int index = 1; index < argc; index++) {
         if (!strcmp(argv[index], "--object") && index + 1 < argc) object_path = argv[++index];
         else if (!strcmp(argv[index], "--allow-cgroup-file") && index + 1 < argc) allow_file = argv[++index];
         else if (!strcmp(argv[index], "--interval-ms") && index + 1 < argc) interval_ms = (unsigned)strtoul(argv[++index], NULL, 10);
+#ifdef PULSE_TOKENS
+        else if (!strcmp(argv[index], "--tokens") && index + 1 < argc) token_mode = argv[++index];
+        else if (!strcmp(argv[index], "--token-exit") && index + 1 < argc) token_exit = argv[++index];
+#endif
         else { fprintf(stderr, "usage: %s --object PATH --allow-cgroup-file PATH [--interval-ms 1000]\n", argv[0]); return 2; }
     }
     if (!object_path || !allow_file || interval_ms < 100 || interval_ms > 60000) return 2;
+#ifdef PULSE_TOKENS
+    /* overhead conditions of reports/Thiết kế probe token Pulse.md: B exit-nofutex, C exit, D grams (the live probe) */
+    struct pulse_tok_config token_config;
+    if (!strcmp(token_mode, "exit-nofutex")) token_config = (struct pulse_tok_config){ .futex_at_exit = 0, .count_grams = 0 };
+    else if (!strcmp(token_mode, "exit")) token_config = (struct pulse_tok_config){ .futex_at_exit = 1, .count_grams = 0 };
+    else if (!strcmp(token_mode, "grams")) token_config = (struct pulse_tok_config){ .futex_at_exit = 1, .count_grams = 1 };
+    else { fprintf(stderr, "--tokens must be exit-nofutex, exit or grams\n"); return 2; }
+    /* where hooked calls give their token at return: one raw_tp/sys_exit program (default) or one fexit trampoline
+     * per hooked syscall (pulse_tokens.bpf.h explains why fexit slows other ftrace users' functions) */
+    int exit_by_tracepoint = !strcmp(token_exit, "sys_exit");
+    if (!exit_by_tracepoint && strcmp(token_exit, "fexit")) { fprintf(stderr, "--token-exit must be sys_exit or fexit\n"); return 2; }
+    if (token_config.count_grams && interval_ms % 500) { fprintf(stderr, "--tokens grams needs an interval that is a multiple of 500 ms\n"); return 2; }
+    gram_keys = calloc(PULSE_GRAM_ENTRIES, sizeof(*gram_keys));
+    old_keys = calloc(PULSE_GRAM_ENTRIES, sizeof(*old_keys));
+    gram_values = calloc(PULSE_GRAM_ENTRIES, sizeof(*gram_values));
+    old_index = calloc(PULSE_GRAM_ENTRIES, sizeof(*old_index));
+    if (!gram_keys || !old_keys || !gram_values || !old_index) { fprintf(stderr, "cannot allocate gram buffers\n"); return 1; }
+#endif
     signal(SIGINT, stop); signal(SIGTERM, stop); libbpf_set_strict_mode(LIBBPF_STRICT_ALL);
     int cpu_count = libbpf_num_possible_cpus();
     if (cpu_count <= 0) { fprintf(stderr, "cannot determine possible CPUs\n"); return 1; }
     struct bpf_object *object = bpf_object__open_file(object_path, NULL);
     int error = libbpf_get_error(object);
     if (error) { fprintf(stderr, "open BPF object: %s\n", strerror(-error)); return 1; }
+#ifdef PULSE_TOKENS
+    struct bpf_map *token_config_map = bpf_object__find_map_by_name(object, ".rodata.tokcfg");
+    if (!token_config_map || bpf_map__set_initial_value(token_config_map, &token_config, sizeof(token_config))) {
+        fprintf(stderr, "token config section missing or of another size\n"); bpf_object__close(object); return 1;
+    }
+    struct bpf_program *token_program;
+    /* PULSE_TOK_SKIP=name,name,...: diagnostic only (which hook costs what); a skipped hook's syscall still waits for
+     * a token at return that never comes, so tokens are wrong with it set. Never set in a run. */
+    const char *token_skip = getenv("PULSE_TOK_SKIP");
+    int token_skipped = 0;
+    bpf_object__for_each_program(token_program, object) {   /* a program never attached need not be loaded */
+        const char *name = bpf_program__name(token_program);
+        if (!token_config.futex_at_exit && !strcmp(name, "pulse_tok_x_futex"))
+            bpf_program__set_autoload(token_program, false);
+        if (exit_by_tracepoint ? !strncmp(name, "pulse_tok_x_", 12) : !strcmp(name, "pulse_tok_sys_exit"))
+            bpf_program__set_autoload(token_program, false);
+        if (token_skip && !strncmp(name, "pulse_tok_", 10)) {
+            size_t length = strlen(name);
+            for (const char *at = strstr(token_skip, name); at; at = strstr(at + 1, name))
+                if ((at == token_skip || at[-1] == ',') && (at[length] == 0 || at[length] == ',')) {
+                    bpf_program__set_autoload(token_program, false); token_skipped++; break;
+                }
+        }
+    }
+    if (token_skipped) fprintf(stderr, "diagnostic: %d token hooks skipped (PULSE_TOK_SKIP); tokens are not valid\n", token_skipped);
+#endif
     if ((error = bpf_object__load(object))) { fprintf(stderr, "load BPF object: %s\n", strerror(-error)); bpf_object__close(object); return 1; }
     int cgroups_fd = bpf_object__find_map_fd_by_name(object, "pulse_cgroups");
     int stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_stats");
@@ -330,12 +502,43 @@ int main(int argc, char **argv)
     exit_link = program ? bpf_program__attach_raw_tracepoint(program, "sys_exit") : NULL;
     if (!program || libbpf_get_error(exit_link)) { fprintf(stderr, "exec-intent: sys_exit hook unavailable\n"); return 1; }
 #endif
+#ifdef PULSE_TOKENS
+    struct bpf_link *token_links[PULSE_HOOKED_COUNT + 1] = {0};
+    int token_link_count = 0;
+    bpf_object__for_each_program(token_program, object) {
+        const char *name = bpf_program__name(token_program);
+        if (strncmp(name, "pulse_tok_", 10) || !bpf_program__autoload(token_program)) continue;
+        if (token_link_count == PULSE_HOOKED_COUNT + 1) { fprintf(stderr, "more token programs than hooked syscalls\n"); return 1; }
+        struct bpf_link *token_link = !strcmp(name, "pulse_tok_sys_exit")
+            ? bpf_program__attach_raw_tracepoint(token_program, "sys_exit") : bpf_program__attach_trace(token_program);
+        if (libbpf_get_error(token_link)) { fprintf(stderr, "token hook %s unavailable\n", name); return 1; }
+        token_links[token_link_count++] = token_link;
+    }
+    int token_expected = exit_by_tracepoint ? 2 : PULSE_HOOKED_COUNT + (token_config.futex_at_exit ? 1 : 0);
+    if (token_link_count + token_skipped != token_expected) {
+        fprintf(stderr, "token hooks attached: %d, expected %d\n", token_link_count, token_expected);
+        return 1;
+    }
+    int grams_fd = bpf_object__find_map_fd_by_name(object, "pulse_grams");
+    int token_stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_tok_stats");
+    uint64_t *token_scratch = calloc((size_t)cpu_count, sizeof(uint64_t));
+    if (grams_fd < 0 || token_stats_fd < 0 || !token_scratch) { fprintf(stderr, "token maps missing\n"); return 1; }
+    uint64_t grams_drained = 0;
+    fprintf(stderr, "token probe: mode=%s exit=%s hooks=%d\n", token_mode, token_exit, token_link_count);
+#endif
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;
     uint64_t consistency_retry_exhausted = 0;
     uint64_t projection_failures = 0;
     while (!exiting) {
+#ifdef PULSE_TOKENS
+        /* wake just after a 0.5 s boundary of CLOCK_MONOTONIC (the clock of the gram windows) */
+        uint64_t step = (uint64_t)interval_ms * 1000000ULL, wake = (mono_ns() / step + 1) * step + PULSE_DRAIN_GUARD_NS;
+        struct timespec until = { .tv_sec = (time_t)(wake / 1000000000ULL), .tv_nsec = (long)(wake % 1000000000ULL) };
+        while (clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &until, NULL) == EINTR && !exiting) {}
+#else
         usleep(interval_ms * 1000U);
+#endif
         /* SIGTERM can interrupt usleep. Do not turn that shortened sleep into
          * a final partial feature window; detach cleanly at the boundary. */
         if (exiting)
@@ -353,6 +556,24 @@ int main(int argc, char **argv)
          * timestamped later than the window end used for latency evidence. */
         double observed_at = wall_time();
         double snapshot_read_seconds = observed_at - snapshot_started_at;
+#ifdef PULSE_TOKENS
+        if (token_config.count_grams) {
+            struct timespec wall_now, mono_now;
+            clock_gettime(CLOCK_REALTIME, &wall_now);
+            clock_gettime(CLOCK_MONOTONIC, &mono_now);
+            double wall_minus_mono = (double)(wall_now.tv_sec - mono_now.tv_sec) + (double)(wall_now.tv_nsec - mono_now.tv_nsec) / 1e9;
+            uint64_t now_window = ((uint64_t)mono_now.tv_sec * 1000000000ULL + (uint64_t)mono_now.tv_nsec) / PULSE_TOK_WINDOW_NS;
+            double drain_started = wall_time();
+            long gram_lines = drain_grams(grams_fd, now_window, wall_minus_mono, &grams_drained);
+            if (gram_lines < 0) { fprintf(stderr, "token drain failed; stopping fail-closed\n"); break; }
+            printf("{\"type\":\"token_drain\",\"observed_at\":%.9f,\"lines\":%ld,\"drain_seconds\":%.6f,\"entries_cumulative\":%llu,"
+                   "\"grams_cumulative\":%llu,\"insert_fail_cumulative\":%llu,\"path_fail_cumulative\":%llu}\n",
+                   wall_time(), gram_lines, wall_time() - drain_started, (unsigned long long)grams_drained,
+                   (unsigned long long)tok_stat_sum(token_stats_fd, 2, cpu_count, token_scratch),
+                   (unsigned long long)tok_stat_sum(token_stats_fd, 0, cpu_count, token_scratch),
+                   (unsigned long long)tok_stat_sum(token_stats_fd, 1, cpu_count, token_scratch));
+        }
+#endif
         uint32_t zero = 0; uint64_t task_failures = 0;
         bpf_map_lookup_elem(stats_fd, &zero, &task_failures);
         printf("{\"type\":\"stat\",\"observed_at\":%.9f,\"name\":\"task_state_update_fail\",\"cumulative\":%llu}\n", observed_at, (unsigned long long)task_failures);
@@ -363,6 +584,9 @@ int main(int argc, char **argv)
                observed_at, targets, snapshots, snapshot_read_seconds);
         fflush(stdout);
     }
+#ifdef PULSE_TOKENS
+    for (int index = 0; index < token_link_count; index++) bpf_link__destroy(token_links[index]);
+#endif
 #ifdef PULSE_SECCOMP_EXTENDED
     bpf_link__destroy(seccomp_link);
 #endif

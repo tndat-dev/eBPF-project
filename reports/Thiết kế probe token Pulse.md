@@ -1,6 +1,6 @@
 # Thiết kế probe thu token cho `lidds-ml-v3`
 
-Bản nháp 06/11/2026. Chưa có dòng code kernel nào; mọi con số dưới đây lấy từ biên nhận đã ghi trong `notes/STATE.md` (trước 07/11: `SENTINEL_PULSE_STATUS.md` mục 5.32c, git `8b1bc44`) và `validation-evidence/results-20261105/ml-exploration/`.
+Bản nháp 06/11/2026, cập nhật 07/11 khi đã viết probe (mục 7). Mọi con số dưới đây lấy từ biên nhận đã ghi trong `notes/STATE.md` (trước 07/11: `SENTINEL_PULSE_STATUS.md` mục 5.32c, git `8b1bc44`) và `validation-evidence/results-20261105/ml-exploration/`.
 
 ## 1. Probe phải thu gì
 
@@ -59,3 +59,40 @@ Ghi thêm độ trễ request của ứng dụng thật (`app-overhead-v1`).
 - Đọc đường dẫn ở `fexit` của open cần đọc bộ nhớ user; với đường dẫn dài chỉ đọc tới thư mục đầu.
 - Map LRU theo thread có thể đuổi thread ít hoạt động; mất lịch sử thì 3 token đầu sau đó có ngữ cảnh ngắn hơn.
 - Bảng errno và độ phân giải cỡ được chọn trên development có nhãn tấn công; bằng chứng độc lập vẫn là lượt live và LID-DS 2019.
+
+## 7. Bản đã viết (07/11)
+
+Code: `sentinel_pulse/ebpf/pulse_token_ids.h` (bảng 39 syscall có hook, bố cục token), `pulse_tokens.bpf.h` (hook và map),
+`pulse_counter.bpf.c` và `pulse_counter_loader.c` dưới `PULSE_TOKENS`, target `make tokens`. Phía user space:
+`sentinel_pulse/collector/token_capture.py` (kiểm dòng `token_grams`, gắn workload), `sentinel_pulse/detector/token_model.py`
+(mô hình đếm, bằng `TokenLM` offline tới 1e-12, `tests/test_token_model.py`), worker ghi `tokens.jsonl` mỗi segment khi
+config có khoá `tokens`. Chưa chấm token trong worker.
+
+Khác thiết kế ở mục 3:
+
+- **Token 32 bit, không phải 16 bit.** errno tới 133 (EINPROGRESS 115, ECONNREFUSED 111 hay gặp ở `connect`), không vừa
+  7 bit chi tiết. Bố cục: số syscall bit 23–31, loại chi tiết bit 21–22 (tên / errno / cỡ / open), chi tiết ở dưới. Khoá
+  gram là (cgroup, cửa sổ, 4 token) = 32 byte.
+- **Thư mục đầu lấy từ đường dẫn của file đã mở** (`fentry/security_file_open` + `bpf_d_path`, theo gốc của task nên là
+  góc nhìn trong container), như `fd=N(<f>PATH)` mà LID-DS dùng; đọc tham số user sẽ ra "rel" cho mọi lần mở tương đối.
+  Không có bảng thư mục: thư mục được băm FNV-1a 32 bit rồi giữ 20 bit (với khoảng 30 thư mục đầu, xác suất có một cặp
+  trùng khoảng 0,04%). Thư mục chưa thấy khi học tự thành token chưa thấy.
+- **Cửa sổ nằm trong khoá map**, không dùng hai bản luân phiên: loader thức dậy sau mỗi ranh giới 0,5 s của
+  `CLOCK_MONOTONIC` 20 ms, đọc theo lô và xoá các cửa sổ đã đóng; không mất đếm ở ranh giới.
+- **errno cho syscall bị seccomp chặn:** syscall bị bỏ qua không chạy nên không có `fexit`; nó phát tên lúc vào.
+
+Kiểm chức năng trên k8s-worker1 (07/11, 1 s mỗi chế độ benchmark): token đúng như kỳ vọng (`openat:w:/tmp`, `read#12`,
+`openat!2`, `openat:r:/etc`, `read` khi hết file, gram ngắn ở đầu thread), 1,97 triệu gram, không lần chèn nào thất bại.
+Gắn 40 hook mất khoảng 10 s (mỗi liên kết `fexit` chờ `synchronize_rcu_tasks`), gỡ cũng vậy.
+
+**Overhead lần 1 (07/11, `fexit` mỗi syscall, `results-20261107/token-probe-overhead/`).** Thêm so với probe hiện tại (A),
+3 worker: getpid 32–39 ns, futex 277–316 ns (riêng hook futex 190–235 ns), read 4 KiB 226–349 ns, mmap + munmap không phân
+biệt được với nhiễu, nhưng **open + close thêm 2,3–2,7 µs**, và process **không** được giám sát cũng chậm thêm 1,8–2,1 µs.
+Chương trình BPF tự nó chỉ tốn 82–93 ns (bpf_stats). Nguyên nhân (chẩn đoán `hookcost*.jsonl`): Tetragon đã có kprobe trên
+`__x64_sys_openat`, nên hàm này đi qua `arch_ftrace_ops_list_func`, duyệt mọi ftrace_ops; mỗi trampoline `fexit` là một
+ops, 40 trampoline làm mọi lần mở file trên node chậm đi. Bỏ hết hook token thì chi phí về 0.
+
+**Sửa:** mặc định `--token-exit sys_exit`: một chương trình `raw_tp/sys_exit` (tracepoint, không qua ftrace) phát token lúc
+trả về, dùng số syscall mà `sys_enter` đã ghi trong `pulse_task_state` và cờ `tok_pending`; chỉ còn một ftrace_ops
+(`security_file_open`). Proof cho cả hai chế độ: đúng một token mỗi syscall (403.884 và 399.788 lần gọi). Lần đo 2
+(amendment 1) so hai chế độ trong cùng các vòng.

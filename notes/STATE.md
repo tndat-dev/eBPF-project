@@ -40,13 +40,18 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 
 ## Việc đang làm và tiếp theo
 
-1. Kiểm offline của probe đã xong: thứ tự phát token như probe giữ recall development (530/544), báo nhầm 21 so với 19;
-   ngưỡng theo khối trên dữ liệu live cũ: nhánh đếm một mình chỉ 52–78% recall trên cụm. Ablation vòng 2 (3 seed, 45 cấu hình) chạy nền trên `.234`.
-2. Viết probe theo `reports/Thiết kế probe token Pulse.md`: fexit theo syscall, mã token 16 bit, 3 token gần nhất trong
-   `pulse_task_state`, map 4-gram theo cửa sổ; rồi đo overhead A–D; worker scorer cho nhánh token; ngưỡng theo khối.
-3. Lượt live blind ML mới (đo binary vô hại, gánh, độ trễ); quyết exec-intent sau đó.
-4. LID-DS 2019 một lần (dữ liệu, bộ chuyển đổi, protocol `lidds2019-confirmation-v1` đã sẵn).
-5. Sau đó: so sánh có/không luật; ablation vòng 3 seed (`syscall-ablation-loo-v1`); mở lại baseline.
+1. **Probe token đã viết (07/11)**: `make tokens` (`sentinel_pulse/ebpf/pulse_token_ids.h`, `pulse_tokens.bpf.h`, loader
+   `--tokens exit-nofutex|exit|grams`), token 32 bit, thư mục đầu từ `bpf_d_path` ở `security_file_open`, cửa sổ trong khoá
+   map; worker ghi `tokens.jsonl` (cfg `tokens`), chấm trực tuyến khi có `tokens.models` (`detector/token_model.py`
+   `TokenBranch`, mô hình đếm bằng `TokenLM` offline tới 1e-12). Thay đổi so với thiết kế: mục 7 của
+   `reports/Thiết kế probe token Pulse.md`. Gắn 40 hook mất khoảng 10 s.
+2. Overhead A–D (`token-probe-overhead-v1`): đang đo trên 3 worker (unit `token-probe-overhead`, `/var/tmp/token-probe-overhead/`).
+3. Sau đó: kiểm lưu lượng trên pod thật (`scripts/analysis/token_probe_volume.py`); proof collector cho bản build token; lượt
+   thu normal có token để học mô hình token theo workload và ngưỡng theo khối; rồi lượt live blind ML mới. Lượt thu và lượt
+   live không chạy chồng ablation vòng 2 (đang dump điểm trên `.234`, dừng/tiếp được theo `TERMINAL.json` từng segment).
+4. Ablation vòng 2 (3 seed, 45 cấu hình) chạy nền trên `.234` từ 07/11 07:57.
+5. LID-DS 2019 một lần (dữ liệu, bộ chuyển đổi, protocol `lidds2019-confirmation-v1` đã sẵn).
+6. Sau đó: so sánh có/không luật; mở lại baseline.
 
 ## Dữ liệu và tài nguyên
 

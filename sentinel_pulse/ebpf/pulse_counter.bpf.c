@@ -10,6 +10,12 @@
 #endif
 #endif
 #include "pulse_counter_ids.h"
+#ifdef PULSE_TOKENS
+#if !defined(PULSE_FULL_IDS) || !defined(PULSE_SECCOMP_EXTENDED)
+#error token counters extend the matched full-ID ABI
+#endif
+#include <bpf/bpf_core_read.h>
+#endif
 #ifdef PULSE_EXEC_INTENT
 #if !defined(PULSE_FULL_IDS) || !defined(PULSE_SECCOMP_EXTENDED)
 #error exec-intent counters extend the matched full-ID ABI
@@ -59,7 +65,13 @@ struct pulse_task_state {
     __u64 cgroup_id;
     __u64 seen_ns;
     __u32 syscall_id;
+#ifdef PULSE_TOKENS
+    __u32 open_dir;     /* first directory of the file the current open is opening (security_file_open) */
+    __u32 tok[3];       /* the thread's last three tokens, oldest first; PULSE_TOK_NONE when empty */
+    __u32 tok_pending;  /* this call entered and gives its token at return (raw_tp/sys_exit mode) */
+#else
     __u32 padding;
+#endif
 };
 
 /* The map itself is the allow-list. Preallocate a deliberately bounded map so
@@ -87,6 +99,10 @@ struct {
     __type(key, __u32);
     __type(value, __u64);
 } pulse_stats SEC(".maps");
+
+#ifdef PULSE_TOKENS
+#include "pulse_tokens.bpf.h"
+#endif
 
 #ifdef PULSE_EXEC_INTENT
 struct pulse_exec_state {
@@ -244,6 +260,19 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
             counters->transition_bins[tr_bin]++;
     }
 
+#ifdef PULSE_TOKENS
+    /* A hooked syscall gives its token at return (pulse_tok_exit); one skipped by seccomp never runs, so it gives
+     * its name here like an unhooked one. A thread that moved cgroup starts a new history. */
+    int token_here = skipped || !pulse_tok_hooked(syscall_id);
+    if (previous) {
+        if (previous->cgroup_id != cgroup_id)
+            pulse_tok_reset(previous);
+        previous->open_dir = PULSE_TOK_DIR_UNKNOWN;
+        if (token_here)
+            pulse_tok_emit(previous, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
+        previous->tok_pending = !token_here;
+    }
+#endif
     if (previous) {
         /* A task cannot execute two syscalls concurrently. Updating the map
          * value in place avoids an LRU update helper and global map work on
@@ -259,6 +288,12 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
         .seen_ns = now_ns,
         .syscall_id = syscall_id,
     };
+#ifdef PULSE_TOKENS
+    pulse_tok_reset(&current);
+    if (token_here)
+        pulse_tok_emit(&current, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
+    current.tok_pending = !token_here;
+#endif
     if (bpf_map_update_elem(&pulse_last_syscall, &pid_tgid, &current, BPF_NOEXIST) < 0) {
         __u32 zero = 0;
         __u64 *failures = bpf_map_lookup_elem(&pulse_stats, &zero);

@@ -1,6 +1,6 @@
 # Nhật ký làm việc
 
-Mỗi dòng: thời điểm (giờ Việt Nam), việc, kết quả hoặc biên nhận. Trước 07/11 xem nhật ký trong các file trạng thái cũ
+Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date` hoặc giờ commit; trước 07/11 08:00 có dòng ghi sai giờ, đã sửa theo commit), việc, kết quả hoặc biên nhận. Trước 07/11 xem nhật ký trong các file trạng thái cũ
 (`git show 8b1bc44:SENTINEL_PULSE_STATUS.md`, mục 11).
 
 | Khi | Việc | Kết quả / biên nhận |
@@ -11,11 +11,16 @@ Mỗi dòng: thời điểm (giờ Việt Nam), việc, kết quả hoặc biên
 | 06/11 | Bảng chữ token theo chi phí probe, kiểm kê syscall, biến thể token, LSTM lớn, bằng chứng ngưỡng | `results-20261105/ml-exploration/` |
 | 06/11 | Báo cáo và slide buổi 06/11 | `docs/Bao_cao_tien_do_30_10-06_11.docx`, `docs/Slide-runtime_security(06_11).pptx` |
 | 06/11 | Chủ đồ án nới giới hạn overhead cho probe token | `reports/Thiết kế probe token Pulse.md` mục 5 |
-| 07/11 01:00 | `lidds-ml-v3` official (lần chấm thứ 2, đã khai báo) | 97,32% / 0,44% / p95 2,09 s (`results-20261107/lidds-ml-v3/`) |
-| 07/11 01:40 | Bản LaTeX theo v3 | 75 trang |
-| 07/11 09:00 | Kiểm offline 2: ngưỡng theo khối trên lượt live cuối | Recall cụm 52–78% với riêng cây + support (`results-20261107/ml-block-threshold-live/`) |
-| 07/11 | Xoá 4 file trạng thái, thêm `notes/`, dọn repo và cụm | xem dòng dưới |
-| 07/11 15:00 | Xoá 4 file trạng thái (nội dung còn ở git `8b1bc44`), thêm `notes/STATE.md` và `notes/WORKLOG.md`; audit bỏ các câu trong file trạng thái, thêm 5 câu cho bảng hệ thống cuối trong bản LaTeX (48/48 khớp); xoá 2 script lỗi thời (`lidds2019_fetch_after_live.sh`, `lidds_v2_after_live.sh`), file tạm cục bộ; `fetch_references.py` bỏ User-Agent giả trình duyệt | commit gộp |
-| 07/11 15:40 | Kiểm offline 1 của probe (`probe1f`, token của syscall không có hook phát lúc vào): development 530/544 như `select1f`, báo nhầm 21 so với 19 (thêm ở EPS_CWE-434), CB-DS 0 so với 2 báo nhầm | `results-20261105/ml-exploration/probe-order.txt` |
-| 07/11 15:50 | Dọn cụm: `.234` xoá dữ liệu phân tích đã có biên nhận (ml-scores, ml-v1, ml-teacher*, ml-variants, ml-alphabets, ml-select*, ml-inventory, ml-probe-order, v2, v3-window, v4, converted*, script tải dataset, js-diag, baselines/models, snapshot nguồn), unit của lượt `pulse-live-recal-confirm` trên `.234` và 3 worker; xoá bản cục bộ của lượt đó trên 3 worker (33 GB; NFS có đủ 48/48 segment mỗi worker, bản nén có niêm phong) | `/var/tmp/lid-ds-2021` còn archive, `ml-scores-allwin`, `ml-tokens`, `ml-v3-tokens`, `ml-links` |
-| 07/11 16:00 | Ablation vòng 2 (3 seed): chọn 45/46 cấu hình theo luật protocol từ biên nhận vòng 1 (chỉ `drop_accept` không vào) | `results-20261107/syscall-loo-stage2/ARMS.json`, `scripts/syscall_loo_stage2.sh` |
+| 07/11 01:02 | `lidds-ml-v3` official (lần chấm thứ 2, đã khai báo) | 97,32% / 0,44% / p95 2,09 s (`results-20261107/lidds-ml-v3/`) |
+| 07/11 01:04 | Bản LaTeX theo v3 | 75 trang |
+| 07/11 01:12 | Kiểm offline 2: ngưỡng theo khối trên lượt live cuối | Recall cụm 52–78% với riêng cây + support (`results-20261107/ml-block-threshold-live/`) |
+| 07/11 07:53 | Xoá 4 file trạng thái (nội dung còn ở git `8b1bc44`), thêm `notes/STATE.md` và `notes/WORKLOG.md`; audit bỏ các câu trong file trạng thái, thêm 5 câu cho bảng hệ thống cuối trong bản LaTeX (48/48 khớp); xoá 2 script lỗi thời (`lidds2019_fetch_after_live.sh`, `lidds_v2_after_live.sh`), file tạm cục bộ; `fetch_references.py` bỏ User-Agent giả trình duyệt | commit gộp |
+| 07/11 07:56 | Kiểm offline 1 của probe (`probe1f`, token của syscall không có hook phát lúc vào): development 530/544 như `select1f`, báo nhầm 21 so với 19 (thêm ở EPS_CWE-434), CB-DS 0 so với 2 báo nhầm | `results-20261105/ml-exploration/probe-order.txt` |
+| 07/11 07:56 | Dọn cụm: `.234` xoá dữ liệu phân tích đã có biên nhận (ml-scores, ml-v1, ml-teacher*, ml-variants, ml-alphabets, ml-select*, ml-inventory, ml-probe-order, v2, v3-window, v4, converted*, script tải dataset, js-diag, baselines/models, snapshot nguồn), unit của lượt `pulse-live-recal-confirm` trên `.234` và 3 worker; xoá bản cục bộ của lượt đó trên 3 worker (33 GB; NFS có đủ 48/48 segment mỗi worker, bản nén có niêm phong) | `/var/tmp/lid-ds-2021` còn archive, `ml-scores-allwin`, `ml-tokens`, `ml-v3-tokens`, `ml-links` |
+| 07/11 07:57 | Ablation vòng 2 (3 seed): chọn 45/46 cấu hình theo luật protocol từ biên nhận vòng 1 (chỉ `drop_accept` không vào) | `results-20261107/syscall-loo-stage2/ARMS.json`, `scripts/syscall_loo_stage2.sh` |
+| 07/11 09:40 | Viết probe token (`make tokens`): 39 `fexit`, `fentry/security_file_open` + `bpf_d_path`, token 32 bit, map 4-gram theo (cgroup, cửa sổ); loader `--tokens`; kiểm chức năng trên k8s-worker1: token đúng, gắn 40 hook khoảng 10 s | `reports/Thiết kế probe token Pulse.md` mục 7 |
+| 07/11 09:47 | Overhead A–D (`token-probe-overhead-v1`, đăng ký trước khi đo) trên 3 worker cùng lúc, 5 vòng × 7 điều kiện × 5 chế độ | `results-20261107/token-probe-overhead/` |
+| 07/11 10:00 | Worker: `tokens.jsonl` mỗi segment, chấm trực tuyến (`TokenBranch`); mô hình đếm = `TokenLM` offline (test); script proof, fit nhánh token, đo lưu lượng | 562 test qua (bỏ test cần torch) |
+| 07/11 11:55 | Overhead lần 1 (`fexit`): getpid +32–39 ns so với A, futex +277–316, read 4 KiB +226–349, open + close +2,3–2,7 µs và +1,8–2,1 µs cho process không giám sát | `results-20261107/token-probe-overhead/overhead-run1-fexit.json` |
+| 07/11 12:15 | Chẩn đoán: chi phí open tăng theo số trampoline, do kprobe Tetragon trên `__x64_sys_openat` đẩy hàm qua `ftrace_ops_list_func`; sửa: `--token-exit sys_exit` (mặc định), proof cả hai chế độ đạt (đúng 1 token/syscall) | `hookcost*.jsonl`, `proof-check-*.json`, amendment 1 |
+| 07/11 12:25 | Overhead lần 2 (amendment 1, `sys_exit` và `fexit` cùng vòng) trên 3 worker | unit `token-probe-overhead-2` |

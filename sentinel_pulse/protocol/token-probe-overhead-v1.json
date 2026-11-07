@@ -1,0 +1,23 @@
+{
+  "schema": "sentinel-pulse-overhead-ab-v1",
+  "registered_at": "2026-11-07T17:30+07:00",
+  "registered_before": "any timed measurement of the token probe (a 1 s functional check on k8s-worker1 only verified load and token values)",
+  "question": "What does the lidds-ml-v3 token probe add per syscall over the current probe, for monitored and unmonitored processes?",
+  "probe": "pulse_counter_tokens (Makefile target tokens): the matched full-ID observable (condition A) plus fexit on the 39 syscalls of sentinel_pulse/ebpf/pulse_token_ids.h, fentry/security_file_open with bpf_d_path for the first directory, the last three tokens in pulse_task_state and a per-(cgroup, 0.5 s window, 4-gram) count map",
+  "conditions": {
+    "off": "no Pulse probe",
+    "filtered": "current probe (A), benchmark cgroup not monitored",
+    "monitored": "condition A: current matched probe, benchmark monitored",
+    "tokB": "token probe --tokens exit-nofutex: exit hooks without futex, history only, no gram map",
+    "tokC": "--tokens exit: B plus the futex exit hook",
+    "tokD": "--tokens grams: C plus the gram map, the probe the live run will use",
+    "tokD_filtered": "tokD with the benchmark cgroup not monitored: what every other process on the node pays"
+  },
+  "workload": "testbed/bench/syscall_bench.c: getpid, read4k, openclose, mmapunmap, futex (FUTEX_WAKE, nobody waiting); 10 s per mode in /sys/fs/cgroup/pulse-bench",
+  "design": "5 rounds per worker on k8s-worker1..3, run at the same time on the three workers; the seven conditions rotate their order every round; a loader counts as ready when it prints 'attached' (fexit attach takes about 10 s), then 1 s settle",
+  "decision": "none: the owner relaxed the limit on 06/11 (reports/Thiết kế probe token Pulse.md section 5); the numbers are reported in full, the 150 ns limit of exec-intent-v1 is quoted for comparison only",
+  "metrics": ["median ns/op per condition and mode", "each condition against off and each token condition against monitored (A): median of per-round paired ratios, bootstrap 95 % CI over rounds, added ns per op"],
+  "known_conditions": "ablation stage 2 (syscall-loo-stage2) runs on the analysis host .234 during the measurement; the rotation within rounds is what protects the comparison from that load",
+  "later": "app request latency (app-overhead-v1 method) with the token probe once the scorer is in the worker",
+  "code": "scripts/overhead_ab.sh (TOKEN_LOADER, TOKEN_OBJECT), scripts/analysis/overhead_ab.py"
+}

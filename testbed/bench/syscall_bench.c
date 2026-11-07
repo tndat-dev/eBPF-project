@@ -6,8 +6,10 @@
 //   read4k      - read 4 KiB from /dev/zero
 //   openclose   - open + close of a file in /tmp (two syscalls per op)
 //   mmapunmap   - anonymous 4 KiB mmap + munmap (two syscalls per op)
+//   futex       - FUTEX_WAKE on a private word nobody waits on (returns 0 at once): the cost of the futex exit hook
 #define _GNU_SOURCE
 #include <fcntl.h>
+#include <linux/futex.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,6 +49,9 @@ int main(int argc, char **argv) {
                 int fd = open(path, O_CREAT | O_RDWR, 0600);
                 if (fd < 0) return 1;
                 close(fd);
+            } else if (!strcmp(mode, "futex")) {
+                static int word;
+                if (syscall(SYS_futex, &word, FUTEX_WAKE_PRIVATE, 1, NULL, NULL, 0) < 0) return 1;
             } else if (!strcmp(mode, "mmapunmap")) {
                 void *p = mmap(NULL, 4096, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
                 if (p == MAP_FAILED) return 1;

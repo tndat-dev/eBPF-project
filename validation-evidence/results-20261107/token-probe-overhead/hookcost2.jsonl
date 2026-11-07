@@ -1,0 +1,16 @@
+{"round":1,"c":"off","r":{"mode": "openclose", "ops": 453632, "seconds": 4.002001, "ns_per_op": 8822.131}}
+{"round":1,"c":"all","r":{"mode": "openclose", "ops": 419840, "seconds": 4.008779, "ns_per_op": 9548.350}}
+{"round":1,"c":"none","r":{"mode": "openclose", "ops": 470016, "seconds": 4.003385, "ns_per_op": 8517.550}}
+{"round":1,"c":"only3","r":{"mode": "openclose", "ops": 450560, "seconds": 4.000967, "ns_per_op": 8879.987}}
+{"round":2,"c":"off","r":{"mode": "openclose", "ops": 472064, "seconds": 4.007480, "ns_per_op": 8489.273}}
+{"round":2,"c":"all","r":{"mode": "openclose", "ops": 410624, "seconds": 4.006562, "ns_per_op": 9757.253}}
+{"round":2,"c":"none","r":{"mode": "openclose", "ops": 486400, "seconds": 4.003499, "ns_per_op": 8230.878}}
+{"round":2,"c":"only3","r":{"mode": "openclose", "ops": 392192, "seconds": 4.007610, "ns_per_op": 10218.489}}
+{"round":3,"c":"off","r":{"mode": "openclose", "ops": 441344, "seconds": 4.009349, "ns_per_op": 9084.408}}
+{"round":3,"c":"all","r":{"mode": "openclose", "ops": 339968, "seconds": 4.002564, "ns_per_op": 11773.354}}
+{"round":3,"c":"none","r":{"mode": "openclose", "ops": 471040, "seconds": 4.000278, "ns_per_op": 8492.439}}
+{"round":3,"c":"only3","r":{"mode": "openclose", "ops": 436224, "seconds": 4.002494, "ns_per_op": 9175.318}}
+{"round":4,"c":"off","r":{"mode": "openclose", "ops": 470016, "seconds": 4.003164, "ns_per_op": 8517.080}}
+{"round":4,"c":"all","r":{"mode": "openclose", "ops": 370688, "seconds": 4.010232, "ns_per_op": 10818.349}}
+{"round":4,"c":"none","r":{"mode": "openclose", "ops": 454656, "seconds": 4.002868, "ns_per_op": 8804.168}}
+{"round":4,"c":"only3","r":{"mode": "openclose", "ops": 407552, "seconds": 4.000832, "ns_per_op": 9816.740}}

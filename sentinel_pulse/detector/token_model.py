@@ -1,0 +1,169 @@
+"""Token branch of lidds-ml-v3 on the probe's integer tokens (sentinel_pulse/ebpf/pulse_token_ids.h).
+
+The same model as scripts/analysis/lidds_ml_tokens.py TokenLM: per-thread 4-grams, Witten-Bell backoff over shorter
+contexts down to the base P(name) x P(token | name), both add-half, an unseen call graded by the mean unseen-token
+probability of the known calls. Two differences, neither in the arithmetic:
+
+- tokens are the probe's 32-bit integers and a token's call (the "name") is its syscall number, ``tok >> 23``;
+- it learns from gram counts (the probe sends one count per distinct (cgroup, window, gram)), so a gram seen c times
+  adds c, exactly what c separate ``TokenLM.learn`` calls add (tests/test_token_model.py checks the equality).
+
+A window's score is the mean of its TOP highest per-event -log p, events counted with their multiplicity. Grams whose
+leading slots are TOK_NONE (thread start) are the shorter grams of the offline model.
+"""
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+import gzip
+import json
+import math
+from pathlib import Path
+
+N, TOP = 4, 10
+TOK_NONE = 0xFFFFFFFF
+NR_SHIFT = 23
+KIND_SHIFT = 21
+
+
+def call_of(tok: int) -> int:
+    return tok >> NR_SHIFT
+
+
+def strip(gram) -> tuple:
+    """Drop the empty history slots in front: (NONE, NONE, a, b) -> (a, b)."""
+    g = tuple(int(t) for t in gram)
+    start = 0
+    while start < len(g) - 1 and g[start] == TOK_NONE:
+        start += 1
+    if TOK_NONE in g[start:]:
+        raise ValueError('empty slot inside a gram')
+    return g[start:]
+
+
+class CountTokenLM:
+    def __init__(self, n: int = N):
+        self.n = n
+        self.count = [defaultdict(Counter) for _ in range(n)]
+        self.names = Counter()
+        self.given = defaultdict(Counter)
+        self.total = 0
+        self.finalized = False
+
+    def learn(self, gram, weight: int = 1):
+        if weight <= 0:
+            raise ValueError('gram count must be positive')
+        g = tuple(gram[-self.n:])
+        w = g[-1]
+        for k in range(1, min(self.n, len(g))):
+            self.count[k][g[-1 - k:-1]][w] += weight
+        name = call_of(w)
+        self.names[name] += weight
+        self.given[name][w] += weight
+        self.total += weight
+
+    def learn_window(self, grams):
+        """grams: [[t0, t1, t2, t3, count], ...] as the probe sends them."""
+        for *gram, c in grams:
+            self.learn(strip(gram), int(c))
+
+    def finalize(self):
+        self.stats = [{h: (sum(c.values()), len(c)) for h, c in level.items()} for level in self.count]
+        self.memo = {}
+        unseen = [0.5 / (sum(c.values()) + 0.5 * (len(c) + 1)) for c in self.given.values()]
+        self.unseen_given = sum(unseen) / len(unseen) if unseen else 1.0
+        self.given_total = {name: sum(c.values()) for name, c in self.given.items()}
+        self.finalized = True
+        return self
+
+    def base(self, w: int) -> float:
+        name = call_of(w)
+        p_name = (self.names.get(name, 0) + 0.5) / (self.total + 0.5 * (len(self.names) + 1))
+        given = self.given.get(name)
+        if not given:
+            return p_name * self.unseen_given
+        return p_name * (given.get(w, 0) + 0.5) / (self.given_total[name] + 0.5 * (len(given) + 1))
+
+    def prob(self, g) -> float:
+        g = tuple(g[-self.n:])
+        hit = self.memo.get(g)
+        if hit is not None:
+            return hit
+        w = g[-1]
+        p = self.base(w)
+        for k in range(1, min(self.n, len(g))):
+            h = g[-1 - k:-1]
+            st = self.stats[k].get(h)
+            if not st:
+                continue
+            tot, types = st
+            p = (self.count[k][h].get(w, 0) + types * p) / (tot + types)
+        if len(self.memo) < 2_000_000:
+            self.memo[g] = p
+        return p
+
+    def window_score(self, grams, top: int = TOP) -> float:
+        """Mean of the top highest -log p of a window's events; 0 for an empty window (as the offline scorer)."""
+        values = sorted(((-math.log(self.prob(strip(gram))), int(c)) for *gram, c in grams), reverse=True)
+        taken, total = 0, 0.0
+        for nll, c in values:
+            use = min(c, top - taken)
+            total += nll * use
+            taken += use
+            if taken == top:
+                break
+        return total / taken if taken else 0.0
+
+    # persistence: counts only; finalize() rebuilds the rest
+    def to_json(self) -> dict:
+        return dict(schema='sentinel-pulse-token-lm-v1', n=self.n, total=self.total,
+                    names=[[k, v] for k, v in self.names.items()],
+                    given=[[name, [[w, c] for w, c in ws.items()]] for name, ws in self.given.items()],
+                    count=[[[list(h), [[w, c] for w, c in ws.items()]] for h, ws in level.items()] for level in self.count])
+
+    @classmethod
+    def from_json(cls, doc: dict) -> 'CountTokenLM':
+        if doc.get('schema') != 'sentinel-pulse-token-lm-v1':
+            raise ValueError('not a token LM document')
+        lm = cls(doc['n'])
+        lm.total = doc['total']
+        lm.names = Counter({k: v for k, v in doc['names']})
+        for name, ws in doc['given']:
+            lm.given[name] = Counter({w: c for w, c in ws})
+        for k, level in enumerate(doc['count']):
+            for h, ws in level:
+                lm.count[k][tuple(h)] = Counter({w: c for w, c in ws})
+        return lm.finalize()
+
+    def save(self, path: Path):
+        with gzip.open(path, 'wt') as handle:
+            json.dump(self.to_json(), handle, separators=(',', ':'))
+
+    @classmethod
+    def load(cls, path: Path) -> 'CountTokenLM':
+        with gzip.open(path, 'rt') as handle:
+            return cls.from_json(json.load(handle))
+
+
+class TokenBranch:
+    """Online token branch for the worker. spec (worker cfg tokens.models): {workload_key: {"lm": path,
+    "lm_sha256": hex, "threshold": float}}; a workload without a model gets no token score. One window above its
+    workload's threshold is a token alert (the lidds-ml-v3 rule: one window fires)."""
+
+    def __init__(self, spec: dict, sha256_file):
+        self.models, self.thresholds = {}, {}
+        for key, item in spec.items():
+            path = Path(item['lm'])
+            if sha256_file(path) != item['lm_sha256']:
+                raise ValueError(f'token model of {key} changed')
+            self.models[key] = CountTokenLM.load(path)
+            self.thresholds[key] = float(item['threshold'])
+            if not math.isfinite(self.thresholds[key]):
+                raise ValueError(f'token threshold of {key} is not finite')
+
+    def score(self, window: dict):
+        lm = self.models.get(window['workload_key'])
+        if lm is None:
+            return None
+        s = lm.window_score(window['grams'])
+        return dict(token_score=s, token_threshold=self.thresholds[window['workload_key']],
+                    token_alert=bool(s > self.thresholds[window['workload_key']]))
