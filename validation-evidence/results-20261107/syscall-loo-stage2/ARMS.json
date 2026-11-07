@@ -1,0 +1,273 @@
+{
+ "schema": "syscall-loo-stage2-arms-v1",
+ "protocol": "sentinel_pulse/protocol/syscall-ablation-loo-v1.json",
+ "seeds": [
+  73021,
+  73022,
+  73023
+ ],
+ "arms": [
+  "base29",
+  "drop_accept4",
+  "drop_accept_pair",
+  "drop_capset",
+  "drop_chmod",
+  "drop_clone",
+  "drop_clone3",
+  "drop_clone_pair",
+  "drop_close",
+  "drop_connect",
+  "drop_everywhere_namespace",
+  "drop_everywhere_sensitive",
+  "drop_exec_pair",
+  "drop_execve",
+  "drop_execveat",
+  "drop_group_basic_io",
+  "drop_group_basic_io_no_mmap",
+  "drop_group_identity",
+  "drop_group_namespace",
+  "drop_group_network",
+  "drop_group_process",
+  "drop_group_sensitive",
+  "drop_mmap",
+  "drop_mmsg_pair",
+  "drop_mount",
+  "drop_mprotect",
+  "drop_open",
+  "drop_open_pair",
+  "drop_openat",
+  "drop_pivot_root",
+  "drop_ptrace",
+  "drop_read",
+  "drop_recvfrom",
+  "drop_recvmmsg",
+  "drop_seccomp",
+  "drop_sendmmsg",
+  "drop_sendrecv_pair",
+  "drop_sendto",
+  "drop_setgid",
+  "drop_setid_pair",
+  "drop_setns",
+  "drop_setuid",
+  "drop_socket",
+  "drop_unshare",
+  "drop_write"
+ ],
+ "why": {
+  "base29": [
+   "reference"
+  ],
+  "drop_everywhere_sensitive": [
+   "pulse-attack-dev budget 1 recall_diff -0.058 [-0.10238907849829348, -0.020761245674740577]",
+   "pulse-attack-dev budget 5 recall_diff -0.082 [-0.1428571428571429, -0.02787214479287653]",
+   "pulse-live-recalibrated budget 1 recall_diff -0.064 [-0.1122884188344059, -0.019336682947660618]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.056 [-0.130883807152204, 0.0211050330191058]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.078 [-0.1298451240461612, -0.03069053708439895]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.073 [-0.15932903100368534, -0.00293649929114926]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_exec_pair": [
+   "pulse-attack-dev budget 1 recall_diff -0.058 [-0.09830508474576272, -0.02076124567474047]",
+   "pulse-attack-dev budget 5 recall_diff -0.065 [-0.1216216216216216, -0.016891891891891886]",
+   "pulse-live-recalibrated budget 1 recall_diff -0.068 [-0.11576898833911131, -0.022099447513812206]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.088 [-0.13931399528217359, -0.03399303988934825]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.076 [-0.13447569813720428, -0.02187975125060372]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.064 [-0.1143638906387114, -0.017114716135367254]"
+  ],
+  "drop_execveat": [
+   "pulse-attack-dev budget 1 recall_diff -0.061 [-0.0989761092150171, -0.027118644067796627]",
+   "pulse-attack-dev budget 5 recall_diff -0.065 [-0.12068965517241381, -0.01712182663986159]",
+   "pulse-live-recalibrated budget 1 recall_diff -0.073 [-0.11776895291355716, -0.030470562594035227]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.124 [-0.20425656916333726, -0.04761528028933092]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.073 [-0.12400126582278481, -0.024998700623700555]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.112 [-0.1928986947610837, -0.03667403342577723]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_group_network": [
+   "pulse-attack-dev budget 1 recall_diff +0.051 [0.0068728522336770626, 0.10344827586206895]",
+   "pulse-live-recalibrated budget 1 recall_diff +0.059 [0.01066666666666671, 0.11868232224396609]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.028 [-0.1163627605307444, 0.0483467418816137]",
+   "pulse-live-recalibrated budget 5 recall_diff +0.024 [0.0, 0.05063291139240511]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.063 [-0.14886165714184604, 0.010526315789473717]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_group_process": [
+   "pulse-attack-dev budget 1 recall_diff -0.061 [-0.09667214532871973, -0.027303754266211677]",
+   "pulse-attack-dev budget 5 recall_diff -0.044 [-0.08754208754208759, -0.010101010101010166]",
+   "pulse-live-recalibrated budget 1 recall_diff -0.071 [-0.11083167981559815, -0.03080568720379151]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.144 [-0.23336851831222474, -0.059086932539733496]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.061 [-0.12195243902439024, -0.010125942974044304]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.093 [-0.17777269465786538, -0.015503650535062991]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_group_sensitive": [
+   "pulse-attack-dev budget 1 recall_diff -0.027 [-0.06825938566552903, 0.0]",
+   "pulse-attack-dev budget 5 recall_diff -0.058 [-0.10652920962199308, -0.016949152542372947]",
+   "pulse-live-recalibrated budget 1 recall_diff -0.034 [-0.08163265306122447, 0.0]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.029 [-0.11230873070943387, 0.045939340218051385]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.051 [-0.09133723653395784, -0.014251612291992387]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.037 [-0.08923524013367991, 0.009667951993196953]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_capset": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.04152249134948094, 0.0]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.046 [-0.0953312456545704, -0.007304937248401618]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_close": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.050000000000000044, 0.003424657534246478]"
+  ],
+  "drop_mmap": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.0474576271186441, 0.0033333333333334103]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.022 [-0.05821987983004919, 0.0021134717463609327]"
+  ],
+  "drop_mprotect": [
+   "pulse-attack-dev budget 5 recall_diff -0.024 [-0.05136986301369861, 0.0]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.024 [-0.06006957582269009, 9.630636765294296e-05]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_open": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.05387205387205385, 0.0034602076124568004]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.044 [-0.0993524459113452, 0.004807563450147871]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.044 [-0.11228211339452725, 0.0024038237372579494]"
+  ],
+  "drop_ptrace": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.04482758620689653, -0.0033670033670033517]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.061 [-0.13006153868229825, 0.0023435224844487283]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.070 [-0.1410939128977585, -0.008086253369272267]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_read": [
+   "pulse-attack-dev budget 5 recall_diff -0.024 [-0.05387205387205385, 0.0]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.022 [-0.06388599750668723, 0.005076142131979711]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.066 [-0.1413938653068065, -0.0050293482858137775]"
+  ],
+  "drop_seccomp": [
+   "pulse-attack-dev budget 5 recall_diff -0.024 [-0.05136986301369861, 0.0]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.046 [-0.1102041536078005, -0.004901960784313708]",
+   "pulse-live-recalibrated budget 5 recall_diff -0.022 [-0.0514919118263347, 0.0]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.032 [-0.07541644388095407, 0.0]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_unshare": [
+   "pulse-attack-dev budget 5 recall_diff -0.020 [-0.04729729729729726, 0.0]",
+   "pulse-live-recalibrated budget 1 separation_diff -0.051 [-0.12763278502034747, 0.012588475725171645]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.027 [-0.05962805261641246, 0.0]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_accept4": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.029 [-0.09476627773631613, 0.01362428783750307]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.022 [-0.06033359567012094, 0.0025422853009060553]"
+  ],
+  "drop_accept_pair": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.082 [-0.16555049547738587, -0.010416329339378205]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.027 [-0.08436737554665893, 0.007353726380890833]"
+  ],
+  "drop_chmod": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.048 [-0.1185196439231149, 0.009696626337724954]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.048 [-0.12470059503510841, 0.012823271769814015]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_clone": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.039 [-0.10919030442728268, 0.005000156641604009]"
+  ],
+  "drop_clone3": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.075 [-0.16372268205960883, 0.0]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.046 [-0.10869639039485966, -0.0024999999999999467]"
+  ],
+  "drop_clone_pair": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.051 [-0.11981617401148119, 0.0048725802794148025]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.056 [-0.12354518516075123, -0.00812953197099533]"
+  ],
+  "drop_connect": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.027 [-0.06695093706345277, -0.002433089298858293]"
+  ],
+  "drop_everywhere_namespace": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.041 [-0.08781115973229763, 0.0]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.036 [-0.08930170288878961, -0.00216914815271862]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_group_basic_io": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.056 [-0.12536569796875602, 0.005063821461486887]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_group_basic_io_no_mmap": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.048 [-0.12472684466505884, 0.015946236223743245]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_group_namespace": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.041 [-0.08781115973229763, 0.0]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.036 [-0.08930170288878961, -0.00216914815271862]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_mount": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.034 [-0.07853627848432797, -0.002535359905731309]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.029 [-0.06778289332059112, -0.0024390243902439046]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_open_pair": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.065 [-0.13217422045253013, -0.009727006975739317]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.034 [-0.07308546878305908, -5.667440175215487e-05]"
+  ],
+  "drop_openat": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.046 [-0.1000898847335446, -0.005505027303732855]"
+  ],
+  "drop_pivot_root": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.034 [-0.07853627848432797, -0.002535359905731309]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.029 [-0.06778289332059112, -0.0024390243902439046]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_recvfrom": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.022 [-0.06763285024154586, 0.004949505993657524]"
+  ],
+  "drop_recvmmsg": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.046 [-0.11060094937317758, 2.5804919331803296e-05]"
+  ],
+  "drop_sendmmsg": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.036 [-0.10601300328310143, 0.015499011457118276]"
+  ],
+  "drop_sendrecv_pair": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.080 [-0.19090491503096263, 2.9458822902403396e-05]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.058 [-0.12952531166554565, -0.004539710956038902]"
+  ],
+  "drop_sendto": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.027 [-0.08192771084337347, 0.007537688442211032]"
+  ],
+  "drop_setgid": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.039 [-0.08792401661531585, -0.002538067845250924]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_setid_pair": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.024 [-0.07872311711346958, 0.026056759553935584]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.029 [-0.09341234831338098, 0.013318622173226597]"
+  ],
+  "drop_setns": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.049 [-0.1130153256436093, -0.002624668356047194]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.036 [-0.08286347217780814, -0.005075820857161236]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_setuid": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.039 [-0.0917328213770964, -0.00498599560212773]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_socket": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.024 [-0.06504269548818177, 0.00238600879254153]"
+  ],
+  "drop_write": [
+   "pulse-live-recalibrated budget 1 separation_diff -0.027 [-0.06264515137114582, 6.26090227596154e-05]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.053 [-0.11550489656827422, -0.00466141692085813]"
+  ],
+  "drop_execve": [
+   "pulse-live-recalibrated budget 5 separation_diff +0.029 [-0.013276870861068806, 0.08977560211770522]",
+   "sensitive or exec syscall, kept regardless"
+  ],
+  "drop_group_identity": [
+   "pulse-live-recalibrated budget 5 recall_diff -0.024 [-0.05669054855984946, 0.0]",
+   "pulse-live-recalibrated budget 5 separation_diff -0.032 [-0.07726734237198896, -0.002599007041249894]",
+   "amendment 1 group or everywhere arm"
+  ],
+  "drop_mmsg_pair": [
+   "pulse-live-recalibrated budget 5 separation_diff -0.053 [-0.12311739858713862, 0.005044769753583985]"
+  ]
+ }
+}

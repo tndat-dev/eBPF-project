@@ -1,6 +1,6 @@
 scenarios done 16 ['Bruteforce_CWE-307', 'CB-DS', 'CVE-2012-2122', 'CVE-2014-0160', 'CVE-2017-12635_6', 'CVE-2017-7529', 'CVE-2018-3760', 'CVE-2019-5418', 'CVE-2020-13942', 'CVE-2020-23839', 'CVE-2020-9484', 'CWE-89-SQL-injection', 'EPS_CWE-434', 'Juice-Shop', 'PHP_CWE-434', 'ZipSlip']
-Traceback (most recent call last):
-  File "/home/dat/eBPF-project/validation-evidence/results-20261105/ml-exploration/ml_alphabets.py", line 42, in <module>
-    z = np.load(f'{A}/{s}.npz'); j = names.index('full' if 'full' in names else 'base') + 1
-                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-ValueError: 'base' is not in list
+alphabet | alone a=.002: recall, FA, p95 | with tree+support a=.0005: recall, FA, p95 | CB-DS with tree+support det/att FA/n
+select1f      | 530/544 97.43% 0.56% 1.45s | 530/544 97.43% 19/3403 0.56% 2.10s | 891/891 2/1410
+   per scenario with tree+support: {'CVE-2017-7529': '36/36,4', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'Juice-Shop': '23/36,1'}
+probe1f       | 530/544 97.43% 0.56% 1.49s | 530/544 97.43% 21/3403 0.62% 2.06s | 891/891 0/1410
+   per scenario with tree+support: {'CVE-2017-7529': '36/36,4', 'CVE-2020-13942': '34/35,4', 'CVE-2020-9484': '36/36,3', 'EPS_CWE-434': '36/36,3', 'Juice-Shop': '23/36,1'}

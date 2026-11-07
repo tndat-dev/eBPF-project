@@ -40,8 +40,8 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 
 ## Việc đang làm và tiếp theo
 
-1. Kiểm offline 1 của probe: `probe1f` (token của syscall không có hook phát lúc vào) so với `select1f`; unit `lidds-ml-probe-order`,
-   kết quả ở `/var/tmp/lid-ds-2021/ml-probe-order`, chấm bằng `validation-evidence/results-20261105/ml-exploration/ml_alphabets.py`.
+1. Kiểm offline của probe đã xong: thứ tự phát token như probe giữ recall development (530/544), báo nhầm 21 so với 19;
+   ngưỡng theo khối trên dữ liệu live cũ: nhánh đếm một mình chỉ 52–78% recall trên cụm. Ablation vòng 2 (3 seed, 45 cấu hình) chạy nền trên `.234`.
 2. Viết probe theo `reports/Thiết kế probe token Pulse.md`: fexit theo syscall, mã token 16 bit, 3 token gần nhất trong
    `pulse_task_state`, map 4-gram theo cửa sổ; rồi đo overhead A–D; worker scorer cho nhánh token; ngưỡng theo khối.
 3. Lượt live blind ML mới (đo binary vô hại, gánh, độ trễ); quyết exec-intent sau đó.
@@ -51,7 +51,7 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 ## Dữ liệu và tài nguyên
 
 - `.234` (`/var/tmp/lid-ds-2021`): 15 archive LID-DS 2021, `ml-scores-allwin` (cây, support), `ml-tokens` (token v2),
-  `ml-v3-tokens` (full, full1, select1f, mọi bản ghi), `ml-links` (symlink cho scorer). CB-DS: `/var/tmp/cb-ds/archives`.
+  `ml-v3-tokens` (full, full1, select1f, mọi bản ghi), `ml-links` (symlink cho scorer). Ablation: `/var/tmp/syscall-loo` (vòng 1 và 2). CB-DS: `/var/tmp/cb-ds/archives`.
   LID-DS 2019: `/var/tmp/lid-ds-2019`. Bảng cửa sổ các lượt live: `/var/tmp/burden-levers/table-*.npz`.
 - NFS `.233`: `/mnt/sentinel-pulse-archive` (các lượt live, bản sao tài liệu). Dịch vụ còn chạy: `pulse-alert-bridge-rca-viewer`
   (xem case RCA trên Grafana).
