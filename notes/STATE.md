@@ -47,10 +47,11 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    bản cuối so với A: getpid +127–174 ns, open + close +0,94–1,23 µs, futex +216–298 ns. Sơ đồ kiến trúc: `docs/architecture/`.
 2. Bản build chính thức `/home/dat/pulse-tokens-20261107/{build,proof}` (46e9039, proof đạt 3 worker); lưu lượng trên pod thật
    75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
-3. `pulse-live-v3-v1`: lượt thu normal 12 h (`pulse-token-capture-<MMDD>`) → fit (`token_branch_fit.py`, `count_branch_fit.py`)
-   → lượt live blind 24 h. Không chạy chồng ablation vòng 2.
-4. Ablation vòng 2: chạy lại 07/11 16:21 sau OOM của dump worker4 (trần 42 GB, chỉ còn 3 dump); worker1 chậm nhất
-   (khoảng 1,7 segment/giờ, còn 37/49), ước xong dump khoảng chiều 08/11 rồi bước ngân sách.
+3. `pulse-live-v3-v1` giai đoạn 1 đang chạy: `pulse-token-capture-1107` (t0 07/11 20:29 = `selection_start` 1794058145.54, học
+   [t0, t0 + 8 h), validation tới hết lượt, khoảng 08/11 08:29). Sau đó: `token_branch_fit.py`, `count_branch_fit.py` → khoá → lượt
+   live blind 24 h (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign, RCA, bridge).
+4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
+   systemd-run (trần 42 GB) sau lượt live v3.
 5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
 
 ## Dữ liệu và tài nguyên
