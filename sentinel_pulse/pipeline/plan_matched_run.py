@@ -36,7 +36,7 @@ PEER_PORT = 9479
 
 
 def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24),
-         final_system=None,recalibration=None,tokens=None):
+         final_system=None,recalibration=None,tokens=None,local_decisions=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -108,6 +108,12 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         cfg['benign_binary_distinct']=True
         for worker in cfg['workers'].values():
             worker['stream_root']=str(Path(final_system['stream_root'])/run_id)
+    # lidds-ml-v3 runs (no rules): shared-storage writes off the scoring loop and decisions on each worker's local disk
+    # for the bridge, RCA and campaign, as the final system has them, without its tripwire
+    if local_decisions and not final_system:
+        cfg['async_shared_writes']=True
+        for worker in cfg['workers'].values():
+            worker['stream_root']=str(Path(local_decisions)/run_id)
     # rolling calibration in the worker (pipeline/live_recalibration.py): score buffer on the worker's local disk,
     # finished hours copied under the run root for the other workers; the campaign's intervals optionally left out
     if recalibration:
@@ -152,6 +158,7 @@ if __name__=='__main__':
     p.add_argument('--token-build',help='lidds-ml-v3 token probe: directory with build/ and proof/ on every worker')
     p.add_argument('--token-models',type=Path,help='token branch models (MODELS.json of token_branch_fit.py)')
     p.add_argument('--v3-counts',type=Path,help='count-branch thresholds (count_branch_fit.py)')
+    p.add_argument('--local-decisions',action='store_true',help='async shared writes + local decision copy (--stream-root) without the tripwire')
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
     if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
@@ -170,4 +177,5 @@ if __name__=='__main__':
         recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
     tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts) if a.token_build else None
-    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens)
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
+         a.stream_root if a.local_decisions else None)

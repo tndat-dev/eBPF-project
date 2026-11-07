@@ -8,7 +8,11 @@
 #   [RCA_PREV_UNIT=rca-subscriber] [ATTACK_RATES=1,3,6] [BASELINE_SEED=/mnt/.../rca-baseline-seed.json] [FINAL=1] \
 #   [FROZEN_SOURCE=/mnt/.../source whose pinned scorer bytes the workers must match; default SNAP] \
 #   [RECAL=rolling-12-1 [RECAL_EXCLUDE_CAMPAIGN=1]: rolling calibration in the workers, needs FINAL=1] \
-#   bash launch_run.sh [plan|workers|rca|bridge|master|all]
+#   [TOKEN_BUILD=/home/dat/pulse-tokens-YYYYMMDD [TOKEN_MODELS=.../MODELS.json] [V3_COUNTS=.../counts.json]]: lidds-ml-v3
+#   token probe build/proof on every worker, optional token models and count-branch thresholds (pulse-live-v3-v1)
+#   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1)
+#   bash launch_run.sh [plan|workers|rca|bridge|master|traffic|all]
+#   traffic: the traffic generator only (a normal capture, no campaign)
 #
 # Defaults: benign-exec controls on, no raw.jsonl, fast scoring on, RCA with follow-up cases.
 # FINAL=1 (final system, owner 25/10): tripwire A1 in the workers (frozen exec set E), shared-storage writes off the
@@ -41,6 +45,10 @@ plan() {
   [ -n "${ATTACK_RATES:-}" ] && flags+=(--attack-rates "$ATTACK_RATES")   # G4 slow attacker; default 6,12,24
   [ "$FINAL" = 1 ] && flags+=(--tripwire-exec-set "$SNAP/$EXEC_SET" --stream-root "$STREAM_ROOT")
   [ -n "${RECAL:-}" ] && flags+=(--recalibration "$RECAL")
+  [ -n "${TOKEN_BUILD:-}" ] && flags+=(--token-build "$TOKEN_BUILD")
+  [ -n "${TOKEN_MODELS:-}" ] && flags+=(--token-models "$TOKEN_MODELS")
+  [ -n "${V3_COUNTS:-}" ] && flags+=(--v3-counts "$V3_COUNTS")
+  [ "${LOCAL_DECISIONS:-0}" = 1 ] && flags+=(--local-decisions --stream-root "$STREAM_ROOT")
   [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \
     --source "$SNAP" --root "$ROOT" --run-id "$RUN" --profile custom --frozen-source "${FROZEN_SOURCE:-$SNAP}" \
@@ -51,7 +59,7 @@ plan() {
 workers() {
   for host in "${WORKERS[@]}"; do
     # local decision copy: root writes (UMask 0027), group dat reads (bridge and RCA followers run as dat)
-    [ "$FINAL" = 1 ] && sshpass -e ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/home/dat/.ssh/known_hosts \
+    { [ "$FINAL" = 1 ] || [ "${LOCAL_DECISIONS:-0}" = 1 ]; } && sshpass -e ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/home/dat/.ssh/known_hosts \
       "dat@$host" "sudo -S -p '' install -d -o root -g dat -m 2750 $STREAM_ROOT/$RUN" <<<"$LAB_SSH_PASSWORD"
     sshpass -e ssh -o StrictHostKeyChecking=yes -o UserKnownHostsFile=/home/dat/.ssh/known_hosts "dat@$host" \
       "cd /tmp && sudo -S -p '' env PYTHONPATH=$SNAP /opt/sentinel-pulse/runtime-venv/bin/python \
@@ -135,6 +143,12 @@ bridge() {
   as_root bash "$SNAP/scripts/alert_bridge.sh" "$RUN"
 }
 
+traffic() {
+  cd /tmp
+  as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
+    --config "$ROOT/CONFIG.json" --role traffic
+}
+
 master() {
   cd /tmp
   as_root env PYTHONPATH="$SNAP" /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.matched_services \
@@ -144,7 +158,7 @@ master() {
 }
 
 case "${1:-all}" in
-  plan) plan ;; workers) workers ;; rca) rca ;; bridge) bridge ;; master) master ;;
+  plan) plan ;; workers) workers ;; rca) rca ;; bridge) bridge ;; master) master ;; traffic) traffic ;;
   all) plan; workers; rca; [ "$FINAL" = 1 ] && bridge; master ;;
   *) echo "unknown step $1" >&2; exit 2 ;;
 esac
