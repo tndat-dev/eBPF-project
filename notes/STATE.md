@@ -48,8 +48,10 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 2. Bản build chính thức `/home/dat/pulse-tokens-20261107/{build,proof}` (46e9039, proof đạt 3 worker); lưu lượng trên pod thật
    75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
 3. `pulse-live-v3-v1`: lượt thu normal 12 h (`pulse-token-capture-<MMDD>`) → fit (`token_branch_fit.py`, `count_branch_fit.py`)
-   → lượt live blind 24 h. Không chạy chồng ablation vòng 2 (đang dump điểm trên `.234`, ước xong khoảng tối 08/11).
-4. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
+   → lượt live blind 24 h. Không chạy chồng ablation vòng 2.
+4. Ablation vòng 2: chạy lại 07/11 16:21 sau OOM của dump worker4 (trần 42 GB, chỉ còn 3 dump); worker1 chậm nhất
+   (khoảng 1,7 segment/giờ, còn 37/49), ước xong dump khoảng chiều 08/11 rồi bước ngân sách.
+5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
 
 ## Dữ liệu và tài nguyên
 
