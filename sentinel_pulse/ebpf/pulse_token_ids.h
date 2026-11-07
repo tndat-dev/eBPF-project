@@ -68,9 +68,9 @@
  *   kind 0: name only;
  *   kind 1: errno (1..4095) in bits 0..11;
  *   kind 2: size bucket (0..15) in bits 0..3;
- *   kind 3: open: bit 20 = write mode, bits 0..19 = first directory: FNV-1a 32 of the first path component masked to
- *           20 bits ('/' + component when the opened file's path has more than one component), or DIR_ROOT ('/'),
- *           DIR_REL (a path not starting with '/'), DIR_UNKNOWN (no path seen).
+ *   kind 3: open: bit 20 = write mode, bits 0..19 = first directory: FNV-1a 32 of the first path component under the
+ *           task's root masked to 20 bits ('/' + component when the opened file's path has more than one component),
+ *           or DIR_ROOT ('/'), DIR_REL (a file not under the task's root), DIR_UNKNOWN (fd or walk failed).
  * TOK_NONE marks an empty history slot: a gram whose leading slots are TOK_NONE is the shorter gram at thread start. */
 #define PULSE_TOK_NR_SHIFT 23
 #define PULSE_TOK_NR_MAX 511u
@@ -88,7 +88,7 @@
 #define PULSE_TOK_NONE 0xFFFFFFFFu
 #define PULSE_TOK_WINDOW_NS 500000000ULL
 #define PULSE_TOK_DIR_CHARS 64
-#define PULSE_TOK_PATH_MAX 1024
+#define PULSE_TOK_DIR_DEPTH 64   /* dentry levels walked up for the first directory, mount crossings included */
 /* O_WRONLY | O_RDWR | O_CREAT | O_TRUNC | O_APPEND (signals.WRITE_FLAGS) */
 #define PULSE_TOK_WRITE_FLAGS (01u | 02u | 0100u | 01000u | 02000u)
 

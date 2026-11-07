@@ -66,7 +66,6 @@ struct pulse_task_state {
     __u64 seen_ns;
     __u32 syscall_id;
 #ifdef PULSE_TOKENS
-    __u32 open_dir;     /* first directory of the file the current open is opening (security_file_open) */
     __u32 tok[3];       /* the thread's last three tokens, oldest first; PULSE_TOK_NONE when empty */
     __u32 tok_pending;  /* this call entered and gives its token at return (raw_tp/sys_exit mode) */
 #else
@@ -267,7 +266,6 @@ static __always_inline int pulse_record_call(__u32 syscall_id, int skipped)
     if (previous) {
         if (previous->cgroup_id != cgroup_id)
             pulse_tok_reset(previous);
-        previous->open_dir = PULSE_TOK_DIR_UNKNOWN;
         if (token_here)
             pulse_tok_emit(previous, cgroup_id, now_ns, pulse_tok_plain(syscall_id));
         previous->tok_pending = !token_here;

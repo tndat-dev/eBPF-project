@@ -24,3 +24,7 @@ Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date` hoặc giờ co
 | 07/11 11:55 | Overhead lần 1 (`fexit`): getpid +32–39 ns so với A, futex +277–316, read 4 KiB +226–349, open + close +2,3–2,7 µs và +1,8–2,1 µs cho process không giám sát | `results-20261107/token-probe-overhead/overhead-run1-fexit.json` |
 | 07/11 12:15 | Chẩn đoán: chi phí open tăng theo số trampoline, do kprobe Tetragon trên `__x64_sys_openat` đẩy hàm qua `ftrace_ops_list_func`; sửa: `--token-exit sys_exit` (mặc định), proof cả hai chế độ đạt (đúng 1 token/syscall) | `hookcost*.jsonl`, `proof-check-*.json`, amendment 1 |
 | 07/11 12:25 | Overhead lần 2 (amendment 1, `sys_exit` và `fexit` cùng vòng) trên 3 worker | unit `token-probe-overhead-2` |
+| 07/11 15:20 | Overhead lần 2: `sys_exit` so với A: getpid +101–131 ns, read +187–199, open + close +1,1–1,5 µs (fexit +2,3–3,1), futex +293–317 | `overhead-run2.json` |
+| 07/11 15:35 | Chẩn đoán 3: `fentry/security_file_open` tốn khoảng 380 ns mỗi lần mở của mọi process; thay bằng đi ngược dentry từ fd lúc open trả về (`bpf_loop`), probe không còn ftrace_ops; proof cả hai chế độ đạt | `hookcost3.jsonl`, amendment 2 |
+| 07/11 15:45 | Overhead lần 3 (bản đi ngược dentry) trên 3 worker | unit `token-probe-overhead-3` |
+| 07/11 16:10 | Nhánh đếm v3 trong worker (`detector/v3_policy.py`, cfg `v3_counts`), `count_branch_fit.py`, planner `--token-build --token-models --v3-counts`; protocol `pulse-live-v3-v1` (thu normal 12 h rồi live blind 24 h) đăng ký trước mọi dữ liệu | `sentinel_pulse/protocol/pulse-live-v3-v1.json` |

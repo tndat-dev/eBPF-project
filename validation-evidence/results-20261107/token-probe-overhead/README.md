@@ -13,3 +13,7 @@ three workers at the same time, 5 rounds, conditions rotated each round. Ablatio
   token per syscall, expected token values, seccomp path as the matched proof.
 - `*.run2.jsonl`, `overhead-run2.json`: second measurement (amendment 1), `--token-exit sys_exit` default for
   tokB/C/D, plus tokDfx / tokDfx_filtered in fexit mode.
+- `hookcost3.jsonl`: diagnostic, sys_exit mode, benchmark not monitored: fentry/security_file_open alone costs about
+  380 ns per open + close (medians off 8,618, sys_exit 9,585, without that hook 9,205 ns).
+- `proof-check-dentry-*-worker1.json`: proof of the dentry-walk build (no fentry), both modes valid.
+- `*.run3.jsonl`, `overhead-run3.json`: third measurement (amendment 2), dentry-walk build, sys_exit mode.

@@ -514,7 +514,7 @@ int main(int argc, char **argv)
         if (libbpf_get_error(token_link)) { fprintf(stderr, "token hook %s unavailable\n", name); return 1; }
         token_links[token_link_count++] = token_link;
     }
-    int token_expected = exit_by_tracepoint ? 2 : PULSE_HOOKED_COUNT + (token_config.futex_at_exit ? 1 : 0);
+    int token_expected = exit_by_tracepoint ? 1 : PULSE_HOOKED_COUNT - (token_config.futex_at_exit ? 0 : 1);
     if (token_link_count + token_skipped != token_expected) {
         fprintf(stderr, "token hooks attached: %d, expected %d\n", token_link_count, token_expected);
         return 1;
@@ -567,7 +567,7 @@ int main(int argc, char **argv)
             long gram_lines = drain_grams(grams_fd, now_window, wall_minus_mono, &grams_drained);
             if (gram_lines < 0) { fprintf(stderr, "token drain failed; stopping fail-closed\n"); break; }
             printf("{\"type\":\"token_drain\",\"observed_at\":%.9f,\"lines\":%ld,\"drain_seconds\":%.6f,\"entries_cumulative\":%llu,"
-                   "\"grams_cumulative\":%llu,\"insert_fail_cumulative\":%llu,\"path_fail_cumulative\":%llu}\n",
+                   "\"grams_cumulative\":%llu,\"insert_fail_cumulative\":%llu,\"dir_fail_cumulative\":%llu}\n",
                    wall_time(), gram_lines, wall_time() - drain_started, (unsigned long long)grams_drained,
                    (unsigned long long)tok_stat_sum(token_stats_fd, 2, cpu_count, token_scratch),
                    (unsigned long long)tok_stat_sum(token_stats_fd, 0, cpu_count, token_scratch),

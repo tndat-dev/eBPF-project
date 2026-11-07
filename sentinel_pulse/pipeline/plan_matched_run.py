@@ -36,7 +36,7 @@ PEER_PORT = 9479
 
 
 def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_source=None,custom=None,rates=(6,12,24),
-         final_system=None,recalibration=None):
+         final_system=None,recalibration=None,tokens=None):
     if not re.fullmatch('[a-z0-9-]{3,60}',run_id):raise ValueError('unsafe run id')
     # custom: every pinned value comes from the command line (later runs need no code change)
     spec=dict(custom) if profile=='custom' else PROFILES[profile]
@@ -76,6 +76,20 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         loader='/home/dat/pulse-matched-20261015/build/pulse_counter_extended_loader',
         object='/home/dat/pulse-matched-20261015/build/pulse_counter_extended.bpf.o',
         proof='/home/dat/pulse-matched-20261015/proof') for host,node in WORKERS.items()}
+    # lidds-ml-v3 token probe (tokens: build, models, v3_counts): every worker runs the token build in its own
+    # directory (build/ from make tokens, proof/ from scripts/token_probe_proof.py); token models and count thresholds
+    # are optional (a normal capture to fit them runs without), and are checked by sha256 in the worker
+    if tokens:
+        build=Path(tokens['build'])
+        for worker in cfg['workers'].values():
+            worker.update(loader=str(build/'build'/'pulse_counter_tokens_loader'),
+                          object=str(build/'build'/'pulse_counter_tokens.bpf.o'),proof=str(build/'proof'))
+        cfg['tokens']=dict(mode='grams')
+        if tokens.get('models'):
+            cfg['tokens']['models']=json.loads(Path(tokens['models']).read_text())
+            cfg['tokens']['models_document']=dict(path=str(tokens['models']),sha256=sha256_file(Path(tokens['models'])))
+        if tokens.get('v3_counts'):
+            cfg['v3_counts']=dict(path=str(tokens['v3_counts']),sha256=sha256_file(Path(tokens['v3_counts'])))
     # evidence discount (policy rule key evidence_discount): every worker serves its window masks on PEER_PORT and
     # follows the other workers (pipeline/peer_exchange.py)
     if json.loads(policy.read_text())['rule'].get('evidence_discount'):
@@ -135,6 +149,9 @@ if __name__=='__main__':
     p.add_argument('--stream-root',default='/var/lib/sentinel-pulse-live',help='final system: local decision copy on each worker')
     p.add_argument('--recalibration',help='rolling-W-R: every R hours recalibrate on the preceding W hours of all workers')
     p.add_argument('--recalibration-exclude-campaign',action='store_true',help="leave the campaign's intervals out of it")
+    p.add_argument('--token-build',help='lidds-ml-v3 token probe: directory with build/ and proof/ on every worker')
+    p.add_argument('--token-models',type=Path,help='token branch models (MODELS.json of token_branch_fit.py)')
+    p.add_argument('--v3-counts',type=Path,help='count-branch thresholds (count_branch_fit.py)')
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
     if not rates or not all(1<=r<=100 for r in rates):p.error('attack rates must be 1-100 per second')
@@ -151,4 +168,6 @@ if __name__=='__main__':
         m=re.fullmatch(r'rolling-(\d+)-(\d+)',a.recalibration)
         if not m:p.error('recalibration must be rolling-W-R')
         recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
-    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal)
+    if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
+    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts) if a.token_build else None
+    plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens)

@@ -1,0 +1,57 @@
+{
+  "schema": "sentinel-pulse-live-v3-v1",
+  "registered_at": "2026-11-07T16:10+07:00",
+  "registered_before": "both runs are only planned; no data of either exists. Overhead of the token probe: token-probe-overhead-v1 and its amendments",
+  "owner_decisions": [
+    "01/11: the ML is developed first and decided before any rule (tripwire, novelty, votes); then a comparison without and with rules",
+    "01/11: the replica gate (peer evidence discount) is removed from the ML",
+    "06/11: the token probe uses select1f with the futex exit hook; overhead is measured and reported, not a pass/fail limit"
+  ],
+  "system": {
+    "ml": "lidds-ml-v3 (sentinel_pulse/protocol/lidds-ml-v3.json) on the cluster: token branch (sentinel_pulse/detector/token_model.py, per-workload model learnt from the cluster's own normal) + reference tree + support of the frozen candidate; one window above any branch's threshold fires",
+    "probe": "make tokens build, loader --tokens grams --token-exit sys_exit, proof by scripts/token_probe_proof.py on every worker, bound to its kernel and artifact hashes",
+    "tree_support_model": "pulse-next-run-model/model-bundle (CANDIDATE_MANIFEST sha256 4bad16dcd88b004f55d81c1a9721b9224a55b7a2cc2f35023cf57c8bb11d7fbc), the model of pulse-final-system-confirm; its preview policy is replaced by the v3 count branches (worker cfg v3_counts) and kept beside it as policy_alert_preview",
+    "preview_policy_file": "sentinel_pulse/protocol/policy-1win-a3.json (no evidence discount, hence no peer exchange); required by the worker, its alarm is not an arm here",
+    "rules": "none: tripwire A1 off; the comparison with rules is a later step"
+  },
+  "stage_1_capture": {
+    "run": "pulse-token-capture-<MMDD>",
+    "what": "normal traffic only (matched traffic schedule), no attack campaign, 12 h, token build on the three workers, decisions of the frozen tree/support scored as usual",
+    "spans": "training = the first 8 h after the traffic schedule starts; validation = the last 4 h",
+    "fit": [
+      "token branch: scripts/analysis/token_branch_fit.py --train <first 8 h> --validation <last 4 h> --alpha 0.0002 --block 60 --minimum-blocks 30",
+      "count branches: scripts/analysis/count_branch_fit.py --validation <last 4 h> --alpha 0.0002 --block 60 --minimum-blocks 30",
+      "alpha 0.0002 and the per-branch alpha / 3 are lidds-ml-v3's; the 60 s block is the design report's example, fixed here before any data"
+    ],
+    "reported": "token windows per workload, events and distinct grams per window, tokens.jsonl bytes per hour, drain time, insert and dentry-walk failures, validation blocks above each threshold (expected about alpha / 3 per block if the fit holds)",
+    "frozen_after": "MODELS.json and the count-threshold file are written once, their sha256 enter the stage-2 plan; nothing is refitted after stage 2 starts"
+  },
+  "stage_2_live": {
+    "run": "pulse-live-v3-<MMDD>",
+    "campaign": "as pulse-final-system-confirm: 21 workloads x 5 scenarios x attack rates 1, 3, 6, 12, 24 per second, 525 trials, each idle control (15 s) -> benign exec from its own file name (15 s) -> attack (15 s) on one container; fresh campaign on fresh traffic, 24 h",
+    "primary_set": "attack rates 6, 12, 24 per second",
+    "arms": {
+      "V3": "candidate_alert_preview of the count decisions (v3 tree or support) or of the token decisions (branch token): the system",
+      "T": "token branch alone",
+      "C": "count branches alone (tree or support)",
+      "tree, support": "each count branch alone"
+    },
+    "definitions": "as rule-integration-v1 amendment 2: a trial is detected when any alarm of the arm falls inside [start, start + 15 s] on its container; alert time = earliest alarm; normal alarms of one container (pod_uid, container) merged into episodes when less than 15 s apart",
+    "expectations": "V3 primary: recall >= 95 %, precision >= 95 %, idle-control positive <= 5 %, p95 kernel -> first alarm (window end) <= 3 s; met = all four; Wilson 95 % CI",
+    "reported_without_threshold": [
+      "benign-exec control flagged (share of benign binaries alarmed), per arm",
+      "alarm burden: episodes per replica-hour over selection end -> capture end without the campaign span, workload-clustered bootstrap 95 % CI, per arm, beside pulse-final-system-confirm (1.76 with the replica gate, 5.60 without)",
+      "recall by attack rate and by scenario, per arm",
+      "token scoring latency (token_scored_at - window_end) and frame lag p50 / p95 / p99 / max per worker",
+      "worker CPU and memory, tokens.jsonl volume"
+    ],
+    "after": "exec-intent is decided on this run's benign-binary share; then the comparison with rules; LID-DS 2019 last"
+  },
+  "order": "stage 1 and stage 2 never overlap ablation stage 2 (syscall-loo-stage2) or any other heavy job on any node; stage 2 starts only after the stage-1 fit is frozen",
+  "limits": [
+    "the count branches score only windows the frozen candidate scores (its history requirement stays; lidds-ml-v3 lifted the warm-up gate offline)",
+    "thresholds are per workload from one 4 h validation span; drift over the 24 h live run is not refitted",
+    "the token alphabet and the errno list were chosen on LID-DS development with attack labels; this run and LID-DS 2019 are the independent evidence"
+  ],
+  "code": "sentinel_pulse/pipeline/plan_matched_run.py --token-build --token-models --v3-counts, pipeline/matched_worker.py (cfg tokens, v3_counts), detector/token_model.py, detector/v3_policy.py, collector/token_capture.py"
+}

@@ -21,6 +21,7 @@ from ..collector.extended_capture import ExtendedFeatureStream
 from ..collector.features import TRACKED_SYSCALLS
 from ..collector.token_capture import token_window
 from ..detector.token_model import TokenBranch
+from ..detector.v3_policy import CountBranches
 from ..detector.idle_batch import IdleBatchRuntime
 from ..detector.idle_candidate import IdleCandidateScorer
 from ..detector.novelty import PeerNovelty, id_mask
@@ -160,6 +161,10 @@ def run(config_path):
     token_branch=TokenBranch(tokens_cfg['models'],sha256_file) if tokens_cfg and tokens_cfg.get('models') else None
     if tokens_cfg:
         state.setdefault('token_windows',0);state.setdefault('token_scored',0);state.setdefault('token_alerts',0)
+    # lidds-ml-v3 count branches (cfg v3_counts: {"path", "sha256"}; detector/v3_policy.py): tree and support against
+    # per-workload Gumbel thresholds replace the preview policy's alarm; the policy's own result is kept beside it
+    v3_counts=(CountBranches(Path(cfg['v3_counts']['path']),cfg['v3_counts']['sha256'],sha256_file)
+               if cfg.get('v3_counts') else None)
     stop=False
     def stopped(*_):
         nonlocal stop
@@ -215,7 +220,7 @@ def run(config_path):
                             if tokens_cfg and row['type']=='token_grams':token_pending.append(row);continue
                             if tokens_cfg and row['type']=='token_drain':
                                 state['token_drain']={k:row[k] for k in ('drain_seconds','entries_cumulative',
-                                    'grams_cumulative','insert_fail_cumulative','path_fail_cumulative')};continue
+                                    'grams_cumulative','insert_fail_cumulative','dir_fail_cumulative')};continue
                             if row['type']!='snapshot_end':raise ValueError('unexpected frame record')
                             boundary=float(row['observed_at']);now=time.time()
                             if last is not None:
@@ -267,6 +272,9 @@ def run(config_path):
                                     decision.update(run_id=cfg['run_id'],capture_segment=segment.name,
                                         preview_emitted_at=time.time(),interval_ms=500)
                                     if recal is not None:decision['calibration_epoch']=epoch
+                                    if v3_counts is not None:
+                                        fields=v3_counts.apply(decision)
+                                        if fields:decision.update(fields)
                                     if tripwire is not None:
                                         fields=tripwire.judge(rec['workload_key'],float(rec['window_end']),masks[offset+j])
                                         if fields:decision.update(fields)

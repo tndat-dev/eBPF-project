@@ -124,3 +124,22 @@ def test_token_branch_scores_and_checks_models(tmp_path):
     assert branch.score(dict(workload_key='production/other:c', grams=[])) is None
     with pytest.raises(ValueError):
         TokenBranch({**spec, 'production/api:app': dict(spec['production/api:app'], lm_sha256='0' * 64)}, sha256_file)
+
+
+def test_count_branches(tmp_path):
+    import json as _json
+    from sentinel_pulse.detector.v3_policy import CountBranches, tree_logit
+    from sentinel_pulse.integrity import sha256_file
+    path = tmp_path / 'counts.json'
+    path.write_text(_json.dumps(dict(schema='pulse-v3-count-thresholds-v1',
+                                     workloads={'production/api:app': dict(tree=tree_logit(0.9), support=5.0)})))
+    cb = CountBranches(path, sha256_file(path), sha256_file)
+    base = dict(status='candidate-raw-score-only', workload_key='production/api:app', candidate_alert_preview=False)
+    assert cb.apply(dict(base, tree_score=0.5, support_score=1.0))['candidate_alert_preview'] is False
+    hit = cb.apply(dict(base, tree_score=0.95, support_score=1.0))
+    assert hit['v3_tree_alert'] and not hit['v3_support_alert'] and hit['candidate_alert_preview'] is True
+    assert cb.apply(dict(base, tree_score=0.5, support_score=6.0))['v3_support_alert'] is True
+    assert cb.apply(dict(base, status='record_rejected')) is None
+    assert cb.apply(dict(base, workload_key='production/other:c', tree_score=1, support_score=9)) is None
+    with pytest.raises(ValueError):
+        CountBranches(path, '0' * 64, sha256_file)

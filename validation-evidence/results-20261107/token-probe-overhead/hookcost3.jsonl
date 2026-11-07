@@ -1,0 +1,15 @@
+{"round":1,"c":"off","r":{"mode": "openclose", "ops": 461824, "seconds": 4.002288, "ns_per_op": 8666.262}}
+{"round":1,"c":"sysexit","r":{"mode": "openclose", "ops": 417792, "seconds": 4.006246, "ns_per_op": 9589.091}}
+{"round":1,"c":"sysexit_nodir","r":{"mode": "openclose", "ops": 447488, "seconds": 4.002289, "ns_per_op": 8943.902}}
+{"round":2,"c":"off","r":{"mode": "openclose", "ops": 485376, "seconds": 4.003386, "ns_per_op": 8248.009}}
+{"round":2,"c":"sysexit","r":{"mode": "openclose", "ops": 417792, "seconds": 4.004689, "ns_per_op": 9585.365}}
+{"round":2,"c":"sysexit_nodir","r":{"mode": "openclose", "ops": 430080, "seconds": 4.007833, "ns_per_op": 9318.808}}
+{"round":3,"c":"off","r":{"mode": "openclose", "ops": 459776, "seconds": 4.008050, "ns_per_op": 8717.397}}
+{"round":3,"c":"sysexit","r":{"mode": "openclose", "ops": 450560, "seconds": 4.000798, "ns_per_op": 8879.612}}
+{"round":3,"c":"sysexit_nodir","r":{"mode": "openclose", "ops": 435200, "seconds": 4.005920, "ns_per_op": 9204.780}}
+{"round":4,"c":"off","r":{"mode": "openclose", "ops": 464896, "seconds": 4.006510, "ns_per_op": 8618.077}}
+{"round":4,"c":"sysexit","r":{"mode": "openclose", "ops": 412672, "seconds": 4.000566, "ns_per_op": 9694.300}}
+{"round":4,"c":"sysexit_nodir","r":{"mode": "openclose", "ops": 441344, "seconds": 4.008156, "ns_per_op": 9081.704}}
+{"round":5,"c":"off","r":{"mode": "openclose", "ops": 476160, "seconds": 4.000625, "ns_per_op": 8401.850}}
+{"round":5,"c":"sysexit","r":{"mode": "openclose", "ops": 464896, "seconds": 4.000643, "ns_per_op": 8605.457}}
+{"round":5,"c":"sysexit_nodir","r":{"mode": "openclose", "ops": 424960, "seconds": 4.011718, "ns_per_op": 9440.224}}

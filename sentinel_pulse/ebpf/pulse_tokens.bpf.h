@@ -20,7 +20,7 @@ struct {
     __type(value, __u64);
 } pulse_grams SEC(".maps");
 
-/* 0: gram insert failed (map full), 1: d_path failed, 2: grams counted */
+/* 0: gram insert failed (map full), 1: first directory walk deeper than PULSE_TOK_DIR_DEPTH, 2: grams counted */
 struct {
     __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
     __uint(max_entries, 3);
@@ -28,12 +28,6 @@ struct {
     __type(value, __u64);
 } pulse_tok_stats SEC(".maps");
 
-struct {
-    __uint(type, BPF_MAP_TYPE_PERCPU_ARRAY);
-    __uint(max_entries, 1);
-    __type(key, __u32);
-    __type(value, char[PULSE_TOK_PATH_MAX]);
-} pulse_tok_path SEC(".maps");
 
 static __always_inline void pulse_tok_stat(__u32 index)
 {
@@ -47,7 +41,6 @@ static __always_inline void pulse_tok_reset(struct pulse_task_state *state)
     state->tok[0] = PULSE_TOK_NONE;
     state->tok[1] = PULSE_TOK_NONE;
     state->tok[2] = PULSE_TOK_NONE;
-    state->open_dir = PULSE_TOK_DIR_UNKNOWN;
 }
 
 static __always_inline __u32 pulse_tok_plain(__u32 nr)
@@ -120,6 +113,93 @@ static __always_inline __u32 pulse_tok_flags(__u32 nr)
     }
 }
 
+/* First directory of the file an open just returned as fd, as LID-DS takes it from sysdig's resolved fd=N(<f>PATH):
+ * '/' + the first component under the task's root (inside a container, the container's root), DIR_ROOT for a file
+ * directly in the root, DIR_REL for a file not under the task's root (pseudo files, another root), DIR_UNKNOWN when
+ * the walk fails. The dentry chain is walked upwards, crossing mount points, without d_path: d_path is allowed only
+ * in a few fentry hooks, and every fentry trampoline is one more ftrace_ops (07/11: fentry/security_file_open cost
+ * about 380 ns on every open of every process of the node, monitored or not). */
+static __always_inline __u32 pulse_tok_dir_hash(const unsigned char *name)
+{
+    char buffer[PULSE_TOK_DIR_CHARS];
+    if (bpf_probe_read_kernel_str(buffer, sizeof(buffer), name) <= 0)
+        return PULSE_TOK_DIR_UNKNOWN;
+    __u32 hash = PULSE_TOK_FNV_BASIS;
+    for (int index = 0; index < PULSE_TOK_DIR_CHARS - 1; index++) {
+        char c = buffer[index];
+        if (c == 0) break;
+        hash = (hash ^ (__u8)c) * PULSE_TOK_FNV_PRIME;
+    }
+    hash &= PULSE_TOK_DIR_MASK;
+    return hash >= PULSE_TOK_DIR_REL ? hash - 2 : hash;   /* keep the two reserved codes */
+}
+
+struct pulse_tok_walk {
+    struct dentry *dentry, *root_dentry, *top;
+    struct vfsmount *vfsmnt, *root_mnt;
+    struct mount *mnt;
+    __u64 mount_offset;
+    __u32 components, result, done;
+};
+
+/* one step up; bpf_loop keeps the verifier to one pass over this body (an unrolled 64-step walk is too complex) */
+static long pulse_tok_walk_step(__u32 index, void *context)
+{
+    struct pulse_tok_walk *walk = context;
+    /* plain locals: BPF_CORE_READ on walk->field would relocate the field of this local struct against the kernel */
+    struct dentry *dentry = walk->dentry, *top = walk->top;
+    struct vfsmount *vfsmnt = walk->vfsmnt;
+    struct mount *mnt = walk->mnt;
+    (void)index;
+    if (dentry == walk->root_dentry && vfsmnt == walk->root_mnt) {
+        walk->result = (!top || walk->components == 1) ? PULSE_TOK_DIR_ROOT
+                       : pulse_tok_dir_hash(BPF_CORE_READ(top, d_name.name));
+        walk->done = 1;
+        return 1;
+    }
+    if (dentry == BPF_CORE_READ(vfsmnt, mnt_root)) {
+        struct mount *parent = BPF_CORE_READ(mnt, mnt_parent);
+        if (parent == mnt) {            /* a filesystem root that is not the task's root */
+            walk->result = PULSE_TOK_DIR_REL;
+            walk->done = 1;
+            return 1;
+        }
+        walk->dentry = BPF_CORE_READ(mnt, mnt_mountpoint);
+        walk->mnt = parent;
+        walk->vfsmnt = (struct vfsmount *)((void *)parent + walk->mount_offset);
+        return 0;
+    }
+    walk->top = dentry;
+    walk->components++;
+    walk->dentry = BPF_CORE_READ(dentry, d_parent);
+    return 0;
+}
+
+static __always_inline __u32 pulse_tok_dir_of_fd(long fd)
+{
+    struct task_struct *task = (struct task_struct *)bpf_get_current_task();
+    struct fdtable *table = BPF_CORE_READ(task, files, fdt);
+    if (!table || fd < 0 || fd >= BPF_CORE_READ(table, max_fds))
+        return PULSE_TOK_DIR_UNKNOWN;
+    struct file **files = BPF_CORE_READ(table, fd);
+    struct file *file = NULL;
+    if (bpf_probe_read_kernel(&file, sizeof(file), &files[fd]) < 0 || !file)
+        return PULSE_TOK_DIR_UNKNOWN;
+    struct pulse_tok_walk walk = {
+        .dentry = BPF_CORE_READ(file, f_path.dentry),
+        .vfsmnt = BPF_CORE_READ(file, f_path.mnt),
+        .root_dentry = BPF_CORE_READ(task, fs, root.dentry),
+        .root_mnt = BPF_CORE_READ(task, fs, root.mnt),
+        .mount_offset = bpf_core_field_offset(struct mount, mnt),
+        .result = PULSE_TOK_DIR_UNKNOWN,
+    };
+    walk.mnt = (struct mount *)((void *)walk.vfsmnt - walk.mount_offset);
+    bpf_loop(PULSE_TOK_DIR_DEPTH, pulse_tok_walk_step, &walk, 0);
+    if (!walk.done)
+        pulse_tok_stat(1);              /* deeper than PULSE_TOK_DIR_DEPTH */
+    return walk.result;
+}
+
 static __always_inline int pulse_tok_return(struct pulse_task_state *state, __u64 cgroup_id, __u32 nr, __u32 flags,
                                             const struct pt_regs *regs, long ret)
 {
@@ -142,7 +222,7 @@ static __always_inline int pulse_tok_return(struct pulse_task_state *state, __u6
             if (bpf_probe_read_user(&open_flags, sizeof(open_flags), how) < 0)
                 open_flags = 0;
         }
-        tok |= PULSE_TOK_KIND_OPEN | (state->open_dir & PULSE_TOK_DIR_MASK) |
+        tok |= PULSE_TOK_KIND_OPEN | (pulse_tok_dir_of_fd(ret) & PULSE_TOK_DIR_MASK) |
                ((open_flags & PULSE_TOK_WRITE_FLAGS) ? PULSE_TOK_OPEN_WRITE : 0);
     }
     pulse_tok_emit(state, cgroup_id, bpf_ktime_get_ns(), tok);
@@ -190,48 +270,5 @@ int pulse_tok_sys_exit(struct bpf_raw_tracepoint_args *context)
     }
 PULSE_HOOKED_ROWS(PULSE_TOK_EXIT_PROG)
 #undef PULSE_TOK_EXIT_PROG
-
-/* First directory of the file being opened, from its resolved path (as sysdig's fd=N(<f>PATH) in LID-DS), kept for
- * the open's fexit. d_path is relative to the task's root, so inside a container it is the container's view. */
-SEC("fentry/security_file_open")
-int BPF_PROG(pulse_tok_open_dir, struct file *file)
-{
-    __u64 pid_tgid = bpf_get_current_pid_tgid();
-    struct pulse_task_state *state = bpf_map_lookup_elem(&pulse_last_syscall, &pid_tgid);
-    if (!state || state->cgroup_id != bpf_get_current_cgroup_id())
-        return 0;
-    __u32 zero = 0;
-    char *path = bpf_map_lookup_elem(&pulse_tok_path, &zero);
-    if (!path)
-        return 0;
-    long length = bpf_d_path(&file->f_path, path, PULSE_TOK_PATH_MAX);
-    if (length < 0) {
-        state->open_dir = PULSE_TOK_DIR_UNKNOWN;
-        pulse_tok_stat(1);
-        return 0;
-    }
-    if (path[0] != '/') {
-        state->open_dir = PULSE_TOK_DIR_REL;
-        return 0;
-    }
-    __u32 hash = PULSE_TOK_FNV_BASIS;
-    int ended = 0;
-    for (int index = 1; index < PULSE_TOK_DIR_CHARS; index++) {
-        char c = path[index];
-        if (c == '/') break;
-        if (c == 0) { ended = 1; break; }
-        hash = (hash ^ (__u8)c) * PULSE_TOK_FNV_PRIME;
-    }
-    if (ended) {
-        state->open_dir = PULSE_TOK_DIR_ROOT;   /* '/' or '/name': a file in the root, top '/' */
-        return 0;
-    }
-    /* a first component of 63+ chars is hashed on its first 63, as a directory */
-    hash &= PULSE_TOK_DIR_MASK;
-    if (hash >= PULSE_TOK_DIR_REL)
-        hash -= 2;   /* keep the two reserved codes */
-    state->open_dir = hash;
-    return 0;
-}
 
 #endif
