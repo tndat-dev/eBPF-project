@@ -14,7 +14,7 @@ Tổng hợp ngày 23/10/2026 từ 70 bài trong [`catalog.json`](catalog.json).
 - **[TB]** — số liệu tác giả tự báo cáo trên dữ liệu và cách đo của họ; **không so trực tiếp** với số của Pulse;
 - **[ĐA]** — nhận định hoặc suy luận của đồ án. Phải có bằng chứng trong 4 báo cáo trạng thái trước khi đưa vào luận văn.
 
-Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối file](#bảng-tra-khóa--file). Số mục như "Pulse 5.19", "syscall 5C", "RCA 5.14" là mục trong [SENTINEL_PULSE_STATUS.md](../SENTINEL_PULSE_STATUS.md), [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](../SYSCALL_FEATURE_EXPERIMENT_STATUS.md) và [RCA_RUNTIME_STATUS.md](../RCA_RUNTIME_STATUS.md).
+Tên bài viết dạng *Tác giả năm*; bảng tra sang file PDF ở [cuối file](#bảng-tra-khóa--file). Số mục như "Pulse 5.19", "syscall 5C", "RCA 5.14" là mục trong các file trạng thái cũ (xoá 07/11, xem git `8b1bc44`) và [RCA_RUNTIME_STATUS.md](../RCA_RUNTIME_STATUS.md).
 
 ## Bản đồ nhanh
 

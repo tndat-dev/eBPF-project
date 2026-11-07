@@ -35,10 +35,9 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-REPORTS = ('RESEARCH_IDEAS.md', 'SENTINEL_PULSE_STATUS.md', 'SYSCALL_FEATURE_EXPERIMENT_STATUS.md',
-           'RCA_RUNTIME_STATUS.md', 'RULE_INTEGRATION_STATUS.md')
+REPORTS = ('RESEARCH_IDEAS.md', 'notes/STATE.md')    # the four status files were removed on 07/11
 LINK = re.compile(r'\[([^\]]{3,200})\]\((https?://[^)\s]+)\)')
-UA = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101 Firefox/128.0',
+UA = {'User-Agent': 'eBPF-project-reference-fetcher/1.0 (research use)',     # an honest client name, not a browser
       'Accept': 'text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.5'}
 DATASET = ('zenodo.org', 'ieee-dataport.org', 'github.com/LID-DS')
 TOOL = ('github.com', 'raw.githubusercontent.com', 'mapie.readthedocs.io', 'attack.mitre.org', 'istio.io/latest/docs',

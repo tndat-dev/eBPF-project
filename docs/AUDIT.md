@@ -12,64 +12,58 @@ python3 scripts/audit/headline_numbers.py --markdown /tmp/AUDIT-table.md   # b�
 
 **Kết quả 29/10:** 54/54 câu khớp biên nhận (thêm G7, LID-DS 2021, luật phá hoà RCA, các dòng tương ứng trong luận văn). Lần thêm này bắt được một lỗi làm tròn hai lần ở bảng G7: Δ p95 của `/`, `/api/health/`, `/api/products/` là 5,845%, 3,145%, 8,145% nhưng báo cáo và luận văn ghi +5,9 / +3,2 / +8,2%; đã sửa thành +5,8 / +3,1 / +8,1% (kết luận không đổi). **Kết quả 25/10:** 31/31 câu khớp biên nhận. Hai số trước đây chỉ có trong báo cáo mà không có trong file biên nhận nào (push tới người nhận ở tập chính: 309/315 trial, p95 3,17 s) nay được tính lại trực tiếp từ log bridge và kết quả campaign trong repo; kết quả khớp.
 
+**Cập nhật 07/11:** bốn file trạng thái (`SENTINEL_PULSE_STATUS.md`, `RULE_INTEGRATION_STATUS.md`, `RCA_RUNTIME_STATUS.md`, `SYSCALL_FEATURE_EXPERIMENT_STATUS.md`) đã xoá theo yêu cầu của chủ đồ án; các câu kiểm trong đó được bỏ (danh sách `RETIRED` trong script). Các câu của bản LaTeX và `TODO.md` vẫn được kiểm, cộng 5 câu mới cho bảng hệ thống cuối chạy live trong bản LaTeX. Bảng dưới là kết quả chạy lại.
+
 | Mã | Báo cáo | Câu được kiểm (tính lại từ biên nhận) | Biên nhận | Khớp |
 |---|---|---|---|---|
-| `final-recall` | SENTINEL_PULSE_STATUS.md | ¦ Recall ¦ ≥ 95% ¦ **98,7%** (306/310) [96,7; 99,5] ¦ | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-precision` | SENTINEL_PULSE_STATUS.md | ¦ Precision ¦ ≥ 95% ¦ **98,7%** (306/310) | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-control` | SENTINEL_PULSE_STATUS.md | ¦ Control idle dương ¦ ≤ 5% ¦ **1,3%** (4/311) [0,5; 3,3] ¦ | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-p95` | SENTINEL_PULSE_STATUS.md | **2,88 s** (mức chấp nhận) | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-benign` | SENTINEL_PULSE_STATUS.md | ¦ Binary vô hại bị gắn cờ ¦ (báo kèm) ¦ 86,1% (266/309) ¦ | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-slow` | SENTINEL_PULSE_STATUS.md | Recall 80,8% (84/104) ở 1/s và 95,2% (99/104) ở 3/s | `results-20261025/pulse-peer-discount-confirm/confirm-campaign.json` | có |
-| `final-burden` | SENTINEL_PULSE_STATUS.md | **1,69 đợt/replica-giờ** [0,52; 3,85] | `results-20261025/pulse-peer-discount-confirm/burden-blind-test.json` | có |
-| `final-burden-ratio` | SENTINEL_PULSE_STATUS.md | bằng 0,37 lần CUSUM `keep` và 0,28 lần stable trước | `results-20261025/pulse-peer-discount-confirm/burden-blind-test.json` | có |
-| `final-agreement` | SENTINEL_PULSE_STATUS.md | 99,9999% cửa sổ (14 cửa sổ chỉ live có, 0 theo chiều ngược lại) | `results-20261025/pulse-peer-discount-confirm/burden-blind-test.json` | có |
-| `final-push` | SENTINEL_PULSE_STATUS.md | tập chính 309/315 trial, p50 1,03 s, p95 3,17 s; mọi tốc độ 493/524, p95 3,91 s | `results-20261025/alert-bridge/*.jsonl.gz + campaign-RESULTS.json (join of alert_delivery_latency.py)` | có |
-| `final-pull` | SENTINEL_PULSE_STATUS.md | pull nhanh p50 6,4 s; pull mặc định chỉ tới người nhận ở 130/524 trial (p50 61 s) | `results-20261025/pulse-peer-discount-confirm/delivery-latency-campaign.json` | có |
-| `r6-b2-summary` | SENTINEL_PULSE_STATUS.md | tripwire thêm 2,1 điểm recall ở mọi tốc độ (94,5% → 96,6%), p95 nhanh hơn 0,47 s, gánh chỉ +0,066 đợt/replica-giờ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-row-A` | RULE_INTEGRATION_STATUS.md | ¦ A — ML ¦ 98,7% (94,5%) ¦ 1,3% (4) ¦ 85,7% ¦ 98,7% ¦ 0,86 s ¦ 2,91 s (3,72 s) ¦ 1,42 ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-row-B1` | RULE_INTEGRATION_STATUS.md | ¦ B1 — ML + Falco ¦ 98,7% (95,2%) ¦ 2,9% (9) ¦ 86,0% ¦ 97,2% ¦ 0,71 s ¦ 2,48 s (3,20 s) ¦ 2,54 ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-row-B2` | RULE_INTEGRATION_STATUS.md | ¦ B2 — ML + tripwire ¦ 98,7% (96,6%) ¦ 1,6% (5) ¦ 85,7% ¦ 98,4% ¦ 0,68 s ¦ 2,44 s (2,61 s) ¦ 1,48 ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-row-B3` | RULE_INTEGRATION_STATUS.md | ¦ B3 — ML rồi triage probe ¦ 98,7% (94,5%) ¦ 1,3% (4) ¦ 85,7% ¦ 98,7% ¦ 3,23 s ¦ 5,90 s (6,52 s) ¦ 1,09 ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-row-B_all` | RULE_INTEGRATION_STATUS.md | ¦ B_all ¦ 98,7% (96,6%) ¦ 3,2% (10) ¦ 86,0% ¦ 96,9% ¦ 0,54 s ¦ 4,82 s (4,88 s) ¦ 2,28 ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-b2-burden-ci` | RULE_INTEGRATION_STATUS.md | **+0,066 [+0,020; +0,133]** | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-tripwire-alone` | RULE_INTEGRATION_STATUS.md | ¦ Tripwire A1 ¦ 60,0% (59,9%) ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-tripwire-burden` | RULE_INTEGRATION_STATUS.md | ¦ 0,3% ¦ 0,6% ¦ 99,5% ¦ **0,099** ¦ | `results-20261025/rule-integration/rule-comparison.json` | có |
-| `r6-falco-rule` | RULE_INTEGRATION_STATUS.md | **Falco:** 839/845 đợt normal | `results-20261025/rule-integration/falco-baseline.json` | có |
-| `r6-secondary-b2` | RULE_INTEGRATION_STATUS.md | **+0,045 [+0,004; +0,113]** | `results-20261025/rule-integration-secondary/rule-comparison.json` | có |
-| `confirm-fail` | SENTINEL_PULSE_STATUS.md | **không đạt** (precision 94,6%, control 5,8%, 18/309) | `results-20261023/pulse-stable-confirm/confirm-campaign.json` | có |
 | `blind-522` | TODO.md | gánh 1,74, control 2,9%, precision 97,2%, p95 2,68 s | `results-20261023/pulse-stable-confirm/burden-blind-test.json` | có |
-| `benign-range` | SENTINEL_PULSE_STATUS.md | bị gắn cờ 80,7–95,1% qua 5 lượt live (86,1% ở lượt cuối) | `docs/figures/vi/live-runs-table.md (generated from the campaign receipts) + confirm-campaign.json` | có |
-| `baselines-fresh` | SENTINEL_PULSE_STATUS.md | AE và `tree_ae` tăng recall 4,9 điểm nhưng tách binary vô hại kém khoảng 26 điểm (CI dưới 0) | `results-20261021/baselines/fresh/FRESH-ADOPTION.json` | có |
-| `overhead` | SENTINEL_PULSE_STATUS.md | thêm khoảng 250–450 ns mỗi syscall khi container được theo dõi, 80–230 ns khi không | `results-20261021/overhead/OVERHEAD-AB.json (added ns per op / syscalls per op)` | có |
-| `label-review` | SENTINEL_PULSE_STATUS.md | **Review nhãn (5.20):** 4.766 cảnh báo normal, không case nào có dấu hiệu độc hại | `results-20261021/pulse-stable-candidate/label-review.json` | có |
-| `label-review-shares` | SENTINEL_PULSE_STATUS.md | ¦ benign_probe ¦ 2.573 ¦ 54,0% (52,6–55,4) | `results-20261021/pulse-stable-candidate/label-review.json` | có |
-| `rca-final` | RCA_RUNTIME_STATUS.md | Attack có case riêng 459/524 (87,6%); top-1 99,8%, top-3 100%; preview → case p95 2,59 s (case attack); 575 case normal | `results-20261025/pulse-peer-discount-confirm/rca-coverage.json, rca-ranking-reranked.json, alarm-taxonomy.json` | có |
-| `rca-confirm` | RCA_RUNTIME_STATUS.md | `pulse-stable-confirm` 86,9% / 99,8% / 2,50 s (5.15) | `results-20261023/pulse-stable-confirm/rca-coverage.json, rca-ranking-reranked.json` | có |
-| `final-system-summary` | SENTINEL_PULSE_STATUS.md | tập chính recall 99,4% (313/315), precision 99,4%, control 0,6% (2/314), **p95 1,97 s** | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
-| `final-system-burden` | SENTINEL_PULSE_STATUS.md | S − A = +0,049 [+0,005; +0,124] | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
-| `final-system-agreement` | SENTINEL_PULSE_STATUS.md | 10.417.205 cửa sổ đã xét, 8.482 cửa sổ cảnh báo ở cả hai, **0 cửa sổ khác nhau** | `results-20261026/pulse-final-system-confirm/live-tripwire.json.gz` | có |
-| `final-system-ml` | SENTINEL_PULSE_STATUS.md | recall 99,4% (308/310), precision 99,4%, control 0,6% (2/311), p95 2,38 s | `results-20261026/pulse-final-system-confirm/confirm-campaign.json` | có |
-| `rca-final-system` | RCA_RUNTIME_STATUS.md | ¦ Attack có case riêng ¦ **469/525 (89,3%)** ¦ | `results-20261026/pulse-final-system-confirm/rca-coverage.json` | có |
-| `rca-final-system-rank` | RCA_RUNTIME_STATUS.md | ¦ Top-1 / top-3 (binary attack là nghi phạm hạng 1 / trong 3 hạng đầu) ¦ **14,1% / 100%** ¦ | `results-20261026/pulse-final-system-confirm/rca-ranking-reranked.json.gz` | có |
-| `rca-recency-dev` | RCA_RUNTIME_STATUS.md | top-1 **14,1% → 100%** (469/469), top-3 vẫn 100% | `results-20261026/pulse-final-system-confirm/rca-ranking-reranked.json.gz, rca-ranking-reranked-recency.json.gz` | có |
-| `g7-/` | SENTINEL_PULSE_STATUS.md | ¦ `/` ¦ 11,5 / 12,1 ¦ +5,8% [−1,4; +14,5] ¦ +0,5% [−0,8; +3,2] ¦ 0,04 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
 | `g7-thesis-/` | thesis/chapters/evaluation.tex |  & 11,5 / 12,1 & +5,8\% [−1,4; +14,5] & +0,5\% [−0,8; +3,2] & 0,04 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
-| `g7-/api/health/` | SENTINEL_PULSE_STATUS.md | ¦ `/api/health/` ¦ 25,1 / 24,3 ¦ +3,1% [−8,1; +21,2] ¦ +2,0% [+0,2; +4,4] ¦ 0,14 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
 | `g7-thesis-/api/health/` | thesis/chapters/evaluation.tex |  & 25,1 / 24,3 & +3,1\% [−8,1; +21,2] & +2,0\% [+0,2; +4,4] & 0,14 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
-| `g7-/api/products/` | SENTINEL_PULSE_STATUS.md | ¦ `/api/products/` ¦ 306,4 / 318,2 ¦ +8,1% [+0,7; +18,3] ¦ +3,0% [+1,2; +4,3] ¦ 5,9 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
 | `g7-thesis-/api/products/` | thesis/chapters/evaluation.tex |  & 306,4 / 318,2 & +8,1\% [+0,7; +18,3] & +3,0\% [+1,2; +4,3] & 5,9 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
-| `g7-/api/products/?page=1` | SENTINEL_PULSE_STATUS.md | ¦ `/api/products/?page=1` ¦ 309,3 / 320,4 ¦ +5,8% [+1,4; +17,9] ¦ +2,6% [+0,4; +5,2] ¦ 5,3 ¦ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
 | `g7-thesis-/api/products/?page=1` | thesis/chapters/evaluation.tex |  & 309,3 / 320,4 & +5,8\% [+1,4; +17,9] & +2,6\% [+0,4; +5,2] & 5,3 \\ | `results-20261029/app-overhead/APP-OVERHEAD.json` | có |
-| `lidds-ml` | SENTINEL_PULSE_STATUS.md | ¦ ML ¦ 63,6% (1.154) [61,3; 65,8] ¦ 2,9% (333) [2,6; 3,3] ¦ 2,46 ¦ 1,33 / 4,13 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
 | `lidds-thesis-ml` | thesis/chapters/evaluation.tex | ML & 63,6\% (1154/1815) [61,3; 65,8] & 2,9\% (333/11341) [2,6; 3,3] & 2,46 & 1,33 / 4,13 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
-| `lidds-tripwire` | SENTINEL_PULSE_STATUS.md | ¦ Tripwire ¦ 63,5% (1.153) [61,3; 65,7] ¦ 0,1% (7) [0,0; 0,1] ¦ 0,05 ¦ 0,79 / 2,94 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
 | `lidds-thesis-tripwire` | thesis/chapters/evaluation.tex | Tripwire & 63,5\% (1153/1815) [61,3; 65,7] & 0,1\% (7/11341) [0,0; 0,1] & 0,05 & 0,79 / 2,94 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
-| `lidds-system` | SENTINEL_PULSE_STATUS.md | ¦ **Hệ thống** ¦ **77,3%** (1.403) [75,3; 79,2] ¦ **3,0%** (336) [2,7; 3,3] ¦ 2,48 ¦ 0,77 / 2,71 ¦ | `results-20261029/lidds/lidds-evaluation.json` | có |
 | `lidds-thesis-system` | thesis/chapters/evaluation.tex | Hệ thống (ML hoặc tripwire) & 77,3\% (1403/1815) [75,3; 79,2] & 3,0\% (336/11341) [2,7; 3,3] & 2,48 & 0,77 / 2,71 \\ | `results-20261029/lidds/lidds-evaluation.json` | có |
-| `lidds-macro` | SENTINEL_PULSE_STATUS.md | hệ thống tính cùng cách đạt 0,77 (trung bình 15 kịch bản; gộp theo bản ghi 77,3%) | `results-20261029/lidds/lidds-evaluation.json (mean over scenarios)` | có |
 | `lidds-macro-thesis` | thesis/chapters/evaluation.tex | Tính cùng cách (trung bình của 15 kịch bản), hệ thống của luận văn đạt 0,77. | `results-20261029/lidds/lidds-evaluation.json (mean over scenarios)` | có |
-
-Ngoài các câu trên, đã đọc lại bằng tay trong lúc rà soát: review nhãn (cận dưới 99,92% = 1 − cận trên Wilson của 0/4.766), overhead tính trên mỗi syscall (mmap+munmap và open+close là 2 syscall mỗi phép đo), RCA (2,50 s là p95 của case attack, 2,65 s là của mọi case; hai định nghĩa đều ghi trong báo cáo).
+| `lidds-v2-thesis-system` | thesis/chapters/evaluation.tex | Hệ thống v1 (ML hoặc tripwire) & 77,4\% & 2,72\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `lidds-v2-thesis-path` | thesis/chapters/evaluation.tex | \texttt{path} & 69,9\% & 1,47\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `lidds-v2-thesis-errno` | thesis/chapters/evaluation.tex | \texttt{errno} & 68,8\% & 1,45\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `lidds-v2-thesis-bytes` | thesis/chapters/evaluation.tex | \texttt{bytes} & 80,0\% & 3,71\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `lidds-v2-thesis-ngram` | thesis/chapters/evaluation.tex | \texttt{ngram} & 87,5\% & 1,04\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `lidds-v2-thesis-step3` | thesis/chapters/evaluation.tex | OR mọi nhánh (hệ thống v2) & 97,8\% & 9,70\% \\ | `results-20261031/lidds-v2/lidds-evaluation-v2.json.gz` | có |
+| `cbds-thesis-system` | thesis/chapters/evaluation.tex | \textbf{Hệ thống v1 (ML hoặc tripwire)} & \textbf{100\%} (891/891) & \textbf{1,5\%} (21) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
+| `cbds-thesis-tripwire` | thesis/chapters/evaluation.tex | Tripwire & 100\% (891/891) & 0\% (0) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
+| `cbds-thesis-ml` | thesis/chapters/evaluation.tex | ML & 99,0\% (882/891) & 1,5\% (21) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
+| `cbds-thesis-step3` | thesis/chapters/evaluation.tex | OR mọi nhánh (v2) & 100\% (891/891) & 5,5\% (77) \\ | `results-20261029/cbds/cbds-confirmation.json` | có |
+| `ml-v2-thesis-baseline` | thesis/chapters/evaluation.tex | ML ban đầu & 63,89\% (812) & 2,71\% (215) & 79,1\% & 5,29 s \\ | `results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz` | có |
+| `ml-v2-thesis-v1` | thesis/chapters/evaluation.tex | \texttt{lidds-\allowbreak{}ml-\allowbreak{}v1} & 65,22\% (829) & 2,05\% (163) & 83,6\% & 4,04 s \\ | `results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz` | có |
+| `ml-v2-thesis-v2` | thesis/chapters/evaluation.tex | \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2} & 95,99\% (1.220) & 0,57\% (45) & 96,4\% & 2,32 s \\ | `results-20261105/lidds-ml-v2/lidds-ml-v2.json` | có |
+| `ml-v3-thesis-v3` | thesis/chapters/evaluation.tex | \textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}} & \textbf{97,32\% (1.237)} & \textbf{0,44\% (35)} & \textbf{97,2\%} & \textbf{2,09 s} \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v2-thesis-token` | thesis/chapters/evaluation.tex | Chỉ token, bảng chữ v2 (chỉ báo) & 97,01\% (1.233) & 0,52\% (41) & 96,8\% & 1,47 s \\ | `results-20261105/lidds-ml-v2/lidds-ml-v2.json` | có |
+| `ml-v3-thesis-token` | thesis/chapters/evaluation.tex | Chỉ token, bảng chữ v3 (chỉ báo) & 97,40\% (1.238) & 0,63\% (50) & 96,1\% & 1,41 s \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v2-thesis-trees` | thesis/chapters/evaluation.tex | Chỉ cây và support (chỉ báo) & 52,08\% (662) & 0,40\% (32) & 95,4\% & 13,15 s \\ | `results-20261105/lidds-ml-v2/lidds-ml-v2.json` | có |
+| `ml-v3-thesis-Bruteforce_CWE-307` | thesis/chapters/evaluation.tex | \texttt{Bruteforce\_CWE-\allowbreak{}307} & 97/97 & 100,0\% & 0/538 & 0,00\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2012-2122` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2012-\allowbreak{}2122} & 84/84 & 100,0\% & 2/533 & 0,38\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2014-0160` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} & 84/84 & 100,0\% & 1/531 & 0,19\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2017-12635_6` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 83/83 & 100,0\% & 1/527 & 0,19\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2017-7529` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 83/83 & 100,0\% & 4/510 & 0,78\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2018-3760` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 85/85 & 100,0\% & 0/516 & 0,00\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2019-5418` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 83/84 & 98,8\% & 8/532 & 1,50\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2020-13942` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2020-\allowbreak{}13942} & 83/83 & 100,0\% & 3/529 & 0,57\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2020-23839` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 84/84 & 100,0\% & 4/532 & 0,75\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CVE-2020-9484` | thesis/chapters/evaluation.tex | \texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 84/84 & 100,0\% & 3/531 & 0,56\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-CWE-89-SQL-injection` | thesis/chapters/evaluation.tex | \texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 84/84 & 100,0\% & 0/532 & 0,00\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-EPS_CWE-434` | thesis/chapters/evaluation.tex | \texttt{EPS\_CWE-\allowbreak{}434} & 85/85 & 100,0\% & 1/531 & 0,19\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-Juice-Shop` | thesis/chapters/evaluation.tex | \texttt{Juice-\allowbreak{}Shop} & 52/85 & 61,2\% & 4/532 & 0,75\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-PHP_CWE-434` | thesis/chapters/evaluation.tex | \texttt{PHP\_CWE-\allowbreak{}434} & 83/83 & 100,0\% & 2/532 & 0,38\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `ml-v3-thesis-ZipSlip` | thesis/chapters/evaluation.tex | \texttt{ZipSlip} & 83/83 & 100,0\% & 2/532 & 0,38\% \\ | `results-20261107/lidds-ml-v3/lidds-ml-v3.json` | có |
+| `lidds-v3-thesis` | thesis/chapters/evaluation.tex | \textbf{Ít nhất 2 trong 5 nhánh (chọn trên development)} & \textbf{97,5\%} [96,5; 98,2] & \textbf{1,47\%} [1,23; 1,76] & \textbf{91,4\%} \\ | `results-20261031/lidds-v3-with-cbds.json` | có |
+| `lidds-v3-cbds-thesis` | thesis/chapters/evaluation.tex | recall 100\% (891/891), báo nhầm 0,50\% (7/1.410), precision 99,2\% | `results-20261031/lidds-v3-with-cbds.json` | có |
+| `final-thesis-recall` | thesis/chapters/evaluation.tex | Recall & ≥ 95\% & 99,4\% (313/315) {[}97,7; 99,8{]} & 99,4\% \\ | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-thesis-precision` | thesis/chapters/evaluation.tex | Precision & ≥ 95\% & 99,4\% {[}97,7; 99,8{]} & 99,4\% \\ | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-thesis-control` | thesis/chapters/evaluation.tex | Control dương & ≤ 5\% & 0,6\% (2/314) {[}0,2; 2,3{]} & 0,6\% \\ | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-thesis-p95` | thesis/chapters/evaluation.tex | & 1,97 s & 2,25 s \\ | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
+| `final-thesis-benign` | thesis/chapters/evaluation.tex | Binary vô hại bị gắn cờ & báo kèm & 89,5\% (282/315) & 89,5\% \\ | `results-20261026/pulse-final-system-confirm/final-system.json` | có |
 
 ## 2. Số của tài liệu: so với PDF của bài được trích
 

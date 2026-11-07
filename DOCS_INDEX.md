@@ -1,18 +1,9 @@
 # Danh mục tài liệu
 
-## Báo cáo hiện hành (cập nhật liên tục, mỗi file có nhật ký làm việc riêng)
+## Trạng thái và nhật ký
 
-1. [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md) — Pulse (phát hiện ML): tóm tắt, trạng thái cụm và job,
-   thuật ngữ, kết quả các lượt (soak 48 giờ, pulse-attack-dev, hiệu chỉnh lại, 5 lượt live tới lượt cuối
-   pulse-peer-discount-confirm), luật chọn chính sách, biên Pareto, baseline ML (5.15), giảm gánh cảnh báo
-   (5.22–5.27), ML stable cuối (5.27), hạ tầng chung, nhật ký. Chỉ số liệu ML, không có rule.
-2. [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) — thí nghiệm chọn syscall:
-   thiết kế syscall-arms, holdout, replay attack, so sánh ở cùng ngân sách cảnh báo, luật chọn, nhật ký.
-3. [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) — RCA: subscriber, policy Tetragon, xếp hạng nghi phạm,
-   độ phủ trong campaign, sự cố đã xử lý, nhật ký.
-4. [RULE_INTEGRATION_STATUS.md](RULE_INTEGRATION_STATUS.md) — phần rule, tách riêng khỏi ML (22/10): Falco
-   (framework có sẵn), tripwire A1, tầng triage probe sau ML, so sánh không có / có rule (R6) và hệ thống cuối
-   ML + tripwire; nguyên tắc tách và nhật ký.
+1. [notes/STATE.md](notes/STATE.md) — trạng thái hiện tại (quyết định, kết quả mới nhất, dữ liệu, việc tiếp); [notes/WORKLOG.md](notes/WORKLOG.md) — nhật ký từng bước từ 07/11.
+2. Bốn file trạng thái cũ (Pulse, syscall, RCA, rule) (xoá ngày 07/11; toàn văn trong git: `git show 8b1bc44:<tên file>`).
 5. [TODO.md](TODO.md) — danh sách việc theo mức ưu tiên.
 6. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md) — đánh giá tổng thể (điểm mạnh, khoảng cách G1–G9, đề xuất, % tiến độ),
    ý tưởng từ tài liệu (R1–R8, A1–D1), công trình liên quan và nguồn.
@@ -27,7 +18,7 @@
 ## Luận văn
 
 - [thesis/](thesis/README.md) — luận văn bằng LaTeX (từ 29/10; build: `cd thesis && tectonic main.tex`, PDF không đưa vào git).
-  8 chương, tài liệu tham khảo sinh từ `references/catalog.json`, hình lấy từ `docs/figures/`. Số liệu chỉ lấy từ 4 báo cáo hiện hành.
+  8 chương, tài liệu tham khảo sinh từ `references/catalog.json`, hình lấy từ `docs/figures/`. Số liệu lấy từ biên nhận.
   Bản nháp trên Claude Docs trước đó đã ngừng cập nhật.
 
 ## Nghiên cứu theo chủ đề
@@ -49,7 +40,7 @@
   lượt xác nhận `pulse-stable-confirm` khi đó đang chạy.
 - 30/10: `docs/Bao_cao_tien_do_23_10-30_10.docx` (21 trang, cùng mẫu với báo cáo 23/10; nội dung đi theo bản luận văn `thesis/`: bài toán, thiết kế, đánh giá theo 6 câu hỏi nghiên cứu, mục "Đọc đúng các con số" trả lời câu hỏi về overfitting, độ phủ 5 kịch bản, 5 chế độ tải, ADFA-LD, binary vô hại 89,5%, precision 1:1; hướng giảm gắn cờ binary vô hại theo nghiên cứu 30/10) và `docs/Slide-runtime_security(30_10).pptx` (19 slide). Số liệu lấy từ 4 báo cáo hiện hành và biên nhận lúc 30/10 01:40; lượt `pulse-live-recal-confirm` khi đó đang chạy.
 - 06/11: `docs/Bao_cao_tien_do_30_10-06_11.docx` (18 trang) và `docs/Slide-runtime_security(06_11).pptx` (17 slide, bản chủ đồ án đã rút gọn, thêm 3 slide so sánh ML stable cũ với `lidds-ml-v2`, đóng góp từng bước và cách n-gram hoạt động, có nguồn), cùng mẫu các buổi trước, không ghi CI, không có biểu đồ số liệu (theo yêu cầu 06/11); slide 19 là sơ đồ kiến trúc: đổi hướng sang ML, `lidds-ml-v2`, calibration tự làm mới, RCA, bỏ cổng replica, rào cản ở probe. Số liệu đến 06/11 00:10; chưa có kết quả bảng chữ token, LSTM lớn, biến thể token.
-- Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong 4 báo cáo `.md` (quyết định 23/10,
+- Báo cáo docx và slide **không ghi CI** (khoảng tin cậy, bootstrap); CI đầy đủ nằm trong biên nhận và bản LaTeX (quyết định 23/10,
   áp dụng cả cho các báo cáo docx 16/10).
 
 ## Bằng chứng

@@ -37,9 +37,10 @@ def run(alphabet, alpha, others, source, scenarios):
         det += d0; fa += f0; att += a0; nor += n0; per[s] = (d0, a0, f0, n0)
     return det, att, fa, nor, float(np.percentile(lat, 95)) if lat else float('nan'), per
 ds = [s for s in done if s != 'CB-DS']
-# gate: the column `full` (or `base` of the variants) must equal the registered token branch on every development and validation recording
-for s in ds:
-    z = np.load(f'{A}/{s}.npz'); j = names.index('full' if 'full' in names else 'base') + 1
+# gate (when the run has it): the column `full` (or `base` of the variants) must equal the registered token branch on every development and validation recording
+gate_col = 'full' if 'full' in names else 'base' if 'base' in names else None
+for s in (ds if gate_col else []):
+    z = np.load(f'{A}/{s}.npz'); j = names.index(gate_col) + 1
     zt, col, it, et, _ = m.Scenario(s, dict(scores=S + '/allwin', tokens=S + '/tokens')).branch['T']
     worst = 0.0; n = 0
     for k in z.files:

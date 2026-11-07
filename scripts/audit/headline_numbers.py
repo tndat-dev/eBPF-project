@@ -299,7 +299,26 @@ def claims():
     add('lidds-v3-cbds-thesis', thesis, f"recall {pct(cb['recall'], 0)} ({cb['detected']}/{cb['attack_recordings']}), báo nhầm "
         f"{pct(cb['false_alarm_rate'], 2)} ({cb['false_alarm_recordings']}/{thousands(cb['normal_recordings'])}), precision "
         f"{pct(cb['precision_base_rate'])}".replace('%', r'\%'), [], V3)
-    return out
+    FS = 'results-20261026/pulse-final-system-confirm/final-system.json'
+    arms = receipt(FS)['arms']
+    sysm, mlm = arms['B2']['primary'], arms['A']['primary']
+    n_att = sysm['TP'] + sysm['FN']; n_ctl = round(sysm['control_FP'] / sysm['control']); n_ben = n_att
+    bracket = lambda lo_hi: ci(lo_hi, 1).replace('[', '{[}').replace(']', '{]}')
+    tex = lambda t: t.replace('%', r'\%')
+    add('final-thesis-recall', thesis, tex(f"Recall & ≥ 95% & {pct(sysm['attack'])} ({sysm['TP']}/{n_att}) {bracket(wilson(sysm['TP'], n_att))} & {pct(mlm['attack'])} \\\\"),
+        [], FS)
+    add('final-thesis-precision', thesis, tex(f"Precision & ≥ 95% & {pct(sysm['precision'])} {bracket(wilson(sysm['TP'], sysm['TP'] + sysm['control_FP']))} & {pct(mlm['precision'])} \\\\"),
+        [], FS)
+    add('final-thesis-control', thesis, tex(f"Control dương & ≤ 5% & {pct(sysm['control'])} ({sysm['control_FP']}/{n_ctl}) {bracket(wilson(sysm['control_FP'], n_ctl))} & {pct(mlm['control'])} \\\\"),
+        [], FS)
+    add('final-thesis-p95', thesis, f"& {num(sysm['p95'], 2)} s & {num(mlm['p95'], 2)} s \\\\", [], FS)
+    add('final-thesis-benign', thesis, tex(f"Binary vô hại bị gắn cờ & báo kèm & {pct(sysm['benign'])} ({round(sysm['benign'] * n_ben)}/{n_ben}) & {pct(mlm['benign'])} \\\\"),
+        [], FS)
+    # the four status reports were removed on 07/11 (owner); their claims are retired, the LaTeX and TODO claims stay
+    return [c for c in out if c['doc'] not in RETIRED]
+
+
+RETIRED = {'SENTINEL_PULSE_STATUS.md', 'RULE_INTEGRATION_STATUS.md', 'RCA_RUNTIME_STATUS.md'}
 
 
 def run(read=lambda doc: (ROOT/doc).read_text()):

@@ -1,8 +1,7 @@
 # sentinel_pulse — bản đồ mã nguồn
 
 README này chỉ hướng dẫn tìm code. Trạng thái và số liệu nằm ở 4 báo cáo:
-[Pulse](../SENTINEL_PULSE_STATUS.md), [syscall](../SYSCALL_FEATURE_EXPERIMENT_STATUS.md),
-[RCA](../RCA_RUNTIME_STATUS.md), [rule](../RULE_INTEGRATION_STATUS.md).
+[notes/STATE.md](../notes/STATE.md) (các file trạng thái cũ Pulse, syscall, RCA, rule xoá 07/11; xem git `8b1bc44`).
 
 ## Luồng dữ liệu
 

@@ -6,28 +6,21 @@
 - một mô hình học máy, học trên dữ liệu bình thường, chấm điểm xem cửa sổ đó có "lạ" hay không;
 - khi có tín hiệu, một dịch vụ riêng (RCA) ghép các sự kiện chi tiết (process, file, kết nối mạng) thành cây bằng chứng cho người điều tra.
 
-Mục tiêu đăng ký trước: precision và recall ≥ 95%, control dương ≤ 5%, p95 độ trễ từ kernel đến cảnh báo < 2 giây (ưu tiên) hoặc ≤ 3 giây (chấp nhận). Hệ thống chạy ở chế độ **shadow**: chỉ ghi "cảnh báo thử" (preview), không tự cách ly pod. Đường cảnh báo vận hành qua Prometheus/Alertmanager/Grafana đang được thử song song (RCA mục 5.14).
+Mục tiêu đăng ký trước: precision và recall ≥ 95%, control dương ≤ 5%, p95 độ trễ từ kernel đến cảnh báo < 2 giây (ưu tiên) hoặc ≤ 3 giây (chấp nhận). Hệ thống chạy ở chế độ **shadow**: chỉ ghi "cảnh báo thử" (preview), không tự cách ly pod. Đường cảnh báo vận hành qua Prometheus/Alertmanager/Grafana đang được thử song song (RCA mục 5.14, 5.20).
 
 ## Đọc theo thứ tự nào
 
-1. **[SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md), mục 1 "Tóm tắt":** kết quả mới nhất và cấu hình ML stable.
-2. **Bốn báo cáo hiện hành.** Mỗi báo cáo có mục kết quả đánh số và nhật ký ở cuối:
-
-   | Báo cáo | Nội dung | Cách đánh số |
-   |---|---|---|
-   | [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md) | Phát hiện bằng ML: các lượt live, calibration, luật thời gian, baseline, gánh cảnh báo, overhead | `Pulse 5.x` (ví dụ 5.19 = chốt ML stable) |
-   | [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md) | Chọn syscall và nhóm feature, so ở cùng ngân sách cảnh báo | `syscall 5.x`, `5B` (nhóm feature), `5C` (dưới CUSUM) |
-   | [RCA_RUNTIME_STATUS.md](RCA_RUNTIME_STATUS.md) | Cây bằng chứng sau cảnh báo: độ trễ, độ phủ, xếp hạng nghi phạm, ánh xạ IP, đường cảnh báo vận hành | `RCA 5.x` |
-   | [RULE_INTEGRATION_STATUS.md](RULE_INTEGRATION_STATUS.md) | Phần rule (Falco, tripwire), **tách riêng** khỏi số liệu ML | `R1`–`R6` |
+1. **[notes/STATE.md](notes/STATE.md):** trạng thái hiện tại, quyết định đang áp dụng, kết quả mới nhất, dữ liệu nằm đâu; nhật ký từng bước ở [notes/WORKLOG.md](notes/WORKLOG.md).
+2. **Bốn file trạng thái cũ** (`SENTINEL_PULSE_STATUS.md`, `SYSCALL_FEATURE_EXPERIMENT_STATUS.md`, `RCA_RUNTIME_STATUS.md`, `RULE_INTEGRATION_STATUS.md`) (xoá ngày 07/11; toàn văn trong git: `git show 8b1bc44:<tên file>`). Các số mục `Pulse 5.x`, `syscall 5.x`, `RCA 5.x`, `R1`–`R7` trong tài liệu khác trỏ tới chúng.
 
 3. [TODO.md](TODO.md): việc đang chạy và việc tiếp theo. [RESEARCH_IDEAS.md](RESEARCH_IDEAS.md): đánh giá tổng thể, khoảng cách so với công trình liên quan, ý tưởng từ tài liệu. [references/](references/README.md): danh mục bài báo đã dùng; [references/KNOWLEDGE_SYNTHESIS.md](references/KNOWLEDGE_SYNTHESIS.md): tri thức tổng hợp từ tài liệu theo chủ đề luận văn.
-4. [thesis/](thesis/README.md): luận văn bằng LaTeX, số liệu lấy từ 4 báo cáo trên. [docs/](docs/): báo cáo và slide của từng buổi họp (bản chụp, không cập nhật). [reports/](reports/): báo cáo nghiên cứu theo chủ đề (ghi chú nguồn trong `research_notes/`). [DOCS_INDEX.md](DOCS_INDEX.md) liệt kê mọi tài liệu.
+4. [thesis/](thesis/README.md): bản LaTeX của đồ án, số liệu lấy từ biên nhận. [docs/](docs/): báo cáo và slide của từng buổi họp (bản chụp, không cập nhật). [reports/](reports/): báo cáo nghiên cứu theo chủ đề (ghi chú nguồn trong `research_notes/`). [DOCS_INDEX.md](DOCS_INDEX.md) liệt kê mọi tài liệu.
 
 ## Từ một con số trong báo cáo đến bằng chứng
 
 Mỗi kết quả đi qua cùng một chuỗi:
 
-1. **Báo cáo:** mục kết quả ghi số, giờ chạy, dòng "Biên nhận" (tên file) và luật chọn.
+1. **Báo cáo:** bản LaTeX và `notes/` ghi số, dòng biên nhận (tên file) và luật chọn.
 2. **Biên nhận trong repo:** `validation-evidence/results-<ngày>/…`. README của từng thư mục ghi file nào là kết quả của mục nào, script nào sinh ra, bản gốc nằm đâu trên cụm (ví dụ [results-20261022/README.md](validation-evidence/results-20261022/README.md)).
 3. **Lệnh đã chạy:** `scripts/*.sh`. Mỗi job trên cụm là một script, dòng đầu ghi giao thức, đầu vào, máy chạy và cách gọi. Script gọi module trong `sentinel_pulse/` hoặc `scripts/analysis/*.py`. Code chạy là một snapshot git đóng băng, commit nằm trong tên thư mục (`runtime-<commit>-<ngày>/source`) hoặc trong biên nhận.
 4. **Kiểm toán:** `scripts/audit/headline_numbers.py` tính lại mọi số chủ chốt của phần tóm tắt và của luận văn từ biên nhận và chạy trong bộ test; kết quả và giới hạn ở [docs/AUDIT.md](docs/AUDIT.md).

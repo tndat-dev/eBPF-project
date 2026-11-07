@@ -16,6 +16,6 @@ def test_every_headline_number_matches_its_receipt():
 def test_a_number_edited_in_a_report_fails_the_audit():
     def read(doc):
         text = (ROOT/doc).read_text()
-        return text.replace('**98,7%** (306/310)', '**98,8%** (306/310)') if doc == 'SENTINEL_PULSE_STATUS.md' else text
+        return text.replace(r'99,4\% (313/315)', r'99,5\% (313/315)') if doc == 'thesis/chapters/evaluation.tex' else text
     rows, failures = audit.run(read)
-    assert {r['id'] for r in rows if not r['ok']} == {'final-recall', 'final-precision'}      # both rows print 98,7% (306/310)
+    assert {r['id'] for r in rows if not r['ok']} == {'final-thesis-recall'}

@@ -1,6 +1,6 @@
 # Thiết kế probe thu token cho `lidds-ml-v3`
 
-Bản nháp 06/11/2026. Chưa có dòng code kernel nào; mọi con số dưới đây lấy từ biên nhận đã ghi trong `SENTINEL_PULSE_STATUS.md` (mục 5.32c) và `validation-evidence/results-20261105/ml-exploration/`.
+Bản nháp 06/11/2026. Chưa có dòng code kernel nào; mọi con số dưới đây lấy từ biên nhận đã ghi trong `notes/STATE.md` (trước 07/11: `SENTINEL_PULSE_STATUS.md` mục 5.32c, git `8b1bc44`) và `validation-evidence/results-20261105/ml-exploration/`.
 
 ## 1. Probe phải thu gì
 

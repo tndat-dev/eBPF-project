@@ -6,7 +6,7 @@ Tổng hợp research sâu ngày 21/10/2026 (đợt 1 buổi sáng; đợt 2 bu�
 - thí nghiệm nhóm feature;
 - phép thử 5.7d.
 
-Kết quả thí nghiệm nằm trong [SENTINEL_PULSE_STATUS.md](SENTINEL_PULSE_STATUS.md). File này chỉ chứa **ý tưởng, tài liệu và kế hoạch kiểm**. Các số mục như 5.6b, 5.7b, 5.8c… là mục trong báo cáo Pulse; "syscall 5.9", "syscall 5B" là mục trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
+Kết quả thí nghiệm nằm trong file trạng thái cũ `SENTINEL_PULSE_STATUS.md` (xoá 07/11, xem git `8b1bc44`) và [notes/STATE.md](notes/STATE.md). File này chỉ chứa **ý tưởng, tài liệu và kế hoạch kiểm**. Các số mục như 5.6b, 5.7b, 5.8c… là mục trong báo cáo Pulse; "syscall 5.9", "syscall 5B" là mục trong [SYSCALL_FEATURE_EXPERIMENT_STATUS.md](SYSCALL_FEATURE_EXPERIMENT_STATUS.md).
 
 **Độ tin cậy của nguồn:** phần lớn số liệu dưới đây do chính tác giả các paper báo cáo; một số là preprint chưa qua phản biện. Đây là nguồn ý tưởng, chưa phải bằng chứng cho Pulse. Mỗi ý tưởng phải được đăng ký tiêu chí trước, rồi đo trên dữ liệu của Pulse, ở cùng ngân sách cảnh báo, với p95 kernel → alert < 2 s ưu tiên và ≤ 3 s chấp nhận.
 
@@ -119,7 +119,7 @@ Ba đóng góp:
 
 **Ưu tiên hiện tại (22/10, vẫn giữ 24/10):**
 1. Hoàn thiện bằng chứng của cả Pulse ML, syscall và RCA, đưa ML ra stable rồi mới viết luận văn.
-2. Rule chỉ tích hợp **sau khi ML hoàn thiện**, rồi so sánh có/không rule ([RULE_INTEGRATION_STATUS](RULE_INTEGRATION_STATUS.md) R6).
+2. Rule chỉ tích hợp **sau khi ML hoàn thiện**, rồi so sánh có/không rule (rule R6).
 3. Cải tiến cho paper làm sau.
 
 | Hạng mục | % | Đã có | Còn thiếu |
@@ -440,7 +440,7 @@ Có nhiều công trình trùng **từng phần**. Một số báo cáo kết qu
 - **Online FDR** (LORD, SAFFRON, ADDIS, e-GAI): ngưỡng co dần khi lâu không có phát hiện, không hợp với giám sát 24/7.
 - **Phân loại cảnh báo theo command line / đồ thị nguồn gốc** (Carbon Filter, NoDoze): hoạt động sau ML, nên do chủ đồ án quyết định.
 
-Thiết kế, luật chọn và kết quả nằm ở [Pulse 5.22](SENTINEL_PULSE_STATUS.md); protocol `burden-reduction-v1` và bản bổ sung 1.
+Thiết kế, luật chọn và kết quả nằm ở Pulse 5.22; protocol `burden-reduction-v1` và bản bổ sung 1.
 
 ## Nguồn
 
