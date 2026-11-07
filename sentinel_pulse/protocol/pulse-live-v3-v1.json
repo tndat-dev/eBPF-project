@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-live-v3-v1",
-  "registered_at": "2026-11-07T16:10+07:00",
+  "registered_at": "2026-11-07T15:29+07:00",
   "registered_before": "both runs are only planned; no data of either exists. Overhead of the token probe: token-probe-overhead-v1 and its amendments",
   "owner_decisions": [
     "01/11: the ML is developed first and decided before any rule (tripwire, novelty, votes); then a comparison without and with rules",

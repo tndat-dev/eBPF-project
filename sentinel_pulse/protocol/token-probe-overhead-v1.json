@@ -1,6 +1,6 @@
 {
   "schema": "sentinel-pulse-overhead-ab-v1",
-  "registered_at": "2026-11-07T17:30+07:00",
+  "registered_at": "2026-11-07T09:45+07:00",
   "registered_before": "any timed measurement of the token probe (a 1 s functional check on k8s-worker1 only verified load and token values)",
   "question": "What does the lidds-ml-v3 token probe add per syscall over the current probe, for monitored and unmonitored processes?",
   "probe": "pulse_counter_tokens (Makefile target tokens): the matched full-ID observable (condition A) plus fexit on the 39 syscalls of sentinel_pulse/ebpf/pulse_token_ids.h, fentry/security_file_open with bpf_d_path for the first directory, the last three tokens in pulse_task_state and a per-(cgroup, 0.5 s window, 4-gram) count map",

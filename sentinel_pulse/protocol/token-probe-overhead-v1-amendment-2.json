@@ -1,7 +1,7 @@
 {
   "schema": "sentinel-pulse-protocol-amendment-v1",
   "amends": "sentinel_pulse/protocol/token-probe-overhead-v1.json",
-  "registered_at": "2026-11-07T15:45+07:00",
+  "registered_at": "2026-11-07T15:25+07:00",
   "registered_before": "any timed measurement of the dentry-walk build",
   "what_happened": "Measurement 2 (amendment 1, overhead-run2.json): sys_exit mode halved the open + close cost (+1.1-1.5 us over A monitored, +0.46-1.25 us over off unmonitored) at about +60-90 ns more per syscall than fexit. A diagnostic on k8s-worker1 (hookcost3.jsonl, benchmark not monitored, 5 rounds) put about 380 ns of the remaining unmonitored open cost on the one ftrace_ops left, fentry/security_file_open (open + close medians: off 8,618, sys_exit 9,585, sys_exit without that hook 9,205 ns).",
   "change": "the first directory is now found at the open's return by walking the dentry chain of the returned fd up to the task's root, crossing mount points (bpf_loop, at most 64 steps), instead of bpf_d_path in fentry/security_file_open; the probe has no ftrace_ops left in sys_exit mode (raw tracepoints only). Same token semantics: both modes pass scripts/token_probe_proof.py on k8s-worker1 (422,316 and 375,212 calls, one token each, openat:w:/tmp and openat:r:/etc found).",

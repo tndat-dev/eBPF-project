@@ -43,8 +43,8 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 1. **Probe token (07/11)**: `make tokens`; mặc định `--token-exit sys_exit` (một raw tracepoint), thư mục đầu bằng đi ngược
    dentry từ fd (không còn ftrace_ops: `fexit`/`fentry` va chạm kprobe Tetragon, xem amendment 1–2 của
    `token-probe-overhead-v1`). Worker: `tokens.jsonl`, chấm token (`TokenBranch`), nhánh đếm v3 (`v3_counts`). Proof:
-   `scripts/token_probe_proof.py` (đúng 1 token/syscall). Overhead lần 1–2 trong `results-20261107/token-probe-overhead/`,
-   lần 3 đang đo (unit `token-probe-overhead-3`).
+   `scripts/token_probe_proof.py` (đúng 1 token/syscall). Overhead 3 lần trong `results-20261107/token-probe-overhead/`;
+   bản cuối so với A: getpid +127–174 ns, open + close +0,94–1,23 µs, futex +216–298 ns. Sơ đồ kiến trúc: `docs/architecture/`.
 2. Sau lần đo 3: build `/home/dat/pulse-tokens-20261107/{build,proof}` trên 3 worker từ commit, proof; kiểm lưu lượng trên pod thật
    (`token_probe_volume.py`).
 3. `pulse-live-v3-v1`: lượt thu normal 12 h (`pulse-token-capture-<MMDD>`) → fit (`token_branch_fit.py`, `count_branch_fit.py`)

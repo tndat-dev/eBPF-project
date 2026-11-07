@@ -96,3 +96,9 @@ ops, 40 trampoline làm mọi lần mở file trên node chậm đi. Bỏ hết 
 trả về, dùng số syscall mà `sys_enter` đã ghi trong `pulse_task_state` và cờ `tok_pending`; chỉ còn một ftrace_ops
 (`security_file_open`). Proof cho cả hai chế độ: đúng một token mỗi syscall (403.884 và 399.788 lần gọi). Lần đo 2
 (amendment 1) so hai chế độ trong cùng các vòng.
+
+**Overhead lần 3 (07/11 15:27–16:05, amendment 2): bản cuối** (`sys_exit` + đi ngược dentry, không còn ftrace_ops; điều
+kiện D là probe của lượt live). Thêm so với probe hiện tại (A), 3 worker: getpid +127–174 ns (10–13%), read 4 KiB +210–229
+ns, open + close +0,94–1,23 µs (6,5–12,7%; lần 1 là +2,3–2,7 µs), mmap + munmap +413–699 ns, futex +216–298 ns. Process
+không giám sát: thêm vài trăm ns so với tắt probe, nhiễu lớn (`overhead-run3.json`). Đây là số báo cáo, không có ngưỡng
+đạt/trượt (chủ đồ án 06/11).

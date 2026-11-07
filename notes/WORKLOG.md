@@ -1,6 +1,6 @@
 # Nhật ký làm việc
 
-Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date` hoặc giờ commit; trước 07/11 08:00 có dòng ghi sai giờ, đã sửa theo commit), việc, kết quả hoặc biên nhận. Trước 07/11 xem nhật ký trong các file trạng thái cũ
+Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date`, dữ liệu hoặc giờ commit, không ước tính; các dòng 07/11 từng ghi sai giờ đã sửa theo commit và dữ liệu), việc, kết quả hoặc biên nhận. Trước 07/11 xem nhật ký trong các file trạng thái cũ
 (`git show 8b1bc44:SENTINEL_PULSE_STATUS.md`, mục 11).
 
 | Khi | Việc | Kết quả / biên nhận |
@@ -19,12 +19,14 @@ Mỗi dòng: thời điểm (giờ Việt Nam, lấy từ `date` hoặc giờ co
 | 07/11 07:56 | Dọn cụm: `.234` xoá dữ liệu phân tích đã có biên nhận (ml-scores, ml-v1, ml-teacher*, ml-variants, ml-alphabets, ml-select*, ml-inventory, ml-probe-order, v2, v3-window, v4, converted*, script tải dataset, js-diag, baselines/models, snapshot nguồn), unit của lượt `pulse-live-recal-confirm` trên `.234` và 3 worker; xoá bản cục bộ của lượt đó trên 3 worker (33 GB; NFS có đủ 48/48 segment mỗi worker, bản nén có niêm phong) | `/var/tmp/lid-ds-2021` còn archive, `ml-scores-allwin`, `ml-tokens`, `ml-v3-tokens`, `ml-links` |
 | 07/11 07:57 | Ablation vòng 2 (3 seed): chọn 45/46 cấu hình theo luật protocol từ biên nhận vòng 1 (chỉ `drop_accept` không vào) | `results-20261107/syscall-loo-stage2/ARMS.json`, `scripts/syscall_loo_stage2.sh` |
 | 07/11 09:40 | Viết probe token (`make tokens`): 39 `fexit`, `fentry/security_file_open` + `bpf_d_path`, token 32 bit, map 4-gram theo (cgroup, cửa sổ); loader `--tokens`; kiểm chức năng trên k8s-worker1: token đúng, gắn 40 hook khoảng 10 s | `reports/Thiết kế probe token Pulse.md` mục 7 |
-| 07/11 09:47 | Overhead A–D (`token-probe-overhead-v1`, đăng ký trước khi đo) trên 3 worker cùng lúc, 5 vòng × 7 điều kiện × 5 chế độ | `results-20261107/token-probe-overhead/` |
+| 07/11 09:46 | Overhead A–D (`token-probe-overhead-v1`, đăng ký trước khi đo) trên 3 worker cùng lúc, 5 vòng × 7 điều kiện × 5 chế độ | `results-20261107/token-probe-overhead/` |
 | 07/11 10:00 | Worker: `tokens.jsonl` mỗi segment, chấm trực tuyến (`TokenBranch`); mô hình đếm = `TokenLM` offline (test); script proof, fit nhánh token, đo lưu lượng | 562 test qua (bỏ test cần torch) |
-| 07/11 11:55 | Overhead lần 1 (`fexit`): getpid +32–39 ns so với A, futex +277–316, read 4 KiB +226–349, open + close +2,3–2,7 µs và +1,8–2,1 µs cho process không giám sát | `results-20261107/token-probe-overhead/overhead-run1-fexit.json` |
-| 07/11 12:15 | Chẩn đoán: chi phí open tăng theo số trampoline, do kprobe Tetragon trên `__x64_sys_openat` đẩy hàm qua `ftrace_ops_list_func`; sửa: `--token-exit sys_exit` (mặc định), proof cả hai chế độ đạt (đúng 1 token/syscall) | `hookcost*.jsonl`, `proof-check-*.json`, amendment 1 |
-| 07/11 12:25 | Overhead lần 2 (amendment 1, `sys_exit` và `fexit` cùng vòng) trên 3 worker | unit `token-probe-overhead-2` |
+| 07/11 11:53 | Overhead lần 1 (`fexit`): getpid +32–39 ns so với A, futex +277–316, read 4 KiB +226–349, open + close +2,3–2,7 µs và +1,8–2,1 µs cho process không giám sát | `results-20261107/token-probe-overhead/overhead-run1-fexit.json` |
+| 07/11 12:05 | Chẩn đoán: chi phí open tăng theo số trampoline, do kprobe Tetragon trên `__x64_sys_openat` đẩy hàm qua `ftrace_ops_list_func`; sửa: `--token-exit sys_exit` (mặc định), proof cả hai chế độ đạt (đúng 1 token/syscall) | `hookcost*.jsonl`, `proof-check-*.json`, amendment 1 |
+| 07/11 12:09 | Overhead lần 2 (amendment 1, `sys_exit` và `fexit` cùng vòng) trên 3 worker | unit `token-probe-overhead-2` |
 | 07/11 15:20 | Overhead lần 2: `sys_exit` so với A: getpid +101–131 ns, read +187–199, open + close +1,1–1,5 µs (fexit +2,3–3,1), futex +293–317 | `overhead-run2.json` |
-| 07/11 15:35 | Chẩn đoán 3: `fentry/security_file_open` tốn khoảng 380 ns mỗi lần mở của mọi process; thay bằng đi ngược dentry từ fd lúc open trả về (`bpf_loop`), probe không còn ftrace_ops; proof cả hai chế độ đạt | `hookcost3.jsonl`, amendment 2 |
-| 07/11 15:45 | Overhead lần 3 (bản đi ngược dentry) trên 3 worker | unit `token-probe-overhead-3` |
-| 07/11 16:10 | Nhánh đếm v3 trong worker (`detector/v3_policy.py`, cfg `v3_counts`), `count_branch_fit.py`, planner `--token-build --token-models --v3-counts`; protocol `pulse-live-v3-v1` (thu normal 12 h rồi live blind 24 h) đăng ký trước mọi dữ liệu | `sentinel_pulse/protocol/pulse-live-v3-v1.json` |
+| 07/11 15:23 | Chẩn đoán 3: `fentry/security_file_open` tốn khoảng 380 ns mỗi lần mở của mọi process; thay bằng đi ngược dentry từ fd lúc open trả về (`bpf_loop`), probe không còn ftrace_ops; proof cả hai chế độ đạt | `hookcost3.jsonl`, amendment 2 |
+| 07/11 15:27 | Overhead lần 3 (bản đi ngược dentry) trên 3 worker | unit `token-probe-overhead-3` |
+| 07/11 15:29 | Nhánh đếm v3 trong worker (`detector/v3_policy.py`, cfg `v3_counts`), `count_branch_fit.py`, planner `--token-build --token-models --v3-counts`; protocol `pulse-live-v3-v1` (thu normal 12 h rồi live blind 24 h) đăng ký trước mọi dữ liệu | `sentinel_pulse/protocol/pulse-live-v3-v1.json` |
+| 07/11 16:10 | Overhead lần 3 (bản cuối, không ftrace_ops): so với A getpid +127–174 ns, read +210–229, open + close +0,94–1,23 µs, mmap + munmap +413–699, futex +216–298 | `overhead-run3.json` |
+| 07/11 15:45 | Sơ đồ kiến trúc 5 trang bằng draw.io (tổng quan, probe, worker + ML v3, cảnh báo + RCA, học và đánh giá), sinh bằng script, xuất PNG/SVG/PDF | `docs/architecture/` |
