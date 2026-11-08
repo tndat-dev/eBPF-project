@@ -1,0 +1,15 @@
+CVE-2017-12635_6     steep_banzai_1676            T       thr   25.62 max    29.24 (+   2.1 beta; val max   20.25) windows   1/  89 first at    0.0s of   44.5s
+CVE-2017-7529        icy_lichterman_4409          tree    thr    0.83 max     1.58 (+  10.5 beta; val max    0.32) windows   2/  68 first at    5.0s of   33.5s
+CVE-2017-7529        shrilling_hugle_5931         tree    thr    0.83 max     0.89 (+   0.8 beta; val max    0.32) windows   1/  54 first at   25.5s of   26.5s
+CVE-2017-7529        shrilling_hugle_5931         support thr    3.75 max     6.90 (+   9.9 beta; val max    1.98) windows   1/  54 first at   25.5s of   26.5s
+CVE-2017-7529        square_mccarthy_5624         support thr    3.75 max     6.30 (+   8.0 beta; val max    1.98) windows   1/  69 first at    0.0s of   34.0s
+CVE-2017-7529        sweet_williams_5406          support thr    3.75 max     6.00 (+   7.1 beta; val max    1.98) windows   1/  81 first at   36.0s of   40.0s
+CVE-2020-13942       nervous_mendeleev_8774       tree    thr    0.56 max     0.76 (+   3.9 beta; val max    0.20) windows   1/  88 first at   43.5s of   43.5s
+CVE-2020-13942       young_torvalds_3965          tree    thr    0.56 max     0.62 (+   1.2 beta; val max    0.20) windows   1/  88 first at   43.5s of   43.5s
+CVE-2020-23839       harsh_saha_6066              T       thr   16.89 max    46.87 (+  21.8 beta; val max    9.98) windows   2/  89 first at   11.5s of   44.0s
+CVE-2020-9484        refined_swirles_2576         T       thr   20.00 max    23.19 (+   2.4 beta; val max   14.51) windows   1/  92 first at   39.5s of   45.5s
+CVE-2020-9484        tangy_wing_6393              T       thr   20.00 max    41.59 (+  16.5 beta; val max   14.51) windows   1/  91 first at    0.5s of   45.0s
+EPS_CWE-434          raspy_keldysh_2611           T       thr   12.47 max    16.33 (+   5.8 beta; val max    9.91) windows   1/  55 first at   10.0s of   44.0s
+EPS_CWE-434          victorious_goldberg_9687     T       thr   12.47 max    15.05 (+   3.9 beta; val max    9.91) windows   1/  59 first at    2.5s of   44.0s
+Juice-Shop           sweet_pike_2889              T       thr   29.37 max    34.21 (+   2.3 beta; val max   17.99) windows   1/  76 first at   17.0s of   43.5s
+ZipSlip              salty_mendel_1166            T       thr   17.09 max    18.69 (+   1.4 beta; val max   14.93) windows   1/  62 first at   24.5s of   43.5s
