@@ -1,0 +1,24 @@
+{
+  "schema": "sentinel-pulse-lidds-ml-v4",
+  "registered_at": "2026-11-09T01:55+07:00",
+  "registered_before": "any official score of the cross-fitted token branch; lidds_ml_token_crossfit.py and lidds_ml_token_topk.py have scored development and CB-DS recordings only",
+  "owner_decision": "08/11: improve recall and false alarms on LID-DS 2021 before the live run; the official split may be scored again if declared",
+  "declared": "third scoring of the LID-DS 2021 official split by this line of work (lidds-ml-v2 05/11, lidds-ml-v3 07/11). The official results of v2 and v3 were known when this round was designed, although every choice below is made on development and CB-DS only. The result is reported as such; the independent evidence stays the live blind run and LID-DS 2019.",
+  "development_findings": {
+    "recall": "no configuration exceeds 530/544 (information ceiling 533): token alphabets, n, thresholds, branch shares, cross-fit and top-k statistics all stop there; the 14 missed recordings lie far below every threshold",
+    "false_alarms": "v3 17/3403: 9 fire only in tree or support, which add no development detection; the token branch alone has 8 (7 alone, 1 together with support)",
+    "rejected": "quantile Gumbel fits (false alarms up to 88), leaving out the first and last window (ZipSlip and CVE-2017-7529 lose their evidence), top 1 and top 20, moment Gumbel on cross-fitted maxima (ZipSlip loses 7: a few held-out maxima inflate the fit)",
+    "receipts": "validation-evidence/results-20261108/ml-v4/"
+  },
+  "system": {
+    "token_branch": "alphabet select1f, per-thread 4-grams, Witten-Bell, mean of the top 10 -log p as lidds-ml-v3; model learnt on training + validation",
+    "token_threshold": "training + validation in 5 folds by sha256 of the name; each recording scored by the model of the other folds; moment Gumbel on the per-recording maxima without the top 1 % (rule R4, scripts/analysis/lidds_ml_v4.py)",
+    "tree_support": "reference tree and support of lidds-ml-v3, unchanged, moment Gumbel on validation maxima",
+    "levels": "alpha 0.0002 split token 0.9, tree 0.05, support 0.05; one window above its branch's threshold fires"
+  },
+  "selection": "highest development detections among configurations that keep the three branches, then fewest development false alarms; eligible as lidds-ml-v2: development false alarms <= 0.6 %, p95 <= 3 s, CB-DS recall >= 95 %, CB-DS false alarms <= 2 %. Result on development: 530/544, 12/3403, p95 1.52 s, 527 within 3 s; CB-DS 891/891, 3/1410. Several hundred configurations were compared on development, so these numbers are optimistic.",
+  "gate": "the official-run tokens must reproduce the development-only cross-fitted scores exactly on every development and CB-DS window, and the scorer must reproduce 530/544, 12/3403 and 891/891, 3/1410, before the official part is read",
+  "official": "scored once by scripts/analysis/lidds_ml_v4.py --official (the output file must not exist). Criteria as lidds-ml-v2: recall >= 95 %, precision at the base rate >= 95 %, p95 <= 3 s. Compared with lidds-ml-v3: 97.32 % (1,237/1,271), 0.44 % (35/7,938), p95 2.09 s, 1,223 within 3 s. Reported whichever way it falls; v3 stays the reference if v4 is worse on false alarms or recall.",
+  "reported_only": "token branch alone at the same token level; v3 on the same recordings from its receipt",
+  "limits": "At the selected levels the token branch alone has 7 development false alarms against 12 for the system, so about 5 remain because of tree or support; the owner's 05/11 decision keeps those branches because they are the ones that see mprotect / seccomp patterns on the cluster. How cross-fit carries to the cluster (time blocks, not recordings) is decided in the live protocol."
+}
