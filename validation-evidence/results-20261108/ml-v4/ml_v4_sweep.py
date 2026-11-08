@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT / 'scripts' / 'analysis'))
 import lidds_ml_v2 as m  # noqa: E402
 import lidds_v3_combine as v3  # noqa: E402
 
-ALPHAS = (0.0002, 0.0001, 0.00005, 0.00002, 0.00001, 0.000005, 0.000002, 0.000001)
+ALPHAS = (0.001, 0.0005, 0.0002, 0.0001, 0.00005, 0.00002, 0.00001)
 SHARES = {'1/3 each': (1 / 3, 1 / 3, 1 / 3), 'T .6 tree .2 sup .2': (.6, .2, .2), 'T .8 tree .1 sup .1': (.8, .1, .1),
           'T .5 tree .1 sup .4': (.5, .1, .4), 'T .4 tree .2 sup .4': (.4, .2, .4)}
 
@@ -49,8 +49,9 @@ def main():
     ap = argparse.ArgumentParser()
     for k in ('scores', 'tokens', 'lidds-alarms', 'cbds-alarms'):
         ap.add_argument('--' + k, required=True)
+    ap.add_argument('--token-column', default='select1f')
     a = ap.parse_args()
-    m.set_token_column('select1f')
+    m.set_token_column(a.token_column)
     lidds, cbds = m.load(a.lidds_alarms), m.load(a.cbds_alarms)
     dirs = dict(scores=a.scores, tokens=a.tokens)
     lid = {s: m.Scenario(s, dirs) for s in sorted(lidds['scenarios'])}
