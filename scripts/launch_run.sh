@@ -10,7 +10,8 @@
 #   [RECAL=rolling-12-1 [RECAL_EXCLUDE_CAMPAIGN=1]: rolling calibration in the workers, needs FINAL=1] \
 #   [TOKEN_BUILD=/home/dat/pulse-tokens-YYYYMMDD [TOKEN_MODELS=.../MODELS.json] [V3_COUNTS=.../counts.json]]: lidds-ml-v3
 #   token probe build/proof on every worker, optional token models and count-branch thresholds (pulse-live-v3-v1)
-#   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1)
+#   [LOCAL_DECISIONS=1]: async shared writes + local decision copy without the tripwire (implied by FINAL=1); with it
+#   the bridge runs and RCA builds cases from the alerts Alertmanager delivered, as for FINAL=1
 #   bash launch_run.sh [plan|workers|rca|bridge|master|traffic|all]
 #   traffic: the traffic generator only (a normal capture, no campaign)
 #
@@ -85,7 +86,7 @@ rca() {
   as_root mkdir -p "/opt/sentinel-pulse-rca/$RCA_NAME"
   as_root test -d "/opt/sentinel-pulse-rca/$RCA_NAME/source/.git" ||
     as_root cp -r "$SNAP" "/opt/sentinel-pulse-rca/$RCA_NAME/source"
-  RUN=$RUN FINAL=$FINAL BRIDGE_OUT=$BRIDGE_OUT python3 - "$ROOT/CONFIG.json" >"/tmp/$RCA_NAME.json" <<'PY'
+  RUN=$RUN FINAL=$FINAL LOCAL_DECISIONS=${LOCAL_DECISIONS:-0} BRIDGE_OUT=$BRIDGE_OUT python3 - "$ROOT/CONFIG.json" >"/tmp/$RCA_NAME.json" <<'PY'
 import json, os, sys
 run = json.load(open(sys.argv[1]))
 print(json.dumps(dict(
@@ -106,7 +107,9 @@ print(json.dumps(dict(
     follow_up_audit=True,
     **({'binary_baseline_seed': os.environ['BASELINE_SEED']} if os.environ.get('BASELINE_SEED') else {}),
     # final system: a case per alert that Alertmanager delivered (bridge triggers.jsonl), ML or tripwire
-    **({'alert_trigger_file': os.environ['BRIDGE_OUT'] + '/triggers.jsonl'} if os.environ.get('FINAL') == '1' else {})), indent=2))
+    # lidds-ml-v3 runs (LOCAL_DECISIONS=1, no tripwire) build cases the same way
+    **({'alert_trigger_file': os.environ['BRIDGE_OUT'] + '/triggers.jsonl'}
+       if '1' in (os.environ.get('FINAL'), os.environ.get('LOCAL_DECISIONS')) else {})), indent=2))
 PY
   as_root install -m 0640 -o root -g dat "/tmp/$RCA_NAME.json" "/etc/sentinel-pulse-rca/$RCA_NAME.json"
   rm -f "/tmp/$RCA_NAME.json"
@@ -159,6 +162,6 @@ master() {
 
 case "${1:-all}" in
   plan) plan ;; workers) workers ;; rca) rca ;; bridge) bridge ;; master) master ;; traffic) traffic ;;
-  all) plan; workers; rca; [ "$FINAL" = 1 ] && bridge; master ;;
+  all) plan; workers; rca; { [ "$FINAL" = 1 ] || [ "${LOCAL_DECISIONS:-0}" = 1 ]; } && bridge; master ;;
   *) echo "unknown step $1" >&2; exit 2 ;;
 esac
