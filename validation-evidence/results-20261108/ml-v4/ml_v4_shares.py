@@ -11,7 +11,7 @@ import ml_v4_rules as r  # noqa: E402
 
 m = r.m
 GRID = {'T.8': (.8, .1, .1), 'T.9': (.9, .05, .05), 'T.95': (.95, .025, .025), 'T.98': (.98, .01, .01), 'T.99': (.99, .005, .005),
-        'T.998': (.998, .001, .001), 'T only': (1.0, 1e-300, 1e-300)}
+        'T.998': (.998, .001, .001), 'T only': (1.0, 0.0, 0.0)}
 ALPHAS = (0.0005, 0.0002, 0.0001, 0.00005, 0.00002)
 SETS = [('select1f', '/var/tmp/lid-ds-2021/ml-v3-tokens', 'R1'), ('xfit', '/var/tmp/lid-ds-2021/ml-xfit-tokens', 'R1'),
         ('xfit', '/var/tmp/lid-ds-2021/ml-xfit-tokens', 'R4')]

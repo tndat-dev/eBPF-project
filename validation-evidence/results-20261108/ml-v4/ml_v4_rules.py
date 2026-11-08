@@ -54,7 +54,7 @@ def thresholds(scn, rule, levels):
     mx = np.asarray([z[k][:, i].max() for k in z.files if k.startswith('val/') and len(z[k])], float)
     out = {'T': m.threshold(RULES[rule](mx), levels['T'])}
     for b in ('tree', 'support'):
-        out[b] = m.threshold(scn.branch[b][4], levels[b])
+        out[b] = m.threshold(scn.branch[b][4], levels[b]) if levels[b] > 0 else float('inf')   # 0: branch off
     return out
 
 
