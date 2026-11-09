@@ -641,11 +641,11 @@ Mục tiêu của luận văn là một mô hình ML phát hiện tấn công ch
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Mô hình ngôn ngữ trên token giàu ngữ cảnh:} mỗi lần syscall trả về là một token gồm tên, cộng mã lỗi, hoặc chế độ mở và thư mục đầu của đường dẫn, hoặc cỡ đọc ghi theo thang log (ví dụ \texttt{openat:r:/etc}, \texttt{read\#4}). Mô hình học 4-gram theo từng thread trên bản ghi normal, làm mượt Witten--Bell, lùi về $P(\text{tên}) \times P(\text{token} \mid \text{tên})$. Điểm của một cửa sổ là trung bình 10 giá trị $-\log p$ lớn nhất;
+  \textbf{Mô hình ngôn ngữ trên token giàu ngữ cảnh:} mỗi lần syscall trả về là một token gồm tên, cộng mã lỗi, hoặc chế độ mở và thư mục đầu của đường dẫn, hoặc cỡ đọc ghi theo thang log (ví dụ \texttt{openat:r:/etc}, \texttt{read\#4}). Mô hình học 4-gram theo từng thread trên bản ghi normal, làm mượt Witten--Bell \citep{witten1991,chen1999}, lùi về $P(\text{tên}) \times P(\text{token} \mid \text{tên})$. Điểm của một cửa sổ là trung bình 10 giá trị $-\log p$ lớn nhất;
 \item
   \textbf{Giữ cây tham chiếu và nhánh support của ML ban đầu.} Trên LID-DS chúng làm mất khoảng 1 điểm recall, nhưng là các nhánh duy nhất thấy tấn công chỉ làm nhiều hơn điều quen thuộc, như \texttt{mprotect} và \texttt{seccomp} trên cụm. Quyết định này có trước khi đọc official;
 \item
-  \textbf{Quyết định:} một cửa sổ vượt ngưỡng là báo. Ngưỡng của mỗi nhánh lấy từ phân bố Gumbel khớp theo moment trên điểm lớn nhất của từng bản ghi validation, ở mức $\alpha/3$; mỗi bản ghi là một mẫu nên tự tương quan giữa các cửa sổ không làm sai hiệu chỉnh, và quyết định vẫn chạy online được.
+  \textbf{Quyết định:} một cửa sổ vượt ngưỡng là báo. Ngưỡng của mỗi nhánh lấy từ phân bố Gumbel \citep{coles2001} khớp theo moment trên điểm lớn nhất của từng bản ghi validation, ở mức $\alpha/3$; mỗi bản ghi là một mẫu nên tự tương quan giữa các cửa sổ không làm sai hiệu chỉnh, và quyết định vẫn chạy online được.
 \end{itemize}
 
 Cấu hình chọn trên development và CB-DS ($\alpha = 0{,}0005$): development 95,96\% (522/544), báo nhầm 0,56\%, p95 2,37 s; CB-DS 891/891, báo nhầm 2/1.410. Khoảng 30 biến thể đã được thử trên development, nên số development lạc quan.

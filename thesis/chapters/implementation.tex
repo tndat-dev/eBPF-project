@@ -35,6 +35,24 @@ Lưu trữ & NFS riêng cho dữ liệu các lượt chạy \\
   \textbf{Khóa bằng proof:} loader và object được khóa bằng SHA-256 cùng một “proof” gắn với phiên bản kernel. Worker từ chối chạy trên kernel khác.
 \end{itemize}
 
+\section{Probe token và chấm mô hình token}
+
+Mô hình token (mục~\ref{sec:token-model}) cần giá trị trả về và đường dẫn, nên probe được mở rộng thành một bản build riêng (\texttt{make tokens}), kèm proof gắn với kernel và mã băm của artifact.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Token 32 bit:} số syscall ở bit 23--31, loại ở bit 21--22, phần chi tiết ở các bit còn lại (mã lỗi, nhóm cỡ, hoặc cờ ghi và mã băm FNV-1a của thư mục đầu).
+\item
+  \textbf{Điểm móc:} 39 syscall cần giá trị trả về phát token lúc trả về, qua một chương trình \texttt{raw\_\allowbreak{}tp/\allowbreak{}sys\_\allowbreak{}exit}; các syscall còn lại phát tên lúc vào. Thư mục đầu lấy bằng đi ngược dentry từ fd trả về. Bản đầu dùng \texttt{fexit} từng syscall đã bị bỏ vì va chạm với kprobe của Tetragon làm chi phí tăng cao.
+\item
+  \textbf{Map gram:} khóa là (cgroup, cửa sổ, 4 token), loader đọc hết các cửa sổ đã đóng mỗi 0,5 s. Worker dựng cửa sổ token, chấm bằng mô hình của workload rồi ghi điểm cùng decision.
+\item
+  \textbf{Kiểm chứng:} proof kiểm đúng một token cho mỗi syscall, kể cả syscall bị seccomp bỏ qua, và không mất sự kiện.
+\item
+  \textbf{Chi phí thêm so với probe hiện tại:} \texttt{getpid} 127--174 ns, \texttt{read} 4 KB 210--229 ns, \texttt{open} + \texttt{close} 0,94--1,23 µs, \texttt{mmap} + \texttt{munmap} 413--699 ns, \texttt{futex} 216--298 ns (đo vi mô; chi phí trên ứng dụng thật chưa đo).
+\end{itemize}
+
 \section{Worker chấm điểm}
 
 Worker (\texttt{pipeline/\allowbreak{}matched\_\allowbreak{}worker.\allowbreak{}py}) chạy như một unit systemd trên mỗi worker, giới hạn 3 core và 3 GB RAM. Mỗi frame đi qua các bước:

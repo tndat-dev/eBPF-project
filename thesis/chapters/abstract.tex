@@ -12,7 +12,7 @@ Sentinel Pulse phát hiện hành vi bất thường của container Kubernetes 
 \item
   \textbf{Thu thập:} cứ 0,5 s, một chương trình eBPF gắn vào \texttt{sys\_\allowbreak{}enter} đếm syscall theo từng cgroup. Từ đó hệ thống dựng một vector 249 feature cho mỗi container.
 \item
-  \textbf{Chấm điểm:} mỗi workload có một model riêng, gồm một cây quyết định trên ngữ cảnh 4 cửa sổ và một nhánh support, cùng cho p-value conformal.
+  \textbf{Chấm điểm (hệ thống cuối đã chạy live):} mỗi workload có một model riêng, gồm một cây quyết định trên ngữ cảnh 4 cửa sổ và một nhánh support, cùng cho p-value conformal. Mô hình ML hiện tại của đồ án là mô hình ngôn ngữ trên token, học từ normal; nó được mô tả ở mục kết quả LID-DS dưới đây và đang được kiểm chứng trên cụm.
 \item
   \textbf{Quyết định:} chính sách k2of2 ở mức α×5, có chiết khấu bằng chứng khi các replica khác của cùng workload cũng thấy hành vi đó trong 30 s.
 \item

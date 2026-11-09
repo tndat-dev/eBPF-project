@@ -1,5 +1,7 @@
 \chapter{Thiết kế Sentinel Pulse}
 
+Chương này mô tả hai thế hệ. Mô hình ML hiện tại của đồ án là mô hình token (mục~\ref{sec:token-model}), đã đánh giá trên LID-DS 2021 và đang được kiểm chứng trên cụm. Các mục còn lại mô tả hệ thống cuối đã chạy live trọn vẹn, gồm cây, support và tripwire; mọi số live ở chương đánh giá là của hệ thống đó, trừ khi ghi khác.
+
 Pulse có hai nhánh phát hiện chạy song song trên cùng số đếm syscall: một model ML theo workload và một luật tripwire. Bất kỳ nhánh nào báo cũng sinh cảnh báo; RCA dựng cây bằng chứng cho mỗi cảnh báo đã gửi đi.
 
 \begin{figure}[htbp]
@@ -60,6 +62,32 @@ Impact (gồm chiếm tài nguyên kiểu đào coin) & Không có \\
 
 LID-DS 2021 (mục 6.12) bù một phần cho initial access, vì nó gồm 15 exploit thật đi qua ứng dụng, nhưng chỉ đánh giá offline.
 
+\section{Mô hình ML hiện tại: mô hình ngôn ngữ trên token}\label{sec:token-model}
+
+Trọng tâm của đồ án là một mô hình học từ normal, không dùng nhãn tấn công, phát hiện được tấn công chưa biết. Mô hình hiện tại (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}) là một mô hình ngôn ngữ thống kê, học không giám sát: nó không dùng mạng nơ-ron hay huấn luyện bằng gradient, mà học bằng cách đếm chuỗi token. Ý tưởng coi chuỗi syscall như một ngôn ngữ và báo khi xác suất thấp có từ \citet{kim2016} và \citet{fournier2023}; phát hiện bằng chuỗi syscall ngắn có từ \citet{forrest1996} và \citet{warrender1999}. Nó chỉ dùng thông tin mà probe thu được trên cụm, nên cùng một cách tính chạy được trên dataset và trên live.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Token:} mỗi lần syscall trả về là một token gồm tên syscall, kèm mã lỗi của 27 syscall, hoặc cỡ đọc ghi theo thang log2, hoặc chế độ mở và thư mục đầu của đường dẫn.
+\item
+  \textbf{Mô hình:} 4-gram theo từng thread, làm mượt Witten--Bell \citep{witten1991,chen1999}, lùi về $P(\text{tên}) \times P(\text{token} \mid \text{tên})$ khi ngữ cảnh chưa từng thấy.
+\item
+  \textbf{Điểm cửa sổ:} trung bình 10 giá trị $-\log p$ lớn nhất trong cửa sổ 0,5 s. Lấy các giá trị lớn nhất để vài sự kiện lạ không bị loãng trong hàng nghìn sự kiện quen.
+\item
+  \textbf{Ngưỡng:} phân bố cực trị Gumbel \citep{coles2001} khớp theo moment trên các điểm lớn nhất của dữ liệu giữ ra, bỏ 1\% cao nhất, ở mức $\alpha = 0{,}0002 \times 0{,}9$. Dữ liệu giữ ra lấy bằng cross-fit 5 fold: mỗi phần được chấm bằng mô hình học từ các phần còn lại, còn mô hình cuối học trên toàn bộ. Dùng lý thuyết cực trị để đặt ngưỡng không cần nhãn có tiền lệ ở \citet{siffer2017}, nhưng bài đó khớp phần đuôi của luồng điểm; còn dùng điểm giữ ra của K-fold để hiệu chỉnh có tiền lệ ở CV+ \citep{barber2021}, nhưng bảo đảm phủ của CV+ không chuyển sang đây vì đồ án khớp một phân bố chứ không lấy phân vị.
+\item
+  \textbf{Quyết định:} một cửa sổ vượt ngưỡng là báo.
+\end{itemize}
+
+Trên LID-DS, mỗi kịch bản có một mô hình học từ training và validation, và fold chia theo bản ghi. Trên cụm, mỗi workload có một mô hình học từ 12 giờ normal; vì cụm không có bản ghi, fold là các đoạn 30 phút liền nhau và điểm lớn nhất lấy theo khối 60 s của từng container. Đây là điểm khác duy nhất về dữ liệu giữa hai nơi. Kết quả trên LID-DS ở mục~\ref{sec:lidds-ml}.
+
+Cây và support của hệ thống cuối (mục~\ref{sec:workload-model}) tạm bỏ khỏi đường cảnh báo từ 09/11 nhưng được giữ lại: code, model và ngưỡng vẫn còn, và chúng vẫn được tính và ghi log để so sánh. Lý do: trên LID-DS official, thêm hai nhánh này không tăng phát hiện mà thêm báo nhầm (36 so với 26 bản ghi).
+
+Mô hình này là một tổ hợp, không có bài nào đề xuất nguyên khối. Các phần có nguồn là những phần đã trích ở trên. Các lựa chọn sau là của đồ án, được chọn bằng thực nghiệm trên development và CB-DS (mục~\ref{sec:lidds-ml}), không lấy từ nguồn nào: bảng chữ token theo đúng thông tin probe thu được, điểm là trung bình 10 giá trị lớn nhất, chọn ước lượng moment và bỏ 1\% cao nhất, chia mức $\alpha$, và quy tắc một cửa sổ. Các bài trích dẫn không chứng minh những lựa chọn này là tối ưu.
+
+Giới hạn cần nói rõ: mô hình phát hiện điều mới lạ, không phân biệt ý đồ. Trên development nó chưa hơn luật đếm 4-gram chưa thấy trên cùng token, và trên cụm nó gắn cờ gần như mọi binary mới, kể cả vô hại. Giảm cờ trên binary vô hại mà vẫn giữ kết quả LID-DS là việc đang làm (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v5}, chưa có kết quả).
+
 \section{Biểu diễn: 249 feature mỗi cửa sổ}
 
 Cứ 0,5 s, user space đọc map eBPF và lấy hiệu số bộ đếm giữa hai lần đọc cho từng cgroup. Vector của một cửa sổ gồm:
@@ -96,7 +124,7 @@ Nhiều syscall nhạy cảm bằng 0 trên toàn bộ normal. Chính vì vậy 
 
 Model nhận \textbf{ngữ cảnh} gồm 3 cửa sổ trước và cửa sổ hiện tại, tức 996 số. Hai snapshot cách nhau ngoài 0,35--0,8 s là một \emph{cadence gap}: lịch sử bị xóa và các cửa sổ ngay sau đó không được tính là normal. Mục 6.5 trình bày bằng chứng cho từng nhóm feature.
 
-\section{Model theo workload}
+\section{Model theo workload của hệ thống cuối}\label{sec:workload-model}
 
 Mỗi workload có một model riêng gồm hai nhánh:
 
