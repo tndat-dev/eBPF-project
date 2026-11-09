@@ -73,7 +73,7 @@ def test_phase_maxima_read_only_benign_launches_within_the_phase():
     odd = [TOK_NONE, TOK_NONE, tok(7), tok(8), 5]
     launch = [odd, [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]
     windows = [dict(base, window_end=100.5, grams=launch),      # execve inside the benign launch
-               dict(base, window_end=103.0, grams=odd),         # the launch, after the phase
+               dict(base, window_end=103.0, grams=[odd]),       # the launch, after the phase
                dict(base, window_end=200.5, grams=launch)]      # execve outside any benign launch
     maxima = tp.launch_maxima(windows, {('p', 'c'): [100.0]}, pool, 1.0)
     assert list(maxima) == [('p', 'c', 100.0)]
