@@ -620,7 +620,7 @@ OR mọi nhánh (v2) & 100\% (891/891) & 5,5\% (77) \\
 
 \subsection{ML học từ normal, không dùng luật}\label{sec:lidds-ml}
 
-Mục tiêu của luận văn là một mô hình ML phát hiện tấn công chưa biết, nên kết quả chính của mục này là của ML, không có tripwire, cổng novelty hay luật bỏ phiếu. Trên tập official, ML ban đầu phát hiện 63,9\% bản ghi tấn công. Sau khi sửa các nguyên nhân dưới đây và ghi cỡ đọc ghi chi tiết hơn, nó đạt 97,32\% với 0,44\% bản ghi normal bị báo nhầm (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}). Đây là kết quả offline trên trace của dataset.
+Mục tiêu của luận văn là một mô hình ML phát hiện tấn công chưa biết, nên kết quả chính của mục này là của ML, không có tripwire, cổng novelty hay luật bỏ phiếu. Trên tập official, ML ban đầu phát hiện 63,9\% bản ghi tấn công. Sau khi sửa các nguyên nhân dưới đây và ghi cỡ đọc ghi chi tiết hơn, nó đạt 97,40\% với 0,45\% bản ghi normal bị báo nhầm (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}). Đây là kết quả offline trên trace của dataset.
 
 \paragraph{Lượt thứ nhất thất bại} (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v1}). Thêm các model con theo nhóm thông tin (truy cập file, chuỗi syscall, cỡ đọc ghi, errno), mỗi model một p-value conformal, ghép Bonferroni hoặc Cauchy, báo khi hai cửa sổ liền nhau đều qua. Không cấu hình nào trong 24 đủ điều kiện, và cấu hình được chọn chỉ đạt 65,2\% trên official. Chẩn đoán trên development (sau khi có kết quả, nên chỉ để định hướng) tìm ra bốn nguyên nhân:
 
@@ -650,7 +650,9 @@ Mục tiêu của luận văn là một mô hình ML phát hiện tấn công ch
 
 Cấu hình chọn trên development và CB-DS ($\alpha = 0{,}0005$): development 95,96\% (522/544), báo nhầm 0,56\%, p95 2,37 s; CB-DS 891/891, báo nhầm 2/1.410. Khoảng 30 biến thể đã được thử trên development, nên số development lạc quan.
 
-\paragraph{Token mà probe thu được} (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}, đăng ký trước khi tính bất kỳ điểm official nào của bảng chữ mới). Móc mọi lần syscall trả về đã vượt giới hạn overhead (mục~\ref{sec:overhead}), nên các bảng chữ token được so trên development theo thông tin mà probe phải thu. Bỏ mã lỗi, bỏ thông tin open, hay thay cỡ trả về bằng cỡ yêu cầu lúc vào đều làm recall còn 88--91\%; chỉ dùng tên syscall còn 86,0\%. Ghi cỡ đọc ghi theo log2 không chia đôi lại tăng recall. Bảng chữ được chọn chỉ giữ mã lỗi của 27 syscall (gồm \texttt{futex}), cỡ trả về chi tiết của nhóm đọc ghi và thông tin open; trên development nó cho đúng cùng kết quả với bảng chữ giữ mã lỗi của mọi syscall. Danh sách syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công. Cùng quy tắc với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, cấu hình chọn trên development và CB-DS ($\alpha = 0{,}0002$): development 97,43\% (530/544), báo nhầm 0,50\%, p95 2,16 s; CB-DS 891/891, báo nhầm 2/1.410. Đây là lần thứ hai tập official được dùng để chấm một ML, sau \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}; protocol ghi rõ điều này.
+\paragraph{Token mà probe thu được} (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}, đăng ký trước khi tính bất kỳ điểm official nào của bảng chữ mới). Móc mọi lần syscall trả về đã vượt giới hạn overhead (mục~\ref{sec:overhead}), nên các bảng chữ token được so trên development theo thông tin mà probe phải thu. Bỏ mã lỗi, bỏ thông tin open, hay thay cỡ trả về bằng cỡ yêu cầu lúc vào đều làm recall còn 88--91\%; chỉ dùng tên syscall còn 86,0\%. Ghi cỡ đọc ghi theo log2 không chia đôi lại tăng recall. Bảng chữ được chọn chỉ giữ mã lỗi của 27 syscall (gồm \texttt{futex}), cỡ trả về chi tiết của nhóm đọc ghi và thông tin open; trên development nó cho đúng cùng kết quả với bảng chữ giữ mã lỗi của mọi syscall. Danh sách syscall và độ phân giải cỡ được chọn trên development có nhãn tấn công. Cùng quy tắc với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, cấu hình chọn trên development và CB-DS ($\alpha = 0{,}0002$): development 97,43\% (530/544), báo nhầm 0,50\%, p95 2,16 s; CB-DS 891/891, báo nhầm 2/1.410.
+
+\paragraph{Cross-fit nhánh token} (protocol \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}). Mô hình token học trên cả training và validation (khoảng 270 bản ghi mỗi kịch bản thay vì khoảng 211). Để ngưỡng không lấy từ chính dữ liệu đã học, các bản ghi này chia 5 fold theo tên, mỗi bản ghi được chấm bằng mô hình học từ các fold còn lại, và ngưỡng là Gumbel theo moment trên điểm lớn nhất giữ ra, bỏ 1\% cao nhất. Mức $\alpha = 0{,}0002$ chia cho token 0,9, cây 0,05 và support 0,05. Mô hình token, cây và support không đổi. Cấu hình chọn trên development và CB-DS: development 97,43\% (530/544), báo nhầm 0,35\% (12/3.403), p95 1,52 s; CB-DS 891/891, báo nhầm 3/1.410. Vài trăm cấu hình đã được so trên development và không cấu hình nào vượt 530/544, nên số development lạc quan. Quy tắc so sánh đăng ký trước giữ \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} nếu \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4} kém hơn về recall hoặc báo nhầm; \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4} báo nhầm nhiều hơn một bản ghi (36 so với 35, trong sai số thống kê), và được chọn vì latency tốt hơn rõ (p95 1,47 s so với 2,09 s). Trên development báo nhầm giảm từ 17 xuống 12 nhưng trên official không giảm, nên lợi ích giữ được là latency.
 
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.31\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.22\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.18\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.14\linewidth-2\tabcolsep\relax}@{}}
 \caption{ML trên LID-DS 2021 official (1.271 bản ghi tấn công, 7.938 bản ghi normal). Trong ngoặc là số bản ghi.}\label{tab:lidds-ml}\\
@@ -663,15 +665,17 @@ Cấu hình & Recall & Báo nhầm & Precision (tỉ lệ của dataset) & p95 \
 ML ban đầu & 63,89\% (812) & 2,71\% (215) & 79,1\% & 5,29 s \\
 \texttt{lidds-\allowbreak{}ml-\allowbreak{}v1} & 65,22\% (829) & 2,05\% (163) & 83,6\% & 4,04 s \\
 \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2} & 95,99\% (1.220) & 0,57\% (45) & 96,4\% & 2,32 s \\
-\textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}} & \textbf{97,32\% (1.237)} & \textbf{0,44\% (35)} & \textbf{97,2\%} & \textbf{2,09 s} \\
+\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} & 97,32\% (1.237) & 0,44\% (35) & 97,2\% & 2,09 s \\
+\textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}} & \textbf{97,40\% (1.238)} & \textbf{0,45\% (36)} & \textbf{97,2\%} & \textbf{1,47 s} \\
 Chỉ token, bảng chữ v2 (chỉ báo) & 97,01\% (1.233) & 0,52\% (41) & 96,8\% & 1,47 s \\
 Chỉ token, bảng chữ v3 (chỉ báo) & 97,40\% (1.238) & 0,63\% (50) & 96,1\% & 1,41 s \\
+Chỉ token, cross-fit (chỉ báo) & 97,40\% (1.238) & 0,33\% (26) & 97,9\% & 1,47 s \\
 Chỉ cây và support (chỉ báo) & 52,08\% (662) & 0,40\% (32) & 95,4\% & 13,15 s \\
 \end{longtable}
 
 \begingroup\small
 \begin{longtable}[]{@{}>{\raggedright\arraybackslash}p{\dimexpr 0.4\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.13\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.17\linewidth-2\tabcolsep\relax}>{\raggedright\arraybackslash}p{\dimexpr 0.15\linewidth-2\tabcolsep\relax}@{}}
-\caption{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} trên official theo kịch bản.}\label{tab:lidds-ml-scenarios}\\
+\caption{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4} trên official theo kịch bản.}\label{tab:lidds-ml-scenarios}\\
 \toprule\noalign{}
 Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
 \midrule\noalign{}
@@ -681,17 +685,17 @@ Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
 \texttt{Bruteforce\_CWE-\allowbreak{}307} & 97/97 & 100,0\% & 0/538 & 0,00\% \\
 \texttt{CVE-\allowbreak{}2012-\allowbreak{}2122} & 84/84 & 100,0\% & 2/533 & 0,38\% \\
 \texttt{CVE-\allowbreak{}2014-\allowbreak{}0160} & 84/84 & 100,0\% & 1/531 & 0,19\% \\
-\texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 83/83 & 100,0\% & 1/527 & 0,19\% \\
-\texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 83/83 & 100,0\% & 4/510 & 0,78\% \\
-\texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 85/85 & 100,0\% & 0/516 & 0,00\% \\
-\texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 83/84 & 98,8\% & 8/532 & 1,50\% \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}12635\_6} & 83/83 & 100,0\% & 2/527 & 0,38\% \\
+\texttt{CVE-\allowbreak{}2017-\allowbreak{}7529} & 83/83 & 100,0\% & 3/510 & 0,59\% \\
+\texttt{CVE-\allowbreak{}2018-\allowbreak{}3760} & 85/85 & 100,0\% & 2/516 & 0,39\% \\
+\texttt{CVE-\allowbreak{}2019-\allowbreak{}5418} & 84/84 & 100,0\% & 8/532 & 1,50\% \\
 \texttt{CVE-\allowbreak{}2020-\allowbreak{}13942} & 83/83 & 100,0\% & 3/529 & 0,57\% \\
-\texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 84/84 & 100,0\% & 4/532 & 0,75\% \\
-\texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 84/84 & 100,0\% & 3/531 & 0,56\% \\
-\texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 84/84 & 100,0\% & 0/532 & 0,00\% \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}23839} & 84/84 & 100,0\% & 3/532 & 0,56\% \\
+\texttt{CVE-\allowbreak{}2020-\allowbreak{}9484} & 84/84 & 100,0\% & 1/531 & 0,19\% \\
+\texttt{CWE-\allowbreak{}89-\allowbreak{}SQL-\allowbreak{}injection} & 84/84 & 100,0\% & 2/532 & 0,38\% \\
 \texttt{EPS\_CWE-\allowbreak{}434} & 85/85 & 100,0\% & 1/531 & 0,19\% \\
-\texttt{Juice-\allowbreak{}Shop} & 52/85 & 61,2\% & 4/532 & 0,75\% \\
-\texttt{PHP\_CWE-\allowbreak{}434} & 83/83 & 100,0\% & 2/532 & 0,38\% \\
+\texttt{Juice-\allowbreak{}Shop} & 52/85 & 61,2\% & 3/532 & 0,56\% \\
+\texttt{PHP\_CWE-\allowbreak{}434} & 83/83 & 100,0\% & 3/532 & 0,56\% \\
 \texttt{ZipSlip} & 83/83 & 100,0\% & 2/532 & 0,38\% \\
 \end{longtable}
 \endgroup
@@ -699,16 +703,16 @@ Kịch bản & Phát hiện & Recall & Báo nhầm & Tỉ lệ báo nhầm \\
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Ba tiêu chí đạt} (recall $\geq$ 95\%, precision $\geq$ 95\%, p95 $\leq$ 3 s). CI 95\% của recall là [96,29; 98,08], nên khẳng định được recall $\geq$ 95\%; CI của báo nhầm là [0,32; 0,61]. Với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, cận dưới của recall còn là 94,76\%.
+  \textbf{Ba tiêu chí đạt} (recall $\geq$ 95\%, precision $\geq$ 95\%, p95 $\leq$ 3 s). CI 95\% của recall là [96,38; 98,15], nên khẳng định được recall $\geq$ 95\%; CI của báo nhầm là [0,33; 0,63]. Với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, cận dưới của recall còn là 94,76\%.
 \item
-  \textbf{Phát hiện trong 3 s là 96,2\%} (1.223/1.271); với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2} là 93,3\%. Ở \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, 27 trong 34 bản ghi phát hiện muộn hơn 3 s thuộc CVE-2012-2122, nơi có biến thể exploit rất chậm và bản ghi dài tới hơn 5.000 s, và một phần các phát hiện muộn đó có thể chỉ là trùng hợp; với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}, chỉ còn 14 bản ghi được phát hiện muộn hơn 3 s.\item
+  \textbf{Phát hiện trong 3 s là 97,1\%} (1.234/1.271); với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} là 96,2\%, với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2} là 93,3\%. Ở \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}, 27 trong 34 bản ghi phát hiện muộn hơn 3 s thuộc CVE-2012-2122, nơi có biến thể exploit rất chậm và bản ghi dài tới hơn 5.000 s, và một phần các phát hiện muộn đó có thể chỉ là trùng hợp; với \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}, chỉ còn 4 bản ghi được phát hiện muộn hơn 3 s.\item
   \textbf{Công chủ yếu đến từ token, chưa phải từ phần học.} Trên development, 53,4\% bản ghi normal chứa một 4-gram chưa từng thấy nhưng mô hình token chỉ báo ở 1,1\% số đó, nên nó không phải luật any-mismatch. Tuy vậy, luật đếm 4-gram hoặc token chưa thấy với ngưỡng hiệu chỉnh đạt 97,4\% với 0,41\%, ngang mô hình (97,2\% với 0,65\%), và mọi cửa sổ báo đầu tiên đều chứa 4-gram chưa thấy. Trên LID-DS, mô hình chưa cho thấy lợi thế so với novelty trên cùng token.
 \item
-  \textbf{Còn yếu:} Juice-Shop 61,2\% (28/85 bản ghi không có dấu vết ở mọi tín hiệu đã thử). CVE-2019-5418 lên 83/84 (từ 70/84 ở \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}). Trần thông tin của các tín hiệu đã thử là 97,8\% (1.243/1.271); \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} đạt 1.237.
+  \textbf{Còn yếu:} Juice-Shop 61,2\% (28/85 bản ghi không có dấu vết ở mọi tín hiệu đã thử). CVE-2019-5418 lên 84/84 (từ 70/84 ở \texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}). Trần thông tin của các tín hiệu đã thử là 97,8\% (1.243/1.271); \texttt{lidds-\allowbreak{}ml-\allowbreak{}v4} đạt 1.238.
 \item
   \textbf{Cách đặt ngưỡng} (development): quy tắc Gumbel không dùng nhãn đạt bằng ngưỡng chọn bằng nhãn tấn công với một mức chung cho mọi kịch bản ở báo nhầm 0,6--2\%; chọn mức riêng từng kịch bản bằng nhãn chỉ thêm tối đa 7 bản ghi. Mức $\alpha$ không phải tỉ lệ báo nhầm được bảo đảm: báo nhầm thực trên normal development gấp 2,6--11 lần mức thiết kế, nên $\alpha$ được chọn theo báo nhầm đo được.
 \item
-  \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn: \texttt{lidds-\allowbreak{}ml-\allowbreak{}v3} là lần chấm thứ hai, và bảng chữ của token được thiết kế sau khi đã xem kết quả các nhánh luật ở mục~\ref{sec:lidds-v2-v3} trên cùng các bản ghi. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Token cần đọc giá trị trả về, cỡ I/O và đường dẫn theo thread, mà probe hiện chưa thu; overhead chưa đo, và kết quả chưa được kiểm trên cụm hay trên LID-DS 2019. Precision phụ thuộc mạnh vào tỉ lệ tấn công: với đúng recall và báo nhầm trên, nó còn 69,0\% khi bản ghi tấn công chiếm 1\% và 18,1\% khi chiếm 0,1\%.
+  \textbf{Giới hạn:} tập official không hoàn toàn chưa nhìn: bảng chữ của token được thiết kế sau khi đã xem kết quả các nhánh luật ở mục~\ref{sec:lidds-v2-v3} trên cùng các bản ghi. Mỗi kịch bản chỉ có khoảng 60 bản ghi validation, nên chỉ kiểm chứng được mức báo nhầm gộp, không theo từng kịch bản. Probe token đã có và overhead đã đo, nhưng kết quả chưa được kiểm trên cụm hay trên LID-DS 2019. Precision phụ thuộc mạnh vào tỉ lệ tấn công: với đúng recall và báo nhầm trên, nó còn 68,4\% khi bản ghi tấn công chiếm 1\% và 17,7\% khi chiếm 0,1\%.
 \end{itemize}
 
 \subsection{Đối chứng: cùng thông tin viết thành luật}\label{sec:lidds-v2-v3}

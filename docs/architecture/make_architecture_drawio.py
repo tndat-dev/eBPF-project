@@ -3,8 +3,8 @@
 
 Sources: thesis/chapters/design.tex and implementation.tex (system, RCA, alert path, cluster), README.md (nodes),
 sentinel_pulse/ebpf/* (probe, token layout), sentinel_pulse/pipeline/matched_worker.py (worker),
-sentinel_pulse/protocol/lidds-ml-v3.json and pulse-live-v3-v1.json (ML v3 and its live runs), notes/STATE.md.
-State of 07/11/2026: lidds-ml-v3 is the ML; the token probe is built and proven, not yet run live.
+sentinel_pulse/protocol/lidds-ml-v4.json and pulse-live-v3-v1.json with amendment 2 (the ML and its live runs), notes/STATE.md.
+State of 09/11/2026: lidds-ml-v4 is the ML; the token probe is built and proven, not yet run live.
 
     python3 docs/architecture/make_architecture_drawio.py   # then export with drawio -x (see README.md here)
 """
@@ -113,7 +113,7 @@ class Page:
 def legend(p, x, y):
     p.group(x, y, 330, 232, 'Chú giải', kind='store', size=12)
     rows = [('kernel', 'Kernel: probe eBPF của Pulse'), ('user', 'User space của Pulse (C, Python)'),
-            ('ml', 'ML lidds-ml-v3 (3 nhánh)'), ('alert', 'Đường cảnh báo và RCA'),
+            ('ml', 'ML lidds-ml-v4 (3 nhánh)'), ('alert', 'Đường cảnh báo và RCA'),
             ('ext', 'Thành phần có sẵn của cụm (Tetragon, K8s)'), ('eval', 'Chỉ dùng khi đánh giá (đứt nét)'),
             ('retired', 'Đã bỏ khỏi ML / để sau (xám)')]
     for k, (kind, t) in enumerate(rows):
@@ -125,7 +125,7 @@ def legend(p, x, y):
 def overview():
     p = Page('1. Tổng quan hệ thống', 1720, 1150)
     p.title('Sentinel Pulse: kiến trúc tổng thể (07/11/2026)',
-            'Phát hiện runtime trên Kubernetes từ syscall đếm trong kernel: ML lidds-ml-v3 (token + tree + support), '
+            'Phát hiện runtime trên Kubernetes từ syscall đếm trong kernel: ML lidds-ml-v4 (token + tree + support), '
             'cảnh báo qua Alertmanager, RCA từ sự kiện Tetragon. Khung tím đứt nét chỉ dùng khi đánh giá.')
     p.group(20, 75, 1235, 945, 'Cụm Kubernetes của lab: 6 VM trên ESXi · Ubuntu 24.04 · kernel 6.8.0 · '
                                'Kubernetes v1.34 · Cilium · Istio ambient', kind='k8s', size=13)
@@ -157,7 +157,7 @@ def overview():
                    '• kiểm toàn vẹn frame; 249 feature, ngữ cảnh 4 cửa sổ<br>'
                    '• nhánh tree + support: model đóng băng theo workload<br>'
                    '• nhánh token: Witten-Bell 4-gram theo workload<br>'
-                   '• ngưỡng Gumbel theo khối 60 s, α/3 mỗi nhánh; một cửa sổ vượt ngưỡng ở nhánh nào cũng báo<br>'
+                   '• ngưỡng Gumbel theo khối 60 s, α chia token 0,9, tree 0,05, support 0,05; một cửa sổ vượt ngưỡng ở nhánh nào cũng báo<br>'
                    '• ghi NFS bằng thread nền (AsyncSink), ngoài vòng chấm', kind='ml', align='left', small=10)
     local = p.store(630, 615, 180, 160, 'Luồng decision local', '/var/lib/sentinel-pulse-live (đĩa của worker)')
     p.group(875, 110, 360, 700, 'Master (×3): .234 k8s-master · .235 · .236', kind='alert', size=12)
@@ -208,7 +208,7 @@ def overview():
     p.edge(planner, campaign, 'lịch trial', kind='eval', exit=(0.5, 1), entry=(1, 0.5), points=[(970, 900)])
     p.text(20, 1035, 1235, 100,
            '<b>Đường dữ liệu chính:</b> syscall của container → probe eBPF đếm theo cgroup và tạo token → loader đọc map '
-           'mỗi 0,5 s → worker dựng feature, chấm 3 nhánh lidds-ml-v3 → decision ghi local và NFS → bridge gom đợt, đẩy vào '
+           'mỗi 0,5 s → worker dựng feature, chấm 3 nhánh lidds-ml-v4 → decision ghi local và NFS → bridge gom đợt, đẩy vào '
            'Alertmanager → RCA dựng case cho đúng cảnh báo đó từ sự kiện Tetragon.<br><b>Mục tiêu:</b> recall ≥ 95%, '
            'precision ≥ 95%, p95 kernel → cảnh báo ≤ 3 s; gánh cảnh báo và binary vô hại bị gắn cờ càng thấp càng tốt. '
            'Tripwire A1 và chiết khấu theo replica tắt từ 01/11 (luật thêm sau khi ML chốt).', size=12)
@@ -304,8 +304,8 @@ def kernel():
 
 # ---------------------------------------------------------------- page 3: worker and ML v3
 def worker():
-    p = Page('3. Worker và ML lidds-ml-v3', 1720, 1180)
-    p.title('Worker chấm điểm và lidds-ml-v3 trên cụm',
+    p = Page('3. Worker và ML lidds-ml-v4', 1720, 1180)
+    p.title('Worker chấm điểm và lidds-ml-v4 trên cụm',
             'pipeline/matched_worker.py, một unit systemd mỗi worker. Ba nhánh, mỗi nhánh một ngưỡng theo workload; '
             'một cửa sổ vượt ngưỡng ở bất kỳ nhánh nào là báo động.')
     fr = p.box(20, 90, 230, 120, 'Frame từ loader', 'stdout, 0,5 s; dòng token_grams không ghi vào raw.jsonl',
@@ -328,7 +328,7 @@ def worker():
     v3c = p.box(40, 460, 800, 120, 'Nhánh đếm của v3 (detector/v3_policy.py, cfg v3_counts)',
                 'tree: logit(tree_score) &gt; ngưỡng workload · support: support_score &gt; ngưỡng workload<br>'
                 'ngưỡng = Gumbel theo moment trên điểm lớn nhất của từng khối 60 s mỗi container (validation của lượt '
-                'thu normal), α/3 = 0,0002/3 (scripts/analysis/count_branch_fit.py)<br>giữ kết quả của preview policy '
+                'thu normal), α × 0,05 = 0,0002 × 0,05 (scripts/analysis/count_branch_fit.py --share 0.05)<br>giữ kết quả của preview policy '
                 'cũ ở policy_alert_preview', kind='ml', align='left', small=10)
     old = p.box(40, 610, 390, 130, 'Đã bỏ khỏi ML (01/11)', 'joint p conformal + k2of2 α×5 + chiết khấu theo '
                 'replica (trao đổi mặt nạ ID qua TCP 9479); calibration tự làm mới rolling-12-1 (không thắng)',
@@ -347,13 +347,13 @@ def worker():
                'P(syscall) × P(token | syscall), cộng ½; học từ số đếm gram (= TokenLM offline tới 1e-12)<br>điểm cửa '
                'sổ = trung bình 10 giá trị −log p lớn nhất (tính cả số lần)', kind='ml', align='left', small=9)
     tb = p.box(900, 460, 780, 120, 'TokenBranch (cfg tokens.models: model + sha256 + ngưỡng mỗi workload)',
-               'token_score &gt; ngưỡng → báo; ngưỡng = Gumbel theo khối 60 s mỗi container trên validation, α/3 '
-               '(scripts/analysis/token_branch_fit.py)<br>ghi decision branch=token (candidate_alert_preview) vào '
+               'token_score &gt; ngưỡng → báo; ngưỡng = Gumbel trên điểm giữ ra theo khối 60 s (cross-fit 5 fold theo đoạn 30 phút, bỏ 1% cao nhất), α × 0,9 '
+               '(scripts/analysis/token_branch_fit.py --folds 5)<br>ghi decision branch=token (candidate_alert_preview) vào '
                'decisions.jsonl + luồng local; token_scored_at để đo độ trễ', kind='ml', align='left', small=10)
     p.box(900, 610, 600, 130, 'Bảng chữ select1f (protocol lidds-ml-v3)', 'errno của 27 syscall (stat, lstat, fstat, '
           'newfstatat, access, faccessat, open, openat, creat, read, write, writev, ioctl, connect, execve, fcntl, close, '
           'rename, renameat, sendfile, unlink, unlinkat, mkdir, kill, recvfrom, shutdown, futex); log2 cỡ trả về của '
-          'đọc/ghi; chế độ + thư mục đầu của open. LID-DS 2021 official: 97,32% recall, 0,44% báo nhầm, p95 2,09 s',
+          'đọc/ghi; chế độ + thư mục đầu của open. LID-DS 2021 official (lidds-ml-v4): 97,40% recall, 0,45% báo nhầm, p95 1,47 s',
           kind='note', align='left', small=10)
     p.edge(chk, tw, 'token_grams', kind='data', exit=(0.9, 1), entry=(0.5, 0), points=[(550, 225), (1090, 225)])
     p.edge(tw, lm, '', kind='data')
@@ -373,8 +373,8 @@ def worker():
           'điểm = bản đóng băng; hash model bundle và chính sách; hash model token và ngưỡng', kind='user', small=9)
     p.edge(dec, s1, '', kind='store', exit=(0.12, 1), entry=(0.5, 0))
     p.edge(dec, s2, '', kind='store', exit=(0.35, 1), entry=(0.5, 0))
-    p.text(20, 1040, 1680, 100, '<b>Lượt live tiếp theo (protocol pulse-live-v3-v1):</b> thu normal 12 h với probe token '
-           '(8 h học, 4 h validation) → fit model token và ngưỡng 3 nhánh → khoá → lượt live blind 24 h (525 trial). '
+    p.text(20, 1040, 1680, 100, '<b>Lượt live tiếp theo (protocol pulse-live-v3-v1, amendment 2):</b> thu normal 12 h với probe token '
+           '(model token học cả 12 h, cross-fit theo đoạn 30 phút) → fit model token và ngưỡng 3 nhánh → khoá → lượt live blind 24 h (525 trial). '
            'Tiêu chí: recall ≥ 95%, precision ≥ 95%, control ≤ 5%, p95 ≤ 3 s; báo cáo thêm binary vô hại bị gắn cờ và '
            'gánh cảnh báo.', size=12)
     return p
@@ -448,11 +448,11 @@ def evaluation():
     steps = [
         ('LID-DS 2021 development + CB-DS', 'chọn bảng chữ token, nhánh, ngưỡng; 15 kịch bản; CB-DS 891/891 tấn công, '
          '2/1.410 báo nhầm', 'eval'),
-        ('LID-DS 2021 official', 'lidds-ml-v3: 97,32% recall (1.237/1.271), 0,44% báo nhầm, precision 97,25%, p95 2,09 s; '
-         'lần chấm official thứ 2, đã khai báo', 'ml'),
+        ('LID-DS 2021 official', 'lidds-ml-v4: 97,40% recall (1.238/1.271), 0,45% báo nhầm, precision 97,17%, p95 1,47 s; '
+         'trong 3 s 1.234 bản ghi', 'ml'),
         ('Thu normal trên cụm (12 h)', 'pulse-token-capture: 8 h học model token, 4 h validation cho ngưỡng 3 nhánh; '
          'chưa chạy (chờ ablation vòng 2 xong)', 'eval'),
-        ('Lượt live blind (24 h)', 'pulse-live-v3: 525 trial, tốc độ chính 6/12/24 mỗi giây; recall, precision, '
+        ('Lượt live blind (24 h)', 'pulse-live-v4: 525 trial, tốc độ chính 6/12/24 mỗi giây; recall, precision, '
          'control, p95, binary vô hại, gánh', 'eval'),
         ('LID-DS 2019 (cuối cùng)', 'chấm một lần, protocol lidds2019-confirmation-v1', 'eval'),
         ('So sánh có / không luật', 'tripwire A1 và các luật khác thêm vào ML đã chốt; mở lại baseline học sâu', 'retired'),
@@ -465,10 +465,10 @@ def evaluation():
     p.group(20, 290, 830, 420, 'Offline (máy phân tích .234, systemd-run có giới hạn bộ nhớ)', kind='eval', size=12)
     p.box(40, 330, 380, 170, 'Chuyển đổi và chấm', 'sentinel_pulse/lidds: convert.py, signals.py<br>'
           'lidds_ml_token_alphabets.py (token), lidds_ml_scores.py --all-windows (tree, support)<br>'
-          'lidds_ml_v2.py --token-column select1f --protocol lidds-ml-v3.json (chọn và chấm)', kind='user',
+          'lidds_ml_token_crossfit.py (token cross-fit), lidds_ml_v4.py (chọn và chấm)', kind='user',
           align='left', small=10)
-    p.box(440, 330, 390, 170, 'Ngưỡng', 'Gumbel theo moment trên điểm lớn nhất mỗi bản ghi validation, mỗi nhánh '
-          'α/3, α = 0,0002; bằng oracle một mức chung ở báo nhầm 0,6–2%; tốt hơn Gumbel MLE, GEV, normal, đuôi mũ<br>'
+    p.box(440, 330, 390, 170, 'Ngưỡng', 'Gumbel theo moment trên điểm lớn nhất mỗi bản ghi; token: điểm giữ ra của cross-fit, bỏ 1% cao nhất; '
+          'α = 0,0002 chia 0,9 / 0,05 / 0,05; cách đặt ngưỡng này bằng oracle một mức chung ở báo nhầm 0,6–2%; tốt hơn Gumbel MLE, GEV, normal, đuôi mũ<br>'
           'trên cụm: khối thời gian 60 s mỗi container thay cho bản ghi', kind='ml', align='left', small=10)
     p.box(40, 520, 380, 170, 'Kiểm thêm', 'ablation syscall theo kiểu bỏ một (vòng 2: 3 seed, 45 cấu hình, Holm)<br>'
           'LSTM lớn không hơn n-gram tổng thể<br>thứ tự phát token như probe: 530/544 development', kind='eval',

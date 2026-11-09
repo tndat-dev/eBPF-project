@@ -56,7 +56,7 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
 3. `pulse-live-v3-v1` giai đoạn 1 xong: `pulse-token-capture-1107` (t0 07/11 20:29 = `selection_start` 1794058145.54, học
    [t0, t0 + 8 h), validation tới hết lượt). Fit v4 theo amendment 2, ra `/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/`.
-   Sau đó khoá sha256 → lượt live blind 24 h `pulse-live-v4-<MMDD>` (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign,
+   Khoá sha256 trong `results-20261109/pulse-live-v4-fit/` → lượt live blind 24 h `pulse-live-v4-<MMDD>` (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign,
    RCA, bridge; dừng `pulse-alert-bridge-rca-viewer` trước vì trùng cổng 9478).
    **Hoãn tới sau lượt live vì làm đổi hành vi workload đã học:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS);
    sentinel thấy replica Redis ở IP node nên đánh dấu `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy).

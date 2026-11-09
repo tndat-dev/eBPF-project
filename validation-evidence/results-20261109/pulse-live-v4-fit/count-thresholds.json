@@ -1,0 +1,456 @@
+{
+ "alpha": 0.0002,
+ "block": 60.0,
+ "branch_alpha": 1e-05,
+ "report": {
+  "production/aims-frontend:web": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 54.93782172370122,
+   "support_gumbel": [
+    1.382580230400972,
+    4.651751191743726
+   ],
+   "tree": 2.867071954143437,
+   "tree_gumbel": [
+    0.1619831908192794,
+    0.2349611266366877
+   ],
+   "validation_blocks": 486
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 20.64377173526588,
+   "support_gumbel": [
+    0.5479232813501433,
+    1.7455039766051335
+   ],
+   "tree": 1.545819443995721,
+   "tree_gumbel": [
+    -0.05341597556246025,
+    0.1389078839227939
+   ],
+   "validation_blocks": 731
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 695.76702288401,
+   "support_gumbel": [
+    39.53470523847301,
+    56.999639634717305
+   ],
+   "tree": 2.051485489794795,
+   "tree_gumbel": [
+    0.34541918389308957,
+    0.14818710083988493
+   ],
+   "validation_blocks": 245
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 254.08477537189225,
+   "support_gumbel": [
+    12.311678359321487,
+    21.000153501324295
+   ],
+   "tree": 1.0490118564110809,
+   "tree_gumbel": [
+    0.27933193907557907,
+    0.06685357722034611
+   ],
+   "validation_blocks": 245
+  },
+  "production/aims-minio-pool-0:minio": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 26.663644404505455,
+   "support_gumbel": [
+    2.203847832360502,
+    2.1245518586358787
+   ],
+   "tree": 0.7009113305522309,
+   "tree_gumbel": [
+    0.12177347758645432,
+    0.050303296607381996
+   ],
+   "validation_blocks": 486
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 56.97084397861176,
+   "support_gumbel": [
+    3.167810914480663,
+    4.673274103465833
+   ],
+   "tree": 3.624395660027815,
+   "tree_gumbel": [
+    0.1999108825547272,
+    0.29744709762370325
+   ],
+   "validation_blocks": 486
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "blocks_above": [
+    0,
+    1
+   ],
+   "support": 2.4114407475035136,
+   "support_gumbel": [
+    0.22296011251439712,
+    0.19008909526049356
+   ],
+   "tree": 1.1489129487501155,
+   "tree_gumbel": [
+    0.07242692453754038,
+    0.09350242864001938
+   ],
+   "validation_blocks": 731
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 69.50097794973607,
+   "support_gumbel": [
+    33.533754073502706,
+    3.124074728538241
+   ],
+   "tree": 1.4417760587206734,
+   "tree_gumbel": [
+    -0.02222935357929117,
+    0.12716194963358682
+   ],
+   "validation_blocks": 731
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 155.99826051841052,
+   "support_gumbel": [
+    20.372172150439397,
+    11.780337472218754
+   ],
+   "tree": 1.1405698377306046,
+   "tree_gumbel": [
+    -0.09869646436035695,
+    0.10764135006954717
+   ],
+   "validation_blocks": 731
+  },
+  "production/aims-redis:aims-redis": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 12.927009987968274,
+   "support_gumbel": [
+    0.7478048698741502,
+    1.0578727747810288
+   ],
+   "tree": 2.570982797148828,
+   "tree_gumbel": [
+    0.02877563753316012,
+    0.22081340415356004
+   ],
+   "validation_blocks": 731
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 74.2276688411093,
+   "support_gumbel": [
+    -1.0098753723422127,
+    6.535052894917439
+   ],
+   "tree": 0.7689506011944316,
+   "tree_gumbel": [
+    0.02528907301882672,
+    0.06459364767083706
+   ],
+   "validation_blocks": 972
+  },
+  "production/api-gateway:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 129.28504978250012,
+   "support_gumbel": [
+    9.656970068261067,
+    10.39076749278295
+   ],
+   "tree": 2.1951301384164137,
+   "tree_gumbel": [
+    -0.16057525111050552,
+    0.20461405919530445
+   ],
+   "validation_blocks": 980
+  },
+  "production/auth-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 158.50217244018802,
+   "support_gumbel": [
+    10.199723915441936,
+    12.881392603743599
+   ],
+   "tree": 3.2330427583070707,
+   "tree_gumbel": [
+    -0.08806081677197398,
+    0.28846751657745684
+   ],
+   "validation_blocks": 980
+  },
+  "production/cart-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 144.7384420324458,
+   "support_gumbel": [
+    4.801561287752301,
+    12.154768303200752
+   ],
+   "tree": 3.112462656971801,
+   "tree_gumbel": [
+    -0.09904959403663238,
+    0.27894853098173295
+   ],
+   "validation_blocks": 976
+  },
+  "production/catalog-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 56.79844061666176,
+   "support_gumbel": [
+    1.9715645209135535,
+    4.762204017881011
+   ],
+   "tree": 2.1323311595202377,
+   "tree_gumbel": [
+    -0.14254314030744966,
+    0.1975931569016348
+   ],
+   "validation_blocks": 980
+  },
+  "production/inventory-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 148.3466947649484,
+   "support_gumbel": [
+    6.110305273964126,
+    12.354501181864393
+   ],
+   "tree": 2.1184836063478283,
+   "tree_gumbel": [
+    -0.051064375731021176,
+    0.18844462520896324
+   ],
+   "validation_blocks": 980
+  },
+  "production/notification-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 163.38463087617205,
+   "support_gumbel": [
+    10.735504617681272,
+    13.258940398586468
+   ],
+   "tree": 2.4265828055103196,
+   "tree_gumbel": [
+    -0.10202160066571996,
+    0.2196318834889262
+   ],
+   "validation_blocks": 980
+  },
+  "production/order-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 18.017054318736655,
+   "support_gumbel": [
+    0.5137378139383991,
+    1.5203194148764818
+   ],
+   "tree": 2.790349848041279,
+   "tree_gumbel": [
+    -0.1025575826871592,
+    0.2512748558920936
+   ],
+   "validation_blocks": 980
+  },
+  "production/payment-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 8.541707269121991,
+   "support_gumbel": [
+    0.48959066540356816,
+    0.6993982654730893
+   ],
+   "tree": 1.9655544027425125,
+   "tree_gumbel": [
+    -0.13994410010010244,
+    0.18288135571264344
+   ],
+   "validation_blocks": 980
+  },
+  "production/search-recommendation-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 168.08991224370908,
+   "support_gumbel": [
+    15.242605865840446,
+    13.276154112516059
+   ],
+   "tree": 2.7550132338655082,
+   "tree_gumbel": [
+    -0.16154791440311214,
+    0.2533293925852103
+   ],
+   "validation_blocks": 980
+  },
+  "production/security-telemetry-service:app": {
+   "blocks_above": [
+    0,
+    0
+   ],
+   "support": 167.77091073910938,
+   "support_gumbel": [
+    12.799175542807218,
+    13.460679735263165
+   ],
+   "tree": 2.763433697512787,
+   "tree_gumbel": [
+    -0.14731656272598298,
+    0.2528246650447449
+   ],
+   "validation_blocks": 980
+  }
+ },
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-1107",
+ "schema": "pulse-v3-count-thresholds-v1",
+ "validation": [
+  1794086945.54,
+  1794108545.54
+ ],
+ "workloads": {
+  "production/aims-frontend:web": {
+   "support": 54.93782172370122,
+   "tree": 2.867071954143437
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "support": 20.64377173526588,
+   "tree": 1.545819443995721
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "support": 695.76702288401,
+   "tree": 2.051485489794795
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "support": 254.08477537189225,
+   "tree": 1.0490118564110809
+  },
+  "production/aims-minio-pool-0:minio": {
+   "support": 26.663644404505455,
+   "tree": 0.7009113305522309
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "support": 56.97084397861176,
+   "tree": 3.624395660027815
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "support": 2.4114407475035136,
+   "tree": 1.1489129487501155
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "support": 69.50097794973607,
+   "tree": 1.4417760587206734
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "support": 155.99826051841052,
+   "tree": 1.1405698377306046
+  },
+  "production/aims-redis:aims-redis": {
+   "support": 12.927009987968274,
+   "tree": 2.570982797148828
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "support": 74.2276688411093,
+   "tree": 0.7689506011944316
+  },
+  "production/api-gateway:app": {
+   "support": 129.28504978250012,
+   "tree": 2.1951301384164137
+  },
+  "production/auth-service:app": {
+   "support": 158.50217244018802,
+   "tree": 3.2330427583070707
+  },
+  "production/cart-service:app": {
+   "support": 144.7384420324458,
+   "tree": 3.112462656971801
+  },
+  "production/catalog-service:app": {
+   "support": 56.79844061666176,
+   "tree": 2.1323311595202377
+  },
+  "production/inventory-service:app": {
+   "support": 148.3466947649484,
+   "tree": 2.1184836063478283
+  },
+  "production/notification-service:app": {
+   "support": 163.38463087617205,
+   "tree": 2.4265828055103196
+  },
+  "production/order-service:app": {
+   "support": 18.017054318736655,
+   "tree": 2.790349848041279
+  },
+  "production/payment-service:app": {
+   "support": 8.541707269121991,
+   "tree": 1.9655544027425125
+  },
+  "production/search-recommendation-service:app": {
+   "support": 168.08991224370908,
+   "tree": 2.7550132338655082
+  },
+  "production/security-telemetry-service:app": {
+   "support": 167.77091073910938,
+   "tree": 2.763433697512787
+  }
+ }
+}

@@ -49,7 +49,7 @@ Các hướng dưới được xếp theo giới hạn mà chúng nhắm tới (
   \item
     chấm hành vi của chính process sau pha khởi chạy, kèm khối ý đồ gồm syscall nhạy cảm và mã lỗi (\texttt{exec-\allowbreak{}intent-\allowbreak{}v1}; probe đếm theo process đã qua verifier; hook \texttt{sys\_exit} toàn cục bị bỏ vì thêm 29--197 ns mỗi syscall; phân rã offline cho thấy chỉ bỏ qua 1--4 s đầu vẫn còn 66--79\% binary vô hại bị gắn cờ, nên cần chấm hành vi sau pha khởi động chứ không chỉ chờ);
   \item
-    đưa token kèm tham số và giá trị trả về vào probe (mục~\ref{sec:lidds-ml}): trên LID-DS 2021 official, ML đạt 97,32\% với 0,44\% (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}); còn phải đo overhead, chạy một lượt live blind so với hệ thống hiện tại, và xác nhận trên LID-DS 2019;
+    đưa token kèm tham số và giá trị trả về vào probe (mục~\ref{sec:lidds-ml}): trên LID-DS 2021 official, ML đạt 97,40\% với 0,45\% (\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}); còn phải chạy một lượt live blind so với hệ thống hiện tại, và xác nhận trên LID-DS 2019;
   \item
     giám sát tầng ứng dụng cho tấn công không đổi hành vi hệ thống (như \texttt{SQLInjectionUser} của LID-DS): uprobe eBPF vào hàm thực thi truy vấn của driver cơ sở dữ liệu, so cấu trúc câu truy vấn với khi bình thường, làm lớp bổ trợ cho Pulse;
   \item

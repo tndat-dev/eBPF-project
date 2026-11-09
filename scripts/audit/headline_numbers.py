@@ -271,6 +271,8 @@ def claims():
     mlv2 = receipt(MLV2)
     MLV3 = 'results-20261107/lidds-ml-v3/lidds-ml-v3.json'
     mlv3 = receipt(MLV3)
+    MLV4 = 'results-20261109/lidds-ml-v4/lidds-ml-v4.json'
+    mlv4 = receipt(MLV4)
     MLV1 = 'results-20261102/lidds-ml-v1/lidds-ml-v1.json.gz'
     mlv1 = receipt(MLV1)
 
@@ -281,14 +283,16 @@ def claims():
     add('ml-v2-thesis-baseline', thesis, ml_row('ML ban đầu', mlv1['baseline_official']['pooled']), [], MLV1)
     add('ml-v2-thesis-v1', thesis, ml_row(r'\texttt{lidds-\allowbreak{}ml-\allowbreak{}v1}', mlv1['official']['pooled']), [], MLV1)
     add('ml-v2-thesis-v2', thesis, ml_row(r'\texttt{lidds-\allowbreak{}ml-\allowbreak{}v2}', mlv2['official']['pooled']), [], MLV2)
-    add('ml-v3-thesis-v3', thesis, ml_row(r'\textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}}', mlv3['official']['pooled'], True), [], MLV3)
+    add('ml-v3-thesis-v3', thesis, ml_row(r'\texttt{lidds-\allowbreak{}ml-\allowbreak{}v3}', mlv3['official']['pooled']), [], MLV3)
+    add('ml-v4-thesis-v4', thesis, ml_row(r'\textbf{\texttt{lidds-\allowbreak{}ml-\allowbreak{}v4}}', mlv4['official']['pooled'], True), [], MLV4)
+    add('ml-v4-thesis-token', thesis, ml_row('Chỉ token, cross-fit (chỉ báo)', mlv4['token_alone_official_reported']), [], MLV4)
     add('ml-v2-thesis-token', thesis, ml_row('Chỉ token, bảng chữ v2 (chỉ báo)', mlv2['comparators_official']['token model alone (reported only)']), [], MLV2)
     add('ml-v3-thesis-token', thesis, ml_row('Chỉ token, bảng chữ v3 (chỉ báo)', mlv3['comparators_official']['token model alone (reported only)']), [], MLV3)
     add('ml-v2-thesis-trees', thesis, ml_row('Chỉ cây và support (chỉ báo)', mlv2['comparators_official']['current ML branches (reported only)']), [], MLV2)
-    for s, m in mlv3['official']['scenarios'].items():
+    for s, m in mlv4['official']['scenarios'].items():
         tex = s.replace('_', r'\_').replace('-', r'-\allowbreak{}')
-        add(f'ml-v3-thesis-{s}', thesis, f"\\texttt{{{tex}}} & {m['detected']}/{m['attack_recordings']} & {pct(m['recall'])} & "
-            f"{m['false_alarm_recordings']}/{m['normal_recordings']} & {pct(m['false_alarm_rate'], 2)} \\\\".replace('%', r'\%'), [], MLV3)
+        add(f'ml-v4-thesis-{s}', thesis, f"\\texttt{{{tex}}} & {m['detected']}/{m['attack_recordings']} & {pct(m['recall'])} & "
+            f"{m['false_alarm_recordings']}/{m['normal_recordings']} & {pct(m['false_alarm_rate'], 2)} \\\\".replace('%', r'\%'), [], MLV4)
     V3 = 'results-20261031/lidds-v3-with-cbds.json'
     v3 = receipt(V3)
     off = v3['official'][v3['selected']]['pooled']

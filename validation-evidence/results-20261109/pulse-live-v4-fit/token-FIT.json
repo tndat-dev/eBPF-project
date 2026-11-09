@@ -1,0 +1,271 @@
+{
+ "alpha": 0.0002,
+ "block": 60.0,
+ "branch_alpha": 0.00018,
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-1107",
+ "schema": "pulse-token-branch-fit-v1",
+ "train": [
+  1794058145.54,
+  1794086945.54
+ ],
+ "validation": [
+  1794086945.54,
+  1794108545.54
+ ],
+ "workloads": {
+  "production/aims-frontend:web": {
+   "distinct_contexts": 928,
+   "gumbel": [
+    3.140851557696294,
+    1.1772371555926566
+   ],
+   "threshold": 13.291536198466144,
+   "training_windows": 145945,
+   "validation_block_max": 11.851344738673967,
+   "validation_blocks": 1446,
+   "validation_blocks_above": 0
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "distinct_contexts": 5052,
+   "gumbel": [
+    7.848751510769132,
+    0.6399022063323849
+   ],
+   "threshold": 13.366285056627083,
+   "training_windows": 258294,
+   "validation_block_max": 39.89160333191211,
+   "validation_blocks": 2171,
+   "validation_blocks_above": 6
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "distinct_contexts": 1022,
+   "gumbel": [
+    3.9079132737539046,
+    1.8096892675515266
+   ],
+   "threshold": 19.51189329208209,
+   "training_windows": 86098,
+   "validation_block_max": 29.429091193970898,
+   "validation_blocks": 725,
+   "validation_blocks_above": 1
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "distinct_contexts": 983,
+   "gumbel": [
+    3.5251125353764023,
+    1.795619691485359
+   ],
+   "threshold": 19.007778144795115,
+   "training_windows": 86100,
+   "validation_block_max": 11.844126539487219,
+   "validation_blocks": 725,
+   "validation_blocks_above": 0
+  },
+  "production/aims-minio-pool-0:minio": {
+   "distinct_contexts": 10041,
+   "gumbel": [
+    7.468915601341481,
+    1.1740539416925353
+   ],
+   "threshold": 17.59215309580717,
+   "training_windows": 153436,
+   "validation_block_max": 29.71118351692315,
+   "validation_blocks": 1446,
+   "validation_blocks_above": 18
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "distinct_contexts": 1887,
+   "gumbel": [
+    4.372616423518949,
+    1.3523476464205255
+   ],
+   "threshold": 16.03318491499794,
+   "training_windows": 144486,
+   "validation_block_max": 13.138472740795075,
+   "validation_blocks": 1446,
+   "validation_blocks_above": 0
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "distinct_contexts": 6732,
+   "gumbel": [
+    6.859420186353084,
+    0.9254637255746733
+   ],
+   "threshold": 14.839197566086916,
+   "training_windows": 258292,
+   "validation_block_max": 36.63850450156956,
+   "validation_blocks": 2171,
+   "validation_blocks_above": 10
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "distinct_contexts": 3890,
+   "gumbel": [
+    6.633120261968967,
+    0.7804211390515237
+   ],
+   "threshold": 13.362273204405902,
+   "training_windows": 258294,
+   "validation_block_max": 55.34263241651735,
+   "validation_blocks": 2171,
+   "validation_blocks_above": 23
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "distinct_contexts": 4621,
+   "gumbel": [
+    6.206226077783682,
+    0.5952731532306889
+   ],
+   "threshold": 11.338947233292444,
+   "training_windows": 258292,
+   "validation_block_max": 34.76115647589338,
+   "validation_blocks": 2171,
+   "validation_blocks_above": 5
+  },
+  "production/aims-redis:aims-redis": {
+   "distinct_contexts": 4157,
+   "gumbel": [
+    5.190961803972144,
+    0.6699282971013631
+   ],
+   "threshold": 10.96739422754823,
+   "training_windows": 258293,
+   "validation_block_max": 36.41819603679447,
+   "validation_blocks": 2171,
+   "validation_blocks_above": 11
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "distinct_contexts": 7244,
+   "gumbel": [
+    6.949494221295122,
+    1.1362229814021483
+   ],
+   "threshold": 16.746535633908564,
+   "training_windows": 344397,
+   "validation_block_max": 22.45977547927651,
+   "validation_blocks": 2892,
+   "validation_blocks_above": 13
+  },
+  "production/api-gateway:app": {
+   "distinct_contexts": 7651,
+   "gumbel": [
+    6.068693994145938,
+    1.059067127065764
+   ],
+   "threshold": 15.200461853476455,
+   "training_windows": 344383,
+   "validation_block_max": 18.23959044117792,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 11
+  },
+  "production/auth-service:app": {
+   "distinct_contexts": 4237,
+   "gumbel": [
+    5.92977856320532,
+    0.8836719436994568
+   ],
+   "threshold": 13.549207820748258,
+   "training_windows": 344383,
+   "validation_block_max": 15.425505519201044,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 3
+  },
+  "production/cart-service:app": {
+   "distinct_contexts": 4305,
+   "gumbel": [
+    5.558857892644232,
+    0.8525983411068849
+   ],
+   "threshold": 12.910356139794438,
+   "training_windows": 344395,
+   "validation_block_max": 20.965091741561462,
+   "validation_blocks": 2896,
+   "validation_blocks_above": 3
+  },
+  "production/catalog-service:app": {
+   "distinct_contexts": 6184,
+   "gumbel": [
+    5.600729540672315,
+    1.0325910152642341
+   ],
+   "threshold": 14.504208087068433,
+   "training_windows": 344383,
+   "validation_block_max": 19.477659197550615,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 5
+  },
+  "production/inventory-service:app": {
+   "distinct_contexts": 6103,
+   "gumbel": [
+    6.293686435784038,
+    0.949194028856019
+   ],
+   "threshold": 14.478077494158942,
+   "training_windows": 344382,
+   "validation_block_max": 17.946755594090813,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 7
+  },
+  "production/notification-service:app": {
+   "distinct_contexts": 4205,
+   "gumbel": [
+    5.905684481078762,
+    0.8337695462711372
+   ],
+   "threshold": 13.094832128236893,
+   "training_windows": 344382,
+   "validation_block_max": 15.135750683221152,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 1
+  },
+  "production/order-service:app": {
+   "distinct_contexts": 4887,
+   "gumbel": [
+    5.830221430985601,
+    0.8675927792559931
+   ],
+   "threshold": 13.311008676783239,
+   "training_windows": 344382,
+   "validation_block_max": 16.750123670482925,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 8
+  },
+  "production/payment-service:app": {
+   "distinct_contexts": 4676,
+   "gumbel": [
+    6.101905871876783,
+    0.7705758391375706
+   ],
+   "threshold": 12.746168073186858,
+   "training_windows": 344367,
+   "validation_block_max": 36.959860712678164,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 7
+  },
+  "production/search-recommendation-service:app": {
+   "distinct_contexts": 3670,
+   "gumbel": [
+    6.027650672605811,
+    0.7031017985977698
+   ],
+   "threshold": 12.090120408647294,
+   "training_windows": 344394,
+   "validation_block_max": 13.207204647513223,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 3
+  },
+  "production/security-telemetry-service:app": {
+   "distinct_contexts": 3738,
+   "gumbel": [
+    5.7795979026709565,
+    0.7122120393314817
+   ],
+   "threshold": 11.920620358740079,
+   "training_windows": 344367,
+   "validation_block_max": 17.680420481719644,
+   "validation_blocks": 2900,
+   "validation_blocks_above": 10
+  }
+ }
+}

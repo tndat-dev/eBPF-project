@@ -1,0 +1,107 @@
+{
+ "production/aims-frontend:web": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/2175be1a47a74ff3.lm.json.gz",
+  "lm_sha256": "66679044d6615f1f4baa636f21b8e54c2ff80d91294fbb7672b75411b0ea8f4d",
+  "threshold": 13.291536198466144
+ },
+ "production/aims-kafka-dual-role:kafka": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/d505edc304f40b91.lm.json.gz",
+  "lm_sha256": "15d5b5e933637a4f9d69a8ef9b0361f17f665570e10c95a6269eaa94bd28aa83",
+  "threshold": 13.366285056627083
+ },
+ "production/aims-kafka-entity-operator:topic-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/65c273b979fbb4a6.lm.json.gz",
+  "lm_sha256": "b7941220aa10239462e390f2068419993c984c4a101977b03331ed7e713aa04d",
+  "threshold": 19.51189329208209
+ },
+ "production/aims-kafka-entity-operator:user-operator": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/1c790e197cc5d512.lm.json.gz",
+  "lm_sha256": "2356512020785d3adc1368ac25a4d08be0afbd24431e5855d92ae9e8373990a8",
+  "threshold": 19.007778144795115
+ },
+ "production/aims-minio-pool-0:minio": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/4ebaac2ba0b2193c.lm.json.gz",
+  "lm_sha256": "703315c7d8bb8d0c273ecfd8fc4f2fa104c5827631478ab6b729023fa042636c",
+  "threshold": 17.59215309580717
+ },
+ "production/aims-minio-pool-0:sidecar": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/01a202641dccf78a.lm.json.gz",
+  "lm_sha256": "aa203078ae46e81c18d9356c281d5232a6b989c51cfa1bbf836e86e6ef5c2973",
+  "threshold": 16.03318491499794
+ },
+ "production/aims-postgres-cnpg:postgres": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/546a29770a5d8242.lm.json.gz",
+  "lm_sha256": "f28c7bcf4519461bb70a1ad69882a366b4dd48f5ac73f98d89124fc6a0e2c1e4",
+  "threshold": 14.839197566086916
+ },
+ "production/aims-rabbitmq-server:rabbitmq": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/2669103e2a01be69.lm.json.gz",
+  "lm_sha256": "af6a3807646e465da4bb6da725620681885466dc8f7fdb4b01ce950fcdae7721",
+  "threshold": 13.362273204405902
+ },
+ "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/b5b0f60f470cdbcc.lm.json.gz",
+  "lm_sha256": "1263d8447d6a2cf50393a253d447644a02324b7233e49bcd0b610b84d8385363",
+  "threshold": 11.338947233292444
+ },
+ "production/aims-redis:aims-redis": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/80296e36aced0d85.lm.json.gz",
+  "lm_sha256": "5f87b242188265b0697d3af8a1e60f36282304b1a5049c4861ed2a91a8cf8fda",
+  "threshold": 10.96739422754823
+ },
+ "production/aims-waypoint:istio-proxy": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/9f91b3c03cc3b091.lm.json.gz",
+  "lm_sha256": "cb6099e3a7b5dc737557e0a7fd8f4ddc5aa9875c23f82d9fa22c1f931175d1d9",
+  "threshold": 16.746535633908564
+ },
+ "production/api-gateway:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/148f313b5c25cbb5.lm.json.gz",
+  "lm_sha256": "ec16ade75a78695dc81dd7b8c2510a2192ad37c0fc43d737f8ed17553f35c090",
+  "threshold": 15.200461853476455
+ },
+ "production/auth-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/ffd392c0992c0135.lm.json.gz",
+  "lm_sha256": "ab813f5216cebc9e8dd97c344d7ef9af6b004b3bc4fec4289e14a2d536437a76",
+  "threshold": 13.549207820748258
+ },
+ "production/cart-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/8735406b3e6984cb.lm.json.gz",
+  "lm_sha256": "2d27c04b3798af7f9d58da6469194487a9121fe197f851255544eb4790b54d1f",
+  "threshold": 12.910356139794438
+ },
+ "production/catalog-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/d64195fd262c1016.lm.json.gz",
+  "lm_sha256": "92ef73f56e4ad5313b34aded8b474b6ccdb4f2ad5789f9fa1a94d12e97a65584",
+  "threshold": 14.504208087068433
+ },
+ "production/inventory-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/a4d0b337952401f7.lm.json.gz",
+  "lm_sha256": "a49fbeaae5c3b5c3ab36ea323d946018a66b56878597a49c64d31e1ebe01cf64",
+  "threshold": 14.478077494158942
+ },
+ "production/notification-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/be35083d0657c05a.lm.json.gz",
+  "lm_sha256": "fd9d9d368ff3078378a396b1022e171518d06b7123c853303e307f989a33262c",
+  "threshold": 13.094832128236893
+ },
+ "production/order-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/8c28b0adb05033ee.lm.json.gz",
+  "lm_sha256": "4a39582c890e32fd94c67059482813f40c7b1899cdc52c3370ac36bfed59a0fc",
+  "threshold": 13.311008676783239
+ },
+ "production/payment-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/66e2b4b0e4a03c44.lm.json.gz",
+  "lm_sha256": "c57f19e824dcf2879e873a9574895e5fb57657a0ef323c77f979e563488bb7ea",
+  "threshold": 12.746168073186858
+ },
+ "production/search-recommendation-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/cdf504dc7785eb50.lm.json.gz",
+  "lm_sha256": "f1eb167efff5c4e1be3c5754aa86090beade422eaabcc0371cc9ea7f83ea2f8f",
+  "threshold": 12.090120408647294
+ },
+ "production/security-telemetry-service:app": {
+  "lm": "/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/token/7faa2a4aba3c4e72.lm.json.gz",
+  "lm_sha256": "43d413819da701eed0424320cdac0a44a00859670d3283e9b1d4f2e777c0b6d5",
+  "threshold": 11.920620358740079
+ }
+}
