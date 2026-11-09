@@ -62,8 +62,7 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    (`payment-service` ×4, `order-service` ×1) restart tại chỗ lúc sau reboot, điểm support 18,8 so với khoảng 1,2 lúc capture.
    **Sau lượt live:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS); sentinel thấy replica Redis ở IP node nên đánh dấu
    `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy); cả hai làm đổi hành vi workload đã học nên hoãn.
-   **Chờ chủ đồ án:** bộ phân loại an toàn chặn `helm upgrade monitoring` (tắt scrape etcd, scheduler, controller, proxy không hoạt động) và
-   `snap stop --disable prometheus` trên `.235`, `.237`. GitHub CI không chạy được vì tài khoản bị khoá do billing.
+   **Chờ chủ đồ án:** GitHub CI không chạy được vì tài khoản bị khoá do billing.
 4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
    systemd-run (trần 42 GB) sau lượt live v3.
 5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
