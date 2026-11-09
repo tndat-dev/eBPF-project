@@ -43,6 +43,7 @@ def main():
     ap.add_argument('--block', type=float, default=60.0)
     ap.add_argument('--minimum-blocks', type=int, default=30)
     ap.add_argument('--share', type=float, default=1 / 3, help='share of alpha for each count branch')
+    ap.add_argument('--shadow', action='store_true', help='branches logged but not alerting (protocol lidds-ml-v5)')
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
     maxima = defaultdict(lambda: defaultdict(lambda: [-math.inf, -math.inf]))
@@ -66,7 +67,7 @@ def main():
         print(f"{key:55s} blocks {len(arr):5d} tree {row.get('tree', float('nan')):8.3f} support {row.get('support', float('nan')):8.3f}")
     a.output.write_text(json.dumps(dict(schema='pulse-v3-count-thresholds-v1', run_root=str(a.run_root),
                                         validation=a.validation, alpha=a.alpha, branch_alpha=a.alpha * a.share, block=a.block,
-                                        workloads=out, report=report), indent=1, sort_keys=True) + '\n')
+                                        workloads=out, report=report, **(dict(shadow=True) if a.shadow else {})), indent=1, sort_keys=True) + '\n')
 
 
 if __name__ == '__main__':

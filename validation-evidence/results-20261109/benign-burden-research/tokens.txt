@@ -1,0 +1,23 @@
+benign late by workload [('aims-kafka-dual-role:kafka', 10), ('notification-service:app', 8), ('aims-minio-pool-0:sidecar', 7), ('aims-minio-pool-0:minio', 7), ('aims-frontend:web', 7), ('aims-redis-sentinel-sentin', 6), ('aims-redis:aims-redis', 4), ('inventory-service:app', 3), ('security-telemetry-service', 3), ('api-gateway:app', 3), ('search-recommendation-serv', 3), ('order-service:app', 2)]
+benign early by workload [('aims-postgres-cnpg:postgre', 6), ('order-service:app', 5), ('api-gateway:app', 5), ('aims-waypoint:istio-proxy', 5), ('payment-service:app', 4), ('catalog-service:app', 4), ('security-telemetry-service', 4), ('aims-kafka-entity-operator', 4), ('auth-service:app', 4), ('inventory-service:app', 3), ('aims-redis:aims-redis', 3), ('aims-rabbitmq-server:rabbi', 3)]
+benign late by rate Counter()
+benign alert windows 161 score p50 28.8 margin p50 15.2 top tokens [('clock_nanosleep', 115), ('mprotect', 88), ('write#6', 83), ('prlimit64', 75), ('arch_prctl', 64), ('brk', 62), ('seccomp', 33), ('keyctl', 32), ('setgid', 28), ('getpid', 27), ('setuid', 23), ('epoll_create1', 17)]
+benign alert windows 1323 score p50 23.2 margin p50 9.9 top tokens [('clock_nanosleep', 1321), ('getpid', 1309), ('epoll_pwait', 432), ('futex', 411), ('read#7', 264), ('write#6', 244), ('read#6', 244), ('futex!110', 235), ('read#3', 154), ('epoll_ctl', 151), ('read#8', 147), ('accept4', 145)]
+attack alert windows 521 score p50 24.7 margin p50 9.9 top tokens [('clock_nanosleep', 520), ('mmap', 505), ('mprotect', 504), ('munmap', 263), ('futex', 142), ('epoll_pwait', 72), ('read#6', 68), ('read#8', 66)]
+attack alert windows 480 score p50 25.0 margin p50 11.1 top tokens [('ptrace', 479), ('clock_nanosleep', 479), ('clone', 478), ('exit_group', 474), ('wait4', 435), ('set_robust_list', 397), ('read#8', 47), ('read#7', 30)]
+attack alert windows 448 score p50 24.3 margin p50 10.2 top tokens [('execveat', 447), ('clock_nanosleep', 447), ('futex', 159), ('epoll_pwait', 141), ('write#6', 86), ('read#6', 85), ('futex!110', 81), ('write#3', 62)]
+attack alert windows 349 score p50 22.7 margin p50 8.2 top tokens [('setns', 348), ('clock_nanosleep', 348), ('futex', 91), ('epoll_pwait', 84), ('read#6', 61), ('read#7', 58), ('read#3', 49), ('write#6', 47)]
+attack alert windows 563 score p50 23.5 margin p50 8.3 top tokens [('clock_nanosleep', 562), ('seccomp', 562), ('futex', 225), ('epoll_pwait', 149), ('futex!110', 104), ('write#3', 88), ('read#6', 77), ('write#6', 77)]
+control alert windows 3 score p50 16.8 margin p50 3.4 top tokens [('fsync', 3), ('pread64#13', 2), ('write#7', 2), ('unlink', 2), ('statx', 2), ('fstat', 2), ('futex!110', 2), ('write#9', 1)]
+1:benign production/aims-rabbitmq-server:rabbitmq t 5.242 score 23.2 thr 13.4 events 89
+    34.0 x 6 getpid>clock_nanosleep>getpid>clock_nanosleep
+    7.0 x 6 clock_nanosleep>getpid>clock_nanosleep>getpid
+    2.1 x 4 timerfd_settime>epoll_wait>timerfd_settime>timerfd_settime
+    1.6 x 5 timerfd_settime>epoll_wait>timerfd_settime>writev#5
+    0.9 x 10 timerfd_settime>epoll_wait>timerfd_settime>recvfrom#5
+9:benign production/order-service:app t 5.018 score 11.3 thr 13.3 events 252
+    26.7 x 3 getpid>clock_nanosleep>getpid>clock_nanosleep
+    6.7 x 3 clock_nanosleep>getpid>clock_nanosleep>getpid
+    3.8 x 1 epoll_pwait>epoll_pwait>epoll_pwait>epoll_ctl
+    3.1 x 1 epoll_pwait>write#7>epoll_pwait>futex
+    2.8 x 2 epoll_pwait>epoll_pwait>epoll_pwait>read#6

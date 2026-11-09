@@ -29,7 +29,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from sentinel_pulse.detector.token_model import CountTokenLM, strip  # noqa: E402
+from sentinel_pulse.detector.token_model import CountTokenLM, has_execve, strip  # noqa: E402
 from lidds_ml_v2 import gumbel, threshold  # noqa: E402
 
 TOP_DROP = 0.01
@@ -125,6 +125,42 @@ def fit_crossfit(job):
     return key, row, dict(lm=str(model), lm_sha256=sha(model), threshold=thr)
 
 
+def merge_models(paths):
+    """The model of all workloads together: the sum of their counts (protocol lidds-ml-v5)."""
+    pool = CountTokenLM()
+    for path in paths:
+        lm = CountTokenLM.load(Path(path))
+        for level, contexts in enumerate(lm.count):
+            for context, nexts in contexts.items():
+                pool.count[level][context].update(nexts)
+        pool.names.update(lm.names)
+        for name, tokens in lm.given.items():
+            pool.given[name].update(tokens)
+        pool.total += lm.total
+    return pool.finalize()
+
+
+def fit_pool_threshold(job):
+    """Block maxima of the pool score outside the exec hold, moment Gumbel without their top 1 %: (key, fit, blocks)."""
+    key, path, pool_path, start, end, block, hold = job
+    pool = CountTokenLM.load(Path(pool_path))
+    maxima, last_exec = {}, {}
+    with open(path) as handle:
+        for line in handle:
+            w = json.loads(line)
+            if not start <= w['window_end'] < end:
+                continue
+            container = (w['pod_uid'], w['container_name'])
+            if has_execve(w['grams']):
+                last_exec[container] = w['window_end']
+            if w['window_end'] - last_exec.get(container, -math.inf) <= hold:
+                continue
+            cell = container + (math.floor(w['window_end'] / block),)
+            maxima[cell] = max(maxima.get(cell, 0.0), pool.window_score(w['grams']))
+    blocks = np.asarray(list(maxima.values()), float)
+    return key, (trimmed_gumbel(blocks) if len(blocks) >= 3 else None), len(blocks)
+
+
 def fit_one(job):
     """Learn on the training span, score the validation span, fit the Gumbel; (key, report row, spec entry or None)."""
     key, path, train, validation, alpha, block, minimum, output = job
@@ -170,6 +206,8 @@ def main():
     ap.add_argument('--folds', type=int, default=0, help='cross-fit folds (lidds-ml-v4); 0 = training / validation split')
     ap.add_argument('--fold-seconds', type=float, default=1800.0)
     ap.add_argument('--share', type=float, default=1 / 3, help='share of alpha for this branch')
+    ap.add_argument('--pool-level', type=float, help='lidds-ml-v5 gate: level of the pool threshold (needs --folds)')
+    ap.add_argument('--exec-hold', type=float, default=1.0, help='lidds-ml-v5 gate: seconds held after an execve')
     a = ap.parse_args()
     if not a.train[0] < a.train[1] <= a.validation[0] < a.validation[1]:
         raise SystemExit('spans must be ordered: training before validation')
@@ -195,6 +233,21 @@ def main():
             spec[key] = entry
         print(f"{key:55s} train {row['training_windows']:7d} blocks {row['validation_blocks']:5d} "
               f"thr {row.get('threshold', float('nan')):7.3f} above {row.get('validation_blocks_above', '-')}", flush=True)
+    if a.pool_level:
+        pool_path = a.output / 'pool.lm.json.gz'
+        merge_models([entry['lm'] for entry in spec.values()]).save(pool_path)
+        pool_jobs = [(k, str(names[k]), str(pool_path), a.train[0], a.validation[1], a.block, a.exec_hold) for k in sorted(spec)]
+        if a.jobs > 1:
+            from multiprocessing import Pool
+            with Pool(a.jobs) as pool:
+                fits = pool.map(fit_pool_threshold, pool_jobs, chunksize=1)
+        else:
+            fits = [fit_pool_threshold(j) for j in pool_jobs]
+        for key, fit, blocks in fits:
+            spec[key]['pool_threshold'] = threshold(fit, a.pool_level)
+            report[key].update(pool_gumbel=fit, pool_blocks=blocks, pool_threshold=spec[key]['pool_threshold'])
+        (a.output / 'GATE.json').write_text(json.dumps(dict(pool=dict(lm=str(pool_path), lm_sha256=sha(pool_path)),
+                                                            exec_hold_seconds=a.exec_hold, level=a.pool_level), indent=1) + '\n')
     (a.output / 'MODELS.json').write_text(json.dumps(spec, indent=1, sort_keys=True) + '\n')
     (a.output / 'FIT.json').write_text(json.dumps(dict(schema='pulse-token-branch-fit-v1', run_root=str(a.run_root),
                                                        train=a.train, validation=a.validation, alpha=a.alpha,

@@ -28,6 +28,11 @@ class PreviewRuntime(Runtime):
             input_bytes=self.password.encode()+b'\n'+payload,timeout=timeout)
 
 
+ADMIN_COMMANDS=(('ls',['ls','/']),('cat',['cat','/etc/os-release']),('ps',['ps']),('env',['env']),('id',['id']),
+                ('sh',['sh','-c','echo ok']),('python',['python3','-c','pass']),('date',['date']),('uname',['uname','-a']),
+                ('df',['df','-h']))
+
+
 def tail_rows(runtime,cfg,worker,begin,pod_uid,cgroup_id):
     # Read on the writer's client. A second NFS client's attribute/page cache
     # can temporarily hide appended rows even after Python flushes on worker.
@@ -61,6 +66,17 @@ def one_pair(runtime,cfg,root,item,index):
     time.sleep(17)
     ctl=evaluate_interval(tail_rows(runtime,cfg,worker,control['start_at'],pod['uid'],cg),control,cfg['model_hash'],cfg['policy_hash'])
     atomic_json(trial_dir/'CONTROL.json',ctl)
+    if cfg.get('admin_control'):
+        # protocol lidds-ml-v5: a real command of the image through the same kubectl exec path, as a benign class that
+        # no choice of the gate has seen. A command the image lacks is recorded and left out by the analysis.
+        name,command=ADMIN_COMMANDS[index%len(ADMIN_COMMANDS)]
+        admin=dict(identity,**item,label='expected_normal',control_kind='admin_exec',admin_command=name,
+                   start_at=time.time(),trial_id=f'{index}:admin',duration_seconds=15)
+        append_jsonl(root/'INTERVALS.jsonl',admin)
+        result=runtime.run(['kubectl','exec','-n','production',pod['name'],'-c',container,'--',*command],timeout=30,check=False)
+        if result.returncode:admin['infrastructure_issue']='admin_command_failed'
+        atomic_json(trial_dir/'ADMIN.json',dict(command=name,returncode=result.returncode))
+        time.sleep(max(0.,admin['start_at']+20-time.time()))
     path=binary_path_for_controller(item['workload_controller'])
     args=['--container-id',identity['container_id'],'--pod-uid',identity['pod_uid'],
           '--container-name',container,'--binary',cfg['binary'],'--sha256',cfg['binary_hash'],'--path',path]

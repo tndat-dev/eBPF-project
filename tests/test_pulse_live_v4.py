@@ -46,10 +46,11 @@ def write_run(root, rows):
 
 
 def test_arms_of_rows():
-    assert m.arms_of(token(1, True)) == ('V4', 'T')
+    assert set(m.arms_of(token(1, True))) == {'system', 'V4', 'T', 'T_raw'}
     assert m.arms_of(token(1)) == ()
+    assert set(m.arms_of(dict(token(1), token_alert_raw=True))) == {'T_raw'}
     assert set(m.arms_of(counts(1, tree=True))) == {'tree', 'V4', 'C'}
-    assert set(m.arms_of(counts(1, support=True))) == {'support', 'V4', 'C'}
+    assert set(m.arms_of(dict(counts(1, support=True), candidate_alert_preview=True))) == {'system', 'support', 'V4', 'C'}
     assert m.arms_of(counts(1)) == ()
     assert m.arms_of(dict(status='warming', candidate_alert_preview=True)) == ()
 

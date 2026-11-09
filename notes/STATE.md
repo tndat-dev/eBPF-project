@@ -65,7 +65,10 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    **Chờ chủ đồ án:** GitHub CI không chạy được vì tài khoản bị khoá do billing.
 4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
    systemd-run (trần 42 GB) sau lượt live v3.
-5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
+5. **`lidds-ml-v5` (đăng ký 09/11, chưa chấm):** gate nhánh token để giảm binary vô hại và gánh, tuỳ chọn bỏ cây + support. Sau khi `pulse-live-v4-1109` xong:
+   `scripts/lidds_ml_pool_run.sh` (unit có MemoryMax) → `lidds_ml_v5.py` chọn trên development + CB-DS phải giữ số v4 → chọn trên trial của lượt 1109 → `--official` một ứng viên
+   phải giữ 1.238/1.271, 36/7.938, p95 ≤ 1,5 s → fit lại trên capture cũ → live `pulse-live-v5-<MMDD>` có lệnh admin thật (`ADMIN_CONTROL=1`, `TOKEN_GATE`). Trượt thì bỏ gate.
+6. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
 
 ## Dữ liệu và tài nguyên
 

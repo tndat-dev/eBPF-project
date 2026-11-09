@@ -26,6 +26,8 @@ class CountBranches:
         if doc.get('schema') != 'pulse-v3-count-thresholds-v1':
             raise ValueError('not a v3 count-threshold document')
         self.thresholds = {k: (float(v['tree']), float(v['support'])) for k, v in doc['workloads'].items()}
+        # shadow (protocol lidds-ml-v5): the branches are computed and logged for the report, but do not alert
+        self.shadow = doc.get('shadow') is True
         if not all(math.isfinite(t) and math.isfinite(s) for t, s in self.thresholds.values()):
             raise ValueError('non-finite count threshold')
 
@@ -40,4 +42,4 @@ class CountBranches:
         support = float(decision['support_score']) > got[1]
         return dict(v3_tree_alert=bool(tree), v3_support_alert=bool(support),
                     policy_alert_preview=decision.get('candidate_alert_preview'),
-                    candidate_alert_preview=bool(tree or support), branch='counts')
+                    candidate_alert_preview=bool(tree or support) and not self.shadow, branch='counts')

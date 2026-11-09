@@ -1,0 +1,26 @@
+trials Counter({'benign': 136, 'attack': 133, 'control': 132})
+benign with execve token within 1 s of start 132 136
+attack same 133 133
+control windows with execve (probes) 98 132
+Tp skip | benign control attack_all primary | primary by scenario
+0 0 | 134/136 3/132 133/133 69/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '20/20'}
+0 1 | 63/136 3/132 102/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+0 2 | 63/136 2/132 102/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+0 3 | 62/136 2/132 101/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+14 0 | 132/136 3/132 133/133 69/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '20/20'}
+14 1 | 2/136 3/132 92/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+14 2 | 2/136 2/132 92/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+14 3 | 1/136 2/132 92/133 68/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '19/20'}
+16 0 | 132/136 2/132 133/133 69/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '20/20'}
+16 1 | 1/136 2/132 85/133 66/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '15/16', 'invali': '8/8', 'seccom': '18/20'}
+16 2 | 1/136 2/132 85/133 66/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '15/16', 'invali': '8/8', 'seccom': '18/20'}
+16 3 | 1/136 2/132 82/133 65/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '14/16', 'invali': '8/8', 'seccom': '18/20'}
+18 0 | 132/136 0/132 133/133 69/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '20/20'}
+18 1 | 0/136 0/132 70/133 60/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '15/20'}
+18 2 | 0/136 0/132 70/133 60/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '15/20'}
+18 3 | 0/136 0/132 70/133 60/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '15/20'}
+20 0 | 132/136 0/132 133/133 69/69 | {'anonym': '14/14', 'child_': '11/11', 'execve': '16/16', 'invali': '8/8', 'seccom': '20/20'}
+20 1 | 0/136 0/132 64/133 55/69 | {'anonym': '11/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '13/20'}
+20 2 | 0/136 0/132 64/133 55/69 | {'anonym': '11/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '13/20'}
+20 3 | 0/136 0/132 64/133 55/69 | {'anonym': '11/14', 'child_': '11/11', 'execve': '12/16', 'invali': '8/8', 'seccom': '13/20'}
+normal token episodes in sample by Tp {0: 105, 10: 104, 12: 102, 14: 101, 16: 60, 18: 17, 20: 13}

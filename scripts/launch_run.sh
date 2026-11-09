@@ -49,6 +49,8 @@ plan() {
   [ -n "${TOKEN_BUILD:-}" ] && flags+=(--token-build "$TOKEN_BUILD")
   [ -n "${TOKEN_MODELS:-}" ] && flags+=(--token-models "$TOKEN_MODELS")
   [ -n "${V3_COUNTS:-}" ] && flags+=(--v3-counts "$V3_COUNTS")
+  [ -n "${TOKEN_GATE:-}" ] && flags+=(--token-gate "$TOKEN_GATE")
+  [ "${ADMIN_CONTROL:-0}" = 1 ] && flags+=(--admin-control)
   [ "${LOCAL_DECISIONS:-0}" = 1 ] && flags+=(--local-decisions --stream-root "$STREAM_ROOT")
   [ "${RECAL_EXCLUDE_CAMPAIGN:-0}" = 1 ] && flags+=(--recalibration-exclude-campaign)
   PYTHONPATH=$SNAP /home/dat/ml-venv/bin/python -m sentinel_pulse.pipeline.plan_matched_run \

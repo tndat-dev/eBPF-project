@@ -22,7 +22,8 @@ def event_time(value):
 def trigger_kind(row, model_hash, policy_hash):
     if row.get('candidate_manifest_sha256') != model_hash or row.get('policy_sha256') != policy_hash:
         return None
-    scored = row.get('status') == 'candidate-raw-score-only' and row.get('policy_evaluated') is True
+    scored = ((row.get('status') == 'candidate-raw-score-only' and row.get('policy_evaluated') is True)
+              or (row.get('status') == 'token-score' and row.get('branch') == 'token'))  # lidds-ml token branch
     tripwire = row.get('tripwire_alert') is True and row.get('tripwire_status') == 'judged'
     if not (scored or tripwire):
         return None

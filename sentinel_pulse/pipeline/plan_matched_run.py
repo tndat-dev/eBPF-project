@@ -88,6 +88,8 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         if tokens.get('models'):
             cfg['tokens']['models']=json.loads(Path(tokens['models']).read_text())
             cfg['tokens']['models_document']=dict(path=str(tokens['models']),sha256=sha256_file(Path(tokens['models'])))
+        if tokens.get('gate'):cfg['tokens']['gate']=json.loads(Path(tokens['gate']).read_text())
+        if tokens.get('admin_control'):cfg['admin_control']=True
         if tokens.get('v3_counts'):
             cfg['v3_counts']=dict(path=str(tokens['v3_counts']),sha256=sha256_file(Path(tokens['v3_counts'])))
     # evidence discount (policy rule key evidence_discount): every worker serves its window masks on PEER_PORT and
@@ -160,6 +162,8 @@ if __name__=='__main__':
     p.add_argument('--token-build',help='lidds-ml-v3 token probe: directory with build/ and proof/ on every worker')
     p.add_argument('--token-models',type=Path,help='token branch models (MODELS.json of token_branch_fit.py)')
     p.add_argument('--v3-counts',type=Path,help='count-branch thresholds (count_branch_fit.py)')
+    p.add_argument('--token-gate',type=Path,help='gate of the token branch, protocol lidds-ml-v5 (GATE.json of token_branch_fit.py)')
+    p.add_argument('--admin-control',action='store_true',help='real admin commands as benign controls in every trial')
     p.add_argument('--local-decisions',action='store_true',help='async shared writes + local decision copy (--stream-root) without the tripwire')
     a=p.parse_args()
     rates=tuple(int(x) for x in a.attack_rates.split(','))
@@ -178,6 +182,6 @@ if __name__=='__main__':
         if not m:p.error('recalibration must be rolling-W-R')
         recal=dict(window_hours=int(m[1]),refresh_hours=int(m[2]),exclude_campaign=a.recalibration_exclude_campaign)
     if (a.token_models or a.v3_counts) and not a.token_build:p.error('token models and count thresholds need --token-build')
-    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts) if a.token_build else None
+    tokens=dict(build=a.token_build,models=a.token_models,v3_counts=a.v3_counts,gate=a.token_gate,admin_control=a.admin_control) if a.token_build else None
     plan(a.source,a.root,a.run_id,a.smoke,a.profile,a.frozen_source,custom,rates,final,recal,tokens,
          a.stream_root if a.local_decisions else None)

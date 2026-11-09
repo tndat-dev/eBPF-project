@@ -228,3 +228,14 @@ def test_follower_passes_preview_and_tripwire_rows(tmp_path):
     finally:
         child.kill()
     assert [l['a'] for l in lines] == [2, 3]
+
+
+def test_token_rows_trigger_an_episode():
+    """The token branch reaches the alert path: pulse-live-v4-1109 dropped every token row at trigger_kind."""
+    from sentinel_pulse.rca.tree import trigger_kind
+    good = row(100.0, status='token-score', branch='token')
+    good.pop('policy_evaluated', None)
+    assert trigger_kind(good, good['candidate_manifest_sha256'], good['policy_sha256']) == 'candidate_alert_preview'
+    other = dict(good, branch='counts')
+    assert trigger_kind(other, good['candidate_manifest_sha256'], good['policy_sha256']) is None
+    assert trigger_kind(dict(good, candidate_alert_preview=False), good['candidate_manifest_sha256'], good['policy_sha256']) is None

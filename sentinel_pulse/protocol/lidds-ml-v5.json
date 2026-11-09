@@ -1,0 +1,50 @@
+{
+ "schema": "sentinel-pulse-lidds-ml-v5",
+ "registered_at": "2026-11-09T21:22+07:00",
+ "registered_before": "any score of the gate on LID-DS 2021 or CB-DS. The gate was found on trials of pulse-live-v4-1109 with attack labels (validation-evidence/results-20261109/benign-burden-research/), so that run is development for it",
+ "owner_decision": "09/11: improve benign-binary flagging and alert burden of lidds-ml-v4; both the cluster side and the ML system may change; keeping the v4 result on LID-DS 2021 has top priority, and any direction reaching an acceptable level is run again on LID-DS 2021",
+ "findings": {
+  "benign": "every benign alert window of the token branch holds the fixture's getpid + clock_nanosleep loop or the launch burst; about half of the benign intervals fire only within 1 s of the launch",
+  "burden": "in a sample of two segments 89 of 105 token episodes come from Kafka file maintenance (fsync, rename, unlink); the count branches add mostly Postgres support episodes",
+  "count_branches": "on pulse-live-v4-1109 so far and on LID-DS official they add no detection to the token branch and add false alarms (official 36 against 26), which reopens the 05/11 decision to keep them",
+  "alert_path": "trigger_kind dropped every token row in pulse-live-v4-1109, so token alarms reached neither Alertmanager nor RCA; fixed in sentinel_pulse/rca/tree.py and the worker"
+ },
+ "gate": {
+  "pool_model": "sum of the gram counts of all workloads (cluster) or of all scenarios and CB-DS (datasets), same language model as the token branch",
+  "rule": "a token alarm also needs the window's pool score above its pool threshold, and the window more than hold seconds after the container's or recording's last execve",
+  "pool_threshold": "normal only: moment Gumbel without the top 1 % of the maxima outside the hold (60 s blocks per container on the cluster, recordings on datasets), at the candidate's pool level"
+ },
+ "candidates": {
+  "system": [
+   "three branches of lidds-ml-v4",
+   "token branch alone, tree and support logged in shadow"
+  ],
+  "hold_seconds": [
+   0,
+   1,
+   2
+  ],
+  "pool_level": [
+   "none",
+   0.01,
+   0.001,
+   0.00018
+  ]
+ },
+ "selection": {
+  "step_1_keep_lidds": "LID-DS development and CB-DS only: detected >= 530/544, false alarms <= 12/3403, p95 <= 1.52 s, CB-DS 891/891, false alarms <= 3/1410 (the lidds-ml-v4 numbers); the scorer must reproduce them without a gate first",
+  "step_2_cluster": "among the candidates of step 1, on the trials of pulse-live-v4-1109: primary recall >= 95 %, then lowest benign flag rate, then fewest normal episodes, then the simpler candidate",
+  "step_3_official": "one candidate, by scripts/analysis/lidds_ml_v5.py --official: detected >= 1238/1271, false alarms <= 36/7938, p95 <= 1.5 s. If it fails, no other gate is tried on official and the gate is dropped"
+ },
+ "live": {
+  "run": "pulse-live-v5-<MMDD>, only after pulse-live-v4-1109 has finished its full cycle and step 3 has passed; the normal capture pulse-token-capture-1107 is reused, the fit is token_branch_fit.py --folds 5 --fold-seconds 1800 --share 0.9 --pool-level L --exec-hold H",
+  "controls": "each trial also runs one real admin command through kubectl exec (ls, cat, ps, env, id, sh, python3, date, uname, df in turn); commands the image lacks are left out. No choice of the gate has seen them, and they are reported apart from the benign binary",
+  "acceptable": "primary recall >= 95 %, precision >= 95 %, idle control <= 5 %, p95 <= 3 s, benign binary and admin commands each <= 20 % (exec-intent-v1), burden <= 1.76 episodes per replica-hour (pulse-final-system-confirm)"
+ },
+ "limits": [
+  "the exec hold hides a short command that finishes within the hold, and an attacker can exec repeatedly to stay held; the raw alarm stays in the decision row",
+  "slow attacks (1 and 3 per second) lose recall in the simulation on pulse-live-v4-1109",
+  "the benign binary and the attacks come from one fixture, hence the admin commands"
+ ],
+ "code": "sentinel_pulse/detector/token_model.py (TokenBranch gate), sentinel_pulse/detector/v3_policy.py (shadow), scripts/analysis/token_branch_fit.py, count_branch_fit.py --shadow, lidds_ml_token_pool.py, lidds_ml_v5.py, pulse_live_v4.py, sentinel_pulse/attack/preview_campaign.py (admin control)"
+}

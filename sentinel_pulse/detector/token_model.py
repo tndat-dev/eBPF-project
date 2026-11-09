@@ -144,13 +144,36 @@ class CountTokenLM:
             return cls.from_json(json.load(handle))
 
 
+NR_EXECVE = 59
+
+
+def has_execve(grams) -> bool:
+    """A process image changed in this window: some event of the window is an execve (its last token slot)."""
+    return any(call_of(int(gram[3])) == NR_EXECVE for gram in grams if int(gram[3]) != TOK_NONE)
+
+
 class TokenBranch:
     """Online token branch for the worker. spec (worker cfg tokens.models): {workload_key: {"lm": path,
     "lm_sha256": hex, "threshold": float}}; a workload without a model gets no token score. One window above its
-    workload's threshold is a token alert (the lidds-ml-v3 rule: one window fires)."""
+    workload's threshold is a token alert (the lidds-ml-v3 rule: one window fires).
 
-    def __init__(self, spec: dict, sha256_file):
+    gate (worker cfg tokens.gate, protocol lidds-ml-v5), optional: {"pool": {"lm": path, "lm_sha256": hex},
+    "exec_hold_seconds": float}, with "pool_threshold" per workload in spec. The alert then also needs the window to be
+    surprising to the model of all workloads together (score above pool_threshold) and to lie more than
+    exec_hold_seconds after the container's last execve."""
+
+    def __init__(self, spec: dict, sha256_file, gate: dict | None = None):
         self.models, self.thresholds = {}, {}
+        self.pool, self.pool_thresholds, self.hold, self.last_exec = None, {}, 0.0, {}
+        if gate:
+            path = Path(gate['pool']['lm'])
+            if sha256_file(path) != gate['pool']['lm_sha256']:
+                raise ValueError('token pool model changed')
+            self.pool = CountTokenLM.load(path)
+            self.hold = float(gate['exec_hold_seconds'])
+            self.pool_thresholds = {key: float(item['pool_threshold']) for key, item in spec.items()}
+            if not all(math.isfinite(t) for t in self.pool_thresholds.values()):
+                raise ValueError('token pool threshold is not finite')
         for key, item in spec.items():
             path = Path(item['lm'])
             if sha256_file(path) != item['lm_sha256']:
@@ -165,5 +188,16 @@ class TokenBranch:
         if lm is None:
             return None
         s = lm.window_score(window['grams'])
-        return dict(token_score=s, token_threshold=self.thresholds[window['workload_key']],
-                    token_alert=bool(s > self.thresholds[window['workload_key']]))
+        raw = bool(s > self.thresholds[window['workload_key']])
+        out = dict(token_score=s, token_threshold=self.thresholds[window['workload_key']], token_alert=raw)
+        if self.pool is None:
+            return out
+        key = (window['pod_uid'], window['container_name'])
+        if has_execve(window['grams']):
+            self.last_exec[key] = window['window_end']
+        held = window['window_end'] - self.last_exec.get(key, -math.inf) <= self.hold
+        pool_score = self.pool.window_score(window['grams'])
+        threshold = self.pool_thresholds[window['workload_key']]
+        out.update(token_alert=bool(raw and pool_score > threshold and not held), token_alert_raw=raw,
+                   token_pool_score=pool_score, token_pool_threshold=threshold, token_exec_held=held)
+        return out

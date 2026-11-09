@@ -158,7 +158,7 @@ def run(config_path):
     # (detector/token_model.py TokenBranch) each window is scored at once and also written as a decision, branch token
     tokens_cfg=cfg.get('tokens')
     loader_args=['--tokens',tokens_cfg.get('mode','grams')] if tokens_cfg else []
-    token_branch=TokenBranch(tokens_cfg['models'],sha256_file) if tokens_cfg and tokens_cfg.get('models') else None
+    token_branch=TokenBranch(tokens_cfg['models'],sha256_file,tokens_cfg.get('gate')) if tokens_cfg and tokens_cfg.get('models') else None
     if tokens_cfg:
         state.setdefault('token_windows',0);state.setdefault('token_scored',0);state.setdefault('token_alerts',0)
     # lidds-ml-v3 count branches (cfg v3_counts: {"path", "sha256"}; detector/v3_policy.py): tree and support against
@@ -296,9 +296,12 @@ def run(config_path):
                                         candidate_alert_preview=scored['token_alert'],
                                         window_start=window['window_end']-.5,interval_ms=500,
                                         preview_emitted_at=window['token_scored_at'],
+                                        candidate_manifest_sha256=cfg['model_hash'],policy_sha256=cfg['policy_hash'],
                                         **{k:window[k] for k in ('node_name','window_end','workload_key','pod_uid',
                                             'container_name','workload_revision','cgroup_id','run_id','capture_segment',
-                                            'token_score','token_threshold','events')})
+                                            'token_score','token_threshold','events') },
+                                        **{k:window[k] for k in ('token_alert_raw','token_pool_score','token_pool_threshold',
+                                            'token_exec_held') if k in window})
                                     line=json.dumps(decision,separators=(',',':'),allow_nan=False)+'\n'
                                     decisions.write(line);local.write(line)
                                     state['token_scored']+=1;state['token_alerts']+=scored['token_alert']

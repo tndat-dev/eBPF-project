@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stage 2 of pulse-live-v3-v1 (+ amendments) for lidds-ml-v4: the arms on the trials and the normal span of one live run.
 
-Arms: V4 (arm V3 of the protocol, the system: token or tree or support), T (token), C (tree or support), tree, support.
+Arms: system (what the run alerted on), V4 (token or tree or support), T (token), T_raw (token before the lidds-ml-v5 gate),
+C (tree or support), tree, support. Admin commands that failed are left out.
 A trial is detected when an alarm of the arm falls inside [start, start + 15 s] on its container; the alert time is the
 earliest alarm, the latency is alert time - kernel event, both from the window end. The campaign's own status counts only
 count-branch rows (preview_evaluation.py), so it is not used here. Normal burden: alarms of one container merged into
@@ -24,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from sentinel_pulse.common import open_sealed  # noqa: E402
 from sentinel_pulse.rca.baseline_seed import campaign_span  # noqa: E402
 
-ARMS = ('V4', 'T', 'C', 'tree', 'support')
+ARMS = ('system', 'V4', 'T', 'T_raw', 'C', 'tree', 'support')
 PRIMARY = (6, 12, 24)
 HORIZON = 15.0
 QUIET = 15.0
@@ -46,16 +47,28 @@ def wilson(k, n, z=1.96):
 def arms_of(row):
     """Arms that alarm on one decision row."""
     status = row.get('status')
+    out = ['system'] if row.get('candidate_alert_preview') is True and status in ('token-score', 'candidate-raw-score-only') else []
     if status == 'token-score':
-        return ('V4', 'T') if row.get('candidate_alert_preview') is True else ()
+        if row.get('candidate_alert_preview') is True:
+            out += ['V4', 'T']
+        if row.get('token_alert_raw', row.get('candidate_alert_preview')) is True:
+            out += ['T_raw']
+        return tuple(out)
     if status != 'candidate-raw-score-only':
         return ()
-    out = []
     if row.get('v3_tree_alert') is True:
         out += ['tree']
     if row.get('v3_support_alert') is True:
         out += ['support']
-    return tuple(out + ['V4', 'C']) if out else ()
+    if row.get('v3_tree_alert') is True or row.get('v3_support_alert') is True:
+        out += ['V4', 'C']
+    return tuple(out)
+
+
+def admin_failed(campaign, pair):
+    """A command the image lacks is not a benign run (protocol lidds-ml-v5)."""
+    path = campaign / 'trials' / f'{pair:04d}' / 'ADMIN.json'
+    return not path.exists() or json.loads(path.read_text()).get('returncode') != 0
 
 
 def load_trials(campaign):
@@ -65,7 +78,11 @@ def load_trials(campaign):
         if not line:
             continue
         row = json.loads(line)
-        label = 'attack' if row['label'] == 'attack' else 'benign' if row.get('control_kind') else 'control'
+        label = ('attack' if row['label'] == 'attack' else 'admin' if row.get('control_kind') == 'admin_exec'
+                 else 'benign' if row.get('control_kind') else 'control')
+        pair = int(str(row['trial_id']).split(':')[0])
+        if label == 'admin' and admin_failed(campaign, pair):
+            continue
         trials.append(dict(label=label, start=float(row['start_at']), key=(row['pod_uid'], row['container_name']),
                            pair=int(str(row['trial_id']).split(':')[0]), workload=row['workload_key'],
                            rate=row.get('rate_per_second'), scenario=row.get('scenario'), kernel=None))
@@ -129,7 +146,7 @@ def trial_metrics(trials, at, keep):
     pair_rate = {t['pair']: t['rate'] for t in trials if t['label'] == 'attack'}
     idx = [i for i, t in enumerate(trials) if keep(pair_rate.get(t['pair']))]
     out = {}
-    for label in ('attack', 'control', 'benign'):
+    for label in ('attack', 'control', 'benign', 'admin'):
         members = [i for i in idx if trials[i]['label'] == label]
         out[label] = rate_row(sum(at[i] is not None for i in members), len(members))
     tp, fp = out['attack']['hits'], out['control']['hits']

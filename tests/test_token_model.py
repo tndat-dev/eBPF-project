@@ -143,3 +143,56 @@ def test_count_branches(tmp_path):
     assert cb.apply(dict(base, workload_key='production/other:c', tree_score=1, support_score=9)) is None
     with pytest.raises(ValueError):
         CountBranches(path, '0' * 64, sha256_file)
+
+
+# --- gate of the token branch (protocol lidds-ml-v5)
+
+def gate_branch(tmp_path, hold=1.0):
+    from sentinel_pulse.detector.token_model import TokenBranch
+    common = [TOK_NONE, TOK_NONE, tok(1), tok(2)]
+    lm, pool = CountTokenLM(), CountTokenLM()
+    lm.learn_window([common + [50]])
+    pool.learn_window([common + [50], [TOK_NONE, TOK_NONE, tok(3), tok(4)] + [50]])
+    lm.finalize(); pool.finalize()
+    a, b = tmp_path / 'lm.json.gz', tmp_path / 'pool.json.gz'
+    lm.save(a); pool.save(b)
+    sha = lambda path: str(path)
+    spec = {'w': dict(lm=str(a), lm_sha256=str(a), threshold=2.0, pool_threshold=5.0)}
+    gate = dict(pool=dict(lm=str(b), lm_sha256=str(b)), exec_hold_seconds=hold)
+    return TokenBranch(spec, sha, gate)
+
+
+def window(end, grams):
+    return dict(workload_key='w', pod_uid='p', container_name='c', window_end=end, grams=grams)
+
+
+def test_gate_needs_surprise_to_the_pool(tmp_path):
+    branch = gate_branch(tmp_path)
+    known_to_pool = branch.score(window(10.0, [[TOK_NONE, TOK_NONE, tok(3), tok(4), 5]]))
+    assert known_to_pool['token_alert_raw'] is True and known_to_pool['token_alert'] is False
+    unknown = branch.score(window(11.0, [[TOK_NONE, TOK_NONE, tok(7), tok(8), 5]]))
+    assert unknown['token_alert_raw'] is True and unknown['token_alert'] is True
+    assert unknown['token_pool_score'] > unknown['token_pool_threshold']
+
+
+def test_gate_holds_after_execve_only(tmp_path):
+    branch = gate_branch(tmp_path, hold=1.0)
+    odd = [TOK_NONE, TOK_NONE, tok(7), tok(8), 5]
+    start = branch.score(window(10.0, [odd, [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]))
+    assert start['token_exec_held'] is True and start['token_alert'] is False
+    assert branch.score(window(10.5, [odd]))['token_exec_held'] is True
+    assert branch.score(window(11.0, [odd]))['token_exec_held'] is True      # exactly hold seconds later
+    later = branch.score(window(11.5, [odd]))
+    assert later['token_exec_held'] is False and later['token_alert'] is True
+
+
+def test_no_gate_keeps_the_plain_branch(tmp_path):
+    from sentinel_pulse.detector.token_model import TokenBranch
+    lm = CountTokenLM()
+    lm.learn_window([[TOK_NONE, TOK_NONE, tok(1), tok(2), 50]])
+    lm.finalize()
+    path = tmp_path / 'lm.json.gz'
+    lm.save(path)
+    branch = TokenBranch({'w': dict(lm=str(path), lm_sha256=str(path), threshold=2.0)}, str)
+    out = branch.score(window(1.0, [[TOK_NONE, TOK_NONE, tok(7), tok(8), 5]]))
+    assert out['token_alert'] is True and set(out) == {'token_score', 'token_threshold', 'token_alert'}
