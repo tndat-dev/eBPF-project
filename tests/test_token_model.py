@@ -196,3 +196,17 @@ def test_no_gate_keeps_the_plain_branch(tmp_path):
     branch = TokenBranch({'w': dict(lm=str(path), lm_sha256=str(path), threshold=2.0)}, str)
     out = branch.score(window(1.0, [[TOK_NONE, TOK_NONE, tok(7), tok(8), 5]]))
     assert out['token_alert'] is True and set(out) == {'token_score', 'token_threshold', 'token_alert'}
+
+
+def test_phase_threshold_replaces_the_hold(tmp_path):
+    branch = gate_branch(tmp_path, hold=1.0)
+    branch.phase_threshold = 1e6
+    odd = [TOK_NONE, TOK_NONE, tok(7), tok(8), 5]
+    held_low = branch.score(window(10.0, [odd, [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]))
+    assert held_low['token_exec_held'] is True and held_low['token_alert'] is False
+    branch.phase_threshold = 1.0
+    held_high = branch.score(window(10.5, [odd]))
+    assert held_high['token_exec_held'] is True and held_high['token_alert'] is True
+    branch.phase_threshold = 1e6
+    outside = branch.score(window(11.5, [odd]))
+    assert outside['token_exec_held'] is False and outside['token_alert'] is True

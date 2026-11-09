@@ -160,17 +160,23 @@ class TokenBranch:
     gate (worker cfg tokens.gate, protocol lidds-ml-v5), optional: {"pool": {"lm": path, "lm_sha256": hex},
     "exec_hold_seconds": float}, with "pool_threshold" per workload in spec. The alert then also needs the window to be
     surprising to the model of all workloads together (score above pool_threshold) and to lie more than
-    exec_hold_seconds after the container's last execve."""
+    exec_hold_seconds after the container's last execve. With "phase_threshold" (amendment 1) a window within those
+    seconds is not held but compared with that threshold instead."""
 
     def __init__(self, spec: dict, sha256_file, gate: dict | None = None):
         self.models, self.thresholds = {}, {}
         self.pool, self.pool_thresholds, self.hold, self.last_exec = None, {}, 0.0, {}
+        self.phase_threshold = None
         if gate:
             path = Path(gate['pool']['lm'])
             if sha256_file(path) != gate['pool']['lm_sha256']:
                 raise ValueError('token pool model changed')
             self.pool = CountTokenLM.load(path)
             self.hold = float(gate['exec_hold_seconds'])
+            if gate.get('phase_threshold') is not None:
+                self.phase_threshold = float(gate['phase_threshold'])
+                if not math.isfinite(self.phase_threshold):
+                    raise ValueError('token phase threshold is not finite')
             self.pool_thresholds = {key: float(item['pool_threshold']) for key, item in spec.items()}
             if not all(math.isfinite(t) for t in self.pool_thresholds.values()):
                 raise ValueError('token pool threshold is not finite')
@@ -198,6 +204,8 @@ class TokenBranch:
         held = window['window_end'] - self.last_exec.get(key, -math.inf) <= self.hold
         pool_score = self.pool.window_score(window['grams'])
         threshold = self.pool_thresholds[window['workload_key']]
-        out.update(token_alert=bool(raw and pool_score > threshold and not held), token_alert_raw=raw,
+        passes = (pool_score > self.phase_threshold) if held and self.phase_threshold is not None else (
+            pool_score > threshold and not held)
+        out.update(token_alert=bool(raw and passes), token_alert_raw=raw,
                    token_pool_score=pool_score, token_pool_threshold=threshold, token_exec_held=held)
         return out

@@ -33,7 +33,25 @@ def test_pool_fit_leaves_held_windows_out():
     assert v5.m.threshold(fit, .01) < 10
 
 
-def test_every_system_has_the_ungated_candidate():
-    names = [c[0] for c in v5.candidates()]
-    assert 'three-hold0-poolnone' in names and 'token-hold0-poolnone' in names
-    assert len(names) == len(set(names)) == 2 * len(v5.HOLDS) * len(v5.POOL_LEVELS)
+def test_candidates_are_the_token_system_plus_the_reference():
+    cands = list(v5.candidates())
+    names = [c[0] for c in cands]
+    assert len(names) == len(set(names)) == 1 + len(v5.HOLDS) * len(v5.POOL_LEVELS) + len(v5.PHASES) * (len(v5.POOL_LEVELS) - 1)
+    assert 'token-hold0-poolnone' in names and 'token-phase1-pool0.01' in names
+    assert [c[0] for c in cands if len(c[1]) == 3] == ['three-hold0-poolnone']
+
+
+class FakeZ(dict):
+    @property
+    def files(self):
+        return list(self)
+
+
+def test_phase_fit_uses_recordings_with_an_execve_and_needs_three():
+    with_exec = np.asarray([[1.0, 30.0, 1.0], [5.0, 3.0, 0.0]])
+    without = np.asarray([[1.0, 99.0, 0.0]])
+    z = FakeZ({f'val/{i}': with_exec + np.asarray([0.0, i * .1, 0.0]) for i in range(10)})
+    z['val/x'] = without
+    fit = v5.phase_fit(z, 1.0)
+    assert 25 < v5.m.threshold(fit, .01) < 40
+    assert v5.phase_fit(FakeZ({'val/0': with_exec, 'val/x': without}), 1.0) is None

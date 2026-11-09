@@ -61,3 +61,20 @@ def test_held_out_blocks_are_scored_without_their_own_fold(tmp_path):
 def test_trim_drops_at_least_the_largest_maximum():
     x = list(range(1, 100)) + [100000.0]
     assert f.trimmed_gumbel(x) == f.gumbel(list(range(1, 100)))
+
+
+def test_phase_maxima_read_only_benign_launches_within_the_phase():
+    import token_phase_threshold as tp
+    tok = lambda nr: nr << 23
+    pool = CountTokenLM()
+    pool.learn_window([[TOK_NONE, TOK_NONE, tok(1), tok(2), 50]])
+    pool.finalize()
+    base = dict(pod_uid='p', container_name='c')
+    odd = [TOK_NONE, TOK_NONE, tok(7), tok(8), 5]
+    launch = [odd, [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]
+    windows = [dict(base, window_end=100.5, grams=launch),      # execve inside the benign launch
+               dict(base, window_end=103.0, grams=odd),         # the launch, after the phase
+               dict(base, window_end=200.5, grams=launch)]      # execve outside any benign launch
+    maxima = tp.launch_maxima(windows, {('p', 'c'): [100.0]}, pool, 1.0)
+    assert list(maxima) == [('p', 'c', 100.0)]
+    assert maxima[('p', 'c', 100.0)] == pool.window_score(launch)

@@ -1,0 +1,21 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/lidds-ml-v5.json",
+ "registered_at": "2026-11-09T21:34+07:00",
+ "registered_before": "any score of the gate on LID-DS 2021 or CB-DS; the simulation below uses trials of pulse-live-v4-1109 only",
+ "owner_decision": "09/11: the project centres on the ML; tree and support are dropped from the alert path for now but kept: code, models and thresholds stay, the branches are computed and logged in shadow",
+ "system": "the token branch alone. The three-branch system stays only as the reference that reproduces lidds-ml-v4 before any candidate is read",
+ "phase_threshold": {
+  "why": "the exec hold is a hand-written rule; a threshold of its own for the phase after an execve is learnt from data and still lets a very surprising launch alarm. Simulation on 133 attack, 136 benign, 132 control trials (results-20261109/benign-burden-research/phase.py): phase 30 and outside 14 gives benign 2/136, primary 69/69, all rates 99/133; hold 1 s and outside 14 gives 2/136, 68/69, 92/133. These values were read with labels, so they only show the direction",
+  "rule": "a token alarm needs the window's pool score above the phase threshold when the window lies within the phase seconds after the last execve, and above the pool threshold otherwise",
+  "cluster_fit": "moment Gumbel without the top 1 % on the maximum pool score within the phase of each benign launch of pulse-live-v4-1109 (benign binary intervals only; no attack data), one threshold for the cluster, at the candidate's pool level. Normal idle windows cannot set it (their maximum in the phase is 11.2)",
+  "dataset_fit": "the datasets have no benign launch through a runtime, so the same fit runs on the maxima within the phase of each validation and training recording holding an execve; with fewer than 3 such recordings the pool threshold applies",
+  "seconds": [
+   1,
+   2
+  ]
+ },
+ "candidates": "token system only: hold candidates of the protocol, and phase candidates at phase seconds 1 and 2 with pool levels 0.01, 0.001, 0.00018. The hold remains a candidate because it is the simpler comparison; when it is chosen, results with and without it are reported as a rule, apart from the ML",
+ "selection_order": "unchanged, except that at equal step 2 outcomes a phase candidate goes before a hold candidate, because the project centres on the ML",
+ "limits": "the phase threshold of the cluster is fitted on launches of the benign binary, so the benign binary is not blind in the next live run; the admin commands are"
+}
