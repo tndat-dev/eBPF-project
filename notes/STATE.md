@@ -56,10 +56,14 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
 3. `pulse-live-v3-v1` giai đoạn 1 xong: `pulse-token-capture-1107` (t0 07/11 20:29 = `selection_start` 1794058145.54, học
    [t0, t0 + 8 h), validation tới hết lượt). Fit v4 theo amendment 2, ra `/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/`.
-   Khoá sha256 trong `results-20261109/pulse-live-v4-fit/` → lượt live blind 24 h `pulse-live-v4-<MMDD>` (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign,
-   RCA, bridge; dừng `pulse-alert-bridge-rca-viewer` trước vì trùng cổng 9478).
-   **Hoãn tới sau lượt live vì làm đổi hành vi workload đã học:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS);
-   sentinel thấy replica Redis ở IP node nên đánh dấu `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy).
+   Khoá sha256 trong `results-20261109/pulse-live-v4-fit/`.
+   **Lượt live blind `pulse-live-v4-1109` đang chạy:** t0 09/11 13:59, tấn công từ 15:31, kết thúc 10/11 13:59. Source
+   `runtime-1167481-20261109`, không chạy job nặng tới khi xong. Pha selection (tới 15:29) có một can thiệp: 14:01 tạo lại 5 pod
+   (`payment-service` ×4, `order-service` ×1) restart tại chỗ lúc sau reboot, điểm support 18,8 so với khoảng 1,2 lúc capture.
+   **Sau lượt live:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS); sentinel thấy replica Redis ở IP node nên đánh dấu
+   `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy); cả hai làm đổi hành vi workload đã học nên hoãn.
+   **Chờ chủ đồ án:** bộ phân loại an toàn chặn `helm upgrade monitoring` (tắt scrape etcd, scheduler, controller, proxy không hoạt động) và
+   `snap stop --disable prometheus` trên `.235`, `.237`. GitHub CI không chạy được vì tài khoản bị khoá do billing.
 4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
    systemd-run (trần 42 GB) sau lượt live v3.
 5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.
