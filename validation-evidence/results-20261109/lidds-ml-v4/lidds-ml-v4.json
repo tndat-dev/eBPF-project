@@ -1,0 +1,705 @@
+{
+ "schema": "pulse-lidds-ml-v4",
+ "protocol": "sentinel_pulse/protocol/lidds-ml-v4.json",
+ "alpha": 0.0002,
+ "shares": {
+  "T": 0.9,
+  "tree": 0.05,
+  "support": 0.05
+ },
+ "development": {
+  "attack_recordings": 544,
+  "detected": 530,
+  "recall": 0.9742647058823529,
+  "recall_ci95": [
+   0.9572687129987276,
+   0.984609377310588
+  ],
+  "normal_recordings": 3403,
+  "false_alarm_recordings": 12,
+  "false_alarm_rate": 0.003526300323244196,
+  "false_alarm_ci95": [
+   0.002018356121902117,
+   0.006153905247690175
+  ],
+  "latency_p50": 0.38844144344329834,
+  "latency_p95": 1.516074502468109,
+  "precision_1to1": 0.9963936052787719,
+  "precision_base_rate": 0.977859778597786,
+  "detected_within_3s": 527
+ },
+ "development_scenarios": {
+  "Bruteforce_CWE-307": {
+   "attack_recordings": 42,
+   "detected": 42,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9161983874908382,
+    1.0000000000000002
+   ],
+   "normal_recordings": 230,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    -1.734723475976807e-18,
+    0.01642821465470643
+   ],
+   "latency_p50": 0.32768261432647705,
+   "latency_p95": 0.4356541872024536,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "CVE-2012-2122": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 229,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016498769979247693
+   ],
+   "latency_p50": 0.23157095909118652,
+   "latency_p95": 0.48198163509368896,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "CVE-2014-0160": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 227,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016641714491668746
+   ],
+   "latency_p50": 0.26901376247406006,
+   "latency_p95": 0.4789634346961975,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "CVE-2017-12635_6": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 226,
+   "false_alarm_recordings": 1,
+   "false_alarm_rate": 0.004424778761061947,
+   "false_alarm_ci95": [
+    0.0007814894820824484,
+    0.024634275114056803
+   ],
+   "latency_p50": 1.1526925563812256,
+   "latency_p95": 1.6636836528778076,
+   "precision_1to1": 0.9955947136563877,
+   "precision_base_rate": 0.972972972972973
+  },
+  "CVE-2017-7529": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 219,
+   "false_alarm_recordings": 4,
+   "false_alarm_rate": 0.0182648401826484,
+   "false_alarm_ci95": [
+    0.007125075447008324,
+    0.046014015279319254
+   ],
+   "latency_p50": 0.30179309844970703,
+   "latency_p95": 0.4850791096687317,
+   "precision_1to1": 0.9820627802690582,
+   "precision_base_rate": 0.9
+  },
+  "CVE-2018-3760": {
+   "attack_recordings": 37,
+   "detected": 37,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9059390425448564,
+    1.0000000000000002
+   ],
+   "normal_recordings": 221,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    1.734723475976807e-18,
+    0.01708580618533225
+   ],
+   "latency_p50": 0.34725213050842285,
+   "latency_p95": 0.48298926353454585,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "CVE-2019-5418": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016569933954907145
+   ],
+   "latency_p50": 0.2425079345703125,
+   "latency_p95": 0.48903393745422363,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "CVE-2020-13942": {
+   "attack_recordings": 35,
+   "detected": 34,
+   "recall": 0.9714285714285714,
+   "recall_ci95": [
+    0.8546659090672868,
+    0.9949386386341466
+   ],
+   "normal_recordings": 227,
+   "false_alarm_recordings": 2,
+   "false_alarm_rate": 0.00881057268722467,
+   "false_alarm_ci95": [
+    0.002419460791781838,
+    0.031550153003998466
+   ],
+   "latency_p50": 0.36660706996917725,
+   "latency_p95": 0.6071511387825012,
+   "precision_1to1": 0.9910118130457114,
+   "precision_base_rate": 0.9444444444444444
+  },
+  "CVE-2020-23839": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 1,
+   "false_alarm_rate": 0.0043859649122807015,
+   "false_alarm_ci95": [
+    0.0007746305902254884,
+    0.024421882891392997
+   ],
+   "latency_p50": 0.28845083713531494,
+   "latency_p95": 0.47172796726226807,
+   "precision_1to1": 0.9956331877729259,
+   "precision_base_rate": 0.972972972972973
+  },
+  "CVE-2020-9484": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 1,
+   "false_alarm_rate": 0.0043859649122807015,
+   "false_alarm_ci95": [
+    0.0007746305902254884,
+    0.024421882891392997
+   ],
+   "latency_p50": 0.3033868074417114,
+   "latency_p95": 2.2333187460899353,
+   "precision_1to1": 0.9956331877729259,
+   "precision_base_rate": 0.972972972972973
+  },
+  "CWE-89-SQL-injection": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016569933954907145
+   ],
+   "latency_p50": 1.1699604988098145,
+   "latency_p95": 1.7379936575889587,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "EPS_CWE-434": {
+   "attack_recordings": 36,
+   "detected": 36,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9035781695514236,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 2,
+   "false_alarm_rate": 0.008771929824561403,
+   "false_alarm_ci95": [
+    0.002408834518876697,
+    0.031414258489453124
+   ],
+   "latency_p50": 1.2270828485488892,
+   "latency_p95": 1.4790470004081726,
+   "precision_1to1": 0.9913043478260869,
+   "precision_base_rate": 0.9473684210526315
+  },
+  "Juice-Shop": {
+   "attack_recordings": 36,
+   "detected": 23,
+   "recall": 0.6388888888888888,
+   "recall_ci95": [
+    0.4757478039083198,
+    0.7752461320781867
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 1,
+   "false_alarm_rate": 0.0043859649122807015,
+   "false_alarm_ci95": [
+    0.0007746305902254884,
+    0.024421882891392997
+   ],
+   "latency_p50": 0.33624887466430664,
+   "latency_p95": 47.86330749988549,
+   "precision_1to1": 0.9931818181818182,
+   "precision_base_rate": 0.9583333333333334
+  },
+  "PHP_CWE-434": {
+   "attack_recordings": 35,
+   "detected": 35,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9010957324106112,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016569933954907145
+   ],
+   "latency_p50": 0.5580766201019287,
+   "latency_p95": 0.7898478984832761,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  },
+  "ZipSlip": {
+   "attack_recordings": 35,
+   "detected": 35,
+   "recall": 1.0,
+   "recall_ci95": [
+    0.9010957324106112,
+    1.0
+   ],
+   "normal_recordings": 228,
+   "false_alarm_recordings": 0,
+   "false_alarm_rate": 0.0,
+   "false_alarm_ci95": [
+    0.0,
+    0.016569933954907145
+   ],
+   "latency_p50": 1.2145907878875732,
+   "latency_p95": 1.5424517869949341,
+   "precision_1to1": 1.0,
+   "precision_base_rate": 1.0
+  }
+ },
+ "cbds": {
+  "attack_recordings": 891,
+  "detected": 891,
+  "recall": 1.0,
+  "recall_ci95": [
+   0.9957069496992542,
+   1.0000000000000002
+  ],
+  "normal_recordings": 1410,
+  "false_alarm_recordings": 3,
+  "false_alarm_rate": 0.002127659574468085,
+  "false_alarm_ci95": [
+   0.0007238411919855098,
+   0.006237051739726218
+  ],
+  "latency_p50": 3.941312789916992,
+  "latency_p95": 5.229039788246155,
+  "precision_1to1": 0.9978768577494691,
+  "precision_base_rate": 0.9966442953020134,
+  "detected_within_3s": 344
+ },
+ "official": {
+  "pooled": {
+   "attack_recordings": 1271,
+   "detected": 1238,
+   "recall": 0.9740361919748229,
+   "recall_ci95": [
+    0.9637619279688598,
+    0.9814535403685398
+   ],
+   "normal_recordings": 7938,
+   "false_alarm_recordings": 36,
+   "false_alarm_rate": 0.0045351473922902496,
+   "false_alarm_ci95": [
+    0.0032777428094045696,
+    0.0062718810461001775
+   ],
+   "latency_p50": 0.3944070339202881,
+   "latency_p95": 1.4747861981391888,
+   "precision_1to1": 0.9953655423883319,
+   "precision_base_rate": 0.9717425431711146,
+   "detected_within_3s": 1234
+  },
+  "scenarios": {
+   "Bruteforce_CWE-307": {
+    "attack_recordings": 97,
+    "detected": 97,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9619046107955446,
+     0.9999999999999999
+    ],
+    "normal_recordings": 538,
+    "false_alarm_recordings": 0,
+    "false_alarm_rate": 0.0,
+    "false_alarm_ci95": [
+     -4.336808689942018e-19,
+     0.007089894906555717
+    ],
+    "latency_p50": 0.27811169624328613,
+    "latency_p95": 0.4710176944732666,
+    "precision_1to1": 1.0,
+    "precision_base_rate": 1.0
+   },
+   "CVE-2012-2122": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 533,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.00375234521575985,
+    "false_alarm_ci95": [
+     0.0010296106965535972,
+     0.013577305011916091
+    ],
+    "latency_p50": 0.2600533962249756,
+    "latency_p95": 0.4701234936714172,
+    "precision_1to1": 0.9962616822429905,
+    "precision_base_rate": 0.9767441860465116
+   },
+   "CVE-2014-0160": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 1,
+    "false_alarm_rate": 0.0018832391713747645,
+    "false_alarm_ci95": [
+     0.0003325067906512014,
+     0.010589605475859108
+    ],
+    "latency_p50": 0.26472902297973633,
+    "latency_p95": 0.4861250400543213,
+    "precision_1to1": 0.9981203007518796,
+    "precision_base_rate": 0.9882352941176471
+   },
+   "CVE-2017-12635_6": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 527,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.003795066413662239,
+    "false_alarm_ci95": [
+     0.001041339981112185,
+     0.013730674872282876
+    ],
+    "latency_p50": 1.1926031112670898,
+    "latency_p95": 1.7036457777023313,
+    "precision_1to1": 0.9962192816635159,
+    "precision_base_rate": 0.9764705882352941
+   },
+   "CVE-2017-7529": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 510,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.0058823529411764705,
+    "false_alarm_ci95": [
+     0.0020024695325399876,
+     0.017150514577738352
+    ],
+    "latency_p50": 0.2515549659729004,
+    "latency_p95": 0.48473412990570064,
+    "precision_1to1": 0.9941520467836258,
+    "precision_base_rate": 0.9651162790697675
+   },
+   "CVE-2018-3760": {
+    "attack_recordings": 85,
+    "detected": 85,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9567589957857582,
+     1.0000000000000002
+    ],
+    "normal_recordings": 516,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.003875968992248062,
+    "false_alarm_ci95": [
+     0.0010635525543113075,
+     0.014021042445396295
+    ],
+    "latency_p50": 0.25873661041259766,
+    "latency_p95": 0.49741625785827637,
+    "precision_1to1": 0.9961389961389961,
+    "precision_base_rate": 0.9770114942528736
+   },
+   "CVE-2019-5418": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 8,
+    "false_alarm_rate": 0.015037593984962405,
+    "false_alarm_ci95": [
+     0.0076389521418323576,
+     0.029389901161084024
+    ],
+    "latency_p50": 0.26500535011291504,
+    "latency_p95": 0.46831904649734496,
+    "precision_1to1": 0.985185185185185,
+    "precision_base_rate": 0.9130434782608695
+   },
+   "CVE-2020-13942": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 529,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005671077504725898,
+    "false_alarm_ci95": [
+     0.0019304786631718258,
+     0.016539550703904622
+    ],
+    "latency_p50": 0.3751556873321533,
+    "latency_p95": 0.5958004951477051,
+    "precision_1to1": 0.994360902255639,
+    "precision_base_rate": 0.9651162790697675
+   },
+   "CVE-2020-23839": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005639097744360902,
+    "false_alarm_ci95": [
+     0.0019195821926513285,
+     0.016447039585127776
+    ],
+    "latency_p50": 0.2520899772644043,
+    "latency_p95": 0.4785926103591919,
+    "precision_1to1": 0.9943925233644859,
+    "precision_base_rate": 0.9655172413793104
+   },
+   "CVE-2020-9484": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 1,
+    "false_alarm_rate": 0.0018832391713747645,
+    "false_alarm_ci95": [
+     0.0003325067906512014,
+     0.010589605475859108
+    ],
+    "latency_p50": 0.3541901111602783,
+    "latency_p95": 2.442307412624359,
+    "precision_1to1": 0.9981203007518796,
+    "precision_base_rate": 0.9882352941176471
+   },
+   "CWE-89-SQL-injection": {
+    "attack_recordings": 84,
+    "detected": 84,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9562667346678565,
+     0.9999999999999999
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.0037593984962406013,
+    "false_alarm_ci95": [
+     0.0010315471935583272,
+     0.01360262827919332
+    ],
+    "latency_p50": 1.1047968864440918,
+    "latency_p95": 1.6749624013900757,
+    "precision_1to1": 0.9962546816479402,
+    "precision_base_rate": 0.9767441860465116
+   },
+   "EPS_CWE-434": {
+    "attack_recordings": 85,
+    "detected": 85,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9567589957857582,
+     1.0000000000000002
+    ],
+    "normal_recordings": 531,
+    "false_alarm_recordings": 1,
+    "false_alarm_rate": 0.0018832391713747645,
+    "false_alarm_ci95": [
+     0.0003325067906512014,
+     0.010589605475859108
+    ],
+    "latency_p50": 1.1440668106079102,
+    "latency_p95": 1.4861594200134276,
+    "precision_1to1": 0.9981203007518796,
+    "precision_base_rate": 0.9883720930232558
+   },
+   "Juice-Shop": {
+    "attack_recordings": 85,
+    "detected": 52,
+    "recall": 0.611764705882353,
+    "recall_ci95": [
+     0.505475154675872,
+     0.7083886208527093
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005639097744360902,
+    "false_alarm_ci95": [
+     0.0019195821926513285,
+     0.016447039585127776
+    ],
+    "latency_p50": 0.2742123603820801,
+    "latency_p95": 2.169906747341141,
+    "precision_1to1": 0.9908664350442351,
+    "precision_base_rate": 0.9454545454545454
+   },
+   "PHP_CWE-434": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 3,
+    "false_alarm_rate": 0.005639097744360902,
+    "false_alarm_ci95": [
+     0.0019195821926513285,
+     0.016447039585127776
+    ],
+    "latency_p50": 0.5859544277191162,
+    "latency_p95": 0.8394233226776122,
+    "precision_1to1": 0.9943925233644859,
+    "precision_base_rate": 0.9651162790697675
+   },
+   "ZipSlip": {
+    "attack_recordings": 83,
+    "detected": 83,
+    "recall": 1.0,
+    "recall_ci95": [
+     0.9557631365612795,
+     1.0000000000000002
+    ],
+    "normal_recordings": 532,
+    "false_alarm_recordings": 2,
+    "false_alarm_rate": 0.0037593984962406013,
+    "false_alarm_ci95": [
+     0.0010315471935583272,
+     0.01360262827919332
+    ],
+    "latency_p50": 1.1305749416351318,
+    "latency_p95": 1.4871939897537232,
+    "precision_1to1": 0.9962546816479402,
+    "precision_base_rate": 0.9764705882352941
+   }
+  }
+ },
+ "criteria": {
+  "recall": true,
+  "precision_base_rate": true,
+  "latency_p95": true
+ },
+ "token_alone_official_reported": {
+  "attack_recordings": 1271,
+  "detected": 1238,
+  "recall": 0.9740361919748229,
+  "recall_ci95": [
+   0.9637619279688598,
+   0.9814535403685398
+  ],
+  "normal_recordings": 7938,
+  "false_alarm_recordings": 26,
+  "false_alarm_rate": 0.00327538422776518,
+  "false_alarm_ci95": [
+   0.0022362443448457657,
+   0.004795071918122762
+  ],
+  "latency_p50": 0.3944070339202881,
+  "latency_p95": 1.4747861981391888,
+  "precision_1to1": 0.9966485772730822,
+  "precision_base_rate": 0.9794303797468354,
+  "detected_within_3s": 1234
+ }
+}

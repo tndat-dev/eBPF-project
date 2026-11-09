@@ -1,0 +1,19 @@
+Started lidds-ml-v4-gate.service - /home/dat/ml-venv/bin/python /var/tmp/lid-ds-2021/gate_tokens.py /var/tmp/lid-ds-2021/ml-v4-tokens /var/tmp/lid-ds-2021/ml-xfit-tokens.
+Bruteforce_CWE-307.npz       keys   542 windows    35666 missing 0 differ 0 only_in_new 635
+CB-DS.npz                    keys  2591 windows   103700 missing 0 differ 0 only_in_new 0
+CVE-2012-2122.npz            keys   535 windows    69072 missing 0 differ 0 only_in_new 617
+CVE-2014-0160.npz            keys   533 windows    27762 missing 0 differ 0 only_in_new 615
+CVE-2017-12635_6.npz         keys   528 windows    45347 missing 0 differ 0 only_in_new 610
+CVE-2017-7529.npz            keys   517 windows     5190 missing 0 differ 0 only_in_new 593
+CVE-2018-3760.npz            keys   528 windows    39580 missing 0 differ 0 only_in_new 601
+CVE-2019-5418.npz            keys   534 windows    34887 missing 0 differ 0 only_in_new 616
+CVE-2020-13942.npz           keys   533 windows    46515 missing 0 differ 0 only_in_new 612
+CVE-2020-23839.npz           keys   531 windows    44338 missing 0 differ 0 only_in_new 616
+CVE-2020-9484.npz            keys   534 windows    47435 missing 0 differ 0 only_in_new 615
+CWE-89-SQL-injection.npz     keys   534 windows    47346 missing 0 differ 0 only_in_new 616
+EPS_CWE-434.npz              keys   534 windows    30130 missing 0 differ 0 only_in_new 616
+Juice-Shop.npz               keys   534 windows    40065 missing 0 differ 0 only_in_new 617
+PHP_CWE-434.npz              keys   532 windows    46085 missing 0 differ 0 only_in_new 615
+ZipSlip.npz                  keys   532 windows    36153 missing 0 differ 0 only_in_new 615
+total keys 10572 windows 699271 only_in_new 9209 mismatches 0
+GATE PASS
