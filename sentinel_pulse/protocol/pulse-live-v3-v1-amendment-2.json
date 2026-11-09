@@ -1,0 +1,21 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/pulse-live-v3-v1.json",
+ "registered_at": "2026-11-09T11:02+07:00",
+ "registered_before": "stage 2 has not started and the v4 thresholds have not been computed; no attack of stage 2 has run. The capture pulse-token-capture-1107 is normal traffic only",
+ "owner_decision": "09/11: the system on the cluster is lidds-ml-v4 (sentinel_pulse/protocol/lidds-ml-v4.json). Its registered comparison kept lidds-ml-v3 by one false-alarm recording (36 against 35 of 7,938); the owner adopts v4 for its latency (p95 1.47 s against 2.09 s, 1,234 against 1,223 within 3 s)",
+ "system": "replaces lidds-ml-v3 in section system.ml; the token model, the reference tree, the support model and the rule that one window above a threshold fires are unchanged; only the learning span, the threshold fit and the levels change",
+ "token_branch": {
+  "model": "learns every window of training + validation of the capture (12 h)",
+  "threshold": "the capture is cut from t0 into contiguous chunks of 1,800 s dealt to 5 folds in turn; each window is scored by the model of the other folds; per workload, moment Gumbel on the maxima of 60 s blocks of each container without the top 1 % (rule R4 of lidds-ml-v4), at alpha x 0.9",
+  "why_chunks": "LID-DS folds are recordings, which are independent; the cluster has no recordings and neighbouring windows are correlated, so a fold holds out whole 30-minute chunks. lidds-ml-v4 left this choice to the live protocol; 1,800 s is fixed here before any v4 threshold exists",
+  "command": "scripts/analysis/token_branch_fit.py --train t0 t0+8h --validation t0+8h end --alpha 0.0002 --block 60 --minimum-blocks 30 --folds 5 --fold-seconds 1800 --share 0.9"
+ },
+ "count_branches": {
+  "thresholds": "moment Gumbel on validation block maxima as before, at alpha x 0.05 each",
+  "command": "scripts/analysis/count_branch_fit.py --validation t0+8h end --alpha 0.0002 --block 60 --minimum-blocks 30 --share 0.05"
+ },
+ "stage_2_run": "pulse-live-v4-<MMDD>; arm names and the worker's field names (v3_tree_alert, v3_support_alert, v3_counts) stay as they are in the code; arm V3 of the protocol is this system",
+ "cluster_state": "vCenter restarted all VMs on 09/11 10:19 after the capture. Recovery restored Vault, Redis sentinel pods, a Kafka volume and the ambient mesh enrolment of 43 pods; pods have new UIDs, and workload keys, images and traffic generators are unchanged. Vault gained an audit rotation sidecar (not a monitored workload). Prometheus scraping MinIO and sentinel's view of Redis replicas stay as during the capture until stage 2 ends, because fixing them changes the behaviour of monitored workloads",
+ "reported": "as stage 1: validation blocks above each threshold; held-out block maxima here, expected about alpha x share per block if the fit holds"
+}

@@ -9,15 +9,22 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 - Mục tiêu: ML học từ normal phát hiện blind attack; recall ≥ 95%, precision ≥ 95%, p95 ≤ 3 s; binary vô hại và gánh cảnh
   báo càng thấp càng tốt. Luật (tripwire, novelty, bỏ phiếu) chỉ thêm sau khi ML chốt, để so sánh có/không có luật (01/11).
 - Quy trình: chọn trên LID-DS 2021 development + CB-DS → official LID-DS 2021 → live blind → LID-DS 2019 cuối cùng.
-- Official LID-DS 2021 đã chấm ba lần (v2 05/11, v3 07/11, v4 09/11); chủ đồ án cho phép chấm lại không cần hỏi, nhưng protocol
-  và biên nhận phải ghi rõ.
+- 09/11: chủ đồ án chốt `lidds-ml-v4` và yêu cầu tài liệu không cần ghi số lần chấm trên LID-DS 2021. Protocol đã đăng ký và lịch
+  sử git giữ nguyên; không viết câu nào khẳng định ngược lại (ví dụ "chỉ chấm một lần").
 - Bỏ cổng chiết khấu theo replica khỏi ML (01/11). Nới giới hạn overhead cho probe token (06/11): đo và báo, không còn đạt/trượt.
 - Tạm dừng: baseline học sâu (kết quả từng phần giữ ở `results-20261102/dl-baseline-partial/`), exec-intent (chờ số binary
   vô hại của lượt live ML mới).
 - Tài liệu họp (docx, pptx): không CI, không biểu đồ phức tạp, không chữ "luận văn"; chủ đồ án tự sửa deck, nên chèn vào bản
   của họ, không dựng lại.
 
-## ML hiện tại: `lidds-ml-v3` (protocol `sentinel_pulse/protocol/lidds-ml-v3.json`)
+## ML đã chốt: `lidds-ml-v4` (protocol `sentinel_pulse/protocol/lidds-ml-v4.json`, chốt 09/11)
+
+- Khác v3 ở cách học và đặt ngưỡng: token học training + validation; ngưỡng token là Gumbel trên điểm giữ ra của cross-fit 5 fold, bỏ
+  1% cao nhất; α 0,0002 chia token 0,9, cây 0,05, support 0,05. Mô hình token, cây và support giữ nguyên như v3.
+- Official: 97,40% (1.238/1.271), báo nhầm 0,45% (36/7.938), precision 97,17%, p95 1,47 s, trong 3 s 1.234. Development 530/544, 12/3.403,
+  p95 1,52 s; CB-DS 891/891, 3/1.410. Biên nhận `results-20261109/lidds-ml-v4/`. Trên cụm: `pulse-live-v3-v1-amendment-2`, cross-fit theo đoạn 30 phút.
+
+## ML trước đó: `lidds-ml-v3` (protocol `sentinel_pulse/protocol/lidds-ml-v3.json`)
 
 - Nhánh: mô hình token (4-gram theo thread, Witten-Bell, điểm = trung bình 10 −log p lớn nhất) trên bảng chữ `select1f`
   (errno của 27 syscall gồm futex, log2 cỡ đọc ghi không chia đôi, chế độ mở + thư mục đầu), cùng cây tham chiếu và support
@@ -26,9 +33,6 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 - Official: 97,32% (1.237/1.271, Wilson 96,29–98,08), báo nhầm 0,44% (35/7.938), precision 97,25%, p95 2,09 s,
   trong 3 s 96,2%. Juice-Shop 52/85 là chỗ yếu duy nhất; trần thông tin 1.243. Development 97,43% / 0,50%; CB-DS 891/891, 2/1.410.
 - Lịch sử: ML ban đầu 63,9%; `lidds-ml-v1` 65,2% (âm); `lidds-ml-v2` 95,99% / 0,57% (bảng chữ cũ, cỡ chia đôi).
-- `lidds-ml-v4` (cross-fit nhánh token, 09/11): official 97,40% (1.238), báo nhầm 0,45% (36), precision 97,17%, p95 1,47 s, trong
-  3 s 1.234. Báo nhầm nhiều hơn v3 một bản ghi nên theo quy tắc đã đăng ký **v3 vẫn là mốc tham chiếu**; lượt live dùng v3. Latency
-  tốt hơn rõ nhưng quy tắc không xét, đổi hay không là quyết định của chủ đồ án. Biên nhận `results-20261109/lidds-ml-v4/`.
 - Code: `scripts/analysis/lidds_ml_token_alphabets.py` (token), `lidds_ml_scores.py --all-windows` (cây, support),
   `lidds_ml_v2.py --token-column select1f --protocol …v3.json` (chọn và chấm). Biên nhận `validation-evidence/results-20261107/lidds-ml-v3/`.
 - Đã kiểm (development): ngưỡng Gumbel bằng oracle một mức chung, oracle từng kịch bản chỉ hơn 7 bản ghi; LSTM lớn không hơn
@@ -51,9 +55,11 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
 2. Bản build chính thức `/home/dat/pulse-tokens-20261107/{build,proof}` (46e9039, proof đạt 3 worker); lưu lượng trên pod thật
    75–290 KB/s mỗi worker (`results-20261107/token-probe-build/`). Sẵn sàng cho lượt thu.
 3. `pulse-live-v3-v1` giai đoạn 1 xong: `pulse-token-capture-1107` (t0 07/11 20:29 = `selection_start` 1794058145.54, học
-   [t0, t0 + 8 h), validation tới hết lượt). Fit chạy từ 09/11 10:36 (unit `pulse-v3-token-fit`, `pulse-v3-count-fit`), ra
-   `/mnt/sentinel-pulse-archive/pulse-live-v3-fit-1109/{token,count-thresholds.json}`. Sau đó khoá sha256 → lượt
-   live blind 24 h (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign, RCA, bridge).
+   [t0, t0 + 8 h), validation tới hết lượt). Fit v4 theo amendment 2, ra `/mnt/sentinel-pulse-archive/pulse-live-v4-fit-1109/`.
+   Sau đó khoá sha256 → lượt live blind 24 h `pulse-live-v4-<MMDD>` (`LOCAL_DECISIONS=1`, `TOKEN_MODELS`, `V3_COUNTS`, có campaign,
+   RCA, bridge; dừng `pulse-alert-bridge-rca-viewer` trước vì trùng cổng 9478).
+   **Hoãn tới sau lượt live vì làm đổi hành vi workload đã học:** Prometheus scrape MinIO (`up=0` từ trước capture, STRICT mTLS);
+   sentinel thấy replica Redis ở IP node nên đánh dấu `s_down` (replication vẫn online, nhưng failover qua sentinel có thể không chạy).
 4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
    systemd-run (trần 42 GB) sau lượt live v3.
 5. LID-DS 2019 một lần (protocol `lidds2019-confirmation-v1` đã sẵn). Sau đó: so sánh có/không luật; mở lại baseline.

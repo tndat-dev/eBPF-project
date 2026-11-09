@@ -3,7 +3,7 @@
 ``v3_counts`` (sentinel_pulse/detector/v3_policy.py).
 
 Per workload and branch: moment-Gumbel (lidds_ml_v2.gumbel) on the maxima of fixed time blocks of each container over
-the validation span, threshold at alpha / 3 (one of three branches). Scores are the frozen candidate's, read from the
+the validation span, threshold at alpha x --share (default 1/3, one of three branches; lidds-ml-v4 uses 0.05). Scores are the frozen candidate's, read from the
 workers' decisions.jsonl (status candidate-raw-score-only); the tree score as its logit. The spans and alpha come from
 the run's registered protocol.
 
@@ -42,6 +42,7 @@ def main():
     ap.add_argument('--alpha', type=float, required=True)
     ap.add_argument('--block', type=float, default=60.0)
     ap.add_argument('--minimum-blocks', type=int, default=30)
+    ap.add_argument('--share', type=float, default=1 / 3, help='share of alpha for each count branch')
     ap.add_argument('--output', type=Path, required=True)
     a = ap.parse_args()
     maxima = defaultdict(lambda: defaultdict(lambda: [-math.inf, -math.inf]))
@@ -57,14 +58,14 @@ def main():
         row = dict(validation_blocks=len(arr))
         if len(arr) >= a.minimum_blocks:
             fits = [gumbel(arr[:, i]) for i in (0, 1)]
-            thr = [threshold(f, a.alpha / 3) for f in fits]
+            thr = [threshold(f, a.alpha * a.share) for f in fits]
             out[key] = dict(tree=thr[0], support=thr[1])
             row.update(tree_gumbel=fits[0], support_gumbel=fits[1], tree=thr[0], support=thr[1],
                        blocks_above=[int((arr[:, i] > thr[i]).sum()) for i in (0, 1)])
         report[key] = row
         print(f"{key:55s} blocks {len(arr):5d} tree {row.get('tree', float('nan')):8.3f} support {row.get('support', float('nan')):8.3f}")
     a.output.write_text(json.dumps(dict(schema='pulse-v3-count-thresholds-v1', run_root=str(a.run_root),
-                                        validation=a.validation, alpha=a.alpha, branch_alpha=a.alpha / 3, block=a.block,
+                                        validation=a.validation, alpha=a.alpha, branch_alpha=a.alpha * a.share, block=a.block,
                                         workloads=out, report=report), indent=1, sort_keys=True) + '\n')
 
 

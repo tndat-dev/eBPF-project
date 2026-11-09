@@ -1,0 +1,46 @@
+# Vault audit log rotation (values of the hashicorp/vault chart, applied with --reuse-values). The file audit device has
+# no rotation of its own: left alone it fills the audit volume, and Vault refuses requests when no audit device can write.
+# The sidecar shares the process namespace, runs as Vault's uid, and every 5 minutes: when the log reaches 200 MiB it
+# renames it, sends SIGHUP so Vault reopens a new file, compresses the old one and keeps the newest 20.
+# The first check waits 10 minutes: a SIGHUP before Vault has installed its handler kills the process (exit 129), and a
+# restarted Vault comes back sealed.
+# Apply with --server-side=false: server-side apply conflicts with the injector, which owns its webhook's caBundle.
+server:
+  shareProcessNamespace: true
+  extraContainers:
+    - name: audit-rotate
+      image: hashicorp/vault:2.0.3
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          cd /vault/audit
+          sleep 600
+          while :; do
+            size=$(stat -c %s vault_audit.log 2>/dev/null || echo 0)
+            if [ "$size" -ge 209715200 ]; then
+              old=vault_audit.log.$(date -u +%Y%m%dT%H%M%SZ)
+              mv vault_audit.log "$old"
+              pid=$(pidof vault) && kill -HUP $pid
+              echo "rotated $old $size bytes, vault pid ${pid:-none}"
+              sleep 5
+            fi
+            for f in vault_audit.log.*; do
+              case "$f" in *.gz|*\*) ;; *) gzip "$f" && echo "compressed $f" ;; esac
+            done
+            ls -1t vault_audit.log.*.gz 2>/dev/null | tail -n +21 | xargs -r rm -f
+            sleep 300
+          done
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+      resources:
+        requests:
+          cpu: 5m
+          memory: 16Mi
+        limits:
+          cpu: 200m
+          memory: 64Mi
+      volumeMounts:
+        - name: audit
+          mountPath: /vault/audit
