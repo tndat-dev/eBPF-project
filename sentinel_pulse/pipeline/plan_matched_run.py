@@ -109,9 +109,11 @@ def plan(source,root,run_id,smoke=False,profile='pulse-soak-baseline',frozen_sou
         for worker in cfg['workers'].values():
             worker['stream_root']=str(Path(final_system['stream_root'])/run_id)
     # lidds-ml-v3 runs (no rules): shared-storage writes off the scoring loop and decisions on each worker's local disk
-    # for the bridge, RCA and campaign, as the final system has them, without its tripwire
+    # for the bridge, RCA and campaign, and the benign-exec control from its own file name, as the final system has
+    # them, without its tripwire
     if local_decisions and not final_system:
         cfg['async_shared_writes']=True
+        cfg['benign_binary_distinct']=True
         for worker in cfg['workers'].values():
             worker['stream_root']=str(Path(local_decisions)/run_id)
     # rolling calibration in the worker (pipeline/live_recalibration.py): score buffer on the worker's local disk,
