@@ -70,7 +70,12 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    vô hại 314/315. Chỉ token cho cùng recall với gánh 0,41. Chưa đưa vào bản LaTeX (viết cùng lượt v5).
 5a0. **`lidds-ml-v5` xong trên LID-DS (10/11 20:55):** không gate nào giữ kết quả v4 (development 315–509/544); ứng viên duy nhất qua là
    chỉ token: development 530/544, 6 báo nhầm; official 97,40% (1.238), báo nhầm 0,33% (26), p95 1,47 s. Đã đưa vào bản LaTeX.
-   Binary vô hại vẫn là giới hạn mở. Đang chạy: fit cụm với normal mở rộng (`pulse-v5-token-fit`, `pulse-v5-count-fit --shadow`).
+   Binary vô hại vẫn là giới hạn mở. Fit cụm với normal mở rộng xong 10/11 22:23 (`pulse-live-v5-fit-1110/token`, 21 workload;
+   `count-thresholds.json` shadow). Bước 2 chọn `token-hold0-poolnone` (không gate): trên trial lượt 1109 chính 315/315, binary vô hại
+   522/525, control 0/525 (`results-20261111/pulse-live-v5-fit/`).
+   **Lượt live blind `pulse-live-v5-1110` đang chạy:** source `runtime-9a506d1-20261110`, khởi chạy 11/11 01:09, selection 01:10–02:40,
+   tấn công từ 02:42, kết thúc khoảng 12/11 01:10; 525 trial tốc độ 1/3/6/12/24, đối chứng lệnh admin bật, nhánh đếm shadow. Không chạy
+   job nặng tới khi xong. RCA của lượt v4 (còn chạy dù unit file đã xoá) dừng 10/11 22:57.
 5a. **Trạng thái 10/11 16:00:** `pulse-live-v4-1109` xong (86.400 s, 0 issue). Đang chạy trên `.234`: `pulse-live-v4-analysis`
    (ra `/var/tmp/pulse-live-v4-1109-analysis/arms.json`) và `lidds-ml-v5-pool` (ra `/var/tmp/lid-ds-2021/ml-v5-pool`, source a01b843).
    Tiếp theo, lần lượt: `lidds_ml_v5.py` (development + CB-DS) → fit cụm có `--extra-run` (amendment 2) → `pulse_v5_select.py` →

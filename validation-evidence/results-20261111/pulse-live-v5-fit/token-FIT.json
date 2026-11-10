@@ -1,0 +1,696 @@
+{
+ "alpha": 0.0002,
+ "block": 60.0,
+ "branch_alpha": 0.00018,
+ "extra_run": "/mnt/sentinel-pulse-archive/pulse-live-v4-1109",
+ "extra_span": [
+  1794212989.4334323,
+  1794293989.4334323
+ ],
+ "fold_seconds": 1800.0,
+ "folds": 5,
+ "run_root": "/mnt/sentinel-pulse-archive/pulse-token-capture-1107",
+ "schema": "pulse-token-branch-fit-v1",
+ "train": [
+  1794058145.54,
+  1794086945.54
+ ],
+ "validation": [
+  1794086945.54,
+  1794293989.4334323
+ ],
+ "workloads": {
+  "production/aims-frontend:web": {
+   "distinct_contexts": 985,
+   "gumbel": [
+    2.994242603908549,
+    0.9966094830579346
+   ],
+   "pool_blocks": {
+    "0": 4146,
+    "1": 4146,
+    "2": 4146
+   },
+   "pool_gumbel": {
+    "0": [
+     5.922601959047248,
+     1.3630646651333915
+    ],
+    "1": [
+     5.922601959047248,
+     1.3630646651333915
+    ],
+    "2": [
+     5.922601959047248,
+     1.3630646651333915
+    ]
+   },
+   "pool_threshold": 12.192902824407096,
+   "threshold": 11.587471694973825,
+   "training_windows": 419888,
+   "validation_block_max": 12.245019367390793,
+   "validation_blocks": 4146,
+   "validation_blocks_above": 4
+  },
+  "production/aims-kafka-dual-role:kafka": {
+   "distinct_contexts": 5955,
+   "gumbel": [
+    7.771416057252069,
+    0.5469167954815277
+   ],
+   "pool_blocks": {
+    "0": 6220,
+    "1": 6220,
+    "2": 6219
+   },
+   "pool_gumbel": {
+    "0": [
+     8.15341718978038,
+     0.4140365887542741
+    ],
+    "1": [
+     7.41422546001843,
+     0.7650188913337047
+    ],
+    "2": [
+     6.965796142517223,
+     0.867599310111983
+    ]
+   },
+   "pool_threshold": 10.933426521456648,
+   "threshold": 12.487186273388831,
+   "training_windows": 738026,
+   "validation_block_max": 45.01259344043994,
+   "validation_blocks": 6220,
+   "validation_blocks_above": 33
+  },
+  "production/aims-kafka-entity-operator:topic-operator": {
+   "distinct_contexts": 1520,
+   "gumbel": [
+    3.940050456298396,
+    1.8069922903433833
+   ],
+   "pool_blocks": {
+    "0": 2070,
+    "1": 2070,
+    "2": 2070
+   },
+   "pool_gumbel": {
+    "0": [
+     5.983468674572143,
+     1.7369309083494313
+    ],
+    "1": [
+     5.983468674572143,
+     1.7369309083494313
+    ],
+    "2": [
+     5.983468674572143,
+     1.7369309083494313
+    ]
+   },
+   "pool_threshold": 13.97361004958012,
+   "threshold": 19.520775886548762,
+   "training_windows": 243564,
+   "validation_block_max": 17.052528933332123,
+   "validation_blocks": 2070,
+   "validation_blocks_above": 0
+  },
+  "production/aims-kafka-entity-operator:user-operator": {
+   "distinct_contexts": 1595,
+   "gumbel": [
+    4.481503407418166,
+    1.7804538139297403
+   ],
+   "pool_blocks": {
+    "0": 2070,
+    "1": 2070,
+    "2": 2070
+   },
+   "pool_gumbel": {
+    "0": [
+     6.55387310825446,
+     1.746540376601055
+    ],
+    "1": [
+     6.55387310825446,
+     1.746540376601055
+    ],
+    "2": [
+     6.55387310825446,
+     1.746540376601055
+    ]
+   },
+   "pool_threshold": 14.588219471209879,
+   "threshold": 19.833401788130004,
+   "training_windows": 243613,
+   "validation_block_max": 19.833099935242636,
+   "validation_blocks": 2070,
+   "validation_blocks_above": 0
+  },
+  "production/aims-minio-pool-0:minio": {
+   "distinct_contexts": 15156,
+   "gumbel": [
+    7.187742203222927,
+    1.0111764091376665
+   ],
+   "pool_blocks": {
+    "0": 4143,
+    "1": 4143,
+    "2": 4143
+   },
+   "pool_gumbel": {
+    "0": [
+     9.539113179707241,
+     0.6127482593370529
+    ],
+    "1": [
+     9.539113179707241,
+     0.6127482593370529
+    ],
+    "2": [
+     9.539113179707241,
+     0.6127482593370529
+    ]
+   },
+   "pool_threshold": 12.35784661110528,
+   "threshold": 15.906574085635988,
+   "training_windows": 430131,
+   "validation_block_max": 53.667588039118115,
+   "validation_blocks": 4143,
+   "validation_blocks_above": 52
+  },
+  "production/aims-minio-pool-0:sidecar": {
+   "distinct_contexts": 2306,
+   "gumbel": [
+    4.252452253883297,
+    1.2744415871282204
+   ],
+   "pool_blocks": {
+    "0": 4140,
+    "1": 4140,
+    "2": 4140
+   },
+   "pool_gumbel": {
+    "0": [
+     5.857924363394305,
+     1.3104944034705792
+    ],
+    "1": [
+     5.857924363394305,
+     1.3104944034705792
+    ],
+    "2": [
+     5.857924363394305,
+     1.3104944034705792
+    ]
+   },
+   "pool_threshold": 11.886394180214523,
+   "threshold": 15.241278577079132,
+   "training_windows": 416414,
+   "validation_block_max": 23.858240310287506,
+   "validation_blocks": 4140,
+   "validation_blocks_above": 1
+  },
+  "production/aims-postgres-cnpg:postgres": {
+   "distinct_contexts": 7996,
+   "gumbel": [
+    6.701779167358823,
+    0.7789336208866453
+   ],
+   "pool_blocks": {
+    "0": 6218,
+    "1": 6217,
+    "2": 6217
+   },
+   "pool_gumbel": {
+    "0": [
+     7.5599780937235845,
+     0.5557195252358809
+    ],
+    "1": [
+     7.373076856823805,
+     0.5873509134670413
+    ],
+    "2": [
+     7.372093384593406,
+     0.5838308316362009
+    ]
+   },
+   "pool_threshold": 10.074978707255731,
+   "threshold": 13.418106038415523,
+   "training_windows": 737961,
+   "validation_block_max": 27.157489550339513,
+   "validation_blocks": 6218,
+   "validation_blocks_above": 21
+  },
+  "production/aims-rabbitmq-server:rabbitmq": {
+   "distinct_contexts": 4817,
+   "gumbel": [
+    6.560198723954012,
+    0.6299688588847698
+   ],
+   "pool_blocks": {
+    "0": 6218,
+    "1": 6218,
+    "2": 6218
+   },
+   "pool_gumbel": {
+    "0": [
+     7.195935481675599,
+     0.4091149616494501
+    ],
+    "1": [
+     7.0698302682768235,
+     0.3878245946486496
+    ],
+    "2": [
+     7.022192549088817,
+     0.3823287444048779
+    ]
+   },
+   "pool_threshold": 8.853881277474748,
+   "threshold": 11.9920823420222,
+   "training_windows": 738010,
+   "validation_block_max": 59.33307799195732,
+   "validation_blocks": 6218,
+   "validation_blocks_above": 66
+  },
+  "production/aims-redis-sentinel-sentinel:aims-redis-sentinel-sentinel": {
+   "distinct_contexts": 5216,
+   "gumbel": [
+    5.62238028367777,
+    0.7698676328796574
+   ],
+   "pool_blocks": {
+    "0": 6222,
+    "1": 6222,
+    "2": 6222
+   },
+   "pool_gumbel": {
+    "0": [
+     6.7879251070379425,
+     0.3973197176606886
+    ],
+    "1": [
+     4.786212887625849,
+     0.7878490343254458
+    ],
+    "2": [
+     4.68552385341404,
+     0.8239892032376874
+    ]
+   },
+   "pool_threshold": 8.410436013694724,
+   "threshold": 12.260536002236647,
+   "training_windows": 738032,
+   "validation_block_max": 18.19745516498624,
+   "validation_blocks": 6222,
+   "validation_blocks_above": 6
+  },
+  "production/aims-redis:aims-redis": {
+   "distinct_contexts": 4604,
+   "gumbel": [
+    5.0863591811898585,
+    0.6888309119313397
+   ],
+   "pool_blocks": {
+    "0": 6219,
+    "1": 6219,
+    "2": 6219
+   },
+   "pool_gumbel": {
+    "0": [
+     6.607660745201287,
+     0.48134970578693337
+    ],
+    "1": [
+     3.603865455215895,
+     1.1428570089255845
+    ],
+    "2": [
+     3.4621313096587216,
+     1.0829075913067994
+    ]
+   },
+   "pool_threshold": 8.861178241141117,
+   "threshold": 11.025778714978616,
+   "training_windows": 738005,
+   "validation_block_max": 14.192665597089155,
+   "validation_blocks": 6219,
+   "validation_blocks_above": 16
+  },
+  "production/aims-waypoint:istio-proxy": {
+   "distinct_contexts": 8592,
+   "gumbel": [
+    7.134802542577198,
+    0.9107949107745608
+   ],
+   "pool_blocks": {
+    "0": 6954,
+    "1": 6954,
+    "2": 6954
+   },
+   "pool_gumbel": {
+    "0": [
+     7.3323468983913695,
+     0.8512603470708202
+    ],
+    "1": [
+     7.3323468983913695,
+     0.8512603470708202
+    ],
+    "2": [
+     7.3323468983913695,
+     0.8512603470708202
+    ]
+   },
+   "pool_threshold": 11.248271525754765,
+   "threshold": 14.988098599170291,
+   "training_windows": 825320,
+   "validation_block_max": 34.38692316110219,
+   "validation_blocks": 6954,
+   "validation_blocks_above": 63
+  },
+  "production/api-gateway:app": {
+   "distinct_contexts": 7999,
+   "gumbel": [
+    6.342172687969407,
+    0.7778186515513484
+   ],
+   "pool_blocks": {
+    "0": 8298,
+    "1": 8298,
+    "2": 8298
+   },
+   "pool_gumbel": {
+    "0": [
+     6.967859594162764,
+     0.7375149870156567
+    ],
+    "1": [
+     5.935899871517013,
+     0.7924996676164349
+    ],
+    "2": [
+     5.760779590216647,
+     0.7396490628310834
+    ]
+   },
+   "pool_threshold": 9.581516604723452,
+   "threshold": 13.048885776405534,
+   "training_windows": 985080,
+   "validation_block_max": 18.649109604648686,
+   "validation_blocks": 8298,
+   "validation_blocks_above": 32
+  },
+  "production/auth-service:app": {
+   "distinct_contexts": 4581,
+   "gumbel": [
+    5.8838663896505725,
+    0.837905186854242
+   ],
+   "pool_blocks": {
+    "0": 8301,
+    "1": 8298,
+    "2": 8297
+   },
+   "pool_gumbel": {
+    "0": [
+     5.998346684739718,
+     0.7538137784563382
+    ],
+    "1": [
+     3.251562414786977,
+     0.7604882936065507
+    ],
+    "2": [
+     2.9494118783549297,
+     0.871755399101434
+    ]
+   },
+   "pool_threshold": 6.749922050593791,
+   "threshold": 13.10867344761411,
+   "training_windows": 985391,
+   "validation_block_max": 15.271474203927735,
+   "validation_blocks": 8301,
+   "validation_blocks_above": 1
+  },
+  "production/cart-service:app": {
+   "distinct_contexts": 4609,
+   "gumbel": [
+    5.627609071784918,
+    0.8393346405557468
+   ],
+   "pool_blocks": {
+    "0": 8294,
+    "1": 8294,
+    "2": 8293
+   },
+   "pool_gumbel": {
+    "0": [
+     5.794052547739725,
+     0.7537772186933396
+    ],
+    "1": [
+     3.072801683792994,
+     1.0938038855863992
+    ],
+    "2": [
+     2.7937015004207346,
+     1.1882201040934812
+    ]
+   },
+   "pool_threshold": 8.104462782318485,
+   "threshold": 12.864741542400974,
+   "training_windows": 985294,
+   "validation_block_max": 14.531774698508588,
+   "validation_blocks": 8294,
+   "validation_blocks_above": 5
+  },
+  "production/catalog-service:app": {
+   "distinct_contexts": 6720,
+   "gumbel": [
+    6.106061367403687,
+    0.8867185931792868
+   ],
+   "pool_blocks": {
+    "0": 8299,
+    "1": 8299,
+    "2": 8298
+   },
+   "pool_gumbel": {
+    "0": [
+     6.50826274822258,
+     0.7476355496306336
+    ],
+    "1": [
+     5.582851458037514,
+     0.6777532582245385
+    ],
+    "2": [
+     5.4211882104230416,
+     0.6448104377861237
+    ]
+   },
+   "pool_threshold": 8.700617584804432,
+   "threshold": 13.751760249494069,
+   "training_windows": 985032,
+   "validation_block_max": 20.279918296130027,
+   "validation_blocks": 8299,
+   "validation_blocks_above": 7
+  },
+  "production/inventory-service:app": {
+   "distinct_contexts": 6570,
+   "gumbel": [
+    6.094806025932638,
+    0.8658931790320276
+   ],
+   "pool_blocks": {
+    "0": 8299,
+    "1": 8299,
+    "2": 8299
+   },
+   "pool_gumbel": {
+    "0": [
+     6.4257948320137075,
+     0.6384808368939711
+    ],
+    "1": [
+     5.303756421677801,
+     0.8500408247293243
+    ],
+    "2": [
+     5.05928325107811,
+     0.844644367507083
+    ]
+   },
+   "pool_threshold": 9.214071064284928,
+   "threshold": 13.560938530494072,
+   "training_windows": 985069,
+   "validation_block_max": 14.548786739327488,
+   "validation_blocks": 8299,
+   "validation_blocks_above": 5
+  },
+  "production/notification-service:app": {
+   "distinct_contexts": 4634,
+   "gumbel": [
+    5.851154622898267,
+    0.8002539281533768
+   ],
+   "pool_blocks": {
+    "0": 8298,
+    "1": 8298,
+    "2": 8298
+   },
+   "pool_gumbel": {
+    "0": [
+     6.023242808694317,
+     0.7714244332839305
+    ],
+    "1": [
+     3.0619369382383175,
+     1.1105419160381265
+    ],
+    "2": [
+     2.935880800117027,
+     1.1204538150925722
+    ]
+   },
+   "pool_threshold": 8.170595474604085,
+   "threshold": 12.751315069442104,
+   "training_windows": 985161,
+   "validation_block_max": 15.685357446514436,
+   "validation_blocks": 8298,
+   "validation_blocks_above": 2
+  },
+  "production/order-service:app": {
+   "distinct_contexts": 5262,
+   "gumbel": [
+    5.661453988288511,
+    0.8301484724588987
+   ],
+   "pool_blocks": {
+    "0": 8300,
+    "1": 8300,
+    "2": 8300
+   },
+   "pool_gumbel": {
+    "0": [
+     5.762764363177017,
+     0.6414106763463691
+    ],
+    "1": [
+     4.177798673705043,
+     0.5818610093194562
+    ],
+    "2": [
+     4.006059600465821,
+     0.5684540109424989
+    ]
+   },
+   "pool_threshold": 6.854446145817379,
+   "threshold": 12.819379057944424,
+   "training_windows": 985089,
+   "validation_block_max": 17.760466509856915,
+   "validation_blocks": 8300,
+   "validation_blocks_above": 13
+  },
+  "production/payment-service:app": {
+   "distinct_contexts": 5108,
+   "gumbel": [
+    6.250867651942661,
+    0.6981669975324379
+   ],
+   "pool_blocks": {
+    "0": 8299,
+    "1": 8299,
+    "2": 8298
+   },
+   "pool_gumbel": {
+    "0": [
+     6.518349472108786,
+     0.7299336548483396
+    ],
+    "1": [
+     4.468646901540185,
+     0.7785545676545929
+    ],
+    "2": [
+     4.334231934249707,
+     0.7980967657935198
+    ]
+   },
+   "pool_threshold": 8.050114093939834,
+   "threshold": 12.270787244930002,
+   "training_windows": 985227,
+   "validation_block_max": 16.230632751958787,
+   "validation_blocks": 8299,
+   "validation_blocks_above": 11
+  },
+  "production/search-recommendation-service:app": {
+   "distinct_contexts": 3928,
+   "gumbel": [
+    5.796028462244494,
+    0.8326764257532476
+   ],
+   "pool_blocks": {
+    "0": 6946,
+    "1": 6945,
+    "2": 6945
+   },
+   "pool_gumbel": {
+    "0": [
+     5.998983355645779,
+     0.8170096589754603
+    ],
+    "1": [
+     1.5538273880869915,
+     0.33969403461352293
+    ],
+    "2": [
+     1.4708248602120164,
+     0.32326492531856743
+    ]
+   },
+   "pool_threshold": 3.1164706387550054,
+   "threshold": 12.975750717417043,
+   "training_windows": 824223,
+   "validation_block_max": 13.285790630483552,
+   "validation_blocks": 6946,
+   "validation_blocks_above": 1
+  },
+  "production/security-telemetry-service:app": {
+   "distinct_contexts": 3947,
+   "gumbel": [
+    5.514320931144197,
+    0.7685709959244589
+   ],
+   "pool_blocks": {
+    "0": 6951,
+    "1": 6951,
+    "2": 6951
+   },
+   "pool_gumbel": {
+    "0": [
+     5.832309820492994,
+     0.7759104590464321
+    ],
+    "1": [
+     1.6611550002894193,
+     0.7789824878708819
+    ],
+    "2": [
+     1.5408551490854898,
+     0.6575705750441432
+    ]
+   },
+   "pool_threshold": 5.244590689541153,
+   "threshold": 12.141296444624377,
+   "training_windows": 824096,
+   "validation_block_max": 18.436808368757276,
+   "validation_blocks": 6951,
+   "validation_blocks_above": 11
+  }
+ }
+}
