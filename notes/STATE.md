@@ -65,7 +65,10 @@ git: `git show 8b1bc44:SENTINEL_PULSE_STATUS.md` (tương tự với ba file kia
    **Chờ chủ đồ án:** GitHub CI không chạy được vì tài khoản bị khoá do billing.
 4. Ablation vòng 2: **tạm dừng** 07/11 20:20 theo chủ đồ án (dump worker1 18/49, worker3 46/49, worker4 6/49); chạy lại cùng lệnh
    systemd-run (trần 42 GB) sau lượt live v3.
-5. **Trạng thái 10/11 16:00:** `pulse-live-v4-1109` xong (86.400 s, 0 issue). Đang chạy trên `.234`: `pulse-live-v4-analysis`
+5. **Kết quả live `pulse-live-v4-1109`** (biên nhận `results-20261110/pulse-live-v4-1109/`): tốc độ chính recall 315/315, precision
+   99,06%, control 0,95%, p95 0,49 s tới cuối cửa sổ (khoảng 0,64 s tới decision), gánh 0,52 đợt/replica-giờ; bốn kỳ vọng đạt. Binary
+   vô hại 314/315. Chỉ token cho cùng recall với gánh 0,41. Chưa đưa vào bản LaTeX (viết cùng lượt v5).
+5a. **Trạng thái 10/11 16:00:** `pulse-live-v4-1109` xong (86.400 s, 0 issue). Đang chạy trên `.234`: `pulse-live-v4-analysis`
    (ra `/var/tmp/pulse-live-v4-1109-analysis/arms.json`) và `lidds-ml-v5-pool` (ra `/var/tmp/lid-ds-2021/ml-v5-pool`, source a01b843).
    Tiếp theo, lần lượt: `lidds_ml_v5.py` (development + CB-DS) → fit cụm có `--extra-run` (amendment 2) → `pulse_v5_select.py` →
    `lidds_ml_v5.py --official <ứng viên>` → live `pulse-live-v5-<MMDD>` với build `/home/dat/pulse-tokens-20261110`, `TOKEN_GATE`,
