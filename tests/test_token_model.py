@@ -210,3 +210,9 @@ def test_phase_threshold_replaces_the_hold(tmp_path):
     branch.phase_threshold = 1e6
     outside = branch.score(window(11.5, [odd]))
     assert outside['token_exec_held'] is False and outside['token_alert'] is True
+
+
+def test_no_hold_never_holds_the_execve_window(tmp_path):
+    branch = gate_branch(tmp_path, hold=0.0)
+    out = branch.score(window(10.0, [[TOK_NONE, TOK_NONE, tok(7), tok(8), 5], [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]))
+    assert out['token_exec_held'] is False and out['token_alert'] is True

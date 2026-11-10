@@ -197,16 +197,3 @@ def test_cusum_alarm_modes_match_the_live_cusum_state():
     assert bl.cusum_alarms(y, new, 6.0, 'keep').sum() == 11
     assert list(bl.cusum_alarms(y, new, 6.0, 'cap')) == [True] * 5 + [False] * 6
     assert list(bl.cusum_alarms(y, new, 6.0, 'restart')) == [True] * 5 + [False] * 6
-
-
-def test_carryover_rule_prefers_cap_and_falls_back_to_k2of2():
-    import importlib.util, sys
-    sys.path.insert(0, str(ROOT/'scripts'/'analysis'))
-    spec = importlib.util.spec_from_file_location('cusum_carryover', ROOT/'scripts'/'analysis'/'cusum_carryover.py')
-    cc = importlib.util.module_from_spec(spec); spec.loader.exec_module(cc)
-    m = lambda burden, control=0.03, p95=1.7, attack=1.0: dict(burden=burden, control=control, p95=p95, attack=attack, precision=0.97)
-    good = {'k2of2_a10': m(5.0, 0.04, 2.3), 'cusum_b3_h6_cap': m(4.0), 'cusum_b3_h6_restart': m(3.9)}
-    runs = {'pulse-stable-candidate': good, 'pulse-stable-refreshed': good}
-    assert cc.choose(runs)[0] == 'cusum_b3_h6_cap'                 # within 5 %: cap
-    bad = dict(good, cusum_b3_h6_cap=m(4.0, control=0.06), cusum_b3_h6_restart=m(5.5, p95=2.4))
-    assert cc.choose({'pulse-stable-candidate': bad, 'pulse-stable-refreshed': bad})[0] == 'k2of2_a10'

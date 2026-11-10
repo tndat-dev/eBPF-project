@@ -22,7 +22,7 @@ Mỗi kết quả đi qua cùng một chuỗi:
 
 1. **Báo cáo:** bản LaTeX và `notes/` ghi số, dòng biên nhận (tên file) và luật chọn.
 2. **Biên nhận trong repo:** `validation-evidence/results-<ngày>/…`. README của từng thư mục ghi file nào là kết quả của mục nào, script nào sinh ra, bản gốc nằm đâu trên cụm (ví dụ [results-20261022/README.md](validation-evidence/results-20261022/README.md)).
-3. **Lệnh đã chạy:** `scripts/*.sh`. Mỗi job trên cụm là một script, dòng đầu ghi giao thức, đầu vào, máy chạy và cách gọi. Script gọi module trong `sentinel_pulse/` hoặc `scripts/analysis/*.py`. Code chạy là một snapshot git đóng băng, commit nằm trong tên thư mục (`runtime-<commit>-<ngày>/source`) hoặc trong biên nhận.
+3. **Lệnh đã chạy:** `scripts/*.sh`. Mỗi job trên cụm là một script, dòng đầu ghi giao thức, đầu vào, máy chạy và cách gọi. Script gọi module trong `sentinel_pulse/` hoặc `scripts/analysis/*.py`. Code chạy là một snapshot git đóng băng, commit nằm trong tên thư mục (`runtime-<commit>-<ngày>/source`) hoặc trong biên nhận. Script của các lượt và thí nghiệm đã xong không nằm ở HEAD: chúng ở tag `archive/pre-audit-20261110`, và ở commit ghi trong biên nhận. Từ 10/11, mọi biên nhận mới ghi commit đã chạy (`git rev-parse --short HEAD` của snapshot) trong README hoặc file kết quả.
 4. **Kiểm toán:** `scripts/audit/headline_numbers.py` tính lại mọi số chủ chốt của phần tóm tắt và của luận văn từ biên nhận và chạy trong bộ test; kết quả và giới hạn ở [docs/AUDIT.md](docs/AUDIT.md).
 5. **Luật đăng ký trước:** `sentinel_pulse/protocol/*.json`. Luật được băm SHA-256 và đăng ký **trước khi có số**; báo cáo ghi giờ đăng ký và mọi bản bổ sung. Không đổi lựa chọn sau khi xem kết quả.
 6. **Dữ liệu thô:** trên NFS của cụm `/mnt/sentinel-pulse-archive`, không có trong git (mục dưới).
@@ -34,7 +34,7 @@ Ví dụ cây RCA thật có hình vẽ: [validation-evidence/rca/examples-20261
 ```
 sentinel_pulse/        mã nguồn: collector, detector, pipeline, attack (campaign, replay), syscall_study,
                        rca (cây bằng chứng), ops (đường cảnh báo vận hành), protocol (luật đăng ký trước)
-scripts/               *.sh: job đã chạy trên cụm (lệnh sinh ra kết quả); analysis/: phân tích trên biên nhận;
+scripts/               *.sh: job chạy trên cụm của hệ thống hiện tại và việc còn treo (job cũ: tag archive/pre-audit-20261110); analysis/: phân tích trên biên nhận;
                        figures/: hình cho luận văn; ssh_lab.py, sync_cluster_checkouts.sh: tiện ích cụm
 validation-evidence/   biên nhận, checksum, bảng kết quả, mẫu nhỏ (không sửa file đã niêm phong)
 testbed/               tải, binary tấn công, microbenchmark, manifest K8s (Tetragon, monitoring)
@@ -61,14 +61,10 @@ python3 -m venv ~/.venvs/sentinel-pulse
 ~/.venvs/sentinel-pulse/bin/python -m pytest -q -p no:cacheprovider tests
 ```
 
-Một số phân tích chạy lại được ngay trên biên nhận trong repo, ví dụ luật từng thành phần của nhóm feature:
+Một số phân tích chạy lại được ngay trên biên nhận trong repo, ví dụ kiểm toán mọi số chủ chốt của đồ án:
 
 ```bash
-F=validation-evidence/results-20261022/syscall/feature-groups-primary
-python3 scripts/analysis/feature_group_verdict.py \
-  --set pulse-attack-dev=$F/RESULTS-pulse-attack-dev.json,$F/BOOTSTRAP-pulse-attack-dev.json \
-  --set pulse-live-recalibrated=$F/RESULTS-pulse-live-recalibrated.json,$F/BOOTSTRAP-pulse-live-recalibrated.json \
-  --output /tmp/VERDICT.json
+python3 scripts/audit/headline_numbers.py
 ```
 
 Các job cần dữ liệu thô (fit model, replay, lượt live) chỉ chạy được trên cụm.

@@ -1,0 +1,114 @@
+{
+  "bench": [
+    {
+      "mode": "openclose",
+      "ns_per_op": 8547.254,
+      "ops": 35840,
+      "seconds": 0.306334
+    },
+    {
+      "mode": "read4k",
+      "ns_per_op": 2088.671,
+      "ops": 144384,
+      "seconds": 0.301571
+    },
+    {
+      "mode": "futex",
+      "ns_per_op": 1409.655,
+      "ops": 212992,
+      "seconds": 0.300245
+    }
+  ],
+  "cgroup_id": 172482,
+  "checks": {
+    "expected_tokens": {
+      "futex": true,
+      "openat!2": true,
+      "openat:r:/etc": true,
+      "openat:w:/tmp": true,
+      "read#12": true
+    },
+    "no_gram_insert_failure": true,
+    "no_task_state_failure": true,
+    "one_token_per_syscall": true,
+    "seccomp_seccomp": true,
+    "seccomp_setns": true,
+    "seccomp_skipped": true
+  },
+  "expected_token_counts": {
+    "futex": 212992,
+    "openat!2": 13,
+    "openat:r:/etc": 8,
+    "openat:w:/tmp": 35840,
+    "read#12": 144384
+  },
+  "fixture": {
+    "mprotect_success": 40,
+    "schema": "pulse-visibility-fixture-v1",
+    "seccomp_errno_eperm": 20,
+    "setns_errno_eperm": 20
+  },
+  "full_count_delta": {
+    "0": 144398,
+    "1": 9,
+    "10": 62,
+    "102": 1,
+    "104": 1,
+    "107": 2,
+    "108": 1,
+    "11": 8,
+    "110": 1,
+    "12": 18,
+    "13": 7,
+    "14": 3,
+    "15": 1,
+    "157": 2,
+    "158": 6,
+    "17": 12,
+    "202": 212992,
+    "21": 6,
+    "218": 6,
+    "221": 1,
+    "231": 6,
+    "257": 35876,
+    "262": 6,
+    "273": 6,
+    "3": 35871,
+    "302": 6,
+    "308": 20,
+    "317": 20,
+    "318": 6,
+    "33": 9,
+    "334": 6,
+    "39": 4,
+    "5": 24,
+    "58": 1,
+    "59": 9,
+    "61": 2,
+    "72": 4,
+    "87": 3,
+    "9": 68
+  },
+  "full_count_delta_total": 429484,
+  "last_drain": {
+    "dir_fail_cumulative": 0,
+    "drain_seconds": 0.001056,
+    "entries_cumulative": 203,
+    "grams_cumulative": 429484,
+    "insert_fail_cumulative": 0,
+    "lines": 0,
+    "observed_at": 1794300802.5770106,
+    "type": "token_drain"
+  },
+  "not_a_model_accuracy_measurement": true,
+  "schema": "pulse-token-proof-v1",
+  "stats": {
+    "snapshot_consistency_retries": 0,
+    "snapshot_consistency_retry_exhausted": 0,
+    "snapshot_projection_fail": 0,
+    "task_state_update_fail": 0
+  },
+  "token_events_after_first_snapshot": 429484,
+  "token_events_total": 429484,
+  "valid": true
+}

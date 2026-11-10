@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Launch a matched live run (shadow preview only) from k8s-master (.234) as user dat.
-# Generalises launch_pulse_live_recalibrated.sh; every pinned value comes from the environment:
+# Every pinned value comes from the environment:
 #
 #   LAB_SSH_PASSWORD=... RUN=pulse-stable-candidate SNAP=/mnt/.../source \
 #   CANDIDATE=/mnt/.../model-bundle MODEL_HASH=... POLICY=sentinel_pulse/protocol/x.json POLICY_HASH=... \
@@ -115,7 +115,7 @@ print(json.dumps(dict(
 PY
   as_root install -m 0640 -o root -g dat "/tmp/$RCA_NAME.json" "/etc/sentinel-pulse-rca/$RCA_NAME.json"
   rm -f "/tmp/$RCA_NAME.json"
-  # As launch_rca_subscriber.sh: write via a temp file, as_root owns stdin for the password.
+  # Write via a temp file: as_root owns stdin for the password.
   cat >"/tmp/$RCA_UNIT.service" <<UNIT
 [Unit]
 Description=Pulse RCA runtime-event subscriber ($RUN, read-only)

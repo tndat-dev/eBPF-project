@@ -1,0 +1,22 @@
+{
+ "schema": "sentinel-pulse-protocol-amendment-v1",
+ "amends": "sentinel_pulse/protocol/lidds-ml-v5.json (+ amendment 1)",
+ "registered_at": "2026-11-10T16:00+07:00",
+ "registered_before": "any score of the gate on LID-DS 2021 or CB-DS (the pool matrices are being computed, lidds_ml_v5.py has not run) and any fit with the extended normal",
+ "owner_decision": "10/11: learn the normal of pulse-live-v4-1109 too",
+ "why": "in a sample of pulse-live-v4-1109 every false-alarm window of the token branch (146 of 146) holds a 4-gram never seen in the 12 h capture, and 90 of 118 normal episodes repeat an earlier signature (reports/Hướng cải thiện sau lượt v4.md): the burden comes from coverage of the capture, not from the threshold rule",
+ "extended_normal": {
+  "data": "pulse-token-capture-1107 as before, plus pulse-live-v4-1109 from its selection end (09/11 15:29) to its capture end, without the windows of a container from 5 s before to 25 s after the start of any campaign interval on it (idle control, benign launch, attack). The first 90 minutes of that run are left out: 5 pods behaved abnormally until 14:01",
+  "use": "the same cross-fit over 30-minute chunks, token share 0.9; no learning while the system runs",
+  "risk": "a trace of a trial outside the margins would be learnt as normal. The margins cover the 15 s process and its launch; the next live run tests the result blind",
+  "command": "scripts/analysis/token_branch_fit.py ... --folds 5 --fold-seconds 1800 --share 0.9 --pool-level 0.01 --exec-hold 1 --extra-run <run root> --extra-span <selection end> <capture end>; the pool fits of every hold are stored, so the level and hold given here do not fix the choice"
+ },
+ "step_2": {
+  "tool": "scripts/analysis/pulse_v5_select.py: the trials of pulse-live-v4-1109 scored with the new fit; they are held out of it by the margins above",
+  "order": "primary recall >= 95 %, lowest benign flag rate, a phase candidate before a hold candidate, the shorter seconds, the looser pool level",
+  "dropped": "the criterion 'fewest normal episodes' of the protocol: the normal of pulse-live-v4-1109 is now learnt, so its episodes are no longer an out-of-sample measure. The burden is measured by the live run",
+  "phase_threshold": "as amendment 1, computed by the same tool; scripts/analysis/token_phase_threshold.py is removed"
+ },
+ "probe": "the live run uses the token build of commit a01b843 (/home/dat/pulse-tokens-20261110): the fexit variant and the legacy ABIs are removed, its four program sections are byte-identical to the build of 46e9039, and its collector proof passed on the three workers on 10/11",
+ "limits": "the benign binary and the attacks of the next live run are the same fixture whose trials chose the gate; the admin commands are the blind class"
+}

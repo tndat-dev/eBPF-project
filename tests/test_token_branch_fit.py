@@ -63,18 +63,22 @@ def test_trim_drops_at_least_the_largest_maximum():
     assert f.trimmed_gumbel(x) == f.gumbel(list(range(1, 100)))
 
 
-def test_phase_maxima_read_only_benign_launches_within_the_phase():
-    import token_phase_threshold as tp
-    tok = lambda nr: nr << 23
-    pool = CountTokenLM()
-    pool.learn_window([[TOK_NONE, TOK_NONE, tok(1), tok(2), 50]])
-    pool.finalize()
-    base = dict(pod_uid='p', container_name='c')
-    odd = [TOK_NONE, TOK_NONE, tok(7), tok(8), 5]
-    launch = [odd, [TOK_NONE, TOK_NONE, tok(7), tok(59), 1]]
-    windows = [dict(base, window_end=100.5, grams=launch),      # execve inside the benign launch
-               dict(base, window_end=103.0, grams=[odd]),       # the launch, after the phase
-               dict(base, window_end=200.5, grams=launch)]      # execve outside any benign launch
-    maxima = tp.launch_maxima(windows, {('p', 'c'): [100.0]}, pool, 1.0)
-    assert list(maxima) == [('p', 'c', 100.0)]
-    assert maxima[('p', 'c', 100.0)] == pool.window_score(launch)
+def test_split_adds_the_extra_run_without_its_trials(tmp_path):
+    def run(name, rows):
+        seg = tmp_path / name / 'workers' / 'n' / 'segments' / 's00001'
+        seg.mkdir(parents=True)
+        (seg / 'tokens.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        return tmp_path / name
+    row = lambda end, pod='p': dict(window_end=end, workload_key='w', pod_uid=pod, container_name='c', grams=COMMON)
+    capture = run('capture', [row(10.0), row(99.0), row(100.0)])
+    live = run('live', [row(150.0), row(994.9), row(995.0), row(1010.0), row(1024.9), row(1025.0), row(1010.0, 'other'), row(2000.0)])
+    camp = live / 'pulse-development-matrix'
+    camp.mkdir()
+    (camp / 'INTERVALS.jsonl').write_text(json.dumps(dict(pod_uid='p', container_name='c', start_at=1000.0)) + '\n')
+    spans = f.trial_spans(camp)
+    assert spans == {('p', 'c'): [(995.0, 1025.0)]}
+    work = tmp_path / 'work'
+    work.mkdir()
+    names = f.split([(capture, 0.0, 100.0, None), (live, 200.0, 2000.0, spans)], work)
+    kept = [(json.loads(l)['window_end'], json.loads(l)['pod_uid']) for l in names['w'].read_text().splitlines()]
+    assert kept == [(10.0, 'p'), (99.0, 'p'), (994.9, 'p'), (1025.0, 'p'), (1010.0, 'other')]

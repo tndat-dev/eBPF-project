@@ -31,8 +31,8 @@ Kèm theo: 9 file test của các module đã xoá.
 - Bản `matched`: mọi section chương trình giống hệt; loader sau `strip` giống từng byte.
 - Bản `tokens`: bốn section còn lại (`sys_enter`, `sys_exit`, `__seccomp_filter`, `.text`) giống từng byte; khác biệt duy nhất là
   mất 39 section `fexit` và số thứ tự kiểu BTF.
-- Còn thiếu: chạy `token_probe_proof.py` với bản build mới trên worker (chỉ làm được khi lượt live đã dừng). Cho tới khi có
-  proof mới, các lượt chạy vẫn dùng bản build đã có proof ở `/home/dat/pulse-tokens-20261107`.
+- Proof của bản build mới (`/home/dat/pulse-tokens-20261110`, commit a01b843) đạt trên cả 3 worker ngày 10/11 15:53;
+  biên nhận `validation-evidence/results-20261110/token-probe-build/`.
 
 ## Phản biện: giả định yếu và chỗ phức tạp quá mức
 
@@ -62,9 +62,15 @@ Chưa sửa các mục này trong đợt này; lý do ghi ở từng mục.
 9. **Tài liệu trùng và cũ:** `TODO.md` còn các mục "đang chạy" từ 29/10; `notes/STATE.md` mới là trạng thái thật. Là file của chủ
    đồ án nên không tự xoá.
 
+## Đợt hai (10/11 chiều, chủ đồ án đồng ý mục 1)
+
+Xoá thêm 4.352 dòng, 69 file: 31 script của các lượt đã xong, 25 script phân tích của thí nghiệm đã xong (kể cả
+`attack/select_policy.py`), 13 file test riêng của chúng. Kiểm trước khi xoá: không file code nào còn lại gọi hay import chúng.
+Giữ lại vì còn được dùng: `ideas_screen.py`, `ideas_burden.py`, `tripwire_verdict.py`, `lidds_ml_token_{inventory,variants}.py`.
+README đổi hợp đồng: script cũ ở tag, biên nhận mới ghi commit. Test còn 525, audit số 50/50.
+
 ## Thứ tự đề xuất cho phần còn lại
 
 1. Sau lượt live v5: sửa mục 2 và 7 cùng nhau, rồi chạy một lượt smoke.
-2. Khi chủ đồ án đồng ý mục 1: xoá 59 script, sửa README, thêm commit vào mọi biên nhận mới.
 3. Xoá calibration tự làm mới (mục 4) kèm protocol và test của nó.
 4. Sau so sánh có/không luật: quyết định mục 4 (phần còn lại) và mục 5.

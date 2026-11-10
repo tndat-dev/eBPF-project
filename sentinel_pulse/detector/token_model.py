@@ -201,7 +201,7 @@ class TokenBranch:
         key = (window['pod_uid'], window['container_name'])
         if has_execve(window['grams']):
             self.last_exec[key] = window['window_end']
-        held = window['window_end'] - self.last_exec.get(key, -math.inf) <= self.hold
+        held = self.hold > 0 and window['window_end'] - self.last_exec.get(key, -math.inf) <= self.hold
         pool_score = self.pool.window_score(window['grams'])
         threshold = self.pool_thresholds[window['workload_key']]
         passes = (pool_score > self.phase_threshold) if held and self.phase_threshold is not None else (
