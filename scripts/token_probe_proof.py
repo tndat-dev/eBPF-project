@@ -12,7 +12,7 @@ This proof repeats the matched build's checks and adds the token ones:
   openat:w:/tmp, read#12, futex, openat!2 and openat:r:/etc;
 - no loss: no gram insert failure and no task-state insert failure.
 
-    python3 token_probe_proof.py --build DIR --proof DIR --source-commit SHA [--token-exit sys_exit|fexit]
+    python3 token_probe_proof.py --build DIR --proof DIR --source-commit SHA
 """
 import argparse
 import hashlib
@@ -58,7 +58,6 @@ def main():
     ap.add_argument('--build', type=Path, required=True)
     ap.add_argument('--proof', type=Path, required=True)
     ap.add_argument('--source-commit', required=True)
-    ap.add_argument('--token-exit', choices=('sys_exit', 'fexit'), default='sys_exit')
     a = ap.parse_args()
     if os.geteuid() != 0:
         sys.exit('run as root')
@@ -69,13 +68,13 @@ def main():
     (a.proof / 'allowed-cgroup').write_text(f'{cgid}\n')
     start = dict(schema='pulse-token-proof-start-v1', artifact_sha256={n: sha(a.build / n) for n in ARTIFACTS},
                  cgroup_id=cgid, cgroup_path=str(cg), isolated_cgroup_only=True, kernel=platform.release(),
-                 modifies_production_policies=False, token_exit=a.token_exit, source_commit=a.source_commit, started_at_unix=time.time())
+                 modifies_production_policies=False, token_exit='sys_exit', source_commit=a.source_commit, started_at_unix=time.time())
     (a.proof / 'START.json').write_text(json.dumps(start, indent=2, sort_keys=True) + '\n')
     raw = (a.proof / 'raw.jsonl').open('w')
     err = (a.proof / 'loader.stderr').open('w')
     loader = subprocess.Popen([str(a.build / 'pulse_counter_tokens_loader'), '--object', str(a.build / 'pulse_counter_tokens.bpf.o'),
                                '--allow-cgroup-file', str(a.proof / 'allowed-cgroup'), '--interval-ms', '500',
-                               '--tokens', 'grams', '--token-exit', a.token_exit], stdout=raw, stderr=err)
+                               '--tokens', 'grams'], stdout=raw, stderr=err)
     try:
         for _ in range(600):
             if 'sentinel-pulse attached' in (a.proof / 'loader.stderr').read_text():

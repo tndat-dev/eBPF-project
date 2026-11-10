@@ -21,17 +21,7 @@
 #include <linux/types.h>
 #include "pulse_token_ids.h"
 #endif
-#ifdef PULSE_PROJECTED_COUNTERS
 #include "pulse_counter_projection.h"
-#else
-struct pulse_counters {
-    uint64_t syscall_bins[PULSE_SYSCALL_BINS];
-    uint64_t transition_bins[PULSE_TRANSITION_BINS];
-    uint64_t tracked[PULSE_TRACKED];
-    uint64_t total;
-};
-#define pulse_snapshot pulse_counters
-#endif
 
 static const uint32_t tracked_ids[PULSE_TRACKED] = {
     0, 1, 2, 3, 9, 10, 41, 42, 43, 44, 45, 56, 59, 90, 101,
@@ -147,46 +137,6 @@ static int refresh_targets_bounded(int map_fd, const char *path, int cpu_count)
     return result;
 }
 
-#ifndef PULSE_PROJECTED_COUNTERS
-static int per_cpu_snapshot_consistent(
-    const unsigned char *per_cpu, int cpu_count, size_t stride)
-{
-    for (int cpu = 0; cpu < cpu_count; cpu++) {
-        const struct pulse_counters *value =
-            (const struct pulse_counters *)(per_cpu + (size_t)cpu * stride);
-        uint64_t binned = 0;
-        for (int bin = 0; bin < PULSE_SYSCALL_BINS; bin++)
-            binned += value->syscall_bins[bin];
-        if (binned != value->total)
-            return 0;
-    }
-    return 1;
-}
-
-static int lookup_consistent_snapshot(
-    int map_fd, const uint64_t *key, unsigned char *per_cpu,
-    int cpu_count, size_t stride, uint64_t *consistency_retries)
-{
-    for (int attempt = 0; attempt < PULSE_SNAPSHOT_RETRIES; attempt++) {
-        memset(per_cpu, 0, (size_t)cpu_count * stride);
-        if (bpf_map_lookup_elem(map_fd, key, per_cpu) < 0)
-            return -errno;
-        /* A map copy can land between the adjacent total and bin writes.
-         * Retry that boundary read rather than accepting a distribution that
-         * never existed or weakening the integrity gate. */
-        if (per_cpu_snapshot_consistent(per_cpu, cpu_count, stride))
-            return 0;
-        (*consistency_retries)++;
-        /* Immediate back-to-back lookups can repeatedly intersect the same
-         * high-rate syscall burst on a hot cgroup.  A short, bounded pause
-         * changes the sampling phase while keeping the worst-case retry wait
-         * below 1.6 ms per target at the 500 ms collection cadence. */
-        if (attempt + 1 < PULSE_SNAPSHOT_RETRIES)
-            usleep(PULSE_SNAPSHOT_RETRY_DELAY_US);
-    }
-    return -EAGAIN;
-}
-#endif
 
 static int print_snapshots(
     int map_fd, int cpu_count, double observed_at,
@@ -194,26 +144,16 @@ static int print_snapshots(
     uint64_t *consistency_retry_exhausted,
     uint64_t *projection_failures)
 {
-#ifdef PULSE_PROJECTED_COUNTERS
     (void)consistency_retries;
     (void)consistency_retry_exhausted;
-#else
-    (void)projection_failures;
-#endif
     size_t stride = (sizeof(struct pulse_counters) + 7U) & ~7U;
     unsigned char *per_cpu = calloc((size_t)cpu_count, stride);
     if (!per_cpu) return -ENOMEM;
     uint64_t key = 0, next = 0;
     int has_key = 0, printed = 0;
     while (bpf_map_get_next_key(map_fd, has_key ? &key : NULL, &next) == 0) {
-#ifdef PULSE_PROJECTED_COUNTERS
         memset(per_cpu, 0, (size_t)cpu_count * stride);
         int lookup = bpf_map_lookup_elem(map_fd, &next, per_cpu) < 0 ? -errno : 0;
-#else
-        int lookup = lookup_consistent_snapshot(
-            map_fd, &next, per_cpu, cpu_count, stride,
-            consistency_retries);
-#endif
         if (lookup == -EAGAIN) {
             (*consistency_retry_exhausted)++;
         } else if (lookup == 0) {
@@ -221,29 +161,18 @@ static int print_snapshots(
             int projection_ok = 1;
             for (int cpu = 0; cpu < cpu_count; cpu++) {
                 struct pulse_counters *value = (struct pulse_counters *)(per_cpu + (size_t)cpu * stride);
-#ifdef PULSE_PROJECTED_COUNTERS
                 if (pulse_project_cpu(value, &sum) != 0) {
                     projection_ok = 0;
                     (*projection_failures)++;
                     break;
                 }
-#else
-                sum.total += value->total;
-                for (int bin = 0; bin < PULSE_SYSCALL_BINS; bin++) sum.syscall_bins[bin] += value->syscall_bins[bin];
-                for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++) sum.transition_bins[bin] += value->transition_bins[bin];
-                for (int slot = 0; slot < PULSE_TRACKED; slot++) sum.tracked[slot] += value->tracked[slot];
-#endif
             }
             if (!projection_ok) {
                 key = next; has_key = 1;
                 continue;
             }
-#ifdef PULSE_SECCOMP_EXTENDED
             printf("{\"type\":\"cgroup_snapshot_extended\",\"telemetry_contract\":\"pulse-entered-plus-seccomp-skip-v1\",\"seccomp_skipped_or_emulated\":%llu,\"observed_at\":%.9f,\"cgroup_id\":%llu,\"total\":%llu,\"counts\":{",
                    (unsigned long long)sum.seccomp_skipped_or_emulated,
-#else
-            printf("{\"type\":\"cgroup_snapshot\",\"observed_at\":%.9f,\"cgroup_id\":%llu,\"total\":%llu,\"counts\":{",
-#endif
                    observed_at, (unsigned long long)next, (unsigned long long)sum.total);
             for (int slot = 0; slot < PULSE_TRACKED; slot++)
                 printf("%s\"%u\":%llu", slot ? "," : "", tracked_ids[slot], (unsigned long long)sum.tracked[slot]);
@@ -254,7 +183,6 @@ static int print_snapshots(
             for (int bin = 0; bin < PULSE_TRANSITION_BINS; bin++)
                 printf("%s%llu", bin ? "," : "", (unsigned long long)sum.transition_bins[bin]);
             printf("]");
-#ifdef PULSE_FULL_IDS
             printf(",\"full_counts\":{");
             int separator = 0;
             for (int id = 0; id < 1024; id++) {
@@ -263,22 +191,6 @@ static int print_snapshots(
                        (unsigned long long)sum.full_counts[id]);
             }
             printf("}");
-#endif
-#ifdef PULSE_EXEC_INTENT
-            printf(",\"exec_intent\":{\"contract\":\"exec-intent-v1\",\"execs\":%llu,\"young_startup_calls\":%llu,\"young_steady_calls\":%llu,\"young_steady\":{",
-                   (unsigned long long)sum.execs, (unsigned long long)sum.young_startup_calls,
-                   (unsigned long long)sum.young_steady_calls);
-            for (int slot = 0, sep = 0; slot < PULSE_TRACKED; slot++) {
-                if (!sum.young_steady_tracked[slot]) continue;
-                printf("%s\"%u\":%llu", sep++ ? "," : "", tracked_ids[slot], (unsigned long long)sum.young_steady_tracked[slot]);
-            }
-            printf("},\"failed\":{");
-            for (int slot = 0, sep = 0; slot < PULSE_TRACKED; slot++) {
-                if (!sum.failed_tracked[slot]) continue;
-                printf("%s\"%u\":%llu", sep++ ? "," : "", tracked_ids[slot], (unsigned long long)sum.failed_tracked[slot]);
-            }
-            printf("}}");
-#endif
             printf("}\n");
             printed++;
         }
@@ -392,7 +304,7 @@ int main(int argc, char **argv)
     const char *object_path = NULL, *allow_file = NULL;
     unsigned interval_ms = 1000;
 #ifdef PULSE_TOKENS
-    const char *token_mode = "grams", *token_exit = "sys_exit";
+    const char *token_mode = "grams";
 #endif
     for (int index = 1; index < argc; index++) {
         if (!strcmp(argv[index], "--object") && index + 1 < argc) object_path = argv[++index];
@@ -400,7 +312,6 @@ int main(int argc, char **argv)
         else if (!strcmp(argv[index], "--interval-ms") && index + 1 < argc) interval_ms = (unsigned)strtoul(argv[++index], NULL, 10);
 #ifdef PULSE_TOKENS
         else if (!strcmp(argv[index], "--tokens") && index + 1 < argc) token_mode = argv[++index];
-        else if (!strcmp(argv[index], "--token-exit") && index + 1 < argc) token_exit = argv[++index];
 #endif
         else { fprintf(stderr, "usage: %s --object PATH --allow-cgroup-file PATH [--interval-ms 1000]\n", argv[0]); return 2; }
     }
@@ -412,10 +323,6 @@ int main(int argc, char **argv)
     else if (!strcmp(token_mode, "exit")) token_config = (struct pulse_tok_config){ .futex_at_exit = 1, .count_grams = 0 };
     else if (!strcmp(token_mode, "grams")) token_config = (struct pulse_tok_config){ .futex_at_exit = 1, .count_grams = 1 };
     else { fprintf(stderr, "--tokens must be exit-nofutex, exit or grams\n"); return 2; }
-    /* where hooked calls give their token at return: one raw_tp/sys_exit program (default) or one fexit trampoline
-     * per hooked syscall (pulse_tokens.bpf.h explains why fexit slows other ftrace users' functions) */
-    int exit_by_tracepoint = !strcmp(token_exit, "sys_exit");
-    if (!exit_by_tracepoint && strcmp(token_exit, "fexit")) { fprintf(stderr, "--token-exit must be sys_exit or fexit\n"); return 2; }
     if (token_config.count_grams && interval_ms % 500) { fprintf(stderr, "--tokens grams needs an interval that is a multiple of 500 ms\n"); return 2; }
     gram_keys = calloc(PULSE_GRAM_ENTRIES, sizeof(*gram_keys));
     old_keys = calloc(PULSE_GRAM_ENTRIES, sizeof(*old_keys));
@@ -434,26 +341,6 @@ int main(int argc, char **argv)
     if (!token_config_map || bpf_map__set_initial_value(token_config_map, &token_config, sizeof(token_config))) {
         fprintf(stderr, "token config section missing or of another size\n"); bpf_object__close(object); return 1;
     }
-    struct bpf_program *token_program;
-    /* PULSE_TOK_SKIP=name,name,...: diagnostic only (which hook costs what); a skipped hook's syscall still waits for
-     * a token at return that never comes, so tokens are wrong with it set. Never set in a run. */
-    const char *token_skip = getenv("PULSE_TOK_SKIP");
-    int token_skipped = 0;
-    bpf_object__for_each_program(token_program, object) {   /* a program never attached need not be loaded */
-        const char *name = bpf_program__name(token_program);
-        if (!token_config.futex_at_exit && !strcmp(name, "pulse_tok_x_futex"))
-            bpf_program__set_autoload(token_program, false);
-        if (exit_by_tracepoint ? !strncmp(name, "pulse_tok_x_", 12) : !strcmp(name, "pulse_tok_sys_exit"))
-            bpf_program__set_autoload(token_program, false);
-        if (token_skip && !strncmp(name, "pulse_tok_", 10)) {
-            size_t length = strlen(name);
-            for (const char *at = strstr(token_skip, name); at; at = strstr(at + 1, name))
-                if ((at == token_skip || at[-1] == ',') && (at[length] == 0 || at[length] == ',')) {
-                    bpf_program__set_autoload(token_program, false); token_skipped++; break;
-                }
-        }
-    }
-    if (token_skipped) fprintf(stderr, "diagnostic: %d token hooks skipped (PULSE_TOK_SKIP); tokens are not valid\n", token_skipped);
 #endif
     if ((error = bpf_object__load(object))) { fprintf(stderr, "load BPF object: %s\n", strerror(-error)); bpf_object__close(object); return 1; }
     int cgroups_fd = bpf_object__find_map_fd_by_name(object, "pulse_cgroups");
@@ -483,7 +370,6 @@ int main(int argc, char **argv)
     struct bpf_link *link = program ? bpf_program__attach_raw_tracepoint(program, "sys_enter") : NULL;
     error = libbpf_get_error(link);
     if (!program || error) { fprintf(stderr, "attach raw tracepoint: %s\n", program ? strerror(-error) : "program missing"); if (error) link = NULL; bpf_object__close(object); return 1; }
-#ifdef PULSE_SECCOMP_EXTENDED
     program = bpf_object__find_program_by_name(object, "pulse_seccomp_skip");
     struct bpf_link *seccomp_link = program ? bpf_program__attach_trace(program) : NULL;
     error = libbpf_get_error(seccomp_link);
@@ -492,39 +378,17 @@ int main(int argc, char **argv)
         if (!error) bpf_link__destroy(seccomp_link);
         bpf_link__destroy(link); bpf_object__close(object); return 1;
     }
-#endif
-#ifdef PULSE_EXEC_INTENT
-    struct bpf_link *exec_link = NULL, *exit_link = NULL;
-    program = bpf_object__find_program_by_name(object, "pulse_process_exec");
-    exec_link = program ? bpf_program__attach(program) : NULL;
-    if (!program || libbpf_get_error(exec_link)) { fprintf(stderr, "exec-intent: sched_process_exec hook unavailable\n"); return 1; }
-    program = bpf_object__find_program_by_name(object, "pulse_sys_exit");
-    exit_link = program ? bpf_program__attach_raw_tracepoint(program, "sys_exit") : NULL;
-    if (!program || libbpf_get_error(exit_link)) { fprintf(stderr, "exec-intent: sys_exit hook unavailable\n"); return 1; }
-#endif
 #ifdef PULSE_TOKENS
-    struct bpf_link *token_links[PULSE_HOOKED_COUNT + 1] = {0};
-    int token_link_count = 0;
-    bpf_object__for_each_program(token_program, object) {
-        const char *name = bpf_program__name(token_program);
-        if (strncmp(name, "pulse_tok_", 10) || !bpf_program__autoload(token_program)) continue;
-        if (token_link_count == PULSE_HOOKED_COUNT + 1) { fprintf(stderr, "more token programs than hooked syscalls\n"); return 1; }
-        struct bpf_link *token_link = !strcmp(name, "pulse_tok_sys_exit")
-            ? bpf_program__attach_raw_tracepoint(token_program, "sys_exit") : bpf_program__attach_trace(token_program);
-        if (libbpf_get_error(token_link)) { fprintf(stderr, "token hook %s unavailable\n", name); return 1; }
-        token_links[token_link_count++] = token_link;
-    }
-    int token_expected = exit_by_tracepoint ? 1 : PULSE_HOOKED_COUNT - (token_config.futex_at_exit ? 0 : 1);
-    if (token_link_count + token_skipped != token_expected) {
-        fprintf(stderr, "token hooks attached: %d, expected %d\n", token_link_count, token_expected);
-        return 1;
-    }
+    /* hooked calls give their token at return through one raw_tp/sys_exit program (pulse_tokens.bpf.h) */
+    struct bpf_program *token_program = bpf_object__find_program_by_name(object, "pulse_tok_sys_exit");
+    struct bpf_link *token_link = token_program ? bpf_program__attach_raw_tracepoint(token_program, "sys_exit") : NULL;
+    if (!token_program || libbpf_get_error(token_link)) { fprintf(stderr, "token hook pulse_tok_sys_exit unavailable\n"); return 1; }
     int grams_fd = bpf_object__find_map_fd_by_name(object, "pulse_grams");
     int token_stats_fd = bpf_object__find_map_fd_by_name(object, "pulse_tok_stats");
     uint64_t *token_scratch = calloc((size_t)cpu_count, sizeof(uint64_t));
     if (grams_fd < 0 || token_stats_fd < 0 || !token_scratch) { fprintf(stderr, "token maps missing\n"); return 1; }
     uint64_t grams_drained = 0;
-    fprintf(stderr, "token probe: mode=%s exit=%s hooks=%d\n", token_mode, token_exit, token_link_count);
+    fprintf(stderr, "token probe: mode=%s exit=sys_exit hooks=1\n", token_mode);
 #endif
     fprintf(stderr, "sentinel-pulse attached; interval=%ums targets=%d cpus=%d\n", interval_ms, targets, cpu_count);
     uint64_t consistency_retries = 0;
@@ -585,11 +449,9 @@ int main(int argc, char **argv)
         fflush(stdout);
     }
 #ifdef PULSE_TOKENS
-    for (int index = 0; index < token_link_count; index++) bpf_link__destroy(token_links[index]);
+    bpf_link__destroy(token_link);
 #endif
-#ifdef PULSE_SECCOMP_EXTENDED
     bpf_link__destroy(seccomp_link);
-#endif
     bpf_link__destroy(link); bpf_object__close(object);
     return targets <= 0 ? 1 : 0;
 }

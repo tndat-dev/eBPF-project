@@ -1,0 +1,8 @@
+rule = a window with at least k workload-unseen 4-grams; LM = the v4 token alert
+control intervals 132 {'k>=1': 33, 'k>=2': 32, 'k>=3': 24, 'k>=5': 5, 'k>=10': 1, 'k>=20': 0} LM 3
+benign intervals 136 {'k>=1': 136, 'k>=2': 136, 'k>=3': 133, 'k>=5': 132, 'k>=10': 132, 'k>=20': 83} LM 134
+attack intervals 133 {'k>=1': 133, 'k>=2': 133, 'k>=3': 133, 'k>=5': 133, 'k>=10': 133, 'k>=20': 98} LM 133
+normal windows 3865 share with >=1 unseen 4-gram 0.0497 LM alert share 0.00078
+normal alarm windows 146 {'has_unseen_4gram': 146} distinct top-gram signatures 49 counts [45, 40, 4, 3, 3, 2, 2, 2]
+episodes 118 with a signature not seen in any earlier alarm 28
+ by workload (episodes, new): [('aims-kafka-dual-role:k', 89, 5), ('aims-minio-pool-0:mini', 8, 7), ('aims-redis:aims-redis', 5, 2), ('aims-rabbitmq-server:r', 4, 4), ('aims-redis-sentinel-se', 4, 2), ('aims-waypoint:istio-pr', 3, 3), ('aims-kafka-entity-oper', 2, 2), ('cart-service:app', 2, 2)]

@@ -3,9 +3,7 @@ CC ?= cc
 ARCH ?= x86
 BPF_CFLAGS := -g -O2 -target bpf -D__TARGET_ARCH_$(ARCH) -I.
 
-.PHONY: all check-deps clean syscall-histogram
-
-all: check-deps pulse_counter.bpf.o pulse_counter_loader
+.PHONY: check-deps
 
 check-deps:
 	@command -v $(CLANG) >/dev/null || { echo "missing clang" >&2; exit 1; }
@@ -13,28 +11,6 @@ check-deps:
 	@command -v bpftool >/dev/null || { echo "missing bpftool" >&2; exit 1; }
 	@test -r /sys/kernel/btf/vmlinux || { echo "missing kernel BTF" >&2; exit 1; }
 	@test -r /usr/include/bpf/libbpf.h || { echo "missing libbpf headers" >&2; exit 1; }
-
-vmlinux.h:
-	bpftool btf dump file /sys/kernel/btf/vmlinux format c > $@
-
-pulse_counter.bpf.o: pulse_counter.bpf.c pulse_counter_ids.h vmlinux.h
-	$(CLANG) $(BPF_CFLAGS) -c $< -o $@
-
-pulse_counter_loader: pulse_counter_loader.c pulse_counter_ids.h pulse_counter_projection.h
-	$(CC) -O2 -Wall -Wextra $< -o $@ -lbpf -lelf -lz
-
-# Explicit opt-in; default/all and installed production binaries stay legacy.
-.PHONY: projected
-projected: check-deps pulse_counter_projected.bpf.o pulse_counter_projected_loader
-
-pulse_counter_projected.bpf.o: pulse_counter.bpf.c pulse_counter_ids.h vmlinux.h
-	$(CLANG) $(BPF_CFLAGS) -DPULSE_PROJECTED_COUNTERS -c $< -o $@
-
-pulse_counter_projected_loader: pulse_counter_loader.c pulse_counter_projection.h pulse_counter_ids.h
-	$(CC) -O2 -Wall -Wextra -DPULSE_PROJECTED_COUNTERS $< -o $@ -lbpf -lelf -lz
-
-clean:
-	rm -f pulse_counter.bpf.o pulse_counter_loader vmlinux.h
 
 # Isolated proof of the pre-sys_enter seccomp visibility boundary. No default
 # collector, map layout, installed binary or frozen candidate is changed.
@@ -46,55 +22,26 @@ visibility: check-deps
 	$(CLANG) $(BPF_CFLAGS) -I"$(VISIBILITY_BUILD_DIR)" -c visibility_probe.bpf.c -o "$(VISIBILITY_BUILD_DIR)/visibility_probe.bpf.o"
 	$(CC) -O2 -Wall -Wextra -Werror visibility_probe.c -o "$(VISIBILITY_BUILD_DIR)/visibility_probe" -lbpf -lelf -lz
 
-# New map ABI and new output record type; never installed over frozen loaders.
-.PHONY: extended
-extended: check-deps
-	@test -n "$(EXTENDED_BUILD_DIR)" || { echo 'explicit EXTENDED_BUILD_DIR required' >&2; exit 2; }
-	mkdir -p "$(EXTENDED_BUILD_DIR)"
-	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(EXTENDED_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(EXTENDED_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -c pulse_counter.bpf.c -o "$(EXTENDED_BUILD_DIR)/pulse_counter_extended.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED pulse_counter_loader.c -o "$(EXTENDED_BUILD_DIR)/pulse_counter_extended_loader" -lbpf -lelf -lz
-	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(EXTENDED_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
-
-# Separate exact per-ID histogram object for syscall-selection experiments.
-# This target only builds artifacts; it never attaches a probe or touches the
-# frozen collector binary/service.
-syscall-histogram: check-deps
-	@test -n "$(HISTOGRAM_BUILD_DIR)" || { echo 'explicit HISTOGRAM_BUILD_DIR required' >&2; exit 2; }
-	mkdir -p "$(HISTOGRAM_BUILD_DIR)"
-	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(HISTOGRAM_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(HISTOGRAM_BUILD_DIR)" -c syscall_histogram.bpf.c -o "$(HISTOGRAM_BUILD_DIR)/syscall_histogram.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror syscall_histogram_loader.c -o "$(HISTOGRAM_BUILD_DIR)/syscall_histogram_loader" -lbpf -lelf -lz
-
-# Opt-in matched observable: derive the same Pulse counters and bins from
-# authoritative full-ID words, including the existing seccomp skip hook.
+# The matched observable, the probe of the final system: full syscall-ID counts per cgroup, the transition sketch
+# and the seccomp skip hook. The legacy, projected-only and tracked-slot variants and the exec-intent counters are at
+# tag archive/pre-audit-20261110.
 .PHONY: matched
 matched: check-deps
 	@test -n "$(MATCHED_BUILD_DIR)" || { echo 'explicit MATCHED_BUILD_DIR required' >&2; exit 2; }
 	mkdir -p "$(MATCHED_BUILD_DIR)"
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(MATCHED_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(MATCHED_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -c pulse_counter.bpf.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS pulse_counter_loader.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended_loader" -lbpf -lelf -lz
+	$(CLANG) $(BPF_CFLAGS) -I"$(MATCHED_BUILD_DIR)" -c pulse_counter.bpf.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror pulse_counter_loader.c -o "$(MATCHED_BUILD_DIR)/pulse_counter_extended_loader" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(MATCHED_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
 
-# protocol exec-intent-v1 (30/10): the matched full-ID observable plus per-process exec phases and syscall failures
-# (sched_process_exec, raw_tp/sys_exit). Build only; the live matched build above is unchanged.
-.PHONY: exec-intent
-exec-intent: check-deps
-	@test -n "$(EXEC_INTENT_BUILD_DIR)" || { echo 'explicit EXEC_INTENT_BUILD_DIR required' >&2; exit 2; }
-	mkdir -p "$(EXEC_INTENT_BUILD_DIR)"
-	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(EXEC_INTENT_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(EXEC_INTENT_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT -c pulse_counter.bpf.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_EXEC_INTENT pulse_counter_loader.c -o "$(EXEC_INTENT_BUILD_DIR)/pulse_counter_exec_intent_loader" -lbpf -lelf -lz
-
-# Token probe of lidds-ml-v3 (reports/Thiết kế probe token Pulse.md): the matched full-ID observable plus fexit token
-# hooks and the per-window 4-gram map. Build only; the live matched build above is unchanged.
+# Token probe of the lidds-ml token branch (reports/Thiết kế probe token Pulse.md): the matched observable plus the
+# select1f tokens (one raw_tp/sys_exit program) and the per-window 4-gram map.
 .PHONY: tokens
 tokens: check-deps
 	@test -n "$(TOKENS_BUILD_DIR)" || { echo 'explicit TOKENS_BUILD_DIR required' >&2; exit 2; }
 	mkdir -p "$(TOKENS_BUILD_DIR)"
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > "$(TOKENS_BUILD_DIR)/vmlinux.h"
-	$(CLANG) $(BPF_CFLAGS) -I"$(TOKENS_BUILD_DIR)" -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_TOKENS -c pulse_counter.bpf.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens.bpf.o"
-	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_PROJECTED_COUNTERS -DPULSE_SECCOMP_EXTENDED -DPULSE_FULL_IDS -DPULSE_TOKENS pulse_counter_loader.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens_loader" -lbpf -lelf -lz
+	$(CLANG) $(BPF_CFLAGS) -I"$(TOKENS_BUILD_DIR)" -DPULSE_TOKENS -c pulse_counter.bpf.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens.bpf.o"
+	$(CC) -O2 -Wall -Wextra -Werror -DPULSE_TOKENS pulse_counter_loader.c -o "$(TOKENS_BUILD_DIR)/pulse_counter_tokens_loader" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror seccomp_fixture.c -o "$(TOKENS_BUILD_DIR)/seccomp_fixture" -lbpf -lelf -lz
 	$(CC) -O2 -Wall -Wextra -Werror ../../testbed/bench/syscall_bench.c -o "$(TOKENS_BUILD_DIR)/syscall_bench"

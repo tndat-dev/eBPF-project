@@ -1,0 +1,9 @@
+baseline episodes 118 windows 146
+learn after 1 pod(s), 60 s: episodes 45 windows 73
+learn after 1 pod(s), 600 s: episodes 52 windows 80
+learn after 2 pod(s), 60 s: episodes 79 windows 107
+learn after 2 pod(s), 600 s: episodes 79 windows 107
+learn after 2 pod(s), 3600 s: episodes 80 windows 108
+attack trials with an alert window still holding a gram outside the learnt set 133 133
+benign trials with an alert window still holding a gram outside the learnt set 134 134
+learnt grams total 3677

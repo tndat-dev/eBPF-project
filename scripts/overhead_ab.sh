@@ -2,13 +2,12 @@
 # Pulse eBPF overhead A/B on one worker (protocol overhead-ab-v1), as root, only when no live run is active.
 #   BENCH=/path/syscall_bench LOADER=.../pulse_counter_extended_loader OBJECT=.../pulse_counter_extended.bpf.o \
 #   OUT=/var/tmp/overhead-ab/<node>.jsonl [ROUNDS=5] [SECONDS_PER_MODE=10] bash overhead_ab.sh
-#   [LOADER2=... OBJECT2=...]  adds a fourth condition, monitored2, with a second probe build (exec-intent-v1 P1)
 #   [TOKEN_LOADER=... TOKEN_OBJECT=...]  adds the token probe of lidds-ml-v3 (make tokens), conditions of
 #       reports/Thiết kế probe token Pulse.md section 5, all with the benchmark monitored unless said:
 #       tokB (--tokens exit-nofutex), tokC (--tokens exit), tokD (--tokens grams, the live probe),
 #       tokD_filtered (grams, benchmark cgroup not monitored); "monitored" is condition A there.
-#       The token loader's default is --token-exit sys_exit (amendment 1); TOKEN_FEXIT=1 adds tokDfx and
-#       tokDfx_filtered with --token-exit fexit (one trampoline per hooked syscall, the first measurement).
+#       The conditions monitored2 (exec-intent build) and tokDfx (fexit token hooks) of earlier receipts are at tag
+#       archive/pre-audit-20261110; scripts/analysis/overhead_ab.py still reads them.
 #   [MODES="getpid read4k ..."]  benchmark modes (default all five, futex included)
 # Conditions, rotated each round to cancel drift:
 #   off        - no Pulse probe attached on the node;
@@ -35,10 +34,8 @@ loader_pid=
 stop_loader() { [ -n "$loader_pid" ] && kill "$loader_pid" 2>/dev/null && wait "$loader_pid" 2>/dev/null; loader_pid=; }
 trap 'stop_loader; rm -f "$ALLOW_MON" "$ALLOW_NONE" "${LOG:-}"; rmdir "$CG" 2>/dev/null || true' EXIT
 CONDS=(off filtered monitored)
-[ -n "${LOADER2:-}" ] && CONDS+=(monitored2)
 [ -n "${TOKEN_LOADER:-}" ] && CONDS+=(tokB tokC tokD tokD_filtered)
-[ -n "${TOKEN_LOADER:-}" ] && [ -n "${TOKEN_FEXIT:-}" ] && CONDS+=(tokDfx tokDfx_filtered)
-# start a loader and wait until it reports attached (40 fexit links take ~10 s: synchronize_rcu_tasks per link)
+# start a loader and wait until it reports attached
 start_loader() {  # loader object allow log [args...]
   local loader=$1 object=$2 allow=$3 log=$4; shift 4
   "$loader" --object "$object" --allow-cgroup-file "$allow" --interval-ms 500 "$@" > /dev/null 2> "$log" & loader_pid=$!
@@ -61,10 +58,6 @@ for round in $(seq 1 "$ROUNDS"); do
       tokC) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_MON" "$LOG" --tokens exit ;;
       tokD) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_MON" "$LOG" --tokens grams ;;
       tokD_filtered) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_NONE" "$LOG" --tokens grams ;;
-      tokDfx) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_MON" "$LOG" --tokens grams --token-exit fexit ;;
-      tokDfx_filtered) start_loader "$TOKEN_LOADER" "$TOKEN_OBJECT" "$ALLOW_NONE" "$LOG" --tokens grams --token-exit fexit ;;
-      monitored2) "$LOADER2" --object "$OBJECT2" --allow-cgroup-file "$ALLOW_MON" --interval-ms 500 > "$OUT.monitored2-r$round.jsonl" 2>&1 & loader_pid=$!; sleep 3
-                  kill -0 "$loader_pid" 2>/dev/null || { echo "second probe failed to load: $(tail -3 "$OUT.monitored2-r$round.jsonl")" >&2; exit 4; } ;;
     esac
     for mode in "${MODES[@]}"; do
       line=$(sh -c "echo \$\$ > $CG/cgroup.procs && exec $BENCH $mode $SECS")

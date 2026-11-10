@@ -229,23 +229,12 @@ static __always_inline int pulse_tok_return(struct pulse_task_state *state, __u6
     return 0;
 }
 
-static __always_inline int pulse_tok_exit(__u32 nr, __u32 flags, const struct pt_regs *regs, long ret)
-{
-    __u64 pid_tgid = bpf_get_current_pid_tgid();
-    struct pulse_task_state *state = bpf_map_lookup_elem(&pulse_last_syscall, &pid_tgid);
-    if (!state)
-        return 0;   /* thread never entered a syscall in a monitored cgroup */
-    __u64 cgroup_id = bpf_get_current_cgroup_id();
-    if (state->cgroup_id != cgroup_id)
-        return 0;   /* sys_enter of this very call updated cgroup_id; a mismatch means it was not monitored */
-    return pulse_tok_return(state, cgroup_id, nr, flags, regs, ret);
-}
-
-/* The same tokens from one raw tracepoint instead of 39 fexit trampolines (loader --token-exit sys_exit). Every
- * fexit trampoline is one more ftrace_ops, and a function that another ftrace user also hooks (Tetragon's kprobes on
- * __x64_sys_openat, measured 07/11) goes through arch_ftrace_ops_list_func, which walks every ops: 40 trampolines
- * made open + close of every process on the node about 1-2 us slower. sys_enter already marks the call it saw
- * (tok_pending), so a call skipped by seccomp, which reaches sys_exit without running, gives no second token. */
+/* Hooked calls give their token at return through this one raw tracepoint, not through one fexit trampoline per
+ * syscall: every trampoline is one more ftrace_ops, and a function that another ftrace user also hooks (Tetragon's
+ * kprobes on __x64_sys_openat, measured 07/11) goes through arch_ftrace_ops_list_func, which walks every ops; 40
+ * trampolines made open + close of every process on the node about 1-2 us slower (the fexit variant is at tag
+ * archive/pre-audit-20261110). sys_enter already marks the call it saw (tok_pending), so a call skipped by seccomp,
+ * which reaches sys_exit without running, gives no second token. */
 SEC("raw_tp/sys_exit")
 int pulse_tok_sys_exit(struct bpf_raw_tracepoint_args *context)
 {
@@ -261,14 +250,5 @@ int pulse_tok_sys_exit(struct bpf_raw_tracepoint_args *context)
     return pulse_tok_return(state, cgroup_id, nr, pulse_tok_flags(nr), (const struct pt_regs *)context->args[0],
                             (long)context->args[1]);
 }
-
-#define PULSE_TOK_EXIT_PROG(number, name, flags)                                     \
-    SEC("fexit/__x64_sys_" #name)                                                     \
-    int BPF_PROG(pulse_tok_x_##name, const struct pt_regs *regs, long ret)            \
-    {                                                                                 \
-        return pulse_tok_exit(number, flags, regs, ret);                              \
-    }
-PULSE_HOOKED_ROWS(PULSE_TOK_EXIT_PROG)
-#undef PULSE_TOK_EXIT_PROG
 
 #endif

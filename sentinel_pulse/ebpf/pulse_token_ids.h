@@ -61,7 +61,6 @@
     X(437, openat2, PULSE_TF_OPEN_HOW)
 
 #define PULSE_FUTEX_NR 202
-#define PULSE_HOOKED_COUNT 39
 
 /* Token = 32 bits: syscall number in bits 23..31 (x86_64 numbers are < 512; larger ones are clamped to 511), detail
  * kind in bits 21..22, detail below:
